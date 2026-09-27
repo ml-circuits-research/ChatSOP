@@ -1,0 +1,11 @@
+state/
+outputs/
+models/
+vendor/
+.venv/
+*.gguf
+*.safetensors
+__pycache__/
+*.pyc
+work/
+.env

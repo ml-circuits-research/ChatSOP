@@ -1,0 +1,126 @@
+{
+  "setup": "@case_good trace\n  text \"senzor fierbinte și uscat\"\n  feature hot(device_0)\n  feature dry(device_0)\n  closed true\n  source synthetic\n@case_bad trace\n  text \"senzor fierbinte dar nu uscat\"\n  feature hot(other_0)\n  closed true\n  source synthetic\n",
+  "target": "@cue trace\n  text \"senzor fierbinte și uscat\"\n  feature hot(device_0)\n  feature dry(device_0)\n  closed false\n  source synthetic\n\n@cases pack\n  items ~case_good ~case_bad\n\n@result associate\n  cue $cue\n  data $cases\n  mode weaver\n\n@answer cnl\n  result $result\n  language ro\n",
+  "packet": {
+    "kind": "association",
+    "status": "candidates",
+    "complete": true,
+    "epistemic": "candidate",
+    "proof": [],
+    "assurance": "Result relative to the supplied finite model and the retained memory view; scores are not truth probabilities.",
+    "candidates": [
+      {
+        "kind": "retrieval-hint",
+        "id": "case_good",
+        "score": 1,
+        "source": "synthetic",
+        "features": [
+          {
+            "p": "hot",
+            "a": [
+              "device_0"
+            ],
+            "neg": false
+          },
+          {
+            "p": "dry",
+            "a": [
+              "device_0"
+            ],
+            "neg": false
+          }
+        ],
+        "epistemic": "candidate"
+      },
+      {
+        "kind": "retrieval-hint",
+        "id": "case_bad",
+        "score": 0.8,
+        "source": "synthetic",
+        "features": [
+          {
+            "p": "hot",
+            "a": [
+              "other_0"
+            ],
+            "neg": false
+          }
+        ],
+        "epistemic": "candidate"
+      }
+    ],
+    "mode": "weaver",
+    "scoreMeaning": "fraction of occupied projection cells",
+    "metadata": "Trace IDs and candidate features supplied explicitly; the associative bank does not enumerate identifiers.",
+    "search": {
+      "nodes": 5,
+      "exhausted": false,
+      "reason": null,
+      "limits": {
+        "maxNodes": 5000,
+        "maxDepth": 8,
+        "maxHypotheses": 64,
+        "maxCandidates": 512,
+        "maxPlans": 1,
+        "maxRounds": 32,
+        "maxFacts": 10000,
+        "maxJoins": 30000,
+        "maxAssignments": 100000,
+        "timeoutMs": 3000,
+        "now": 1790380800000,
+        "schema": null,
+        "operationMode": "weaver",
+        "limits": {
+          "allowWrite": true,
+          "allowPin": true,
+          "allowRules": false,
+          "allowJsEval": true,
+          "maxWires": 2048,
+          "maxEpochs": 16,
+          "maxGoals": 256,
+          "maxRules": 1024,
+          "retrievalStrategy": "auto",
+          "reasoningStrategy": "reference",
+          "maxNodes": 5000,
+          "maxDepth": 8,
+          "maxHypotheses": 64,
+          "maxCandidates": 512,
+          "maxPlans": 1,
+          "timeoutMs": 3000,
+          "maxProbes": 50000,
+          "maxShards": 256,
+          "maxFacts": 10000,
+          "maxRounds": 32,
+          "maxJoins": 30000,
+          "maxAssignments": 100000,
+          "maxExprOps": 10000,
+          "maxExprBytes": 65536
+        },
+        "allowWrite": true,
+        "allowPin": true,
+        "allowRules": false,
+        "allowJsEval": true,
+        "maxWires": 2048,
+        "maxEpochs": 16,
+        "maxGoals": 256,
+        "maxRules": 1024,
+        "retrievalStrategy": "auto",
+        "reasoningStrategy": "reference",
+        "maxProbes": 50000,
+        "maxShards": 256,
+        "maxExprOps": 10000,
+        "maxExprBytes": 65536
+      }
+    },
+    "ignored": [],
+    "route": {
+      "operation": "associate",
+      "backend": "js",
+      "fallback": null,
+      "semantics": "no-required-constraint-silently-dropped"
+    },
+    "reasoningStrategy": "reference",
+    "outputProjection": {}
+  },
+  "generated": []
+}

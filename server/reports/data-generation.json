@@ -1,0 +1,21 @@
+{
+  "profile": "sop-agent-2",
+  "worlds": 30,
+  "seed": 731,
+  "splitUnit": "synthetic world; all paraphrases inherit its split",
+  "counts": {
+    "formalizer": {
+      "train": 888,
+      "dev": 111,
+      "test": 111
+    },
+    "verbalizer": {
+      "train": 192,
+      "dev": 24,
+      "test": 24
+    }
+  },
+  "generation": "programmatic seed examples, not human or neural validation",
+  "grammarSHA": "3b93bc49a44716aab9aa60c3a289e9700bae863c5e15c92d87065bdc8ebd1dbe",
+  "promptSHA": "fca93f8e001f22df471c42cdb8f349583820ec66e2e1d9791db008414aae8e75"
+}

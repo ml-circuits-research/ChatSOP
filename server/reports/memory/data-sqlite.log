@@ -1,0 +1,18 @@
+{
+  "profile": "sop-agent-2",
+  "engine": "sqlite",
+  "memoryProfile": "legacy",
+  "checked": 1350,
+  "executed": 1110,
+  "groups": 30,
+  "counts": {
+    "formalizer/train": 888,
+    "formalizer/dev": 111,
+    "formalizer/test": 111,
+    "verbalizer/train": 192,
+    "verbalizer/dev": 24,
+    "verbalizer/test": 24
+  },
+  "failures": [],
+  "neuralModelTested": false
+}

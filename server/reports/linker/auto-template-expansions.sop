@@ -1,0 +1,57 @@
+# Epoch 1; this is a trace fragment, not a standalone program.
+@answer__route value
+  data "route_demo"
+
+@answer__start value
+  data 770
+
+@answer__deadline value
+  data 840
+
+@answer__travel query
+  select ?answer__duration
+  where duration($answer__route, ?answer__duration)
+
+@answer__retrieve_duration solve
+  query $answer__travel
+  output ?answer__duration one
+
+@answer__timing constraint
+  var ?answer__arrival int 0 1440
+  require ?answer__arrival == $answer__start + $answer__duration
+  claim ?answer__arrival <= $answer__deadline
+  task possible
+  unit minute
+
+@answer__feasibility solve
+  constraint $answer__timing
+  output ?answer__arrival one
+
+@answer__answer cnl
+  result $answer__feasibility
+  language ro
+
+# Epoch 2; this is a trace fragment, not a standalone program.
+@answer__retrieve_duration__link link
+  query $answer__travel
+  strategy hybrid
+
+@answer__retrieve_duration__reason reason
+  query $answer__travel
+  memory $answer__retrieve_duration__link
+
+@answer__duration binding
+  result $answer__retrieve_duration__reason
+  variable ?answer__duration
+  mode one
+  owner answer__retrieve_duration
+
+# Epoch 3; this is a trace fragment, not a standalone program.
+@answer__feasibility__reason reason
+  constraint $answer__timing
+
+@answer__arrival binding
+  result $answer__feasibility__reason
+  variable ?answer__arrival
+  mode one
+  owner answer__feasibility

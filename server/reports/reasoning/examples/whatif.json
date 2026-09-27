@@ -1,0 +1,218 @@
+{
+  "setup": "@known_a fact\n  holds parent(person_a_0, person_b_0)\n  valid timeless\n  source synthetic\n@known_b fact\n  holds parent(person_b_0, person_c_0)\n  valid timeless\n  source synthetic\n@grandparent_rule rule\n  when parent(?x, ?y)\n  when parent(?y, ?z)\n  then grandparent(?x, ?z)\n  mode logical\n",
+  "target": "@assumption hypothesis\n  holds parent(person_c_0, person_a_0)\n  cost 1\n\n@q query\n  where grandparent(person_c_0, person_b_0)\n  at 2026-09-26\n\n@result simulate\n  query $q\n  intervention $assumption\n  mode whatif\n\n@answer cnl\n  result $result\n  language ro\n",
+  "packet": {
+    "status": "supported",
+    "kind": "simulation",
+    "query": {
+      "kind": "query",
+      "variableTypes": {},
+      "mode": "exists",
+      "where": [
+        {
+          "p": "grandparent",
+          "a": [
+            "person_c_0",
+            "person_b_0"
+          ],
+          "neg": false
+        }
+      ],
+      "select": [],
+      "filters": [],
+      "limit": 100,
+      "at": 1790380800000,
+      "asof": 1790380800000
+    },
+    "conflictedAnswers": [],
+    "answers": [
+      {
+        "binding": {},
+        "valid": {
+          "from": null,
+          "until": null
+        },
+        "evidence": [
+          "d_462bbddb0dae38a7659cf357167e70a3"
+        ]
+      }
+    ],
+    "proof": [
+      {
+        "atom": {
+          "p": "grandparent",
+          "a": [
+            "person_c_0",
+            "person_b_0"
+          ],
+          "neg": false
+        },
+        "valid": {
+          "from": null,
+          "until": null
+        },
+        "id": "d_462bbddb0dae38a7659cf357167e70a3",
+        "kind": "derived",
+        "rule": "grandparent_rule",
+        "premises": [
+          "state_0_{\"a\":[\"person_c_0\",\"person_a_0\"],\"neg\":false,\"p\":\"parent\"}",
+          "c_a58dc824a0d0817c5183474087c3c830"
+        ]
+      },
+      {
+        "id": "state_0_{\"a\":[\"person_c_0\",\"person_a_0\"],\"neg\":false,\"p\":\"parent\"}",
+        "atom": {
+          "p": "parent",
+          "a": [
+            "person_c_0",
+            "person_a_0"
+          ],
+          "neg": false
+        },
+        "valid": {
+          "from": null,
+          "until": null
+        },
+        "kind": "assumed",
+        "source": "assumed",
+        "evidence": {
+          "local": true
+        },
+        "knownAt": 0
+      },
+      {
+        "id": "c_a58dc824a0d0817c5183474087c3c830",
+        "atom": {
+          "p": "parent",
+          "a": [
+            "person_a_0",
+            "person_b_0"
+          ],
+          "neg": false
+        },
+        "valid": {
+          "from": null,
+          "until": null
+        },
+        "source": "synthetic",
+        "quote": "",
+        "knownAt": 1,
+        "retention": "normal",
+        "kind": "observed",
+        "claim": {
+          "tupleHash": "b4c4b2ed8a31eebe864511955629647afe495d5c3eb57206d151a125983d8b30",
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "synthetic",
+          "quote": "",
+          "id": "c_a58dc824a0d0817c5183474087c3c830",
+          "knownAt": 1,
+          "retention": "normal",
+          "observations": 1,
+          "uses": 0,
+          "lastObservedAt": 1790459381300
+        },
+        "shardId": "s1",
+        "evidence": {
+          "support": 1,
+          "receipt": true,
+          "verification": "receipt",
+          "metadataVerified": true
+        },
+        "retrievalStrategies": [
+          "recall-weaver"
+        ]
+      }
+    ],
+    "complete": true,
+    "truncated": false,
+    "assurance": "Derivation from admitted premises; support is not a calibrated probability of truth.",
+    "mode": "whatif",
+    "hypothetical": true,
+    "epistemic": "hypothetical",
+    "factualStatus": "unknown",
+    "interventions": [
+      {
+        "p": "parent",
+        "a": [
+          "person_c_0",
+          "person_a_0"
+        ],
+        "neg": false
+      }
+    ],
+    "sourceMemoryModified": false,
+    "search": {
+      "nodes": 1,
+      "exhausted": false,
+      "reason": null,
+      "limits": {
+        "maxNodes": 5000,
+        "maxDepth": 8,
+        "maxHypotheses": 64,
+        "maxCandidates": 512,
+        "maxPlans": 1,
+        "maxRounds": 32,
+        "maxFacts": 10000,
+        "maxJoins": 30000,
+        "maxAssignments": 100000,
+        "timeoutMs": 3000,
+        "now": 1790380800000,
+        "schema": null,
+        "operationMode": "whatif",
+        "limits": {
+          "allowWrite": true,
+          "allowPin": true,
+          "allowRules": false,
+          "allowJsEval": true,
+          "maxWires": 2048,
+          "maxEpochs": 16,
+          "maxGoals": 256,
+          "maxRules": 1024,
+          "retrievalStrategy": "auto",
+          "reasoningStrategy": "reference",
+          "maxNodes": 5000,
+          "maxDepth": 8,
+          "maxHypotheses": 64,
+          "maxCandidates": 512,
+          "maxPlans": 1,
+          "timeoutMs": 3000,
+          "maxProbes": 50000,
+          "maxShards": 256,
+          "maxFacts": 10000,
+          "maxRounds": 32,
+          "maxJoins": 30000,
+          "maxAssignments": 100000,
+          "maxExprOps": 10000,
+          "maxExprBytes": 65536
+        },
+        "allowWrite": true,
+        "allowPin": true,
+        "allowRules": false,
+        "allowJsEval": true,
+        "maxWires": 2048,
+        "maxEpochs": 16,
+        "maxGoals": 256,
+        "maxRules": 1024,
+        "retrievalStrategy": "auto",
+        "reasoningStrategy": "reference",
+        "maxProbes": 50000,
+        "maxShards": 256,
+        "maxExprOps": 10000,
+        "maxExprBytes": 65536
+      }
+    },
+    "semantics": "fact-replacement-and-rederivation",
+    "ignored": [],
+    "route": {
+      "operation": "simulate",
+      "backend": "js",
+      "fallback": null,
+      "semantics": "no-required-constraint-silently-dropped"
+    },
+    "reasoningStrategy": "reference"
+  },
+  "generated": []
+}

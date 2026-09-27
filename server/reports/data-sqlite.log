@@ -1,0 +1,20 @@
+{
+  "profile": "sop-agent-3",
+  "engine": "sqlite",
+  "memoryProfile": "legacy",
+  "checked": 2084,
+  "executed": 1530,
+  "groups": 450,
+  "counts": {
+    "formalizer/train": 1224,
+    "formalizer/dev": 153,
+    "formalizer/test": 153,
+    "verbalizer/train": 445,
+    "verbalizer/dev": 55,
+    "verbalizer/test": 54
+  },
+  "failures": [],
+  "neuralModelTested": false
+}
+(node:4407) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

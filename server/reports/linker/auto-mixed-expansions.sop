@@ -1,0 +1,24 @@
+# Epoch 1; this is a trace fragment, not a standalone program.
+@trip__link link
+  query $q
+  strategy hybrid
+
+@trip__reason reason
+  query $q
+  memory $trip__link
+
+@duration binding
+  result $trip__reason
+  variable ?duration
+  mode one
+  owner trip
+
+# Epoch 2; this is a trace fragment, not a standalone program.
+@feasibility__reason reason
+  constraint $timing
+
+@arrival binding
+  result $feasibility__reason
+  variable ?arrival
+  mode one
+  owner feasibility

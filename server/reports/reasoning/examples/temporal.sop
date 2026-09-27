@@ -1,0 +1,12 @@
+@q query
+  select ?where
+  where works_at(person_a_0, ?where)
+  at 2025-06-15
+
+@result temporal
+  query $q
+  output ?where one
+
+@answer cnl
+  result $result
+  language ro

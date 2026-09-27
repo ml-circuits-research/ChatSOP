@@ -1,0 +1,117 @@
+{
+  "setup": "@power fact\n  holds supply(device_0)\n  valid timeless\n  source synthetic\n@power_switch rule\n  when supply(?x)\n  then switch_on(?x)\n  mode causal\n@switch_light rule\n  when switch_on(?x)\n  then light_on(?x)\n  mode causal\n",
+  "target": "@off hypothesis\n  holds not switch_on(device_0)\n  cost 1\n\n@q query\n  where light_on(device_0)\n  at 2026-09-26\n\n@result simulate\n  query $q\n  intervention $off\n  mode counterfactual\n\n@answer cnl\n  result $result\n  language ro\n",
+  "packet": {
+    "status": "unknown",
+    "kind": "simulation",
+    "query": {
+      "kind": "query",
+      "variableTypes": {},
+      "mode": "exists",
+      "where": [
+        {
+          "p": "light_on",
+          "a": [
+            "device_0"
+          ],
+          "neg": false
+        }
+      ],
+      "select": [],
+      "filters": [],
+      "limit": 100,
+      "at": 1790380800000,
+      "asof": 1790380800000
+    },
+    "conflictedAnswers": [],
+    "answers": [],
+    "proof": [],
+    "complete": true,
+    "truncated": false,
+    "assurance": "Derivation from admitted premises; support is not a calibrated probability of truth.",
+    "mode": "counterfactual",
+    "hypothetical": true,
+    "epistemic": "hypothetical",
+    "factualStatus": "supported",
+    "interventions": [
+      {
+        "p": "switch_on",
+        "a": [
+          "device_0"
+        ],
+        "neg": true
+      }
+    ],
+    "sourceMemoryModified": false,
+    "search": {
+      "nodes": 1,
+      "exhausted": false,
+      "reason": null,
+      "limits": {
+        "maxNodes": 5000,
+        "maxDepth": 8,
+        "maxHypotheses": 64,
+        "maxCandidates": 512,
+        "maxPlans": 1,
+        "maxRounds": 32,
+        "maxFacts": 10000,
+        "maxJoins": 30000,
+        "maxAssignments": 100000,
+        "timeoutMs": 3000,
+        "now": 1790380800000,
+        "schema": null,
+        "operationMode": "counterfactual",
+        "limits": {
+          "allowWrite": true,
+          "allowPin": true,
+          "allowRules": false,
+          "allowJsEval": true,
+          "maxWires": 2048,
+          "maxEpochs": 16,
+          "maxGoals": 256,
+          "maxRules": 1024,
+          "retrievalStrategy": "auto",
+          "reasoningStrategy": "reference",
+          "maxNodes": 5000,
+          "maxDepth": 8,
+          "maxHypotheses": 64,
+          "maxCandidates": 512,
+          "maxPlans": 1,
+          "timeoutMs": 3000,
+          "maxProbes": 50000,
+          "maxShards": 256,
+          "maxFacts": 10000,
+          "maxRounds": 32,
+          "maxJoins": 30000,
+          "maxAssignments": 100000,
+          "maxExprOps": 10000,
+          "maxExprBytes": 65536
+        },
+        "allowWrite": true,
+        "allowPin": true,
+        "allowRules": false,
+        "allowJsEval": true,
+        "maxWires": 2048,
+        "maxEpochs": 16,
+        "maxGoals": 256,
+        "maxRules": 1024,
+        "retrievalStrategy": "auto",
+        "reasoningStrategy": "reference",
+        "maxProbes": 50000,
+        "maxShards": 256,
+        "maxExprOps": 10000,
+        "maxExprBytes": 65536
+      }
+    },
+    "semantics": "deterministic-causal-Horn-intervention",
+    "ignored": [],
+    "route": {
+      "operation": "simulate",
+      "backend": "js",
+      "fallback": null,
+      "semantics": "no-required-constraint-silently-dropped"
+    },
+    "reasoningStrategy": "reference"
+  },
+  "generated": []
+}

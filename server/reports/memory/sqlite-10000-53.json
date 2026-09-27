@@ -1,0 +1,2040 @@
+{
+  "engine": "sqlite",
+  "count": 10000,
+  "distinctAtoms": 9992,
+  "seed": 53,
+  "power": 18,
+  "config": {
+    "engine": "sqlite",
+    "power": 18,
+    "arity": 3,
+    "seed": 53,
+    "verification": "receipt",
+    "holo": {
+      "banks": 5,
+      "rows": 8192,
+      "dimension": 64,
+      "seed": 53,
+      "ageStepsPerNovel": 0,
+      "minSignal": 0.35,
+      "minCorrelation": 0.15
+    },
+    "sqlite": {
+      "fts": true
+    }
+  },
+  "node": "v22.16.0",
+  "platform": "linux",
+  "arch": "x64",
+  "cpu": "AMD EPYC 9V74 80-Core Processor",
+  "inputHash": "731320c8ef01f9f91f6fb4b8763b11a41b807f672df362fdb6f87b5b29be4a8e",
+  "queryHash": "c1200e93afb5875aa66c3262b2fcce26170f00ef066765cae3e62551e04fadf3",
+  "buildMs": 394.243872,
+  "stats": {
+    "engine": "sqlite",
+    "banksBytes": 6070272,
+    "metadataBytes": 0,
+    "metadataIncludedInDatabase": true,
+    "writes": 10000,
+    "receipts": 9992,
+    "occupancy": 0.009992,
+    "fts": true,
+    "persistence": "native SQLite file",
+    "sqliteVersion": "3.49.1"
+  },
+  "snapshotBytes": 1919063,
+  "snapshotMs": 14.584482999999977,
+  "processMemory": {
+    "rss": 64352256,
+    "heapUsed": 20435448,
+    "heapDeltaSinceDataset": 5086480,
+    "note": "includes JS runtime/caches; not an isolated allocator measurement"
+  },
+  "summary": {
+    "completion": {
+      "queries": 80,
+      "tp": 84,
+      "fp": 0,
+      "fn": 0,
+      "exactSets": 80,
+      "budgetComplete": 80,
+      "precision": 1,
+      "recall": 1,
+      "medianMs": 0.013981000000001131,
+      "p95Ms": 0.03118699999998853
+    },
+    "absent": {
+      "queries": 20,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "exactSets": 20,
+      "budgetComplete": 20,
+      "precision": null,
+      "recall": null,
+      "medianMs": 0.006629999999972824,
+      "p95Ms": 0.009123999999985699
+    },
+    "reverse": {
+      "queries": 2,
+      "tp": 145,
+      "fp": 0,
+      "fn": 0,
+      "exactSets": 2,
+      "budgetComplete": 2,
+      "precision": 1,
+      "recall": 1,
+      "medianMs": 0.411549999999977,
+      "p95Ms": 0.411549999999977
+    }
+  },
+  "queries": [
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_4969",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.023214999999993324
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_8933",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.04963499999996657
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_3775",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.0282020000000216
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_2420",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.03118699999998853
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_2350",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.030075000000010732
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_346",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.023615000000006603
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_8310",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.018127999999990152
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_4709",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.017045999999993455
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_1828",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.016013999999984208
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_5302",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.015774000000021715
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_5846",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.01527299999997922
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_9825",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013270000000034088
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_9045",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.014140999999995074
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_6889",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.015854000000047108
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_2565",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.016324999999994816
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_7766",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.019839999999987867
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_5393",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.015112999999985277
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_1337",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.015182999999979074
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_2086",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.016443999999978587
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_7002",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.01446099999998296
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_9815",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.01245899999997846
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_2373",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.014041000000020176
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_1304",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.015754000000015367
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_8664",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.01490200000000641
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_2616",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 2,
+      "returned": 2,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 2,
+      "ms": 0.017946999999992386
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_2404",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013379999999983738
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_1948",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013860999999963042
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_5692",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.014722000000006119
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_5582",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013981000000001131
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_356",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.015222999999991771
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_8439",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.01473300000003519
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_231",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013809999999978118
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_4263",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.015582999999992353
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_7157",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.034261000000014974
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_1941",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.020431000000030508
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_8309",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.014932999999984986
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_5809",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.014151999999967302
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_2808",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013611000000025797
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_4291",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012417999999968288
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_8652",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012650000000007822
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_9076",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013440000000002783
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_7813",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013940999999988435
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_3856",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013039999999989504
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_2036",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.011757999999986168
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_2109",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012098000000037246
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_5116",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012659000000041942
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_4105",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013419999999996435
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_4840",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012419000000022606
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_7308",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.014402000000018234
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_804",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013170000000002346
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_1949",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.01170799999999872
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_7898",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012287999999955446
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_902",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.01223800000002484
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_8798",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 2,
+      "returned": 2,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 2,
+      "ms": 0.017065999999999804
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_3977",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.0379069999999615
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_6155",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.015633999999977277
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_1141",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.015002000000038151
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_4429",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.01571400000000267
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_3780",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.01124699999996892
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_7966",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012407999999993535
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_7309",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013229999999964548
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_8292",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 2,
+      "returned": 2,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 2,
+      "ms": 0.015954000000022006
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_8487",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.011757000000045537
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_1125",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.011626999999975851
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_7482",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013519999999971333
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_7735",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.011897999999973763
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_5995",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012980000000027303
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_190",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012880000000052405
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_9549",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.0115170000000262
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_2314",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012748999999985244
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_897",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.01165800000001127
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_867",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 2,
+      "returned": 2,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 2,
+      "ms": 0.01660500000002685
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_5390",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012888999999972839
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_1713",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012940000000014606
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_8550",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.013019000000042524
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_6891",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.011687999999992371
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_1486",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.01248899999995956
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_3152",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012649000000010346
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_5030",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.0121679999999742
+    },
+    {
+      "type": "completion",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "entity_2977",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 1,
+      "returned": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 1,
+      "ms": 0.012678999999991447
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_0",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.008311999999989439
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_1",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.009123999999985699
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_2",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.0065100000000484215
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_3",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.006398999999987609
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_4",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.0067900000000236105
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_5",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.006470000000035725
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_6",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.006400000000041928
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_7",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.007030999999983578
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_8",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.006629999999972824
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_9",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.00664000000000442
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_10",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.006379000000038104
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_11",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.006418999999993957
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_12",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.006741000000033637
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_13",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.006449999999972533
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_14",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.007311000000015611
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_15",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.006539999999972679
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_16",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.006439999999997781
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_17",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.007632000000000971
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_18",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.006680000000017117
+    },
+    {
+      "type": "absent",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "missing_19",
+          "?value"
+        ],
+        "neg": false
+      },
+      "expected": 0,
+      "returned": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 0,
+      "ms": 0.006418999999993957
+    },
+    {
+      "type": "reverse",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "?entity",
+          "value_81"
+        ],
+        "neg": false
+      },
+      "expected": 83,
+      "returned": 83,
+      "tp": 83,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 83,
+      "ms": 0.411549999999977
+    },
+    {
+      "type": "reverse",
+      "pattern": {
+        "p": "relation",
+        "a": [
+          "?entity",
+          "value_125"
+        ],
+        "neg": false
+      },
+      "expected": 62,
+      "returned": 62,
+      "tp": 62,
+      "fp": 0,
+      "fn": 0,
+      "complete": true,
+      "probes": 62,
+      "ms": 0.28648099999998067
+    }
+  ],
+  "timingScope": "bank insertion and retrieval only; no SOP parser, temporal layer, repository snapshot per write, LLM, linker or solver",
+  "sqlQueryPlan": [
+    {
+      "id": 3,
+      "parent": 0,
+      "notused": 59,
+      "detail": "SEARCH atoms USING INDEX atoms_a0 (p=? AND n=? AND neg=? AND v0=?)"
+    }
+  ]
+}

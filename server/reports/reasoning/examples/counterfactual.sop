@@ -1,0 +1,16 @@
+@off hypothesis
+  holds not switch_on(device_0)
+  cost 1
+
+@q query
+  where light_on(device_0)
+  at 2026-09-26
+
+@result simulate
+  query $q
+  intervention $off
+  mode counterfactual
+
+@answer cnl
+  result $result
+  language ro

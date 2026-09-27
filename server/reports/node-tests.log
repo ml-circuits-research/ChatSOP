@@ -1,0 +1,1916 @@
+TAP version 13
+# Subtest: SOP language boundary and context-only follow-up, mocked model not neural evidence
+ok 1 - SOP language boundary and context-only follow-up, mocked model not neural evidence
+  ---
+  duration_ms: 72.974149
+  type: 'test'
+  ...
+# Subtest: truncated LLM output is never executed
+ok 2 - truncated LLM output is never executed
+  ---
+  duration_ms: 7.99882
+  type: 'test'
+  ...
+# Subtest: approved SOP procedure is retrieved into model micro-context
+ok 3 - approved SOP procedure is retrieved into model micro-context
+  ---
+  duration_ms: 24.290747
+  type: 'test'
+  ...
+# Subtest: computed terms cannot bypass the vocabulary shortlist
+ok 4 - computed terms cannot bypass the vocabulary shortlist
+  ---
+  duration_ms: 28.163699
+  type: 'test'
+  ...
+# Subtest: entity type is checked after resolving values
+ok 5 - entity type is checked after resolving values
+  ---
+  duration_ms: 13.766228
+  type: 'test'
+  ...
+# Subtest: model cannot fabricate documentary provenance
+ok 6 - model cannot fabricate documentary provenance
+  ---
+  duration_ms: 14.251045
+  type: 'test'
+  ...
+# Subtest: certified generated entity can be used without appearing literally in shortlist
+ok 7 - certified generated entity can be used without appearing literally in shortlist
+  ---
+  duration_ms: 5.17473
+  type: 'test'
+  ...
+# Subtest: JS possible
+ok 8 - JS possible
+  ---
+  duration_ms: 3.662391
+  type: 'test'
+  ...
+# Subtest: Z3 possible
+ok 9 - Z3 possible # SKIP
+  ---
+  duration_ms: 0.177493
+  type: 'test'
+  ...
+# Subtest: JS not entailed
+ok 10 - JS not entailed
+  ---
+  duration_ms: 0.43251
+  type: 'test'
+  ...
+# Subtest: Z3 not entailed
+ok 11 - Z3 not entailed # SKIP
+  ---
+  duration_ms: 0.070454
+  type: 'test'
+  ...
+# Subtest: JS entailed
+ok 12 - JS entailed
+  ---
+  duration_ms: 0.270831
+  type: 'test'
+  ...
+# Subtest: Z3 entailed
+ok 13 - Z3 entailed # SKIP
+  ---
+  duration_ms: 0.069823
+  type: 'test'
+  ...
+# Subtest: JS refuted
+ok 14 - JS refuted
+  ---
+  duration_ms: 0.437077
+  type: 'test'
+  ...
+# Subtest: Z3 refuted
+ok 15 - Z3 refuted # SKIP
+  ---
+  duration_ms: 0.06789
+  type: 'test'
+  ...
+# Subtest: JS inconsistent
+ok 16 - JS inconsistent
+  ---
+  duration_ms: 1.085016
+  type: 'test'
+  ...
+# Subtest: Z3 inconsistent
+ok 17 - Z3 inconsistent # SKIP
+  ---
+  duration_ms: 0.27697
+  type: 'test'
+  ...
+# Subtest: JS constant arithmetic
+ok 18 - JS constant arithmetic
+  ---
+  duration_ms: 0.228778
+  type: 'test'
+  ...
+# Subtest: Z3 constant arithmetic
+ok 19 - Z3 constant arithmetic # SKIP
+  ---
+  duration_ms: 0.051556
+  type: 'test'
+  ...
+# Subtest: budget exhaustion is not refutation
+ok 20 - budget exhaustion is not refutation
+  ---
+  duration_ms: 0.335066
+  type: 'test'
+  ...
+# Subtest: SMT compiler separates premise and claim
+ok 21 - SMT compiler separates premise and claim
+  ---
+  duration_ms: 0.246745
+  type: 'test'
+  ...
+# Subtest: missing Z3 is explicit, never an invented result
+ok 22 - missing Z3 is explicit, never an invented result
+  ---
+  duration_ms: 1.356518
+  type: 'test'
+  ...
+# Subtest: unbounded JS problem fails clearly
+ok 23 - unbounded JS problem fails clearly
+  ---
+  duration_ms: 0.291962
+  type: 'test'
+  ...
+# Subtest: evaluation catches a missing output despite identical CNL status
+ok 24 - evaluation catches a missing output despite identical CNL status
+  ---
+  duration_ms: 0.924588
+  type: 'test'
+  ...
+# Subtest: evaluation catches scalar versus collection contract
+ok 25 - evaluation catches scalar versus collection contract
+  ---
+  duration_ms: 0.324149
+  type: 'test'
+  ...
+# Subtest: evaluation catches wrong generated values
+ok 26 - evaluation catches wrong generated values
+  ---
+  duration_ms: 0.215379
+  type: 'test'
+  ...
+# Subtest: evaluation ignores alpha-renaming a scalar port
+ok 27 - evaluation ignores alpha-renaming a scalar port
+  ---
+  duration_ms: 0.262539
+  type: 'test'
+  ...
+# Subtest: evaluation preserves output ambiguity
+ok 28 - evaluation preserves output ambiguity
+  ---
+  duration_ms: 0.334916
+  type: 'test'
+  ...
+# Subtest: jsEval arithmetic
+ok 29 - jsEval arithmetic
+  ---
+  duration_ms: 2.599117
+  type: 'test'
+  ...
+# Subtest: jsEval string
+ok 30 - jsEval string
+  ---
+  duration_ms: 0.461323
+  type: 'test'
+  ...
+# Subtest: jsEval slice
+ok 31 - jsEval slice
+  ---
+  duration_ms: 0.27684
+  type: 'test'
+  ...
+# Subtest: jsEval conditional
+ok 32 - jsEval conditional
+  ---
+  duration_ms: 0.113388
+  type: 'test'
+  ...
+# Subtest: jsEval object
+ok 33 - jsEval object
+  ---
+  duration_ms: 1.401013
+  type: 'test'
+  ...
+# Subtest: jsEval unicode
+ok 34 - jsEval unicode
+  ---
+  duration_ms: 0.309177
+  type: 'test'
+  ...
+# Subtest: jsEval only
+ok 35 - jsEval only
+  ---
+  duration_ms: 0.133178
+  type: 'test'
+  ...
+# Subtest: jsEval rejects process.exit()
+ok 36 - jsEval rejects process.exit()
+  ---
+  duration_ms: 0.785553
+  type: 'test'
+  ...
+# Subtest: jsEval rejects globalThis
+ok 37 - jsEval rejects globalThis
+  ---
+  duration_ms: 0.591826
+  type: 'test'
+  ...
+# Subtest: jsEval rejects Function("return 1")()
+ok 38 - jsEval rejects Function("return 1")()
+  ---
+  duration_ms: 0.299293
+  type: 'test'
+  ...
+# Subtest: jsEval rejects ({}).constructor
+ok 39 - jsEval rejects ({}).constructor
+  ---
+  duration_ms: 0.170242
+  type: 'test'
+  ...
+# Subtest: jsEval rejects ({})["__proto__"]
+ok 40 - jsEval rejects ({})["__proto__"]
+  ---
+  duration_ms: 0.079497
+  type: 'test'
+  ...
+# Subtest: jsEval rejects require("fs")
+ok 41 - jsEval rejects require("fs")
+  ---
+  duration_ms: 0.063314
+  type: 'test'
+  ...
+# Subtest: jsEval rejects import("fs")
+ok 42 - jsEval rejects import("fs")
+  ---
+  duration_ms: 0.049343
+  type: 'test'
+  ...
+# Subtest: jsEval rejects while(true){}
+ok 43 - jsEval rejects while(true){}
+  ---
+  duration_ms: 0.049112
+  type: 'test'
+  ...
+# Subtest: jsEval rejects /abc/.test("a")
+ok 44 - jsEval rejects /abc/.test("a")
+  ---
+  duration_ms: 0.049824
+  type: 'test'
+  ...
+# Subtest: jsEval rejects "x".repeat(1000000000)
+ok 45 - jsEval rejects "x".repeat(1000000000)
+  ---
+  duration_ms: 0.056964
+  type: 'test'
+  ...
+# Subtest: jsEval rejects 1/0
+ok 46 - jsEval rejects 1/0
+  ---
+  duration_ms: 0.057945
+  type: 'test'
+  ...
+# Subtest: jsEval rejects only([])
+ok 47 - jsEval rejects only([])
+  ---
+  duration_ms: 0.05411
+  type: 'test'
+  ...
+# Subtest: jsEval rejects only([1,2])
+ok 48 - jsEval rejects only([1,2])
+  ---
+  duration_ms: 0.052538
+  type: 'test'
+  ...
+# Subtest: jsEval rejects [1,2].map(x => x)
+ok 49 - jsEval rejects [1,2].map(x => x)
+  ---
+  duration_ms: 0.048772
+  type: 'test'
+  ...
+# Subtest: jsEval rejects ({a:1}).missing
+ok 50 - jsEval rejects ({a:1}).missing
+  ---
+  duration_ms: 0.061822
+  type: 'test'
+  ...
+# Subtest: operation and output limits
+ok 51 - operation and output limits
+  ---
+  duration_ms: 0.305031
+  type: 'test'
+  ...
+# Subtest: no coercive equality
+ok 52 - no coercive equality
+  ---
+  duration_ms: 0.185635
+  type: 'test'
+  ...
+# Subtest: cell-level reinforcement survives a cooling sweep while one-shot support fades
+ok 53 - cell-level reinforcement survives a cooling sweep while one-shot support fades
+  ---
+  duration_ms: 29.708716
+  type: 'test'
+  ...
+# Subtest: pressure maintenance cools only after the safe occupancy threshold
+ok 54 - pressure maintenance cools only after the safe occupancy threshold
+  ---
+  duration_ms: 45.704914
+  type: 'test'
+  ...
+# Subtest: archive mode does not automatically forget under pressure
+ok 55 - archive mode does not automatically forget under pressure
+  ---
+  duration_ms: 14.873577
+  type: 'test'
+  ...
+# Subtest: only facts used by a real proof are reinforced automatically
+ok 56 - only facts used by a real proof are reinforced automatically
+  ---
+  duration_ms: 198.747278
+  type: 'test'
+  ...
+# Subtest: reviewed sourced SOP imports with exact quote
+ok 57 - reviewed sourced SOP imports with exact quote
+  ---
+  duration_ms: 8.424109
+  type: 'test'
+  ...
+# Subtest: missing or invented quote rejected
+ok 58 - missing or invented quote rejected
+  ---
+  duration_ms: 1.852903
+  type: 'test'
+  ...
+# Subtest: import does not execute arbitrary top-level wires
+ok 59 - import does not execute arbitrary top-level wires
+  ---
+  duration_ms: 4.894795
+  type: 'test'
+  ...
+# Subtest: historic library selection happens before ID deduplication
+ok 60 - historic library selection happens before ID deduplication
+  ---
+  duration_ms: 27.683578
+  type: 'test'
+  ...
+# Subtest: correction cannot bypass pinning policy
+ok 61 - correction cannot bypass pinning policy
+  ---
+  duration_ms: 12.844683
+  type: 'test'
+  ...
+# Subtest: multilingual candidate roMaria lucrează la Alfa.
+ok 62 - multilingual candidate roMaria lucrează la Alfa.
+  ---
+  duration_ms: 11.496177
+  type: 'test'
+  ...
+# Subtest: multilingual candidate roMaria lucreaza la Alfa.
+ok 63 - multilingual candidate roMaria lucreaza la Alfa.
+  ---
+  duration_ms: 0.376777
+  type: 'test'
+  ...
+# Subtest: multilingual candidate enMaria works at Alpha Lab.
+ok 64 - multilingual candidate enMaria works at Alpha Lab.
+  ---
+  duration_ms: 0.173887
+  type: 'test'
+  ...
+# Subtest: multilingual candidate deMaria arbeitet bei Alfa.
+ok 65 - multilingual candidate deMaria arbeitet bei Alfa.
+  ---
+  duration_ms: 0.168379
+  type: 'test'
+  ...
+# Subtest: multilingual candidate frMaria travaille chez Alfa.
+ok 66 - multilingual candidate frMaria travaille chez Alfa.
+  ---
+  duration_ms: 0.241127
+  type: 'test'
+  ...
+# Subtest: multilingual candidate itMaria lavora presso Alfa.
+ok 67 - multilingual candidate itMaria lavora presso Alfa.
+  ---
+  duration_ms: 0.134469
+  type: 'test'
+  ...
+# Subtest: same-name entities stay ambiguous
+ok 68 - same-name entities stay ambiguous
+  ---
+  duration_ms: 0.509915
+  type: 'test'
+  ...
+# Subtest: employment and contracting are not synonyms
+ok 69 - employment and contracting are not synonyms
+  ---
+  duration_ms: 0.218634
+  type: 'test'
+  ...
+# Subtest: negation remains in the micro-context
+ok 70 - negation remains in the micro-context
+  ---
+  duration_ms: 0.709651
+  type: 'test'
+  ...
+# Subtest: oversize utterance is not silently truncated
+ok 71 - oversize utterance is not silently truncated
+  ---
+  duration_ms: 0.544917
+  type: 'test'
+  ...
+# Subtest: word boundary avoids a short alias inside another word
+ok 72 - word boundary avoids a short alias inside another word
+  ---
+  duration_ms: 0.272533
+  type: 'test'
+  ...
+# Subtest: unification substitutes constants into prerequisite goals
+ok 73 - unification substitutes constants into prerequisite goals
+  ---
+  duration_ms: 2.915076
+  type: 'test'
+  ...
+# Subtest: predicate similarity never invents a bridge
+ok 74 - predicate similarity never invents a bridge
+  ---
+  duration_ms: 0.403717
+  type: 'test'
+  ...
+# Subtest: repeated variable constraints prevent an incompatible rule match
+ok 75 - repeated variable constraints prevent an incompatible rule match
+  ---
+  duration_ms: 0.194969
+  type: 'test'
+  ...
+# Subtest: rule-local variable names do not capture goal variables
+ok 76 - rule-local variable names do not capture goal variables
+  ---
+  duration_ms: 0.236941
+  type: 'test'
+  ...
+# Subtest: recursive goal planning terminates through normalized goal keys
+ok 77 - recursive goal planning terminates through normalized goal keys
+  ---
+  duration_ms: 0.499269
+  type: 'test'
+  ...
+# Subtest: goal budget marks incomplete planning, not falsehood
+ok 78 - goal budget marks incomplete planning, not falsehood
+  ---
+  duration_ms: 0.291892
+  type: 'test'
+  ...
+# Subtest: opposite facts are sought for explicit conflict detection
+ok 79 - opposite facts are sought for explicit conflict detection
+  ---
+  duration_ms: 0.29018
+  type: 'test'
+  ...
+# Subtest: inactive temporal rules do not expand the query
+ok 80 - inactive temporal rules do not expand the query
+  ---
+  duration_ms: 0.206225
+  type: 'test'
+  ...
+# Subtest: same task solved with independent strategy recall-weaver
+ok 81 - same task solved with independent strategy recall-weaver
+  ---
+  duration_ms: 26.385298
+  type: 'test'
+  ...
+# Subtest: same task solved with independent strategy exact
+ok 82 - same task solved with independent strategy exact
+  ---
+  duration_ms: 15.612291
+  type: 'test'
+  ...
+# Subtest: same task solved with independent strategy hybrid
+ok 83 - same task solved with independent strategy hybrid
+  ---
+  duration_ms: 12.701322
+  type: 'test'
+  ...
+# Subtest: exact strategy declares incomplete coverage without exact tuples
+ok 84 - exact strategy declares incomplete coverage without exact tuples
+  ---
+  duration_ms: 13.763224
+  type: 'test'
+  ...
+# Subtest: a host can register a retrieval provider without changing SOP
+ok 85 - a host can register a retrieval provider without changing SOP
+  ---
+  duration_ms: 14.721662
+  type: 'test'
+  ...
+# Subtest: unrecognized retrieval strategy fails closed
+ok 86 - unrecognized retrieval strategy fails closed
+  ---
+  duration_ms: 10.040222
+  type: 'test'
+  ...
+# Subtest: host restricts strategy choice independently from model output
+ok 87 - host restricts strategy choice independently from model output
+  ---
+  duration_ms: 14.189825
+  type: 'test'
+  ...
+# Subtest: exact strategy respects update and asof history
+ok 88 - exact strategy respects update and asof history
+  ---
+  duration_ms: 16.068797
+  type: 'test'
+  ...
+# (node:4051) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: weaver: exact typed completion and multiple answers
+ok 89 - weaver: exact typed completion and multiple answers
+  ---
+  duration_ms: 7.090447
+  type: 'test'
+  ...
+# Subtest: weaver: absent fact and explicit negation
+ok 90 - weaver: absent fact and explicit negation
+  ---
+  duration_ms: 3.313415
+  type: 'test'
+  ...
+# Subtest: weaver: repeated logical variable is an equality constraint
+ok 91 - weaver: repeated logical variable is an equality constraint
+  ---
+  duration_ms: 1.291432
+  type: 'test'
+  ...
+# Subtest: weaver: four arguments, Unicode and bounded absence
+ok 92 - weaver: four arguments, Unicode and bounded absence
+  ---
+  duration_ms: 0.657012
+  type: 'test'
+  ...
+# Subtest: weaver: budget truncation never claims exhaustive answers
+ok 93 - weaver: budget truncation never claims exhaustive answers
+  ---
+  duration_ms: 1.795357
+  type: 'test'
+  ...
+# Subtest: weaver: snapshot, fork isolation and reinforcement survival
+ok 94 - weaver: snapshot, fork isolation and reinforcement survival
+  ---
+  duration_ms: 2.66822
+  type: 'test'
+  ...
+# Subtest: weaver: blocked and expired tuples are not returned
+ok 95 - weaver: blocked and expired tuples are not returned
+  ---
+  duration_ms: 0.720296
+  type: 'test'
+  ...
+# Subtest: holo: exact typed completion and multiple answers
+ok 96 - holo: exact typed completion and multiple answers
+  ---
+  duration_ms: 5.439031
+  type: 'test'
+  ...
+# Subtest: holo: absent fact and explicit negation
+ok 97 - holo: absent fact and explicit negation
+  ---
+  duration_ms: 2.372582
+  type: 'test'
+  ...
+# Subtest: holo: repeated logical variable is an equality constraint
+ok 98 - holo: repeated logical variable is an equality constraint
+  ---
+  duration_ms: 1.766555
+  type: 'test'
+  ...
+# Subtest: holo: four arguments, Unicode and bounded absence
+ok 99 - holo: four arguments, Unicode and bounded absence
+  ---
+  duration_ms: 1.217332
+  type: 'test'
+  ...
+# Subtest: holo: budget truncation never claims exhaustive answers
+ok 100 - holo: budget truncation never claims exhaustive answers
+  ---
+  duration_ms: 1.420703
+  type: 'test'
+  ...
+# Subtest: holo: snapshot, fork isolation and reinforcement survival
+ok 101 - holo: snapshot, fork isolation and reinforcement survival
+  ---
+  duration_ms: 9.620351
+  type: 'test'
+  ...
+# Subtest: holo: blocked and expired tuples are not returned
+ok 102 - holo: blocked and expired tuples are not returned
+  ---
+  duration_ms: 1.469375
+  type: 'test'
+  ...
+# Subtest: sqlite: exact typed completion and multiple answers
+ok 103 - sqlite: exact typed completion and multiple answers
+  ---
+  duration_ms: 2.377109
+  type: 'test'
+  ...
+# Subtest: sqlite: absent fact and explicit negation
+ok 104 - sqlite: absent fact and explicit negation
+  ---
+  duration_ms: 0.842777
+  type: 'test'
+  ...
+# Subtest: sqlite: repeated logical variable is an equality constraint
+ok 105 - sqlite: repeated logical variable is an equality constraint
+  ---
+  duration_ms: 0.969014
+  type: 'test'
+  ...
+# Subtest: sqlite: four arguments, Unicode and bounded absence
+ok 106 - sqlite: four arguments, Unicode and bounded absence
+  ---
+  duration_ms: 0.75695
+  type: 'test'
+  ...
+# Subtest: sqlite: budget truncation never claims exhaustive answers
+ok 107 - sqlite: budget truncation never claims exhaustive answers
+  ---
+  duration_ms: 0.889146
+  type: 'test'
+  ...
+# Subtest: sqlite: snapshot, fork isolation and reinforcement survival
+ok 108 - sqlite: snapshot, fork isolation and reinforcement survival
+  ---
+  duration_ms: 1.653859
+  type: 'test'
+  ...
+# Subtest: sqlite: blocked and expired tuples are not returned
+ok 109 - sqlite: blocked and expired tuples are not returned
+  ---
+  duration_ms: 1.357069
+  type: 'test'
+  ...
+# Subtest: scan: exact typed completion and multiple answers
+ok 110 - scan: exact typed completion and multiple answers
+  ---
+  duration_ms: 0.481793
+  type: 'test'
+  ...
+# Subtest: scan: absent fact and explicit negation
+ok 111 - scan: absent fact and explicit negation
+  ---
+  duration_ms: 0.112286
+  type: 'test'
+  ...
+# Subtest: scan: repeated logical variable is an equality constraint
+ok 112 - scan: repeated logical variable is an equality constraint
+  ---
+  duration_ms: 0.131865
+  type: 'test'
+  ...
+# Subtest: scan: four arguments, Unicode and bounded absence
+ok 113 - scan: four arguments, Unicode and bounded absence
+  ---
+  duration_ms: 0.133127
+  type: 'test'
+  ...
+# Subtest: scan: budget truncation never claims exhaustive answers
+ok 114 - scan: budget truncation never claims exhaustive answers
+  ---
+  duration_ms: 0.185355
+  type: 'test'
+  ...
+# Subtest: scan: snapshot, fork isolation and reinforcement survival
+ok 115 - scan: snapshot, fork isolation and reinforcement survival
+  ---
+  duration_ms: 0.288538
+  type: 'test'
+  ...
+# Subtest: scan: blocked and expired tuples are not returned
+ok 116 - scan: blocked and expired tuples are not returned
+  ---
+  duration_ms: 0.137183
+  type: 'test'
+  ...
+# Subtest: weaver layered: same SOP, proof, time, fork and restart
+ok 117 - weaver layered: same SOP, proof, time, fork and restart
+  ---
+  duration_ms: 26.976484
+  type: 'test'
+  ...
+# Subtest: weaver sharded: same SOP, proof, time, fork and restart
+ok 118 - weaver sharded: same SOP, proof, time, fork and restart
+  ---
+  duration_ms: 24.283106
+  type: 'test'
+  ...
+# Subtest: holo layered: same SOP, proof, time, fork and restart
+ok 119 - holo layered: same SOP, proof, time, fork and restart
+  ---
+  duration_ms: 47.007124
+  type: 'test'
+  ...
+# Subtest: holo sharded: same SOP, proof, time, fork and restart
+ok 120 - holo sharded: same SOP, proof, time, fork and restart
+  ---
+  duration_ms: 51.086554
+  type: 'test'
+  ...
+# Subtest: sqlite layered: same SOP, proof, time, fork and restart
+ok 121 - sqlite layered: same SOP, proof, time, fork and restart
+  ---
+  duration_ms: 28.254985
+  type: 'test'
+  ...
+# Subtest: sqlite sharded: same SOP, proof, time, fork and restart
+ok 122 - sqlite sharded: same SOP, proof, time, fork and restart
+  ---
+  duration_ms: 31.362947
+  type: 'test'
+  ...
+# Subtest: scan layered: same SOP, proof, time, fork and restart
+ok 123 - scan layered: same SOP, proof, time, fork and restart
+  ---
+  duration_ms: 6.489517
+  type: 'test'
+  ...
+# Subtest: scan sharded: same SOP, proof, time, fork and restart
+ok 124 - scan sharded: same SOP, proof, time, fork and restart
+  ---
+  duration_ms: 7.287728
+  type: 'test'
+  ...
+# Subtest: weaver: bounded shards evict unused data but keep pinned
+ok 125 - weaver: bounded shards evict unused data but keep pinned
+  ---
+  duration_ms: 21.470263
+  type: 'test'
+  ...
+# Subtest: holo: bounded shards evict unused data but keep pinned
+ok 126 - holo: bounded shards evict unused data but keep pinned
+  ---
+  duration_ms: 77.935707
+  type: 'test'
+  ...
+# Subtest: sqlite: bounded shards evict unused data but keep pinned
+ok 127 - sqlite: bounded shards evict unused data but keep pinned
+  ---
+  duration_ms: 38.023546
+  type: 'test'
+  ...
+# Subtest: scan: bounded shards evict unused data but keep pinned
+ok 128 - scan: bounded shards evict unused data but keep pinned
+  ---
+  duration_ms: 10.069365
+  type: 'test'
+  ...
+# Subtest: SQLite: file reopen, indexed plan, FTS terms and hostile syntax
+ok 129 - SQLite: file reopen, indexed plan, FTS terms and hostile syntax
+  ---
+  duration_ms: 2.885852
+  type: 'test'
+  ...
+# Subtest: SQLite: transaction rollback does not publish partial facts
+ok 130 - SQLite: transaction rollback does not publish partial facts
+  ---
+  duration_ms: 0.784951
+  type: 'test'
+  ...
+# Subtest: H7: one-shot, deterministic restore and no external key list
+ok 131 - H7: one-shot, deterministic restore and no external key list
+  ---
+  duration_ms: 8.385913
+  type: 'test'
+  ...
+# Subtest: H7: repetition does not trigger global ageing
+ok 132 - H7: repetition does not trigger global ageing
+  ---
+  duration_ms: 0.649892
+  type: 'test'
+  ...
+# Subtest: H7: empty memory abstains, random damage and complete erasure
+ok 133 - H7: empty memory abstains, random damage and complete erasure
+  ---
+  duration_ms: 6.036015
+  type: 'test'
+  ...
+# Subtest: H7: same key, changed value has competing traces, not a silent retraction
+ok 134 - H7: same key, changed value has competing traces, not a silent retraction
+  ---
+  duration_ms: 0.343929
+  type: 'test'
+  ...
+# Subtest: H7: counter bounds survive repeated writes and cooling
+ok 135 - H7: counter bounds survive repeated writes and cooling
+  ---
+  duration_ms: 0.253325
+  type: 'test'
+  ...
+# Subtest: H7: fact adapter integrity gate refuses erased body even with receipt
+ok 136 - H7: fact adapter integrity gate refuses erased body even with receipt
+  ---
+  duration_ms: 1.732946
+  type: 'test'
+  ...
+# Subtest: H7: pinned memory does not age when new pinned facts arrive
+ok 137 - H7: pinned memory does not age when new pinned facts arrive
+  ---
+  duration_ms: 8.359439
+  type: 'test'
+  ...
+# Subtest: single-file SQLite: temporal claims, rule ingestion, fork and reopen
+ok 138 - single-file SQLite: temporal claims, rule ingestion, fork and reopen
+  ---
+  duration_ms: 29.121693
+  type: 'test'
+  ...
+# Subtest: H7 content plane: complete SOP bytes from handle without an item table
+ok 139 - H7 content plane: complete SOP bytes from handle without an item table
+  ---
+  duration_ms: 39.929677
+  type: 'test'
+  ...
+# Subtest: H7: archive mode disables novelty ageing, even if a positive rate was requested
+ok 140 - H7: archive mode disables novelty ageing, even if a positive rate was requested
+  ---
+  duration_ms: 1.802157
+  type: 'test'
+  ...
+# Subtest: deferred output is legal without @who declaration
+ok 141 - deferred output is legal without @who declaration
+  ---
+  duration_ms: 2.173958
+  type: 'test'
+  ...
+# Subtest: unknown dollar reference without a producer is an error
+ok 142 - unknown dollar reference without a producer is an error
+  ---
+  duration_ms: 0.51303
+  type: 'test'
+  ...
+# Subtest: duplicate output producers are rejected
+ok 143 - duplicate output producers are rejected
+  ---
+  duration_ms: 0.234397
+  type: 'test'
+  ...
+# Subtest: output cannot overwrite an explicit wire
+ok 144 - output cannot overwrite an explicit wire
+  ---
+  duration_ms: 0.282338
+  type: 'test'
+  ...
+# Subtest: deferred output cycle is caught before executing
+ok 145 - deferred output cycle is caught before executing
+  ---
+  duration_ms: 0.203892
+  type: 'test'
+  ...
+# Subtest: unselected output variable is not inferred by name
+ok 146 - unselected output variable is not inferred by name
+  ---
+  duration_ms: 29.274535
+  type: 'test'
+  ...
+# Subtest: runtime generates and consumes a scalar output
+ok 147 - runtime generates and consumes a scalar output
+  ---
+  duration_ms: 21.892808
+  type: 'test'
+  ...
+# Subtest: output dependencies work regardless of declaration order
+ok 148 - output dependencies work regardless of declaration order
+  ---
+  duration_ms: 15.808281
+  type: 'test'
+  ...
+# Subtest: many answers are not silently collapsed to a scalar
+ok 149 - many answers are not silently collapsed to a scalar
+  ---
+  duration_ms: 13.771927
+  type: 'test'
+  ...
+# Subtest: many output intentionally returns the candidate set
+ok 150 - many output intentionally returns the candidate set
+  ---
+  duration_ms: 23.224088
+  type: 'test'
+  ...
+# Subtest: rows preserve associations across multiple selected columns
+ok 151 - rows preserve associations across multiple selected columns
+  ---
+  duration_ms: 12.07144
+  type: 'test'
+  ...
+# Subtest: missing answer stays unbound and blocks only descendants
+ok 152 - missing answer stays unbound and blocks only descendants
+  ---
+  duration_ms: 9.64701
+  type: 'test'
+  ...
+# Subtest: incomplete retrieval cannot materialize one answer
+ok 153 - incomplete retrieval cannot materialize one answer
+  ---
+  duration_ms: 12.686019
+  type: 'test'
+  ...
+# Subtest: explicit opposite evidence blocks selected scalar
+ok 154 - explicit opposite evidence blocks selected scalar
+  ---
+  duration_ms: 20.423523
+  type: 'test'
+  ...
+# Subtest: a status output can be used even when no fact is known
+ok 155 - a status output can be used even when no fact is known
+  ---
+  duration_ms: 15.289663
+  type: 'test'
+  ...
+# Subtest: count output requires a complete count query
+ok 156 - count output requires a complete count query
+  ---
+  duration_ms: 19.000436
+  type: 'test'
+  ...
+# Subtest: query output used to formulate a second memory query
+ok 157 - query output used to formulate a second memory query
+  ---
+  duration_ms: 13.211377
+  type: 'test'
+  ...
+# Subtest: template output names are hygienic across two expansions
+ok 158 - template output names are hygienic across two expansions
+  ---
+  duration_ms: 12.087313
+  type: 'test'
+  ...
+# Subtest: generated bindings cannot be injected by model or user
+ok 159 - generated bindings cannot be injected by model or user
+  ---
+  duration_ms: 0.270321
+  type: 'test'
+  ...
+# Subtest: js numerical value exported only when unique
+ok 160 - js numerical value exported only when unique
+  ---
+  duration_ms: 2.198394
+  type: 'test'
+  ...
+# Subtest: js one model is not a unique output
+ok 161 - js one model is not a unique output
+  ---
+  duration_ms: 2.064736
+  type: 'test'
+  ...
+# Subtest: z3 numerical value exported only when unique
+ok 162 - z3 numerical value exported only when unique # SKIP
+  ---
+  duration_ms: 0.077454
+  type: 'test'
+  ...
+# Subtest: z3 one model is not a unique output
+ok 163 - z3 one model is not a unique output # SKIP
+  ---
+  duration_ms: 0.069372
+  type: 'test'
+  ...
+# Subtest: finite constraint many projects all base-domain values
+ok 164 - finite constraint many projects all base-domain values
+  ---
+  duration_ms: 0.52696
+  type: 'test'
+  ...
+# Subtest: expansion budget also bounds automatic solve wiring
+ok 165 - expansion budget also bounds automatic solve wiring
+  ---
+  duration_ms: 7.690123
+  type: 'test'
+  ...
+# Subtest: one logical variable cannot connect incompatible predicate argument types
+ok 166 - one logical variable cannot connect incompatible predicate argument types
+  ---
+  duration_ms: 6.26888
+  type: 'test'
+  ...
+# Subtest: approved mixed template links numeric memory to constraint output
+ok 167 - approved mixed template links numeric memory to constraint output
+  ---
+  duration_ms: 10.591208
+  type: 'test'
+  ...
+# Subtest: template may yield a deferred output directly
+ok 168 - template may yield a deferred output directly
+  ---
+  duration_ms: 22.217659
+  type: 'test'
+  ...
+# Subtest: reject duplicate
+ok 169 - reject duplicate
+  ---
+  duration_ms: 1.034671
+  type: 'test'
+  ...
+# Subtest: reject badField
+ok 170 - reject badField
+  ---
+  duration_ms: 0.245083
+  type: 'test'
+  ...
+# Subtest: reject badIndent
+ok 171 - reject badIndent
+  ---
+  duration_ms: 0.152385
+  type: 'test'
+  ...
+# Subtest: reject unknownType
+ok 172 - reject unknownType
+  ---
+  duration_ms: 0.685525
+  type: 'test'
+  ...
+# Subtest: reject legacyVariable
+ok 173 - reject legacyVariable
+  ---
+  duration_ms: 0.759945
+  type: 'test'
+  ...
+# Subtest: reject cycle
+ok 174 - reject cycle
+  ---
+  duration_ms: 0.537867
+  type: 'test'
+  ...
+# Subtest: reject undefined
+ok 175 - reject undefined
+  ---
+  duration_ms: 0.173457
+  type: 'test'
+  ...
+# Subtest: reject reserved
+ok 176 - reject reserved
+  ---
+  duration_ms: 0.076123
+  type: 'test'
+  ...
+# Subtest: logical variables do not create dependencies
+ok 177 - logical variables do not create dependencies
+  ---
+  duration_ms: 1.536414
+  type: 'test'
+  ...
+# Subtest: quoted dollar and tilde are text
+ok 178 - quoted dollar and tilde are text
+  ---
+  duration_ms: 0.376207
+  type: 'test'
+  ...
+# Subtest: forward references are topologically ordered
+ok 179 - forward references are topologically ordered
+  ---
+  duration_ms: 0.371179
+  type: 'test'
+  ...
+# Subtest: canonical roundtrip
+ok 180 - canonical roundtrip
+  ---
+  duration_ms: 0.307165
+  type: 'test'
+  ...
+# Subtest: predicate and argument strings are data
+ok 181 - predicate and argument strings are data
+  ---
+  duration_ms: 0.194098
+  type: 'test'
+  ...
+# Subtest: unsafe rule is rejected
+ok 182 - unsafe rule is rejected
+  ---
+  duration_ms: 0.247316
+  type: 'test'
+  ...
+# Subtest: unknown predicate is not invented
+ok 183 - unknown predicate is not invented
+  ---
+  duration_ms: 0.31128
+  type: 'test'
+  ...
+# Subtest: unbound query output rejected
+ok 184 - unbound query output rejected
+  ---
+  duration_ms: 0.17538
+  type: 'test'
+  ...
+# Subtest: nonlinear multiplication rejected
+ok 185 - nonlinear multiplication rejected
+  ---
+  duration_ms: 0.520851
+  type: 'test'
+  ...
+# Subtest: temporal endpoints not guessed
+ok 186 - temporal endpoints not guessed
+  ---
+  duration_ms: 0.279364
+  type: 'test'
+  ...
+# Subtest: Prolog code is generated from typed atoms, not concatenated user source
+ok 187 - Prolog code is generated from typed atoms, not concatenated user source
+  ---
+  duration_ms: 1.7963
+  type: 'test'
+  ...
+# Subtest: temporal Prolog export requires explicit date
+ok 188 - temporal Prolog export requires explicit date
+  ---
+  duration_ms: 70.637014
+  type: 'test'
+  ...
+# Subtest: SWI portable Horn result agrees with JS
+ok 189 - SWI portable Horn result agrees with JS # SKIP
+  ---
+  duration_ms: 0.184704
+  type: 'test'
+  ...
+# Subtest: v3 external: actual Z3 optimization plus optimality check
+ok 190 - v3 external: actual Z3 optimization plus optimality check # SKIP
+  ---
+  duration_ms: 0.554701
+  type: 'test'
+  ...
+# Subtest: v3 external: actual Prolog through advanced strategy
+ok 191 - v3 external: actual Prolog through advanced strategy # SKIP
+  ---
+  duration_ms: 0.120628
+  type: 'test'
+  ...
+# (node:4114) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: v3: hypotheses are explicit, minimal, sorted by cost and never facts
+ok 192 - v3: hypotheses are explicit, minimal, sorted by cost and never facts
+  ---
+  duration_ms: 11.622534
+  type: 'test'
+  ...
+# Subtest: v3: hypotheses are not silently asserted as facts
+ok 193 - v3: hypotheses are not silently asserted as facts
+  ---
+  duration_ms: 15.42272
+  type: 'test'
+  ...
+# Subtest: v3: patterns cannot serve as deductive rules
+ok 194 - v3: patterns cannot serve as deductive rules
+  ---
+  duration_ms: 1.023164
+  type: 'test'
+  ...
+# Subtest: v3: explicit opposing evidence rejects an abductive assumption
+ok 195 - v3: explicit opposing evidence rejects an abductive assumption
+  ---
+  duration_ms: 0.924739
+  type: 'test'
+  ...
+# Subtest: v3: abduction cannot explain observation with itself
+ok 196 - v3: abduction cannot explain observation with itself
+  ---
+  duration_ms: 0.733235
+  type: 'test'
+  ...
+# Subtest: v3: budget exhaustion reports incomplete, not exhaustive absence
+ok 197 - v3: budget exhaustion reports incomplete, not exhaustive absence
+  ---
+  duration_ms: 0.855907
+  type: 'test'
+  ...
+# Subtest: v3: diagnostic test is recommended but never executed
+ok 198 - v3: diagnostic test is recommended but never executed
+  ---
+  duration_ms: 1.132957
+  type: 'test'
+  ...
+# Subtest: v3: minimum cost plan with explicit add/remove effects
+ok 199 - v3: minimum cost plan with explicit add/remove effects
+  ---
+  duration_ms: 1.557545
+  type: 'test'
+  ...
+# Subtest: v3: zero-cost loop is bounded and does not prevent plan discovery
+ok 200 - v3: zero-cost loop is bounded and does not prevent plan discovery
+  ---
+  duration_ms: 1.81046
+  type: 'test'
+  ...
+# Subtest: v3: model cannot define actions or policy grants
+ok 201 - v3: model cannot define actions or policy grants
+  ---
+  duration_ms: 0.564536
+  type: 'test'
+  ...
+# Subtest: v3: action cannot introduce an unbound variable
+ok 202 - v3: action cannot introduce an unbound variable
+  ---
+  duration_ms: 0.350679
+  type: 'test'
+  ...
+# Subtest: v3: what-if does not change the observed fact or live memory
+ok 203 - v3: what-if does not change the observed fact or live memory
+  ---
+  duration_ms: 0.918269
+  type: 'test'
+  ...
+# Subtest: v3: causal intervention cuts incoming rule and recomputes downstream observations
+ok 204 - v3: causal intervention cuts incoming rule and recomputes downstream observations
+  ---
+  duration_ms: 0.719495
+  type: 'test'
+  ...
+# Subtest: v3: a correlation is not silently treated as a causal law
+ok 205 - v3: a correlation is not silently treated as a causal law
+  ---
+  duration_ms: 0.544656
+  type: 'test'
+  ...
+# Subtest: v3: conflicting intervention fails without explosion
+ok 206 - v3: conflicting intervention fails without explosion
+  ---
+  duration_ms: 0.589432
+  type: 'test'
+  ...
+# Subtest: v3: induction separates observed counterexamples from unknowns
+ok 207 - v3: induction separates observed counterexamples from unknowns
+  ---
+  duration_ms: 0.856518
+  type: 'test'
+  ...
+# Subtest: v3: automatic pattern generator produces candidates, not accepted rules
+ok 208 - v3: automatic pattern generator produces candidates, not accepted rules
+  ---
+  duration_ms: 1.211323
+  type: 'test'
+  ...
+# Subtest: v3: heldout IDs must not overlap training cases
+ok 209 - v3: heldout IDs must not overlap training cases
+  ---
+  duration_ms: 0.551607
+  type: 'test'
+  ...
+# Subtest: v3: lexical association produces scores, not proofs
+ok 210 - v3: lexical association produces scores, not proofs
+  ---
+  duration_ms: 2.277872
+  type: 'test'
+  ...
+# Subtest: v3: relational association produces scores, not proofs
+ok 211 - v3: relational association produces scores, not proofs
+  ---
+  duration_ms: 0.254367
+  type: 'test'
+  ...
+# Subtest: v3: weaver association produces scores, not proofs
+ok 212 - v3: weaver association produces scores, not proofs
+  ---
+  duration_ms: 1.387123
+  type: 'test'
+  ...
+# Subtest: v3: structural analogy transfers a hypothesis only
+ok 213 - v3: structural analogy transfers a hypothesis only
+  ---
+  duration_ms: 1.269339
+  type: 'test'
+  ...
+# Subtest: v3: finite optimization finds true minimum and materializes unique optimum
+ok 214 - v3: finite optimization finds true minimum and materializes unique optimum
+  ---
+  duration_ms: 2.099298
+  type: 'test'
+  ...
+# Subtest: v3: tied optimum does not become a unique scalar
+ok 215 - v3: tied optimum does not become a unique scalar
+  ---
+  duration_ms: 0.49947
+  type: 'test'
+  ...
+# Subtest: v3: unsupported theory is not silently ignored
+ok 216 - v3: unsupported theory is not silently ignored
+  ---
+  duration_ms: 0.287676
+  type: 'test'
+  ...
+# Subtest: v3: reference strategy never invokes an external solver
+ok 217 - v3: reference strategy never invokes an external solver
+  ---
+  duration_ms: 0.765873
+  type: 'test'
+  ...
+# Subtest: v3: advanced fallback is explicit and semantically equivalent
+ok 218 - v3: advanced fallback is explicit and semantically equivalent
+  ---
+  duration_ms: 0.368565
+  type: 'test'
+  ...
+# Subtest: v3: required numeric data cannot be dispatched as a Horn fact
+ok 219 - v3: required numeric data cannot be dispatched as a Horn fact
+  ---
+  duration_ms: 0.329418
+  type: 'test'
+  ...
+# Subtest: v3: partial join under a budget never derives a conclusion
+ok 220 - v3: partial join under a budget never derives a conclusion
+  ---
+  duration_ms: 0.145145
+  type: 'test'
+  ...
+# Subtest: v3: weaver memory is independent from reasoning strategy
+ok 221 - v3: weaver memory is independent from reasoning strategy
+  ---
+  duration_ms: 9.86991
+  type: 'test'
+  ...
+# Subtest: v3: holo memory is independent from reasoning strategy
+ok 222 - v3: holo memory is independent from reasoning strategy
+  ---
+  duration_ms: 19.937403
+  type: 'test'
+  ...
+# Subtest: v3: sqlite memory is independent from reasoning strategy
+ok 223 - v3: sqlite memory is independent from reasoning strategy
+  ---
+  duration_ms: 10.201021
+  type: 'test'
+  ...
+# Subtest: v3: scan memory is independent from reasoning strategy
+ok 224 - v3: scan memory is independent from reasoning strategy
+  ---
+  duration_ms: 5.018699
+  type: 'test'
+  ...
+# Subtest: v3: hybrid memory is independent from reasoning strategy
+ok 225 - v3: hybrid memory is independent from reasoning strategy
+  ---
+  duration_ms: 14.0651
+  type: 'test'
+  ...
+# Subtest: v3: hybrid bank preserves exact evidence even after associative erasure
+ok 226 - v3: hybrid bank preserves exact evidence even after associative erasure
+  ---
+  duration_ms: 5.224884
+  type: 'test'
+  ...
+# Subtest: v3: approved action/hypothesis/trace definitions can be persisted and used by handle
+ok 227 - v3: approved action/hypothesis/trace definitions can be persisted and used by handle
+  ---
+  duration_ms: 8.317643
+  type: 'test'
+  ...
+# Subtest: v3: automatic backward abduction proposes a two-hop missing premise
+ok 228 - v3: automatic backward abduction proposes a two-hop missing premise
+  ---
+  duration_ms: 1.408385
+  type: 'test'
+  ...
+# Subtest: v3: automatic abduction binds hidden variables over a finite known domain
+ok 229 - v3: automatic abduction binds hidden variables over a finite known domain
+  ---
+  duration_ms: 10.7953
+  type: 'test'
+  ...
+# Subtest: v3: model cannot certify a trace as closed-world ground truth
+ok 230 - v3: model cannot certify a trace as closed-world ground truth
+  ---
+  duration_ms: 0.359071
+  type: 'test'
+  ...
+# Subtest: v3: induction generator truncation cannot masquerade as exhaustive
+ok 231 - v3: induction generator truncation cannot masquerade as exhaustive
+  ---
+  duration_ms: 0.635521
+  type: 'test'
+  ...
+# Subtest: v3: approved procedures compose new operation and transitive action handle
+ok 232 - v3: approved procedures compose new operation and transitive action handle
+  ---
+  duration_ms: 23.696929
+  type: 'test'
+  ...
+# Subtest: commit persists only for the same user
+ok 233 - commit persists only for the same user
+  ---
+  duration_ms: 52.160593
+  type: 'test'
+  ...
+# Subtest: fork references the same immutable base snapshot
+ok 234 - fork references the same immutable base snapshot
+  ---
+  duration_ms: 7.953644
+  type: 'test'
+  ...
+# Subtest: discard removes uncommitted changes
+ok 235 - discard removes uncommitted changes
+  ---
+  duration_ms: 17.318802
+  type: 'test'
+  ...
+# Subtest: stale session revisions do not overwrite newer writes
+ok 236 - stale session revisions do not overwrite newer writes
+  ---
+  duration_ms: 13.633392
+  type: 'test'
+  ...
+# Subtest: frozen session does not adopt a later user commit automatically
+ok 237 - frozen session does not adopt a later user commit automatically
+  ---
+  duration_ms: 14.918634
+  type: 'test'
+  ...
+# Subtest: restart reconstructs tuple bodies without source journal
+ok 238 - restart reconstructs tuple bodies without source journal
+  ---
+  duration_ms: 23.389533
+  type: 'test'
+  ...
+# Subtest: receipt checks are distinct from associative score
+ok 239 - receipt checks are distinct from associative score
+  ---
+  duration_ms: 0.775979
+  type: 'test'
+  ...
+# Subtest: pinned bank survives decay; forgotten is not explicitly false
+ok 240 - pinned bank survives decay; forgotten is not explicitly false
+  ---
+  duration_ms: 15.380718
+  type: 'test'
+  ...
+# Subtest: reobserving a normal claim as pinned promotes retention
+ok 241 - reobserving a normal claim as pinned promotes retention
+  ---
+  duration_ms: 12.291465
+  type: 'test'
+  ...
+# Subtest: local SOP executes Horn rules
+ok 242 - local SOP executes Horn rules
+  ---
+  duration_ms: 11.044919
+  type: 'test'
+  ...
+# Subtest: retrieve missing rule-body predicates before deriving answer
+ok 243 - retrieve missing rule-body predicates before deriving answer
+  ---
+  duration_ms: 39.000873
+  type: 'test'
+  ...
+# Subtest: mixed memory to numeric solver path
+ok 244 - mixed memory to numeric solver path
+  ---
+  duration_ms: 15.13925
+  type: 'test'
+  ...
+# Subtest: approved template expands into separate SSA names
+ok 245 - approved template expands into separate SSA names
+  ---
+  duration_ms: 15.196505
+  type: 'test'
+  ...
+# Subtest: epoch budget is enforced
+ok 246 - epoch budget is enforced
+  ---
+  duration_ms: 10.343582
+  type: 'test'
+  ...
+# Subtest: hypothesis never contaminates persistent memory
+ok 247 - hypothesis never contaminates persistent memory
+  ---
+  duration_ms: 17.831936
+  type: 'test'
+  ...
+# Subtest: read-only policy refuses assertions
+ok 248 - read-only policy refuses assertions
+  ---
+  duration_ms: 7.993102
+  type: 'test'
+  ...
+# Subtest: model output cannot install rules
+ok 249 - model output cannot install rules
+  ---
+  duration_ms: 4.855307
+  type: 'test'
+  ...
+# Subtest: independent writes batch one revision
+ok 250 - independent writes batch one revision
+  ---
+  duration_ms: 6.899783
+  type: 'test'
+  ...
+# Subtest: foreign target causes whole effect batch to fail
+ok 251 - foreign target causes whole effect batch to fail
+  ---
+  duration_ms: 5.930689
+  type: 'test'
+  ...
+# Subtest: assert is not implied by a fact declaration
+ok 252 - assert is not implied by a fact declaration
+  ---
+  duration_ms: 6.954575
+  type: 'test'
+  ...
+# Subtest: shards: rotate and evict entire normal generations at a fixed bound
+ok 253 - shards: rotate and evict entire normal generations at a fixed bound
+  ---
+  duration_ms: 10.042495
+  type: 'test'
+  ...
+# Subtest: shards: sealed bank, receipts and metadata do not change on another write
+ok 254 - shards: sealed bank, receipts and metadata do not change on another write
+  ---
+  duration_ms: 2.403989
+  type: 'test'
+  ...
+# Subtest: shards: occupancy trigger uses the most occupied column
+ok 255 - shards: occupancy trigger uses the most occupied column
+  ---
+  duration_ms: 14.335881
+  type: 'test'
+  ...
+# Subtest: shards: metadata size is also a rotation trigger
+ok 256 - shards: metadata size is also a rotation trigger
+  ---
+  duration_ms: 0.694738
+  type: 'test'
+  ...
+# Subtest: shards: empty maintenance allocates no banks
+ok 257 - shards: empty maintenance allocates no banks
+  ---
+  duration_ms: 0.466791
+  type: 'test'
+  ...
+# Subtest: shards: time rotation and cold TTL can be driven by an injected clock
+ok 258 - shards: time rotation and cold TTL can be driven by an injected clock
+  ---
+  duration_ms: 0.772284
+  type: 'test'
+  ...
+# Subtest: shards: normal bank byte budget is enforced independently of count
+ok 259 - shards: normal bank byte budget is enforced independently of count
+  ---
+  duration_ms: 1.72931
+  type: 'test'
+  ...
+# Subtest: shards: pinned capacity grows separately and survives normal eviction
+ok 260 - shards: pinned capacity grows separately and survives normal eviction
+  ---
+  duration_ms: 4.51291
+  type: 'test'
+  ...
+# Subtest: shards: pinning an older normal claim keeps its retention across promotion
+ok 261 - shards: pinning an older normal claim keeps its retention across promotion
+  ---
+  duration_ms: 4.937148
+  type: 'test'
+  ...
+# Subtest: shards: explicit pinned quota fails instead of evicting protected facts
+ok 262 - shards: explicit pinned quota fails instead of evicting protected facts
+  ---
+  duration_ms: 1.241958
+  type: 'test'
+  ...
+# Subtest: shards: archive grows without automatic forgetting
+ok 263 - shards: archive grows without automatic forgetting
+  ---
+  duration_ms: 7.1269
+  type: 'test'
+  ...
+# Subtest: shards: archive hard limit rejects growth rather than losing data
+ok 264 - shards: archive hard limit rejects growth rather than losing data
+  ---
+  duration_ms: 0.662711
+  type: 'test'
+  ...
+# Subtest: shards: unused candidate retrieval is read-only
+ok 265 - shards: unused candidate retrieval is read-only
+  ---
+  duration_ms: 1.502835
+  type: 'test'
+  ...
+# Subtest: shards: proof use promotes a cold fact and lets its neighbors expire
+ok 266 - shards: proof use promotes a cold fact and lets its neighbors expire
+  ---
+  duration_ms: 1.253937
+  type: 'test'
+  ...
+# Subtest: shards: hypotheses cannot reinforce themselves
+ok 267 - shards: hypotheses cannot reinforce themselves
+  ---
+  duration_ms: 0.3851
+  type: 'test'
+  ...
+# Subtest: shards: query-clipped validity is not permanently copied during promotion
+ok 268 - shards: query-clipped validity is not permanently copied during promotion
+  ---
+  duration_ms: 1.248638
+  type: 'test'
+  ...
+# Subtest: shards: end/retract journals survive target-shard eviction and reobservation
+ok 269 - shards: end/retract journals survive target-shard eviction and reobservation
+  ---
+  duration_ms: 1.057596
+  type: 'test'
+  ...
+# Subtest: shards: bitemporal answers still work after promotion
+ok 270 - shards: bitemporal answers still work after promotion
+  ---
+  duration_ms: 0.866973
+  type: 'test'
+  ...
+# Subtest: shards: duplication is removed by claim ID, not by ignoring provenance
+ok 271 - shards: duplication is removed by claim ID, not by ignoring provenance
+  ---
+  duration_ms: 0.811922
+  type: 'test'
+  ...
+# Subtest: shards: hash consensus must not splice different shards into a tuple
+ok 272 - shards: hash consensus must not splice different shards into a tuple
+  ---
+  duration_ms: 0.453261
+  type: 'test'
+  ...
+# Subtest: shards: predicate router skips only irrelevant generations
+ok 273 - shards: predicate router skips only irrelevant generations
+  ---
+  duration_ms: 3.023496
+  type: 'test'
+  ...
+# Subtest: shards: global probe budget is never exceeded
+ok 274 - shards: global probe budget is never exceeded
+  ---
+  duration_ms: 1.475655
+  type: 'test'
+  ...
+# Subtest: shards: fan-out budget reports incomplete instead of a false unique answer
+ok 275 - shards: fan-out budget reports incomplete instead of a false unique answer
+  ---
+  duration_ms: 0.626477
+  type: 'test'
+  ...
+# Subtest: shards: zero result limit is handled conservatively
+ok 276 - shards: zero result limit is handled conservatively
+  ---
+  duration_ms: 0.262268
+  type: 'test'
+  ...
+# Subtest: shards: export/import is independent of the original objects
+ok 277 - shards: export/import is independent of the original objects
+  ---
+  duration_ms: 1.865421
+  type: 'test'
+  ...
+# Subtest: shards: legacy import needs neither tuple journal nor exact storage
+ok 278 - shards: legacy import needs neither tuple journal nor exact storage
+  ---
+  duration_ms: 1.507562
+  type: 'test'
+  ...
+# Subtest: shards: supplied geometry changes apply only to new generations
+ok 279 - shards: supplied geometry changes apply only to new generations
+  ---
+  duration_ms: 1.730211
+  type: 'test'
+  ...
+# Subtest: shards: invalid capacity configuration fails early
+ok 280 - shards: invalid capacity configuration fails early
+  ---
+  duration_ms: 0.234397
+  type: 'test'
+  ...
+# Subtest: bank clone: failed batches cannot leak domains or receipts into the original
+ok 281 - bank clone: failed batches cannot leak domains or receipts into the original
+  ---
+  duration_ms: 1.321446
+  type: 'test'
+  ...
+# Subtest: repository shards: persisted manifests reuse immutable shard blobs
+ok 282 - repository shards: persisted manifests reuse immutable shard blobs
+  ---
+  duration_ms: 7.054042
+  type: 'test'
+  ...
+# Subtest: repository shards: commit checkpoints do not reconnect evicted ancestors
+ok 283 - repository shards: commit checkpoints do not reconnect evicted ancestors
+  ---
+  duration_ms: 20.863945
+  type: 'test'
+  ...
+# Subtest: repository shards: restart preserves banks, claims and control events
+ok 284 - repository shards: restart preserves banks, claims and control events
+  ---
+  duration_ms: 5.276501
+  type: 'test'
+  ...
+# Subtest: repository shards: user isolation and immutable fork
+ok 285 - repository shards: user isolation and immutable fork
+  ---
+  duration_ms: 4.453873
+  type: 'test'
+  ...
+# Subtest: repository shards: frozen sessions retain forgotten facts until explicitly closed
+ok 286 - repository shards: frozen sessions retain forgotten facts until explicitly closed
+  ---
+  duration_ms: 24.974921
+  type: 'test'
+  ...
+# Subtest: repository shards: discard restores the same committed private snapshot
+ok 287 - repository shards: discard restores the same committed private snapshot
+  ---
+  duration_ms: 16.56429
+  type: 'test'
+  ...
+# Subtest: repository shards: stale sessions and advanced user heads are rejected
+ok 288 - repository shards: stale sessions and advanced user heads are rejected
+  ---
+  duration_ms: 2.954203
+  type: 'test'
+  ...
+# Subtest: repository shards: failure within a write batch is atomic in memory and disk
+ok 289 - repository shards: failure within a write batch is atomic in memory and disk
+  ---
+  duration_ms: 2.122011
+  type: 'test'
+  ...
+# Subtest: repository shards: GC is a dry run by default and reclaims orphan blobs
+ok 290 - repository shards: GC is a dry run by default and reclaims orphan blobs
+  ---
+  duration_ms: 6.909278
+  type: 'test'
+  ...
+# Subtest: repository shards: explicit snapshot pins protect an otherwise obsolete checkpoint
+ok 291 - repository shards: explicit snapshot pins protect an otherwise obsolete checkpoint
+  ---
+  duration_ms: 15.501637
+  type: 'test'
+  ...
+# Subtest: repository shards: corrupt reachable blob stops GC before deleting anything
+ok 292 - repository shards: corrupt reachable blob stops GC before deleting anything
+  ---
+  duration_ms: 4.899763
+  type: 'test'
+  ...
+# Subtest: repository shards: migration preserves legacy user history and pinned memory
+ok 293 - repository shards: migration preserves legacy user history and pinned memory
+  ---
+  duration_ms: 20.349743
+  type: 'test'
+  ...
+# Subtest: repository shards: forged candidate objects are ignored for reinforcement
+ok 294 - repository shards: forged candidate objects are ignored for reinforcement
+  ---
+  duration_ms: 2.447123
+  type: 'test'
+  ...
+# Subtest: repository shards: exact and hybrid retrieve across all retained generations
+ok 295 - repository shards: exact and hybrid retrieve across all retained generations
+  ---
+  duration_ms: 13.627313
+  type: 'test'
+  ...
+# Subtest: SOP shards: an actual proof promotes only its observed premises
+ok 296 - SOP shards: an actual proof promotes only its observed premises
+  ---
+  duration_ms: 8.841758
+  type: 'test'
+  ...
+# Subtest: SOP shards: truncated fan-out prevents materializing a scalar output
+ok 297 - SOP shards: truncated fan-out prevents materializing a scalar output
+  ---
+  duration_ms: 4.115803
+  type: 'test'
+  ...
+# Subtest: repository shards: automatic GC runs after configured save cadence
+ok 298 - repository shards: automatic GC runs after configured save cadence
+  ---
+  duration_ms: 2.953191
+  type: 'test'
+  ...
+# Subtest: repository shards: checkpointing a base preserves knowledge and its forks
+ok 299 - repository shards: checkpointing a base preserves knowledge and its forks
+  ---
+  duration_ms: 8.224655
+  type: 'test'
+  ...
+# Subtest: repository shards: exact coverage survives migration from exact legacy layers
+ok 300 - repository shards: exact coverage survives migration from exact legacy layers
+  ---
+  duration_ms: 3.947062
+  type: 'test'
+  ...
+# Subtest: repository shards: another process lock prevents writes and GC
+ok 301 - repository shards: another process lock prevents writes and GC
+  ---
+  duration_ms: 1.065127
+  type: 'test'
+  ...
+# Subtest: SOP shards: a two-hop Horn rule joins facts across separate generations
+ok 302 - SOP shards: a two-hop Horn rule joins facts across separate generations
+  ---
+  duration_ms: 5.591968
+  type: 'test'
+  ...
+# Subtest: repository shards: base checkpoint preserves historical library versions for asof
+ok 303 - repository shards: base checkpoint preserves historical library versions for asof
+  ---
+  duration_ms: 2.506811
+  type: 'test'
+  ...
+# Subtest: repository shards: temporal negation survives routing and never becomes absence-as-false
+ok 304 - repository shards: temporal negation survives routing and never becomes absence-as-false
+  ---
+  duration_ms: 4.531377
+  type: 'test'
+  ...
+# Subtest: half-open boundary 2023-12-31
+ok 305 - half-open boundary 2023-12-31
+  ---
+  duration_ms: 34.922806
+  type: 'test'
+  ...
+# Subtest: half-open boundary 2024-01-01
+ok 306 - half-open boundary 2024-01-01
+  ---
+  duration_ms: 20.345988
+  type: 'test'
+  ...
+# Subtest: half-open boundary 2025-05-31
+ok 307 - half-open boundary 2025-05-31
+  ---
+  duration_ms: 20.155401
+  type: 'test'
+  ...
+# Subtest: half-open boundary 2025-06-01
+ok 308 - half-open boundary 2025-06-01
+  ---
+  duration_ms: 14.00392
+  type: 'test'
+  ...
+# Subtest: invalid calendar date rejected
+ok 309 - invalid calendar date rejected
+  ---
+  duration_ms: 0.328116
+  type: 'test'
+  ...
+# Subtest: new employment does not erase another job
+ok 310 - new employment does not erase another job
+  ---
+  duration_ms: 12.097227
+  type: 'test'
+  ...
+# Subtest: end event affects effective time, asof preserves earlier knowledge
+ok 311 - end event affects effective time, asof preserves earlier knowledge
+  ---
+  duration_ms: 11.954136
+  type: 'test'
+  ...
+# Subtest: epistemic correction retracts earlier claim only after learned date
+ok 312 - epistemic correction retracts earlier claim only after learned date
+  ---
+  duration_ms: 11.886656
+  type: 'test'
+  ...
+# Subtest: nonoverlapping premises cannot produce a temporal conclusion
+ok 313 - nonoverlapping premises cannot produce a temporal conclusion
+  ---
+  duration_ms: 7.288158
+  type: 'test'
+  ...
+# Subtest: explicit negation produces conflict, not explosion
+ok 314 - explicit negation produces conflict, not explosion
+  ---
+  duration_ms: 11.435188
+  type: 'test'
+  ...
+# Subtest: local facts outside query instant cannot support a point query
+ok 315 - local facts outside query instant cannot support a point query
+  ---
+  duration_ms: 7.126749
+  type: 'test'
+  ...
+# Subtest: a rule outside the requested instant cannot derive a current conclusion
+ok 316 - a rule outside the requested instant cannot derive a current conclusion
+  ---
+  duration_ms: 7.50526
+  type: 'test'
+  ...
+# Subtest: sequential positive and negative states are not a contradiction
+ok 317 - sequential positive and negative states are not a contradiction
+  ---
+  duration_ms: 6.474794
+  type: 'test'
+  ...
+1..317
+# tests 317
+# suites 0
+# pass 306
+# fail 0
+# cancelled 0
+# skipped 11
+# todo 0
+# duration_ms 1477.704776

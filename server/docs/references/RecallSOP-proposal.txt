@@ -1,0 +1,193 @@
+RecallSOP
+Memorie exactă, memorie asociativă și interpretoare SOP Lang pentru reasoning
+Propunere de design consolidată din discuția despre SQLite, Recall Weaver, pattern discovery, abducție și extinderea SOP Lang
+Septembrie 2026
+
+Statut: propunere de arhitectură. Documentul nu modifică pachetul RecallSOP existent.
+
+Rezumat executiv
+Direcția propusă este să nu tratăm Recall Weaver ca bază de date universală și nici SOP Lang ca singura reprezentare internă a tuturor experiențelor. Sistemul devine mai coerent dacă separăm trei funcții: memoria exactă a cunoașterii formalizate, memoria asociativă a urmelor și regularităților, respectiv execuția semantică prin SOP Lang. SQLite este baseline-ul exact și transparent; Recall Weaver este mecanismul asociativ pentru familiaritate, completare, similitudine și descoperire de pattern-uri; SOP Lang este IR-ul executabil care leagă formalizatorul, linkerul, memoriile și interpretoarele de reasoning.
+Tiny LLM-ul nu trebuie să rezolve problemele. Rolul lui principal este semantic parsing: identifică entități, predicate, evenimente, scopuri și tipul cererii, apoi produce SOP Lang valid. Regularitățile găsite de Recall Weaver nu sunt promovate direct la rang de adevăr; ele devin `pattern` sau `hypothesis`, pot ghida retrieval-ul, pot ordona explicații abductive sau pot propune reguli/proceduri care sunt validate înainte de a fi introduse în memoria exactă.
+Acoperirea reasoning-ului se construiește cu un set mic de primitive: forward/backward rule search, abducție, pattern mining/asociere, constraint search, temporalitate și fork-uri de stare. Deducția, diagnosticul, planning-ul și counterfactualele sunt compoziții ale acestor mecanisme. Prolog și Z3 rămân backend-uri opționale compilate din același IR; sistemul nu depinde de sintaxa lor.
+Decizie | Propunere
+Memorie exactă | SQLite cu fire SOP, indexuri structurale, FTS5/BM25, temporalitate, proveniență și reinforcement/eviction controlabil.
+Memorie asociativă | Recall Weaver pentru traces, completare, familiaritate, similaritate, pattern discovery și prioritizarea atenției.
+IR comun | SOP Lang pentru facts, events, rules, patterns, hypotheses, actions, goals, constraints, queries și procedures.
+Reasoning | Interpretoare SOP distincte pentru reason, abduce, associate, induce, solve, plan, simulate, temporal și jsEval.
+LLM mic | Formalizer NL→SOP și verbalizer CNL→NL. Reasoning-ul principal rămâne determinist/inspectabil.
+
+1. Arhitectura propusă: separarea rolurilor
+1.1 Problema pe care trebuie să o evităm
+Dacă formalizăm imediat orice experiență în SOP Lang și păstrăm numai rezultatul formal, obținem o memorie foarte bună pentru query și reasoning, dar riscăm să pierdem regularități pe care încă nu știm să le numim. Două situații lingvistice sau comportamentale foarte diferite pot fi reduse la același `fact`. Pentru deducție aceasta este o virtute; pentru pattern discovery poate fi o pierdere de informație.
+În sens invers, dacă folosim Recall Weaver drept depozit principal al facts/rules/provenance, pierdem exactitatea, enumerarea completă și controlul tranzacțional pe care o bază de date le oferă aproape gratuit. Concluzia este că cele două memorii nu sunt concurente în toate rolurile. Ele sunt specializate.
+1.2 Cele trei niveluri
+Nivel | Responsabilitate
+Experiență / traces | Text, evenimente, secvențe, fragmente SOP, usage traces și alte urme suficient de bogate încât să păstreze regularități încă neformalizate.
+Cunoaștere semantică exactă | Facts, events, rules, procedures, ontology, aliases, temporalitate și provenance stocate exact, implicit în SQLite.
+Execuție semantică | SOP Lang + linker + interpretoare. Aici se construiește subproblema relevantă și se execută reasoning-ul.
+
+SOP Lang rămâne reprezentarea semantică comună, dar nu trebuie să fie singurul lucru pe care memoria asociativă are voie să-l vadă. Recall Weaver poate indexa atât traces pre-semantice, cât și secvențe/structuri SOP. Cele două oferă tipuri diferite de regularitate.
+1.3 Fluxul unei interogări
+O cerere a utilizatorului este formalizată într-un query SOP scurt. Linkerul extrage predicatele, entitățile și structura scopului. Strategia exactă caută facts, rules și procedures în SQLite. Strategia asociativă caută traces, pattern-uri și cazuri similare în Recall Weaver. Interpretorul potrivit primește o subproblemă redusă, nu întreaga memorie. Rezultatul este produs într-un CNL controlat și abia apoi reformulat de verbalizator.
+@q query  select ?country  where works_in_country(maria, ?country)@mem recall  query $q  strategy hybrid@r reason  query $q  memory $mem  output ?country one@a cnl  result $r  language ro
+2. Strategiile de memorie
+2.1 SQLite ca baseline exact
+SQLite ar trebui să fie strategia de referință pentru cunoașterea formalizată. Firele SOP sunt păstrate integral, iar câmpurile necesare retrieval-ului sunt extrase în indexuri. Această alegere face sistemul ușor de inspectat, de testat și de comparat cu Recall Weaver. Dacă o sarcină poate fi rezolvată mai simplu și mai exact de SQLite, nu există motiv să forțăm memoria asociativă.
+Structură | Conținut recomandat
+wire | id, wire_type, sop_source, scope, created_at/known_at, valid_from/until, importance, pinned, use_count, last_used.
+wire_predicate | Predicatele folosite și rolul lor: head, premise, query, effect etc.
+wire_entity | Entitățile canonice și rolurile lor în fir.
+wire_dependency | Relații între fire, proceduri și definiții referite.
+aliases / ontology | Aliasuri multilingve, identități canonice, isA/equivalent/relatedTo.
+FTS5 | Index textual peste label, descrieri, surse și eventual SOP source pentru fallback lexical/BM25.
+
+Relevanța nu trebuie să pornească de la embeddings. Pentru date formalizate sunt mai puternice predicate match, rule-head match, entity overlap, dependency overlap, scope și temporal compatibility. BM25 poate completa căutarea când textul/label-urile contează. Recency, use_count și importance pot influența ranking-ul fără să schimbe adevărul stocat.
+relevance =  structural_match  + rule_head_match  + entity_overlap  + dependency_overlap  + bm25_text_score  + scope_bonus  + recency/use_bonus
+2.2 Ce îi lipsește SQLite
+SQLite exact | Recall Weaver asociativ
+Recuperează ceea ce știm să interogăm explicit. | Poate completa pattern-uri parțiale și sugera continuări.
+Enumeră exact facts/rules/provenance. | Poate măsura familiaritatea și similitudinea distribuită.
+Crește aproximativ proporțional cu records. | Poate funcționa cu buget de memorie fix și degradare graduală.
+Uitarea poate fi LRU/utility exact. | Uitarea poate fi distribuită prin reinforcement + decay.
+Nu descoperă singur regularități slabe. | Poate evidenția co-apariții, secvențe și motifs recurente.
+
+2.3 Recall Weaver: rolul corect
+Recall Weaver este cel mai interesant atunci când nu îl tratăm ca un substitut pentru SQLite, ci ca un substrat pentru traces și regularități. El poate opera pe text/token traces, pe secvențe de evenimente sau pe structuri SOP canonicalizate. Pe text păstrează regularități lingvistice/contextuale; pe SOP pierde variația de suprafață, dar câștigă pattern-uri mai abstracte între predicate, roluri, intervale și proceduri.
+Un `pattern` extras din Recall Weaver nu este un fact și nici o regulă deductivă. El poate fi folosit pentru patru lucruri operaționale: predicție slabă, retrieval hints, selectarea unei proceduri SOP și propunerea unei reguli candidate pentru validare.
+Utilizare | Cum intră în sistem
+Predicție | Situația curentă activează un pattern; se produce `hypothesis`, cu supportScore și provenance.
+Retrieval hint | Pattern-ul indică predicate/entități/proceduri care merită căutate exact în SQLite.
+Procedure selection | Un pattern de situație sugerează un template/procedure SOP existent.
+Învățare | PatternMiner transformă regularități stabile în candidateRule/candidateProcedure; acestea sunt validate înainte de promovare.
+
+
+2.4 Uitare și reinforcement în cele două memorii
+Pentru SQLite, uitarea poate fi exactă și controlabilă: `pinned` nu se elimină, iar pentru memoria cache-like se poate calcula un utility score din importance, use_count, recency și scope. Se pot șterge explicit firele cu utility mic sau se pot muta în arhive reci. Pentru Recall Weaver, mecanismul distribuit discutat rămâne util: observațiile cresc contoarele, folosirea reală într-un proof întărește suportul, iar presiunea de ocupare răcește memoria normală. Cele două politici nu trebuie să fie identice.
+Într-un mod `archive`, nici SQLite și nici Recall Weaver nu uită automat; sistemul crește prin shard-uri/segmente. Într-un mod `adaptive`, SQLite poate evicta records cu utility mic, iar Recall Weaver poate face decay probabilistic. HybridMemory poate decide separat ce parte este exactă și ce parte este asociativă.
+3. SOP Lang ca IR executabil
+3.1 Convenții sintactice
+Sintaxă | Semnificație
+@name type | Declară un fir SOP.
+$wire | Consumă valoarea unui fir deja materializat; este dependență de dataflow.
+~wire | Referă o definiție/procedură/regulă aprobată fără a o copia textual.
+?x | Variabilă logică sau de ieșire. Nu necesită un `@x` declarat înainte.
+
+Variabilele `?x` trebuie să rămână diferite de firele `$x`. Ele sunt necunoscute în subproblema logică. Un interpreter precum `solve` poate declara `output ?x one|many|rows`; numai după rezolvare runtime-ul materializează rezultatul ca fir consumabil `$x`. Variabilele intermediare din reguli rămân locale și nu poluează graful SOP.
+3.2 Vocabularul de fire recomandat
+Pentru a nu încărca modelul mic cu zeci de tipuri, tipurile de fire trebuie să descrie natura informației, nu fiecare algoritm posibil. Tipul de reasoning este în primul rând responsabilitatea interpretorului și a `mode`-ului.
+Tip de fir | Rol
+fact | Afirmație semantică observată sau acceptată, cu timp/proveniență.
+event | Schimbare sau eveniment punctual; poate deschide/închide o stare.
+rule | Relație deductivă. Poate avea mod declarativ, temporal sau causal explicit.
+pattern | Regularitate observată; nu este adevăr deductiv. Are support, coverage, context și provenance.
+hypothesis | Explicație/predicție candidat, cu status explicit neconfirmat.
+constraint | Egalitate, inegalitate, domeniu sau condiție de satisfăcut.
+action | Operator cu precondiții, efecte, cost și eventual resurse.
+goal | Stare dorită sau condiție de atins.
+query | Cerere de select/prove/explain/count/why/compare/counterfactual etc.
+procedure | Circuit SOP reutilizabil pentru o familie de probleme.
+policy | Constrângeri de comportament, retenție și execuție ale host-ului.
+value / pack | Valori și containere intermediare explicit materializate.
+
+3.3 Fire de execuție / interpretoare
+Firele de mai jos sunt operații executabile peste cele declarative. Unele pot fi considerate interpretoare SOP, nu cunoaștere persistentă. Separarea permite ca SQLite și Recall Weaver să stocheze predominant cunoaștere, iar runtime-ul să execute aceleași declarații prin motoare diferite.
+Fir/interpreter | Funcție
+recall | Recuperare din strategia `sqlite`, `associative` sau `hybrid`.
+reason | Deducție forward/backward peste facts/rules; produce proof.
+abduce | Caută explicații care ar face observația derivabilă; produce hypotheses.
+associate | Caută traces/pattern-uri/cazuri similare și produce hints/scores.
+induce | Minează regularități și produce candidate patterns/rules/procedures.
+solve | Rezolvă constraints și materializează output variables.
+plan | Caută secvențe de actions de la stare la goal.
+simulate | Rulează o lume fork-uită pentru what-if/counterfactual.
+link | Leagă query-ul de rules, facts și procedures relevante înainte de solver.
+assert / retract / update | Modifică memoria semantică cu provenance și temporalitate.
+jsEval | Procesare locală pură pentru stringuri, numere, arrays/objects și transformări mici.
+cnl | Produce o reprezentare controlată, fidelă, a rezultatului și proof-ului.
+
+3.4 `jsEval` ca supapă controlată
+`jsEval` este util pentru operații care ar fi ridicol de verbose ca reguli logice: normalizarea unui string, extragerea unei componente, calcule simple, transformări de arrays sau formatarea unei structuri. Dar nu trebuie să devină o portiță pentru cod arbitrar. Profilul recomandat este expression-only, determinist, fără I/O, network, timers, eval/Function, imports, mutation globală sau acces la proces/filesystem. Dacă o expresie reapare, coding agentul o poate promova într-un interpreter sau procedure explicit.
+@normalized jsEval  expr lower(trim($rawName))@duration jsEval  expr minutes_between($start, $deadline)
+4. Interpretoarele și familiile de reasoning
+4.1 Un nucleu mic, nu câte un motor pentru fiecare etichetă
+Nu este necesar să implementăm un motor complet separat pentru fiecare nume de reasoning. Majoritatea pot fi construite din patru primitive: rule search, reverse explanation search, pattern/similarity search și constraint/state-space search. Temporalitatea și cauzalitatea sunt semantici suplimentare peste acestea.
+Familie | Mecanism principal
+Deductiv | Forward/backward chaining peste facts + rules.
+Abductiv | Reverse rule search de la observație spre premise lipsă, urmat de ranking și verificare.
+Inductiv | Pattern mining peste multe traces/cazuri; produce candidate rules, nu facts.
+Asociativ | Similarity/familiarity/pattern completion în Recall Weaver.
+Analogic | Mapare structurală între două subgrafuri/pattern-uri; produce transfer candidat.
+Constraint | Search/SAT/SMT-like pentru domenii, egalități, inegalități și scheduling.
+Temporal | Intersecții de intervale, valid-time/known-time, event→state.
+Causal | Rules marcate explicit causal + intervenții; corelația singură nu este cauzalitate.
+Counterfactual | Fork de stare + intervenție + rerulare a reasoning-ului.
+Planning | State-space search peste actions, preconditions/effects și goal.
+Diagnostic | Abducție + selectarea testelor care discriminează hypotheses.
+Classification | Rules/patterns + evidență; exactă sau probabilistică.
+Optimization | Constraint solving + objective/cost.
+
+4.2 Abducția: puntea dintre pattern și explicație
+Abducția este critică pentru a transforma regularitățile Recall Weaver în acțiuni utile. Pornim de la un efect observat și căutăm rules al căror head poate produce acel efect. Premisele neobservate devin hypotheses. Recall Weaver nu decide adevărul lor; el poate însă oferi priors de suport, cazuri similare și hints despre ce explicații merită testate primele.
+@obs fact  holds service_unavailable(server7)@q query  mode explain  target service_unavailable(server7)@h abduce  observation $obs  output ?hypotheses many
+Dacă rules cunoscute permit `network_down → service_unavailable`, `process_crashed → service_unavailable` și `disk_full → process_crashed`, abducer-ul poate produce mai multe explicații. Pattern-urile asociative pot ridica `disk_full` în ranking dacă situații similare au avut această cauză, dar statusul rămâne `hypothesis` până la verificare.
+4.3 Abducție activă și diagnostic
+Un abducer puternic nu se oprește la listarea cauzelor. Poate genera testele care reduc cel mai mult ambiguitatea dintre hypotheses: free disk space, network reachability, process status etc. Testele sunt query SOP normale, executate prin retrieval sau tool interpreters. Astfel ciclul devine observație → hypotheses → test discriminant → nouă observație → eliminare/confirmare.
+4.4 Inducție și promovarea pattern-urilor
+Inducția nu ar trebui să modifice direct biblioteca de rules. `induce` extrage regularități din traces, le exprimă ca `pattern` și calculează support, coverage, alternative și contraexemple. Un coding agent sau un validator determinist verifică pattern-ul pe date held-out și îi analizează semantica. Doar după această etapă poate fi promovat la `rule` sau `procedure`.
+Această separare ne protejează de o eroare fundamentală: secvența frecventă A→B nu înseamnă că A cauzează B. `pattern` poate exprima `often follows`, în timp ce o regulă causală cere dovadă suplimentară sau o sursă explicită.
+4.5 Counterfactual și planning
+Counterfactualul poate folosi direct mecanismul de fork al stării: se creează o lume temporară, se aplică o intervenție (`set X=false`, `replace value`, `remove event`) și se rerulează rules/constraints. Rezultatul nu este scris în memoria reală decât dacă o comandă explicită îl materializează. Planning-ul folosește `action` + `goal`; precondițiile și efectele definesc tranzițiile, iar plannerul caută un traseu cu cost și resurse.
+4.6 Backend-uri opționale: JS, Prolog, Z3
+SOP Lang este IR-ul unic pe care trebuie să-l învețe modelul. Kernelul JS poate fi backend-ul implicit pentru probleme mici și mobile. Dacă vrem un backend matur, compilerul poate traduce subsetul Horn spre Prolog și subsetul de constraints spre Z3/SMT-LIB. Modelul nu vede și nu produce sintaxa acestor backend-uri.
+SOP semantic | Backend natural
+facts + Horn rules + recursive relations | JS reasoner sau Prolog/Datalog
+finite constraints / arithmetic simplu | JS constraint solver
+inequalities / scheduling / satisfiability mai complex | Z3 opțional
+graph reachability / paths | JS graph interpreter
+mixed problem | Circuit SOP care leagă output-ul unui interpreter de input-ul următorului.
+
+Pentru probleme mixte, output variables sunt lipiciul. De exemplu, reasoning-ul relațional găsește `?duration`; runtime-ul materializează `$duration`; un constraint ulterior consumă `$duration`. Nu este nevoie ca Z3 sau Prolog să cunoască toată memoria, ci doar subproblema compilată din SOP.
+5. Implicații pentru training și programul experimental
+5.1 Rolul modelelor mici
+Formalizatorul trebuie să recunoască situații și să emită SOP valid, nu să simuleze intern toate familiile de reasoning. Această reducere a sarcinii este esențială pentru modele de ordinul sutelor de milioane de parametri. Verbalizatorul primește CNL + proof + style policy și reformulează fără să schimbe valorile sau statusul concluziilor.
+Model/adaptor | Obiectiv de fine-tuning
+Formalizer | NL → SOP: facts, events, updates, queries, goals, constraints, action descriptions, explanation requests, counterfactual requests.
+Verbalizer | CNL / structured result → NL fluent, păstrând exact status, valori, incertitudine și provenance.
+
+5.2 Ce trebuie să conțină datele de training
+Datasetul formalizatorului trebuie să acopere explicit tipurile de wire și modurile de query. Nu este suficient să antrenăm numai facts și lookup-uri. Exemplele trebuie să includă sinonime multilingve, temporal updates, negation, corrections, output variables, ambiguous entity resolution, abductive `explain`, pattern/hypothesis distinctions, goals/actions, constraints, counterfactuals și procedure selection.
+Familie de exemple | Țintă SOP
+Afirmații și update-uri | fact, event, retract/update, valid/known time.
+Interogări exacte | query select/prove/count/why + `?output`.
+Abducție | query mode explain / abduce; nu se generează cauza ca fact.
+Planning | goal + action references + plan request.
+Counterfactual | query/simulate cu intervention/fork explicit.
+Pattern-aware | situații care selectează `associate` sau o procedure; pattern-ul recuperat vine din memorie, nu din halucinația modelului.
+Constraint | numeric/temporal relationships reprezentate canonical.
+
+5.3 Coding agentul și învățarea din documente
+Coding agentul are două responsabilități separate. Prima este ingestia semantică: citește documente, extrage facts/events/rules/procedures în SOP, păstrează provenance și le introduce în SQLite. A doua este analiza inductivă: inspectează pattern-uri propuse de Recall Weaver, caută contraexemple, evaluează dacă sunt doar corelații sau reguli generalizabile și publică numai ceea ce trece validarea.
+Pentru audit, sursa documentară originală nu trebuie pierdută. SQLite poate păstra `sop_source` împreună cu link-ul/source hash/quote; Recall Weaver poate păstra traces separate. Re-formalizarea ulterioară rămâne posibilă dacă ontologia sau interpretoarele se schimbă.
+5.4 Experimente care trebuie să decidă arhitectura, nu preferința
+Experiment | Întrebarea la care răspunde
+SQLite structural retrieval vs BM25 vs hybrid | Cât de departe ajungem fără memorie asociativă?
+SQLite vs Recall Weaver vs HybridMemory | Pe ce task-uri RW aduce câștig măsurabil?
+Text traces vs SOP traces în Recall Weaver | Unde pierdem/câștigăm regularități prin formalizare?
+Pattern→retrieval hint | Cât de des un pattern crește recall-ul exact fără a crește erorile?
+Abduction ranking cu/fără Recall Weaver | Ajută cazurile similare la prioritizarea explicațiilor corecte?
+Induction promotion | Ce procent din candidate patterns devin rules/procedures validate?
+Tiny formalizer | Exact-match structural și execution success pe SOP, nu doar BLEU/text similarity.
+End-to-end | Răspuns corect + proof + abstention corect pe task-uri deductive, abductive, planning și temporal.
+
+5.5 Ordinea recomandată de implementare
+Etapă | Rezultat
+Etapa 1 | SQLiteMemory complet + SOP linker + JS reasoner + CNL. Acesta este baseline-ul demonstrabil.
+Etapa 2 | Formalizer mic NL→SOP, cu context lexical foarte mic și resolver simbolic.
+Etapa 3 | Abduce și diagnostic peste aceleași rules; fără Recall Weaver încă.
+Etapa 4 | Recall Weaver pentru traces + associate. Măsurăm retrieval hints și familiarity.
+Etapa 5 | PatternMiner/induce + candidate pattern → validation → promotion.
+Etapa 6 | Planning, simulate/counterfactual și backend-uri opționale Prolog/Z3 numai unde aduc valoare.
+
+Concluzie
+Cea mai puternică versiune a ideii nu este „o singură memorie inteligentă”, ci o arhitectură în care fiecare componentă face exact ceea ce știe să facă bine. SQLite păstrează cunoașterea explicită și auditabilă. Recall Weaver păstrează și descoperă regularități distribuite. SOP Lang este interfața semantică executabilă dintre ele. Linkerul construiește subproblema relevantă. Interpretoarele aplică forme diferite de reasoning, iar LLM-ul mic se concentrează pe înțelegere și exprimare.
+Abducția completează arhitectura deoarece transformă observațiile și pattern-urile în explicații testabile, fără a le confunda cu facts. Inducția transformă multe experiențe în candidate knowledge, iar validarea decide ce devine rule/procedure. Planning-ul și counterfactualele extind același IR spre acțiune. În această formă, sistemul poate evolua gradual: de la un baseline simplu SQLite + SOP + JS reasoner la o memorie asociativă și un set de interpretoare tot mai bogat, fără ca modelul mic să fie obligat să învețe toate mecanismele în greutăți.

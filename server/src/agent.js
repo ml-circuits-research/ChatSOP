@@ -1,0 +1,34 @@
+import {Runtime} from './runtime.js';import {microContext,normalize} from './lexicon.js';import {formalize,verbalize} from './llm.js';import {parse,many,one,parseAtom,emitAtom,canonical,dependencies,unquote} from './sop/parser.js';import {assert} from './util.js';
+function atomSources(w){if(w.type==='fact')return [one(w,'holds')];if(['query','goal'].includes(w.type))return many(w,'where');if(w.type==='hypothesis')return [...(w.fields.holds?[one(w,'holds')]:[]),...many(w,'assume')];if(w.type==='trace')return many(w,'feature');return [];}
+/** The model handles language. All state changes and inference go through SOP. */
+export class Agent{
+ constructor({repo,session,lexicon,config}){Object.assign(this,{repo,session,lexicon,config});this.recent=[];this.last=null;}
+ async turn(text,{language='auto',now=Date.now(),rewrite=true}={}){
+  const context=microContext(text,this.lexicon,{language,now:new Date(now).toISOString(),recent:this.recent});
+  if(this.last?.packet?.query)context.previous_query_sop='@previous query\n'+this.last.packet.query.where.map(a=>'  where '+emitAtom(a)).join('\n');
+  if(this.last?.packet?.proof)context.claims=this.last.packet.proof.filter(p=>p.kind==='observed').slice(0,3).map(p=>({id:p.id,sop:'@known fact\n  holds '+emitAtom(p.atom)+'\n  valid '+(p.valid.from===-Infinity?'beginning':new Date(p.valid.from).toISOString())+' '+(p.valid.until===Infinity?'open':new Date(p.valid.until).toISOString())}));
+  // Follow-up questions may contain no new lexical mention. Carry only the
+  // validated symbols of the previous query and its observed evidence.
+  const prior=[...(this.last?.packet?.query?.where??[]),...(this.last?.packet?.proof??[]).slice(0,3).map(p=>p.atom)];
+  for(const a of prior){if(!context.predicates.some(p=>p.id===a.p)&&this.lexicon.predicates[a.p]){const p=this.lexicon.predicates[a.p];context.predicates.push({id:a.p,args:p.args,meaning:p.description});}for(const id of a.a){const e=this.lexicon.entities[id];if(e&&!context.entities.some(x=>x.id===id))context.entities.push({id,label:e.labels.ro??id,type:e.entityType});}}
+  const candidates=this.repo.library(this.session,{asof:now}).filter(x=>['template','procedure'].includes(x.wireType));
+  const selected=candidates.filter(lib=>{const w=parse(lib.sop).wires[0],body=parse(one(w,'body'));const ps=body.wires.filter(x=>x.type==='query').flatMap(x=>many(x,'where').map(a=>parseAtom(a).p));return ps.some(p=>context.predicates.some(x=>x.id===p))||many(w,'cue').some(c=>normalize(text).includes(normalize(unquote(c))));}).slice(0,2);
+  context.approvedTemplates=selected.map(x=>x.id);context.procedures_sop=selected.map(x=>x.sop);
+  // Definitions carry the vocabulary needed to fill their parameters.
+  for(const lib of selected){const w=parse(lib.sop).wires[0];for(const child of parse(one(w,'body')).wires)if(child.type==='query')for(const text of many(child,'where')){const p=parseAtom(text).p;if(!context.predicates.some(x=>x.id===p)&&this.lexicon.predicates[p]){const item=this.lexicon.predicates[p];context.predicates.push({id:p,args:item.args,meaning:item.description});}}}
+  const budget=this.config.contextMaxBytes??4800;
+  while(Buffer.byteLength(JSON.stringify(context))>budget&&context.recent.length)context.recent.shift();
+  assert(Buffer.byteLength(JSON.stringify(context))<=budget,'Discourse context exceeds budget; split the request or clarify');
+  const sop=await formalize(text,context,this.config.formalizer);this.validateVocabulary(sop,context);
+  const result=await new Runtime({repo:this.repo,session:this.session,schema:this.lexicon.predicates,now,policy:this.config.policy,atomGuard:(a,meta)=>this.validateAtom(a,context,meta),factGuard:f=>assert(f.source==='user','Conversational observations use source user; document provenance requires reviewed ingestion')}).run(sop,{origin:'model'});
+  let output=result.result;if(output?.status==='blocked'){const pending=Object.entries(result.outputs).filter(([,v])=>v.status!=='bound').map(([name,v])=>name+': '+v.status).join('; ');output={status:'clarify',complete:false,text:'Nu pot continua calculul fără o valoare determinată pentru ieșirile necesare ('+pending+'). Precizează informația lipsă sau cere toate rezultatele.'};}
+  if(output?.status==='clarify')output={kind:'cnl',text:output.text,language:language==='auto'?'ro':language,packet:output};
+  if(output?.status==='stored')output={kind:'cnl',text:'Afirmațiile au fost înregistrate în sesiunea curentă.',language:'ro',packet:output};
+  assert(output?.kind==='cnl','The conversational SOP program must end in cnl, clarify, or assert');
+  this.last=output;this.recent.push({user:text.slice(0,400),response:output.text.slice(0,500)});this.recent=this.recent.slice(-3);
+  const nl=rewrite&&this.config.verbalizer?await verbalize(output,this.config.verbalizer):{text:output.text};
+  return {sop,cnl:output.text,text:nl.text,packet:output.packet,trace:result.trace,outputs:result.outputs,blocked:result.blocked,generated:result.generated,neuralFormalization:true,verbalizationCertified:!rewrite};
+ }
+ validateAtom(a,context,meta={}){const predicates=new Set(context.predicates.map(p=>p.id)),ids=new Set(context.entities.map(e=>e.id));assert(predicates.has(a.p),'Model selected a predicate outside its shortlist; widen retrieval or clarify');for(let i=0;i<a.a.length;i++){const x=a.a[i],t=this.lexicon.predicates[a.p]?.args[i];if(typeof x==='string'&&!x.startsWith('?')&&t!=='value'&&t!=='integer'){const raw=meta.wire?parseAtom(atomSources(meta.wire)[meta.atomIndex??0]):null;const ref=raw?.a[i]?.ref;const generated=ref&&meta.outputs?.[ref]?.status==='bound';assert(ids.has(x)||generated,'Model selected an entity outside its shortlist; resolve identity first');if(generated){const produced=meta.outputs[ref].valueType;assert(t==='entity'||t==='value'||t===produced,'Generated output type does not match predicate argument');}const actual=this.lexicon.entities[x]?.entityType;if(actual&&t&&t!=='entity')assert(actual===t,'Resolved entity type does not match predicate argument');}}}
+ validateVocabulary(sop,context){const ids=new Set(context.entities.map(e=>e.id));const predicates=new Set(context.predicates.map(p=>p.id));const p=parse(sop);for(const w of p.wires){for(const h of dependencies(w).handles)assert([...(context.approvedTemplates??[]),...(context.approvedDefinitions??[])].includes(h),'Model selected a procedure outside its approved shortlist');const atoms=atomSources(w);for(const s of atoms){const a=parseAtom(s);assert(predicates.has(a.p),'Model selected a predicate outside its shortlist; widen retrieval or clarify');for(let i=0;i<a.a.length;i++){const x=a.a[i],t=this.lexicon.predicates[a.p]?.args[i];if(typeof x==='string'&&!x.startsWith('?')&&t!=='value'&&t!=='integer')assert(ids.has(x),'Model selected an entity outside its shortlist; resolve identity first');}}}}
+}

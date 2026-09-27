@@ -1,0 +1,60 @@
+
+=== query ===
+Afirmația este susținută de premisele disponibile.
+ANSWER ?who = "ana"
+EVIDENCE d_7fe7594a7f287ae336a5015cc391d97a: grandmother(ana, carina) VIA grandmother_rule FROM c_24548faa3e83d426354b3a1acb953c50, c_398818afc065d1b76a85f1fc22140044
+EVIDENCE c_24548faa3e83d426354b3a1acb953c50: mother(ana, bogdan) SOURCE demo
+EVIDENCE c_398818afc065d1b76a85f1fc22140044: parent(bogdan, carina) SOURCE demo
+ENGINE reference / js
+wires=4 epochs=1
+
+=== mixed ===
+Există cel puțin o soluție compatibilă cu afirmația.
+ENGINE reference / js
+wires=7 epochs=1
+
+=== expand ===
+Afirmația este susținută de premisele disponibile.
+ANSWER ?who = "bogdan"
+ANSWER ?who = "ana"
+EVIDENCE d_d3a0605cd5468a4039e988fe44eaed30: ancestor(bogdan, carina) VIA ancestor_base FROM c_398818afc065d1b76a85f1fc22140044
+EVIDENCE c_398818afc065d1b76a85f1fc22140044: parent(bogdan, carina) SOURCE demo
+EVIDENCE d_76638500644df50e3475b6eb366748d6: ancestor(ana, carina) VIA ancestor_recursive FROM d_cd050d3146bbdfd8df4fb73717f65303, d_d3a0605cd5468a4039e988fe44eaed30
+EVIDENCE d_cd050d3146bbdfd8df4fb73717f65303: parent(ana, bogdan) VIA mother_parent FROM c_24548faa3e83d426354b3a1acb953c50
+EVIDENCE c_24548faa3e83d426354b3a1acb953c50: mother(ana, bogdan) SOURCE demo
+ENGINE reference / js
+wires=8 epochs=2
+
+=== strings ===
+"știință"
+wires=2 epochs=1
+
+=== remember ===
+Afirmația este susținută de premisele disponibile.
+ANSWER ?project = "project_delta"
+EVIDENCE c_c7970cfe431bb6e67180c9ae1956f6da: project_member(maria, project_delta) SOURCE user
+ENGINE reference / js
+wires=6 epochs=1
+
+=== temporal ===
+Informațiile disponibile nu decid întrebarea.
+ENGINE reference / js
+wires=8 epochs=1
+
+=== hypothesis ===
+Rezultat condiționat de ipotezele introduse.
+Afirmația este susținută de premisele disponibile.
+ANSWER ?who = "carina"
+ANSWER ?who = "bogdan"
+ANSWER ?who = "ana"
+EVIDENCE d_2a21e645e818e9d830dbc4e24cf20e34: ancestor(carina, person_delta) VIA ancestor_base FROM assume_0
+EVIDENCE assume_0: parent(carina, person_delta) SOURCE user
+EVIDENCE d_6004f687d4c75f732149ba13d44de320: ancestor(bogdan, person_delta) VIA ancestor_recursive FROM c_398818afc065d1b76a85f1fc22140044, d_2a21e645e818e9d830dbc4e24cf20e34
+EVIDENCE c_398818afc065d1b76a85f1fc22140044: parent(bogdan, carina) SOURCE demo
+EVIDENCE d_18ec1657da992ade4772e2f13eec5b6e: ancestor(ana, person_delta) VIA ancestor_recursive FROM d_cd050d3146bbdfd8df4fb73717f65303, d_6004f687d4c75f732149ba13d44de320
+EVIDENCE d_cd050d3146bbdfd8df4fb73717f65303: parent(ana, bogdan) VIA mother_parent FROM c_24548faa3e83d426354b3a1acb953c50
+EVIDENCE c_24548faa3e83d426354b3a1acb953c50: mother(ana, bogdan) SOURCE demo
+ENGINE reference / js
+wires=5 epochs=1
+
+No neural model was used in this deterministic kernel demonstration.

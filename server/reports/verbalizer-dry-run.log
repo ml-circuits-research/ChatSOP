@@ -1,0 +1,33 @@
+{
+  "role": "verbalizer",
+  "rows": {
+    "train": 445,
+    "dev": 55
+  },
+  "files": {
+    "data/seed/verbalizer/train.jsonl": "8ccc3c5cf180a1911db76b86b2ed5deab0d7e29d3058b79d80fb01ea46464001",
+    "data/seed/verbalizer/dev.jsonl": "28fce74982100ce2f64addf1ee88233a642bd9cf0245c895693d7602bcaf7fe0"
+  },
+  "config": {
+    "model_id": "google/gemma-3-270m-it",
+    "revision": "main",
+    "max_length": 4096,
+    "epochs": 3,
+    "batch_size": 2,
+    "gradient_accumulation": 8,
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "lr": 0.0002,
+    "full_lr": 2e-05,
+    "weight_decay": 0.01,
+    "warmup_fraction": 0.05,
+    "gradient_checkpointing": true,
+    "max_grad_norm": 1.0,
+    "log_every": 10,
+    "save_every": 100,
+    "seed": 42,
+    "attention": "sdpa"
+  },
+  "training_executed": false
+}

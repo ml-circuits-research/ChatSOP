@@ -1,0 +1,19 @@
+{
+  "name": "recall-sop",
+  "version": "0.7.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "demo": "node examples/demo.js",
+    "verify": "node tools/verify.js",
+    "shards": "node examples/shards-demo.js",
+    "memory": "node examples/memory-demo.js",
+    "bench:memory": "node tools/bench-memory.js",
+    "demo:reasoning": "node examples/reasoning-demo.js",
+    "data": "node tools/build-data.js --out data/seed"
+  }
+}

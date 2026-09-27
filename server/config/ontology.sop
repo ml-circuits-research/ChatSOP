@@ -1,0 +1,218 @@
+# Control-plane vocabulary. Alias is not subsumption; mother is not normalized away.
+@parent predicate
+  args person person
+  description "relație de părinte, fără presupunere despre gen"
+  label ro "părinte"
+  alias ro "este părintele"
+  alias ro "părintele"
+  alias en "parent"
+  alias en "parent of"
+  alias de "Elternteil"
+
+@mother predicate
+  args person person
+  description "relație explicită de mamă"
+  label ro "mamă"
+  alias ro "mama"
+  alias ro "este mama"
+  alias en "mother"
+
+@father predicate
+  args person person
+  description "relație explicită de tată"
+  label ro "tată"
+  alias ro "tatăl"
+  alias en "father"
+
+@grandparent predicate
+  args person person
+  description "părintele unui părinte; fără gen dedus din nume"
+  label ro "bunic sau bunică"
+  alias ro "bunicii"
+  alias en "grandparent"
+
+@grandmother predicate
+  args person person
+  description "bunică, derivată numai cu informație despre relația maternală"
+  label ro "bunică"
+  alias ro "bunica"
+  alias en "grandmother"
+
+@ancestor predicate
+  args person person
+  description "relație de ascendență prin părinți"
+  label ro "strămoș"
+  alias en "ancestor"
+
+@works_at predicate
+  args person organization
+  description "lucrează la organizație; nu afirmă automat statut de angajat sau locație fizică"
+  label ro "lucrează la"
+  alias ro "muncește la"
+  alias en "works at"
+  alias de "arbeitet bei"
+  alias fr "travaille chez"
+  alias it "lavora presso"
+
+@employed_by predicate
+  args person organization
+  description "raport explicit de angajare"
+  label ro "este angajat la"
+  alias ro "este angajată la"
+  alias en "employed by"
+
+@contractor_for predicate
+  args person organization
+  description "prestator sau contractor, nu neapărat angajat"
+  label ro "este contractor pentru"
+  alias en "contractor for"
+
+@located_in predicate
+  args entity place
+  description "localizare explicit afirmată; nu se deduce din locul de muncă"
+  label ro "se află în"
+  alias ro "este localizat în"
+  alias en "located in"
+
+@project_member predicate
+  args person project
+  description "participare la proiect"
+  label ro "participă la"
+  alias en "member of project"
+
+@duration predicate
+  args entity integer
+  description "durată numerică; unitatea este stabilită de schema aplicației, aici minute"
+  label ro "durează"
+  alias en "takes minutes"
+
+@likes predicate
+  args person entity
+  description "preferință explicită"
+  label ro "preferă"
+  alias en "likes"
+
+@ana entity
+  kind person
+  label ro "Ana"
+  alias ro "Anei"
+  label en "Ana"
+
+@bogdan entity
+  kind person
+  label ro "Bogdan"
+  label en "Bogdan"
+
+@carina entity
+  kind person
+  label ro "Carina"
+  alias ro "Carinei"
+  label en "Carina"
+
+@maria entity
+  kind person
+  label ro "Maria"
+  alias ro "Mariei"
+  label en "Maria"
+  label de "Maria"
+
+@lab_alpha entity
+  kind organization
+  label ro "Laboratorul Alfa"
+  alias ro "Alfa"
+  label en "Alpha Lab"
+
+@lab_beta entity
+  kind organization
+  label ro "Laboratorul Beta"
+  alias ro "Beta"
+  label en "Beta Lab"
+
+@project_delta entity
+  kind project
+  label ro "Proiectul Delta"
+  label en "Delta Project"
+
+@network_down predicate
+  args entity
+  description "rețea indisponibilă; predicat demonstrativ, fără reguli cauzale implicite"
+  label ro "rețea indisponibilă"
+  alias ro "rețea indisponibilă"
+  alias en "network down"
+
+@disk_full predicate
+  args entity
+  description "disc plin; predicat demonstrativ, fără reguli cauzale implicite"
+  label ro "disc plin"
+  alias ro "disc plin"
+  alias en "disk full"
+
+@outage predicate
+  args entity
+  description "indisponibilitate; predicat demonstrativ, fără reguli cauzale implicite"
+  label ro "indisponibilitate"
+  alias ro "indisponibilitate"
+  alias en "outage"
+
+@hot predicate
+  args entity
+  description "fierbinte; predicat demonstrativ, fără reguli cauzale implicite"
+  label ro "fierbinte"
+  alias ro "fierbinte"
+  alias en "hot"
+
+@dry predicate
+  args entity
+  description "uscat; predicat demonstrativ, fără reguli cauzale implicite"
+  label ro "uscat"
+  alias ro "uscat"
+  alias en "dry"
+
+@needs_attention predicate
+  args entity
+  description "necesită atenție; predicat demonstrativ, fără reguli cauzale implicite"
+  label ro "necesită atenție"
+  alias ro "necesită atenție"
+  alias en "needs attention"
+
+@connected predicate
+  args entity entity
+  description "conectat la; predicat demonstrativ, fără reguli cauzale implicite"
+  label ro "conectat la"
+  alias ro "conectat la"
+  alias en "connected"
+
+@useful predicate
+  args entity
+  description "util; predicat demonstrativ, fără reguli cauzale implicite"
+  label ro "util"
+  alias ro "util"
+  alias en "useful"
+
+@supply predicate
+  args entity
+  description "alimentare disponibilă; predicat demonstrativ, fără reguli cauzale implicite"
+  label ro "alimentare disponibilă"
+  alias ro "alimentare disponibilă"
+  alias en "power supply"
+
+@switch_on predicate
+  args entity
+  description "comutator pornit; predicat demonstrativ, fără reguli cauzale implicite"
+  label ro "comutator pornit"
+  alias ro "comutator pornit"
+  alias en "switch on"
+
+@light_on predicate
+  args entity
+  description "lumină pornită; predicat demonstrativ, fără reguli cauzale implicite"
+  label ro "lumină pornită"
+  alias ro "lumină pornită"
+  alias en "light on"
+
+@process_crashed predicate
+  args entity
+  description "proces oprit neașteptat"
+  label ro "proces oprit"
+  alias ro "proces oprit"
+  alias en "process crashed"

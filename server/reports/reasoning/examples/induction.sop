@@ -1,0 +1,11 @@
+@cases pack
+  items ~case_good ~case_bad
+
+@result induce
+  data $cases
+  candidates ~candidate
+  output ?patterns many
+
+@answer cnl
+  result $result
+  language ro

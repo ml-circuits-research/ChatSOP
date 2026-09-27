@@ -1,0 +1,17 @@
+@c constraint
+  var ?x int 0 10
+  var ?y int 0 10
+  require ?x + ?y >= 3
+  claim ?x >= 0
+  objective 2 * ?x + ?y
+  direction min
+  task optimize
+
+@result solve
+  constraint $c
+  output ?x one
+  output ?y one
+
+@answer cnl
+  result $result
+  language ro

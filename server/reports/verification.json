@@ -1,0 +1,149 @@
+{
+  "profile": "sop-agent-3",
+  "node": "v22.16.0",
+  "platform": "linux",
+  "arch": "x64",
+  "sourceFingerprint": "9622b7d31a375e8592dd73dcde7891a70537100bdfeca610ab4825acbbdf6cf1",
+  "complete": true,
+  "neuralModelTested": false,
+  "trainingExecuted": false,
+  "results": [
+    {
+      "name": "node-tests",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 1.514,
+      "error": null,
+      "tests": 317,
+      "pass": 306,
+      "fail": 0,
+      "skipped": 11
+    },
+    {
+      "name": "demo",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 0.135,
+      "error": null
+    },
+    {
+      "name": "linker-demo",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 0.151,
+      "error": null
+    },
+    {
+      "name": "forgetting-demo",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 0.126,
+      "error": null
+    },
+    {
+      "name": "shards-demo",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 0.106,
+      "error": null
+    },
+    {
+      "name": "shards-benchmark",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 1.1,
+      "error": null
+    },
+    {
+      "name": "solver-availability",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 0.157,
+      "error": null
+    },
+    {
+      "name": "reasoning-matrix",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 0.79,
+      "error": null
+    },
+    {
+      "name": "contracts",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 0.043,
+      "error": null
+    },
+    {
+      "name": "memory-demo",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 0.384,
+      "error": null
+    },
+    {
+      "name": "data-validation",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 3.096,
+      "error": null
+    },
+    {
+      "name": "data-sharded",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 3.196,
+      "error": null
+    },
+    {
+      "name": "data-holo",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 7.418,
+      "error": null
+    },
+    {
+      "name": "data-sqlite",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 7.001,
+      "error": null
+    },
+    {
+      "name": "data-scan",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 2.065,
+      "error": null
+    },
+    {
+      "name": "data-hybrid",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 7.376,
+      "error": null
+    },
+    {
+      "name": "training-format",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 0.575,
+      "error": null
+    },
+    {
+      "name": "formalizer-dry-run",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 0.641,
+      "error": null
+    },
+    {
+      "name": "verbalizer-dry-run",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 0.552,
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "profile": "sop-agent-3",
+  "worlds": 30,
+  "seed": 731,
+  "additionalReasoningExamples": 420,
+  "duplicatePromptsRemoved": 106,
+  "splitUnit": "world; paraphrases inherit split; templates recur across splits",
+  "counts": {
+    "formalizer": {
+      "train": 1224,
+      "dev": 153,
+      "test": 153
+    },
+    "verbalizer": {
+      "train": 445,
+      "dev": 55,
+      "test": 54
+    }
+  },
+  "grammarSHA": "fcc81d1fd6dc6c30e9e9567b60fab05ef65c460ee9a0a8195ef2e1e6763b62a9",
+  "promptSHA": "79e735e29a5ca9265995ba97c0b56aaf0fcdc50e46b7acc48a07a92a8d85bf50",
+  "generation": "executed synthetic seed programs, not human semantic evaluation",
+  "neuralModelTested": false
+}

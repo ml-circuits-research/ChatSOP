@@ -1,0 +1,29 @@
+# Epoch 1; this is a trace fragment, not a standalone program.
+@who__link link
+  query $family
+  strategy hybrid
+
+@who__reason reason
+  query $family
+  memory $who__link
+
+@bunica binding
+  result $who__reason
+  variable ?bunica
+  mode one
+  owner who
+
+# Epoch 2; this is a trace fragment, not a standalone program.
+@next__link link
+  query $children
+  strategy hybrid
+
+@next__reason reason
+  query $children
+  memory $next__link
+
+@copii binding
+  result $next__reason
+  variable ?copii
+  mode many
+  owner next

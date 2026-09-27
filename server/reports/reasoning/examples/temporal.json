@@ -1,0 +1,117 @@
+{
+  "setup": "@job fact\n  holds works_at(person_a_0, org_0)\n  valid 2024-01-01 2026-03-01\n  source synthetic\n",
+  "target": "@q query\n  select ?where\n  where works_at(person_a_0, ?where)\n  at 2025-06-15\n\n@result temporal\n  query $q\n  output ?where one\n\n@answer cnl\n  result $result\n  language ro\n",
+  "packet": {
+    "status": "supported",
+    "kind": "select",
+    "query": {
+      "kind": "query",
+      "variableTypes": {},
+      "mode": "select",
+      "where": [
+        {
+          "p": "works_at",
+          "a": [
+            "person_a_0",
+            "?where"
+          ],
+          "neg": false
+        }
+      ],
+      "select": [
+        "?where"
+      ],
+      "filters": [],
+      "limit": 100,
+      "at": 1749945600000,
+      "asof": 1790380800000
+    },
+    "conflictedAnswers": [],
+    "answers": [
+      {
+        "binding": {
+          "?where": "org_0"
+        },
+        "valid": {
+          "from": 1704067200000,
+          "until": 1772323200000
+        },
+        "evidence": [
+          "c_ff16be104c2bc905978986c4bea44919"
+        ]
+      }
+    ],
+    "proof": [
+      {
+        "id": "c_ff16be104c2bc905978986c4bea44919",
+        "atom": {
+          "p": "works_at",
+          "a": [
+            "person_a_0",
+            "org_0"
+          ],
+          "neg": false
+        },
+        "valid": {
+          "from": 1704067200000,
+          "until": 1772323200000
+        },
+        "source": "synthetic",
+        "quote": "",
+        "knownAt": 1,
+        "retention": "normal",
+        "kind": "observed",
+        "claim": {
+          "tupleHash": "cefa775ee7c2099882e36ca3c0c41cb72673966f641e6c309965e84f3e59e74b",
+          "valid": {
+            "from": "2024-01-01T00:00:00.000Z",
+            "until": "2026-03-01T00:00:00.000Z"
+          },
+          "source": "synthetic",
+          "quote": "",
+          "id": "c_ff16be104c2bc905978986c4bea44919",
+          "knownAt": 1,
+          "retention": "normal",
+          "observations": 1,
+          "uses": 0,
+          "lastObservedAt": 1790459381259
+        },
+        "shardId": "s1",
+        "evidence": {
+          "support": 1,
+          "receipt": true,
+          "verification": "receipt",
+          "metadataVerified": true
+        },
+        "retrievalStrategies": [
+          "recall-weaver"
+        ]
+      }
+    ],
+    "complete": true,
+    "truncated": false,
+    "assurance": "Derivation from admitted premises; support is not a calibrated probability of truth.",
+    "hypothetical": false,
+    "diagnostics": {
+      "memoryProbes": 3,
+      "retrieved": 1,
+      "closureFacts": 1,
+      "rounds": 1
+    },
+    "backend": "js",
+    "ignored": [],
+    "route": {
+      "operation": "temporal",
+      "backend": "js",
+      "fallback": null,
+      "semantics": "no-required-constraint-silently-dropped"
+    },
+    "reasoningStrategy": "reference"
+  },
+  "generated": [
+    {
+      "epoch": 1,
+      "source": "@where binding\n  result $result\n  variable ?where\n  mode one\n  owner result\n"
+    }
+  ]
+}

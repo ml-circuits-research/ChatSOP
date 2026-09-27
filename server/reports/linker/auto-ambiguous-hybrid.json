@@ -1,0 +1,2477 @@
+{
+  "example": "auto-ambiguous",
+  "strategy": "hybrid",
+  "neuralModelTested": false,
+  "profile": "sop-agent-3",
+  "values": {
+    "q": {
+      "kind": "query",
+      "variableTypes": {
+        "?stramos": "person"
+      },
+      "mode": "select",
+      "where": [
+        {
+          "p": "ancestor",
+          "a": [
+            "?stramos",
+            "carina"
+          ],
+          "neg": false
+        }
+      ],
+      "select": [
+        "?stramos"
+      ],
+      "filters": [],
+      "limit": 100,
+      "at": 1790380800000,
+      "asof": 1790380800000
+    },
+    "r__link": {
+      "kind": "retrieval",
+      "query": {
+        "kind": "query",
+        "variableTypes": {
+          "?stramos": "person"
+        },
+        "mode": "select",
+        "where": [
+          {
+            "p": "ancestor",
+            "a": [
+              "?stramos",
+              "carina"
+            ],
+            "neg": false
+          }
+        ],
+        "select": [
+          "?stramos"
+        ],
+        "filters": [],
+        "limit": 100,
+        "at": 1790380800000,
+        "asof": 1790380800000
+      },
+      "facts": [
+        {
+          "id": "c_398818afc065d1b76a85f1fc22140044",
+          "atom": {
+            "p": "parent",
+            "a": [
+              "bogdan",
+              "carina"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "demo",
+          "quote": "",
+          "knownAt": 1704067200000,
+          "retention": "pinned",
+          "claim": {
+            "tupleHash": "d29b9a70591b004cca8afd15cc1c4e9a640bee96749b5fae48a1817ac1808ee7",
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "source": "demo",
+            "quote": "",
+            "id": "c_398818afc065d1b76a85f1fc22140044",
+            "knownAt": 1704067200000,
+            "retention": "pinned",
+            "observations": 1,
+            "lastObservedAt": 1704067200000
+          },
+          "kind": "observed",
+          "evidence": {
+            "verification": "exact",
+            "metadataVerified": true
+          },
+          "retrievalStrategies": [
+            "exact"
+          ]
+        },
+        {
+          "id": "c_24548faa3e83d426354b3a1acb953c50",
+          "atom": {
+            "p": "mother",
+            "a": [
+              "ana",
+              "bogdan"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "demo",
+          "quote": "",
+          "knownAt": 1704067200000,
+          "retention": "pinned",
+          "claim": {
+            "tupleHash": "c474f87e5efb9ad2520fa153f7836d97750a806d592ec203c964ad144db64c71",
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "source": "demo",
+            "quote": "",
+            "id": "c_24548faa3e83d426354b3a1acb953c50",
+            "knownAt": 1704067200000,
+            "retention": "pinned",
+            "observations": 1,
+            "lastObservedAt": 1704067200000
+          },
+          "kind": "observed",
+          "evidence": {
+            "verification": "exact",
+            "metadataVerified": true
+          },
+          "retrievalStrategies": [
+            "exact"
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "id": "ancestor_base",
+          "if": [
+            {
+              "p": "parent",
+              "a": [
+                "?x",
+                "?y"
+              ],
+              "neg": false
+            }
+          ],
+          "then": {
+            "p": "ancestor",
+            "a": [
+              "?x",
+              "?y"
+            ],
+            "neg": false
+          },
+          "kind": "rule",
+          "mode": "logical",
+          "source": "approved-library",
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          }
+        },
+        {
+          "id": "ancestor_recursive",
+          "if": [
+            {
+              "p": "parent",
+              "a": [
+                "?x",
+                "?y"
+              ],
+              "neg": false
+            },
+            {
+              "p": "ancestor",
+              "a": [
+                "?y",
+                "?z"
+              ],
+              "neg": false
+            }
+          ],
+          "then": {
+            "p": "ancestor",
+            "a": [
+              "?x",
+              "?z"
+            ],
+            "neg": false
+          },
+          "kind": "rule",
+          "mode": "logical",
+          "source": "approved-library",
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          }
+        },
+        {
+          "id": "mother_parent",
+          "if": [
+            {
+              "p": "mother",
+              "a": [
+                "?x",
+                "?y"
+              ],
+              "neg": false
+            }
+          ],
+          "then": {
+            "p": "parent",
+            "a": [
+              "?x",
+              "?y"
+            ],
+            "neg": false
+          },
+          "kind": "rule",
+          "mode": "logical",
+          "source": "approved-library",
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          }
+        },
+        {
+          "id": "father_parent",
+          "if": [
+            {
+              "p": "father",
+              "a": [
+                "?x",
+                "?y"
+              ],
+              "neg": false
+            }
+          ],
+          "then": {
+            "p": "parent",
+            "a": [
+              "?x",
+              "?y"
+            ],
+            "neg": false
+          },
+          "kind": "rule",
+          "mode": "logical",
+          "source": "approved-library",
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          }
+        }
+      ],
+      "complete": true,
+      "probes": 56,
+      "shardsVisited": 14,
+      "needed": [
+        "ancestor",
+        "parent",
+        "mother",
+        "father"
+      ],
+      "linkPlan": {
+        "strategy": "hybrid",
+        "coverage": "retained-visible-memory",
+        "goals": [
+          "ancestor(?v0, carina)",
+          "not ancestor(?v0, carina)",
+          "parent(?v0, carina)",
+          "not parent(?v0, carina)",
+          "parent(?v0, ?v1)",
+          "not parent(?v0, ?v1)",
+          "mother(?v0, carina)",
+          "not mother(?v0, carina)",
+          "father(?v0, carina)",
+          "not father(?v0, carina)",
+          "mother(?v0, ?v1)",
+          "not mother(?v0, ?v1)",
+          "father(?v0, ?v1)",
+          "not father(?v0, ?v1)"
+        ],
+        "steps": [
+          {
+            "goal": "ancestor(?v0, carina)",
+            "producer": "ancestor_base",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_y": "carina"
+            },
+            "requires": [
+              "parent(?rule_x, carina)"
+            ]
+          },
+          {
+            "goal": "ancestor(?v0, carina)",
+            "producer": "ancestor_recursive",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_z": "carina"
+            },
+            "requires": [
+              "parent(?rule_x, ?rule_y)",
+              "ancestor(?rule_y, carina)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, carina)",
+            "producer": "mother_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_y": "carina"
+            },
+            "requires": [
+              "mother(?rule_x, carina)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, carina)",
+            "producer": "father_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_y": "carina"
+            },
+            "requires": [
+              "father(?rule_x, carina)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, ?v1)",
+            "producer": "mother_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?v1": "?rule_y"
+            },
+            "requires": [
+              "mother(?rule_x, ?rule_y)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, ?v1)",
+            "producer": "father_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?v1": "?rule_y"
+            },
+            "requires": [
+              "father(?rule_x, ?rule_y)"
+            ]
+          }
+        ],
+        "retrievals": [
+          {
+            "pattern": "ancestor(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not ancestor(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "parent(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 1,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not parent(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "parent(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 1,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not parent(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "mother(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not mother(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "father(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not father(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "mother(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 1,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not mother(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "father(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not father(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          }
+        ],
+        "note": "Completeness refers to this retrieval view and budgets, never to all facts in the world."
+      }
+    },
+    "r__reason": {
+      "status": "supported",
+      "kind": "select",
+      "query": {
+        "kind": "query",
+        "variableTypes": {
+          "?stramos": "person"
+        },
+        "mode": "select",
+        "where": [
+          {
+            "p": "ancestor",
+            "a": [
+              "?stramos",
+              "carina"
+            ],
+            "neg": false
+          }
+        ],
+        "select": [
+          "?stramos"
+        ],
+        "filters": [],
+        "limit": 100,
+        "at": 1790380800000,
+        "asof": 1790380800000
+      },
+      "conflictedAnswers": [],
+      "answers": [
+        {
+          "binding": {
+            "?stramos": "bogdan"
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "evidence": [
+            "d_d3a0605cd5468a4039e988fe44eaed30"
+          ]
+        },
+        {
+          "binding": {
+            "?stramos": "ana"
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "evidence": [
+            "d_76638500644df50e3475b6eb366748d6"
+          ]
+        }
+      ],
+      "proof": [
+        {
+          "atom": {
+            "p": "ancestor",
+            "a": [
+              "bogdan",
+              "carina"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "id": "d_d3a0605cd5468a4039e988fe44eaed30",
+          "kind": "derived",
+          "rule": "ancestor_base",
+          "premises": [
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        },
+        {
+          "id": "c_398818afc065d1b76a85f1fc22140044",
+          "atom": {
+            "p": "parent",
+            "a": [
+              "bogdan",
+              "carina"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "demo",
+          "quote": "",
+          "knownAt": 1704067200000,
+          "retention": "pinned",
+          "claim": {
+            "tupleHash": "d29b9a70591b004cca8afd15cc1c4e9a640bee96749b5fae48a1817ac1808ee7",
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "source": "demo",
+            "quote": "",
+            "id": "c_398818afc065d1b76a85f1fc22140044",
+            "knownAt": 1704067200000,
+            "retention": "pinned",
+            "observations": 1,
+            "lastObservedAt": 1704067200000
+          },
+          "kind": "observed",
+          "evidence": {
+            "verification": "exact",
+            "metadataVerified": true
+          },
+          "retrievalStrategies": [
+            "exact"
+          ]
+        },
+        {
+          "atom": {
+            "p": "ancestor",
+            "a": [
+              "ana",
+              "carina"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "id": "d_76638500644df50e3475b6eb366748d6",
+          "kind": "derived",
+          "rule": "ancestor_recursive",
+          "premises": [
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "d_d3a0605cd5468a4039e988fe44eaed30"
+          ]
+        },
+        {
+          "atom": {
+            "p": "parent",
+            "a": [
+              "ana",
+              "bogdan"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "id": "d_cd050d3146bbdfd8df4fb73717f65303",
+          "kind": "derived",
+          "rule": "mother_parent",
+          "premises": [
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        },
+        {
+          "id": "c_24548faa3e83d426354b3a1acb953c50",
+          "atom": {
+            "p": "mother",
+            "a": [
+              "ana",
+              "bogdan"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "demo",
+          "quote": "",
+          "knownAt": 1704067200000,
+          "retention": "pinned",
+          "claim": {
+            "tupleHash": "c474f87e5efb9ad2520fa153f7836d97750a806d592ec203c964ad144db64c71",
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "source": "demo",
+            "quote": "",
+            "id": "c_24548faa3e83d426354b3a1acb953c50",
+            "knownAt": 1704067200000,
+            "retention": "pinned",
+            "observations": 1,
+            "lastObservedAt": 1704067200000
+          },
+          "kind": "observed",
+          "evidence": {
+            "verification": "exact",
+            "metadataVerified": true
+          },
+          "retrievalStrategies": [
+            "exact"
+          ]
+        }
+      ],
+      "complete": true,
+      "truncated": false,
+      "assurance": "Derivation from admitted premises; support is not a calibrated probability of truth.",
+      "hypothetical": false,
+      "diagnostics": {
+        "memoryProbes": 56,
+        "retrieved": 2,
+        "closureFacts": 6,
+        "rounds": 3
+      },
+      "backend": "js",
+      "ignored": [],
+      "route": {
+        "operation": "deduce",
+        "backend": "js",
+        "fallback": null,
+        "semantics": "no-required-constraint-silently-dropped"
+      },
+      "reasoningStrategy": "reference",
+      "linkPlan": {
+        "strategy": "hybrid",
+        "coverage": "retained-visible-memory",
+        "goals": [
+          "ancestor(?v0, carina)",
+          "not ancestor(?v0, carina)",
+          "parent(?v0, carina)",
+          "not parent(?v0, carina)",
+          "parent(?v0, ?v1)",
+          "not parent(?v0, ?v1)",
+          "mother(?v0, carina)",
+          "not mother(?v0, carina)",
+          "father(?v0, carina)",
+          "not father(?v0, carina)",
+          "mother(?v0, ?v1)",
+          "not mother(?v0, ?v1)",
+          "father(?v0, ?v1)",
+          "not father(?v0, ?v1)"
+        ],
+        "steps": [
+          {
+            "goal": "ancestor(?v0, carina)",
+            "producer": "ancestor_base",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_y": "carina"
+            },
+            "requires": [
+              "parent(?rule_x, carina)"
+            ]
+          },
+          {
+            "goal": "ancestor(?v0, carina)",
+            "producer": "ancestor_recursive",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_z": "carina"
+            },
+            "requires": [
+              "parent(?rule_x, ?rule_y)",
+              "ancestor(?rule_y, carina)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, carina)",
+            "producer": "mother_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_y": "carina"
+            },
+            "requires": [
+              "mother(?rule_x, carina)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, carina)",
+            "producer": "father_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_y": "carina"
+            },
+            "requires": [
+              "father(?rule_x, carina)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, ?v1)",
+            "producer": "mother_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?v1": "?rule_y"
+            },
+            "requires": [
+              "mother(?rule_x, ?rule_y)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, ?v1)",
+            "producer": "father_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?v1": "?rule_y"
+            },
+            "requires": [
+              "father(?rule_x, ?rule_y)"
+            ]
+          }
+        ],
+        "retrievals": [
+          {
+            "pattern": "ancestor(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not ancestor(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "parent(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 1,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not parent(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "parent(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 1,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not parent(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "mother(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not mother(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "father(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not father(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "mother(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 1,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not mother(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "father(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not father(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          }
+        ],
+        "note": "Completeness refers to this retrieval view and budgets, never to all facts in the world."
+      }
+    },
+    "r": {
+      "status": "supported",
+      "kind": "select",
+      "query": {
+        "kind": "query",
+        "variableTypes": {
+          "?stramos": "person"
+        },
+        "mode": "select",
+        "where": [
+          {
+            "p": "ancestor",
+            "a": [
+              "?stramos",
+              "carina"
+            ],
+            "neg": false
+          }
+        ],
+        "select": [
+          "?stramos"
+        ],
+        "filters": [],
+        "limit": 100,
+        "at": 1790380800000,
+        "asof": 1790380800000
+      },
+      "conflictedAnswers": [],
+      "answers": [
+        {
+          "binding": {
+            "?stramos": "bogdan"
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "evidence": [
+            "d_d3a0605cd5468a4039e988fe44eaed30"
+          ]
+        },
+        {
+          "binding": {
+            "?stramos": "ana"
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "evidence": [
+            "d_76638500644df50e3475b6eb366748d6"
+          ]
+        }
+      ],
+      "proof": [
+        {
+          "atom": {
+            "p": "ancestor",
+            "a": [
+              "bogdan",
+              "carina"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "id": "d_d3a0605cd5468a4039e988fe44eaed30",
+          "kind": "derived",
+          "rule": "ancestor_base",
+          "premises": [
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        },
+        {
+          "id": "c_398818afc065d1b76a85f1fc22140044",
+          "atom": {
+            "p": "parent",
+            "a": [
+              "bogdan",
+              "carina"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "demo",
+          "quote": "",
+          "knownAt": 1704067200000,
+          "retention": "pinned",
+          "claim": {
+            "tupleHash": "d29b9a70591b004cca8afd15cc1c4e9a640bee96749b5fae48a1817ac1808ee7",
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "source": "demo",
+            "quote": "",
+            "id": "c_398818afc065d1b76a85f1fc22140044",
+            "knownAt": 1704067200000,
+            "retention": "pinned",
+            "observations": 1,
+            "lastObservedAt": 1704067200000
+          },
+          "kind": "observed",
+          "evidence": {
+            "verification": "exact",
+            "metadataVerified": true
+          },
+          "retrievalStrategies": [
+            "exact"
+          ]
+        },
+        {
+          "atom": {
+            "p": "ancestor",
+            "a": [
+              "ana",
+              "carina"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "id": "d_76638500644df50e3475b6eb366748d6",
+          "kind": "derived",
+          "rule": "ancestor_recursive",
+          "premises": [
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "d_d3a0605cd5468a4039e988fe44eaed30"
+          ]
+        },
+        {
+          "atom": {
+            "p": "parent",
+            "a": [
+              "ana",
+              "bogdan"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "id": "d_cd050d3146bbdfd8df4fb73717f65303",
+          "kind": "derived",
+          "rule": "mother_parent",
+          "premises": [
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        },
+        {
+          "id": "c_24548faa3e83d426354b3a1acb953c50",
+          "atom": {
+            "p": "mother",
+            "a": [
+              "ana",
+              "bogdan"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "demo",
+          "quote": "",
+          "knownAt": 1704067200000,
+          "retention": "pinned",
+          "claim": {
+            "tupleHash": "c474f87e5efb9ad2520fa153f7836d97750a806d592ec203c964ad144db64c71",
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "source": "demo",
+            "quote": "",
+            "id": "c_24548faa3e83d426354b3a1acb953c50",
+            "knownAt": 1704067200000,
+            "retention": "pinned",
+            "observations": 1,
+            "lastObservedAt": 1704067200000
+          },
+          "kind": "observed",
+          "evidence": {
+            "verification": "exact",
+            "metadataVerified": true
+          },
+          "retrievalStrategies": [
+            "exact"
+          ]
+        }
+      ],
+      "complete": true,
+      "truncated": false,
+      "assurance": "Derivation from admitted premises; support is not a calibrated probability of truth.",
+      "hypothetical": false,
+      "diagnostics": {
+        "memoryProbes": 56,
+        "retrieved": 2,
+        "closureFacts": 6,
+        "rounds": 3
+      },
+      "backend": "js",
+      "ignored": [],
+      "route": {
+        "operation": "deduce",
+        "backend": "js",
+        "fallback": null,
+        "semantics": "no-required-constraint-silently-dropped"
+      },
+      "reasoningStrategy": "reference",
+      "linkPlan": {
+        "strategy": "hybrid",
+        "coverage": "retained-visible-memory",
+        "goals": [
+          "ancestor(?v0, carina)",
+          "not ancestor(?v0, carina)",
+          "parent(?v0, carina)",
+          "not parent(?v0, carina)",
+          "parent(?v0, ?v1)",
+          "not parent(?v0, ?v1)",
+          "mother(?v0, carina)",
+          "not mother(?v0, carina)",
+          "father(?v0, carina)",
+          "not father(?v0, carina)",
+          "mother(?v0, ?v1)",
+          "not mother(?v0, ?v1)",
+          "father(?v0, ?v1)",
+          "not father(?v0, ?v1)"
+        ],
+        "steps": [
+          {
+            "goal": "ancestor(?v0, carina)",
+            "producer": "ancestor_base",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_y": "carina"
+            },
+            "requires": [
+              "parent(?rule_x, carina)"
+            ]
+          },
+          {
+            "goal": "ancestor(?v0, carina)",
+            "producer": "ancestor_recursive",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_z": "carina"
+            },
+            "requires": [
+              "parent(?rule_x, ?rule_y)",
+              "ancestor(?rule_y, carina)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, carina)",
+            "producer": "mother_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_y": "carina"
+            },
+            "requires": [
+              "mother(?rule_x, carina)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, carina)",
+            "producer": "father_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_y": "carina"
+            },
+            "requires": [
+              "father(?rule_x, carina)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, ?v1)",
+            "producer": "mother_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?v1": "?rule_y"
+            },
+            "requires": [
+              "mother(?rule_x, ?rule_y)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, ?v1)",
+            "producer": "father_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?v1": "?rule_y"
+            },
+            "requires": [
+              "father(?rule_x, ?rule_y)"
+            ]
+          }
+        ],
+        "retrievals": [
+          {
+            "pattern": "ancestor(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not ancestor(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "parent(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 1,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not parent(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "parent(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 1,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not parent(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "mother(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not mother(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "father(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not father(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "mother(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 1,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not mother(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "father(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not father(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          }
+        ],
+        "note": "Completeness refers to this retrieval view and budgets, never to all facts in the world."
+      }
+    },
+    "answer": {
+      "kind": "cnl",
+      "language": "ro",
+      "text": "Afirmația este susținută de premisele disponibile.\nANSWER ?stramos = \"bogdan\"\nANSWER ?stramos = \"ana\"\nEVIDENCE d_d3a0605cd5468a4039e988fe44eaed30: ancestor(bogdan, carina) VIA ancestor_base FROM c_398818afc065d1b76a85f1fc22140044\nEVIDENCE c_398818afc065d1b76a85f1fc22140044: parent(bogdan, carina) SOURCE demo\nEVIDENCE d_76638500644df50e3475b6eb366748d6: ancestor(ana, carina) VIA ancestor_recursive FROM d_cd050d3146bbdfd8df4fb73717f65303, d_d3a0605cd5468a4039e988fe44eaed30\nEVIDENCE d_cd050d3146bbdfd8df4fb73717f65303: parent(ana, bogdan) VIA mother_parent FROM c_24548faa3e83d426354b3a1acb953c50\nEVIDENCE c_24548faa3e83d426354b3a1acb953c50: mother(ana, bogdan) SOURCE demo\nENGINE reference / js",
+      "packet": {
+        "status": "supported",
+        "kind": "select",
+        "query": {
+          "kind": "query",
+          "variableTypes": {
+            "?stramos": "person"
+          },
+          "mode": "select",
+          "where": [
+            {
+              "p": "ancestor",
+              "a": [
+                "?stramos",
+                "carina"
+              ],
+              "neg": false
+            }
+          ],
+          "select": [
+            "?stramos"
+          ],
+          "filters": [],
+          "limit": 100,
+          "at": 1790380800000,
+          "asof": 1790380800000
+        },
+        "conflictedAnswers": [],
+        "answers": [
+          {
+            "binding": {
+              "?stramos": "bogdan"
+            },
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "evidence": [
+              "d_d3a0605cd5468a4039e988fe44eaed30"
+            ]
+          },
+          {
+            "binding": {
+              "?stramos": "ana"
+            },
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "evidence": [
+              "d_76638500644df50e3475b6eb366748d6"
+            ]
+          }
+        ],
+        "proof": [
+          {
+            "atom": {
+              "p": "ancestor",
+              "a": [
+                "bogdan",
+                "carina"
+              ],
+              "neg": false
+            },
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "id": "d_d3a0605cd5468a4039e988fe44eaed30",
+            "kind": "derived",
+            "rule": "ancestor_base",
+            "premises": [
+              "c_398818afc065d1b76a85f1fc22140044"
+            ]
+          },
+          {
+            "id": "c_398818afc065d1b76a85f1fc22140044",
+            "atom": {
+              "p": "parent",
+              "a": [
+                "bogdan",
+                "carina"
+              ],
+              "neg": false
+            },
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "source": "demo",
+            "quote": "",
+            "knownAt": 1704067200000,
+            "retention": "pinned",
+            "claim": {
+              "tupleHash": "d29b9a70591b004cca8afd15cc1c4e9a640bee96749b5fae48a1817ac1808ee7",
+              "valid": {
+                "from": "beginning",
+                "until": "open"
+              },
+              "source": "demo",
+              "quote": "",
+              "id": "c_398818afc065d1b76a85f1fc22140044",
+              "knownAt": 1704067200000,
+              "retention": "pinned",
+              "observations": 1,
+              "lastObservedAt": 1704067200000
+            },
+            "kind": "observed",
+            "evidence": {
+              "verification": "exact",
+              "metadataVerified": true
+            },
+            "retrievalStrategies": [
+              "exact"
+            ]
+          },
+          {
+            "atom": {
+              "p": "ancestor",
+              "a": [
+                "ana",
+                "carina"
+              ],
+              "neg": false
+            },
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "id": "d_76638500644df50e3475b6eb366748d6",
+            "kind": "derived",
+            "rule": "ancestor_recursive",
+            "premises": [
+              "d_cd050d3146bbdfd8df4fb73717f65303",
+              "d_d3a0605cd5468a4039e988fe44eaed30"
+            ]
+          },
+          {
+            "atom": {
+              "p": "parent",
+              "a": [
+                "ana",
+                "bogdan"
+              ],
+              "neg": false
+            },
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "id": "d_cd050d3146bbdfd8df4fb73717f65303",
+            "kind": "derived",
+            "rule": "mother_parent",
+            "premises": [
+              "c_24548faa3e83d426354b3a1acb953c50"
+            ]
+          },
+          {
+            "id": "c_24548faa3e83d426354b3a1acb953c50",
+            "atom": {
+              "p": "mother",
+              "a": [
+                "ana",
+                "bogdan"
+              ],
+              "neg": false
+            },
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "source": "demo",
+            "quote": "",
+            "knownAt": 1704067200000,
+            "retention": "pinned",
+            "claim": {
+              "tupleHash": "c474f87e5efb9ad2520fa153f7836d97750a806d592ec203c964ad144db64c71",
+              "valid": {
+                "from": "beginning",
+                "until": "open"
+              },
+              "source": "demo",
+              "quote": "",
+              "id": "c_24548faa3e83d426354b3a1acb953c50",
+              "knownAt": 1704067200000,
+              "retention": "pinned",
+              "observations": 1,
+              "lastObservedAt": 1704067200000
+            },
+            "kind": "observed",
+            "evidence": {
+              "verification": "exact",
+              "metadataVerified": true
+            },
+            "retrievalStrategies": [
+              "exact"
+            ]
+          }
+        ],
+        "complete": true,
+        "truncated": false,
+        "assurance": "Derivation from admitted premises; support is not a calibrated probability of truth.",
+        "hypothetical": false,
+        "diagnostics": {
+          "memoryProbes": 56,
+          "retrieved": 2,
+          "closureFacts": 6,
+          "rounds": 3
+        },
+        "backend": "js",
+        "ignored": [],
+        "route": {
+          "operation": "deduce",
+          "backend": "js",
+          "fallback": null,
+          "semantics": "no-required-constraint-silently-dropped"
+        },
+        "reasoningStrategy": "reference",
+        "linkPlan": {
+          "strategy": "hybrid",
+          "coverage": "retained-visible-memory",
+          "goals": [
+            "ancestor(?v0, carina)",
+            "not ancestor(?v0, carina)",
+            "parent(?v0, carina)",
+            "not parent(?v0, carina)",
+            "parent(?v0, ?v1)",
+            "not parent(?v0, ?v1)",
+            "mother(?v0, carina)",
+            "not mother(?v0, carina)",
+            "father(?v0, carina)",
+            "not father(?v0, carina)",
+            "mother(?v0, ?v1)",
+            "not mother(?v0, ?v1)",
+            "father(?v0, ?v1)",
+            "not father(?v0, ?v1)"
+          ],
+          "steps": [
+            {
+              "goal": "ancestor(?v0, carina)",
+              "producer": "ancestor_base",
+              "substitution": {
+                "?v0": "?rule_x",
+                "?rule_y": "carina"
+              },
+              "requires": [
+                "parent(?rule_x, carina)"
+              ]
+            },
+            {
+              "goal": "ancestor(?v0, carina)",
+              "producer": "ancestor_recursive",
+              "substitution": {
+                "?v0": "?rule_x",
+                "?rule_z": "carina"
+              },
+              "requires": [
+                "parent(?rule_x, ?rule_y)",
+                "ancestor(?rule_y, carina)"
+              ]
+            },
+            {
+              "goal": "parent(?v0, carina)",
+              "producer": "mother_parent",
+              "substitution": {
+                "?v0": "?rule_x",
+                "?rule_y": "carina"
+              },
+              "requires": [
+                "mother(?rule_x, carina)"
+              ]
+            },
+            {
+              "goal": "parent(?v0, carina)",
+              "producer": "father_parent",
+              "substitution": {
+                "?v0": "?rule_x",
+                "?rule_y": "carina"
+              },
+              "requires": [
+                "father(?rule_x, carina)"
+              ]
+            },
+            {
+              "goal": "parent(?v0, ?v1)",
+              "producer": "mother_parent",
+              "substitution": {
+                "?v0": "?rule_x",
+                "?v1": "?rule_y"
+              },
+              "requires": [
+                "mother(?rule_x, ?rule_y)"
+              ]
+            },
+            {
+              "goal": "parent(?v0, ?v1)",
+              "producer": "father_parent",
+              "substitution": {
+                "?v0": "?rule_x",
+                "?v1": "?rule_y"
+              },
+              "requires": [
+                "father(?rule_x, ?rule_y)"
+              ]
+            }
+          ],
+          "retrievals": [
+            {
+              "pattern": "ancestor(?v0, carina)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 0,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            },
+            {
+              "pattern": "not ancestor(?v0, carina)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 0,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            },
+            {
+              "pattern": "parent(?v0, carina)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 1,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            },
+            {
+              "pattern": "not parent(?v0, carina)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 0,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            },
+            {
+              "pattern": "parent(?v0, ?v1)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 1,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            },
+            {
+              "pattern": "not parent(?v0, ?v1)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 0,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            },
+            {
+              "pattern": "mother(?v0, carina)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 0,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            },
+            {
+              "pattern": "not mother(?v0, carina)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 0,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            },
+            {
+              "pattern": "father(?v0, carina)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 0,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            },
+            {
+              "pattern": "not father(?v0, carina)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 0,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            },
+            {
+              "pattern": "mother(?v0, ?v1)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 1,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            },
+            {
+              "pattern": "not mother(?v0, ?v1)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 0,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            },
+            {
+              "pattern": "father(?v0, ?v1)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 0,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            },
+            {
+              "pattern": "not father(?v0, ?v1)",
+              "strategy": "hybrid",
+              "selected": "exact",
+              "coverage": "visible-exact-snapshot",
+              "rows": 0,
+              "complete": true,
+              "probes": 4,
+              "shardsVisited": 1,
+              "shardsRouted": 1
+            }
+          ],
+          "note": "Completeness refers to this retrieval view and budgets, never to all facts in the world."
+        }
+      }
+    }
+  },
+  "result": {
+    "kind": "cnl",
+    "language": "ro",
+    "text": "Afirmația este susținută de premisele disponibile.\nANSWER ?stramos = \"bogdan\"\nANSWER ?stramos = \"ana\"\nEVIDENCE d_d3a0605cd5468a4039e988fe44eaed30: ancestor(bogdan, carina) VIA ancestor_base FROM c_398818afc065d1b76a85f1fc22140044\nEVIDENCE c_398818afc065d1b76a85f1fc22140044: parent(bogdan, carina) SOURCE demo\nEVIDENCE d_76638500644df50e3475b6eb366748d6: ancestor(ana, carina) VIA ancestor_recursive FROM d_cd050d3146bbdfd8df4fb73717f65303, d_d3a0605cd5468a4039e988fe44eaed30\nEVIDENCE d_cd050d3146bbdfd8df4fb73717f65303: parent(ana, bogdan) VIA mother_parent FROM c_24548faa3e83d426354b3a1acb953c50\nEVIDENCE c_24548faa3e83d426354b3a1acb953c50: mother(ana, bogdan) SOURCE demo\nENGINE reference / js",
+    "packet": {
+      "status": "supported",
+      "kind": "select",
+      "query": {
+        "kind": "query",
+        "variableTypes": {
+          "?stramos": "person"
+        },
+        "mode": "select",
+        "where": [
+          {
+            "p": "ancestor",
+            "a": [
+              "?stramos",
+              "carina"
+            ],
+            "neg": false
+          }
+        ],
+        "select": [
+          "?stramos"
+        ],
+        "filters": [],
+        "limit": 100,
+        "at": 1790380800000,
+        "asof": 1790380800000
+      },
+      "conflictedAnswers": [],
+      "answers": [
+        {
+          "binding": {
+            "?stramos": "bogdan"
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "evidence": [
+            "d_d3a0605cd5468a4039e988fe44eaed30"
+          ]
+        },
+        {
+          "binding": {
+            "?stramos": "ana"
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "evidence": [
+            "d_76638500644df50e3475b6eb366748d6"
+          ]
+        }
+      ],
+      "proof": [
+        {
+          "atom": {
+            "p": "ancestor",
+            "a": [
+              "bogdan",
+              "carina"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "id": "d_d3a0605cd5468a4039e988fe44eaed30",
+          "kind": "derived",
+          "rule": "ancestor_base",
+          "premises": [
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        },
+        {
+          "id": "c_398818afc065d1b76a85f1fc22140044",
+          "atom": {
+            "p": "parent",
+            "a": [
+              "bogdan",
+              "carina"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "demo",
+          "quote": "",
+          "knownAt": 1704067200000,
+          "retention": "pinned",
+          "claim": {
+            "tupleHash": "d29b9a70591b004cca8afd15cc1c4e9a640bee96749b5fae48a1817ac1808ee7",
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "source": "demo",
+            "quote": "",
+            "id": "c_398818afc065d1b76a85f1fc22140044",
+            "knownAt": 1704067200000,
+            "retention": "pinned",
+            "observations": 1,
+            "lastObservedAt": 1704067200000
+          },
+          "kind": "observed",
+          "evidence": {
+            "verification": "exact",
+            "metadataVerified": true
+          },
+          "retrievalStrategies": [
+            "exact"
+          ]
+        },
+        {
+          "atom": {
+            "p": "ancestor",
+            "a": [
+              "ana",
+              "carina"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "id": "d_76638500644df50e3475b6eb366748d6",
+          "kind": "derived",
+          "rule": "ancestor_recursive",
+          "premises": [
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "d_d3a0605cd5468a4039e988fe44eaed30"
+          ]
+        },
+        {
+          "atom": {
+            "p": "parent",
+            "a": [
+              "ana",
+              "bogdan"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "id": "d_cd050d3146bbdfd8df4fb73717f65303",
+          "kind": "derived",
+          "rule": "mother_parent",
+          "premises": [
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        },
+        {
+          "id": "c_24548faa3e83d426354b3a1acb953c50",
+          "atom": {
+            "p": "mother",
+            "a": [
+              "ana",
+              "bogdan"
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "demo",
+          "quote": "",
+          "knownAt": 1704067200000,
+          "retention": "pinned",
+          "claim": {
+            "tupleHash": "c474f87e5efb9ad2520fa153f7836d97750a806d592ec203c964ad144db64c71",
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "source": "demo",
+            "quote": "",
+            "id": "c_24548faa3e83d426354b3a1acb953c50",
+            "knownAt": 1704067200000,
+            "retention": "pinned",
+            "observations": 1,
+            "lastObservedAt": 1704067200000
+          },
+          "kind": "observed",
+          "evidence": {
+            "verification": "exact",
+            "metadataVerified": true
+          },
+          "retrievalStrategies": [
+            "exact"
+          ]
+        }
+      ],
+      "complete": true,
+      "truncated": false,
+      "assurance": "Derivation from admitted premises; support is not a calibrated probability of truth.",
+      "hypothetical": false,
+      "diagnostics": {
+        "memoryProbes": 56,
+        "retrieved": 2,
+        "closureFacts": 6,
+        "rounds": 3
+      },
+      "backend": "js",
+      "ignored": [],
+      "route": {
+        "operation": "deduce",
+        "backend": "js",
+        "fallback": null,
+        "semantics": "no-required-constraint-silently-dropped"
+      },
+      "reasoningStrategy": "reference",
+      "linkPlan": {
+        "strategy": "hybrid",
+        "coverage": "retained-visible-memory",
+        "goals": [
+          "ancestor(?v0, carina)",
+          "not ancestor(?v0, carina)",
+          "parent(?v0, carina)",
+          "not parent(?v0, carina)",
+          "parent(?v0, ?v1)",
+          "not parent(?v0, ?v1)",
+          "mother(?v0, carina)",
+          "not mother(?v0, carina)",
+          "father(?v0, carina)",
+          "not father(?v0, carina)",
+          "mother(?v0, ?v1)",
+          "not mother(?v0, ?v1)",
+          "father(?v0, ?v1)",
+          "not father(?v0, ?v1)"
+        ],
+        "steps": [
+          {
+            "goal": "ancestor(?v0, carina)",
+            "producer": "ancestor_base",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_y": "carina"
+            },
+            "requires": [
+              "parent(?rule_x, carina)"
+            ]
+          },
+          {
+            "goal": "ancestor(?v0, carina)",
+            "producer": "ancestor_recursive",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_z": "carina"
+            },
+            "requires": [
+              "parent(?rule_x, ?rule_y)",
+              "ancestor(?rule_y, carina)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, carina)",
+            "producer": "mother_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_y": "carina"
+            },
+            "requires": [
+              "mother(?rule_x, carina)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, carina)",
+            "producer": "father_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?rule_y": "carina"
+            },
+            "requires": [
+              "father(?rule_x, carina)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, ?v1)",
+            "producer": "mother_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?v1": "?rule_y"
+            },
+            "requires": [
+              "mother(?rule_x, ?rule_y)"
+            ]
+          },
+          {
+            "goal": "parent(?v0, ?v1)",
+            "producer": "father_parent",
+            "substitution": {
+              "?v0": "?rule_x",
+              "?v1": "?rule_y"
+            },
+            "requires": [
+              "father(?rule_x, ?rule_y)"
+            ]
+          }
+        ],
+        "retrievals": [
+          {
+            "pattern": "ancestor(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not ancestor(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "parent(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 1,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not parent(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "parent(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 1,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not parent(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "mother(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not mother(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "father(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not father(?v0, carina)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "mother(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 1,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not mother(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "father(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not father(?v0, ?v1)",
+            "strategy": "hybrid",
+            "selected": "exact",
+            "coverage": "visible-exact-snapshot",
+            "rows": 0,
+            "complete": true,
+            "probes": 4,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          }
+        ],
+        "note": "Completeness refers to this retrieval view and budgets, never to all facts in the world."
+      }
+    }
+  },
+  "trace": [
+    {
+      "wire": "q",
+      "type": "query",
+      "epoch": 0
+    },
+    {
+      "wire": "r__link",
+      "type": "link",
+      "epoch": 1
+    },
+    {
+      "wire": "r__reason",
+      "type": "reason",
+      "epoch": 1
+    },
+    {
+      "wire": "r",
+      "type": "solve",
+      "epoch": 1,
+      "alias": "r__reason"
+    },
+    {
+      "wire": "stramos",
+      "type": "binding",
+      "epoch": 1,
+      "status": "ambiguous"
+    },
+    {
+      "wire": "answer",
+      "type": "cnl",
+      "epoch": 1
+    },
+    {
+      "wire": "would_guess",
+      "type": "jsEval",
+      "epoch": 1,
+      "status": "blocked",
+      "because": [
+        "stramos"
+      ]
+    }
+  ],
+  "epochs": 2,
+  "wireCount": 7,
+  "outputs": {
+    "stramos": {
+      "valueType": "person",
+      "complete": true,
+      "sourceStatus": "supported",
+      "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+      "status": "ambiguous",
+      "candidates": 2,
+      "mode": "one",
+      "owner": "r",
+      "epoch": 1,
+      "proof": [
+        "d_d3a0605cd5468a4039e988fe44eaed30",
+        "c_398818afc065d1b76a85f1fc22140044",
+        "d_76638500644df50e3475b6eb366748d6",
+        "d_cd050d3146bbdfd8df4fb73717f65303",
+        "c_24548faa3e83d426354b3a1acb953c50"
+      ]
+    }
+  },
+  "blocked": {
+    "stramos": {
+      "valueType": "person",
+      "complete": true,
+      "sourceStatus": "supported",
+      "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+      "status": "ambiguous",
+      "candidates": 2
+    },
+    "would_guess": {
+      "status": "blocked",
+      "because": [
+        "stramos"
+      ]
+    }
+  },
+  "generated": [
+    {
+      "epoch": 1,
+      "source": "@r__link link\n  query $q\n  strategy hybrid\n\n@r__reason reason\n  query $q\n  memory $r__link\n\n@stramos binding\n  result $r__reason\n  variable ?stramos\n  mode one\n  owner r\n"
+    }
+  ]
+}

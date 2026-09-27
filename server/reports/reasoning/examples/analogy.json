@@ -1,0 +1,112 @@
+{
+  "setup": "@source_case trace\n  text \"\"\n  feature connected(a_0, b_0)\n  closed false\n  source synthetic\n@target_case trace\n  text \"\"\n  feature connected(c_0, d_0)\n  closed false\n  source synthetic\n@extra_case trace\n  text \"\"\n  feature useful(b_0)\n  closed false\n  source synthetic\n",
+  "target": "@result analogize\n  source ~source_case\n  target ~target_case\n  transfer ~extra_case\n\n@answer cnl\n  result $result\n  language ro\n",
+  "packet": {
+    "kind": "analogy",
+    "status": "candidates",
+    "complete": true,
+    "epistemic": "candidate",
+    "proof": [],
+    "assurance": "Result relative to the supplied finite model and the retained memory view; scores are not truth probabilities.",
+    "mappings": [
+      {
+        "kind": "analogy",
+        "mapping": {
+          "a_0": "c_0",
+          "b_0": "d_0"
+        },
+        "matched": 1,
+        "sourceEdges": 1,
+        "score": 1,
+        "proposed": [
+          {
+            "kind": "hypothesis",
+            "status": "untested",
+            "assumptions": [
+              {
+                "p": "useful",
+                "a": [
+                  "d_0"
+                ],
+                "neg": false
+              }
+            ],
+            "cost": 1,
+            "source": "structural-analogy"
+          }
+        ]
+      }
+    ],
+    "semantics": "injective entity mapping, same predicate and polarity; not unrestricted analogical reasoning",
+    "search": {
+      "nodes": 5,
+      "exhausted": false,
+      "reason": null,
+      "limits": {
+        "maxNodes": 5000,
+        "maxDepth": 8,
+        "maxHypotheses": 64,
+        "maxCandidates": 512,
+        "maxPlans": 1,
+        "maxRounds": 32,
+        "maxFacts": 10000,
+        "maxJoins": 30000,
+        "maxAssignments": 100000,
+        "timeoutMs": 3000,
+        "data": [],
+        "now": 1790380800000,
+        "schema": null,
+        "limits": {
+          "allowWrite": true,
+          "allowPin": true,
+          "allowRules": false,
+          "allowJsEval": true,
+          "maxWires": 2048,
+          "maxEpochs": 16,
+          "maxGoals": 256,
+          "maxRules": 1024,
+          "retrievalStrategy": "auto",
+          "reasoningStrategy": "reference",
+          "maxNodes": 5000,
+          "maxDepth": 8,
+          "maxHypotheses": 64,
+          "maxCandidates": 512,
+          "maxPlans": 1,
+          "timeoutMs": 3000,
+          "maxProbes": 50000,
+          "maxShards": 256,
+          "maxFacts": 10000,
+          "maxRounds": 32,
+          "maxJoins": 30000,
+          "maxAssignments": 100000,
+          "maxExprOps": 10000,
+          "maxExprBytes": 65536
+        },
+        "allowWrite": true,
+        "allowPin": true,
+        "allowRules": false,
+        "allowJsEval": true,
+        "maxWires": 2048,
+        "maxEpochs": 16,
+        "maxGoals": 256,
+        "maxRules": 1024,
+        "retrievalStrategy": "auto",
+        "reasoningStrategy": "reference",
+        "maxProbes": 50000,
+        "maxShards": 256,
+        "maxExprOps": 10000,
+        "maxExprBytes": 65536
+      }
+    },
+    "ignored": [],
+    "route": {
+      "operation": "analogize",
+      "backend": "js",
+      "fallback": null,
+      "semantics": "no-required-constraint-silently-dropped"
+    },
+    "reasoningStrategy": "reference",
+    "outputProjection": {}
+  },
+  "generated": []
+}

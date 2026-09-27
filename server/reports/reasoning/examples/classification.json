@@ -1,0 +1,198 @@
+{
+  "setup": "@hot fact\n  holds hot(device_0)\n  valid timeless\n  source synthetic\n@hot_class rule\n  when hot(?x)\n  then needs_attention(?x)\n  mode logical\n",
+  "target": "@q query\n  where needs_attention(device_0)\n  at 2026-09-26\n\n@result reason\n  query $q\n  memory $m\n\n@m recall\n  query $q\n\n@answer cnl\n  result $result\n  language ro\n",
+  "packet": {
+    "status": "supported",
+    "kind": "exists",
+    "query": {
+      "kind": "query",
+      "variableTypes": {},
+      "mode": "exists",
+      "where": [
+        {
+          "p": "needs_attention",
+          "a": [
+            "device_0"
+          ],
+          "neg": false
+        }
+      ],
+      "select": [],
+      "filters": [],
+      "limit": 100,
+      "at": 1790380800000,
+      "asof": 1790380800000
+    },
+    "conflictedAnswers": [],
+    "answers": [
+      {
+        "binding": {},
+        "valid": {
+          "from": null,
+          "until": null
+        },
+        "evidence": [
+          "d_0ef6fef0920845884212ba8f9f04afe3"
+        ]
+      }
+    ],
+    "proof": [
+      {
+        "atom": {
+          "p": "needs_attention",
+          "a": [
+            "device_0"
+          ],
+          "neg": false
+        },
+        "valid": {
+          "from": null,
+          "until": null
+        },
+        "id": "d_0ef6fef0920845884212ba8f9f04afe3",
+        "kind": "derived",
+        "rule": "hot_class",
+        "premises": [
+          "c_101dcb04e392e715f4fa337a0d6e10af"
+        ]
+      },
+      {
+        "id": "c_101dcb04e392e715f4fa337a0d6e10af",
+        "atom": {
+          "p": "hot",
+          "a": [
+            "device_0"
+          ],
+          "neg": false
+        },
+        "valid": {
+          "from": null,
+          "until": null
+        },
+        "source": "synthetic",
+        "quote": "",
+        "knownAt": 1,
+        "retention": "normal",
+        "kind": "observed",
+        "claim": {
+          "tupleHash": "519edd6cd89f1a752a713ee9ebf8b63c35a683f9de02fbe59b558cdc9489496a",
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "synthetic",
+          "quote": "",
+          "id": "c_101dcb04e392e715f4fa337a0d6e10af",
+          "knownAt": 1,
+          "retention": "normal",
+          "observations": 1,
+          "uses": 0,
+          "lastObservedAt": 1790459381253
+        },
+        "shardId": "s1",
+        "evidence": {
+          "support": 1,
+          "receipt": true,
+          "verification": "receipt",
+          "metadataVerified": true
+        },
+        "retrievalStrategies": [
+          "recall-weaver"
+        ]
+      }
+    ],
+    "complete": true,
+    "truncated": false,
+    "assurance": "Derivation from admitted premises; support is not a calibrated probability of truth.",
+    "hypothetical": false,
+    "diagnostics": {
+      "memoryProbes": 2,
+      "retrieved": 1,
+      "closureFacts": 2,
+      "rounds": 2
+    },
+    "backend": "js",
+    "ignored": [],
+    "route": {
+      "operation": "deduce",
+      "backend": "js",
+      "fallback": null,
+      "semantics": "no-required-constraint-silently-dropped"
+    },
+    "reasoningStrategy": "reference",
+    "linkPlan": {
+      "strategy": "auto",
+      "coverage": "retained-visible-memory",
+      "goals": [
+        "needs_attention(device_0)",
+        "not needs_attention(device_0)",
+        "hot(device_0)",
+        "not hot(device_0)"
+      ],
+      "steps": [
+        {
+          "goal": "needs_attention(device_0)",
+          "producer": "hot_class",
+          "substitution": {
+            "?rule_x": "device_0"
+          },
+          "requires": [
+            "hot(device_0)"
+          ]
+        }
+      ],
+      "retrievals": [
+        {
+          "pattern": "needs_attention(device_0)",
+          "strategy": "auto",
+          "selected": "auto",
+          "coverage": "retained-exact-records",
+          "rows": 0,
+          "complete": true,
+          "probes": 0,
+          "shardsVisited": 0,
+          "shardsRouted": 0
+        },
+        {
+          "pattern": "not needs_attention(device_0)",
+          "strategy": "auto",
+          "selected": "auto",
+          "coverage": "retained-exact-records",
+          "rows": 0,
+          "complete": true,
+          "probes": 0,
+          "shardsVisited": 0,
+          "shardsRouted": 0
+        },
+        {
+          "pattern": "hot(device_0)",
+          "strategy": "auto",
+          "selected": "recall-weaver",
+          "coverage": "retained-associative-candidates",
+          "rows": 1,
+          "complete": true,
+          "probes": 1,
+          "shardsVisited": 1,
+          "shardsRouted": 1
+        },
+        {
+          "pattern": "not hot(device_0)",
+          "strategy": "auto",
+          "selected": "recall-weaver",
+          "coverage": "retained-associative-candidates",
+          "rows": 0,
+          "complete": true,
+          "probes": 1,
+          "shardsVisited": 1,
+          "shardsRouted": 1
+        }
+      ],
+      "note": "Completeness refers to this retrieval view and budgets, never to all facts in the world."
+    },
+    "reinforcement": {
+      "facts": 1,
+      "strength": 1
+    }
+  },
+  "generated": []
+}

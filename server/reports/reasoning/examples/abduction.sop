@@ -1,0 +1,15 @@
+@q query
+  where outage(device_0)
+  at 2026-09-26
+
+@possible pack
+  items ~network ~disk
+
+@result abduce
+  query $q
+  candidates $possible
+  output ?causes many
+
+@answer cnl
+  result $result
+  language ro

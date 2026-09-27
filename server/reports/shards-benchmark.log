@@ -1,0 +1,77 @@
+bounded: 30 recovered, 170 intentionally absent, 0 errors
+archive: 200 recovered, 0 intentionally absent, 0 errors
+{
+  "experiment": "shard-retention-and-completion-v1",
+  "synthetic": true,
+  "neuralModelTested": false,
+  "seed": 731,
+  "parameters": {
+    "facts": 2000,
+    "queries": 200,
+    "batch": 64,
+    "power": 10,
+    "cold": 4
+  },
+  "runtime": {
+    "node": "v22.16.0",
+    "platform": "linux",
+    "arch": "x64",
+    "cpu": "AMD EPYC 9V74 80-Core Processor"
+  },
+  "modes": [
+    {
+      "mode": "bounded",
+      "insertedFacts": 2000,
+      "queries": 200,
+      "correctCompletions": 30,
+      "expectedAbstentions": 170,
+      "falseRows": 0,
+      "absentQueries": 100,
+      "absentFalsePositives": 0,
+      "usefulSentinelRetained": true,
+      "pinnedRetained": true,
+      "promotions": 31,
+      "normalShards": 5,
+      "pinnedShards": 1,
+      "normalBankBytes": 51200,
+      "pinnedBankBytes": 10240,
+      "metadataBytes": 166716,
+      "eventsBytes": 2,
+      "retainedClaims": 300,
+      "evictedShards": 27,
+      "buildMs": 206.388,
+      "queryMedianMs": 0.168,
+      "queryP95Ms": 1.339,
+      "meanProbes": 16.2,
+      "meanVisitedShards": 6,
+      "peakOccupancy": 0.0625
+    },
+    {
+      "mode": "archive",
+      "insertedFacts": 2000,
+      "queries": 200,
+      "correctCompletions": 200,
+      "expectedAbstentions": 0,
+      "falseRows": 0,
+      "absentQueries": 100,
+      "absentFalsePositives": 0,
+      "usefulSentinelRetained": true,
+      "pinnedRetained": true,
+      "promotions": 31,
+      "normalShards": 32,
+      "pinnedShards": 1,
+      "normalBankBytes": 327680,
+      "pinnedBankBytes": 10240,
+      "metadataBytes": 1109069,
+      "eventsBytes": 2,
+      "retainedClaims": 2001,
+      "evictedShards": 0,
+      "buildMs": 182.038,
+      "queryMedianMs": 1.906,
+      "queryP95Ms": 2.673,
+      "meanProbes": 106.24,
+      "meanVisitedShards": 33,
+      "peakOccupancy": 0.0625
+    }
+  ]
+}

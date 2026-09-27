@@ -1,0 +1,14 @@
+@q query
+  where needs_attention(device_0)
+  at 2026-09-26
+
+@result reason
+  query $q
+  memory $m
+
+@m recall
+  query $q
+
+@answer cnl
+  result $result
+  language ro

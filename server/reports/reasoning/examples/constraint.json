@@ -1,0 +1,44 @@
+{
+  "setup": "@known_a fact\n  holds parent(person_a_0, person_b_0)\n  valid timeless\n  source synthetic\n@known_b fact\n  holds parent(person_b_0, person_c_0)\n  valid timeless\n  source synthetic\n@grandparent_rule rule\n  when parent(?x, ?y)\n  when parent(?y, ?z)\n  then grandparent(?x, ?z)\n  mode logical\n",
+  "target": "@c constraint\n  var ?arrival int 0 1440\n  require ?arrival == 770 + 30\n  claim ?arrival <= 900\n  task prove\n\n@result solve\n  constraint $c\n  output ?arrival one\n\n@answer cnl\n  result $result\n  language ro\n",
+  "packet": {
+    "status": "entailed",
+    "kind": "constraint",
+    "task": "prove",
+    "backend": "js",
+    "complete": true,
+    "witness": {
+      "arrival": 800
+    },
+    "counterexample": null,
+    "outputProjection": {
+      "?arrival": {
+        "status": "bound",
+        "value": 800
+      }
+    },
+    "checks": {
+      "assignments": 1441,
+      "total": 1441,
+      "baseModels": 1,
+      "claimModels": 1,
+      "negatedClaimModels": 0
+    },
+    "unit": "scalar",
+    "assurance": "Relative to the declared domains and admitted constraints.",
+    "ignored": [],
+    "route": {
+      "operation": "constraint",
+      "backend": "js",
+      "fallback": null,
+      "semantics": "no-required-constraint-silently-dropped"
+    },
+    "reasoningStrategy": "reference"
+  },
+  "generated": [
+    {
+      "epoch": 1,
+      "source": "@result__reason reason\n  constraint $c\n\n@arrival binding\n  result $result__reason\n  variable ?arrival\n  mode one\n  owner result\n"
+    }
+  ]
+}

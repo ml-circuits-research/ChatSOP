@@ -1,0 +1,419 @@
+{
+  "experiment": "sop-bank-comparison-v1",
+  "groups": [
+    {
+      "engine": "weaver",
+      "count": 10000,
+      "seeds": [
+        11,
+        29,
+        53
+      ],
+      "buildMedianMs": 333.302726,
+      "banksMiB": 2.5,
+      "metadataMiB": 1.189077377319336,
+      "snapshotMiB": 4.522710800170898,
+      "tasks": {
+        "completion": {
+          "queries": 240,
+          "tp": 258,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "exactQueries": 240,
+          "medianMs": 2.415526,
+          "budgetComplete": 240
+        },
+        "absent": {
+          "queries": 60,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "exactQueries": 60,
+          "medianMs": 0.013049999999907413,
+          "budgetComplete": 60
+        },
+        "reverse": {
+          "queries": 6,
+          "tp": 461,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "exactQueries": 6,
+          "medianMs": 172.058623,
+          "budgetComplete": 6
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "count": 10000,
+      "seeds": [
+        11,
+        29,
+        53
+      ],
+      "buildMedianMs": 288.121484,
+      "banksMiB": 2.5,
+      "metadataMiB": 0.9889659881591797,
+      "snapshotMiB": 4.322911262512207,
+      "tasks": {
+        "completion": {
+          "queries": 240,
+          "tp": 258,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "exactQueries": 240,
+          "medianMs": 0.09944000000001552,
+          "budgetComplete": 240
+        },
+        "absent": {
+          "queries": 60,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "exactQueries": 60,
+          "medianMs": 0.10746199999999817,
+          "budgetComplete": 60
+        },
+        "reverse": {
+          "queries": 6,
+          "tp": 182,
+          "fp": 0,
+          "fn": 279,
+          "precision": 1,
+          "recall": 0.3947939262472885,
+          "exactQueries": 0,
+          "medianMs": 13.148950000000013,
+          "budgetComplete": 6
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "count": 10000,
+      "seeds": [
+        11,
+        29,
+        53
+      ],
+      "buildMedianMs": 377.50033099999996,
+      "banksMiB": 5.7890625,
+      "metadataMiB": 0,
+      "snapshotMiB": 1.8301610946655273,
+      "tasks": {
+        "completion": {
+          "queries": 240,
+          "tp": 258,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "exactQueries": 240,
+          "medianMs": 0.013861000000019885,
+          "budgetComplete": 240
+        },
+        "absent": {
+          "queries": 60,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "exactQueries": 60,
+          "medianMs": 0.006629999999972824,
+          "budgetComplete": 60
+        },
+        "reverse": {
+          "queries": 6,
+          "tp": 461,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "exactQueries": 6,
+          "medianMs": 0.3895170000000121,
+          "budgetComplete": 6
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "count": 10000,
+      "seeds": [
+        11,
+        29,
+        53
+      ],
+      "buildMedianMs": 53.875563,
+      "banksMiB": 1.6107234954833984,
+      "metadataMiB": 0,
+      "snapshotMiB": 1.610987663269043,
+      "tasks": {
+        "completion": {
+          "queries": 240,
+          "tp": 258,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "exactQueries": 240,
+          "medianMs": 1.7914289999999937,
+          "budgetComplete": 240
+        },
+        "absent": {
+          "queries": 60,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "exactQueries": 60,
+          "medianMs": 1.7607100000000173,
+          "budgetComplete": 60
+        },
+        "reverse": {
+          "queries": 6,
+          "tp": 461,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "exactQueries": 6,
+          "medianMs": 2.511004000000014,
+          "budgetComplete": 6
+        }
+      }
+    },
+    {
+      "engine": "weaver",
+      "count": 100000,
+      "seeds": [
+        11,
+        29,
+        53
+      ],
+      "buildMedianMs": 2686.6941890000003,
+      "banksMiB": 2.5,
+      "metadataMiB": 11.96613597869873,
+      "snapshotMiB": 15.29977035522461,
+      "tasks": {
+        "completion": {
+          "queries": 240,
+          "tp": 261,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "exactQueries": 240,
+          "medianMs": 2.404442999999901,
+          "budgetComplete": 240
+        },
+        "absent": {
+          "queries": 60,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "exactQueries": 60,
+          "medianMs": 0.012417999999797757,
+          "budgetComplete": 60
+        },
+        "reverse": {
+          "queries": 6,
+          "tp": 4665,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "exactQueries": 6,
+          "medianMs": 1832.3563209999998,
+          "budgetComplete": 6
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "count": 100000,
+      "seeds": [
+        11,
+        29,
+        53
+      ],
+      "buildMedianMs": 2439.512342,
+      "banksMiB": 2.5,
+      "metadataMiB": 9.964781761169434,
+      "snapshotMiB": 13.298730850219727,
+      "tasks": {
+        "completion": {
+          "queries": 240,
+          "tp": 252,
+          "fp": 0,
+          "fn": 9,
+          "precision": 1,
+          "recall": 0.9655172413793104,
+          "exactQueries": 232,
+          "medianMs": 0.10946500000000015,
+          "budgetComplete": 240
+        },
+        "absent": {
+          "queries": 60,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "exactQueries": 60,
+          "medianMs": 0.07442300000002433,
+          "budgetComplete": 60
+        },
+        "reverse": {
+          "queries": 6,
+          "tp": 846,
+          "fp": 0,
+          "fn": 3819,
+          "precision": 1,
+          "recall": 0.18135048231511253,
+          "exactQueries": 0,
+          "medianMs": 123.4441139999999,
+          "budgetComplete": 6
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "count": 100000,
+      "seeds": [
+        11,
+        29,
+        53
+      ],
+      "buildMedianMs": 4426.561116000001,
+      "banksMiB": 58.609375,
+      "metadataMiB": 0,
+      "snapshotMiB": 18.39648151397705,
+      "tasks": {
+        "completion": {
+          "queries": 240,
+          "tp": 261,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "exactQueries": 240,
+          "medianMs": 0.014782000000195694,
+          "budgetComplete": 240
+        },
+        "absent": {
+          "queries": 60,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "exactQueries": 60,
+          "medianMs": 0.0066299999998591375,
+          "budgetComplete": 60
+        },
+        "reverse": {
+          "queries": 6,
+          "tp": 4665,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "exactQueries": 6,
+          "medianMs": 3.3727410000001328,
+          "budgetComplete": 6
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "count": 100000,
+      "seeds": [
+        11,
+        29,
+        53
+      ],
+      "buildMedianMs": 409.93381500000004,
+      "banksMiB": 16.20425319671631,
+      "metadataMiB": 0,
+      "snapshotMiB": 16.20451831817627,
+      "tasks": {
+        "completion": {
+          "queries": 240,
+          "tp": 261,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "exactQueries": 240,
+          "medianMs": 21.315974000000097,
+          "budgetComplete": 240
+        },
+        "absent": {
+          "queries": 60,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "exactQueries": 60,
+          "medianMs": 21.27213699999993,
+          "budgetComplete": 60
+        },
+        "reverse": {
+          "queries": 6,
+          "tp": 4665,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "exactQueries": 6,
+          "medianMs": 31.69815600000038,
+          "budgetComplete": 6
+        }
+      }
+    }
+  ],
+  "runs": [
+    "holo-10000-11.json",
+    "holo-10000-29.json",
+    "holo-10000-53.json",
+    "holo-100000-11.json",
+    "holo-100000-29.json",
+    "holo-100000-53.json",
+    "scan-10000-11.json",
+    "scan-10000-29.json",
+    "scan-10000-53.json",
+    "scan-100000-11.json",
+    "scan-100000-29.json",
+    "scan-100000-53.json",
+    "sqlite-10000-11.json",
+    "sqlite-10000-29.json",
+    "sqlite-10000-53.json",
+    "sqlite-100000-11.json",
+    "sqlite-100000-29.json",
+    "sqlite-100000-53.json",
+    "weaver-10000-11.json",
+    "weaver-10000-29.json",
+    "weaver-10000-53.json",
+    "weaver-100000-11.json",
+    "weaver-100000-29.json",
+    "weaver-100000-53.json"
+  ],
+  "scope": "bank-only timing, retained typed tuples, synthetic data; not full conversational throughput",
+  "memoryNote": "Holo and Weaver array bytes match exactly. Domains/receipts are added separately. SQLite sizes are actual database pages including B-trees and FTS. Scan is serialized payload, not heap. Snapshot includes transport overhead.",
+  "seeds": 3,
+  "neuralModelTested": false
+}

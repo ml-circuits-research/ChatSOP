@@ -1,0 +1,19 @@
+{
+  "sourceFingerprint": "9622b7d31a375e8592dd73dcde7891a70537100bdfeca610ab4825acbbdf6cf1",
+  "integrityVerifiedBeforeRerun": true,
+  "allVerificationGroupsRepeated": true,
+  "allPassed": true,
+  "testSummary": {
+    "name": "node-tests",
+    "status": "passed",
+    "exitCode": 0,
+    "seconds": 1.469,
+    "error": null,
+    "tests": 317,
+    "pass": 306,
+    "fail": 0,
+    "skipped": 11
+  },
+  "neuralModelTested": false,
+  "trainingExecuted": false
+}

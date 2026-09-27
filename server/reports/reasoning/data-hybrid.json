@@ -1,0 +1,18 @@
+{
+  "profile": "sop-agent-3",
+  "engine": "hybrid",
+  "memoryProfile": "legacy",
+  "checked": 2024,
+  "executed": 1500,
+  "groups": 420,
+  "counts": {
+    "formalizer/train": 1200,
+    "formalizer/dev": 150,
+    "formalizer/test": 150,
+    "verbalizer/train": 421,
+    "verbalizer/dev": 52,
+    "verbalizer/test": 51
+  },
+  "failures": [],
+  "neuralModelTested": false
+}

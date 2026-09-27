@@ -1,0 +1,282 @@
+{
+  "setup": "@known_a fact\n  holds parent(person_a_0, person_b_0)\n  valid timeless\n  source synthetic\n@known_b fact\n  holds parent(person_b_0, person_c_0)\n  valid timeless\n  source synthetic\n@grandparent_rule rule\n  when parent(?x, ?y)\n  when parent(?y, ?z)\n  then grandparent(?x, ?z)\n  mode logical\n",
+  "target": "@q query\n  select ?who\n  where grandparent(?who, person_c_0)\n  at 2026-09-26\n\n@result solve\n  query $q\n  output ?who one\n\n@answer cnl\n  result $result\n  language ro\n",
+  "packet": {
+    "status": "supported",
+    "kind": "select",
+    "query": {
+      "kind": "query",
+      "variableTypes": {},
+      "mode": "select",
+      "where": [
+        {
+          "p": "grandparent",
+          "a": [
+            "?who",
+            "person_c_0"
+          ],
+          "neg": false
+        }
+      ],
+      "select": [
+        "?who"
+      ],
+      "filters": [],
+      "limit": 100,
+      "at": 1790380800000,
+      "asof": 1790380800000
+    },
+    "conflictedAnswers": [],
+    "answers": [
+      {
+        "binding": {
+          "?who": "person_a_0"
+        },
+        "valid": {
+          "from": null,
+          "until": null
+        },
+        "evidence": [
+          "d_0b704b51f9ba1bc5bf6e1afdd2943316"
+        ]
+      }
+    ],
+    "proof": [
+      {
+        "atom": {
+          "p": "grandparent",
+          "a": [
+            "person_a_0",
+            "person_c_0"
+          ],
+          "neg": false
+        },
+        "valid": {
+          "from": null,
+          "until": null
+        },
+        "id": "d_0b704b51f9ba1bc5bf6e1afdd2943316",
+        "kind": "derived",
+        "rule": "grandparent_rule",
+        "premises": [
+          "c_a58dc824a0d0817c5183474087c3c830",
+          "c_942e2b1e01e97448ff7a773df333b1b4"
+        ]
+      },
+      {
+        "id": "c_a58dc824a0d0817c5183474087c3c830",
+        "atom": {
+          "p": "parent",
+          "a": [
+            "person_a_0",
+            "person_b_0"
+          ],
+          "neg": false
+        },
+        "valid": {
+          "from": null,
+          "until": null
+        },
+        "source": "synthetic",
+        "quote": "",
+        "knownAt": 1,
+        "retention": "normal",
+        "kind": "observed",
+        "claim": {
+          "tupleHash": "b4c4b2ed8a31eebe864511955629647afe495d5c3eb57206d151a125983d8b30",
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "synthetic",
+          "quote": "",
+          "id": "c_a58dc824a0d0817c5183474087c3c830",
+          "knownAt": 1,
+          "retention": "normal",
+          "observations": 1,
+          "uses": 0,
+          "lastObservedAt": 1790459381235
+        },
+        "shardId": "s1",
+        "evidence": {
+          "support": 1,
+          "receipt": true,
+          "verification": "receipt",
+          "metadataVerified": true
+        },
+        "retrievalStrategies": [
+          "recall-weaver"
+        ]
+      },
+      {
+        "id": "c_942e2b1e01e97448ff7a773df333b1b4",
+        "atom": {
+          "p": "parent",
+          "a": [
+            "person_b_0",
+            "person_c_0"
+          ],
+          "neg": false
+        },
+        "valid": {
+          "from": null,
+          "until": null
+        },
+        "source": "synthetic",
+        "quote": "",
+        "knownAt": 1,
+        "retention": "normal",
+        "kind": "observed",
+        "claim": {
+          "tupleHash": "cb459c637bc69c94cef1fe5c187930665c8789bdd7889861a7943f2664783b65",
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "synthetic",
+          "quote": "",
+          "id": "c_942e2b1e01e97448ff7a773df333b1b4",
+          "knownAt": 1,
+          "retention": "normal",
+          "observations": 1,
+          "uses": 0,
+          "lastObservedAt": 1790459381237
+        },
+        "shardId": "s1",
+        "evidence": {
+          "support": 1,
+          "receipt": true,
+          "verification": "receipt",
+          "metadataVerified": true
+        },
+        "retrievalStrategies": [
+          "recall-weaver"
+        ]
+      }
+    ],
+    "complete": true,
+    "truncated": false,
+    "assurance": "Derivation from admitted premises; support is not a calibrated probability of truth.",
+    "hypothetical": false,
+    "diagnostics": {
+      "memoryProbes": 12,
+      "retrieved": 2,
+      "closureFacts": 3,
+      "rounds": 2
+    },
+    "backend": "js",
+    "ignored": [],
+    "route": {
+      "operation": "deduce",
+      "backend": "js",
+      "fallback": null,
+      "semantics": "no-required-constraint-silently-dropped"
+    },
+    "reasoningStrategy": "reference",
+    "linkPlan": {
+      "strategy": "auto",
+      "coverage": "retained-visible-memory",
+      "goals": [
+        "grandparent(?v0, person_c_0)",
+        "not grandparent(?v0, person_c_0)",
+        "parent(?v0, ?v1)",
+        "not parent(?v0, ?v1)",
+        "parent(?v0, person_c_0)",
+        "not parent(?v0, person_c_0)"
+      ],
+      "steps": [
+        {
+          "goal": "grandparent(?v0, person_c_0)",
+          "producer": "grandparent_rule",
+          "substitution": {
+            "?v0": "?rule_x",
+            "?rule_z": "person_c_0"
+          },
+          "requires": [
+            "parent(?rule_x, ?rule_y)",
+            "parent(?rule_y, person_c_0)"
+          ]
+        }
+      ],
+      "retrievals": [
+        {
+          "pattern": "grandparent(?v0, person_c_0)",
+          "strategy": "auto",
+          "selected": "auto",
+          "coverage": "retained-exact-records",
+          "rows": 0,
+          "complete": true,
+          "probes": 0,
+          "shardsVisited": 0,
+          "shardsRouted": 0
+        },
+        {
+          "pattern": "not grandparent(?v0, person_c_0)",
+          "strategy": "auto",
+          "selected": "auto",
+          "coverage": "retained-exact-records",
+          "rows": 0,
+          "complete": true,
+          "probes": 0,
+          "shardsVisited": 0,
+          "shardsRouted": 0
+        },
+        {
+          "pattern": "parent(?v0, ?v1)",
+          "strategy": "auto",
+          "selected": "recall-weaver",
+          "coverage": "retained-associative-candidates",
+          "rows": 2,
+          "complete": true,
+          "probes": 7,
+          "shardsVisited": 1,
+          "shardsRouted": 1
+        },
+        {
+          "pattern": "not parent(?v0, ?v1)",
+          "strategy": "auto",
+          "selected": "recall-weaver",
+          "coverage": "retained-associative-candidates",
+          "rows": 0,
+          "complete": true,
+          "probes": 1,
+          "shardsVisited": 1,
+          "shardsRouted": 1
+        },
+        {
+          "pattern": "parent(?v0, person_c_0)",
+          "strategy": "auto",
+          "selected": "recall-weaver",
+          "coverage": "retained-associative-candidates",
+          "rows": 1,
+          "complete": true,
+          "probes": 3,
+          "shardsVisited": 1,
+          "shardsRouted": 1
+        },
+        {
+          "pattern": "not parent(?v0, person_c_0)",
+          "strategy": "auto",
+          "selected": "recall-weaver",
+          "coverage": "retained-associative-candidates",
+          "rows": 0,
+          "complete": true,
+          "probes": 1,
+          "shardsVisited": 1,
+          "shardsRouted": 1
+        }
+      ],
+      "note": "Completeness refers to this retrieval view and budgets, never to all facts in the world."
+    },
+    "reinforcement": {
+      "facts": 2,
+      "strength": 1
+    }
+  },
+  "generated": [
+    {
+      "epoch": 1,
+      "source": "@result__link link\n  query $q\n  strategy auto\n\n@result__reason reason\n  query $q\n  memory $result__link\n\n@who binding\n  result $result__reason\n  variable ?who\n  mode one\n  owner result\n"
+    }
+  ]
+}

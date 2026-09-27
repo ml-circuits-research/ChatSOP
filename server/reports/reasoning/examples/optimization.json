@@ -1,0 +1,47 @@
+{
+  "setup": "@known_a fact\n  holds parent(person_a_0, person_b_0)\n  valid timeless\n  source synthetic\n@known_b fact\n  holds parent(person_b_0, person_c_0)\n  valid timeless\n  source synthetic\n@grandparent_rule rule\n  when parent(?x, ?y)\n  when parent(?y, ?z)\n  then grandparent(?x, ?z)\n  mode logical\n",
+  "target": "@c constraint\n  var ?x int 0 10\n  var ?y int 0 10\n  require ?x + ?y >= 3\n  claim ?x >= 0\n  objective 2 * ?x + ?y\n  direction min\n  task optimize\n\n@result solve\n  constraint $c\n  output ?x one\n  output ?y one\n\n@answer cnl\n  result $result\n  language ro\n",
+  "packet": {
+    "kind": "constraint",
+    "task": "optimize",
+    "status": "optimal",
+    "complete": true,
+    "backend": "js",
+    "objective": 3,
+    "direction": "min",
+    "witness": {
+      "x": 0,
+      "y": 3
+    },
+    "outputProjection": {
+      "?x": {
+        "status": "bound",
+        "value": 0
+      },
+      "?y": {
+        "status": "bound",
+        "value": 3
+      }
+    },
+    "checks": {
+      "assignments": 121,
+      "total": 121,
+      "optimalModels": 1
+    },
+    "epistemic": "model-relative",
+    "ignored": [],
+    "route": {
+      "operation": "constraint",
+      "backend": "js",
+      "fallback": null,
+      "semantics": "no-required-constraint-silently-dropped"
+    },
+    "reasoningStrategy": "reference"
+  },
+  "generated": [
+    {
+      "epoch": 1,
+      "source": "@result__reason reason\n  constraint $c\n\n@x binding\n  result $result__reason\n  variable ?x\n  mode one\n  owner result\n\n@y binding\n  result $result__reason\n  variable ?y\n  mode one\n  owner result\n"
+    }
+  ]
+}

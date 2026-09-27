@@ -1,0 +1,16 @@
+@assumption hypothesis
+  holds parent(person_c_0, person_a_0)
+  cost 1
+
+@q query
+  where grandparent(person_c_0, person_b_0)
+  at 2026-09-26
+
+@result simulate
+  query $q
+  intervention $assumption
+  mode whatif
+
+@answer cnl
+  result $result
+  language ro

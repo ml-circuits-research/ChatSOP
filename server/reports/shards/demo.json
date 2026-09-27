@@ -1,0 +1,144 @@
+{
+  "experiment": "local-shards-sop-v1",
+  "node": "v22.16.0",
+  "config": {
+    "power": 9,
+    "arity": 3,
+    "verification": "receipt",
+    "retention": {
+      "writeStrength": 2,
+      "useStrength": 1,
+      "reinforceOnUse": true
+    },
+    "sharding": {
+      "enabled": true,
+      "mode": "bounded",
+      "maxClaimsPerShard": 2,
+      "maxColdShards": 2,
+      "safeOccupancy": 0.9,
+      "gcEveryWrites": 0
+    }
+  },
+  "before": {
+    "normalShards": 3,
+    "claims": 6
+  },
+  "checks": {
+    "twoHopProof": true,
+    "promotedPremises": true,
+    "unusedFactForgotten": true,
+    "pinnedSurvives": true,
+    "frozenSessionRetainsHistory": true,
+    "restart": true,
+    "userIsolation": true
+  },
+  "answer": "Afirmația este susținută de premisele disponibile.\nANSWER \nEVIDENCE d_41ba31cfacbf2eea1d91fcb16927158b: grandparent(ana, carina) VIA kinship FROM c_1bf076c5585f59dc228e8b2466ef4641, c_9237f36f6337b79ba48948751db34934\nEVIDENCE c_1bf076c5585f59dc228e8b2466ef4641: parent(ana, bogdan) SOURCE user\nEVIDENCE c_9237f36f6337b79ba48948751db34934: parent(bogdan, carina) SOURCE user\nENGINE reference / js",
+  "normalShards": 3,
+  "normalBankBytes": 15360,
+  "pinnedBankBytes": 5120,
+  "promotions": 4,
+  "evictedShards": 3,
+  "garbageCollection": {
+    "whileFrozen": {
+      "dryRun": false,
+      "sessionRoots": 2,
+      "reachableSnapshots": 3,
+      "reachableShards": 7,
+      "snapshots": 0,
+      "shards": 6,
+      "reclaimableBytes": 53489,
+      "deletedFiles": 6
+    },
+    "afterClose": {
+      "dryRun": false,
+      "sessionRoots": 1,
+      "reachableSnapshots": 2,
+      "reachableShards": 4,
+      "snapshots": 1,
+      "shards": 3,
+      "reclaimableBytes": 28497,
+      "deletedFiles": 4
+    }
+  },
+  "shardStats": {
+    "kind": "sharded",
+    "mode": "bounded",
+    "config": {
+      "enabled": true,
+      "mode": "bounded",
+      "safeOccupancy": 0.9,
+      "maxClaimsPerShard": 2,
+      "maxShardMetadataBytes": 2097152,
+      "maxColdShards": 2,
+      "maxHotAgeMs": null,
+      "maxColdAgeMs": null,
+      "maxNormalBankBytes": null,
+      "maxPinnedBankBytes": null,
+      "maxArchiveShards": null,
+      "gcEveryWrites": 0
+    },
+    "normalShards": 3,
+    "pinnedShards": 1,
+    "normalBankBytes": 15360,
+    "pinnedBankBytes": 5120,
+    "metadataBytes": 3683,
+    "eventsBytes": 2,
+    "claims": 5,
+    "hot": {
+      "id": "s7",
+      "retention": "normal",
+      "claims": 1,
+      "bankBytes": 5120,
+      "metadataBytes": 661,
+      "occupancy": 0.001953125,
+      "peakOccupancy": 0.001953125,
+      "createdAt": 1790424000000,
+      "sealedAt": null
+    },
+    "cold": [
+      {
+        "id": "s5",
+        "retention": "normal",
+        "claims": 2,
+        "bankBytes": 5120,
+        "metadataBytes": 1203,
+        "occupancy": 0.00380859375,
+        "peakOccupancy": 0.00390625,
+        "createdAt": 1790424000000,
+        "sealedAt": 1790459379907
+      },
+      {
+        "id": "s6",
+        "retention": "normal",
+        "claims": 2,
+        "bankBytes": 5120,
+        "metadataBytes": 1200,
+        "occupancy": 0.00380859375,
+        "peakOccupancy": 0.00390625,
+        "createdAt": 1790459379907,
+        "sealedAt": 1790424000000
+      }
+    ],
+    "pinned": [
+      {
+        "id": "s2",
+        "retention": "pinned",
+        "claims": 1,
+        "bankBytes": 5120,
+        "metadataBytes": 619,
+        "occupancy": 0.001953125,
+        "peakOccupancy": 0.001953125,
+        "createdAt": 1790459379886,
+        "sealedAt": null
+      }
+    ],
+    "maintenance": {
+      "rotations": 5,
+      "evictedShards": 3,
+      "evictedClaims": 6,
+      "promotions": 4,
+      "runs": 0,
+      "last": null
+    }
+  }
+}

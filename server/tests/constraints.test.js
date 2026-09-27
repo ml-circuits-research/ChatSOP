@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {spawnSync} from 'node:child_process';
+import {parse} from '../src/sop/parser.js';import {lowerConstraint} from '../src/sop/lower.js';import {solveConstraint,compileSMT} from '../src/backends/constraints.js';import {solveHorn} from '../src/backends/horn.js';
+const prob=s=>lowerConstraint(parse('@c constraint\n'+s).wires[0]);
+const hasZ3=!spawnSync('z3',['-version']).error;
+const cases=[['possible','  var ?x int 0 10\n  require ?x >= 5\n  claim ?x <= 5\n  task possible','possible'],['not entailed','  var ?x int 0 10\n  require ?x >= 5\n  claim ?x <= 5\n  task prove','unknown'],['entailed','  var ?x int 0 10\n  require ?x >= 5\n  claim ?x >= 4','entailed'],['refuted','  var ?x int 0 10\n  require ?x >= 5\n  claim ?x < 4','refuted'],['inconsistent','  var ?x int 0 10\n  require ?x > 9\n  require ?x < 1\n  claim ?x == 0','inconsistent'],['constant arithmetic','  claim 770 + 70 <= 840\n  task possible','possible']];
+for(const [name,s,status]of cases){test('JS '+name,()=>assert.equal(solveConstraint(prob(s),{backend:'js'}).status,status));test('Z3 '+name,{skip:!hasZ3},()=>assert.equal(solveConstraint(prob(s),{backend:'z3'}).status,status));}
+test('budget exhaustion is not refutation',()=>assert.equal(solveConstraint(prob('  var ?x int 0 1000\n  claim ?x > 500'),{backend:'js',maxAssignments:10}).status,'unknown'));
+test('SMT compiler separates premise and claim',()=>{const s=compileSMT(prob('  var ?x int 0 10\n  require ?x > 5\n  claim ?x > 6'));assert.ok(s.prefix.includes('(assert (> x 5))'));assert.equal(s.claim,'(> x 6)');assert.ok(!s.prefix.includes('(assert (> x 6))'));});
+test('missing Z3 is explicit, never an invented result',()=>{const old=process.env.Z3_BIN;process.env.Z3_BIN='/does/not/exist';try{assert.equal(solveConstraint(prob('  claim 2 < 3'),{backend:'z3'}).status,'unsupported');}finally{if(old===undefined)delete process.env.Z3_BIN;else process.env.Z3_BIN=old;}});
+test('unbounded JS problem fails clearly',()=>assert.throws(()=>solveConstraint(prob('  var ?x int\n  claim ?x > 1'),{backend:'js'})));

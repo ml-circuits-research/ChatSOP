@@ -1,0 +1,8 @@
+# PyTorch comes from the NVIDIA container and is constrained in spark-setup.sh.
+# Resolve once, then preserve reports/spark-python-lock.txt and container digest.
+transformers>=4.53.2,<6
+peft>=0.17.1,<0.22
+accelerate>=1.10,<2
+huggingface_hub>=0.34,<2
+safetensors>=0.6,<1
+sentencepiece>=0.2,<0.3

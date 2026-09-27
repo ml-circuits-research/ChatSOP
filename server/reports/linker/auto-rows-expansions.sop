@@ -1,0 +1,14 @@
+# Epoch 1; this is a trace fragment, not a standalone program.
+@r__link link
+  query $q
+  strategy hybrid
+
+@r__reason reason
+  query $q
+  memory $r__link
+
+@families binding
+  result $r__reason
+  variable ?families
+  mode rows
+  owner r

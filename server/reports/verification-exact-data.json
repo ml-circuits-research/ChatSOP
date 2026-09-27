@@ -1,0 +1,33 @@
+{
+  "sourceFingerprint": "9622b7d31a375e8592dd73dcde7891a70537100bdfeca610ab4825acbbdf6cf1",
+  "profile": "sop-agent-3",
+  "node": "v22.16.0",
+  "platform": "linux",
+  "arch": "x64",
+  "complete": true,
+  "neuralModelTested": false,
+  "trainingExecuted": false,
+  "results": [
+    {
+      "name": "data-sqlite",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 7.001,
+      "error": null
+    },
+    {
+      "name": "data-scan",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 2.065,
+      "error": null
+    },
+    {
+      "name": "data-hybrid",
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 7.376,
+      "error": null
+    }
+  ]
+}

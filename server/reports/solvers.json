@@ -1,0 +1,15 @@
+{
+  "neuralModelTested": false,
+  "backends": {
+    "z3": {
+      "available": false,
+      "version": null,
+      "error": "ENOENT"
+    },
+    "prolog": {
+      "available": false,
+      "version": null,
+      "error": "ENOENT"
+    }
+  }
+}

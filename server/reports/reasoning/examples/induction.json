@@ -1,0 +1,195 @@
+{
+  "setup": "@case_good trace\n  text \"senzor fierbinte și uscat\"\n  feature hot(device_0)\n  feature dry(device_0)\n  closed true\n  source synthetic\n@case_bad trace\n  text \"senzor fierbinte dar nu uscat\"\n  feature hot(other_0)\n  closed true\n  source synthetic\n@candidate pattern\n  when hot(?x)\n  then dry(?x)\n",
+  "target": "@cases pack\n  items ~case_good ~case_bad\n\n@result induce\n  data $cases\n  candidates ~candidate\n  output ?patterns many\n\n@answer cnl\n  result $result\n  language ro\n",
+  "packet": {
+    "kind": "induction",
+    "status": "patterns",
+    "complete": true,
+    "epistemic": "candidate",
+    "proof": [],
+    "assurance": "Result relative to the supplied finite model and the retained memory view; scores are not truth probabilities.",
+    "patterns": [
+      {
+        "kind": "pattern",
+        "id": "candidate",
+        "source": "case-evaluation",
+        "if": [
+          {
+            "p": "hot",
+            "a": [
+              "?x"
+            ],
+            "neg": false
+          }
+        ],
+        "then": {
+          "p": "dry",
+          "a": [
+            "?x"
+          ],
+          "neg": false
+        },
+        "status": "candidate",
+        "support": 0.5,
+        "coverage": 1,
+        "samples": 0,
+        "counterexamples": 0,
+        "scoreMeaning": "empirical support, not probability or logical implication",
+        "training": {
+          "opportunities": 2,
+          "supportCount": 1,
+          "counterexamples": 1,
+          "unknown": 0,
+          "conflicts": 0,
+          "support": 0.5,
+          "coverage": 1,
+          "evidence": [
+            {
+              "trace": "case_good",
+              "outcome": "supported"
+            },
+            {
+              "trace": "case_bad",
+              "outcome": "counterexample"
+            }
+          ],
+          "complete": true
+        },
+        "holdout": null,
+        "promotion": "requires-reviewed-semantic-validation"
+      }
+    ],
+    "generatorTruncated": false,
+    "generator": "provided-pattern-templates",
+    "claim": "Counts apply to supplied traces; missing evidence is not a counterexample unless trace.closed=true.",
+    "search": {
+      "nodes": 2,
+      "exhausted": false,
+      "reason": null,
+      "limits": {
+        "maxNodes": 5000,
+        "maxDepth": 8,
+        "maxHypotheses": 64,
+        "maxCandidates": 512,
+        "maxPlans": 1,
+        "maxRounds": 32,
+        "maxFacts": 10000,
+        "maxJoins": 30000,
+        "maxAssignments": 100000,
+        "timeoutMs": 3000,
+        "now": 1790380800000,
+        "schema": null,
+        "limits": {
+          "allowWrite": true,
+          "allowPin": true,
+          "allowRules": false,
+          "allowJsEval": true,
+          "maxWires": 2048,
+          "maxEpochs": 16,
+          "maxGoals": 256,
+          "maxRules": 1024,
+          "retrievalStrategy": "auto",
+          "reasoningStrategy": "reference",
+          "maxNodes": 5000,
+          "maxDepth": 8,
+          "maxHypotheses": 64,
+          "maxCandidates": 512,
+          "maxPlans": 1,
+          "timeoutMs": 3000,
+          "maxProbes": 50000,
+          "maxShards": 256,
+          "maxFacts": 10000,
+          "maxRounds": 32,
+          "maxJoins": 30000,
+          "maxAssignments": 100000,
+          "maxExprOps": 10000,
+          "maxExprBytes": 65536
+        },
+        "allowWrite": true,
+        "allowPin": true,
+        "allowRules": false,
+        "allowJsEval": true,
+        "maxWires": 2048,
+        "maxEpochs": 16,
+        "maxGoals": 256,
+        "maxRules": 1024,
+        "retrievalStrategy": "auto",
+        "reasoningStrategy": "reference",
+        "maxProbes": 50000,
+        "maxShards": 256,
+        "maxExprOps": 10000,
+        "maxExprBytes": 65536
+      }
+    },
+    "ignored": [],
+    "route": {
+      "operation": "induce",
+      "backend": "js",
+      "fallback": null,
+      "semantics": "no-required-constraint-silently-dropped"
+    },
+    "reasoningStrategy": "reference",
+    "outputProjection": {
+      "?patterns": {
+        "status": "bound",
+        "value": [
+          {
+            "kind": "pattern",
+            "id": "candidate",
+            "source": "case-evaluation",
+            "if": [
+              {
+                "p": "hot",
+                "a": [
+                  "?x"
+                ],
+                "neg": false
+              }
+            ],
+            "then": {
+              "p": "dry",
+              "a": [
+                "?x"
+              ],
+              "neg": false
+            },
+            "status": "candidate",
+            "support": 0.5,
+            "coverage": 1,
+            "samples": 0,
+            "counterexamples": 0,
+            "scoreMeaning": "empirical support, not probability or logical implication",
+            "training": {
+              "opportunities": 2,
+              "supportCount": 1,
+              "counterexamples": 1,
+              "unknown": 0,
+              "conflicts": 0,
+              "support": 0.5,
+              "coverage": 1,
+              "evidence": [
+                {
+                  "trace": "case_good",
+                  "outcome": "supported"
+                },
+                {
+                  "trace": "case_bad",
+                  "outcome": "counterexample"
+                }
+              ],
+              "complete": true
+            },
+            "holdout": null,
+            "promotion": "requires-reviewed-semantic-validation"
+          }
+        ]
+      }
+    }
+  },
+  "generated": [
+    {
+      "epoch": 1,
+      "source": "@patterns binding\n  result $result\n  variable ?patterns\n  mode many\n  owner result\n"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+weaver layers: 6/6
+weaver shards: 6/6
+holo layers: 6/6
+holo shards: 6/6
+sqlite layers: 6/6
+sqlite shards: 6/6
+scan layers: 6/6
+scan shards: 6/6
+(node:4313) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

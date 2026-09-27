@@ -1,0 +1,3 @@
+{"engine":"sqlite","count":10000,"seed":53,"buildMs":394.243872,"summary":{"completion":{"queries":80,"tp":84,"fp":0,"fn":0,"exactSets":80,"budgetComplete":80,"precision":1,"recall":1,"medianMs":0.013981000000001131,"p95Ms":0.03118699999998853},"absent":{"queries":20,"tp":0,"fp":0,"fn":0,"exactSets":20,"budgetComplete":20,"precision":null,"recall":null,"medianMs":0.006629999999972824,"p95Ms":0.009123999999985699},"reverse":{"queries":2,"tp":145,"fp":0,"fn":0,"exactSets":2,"budgetComplete":2,"precision":1,"recall":1,"medianMs":0.411549999999977,"p95Ms":0.411549999999977}}}
+(node:1641) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

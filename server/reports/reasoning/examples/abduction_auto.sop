@@ -1,0 +1,10 @@
+@q query
+  where outage(device_0)
+  at 2026-09-26
+
+@result abduce
+  query $q
+
+@answer cnl
+  result $result
+  language ro

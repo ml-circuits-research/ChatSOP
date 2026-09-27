@@ -1,0 +1,33 @@
+{
+  "role": "formalizer",
+  "rows": {
+    "train": 1224,
+    "dev": 153
+  },
+  "files": {
+    "data/seed/formalizer/train.jsonl": "54923bbaf0534f04e647201d90c9001b7fa65a97d91c87d231d40de1f03c4b6d",
+    "data/seed/formalizer/dev.jsonl": "76df3b0ec81e4fc4b6cf1131ddd3ba4e71538b64fcd94c5ee381f48a5a8b6be6"
+  },
+  "config": {
+    "model_id": "google/gemma-3-270m-it",
+    "revision": "main",
+    "max_length": 4096,
+    "epochs": 3,
+    "batch_size": 2,
+    "gradient_accumulation": 8,
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "lr": 0.0002,
+    "full_lr": 2e-05,
+    "weight_decay": 0.01,
+    "warmup_fraction": 0.05,
+    "gradient_checkpointing": true,
+    "max_grad_norm": 1.0,
+    "log_every": 10,
+    "save_every": 100,
+    "seed": 42,
+    "attention": "sdpa"
+  },
+  "training_executed": false
+}

@@ -1,0 +1,63 @@
+{
+  "root": "state",
+  "ontology": "config/ontology.sop",
+  "memory": {
+    "power": 12,
+    "arity": 3,
+    "verification": "receipt",
+    "journal": false,
+    "retention": {
+      "mode": "none",
+      "safeOccupancy": 0.55,
+      "targetOccupancy": 0.42,
+      "writeStrength": 2,
+      "useStrength": 1,
+      "decayStep": 1,
+      "maxSweeps": 6,
+      "reinforceOnUse": true,
+      "pruneMetadata": true
+    },
+    "sharding": {
+      "enabled": true,
+      "mode": "bounded",
+      "safeOccupancy": 0.55,
+      "maxClaimsPerShard": 1024,
+      "maxShardMetadataBytes": 2097152,
+      "maxColdShards": 8,
+      "maxHotAgeMs": null,
+      "maxColdAgeMs": null,
+      "maxNormalBankBytes": null,
+      "maxPinnedBankBytes": null,
+      "maxArchiveShards": null,
+      "gcEveryWrites": 32
+    }
+  },
+  "formalizer": {
+    "url": "http://127.0.0.1:8080/v1/chat/completions",
+    "model": "formalizer",
+    "maxTokens": 1024,
+    "timeoutMs": 120000
+  },
+  "verbalizer": {
+    "url": "http://127.0.0.1:8080/v1/chat/completions",
+    "model": "verbalizer",
+    "maxTokens": 384,
+    "timeoutMs": 120000
+  },
+  "policy": {
+    "allowWrite": true,
+    "allowPin": true,
+    "allowRules": false,
+    "allowJsEval": true,
+    "maxWires": 2048,
+    "maxEpochs": 16,
+    "maxProbes": 50000,
+    "maxFacts": 10000,
+    "maxJoins": 30000,
+    "maxAssignments": 100000,
+    "retrievalStrategy": "hybrid",
+    "maxGoals": 256,
+    "maxRules": 1024,
+    "maxShards": 256
+  }
+}

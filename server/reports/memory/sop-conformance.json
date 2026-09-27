@@ -1,0 +1,1590 @@
+{
+  "runs": [
+    {
+      "engine": "weaver",
+      "strategy": "recall-weaver",
+      "sharded": false,
+      "example": "auto-link",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "weaver",
+      "strategy": "recall-weaver",
+      "sharded": false,
+      "example": "auto-mixed",
+      "passed": true,
+      "outputs": {
+        "duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "trip",
+          "epoch": 1,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "feasibility",
+          "epoch": 2,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "weaver",
+      "strategy": "recall-weaver",
+      "sharded": false,
+      "example": "auto-cascade",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "who",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        },
+        "copii": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            "bogdan"
+          ],
+          "mode": "many",
+          "owner": "next",
+          "epoch": 2,
+          "proof": [
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "weaver",
+      "strategy": "recall-weaver",
+      "sharded": false,
+      "example": "auto-ambiguous",
+      "passed": true,
+      "outputs": {
+        "stramos": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "ambiguous",
+          "candidates": 2,
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_d3a0605cd5468a4039e988fe44eaed30",
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_76638500644df50e3475b6eb366748d6",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "weaver",
+      "strategy": "recall-weaver",
+      "sharded": false,
+      "example": "auto-rows",
+      "passed": true,
+      "outputs": {
+        "families": {
+          "valueType": "value",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            {
+              "?parent": "bogdan",
+              "?child": "carina"
+            },
+            {
+              "?parent": "ana",
+              "?child": "bogdan"
+            }
+          ],
+          "mode": "rows",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "weaver",
+      "strategy": "recall-weaver",
+      "sharded": false,
+      "example": "auto-template",
+      "passed": true,
+      "outputs": {
+        "answer__duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "answer__retrieve_duration",
+          "epoch": 2,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "answer__arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "answer__feasibility",
+          "epoch": 3,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "weaver",
+      "strategy": "recall-weaver",
+      "sharded": true,
+      "example": "auto-link",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "weaver",
+      "strategy": "recall-weaver",
+      "sharded": true,
+      "example": "auto-mixed",
+      "passed": true,
+      "outputs": {
+        "duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "trip",
+          "epoch": 1,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "feasibility",
+          "epoch": 2,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "weaver",
+      "strategy": "recall-weaver",
+      "sharded": true,
+      "example": "auto-cascade",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "who",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        },
+        "copii": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            "bogdan"
+          ],
+          "mode": "many",
+          "owner": "next",
+          "epoch": 2,
+          "proof": [
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "weaver",
+      "strategy": "recall-weaver",
+      "sharded": true,
+      "example": "auto-ambiguous",
+      "passed": true,
+      "outputs": {
+        "stramos": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "ambiguous",
+          "candidates": 2,
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_d3a0605cd5468a4039e988fe44eaed30",
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_76638500644df50e3475b6eb366748d6",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "weaver",
+      "strategy": "recall-weaver",
+      "sharded": true,
+      "example": "auto-rows",
+      "passed": true,
+      "outputs": {
+        "families": {
+          "valueType": "value",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            {
+              "?parent": "bogdan",
+              "?child": "carina"
+            },
+            {
+              "?parent": "ana",
+              "?child": "bogdan"
+            }
+          ],
+          "mode": "rows",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "weaver",
+      "strategy": "recall-weaver",
+      "sharded": true,
+      "example": "auto-template",
+      "passed": true,
+      "outputs": {
+        "answer__duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "answer__retrieve_duration",
+          "epoch": 2,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "answer__arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "answer__feasibility",
+          "epoch": 3,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "strategy": "holo-memory",
+      "sharded": false,
+      "example": "auto-link",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "strategy": "holo-memory",
+      "sharded": false,
+      "example": "auto-mixed",
+      "passed": true,
+      "outputs": {
+        "duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "trip",
+          "epoch": 1,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "feasibility",
+          "epoch": 2,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "strategy": "holo-memory",
+      "sharded": false,
+      "example": "auto-cascade",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "who",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        },
+        "copii": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            "bogdan"
+          ],
+          "mode": "many",
+          "owner": "next",
+          "epoch": 2,
+          "proof": [
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "strategy": "holo-memory",
+      "sharded": false,
+      "example": "auto-ambiguous",
+      "passed": true,
+      "outputs": {
+        "stramos": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "ambiguous",
+          "candidates": 2,
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_d3a0605cd5468a4039e988fe44eaed30",
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_76638500644df50e3475b6eb366748d6",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "strategy": "holo-memory",
+      "sharded": false,
+      "example": "auto-rows",
+      "passed": true,
+      "outputs": {
+        "families": {
+          "valueType": "value",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            {
+              "?parent": "bogdan",
+              "?child": "carina"
+            },
+            {
+              "?parent": "ana",
+              "?child": "bogdan"
+            }
+          ],
+          "mode": "rows",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "strategy": "holo-memory",
+      "sharded": false,
+      "example": "auto-template",
+      "passed": true,
+      "outputs": {
+        "answer__duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "answer__retrieve_duration",
+          "epoch": 2,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "answer__arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "answer__feasibility",
+          "epoch": 3,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "strategy": "holo-memory",
+      "sharded": true,
+      "example": "auto-link",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "strategy": "holo-memory",
+      "sharded": true,
+      "example": "auto-mixed",
+      "passed": true,
+      "outputs": {
+        "duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "trip",
+          "epoch": 1,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "feasibility",
+          "epoch": 2,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "strategy": "holo-memory",
+      "sharded": true,
+      "example": "auto-cascade",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "who",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        },
+        "copii": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            "bogdan"
+          ],
+          "mode": "many",
+          "owner": "next",
+          "epoch": 2,
+          "proof": [
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "strategy": "holo-memory",
+      "sharded": true,
+      "example": "auto-ambiguous",
+      "passed": true,
+      "outputs": {
+        "stramos": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "ambiguous",
+          "candidates": 2,
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_d3a0605cd5468a4039e988fe44eaed30",
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_76638500644df50e3475b6eb366748d6",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "strategy": "holo-memory",
+      "sharded": true,
+      "example": "auto-rows",
+      "passed": true,
+      "outputs": {
+        "families": {
+          "valueType": "value",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            {
+              "?parent": "bogdan",
+              "?child": "carina"
+            },
+            {
+              "?parent": "ana",
+              "?child": "bogdan"
+            }
+          ],
+          "mode": "rows",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "holo",
+      "strategy": "holo-memory",
+      "sharded": true,
+      "example": "auto-template",
+      "passed": true,
+      "outputs": {
+        "answer__duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "answer__retrieve_duration",
+          "epoch": 2,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "answer__arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "answer__feasibility",
+          "epoch": 3,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "strategy": "sqlite",
+      "sharded": false,
+      "example": "auto-link",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "strategy": "sqlite",
+      "sharded": false,
+      "example": "auto-mixed",
+      "passed": true,
+      "outputs": {
+        "duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "trip",
+          "epoch": 1,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "feasibility",
+          "epoch": 2,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "strategy": "sqlite",
+      "sharded": false,
+      "example": "auto-cascade",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "who",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        },
+        "copii": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            "bogdan"
+          ],
+          "mode": "many",
+          "owner": "next",
+          "epoch": 2,
+          "proof": [
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "strategy": "sqlite",
+      "sharded": false,
+      "example": "auto-ambiguous",
+      "passed": true,
+      "outputs": {
+        "stramos": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "ambiguous",
+          "candidates": 2,
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_d3a0605cd5468a4039e988fe44eaed30",
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_76638500644df50e3475b6eb366748d6",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "strategy": "sqlite",
+      "sharded": false,
+      "example": "auto-rows",
+      "passed": true,
+      "outputs": {
+        "families": {
+          "valueType": "value",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            {
+              "?parent": "bogdan",
+              "?child": "carina"
+            },
+            {
+              "?parent": "ana",
+              "?child": "bogdan"
+            }
+          ],
+          "mode": "rows",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "strategy": "sqlite",
+      "sharded": false,
+      "example": "auto-template",
+      "passed": true,
+      "outputs": {
+        "answer__duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "answer__retrieve_duration",
+          "epoch": 2,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "answer__arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "answer__feasibility",
+          "epoch": 3,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "strategy": "sqlite",
+      "sharded": true,
+      "example": "auto-link",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "strategy": "sqlite",
+      "sharded": true,
+      "example": "auto-mixed",
+      "passed": true,
+      "outputs": {
+        "duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "trip",
+          "epoch": 1,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "feasibility",
+          "epoch": 2,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "strategy": "sqlite",
+      "sharded": true,
+      "example": "auto-cascade",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "who",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        },
+        "copii": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            "bogdan"
+          ],
+          "mode": "many",
+          "owner": "next",
+          "epoch": 2,
+          "proof": [
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "strategy": "sqlite",
+      "sharded": true,
+      "example": "auto-ambiguous",
+      "passed": true,
+      "outputs": {
+        "stramos": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "ambiguous",
+          "candidates": 2,
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_d3a0605cd5468a4039e988fe44eaed30",
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_76638500644df50e3475b6eb366748d6",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "strategy": "sqlite",
+      "sharded": true,
+      "example": "auto-rows",
+      "passed": true,
+      "outputs": {
+        "families": {
+          "valueType": "value",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            {
+              "?parent": "bogdan",
+              "?child": "carina"
+            },
+            {
+              "?parent": "ana",
+              "?child": "bogdan"
+            }
+          ],
+          "mode": "rows",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "sqlite",
+      "strategy": "sqlite",
+      "sharded": true,
+      "example": "auto-template",
+      "passed": true,
+      "outputs": {
+        "answer__duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "answer__retrieve_duration",
+          "epoch": 2,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "answer__arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "answer__feasibility",
+          "epoch": 3,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "strategy": "scan",
+      "sharded": false,
+      "example": "auto-link",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "strategy": "scan",
+      "sharded": false,
+      "example": "auto-mixed",
+      "passed": true,
+      "outputs": {
+        "duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "trip",
+          "epoch": 1,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "feasibility",
+          "epoch": 2,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "strategy": "scan",
+      "sharded": false,
+      "example": "auto-cascade",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "who",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        },
+        "copii": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            "bogdan"
+          ],
+          "mode": "many",
+          "owner": "next",
+          "epoch": 2,
+          "proof": [
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "strategy": "scan",
+      "sharded": false,
+      "example": "auto-ambiguous",
+      "passed": true,
+      "outputs": {
+        "stramos": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "ambiguous",
+          "candidates": 2,
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_d3a0605cd5468a4039e988fe44eaed30",
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_76638500644df50e3475b6eb366748d6",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "strategy": "scan",
+      "sharded": false,
+      "example": "auto-rows",
+      "passed": true,
+      "outputs": {
+        "families": {
+          "valueType": "value",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            {
+              "?parent": "bogdan",
+              "?child": "carina"
+            },
+            {
+              "?parent": "ana",
+              "?child": "bogdan"
+            }
+          ],
+          "mode": "rows",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "strategy": "scan",
+      "sharded": false,
+      "example": "auto-template",
+      "passed": true,
+      "outputs": {
+        "answer__duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "answer__retrieve_duration",
+          "epoch": 2,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "answer__arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "answer__feasibility",
+          "epoch": 3,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "strategy": "scan",
+      "sharded": true,
+      "example": "auto-link",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "strategy": "scan",
+      "sharded": true,
+      "example": "auto-mixed",
+      "passed": true,
+      "outputs": {
+        "duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "trip",
+          "epoch": 1,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "feasibility",
+          "epoch": 2,
+          "proof": []
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "strategy": "scan",
+      "sharded": true,
+      "example": "auto-cascade",
+      "passed": true,
+      "outputs": {
+        "bunica": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": "ana",
+          "mode": "one",
+          "owner": "who",
+          "epoch": 1,
+          "proof": [
+            "d_7fe7594a7f287ae336a5015cc391d97a",
+            "c_24548faa3e83d426354b3a1acb953c50",
+            "c_398818afc065d1b76a85f1fc22140044"
+          ]
+        },
+        "copii": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            "bogdan"
+          ],
+          "mode": "many",
+          "owner": "next",
+          "epoch": 2,
+          "proof": [
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "strategy": "scan",
+      "sharded": true,
+      "example": "auto-ambiguous",
+      "passed": true,
+      "outputs": {
+        "stramos": {
+          "valueType": "person",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "ambiguous",
+          "candidates": 2,
+          "mode": "one",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "d_d3a0605cd5468a4039e988fe44eaed30",
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_76638500644df50e3475b6eb366748d6",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "strategy": "scan",
+      "sharded": true,
+      "example": "auto-rows",
+      "passed": true,
+      "outputs": {
+        "families": {
+          "valueType": "value",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": [
+            {
+              "?parent": "bogdan",
+              "?child": "carina"
+            },
+            {
+              "?parent": "ana",
+              "?child": "bogdan"
+            }
+          ],
+          "mode": "rows",
+          "owner": "r",
+          "epoch": 1,
+          "proof": [
+            "c_398818afc065d1b76a85f1fc22140044",
+            "d_cd050d3146bbdfd8df4fb73717f65303",
+            "c_24548faa3e83d426354b3a1acb953c50"
+          ]
+        }
+      }
+    },
+    {
+      "engine": "scan",
+      "strategy": "scan",
+      "sharded": true,
+      "example": "auto-template",
+      "passed": true,
+      "outputs": {
+        "answer__duration": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "supported",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 70,
+          "mode": "one",
+          "owner": "answer__retrieve_duration",
+          "epoch": 2,
+          "proof": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        },
+        "answer__arrival": {
+          "valueType": "integer",
+          "complete": true,
+          "sourceStatus": "possible",
+          "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+          "status": "bound",
+          "value": 840,
+          "mode": "one",
+          "owner": "answer__feasibility",
+          "epoch": 3,
+          "proof": []
+        }
+      }
+    }
+  ],
+  "passed": 48,
+  "neuralModelTested": false
+}

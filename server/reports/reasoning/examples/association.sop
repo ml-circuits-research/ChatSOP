@@ -1,0 +1,18 @@
+@cue trace
+  text "senzor fierbinte și uscat"
+  feature hot(device_0)
+  feature dry(device_0)
+  closed false
+  source synthetic
+
+@cases pack
+  items ~case_good ~case_bad
+
+@result associate
+  cue $cue
+  data $cases
+  mode weaver
+
+@answer cnl
+  result $result
+  language ro

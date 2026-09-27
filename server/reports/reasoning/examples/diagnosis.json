@@ -1,0 +1,314 @@
+{
+  "setup": "@network_causes_outage rule\n  when network_down(?x)\n  then outage(?x)\n  mode logical\n@disk_causes_outage rule\n  when disk_full(?x)\n  then outage(?x)\n  mode logical\n@network hypothesis\n  holds network_down(device_0)\n  cost 2\n@disk hypothesis\n  holds disk_full(device_0)\n  cost 1\n",
+  "target": "@q query\n  where outage(device_0)\n  at 2026-09-26\n\n@test query\n  where network_down(device_0)\n\n@possible pack\n  items ~network ~disk\n\n@result diagnose\n  query $q\n  candidates $possible\n  tests $test\n\n@answer cnl\n  result $result\n  language ro\n",
+  "packet": {
+    "kind": "diagnosis",
+    "status": "hypotheses",
+    "complete": true,
+    "epistemic": "hypothetical",
+    "proof": [],
+    "assurance": "Result relative to the supplied finite model and the retained memory view; scores are not truth probabilities.",
+    "explanations": [
+      {
+        "kind": "hypothesis",
+        "id": "explanation_0",
+        "status": "untested",
+        "assumptions": [
+          {
+            "p": "disk_full",
+            "a": [
+              "device_0"
+            ],
+            "neg": false
+          }
+        ],
+        "cost": 1,
+        "members": [
+          "disk"
+        ],
+        "proof": [
+          {
+            "atom": {
+              "p": "outage",
+              "a": [
+                "device_0"
+              ],
+              "neg": false
+            },
+            "valid": {
+              "from": null,
+              "until": null
+            },
+            "id": "d_088d890c5793e5844b16dc367b95f889",
+            "kind": "derived",
+            "rule": "disk_causes_outage",
+            "premises": [
+              "hyp_0"
+            ]
+          },
+          {
+            "id": "hyp_0",
+            "atom": {
+              "p": "disk_full",
+              "a": [
+                "device_0"
+              ],
+              "neg": false
+            },
+            "valid": {
+              "from": null,
+              "until": null
+            },
+            "kind": "assumed",
+            "source": "assumed",
+            "evidence": {
+              "local": true
+            },
+            "knownAt": 0
+          }
+        ]
+      },
+      {
+        "kind": "hypothesis",
+        "id": "explanation_1",
+        "status": "untested",
+        "assumptions": [
+          {
+            "p": "network_down",
+            "a": [
+              "device_0"
+            ],
+            "neg": false
+          }
+        ],
+        "cost": 2,
+        "members": [
+          "network"
+        ],
+        "proof": [
+          {
+            "atom": {
+              "p": "outage",
+              "a": [
+                "device_0"
+              ],
+              "neg": false
+            },
+            "valid": {
+              "from": null,
+              "until": null
+            },
+            "id": "d_088d890c5793e5844b16dc367b95f889",
+            "kind": "derived",
+            "rule": "network_causes_outage",
+            "premises": [
+              "hyp_0"
+            ]
+          },
+          {
+            "id": "hyp_0",
+            "atom": {
+              "p": "network_down",
+              "a": [
+                "device_0"
+              ],
+              "neg": false
+            },
+            "valid": {
+              "from": null,
+              "until": null
+            },
+            "kind": "assumed",
+            "source": "assumed",
+            "evidence": {
+              "local": true
+            },
+            "knownAt": 0
+          }
+        ]
+      }
+    ],
+    "depthLimited": false,
+    "checked": 3,
+    "candidateCount": 2,
+    "generator": null,
+    "ignored": [],
+    "query": {
+      "kind": "query",
+      "variableTypes": {},
+      "mode": "exists",
+      "where": [
+        {
+          "p": "outage",
+          "a": [
+            "device_0"
+          ],
+          "neg": false
+        }
+      ],
+      "select": [],
+      "filters": [],
+      "limit": 100,
+      "at": 1790380800000,
+      "asof": 1790380800000
+    },
+    "search": {
+      "nodes": 3,
+      "exhausted": false,
+      "reason": null,
+      "limits": {
+        "maxNodes": 5000,
+        "maxDepth": 8,
+        "maxHypotheses": 64,
+        "maxCandidates": 512,
+        "maxPlans": 1,
+        "maxRounds": 32,
+        "maxFacts": 10000,
+        "maxJoins": 30000,
+        "maxAssignments": 100000,
+        "timeoutMs": 3000,
+        "now": 1790380800000,
+        "schema": null,
+        "tests": {
+          "kind": "query",
+          "variableTypes": {},
+          "mode": "exists",
+          "where": [
+            {
+              "p": "network_down",
+              "a": [
+                "device_0"
+              ],
+              "neg": false
+            }
+          ],
+          "select": [],
+          "filters": [],
+          "limit": 100,
+          "at": 1790380800000,
+          "asof": 1790380800000
+        },
+        "limits": {
+          "allowWrite": true,
+          "allowPin": true,
+          "allowRules": false,
+          "allowJsEval": true,
+          "maxWires": 2048,
+          "maxEpochs": 16,
+          "maxGoals": 256,
+          "maxRules": 1024,
+          "retrievalStrategy": "auto",
+          "reasoningStrategy": "reference",
+          "maxNodes": 5000,
+          "maxDepth": 8,
+          "maxHypotheses": 64,
+          "maxCandidates": 512,
+          "maxPlans": 1,
+          "timeoutMs": 3000,
+          "maxProbes": 50000,
+          "maxShards": 256,
+          "maxFacts": 10000,
+          "maxRounds": 32,
+          "maxJoins": 30000,
+          "maxAssignments": 100000,
+          "maxExprOps": 10000,
+          "maxExprBytes": 65536
+        },
+        "allowWrite": true,
+        "allowPin": true,
+        "allowRules": false,
+        "allowJsEval": true,
+        "maxWires": 2048,
+        "maxEpochs": 16,
+        "maxGoals": 256,
+        "maxRules": 1024,
+        "retrievalStrategy": "auto",
+        "reasoningStrategy": "reference",
+        "maxProbes": 50000,
+        "maxShards": 256,
+        "maxExprOps": 10000,
+        "maxExprBytes": 65536
+      }
+    },
+    "tests": [
+      {
+        "kind": "test-recommendation",
+        "query": {
+          "kind": "query",
+          "variableTypes": {},
+          "mode": "exists",
+          "where": [
+            {
+              "p": "network_down",
+              "a": [
+                "device_0"
+              ],
+              "neg": false
+            }
+          ],
+          "select": [],
+          "filters": [],
+          "limit": 100,
+          "at": 1790380800000,
+          "asof": 1790380800000
+        },
+        "separatedPairs": 1,
+        "predictions": [
+          {
+            "explanation": "explanation_0",
+            "status": "unknown"
+          },
+          {
+            "explanation": "explanation_1",
+            "status": "supported"
+          }
+        ],
+        "scoreMeaning": "pair-separation heuristic, not expected information gain under a probability model"
+      }
+    ],
+    "nextTest": {
+      "kind": "test-recommendation",
+      "query": {
+        "kind": "query",
+        "variableTypes": {},
+        "mode": "exists",
+        "where": [
+          {
+            "p": "network_down",
+            "a": [
+              "device_0"
+            ],
+            "neg": false
+          }
+        ],
+        "select": [],
+        "filters": [],
+        "limit": 100,
+        "at": 1790380800000,
+        "asof": 1790380800000
+      },
+      "separatedPairs": 1,
+      "predictions": [
+        {
+          "explanation": "explanation_0",
+          "status": "unknown"
+        },
+        {
+          "explanation": "explanation_1",
+          "status": "supported"
+        }
+      ],
+      "scoreMeaning": "pair-separation heuristic, not expected information gain under a probability model"
+    },
+    "executedTests": false,
+    "route": {
+      "operation": "diagnose",
+      "backend": "js",
+      "fallback": null,
+      "semantics": "no-required-constraint-silently-dropped"
+    },
+    "reasoningStrategy": "reference",
+    "outputProjection": {}
+  },
+  "generated": []
+}

@@ -1,0 +1,11 @@
+@destination goal
+  where located_in(robot_0, place_c_0)
+
+@result plan
+  goal $destination
+  actions ~move
+  output ?chosen_plan one
+
+@answer cnl
+  result $result
+  language ro

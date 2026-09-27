@@ -1,0 +1,289 @@
+{
+  "setup": "@position fact\n  holds located_in(robot_0, place_a_0)\n  valid timeless\n  source synthetic\n@road_ab fact\n  holds connected(place_a_0, place_b_0)\n  valid timeless\n  source synthetic\n@road_bc fact\n  holds connected(place_b_0, place_c_0)\n  valid timeless\n  source synthetic\n@move action\n  params ?r ?from ?to\n  requires located_in(?r, ?from)\n  requires connected(?from, ?to)\n  removes located_in(?r, ?from)\n  adds located_in(?r, ?to)\n  cost 1\n",
+  "target": "@destination goal\n  where located_in(robot_0, place_c_0)\n\n@result plan\n  goal $destination\n  actions ~move\n  output ?chosen_plan one\n\n@answer cnl\n  result $result\n  language ro\n",
+  "packet": {
+    "kind": "planning",
+    "status": "plan_found",
+    "complete": true,
+    "epistemic": "planned",
+    "proof": [],
+    "assurance": "Result relative to the supplied finite model and the retained memory view; scores are not truth probabilities.",
+    "plans": [
+      {
+        "kind": "plan",
+        "steps": [
+          {
+            "action": "move",
+            "binding": {
+              "?r": "robot_0",
+              "?from": "place_a_0",
+              "?to": "place_b_0"
+            },
+            "cost": 1,
+            "requires": [
+              "c_fe7be7561fd0253eb6a2daa822824f45",
+              "c_3e18155ba272e3f58c0a102585eefba5"
+            ],
+            "adds": [
+              {
+                "p": "located_in",
+                "a": [
+                  "robot_0",
+                  "place_b_0"
+                ],
+                "neg": false
+              }
+            ],
+            "removes": [
+              {
+                "p": "located_in",
+                "a": [
+                  "robot_0",
+                  "place_a_0"
+                ],
+                "neg": false
+              }
+            ]
+          },
+          {
+            "action": "move",
+            "binding": {
+              "?r": "robot_0",
+              "?from": "place_b_0",
+              "?to": "place_c_0"
+            },
+            "cost": 1,
+            "requires": [
+              "state_0_{\"a\":[\"robot_0\",\"place_b_0\"],\"neg\":false,\"p\":\"located_in\"}",
+              "c_b08527a45ae2414b4ad426dec92c62df"
+            ],
+            "adds": [
+              {
+                "p": "located_in",
+                "a": [
+                  "robot_0",
+                  "place_c_0"
+                ],
+                "neg": false
+              }
+            ],
+            "removes": [
+              {
+                "p": "located_in",
+                "a": [
+                  "robot_0",
+                  "place_b_0"
+                ],
+                "neg": false
+              }
+            ]
+          }
+        ],
+        "cost": 2,
+        "proof": [
+          {
+            "id": "state_0_{\"a\":[\"robot_0\",\"place_c_0\"],\"neg\":false,\"p\":\"located_in\"}",
+            "atom": {
+              "p": "located_in",
+              "a": [
+                "robot_0",
+                "place_c_0"
+              ],
+              "neg": false
+            },
+            "valid": {
+              "from": null,
+              "until": null
+            },
+            "kind": "assumed",
+            "source": "assumed",
+            "evidence": {
+              "local": true
+            },
+            "knownAt": 0
+          }
+        ],
+        "epistemic": "planned-not-executed"
+      }
+    ],
+    "optimal": true,
+    "depthLimited": false,
+    "execution": false,
+    "selection": "lowest-cost plans for distinct reached goal states; not enumeration of all paths",
+    "enumerationComplete": true,
+    "search": {
+      "nodes": 5,
+      "exhausted": false,
+      "reason": null,
+      "limits": {
+        "maxNodes": 5000,
+        "maxDepth": 8,
+        "maxHypotheses": 64,
+        "maxCandidates": 512,
+        "maxPlans": 1,
+        "maxRounds": 32,
+        "maxFacts": 10000,
+        "maxJoins": 30000,
+        "maxAssignments": 100000,
+        "timeoutMs": 3000,
+        "now": 1790380800000,
+        "schema": null,
+        "limits": {
+          "allowWrite": true,
+          "allowPin": true,
+          "allowRules": false,
+          "allowJsEval": true,
+          "maxWires": 2048,
+          "maxEpochs": 16,
+          "maxGoals": 256,
+          "maxRules": 1024,
+          "retrievalStrategy": "auto",
+          "reasoningStrategy": "reference",
+          "maxNodes": 5000,
+          "maxDepth": 8,
+          "maxHypotheses": 64,
+          "maxCandidates": 512,
+          "maxPlans": 1,
+          "timeoutMs": 3000,
+          "maxProbes": 50000,
+          "maxShards": 256,
+          "maxFacts": 10000,
+          "maxRounds": 32,
+          "maxJoins": 30000,
+          "maxAssignments": 100000,
+          "maxExprOps": 10000,
+          "maxExprBytes": 65536
+        },
+        "allowWrite": true,
+        "allowPin": true,
+        "allowRules": false,
+        "allowJsEval": true,
+        "maxWires": 2048,
+        "maxEpochs": 16,
+        "maxGoals": 256,
+        "maxRules": 1024,
+        "retrievalStrategy": "auto",
+        "reasoningStrategy": "reference",
+        "maxProbes": 50000,
+        "maxShards": 256,
+        "maxExprOps": 10000,
+        "maxExprBytes": 65536
+      }
+    },
+    "ignored": [],
+    "route": {
+      "operation": "plan",
+      "backend": "js",
+      "fallback": null,
+      "semantics": "no-required-constraint-silently-dropped"
+    },
+    "reasoningStrategy": "reference",
+    "outputProjection": {
+      "?chosen_plan": {
+        "status": "bound",
+        "value": {
+          "kind": "plan",
+          "steps": [
+            {
+              "action": "move",
+              "binding": {
+                "?r": "robot_0",
+                "?from": "place_a_0",
+                "?to": "place_b_0"
+              },
+              "cost": 1,
+              "requires": [
+                "c_fe7be7561fd0253eb6a2daa822824f45",
+                "c_3e18155ba272e3f58c0a102585eefba5"
+              ],
+              "adds": [
+                {
+                  "p": "located_in",
+                  "a": [
+                    "robot_0",
+                    "place_b_0"
+                  ],
+                  "neg": false
+                }
+              ],
+              "removes": [
+                {
+                  "p": "located_in",
+                  "a": [
+                    "robot_0",
+                    "place_a_0"
+                  ],
+                  "neg": false
+                }
+              ]
+            },
+            {
+              "action": "move",
+              "binding": {
+                "?r": "robot_0",
+                "?from": "place_b_0",
+                "?to": "place_c_0"
+              },
+              "cost": 1,
+              "requires": [
+                "state_0_{\"a\":[\"robot_0\",\"place_b_0\"],\"neg\":false,\"p\":\"located_in\"}",
+                "c_b08527a45ae2414b4ad426dec92c62df"
+              ],
+              "adds": [
+                {
+                  "p": "located_in",
+                  "a": [
+                    "robot_0",
+                    "place_c_0"
+                  ],
+                  "neg": false
+                }
+              ],
+              "removes": [
+                {
+                  "p": "located_in",
+                  "a": [
+                    "robot_0",
+                    "place_b_0"
+                  ],
+                  "neg": false
+                }
+              ]
+            }
+          ],
+          "cost": 2,
+          "proof": [
+            {
+              "id": "state_0_{\"a\":[\"robot_0\",\"place_c_0\"],\"neg\":false,\"p\":\"located_in\"}",
+              "atom": {
+                "p": "located_in",
+                "a": [
+                  "robot_0",
+                  "place_c_0"
+                ],
+                "neg": false
+              },
+              "valid": {
+                "from": null,
+                "until": null
+              },
+              "kind": "assumed",
+              "source": "assumed",
+              "evidence": {
+                "local": true
+              },
+              "knownAt": 0
+            }
+          ],
+          "epistemic": "planned-not-executed"
+        }
+      }
+    }
+  },
+  "generated": [
+    {
+      "epoch": 1,
+      "source": "@chosen_plan binding\n  result $result\n  variable ?chosen_plan\n  mode one\n  owner result\n"
+    }
+  ]
+}

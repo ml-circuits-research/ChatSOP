@@ -1,0 +1,27 @@
+before cooling {
+  occupancy: 0.000091552734375,
+  hotCounter: 5,
+  coldCounter: 1,
+  hotReceipts: 5,
+  coldReceipts: 1
+}
+after 2 cooling steps {
+  occupancy: 0.00006103515625,
+  hotCounter: 3,
+  coldCounter: 0,
+  hotRecoverable: true,
+  coldRecoverable: false,
+  receipts: 1
+}
+pressure maintenance {
+  before: 0.0832794189453125,
+  triggered: true,
+  mode: 'adaptive',
+  after: 0.0045928955078125,
+  sweeps: 1,
+  step: 1,
+  safeOccupancy: 0.08,
+  targetOccupancy: 0.05,
+  exhausted: false,
+  hotStillRecoverable: true
+}

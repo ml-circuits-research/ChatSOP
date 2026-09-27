@@ -1,0 +1,628 @@
+{
+  "profile": "sop-agent-3",
+  "memoryEngines": [
+    "weaver",
+    "holo",
+    "sqlite",
+    "scan",
+    "hybrid"
+  ],
+  "reasoning": {
+    "reference": {
+      "deduce": "finite-function-free-Horn",
+      "temporal": "bitemporal-view-and-interval-join",
+      "classify": "deductive-rules",
+      "abduce": "ground-candidates-subset-minimal",
+      "diagnose": "abduction-and-test-partition",
+      "associate": "lexical-relational-weaver-score",
+      "induce": "bounded-candidate-pattern-evaluation",
+      "analogize": "injective-entity-mapping",
+      "plan": "deterministic-uniform-cost-search",
+      "simulate": "whatif-and-causal-Horn-intervention",
+      "constraint": "finite-linear-integers",
+      "optimize": "finite-linear-integers"
+    },
+    "advanced": {
+      "deduce": "SWI-when-available-or-audited-JS",
+      "constraint": "Z3-when-available-or-finite-JS",
+      "optimize": "Z3-plus-optimality-check-or-finite-JS",
+      "other": "reference-controllers-no-semantic-change"
+    }
+  },
+  "wires": {
+    "value": {
+      "one": [
+        "data"
+      ],
+      "required": [
+        "data"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "fact": {
+      "one": [
+        "holds",
+        "valid",
+        "source",
+        "quote",
+        "retention"
+      ],
+      "required": [
+        "holds",
+        "valid"
+      ],
+      "role": "admitted-claim",
+      "declaration": true,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "rule": {
+      "one": [
+        "then",
+        "valid",
+        "mode",
+        "source"
+      ],
+      "many": [
+        "when"
+      ],
+      "required": [
+        "then",
+        "when"
+      ],
+      "role": "approved-implication",
+      "declaration": true,
+      "authoredByModel": false,
+      "effects": "no-world-write"
+    },
+    "query": {
+      "one": [
+        "mode",
+        "select",
+        "at",
+        "during",
+        "asof",
+        "limit"
+      ],
+      "many": [
+        "where",
+        "filter"
+      ],
+      "required": [
+        "where"
+      ],
+      "role": "logical-goal",
+      "declaration": true,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "constraint": {
+      "one": [
+        "claim",
+        "task",
+        "unit",
+        "objective",
+        "direction"
+      ],
+      "many": [
+        "var",
+        "require"
+      ],
+      "required": [
+        "claim"
+      ],
+      "role": "numeric-problem",
+      "declaration": true,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "event": {
+      "one": [
+        "action",
+        "target",
+        "effective",
+        "replacement",
+        "source"
+      ],
+      "required": [
+        "action",
+        "target"
+      ],
+      "role": "claim-update",
+      "declaration": true,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "pack": {
+      "many": [
+        "items"
+      ],
+      "required": [
+        "items"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "assert": {
+      "one": [
+        "scope"
+      ],
+      "many": [
+        "input",
+        "after"
+      ],
+      "required": [
+        "input"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "explicit-session-write"
+    },
+    "recall": {
+      "one": [
+        "query",
+        "strategy"
+      ],
+      "many": [
+        "after"
+      ],
+      "required": [
+        "query"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "link": {
+      "one": [
+        "query",
+        "data",
+        "strategy"
+      ],
+      "many": [
+        "after"
+      ],
+      "required": [
+        "query"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "solve": {
+      "one": [
+        "query",
+        "constraint",
+        "data",
+        "backend",
+        "strategy",
+        "assume",
+        "reasoning"
+      ],
+      "many": [
+        "output",
+        "after"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "binding": {
+      "one": [
+        "result",
+        "variable",
+        "mode",
+        "owner"
+      ],
+      "required": [
+        "result",
+        "variable",
+        "mode",
+        "owner"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": false,
+      "effects": "no-world-write",
+      "note": "Runtime-generated only"
+    },
+    "reason": {
+      "one": [
+        "query",
+        "memory",
+        "data",
+        "constraint",
+        "backend",
+        "assume",
+        "reasoning",
+        "mode"
+      ],
+      "many": [
+        "after"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "may-reinforce-nonhypothetical-observed-proof"
+    },
+    "cnl": {
+      "one": [
+        "result",
+        "language"
+      ],
+      "required": [
+        "result"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "jsEval": {
+      "one": [
+        "expr"
+      ],
+      "required": [
+        "expr"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "template": {
+      "one": [
+        "params",
+        "yield",
+        "body",
+        "description"
+      ],
+      "many": [
+        "cue"
+      ],
+      "required": [
+        "body",
+        "yield"
+      ],
+      "role": "approved-subcircuit",
+      "declaration": true,
+      "authoredByModel": false,
+      "effects": "no-world-write"
+    },
+    "expand": {
+      "one": [
+        "using"
+      ],
+      "many": [
+        "with",
+        "after"
+      ],
+      "required": [
+        "using"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "clarify": {
+      "one": [
+        "text"
+      ],
+      "required": [
+        "text"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "pattern": {
+      "one": [
+        "then",
+        "support",
+        "coverage",
+        "samples",
+        "counterexamples",
+        "source",
+        "status"
+      ],
+      "many": [
+        "when"
+      ],
+      "required": [
+        "when",
+        "then"
+      ],
+      "role": "candidate-regularity",
+      "declaration": true,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "hypothesis": {
+      "one": [
+        "holds",
+        "cost",
+        "status",
+        "source"
+      ],
+      "many": [
+        "assume"
+      ],
+      "role": "candidate-assumptions",
+      "declaration": true,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "action": {
+      "one": [
+        "params",
+        "cost",
+        "source",
+        "valid"
+      ],
+      "many": [
+        "requires",
+        "adds",
+        "removes"
+      ],
+      "required": [
+        "requires"
+      ],
+      "role": "state-transition",
+      "declaration": true,
+      "authoredByModel": false,
+      "effects": "no-world-write"
+    },
+    "goal": {
+      "many": [
+        "where"
+      ],
+      "required": [
+        "where"
+      ],
+      "role": "desired-state",
+      "declaration": true,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "trace": {
+      "one": [
+        "text",
+        "source",
+        "closed",
+        "known"
+      ],
+      "many": [
+        "feature"
+      ],
+      "role": "case-evidence",
+      "declaration": true,
+      "authoredByModel": true,
+      "effects": "no-world-write",
+      "note": "Model cannot certify closed=true"
+    },
+    "policy": {
+      "one": [
+        "maxNodes",
+        "maxDepth",
+        "maxHypotheses",
+        "maxCandidates",
+        "maxPlans",
+        "timeoutMs"
+      ],
+      "role": "host-budget-restriction",
+      "declaration": true,
+      "authoredByModel": false,
+      "effects": "no-world-write"
+    },
+    "theory": {
+      "one": [
+        "dialect",
+        "body"
+      ],
+      "required": [
+        "dialect",
+        "body"
+      ],
+      "role": "requires-extension-compiler",
+      "declaration": true,
+      "authoredByModel": false,
+      "effects": "no-world-write",
+      "note": "Unsupported unless an approved strategy handles the dialect"
+    },
+    "procedure": {
+      "one": [
+        "params",
+        "yield",
+        "body",
+        "description"
+      ],
+      "many": [
+        "cue"
+      ],
+      "required": [
+        "body",
+        "yield"
+      ],
+      "role": "approved-subcircuit",
+      "declaration": true,
+      "authoredByModel": false,
+      "effects": "no-world-write"
+    },
+    "abduce": {
+      "one": [
+        "query",
+        "data",
+        "memory",
+        "observation",
+        "candidates",
+        "reasoning",
+        "policy"
+      ],
+      "many": [
+        "output",
+        "after"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "diagnose": {
+      "one": [
+        "query",
+        "data",
+        "memory",
+        "observation",
+        "candidates",
+        "tests",
+        "reasoning",
+        "policy"
+      ],
+      "many": [
+        "output",
+        "after"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "associate": {
+      "one": [
+        "cue",
+        "data",
+        "mode",
+        "reasoning",
+        "policy"
+      ],
+      "many": [
+        "output",
+        "after"
+      ],
+      "required": [
+        "cue",
+        "data"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "induce": {
+      "one": [
+        "data",
+        "candidates",
+        "holdout",
+        "reasoning",
+        "policy"
+      ],
+      "many": [
+        "output",
+        "after"
+      ],
+      "required": [
+        "data"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "analogize": {
+      "one": [
+        "source",
+        "target",
+        "transfer",
+        "reasoning",
+        "policy"
+      ],
+      "many": [
+        "output",
+        "after"
+      ],
+      "required": [
+        "source",
+        "target"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "plan": {
+      "one": [
+        "data",
+        "memory",
+        "actions",
+        "goal",
+        "reasoning",
+        "policy"
+      ],
+      "many": [
+        "output",
+        "after"
+      ],
+      "required": [
+        "goal"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "simulate": {
+      "one": [
+        "query",
+        "data",
+        "memory",
+        "intervention",
+        "mode",
+        "reasoning",
+        "policy"
+      ],
+      "many": [
+        "output",
+        "after"
+      ],
+      "required": [
+        "query",
+        "intervention"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    },
+    "temporal": {
+      "one": [
+        "query",
+        "data",
+        "memory",
+        "reasoning",
+        "policy"
+      ],
+      "many": [
+        "output",
+        "after"
+      ],
+      "required": [
+        "query"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write"
+    }
+  }
+}

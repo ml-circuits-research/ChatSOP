@@ -1,0 +1,19 @@
+{
+  "checks": [
+    {
+      "language": "js",
+      "checked": 71,
+      "failures": 0
+    },
+    {
+      "language": "sh",
+      "checked": 9,
+      "failures": 0
+    },
+    {
+      "language": "py",
+      "checked": 8,
+      "failures": 0
+    }
+  ]
+}

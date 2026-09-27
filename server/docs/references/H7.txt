@@ -1,0 +1,156 @@
+HoloMemory
+A bounded associative memory for SOP-Lang agents and formal reasoning
+Engineering concept, validated kernel, and research plan
+Long-running agents need a different memory contract from an append-only archive. A companion, robot, or research agent may run for years under a fixed memory budget. It should learn a fact after one observation, strengthen facts that recur, gradually lose weak old traces when genuinely new information arrives, and explicitly admit when a memory can no longer be recovered. HoloMemory explores that contract.
+The proposed system separates four responsibilities. A very small language model converts observations into canonical SOP-Lang wires. HoloMemory stores those wires as distributed associative traces in a fixed amount of memory. Retrieval returns candidate wires together with confidence and integrity information. A formal reasoner then performs the deduction. The language model is therefore used for interpretation and verbalization, not as the authority that decides which remembered facts are true.
+Current evidence.  A dependency-free Node.js implementation validates the low-level associative kernel on synthetic key→value memories: one-pass writing, superposition under collisions, graceful degradation under random counter erasure, configurable forgetting, reinforcement, and self-detected repetition. At 64 KiB, 3,000 stored associations are recovered with 99.43% mean exact accuracy; after erasing 10%, 30%, and 50% of memory counters, accuracy is 98.88%, 95.73%, and 85.51%. Full SOP-wire retrieval from partial semantic cues is the next layer to implement and measure.
+
+1. System contract
+HoloMemory provides bounded lifelong memory: it preserves useful associations under a fixed physical budget, allows repeated experience to stabilize them, and lets weak unrehearsed traces fade as new experience consumes capacity. Exact source documents may still live elsewhere when an application requires archival provenance; the HoloMemory budget itself remains fixed.
+Property | Intended behavior
+Fixed capacity | Memory size is configured at creation time and does not grow with the number of observations.
+One-shot learning | A new canonical fact can be written immediately; no model training step is required.
+Repetition reinforces | Observing the same fact again strengthens its existing distributed trace.
+Novelty causes ageing | Global forgetting is triggered by new information, not by harmless repetition of an already remembered fact.
+Graceful degradation | Physical damage or overload reduces confidence/recall progressively instead of corrupting an entire record at once.
+Content-addressable recall | A query supplies known cues; memory uses them to recover associated content.
+Abstention | Insufficient evidence returns not_remembered/uncertain rather than forcing a plausible answer.
+Forkable state | An agent or session can branch from a base memory and evolve independently.
+
+2. Architecture
+The architecture is deliberately modular. The memory component does not need to understand natural language, and the reasoner does not need to know how memories are physically represented.
+Stage | Input | Output | Responsibility
+Canonicalizer | Natural-language observation or question | Canonical SOP-Lang wire or query cues | Normalize wording, entities and relations.
+HoloMemory | Canonical wire / canonical cues | Recovered candidate wires + confidence | Store, reinforce, forget and retrieve.
+Integrity gate | Recovered wire | accepted / uncertain / rejected | Prevent noisy traces from silently becoming logical premises.
+Formal reasoner | Accepted SOP-Lang wires + rules + goal | derived facts / proof / missing premises | Perform deduction; optionally request more context.
+Verbalizer | Derived structured result | Natural-language response | Presentation only.
+
+The key design choice is to store SOP-Lang wires rather than prose. A canonical wire removes much of the linguistic redundancy that makes direct text storage difficult and gives the reasoner an explicit symbolic object. A wire may encode a fact, relation, event, rule input, temporal qualifier, provenance link, or other typed semantic item. The exact SOP syntax can evolve without changing the memory kernel as long as canonical serialization is deterministic.
+3. How the memory is physically stored
+The tested kernel uses a fixed set of small signed counters arranged into several independent banks. This is the central mechanism. There is no list of records hidden beside the memory. Many associations write into the same counters and are separated statistically when read.
+3.1 Banked counter memory
+Assume the memory budget is divided into B banks. Each bank contains many rows, and each row is a short vector of signed low-bit counters. In the current prototype, logical counters are bounded to a small range; a production version can pack them into 4–8 bits. The total number of counters is fixed at creation time.
+Addressing. A canonical key is hashed independently for every bank. The result selects one row in each bank and also regenerates a deterministic sign mask. The same key always selects the same rows and masks. No per-key address table is stored.
+Value code. A value or symbol is converted into a deterministic bipolar codeword: a reproducible pattern of +1 and −1 components. Codewords can be generated from a seeded hash, so a large explicit codebook is unnecessary.
+Write. For every selected row, the value codeword is combined with the key-specific sign mask and added to that row. Counters saturate at their configured limits. Other facts may have selected the same rows; their contributions are simply superposed. This collision is not an exceptional case—it is how the memory shares capacity.
+Read. The key regenerates the same rows and masks. The selected rows are read, their key masks are removed, and evidence from all banks is summed. Candidate values are scored by correlation with the resulting signal. The strongest candidate is returned only when its score and margin are sufficient; otherwise the memory abstains.
+Why damage is gradual.  A fact is not stored in one address. Its evidence is spread across several banks and many counters inside the selected rows. Randomly erasing a fraction of counters removes only part of the evidence. This explains the measured gradual loss of recall rather than catastrophic record corruption.
+
+3.2 From a single value to a complete SOP-Lang wire
+The validated kernel recovers one symbol from a known canonical key. A complete SOP-Lang memory needs one additional engineering layer. The cleanest design is to use the same associative primitive in two logical planes inside the same bounded component:
+Cue plane: partial structural cues such as predicate, entity, time, topic or wire type retrieve a small set of internal item handles.
+Content plane: an item handle acts as the stable key from which the canonical wire is reconstructed field-by-field or token-by-token.
+Integrity data: a compact checksum or independent verification trace is associated with the canonical wire. A reconstructed wire is not exposed as a premise unless it passes the integrity policy.
+Both planes consume a configured share of the same fixed memory budget and use distributed counters; the design does not require an ever-growing side database. The split solves two different problems explicitly: discovery from incomplete cues and exact reconstruction once an item has been identified.
+4. Learning, reinforcement and forgetting
+Forgetting is part of the storage algorithm rather than a maintenance job applied later. The important distinction is whether an observation brings genuinely new information.
+Observation | Action | Global ageing?
+New key / new fact | Write a new distributed trace. | Yes
+Same key, same value | Reinforce the same local trace. | No
+Same key, changed value | Write the updated association; old evidence will compete and decay. | Yes
+Uncertain whether repeated | Treat as new unless the recovered value passes the configured repetition threshold. | Configurable
+
+When ageing is triggered, a configurable number of counters are selected across the fixed memory and moved one step toward zero. The selection may be pseudo-random or generated from a deterministic ageing stream. Ageing therefore removes tiny pieces of many old traces rather than deleting one complete fact. A fact that is observed repeatedly receives fresh local reinforcement and survives this background pressure longer than an unrepeated fact.
+The Node benchmark compared ageing before every write with ageing only when the observation is novel. Under the tested stream with repeated observations and a relatively strong decay setting, novelty-gated ageing raised mean retention of the middle-age group from 34.88% to 45.80% while preserving the deliberately repeated old facts. The self-detected policy recognized on average 642.8 of 650 repetitions and introduced no false repetitions in the companion stream containing only new facts.
+5. Component interface
+The implementation target is a dependency-free ES module. The API should expose semantic operations and keep hashing, counter packing and ageing internal. A caller should never manipulate rows or counters directly.
+import { HoloMemory } from "./holomemory.mjs";
+
+const memory = new HoloMemory(config);
+
+memory.remember(wire, options);
+const result = memory.recall(query, options);
+memory.reinforce(reference, weight);
+const child = memory.fork();
+const snapshot = memory.snapshot();
+const stats = memory.stats();
+Operation | Contract
+remember(wire, options) | Store a canonical SOP-Lang wire. The component detects or accepts novelty, applies ageing if required, and writes/reinforces the distributed trace.
+recall(query, options) | Accept exact or partial canonical cues. Return ranked candidate wires with confidence, integrity status and optional provenance metadata.
+reinforce(reference, weight) | Strengthen an already identified memory without inducing global forgetting. Useful when a fact is reconfirmed by observation or use.
+fork() | Create an independent child memory with the current state as its starting point.
+snapshot() / restore() | Persist or restore complete memory state, including configuration required for deterministic addressing.
+stats() | Expose occupancy/interference indicators, read confidence distributions, ageing counts and other observability data.
+
+5.1 Input and output objects
+The component should accept canonical structures, not arbitrary prompts. A typical stored wire contains a stable wire type, predicate/interpreter, arguments or input references, optional temporal qualifiers, and provenance. The exact object schema should mirror the chosen SOP-Lang serialization.
+// conceptual shapes, not a second language
+remember({ type, predicate, args, qualifiers, provenance })
+
+recall({
+  type?, predicate?, entities?, qualifiers?, textCue?
+})
+
+=> {
+  status: "remembered" | "uncertain" | "not_remembered",
+  matches: [{ wire, confidence, integrity, provenance? }]
+}
+A natural-language caller therefore uses a canonicalizer in front of this interface. The memory itself remains deterministic and testable.
+6. SOP-Lang reasoning over remembered context
+The strongest use of HoloMemory is not to reproduce prose. It is to reconstruct enough relevant SOP-Lang wires to build a temporary knowledge base for the current reasoning problem.
+Example flow. A user asks whether an agent can access a resource. The canonicalizer expresses the goal in SOP terms. A planner derives the predicates that could satisfy that goal and queries HoloMemory. Memory may return role, organization and permission wires. The integrity gate accepts only sufficiently reliable wires. A Datalog/Prolog/Z3-style reasoner derives the answer. If a rule requires a missing premise, the reasoner issues a new structured retrieval request. Reasoning and retrieval can therefore alternate until the goal is proven, disproven under the chosen closed-world policy, or remains unknown.
+Important semantic boundary.  Failure to retrieve a premise means “not remembered”, not “false”. Formal reasoning must preserve this distinction. HoloMemory is an imperfect episodic/semantic memory from which a temporary logical context is assembled; it is not itself the logical truth engine.
+
+7. Forkable memory for agents and sessions
+Forking is a first-class requirement because a useful base memory may be shared by many agents, projects or sessions that then accumulate different experiences. A fork must begin with the exact parent state but its later writes, reinforcement and forgetting must not change the parent or sibling branches.
+The simplest correct implementation clones the fixed counter arrays. That is adequate for small memories and for validating semantics. A scalable implementation uses fixed-size pages and copy-on-write: a fork initially shares immutable pages with its parent; the first modification to a page creates a private copy for that branch. Because forgetting modifies counters, ageing automatically follows the same copy-on-write rule. Snapshot identifiers therefore define stable branch points without introducing a separate logical database.
+Scenario | Fork behavior
+Shared robot model | Robots start from a common factory memory; each accumulates local places, people and routines.
+Companion sessions | A stable personal base can spawn experimental or task-specific sessions without contaminating the base.
+Research projects | A procedural/research memory can be forked per paper, book or experiment and evolved independently.
+Multi-agent reasoning | Agents share a validated base, then acquire role-specific memories; selected verified wires can later be promoted back into a common branch.
+
+8. What the current implementation establishes
+The existing Node.js implementation is intentionally smaller than the complete architecture. It stores 3,000 synthetic key→symbol associations in bounded banked counter memory. Keys are known at query time and values come from a finite alphabet. This isolates the storage kernel from language and search.
+Memory budget | No damage | 10% counters erased | 30% erased | 50% erased
+16 KiB | 44.89% | 39.01% | 27.04% | 15.83%
+32 KiB | 86.21% | 81.15% | 66.95% | 45.89%
+64 KiB | 99.43% | 98.88% | 95.73% | 85.51%
+128 KiB | 100.00% | 99.99% | 99.91% | 98.85%
+
+These are means over five deterministic seeds from the dependency-free Node implementation. The result supports three concrete claims about the kernel: distributed superposition can recover many associations from a fixed memory; increasing memory budget moves the system through a clear capacity regime; and random physical loss degrades recall progressively rather than creating an all-or-nothing failure. The Node port also reproduced the earlier Python results closely, reducing the risk that the behavior was a NumPy-specific artifact.
+The experiment does not yet establish semantic retrieval from arbitrary language, exact reconstruction of complete SOP-Lang wires, or end-to-end reasoning accuracy. Those are separate experiments rather than assumptions hidden inside the current numbers.
+9. Where the architecture is useful
+Use case | Why bounded associative memory is relevant
+Personal companion | Preferences, recurring people and events are reinforced; weak old details fade instead of producing an indefinitely growing archive.
+Robot / embodied agent | Local observations can be learned in one pass under a hard memory budget and retained according to repetition and recency.
+Coding agent | Project conventions, recurring failures and architectural facts become persistent experience without retraining the language model.
+Scientific assistant | Claims, sources and experimental observations can be recalled as structured SOP wires and checked by a formal reasoning layer.
+Multi-agent system | Agents fork a common base memory, specialize independently, and exchange selected validated memories.
+Edge / private agent | The memory can remain local, fixed-size and incrementally writable without cloud-side retraining.
+Game/NPC memory | Forgetting becomes a useful behavioral property: frequently reinforced interactions persist while incidental details fade.
+
+10. Related work and research position
+HoloMemory combines ideas that individually have substantial prior art. The research question is whether their combination produces a useful memory contract for lifelong symbolic agents.
+Family | Relevant idea | Difference in this proposal
+Sparse Distributed Memory / VSA | Distributed associative storage, binding, noisy recall and graceful degradation. | HoloMemory focuses on bounded continual fact storage, novelty-gated forgetting, structured SOP-wire recovery and agent forks.
+Stable Bloom Filters | Fixed-space streaming memory that continuously evicts stale information. | Stable Bloom Filters mainly answer approximate membership; HoloMemory targets recoverable associations and structured facts.
+RAG / vector stores | External, inspectable memory with semantic retrieval. | RAG typically retains explicit items and grows unless an explicit retention policy removes them; HoloMemory makes bounded capacity and forgetting part of the primitive.
+MEMORYLLM / Titans | Learned long-term or self-updatable neural memory. | HoloMemory is non-parametric at write time and separates language interpretation from the memory substrate and formal reasoner.
+Agent memory systems | Persistent memories extracted and retrieved for agents. | Most preserve explicit memory records; the proposed substrate stores superposed traces under a fixed physical budget.
+
+The intended contribution is therefore not “distributed memory” or “forgetting” in isolation. The specific hypothesis is a fixed-budget, non-parametric associative memory in which canonical symbolic facts are written one-shot, repetition strengthens existing traces without causing ageing, genuinely new information induces distributed forgetting, partial damage degrades recall gracefully, and recovered facts can be integrity-gated before entering a formal reasoner.
+11. Experiments required next
+The next work should extend the validated kernel one capability at a time. Each experiment should be publishable as evidence for or against a specific property rather than requiring the entire architecture to succeed at once.
+Experiment | Core question | Suggested scale / metric
+Full-wire storage | Can a canonical SOP-Lang wire be reconstructed exactly from a stable handle? | 10k–1M wires; exact wire recovery, bytes/wire, latency.
+Partial-cue discovery | Can entity/predicate/time cues retrieve the right handles without an explicit record index? | Recall@k, false-candidate rate, memory budget 4–256 MiB.
+Integrity gate | Can noisy recall avoid becoming false logical premises? | False accepted premise rate; target orders of magnitude below ordinary retrieval error.
+Continual forgetting | Does novelty-gated ageing retain useful repeated facts better than age-on-every-write? | 1M–100M observations; retention by recency × frequency × importance.
+Tiny canonicalizer | Can a very small LM map paraphrases to stable SOP wires and queries? | 0.1–1.5B models; exact structural match, entity/predicate consistency; fine-tune only if prompting/distillation is insufficient.
+Reasoning loop | Does HoloMemory recover enough premises for formal multi-hop reasoning? | ProofWriter/CLUTRR/bAbI-style tasks translated to SOP; premise recall and final proof accuracy.
+Equal-byte comparison | What does HoloMemory buy at the same physical memory budget? | Compare with bounded vector store, reservoir/replay store, exact cache and neural memory.
+Fork scaling | Can many agents branch cheaply while preserving independent forgetting? | 1–1,000 forks; additional bytes/write, fork latency, branch isolation.
+
+Canonicalizer strategy. Start with the smallest instruction model that reliably emits the chosen SOP schema. The first target should be a 0.5–1.5B-class model or smaller if a constrained decoder can do the job. Build paired data of paraphrased observations/questions and canonical SOP wires. Evaluate zero/few-shot prompting first; if structural consistency is inadequate, fine-tune using supervised next-token training on the canonical outputs, then distill toward a smaller model. The memory benchmark must report canonicalizer errors separately from storage errors.
+12. Working conclusion
+The tested result is a small but concrete one: a fixed banked counter memory can superpose thousands of associations, retrieve them accurately in the appropriate capacity regime, degrade gradually under random erasure, and implement repetition-aware forgetting without model training. That is enough to justify the next engineering step, but not enough to claim a complete agent memory.
+The most promising extension is to make SOP-Lang wires the canonical memory object. It gives HoloMemory a clear job—remember and recover structured evidence—while leaving language interpretation to a small model and deduction to a formal reasoner. If full-wire reconstruction, partial-cue retrieval and low false-premise rates hold at useful memory budgets, the result would be a distinctive bounded lifelong memory substrate for companions, robots and autonomous agents.
+References
+[1] Kanerva, P. Sparse Distributed Memory. MIT Press, 1988.
+[2] Plate, T. A. “Holographic Reduced Representations.” IEEE Transactions on Neural Networks 6(3), 623–641, 1995. DOI: 10.1109/72.377968.
+[3] Deng, F.; Rafiei, D. “Approximately Detecting Duplicates for Streaming Data using Stable Bloom Filters.” ACM SIGMOD, 25–36, 2006. DOI: 10.1145/1142473.1142477.
+[4] Lewis, P. et al. “Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.” NeurIPS, 2020.
+[5] Wang, Y. et al. “MEMORYLLM: Towards Self-Updatable Large Language Models.” ICML / PMLR 235, 2024.
+[6] Behrouz, A.; Zhong, P.; Mirrokni, V. “Titans: Learning to Memorize at Test Time.” 2025.

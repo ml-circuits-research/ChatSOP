@@ -1,0 +1,12 @@
+@q query
+  select ?who
+  where grandparent(?who, person_c_0)
+  at 2026-09-26
+
+@result solve
+  query $q
+  output ?who one
+
+@answer cnl
+  result $result
+  language ro

@@ -1,0 +1,18 @@
+@q query
+  where outage(device_0)
+  at 2026-09-26
+
+@test query
+  where network_down(device_0)
+
+@possible pack
+  items ~network ~disk
+
+@result diagnose
+  query $q
+  candidates $possible
+  tests $test
+
+@answer cnl
+  result $result
+  language ro

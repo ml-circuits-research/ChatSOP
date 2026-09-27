@@ -1,0 +1,8 @@
+@result analogize
+  source ~source_case
+  target ~target_case
+  transfer ~extra_case
+
+@answer cnl
+  result $result
+  language ro

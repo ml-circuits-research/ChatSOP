@@ -1,0 +1,813 @@
+{
+  "example": "auto-template",
+  "strategy": "recall-weaver",
+  "neuralModelTested": false,
+  "profile": "sop-agent-3",
+  "values": {
+    "route": "route_demo",
+    "departure": 770,
+    "deadline": 840,
+    "check_arrival": {
+      "kind": "template",
+      "id": "check_arrival"
+    },
+    "answer__route": "route_demo",
+    "answer__start": 770,
+    "answer__deadline": 840,
+    "answer__travel": {
+      "kind": "query",
+      "variableTypes": {
+        "?answer__duration": "integer"
+      },
+      "mode": "select",
+      "where": [
+        {
+          "p": "duration",
+          "a": [
+            "route_demo",
+            "?answer__duration"
+          ],
+          "neg": false
+        }
+      ],
+      "select": [
+        "?answer__duration"
+      ],
+      "filters": [],
+      "limit": 100,
+      "at": 1790380800000,
+      "asof": 1790380800000
+    },
+    "answer__retrieve_duration__link": {
+      "kind": "retrieval",
+      "query": {
+        "kind": "query",
+        "variableTypes": {
+          "?answer__duration": "integer"
+        },
+        "mode": "select",
+        "where": [
+          {
+            "p": "duration",
+            "a": [
+              "route_demo",
+              "?answer__duration"
+            ],
+            "neg": false
+          }
+        ],
+        "select": [
+          "?answer__duration"
+        ],
+        "filters": [],
+        "limit": 100,
+        "at": 1790380800000,
+        "asof": 1790380800000
+      },
+      "facts": [
+        {
+          "id": "c_f8b8f9e5539d99989e02c06f863239b2",
+          "atom": {
+            "p": "duration",
+            "a": [
+              "route_demo",
+              70
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "demo",
+          "quote": "",
+          "knownAt": 1704067200000,
+          "retention": "normal",
+          "kind": "observed",
+          "claim": {
+            "tupleHash": "875741f8958af146c9139f1975b543c2c09c70ddf120ab9651142076092ce5bf",
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "source": "demo",
+            "quote": "",
+            "id": "c_f8b8f9e5539d99989e02c06f863239b2",
+            "knownAt": 1704067200000,
+            "retention": "normal",
+            "observations": 1,
+            "lastObservedAt": 1704067200000
+          },
+          "shardId": null,
+          "evidence": {
+            "support": 1,
+            "receipt": true,
+            "verification": "receipt",
+            "metadataVerified": true
+          },
+          "retrievalStrategies": [
+            "recall-weaver"
+          ]
+        }
+      ],
+      "rules": [],
+      "complete": true,
+      "probes": 3,
+      "shardsVisited": 2,
+      "needed": [
+        "duration"
+      ],
+      "linkPlan": {
+        "strategy": "recall-weaver",
+        "coverage": "retained-visible-memory",
+        "goals": [
+          "duration(route_demo, ?v0)",
+          "not duration(route_demo, ?v0)"
+        ],
+        "steps": [],
+        "retrievals": [
+          {
+            "pattern": "duration(route_demo, ?v0)",
+            "strategy": "recall-weaver",
+            "selected": "recall-weaver",
+            "coverage": "retained-associative-candidates",
+            "rows": 1,
+            "complete": true,
+            "probes": 2,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not duration(route_demo, ?v0)",
+            "strategy": "recall-weaver",
+            "selected": "recall-weaver",
+            "coverage": "retained-associative-candidates",
+            "rows": 0,
+            "complete": true,
+            "probes": 1,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          }
+        ],
+        "note": "Completeness refers to this retrieval view and budgets, never to all facts in the world."
+      }
+    },
+    "answer__retrieve_duration__reason": {
+      "status": "supported",
+      "kind": "select",
+      "query": {
+        "kind": "query",
+        "variableTypes": {
+          "?answer__duration": "integer"
+        },
+        "mode": "select",
+        "where": [
+          {
+            "p": "duration",
+            "a": [
+              "route_demo",
+              "?answer__duration"
+            ],
+            "neg": false
+          }
+        ],
+        "select": [
+          "?answer__duration"
+        ],
+        "filters": [],
+        "limit": 100,
+        "at": 1790380800000,
+        "asof": 1790380800000
+      },
+      "conflictedAnswers": [],
+      "answers": [
+        {
+          "binding": {
+            "?answer__duration": 70
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "evidence": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        }
+      ],
+      "proof": [
+        {
+          "id": "c_f8b8f9e5539d99989e02c06f863239b2",
+          "atom": {
+            "p": "duration",
+            "a": [
+              "route_demo",
+              70
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "demo",
+          "quote": "",
+          "knownAt": 1704067200000,
+          "retention": "normal",
+          "kind": "observed",
+          "claim": {
+            "tupleHash": "875741f8958af146c9139f1975b543c2c09c70ddf120ab9651142076092ce5bf",
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "source": "demo",
+            "quote": "",
+            "id": "c_f8b8f9e5539d99989e02c06f863239b2",
+            "knownAt": 1704067200000,
+            "retention": "normal",
+            "observations": 1,
+            "lastObservedAt": 1704067200000
+          },
+          "shardId": null,
+          "evidence": {
+            "support": 1,
+            "receipt": true,
+            "verification": "receipt",
+            "metadataVerified": true
+          },
+          "retrievalStrategies": [
+            "recall-weaver"
+          ]
+        }
+      ],
+      "complete": true,
+      "truncated": false,
+      "assurance": "Derivation from admitted premises; support is not a calibrated probability of truth.",
+      "hypothetical": false,
+      "diagnostics": {
+        "memoryProbes": 3,
+        "retrieved": 1,
+        "closureFacts": 1,
+        "rounds": 1
+      },
+      "backend": "js",
+      "ignored": [],
+      "route": {
+        "operation": "deduce",
+        "backend": "js",
+        "fallback": null,
+        "semantics": "no-required-constraint-silently-dropped"
+      },
+      "reasoningStrategy": "reference",
+      "linkPlan": {
+        "strategy": "recall-weaver",
+        "coverage": "retained-visible-memory",
+        "goals": [
+          "duration(route_demo, ?v0)",
+          "not duration(route_demo, ?v0)"
+        ],
+        "steps": [],
+        "retrievals": [
+          {
+            "pattern": "duration(route_demo, ?v0)",
+            "strategy": "recall-weaver",
+            "selected": "recall-weaver",
+            "coverage": "retained-associative-candidates",
+            "rows": 1,
+            "complete": true,
+            "probes": 2,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not duration(route_demo, ?v0)",
+            "strategy": "recall-weaver",
+            "selected": "recall-weaver",
+            "coverage": "retained-associative-candidates",
+            "rows": 0,
+            "complete": true,
+            "probes": 1,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          }
+        ],
+        "note": "Completeness refers to this retrieval view and budgets, never to all facts in the world."
+      }
+    },
+    "answer__retrieve_duration": {
+      "status": "supported",
+      "kind": "select",
+      "query": {
+        "kind": "query",
+        "variableTypes": {
+          "?answer__duration": "integer"
+        },
+        "mode": "select",
+        "where": [
+          {
+            "p": "duration",
+            "a": [
+              "route_demo",
+              "?answer__duration"
+            ],
+            "neg": false
+          }
+        ],
+        "select": [
+          "?answer__duration"
+        ],
+        "filters": [],
+        "limit": 100,
+        "at": 1790380800000,
+        "asof": 1790380800000
+      },
+      "conflictedAnswers": [],
+      "answers": [
+        {
+          "binding": {
+            "?answer__duration": 70
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "evidence": [
+            "c_f8b8f9e5539d99989e02c06f863239b2"
+          ]
+        }
+      ],
+      "proof": [
+        {
+          "id": "c_f8b8f9e5539d99989e02c06f863239b2",
+          "atom": {
+            "p": "duration",
+            "a": [
+              "route_demo",
+              70
+            ],
+            "neg": false
+          },
+          "valid": {
+            "from": "beginning",
+            "until": "open"
+          },
+          "source": "demo",
+          "quote": "",
+          "knownAt": 1704067200000,
+          "retention": "normal",
+          "kind": "observed",
+          "claim": {
+            "tupleHash": "875741f8958af146c9139f1975b543c2c09c70ddf120ab9651142076092ce5bf",
+            "valid": {
+              "from": "beginning",
+              "until": "open"
+            },
+            "source": "demo",
+            "quote": "",
+            "id": "c_f8b8f9e5539d99989e02c06f863239b2",
+            "knownAt": 1704067200000,
+            "retention": "normal",
+            "observations": 1,
+            "lastObservedAt": 1704067200000
+          },
+          "shardId": null,
+          "evidence": {
+            "support": 1,
+            "receipt": true,
+            "verification": "receipt",
+            "metadataVerified": true
+          },
+          "retrievalStrategies": [
+            "recall-weaver"
+          ]
+        }
+      ],
+      "complete": true,
+      "truncated": false,
+      "assurance": "Derivation from admitted premises; support is not a calibrated probability of truth.",
+      "hypothetical": false,
+      "diagnostics": {
+        "memoryProbes": 3,
+        "retrieved": 1,
+        "closureFacts": 1,
+        "rounds": 1
+      },
+      "backend": "js",
+      "ignored": [],
+      "route": {
+        "operation": "deduce",
+        "backend": "js",
+        "fallback": null,
+        "semantics": "no-required-constraint-silently-dropped"
+      },
+      "reasoningStrategy": "reference",
+      "linkPlan": {
+        "strategy": "recall-weaver",
+        "coverage": "retained-visible-memory",
+        "goals": [
+          "duration(route_demo, ?v0)",
+          "not duration(route_demo, ?v0)"
+        ],
+        "steps": [],
+        "retrievals": [
+          {
+            "pattern": "duration(route_demo, ?v0)",
+            "strategy": "recall-weaver",
+            "selected": "recall-weaver",
+            "coverage": "retained-associative-candidates",
+            "rows": 1,
+            "complete": true,
+            "probes": 2,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          },
+          {
+            "pattern": "not duration(route_demo, ?v0)",
+            "strategy": "recall-weaver",
+            "selected": "recall-weaver",
+            "coverage": "retained-associative-candidates",
+            "rows": 0,
+            "complete": true,
+            "probes": 1,
+            "shardsVisited": 1,
+            "shardsRouted": 1
+          }
+        ],
+        "note": "Completeness refers to this retrieval view and budgets, never to all facts in the world."
+      }
+    },
+    "answer__duration": 70,
+    "answer__timing": {
+      "kind": "constraint",
+      "vars": {
+        "answer__arrival": {
+          "sort": "Int",
+          "min": 0,
+          "max": 1440
+        }
+      },
+      "constraints": [
+        {
+          "op": "eq",
+          "a": [
+            "answer__arrival",
+            {
+              "op": "add",
+              "a": [
+                770,
+                70
+              ]
+            }
+          ]
+        }
+      ],
+      "claim": {
+        "op": "le",
+        "a": [
+          "answer__arrival",
+          840
+        ]
+      },
+      "task": "possible",
+      "unit": "minute"
+    },
+    "answer__feasibility__reason": {
+      "status": "possible",
+      "kind": "constraint",
+      "task": "possible",
+      "backend": "js",
+      "complete": true,
+      "witness": {
+        "answer__arrival": 840
+      },
+      "counterexample": null,
+      "outputProjection": {
+        "?answer__arrival": {
+          "status": "bound",
+          "value": 840
+        }
+      },
+      "checks": {
+        "assignments": 1441,
+        "total": 1441,
+        "baseModels": 1,
+        "claimModels": 1,
+        "negatedClaimModels": 0
+      },
+      "unit": "minute",
+      "assurance": "Relative to the declared domains and admitted constraints.",
+      "ignored": [],
+      "route": {
+        "operation": "constraint",
+        "backend": "js",
+        "fallback": null,
+        "semantics": "no-required-constraint-silently-dropped"
+      },
+      "reasoningStrategy": "reference"
+    },
+    "answer__feasibility": {
+      "status": "possible",
+      "kind": "constraint",
+      "task": "possible",
+      "backend": "js",
+      "complete": true,
+      "witness": {
+        "answer__arrival": 840
+      },
+      "counterexample": null,
+      "outputProjection": {
+        "?answer__arrival": {
+          "status": "bound",
+          "value": 840
+        }
+      },
+      "checks": {
+        "assignments": 1441,
+        "total": 1441,
+        "baseModels": 1,
+        "claimModels": 1,
+        "negatedClaimModels": 0
+      },
+      "unit": "minute",
+      "assurance": "Relative to the declared domains and admitted constraints.",
+      "ignored": [],
+      "route": {
+        "operation": "constraint",
+        "backend": "js",
+        "fallback": null,
+        "semantics": "no-required-constraint-silently-dropped"
+      },
+      "reasoningStrategy": "reference"
+    },
+    "answer__arrival": 840,
+    "answer__answer": {
+      "kind": "cnl",
+      "language": "ro",
+      "text": "Există cel puțin o soluție compatibilă cu afirmația.\nVALUE ?answer__arrival = 840\nENGINE reference / js",
+      "packet": {
+        "status": "possible",
+        "kind": "constraint",
+        "task": "possible",
+        "backend": "js",
+        "complete": true,
+        "witness": {
+          "answer__arrival": 840
+        },
+        "counterexample": null,
+        "outputProjection": {
+          "?answer__arrival": {
+            "status": "bound",
+            "value": 840
+          }
+        },
+        "checks": {
+          "assignments": 1441,
+          "total": 1441,
+          "baseModels": 1,
+          "claimModels": 1,
+          "negatedClaimModels": 0
+        },
+        "unit": "minute",
+        "assurance": "Relative to the declared domains and admitted constraints.",
+        "ignored": [],
+        "route": {
+          "operation": "constraint",
+          "backend": "js",
+          "fallback": null,
+          "semantics": "no-required-constraint-silently-dropped"
+        },
+        "reasoningStrategy": "reference"
+      }
+    },
+    "answer": {
+      "kind": "cnl",
+      "language": "ro",
+      "text": "Există cel puțin o soluție compatibilă cu afirmația.\nVALUE ?answer__arrival = 840\nENGINE reference / js",
+      "packet": {
+        "status": "possible",
+        "kind": "constraint",
+        "task": "possible",
+        "backend": "js",
+        "complete": true,
+        "witness": {
+          "answer__arrival": 840
+        },
+        "counterexample": null,
+        "outputProjection": {
+          "?answer__arrival": {
+            "status": "bound",
+            "value": 840
+          }
+        },
+        "checks": {
+          "assignments": 1441,
+          "total": 1441,
+          "baseModels": 1,
+          "claimModels": 1,
+          "negatedClaimModels": 0
+        },
+        "unit": "minute",
+        "assurance": "Relative to the declared domains and admitted constraints.",
+        "ignored": [],
+        "route": {
+          "operation": "constraint",
+          "backend": "js",
+          "fallback": null,
+          "semantics": "no-required-constraint-silently-dropped"
+        },
+        "reasoningStrategy": "reference"
+      }
+    }
+  },
+  "result": {
+    "kind": "cnl",
+    "language": "ro",
+    "text": "Există cel puțin o soluție compatibilă cu afirmația.\nVALUE ?answer__arrival = 840\nENGINE reference / js",
+    "packet": {
+      "status": "possible",
+      "kind": "constraint",
+      "task": "possible",
+      "backend": "js",
+      "complete": true,
+      "witness": {
+        "answer__arrival": 840
+      },
+      "counterexample": null,
+      "outputProjection": {
+        "?answer__arrival": {
+          "status": "bound",
+          "value": 840
+        }
+      },
+      "checks": {
+        "assignments": 1441,
+        "total": 1441,
+        "baseModels": 1,
+        "claimModels": 1,
+        "negatedClaimModels": 0
+      },
+      "unit": "minute",
+      "assurance": "Relative to the declared domains and admitted constraints.",
+      "ignored": [],
+      "route": {
+        "operation": "constraint",
+        "backend": "js",
+        "fallback": null,
+        "semantics": "no-required-constraint-silently-dropped"
+      },
+      "reasoningStrategy": "reference"
+    }
+  },
+  "trace": [
+    {
+      "wire": "route",
+      "type": "value",
+      "epoch": 0
+    },
+    {
+      "wire": "departure",
+      "type": "value",
+      "epoch": 0
+    },
+    {
+      "wire": "deadline",
+      "type": "value",
+      "epoch": 0
+    },
+    {
+      "wire": "check_arrival",
+      "type": "template",
+      "epoch": 0
+    },
+    {
+      "wire": "answer__route",
+      "type": "value",
+      "epoch": 1
+    },
+    {
+      "wire": "answer__start",
+      "type": "value",
+      "epoch": 1
+    },
+    {
+      "wire": "answer__deadline",
+      "type": "value",
+      "epoch": 1
+    },
+    {
+      "wire": "answer__travel",
+      "type": "query",
+      "epoch": 1
+    },
+    {
+      "wire": "answer__retrieve_duration__link",
+      "type": "link",
+      "epoch": 2
+    },
+    {
+      "wire": "answer__retrieve_duration__reason",
+      "type": "reason",
+      "epoch": 2
+    },
+    {
+      "wire": "answer__retrieve_duration",
+      "type": "solve",
+      "epoch": 2,
+      "alias": "answer__retrieve_duration__reason"
+    },
+    {
+      "wire": "answer__duration",
+      "type": "binding",
+      "epoch": 2,
+      "status": "bound"
+    },
+    {
+      "wire": "answer__duration",
+      "type": "binding",
+      "epoch": 2
+    },
+    {
+      "wire": "answer__timing",
+      "type": "constraint",
+      "epoch": 2
+    },
+    {
+      "wire": "answer__feasibility__reason",
+      "type": "reason",
+      "epoch": 3
+    },
+    {
+      "wire": "answer__feasibility",
+      "type": "solve",
+      "epoch": 3,
+      "alias": "answer__feasibility__reason"
+    },
+    {
+      "wire": "answer__arrival",
+      "type": "binding",
+      "epoch": 3,
+      "status": "bound"
+    },
+    {
+      "wire": "answer__arrival",
+      "type": "binding",
+      "epoch": 3
+    },
+    {
+      "wire": "answer__answer",
+      "type": "cnl",
+      "epoch": 3
+    },
+    {
+      "wire": "answer",
+      "type": "expand",
+      "epoch": 3,
+      "alias": "answer__answer"
+    }
+  ],
+  "epochs": 4,
+  "wireCount": 18,
+  "outputs": {
+    "answer__duration": {
+      "valueType": "integer",
+      "complete": true,
+      "sourceStatus": "supported",
+      "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+      "status": "bound",
+      "value": 70,
+      "mode": "one",
+      "owner": "answer__retrieve_duration",
+      "epoch": 2,
+      "proof": [
+        "c_f8b8f9e5539d99989e02c06f863239b2"
+      ]
+    },
+    "answer__arrival": {
+      "valueType": "integer",
+      "complete": true,
+      "sourceStatus": "possible",
+      "assurance": "Result relative to admitted premises and the explored memory view, not a probability.",
+      "status": "bound",
+      "value": 840,
+      "mode": "one",
+      "owner": "answer__feasibility",
+      "epoch": 3,
+      "proof": []
+    }
+  },
+  "blocked": {},
+  "generated": [
+    {
+      "epoch": 1,
+      "source": "@answer__route value\n  data \"route_demo\"\n\n@answer__start value\n  data 770\n\n@answer__deadline value\n  data 840\n\n@answer__travel query\n  select ?answer__duration\n  where duration($answer__route, ?answer__duration)\n\n@answer__retrieve_duration solve\n  query $answer__travel\n  output ?answer__duration one\n\n@answer__timing constraint\n  var ?answer__arrival int 0 1440\n  require ?answer__arrival == $answer__start + $answer__duration\n  claim ?answer__arrival <= $answer__deadline\n  task possible\n  unit minute\n\n@answer__feasibility solve\n  constraint $answer__timing\n  output ?answer__arrival one\n\n@answer__answer cnl\n  result $answer__feasibility\n  language ro\n"
+    },
+    {
+      "epoch": 2,
+      "source": "@answer__retrieve_duration__link link\n  query $answer__travel\n  strategy recall-weaver\n\n@answer__retrieve_duration__reason reason\n  query $answer__travel\n  memory $answer__retrieve_duration__link\n\n@answer__duration binding\n  result $answer__retrieve_duration__reason\n  variable ?answer__duration\n  mode one\n  owner answer__retrieve_duration\n"
+    },
+    {
+      "epoch": 3,
+      "source": "@answer__feasibility__reason reason\n  constraint $answer__timing\n\n@answer__arrival binding\n  result $answer__feasibility__reason\n  variable ?answer__arrival\n  mode one\n  owner answer__feasibility\n"
+    }
+  ]
+}

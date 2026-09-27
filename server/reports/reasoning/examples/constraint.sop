@@ -1,0 +1,13 @@
+@c constraint
+  var ?arrival int 0 1440
+  require ?arrival == 770 + 30
+  claim ?arrival <= 900
+  task prove
+
+@result solve
+  constraint $c
+  output ?arrival one
+
+@answer cnl
+  result $result
+  language ro

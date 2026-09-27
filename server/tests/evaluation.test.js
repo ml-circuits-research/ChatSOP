@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {executionSignature} from '../src/evaluation.js';
+const session={live:{claims:{},events:[]}};
+const r=(outputs={})=>({result:{packet:{status:'supported',complete:true,answers:[]}},outputs});
+const out=(mode='one',value='ana')=>({mode,status:'bound',complete:true,valueType:'person',value});
+test('evaluation catches a missing output despite identical CNL status',()=>assert.notEqual(executionSignature(r({x:out()}),session),executionSignature(r(),session)));
+test('evaluation catches scalar versus collection contract',()=>assert.notEqual(executionSignature(r({x:out()}),session),executionSignature(r({x:out('many',['ana'])}),session)));
+test('evaluation catches wrong generated values',()=>assert.notEqual(executionSignature(r({x:out()}),session),executionSignature(r({x:out('one','maria')}),session)));
+test('evaluation ignores alpha-renaming a scalar port',()=>assert.equal(executionSignature(r({x:out()}),session),executionSignature(r({y:out()}),session)));
+test('evaluation preserves output ambiguity',()=>assert.notEqual(executionSignature(r({x:out()}),session),executionSignature(r({x:{mode:'one',status:'ambiguous',complete:true}}),session)));
