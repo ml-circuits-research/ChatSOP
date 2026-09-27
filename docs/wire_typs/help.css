@@ -1,0 +1,20 @@
+.wire-help { width: 100%; padding: 1rem 1rem 3rem; background: white; overflow-wrap: anywhere; }
+.wire-help h1 { font-size: 2rem; }
+.wire-help h2 { margin-top: 2rem; padding-top: .7rem; border-top: 1px solid #dce6eb; }
+.wire-help pre { white-space: pre; overflow: auto; max-width: 100%; }
+.wire-help pre code { overflow-wrap: normal; }
+.wire-help table { border-collapse: collapse; margin: 1rem 0; }
+.wire-help th, .wire-help td { border: 1px solid #dce6eb; padding: .65rem; text-align: left; line-height: 1.5; }
+.wire-help th { background: #eaf0f4; }
+.wire-help table code { white-space: normal; }
+.wire-help .note, .wire-help .warning, .wire-help .status, .wire-help .review-note, .wire-help aside { padding: .8rem 1rem; border-left: 4px solid #bf671e; background: #fff7e8; margin: 1rem 0; }
+.wire-help .proposal { padding: .8rem 1rem; border-left: 4px solid #145c80; background: #edf7fb; }
+.wire-help dt { font-weight: 700; margin-top: .65rem; }
+.wire-help dd { margin: .25rem 0 .8rem 1rem; }
+.wire-help :target { scroll-margin-top: 1rem; }
+@media (max-width: 700px) {
+  .wire-help { padding: .8rem .8rem 3rem; }
+  .wire-help h1 { font-size: 1.65rem; }
+  .wire-help table { display: block; overflow-x: auto; }
+  .wire-help th, .wire-help td { min-width: 8rem; }
+}

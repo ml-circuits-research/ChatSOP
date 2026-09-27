@@ -1,0 +1,40 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ChatSOP Documentation</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="help.css"></head><body><div data-include="../partials/header.html" data-link-base="../"></div><main class="wire-help"><p><a href="../wire_types.html#assert" target="_top">Wire index</a> · <a href="fact.html">fact</a> · <a href="event.html">event</a> · <a href="pack.html">pack</a></p><h1><code>assert</code></h1><p><code>assert</code> is the explicit write boundary for facts and events in the current <a href="../wiki.html#definition-repository" target="_top">repository</a> session. A <a href="../wiki.html#definition-formalizer" target="_top">formalizer</a> may propose admitted user statements for this route; it cannot create a host approval merely by emitting <code>assert</code>. A declared <a href="fact.html">fact</a> alone is only a value. Asserting it may make it visible to later session queries, but publication to a global library/approved base is a separate host action.</p><h2>All supported fields</h2><table><thead><tr><th>Field / multiplicity</th><th>Value grammar and effect</th></tr></thead><tbody><tr><td><code>input</code> — one or more lines, required</td><td>Whitespace-separated <code>$value</code> references or <code>~definition</code> handles on each line; recursively flattens arrays from <a href="pack.html">pack</a>. Each item must materialize to a <code>fact</code>, <code>event</code>, or approved library definition type. Use <code>$fact</code>, not <code>~fact</code>: the definition reader supports rule/research declarations and template/procedure handles but does not lower fact handles. Arbitrary query, clarify or solve packets cannot be stored here. Definitions require host-reviewed ingestion with <code>allowRules</code>; persistent definitions cannot capture transient <code>$</code> wire dependencies. <code>$</code> references create scheduling dependencies; <code>~</code> handles designate allowed declaration definitions, not mutable storage cells.</td></tr><tr><td><code>scope</code> — 0–1, default <code>session</code></td><td>Only <code>session</code> is accepted by runtime. Parser initially accepts arbitrary field text, but other values fail at execution. There is no <code>global</code>/<code>library</code> scope switch in a model-authored SOP write; host commit/review is distinct.</td></tr><tr><td><code>after</code> — zero or more</td><td>Place an actual <code>$wire</code> reference in each line to force a value dependency, typically <code>after $earlier_assert</code> for sequential effects. The runtime does not parse the rest of this field as a separate command. Merely placing two asserts in file order is not an explicit ordering contract.</td></tr></tbody></table><h2>Transaction and receipts</h2><p>Runtime requires a repository, session and <code>policy.allowWrite</code>. It gathers ready assert wires into one effect batch and calls <code>repo.apply</code> against a private working copy before publishing the session revision; each assert receives a receipt <code>{status:'stored', ids:[...], count, revision}</code>. The IDs correspond to applied operations: facts yield claim IDs, events yield event IDs. A <code>correct</code> event expands to retract old claim and add replacement fact, thus producing two IDs. <code>event.target $receipt</code> requires a receipt with exactly <em>one</em> claim ID, not a multi-item pack receipt or an event receipt. A <code>pinned</code> fact additionally requires <code>allowPin</code>; retention is not a truth guarantee. Claims carry validity (<code>valid</code>) and separate write time (<code>knownAt</code>), source/quote metadata and review boundaries. A solve's <code>after $receipt</code> is needed when it must see that write in the same run.</p><p>Library definitions require <code>allowRules</code> and reviewed ingestion; under <code>origin='model'</code> runtime refuses direct rule/template/procedure/action declarations. There is a documented normative rule that assumptions must not be published as evidence; the generic assert path does not uniformly enforce it, so consumers must not use <code>assert.input</code> for hypothetical <code>solve.assume</code> facts. <a href="event.html">event</a> revision is not the same as an explicit negative fact.</p><h2>Current syntax examples</h2><p>With a writable session, a claim is added and the receipt holds its claim ID. The fact's source is metadata, not host verification:</p><pre data-sop="current"><code>@report fact
+  holds repaired(pump_a)
+  valid 2026-09-01 open
+  source "technician log 17"
+
+@record assert
+  input $report
+  scope session</code></pre><p>The following stores two independent claims in one assert and then runs a query after the receipt. The expected answer depends on both the write and the selected repository retrieval strategy:</p><pre data-sop="current"><code>@one fact
+  holds on_shelf(book_a)
+  valid timeless
+
+@two fact
+  holds on_shelf(book_b)
+  valid timeless
+
+@batch pack
+  items $one $two
+
+@write assert
+  input $batch
+
+@request query
+  where on_shelf(?book)
+  select ?book
+
+@answer solve
+  query $request
+  after $write
+  output ?book many</code></pre><p>This parses, but runtime rejects <code>scope library</code>: SOP writes target the current session only.</p><pre data-sop="invalid"><code>@report fact
+  holds repaired(pump_a)
+  valid timeless
+
+@bad assert
+  input $report
+  scope library</code></pre><h2>Simplified syntax proposal — not implemented</h2><p>A simpler atom spelling may replace <code>repaired(pump_a)</code> with <code>repaired pump_a</code>. No approved simplification removes the explicit session write boundary or grants the model global publication rights; the small-model field inventory remains open.</p><pre data-sop="proposed"><code>@report fact
+  holds repaired pump_a
+  valid timeless
+
+@record assert
+  input $report</code></pre><p><strong>Implementation sources:</strong> <code>sop/parser.mjs</code> (<code>SPEC.assert</code>, <code>dependencies</code>), <code>sop/runtime.mjs</code> (<code>case 'assert'</code>, <code>dataInputs</code>, effect batch), <code>memory/repository.mjs</code> (<code>apply</code>), <code>memory/temporal.mjs</code> (<code>add</code>, <code>event</code>).</p></main><script type="module" src="help-page.mjs"></script></body></html>

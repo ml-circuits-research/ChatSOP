@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ChatSOP Documentation</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="help.css"></head><body><div data-include="../partials/header.html" data-link-base="../"></div><main class="wire-help"><p class="breadcrumb"><a href="../wire_types.html" target="_top">Wire help</a> / Small-model authoring profile</p><h1>Small-model authoring profile</h1>
+<p>The small <a href="../wiki.html#definition-formalizer" target="_top">formalizer</a> translates a user's statements and question into <a href="../wiki.html#definition-sop" target="_top">SOP</a>. It must preserve who did what, negation, time, requested variables, and the scope of any write. It does not implement algorithms, choose execution privileges, or write the answer it hopes the system will return.</p><aside><strong>Profile proposal, not an approved whitelist.</strong> The eight core wire types below and the correction extension are a concrete educational boundary for review. The runtime inventory is broader. The executable atom grammar remains sop-agent-3; punctuation-free snippets illustrate the separate simplified proposal.</aside>
+<h2>Every field proposed for the first lessons</h2><table><thead><tr><th>Wire</th><th>Educational fields</th><th>Allowed content and exclusions</th></tr></thead><tbody>
+<tr><td><a href="fact.html">fact</a></td><td>holds, valid, source, quote</td><td>Ground relation using supplied canonical symbols or typed values; explicit not when asserted; source user and input quotation. No invented fact, retention privilege, or automatically generated assumption.</td></tr>
+<tr><td><a href="query.html">query</a></td><td>where; select; mode; at or during; asof; limit</td><td>Conjunctive atoms, selected bound variables, exists/select/count/explain, explicit temporal scope. No JavaScript filter. Host defaults handle limits and time when the user does not specify them; the model must not invent a date or requested cardinality.</td></tr>
+<tr><td><a href="solve.html">solve</a></td><td>query, after</td><td>A reference to the question and explicit ordering after contextual admission. Backend, retrieval strategy, budgets, numeric constraints, assumptions, and output-port programming are excluded from this first subset.</td></tr>
+<tr><td><a href="cnl.html">cnl</a></td><td>result, language</td><td>A real operation result reference; language fixed by the selected output profile. No literal answer or fabricated result packet.</td></tr>
+<tr><td><a href="clarify.html">clarify</a></td><td>text</td><td>A focused request for missing information. Unknown factual support alone is a valid reasoning outcome, not necessarily missing user input.</td></tr>
+<tr><td><a href="resolve.html">resolve</a></td><td>text, language, kind, type, domain</td><td>Reviewed entity lookup; kind entity in the first subset. Type and domain only when supplied by the task context. No new alias publication or generated predicate head.</td></tr>
+<tr><td><a href="assert.html">assert</a></td><td>input, scope, after</td><td>Supplied contextual facts/events, scope session, explicit ordering. No global publication, executable definition installation, or inferred permission.</td></tr>
+<tr><td><a href="pack.html">pack</a></td><td>items</td><td>One reference per repeated items line as a teaching convention. Group values only when a consumer needs a collection; no mandatory extra packing wire.</td></tr>
+<tr><td><a href="event.html">event</a> — correction extension</td><td>action, target, effective, replacement, source</td><td>end/retract/correct over a host-supplied claim identity or single-claim receipt. end needs an effective time; correct needs a replacement fact. No guessed target identifier.</td></tr></tbody></table><p>The table restricts fields, not just type names. A type being permitted cannot authorize arbitrary keyword combinations. For example, the runtime's solve.data and query.filter fields do not thereby belong to the first educational subset.</p>
+<h2>A contextual assertion followed by a question</h2><p>Input: “Maria works at Acme. Does Maria work at Acme?” The following is executable sop-agent-3 spelling. Execution requires a host-created writable session with permission to admit the quoted assertion. No historical date is requested, so the query uses the runtime's present-time defaults.</p><pre data-sop="current"><code>@statement fact
+  holds works_at(maria, acme)
+  valid timeless
+  source user
+  quote "Maria works at Acme."
+
+@store assert
+  input $statement
+  scope session
+
+@question query
+  where works_at(maria, acme)
+
+@result solve
+  query $question
+  after $store
+
+@answer cnl
+  result $result
+  language en</code></pre><p>The user statement supplies a premise, not independently certified knowledge. The host supplies the session and its clock; the model does not invent a historical knowledge cutoff.</p><p>The simplified proposal changes the atom and literal-text surface, not the intended effects:</p><pre data-sop="proposed"><code>@statement fact
+  holds works_at maria acme
+  valid timeless
+  source user
+  quote Maria works at Acme.
+
+@store assert
+  input $statement
+  scope session
+
+@question query
+  where works_at maria acme
+
+@result solve
+  query $question
+  after $store
+
+@answer cnl
+  result $result
+  language en</code></pre><p>The simplified text rule consumes the remainder of quote/text lines literally. It must not turn sigils in a quotation into dependencies. The exact ? contextual-output and ~ internal-handle contracts remain separate decisions.</p>
+<h2>What stays outside the small model</h2><p><a href="jsEval.html">jsEval</a> and JavaScript generation are excluded. The same applies to complex code hidden in value.data or a template/procedure body. Coding agents may author reviewed programs; the formalizer may eventually invoke an approved abstraction through a bounded interface without writing its implementation. <a href="expand.html">expand</a> is an optional extension requiring explicit agreement, not an implicit ninth core wire.</p><p>Runtime bindings, retrieval/linking implementation choices, rule/procedure installation, policy budgets, numerical expression programs, and advanced reasoning orchestration belong to the system or separate authoring tasks. Their exclusion from the first educational subset does not remove those system capabilities. Assumption exercises require a distinct hypothetical-input contract before inclusion; an instruction to translate supplied assertions does not authorize inventing premises.</p>
+<h2>Evaluate translation separately from the system</h2><table><thead><tr><th>Formalizer evaluation</th><th>Whole-system evaluation</th></tr></thead><tbody><tr><td>Actual model predictions: syntax and field whitelist, references, faithful meaning, negation, time, uncertainty, authorized effects, and omissions/inventions.</td><td>Memory isolation, consolidation, reasoning, approved code/procedures, backend routes, temporal results, provenance, and end-to-end outcomes.</td></tr><tr><td>Report all eligible attempts, invalid/missing outputs, semantic errors, and language/family slices. Parser success alone is insufficient.</td><td>Separate controlled-SOP component probes from runs that include a model. A correct gold execution is not a model accuracy measurement.</td></tr></tbody></table><p>Existing mixed corpus cases and reports must be reviewed against the agreed boundary before use as small-model training or qualification evidence. Preserve their original meaning rather than relabeling a system test as a model test. Syntax agreement, successful validation, and model-training authorization are three separate gates.</p>
+<h2>Sources and scope</h2><p>Executable field inventory: <code>sop/parser.mjs</code>. Existing corpus boundary: <code>datasets/query-profile.json</code>. Educational generation and reporting instructions: <code>skills/synthetic-sop-data/SKILL.md</code>, <code>skills/evaluate-agent/SKILL.md</code>, and <code>eval/README.md</code>. The proposed restrictions above are narrower than the executable inventory.</p>
+</main><script type="module" src="help-page.mjs"></script></body></html>

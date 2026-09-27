@@ -13,6 +13,8 @@ This is the single root instruction file for changes to ChatSOP. The product's c
 
 The normative contracts behind these rules live in the DS set; where this file and a DS disagree, the DS is the source of truth for documented behavior.
 
+Write persistent documentation, specifications, instructions, and code comments in clear English. Keep intentional linguistic data and exact quoted source material in their original language.
+
 ## Mandatory Reading Order
 
 1. `README.md`, then `docs/index.html`, `docs/runtime.html`, `docs/training.html`, and canonical terminology at `docs/wiki.html`.

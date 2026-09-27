@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ChatSOP Documentation</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="help.css"></head>
+<body><div data-include="../partials/header.html" data-link-base="../"></div><main class="wire-help"><p><a href="../wire_types.html#constraint" target="_top">← Wire type index</a></p><h1><code>constraint</code></h1><p>Declares an integer arithmetic question over specified variables and requirements. A separate <code>solve</code> or <code>reason</code> wire evaluates it; declaration alone proves nothing.</p><p><strong>Status and author:</strong> A <a href="../wiki.html#definition-formalizer" target="_top">formalizer</a> may propose this wire under host policy; it is not by itself a memory write.</p><section><h2>Accepted fields</h2><p>Single means at most once, repeatable means zero or more, and required means at least once at parse time. Other field names are rejected.</p><div class="table-wrap"><table><thead><tr><th>Field</th><th>Cardinality</th><th>Accepted values and current behavior</th></tr></thead><tbody><tr><th scope="row"><code>var</code></th><td>repeatable; optional</td><td><code>?name int</code> or <code>?name int min max</code>. Name matches lowercase letter then lowercase letters/digits/underscore; distinct declarations. Bounds are safe integers (literal or scalar <code>$wire</code> values), inclusive with min ≤ max. The JS solver requires finite bounds.</td></tr>
+<tr><th scope="row"><code>require</code></th><td>repeatable; optional</td><td>Boolean expression of declared integer variables, constants and resolved <code>$wire</code> integer references. Every line is a conjunct restricting feasible assignments.</td></tr>
+<tr><th scope="row"><code>claim</code></th><td>single; required</td><td>Boolean proposition over the same variables; tested against feasible assignments for prove/possible, and treated as a feasibility condition for optimize.</td></tr>
+<tr><th scope="row"><code>task</code></th><td>single; optional, default <code>prove</code></td><td>One of <code>prove</code> (all feasible models), <code>possible</code> (some feasible model), <code>optimize</code> (best objective among feasible models satisfying claim).</td></tr>
+<tr><th scope="row"><code>unit</code></th><td>single; optional, default <code>scalar</code></td><td>Unquoted unit label carried in the problem/result for presentation; no automatic conversion or dimensional checking.</td></tr>
+<tr><th scope="row"><code>objective</code></th><td>single; required if optimize; forbidden otherwise</td><td>Integer arithmetic expression defining value to minimize/maximize.</td></tr>
+<tr><th scope="row"><code>direction</code></th><td>single; optional, default <code>min</code></td><td><code>min</code> or <code>max</code>; meaningful for optimize, accepted but ignored for non-optimization tasks.</td></tr></tbody></table></div></section><section><h2>Execution and result</h2><p>Portable Boolean syntax supports <code>!</code>, <code>&amp;&amp;</code>, <code>||</code>, <code>== === != !== &lt; &lt;= &gt; &gt;=</code>; integer expressions support constants, declared <code>?x</code>, unary minus, <code>+ -</code>, and multiplication only with a constant operand. No arbitrary JavaScript, division, remainder, function calls, string comparisons or non-linear variable products. <code>$wire</code> must resolve to a safe integer. The parser first accepts expression-shaped fields; <code>lowerConstraint</code> enforces the smaller numeric grammar.</p><p><a href="../wiki.html#definition-reasoning-strategy" target="_top">Reasoning strategy</a> <code>reference</code> uses JS finite enumeration, bounded by <code>maxAssignments</code> (default 100,000). <code>advanced</code> selects Z3 if available, otherwise JS finite fallback; explicit backend <code>z3</code> requires advanced and may return unsupported if unavailable. <code>solve</code> can project declared variables via output ports; <code>reason</code> alone has no output fields. For prove: entailed/refuted/unknown/inconsistent; for possible: possible/impossible/unknown/inconsistent; optimization returns optimal, feasible_bound or inconsistent, subject to completeness. Neither SAT nor a witness alone means universal entailment. Constraint and solve do not write memory.</p></section><section><h2>Current SOP examples</h2><h3>Finite feasibility and projection</h3><pre data-sop="current"><code>@deadline constraint
+  var ?arrival int 0 100
+  require ?arrival == 42
+  claim ?arrival &lt;= 45
+  task possible
+  unit minute
+
+@check solve
+  constraint $deadline
+  output ?arrival one</code></pre><p>With a complete finite search, the result is possible and the unique projected arrival is 42.</p>
+<h3>Objective among models satisfying claim</h3><pre data-sop="current"><code>@slots constraint
+  var ?slot int 0 8
+  require ?slot &gt;= 3
+  claim ?slot &lt;= 6
+  task optimize
+  objective ?slot
+  direction max
+
+@choice solve
+  constraint $slots
+  output ?slot one</code></pre><p>The feasible objective candidates are 3–6, so a complete search has optimum 6 and a unique slot projection.</p><h3>Invalid or unsafe example</h3><pre data-sop="invalid"><code>@bad constraint
+  var ?a int 0 10
+  var ?b int 0 10
+  require ?a * ?b == 6
+  claim ?a &gt; 0</code></pre><p>This parses as an expression but fails numeric lowering: multiplication of two variables is not in the portable linear profile.</p></section><section><h2>Simplified syntax proposal (not implemented)</h2><p>Finite numeric questions can be composed with the proposed smaller query profile, but neither numeric field syntax nor backend support has been replaced by the proposed simplified atom notation.</p></section><section><h2>Implementation sources</h2><ul><li><code>sop/parser.mjs:SPEC, validateShape, validateGraph</code></li><li><code>sop/runtime.mjs:Runtime.run</code></li><li><code>sop/lower.mjs:numericAST, lowerConstraint</code></li><li><code>reasoning/registry.mjs:ReasoningRegistry.builtin</code></li><li><code>reasoning/backends/constraints.mjs:enumerate, z3</code></li><li><code>reasoning/optimization.mjs:optimizeFinite, optimizeZ3</code></li></ul><p>Related: <a href="reason.html"><code>reason</code></a>, <a href="binding.html"><code>binding</code></a>, <a href="value.html"><code>value</code></a>. See the <a href="../wiki.html#definition-sop" target="_top">SOP terminology</a> for wire/reference conventions.</p></section></main><script type="module" src="help-page.mjs"></script></body></html>

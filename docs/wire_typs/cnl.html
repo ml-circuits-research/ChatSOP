@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ChatSOP Documentation</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="help.css"></head><body><div data-include="../partials/header.html" data-link-base="../"></div><main class="wire-help"><p><a href="../wire_types.html#cnl" target="_top">Wire index</a> · <a href="solve.html">solve</a> · <a href="clarify.html">clarify</a> · <a href="assert.html">assert</a></p><h1><code>cnl</code></h1><p>A <code>cnl</code> wire renders a genuine runtime result into <a href="../wiki.html#definition-cnl" target="_top">controlled natural language</a>. This is deterministic explanation of a checked result, not a query, second inference stage, or authorization to manufacture evidence. A CLI user can inspect the rendering and the attached packet; a <a href="../wiki.html#definition-verbalizer" target="_top">verbalizer</a> is a separate optional agent stage. The implementation shown here is <code>sop-agent-3</code>.</p><h2>Fields</h2><table><thead><tr><th>Field / multiplicity</th><th>Accepted value and behavior</th></tr></thead><tbody><tr><td><code>result</code> — exactly one, required</td><td><code>$id</code> value reference to a runtime-produced result packet. The runtime checks its object identity against packets produced by <code>reason</code>/<code>solve</code>, <code>clarify</code>, <code>assert</code>, or supported operation handlers; a copied object with <code>status</code>/<code>answers</code> is rejected. No <code>~id</code> definition handle or arbitrary quoted JSON is accepted here.</td></tr><tr><td><code>language</code> — zero or one, default <code>ro</code></td><td><code>ro</code> selects Romanian messages. Every other spelling selects the English message table, because <code>messages[language] ?? messages.en</code> is the current implementation; it is not a validated general locale parser. The returned value still records the exact requested language string. Use <code>en</code> explicitly for English.</td></tr></tbody></table><h2>Rendering and boundaries</h2><p>The resulting value contains <code>{kind:'cnl', language, text, packet}</code>. Text starts with a localized status message (or the <code>clarify.text</code> question). Count packets include a count; answer rows emit <code>ANSWER</code> with variable/value pairs and, for interval queries, <code>VALID [start, end)</code>. Bound output projections emit <code>VALUE</code>; proof facts emit <code>EVIDENCE</code> with atom, source or derivation, plus validity when appropriate. Other packets can emit objective, hypothesis, pattern, candidate, analogy, plan, suggested test, intervention or actual engine/fallback lines. <code>complete:false</code> appends an incomplete warning; hypothetical packets are marked. The formatter does not infer a negative answer from unknown status or convert candidate evidence into proof. <a href="../wiki.html#definition-repository" target="_top">Repository</a> writes are not made by rendering.</p><h2>Current syntax examples</h2><p>Local evidence and a genuine <code>solve</code> result; expected rendering describes a supported answer with its source, subject to the reasoning result:</p><pre data-sop="current"><code>@record fact
+  holds located(book_a, shelf_b)
+  valid timeless
+  source "catalog item 41"
+
+@request query
+  where located(book_a, ?place)
+  select ?place
+
+@check solve
+  query $request
+  data $record
+  output ?place one
+
+@report cnl
+  result $check
+  language en</code></pre><p>Clarification also produces a genuine packet. Here the rendering conveys the request for a missing distinction, not a fabricated answer:</p><pre data-sop="current"><code>@need_detail clarify
+  text "Which of the two rooms do you mean?"
+
+@question_to_user cnl
+  result $need_detail
+  language en</code></pre><p>This parses, but <code>value</code> creates a plain object, not a runtime-produced result packet, so CNL rejects it:</p><pre data-sop="invalid"><code>@forgery value
+  data {status: "supported", answers: []}
+
+@unsafe cnl
+  result $forgery
+  language en</code></pre><h2>Simplified syntax proposal — not implemented</h2><p>Whether a small-model profile keeps <code>cnl</code> as a separate authored wire is undecided. The proposed atom spelling does not change the packet-origin check; no proposed CNL grammar is defined. Do not treat current <code>cnl.result $check</code> as a planned replacement for the host's checked result contract.</p><p><strong>Implementation sources:</strong> <code>sop/parser.mjs</code> (<code>SPEC.cnl</code>), <code>sop/runtime.mjs</code> (<code>case 'cnl'</code>, runtime packet <code>WeakSet</code>), <code>sop/cnl.mjs</code> (<code>cnl</code>, <code>messages</code>).</p></main><script type="module" src="help-page.mjs"></script></body></html>

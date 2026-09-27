@@ -3,6 +3,12 @@ async function loadPartials() {
     const response = await fetch(slot.dataset.include);
     if (!response.ok) throw new Error(`Cannot load ${slot.dataset.include}`);
     slot.innerHTML = await response.text();
+    if (slot.dataset.linkBase) {
+      const base = new URL(slot.dataset.linkBase, document.baseURI);
+      for (const link of slot.querySelectorAll('a[href]')) {
+        link.href = new URL(link.getAttribute('href'), base).href;
+      }
+    }
   }));
   const menus = [...document.querySelectorAll('.menu')];
   function close(menu, restoreFocus = false) {

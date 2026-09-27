@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ChatSOP Documentation</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="help.css"></head>
+<body><div data-include="../partials/header.html" data-link-base="../"></div><main class="wire-help"><p><a href="../wire_types.html#procedure" target="_top">← Wire type index</a></p><h1><code>procedure</code></h1><p>Stores an approved reusable SOP circuit using the same runtime expansion contract as <code>template</code>. The name distinguishes library intent; neither type grants an imperative function body.</p><p><strong>Status and author:</strong> Host-approved declaration; a model-origin program cannot install this definition.</p><section><h2>Accepted fields</h2><p>Single means at most once, repeatable means zero or more, and required means at least once at parse time. Other field names are rejected.</p><div class="table-wrap"><table><thead><tr><th>Field</th><th>Cardinality</th><th>Accepted values and current behavior</th></tr></thead><tbody><tr><th scope="row"><code>params</code></th><td>At most once; required</td><td>single; optional, default empty</td></tr>
+<tr><th scope="row"><code>yield</code></th><td>At most once; required</td><td>single; required</td></tr>
+<tr><th scope="row"><code>body</code></th><td>At most once; required</td><td>single; required</td></tr>
+<tr><th scope="row"><code>description</code></th><td>At most once; required</td><td>single; optional</td></tr>
+<tr><th scope="row"><code>cue</code></th><td>At most once; required</td><td>repeatable; optional</td></tr></tbody></table></div></section><section><h2>Execution and result</h2><p>Each <code>with name value</code> binds one declared parameter, once. A value beginning with <code>$</code> resolves an existing wire value; other text is unquoted (a JSON-quoted string is decoded). Missing or duplicate parameters, unknown names, a bad body, ID collisions, or a yield outside body/output are errors. At expansion, the runtime creates namespaced parameter <code>value</code> wires and body wires, substitutes references, renames body output ports, then aliases the expansion result to its yield. Definition metadata does not turn this into arbitrary code execution.</p><p>Host-approved <code>~procedure</code> handles can come from a checksum-verified repository library or a trusted program. A model-origin program can invoke the approved handle using <a href="expand.html">expand</a>, but cannot publish a procedure definition. Nested runtime operations still have their own authorization and cardinality rules. This does not execute arbitrary JavaScript or automatically commit a library.</p></section><section><h2>Current SOP examples</h2><h3>Arithmetic procedure in trusted source</h3><pre data-sop="current"><code>@approved procedure
+  description &quot;Compute a validated threshold comparison&quot;
+  cue &quot;check threshold&quot;
+  params number limit
+  yield result
+  body |
+    @result value
+      data $number &lt;= $limit
+
+@actual value
+  data 4
+
+@bound value
+  data 9
+
+@check expand
+  using ~approved
+  with number $actual
+  with limit $bound</code></pre><p>The approved body evaluates a bounded comparison and returns true from 4 ≤ 9; the host is the author of the definition.</p>
+<h3>Procedure with a status result</h3><pre data-sop="current"><code>@reviewed procedure
+  params item
+  yield status
+  body |
+    @q query
+      where selected($item)
+    @s solve
+      query $q
+      output ?status status
+
+@thing value
+  data &quot;sample&quot;
+
+@application expand
+  using ~reviewed
+  with item $thing</code></pre><p>The result is the query status from a generated output port, not a guessed boolean. The query requires an appropriate admitted predicate/knowledge view.</p><h3>Invalid or unsafe example</h3><pre data-sop="invalid"><code>@bad procedure
+  params x y
+  yield result
+  body |
+    @result value
+      data $x + $y
+
+@v value
+  data 1
+
+@use expand
+  using ~bad
+  with x $v</code></pre><p>All parameters must be supplied; the expansion rejects the missing <code>y</code> even though the outer fields parse.</p></section><section><h2>Implementation sources</h2><ul><li><code>sop/parser.mjs:SPEC, validateShape, validateGraph</code></li><li><code>sop/runtime.mjs:Runtime.run</code></li><li><code>sop/runtime.mjs:Runtime.run library loading and expand case</code></li></ul><p>Related: <a href="template.html"><code>template</code></a>, <a href="expand.html"><code>expand</code></a>, <a href="policy.html"><code>policy</code></a>. See the <a href="../wiki.html#definition-sop" target="_top">SOP terminology</a> for wire/reference conventions.</p></section></main><script type="module" src="help-page.mjs"></script></body></html>
