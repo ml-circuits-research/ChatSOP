@@ -96,7 +96,7 @@ const safeRoot = workspace => {
 };
 const sourceDir = root => path.join(root, 'datasets', 'knowledge', 'source');
 const implicitDir = root => path.join(root, 'datasets', 'knowledge', 'implicit');
-const readSource = (root, id) => {
+export const readSource = (root, id) => {
   const file = path.join(sourceDir(root), `${identifier(id)}.json`);
   if (fs.lstatSync(file).isSymbolicLink()) throw Error('Source symlink forbidden');
   const record = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -109,6 +109,18 @@ const readSource = (root, id) => {
   if (hash(raw) !== record.rawSha256 || hash(recovered.extracted) !== record.extractedSha256 ||
       json(recovered.passages) !== json(record.passages)) throw Error('Source bytes or passages changed');
   return record;
+};
+export const cite = (root, citation) => {
+  const source = readSource(root, citation?.sourceId);
+  if (source.rawSha256 !== citation.sourceSha256) throw Error('Source checksum mismatch');
+  const location = citation.passage;
+  const passage = source.passages.find(p => p.page === location?.page && p.paragraph === location?.paragraph && p.offset === location?.offset);
+  if (!passage) throw Error('Unknown source passage locator');
+  const quote = requireField(citation.quote, 'quote');
+  if (!Number.isSafeInteger(citation.quoteOffset)) throw Error('Missing byte-exact quote offset');
+  const relative = citation.quoteOffset - passage.offset;
+  if (relative < 0 || !Buffer.from(passage.text, 'utf8').subarray(relative, relative + Buffer.byteLength(quote)).equals(Buffer.from(quote, 'utf8'))) throw Error('Quote is not a byte-exact passage span');
+  return {source, passage};
 };
 
 export function runSources(command, args) {
@@ -127,7 +139,7 @@ export function runSources(command, args) {
       requireField(s.scope, 'source scope');
       requireField(s.revision, 'source revision');
       if (!Number.isSafeInteger(s.budget?.maxBytes) || s.budget.maxBytes < 1 || !Number.isSafeInteger(s.budget?.maxPassages) || s.budget.maxPassages < 1) throw Error(`Source ${id} requires positive byte and passage budgets`);
-      const file = path.resolve(requireField(s.file, 'source file'));
+      const file = path.resolve(path.dirname(path.resolve(opts.manifest)), requireField(s.file, 'source file'));
       const raw = fs.readFileSync(file);
       if (raw.length > s.budget.maxBytes || raw.length > 20_000_000) throw Error(`Source ${id} exceeds byte budget`);
       const extension = path.extname(file).toLowerCase();
@@ -153,19 +165,7 @@ export function runSources(command, args) {
   const input = JSON.parse(fs.readFileSync(requireField(opts.input, 'input'), 'utf8'));
   if (!Array.isArray(input.facts) || !input.facts.length) throw Error('Review requires facts');
   // The ChatSOP adapter is used only for validation. No repository is opened here.
-  const validated = input.facts.map(fact => {
-    const source = readSource(root, fact.sourceId);
-    if (source.rawSha256 !== fact.sourceSha256) throw Error('Source checksum mismatch');
-    const location = fact.passage;
-    const passage = source.passages.find(p => p.page === location?.page && p.paragraph === location?.paragraph && p.offset === location?.offset);
-    if (!passage) throw Error('Unknown source passage locator');
-    const quote = requireField(fact.quote, 'quote');
-    if (!Number.isSafeInteger(fact.quoteOffset)) throw Error('Missing byte-exact quote offset');
-    const relative = fact.quoteOffset - passage.offset;
-    if (relative < 0 || !Buffer.from(passage.text, 'utf8').subarray(relative, relative + Buffer.byteLength(quote)).equals(Buffer.from(quote, 'utf8'))) throw Error('Quote is not a byte-exact passage span');
-    requireField(fact.sop, 'SOP');
-    return {fact, source, passage};
-  });
+  const validated = input.facts.map(fact => ({fact, ...cite(root, fact)}));
   return import(path.join(path.resolve(requireField(opts['project-root'], 'project root')), 'sop/parser.mjs')).then(async parser => {
     const ingest = await import(path.join(path.resolve(opts['project-root']), 'sop/ingest.mjs'));
     for (const {fact, source, passage} of validated) {

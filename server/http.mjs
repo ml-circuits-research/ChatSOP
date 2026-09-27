@@ -29,7 +29,26 @@ export function createServer({config,repo,lexicon,authTokens,base='demo',limits=
  const maxRequestBytes=positive(limits.maxRequestBytes??65536,'maxRequestBytes'),maxContextBytes=positive(limits.maxContextBytes??4800,'maxContextBytes'),maxConcurrent=positive(limits.maxConcurrent??4,'maxConcurrent'),timeoutMs=positive(limits.timeoutMs??30000,'timeoutMs');
  const sessions=new SessionStore({repo,lexicon,config:{...config,contextMaxBytes:Math.min(config.contextMaxBytes??maxContextBytes,maxContextBytes),formalizer:formalizer?{...formalizer,timeoutMs:Math.min(formalizer.timeoutMs??timeoutMs,timeoutMs)}:undefined},root:sessionRoot??path.join(repo.root,'http-conversations')});
  let active=0;const busy=new Set();
- async function readiness(){if(!formalizer?.url||!formalizer?.model)return {ready:false,model_available:false};try{const u=new URL(formalizer.url);if(!['http:','https:'].includes(u.protocol))return {ready:false,model_available:false};u.pathname='/v1/models';u.search='';const response=await fetch(u,{headers:process.env.RECALL_LLM_KEY?{Authorization:'Bearer '+process.env.RECALL_LLM_KEY}:{},signal:AbortSignal.timeout(Math.min(timeoutMs,2000))});if(!response.ok)return {ready:false,model_available:false};const body=await response.json();const available=Array.isArray(body.data)&&body.data.some(x=>x.id===formalizer.model);if(!available)return {ready:false,model_available:false};if(config.promptProfile==='bare'){const expected=config.backendIdentity;const actual=body.data.find(x=>x.id===formalizer.model)?.chatSopIdentity;const keys=['model_id','revision','tokenizer_sha256','dataset_version_sha256','prompt_profile'];if(!expected||!actual||keys.some(k=>typeof expected[k]!=='string'||!expected[k]||actual[k]!==expected[k])||actual.prompt_profile!=='bare')return {ready:false,model_available:false};}return {ready:true,model_available:true};}catch{return {ready:false,model_available:false};}}
+ async function readiness(){
+  if(!formalizer?.url||!formalizer?.model)return {ready:false,model_available:false};
+  try{
+   const u=new URL(formalizer.url);
+   if(!['http:','https:'].includes(u.protocol))return {ready:false,model_available:false};
+   if(!u.pathname.endsWith('/v1/chat/completions'))return {ready:false,model_available:false};
+   u.pathname=u.pathname.slice(0,-'/v1/chat/completions'.length)+'/v1/models';u.search='';
+   const response=await fetch(u,{headers:process.env.RECALL_LLM_KEY?{Authorization:'Bearer '+process.env.RECALL_LLM_KEY}:{},signal:AbortSignal.timeout(Math.min(timeoutMs,2000))});
+   if(!response.ok)return {ready:false,model_available:false};
+   const body=await response.json();
+   const entry=Array.isArray(body.data)?body.data.find(x=>x.id===formalizer.model):null;
+   if(!entry)return {ready:false,model_available:false};
+   const actual=entry.chatSopIdentity;
+   if(config.promptProfile==='bare'){
+    const expected=config.backendIdentity,keys=['model_id','revision','tokenizer_sha256','dataset_version_sha256','prompt_profile'];
+    if(!expected||!actual||keys.some(k=>typeof expected[k]!=='string'||!expected[k]||actual[k]!==expected[k])||actual.prompt_profile!=='bare')return {ready:false,model_available:false};
+   }else if(actual?.prompt_profile&&actual.prompt_profile!=='formal')return {ready:false,model_available:false};
+   return {ready:true,model_available:true};
+  }catch{return {ready:false,model_available:false};}
+ }
  const server=http.createServer(async(req,res)=>{
   const url=req.url?.split('?')[0];if(url==='/healthz'&&req.method==='GET')return json(res,200,{status:'ok'});
   const user=authenticate(req.headers.authorization,users);if(!user)return error(res,401,'unauthorized','Bearer authentication required');
@@ -52,7 +71,7 @@ export function createServer({config,repo,lexicon,authTokens,base='demo',limits=
    })();work.finally(()=>{active--;busy.delete(key);}).catch(()=>{});
    const result=await Promise.race([work,new Promise((_,reject)=>{const timer=setTimeout(()=>{const e=new Error('Request time limit reached');e.status=504;reject(e);},timeoutMs);timer.unref();work.finally(()=>clearTimeout(timer)).catch(()=>{});})]);
    if(res.destroyed)return;const data=completion(result,model,formalizer,system);if(body.stream)sse(res,data);else json(res,200,data);
-  }catch(e){if(res.destroyed)return;const status=e.status??(e.message==='Request time limit reached'?504:400);error(res,status,status===413?'request_limit':status===504?'time_limit':status===400?'invalid_request':'internal_error',status===400&&(!e.status)?'Invalid SOP or request; no model detail exposed':e.status?e.message:'Server request failed');}
+  }catch(e){if(res.destroyed)return;const status=e.status??(e.name==='TimeoutError'||e.message==='Request time limit reached'?504:400);error(res,status,status===413?'request_limit':status===504?'time_limit':status===400?'invalid_request':'internal_error',status===400&&!e.status?'Invalid SOP or request; no model detail exposed':status===504?'Request time limit reached':e.status?e.message:'Server request failed');}
  });return server;
 }
 export async function startServer({configPath=path.join(root,'config/runtime.json'),host=process.env.CHATSOP_HOST??'127.0.0.1',port=Number(process.env.CHATSOP_PORT??3000)}={}){

@@ -36,6 +36,6 @@ Bucla lentă lucrează pe un lot de `trace` și documente. `associate` propune c
 
 ## Cum integrăm propunerea
 
-Textul furnizat este păstrat în `docs/references/RecallSOP-proposal.docx` și în forma extrasă `.txt`. Comparația SQLite/Weaver/H7/scan rămâne disponibilă. Introducem separat profilul hibrid real. Pattern-urile, ipotezele, acțiunile și urmele devin obiecte tipizate. Abducția poate genera premise lipsă prin reguli. Planificarea are stare și efecte explicite. Contra-factualele necesită reguli cauzale, nu doar asociere temporală.
+Textul furnizat este păstrat în `probably_obsolete/references/RecallSOP-proposal.docx` și în forma extrasă `docs/legacy/references/RecallSOP-proposal.txt`; constatările actuale sunt în DS005/DS006. Comparația SQLite/Weaver/H7/scan rămâne disponibilă. Introducem separat profilul hibrid real. Pattern-urile, ipotezele, acțiunile și urmele devin obiecte tipizate. Abducția poate genera premise lipsă prin reguli. Planificarea are stare și efecte explicite. Contra-factualele necesită reguli cauzale, nu doar asociere temporală.
 
 Propunerea descria și posibilități mai largi. Documentăm exact ce există: mining simplu pe cazuri explicite, analogii finite, planificare deterministă și intervenții Horn. Nu prezentăm aceste profile drept învățare conceptuală nelimitată, probabilități bayesiene sau causalitate identificată din date. Acestea au puncte de extensie fără a schimba rolurile arhitecturii.

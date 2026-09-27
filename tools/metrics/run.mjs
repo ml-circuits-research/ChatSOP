@@ -44,7 +44,8 @@ export async function main(argv = process.argv.slice(2)) {
   fs.writeFileSync(path.join(out, 'metrics.json'), JSON.stringify(metrics, null, 2) + '\n');
   console.log(JSON.stringify({ run_label: metrics.run_label, rows: metrics.rows, valid_references: metrics.valid_references,
     executed_predictions: metrics.executed_predictions, execution_equivalence: metrics.formalizer.execution_equivalence,
-    report_dir: out, evaluation_valid: report.evaluation_valid, neural_model_evaluated: false }));
+    report_dir: out, evaluation_valid: report.evaluation_valid,
+    neural_model_evaluated: options.has('--gold-as-prediction') ? false : 'not verified' }));
   if (!report.evaluation_valid) process.exitCode = 1;
   return metrics;
 }

@@ -27,6 +27,12 @@ test('generation and checkpoint selection source cannot import or read sealed an
     assert(auditSourceBoundary(temp).violations.some(message => message.includes('build-pilot.mjs') && message.includes('read')));
     fs.writeFileSync(candidate, "import answers from '../../eval/suites/pilot-v1/test.jsonl';\n");
     assert(auditSourceBoundary(temp).violations.some(message => message.includes('forbidden sealed-answer import')));
+    fs.writeFileSync(candidate, "import answers from '../../datasets/pilot-v1/test.jsonl';\n");
+    assert(auditSourceBoundary(temp).violations.some(message => message.includes('forbidden sealed-answer import') && message.includes('datasets/pilot-v1/test.jsonl')));
+    fs.writeFileSync(candidate, "const leaked = fs.readFileSync('datasets/pilot-v1/test.jsonl');\n");
+    assert(auditSourceBoundary(temp).violations.some(message => message.includes('build-pilot.mjs') && message.includes('read')));
+    fs.writeFileSync(candidate, "const sealed = path.join('eval/suites/pilot-v1', 'test.jsonl');\nfs.readFileSync(sealed);\n");
+    assert(auditSourceBoundary(temp).violations.some(message => message.includes('sealed-answer path variable read')));
     const selector = path.join(temp, 'training/cli.mjs');
     fs.writeFileSync(selector, "const answer = fs.readFileSync('datasets/pilot-v1/test.jsonl');\n");
     assert(auditSourceBoundary(temp).violations.some(message => message.includes('training/cli.mjs')));

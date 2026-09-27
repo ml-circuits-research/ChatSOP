@@ -14,6 +14,8 @@ node tools/capability-matrix.mjs
 node --test tests/capability-matrix.test.mjs
 ```
 
+Run in that order from the repository root: command 1 creates `eval/reports/current/comparisons/engines.json`; command 2 creates `reasoners.json`; command 3 reads both and creates `matrix.json` and `matrix.txt`. The scoped test requires no preexisting reports. `eval/reports/current/` is intentionally ignored by Git: these are reproducible local observations, not versioned historical results. Corpus seeds, engine/backend iteration, query order, matrix rows and file structure are deterministic; elapsed time and process/database measurements are observations and naturally vary between runs. The matrix is byte-identical when regenerated from unchanged raw reports. Solver paths above refer to optional private binaries; when absent, omit those environment assignments and native Prolog cells are recorded as skips.
+
 The two private native solver binaries existed and reported SWI-Prolog 9.0.4 and Z3 4.15.8 on this host. If SWI is absent, its cells are **skipped**, never reported as advanced/JS observations. Z3's arithmetic backend does **not** execute these Horn questions: all Z3×memory Horn cells are **unsupported**, even when a Z3 binary exists. JS Horn and native SWI Horn form the observed 2×5 matrix; the explicit 3×3 target (JS, SWI, Z3 × at least Weaver, Holo, SQLite) remains unfilled on its third row because a third compatible Horn solver is not implemented. Do not substitute a memory-independent numeric constraint result to fill it.
 
 ## Bank comparison protocol and observations

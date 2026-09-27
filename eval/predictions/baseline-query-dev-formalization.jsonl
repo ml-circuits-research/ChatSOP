@@ -1,0 +1,35 @@
+{"id":"multi_hop_inverse_en1","sop":"@q query\n  select ?elder\n  where grandparent ?elder ana\n"}
+{"id":"multi_hop_inverse_en2","sop":"@q query\n  select ?elder\n  where grandparent ?elder ana\n"}
+{"id":"multi_hop_inverse_en3","sop":"@q query\n  select ?elder\n  where grandparent ?elder ana\n"}
+{"id":"join_pairs_en1","sop":"@q query\n  select ?older ?younger\n  where parent ?older ?middle\n  where parent ?middle ?younger\n"}
+{"id":"join_pairs_en2","sop":"@q query\n  select ?older ?younger\n  where parent ?older ?middle\n  where parent ?middle ?younger\n"}
+{"id":"join_pairs_en3","sop":"@q query\n  select ?older ?younger\n  where parent ?older ?middle\n  where parent ?middle ?younger\n"}
+{"id":"conflicted_parent_en1","sop":"@q query\n  where parent maria bogdan\n"}
+{"id":"conflicted_parent_en2","sop":"@q query\n  where parent maria bogdan\n"}
+{"id":"conflicted_parent_en3","sop":"@q query\n  where parent maria bogdan\n"}
+{"id":"conflicted_parent_ro","sop":"@q query\n  where parent maria bogdan\n"}
+{"id":"conflict_negative_direct_en1","sop":"@q query\n  where not parent maria bogdan\n"}
+{"id":"conflict_negative_direct_en2","sop":"@q query\n  where not parent maria bogdan\n"}
+{"id":"conflict_negative_direct_en3","sop":"@q query\n  where not parent maria bogdan\n"}
+{"id":"conflict_no_explosion_en1","sop":"@q query\n  where parent ana maria\n"}
+{"id":"conflict_no_explosion_en2","sop":"@q query\n  where parent ana maria\n"}
+{"id":"conflict_no_explosion_en3","sop":"@q query\n  where parent ana maria\n"}
+{"id":"dev_time_boundary_en1","sop":"@q query\n  where works_at bogdan lab_beta\n  at 2025-04-01\n"}
+{"id":"dev_time_boundary_en2","sop":"@q query\n  where works_at bogdan lab_beta\n  at 2025-04-01\n"}
+{"id":"dev_time_boundary_en3","sop":"@q query\n  where works_at bogdan lab_beta\n  at 2025-04-01\n"}
+{"id":"dev_time_boundary_ro","sop":"@q query\n  where works_at bogdan lab_beta\n  at 2025-04-01\n"}
+{"id":"dev_time_window_en1","sop":"@q query\n  where works_at carina lab_alpha\n  during 2025-04-01 2025-05-01\n"}
+{"id":"dev_time_window_en2","sop":"@q query\n  where works_at carina lab_alpha\n  during 2025-04-01 2025-05-01\n"}
+{"id":"dev_time_window_en3","sop":"@q query\n  where works_at carina lab_alpha\n  during 2025-04-01 2025-05-01\n"}
+{"id":"route_expression_en1","sop":"@travel query\n  mode select\n  select ?minutes\n  where duration route_demo ?minutes\n\n@limit constraint\n  var ?time int 0 1440\n  require ?time == 770 + $minutes\n  claim ?time <= 840\n  task possible\n  select ?time\n"}
+{"id":"route_expression_en2","sop":"@travel query\n  mode select\n  select ?minutes\n  where duration route_demo ?minutes\n\n@limit constraint\n  var ?time int 0 1440\n  require ?time == 770 + $minutes\n  claim ?time <= 840\n  task possible\n  select ?time\n"}
+{"id":"route_expression_en3","sop":"@travel query\n  mode select\n  select ?minutes\n  where duration route_demo ?minutes\n\n@limit constraint\n  var ?time int 0 1440\n  require ?time == 770 + $minutes\n  claim ?time <= 840\n  task possible\n  select ?time\n"}
+{"id":"assert_negative_en1","sop":"@premise0 premise\n  holds not parent bogdan ana\n  valid timeless\n\n@q query\n  where parent bogdan ana\n"}
+{"id":"assert_negative_en2","sop":"@premise0 premise\n  holds not parent bogdan ana\n  valid timeless\n\n@q query\n  where parent bogdan ana\n"}
+{"id":"assert_negative_en3","sop":"@premise0 premise\n  holds not parent bogdan ana\n  valid timeless\n\n@q query\n  where parent bogdan ana\n"}
+{"id":"assert_temporal_en1","sop":"@premise0 premise\n  holds works_at maria lab_alpha\n  valid 2024-01-01 2025-06-01\n\n@q query\n  where works_at maria lab_alpha\n  at 2025-06-01\n"}
+{"id":"assert_temporal_en2","sop":"@premise0 premise\n  holds works_at maria lab_alpha\n  valid 2024-01-01 2025-06-01\n\n@q query\n  where works_at maria lab_alpha\n  at 2025-06-01\n"}
+{"id":"assert_temporal_en3","sop":"@premise0 premise\n  holds works_at maria lab_alpha\n  valid 2024-01-01 2025-06-01\n\n@q query\n  where works_at maria lab_alpha\n  at 2025-06-01\n"}
+{"id":"finite_unique_en1","sop":"@c constraint\n  var ?x int 0 4\n  require ?x == 2 + 1\n  claim ?x <= 3\n  task possible\n  select ?x\n"}
+{"id":"finite_unique_en2","sop":"@c constraint\n  var ?x int 0 4\n  require ?x == 2 + 1\n  claim ?x <= 3\n  task possible\n  select ?x\n"}
+{"id":"finite_unique_en3","sop":"@c constraint\n  var ?x int 0 4\n  require ?x == 2 + 1\n  claim ?x <= 3\n  task possible\n  select ?x\n"}

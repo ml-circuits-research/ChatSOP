@@ -18,7 +18,7 @@ Profilul `sop-agent-2` este un contract experimental al acestui pachet. Nu este 
 
 ## Referințe pentru motoarele de memorie
 
-[H7] Document furnizat de utilizator, „HoloMemory: A bounded associative memory for SOP-Lang agents and formal reasoning”. Copia originală: `references/H7.docx`; extracție text: `references/H7.txt`. Numerele din document nu sunt revendicate drept reproduse; benchmark-urile noi au surse și seed-uri proprii.
+[H7] Document furnizat de utilizator, „HoloMemory: A bounded associative memory for SOP-Lang agents and formal reasoning”. Copia originală `.docx` a fost arhivată în `probably_obsolete/references/H7.docx`; textul extras rămâne în `docs/legacy/references/H7.txt`, iar constatările curente sunt consemnate în DS005/DS006. Numerele din document nu sunt revendicate drept reproduse; benchmark-urile noi au surse și seed-uri proprii.
 
 [S10] Node.js, SQLite API, documentația versiunii 22.13.1: https://nodejs.org/download/release/v22.13.1/docs/api/sqlite.html . DatabaseSync, fișiere și baze în memorie, prepared statements. Consultat 2026-09-26.
 

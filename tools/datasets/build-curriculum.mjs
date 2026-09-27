@@ -8,7 +8,10 @@ import { canonicalTarget } from './schema.mjs';
 import { measureCoverage } from './coverage.mjs';
 import { barePrompt as formalPrompt } from '../../server/llm.mjs';
 import { buildCasesMd } from './build-cases-md.mjs';
-import { REVISION, NOW, worlds, cases, attached, numeric, extra, blockedFamilies, assumptions, approvedTemplates } from './curriculum/cases.mjs';
+const selectedCasesPath = process.argv.includes('--cases') ? process.argv[process.argv.indexOf('--cases') + 1] : fileURLToPath(new URL('./curriculum/cases.mjs', import.meta.url));
+if (!selectedCasesPath) throw Error('--cases requires a module path');
+const { REVISION, NOW, worlds, cases, attached, numeric, extra, blockedFamilies, assumptions, approvedTemplates } = await import(path.resolve(selectedCasesPath));
+const isV2 = path.basename(selectedCasesPath) === 'cases-v2.mjs';
 
 const sha256 = data => createHash('sha256').update(data).digest('hex');
 const baseOntology = fs.readFileSync(new URL('../../config/ontology.sop', import.meta.url), 'utf8');
@@ -16,15 +19,15 @@ const ontology = new Lexicon(baseOntology);
 const routeOntologyText = baseOntology.trimEnd() + '\n\n@route_demo entity\n  kind entity\n  label en "Alpha Lab route"\n  label ro "Ruta Laboratorului Alfa"\n';
 const routeOntology = new Lexicon(routeOntologyText);
 const worldById = new Map(worlds.map(world => [world.id, world]));
-const version = Object.freeze({ counter: 1, label: 'query-curriculum-v1', review_status: 'synthetic_unreviewed_not_training_approved' });
-const templateHash = sha256(fs.readFileSync(new URL('./curriculum/cases.mjs', import.meta.url)));
+const version = Object.freeze({ counter: 1, label: isV2 ? 'query-curriculum-v2' : 'query-curriculum-v1', review_status: 'synthetic_unreviewed_not_training_approved' });
+const templateHash = sha256(fs.readFileSync(selectedCasesPath));
 const knownAt = '2024-01-01';
 const approvedTemplate = canonical({ wires: parse(approvedTemplates.check_arrival).wires.filter(wire => wire.id === 'check_arrival') });
 if (parse(approvedTemplate).wires.length !== 1) throw Error('Missing exact approved check_arrival procedure');
 
 function source(world) {
   const content = `Synthetic scenario ${world.id}; host knowledge available from ${knownAt}.\n` + world.facts.map(item => item.text).join('\n') + '\n';
-  return { id: world.id, kind: 'synthetic_curriculum', uri: `synthetic://query-v1/${world.id}`, revision: templateHash, sha256: sha256(content), license: null, content };
+  return { id: world.id, kind: 'synthetic_curriculum', uri: `synthetic://query-${isV2 ? 'v2' : 'v1'}/${world.id}`, revision: templateHash, sha256: sha256(content), license: null, content };
 }
 function setup(world) {
   if (!world.facts.length && !world.rules.length && !world.procedures?.length) return '';
@@ -176,7 +179,7 @@ function buildCases() {
   for (const item of attached) {
     const world = { id: `attached_${item.split}`, split:item.split, domain:'conversation', facts:[], rules:[] };
     const content = `Synthetic user-assertion scenario ${item.id}.\n` + item.claims.map(claim => claim.text).join('\n') + '\n';
-    const sourceInfo = { id: item.id, kind:'synthetic_curriculum', uri:`synthetic://query-v1/${item.id}`, revision:templateHash, sha256:sha256(content), license:null, content };
+    const sourceInfo = { id: item.id, kind:'synthetic_curriculum', uri:`synthetic://query-${isV2 ? 'v2' : 'v1'}/${item.id}`, revision:templateHash, sha256:sha256(content), license:null, content };
     const sessionWrite = item.id === 'assert_only';
     const expected = sessionWrite
       ? { status:'stored', packet:{ count:1 }, session_claims:item.claims.map(claim => ({ holds:claim.atom, valid:claim.valid, source:'user', quote:claim.text, retention:'normal' })) }
@@ -189,12 +192,12 @@ function buildCases() {
   }
   for (const item of numeric) {
     const content = `Synthetic finite-integer problem ${item.id}; bounds ${item.min}..${item.max}; ${item.require.join(', ')}; question ${item.claim}.\n`;
-    const sourceInfo = { id:item.id, kind:'synthetic_curriculum', uri:`synthetic://query-v1/${item.id}`, revision:templateHash, sha256:sha256(content), license:null, content };
+    const sourceInfo = { id:item.id, kind:'synthetic_curriculum', uri:`synthetic://query-${isV2 ? 'v2' : 'v1'}/${item.id}`, revision:templateHash, sha256:sha256(content), license:null, content };
     rows.push(...render(item, { group:`numeric_${item.split}`, input_mode:'query_only', sourceInfo, target:targetConstraint(item), expected:constraintsOracle(item), oracleKind:'finite_enumeration', evaluation_track:item.evaluation_track??'formalization' }));
   }
   for (const item of extra) {
     const content = `Synthetic clarification/unsupported-boundary scenario ${item.id}.\n`;
-    const sourceInfo = { id:item.id, kind:'synthetic_curriculum', uri:`synthetic://query-v1/${item.id}`, revision:templateHash, sha256:sha256(content), license:null, content };
+    const sourceInfo = { id:item.id, kind:'synthetic_curriculum', uri:`synthetic://query-${isV2 ? 'v2' : 'v1'}/${item.id}`, revision:templateHash, sha256:sha256(content), license:null, content };
     rows.push(...render(item, { group:`extra_${item.split}`, input_mode:'clarification', sourceInfo, target:targetClarify(item), expected:{ status:'clarify' }, oracleKind:'explicit_missing_information', evaluation_track:'system' }));
   }
   return rows;
@@ -266,7 +269,7 @@ function safeOutput(out, evalOut) {
   if (a === b || a.startsWith(b + path.sep) || b.startsWith(a + path.sep)) throw Error('Evaluation suite must be disjoint from training export');
   return [a,b];
 }
-export function writeCurriculum({ out = fileURLToPath(new URL('../../datasets/query-v1/', import.meta.url)), evalOut = fileURLToPath(new URL('../../../eval/suites/query-v1/', import.meta.url)) } = {}) {
+export function writeCurriculum({ out = fileURLToPath(new URL('../../datasets/query-v1/', import.meta.url)), evalOut = fileURLToPath(new URL('../../../eval/suites/query-v1/', import.meta.url)), noCasesMd = false } = {}) {
   const [development, sealed] = safeOutput(out, evalOut);
   const rows = buildCurriculum(), matrix = curriculumMatrix(rows);
   const writeRows = (dir, filename, data, files) => { fs.mkdirSync(path.dirname(path.join(dir, filename)), { recursive:true }); const text = data.map(row => JSON.stringify(row)).join('\n') + '\n'; fs.writeFileSync(path.join(dir,filename),text); files[filename] = sha256(text); };
@@ -282,9 +285,9 @@ export function writeCurriculum({ out = fileURLToPath(new URL('../../datasets/qu
   for (const split of ['train','dev']) writeRows(development, `formalizer/${split}.jsonl`, rows.filter(row => row.split === split && row.evaluation_track === 'formalization').map(row => ({ id:row.id, input_mode:row.input_mode, prompt:formalPrompt([...row.context_assertions, row.question].join('\n'), row.context), target:row.sop_target, context:row.context, group:row.split_group_id })), devFiles);
   const versionText = JSON.stringify(version) + '\n';
   for (const [dir,files] of [[development,devFiles],[sealed,evalFiles]]) { fs.mkdirSync(dir,{recursive:true}); fs.writeFileSync(path.join(dir,'VERSION'),versionText); files.VERSION = sha256(versionText); }
-  const common = { version, profile:'sop-agent-3', source_template_sha256:templateHash, cases_md:buildCasesMd({ rows, write:true }), matrix, review_status:'synthetic_unreviewed_not_training_approved' };
-  const manifest = { format:'chatsop-query-curriculum-v1', ...common, files:devFiles, sealed_eval:{ relative_directory:path.relative(development,sealed), manifest:'manifest.json' } };
-  const evalManifest = { format:'chatsop-query-curriculum-eval-v1', ...common, files:evalFiles };
+  const common = { version, profile:'sop-agent-3', source_template_sha256:templateHash, ...(!noCasesMd ? { cases_md:buildCasesMd({ rows, write:true }) } : {}), matrix, review_status:'synthetic_unreviewed_not_training_approved' };
+  const manifest = { format:`chatsop-query-curriculum-${isV2 ? 'v2' : 'v1'}`, ...common, files:devFiles, sealed_eval:{ relative_directory:path.relative(development,sealed), manifest:'manifest.json' } };
+  const evalManifest = { format:`chatsop-query-curriculum-eval-${isV2 ? 'v2' : 'v1'}`, ...common, files:evalFiles };
   fs.writeFileSync(path.join(development,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
   fs.writeFileSync(path.join(sealed,'manifest.json'),JSON.stringify(evalManifest,null,2)+'\n');
   return { matrix, manifest, evalManifest };
@@ -292,7 +295,12 @@ export function writeCurriculum({ out = fileURLToPath(new URL('../../datasets/qu
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const args = process.argv.slice(2), options = {};
-    for (let i=0;i<args.length;i+=2) { if (!['--out','--eval-out'].includes(args[i]) || !args[i+1]) throw Error('Usage: node tools/datasets/build-curriculum.mjs [--out DIR --eval-out DIR]'); options[args[i]==='--eval-out'?'evalOut':'out'] = args[i+1]; }
+    for (let i=0;i<args.length;i++) {
+      if (args[i] === '--no-cases-md') { options.noCasesMd = true; continue; }
+      if (args[i] === '--cases' && args[i+1]) { i++; continue; }
+      if (!['--out','--eval-out'].includes(args[i]) || !args[i+1]) throw Error('Usage: node tools/datasets/build-curriculum.mjs [--cases MODULE --no-cases-md --out DIR --eval-out DIR]');
+      options[args[i]==='--eval-out'?'evalOut':'out'] = args[++i];
+    }
     console.log(JSON.stringify(writeCurriculum(options).matrix));
   } catch (error) { console.error(error.stack ?? error.message); process.exitCode = 1; }
 }

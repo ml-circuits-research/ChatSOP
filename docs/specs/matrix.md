@@ -15,5 +15,12 @@
 | [DS010-common-contracts](specsLoader.html?spec=DS010-common-contracts.md) | SOP, semantic-case, result, capability and experiment identity boundaries with executable epistemic decisions. |
 | [DS011-experiment-preregistration](specsLoader.html?spec=DS011-experiment-preregistration.md) | Prospective controlled hypotheses, grouped holdouts, frozen promotion thresholds, resource budgets, and training authorization. |
 | [DS012-strategy-backend-matrix](specsLoader.html?spec=DS012-strategy-backend-matrix.md) | Reasoning routes by domain, orthogonal hybrid memory choices, and visible proof-use reinforcement. |
+| [DS014-material-sources](specsLoader.html?spec=DS014-material-sources.md) | Rights-scoped multi-source extraction, exact passage citations, and draft/runtime separation. |
 | [DS015-solver-qualification](specsLoader.html?spec=DS015-solver-qualification.md) | Reproducible reference, SWI and Z3 qualification with unsupported and incomparable cells. |
 | [DS018-source-rights](specsLoader.html?spec=DS018-source-rights.md) | Verified licence evidence per external corpus, redistribution status, and the quarantine rule. |
+| [DS024-small-language-scope](specsLoader.html?spec=DS024-small-language-scope.md) | What the small declarative language may describe, the sufficiency argument for premise/query/constraint, and the conservative checklist for future constructs. |
+| [DS013-case-authoring](specsLoader.html?spec=DS013-case-authoring.md) | Markdown case authoring, minimal per-example schema, and the split-safety inventory. |
+| [DS016-local-server](specsLoader.html?spec=DS016-local-server.md) | Local OpenAI-compatible façade, serving profile, session isolation, limits and trace. |
+| [DS017-engine-comparison](specsLoader.html?spec=DS017-engine-comparison.md) | Memory-engine and reasoning-strategy comparisons with observed, skipped and unsupported cells. |
+| [DS019-independent-corpus](specsLoader.html?spec=DS019-independent-corpus.md) | Integrator-authored EN/RO evaluation corpus independent of the synthetic generator templates. |
+| [DS020-evaluation-metrics](specsLoader.html?spec=DS020-evaluation-metrics.md) | One definition per formalizer, epistemic, reasoning and memory metric over the existing evaluator. |

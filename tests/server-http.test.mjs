@@ -12,13 +12,13 @@ const tokens={alice:'alice-secret-token-123456',bob:'bob-secret-token-123456'};
 const query='@q query\n  where likes ana lab_alpha';
 async function listen(server){await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));return `http://127.0.0.1:${server.address().port}`;}
 async function close(server){await new Promise(resolve=>server.close(resolve));}
-async function fixture(t,{replies={},lexicon,limits={},config={}}={}){
+async function fixture(t,{replies={},lexicon,limits={},config={},onCall=()=>{}}={}){
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'chatsop-http-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
  const repo=new Repository(root);repo.init('base');
  const lex=lexicon??Lexicon.load(new URL('../config/ontology.sop',import.meta.url));
  const calls=[];const mock=http.createServer(async(req,res)=>{
   if(req.url==='/v1/models'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({data:[{id:'mock',chatSopIdentity:config.backendIdentity}]}));return;}
-  let raw='';for await(const part of req)raw+=part;const body=JSON.parse(raw);calls.push(body);
+  let raw='';for await(const part of req)raw+=part;const body=JSON.parse(raw);calls.push(body);await onCall(body);
   const answer=replies[body.messages[0].content.split('\nMESSAGE\n').at(-1)]??query;
   res.setHeader('Content-Type','application/json');res.end(JSON.stringify({choices:[{message:{content:answer},finish_reason:'stop'}]}));
  });const endpoint=await listen(mock);t.after(()=>close(mock));
@@ -48,6 +48,7 @@ test('remember, correction, contradiction, UNKNOWN, restart and principal isolat
  const first=await f.chat('Ana likes Alpha Lab?',{chatSop:{trustedSop:record('likes ana lab_alpha')}});
  assert.equal(first.status,200);assert.equal(first.body.chatSop.status,'supported');assert.match(first.body.chatSop.system_circuit,/@s remember/);
  const id=first.body.chatSop.system_receipt.ids[0];assert.ok(id);
+ assert.equal((await f.chat('Ana likes Alpha Lab?')).body.chatSop.status,'supported');
  assert.equal((await f.chat('Ana likes Alpha Lab?',{token:tokens.bob})).body.chatSop.status,'unknown');
  const correction=`@f fact\n  holds likes ana lab_beta\n  valid timeless\n  source user\n@e event\n  action correct\n  target "${id}"\n  replacement $f\n@s remember\n  input $e`;
  const corrected=await f.chat('Ana likes Alpha Lab?',{chatSop:{trustedSop:correction}});
@@ -71,6 +72,7 @@ test('fail closed, bearer security, request limits, unsupported surfaces and mod
  assert.equal((await f.request('GET','/v1/models',null,null)).status,401);
  assert.equal((await f.request('GET','/readyz',null,'wrong-secret-token-123456')).status,401);
  assert.equal((await f.chat('x'.repeat(181))).status,413);
+ assert.equal((await f.chat('short',{padding:'x'.repeat(1600)})).status,413);
  assert.equal((await f.chat('Ana likes Alpha Lab?',{user:'bob'})).status,400);
  for(const route of ['/v1/responses','/v1/embeddings','/v1/tools'])assert.equal((await f.request('POST',route,{})).status,501);
  assert.equal((await f.chat('x',{tools:[]})).status,400);
@@ -79,10 +81,26 @@ test('fail closed, bearer security, request limits, unsupported surfaces and mod
  const offline=createServer({config:{promptProfile:'formal'},repo:f.repo,lexicon:f.lex,base:'base',authTokens:tokens});const url=await listen(offline);t.after(()=>close(offline));const response=await fetch(url+'/readyz',{headers:{Authorization:'Bearer '+tokens.alice}});assert.equal(response.status,503);assert.equal((await response.json()).model_available,false);
 });
 
+test('same-session serialization, global concurrency and time limits refuse overload',async t=>{
+ let entered;const arrived=new Promise(resolve=>entered=resolve);let enteredOther;const arrivedOther=new Promise(resolve=>enteredOther=resolve);let release;const held=new Promise(resolve=>release=resolve);
+ let count=0;const f=await fixture(t,{limits:{maxConcurrent:2},onCall:async()=>{(count++?enteredOther:entered)();await held;}});
+ const first=f.chat('Ana likes Alpha Lab?');
+ await arrived;
+ assert.equal((await f.chat('Ana likes Alpha Lab?')).status,409);
+ const other=f.chat('Ana likes Alpha Lab?',{conversation_id:'other'});
+ await arrivedOther;
+ assert.equal((await f.chat('Ana likes Alpha Lab?',{conversation_id:'third'})).status,429);
+ release();assert.equal((await first).status,200);assert.equal((await other).status,200);
+ const timed=await fixture(t,{limits:{timeoutMs:20},onCall:()=>new Promise(resolve=>setTimeout(resolve,100))});
+ const response=await timed.chat('Ana likes Alpha Lab?');assert.equal(response.status,504);
+ assert.doesNotMatch(response.raw,/Ana|token|127\\.0\\.0\\.1/);
+});
+
 test('bare mode requires matched attestation and sends only CONTEXT plus MESSAGE',async t=>{
  const identity={model_id:'mock-base',revision:'pinned-revision',tokenizer_sha256:'tokenizer-digest',dataset_version_sha256:'data-digest',prompt_profile:'bare'};
  const f=await fixture(t,{config:{promptProfile:'bare',backendIdentity:identity}});
  const answer=await f.chat('Ana likes Alpha Lab?');assert.equal(answer.status,200);assert.equal(answer.body.chatSop.prompt_profile,'bare');assert.match(f.calls[0].messages[0].content,/^CONTEXT\n/);assert.doesNotMatch(f.calls[0].messages[0].content,/You are/);
  const refused=createServer({repo:f.repo,lexicon:f.lex,base:'base',authTokens:tokens,config:{promptProfile:'bare',formalizer:f.formalizer,backendIdentity:{...identity,revision:'wrong'}}});const url=await listen(refused);t.after(()=>close(refused));const response=await fetch(url+'/readyz',{headers:{Authorization:'Bearer '+tokens.alice}});assert.equal(response.status,503);
+ const mixed=createServer({repo:f.repo,lexicon:f.lex,base:'base',authTokens:tokens,config:{promptProfile:'formal',formalizer:f.formalizer}});const mixedUrl=await listen(mixed);t.after(()=>close(mixed));const mixedReady=await fetch(mixedUrl+'/readyz',{headers:{Authorization:'Bearer '+tokens.alice}});assert.equal(mixedReady.status,503);
  assert.throws(()=>createServer({repo:f.repo,lexicon:f.lex,base:'base',authTokens:tokens,config:{formalizer:f.formalizer}}),/promptProfile/);
 });

@@ -27,7 +27,7 @@ function sessionField(serialized, name) {
   }
   throw Error(`Unclosed signature ${name}`);
 }
-const proofIds = value => keys((value?.proof ?? []).map(item => item.id).filter(Boolean));
+const proofIds = value => keys((value?.proof ?? []).filter(item => item.kind === 'observed').map(item => item.id).filter(Boolean));
 const overlap = (a, b) => [...a].filter(value => b.has(value)).length;
 const paired = (records, predicate) => {
   const groups = new Map();
@@ -53,11 +53,10 @@ export function computeMetrics(rows, report) {
   const valid = records.filter(record => record.reference_valid);
   const executed = valid.filter(record => record.runtime_valid);
   const formal = valid.filter(record => byId.get(record.id).evaluation_track === 'formalization');
-  const formalExecuted = formal.filter(record => record.runtime_valid);
   const failures = Object.fromEntries(['reference', 'generation', 'parse', 'prediction'].map(stage =>
     [stage, records.filter(record => record.error?.stage === stage).map(record => record.id)]));
   failures.semantic = valid.filter(record => record.runtime_valid && !record.execution_equivalent).map(record => record.id);
-  const invariance = paired(formalExecuted, group => group.length > 1);
+  const invariance = paired(formal, group => group.length > 1);
   const negativePairs = new Map();
   for (const row of rows) if (row.negative_of && row.evaluation_track === 'formalization') {
     const pair = [row.semantic_case_id, row.negative_of].sort();
@@ -96,8 +95,10 @@ export function computeMetrics(rows, report) {
       canonical_ast_match: rate(formal, r => r.canonical_match),
       execution_equivalence: rate(formal, r => r.execution_equivalent),
       answer_correctness: rate(formal, r => usable(r) && same(r.observed.answers, r.reference.answers) && decision(packet(r)) === decision(gold(r))),
-      symbol_choice: rate(formal, r => r.runtime_valid && same(packet(r).query?.where ?? null, gold(r).query?.where ?? null)),
-      paraphrase_invariance: rate(invariance, group => group.every(r => r.execution_equivalent) && new Set(group.map(r => r.prediction_signature)).size === 1),
+      symbol_choice: rate(formal.filter(r => gold(r).query), r => r.runtime_valid &&
+        same(['mode', 'where', 'select'].map(key => packet(r).query?.[key]), ['mode', 'where', 'select'].map(key => gold(r).query[key]))),
+      paraphrase_invariance: rate(invariance, group => group.every(r => r.execution_equivalent && r.runtime_valid) &&
+        new Set(group.map(r => r.prediction_signature)).size === 1),
       hard_negative_discrimination: rate([...negativePairs.values()], ([a, b]) => {
         const members = [...(byCase.get(a) ?? []), ...(byCase.get(b) ?? [])];
         return byCase.has(a) && byCase.has(b) && members.every(r => r.execution_equivalent) &&
@@ -128,8 +129,11 @@ export function computeMetrics(rows, report) {
             : typeof item.source === 'string' && item.source.length > 0 && typeof item.quote === 'string' && item.quote.length > 0);
       }),
       provenance_recall: rate(expectedWithProof, r => proofIds(gold(r)).size === overlap(proofIds(packet(r)), proofIds(gold(r)))),
-      retractions_preserved: rate(valid.filter(r => Array.isArray(gold(r).defeatedAssumptions) && gold(r).defeatedAssumptions.length > 0),
-        r => r.runtime_valid && same(packet(r).defeatedAssumptions, gold(r).defeatedAssumptions)),
+      retractions_preserved: rate(valid.filter(r =>
+        (gold(r).defeatedAssumptions ?? []).length > 0 ||
+        sessionField(r.reference_signature, 'events').includes('"retract"')),
+      r => r.runtime_valid && same(packet(r).defeatedAssumptions ?? [], gold(r).defeatedAssumptions ?? []) &&
+        sessionField(r.prediction_signature, 'events') === sessionField(r.reference_signature, 'events')),
       unauthorized_writes: rate(executed, r => {
         const actual = ['claims', 'events'].map(field => sessionField(r.prediction_signature, field));
         const expected = ['claims', 'events'].map(field => sessionField(r.reference_signature, field));
@@ -167,8 +171,8 @@ export function computeMetrics(rows, report) {
     },
     limitations: [
       'Executed gold is ground truth only on the finite suite; no universal semantic equivalence is claimed.',
-      'Proof retrieval compares cited proof IDs, not all potentially relevant records in memory.',
-      'Retraction coverage is limited to defeatedAssumptions exposed by runtime packets; a zero denominator means not exercised.',
+      'Proof retrieval compares cited observed claim IDs, not all potentially relevant records in memory.',
+      'Retraction coverage requires exposed defeatedAssumptions or a gold session retract event; a zero denominator means not exercised.',
       'Unauthorized-write checks compare successful execution session signatures; blocked attempts appear under prediction-stage failures.',
       'RSS is sampled between cases, not a continuous peak; CUDA is not measured.',
       'No neural model was evaluated unless externally supplied predictions independently establish that fact.',

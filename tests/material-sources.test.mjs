@@ -22,17 +22,31 @@ test('five local formats retain exact passage locators; missing rights and missi
   fs.writeFileSync(path.join(tmp, 'md.md'), `# Record\n\n${passages[1]}\n`);
   fs.writeFileSync(path.join(tmp, 'html.html'), `<html><script>DO NOT INCLUDE</script><p>${passages[4]}</p></html>`);
   const generated = spawnSync('python3', ['-c', `import sys, zipfile
-from reportlab.pdfgen import canvas
 folder = sys.argv[1]
 with zipfile.ZipFile(folder + '/docx.docx', 'w') as z:
  z.writestr('[Content_Types].xml', '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>')
  z.writestr('_rels/.rels', '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>')
  z.writestr('word/document.xml', '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Inspection 3: </w:t></w:r><w:r><w:t>docx verified.</w:t></w:r></w:p></w:body></w:document>')
-c = canvas.Canvas(folder + '/pdf.pdf')
-c.drawString(40, 700, 'Preface page.')
-c.showPage()
-c.drawString(40, 700, '${passages[3]}')
-c.save()
+texts = [b'Preface page.', b'${passages[3]}']
+streams = [b'BT /F1 12 Tf 40 700 Td (' + text + b') Tj ET' for text in texts]
+objects = [
+ b'<< /Type /Catalog /Pages 2 0 R >>',
+ b'<< /Type /Pages /Kids [3 0 R 4 0 R] /Count 2 >>',
+ b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 6 0 R >>',
+ b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 7 0 R >>',
+ b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+] + [b'<< /Length ' + str(len(s)).encode() + b' >>\\nstream\\n' + s + b'\\nendstream' for s in streams]
+pdf = b'%PDF-1.4\\n'
+offsets = [0]
+for i, obj in enumerate(objects, 1):
+ offsets.append(len(pdf))
+ pdf += str(i).encode() + b' 0 obj\\n' + obj + b'\\nendobj\\n'
+xref = len(pdf)
+pdf += b'xref\\n0 8\\n0000000000 65535 f \\n'
+for offset in offsets[1:]:
+ pdf += f'{offset:010d} 00000 n \\n'.encode()
+pdf += b'trailer\\n<< /Size 8 /Root 1 0 R >>\\nstartxref\\n' + str(xref).encode() + b'\\n%%EOF\\n'
+open(folder + '/pdf.pdf', 'wb').write(pdf)
 `, tmp], {encoding: 'utf8'});
   assert.equal(generated.status, 0, generated.stderr);
   const sources = names.map((name, i) => ({id: name, file: path.join(tmp, `${name}.${name}`), revision: 'r1', rights: {status: 'authorized', basis: 'Synthetic fixture authored for this test'}, scope: 'test-only', budget: {maxBytes: 100000, maxPassages: 10}}));

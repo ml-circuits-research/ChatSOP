@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {ReasoningRegistry,solverAvailable} from '../reasoning/registry.mjs';
+import {Runtime} from '../sop/runtime.mjs';
 import {context,queryProgram} from './helpers.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
@@ -25,7 +26,10 @@ test('fresh agent can resolve the single root policy and both ported skill paths
   assert.equal(fs.realpathSync(ported),fs.realpathSync(local));
  }
  for(const entry of fs.readdirSync(path.join(root,'.agents/skills'),{withFileTypes:true})){
-  const skill=path.join(root,'.agents/skills',entry.name),target=fs.realpathSync(skill);
+  const skill=path.join(root,'.agents/skills',entry.name);
+  assert.ok(fs.lstatSync(skill).isSymbolicLink(),entry.name+' must resolve by pointer, not duplicate local rules');
+  if(!fs.existsSync(skill))continue; // The external optional catalog is not required for project authority.
+  const target=fs.realpathSync(skill);
   assert.ok(fs.statSync(path.join(target,'SKILL.md')).isFile(),entry.name);
   assert.equal(fs.existsSync(path.join(target,'AGENTS.md')),false,entry.name+' must not introduce project guidance');
   if(!['training-rules','training-runbook'].includes(entry.name))assert.notEqual(target,path.join(root,'skills',entry.name));
@@ -55,6 +59,7 @@ test('reasoning registry calculates over caller-owned premises without mutating 
 test('reference rejects external backends; advanced is a route and reports JS fallback',()=>{
  const denied=numeric('reference','z3');
  assert.equal(denied.status,'unsupported');assert.equal(denied.code,'reference_backend_mismatch');
+ assert.equal(denied.route.backend,'z3');assert.equal(denied.route.fallback,null);
  const fallback=numeric();
  assert.equal(fallback.reasoningStrategy,'advanced');assert.equal(fallback.backend,'js');
  assert.equal(fallback.route.backend,'js');assert.match(fallback.route.fallback,/Z3 unavailable/);
@@ -69,7 +74,8 @@ test('explicit external backends are rejected on JS-only controller modes',()=>{
   const result=new ReasoningRegistry({availability:()=>false}).run('advanced',{mode,backend:requested});
   assert.equal(result.status,'unsupported',mode);
   assert.equal(result.code,'explicit_backend_not_available_for_mode',mode);
-  assert.notEqual(result.route?.backend,'js',mode+' must not report an executed JS backend');
+  assert.equal(result.route.backend,requested,mode+' must retain the explicitly requested backend');
+  assert.equal(result.route.fallback,null,mode);
  }
 });
 
@@ -88,6 +94,28 @@ test('explicit missing Z3 and SWI never route to JS',()=>{
   if(oldZ3===undefined)delete process.env.Z3_BIN;else process.env.Z3_BIN=oldZ3;
   if(oldSwi===undefined)delete process.env.SWIPL_BIN;else process.env.SWIPL_BIN=oldSwi;
  }
+});
+
+test('trusted circuit reports advanced when an explicit external backend selects its strategy',async()=>{
+ const old=process.env.Z3_BIN;
+ try{
+  process.env.Z3_BIN=path.join(root,'missing-z3-rp');
+  const source='@c constraint\n  var ?x int 0 2\n  claim ?x <= 2\n@r solve\n  constraint $c\n  backend z3';
+  const x=await new Runtime().run(source);
+  assert.equal(x.result.reasoningStrategy,'advanced');
+  assert.equal(x.result.status,'unsupported');
+  assert.equal(x.result.code,'backend_unavailable');
+  assert.equal(x.result.route.backend,'z3');assert.equal(x.result.route.fallback,null);
+  const denied=await new Runtime().run(source+'\n  reasoning reference');
+  assert.equal(denied.result.reasoningStrategy,'reference');
+  assert.equal(denied.result.status,'unsupported');assert.equal(denied.result.code,'reference_backend_mismatch');
+  assert.equal(denied.result.route.backend,'z3');assert.equal(denied.result.route.fallback,null);
+ }finally{if(old===undefined)delete process.env.Z3_BIN;else process.env.Z3_BIN=old;}
+});
+
+test('incompatible explicit Prolog interval query fails rather than selecting JS',async()=>{
+ const source='@q query\n  where likes ana book\n  during 2026-09-01 2026-10-01\n@r reason\n  query $q\n  backend prolog';
+ await assert.rejects(new Runtime().run(source),/Prolog adapter implements point-in-time queries/);
 });
 
 for(const [name,key,run] of [

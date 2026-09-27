@@ -1,0 +1,21 @@
+{
+  "format": "chatsop-experiment-registry-v1",
+  "description": "Gold-copy evaluator sanity check only; no model predictions, training, checkpoint selection or model accuracy.",
+  "predictor_identity": "deterministic-baseline-gold-copy",
+  "cells": [
+    {
+      "id": "baseline-query-dev-formalization",
+      "split": "dev",
+      "track": "formalization",
+      "suite": "datasets/query-v1/dev.jsonl",
+      "predictions": "eval/predictions/baseline-query-dev-formalization.jsonl"
+    },
+    {
+      "id": "baseline-query-test-formalization",
+      "split": "test",
+      "track": "formalization",
+      "suite": "eval/suites/query-v1/test.jsonl",
+      "predictions": "eval/predictions/baseline-query-test-formalization.jsonl"
+    }
+  ]
+}

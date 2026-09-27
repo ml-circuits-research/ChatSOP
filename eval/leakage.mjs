@@ -60,6 +60,10 @@ export function auditSourceBoundary(root) {
     }
     // A path assembled before an IO call must not hide a read of a literal sealed answer.
     if (forbidden.test(source) && !name.startsWith('tools/datasets/build-')) violations.push(`${name}: sealed-answer path in generation/selection source`);
+    for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*[^;\n]*test\.jsonl[^;\n]*/g)) {
+      const read = new RegExp(`\\b(?:readFileSync|readFile|createReadStream|openSync|open|read_text)\\s*\\(\\s*${match[1]}\\b`);
+      if (read.test(source)) violations.push(`${name}: sealed-answer path variable read: ${match[1]}`);
+    }
   }
   const training = auditTrainingSelection(root);
   return { files:[...files, ...training.files], observed_splits:training.observed_splits, violations:[...violations, ...training.violations] };

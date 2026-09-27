@@ -12,7 +12,7 @@ export class SessionStore {
   const file=path.join(this.root,key+'.json');
   const agent=new Agent({repo:this.repo,session:this.repo.session(base,user,conversation),lexicon:this.lexicon,config:this.config});
   if(fs.existsSync(file)){
-   const state=JSON.parse(fs.readFileSync(file,'utf8'),(_,value)=>value==='__ChatSOP_INFINITY__'?Infinity:value==='__ChatSOP_NEG_INFINITY__'?-Infinity:value);
+   const state=JSON.parse(fs.readFileSync(file,'utf8'),(key,value)=>['from','until'].includes(key)?value==='__ChatSOP_INFINITY__'?Infinity:value==='__ChatSOP_NEG_INFINITY__'?-Infinity:value:value);
    if(state.version!==1||state.user!==user||state.conversation!==conversation||state.base!==base)throw Error('Conversation state mismatch');
    agent.recent=state.recent;agent.last=state.last;agent.context=state.context;
   }
@@ -20,7 +20,7 @@ export class SessionStore {
  }
  save({agent,file},user,conversation,base) {
   const temp=file+'.'+process.pid+'.tmp';
-  fs.writeFileSync(temp,JSON.stringify({version:1,user,conversation,base,recent:agent.recent,last:agent.last,context:agent.context},(_,value)=>value===Infinity?'__ChatSOP_INFINITY__':value===-Infinity?'__ChatSOP_NEG_INFINITY__':value),{mode:0o600});
+  fs.writeFileSync(temp,JSON.stringify({version:1,user,conversation,base,recent:agent.recent,last:agent.last,context:agent.context},(key,value)=>['from','until'].includes(key)?value===Infinity?'__ChatSOP_INFINITY__':value===-Infinity?'__ChatSOP_NEG_INFINITY__':value:value),{mode:0o600});
   fs.renameSync(temp,file);
  }
 }

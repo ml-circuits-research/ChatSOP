@@ -6,7 +6,7 @@
 
 H7 propune HoloMemory: o memorie cu bănci de contoare semnate, în care cheia selectează rânduri și măști, iar valoarea este un cod distribuit. Recall Weaver folosește în schimb vederi ale tuplului și contoare pozitive care indică susținerea combinațiilor. Cele două mecanisme sunt compatibile la intrarea și ieșirea agentului; nu sunt compatibile ca reprezentare binară și nu își pot citi direct băncile.
 
-Documentul sursă este păstrat nemodificat în `docs/references/H7.docx`. Capitolul 20 separă nucleul descris acolo, adaptorul construit pentru agent și cercetarea rămasă pentru descoperirea firelor din indicii foarte vagi.
+Documentul sursă este păstrat nemodificat în `probably_obsolete/references/H7.docx` (text extras în `docs/legacy/references/H7.txt`), iar constatările actuale sunt în DS005/DS006. Capitolul 20 separă nucleul descris acolo, adaptorul construit pentru agent și cercetarea rămasă pentru descoperirea firelor din indicii foarte vagi.
 
 ## Implementările disponibile
 

@@ -13,45 +13,41 @@ import { Runtime } from '../../sop/runtime.mjs';
 // individually chosen evidence edges. P = affirmative, N = explicit denial,
 // B = affirmative AND denial, T = dated evidence. The last pair is deliberately absent.
 const cards = [
-  ['archive','Mira','folio','Nadia','ledger','catalogue|a catalogat','sealed|a sigilat','transferred|a transferat','P0:0:1 P1:2:3 P2:0:3 N0:2:1 B1:0:3 T2:2:1','3:1'],
-  ['clinic','Iulia','sample','Tudor','register','collected|a colectat','labeled|a etichetat','released|a eliberat','P0:0:1 P1:0:3 P2:2:1 N2:2:3 B0:2:3 T1:2:1','1:3'],
-  ['gallery','Oana','canvas','Radu','crate','restored|a restaurat','insured|a asigurat','shipped|a expediat','P0:0:1 P1:2:1 P2:0:3 N1:0:3 B2:2:3 T0:2:3','3:0'],
-  ['harbor','Daria','vessel','Lucian','manifest','inspected|a inspectat','registered|a înregistrat','dispatched|a expediat','P0:0:1 P1:2:3 P2:2:1 N0:2:3 B1:0:1 T2:0:3','1:3'],
-  ['library','Elena','volume','Paul','index','borrowed|a împrumutat','indexed|a indexat','returned|a returnat','P0:2:1 P1:0:1 P2:2:3 N2:0:1 B0:0:3 T1:2:3','1:3'],
-  ['observatory','Irina','telescope','Sorin','logbook','calibrated|a calibrat','checked|a verificat','reserved|a rezervat','P0:0:1 P1:2:3 P2:0:3 N1:0:1 B2:2:1 T0:2:3','3:1'],
-  ['museum','Adina','vase','Victor','inventory','photographed|a fotografiat','classified|a clasificat','packed|a ambalat','P0:2:1 P1:0:3 P2:0:1 N0:0:3 B1:2:1 T2:2:3','3:1'],
-  ['farm','Petra','orchard','Matei','tractor','surveyed|a inspectat','watered|a udat','repaired|a reparat','P0:0:1 P1:2:1 P2:2:3 N2:0:3 B0:2:3 T1:0:3','1:3'],
-  ['workshop','Alina','motor','Cezar','manual','tested|a testat','documented|a documentat','installed|a instalat','P0:0:1 P1:2:3 P2:2:1 N1:0:3 B2:0:3 T0:2:3','3:1'],
-  ['theater','Bianca','script','Dorin','stage','revised|a revizuit','approved|a aprobat','prepared|a pregătit','P0:0:1 P1:2:1 P2:0:3 N0:2:3 B1:0:3 T2:2:3','1:3'],
-  ['bakery','Carmen','recipe','Florin','oven','wrote|a scris','verified|a verificat','cleaned|a curățat','P0:0:1 P1:2:1 P2:2:3 N1:0:3 B0:2:3 T2:0:3','1:3'],
-  ['railway','Delia','schedule','Horia','platform','updated|a actualizat','published|a publicat','closed|a închis','P0:0:1 P1:2:1 P2:2:3 N2:0:3 B1:0:3 T0:2:3','3:1'],
-  ['newspaper','Emilia','article','Marcel','edition','drafted|a redactat','edited|a editat','printed|a tipărit','P0:0:1 P1:2:1 P2:2:3 N0:2:3 B1:0:3 T2:0:3','3:1'],
-  ['aquarium','Felicia','tank','Nicolae','filter','inspected|a inspectat','drained|a golit','replaced|a înlocuit','P0:0:1 P1:2:1 P2:0:3 N2:2:1 B0:2:3 T1:0:3','1:3'],
-  ['festival','Gina','ticket','Octav','program','issued|a emis','validated|a validat','translated|a tradus','P0:0:1 P1:2:1 P2:0:3 N0:2:3 B2:2:1 T1:0:3','3:1'],
-  ['court','Hana','transcript','Petru','docket','transcribed|a transcris','signed|a semnat','filed|a depus','P0:0:1 P1:2:1 P2:2:3 N2:0:3 B1:0:3 T0:2:3','1:3'],
-  ['weather','Ioana','forecast','Robert','bulletin','compiled|a compilat','corrected|a corectat','broadcast|a difuzat','P0:0:1 P1:2:1 P2:2:3 N1:0:3 B0:2:3 T2:0:3','3:1'],
-  ['school','Lavinia','exam','Sabin','report','graded|a notat','archived|a arhivat','submitted|a depus','P0:0:1 P1:2:3 P2:0:3 N0:2:3 B2:2:1 T1:0:1','1:3'],
-  ['cinema','Monica','film','Teodor','projector','reviewed|a evaluat','screened|a proiectat','repaired|a reparat','P0:0:1 P1:2:1 P2:2:3 N1:0:3 B0:2:3 T2:0:3','3:1'],
-  ['botanical','Nora','seedling','Vlad','greenhouse','planted|a plantat','measured|a măsurat','ventilated|a aerisit','P0:0:1 P1:2:1 P2:0:3 N2:2:3 B1:0:3 T0:2:3','3:1'],
+  ['archive','Mira','Folio 14','Nadia','Ledger 9','catalogued|a catalogat','sealed|a sigilat','transferred|a transferat','P0:0:1 P1:2:3 P2:0:3 N0:2:1 B1:0:3 T2:2:1','3:1'],
+  ['clinic','Iulia','Sample C','Tudor','Register K','collected|a colectat','labeled|a etichetat','released|a eliberat','P0:0:1 P1:0:3 P2:2:1 N2:2:3 B0:2:3 T1:2:1','1:3'],
+  ['gallery','Oana','Canvas 7','Radu','Crate 4','restored|a restaurat','insured|a asigurat','shipped|a expediat','P0:0:1 P1:2:1 P2:0:3 N1:0:3 B2:2:3 T0:2:3','3:0'],
+  ['harbor','Daria','Vessel A','Lucian','Manifest 17','inspected|a inspectat','registered|a înregistrat','dispatched|a expediat','P0:0:1 P1:2:3 P2:2:1 N0:2:3 B1:0:1 T2:0:3','1:3'],
+  ['library','Elena','Volume 8','Paul','Index Q','borrowed|a împrumutat','indexed|a indexat','returned|a returnat','P0:2:1 P1:0:1 P2:2:3 N2:0:1 B0:0:3 T1:2:3','1:3'],
+  ['observatory','Irina','Telescope B','Sorin','Logbook 5','calibrated|a calibrat','checked|a verificat','reserved|a rezervat','P0:0:1 P1:2:3 P2:0:3 N1:0:1 B2:2:1 T0:2:3','3:1'],
+  ['museum','Adina','Vase 21','Victor','Inventory M','photographed|a fotografiat','classified|a clasificat','packed|a ambalat','P0:2:1 P1:0:3 P2:0:1 N0:0:3 B1:2:1 T2:2:3','3:1'],
+  ['farm','Petra','Orchard 3','Matei','Tractor 6','surveyed|a inspectat','watered|a udat','repaired|a reparat','P0:0:1 P1:2:1 P2:2:3 N2:0:3 B0:2:3 T1:0:3','1:3'],
+  ['workshop','Alina','Motor R','Cezar','Manual 2','tested|a testat','documented|a documentat','installed|a instalat','P0:0:1 P1:2:3 P2:2:1 N1:0:3 B2:0:3 T0:2:3','3:1'],
+  ['theater','Bianca','Script 12','Dorin','Stage B','revised|a revizuit','approved|a aprobat','prepared|a pregătit','P0:0:1 P1:2:1 P2:0:3 N0:2:3 B1:0:3 T2:2:3','1:3'],
+  ['bakery','Carmen','Recipe 4','Florin','Oven 7','wrote|a scris','verified|a verificat','cleaned|a curățat','P0:0:1 P1:2:1 P2:2:3 N1:0:3 B0:2:3 T2:0:3','1:3'],
+  ['railway','Delia','Schedule 24','Horia','Platform 3','updated|a actualizat','published|a publicat','closed|a închis','P0:0:1 P1:2:1 P2:2:3 N2:0:3 B1:0:3 T0:2:3','3:1'],
+  ['newspaper','Emilia','Article 15','Marcel','Edition C','drafted|a redactat','edited|a editat','printed|a tipărit','P0:0:1 P1:2:1 P2:2:3 N0:2:3 B1:0:3 T2:0:3','3:1'],
+  ['aquarium','Felicia','Tank 5','Nicolae','Filter 8','inspected|a inspectat','drained|a golit','replaced|a înlocuit','P0:0:1 P1:2:1 P2:0:3 N2:2:1 B0:2:3 T1:0:3','1:3'],
+  ['festival','Gina','Ticket J','Octav','Program 6','issued|a emis','validated|a validat','translated|a tradus','P0:0:1 P1:2:1 P2:0:3 N0:2:3 B2:2:1 T1:0:3','3:1'],
+  ['court','Hana','Transcript 10','Petru','Docket 2','transcribed|a transcris','signed|a semnat','filed|a depus','P0:0:1 P1:2:1 P2:2:3 N2:0:3 B1:0:3 T0:2:3','1:3'],
+  ['weather','Ioana','Forecast B','Robert','Bulletin 11','compiled|a compilat','corrected|a corectat','broadcast|a difuzat','P0:0:1 P1:2:1 P2:2:3 N1:0:3 B0:2:3 T2:0:3','3:1'],
+  ['school','Lavinia','Exam 3','Sabin','Report 4','graded|a notat','archived|a arhivat','submitted|a depus','P0:0:1 P1:2:3 P2:0:3 N0:2:3 B2:2:1 T1:0:1','1:3'],
+  ['cinema','Monica','Film X','Teodor','Projector 9','reviewed|a evaluat','screened|a proiectat','repaired|a reparat','P0:0:1 P1:2:1 P2:2:3 N1:0:3 B0:2:3 T2:0:3','3:1'],
+  ['botanical','Nora','Seedling 18','Vlad','Greenhouse D','planted|a plantat','measured|a măsurat','ventilated|a aerisit','P0:0:1 P1:2:1 P2:0:3 N2:2:3 B1:0:3 T0:2:3','3:1'],
 ];
 const now = '2026-09-27T12:00:00Z';
 const old = '2025-04-15';
 const active = '2025-04-01 2025-05-01';
-const evidenceDate = '2025-08-01 2027-01-01';
 const assert = (condition, message) => { if (!condition) throw Error(message); };
 const atom = (card, entry) => `${entry.neg ? 'not ' : ''}${card.id}_${entry.p} ${card.ids[entry.a]} ${card.ids[entry.b]}`;
 const label = (card, i) => card.names[i];
 const relation = (card, p, language) => card.relations[p][language === 'en' ? 0 : 1];
-const ask = (card, entry, language) => language === 'en'
-  ? `Did ${label(card, entry.a)} ${relation(card, entry.p, language)} ${label(card, entry.b)}?`
-  : `${label(card, entry.a)} ${relation(card, entry.p, language)} ${label(card, entry.b)}?`;
 function prepare(raw) {
   const [id, ...columns] = raw;
   const names = columns.slice(0, 4), ids = names.map((_, i) => `${id}_e${i}`);
   const relations = columns.slice(4, 7).map(value => value.split('|'));
-  const entries = columns[7].split(' ').map((value, i) => {
+  const entries = columns[7].split(' ').map(value => {
     const [kind, a, b] = value.split(':');
-    return { kind: kind[0], p: Number(kind[1]), a: Number(a), b: Number(b), index: i, neg: kind[0] === 'N' };
+    return { kind: kind[0], p: Number(kind[1]), a: Number(a), b: Number(b), neg: kind[0] === 'N' };
   });
   const [missingA, missingB] = columns[8].split(':').map(Number);
   assert(entries.length === 6 && entries.map(e => e.kind).join('') === 'PPPNBT', `${id}: malformed evidence card`);
@@ -59,10 +55,7 @@ function prepare(raw) {
   const facts = entries.flatMap(entry => {
     const positive = { ...entry, neg: false };
     return entry.kind === 'B' ? [positive, { ...entry, neg: true }] : [entry];
-  }).map((entry, index) => ({ ...entry, valid: entry.kind === 'T' ? (index % 2 ? evidenceDate : active) : 'timeless', text: `${label(card, entry.a)} ${entry.neg ? 'did not ' : ''}${relation(card, entry.p, 'en')} ${label(card, entry.b)}.` }));
-  // All dated assertions share an explicitly authored validity interval.
-  for (const fact of facts) if (fact.kind === 'T') fact.valid = active;
-  card.facts = facts;
+  }).map(entry => ({ ...entry, valid: entry.kind === 'T' ? active : 'timeless', text: entry.neg ? `The record explicitly denies that ${label(card, entry.a)} ${relation(card, entry.p, 'en')} ${label(card, entry.b)}.` : `${label(card, entry.a)} ${relation(card, entry.p, 'en')} ${label(card, entry.b)}.` }));
   card.content = `Integrator-authored ${id} evidence card; known since 2024-01-01.\n${facts.map(f => f.text).join('\n')}\n`;
   card.source = { id: `independent_${id}`, kind: 'integrator_authored_scenario', uri: `integrator://independent-v1/${id}`, revision: sha256(JSON.stringify(cards)), sha256: sha256(card.content), license: null, content: card.content };
   card.setup = canonicalTarget(facts.map((fact, i) => `@evidence${i} fact\n  holds ${atom(card, fact)}\n  valid ${fact.valid}\n  source ${card.source.id}\n  quote ${JSON.stringify(fact.text)}`).join('\n'));
@@ -75,23 +68,22 @@ function prepare(raw) {
 function cases(card) {
   const [positive, second, third, denied, conflict, dated] = card.entries;
   const missing = { p: 0, a: card.missingA, b: card.missingB };
-  const question = (entry, language) => ask(card, entry, language);
   const caseOf = (family, where, surfaces, options = {}) => ({ family, where, surfaces, ...options });
   return [
-    caseOf('affirmed', [atom(card, positive)], { en: question(positive, 'en'), ro: question(positive, 'ro') }),
-    caseOf('explicit_denial', [atom(card, denied)], { en: `Do the records establish that ${label(card, denied.a)} ${relation(card, denied.p, 'en')} ${label(card, denied.b)}?`, ro: `Arată evidențele că ${label(card, denied.a)} ${relation(card, denied.p, 'ro')} ${label(card, denied.b)}?` }, { negativeOf: 0 }),
-    caseOf('conflicting_reports', [atom(card, conflict)], { en: `Despite the conflicting reports, did ${label(card, conflict.a)} ${relation(card, conflict.p, 'en')} ${label(card, conflict.b)}?`, ro: `În ciuda rapoartelor contradictorii, ${label(card, conflict.a)} ${relation(card, conflict.p, 'ro')} ${label(card, conflict.b)}?` }),
+    caseOf('affirmed', [atom(card, positive)], { en: `Is it documented that ${label(card, positive.a)} ${relation(card, positive.p, 'en')} ${label(card, positive.b)}?`, ro: `Este documentat că ${label(card, positive.a)} ${relation(card, positive.p, 'ro')} ${label(card, positive.b)}?` }),
+    caseOf('explicit_denial', [atom(card, { ...denied, neg: false })], { en: `Do the records establish that ${label(card, denied.a)} ${relation(card, denied.p, 'en')} ${label(card, denied.b)}?`, ro: `Arată evidențele că ${label(card, denied.a)} ${relation(card, denied.p, 'ro')} ${label(card, denied.b)}?` }, { negativeOf: 0 }),
+    caseOf('conflicting_reports', [atom(card, conflict)], { en: `Despite the conflicting reports, is it true that ${label(card, conflict.a)} ${relation(card, conflict.p, 'en')} ${label(card, conflict.b)}?`, ro: `În ciuda rapoartelor contradictorii, este adevărat că ${label(card, conflict.a)} ${relation(card, conflict.p, 'ro')} ${label(card, conflict.b)}?` }),
     caseOf('unreported_pair', [atom(card, missing)], { en: `Is there any evidence that ${label(card, missing.a)} ${relation(card, missing.p, 'en')} ${label(card, missing.b)}?`, ro: `Există dovezi că ${label(card, missing.a)} ${relation(card, missing.p, 'ro')} ${label(card, missing.b)}?` }),
     caseOf('identify_actor', [`${card.id}_${second.p} ?who ${card.ids[second.b]}`], { en: `Who ${relation(card, second.p, 'en')} ${label(card, second.b)}?`, ro: `Cine ${relation(card, second.p, 'ro')} ${label(card, second.b)}?` }, { select: '?who' }),
-    caseOf('dated_during', [atom(card, dated)], { en: `On ${old}, did ${label(card, dated.a)} ${relation(card, dated.p, 'en')} ${label(card, dated.b)}?`, ro: `La ${old}, ${label(card, dated.a)} ${relation(card, dated.p, 'ro')} ${label(card, dated.b)}?` }, { at: old }),
-    caseOf('dated_after', [atom(card, dated)], { en: `By 2026-09-27, was ${label(card, dated.a)} still recorded as having ${relation(card, dated.p, 'en')} ${label(card, dated.b)}?`, ro: `La 2026-09-27, mai era valabil că ${label(card, dated.a)} ${relation(card, dated.p, 'ro')} ${label(card, dated.b)}?` }, { at: '2026-09-27' }),
+    caseOf('dated_during', [atom(card, dated)], { en: `On ${old}, was it recorded that ${label(card, dated.a)} ${relation(card, dated.p, 'en')} ${label(card, dated.b)}?`, ro: `La ${old}, era consemnat că ${label(card, dated.a)} ${relation(card, dated.p, 'ro')} ${label(card, dated.b)}?` }, { at: old }),
+    caseOf('dated_after', [atom(card, dated)], { en: `On 2026-09-27, was it still true that ${label(card, dated.a)} ${relation(card, dated.p, 'en')} ${label(card, dated.b)}?`, ro: `La 2026-09-27, mai era valabil că ${label(card, dated.a)} ${relation(card, dated.p, 'ro')} ${label(card, dated.b)}?` }, { at: '2026-09-27' }),
     caseOf('two_observations', [atom(card, positive), atom(card, third)], { en: `Were both reports true: ${label(card, positive.a)} ${relation(card, positive.p, 'en')} ${label(card, positive.b)}, and ${label(card, third.a)} ${relation(card, third.p, 'en')} ${label(card, third.b)}?`, ro: `Sunt confirmate ambele: ${label(card, positive.a)} ${relation(card, positive.p, 'ro')} ${label(card, positive.b)} și ${label(card, third.a)} ${relation(card, third.p, 'ro')} ${label(card, third.b)}?` }),
-    caseOf('explicit_negative_claim', [atom(card, { ...denied, neg: true })], { en: `Is it explicitly recorded that ${label(card, denied.a)} did not ${relation(card, denied.p, 'en')} ${label(card, denied.b)}?`, ro: `Este menționat explicit că ${label(card, denied.a)} nu ${relation(card, denied.p, 'ro')} ${label(card, denied.b)}?` }, { negativeOf: 1 }),
-    caseOf('missing_referent', null, { en: `Did that person ${relation(card, second.p, 'en')} the item? Which person and item?`, ro: `Acea persoană ${relation(card, second.p, 'ro')} obiectul? Despre ce persoană și obiect este vorba?` }),
+    caseOf('explicit_negative_claim', [atom(card, { ...denied, neg: true })], { en: `Is there an explicit denial that ${label(card, denied.a)} ${relation(card, denied.p, 'en')} ${label(card, denied.b)}?`, ro: `Este negată explicit afirmația că ${label(card, denied.a)} ${relation(card, denied.p, 'ro')} ${label(card, denied.b)}?` }, { negativeOf: 1 }),
+    caseOf('missing_referent', null, { en: `When asking whether ${label(card, second.a)} ${relation(card, second.p, 'en')} \"that item\", do you mean ${label(card, 1)} or ${label(card, 3)}?`, ro: `Când întrebi dacă ${label(card, second.a)} ${relation(card, second.p, 'ro')} „acel obiect”, te referi la ${label(card, 1)} sau la ${label(card, 3)}?` }, { clarification: `Which item is meant: ${label(card, 1)} or ${label(card, 3)}?` }),
   ];
 }
 function target(item) {
-  if (!item.where) return canonicalTarget('@ask clarify\n  text "Identify the person and the item before checking the record."');
+  if (!item.where) return canonicalTarget(`@ask clarify\n  text ${JSON.stringify(item.clarification)}`);
   return canonicalTarget(`@q query\n${item.select ? `  mode select\n  select ${item.select}\n` : ''}${item.where.map(where => `  where ${where}\n`).join('')}${item.at ? `  at ${item.at}\n` : ''}`);
 }
 function row(card, item, index, language) {
@@ -143,7 +135,7 @@ export async function writeIndependent({ out = 'datasets/independent-v1', evalOu
   const version = { counter: 1, label: 'independent-v1', review_status: 'not_reviewed' };
   const provenance = { format: 'chatsop-independent-v1', version, author: 'LLM coding assistant', human_reviewed: false, training_approved: false, generator: 'tools/datasets/build-independent.mjs', test_sha256: sha256(data), summary: validateCorpus(rows) };
   fs.writeFileSync(path.join(out, 'manifest.json'), JSON.stringify(provenance, null, 2) + '\n');
-  fs.writeFileSync(path.join(evalOut, 'manifest.json'), JSON.stringify({ ...provenance, dataset_manifest: '../../datasets/independent-v1/manifest.json' }, null, 2) + '\n');
+  fs.writeFileSync(path.join(evalOut, 'manifest.json'), JSON.stringify({ ...provenance, dataset_manifest: '../../../datasets/independent-v1/manifest.json' }, null, 2) + '\n');
   return provenance.summary;
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
