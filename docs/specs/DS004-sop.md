@@ -13,6 +13,31 @@ The `sop-agent-3` [SOP](wiki.html#definition-sop) profile is the executable know
 
 A declaration `@id type` creates a typed wire; `$id` consumes a value from that wire; `~id` names an approved definition; `?x` is a local logic unknown and is not a Prolog variable carried across unrelated queries. The parser and validator must reject unknown fields, invalid references, unresolved dependencies, and unsupported effects. `output ?x one` on a `solve` materializes a consumable `$x` wire only after a justified unique result; `many` retains a collection and `rows` preserves tuples. Ambiguous, incomplete, and unsupported results must not be silently collapsed into one answer.
 
+### Explicit Boolean conditions and variable scope
+
+`query.where`, `query.filter`, `constraint.require`, and `constraint.claim` accept nonempty `all`/`any` blocks closed by `end`, nested up to 32 groups. `all` requires every child; `any` preserves alternatives rather than flattening them into conjunction. Repeated fields remain implicit conjunction. Query where leaves retain atom syntax; filter and numeric condition leaves retain their existing expression syntax. Canonical small-model authoring uses explicit groups for Boolean combinations instead of parenthesized Boolean formulas. Atom punctuation and arithmetic spelling are separate contracts.
+
+The query evaluator joins shared variables within each assignment, forks assignments for alternatives, intersects validity intervals, and preserves correlated projected rows. Selected and filter variables must be definitely bound: union across conjunctions and intersection across alternatives. An unrelated query has a separate variable scope. Retrieval may collect all leaf predicates, but execution must retain the condition tree. Explicit contrary evidence follows the dual Boolean condition; missing support is not negation.
+
+A structure such as `{xx: 1, yy: 4}` illustrates one assignment; an array of such structures illustrates several correlated assignments. This intuition does not prescribe the value of every wire containing `?`. The wire contract, engine, and explicit output mode determine result shape; engines must document supported projections, ordering, duplicates, limits, completeness, ambiguity, and unsupported outcomes without reinterpreting the declared condition. Current `rows` exports remain arrays even for one assignment; `one` exports a unique scalar, not a whole assignment. Numeric prove/possible rows enumerate base requirements, not the separately checked claim; optimization rows satisfy the claim and optimal objective. The finite backend supports rows, whereas the Z3 adapter currently does not.
+
+“Formalizer” names the NL-to-SOP role, not a model size or authority. The intended small conversational model performs that role; a coding agent may also formalize supplied content, separately from implementing reviewed procedures. The host validates and authorizes; the reasoning engine executes. See the [canonical definition](wiki.html#definition-formalizer) and [wire-help intuition](wire_typs/overview.html#variable-results).
+
+
+### Quoted text and canonical authoring
+
+Text literals use ASCII double quotes and JSON string escaping. Quotes delimit a value; they do not identify an entity or create a wire. Preserve the spelling and capitalization of a supplied name, for example `"Maria Ionescu"`. Resolve that mention against the approved lexicon and consume the resulting `$person` when a relation requires its identity. Capitalization is not a type discriminator, and a quoted name does not authorize a new canonical symbol.
+
+In fields whose consumer reads the entire remainder of one line as text, such as `resolve.text`, `clarify.text`, and `fact.quote`, quoted and unquoted input are accepted by the field grammar. Thus `text "Maria Ionescu"` and `text Maria Ionescu` denote the same text in `resolve`. In token-list positions, a multiword text value must be quoted to remain one argument. The executable atom grammar also requires quoting strings that are not canonical symbols or integers. This text convention does not remove the parentheses and commas required by `sop-agent-3` atoms; the punctuation-free proposal retains quotation as a distinct lexical mechanism.
+
+Canonical model targets and coding-agent-authored free-text literals use double quotes consistently, including single-word names. This is an authoring convention, not a claim that the generic `canonical()` serializer rewrites every field or that existing datasets have been migrated. Do not quote structural keywords, enum values such as `user`, `entity`, and `en`, canonical entity identifiers, numeric values, or active references such as `$person`, `?country`, and `~procedure` merely to apply the text rule. Follow each field's declared grammar.
+
+Encode embedded double quotes as `\"` and backslashes as `\\`; use a JSON string encoder rather than manual replacement. Other control characters follow JSON string escaping. Literal line breaks require the field's supported multiline representation or an escaped string, not an accidentally split SOP field. Single quotes and typographic quotation marks are not string delimiters. When SOP is transported inside JSON/JSONL, serialize the already formed SOP source as a JSON string separately; after transport and SOP decoding, a provenance quotation must match its source text exactly.
+
+Within text fields, quoted keywords and sigils such as `$`, `?`, and `~` are data, not interpolation, dependencies, or instructions. The executable atom representation does not retain a distinct quoted-string type: an atom argument written as `"?country"` is classified as a logic variable after decoding and is rejected in a ground fact. Quoting is therefore not a workaround for variable-shaped text in atom positions. Keep arbitrary quoted source text in text/quote fields; the simplified grammar must preserve literal-versus-reference distinctions explicitly before such uses can be admitted.
+
+The detailed spelling examples and accepted-input versus canonical-output distinction are documented in [Wire help: quoted text](wire_typs/syntax.html#quoted-text).
+
 ### Reviewed lexical resolution
 
 `resolve` is an executable lookup against the host-supplied, reviewed ontology, not a model-authored alias declaration. For example:

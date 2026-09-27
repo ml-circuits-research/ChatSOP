@@ -10,6 +10,8 @@ import {outputSpecs,outputRegistry,selectOutput} from './outputs.mjs';
 import {cnl} from './cnl.mjs';
 import {instant} from '../lib/time.mjs';
 import {assert,digest} from '../lib/util.mjs';
+import {parseCondition} from './conditions.mjs';
+import {conditionAtoms} from '../lib/conditions.mjs';
 const flatten=xs=>xs.flatMap(x=>Array.isArray(x)?flatten(x):[x]);
 export const DEFAULT_POLICY={allowWrite:true,allowPin:true,allowRules:false,allowJsEval:true,maxWires:2048,maxEpochs:16,maxGoals:256,maxRules:1024,retrievalStrategy:'hybrid',reasoningStrategy:'reference',maxNodes:5000,maxDepth:8,maxHypotheses:64,maxCandidates:512,maxPlans:1,timeoutMs:3000,maxProbes:50000,maxShards:256,maxFacts:10000,maxRounds:32,maxJoins:30000,maxAssignments:100000,maxExprOps:10000,maxExprBytes:65536};
 export class Runtime{
@@ -37,7 +39,7 @@ export class Runtime{
   const materializeEvent=w=>{const text=one(w,'target');let target;if(text.startsWith('$')){const value=val(text);const ids=Array.isArray(value)?value:value?.ids;assert(Array.isArray(ids)&&ids.length===1,'Event target receipt must identify exactly one claim');target=ids[0];}else target=unquote(text);return {kind:'event',action:one(w,'action'),target,effective:one(w,'effective')?instant(one(w,'effective')):undefined,replacement:one(w,'replacement')?val(one(w,'replacement')):undefined,source:unquote(one(w,'source','user'))};};
   const checkResolvedTerms=w=>{
    const keys={fact:['holds'],rule:['when','then'],query:['where'],pattern:['when','then'],hypothesis:['holds','assume'],action:['requires','adds','removes'],goal:['where'],trace:['feature']}[w.type]??[];
-   for(const key of keys)for(const text of many(w,key)){const a=parseAtom(text);for(let i=0;i<a.a.length;i++){const ref=a.a[i]?.ref,source=ref&&defs.get(ref);if(source?.type!=='resolve')continue;
+   for(const key of keys)for(const text of many(w,key))for(const a of conditionAtoms([w.type==='query'?parseCondition(text,parseAtom):parseAtom(text)])){for(let i=0;i<a.a.length;i++){const ref=a.a[i]?.ref,source=ref&&defs.get(ref);if(source?.type!=='resolve')continue;
     const resolved=outputStates[ref],expected=this.schema?.[a.p]?.args?.[i];assert(resolved?.status==='bound','Resolved entity must be bound before atom consumption');
     assert(resolved.kind==='entity'&&expected!=='integer'&&expected!=='value','Only entity resolution may supply symbolic atom arguments');
     assert(!expected||expected==='entity'||resolved.type===expected,'Resolved entity type does not match predicate argument');
@@ -154,7 +156,7 @@ export class Runtime{
       assert(this.handlers[w.type],'No interpreter for '+w.type);output=await this.handlers[w.type]({wire:w,values,now:this.now});} 
     }
     if(output&&typeof output==='object'&&(w.type==='reason'||w.type==='clarify'||OPERATIONS.has(w.type)||Object.hasOwn(this.handlers,w.type)))packets.add(output);
-    if(output?.kind==='fact'){if(this.atomGuard)this.atomGuard(output.atom,{wire:w,atomIndex:0,outputs:outputStates});if(this.factGuard&&!assumedFactWires.has(w.id))this.factGuard(output);}if(this.atomGuard){const checked=output?.kind==='query'||output?.kind==='goal'?output.where:output?.kind==='hypothesis'?output.assumptions:output?.kind==='trace'?output.features:[];checked.forEach((a,i)=>this.atomGuard(a,{wire:w,atomIndex:i,outputs:outputStates}));}
+    if(output?.kind==='fact'){if(this.atomGuard)this.atomGuard(output.atom,{wire:w,atomIndex:0,outputs:outputStates});if(this.factGuard&&!assumedFactWires.has(w.id))this.factGuard(output);}if(this.atomGuard){const checked=output?.kind==='query'||output?.kind==='goal'?conditionAtoms(output.where):output?.kind==='hypothesis'?output.assumptions:output?.kind==='trace'?output.features:[];checked.forEach((a,i)=>this.atomGuard(a,{wire:w,atomIndex:i,outputs:outputStates}));}
     values[w.id]=output;trace.push({wire:w.id,type:w.type,epoch});
    }
    if(effectWires.length){assert(this.repo&&this.session&&this.policy.allowWrite,'Writes are disabled');const ops=[],slices=[];

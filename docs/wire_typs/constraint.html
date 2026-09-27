@@ -2,8 +2,8 @@
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ChatSOP Documentation</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="help.css"></head>
 <body><div data-include="../partials/header.html" data-link-base="../"></div><main class="wire-help"><p><a href="../wire_types.html#constraint" target="_top">← Wire type index</a></p><h1><code>constraint</code></h1><p>Declares an integer arithmetic question over specified variables and requirements. A separate <code>solve</code> or <code>reason</code> wire evaluates it; declaration alone proves nothing.</p><p><strong>Status and author:</strong> A <a href="../wiki.html#definition-formalizer" target="_top">formalizer</a> may propose this wire under host policy; it is not by itself a memory write.</p><section><h2>Accepted fields</h2><p>Single means at most once, repeatable means zero or more, and required means at least once at parse time. Other field names are rejected.</p><div class="table-wrap"><table><thead><tr><th>Field</th><th>Cardinality</th><th>Accepted values and current behavior</th></tr></thead><tbody><tr><th scope="row"><code>var</code></th><td>repeatable; optional</td><td><code>?name int</code> or <code>?name int min max</code>. Name matches lowercase letter then lowercase letters/digits/underscore; distinct declarations. Bounds are safe integers (literal or scalar <code>$wire</code> values), inclusive with min ≤ max. The JS solver requires finite bounds.</td></tr>
-<tr><th scope="row"><code>require</code></th><td>repeatable; optional</td><td>Boolean expression of declared integer variables, constants and resolved <code>$wire</code> integer references. Every line is a conjunct restricting feasible assignments.</td></tr>
-<tr><th scope="row"><code>claim</code></th><td>single; required</td><td>Boolean proposition over the same variables; tested against feasible assignments for prove/possible, and treated as a feasibility condition for optimize.</td></tr>
+<tr><th scope="row"><code>require</code></th><td>repeatable; optional</td><td>Boolean comparison or native all/any/end block over declared integer variables, constants and resolved <code>$wire</code> integer references. Repeated require fields are conjunctive restrictions on feasible assignments.</td></tr>
+<tr><th scope="row"><code>claim</code></th><td>single; required</td><td>Boolean comparison or native all/any/end block over the same variables; tested against feasible assignments for prove/possible, and treated as a feasibility condition for optimize.</td></tr>
 <tr><th scope="row"><code>task</code></th><td>single; optional, default <code>prove</code></td><td>One of <code>prove</code> (all feasible models), <code>possible</code> (some feasible model), <code>optimize</code> (best objective among feasible models satisfying claim).</td></tr>
 <tr><th scope="row"><code>unit</code></th><td>single; optional, default <code>scalar</code></td><td>Unquoted unit label carried in the problem/result for presentation; no automatic conversion or dimensional checking.</td></tr>
 <tr><th scope="row"><code>objective</code></th><td>single; required if optimize; forbidden otherwise</td><td>Integer arithmetic expression defining value to minimize/maximize.</td></tr>
@@ -17,6 +17,22 @@
 @check solve
   constraint $deadline
   output ?arrival one</code></pre><p>With a complete finite search, the result is possible and the unique projected arrival is 42.</p>
+<h3>Nested alternatives without parenthesized Boolean formulas</h3><pre data-sop="current"><code>@pairs constraint
+  var ?xx int 0 3
+  var ?yy int 0 3
+  require any
+    ?xx + ?yy == 3
+    all
+      ?xx == 3
+      ?yy == 3
+    end
+  end
+  claim ?xx + ?yy &lt;= 3
+  task possible
+
+@result solve
+  constraint $pairs
+  output ?solutions rows</code></pre><p>The finite backend exports one array containing <code>{xx: 0, yy: 3}</code>, <code>{xx: 1, yy: 2}</code>, <code>{xx: 2, yy: 1}</code>, <code>{xx: 3, yy: 0}</code>, and <code>{xx: 3, yy: 3}</code>. These are correlated assignments satisfying require. The last row does not satisfy claim: possible/prove checks claim separately rather than filtering the exported base models. Merely declaring the variables does not produce <code>$xx</code> or <code>$yy</code>. The explicit rows output produces <code>$solutions</code>; Z3 does not currently support this projection. See <a href="syntax.html#boolean-groups">group syntax</a> and <a href="overview.html#variable-results">result-shape intuition</a>.</p>
 <h3>Objective among models satisfying claim</h3><pre data-sop="current"><code>@slots constraint
   var ?slot int 0 8
   require ?slot &gt;= 3

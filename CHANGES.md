@@ -1,3 +1,13 @@
+# Explicit Boolean groups and concrete component documentation
+
+Added native all/any/end groups to query where/filter and constraint require/claim fields, with bounded nesting and canonical round-tripping. Query execution preserves alternatives, correlated bindings, temporal intersections, explicit opposite evidence, and shared search limits. Selected/filter variables must be bound across alternatives or by shared conjuncts. Retrieval, abduction, diagnostics, context guards, and semantic fingerprints understand grouped conditions.
+
+Expanded wire help with variable scope, explicit output materialization, structure/array intuition, and engine result-contract responsibilities. Rewrote the wiki around a concrete question, component call flow, model/code/data distinctions, and actual memory/reasoning implementation choices. Formalizer is an NL-to-SOP role, not a model size. Current explicit CNL requirements are distinguished from intended host-implicit rendering. Atom punctuation and arithmetic syntax remain unchanged; no training was run.
+
+# Quoted-text authoring convention
+
+Documented double-quoted free-text emission in DS004, wire help, and synthetic-data, ingestion, semantic-review, and lexical-curation skills. Whole-line text consumers can accept bare input; canonical authored text uses quotes consistently. The convention preserves name spelling, distinguishes a mention from a resolved identity, specifies JSON escaping and transport layers, and records the executable atom limitation for variable-shaped quoted strings. Parser behavior, datasets, and training are unchanged.
+
 # Wire reference help
 
 Replaced the flat wire inventory with a two-pane help browser and 41 English topic pages: 35 runtime types, three host-ontology declarations, and three shared authoring topics. Each wire page explains field grammar, cardinality, defaults, references, effects, valid examples, and rejected or unsafe uses. The executable profile and the simplified syntax proposal remain distinct. Small-formalizer education excludes JavaScript generation; system evaluation and coding-agent capabilities have separate boundaries.

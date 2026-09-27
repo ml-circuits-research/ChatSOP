@@ -6,13 +6,14 @@
 import {generateAbducibles} from './abducibles.mjs';
 import {closure,evaluate} from './reasoner.mjs';
 import {atomKey} from '../lib/types.mjs';
+import {conditionAtoms} from '../lib/conditions.mjs';
 import {stable} from '../lib/util.mjs';
 import {Budget,flat,asFact,opposite,partitions,packet,queryFor,conflicts} from './common.mjs';
 export function abduce({query,data,memory,candidates=[],...options}){
  const b=new Budget(options),k=partitions(data,memory,query);let cs=flat(candidates).length?flat(candidates):k.hypotheses;
- if(!query||query.where.some(a=>a.a.some(v=>typeof v==='string'&&v.startsWith('?'))))throw Error('Abduction requires a ground observed target');
+ if(!query||conditionAtoms(query.where).some(a=>a.a.some(v=>typeof v==='string'&&v.startsWith('?'))))throw Error('Abduction requires a ground observed target');
  if(cs.some(h=>h.kind!=='hypothesis'))throw Error('Abducibles must be hypothesis declarations');
- const targets=new Set(query.where.map(atomKey)),base=k.facts.filter(f=>!targets.has(atomKey(f.atom))),baseKeys=new Set(base.map(f=>atomKey(f.atom)));
+ const targets=new Set(conditionAtoms(query.where).map(atomKey)),base=k.facts.filter(f=>!targets.has(atomKey(f.atom))),baseKeys=new Set(base.map(f=>atomKey(f.atom)));
  let generated=null;if(!cs.length){generated=generateAbducibles(query,base,k.rules,b,options.schema);cs=generated.candidates;}
  let complete=k.complete&&(generated?.complete!==false),depthLimited=false;const candidatesUsed=cs.filter(h=>h.status!=='rejected'&&!h.assumptions.some(a=>targets.has(atomKey(a))||baseKeys.has(atomKey(opposite(a)))));
  if(candidatesUsed.length>b.limits.maxCandidates){complete=false;candidatesUsed.length=b.limits.maxCandidates;}
@@ -32,12 +33,12 @@ export function abduce({query,data,memory,candidates=[],...options}){
  return packet('abduction',minimal.length?'hypotheses':'unknown',{explanations:minimal.map(({indices,...a})=>a),complete:complete&&!b.exhausted&&!depthLimited,depthLimited,epistemic:'hypothetical',checked,candidateCount:candidatesUsed.length,generator:generated?{...generated,candidates:undefined}:null,ignored:k.patterns.map(p=>({id:p.id,reason:'pattern-not-a-rule'})),proof:[],query},b);
 }
 export function diagnose(args){
- const result=abduce(args),k=partitions(args.data,args.memory,args.query),tests=flat(args.tests),ranked=[];let complete=result.complete;
+ const result=abduce(args),k=partitions(args.data,args.memory,args.query),tests=flat(args.tests),ranked=[],targets=new Set(conditionAtoms(args.query.where).map(atomKey));let complete=result.complete;
  const budget=new Budget(args);
  for(const test of tests){
-  if(test.kind!=='query'||test.where.length!==1||test.where[0].a.some(x=>typeof x==='string'&&x.startsWith('?')))throw Error('Diagnostic tests must be ground single-atom queries');
+  if(test.kind!=='query'||conditionAtoms(test.where).some(a=>a.a.some(x=>typeof x==='string'&&x.startsWith('?'))))throw Error('Diagnostic tests must be ground queries');
   const predictions=[];
-  for(const e of result.explanations){if(!budget.step()){complete=false;break;}const cl=closure([...k.facts.filter(f=>!args.query.where.some(a=>atomKey(a)===atomKey(f.atom))),...e.assumptions.map((a,i)=>asFact(a,'h_'+i))],k.rules,budget.limits);complete&&=cl.complete;predictions.push({explanation:e.id,status:evaluate(test,cl.facts).status});}
+  for(const e of result.explanations){if(!budget.step()){complete=false;break;}const cl=closure([...k.facts.filter(f=>!targets.has(atomKey(f.atom))),...e.assumptions.map((a,i)=>asFact(a,'h_'+i))],k.rules,budget.limits);complete&&=cl.complete;predictions.push({explanation:e.id,status:evaluate(test,cl.facts).status});}
   let separated=0;for(let i=0;i<predictions.length;i++)for(let j=i+1;j<predictions.length;j++)if(predictions[i].status!==predictions[j].status)separated++;
   ranked.push({kind:'test-recommendation',query:test,separatedPairs:separated,predictions,scoreMeaning:'pair-separation heuristic, not expected information gain under a probability model'});
  }

@@ -2,6 +2,7 @@
 import {outputRegistry,outputSpecs} from './outputs.mjs';
 import {assert,stable} from '../lib/util.mjs';
 import {parseExpression,expressionRefs,evaluateExpression} from './expression.mjs';
+import {conditionField,parseCondition,parseBooleanCondition,formatCondition} from './conditions.mjs';
 export const PROFILE='sop-agent-3';
 export const SPEC={
  value:{one:['data'],required:['data']},
@@ -55,6 +56,19 @@ export function parse(source,{maxWires=2048,maxBytes=1048576,allowTypes=null}={}
   assert(current&&/^  \S/.test(line),`Line ${i+1}: wire fields use two spaces`);const m=line.trim().match(/^(\S+)(?:\s+(.*))?$/),key=m[1];let value=m[2]??'';
   const spec=SPEC[current.type];assert(!spec||(spec.one??[]).includes(key)||(spec.many??[]).includes(key),'Unsupported field '+key+' on '+current.type);
   if(value==='|'){const chunk=[];while(i+1<lines.length){const next=lines[i+1];if(next.trim()&&!next.startsWith('    '))break;i++;chunk.push(next.startsWith('    ')?next.slice(4):'');}value=chunk.join('\n').replace(/\s+$/,'');}
+  else if(conditionField(current.type,key)&&['all','any'].includes(value)){
+   const chunk=[value];let depth=1;
+   while(depth&&i+1<lines.length){
+    const next=lines[++i],text=next.trim();
+    if(!text||text.startsWith('#'))continue;
+    assert(/^  \s*\S/.test(next),`Line ${i+1}: unclosed condition group`);
+    if(text==='all'||text==='any')depth++;
+    if(text==='end')depth--;
+    assert(depth<=32,'Condition nesting limit');
+    chunk.push(text);
+   }
+   assert(depth===0,'Unclosed condition group');value=chunk.join('\n');
+  }
   current.fields[key]??=[];current.fields[key].push(value);if(spec&&(spec.one??[]).includes(key))assert(current.fields[key].length===1,'Duplicate '+key);
  }
  assert(wires.length>0,'Empty SOP program');for(const w of wires){const spec=SPEC[w.type];for(const k of spec?.required??[])assert(w.fields[k]?.length,'@'+w.id+' needs '+k);validateShape(w);}
@@ -73,9 +87,9 @@ function validateShape(w){
  if(w.type==='trace')many(w,'feature').forEach(parseAtom);
  if(w.type==='action'){for(const key of ['requires','adds','removes'])many(w,key).forEach(parseAtom);assert(w.fields.adds||w.fields.removes,'action needs effects');}
  if(['abduce','diagnose','associate','induce','analogize','plan','simulate','temporal'].includes(w.type))outputSpecs(w);
- if(w.type==='query'){many(w,'where').forEach(parseAtom);many(w,'filter').forEach(parseExpression);assert(!(w.fields.at&&w.fields.during),'Use at OR during');}
+ if(w.type==='query'){many(w,'where').forEach(s=>parseCondition(s,parseAtom));many(w,'filter').forEach(parseBooleanCondition);assert(!(w.fields.at&&w.fields.during),'Use at OR during');}
  if(w.type==='jsEval')parseExpression(one(w,'expr'));
- if(w.type==='constraint'){many(w,'require').forEach(parseExpression);parseExpression(one(w,'claim'));}
+ if(w.type==='constraint'){many(w,'require').forEach(parseBooleanCondition);parseBooleanCondition(one(w,'claim'));}
  if(w.type==='value'){const a=parseExpression(one(w,'data'));assert(a.type!=='name','value needs a literal or expression');}
  if(w.type==='event')assert(['end','retract','correct'].includes(one(w,'action')),'Unknown event action');
  if(w.type==='resolve'){assert(['entity','predicate','concept'].includes(one(w,'kind')),'resolve kind must be entity, predicate or concept');assert(/^[a-z]{2,3}$/.test(one(w,'language')),'resolve needs an explicit language');assert(!w.fields.type||one(w,'kind')==='entity','resolve type is only for entities');for(const key of ['text','type','domain'])if(w.fields[key])assert(typeof unquote(one(w,key))==='string'&&unquote(one(w,key)).length>0,'resolve '+key+' must be nonempty text');}
@@ -91,5 +105,5 @@ export function validateGraph(program,{allowMaterialized=false}={}) {
  while(done.size<ids.size){const ready=[...ids].filter(id=>!done.has(id)&&deps.get(id).every(x=>done.has(x)));assert(ready.length,'Cyclic value dependencies (including deferred outputs)');for(const id of ready){done.add(id);order.push(id);}}
  return order;
 }
-export function canonical(program){return program.wires.map(w=>'@'+w.id+' '+w.type+'\n'+Object.entries(w.fields).flatMap(([k,vs])=>vs.map(v=>v.includes('\n')?'  '+k+' |\n'+v.split('\n').map(l=>'    '+l).join('\n'):'  '+k+(v?' '+v:''))).join('\n')).join('\n\n')+'\n';}
+export function canonical(program){return program.wires.map(w=>'@'+w.id+' '+w.type+'\n'+Object.entries(w.fields).flatMap(([k,vs])=>vs.map(v=>conditionField(w.type,k)&&/^(all|any)\n/.test(v)?'  '+k+' '+formatCondition(v):v.includes('\n')?'  '+k+' |\n'+v.split('\n').map(l=>'    '+l).join('\n'):'  '+k+(v?' '+v:''))).join('\n')).join('\n\n')+'\n';}
 export function replaceReferences(source,names){let out='',quoted=false,esc=false;for(let i=0;i<source.length;i++){const c=source[i];if(quoted){out+=c;if(!esc&&c==='"')quoted=false;if(!esc&&c==='\\')esc=true;else esc=false;continue;}if(c==='"'){quoted=true;out+=c;continue;}if(c==='$'||c==='~'){const m=source.slice(i+1).match(/^[A-Za-z][A-Za-z0-9_]*/);if(m){out+=c+(names[m[0]]??m[0]);i+=m[0].length;continue;}}out+=c;}return out;}

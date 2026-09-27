@@ -3,10 +3,11 @@
  */
 import {join,unify} from './reasoner.mjs';
 import {rule,atomKey,variable} from '../lib/types.mjs';
+import {conditionAtoms} from '../lib/conditions.mjs';
 import {stable,digest} from '../lib/util.mjs';
 import {Weaver} from '../memory/weaver.mjs';
 import {Budget,flat,asFact,packet,substitute,ground,opposite} from './common.mjs';
-const feats=x=>x?.kind==='trace'?x.features:x?.kind==='fact'?[x.atom]:x?.kind==='query'?x.where:[];
+const feats=x=>x?.kind==='trace'?x.features:x?.kind==='fact'?[x.atom]:x?.kind==='query'?conditionAtoms(x.where):[];
 const words=x=>new Set((x??'').normalize('NFKC').toLowerCase().match(/[\p{L}\p{N}_]+/gu)??[]);
 function jaccard(a,b){let n=0;for(const x of a)if(b.has(x))n++;return a.size+b.size-n?n/(a.size+b.size-n):0;}
 export function associate({cue,data,mode='relational',...options}){

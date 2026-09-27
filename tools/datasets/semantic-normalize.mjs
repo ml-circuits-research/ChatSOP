@@ -1,4 +1,6 @@
 import { parse, canonical, validateGraph, dependencies, parseAtom, emitAtom } from '../../sop/parser.mjs';
+import {parseCondition} from '../../sop/conditions.mjs';
+import {emitCondition} from '../../lib/conditions.mjs';
 
 function renameLocalValues(text, names) {
   let quoted = false, escaped = false, output = '';
@@ -55,7 +57,7 @@ export function alphaCanonical(source) {
       let result = renameLocalValues(value, names);
       if (wire.type === 'query' && ['where', 'select'].includes(key)) {
         if (!wire.fields.filter) result = renameVariables(result);
-        if (key === 'where') result = emitAtom(parseAtom(result));
+        if (key === 'where') result = emitCondition(parseCondition(result, parseAtom), emitAtom);
       } else if (['where', 'when', 'then', 'holds'].includes(key)) result = emitAtom(parseAtom(result));
       return result;
     })]));

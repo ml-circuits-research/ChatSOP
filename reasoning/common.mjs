@@ -1,5 +1,6 @@
 import {assert,stable,digest} from '../lib/util.mjs';
 import {atomKey,variable} from '../lib/types.mjs';
+import {definitelyBound} from '../lib/conditions.mjs';
 import {contains,intersect} from '../lib/time.mjs';
 export const LIMITS={maxNodes:5000,maxDepth:8,maxHypotheses:64,maxCandidates:512,maxPlans:1,maxRounds:32,maxFacts:10000,maxJoins:30000,maxAssignments:100000,timeoutMs:3000};
 export class Budget {
@@ -32,6 +33,6 @@ export function partitions(input=[],memory=null,q=null){
  return out;
 }
 export function conflicts(facts){const keys=new Set(facts.map(f=>atomKey(f.atom)));return facts.filter(f=>keys.has(atomKey(opposite(f.atom)))).map(f=>atomKey(f.atom));}
-export function queryFor(where,base={}){return {kind:'query',mode:'select',where,select:[...new Set(where.flatMap(a=>a.a.filter(variable)))],filters:[],limit:10000,at:Date.now(),asof:Infinity,...base};}
+export function queryFor(where,base={}){return {kind:'query',mode:'select',where,select:[...definitelyBound(where)],filters:[],limit:10000,at:Date.now(),asof:Infinity,...base};}
 export function unsupported(code,detail){return {kind:'reasoning',status:'unsupported',code,detail,complete:false,epistemic:'undecided',proof:[]};}
 export function packet(kind,status,data={},budget=null){return {kind,status,complete:!budget?.exhausted,epistemic:'candidate',proof:[],assurance:'Result relative to the supplied finite model and the retained memory view; scores are not truth probabilities.',...data,...(budget?{search:budget.stats()}:{} )};}

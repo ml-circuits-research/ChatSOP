@@ -1,4 +1,5 @@
 import {emitAtom} from './parser.mjs';
+import {emitCondition} from '../lib/conditions.mjs';
 import {formatTime} from '../lib/time.mjs';
 const messages={
  ro:{hypotheses:'Explicații posibile; ipotezele nu sunt confirmate.',candidates:'Candidați de explorat, nu fapte demonstrate.',patterns:'Regularități candidate măsurate pe cazurile furnizate.',plan_found:'A fost găsit un plan în modelul de acțiuni; planul nu a fost executat.',no_plan:'Nu s-a găsit un plan în spațiul finit explorat.',optimal:'Soluție optimă în modelul și domeniile declarate.',feasible_bound:'Soluție fezabilă găsită; optimalitatea nu este demonstrată.',mixed_temporal:'Afirmația și negația ei sunt susținute în intervale diferite, fără suprapunere.',supported:'Afirmația este susținută de premisele disponibile.',refuted:'Există dovezi explicite pentru negația afirmației.',both:'Există dovezi contradictorii: atât afirmația, cât și negația ei sunt susținute.',unknown:'Informațiile disponibile nu decid întrebarea.',entailed:'Afirmația rezultă din toate soluțiile permise de constrângeri.',possible:'Există cel puțin o soluție compatibilă cu afirmația.',impossible:'Nicio soluție a premiselor nu satisface afirmația.',inconsistent:'Premisele sunt incompatibile. Nu derivăm o concluzie arbitrară.',unsupported:'Această operație nu poate fi executată de backend-ul disponibil.',stored:'Afirmațiile au fost înregistrate.',incomplete:'Explorarea este incompletă; pot exista alte rezultate.',hypothetical:'Rezultat condiționat de ipotezele introduse.'},
@@ -13,7 +14,7 @@ export function cnl(packet,language='ro'){
  for(const p of packet.proof??[])lines.push('EVIDENCE '+p.id+': '+emitAtom(p.atom)+(packet.query?.during&&p.valid?' VALID ['+formatTime(p.valid.from)+', '+formatTime(p.valid.until)+')':'')+(p.kind==='derived'?' VIA '+p.rule+' FROM '+p.premises.join(', '):' SOURCE '+p.source));
  if(packet.objective!==undefined)lines.push('OBJECTIVE '+packet.direction+' = '+packet.objective);
  for(const h of (packet.explanations??[]).slice(0,5))lines.push('HYPOTHESIS '+h.id+' COST '+h.cost+': '+h.assumptions.map(emitAtom).join(' AND '));
- if(packet.nextTest)lines.push('SUGGESTED_TEST '+packet.nextTest.query.where.map(emitAtom).join(' AND ')+'; NOT_EXECUTED');
+ if(packet.nextTest)lines.push('SUGGESTED_TEST '+packet.nextTest.query.where.map(c=>emitCondition(c,emitAtom)).join(' AND ')+'; NOT_EXECUTED');
  for(const p of (packet.patterns??[]).slice(0,5))lines.push('PATTERN '+p.id+': '+p.if.map(emitAtom).join(' AND ')+' -> '+emitAtom(p.then)+'; SUPPORT '+p.training.supportCount+'/'+p.training.opportunities+'; COUNTEREXAMPLES '+p.training.counterexamples+'; UNKNOWN '+p.training.unknown+'; NOT_A_RULE');
  for(const c of (packet.candidates??[]).slice(0,5))lines.push('CANDIDATE '+c.id+' SCORE '+c.score+'; NOT_PROBABILITY');
  for(const a of (packet.mappings??[]).slice(0,5))lines.push('ANALOGY '+JSON.stringify(a.mapping)+' MATCHED '+a.matched+'/'+a.sourceEdges+'; CANDIDATE_TRANSFER');

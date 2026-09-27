@@ -1,4 +1,5 @@
 import { parse, parseAtom, words } from '../../sop/parser.mjs';
+import {parseCondition} from '../../sop/conditions.mjs';
 import { stable, digest } from '../../lib/util.mjs';
 
 // A conservative wire/field/term fingerprint, not a proof of semantic novelty.
@@ -22,10 +23,9 @@ export function compositionShape(source) {
     const fields = { ...wire.fields };
     if (wire.type === 'query') fields.mode ??= [fields.select?.length ? 'select' : 'exists'];
     return [wire.type, Object.entries(fields).sort(([a], [b]) => a.localeCompare(b)).map(([key, values]) => [key, values.map(value => {
-      if (['where', 'holds', 'when', 'then'].includes(key)) {
-        const atom = parseAtom(value);
-        return { predicate:name(predicates, atom.p, 'p'), neg:!!atom.neg, args:atom.a.map(term) };
-      }
+      const atomShape = atom => ({ predicate:name(predicates, atom.p, 'p'), neg:!!atom.neg, args:atom.a.map(term) });
+      if (key === 'where' && wire.type === 'query') return parseCondition(value, atom => atomShape(parseAtom(atom)));
+      if (['where', 'holds', 'when', 'then'].includes(key)) return atomShape(parseAtom(value));
       if (['quote', 'text', 'source', 'at', 'asof', 'during', 'valid', 'language'].includes(key)) return '<literal>';
       if (key === 'data') { try { const data = JSON.parse(value); return Array.isArray(data) ? 'array' : typeof data; } catch { return 'symbol'; } }
       return value.replace(/\$([A-Za-z][A-Za-z0-9_]*)/g, (_, id) => '$' + name(references, id, 'r'))

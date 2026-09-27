@@ -4,10 +4,11 @@
  * the target. A truncated generator makes the final explanation set incomplete.
  */
 import {unify} from './reasoner.mjs';import {atomKey,variable,inferVariableTypes} from '../lib/types.mjs';
+import {conditionAtoms} from '../lib/conditions.mjs';
 import {digest} from '../lib/util.mjs';import {substitute,ground,opposite} from './common.mjs';
 export function generateAbducibles(query,base,rules,budget,schema=null){
- const known=new Set(base.map(f=>atomKey(f.atom))),all=[...base.map(f=>f.atom),...query.where,...rules.flatMap(r=>[...r.if,r.then])];
- const domain=[...new Set(all.flatMap(a=>a.a.filter(x=>!variable(x))))];const todo=query.where.map(a=>({a,depth:0})),seen=new Set(),candidates=new Map();let complete=true,expanded=0;
+ const targets=conditionAtoms(query.where),known=new Set(base.map(f=>atomKey(f.atom))),all=[...base.map(f=>f.atom),...targets,...rules.flatMap(r=>[...r.if,r.then])];
+ const domain=[...new Set(all.flatMap(a=>a.a.filter(x=>!variable(x))))];const todo=targets.map(a=>({a,depth:0})),seen=new Set(),candidates=new Map();let complete=true,expanded=0;
  while(todo.length&&budget.step()){
   const {a,depth}=todo.shift(),key=atomKey(a);if(seen.has(key)||known.has(key)||known.has(atomKey(opposite(a))))continue;seen.add(key);expanded++;
   const matching=rules.flatMap(r=>{const binding=unify(r.then,a);return binding?[{r,binding}]:[];});

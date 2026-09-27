@@ -1,9 +1,10 @@
-(* Envelope reference for sop-agent-2. sop/parser.mjs + sop/lower.mjs are normative.
+(* Envelope reference for sop-agent-3. sop/parser.mjs + sop/lower.mjs are normative.
    This file is documentation, NOT a llama.cpp GBNF decoding guarantee. *)
 program = wire, { newline, wire } ;
 wire = "@", identifier, space, wire_type, newline, field, { field } ;
 field = "  ", field_name, [ space, scalar_or_expression ], newline
-      | "  ", field_name, " |", newline, indented_body ;
+      | "  ", field_name, " |", newline, indented_body
+      | "  ", condition_field, space, condition_group ;
 indented_body = "    ", line, newline, { "    ", line, newline } ;
 value_reference = "$", identifier ;
 definition_handle = "~", identifier ;
@@ -12,6 +13,13 @@ output_field = "  output ?", identifier, [ " ", output_mode ], newline ;
 output_mode = "one" | "many" | "rows" | "count" | "status" ;
 atom = [ "not " ], predicate_id, "(", term, { ", ", term }, ")" ;
 term = canonical_id | quoted_string | safe_integer | value_reference | logic_variable ;
+condition_field = "where" | "filter" | "require" | "claim" ;
+condition_group = ("all" | "any"), newline, condition_line, { condition_line }, indentation, "end", newline ;
+condition_line = indentation, (atom | boolean_expression), newline
+               | indentation, condition_group ;
+(* Groups apply to query.where/filter and constraint.require/claim only.
+   Nested indentation is advisory; end closes the nearest group. Groups are
+   nonempty, with at most 32 nested groups. Repeated fields remain implicit ALL. *)
 wire_type = "value" | "fact" | "rule" | "query" | "constraint" | "event"
           | "pack" | "assert" | "recall" | "link" | "solve" | "reason" | "cnl" | "jsEval"
           | "template" | "procedure" | "expand" | "clarify"

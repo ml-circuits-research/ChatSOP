@@ -1,21 +1,24 @@
 import {Runtime} from '../sop/runtime.mjs';import {microContext,normalize} from '../sop/lexicon.mjs';import {formalize,verbalize} from './llm.mjs';import {parse,many,one,parseAtom,emitAtom,dependencies,unquote} from '../sop/parser.mjs';import {assert} from '../lib/util.mjs';
-function atomSources(w){if(w.type==='fact')return [one(w,'holds')];if(['query','goal'].includes(w.type))return many(w,'where');if(w.type==='hypothesis')return [...(w.fields.holds?[one(w,'holds')]:[]),...many(w,'assume')];if(w.type==='trace')return many(w,'feature');return [];}
+import {conditionAtoms,emitCondition} from '../lib/conditions.mjs';
+import {parseCondition} from '../sop/conditions.mjs';
+const whereAtoms=w=>many(w,'where').flatMap(s=>conditionAtoms([parseCondition(s,parseAtom)]));
+function atomSources(w){if(w.type==='fact')return [one(w,'holds')];if(['query','goal'].includes(w.type))return whereAtoms(w).map(emitAtom);if(w.type==='hypothesis')return [...(w.fields.holds?[one(w,'holds')]:[]),...many(w,'assume')];if(w.type==='trace')return many(w,'feature');return [];}
 /** The model handles language. All state changes and inference go through SOP. */
 export class Agent{
  constructor({repo,session,lexicon,config}){Object.assign(this,{repo,session,lexicon,config});this.recent=[];this.last=null;}
  async turn(text,{language='auto',now=Date.now(),rewrite=true}={}){
   const context=microContext(text,this.lexicon,{language,now:new Date(now).toISOString(),recent:this.recent});
-  if(this.last?.packet?.query)context.previous_query_sop='@previous query\n'+this.last.packet.query.where.map(a=>'  where '+emitAtom(a)).join('\n');
+  if(this.last?.packet?.query)context.previous_query_sop='@previous query\n'+this.last.packet.query.where.map(c=>'  where '+emitCondition(c,emitAtom).replaceAll('\n','\n    ')).join('\n');
   if(this.last?.packet?.proof)context.claims=this.last.packet.proof.filter(p=>p.kind==='observed').slice(0,3).map(p=>({id:p.id,sop:'@known fact\n  holds '+emitAtom(p.atom)+'\n  valid '+(p.valid.from===-Infinity?'beginning':new Date(p.valid.from).toISOString())+' '+(p.valid.until===Infinity?'open':new Date(p.valid.until).toISOString())}));
   // Follow-up questions may contain no new lexical mention. Carry only the
   // validated symbols of the previous query and its observed evidence.
-  const prior=[...(this.last?.packet?.query?.where??[]),...(this.last?.packet?.proof??[]).slice(0,3).map(p=>p.atom)];
+  const prior=[...conditionAtoms(this.last?.packet?.query?.where??[]),...(this.last?.packet?.proof??[]).slice(0,3).map(p=>p.atom)];
   for(const a of prior){if(!context.predicates.some(p=>p.id===a.p)&&this.lexicon.predicates[a.p]){const p=this.lexicon.predicates[a.p];context.predicates.push({id:a.p,args:p.args,meaning:p.description});}for(const id of a.a){const e=this.lexicon.entities[id];if(e&&!context.entities.some(x=>x.id===id))context.entities.push({id,label:e.labels.ro??id,type:e.entityType});}}
   const candidates=this.repo.library(this.session,{asof:now}).filter(x=>['template','procedure'].includes(x.wireType));
-  const selected=candidates.filter(lib=>{const w=parse(lib.sop).wires[0],body=parse(one(w,'body'));const ps=body.wires.filter(x=>x.type==='query').flatMap(x=>many(x,'where').map(a=>parseAtom(a).p));return ps.some(p=>context.predicates.some(x=>x.id===p))||many(w,'cue').some(c=>normalize(text).includes(normalize(unquote(c))));}).slice(0,2);
+  const selected=candidates.filter(lib=>{const w=parse(lib.sop).wires[0],body=parse(one(w,'body'));const ps=body.wires.filter(x=>x.type==='query').flatMap(x=>whereAtoms(x).map(a=>a.p));return ps.some(p=>context.predicates.some(x=>x.id===p))||many(w,'cue').some(c=>normalize(text).includes(normalize(unquote(c))));}).slice(0,2);
   context.approvedTemplates=selected.map(x=>x.id);context.procedures_sop=selected.map(x=>x.sop);
   // Definitions carry the vocabulary needed to fill their parameters.
-  for(const lib of selected){const w=parse(lib.sop).wires[0];for(const child of parse(one(w,'body')).wires)if(child.type==='query')for(const text of many(child,'where')){const p=parseAtom(text).p;if(!context.predicates.some(x=>x.id===p)&&this.lexicon.predicates[p]){const item=this.lexicon.predicates[p];context.predicates.push({id:p,args:item.args,meaning:item.description});}}}
+  for(const lib of selected){const w=parse(lib.sop).wires[0];for(const child of parse(one(w,'body')).wires)if(child.type==='query')for(const a of whereAtoms(child)){const p=a.p;if(!context.predicates.some(x=>x.id===p)&&this.lexicon.predicates[p]){const item=this.lexicon.predicates[p];context.predicates.push({id:p,args:item.args,meaning:item.description});}}}
   const budget=this.config.contextMaxBytes??4800;
   while(Buffer.byteLength(JSON.stringify(context))>budget&&context.recent.length)context.recent.shift();
   assert(Buffer.byteLength(JSON.stringify(context))<=budget,'Discourse context exceeds budget; split the request or clarify');

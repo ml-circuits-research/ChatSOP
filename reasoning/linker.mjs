@@ -4,6 +4,7 @@
  */
 import {assert,stable} from '../lib/util.mjs';
 import {variable} from '../lib/types.mjs';
+import {conditionAtoms} from '../lib/conditions.mjs';
 import {contains,intersect} from '../lib/time.mjs';
 import {StrategyRegistry} from '../memory/strategies.mjs';
 import {emitAtom} from '../sop/parser.mjs';
@@ -27,7 +28,7 @@ export function planGoals(query,rules,{maxGoals=256,maxRules=1024}={}) {
   for(const r of active.slice(0,maxRules)){const sig=[r.then.p,r.then.a.length,r.then.neg].join('/');if(!index.has(sig))index.set(sig,[]);index.get(sig).push(r);}
   const agenda=[],seen=new Set(),selected=new Map(),steps=[];
   const enqueue=raw=>{const a=normalized(raw),k=key(a);if(seen.has(k))return;if(agenda.length>=maxGoals){complete=false;return;}seen.add(k);agenda.push(a);};
-  for(const a of query.where){enqueue(a);enqueue({...a,neg:!a.neg});}
+  for(const a of conditionAtoms(query.where)){enqueue(a);enqueue({...a,neg:!a.neg});}
   for(let i=0;i<agenda.length;i++){
     const goal=agenda[i],matches=index.get([goal.p,goal.a.length,goal.neg].join('/'))??[];
     for(const rule of matches){const m=matchRule(goal,rule);if(!m)continue;selected.set(rule.id,rule);
