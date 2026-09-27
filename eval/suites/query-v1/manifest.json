@@ -1,0 +1,937 @@
+{
+  "format": "chatsop-query-curriculum-eval-v1",
+  "version": {
+    "counter": 1,
+    "label": "query-curriculum-v1",
+    "review_status": "synthetic_unreviewed_not_training_approved"
+  },
+  "profile": "sop-agent-3",
+  "source_template_sha256": "32f93af617ab24bc58151b03a2da2e544b8d819a2166e681fe7d47d377a941f6",
+  "matrix": {
+    "status": "expected_from_generator_not_observed_qualified_coverage",
+    "source_backed_cases": 0,
+    "source_backed_reason": "QA2D/ProofWriter rights and mapping unresolved; source scaffolds are not SOP gold; synthetic corpus only.",
+    "synthetic_cases": 60,
+    "synthetic_rows": 192,
+    "human_reviewed_cases": 0,
+    "training_approved": false,
+    "claimed_families": [
+      "approved_procedure",
+      "attached_assertions",
+      "causal_boundary",
+      "clarification",
+      "conjunction_join",
+      "expression_composition",
+      "finite_constraints",
+      "finite_outputs",
+      "multi_hop",
+      "negation_openworld",
+      "relation_role",
+      "scoped_synonyms",
+      "temporal",
+      "unsupported_boundary"
+    ],
+    "expected_from_code": {
+      "semantic_cases": 60,
+      "rows": 192
+    },
+    "observed_validation": null,
+    "observed_human_review": null,
+    "by_split": {
+      "train": 31,
+      "dev": 14,
+      "test": 15
+    },
+    "by_language": {
+      "en": 180,
+      "ro": 12
+    },
+    "by_input_mode": {
+      "query_only": 48,
+      "assertions_query": 6,
+      "clarification": 6
+    },
+    "by_holdout": {
+      "none": 38,
+      "reasoning_world": 1,
+      "composition": 9,
+      "world": 6,
+      "romanian": 1,
+      "lexical": 2,
+      "operator": 1,
+      "capability_boundary": 2
+    },
+    "by_family": {
+      "relation_role": {
+        "semantic_cases": 10,
+        "rows": 32,
+        "splits": {
+          "train": 8,
+          "dev": 0,
+          "test": 2
+        },
+        "operators": [
+          "argument_reversal",
+          "binary",
+          "employed_by",
+          "ground",
+          "no_unapproved_rule",
+          "open_world",
+          "predicate_distinction",
+          "role_inversion",
+          "select"
+        ],
+        "domains": [
+          "employment and projects",
+          "family records"
+        ],
+        "contrasts": 3,
+        "reviewed_cases": 0
+      },
+      "negation_openworld": {
+        "semantic_cases": 8,
+        "rows": 27,
+        "splits": {
+          "train": 4,
+          "dev": 3,
+          "test": 1
+        },
+        "operators": [
+          "conflict",
+          "explicit_negation",
+          "ground",
+          "negative_query",
+          "open_world",
+          "predicate_distinction"
+        ],
+        "domains": [
+          "employment and projects",
+          "family records",
+          "incident observations"
+        ],
+        "contrasts": 2,
+        "reviewed_cases": 0
+      },
+      "multi_hop": {
+        "semantic_cases": 4,
+        "rows": 13,
+        "splits": {
+          "train": 1,
+          "dev": 1,
+          "test": 2
+        },
+        "operators": [
+          "approved_rule",
+          "argument_reversal",
+          "role_inversion",
+          "select",
+          "two_hop"
+        ],
+        "domains": [
+          "family records"
+        ],
+        "contrasts": 1,
+        "reviewed_cases": 0
+      },
+      "conjunction_join": {
+        "semantic_cases": 5,
+        "rows": 16,
+        "splits": {
+          "train": 2,
+          "dev": 1,
+          "test": 2
+        },
+        "operators": [
+          "and",
+          "ground",
+          "heterogeneous_predicates",
+          "select",
+          "select_multiple",
+          "shared_variable"
+        ],
+        "domains": [
+          "employment and projects",
+          "family records"
+        ],
+        "contrasts": 0,
+        "reviewed_cases": 0
+      },
+      "finite_outputs": {
+        "semantic_cases": 3,
+        "rows": 9,
+        "splits": {
+          "train": 1,
+          "dev": 1,
+          "test": 1
+        },
+        "operators": [
+          "comparison",
+          "count",
+          "finite_domain",
+          "nonunique_output",
+          "select",
+          "unique_output"
+        ],
+        "domains": [
+          "employment and projects",
+          "finite integer arithmetic"
+        ],
+        "contrasts": 0,
+        "reviewed_cases": 0
+      },
+      "temporal": {
+        "semantic_cases": 9,
+        "rows": 28,
+        "splits": {
+          "train": 7,
+          "dev": 2,
+          "test": 0
+        },
+        "operators": [
+          "asof",
+          "at",
+          "before_exclusive_end",
+          "before_start",
+          "bounded_interval",
+          "during",
+          "exclusive_end",
+          "explicit_negation",
+          "inclusive_start",
+          "knowledge_cutoff",
+          "open_world"
+        ],
+        "domains": [
+          "dated personnel records"
+        ],
+        "contrasts": 2,
+        "reviewed_cases": 0
+      },
+      "causal_boundary": {
+        "semantic_cases": 1,
+        "rows": 3,
+        "splits": {
+          "train": 0,
+          "dev": 0,
+          "test": 1
+        },
+        "operators": [
+          "no_causal_inference",
+          "open_world"
+        ],
+        "domains": [
+          "incident observations"
+        ],
+        "contrasts": 0,
+        "reviewed_cases": 0
+      },
+      "scoped_synonyms": {
+        "semantic_cases": 2,
+        "rows": 7,
+        "splits": {
+          "train": 1,
+          "dev": 0,
+          "test": 1
+        },
+        "operators": [
+          "entity",
+          "resolve",
+          "romanian",
+          "type_organization"
+        ],
+        "domains": [
+          "employment and projects"
+        ],
+        "contrasts": 0,
+        "reviewed_cases": 0
+      },
+      "expression_composition": {
+        "semantic_cases": 1,
+        "rows": 3,
+        "splits": {
+          "train": 0,
+          "dev": 1,
+          "test": 0
+        },
+        "operators": [
+          "arithmetic",
+          "finite_constraint",
+          "query",
+          "unique_output"
+        ],
+        "domains": [
+          "route timing"
+        ],
+        "contrasts": 0,
+        "reviewed_cases": 0
+      },
+      "approved_procedure": {
+        "semantic_cases": 1,
+        "rows": 3,
+        "splits": {
+          "train": 0,
+          "dev": 1,
+          "test": 0
+        },
+        "operators": [
+          "expand",
+          "finite_constraint",
+          "host_approved_library"
+        ],
+        "domains": [
+          "route timing"
+        ],
+        "contrasts": 0,
+        "reviewed_cases": 0
+      },
+      "attached_assertions": {
+        "semantic_cases": 6,
+        "rows": 19,
+        "splits": {
+          "train": 3,
+          "dev": 2,
+          "test": 1
+        },
+        "operators": [
+          "argument_reversal",
+          "assert",
+          "at",
+          "conflict",
+          "exclusive_end",
+          "explicit_negation",
+          "ground",
+          "no_query",
+          "session"
+        ],
+        "domains": [
+          "conversation"
+        ],
+        "contrasts": 1,
+        "reviewed_cases": 0
+      },
+      "finite_constraints": {
+        "semantic_cases": 4,
+        "rows": 13,
+        "splits": {
+          "train": 3,
+          "dev": 0,
+          "test": 1
+        },
+        "operators": [
+          "comparison",
+          "direction",
+          "finite_domain",
+          "possible",
+          "prove",
+          "strict_comparison"
+        ],
+        "domains": [
+          "finite integer arithmetic"
+        ],
+        "contrasts": 1,
+        "reviewed_cases": 0
+      },
+      "clarification": {
+        "semantic_cases": 2,
+        "rows": 7,
+        "splits": {
+          "train": 1,
+          "dev": 0,
+          "test": 1
+        },
+        "operators": [
+          "ambiguous_reference",
+          "ambiguous_sense",
+          "lexical_holdout"
+        ],
+        "domains": [
+          "conversation"
+        ],
+        "contrasts": 0,
+        "reviewed_cases": 0
+      },
+      "unsupported_boundary": {
+        "semantic_cases": 4,
+        "rows": 12,
+        "splits": {
+          "train": 0,
+          "dev": 2,
+          "test": 2
+        },
+        "operators": [
+          "abduction",
+          "causal_boundary",
+          "counterfactual",
+          "default_exception",
+          "missing_action_model",
+          "missing_causal_model",
+          "planning"
+        ],
+        "domains": [
+          "conversation"
+        ],
+        "contrasts": 0,
+        "reviewed_cases": 0
+      }
+    },
+    "blocked_families": [
+      {
+        "family": "abduction",
+        "reason": "Explanations are hypotheses, not established facts; requires separately judged abductive targets."
+      },
+      {
+        "family": "default_exception",
+        "reason": "No reviewed defeasible microtheory; hard Horn implications would over-infer."
+      },
+      {
+        "family": "counterfactual",
+        "reason": "Interventions need separately judged simulation worlds, not hard logical gold."
+      },
+      {
+        "family": "planning",
+        "reason": "No approved action model and goal criterion in this corpus."
+      },
+      {
+        "family": "causal",
+        "reason": "Coincidence and temporal order do not establish causal rules."
+      },
+      {
+        "family": "agentive_intention",
+        "reason": "Knowing, intending and wanting cannot be inferred from observed actions."
+      },
+      {
+        "family": "general_quantification",
+        "reason": "Closed-world universals are not implied by a finite open-world fact list."
+      }
+    ],
+    "measured_structure": {
+      "target_wire_cases": {
+        "query": 46,
+        "solve": 52,
+        "cnl": 53,
+        "resolve": 2,
+        "value": 2,
+        "jsEval": 2,
+        "constraint": 7,
+        "expand": 1,
+        "fact": 6,
+        "assert": 6,
+        "clarify": 6
+      },
+      "target_wire_rows": {
+        "query": 148,
+        "solve": 167,
+        "cnl": 170,
+        "resolve": 7,
+        "value": 6,
+        "jsEval": 6,
+        "constraint": 22,
+        "expand": 3,
+        "fact": 19,
+        "assert": 19,
+        "clarify": 19
+      },
+      "host_setup_wire_cases": {
+        "fact": 42,
+        "rule": 17,
+        "template": 2
+      },
+      "by_oracle": {
+        "handwritten_graph_temporal": 46,
+        "handwritten_route_arithmetic": 2,
+        "finite_enumeration": 6,
+        "explicit_missing_information": 6
+      },
+      "by_expected_status": {
+        "supported": 25,
+        "unknown": 13,
+        "refuted": 5,
+        "both": 4,
+        "possible": 6,
+        "stored": 1,
+        "clarify": 6
+      },
+      "romanian_cases": 12,
+      "semantic_cases": 60,
+      "compositions": {
+        "46fafea280ed91b467c83b03b507a545366d393e46b4893d32b8c1d6338266d6": {
+          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [
+            "employed_bogdan",
+            "employed_not_implied",
+            "grandparent_ground",
+            "negative_employment",
+            "negative_explicit",
+            "parent_forward",
+            "parent_reversed",
+            "unknown_absent",
+            "works_bogdan_missing",
+            "works_vs_employed"
+          ],
+          "dev": [
+            "conflict_no_explosion",
+            "conflicted_parent"
+          ],
+          "test": [
+            "test_chain",
+            "test_reversed_chain"
+          ]
+        },
+        "f7c04bd14a4883043acadaf68679e059aadec0f99de075ca6811a52bc802079e": {
+          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"v0\",\"c0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [
+            "parent_inverse_select"
+          ],
+          "dev": [
+            "multi_hop_inverse"
+          ],
+          "test": [
+            "test_work_reverse"
+          ]
+        },
+        "be774f8f76b65ceb3b1b0e6460623ca57431a2cb88b4e319987b895fb4907982": {
+          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"c0\",\"v0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [
+            "child_inverse_select"
+          ],
+          "dev": [],
+          "test": [
+            "test_employer_reverse"
+          ]
+        },
+        "6b16b7c9daa07eeefb37afed0dea394061427f843774273884239d7479350bdb": {
+          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":true,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [
+            "negative_assertion_direct"
+          ],
+          "dev": [
+            "conflict_negative_direct"
+          ],
+          "test": []
+        },
+        "44d3843cdfe7f0bb2ddad47cbb2980d65bf42279e209a8f9bec5e440ee8116eb": {
+          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"},{\"args\":[\"c1\",\"c2\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [
+            "conjunction_ground"
+          ],
+          "dev": [],
+          "test": []
+        },
+        "19c79f69dab588d2c1fd84064385f148d167b4f09d436d652ba96f0d95f40cbf": {
+          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0 ?v1\"]],[\"where\",[{\"args\":[\"v0\",\"v2\"],\"neg\":false,\"predicate\":\"p0\"},{\"args\":[\"v2\",\"v1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [],
+          "dev": [
+            "join_pairs"
+          ],
+          "test": [
+            "test_join_pairs"
+          ]
+        },
+        "1cb988818ddfc08fd86b6577fda59da9a6818ceba86db6a9655e6cc6f7d9cc16": {
+          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"},{\"args\":[\"c0\",\"c2\"],\"neg\":false,\"predicate\":\"p1\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [
+            "join_work_project"
+          ],
+          "dev": [],
+          "test": []
+        },
+        "72eb3abaf4a19a02c5494a3829c6477df5034faf58084968adf796724f23c2a3": {
+          "shape": "[[\"query\",[[\"mode\",[\"count\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"v0\",\"c0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [
+            "count_employed"
+          ],
+          "dev": [],
+          "test": []
+        },
+        "24ff407e5f73e3c2e932ee6f9f36c10f4442441e5875dc4947b18ef7c20918c4": {
+          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"v0\",\"c0\"],\"neg\":false,\"predicate\":\"p0\"},{\"args\":[\"v0\",\"c1\"],\"neg\":false,\"predicate\":\"p1\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [],
+          "dev": [],
+          "test": [
+            "test_join_work_project"
+          ]
+        },
+        "feff3ddcb4411b4f87157647f68cce46e1e021e543c4f57dc023b157a3cbb6ed": {
+          "shape": "[[\"query\",[[\"at\",[\"<literal>\"]],[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [
+            "time_before",
+            "time_end",
+            "time_last_day",
+            "time_start"
+          ],
+          "dev": [
+            "dev_time_boundary"
+          ],
+          "test": []
+        },
+        "af3bf256c24c97b8841a969527cc8b42cc1f2e0cc77b50ac20631d6cb4dd1cbc": {
+          "shape": "[[\"query\",[[\"during\",[\"<literal>\"]],[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [
+            "time_interval"
+          ],
+          "dev": [
+            "dev_time_window"
+          ],
+          "test": []
+        },
+        "106bbcd95efe5e6a912c1ff2cd34741f1829ec707ca7e56639950f7562d08906": {
+          "shape": "[[\"query\",[[\"asof\",[\"<literal>\"]],[\"at\",[\"<literal>\"]],[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [
+            "time_asof_early",
+            "time_asof_late"
+          ],
+          "dev": [],
+          "test": []
+        },
+        "8f5a90797fafb8cf1e994762bf1c455d2b2bf7ad5ccf298b921731ea8e70c8eb": {
+          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [],
+          "dev": [],
+          "test": [
+            "incident_absent_cause",
+            "incident_conflict"
+          ]
+        },
+        "37f7f8596c33aa31d8cd32ba8418fef832ee7d25eea991808ed355f09991e54c": {
+          "shape": "[[\"resolve\",[[\"kind\",[\"entity\"]],[\"language\",[\"<literal>\"]],[\"text\",[\"<literal>\"]],[\"type\",[\"organization\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"w0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w1\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w2\"]]]]]",
+          "train": [
+            "resolved_lab"
+          ],
+          "dev": [],
+          "test": [
+            "resolved_romanian_lab"
+          ]
+        },
+        "a7a27c520f9eed22228f464ab735b2463cfeb5ff0117ccf55b6d221b41e2d274": {
+          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"c0\",\"v0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"output\",[\"?v0 one\"]],[\"query\",[\"$w0\"]]]],[\"value\",[[\"data\",[\"number\"]]]],[\"jsEval\",[[\"expr\",[\"$w2 + $r7\"]]]],[\"constraint\",[[\"claim\",[\"?v0 <= #\"]],[\"require\",[\"?v0 == $w3\"]],[\"task\",[\"possible\"]],[\"var\",[\"?v0 int # #\"]]]],[\"solve\",[[\"constraint\",[\"$w4\"]],[\"output\",[\"?v0 one\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w5\"]]]]]",
+          "train": [],
+          "dev": [
+            "route_expression"
+          ],
+          "test": []
+        },
+        "5c6b13688cff4c6f665ea01b2a00aff17d83394c8b87ae989f2553c6a4d9dd04": {
+          "shape": "[[\"value\",[[\"data\",[\"string\"]]]],[\"value\",[[\"data\",[\"number\"]]]],[\"value\",[[\"data\",[\"number\"]]]],[\"expand\",[[\"using\",[\"~approved\"]],[\"with\",[\"route $w0\",\"start $w1\",\"deadline $w2\"]]]],[\"jsEval\",[[\"expr\",[\"$w3.packet\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w4\"]]]]]",
+          "train": [],
+          "dev": [
+            "route_approved_procedure"
+          ],
+          "test": []
+        },
+        "1d407477af444b7b3d288ac0dc61aba64e320748f88a813b4a32d6895ba4d28f": {
+          "shape": "[[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w0\"]],[\"scope\",[\"session\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"after\",[\"$w1\"]],[\"query\",[\"$w2\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w3\"]]]]]",
+          "train": [
+            "assert_positive"
+          ],
+          "dev": [],
+          "test": []
+        },
+        "c64d724b034118059d35db37e15ddc37ac7216ede389ffe36a3e56ae65b7aacc": {
+          "shape": "[[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w0\"]],[\"scope\",[\"session\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c1\",\"c0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"after\",[\"$w1\"]],[\"query\",[\"$w2\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w3\"]]]]]",
+          "train": [
+            "assert_reverse"
+          ],
+          "dev": [],
+          "test": []
+        },
+        "01c8d71baca76f4735678f9439dd825b03fe40334df23c10d3b9d2d793011f12": {
+          "shape": "[[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":true,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w0\"]],[\"scope\",[\"session\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"after\",[\"$w1\"]],[\"query\",[\"$w2\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w3\"]]]]]",
+          "train": [],
+          "dev": [
+            "assert_negative"
+          ],
+          "test": []
+        },
+        "1a690b16c82fc9de43b9005390fdbe5b497abc6c69a62343a1c6050e8d3cc2cf": {
+          "shape": "[[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w0\"]],[\"scope\",[\"session\"]]]],[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":true,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w2\"]],[\"scope\",[\"session\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"after\",[\"$w1\",\"$w3\"]],[\"query\",[\"$w4\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w5\"]]]]]",
+          "train": [],
+          "dev": [],
+          "test": [
+            "assert_conflict"
+          ]
+        },
+        "73a9fbe7d47ee6e6495357c1a86d29ea53cff2bfbcef82ad888113273ea8b4d5": {
+          "shape": "[[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w0\"]],[\"scope\",[\"session\"]]]]]",
+          "train": [
+            "assert_only"
+          ],
+          "dev": [],
+          "test": []
+        },
+        "3000a65b1c1225432fc83f491248e6a945f9017b13503d9d37551d1210b0154b": {
+          "shape": "[[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w0\"]],[\"scope\",[\"session\"]]]],[\"query\",[[\"at\",[\"<literal>\"]],[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"after\",[\"$w1\"]],[\"query\",[\"$w2\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w3\"]]]]]",
+          "train": [],
+          "dev": [
+            "assert_temporal"
+          ],
+          "test": []
+        },
+        "18313e0f023777b9c98f041778a3bf6ea203871f0c3e9d07bc6a84986d5e5a70": {
+          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 == #\"]],[\"require\",[\"?v0 >= #\"]],[\"task\",[\"possible\"]],[\"var\",[\"?v0 int # #\"]]]],[\"solve\",[[\"constraint\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [
+            "finite_possible"
+          ],
+          "dev": [],
+          "test": []
+        },
+        "5f1592a49d3ae0d917bee881780430de993b66e51116c61a02531a5a08a6f8e3": {
+          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 == #\"]],[\"require\",[\"?v0 >= #\"]],[\"task\",[\"prove\"]],[\"var\",[\"?v0 int # #\"]]]],[\"solve\",[[\"constraint\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [
+            "finite_not_entailed"
+          ],
+          "dev": [],
+          "test": []
+        },
+        "68112959b6831e28a50b6c78dc1f3c314fcfff712eb2d17a59ca3df2dbeeebe2": {
+          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 < #\"]],[\"require\",[\"?v0 >= #\"]],[\"task\",[\"prove\"]],[\"var\",[\"?v0 int # #\"]]]],[\"solve\",[[\"constraint\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [
+            "finite_refuted"
+          ],
+          "dev": [],
+          "test": []
+        },
+        "082bf4c86b52bd34a85612a8b0658641f16ca14be3bfa05c6c6e7ad22acf5364": {
+          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 <= #\"]],[\"require\",[\"?v0 == # + #\"]],[\"task\",[\"possible\"]],[\"var\",[\"?v0 int # #\"]]]],[\"solve\",[[\"constraint\",[\"$w0\"]],[\"output\",[\"?v0 one\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [],
+          "dev": [
+            "finite_unique"
+          ],
+          "test": []
+        },
+        "58c6bd73401dcd4670bc9134c09b743358e50bdf8db0e59960f84975997c92ca": {
+          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 <= #\"]],[\"require\",[\"?v0 >= #\"]],[\"task\",[\"possible\"]],[\"var\",[\"?v0 int # #\"]]]],[\"solve\",[[\"constraint\",[\"$w0\"]],[\"output\",[\"?v0 one\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [],
+          "dev": [],
+          "test": [
+            "finite_many"
+          ]
+        },
+        "506528118e5381bde3abb1a8ad9d0da5c0dadbb169cba949de1278386b703e0f": {
+          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 > #\"]],[\"require\",[\"?v0 >= #\"]],[\"task\",[\"possible\"]],[\"var\",[\"?v0 int # #\"]]]],[\"solve\",[[\"constraint\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+          "train": [],
+          "dev": [],
+          "test": [
+            "finite_direction"
+          ]
+        },
+        "adee113cfa1f0a445fa98d91382bbe5f8dcbed6288d9986f64139617712f39c2": {
+          "shape": "[[\"clarify\",[[\"text\",[\"<literal>\"]]]]]",
+          "train": [
+            "ambiguous_pronoun"
+          ],
+          "dev": [
+            "unsupported_default",
+            "unsupported_plan"
+          ],
+          "test": [
+            "ambiguous_bank",
+            "unsupported_cause",
+            "unsupported_counterfactual"
+          ]
+        }
+      },
+      "holdouts": [
+        {
+          "case_id": "ambiguous_bank",
+          "split": "test",
+          "kind": "lexical",
+          "checked": true,
+          "pass": true,
+          "entities": [],
+          "predicates": [],
+          "surfaces": [
+            "bank"
+          ]
+        },
+        {
+          "case_id": "assert_conflict",
+          "split": "test",
+          "kind": "composition",
+          "checked": true,
+          "pass": true,
+          "criterion": "wire-field-term fingerprint absent from training",
+          "shape_sha256": "1a690b16c82fc9de43b9005390fdbe5b497abc6c69a62343a1c6050e8d3cc2cf"
+        },
+        {
+          "case_id": "assert_temporal",
+          "split": "dev",
+          "kind": "composition",
+          "checked": true,
+          "pass": true,
+          "criterion": "wire-field-term fingerprint absent from training",
+          "shape_sha256": "3000a65b1c1225432fc83f491248e6a945f9017b13503d9d37551d1210b0154b"
+        },
+        {
+          "case_id": "dev_time_boundary",
+          "split": "dev",
+          "kind": "world",
+          "checked": false,
+          "pass": null
+        },
+        {
+          "case_id": "dev_time_window",
+          "split": "dev",
+          "kind": "world",
+          "checked": false,
+          "pass": null
+        },
+        {
+          "case_id": "finite_direction",
+          "split": "test",
+          "kind": "operator",
+          "checked": false,
+          "pass": null
+        },
+        {
+          "case_id": "finite_many",
+          "split": "test",
+          "kind": "composition",
+          "checked": true,
+          "pass": true,
+          "criterion": "wire-field-term fingerprint absent from training",
+          "shape_sha256": "58c6bd73401dcd4670bc9134c09b743358e50bdf8db0e59960f84975997c92ca"
+        },
+        {
+          "case_id": "incident_absent_cause",
+          "split": "test",
+          "kind": "lexical",
+          "checked": true,
+          "pass": true,
+          "entities": [],
+          "predicates": [
+            "disk_full",
+            "network_down",
+            "outage"
+          ],
+          "surfaces": []
+        },
+        {
+          "case_id": "incident_conflict",
+          "split": "test",
+          "kind": "composition",
+          "checked": true,
+          "pass": true,
+          "criterion": "wire-field-term fingerprint absent from training",
+          "shape_sha256": "8f5a90797fafb8cf1e994762bf1c455d2b2bf7ad5ccf298b921731ea8e70c8eb"
+        },
+        {
+          "case_id": "join_pairs",
+          "split": "dev",
+          "kind": "composition",
+          "checked": true,
+          "pass": true,
+          "criterion": "wire-field-term fingerprint absent from training",
+          "shape_sha256": "19c79f69dab588d2c1fd84064385f148d167b4f09d436d652ba96f0d95f40cbf"
+        },
+        {
+          "case_id": "multi_hop_inverse",
+          "split": "dev",
+          "kind": "reasoning_world",
+          "checked": false,
+          "pass": null
+        },
+        {
+          "case_id": "resolved_romanian_lab",
+          "split": "test",
+          "kind": "world",
+          "checked": false,
+          "pass": null
+        },
+        {
+          "case_id": "route_approved_procedure",
+          "split": "dev",
+          "kind": "composition",
+          "checked": true,
+          "pass": true,
+          "criterion": "wire-field-term fingerprint absent from training",
+          "shape_sha256": "5c6b13688cff4c6f665ea01b2a00aff17d83394c8b87ae989f2553c6a4d9dd04"
+        },
+        {
+          "case_id": "route_expression",
+          "split": "dev",
+          "kind": "composition",
+          "checked": true,
+          "pass": true,
+          "criterion": "wire-field-term fingerprint absent from training",
+          "shape_sha256": "a7a27c520f9eed22228f464ab735b2463cfeb5ff0117ccf55b6d221b41e2d274"
+        },
+        {
+          "case_id": "test_chain",
+          "split": "test",
+          "kind": "world",
+          "checked": false,
+          "pass": null
+        },
+        {
+          "case_id": "test_employer_reverse",
+          "split": "test",
+          "kind": "romanian",
+          "checked": true,
+          "pass": true,
+          "criterion": "whole Romanian question absent from training; not a claim of unseen words"
+        },
+        {
+          "case_id": "test_join_pairs",
+          "split": "test",
+          "kind": "composition",
+          "checked": true,
+          "pass": true,
+          "criterion": "wire-field-term fingerprint absent from training",
+          "shape_sha256": "19c79f69dab588d2c1fd84064385f148d167b4f09d436d652ba96f0d95f40cbf"
+        },
+        {
+          "case_id": "test_join_work_project",
+          "split": "test",
+          "kind": "composition",
+          "checked": true,
+          "pass": true,
+          "criterion": "wire-field-term fingerprint absent from training",
+          "shape_sha256": "24ff407e5f73e3c2e932ee6f9f36c10f4442441e5875dc4947b18ef7c20918c4"
+        },
+        {
+          "case_id": "test_reversed_chain",
+          "split": "test",
+          "kind": "world",
+          "checked": false,
+          "pass": null
+        },
+        {
+          "case_id": "test_work_reverse",
+          "split": "test",
+          "kind": "world",
+          "checked": false,
+          "pass": null
+        },
+        {
+          "case_id": "unsupported_cause",
+          "split": "test",
+          "kind": "capability_boundary",
+          "checked": false,
+          "pass": null
+        },
+        {
+          "case_id": "unsupported_counterfactual",
+          "split": "test",
+          "kind": "capability_boundary",
+          "checked": false,
+          "pass": null
+        }
+      ],
+      "limitations": [
+        "Fingerprint novelty is a structural check, not proof of semantic novelty.",
+        "A lexical reservation is relative to this corpus, not to a pretrained model.",
+        "Source setup wires do not count as model-emitted coverage."
+      ]
+    },
+    "known_limitations": [
+      "Synthetic scenarios and paraphrases need independent principal review.",
+      "During queries ask for evidence intersecting a window, not universal validity throughout that window.",
+      "A selected tuple from a multi-atom join may rely on a contested premise; overall supported status does not certify uncontested tuples.",
+      "Host-approved procedure reuse is the pinned demonstration template, not a newly certified external procedure."
+    ]
+  },
+  "review_status": "synthetic_unreviewed_not_training_approved",
+  "files": {
+    "test.jsonl": "2f7945007485edd7385017733fd5a2856933c52a4ee46a1deeaab5e2ae2fedcd",
+    "VERSION": "abc2eaf7193226e3929a7fe1bb085122a7a5d1619c5c86de051abfe2e23c352c"
+  }
+}

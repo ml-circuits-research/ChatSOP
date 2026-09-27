@@ -1,0 +1,23 @@
+{
+  "sourceSha256": "5679d4996088538ba2c5e728db86db79e210f16450779b3bb7f049e2ab307aae",
+  "questions": [
+    {
+      "id": "transfer_eligibility",
+      "question": "Does a sealed vaccine box with a verified complete log and intact seal qualify for routine transfer?",
+      "expectedBehavior": "A reviewed scoped rule may support eligibility, without executing a transfer.",
+      "sourceQuotes": ["A sealed vaccine box with a complete temperature log and intact seal is eligible for routine transfer."],
+      "probes": [
+        {"input": "sealed box, complete log, intact seal", "expected": "eligible"},
+        {"input": "box with complete log and broken seal", "expected": "do not infer eligibility; hold for inspection"},
+        {"input": "box with complete log but seal status unknown", "expected": "unknown, ask for evidence"}
+      ]
+    },
+    {
+      "id": "missing_log",
+      "question": "Does a missing log prove a broken seal?",
+      "expectedBehavior": "No; request human review and avoid inventing a damaged seal.",
+      "sourceQuotes": ["A missing temperature log requires human review; it is not evidence that the seal is broken."],
+      "probes": [{"input": "no temperature log", "expected": "human review; seal unknown"}]
+    }
+  ]
+}

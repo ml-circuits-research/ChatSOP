@@ -1,0 +1,14 @@
+state/
+outputs/
+models/
+vendor/
+.venv/
+*.gguf
+*.safetensors
+__pycache__/
+*.pyc
+work/
+.env
+datasets/generated/
+eval/reports/current/
+tools/.solvers/

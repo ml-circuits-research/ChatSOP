@@ -1,0 +1,13 @@
+{
+  "version": "pilot-source-v1",
+  "english": {
+    "parent": "{a} is a parent of {b}.",
+    "negative": "{a} is not a parent of {b}.",
+    "grandparentNegative": "{a} is not a grandparent of {b}."
+  },
+  "romanian": {
+    "parent": "{a} este părintele lui {b}.",
+    "negative": "{a} nu este părintele lui {b}.",
+    "grandparentNegative": "{a} nu este bunicul lui {b}."
+  }
+}

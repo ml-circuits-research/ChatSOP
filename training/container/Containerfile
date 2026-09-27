@@ -1,0 +1,28 @@
+# Both digests are linux/arm64 child manifests (checked with skopeo inspect --raw).
+FROM docker.io/library/node:22.23.2-bookworm-slim@sha256:f71fb9ca71b1b47d4d1a009af78147ed6cdc74f9c7cfc36cbde78ff985169051 AS node
+FROM docker.io/nvidia/cuda:13.0.2-devel-ubuntu24.04@sha256:450d11555d20ac8ebbbc13ebf17589c2bd42869171a90179ce7098b4a5e64c6a
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+# The system CUDA 13 ptxas is required for GB10 Triton JIT compilation.
+ENV TRITON_PTXAS_PATH=/usr/local/cuda/bin/ptxas \
+    PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+    TRAIN_PYTHON=/opt/trainer/bin/python \
+    PATH=/opt/trainer/bin:/usr/local/bin:${PATH}
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      python3.12-dev=3.12.3-1ubuntu0.17 \
+      python3.12-venv=3.12.3-1ubuntu0.17 \
+      build-essential=12.10ubuntu1 \
+    && python3.12 -m venv /opt/trainer \
+    && rm -rf /var/lib/apt/lists/*
+COPY training/container/requirements.lock /opt/requirements.lock
+# Install official ARM64 cu130 torch (and its deps) FIRST. Installing the other
+# exact native-verified lock entries with --no-deps cannot replace that wheel.
+RUN /opt/trainer/bin/python -m pip install --no-cache-dir 'torch==2.14.0+cu130' \
+      --index-url https://download.pytorch.org/whl/cu130 \
+    && sed '/^torch==/d' /opt/requirements.lock > /opt/other-requirements.lock \
+    && /opt/trainer/bin/python -m pip install --no-cache-dir --no-deps \
+      --index-url https://pypi.org/simple -r /opt/other-requirements.lock \
+    && /opt/trainer/bin/python -m pip check \
+    && test -x /usr/local/cuda/bin/ptxas \
+    && node --version
+LABEL org.opencontainers.image.title="ChatSOP DGX Spark training" \
+      org.opencontainers.image.description="Pinned ARM64 CUDA 13/Node 22 training environment; host source bind-mounted at execution"

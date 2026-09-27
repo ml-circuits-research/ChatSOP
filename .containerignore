@@ -1,0 +1,8 @@
+# The image contains dependencies only; source/data/models are bind-mounted at run time.
+**
+!training/
+training/**
+!training/container/
+training/container/**
+!training/container/Containerfile
+!training/container/requirements.lock

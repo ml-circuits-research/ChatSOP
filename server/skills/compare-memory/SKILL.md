@@ -1,9 +1,0 @@
-# Compare memory strategies without changing the semantic task
-
-Use the same approved SOP corpus, ontology, query suite, temporal cutoffs and reasoner for every engine. Ingest into independent repository roots. Select `memory.engine` and the matching provider; do not relabel a Weaver bank as Holo or SQL. Use `auto` only for intentional mixed snapshots, never to claim isolated benchmark results.
-
-Run `examples/memory-demo.js` and `tests/memory-engines.test.js` before benchmarks. Run `tools/bench-memory.js` for the field-completion and reverse tasks, then `tools/summarize-memory.js`. Report recall, precision, complete answer sets, budget truncation and latency. Count arrays, dictionaries, receipts, claim metadata, indices and snapshot cost separately. Never give the decoder evaluator-only ground truth.
-
-For H7 distinguish the standalone fixed-memory kernel, the SOP field adapter with explicit metadata, and the known-handle wire plane. Do not claim fully bounded partial-cue wire discovery. Never treat correlation or an empty approximate result as a proof of truth or falsity. With new rules, require the same review as for all SOP ingestion.
-
-Keep Node `.js` implementation and parameterized offline scripts. Record seeds, runtime version, raw query results and input checksums. Add regressions for every recovered bug. Regenerate SHA256SUMS.txt after modifying the package and test a fresh extraction.

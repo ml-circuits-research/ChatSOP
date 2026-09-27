@@ -1,0 +1,21 @@
+{
+  "format": "chatsop-pilot-eval-v1",
+  "version": {
+    "counter": 1,
+    "label": "pilot-source-v1"
+  },
+  "seed": 731,
+  "worlds": 100,
+  "profile": "sop-agent-3",
+  "source_template_sha256": "02a79cf0680e7680cb3edc581eed95cbc33fb134b5050f6a2977149acb78adfb",
+  "reserved_structures": [
+    "two-hop-ground",
+    "two-hop-inverse",
+    "two-hop-missing",
+    "two-hop-select"
+  ],
+  "files": {
+    "test.jsonl": "bcc481276ec5bdb51198a7cce9ac969e60ceb6d05c38f2d2765cd1fe49236950",
+    "VERSION": "924a5262e183e0870e4ec6a13c8a9deb01b0a9d0cfc1f16242816130c0b4ec45"
+  }
+}

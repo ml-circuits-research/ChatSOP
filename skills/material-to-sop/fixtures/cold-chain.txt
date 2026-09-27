@@ -1,0 +1,5 @@
+Cold-chain transfer note, revision 1.
+A sealed vaccine box with a complete temperature log and intact seal is eligible for routine transfer.
+A box with a broken seal must be held for inspection, even if its temperature log is complete.
+A missing temperature log requires human review; it is not evidence that the seal is broken.
+Inspection record: box_sample has a broken seal.

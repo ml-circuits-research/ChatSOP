@@ -1,0 +1,15 @@
+---
+name: evaluate-agent
+description: Audit the complete agent experiment
+---
+
+# Audit the complete agent experiment
+
+Citește `eval/README.md`, `docs/legacy/requirements/09-evaluare.md` și `docs/legacy/requirements/12-stadiu.md`. Păstrează două întrebări de evaluare distincte, fără să prezinți suitele sau rapoartele mixte existente drept o separare deja implementată:
+
+1. **Modelul mic NL-to-SOP:** prioritatea este fidelitatea generării unui SOP *simplu* din limbajul utilizatorului. Pe exemple independente, revizuite și ținute în afara antrenării, compară intenția cu SOP prezis: sintaxă/schemă, referințe și identitatea entităților, citiri/scrieri și efecte permise, sensul întrebării, negare, timp, omisiuni, invenții, incertitudine și abțineri justificate. Exclude `jsEval`, cod complex și programe scrise de coding agents din ținta modelului mic. Executarea SOP-ului gold simbolic validează referința sau runtime-ul, nu capacitatea neuronală; acordul într-o lume finită nu înlocuiește revizuirea semantică.
+2. **Sistemul ChatSOP complet:** dialoguri RO independente cu informație nouă, întrebare, explicație, corecție, trecut, lipsă de date și ambiguitate; verifică și izolarea utilizatorilor. Evaluează separat memoria, reasoning-ul și probele, procedurile aprobate (inclusiv `jsEval` furnizat de coding agents), backend-ul efectiv/fallback-ul, timpul, proveniența și rezultatul/latența end-to-end. Compară forma SOP cu sensul mesajului și CNL cu textul reformulat. O execuție corectă pe programul gold nu demonstrează calitatea modelului mic.
+
+Pentru rapoartele viitoare, identifică track-ul, versiunea sintaxei/capabilităților, sursa și separarea suitei, configurația modelului/sistemului și backend-ul realmente observat. Raportează pentru fiecare metrică numărătorul și numitorul: total eligibil, încercat, lipsă/invalid, abțineri și excluderi operaționale; separă ratele pe toate cazurile eligibile de ratele condiționate pe predicții valide. Descompune pe limbă, familie și sursă; pentru sistem, include erori de memorie/timp/proveniență, efecte neautorizate, costul total al memoriei și latențe pe etape și end-to-end. Backend lipsă înseamnă test sărit, nu trecut. Păstrează ieșirea brută; pentru afirmații de superioritate compară modele mari cu acces echivalent la tools și memorie și nu generaliza din seed-ul cu aceleași șabloane.
+
+**Stadiu/migrare:** evaluatorul și suitele actuale amestecă preocupările; nu redenumi scorurile existente și nu pretinde că sunt două track-uri. După acordul asupra sintaxei și domeniului SOP simplu, califică și separă cazurile, apoi adaptează evaluatorul și rapoartele; păstrează rezultatele istorice sub descrierea lor inițială. Tipurile wire abstracte și procedurile aprobate viitoare (algoritmi, căutare în grafuri, construcția colecțiilor/grafurilor) se introduc prin instrucțiuni de cunoaștere/sarcină după nevoie, nu ca JavaScript generat de modelul mic. Nu porni antrenare și nu modifica parser, date sau contracte înainte de acordul asupra sintaxei.

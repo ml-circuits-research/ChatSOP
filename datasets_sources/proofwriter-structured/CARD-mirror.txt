@@ -1,0 +1,80 @@
+---
+pretty_name: ProofWriter (structured)
+language:
+- en
+task_categories:
+- text-classification
+tags:
+- logical-reasoning
+- entailment
+- proof
+- proofwriter
+- ruletaker
+- datalog
+configs:
+  - config_name: OWA
+    data_files:
+    - split: train
+      path: OWA/train.parquet
+    - split: validation
+      path: OWA/validation.parquet
+    - split: test
+      path: OWA/test.parquet
+  - config_name: CWA
+    data_files:
+    - split: train
+      path: CWA/train.parquet
+    - split: validation
+      path: CWA/validation.parquet
+    - split: test
+      path: CWA/test.parquet
+---
+
+# ProofWriter — structured
+
+A cleaned, structured build of AI2's [ProofWriter](https://allenai.org/data/proofwriter)
+for logical entailment with **reasoning-graph** supervision. Each row is one *theory*
+(facts + Horn-clause rules) with the questions posed against it; the zip's formal string
+reps are parsed into **typed atoms** `(subject, relation, object, polarity)`, and every
+question keeps its gold answer and gold derivation as a structured **proof graph** — so no
+natural-language reverse-engineering is needed downstream.
+
+## Subsets & splits
+
+- **`OWA`** — open-world assumption; answers are `True` / `False` / `Unknown`.
+- **`CWA`** — closed-world assumption; answers are `True` / `False` (unprovable = false).
+
+Each subset has `train` / `validation` / `test` splits. Core reasoning depths
+`{0, 1, 2, 3, 5}` are pooled within a subset (see the `depth` column); the theory family
+(`AttNeg` / `AttNoneg` / `RelNeg` / `RelNoneg`) is in the `family` column.
+
+## Row schema
+
+| column | type | notes |
+|---|---|---|
+| `id` / `depth` / `family` | str / int / str | per-theory metadata |
+| `theory_text` | str | the theory in natural language |
+| `facts` | list | atoms `{id, text, subject, relation, object, polarity}` |
+| `rules` | list | `{id, text, premises:[atom], conclusion:atom}` (NAF `~` in CWA) |
+| `questions` | list | `{id, text, query, answer, qdep, qlen, strategy, proofs, proof_graph}` |
+| `proof_graph` | list | `{tree, intermediates:[atom]}` — gold derivation (`qlen` -1 if none) |
+
+## Provenance & citation
+
+Built with [`graph-reasoner`](https://github.com/RLHF-And-Friends/graph-reasoner) (`gr data
+proofwriter`) from the official ProofWriter release (`V2020.12.3`), which extends RuleTaker. Please
+cite the upstream work; confirm the upstream data license before any downstream redistribution.
+
+```bibtex
+@inproceedings{tafjord2021proofwriter,
+  title={ProofWriter: Generating Implications, Proofs, and Abductive Statements over
+    Natural Language},
+  author={Tafjord, Oyvind and Dalvi, Bhavana and Clark, Peter},
+  booktitle={Findings of ACL}, year={2021}
+}
+@inproceedings{clark2020ruletaker,
+  title={Transformers as Soft Reasoners over Language},
+  author={Clark, Peter and Tafjord, Oyvind and Richardson, Kyle},
+  booktitle={IJCAI}, year={2020}
+}
+```

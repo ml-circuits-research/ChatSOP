@@ -1,0 +1,8 @@
+# PyTorch must come from a compatible accelerator environment; this file never installs it.
+# Pin resolved versions and container digest in your reviewed deployment record.
+transformers>=4.53.2,<6
+peft>=0.17.1,<0.22
+accelerate>=1.10,<2
+huggingface_hub>=0.34,<2
+safetensors>=0.6,<1
+sentencepiece>=0.2,<0.3

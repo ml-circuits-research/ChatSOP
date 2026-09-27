@@ -1,0 +1,9 @@
+{
+  "source": "https://rajpurkar.github.io/SQuAD-explorer/",
+  "data_license": "CC-BY-SA-4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0/legalcode",
+  "dataset": "The Stanford Question Answering Dataset, SQuAD v2.0 dev-v2.0.json",
+  "attribution": "Pranav Rajpurkar, Robin Jia, Percy Liang (Stanford); SQuAD 2.0",
+  "modification": "Bounded scaffold extraction preserves upstream question, context, IDs and answer spans; no SOP gold inferred.",
+  "raw_sha256": "80a5225e94905956a6446d296ca1093975c4d3b3260f1d6c8f68bc2ab77182d8"
+}

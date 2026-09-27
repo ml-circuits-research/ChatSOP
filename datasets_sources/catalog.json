@@ -1,0 +1,98 @@
+{
+  "format": "chatsop-source-catalog-v1",
+  "checked_at": "2026-09-27",
+  "corpus_files_downloaded": true,
+  "pairwise_source_policy": "QQP and PAWS/PAWS-X labels identify paraphrase or contrast pairs, not standalone SOP gold; no pair is converted without independent canonical semantic mapping, source-rights review and grouped split.",
+  "sources": [
+    {
+      "id": "qa2d",
+      "repository": "domenicrosati/QA2D",
+      "revision": "d38d3f42978e72c8c3ccc5dca0d3a2ac745f1fcf",
+      "metadata_url": "https://huggingface.co/api/datasets/domenicrosati/QA2D",
+      "card_url": "https://huggingface.co/datasets/domenicrosati/QA2D/raw/d38d3f42978e72c8c3ccc5dca0d3a2ac745f1fcf/README.md",
+      "card_cache": "sources/qa2d/CARD-mirror.txt",
+      "code_license_cache": "sources/qa2d/LICENSE-code-MIT.txt",
+      "gated": false,
+      "declared_license": "mit",
+      "license_review": "quarantined-mixed-upstream-rights",
+      "redistribution_approved": false,
+      "evidence": [
+        {
+          "url": "https://huggingface.co/datasets/domenicrosati/QA2D/raw/d38d3f42978e72c8c3ccc5dca0d3a2ac745f1fcf/README.md",
+          "finding": "Mirror frontmatter says mit, but Licensing Information says [Needs More Information]; source_datasets names squad, race, newsqa, qamr and movieQA."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/kelvinguu/qanli/master/LICENSE",
+          "finding": "Original QA2D code repository MIT grant calls covered work 'Software'; does not demonstrate rights in third-party question/answer texts and crowdsourced declarative transformations."
+        },
+        {
+          "url": "https://rajpurkar.github.io/SQuAD-explorer/",
+          "finding": "Stanford expressly distributes its own SQuAD data under CC BY-SA 4.0; this covers the standalone SQuAD source scaffold, not the unreviewed QA2D mixture or all its added annotations."
+        }
+      ],
+      "notes": [
+        "No QA2D rows have been exported as ChatSOP gold. SQuAD input rights do not establish rights over every QA2D component.",
+        "Even an admissible QA2D question/answer/declarative triple cannot safely be mapped to arbitrary SOP predicates without independent semantic adjudication.",
+        "Preserve (dataset, example_uid), not example_uid alone, as the source item key."
+      ]
+    },
+    {
+      "id": "proofwriter-structured",
+      "repository": "rlhf-and-friends/proofwriter",
+      "revision": "9be2d7bac9fe776c2b9155259a907838e90cf559",
+      "metadata_url": "https://huggingface.co/api/datasets/rlhf-and-friends/proofwriter",
+      "card_url": "https://huggingface.co/datasets/rlhf-and-friends/proofwriter/raw/9be2d7bac9fe776c2b9155259a907838e90cf559/README.md",
+      "upstream_url": "https://allenai.org/data/proofwriter",
+      "upstream_release": "V2020.12.3",
+      "upstream_readme_cache": "sources/proofwriter-structured/README-upstream.txt",
+      "card_cache": "sources/proofwriter-structured/CARD-mirror.txt",
+      "gated": false,
+      "declared_license": null,
+      "license_review": "quarantined-upstream-dataset-license-unconfirmed",
+      "redistribution_approved": false,
+      "preferred_subset": "OWA",
+      "evidence": [
+        {
+          "url": "https://aristo-data-public.s3.amazonaws.com/proofwriter/proofwriter-dataset-V2020.12.3.zip",
+          "finding": "Official release 214185889 bytes, Last-Modified 2021-10-06; ZIP central directory lists 132 entries, README.md sole documentation entry, no LICENSE or NOTICE. README has no license grant; it specifies OWA '~' negative rule conditions are hard negation, whereas CWA uses negation-as-failure."
+        },
+        {
+          "url": "https://huggingface.co/datasets/rlhf-and-friends/proofwriter/raw/9be2d7bac9fe776c2b9155259a907838e90cf559/README.md",
+          "finding": "Structured mirror expressly requires confirming upstream data license before downstream redistribution; its OWA/CWA mapping is not an independent license grant."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/allenai/ruletaker/master/LICENSE",
+          "finding": "RuleTaker repository has Apache-2.0 LICENSE for that repository; no proof that a separately released ProofWriter dataset inherits this license."
+        },
+        {
+          "url": "https://allenai.org/responsible-use",
+          "finding": "Ai2 guidelines cover Ai2 datasets but are not a dataset-specific redistribution license."
+        }
+      ],
+      "notes": [
+        "No ProofWriter corpus theory rows or derived SOP examples are committed; cached official README is metadata and contains its own illustrative sample. Probe operates in-memory; exporter is gated pending upstream rights.",
+        "The official README distinguishes OWA explicit hard negation from CWA negation-as-failure. Never silently convert CWA negative unknowns into false.",
+        "Only formal typed structured OWA theories can be deterministically mapped; provenance retains theory ID, question ID, source SHA, exact upstream texts and proof fields."
+      ]
+    },
+    {
+      "id": "squad2-dev",
+      "repository": "rajpurkar/SQuAD-explorer",
+      "revision": "dev-v2.0.json",
+      "raw_url": "https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v2.0.json",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/legalcode",
+      "license_evidence_url": "https://rajpurkar.github.io/SQuAD-explorer/",
+      "license_cache": "sources/squad2-dev/LICENSE.json",
+      "declared_license": "CC-BY-SA-4.0",
+      "license_review": "standalone-source-scaffold-admissible-with-attribution-sharealike",
+      "redistribution_approved": true,
+      "raw_sha256": "80a5225e94905956a6446d296ca1093975c4d3b3260f1d6c8f68bc2ab77182d8",
+      "raw_path": "sources/squad2-dev/raw/dev-v2.0.json",
+      "normalized_path": "normalized/squad2-dev/scaffold.jsonl",
+      "notes": [
+        "Standalone official SQuAD v2 dev source, not a QA2D sample. Limit 24 initial raw passage/question/answer-span scaffolds; no SOP target or SOP gold labels, and no model selection on these dev answers.",
+        "CC BY-SA 4.0 attribution/sharealike obligations remain applicable; do not mix with differently licensed QA2D annotations without review."
+      ]
+    }
+  ]
+}

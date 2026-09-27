@@ -1,0 +1,77 @@
+{
+  "format": "chatsop-pilot-v1",
+  "version": {
+    "counter": 1,
+    "label": "pilot-source-v1"
+  },
+  "seed": 731,
+  "worlds": 100,
+  "profile": "sop-agent-3",
+  "source_template_sha256": "02a79cf0680e7680cb3edc581eed95cbc33fb134b5050f6a2977149acb78adfb",
+  "reserved_structures": [
+    "two-hop-ground",
+    "two-hop-inverse",
+    "two-hop-missing",
+    "two-hop-select"
+  ],
+  "summary": {
+    "rows": 700,
+    "semantic_cases": 600,
+    "by_split": {
+      "train": 490,
+      "dev": 105,
+      "test": 105
+    },
+    "by_structure": {
+      "direct-ground": [
+        "dev",
+        "test",
+        "train"
+      ],
+      "direct-inverse": [
+        "train"
+      ],
+      "direct-explicit-opposite": [
+        "train"
+      ],
+      "direct-missing": [
+        "train"
+      ],
+      "direct-select": [
+        "train"
+      ],
+      "clarification": [
+        "dev",
+        "test",
+        "train"
+      ],
+      "two-hop-ground": [
+        "dev",
+        "test"
+      ],
+      "two-hop-inverse": [
+        "dev",
+        "test"
+      ],
+      "two-hop-missing": [
+        "dev",
+        "test"
+      ],
+      "two-hop-select": [
+        "dev",
+        "test"
+      ]
+    }
+  },
+  "files": {
+    "train.jsonl": "7dc44b2309ffa8bbb1514e6ddc44ac1a5e43b3b4d56b0443043f432722c56fb4",
+    "dev.jsonl": "90c25df60c1521bcc4a43765aea045da5d6eeed5a5edd7c8fa87ada517ca91e5",
+    "formalizer/train.jsonl": "0f52cfa4b2290bf3c7a29aab757dd7f911deb60a5f83fa0f930349b022750d16",
+    "formalizer/dev.jsonl": "8972b33d42540094e11fa6d6b6181a8f324d9a4d2fbd3cdb36faee6ba52f6d45",
+    "VERSION": "924a5262e183e0870e4ec6a13c8a9deb01b0a9d0cfc1f16242816130c0b4ec45"
+  },
+  "sealed_eval": {
+    "relative_directory": "../../eval/suites/pilot-v1",
+    "manifest": "manifest.json"
+  }
+}

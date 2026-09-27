@@ -1,0 +1,9 @@
+{
+  "sourceSha256": "5679d4996088538ba2c5e728db86db79e210f16450779b3bb7f049e2ab307aae",
+  "facts": [
+    {
+      "quote": "Inspection record: box_sample has a broken seal.",
+      "sop": "@broken_box fact\n  holds seal_broken(box_sample)\n  valid timeless\n  source cold_chain\n  quote \"Inspection record: box_sample has a broken seal.\""
+    }
+  ]
+}

@@ -1,7 +1,0 @@
-#!/usr/bin/env node
-import {instant} from '../src/time.js';import fs from 'node:fs';import path from 'node:path';
-import {cliArgs,loadJSON,digest,assert} from '../src/util.js';import {Repository} from '../src/repository.js';import {Lexicon} from '../src/lexicon.js';import {publishKnowledge} from '../src/ingest.js';
-const a=cliArgs();try{assert(a.file,'--file is required');assert(a.reviewed===true,'Use --reviewed only after semantic review');const config=loadJSON(a.config??'config/runtime.json',{}),lex=Lexicon.load(a.ontology??config.ontology),repo=new Repository(a.root??config.root??'state',{memory:config.memory}),documents={};
- if(a.manifest){const manifest=loadJSON(a.manifest,null),dir=path.dirname(path.resolve(a.manifest));assert(manifest.reviewed===true,'Source manifest must be reviewed');for(const [id,d]of Object.entries(manifest.documents??{})){const file=path.resolve(dir,d.path);assert(file.startsWith(dir+path.sep),'Source path must remain in its workspace');const bytes=fs.readFileSync(file);assert(digest(bytes.toString('utf8'))===d.sha256,'Source hash mismatch '+id);documents[id]=bytes.toString('utf8');}}
- const r=publishKnowledge(repo,a.base??'demo',fs.readFileSync(a.file,'utf8'),{schema:lex.predicates,reviewed:true,knownAt:a['known-at']?instant(a['known-at']):Date.now(),documents,requireQuotes:!!a.manifest});console.log(JSON.stringify({snapshot:r.snapshot,definitions:r.definitions,claims:Object.keys(r.layer.claims).length,library:r.library.length},null,2));
-}catch(e){console.error(e.message);process.exitCode=1;}

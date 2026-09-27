@@ -1,0 +1,20 @@
+{
+  "scenario": "conditional-horn-before-fix",
+  "observations": [
+    {
+      "requested": "js",
+      "status": "supported",
+      "backend": "js",
+      "hypothetical": true,
+      "complete": true
+    },
+    {
+      "requested": "prolog",
+      "status": "unsupported",
+      "backend": "prolog",
+      "complete": false,
+      "detail": "SWI-Prolog failed: ERROR: /tmp/recall-swipl-DKdZzW/program.pl:11: user:main '<meta-call>'/1: Unknown procedure: maplist/3\n"
+    }
+  ],
+  "training_executed": false
+}

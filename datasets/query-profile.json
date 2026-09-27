@@ -1,0 +1,80 @@
+{
+  "format": "chatsop-query-profile-v1",
+  "profile": "sop-agent-3",
+  "scope": "NL to executable SOP; questions and explicitly attached user assertions, not answer imitation",
+  "authority": {
+    "wire_inventory": "sop/contracts/wires.json",
+    "parser": "sop/parser.mjs",
+    "runtime": "sop/runtime.mjs",
+    "wire_count": 35,
+    "ontology_control_plane": ["entity", "predicate", "concept"],
+    "host_only_declarations": ["rule", "action", "procedure", "template", "policy", "theory"],
+    "runtime_only_wires": ["binding"],
+    "trace_closed": "host-certified only",
+    "predicate_heads": "canonical literals; dynamic $references are not supported"
+  },
+  "semantic_unit": {
+    "unit": "case, not surface paraphrase",
+    "required": ["question intent", "visible context", "approved vocabulary", "input mode", "canonical SOP", "independent expected observation", "provenance", "connected split group"],
+    "english_surfaces_minimum": 3,
+    "romanian": "Selected full semantic cases; preserve the same canonical target across languages",
+    "romanian_recommended_case_fraction": [0.05, 0.2],
+    "cross_surface_target": "one canonical SOP per semantic case",
+    "source_gold": "Source answer strings and source pair labels are not SOP gold"
+  },
+  "input_modes": {
+    "query_only": "No model assertion writes; approved host background may be queried",
+    "assertions_query": "Only attached, quoted source=user claims may be admitted into the local session before querying",
+    "clarification": "No guessed binding or invented answer; terminate with clarify"
+  },
+  "terminal_wires": ["cnl", "clarify", "assert"],
+  "canonical_cnl_language": "en",
+  "output_language_scope": "Input language does not change the canonical SOP target. Internal English CNL is distinct from separately qualified user-facing localization.",
+  "knowledge_boundary": {
+    "host_ontology": "Optional ontology_sop replaces, rather than silently extends, the default ontology; pin and review its complete declarations",
+    "host_setup": "Independent host repository initialization; never concatenate privileged setup to a model program",
+    "empty_setup": "Valid empty initialized world; do not invent dummy facts",
+    "model_visibility": "Prompt and approved micro-context only; gold SOP, expected answers, splits and private metadata are not predictor inputs",
+    "result_origin": "CNL may render only an actual runtime result; value/jsEval cannot fabricate status, answers or proof packets",
+    "synonyms": "Host-reviewed exact scoped lexicon; unknown or ambiguous matches block dependency execution. No fuzzy winner or model-published aliases",
+    "resolution_scope": ["language", "symbolic kind", "entity type", "optional domain", "lexicon version and provenance"],
+    "negation": "Explicit negative claim is distinct from absence; UNKNOWN is not false",
+    "relations": "Subsumption and inverse relations are not synonymy: mother differs from parent; parent differs from child; works_at differs from employed_by",
+    "hypothetical": "Patterns, hypotheses, plans, analogies and simulations are not observed facts"
+  },
+  "coverage_requirements": [
+    {"family": "identity_and_aliases", "questions": "Which approved entity or predicate does this mention denote?", "wires": ["resolve", "query", "solve", "cnl", "clarify"], "oracle": "Reviewed scoped lexicon with unique, ambiguous, absent and accent-collision cases", "negative": ["homonym", "wrong kind", "wrong type", "wrong domain", "subsumption-as-alias"]},
+    {"family": "relations_and_joins", "questions": "Does the relation hold, who fills a role, and which entities satisfy all linked relations?", "wires": ["query", "solve", "cnl"], "oracle": "Independently enumerated finite relation tuples", "negative": ["role reversal", "binding substitution", "conjunction changed to one conjunct", "inverse direction", "disconnected join"]},
+    {"family": "open_world_and_conflict", "questions": "Is the claim supported, refuted, both, or unknown?", "wires": ["query", "solve", "cnl"], "oracle": "Independent positive and explicit-negative closure, preserving four statuses", "negative": ["absence-as-negation", "polarity flip", "conflict-as-support-only"]},
+    {"family": "attached_assertions", "questions": "Given these user statements, answer the attached question", "wires": ["fact", "pack", "assert", "query", "solve", "cnl"], "oracle": "Session admission plus resulting answer and recorded claim effects", "negative": ["omitted assertion", "unquoted fact", "unauthorized rule", "global write", "session leakage"]},
+    {"family": "time_and_revision", "questions": "What held at an instant or interval, and what was known as of a transaction time?", "wires": ["fact", "event", "assert", "query", "temporal", "solve", "cnl"], "oracle": "Independently specified valid-time and transaction-time intervals", "negative": ["boundary inclusion", "at versus asof", "revision versus original claim", "disjoint interval"]},
+    {"family": "finite_constraints", "questions": "Is the finite numeric system feasible, is the claim entailed, and what is the optimum?", "wires": ["constraint", "solve", "cnl"], "oracle": "Independent enumeration of explicitly finite domains, optima and ties", "negative": ["strict versus non-strict comparison", "min versus max", "unit mismatch", "unique versus multiple optima", "existential versus universal claim"]},
+    {"family": "mixed_values_and_cardinality", "questions": "Compute a value from logical results without guessing a missing or nonunique binding", "wires": ["query", "constraint", "solve", "value", "jsEval", "cnl", "clarify"], "oracle": "Independent expected typed value, output mode and uniqueness", "negative": ["zero bindings", "multiple bindings", "wrong projection", "wrong arithmetic operation"]},
+    {"family": "approved_composition", "questions": "Apply the approved procedure to these arguments", "wires": ["link", "expand", "solve", "cnl"], "oracle": "Approved library definition and independently checked result", "negative": ["wrong argument order", "unapproved handle", "privileged model declaration"]},
+    {"family": "bounded_advanced_reasoning", "questions": "Find candidate explanations, diagnoses, patterns, analogies, plans or explicit counterfactual outcomes", "wires": ["hypothesis", "goal", "trace", "pattern", "recall", "reason", "abduce", "diagnose", "associate", "induce", "analogize", "plan", "simulate", "temporal", "cnl"], "oracle": "Independent bounded witness, alternatives, assumptions and epistemic/hypothetical status", "negative": ["candidate-as-fact", "plan-as-executed", "correlation-as-causation", "counterfactual contaminates actual world"]},
+    {"family": "unsupported_or_underspecified", "questions": "Ask for missing scope or refuse semantics not provided by an approved backend", "wires": ["clarify"], "oracle": "Explicit capability or ambiguity boundary, not an invented positive answer", "negative": ["default-as-Horn-law", "unbounded quantification", "invented causal intervention", "unstated closed-world assumption"]}
+  ],
+  "coverage_accounting": "Requirements above are not a measured coverage claim. Exported corpus matrix must report actual cases, target wires, host-only setup wires, compositions, oracles, negatives, languages and split counts separately. Advanced unsupported families remain explicit gaps, never surrogate successes.",
+  "split_policy": {
+    "unit": "Connected semantic/source/negative/surface group",
+    "isolated": ["train", "development", "sealed test"],
+    "heldout_dimensions": ["composition", "lexical identities and relations", "Romanian surfaces"],
+    "external_dev": "Upstream development/test sources are never training data or checkpoint selection data",
+    "independent_reference": "Author separately from corpus templates; generated heldout rows alone do not establish independence"
+  },
+  "validation": {
+    "automatic_equivalence": "Parsing, canonical formatting and safe local alpha-renaming, followed by guarded execution with independent oracles",
+    "not_equivalent": "Concrete mismatch in answer, binding, value, status, effects, temporal scope or permissions",
+    "finite_agreement": "Evidence only; a structurally different circuit remains pending after equal finite probes",
+    "adjudication": "Documented actual LLM semantic review followed by principal integrator decision; neither may override a counterexample or permission violation",
+    "skill": "skills/semantic-sop-review/SKILL.md",
+    "pilot_status": "The 700-row family fixture is diagnostic only, not a training-qualified corpus"
+  },
+  "training_gates": {
+    "checks": ["syntax_execution", "semantic_review", "leakage", "coverage", "source_rights", "independent_reference_suite"],
+    "qualification": "All checks need hashed evidence and an explicit host review; missing evidence fails closed",
+    "authorization": "A separate NEW explicit user approval tied to the exact dataset, recipe, model and run; never inferred from technical readiness",
+    "current_preparation": "No model training, fine-tuning, optimizer steps or training smoke authorized"
+  },
+  "requirements_sources": ["vision/SOP_dataset.docx", "vision/SOP_CommonSense_v2.docx", "docs/specs/DS004-sop.md", "docs/specs/DS008-data-evaluation.md"]
+}

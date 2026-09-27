@@ -1,0 +1,24 @@
+(* Envelope reference for sop-agent-2. sop/parser.mjs + sop/lower.mjs are normative.
+   This file is documentation, NOT a llama.cpp GBNF decoding guarantee. *)
+program = wire, { newline, wire } ;
+wire = "@", identifier, space, wire_type, newline, field, { field } ;
+field = "  ", field_name, [ space, scalar_or_expression ], newline
+      | "  ", field_name, " |", newline, indented_body ;
+indented_body = "    ", line, newline, { "    ", line, newline } ;
+value_reference = "$", identifier ;
+definition_handle = "~", identifier ;
+logic_variable = "?", identifier ;
+output_field = "  output ?", identifier, [ " ", output_mode ], newline ;
+output_mode = "one" | "many" | "rows" | "count" | "status" ;
+atom = [ "not " ], predicate_id, "(", term, { ", ", term }, ")" ;
+term = canonical_id | quoted_string | safe_integer | value_reference | logic_variable ;
+wire_type = "value" | "fact" | "rule" | "query" | "constraint" | "event"
+          | "pack" | "assert" | "recall" | "link" | "solve" | "reason" | "cnl" | "jsEval"
+          | "template" | "procedure" | "expand" | "clarify"
+          | "pattern" | "hypothesis" | "action" | "goal" | "trace" | "policy" | "theory"
+          | "abduce" | "diagnose" | "associate" | "induce" | "analogize" | "plan" | "simulate" | "temporal" ;
+(* Field cardinality, permitted keys, arity, scoping, temporal validity,
+   type safety, graph acyclicity and host permissions require semantic validation. *)
+
+(* `binding` is generated internally; it is not accepted as authored source.
+   An exported ?name reserves a future wire consumed with $name. *)

@@ -1,7 +1,0 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {lex} from './helpers.js';import {Lexicon,microContext} from '../src/lexicon.js';
-for(const [text,lang]of [['Maria lucrează la Alfa.','ro'],['Maria lucreaza la Alfa.','ro'],['Maria works at Alpha Lab.','en'],['Maria arbeitet bei Alfa.','de'],['Maria travaille chez Alfa.','fr'],['Maria lavora presso Alfa.','it']])test('multilingual candidate '+lang+text,()=>assert.ok(lex.candidates(text).predicates.some(x=>x.id==='works_at')));
-test('same-name entities stay ambiguous',()=>{const l=new Lexicon('@ion1 entity\n  kind person\n  label ro "Ion"\n@ion2 entity\n  kind person\n  label ro "Ion"');const c=l.candidates('Ion a venit.');assert.equal(c.entities.length,2);assert.equal(c.ambiguities.length,1);});
-test('employment and contracting are not synonyms',()=>{const c=lex.candidates('Maria este contractor pentru Alfa.');assert.ok(c.predicates.some(x=>x.id==='contractor_for'));assert.ok(!c.predicates.some(x=>x.id==='employed_by'));});
-test('negation remains in the micro-context',()=>assert.ok(microContext('Maria nu lucrează la Alfa.',lex).polarityCues.includes('nu')));
-test('oversize utterance is not silently truncated',()=>assert.throws(()=>microContext('x'.repeat(2000),lex)));
-test('word boundary avoids a short alias inside another word',()=>{const l=new Lexicon('@ana entity\n  kind person\n  label ro "Ana"');assert.equal(l.candidates('banana').entities.length,0);});
