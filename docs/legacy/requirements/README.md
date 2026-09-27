@@ -1,3 +1,5 @@
+> Archived historical requirements, not the current executable SOP contract. Examples below may use obsolete parenthesized/comma-delimited atoms and the retired `assert` wire. For current atom syntax, explicit runtime `remember`, and the intended host-managed conversational boundary, use `docs/specs/DS004-sop.md` and `docs/wiki.html`. Original wording and examples remain as historical evidence.
+
 # Specificația experimentului RecallSOP
 
 Documentele se citesc în ordinea de mai jos. Ele descriu ce trebuie construit, ce funcționează în pachet și cum se verifică. Codul și exemplele sunt parte din contract; un concept descris ca extensie nu trebuie prezentat drept rezultat executat.

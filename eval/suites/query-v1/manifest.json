@@ -6,17 +6,26 @@
     "review_status": "synthetic_unreviewed_not_training_approved"
   },
   "profile": "sop-agent-3",
-  "source_template_sha256": "32f93af617ab24bc58151b03a2da2e544b8d819a2166e681fe7d47d377a941f6",
+  "source_template_sha256": "702d7c99d93592ec3959d5748340ba1136bd25f1a9c100460e4de2d6ccb2d291",
+  "cases_md": {
+    "directory": "/home/salboaie/work/ChatSOP/datasets/cases",
+    "files": 62,
+    "tree_sha256": "a00c0fab66357ff4370d82cb836d22e88a87a46599310b769c29b528113547af",
+    "changed": [],
+    "stale": [],
+    "up_to_date": true
+  },
   "matrix": {
     "status": "expected_from_generator_not_observed_qualified_coverage",
     "source_backed_cases": 0,
     "source_backed_reason": "QA2D/ProofWriter rights and mapping unresolved; source scaffolds are not SOP gold; synthetic corpus only.",
-    "synthetic_cases": 60,
-    "synthetic_rows": 192,
+    "synthetic_cases": 62,
+    "synthetic_rows": 198,
     "human_reviewed_cases": 0,
     "training_approved": false,
     "claimed_families": [
       "approved_procedure",
+      "assumption_boundary",
       "attached_assertions",
       "causal_boundary",
       "clarification",
@@ -32,27 +41,31 @@
       "unsupported_boundary"
     ],
     "expected_from_code": {
-      "semantic_cases": 60,
-      "rows": 192
+      "semantic_cases": 62,
+      "rows": 198
     },
     "observed_validation": null,
     "observed_human_review": null,
     "by_split": {
-      "train": 31,
+      "train": 33,
       "dev": 14,
       "test": 15
     },
     "by_language": {
-      "en": 180,
+      "en": 186,
       "ro": 12
     },
+    "by_evaluation_track": {
+      "formalization": 53,
+      "system": 9
+    },
     "by_input_mode": {
-      "query_only": 48,
+      "query_only": 50,
       "assertions_query": 6,
       "clarification": 6
     },
     "by_holdout": {
-      "none": 38,
+      "none": 40,
       "reasoning_world": 1,
       "composition": 9,
       "world": 6,
@@ -62,6 +75,26 @@
       "capability_boundary": 2
     },
     "by_family": {
+      "assumption_boundary": {
+        "semantic_cases": 2,
+        "rows": 6,
+        "splits": {
+          "train": 2,
+          "dev": 0,
+          "test": 0
+        },
+        "operators": [
+          "assume",
+          "defeasible_rule",
+          "explicit_negation",
+          "ground"
+        ],
+        "domains": [
+          "robot navigation"
+        ],
+        "contrasts": 0,
+        "reviewed_cases": 0
+      },
       "relation_role": {
         "semantic_cases": 10,
         "rows": 32,
@@ -293,13 +326,15 @@
         },
         "operators": [
           "argument_reversal",
-          "assert",
           "at",
+          "conditional",
           "conflict",
           "exclusive_end",
           "explicit_negation",
           "ground",
           "no_query",
+          "premise",
+          "remember",
           "session"
         ],
         "domains": [
@@ -405,45 +440,67 @@
     ],
     "measured_structure": {
       "target_wire_cases": {
-        "query": 46,
-        "solve": 52,
-        "cnl": 53,
-        "resolve": 2,
-        "value": 2,
-        "jsEval": 2,
+        "premise": 7,
+        "query": 48,
         "constraint": 7,
+        "value": 1,
         "expand": 1,
-        "fact": 6,
-        "assert": 6,
+        "jsEval": 1,
+        "cnl": 2,
+        "fact": 1,
+        "remember": 1,
+        "solve": 1,
         "clarify": 6
       },
       "target_wire_rows": {
-        "query": 148,
-        "solve": 167,
-        "cnl": 170,
-        "resolve": 7,
-        "value": 6,
-        "jsEval": 6,
+        "premise": 22,
+        "query": 154,
         "constraint": 22,
+        "value": 3,
         "expand": 3,
-        "fact": 19,
-        "assert": 19,
+        "jsEval": 3,
+        "cnl": 6,
+        "fact": 3,
+        "remember": 3,
+        "solve": 3,
         "clarify": 19
       },
+      "by_evaluation_track": {
+        "formalization": 53,
+        "system": 9
+      },
+      "formalization_target_wire_cases": {
+        "premise": 7,
+        "query": 48,
+        "constraint": 6
+      },
+      "system_target_wire_cases": {
+        "value": 1,
+        "expand": 1,
+        "jsEval": 1,
+        "cnl": 2,
+        "fact": 1,
+        "remember": 1,
+        "constraint": 1,
+        "solve": 1,
+        "clarify": 6
+      },
       "host_setup_wire_cases": {
-        "fact": 42,
-        "rule": 17,
+        "rule": 19,
+        "fact": 43,
         "template": 2
       },
       "by_oracle": {
-        "handwritten_graph_temporal": 46,
+        "handwritten_defeasible_assumption": 2,
+        "handwritten_graph_temporal": 45,
         "handwritten_route_arithmetic": 2,
+        "explicit_session_record": 1,
         "finite_enumeration": 6,
         "explicit_missing_information": 6
       },
       "by_expected_status": {
-        "supported": 25,
-        "unknown": 13,
+        "supported": 26,
+        "unknown": 14,
         "refuted": 5,
         "both": 4,
         "possible": 6,
@@ -451,10 +508,19 @@
         "clarify": 6
       },
       "romanian_cases": 12,
-      "semantic_cases": 60,
+      "semantic_cases": 62,
       "compositions": {
-        "46fafea280ed91b467c83b03b507a545366d393e46b4893d32b8c1d6338266d6": {
-          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "e4a1c456a6ad64118f1a5ffb1ddfd05b4b8ce283292e4baccd6f390c25f9bb53": {
+          "shape": "[[\"premise\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p1\"}]]]]]",
+          "train": [
+            "assume_defeated",
+            "assume_uncontested"
+          ],
+          "dev": [],
+          "test": []
+        },
+        "17e6a1a5faa7de1bf930893f41af9d5d54575b4f0c3e51943a3ddc4df9db6f3a": {
+          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [
             "employed_bogdan",
             "employed_not_implied",
@@ -463,6 +529,7 @@
             "negative_explicit",
             "parent_forward",
             "parent_reversed",
+            "resolved_lab",
             "unknown_absent",
             "works_bogdan_missing",
             "works_vs_employed"
@@ -472,12 +539,13 @@
             "conflicted_parent"
           ],
           "test": [
+            "resolved_romanian_lab",
             "test_chain",
             "test_reversed_chain"
           ]
         },
-        "f7c04bd14a4883043acadaf68679e059aadec0f99de075ca6811a52bc802079e": {
-          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"v0\",\"c0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "244cd521329d382b8aaf761fedbf2871b98701b4aa7e63d4bfe16dd2c00bb90c": {
+          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"v0\",\"c0\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [
             "parent_inverse_select"
           ],
@@ -488,8 +556,8 @@
             "test_work_reverse"
           ]
         },
-        "be774f8f76b65ceb3b1b0e6460623ca57431a2cb88b4e319987b895fb4907982": {
-          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"c0\",\"v0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "d84241463b6c2a5ce875e7ffacefe2d64f9325b2eef4b775f17a7d7779c5ca3c": {
+          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"c0\",\"v0\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [
             "child_inverse_select"
           ],
@@ -498,8 +566,8 @@
             "test_employer_reverse"
           ]
         },
-        "6b16b7c9daa07eeefb37afed0dea394061427f843774273884239d7479350bdb": {
-          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":true,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "f9e93d9a351fc788e731243b1767dee690faeab39f71b7071e9b9a5bacade248": {
+          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":true,\"predicate\":\"p0\"}]]]]]",
           "train": [
             "negative_assertion_direct"
           ],
@@ -508,16 +576,16 @@
           ],
           "test": []
         },
-        "44d3843cdfe7f0bb2ddad47cbb2980d65bf42279e209a8f9bec5e440ee8116eb": {
-          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"},{\"args\":[\"c1\",\"c2\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "5572ef1986e4bede1c3b4bc4a6a95fd67592e73b8cee7d8dcee0fdffbdf87ce7": {
+          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"},{\"args\":[\"c1\",\"c2\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [
             "conjunction_ground"
           ],
           "dev": [],
           "test": []
         },
-        "19c79f69dab588d2c1fd84064385f148d167b4f09d436d652ba96f0d95f40cbf": {
-          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0 ?v1\"]],[\"where\",[{\"args\":[\"v0\",\"v2\"],\"neg\":false,\"predicate\":\"p0\"},{\"args\":[\"v2\",\"v1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "03d5fd44fe0c28d5c6993a0cdd9bff125d1d64ad61ff433eadd6def54229408e": {
+          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0 ?v1\"]],[\"where\",[{\"args\":[\"v0\",\"v2\"],\"neg\":false,\"predicate\":\"p0\"},{\"args\":[\"v2\",\"v1\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [],
           "dev": [
             "join_pairs"
@@ -526,32 +594,32 @@
             "test_join_pairs"
           ]
         },
-        "1cb988818ddfc08fd86b6577fda59da9a6818ceba86db6a9655e6cc6f7d9cc16": {
-          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"},{\"args\":[\"c0\",\"c2\"],\"neg\":false,\"predicate\":\"p1\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "e491e652a3a1b1b1e0e37b630e3aa914672a6357643a37aa9f90e5eccccc3fa9": {
+          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"},{\"args\":[\"c0\",\"c2\"],\"neg\":false,\"predicate\":\"p1\"}]]]]]",
           "train": [
             "join_work_project"
           ],
           "dev": [],
           "test": []
         },
-        "72eb3abaf4a19a02c5494a3829c6477df5034faf58084968adf796724f23c2a3": {
-          "shape": "[[\"query\",[[\"mode\",[\"count\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"v0\",\"c0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "1758fa3c0130758369270fdcfbebd75f00e96d6945d7a5a5c7e1d50db6292814": {
+          "shape": "[[\"query\",[[\"mode\",[\"count\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"v0\",\"c0\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [
             "count_employed"
           ],
           "dev": [],
           "test": []
         },
-        "24ff407e5f73e3c2e932ee6f9f36c10f4442441e5875dc4947b18ef7c20918c4": {
-          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"v0\",\"c0\"],\"neg\":false,\"predicate\":\"p0\"},{\"args\":[\"v0\",\"c1\"],\"neg\":false,\"predicate\":\"p1\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "ec9996b490c60ec5f8d2cc00020687d449b117e21831ad7f7de21312a889f741": {
+          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"v0\",\"c0\"],\"neg\":false,\"predicate\":\"p0\"},{\"args\":[\"v0\",\"c1\"],\"neg\":false,\"predicate\":\"p1\"}]]]]]",
           "train": [],
           "dev": [],
           "test": [
             "test_join_work_project"
           ]
         },
-        "feff3ddcb4411b4f87157647f68cce46e1e021e543c4f57dc023b157a3cbb6ed": {
-          "shape": "[[\"query\",[[\"at\",[\"<literal>\"]],[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "1814d43caa22664cd70a3328e002c6098870bfdaf588589e63a993ea0218483a": {
+          "shape": "[[\"query\",[[\"at\",[\"<literal>\"]],[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [
             "time_before",
             "time_end",
@@ -563,8 +631,8 @@
           ],
           "test": []
         },
-        "af3bf256c24c97b8841a969527cc8b42cc1f2e0cc77b50ac20631d6cb4dd1cbc": {
-          "shape": "[[\"query\",[[\"during\",[\"<literal>\"]],[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "c13a1c8377649ac6459b9ce855be349712ad0055cf3d61ae169d6b17922a20b8": {
+          "shape": "[[\"query\",[[\"during\",[\"<literal>\"]],[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [
             "time_interval"
           ],
@@ -573,8 +641,8 @@
           ],
           "test": []
         },
-        "106bbcd95efe5e6a912c1ff2cd34741f1829ec707ca7e56639950f7562d08906": {
-          "shape": "[[\"query\",[[\"asof\",[\"<literal>\"]],[\"at\",[\"<literal>\"]],[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "e6f9554b8e0c919fc7798e963f0ba255914f4a20ae621c72e42965e8b09cfcf7": {
+          "shape": "[[\"query\",[[\"asof\",[\"<literal>\"]],[\"at\",[\"<literal>\"]],[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [
             "time_asof_early",
             "time_asof_late"
@@ -582,8 +650,8 @@
           "dev": [],
           "test": []
         },
-        "8f5a90797fafb8cf1e994762bf1c455d2b2bf7ad5ccf298b921731ea8e70c8eb": {
-          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "2059c07717adca503bcf255ebc6a0580c19d24d28de12edf50082ba7657ed282": {
+          "shape": "[[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [],
           "dev": [],
           "test": [
@@ -591,18 +659,8 @@
             "incident_conflict"
           ]
         },
-        "37f7f8596c33aa31d8cd32ba8418fef832ee7d25eea991808ed355f09991e54c": {
-          "shape": "[[\"resolve\",[[\"kind\",[\"entity\"]],[\"language\",[\"<literal>\"]],[\"text\",[\"<literal>\"]],[\"type\",[\"organization\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"w0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"query\",[\"$w1\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w2\"]]]]]",
-          "train": [
-            "resolved_lab"
-          ],
-          "dev": [],
-          "test": [
-            "resolved_romanian_lab"
-          ]
-        },
-        "a7a27c520f9eed22228f464ab735b2463cfeb5ff0117ccf55b6d221b41e2d274": {
-          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"c0\",\"v0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"output\",[\"?v0 one\"]],[\"query\",[\"$w0\"]]]],[\"value\",[[\"data\",[\"number\"]]]],[\"jsEval\",[[\"expr\",[\"$w2 + $r7\"]]]],[\"constraint\",[[\"claim\",[\"?v0 <= #\"]],[\"require\",[\"?v0 == $w3\"]],[\"task\",[\"possible\"]],[\"var\",[\"?v0 int # #\"]]]],[\"solve\",[[\"constraint\",[\"$w4\"]],[\"output\",[\"?v0 one\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w5\"]]]]]",
+        "b63c1389e6535329292d37d6defb6dac311ad3e3ff045b4c48507a4250fa6f19": {
+          "shape": "[[\"query\",[[\"mode\",[\"select\"]],[\"select\",[\"?v0\"]],[\"where\",[{\"args\":[\"c0\",\"v0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"constraint\",[[\"claim\",[\"?v0 <= #\"]],[\"require\",[\"?v0 == # + $r2\"]],[\"select\",[\"?v0\"]],[\"task\",[\"possible\"]],[\"var\",[\"?v0 int # #\"]]]]]",
           "train": [],
           "dev": [
             "route_expression"
@@ -617,80 +675,80 @@
           ],
           "test": []
         },
-        "1d407477af444b7b3d288ac0dc61aba64e320748f88a813b4a32d6895ba4d28f": {
-          "shape": "[[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w0\"]],[\"scope\",[\"session\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"after\",[\"$w1\"]],[\"query\",[\"$w2\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w3\"]]]]]",
+        "3fb53d2f2871cdcc9e987424fa537837b329f434cef4873939d4eafedf1f401e": {
+          "shape": "[[\"premise\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"valid\",[\"<literal>\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [
             "assert_positive"
           ],
           "dev": [],
           "test": []
         },
-        "c64d724b034118059d35db37e15ddc37ac7216ede389ffe36a3e56ae65b7aacc": {
-          "shape": "[[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w0\"]],[\"scope\",[\"session\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c1\",\"c0\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"after\",[\"$w1\"]],[\"query\",[\"$w2\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w3\"]]]]]",
+        "53bf8ca98eb0309c31c40ef7ac2c11e281d3dd798160fbff3f690edba468b1f4": {
+          "shape": "[[\"premise\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"valid\",[\"<literal>\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c1\",\"c0\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [
             "assert_reverse"
           ],
           "dev": [],
           "test": []
         },
-        "01c8d71baca76f4735678f9439dd825b03fe40334df23c10d3b9d2d793011f12": {
-          "shape": "[[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":true,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w0\"]],[\"scope\",[\"session\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"after\",[\"$w1\"]],[\"query\",[\"$w2\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w3\"]]]]]",
+        "49f44ec5959115f8b901705ba3262b4bc587629b56031aa2a01d19cbd9de9c64": {
+          "shape": "[[\"premise\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":true,\"predicate\":\"p0\"}]],[\"valid\",[\"<literal>\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [],
           "dev": [
             "assert_negative"
           ],
           "test": []
         },
-        "1a690b16c82fc9de43b9005390fdbe5b497abc6c69a62343a1c6050e8d3cc2cf": {
-          "shape": "[[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w0\"]],[\"scope\",[\"session\"]]]],[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":true,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w2\"]],[\"scope\",[\"session\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"after\",[\"$w1\",\"$w3\"]],[\"query\",[\"$w4\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w5\"]]]]]",
+        "6e7361f5163d53a1ed87c7a6e8307079abd128c7b4a0e53a51452775c921a02d": {
+          "shape": "[[\"premise\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"valid\",[\"<literal>\"]]]],[\"premise\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":true,\"predicate\":\"p0\"}]],[\"valid\",[\"<literal>\"]]]],[\"query\",[[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [],
           "dev": [],
           "test": [
             "assert_conflict"
           ]
         },
-        "73a9fbe7d47ee6e6495357c1a86d29ea53cff2bfbcef82ad888113273ea8b4d5": {
-          "shape": "[[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w0\"]],[\"scope\",[\"session\"]]]]]",
+        "1f949c0e58600e195f321777014704c57a0948138bcec858a06144caa01fc0ee": {
+          "shape": "[[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"remember\",[[\"input\",[\"$w0\"]],[\"scope\",[\"session\"]]]]]",
           "train": [
             "assert_only"
           ],
           "dev": [],
           "test": []
         },
-        "3000a65b1c1225432fc83f491248e6a945f9017b13503d9d37551d1210b0154b": {
-          "shape": "[[\"fact\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"quote\",[\"<literal>\"]],[\"source\",[\"<literal>\"]],[\"valid\",[\"<literal>\"]]]],[\"assert\",[[\"input\",[\"$w0\"]],[\"scope\",[\"session\"]]]],[\"query\",[[\"at\",[\"<literal>\"]],[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]],[\"solve\",[[\"after\",[\"$w1\"]],[\"query\",[\"$w2\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w3\"]]]]]",
+        "a2bf9bcd268bd51eeec87bffa057f86897067ecc39186668e81c1db7c9a52288": {
+          "shape": "[[\"premise\",[[\"holds\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]],[\"valid\",[\"<literal>\"]]]],[\"query\",[[\"at\",[\"<literal>\"]],[\"mode\",[\"exists\"]],[\"where\",[{\"args\":[\"c0\",\"c1\"],\"neg\":false,\"predicate\":\"p0\"}]]]]]",
           "train": [],
           "dev": [
             "assert_temporal"
           ],
           "test": []
         },
-        "18313e0f023777b9c98f041778a3bf6ea203871f0c3e9d07bc6a84986d5e5a70": {
-          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 == #\"]],[\"require\",[\"?v0 >= #\"]],[\"task\",[\"possible\"]],[\"var\",[\"?v0 int # #\"]]]],[\"solve\",[[\"constraint\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "49f649b2ca9614c9767e9f94ccb8f8210e13541b36dce501e86c045b84d687c4": {
+          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 == #\"]],[\"require\",[\"?v0 >= #\"]],[\"task\",[\"possible\"]],[\"var\",[\"?v0 int # #\"]]]]]",
           "train": [
             "finite_possible"
           ],
           "dev": [],
           "test": []
         },
-        "5f1592a49d3ae0d917bee881780430de993b66e51116c61a02531a5a08a6f8e3": {
-          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 == #\"]],[\"require\",[\"?v0 >= #\"]],[\"task\",[\"prove\"]],[\"var\",[\"?v0 int # #\"]]]],[\"solve\",[[\"constraint\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "79988068dd0fd2cb2e8697a7feb4dbee8602930f5a943dc17f8d8dca55ab0a10": {
+          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 == #\"]],[\"require\",[\"?v0 >= #\"]],[\"task\",[\"prove\"]],[\"var\",[\"?v0 int # #\"]]]]]",
           "train": [
             "finite_not_entailed"
           ],
           "dev": [],
           "test": []
         },
-        "68112959b6831e28a50b6c78dc1f3c314fcfff712eb2d17a59ca3df2dbeeebe2": {
-          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 < #\"]],[\"require\",[\"?v0 >= #\"]],[\"task\",[\"prove\"]],[\"var\",[\"?v0 int # #\"]]]],[\"solve\",[[\"constraint\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "73363da774727961b177d625d3233d5d91fe08b7205f89ee9aaf5760bc961bb9": {
+          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 < #\"]],[\"require\",[\"?v0 >= #\"]],[\"task\",[\"prove\"]],[\"var\",[\"?v0 int # #\"]]]]]",
           "train": [
             "finite_refuted"
           ],
           "dev": [],
           "test": []
         },
-        "082bf4c86b52bd34a85612a8b0658641f16ca14be3bfa05c6c6e7ad22acf5364": {
-          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 <= #\"]],[\"require\",[\"?v0 == # + #\"]],[\"task\",[\"possible\"]],[\"var\",[\"?v0 int # #\"]]]],[\"solve\",[[\"constraint\",[\"$w0\"]],[\"output\",[\"?v0 one\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "edec7678ccd0c943a8194496184a7569862bd8d4fc175f5ebde6717283fa12f0": {
+          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 <= #\"]],[\"require\",[\"?v0 == # + #\"]],[\"select\",[\"?v0\"]],[\"task\",[\"possible\"]],[\"var\",[\"?v0 int # #\"]]]]]",
           "train": [],
           "dev": [
             "finite_unique"
@@ -705,8 +763,8 @@
             "finite_many"
           ]
         },
-        "506528118e5381bde3abb1a8ad9d0da5c0dadbb169cba949de1278386b703e0f": {
-          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 > #\"]],[\"require\",[\"?v0 >= #\"]],[\"task\",[\"possible\"]],[\"var\",[\"?v0 int # #\"]]]],[\"solve\",[[\"constraint\",[\"$w0\"]]]],[\"cnl\",[[\"language\",[\"<literal>\"]],[\"result\",[\"$w1\"]]]]]",
+        "1846320348d8b2afa9626def57eab7b6b3f68e4b37c1234669a43a8e0311ade6": {
+          "shape": "[[\"constraint\",[[\"claim\",[\"?v0 > #\"]],[\"require\",[\"?v0 >= #\"]],[\"task\",[\"possible\"]],[\"var\",[\"?v0 int # #\"]]]]]",
           "train": [],
           "dev": [],
           "test": [
@@ -749,7 +807,7 @@
           "checked": true,
           "pass": true,
           "criterion": "wire-field-term fingerprint absent from training",
-          "shape_sha256": "1a690b16c82fc9de43b9005390fdbe5b497abc6c69a62343a1c6050e8d3cc2cf"
+          "shape_sha256": "6e7361f5163d53a1ed87c7a6e8307079abd128c7b4a0e53a51452775c921a02d"
         },
         {
           "case_id": "assert_temporal",
@@ -758,7 +816,7 @@
           "checked": true,
           "pass": true,
           "criterion": "wire-field-term fingerprint absent from training",
-          "shape_sha256": "3000a65b1c1225432fc83f491248e6a945f9017b13503d9d37551d1210b0154b"
+          "shape_sha256": "a2bf9bcd268bd51eeec87bffa057f86897067ecc39186668e81c1db7c9a52288"
         },
         {
           "case_id": "dev_time_boundary",
@@ -811,7 +869,7 @@
           "checked": true,
           "pass": true,
           "criterion": "wire-field-term fingerprint absent from training",
-          "shape_sha256": "8f5a90797fafb8cf1e994762bf1c455d2b2bf7ad5ccf298b921731ea8e70c8eb"
+          "shape_sha256": "2059c07717adca503bcf255ebc6a0580c19d24d28de12edf50082ba7657ed282"
         },
         {
           "case_id": "join_pairs",
@@ -820,7 +878,7 @@
           "checked": true,
           "pass": true,
           "criterion": "wire-field-term fingerprint absent from training",
-          "shape_sha256": "19c79f69dab588d2c1fd84064385f148d167b4f09d436d652ba96f0d95f40cbf"
+          "shape_sha256": "03d5fd44fe0c28d5c6993a0cdd9bff125d1d64ad61ff433eadd6def54229408e"
         },
         {
           "case_id": "multi_hop_inverse",
@@ -852,7 +910,7 @@
           "checked": true,
           "pass": true,
           "criterion": "wire-field-term fingerprint absent from training",
-          "shape_sha256": "a7a27c520f9eed22228f464ab735b2463cfeb5ff0117ccf55b6d221b41e2d274"
+          "shape_sha256": "b63c1389e6535329292d37d6defb6dac311ad3e3ff045b4c48507a4250fa6f19"
         },
         {
           "case_id": "test_chain",
@@ -876,7 +934,7 @@
           "checked": true,
           "pass": true,
           "criterion": "wire-field-term fingerprint absent from training",
-          "shape_sha256": "19c79f69dab588d2c1fd84064385f148d167b4f09d436d652ba96f0d95f40cbf"
+          "shape_sha256": "03d5fd44fe0c28d5c6993a0cdd9bff125d1d64ad61ff433eadd6def54229408e"
         },
         {
           "case_id": "test_join_work_project",
@@ -885,7 +943,7 @@
           "checked": true,
           "pass": true,
           "criterion": "wire-field-term fingerprint absent from training",
-          "shape_sha256": "24ff407e5f73e3c2e932ee6f9f36c10f4442441e5875dc4947b18ef7c20918c4"
+          "shape_sha256": "ec9996b490c60ec5f8d2cc00020687d449b117e21831ad7f7de21312a889f741"
         },
         {
           "case_id": "test_reversed_chain",
@@ -926,12 +984,14 @@
       "Synthetic scenarios and paraphrases need independent principal review.",
       "During queries ask for evidence intersecting a window, not universal validity throughout that window.",
       "A selected tuple from a multi-atom join may rely on a contested premise; overall supported status does not certify uncontested tuples.",
+      "System circuits are exported only under system/ and must not enter formalizer projections.",
       "Host-approved procedure reuse is the pinned demonstration template, not a newly certified external procedure."
     ]
   },
   "review_status": "synthetic_unreviewed_not_training_approved",
   "files": {
-    "test.jsonl": "2f7945007485edd7385017733fd5a2856933c52a4ee46a1deeaab5e2ae2fedcd",
+    "test.jsonl": "54d1657f28b35783703032b97725cf9938feab0bed178948a9a09d005d973d1c",
+    "system/test.jsonl": "26f803a82c8b3e6a53fab33f039bc0f21841809fd82fcc20f0ccbfd179458805",
     "VERSION": "abc2eaf7193226e3929a7fe1bb085122a7a5d1619c5c86de051abfe2e23c352c"
   }
 }

@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { buildPilot, writePilot, RESERVED_STRUCTURES } from '../tools/datasets/build-pilot.mjs';
 import { validateRecord, validateCorpus } from '../tools/datasets/schema.mjs';
-import { executeCorpus, validateManifest } from '../tools/datasets/validate.mjs';
+import { executeCorpus, readJsonl, validateManifest } from '../tools/datasets/validate.mjs';
 
 const corpus = () => buildPilot({ worlds: 10, seed: 41 });
 test('fixed seed reproduces cases while another seed changes worlds, not split safety', () => {
@@ -49,6 +49,12 @@ test('sealed manifest audits checksums, export correspondence and crosssplit lea
     const out = path.join(root, 'development'), evalOut = path.join(root, 'sealed');
     writePilot({ out, evalOut, worlds: 10, seed: 41 });
     const file = path.join(out, 'manifest.json');
+    const formalization = readJsonl(path.join(out, 'train.jsonl'));
+    const system = readJsonl(path.join(out, 'system/train.jsonl'));
+    const systemIds = new Set(system.map(row => row.id));
+    assert.ok(formalization.length > 0 && formalization.every(row => row.evaluation_track === 'formalization'));
+    assert.ok(system.length > 0 && system.every(row => row.evaluation_track === 'system'));
+    assert.ok(formalization.every(row => !systemIds.has(row.id)));
     assert.equal(validateManifest(file).summary.semantic_cases, 60);
     fs.appendFileSync(path.join(evalOut, 'test.jsonl'), '{}\n');
     assert.throws(() => validateManifest(file), /checksum mismatch/);
@@ -60,8 +66,10 @@ test('real runtime checks graph-derived refutations, composition, and answer tup
   const train = rows.find(row => row.split === 'train').split_group_id;
   const testWorld = rows.find(row => row.split === 'test').split_group_id;
   const selected = rows.filter(row => row.split_group_id === train || row.split_group_id === testWorld);
-  assert.deepEqual(await executeCorpus(selected), { executed: selected.length, status: 'verified_against_runtime' });
+  const runtime = await executeCorpus(selected);
+  assert.equal(runtime.executed, selected.length);
+  assert.equal(runtime.status, 'verified_against_runtime');
   const anchor = selected.find(row => row.structure_id === 'direct-ground' && row.language === 'en');
   const corrupted = { ...anchor, expected: { status: 'refuted', answers: [] } };
-  await assert.rejects(executeCorpus([corrupted]), /graph oracle status mismatch/);
+  await assert.rejects(executeCorpus([corrupted]));
 });

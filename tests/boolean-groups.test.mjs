@@ -8,7 +8,7 @@ import {interval} from '../lib/time.mjs';
 
 const query=body=>lowerQuery(parse('@q query\n'+body).wires[0]);
 const fact=(text,id,valid='timeless')=>({atom:parseAtom(text),id,valid:interval(valid)});
-const group=`  where any\n    p(a)\n    q(a)\n  end`;
+const group=`  where any\n    p a\n    q a\n  end`;
 
 test('Boolean numeric groups preserve alternatives, nesting and correlated base assignments',()=>{
  const source=`@c constraint
@@ -39,39 +39,39 @@ test('Boolean numeric groups preserve alternatives, nesting and correlated base 
 });
 
 test('selected and filtered variables cannot be optional branch bindings',()=>{
- const body='  where any\n    p(?x)\n    q(?y)\n  end';
+ const body='  where any\n    p ?x\n    q ?y\n  end';
  assert.throws(()=>query(body+'\n  select ?x'),/Unbound selected variable/);
  assert.throws(()=>query(body+'\n  filter ?x > 0'),/Unbound filter variable/);
- const q=query(body+'\n  where r(?x)\n  select ?x');
- const result=evaluate(q,[fact('q(b)','q'),fact('r(a)','r')]);
+ const q=query(body+'\n  where r ?x\n  select ?x');
+ const result=evaluate(q,[fact('q b','q'),fact('r a','r')]);
  assert.deepEqual(result.answers.map(a=>a.binding),[{'?x':'a'}]);
 });
 
 test('a clean alternative is not contaminated by a contradicted sibling',()=>{
- const q=query(group),facts=[fact('p(a)','p'),fact('not p(a)','np'),fact('q(a)','q')];
+ const q=query(group),facts=[fact('p a','p'),fact('not p a','np'),fact('q a','q')];
  const result=evaluate(q,facts);
  assert.equal(result.status,'supported');
  assert.deepEqual(result.conflictedAnswers,[]);
- assert.equal(evaluate(q,[...facts,fact('not q(a)','nq')]).status,'both');
+ assert.equal(evaluate(q,[...facts,fact('not q a','nq')]).status,'both');
 });
 
 test('explicit opposite evidence refutes conjunction but missing evidence does not',()=>{
  const q=query(group.replace('any','all'));
- assert.equal(evaluate(q,[fact('not p(a)','np'),fact('q(a)','q')]).status,'refuted');
- assert.equal(evaluate(q,[fact('q(a)','q')]).status,'unknown');
+ assert.equal(evaluate(q,[fact('not p a','np'),fact('q a','q')]).status,'refuted');
+ assert.equal(evaluate(q,[fact('q a','q')]).status,'unknown');
 });
 
 test('nested joins require simultaneous validity and honor a shared probe budget',()=>{
- const q=query('  where all\n    p(a)\n    any\n      q(a)\n      r(a)\n    end\n  end\n  during 2026-01-01 2026-03-01');
- const facts=[fact('p(a)','p','2026-01-01 2026-02-01'),fact('q(a)','q','2026-02-01 2026-03-01')];
+ const q=query('  where all\n    p a\n    any\n      q a\n      r a\n    end\n  end\n  during 2026-01-01 2026-03-01');
+ const facts=[fact('p a','p','2026-01-01 2026-02-01'),fact('q a','q','2026-02-01 2026-03-01')];
  assert.equal(evaluate(q,facts).status,'unknown');
- const cut=evaluate(q,[fact('p(a)','p'),fact('q(a)','q')],{maxJoins:1});
+ const cut=evaluate(q,[fact('p a','p'),fact('q a','q')],{maxJoins:1});
  assert.equal(cut.complete,false);
  assert.deepEqual(cut.answers,[]);
 });
 
 test('empty, unclosed and excessive groups are rejected rather than weakened',()=>{
  assert.throws(()=>parse('@q query\n  where any\n  end'),/Empty any/);
- assert.throws(()=>parse('@q query\n  where all\n    p(a)'),/Unclosed condition/);
- assert.throws(()=>parse('@q query\n  where all\n'+'    all\n'.repeat(32)+'    p(a)\n'+'  end\n'.repeat(33)),/Condition nesting limit/);
+ assert.throws(()=>parse('@q query\n  where all\n    p a'),/Unclosed condition/);
+ assert.throws(()=>parse('@q query\n  where all\n'+'    all\n'.repeat(32)+'    p a\n'+'  end\n'.repeat(33)),/Condition nesting limit/);
 });

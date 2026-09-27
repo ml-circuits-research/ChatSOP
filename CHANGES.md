@@ -1,3 +1,13 @@
+# Declarative model boundary and whitespace atom cutover
+
+SOP atoms now use whitespace-separated terms, for example `temperature room_a 21`; the old parenthesized spelling is rejected. The session-recording wire is `remember`, with no `assert` alias. JavaScript assertions, solver languages, source quotations and explicitly archived historical artifacts retain their own syntax.
+
+The small model may author only `premise`, `query` and `constraint`. Runtime admission and prompts enforce that boundary. Host-approved orchestration produces separately inspectable resolution, assumption packs, solves, checked scalar projections and CNL. Blocking identity or scalar ambiguity produces a host-authored clarification with the pending declarative problem for the next turn; an entailed claim does not justify selecting an ambiguous requested value. Missing query evidence remains unknown.
+
+Premises carry host-attributed model-interpretation provenance and remain conditional conversation context across turns, never implicit repository facts. Conditionality survives query-to-scalar-to-numeric chains. Independently admitted sourced facts and explicit trusted `remember` operations remain separate.
+
+Updated executable examples, grammars, prompts, skills, generated catalogs and all wire keyword help. Formalizer targets are separated from retained full-circuit system evaluation. Rebuilt current corpora and created a new source-reference derivative with fresh provenance without rewriting the sealed historical original. Browser checks cover desktop/mobile navigation, keyword tables and executable examples. No neural inference, optimizer step or training was run.
+
 # Explicit Boolean groups and concrete component documentation
 
 Added native all/any/end groups to query where/filter and constraint require/claim fields, with bounded nesting and canonical round-tripping. Query execution preserves alternatives, correlated bindings, temporal intersections, explicit opposite evidence, and shared search limits. Selected/filter variables must be bound across alternatives or by shared conjuncts. Retrieval, abduction, diagnostics, context guards, and semantic fingerprints understand grouped conditions.

@@ -1,3 +1,5 @@
+> Historical semantic contract, retained for provenance. The current `sop-agent-3` parser accepts whitespace-separated atoms and the explicit runtime wire is `remember`, not `assert`. Follow `docs/specs/DS004-sop.md` and current wire help for executable examples; the syntax and source paths below reflect the archived implementation.
+
 # 24. Contractul semantic al firelor SOP
 
 ## Sintaxă și tipuri

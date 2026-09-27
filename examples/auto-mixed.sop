@@ -1,7 +1,7 @@
 # Relational recall -> generated numeric wire -> constraint -> another output.
 @q query
   select ?duration
-  where duration(route_demo, ?duration)
+  where duration route_demo ?duration
   at 2026-09-26
 
 @trip solve

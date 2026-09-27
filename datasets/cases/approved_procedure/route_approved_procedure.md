@@ -5,6 +5,7 @@
 - world: route_dev
 - operators: expand, host_approved_library, finite_constraint
 - input_mode: query_only
+- evaluation_track: system
 - structure: expand__host_approved_library__finite_constraint
 - oracle: handwritten_route_arithmetic
 
@@ -25,7 +26,7 @@
 - status: `"possible"`
 - outputs: `{"expanded__duration":70,"expanded__arrival":840}`
 
-## SOP target (compiled, canonical)
+## Trusted system circuit (not model target)
 
 ```sop
 @route value
@@ -55,7 +56,7 @@
 
 ```sop
 @record0 fact
-  holds duration(route_demo, 70)
+  holds duration route_demo 70
   valid timeless
   source route_dev
   quote "The Alpha Lab route takes 70 minutes."
@@ -69,7 +70,7 @@
   body |
     @travel query
       select ?duration
-      where duration($route, ?duration)
+      where duration $route ?duration
     @retrieve_duration solve
       query $travel
       output ?duration one
@@ -89,4 +90,4 @@
 
 ---
 
-Generated from `tools/datasets/curriculum/cases.mjs` (revision ac20503521b0ea6482fe565ef5af4e07658f486b70d52431b1868723a3df0c11). Manual edits here are discarded by regeneration and make validation fail as a stale authoring tree. To change a case: edit `cases.mjs`, then run `node tools/datasets/build-cases-md.mjs` and rebuild the corpus.
+Generated from `tools/datasets/curriculum/cases.mjs` (revision 702d7c99d93592ec3959d5748340ba1136bd25f1a9c100460e4de2d6ccb2d291). Manual edits here are discarded by regeneration and make validation fail as a stale authoring tree. To change a case: edit `cases.mjs`, then run `node tools/datasets/build-cases-md.mjs` and rebuild the corpus.

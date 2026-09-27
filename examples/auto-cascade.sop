@@ -1,6 +1,6 @@
 @family query
   select ?bunica
-  where grandmother(?bunica, carina)
+  where grandmother ?bunica carina
   at 2026-09-26
 
 @who solve
@@ -9,7 +9,7 @@
 
 @children query
   select ?copii
-  where parent($bunica, ?copii)
+  where parent $bunica ?copii
   at 2026-09-26
 
 @next solve

@@ -6,27 +6,27 @@
   "rationale": "The source explicitly states the conjunction is sufficient for eligibility in this scoped category. This does not authorize performing a transfer.",
   "sourceQuotes": ["A sealed vaccine box with a complete temperature log and intact seal is eligible for routine transfer."],
   "assumptions": ["The fixture box IDs denote sealed vaccine boxes only when independently observed in a probe.", "Complete logs and intact seals in probes are verified observations, not inferred from absence of damage."],
-  "sop": "@eligible rule\n  when sealed_vaccine_box(?x)\n  when complete_log(?x)\n  when seal_intact(?x)\n  then routine_transfer_eligible(?x)\n  mode logical",
+  "sop": "@eligible rule\n  when sealed_vaccine_box ?x\n  when complete_log ?x\n  when seal_intact ?x\n  then routine_transfer_eligible ?x\n  mode logical",
   "probes": [
     {
       "role": "positive",
       "rationale": "Both premises observed independently; expect support.",
-      "setupSop": "@box_a fact\n  holds sealed_vaccine_box(box_a)\n  valid timeless\n@log_a fact\n  holds complete_log(box_a)\n  valid timeless\n@seal_a fact\n  holds seal_intact(box_a)\n  valid timeless",
-      "querySop": "@q query\n  where routine_transfer_eligible(box_a)\n@m recall\n  query $q\n@answer reason\n  query $q\n  memory $m",
+      "setupSop": "@box_a fact\n  holds sealed_vaccine_box box_a\n  valid timeless\n@log_a fact\n  holds complete_log box_a\n  valid timeless\n@seal_a fact\n  holds seal_intact box_a\n  valid timeless",
+      "querySop": "@q query\n  where routine_transfer_eligible box_a\n@m recall\n  query $q\n@answer reason\n  query $q\n  memory $m",
       "expectedStatus": "supported"
     },
     {
       "role": "negative",
       "rationale": "Broken seal and complete log do not establish intact seal; never infer permission from the complete log alone.",
-      "setupSop": "@box_b fact\n  holds sealed_vaccine_box(box_b)\n  valid timeless\n@log_b fact\n  holds complete_log(box_b)\n  valid timeless\n@broken_b fact\n  holds seal_broken(box_b)\n  valid timeless",
-      "querySop": "@q query\n  where routine_transfer_eligible(box_b)\n@m recall\n  query $q\n@answer reason\n  query $q\n  memory $m",
+      "setupSop": "@box_b fact\n  holds sealed_vaccine_box box_b\n  valid timeless\n@log_b fact\n  holds complete_log box_b\n  valid timeless\n@broken_b fact\n  holds seal_broken box_b\n  valid timeless",
+      "querySop": "@q query\n  where routine_transfer_eligible box_b\n@m recall\n  query $q\n@answer reason\n  query $q\n  memory $m",
       "expectedStatus": "unknown"
     },
     {
       "role": "boundary",
       "rationale": "No seal observation: open world absence cannot be promoted into eligibility.",
-      "setupSop": "@box_c fact\n  holds sealed_vaccine_box(box_c)\n  valid timeless\n@log_c fact\n  holds complete_log(box_c)\n  valid timeless",
-      "querySop": "@q query\n  where routine_transfer_eligible(box_c)\n@m recall\n  query $q\n@answer reason\n  query $q\n  memory $m",
+      "setupSop": "@box_c fact\n  holds sealed_vaccine_box box_c\n  valid timeless\n@log_c fact\n  holds complete_log box_c\n  valid timeless",
+      "querySop": "@q query\n  where routine_transfer_eligible box_c\n@m recall\n  query $q\n@answer reason\n  query $q\n  memory $m",
       "expectedStatus": "unknown"
     }
   ]

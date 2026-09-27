@@ -1,0 +1,20 @@
+{
+  "format": "chatsop-experiment-registry-v1",
+  "description": "Declared query curriculum formalization matrix. No predictions or model execution are implied by this manifest.",
+  "cells": [
+    {
+      "id": "query-dev-formalization",
+      "split": "dev",
+      "track": "formalization",
+      "suite": "datasets/query-v1/dev.jsonl",
+      "predictions": "eval/registry/predictions/query-dev-formalization.jsonl"
+    },
+    {
+      "id": "query-test-formalization",
+      "split": "test",
+      "track": "formalization",
+      "suite": "eval/suites/query-v1/test.jsonl",
+      "predictions": "eval/registry/predictions/query-test-formalization.jsonl"
+    }
+  ]
+}

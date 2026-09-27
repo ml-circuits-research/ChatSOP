@@ -1,0 +1,12 @@
+# Declarative problem authored by the small model: two conditional assumptions
+# plus one question. No solve, cnl, resolve or remember appears here; the host
+# compiles those steps into an inspectable execution circuit.
+@context premise
+  holds parent carina ana
+
+@background premise
+  holds works_at maria lab_alpha
+
+@question query
+  select ?who
+  where parent carina ?who

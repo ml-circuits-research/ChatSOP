@@ -20,7 +20,7 @@ function predicate(value) {
 }
 function term(value) { return variable(value) ? '?x' : identifier(value); }
 function expression(value) {
-  return `${polarity(value.polarity)}${predicate(value)}(${term(value.subject)}${value.relation === 'is' ? '' : `, ${term(value.object)}`})`;
+  return `${polarity(value.polarity)}${predicate(value)} ${term(value.subject)}${value.relation === 'is' ? '' : ` ${term(value.object)}`}`;
 }
 function entitiesFor(value) {
   return value.relation === 'is' ? [value.subject] : [value.subject, value.object];
@@ -106,7 +106,7 @@ export function convertTheory(raw, { revision, uri, sha256, license, split = 'tr
       rows.push({
         id: `${caseId}:en`, semantic_case_id: caseId, split_group_id: group,
         structure_id: `proofwriter-${raw.family}-depth${raw.depth}-${a.polarity === '+' ? 'positive' : 'negative'}`,
-        split, input_mode: 'query_only',
+        split, input_mode: 'query_only', evaluation_track:'formalization',
         source: { id: 'proofwriter-structured', kind: 'external', uri, revision, sha256, license,
           original_id: { theory: raw.id, question: question.id }, original_question: question.text,
           theory_text: raw.theory_text, depth: raw.depth, qdep: question.qdep, qlen: question.qlen,
@@ -114,7 +114,7 @@ export function convertTheory(raw, { revision, uri, sha256, license, split = 'tr
           raw_theory_sha256: digest(JSON.stringify(raw)) },
         context_assertions: [], question: `Is it true that ${question.text.replace(/[.?!]\s*$/, '')}?`, language: 'en',
         surface_group_id: caseId, ontology_sop,
-        sop_target: `@q query\n  where ${expression(a)}\n@r solve\n  query $q\n@out cnl\n  result $r\n  language en`,
+        sop_target: `@q query\n  where ${expression(a)}`,
         semantic_status: 'valid', negative_of: null,
         generation_trace: { method: 'deterministic_question_wrapper', template: null, model: null, review_status: 'pending_semantic_review' },
         quality_flags: { source_oracle: oracle, source_question_exact: question.text },

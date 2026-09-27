@@ -26,23 +26,27 @@ export class ReasoningRegistry {
  builtin(request,advanced){
   const mode=request.mode??'deduce',limits={...LIMITS,...request.limits},items=flat(request.data);
   const allInputs=[...items,...flat(request.candidates),...flat(request.actions),...flat(request.intervention),...flat(request.source),...flat(request.target)];
-  const requiredConstraint=items.find(x=>x.kind==='constraint');if(requiredConstraint&&mode!=='constraint')return unsupported('mixed_constraints_require_explicit_stage','This operation cannot drop a constraint; link a numeric solve through SOP output ports.');
-  const theory=allInputs.find(x=>x.kind==='theory');if(theory)return {...unsupported('unsupported_theory','No registered compiler for required dialect '+theory.dialect),ignored:[]};
+  const rejected=(code,detail,requested)=>unsupported(code,detail);
+  const post=(value,requested)=>({...value,ignored:value.ignored??[],reasoningStrategy:advanced?'advanced':'reference',route:{operation:mode,backend:requested,fallback:null,semantics:'explicit-request-rejected-without-substitution'}});
+  const requiredConstraint=items.find(x=>x.kind==='constraint');if(requiredConstraint&&mode!=='constraint')return post(rejected('mixed_constraints_require_explicit_stage','This operation cannot drop a constraint; link a numeric solve through SOP output ports.'),'none');
+  const theory=allInputs.find(x=>x.kind==='theory');if(theory)return post(rejected('unsupported_theory','No registered compiler for required dialect '+theory.dialect),'none');
   const ignored=items.filter(x=>!(allowedKinds[mode]??[]).includes(x.kind)&&x.kind!=='retrieval').map(x=>({id:x.id,kind:x.kind,reason:['pattern','hypothesis','trace'].includes(x.kind)?'not-admitted-as-a-deductive-premise':'not-used-by-this-operation'}));
   let out,backend=request.backend??'auto',fallback=null;
-  if(!advanced&&!['auto','js'].includes(backend))return unsupported('reference_backend_mismatch','The reference strategy uses JS only; select advanced for external backends.');
+  const reject=(code,detail,requested=backend)=>post(rejected(code,detail),requested);
+  if(!advanced&&!['auto','js'].includes(backend))return reject('reference_backend_mismatch','The reference strategy uses JS only; select advanced for external backends.',backend);
   if(['deduce','temporal','classify'].includes(mode)){
    if(backend==='auto'){backend=advanced&&request.query.at!==undefined&&this.available('prolog')?'prolog':'js';if(advanced&&backend==='js')fallback='Prolog unavailable or interval query; using the equivalent JS Horn profile';}
    const k=partitions(request.data,request.memory,request.query);
    out=solveHorn(request.query,{facts:k.facts,rules:k.rules,complete:k.complete,probes:request.memory?.probes??0},{...limits,backend,assumptions:request.assumptions??[]});
   }else if(mode==='constraint'){
    if(backend==='auto'){backend=advanced&&this.available('z3')?'z3':'js';if(advanced&&backend==='js')fallback='Z3 unavailable; using the finite JS profile';}
-   if(!['js','z3'].includes(backend))return unsupported('backend_profile_mismatch','Numeric constraints need JS or Z3');
+   if(!['js','z3'].includes(backend))return reject('backend_profile_mismatch','Numeric constraints need JS or Z3',backend);
    const p=request.problem,finite=Object.values(p.vars).every(v=>Number.isSafeInteger(v.min)&&Number.isSafeInteger(v.max));
-   if(backend==='js'&&!finite)return unsupported('finite_domain_required','Reference numeric reasoning requires finite integer domains');
+   if(backend==='js'&&!finite)return reject('finite_domain_required','Reference numeric reasoning requires finite integer domains',backend);
    out=p.task==='optimize'?(backend==='js'?optimizeFinite(p,{...limits,project:request.project}):optimizeZ3(p,{...limits,project:request.project})):solveConstraint(p,{...limits,backend,project:request.project??[]});
   }else{
    const run=simple[mode];assert(run,'Unsupported reasoning mode '+mode);
+   if(!['auto','js'].includes(backend))return reject('explicit_backend_not_available_for_mode','Mode '+mode+' is implemented only by the shared JS search controller; remove backend '+backend+' or select the reference strategy.',backend);
    const call={...request,...limits};delete call.mode;if(request.operationMode)call.mode=request.operationMode;out=run(call);backend='js';if(advanced)fallback='This operation uses the shared JS search controller; it is not compiled directly to Prolog/Z3';
   }
   return {...out,ignored:[...ignored,...(out.ignored??[])],route:{operation:mode,backend,fallback,semantics:'no-required-constraint-silently-dropped'}};

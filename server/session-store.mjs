@@ -1,0 +1,26 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {digest,checkName} from '../lib/util.mjs';
+import {Agent} from './agent.mjs';
+
+export class SessionStore {
+ constructor({repo,lexicon,config,root}) { Object.assign(this,{repo,lexicon,config,root:path.resolve(root)});this.agents=new Map();fs.mkdirSync(this.root,{recursive:true,mode:0o700}); }
+ get(user,conversation,base) {
+  checkName(user);checkName(conversation);checkName(base);
+  const key=digest([base,user,conversation]);
+  if(this.agents.has(key))return this.agents.get(key);
+  const file=path.join(this.root,key+'.json');
+  const agent=new Agent({repo:this.repo,session:this.repo.session(base,user,conversation),lexicon:this.lexicon,config:this.config});
+  if(fs.existsSync(file)){
+   const state=JSON.parse(fs.readFileSync(file,'utf8'),(_,value)=>value==='__ChatSOP_INFINITY__'?Infinity:value==='__ChatSOP_NEG_INFINITY__'?-Infinity:value);
+   if(state.version!==1||state.user!==user||state.conversation!==conversation||state.base!==base)throw Error('Conversation state mismatch');
+   agent.recent=state.recent;agent.last=state.last;agent.context=state.context;
+  }
+  const entry={agent,file,key};this.agents.set(key,entry);return entry;
+ }
+ save({agent,file},user,conversation,base) {
+  const temp=file+'.'+process.pid+'.tmp';
+  fs.writeFileSync(temp,JSON.stringify({version:1,user,conversation,base,recent:agent.recent,last:agent.last,context:agent.context},(_,value)=>value===Infinity?'__ChatSOP_INFINITY__':value===-Infinity?'__ChatSOP_NEG_INFINITY__':value),{mode:0o600});
+  fs.renameSync(temp,file);
+ }
+}

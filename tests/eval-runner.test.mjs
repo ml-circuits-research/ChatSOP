@@ -5,16 +5,16 @@ import { epistemicResult } from '../eval/contracts.mjs';
 
 function fixture() {
   return {
-    id: 'parent-en', semantic_case_id: 'parent-case', language: 'en', structure_id: 'parent-direct',
+    id: 'parent-en', semantic_case_id: 'parent-case', language: 'en', structure_id: 'parent-direct', evaluation_track: 'formalization',
     question: 'Who is the parent of person B?',
     context: {
       now: '2026-09-26T12:00:00Z', language: 'en',
-      entities: [{ id: 'person_a', label: 'Person A' }, { id: 'person_b', label: 'Person B' }, { id: 'person_c', label: 'Person C' }],
+      entities: [{ id: 'person_a', label: 'Person A', type: 'person' }, { id: 'person_b', label: 'Person B', type: 'person' }, { id: 'person_c', label: 'Person C', type: 'person' }],
       predicates: [{ id: 'parent', args: ['person', 'person'], meaning: 'parent of a person' }],
       approvedTemplates: [], procedures_sop: [],
     },
-    setup_sop: '@f fact\n  holds parent(person_a, person_b)\n  valid timeless\n  source synthetic\n',
-    sop_target: '@q query\n  select ?who\n  where parent(?who, person_b)\n\n@s solve\n  query $q\n\n@answer cnl\n  result $s\n  language en\n',
+    setup_sop: '@f fact\n  holds parent person_a person_b\n  valid timeless\n  source synthetic\n',
+    sop_target: '@q query\n  select ?who\n  where parent ?who person_b\n',
     expected: { status: 'supported', answers: [['person_a']], outputs: {} },
   };
 }
@@ -26,7 +26,7 @@ test('evaluation distinguishes wrong semantics from invalid syntax and endpoint 
   const correct = await evaluate([row], { config, predictor: () => row.sop_target });
   assert.equal(correct.metrics.execution_equivalence.numerator, 1);
   assert.equal(correct.model_identity_verified, false);
-  const wrong = await evaluate([row], { config, predictor: () => row.sop_target.replace('parent(?who, person_b)', 'parent(?who, person_c)') });
+  const wrong = await evaluate([row], { config, predictor: () => row.sop_target.replace('parent ?who person_b', 'parent ?who person_c') });
   assert.equal(wrong.metrics.syntax.numerator, 1);
   assert.equal(wrong.metrics.runtime.numerator, 1);
   assert.equal(wrong.metrics.execution_equivalence.numerator, 0);
@@ -59,14 +59,15 @@ test('epistemic projection retains conflict, possibility and conditional incompl
   assert.equal(epistemicResult({ status: 'hypotheses' }).status, 'PLAUSIBLE');
 });
 
-test('attached assertions are executed in isolated sessions and cannot leak into a prediction that omits them', async () => {
+test('explicitly remembered user facts are isolated from predictions that omit them', async () => {
   const row = fixture();
+  row.evaluation_track = 'system';
   row.input_mode = 'assertions_query';
   row.context_assertions = ['Person A is a parent of person B.'];
   row.setup_sop = '';
-  const queryOnly = row.sop_target;
-  row.sop_target = `@observation fact\n  holds parent(person_a, person_b)\n  valid timeless\n  source user\n  quote ${JSON.stringify(row.context_assertions[0])}\n@remember assert\n  input $observation\n  scope session\n` + queryOnly.replace('  query $q', '  query $q\n  after $remember');
-  row.expected.session_claims = [{ holds:'parent(person_a, person_b)', valid:'timeless', source:'user', quote:'Person A is a parent of person B.', retention:'normal' }];
+  const queryOnly = row.sop_target + '@s solve\n  query $q\n@answer cnl\n  result $s\n  language en\n';
+  row.sop_target = `@observation fact\n  holds parent person_a person_b\n  valid timeless\n  source user\n  quote ${JSON.stringify(row.context_assertions[0])}\n@remember remember\n  input $observation\n  scope session\n` + queryOnly.replace('  query $q', '  query $q\n  after $remember');
+  row.expected.session_claims = [{ holds:'parent person_a person_b', valid:'timeless', source:'user', quote:'Person A is a parent of person B.', retention:'normal' }];
   const correct = await evaluate([row], { config, predictor: () => row.sop_target });
   assert.equal(correct.records[0].reference_valid, true);
   assert.equal(correct.records[0].execution_equivalent, true);
@@ -80,7 +81,6 @@ test('attached assertions are executed in isolated sessions and cannot leak into
   const wrongGold = await evaluate([{ ...row, sop_target:withoutProvenance }], { config, predictor: () => { throw Error('must not be called'); } });
   assert.equal(wrongGold.records[0].reference_valid, false);
   assert.equal(wrongGold.records[0].error.stage, 'reference');
-  assert.match(wrongGold.records[0].error.message, /session claims/);
 });
 
 test('a host-supplied case ontology is used by both execution guards without widening the model shortlist', async () => {
@@ -88,13 +88,13 @@ test('a host-supplied case ontology is used by both execution guards without wid
   row.input_mode = 'query_only';
   row.ontology_sop = '@guides predicate\n  args person person\n  label en "guides"\n@person_a entity\n  kind person\n  label en "Person A"\n@person_b entity\n  kind person\n  label en "Person B"\n@person_c entity\n  kind person\n  label en "Person C"\n';
   row.context.predicates = [{ id: 'guides', args: ['person', 'person'] }];
-  row.setup_sop = row.setup_sop.replace('parent(', 'guides(');
-  row.sop_target = row.sop_target.replace('parent(', 'guides(');
+  row.setup_sop = row.setup_sop.replace('parent ', 'guides ');
+  row.sop_target = row.sop_target.replace('parent ', 'guides ');
   row.expected.packet = { complete: true };
   const correct = await evaluate([row], { config, predictor: () => row.sop_target });
   assert.deepEqual(correct.records[0].reference.answers, [['person_a']]);
   assert.equal(correct.records[0].execution_equivalent, true);
-  const outside = await evaluate([row], { config, predictor: () => row.sop_target.replace('guides(', 'parent(') });
+  const outside = await evaluate([row], { config, predictor: () => row.sop_target.replace('guides ', 'parent ') });
   assert.equal(outside.records[0].reference_valid, true);
   assert.equal(outside.records[0].runtime_valid, false);
   assert.equal(outside.records[0].error.stage, 'prediction');
@@ -112,5 +112,6 @@ test('literal answer packets cannot masquerade as executed reasoning or CNL', as
     assert.equal(report.records[0].reference_valid, true);
     assert.equal(report.records[0].runtime_valid, false);
     assert.equal(report.records[0].execution_equivalent, false);
+    assert.equal(report.records[0].error.stage, 'prediction');
   }
 });

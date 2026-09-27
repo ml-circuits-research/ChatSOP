@@ -11,7 +11,7 @@ const itemById = new Map([...cases, ...attached, ...numeric, ...extra, ...assump
 const optional = (value, format) => value === undefined || value === null ? '' : format(value);
 const jsonLine = (label, value) => `- ${label}: \`${JSON.stringify(value)}\``;
 
-function caseDocument(rows, itemId) {
+export function caseDocument(rows, itemId) {
   const item = itemById.get(itemId);
   if (!item) throw Error(`No authored item for case ${itemId}`);
   const first = rows[0];
@@ -22,6 +22,7 @@ function caseDocument(rows, itemId) {
     `- world: ${item.world ?? `attached_${first.split}`}`,
     `- operators: ${item.operators.join(', ')}`,
     `- input_mode: ${first.input_mode}`,
+    `- evaluation_track: ${first.evaluation_track}`,
     `- structure: ${first.structure_id}`,
     `- oracle: ${first.quality_flags.independent_oracle}`,
     optional(item.negativeOf, value => `- negative_of: ${value}`),
@@ -32,23 +33,22 @@ function caseDocument(rows, itemId) {
     optional(item.clarification, value => `- required_clarification: ${JSON.stringify(value)}`),
     '',
     '## Questions (surfaces → the same canonical target)', '',
-    ...rows.map((row, index) => `${index + 1}. [${row.language}] ${row.question}${row.language === 'ro' ? '  (Romanian surface; canonical target and internal CNL stay English)' : ''}`),
+    ...rows.map((row, index) => `${index + 1}. [${row.language}] ${row.question}${row.language === 'ro' ? '  (Romanian surface; model intent remains canonical and language-independent)' : ''}`),
     '',
   ];
   if (item.claims?.length) {
-    lines.push('## Attached assertions (model input at request time)', '',
+    lines.push(first.evaluation_track === 'system'
+      ? '## Attached assertions (trusted explicit session recording, not a model target)'
+      : '## Attached assertions (conditional model premises; never repository facts)', '',
       ...item.claims.map(claim => `- "${claim.text}" → \`${claim.atom}\` valid ${claim.valid}`), '');
   }
   lines.push('## Expected (independent oracle, never computed from the target)', '');
   const expected = { ...first.expected };
-  const sessionClaims = expected.session_claims;
-  delete expected.session_claims;
+  const contextPremises = expected.context_premises;
+  delete expected.context_premises;
   for (const [key, value] of Object.entries(expected)) lines.push(jsonLine(key, value));
-  if (sessionClaims) {
-    lines.push('- session_claims:');
-    for (const claim of sessionClaims) lines.push(`  - ${jsonLine('holds', claim.holds).slice(2)} · valid ${claim.valid} · source ${claim.source} · quote "${claim.quote}" · retention ${claim.retention}`);
-  }
-  lines.push('', '## SOP target (compiled, canonical)', '', '```sop', first.sop_target.replace(/\n$/, ''), '```', '');
+  if (contextPremises) lines.push(jsonLine('context_premises', contextPremises));
+  lines.push('', first.evaluation_track === 'system' ? '## Trusted system circuit (not model target)' : '## Declarative model target (canonical)', '', '```sop', first.sop_target.replace(/\n$/, ''), '```', '');
   if (first.setup_sop) lines.push('## Host world background (oracle basis, NOT model input)', '', '```sop', first.setup_sop.replace(/\n$/, ''), '```', '');
   lines.push('---', '', `Generated from \`tools/datasets/curriculum/cases.mjs\` (revision ${first.source.revision.split('/')[0]}). Manual edits here are discarded by regeneration and make validation fail as a stale authoring tree. To change a case: edit \`cases.mjs\`, then run \`node tools/datasets/build-cases-md.mjs\` and rebuild the corpus.`);
   return lines.join('\n') + '\n';

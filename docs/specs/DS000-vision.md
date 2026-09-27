@@ -5,13 +5,13 @@ summary: Purpose, trust boundaries, and research claims for ChatSOP.
 
 ## Introduction
 
-ChatSOP helps an operator or user turn natural-language requests and assertions into typed [SOP](wiki.html#definition-sop) circuits, execute those circuits against reviewed, time-aware knowledge, and receive an explicit result, evidence, and controlled-language explanation. Its symbolic knowledge and reasoning remain separate from language-model weights.
+ChatSOP helps an operator or user turn natural-language requests into declarative typed [SOP](wiki.html#definition-sop) problems and conditional premises, expand them through host-approved execution steps against reviewed, time-aware knowledge, and receive an explicit result, evidence, and controlled-language explanation. Its symbolic knowledge and reasoning remain separate from language-model weights.
 
 ## Core Content
 
 ### Purpose and authority
 
-The [formalizer](wiki.html#definition-formalizer) proposes SOP from a user message; the host validates the circuit, selects the user and permissions, and controls publication of knowledge and executable definitions. The model and a supplied document must not grant their own permissions, install rules or policies, or certify a proof. A [verbalizer](wiki.html#definition-verbalizer) may restate an existing [CNL](wiki.html#definition-cnl) result but must not alter its truth status, provenance, quantities, time, or completeness. The implemented executable profile is `sop-agent-3`; other SOP dialects do not become compatible by sharing a name.
+The [formalizer](wiki.html#definition-formalizer) proposes only `premise`, `query`, or `constraint` declarations from a user message; the host validates them, selects the user and permissions, and compiles the inspectable execution circuit. When identity is missing or ambiguous, or a required scalar cannot be uniquely obtained, symbolic host orchestration can generate `clarify` and suspend dependent work rather than require the model to invent a question. A model `premise` is conditional interpreted context, not a sourced assertion or a repository write; explicit trusted `fact` and `remember` operations remain distinct. The model and a supplied document must not grant their own permissions, install rules or policies, or certify a proof. A [verbalizer](wiki.html#definition-verbalizer) may restate an existing [CNL](wiki.html#definition-cnl) result but must not alter its truth status, provenance, quantities, time, or completeness. The implemented executable profile is `sop-agent-3`; other SOP dialects do not become compatible by sharing a name.
 
 ### Distinct information roles
 

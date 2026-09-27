@@ -9,28 +9,28 @@ import {context,lex} from './helpers.mjs';
 
 const run=source=>new Runtime({now:Date.parse('2026-09-26')}).run(source);
 const facts=`@ab fact
-  holds parent(ana, bogdan)
+  holds parent ana bogdan
   valid timeless
 @cd fact
-  holds parent(cora, dana)
+  holds parent cora dana
   valid timeless
 @bx fact
-  holds likes(bogdan, x)
+  holds likes bogdan x
   valid timeless
 @dy fact
-  holds likes(dana, y)
+  holds likes dana y
   valid timeless
 @bz fact
-  holds dislikes(bogdan, z)
+  holds dislikes bogdan z
   valid timeless
 @data pack
   items $ab $cd $bx $dy $bz
 `;
 const groupedWhere=`  where all
-    parent(?parent, ?child)
+    parent ?parent ?child
     any
-      likes(?child, ?item)
-      dislikes(?child, ?item)
+      likes ?child ?item
+      dislikes ?child ?item
     end
   end
 `;
@@ -51,15 +51,15 @@ ${groupedWhere}@r solve
 });
 
 const abduction=`@r1 rule
-  when cause_one(s)
-  then effect_one(s)
+  when cause_one s
+  then effect_one s
 @r2 rule
-  when cause_two(s)
-  then effect_two(s)
+  when cause_two s
+  then effect_two s
 @one hypothesis
-  holds cause_one(s)
+  holds cause_one s
 @two hypothesis
-  holds cause_two(s)
+  holds cause_two s
 @rules pack
   items $r1 $r2
 @possible pack
@@ -67,8 +67,8 @@ const abduction=`@r1 rule
 `;
 const abduce=group=>abduction+`@q query
   where ${group}
-    effect_one(s)
-    effect_two(s)
+    effect_one s
+    effect_two s
   end
 @r abduce
   query $q
@@ -84,11 +84,11 @@ test('abduction treats any target as alternatives and all target as a joint obli
  assert.deepEqual(all.result.explanations[0].members.sort(),['one','two']);
 });
 
-test('diagnosis accepts a grouped ground test and prints its branching structure',async()=>{
+test('diagnosis preserves grouped test alternatives as structured recommendations',async()=>{
  const result=await run(abduce('any')+`\n@test query
   where any
-    cause_one(s)
-    unrelated(s)
+    cause_one s
+    unrelated s
   end
 @d diagnose
   query $q
@@ -98,7 +98,7 @@ test('diagnosis accepts a grouped ground test and prints its branching structure
 @text cnl
   result $d`);
  assert.equal(result.values.d.tests[0].separatedPairs,1);
- assert.match(result.result.text,/SUGGESTED_TEST any\n\s+cause_one\(s\)\n\s+unrelated\(s\)\nend/);
+ assert.deepEqual(result.values.d.nextTest.query.where[0],{kind:'any',children:[{p:'cause_one',a:['s'],neg:false},{p:'unrelated',a:['s'],neg:false}]});
 });
 
 test('association traverses grouped query cue atoms for relational ranking',()=>{
@@ -114,16 +114,16 @@ test('vocabulary guard inspects every nested predicate and recognizes generated 
  const c=context();
  try{
   const a=new Agent({repo:c.repo,session:c.session,lexicon:lex,config:{}});
-  const wire={type:'query',fields:{where:['any\n  parent(ana, carina)\n  parent($who, carina)\nend']}};
+  const wire={type:'query',fields:{where:['any\n  parent ana carina\n  parent $who carina\nend']}};
   const shortlist={predicates:[{id:'parent'}],entities:[{id:'ana'},{id:'carina'}]};
   a.validateAtom({p:'parent',a:['bogdan','carina'],neg:false},shortlist,{wire,atomIndex:1,outputs:{who:{status:'bound',valueType:'person'}}});
   assert.throws(()=>a.validateAtom({p:'parent',a:['bogdan','carina'],neg:false},shortlist,{wire,atomIndex:0,outputs:{who:{status:'bound',valueType:'person'}}}),/outside its shortlist/);
-  assert.throws(()=>a.validateVocabulary('@q query\n  where any\n    parent(ana, carina)\n    unauthorized(ana)\n  end',shortlist),/predicate outside its shortlist/);
+  assert.throws(()=>a.validateVocabulary('@q query\n  where any\n    parent ana carina\n    unauthorized ana\n  end',shortlist),/predicate outside its shortlist/);
  }finally{c.dispose();}
 });
 
 test('dataset fingerprints and alpha keys preserve grouped branch structure',()=>{
- const query=where=>`@q query\n  where ${where}\n    parent(ana, carina)\n    parent(bogdan, dana)\n  end\n@r solve\n  query $q`;
+ const query=where=>`@q query\n  where ${where}\n    parent ana carina\n    parent bogdan dana\n  end\n@r solve\n  query $q`;
  const all=query('all'),any=query('any');
  assert.notEqual(compositionShape(all),compositionShape(any));
  assert.notEqual(alphaCanonical(all),alphaCanonical(any));

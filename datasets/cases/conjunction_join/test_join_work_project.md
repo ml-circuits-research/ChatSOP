@@ -5,6 +5,7 @@
 - world: employment_test
 - operators: and, heterogeneous_predicates, select
 - input_mode: query_only
+- evaluation_track: formalization
 - structure: and__heterogeneous_predicates__select
 - oracle: handwritten_graph_temporal
 
@@ -25,45 +26,38 @@
 - status: `"supported"`
 - answers: `[["ana"]]`
 
-## SOP target (compiled, canonical)
+## Declarative model target (canonical)
 
 ```sop
 @q query
   select ?member
-  where works_at(?member, lab_alpha)
-  where project_member(?member, project_delta)
-
-@r solve
-  query $q
-
-@answer cnl
-  result $r
-  language en
+  where works_at ?member lab_alpha
+  where project_member ?member project_delta
 ```
 
 ## Host world background (oracle basis, NOT model input)
 
 ```sop
 @record0 fact
-  holds works_at(ana, lab_alpha)
+  holds works_at ana lab_alpha
   valid timeless
   source employment_test
   quote "Ana works at Alpha Lab."
 
 @record1 fact
-  holds works_at(bogdan, lab_beta)
+  holds works_at bogdan lab_beta
   valid timeless
   source employment_test
   quote "Bogdan works at Beta Lab."
 
 @record2 fact
-  holds employed_by(carina, lab_beta)
+  holds employed_by carina lab_beta
   valid timeless
   source employment_test
   quote "Carina is employed by Beta Lab."
 
 @record3 fact
-  holds project_member(ana, project_delta)
+  holds project_member ana project_delta
   valid timeless
   source employment_test
   quote "Ana is a member of Delta Project."
@@ -71,4 +65,4 @@
 
 ---
 
-Generated from `tools/datasets/curriculum/cases.mjs` (revision ac20503521b0ea6482fe565ef5af4e07658f486b70d52431b1868723a3df0c11). Manual edits here are discarded by regeneration and make validation fail as a stale authoring tree. To change a case: edit `cases.mjs`, then run `node tools/datasets/build-cases-md.mjs` and rebuild the corpus.
+Generated from `tools/datasets/curriculum/cases.mjs` (revision 702d7c99d93592ec3959d5748340ba1136bd25f1a9c100460e4de2d6ccb2d291). Manual edits here are discarded by regeneration and make validation fail as a stale authoring tree. To change a case: edit `cases.mjs`, then run `node tools/datasets/build-cases-md.mjs` and rebuild the corpus.

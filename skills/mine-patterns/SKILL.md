@@ -5,8 +5,8 @@ description: Generate and validate candidate patterns from traces
 
 # Generate and validate candidate patterns from traces
 
-Lucrează pe surse/trace-uri explicite, nu inversa bitset-uri și nu pretinde enumerarea tuturor experiențelor din ele. Separă cazurile train/holdout după document și origine. Folosește induce cu șabloane candidate și compară cu generatorul simplu. Folosește associate numai pentru scorarea/rutarea candidaților.
+Work from explicit source documents and traces; do not invert bitsets or claim to enumerate every experience they represent. Separate train and holdout cases by document and origin. Use `induce` for candidate templates and compare them with a simple generator; use `associate` only to score or route candidates.
 
-closed=true cere o justificare a completitudinii fiecărui caz. Altfel absența consecventului este unknown, nu contraexemplu. Raportează suporturi, contraexemple, necunoscute, conflicte și cost. Include cazurile adverse, nu numai pattern-urile cu scor mare.
+`closed=true` requires a completeness justification for each case. Otherwise an absent consequent is unknown, not a counterexample. Report supporting examples, counterexamples, unknowns, conflicts, and cost. Include adverse cases, not just highly scored patterns.
 
-Propune o regulă nouă numai printr-un fișier de revizuire separat. Nu executa assert pe concluzii inductive drept facts. Când o regulă nu este universală, păstrează pattern-ul ca euristică/ipoteză ori restrânge domeniul cu precondiții verificabile. Nu atribui scorurilor de hashing probabilități ale adevărului.
+Propose a new rule through a separate review file only. Do not `remember` inductive conclusions as facts: that operation records an explicit session fact/event, not proof of truth or automatic global publication. Keep nonuniversal patterns as hypotheses or restrict their scope with verifiable preconditions. Do not treat hash-derived scores as truth probabilities.

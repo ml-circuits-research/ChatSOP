@@ -32,10 +32,10 @@ test('only facts used by a real proof are reinforced automatically',async()=>{
  const memory={power:16,arity:3,retention:{mode:'adaptive',safeOccupancy:.99,targetOccupancy:.9,writeStrength:1,useStrength:2,decayStep:1,maxSweeps:2,reinforceOnUse:true}};
  const c=context({bootstrap:false,memory});
  try{
-  await c.run('@a fact\n  holds likes(ana, lab_alpha)\n  valid timeless\n@b fact\n  holds likes(ana, lab_beta)\n  valid timeless\n@s assert\n  input $a $b');
-  assert.equal((await c.run(queryProgram('likes(ana, lab_alpha)'))).result.status,'supported');
+  await c.run('@a fact\n  holds likes ana lab_alpha\n  valid timeless\n@b fact\n  holds likes ana lab_beta\n  valid timeless\n@s remember\n  input $a $b');
+  assert.equal((await c.run(queryProgram('likes ana lab_alpha'))).result.status,'supported');
   c.repo.decay(c.session,1);
-  assert.equal((await c.run(queryProgram('likes(ana, lab_alpha)'))).result.status,'supported');
-  assert.equal((await c.run(queryProgram('likes(ana, lab_beta)'))).result.status,'unknown');
+  assert.equal((await c.run(queryProgram('likes ana lab_alpha'))).result.status,'supported');
+  assert.equal((await c.run(queryProgram('likes ana lab_beta'))).result.status,'unknown');
  }finally{c.dispose();}
 });

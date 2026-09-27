@@ -1,56 +1,56 @@
 # Fictitious demonstration data. Dates are fixtures, not claims about real people.
 @family1 fact
-  holds mother(ana, bogdan)
+  holds mother ana bogdan
   valid timeless
   source demo
   retention pinned
 
 @family2 fact
-  holds parent(bogdan, carina)
+  holds parent bogdan carina
   valid timeless
   source demo
   retention pinned
 
 @employment fact
-  holds works_at(maria, lab_alpha)
+  holds works_at maria lab_alpha
   valid 2024-01-01 open
   source demo
 
 @trip fact
-  holds duration(route_demo, 70)
+  holds duration route_demo 70
   valid timeless
   source demo
 
 @mother_parent rule
-  when mother(?x, ?y)
-  then parent(?x, ?y)
+  when mother ?x ?y
+  then parent ?x ?y
 
 @father_parent rule
-  when father(?x, ?y)
-  then parent(?x, ?y)
+  when father ?x ?y
+  then parent ?x ?y
 
 @grandparent_rule rule
-  when parent(?x, ?y)
-  when parent(?y, ?z)
-  then grandparent(?x, ?z)
+  when parent ?x ?y
+  when parent ?y ?z
+  then grandparent ?x ?z
 
 @grandmother_rule rule
-  when mother(?x, ?y)
-  when parent(?y, ?z)
-  then grandmother(?x, ?z)
+  when mother ?x ?y
+  when parent ?y ?z
+  then grandmother ?x ?z
 
 @ancestor_base rule
-  when parent(?x, ?y)
-  then ancestor(?x, ?y)
+  when parent ?x ?y
+  then ancestor ?x ?y
 
 @ancestor_recursive rule
-  when parent(?x, ?y)
-  when ancestor(?y, ?z)
-  then ancestor(?x, ?z)
+  when parent ?x ?y
+  when ancestor ?y ?z
+  then ancestor ?x ?z
 
 @employment_general rule
-  when employed_by(?x, ?o)
-  then works_at(?x, ?o)
+  when employed_by ?x ?o
+  then works_at ?x ?o
 
 @find_ancestors template
   description "Găsește strămoșii unei persoane prin regulile aprobate."
@@ -62,7 +62,7 @@
     @q query
       mode select
       select ?who
-      where ancestor(?who, $person)
+      where ancestor ?who $person
     @m recall
       query $q
     @r reason
@@ -81,7 +81,7 @@
   body |
     @travel query
       select ?duration
-      where duration($route, ?duration)
+      where duration $route ?duration
     @retrieve_duration solve
       query $travel
       output ?duration one

@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import { parse, canonical } from '../../sop/parser.mjs';
 import { Lexicon } from '../../sop/lexicon.mjs';
+import { MODEL_TYPES } from '../../sop/declarative.mjs';
 import { alphaCanonical, checkLocalGraph } from './semantic-normalize.mjs';
 
 export const sha256 = value => createHash('sha256').update(value).digest('hex');
@@ -11,14 +12,64 @@ const text = value => typeof value === 'string' && value.length > 0;
 const splits = new Set(['train', 'dev', 'test']);
 const statuses = new Set(['valid', 'ambiguous', 'underspecified', 'contradictory', 'unsupported']);
 const inputModes = new Set(['query_only', 'assertions_query', 'clarification']);
+const evaluationTracks = new Set(['formalization', 'system']), modelTypes = new Set(MODEL_TYPES);
 const jsonValue = value => value === null || typeof value === 'string' || typeof value === 'boolean' || (typeof value === 'number' && Number.isFinite(value)) || Array.isArray(value) && value.every(jsonValue) || value && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype && Object.values(value).every(jsonValue);
 export const canonicalTarget = source => { const graph = parse(source); checkLocalGraph(graph); return canonical(graph); };
+// These fingerprints describe the compiler inputs, not a semantic approval.
+export function authoringProvenance(row, markdown) {
+  requireField(typeof markdown === 'string' && markdown.length > 0, `${row.id}: missing Markdown provenance`);
+  return {
+    split_key: row.split_group_id,
+    case_md_sha256: sha256(markdown),
+    profile: 'sop-agent-3',
+    parser_sha256: sha256(fs.readFileSync(new URL('../../sop/parser.mjs', import.meta.url))),
+    prompt_sha256: sha256(fs.readFileSync(new URL('../../server/llm.mjs', import.meta.url))),
+    ontology_sha256: sha256(row.ontology_sop ?? fs.readFileSync(new URL('../../config/ontology.sop', import.meta.url), 'utf8')),
+    review_status: 'integrator-authored-not-human-validated',
+  };
+}
+
+export function validateAuthoringRecord(row, markdown) {
+  validateRecord(row);
+  const expected = authoringProvenance(row, markdown);
+  requireField(row.authoring && Object.keys(expected).every(key => row.authoring[key] === expected[key])
+    && Object.keys(row.authoring).length === Object.keys(expected).length, `${row.id}: missing or stale authoring provenance`);
+  requireField(row.generation_trace.review_status === 'synthetic_unreviewed'
+    && row.matrix?.provenance_class === 'synthetic_unreviewed'
+    && row.quality_flags?.human_reviewed === false
+    && row.quality_flags?.training_approved === false, `${row.id}: parse pass is not semantic review`);
+  return row;
+}
+// Optional stricter policy for a newly isolated authoring collection; existing
+// curriculum intentionally reuses families and structures across splits.
+export function validateFamilyStructureIsolation(rows) {
+  const owner = new Map(), members = new Map();
+  for (const row of rows) {
+    const keys = [`group:${row.split_group_id}`, `case:${row.semantic_case_id}`, `family:${row.matrix?.family_id}`, `structure:${row.structure_id}`];
+    const touched = new Set(keys.map(key => owner.get(key)).filter(Boolean));
+    const component = touched.values().next().value ?? { cases: new Set(), splits: new Set() };
+    for (const other of touched) if (other !== component) {
+      for (const key of members.get(other)) { owner.set(key, component); (members.get(component) ?? new Set()).add(key); }
+      for (const name of other.cases) component.cases.add(name);
+      for (const name of other.splits) component.splits.add(name);
+      members.delete(other);
+    }
+    if (!members.has(component)) members.set(component, new Set());
+    for (const key of keys) { owner.set(key, component); members.get(component).add(key); }
+    component.cases.add(row.semantic_case_id);
+    component.splits.add(row.split);
+  }
+  const crossings = [...members.keys()].filter(component => component.splits.size > 1)
+    .map(component => ({ splits: [...component.splits].sort(), cases: [...component.cases].sort() }));
+  requireField(!crossings.length, `Advisory family/structure components cross splits: ${JSON.stringify(crossings)}`);
+  return { components: members.size };
+}
 
 export function validateRecord(row) {
   requireField(row && typeof row === 'object' && !Array.isArray(row), 'Dataset row must be an object');
   for (const field of ['id', 'semantic_case_id', 'split_group_id', 'structure_id', 'surface_group_id', 'question', 'sop_target']) requireField(text(row[field]), `${row.id ?? 'row'}: missing ${field}`);
   requireField(typeof row.setup_sop === 'string', `${row.id ?? 'row'}: missing setup_sop`);
-  requireField(splits.has(row.split), `${row.id}: invalid split`);
+  requireField(evaluationTracks.has(row.evaluation_track), `${row.id}: explicit formalization/system evaluation_track required`);
   requireField(['en', 'ro'].includes(row.language), `${row.id}: invalid language`);
   requireField(statuses.has(row.semantic_status), `${row.id}: invalid semantic_status`);
   requireField(row.negative_of === null || text(row.negative_of), `${row.id}: invalid negative_of`);
@@ -41,11 +92,12 @@ export function validateRecord(row) {
   requireField(row.quality_flags && typeof row.quality_flags === 'object' && !Array.isArray(row.quality_flags), `${row.id}: invalid quality_flags`);
   const context = row.context;
   requireField(context && Number.isFinite(Date.parse(context.now)) && context.language === row.language && Array.isArray(context.entities) && context.entities.every(e => text(e.id) && text(e.type)) && Array.isArray(context.predicates) && context.predicates.every(p => text(p.id) && Array.isArray(p.args)) && Array.isArray(context.approvedTemplates) && Array.isArray(context.procedures_sop), `${row.id}: invalid context`);
-  requireField(row.expected && ['supported', 'refuted', 'both', 'unknown', 'clarify', 'stored', 'possible', 'impossible', 'entailed', 'inconsistent'].includes(row.expected.status), `${row.id}: invalid expected status`);
+  requireField(row.expected && ['supported', 'refuted', 'both', 'unknown', 'clarify', 'stored', 'context_updated', 'possible', 'impossible', 'entailed', 'inconsistent'].includes(row.expected.status), `${row.id}: invalid expected status`);
   if (row.expected.answers !== undefined) requireField(Array.isArray(row.expected.answers) && row.expected.answers.every(tuple => Array.isArray(tuple) && tuple.every(jsonValue)), `${row.id}: invalid expected answer tuples`);
   if (row.expected.outputs !== undefined) requireField(row.expected.outputs && typeof row.expected.outputs === 'object' && !Array.isArray(row.expected.outputs) && jsonValue(row.expected.outputs), `${row.id}: invalid expected outputs`);
   if (row.expected.packet !== undefined) requireField(row.expected.packet && typeof row.expected.packet === 'object' && !Array.isArray(row.expected.packet) && jsonValue(row.expected.packet), `${row.id}: invalid expected packet`);
   if (row.expected.session_claims !== undefined) requireField(Array.isArray(row.expected.session_claims) && row.expected.session_claims.every(claim => claim && text(claim.holds) && text(claim.valid) && text(claim.source) && text(claim.quote) && ['normal', 'pinned'].includes(claim.retention)), `${row.id}: invalid expected session claims`);
+  if (row.expected.context_premises !== undefined) requireField(Array.isArray(row.expected.context_premises) && row.expected.context_premises.every(premise => premise && text(premise.holds) && text(premise.valid) && premise.origin === 'model-interpretation'), `${row.id}: invalid expected context premises`);
   for (const [field, program] of [['sop_target', row.sop_target], ['setup_sop', row.setup_sop]]) {
     try { if (program) canonicalTarget(program); } catch (error) { throw Error(`${row.id}: invalid ${field}: ${error.message}`); }
   }
@@ -54,18 +106,17 @@ export function validateRecord(row) {
     try { new Lexicon(row.ontology_sop); } catch (error) { throw Error(`${row.id}: invalid host ontology_sop: ${error.message}`); }
   }
   const wires = parse(row.sop_target).wires;
-  requireField(row.input_mode === 'assertions_query' || !wires.some(wire => wire.type === 'assert'), `${row.id}: only assertions_query may write session assertions`);
-  const assumedRefs = new Set(wires.flatMap(wire => wire.fields.assume ?? []).map(ref => String(ref).replace(/^\$/, '')));
-  for (const wire of wires) if (wire.type === 'fact') {
-    const source = wire.fields.source?.[0];
-    requireField(source === 'user' || source === 'assumption', `${row.id}: conversational facts must declare source user or assumption`);
-    if (source === 'assumption') requireField(assumedRefs.has(wire.id), `${row.id}: an assumption fact must be consumed by an assume field`);
-  }
   const terminal = wires.at(-1).type;
-  requireField(['cnl', 'clarify', 'assert'].includes(terminal) || row.input_mode === undefined && terminal === 'solve', `${row.id}: conversational target must end cnl/clarify/assert`);
-  requireField(row.expected.status !== 'clarify' || terminal === 'clarify' && ['ambiguous', 'underspecified', 'unsupported'].includes(row.semantic_status), `${row.id}: clarification requires ambiguity, underspecification or unsupported operation`);
-  requireField(terminal !== 'assert' || row.input_mode === 'assertions_query' && row.expected.status === 'stored', `${row.id}: assert requires assertions_query and stored result`);
-  requireField(terminal !== 'cnl' || row.expected.status !== 'stored', `${row.id}: stored result needs assert terminal`);
+  if (row.evaluation_track === 'formalization') {
+    requireField(wires.every(wire => modelTypes.has(wire.type)), `${row.id}: formalization target contains execution or write wires`);
+    requireField(!row.expected.session_claims?.length, `${row.id}: conditional premises must not become session claims`);
+    requireField(row.input_mode !== 'assertions_query' || wires.some(wire => wire.type === 'premise'), `${row.id}: attached assertions must be interpreted as premises`);
+    requireField(row.expected.status !== 'clarify' || ['ambiguous', 'underspecified', 'unsupported'].includes(row.semantic_status), `${row.id}: host clarification needs ambiguous or underspecified declarative intent`);
+    requireField(terminal === 'query' || terminal === 'constraint' || terminal === 'premise', `${row.id}: formalization target must end in a declarative problem or a premise`);
+  } else {
+    requireField(row.input_mode === 'assertions_query' || !wires.some(wire => wire.type === 'remember'), `${row.id}: only explicitly attached assertions may be recorded in system circuits`);
+    requireField(['cnl', 'clarify', 'remember', 'solve'].includes(terminal), `${row.id}: system target must end in a result or explicit session record`);
+  }
   return row;
 }
 
@@ -101,6 +152,28 @@ export function validateCorpus(rows, { reservedStructures = [] } = {}) {
     const independentWorld = source.setup_sop !== row.setup_sop || source.source.sha256 !== row.source.sha256 || source.context.now !== row.context.now || source.ontology_sop !== row.ontology_sop || source.input_mode !== row.input_mode || JSON.stringify(source.context_assertions) !== JSON.stringify(row.context_assertions);
     const independentOracle = independentWorld && JSON.stringify(source.expected) !== JSON.stringify(row.expected);
     requireField(source.semantic_case_id !== row.semantic_case_id && (targets.get(source.id) !== targets.get(row.id) || independentOracle), `${row.id}: negative does not discriminate from anchor`);
+  }
+  // Compute transitive semantic components, including paired contrasts. Repeated
+  // family/structure labels are deliberately not semantic identity edges.
+  const adjacency = new Map([...cases.keys()].map(id => [id, new Set()]));
+  const anchorByGroup = new Map();
+  for (const row of cases.values()) {
+    const anchor = anchorByGroup.get(row.split_group_id);
+    if (anchor) { adjacency.get(row.semantic_case_id).add(anchor); adjacency.get(anchor).add(row.semantic_case_id); }
+    else anchorByGroup.set(row.split_group_id, row.semantic_case_id);
+    if (row.negative_of) { adjacency.get(row.semantic_case_id).add(row.negative_of); adjacency.get(row.negative_of).add(row.semantic_case_id); }
+  }
+  const seen = new Set();
+  for (const id of cases.keys()) {
+    if (seen.has(id)) continue;
+    const pending = [id], component = [], componentSplits = new Set();
+    while (pending.length) {
+      const next = pending.pop();
+      if (seen.has(next)) continue;
+      seen.add(next); component.push(next); componentSplits.add(cases.get(next).split);
+      pending.push(...adjacency.get(next));
+    }
+    requireField(componentSplits.size === 1, `Connected semantic group crosses splits: ${component.sort().join(', ')} (${[...componentSplits].sort().join(', ')})`);
   }
   for (const structure of reservedStructures) requireField(!structureSplits.get(structure)?.has('train'), `Reserved structure in train: ${structure}`);
   return { rows: rows.length, semantic_cases: cases.size, by_split: Object.fromEntries([...splits].map(split => [split, rows.filter(row => row.split === split).length])), by_structure: Object.fromEntries([...structureSplits].map(([id, set]) => [id, [...set].sort()])) };

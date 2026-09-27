@@ -256,14 +256,14 @@ test('repository shards: exact and hybrid retrieve across all retained generatio
 });
 test('SOP shards: an actual proof promotes only its observed premises',async()=>{
  const memory=config({maxClaimsPerShard:1,maxColdShards:2}),c=context({bootstrap:false,memory});try{
-  await c.run('@a fact\n  holds likes(ana, lab_alpha)\n  valid timeless\n@b fact\n  holds likes(ana, lab_beta)\n  valid timeless\n@s assert\n  input $a $b');
-  const r=await c.run(queryProgram('likes(ana, lab_alpha)'));assert.equal(r.result.status,'supported');assert.equal(c.session.live.maintenance.promotions,1);
+  await c.run('@a fact\n  holds likes ana lab_alpha\n  valid timeless\n@b fact\n  holds likes ana lab_beta\n  valid timeless\n@s remember\n  input $a $b');
+  const r=await c.run(queryProgram('likes ana lab_alpha'));assert.equal(r.result.status,'supported');assert.equal(c.session.live.maintenance.promotions,1);
  }finally{c.dispose();}
 });
 test('SOP shards: truncated fan-out prevents materializing a scalar output',async()=>{
  const c=context({bootstrap:false,memory:config({mode:'archive',maxClaimsPerShard:1})});try{
-  await c.run('@a fact\n  holds likes(ana, lab_alpha)\n  valid timeless\n@b fact\n  holds likes(ana, lab_beta)\n  valid timeless\n@s assert\n  input $a $b');
-  const r=await new Runtime({repo:c.repo,session:c.session,schema,policy:{maxShards:1,retrievalStrategy:'recall-weaver'}}).run('@q query\n  select ?org\n  where likes(ana, ?org)\n@r solve\n  query $q\n  output ?org one');
+  await c.run('@a fact\n  holds likes ana lab_alpha\n  valid timeless\n@b fact\n  holds likes ana lab_beta\n  valid timeless\n@s remember\n  input $a $b');
+  const r=await new Runtime({repo:c.repo,session:c.session,schema,policy:{maxShards:1,retrievalStrategy:'recall-weaver'}}).run('@q query\n  select ?org\n  where likes ana ?org\n@r solve\n  query $q\n  output ?org one');
   assert.equal(r.result.complete,false);assert.equal(r.values.org,undefined);
  }finally{c.dispose();}
 });
@@ -297,15 +297,15 @@ test('repository shards: another process lock prevents writes and GC',()=>{
 });
 test('SOP shards: a two-hop Horn rule joins facts across separate generations',async()=>{
  const c=context({bootstrap:false,memory:config({mode:'archive',maxClaimsPerShard:1})});try{
-  await c.run('@a fact\n  holds parent(ana, bogdan)\n  valid timeless\n@b fact\n  holds parent(bogdan, carina)\n  valid timeless\n@s assert\n  input $a $b');
-  const r=await c.run('@rr rule\n  when parent(?x, ?y)\n  when parent(?y, ?z)\n  then grandparent(?x, ?z)\n@d pack\n  items $rr\n@q query\n  where grandparent(ana, carina)\n@r solve\n  query $q\n  data $d');
+  await c.run('@a fact\n  holds parent ana bogdan\n  valid timeless\n@b fact\n  holds parent bogdan carina\n  valid timeless\n@s remember\n  input $a $b');
+  const r=await c.run('@rr rule\n  when parent ?x ?y\n  when parent ?y ?z\n  then grandparent ?x ?z\n@d pack\n  items $rr\n@q query\n  where grandparent ana carina\n@r solve\n  query $q\n  data $d');
   assert.equal(r.result.status,'supported');assert.equal(c.session.live.maintenance.promotions,2);
  }finally{c.dispose();}
 });
 
 test('repository shards: base checkpoint preserves historical library versions for asof',()=>{
  const c=temp(config({mode:'archive'}));try{
-  for(const knownAt of [10,20]){const sop='@r rule\n  when parent(?x, ?y)\n  then parent(?x, ?y)\n# version '+knownAt;
+  for(const knownAt of [10,20]){const sop='@r rule\n  when parent ?x ?y\n  then parent ?x ?y\n# version '+knownAt;
    c.repo.publish('base',new ShardedLayer(config({mode:'archive'})),[{id:'r',sop,hash:digest(sop),wireType:'rule',knownAt}]);}
   c.repo.checkpointBase('base');const s=c.repo.session('base','bob','new');
   assert.equal(c.repo.library(s,{asof:15})[0].knownAt,10);assert.equal(c.repo.library(s,{asof:25})[0].knownAt,20);
@@ -313,8 +313,8 @@ test('repository shards: base checkpoint preserves historical library versions f
 });
 test('repository shards: temporal negation survives routing and never becomes absence-as-false',async()=>{
  const c=context({bootstrap:false,memory:config({mode:'archive',maxClaimsPerShard:1})});try{
-  await c.run('@a fact\n  holds parent(ana, bogdan)\n  valid timeless\n@b fact\n  holds not parent(ana, bogdan)\n  valid timeless\n@s assert\n  input $a $b');
-  assert.equal((await c.run(queryProgram('parent(ana, bogdan)'))).result.status,'both');
-  assert.equal((await c.run(queryProgram('likes(ana, lab_beta)'))).result.status,'unknown');
+  await c.run('@a fact\n  holds parent ana bogdan\n  valid timeless\n@b fact\n  holds not parent ana bogdan\n  valid timeless\n@s remember\n  input $a $b');
+  assert.equal((await c.run(queryProgram('parent ana bogdan'))).result.status,'both');
+  assert.equal((await c.run(queryProgram('likes ana lab_beta'))).result.status,'unknown');
  }finally{c.dispose();}
 });

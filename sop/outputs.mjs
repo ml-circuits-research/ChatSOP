@@ -25,7 +25,7 @@ export function outputRegistry(program, {allowMaterialized=false}={}) {
 /** Materialize only permitted cardinalities. No arbitrary first answer. */
 export function selectOutput(result, {variable,mode}) {
   const base={valueType:result.kind==='constraint'?'integer':result.query?.variableTypes?.[variable]??'value',complete:result.complete===true, sourceStatus:result.status,
-    assurance:'Result relative to admitted premises and the explored memory view, not a probability.'};
+    ...(result.hypothetical?{hypothetical:true}:{}),assurance:'Result relative to admitted premises and the explored memory view, not a probability.'};
   if (mode==='status') return {...base,status:'bound',value:result.status};
   if (['unsupported','inconsistent','both','mixed_temporal'].includes(result.status))
     return {...base,status:result.status};

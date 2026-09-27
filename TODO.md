@@ -1,3 +1,50 @@
+# URGENT HANDOFF — EXECUTE ONLY U1–U3, THEN STOP
+
+**Scope restriction:** The user stopped the implementation session. Work only on the three urgent closeout tasks below, in order. Do not start any deferred P0–P10 task, redesign the language, add features, launch agents for broader work, or train/run a neural model. After U1–U3, record the evidence in `PAS_TASK.md`, remove the completed urgent entries here, and stop. A remaining historical backlog item is not authorization to execute it.
+
+## Fixed decisions — do not reopen
+
+- Small-model output consists only of `premise`, `query`, and `constraint`. `Runtime.run(source, {origin:'model', inputText, language, context})` in `sop/runtime.mjs` delegates to `sop/declarative.mjs`; trusted host orchestration generates execution operations.
+- Atom spelling is `temperature room_a 21`, not `temperature(room_a, 21)`. The trusted recording wire is `remember`; no SOP `assert` alias. Do not change JavaScript assertions, Prolog/SMT syntax, original quotations, or sealed historical artifacts.
+- `premise` is a conditional model interpretation retained in conversation context, not a sourced `fact` and not an implicit repository write. Host-generated `clarify` carries `pendingSop`, `required`, and `next: answer_clarification`; missing evidence alone remains `unknown`.
+- `constraint.select ?x` requests a checked scalar. If it is ambiguous, request clarification even when the claim is entailed. The historical `finite_many` optional/nonunique-output diagnostic remains a full circuit on the `system` evaluation track; do not change its oracle to force it into model training.
+- Formalizer examples contain only the three model declarations. Trusted full circuits remain in separate system exports. `eval/suites/source-reference-v2.jsonl` and its provenance are historical and must not be overwritten; current verification uses `source-reference-v2-cutover.jsonl`.
+
+## Urgent remaining work
+
+- [ ] **U1 — Finish the last documentation-example check, not another implementation pass.**
+  1. Read `docs/wire_typs/constraint.html`, `sop/declarative.mjs`, and `tests/declarative-runtime.test.mjs`. The first constraint example was changed after the earlier example-parser smoke: it now ends with `select ?arrival` and contains no authored solve.
+  2. If the handoff temporary files still exist, run `node /tmp/chatsop-help-cutover.mjs`. It reads `/tmp/chatsop-help-cutover.json`, checks the displayed valid/invalid examples, and compares keyword tables with `SPEC`. The JSON was refreshed from the final browser pages, but this final invocation was not run before the stop request. If absent, collect the examples from `docs/wire_types.html` and its linked pages using DOM text content; include `pre[data-sop="current"]`, `pre[data-sop="model"]`, and parser-rejection examples with `data-check="parse"`. Do not parse HTML entity spellings as SOP.
+  3. Execute the first constraint example through the actual `Runtime` with `origin:'model'`. `/tmp/chatsop-constraint-example.sop` contains the browser-extracted source if it still exists. Expected: `result.packet.status === 'possible'`, `values.arrival === 42`, and `outputs.arrival.status === 'bound'`; authored input has only a constraint, generated execution contains solve/output/CNL.
+  4. Acceptance: current displayed examples parse as marked, every runtime field is described, and the displayed numeric example produces 42. Earlier browser evidence already covers desktop/mobile navigation and no page overflow; do not repeat a broad visual audit unless you change layout.
+
+- [ ] **U2 — Validate the rebuilt pilot artifact once and keep the training boundary intact.**
+  1. Run `node tools/datasets/validate.mjs --manifest datasets/pilot-v1/manifest.json --execute`. The final full verifier passed, but its job list validates the query curriculum and source reference, not the entire rebuilt pilot; pilot unit tests exercised selected worlds.
+  2. Inspect `datasets/pilot-v1/manifest.json` and the manifests under `datasets/query-v1/` and `datasets/seed/`. Check their actual formalizer exports with `parse` from `sop/parser.mjs`: every target wire must be premise/query/constraint. System exports must remain separate, not silently removed or merged into formalizer targets. Existing generators and validators are the authority; do not invent new projections.
+  3. If an actual failure appears, read its specific case and fix its source/validator. Sources are `tools/datasets/build-pilot.mjs`, `tools/datasets/build-curriculum.mjs`, and `tools/datasets/curriculum/cases.mjs`; `datasets/cases/*.md` are generated audit views, not authoring sources. Do not change an independent expected answer merely to match execution.
+  4. Regenerate only an affected artifact: pilot command `node tools/datasets/build-pilot.mjs --out datasets/pilot-v1 --eval-out eval/suites/pilot-v1`; curriculum command `node tools/datasets/build-curriculum.mjs --out datasets/query-v1 --eval-out eval/suites/query-v1`. If implementation changes are needed, run the affected tests first, then the full verification command below once after the final edit.
+  5. Acceptance: executable pilot passes, formalizer targets respect the three-type boundary, and system cases retain their coverage. This is symbolic validation, not semantic review, training qualification, or model evaluation.
+
+- [ ] **U3 — Close the handoff records and remove only this session's temporary scaffolding.**
+  1. Check the current-vs-historical wording in `eval/README.md` and `docs/specs/DS009-query-curriculum.md` against rebuilt manifests. They retain historical pilot/full-circuit descriptions; make it unambiguous which are historical and which paths now hold declarative/system-separated derivatives. Preserve historical numbers as historical; do not reuse old reviews/tokenizer measurements for changed bytes.
+  2. Put U1/U2 commands, observed results, and any remaining limitation in `PAS_TASK.md`; remove finished urgent items here. Preserve the latest verified fingerprint unless code/data changes require a new run. Do not mark the deferred research/training backlog complete.
+  3. Remove only these owned temporary files if present: `/tmp/chatsop-declarative-smoke.mjs`, `/tmp/chatsop-help-cutover.mjs`, `/tmp/chatsop-help-cutover.json`, `/tmp/chatsop-constraint-example.sop`. Do not delete unrelated files or user edits. Documentation services and browser tabs were already stopped/closed.
+  4. Stop and report the urgent closeout outcome. No automatic move to P0, data scaling, training, API development, or publication work.
+
+## Already completed — do not redo
+
+Implementation, migrated examples/tests, regenerated current corpora, model/host separation, keyword documentation, and observed smoke results are recorded at the top of `PAS_TASK.md`. Final verification completed from the already-running job during the stop request: **394/394 tests, 21/21 checks passed**, no skips, no neural inference or training. Fingerprint: `a511a593b7353e239ffad9aa488754b91d9788398ba37e70cb57ee6c1fe763cd`.
+
+```sh
+Z3_BIN="$PWD/tools/.solvers/z3/bin/z3" \
+SWIPL_BIN="$PWD/tools/.solvers/swi/swipl" \
+node tools/verify.mjs
+```
+
+Evidence: `eval/reports/current/verification.json` and its per-job logs. Do not rerun this merely to confirm the reported success; rerun only after a relevant implementation/data change.
+
+## DEFERRED BACKLOG — NOT AUTHORIZED IN THIS HANDOFF
+
 # ChatSOP — sarcini deschise și porți de acceptare
 
 Data de referință: 2026-09-27. Direcție: [AGENTS.md](AGENTS.md). Ce s-a livrat, cu dovezi: [PAS_TASK.md](PAS_TASK.md).
@@ -6,7 +53,7 @@ Data de referință: 2026-09-27. Direcție: [AGENTS.md](AGENTS.md). Ce s-a livra
 
 **Interdicție explicită actuală:** niciun training, fine-tuning, resume sau smoke cu optimizer până la un **OK nou al utilizatorului**, chiar dacă infrastructura trece. Calificarea datasetului și aprobarea utilizatorului sunt porți separate; nu se fabrică receipts de aprobare. Pregătirea, tokenizarea, evaluarea simbolică și probele CUDA de infrastructură fără optimizer sunt permise.
 
-**Verificare curentă:** `Z3_BIN="$PWD/tools/.solvers/z3/bin/z3" SWIPL_BIN="$PWD/tools/.solvers/swi/swipl" node tools/verify.mjs` — 359/359 teste, 20/20 verificări. Fingerprint: `8cd054b02dc04b7cf82a15a60e99d8277545ec5e3667da14058102ba7c16e305`. Index dovezi: `eval/reports/current/review-readiness.json`.
+**Current verification:** 394/394 tests and 21/21 checks passed; see the urgent handoff and `PAS_TASK.md` above for the command, fingerprint, and evidence limits. Earlier 359-test figures belong to the historical delivery record.
 
 ## Mediul GPU — restanțe
 
@@ -18,7 +65,7 @@ Data de referință: 2026-09-27. Direcție: [AGENTS.md](AGENTS.md). Ce s-a livra
 - [ ] P0.2. Fixează maparea `supported/refuted/both/unknown`, `possible/entailed` și rezultate exploratorii la vocabulary-ul din vision. **Acceptare:** tabel de decizie și scenarii executabile, inclusiv default cu excepție și lipsă de suport; extensiile neimplementate sunt `unsupported`, nu reguli tari.
 - [ ] P0.4. Verifică importul skillurilor din `.agents/`, căile portate și încărcarea `AGENTS.md`; păstrează o singură autoritate pentru regulile proiectului. **Acceptare:** un agent nou găsește sursele și lucrează fără contextul conversației.
 - [ ] P0.5. Preregistrează ipotezele, bugetele, split-urile și criteriile de promovare. **Acceptare:** fiecare experiment are o singură schimbare principală, comparator și condiție de infirmare.
-- [ ] P0.6. Aliniază profilul documentat/grammar/prompt/catalog cu parserul v3 și definește tabelul strategy×backend×domain, sensul celor două `hybrid` și politica read-only/reinforcement. **Acceptare:** niciun auto-routing implicit sau read side effect ascuns.
+- [ ] P0.6. Remaining: qualify and document the strategy×backend×domain matrix, distinguish the two `hybrid` meanings, and verify read-only/reinforcement policy. Parser/grammar/prompt/catalog alignment for whitespace atoms and the three-declaration model boundary is completed and recorded in `PAS_TASK.md`. **Acceptance:** no hidden routing or read side effect. Deferred; do not execute in this handoff.
 
 **G0:** contracte comune închise. Nu lansăm generare mare înainte de G0.
 
@@ -26,7 +73,7 @@ Data de referință: 2026-09-27. Direcție: [AGENTS.md](AGENTS.md). Ce s-a livra
 
 ### Autorat și structură
 
-- [ ] P1.1. Tree-ul de audit `datasets/cases/` (60 MD generate) + regenerarea (`build-cases-md.mjs`) + detectarea drift-ului (validator + `--check`) sunt implementate. Restantă: compilator care ia MD-ul editat manual ca sursă de autorat (acum `cases.mjs` rămâne sursa; MD-ul e vedere de audit cu guard bidirecțional). **Acceptare:** editarea unui MD produce recompilare deterministă a JSONL + revalidare oracle, fără să treacă review-ul semantic.
+- [ ] P1.1. Remaining: implement a compiler that treats manually edited case Markdown as the authoring source. Currently `tools/datasets/curriculum/cases.mjs` is authoritative; Markdown is a generated audit view. **Acceptance:** editing a case Markdown file deterministically rebuilds JSONL and revalidates its oracle without bypassing semantic review. The completed audit-view generator and drift check are recorded in `PAS_TASK.md`. Deferred; do not execute in this handoff.
 - [ ] P1.2. Schema minimă per exemplu: `semantic_case_id`, `source`, `context_assertions`, `question`, `language`, `surface_group_id`, `sop_target`, `semantic_status`, `negative_of`, `generation_trace`, `quality_flags`, `split_key` + profil/hash parser+prompt+ontologie. **Acceptare:** schema respinge cazurile fără proveniență; parse pass nu e review semantic.
 - [ ] P1.3. Fixează inventarul familiilor/operatorilor și compozițiile rezervate înainte de randare; split pe grupuri semantice conectate. **Acceptare:** zero grupuri care traversează train/dev/test.
 - [ ] P1.4. O singură autoritate pentru test: răspunsurile sigilate în `eval/`; `datasets/splits/` păstrează doar manifest/checksum. **Acceptare:** generatorul și selecția checkpoint nu citesc răspunsurile de test.
@@ -123,7 +170,6 @@ Data de referință: 2026-09-27. Direcție: [AGENTS.md](AGENTS.md). Ce s-a livra
 - [ ] P8.2. Calificarea SWI pe profilul comun (recursie, variabile, negație, timp, contradicție, ipoteze, limite, outputs); separarea explicită a costului SWI de verificarea JS.
 - [ ] P8.3. Calificarea Z3: sat vs entailment, optimum neunic, unsat, timeout; niciun fallback JS ascuns.
 - [ ] P8.4. `advanced` rămâne strategie de rutare, nu al patrulea solver; matricea marchează `unsupported`/incomparabil.
-- [ ] P8.5. Circuite mixte: query→valoare→constraint→output/CNL, cu porturi și cardinalitate corecte.
 - [ ] P8.6. SQLite exact vs Recall Weaver pe același corpus/setup; retrieval-ul nu primește răspunsurile așteptate.
 - [ ] P8.7. Holo/H7 ca al treilea motor; hybrid ca ablație exact+hint, cu consumatorul de hints conectat și măsurat.
 - [ ] P8.8. Comparații de cost la bugete declarate + configurații practice; scaling, latențe reci/calde, distribuții de acces.
@@ -181,4 +227,4 @@ P0 contracte rămase → P1 date + P2 skill + P3 eval + P4 operațiuni (în para
 
 Roluri: **integrator** — contracte și decizie finală; **data agent** — surse/generare; **ingestion agent** — skill și propuneri; **eval agent** — runner și referințe independente; **training operator** — singurul proprietar al jobului GPU; **server agent** — integrare API/runtime. Agenții mai mici sunt producători de candidați, nu autorități semantice.
 
-Următorul pas recomandat: P0.1 + P0.5 (contracte + preregistrare), apoi P1.1 (autorat Markdown per caz) — ultimul deblochează extinderea corpusului cerută de G1/G5.
+Current execution order: U1 → U2 → U3 → STOP. The P0–P10 roadmap above is deferred background only; resuming it requires a new user instruction.

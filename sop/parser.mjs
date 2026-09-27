@@ -8,12 +8,13 @@ export const SPEC={
  value:{one:['data'],required:['data']},
  resolve:{one:['text','language','kind','type','domain'],required:['text','language','kind']},
  fact:{one:['holds','valid','source','quote','retention'],required:['holds','valid']},
+ premise:{one:['holds','valid'],required:['holds']},
  rule:{one:['then','valid','mode','source'],many:['when'],required:['then','when']},
  query:{one:['mode','select','at','during','asof','limit'],many:['where','filter'],required:['where']},
- constraint:{one:['claim','task','unit','objective','direction'],many:['var','require'],required:['claim']},
+ constraint:{one:['claim','task','unit','objective','direction','select'],many:['var','require'],required:['claim']},
  event:{one:['action','target','effective','replacement','source'],required:['action','target']},
  pack:{many:['items'],required:['items']},
- assert:{one:['scope'],many:['input','after'],required:['input']},
+ remember:{one:['scope'],many:['input','after'],required:['input']},
  recall:{one:['query','strategy'],many:['after'],required:['query']},
  link:{one:['query','data','strategy'],many:['after'],required:['query']},
  solve:{one:['query','constraint','data','backend','strategy','assume','reasoning'],many:['output','after']},
@@ -43,11 +44,26 @@ export const SPEC={
 };
 export function words(s){return s.match(/"(?:\\.|[^"\\])*"|\S+/g)??[];}
 export function unquote(s){return s?.startsWith('"')?JSON.parse(s):s;}
-function splitTerms(s){let quoted=false,escape=false,start=0,parts=[];for(let i=0;i<s.length;i++){const c=s[i];if(quoted){if(!escape&&c==='"')quoted=false;if(!escape&&c==='\\')escape=true;else escape=false;}else if(c==='"')quoted=true;else if(c===','){parts.push(s.slice(start,i).trim());start=i+1;}}assert(!quoted,'Unclosed atom string');parts.push(s.slice(start).trim());return parts;}
 export function parseTerm(s){if(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(s))return {ref:s.slice(1)};if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(s))return s;if(s.startsWith('"')){const v=JSON.parse(s);assert(typeof v==='string','String term required');return v;}if(/^-?\d+$/.test(s)){const n=Number(s);assert(Number.isSafeInteger(n),'Safe integer expected');return n;}assert(/^[a-z][a-z0-9_:-]*$/.test(s),'Invalid canonical term '+s);return s;}
-export function parseAtom(text){const m=text.match(/^(not\s+)?([a-z][a-z0-9_]*)\((.*)\)$/);assert(m,'Expected predicate(arg, ...) or not predicate(arg, ...)');const a=splitTerms(m[3]).map(parseTerm);assert(a.length>=1&&a.length<=4,'This profile supports 1..4 arguments');return {p:m[2],a,neg:!!m[1]};}
+export function parseAtom(text){
+ assert(typeof text==='string'&&!/[\r\n]/.test(text),'An atom occupies one line');
+ const head=text.match(/^(not[ \t]+)?([a-z][a-z0-9_]*)[ \t]+/);
+ assert(head&&head[2]!=='not','Expected [not] predicate term1 term2; not is reserved');
+ const token=/"(?:\\.|[^"\\\r\n])*"|[^\s"]+/y,a=[];
+ let cursor=head[0].length;
+ while(cursor<text.length){
+  token.lastIndex=cursor;const match=token.exec(text);
+  assert(match,'Expected a complete atom term or quoted string');
+  a.push(parseTerm(match[0]));assert(a.length<=4,'This profile supports 1..4 arguments');
+  cursor=token.lastIndex;
+  assert(cursor===text.length||/[ \t]/.test(text[cursor]),'Atom terms must be separated by whitespace');
+  while(cursor<text.length&&/[ \t]/.test(text[cursor]))cursor++;
+ }
+ assert(a.length>=1,'This profile supports 1..4 arguments');
+ return {p:head[2],a,neg:!!head[1]};
+}
 export function emitTerm(x){if(x&&typeof x==='object'&&x.ref)return '$'+x.ref;if(typeof x==='number')return String(x);if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(x))return x;return /^[a-z][a-z0-9_:-]*$/.test(x)?x:JSON.stringify(x);}
-export const emitAtom=a=>(a.neg?'not ':'')+a.p+'('+a.a.map(emitTerm).join(', ')+')';
+export const emitAtom=a=>(a.neg?'not ':'')+a.p+' '+a.a.map(emitTerm).join(' ');
 export function scalar(text,values={}){if(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(text)){const n=text.slice(1);assert(Object.hasOwn(values,n),'Unresolved $'+n);return values[n];}return unquote(text);}
 export function parse(source,{maxWires=2048,maxBytes=1048576,allowTypes=null}={}){
  assert(typeof source==='string'&&Buffer.byteLength(source)<=maxBytes,'SOP source size limit');const lines=source.replace(/\r\n/g,'\n').split('\n'),wires=[];let current=null;
@@ -79,7 +95,7 @@ export const many=(w,k)=>w.fields[k]??[];
 export function refsIn(text){let quoted=false,esc=false;const values=new Set(),handles=new Set();for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(!esc&&c==='"')quoted=false;if(!esc&&c==='\\')esc=true;else esc=false;continue;}if(c==='"'){quoted=true;continue;}if(c==='$'||c==='~'){const m=text.slice(i+1).match(/^[A-Za-z][A-Za-z0-9_]*/);if(m){(c==='$'?values:handles).add(m[0]);i+=m[0].length;}}}return {values:[...values],handles:[...handles]};}
 export function dependencies(w){if(['template','procedure'].includes(w.type))return {values:[],handles:[]};const result={values:new Set(),handles:new Set()};for(const [key,vs]of Object.entries(w.fields)){if(['quote','text'].includes(key)||(key==='source'&&w.type!=='analogize'))continue;for(const text of vs){const r=refsIn(text);r.values.forEach(x=>result.values.add(x));r.handles.forEach(x=>result.handles.add(x));}}return {values:[...result.values],handles:[...result.handles]};}
 function validateShape(w){
- if(w.type==='fact')parseAtom(one(w,'holds'));
+ if(w.type==='fact'||w.type==='premise')parseAtom(one(w,'holds'));
  if(['rule','pattern'].includes(w.type)){many(w,'when').forEach(parseAtom);parseAtom(one(w,'then'));}
  if(w.type==='rule')assert(['logical','causal'].includes(one(w,'mode','logical')),'rule mode must be logical or causal');
  if(w.type==='hypothesis'){assert(w.fields.holds||w.fields.assume,'hypothesis requires holds or assume');if(w.fields.holds)parseAtom(one(w,'holds'));many(w,'assume').forEach(parseAtom);}

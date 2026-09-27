@@ -1,10 +1,38 @@
+# Latest completed work — declarative SOP cutover
+
+This section records work already implemented before the user requested a stop. Continue only with U1–U3 at the top of `TODO.md`; do not reopen these completed tasks or start the deferred roadmap.
+
+## Implemented and exercised
+
+- [x] **Whitespace atom cutover and recording rename.** `sop/parser.mjs`, grammars, runtime consumers, examples, tests, skills and current generated data use `temperature room_a 21`. The old parenthesized atom spelling is rejected. `remember` replaces the SOP `assert` wire without an alias; programming-language assertions and solver/source syntax are preserved.
+- [x] **Actual model/host separation.** `sop/declarative.mjs` and `Runtime.run(..., {origin:'model'})` admit only premise/query/constraint. The host generates inspectable resolution, assumption packs, solves, scalar outputs, CNL and clarification. `server/agent.mjs`, prompts and CLI distinguish authored SOP from execution circuits (`:sop` versus `:circuit`); generated-name collisions are covered.
+- [x] **Conditional context, not repository facts.** `premise` accepts holds plus optional validity, without model-authored documentary provenance. The host retains original input and model-interpretation origin across conversation turns. Native smoke demonstrated context-only admission, a conditional answer on a later turn, isolation from another context, and zero implicit repository claims. Trusted remember rejects premise inputs.
+- [x] **Constraints and conditional projections.** Model-authored constraints retain domains, variables, comparisons, Boolean groups and objectives. `select` requests checked scalars. Native smoke exercised conditional query → scalar → numeric result 22 with hypothetical provenance preserved. An ambiguous requested scalar produces host clarification even when its claim is entailed; no arbitrary scalar value is created.
+- [x] **Host-generated clarification and continuation.** Ambiguous Maria identities produce a concrete candidate question. The packet carries pendingSop, required inputs and answer_clarification for the next turn. Agent tests exercise candidate continuation. Ordinary absence of evidence returns unknown; model-authored clarify and execution operations are rejected.
+- [x] **Data/evaluation separation.** Current seed, pilot and query artifacts were regenerated. Formalizer targets and trusted system circuits have separate tracks/exports. Optional/nonunique `finite_many` diagnostics remain system cases with their original oracle, not fabricated scalar answers. Evaluator admission receives the actual question, preserves scoped entity typing, rejects literal fake result packets, and checks lexical leakage across training tracks.
+- [x] **Fresh source-reference derivative.** `eval/suites/source-reference-v2-cutover.jsonl` and its independently computed provenance are the current declarative test-only derivative. `tools/verify.mjs` uses that path. The sealed original `source-reference-v2.jsonl` and provenance were not overwritten.
+- [x] **Documentation and catalog.** Current specifications, README, wiki, skills and 42-topic wire help document the boundary. Keyword tables cover parser fields; navigation separates the three model declarations from host operations. The generated catalog derives model permissions from MODEL_TYPES. Five residual contradictory host-operation author labels were corrected in expand/link/reason/recall/value help.
+- [x] **Completed portions removed from the backlog.** The generated case-Markdown audit view and drift check exist; Markdown-as-authoring-source remains deferred. The parser/grammar/prompt/catalog part of P0.6 is complete; broader routing/reinforcement qualification remains deferred. P8.5 mixed query → scalar → constraint → output/CNL behavior is exercised by runtime regressions and native smoke and is no longer an open implementation item.
+
+## Observed verification and limits
+
+- The final verification command was already running when the user requested a stop. A cancellation was attempted, but the tool reported that it had completed successfully: **394/394 tests, zero skipped, 21/21 checks passed**. No new verification command was started after the stop request.
+- Command: `Z3_BIN="$PWD/tools/.solvers/z3/bin/z3" SWIPL_BIN="$PWD/tools/.solvers/swi/swipl" node tools/verify.mjs`. Evidence: `eval/reports/current/verification.json` and its job logs. Source fingerprint: `a511a593b7353e239ffad9aa488754b91d9788398ba37e70cb57ee6c1fe763cd`; Node v22.23.2, Linux ARM64.
+- Focused integration run: `node --test tests/eval-runner.test.mjs tests/dataset-pilot.test.mjs tests/query-curriculum.test.mjs tests/declarative-runtime.test.mjs` passed 24/24 before the final full run.
+- Browser smoke observed desktop and 390-pixel mobile navigation, no outer/iframe page overflow, and the constraint keyword table. The final help crawl checked 42 topics and 401 local links/fragments with no broken targets. Earlier native help validation passed 81 valid examples, seven intentional parse rejections, and keyword-table coverage. After the last example/author-label edits, browser inputs were refreshed but the final native example-validation invocation was not run; this is U1, not a claimed completed check.
+- The rebuilt pilot's full artifact execution is still U2; selected-world pilot tests passed, but the full verifier does not include that separate pilot-manifest job.
+- No neural model inference, optimizer step, fine-tuning or training was run. Training dry-run jobs inspect configuration only. Generated corpus checks do not establish human review, training qualification, tokenizer equivalence, or model accuracy.
+- Documentation services and managed browser tabs were stopped/closed. The four explicitly named temporary smoke files remain for U1/U3; no unrelated cleanup is authorized.
+
+## Earlier delivery history — not the current verification snapshot
+
 # PAS_TASK.md — ce s-a livrat, cu dovezi
 
 Data de referință: 2026-09-27. Acest fișier arhivează lucrarea **finalizată** și observațiile ei. Doar sarcinile deschise/blocate rămân în [TODO.md](TODO.md). `[x]` aici înseamnă executat real, cu artefact și comandă/scenariu observat; nu reprezintă calificare de training și nici aprobare de optimizer.
 
 ## Status la arhivare
 
-- **Verificare finală:** 359/359 teste, 20/20 verificări, 140 de execuții din matricea reasoning; Z3 4.15.8 și SWI 9.0.4 private selectate explicit. Fingerprint: `8cd054b02dc04b7cf82a15a60e99d8277545ec5e3667da14058102ba7c16e305`. Dovezi: `eval/reports/current/verification.json`.
+- **Historical verification at that delivery:** 359/359 tests, 20/20 checks and 140 reasoning-matrix executions, with private Z3 4.15.8 and SWI 9.0.4 explicitly selected. Historical fingerprint: `8cd054b02dc04b7cf82a15a60e99d8277545ec5e3667da14058102ba7c16e305`. The current verification report has since been superseded by the completed cutover run recorded above.
 - **Date:** 62 cazuri / 198 rânduri (105/44/49; RO 6/2/4) + 16 cazuri / 49 suprafețe SQuAD sigilate. Inventar 35 fire; țintele emit 11 tipuri; corpus necalificat pentru training.
 - **Structură:** cod de date în `tools/datasets/`; cache raw la `datasets_sources/`; `datasets/` doar artefacte de date.
 - **Profil ML:** fără instrucțiuni (`barePrompt` = CONTEXT + MESSAGE); audit Qwen max. 383/502, medie ≈300, identic nativ/Podman.

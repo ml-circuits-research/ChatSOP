@@ -1,3 +1,5 @@
+> Historical contract only. The current `sop-agent-3` parser requires whitespace-separated atoms and uses `remember` rather than the retired `assert` wire. See `docs/specs/DS004-sop.md`; preserve the following period-specific examples as historical material, not runnable current syntax.
+
 # 01. Profilul SOP pentru cunoaștere și execuție
 
 **Profilul curent este sop-agent-3.** Contractele și noile operații sunt în capitolele 23–29; catalogul exact al câmpurilor este `docs/contracts/wire-fields.md`. Notele istorice despre funcții neimplementate se citesc împreună cu stadiul v3 din capitolul 28.

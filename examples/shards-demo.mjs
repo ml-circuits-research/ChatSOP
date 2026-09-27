@@ -10,14 +10,14 @@ const args=cliArgs(),root=fs.mkdtempSync(path.join(os.tmpdir(),'sop-shards-demo-
 const config={power:9,arity:3,verification:'receipt',retention:{writeStrength:2,useStrength:1,reinforceOnUse:true},
  sharding:{enabled:true,mode:'bounded',maxClaimsPerShard:2,maxColdShards:2,safeOccupancy:.9,gcEveryWrites:0}};
 const schema=Lexicon.load(new URL('../config/ontology.sop',import.meta.url)).predicates;
-const fixture='@kinship rule\n  when parent(?x, ?y)\n  when parent(?y, ?z)\n  then grandparent(?x, ?z)';
-const query='@q query\n  where grandparent(ana, carina)\n@r solve\n  query $q\n@answer cnl\n  result $r\n  language ro';
+const fixture='@kinship rule\n  when parent ?x ?y\n  when parent ?y ?z\n  then grandparent ?x ?z';
+const query='@q query\n  where grandparent ana carina\n@r solve\n  query $q\n@answer cnl\n  result $r\n  language ro';
 const fact=(i)=>({kind:'fact',atom:{p:'likes',a:['person_'+i,'org_'+i],neg:false},valid:{from:-Infinity,until:Infinity},source:'demo'});
 const at=Date.parse('2026-09-26T12:00:00Z'),q={at,asof:at};
 try{
  const repo=new Repository(root,{memory:config});publishKnowledge(repo,'demo',fixture,{schema,reviewed:true,knownAt:1});
  const s=repo.session('demo','alice','current'),run=source=>new Runtime({repo,session:s,schema,now:at,policy:{retrievalStrategy:'recall-weaver'}}).run(source);
- await run('@a fact\n  holds parent(ana, bogdan)\n  valid timeless\n@b fact\n  holds parent(bogdan, carina)\n  valid timeless\n@p fact\n  holds likes(ana, lab_alpha)\n  valid timeless\n  retention pinned\n@s assert\n  input $a $b $p');
+ await run('@a fact\n  holds parent ana bogdan\n  valid timeless\n@b fact\n  holds parent bogdan carina\n  valid timeless\n@p fact\n  holds likes ana lab_alpha\n  valid timeless\n  retention pinned\n@s remember\n  input $a $b $p');
  for(let i=0;i<3;i++)repo.apply(s,[fact(i)],{knownAt:1});
  repo.commit(s);const frozen=repo.session('demo','alice','frozen');
  const before=s.live.stats(),answer=await run(query);

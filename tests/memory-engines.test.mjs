@@ -58,14 +58,14 @@ for(const engine of engines){
 }
 
 const fixture=`@g rule
-  when parent(?x, ?y)
-  when parent(?y, ?z)
-  then grandparent(?x, ?z)
+  when parent ?x ?y
+  when parent ?y ?z
+  then grandparent ?x ?z
 @a fact
-  holds parent(ana, bogdan)
+  holds parent ana bogdan
   valid timeless
 @b fact
-  holds parent(bogdan, carina)
+  holds parent bogdan carina
   valid timeless`;
 const schema=Lexicon.load(new URL('../config/ontology.sop',import.meta.url)).predicates;
 const instant=Date.parse('2026-09-26T12:00:00Z');
@@ -78,7 +78,7 @@ for(const engine of engines)for(const sharded of [false,true]){
   try{
    const repo=new Repository(root,{memory});publishKnowledge(repo,'base',fixture,{schema,reviewed:true,knownAt:1});
    const s=repo.session('base','alice','s1');
-   const r=await new Runtime({repo,session:s,schema,now:instant,policy:{retrievalStrategy:strategy[engine]}}).run('@q query\n  select ?who\n  where grandparent(?who, carina)\n@r solve\n  query $q\n  output ?who one\n@c cnl\n  result $r\n  language ro');
+   const r=await new Runtime({repo,session:s,schema,now:instant,policy:{retrievalStrategy:strategy[engine]}}).run('@q query\n  select ?who\n  where grandparent ?who carina\n@r solve\n  query $q\n  output ?who one\n@c cnl\n  result $r\n  language ro');
    assert.equal(r.values.who,'ana');assert.equal(r.values.r.status,'supported');
    const ids=repo.apply(s,[fact('ana','cern')],{knownAt:10}),frozen=repo.session('base','alice','before_commit');
    assert.equal(repo.recall(frozen,a('likes','ana','cern'),{asof:Infinity}).rows.length,0);
@@ -174,8 +174,8 @@ test('single-file SQLite: temporal claims, rule ingestion, fork and reopen',asyn
 
 test('H7 content plane: complete SOP bytes from handle without an item table',async()=>{
  const {HoloWireMemory}=await import('../memory/banks/holo-wire.mjs');
- const m=new HoloWireMemory({kernel:{rows:1024,banks:4,dimension:64}}),wire='@f fact\n  holds parent(ana, bogdan)\n  valid timeless';
- const h=m.remember(wire),r=m.recall(h.handle);assert.equal(r.status,'remembered');assert.ok(r.sop.includes('parent(ana, bogdan)'));
+ const m=new HoloWireMemory({kernel:{rows:1024,banks:4,dimension:64}}),wire='@f fact\n  holds parent ana bogdan\n  valid timeless';
+ const h=m.remember(wire),r=m.recall(h.handle);assert.equal(r.status,'remembered');assert.ok(r.sop.includes('parent ana bogdan'));
  const fork=m.fork();fork.kernel.eraseFraction(1);assert.notEqual(fork.recall(h.handle).status,'remembered');assert.equal(m.recall(h.handle).status,'remembered');
  assert.deepEqual(Object.keys(m.export()).sort(),['config','format','kernel']);assert.throws(()=>m.recall('invalid'));
 });

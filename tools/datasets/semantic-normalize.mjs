@@ -1,6 +1,7 @@
 import { parse, canonical, validateGraph, dependencies, parseAtom, emitAtom } from '../../sop/parser.mjs';
 import {parseCondition} from '../../sop/conditions.mjs';
 import {emitCondition} from '../../lib/conditions.mjs';
+import {MODEL_TYPES, compileDeclarative} from '../../sop/declarative.mjs';
 
 function renameLocalValues(text, names) {
   let quoted = false, escaped = false, output = '';
@@ -21,6 +22,10 @@ function renameLocalValues(text, names) {
   return output;
 }
 export function checkLocalGraph(graph) {
+  if (graph.wires.every(wire => MODEL_TYPES.has(wire.type))) {
+    compileDeclarative(canonical(graph));
+    return;
+  }
   const ids = new Set(graph.wires.map(wire => wire.id));
   // External handles are checked by the guarded runtime after host loading.
   if (!graph.wires.some(wire => dependencies(wire).handles.some(handle => !ids.has(handle)))) validateGraph(graph);

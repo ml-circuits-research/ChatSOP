@@ -1,35 +1,36 @@
 {
   "format": "chatsop-query-profile-v1",
   "profile": "sop-agent-3",
-  "scope": "NL to executable SOP; questions and explicitly attached user assertions, not answer imitation",
+  "scope": "NL to declarative SOP intent (premise, query, constraint); host-generated execution circuits are a separate system track",
   "authority": {
     "wire_inventory": "sop/contracts/wires.json",
     "parser": "sop/parser.mjs",
     "runtime": "sop/runtime.mjs",
-    "wire_count": 35,
+    "wire_count": 36,
     "ontology_control_plane": ["entity", "predicate", "concept"],
     "host_only_declarations": ["rule", "action", "procedure", "template", "policy", "theory"],
     "runtime_only_wires": ["binding"],
     "trace_closed": "host-certified only",
-    "predicate_heads": "canonical literals; dynamic $references are not supported"
+    "predicate_heads": "[not ]predicate term1 term2 ...; one to four whitespace-separated terms; quoted JSON string terms preserve spaces and punctuation"
   },
   "semantic_unit": {
     "unit": "case, not surface paraphrase",
-    "required": ["question intent", "visible context", "approved vocabulary", "input mode", "canonical SOP", "independent expected observation", "provenance", "connected split group"],
+    "required": ["question intent", "visible context", "approved vocabulary", "input mode", "declarative SOP", "independent expected observation", "provenance", "connected split group", "evaluation track"],
     "english_surfaces_minimum": 3,
     "romanian": "Selected full semantic cases; preserve the same canonical target across languages",
     "romanian_recommended_case_fraction": [0.05, 0.2],
-    "cross_surface_target": "one canonical SOP per semantic case",
+    "cross_surface_target": "one canonical declarative SOP per formalization case; system circuits in a disjoint named track",
     "source_gold": "Source answer strings and source pair labels are not SOP gold"
   },
   "input_modes": {
     "query_only": "No model assertion writes; approved host background may be queried",
-    "assertions_query": "Only attached, quoted source=user claims may be admitted into the local session before querying",
-    "clarification": "No guessed binding or invented answer; terminate with clarify"
+    "assertions_query": "Model may express attached user statements as conditional premises; no repository fact or session write is authorized",
+    "clarification": "The model does not author clarify; the host can ask for a missing identity or required value without inventing it"
   },
-  "terminal_wires": ["cnl", "clarify", "assert"],
+  "model_authored_wires": ["premise", "query", "constraint"],
+  "host_execution_wires": ["resolve", "pack", "remember", "solve", "cnl", "clarify"],
   "canonical_cnl_language": "en",
-  "output_language_scope": "Input language does not change the canonical SOP target. Internal English CNL is distinct from separately qualified user-facing localization.",
+  "output_language_scope": "Input language does not change the declarative logical target. Host-generated rendering can use the requested language; internal CNL must remain distinct from independently qualified user-facing localization.",
   "knowledge_boundary": {
     "host_ontology": "Optional ontology_sop replaces, rather than silently extends, the default ontology; pin and review its complete declarations",
     "host_setup": "Independent host repository initialization; never concatenate privileged setup to a model program",
@@ -42,19 +43,20 @@
     "relations": "Subsumption and inverse relations are not synonymy: mother differs from parent; parent differs from child; works_at differs from employed_by",
     "hypothetical": "Patterns, hypotheses, plans, analogies and simulations are not observed facts"
   },
+  "coverage_wire_role": "coverage_requirements.wires describes system-level capabilities, not required small-model output; model-output inventory is model_authored_wires",
   "coverage_requirements": [
     {"family": "identity_and_aliases", "questions": "Which approved entity or predicate does this mention denote?", "wires": ["resolve", "query", "solve", "cnl", "clarify"], "oracle": "Reviewed scoped lexicon with unique, ambiguous, absent and accent-collision cases", "negative": ["homonym", "wrong kind", "wrong type", "wrong domain", "subsumption-as-alias"]},
     {"family": "relations_and_joins", "questions": "Does the relation hold, who fills a role, and which entities satisfy all linked relations?", "wires": ["query", "solve", "cnl"], "oracle": "Independently enumerated finite relation tuples", "negative": ["role reversal", "binding substitution", "conjunction changed to one conjunct", "inverse direction", "disconnected join"]},
     {"family": "open_world_and_conflict", "questions": "Is the claim supported, refuted, both, or unknown?", "wires": ["query", "solve", "cnl"], "oracle": "Independent positive and explicit-negative closure, preserving four statuses", "negative": ["absence-as-negation", "polarity flip", "conflict-as-support-only"]},
-    {"family": "attached_assertions", "questions": "Given these user statements, answer the attached question", "wires": ["fact", "pack", "assert", "query", "solve", "cnl"], "oracle": "Session admission plus resulting answer and recorded claim effects", "negative": ["omitted assertion", "unquoted fact", "unauthorized rule", "global write", "session leakage"]},
-    {"family": "time_and_revision", "questions": "What held at an instant or interval, and what was known as of a transaction time?", "wires": ["fact", "event", "assert", "query", "temporal", "solve", "cnl"], "oracle": "Independently specified valid-time and transaction-time intervals", "negative": ["boundary inclusion", "at versus asof", "revision versus original claim", "disjoint interval"]},
+    {"family": "attached_assertions", "questions": "Given these user statements, answer the attached question without treating them as verified facts", "wires": ["premise", "pack", "query", "solve", "cnl"], "oracle": "Conditional premise interpretation, hypothetical answer, and zero repository writes", "negative": ["omitted premise", "unattributed fact", "unauthorized rule", "global write", "session leakage"]},
+    {"family": "time_and_revision", "questions": "What held at an instant or interval, and what was known as of a transaction time?", "wires": ["fact", "event", "remember", "query", "temporal", "solve", "cnl"], "oracle": "Independently specified valid-time and transaction-time intervals", "negative": ["boundary inclusion", "at versus asof", "revision versus original claim", "disjoint interval"]},
     {"family": "finite_constraints", "questions": "Is the finite numeric system feasible, is the claim entailed, and what is the optimum?", "wires": ["constraint", "solve", "cnl"], "oracle": "Independent enumeration of explicitly finite domains, optima and ties", "negative": ["strict versus non-strict comparison", "min versus max", "unit mismatch", "unique versus multiple optima", "existential versus universal claim"]},
     {"family": "mixed_values_and_cardinality", "questions": "Compute a value from logical results without guessing a missing or nonunique binding", "wires": ["query", "constraint", "solve", "value", "jsEval", "cnl", "clarify"], "oracle": "Independent expected typed value, output mode and uniqueness", "negative": ["zero bindings", "multiple bindings", "wrong projection", "wrong arithmetic operation"]},
     {"family": "approved_composition", "questions": "Apply the approved procedure to these arguments", "wires": ["link", "expand", "solve", "cnl"], "oracle": "Approved library definition and independently checked result", "negative": ["wrong argument order", "unapproved handle", "privileged model declaration"]},
     {"family": "bounded_advanced_reasoning", "questions": "Find candidate explanations, diagnoses, patterns, analogies, plans or explicit counterfactual outcomes", "wires": ["hypothesis", "goal", "trace", "pattern", "recall", "reason", "abduce", "diagnose", "associate", "induce", "analogize", "plan", "simulate", "temporal", "cnl"], "oracle": "Independent bounded witness, alternatives, assumptions and epistemic/hypothetical status", "negative": ["candidate-as-fact", "plan-as-executed", "correlation-as-causation", "counterfactual contaminates actual world"]},
-    {"family": "unsupported_or_underspecified", "questions": "Ask for missing scope or refuse semantics not provided by an approved backend", "wires": ["clarify"], "oracle": "Explicit capability or ambiguity boundary, not an invented positive answer", "negative": ["default-as-Horn-law", "unbounded quantification", "invented causal intervention", "unstated closed-world assumption"]}
+    {"family": "unsupported_or_underspecified", "questions": "Request a missing identity or required scalar without inventing it; unknown evidence is not by itself a missing user input", "wires": ["query", "clarify"], "oracle": "Host-generated clarification for unresolved dependency, not a model-authored clarify wire", "negative": ["default-as-Horn-law", "unbounded quantification", "invented causal intervention", "unstated closed-world assumption"]}
   ],
-  "coverage_accounting": "Requirements above are not a measured coverage claim. Exported corpus matrix must report actual cases, target wires, host-only setup wires, compositions, oracles, negatives, languages and split counts separately. Advanced unsupported families remain explicit gaps, never surrogate successes.",
+  "coverage_accounting": "Requirements above are not measured coverage. Report declarative formalization target wires and trusted system circuit wires separately; do not include system-only cases in formalizer training projections. Also report host setup, compositions, independent oracles, negatives, languages, splits and source rights.",
   "split_policy": {
     "unit": "Connected semantic/source/negative/surface group",
     "isolated": ["train", "development", "sealed test"],

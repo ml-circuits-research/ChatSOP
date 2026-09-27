@@ -5,6 +5,7 @@
 - world: route_dev
 - operators: query, unique_output, arithmetic, finite_constraint
 - input_mode: query_only
+- evaluation_track: formalization
 - structure: query__unique_output__arithmetic__finite_constraint
 - oracle: handwritten_route_arithmetic
 
@@ -23,46 +24,29 @@
 ## Expected (independent oracle, never computed from the target)
 
 - status: `"possible"`
-- outputs: `{"minutes":70,"arrival":840,"time":840}`
+- outputs: `{"minutes":70,"time":840}`
 
-## SOP target (compiled, canonical)
+## Declarative model target (canonical)
 
 ```sop
 @travel query
   mode select
   select ?minutes
-  where duration(route_demo, ?minutes)
-
-@known solve
-  query $travel
-  output ?minutes one
-
-@departure value
-  data 770
-
-@arrival jsEval
-  expr $departure + $minutes
+  where duration route_demo ?minutes
 
 @limit constraint
   var ?time int 0 1440
-  require ?time == $arrival
+  require ?time == 770 + $minutes
   claim ?time <= 840
   task possible
-
-@r solve
-  constraint $limit
-  output ?time one
-
-@answer cnl
-  result $r
-  language en
+  select ?time
 ```
 
 ## Host world background (oracle basis, NOT model input)
 
 ```sop
 @record0 fact
-  holds duration(route_demo, 70)
+  holds duration route_demo 70
   valid timeless
   source route_dev
   quote "The Alpha Lab route takes 70 minutes."
@@ -76,7 +60,7 @@
   body |
     @travel query
       select ?duration
-      where duration($route, ?duration)
+      where duration $route ?duration
     @retrieve_duration solve
       query $travel
       output ?duration one
@@ -96,4 +80,4 @@
 
 ---
 
-Generated from `tools/datasets/curriculum/cases.mjs` (revision ac20503521b0ea6482fe565ef5af4e07658f486b70d52431b1868723a3df0c11). Manual edits here are discarded by regeneration and make validation fail as a stale authoring tree. To change a case: edit `cases.mjs`, then run `node tools/datasets/build-cases-md.mjs` and rebuild the corpus.
+Generated from `tools/datasets/curriculum/cases.mjs` (revision 702d7c99d93592ec3959d5748340ba1136bd25f1a9c100460e4de2d6ccb2d291). Manual edits here are discarded by regeneration and make validation fail as a stale authoring tree. To change a case: edit `cases.mjs`, then run `node tools/datasets/build-cases-md.mjs` and rebuild the corpus.

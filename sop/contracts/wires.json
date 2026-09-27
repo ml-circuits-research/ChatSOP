@@ -39,7 +39,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "resolve": {
@@ -55,11 +55,11 @@
         "language",
         "kind"
       ],
-      "role": "host-lexicon-lookup",
+      "role": "host-identity-lookup",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write",
-      "note": "Host-reviewed lexicon only; entity IDs consumable as atom arguments; predicate heads require host pre-resolution; unknown/ambiguous block dependent wires"
+      "note": "Looks up a scoped identity; the host must not invent the intended entity."
     },
     "fact": {
       "one": [
@@ -73,10 +73,24 @@
         "holds",
         "valid"
       ],
-      "role": "admitted-claim",
+      "role": "constructs-explicit-claim-value",
+      "declaration": true,
+      "authoredByModel": false,
+      "effects": "no-world-write"
+    },
+    "premise": {
+      "one": [
+        "holds",
+        "valid"
+      ],
+      "required": [
+        "holds"
+      ],
+      "role": "conditional-conversation-assumption",
       "declaration": true,
       "authoredByModel": true,
-      "effects": "no-world-write"
+      "effects": "no-world-write",
+      "note": "Retained as conditional conversation context by the model entry point; never implicitly recorded as a repository fact."
     },
     "rule": {
       "one": [
@@ -124,7 +138,8 @@
         "task",
         "unit",
         "objective",
-        "direction"
+        "direction",
+        "select"
       ],
       "many": [
         "var",
@@ -150,9 +165,9 @@
         "action",
         "target"
       ],
-      "role": "claim-update",
+      "role": "constructs-claim-update",
       "declaration": true,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "pack": {
@@ -162,12 +177,13 @@
       "required": [
         "items"
       ],
-      "role": "operation",
+      "role": "collection-plumbing",
       "declaration": false,
-      "authoredByModel": true,
-      "effects": "no-world-write"
+      "authoredByModel": false,
+      "effects": "no-world-write",
+      "note": "Collects values for downstream execution; host-approved metaprograms assemble this plumbing."
     },
-    "assert": {
+    "remember": {
       "one": [
         "scope"
       ],
@@ -178,10 +194,11 @@
       "required": [
         "input"
       ],
-      "role": "operation",
+      "role": "session-fact-event-recording",
       "declaration": false,
-      "authoredByModel": true,
-      "effects": "explicit-session-write"
+      "authoredByModel": false,
+      "effects": "records-explicit-facts-and-events-in-session",
+      "note": "Records independently admitted facts or events in the session; this does not prove them true or publish them globally. Session commit is separate. Model-authored premises are not recording inputs."
     },
     "recall": {
       "one": [
@@ -196,7 +213,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "link": {
@@ -213,7 +230,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "solve": {
@@ -232,7 +249,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "binding": {
@@ -251,8 +268,7 @@
       "role": "operation",
       "declaration": false,
       "authoredByModel": false,
-      "effects": "no-world-write",
-      "note": "Runtime-generated only"
+      "effects": "no-world-write"
     },
     "reason": {
       "one": [
@@ -270,8 +286,9 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
-      "effects": "may-reinforce-nonhypothetical-observed-proof"
+      "authoredByModel": false,
+      "effects": "may-reinforce-nonhypothetical-observed-proof",
+      "note": "A real non-hypothetical proof may reinforce previously admitted, metadata-verified observed premises when host policy (policy.reinforce is not false) and the memory retention configuration allow promotion; the reason packet reports any promotion, and retrieval or candidate hits alone never promote."
     },
     "cnl": {
       "one": [
@@ -283,7 +300,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "jsEval": {
@@ -295,7 +312,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "template": {
@@ -330,7 +347,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "clarify": {
@@ -340,10 +357,11 @@
       "required": [
         "text"
       ],
-      "role": "operation",
+      "role": "host-request-for-blocking-information",
       "declaration": false,
-      "authoredByModel": true,
-      "effects": "no-world-write"
+      "authoredByModel": false,
+      "effects": "no-world-write",
+      "note": "The host requests a next-turn answer for a blocking identity or scalar dependency; unknown evidence alone does not require clarification."
     },
     "pattern": {
       "one": [
@@ -364,7 +382,7 @@
       ],
       "role": "candidate-regularity",
       "declaration": true,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "hypothesis": {
@@ -379,7 +397,7 @@
       ],
       "role": "candidate-assumptions",
       "declaration": true,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "action": {
@@ -411,7 +429,7 @@
       ],
       "role": "desired-state",
       "declaration": true,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "trace": {
@@ -426,9 +444,8 @@
       ],
       "role": "case-evidence",
       "declaration": true,
-      "authoredByModel": true,
-      "effects": "no-world-write",
-      "note": "Model cannot certify closed=true"
+      "authoredByModel": false,
+      "effects": "no-world-write"
     },
     "policy": {
       "one": [
@@ -456,8 +473,7 @@
       "role": "requires-extension-compiler",
       "declaration": true,
       "authoredByModel": false,
-      "effects": "no-world-write",
-      "note": "Unsupported unless an approved strategy handles the dialect"
+      "effects": "no-world-write"
     },
     "procedure": {
       "one": [
@@ -494,7 +510,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "diagnose": {
@@ -514,7 +530,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "associate": {
@@ -535,7 +551,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "induce": {
@@ -555,7 +571,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "analogize": {
@@ -576,7 +592,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "plan": {
@@ -597,7 +613,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "simulate": {
@@ -620,7 +636,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     },
     "temporal": {
@@ -640,7 +656,7 @@
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": true,
+      "authoredByModel": false,
       "effects": "no-world-write"
     }
   }

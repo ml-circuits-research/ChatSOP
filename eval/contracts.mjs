@@ -1,19 +1,25 @@
 import assert from 'node:assert/strict';
 
-const statuses = new Map([
-  ['supported', 'ENTAILED'], ['entailed', 'ENTAILED'],
-  ['refuted', 'CONTRADICTED'], ['both', 'CONFLICT'],
-  ['unknown', 'UNKNOWN'], ['possible', 'POSSIBLE'],
-  ['hypotheses', 'PLAUSIBLE'], ['candidates', 'PLAUSIBLE'],
-  ['patterns', 'PLAUSIBLE'], ['clarify', 'AMBIGUOUS'],
-  ['unsupported', 'UNSUPPORTED'], ['blocked', 'BLOCKED'],
-]);
+/** Runtime packet statuses -> vision vocabulary. These are projections, not new inferences. */
+export const STATUS_DECISIONS = Object.freeze({
+  supported: 'ENTAILED', refuted: 'CONTRADICTED', both: 'CONFLICT', unknown: 'UNKNOWN',
+  possible: 'POSSIBLE', entailed: 'ENTAILED', impossible: 'CONTRADICTED',
+  hypotheses: 'PLAUSIBLE', candidates: 'PLAUSIBLE', patterns: 'PLAUSIBLE',
+  clarify: 'AMBIGUOUS', unsupported: 'UNSUPPORTED', blocked: 'BLOCKED',
+  inconsistent: 'CONFLICT', optimal: 'ENTAILED', feasible_bound: 'POSSIBLE',
+  plan_found: 'POSSIBLE', no_plan: 'UNKNOWN',
+  stored: 'STORED', context_updated: 'CONTEXT_UPDATED',
+});
 
 /** Preserve conflicts, conditionality and incomplete search independently of truth. */
 export function epistemicResult(packet) {
   assert(packet && typeof packet.status === 'string', 'A result requires a runtime status');
   return {
-    status: statuses.get(packet.status) ?? packet.status.toUpperCase(),
+    status: packet.status === 'both' || packet.status === 'inconsistent' || (packet.conflictedAnswers?.length ?? 0) > 0
+      ? 'CONFLICT'
+      : packet.hypothetical === true && ['supported', 'entailed'].includes(packet.status)
+        ? 'PLAUSIBLE'
+        : Object.hasOwn(STATUS_DECISIONS, packet.status) ? STATUS_DECISIONS[packet.status] : 'UNSUPPORTED',
     runtime_status: packet.status,
     complete: packet.complete ?? null,
     hypothetical: packet.hypothetical === true,

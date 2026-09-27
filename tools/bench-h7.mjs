@@ -16,7 +16,7 @@ for(const seed of String(args.seeds??'11,29,53').split(',').map(Number))for(cons
  console.log('kernel seed '+seed+' '+budgetKiB+' KiB done');
 }
 const w=new HoloWireMemory({kernel:{banks:4,rows:4096,dimension:64}}),handles=[];
-for(let i=0;i<30;i++)handles.push(w.remember('@f'+i+' fact\n  holds works_at(person_'+i+', org_'+i+')\n  valid timeless').handle);
+for(let i=0;i<30;i++)handles.push(w.remember('@f'+i+' fact\n  holds works_at person_'+i+' org_'+i+'\n  valid timeless').handle);
 const wireRuns=[];for(const damage of [0,.1,.3,.5]){const copy=w.fork();copy.kernel.eraseFraction(damage,19);let restored=0,probes=0;const t=performance.now();for(const h of handles){const r=copy.recall(h);restored+=+(r.status==='remembered');probes+=r.probes;}wireRuns.push({wires:handles.length,damage,restored,probes,ms:performance.now()-t,banksBytes:w.stats().banksBytes});}
 saveJSON(out,{experiment:'h7-key-value-and-known-handle-v1',node:process.version,runs,wireRuns,
  note:'Kernel acceptance has no receipt/checksum and can falsely accept an absent key. SOP fact adapter adds SHA-256 receipts; the wire plane verifies content against its handle. TopCorrect is forced rank-1 accuracy, not accepted-answer precision. Known-handle wire reads do not implement partial-cue discovery.'});

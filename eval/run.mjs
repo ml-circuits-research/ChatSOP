@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parse, canonical, parseAtom } from '../sop/parser.mjs';
 import { Runtime } from '../sop/runtime.mjs';
+import {MODEL_TYPES} from '../sop/declarative.mjs';
 import { Lexicon } from '../sop/lexicon.mjs';
 import { publishKnowledge } from '../sop/ingest.mjs';
 import { Repository } from '../memory/repository.mjs';
@@ -18,6 +19,7 @@ import { executionSignature } from './signature.mjs';
 import { epistemicResult, fraction, distribution } from './contracts.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+const modelTypes = new Set(MODEL_TYPES);
 const sha256 = text => createHash('sha256').update(text).digest('hex');
 const readRows = file => fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean).map((line, index) => {
   try { return JSON.parse(line); } catch { throw Error(`${file}:${index + 1}: invalid JSON`); }
@@ -42,8 +44,13 @@ function observedResult(execution) {
 }
 
 function checkConversationalTarget(row, program) {
-  const allowed = row.input_mode === undefined ? ['cnl', 'clarify', 'assert', 'solve'] : ['cnl', 'clarify', 'assert'];
-  assert(allowed.includes(program.wires.at(-1)?.type), 'Conversational SOP must end in a checked result operation');
+  if (row.evaluation_track === 'formalization') {
+    assert(program.wires.every(wire => modelTypes.has(wire.type)), 'Model SOP must contain only declarative premise/query/constraint wires');
+    assert(['premise', 'query', 'constraint'].includes(program.wires.at(-1)?.type), 'Model SOP must end in a declarative problem or premise');
+  } else {
+    assert.equal(row.evaluation_track, 'system', 'Suite row must declare formalization or system evaluation_track');
+    assert(['cnl', 'clarify', 'remember', 'solve'].includes(program.wires.at(-1)?.type), 'System circuit must end in a checked result operation');
+  }
 }
 
 function checkReference(row, execution, session) {
@@ -60,6 +67,18 @@ function checkReference(row, execution, session) {
   }
   for (const [name, value] of Object.entries(row.expected?.packet ?? {})) {
     assert.deepEqual(packet[name], value, `Gold packet field ${name} disagrees with independent reference`);
+  }
+  if (row.evaluation_track === 'formalization') {
+    assert.equal(Object.values(session.live.claims).length, 0, 'Declarative premises must not write repository claims');
+    assert.equal(session.live.events.length, 0, 'Declarative premises must not write repository events');
+    if (row.expected?.context_premises) {
+      const observed = (execution.contextPremises ?? []).map(premise => {
+        assert.equal(premise.text, row.question, 'Host must retain the original input text as premise provenance');
+        return stable({atom:atomKey(premise.atom),valid:serialInterval(premise.valid),origin:premise.origin});
+      }).sort();
+      const expected = row.expected.context_premises.map(premise => stable({atom:atomKey(parseAtom(premise.holds)),valid:serialInterval(interval(premise.valid)),origin:premise.origin})).sort();
+      assert.deepEqual(observed, expected, 'Gold conditional premises disagree with independent reference');
+    }
   }
   if (row.expected?.session_claims) {
     const expected = row.expected.session_claims.map(claim => ({
@@ -121,6 +140,7 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
   assert(Array.isArray(rows) && rows.length > 0, 'Evaluation requires a nonempty suite');
   assert.equal(new Set(rows.map(row => row.id)).size, rows.length, 'Duplicate evaluation IDs');
   assert.equal(typeof predictor, 'function', 'An explicit predictor is required; gold is never a fallback');
+  assert(source !== 'endpoint' || rows.every(row => row.evaluation_track === 'formalization'), 'A formalizer endpoint cannot be evaluated on trusted system circuits');
   for (const row of rows) {
     assert(typeof row.id === 'string' && typeof (row.sop_target ?? row.target) === 'string', 'Each row needs an ID and reference SOP');
     assert(typeof row.setup_sop === 'string' && row.context, `Missing setup/context: ${row.id}`);
@@ -137,11 +157,12 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
       const began = performance.now();
       const record = {
         id: row.id, semantic_case_id: row.semantic_case_id ?? row.id,
-        language: row.language, family: row.structure_id ?? row.case,
+        language: row.language, family: row.structure_id ?? row.case, evaluation_track: row.evaluation_track,
         reference_valid: false, syntax_valid: false, runtime_valid: false,
         canonical_match: false, execution_equivalent: false, timing_ms: {},
       };
       const target = row.sop_target ?? row.target;
+      const question = [...(row.context_assertions ?? []), row.question ?? row.input].join('\n');
       let stage = 'reference', repo, goldSession, predSession, gold;
       const now = Date.parse(row.context.now ?? '2026-09-26T12:00:00Z');
       try {
@@ -156,7 +177,7 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
           if (!lexicons.has(record.ontology_sha256)) lexicons.set(record.ontology_sha256, new Lexicon(row.ontology_sop));
           caseLexicon = lexicons.get(record.ontology_sha256);
         }
-        const policy = row.input_mode === undefined ? config.policy : { allowWrite: row.input_mode === 'assertions_query', ...config.policy };
+        const policy = { allowWrite: row.evaluation_track === 'system' && row.input_mode === 'assertions_query', ...config.policy };
         let started = performance.now();
         repo = new Repository(path.join(temp, `case-${index}`), { memory: config.memory ?? { engine: 'sqlite', power: 10 } });
         if (row.setup_sop.trim()) publishKnowledge(repo, 'world', row.setup_sop, { schema: caseLexicon.predicates, reviewed: true, knownAt: Date.parse('2024-01-01') });
@@ -165,20 +186,20 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
         predSession = repo.session('world', 'prediction', 'evaluation');
         record.timing_ms.setup = performance.now() - started;
         const makeRuntime = session => {
-          const guard = new Agent({ repo, session, lexicon: caseLexicon, config });
+          const guard = row.evaluation_track === 'formalization' ? new Agent({ repo, session, lexicon: caseLexicon, config }) : null;
           return {
             guard,
             runtime: new Runtime({
               repo, session, lexicon: caseLexicon, schema: caseLexicon.predicates, now, policy,
-              atomGuard: (atom, meta) => guard.validateAtom(atom, row.context, meta),
+              ...(guard ? {atomGuard: (atom, meta) => guard.validateAtom(atom, row.context, meta)} : {}),
               factGuard: fact => assert.equal(fact.source, 'user', 'Conversational facts require source user'),
             }),
           };
         };
         started = performance.now();
         const goldExecutor = makeRuntime(goldSession);
-        goldExecutor.guard.validateVocabulary(target, row.context);
-        gold = await goldExecutor.runtime.run(target, { origin: 'model' });
+        goldExecutor.guard?.validateVocabulary(target, row.context, question);
+        gold = await goldExecutor.runtime.run(target, row.evaluation_track === 'formalization' ? { origin:'model', inputText:row.question, language:row.language, context:{premises:[],entities:row.context.entities} } : { origin:'trusted' });
         record.reference = observedResult(gold);
         record.reference_signature = executionSignature(gold, goldSession);
         checkReference(row, gold, goldSession);
@@ -187,7 +208,6 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
         record.gold_status = packetOf(gold).status;
         stage = 'generation';
         started = performance.now();
-        const question = [...(row.context_assertions ?? []), row.question ?? row.input].join('\n');
         const prompt = row.prompt ?? formalPrompt(question, row.context);
         const predicted = await predictor({ id: row.id, prompt });
         if (source === 'endpoint') requestsSucceeded++;
@@ -203,8 +223,8 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
         started = performance.now();
         checkConversationalTarget(row, predictedProgram);
         const predExecutor = makeRuntime(predSession);
-        predExecutor.guard.validateVocabulary(predicted, row.context);
-        const actual = await predExecutor.runtime.run(predicted, { origin: 'model' });
+        predExecutor.guard?.validateVocabulary(predicted, row.context, question);
+        const actual = await predExecutor.runtime.run(predicted, row.evaluation_track === 'formalization' ? { origin:'model', inputText:row.question, language:row.language, context:{premises:[],entities:row.context.entities} } : { origin:'trusted' });
         record.timing_ms.prediction = performance.now() - started;
         record.observed = observedResult(actual);
         record.runtime_valid = true;
@@ -238,7 +258,7 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
     memory: { sampled_peak_rss_bytes: Math.max(...rss), measurement: 'RSS sampled between cases; not a CUDA or continuous peak measurement' },
     config: { memory: config.memory ?? { engine: 'sqlite', power: 10 }, policy: config.policy ?? {} },
     metrics: { ...metrics(records), ...pairedMetrics(rows, records) },
-    by_language: groupedMetrics(records, 'language'), by_family: groupedMetrics(records, 'family'),
+    by_language: groupedMetrics(records, 'language'), by_family: groupedMetrics(records, 'family'), by_track:groupedMetrics(records,'evaluation_track'),
     limitations: ['Finite-fixture equivalence is not universal semantic equivalence.', 'No human review is implied.', 'Predictions-file evaluation does not demonstrate neural inference.'],
     records,
   };

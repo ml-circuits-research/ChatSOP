@@ -3,6 +3,7 @@
  * outputs; row-field names remain part of the structured output contract.
  */
 import {stable} from '../lib/util.mjs';
+import {atomKey} from '../lib/types.mjs';
 export function executionSignature(result,session) {
   const packet=result.result?.packet??result.result;
   const outputs=Object.values(result.outputs??{}).map(o=>({mode:o.mode,status:o.status,
@@ -23,5 +24,6 @@ export function executionSignature(result,session) {
     interventions:packet.interventions,factualStatus:packet.factualStatus,
 hypothetical:!!packet.hypothetical,complete:packet.complete,outputs,
     claims:Object.values(session.live.claims).map(c=>[c.tupleHash,c.valid,c.retention,c.source,c.quote]).sort(),
-    events:session.live.events.map(e=>[e.action,e.target,e.effective]).sort()});
+    events:session.live.events.map(e=>[e.action,e.target,e.effective]).sort(),
+    contextPremises:(result.contextPremises??[]).map(p=>[atomKey(p.atom),p.valid,p.origin]).sort((a,b)=>stable(a).localeCompare(stable(b)))});
 }

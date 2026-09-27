@@ -7,6 +7,9 @@
 .wire-help th, .wire-help td { border: 1px solid #dce6eb; padding: .65rem; text-align: left; line-height: 1.5; }
 .wire-help th { background: #eaf0f4; }
 .wire-help table code { white-space: normal; }
+.wire-help th:first-child, .wire-help td:first-child { min-width: 7rem; overflow-wrap: normal; }
+.wire-help td:first-child code { white-space: nowrap; }
+.wire-help th:nth-child(2), .wire-help td:nth-child(2) { min-width: 9rem; overflow-wrap: normal; }
 .wire-help .note, .wire-help .warning, .wire-help .status, .wire-help .review-note, .wire-help aside { padding: .8rem 1rem; border-left: 4px solid #bf671e; background: #fff7e8; margin: 1rem 0; }
 .wire-help .proposal { padding: .8rem 1rem; border-left: 4px solid #145c80; background: #edf7fb; }
 .wire-help dt { font-weight: 700; margin-top: .65rem; }

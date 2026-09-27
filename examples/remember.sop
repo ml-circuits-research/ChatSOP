@@ -1,17 +1,17 @@
 @f fact
-  holds project_member(maria, project_delta)
+  holds project_member maria project_delta
   valid 2026-09-26 open
   source user
   retention pinned
 
-@save assert
+@save remember
   input $f
   scope session
 
 @q query
   mode select
   select ?project
-  where project_member(maria, ?project)
+  where project_member maria ?project
   at 2026-09-26
 
 @m recall

@@ -1,6 +1,6 @@
-# Exemple executabile SOP
+# SOP execution examples (legacy collection)
 
-Pornește cu `node examples/linker-demo.js`: cele șase exemple `auto-*` rulează cu trei strategii de memorie. Rapoartele arată linking-ul, ieșirile, epocile și codul compilat. `query.sop`, `mixed.sop` și `expand.sop` rămân exemple de nivel inferior, compatibile, dar noile date preferă `solve` și ieșiri explicite.
+These examples are retained for their original flow demonstrations. Their SOP atoms and explicit recording wires use the current spelling; their older `reason`/`recall` and `jsEval` routes are low-level program examples, not a recommended small-model curriculum. Run `node examples/linker-demo.js` for maintained runnable examples.
 
 ## auto-link.sop
 
@@ -8,7 +8,7 @@ Pornește cu `node examples/linker-demo.js`: cele șase exemple `auto-*` ruleaz�
 # The caller declares the unknown output, not an @bunica value.
 @q query
   select ?bunica
-  where grandmother(?bunica, carina)
+  where grandmother ?bunica carina
   at 2026-09-26
 
 @r solve
@@ -28,7 +28,7 @@ Pornește cu `node examples/linker-demo.js`: cele șase exemple `auto-*` ruleaz�
 ```sop
 @family query
   select ?bunica
-  where grandmother(?bunica, carina)
+  where grandmother ?bunica carina
   at 2026-09-26
 
 @who solve
@@ -37,7 +37,7 @@ Pornește cu `node examples/linker-demo.js`: cele șase exemple `auto-*` ruleaz�
 
 @children query
   select ?copii
-  where parent($bunica, ?copii)
+  where parent $bunica ?copii
   at 2026-09-26
 
 @next solve
@@ -55,7 +55,7 @@ Pornește cu `node examples/linker-demo.js`: cele șase exemple `auto-*` ruleaz�
 # Relational recall -> generated numeric wire -> constraint -> another output.
 @q query
   select ?duration
-  where duration(route_demo, ?duration)
+  where duration route_demo ?duration
   at 2026-09-26
 
 @trip solve
@@ -103,7 +103,7 @@ Pornește cu `node examples/linker-demo.js`: cele șase exemple `auto-*` ruleaz�
 ```sop
 @q query
   select ?stramos
-  where ancestor(?stramos, carina)
+  where ancestor ?stramos carina
   at 2026-09-26
 
 @r solve
@@ -123,7 +123,7 @@ Pornește cu `node examples/linker-demo.js`: cele șase exemple `auto-*` ruleaz�
 ```sop
 @q query
   select ?parent ?child
-  where parent(?parent, ?child)
+  where parent ?parent ?child
   at 2026-09-26
 
 @r solve
@@ -139,19 +139,19 @@ Pornește cu `node examples/linker-demo.js`: cele șase exemple `auto-*` ruleaz�
 
 ```sop
 @f fact
-  holds project_member(maria, project_delta)
+  holds project_member maria project_delta
   valid 2026-09-26 open
   source user
   retention pinned
 
-@save assert
+@save remember
   input $f
   scope session
 
 @q query
   mode select
   select ?project
-  where project_member(maria, ?project)
+  where project_member maria ?project
   at 2026-09-26
 
 @m recall
@@ -171,11 +171,11 @@ Pornește cu `node examples/linker-demo.js`: cele șase exemple `auto-*` ruleaz�
 
 ```sop
 @f fact
-  holds works_at(ana, lab_alpha)
+  holds works_at ana lab_alpha
   valid 2024-01-01 open
   source user
 
-@saved assert
+@saved remember
   input $f
 
 @end event
@@ -184,12 +184,12 @@ Pornește cu `node examples/linker-demo.js`: cele șase exemple `auto-*` ruleaz�
   effective 2025-06-01
   source user
 
-@applied assert
+@applied remember
   input $end
 
 @q query
   mode exists
-  where works_at(ana, lab_alpha)
+  where works_at ana lab_alpha
   at 2025-07-01
 
 @m recall
@@ -209,17 +209,17 @@ Pornește cu `node examples/linker-demo.js`: cele șase exemple `auto-*` ruleaz�
 
 ```sop
 @a fact
-  holds parent(ana, bogdan)
+  holds parent ana bogdan
   valid timeless
 
 @b fact
-  holds parent(bogdan, carina)
+  holds parent bogdan carina
   valid timeless
 
 @r rule
-  when parent(?x, ?y)
-  when parent(?y, ?z)
-  then grandparent(?x, ?z)
+  when parent ?x ?y
+  when parent ?y ?z
+  then grandparent ?x ?z
 
 @data pack
   items $a $b $r
@@ -227,7 +227,7 @@ Pornește cu `node examples/linker-demo.js`: cele șase exemple `auto-*` ruleaz�
 @q query
   mode select
   select ?who
-  where grandparent(?who, carina)
+  where grandparent ?who carina
 
 @result reason
   query $q
@@ -243,13 +243,13 @@ Pornește cu `node examples/linker-demo.js`: cele șase exemple `auto-*` ruleaz�
 
 ```sop
 @h fact
-  holds parent(carina, person_delta)
+  holds parent carina person_delta
   valid timeless
 
 @q query
   mode select
   select ?who
-  where ancestor(?who, person_delta)
+  where ancestor ?who person_delta
 
 @m recall
   query $q

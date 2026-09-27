@@ -1,7 +1,7 @@
 @q query
   mode select
   select ?minutes
-  where duration(route_demo, ?minutes)
+  where duration route_demo ?minutes
   at 2026-09-26
 
 @m recall

@@ -42,10 +42,10 @@ export function buildPilot({ worlds = 100, seed = 731 } = {}) {
     const negativeParents = new Set([`${c}|${a}`]);
     const negativeGrandparents = split === 'train' ? new Set() : new Set([`${c}|${a}`]);
     const source = [phrase(templates.english.parent, a, b), phrase(templates.english.parent, b, c), phrase(templates.english.negative, c, a)];
-    const atoms = [`parent(${a}, ${b})`, `parent(${b}, ${c})`, `not parent(${c}, ${a})`];
-    if (split !== 'train') { source.push(phrase(templates.english.grandparentNegative, c, a)); atoms.push(`not grandparent(${c}, ${a})`); }
+    const atoms = [`parent ${a} ${b}`, `parent ${b} ${c}`, `not parent ${c} ${a}`];
+    if (split !== 'train') { source.push(phrase(templates.english.grandparentNegative, c, a)); atoms.push(`not grandparent ${c} ${a}`); }
     const facts = atoms.map((atom, index) => `@fact${index} fact\n  holds ${atom}\n  valid timeless\n  source ${group}\n  quote ${JSON.stringify(source[index])}`);
-    const rule = '@twoHop rule\n  when parent(?x, ?y)\n  when parent(?y, ?z)\n  then grandparent(?x, ?z)';
+    const rule = '@twoHop rule\n  when parent ?x ?y\n  when parent ?y ?z\n  then grandparent ?x ?z';
     const setup = sop([...facts, ...(split === 'train' ? [] : [rule])].join('\n'));
     const sourceSha = sha256(source.join('\n') + '\n');
     const plans = split === 'train' ? [
@@ -66,13 +66,13 @@ export function buildPilot({ worlds = 100, seed = 731 } = {}) {
     for (const [index, [structure, predicate, left, right, negativeIndex]] of plans.entries()) {
       const caseId = `${group}_case_${index}`;
       const oracle = predicate ? graphOracle(parents, negativeParents, negativeGrandparents, predicate, left, right) : { status: 'clarify' };
-      const target = predicate ? sop(`@q query\n${left === '?who' ? '  mode select\n  select ?who\n' : ''}  where ${predicate}(${left}, ${right})\n  at 2026-09-26\n@answer solve\n  query $q`) : sop('@ask clarify\n  text "Which person and relationship should I check?"');
+      const target = predicate ? sop(`@q query\n${left === '?who' ? '  mode select\n  select ?who\n' : ''}  where ${predicate} ${left} ${right}\n  at 2026-09-26`) : sop('@ask clarify\n  text "Which person and relationship should I check?"');
       const en = predicate ? left === '?who' ? `Who is a ${predicate} of ${right}?` : `Is ${left} a ${predicate} of ${right}?` : 'Is that person related to the other one?';
       const ro = predicate ? left === '?who' ? `Cine este ${predicate === 'parent' ? 'părintele' : 'bunicul'} lui ${right}?` : `Este ${left} ${predicate === 'parent' ? 'părintele' : 'bunicul'} lui ${right}?` : 'Este acea persoană rudă cu cealaltă?';
       const languages = index === 0 ? ['en', 'ro'] : ['en'];
       for (const language of languages) {
         const row = {
-          id: `${caseId}_${language}`, semantic_case_id: caseId, split_group_id: group, structure_id: structure, split,
+          id: `${caseId}_${language}`, semantic_case_id: caseId, split_group_id: group, structure_id: structure, split, evaluation_track:predicate ? 'formalization' : 'system',
           source: { id: group, kind: 'synthetic_fixture', uri: `synthetic://pilot/${group}`, revision: sha256(sourceTemplate), sha256: sourceSha, license: null },
           context_assertions: source, question: language === 'en' ? en : ro, language, surface_group_id: `${caseId}_surface`, sop_target: target,
           semantic_status: predicate ? 'valid' : 'ambiguous', negative_of: negativeIndex === null ? null : `${group}_case_${negativeIndex}`,
@@ -94,9 +94,13 @@ export function writePilot({ out, evalOut, worlds = 100, seed = 731 }) {
   const rows = buildPilot({ worlds, seed }), summary = validateCorpus(rows, { reservedStructures: RESERVED_STRUCTURES });
   const files = {}, evalFiles = {};
   const writeRows = (dir, name, items, map, key = name) => { fs.mkdirSync(dir, { recursive: true }); const data = items.map(item => JSON.stringify(item)).join('\n') + '\n'; fs.writeFileSync(path.join(dir, name), data); map[key] = sha256(data); };
-  for (const split of ['train', 'dev']) writeRows(out, `${split}.jsonl`, rows.filter(row => row.split === split), files);
-  writeRows(evalOut, 'test.jsonl', rows.filter(row => row.split === 'test'), evalFiles);
-  for (const split of ['train', 'dev']) writeRows(path.join(out, 'formalizer'), `${split}.jsonl`, rows.filter(row => row.split === split).map(row => ({ id: row.id, prompt: formalPrompt([...row.context_assertions, row.question].join('\n'), row.context), target: row.sop_target, context: row.context, setup: row.setup_sop, group: row.split_group_id })), files, `formalizer/${split}.jsonl`);
+  for (const split of ['train', 'dev']) {
+    writeRows(out, `${split}.jsonl`, rows.filter(row => row.split === split && row.evaluation_track === 'formalization'), files);
+    writeRows(path.join(out, 'system'), `${split}.jsonl`, rows.filter(row => row.split === split && row.evaluation_track === 'system'), files, `system/${split}.jsonl`);
+  }
+  writeRows(evalOut, 'test.jsonl', rows.filter(row => row.split === 'test' && row.evaluation_track === 'formalization'), evalFiles);
+  writeRows(path.join(evalOut, 'system'), 'test.jsonl', rows.filter(row => row.split === 'test' && row.evaluation_track === 'system'), evalFiles, 'system/test.jsonl');
+  for (const split of ['train', 'dev']) writeRows(path.join(out, 'formalizer'), `${split}.jsonl`, rows.filter(row => row.split === split && row.evaluation_track === 'formalization').map(row => ({ id: row.id, prompt: formalPrompt([...row.context_assertions, row.question].join('\n'), row.context), target: row.sop_target, context: row.context, setup: row.setup_sop, group: row.split_group_id })), files, `formalizer/${split}.jsonl`);
   const version = { counter: 1, label: 'pilot-source-v1' };
   const versionBytes = JSON.stringify(version) + '\n';
   for (const [dir, map] of [[out, files], [evalOut, evalFiles]]) { fs.writeFileSync(path.join(dir, 'VERSION'), versionBytes); map.VERSION = sha256(versionBytes); }

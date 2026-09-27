@@ -1,6 +1,6 @@
 # ChatSOP
 
-ChatSOP is a local symbolic question-answering and research system. A user supplies a typed SOP program or asks a locally configured model to propose one; the host validates it, executes it against reviewed time-aware knowledge, and returns a result with evidence and controlled-language output. Memory and reasoning remain separate from model weights and from each other. This repository does not ship a ChatSOP-fine-tuned model or a complete OpenAI-compatible ChatSOP HTTP server. Bounded host infrastructure probes are separate from model and training-pressure qualification.
+ChatSOP separates a small model's description of a problem from its symbolic execution. The model emits only `premise`, `query`, and `constraint` declarations. The host validates them and generates the required resolution, collection, solving, rendering, and clarification operations. A person or approved tool can also supply a full trusted SOP circuit. Memory and reasoning remain separate from model weights. This repository does not ship a ChatSOP-fine-tuned model or a complete OpenAI-compatible ChatSOP HTTP server.
 
 ## Prerequisites
 
@@ -31,6 +31,24 @@ node server/cli.mjs run --file examples/query.sop
 ## Local conversation
 
 `node server/cli.mjs chat --config config/runtime.json --cnl-only` uses the configured formalizer endpoint and deterministic controlled-language output; remove `--cnl-only` only when a separately qualified verbalizer endpoint is available. The default config names a local inference URL, not a bundled model or an automatically launched service. A model's SOP proposal passes validation, policy guards and symbolic execution before the answer is returned. Model text and supplied documents cannot publish privileged definitions or choose their own user identity. See [Runtime](docs/runtime.html) for the local execution boundaries.
+
+Relations use whitespace-separated terms, for example `where temperature room_a ?degrees`; parentheses and commas are not SOP relation delimiters. Quote a multiword term, such as `"Maria Ionescu"`. Use explicit `all`/`any`/`end` blocks for Boolean grouping. Solver-internal Prolog/SMT and system-side expressions retain their own syntax.
+
+The model's `premise` is a conditional interpretation of context, not a verified `fact`. The host retains these interpretations in conversation-local context with the original message and does not write them to the knowledge repository. Sourced facts and explicit `remember` operations belong to trusted system/tool circuits; `remember` records information in a session and host `commit` remains separate. A blocked identity or required nonunique scalar triggers a generated clarification rather than a model-authored `clarify`. Lack of factual support remains an unknown reasoning result.
+
+`Runtime.run(source, {origin: 'model', inputText, language, context})` enforces this boundary. It returns both `authoredSop` and the generated `executionSop`, conditional `contextPremises`, result packets, and traces. The caller owns `{premises: []}` for the conversation; unrelated conversations must use separate contexts. Full trusted circuits use the default runtime origin. This keeps the model's learning task small while symbolic orchestration can evolve independently.
+
+## Start the local HTTP server
+
+Configure and start an independently qualified local formalizer endpoint at the `formalizer.url` in `config/runtime.json` first. For a base model, select its serving profile explicitly and provide a bearer credential:
+
+```sh
+CHATSOP_API_KEY='replace-with-a-long-private-token' CHATSOP_PROMPT_PROFILE=formal node server/http.mjs
+```
+
+The server binds `127.0.0.1:3000` by default; set `CHATSOP_PORT` to change the port, and stop the foreground process with Ctrl-C. `GET /healthz` checks process liveness; authenticated `GET /readyz` returns HTTP 503 with `model_available: false` until the configured formalizer model is reachable. `GET /v1/models` and `POST /v1/chat/completions` are supported; non-streaming and verified-result SSE (`stream: true`) are available. Supply `Authorization: Bearer <token>`, the listed model `chatsop-local`, one new user message, and optionally a stable `conversation_id`. The endpoint owns prior context and stores per-principal conversations under the repository root. For separate users, provide separate credentials through the programmatic `createServer({authTokens})` API; one shared token represents one user.
+
+Fine-tuned models instead require an explicit `bare` profile and matching backend identity metadata; `bare` sends only CONTEXT + MESSAGE, while `formal` includes the base-model instruction prompt. Mixing these profiles invalidates evaluation. There is **no trained checkpoint included**, so a real model-backed smoke and successful readiness cannot be claimed from this checkout alone. `chatSop.trustedSop` is the authenticated, explicit `fact`/`event`/`remember` circuit for session recording; model-authored SOP never records facts. Tools, Responses, and embeddings are not implemented. See [DS016](docs/specsLoader.html?spec=DS016-local-server.md) for limits, errors, security and trace fields.
 
 ## Training and evaluation boundaries
 
@@ -64,13 +82,7 @@ To export the authored EN/RO evaluation cases into a new file, use `node eval/su
 
 The source-to-knowledge workflow is described by `skills/material-to-sop/SKILL.md`. Its Node CLI prepares UTF-8 TXT/MD material in a private workspace, checks quoted SOP drafts and runs isolated candidate-rule probes; it does not review source truth or authorize publication by itself. The host must approve a scoped HARD rule and its positive, negative and boundary probes before freezing or publishing. See the skill's bundled fixtures for its exact input format.
 
-The reviewable query curriculum is `datasets/query-v1/`: 62 semantic cases,
-198 surfaces, three English paraphrases per case and twelve Romanian anchors.
-The sealed `eval/suites/source-reference-v2.jsonl` adds sixteen separately
-authored source-backed cases (49 surfaces), excluded from training and selection.
-[DS009](docs/specsLoader.html?spec=DS009-query-curriculum.md) reconciles the source
-visions, 35-wire inventory, input modes, circuit compositions and remaining
-coverage gaps. These datasets are **not training-qualified**.
+The reviewable query curriculum is `datasets/query-v1/`; its manifests report the actual semantic cases, surfaces, languages, and evaluation tracks. Formalizer targets contain declarative model input only. Full-program cases belong to the separate system-evaluation track, not the small model's training targets. The sealed source-reference suite remains excluded from training and selection. [DS009](docs/specsLoader.html?spec=DS009-query-curriculum.md) describes the source visions, full runtime inventory, input modes, compositions, and remaining coverage gaps. These datasets are **not training-qualified**.
 
 `skills/semantic-sop-review/SKILL.md` handles harmless syntax separately from
 semantic differences: guarded discriminating worlds, an actual LLM review for

@@ -58,7 +58,7 @@ function graphOracle(world, item, local = []) {
     (atom.neg ? negative : positive).push({ ...atom, valid: fact.valid });
   }
   for (const rule of world.rules) {
-    if (rule.then !== 'grandparent(?x, ?z)') throw Error(`Unreviewed oracle rule ${rule.id}`);
+    if (rule.then !== 'grandparent ?x ?z') throw Error(`Unreviewed oracle rule ${rule.id}`);
     const parents = positive.filter(atom => atom.p === 'parent');
     for (const first of parents) for (const second of parents) if (first.a[1] === second.a[0]) {
       positive.push({ p: 'grandparent', a: [first.a[0], second.a[1]], neg: false, valid: 'timeless' });
@@ -99,27 +99,30 @@ function routeOracle(world, item) {
   const routes = world.facts.map(record => parseAtom(record.atom)).filter(atom => atom.p === 'duration' && atom.a[0] === 'route_demo');
   if (routes.length !== 1 || !Number.isSafeInteger(routes[0].a[1])) throw Error(`${item.id}: route duration is not uniquely sourced`);
   const minutes = routes[0].a[1], arrival = 770 + minutes;
-  return { status: arrival <= 840 ? 'possible' : 'refuted', outputs: item.id === 'route_expression' ? { minutes, arrival, time: arrival } : { expanded__duration: minutes, expanded__arrival: arrival } };
+  return { status: arrival <= 840 ? 'possible' : 'refuted', outputs: item.id === 'route_expression' ? { minutes, time: arrival } : { expanded__duration: minutes, expanded__arrival: arrival } };
 }
 function targetRouteExpression() {
-  return canonicalTarget('@travel query\n  mode select\n  select ?minutes\n  where duration(route_demo, ?minutes)\n@known solve\n  query $travel\n  output ?minutes one\n@departure value\n  data 770\n@arrival jsEval\n  expr $departure + $minutes\n@limit constraint\n  var ?time int 0 1440\n  require ?time == $arrival\n  claim ?time <= 840\n  task possible\n@r solve\n  constraint $limit\n  output ?time one\n@answer cnl\n  result $r\n  language en');
+  return canonicalTarget('@travel query\n  mode select\n  select ?minutes\n  where duration route_demo ?minutes\n@limit constraint\n  var ?time int 0 1440\n  require ?time == 770 + $minutes\n  claim ?time <= 840\n  task possible\n  select ?time');
 }
 function targetRouteProcedure() {
   return canonicalTarget('@route value\n  data "route_demo"\n@start value\n  data 770\n@deadline value\n  data 840\n@expanded expand\n  using ~check_arrival\n  with route $route\n  with start $start\n  with deadline $deadline\n@packet jsEval\n  expr $expanded.packet\n@answer cnl\n  result $packet\n  language en');
 }
 function targetQuery(item, { claims = [], resolve = null } = {}) {
-  const blocks = claims.flatMap((claim, i) => [`@userFact${i} fact\n  holds ${claim.atom}\n  valid ${claim.valid}\n  source user\n  quote ${JSON.stringify(claim.text)}`, `@store${i} assert\n  input $userFact${i}\n  scope session`]);
-  if (resolve) blocks.push(`@alias resolve\n  text ${JSON.stringify(resolve.text)}\n  language ${resolve.language}\n  kind entity\n  type organization`);
+  const blocks = claims.map((claim, i) => `@premise${i} premise\n  holds ${claim.atom}\n  valid ${claim.valid}`);
   if (!item.where) return canonicalTarget(blocks.join('\n'));
-  const where = resolve ? item.where.map(atom => atom.replace(resolve.id, '$alias')) : item.where;
+  const where = resolve ? item.where.map(atom => atom.replace(resolve.id, JSON.stringify(resolve.text))) : item.where;
   blocks.push(`@q query\n${item.mode ? `  mode ${item.mode}\n` : ''}${item.select ? `  select ${item.select.join(' ')}\n` : ''}${where.map(atom => `  where ${atom}\n`).join('')}${item.time?.at ? `  at ${item.time.at}\n` : ''}${item.time?.during ? `  during ${item.time.during}\n` : ''}${item.time?.asof ? `  asof ${item.time.asof}\n` : ''}`.trimEnd());
-  blocks.push(`@r solve\n  query $q${claims.map((_, i) => `\n  after $store${i}`).join('')}`);
-  blocks.push('@answer cnl\n  result $r\n  language en');
   return canonicalTarget(blocks.join('\n'));
 }
+function targetSessionWrite(item) {
+  if (item.claims.length !== 1) throw Error(`${item.id}: explicit write case requires one claim`);
+  const claim = item.claims[0];
+  return canonicalTarget(`@user_fact fact\n  holds ${claim.atom}\n  valid ${claim.valid}\n  source user\n  quote ${JSON.stringify(claim.text)}\n@record remember\n  input $user_fact\n  scope session`);
+}
 function targetConstraint(item) {
-  const block = `@c constraint\n  var ?x int ${item.min} ${item.max}\n${item.require.map(rule => `  require ${rule}\n`).join('')}  claim ${item.claim}\n  task ${item.task}`;
-  return canonicalTarget(`${block}\n@r solve\n  constraint $c${item.output ? `\n  output ${item.output}` : ''}\n@answer cnl\n  result $r\n  language en`);
+  const declaration=`@c constraint\n  var ?x int ${item.min} ${item.max}\n${item.require.map(rule => `  require ${rule}\n`).join('')}  claim ${item.claim}\n  task ${item.task}`;
+  if(item.evaluation_track==='system')return canonicalTarget(declaration+`\n@result solve\n  constraint $c${item.output ? `\n  output ${item.output}` : ''}\n@answer cnl\n  result $result\n  language en`);
+  return canonicalTarget(declaration+(item.output ? `\n  select ${item.output.split(' ')[0]}` : ''));
 }
 function targetClarify(item) { return canonicalTarget(`@ask clarify\n  text ${JSON.stringify(item.clarification)}`); }
 function rowContext(language, input, world) {
@@ -131,14 +134,14 @@ function rowContext(language, input, world) {
   const entities = [...used].sort().map(id => ({ id, type: lexicon.entities[id].entityType, label: lexicon.entities[id].labels[language] ?? lexicon.entities[id].labels.en ?? id }));
   return { now: NOW, language, entities, predicates: [...predicates].sort().map(id => ({ id, args: lexicon.predicates[id].args, meaning: lexicon.predicates[id].description })), approvedTemplates: world?.procedures ?? [], procedures_sop: world?.procedures?.map(() => approvedTemplate) ?? [], canonicalMentions: input.resolve ? [{ surface:input.resolve.text, language:input.resolve.language, kind:'entity', id:input.resolve.id }] : [], background_assertions: world?.facts.map(fact => fact.text) ?? [], background_rules: world?.rules.map(rule => `${rule.when.join(' AND ')} -> ${rule.then}`) ?? [], background_known_at: world?.facts.length ? knownAt : null };
 }
-function render(item, { world = null, group, input_mode, target, expected, sourceInfo, oracleKind }) {
+function render(item, { world = null, group, input_mode, target, expected, sourceInfo, oracleKind, evaluation_track = 'formalization' }) {
   if (!item.en || item.en.length < 3 || item.en.length !== new Set(item.en).size) throw Error(`${item.id}: expected several distinct natural questions`);
   const surfaces = [...item.en.map((text, index) => ({ text, language: 'en', name: `en${index + 1}` })), ...(item.ro ? [{ text: item.ro, language: 'ro', name: 'ro' }] : [])];
   return surfaces.map(({ text, language, name }) => ({
     id: `${item.id}_${name}`, semantic_case_id: item.id, split_group_id: group,
     structure_id: item.operators.join('__'), split: item.split ?? world?.split,
     input_mode, source: sourceInfo, context_assertions: item.claims?.map(claim => claim.text) ?? [],
-    question: text, language, surface_group_id: `${item.id}_surface`, sop_target: target,
+    question: text, language, surface_group_id: `${item.id}_surface`, sop_target: target, evaluation_track,
     semantic_status: item.clarification ? (item.family === 'unsupported_boundary' ? 'unsupported' : 'ambiguous') : expected.status === 'both' ? 'contradictory' : 'valid',
     negative_of: item.negativeOf ?? null,
     generation_trace: { method: 'harness-llm-authored-synthetic-scenario', template: `${REVISION}/${item.id}/${name}`, model: 'unverified-harness-backend', review_status: 'synthetic_unreviewed' },
@@ -154,7 +157,7 @@ function assumptionOracle(item) {
   return { status: item.defeated ? 'unknown' : 'supported', answers: item.defeated ? [] : [[]], packet: { hypothetical: !item.defeated } };
 }
 function targetAssumption(item) {
-  return canonicalTarget(`@q query\n  mode exists\n  where ${item.where}\n@guess fact\n  holds ${item.guess}\n  valid timeless\n  source assumption\n@r solve\n  query $q\n  assume $guess\n@answer cnl\n  result $r\n  language en`);
+  return canonicalTarget(`@guess premise\n  holds ${item.guess}\n@q query\n  mode exists\n  where ${item.where}`);
 }
 function buildCases() {
   const rows = [];
@@ -168,25 +171,31 @@ function buildCases() {
     if (!world) throw Error(`Unknown world ${item.world}`);
     const expected = item.id.startsWith('route_') ? routeOracle(world, item) : graphOracle(world, item);
     const target = item.id === 'route_expression' ? targetRouteExpression() : item.id === 'route_approved_procedure' ? targetRouteProcedure() : targetQuery(item, { resolve:item.resolve });
-    rows.push(...render(item, { world, group: world.id, input_mode: 'query_only', sourceInfo: worldsPrepared.get(world.id).source, expected, target, oracleKind:item.id.startsWith('route_') ? 'handwritten_route_arithmetic' : 'handwritten_graph_temporal' }));
+    rows.push(...render(item, { world, group: world.id, input_mode: 'query_only', sourceInfo: worldsPrepared.get(world.id).source, expected, target, oracleKind:item.id.startsWith('route_') ? 'handwritten_route_arithmetic' : 'handwritten_graph_temporal', evaluation_track:item.id === 'route_approved_procedure' ? 'system' : 'formalization' }));
   }
   for (const item of attached) {
     const world = { id: `attached_${item.split}`, split:item.split, domain:'conversation', facts:[], rules:[] };
     const content = `Synthetic user-assertion scenario ${item.id}.\n` + item.claims.map(claim => claim.text).join('\n') + '\n';
     const sourceInfo = { id: item.id, kind:'synthetic_curriculum', uri:`synthetic://query-v1/${item.id}`, revision:templateHash, sha256:sha256(content), license:null, content };
-    const expected = item.where ? graphOracle(world, item, item.claims) : { status:'stored', packet:{ count:item.claims.length } };
-    expected.session_claims = item.claims.map(claim => ({ holds:claim.atom, valid:claim.valid, source:'user', quote:claim.text, retention:'normal' }));
-    rows.push(...render(item, { world:null, group:`attached_${item.split}`, input_mode:'assertions_query', sourceInfo, expected, target:targetQuery(item,{ claims:item.claims }), oracleKind:'handwritten_graph_temporal' }));
+    const sessionWrite = item.id === 'assert_only';
+    const expected = sessionWrite
+      ? { status:'stored', packet:{ count:1 }, session_claims:item.claims.map(claim => ({ holds:claim.atom, valid:claim.valid, source:'user', quote:claim.text, retention:'normal' })) }
+      : item.where ? graphOracle(world, item, item.claims) : { status:'context_updated', packet:{ kind:'context', count:item.claims.length, complete:true } };
+    if (!sessionWrite) {
+      expected.context_premises = item.claims.map(claim => ({ holds:claim.atom, valid:claim.valid, origin:'model-interpretation' }));
+      if (item.where && ['supported', 'refuted', 'both'].includes(expected.status)) expected.packet = { ...expected.packet, hypothetical:true };
+    }
+    rows.push(...render(item, { world:null, group:`attached_${item.split}`, input_mode:'assertions_query', sourceInfo, expected, target:sessionWrite ? targetSessionWrite(item) : targetQuery(item,{ claims:item.claims }), oracleKind:sessionWrite ? 'explicit_session_record' : 'handwritten_graph_temporal', evaluation_track:sessionWrite ? 'system' : 'formalization' }));
   }
   for (const item of numeric) {
     const content = `Synthetic finite-integer problem ${item.id}; bounds ${item.min}..${item.max}; ${item.require.join(', ')}; question ${item.claim}.\n`;
     const sourceInfo = { id:item.id, kind:'synthetic_curriculum', uri:`synthetic://query-v1/${item.id}`, revision:templateHash, sha256:sha256(content), license:null, content };
-    rows.push(...render(item, { group:`numeric_${item.split}`, input_mode:'query_only', sourceInfo, target:targetConstraint(item), expected:constraintsOracle(item), oracleKind:'finite_enumeration' }));
+    rows.push(...render(item, { group:`numeric_${item.split}`, input_mode:'query_only', sourceInfo, target:targetConstraint(item), expected:constraintsOracle(item), oracleKind:'finite_enumeration', evaluation_track:item.evaluation_track??'formalization' }));
   }
   for (const item of extra) {
     const content = `Synthetic clarification/unsupported-boundary scenario ${item.id}.\n`;
     const sourceInfo = { id:item.id, kind:'synthetic_curriculum', uri:`synthetic://query-v1/${item.id}`, revision:templateHash, sha256:sha256(content), license:null, content };
-    rows.push(...render(item, { group:`extra_${item.split}`, input_mode:'clarification', sourceInfo, target:targetClarify(item), expected:{ status:'clarify' }, oracleKind:'explicit_missing_information' }));
+    rows.push(...render(item, { group:`extra_${item.split}`, input_mode:'clarification', sourceInfo, target:targetClarify(item), expected:{ status:'clarify' }, oracleKind:'explicit_missing_information', evaluation_track:'system' }));
   }
   return rows;
 }
@@ -236,12 +245,14 @@ export function curriculumMatrix(rows = buildCurriculum()) {
     claimed_families:Object.keys(byFamily).sort(), expected_from_code:{ semantic_cases:cases.length, rows:rows.length },
     observed_validation:null, observed_human_review:null,
     by_split:tally(cases.map(({row}) => row.split)), by_language:tally(rows.map(row => row.language)),
+    by_evaluation_track:tally(cases.map(({row}) => row.evaluation_track)),
     by_input_mode:tally(cases.map(({row}) => row.input_mode)), by_holdout:tally(cases.map(({row}) => row.matrix.holdout ?? 'none')),
     by_family:byFamily, blocked_families:blockedFamilies,
     measured_structure:measureCoverage(rows),
     known_limitations:['Synthetic scenarios and paraphrases need independent principal review.',
       'During queries ask for evidence intersecting a window, not universal validity throughout that window.',
       'A selected tuple from a multi-atom join may rely on a contested premise; overall supported status does not certify uncontested tuples.',
+      'System circuits are exported only under system/ and must not enter formalizer projections.',
       'Host-approved procedure reuse is the pinned demonstration template, not a newly certified external procedure.'] };
 }
 function physicalPath(input) {
@@ -260,9 +271,15 @@ export function writeCurriculum({ out = fileURLToPath(new URL('../../datasets/qu
   const rows = buildCurriculum(), matrix = curriculumMatrix(rows);
   const writeRows = (dir, filename, data, files) => { fs.mkdirSync(path.dirname(path.join(dir, filename)), { recursive:true }); const text = data.map(row => JSON.stringify(row)).join('\n') + '\n'; fs.writeFileSync(path.join(dir,filename),text); files[filename] = sha256(text); };
   const devFiles = {}, evalFiles = {};
-  for (const split of ['train','dev']) writeRows(development, `${split}.jsonl`, rows.filter(row => row.split === split), devFiles);
-  writeRows(sealed, 'test.jsonl', rows.filter(row => row.split === 'test'), evalFiles);
-  for (const split of ['train','dev']) writeRows(development, `formalizer/${split}.jsonl`, rows.filter(row => row.split === split).map(row => ({ id:row.id, input_mode:row.input_mode, prompt:formalPrompt([...row.context_assertions, row.question].join('\n'), row.context), target:row.sop_target, context:row.context, group:row.split_group_id })), devFiles);
+  for (const split of ['train','dev']) {
+    writeRows(development, `${split}.jsonl`, rows.filter(row => row.split === split && row.evaluation_track === 'formalization'), devFiles);
+    const system = rows.filter(row => row.split === split && row.evaluation_track === 'system');
+    if (system.length) writeRows(development, `system/${split}.jsonl`, system, devFiles);
+  }
+  writeRows(sealed, 'test.jsonl', rows.filter(row => row.split === 'test' && row.evaluation_track === 'formalization'), evalFiles);
+  const systemTest = rows.filter(row => row.split === 'test' && row.evaluation_track === 'system');
+  if (systemTest.length) writeRows(sealed, 'system/test.jsonl', systemTest, evalFiles);
+  for (const split of ['train','dev']) writeRows(development, `formalizer/${split}.jsonl`, rows.filter(row => row.split === split && row.evaluation_track === 'formalization').map(row => ({ id:row.id, input_mode:row.input_mode, prompt:formalPrompt([...row.context_assertions, row.question].join('\n'), row.context), target:row.sop_target, context:row.context, group:row.split_group_id })), devFiles);
   const versionText = JSON.stringify(version) + '\n';
   for (const [dir,files] of [[development,devFiles],[sealed,evalFiles]]) { fs.mkdirSync(dir,{recursive:true}); fs.writeFileSync(path.join(dir,'VERSION'),versionText); files.VERSION = sha256(versionText); }
   const common = { version, profile:'sop-agent-3', source_template_sha256:templateHash, cases_md:buildCasesMd({ rows, write:true }), matrix, review_status:'synthetic_unreviewed_not_training_approved' };

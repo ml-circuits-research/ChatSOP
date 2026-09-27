@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {parse,validateGraph} from '../sop/parser.mjs';
+import {parse} from '../sop/parser.mjs';
 const prompt=name=>fs.readFileSync(new URL('./prompts/'+name+'.txt',import.meta.url),'utf8').trim();
 export const formalPrompt=(text,context)=>prompt('formalizer')+'\n\nCONTEXT\n'+JSON.stringify(context)+'\n\nMESSAGE\n'+text;
 export const barePrompt=(text,context)=>'CONTEXT\n'+JSON.stringify(context)+'\n\nMESSAGE\n'+text;

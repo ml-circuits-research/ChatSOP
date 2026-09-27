@@ -3,7 +3,7 @@
   "facts": [
     {
       "quote": "Inspection record: box_sample has a broken seal.",
-      "sop": "@broken_box fact\n  holds seal_broken(box_sample)\n  valid timeless\n  source cold_chain\n  quote \"Inspection record: box_sample has a broken seal.\""
+      "sop": "@broken_box fact\n  holds seal_broken box_sample\n  valid timeless\n  source cold_chain\n  quote \"Inspection record: box_sample has a broken seal.\""
     }
   ]
 }

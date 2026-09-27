@@ -41,13 +41,14 @@ export function measureCoverage(rows) {
   const tally = values => values.reduce((result, value) => { result[value] = (result[value] ?? 0) + 1; return result; }, {});
   const wireTypes = source => [...new Set(parse(source).wires.map(wire => wire.type))];
   const shapes = new Map(cases.map(row => [row.semantic_case_id, compositionShape(row.sop_target)]));
-  const training = cases.filter(row => row.split === 'train');
+  const training = cases.filter(row => row.split === 'train' && row.evaluation_track === 'formalization');
   const trainShapes = new Set(training.map(row => shapes.get(row.semantic_case_id)));
-  const trainEntities = new Set(training.flatMap(row => row.context.entities.map(item => item.id)));
-  const trainPredicates = new Set(training.flatMap(row => row.context.predicates.map(item => item.id)));
+  const trainRows = rows.filter(row => row.split === 'train');
+  const trainEntities = new Set(trainRows.flatMap(row => row.context.entities.map(item => item.id)));
+  const trainPredicates = new Set(trainRows.flatMap(row => row.context.predicates.map(item => item.id)));
   const normalize = value => value.normalize('NFC').toLocaleLowerCase('ro').replace(/\s+/g, ' ').trim();
-  const trainText = normalize(rows.filter(row => row.split === 'train').map(row => JSON.stringify({ question:row.question, context:row.context, assertions:row.context_assertions })).join('\n'));
-  const trainRomanian = new Set(rows.filter(row => row.split === 'train' && row.language === 'ro').map(row => normalize(row.question)));
+  const trainText = normalize(trainRows.map(row => JSON.stringify({ question:row.question, context:row.context, assertions:row.context_assertions })).join('\n'));
+  const trainRomanian = new Set(trainRows.filter(row => row.language === 'ro').map(row => normalize(row.question)));
   const compositions = {};
   for (const row of cases) {
     const shape = shapes.get(row.semantic_case_id), hash = digest(shape);
@@ -74,6 +75,9 @@ export function measureCoverage(rows) {
   return {
     target_wire_cases:tally(cases.flatMap(row => wireTypes(row.sop_target))),
     target_wire_rows:tally(rows.flatMap(row => wireTypes(row.sop_target))),
+    by_evaluation_track:tally(cases.map(row => row.evaluation_track)),
+    formalization_target_wire_cases:tally(cases.filter(row => row.evaluation_track === 'formalization').flatMap(row => wireTypes(row.sop_target))),
+    system_target_wire_cases:tally(cases.filter(row => row.evaluation_track === 'system').flatMap(row => wireTypes(row.sop_target))),
     host_setup_wire_cases:tally(cases.flatMap(row => row.setup_sop ? wireTypes(row.setup_sop) : [])),
     by_oracle:tally(cases.map(row => row.quality_flags.independent_oracle ?? 'unspecified')),
     by_expected_status:tally(cases.map(row => row.expected.status)),

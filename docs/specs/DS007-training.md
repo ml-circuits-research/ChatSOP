@@ -5,13 +5,13 @@ summary: Model roles, indispensable Python ML boundary, run artifacts, and prefl
 
 ## Introduction
 
-A [formalizer](wiki.html#definition-formalizer) is trained to map a user question and accompanying assertions to a checked SOP circuit; an optional [verbalizer](wiki.html#definition-verbalizer) rewrites an already determined CNL result without changing its meaning. Training is distinct from operating the local symbolic CLI, publishing reviewed facts, and proving semantic accuracy.
+A [formalizer](wiki.html#definition-formalizer) is trained to map a user question and supplied context into declarative `premise`, `query`, or `constraint` SOP, not execution-session plumbing, sourced facts, or clarification text; an optional [verbalizer](wiki.html#definition-verbalizer) rewrites an already determined CNL result without changing its meaning. Training is distinct from operating the local symbolic CLI, publishing reviewed facts, and proving semantic accuracy.
 
 ## Core Content
 
 ### Roles and input contracts
 
-The model target is `.sop`, not a generated JSON fact database or free-form Prolog/SMT-LIB. The formalizer receives allowed symbols and relevant definitions rather than authority to install new ones. The verbalizer must preserve truth status, explicit negation, hypotheses, time, quantities, evidence and incompleteness. Deterministic CNL is the baseline for evaluating the formalizer; fluent rewriting does not fix an invalid circuit or mistaken knowledge. A model artifact is not established by a training script or config alone.
+The model target is declarative `.sop`, not an executable host circuit, a JSON fact database, or free-form Prolog/SMT-LIB. A model `premise` carries conditional context (`holds` and optional `valid`, default `timeless`) without `source`, `quote`, or permission to store it. The host keeps original text and model-interpretation origin apart from admitted facts; separate approved operations assemble an inspectable circuit with identity lookup, assumptions, solving, CNL and, when identity or required scalar is missing/nonunique, generated `clarify`. Missing evidence alone does not require clarification. `fact`, `remember`, `pack`, `resolve`, `solve`, `cnl`, `clarify`, `value`, `jsEval`, and `expand` are not small-model target wire types. The formalizer receives allowed symbols and relevant definitions rather than authority to install new ones; no metaprogram may guess an ambiguous identity or turn a conditional premise into a stored fact. The verbalizer must preserve truth status, explicit negation, hypotheses, time, quantities, evidence and incompleteness. Deterministic CNL is the baseline for evaluating the formalizer; fluent rewriting does not fix invalid declarations or mistaken knowledge. A model artifact is not established by a training script or config alone.
 
 ### Runtime and artifact boundary
 

@@ -1,15 +1,15 @@
 @a fact
-  holds parent(ana, bogdan)
+  holds parent ana bogdan
   valid timeless
 
 @b fact
-  holds parent(bogdan, carina)
+  holds parent bogdan carina
   valid timeless
 
 @r rule
-  when parent(?x, ?y)
-  when parent(?y, ?z)
-  then grandparent(?x, ?z)
+  when parent ?x ?y
+  when parent ?y ?z
+  then grandparent ?x ?z
 
 @data pack
   items $a $b $r
@@ -17,7 +17,7 @@
 @q query
   mode select
   select ?who
-  where grandparent(?who, carina)
+  where grandparent ?who carina
 
 @result reason
   query $q

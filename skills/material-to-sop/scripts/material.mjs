@@ -5,6 +5,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 import {TextDecoder} from 'node:util';
+import {runSources} from './sources.mjs';
 
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
 const json = value => JSON.stringify(value, null, 2) + '\n';
@@ -102,6 +103,10 @@ function checkedEntry(root, key) {
   return {r, e};
 }
 async function main() {
+  if (['prepare-sources', 'review-sources'].includes(process.argv[2])) {
+    await runSources(process.argv[2], process.argv.slice(3));
+    return;
+  }
   const [command, o] = options(process.argv.slice(2));
   let prepared;
   if (command === 'prepare') {

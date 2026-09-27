@@ -1,6 +1,6 @@
 @q query
   select ?stramos
-  where ancestor(?stramos, carina)
+  where ancestor ?stramos carina
   at 2026-09-26
 
 @r solve

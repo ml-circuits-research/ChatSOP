@@ -15,15 +15,15 @@ const sample = structure => {
   const old = pilot.find(row => row.structure_id === structure && row.language === 'en' && row.split === 'train');
   const text = old.context_assertions.join('\n') + '\n';
   return {
-    ...old, input_mode: 'query_only', source: { id: old.source.id, kind: 'synthetic_curriculum', uri: `synthetic://test/${old.source.id}`, revision: old.source.revision, sha256: sha256(text), license: null, content: text },
-    sop_target: old.sop_target + '\n@spoken cnl\n  result $answer\n',
+    ...old, evaluation_track: 'system', input_mode: 'query_only', source: { id: old.source.id, kind: 'synthetic_curriculum', uri: `synthetic://test/${old.source.id}`, revision: old.source.revision, sha256: sha256(text), license: null, content: text },
+    sop_target: old.sop_target + '\n@answer solve\n  query $q\n\n@spoken cnl\n  result $answer\n',
     generation_trace: { method: 'author', template: null, model: null, review_status: 'unreviewed' },
   };
 };
 
 test('multiple genuine English surfaces share a target, while reused surfaces and divergent gold are rejected', () => {
   const row = sample('direct-ground');
-  const equivalent = row.sop_target.replace('@q query', '@lookup query').replace('$q', '$lookup').replace('parent(', 'parent( ');
+  const equivalent = row.sop_target.replace('@q query', '@lookup query').replace('$q', '$lookup').replace('parent ', 'parent  ');
   const second = { ...row, id: row.id + '_different', question: `Please check: ${row.question}`, sop_target: equivalent };
   assert.equal(validateCorpus([row, second]).semantic_cases, 1);
   assert.throws(() => validateCorpus([row, { ...second, question: row.question }]), /duplicate semantic surface/);
@@ -37,7 +37,7 @@ test('structure changes need semantic adjudication; syntax-only negatives cannot
   const renamed = row.sop_target.replace('@q query', '@lookup query').replace('$q', '$lookup');
   const negative = { ...row, id: row.id + '_negative', semantic_case_id: row.semantic_case_id + '_negative', negative_of: row.semantic_case_id, question: 'A different question', context_assertions: [...row.context_assertions, 'Please check the same claim.'], sop_target: renamed };
   assert.throws(() => validateCorpus([row, negative]), /negative does not discriminate/);
-  const variant = { ...row, id: row.id + '_variant', question: 'Is the reverse relation true?', sop_target: row.sop_target.replace(/parent\(([^,]+), ([^)]+)\)/, 'parent($2, $1)') };
+  const variant = { ...row, id: row.id + '_variant', question: 'Is the reverse relation true?', sop_target: row.sop_target.replace(/\bparent (\S+) (\S+)/, 'parent $2 $1') };
   assert.throws(() => validateCorpus([row, variant]), /requires semantic adjudication/);
 });
 
@@ -56,13 +56,13 @@ test('production gold validation executes the guarded evaluator and keeps qualif
 
 test('same-status contrast can differ by answer binding; numeric and structured oracles are valid', () => {
   const row = sample('direct-select');
-  const other = { ...row, id: `${row.id}_negative`, semantic_case_id: `${row.semantic_case_id}_negative`, question: 'Who is a parent of the other person?', negative_of: row.semantic_case_id, sop_target: row.sop_target.replace(/parent\(\?who, [^)]+\)/, `parent(?who, ${row.context.entities[1].id})`), expected: { status: 'supported', answers: [[row.context.entities[0].id]] } };
+  const other = { ...row, id: `${row.id}_negative`, semantic_case_id: `${row.semantic_case_id}_negative`, question: 'Who is a parent of the other person?', negative_of: row.semantic_case_id, sop_target: row.sop_target.replace(/\bparent \?who \S+/, `parent ?who ${row.context.entities[1].id}`), expected: { status: 'supported', answers: [[row.context.entities[0].id]] } };
   assert.equal(validateCorpus([row, other]).semantic_cases, 2);
   assert.equal(validateRecord({ ...row, expected: { status: 'supported', answers: [[17, { result: true }]], outputs: { duration: 35.5, rows: [{ value: 1 }] }, packet: { complete: true } } }).id, row.id);
 });
 
 test('local wire alpha-renaming never rewrites approved external definition handles', () => {
-  const suffix = '@query query\n  where parent(ana, bogdan)\n@answer solve\n  query $query\n  data ~reviewed';
+  const suffix = '@query query\n  where parent ana bogdan\n@answer solve\n  query $query\n  data ~reviewed';
   const collision = `@reviewed value\n  data 1\n${suffix}`;
   const harmlessLocalRename = `@other value\n  data 1\n${suffix}`;
   const changedHandle = `@other value\n  data 1\n${suffix.replace('~reviewed', '~other')}`;
@@ -72,11 +72,11 @@ test('local wire alpha-renaming never rewrites approved external definition hand
 
 test('alternate wire IDs and spacing are safe but a deceptive same-status wrong binding is a counterexample', async () => {
   const row = sample('direct-select');
-  const equivalent = row.sop_target.replace('@q query', '@lookup query').replace(/\$q\b/g, '$lookup').replace('@answer solve', '@computed solve').replace(/\$answer\b/g, '$computed').replace('@spoken cnl', '@display cnl').replace(/parent\(\?who, /g, 'parent(?who,');
+  const equivalent = row.sop_target.replace('@q query', '@lookup query').replace(/\$q\b/g, '$lookup').replace('@answer solve', '@computed solve').replace(/\$answer\b/g, '$computed').replace('@spoken cnl', '@display cnl').replace(/parent (?=\?who\b)/g, 'parent  ');
   const good = await compareCircuits(row, equivalent);
   assert.equal(good.verdict, 'equivalent');
   assert.equal(good.canonical_match, true);
-  const other = row.sop_target.replace(/parent\(\?who, [^)]+\)/, `parent(?who, ${row.context.entities[1].id})`);
+  const other = row.sop_target.replace(/\bparent \?who \S+/, `parent ?who ${row.context.entities[1].id}`);
   const bad = await compareCircuits(row, other);
   assert.equal(bad.probes[0].gold_status, 'supported');
   assert.equal(bad.probes[0].predicted_status, 'supported');
@@ -85,16 +85,16 @@ test('alternate wire IDs and spacing are safe but a deceptive same-status wrong 
 
 test('a supplied counterexample world overrides same baseline status, and a bad gold setup is not a model error', async () => {
   const row = sample('direct-ground');
-  const reference = `parent(${row.context.entities[0].id}, ${row.context.entities[3].id})`;
-  const candidateAtom = `parent(${row.context.entities[0].id}, ${row.context.entities[0].id})`;
-  const caseRow = { ...row, sop_target: row.sop_target.replace(/parent\([^)]+\)/, reference), expected: { status: 'unknown', answers: [] } };
-  const wrong = row.sop_target.replace(/parent\([^)]+\)/, candidateAtom);
+  const reference = `parent ${row.context.entities[0].id} ${row.context.entities[3].id}`;
+  const candidateAtom = `parent ${row.context.entities[0].id} ${row.context.entities[0].id}`;
+  const caseRow = { ...row, sop_target: row.sop_target.replace(/\bparent \S+ \S+/, reference), expected: { status: 'unknown', answers: [] } };
+  const wrong = row.sop_target.replace(/\bparent \S+ \S+/, candidateAtom);
   const probe = { setup_sop: `${row.setup_sop}\n@counterexample fact\n  holds ${reference}\n  valid timeless\n  source probe\n  quote "Independent probe"\n`, expected: { status: 'supported', answers: [[]] } };
   const result = await compareCircuits(caseRow, wrong, { probes: [probe] });
   assert.equal(result.verdict, 'counterexample');
   assert.equal(result.probes[0].gold_status, 'unknown');
   assert.equal(result.probes[1].gold_status, 'supported');
-  const invalid = await compareCircuits(caseRow, wrong, { probes: [{ setup_sop: '@broken fact\n  holds parent(a, b)\n  valid invalid\n', expected: { status: 'unknown' } }] });
+  const invalid = await compareCircuits(caseRow, wrong, { probes: [{ setup_sop: '@broken fact\n  holds parent a b\n  valid invalid\n', expected: { status: 'unknown' } }] });
   assert.equal(invalid.verdict, 'reference_error');
 });
 
@@ -115,8 +115,8 @@ test('review CLI is portable across working directories and never overwrites an 
 
 test('finite equal-world differences stay quarantined; review hashes and a separate principal are mandatory', async () => {
   const row = sample('direct-ground');
-  const candidate = row.sop_target.replace(/parent\([^)]+\)/, `parent(${row.context.entities[0].id}, ${row.context.entities[0].id})`);
-  const pendingRow = { ...row, sop_target: row.sop_target.replace(/parent\([^)]+\)/, `parent(${row.context.entities[0].id}, ${row.context.entities[3].id})`), expected: { status: 'unknown', answers: [] } };
+  const candidate = row.sop_target.replace(/\bparent \S+ \S+/, `parent ${row.context.entities[0].id} ${row.context.entities[0].id}`);
+  const pendingRow = { ...row, sop_target: row.sop_target.replace(/\bparent \S+ \S+/, `parent ${row.context.entities[0].id} ${row.context.entities[3].id}`), expected: { status: 'unknown', answers: [] } };
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'semantic-review-'));
   try {
     const bundle = path.join(root, 'bundle.json'), review = path.join(root, 'review.json'), receipt = path.join(root, 'receipt.json'), decision = path.join(root, 'decision.json'), output = path.join(root, 'final.json');

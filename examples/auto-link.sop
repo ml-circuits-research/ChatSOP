@@ -1,7 +1,7 @@
 # The caller declares the unknown output, not an @bunica value.
 @q query
   select ?bunica
-  where grandmother(?bunica, carina)
+  where grandmother ?bunica carina
   at 2026-09-26
 
 @r solve

@@ -1,3 +1,5 @@
+> Historical examples, not the current SOP atom spelling. The present parser requires whitespace-separated terms and the explicit recording wire is `remember`; consult `docs/specs/DS004-sop.md` for the current contract.
+
 # 29. Exemple complete și cum construim peste ele
 
 ## Biblioteca și programul curent au roluri diferite

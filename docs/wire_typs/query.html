@@ -1,36 +1,50 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ChatSOP Documentation</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="help.css"></head><body><div data-include="../partials/header.html" data-link-base="../"></div><main class="wire-help"><p><a href="../wire_types.html#query" target="_top">Wire index</a> · <a href="fact.html">fact</a> · <a href="solve.html">solve</a> · <a href="cnl.html">cnl</a></p><h1><code>query</code></h1><p>A <a href="../wiki.html#definition-sop" target="_top">SOP</a> query describes a logical question. It does not retrieve premises or calculate an answer by itself: <a href="solve.html">solve</a> can consume its value. A <a href="../wiki.html#definition-formalizer" target="_top">formalizer</a> may express the user's question without inventing missing evidence; a coding agent can compose a query against reviewed knowledge. This page describes the implemented <code>sop-agent-3</code> syntax.</p><h2>Every supported field</h2><table><thead><tr><th>Field / multiplicity</th><th>Grammar and effect</th></tr></thead><tbody><tr><td><code>where</code> — one or more, required</td><td>One atom or a native <a href="syntax.html#boolean-groups">all/any/end condition block</a> per field; atom leaves use <code>predicate(term, ...)</code> or <code>not predicate(term, ...)</code>; repeated fields are conjunctive, while any preserves alternatives. Atom has 1–4 comma-separated terms: canonical lower-case symbol, safe integer, JSON double-quoted string, <code>?name</code> logical variable, or <code>$name</code> scalar value reference. Predicate name is literal, not a variable. A multiword surface such as <code>"Maria Ionescu"</code> must be quoted to occupy one atom term, but it is a string literal, not a resolved entity ID; use <a href="resolve.html">resolve</a> and a <code>$id</code> reference for approved identity. The current atom parser can still interpret a variable-shaped quoted string such as <code>"?name"</code> as a variable, so do not rely on those quotes to make it inert ground text. Same <code>?name</code> within this query joins positions; no implicit global output wire results. Schema, when configured, checks predicate arity and compatible variable/argument types. Explicit <code>not</code> matches explicit negative facts, never negation by failure.</td></tr><tr><td><code>select</code> — 0–1, default empty</td><td>Whitespace-separated <code>?name</code> variables. Each must be guaranteed by every alternative or another shared conjunct. Selected variables define the answer columns; no select + omitted mode defaults to <code>exists</code>. A selected variable does not create <code>$name</code>; use <code>solve.output</code> for a materialized port.</td></tr><tr><td><code>mode</code> — 0–1, default <code>select</code> when select is nonempty, otherwise <code>exists</code></td><td><code>select</code>, <code>exists</code>, <code>count</code>, <code>explain</code>. <code>select</code> requires at least one selected variable; other modes may also carry select. <code>count</code> counts distinct matching bindings: selected columns if any, otherwise all bound variables. <code>explain</code> carries the proof packet; the query alone never proves it.</td></tr><tr><td><code>filter</code> — zero or more</td><td>One restricted expression or all/any/end block per field using bound <code>?variables</code>, e.g. <code>?degrees &gt; 20</code>. Every filter variable must be definitely bound by <code>where</code>. Expression must evaluate to literal boolean <code>true</code> to retain a row; the expression parser accepts JavaScript-like operators, strings, numbers, boolean operators and limited calls, not arbitrary JavaScript. Filter is applied after grouped matching, not to unrelated global values. Although the expression grammar parses <code>$id</code>, query filter evaluation receives only row variables, so a <code>$id</code> inside <code>filter</code> does not resolve to a wire value.</td></tr><tr><td><code>at</code> — 0–1, default runtime <code>now</code></td><td>Valid-time instant, ISO date or UTC timestamp (or <code>beginning</code>/<code>open</code> accepted by the generic instant parser); a whole-field <code>$value</code> may supply an instant, including a safe-integer epoch-millisecond value. Cannot coexist with <code>during</code>. At a boundary, <code>valid.from &lt;= at &lt; valid.until</code>.</td></tr><tr><td><code>during</code> — 0–1</td><td>Valid-time <code>timeless</code> or two endpoints <code>START END</code> interpreted as <code>[START, END)</code>. ISO dates/UTC timestamps, <code>beginning</code> and <code>open</code>; positive duration required. With <code>during</code>, answer and proof intervals intersect the requested span. Not a whole-field <code>$value</code> reference: <code>interval()</code> parses its literal text.</td></tr><tr><td><code>asof</code> — 0–1, default runtime <code>now</code></td><td>Knowledge-time cutoff, ISO date or UTC timestamp; whole-field <code>$value</code> also accepted, including a safe-integer epoch-millisecond value. Repository retrieval only sees claims/events known by this instant. Local <code>data</code> supplied to solve is not reconstructed as a historic repository snapshot: do not confuse this with <code>at</code>.</td></tr><tr><td><code>limit</code> — 0–1, default <code>100</code></td><td>Decimal text converted by <code>Number</code> to a safe integer from 1 to 10,000. Limits returned answers; truncation makes completeness false. Parsing may accept malformed numerical text as a field, but lowering rejects invalid limits.</td></tr></tbody></table><h2>Answer boundaries</h2><p>With a fully ground condition, explicit opposing evidence can yield <code>refuted</code>, <code>both</code> on overlapping intervals or <code>mixed_temporal</code> on disjoint intervals. An absent match is <code>unknown</code>, not a negative fact. A variable query can flag conflicting answer bindings when opposing ground facts exist. A clean supporting alternative is not tainted by a contradicted sibling. For a ground all group, refutation needs an explicitly refuted child; for a ground any group, refutation needs all children explicitly refuted. Rule derivation and retrieval limits affect completeness; a <a href="../wiki.html#definition-linker" target="_top">linker</a> retrieves candidate premises and a <a href="../wiki.html#definition-reasoning-strategy" target="_top">reasoning strategy</a> computes the result. A <code>query</code> value records <code>where/select/filters/mode/limit/at</code> or <code>during/asof</code>; it writes no session state.</p><h2>Quotation and identity</h2><p><code>where works_at("Maria Ionescu", lab_alpha)</code> has a quoted string term; it does not look up an approved entity, even if that entity has the same label. Bare <code>where works_at(Maria Ionescu, lab_alpha)</code> is not a valid multiword atom term. Use <code>text "Maria Ionescu"</code> in <a href="resolve.html">resolve</a>, followed by <code>where works_at($person, lab_alpha)</code> if <code>$person</code> is the bound approved entity. Canonical generated/training free-text literals are JSON double-quoted even when one word; identifiers, <code>?variables</code> and <code>$references</code> are not quoted text. Preserve natural name spelling; encode embedded double quotes and backslashes with a JSON string encoder, not single or smart quote delimiters. See <a href="syntax.html#quoted-text">quoted text syntax</a>.</p><h2>Executable syntax examples</h2><p>These are complete local circuits; the anticipated interpretation assumes the displayed facts are admitted as local <code>solve.data</code>, not stored in a <a href="../wiki.html#definition-repository" target="_top">repository</a>.</p><pre data-sop="current"><code>@reading fact
-  holds temperature(room_a, 23)
-  valid 2026-09-01 2026-10-01
-
-@search query
-  where temperature(room_a, ?degrees)
-  select ?degrees
-  filter ?degrees &gt; 20
-  at 2026-09-20
-
-@answer solve
-  query $search
-  data $reading
-  output ?degrees one</code></pre><p>Here <code>?degrees</code> can bind to 23. A count across two matching records, with no selected columns, counts distinct complete bindings.</p><pre data-sop="current"><code>@north fact
-  holds open(door_north)
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ChatSOP Documentation</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="help.css"></head><body><div data-include="../partials/header.html" data-link-base="../"></div><main class="wire-help"><p><a href="../wire_types.html#query" target="_top">Wire index</a> · <a href="fact.html">fact</a> · <a href="solve.html">solve</a> · <a href="syntax.html#boolean-groups">all/any/end</a></p><h1><code>query</code></h1><p>A query defines conditions and requested results, not evidence and not an answer. It is one of the four allowed model-authored declarative types. <code>where</code> describes the relation to match; <code>select</code> names the variables to return. <code>solve</code> subsequently evaluates it using explicitly supplied local data or a selected memory view.</p>
+<h2>Every accepted keyword</h2><table><thead><tr><th>Keyword</th><th>Cardinality / default</th><th>Accepted value and concrete effect</th></tr></thead><tbody>
+<tr><td><code>where</code></td><td>Repeatable; at least one required</td><td><code>[not ]predicate term1 ...</code> (1–4 terms), or nested <code>all</code>/<code>any</code>/<code>end</code> block of atom leaves. Repeated lines are conjunctions; alternatives in any are disjunctions. Variables in a query are matched, not asserted.</td></tr>
+<tr><td><code>select</code></td><td>At most once; default empty</td><td>Whitespace-separated <code>?name</code> variables bound in every relevant alternative; defines selected columns, not an output wire by itself.</td></tr>
+<tr><td><code>mode</code></td><td>At most once; default <code>select</code> when select is present, otherwise <code>exists</code></td><td><code>select</code>, <code>exists</code>, <code>count</code> or <code>explain</code>; chooses projected matches, existence, distinct-binding count, or explanation. Select mode requires a selected variable.</td></tr>
+<tr><td><code>filter</code></td><td>Repeatable; default none</td><td>Restricted Boolean comparison such as <code>?quantity &gt; 0</code>, or <code>all</code>/<code>any</code>/<code>end</code> expression block. Filters matched values; every referenced variable must be guaranteed bound by where.</td></tr>
+<tr><td><code>at</code></td><td>At most once; default runtime now; exclusive with <code>during</code></td><td>ISO date/UTC instant (or <code>beginning</code>/<code>open</code> accepted by instant parser); a whole-field <code>$value</code> can supply an instant. Selects valid-time instant.</td></tr>
+<tr><td><code>during</code></td><td>At most once; exclusive with <code>at</code></td><td><code>timeless</code> or ISO/UTC <code>START END</code> interval, inclusive/exclusive; selects overlapping valid-time window, not necessarily complete-window support.</td></tr>
+<tr><td><code>asof</code></td><td>At most once; default runtime now</td><td>ISO/UTC knowledge cutoff or whole-field <code>$value</code> instant; limits repository history visible to retrieval.</td></tr>
+<tr><td><code>limit</code></td><td>At most once; default <code>100</code></td><td>Safe integer 1–10,000; caps returned answers. Truncation means result is incomplete.</td></tr></tbody></table>
+<h2>Which books are on the north shelf?</h2><p>Two local catalog claims are grouped only because <code>solve.data</code> takes one value. The query asks about shelf_north, so shelf_south does not match; solving evaluates this question without recording either fact in a session.</p><pre data-sop="current"><code>@north fact
+  holds on_shelf book_a shelf_north
   valid timeless
 
 @south fact
-  holds open(door_south)
+  holds on_shelf book_b shelf_south
   valid timeless
 
-@records pack
+@catalog pack
   items $north $south
 
-@doors query
-  where open(?door)
+@question query
+  where on_shelf ?book shelf_north
+  select ?book
+
+@answer solve
+  query $question
+  data $catalog
+  output ?book many</code></pre><p>A complete answer can bind <code>$book</code> to <code>["book_a"]</code>; <code>many</code> requests a collection, not independent truth certification. The following asks a different question: how many distinct shelf bindings match?</p><pre data-sop="current"><code>@north fact
+  holds on_shelf book_a shelf_north
+  valid timeless
+
+@other fact
+  holds on_shelf book_c shelf_north
+  valid timeless
+
+@books pack
+  items $north $other
+
+@count query
+  where on_shelf ?book shelf_north
   mode count
 
 @total solve
-  query $doors
-  data $records
-  output ?number count</code></pre><p>The count projection is <code>?number</code>, a port name for the count and not a query variable; assuming both local facts remain available, the count is two. The following parses as a query atom but fails at lowering because the selected variable was never bound in <code>where</code>:</p><pre data-sop="invalid"><code>@bad query
-  where open(?door)
-  select ?building</code></pre><h2>Simplified syntax proposal — not implemented</h2><p>The proposed atom spelling removes parentheses and commas; it does not resolve the future role of <code>?</code> or decide whether query/solve remain separate wire types. The small-model field inventory is not approved.</p><pre data-sop="proposed"><code>@search query
-  where temperature room_a ?degrees
-  select ?degrees</code></pre><p><strong>Implementation sources:</strong> <code>sop/parser.mjs</code> (<code>SPEC.query</code>, <code>parseAtom</code>, <code>validateShape</code>), <code>sop/lower.mjs</code> (<code>lowerQuery</code>), <code>lib/time.mjs</code> (<code>instant</code>, <code>interval</code>), <code>reasoning/reasoner.mjs</code> (<code>evaluate</code>, <code>retrieve</code>), <code>sop/runtime.mjs</code> (<code>case 'query'</code>, <code>case 'solve'</code>).</p></main><script type="module" src="help-page.mjs"></script></body></html>
+  query $count
+  data $books
+  output ?number count</code></pre><p>The count port <code>?number</code> names a result, not a variable from the query; with both facts admitted, the count is two.</p>
+<h2>Invalid: unbound output variable</h2><pre data-sop="invalid"><code>@bad query
+  where on_shelf ?book shelf_north
+  select ?building</code></pre><p>This atom parses, but lowering cannot select a variable not bound by <code>where</code>. See <a href="syntax.html#boolean-groups">Boolean conditions</a> for supported alternatives.</p><p><strong>Implementation sources:</strong> <code>sop/parser.mjs</code> (<code>SPEC.query</code>), <code>sop/lower.mjs</code> (<code>lowerQuery</code>), <code>reasoning/reasoner.mjs</code> (<code>evaluate</code>, <code>retrieve</code>).</p></main><script type="module" src="help-page.mjs"></script></body></html>

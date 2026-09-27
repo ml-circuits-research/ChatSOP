@@ -11,7 +11,10 @@ definition_handle = "~", identifier ;
 logic_variable = "?", identifier ;
 output_field = "  output ?", identifier, [ " ", output_mode ], newline ;
 output_mode = "one" | "many" | "rows" | "count" | "status" ;
-atom = [ "not " ], predicate_id, "(", term, { ", ", term }, ")" ;
+atom = [ "not", whitespace ], predicate_id, whitespace, term, { whitespace, term } ;
+(* Atoms have 1..4 terms. not is reserved. Quoted JSON strings preserve spaces,
+   commas and parentheses as data; adjacent tokens require separating whitespace.
+   Parenthesized predicate(arg, ...) notation is not accepted. *)
 term = canonical_id | quoted_string | safe_integer | value_reference | logic_variable ;
 condition_field = "where" | "filter" | "require" | "claim" ;
 condition_group = ("all" | "any"), newline, condition_line, { condition_line }, indentation, "end", newline ;
@@ -20,13 +23,17 @@ condition_line = indentation, (atom | boolean_expression), newline
 (* Groups apply to query.where/filter and constraint.require/claim only.
    Nested indentation is advisory; end closes the nearest group. Groups are
    nonempty, with at most 32 nested groups. Repeated fields remain implicit ALL. *)
-wire_type = "value" | "fact" | "rule" | "query" | "constraint" | "event"
-          | "pack" | "assert" | "recall" | "link" | "solve" | "reason" | "cnl" | "jsEval"
+model_wire_type = "premise" | "query" | "constraint" ;
+wire_type = "value" | "fact" | "premise" | "rule" | "query" | "constraint" | "event"
+          | "pack" | "remember" | "recall" | "link" | "solve" | "reason" | "cnl" | "jsEval"
           | "template" | "procedure" | "expand" | "clarify"
           | "pattern" | "hypothesis" | "action" | "goal" | "trace" | "policy" | "theory"
           | "abduce" | "diagnose" | "associate" | "induce" | "analogize" | "plan" | "simulate" | "temporal" ;
 (* Field cardinality, permitted keys, arity, scoping, temporal validity,
    type safety, graph acyclicity and host permissions require semantic validation. *)
+(* Model-origin programs use only model_wire_type; sop/declarative.mjs generates
+   their operations. Context premises are conditional, not repository facts.
+   clarify is a host-generated interruption, not a model-authored declaration. *)
 
 (* `binding` is generated internally; it is not accepted as authored source.
    An exported ?name reserves a future wire consumed with $name. *)

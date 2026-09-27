@@ -1,9 +1,9 @@
 @f fact
-  holds works_at(ana, lab_alpha)
+  holds works_at ana lab_alpha
   valid 2024-01-01 open
   source user
 
-@saved assert
+@saved remember
   input $f
 
 @end event
@@ -12,12 +12,12 @@
   effective 2025-06-01
   source user
 
-@applied assert
+@applied remember
   input $end
 
 @q query
   mode exists
-  where works_at(ana, lab_alpha)
+  where works_at ana lab_alpha
   at 2025-07-01
 
 @m recall

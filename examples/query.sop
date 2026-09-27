@@ -1,7 +1,7 @@
 @q query
   mode select
   select ?who
-  where grandmother(?who, carina)
+  where grandmother ?who carina
   at 2026-09-26
 
 @m recall

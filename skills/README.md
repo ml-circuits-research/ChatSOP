@@ -1,6 +1,6 @@
-# Skills pentru coding agent
+# Coding-agent skills
 
-Aceste fișiere sunt proceduri de lucru pentru agent, nu pluginuri executabile încărcate automat. Citește `AGENTS.md`, apoi SKILL-ul sarcinii. Directorul proiectului rămâne workspace-ul; aprobarea surselor și a codului este o etapă separată.
+These files describe working procedures, not automatically loaded executable plugins. Read `AGENTS.md` and then the relevant skill. The project directory remains the workspace; source and code approvals are separate decisions.
 
 **ingest-sop** — Ingest documents into sourced SOP facts
 **review-knowledge** — Review assertions and temporal corrections
@@ -11,7 +11,7 @@ Aceste fișiere sunt proceduri de lucru pentru agent, nu pluginuri executabile �
 **evaluate-agent** — Audit the complete agent experiment
 **extend-wire** — Add a typed, approved SOP interpreter
 
-**link-circuit** — Leagă scopurile de reguli și strategii, materializează ieșirile SOP și verifică dependențele
+**link-circuit** — Connect goals to approved rules and strategies, materialize SOP outputs, and check dependencies.
 
-**material-to-sop** — Pregătește surse TXT/MD, circuite directe și reguli implicite candidate; probe și decizie separată înainte de publicare.
-**semantic-sop-review** — Canonizare conservatoare, lumi discriminante, review LLM real pentru diferențe nerezolvate și decizia finală a integratorului; nu este aprobare de training.
+**material-to-sop** — Prepare TXT/MD sources, direct circuits and candidate implications; execute probes and review independently before publication.
+**semantic-sop-review** — Conservative canonicalization, discriminating worlds, real LLM review of unresolved differences and the integrator's final decision; not training approval.

@@ -28,8 +28,8 @@ test('OWA supports proof depth, explicit negative premises, false and unknown wi
   const result = convertTheory(theory(), provenance);
   assert.deepEqual(result.rejected, []);
   assert.deepEqual(result.rows.map(row => row.expected.status), ['supported', 'refuted', 'unknown']);
-  assert.match(result.rows[1].setup_sop, /when not attribute_.*\(\?x\)/);
-  assert.match(result.rows[1].setup_sop, /then not attribute_.*\(\?x\)/);
+  assert.match(result.rows[1].setup_sop, /when not attribute_[a-z0-9_]+ \?x\b/);
+  assert.match(result.rows[1].setup_sop, /then not attribute_[a-z0-9_]+ \?x\b/);
   assert.equal(result.rows[2].source.qlen, -1);
   assert.equal(result.rows[0].source.original_question, 'Ada is bright.');
   assert.equal(result.rows[0].context_assertions.length, 0);

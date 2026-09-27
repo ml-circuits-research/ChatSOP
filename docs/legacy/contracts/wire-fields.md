@@ -1,3 +1,5 @@
+> Archived generated field inventory, not the current contract. The `assert` entry below is historical; the current explicit runtime wire is `remember`. Current field contracts are generated under `sop/contracts/`, and current atom spelling is whitespace-separated (see `docs/specs/DS004-sop.md`).
+
 # Câmpurile acceptate în sop-agent-3
 
 Generat de `node tools/capabilities.js --write` din parser și registrul engine-ului. Cardinalitatea «unic» înseamnă maximum o apariție; câmpurile obligatorii sunt precizate separat. Validarea semantică descrisă în capitolul 24 se aplică suplimentar.

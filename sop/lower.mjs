@@ -8,6 +8,7 @@ import {parseCondition,parseBooleanCondition} from './conditions.mjs';
 import {conditionAtoms,definitelyBound} from '../lib/conditions.mjs';
 export function resolveAtom(text,values={},schema=null,{ground=false}={}){const a=parseAtom(text);a.a=a.a.map(v=>v&&typeof v==='object'&&v.ref?scalar('$'+v.ref,values):v);return atom(a,{ground,schema});}
 export function lowerFact(w,values={},schema=null){return {kind:'fact',atom:resolveAtom(one(w,'holds'),values,schema,{ground:true}),valid:interval(one(w,'valid')),source:unquote(one(w,'source','user')),quote:unquote(one(w,'quote','')),retention:one(w,'retention','normal')};}
+export function lowerPremise(w,values={},schema=null){return {kind:'premise',atom:resolveAtom(one(w,'holds'),values,schema,{ground:true}),valid:interval(one(w,'valid','timeless')),source:'model-interpretation',origin:'model-interpretation'};}
 export function lowerRule(w,values={},schema=null){const r=rule({id:w.id,if:many(w,'when').map(x=>resolveAtom(x,values,schema)),then:resolveAtom(one(w,'then'),values,schema)},schema);return {...r,kind:'rule',mode:one(w,'mode','logical'),source:unquote(one(w,'source','approved-library')),valid:interval(one(w,'valid','timeless'))};}
 export function lowerQuery(w,values={},schema=null,{now=Date.now()}={}){
  const where=many(w,'where').map(s=>parseCondition(s,leaf=>resolveAtom(leaf,values,schema)));const selected=words(one(w,'select',''));assert(selected.every(variable),'select contains only ?variables');
@@ -30,7 +31,8 @@ function numericAST(n,vars,values,type){
 }
 export function lowerConstraint(w,values={}){
  const vars={};for(const l of many(w,'var')){const p=words(l);assert((p.length===2||p.length===4)&&/^\?[a-z][a-z0-9_]*$/.test(p[0])&&p[1]==='int','var ?name int [min max]');const name=p[0].slice(1);assert(!Object.hasOwn(vars,name),'Duplicate constraint variable');vars[name]={sort:'Int'};if(p.length===4){const min=Number(scalar(p[2],values)),max=Number(scalar(p[3],values));assert(Number.isSafeInteger(min)&&Number.isSafeInteger(max)&&min<=max,'Invalid finite domain');Object.assign(vars[name],{min,max});}}
+ const selected=words(one(w,'select',''));assert(selected.every(v=>variable(v)&&Object.hasOwn(vars,v.slice(1)))&&new Set(selected).size===selected.length,'select needs distinct declared constraint variables');
  const convert=s=>numericAST(parseBooleanCondition(s),vars,values,'Bool');const task=one(w,'task','prove');assert(['prove','possible','optimize'].includes(task),'constraint task must be prove, possible or optimize');
  const objective=w.fields.objective?numericAST(parseExpression(one(w,'objective')),vars,values,'Int'):undefined;const direction=one(w,'direction','min');assert(['min','max'].includes(direction),'objective direction must be min or max');assert(task!=='optimize'||objective!==undefined,'optimize needs objective');assert(task==='optimize'||objective===undefined,'objective requires task optimize');
- return {kind:'constraint',vars,...(objective===undefined?{}:{objective,direction}),constraints:many(w,'require').map(convert),claim:convert(one(w,'claim')),task,unit:one(w,'unit','scalar')};
+ return {kind:'constraint',vars,...(selected.length?{select:selected}:{}),...(objective===undefined?{}:{objective,direction}),constraints:many(w,'require').map(convert),claim:convert(one(w,'claim')),task,unit:one(w,'unit','scalar')};
 }
