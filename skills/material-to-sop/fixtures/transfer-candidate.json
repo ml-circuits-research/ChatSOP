@@ -5,12 +5,19 @@
   "scope": "Routine transfer eligibility of a sealed vaccine box only; no conclusion about actual transfer or damaged boxes",
   "rationale": "The source explicitly states the conjunction is sufficient for eligibility in this scoped category. This does not authorize performing a transfer.",
   "sourceQuotes": ["A sealed vaccine box with a complete temperature log and intact seal is eligible for routine transfer."],
+  "secondSource": {
+    "sourceId": "receiving_desk",
+    "sourceSha256": "c84206a21715054b05941e04c4cc8fae953e8d52d5396e3af2a165fc5009d02c",
+    "passage": {"page": null, "paragraph": 3, "offset": 93},
+    "quoteOffset": 93,
+    "quote": "For a sealed vaccine box, a complete temperature log and an intact seal together establish routine transfer eligibility at this desk."
+  },
   "assumptions": ["The fixture box IDs denote sealed vaccine boxes only when independently observed in a probe.", "Complete logs and intact seals in probes are verified observations, not inferred from absence of damage."],
   "sop": "@eligible rule\n  when sealed_vaccine_box ?x\n  when complete_log ?x\n  when seal_intact ?x\n  then routine_transfer_eligible ?x\n  mode logical",
   "probes": [
     {
       "role": "positive",
-      "rationale": "Both premises observed independently; expect support.",
+      "rationale": "Both conditions observed independently; expect support.",
       "setupSop": "@box_a fact\n  holds sealed_vaccine_box box_a\n  valid timeless\n@log_a fact\n  holds complete_log box_a\n  valid timeless\n@seal_a fact\n  holds seal_intact box_a\n  valid timeless",
       "querySop": "@q query\n  where routine_transfer_eligible box_a\n@m recall\n  query $q\n@answer reason\n  query $q\n  memory $m",
       "expectedStatus": "supported"
@@ -28,6 +35,20 @@
       "setupSop": "@box_c fact\n  holds sealed_vaccine_box box_c\n  valid timeless\n@log_c fact\n  holds complete_log box_c\n  valid timeless",
       "querySop": "@q query\n  where routine_transfer_eligible box_c\n@m recall\n  query $q\n@answer reason\n  query $q\n  memory $m",
       "expectedStatus": "unknown"
+    },
+    {
+      "role": "nontrigger",
+      "rationale": "A visitor's archive entry cannot follow from vaccine-box eligibility, even with an active badge.",
+      "setupSop": "@badge_visitor fact\n  holds active_badge visitor_a\n  valid timeless",
+      "querySop": "@q query\n  where archive_entry visitor_a\n@m recall\n  query $q\n@answer reason\n  query $q\n  memory $m",
+      "expectedStatus": "unknown"
+    },
+    {
+      "role": "transfer",
+      "rationale": "The independent receiving-desk source states the same scoped implication; this test reuses the rule on another ground box without claiming field validation.",
+      "setupSop": "@box_t fact\n  holds sealed_vaccine_box box_t\n  valid timeless\n@log_t fact\n  holds complete_log box_t\n  valid timeless\n@seal_t fact\n  holds seal_intact box_t\n  valid timeless",
+      "querySop": "@q query\n  where routine_transfer_eligible box_t\n@m recall\n  query $q\n@answer reason\n  query $q\n  memory $m",
+      "expectedStatus": "supported"
     }
   ]
 }

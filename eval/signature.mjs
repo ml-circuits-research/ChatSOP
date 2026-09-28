@@ -12,6 +12,8 @@ export function executionSignature(result,session) {
   return stable({status:packet.status,
     answers:packet.answers?.map(r=>[(packet.query?.select??Object.keys(r.binding)).map(k=>r.binding[k]),packet.query?.during?r.valid:null]).sort((a,b)=>stable(a).localeCompare(stable(b))),
     count:packet.count,
+    counterexamples:packet.counterexamples?.map(b=>stable(b)).sort(),
+    explanation:packet.explanation?{kind:packet.explanation.kind,steps:packet.explanation.steps.map(step=>atomKey(step.atom)).sort()}:undefined,
     epistemic:packet.epistemic,
     objective:packet.objective,direction:packet.direction,optimal:packet.optimal,
     explanations:packet.explanations?.map(h=>({assumptions:h.assumptions,cost:h.cost})),
@@ -25,5 +27,5 @@ export function executionSignature(result,session) {
 hypothetical:!!packet.hypothetical,complete:packet.complete,outputs,
     claims:Object.values(session.live.claims).map(c=>[c.tupleHash,c.valid,c.retention,c.source,c.quote]).sort(),
     events:session.live.events.map(e=>[e.action,e.target,e.effective]).sort(),
-    contextPremises:(result.contextPremises??[]).map(p=>[atomKey(p.atom),p.valid,p.origin]).sort((a,b)=>stable(a).localeCompare(stable(b)))});
+    contextStatements:(result.contextStatements??[]).map(s=>[atomKey(s.atom),s.valid,s.origin]).sort((a,b)=>stable(a).localeCompare(stable(b)))});
 }

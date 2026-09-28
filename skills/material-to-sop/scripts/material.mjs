@@ -5,7 +5,8 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 import {TextDecoder} from 'node:util';
-import {runSources} from './sources.mjs';
+import {runSources, cite, readSource} from './sources.mjs';
+import {runExploration} from './exploration.mjs';
 
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
 const json = value => JSON.stringify(value, null, 2) + '\n';
@@ -78,23 +79,30 @@ const wires = (a, sop, types) => {
 };
 function normalizeProbes(probes, a, rule) {
   array(probes, 'probes');
-  need(probes.length === 3, 'Exactly positive, negative and boundary probes required');
+  need(probes.length === 5, 'Positive, negative, boundary, non-trigger and transfer probes required');
   const roles = new Set(), questions = new Set(), target = a.parser.parseAtom(rule.fields.then[0]).p;
   for (const probe of probes) {
-    object(probe, 'probe'); need(['positive', 'negative', 'boundary'].includes(probe.role) && !roles.has(probe.role), 'Duplicate or invalid probe role'); roles.add(probe.role);
+    object(probe, 'probe'); need(['positive', 'negative', 'boundary', 'nontrigger', 'transfer'].includes(probe.role) && !roles.has(probe.role), 'Duplicate or invalid probe role'); roles.add(probe.role);
     text(probe.rationale, 'probe rationale');
     const setup = wires(a, probe.setupSop, ['fact']);
     need(setup.wires.every(w => a.parser.parseAtom(w.fields.holds[0]).p !== target), 'Probe setup must not assert the conclusion');
     const query = wires(a, probe.querySop, ['query', 'recall', 'reason']);
     need(query.wires.length === 3 && query.wires[0].type === 'query' && query.wires[1].type === 'recall' && query.wires[2].type === 'reason' && query.wires[1].fields.query?.[0] === '$' + query.wires[0].id && query.wires[2].fields.query?.[0] === '$' + query.wires[0].id && query.wires[2].fields.memory?.[0] === '$' + query.wires[1].id && query.wires[0].fields.where?.length === 1, 'Probe must query, recall isolated repository, then reason with that memory');
     const where = query.wires[0].fields.where[0], atom = a.parser.parseAtom(where);
-    need(atom.p === target && !atom.neg && atom.a.every(v => typeof v !== 'string' || !v.startsWith('?')) && !questions.has(where), 'Each probe must ask a distinct ground positive conclusion of this rule');
+    need((probe.role === 'nontrigger' ? atom.p !== target : atom.p === target) && !atom.neg && atom.a.every(v => typeof v !== 'string' || !v.startsWith('?')) && !questions.has(where), 'Each probe must ask a distinct ground question; only non-trigger asks another predicate');
     questions.add(where);
     need(['supported', 'unknown', 'refuted'].includes(probe.expectedStatus), 'Unsupported expected status');
-    need(probe.role !== 'positive' || probe.expectedStatus === 'supported', 'Positive probe must expect support');
-    need(probe.role === 'positive' || probe.expectedStatus !== 'supported', 'Negative/boundary must not expect support');
+    need(!['positive', 'transfer'].includes(probe.role) || probe.expectedStatus === 'supported', 'Positive/transfer probes must expect support');
+    need(['positive', 'transfer'].includes(probe.role) || probe.expectedStatus !== 'supported', 'Negative/boundary/non-trigger must not expect support');
   }
   return probes;
+}
+function candidateEvidence(root, spec, m) {
+  need(spec.secondSource && Array.isArray(spec.probes) && spec.probes.some(p => p.role === 'nontrigger') && spec.probes.some(p => p.role === 'transfer'), 'Single-source candidate requires a second prepared source plus a non-trigger probe and a transfer probe');
+  const primary = readSource(root, m.id);
+  need(primary.rawSha256 === m.sha256, 'Primary source must be prepared with explicit authorized rights');
+  const {source} = cite(root, spec.secondSource);
+  need(source.id !== m.id && source.rawSha256 !== m.sha256, 'Second prepared source must differ from primary source');
 }
 function registry(root) { const file = local(root, 'registry.json'); return fs.existsSync(file) ? readJson(file) : {version: 1, entries: {}}; }
 function checkedEntry(root, key) {
@@ -105,6 +113,10 @@ function checkedEntry(root, key) {
 async function main() {
   if (['prepare-sources', 'review-sources'].includes(process.argv[2])) {
     await runSources(process.argv[2], process.argv.slice(3));
+    return;
+  }
+  if (['explore-sources', 'propose-sources'].includes(process.argv[2])) {
+    await runExploration(process.argv[2], process.argv.slice(3));
     return;
   }
   const [command, o] = options(process.argv.slice(2));
@@ -162,6 +174,7 @@ async function main() {
   }
   if (command === 'candidate') {
     const s = object(readJson(o.input), 'candidate'); id(s.id);
+    candidateEvidence(root, s, m);
     need(s.sourceSha256 === m.sha256, 'Candidate source checksum mismatch');
     need(['HARD', 'DEFAULT', 'PLAUSIBLE'].includes(s.strength), 'Invalid candidate strength');
     for (const key of ['rationale', 'scope']) text(s[key], key);
@@ -177,6 +190,7 @@ async function main() {
   }
   if (command === 'probe') {
     const {r, e} = checkedEntry(root, o.id);
+    candidateEvidence(root, e.spec, m);
     if (e.execution) { need(e.execution.adapterRoot === path.resolve(o['project-root']), 'Probe already executed using another adapter'); console.log(json(e.execution)); return; }
     need(e.status === 'candidate', 'Only pending candidates can be probed');
     const results = [];
@@ -208,8 +222,9 @@ async function main() {
     if (e.status === next && digest(e.decision) === digest(approval)) { console.log(json(e)); return; }
     need(e.status === 'candidate' || (e.status === 'accepted' && next === 'retracted'), 'Invalid state transition');
     if (next === 'accepted') {
+      candidateEvidence(root, e.spec, m);
       need(e.spec.strength === 'HARD', 'DEFAULT/PLAUSIBLE candidates are quarantined; cannot approve executable rule');
-      need(e.execution && e.execution.sha256 === digest({...e.execution, sha256: undefined}) && approval.executionSha256 === e.execution.sha256 && e.execution.results.length === 3 && e.execution.results.every(p => p.passed), 'Approval requires matching successful executed positive/negative/boundary probes');
+      need(e.execution && e.execution.sha256 === digest({...e.execution, sha256: undefined}) && approval.executionSha256 === e.execution.sha256 && e.execution.results.length === 5 && e.execution.results.every(p => p.passed), 'Approval requires matching successful executed positive/negative/boundary/non-trigger/transfer probes');
       need(approval.statement === 'I approve this reviewed scoped rule for publication', 'Missing explicit publication approval statement');
     }
     e.status = next; e.decision = approval; e.decisions ??= []; e.decisions.push(approval);
@@ -217,6 +232,7 @@ async function main() {
   }
   if (command === 'freeze') {
     const r = registry(root), accepted = Object.entries(r.entries).filter(([, e]) => e.status === 'accepted');
+    for (const [, entry] of accepted) candidateEvidence(root, entry.spec, m);
     need(accepted.length > 0, 'No accepted rules to freeze');
     const snapshot = {version: 1, sourceSha256: m.sha256, rules: Object.fromEntries(accepted.map(([key, e]) => [key, {candidateSha256: e.sha256, executionSha256: e.execution.sha256, decisionSha256: digest(e.decision), sop: e.spec.sop, scope: e.spec.scope, assumptions: e.spec.assumptions}])), registrySha256: digest(r), status: 'frozen-reviewed-registry'};
     snapshot.sha256 = digest(snapshot);
@@ -224,6 +240,7 @@ async function main() {
   }
   if (command === 'publish') {
     const {e} = checkedEntry(root, o.id);
+    candidateEvidence(root, e.spec, m);
     need(e.status === 'accepted' && e.spec.strength === 'HARD' && e.execution?.results.every(p => p.passed), 'Candidate not approved and tested');
     const approval = object(readJson(o.input), 'publication authorization');
     need(approval.candidateSha256 === e.sha256 && approval.executionSha256 === e.execution.sha256 && approval.decisionSha256 === digest(e.decision), 'Publication authorization mismatch');

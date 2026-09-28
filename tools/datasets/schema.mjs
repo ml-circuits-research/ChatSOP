@@ -2,17 +2,16 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import { parse, canonical } from '../../sop/parser.mjs';
 import { Lexicon } from '../../sop/lexicon.mjs';
-import { MODEL_TYPES } from '../../sop/declarative.mjs';
+import { MODEL_TYPES as modelTypes } from '../../sop/declarative.mjs';
 import { alphaCanonical, checkLocalGraph } from './semantic-normalize.mjs';
 
 export const sha256 = value => createHash('sha256').update(value).digest('hex');
-const templateRevision = sha256(fs.readFileSync(new URL('../../datasets/templates/pilot.json', import.meta.url), 'utf8'));
 const requireField = (condition, message) => { if (!condition) throw Error(message); };
 const text = value => typeof value === 'string' && value.length > 0;
 const splits = new Set(['train', 'dev', 'test']);
 const statuses = new Set(['valid', 'ambiguous', 'underspecified', 'contradictory', 'unsupported']);
 const inputModes = new Set(['query_only', 'assertions_query', 'clarification']);
-const evaluationTracks = new Set(['formalization', 'system']), modelTypes = new Set(MODEL_TYPES);
+const evaluationTracks = new Set(['formalization', 'system']);
 const jsonValue = value => value === null || typeof value === 'string' || typeof value === 'boolean' || (typeof value === 'number' && Number.isFinite(value)) || Array.isArray(value) && value.every(jsonValue) || value && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype && Object.values(value).every(jsonValue);
 export const canonicalTarget = source => { const graph = parse(source); checkLocalGraph(graph); return canonical(graph); };
 // These fingerprints describe the compiler inputs, not a semantic approval.
@@ -21,7 +20,6 @@ export function authoringProvenance(row, markdown) {
   return {
     split_key: row.split_group_id,
     case_md_sha256: sha256(markdown),
-    profile: 'sop-agent-3',
     parser_sha256: sha256(fs.readFileSync(new URL('../../sop/parser.mjs', import.meta.url))),
     prompt_sha256: sha256(fs.readFileSync(new URL('../../server/llm.mjs', import.meta.url))),
     ontology_sha256: sha256(row.ontology_sop ?? fs.readFileSync(new URL('../../config/ontology.sop', import.meta.url), 'utf8')),
@@ -81,7 +79,7 @@ export function validateRecord(row) {
     if (quote) requireField(row.source.content.includes(JSON.parse(quote)), `${row.id}: setup fact quote not found in source content`);
   }
   if (row.source.kind === 'synthetic_fixture' && row.source.uri === `synthetic://pilot/${row.source.id}`) {
-    requireField(row.source.revision === templateRevision && row.source.license === null, `${row.id}: invalid diagnostic pilot provenance`);
+    requireField(row.source.license === null, `${row.id}: invalid diagnostic pilot provenance`);
     requireField(sha256(row.context_assertions.join('\n') + '\n') === row.source.sha256, `${row.id}: source checksum mismatch`);
     for (const wire of parse(row.setup_sop).wires) if (wire.type === 'fact')
       requireField(wire.fields.source?.[0] === row.source.id && row.context_assertions.includes(JSON.parse(wire.fields.quote?.[0] ?? 'null')), `${row.id}: fact without exact source quote`);
@@ -97,7 +95,6 @@ export function validateRecord(row) {
   if (row.expected.outputs !== undefined) requireField(row.expected.outputs && typeof row.expected.outputs === 'object' && !Array.isArray(row.expected.outputs) && jsonValue(row.expected.outputs), `${row.id}: invalid expected outputs`);
   if (row.expected.packet !== undefined) requireField(row.expected.packet && typeof row.expected.packet === 'object' && !Array.isArray(row.expected.packet) && jsonValue(row.expected.packet), `${row.id}: invalid expected packet`);
   if (row.expected.session_claims !== undefined) requireField(Array.isArray(row.expected.session_claims) && row.expected.session_claims.every(claim => claim && text(claim.holds) && text(claim.valid) && text(claim.source) && text(claim.quote) && ['normal', 'pinned'].includes(claim.retention)), `${row.id}: invalid expected session claims`);
-  if (row.expected.context_premises !== undefined) requireField(Array.isArray(row.expected.context_premises) && row.expected.context_premises.every(premise => premise && text(premise.holds) && text(premise.valid) && premise.origin === 'model-interpretation'), `${row.id}: invalid expected context premises`);
   for (const [field, program] of [['sop_target', row.sop_target], ['setup_sop', row.setup_sop]]) {
     try { if (program) canonicalTarget(program); } catch (error) { throw Error(`${row.id}: invalid ${field}: ${error.message}`); }
   }
@@ -109,10 +106,10 @@ export function validateRecord(row) {
   const terminal = wires.at(-1).type;
   if (row.evaluation_track === 'formalization') {
     requireField(wires.every(wire => modelTypes.has(wire.type)), `${row.id}: formalization target contains execution or write wires`);
-    requireField(!row.expected.session_claims?.length, `${row.id}: conditional premises must not become session claims`);
-    requireField(row.input_mode !== 'assertions_query' || wires.some(wire => wire.type === 'premise'), `${row.id}: attached assertions must be interpreted as premises`);
+    requireField(!row.expected.session_claims?.length, `${row.id}: model statements must not become session claims`);
+    requireField(row.input_mode !== 'assertions_query' || wires.some(wire => ['stated', 'assumed'].includes(wire.type)), `${row.id}: attached assertions must be interpreted as stated or assumed propositions`);
     requireField(row.expected.status !== 'clarify' || ['ambiguous', 'underspecified', 'unsupported'].includes(row.semantic_status), `${row.id}: host clarification needs ambiguous or underspecified declarative intent`);
-    requireField(terminal === 'query' || terminal === 'constraint' || terminal === 'premise', `${row.id}: formalization target must end in a declarative problem or a premise`);
+    requireField(modelTypes.has(terminal), `${row.id}: formalization target must end in a model-language declaration`);
   } else {
     requireField(row.input_mode === 'assertions_query' || !wires.some(wire => wire.type === 'remember'), `${row.id}: only explicitly attached assertions may be recorded in system circuits`);
     requireField(['cnl', 'clarify', 'remember', 'solve'].includes(terminal), `${row.id}: system target must end in a result or explicit session record`);

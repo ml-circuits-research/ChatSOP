@@ -5,26 +5,26 @@ import {join,unify} from './reasoner.mjs';
 import {rule,atomKey,variable} from '../lib/types.mjs';
 import {conditionAtoms} from '../lib/conditions.mjs';
 import {stable,digest} from '../lib/util.mjs';
-import {Weaver} from '../memory/weaver.mjs';
+import {RecallMemory} from '../memory/weaver.mjs';
 import {Budget,flat,asFact,packet,substitute,ground,opposite} from './common.mjs';
 const feats=x=>x?.kind==='trace'?x.features:x?.kind==='fact'?[x.atom]:x?.kind==='query'?conditionAtoms(x.where):[];
 const words=x=>new Set((x??'').normalize('NFKC').toLowerCase().match(/[\p{L}\p{N}_]+/gu)??[]);
 function jaccard(a,b){let n=0;for(const x of a)if(b.has(x))n++;return a.size+b.size-n?n/(a.size+b.size-n):0;}
 export function associate({cue,data,mode='relational',...options}){
- const b=new Budget(options),cases=flat(data);if(!['lexical','relational','weaver'].includes(mode))throw Error('Unknown association mode');
+ const b=new Budget(options),cases=flat(data);if(!['lexical','relational','recall-memory'].includes(mode))throw Error('Unknown association mode');
  if(cases.some(x=>x.kind!=='trace'))throw Error('Association candidates must be traces');
- const cf=feats(cue),ck=new Set(cf.map(atomKey)),cw=words(cue.text),bank=mode==='weaver'?new Weaver({power:options.tracePower??10,verification:'associative'}):null;
+ const cf=feats(cue),ck=new Set(cf.map(atomKey)),cw=words(cue.text),bank=mode==='recall-memory'?new RecallMemory({power:options.tracePower??10,verification:'associative'}):null;
  const feature=a=>digest(atomKey(a));
  if(bank)for(const c of cases)for(const a of c.features){if(!b.step())break;bank.add({p:'trace_feature',a:[c.id,feature(a)],neg:false});}
  const ranked=[];
  for(const c of cases){if(!b.step())break;let score;
   if(mode==='lexical')score=jaccard(cw,words(c.text));
-  else if(mode==='weaver'){let sum=0;for(const a of cf){const addresses=bank.addresses({p:'trace_feature',a:[c.id,feature(a)],neg:false});sum+=addresses.reduce((n,h,i)=>n+(bank.get(i,h)>0?1:0),0)/addresses.length;}score=cf.length?sum/cf.length:0;}
+  else if(mode==='recall-memory'){let sum=0;for(const a of cf){const addresses=bank.addresses({p:'trace_feature',a:[c.id,feature(a)],neg:false});sum+=addresses.reduce((n,h,i)=>n+(bank.get(i,h)>0?1:0),0)/addresses.length;}score=cf.length?sum/cf.length:0;}
   else score=jaccard(ck,new Set(c.features.map(atomKey)));
   ranked.push({kind:'retrieval-hint',id:c.id,score,source:c.source,features:c.features,epistemic:'candidate'});
  }
  ranked.sort((a,c)=>c.score-a.score||a.id.localeCompare(c.id));const truncated=ranked.length>b.limits.maxCandidates;
- return packet('association',ranked.length?'candidates':'unknown',{candidates:ranked.slice(0,b.limits.maxCandidates),complete:!b.exhausted&&!truncated,mode,scoreMeaning:mode==='weaver'?'fraction of occupied projection cells':'Jaccard similarity',metadata:'Trace IDs and candidate features supplied explicitly; the associative bank does not enumerate identifiers.'},b);
+ return packet('association',ranked.length?'candidates':'unknown',{candidates:ranked.slice(0,b.limits.maxCandidates),complete:!b.exhausted&&!truncated,mode,scoreMeaning:mode==='recall-memory'?'fraction of occupied projection cells':'Jaccard similarity',metadata:'Trace IDs and candidate features supplied explicitly; the associative bank does not enumerate identifiers.'},b);
 }
 function evaluatePattern(p,cases,b){let opportunities=0,support=0,counterexamples=0,unknown=0,conflicts=0,complete=true;const evidence=[];
  for(const c of cases){if(!b.step()){complete=false;break;}const facts=c.features.map((a,i)=>asFact(a,c.id+'_'+i)),j=join(p.if,facts,{maxJoins:b.limits.maxJoins});complete&&=j.complete;
@@ -49,7 +49,7 @@ export function induce({data,candidates=[],holdout=[],...options}){
   patterns.push({...p,kind:'pattern',status:'candidate',training,holdout:test,support:training.support,coverage:training.coverage,source:'case-evaluation',promotion:'requires-reviewed-semantic-validation'});
  }
  patterns.sort((a,c)=>c.support-a.support||c.training.opportunities-a.training.opportunities);
- return packet('induction',patterns.length?'patterns':'unknown',{patterns,complete:complete&&!b.exhausted,generatorTruncated:!!b.generationTruncated,generator:supplied.length?'provided-pattern-templates':'one-premise-shared-variable',claim:'Counts apply to supplied traces; missing evidence is not a counterexample unless trace.closed=true.'},b);
+ return packet('induction',patterns.length?'patterns':'unknown',{patterns,complete:complete&&!b.exhausted,generatorTruncated:!!b.generationTruncated,generator:supplied.length?'provided-pattern-templates':'one-condition-shared-variable',claim:'Counts apply to supplied traces; missing evidence is not a counterexample unless trace.closed=true.'},b);
 }
 export function analogize({source,target,transfer=[],...options}){
  const b=new Budget(options),s=flat(source).flatMap(feats),t=flat(target).flatMap(feats),extra=flat(transfer).flatMap(x=>x.kind==='hypothesis'?x.assumptions:feats(x));

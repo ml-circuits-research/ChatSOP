@@ -4,26 +4,27 @@ import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { parse, canonical, parseAtom } from '../sop/parser.mjs';
+import { parse, canonical, parseAtom, emitAtom } from '../sop/parser.mjs';
 import { Runtime } from '../sop/runtime.mjs';
-import {MODEL_TYPES} from '../sop/declarative.mjs';
+import {checkModelProgram, MODEL_TYPES} from '../sop/declarative.mjs';
+import {compareProgramPropositions, propositionMetrics, withoutBasis} from './propositions.mjs';
 import { Lexicon } from '../sop/lexicon.mjs';
 import { publishKnowledge } from '../sop/ingest.mjs';
 import { Repository } from '../memory/repository.mjs';
 import { Agent } from '../server/agent.mjs';
 import { complete, formalPrompt } from '../server/llm.mjs';
 import { stable, digest } from '../lib/util.mjs';
+import { readJsonlShardedSync } from '../lib/jsonl-shards.mjs';
 import { atomKey } from '../lib/types.mjs';
 import { interval, serialInterval } from '../lib/time.mjs';
 import { executionSignature } from './signature.mjs';
+import { withInlineWorld, verificationContext } from '../lib/row-world.mjs';
 import { epistemicResult, fraction, distribution } from './contracts.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const modelTypes = new Set(MODEL_TYPES);
 const sha256 = text => createHash('sha256').update(text).digest('hex');
-const readRows = file => fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean).map((line, index) => {
-  try { return JSON.parse(line); } catch { throw Error(`${file}:${index + 1}: invalid JSON`); }
-});
+// Suites and predictions may be stored as shards (lib/jsonl-shards.mjs); the logical base path reads either form.
+const readRows = file => readJsonlShardedSync(file);
 const packetOf = execution => execution.result?.packet ?? execution.result;
 
 function expectedAnswers(packet) {
@@ -45,8 +46,8 @@ function observedResult(execution) {
 
 function checkConversationalTarget(row, program) {
   if (row.evaluation_track === 'formalization') {
-    assert(program.wires.every(wire => modelTypes.has(wire.type)), 'Model SOP must contain only declarative premise/query/constraint wires');
-    assert(['premise', 'query', 'constraint'].includes(program.wires.at(-1)?.type), 'Model SOP must end in a declarative problem or premise');
+    checkModelProgram(program);
+    assert(MODEL_TYPES.has(program.wires.at(-1)?.type), 'Model SOP must contain only model-language declarations');
   } else {
     assert.equal(row.evaluation_track, 'system', 'Suite row must declare formalization or system evaluation_track');
     assert(['cnl', 'clarify', 'remember', 'solve'].includes(program.wires.at(-1)?.type), 'System circuit must end in a checked result operation');
@@ -69,16 +70,13 @@ function checkReference(row, execution, session) {
     assert.deepEqual(packet[name], value, `Gold packet field ${name} disagrees with independent reference`);
   }
   if (row.evaluation_track === 'formalization') {
-    assert.equal(Object.values(session.live.claims).length, 0, 'Declarative premises must not write repository claims');
-    assert.equal(session.live.events.length, 0, 'Declarative premises must not write repository events');
-    if (row.expected?.context_premises) {
-      const observed = (execution.contextPremises ?? []).map(premise => {
-        assert.equal(premise.text, row.question, 'Host must retain the original input text as premise provenance');
-        return stable({atom:atomKey(premise.atom),valid:serialInterval(premise.valid),origin:premise.origin});
-      }).sort();
-      const expected = row.expected.context_premises.map(premise => stable({atom:atomKey(parseAtom(premise.holds)),valid:serialInterval(interval(premise.valid)),origin:premise.origin})).sort();
-      assert.deepEqual(observed, expected, 'Gold conditional premises disagree with independent reference');
-    }
+    assert.equal(Object.values(session.live.claims).length, 0, 'Model declarations must not write repository claims');
+    assert.equal(session.live.events.length, 0, 'Model declarations must not write repository events');
+    // Model-language reports (DS021): lowered statements and model assumptions, compared by atom, validity and label.
+    const reported = (list, extra) => (list ?? []).map(item => stable({atom:item.atom, valid:item.valid, [extra]:item[extra]})).sort();
+    const goldReport = (list, extra, fallback) => list.map(item => stable({atom:emitAtom(parseAtom(item.holds)), valid:serialInterval(interval(item.valid ?? 'timeless')), [extra]:item[extra] ?? fallback})).sort();
+    if (row.expected?.user_statements) assert.deepEqual(reported(packet.user_statements, 'certainty'), goldReport(row.expected.user_statements, 'certainty', 'asserted'), 'Gold user statements disagree with independent reference');
+    if (row.expected?.model_assumptions) assert.deepEqual(reported(packet.model_assumptions, 'basis'), goldReport(row.expected.model_assumptions, 'basis', 'unspecified'), 'Gold model assumptions disagree with independent reference');
   }
   if (row.expected?.session_claims) {
     const expected = row.expected.session_claims.map(claim => ({
@@ -90,6 +88,7 @@ function checkReference(row, execution, session) {
     assert.deepEqual(actual, expected, 'Gold session claims disagree with independent reference');
   }
 }
+
 
 function metrics(records) {
   const referenceValid = records.filter(record => record.reference_valid);
@@ -143,7 +142,7 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
   assert(source !== 'endpoint' || rows.every(row => row.evaluation_track === 'formalization'), 'A formalizer endpoint cannot be evaluated on trusted system circuits');
   for (const row of rows) {
     assert(typeof row.id === 'string' && typeof (row.sop_target ?? row.target) === 'string', 'Each row needs an ID and reference SOP');
-    assert(typeof row.setup_sop === 'string' && row.context, `Missing setup/context: ${row.id}`);
+    assert(typeof row.setup_sop === 'string' && verificationContext(row), `Missing setup/verification_context: ${row.id}`);
   }
   const ontology = path.resolve(root, config.ontology ?? 'config/ontology.sop');
   const lexicon = Lexicon.load(ontology);
@@ -153,25 +152,30 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
   let requestsSucceeded = 0;
   const rss = [process.memoryUsage().rss];
   try {
-    for (const [index, row] of rows.entries()) {
+    for (const [index, stored] of rows.entries()) {
+      // A generated row may reference its shared verification world (lib/row-world.mjs); evaluate the full world.
+      const row = withInlineWorld(stored);
       const began = performance.now();
       const record = {
         id: row.id, semantic_case_id: row.semantic_case_id ?? row.id,
-        language: row.language, family: row.structure_id ?? row.case, evaluation_track: row.evaluation_track,
+        language: row.language, family: row.structure_id ?? row.case, question_type: row.question_type ?? null, evaluation_track: row.evaluation_track,
         reference_valid: false, syntax_valid: false, runtime_valid: false,
         canonical_match: false, execution_equivalent: false, timing_ms: {},
       };
       const target = row.sop_target ?? row.target;
-      const question = [...(row.context_assertions ?? []), row.question ?? row.input].join('\n');
+      const question = row.question ?? row.input;
       let stage = 'reference', repo, goldSession, predSession, gold;
-      const now = Date.parse(row.context.now ?? '2026-09-26T12:00:00Z');
+      const now = Date.parse(verificationContext(row).now ?? '2026-09-26T12:00:00Z');
       try {
         assert(Number.isFinite(now), 'Invalid fixed evaluation timestamp');
+        // DS021: the model input is exactly the user's message, carried whole in `question`.
+        // Everything else on the row (verification_context, setup, ontology, expected) is verification scaffolding.
+        assert(!(row.context_assertions ?? []).length, `${row.id}: the whole user message belongs in question; context_assertions are not model input`);
         const targetProgram = parse(target);
         checkConversationalTarget(row, targetProgram);
-        const targetCanonical = canonical(targetProgram);
+        const targetCanonical = canonical(withoutBasis(targetProgram));
         let caseLexicon = lexicon;
-        if (row.ontology_sop !== undefined) {
+        if (typeof row.ontology_sop === 'string' && row.ontology_sop.trim()) {
           assert.equal(typeof row.ontology_sop, 'string', 'Host ontology must be SOP text');
           record.ontology_sha256 = sha256(row.ontology_sop);
           if (!lexicons.has(record.ontology_sha256)) lexicons.set(record.ontology_sha256, new Lexicon(row.ontology_sop));
@@ -180,8 +184,10 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
         const policy = { allowWrite: row.evaluation_track === 'system' && row.input_mode === 'assertions_query', ...config.policy };
         let started = performance.now();
         repo = new Repository(path.join(temp, `case-${index}`), { memory: config.memory ?? { engine: 'sqlite', power: 10 } });
-        if (row.setup_sop.trim()) publishKnowledge(repo, 'world', row.setup_sop, { schema: caseLexicon.predicates, reviewed: true, knownAt: Date.parse('2024-01-01') });
-        else repo.init('world');
+        // `late_setup_sop` holds knowledge that became known later (2025-06-01), for knowledge-cutoff (`asof`) cases.
+        if (row.setup_sop?.trim()) publishKnowledge(repo, 'world', row.setup_sop, { schema: caseLexicon?.predicates, reviewed: true, knownAt: Date.parse('2023-06-01') });
+        if (row.late_setup_sop?.trim()) publishKnowledge(repo, 'world', row.late_setup_sop, { schema: caseLexicon?.predicates, reviewed: true, knownAt: Date.parse('2025-06-01') });
+        if (!row.setup_sop?.trim() && !row.late_setup_sop?.trim()) repo.init('world');
         goldSession = repo.session('world', 'gold', 'evaluation');
         predSession = repo.session('world', 'prediction', 'evaluation');
         record.timing_ms.setup = performance.now() - started;
@@ -190,16 +196,16 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
           return {
             guard,
             runtime: new Runtime({
-              repo, session, lexicon: caseLexicon, schema: caseLexicon.predicates, now, policy,
-              ...(guard ? {atomGuard: (atom, meta) => guard.validateAtom(atom, row.context, meta)} : {}),
+              repo, session, lexicon: caseLexicon, schema: caseLexicon?.predicates ?? null, now, policy,
               factGuard: fact => assert.equal(fact.source, 'user', 'Conversational facts require source user'),
             }),
           };
         };
         started = performance.now();
         const goldExecutor = makeRuntime(goldSession);
-        goldExecutor.guard?.validateVocabulary(target, row.context, question);
-        gold = await goldExecutor.runtime.run(target, row.evaluation_track === 'formalization' ? { origin:'model', inputText:row.question, language:row.language, context:{premises:[],entities:row.context.entities} } : { origin:'trusted' });
+        goldExecutor.guard?.validateVocabulary(target, question);
+        const modelRun = () => ({ origin:'model', inputText: question, language:row.language, context:{statements:[]} });
+        gold = await goldExecutor.runtime.run(target, row.evaluation_track === 'formalization' ? modelRun() : { origin:'trusted' });
         record.reference = observedResult(gold);
         record.reference_signature = executionSignature(gold, goldSession);
         checkReference(row, gold, goldSession);
@@ -208,7 +214,8 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
         record.gold_status = packetOf(gold).status;
         stage = 'generation';
         started = performance.now();
-        const prompt = row.prompt ?? formalPrompt(question, row.context);
+        // The prompt is always rebuilt from the message; a stored row.prompt is never model input.
+        const prompt = formalPrompt(question);
         const predicted = await predictor({ id: row.id, prompt });
         if (source === 'endpoint') requestsSucceeded++;
         record.timing_ms.model = performance.now() - started;
@@ -216,15 +223,16 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
         record.prediction = predicted;
         stage = 'parse';
         const predictedProgram = parse(predicted);
-        const predictedCanonical = canonical(predictedProgram);
+        const predictedCanonical = canonical(withoutBasis(predictedProgram));
         record.syntax_valid = true;
         record.canonical_match = predictedCanonical === targetCanonical;
+        record.propositions = compareProgramPropositions(targetProgram, predictedProgram);
         stage = 'prediction';
         started = performance.now();
         checkConversationalTarget(row, predictedProgram);
         const predExecutor = makeRuntime(predSession);
-        predExecutor.guard?.validateVocabulary(predicted, row.context, question);
-        const actual = await predExecutor.runtime.run(predicted, row.evaluation_track === 'formalization' ? { origin:'model', inputText:row.question, language:row.language, context:{premises:[],entities:row.context.entities} } : { origin:'trusted' });
+        predExecutor.guard?.validateVocabulary(predicted, question);
+        const actual = await predExecutor.runtime.run(predicted, row.evaluation_track === 'formalization' ? modelRun() : { origin:'trusted' });
         record.timing_ms.prediction = performance.now() - started;
         record.observed = observedResult(actual);
         record.runtime_valid = true;
@@ -246,7 +254,7 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
   const operationalFailures = records.filter(record => !record.reference_valid || record.error?.stage === 'generation').length;
   return {
     format: 'chatsop-evaluation-v1', source,
-    profile: 'sop-agent-3', attempted: source === 'endpoint',
+    attempted: source === 'endpoint',
     requests_succeeded: requestsSucceeded, model_identity_verified: false,
     model_manifest: modelManifest,
     model_identity_note: 'A supplied manifest records provenance; it does not attest to endpoint weights.',
@@ -258,7 +266,8 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
     memory: { sampled_peak_rss_bytes: Math.max(...rss), measurement: 'RSS sampled between cases; not a CUDA or continuous peak measurement' },
     config: { memory: config.memory ?? { engine: 'sqlite', power: 10 }, policy: config.policy ?? {} },
     metrics: { ...metrics(records), ...pairedMetrics(rows, records) },
-    by_language: groupedMetrics(records, 'language'), by_family: groupedMetrics(records, 'family'), by_track:groupedMetrics(records,'evaluation_track'),
+    propositions: propositionMetrics(records.filter(record => record.propositions).map(record => record.propositions)),
+    by_language: groupedMetrics(records, 'language'), by_family: groupedMetrics(records, 'family'), by_question_type: groupedMetrics(records, 'question_type'), by_track:groupedMetrics(records,'evaluation_track'),
     limitations: ['Finite-fixture equivalence is not universal semantic equivalence.', 'No human review is implied.', 'Predictions-file evaluation does not demonstrate neural inference.'],
     records,
   };

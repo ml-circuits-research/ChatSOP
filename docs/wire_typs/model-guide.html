@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ChatSOP Documentation</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="help.css"></head><body><div data-include="../partials/header.html" data-link-base="../"></div><main class="wire-help"><p class="breadcrumb"><a href="../wire_types.html" target="_top">Wire help</a> / How the model writes</p><h1>How the model writes</h1>
+<p>This page explains the model language from the <strong>model's point of view</strong>: what it receives, what it writes, and how it decides between <a href="stated.html"><code>stated</code></a>, <a href="assumed.html"><code>assumed</code></a>, <a href="unclear.html"><code>unclear</code></a>, <a href="query.html"><code>query</code></a> and <a href="constraint.html"><code>constraint</code></a>. It is the guide a person should read before reviewing corpus targets at <code>/audit</code>. The normative contract is <a href="../specsLoader.html?spec=DS021-model-surface.md" target="_top">DS021</a>; the eighteen question types are on <a href="question-types.html">Question types</a>. Every example below is executed by <code>tests/wire-help.test.mjs</code>.</p>
+<section id="input"><h2>1. What the model receives and writes</h2>
+<p><strong>Input: the user's message, nothing else.</strong> No list of known people or relations, no identifiers, no lexicon, no background facts, no earlier turns and no date or clock. The model therefore cannot know whether "Acme" exists, which predicate "works at" is, or what day "yesterday" was, and it must not pretend to.</p>
+<p><strong>Output: SOP wires, one keyword per line, with quoted strings.</strong> A proposition is a <code>relation</code> phrase, one to four <code>role</code> lines and a <code>polarity</code>. After the model, the host links the strings to its reviewed knowledge (relation phrase and role set → predicate, values → entities, time expressions → intervals) and asks the user with a host <a href="clarify.html"><code>clarify</code></a> when something is unknown or ambiguous. The model never chooses an identity, an engine or an answer.</p>
+<table><thead><tr><th>Role</th><th>Use for</th><th>Example (EN / RO)</th></tr></thead><tbody class="roles">
+<tr><td><code>subject</code></td><td>who or what the relation is about (the grammatical subject of the active sentence)</td><td>"<u>Ana</u> works at Acme" / "<u>Ana</u> lucrează la Acme"</td></tr>
+<tr><td><code>object</code></td><td>the direct counterpart: employer, team, parent, thing owned or taught</td><td>"Ana works at <u>Acme</u>" / "Laura predă <u>biologie</u>"</td></tr>
+<tr><td><code>recipient</code></td><td>who receives something</td><td>"Ana sent the report <u>to Ion</u>" / "i-a trimis <u>lui Ion</u>"</td></tr>
+<tr><td><code>location</code></td><td>where something is or happens; "where?"</td><td>"Ana lives <u>in Cluj</u>" / "Ana locuiește <u>în Cluj</u>"</td></tr>
+<tr><td><code>source</code></td><td>where from; "from" / "de la" (also a cause introduced by "from")</td><td>"Ana moved <u>from Iași</u>", "got sick <u>from the oysters</u>"</td></tr>
+<tr><td><code>destination</code></td><td>where to; visits, trips</td><td>"Ana visited <u>Cluj</u>" / "Ana a mers <u>la Sibiu</u>"</td></tr>
+<tr><td><code>instrument</code></td><td>means or manner; "how?"</td><td>"Ana pays <u>by card</u>" / "Ana plătește <u>cu cardul</u>"</td></tr>
+<tr><td><code>time</code></td><td>a time argument of the relation, or <code>?t</code> when the question asks "when", "since when", "how long", "how many times"</td><td>"When did Ana work at Acme?" → <code>role time ?t</code></td></tr>
+<tr><td><code>topic</code></td><td>what something is about; a cause introduced by "because of" / "din cauza"</td><td>"quit <u>because of Shirin</u>" / "a plecat <u>din cauza lui Ion</u>"</td></tr>
+</tbody></table>
+<p>The value is the mention <strong>as written</strong> (with its article, case ending or typo) in quotes, or a <code>?variable</code> in a question. The relation is the phrase <strong>as meant</strong>, normalized to a simple form (<code>"work at"</code> for "works at", "worked at" or "wroks at"; <code>"lucra la"</code> for "lucrează la").</p></section>
+<section id="steps"><h2>2. Step by step</h2><ol><li><strong>Is there anything to formalize?</strong> Unintelligible text → <code>unclear kind gibberish</code>. No statement and no question ("ok", "thanks", "write a poem") → <code>unclear kind no_request</code>. Otherwise continue; an odd, contradictory or seemingly irrelevant message is still formalized as written.</li><li><strong>Split the message into propositions.</strong> Each assertion, supposition or reported claim becomes a <code>stated</code>; each question becomes a <code>query</code> (or a <code>constraint</code> for a numeric problem). Remarks about the user's own situation or purpose ("I have a meeting tomorrow", "my boss asked me") are not part of the problem and are left out.</li><li><strong>Choose the question form</strong> from the question word, without rewriting it: see <a href="question-types.html">Question types</a>.</li><li><strong>Write each proposition</strong>: relation as meant, values as written, polarity always explicit (<code>negated</code> only for an explicit "not", "no", "nu"), <code>valid</code> only when the message gives a time, and <code>certainty</code> on every <code>stated</code>.</li><li><strong>Make every interpretation visible.</strong> Whatever the model adds — a chosen reading, a presupposition, a closed list, a typical default — is an <code>assumed</code> proposition. If two readings are equally good, write only <code>unclear kind ambiguous</code> with the readings.</li><li><strong>Stop.</strong> The model does not answer, does not judge whether the question can be answered, and never refuses.</li></ol></section><section id="worked"><h2>3. Worked examples in English and Romanian</h2><p class="example-message"><span class="lang">EN</span> “Maria has worked at Acme since 2021. Who else works there?”</p><pre data-sop="current"><code>@s1 stated
+  relation &quot;work at&quot;
+  role subject &quot;Maria&quot;
+  role object &quot;Acme&quot;
+  polarity affirmed
+  valid from &quot;2021&quot;
+  certainty asserted
+
+@q query
+  select ?who
+  where match
+    relation &quot;work at&quot;
+    role subject ?who
+    role object &quot;Acme&quot;
+    polarity affirmed
+  end
+  filter ?who != &quot;Maria&quot;</code></pre><p>"there" has one antecedent and is written as "Acme". "else" excludes Maria with a <code>filter</code> whose literal is written as in the message; the host resolves it like a role value.</p><p class="example-message"><span class="lang">RO</span> “Ana locuiește în Cluj din 2020. De când lucrează la Acme?”</p><pre data-sop="current"><code>@s1 stated
+  relation &quot;locui în&quot;
+  role subject &quot;Ana&quot;
+  role location &quot;Cluj&quot;
+  polarity affirmed
+  valid from &quot;2020&quot;
+  certainty asserted
+
+@q query
+  select ?t
+  measure start
+  where match
+    relation &quot;lucra la&quot;
+    role subject &quot;Ana&quot;
+    role object &quot;Acme&quot;
+    role time ?t
+    polarity affirmed
+  end</code></pre><p>Romanian drops the subject pronoun; the only candidate is Ana, so the query names her without an assumption. The relation is written in the message's language; the host's lexicon carries Romanian aliases.</p><p class="example-message"><span class="lang">RO</span> “Presupunem că Ion a plecat de la Zeta. Mai lucrează acolo?”</p><pre data-sop="current"><code>@s1 stated
+  relation &quot;pleca de la&quot;
+  role subject &quot;Ion&quot;
+  role source &quot;Zeta&quot;
+  polarity affirmed
+  certainty supposed
+
+@a1 assumed
+  relation &quot;lucra la&quot;
+  role subject &quot;Ion&quot;
+  role object &quot;Zeta&quot;
+  polarity affirmed
+  basis implicature
+
+@q query
+  where match
+    relation &quot;lucra la&quot;
+    role subject &quot;Ion&quot;
+    role object &quot;Zeta&quot;
+    polarity affirmed
+  end</code></pre><p>"Presupunem" makes the claim a supposition (<code>certainty supposed</code>): the answer will be conditional. "Mai" ("still") presupposes that Ion worked at Zeta, which the user did not assert, so it is <code>assumed</code> with <code>basis implicature</code>, and with no <code>valid</code> line because the message gives no time.</p></section><section id="typos"><h2>4. Typos, missing diacritics and informal writing</h2><p>Messages are often misspelled, written without Romanian diacritics, or in chat style. The model <strong>normalizes the relation</strong> (it is the meaning) but <strong>copies the values as written</strong> (they are what the user typed). The host then matches names after case and accent folding, so "Brasov" finds "Brașov"; it never resolves an identity by similarity, so a misspelled name that matches nothing becomes a question to the user rather than a guess. For a <code>stated</code> value, the agent guard accepts small typos when it checks that the value occurs in the message (up to one edit for tokens of four to seven characters, two beyond, and short inflections).</p><p class="example-message"><span class="lang">EN</span> “does Maira wrok at acme??”</p><pre data-sop="current"><code>@q query
+  where match
+    relation &quot;work at&quot;
+    role subject &quot;Maira&quot;
+    role object &quot;acme&quot;
+    polarity affirmed
+  end</code></pre><p>"wrok" becomes the relation <code>"work at"</code>; "Maira" and "acme" stay as written. If the host knows a "Maria" but no "Maira", it asks.</p><p class="example-message"><span class="lang">RO</span> “unde locuieste ana acum? cred ca s-a mutat din brasov”</p><pre data-sop="current"><code>@s1 stated
+  relation &quot;se muta din&quot;
+  role subject &quot;ana&quot;
+  role source &quot;brasov&quot;
+  polarity affirmed
+  certainty hedged
+
+@q query
+  select ?place
+  where match
+    relation &quot;locui în&quot;
+    role subject &quot;ana&quot;
+    role location ?place
+    polarity affirmed
+  end
+  at &quot;acum&quot;</code></pre><p>No diacritics and no capitals in the message; the relations are written normally, the values exactly as typed. "cred că" ("I think") makes the statement <code>hedged</code>. "acum" is a time expression the message gives, so it is copied into <code>at</code>; the host normalizes it against its clock.</p></section><section id="boundary"><h2>5. <code>stated</code> or <code>assumed</code>?</h2>
+<p class="note"><strong>The rule.</strong> <code>stated</code> only when the model is sure the claim comes from the user's message. Anything the model adds, infers, completes or presupposes is <code>assumed</code>. When in doubt, <code>assumed</code>.</p>
+<p><code>stated</code> has a <code>certainty</code>: <code>asserted</code> (the user says it), <code>hedged</code> ("I think", "probably", "cred că") or <code>supposed</code> ("suppose", "if", "presupunem că", "dacă"); reported speech ("Ion says that …", "Ion zice că …") adds <code>speaker "Ion"</code>. Every value of a <code>stated</code> must occur in the message. <code>assumed</code> has no certainty and an optional, purely descriptive <code>basis</code>: <code>closure</code>, <code>default</code>, <code>disambiguation</code>, <code>implicature</code> or <code>world</code>. An assumption may even restate the queried proposition (a presupposition or a closure often does); it is reported, and by default never used to compute the answer.</p>
+<div class="table-wrap"><table><thead><tr><th>Message</th><th>Formalization</th><th>Why</th></tr></thead><tbody class="borderline">
+<tr><td>"Since Nera left the lab, who runs it now?"</td><td><code>stated</code> (asserted) + <code>query</code></td><td>An assertion embedded in a question is still asserted.</td></tr>
+<tr><td>"Is Ana <em>still</em> at Acme?" / "Mai e Ana la Acme?"</td><td><code>assumed</code> <code>basis implicature</code> + <code>query</code></td><td>"still" presupposes an earlier state the user did not assert.</td></tr>
+<tr><td>"Room A and room B are booked. Is room C free?"</td><td>two <code>stated</code> + <code>assumed</code> (room C not booked, <code>basis closure</code>) + <code>query</code></td><td>Treating the list as complete is the model's addition.</td></tr>
+<tr><td>"I think the door is open."</td><td><code>stated</code> <code>certainty hedged</code></td><td>The user said it, with a hedge.</td></tr>
+<tr><td>"Suppose Maria works at Acme. Would she be paid?"</td><td><code>stated</code> <code>certainty supposed</code> + <code>query</code></td><td>The answer is conditional on the supposition.</td></tr>
+<tr><td>"Ion says that Maria left." / "Ion zice că Maria a plecat."</td><td><code>stated</code> with <code>speaker "Ion"</code></td><td>Attributed to Ion, used only conditionally.</td></tr>
+<tr><td>"Tweety is a bird. Can Tweety fly?"</td><td><code>stated</code> + optional <code>assumed</code> <code>basis default</code> + <code>query</code></td><td>"Birds fly" is general knowledge, not the user's claim.</td></tr>
+<tr><td>"Who made The Salt Road?"</td><td><code>assumed</code> (<code>relation "mean"</code>, "made" → "wrote", <code>basis disambiguation</code>) + <code>query</code> with <code>relation "make"</code></td><td>The chosen sense is visible; the query keeps the user's word.</td></tr>
+<tr><td>"Ana manages Irina. Does she live in Cluj?"</td><td><code>stated</code> + <code>assumed</code> (<code>relation "refer to"</code>, "she" → "Ana") + <code>query</code> about Ana</td><td>Convention: the pronoun refers to the subject of the preceding asymmetric sentence.</td></tr>
+<tr><td>"Ana works at Acme and Irina works at Zeta. Does she live in Cluj?"</td><td><code>unclear kind ambiguous</code> with two readings</td><td>Parallel clauses: no reading is preferable.</td></tr>
+<tr><td>"Is the bank open?"</td><td><code>query</code> with <code>"the bank"</code></td><td>Which bank is an identity question; the host asks when it knows several. The model never chooses.</td></tr>
+<tr><td>"The square circle is red. Is it red?"</td><td><code>stated</code> + <code>query</code></td><td>The model does not judge sense or consistency.</td></tr>
+</tbody></table></div>
+<p class="example-message"><span class="lang">EN</span> “Room A and room B are booked. Is room C free?”</p><pre data-sop="current"><code>@s1 stated
+  relation &quot;be booked&quot;
+  role subject &quot;Room A&quot;
+  polarity affirmed
+  certainty asserted
+
+@s2 stated
+  relation &quot;be booked&quot;
+  role subject &quot;room B&quot;
+  polarity affirmed
+  certainty asserted
+
+@a1 assumed
+  relation &quot;be booked&quot;
+  role subject &quot;room C&quot;
+  polarity negated
+  basis closure
+
+@q query
+  where match
+    relation &quot;be free&quot;
+    role subject &quot;room C&quot;
+    polarity affirmed
+  end</code></pre><p>Each booked room is its own proposition, and each value keeps the words of the message ("Room A" with its capital). The closure is the model's addition and is reported, not used, by default.</p><p class="example-message"><span class="lang">EN</span> “Ion says that Maria left Acme in March 2024. Did she?”</p><pre data-sop="current"><code>@s1 stated
+  relation &quot;leave&quot;
+  role subject &quot;Maria&quot;
+  role source &quot;Acme&quot;
+  polarity affirmed
+  valid on &quot;March 2024&quot;
+  certainty asserted
+  speaker &quot;Ion&quot;
+
+@q query
+  where match
+    relation &quot;leave&quot;
+    role subject &quot;Maria&quot;
+    role source &quot;Acme&quot;
+    polarity affirmed
+  end
+  during &quot;March 2024&quot;</code></pre><p>The time is copied as written ("March 2024"), never converted by the model; the host normalizes it.</p></section><section id="readings"><h2>6. Vague messages and several readings</h2><p>When a word, a pronoun or a scope has several readings and one is preferable, the model formalizes that reading and records the choice as an <code>assumed</code> with <code>basis disambiguation</code>, so the reader of the packet can see it. When none is preferable, the only output is <code>unclear kind ambiguous</code> with two to four <code>reading</code> lines in the message's language, and the host asks the user to choose.</p><p class="example-message"><span class="lang">EN</span> “Ana manages Irina. Does she live in Cluj?”</p><pre data-sop="current"><code>@s1 stated
+  relation &quot;manage&quot;
+  role subject &quot;Ana&quot;
+  role object &quot;Irina&quot;
+  polarity affirmed
+  certainty asserted
+
+@a1 assumed
+  relation &quot;refer to&quot;
+  role subject &quot;she&quot;
+  role object &quot;Ana&quot;
+  polarity affirmed
+  basis disambiguation
+
+@q query
+  where match
+    relation &quot;live in&quot;
+    role subject &quot;Ana&quot;
+    role location &quot;Cluj&quot;
+    polarity affirmed
+  end</code></pre><p class="example-message"><span class="lang">RO</span> “Cine a făcut Ultimul bac?”</p><pre data-sop="current"><code>@a1 assumed
+  relation &quot;însemna&quot;
+  role subject &quot;a făcut&quot;
+  role object &quot;a scris&quot;
+  polarity affirmed
+  basis disambiguation
+
+@q query
+  select ?x
+  where match
+    relation &quot;face&quot;
+    role subject ?x
+    role object &quot;Ultimul bac&quot;
+    polarity affirmed
+  end</code></pre><p>The query keeps the user's verb; the assumption states the chosen sense ("made" as "wrote"). The host still links the verb and asks when its lexicon finds it ambiguous.</p><p class="example-message"><span class="lang">EN</span> “Is the court free on Saturday?”</p><pre data-sop="current"><code>@u unclear
+  kind ambiguous
+  reading &quot;the tennis court is free on Saturday&quot;
+  reading &quot;the law court has no hearing on Saturday&quot;</code></pre></section><section id="because"><h2>7. The "because" convention</h2><p>"Because of" followed by a thing or a person is a role of the causal relation: <code>role topic</code> for "because of" / "din cauza", <code>role source</code> for "from" / "de la". A "because" clause that is a whole proposition is its own proposition: the observation is <code>stated</code>, and a proposed reason that the user asks about is the <code>query</code>. "I'm asking because …" introduces an ordinary assertion.</p><p class="example-message"><span class="lang">EN</span> “Aurelia resigned. She quit because of Shirin, right?”</p><pre data-sop="current"><code>@s1 stated
+  relation &quot;resign&quot;
+  role subject &quot;Aurelia&quot;
+  polarity affirmed
+  certainty asserted
+
+@q query
+  where match
+    relation &quot;quit because of&quot;
+    role subject &quot;Aurelia&quot;
+    role topic &quot;Shirin&quot;
+    polarity affirmed
+  end</code></pre><p class="example-message"><span class="lang">EN</span> “Jack stays home. Is that because he went to the book fair?”</p><pre data-sop="current"><code>@s1 stated
+  relation &quot;stay home&quot;
+  role subject &quot;Jack&quot;
+  polarity affirmed
+  certainty asserted
+
+@q query
+  where match
+    relation &quot;go to&quot;
+    role subject &quot;Jack&quot;
+    role destination &quot;the book fair&quot;
+    polarity affirmed
+  end</code></pre><p>The model does not decide whether the fair explains the absence; the host checks the asked proposition and, with <code>mode explain</code> questions, reports the derivation it found.</p></section><section id="never"><h2>8. What the model never writes</h2><ul><li><strong>Identifiers.</strong> No <code>works_at</code>, <code>maria</code>, <code>lab_alpha</code>: those belong to the host lexicon.</li><li><strong>Invented context.</strong> No date, place, person or fact that the message does not contain, except inside an <code>assumed</code> proposition; no <code>valid</code> or <code>at</code> line computed from a clock.</li><li><strong>Reasoning or answers.</strong> No conclusion, no "therefore", no status, no refusal, no advice. A contradiction in the message is formalized, not reported.</li><li><strong>Plumbing.</strong> No <code>fact</code>, <code>remember</code>, <code>resolve</code>, <code>solve</code>, <code>cnl</code>, <code>clarify</code>, <code>jsEval</code> or host-only fields such as <code>span</code>. The retired <code>premise</code> wire does not exist.</li></ul><pre data-sop="invalid" data-check="parse" data-error="Unknown wire type premise"><code>@p premise
+  holds works_at maria acme</code></pre><p>The retired form: an atom of identifiers. Write <code>stated</code> with strings.</p><pre data-sop="invalid" data-check="parse" data-error="value must be a JSON-quoted string"><code>@s1 stated
+  relation &quot;work at&quot;
+  role subject maria
+  role object &quot;Acme&quot;
+  polarity affirmed
+  certainty asserted</code></pre><p>A bare identifier; the value must be the mention in quotes.</p><pre data-sop="invalid" data-check="compile" data-error="query_needs_match"><code>@q query
+  where works_at ?who acme
+  select ?who</code></pre><p>An atom condition belongs to trusted circuits; the model writes a <code>match</code> block.</p><pre data-sop="invalid" data-check="compile" data-error="fact belongs to symbolic execution"><code>@f fact
+  holds works_at maria acme
+  valid timeless
+  source user</code></pre><p>The model never writes facts; an asserted <code>stated</code> is turn-local evidence.</p><p>One more rejection happens after parsing, in the agent guard: a <code>stated</code> value that does not occur in the message is rejected with <code>stated_value_not_in_message</code>; the model should have used <code>assumed</code> or a query variable.</p></section><h2>Sources</h2><p>Prompt: <code>server/prompts/formalizer.txt</code> (the <code>formal</code> choice; the <code>bare</code> choice sends the message alone); parser: <code>sop/parser.mjs</code>; admission: <code>sop/declarative.mjs</code>; anchoring guard: <code>server/agent.mjs</code>; linking and time: <code>sop/linking.mjs</code>; the contract: <a href="../specsLoader.html?spec=DS021-model-surface.md" target="_top">DS021</a>.</p></main><script type="module" src="help-page.mjs"></script></body></html>

@@ -16,7 +16,7 @@ const fact=(i)=>({kind:'fact',atom:{p:'likes',a:['person_'+i,'org_'+i],neg:false
 const at=Date.parse('2026-09-26T12:00:00Z'),q={at,asof:at};
 try{
  const repo=new Repository(root,{memory:config});publishKnowledge(repo,'demo',fixture,{schema,reviewed:true,knownAt:1});
- const s=repo.session('demo','alice','current'),run=source=>new Runtime({repo,session:s,schema,now:at,policy:{retrievalStrategy:'recall-weaver'}}).run(source);
+ const s=repo.session('demo','alice','current'),run=source=>new Runtime({repo,session:s,schema,now:at,policy:{retrievalStrategy:'recall-memory'}}).run(source);
  await run('@a fact\n  holds parent ana bogdan\n  valid timeless\n@b fact\n  holds parent bogdan carina\n  valid timeless\n@p fact\n  holds likes ana lab_alpha\n  valid timeless\n  retention pinned\n@s remember\n  input $a $b $p');
  for(let i=0;i<3;i++)repo.apply(s,[fact(i)],{knownAt:1});
  repo.commit(s);const frozen=repo.session('demo','alice','frozen');
@@ -34,7 +34,7 @@ try{
  assert.equal(final.values.r.status,'supported');assert.equal(restarted.recall(bob,{p:'parent',a:['ana','bogdan'],neg:false},q).rows.length,0);
  const stats=s.live.stats(),report={experiment:'local-shards-sop-v1',node:process.version,config,
   before:{normalShards:before.normalShards,claims:before.claims},
-  checks:{twoHopProof:true,promotedPremises:true,unusedFactForgotten:true,pinnedSurvives:true,frozenSessionRetainsHistory:coldStillInFrozen,restart:true,userIsolation:true},
+  checks:{twoHopProof:true,promotedProofFacts:true,unusedFactForgotten:true,pinnedSurvives:true,frozenSessionRetainsHistory:coldStillInFrozen,restart:true,userIsolation:true},
   answer:final.result.text,normalShards:stats.normalShards,normalBankBytes:stats.normalBankBytes,pinnedBankBytes:stats.pinnedBankBytes,
   promotions:stats.maintenance.promotions,evictedShards:stats.maintenance.evictedShards,
   garbageCollection:{whileFrozen,afterClose:afterGc},shardStats:stats};

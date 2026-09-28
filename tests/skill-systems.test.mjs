@@ -15,7 +15,7 @@ const wrong = fact + query('parent mara dana');
 const missing = '@q query\n  where parent mara sorin\n@r reason\n  query $q';
 const proposal = () => proposeMicroTheories({gap:{question:'May a guest enter?',evidenceId:'gap-1'}, candidates:[{
   scope:{domain:'visitor-access',population:'registered guests',validity:'during staffed hours'}, status:'HARD',
-  premises:['guest ?person','escort_present ?person'], conclusion:'may_enter ?person',
+  conditions:['guest ?person','escort_present ?person'], conclusion:'may_enter ?person',
   exceptions:[{when:['access_revoked ?person'],reason:'Revocation overrides ordinary guest access'}],
   provenance:{sourceId:'policy-1',quote:'Registered guests may enter with an escort unless access is revoked.',reviewer:'policy-steward'}
 }]})[0];
@@ -60,14 +60,14 @@ test('source gap requires reviewed source attribution; ambiguity needs independe
   assert.deepEqual(ambiguity.evidence.alternatives.map(x=>x.status),['supported','unknown']);
 });
 
-test('unsupported context premise is over-inference, not a sourced fact', async () => {
-  const candidate = '@p premise\n  holds parent mara sorin\n@q query\n  where parent mara sorin\n@r solve\n  query $q\n  assume $p';
+test('an unsupported assumption is over-inference, not a sourced fact', async () => {
+  const candidate = '@p fact\n  holds parent mara sorin\n  valid timeless\n  source assumption\n@q query\n  where parent mara sorin\n@r solve\n  query $q\n  assume $p';
   const [goldExecution,candidateExecution] = await Promise.all([run(missing),run(candidate)]);
   assert.equal(goldExecution.result.status,'unknown');
   assert.equal(candidateExecution.result.status,'supported');
   assert.equal(candidateExecution.result.hypothetical,true);
   const result = classifyFailure({question:'Is Sorin a child of Mara?',goldSop:missing,candidateSop:candidate,goldExecution,candidateExecution,
-    diagnostics:{sameInputDigest:'fixture-world-2',unreviewedExtraPremise:{atom:'parent mara sorin',sourceId:'source-2',reviewedAsUnsupported:true}}});
+    diagnostics:{sameInputDigest:'fixture-world-2',unreviewedExtraAssumption:{atom:'parent mara sorin',sourceId:'source-2',reviewedAsUnsupported:true}}});
   assert.equal(result.classification,'over_inference');
 });
 
@@ -77,16 +77,21 @@ test('micro-theories preserve the exception, its probe and non-production bounda
   assert.deepEqual(p.exceptions[0].when,['access_revoked ?person']);
   assert.deepEqual(p.validation.exceptions[0].exceptionWhen,p.exceptions[0].when);
   assert.equal(p.execution,'proposal-only');
+  for (const status of ['DEFAULT','PLAUSIBLE']) {
+    const draft = proposeMicroTheories({gap:{question:'May a guest enter?',evidenceId:'gap-2'},candidates:[{...p,status}]})[0];
+    assert.equal(draft.status,status);
+    assert.equal(draft.execution,'proposal-only');
+  }
   assert.equal(p.validation.exceptions[0].expected,'Conclusion must not be derived under this exception');
   assert.throws(() => proposeMicroTheories({gap:{question:'q',evidenceId:'e'},candidates:[{...p,exceptions:undefined}]}),/exceptions array/);
 });
 
-test('registry deduplicates alpha-equivalent premises, versions, requires host authorization and rolls back on evidence', () => {
+test('registry deduplicates alpha-equivalent conditions, versions, requires host authorization and rolls back on evidence', () => {
   const authorize = (credential,action) => credential?.principal === 'steward' && credential?.grants?.includes(action) === true;
   const registry = new ImplicitSopRegistry({authorize});
   const p = proposal();
   const first = registry.register(p);
-  const equivalent = {...p, premises:['escort_present ?guest','guest ?guest'],conclusion:'may_enter ?guest',exceptions:[{when:['access_revoked ?guest'],reason:'Same exception'}]};
+  const equivalent = {...p, conditions:['escort_present ?guest','guest ?guest'],conclusion:'may_enter ?guest',exceptions:[{when:['access_revoked ?guest'],reason:'Same exception'}]};
   assert.deepEqual(registry.register(equivalent),{...first,duplicate:true});
   const changed = {...p, scope:{...p.scope,validity:'weekdays during staffed hours'}};
   const revision = registry.revise(first.id,changed);
@@ -94,10 +99,15 @@ test('registry deduplicates alpha-equivalent premises, versions, requires host a
   assert.equal(registry.lookup(p),null);
   const validation = {positive:'probe:positive:passed',negative:'probe:negative:passed',boundary:'probe:boundary:passed',exceptions:['probe:revoked:passed']};
   assert.throws(() => registry.decide(first.id,1,{action:'accept',rationale:'Reviewed',validation}),/authorization/);
-  const authorization = {principal:'steward',grants:['accept','retract']};
+  const authorization = {principal:'steward',grants:['accept','reject','retract']};
   assert.throws(() => registry.decide(first.id,1,{action:'accept',rationale:'Reviewed',validation:{...validation,exceptions:[]},authorization}),/every exception/);
   registry.decide(first.id,1,{action:'accept',rationale:'Reviewed with scoped probes',validation,authorization});
   assert.equal(registry.lookup(equivalent)?.version,1);
+  registry.decide(first.id,2,{action:'reject',rationale:'New scope not reviewed',authorization});
+  assert.equal(registry.get(first.id).versions[1].state,'rejected');
+  assert.equal(registry.lookup(p)?.version,1);
+  const defeasible = registry.register({...p,status:'DEFAULT',conclusion:'may_visit ?person'});
+  assert.throws(() => registry.decide(defeasible.id,1,{action:'accept',rationale:'Insufficient',authorization,validation}),/DEFAULT and PLAUSIBLE/);
   const restored = new ImplicitSopRegistry({authorize,state:registry.exportState()});
   assert.equal(restored.lookup(p)?.state,'accepted');
   restored.retract(first.id,{authorization,evidence:{sourceId:'policy-2',observation:'New revocation case contradicts the previously accepted rule'}});

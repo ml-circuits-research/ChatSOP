@@ -2,7 +2,7 @@
 /** Summarize ONLY raw comparison records; unobserved cells remain explicit. */
 import fs from 'node:fs';import path from 'node:path';import {fileURLToPath} from 'node:url';
 import {cliArgs,digest,saveJSON} from '../lib/util.mjs';
-const engines=['weaver','holo','sqlite','scan','hybrid'],backends=['js','prolog','z3'];
+const engines=['recall-memory','holo-memory','sqlite','scan','hybrid'],backends=['js','prolog','z3'];
 const defaultDir=fileURLToPath(new URL('../eval/reports/current/comparisons/',import.meta.url));
 const assert=(ok,msg)=>{if(!ok)throw Error(msg);};
 export function buildMatrix(engineReport,reasonerReport){

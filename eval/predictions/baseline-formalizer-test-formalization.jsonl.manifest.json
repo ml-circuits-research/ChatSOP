@@ -1,0 +1,11 @@
+{
+  "format": "chatsop-baseline-predictions-v1",
+  "predictor_identity": "deterministic-baseline-gold-copy",
+  "claim": "Gold-copy evaluator sanity check only; not a model prediction or model accuracy.",
+  "command": "node tools/eval/baseline.mjs --file eval/suites/formalizer-v1/test.jsonl --out eval/predictions/baseline-formalizer-test-formalization.jsonl",
+  "suite": "eval/suites/formalizer-v1/test.jsonl",
+  "suite_sha256": "3d85d74db356cf8e75bf3509764eda0d9980d866daafba2159d2677aceff97b2",
+  "predictions": "eval/predictions/baseline-formalizer-test-formalization.jsonl",
+  "predictions_sha256": "affea4413e5b980fab44f04cc99fb1531699d99b3556e2e37fb35e0fa9c749c6",
+  "rows": 4951
+}

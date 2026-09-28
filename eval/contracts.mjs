@@ -9,6 +9,7 @@ export const STATUS_DECISIONS = Object.freeze({
   inconsistent: 'CONFLICT', optimal: 'ENTAILED', feasible_bound: 'POSSIBLE',
   plan_found: 'POSSIBLE', no_plan: 'UNKNOWN',
   stored: 'STORED', context_updated: 'CONTEXT_UPDATED',
+  unclear: 'UNCLEAR', not_computable: 'NOT_COMPUTABLE',
 });
 
 /** Preserve conflicts, conditionality and incomplete search independently of truth. */

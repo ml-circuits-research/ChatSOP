@@ -5,6 +5,7 @@ import {assert} from '../lib/util.mjs';
 import {flattenLayers} from './temporal.mjs';
 import {unify} from '../reasoning/reasoner.mjs';
 import {readInterval,contains,intersect} from '../lib/time.mjs';
+import {canonicalEngine} from './banks/factory.mjs';
 
 function exactRetrieve({repo,session,pattern,query,limits}) {
   const layers=flattenLayers(repo.visible(session).map(x=>x.layer),pattern), events=layers.flatMap(l=>l.events).filter(e=>e.knownAt<=query.asof);
@@ -31,26 +32,28 @@ function exactRetrieve({repo,session,pattern,query,limits}) {
   }
   return {rows,complete,probes,shardsVisited:selected.length,shardsRouted:candidates.length,coverage:complete?'visible-exact-snapshot':'partial-exact-snapshot'};
 }
-const strategyNames={weaver:'recall-weaver',holo:'holo-memory',sqlite:'sqlite',scan:'scan',hybrid:'hybrid'};
+// Retrieval strategy per canonical memory.engine (DS005). `recall-weaver` is the legacy
+// spelling of `recall-memory` and stays registered as an alias for existing configurations.
+const strategyNames={'recall-memory':'recall-memory','holo-memory':'holo-memory',sqlite:'sqlite',scan:'scan',hybrid:'hybrid'};
 function storedEngines(request){
  const layers=flattenLayers(request.repo.visible(request.session).map(x=>x.layer),request.pattern);
- return new Set(layers.flatMap(l=>(l.banks??[l.pinned,l.normal]).filter(Boolean)).map(b=>b.config.engine??'weaver'));
+ return new Set(layers.flatMap(l=>(l.banks??[l.pinned,l.normal]).filter(Boolean)).map(b=>canonicalEngine(b.config.engine??'recall-memory')));
 }
 function bankRetrieve(request,expected=null){
  const engines=storedEngines(request);
  if(expected&&[...engines].some(e=>e!==expected))throw Error('Retrieval strategy '+strategyNames[expected]+' requires matching memory.engine. Re-ingest into a separate repository, or use auto for mixed snapshots.');
  const {repo,session,pattern,query,limits}=request;
  const r=repo.recall(session,pattern,query,{maxProbes:limits.maxProbes,limit:limits.maxFacts,maxShards:limits.maxShards??Infinity,allowUnverified:false});
- const name=f=>({'sqlite-exact':'sqlite','scan-exact':'scan','hybrid-exact':'hybrid','h7-receipt':'holo-memory'}[f.evidence?.verification]??'recall-weaver');
+ const name=f=>({'sqlite-exact':'sqlite','scan-exact':'scan','hybrid-exact':'hybrid','holo-receipt':'holo-memory'}[f.evidence?.verification]??'recall-memory');
  return {...r,rows:r.rows.map(f=>({...f,retrievalStrategies:[name(f)]})),
   selected:[...engines].map(e=>strategyNames[e]).join('+')||strategyNames[expected]||'auto',
   coverage:[...engines].every(e=>e==='sqlite'||e==='scan'||e==='hybrid')?'retained-exact-records':'retained-associative-candidates'};
 }
-function weaverRetrieve(request){return bankRetrieve(request,'weaver');}
+function recallMemoryRetrieve(request){return bankRetrieve(request,'recall-memory');}
 export class StrategyRegistry {
-  constructor(){this.strategies=new Map();this.register('recall-weaver',weaverRetrieve);this.register('exact',exactRetrieve);
+  constructor(){this.strategies=new Map();this.register('recall-memory',recallMemoryRetrieve);this.register('recall-weaver',recallMemoryRetrieve);this.register('exact',exactRetrieve);
     this.register('auto',request=>bankRetrieve(request));
-    this.register('holo-memory',request=>bankRetrieve(request,'holo'));
+    this.register('holo-memory',request=>bankRetrieve(request,'holo-memory'));
     this.register('sqlite',request=>bankRetrieve(request,'sqlite'));
     this.register('scan',request=>bankRetrieve(request,'scan'));
     this.register('hybrid',request=>{
@@ -62,7 +65,7 @@ export class StrategyRegistry {
       const approximate=remaining?this.retrieve('auto',{...request,limits:{...request.limits,maxProbes:remaining,maxShards:Math.max(0,(request.limits.maxShards??Infinity)-(exact.shardsVisited??0))}}):{rows:[],complete:false,probes:0};
       const rows=new Map(exact.rows.map(f=>[f.id,f]));for(const f of approximate.rows)if(!rows.has(f.id))rows.set(f.id,f);
       return {rows:[...rows.values()],complete:approximate.complete,probes:exact.probes+approximate.probes,shardsVisited:(exact.shardsVisited??0)+(approximate.shardsVisited??0),
-        coverage:'hybrid-retained-view',requested:'hybrid',selected:'exact+recall-weaver'};
+        coverage:'hybrid-retained-view',requested:'hybrid',selected:'exact+recall-memory'};
     });
   }
   register(name,handler){assert(/^[a-z][a-z0-9-]*$/.test(name)&&typeof handler==='function','Invalid retrieval strategy');assert(!this.strategies.has(name),'Strategy already registered');this.strategies.set(name,handler);return this;}

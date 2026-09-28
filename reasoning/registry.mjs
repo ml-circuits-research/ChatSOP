@@ -13,7 +13,7 @@ import {flat,partitions,unsupported,LIMITS} from './common.mjs';
 import {assert} from '../lib/util.mjs';
 const simple={abduce,diagnose,associate,induce,analogize,plan,simulate};
 export const CAPABILITIES={
- reference:{deduce:'finite-function-free-Horn',temporal:'bitemporal-view-and-interval-join',classify:'deductive-rules',abduce:'ground-candidates-subset-minimal',diagnose:'abduction-and-test-partition',associate:'lexical-relational-weaver-score',induce:'bounded-candidate-pattern-evaluation',analogize:'injective-entity-mapping',plan:'deterministic-uniform-cost-search',simulate:'whatif-and-causal-Horn-intervention',constraint:'finite-linear-integers',optimize:'finite-linear-integers'},
+ reference:{deduce:'finite-function-free-Horn',temporal:'bitemporal-view-and-interval-join',classify:'deductive-rules',abduce:'ground-candidates-subset-minimal',diagnose:'abduction-and-test-partition',associate:'lexical-relational-recall-memory-score',induce:'bounded-candidate-pattern-evaluation',analogize:'injective-entity-mapping',plan:'deterministic-uniform-cost-search',simulate:'whatif-and-causal-Horn-intervention',constraint:'finite-linear-integers',optimize:'finite-linear-integers'},
  advanced:{deduce:'SWI-when-available-or-audited-JS',constraint:'Z3-when-available-or-finite-JS',optimize:'Z3-plus-optimality-check-or-finite-JS',other:'reference-controllers-no-semantic-change'}
 };
 const allowedKinds={deduce:['fact','observed','rule'],temporal:['fact','observed','rule'],classify:['fact','observed','rule'],constraint:[],abduce:['fact','observed','rule','hypothesis'],diagnose:['fact','observed','rule','hypothesis'],associate:['trace'],induce:['trace','pattern'],analogize:['trace','fact','hypothesis'],plan:['fact','observed','rule','action','goal'],simulate:['fact','observed','rule','hypothesis']};
@@ -30,7 +30,7 @@ export class ReasoningRegistry {
   const post=(value,requested)=>({...value,ignored:value.ignored??[],reasoningStrategy:advanced?'advanced':'reference',route:{operation:mode,backend:requested,fallback:null,semantics:'explicit-request-rejected-without-substitution'}});
   const requiredConstraint=items.find(x=>x.kind==='constraint');if(requiredConstraint&&mode!=='constraint')return post(rejected('mixed_constraints_require_explicit_stage','This operation cannot drop a constraint; link a numeric solve through SOP output ports.'),'none');
   const theory=allInputs.find(x=>x.kind==='theory');if(theory)return post(rejected('unsupported_theory','No registered compiler for required dialect '+theory.dialect),'none');
-  const ignored=items.filter(x=>!(allowedKinds[mode]??[]).includes(x.kind)&&x.kind!=='retrieval').map(x=>({id:x.id,kind:x.kind,reason:['pattern','hypothesis','trace'].includes(x.kind)?'not-admitted-as-a-deductive-premise':'not-used-by-this-operation'}));
+  const ignored=items.filter(x=>!(allowedKinds[mode]??[]).includes(x.kind)&&x.kind!=='retrieval').map(x=>({id:x.id,kind:x.kind,reason:['pattern','hypothesis','trace'].includes(x.kind)?'not-admitted-as-deductive-evidence':'not-used-by-this-operation'}));
   let out,backend=request.backend??'auto',fallback=null;
   const reject=(code,detail,requested=backend)=>post(rejected(code,detail),requested);
   if(!advanced&&!['auto','js'].includes(backend))return reject('reference_backend_mismatch','The reference strategy uses JS only; select advanced for external backends.',backend);

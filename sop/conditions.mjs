@@ -2,7 +2,7 @@ import {assert} from '../lib/util.mjs';
 import {parseExpression} from './expression.mjs';
 
 export function conditionField(type,key){
- return type==='query'&&['where','filter'].includes(key)||type==='constraint'&&['require','claim'].includes(key);
+ return type==='query'&&['where','scope','filter'].includes(key)||type==='constraint'&&['require','claim'].includes(key);
 }
 
 /** Explicit groups preserve nesting; ordinary leaf syntax belongs to the caller. */
@@ -13,6 +13,8 @@ export function parseCondition(source,parseLeaf){
   assert(depth<=32,'Condition nesting limit');
   const text=lines[cursor++];
   assert(text&&text!=='end','Expected a condition');
+  // A `match` leaf spans its keyword lines up to `end` (model-language query propositions).
+  if(text==='match'){const body=[];while(cursor<lines.length&&lines[cursor]!=='end')body.push(lines[cursor++]);assert(lines[cursor++]==='end','Unclosed match block');return parseLeaf(['match',...body].join('\n'));}
   if(text!=='all'&&text!=='any')return parseLeaf(text);
   const children=[];
   while(cursor<lines.length&&lines[cursor]!=='end')children.push(next(depth+1));
@@ -39,7 +41,7 @@ export function formatCondition(source){
  return source.split('\n').map(s=>s.trim()).filter(s=>s&&!s.startsWith('#')).map((line,i)=>{
   if(line==='end')depth--;
   const text=(i?'  '.repeat(depth+1):'')+line;
-  if(line==='all'||line==='any')depth++;
+  if(line==='all'||line==='any'||line==='match')depth++;
   return text;
  }).join('\n');
 }

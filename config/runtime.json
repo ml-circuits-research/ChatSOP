@@ -1,6 +1,7 @@
 {
   "root": "state",
   "ontology": "config/ontology.sop",
+  "promptProfile": "formal",
   "memory": {
     "power": 12,
     "arity": 3,
@@ -48,7 +49,7 @@
     "allowWrite": true,
     "allowPin": true,
     "allowRules": false,
-    "allowJsEval": true,
+    "modelAssumptions": "report",
     "maxWires": 2048,
     "maxEpochs": 16,
     "maxProbes": 50000,

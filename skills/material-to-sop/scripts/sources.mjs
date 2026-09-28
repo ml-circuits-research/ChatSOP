@@ -140,6 +140,8 @@ export function runSources(command, args) {
       requireField(s.revision, 'source revision');
       if (!Number.isSafeInteger(s.budget?.maxBytes) || s.budget.maxBytes < 1 || !Number.isSafeInteger(s.budget?.maxPassages) || s.budget.maxPassages < 1) throw Error(`Source ${id} requires positive byte and passage budgets`);
       const file = path.resolve(path.dirname(path.resolve(opts.manifest)), requireField(s.file, 'source file'));
+      const fileBytes = fs.statSync(file).size;
+      if (fileBytes > s.budget.maxBytes || fileBytes > 20_000_000) throw Error(`Source ${id} exceeds byte budget`);
       const raw = fs.readFileSync(file);
       if (raw.length > s.budget.maxBytes || raw.length > 20_000_000) throw Error(`Source ${id} exceeds byte budget`);
       const extension = path.extname(file).toLowerCase();

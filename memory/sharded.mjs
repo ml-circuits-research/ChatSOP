@@ -4,6 +4,7 @@
  * are protected. This is an in-process storage layout, not a distributed service.
  */
 import {createBank,bankBytes} from './banks/factory.mjs';
+import {holoSettings} from './banks/holo.mjs';
 import {atom,atomKey} from '../lib/types.mjs';
 import {digest,assert,stable} from '../lib/util.mjs';
 import {serialInterval} from '../lib/time.mjs';
@@ -43,7 +44,7 @@ export class ShardedLayer {
   this.events=clone(state?.events??[]);
   for(const part of this.allParts())if(part.bank.kernel&&(this.config.sharding.mode==='archive'||part.retention==='pinned'))part.bank.kernel.config.ageStepsPerNovel=0;
   this.maintenance=clone(state?.maintenance??{rotations:0,evictedShards:0,evictedClaims:0,promotions:0,runs:0,last:null});
-  // Validate Weaver geometry even before the first allocation.
+  // Validate bank geometry even before the first allocation.
   const geometry=createBank(this.config),b=bankBytes(geometry);geometry.close?.();
   for(const k of ['maxNormalBankBytes','maxPinnedBankBytes'])
    assert(this.config.sharding[k]===null||this.config.sharding[k]>=b,k+' must fit at least one bank set');
@@ -56,7 +57,7 @@ export class ShardedLayer {
  get exactAtoms(){return Object.assign({},...this.allParts().map(p=>p.exactAtoms));}
  _new(retention,at){
   const id='s'+(++this.nextSerial),seed=((this.config.seed??1234567)+Math.imul(this.nextSerial,2654435761))>>>0;
-  return {id,retention,createdAt:at,lastWriteAt:at,sealedAt:null,exactComplete:this.config.exact,bank:createBank({...this.config,seed,...((retention==='pinned'||this.config.sharding.mode==='archive')?{holo:{...this.config.holo,ageStepsPerNovel:0}}:{})}),claims:{},exactAtoms:{},sources:[]};
+  return {id,retention,createdAt:at,lastWriteAt:at,sealedAt:null,exactComplete:this.config.exact,bank:createBank({...this.config,seed,...((retention==='pinned'||this.config.sharding.mode==='archive')?{holoMemory:{...holoSettings(this.config),ageStepsPerNovel:0}}:{})}),claims:{},exactAtoms:{},sources:[]};
  }
  _needsRotation(p,at){
   if(!p||!Object.keys(p.claims).length)return false;
@@ -101,7 +102,7 @@ export class ShardedLayer {
  }
  reinforce(f,{usedAt=Date.now(),strength=this.retention().useStrength}={}){
   if(!this.retention().reinforceOnUse||strength<=0)return {reinforced:false};
-  assert(f?.kind==='observed'&&f.evidence?.metadataVerified===true,'Only verified observed proof premises can be promoted');
+  assert(f?.kind==='observed'&&f.evidence?.metadataVerified===true,'Only verified observed proof facts can be promoted');
   assert(/^c_[0-9a-f]{32}$/.test(f.id??''),'Promotion requires a claim identity');
   const meta=f.claim??{id:f.id,tupleHash:digest(atomKey(f.atom)),valid:serialInterval(f.valid),source:f.source??'memory',quote:f.quote??'',knownAt:f.knownAt??usedAt,retention:f.retention??'normal'};
   assert(meta.tupleHash===digest(atomKey(f.atom)),'Promotion tuple/claim mismatch');

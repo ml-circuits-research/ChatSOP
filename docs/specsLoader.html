@@ -70,6 +70,22 @@
         };
       }
 
+      // A former file name (before the 2026-09-28 renumbering) resolves through specs/aliases.json to
+      // the current spec or the spec it was merged into. Archived specs live outside docs/ and do not load.
+      async resolveFormer(specPath) {
+        try {
+          const response = await fetch('specs/aliases.json');
+          if (!response.ok) return null;
+          const ids = (await response.json()).ids ?? {};
+          const entry = Object.values(ids).find(e => e.was === specPath);
+          const id = entry?.to ?? entry?.merged;
+          const target = id && Object.values(ids).find(e => e.to === id && e.file);
+          return target && target.file !== specPath ? `specsLoader.html?spec=${target.file}` : null;
+        } catch {
+          return null;
+        }
+      }
+
       async load() {
         if (!this.specPath) {
           window.location.href = 'specsLoader.html?spec=matrix.md';
@@ -80,6 +96,11 @@
           this.currentSpecSpan.textContent = `Loading: ${this.specPath}`;
           const response = await fetch(`specs/${this.specPath}`);
           if (!response.ok) {
+            const moved = await this.resolveFormer(this.specPath);
+            if (moved) {
+              window.location.replace(moved);
+              return;
+            }
             throw new Error(`Specification not found: ${this.specPath}`);
           }
 

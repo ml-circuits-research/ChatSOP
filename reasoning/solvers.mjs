@@ -20,7 +20,7 @@ function int(n){return n<0?`(- ${-n})`:String(n);}
 function z3Run(text,timeoutMs){const r=spawnSync(process.env.Z3_BIN??'z3',['-in','-smt2'],{input:text,encoding:'utf8',timeout:timeoutMs+1000,maxBuffer:1024*1024});if(r.error)throw Error(`Z3 unavailable or timed out: ${r.error.message}`);if(r.status!==0)throw Error(`Z3 failed: ${r.stderr||r.stdout}`);return r.stdout.trim();}
 export function solve(problem,{timeoutMs=3000}={}){
  const {prefix,claim}=compileSMT(problem,{timeoutMs});const status=z3Run(prefix+'(check-sat)\n',timeoutMs).split(/\s+/)[0];
- if(status==='unsat')return {status:'inconsistent',meaning:'The premises have no model; no arbitrary conclusion is accepted.'};
+ if(status==='unsat')return {status:'inconsistent',meaning:'The stated conditions have no model; no arbitrary conclusion is accepted.'};
  if(status!=='sat')return {status:'unknown',meaning:'Solver did not decide within its limits.'};
  if(!claim)return {status:'sat',witness:z3Run(prefix+'(check-sat)\n(get-model)\n',timeoutMs),meaning:'A satisfying assignment exists; it is not a uniquely entailed answer.'};
  const notClaim=z3Run(prefix+`(assert (not ${claim}))\n(check-sat)\n`,timeoutMs).split(/\s+/)[0];

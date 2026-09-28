@@ -5,33 +5,35 @@ import {Lexicon} from '../sop/lexicon.mjs';
 import {parse} from '../sop/parser.mjs';
 import {context as repositoryContext} from './helpers.mjs';
 
-const schema={temperature:{arity:2,args:['entity','integer']}};
-const question='@q query\n  where temperature room_a ?degrees\n  select ?degrees';
-const runtime=()=>new Runtime({schema});
+// A host lexicon: the context-free model writes strings, the host links them (DS021).
+const lexicon=new Lexicon('@temperature predicate\n  role subject entity\n  role object integer\n  alias en "temperature of"\n@room_a entity\n  kind entity\n  label en "room A"');
+const schema=lexicon.predicates;
+const question='@q query\n  where match\n    relation "temperature of"\n    role subject "room A"\n    role object ?degrees\n    polarity affirmed\n  end\n  select ?degrees';
+const runtime=()=>new Runtime({schema,lexicon});
+const temperature=(id,value,{type='stated',certainty='asserted',extra=''}={})=>`@${id} ${type}\n  relation "temperature of"\n  role subject "room A"\n  role object "${value}"\n  polarity affirmed\n`+(type==='stated'?`  certainty ${certainty}\n`:'')+extra;
 
-test('premise context survives a turn but never becomes a repository fact',async()=>{
- const c=repositoryContext({bootstrap:false}),context={premises:[]};
+test('an asserted user statement is turn evidence, is carried in caller context and is never stored',async()=>{
+ const c=repositoryContext({bootstrap:false}),context={};
  try{
-  const engine=new Runtime({repo:c.repo,session:c.session,schema});
+  const engine=new Runtime({repo:c.repo,session:c.session,schema,lexicon});
   const before=Object.keys(c.session.live.claims).length;
-  const first=await engine.run('@p premise\n  holds temperature room_a 21',{origin:'model',inputText:'The room seems to be 21 degrees.',context});
+  const first=await engine.run(temperature('s',21),{origin:'model',inputText:'The room is 21 degrees.',context});
   assert.equal(first.result.packet.status,'context_updated');
-  assert.deepEqual(context.premises.map(p=>[p.origin,p.text]),[['model-interpretation','The room seems to be 21 degrees.']]);
+  assert.deepEqual(context.statements.map(s=>[s.origin,s.text]),[['user-statement','The room is 21 degrees.']]);
+  assert.equal(first.result.packet.user_statements[0].treatment,'evidence');
   const answer=await engine.run(question,{origin:'model',context});
   assert.equal(answer.result.packet.status,'supported');
-  assert.equal(answer.result.packet.hypothetical,true);
+  assert.equal(answer.result.packet.hypothetical,false,'what the user asserted is not a hypothesis');
   assert.deepEqual(answer.result.packet.answers.map(a=>a.binding),[{'?degrees':21}]);
+  assert.equal(answer.result.packet.carried_statements.length,1);
   assert.equal(Object.keys(c.session.live.claims).length,before);
-  const other=await engine.run(question,{origin:'model',context:{premises:[]}});
+  const other=await engine.run(question,{origin:'model',context:{}});
   assert.equal(other.result.packet.status,'unknown');
-  assert.equal(other.result.packet.hypothetical,false);
  }finally{c.dispose();}
 });
 
 test('conditional query scalars feed numeric problems without model-authored operations',async()=>{
- const source=`@p premise
-  holds temperature room_a 21
-${question}
+ const source=`${temperature('p',21,{certainty:'supposed'})}${question}
 @limit constraint
   var ?next int 0 100
   require ?next == $degrees + 1
@@ -48,15 +50,12 @@ ${question}
 });
 
 test('multiple conditional scalar matches stop dependent calculation and request clarification',async()=>{
- const source=`@p premise
-  holds temperature room_a 21
-@other premise
-  holds temperature room_a 22
-${question}
+ const source=`${temperature('p',21,{certainty:'supposed'})}${temperature('other',22,{certainty:'supposed'})}${question}
 @limit constraint
   var ?next int 0 100
   require ?next == $degrees + 1
-  claim ?next <= 25`;
+  claim ?next <= 25
+  task possible`;
  const out=await runtime().run(source,{origin:'model'});
  assert.equal(out.outputs.degrees.status,'ambiguous');
  assert.equal(Object.hasOwn(out.values,'limit'),false);
@@ -80,57 +79,56 @@ const ontology=`@maria_one entity
   label en "Acme"
   alias ro "Laboratorul Alfa"
 @works_at predicate
-  args person organization
+  role subject person
+  role object organization
   label en "works at"`;
+const worksAt=(subject,object)=>`@q query\n  where match\n    relation "works at"\n    role subject "${subject}"\n    role object "${object}"\n    polarity affirmed\n  end`;
 
 test('host identity lookup asks about homonyms but missing evidence remains unknown',async()=>{
  const lexicon=new Lexicon(ontology),engine=new Runtime({lexicon,schema:lexicon.predicates});
- const ambiguous=await engine.run('@q query\n  where works_at "Maria" acme',{origin:'model',inputText:'Does Maria work at Acme?'});
+ const ambiguous=await engine.run(worksAt('Maria','Acme'),{origin:'model',inputText:'Does Maria work at Acme?'});
  assert.equal(ambiguous.result.packet.status,'clarify');
  assert.deepEqual(ambiguous.result.packet.required[0].candidates.map(c=>c.id),['maria_one','maria_two']);
- const known=await engine.run('@q query\n  where works_at maria_one acme',{origin:'model'});
+ const known=await engine.run(worksAt('Maria One','Acme'),{origin:'model'});
  assert.equal(known.result.packet.status,'unknown');
- const alias=await engine.run('@q query\n  where works_at maria_one "Laboratorul Alfa"',{origin:'model',language:'en'});
+ const alias=await engine.run(worksAt('Maria One','Laboratorul Alfa'),{origin:'model',language:'en'});
  assert.equal(alias.result.packet.status,'unknown');
  assert.equal(alias.result.packet.query.where[0].a[1],'acme');
 });
 
-test('host-approved scoped identities need not be global lexicon entries',async()=>{
- const lexicon=new Lexicon(ontology),engine=new Runtime({lexicon,schema:lexicon.predicates});
- const out=await engine.run('@q query\n  where works_at guest acme',{origin:'model',context:{premises:[],entities:[{id:'guest',type:'person'}]}});
- assert.equal(out.result.packet.status,'unknown');
- assert.equal(out.result.packet.query.where[0].a[0],'guest');
-});
-
 test('model origin rejects operation, sourced fact and clarification authoring',async()=>{
  const sources=[
-  '@x clarify\n  text "Which one?"',
-  '@x fact\n  holds temperature room_a 21\n  valid timeless',
-  '@p premise\n  holds temperature room_a 21\n@x remember\n  input $p',
-  question+'\n@x solve\n  query $q',
-  '@x jsEval\n  expr 1 + 2'
+  ['clarify','@x clarify\n  text "Which one?"'],
+  ['fact','@x fact\n  holds temperature room_a 21\n  valid timeless'],
+  ['remember',temperature('p',21)+'@x remember\n  input $p'],
+  ['solve',question+'\n@x solve\n  query $q'],
+  ['jsEval','@x jsEval\n  expr 1 + 2'],
+  ['value','@x value\n  data 1 + 2']
  ];
- for(const source of sources)await assert.rejects(runtime().run(source,{origin:'model'}));
+ for(const [type,source] of sources){
+  await assert.rejects(runtime().run(source,{origin:'model'}),new RegExp(`Model authors stated, assumed, unclear, query or constraint; ${type} belongs to symbolic execution`),type);
+ }
 });
 
-test('trusted remember cannot promote a premise into sourced knowledge',async()=>{
+test('trusted remember cannot promote an assumption into sourced knowledge',async()=>{
  const c=repositoryContext({bootstrap:false});
  try{
   const engine=new Runtime({repo:c.repo,session:c.session,schema});
   const before=Object.keys(c.session.live.claims).length;
-  await assert.rejects(engine.run('@p premise\n  holds temperature room_a 21\n@s remember\n  input $p'));
+  await assert.rejects(engine.run('@p fact\n  holds temperature room_a 21\n  valid timeless\n  source assumption\n@s remember\n  input $p'),/assumption_fact_unconsumed/);
   assert.equal(Object.keys(c.session.live.claims).length,before);
  }finally{c.dispose();}
 });
 
 test('host-generated operations cannot collide with authored expansion-shaped names',async()=>{
- const out=await runtime().run('@host0__link premise\n  holds temperature room_a 21\n'+question,{origin:'model'});
+ const out=await runtime().run(temperature('host0__link',21)+question,{origin:'model'});
  assert.deepEqual(out.result.packet.answers.map(a=>a.binding),[{'?degrees':21}]);
- assert.equal(out.values.host0__link.kind,'premise');
+ assert.equal(out.values.host0__link.kind,'fact');
+ assert.equal(out.values.host0__link.source,'user');
 });
 
 test('requested scalar ambiguity requires clarification even when the claim is entailed',async()=>{
- const source='@problem constraint\n  var ?x int 1 2\n  claim ?x >= 1\n  select ?x';
+ const source='@problem constraint\n  var ?x int 1 2\n  claim ?x >= 1\n  select ?x\n  task prove';
  const out=await runtime().run(source,{origin:'model'});
  assert.equal(out.problemResults[0].result.status,'entailed');
  assert.equal(out.result.packet.status,'clarify');

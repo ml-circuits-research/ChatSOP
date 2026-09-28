@@ -1,33 +1,29 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {parse, PROFILE, SPEC} from '../sop/parser.mjs';
-import {validateRecord} from '../tools/datasets/schema.mjs';
+import {parse, SPEC} from '../sop/parser.mjs';
 import {epistemicResult, STATUS_DECISIONS} from '../eval/contracts.mjs';
 import {evaluate} from '../eval/run.mjs';
 import {Runtime} from '../sop/runtime.mjs';
+import {Lexicon} from '../sop/lexicon.mjs';
 import {CAPABILITIES} from '../reasoning/registry.mjs';
 import {context, schema} from './helpers.mjs';
+import {readJsonlShardedSync} from '../lib/jsonl-shards.mjs';
+
+/** A model-language formalization row of the regenerated corpus (DS022). */
+const row = () => readJsonlShardedSync(new URL('../datasets/formalizer-v1/dev.jsonl', import.meta.url).pathname)[0];
 
 const run = source => new Runtime({now: Date.parse('2026-09-26')}).run(source);
 const query = '@q query\n  where bird robin\n';
 const fact = (id, holds) => `@${id} fact\n  holds ${holds}\n  valid timeless\n`;
 const reason = '@r reason\n  query $q\n  data $data';
 const packet = execution => epistemicResult(execution.result.packet ?? execution.result);
-const row = () => JSON.parse(fs.readFileSync(new URL('../datasets/query-v1/dev.jsonl', import.meta.url), 'utf8').split('\n')[0]);
 
-test('SOP profile admits whitespace atoms and refuses foreign syntax/model authority', async () => {
-  assert.equal(parse('@p premise\n  holds parent mara sorin').profile, PROFILE);
-  assert.deepEqual(SPEC.premise.required, ['holds']);
-  assert.throws(() => parse('@p premise\n  holds parent(?x, ?y)'), /Expected|Invalid/);
+test('SOP language admits whitespace atoms and refuses foreign syntax/model authority', async () => {
+  assert.equal(parse('@f fact\n  holds parent mara sorin\n  valid timeless').wires[0].type, 'fact');
+  assert.deepEqual(SPEC.fact.required, ['holds', 'valid']);
+  assert.throws(() => parse('@f fact\n  holds parent(?x, ?y)\n  valid timeless'), /Expected|Invalid/);
   await assert.rejects(new Runtime().run(fact('f', 'bird robin'), {origin:'model'}), /Model|declarative|Forbidden|forbidden/);
-});
-
-test('semantic case requires provenance and a track-specific target', () => {
-  const original = row();
-  assert.equal(validateRecord(original), original);
-  assert.throws(() => validateRecord({...original, source: {...original.source, sha256: undefined}}), /source provenance/);
-  assert.throws(() => validateRecord({...original, evaluation_track: 'other'}), /evaluation_track/);
 });
 
 test('result projection retains contradiction, hypothesis and search completeness', async () => {
@@ -71,19 +67,22 @@ test('executable decision rows preserve proof class and do not invent a new hard
 });
 
 test('DEFAULT proposal with explicit exception and absent support is never promoted to a hard rule', async () => {
-  const model = new Runtime({now:Date.parse('2026-09-26')});
-  const statement = '@p premise\n  holds likes ana book\n@q query\n  where likes ana book';
-  const conditional = await model.run(statement, {origin:'model', inputText:'Normally Ana likes this book.', context:{premises:[]}});
+  // The user's own default ("Normally ...") is a hedged user statement: conditional, never a hard rule.
+  const lexicon = new Lexicon('@likes predicate\n  role subject person\n  role object entity\n  alias en "likes"\n@ana entity\n  kind person\n  label en "Ana"\n@book entity\n  kind entity\n  label en "this book"');
+  const question = '@q query\n  where match\n    relation "likes"\n    role subject "Ana"\n    role object "this book"\n    polarity affirmed\n  end';
+  const statement = '@p stated\n  relation "likes"\n  role subject "Ana"\n  role object "this book"\n  polarity affirmed\n  certainty hedged\n' + question;
+  const model = new Runtime({lexicon, schema:lexicon.predicates, now:Date.parse('2026-09-26')});
+  const conditional = await model.run(statement, {origin:'model', inputText:'Normally Ana likes this book.', context:{statements:[]}});
   assert.equal(conditional.result.packet.status, 'supported');
   assert.equal(packet(conditional).status, 'PLAUSIBLE');
   assert.equal(packet(conditional).hypothetical, true);
-  const absent = await model.run('@q query\n  where likes ana book', {origin:'model', context:{premises:[]}});
+  const absent = await model.run(question, {origin:'model', context:{statements:[]}});
   assert.equal(packet(absent).status, 'UNKNOWN');
-  // A contrary sourced observation defeats the conditional premise; the premise is not a stored claim.
+  // A contrary sourced observation defeats the hedged statement; the statement is not a stored claim.
   const c = context({bootstrap:false});
   try {
     await c.run(fact('negative','not likes ana book') + '@save remember\n  input $negative');
-    const exception = await new Runtime({repo:c.repo,session:c.session,schema,now:Date.parse('2026-09-26T12:00:00Z')}).run(statement, {origin:'model', inputText:'Normally Ana likes this book.', context:{premises:[]}});
+    const exception = await new Runtime({repo:c.repo,session:c.session,lexicon,schema:lexicon.predicates,now:Date.parse('2026-09-26T12:00:00Z')}).run(statement, {origin:'model', inputText:'Normally Ana likes this book.', context:{statements:[]}});
     assert.equal(exception.result.packet.status, 'refuted');
     assert.equal(packet(exception).status, 'CONTRADICTED');
     assert.deepEqual(exception.result.packet.defeatedAssumptions, ['assume_0']);
@@ -111,11 +110,10 @@ test('memory and reasoning capabilities require explicit admissible input and ke
 
 test('experiment hash identifies fixed suite/config, not verified endpoint weights', async () => {
   const original = row();
-  const options = {predictor:() => original.sop_target, config:{memory:{engine:'scan'}}, modelManifest:{profile:PROFILE}};
+  const options = {predictor:() => original.sop_target, config:{memory:{engine:'scan'}}, modelManifest:{model:'fixture'}};
   const report = await evaluate([original], options);
   assert.match(report.suite_sha256, /^[a-f0-9]{64}$/);
   assert.match(report.config_sha256, /^[a-f0-9]{64}$/);
-  assert.equal(report.profile, PROFILE);
   assert.equal(report.model_identity_verified, false);
   assert.deepEqual(report.model_manifest, options.modelManifest);
   await assert.rejects(evaluate([original,original], options), /Duplicate evaluation IDs/);

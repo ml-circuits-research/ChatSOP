@@ -1,9 +1,26 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {lex} from './helpers.mjs';import {Lexicon,microContext} from '../sop/lexicon.mjs';
-for(const [text,lang]of [['Maria lucrează la Alfa.','ro'],['Maria lucreaza la Alfa.','ro'],['Maria works at Alpha Lab.','en'],['Maria arbeitet bei Alfa.','de'],['Maria travaille chez Alfa.','fr'],['Maria lavora presso Alfa.','it']])test('multilingual candidate '+lang+text,()=>assert.ok(lex.candidates(text).predicates.some(x=>x.id==='works_at')));
-test('same-name entities stay ambiguous',()=>{const l=new Lexicon('@ion1 entity\n  kind person\n  label ro "Ion"\n@ion2 entity\n  kind person\n  label ro "Ion"');const c=l.candidates('Ion a venit.');assert.equal(c.entities.length,2);assert.equal(c.ambiguities.length,1);});
-test('employment and contracting are not synonyms',()=>{const c=lex.candidates('Maria este contractor pentru Alfa.');assert.ok(c.predicates.some(x=>x.id==='contractor_for'));assert.ok(!c.predicates.some(x=>x.id==='employed_by'));});
-test('negation remains in the micro-context',()=>assert.ok(microContext('Maria nu lucrează la Alfa.',lex).polarityCues.includes('nu')));
-test('oversize utterance is not silently truncated',()=>assert.throws(()=>microContext('x'.repeat(2000),lex)));
+import test from 'node:test';import assert from 'node:assert/strict';import {lex} from './helpers.mjs';import {Lexicon} from '../sop/lexicon.mjs';
+const multilingual=[
+ ['Maria lucrează la Alfa.','ro'],['Maria lucreaza la Alfa.','ro'],['Maria works at Alpha Lab.','en'],
+ ['Maria arbeitet bei Alfa.','de'],['Maria travaille chez Alfa.','fr'],['Maria lavora presso Alfa.','it'],
+];
+for(const [text,lang] of multilingual){
+ test('multilingual candidate '+lang+text,()=>{
+  assert.ok(lex.candidates(text).predicates.some(x=>x.id==='works_at'));
+ });
+}
+test('same-name entities stay ambiguous',()=>{
+ const l=new Lexicon('@ion1 entity\n  kind person\n  label ro "Ion"\n@ion2 entity\n  kind person\n  label ro "Ion"');
+ const c=l.candidates('Ion a venit.');
+ assert.equal(c.entities.length,2);
+ assert.equal(c.ambiguities.length,1);
+});
+test('employment and contracting are not synonyms',()=>{
+ const c=lex.candidates('Maria este contractor pentru Alfa.');
+ assert.ok(c.predicates.some(x=>x.id==='contractor_for'));
+ assert.ok(!c.predicates.some(x=>x.id==='employed_by'));
+});
+test('negation cues remain visible to the host lexicon',()=>assert.ok(lex.candidates('Maria nu lucrează la Alfa.').polarityCues.includes('nu')));
+test('oversize utterance is not silently truncated',()=>assert.throws(()=>lex.candidates('x'.repeat(2000)),/Lexical input size limit/));
 test('word boundary avoids a short alias inside another word',()=>{const l=new Lexicon('@ana entity\n  kind person\n  label ro "Ana"');assert.equal(l.candidates('banana').entities.length,0);});
 test('approved EN and RO names resolve to one canonical identity with version and provenance',()=>{
  const english=lex.resolve('Alpha Lab',{language:'en',kind:'entity',type:'organization'});
@@ -27,7 +44,7 @@ test('polysemy needs explicit host domain or entity type, never a score winner',
  assert.equal(l.resolve('bank',{language:'en',kind:'entity',domain:'geography'}).id,'river');
  assert.equal(l.resolve('bank',{language:'en',kind:'entity',type:'organization'}).id,'financial');
  assert.equal(l.resolve('bank',{language:'en',kind:'entity',domain:'politics'}).status,'unknown');
- assert.equal(microContext('bank',l,{language:'en'}).entities.length,0);
+ assert.deepEqual(l.candidates('bank',{language:'en'}).ambiguities.map(a=>a.ids),[['financial','river']]);
 });
 test('subsumption, direction, and absent aliases never silently merge',()=>{
  assert.equal(lex.resolve('mother',{language:'en',kind:'predicate'}).id,'mother');
@@ -41,12 +58,12 @@ test('concept lookup is a scoped symbolic value, not an invented predicate',()=>
  assert.equal(l.resolve('personhood',{language:'en',kind:'concept',domain:'identity'}).id,'personhood');
  assert.equal(l.resolve('calitatea de persoană',{language:'ro',kind:'concept',domain:'identity'}).id,'personhood');
  assert.equal(l.resolve('personhood',{language:'en',kind:'predicate'}).status,'unknown');
- assert.deepEqual(microContext('personhood',l,{language:'en'}).concepts.map(c=>c.id),['personhood']);
+ assert.deepEqual(l.candidates('personhood',{language:'en'}).concepts.map(c=>c.id),['personhood']);
 });
 test('pre-formalizer mention resolution uses the same exact-before-fold rule as resolve',()=>{
  const l=new Lexicon('@mara entity\n  kind person\n  label ro "Mara"\n@accented entity\n  kind person\n  label ro "Mára"');
  assert.equal(l.resolve('Mara',{language:'ro',kind:'entity'}).id,'mara');
- assert.deepEqual(microContext('Mara a venit.',l,{language:'ro'}).entities.map(e=>e.id),['mara']);
+ assert.deepEqual(l.candidates('Mara a venit.',{language:'ro'}).entities.map(e=>e.id),['mara']);
  assert.deepEqual(l.candidates('Mara a venit.',{language:'ro'}).ambiguities,[]);
 });
 test('an independent short mention retains ambiguity even when an earlier long name ranked best',()=>{
@@ -54,5 +71,4 @@ test('an independent short mention retains ambiguity even when an earlier long n
  assert.deepEqual(l.candidates('Dr Ana',{language:'en'}).ambiguities,[]);
  const matches=l.candidates('Dr Ana met Ana',{language:'en'});
  assert.deepEqual(matches.ambiguities.map(a=>a.ids),[['doctor','other']]);
- assert.deepEqual(microContext('Dr Ana met Ana',l,{language:'en'}).entities,[]);
 });

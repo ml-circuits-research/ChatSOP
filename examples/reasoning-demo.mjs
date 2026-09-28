@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import fs from 'node:fs';import path from 'node:path';import os from 'node:os';
 import {scenarios} from './reasoning/scenarios.mjs';import {Repository} from '../memory/repository.mjs';import {publishKnowledge} from '../sop/ingest.mjs';import {Runtime} from '../sop/runtime.mjs';import {ReasoningRegistry} from '../reasoning/registry.mjs';import {canonical,parse} from '../sop/parser.mjs';import {assert,cliArgs,saveJSON} from '../lib/util.mjs';
-const args=cliArgs(),engines=(args.engines??'weaver,holo,sqlite,scan,hybrid').split(','),strategies=(args.reasoning??'reference,advanced').split(','),records=[],root=fs.mkdtempSync(path.join(os.tmpdir(),'reasoning-grid-'));
+const args=cliArgs(),engines=(args.engines??'recall-memory,holo-memory,sqlite,scan,hybrid').split(','),strategies=(args.reasoning??'reference,advanced').split(','),records=[],root=fs.mkdtempSync(path.join(os.tmpdir(),'reasoning-grid-'));
 try{for(const engine of engines)for(const strategy of strategies)for(const [i,s]of scenarios().entries()){
- const memory={engine,power:10,holo:{rows:256,banks:4,dimension:64,ageStepsPerNovel:0},sharding:{enabled:true,mode:'archive',maxClaimsPerShard:3,gcEveryWrites:0}};
+ const memory={engine,power:10,holoMemory:{rows:256,banks:4,dimension:64,ageStepsPerNovel:0},sharding:{enabled:true,mode:'archive',maxClaimsPerShard:3,gcEveryWrites:0}};
  const repo=new Repository(path.join(root,engine,strategy,s.name),{memory});publishKnowledge(repo,'world',s.setup,{reviewed:true,knownAt:1});const session=repo.session('world','user','demo');
  const started=performance.now();const execution=await new Runtime({repo,session,now:Date.parse('2026-09-26'),policy:{retrievalStrategy:'auto',reasoningStrategy:strategy}}).run(canonical(parse(s.target)),{origin:'trusted'}),p=execution.result.packet;
  assert(p.status===s.expectedStatus,`${engine}/${strategy}/${s.name}: expected ${s.expectedStatus}, got ${p.status}`);
@@ -12,4 +12,4 @@ try{for(const engine of engines)for(const strategy of strategies)for(const [i,s]
  records.push({memory:engine,reasoning:strategy,scenario:s.name,status:p.status,complete:p.complete,route:p.route,ms:Number((performance.now()-started).toFixed(3)),assertions:'passed',cnl:execution.result.text,outputs:execution.outputs});console.log(engine+' / '+strategy+' / '+s.name+': '+p.status);
  if(engine===engines[0]&&strategy===strategies[0]){const examples=new URL('../eval/reports/current/reasoning/examples/',import.meta.url);fs.mkdirSync(examples,{recursive:true});fs.writeFileSync(new URL(s.name+'.sop',examples),canonical(parse(s.target)));saveJSON(new URL(s.name+'.json',examples),{setup:s.setup,target:canonical(parse(s.target)),packet:p,generated:execution.generated});}
 }}finally{fs.rmSync(root,{recursive:true,force:true});}
-const report={profile:'sop-agent-3',node:process.version,scenarios:scenarios().length,executions:records.length,passed:records.length,engines,strategies,neuralModelTested:false,records};saveJSON(args.out??new URL('../eval/reports/current/reasoning/matrix.json',import.meta.url),report);console.log('Passed '+records.length+' executions');
+const report={node:process.version,scenarios:scenarios().length,executions:records.length,passed:records.length,engines,strategies,neuralModelTested:false,records};saveJSON(args.out??new URL('../eval/reports/current/reasoning/matrix.json',import.meta.url),report);console.log('Passed '+records.length+' executions');

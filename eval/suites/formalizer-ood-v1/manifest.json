@@ -1,0 +1,171 @@
+{
+  "format": "chatsop-corpus-manifest-v2",
+  "corpus": "formalizer-ood-v1",
+  "seed": "chatsop-formalizer-v1:ood",
+  "generator": "tools/datasets/diversity/generate.mjs",
+  "builder": "tools/datasets/build-corpora.mjs",
+  "printer": "strings",
+  "target_language": "DS021 model language (stated, assumed, unclear, query, constraint)",
+  "model_input": "question (the user message only); verification_context, ontology_sop, world, setup_sop, late_setup_sop, verification, surface_ir, expected and execution are evaluation-only (DS022 row fields)",
+  "review_status": "not_reviewed",
+  "human_reviewed": false,
+  "training_authorized": false,
+  "synthetic": true,
+  "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "rights_decision_date": "2026-09-28",
+    "inspired_by": [
+      {
+        "id": "qqp",
+        "name": "Quora Question Pairs (GLUE QQP)",
+        "url": "https://quoradata.quora.com/First-Quora-Dataset-Release-Question-Pairs",
+        "licence": "Quora first release terms (non-commercial research use with attribution); no SPDX licence identified"
+      },
+      {
+        "id": "paws",
+        "name": "PAWS-Wiki labeled final",
+        "url": "https://github.com/google-research-datasets/paws",
+        "licence": "PAWS LICENSE: may be freely used for any purpose, acknowledgement of Google LLC appreciated; underlying Wikipedia text CC BY-SA 4.0"
+      },
+      {
+        "id": "proofwriter",
+        "name": "ProofWriter (OWA structured)",
+        "url": "https://allenai.org/data/proofwriter",
+        "licence": "No dataset licence file in the official release; secondary sources report CC BY 4.0 (unconfirmed)"
+      },
+      {
+        "id": "ambignq",
+        "name": "AmbigNQ (AmbigQA)",
+        "url": "https://nlp.cs.washington.edu/ambigqa/",
+        "licence": "CC BY-SA 3.0 (notice bundled in the publisher release ZIP); underlying Natural Questions CC BY-SA 3.0"
+      },
+      {
+        "id": "qa2d",
+        "name": "QA2D (question to declarative)",
+        "url": "https://github.com/kelvinguu/qanli",
+        "licence": "Code MIT (Demszky 2019); dataset licence not stated (mirror card: Needs More Information); upstream SQuAD CC BY-SA 4.0 plus RACE/NewsQA/QAMR/MovieQA terms"
+      },
+      {
+        "id": "squad",
+        "name": "SQuAD v2.0 (dev)",
+        "url": "https://rajpurkar.github.io/SQuAD-explorer/",
+        "licence": "CC BY-SA 4.0"
+      }
+    ],
+    "text_copied": false,
+    "never_taken": [
+      "source sentences, questions, passages, answers or declarative rewrites (verbatim, translated or lightly edited)",
+      "source entity names, titles or row identifiers in any natural-language field",
+      "source labels as gold: every ChatSOP target is authored and executed independently"
+    ],
+    "no_copy_check": "node tools/datasets/no-copy.mjs",
+    "spec": "docs/specs/DS014-source-rights.md"
+  },
+  "purpose": "Out-of-distribution sealed suite: generic families over held-out domains (food, garage, garden, music, lettings) whose predicates and relation phrases never occur in formalizer-v1; the vehicle, plant and choir entity pools are OOD-only, persons, places and assets are shared.",
+  "splits": {
+    "test": "eval/suites/formalizer-ood-v1/test.jsonl"
+  },
+  "sha256": {
+    "eval/suites/formalizer-ood-v1/test.jsonl": "a037a1d73e5eddf8a4660947bcf2a2f59212aae012cc881f6eed8dacfcf74d6c"
+  },
+  "files": {
+    "test.jsonl": "a037a1d73e5eddf8a4660947bcf2a2f59212aae012cc881f6eed8dacfcf74d6c"
+  },
+  "shared_world": {
+    "dir": "eval/suites/formalizer-ood-v1/world",
+    "sha256": {
+      "eval/suites/formalizer-ood-v1/world/predicates.sop": "5db240109e416654d01b12347a0230e731700e1a1f1c46a92aa9f15c4bd435ee",
+      "eval/suites/formalizer-ood-v1/world/rules.sop": "b4aec3dfe3538e48fa6b288fcadf2e43d6f9511f85c1a39b9cc34cc9056de300"
+    }
+  },
+  "summary": {
+    "rows": 1600,
+    "by_split": {
+      "test": 1600
+    },
+    "by_family": {
+      "time_question": 220,
+      "wh_select": 188,
+      "lookup": 188,
+      "attached": 173,
+      "count": 125,
+      "negation": 125,
+      "claim_check": 110,
+      "filter": 95,
+      "conjunction": 94,
+      "multi_question": 94,
+      "unclear": 94,
+      "statement_only": 79,
+      "contrast": 15
+    },
+    "by_question_type": {
+      "yes_no": 595,
+      "wh": 283,
+      "count": 125,
+      "claim_check": 110,
+      "multi": 94,
+      "unclear": 94,
+      "none": 79,
+      "when": 61,
+      "since_when": 44,
+      "how_long": 42,
+      "how_many_times": 41,
+      "until_when": 32
+    },
+    "by_language": {
+      "en": 800,
+      "ro": 560,
+      "en+switch": 124,
+      "ro+switch": 116
+    },
+    "by_expected_status": {
+      "supported": 960,
+      "unknown": 336,
+      "refuted": 131,
+      "unclear": 94,
+      "context_updated": 79
+    },
+    "by_noise_level": {
+      "clean": 1110,
+      "light": 242,
+      "medium": 185,
+      "heavy": 63
+    },
+    "code_switch_kinds": {
+      "ro_matrix_en_insertion": 78,
+      "en_matrix_ro_insertion": 78,
+      "en_matrix_ro_tag": 41,
+      "ro_matrix_en_tag": 29,
+      "clause_switch": 14
+    },
+    "noise_ops": {
+      "typo:substitution": 187,
+      "typo:insertion": 154,
+      "typo:deletion": 115,
+      "lowercase_start": 110,
+      "space_split": 55,
+      "diacritic_drop": 55,
+      "repeated_punctuation": 54,
+      "drop_question_mark": 54,
+      "space_before_punctuation": 45,
+      "space_merge": 44,
+      "strip_diacritics": 39,
+      "chat_spelling": 17,
+      "strip_diacritics_partial": 16,
+      "diacritic_wrong": 13,
+      "no_space_after_comma": 12,
+      "phonetic": 10,
+      "diacritic_cedilla": 9,
+      "typo:duplication": 7,
+      "lowercase_i": 7,
+      "autocorrect": 5,
+      "missing_apostrophe": 3
+    },
+    "assumed_basis": {},
+    "unclear_kinds": {
+      "gibberish": 66,
+      "no_request": 28
+    }
+  }
+}

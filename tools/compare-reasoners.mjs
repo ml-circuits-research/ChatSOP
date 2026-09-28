@@ -8,13 +8,13 @@ import {Lexicon} from '../sop/lexicon.mjs';
 import {solverAvailable} from '../reasoning/registry.mjs';
 import {cliArgs,digest,saveJSON} from '../lib/util.mjs';
 const args=cliArgs(),out=path.resolve(args.out??new URL('../eval/reports/current/comparisons/reasoners.json',import.meta.url).pathname);
-const engines=['weaver','holo','sqlite','scan','hybrid'],backends=['js','prolog','z3'];
+const engines=['recall-memory','holo-memory','sqlite','scan','hybrid'],backends=['js','prolog','z3'];
 const setup='@f1 fact\n  holds parent ana bogdan\n  valid timeless\n@f2 fact\n  holds parent bogdan carina\n  valid timeless\n@rule rule\n  when parent ?x ?y\n  when parent ?y ?z\n  then grandparent ?x ?z';
 const schema=Lexicon.load(new URL('../config/ontology.sop',import.meta.url)).predicates,available={js:true,prolog:solverAvailable('prolog'),z3:solverAvailable('z3')};
 const cells=[];
 const query=backend=>'@q query\n  where grandparent ana carina\n  at 2026-09-26\n@r solve\n  query $q\n  reasoning '+(backend==='js'?'reference':'advanced')+'\n  backend '+backend;
 for(const engine of engines){const root=fs.mkdtempSync(path.join(os.tmpdir(),'comparison-reason-'));try{
- const memory={engine,power:10,verification:'receipt',holo:{rows:256,banks:4,dimension:64,ageStepsPerNovel:0}},repo=new Repository(root,{memory});
+ const memory={engine,power:10,verification:'receipt',holoMemory:{rows:256,banks:4,dimension:64,ageStepsPerNovel:0}},repo=new Repository(root,{memory});
  publishKnowledge(repo,'base',setup,{schema,reviewed:true,knownAt:1});const session=repo.session('base','alice','comparison');
  for(const backend of backends){
   if(backend==='z3'){cells.push({engine,backend,status:'unsupported',reason:'Z3 finite arithmetic does not implement the Horn query; a memory-free numeric problem is not a memory comparison'});continue;}

@@ -4,12 +4,15 @@ const nil={nil:true};
 const fields=a=>[a.p+'/'+a.a.length,...Array.from({length:4},(_,i)=>i<a.a.length?a.a[i]:nil),a.neg?'negative':'positive'];
 function combinations(n,k,start=0,prefix=[],out=[]){if(!k){out.push(prefix);return out;}for(let i=start;i<=n-k;i++)combinations(n,k-1,i+1,[...prefix,i],out);return out;}
 function hash(values,seed){let h=seed>>>0;for(const c of Buffer.from(stable(values))){h=Math.imul(h^c,16777619)>>>0;}h^=h>>>16;h=Math.imul(h,0x85ebca6b);h^=h>>>13;return h>>>0;}
-/** Multi-view associative bank. Cells are 4-bit saturating counters.
+/** RecallMemory (DS023): multi-view associative bank inspired by the column-voting idea of
+ * "A Thousand Brains". Each view (column) hashes a different subset of the six tuple fields;
+ * a candidate survives only when every fully known view supports it. Cells are 4-bit
+ * saturating counters. The file keeps its historical name `weaver.mjs`.
  * Tuple receipts verify reconstructed tuples; they are not a truth database.
  * Decay is deliberately cell-level: overlapping facts share support and forgetting
  * is approximate rather than tuple deletion.
  */
-export class Weaver {
+export class RecallMemory {
  constructor({power=13,arity=3,seed=1234567,verification='receipt',views=null}={},state=null){
   assert(Number.isInteger(power)&&power>=7&&power<=24,'power must be 7..24');assert([2,3,4,5,6].includes(arity),'view arity must be 2..6');
   assert(['receipt','associative'].includes(verification),'Invalid verification mode');
@@ -77,6 +80,8 @@ export class Weaver {
  columnOccupancies(){return this.nonzero.map(n=>n/this.cells);}
  peakOccupancy(){return Math.max(...this.columnOccupancies());}
  export(){return {config:this.config,banks:this.banks.map(b=>Buffer.from(b).toString('base64')),domains:this.domains,receipts:this.receipts,writes:this.writes,maintenance:this.maintenance};}
- static from(state){return new Weaver(state.config,state);}
+ static from(state){return new RecallMemory(state.config,state);}
  stats(){return {banksBytes:this.banks.length*this.cells/2,metadataBytes:Buffer.byteLength(JSON.stringify({domains:this.domains,receipts:this.receipts})),views:this.views.length,writes:this.writes,receipts:Object.keys(this.receipts).length,occupancy:this.occupancy(),maintenance:{...this.maintenance}};}
 }
+/** Legacy export name of RecallMemory, kept for existing imports (DS023). */
+export const Weaver=RecallMemory;

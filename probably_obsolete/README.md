@@ -1,8 +1,34 @@
-# Archived vision source documents
+# Preserved historical sources
 
-The source files remain byte-for-byte preserved for provenance. Their current interpretation, passage checklist, implementation evidence, superseded claims and gaps are carried by [DS023](../docs/specs/DS023-nl-sop-dataset.md); the archive is not a source of runtime/training authority. Current-session decisions take precedence over these historical proposals.
+This folder retains source documents after their operative direction has been reconciled into the current specifications. Preservation is not publication, peer review, training authorization, or proof that any source claim remains true. Current decisions and the current evidence take precedence over archived prose; where an archived document disagrees with a session decision or a DS, the DS wins.
 
-| Original source | Archived location | Moved | Current DS preserving its content |
+The `docs/legacy/references/*.txt` extraction of the two reference documents stays in `docs/legacy/references/`; only the original `.docx` containers were moved here. Binary digests were verified unchanged at move time.
+
+| Original source | Archived location | Moved | Current specification carrying its content |
 | --- | --- | --- | --- |
-| `vision/SOP_dataset.docx` | `probably_obsolete/vision/SOP_dataset.docx` | 2026-09-27 | `docs/specs/DS023-nl-sop-dataset.md` (D01–D36 and ten-step pipeline) |
-| `vision/SOP_CommonSense_v2.docx` | `probably_obsolete/vision/SOP_CommonSense_v2.docx` | 2026-09-27 | `docs/specs/DS023-nl-sop-dataset.md` (C01–C27 and research loop) |
+| `vision/SOP_dataset.docx` | `probably_obsolete/vision/SOP_dataset.docx` | 2026-09-27 | DS008, DS009, DS010 — semantic-case unit, canonical record model, pipeline, multilingual anchor strategy (register archived at `specs/vision/`) |
+| `vision/SOP_CommonSense_v2.docx` | `probably_obsolete/vision/SOP_CommonSense_v2.docx` | 2026-09-27 | DS010, DS011, DS017 — the source-material-to-knowledge loop and its declared boundaries |
+| `docs/legacy/references/H7.docx` | `probably_obsolete/references/H7.docx` | 2026-09-27 | `docs/specs/DS024-holo-memory.md` — HoloMemory contract, kernel, adapters, planned two-plane design, related work and required experiments |
+| `docs/legacy/references/RecallSOP-proposal.docx` | `probably_obsolete/references/RecallSOP-proposal.docx` | 2026-09-27 | `docs/specs/DS023-recall-memory.md`, `DS025-sqlite-memory.md`, `DS027-hybrid-memory.md`, DS006 — memory roles, planned SQL schema and ranking, three-level architecture, trace experiments |
+| `article/direction/Articol.docx` | `probably_obsolete/article-direction/Articol.docx` | 2026-09-27 | DS000, DS010 — research question, experiment structure, naming and citation decisions of 2026-09-28 |
+| `article/direction/Publicare.docx` | `probably_obsolete/article-direction/Publicare.docx` | 2026-09-27 | DS010 — publication route and evidence obligations |
+
+## Archived legacy documentation tree
+
+The whole former `docs/legacy/` tree moved here on 2026-09-27 after consolidation. Contents:
+
+| Archived item | What it was | Current specification carrying its valid content |
+| --- | --- | --- |
+| `legacy/requirements/00`–`30` (31 chapters + `README.md`) | The original Romanian requirement chapters, preserved verbatim | DS002, DS004, DS005, DS006, DS007, DS008, DS010, DS016; memory chapters 03, 13 and 16–22 in `docs/specs/DS023-recall-memory.md` to `DS028-memory-retention-and-generations.md` |
+| `legacy/EXAMPLES.md` | Prose example catalog (no one-to-one current equivalent) | Executable current examples live under `examples/` and `tests/fixtures/` |
+| `legacy/SOURCES.md` | Consolidated technical bibliography | DS004 (`node:vm`), DS006 (SWI, Z3, planning), DS007 (model cards, PEFT, llama.cpp), DS023 (Thousand Brains), DS024 (related work), DS025 (SQLite) |
+| `legacy/contracts/wire-fields.md`, `legacy/contracts/wires.json` | Stale snapshots of the generated wire contract (pre-cutover `assert`, old `premise` fields) | Current generated files `sop/contracts/wire-fields.md` and `sop/contracts/wires.json`, produced by `node tools/capabilities.mjs --write` |
+| `legacy/references/H7.txt`, `legacy/references/RecallSOP-proposal.txt` | Extracted text of the two archived reference documents | `docs/specs/DS023-recall-memory.md` to `DS028-memory-retention-and-generations.md`, DS006 |
+
+Path citations inside archived files still read as they did historically; live documents were rewritten to this archive location. Open owner decisions are in the root `questions.md`.
+
+As of 2026-09-28 everything still valid in this folder has a current specification; the folder holds raw historical evidence only.
+
+## Retired skills
+
+`skills/data-quality/` and `skills/wire-discovery/` moved to `probably_obsolete/skills/` on 2026-09-28. Both were imported from a sibling project and scan `training-data/**/solution.sop` circuits, `teacher/` generators and `wires/` sources that ChatSOP does not have; their `last-report.md` files describe that external corpus, not ChatSOP data.

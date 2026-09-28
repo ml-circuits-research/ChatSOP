@@ -6,6 +6,7 @@ import {existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, stat
 import {dirname, join, resolve, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import os from 'node:os';
+import {jsonlExists, shardPaths} from '../lib/jsonl-shards.mjs';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const python=process.env.TRAIN_PYTHON || 'python3';
@@ -85,9 +86,10 @@ function child(bin,args,{ownedGroup=false,monitor=false}={}){
     });
   });
 }
-function sha(path){const hash=createHash('sha256'),fd=openSync(path,'r'),chunk=Buffer.allocUnsafe(1024*1024);try{let n;while((n=readSync(fd,chunk,0,chunk.length,null))>0)hash.update(chunk.subarray(0,n));}finally{closeSync(fd);}return hash.digest('hex');}
-function dataset(o,splits){if(!o.data)fail('Specify --data DIR explicitly (e.g. datasets/pilot-v1); historical seed is not an independent gold set');const data=file(o.data),roles=role(o.role)==='shared'?['formalizer','verbalizer']:[o.role],hashes={},rows={};for(const split of splits){rows[split]=0;for(const r of roles){const path=file(join(data,r,`${split}.jsonl`));hashes[path]=sha(path);const lines=readFileSync(path,'utf8').split(/\r?\n/).filter(Boolean);for(const [index,line] of lines.entries()){let value;try{value=JSON.parse(line);}catch{fail(`Invalid JSONL ${path}:${index+1}`);}if(typeof value.prompt!=='string'||typeof value.target!=='string')fail(`Invalid prompt/target at ${path}:${index+1}`);}rows[split]+=lines.length;}if(!rows[split])fail(`Empty ${split} dataset under ${data}`);}const versionPath=join(data,'VERSION'),manifestPath=join(data,'manifest.json');const version=existsSync(versionPath)?json(versionPath):null;if(version!==null&&(!Number.isSafeInteger(version.counter)||version.counter<1||typeof version.label!=='string'||!version.label.trim()))fail(`Invalid dataset VERSION: ${versionPath}`);return {data,hashes,rows,version,version_sha256:version===null?null:sha(versionPath),manifest_sha256:existsSync(manifestPath)?sha(manifestPath):null};}
-const contractFiles=['sop/parser.mjs','sop/runtime.mjs','server/agent.mjs','server/prompts/formalizer.txt','config/ontology.sop','tools/datasets/schema.mjs','datasets/query-profile.json'];
+// A .jsonl path may be stored as shards (lib/jsonl-shards.mjs); its hash is that of the concatenated parts, equal to the unsplit file's.
+function sha(path){const hash=createHash('sha256'),chunk=Buffer.allocUnsafe(1024*1024);for(const part of path.endsWith('.jsonl')&&jsonlExists(path)?shardPaths(path):[path]){const fd=openSync(part,'r');try{let n;while((n=readSync(fd,chunk,0,chunk.length,null))>0)hash.update(chunk.subarray(0,n));}finally{closeSync(fd);}}return hash.digest('hex');}
+function dataset(o,splits){if(!o.data)fail('Specify --data DIR explicitly (e.g. datasets/formalizer-v1, projected by tools/research/prepare-experiment.mjs)');const data=file(o.data),roles=role(o.role)==='shared'?['formalizer','verbalizer']:[o.role],hashes={},rows={};for(const split of splits){rows[split]=0;for(const r of roles){const path=resolve(join(data,r,`${split}.jsonl`));if(!jsonlExists(path))fail(`Missing input: ${path}`);hashes[path]=sha(path);const lines=shardPaths(path).flatMap(part=>readFileSync(part,'utf8').split(/\r?\n/)).filter(Boolean);for(const [index,line] of lines.entries()){let value;try{value=JSON.parse(line);}catch{fail(`Invalid JSONL ${path}:${index+1}`);}if(typeof value.prompt!=='string'||typeof value.target!=='string')fail(`Invalid prompt/target at ${path}:${index+1}`);}rows[split]+=lines.length;}if(!rows[split])fail(`Empty ${split} dataset under ${data}`);}const versionPath=join(data,'VERSION'),manifestPath=join(data,'manifest.json');const version=existsSync(versionPath)?json(versionPath):null;if(version!==null&&(!Number.isSafeInteger(version.counter)||version.counter<1||typeof version.label!=='string'||!version.label.trim()))fail(`Invalid dataset VERSION: ${versionPath}`);return {data,hashes,rows,version,version_sha256:version===null?null:sha(versionPath),manifest_sha256:existsSync(manifestPath)?sha(manifestPath):null};}
+const contractFiles=['sop/parser.mjs','sop/runtime.mjs','server/agent.mjs','server/prompts/formalizer.txt','config/ontology.sop','tools/datasets/schema.mjs','tools/research/prepare-experiment.mjs'];
 const qualificationChecks=['syntax_execution','semantic_review','leakage','coverage','source_rights','independent_reference_suite'];
 function exactKeys(value,keys,name){
   if(!value||typeof value!=='object'||Array.isArray(value)||
@@ -109,8 +111,8 @@ function timestamp(value,name){
 function qualification(o,ds){
   if(!o.qualification)fail('Dataset qualification required: pass --qualification FILE; fixture manifest alone is not approval');
   const path=file(o.qualification),record=json(path);
-  if(record.format!=='chatsop-dataset-qualification-v1'||record.status!=='qualified'||record.profile!=='sop-agent-3')
-    fail('Dataset qualification format/status/profile mismatch');
+  if(record.format!=='chatsop-dataset-qualification-v1'||record.status!=='qualified')
+    fail('Dataset qualification format/status mismatch');
   if(!ds.manifest_sha256||!ds.version_sha256)fail('Qualified training requires dataset manifest.json and VERSION');
   for(const [field,actual] of [['dataset_manifest_sha256',ds.manifest_sha256],['dataset_version_sha256',ds.version_sha256]]){
     digest(record[field],field);if(record[field]!==actual)fail(`${field} does not match dataset`);

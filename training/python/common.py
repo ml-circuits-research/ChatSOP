@@ -1,16 +1,65 @@
 """Tokenizer formatting and checkpoint-local data hashing for ML execution."""
 from __future__ import annotations
-import json, hashlib
+import json, hashlib, re
 from pathlib import Path
 
+def shard_paths(path):
+    """Physical files of a logical JSONL path, mirroring lib/jsonl-shards.mjs.
+
+    A large `<name>.jsonl` may be stored as `<name>.part-000.jsonl`, `<name>.part-001.jsonl`, ... (no repository file
+    exceeds 50 MB). When both forms exist, the newer set by modification time is current. Returns [] when absent.
+    """
+    path=Path(path)
+    if path.suffix!='.jsonl' or not path.parent.is_dir(): return [path] if path.is_file() else []
+    stem=path.name[:-len('.jsonl')]
+    pattern=re.compile(re.escape(stem)+r'\.part-(\d{3,})\.jsonl$')
+    parts=sorted(((int(m.group(1)),path.parent/m.group(0)) for m in (pattern.match(p.name) for p in path.parent.iterdir()) if m),key=lambda x:x[0])
+    if not parts: return [path] if path.is_file() else []
+    if path.is_file() and path.stat().st_mtime>=max(p.stat().st_mtime for _,p in parts): return [path]
+    for position,(index,part) in enumerate(parts):
+        if index!=position: raise ValueError(f'{path}: shard sequence has a gap before {part.name}')
+    return [p for _,p in parts]
+
+def iter_jsonl(path):
+    """Stream parsed rows of a single or sharded JSONL file; a malformed line raises with file:line."""
+    files=shard_paths(path)
+    if not files: raise FileNotFoundError(f'No such JSONL file or shards: {path}')
+    for file in files:
+        with open(file, encoding='utf-8') as f:
+            for number,line in enumerate(f,1):
+                if not line.strip(): continue
+                try: yield json.loads(line)
+                except json.JSONDecodeError as e: raise ValueError(f'{file}:{number}: {e}') from e
+
 def read_jsonl(path):
-    with open(path, encoding='utf-8') as f:
-        return [json.loads(line) for line in f if line.strip()]
+    return list(iter_jsonl(path))
+
+PROMPT_PROFILE='message-only'
+
+def read_training_rows(data_dir, role, split):
+    """Rows of a formalizer projection, fail closed unless the prompt is the user's message only (DS021, DS022).
+
+    The projection manifest (<data>/<role>/manifest.json, written by tools/research/prepare-experiment.mjs) must
+    declare prompt_profile 'message-only', and no prompt may carry the retired CONTEXT block or a MESSAGE header.
+    """
+    base=Path(data_dir)/role
+    manifest=base/'manifest.json'
+    if not manifest.exists(): raise ValueError(f'{manifest}: missing projection manifest; run node tools/research/prepare-experiment.mjs')
+    profile=json.loads(manifest.read_text(encoding='utf-8')).get('prompt_profile')
+    if profile!=PROMPT_PROFILE: raise ValueError(f'{manifest}: prompt_profile {profile!r} is not {PROMPT_PROFILE!r}')
+    rows=read_jsonl(base/(split+'.jsonl'))
+    for row in rows:
+        prompt=row.get('prompt','')
+        if prompt.startswith('CONTEXT') or '\nMESSAGE\n' in prompt:
+            raise ValueError(f"{row.get('id')}: prompt carries context; the model input is the user's message only")
+    return rows
 
 def sha_file(path):
+    """sha256 of a file; for a sharded JSONL path, of its concatenated parts (equal to the unsplit file's hash)."""
     h=hashlib.sha256()
-    with open(path,'rb') as f:
-        for b in iter(lambda:f.read(1024*1024),b''): h.update(b)
+    for file in (shard_paths(path) or [Path(path)]):
+        with open(file,'rb') as f:
+            for b in iter(lambda:f.read(1024*1024),b''): h.update(b)
     return h.hexdigest()
 
 def write_json(path, value):

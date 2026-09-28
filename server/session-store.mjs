@@ -14,7 +14,7 @@ export class SessionStore {
   if(fs.existsSync(file)){
    const state=JSON.parse(fs.readFileSync(file,'utf8'),(key,value)=>['from','until'].includes(key)?value==='__ChatSOP_INFINITY__'?Infinity:value==='__ChatSOP_NEG_INFINITY__'?-Infinity:value:value);
    if(state.version!==1||state.user!==user||state.conversation!==conversation||state.base!==base)throw Error('Conversation state mismatch');
-   agent.recent=state.recent;agent.last=state.last;agent.context=state.context;
+   agent.recent=state.recent;agent.last=state.last;agent.context={statements:state.context?.statements??[]};
   }
   const entry={agent,file,key};this.agents.set(key,entry);return entry;
  }

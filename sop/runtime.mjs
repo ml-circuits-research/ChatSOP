@@ -2,7 +2,7 @@ import {ReasoningRegistry} from '../reasoning/registry.mjs';
 import {DECLARATIONS,OPERATIONS,LIBRARY_TYPES,lowerDeclaration} from '../reasoning/lower.mjs';
 import {queryFor,asFact,flat} from '../reasoning/common.mjs';
 import {parse,canonical,one,many,words,unquote,parseAtom,dependencies,validateGraph,replaceReferences,scalar} from './parser.mjs';
-import {lowerFact,lowerPremise,lowerRule,lowerQuery,lowerConstraint} from './lower.mjs';
+import {lowerFact,lowerRule,lowerQuery,lowerConstraint} from './lower.mjs';
 import {evaluateExpression,parseExpression} from './expression.mjs';
 import {linkKnowledge} from '../reasoning/linker.mjs';
 import {StrategyRegistry} from '../memory/strategies.mjs';
@@ -13,15 +13,25 @@ import {assert,digest} from '../lib/util.mjs';
 import {parseCondition} from './conditions.mjs';
 import {conditionAtoms} from '../lib/conditions.mjs';
 import {runDeclarative} from './declarative.mjs';
+const MODEL_ONLY=new Set(['stated','assumed','unclear']);
 const flatten=xs=>xs.flatMap(x=>Array.isArray(x)?flatten(x):[x]);
-export const DEFAULT_POLICY={allowWrite:true,allowPin:true,allowRules:false,allowJsEval:true,maxWires:2048,maxEpochs:16,maxGoals:256,maxRules:1024,retrievalStrategy:'hybrid',reasoningStrategy:'reference',maxNodes:5000,maxDepth:8,maxHypotheses:64,maxCandidates:512,maxPlans:1,timeoutMs:3000,maxProbes:50000,maxShards:256,maxFacts:10000,maxRounds:32,maxJoins:30000,maxAssignments:100000,maxExprOps:10000,maxExprBytes:65536};
+// DS004: a `source assumption` fact is consumed only through `assume`; it is never evidence, stored or reinforced.
+const isAssumptionFact=x=>x?.kind==='fact'&&x.source==='assumption';
+// Operation operands read as observed evidence, next to `data`.
+const EVIDENCE_OPERANDS=['observation','tests','cue','holdout','candidates','source','target'];
+const evidence=items=>{assert(!items.some(isAssumptionFact),'assumption_fact_not_evidence: a source assumption fact may only be consumed through assume');return items;};
+// jsEval and value expressions are always available to trusted and host circuits; the model surface cannot author them.
+// modelAssumptions: 'report' lists model `assumed` wires only; 'branch' also runs a separate hypothetical solve (DS021).
+export const DEFAULT_POLICY={allowWrite:true,allowPin:true,allowRules:false,modelAssumptions:'report',maxModelAssumptions:8,maxWires:2048,maxEpochs:16,maxGoals:256,maxRules:1024,retrievalStrategy:'hybrid',reasoningStrategy:'reference',maxNodes:5000,maxDepth:8,maxHypotheses:64,maxCandidates:512,maxPlans:1,timeoutMs:3000,maxProbes:50000,maxShards:256,maxFacts:10000,maxRounds:32,maxJoins:30000,maxAssignments:100000,maxExprOps:10000,maxExprBytes:65536};
 export class Runtime{
- constructor({repo=null,session=null,schema=null,lexicon=null,now=Date.now(),policy={},handlers={},strategies=new StrategyRegistry(),reasoningStrategies=new ReasoningRegistry(),atomGuard=null,factGuard=null}={}){this.repo=repo;this.session=session;this.schema=schema;this.lexicon=lexicon;this.now=now;this.policy={...DEFAULT_POLICY,...policy};this.handlers=handlers;this.strategies=strategies;this.reasoningStrategies=reasoningStrategies;this.atomGuard=atomGuard;this.factGuard=factGuard;}
+ constructor({repo=null,session=null,schema=null,lexicon=null,now=Date.now(),policy={},handlers={},strategies=new StrategyRegistry(),reasoningStrategies=new ReasoningRegistry(),factGuard=null}={}){this.repo=repo;this.session=session;this.schema=schema;this.lexicon=lexicon;this.now=now;this.policy={...DEFAULT_POLICY,...policy};this.handlers=handlers;this.strategies=strategies;this.reasoningStrategies=reasoningStrategies;this.factGuard=factGuard;}
  library(asof=Infinity){return this.repo&&this.session?this.repo.library(this.session,{asof}):[];}
  rules(q){return this.library(q.asof).filter(x=>x.wireType==='rule').map(x=>{assert(digest(x.sop)===x.hash,'Approved rule checksum mismatch');return lowerRule(parse(x.sop).wires[0],{},this.schema);});}
- async run(source,{origin='trusted',inputText='',language='en',context={premises:[]}}={}){
-  if(origin==='model')return runDeclarative(source,{runtime:this,inputText,language,context});
+ async run(source,{origin='trusted',inputText='',language='en',languageSource='default',context={statements:[]}}={}){
+  if(origin==='model')return runDeclarative(source,{runtime:this,inputText,language,languageSource,context});
   const program=parse(source,{maxWires:this.policy.maxWires,allowTypes:Object.keys(this.handlers)});const originalIds=program.wires.map(w=>w.id);
+  // stated/assumed/unclear describe a user turn; only the declarative compiler lowers them (to fact values or a host reply).
+  for(const w of program.wires)assert(!MODEL_ONLY.has(w.type),w.type+' is a model-surface declaration; run it with origin model so the host compiles it, or write a fact in a trusted circuit');
   // Internal binding wires are created only after an output producer executes.
   assert(!program.wires.some(w=>w.type==='binding'),'binding wires are runtime-generated; declare solve output instead');
   // Referenced templates are exact approved modules, not arbitrary Bloom matches.
@@ -31,7 +41,9 @@ export class Runtime{
    const lib=library.get(id);assert(lib&&LIBRARY_TYPES.has(lib.wireType),'Unknown approved definition '+id);assert(digest(lib.sop)===lib.hash,'Approved definition checksum mismatch');
    program.wires.push(...parse(lib.sop).wires);assert(program.wires.length<=this.policy.maxWires,'Library dependency budget exceeded');
   }
-  validateGraph(program);const defs=new Map(program.wires.map(w=>[w.id,w])),values=Object.create(null),expanded=new Map(),trace=[],unavailable=new Map(),outputStates=Object.create(null),generated=[],packets=new WeakSet(),assumedFactWires=new Set(program.wires.flatMap(w=>(w.fields.assume??[]).map(ref=>String(ref).replace(/^\$/,''))));let epoch=0,round=0;
+  validateGraph(program);const defs=new Map(program.wires.map(w=>[w.id,w])),values=Object.create(null),expanded=new Map(),trace=[],unavailable=new Map(),outputStates=Object.create(null),generated=[],packets=new WeakSet();let epoch=0,round=0;
+  // Wires whose values reach an `assume` field, directly or through (nested) packs.
+  const assumeConsumed=()=>{const seen=new Set(),todo=[...defs.values()].filter(w=>['solve','reason'].includes(w.type)).flatMap(w=>many(w,'assume').flatMap(words));while(todo.length){const id=todo.pop().replace(/^[$~]/,'');if(seen.has(id))continue;seen.add(id);const d=defs.get(id);if(d?.type==='pack')todo.push(...many(d,'items').flatMap(words));}return seen;};
   const conditionalValues=new Set();
   const chooseReasoning=w=>{const name=one(w,'reasoning',w.fields.backend&&!['auto','js'].includes(one(w,'backend'))?'advanced':this.policy.reasoningStrategy);if(this.policy.allowedReasoningStrategies)assert(this.policy.allowedReasoningStrategies.includes(name),'Reasoning strategy forbidden by host');return name;};
   const val=ref=>{assert(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(ref),'Expected $wire value reference: '+ref);assert(Object.hasOwn(values,ref.slice(1)),'Unresolved '+ref);return values[ref.slice(1)];};
@@ -40,7 +52,7 @@ export class Runtime{
   const readObject=ref=>{if(ref.startsWith('$'))return val(ref);const d=deref(ref);if(d.type==='rule')return lowerRule(d,values,this.schema);if(DECLARATIONS.has(d.type))return lowerDeclaration(d,values,this.schema);if(['template','procedure'].includes(d.type))return {kind:d.type,id:d.id};throw Error('Expected approved declarative definition '+ref);};
   const materializeEvent=w=>{const text=one(w,'target');let target;if(text.startsWith('$')){const value=val(text);const ids=Array.isArray(value)?value:value?.ids;assert(Array.isArray(ids)&&ids.length===1,'Event target receipt must identify exactly one claim');target=ids[0];}else target=unquote(text);return {kind:'event',action:one(w,'action'),target,effective:one(w,'effective')?instant(one(w,'effective')):undefined,replacement:one(w,'replacement')?val(one(w,'replacement')):undefined,source:unquote(one(w,'source','user'))};};
   const checkResolvedTerms=w=>{
-   const keys={fact:['holds'],premise:['holds'],rule:['when','then'],query:['where'],pattern:['when','then'],hypothesis:['holds','assume'],action:['requires','adds','removes'],goal:['where'],trace:['feature']}[w.type]??[];
+   const keys={fact:['holds'],rule:['when','then'],query:['where','scope'],pattern:['when','then'],hypothesis:['holds','assume'],action:['requires','adds','removes'],goal:['where'],trace:['feature']}[w.type]??[];
    for(const key of keys)for(const text of many(w,key))for(const a of conditionAtoms([w.type==='query'?parseCondition(text,parseAtom):parseAtom(text)])){for(let i=0;i<a.a.length;i++){const ref=a.a[i]?.ref,source=ref&&defs.get(ref);if(source?.type!=='resolve')continue;
     const resolved=outputStates[ref],expected=this.schema?.[a.p]?.args?.[i];assert(resolved?.status==='bound','Resolved entity must be bound before atom consumption');
     assert(resolved.kind==='entity'&&expected!=='integer'&&expected!=='value','Only entity resolution may supply symbolic atom arguments');
@@ -69,7 +81,6 @@ export class Runtime{
       output=resolved.id;break;
      }
      case 'fact':output={...lowerFact(w,values,this.schema),sop:canonical({wires:[w]})};break;
-     case 'premise':output=lowerPremise(w,values,this.schema);break;
      case 'rule':output=lowerRule(w,values,this.schema);break;
      case 'query':output=lowerQuery(w,values,this.schema,{now:this.now});break;
      case 'constraint':output=lowerConstraint(w,values);break;
@@ -82,7 +93,7 @@ export class Runtime{
      case 'link':{
       if(w.type==='recall')assert(this.repo&&this.session,'recall needs a memory session');
       const q=val(one(w,'query'));assert(q.kind==='query','link/recall input must be a query');
-      const items=w.fields.data?flatten([val(one(w,'data'))]):[];
+      const items=evidence(w.fields.data?flatten([val(one(w,'data'))]):[]);
       assert(items.every(x=>x.kind==='fact'||x.kind==='rule'),'link data must contain fact/rule wires');
       const localFacts=items.filter(x=>x.kind==='fact').map((f,i)=>({...f,id:'local_'+w.id+'_'+i,knownAt:this.now,kind:'observed',evidence:{local:true,metadataVerified:true}}));
       const strategy=one(w,'strategy',this.policy.retrievalStrategy);
@@ -116,26 +127,28 @@ export class Runtime{
        output=this.reasoningStrategies.run(chooseReasoning(w),{mode:'constraint',problem:c,limits:this.policy,backend:one(w,'backend','auto'),project});break;}
       const q=val(one(w,'query'));assert(q.kind==='query','reason needs query data');let mem;
       if(w.fields.memory){mem=val(one(w,'memory'));assert(mem.kind==='retrieval','reason memory must be a retrieval result');}
-      else {const items=w.fields.data?flatten([val(one(w,'data'))]):[];const facts=items.filter(x=>x.kind==='fact').map((f,i)=>({...f,id:'local_'+i,knownAt:this.now,evidence:{local:true},kind:'observed'})),rules=items.filter(x=>x.kind==='rule');mem={facts:filterTime(facts,q),rules,complete:true,probes:0};}
-      const assumptions=w.fields.assume?flatten([val(one(w,'assume'))]).map((f,i)=>{assert(f.kind==='fact'||f.kind==='premise','Assumptions must be fact or premise values');return {...f,id:'assume_'+i,kind:'assumed'};}):[];
-      output=this.reasoningStrategies.run(chooseReasoning(w),{mode:one(w,'mode','deduce'),query:q,memory:mem,data:w.fields.data?flatten([val(one(w,'data'))]):[],limits:this.policy,assumptions:filterTime(assumptions,q),backend:one(w,'backend','auto')});
+      else {const items=evidence(w.fields.data?flatten([val(one(w,'data'))]):[]);const facts=items.filter(x=>x.kind==='fact').map((f,i)=>({...f,id:'local_'+i,knownAt:this.now,evidence:{local:true},kind:'observed'})),rules=items.filter(x=>x.kind==='rule');mem={facts:filterTime(facts,q),rules,complete:true,probes:0};}
+      const assumptions=w.fields.assume?flatten([val(one(w,'assume'))]).map((f,i)=>{assert(f.kind==='fact','Assumptions must be fact values');return {...f,id:'assume_'+i,kind:'assumed'};}):[];
+      output=this.reasoningStrategies.run(chooseReasoning(w),{mode:one(w,'mode','deduce'),query:q,memory:mem,data:evidence(w.fields.data?flatten([val(one(w,'data'))]):[]),limits:this.policy,assumptions:filterTime(assumptions,q),backend:one(w,'backend','auto')});
       if(mem.linkPlan)output.linkPlan=mem.linkPlan;
       // A fact is reinforced only after it appears in the actual proof/refutation,
-      // only for metadata-verified observed premises, and only when host policy
+      // only for metadata-verified observed facts, and only when host policy
       // and the memory retention configuration both allow promotion on use.
-      if(this.policy.reinforce!==false&&this.repo&&this.session&&!output.hypothetical&&output.proof?.length){const used=output.proof.filter(f=>f.kind==='observed'&&f.evidence?.metadataVerified&&!f.evidence?.local);if(used.length){const rr=this.repo.reinforce(this.session,used,{usedAt:this.now});if(rr.some(x=>x.reinforced))output.reinforcement={facts:rr.filter(x=>x.reinforced).length,strength:this.session.live.retention().useStrength};}}
+      if(this.policy.reinforce!==false&&this.repo&&this.session&&!output.hypothetical&&output.proof?.length){const used=output.proof.filter(f=>f.kind==='observed'&&f.source!=='assumption'&&f.evidence?.metadataVerified&&!f.evidence?.local);if(used.length){const rr=this.repo.reinforce(this.session,used,{usedAt:this.now});if(rr.some(x=>x.reinforced))output.reinforcement={facts:rr.filter(x=>x.reinforced).length,strength:this.session.live.retention().useStrength};}}
       break;
      }
-     case 'cnl':{const packet=val(one(w,'result'));assert(packets.has(packet),'cnl requires a runtime-produced result, not a fabricated value');output=cnl(packet,one(w,'language','ro'));break;}
+     case 'cnl':{const packet=val(one(w,'result'));assert(packets.has(packet),'cnl requires a runtime-produced result, not a fabricated value');output=cnl(packet,one(w,'language','en'));break;}
      case 'clarify':output={status:'clarify',text:unquote(one(w,'text')),complete:false};break;
-     case 'jsEval':assert(this.policy.allowJsEval,'jsEval is disabled by host policy');output=evaluateExpression(parseExpression(one(w,'expr')),{refs:values,maxOps:this.policy.maxExprOps,maxBytes:this.policy.maxExprBytes}).value;break;
+     case 'jsEval':output=evaluateExpression(parseExpression(one(w,'expr')),{refs:values,maxOps:this.policy.maxExprOps,maxBytes:this.policy.maxExprBytes}).value;break;
      case 'expand':{const template=deref(one(w,'using'));assert(['template','procedure'].includes(template.type),'expand needs a template definition');const params=words(one(template,'params','')),bound=new Map();for(const s of many(w,'with')){const match=s.match(/^(\w+)\s+(.+)$/);assert(match&&params.includes(match[1]),'Invalid template argument');assert(!bound.has(match[1]),'Duplicate template argument');const text=match[2];bound.set(match[1],text.startsWith('$')?val(text):unquote(text));}assert(params.every(p=>bound.has(p)),'Missing template argument');const sub=parse(one(template,'body'));assert(!sub.wires.some(x=>params.includes(x.id)),'Template parameter/name collision');const ports=[...outputRegistry(sub).keys()];assert(!ports.some(p=>params.includes(p)),'Template output/parameter collision');const names=Object.fromEntries([...params,...sub.wires.map(x=>x.id),...ports].map(n=>[n,w.id+'__'+n]));const additions=params.map(p=>({id:names[p],type:'value',fields:{data:[JSON.stringify(bound.get(p))]},line:0}));for(const child of sub.wires){child.id=names[child.id];child.fields=Object.fromEntries(Object.entries(child.fields).map(([key,vs])=>[key,vs.map(s=>{let t=replaceReferences(s,names);if(['query','constraint','solve',...OPERATIONS].includes(child.type))t=renameLogicOutputs(t,ports,names);return t;})]));additions.push(child);}const target=names[one(template,'yield')];assert(target&&(additions.some(x=>x.id===target)||ports.includes(one(template,'yield'))),'Template yield is not a local wire/output');expansions.push({wire:w,additions,target});continue;}
      default:{
       if(DECLARATIONS.has(w.type)){output=lowerDeclaration(w,values,this.schema);break;}
       if(OPERATIONS.has(w.type)){
        const get=k=>w.fields[k]?readObject(one(w,k)):undefined;
-       const items=flat(get('data')),request={data:items,now:this.now,schema:this.schema};
+       const items=evidence(flat(get('data'))),request={data:items,now:this.now,schema:this.schema};
        for(const k of ['query','memory','observation','candidates','tests','cue','holdout','source','target','transfer','actions','goal','intervention'])if(w.fields[k])request[k]=get(k);
+       // Operations have no assume field: an assumption-sourced fact is not admissible as evidence in any operand (DS004).
+       for(const k of EVIDENCE_OPERANDS)if(w.fields[k])evidence(flat(request[k]));
        if(request.observation&&!request.query){assert(request.observation.kind==='fact','Observation must be fact');request.query=queryFor([request.observation.atom],{at:this.now,asof:this.now});}
        const limits={...this.policy};if(w.fields.policy){const constraint=get('policy');assert(constraint.kind==='policy','Expected policy');for(const [k,v]of Object.entries(constraint.limits))limits[k]=Math.min(limits[k]??v,v);}
        if(['abduce','diagnose'].includes(w.type))assert(request.query,'Abduction requires query or observation');
@@ -162,11 +175,12 @@ export class Runtime{
     const conditional=output?.hypothetical===true||dependencies(w).values.some(id=>conditionalValues.has(id)||values[id]?.hypothetical===true);
     if(conditional){conditionalValues.add(w.id);if(output&&typeof output==='object'&&w.type==='reason')output.hypothetical=true;}
     if(output&&typeof output==='object'&&(w.type==='reason'||w.type==='clarify'||OPERATIONS.has(w.type)||Object.hasOwn(this.handlers,w.type)))packets.add(output);
-    if(output?.kind==='fact'||output?.kind==='premise'){if(this.atomGuard)this.atomGuard(output.atom,{wire:w,atomIndex:0,outputs:outputStates});if(output.kind==='fact'&&this.factGuard&&!assumedFactWires.has(w.id))this.factGuard(output);}if(this.atomGuard){const checked=output?.kind==='query'||output?.kind==='goal'?conditionAtoms(output.where):output?.kind==='hypothesis'?output.assumptions:output?.kind==='trace'?output.features:[];checked.forEach((a,i)=>this.atomGuard(a,{wire:w,atomIndex:i,outputs:outputStates}));}
+    if(output?.kind==='fact'){const consumed=assumeConsumed().has(w.id);assert(consumed||!isAssumptionFact(output),'assumption_fact_unconsumed: a source assumption fact must be consumed by an assume reference');if(this.factGuard&&!consumed)this.factGuard(output);}
     values[w.id]=output;trace.push({wire:w.id,type:w.type,epoch});
    }
    if(effectWires.length){assert(this.repo&&this.session&&this.policy.allowWrite,'Writes are disabled');const ops=[],slices=[];
     for(const w of effectWires){assert(one(w,'scope','session')==='session','SOP writes target the current session; commit/publish is an explicit host action');const start=ops.length;for(const x of dataInputs(w,'input')){
+      assert(!isAssumptionFact(x)&&!isAssumptionFact(x.replacement),'assumption_fact_not_recordable: a source assumption fact is never stored');
       if(x.kind==='fact'){assert(x.retention!=='pinned'||this.policy.allowPin,'Pinning disabled');ops.push(x);}
       else if(x.kind==='event'){if(x.action==='correct'){assert(x.replacement?.kind==='fact','correct requires replacement fact');assert(x.replacement.retention!=='pinned'||this.policy.allowPin,'Pinning disabled');ops.push({...x,action:'retract'},x.replacement);}else ops.push(x);}
       else if(LIBRARY_TYPES.has(x.kind)){assert(this.policy.allowRules,'Rule installation requires reviewed ingestion');const def=defs.get(x.id),sop=canonical({wires:[def]});assert(!dependencies(def).values.length,'Persistent library definitions cannot depend on transient value wires');ops.push({kind:'library',id:def.id,wireType:def.type,sop,hash:digest(sop),knownAt:this.now});}
@@ -176,7 +190,7 @@ export class Runtime{
    }
    if(expansions.length){assert(++epoch<=this.policy.maxEpochs,'Expansion epoch budget');const additions=expansions.flatMap(e=>e.additions);assert(defs.size+additions.length<=this.policy.maxWires,'Expanded wire budget');for(const w of additions)assert(!defs.has(w.id),'Expansion name collision');const draft={wires:[...defs.values(),...additions]};validateGraph(draft,{allowMaterialized:true});generated.push({epoch,source:canonical({wires:additions})});for(const w of additions)defs.set(w.id,w);for(const e of expansions)if(!e.retain)expanded.set(e.wire.id,e.target);}
   }
-  const last=originalIds.at(-1);return {profile:'sop-agent-3',values,result:Object.hasOwn(values,last)?values[last]:{status:'blocked',wire:last,...unavailable.get(last)},trace,epochs:epoch+1,wireCount:defs.size,outputs:outputStates,blocked:Object.fromEntries(unavailable),generated};
+  const last=originalIds.at(-1);return {values,result:Object.hasOwn(values,last)?values[last]:{status:'blocked',wire:last,...unavailable.get(last)},trace,epochs:epoch+1,wireCount:defs.size,outputs:outputStates,blocked:Object.fromEntries(unavailable),generated};
  }
 }
 import {contains,intersect} from '../lib/time.mjs';

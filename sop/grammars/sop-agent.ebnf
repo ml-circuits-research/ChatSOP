@@ -1,4 +1,5 @@
-(* Envelope reference for sop-agent-3. sop/parser.mjs + sop/lower.mjs are normative.
+(* Envelope reference for the SOP grammar (trusted circuits and the model language).
+   sop/parser.mjs + sop/lower.mjs are normative.
    This file is documentation, NOT a llama.cpp GBNF decoding guarantee. *)
 program = wire, { newline, wire } ;
 wire = "@", identifier, space, wire_type, newline, field, { field } ;
@@ -23,17 +24,33 @@ condition_line = indentation, (atom | boolean_expression), newline
 (* Groups apply to query.where/filter and constraint.require/claim only.
    Nested indentation is advisory; end closes the nearest group. Groups are
    nonempty, with at most 32 nested groups. Repeated fields remain implicit ALL. *)
-model_wire_type = "premise" | "query" | "constraint" ;
-wire_type = "value" | "fact" | "premise" | "rule" | "query" | "constraint" | "event"
+model_wire_type = "stated" | "assumed" | "unclear" | "query" | "constraint" ;   (* the model language *)
+(* Model-language propositions are context-free strings (DS021). *)
+proposition_line = "  relation ", quoted_string, newline
+                 | "  role ", role_name, space, (quoted_string | safe_integer), newline
+                 | "  polarity ", ("affirmed" | "negated"), newline
+                 | "  valid ", ("on" | "from" | "until"), space, quoted_string, newline ;
+role_name = "subject" | "object" | "recipient" | "location" | "source"
+          | "destination" | "instrument" | "time" | "topic" ;
+stated_extra = "  certainty ", ("asserted" | "hedged" | "supposed"), newline
+             | "  speaker ", ("user" | quoted_string), newline ;
+assumed_extra = "  basis ", ("closure" | "default" | "disambiguation" | "implicature" | "world"), newline ;
+unclear_field = "  kind ", ("gibberish" | "no_request"), newline | "  language ", ("en" | "ro"), newline ;
+match_block = "match", newline, match_line, { match_line }, indentation, "end", newline ;
+match_line = indentation, ( "relation ", quoted_string | "role ", role_name, " ", (quoted_string | safe_integer | logic_variable) | "polarity ", ("affirmed" | "negated") ), newline ;
+(* In model output every query where-leaf is a match_block and at/during/asof take a quoted
+   temporal expression; the host links phrases, roles, values and times to the lexicon. *)
+wire_type = "value" | "fact" | "stated" | "assumed" | "unclear" | "rule" | "query" | "constraint" | "event"
           | "pack" | "remember" | "recall" | "link" | "solve" | "reason" | "cnl" | "jsEval"
           | "template" | "procedure" | "expand" | "clarify"
           | "pattern" | "hypothesis" | "action" | "goal" | "trace" | "policy" | "theory"
           | "abduce" | "diagnose" | "associate" | "induce" | "analogize" | "plan" | "simulate" | "temporal" ;
 (* Field cardinality, permitted keys, arity, scoping, temporal validity,
    type safety, graph acyclicity and host permissions require semantic validation. *)
-(* Model-origin programs use only model_wire_type; sop/declarative.mjs generates
-   their operations. Context premises are conditional, not repository facts.
-   clarify is a host-generated interruption, not a model-authored declaration. *)
+(* Model-origin programs use only the model wire types; sop/declarative.mjs
+   links and generates their operations. Statements and assumptions are never repository
+   facts. clarify is a host-generated interruption, not a model-authored declaration;
+   unclear is the model's only-wire report of gibberish or no request. *)
 
 (* `binding` is generated internally; it is not accepted as authored source.
    An exported ?name reserves a future wire consumed with $name. *)

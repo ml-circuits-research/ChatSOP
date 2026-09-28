@@ -2,11 +2,12 @@
  * Declaring `output ?x one` reserves @x; it does NOT assert a value for x.
  */
 import {assert,stable} from '../lib/util.mjs';
+import {OUTPUT_MODES} from './enums.mjs';
 export function outputSpecs(wire) {
   if (!['solve','abduce','diagnose','associate','induce','analogize','plan','simulate','temporal'].includes(wire.type)) return [];
   return (wire.fields.output ?? []).map(text => {
-    const match = text.match(/^\?([A-Za-z][A-Za-z0-9_]*)(?:\s+(one|many|rows|count|status))?$/);
-    assert(match, 'output syntax: ?name [one|many|rows|count|status]');
+    const match = text.match(/^\?([A-Za-z][A-Za-z0-9_]*)(?:\s+(\S+))?$/);
+    assert(match && (match[2] === undefined || OUTPUT_MODES.includes(match[2])), 'output syntax: ?name [' + OUTPUT_MODES.join('|') + ']');
     assert(!['constructor','prototype','__proto__'].includes(match[1]), 'Reserved output name');
     return {name:match[1], variable:'?'+match[1], mode:match[2]??'one', owner:wire.id};
   });
@@ -25,7 +26,7 @@ export function outputRegistry(program, {allowMaterialized=false}={}) {
 /** Materialize only permitted cardinalities. No arbitrary first answer. */
 export function selectOutput(result, {variable,mode}) {
   const base={valueType:result.kind==='constraint'?'integer':result.query?.variableTypes?.[variable]??'value',complete:result.complete===true, sourceStatus:result.status,
-    ...(result.hypothetical?{hypothetical:true}:{}),assurance:'Result relative to admitted premises and the explored memory view, not a probability.'};
+    ...(result.hypothetical?{hypothetical:true}:{}),assurance:'Result relative to admitted facts and the explored memory view, not a probability.'};
   if (mode==='status') return {...base,status:'bound',value:result.status};
   if (['unsupported','inconsistent','both','mixed_temporal'].includes(result.status))
     return {...base,status:result.status};

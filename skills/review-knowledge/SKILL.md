@@ -5,8 +5,8 @@ description: Review assertions and temporal corrections
 
 # Review assertions and temporal corrections
 
-Compară fiecare atom cu sursa. Verifică subject/object inversate, mother/parent, contractor/employee, modalitatea, negarea și intervalele. Găsește fiecare citat exact în sursa cu hash valid. Un citat existent poate totuși să nu justifice atomul.
+Compare every atom with its source. Check for swapped subject/object, mother versus parent, contractor versus employee, modality, negation and intervals. Find every quotation verbatim in a source with a valid hash. An existing quotation may still fail to justify the atom.
 
-Pentru o corecție, cere ID-ul afirmației și separă eroarea de interpretare de schimbarea în lume. Verifică dacă există surse independente care nu trebuie retractate. Fără dovadă explicită nu transforma absența în negare și nu adăuga exclusivitate.
+For a correction, require the assertion ID and separate an interpretation error from a change in the world. Check whether independent sources exist that must not be retracted. Without explicit evidence, do not turn absence into negation and do not add exclusivity.
 
-Predă verdict, reviewer și motiv per modificare. Pentru a aproba o procedură cere teste executabile și efecte declarate. Nu modifica output-urile așteptate ale testelor numai pentru a face codul să treacă.
+Hand over a verdict, a reviewer and a reason for each change. To approve a procedure, require executable tests and declared effects. Never change a test's expected outputs just to make the code pass.

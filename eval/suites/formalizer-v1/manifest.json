@@ -1,0 +1,9 @@
+{
+  "format": "chatsop-sealed-suite-v1",
+  "corpus": "formalizer-v1",
+  "corpus_manifest": "datasets/formalizer-v1/manifest.json",
+  "files": {
+    "test.jsonl": "3d85d74db356cf8e75bf3509764eda0d9980d866daafba2159d2677aceff97b2"
+  },
+  "note": "sha256 of the logical test file; the rows and their provenance are described by the corpus manifest"
+}

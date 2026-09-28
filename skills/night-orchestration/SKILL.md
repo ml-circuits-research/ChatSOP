@@ -64,3 +64,7 @@ semantic best is chosen by full-development execution equivalence with syntax
 as tiebreak. Verbalizer/shared dev-loss best does not certify faithfulness.
 For the container variant follow `skills/spark-training/SKILL.md`; it still
 executes this same controller, not a second ML training implementation.
+
+## Project journal
+
+Append an event to `status/journal.jsonl` with `node tools/journal.mjs add --area <area> --state <started|progress|done|blocked|decision> --title "…" --detail "…" [--link <path>]` whenever you start, finish or block a meaningful task or record an owner decision; the journal is append-only and the server's `/project` page shows it to the owner in real time (AGENTS.md, "Project journal"). Log each owned run's start, checkpoint, stop, block and recovery with `tools/journal.mjs` so the owner sees it live on `/project`.

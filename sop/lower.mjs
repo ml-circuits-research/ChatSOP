@@ -4,21 +4,26 @@ import {parseExpression,evaluateExpression} from './expression.mjs';
 import {atom,rule,variable,inferVariableTypes} from '../lib/types.mjs';
 import {interval,instant} from '../lib/time.mjs';
 import {assert} from '../lib/util.mjs';
+import {ENUMS} from './enums.mjs';
 import {parseCondition,parseBooleanCondition} from './conditions.mjs';
 import {conditionAtoms,definitelyBound} from '../lib/conditions.mjs';
 export function resolveAtom(text,values={},schema=null,{ground=false}={}){const a=parseAtom(text);a.a=a.a.map(v=>v&&typeof v==='object'&&v.ref?scalar('$'+v.ref,values):v);return atom(a,{ground,schema});}
 export function lowerFact(w,values={},schema=null){return {kind:'fact',atom:resolveAtom(one(w,'holds'),values,schema,{ground:true}),valid:interval(one(w,'valid')),source:unquote(one(w,'source','user')),quote:unquote(one(w,'quote','')),retention:one(w,'retention','normal')};}
-export function lowerPremise(w,values={},schema=null){return {kind:'premise',atom:resolveAtom(one(w,'holds'),values,schema,{ground:true}),valid:interval(one(w,'valid','timeless')),source:'model-interpretation',origin:'model-interpretation'};}
 export function lowerRule(w,values={},schema=null){const r=rule({id:w.id,if:many(w,'when').map(x=>resolveAtom(x,values,schema)),then:resolveAtom(one(w,'then'),values,schema)},schema);return {...r,kind:'rule',mode:one(w,'mode','logical'),source:unquote(one(w,'source','approved-library')),valid:interval(one(w,'valid','timeless'))};}
 export function lowerQuery(w,values={},schema=null,{now=Date.now()}={}){
  const where=many(w,'where').map(s=>parseCondition(s,leaf=>resolveAtom(leaf,values,schema)));const selected=words(one(w,'select',''));assert(selected.every(variable),'select contains only ?variables');
- const kind=one(w,'mode',selected.length?'select':'exists');assert(['select','exists','count','explain'].includes(kind),'Invalid query mode');if(kind==='select')assert(selected.length>0,'select mode needs variables');
- const bound=definitelyBound(where);assert(selected.every(v=>bound.has(v)),'Unbound selected variable: every alternative must bind selected variables');
+ const kind=one(w,'mode',selected.length?'select':'exists');assert(ENUMS.query.mode.includes(kind),'Invalid query mode');if(kind==='select')assert(selected.length>0,'select mode needs variables');
+ // `scope` (mode every) is checked for each binding of the `where` restriction; `span` names the validity interval.
+ const scope=w.fields.scope?[parseCondition(one(w,'scope'),leaf=>resolveAtom(leaf,values,schema))]:undefined;
+ const span=one(w,'span');if(span!==undefined)assert(variable(span),'span takes one ?variable');
+ const measure=one(w,'measure');if(measure!==undefined){assert(ENUMS.query.measure.includes(measure),'Invalid time measure');assert(span!==undefined&&selected.length===1&&selected[0]===span,'measure needs the selected span variable');}
+ const bound=definitelyBound(where);if(span)bound.add(span);assert(selected.every(v=>bound.has(v)),'Unbound selected variable: every alternative must bind selected variables');
  const filters=many(w,'filter').map(parseBooleanCondition);const varsIn=n=>{if(!n||typeof n!=='object')return [];return [...(n.type==='var'?[n.value]:[]),...Object.values(n).flatMap(v=>Array.isArray(v)?v.flatMap(varsIn):varsIn(v))];};for(const f of filters)assert(varsIn(f).every(v=>bound.has(v)),'Unbound filter variable');
  const limit=Number(one(w,'limit','100'));assert(Number.isSafeInteger(limit)&&limit>=1&&limit<=10000,'Invalid result limit');
- const time=w.fields.during?{during:interval(one(w,'during'))}:{at:one(w,'at')?instant(scalar(one(w,'at'),values)):now};
+ // A time question without at/during looks at the whole timeline rather than at the present instant.
+ const time=w.fields.during?{during:interval(one(w,'during'))}:w.fields.at||!span?{at:one(w,'at')?instant(scalar(one(w,'at'),values)):now}:{during:{from:-Infinity,until:Infinity}};
  const asof=one(w,'asof')?instant(scalar(one(w,'asof'),values)):now;
- return {kind:'query',variableTypes:inferVariableTypes(conditionAtoms(where),schema),mode:kind,where,select:selected,filters,limit,...time,asof};
+ return {kind:'query',variableTypes:inferVariableTypes(conditionAtoms([...where,...(scope??[])]),schema),mode:kind,where,...(scope?{scope}:{}),...(span?{span}:{}),...(measure?{measure}:{}),select:selected,filters,limit,...time,asof,...(measure==="duration"?{now}:{})};
 }
 function numericAST(n,vars,values,type){
  if(n.type==='ref')return numericAST({type:'literal',value:values[n.value]},vars,values,type);
@@ -32,7 +37,7 @@ function numericAST(n,vars,values,type){
 export function lowerConstraint(w,values={}){
  const vars={};for(const l of many(w,'var')){const p=words(l);assert((p.length===2||p.length===4)&&/^\?[a-z][a-z0-9_]*$/.test(p[0])&&p[1]==='int','var ?name int [min max]');const name=p[0].slice(1);assert(!Object.hasOwn(vars,name),'Duplicate constraint variable');vars[name]={sort:'Int'};if(p.length===4){const min=Number(scalar(p[2],values)),max=Number(scalar(p[3],values));assert(Number.isSafeInteger(min)&&Number.isSafeInteger(max)&&min<=max,'Invalid finite domain');Object.assign(vars[name],{min,max});}}
  const selected=words(one(w,'select',''));assert(selected.every(v=>variable(v)&&Object.hasOwn(vars,v.slice(1)))&&new Set(selected).size===selected.length,'select needs distinct declared constraint variables');
- const convert=s=>numericAST(parseBooleanCondition(s),vars,values,'Bool');const task=one(w,'task','prove');assert(['prove','possible','optimize'].includes(task),'constraint task must be prove, possible or optimize');
- const objective=w.fields.objective?numericAST(parseExpression(one(w,'objective')),vars,values,'Int'):undefined;const direction=one(w,'direction','min');assert(['min','max'].includes(direction),'objective direction must be min or max');assert(task!=='optimize'||objective!==undefined,'optimize needs objective');assert(task==='optimize'||objective===undefined,'objective requires task optimize');
+ const convert=s=>numericAST(parseBooleanCondition(s),vars,values,'Bool');const task=one(w,'task','prove');assert(ENUMS.constraint.task.includes(task),'constraint task must be prove, possible or optimize');
+ const objective=w.fields.objective?numericAST(parseExpression(one(w,'objective')),vars,values,'Int'):undefined;const direction=one(w,'direction','min');assert(ENUMS.constraint.direction.includes(direction),'objective direction must be min or max');assert(task!=='optimize'||objective!==undefined,'optimize needs objective');assert(task==='optimize'||objective===undefined,'objective requires task optimize');
  return {kind:'constraint',vars,...(selected.length?{select:selected}:{}),...(objective===undefined?{}:{objective,direction}),constraints:many(w,'require').map(convert),claim:convert(one(w,'claim')),task,unit:one(w,'unit','scalar')};
 }

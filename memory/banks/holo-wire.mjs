@@ -1,4 +1,4 @@
-/** Experimental H7 content plane: exact canonical SOP from a KNOWN SHA-256 handle.
+/** Experimental HoloMemory content plane (DS024): exact canonical SOP from a KNOWN SHA-256 handle.
  * Fixed signed arrays, byte alphabet, no per-item body/length table. The handle is
  * also the integrity check. Discovery of handles from vague cues is NOT provided.
  */
@@ -31,7 +31,7 @@ export class HoloWireMemory {
   try{parse(source);}catch{return {status:'uncertain',sop:null,probes,reason:'invalid_sop'};}
   return {status:'remembered',sop:source,handle,probes,minimumMargin,integrity:'sha256-content-address',confidenceIsProbability:false};
  }
- export(){return {format:'h7-wire-v1',config:this.config,kernel:this.kernel.export()};}
+ export(){return {format:'holo-wire-v1',config:this.config,kernel:this.kernel.export()};}
  fork(){return new HoloWireMemory({},this.export());}
  stats(){return {...this.kernel.stats(),boundedComponent:true,handleDiscovery:false};}
 }

@@ -25,33 +25,35 @@ const sourceFingerprint=digest(sources.flatMap(fingerprints));
 const testFiles=fs.readdirSync('tests').filter(name=>name.endsWith('.test.mjs')).sort().map(name=>'tests/'+name);
 const jobs=[
  ['node-tests',process.execPath,['--test',...testFiles]],
- ['cases-md',process.execPath,['tools/datasets/build-cases-md.mjs','--check']],
  ['demo',process.execPath,['examples/demo.mjs']],
  ['declarative-demo',process.execPath,['examples/declarative-demo.mjs']],
+ ['research-examples',process.execPath,['examples/research/demo.mjs']],
  ['linker-demo',process.execPath,['examples/linker-demo.mjs']],
  ['forgetting-demo',process.execPath,['examples/forgetting-demo.mjs']],
  ['shards-demo',process.execPath,['examples/shards-demo.mjs']],
  ['shards-benchmark',process.execPath,['tools/bench-shards.mjs']],
- ['data-validation',process.execPath,['tools/check-data.mjs','--dir','datasets/seed','--execute','--out',reportDir+'/data-validation.json']],
- ['data-sharded',process.execPath,['tools/check-data.mjs','--dir','datasets/seed','--execute','--sharded','--out',reportDir+'/data-sharded.json']],
- ['query-curriculum',process.execPath,['tools/datasets/validate.mjs','--manifest','datasets/query-v1/manifest.json','--execute']],
- ['source-reference',process.execPath,['tools/datasets/validate.mjs','--file','eval/suites/source-reference-v2-cutover.jsonl','--execute']],
- ['core-suite',process.execPath,['tools/datasets/validate.mjs','--file','eval/suites/core-v2.jsonl','--execute']],
+ ['corpus-formalizer',process.execPath,['tools/datasets/verify-corpus.mjs','--corpus','formalizer-v1','--sample','400']],
+ ['corpus-formalizer-ood',process.execPath,['tools/datasets/verify-corpus.mjs','--suite','formalizer-ood-v1','--sample','200']],
+ ['research-preparation',process.execPath,['tools/research/prepare-experiment.mjs']],
  ['solver-availability',process.execPath,['tools/check-solvers.mjs']],
  ['reasoning-matrix',process.execPath,['examples/reasoning-demo.mjs']],
  ['contracts',process.execPath,['tools/capabilities.mjs']],
+ ['spec-refs',process.execPath,['tools/check-spec-refs.mjs']],
+ ['model-surface-lint',process.execPath,['tools/lint/model-surface.mjs']],
+ ['file-size-limit',process.execPath,['tools/shard-large-files.mjs','--check']],
  ['memory-demo',process.execPath,['examples/memory-demo.mjs']]
 ];
-for(const engine of ['holo','sqlite','scan','hybrid'])jobs.push(['data-'+engine,process.execPath,['tools/check-data.mjs','--dir','datasets/seed','--execute','--engine',engine,'--out',reportDir+'/memory/data-'+engine+'.json']]);
-for(const role of ['formalizer','verbalizer'])jobs.push([role+'-dry-run',process.execPath,['training/cli.mjs','train','--dry-run','--role',role,'--model','gemma','--run','verify','--data','datasets/seed']]);
+// The corpus sample executed once per memory engine: the verification worlds must answer the same way on each.
+for(const engine of ['holo-memory','recall-memory','sqlite','scan','hybrid'])jobs.push(['data-'+engine,process.execPath,['tools/datasets/verify-corpus.mjs','--corpus','formalizer-v1','--sample','200','--engine',engine]]);
+jobs.push(['formalizer-dry-run',process.execPath,['training/cli.mjs','train','--dry-run','--role','formalizer','--model','gemma','--run','verify','--data','datasets/formalizer-v1']]);
 const groups={
  core:jobs.filter(job=>!job[0].startsWith('data-')&&!job[0].endsWith('-dry-run')),
- 'associative-data':jobs.filter(job=>['data-validation','data-sharded','data-holo'].includes(job[0])),
+ 'associative-data':jobs.filter(job=>['data-holo-memory','data-recall-memory'].includes(job[0])),
  'exact-data':jobs.filter(job=>['data-sqlite','data-scan','data-hybrid'].includes(job[0])),
  training:jobs.filter(job=>job[0].endsWith('-dry-run'))
 };
 const report=file=>path.join(reportDir,file);
-const metadata={sourceFingerprint,profile:'sop-agent-3',node:process.version,platform:process.platform,arch:process.arch,neuralModelTested:false,trainingExecuted:false};
+const metadata={sourceFingerprint,node:process.version,platform:process.platform,arch:process.arch,neuralModelTested:false,trainingExecuted:false};
 if(process.argv.includes('--collect')){
  const parts=Object.keys(groups).map(name=>JSON.parse(fs.readFileSync(report('verification-'+name+'.json'),'utf8')));
  if(parts.some(part=>part.sourceFingerprint!==sourceFingerprint||!part.complete))throw Error('Stale/incomplete verification part; re-run changed source');

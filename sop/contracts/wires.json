@@ -1,8 +1,65 @@
 {
-  "profile": "sop-agent-3",
+  "language": "SOP Lang",
+  "modelTypes": [
+    "stated",
+    "assumed",
+    "unclear",
+    "query",
+    "constraint"
+  ],
+  "unclearKinds": [
+    "gibberish",
+    "no_request",
+    "ambiguous"
+  ],
+  "roleNames": [
+    "subject",
+    "object",
+    "recipient",
+    "location",
+    "source",
+    "destination",
+    "instrument",
+    "time",
+    "topic"
+  ],
+  "ontology": {
+    "entity": {
+      "one": [
+        "kind",
+        "domain"
+      ],
+      "many": [
+        "label",
+        "alias"
+      ]
+    },
+    "predicate": {
+      "one": [
+        "args",
+        "description",
+        "domain"
+      ],
+      "many": [
+        "role",
+        "label",
+        "alias"
+      ]
+    },
+    "concept": {
+      "one": [
+        "domain"
+      ],
+      "many": [
+        "is_a",
+        "label",
+        "alias"
+      ]
+    }
+  },
   "memoryEngines": [
-    "weaver",
-    "holo",
+    "recall-memory",
+    "holo-memory",
     "sqlite",
     "scan",
     "hybrid"
@@ -78,19 +135,66 @@
       "authoredByModel": false,
       "effects": "no-world-write"
     },
-    "premise": {
+    "stated": {
       "one": [
-        "holds",
+        "relation",
+        "polarity",
+        "certainty",
+        "speaker"
+      ],
+      "many": [
+        "role",
         "valid"
       ],
       "required": [
-        "holds"
+        "relation",
+        "role",
+        "polarity",
+        "certainty"
       ],
-      "role": "conditional-conversation-assumption",
+      "role": "user-statement-proposition",
       "declaration": true,
       "authoredByModel": true,
       "effects": "no-world-write",
-      "note": "Retained as conditional conversation context by the model entry point; never implicitly recorded as a repository fact."
+      "note": "Model language: a context-free string proposition the user message puts forward (quoted relation phrase, closed-inventory roles with values as written). The host links it to the lexicon; certainty asserted lowers to a turn-local fact source user used as evidence and carried in caller-owned context; hedged, supposed or reported speech (speaker) is used only conditionally. Never stored or reinforced (DS021)."
+    },
+    "assumed": {
+      "one": [
+        "relation",
+        "polarity",
+        "basis"
+      ],
+      "many": [
+        "role",
+        "valid"
+      ],
+      "required": [
+        "relation",
+        "role",
+        "polarity"
+      ],
+      "role": "model-assumption-proposition",
+      "declaration": true,
+      "authoredByModel": true,
+      "effects": "no-world-write",
+      "note": "Model language: a context-free string proposition the model adds. Reported by default (policy modelAssumptions report); branch runs a separate hypothetical solve. basis is descriptive only. Never stored, never carried across turns (DS021)."
+    },
+    "unclear": {
+      "one": [
+        "kind",
+        "language"
+      ],
+      "many": [
+        "reading"
+      ],
+      "required": [
+        "kind"
+      ],
+      "role": "uninterpretable-message-marker",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write",
+      "note": "Model language: the only wire of an output that is unintelligible (gibberish), has neither a statement nor a question (no_request), or shows an ambiguity the model does not resolve (ambiguous, with 2 to 4 reading lines paraphrasing the candidate readings); the host renders a fixed reply per kind and lists the readings as a clarification (DS021)."
     },
     "rule": {
       "one": [
@@ -115,6 +219,9 @@
       "one": [
         "mode",
         "select",
+        "scope",
+        "measure",
+        "span",
         "at",
         "during",
         "asof",
@@ -130,7 +237,8 @@
       "role": "logical-goal",
       "declaration": true,
       "authoredByModel": true,
-      "effects": "no-world-write"
+      "effects": "no-world-write",
+      "note": "Model language: match blocks (quoted relation, closed roles, polarity) under where; mode select, exists, count, explain (why: the answer is a derivation) or every (a universal question: where is the restriction, scope what must hold); role time ?t asks for the validity interval (when), with measure start, end or duration (since when, until when, how long) and mode count for how many times. span is host plumbing (DS021)."
     },
     "constraint": {
       "one": [
@@ -198,7 +306,7 @@
       "declaration": false,
       "authoredByModel": false,
       "effects": "records-explicit-facts-and-events-in-session",
-      "note": "Records independently admitted facts or events in the session; this does not prove them true or publish them globally. Session commit is separate. Model-authored premises are not recording inputs."
+      "note": "Records independently admitted facts or events in the session; this does not prove them true or publish them globally. Session commit is separate. Model-authored statements and assumptions are not recording inputs."
     },
     "recall": {
       "one": [
@@ -288,7 +396,7 @@
       "declaration": false,
       "authoredByModel": false,
       "effects": "may-reinforce-nonhypothetical-observed-proof",
-      "note": "A real non-hypothetical proof may reinforce previously admitted, metadata-verified observed premises when host policy (policy.reinforce is not false) and the memory retention configuration allow promotion; the reason packet reports any promotion, and retrieval or candidate hits alone never promote."
+      "note": "A real non-hypothetical proof may reinforce previously admitted, metadata-verified observed facts when host policy (policy.reinforce is not false) and the memory retention configuration allow promotion; the reason packet reports any promotion, and retrieval or candidate hits alone never promote."
     },
     "cnl": {
       "one": [

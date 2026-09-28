@@ -4,7 +4,7 @@ import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
 import {ShardedLayer} from '../memory/sharded.mjs';
 import {createLayer} from '../memory/factory.mjs';
 import {TemporalLayer,recallLayers} from '../memory/temporal.mjs';
-import {Weaver} from '../memory/weaver.mjs';
+import {RecallMemory} from '../memory/weaver.mjs';
 import {Repository} from '../memory/repository.mjs';
 import {Runtime} from '../sop/runtime.mjs';
 import {StrategyRegistry} from '../memory/strategies.mjs';
@@ -156,10 +156,16 @@ test('shards: supplied geometry changes apply only to new generations',()=>{
  assert.equal(copy.hot.bank.config.power,10);assert.equal(copy.cold[0].bank.config.power,9);assert.equal(recall(copy).rows.length,3);
 });
 test('shards: invalid capacity configuration fails early',()=>{
- for(const cfg of [config({mode:'unknown'}),config({maxColdShards:-1}),config({safeOccupancy:1}),config({maxNormalBankBytes:1})])assert.throws(()=>new ShardedLayer(cfg));
+ const cases=[
+  [config({mode:'unknown'}),/sharding\.mode must be bounded\|archive/],
+  [config({maxColdShards:-1}),/Invalid maxColdShards/],
+  [config({safeOccupancy:1}),/Invalid sharding\.safeOccupancy/],
+  [config({maxNormalBankBytes:1}),/maxNormalBankBytes must fit at least one bank set/],
+ ];
+ for(const [cfg,message] of cases)assert.throws(()=>new ShardedLayer(cfg),message);
 });
 test('bank clone: failed batches cannot leak domains or receipts into the original',()=>{
- const w=new Weaver({power:9});w.add(fact(0).atom);const s=stable(w.export()),copy=Weaver.from(w.export());copy.add(fact(1).atom);copy.decay(1);assert.equal(stable(w.export()),s);
+ const w=new RecallMemory({power:9});w.add(fact(0).atom);const s=stable(w.export()),copy=RecallMemory.from(w.export());copy.add(fact(1).atom);copy.decay(1);assert.equal(stable(w.export()),s);
 });
 
 test('repository shards: persisted manifests reuse immutable shard blobs',()=>{
@@ -229,9 +235,16 @@ test('repository shards: explicit snapshot pins protect an otherwise obsolete ch
 });
 test('repository shards: corrupt reachable blob stops GC before deleting anything',()=>{
  const c=temp();try{for(let i=0;i<3;i++)write(c.repo,c.s,i);const manifest=loadJSON(c.s.file),id=manifest.layer.cold[0].$shard;
-  fs.appendFileSync(path.join(c.root,'shards',id+'.json'),'broken');const count=fs.readdirSync(path.join(c.root,'shards')).length;
-  assert.throws(()=>c.repo.gc({dryRun:false}));assert.equal(fs.readdirSync(path.join(c.root,'shards')).length,count);
-  assert.throws(()=>new Repository(c.root,{memory:config()}).session('base','alice','one'));
+  const blob=path.join(c.root,'shards',id+'.json'),original=fs.readFileSync(blob,'utf8');
+  const count=fs.readdirSync(path.join(c.root,'shards')).length;
+  // Trailing garbage is caught while parsing the blob, before any deletion.
+  fs.appendFileSync(blob,'broken');
+  assert.throws(()=>c.repo.gc({dryRun:false}),{name:'SyntaxError'});assert.equal(fs.readdirSync(path.join(c.root,'shards')).length,count);
+  assert.throws(()=>new Repository(c.root,{memory:config()}).session('base','alice','one'),{name:'SyntaxError'});
+  // A well-formed but altered blob is caught by the content-address checksum.
+  const altered=JSON.parse(original);altered.tampered=true;fs.writeFileSync(blob,JSON.stringify(altered));
+  assert.throws(()=>c.repo.gc({dryRun:false}),/Shard checksum mismatch or missing shard/);assert.equal(fs.readdirSync(path.join(c.root,'shards')).length,count);
+  assert.throws(()=>new Repository(c.root,{memory:config()}).session('base','alice','one'),/Shard checksum mismatch or missing shard/);
  }finally{c.dispose();}
 });
 test('repository shards: migration preserves legacy user history and pinned memory',()=>{
@@ -248,13 +261,13 @@ test('repository shards: forged candidate objects are ignored for reinforcement'
 });
 test('repository shards: exact and hybrid retrieve across all retained generations',()=>{
  const c=temp(config({mode:'archive'},{exact:true}));try{for(let i=0;i<8;i++)write(c.repo,c.s,i);
-  const registry=new StrategyRegistry();for(const strategy of ['exact','hybrid','recall-weaver']){
+  const registry=new StrategyRegistry();for(const strategy of ['exact','hybrid','recall-memory']){
    const r=registry.retrieve(strategy,{repo:c.repo,session:c.s,pattern:all,query:q,limits:{maxProbes:50000,maxFacts:10000}});
    assert.equal(r.rows.length,8);assert.equal(r.complete,true);
   }
  }finally{c.dispose();}
 });
-test('SOP shards: an actual proof promotes only its observed premises',async()=>{
+test('SOP shards: an actual proof promotes only its observed facts',async()=>{
  const memory=config({maxClaimsPerShard:1,maxColdShards:2}),c=context({bootstrap:false,memory});try{
   await c.run('@a fact\n  holds likes ana lab_alpha\n  valid timeless\n@b fact\n  holds likes ana lab_beta\n  valid timeless\n@s remember\n  input $a $b');
   const r=await c.run(queryProgram('likes ana lab_alpha'));assert.equal(r.result.status,'supported');assert.equal(c.session.live.maintenance.promotions,1);
@@ -263,7 +276,8 @@ test('SOP shards: an actual proof promotes only its observed premises',async()=>
 test('SOP shards: truncated fan-out prevents materializing a scalar output',async()=>{
  const c=context({bootstrap:false,memory:config({mode:'archive',maxClaimsPerShard:1})});try{
   await c.run('@a fact\n  holds likes ana lab_alpha\n  valid timeless\n@b fact\n  holds likes ana lab_beta\n  valid timeless\n@s remember\n  input $a $b');
-  const r=await new Runtime({repo:c.repo,session:c.session,schema,policy:{maxShards:1,retrievalStrategy:'recall-weaver'}}).run('@q query\n  select ?org\n  where likes ana ?org\n@r solve\n  query $q\n  output ?org one');
+  const runtime=new Runtime({repo:c.repo,session:c.session,schema,policy:{maxShards:1,retrievalStrategy:'recall-memory'}});
+  const r=await runtime.run('@q query\n  select ?org\n  where likes ana ?org\n@r solve\n  query $q\n  output ?org one');
   assert.equal(r.result.complete,false);assert.equal(r.values.org,undefined);
  }finally{c.dispose();}
 });

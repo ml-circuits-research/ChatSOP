@@ -21,8 +21,8 @@ export function partitions(input=[],memory=null,q=null){
   assert(x&&typeof x==='object','Typed SOP inputs required');
   if(x.kind==='retrieval'){const sub=partitions([],x,q);for(const key of ['facts','rules'])out[key].push(...sub[key]);out.complete&&=sub.complete;continue;}
   if(x.atom&&['fact','observed','assumed','derived'].includes(x.kind)){
-   // Derived caches must be recomputed from current premises after an intervention.
-   if(x.kind==='derived'){out.ignored.push({kind:x.kind,id:x.id,reason:'recomputed-from-premises'});continue;}
+   // Derived caches must be recomputed from current facts after an intervention.
+   if(x.kind==='derived'){out.ignored.push({kind:x.kind,id:x.id,reason:'recomputed-from-facts'});continue;}
    if(q?.asof!==undefined&&(x.knownAt??0)>q.asof)continue;
    let valid=x.valid??timeless;if(q?.at!==undefined&&!contains(valid,q.at))continue;if(q?.during){valid=intersect(valid,q.during);if(!valid)continue;}
    out.facts.push({...x,id:x.id??'local_'+i+'_'+digest(atomKey(x.atom)).slice(0,10),valid,kind:x.kind==='fact'?'observed':x.kind});

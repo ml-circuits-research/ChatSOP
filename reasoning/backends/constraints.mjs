@@ -18,7 +18,7 @@ export function z3(problem,{timeoutMs=3000,project=[]}={}){const {prefix,claim}=
  for(const p of project){
   if(p.mode!=='one'){outputProjection['?'+p.name]={status:'unsupported_projection'};continue;}
   // A model is just one possible assignment. Export a scalar only when base
-  // premises entail this same value (a second solver call checks uniqueness).
+  // stated conditions entail this same value (a second solver call checks uniqueness).
   assert(Object.hasOwn(problem.vars,p.name),'Unknown projected variable');
   const model=runZ3(prefix+'\n(check-sat)\n(get-value ('+p.name+'))\n',timeoutMs);
   const name=p.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');

@@ -28,7 +28,7 @@ export function planGoals(query,rules,{maxGoals=256,maxRules=1024}={}) {
   for(const r of active.slice(0,maxRules)){const sig=[r.then.p,r.then.a.length,r.then.neg].join('/');if(!index.has(sig))index.set(sig,[]);index.get(sig).push(r);}
   const agenda=[],seen=new Set(),selected=new Map(),steps=[];
   const enqueue=raw=>{const a=normalized(raw),k=key(a);if(seen.has(k))return;if(agenda.length>=maxGoals){complete=false;return;}seen.add(k);agenda.push(a);};
-  for(const a of conditionAtoms(query.where)){enqueue(a);enqueue({...a,neg:!a.neg});}
+  for(const a of conditionAtoms([...query.where,...(query.scope??[])])){enqueue(a);enqueue({...a,neg:!a.neg});}
   for(let i=0;i<agenda.length;i++){
     const goal=agenda[i],matches=index.get([goal.p,goal.a.length,goal.neg].join('/'))??[];
     for(const rule of matches){const m=matchRule(goal,rule);if(!m)continue;selected.set(rule.id,rule);
@@ -48,7 +48,7 @@ export function linkKnowledge({repo=null,session=null,query,rules=[],schema=null
     if(schema&&!schema[pattern.p]){complete=false;retrievals.push({pattern:emitAtom(pattern),status:'unknown_predicate'});continue;}
     const r=registry.retrieve(strategy,{repo,session,pattern,query,limits:{...limits,maxProbes:limits.maxProbes-probes,maxShards:limits.maxShards-shardsVisited}});
     probes+=r.probes;shardsVisited+=r.shardsVisited??0;complete&&=r.complete;
-    for(const f of r.rows){assert(f.kind!=='hypothesis'&&f.evidence?.metadataVerified!==false,'Unverified retrieval cannot become a logical premise');if(facts.size>=limits.maxFacts&&!facts.has(f.id)){complete=false;break;}facts.set(f.id,f);}
+    for(const f of r.rows){assert(f.kind!=='hypothesis'&&f.evidence?.metadataVerified!==false,'Unverified retrieval cannot become logical evidence');if(facts.size>=limits.maxFacts&&!facts.has(f.id)){complete=false;break;}facts.set(f.id,f);}
     retrievals.push({pattern:emitAtom(pattern),strategy,selected:r.selected??strategy,coverage:r.coverage??'provider-defined',rows:r.rows.length,complete:r.complete,probes:r.probes,shardsVisited:r.shardsVisited??0,shardsRouted:r.shardsRouted??null});
   }
   const coverage=repo?'retained-visible-memory':'local-declarations';

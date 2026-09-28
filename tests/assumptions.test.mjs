@@ -1,6 +1,10 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {spawnSync} from 'node:child_process';
-import {admissibleAssumptions,reason} from '../reasoning/reasoner.mjs';import {solveHorn} from '../reasoning/backends/horn.mjs';
-const hasSWI=spawnSync(process.env.SWIPL_BIN??'swipl',['--version'],{encoding:'utf8'}).status===0;
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {reason} from '../reasoning/reasoner.mjs';
+import {solveHorn} from '../reasoning/backends/horn.mjs';
+import {solverSkip} from './helpers.mjs';
+
+const swi=solverSkip('prolog');
 const atom=(p,a,neg=false)=>({p,a:Array.isArray(a)?a:[a],neg});
 const fact=(id,p,a,neg=false)=>({id,atom:atom(p,a,neg),valid:{from:-Infinity,until:Infinity}});
 const assumption=(id,p,a,neg=false)=>({id,atom:atom(p,a,neg),valid:{from:-Infinity,until:Infinity},kind:'assumed'});
@@ -49,7 +53,7 @@ test('contradicting assumptions keep the conflict visible instead of picking a w
   assert.equal(r.hypothetical,true);
 });
 
-test('the prolog adapter applies the same defeat before merging into SWI',{skip:!hasSWI},()=>{
+test('the prolog adapter applies the same defeat before merging into SWI',{skip:swi},()=>{
   const rule={id:'doorRule',if:[atom('door_open',['a','b'])],then:atom('connected',['a','b'])};
   const assumptions=[assumption('a1','door_open',['a','b'])];
   const defeated=solveHorn(q('connected','a','b'),{facts:[fact('f2','door_open',['a','b'],true)],rules:[rule],complete:true},{backend:'prolog',assumptions});

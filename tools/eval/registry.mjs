@@ -99,6 +99,10 @@ export function audit(manifestFile, reportFile) {
     if (!cell.predictions_sha256) problems.push(`Missing predictions: ${cell.predictions}`);
     if (cell.baseline_provenance?.problem) problems.push(cell.baseline_provenance.problem);
   }
+  const modelManifest = 'eval/registry/manifest.json';
+  const modelMissing = checksum(modelManifest)
+    ? json(resolved(modelManifest)).cells.filter(cell => !checksum(cell.predictions)).map(cell => ({ id:cell.id, split:cell.split, predictions:cell.predictions }))
+    : [];
   const report = { format:'chatsop-leakage-audit-v1', manifest:manifestFile, manifest_sha256:checksum(manifestFile),
     source_files_checked:boundary.files, source_sha256:Object.fromEntries([...new Set([...boundary.files, ...executionFiles])].sort().map(file => [file, checksum(file)])),
     observed_training_selection_splits:boundary.observed_splits,
@@ -107,6 +111,7 @@ export function audit(manifestFile, reportFile) {
     observed_evaluation_scope:manifest.predictor_identity
       ? 'Only deterministic gold-copy baseline predictions and their evaluator sanity check are configured here; no real-model predictions or model accuracy are observed.'
       : 'Real-model dev/selection and sealed-test prediction artifacts are absent; incomplete cells forbid a final model report.',
+    observed_real_model_manifest_sha256:checksum(modelManifest), observed_real_model_missing_predictions:modelMissing,
     dataset_local_test_paths:localTestCorpora(), split_artifacts:splits.entries, cells, problems, ready:problems.length === 0,
     limitations:['Static source inspection is not a sandbox against computed paths or external processes.', 'Sealed answers are not read during preflight; semantic train/test overlap is not asserted.'] };
   save(resolved(reportFile), report);

@@ -1,13 +1,15 @@
 ---
 name: manage-shards
-description: Maintain local RecallSOP generations, retention, copy-on-write snapshots, migration and safe garbage collection.
+description: Maintain local ChatSOP memory generations, retention, copy-on-write snapshots, migration and safe garbage collection.
 ---
 
-Read `docs/legacy/requirements/18-sharduri.md`, `docs/legacy/requirements/03-memorie.md`, `docs/legacy/requirements/05-timp.md` and `docs/legacy/requirements/17-algoritmi.md` before modifying storage.
+This skill covers **memory** shards (repository generations and banks, [DS028](../../docs/specs/DS028-memory-retention-and-generations.md)), not the 50 MB JSONL file shards written by `lib/jsonl-shards.mjs` and checked by `node tools/shard-large-files.mjs --check`.
+
+Read `probably_obsolete/legacy/requirements/18-sharduri.md`, `probably_obsolete/legacy/requirements/03-memorie.md`, `probably_obsolete/legacy/requirements/05-timp.md` and `probably_obsolete/legacy/requirements/17-algoritmi.md` before modifying storage.
 
 Use the Repository API for writes. Do not edit content-addressed blobs in place. Keep generation geometry inside each shard; a new configuration affects new banks only. Normal cache limits do not authorize deleting pinned memory, control events, base knowledge or snapshots still referenced by sessions/forks.
 
-Promote only verified observed proof premises. Copy the original claim metadata, not the query-clipped interval. Preserve all correction events needed to avoid resurrecting a claim. Keep historical library versions across checkpoints for `asof` queries.
+Promote only verified observed facts used in a proof. Copy the original claim metadata, not the query-clipped interval. Preserve all correction events needed to avoid resurrecting a claim. Keep historical library versions across checkpoints for `asof` queries.
 
 Run migration explicitly and preserve banks without pretending to reverse their hashes. Use archive mode for conservative migration. Explain that the next bounded maintenance may intentionally evict excess generations. Back up a real repository before administrative migration.
 

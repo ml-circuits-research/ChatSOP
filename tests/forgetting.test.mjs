@@ -1,20 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Weaver} from '../memory/weaver.mjs';
+import {RecallMemory} from '../memory/weaver.mjs';
 import {context,queryProgram} from './helpers.mjs';
 
 const a={p:'likes',a:['ana','alpha'],neg:false};
 const b={p:'likes',a:['ana','beta'],neg:false};
 
 test('cell-level reinforcement survives a cooling sweep while one-shot support fades',()=>{
- const w=new Weaver({power:16,arity:3,verification:'receipt'});
+ const w=new RecallMemory({power:16,arity:3,verification:'receipt'});
  w.add(a,{strength:1});w.add(b,{strength:1});w.reinforce(a,{strength:2});w.decay(1);
  assert.equal(w.recall(a).rows.length,1);
  assert.equal(w.recall(b).rows.length,0);
 });
 
 test('pressure maintenance cools only after the safe occupancy threshold',()=>{
- const w=new Weaver({power:10,arity:3,verification:'receipt'});
+ const w=new RecallMemory({power:10,arity:3,verification:'receipt'});
  for(let i=0;i<250;i++)w.add({p:'r',a:['s'+i,'o'+i],neg:false},{strength:1});
  const before=w.occupancy();
  const r=w.maintain({mode:'adaptive',safeOccupancy:.02,targetOccupancy:.01,step:1,maxSweeps:4});
@@ -22,7 +22,7 @@ test('pressure maintenance cools only after the safe occupancy threshold',()=>{
 });
 
 test('archive mode does not automatically forget under pressure',()=>{
- const w=new Weaver({power:10,arity:3,verification:'receipt'});
+ const w=new RecallMemory({power:10,arity:3,verification:'receipt'});
  for(let i=0;i<250;i++)w.add({p:'r',a:['s'+i,'o'+i],neg:false},{strength:1});
  const before=w.occupancy(),r=w.maintain({mode:'none',safeOccupancy:.02,targetOccupancy:.01});
  assert.equal(r.triggered,false);assert.equal(w.occupancy(),before);

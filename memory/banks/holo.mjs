@@ -1,22 +1,29 @@
-/** SOP fact adapter over H7's signed-counter primitive.
+/** HoloMemory SOP fact adapter over the signed-counter kernel (DS024).
  * For argument i: key = predicate + polarity + all OTHER arguments; value = arg i.
  * Candidate dictionaries and SHA-256 receipts are explicit, separately measured.
  * This adapter is not the still-experimental, fully bounded cue/content-plane
- * architecture described in H7. No exact atom bodies are read during recall.
+ * architecture that DS024 lists as future work. No exact atom bodies are read during recall.
  */
 import {HoloKernel} from './holo-kernel.mjs';
 import {atom,atomKey} from '../../lib/types.mjs';
 import {assert,digest,stable,variable} from '../../lib/util.mjs';
 import {groups,checkBudget} from './common.mjs';
-const keyFor=(a,i)=>stable(['h7-field-v1',a.p,a.neg,i,a.a.map((v,j)=>j===i?null:v)]);
+// Frozen hash-domain tag of the field keys: changing it would re-address every stored trace,
+// so it keeps its historical spelling (DS024, "Persisted identifiers").
+const FIELD_TAG='h7-field-v1';
+const keyFor=(a,i)=>stable([FIELD_TAG,a.p,a.neg,i,a.a.map((v,j)=>j===i?null:v)]);
+/** Snapshot format written by this adapter, followed by the legacy format it still reads. */
+export const HOLO_FORMATS=['holo-fact-bank-v1','h7-fact-bank-v1'];
+/** HoloMemory parameters: `memory.holoMemory`, with the legacy `memory.holo` block as a fallback. */
+export const holoSettings=(config={})=>({...config.holo,...config.holoMemory});
 export class HoloBank {
  constructor(config={},state=null){
-  this.config={...config,...state?.config,engine:'holo'};
-  this.kernel=state?HoloKernel.from(state.kernel):new HoloKernel({seed:this.config.seed??1234567,...this.config.holo});
+  this.config={...config,...state?.config,engine:'holo-memory'};
+  this.kernel=state?HoloKernel.from(state.kernel):new HoloKernel({seed:this.config.seed??1234567,...holoSettings(this.config)});
   this.domains=structuredClone(state?.domains??{});this.receipts=structuredClone(state?.receipts??{});this.writes=state?.writes??0;
   this.metrics={novelFacts:0,repeatedFacts:0,...state?.metrics};this.domainSets=new Map();
-  this.minSignal=this.config.holo?.minSignal??.35;this.minCorrelation=this.config.holo?.minCorrelation??.15;
-  this.config.verification??='receipt';assert(this.config.verification==='receipt','Holo SOP adapter requires integrity receipts');
+  const settings=holoSettings(this.config);this.minSignal=settings.minSignal??.35;this.minCorrelation=settings.minCorrelation??.15;
+  this.config.verification??='receipt';assert(this.config.verification==='receipt','HoloMemory SOP adapter requires integrity receipts');
  }
  _domainAdd(a){const pkey=a.p+'/'+a.a.length;if(!Object.hasOwn(this.domains,pkey))this.domains[pkey]=a.a.map(()=>[]);
   a.a.forEach((v,i)=>{const k=pkey+':'+i;let set=this.domainSets.get(k);if(!set){set=new Set(this.domains[pkey][i].map(stable));this.domainSets.set(k,set);}const s=stable(v);if(!set.has(s)){set.add(s);this.domains[pkey][i].push(v);}});
@@ -46,7 +53,7 @@ export class HoloBank {
    if(!receipt||blocked.has(id)||(receipt.expiresAt&&receipt.expiresAt<=now))return;
    if(rows.length>=limit){complete=false;return;}
    rows.push({atom:structuredClone(a),id,source:receipt.source??null,
-    evidence:{verification:'h7-receipt',receipt:true,support:Math.min(...scores.map(x=>x.correlation)),
+    evidence:{verification:'holo-receipt',receipt:true,support:Math.min(...scores.map(x=>x.correlation)),
      signal:Math.min(...scores.map(x=>x.signal)),scoreIsProbability:false}});
   };
   const visit=depth=>{
@@ -65,7 +72,7 @@ export class HoloBank {
    for(const pos of g.positions)a.a[pos]=p.a[pos];
   };
   if(unknown.length)visit(0);else accept();
-  return {rows,probes,complete,coverage:'retained-h7-candidates',exhaustiveOriginalMemory:false};
+  return {rows,probes,complete,coverage:'retained-holo-candidates',exhaustiveOriginalMemory:false};
  }
  decay(steps=1){assert(Number.isInteger(steps)&&steps>=0,'Invalid decay');this.kernel.decay(steps);for(const [id,r] of Object.entries(this.receipts)){r.strength=Math.max(0,(r.strength??1)-steps);if(!r.strength)delete this.receipts[id];}}
  maintain({mode='none',safeOccupancy=.55,targetOccupancy=.45,step=1,maxSweeps=15,at=Date.now()}={}){
@@ -76,9 +83,9 @@ export class HoloBank {
  occupancy(){return this.kernel.occupancy();}
  peakOccupancy(){return this.occupancy();}
  bankBytes(){return this.kernel.counters.byteLength;}
- export(){return {format:'h7-fact-bank-v1',config:this.config,kernel:this.kernel.export(),domains:this.domains,receipts:this.receipts,writes:this.writes,metrics:this.metrics};}
+ export(){return {format:HOLO_FORMATS[0],config:this.config,kernel:this.kernel.export(),domains:this.domains,receipts:this.receipts,writes:this.writes,metrics:this.metrics};}
  static from(s){return new HoloBank(s.config,s);}
- stats(){return {...this.kernel.stats(),engine:'holo',writes:this.writes,...this.metrics,receipts:Object.keys(this.receipts).length,
+ stats(){return {...this.kernel.stats(),engine:'holo-memory',writes:this.writes,...this.metrics,receipts:Object.keys(this.receipts).length,
   metadataBytes:Buffer.byteLength(JSON.stringify({domains:this.domains,receipts:this.receipts})),
   domainCacheEntries:[...this.domainSets.values()].reduce((n,s)=>n+s.size,0),boundedKernel:true,boundedTotal:false};}
 }

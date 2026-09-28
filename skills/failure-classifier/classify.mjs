@@ -4,6 +4,8 @@ const required = (condition, message) => { if (!condition) throw Error(message);
 const text = value => typeof value === 'string' && value.trim().length > 0;
 const program = source => canonical(parse(source));
 const atom = source => emitAtom(parseAtom(source));
+// Hypothetical inputs of a circuit: `fact ... source assumption` wires, consumed only through `assume`.
+const assumedAtoms = sop => parse(sop).wires.filter(w => w.type === 'fact' && w.fields.source?.[0] === 'assumption').flatMap(w => w.fields.holds ?? []).map(atom);
 const packet = execution => {
   required(execution && typeof execution === 'object' && execution.result && typeof execution.result.status === 'string', 'An executed runtime result packet is required');
   return execution.result;
@@ -25,15 +27,15 @@ export function classifyFailure({question, goldSop, candidateSop, goldExecution,
       if (!gold.includes('holds '+assertion) && !gold.includes('when '+assertion))
         matches.push(finding('source_gap', 'source acquisition / reviewed knowledge ingestion', {...observations, source:{id:diagnostics.source.id, quote:diagnostics.source.quote, reviewer:diagnostics.source.reviewer, assertedAtom:assertion}, missingFromBothCircuits:true}));
     }
-    if (text(diagnostics.sameInputDigest) && gold !== candidate && g.status !== c.status && ['supported','refuted'].includes(g.status) && !diagnostics.unreviewedExtraPremise)
+    if (text(diagnostics.sameInputDigest) && gold !== candidate && g.status !== c.status && ['supported','refuted'].includes(g.status) && !diagnostics.unreviewedExtraAssumption)
       matches.push(finding('semantic_gap', 'SOP formalization / reviewed semantic mapping', {...observations, sameInputDigest:diagnostics.sameInputDigest, goldSop:gold, candidateSop:candidate}));
     if (text(diagnostics.sameInputDigest) && gold === candidate && g.status !== c.status)
       matches.push(finding('reasoning_gap', 'reasoning backend / execution', {...observations, sameInputDigest:diagnostics.sameInputDigest, sameCircuit:true}));
-    const extra = diagnostics.unreviewedExtraPremise;
+    const extra = diagnostics.unreviewedExtraAssumption;
     if (text(diagnostics.sameInputDigest) && text(extra?.atom) && text(extra?.sourceId) && extra?.reviewedAsUnsupported === true && g.status === 'unknown' && c.status === 'supported' && gold !== candidate) {
-      const alleged = atom(extra.atom), premises = parse(candidateSop).wires.filter(w => w.type === 'premise').flatMap(w => w.fields.holds ?? []).map(atom);
-      if (premises.includes(alleged) && !parse(goldSop).wires.filter(w => w.type === 'premise').flatMap(w => w.fields.holds ?? []).map(atom).includes(alleged))
-        matches.push(finding('over_inference', 'unsupported premise / candidate SOP authoring', {...observations, sameInputDigest:diagnostics.sameInputDigest, extraPremise:alleged, sourceId:extra.sourceId}));
+      const alleged = atom(extra.atom), assumed = assumedAtoms(candidateSop);
+      if (assumed.includes(alleged) && !assumedAtoms(goldSop).includes(alleged))
+        matches.push(finding('over_inference', 'unsupported assumption / candidate SOP authoring', {...observations, sameInputDigest:diagnostics.sameInputDigest, extraAssumption:alleged, sourceId:extra.sourceId}));
     }
     const interpretations = diagnostics.interpretations;
     if (Array.isArray(interpretations) && interpretations.length >= 2 && interpretations.every(x => text(x.meaning) && text(x.sop) && x.execution?.result?.complete === true && text(x.sourceQuote) && text(x.reviewer))) {

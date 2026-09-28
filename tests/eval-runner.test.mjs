@@ -13,8 +13,10 @@ function fixture() {
       predicates: [{ id: 'parent', args: ['person', 'person'], meaning: 'parent of a person' }],
       approvedTemplates: [], procedures_sop: [],
     },
+    // Host vocabulary: the model writes strings, the host links them (DS021).
+    ontology_sop: '@parent predicate\n  args person person\n  label en "parent of"\n' + ['a', 'b', 'c'].map(x => `@person_${x} entity\n  kind person\n  label en "person ${x.toUpperCase()}"\n`).join(''),
     setup_sop: '@f fact\n  holds parent person_a person_b\n  valid timeless\n  source synthetic\n',
-    sop_target: '@q query\n  select ?who\n  where parent ?who person_b\n',
+    sop_target: '@q query\n  where match\n    relation "parent of"\n    role subject ?who\n    role object "person B"\n    polarity affirmed\n  end\n  select ?who\n',
     expected: { status: 'supported', answers: [['person_a']], outputs: {} },
   };
 }
@@ -26,7 +28,7 @@ test('evaluation distinguishes wrong semantics from invalid syntax and endpoint 
   const correct = await evaluate([row], { config, predictor: () => row.sop_target });
   assert.equal(correct.metrics.execution_equivalence.numerator, 1);
   assert.equal(correct.model_identity_verified, false);
-  const wrong = await evaluate([row], { config, predictor: () => row.sop_target.replace('parent ?who person_b', 'parent ?who person_c') });
+  const wrong = await evaluate([row], { config, predictor: () => row.sop_target.replace('"person B"', '"person C"') });
   assert.equal(wrong.metrics.syntax.numerator, 1);
   assert.equal(wrong.metrics.runtime.numerator, 1);
   assert.equal(wrong.metrics.execution_equivalence.numerator, 0);
@@ -63,10 +65,12 @@ test('explicitly remembered user facts are isolated from predictions that omit t
   const row = fixture();
   row.evaluation_track = 'system';
   row.input_mode = 'assertions_query';
-  row.context_assertions = ['Person A is a parent of person B.'];
+  const assertion = 'Person A is a parent of person B.';
+  row.question = assertion + ' ' + row.question;
   row.setup_sop = '';
-  const queryOnly = row.sop_target + '@s solve\n  query $q\n@answer cnl\n  result $s\n  language en\n';
-  row.sop_target = `@observation fact\n  holds parent person_a person_b\n  valid timeless\n  source user\n  quote ${JSON.stringify(row.context_assertions[0])}\n@remember remember\n  input $observation\n  scope session\n` + queryOnly.replace('  query $q', '  query $q\n  after $remember');
+  // A trusted system circuit states linked atom conditions; only model queries use match blocks.
+  const queryOnly = '@q query\n  select ?who\n  where parent ?who person_b\n' + '@s solve\n  query $q\n@answer cnl\n  result $s\n  language en\n';
+  row.sop_target = `@observation fact\n  holds parent person_a person_b\n  valid timeless\n  source user\n  quote ${JSON.stringify(assertion)}\n@remember remember\n  input $observation\n  scope session\n` + queryOnly.replace('  query $q', '  query $q\n  after $remember');
   row.expected.session_claims = [{ holds:'parent person_a person_b', valid:'timeless', source:'user', quote:'Person A is a parent of person B.', retention:'normal' }];
   const correct = await evaluate([row], { config, predictor: () => row.sop_target });
   assert.equal(correct.records[0].reference_valid, true);
@@ -81,23 +85,6 @@ test('explicitly remembered user facts are isolated from predictions that omit t
   const wrongGold = await evaluate([{ ...row, sop_target:withoutProvenance }], { config, predictor: () => { throw Error('must not be called'); } });
   assert.equal(wrongGold.records[0].reference_valid, false);
   assert.equal(wrongGold.records[0].error.stage, 'reference');
-});
-
-test('a host-supplied case ontology is used by both execution guards without widening the model shortlist', async () => {
-  const row = fixture();
-  row.input_mode = 'query_only';
-  row.ontology_sop = '@guides predicate\n  args person person\n  label en "guides"\n@person_a entity\n  kind person\n  label en "Person A"\n@person_b entity\n  kind person\n  label en "Person B"\n@person_c entity\n  kind person\n  label en "Person C"\n';
-  row.context.predicates = [{ id: 'guides', args: ['person', 'person'] }];
-  row.setup_sop = row.setup_sop.replace('parent ', 'guides ');
-  row.sop_target = row.sop_target.replace('parent ', 'guides ');
-  row.expected.packet = { complete: true };
-  const correct = await evaluate([row], { config, predictor: () => row.sop_target });
-  assert.deepEqual(correct.records[0].reference.answers, [['person_a']]);
-  assert.equal(correct.records[0].execution_equivalent, true);
-  const outside = await evaluate([row], { config, predictor: () => row.sop_target.replace('guides ', 'parent ') });
-  assert.equal(outside.records[0].reference_valid, true);
-  assert.equal(outside.records[0].runtime_valid, false);
-  assert.equal(outside.records[0].error.stage, 'prediction');
 });
 
 test('literal answer packets cannot masquerade as executed reasoning or CNL', async () => {

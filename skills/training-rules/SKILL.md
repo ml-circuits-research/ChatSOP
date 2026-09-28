@@ -4,6 +4,12 @@ These are experimental design heuristics from earlier small-model runs, not
 universal percentages, scaling laws or evidence of ChatSOP model accuracy.
 Measure each claim again on this task with representative held-out examples.
 
+**Approval gate:** training is prohibited until the owner gives a new
+explicit approval (AGENTS.md rule 3). These rules shape a future arm; they
+authorize nothing. For ChatSOP the formalizer's input is the user's message
+only and its data comes from the DS022 corpora `formalizer-v1` and
+`formalizer-ood-v1` (skill `synthetic-sop-data`).
+
 ## 1. Coverage is an empirical question
 
 Count the composition and operator families in train, development and real
@@ -75,3 +81,7 @@ Follow `night-orchestration` for the exclusive owner, preflight, bounded run,
 checkpoint validity, explicit stop and closed-run retention. For ChatSOP use
 its Node training controller and the `spark-training` Podman procedure, never
 the obsolete imported shell launchers.
+
+## Project journal
+
+Append an event to `status/journal.jsonl` with `node tools/journal.mjs add --area <area> --state <started|progress|done|blocked|decision> --title "…" --detail "…" [--link <path>]` whenever you start, finish or block a meaningful task or record an owner decision; the journal is append-only and the server's `/project` page shows it to the owner in real time (AGENTS.md, "Project journal"). Record each arm's hypothesis as an entry in `status/experiments.json` (DS010 preregistration link, data version, status, results, conclusions) before running it.

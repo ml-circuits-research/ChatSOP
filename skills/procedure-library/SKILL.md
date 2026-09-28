@@ -5,8 +5,8 @@ description: Build approved SOP rules and templates
 
 # Build approved SOP rules and templates
 
-Citește `docs/legacy/requirements/01-sop.md`, `docs/legacy/requirements/02-runtime.md` și `docs/legacy/requirements/06-backenduri.md`. Scrie reguli Horn cu variabile `?x`, dependente SOP cu `$wire` și handle-uri cu `~wire`. Nu confunda aceste roluri. Toate variabilele din concluzie trebuie legate de premise.
+Read the archived legacy chapters `probably_obsolete/legacy/requirements/01-sop.md`, `probably_obsolete/legacy/requirements/02-runtime.md` and `probably_obsolete/legacy/requirements/06-backenduri.md` (consolidated in the archived register `probably_obsolete/specs/legacy-registers/DS027-legacy-architecture-language.md`) together with DS004. Write Horn rules with `?x` variables, SOP dependencies with `$wire` and handles with `~wire`. Do not confuse these roles. Every variable in a rule's conclusion must be bound by its conditions.
 
-Pentru un template definește params, yield și body. Refolosește firele standard și referințe explicite. Folosește `only(...)` când un scalar cere unicitatea rezultatului. Nu rezolva tăcut ambiguitatea alegând primul rând.
+For a template, define `params`, `yield` and `body`. Reuse the standard wires and explicit references. Use the expression function `only(...)` when a scalar requires a unique result. Never resolve an ambiguity silently by picking the first row.
 
-Testează instanțierea repetată fără coliziuni de nume, lipsa argumentelor, epocile, bugetele, datele lipsă, sursele contradictorii și ordinea efectelor. Publică sursa exactă cu checksum numai după review; memory support nu este autorizație pentru cod.
+Test repeated instantiation without name collisions, missing arguments, epochs, budgets, missing data, contradictory sources and effect ordering. Publish the exact source with its checksum only after review; memory support is not authorization for code.

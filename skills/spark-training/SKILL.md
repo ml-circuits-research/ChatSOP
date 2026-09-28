@@ -8,7 +8,7 @@ description: Build and run a bounded ChatSOP GPU training job with rootless Podm
 This is an operational procedure, not evidence that a particular image or
 training run succeeded. The only trainer is `node training/cli.mjs` in the
 repository; `training/container/podman.mjs` supplies an image build and
-bounded container transport. Review `docs/legacy/requirements/08-spark.md`
+bounded container transport. Review `probably_obsolete/legacy/requirements/08-spark.md`
 and `27-date-si-invatare-v3.md` as **historical requirements**, not active
 launch commands. Do not invoke an imported shell launcher or use Docker.
 

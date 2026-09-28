@@ -1,4 +1,5 @@
 import {createBank} from './banks/factory.mjs';
+import {holoSettings} from './banks/holo.mjs';
 import {atomKey} from '../lib/types.mjs';
 import {digest,assert} from '../lib/util.mjs';
 import {serialInterval,readInterval,contains,intersect} from '../lib/time.mjs';
@@ -25,13 +26,13 @@ function retentionConfig(config={}){
  assert(Number.isInteger(r.maxSweeps)&&r.maxSweeps>=1&&r.maxSweeps<=100,'maxSweeps must be 1..100');
  return r;
 }
-/** Tuple bodies are reconstructed from Weaver, not read from an exact fact table.
+/** Tuple bodies are reconstructed from the selected bank (RecallMemory by default), not read from an exact fact table.
  * Exact claim metadata and update events qualify time, identity and provenance.
  * A source journal is optional and is NEVER read by recall().
  *
  * Retention is approximate. Normal memory is a bank of saturating counters.
  * Observation/use increases counters; pressure maintenance decreases every normal
- * counter. Pinned memory is a physically separate Weaver and is never cooled by
+ * counter. Pinned memory is a physically separate bank and is never cooled by
  * automatic maintenance.
  */
 export class TemporalLayer{
@@ -39,7 +40,7 @@ export class TemporalLayer{
   const source=state?.config??config;
   this.config={power:12,arity:3,verification:'receipt',journal:false,exact:false,...source,retention:retentionConfig(source)};
   this.normal=createBank(this.config,state?.normal??null);
-  this.pinned=createBank({...this.config,holo:{...this.config.holo,ageStepsPerNovel:0}},state?.pinned??null);
+  this.pinned=createBank({...this.config,holoMemory:{...holoSettings(this.config),ageStepsPerNovel:0}},state?.pinned??null);
   for(const bank of [this.pinned,this.pinned.associative])if(bank?.kernel)bank.kernel.config.ageStepsPerNovel=0;
   if(this.config.retention.mode==='none')for(const bank of [this.normal,this.normal.associative])if(bank?.kernel)bank.kernel.config.ageStepsPerNovel=0;
   this.claims=structuredClone(state?.claims??{});this.events=structuredClone(state?.events??[]);this.sources=structuredClone(state?.sources??[]);this.exactAtoms=structuredClone(state?.exactAtoms??{});

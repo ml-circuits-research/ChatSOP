@@ -1,0 +1,45 @@
+{
+  "format": "chatsop-formalizer-projection-v1",
+  "corpus": "formalizer-v1",
+  "prompt_profile": "message-only",
+  "prompt": "barePrompt(row.question): the user message and nothing else",
+  "created": "2026-09-28",
+  "training_authorized": false,
+  "review_status": "not_reviewed",
+  "files": {
+    "datasets/formalizer-v1/formalizer/train.jsonl": {
+      "rows": 23962,
+      "sha256": "4f798db93671a3d5b5f32f38e1a3b410dffaf23aa28a64d26376caf91eb3ca3d"
+    },
+    "datasets/formalizer-v1/formalizer/dev.jsonl": {
+      "rows": 5067,
+      "sha256": "6936443e0d4faa2eaa64e93d788df99158d54a5627d35eaa26593e8e757ea48c"
+    }
+  },
+  "connected_groups": 29123,
+  "by_question_type": {
+    "ambiguous": 498,
+    "claim_check": 667,
+    "count": 1002,
+    "how": 679,
+    "how_long": 412,
+    "how_many_times": 401,
+    "multi": 672,
+    "none": 578,
+    "numeric": 862,
+    "since_when": 424,
+    "unclear": 1681,
+    "universal": 1085,
+    "until_when": 450,
+    "wh": 4118,
+    "when": 655,
+    "where": 863,
+    "why": 968,
+    "yes_no": 13014
+  },
+  "sealed_test": {
+    "file": "eval/suites/formalizer-v1/test.jsonl",
+    "rows": 4951,
+    "sha256": "3d85d74db356cf8e75bf3509764eda0d9980d866daafba2159d2677aceff97b2"
+  }
+}

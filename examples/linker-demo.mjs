@@ -4,14 +4,14 @@ import assert from 'node:assert/strict';import fs from 'node:fs';import os from 
 import {Repository} from '../memory/repository.mjs';import {Runtime} from '../sop/runtime.mjs';
 import {publishKnowledge} from '../sop/ingest.mjs';import {Lexicon} from '../sop/lexicon.mjs';
 import {compileProlog} from '../reasoning/solvers.mjs';import {compileSMT} from '../reasoning/backends/constraints.mjs';
-const root=fs.mkdtempSync(path.join(os.tmpdir(),'recallsop-link-'));
+const root=fs.mkdtempSync(path.join(os.tmpdir(),'chatsop-link-'));
 const reportDir=new URL('../eval/reports/current/linker/',import.meta.url);fs.mkdirSync(reportDir,{recursive:true});
 const lex=Lexicon.load(new URL('../config/ontology.sop',import.meta.url));
 const repo=new Repository(root,{memory:{power:10,exact:true}}),fixture=fs.readFileSync(new URL('../tests/fixtures/bootstrap.sop',import.meta.url),'utf8');
 publishKnowledge(repo,'demo',fixture,{schema:lex.predicates,reviewed:true,knownAt:Date.parse('2024-01-01')});
 const runs=[];
 try {
- for(const name of ['auto-link','auto-mixed','auto-cascade','auto-ambiguous','auto-rows','auto-template'])for(const strategy of ['recall-weaver','exact','hybrid']){
+ for(const name of ['auto-link','auto-mixed','auto-cascade','auto-ambiguous','auto-rows','auto-template'])for(const strategy of ['recall-memory','exact','hybrid']){
   const session=repo.session('demo','alice',name+'_'+strategy),source=fs.readFileSync(new URL('./'+name+'.sop',import.meta.url),'utf8');
   const r=await new Runtime({repo,session,schema:lex.predicates,now:Date.parse('2026-09-26'),policy:{retrievalStrategy:strategy}}).run(source);
   if(name==='auto-link')assert.equal(r.values.bunica,'ana');
@@ -27,7 +27,7 @@ try {
    const linked=Object.values(r.values).find(v=>v?.kind==='retrieval');
    if(linked)fs.writeFileSync(new URL(name+'.pl',reportDir),compileProlog(linked.facts.map(f=>f.atom),linked.rules));
    const numeric=Object.values(r.values).find(v=>v?.kind==='constraint'&&v.vars);
-   if(numeric){const smt=compileSMT(numeric);fs.writeFileSync(new URL(name+'.smt2',reportDir),smt.prefix+'\n; Base premises\n(check-sat)\n(get-model)\n; Is the claim possible?\n(push)\n(assert '+smt.claim+')\n(check-sat)\n(pop)\n; Is its negation possible?\n(push)\n(assert (not '+smt.claim+'))\n(check-sat)\n(pop)\n');}
+   if(numeric){const smt=compileSMT(numeric);fs.writeFileSync(new URL(name+'.smt2',reportDir),smt.prefix+'\n; Base facts and rules\n(check-sat)\n(get-model)\n; Is the claim possible?\n(push)\n(assert '+smt.claim+')\n(check-sat)\n(pop)\n; Is its negation possible?\n(push)\n(assert (not '+smt.claim+'))\n(check-sat)\n(pop)\n');}
   }
   const summary={example:name,strategy,status:r.result?.packet?.status,epochs:r.epochs,
     outputs:Object.fromEntries(Object.entries(r.outputs).map(([k,v])=>[k,{status:v.status,...(v.status==='bound'?{value:v.value}:{})}])),blocked:Object.keys(r.blocked)};

@@ -33,7 +33,7 @@
     },
     "engine": "hybrid",
     "hybrid": {
-      "associative": "weaver"
+      "associative": "recall-memory"
     }
   },
   "formalizer": {
@@ -52,7 +52,6 @@
     "allowWrite": true,
     "allowPin": true,
     "allowRules": false,
-    "allowJsEval": true,
     "maxWires": 2048,
     "maxEpochs": 16,
     "maxProbes": 50000,

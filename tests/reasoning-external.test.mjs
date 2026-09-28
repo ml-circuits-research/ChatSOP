@@ -1,5 +1,52 @@
-import test from 'node:test';import assert from 'node:assert/strict';
-import {solverAvailable} from '../reasoning/registry.mjs';import {Runtime} from '../sop/runtime.mjs';
-const source='@c constraint\n  var ?x int 0 10\n  var ?y int 0 10\n  require ?x + ?y >= 5\n  claim ?x >= 0\n  objective 2 * ?x + ?y\n  direction min\n  task optimize\n@r solve\n  constraint $c\n  reasoning advanced\n  backend z3\n  output ?x one\n  output ?y one';
-test('v3 external: actual Z3 optimization plus optimality check',{skip:!solverAvailable('z3')},async()=>{const r=await new Runtime().run(source);assert.equal(r.result.backend,'z3');assert.equal(r.result.status,'optimal');assert.equal(r.result.objective,5);assert.equal(r.values.x,0);assert.equal(r.values.y,5);});
-test('v3 external: actual Prolog through advanced strategy',{skip:!solverAvailable('prolog')},async()=>{const source='@f fact\n  holds p a\n  valid timeless\n@r rule\n  when p ?x\n  then q ?x\n@data pack\n  items $f $r\n@q query\n  where q a\n  at 2026-09-26\n@answer reason\n  query $q\n  data $data\n  reasoning advanced\n  backend prolog';const r=await new Runtime().run(source);assert.equal(r.result.status,'supported');assert.equal(r.result.backend,'prolog');});
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {Runtime} from '../sop/runtime.mjs';
+import {solverSkip} from './helpers.mjs';
+
+const optimization = `@c constraint
+  var ?x int 0 10
+  var ?y int 0 10
+  require ?x + ?y >= 5
+  claim ?x >= 0
+  objective 2 * ?x + ?y
+  direction min
+  task optimize
+@r solve
+  constraint $c
+  reasoning advanced
+  backend z3
+  output ?x one
+  output ?y one`;
+
+const horn = `@f fact
+  holds p a
+  valid timeless
+@r rule
+  when p ?x
+  then q ?x
+@data pack
+  items $f $r
+@q query
+  where q a
+  at 2026-09-26
+@answer reason
+  query $q
+  data $data
+  reasoning advanced
+  backend prolog`;
+
+test('v3 external: actual Z3 optimization plus optimality check', {skip: solverSkip('z3')}, async () => {
+  const r = await new Runtime().run(optimization);
+  assert.equal(r.result.backend, 'z3');
+  assert.equal(r.result.status, 'optimal');
+  assert.equal(r.result.objective, 5);
+  assert.equal(r.values.x, 0);
+  assert.equal(r.values.y, 5);
+});
+
+test('v3 external: actual Prolog through advanced strategy', {skip: solverSkip('prolog')}, async () => {
+  const r = await new Runtime().run(horn);
+  assert.equal(r.result.status, 'supported');
+  assert.equal(r.result.backend, 'prolog');
+  assert.equal(r.result.route.fallback, null);
+});

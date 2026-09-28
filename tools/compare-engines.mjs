@@ -11,9 +11,9 @@ import {cliArgs,digest,saveJSON} from '../lib/util.mjs';
 const args=cliArgs(),out=path.resolve(args.out??new URL('../eval/reports/current/comparisons/engines.json',import.meta.url).pathname);
 const counts=String(args.counts??'64,256').split(',').map(Number),seeds=String(args.seeds??'11,29').split(',').map(Number),queryCount=Number(args.queries??24);
 if(!counts.every(n=>Number.isSafeInteger(n)&&n>0)||!seeds.every(Number.isSafeInteger)||!Number.isSafeInteger(queryCount)||queryCount<4)throw Error('Invalid counts, seeds or query count');
-const engines=['weaver','holo','sqlite','scan','hybrid'];
+const engines=['recall-memory','holo-memory','sqlite','scan','hybrid'];
 const atom=(s,v)=>({p:'rel',a:[s,v],neg:false});
-const config=(engine,seed=11)=>({engine,power:12,seed,verification:'receipt',holo:{rows:256,banks:4,dimension:64,seed,ageStepsPerNovel:0},retention:{mode:'none'},sharding:{enabled:true,mode:'archive',maxClaimsPerShard:3,gcEveryWrites:0}});
+const config=(engine,seed=11)=>({engine,power:12,seed,verification:'receipt',holoMemory:{rows:256,banks:4,dimension:64,seed,ageStepsPerNovel:0},retention:{mode:'none'},sharding:{enabled:true,mode:'archive',maxClaimsPerShard:3,gcEveryWrites:0}});
 const pct=(list,p)=>{const sorted=[...list].sort((a,b)=>a-b);return sorted[Math.min(sorted.length-1,Math.floor(sorted.length*p))]??null;};
 const valid={from:-Infinity,until:Infinity};
 function benchmark(engine,count,seed){

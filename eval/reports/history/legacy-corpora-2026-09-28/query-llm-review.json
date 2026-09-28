@@ -1,0 +1,43 @@
+{
+  "overall_correctness": "incorrect",
+  "explanation": "Read-only harness semantic review covered all 60 cases (42 world queries, 6 attached-assertion cases, 6 numeric cases, 6 clarification/unsupported cases), all 180 English surfaces and 19 selected Romanian surfaces, plus the builder/profile and relevant consuming runtime/evaluator paths; provenance is harness review, modelidentityunverified, nothuman, with no execution, tests, edits, training or GPU activity performed. Must-fix findings below concern assertion provenance/effects, a counting-surface discrepancy, and inaccurate heldout-dimension claims; outside these findings, source inspection supports the intended role directions, explicit-negation/open-world distinctions, half-open time boundaries, visible as-of cutoff, finite possible-versus-prove distinction, uniqueness handling, separately published approved procedure and model/host privilege separation. Separate coverage limitations: these are synthetic, not source-backed or independently authored reference cases; graph expectations share parseAtom and the same formal case inputs as target generation, so independence is from the solver rather than independent NL interpretation; asserted effects are compared against gold execution rather than a separately specified effect oracle; interval cases establish overlap only, contested joins do not certify uncontested tuples, alias examples disclose canonical mappings and omit ambiguous/absent resolution, and revision, optimization, general quantification and advanced positive reasoning remain uncovered rather than verified successes.",
+  "confidence": 0.94,
+  "findings": [
+    {
+      "title": "Preserve the supplied quote in every asserted user fact",
+      "body": "All six attached-assertion cases (assert_positive, assert_reverse, assert_negative, assert_conflict, assert_only and assert_temporal) pass the source text in context_assertions, but targetQuery emits only holds/valid/source user and drops claim.text. For example, assert_only asks 'Record this for the present session: Ana works at Beta Lab.', yet its target stores works_at(ana, lab_beta) with an empty quote because lowerFact defaults an omitted quote to ''. This violates the profile's quoted-user-claim contract and has an observable evaluation consequence: executionSignature includes each stored claim's quote, so a prediction that correctly preserves the supplied quotation is marked different from this gold. Add a JSON-quoted claim.text to each generated fact and specify the expected stored provenance independently rather than relying only on status/count.",
+      "priority": 2,
+      "confidence": 0.99,
+      "file_path": "/home/salboaie/work/ChatSOP/datasets/build-curriculum.mjs",
+      "line_start": 108,
+      "line_end": 108
+    },
+    {
+      "title": "Make the counting paraphrase count employees, not records",
+      "body": "count_employed_en2 asks 'Count the explicit employment records for Alpha Lab.', while its shared target uses mode count, select ?worker and where employed_by(?worker, lab_alpha), whose oracle counts one positively employed person: Bogdan. The visible source contains two explicit employment records for Alpha Lab—'Bogdan is employed by Alpha Lab.' and 'Ana is not employed by Alpha Lab.'—so counting records is not the same task as counting employees and would include the negative record. Rewrite this surface to explicitly count distinct people with positive employment support, preserving the intended count of one, rather than sharing an employee-count target with a record-count question.",
+      "priority": 2,
+      "confidence": 0.9,
+      "file_path": "/home/salboaie/work/ChatSOP/datasets/curriculum/cases.mjs",
+      "line_start": 91,
+      "line_end": 91
+    },
+    {
+      "title": "Reserve actual compositions before labeling composition holdouts",
+      "body": "dev_time_window is labeled holdout:'composition', but its operators ['during','bounded_interval'] and target composition (one works_at query with during, then solve and cnl) already occur in training case time_interval; only the person and dates change. Likewise test_chain ('Is Ana a grandparent of Maria?') has the same ground grandparent-query composition as training grandparent_ground, and its added role_inversion tag does not correspond to a different target operation. buildCurriculum only checks whether a row carrying a holdout tag is itself in train, and curriculumMatrix then counts these tags as heldout coverage, so these examples misstate what was actually withheld. Relabel them as world/argument generalization, or reserve genuinely absent target compositions and verify their signatures against training rather than trusting hand-authored operator labels.",
+      "priority": 2,
+      "confidence": 0.99,
+      "file_path": "/home/salboaie/work/ChatSOP/datasets/curriculum/cases.mjs",
+      "line_start": 103,
+      "line_end": 104
+    },
+    {
+      "title": "Remove lexical and Romanian holdout claims for exposed vocabulary",
+      "body": "test_work_reverse is marked holdout:'lexical' for 'Who works at Beta Lab?' / works_at(?person, lab_beta), but works_at, Beta Lab and the returned identity Bogdan are all present in training employment_train, and resolved_lab explicitly teaches the Beta Lab mapping. The same reservation problem affects resolved_romanian_lab: its supposedly heldout 'Laboratorul Alfa' wording already appears in training join_work_project_ro and time_start_ro, and rowContext additionally publishes canonicalMentions mapping that surface directly to lab_alpha. These are new question/world combinations, not unseen lexical identities or an unseen Romanian mention; the profile explicitly names lexical identities/relations and Romanian surfaces as heldout dimensions. Relabel these rows to the narrower generalization they test, or actually reserve the relevant vocabulary/surfaces across every training prompt and visible context before counting them as those holdouts.",
+      "priority": 2,
+      "confidence": 0.97,
+      "file_path": "/home/salboaie/work/ChatSOP/datasets/curriculum/cases.mjs",
+      "line_start": 95,
+      "line_end": 95
+    }
+  ]
+}

@@ -7,7 +7,7 @@ FlashAttention, TRL, datasets, or custom CUDA kernel is required by this script.
 from __future__ import annotations
 import argparse, json, math, random, time, shutil, subprocess, os
 from pathlib import Path
-from common import read_jsonl,sha_file,write_json,encode_row
+from common import read_training_rows,sha_file,write_json,encode_row
 
 def arguments():
     p=argparse.ArgumentParser()
@@ -23,7 +23,7 @@ def arguments():
 def main():
     a=arguments();cfg=json.loads(Path(a.config).read_text());roles=['formalizer','verbalizer'] if a.role=='shared' else [a.role]
     files={split:[Path(a.data)/r/(split+'.jsonl') for r in roles] for split in ['train','dev']}
-    data={s:[row for f in fs for row in read_jsonl(f)] for s,fs in files.items()}
+    data={s:[row for r in roles for row in read_training_rows(a.data,r,s)] for s in files}
     if not data['train'] or not data['dev']: raise ValueError('Nonempty train and dev data required')
     hashes={str(f):sha_file(f) for fs in files.values() for f in fs}
     out=Path(a.output)

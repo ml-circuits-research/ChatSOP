@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import {Weaver} from '../memory/weaver.mjs';
+import {RecallMemory} from '../memory/weaver.mjs';
 
 const hot={p:'likes',a:['ana','alpha'],neg:false};
 const cold={p:'likes',a:['ana','beta'],neg:false};
-const w=new Weaver({power:14,arity:3,verification:'receipt'});
+const w=new RecallMemory({power:14,arity:3,verification:'receipt'});
 
 w.add(hot,{strength:1,touchedAt:1});
 w.add(cold,{strength:1,touchedAt:1});

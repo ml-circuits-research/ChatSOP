@@ -1,16 +1,20 @@
-/** SOP Lang experimental profile rw-1: line-oriented, multiline typed wires. */
+/** SOP Lang: line-oriented, multiline typed wires. The grammar serves trusted circuits
+ * and the model language; sop/declarative.mjs decides which wire types the model may author. */
 import {outputRegistry,outputSpecs} from './outputs.mjs';
 import {assert,stable} from '../lib/util.mjs';
+import {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS} from './enums.mjs';
+export {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,OUTPUT_MODES,QUERY_MODES,TIME_MEASURES} from './enums.mjs';
 import {parseExpression,expressionRefs,evaluateExpression} from './expression.mjs';
 import {conditionField,parseCondition,parseBooleanCondition,formatCondition} from './conditions.mjs';
-export const PROFILE='sop-agent-3';
 export const SPEC={
  value:{one:['data'],required:['data']},
  resolve:{one:['text','language','kind','type','domain'],required:['text','language','kind']},
  fact:{one:['holds','valid','source','quote','retention'],required:['holds','valid']},
- premise:{one:['holds','valid'],required:['holds']},
+ stated:{one:['relation','polarity','certainty','speaker'],many:['role','valid'],required:['relation','role','polarity','certainty']},
+ assumed:{one:['relation','polarity','basis'],many:['role','valid'],required:['relation','role','polarity']},
+ unclear:{one:['kind','language'],many:['reading'],required:['kind']},
  rule:{one:['then','valid','mode','source'],many:['when'],required:['then','when']},
- query:{one:['mode','select','at','during','asof','limit'],many:['where','filter'],required:['where']},
+ query:{one:['mode','select','scope','measure','span','at','during','asof','limit'],many:['where','filter'],required:['where']},
  constraint:{one:['claim','task','unit','objective','direction','select'],many:['var','require'],required:['claim']},
  event:{one:['action','target','effective','replacement','source'],required:['action','target']},
  pack:{many:['items'],required:['items']},
@@ -42,6 +46,13 @@ export const SPEC={
  simulate:{one:['query','data','memory','intervention','mode','reasoning','policy'],many:['output','after'],required:['query','intervention']},
  temporal:{one:['query','data','memory','reasoning','policy'],many:['output','after'],required:['query']}
 };
+/** Host ontology declarations (loaded by sop/lexicon.mjs through allowTypes); strict like SPEC. */
+export const ONTOLOGY_SPEC={
+ entity:{one:['kind','domain'],many:['label','alias']},
+ predicate:{one:['args','description','domain'],many:['role','label','alias']},
+ concept:{one:['domain'],many:['is_a','label','alias']}
+};
+const specOf=(type,allowTypes)=>SPEC[type]??((allowTypes??[]).includes(type)?ONTOLOGY_SPEC[type]:undefined);
 export function words(s){return s.match(/"(?:\\.|[^"\\])*"|\S+/g)??[];}
 export function unquote(s){return s?.startsWith('"')?JSON.parse(s):s;}
 export function parseTerm(s){if(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(s))return {ref:s.slice(1)};if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(s))return s;if(s.startsWith('"')){const v=JSON.parse(s);assert(typeof v==='string','String term required');return v;}if(/^-?\d+$/.test(s)){const n=Number(s);assert(Number.isSafeInteger(n),'Safe integer expected');return n;}assert(/^[a-z][a-z0-9_:-]*$/.test(s),'Invalid canonical term '+s);return s;}
@@ -54,12 +65,12 @@ export function parseAtom(text){
  while(cursor<text.length){
   token.lastIndex=cursor;const match=token.exec(text);
   assert(match,'Expected a complete atom term or quoted string');
-  a.push(parseTerm(match[0]));assert(a.length<=4,'This profile supports 1..4 arguments');
+  a.push(parseTerm(match[0]));assert(a.length<=4,'An atom takes 1..4 arguments');
   cursor=token.lastIndex;
   assert(cursor===text.length||/[ \t]/.test(text[cursor]),'Atom terms must be separated by whitespace');
   while(cursor<text.length&&/[ \t]/.test(text[cursor]))cursor++;
  }
- assert(a.length>=1,'This profile supports 1..4 arguments');
+ assert(a.length>=1,'An atom takes 1..4 arguments');
  return {p:head[2],a,neg:!!head[1]};
 }
 export function emitTerm(x){if(x&&typeof x==='object'&&x.ref)return '$'+x.ref;if(typeof x==='number')return String(x);if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(x))return x;return /^[a-z][a-z0-9_:-]*$/.test(x)?x:JSON.stringify(x);}
@@ -70,15 +81,15 @@ export function parse(source,{maxWires=2048,maxBytes=1048576,allowTypes=null}={}
  for(let i=0;i<lines.length;i++){const line=lines[i];if(!line.trim()||line.trimStart().startsWith('#'))continue;
   if(/^@/.test(line)){const m=line.match(/^@([A-Za-z][A-Za-z0-9_]*)\s+([A-Za-z][A-Za-z0-9_]*)\s*$/);assert(m,`Line ${i+1}: expected @name type`);assert(!wires.some(w=>w.id===m[1]),'Duplicate wire @'+m[1]);assert(SPEC[m[2]]||(allowTypes??[]).includes(m[2]),'Unknown wire type '+m[2]);assert(!['constructor','prototype','__proto__'].includes(m[1]),'Reserved wire name');current={id:m[1],type:m[2],fields:{},line:i+1};wires.push(current);assert(wires.length<=maxWires,'Too many wires');continue;}
   assert(current&&/^  \S/.test(line),`Line ${i+1}: wire fields use two spaces`);const m=line.trim().match(/^(\S+)(?:\s+(.*))?$/),key=m[1];let value=m[2]??'';
-  const spec=SPEC[current.type];assert(!spec||(spec.one??[]).includes(key)||(spec.many??[]).includes(key),'Unsupported field '+key+' on '+current.type);
+  const spec=specOf(current.type,allowTypes);assert(!spec||(spec.one??[]).includes(key)||(spec.many??[]).includes(key),'Unsupported field '+key+' on '+current.type);
   if(value==='|'){const chunk=[];while(i+1<lines.length){const next=lines[i+1];if(next.trim()&&!next.startsWith('    '))break;i++;chunk.push(next.startsWith('    ')?next.slice(4):'');}value=chunk.join('\n').replace(/\s+$/,'');}
-  else if(conditionField(current.type,key)&&['all','any'].includes(value)){
+  else if(conditionField(current.type,key)&&['all','any','match'].includes(value)){
    const chunk=[value];let depth=1;
    while(depth&&i+1<lines.length){
     const next=lines[++i],text=next.trim();
     if(!text||text.startsWith('#'))continue;
     assert(/^  \s*\S/.test(next),`Line ${i+1}: unclosed condition group`);
-    if(text==='all'||text==='any')depth++;
+    if(text==='all'||text==='any'||text==='match')depth++;
     if(text==='end')depth--;
     assert(depth<=32,'Condition nesting limit');
     chunk.push(text);
@@ -87,28 +98,98 @@ export function parse(source,{maxWires=2048,maxBytes=1048576,allowTypes=null}={}
   }
   current.fields[key]??=[];current.fields[key].push(value);if(spec&&(spec.one??[]).includes(key))assert(current.fields[key].length===1,'Duplicate '+key);
  }
- assert(wires.length>0,'Empty SOP program');for(const w of wires){const spec=SPEC[w.type];for(const k of spec?.required??[])assert(w.fields[k]?.length,'@'+w.id+' needs '+k);validateShape(w);}
- return {profile:PROFILE,wires};
+ assert(wires.length>0,'Empty SOP program');for(const w of wires){const spec=specOf(w.type,allowTypes);for(const k of spec?.required??[])assert(w.fields[k]?.length,'@'+w.id+' needs '+k);validateShape(w);}
+ return {wires};
 }
 export const one=(w,k,defaultValue=undefined)=>w.fields[k]?.[0]??defaultValue;
 export const many=(w,k)=>w.fields[k]??[];
 export function refsIn(text){let quoted=false,esc=false;const values=new Set(),handles=new Set();for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(!esc&&c==='"')quoted=false;if(!esc&&c==='\\')esc=true;else esc=false;continue;}if(c==='"'){quoted=true;continue;}if(c==='$'||c==='~'){const m=text.slice(i+1).match(/^[A-Za-z][A-Za-z0-9_]*/);if(m){(c==='$'?values:handles).add(m[0]);i+=m[0].length;}}}return {values:[...values],handles:[...handles]};}
 export function dependencies(w){if(['template','procedure'].includes(w.type))return {values:[],handles:[]};const result={values:new Set(),handles:new Set()};for(const [key,vs]of Object.entries(w.fields)){if(['quote','text'].includes(key)||(key==='source'&&w.type!=='analogize'))continue;for(const text of vs){const r=refsIn(text);r.values.forEach(x=>result.values.add(x));r.handles.forEach(x=>result.handles.add(x));}}return {values:[...result.values],handles:[...result.handles]};}
+const SYMBOL=/^[a-z][a-z0-9_]*$/;
+/**
+ * Model-language propositions are context-free strings (DS021): a quoted relation
+ * phrase, roles from the closed inventory with quoted values, an explicit
+ * polarity and optional quoted validity. `pairs` is [[keyword, value], …].
+ * With `variables` (query `match` blocks) a value may also be a ?variable.
+ */
+export function parseProposition(pairs,{where='proposition',variables=false,validity=true}={}){
+ const text=(key,value)=>{assert(/^"/.test(value??''),where+' '+key+' takes one JSON-quoted string');const v=parseTerm(value);assert(typeof v==='string'&&v.trim(),where+' '+key+' needs a nonempty quoted string');return v;};
+ const out={relation:undefined,roles:[],polarity:undefined,valid:{}},names=new Set();
+ for(const [key,value] of pairs){
+  if(key==='relation'){assert(out.relation===undefined,'Duplicate relation');out.relation=text('relation',value);continue;}
+  if(key==='polarity'){assert(out.polarity===undefined,'Duplicate polarity');assert(POLARITIES.includes(value),where+' polarity must be affirmed or negated');out.polarity=value;continue;}
+  if(key==='role'){
+   const parts=words(value);assert(parts.length===2,where+' role takes exactly NAME VALUE');
+   const [name,token]=parts;assert(ROLE_NAMES.includes(name),'role_unknown: '+where+' role '+name+' is not one of '+ROLE_NAMES.join(', '));
+   assert(!names.has(name),'role_duplicate: '+where+' repeats role '+name);names.add(name);
+   let v;
+   if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(token)){assert(variables,'proposition_not_ground: '+where+' role '+name+' cannot take a ?variable; put unknowns in a query');v=token;}
+   else if(/^-?\d+$/.test(token))v=parseTerm(token);
+   else {assert(!/^[$~]/.test(token),'proposition_not_ground: '+where+' role '+name+' cannot take a $reference or ~handle');assert(token.startsWith('"'),where+' role '+name+' value must be a JSON-quoted string as written in the message'+(variables?', a ?variable':'')+' or an integer');v=text('role '+name,token);assert(!/^[?$~]/.test(v),'proposition_not_ground: '+where+' role '+name+' cannot hide a sigil in quotes');}
+   out.roles.push({name,value:v});continue;
+  }
+  if(key==='valid'&&validity){
+   const [form,...rest]=words(value);assert(VALIDITY_FORMS.includes(form)&&rest.length===1,'time_form: '+where+' valid takes on|from|until "text"');
+   assert(out.valid[form]===undefined,'time_form: '+where+' repeats valid '+form);out.valid[form]=text('valid '+form,rest[0]);continue;
+  }
+  throw Error('Unsupported field '+key+' in '+where);
+ }
+ assert(out.relation!==undefined,where+' needs relation');assert(out.roles.length>=1&&out.roles.length<=4,where+' binds 1..4 roles');assert(out.polarity!==undefined,where+' needs polarity');
+ assert(!(out.valid.on&&(out.valid.from||out.valid.until)),'time_form: '+where+' valid on excludes valid from/until');
+ return out;
+}
+/** A query `match` block: keyword lines between `match` and `end`, parsed as a proposition with ?variables. */
+export const isMatch=text=>typeof text==='string'&&/^match(\n|$)/.test(text);
+export function parseMatch(text,where='match'){
+ const lines=text.split('\n').map(line=>line.trim()).filter(line=>line&&!line.startsWith('#'));
+ assert(lines[0]==='match','Expected a match block');
+ const pairs=lines.slice(1).map(line=>{const m=line.match(/^(\S+)(?:\s+(.*))?$/);return [m[1],m[2]??''];});
+ return {kind:'match',...parseProposition(pairs,{where,variables:true,validity:false})};
+}
+/** Wire fields of a stated/assumed wire as proposition pairs, in written order per keyword. */
+export const propositionPairs=w=>['relation','role','polarity','valid'].flatMap(key=>many(w,key).map(value=>[key,value]));
 function validateShape(w){
- if(w.type==='fact'||w.type==='premise')parseAtom(one(w,'holds'));
+ if(w.type==='fact')parseAtom(one(w,'holds'));
+ if(w.type==='stated'||w.type==='assumed')parseProposition(propositionPairs(w),{where:'@'+w.id+' '+w.type});
+ if(w.type==='stated'){
+  assert(CERTAINTIES.includes(one(w,'certainty')),'@'+w.id+' certainty must be asserted, hedged or supposed');
+  if(w.fields.speaker){const s=one(w,'speaker'),v=s.startsWith('"')?parseTerm(s):s;assert(s==='user'||(s.startsWith('"')&&typeof v==='string'&&v.trim()&&!/^[?$~]/.test(v)),'@'+w.id+' speaker must be user or a JSON-quoted name as written in the message');}
+ }
+ if(w.type==='assumed'&&w.fields.basis)assert(BASES.includes(one(w,'basis')),'@'+w.id+' basis must be one of '+BASES.join(', '));
+ if(w.type==='unclear'){
+  assert(ENUMS.unclear.kind.includes(one(w,'kind')),'@'+w.id+' unclear kind must be one of '+ENUMS.unclear.kind.join(', '));
+  if(w.fields.language)assert(ENUMS.unclear.language.includes(one(w,'language')),'@'+w.id+' unclear language must be one of '+ENUMS.unclear.language.join(', '));
+  // `ambiguous` lists 2..4 candidate readings, each one short JSON-quoted paraphrase; other kinds take none.
+  const readings=many(w,'reading');
+  if(ENUMS.unclear.readingKinds.includes(one(w,'kind'))){
+   assert(readings.length>=2&&readings.length<=4,'unclear_readings: @'+w.id+' kind '+one(w,'kind')+' lists 2 to 4 reading lines');
+   for(const r of readings){assert(/^"/.test(r),'@'+w.id+' reading takes one JSON-quoted paraphrase');const v=parseTerm(r);assert(typeof v==='string'&&v.trim()&&v.length<=200,'@'+w.id+' reading must be a short nonempty paraphrase');}
+   assert(new Set(readings.map(r=>parseTerm(r).trim().toLowerCase())).size===readings.length,'unclear_readings: @'+w.id+' repeats a reading');
+  }else assert(!readings.length,'unclear_readings: @'+w.id+' reading lines belong to kind ambiguous');
+ }
  if(['rule','pattern'].includes(w.type)){many(w,'when').forEach(parseAtom);parseAtom(one(w,'then'));}
- if(w.type==='rule')assert(['logical','causal'].includes(one(w,'mode','logical')),'rule mode must be logical or causal');
+ if(w.type==='rule')assert(ENUMS.rule.mode.includes(one(w,'mode','logical')),'rule mode must be logical or causal');
  if(w.type==='hypothesis'){assert(w.fields.holds||w.fields.assume,'hypothesis requires holds or assume');if(w.fields.holds)parseAtom(one(w,'holds'));many(w,'assume').forEach(parseAtom);}
  if(w.type==='goal')many(w,'where').forEach(parseAtom);
  if(w.type==='trace')many(w,'feature').forEach(parseAtom);
  if(w.type==='action'){for(const key of ['requires','adds','removes'])many(w,key).forEach(parseAtom);assert(w.fields.adds||w.fields.removes,'action needs effects');}
  if(['abduce','diagnose','associate','induce','analogize','plan','simulate','temporal'].includes(w.type))outputSpecs(w);
- if(w.type==='query'){many(w,'where').forEach(s=>parseCondition(s,parseAtom));many(w,'filter').forEach(parseBooleanCondition);assert(!(w.fields.at&&w.fields.during),'Use at OR during');}
+ if(w.type==='query'){
+  const leaf=leaf=>isMatch(leaf)?parseMatch(leaf,'@'+w.id+' match'):parseAtom(leaf);
+  many(w,'where').forEach(s=>parseCondition(s,leaf));if(w.fields.scope)parseCondition(one(w,'scope'),leaf);
+  many(w,'filter').forEach(parseBooleanCondition);assert(!(w.fields.at&&w.fields.during),'Use at OR during');
+  const mode=one(w,'mode');if(mode!==undefined)assert(ENUMS.query.mode.includes(mode),'@'+w.id+' query mode must be one of '+ENUMS.query.mode.join(', '));
+  // A universal question: `where` is the restriction (the domain), `scope` what must hold for each member.
+  assert(!w.fields.scope===(mode!=='every'),mode==='every'?'every_needs_scope: @'+w.id+' mode every needs a scope block':'scope_needs_every: @'+w.id+' scope belongs to mode every');
+  if(w.fields.measure){assert(ENUMS.query.measure.includes(one(w,'measure')),'@'+w.id+' measure must be one of '+ENUMS.query.measure.join(', '));assert(words(one(w,'select','')).length===1&&(mode??'select')==='select','measure_needs_time_variable: @'+w.id+' measure applies to exactly one selected time variable in mode select');}
+  if(w.fields.span)assert(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(one(w,'span')),'@'+w.id+' span takes one ?variable');
+  if(mode==='explain')assert(!w.fields.select,'explain_no_select: @'+w.id+' mode explain asks why a proposition holds; it selects nothing');
+ }
  if(w.type==='jsEval')parseExpression(one(w,'expr'));
  if(w.type==='constraint'){many(w,'require').forEach(parseBooleanCondition);parseBooleanCondition(one(w,'claim'));}
  if(w.type==='value'){const a=parseExpression(one(w,'data'));assert(a.type!=='name','value needs a literal or expression');}
- if(w.type==='event')assert(['end','retract','correct'].includes(one(w,'action')),'Unknown event action');
- if(w.type==='resolve'){assert(['entity','predicate','concept'].includes(one(w,'kind')),'resolve kind must be entity, predicate or concept');assert(/^[a-z]{2,3}$/.test(one(w,'language')),'resolve needs an explicit language');assert(!w.fields.type||one(w,'kind')==='entity','resolve type is only for entities');for(const key of ['text','type','domain'])if(w.fields[key])assert(typeof unquote(one(w,key))==='string'&&unquote(one(w,key)).length>0,'resolve '+key+' must be nonempty text');}
+ if(w.type==='event')assert(ENUMS.event.action.includes(one(w,'action')),'Unknown event action');
+ if(w.type==='resolve'){assert(ENUMS.resolve.kind.includes(one(w,'kind')),'resolve kind must be entity, predicate or concept');assert(/^[a-z]{2,3}$/.test(one(w,'language')),'resolve needs an explicit language');assert(!w.fields.type||one(w,'kind')==='entity','resolve type is only for entities');for(const key of ['text','type','domain'])if(w.fields[key])assert(typeof unquote(one(w,key))==='string'&&unquote(one(w,key)).length>0,'resolve '+key+' must be nonempty text');}
  if(w.type==='solve'){outputSpecs(w);assert(!(w.fields.constraint&&(w.fields.data||w.fields.assume)),'Constraint solve cannot consume undeclared fact data');}
  if(w.type==='reason'||w.type==='solve')assert(!!w.fields.query!==!!w.fields.constraint,'reason needs exactly query OR constraint');
 }
@@ -121,5 +202,5 @@ export function validateGraph(program,{allowMaterialized=false}={}) {
  while(done.size<ids.size){const ready=[...ids].filter(id=>!done.has(id)&&deps.get(id).every(x=>done.has(x)));assert(ready.length,'Cyclic value dependencies (including deferred outputs)');for(const id of ready){done.add(id);order.push(id);}}
  return order;
 }
-export function canonical(program){return program.wires.map(w=>'@'+w.id+' '+w.type+'\n'+Object.entries(w.fields).flatMap(([k,vs])=>vs.map(v=>conditionField(w.type,k)&&/^(all|any)\n/.test(v)?'  '+k+' '+formatCondition(v):v.includes('\n')?'  '+k+' |\n'+v.split('\n').map(l=>'    '+l).join('\n'):'  '+k+(v?' '+v:''))).join('\n')).join('\n\n')+'\n';}
+export function canonical(program){return program.wires.map(w=>'@'+w.id+' '+w.type+'\n'+Object.entries(w.fields).flatMap(([k,vs])=>vs.map(v=>conditionField(w.type,k)&&/^(all|any|match)\n/.test(v)?'  '+k+' '+formatCondition(v):v.includes('\n')?'  '+k+' |\n'+v.split('\n').map(l=>'    '+l).join('\n'):'  '+k+(v?' '+v:''))).join('\n')).join('\n\n')+'\n';}
 export function replaceReferences(source,names){let out='',quoted=false,esc=false;for(let i=0;i<source.length;i++){const c=source[i];if(quoted){out+=c;if(!esc&&c==='"')quoted=false;if(!esc&&c==='\\')esc=true;else esc=false;continue;}if(c==='"'){quoted=true;out+=c;continue;}if(c==='$'||c==='~'){const m=source.slice(i+1).match(/^[A-Za-z][A-Za-z0-9_]*/);if(m){out+=c+(names[m[0]]??m[0]);i+=m[0].length;continue;}}out+=c;}return out;}

@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import {parse,one,many,words,unquote} from './parser.mjs';
 import {assert,digest} from '../lib/util.mjs';
+import {ROLE_NAMES} from './enums.mjs';
 export const normalize=s=>String(s).normalize('NFC').toLocaleLowerCase('ro').replace(/[şţ]/g,c=>c==='ş'?'ș':'ț').replace(/\s+/g,' ').trim();
 const fold=s=>normalize(s).normalize('NFD').replace(/\p{M}/gu,'');
 const tokens=s=>s.match(/[\p{L}\p{N}_]+/gu)??[];
@@ -9,7 +10,15 @@ const spans=(s,a)=>{const out=[];let at=s.indexOf(a);while(at>=0){const end=at+a
 export class Lexicon{
  constructor(source,{provenance='host-ontology'}={}){this.entities={};this.predicates={};this.concepts={};this.entries=[];this.index=new Map();this.exact=new Map();this.folded=new Map();this.version=digest(source);this.provenance=provenance;const program=parse(source,{allowTypes:['entity','predicate','concept']});
   for(const w of program.wires){assert(['entity','predicate','concept'].includes(w.type),'Ontology is declarative, not executable');const aliases=[],labels={};for(const key of ['label','alias'])for(const line of many(w,key)){const [lang,...rest]=words(line);assert(/^[a-z]{2,3}$/.test(lang)&&rest.length===1,'Use label/alias LANGUAGE "surface"');const surface=unquote(rest[0]);assert(typeof surface==='string'&&surface.length>0,'Nonempty alias surface required');aliases.push({language:lang,surface});if(key==='label')labels[lang]=surface;}
-   const item={id:w.id,kind:w.type,labels,aliases,domain:one(w,'domain',null),version:this.version,provenance:this.provenance};if(w.type==='predicate'){item.args=words(one(w,'args',''));assert(item.args.length>=1&&item.args.length<=4,'Predicate needs 1..4 argument types');item.arity=item.args.length;item.description=unquote(one(w,'description',''));this.predicates[w.id]=item;}else if(w.type==='entity'){item.entityType=one(w,'kind','entity');this.entities[w.id]=item;}else {item.parents=many(w,'is_a');this.concepts[w.id]=item;}
+   const item={id:w.id,kind:w.type,labels,aliases,domain:one(w,'domain',null),version:this.version,provenance:this.provenance};if(w.type==='predicate'){
+    // `role NAME TYPE` lines map argument positions to the closed role inventory (DS021);
+    // a predicate with only legacy `args TYPE…` is unnamed (subject/object by position for arity 1..2).
+    const roles=many(w,'role').map(line=>{const parts=words(line);assert(parts.length===2&&/^[a-z][a-z0-9_]*$/.test(parts[1]),'Use role NAME TYPE on predicate '+w.id);assert(ROLE_NAMES.includes(parts[0]),'Predicate '+w.id+' role '+parts[0]+' is not one of '+ROLE_NAMES.join(', '));return {name:parts[0],type:parts[1]};});
+    assert(new Set(roles.map(r=>r.name)).size===roles.length,'Predicate '+w.id+' repeats a role name');
+    const args=w.fields.args?words(one(w,'args')):roles.map(r=>r.type);
+    assert(!roles.length||!w.fields.args||(args.length===roles.length&&args.every((t,i)=>t===roles[i].type)),'Predicate '+w.id+' args disagree with its role types');
+    item.args=args;assert(item.args.length>=1&&item.args.length<=4,'Predicate needs 1..4 argument types');item.arity=item.args.length;
+    item.namedRoles=roles.length>0;item.roles=roles.length?roles:args.length<=2?args.map((type,i)=>({name:['subject','object'][i],type})):[];item.description=unquote(one(w,'description',''));this.predicates[w.id]=item;}else if(w.type==='entity'){item.entityType=one(w,'kind','entity');this.entities[w.id]=item;}else {item.parents=many(w,'is_a');this.concepts[w.id]=item;}
    for(const a of [...aliases,{language:'und',surface:w.id}]){const entry={...a,id:w.id,kind:w.type,type:item.entityType,domain:item.domain,norm:normalize(a.surface),folded:fold(a.surface),version:this.version,provenance:this.provenance};const ix=this.entries.length;this.entries.push(entry);for(const [index,key] of [[this.exact,entry.norm],[this.folded,entry.folded]]){if(!index.has(key))index.set(key,[]);index.get(key).push(ix);}for(const t of new Set(tokens(entry.folded))){if(!this.index.has(t))this.index.set(t,new Set());this.index.get(t).add(ix);}}
   }
  }
@@ -38,11 +47,4 @@ export class Lexicon{
   const ranked=[...best.values()].sort((a,b)=>b.score-a.score||a.id.localeCompare(b.id));
   return {entities:ranked.filter(x=>x.kind==='entity').slice(0,maxEntities),predicates:ranked.filter(x=>x.kind==='predicate').slice(0,maxPredicates),concepts:ranked.filter(x=>x.kind==='concept').slice(0,maxConcepts),ambiguities,polarityCues:tokens(norm).filter(t=>['nu','not','never','kein','nicht','fără','fara','nunca','non'].includes(t)),truncated:ranked.filter(x=>x.kind==='entity').length>maxEntities||ranked.filter(x=>x.kind==='predicate').length>maxPredicates};
  }
-}
-export function microContext(text,lexicon,{language='auto',now='2026-09-26',maxBytes=3200,recent=[]}={}){
- assert(Buffer.byteLength(text)<=1600,'Message exceeds micro-context budget; split by discourse units, do not truncate it');const c=lexicon.candidates(text,{language}),ambiguous=new Set(c.ambiguities.flatMap(a=>a.ids.map(id=>a.kind+':'+id)));
- const entities=c.entities.filter(e=>!ambiguous.has('entity:'+e.id)),predicates=c.predicates.filter(e=>!ambiguous.has('predicate:'+e.id)),concepts=c.concepts.filter(e=>!ambiguous.has('concept:'+e.id));
- const payload={language,now,entities:entities.map(e=>({id:e.id,label:e.surface,type:lexicon.entities[e.id].entityType})),predicates:predicates.map(p=>({id:p.id,args:lexicon.predicates[p.id].args,meaning:lexicon.predicates[p.id].description})),concepts:concepts.map(c=>({id:c.id,label:c.surface,domain:lexicon.concepts[c.id].domain})),ambiguities:c.ambiguities,canonicalMentions:[...entities,...predicates,...concepts].map(e=>({surface:e.surface,id:e.id,kind:e.kind,language:e.language})),lexiconVersion:lexicon.version,polarityCues:c.polarityCues,recent:recent.slice(-3)};
- while(Buffer.byteLength(JSON.stringify(payload))>maxBytes){if(payload.recent.length)payload.recent.shift();else if(payload.concepts.length){const c=payload.concepts.pop();payload.canonicalMentions=payload.canonicalMentions.filter(x=>x.id!==c.id);}else if(payload.entities.length>2){const e=payload.entities.pop();payload.canonicalMentions=payload.canonicalMentions.filter(x=>x.id!==e.id);}else if(payload.predicates.length>2){const p=payload.predicates.pop();payload.canonicalMentions=payload.canonicalMentions.filter(x=>x.id!==p.id);}else throw Error('Cannot fit required context without losing the input; request clarification');}
- return payload;
 }

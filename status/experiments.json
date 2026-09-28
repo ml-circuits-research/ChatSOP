@@ -1,0 +1,5 @@
+{
+  "format": "chatsop-experiments-v1",
+  "note": "Registry of preregistered experiments (docs/specs/DS010-experiment-preregistration.md). Each entry: id, hypothesis, preregistration (link to the frozen DS010 record), data_version, status (proposed|preregistered|approved|running|done|abandoned), results, conclusions. Empty: there are no valid training runs, and training is prohibited until the owner's new explicit approval (AGENTS.md rule 3).",
+  "experiments": []
+}

@@ -1,0 +1,7 @@
+{
+  "sources": [
+    {"id":"cold_chain","file":"cold-chain.txt","revision":"synthetic-rev1","rights":{"status":"authorized","basis":"Locally authored synthetic fixture; test-only reuse, not an external corpus grant"},"scope":"Synthetic cold-chain training-free demonstration","budget":{"maxBytes":100000,"maxPassages":20}},
+    {"id":"visitor_access","file":"visitor-access.md","revision":"synthetic-rev1","rights":{"status":"authorized","basis":"Locally authored synthetic fixture; test-only reuse, not an external corpus grant"},"scope":"Synthetic visitor-desk training-free demonstration","budget":{"maxBytes":100000,"maxPassages":20}},
+    {"id":"receiving_desk","file":"transfer-checklist.html","revision":"synthetic-rev1","rights":{"status":"authorized","basis":"Locally authored synthetic fixture; test-only reuse, not an external corpus grant"},"scope":"Synthetic receiving-desk training-free demonstration","budget":{"maxBytes":100000,"maxPassages":20}}
+  ]
+}

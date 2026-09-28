@@ -35,14 +35,13 @@
     "allowWrite": true,
     "allowPin": true,
     "allowRules": false,
-    "allowJsEval": true,
     "maxWires": 2048,
     "maxEpochs": 16,
     "maxProbes": 50000,
     "maxFacts": 10000,
     "maxJoins": 30000,
     "maxAssignments": 100000,
-    "retrievalStrategy": "recall-weaver",
+    "retrievalStrategy": "recall-memory",
     "maxGoals": 256,
     "maxRules": 1024
   }

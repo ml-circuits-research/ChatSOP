@@ -2,14 +2,16 @@
  * byte costs are explicit. Hint failure can NEVER remove an exact answer.
  */
 import {SQLiteBank} from './sqlite.mjs';
-import {Weaver} from '../weaver.mjs';
+import {RecallMemory} from '../weaver.mjs';
 import {HoloBank} from './holo.mjs';
+// `hybrid.associative` names the hint bank; `weaver` and `holo` are the legacy spellings.
+const HINT_BANKS={'recall-memory':RecallMemory,weaver:RecallMemory,'holo-memory':HoloBank,holo:HoloBank};
 import {atom} from '../../lib/types.mjs';
 import {assert} from '../../lib/util.mjs';
 export class HybridBank {
- constructor(config={},state=null){this.config={...config,...state?.config,engine:'hybrid'};const kind=this.config.hybrid?.associative??'weaver';assert(['weaver','holo'].includes(kind),'hybrid.associative must be weaver or holo');
+ constructor(config={},state=null){this.config={...config,...state?.config,engine:'hybrid'};const kind=this.config.hybrid?.associative??'recall-memory';assert(Object.hasOwn(HINT_BANKS,kind),'hybrid.associative must be recall-memory or holo-memory');
   this.exact=state?SQLiteBank.from(state.exact):new SQLiteBank({...this.config,engine:'sqlite'});
-  const C=kind==='weaver'?Weaver:HoloBank;this.associative=state?C.from(state.associative):new C({...this.config,engine:kind});this.writes=state?.writes??0;
+  const C=HINT_BANKS[kind];this.associative=state?C.from(state.associative):new C({...this.config,engine:C===HoloBank?'holo-memory':'recall-memory'});this.writes=state?.writes??0;
  }
  get domains(){return this.exact.domains;}get receipts(){return this.exact.receipts;}
  add(a,meta={}){atom(a,{ground:true});const id=this.associative.add(a,meta);this.exact.add(a,meta);this.writes++;return id;}

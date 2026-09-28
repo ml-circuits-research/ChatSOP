@@ -4,18 +4,18 @@
   "predictor_identity": "deterministic-baseline-gold-copy",
   "cells": [
     {
-      "id": "baseline-query-dev-formalization",
+      "id": "baseline-formalizer-dev-formalization",
       "split": "dev",
       "track": "formalization",
-      "suite": "datasets/query-v1/dev.jsonl",
-      "predictions": "eval/predictions/baseline-query-dev-formalization.jsonl"
+      "suite": "datasets/formalizer-v1/dev.jsonl",
+      "predictions": "eval/predictions/baseline-formalizer-dev-formalization.jsonl"
     },
     {
-      "id": "baseline-query-test-formalization",
+      "id": "baseline-formalizer-test-formalization",
       "split": "test",
       "track": "formalization",
-      "suite": "eval/suites/query-v1/test.jsonl",
-      "predictions": "eval/predictions/baseline-query-test-formalization.jsonl"
+      "suite": "eval/suites/formalizer-v1/test.jsonl",
+      "predictions": "eval/predictions/baseline-formalizer-test-formalization.jsonl"
     }
   ]
 }

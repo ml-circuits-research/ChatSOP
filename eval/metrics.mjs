@@ -125,7 +125,7 @@ export function computeMetrics(rows, report) {
         const ids = new Set(proof.map(item => item.id));
         return (packet(r).answers ?? []).every(answer => evidencePresent(answer) && answer.evidence.every(id => ids.has(id))) &&
           proof.every(item => item.kind === 'derived'
-            ? typeof item.rule === 'string' && Array.isArray(item.premises) && item.premises.length > 0 && item.premises.every(id => ids.has(id))
+            ? typeof item.rule === 'string' && Array.isArray(item.from) && item.from.length > 0 && item.from.every(id => ids.has(id))
             : typeof item.source === 'string' && item.source.length > 0 && typeof item.quote === 'string' && item.quote.length > 0);
       }),
       provenance_recall: rate(expectedWithProof, r => proofIds(gold(r)).size === overlap(proofIds(packet(r)), proofIds(gold(r)))),

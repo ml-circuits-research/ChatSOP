@@ -21,7 +21,7 @@ export async function compareCircuits(row, candidate, { probes = [], config = {}
     if (index > 0) probe.expected = world.expected;
     const evaluated = await evaluate([probe], { predictor: async () => candidate, config, source: 'predictions' });
     const record = evaluated.records[0];
-    const observation = { index, world_sha256: sha256(JSON.stringify({ setup_sop: probe.setup_sop, ontology_sop: probe.ontology_sop, context: probe.context, expected: probe.expected })), reference_valid: record.reference_valid, runtime_valid: record.runtime_valid, execution_equivalent: record.execution_equivalent, gold_status: record.gold_status, predicted_status: record.predicted_status, error: record.error ?? null, reference_signature: record.reference_signature ?? null, prediction_signature: record.prediction_signature ?? null };
+    const observation = { index, world_sha256: sha256(JSON.stringify({ setup_sop: probe.setup_sop, ontology_sop: probe.ontology_sop, context: probe.verification_context ?? probe.context, expected: probe.expected })), reference_valid: record.reference_valid, runtime_valid: record.runtime_valid, execution_equivalent: record.execution_equivalent, gold_status: record.gold_status, predicted_status: record.predicted_status, error: record.error ?? null, reference_signature: record.reference_signature ?? null, prediction_signature: record.prediction_signature ?? null };
     result.probes.push(observation);
     if (!record.reference_valid) { result.verdict = 'reference_error'; result.errors.push({ stage: 'reference', message: record.error?.message ?? 'Invalid reference', probe: index }); return result; }
     result.reference_valid = true;

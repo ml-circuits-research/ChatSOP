@@ -1,11 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Runtime} from '../sop/runtime.mjs';
-import {Agent} from '../server/agent.mjs';
 import {associate} from '../reasoning/learning.mjs';
 import {compositionShape} from '../tools/datasets/coverage.mjs';
 import {alphaCanonical} from '../tools/datasets/semantic-normalize.mjs';
-import {context,lex} from './helpers.mjs';
 
 const run=source=>new Runtime({now:Date.parse('2026-09-26')}).run(source);
 const facts=`@ab fact
@@ -108,18 +106,6 @@ test('association traverses grouped query cue atoms for relational ranking',()=>
  const result=associate({cue,data});
  assert.deepEqual(result.candidates.map(c=>c.id),['match','miss']);
  assert.equal(result.candidates[0].score,1);
-});
-
-test('vocabulary guard inspects every nested predicate and recognizes generated references by leaf index',()=>{
- const c=context();
- try{
-  const a=new Agent({repo:c.repo,session:c.session,lexicon:lex,config:{}});
-  const wire={type:'query',fields:{where:['any\n  parent ana carina\n  parent $who carina\nend']}};
-  const shortlist={predicates:[{id:'parent'}],entities:[{id:'ana'},{id:'carina'}]};
-  a.validateAtom({p:'parent',a:['bogdan','carina'],neg:false},shortlist,{wire,atomIndex:1,outputs:{who:{status:'bound',valueType:'person'}}});
-  assert.throws(()=>a.validateAtom({p:'parent',a:['bogdan','carina'],neg:false},shortlist,{wire,atomIndex:0,outputs:{who:{status:'bound',valueType:'person'}}}),/outside its shortlist/);
-  assert.throws(()=>a.validateVocabulary('@q query\n  where any\n    parent ana carina\n    unauthorized ana\n  end',shortlist),/predicate outside its shortlist/);
- }finally{c.dispose();}
 });
 
 test('dataset fingerprints and alpha keys preserve grouped branch structure',()=>{

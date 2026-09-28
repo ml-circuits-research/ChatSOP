@@ -7,10 +7,10 @@ const shape = proposal => {
   check(proposal?.kind === 'micro-theory-proposal' && proposal.execution === 'proposal-only', 'Only inert micro-theory proposals can be registered');
   check(['HARD','DEFAULT','PLAUSIBLE'].includes(proposal.status), 'Invalid epistemic status');
   check(text(proposal.scope?.domain) && text(proposal.scope?.population) && text(proposal.scope?.validity), 'Explicit scope required');
-  check(Array.isArray(proposal.premises) && proposal.premises.length > 0 && Array.isArray(proposal.exceptions), 'Premises and explicit exceptions required');
+  check(Array.isArray(proposal.conditions) && proposal.conditions.length > 0 && Array.isArray(proposal.exceptions), 'Conditions and explicit exceptions required');
   check(text(proposal.provenance?.sourceId) && text(proposal.provenance?.quote) && text(proposal.provenance?.reviewer), 'Provenance required');
   const parsed = xs => xs.map(x => emitAtom(parseAtom(x)));
-  return {...snapshot(proposal), premises:parsed(proposal.premises), conclusion:emitAtom(parseAtom(proposal.conclusion)), exceptions:proposal.exceptions.map(x => {
+  return {...snapshot(proposal), conditions:parsed(proposal.conditions), conclusion:emitAtom(parseAtom(proposal.conclusion)), exceptions:proposal.exceptions.map(x => {
     check(Array.isArray(x.when) && x.when.length > 0 && text(x.reason), 'Exception conditions and reason required');
     return {when:parsed(x.when), reason:x.reason};
   })};
@@ -21,10 +21,10 @@ function semanticKey(p) {
   const parsed = xs => xs.map(parseAtom).sort((a,b) => JSON.stringify({p:a.p, neg:a.neg, args:a.a.map(v => typeof v === 'string' && /^\?[A-Za-z]/.test(v) ? '?' : v)}) .localeCompare(JSON.stringify({p:b.p, neg:b.neg, args:b.a.map(v => typeof v === 'string' && /^\?[A-Za-z]/.test(v) ? '?' : v)})));
   const names = new Map();
   const normalized = a => ({predicate:a.p, negative:a.neg, args:a.a.map(v => typeof v === 'string' && /^\?[A-Za-z]/.test(v) ? (names.has(v) ? names.get(v) : (names.set(v, `?v${names.size}`), names.get(v))) : v)});
-  const premises = parsed(p.premises).map(normalized);
+  const conditions = parsed(p.conditions).map(normalized);
   const conclusion = normalized(parseAtom(p.conclusion));
   const exceptions = p.exceptions.map(x => parsed(x.when).map(normalized)).sort((a,b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
-  return JSON.stringify({scope:p.scope, premises, conclusion, exceptions});
+  return JSON.stringify({scope:p.scope, conditions, conclusion, exceptions});
 }
 
 /** Inert registry: accepting is a host-authorized review decision, never publication. */
@@ -84,14 +84,14 @@ export class ImplicitSopRegistry {
       entry.activeVersion = version;
     }
     target.state = action === 'accept' ? 'accepted' : 'rejected';
-    target.decision = {action, rationale, authorization:snapshot(authorization), validation:snapshot(validation ?? null)};
+    target.decision = {action, rationale, principal:authorization?.principal, validation:snapshot(validation ?? null)};
     return this.get(id);
   }
   retract(id, {authorization, evidence} = {}) {
     const entry = this.entries.get(id), active = entry?.versions[entry.activeVersion - 1];
     check(active && text(evidence?.sourceId) && text(evidence?.observation), 'Active entry and new evidence required');
     check(this.authorize(authorization, 'retract', {id, version:active.version}) === true, 'Explicit host authorization required');
-    active.state = 'retracted'; active.decision = {...active.decision, retraction:{authorization:snapshot(authorization), evidence:snapshot(evidence)}};
+    active.state = 'retracted'; active.decision = {...active.decision, retraction:{principal:authorization?.principal, evidence:snapshot(evidence)}};
     entry.activeVersion = null;
     return this.get(id);
   }

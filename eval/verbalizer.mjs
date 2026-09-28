@@ -8,7 +8,8 @@ import {complete} from '../server/llm.mjs';
 const args=cliArgs();
 const root=fileURLToPath(new URL('../',import.meta.url));
 const resource=file=>path.resolve(root,file);
-const rows=readJSONL(args.file??resource('datasets/seed/verbalizer/test.jsonl'));
+if(!args.file)throw Error('Usage: node eval/verbalizer.mjs --file <verbalizer suite.jsonl>; no default suite exists after the regeneration (DS022)');
+const rows=readJSONL(resource(args.file));
 const out=args.out??resource('eval/reports/current/verbalizer-evaluation.json');
 if(args['dry-run']){
  const report={role:'verbalizer',rows:rows.length,attempted:0,requests_succeeded:0,evaluated_rows:0,neuralModelTested:false,accuracy:null,requiresHumanFaithfulnessReview:true};

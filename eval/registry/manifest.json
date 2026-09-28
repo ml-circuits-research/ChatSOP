@@ -1,20 +1,20 @@
 {
   "format": "chatsop-experiment-registry-v1",
-  "description": "Declared query curriculum formalization matrix. No predictions or model execution are implied by this manifest.",
+  "description": "Declared formalization matrix over the model-language corpus formalizer-v1 (DS022). No predictions or model execution are implied by this manifest.",
   "cells": [
     {
-      "id": "query-dev-formalization",
+      "id": "formalizer-dev-formalization",
       "split": "dev",
       "track": "formalization",
-      "suite": "datasets/query-v1/dev.jsonl",
-      "predictions": "eval/registry/predictions/query-dev-formalization.jsonl"
+      "suite": "datasets/formalizer-v1/dev.jsonl",
+      "predictions": "eval/registry/predictions/formalizer-dev-formalization.jsonl"
     },
     {
-      "id": "query-test-formalization",
+      "id": "formalizer-test-formalization",
       "split": "test",
       "track": "formalization",
-      "suite": "eval/suites/query-v1/test.jsonl",
-      "predictions": "eval/registry/predictions/query-test-formalization.jsonl"
+      "suite": "eval/suites/formalizer-v1/test.jsonl",
+      "predictions": "eval/registry/predictions/formalizer-test-formalization.jsonl"
     }
   ]
 }

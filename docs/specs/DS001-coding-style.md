@@ -11,7 +11,7 @@ Changed executable project code uses Node.js ECMAScript `.mjs` modules, except P
 
 ### Modules and boundaries
 
-Use explicit exports, relative imports with `.mjs` suffixes, `node:` prefixes for Node built-ins, and async/await for asynchronous operations. Prefer built-ins and local code over npm packages or unnecessary Python subprocesses. Resolve bundled files relative to `import.meta.url`; accept documented user input paths explicitly, without assuming the working directory contains resources. `lib/`, primitive `sop/`, `memory/`, and `reasoning/` must not import `server/`; `sop/runtime.mjs` can orchestrate memory and reasoning, and the server consumes that runtime. The [SOP](wiki.html#definition-sop) profile, exported APIs, on-disk snapshots, and CLI semantics are not changed merely by moving code.
+Use explicit exports, relative imports with `.mjs` suffixes, `node:` prefixes for Node built-ins, and async/await for asynchronous operations. Prefer built-ins and local code over npm packages or unnecessary Python subprocesses. Resolve bundled files relative to `import.meta.url`; accept documented user input paths explicitly, without assuming the working directory contains resources. `lib/`, primitive `sop/`, `memory/`, and `reasoning/` must not import `server/`; `sop/runtime.mjs` can orchestrate memory and reasoning, and the server consumes that runtime. The [SOP](wiki.html#definition-sop) language, exported APIs, on-disk snapshots, and CLI semantics are not changed merely by moving code.
 
 ### Dependencies and checks
 

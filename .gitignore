@@ -12,3 +12,4 @@ work/
 datasets/generated/
 eval/reports/current/
 tools/.solvers/
+datasets_sources/

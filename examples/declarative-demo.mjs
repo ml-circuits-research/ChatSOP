@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /** Runs the declarative example through the real host path: model-origin
- * declarative SOP in, host-compiled circuit out, plus a conditional answer.
+ * declarative SOP (the model language) in, host-compiled circuit out, plus an answer
+ * grounded in the user's statement and a reported, unused model assumption.
  * No model endpoint is required; this exercises admission, compilation and
  * execution, not language-model quality.
  */
@@ -25,15 +26,16 @@ try {
   const source = fs.readFileSync(new URL('./declarative.sop', import.meta.url), 'utf8');
   const authored = parse(source);
   assert(authored.wires.every(wire => MODEL_TYPES.has(wire.type)), 'Example must stay declarative');
-  const result = await new Runtime({repo, session, schema: lexicon.predicates, lexicon, now: Date.parse('2026-09-26T12:00:00Z')}).run(source, {origin: 'model', inputText: 'Is Carina a parent of Ana?', language: 'en'});
-  assert(result.result.packet.status === 'supported', 'Example question must be supported by the conditional premise');
-  assert(result.result.packet.hypothetical === true, 'Answer must remain hypothetical');
-  assert(Object.keys(session.live.claims).length === 0, 'Conditional premises must not become repository claims');
+  const result = await new Runtime({repo, session, schema: lexicon.predicates, lexicon, now: Date.parse('2026-09-26T12:00:00Z')}).run(source, {origin: 'model', inputText: 'Carina is a parent of Ana. Who is Carina a parent of?', language: 'en'});
+  assert(result.result.packet.status === 'supported', 'Example question must be supported by the user statement');
+  assert(result.result.packet.hypothetical !== true, 'An asserted user statement is evidence for this turn, not a hypothesis');
+  assert(result.result.packet.model_assumptions.length === 1 && result.result.packet.model_assumptions[0].treatment === 'reported', 'The model assumption is reported, not used');
+  assert(Object.keys(session.live.claims).length === 0, 'User statements must not become repository claims');
   assert(/\@\w+ solve/.test(result.executionSop), 'Host must generate the execution circuit');
   console.log('authored:');console.log(result.authoredSop);
   console.log('host circuit:');console.log(result.executionSop);
   console.log('result:');
-  console.log(JSON.stringify({status: result.result.packet.status, hypothetical: result.result.packet.hypothetical, answers: (result.result.packet.answers ?? []).map(answer => answer.binding), repositoryClaims: Object.keys(session.live.claims).length, conditionalPremises: result.contextPremises.map(premise => ({atom: `${premise.atom.p} ${premise.atom.a.join(' ')}`, origin: premise.origin, text: premise.text}))}, null, 2));
+  console.log(JSON.stringify({status: result.result.packet.status, hypothetical: result.result.packet.hypothetical, answers: (result.result.packet.answers ?? []).map(answer => answer.binding), repositoryClaims: Object.keys(session.live.claims).length, userStatements: result.result.packet.user_statements.map(s => s.statement), modelAssumptions: result.result.packet.model_assumptions.map(a => a.statement)}, null, 2));
 } finally {
   fs.rmSync(root, {recursive: true, force: true});
 }

@@ -36,7 +36,7 @@ const numericCases=[
  {id:'sat-not-entailment',p:{vars:{x:{sort:'Int',min:0,max:2}},constraints:[],claim:cmp('eq','x',1),task:'possible'},js:'possible',z3:'possible',checks:{base:'sat',withClaim:'sat',withNegatedClaim:'sat'}},
  {id:'same-claim-not-entailed',p:{vars:{x:{sort:'Int',min:0,max:2}},constraints:[],claim:cmp('eq','x',1),task:'prove'},js:'unknown',z3:'unknown',checks:{base:'sat',withClaim:'sat',withNegatedClaim:'sat'}},
  {id:'entailed',p:{vars:{x:{sort:'Int',min:1,max:1}},constraints:[],claim:cmp('eq','x',1),task:'prove'},js:'entailed',z3:'entailed',checks:{base:'sat',withClaim:'sat',withNegatedClaim:'unsat'}},
- {id:'unsat-premises',p:{vars:{x:{sort:'Int',min:0,max:2}},constraints:[cmp('gt','x',1),cmp('lt','x',1)],claim:cmp('eq','x',1),task:'prove'},js:'inconsistent',z3:'inconsistent',checks:{base:'unsat'}}
+ {id:'unsat-base',p:{vars:{x:{sort:'Int',min:0,max:2}},constraints:[cmp('gt','x',1),cmp('lt','x',1)],claim:cmp('eq','x',1),task:'prove'},js:'inconsistent',z3:'inconsistent',checks:{base:'unsat'}}
 ];
 const optimum={vars:{x:{sort:'Int',min:0,max:2},y:{sort:'Int',min:0,max:2}},constraints:[],claim:cmp('eq',cmp('add','x','y'),2),task:'optimize',objective:cmp('add','x','y'),direction:'max'};
 function timed(fn){const start=performance.now();const result=fn();return {result,elapsedMs:Number((performance.now()-start).toFixed(3))};}
@@ -53,7 +53,7 @@ export function qualify({out=path.join(root,'eval/reports/current/solvers/qualif
   if(c.complete!==undefined)assert.equal(js.result.complete,c.complete);
   if(c.bindings)assert.deepEqual(js.result.answers.map(a=>a.binding['?who']).sort(),c.bindings);
   if(c.hypothetical!==undefined)assert.equal(js.result.hypothetical,c.hypothetical);
-  report.reference.push({cell:c.id,command,query:c.q,premises:c.facts.map(x=>x.id),rules:c.rules.map(x=>x.id),limits:c.limits??{},result:summary(js.result),elapsedMs:js.elapsedMs});
+  report.reference.push({cell:c.id,command,query:c.q,facts:c.facts.map(x=>x.id),rules:c.rules.map(x=>x.id),limits:c.limits??{},result:summary(js.result),elapsedMs:js.elapsedMs});
   if(!bins.swi.available){report.swi.push({cell:c.id,status:'skipped',reason:'SWI binary unavailable',command});continue;}
   const scoped=c.facts.filter(f=>f.valid.from<=c.q.at&&c.q.at<f.valid.until);
   const kept=admissibleAssumptions(scoped,c.assumptions??[]).kept;

@@ -35,7 +35,7 @@ function worker(){
  const engine=args.worker,n=Number(args.count??10000),seed=Number(args.seed??11),power=Number(args.power??18),queryCount=Number(args.queries??80);
  if(!Number.isSafeInteger(n)||n<1||!Number.isInteger(power)||power<8||power>23)throw Error('Invalid count/power');
  const d=data(n,seed),qs=tasks(d,queryCount,seed),dir=fs.mkdtempSync(path.join(os.tmpdir(),'recall-bench-'));
- const config={engine,power,arity:3,seed,verification:'receipt',holo:{banks:5,rows:2**(power-5),dimension:64,seed,ageStepsPerNovel:0,minSignal:.35,minCorrelation:.15},sqlite:{fts:args.fts!=='false'}};
+ const config={engine,power,arity:3,seed,verification:'receipt',holoMemory:{banks:5,rows:2**(power-5),dimension:64,seed,ageStepsPerNovel:0,minSignal:.35,minCorrelation:.15},sqlite:{fts:args.fts!=='false'}};
  const baseline=process.memoryUsage();let b;const start=performance.now();
  try{
   b=engine==='sqlite'?new SQLiteBank(config,null,{path:path.join(dir,'facts.sqlite')}):createBank(config);
@@ -60,11 +60,11 @@ function worker(){
   saveJSON(args.out,result);console.log(JSON.stringify({engine,count:n,seed,buildMs,summary:agg}));
  }finally{b?.close?.();fs.rmSync(dir,{recursive:true,force:true});}
 }
-if(args.help){console.log('node tools/bench-memory.mjs --counts 10000,100000 --queries 80 --seeds 11,29 --engines weaver,holo,sqlite,scan --power 18 --out eval/reports/current/memory\n--power 18 gives BOTH associative banks exactly 2.5 MiB. Metadata is extra. SQL/scan grow with the records. FTS is enabled unless --fts false.');}
+if(args.help){console.log('node tools/bench-memory.mjs --counts 10000,100000 --queries 80 --seeds 11,29 --engines recall-memory,holo-memory,sqlite,scan --power 18 --out eval/reports/current/memory\n--power 18 gives BOTH associative banks exactly 2.5 MiB. Metadata is extra. SQL/scan grow with the records. FTS is enabled unless --fts false.');}
 else if(args.worker)worker();
 else{
  const out=path.resolve(root,args.out??'eval/reports/current/memory');fs.mkdirSync(out,{recursive:true});const runs=[];
- for(const count of String(args.counts??'10000,100000').split(','))for(const seed of String(args.seeds??'11').split(','))for(const engine of String(args.engines??'weaver,holo,sqlite,scan').split(',')){
+ for(const count of String(args.counts??'10000,100000').split(','))for(const seed of String(args.seeds??'11').split(','))for(const engine of String(args.engines??'recall-memory,holo-memory,sqlite,scan').split(',')){
   const file=path.join(out,`${engine}-${count}-${seed}.json`),t=performance.now();
   const r=spawnSync(process.execPath,[path.join(here,'bench-memory.mjs'),'--worker',engine,'--count',count,'--seed',seed,'--queries',String(args.queries??80),'--power',String(args.power??18),'--fts',String(args.fts??true),'--out',file],{encoding:'utf8',timeout:Number(args.timeoutMs??300000),maxBuffer:2*1024*1024});
   fs.writeFileSync(file.replace('.json','.log'),(r.stdout??'')+(r.stderr??''));
