@@ -1,0 +1,357 @@
+{
+  "format": "chatsop-corpus-manifest-v2",
+  "corpus": "formalizer-v1",
+  "seed": "chatsop-formalizer-v1",
+  "generator": "tools/datasets/diversity/generate.mjs",
+  "builder": "tools/datasets/build-corpora.mjs",
+  "printer": "strings",
+  "target_language": "DS021 model language (stated, assumed, unclear, query, constraint)",
+  "model_input": "question (the user message only); verification_context, ontology_sop, world, setup_sop, late_setup_sop, verification, surface_ir, expected and execution are evaluation-only (DS022 row fields)",
+  "review_status": "not_reviewed",
+  "human_reviewed": false,
+  "training_authorized": false,
+  "synthetic": true,
+  "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "rights_decision_date": "2026-09-28",
+    "inspired_by": [
+      {
+        "id": "qqp",
+        "name": "Quora Question Pairs (GLUE QQP)",
+        "url": "https://quoradata.quora.com/First-Quora-Dataset-Release-Question-Pairs",
+        "licence": "Quora first release terms (non-commercial research use with attribution); no SPDX licence identified"
+      },
+      {
+        "id": "paws",
+        "name": "PAWS-Wiki labeled final",
+        "url": "https://github.com/google-research-datasets/paws",
+        "licence": "PAWS LICENSE: may be freely used for any purpose, acknowledgement of Google LLC appreciated; underlying Wikipedia text CC BY-SA 4.0"
+      },
+      {
+        "id": "proofwriter",
+        "name": "ProofWriter (OWA structured)",
+        "url": "https://allenai.org/data/proofwriter",
+        "licence": "No dataset licence file in the official release; secondary sources report CC BY 4.0 (unconfirmed)"
+      },
+      {
+        "id": "ambignq",
+        "name": "AmbigNQ (AmbigQA)",
+        "url": "https://nlp.cs.washington.edu/ambigqa/",
+        "licence": "CC BY-SA 3.0 (notice bundled in the publisher release ZIP); underlying Natural Questions CC BY-SA 3.0"
+      },
+      {
+        "id": "qa2d",
+        "name": "QA2D (question to declarative)",
+        "url": "https://github.com/kelvinguu/qanli",
+        "licence": "Code MIT (Demszky 2019); dataset licence not stated (mirror card: Needs More Information); upstream SQuAD CC BY-SA 4.0 plus RACE/NewsQA/QAMR/MovieQA terms"
+      },
+      {
+        "id": "squad",
+        "name": "SQuAD v2.0 (dev)",
+        "url": "https://rajpurkar.github.io/SQuAD-explorer/",
+        "licence": "CC BY-SA 4.0"
+      }
+    ],
+    "text_copied": false,
+    "never_taken": [
+      "source sentences, questions, passages, answers or declarative rewrites (verbatim, translated or lightly edited)",
+      "source entity names, titles or row identifiers in any natural-language field",
+      "source labels as gold: every ChatSOP target is authored and executed independently"
+    ],
+    "no_copy_check": "node tools/datasets/no-copy.mjs",
+    "spec": "docs/specs/DS014-source-rights.md"
+  },
+  "splits": {
+    "train": "datasets/formalizer-v1/train.jsonl",
+    "dev": "datasets/formalizer-v1/dev.jsonl",
+    "test": "eval/suites/formalizer-v1/test.jsonl"
+  },
+  "sha256": {
+    "datasets/formalizer-v1/train.jsonl": "c283e9c87cf0f4a17b29d27f705cf4dc8f21c67ff6e030fc3380ffd802305394",
+    "datasets/formalizer-v1/dev.jsonl": "86c85e9aa12a9bade23e4c8453b694f57838ab7022ecc67949f524a6ffdd88f2",
+    "eval/suites/formalizer-v1/test.jsonl": "b05c76a83efbad8a6027137cb13bc9eeb57812574663818624a98692a11930ac"
+  },
+  "companion_suites": {
+    "ood": "eval/suites/formalizer-ood-v1/test.jsonl"
+  },
+  "shared_world": {
+    "dir": "datasets/formalizer-v1/world",
+    "sha256": {
+      "datasets/formalizer-v1/world/predicates.sop": "3ee5d580f66d49f3e07532470cc48c2217ea23a14f63b48fe65e7a48a1151d9b",
+      "datasets/formalizer-v1/world/rules.sop": "b4aec3dfe3538e48fa6b288fcadf2e43d6f9511f85c1a39b9cc34cc9056de300"
+    },
+    "note": "rows reference predicate and rule blocks by id (row.world); lib/row-world.mjs assembles the world"
+  },
+  "summary": {
+    "lengths": {
+      "all": {
+        "rows": 33981,
+        "message": {
+          "unit": "tokens ~ characters / 4",
+          "mean": 43,
+          "p50": 16,
+          "p90": 31,
+          "p99": 717,
+          "max": 1062
+        },
+        "target": {
+          "unit": "tokens ~ characters / 4",
+          "mean": 120,
+          "p50": 45,
+          "p90": 96,
+          "p99": 1973,
+          "max": 2787
+        },
+        "messages_over_500_chars": 2031,
+        "long_message_rows": 2031
+      },
+      "train": {
+        "rows": 23817,
+        "message": {
+          "unit": "tokens ~ characters / 4",
+          "mean": 43,
+          "p50": 16,
+          "p90": 30,
+          "p99": 723,
+          "max": 1062
+        },
+        "target": {
+          "unit": "tokens ~ characters / 4",
+          "mean": 122,
+          "p50": 44,
+          "p90": 96,
+          "p99": 1998,
+          "max": 2787
+        },
+        "messages_over_500_chars": 1420,
+        "long_message_rows": 1420
+      },
+      "dev": {
+        "rows": 5131,
+        "message": {
+          "unit": "tokens ~ characters / 4",
+          "mean": 41,
+          "p50": 16,
+          "p90": 31,
+          "p99": 660,
+          "max": 924
+        },
+        "target": {
+          "unit": "tokens ~ characters / 4",
+          "mean": 116,
+          "p50": 45,
+          "p90": 96,
+          "p99": 1829,
+          "max": 2638
+        },
+        "messages_over_500_chars": 308,
+        "long_message_rows": 308
+      },
+      "test": {
+        "rows": 5033,
+        "message": {
+          "unit": "tokens ~ characters / 4",
+          "mean": 42,
+          "p50": 17,
+          "p90": 32,
+          "p99": 708,
+          "max": 1054
+        },
+        "target": {
+          "unit": "tokens ~ characters / 4",
+          "mean": 116,
+          "p50": 45,
+          "p90": 96,
+          "p99": 1891,
+          "max": 2748
+        },
+        "messages_over_500_chars": 303,
+        "long_message_rows": 303
+      }
+    },
+    "rows": 33981,
+    "by_split": {
+      "dev": 5131,
+      "train": 23817,
+      "test": 5033
+    },
+    "by_family": {
+      "time_question": 2479,
+      "long_message": 2031,
+      "unclear": 1858,
+      "general_quantification": 1151,
+      "attached": 1072,
+      "temporal": 1062,
+      "wh_select": 975,
+      "lookup": 952,
+      "count": 886,
+      "why_question": 885,
+      "join": 885,
+      "ambiguity": 874,
+      "filter": 798,
+      "negation": 798,
+      "ambiguity_visible": 797,
+      "constraint": 797,
+      "proof_depth": 797,
+      "where_question": 797,
+      "anchor": 796,
+      "contrast": 721,
+      "interpretation": 708,
+      "conjunction": 706,
+      "attribute_value": 664,
+      "how_question": 620,
+      "claim_check": 620,
+      "multi_question": 618,
+      "intention": 531,
+      "counterfactual": 531,
+      "statement_only": 531,
+      "causal": 531,
+      "default_exception": 531,
+      "abduction": 531,
+      "planning": 531,
+      "world_assumption": 487,
+      "closure_assumption": 399,
+      "quantified": 399,
+      "transfer": 354,
+      "coordination": 354,
+      "modality": 310,
+      "ordering": 310,
+      "filtered_count": 310,
+      "first_person": 310,
+      "fragment": 266,
+      "conditional": 266,
+      "existence": 266,
+      "definition": 222,
+      "alternatives": 221,
+      "offered_answer": 213,
+      "arithmetic": 133,
+      "relative_clause": 97
+    },
+    "by_question_type": {
+      "yes_no": 13329,
+      "wh": 3945,
+      "multi": 2649,
+      "unclear": 1858,
+      "count": 1196,
+      "universal": 1031,
+      "where": 990,
+      "numeric": 930,
+      "why": 885,
+      "when": 703,
+      "how": 620,
+      "claim_check": 620,
+      "none": 531,
+      "until_when": 468,
+      "ambiguous": 448,
+      "since_when": 446,
+      "how_many_times": 437,
+      "how_long": 425,
+      "quantified": 399,
+      "order": 310,
+      "value": 271,
+      "fragment": 266,
+      "exists": 266,
+      "compare": 232,
+      "definition": 222,
+      "alternative": 221,
+      "superlative": 161,
+      "advice": 122
+    },
+    "by_language": {
+      "en": 16993,
+      "ro": 11898,
+      "en+switch": 2608,
+      "ro+switch": 2482
+    },
+    "by_expected_status": {
+      "supported": 18353,
+      "unknown": 8228,
+      "refuted": 2602,
+      "unclear": 2306,
+      "clarify": 780,
+      "context_updated": 531,
+      "possible": 381,
+      "both": 320,
+      "entailed": 191,
+      "not_computable": 159,
+      "impossible": 130
+    },
+    "by_noise_level": {
+      "clean": 23526,
+      "light": 5796,
+      "medium": 3364,
+      "heavy": 1295
+    },
+    "code_switch_kinds": {
+      "ro_matrix_en_insertion": 1084,
+      "en_matrix_ro_insertion": 1048,
+      "clause_switch": 828,
+      "en_matrix_ro_tag": 651,
+      "ro_matrix_en_tag": 565,
+      "en_matrix_ro_value": 481,
+      "ro_matrix_en_value": 433
+    },
+    "noise_ops": {
+      "typo:substitution": 4122,
+      "space_before_punctuation": 3902,
+      "typo:insertion": 3120,
+      "typo:deletion": 2192,
+      "diacritic_drop": 1847,
+      "space_merge": 1334,
+      "space_split": 1127,
+      "strip_diacritics": 900,
+      "drop_question_mark": 882,
+      "no_space_after_comma": 685,
+      "dictation": 606,
+      "autocorrect": 599,
+      "repeated_punctuation": 452,
+      "phonetic": 421,
+      "diacritic_wrong": 406,
+      "chat_spelling": 382,
+      "lowercase_start": 345,
+      "strip_diacritics_partial": 332,
+      "diacritic_cedilla": 248,
+      "typo:duplication": 215,
+      "lowercase_i": 145,
+      "missing_apostrophe": 49,
+      "sms": 33,
+      "regional": 10
+    },
+    "assumed_basis": {
+      "closure": 933,
+      "disambiguation": 783,
+      "world": 715,
+      "implicature": 405,
+      "default": 326
+    },
+    "unclear_kinds": {
+      "gibberish": 992,
+      "no_request": 866,
+      "ambiguous": 448
+    }
+  },
+  "noise_levels": {
+    "light": {
+      "ops": [
+        1,
+        1
+      ],
+      "share": 0.55
+    },
+    "medium": {
+      "ops": [
+        2,
+        3
+      ],
+      "share": 0.33
+    },
+    "heavy": {
+      "ops": [
+        4,
+        6
+      ],
+      "share": 0.12
+    }
+  }
+}

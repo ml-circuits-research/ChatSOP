@@ -1,0 +1,5275 @@
+{
+ "note": "Recorded by `node tools/symbolic-regression.mjs record-fixture`: symbolic_english train rows verified against their gold SOP and the Stanza parses of their messages, so the regression runner can be tested without Python.",
+ "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm",
+ "rows": [
+  {
+   "id": "formalizer-v1::fv1_000009_1_0",
+   "dataset": "symbolic_english",
+   "split": "train",
+   "split_group_id": "fv1_000009",
+   "message": "I was wondering whether Réka Kovács works under Mircea Enache.",
+   "source": {
+    "corpus": "formalizer-v1",
+    "id": "fv1_000009_1_0",
+    "suite": "formalizer-v1",
+    "split": "train",
+    "semantic_case_id": "fv1_000009_1",
+    "family": "contrast",
+    "question_type": "yes_no"
+   },
+   "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "inspired_by": [
+     "paws"
+    ],
+    "text_copied": false,
+    "inherited_from": "formalizer-v1",
+    "spec": "docs/specs/DS014-source-rights.md"
+   },
+   "quality_flags": {
+    "synthetic": true,
+    "human_reviewed": false,
+    "training_approved": false,
+    "llm_authored": false
+   },
+   "review_status": "not_reviewed",
+   "analysis": {
+    "columns": [
+     "id",
+     "form",
+     "lemma",
+     "upos",
+     "head",
+     "deprel"
+    ],
+    "language": "en",
+    "sentences": [
+     {
+      "text": "I was wondering whether Réka Kovács works under Mircea Enache.",
+      "start": 0,
+      "end": 62,
+      "tokens": [
+       [
+        1,
+        "I",
+        "I",
+        "PRON",
+        3,
+        "nsubj"
+       ],
+       [
+        2,
+        "was",
+        "be",
+        "AUX",
+        3,
+        "aux"
+       ],
+       [
+        3,
+        "wondering",
+        "wonder",
+        "VERB",
+        0,
+        "root"
+       ],
+       [
+        4,
+        "whether",
+        "whether",
+        "SCONJ",
+        7,
+        "mark"
+       ],
+       [
+        5,
+        "Réka",
+        "Réka",
+        "PROPN",
+        7,
+        "nsubj"
+       ],
+       [
+        6,
+        "Kovács",
+        "Kovács",
+        "PROPN",
+        5,
+        "flat"
+       ],
+       [
+        7,
+        "works",
+        "work",
+        "VERB",
+        3,
+        "ccomp"
+       ],
+       [
+        8,
+        "under",
+        "under",
+        "ADP",
+        9,
+        "case"
+       ],
+       [
+        9,
+        "Mircea",
+        "Mircea",
+        "PROPN",
+        7,
+        "obl"
+       ],
+       [
+        10,
+        "Enache",
+        "Enache",
+        "PROPN",
+        9,
+        "flat"
+       ],
+       [
+        11,
+        ".",
+        ".",
+        "PUNCT",
+        3,
+        "punct"
+       ]
+      ]
+     }
+    ]
+   },
+   "sop": "@q query\n  where match\n    relation \"work under\"\n    role subject \"Réka Kovács\"\n    role object \"Mircea Enache\"\n    polarity affirmed\n  end\n",
+   "sop_valid": true,
+   "outcome": "converted",
+   "unparsed": [],
+   "uncertain": false,
+   "symbolic_lm": {
+    "version": "symbolic-lm-v1.1",
+    "rules": "ud-rules-v1.4",
+    "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm"
+   },
+   "gold_sop": "@q query\n  where match\n    relation \"work under\"\n    role subject \"Réka Kovács\"\n    role object \"Mircea Enache\"\n    polarity affirmed\n  end\n",
+   "analysis_verified": "gold_sop_match",
+   "verification": {
+    "sop_gold_match": true,
+    "judge": null,
+    "stanza_spacy_agree": true
+   }
+  },
+  {
+   "id": "formalizer-v1::fv1_002482_0_0",
+   "dataset": "symbolic_english",
+   "split": "train",
+   "split_group_id": "fv1_002482",
+   "message": "Are all the players of Porto United certified?",
+   "source": {
+    "corpus": "formalizer-v1",
+    "id": "fv1_002482_0_0",
+    "suite": "formalizer-v1",
+    "split": "train",
+    "semantic_case_id": "fv1_002482_0",
+    "family": "quantified",
+    "question_type": "quantified"
+   },
+   "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "inspired_by": [
+     "proofwriter"
+    ],
+    "text_copied": false,
+    "inherited_from": "formalizer-v1",
+    "spec": "docs/specs/DS014-source-rights.md"
+   },
+   "quality_flags": {
+    "synthetic": true,
+    "human_reviewed": false,
+    "training_approved": false,
+    "llm_authored": false
+   },
+   "review_status": "not_reviewed",
+   "analysis": {
+    "columns": [
+     "id",
+     "form",
+     "lemma",
+     "upos",
+     "head",
+     "deprel"
+    ],
+    "language": "en",
+    "sentences": [
+     {
+      "text": "Are all the players of Porto United certified?",
+      "start": 0,
+      "end": 46,
+      "tokens": [
+       [
+        1,
+        "Are",
+        "be",
+        "AUX",
+        8,
+        "aux:pass"
+       ],
+       [
+        2,
+        "all",
+        "all",
+        "DET",
+        4,
+        "det:predet"
+       ],
+       [
+        3,
+        "the",
+        "the",
+        "DET",
+        4,
+        "det"
+       ],
+       [
+        4,
+        "players",
+        "player",
+        "NOUN",
+        8,
+        "nsubj:pass"
+       ],
+       [
+        5,
+        "of",
+        "of",
+        "ADP",
+        7,
+        "case"
+       ],
+       [
+        6,
+        "Porto",
+        "Porto",
+        "PROPN",
+        7,
+        "compound"
+       ],
+       [
+        7,
+        "United",
+        "United",
+        "PROPN",
+        4,
+        "nmod"
+       ],
+       [
+        8,
+        "certified",
+        "certify",
+        "VERB",
+        0,
+        "root"
+       ],
+       [
+        9,
+        "?",
+        "?",
+        "PUNCT",
+        8,
+        "punct"
+       ]
+      ]
+     }
+    ]
+   },
+   "sop": "@q query\n  mode every\n  where match\n    relation \"be a player of\"\n    role subject ?m\n    role object \"Porto United\"\n    polarity affirmed\n  end\n  scope match\n    relation \"be certified\"\n    role subject ?m\n    polarity affirmed\n  end\n",
+   "sop_valid": true,
+   "outcome": "converted",
+   "unparsed": [],
+   "uncertain": false,
+   "symbolic_lm": {
+    "version": "symbolic-lm-v1.1",
+    "rules": "ud-rules-v1.4",
+    "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm"
+   },
+   "gold_sop": "@q query\n  mode every\n  quantifier all\n  where match\n    relation \"be a player of\"\n    role subject ?m\n    role object \"Porto United\"\n    polarity affirmed\n  end\n  scope match\n    relation \"be certified\"\n    role subject ?m\n    polarity affirmed\n  end\n",
+   "analysis_verified": "gold_sop_match",
+   "verification": {
+    "sop_gold_match": true,
+    "judge": null,
+    "stanza_spacy_agree": true
+   }
+  },
+  {
+   "id": "formalizer-v1::fv1_005010_0_0",
+   "dataset": "symbolic_english",
+   "split": "train",
+   "split_group_id": "fv1_005010",
+   "message": "The bill is 600 lei and there are 5 of us. How much does each of us pay?",
+   "source": {
+    "corpus": "formalizer-v1",
+    "id": "fv1_005010_0_0",
+    "suite": "formalizer-v1",
+    "split": "train",
+    "semantic_case_id": "fv1_005010_0",
+    "family": "arithmetic",
+    "question_type": "numeric"
+   },
+   "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "inspired_by": [
+     "squad"
+    ],
+    "text_copied": false,
+    "inherited_from": "formalizer-v1",
+    "spec": "docs/specs/DS014-source-rights.md"
+   },
+   "quality_flags": {
+    "synthetic": true,
+    "human_reviewed": false,
+    "training_approved": false,
+    "llm_authored": false
+   },
+   "review_status": "not_reviewed",
+   "analysis": {
+    "columns": [
+     "id",
+     "form",
+     "lemma",
+     "upos",
+     "head",
+     "deprel"
+    ],
+    "language": "en",
+    "sentences": [
+     {
+      "text": "The bill is 600 lei and there are 5 of us.",
+      "start": 0,
+      "end": 42,
+      "tokens": [
+       [
+        1,
+        "The",
+        "the",
+        "DET",
+        2,
+        "det"
+       ],
+       [
+        2,
+        "bill",
+        "bill",
+        "NOUN",
+        5,
+        "nsubj"
+       ],
+       [
+        3,
+        "is",
+        "be",
+        "AUX",
+        5,
+        "cop"
+       ],
+       [
+        4,
+        "600",
+        "600",
+        "NUM",
+        5,
+        "nummod"
+       ],
+       [
+        5,
+        "lei",
+        "lei",
+        "NOUN",
+        0,
+        "root"
+       ],
+       [
+        6,
+        "and",
+        "and",
+        "CCONJ",
+        8,
+        "cc"
+       ],
+       [
+        7,
+        "there",
+        "there",
+        "PRON",
+        8,
+        "expl"
+       ],
+       [
+        8,
+        "are",
+        "be",
+        "VERB",
+        5,
+        "conj"
+       ],
+       [
+        9,
+        "5",
+        "5",
+        "NUM",
+        8,
+        "nsubj"
+       ],
+       [
+        10,
+        "of",
+        "of",
+        "ADP",
+        11,
+        "case"
+       ],
+       [
+        11,
+        "us",
+        "we",
+        "PRON",
+        9,
+        "nmod"
+       ],
+       [
+        12,
+        ".",
+        ".",
+        "PUNCT",
+        5,
+        "punct"
+       ]
+      ]
+     },
+     {
+      "text": "How much does each of us pay?",
+      "start": 43,
+      "end": 72,
+      "tokens": [
+       [
+        1,
+        "How",
+        "how",
+        "ADV",
+        2,
+        "advmod"
+       ],
+       [
+        2,
+        "much",
+        "much",
+        "ADJ",
+        7,
+        "obj"
+       ],
+       [
+        3,
+        "does",
+        "do",
+        "AUX",
+        7,
+        "aux"
+       ],
+       [
+        4,
+        "each",
+        "each",
+        "DET",
+        7,
+        "nsubj"
+       ],
+       [
+        5,
+        "of",
+        "of",
+        "ADP",
+        6,
+        "case"
+       ],
+       [
+        6,
+        "us",
+        "we",
+        "PRON",
+        4,
+        "nmod"
+       ],
+       [
+        7,
+        "pay",
+        "pay",
+        "VERB",
+        0,
+        "root"
+       ],
+       [
+        8,
+        "?",
+        "?",
+        "PUNCT",
+        7,
+        "punct"
+       ]
+      ]
+     }
+    ]
+   },
+   "sop": "@c constraint\n  var ?share int 0 600\n  require ?share equal 600 divided_by 5\n  require ?share at_most 600\n  claim ?share at_least 0\n  task possible\n  select ?share\n",
+   "sop_valid": true,
+   "outcome": "numeric",
+   "unparsed": [],
+   "uncertain": false,
+   "symbolic_lm": {
+    "version": "symbolic-lm-v1.1",
+    "rules": "ud-rules-v1.4",
+    "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm"
+   },
+   "gold_sop": "@c constraint\n  var ?share int 0 600\n  require ?share equal 600 divided_by 5\n  require ?share at_most 600\n  claim ?share at_least 0\n  task possible\n  select ?share\n",
+   "analysis_verified": "gold_sop_match",
+   "verification": {
+    "sop_gold_match": true,
+    "judge": null,
+    "stanza_spacy_agree": false
+   }
+  },
+  {
+   "id": "formalizer-v1::fv1_007611_0_0",
+   "dataset": "symbolic_english",
+   "split": "train",
+   "split_group_id": "fv1_007611",
+   "message": "When did the plot of land by the river start to belong to Mădălina?",
+   "source": {
+    "corpus": "formalizer-v1",
+    "id": "fv1_007611_0_0",
+    "suite": "formalizer-v1",
+    "split": "train",
+    "semantic_case_id": "fv1_007611_0",
+    "family": "time_question",
+    "question_type": "since_when"
+   },
+   "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "inspired_by": [
+     "squad",
+     "ambignq"
+    ],
+    "text_copied": false,
+    "inherited_from": "formalizer-v1",
+    "spec": "docs/specs/DS014-source-rights.md"
+   },
+   "quality_flags": {
+    "synthetic": true,
+    "human_reviewed": false,
+    "training_approved": false,
+    "llm_authored": false
+   },
+   "review_status": "not_reviewed",
+   "analysis": {
+    "columns": [
+     "id",
+     "form",
+     "lemma",
+     "upos",
+     "head",
+     "deprel"
+    ],
+    "language": "en",
+    "sentences": [
+     {
+      "text": "When did the plot of land by the river start to belong to Mădălina?",
+      "start": 0,
+      "end": 67,
+      "tokens": [
+       [
+        1,
+        "When",
+        "when",
+        "ADV",
+        10,
+        "advmod"
+       ],
+       [
+        2,
+        "did",
+        "do",
+        "AUX",
+        10,
+        "aux"
+       ],
+       [
+        3,
+        "the",
+        "the",
+        "DET",
+        4,
+        "det"
+       ],
+       [
+        4,
+        "plot",
+        "plot",
+        "NOUN",
+        10,
+        "nsubj"
+       ],
+       [
+        5,
+        "of",
+        "of",
+        "ADP",
+        6,
+        "case"
+       ],
+       [
+        6,
+        "land",
+        "land",
+        "NOUN",
+        4,
+        "nmod"
+       ],
+       [
+        7,
+        "by",
+        "by",
+        "ADP",
+        9,
+        "case"
+       ],
+       [
+        8,
+        "the",
+        "the",
+        "DET",
+        9,
+        "det"
+       ],
+       [
+        9,
+        "river",
+        "river",
+        "NOUN",
+        6,
+        "nmod"
+       ],
+       [
+        10,
+        "start",
+        "start",
+        "VERB",
+        0,
+        "root"
+       ],
+       [
+        11,
+        "to",
+        "to",
+        "PART",
+        12,
+        "mark"
+       ],
+       [
+        12,
+        "belong",
+        "belong",
+        "VERB",
+        10,
+        "xcomp"
+       ],
+       [
+        13,
+        "to",
+        "to",
+        "ADP",
+        14,
+        "case"
+       ],
+       [
+        14,
+        "Mădălina",
+        "Mădălina",
+        "PROPN",
+        12,
+        "obl"
+       ],
+       [
+        15,
+        "?",
+        "?",
+        "PUNCT",
+        10,
+        "punct"
+       ]
+      ]
+     }
+    ]
+   },
+   "sop": "@q query\n  select ?t\n  measure start\n  where match\n    relation \"belong to\"\n    role subject \"the plot of land by the river\"\n    role object \"Mădălina\"\n    role time ?t\n    polarity affirmed\n  end\n",
+   "sop_valid": true,
+   "outcome": "converted",
+   "unparsed": [],
+   "uncertain": false,
+   "symbolic_lm": {
+    "version": "symbolic-lm-v1.1",
+    "rules": "ud-rules-v1.4",
+    "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm"
+   },
+   "gold_sop": "@q query\n  select ?t\n  measure start\n  where match\n    relation \"belong to\"\n    role subject \"the plot of land by the river\"\n    role object \"Mădălina\"\n    role time ?t\n    polarity affirmed\n  end\n",
+   "analysis_verified": "gold_sop_match",
+   "verification": {
+    "sop_gold_match": true,
+    "judge": null,
+    "stanza_spacy_agree": true
+   }
+  },
+  {
+   "id": "formalizer-v1::fv1_010504_0_1",
+   "dataset": "symbolic_english",
+   "split": "train",
+   "split_group_id": "fv1_010504",
+   "message": "Floarea plays for Debrecen United, correct?",
+   "source": {
+    "corpus": "formalizer-v1",
+    "id": "fv1_010504_0_1",
+    "suite": "formalizer-v1",
+    "split": "train",
+    "semantic_case_id": "fv1_010504_0",
+    "family": "lookup",
+    "question_type": "yes_no"
+   },
+   "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "inspired_by": [
+     "proofwriter",
+     "qqp"
+    ],
+    "text_copied": false,
+    "inherited_from": "formalizer-v1",
+    "spec": "docs/specs/DS014-source-rights.md"
+   },
+   "quality_flags": {
+    "synthetic": true,
+    "human_reviewed": false,
+    "training_approved": false,
+    "llm_authored": false
+   },
+   "review_status": "not_reviewed",
+   "analysis": {
+    "columns": [
+     "id",
+     "form",
+     "lemma",
+     "upos",
+     "head",
+     "deprel"
+    ],
+    "language": "en",
+    "sentences": [
+     {
+      "text": "Floarea plays for Debrecen United         ?",
+      "start": 0,
+      "end": 43,
+      "tokens": [
+       [
+        1,
+        "Floarea",
+        "Floarea",
+        "PROPN",
+        2,
+        "nsubj"
+       ],
+       [
+        2,
+        "plays",
+        "play",
+        "VERB",
+        0,
+        "root"
+       ],
+       [
+        3,
+        "for",
+        "for",
+        "ADP",
+        5,
+        "case"
+       ],
+       [
+        4,
+        "Debrecen",
+        "Debrecen",
+        "PROPN",
+        5,
+        "compound"
+       ],
+       [
+        5,
+        "United",
+        "United",
+        "PROPN",
+        2,
+        "obl"
+       ],
+       [
+        6,
+        "?",
+        "?",
+        "PUNCT",
+        2,
+        "punct"
+       ]
+      ]
+     }
+    ]
+   },
+   "sop": "@q query\n  where match\n    relation \"play for\"\n    role subject \"Floarea\"\n    role object \"Debrecen United\"\n    polarity affirmed\n  end\n",
+   "sop_valid": true,
+   "outcome": "converted",
+   "unparsed": [],
+   "uncertain": false,
+   "symbolic_lm": {
+    "version": "symbolic-lm-v1.1",
+    "rules": "ud-rules-v1.4",
+    "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm"
+   },
+   "gold_sop": "@q query\n  where match\n    relation \"play for\"\n    role subject \"Floarea\"\n    role object \"Debrecen United\"\n    polarity affirmed\n  end\n",
+   "analysis_verified": "gold_sop_match",
+   "verification": {
+    "sop_gold_match": true,
+    "judge": null,
+    "stanza_spacy_agree": true
+   }
+  },
+  {
+   "id": "formalizer-v1::fv1_013379_0_0",
+   "dataset": "symbolic_english",
+   "split": "train",
+   "split_group_id": "fv1_013379",
+   "message": "Honestly, did Andrei study at Baia Mare Arts High School on 27 March 2020?",
+   "source": {
+    "corpus": "formalizer-v1",
+    "id": "fv1_013379_0_0",
+    "suite": "formalizer-v1",
+    "split": "train",
+    "semantic_case_id": "fv1_013379_0",
+    "family": "temporal",
+    "question_type": "yes_no"
+   },
+   "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "inspired_by": [
+     "ambignq",
+     "squad"
+    ],
+    "text_copied": false,
+    "inherited_from": "formalizer-v1",
+    "spec": "docs/specs/DS014-source-rights.md"
+   },
+   "quality_flags": {
+    "synthetic": true,
+    "human_reviewed": false,
+    "training_approved": false,
+    "llm_authored": false
+   },
+   "review_status": "not_reviewed",
+   "analysis": {
+    "columns": [
+     "id",
+     "form",
+     "lemma",
+     "upos",
+     "head",
+     "deprel"
+    ],
+    "language": "en",
+    "sentences": [
+     {
+      "text": "did Andrei study at Baia Mare Arts High School on 27 March 2020?",
+      "start": 10,
+      "end": 74,
+      "tokens": [
+       [
+        1,
+        "did",
+        "do",
+        "AUX",
+        3,
+        "aux"
+       ],
+       [
+        2,
+        "Andrei",
+        "Andrei",
+        "PROPN",
+        3,
+        "nsubj"
+       ],
+       [
+        3,
+        "study",
+        "study",
+        "VERB",
+        0,
+        "root"
+       ],
+       [
+        4,
+        "at",
+        "at",
+        "ADP",
+        9,
+        "case"
+       ],
+       [
+        5,
+        "Baia",
+        "Baia",
+        "PROPN",
+        6,
+        "compound"
+       ],
+       [
+        6,
+        "Mare",
+        "mare",
+        "PROPN",
+        7,
+        "compound"
+       ],
+       [
+        7,
+        "Arts",
+        "Art",
+        "PROPN",
+        9,
+        "compound"
+       ],
+       [
+        8,
+        "High",
+        "high",
+        "ADJ",
+        9,
+        "amod"
+       ],
+       [
+        9,
+        "School",
+        "School",
+        "PROPN",
+        3,
+        "obl"
+       ],
+       [
+        10,
+        "on",
+        "on",
+        "ADP",
+        11,
+        "case"
+       ],
+       [
+        11,
+        "27",
+        "27",
+        "NUM",
+        3,
+        "obl"
+       ],
+       [
+        12,
+        "March",
+        "March",
+        "PROPN",
+        3,
+        "obl"
+       ],
+       [
+        13,
+        "2020",
+        "2020",
+        "NUM",
+        12,
+        "nummod"
+       ],
+       [
+        14,
+        "?",
+        "?",
+        "PUNCT",
+        3,
+        "punct"
+       ]
+      ]
+     }
+    ]
+   },
+   "sop": "@q query\n  where match\n    relation \"study at\"\n    role subject \"Andrei\"\n    role object \"Baia Mare Arts High School\"\n    polarity affirmed\n  end\n  at \"27 March 2020\"\n",
+   "sop_valid": true,
+   "outcome": "converted",
+   "unparsed": [],
+   "uncertain": false,
+   "symbolic_lm": {
+    "version": "symbolic-lm-v1.1",
+    "rules": "ud-rules-v1.4",
+    "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm"
+   },
+   "gold_sop": "@q query\n  where match\n    relation \"study at\"\n    role subject \"Andrei\"\n    role object \"Baia Mare Arts High School\"\n    polarity affirmed\n  end\n  at \"27 March 2020\"\n",
+   "analysis_verified": "gold_sop_match",
+   "verification": {
+    "sop_gold_match": true,
+    "judge": null,
+    "stanza_spacy_agree": false
+   }
+  },
+  {
+   "id": "formalizer-v1::fv1_016147_0_0",
+   "dataset": "symbolic_english",
+   "split": "train",
+   "split_group_id": "fv1_016147",
+   "message": "Okay so Mr Weber borrowed Notes from the Night Train. Tell me whether he checked out Notes from the Night Train.",
+   "source": {
+    "corpus": "formalizer-v1",
+    "id": "fv1_016147_0_0",
+    "suite": "formalizer-v1",
+    "split": "train",
+    "semantic_case_id": "fv1_016147_0",
+    "family": "attached",
+    "question_type": "yes_no"
+   },
+   "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "inspired_by": [
+     "qqp",
+     "qa2d"
+    ],
+    "text_copied": false,
+    "inherited_from": "formalizer-v1",
+    "spec": "docs/specs/DS014-source-rights.md"
+   },
+   "quality_flags": {
+    "synthetic": true,
+    "human_reviewed": false,
+    "training_approved": false,
+    "llm_authored": false
+   },
+   "review_status": "not_reviewed",
+   "analysis": {
+    "columns": [
+     "id",
+     "form",
+     "lemma",
+     "upos",
+     "head",
+     "deprel"
+    ],
+    "language": "en",
+    "sentences": [
+     {
+      "text": "Okay so Mr Weber borrowed Notes from the Night Train.",
+      "start": 0,
+      "end": 53,
+      "tokens": [
+       [
+        1,
+        "Okay",
+        "okay",
+        "INTJ",
+        5,
+        "discourse"
+       ],
+       [
+        2,
+        "so",
+        "so",
+        "ADV",
+        5,
+        "advmod"
+       ],
+       [
+        3,
+        "Mr",
+        "Mr",
+        "PROPN",
+        5,
+        "nsubj"
+       ],
+       [
+        4,
+        "Weber",
+        "Weber",
+        "PROPN",
+        3,
+        "flat"
+       ],
+       [
+        5,
+        "borrowed",
+        "borrow",
+        "VERB",
+        0,
+        "root"
+       ],
+       [
+        6,
+        "Notes",
+        "Note",
+        "PROPN",
+        5,
+        "obj"
+       ],
+       [
+        7,
+        "from",
+        "from",
+        "ADP",
+        10,
+        "case"
+       ],
+       [
+        8,
+        "the",
+        "the",
+        "DET",
+        10,
+        "det"
+       ],
+       [
+        9,
+        "Night",
+        "Night",
+        "PROPN",
+        10,
+        "compound"
+       ],
+       [
+        10,
+        "Train",
+        "Train",
+        "PROPN",
+        5,
+        "obl"
+       ],
+       [
+        11,
+        ".",
+        ".",
+        "PUNCT",
+        5,
+        "punct"
+       ]
+      ]
+     },
+     {
+      "text": "Tell me whether he checked out Notes from the Night Train.",
+      "start": 54,
+      "end": 112,
+      "tokens": [
+       [
+        1,
+        "Tell",
+        "tell",
+        "VERB",
+        0,
+        "root"
+       ],
+       [
+        2,
+        "me",
+        "I",
+        "PRON",
+        1,
+        "iobj"
+       ],
+       [
+        3,
+        "whether",
+        "whether",
+        "SCONJ",
+        5,
+        "mark"
+       ],
+       [
+        4,
+        "he",
+        "he",
+        "PRON",
+        5,
+        "nsubj"
+       ],
+       [
+        5,
+        "checked",
+        "check",
+        "VERB",
+        1,
+        "ccomp"
+       ],
+       [
+        6,
+        "out",
+        "out",
+        "ADP",
+        5,
+        "compound:prt"
+       ],
+       [
+        7,
+        "Notes",
+        "Note",
+        "PROPN",
+        5,
+        "obj"
+       ],
+       [
+        8,
+        "from",
+        "from",
+        "ADP",
+        11,
+        "case"
+       ],
+       [
+        9,
+        "the",
+        "the",
+        "DET",
+        11,
+        "det"
+       ],
+       [
+        10,
+        "Night",
+        "Night",
+        "PROPN",
+        11,
+        "compound"
+       ],
+       [
+        11,
+        "Train",
+        "Train",
+        "PROPN",
+        7,
+        "nmod"
+       ],
+       [
+        12,
+        ".",
+        ".",
+        "PUNCT",
+        1,
+        "punct"
+       ]
+      ]
+     }
+    ]
+   },
+   "sop": "@s1 stated\n  relation \"borrow\"\n  role subject \"Mr Weber\"\n  role object \"Notes from the Night Train\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"check out\"\n    role subject \"Mr Weber\"\n    role object \"Notes from the Night Train\"\n    polarity affirmed\n  end\n",
+   "sop_valid": true,
+   "outcome": "converted",
+   "unparsed": [],
+   "uncertain": false,
+   "symbolic_lm": {
+    "version": "symbolic-lm-v1.1",
+    "rules": "ud-rules-v1.4",
+    "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm"
+   },
+   "gold_sop": "@s1 stated\n  relation \"borrow\"\n  role subject \"Mr Weber\"\n  role object \"Notes from the Night Train\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"check out\"\n    role subject \"Mr Weber\"\n    role object \"Notes from the Night Train\"\n    polarity affirmed\n  end\n",
+   "analysis_verified": "gold_sop_match",
+   "verification": {
+    "sop_gold_match": true,
+    "judge": null,
+    "stanza_spacy_agree": false
+   }
+  },
+  {
+   "id": "formalizer-v1::fv1_018980_0_0",
+   "dataset": "symbolic_english",
+   "split": "train",
+   "split_group_id": "fv1_018980",
+   "message": "I'm trying to find out who studies at Nairobi Arts High School.",
+   "source": {
+    "corpus": "formalizer-v1",
+    "id": "fv1_018980_0_0",
+    "suite": "formalizer-v1",
+    "split": "train",
+    "semantic_case_id": "fv1_018980_0",
+    "family": "wh_select",
+    "question_type": "wh"
+   },
+   "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "inspired_by": [
+     "qa2d",
+     "qqp"
+    ],
+    "text_copied": false,
+    "inherited_from": "formalizer-v1",
+    "spec": "docs/specs/DS014-source-rights.md"
+   },
+   "quality_flags": {
+    "synthetic": true,
+    "human_reviewed": false,
+    "training_approved": false,
+    "llm_authored": false
+   },
+   "review_status": "not_reviewed",
+   "analysis": {
+    "columns": [
+     "id",
+     "form",
+     "lemma",
+     "upos",
+     "head",
+     "deprel"
+    ],
+    "language": "en",
+    "sentences": [
+     {
+      "text": "I'm trying to find out who studies at Nairobi Arts High School.",
+      "start": 0,
+      "end": 63,
+      "tokens": [
+       [
+        1,
+        "I",
+        "I",
+        "PRON",
+        3,
+        "nsubj"
+       ],
+       [
+        2,
+        "'m",
+        "be",
+        "AUX",
+        3,
+        "aux"
+       ],
+       [
+        3,
+        "trying",
+        "try",
+        "VERB",
+        0,
+        "root"
+       ],
+       [
+        4,
+        "to",
+        "to",
+        "PART",
+        5,
+        "mark"
+       ],
+       [
+        5,
+        "find",
+        "find",
+        "VERB",
+        3,
+        "xcomp"
+       ],
+       [
+        6,
+        "out",
+        "out",
+        "ADP",
+        5,
+        "compound:prt"
+       ],
+       [
+        7,
+        "who",
+        "who",
+        "PRON",
+        8,
+        "nsubj"
+       ],
+       [
+        8,
+        "studies",
+        "study",
+        "VERB",
+        5,
+        "ccomp"
+       ],
+       [
+        9,
+        "at",
+        "at",
+        "ADP",
+        13,
+        "case"
+       ],
+       [
+        10,
+        "Nairobi",
+        "Nairobi",
+        "PROPN",
+        13,
+        "compound"
+       ],
+       [
+        11,
+        "Arts",
+        "Art",
+        "PROPN",
+        13,
+        "compound"
+       ],
+       [
+        12,
+        "High",
+        "high",
+        "ADJ",
+        13,
+        "amod"
+       ],
+       [
+        13,
+        "School",
+        "School",
+        "PROPN",
+        8,
+        "obl"
+       ],
+       [
+        14,
+        ".",
+        ".",
+        "PUNCT",
+        3,
+        "punct"
+       ]
+      ]
+     }
+    ]
+   },
+   "sop": "@q query\n  select ?x\n  where match\n    relation \"study at\"\n    role subject ?x\n    role object \"Nairobi Arts High School\"\n    polarity affirmed\n  end\n",
+   "sop_valid": true,
+   "outcome": "converted",
+   "unparsed": [],
+   "uncertain": false,
+   "symbolic_lm": {
+    "version": "symbolic-lm-v1.1",
+    "rules": "ud-rules-v1.4",
+    "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm"
+   },
+   "gold_sop": "@q query\n  select ?x\n  where match\n    relation \"study at\"\n    role subject ?x\n    role object \"Nairobi Arts High School\"\n    polarity affirmed\n  end\n",
+   "analysis_verified": "gold_sop_match",
+   "verification": {
+    "sop_gold_match": true,
+    "judge": null,
+    "stanza_spacy_agree": true
+   }
+  },
+  {
+   "id": "formalizer-v1::fv1_021778_0_0",
+   "dataset": "symbolic_english",
+   "split": "train",
+   "split_group_id": "fv1_021778",
+   "message": "The van seats between 3 and 9 people. Can 11 people fit in it?",
+   "source": {
+    "corpus": "formalizer-v1",
+    "id": "fv1_021778_0_0",
+    "suite": "formalizer-v1",
+    "split": "train",
+    "semantic_case_id": "fv1_021778_0",
+    "family": "constraint",
+    "question_type": "numeric"
+   },
+   "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "inspired_by": [
+     "squad"
+    ],
+    "text_copied": false,
+    "inherited_from": "formalizer-v1",
+    "spec": "docs/specs/DS014-source-rights.md"
+   },
+   "quality_flags": {
+    "synthetic": true,
+    "human_reviewed": false,
+    "training_approved": false,
+    "llm_authored": false
+   },
+   "review_status": "not_reviewed",
+   "analysis": {
+    "columns": [
+     "id",
+     "form",
+     "lemma",
+     "upos",
+     "head",
+     "deprel"
+    ],
+    "language": "en",
+    "sentences": [
+     {
+      "text": "The van seats between 3 and 9 people.",
+      "start": 0,
+      "end": 37,
+      "tokens": [
+       [
+        1,
+        "The",
+        "the",
+        "DET",
+        3,
+        "det"
+       ],
+       [
+        2,
+        "van",
+        "van",
+        "NOUN",
+        3,
+        "compound"
+       ],
+       [
+        3,
+        "seats",
+        "seat",
+        "NOUN",
+        0,
+        "root"
+       ],
+       [
+        4,
+        "between",
+        "between",
+        "ADP",
+        8,
+        "case"
+       ],
+       [
+        5,
+        "3",
+        "3",
+        "NUM",
+        8,
+        "nummod"
+       ],
+       [
+        6,
+        "and",
+        "and",
+        "CCONJ",
+        7,
+        "cc"
+       ],
+       [
+        7,
+        "9",
+        "9",
+        "NUM",
+        5,
+        "conj"
+       ],
+       [
+        8,
+        "people",
+        "person",
+        "NOUN",
+        3,
+        "nmod"
+       ],
+       [
+        9,
+        ".",
+        ".",
+        "PUNCT",
+        3,
+        "punct"
+       ]
+      ]
+     },
+     {
+      "text": "Can 11 people fit in it?",
+      "start": 38,
+      "end": 62,
+      "tokens": [
+       [
+        1,
+        "Can",
+        "can",
+        "AUX",
+        4,
+        "aux"
+       ],
+       [
+        2,
+        "11",
+        "11",
+        "NUM",
+        3,
+        "nummod"
+       ],
+       [
+        3,
+        "people",
+        "person",
+        "NOUN",
+        4,
+        "nsubj"
+       ],
+       [
+        4,
+        "fit",
+        "fit",
+        "VERB",
+        0,
+        "root"
+       ],
+       [
+        5,
+        "in",
+        "in",
+        "ADP",
+        4,
+        "case"
+       ],
+       [
+        6,
+        "it",
+        "it",
+        "PRON",
+        4,
+        "obl"
+       ],
+       [
+        7,
+        "?",
+        "?",
+        "PUNCT",
+        4,
+        "punct"
+       ]
+      ]
+     }
+    ]
+   },
+   "sop": "@c constraint\n  var ?x int 3 9\n  claim ?x equal 11\n  task possible\n",
+   "sop_valid": true,
+   "outcome": "numeric",
+   "unparsed": [],
+   "uncertain": true,
+   "symbolic_lm": {
+    "version": "symbolic-lm-v1.1",
+    "rules": "ud-rules-v1.4",
+    "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm"
+   },
+   "gold_sop": "@c constraint\n  var ?x int 3 9\n  claim ?x equal 11\n  task possible\n",
+   "analysis_verified": "gold_sop_match",
+   "verification": {
+    "sop_gold_match": true,
+    "judge": null,
+    "stanza_spacy_agree": true
+   }
+  },
+  {
+   "id": "formalizer-v1::fv1_024665_0_0",
+   "dataset": "symbolic_english",
+   "split": "train",
+   "split_group_id": "fv1_024665",
+   "message": "Medeea lives in Zalău, right?",
+   "source": {
+    "corpus": "formalizer-v1",
+    "id": "fv1_024665_0_0",
+    "suite": "formalizer-v1",
+    "split": "train",
+    "semantic_case_id": "fv1_024665_0",
+    "family": "ambiguity",
+    "question_type": "yes_no"
+   },
+   "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "inspired_by": [
+     "ambignq"
+    ],
+    "text_copied": false,
+    "inherited_from": "formalizer-v1",
+    "spec": "docs/specs/DS014-source-rights.md"
+   },
+   "quality_flags": {
+    "synthetic": true,
+    "human_reviewed": false,
+    "training_approved": false,
+    "llm_authored": false
+   },
+   "review_status": "not_reviewed",
+   "analysis": {
+    "columns": [
+     "id",
+     "form",
+     "lemma",
+     "upos",
+     "head",
+     "deprel"
+    ],
+    "language": "en",
+    "sentences": [
+     {
+      "text": "Medeea lives in Zalău       ?",
+      "start": 0,
+      "end": 29,
+      "tokens": [
+       [
+        1,
+        "Medeea",
+        "Medeea",
+        "PROPN",
+        2,
+        "nsubj"
+       ],
+       [
+        2,
+        "lives",
+        "live",
+        "VERB",
+        0,
+        "root"
+       ],
+       [
+        3,
+        "in",
+        "in",
+        "ADP",
+        4,
+        "case"
+       ],
+       [
+        4,
+        "Zalău",
+        "Zalău",
+        "PROPN",
+        2,
+        "obl"
+       ],
+       [
+        5,
+        "?",
+        "?",
+        "PUNCT",
+        2,
+        "punct"
+       ]
+      ]
+     }
+    ]
+   },
+   "sop": "@q query\n  where match\n    relation \"live in\"\n    role subject \"Medeea\"\n    role location \"Zalău\"\n    polarity affirmed\n  end\n",
+   "sop_valid": true,
+   "outcome": "converted",
+   "unparsed": [],
+   "uncertain": true,
+   "symbolic_lm": {
+    "version": "symbolic-lm-v1.1",
+    "rules": "ud-rules-v1.4",
+    "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm"
+   },
+   "gold_sop": "@q query\n  where match\n    relation \"live in\"\n    role subject \"Medeea\"\n    role location \"Zalău\"\n    polarity affirmed\n  end\n",
+   "analysis_verified": "gold_sop_match",
+   "verification": {
+    "sop_gold_match": true,
+    "judge": null,
+    "stanza_spacy_agree": true
+   }
+  },
+  {
+   "id": "formalizer-v1::fv1_027681_0_0",
+   "dataset": "symbolic_english",
+   "split": "train",
+   "split_group_id": "fv1_027681",
+   "message": "Hypothetically, if Ingrid works at Alba Iulia Logistics, can you check whether she has a job at Alba Iulia Logistics?",
+   "source": {
+    "corpus": "formalizer-v1",
+    "id": "fv1_027681_0_0",
+    "suite": "formalizer-v1",
+    "split": "train",
+    "semantic_case_id": "fv1_027681_0",
+    "family": "anchor",
+    "question_type": "yes_no"
+   },
+   "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "inspired_by": [
+     "proofwriter"
+    ],
+    "text_copied": false,
+    "inherited_from": "formalizer-v1",
+    "spec": "docs/specs/DS014-source-rights.md"
+   },
+   "quality_flags": {
+    "synthetic": true,
+    "human_reviewed": false,
+    "training_approved": false,
+    "llm_authored": false
+   },
+   "review_status": "not_reviewed",
+   "analysis": {
+    "columns": [
+     "id",
+     "form",
+     "lemma",
+     "upos",
+     "head",
+     "deprel"
+    ],
+    "language": "en",
+    "sentences": [
+     {
+      "text": "Hypothetically, if Ingrid works at Alba Iulia Logistics, can you check whether she has a job at Alba Iulia Logistics?",
+      "start": 0,
+      "end": 117,
+      "tokens": [
+       [
+        1,
+        "Hypothetically",
+        "hypothetically",
+        "ADV",
+        13,
+        "advmod"
+       ],
+       [
+        2,
+        ",",
+        ",",
+        "PUNCT",
+        1,
+        "punct"
+       ],
+       [
+        3,
+        "if",
+        "if",
+        "SCONJ",
+        5,
+        "mark"
+       ],
+       [
+        4,
+        "Ingrid",
+        "Ingrid",
+        "PROPN",
+        5,
+        "nsubj"
+       ],
+       [
+        5,
+        "works",
+        "work",
+        "VERB",
+        13,
+        "advcl"
+       ],
+       [
+        6,
+        "at",
+        "at",
+        "ADP",
+        7,
+        "case"
+       ],
+       [
+        7,
+        "Alba",
+        "Alba",
+        "PROPN",
+        5,
+        "obl"
+       ],
+       [
+        8,
+        "Iulia",
+        "Iulia",
+        "PROPN",
+        7,
+        "flat"
+       ],
+       [
+        9,
+        "Logistics",
+        "Logistics",
+        "PROPN",
+        7,
+        "flat"
+       ],
+       [
+        10,
+        ",",
+        ",",
+        "PUNCT",
+        5,
+        "punct"
+       ],
+       [
+        11,
+        "can",
+        "can",
+        "AUX",
+        13,
+        "aux"
+       ],
+       [
+        12,
+        "you",
+        "you",
+        "PRON",
+        13,
+        "nsubj"
+       ],
+       [
+        13,
+        "check",
+        "check",
+        "VERB",
+        0,
+        "root"
+       ],
+       [
+        14,
+        "whether",
+        "whether",
+        "SCONJ",
+        16,
+        "mark"
+       ],
+       [
+        15,
+        "she",
+        "she",
+        "PRON",
+        16,
+        "nsubj"
+       ],
+       [
+        16,
+        "has",
+        "have",
+        "VERB",
+        13,
+        "ccomp"
+       ],
+       [
+        17,
+        "a",
+        "a",
+        "DET",
+        18,
+        "det"
+       ],
+       [
+        18,
+        "job",
+        "job",
+        "NOUN",
+        16,
+        "obj"
+       ],
+       [
+        19,
+        "at",
+        "at",
+        "ADP",
+        20,
+        "case"
+       ],
+       [
+        20,
+        "Alba",
+        "Alba",
+        "PROPN",
+        22,
+        "compound"
+       ],
+       [
+        21,
+        "Iulia",
+        "Iulia",
+        "PROPN",
+        20,
+        "flat"
+       ],
+       [
+        22,
+        "Logistics",
+        "Logistics",
+        "PROPN",
+        18,
+        "nmod"
+       ],
+       [
+        23,
+        "?",
+        "?",
+        "PUNCT",
+        13,
+        "punct"
+       ]
+      ]
+     }
+    ]
+   },
+   "sop": "@s1 stated\n  relation \"work at\"\n  role subject \"Ingrid\"\n  role object \"Alba Iulia Logistics\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"have a job at\"\n    role object \"Alba Iulia Logistics\"\n    role subject \"Ingrid\"\n    polarity affirmed\n  end\n  if $s1\n",
+   "sop_valid": true,
+   "outcome": "converted",
+   "unparsed": [],
+   "uncertain": false,
+   "symbolic_lm": {
+    "version": "symbolic-lm-v1.1",
+    "rules": "ud-rules-v1.4",
+    "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm"
+   },
+   "gold_sop": "@s1 stated\n  relation \"work at\"\n  role subject \"Ingrid\"\n  role object \"Alba Iulia Logistics\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"have a job at\"\n    role subject \"Ingrid\"\n    role object \"Alba Iulia Logistics\"\n    polarity affirmed\n  end\n",
+   "analysis_verified": "gold_sop_match",
+   "verification": {
+    "sop_gold_match": true,
+    "judge": null,
+    "stanza_spacy_agree": true
+   }
+  },
+  {
+   "id": "formalizer-v1::fv1_030479_0_0",
+   "dataset": "symbolic_english",
+   "split": "train",
+   "split_group_id": "fv1_030479",
+   "message": "Did Dimitra start working at Carpathia Energy after Javier did?",
+   "source": {
+    "corpus": "formalizer-v1",
+    "id": "fv1_030479_0_0",
+    "suite": "formalizer-v1",
+    "split": "train",
+    "semantic_case_id": "fv1_030479_0",
+    "family": "ordering",
+    "question_type": "order"
+   },
+   "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "rights_decision": "owner-released-inspired-by",
+    "inspired_by": [
+     "proofwriter"
+    ],
+    "text_copied": false,
+    "inherited_from": "formalizer-v1",
+    "spec": "docs/specs/DS014-source-rights.md"
+   },
+   "quality_flags": {
+    "synthetic": true,
+    "human_reviewed": false,
+    "training_approved": false,
+    "llm_authored": false
+   },
+   "review_status": "not_reviewed",
+   "analysis": {
+    "columns": [
+     "id",
+     "form",
+     "lemma",
+     "upos",
+     "head",
+     "deprel"
+    ],
+    "language": "en",
+    "sentences": [
+     {
+      "text": "Did Dimitra start working at Carpathia Energy after Javier did?",
+      "start": 0,
+      "end": 63,
+      "tokens": [
+       [
+        1,
+        "Did",
+        "do",
+        "AUX",
+        3,
+        "aux"
+       ],
+       [
+        2,
+        "Dimitra",
+        "Dimitra",
+        "PROPN",
+        3,
+        "nsubj"
+       ],
+       [
+        3,
+        "start",
+        "start",
+        "VERB",
+        0,
+        "root"
+       ],
+       [
+        4,
+        "working",
+        "work",
+        "VERB",
+        3,
+        "xcomp"
+       ],
+       [
+        5,
+        "at",
+        "at",
+        "ADP",
+        7,
+        "case"
+       ],
+       [
+        6,
+        "Carpathia",
+        "Carpathia",
+        "PROPN",
+        7,
+        "compound"
+       ],
+       [
+        7,
+        "Energy",
+        "Energy",
+        "PROPN",
+        4,
+        "obl"
+       ],
+       [
+        8,
+        "after",
+        "after",
+        "SCONJ",
+        10,
+        "mark"
+       ],
+       [
+        9,
+        "Javier",
+        "Javier",
+        "PROPN",
+        10,
+        "nsubj"
+       ],
+       [
+        10,
+        "did",
+        "do",
+        "AUX",
+        4,
+        "advcl"
+       ],
+       [
+        11,
+        "?",
+        "?",
+        "PUNCT",
+        3,
+        "punct"
+       ]
+      ]
+     }
+    ]
+   },
+   "sop": "@q query\n  mode exists\n  where all\n    match\n      relation \"work at\"\n      role subject \"Dimitra\"\n      role object \"Carpathia Energy\"\n      role time ?t1\n      polarity affirmed\n    end\n    match\n      relation \"work at\"\n      role subject \"Javier\"\n      role object \"Carpathia Energy\"\n      role time ?t2\n      polarity affirmed\n    end\n  end\n  order ?t1 after ?t2\n",
+   "sop_valid": true,
+   "outcome": "converted",
+   "unparsed": [],
+   "uncertain": false,
+   "symbolic_lm": {
+    "version": "symbolic-lm-v1.1",
+    "rules": "ud-rules-v1.4",
+    "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm"
+   },
+   "gold_sop": "@q query\n  mode exists\n  where all\n    match\n      relation \"work at\"\n      role subject \"Dimitra\"\n      role object \"Carpathia Energy\"\n      role time ?t1\n      polarity affirmed\n    end\n    match\n      relation \"work at\"\n      role subject \"Javier\"\n      role object \"Carpathia Energy\"\n      role time ?t2\n      polarity affirmed\n    end\n  end\n  order ?t1 after ?t2\n",
+   "analysis_verified": "gold_sop_match",
+   "verification": {
+    "sop_gold_match": true,
+    "judge": null,
+    "stanza_spacy_agree": true
+   }
+  }
+ ],
+ "parses": {
+  "en|I was wondering whether Réka Kovács works under Mircea Enache.": {
+   "text": "I was wondering whether Réka Kovács works under Mircea Enache.",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "I was wondering whether Réka Kovács works under Mircea Enache.",
+     "start": 0,
+     "end": 62,
+     "oov_rate": 0.1,
+     "words": [
+      {
+       "id": 1,
+       "text": "I",
+       "lemma": "I",
+       "upos": "PRON",
+       "xpos": "PRP",
+       "feats": {
+        "Case": "Nom",
+        "Number": "Sing",
+        "Person": "1",
+        "PronType": "Prs"
+       },
+       "head": 3,
+       "deprel": "nsubj",
+       "start": 0,
+       "end": 1,
+       "token": "I",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "was",
+       "lemma": "be",
+       "upos": "AUX",
+       "xpos": "VBD",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "1",
+        "Tense": "Past",
+        "VerbForm": "Fin"
+       },
+       "head": 3,
+       "deprel": "aux",
+       "start": 2,
+       "end": 5,
+       "token": "was",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "wondering",
+       "lemma": "wonder",
+       "upos": "VERB",
+       "xpos": "VBG",
+       "feats": {
+        "Tense": "Pres",
+        "VerbForm": "Part"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 6,
+       "end": 15,
+       "token": "wondering",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "whether",
+       "lemma": "whether",
+       "upos": "SCONJ",
+       "xpos": "IN",
+       "feats": {},
+       "head": 7,
+       "deprel": "mark",
+       "start": 16,
+       "end": 23,
+       "token": "whether",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "Réka",
+       "lemma": "Réka",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 7,
+       "deprel": "nsubj",
+       "start": 24,
+       "end": 28,
+       "token": "Réka",
+       "ner": "B-PERSON",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "Kovács",
+       "lemma": "Kovács",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 5,
+       "deprel": "flat",
+       "start": 29,
+       "end": 35,
+       "token": "Kovács",
+       "ner": "E-PERSON",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "works",
+       "lemma": "work",
+       "upos": "VERB",
+       "xpos": "VBZ",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 3,
+       "deprel": "ccomp",
+       "start": 36,
+       "end": 41,
+       "token": "works",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "under",
+       "lemma": "under",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 9,
+       "deprel": "case",
+       "start": 42,
+       "end": 47,
+       "token": "under",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "Mircea",
+       "lemma": "Mircea",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 7,
+       "deprel": "obl",
+       "start": 48,
+       "end": 54,
+       "token": "Mircea",
+       "ner": "B-PERSON",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": "Enache",
+       "lemma": "Enache",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 9,
+       "deprel": "flat",
+       "start": 55,
+       "end": 61,
+       "token": "Enache",
+       "ner": "E-PERSON",
+       "oov": true
+      },
+      {
+       "id": 11,
+       "text": ".",
+       "lemma": ".",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 3,
+       "deprel": "punct",
+       "start": 61,
+       "end": 62,
+       "token": ".",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|Are all the players of Porto United certified?": {
+   "text": "Are all the players of Porto United certified?",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "Are all the players of Porto United certified?",
+     "start": 0,
+     "end": 46,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Are",
+       "lemma": "be",
+       "upos": "AUX",
+       "xpos": "VBP",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Plur",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 8,
+       "deprel": "aux:pass",
+       "start": 0,
+       "end": 3,
+       "token": "Are",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "all",
+       "lemma": "all",
+       "upos": "DET",
+       "xpos": "PDT",
+       "feats": {
+        "PronType": "Tot"
+       },
+       "head": 4,
+       "deprel": "det:predet",
+       "start": 4,
+       "end": 7,
+       "token": "all",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "the",
+       "lemma": "the",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Def",
+        "PronType": "Art"
+       },
+       "head": 4,
+       "deprel": "det",
+       "start": 8,
+       "end": 11,
+       "token": "the",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "players",
+       "lemma": "player",
+       "upos": "NOUN",
+       "xpos": "NNS",
+       "feats": {
+        "Number": "Plur"
+       },
+       "head": 8,
+       "deprel": "nsubj:pass",
+       "start": 12,
+       "end": 19,
+       "token": "players",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "of",
+       "lemma": "of",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 7,
+       "deprel": "case",
+       "start": 20,
+       "end": 22,
+       "token": "of",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "Porto",
+       "lemma": "Porto",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 7,
+       "deprel": "compound",
+       "start": 23,
+       "end": 28,
+       "token": "Porto",
+       "ner": "B-GPE",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "United",
+       "lemma": "United",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 4,
+       "deprel": "nmod",
+       "start": 29,
+       "end": 35,
+       "token": "United",
+       "ner": "E-GPE",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "certified",
+       "lemma": "certify",
+       "upos": "VERB",
+       "xpos": "VBN",
+       "feats": {
+        "Tense": "Past",
+        "VerbForm": "Part",
+        "Voice": "Pass"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 36,
+       "end": 45,
+       "token": "certified",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 8,
+       "deprel": "punct",
+       "start": 45,
+       "end": 46,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|The bill is 600 lei and there are 5 of us. How much does each of us pay?": {
+   "text": "The bill is 600 lei and there are 5 of us. How much does each of us pay?",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "The bill is 600 lei and there are 5 of us.",
+     "start": 0,
+     "end": 42,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "The",
+       "lemma": "the",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Def",
+        "PronType": "Art"
+       },
+       "head": 2,
+       "deprel": "det",
+       "start": 0,
+       "end": 3,
+       "token": "The",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "bill",
+       "lemma": "bill",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 5,
+       "deprel": "nsubj",
+       "start": 4,
+       "end": 8,
+       "token": "bill",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "is",
+       "lemma": "be",
+       "upos": "AUX",
+       "xpos": "VBZ",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 5,
+       "deprel": "cop",
+       "start": 9,
+       "end": 11,
+       "token": "is",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "600",
+       "lemma": "600",
+       "upos": "NUM",
+       "xpos": "CD",
+       "feats": {
+        "NumForm": "Digit",
+        "NumType": "Card"
+       },
+       "head": 5,
+       "deprel": "nummod",
+       "start": 12,
+       "end": 15,
+       "token": "600",
+       "ner": "B-MONEY",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "lei",
+       "lemma": "lei",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 16,
+       "end": 19,
+       "token": "lei",
+       "ner": "E-MONEY",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "and",
+       "lemma": "and",
+       "upos": "CCONJ",
+       "xpos": "CC",
+       "feats": {},
+       "head": 8,
+       "deprel": "cc",
+       "start": 20,
+       "end": 23,
+       "token": "and",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "there",
+       "lemma": "there",
+       "upos": "PRON",
+       "xpos": "EX",
+       "feats": {},
+       "head": 8,
+       "deprel": "expl",
+       "start": 24,
+       "end": 29,
+       "token": "there",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "are",
+       "lemma": "be",
+       "upos": "VERB",
+       "xpos": "VBP",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Plur",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 5,
+       "deprel": "conj",
+       "start": 30,
+       "end": 33,
+       "token": "are",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "5",
+       "lemma": "5",
+       "upos": "NUM",
+       "xpos": "CD",
+       "feats": {
+        "NumForm": "Digit",
+        "NumType": "Card"
+       },
+       "head": 8,
+       "deprel": "nsubj",
+       "start": 34,
+       "end": 35,
+       "token": "5",
+       "ner": "S-CARDINAL",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": "of",
+       "lemma": "of",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 11,
+       "deprel": "case",
+       "start": 36,
+       "end": 38,
+       "token": "of",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 11,
+       "text": "us",
+       "lemma": "we",
+       "upos": "PRON",
+       "xpos": "PRP",
+       "feats": {
+        "Case": "Acc",
+        "Number": "Plur",
+        "Person": "1",
+        "PronType": "Prs"
+       },
+       "head": 9,
+       "deprel": "nmod",
+       "start": 39,
+       "end": 41,
+       "token": "us",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 12,
+       "text": ".",
+       "lemma": ".",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 5,
+       "deprel": "punct",
+       "start": 41,
+       "end": 42,
+       "token": ".",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    },
+    {
+     "language": "en",
+     "text": "How much does each of us pay?",
+     "start": 43,
+     "end": 72,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "How",
+       "lemma": "how",
+       "upos": "ADV",
+       "xpos": "WRB",
+       "feats": {
+        "PronType": "Int"
+       },
+       "head": 2,
+       "deprel": "advmod",
+       "start": 43,
+       "end": 46,
+       "token": "How",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "much",
+       "lemma": "much",
+       "upos": "ADJ",
+       "xpos": "JJ",
+       "feats": {
+        "Degree": "Pos"
+       },
+       "head": 7,
+       "deprel": "obj",
+       "start": 47,
+       "end": 51,
+       "token": "much",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "does",
+       "lemma": "do",
+       "upos": "AUX",
+       "xpos": "VBZ",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 7,
+       "deprel": "aux",
+       "start": 52,
+       "end": 56,
+       "token": "does",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "each",
+       "lemma": "each",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "PronType": "Tot"
+       },
+       "head": 7,
+       "deprel": "nsubj",
+       "start": 57,
+       "end": 61,
+       "token": "each",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "of",
+       "lemma": "of",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 6,
+       "deprel": "case",
+       "start": 62,
+       "end": 64,
+       "token": "of",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "us",
+       "lemma": "we",
+       "upos": "PRON",
+       "xpos": "PRP",
+       "feats": {
+        "Case": "Acc",
+        "Number": "Plur",
+        "Person": "1",
+        "PronType": "Prs"
+       },
+       "head": 4,
+       "deprel": "nmod",
+       "start": 65,
+       "end": 67,
+       "token": "us",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "pay",
+       "lemma": "pay",
+       "upos": "VERB",
+       "xpos": "VB",
+       "feats": {
+        "VerbForm": "Inf"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 68,
+       "end": 71,
+       "token": "pay",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 7,
+       "deprel": "punct",
+       "start": 71,
+       "end": 72,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|When did the plot of land by the river start to belong to Mădălina?": {
+   "text": "When did the plot of land by the river start to belong to Mădălina?",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "When did the plot of land by the river start to belong to Mădălina?",
+     "start": 0,
+     "end": 67,
+     "oov_rate": 0.07142857142857142,
+     "words": [
+      {
+       "id": 1,
+       "text": "When",
+       "lemma": "when",
+       "upos": "ADV",
+       "xpos": "WRB",
+       "feats": {
+        "PronType": "Int"
+       },
+       "head": 10,
+       "deprel": "advmod",
+       "start": 0,
+       "end": 4,
+       "token": "When",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "did",
+       "lemma": "do",
+       "upos": "AUX",
+       "xpos": "VBD",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Past",
+        "VerbForm": "Fin"
+       },
+       "head": 10,
+       "deprel": "aux",
+       "start": 5,
+       "end": 8,
+       "token": "did",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "the",
+       "lemma": "the",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Def",
+        "PronType": "Art"
+       },
+       "head": 4,
+       "deprel": "det",
+       "start": 9,
+       "end": 12,
+       "token": "the",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "plot",
+       "lemma": "plot",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 10,
+       "deprel": "nsubj",
+       "start": 13,
+       "end": 17,
+       "token": "plot",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "of",
+       "lemma": "of",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 6,
+       "deprel": "case",
+       "start": 18,
+       "end": 20,
+       "token": "of",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "land",
+       "lemma": "land",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 4,
+       "deprel": "nmod",
+       "start": 21,
+       "end": 25,
+       "token": "land",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "by",
+       "lemma": "by",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 9,
+       "deprel": "case",
+       "start": 26,
+       "end": 28,
+       "token": "by",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "the",
+       "lemma": "the",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Def",
+        "PronType": "Art"
+       },
+       "head": 9,
+       "deprel": "det",
+       "start": 29,
+       "end": 32,
+       "token": "the",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "river",
+       "lemma": "river",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 6,
+       "deprel": "nmod",
+       "start": 33,
+       "end": 38,
+       "token": "river",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": "start",
+       "lemma": "start",
+       "upos": "VERB",
+       "xpos": "VB",
+       "feats": {
+        "VerbForm": "Inf"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 39,
+       "end": 44,
+       "token": "start",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 11,
+       "text": "to",
+       "lemma": "to",
+       "upos": "PART",
+       "xpos": "TO",
+       "feats": {},
+       "head": 12,
+       "deprel": "mark",
+       "start": 45,
+       "end": 47,
+       "token": "to",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 12,
+       "text": "belong",
+       "lemma": "belong",
+       "upos": "VERB",
+       "xpos": "VB",
+       "feats": {
+        "VerbForm": "Inf"
+       },
+       "head": 10,
+       "deprel": "xcomp",
+       "start": 48,
+       "end": 54,
+       "token": "belong",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 13,
+       "text": "to",
+       "lemma": "to",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 14,
+       "deprel": "case",
+       "start": 55,
+       "end": 57,
+       "token": "to",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 14,
+       "text": "Mădălina",
+       "lemma": "Mădălina",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 12,
+       "deprel": "obl",
+       "start": 58,
+       "end": 66,
+       "token": "Mădălina",
+       "ner": "S-PERSON",
+       "oov": true
+      },
+      {
+       "id": 15,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 10,
+       "deprel": "punct",
+       "start": 66,
+       "end": 67,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|Floarea plays for Debrecen United         ?": {
+   "text": "Floarea plays for Debrecen United         ?",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "Floarea plays for Debrecen United         ?",
+     "start": 0,
+     "end": 43,
+     "oov_rate": 0.2,
+     "words": [
+      {
+       "id": 1,
+       "text": "Floarea",
+       "lemma": "Floarea",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 2,
+       "deprel": "nsubj",
+       "start": 0,
+       "end": 7,
+       "token": "Floarea",
+       "ner": "S-PERSON",
+       "oov": true
+      },
+      {
+       "id": 2,
+       "text": "plays",
+       "lemma": "play",
+       "upos": "VERB",
+       "xpos": "VBZ",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 8,
+       "end": 13,
+       "token": "plays",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "for",
+       "lemma": "for",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 5,
+       "deprel": "case",
+       "start": 14,
+       "end": 17,
+       "token": "for",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "Debrecen",
+       "lemma": "Debrecen",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 5,
+       "deprel": "compound",
+       "start": 18,
+       "end": 26,
+       "token": "Debrecen",
+       "ner": "B-GPE",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "United",
+       "lemma": "United",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 2,
+       "deprel": "obl",
+       "start": 27,
+       "end": 33,
+       "token": "United",
+       "ner": "E-GPE",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 2,
+       "deprel": "punct",
+       "start": 42,
+       "end": 43,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|          did Andrei study at Baia Mare Arts High School on 27 March 2020?": {
+   "text": "          did Andrei study at Baia Mare Arts High School on 27 March 2020?",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "did Andrei study at Baia Mare Arts High School on 27 March 2020?",
+     "start": 10,
+     "end": 74,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "did",
+       "lemma": "do",
+       "upos": "AUX",
+       "xpos": "VBD",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Past",
+        "VerbForm": "Fin"
+       },
+       "head": 3,
+       "deprel": "aux",
+       "start": 10,
+       "end": 13,
+       "token": "did",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "Andrei",
+       "lemma": "Andrei",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 3,
+       "deprel": "nsubj",
+       "start": 14,
+       "end": 20,
+       "token": "Andrei",
+       "ner": "S-PERSON",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "study",
+       "lemma": "study",
+       "upos": "VERB",
+       "xpos": "VB",
+       "feats": {
+        "VerbForm": "Inf"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 21,
+       "end": 26,
+       "token": "study",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "at",
+       "lemma": "at",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 9,
+       "deprel": "case",
+       "start": 27,
+       "end": 29,
+       "token": "at",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "Baia",
+       "lemma": "Baia",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 6,
+       "deprel": "compound",
+       "start": 30,
+       "end": 34,
+       "token": "Baia",
+       "ner": "B-ORG",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "Mare",
+       "lemma": "mare",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 7,
+       "deprel": "compound",
+       "start": 35,
+       "end": 39,
+       "token": "Mare",
+       "ner": "I-ORG",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "Arts",
+       "lemma": "Art",
+       "upos": "PROPN",
+       "xpos": "NNPS",
+       "feats": {
+        "Number": "Plur"
+       },
+       "head": 9,
+       "deprel": "compound",
+       "start": 40,
+       "end": 44,
+       "token": "Arts",
+       "ner": "I-ORG",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "High",
+       "lemma": "high",
+       "upos": "ADJ",
+       "xpos": "NNP",
+       "feats": {
+        "Degree": "Pos"
+       },
+       "head": 9,
+       "deprel": "amod",
+       "start": 45,
+       "end": 49,
+       "token": "High",
+       "ner": "I-ORG",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "School",
+       "lemma": "School",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 3,
+       "deprel": "obl",
+       "start": 50,
+       "end": 56,
+       "token": "School",
+       "ner": "E-ORG",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": "on",
+       "lemma": "on",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 11,
+       "deprel": "case",
+       "start": 57,
+       "end": 59,
+       "token": "on",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 11,
+       "text": "27",
+       "lemma": "27",
+       "upos": "NUM",
+       "xpos": "CD",
+       "feats": {
+        "NumForm": "Digit",
+        "NumType": "Card"
+       },
+       "head": 3,
+       "deprel": "obl",
+       "start": 60,
+       "end": 62,
+       "token": "27",
+       "ner": "B-DATE",
+       "oov": false
+      },
+      {
+       "id": 12,
+       "text": "March",
+       "lemma": "March",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 3,
+       "deprel": "obl",
+       "start": 63,
+       "end": 68,
+       "token": "March",
+       "ner": "I-DATE",
+       "oov": false
+      },
+      {
+       "id": 13,
+       "text": "2020",
+       "lemma": "2020",
+       "upos": "NUM",
+       "xpos": "CD",
+       "feats": {
+        "NumForm": "Digit",
+        "NumType": "Card"
+       },
+       "head": 12,
+       "deprel": "nummod",
+       "start": 69,
+       "end": 73,
+       "token": "2020",
+       "ner": "E-DATE",
+       "oov": false
+      },
+      {
+       "id": 14,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 3,
+       "deprel": "punct",
+       "start": 73,
+       "end": 74,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|Okay so Mr Weber borrowed Notes from the Night Train. Tell me whether he checked out Notes from the Night Train.": {
+   "text": "Okay so Mr Weber borrowed Notes from the Night Train. Tell me whether he checked out Notes from the Night Train.",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "Okay so Mr Weber borrowed Notes from the Night Train.",
+     "start": 0,
+     "end": 53,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Okay",
+       "lemma": "okay",
+       "upos": "INTJ",
+       "xpos": "UH",
+       "feats": {},
+       "head": 5,
+       "deprel": "discourse",
+       "start": 0,
+       "end": 4,
+       "token": "Okay",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "so",
+       "lemma": "so",
+       "upos": "ADV",
+       "xpos": "RB",
+       "feats": {},
+       "head": 5,
+       "deprel": "advmod",
+       "start": 5,
+       "end": 7,
+       "token": "so",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "Mr",
+       "lemma": "Mr",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 5,
+       "deprel": "nsubj",
+       "start": 8,
+       "end": 10,
+       "token": "Mr",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "Weber",
+       "lemma": "Weber",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 3,
+       "deprel": "flat",
+       "start": 11,
+       "end": 16,
+       "token": "Weber",
+       "ner": "S-PERSON",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "borrowed",
+       "lemma": "borrow",
+       "upos": "VERB",
+       "xpos": "VBD",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Past",
+        "VerbForm": "Fin"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 17,
+       "end": 25,
+       "token": "borrowed",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "Notes",
+       "lemma": "Note",
+       "upos": "PROPN",
+       "xpos": "NNPS",
+       "feats": {
+        "Number": "Plur"
+       },
+       "head": 5,
+       "deprel": "obj",
+       "start": 26,
+       "end": 31,
+       "token": "Notes",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "from",
+       "lemma": "from",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 10,
+       "deprel": "case",
+       "start": 32,
+       "end": 36,
+       "token": "from",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "the",
+       "lemma": "the",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Def",
+        "PronType": "Art"
+       },
+       "head": 10,
+       "deprel": "det",
+       "start": 37,
+       "end": 40,
+       "token": "the",
+       "ner": "B-ORG",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "Night",
+       "lemma": "Night",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 10,
+       "deprel": "compound",
+       "start": 41,
+       "end": 46,
+       "token": "Night",
+       "ner": "I-ORG",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": "Train",
+       "lemma": "Train",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 5,
+       "deprel": "obl",
+       "start": 47,
+       "end": 52,
+       "token": "Train",
+       "ner": "E-ORG",
+       "oov": false
+      },
+      {
+       "id": 11,
+       "text": ".",
+       "lemma": ".",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 5,
+       "deprel": "punct",
+       "start": 52,
+       "end": 53,
+       "token": ".",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    },
+    {
+     "language": "en",
+     "text": "Tell me whether he checked out Notes from the Night Train.",
+     "start": 54,
+     "end": 112,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Tell",
+       "lemma": "tell",
+       "upos": "VERB",
+       "xpos": "VB",
+       "feats": {
+        "Mood": "Imp",
+        "VerbForm": "Fin"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 54,
+       "end": 58,
+       "token": "Tell",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "me",
+       "lemma": "I",
+       "upos": "PRON",
+       "xpos": "PRP",
+       "feats": {
+        "Case": "Acc",
+        "Number": "Sing",
+        "Person": "1",
+        "PronType": "Prs"
+       },
+       "head": 1,
+       "deprel": "iobj",
+       "start": 59,
+       "end": 61,
+       "token": "me",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "whether",
+       "lemma": "whether",
+       "upos": "SCONJ",
+       "xpos": "IN",
+       "feats": {},
+       "head": 5,
+       "deprel": "mark",
+       "start": 62,
+       "end": 69,
+       "token": "whether",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "he",
+       "lemma": "he",
+       "upos": "PRON",
+       "xpos": "PRP",
+       "feats": {
+        "Case": "Nom",
+        "Gender": "Masc",
+        "Number": "Sing",
+        "Person": "3",
+        "PronType": "Prs"
+       },
+       "head": 5,
+       "deprel": "nsubj",
+       "start": 70,
+       "end": 72,
+       "token": "he",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "checked",
+       "lemma": "check",
+       "upos": "VERB",
+       "xpos": "VBD",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Past",
+        "VerbForm": "Fin"
+       },
+       "head": 1,
+       "deprel": "ccomp",
+       "start": 73,
+       "end": 80,
+       "token": "checked",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "out",
+       "lemma": "out",
+       "upos": "ADP",
+       "xpos": "RP",
+       "feats": {},
+       "head": 5,
+       "deprel": "compound:prt",
+       "start": 81,
+       "end": 84,
+       "token": "out",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "Notes",
+       "lemma": "Note",
+       "upos": "PROPN",
+       "xpos": "NNPS",
+       "feats": {
+        "Number": "Plur"
+       },
+       "head": 5,
+       "deprel": "obj",
+       "start": 85,
+       "end": 90,
+       "token": "Notes",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "from",
+       "lemma": "from",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 11,
+       "deprel": "case",
+       "start": 91,
+       "end": 95,
+       "token": "from",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "the",
+       "lemma": "the",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Def",
+        "PronType": "Art"
+       },
+       "head": 11,
+       "deprel": "det",
+       "start": 96,
+       "end": 99,
+       "token": "the",
+       "ner": "B-ORG",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": "Night",
+       "lemma": "Night",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 11,
+       "deprel": "compound",
+       "start": 100,
+       "end": 105,
+       "token": "Night",
+       "ner": "I-ORG",
+       "oov": false
+      },
+      {
+       "id": 11,
+       "text": "Train",
+       "lemma": "Train",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 7,
+       "deprel": "nmod",
+       "start": 106,
+       "end": 111,
+       "token": "Train",
+       "ner": "E-ORG",
+       "oov": false
+      },
+      {
+       "id": 12,
+       "text": ".",
+       "lemma": ".",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 1,
+       "deprel": "punct",
+       "start": 111,
+       "end": 112,
+       "token": ".",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|I'm trying to find out who studies at Nairobi Arts High School.": {
+   "text": "I'm trying to find out who studies at Nairobi Arts High School.",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "I'm trying to find out who studies at Nairobi Arts High School.",
+     "start": 0,
+     "end": 63,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "I",
+       "lemma": "I",
+       "upos": "PRON",
+       "xpos": "PRP",
+       "feats": {
+        "Case": "Nom",
+        "Number": "Sing",
+        "Person": "1",
+        "PronType": "Prs"
+       },
+       "head": 3,
+       "deprel": "nsubj",
+       "start": 0,
+       "end": 3,
+       "token": "I'm",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "'m",
+       "lemma": "be",
+       "upos": "AUX",
+       "xpos": "VBP",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "1",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 3,
+       "deprel": "aux",
+       "start": 0,
+       "end": 3,
+       "token": "I'm",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "trying",
+       "lemma": "try",
+       "upos": "VERB",
+       "xpos": "VBG",
+       "feats": {
+        "Tense": "Pres",
+        "VerbForm": "Part"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 4,
+       "end": 10,
+       "token": "trying",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "to",
+       "lemma": "to",
+       "upos": "PART",
+       "xpos": "TO",
+       "feats": {},
+       "head": 5,
+       "deprel": "mark",
+       "start": 11,
+       "end": 13,
+       "token": "to",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "find",
+       "lemma": "find",
+       "upos": "VERB",
+       "xpos": "VB",
+       "feats": {
+        "VerbForm": "Inf"
+       },
+       "head": 3,
+       "deprel": "xcomp",
+       "start": 14,
+       "end": 18,
+       "token": "find",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "out",
+       "lemma": "out",
+       "upos": "ADP",
+       "xpos": "RP",
+       "feats": {},
+       "head": 5,
+       "deprel": "compound:prt",
+       "start": 19,
+       "end": 22,
+       "token": "out",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "who",
+       "lemma": "who",
+       "upos": "PRON",
+       "xpos": "WP",
+       "feats": {
+        "PronType": "Int"
+       },
+       "head": 8,
+       "deprel": "nsubj",
+       "start": 23,
+       "end": 26,
+       "token": "who",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "studies",
+       "lemma": "study",
+       "upos": "VERB",
+       "xpos": "VBZ",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 5,
+       "deprel": "ccomp",
+       "start": 27,
+       "end": 34,
+       "token": "studies",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "at",
+       "lemma": "at",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 13,
+       "deprel": "case",
+       "start": 35,
+       "end": 37,
+       "token": "at",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": "Nairobi",
+       "lemma": "Nairobi",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 13,
+       "deprel": "compound",
+       "start": 38,
+       "end": 45,
+       "token": "Nairobi",
+       "ner": "B-ORG",
+       "oov": false
+      },
+      {
+       "id": 11,
+       "text": "Arts",
+       "lemma": "Art",
+       "upos": "PROPN",
+       "xpos": "NNPS",
+       "feats": {
+        "Number": "Plur"
+       },
+       "head": 13,
+       "deprel": "compound",
+       "start": 46,
+       "end": 50,
+       "token": "Arts",
+       "ner": "I-ORG",
+       "oov": false
+      },
+      {
+       "id": 12,
+       "text": "High",
+       "lemma": "high",
+       "upos": "ADJ",
+       "xpos": "NNP",
+       "feats": {
+        "Degree": "Pos"
+       },
+       "head": 13,
+       "deprel": "amod",
+       "start": 51,
+       "end": 55,
+       "token": "High",
+       "ner": "I-ORG",
+       "oov": false
+      },
+      {
+       "id": 13,
+       "text": "School",
+       "lemma": "School",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 8,
+       "deprel": "obl",
+       "start": 56,
+       "end": 62,
+       "token": "School",
+       "ner": "E-ORG",
+       "oov": false
+      },
+      {
+       "id": 14,
+       "text": ".",
+       "lemma": ".",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 3,
+       "deprel": "punct",
+       "start": 62,
+       "end": 63,
+       "token": ".",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|The van seats between 3 and 9 people. Can 11 people fit in it?": {
+   "text": "The van seats between 3 and 9 people. Can 11 people fit in it?",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "The van seats between 3 and 9 people.",
+     "start": 0,
+     "end": 37,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "The",
+       "lemma": "the",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Def",
+        "PronType": "Art"
+       },
+       "head": 3,
+       "deprel": "det",
+       "start": 0,
+       "end": 3,
+       "token": "The",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "van",
+       "lemma": "van",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 3,
+       "deprel": "compound",
+       "start": 4,
+       "end": 7,
+       "token": "van",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "seats",
+       "lemma": "seat",
+       "upos": "NOUN",
+       "xpos": "NNS",
+       "feats": {
+        "Number": "Plur"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 8,
+       "end": 13,
+       "token": "seats",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "between",
+       "lemma": "between",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 8,
+       "deprel": "case",
+       "start": 14,
+       "end": 21,
+       "token": "between",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "3",
+       "lemma": "3",
+       "upos": "NUM",
+       "xpos": "CD",
+       "feats": {
+        "NumForm": "Digit",
+        "NumType": "Card"
+       },
+       "head": 8,
+       "deprel": "nummod",
+       "start": 22,
+       "end": 23,
+       "token": "3",
+       "ner": "S-CARDINAL",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "and",
+       "lemma": "and",
+       "upos": "CCONJ",
+       "xpos": "CC",
+       "feats": {},
+       "head": 7,
+       "deprel": "cc",
+       "start": 24,
+       "end": 27,
+       "token": "and",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "9",
+       "lemma": "9",
+       "upos": "NUM",
+       "xpos": "CD",
+       "feats": {
+        "NumForm": "Digit",
+        "NumType": "Card"
+       },
+       "head": 5,
+       "deprel": "conj",
+       "start": 28,
+       "end": 29,
+       "token": "9",
+       "ner": "S-CARDINAL",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "people",
+       "lemma": "person",
+       "upos": "NOUN",
+       "xpos": "NNS",
+       "feats": {
+        "Number": "Plur"
+       },
+       "head": 3,
+       "deprel": "nmod",
+       "start": 30,
+       "end": 36,
+       "token": "people",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": ".",
+       "lemma": ".",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 3,
+       "deprel": "punct",
+       "start": 36,
+       "end": 37,
+       "token": ".",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    },
+    {
+     "language": "en",
+     "text": "Can 11 people fit in it?",
+     "start": 38,
+     "end": 62,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Can",
+       "lemma": "can",
+       "upos": "AUX",
+       "xpos": "MD",
+       "feats": {
+        "VerbForm": "Fin"
+       },
+       "head": 4,
+       "deprel": "aux",
+       "start": 38,
+       "end": 41,
+       "token": "Can",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "11",
+       "lemma": "11",
+       "upos": "NUM",
+       "xpos": "CD",
+       "feats": {
+        "NumForm": "Digit",
+        "NumType": "Card"
+       },
+       "head": 3,
+       "deprel": "nummod",
+       "start": 42,
+       "end": 44,
+       "token": "11",
+       "ner": "S-CARDINAL",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "people",
+       "lemma": "person",
+       "upos": "NOUN",
+       "xpos": "NNS",
+       "feats": {
+        "Number": "Plur"
+       },
+       "head": 4,
+       "deprel": "nsubj",
+       "start": 45,
+       "end": 51,
+       "token": "people",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "fit",
+       "lemma": "fit",
+       "upos": "VERB",
+       "xpos": "VB",
+       "feats": {
+        "VerbForm": "Inf"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 52,
+       "end": 55,
+       "token": "fit",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "in",
+       "lemma": "in",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 4,
+       "deprel": "case",
+       "start": 56,
+       "end": 58,
+       "token": "in",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "it",
+       "lemma": "it",
+       "upos": "PRON",
+       "xpos": "PRP",
+       "feats": {
+        "Case": "Acc",
+        "Gender": "Neut",
+        "Number": "Sing",
+        "Person": "3",
+        "PronType": "Prs"
+       },
+       "head": 4,
+       "deprel": "obl",
+       "start": 59,
+       "end": 61,
+       "token": "it",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 4,
+       "deprel": "punct",
+       "start": 61,
+       "end": 62,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|Medeea lives in Zalău       ?": {
+   "text": "Medeea lives in Zalău       ?",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "Medeea lives in Zalău       ?",
+     "start": 0,
+     "end": 29,
+     "oov_rate": 0.5,
+     "words": [
+      {
+       "id": 1,
+       "text": "Medeea",
+       "lemma": "Medeea",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 2,
+       "deprel": "nsubj",
+       "start": 0,
+       "end": 6,
+       "token": "Medeea",
+       "ner": "S-PERSON",
+       "oov": true
+      },
+      {
+       "id": 2,
+       "text": "lives",
+       "lemma": "live",
+       "upos": "VERB",
+       "xpos": "VBZ",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 7,
+       "end": 12,
+       "token": "lives",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "in",
+       "lemma": "in",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 4,
+       "deprel": "case",
+       "start": 13,
+       "end": 15,
+       "token": "in",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "Zalău",
+       "lemma": "Zalău",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 2,
+       "deprel": "obl",
+       "start": 16,
+       "end": 21,
+       "token": "Zalău",
+       "ner": "S-GPE",
+       "oov": true
+      },
+      {
+       "id": 5,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 2,
+       "deprel": "punct",
+       "start": 28,
+       "end": 29,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|Hypothetically, if Ingrid works at Alba Iulia Logistics, can you check whether she has a job at Alba Iulia Logistics?": {
+   "text": "Hypothetically, if Ingrid works at Alba Iulia Logistics, can you check whether she has a job at Alba Iulia Logistics?",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "Hypothetically, if Ingrid works at Alba Iulia Logistics, can you check whether she has a job at Alba Iulia Logistics?",
+     "start": 0,
+     "end": 117,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Hypothetically",
+       "lemma": "hypothetically",
+       "upos": "ADV",
+       "xpos": "RB",
+       "feats": {},
+       "head": 13,
+       "deprel": "advmod",
+       "start": 0,
+       "end": 14,
+       "token": "Hypothetically",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": ",",
+       "lemma": ",",
+       "upos": "PUNCT",
+       "xpos": ",",
+       "feats": {},
+       "head": 1,
+       "deprel": "punct",
+       "start": 14,
+       "end": 15,
+       "token": ",",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "if",
+       "lemma": "if",
+       "upos": "SCONJ",
+       "xpos": "IN",
+       "feats": {},
+       "head": 5,
+       "deprel": "mark",
+       "start": 16,
+       "end": 18,
+       "token": "if",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "Ingrid",
+       "lemma": "Ingrid",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 5,
+       "deprel": "nsubj",
+       "start": 19,
+       "end": 25,
+       "token": "Ingrid",
+       "ner": "S-PERSON",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "works",
+       "lemma": "work",
+       "upos": "VERB",
+       "xpos": "VBZ",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 13,
+       "deprel": "advcl",
+       "start": 26,
+       "end": 31,
+       "token": "works",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "at",
+       "lemma": "at",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 7,
+       "deprel": "case",
+       "start": 32,
+       "end": 34,
+       "token": "at",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "Alba",
+       "lemma": "Alba",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 5,
+       "deprel": "obl",
+       "start": 35,
+       "end": 39,
+       "token": "Alba",
+       "ner": "B-ORG",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "Iulia",
+       "lemma": "Iulia",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 7,
+       "deprel": "flat",
+       "start": 40,
+       "end": 45,
+       "token": "Iulia",
+       "ner": "I-ORG",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "Logistics",
+       "lemma": "Logistics",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 7,
+       "deprel": "flat",
+       "start": 46,
+       "end": 55,
+       "token": "Logistics",
+       "ner": "E-ORG",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": ",",
+       "lemma": ",",
+       "upos": "PUNCT",
+       "xpos": ",",
+       "feats": {},
+       "head": 5,
+       "deprel": "punct",
+       "start": 55,
+       "end": 56,
+       "token": ",",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 11,
+       "text": "can",
+       "lemma": "can",
+       "upos": "AUX",
+       "xpos": "MD",
+       "feats": {
+        "VerbForm": "Fin"
+       },
+       "head": 13,
+       "deprel": "aux",
+       "start": 57,
+       "end": 60,
+       "token": "can",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 12,
+       "text": "you",
+       "lemma": "you",
+       "upos": "PRON",
+       "xpos": "PRP",
+       "feats": {
+        "Case": "Nom",
+        "Person": "2",
+        "PronType": "Prs"
+       },
+       "head": 13,
+       "deprel": "nsubj",
+       "start": 61,
+       "end": 64,
+       "token": "you",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 13,
+       "text": "check",
+       "lemma": "check",
+       "upos": "VERB",
+       "xpos": "VB",
+       "feats": {
+        "VerbForm": "Inf"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 65,
+       "end": 70,
+       "token": "check",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 14,
+       "text": "whether",
+       "lemma": "whether",
+       "upos": "SCONJ",
+       "xpos": "IN",
+       "feats": {},
+       "head": 16,
+       "deprel": "mark",
+       "start": 71,
+       "end": 78,
+       "token": "whether",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 15,
+       "text": "she",
+       "lemma": "she",
+       "upos": "PRON",
+       "xpos": "PRP",
+       "feats": {
+        "Case": "Nom",
+        "Gender": "Fem",
+        "Number": "Sing",
+        "Person": "3",
+        "PronType": "Prs"
+       },
+       "head": 16,
+       "deprel": "nsubj",
+       "start": 79,
+       "end": 82,
+       "token": "she",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 16,
+       "text": "has",
+       "lemma": "have",
+       "upos": "VERB",
+       "xpos": "VBZ",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 13,
+       "deprel": "ccomp",
+       "start": 83,
+       "end": 86,
+       "token": "has",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 17,
+       "text": "a",
+       "lemma": "a",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Ind",
+        "PronType": "Art"
+       },
+       "head": 18,
+       "deprel": "det",
+       "start": 87,
+       "end": 88,
+       "token": "a",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 18,
+       "text": "job",
+       "lemma": "job",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 16,
+       "deprel": "obj",
+       "start": 89,
+       "end": 92,
+       "token": "job",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 19,
+       "text": "at",
+       "lemma": "at",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 20,
+       "deprel": "case",
+       "start": 93,
+       "end": 95,
+       "token": "at",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 20,
+       "text": "Alba",
+       "lemma": "Alba",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 22,
+       "deprel": "compound",
+       "start": 96,
+       "end": 100,
+       "token": "Alba",
+       "ner": "B-ORG",
+       "oov": false
+      },
+      {
+       "id": 21,
+       "text": "Iulia",
+       "lemma": "Iulia",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 20,
+       "deprel": "flat",
+       "start": 101,
+       "end": 106,
+       "token": "Iulia",
+       "ner": "I-ORG",
+       "oov": false
+      },
+      {
+       "id": 22,
+       "text": "Logistics",
+       "lemma": "Logistics",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 18,
+       "deprel": "nmod",
+       "start": 107,
+       "end": 116,
+       "token": "Logistics",
+       "ner": "E-ORG",
+       "oov": false
+      },
+      {
+       "id": 23,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 13,
+       "deprel": "punct",
+       "start": 116,
+       "end": 117,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|Did Dimitra start working at Carpathia Energy after Javier did?": {
+   "text": "Did Dimitra start working at Carpathia Energy after Javier did?",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "Did Dimitra start working at Carpathia Energy after Javier did?",
+     "start": 0,
+     "end": 63,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Did",
+       "lemma": "do",
+       "upos": "AUX",
+       "xpos": "VBD",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Past",
+        "VerbForm": "Fin"
+       },
+       "head": 3,
+       "deprel": "aux",
+       "start": 0,
+       "end": 3,
+       "token": "Did",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "Dimitra",
+       "lemma": "Dimitra",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 3,
+       "deprel": "nsubj",
+       "start": 4,
+       "end": 11,
+       "token": "Dimitra",
+       "ner": "S-PERSON",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "start",
+       "lemma": "start",
+       "upos": "VERB",
+       "xpos": "VB",
+       "feats": {
+        "VerbForm": "Inf"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 12,
+       "end": 17,
+       "token": "start",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "working",
+       "lemma": "work",
+       "upos": "VERB",
+       "xpos": "VBG",
+       "feats": {
+        "VerbForm": "Ger"
+       },
+       "head": 3,
+       "deprel": "xcomp",
+       "start": 18,
+       "end": 25,
+       "token": "working",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "at",
+       "lemma": "at",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 7,
+       "deprel": "case",
+       "start": 26,
+       "end": 28,
+       "token": "at",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "Carpathia",
+       "lemma": "Carpathia",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 7,
+       "deprel": "compound",
+       "start": 29,
+       "end": 38,
+       "token": "Carpathia",
+       "ner": "B-ORG",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "Energy",
+       "lemma": "Energy",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 4,
+       "deprel": "obl",
+       "start": 39,
+       "end": 45,
+       "token": "Energy",
+       "ner": "E-ORG",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "after",
+       "lemma": "after",
+       "upos": "SCONJ",
+       "xpos": "IN",
+       "feats": {},
+       "head": 10,
+       "deprel": "mark",
+       "start": 46,
+       "end": 51,
+       "token": "after",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "Javier",
+       "lemma": "Javier",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 10,
+       "deprel": "nsubj",
+       "start": 52,
+       "end": 58,
+       "token": "Javier",
+       "ner": "S-PERSON",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": "did",
+       "lemma": "do",
+       "upos": "AUX",
+       "xpos": "VBD",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Past",
+        "VerbForm": "Fin"
+       },
+       "head": 4,
+       "deprel": "advcl",
+       "start": 59,
+       "end": 62,
+       "token": "did",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 11,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 3,
+       "deprel": "punct",
+       "start": 62,
+       "end": 63,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

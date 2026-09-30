@@ -17,7 +17,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import {mentionedIn} from '../../../sop/linking.mjs';
+import {anchoredValue} from './translation.mjs';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {decode, attr, helpPages, tableFields} from '../../wire-help-pages.mjs';
 
@@ -477,18 +477,21 @@ const DEFAULT = await loadVocabulary();
 const rowFindings = context => context.contractFindings ??= checkRow(context.row, DEFAULT, {parse: false});
 const describe = finding => `${finding.where}:${finding.line ?? '?'} ${finding.construct}: ${finding.message}`;
 
+const verbatimIn = (span, message) => { const f = t => String(t).normalize('NFC').toLocaleLowerCase('ro').replace(/\s+/g, ' ').trim(); return f(message).includes(f(span)); };
 /** Quoted model-target values that look like identifiers or generator counters rather than message text. */
 const ID_LIKE = [/^[a-z][a-z0-9]*(_[a-z0-9]+)+$/, /\d+_\d+/, /\b[0-9a-f]{8,}\b/, /gp\d+_/];
 /**
  * No-context guard G2: a model target carries strings as written, never identifiers. Flags the retired
  * constructs (`holds`, `premise`, atom `where` leaves), quoted values that look like ids or counters, and
- * `stated` values that do not occur in the message (host anchoring, sop/linking.mjs mentionedIn).
+ * `stated` values that do not occur in the message (host anchoring, sop/linking.mjs mentionedIn; an English
+ * translation of a common noun the message mentions is anchored through the generator lexicon, translation.mjs).
  */
 export function modelTargetIdFindings(row) {
   if (row.evaluation_track === 'system') return [];
   const target = typeof row.sop_target === 'string' ? row.sop_target : typeof row.target === 'string' ? row.target : '';
   if (!target) return [];
   const findings = [];
+  const wireIds = new Set([...target.matchAll(/^@([A-Za-z][A-Za-z0-9_]*)\s/gm)].map(m => m[1]));
   let wire = null;
   for (const [index, line] of target.split('\n').entries()) {
     const header = line.match(HEADER);
@@ -498,13 +501,18 @@ export function modelTargetIdFindings(row) {
     const [, key, rest = ''] = field;
     if (key === 'holds') findings.push(`line ${index + 1}: retired holds field`);
     if (wire === 'query' && (key === 'where' || key === 'scope') && rest && !['match', 'all', 'any'].includes(rest.trim())) findings.push(`line ${index + 1}: atom ${key} leaf instead of a match block`);
-    if (!['relation', 'role', 'valid', 'speaker', 'reading'].includes(key)) continue;
+    if (!['relation', 'role', 'valid', 'speaker', 'reading', 'span'].includes(key) && !/^\$/.test(rest.trim())) continue;
+    if (/^\$/.test(rest.trim())) { const ref = rest.trim().slice(1); if (!wireIds.has(ref)) findings.push(`line ${index + 1}: ${key} $${ref} names no wire of this target`); continue; }
+    if (wire === 'unparsed' && key === 'span') for (const quoted of rest.match(/"(?:\\.|[^"\\])*"/g) ?? []) if (!verbatimIn(JSON.parse(quoted), row.question ?? '')) findings.push(`line ${index + 1}: unparsed span ${quoted} is not a verbatim part of the message`);
+    if (key === 'span') continue;
     for (const quoted of rest.match(/"(?:\\.|[^"\\])*"/g) ?? []) {
       const value = JSON.parse(quoted);
       if (ID_LIKE.some(pattern => pattern.test(value))) findings.push(`line ${index + 1}: ${key} value ${quoted} looks like an identifier`);
-      if (wire === 'stated' && key === 'role' && !mentionedIn(value, row.question ?? '')) findings.push(`line ${index + 1}: stated value ${quoted} is not in the message`);
+      if (wire === 'stated' && key === 'role' && !anchoredValue(value, row.question ?? '', row)) findings.push(`line ${index + 1}: stated value ${quoted} is not in the message`);
     }
-    if (key === 'role' && !/^\S+\s+("(?:\\.|[^"\\])*"|-?\d+|\?[A-Za-z][A-Za-z0-9_]*)\s*$/.test(rest)) findings.push(`line ${index + 1}: role value is not a JSON string, integer or ?variable`);
+    if (key === 'role' && !/^\S+\s+("(?:\\.|[^"\\])*"|-?\d+|\?[A-Za-z][A-Za-z0-9_]*|\$[A-Za-z][A-Za-z0-9_]*)\s*$/.test(rest)) findings.push(`line ${index + 1}: role value is not a JSON string, integer, ?variable or $id`);
+    // A `$id` (a role value, a link line or `near`) names a wire of the same target (DS021 "Clauses and links").
+    for (const ref of rest.replace(/"(?:\\.|[^"\\])*"/g, '').match(/\$[A-Za-z][A-Za-z0-9_]*/g) ?? []) if (!wireIds.has(ref.slice(1))) findings.push(`line ${index + 1}: ${ref} names no wire of this target`);
   }
   return findings;
 }

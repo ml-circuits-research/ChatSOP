@@ -1,0 +1,9 @@
+{
+ "model": "claude-haiku-4-5-20251001",
+ "cap_usd": 20,
+ "stop_usd": 20,
+ "spent_usd": 0.16770400000000002,
+ "calls": 124,
+ "failed": 0,
+ "updated_at": "2026-09-30T00:28:51.846Z"
+}

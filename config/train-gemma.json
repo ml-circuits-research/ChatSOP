@@ -1,7 +1,7 @@
 {
-  "model_id": "google/gemma-3-270m-it",
-  "revision": "main",
-  "max_length": 4096,
+  "model_id": "daniel-dona/gemma-3-270m-it",
+  "revision": "99073d6b6edb0e298d163f964ec2b9d970b3408d",
+  "max_length": 8192,
   "epochs": 3,
   "batch_size": 2,
   "gradient_accumulation": 8,
@@ -9,13 +9,25 @@
   "alpha": 32,
   "dropout": 0.05,
   "lr": 0.0002,
-  "full_lr": 2e-05,
+  "full_lr": 5e-05,
   "weight_decay": 0.01,
   "warmup_fraction": 0.05,
-  "gradient_checkpointing": true,
+  "gradient_checkpointing": false,
   "max_grad_norm": 1.0,
-  "log_every": 10,
-  "save_every": 100,
+  "log_every": 20,
+  "save_every": 1000000,
   "seed": 42,
-  "attention": "sdpa"
+  "attention": "sdpa",
+  "generation_batch_size": 128,
+  "full_precision": "fp32-master-bf16-autocast",
+  "license": "Gemma Terms of Use",
+  "license_source": "https://ai.google.dev/gemma/terms (and the Gemma Prohibited Use Policy https://ai.google.dev/gemma/prohibited_use_policy)",
+  "upstream": {
+    "model_id": "google/gemma-3-270m-it",
+    "revision": "ac82b4e820549b854eebf28ce6dedaf9fdfa17b3",
+    "equivalence": "byte-identical mirror: git blob ids of all nine model/tokenizer/config files and the LFS sha256 of model.safetensors equal the gated upstream revision (checked 2026-09-28 through the Hugging Face API; the upstream repository is gated and no HF token is configured on this host)"
+  },
+  "max_new_tokens": 6144,
+  "generation_token_budget": 131072,
+  "select_final_only": true
 }

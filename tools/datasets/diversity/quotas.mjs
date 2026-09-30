@@ -4,6 +4,7 @@
  * build-time guard, and the independent audit runs afterwards.
  */
 import { hash32, words } from './text.mjs';
+import { RESOURCE_ROLES, isOodOnly, testReserved } from './heldout.mjs';
 
 /** Quotas enforced on every build (pilot and full). Shares are fractions of rows. */
 export const QUOTAS = Object.freeze({
@@ -64,33 +65,37 @@ export class Chooser {
     this.log = [];
   }
   setSplit(split) { this.split = split; }
-  /** Test-reserved options of a list: exactly floor(n/4) of them (at least one from three options up), the
-   * ones with the lowest stable hash, so train and dev always keep three quarters of every list. */
+  /** Test-reserved options of a list. A registered resource (heldout.mjs: frame tables and constructions) keeps
+   * the role computed over its full list, whatever sub-list the call site passes; any other list reserves
+   * exactly floor(n/4) of its non-OOD options (at least one from three up), the ones with the lowest stable hash,
+   * so train and dev always keep three quarters of every list. */
   reservedOf(options) {
-    const size = options.length;
-    if (size < 3) return new Set();
-    const ranked = [...options].sort((a, b) => hash32(`heldout:${a.id}`) - hash32(`heldout:${b.id}`) || String(a.id).localeCompare(String(b.id)));
-    return new Set(ranked.slice(0, Math.max(1, Math.floor(size / HELDOUT_MODULUS))).map(option => option.id));
+    if (options.length && options.every(option => RESOURCE_ROLES.has(option.id))) return new Set(options.filter(option => RESOURCE_ROLES.get(option.id) === 'test').map(option => option.id));
+    return testReserved(options);
   }
+  /** The options a split may use. OOD-only options never reach formalizer-v1; the OOD suite (split `ood`) uses the
+   * OOD-only and test-reserved options (none of them occurs in train or dev) and falls back to shared options
+   * only when nothing else fits (build-corpora.mjs then drops the row by the overlap filter). */
   allowed(options) {
-    const reserved = this.reservedOf(options);
-    if (this.split === 'test') {
-      const pool = options.filter(option => reserved.has(option.id));
-      return pool.length ? pool : options;
-    }
-    const shared = options.filter(option => !reserved.has(option.id));
-    return shared.length ? shared : options;
+    const ood = options.filter(option => isOodOnly(option.id));
+    const rest = options.filter(option => !isOodOnly(option.id));
+    const reserved = this.reservedOf(rest);
+    const test = rest.filter(option => reserved.has(option.id)), shared = rest.filter(option => !reserved.has(option.id));
+    if (this.split === 'ood') return ood.length || test.length ? [...ood, ...test] : shared;
+    if (this.split === 'test') return test.length ? test : shared;
+    return shared.length ? shared : test;
   }
   pick(kind, options) {
     if (!options?.length) return null;
     const pool = this.allowed(options);
+    if (!pool.length) return null;
     const weights = pool.map(option => [option, 1 / (1 + (this.usage.get(option.id) ?? 0)) ** 2]);
     const chosen = this.random.weighted(weights);
     this.usage.set(chosen.id, (this.usage.get(chosen.id) ?? 0) + 1);
     this.log.push(chosen.id);
     return chosen;
   }
-  bound() { return (kind, options) => this.pick(kind, options); }
+  bound() { const choose = (kind, options) => this.pick(kind, options); choose.chooser = this; return choose; }
 }
 
 // ---------------------------------------------------------------- diversity metrics (generator-side)

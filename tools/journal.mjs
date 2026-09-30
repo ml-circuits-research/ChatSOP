@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /** Project journal CLI: agents log meaningful work and owner decisions from the
- * shell; the owner sees them live on the server's `/project` page.
+ * shell; the owner sees them live on the server's `/experiments` pages.
  *
  *   node tools/journal.mjs add --area data --title "Pilot regenerated" --detail "…" \
  *        [--state started|progress|done|blocked|decision] [--actor name] [--link path]… [--ts ISO]

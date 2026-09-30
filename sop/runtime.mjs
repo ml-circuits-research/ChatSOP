@@ -13,7 +13,7 @@ import {assert,digest} from '../lib/util.mjs';
 import {parseCondition} from './conditions.mjs';
 import {conditionAtoms} from '../lib/conditions.mjs';
 import {runDeclarative} from './declarative.mjs';
-const MODEL_ONLY=new Set(['stated','assumed','unclear']);
+const MODEL_ONLY=new Set(['stated','assumed','unclear','unparsed']);
 const flatten=xs=>xs.flatMap(x=>Array.isArray(x)?flatten(x):[x]);
 // DS004: a `source assumption` fact is consumed only through `assume`; it is never evidence, stored or reinforced.
 const isAssumptionFact=x=>x?.kind==='fact'&&x.source==='assumption';

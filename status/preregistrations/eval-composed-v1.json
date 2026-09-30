@@ -1,0 +1,52 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-composed-v1",
+ "name": "Composed evaluation: known forms in long and mixed paragraphs (SymbolicLM, SymbolicProofingLLM and LanguageProofingLLM baselines)",
+ "registered_at": "2026-09-30T18:50:00Z",
+ "registered_by": "composed-eval-agent (owner request of 2026-09-30 relayed by the orchestrator: evaluation is an engineering check; no training, CPU inference only)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "kind": "evaluation-only (Stanza and llama.cpp inference on CPU with existing artifacts; no optimizer step, no training data change)",
+ "frozen_before_results": "Written after the builders (tools/eval/composed-suites.mjs, tools/eval/composed/*), the scorer (tools/eval/composed-score.mjs) and the comparison rules were built and exercised on fixtures and after a 400-case pilot run of SymbolicLM on K1 that was used only to debug the scorer (deviation D1 below), and before any rewriter prediction on a composed suite. The composed suites are rebuilt from the sealed test files after the rebuild of the three datasets by accurate-agent (rules v2); numbers measured on the earlier suites are a pilot and are reported as such. Later changes are recorded deviations.",
+ "question": "Does the system still make no mistakes on forms it handles alone when many of them are put in one paragraph, and when handled forms are mixed with forms it does not handle? Does a small rewriter leave clean sentences untouched and repair the bad ones at lengths beyond its training length?",
+ "owner_philosophy": "Evaluation is an engineering check (journal decision 2026-09-30): repeated grammatical forms are allowed, duplicated cases are not; production failures become new regression cases.",
+ "hypotheses": {
+  "H1": "SymbolicLM keeps its per-sentence result inside a paragraph: for cases whose components all pass alone, the paragraph SOP equals the concatenation of the component SOPs (modulo id renumbering and the statements-first order) in at least 95% of K1 cases of every sentence count (2, 3, 5, 8). Falsified for a sentence count when the Wilson upper bound is below 95%.",
+  "H2": "Read as an engineering expectation, not a research claim: the cross-sentence effects of the host rules (pronoun resolution, statements-first order, links between neighbouring sentences) are the only reason for a composition loss; a loss with all components passing alone is reported as a defect list, never as noise.",
+  "H3": "The fine-tuned Gemma 3 270M proofreader (baseline only) leaves symbolic sentences unchanged inside a paragraph in at least 99% of clean sentences, in both whole-paragraph and per-sentence mode; per-sentence mode with a gate keeps every clean sentence unchanged by construction when the splitter agrees with the component boundaries. Falsified when the Wilson upper bound of the clean-sentence change rate exceeds 1%.",
+  "H4": "Per-sentence mode with a gate is at least as good as whole-paragraph mode on bad sentences repaired and on end-to-end SOP equality, and its extra failure is the splitter, whose failure rate on noisy text is reported."
+ },
+ "changed_factor": "The number and mix of sentences in the message, and the mode in which a rewriter is applied (whole paragraph, or the host splits, gates and rewrites only the sentences that need it). Components, models, decoding and scoring are otherwise fixed.",
+ "suites": {
+  "files": ["eval/suites/symbolic_english/test-composed.jsonl (K1 all symbolic, K3 identity long, K5 reference across sentences)", "eval/suites/neuro_english/test-composed.jsonl (K2 mixed, K6 decomposition)", "eval/suites/bad_english/test-composed.jsonl (K4 bad mixed, K6 decomposition)"],
+  "manifests": "eval/suites/<dataset>/manifest-composed.json holds the sha256 of each file, of the source test file and the seed",
+  "selection": "Deterministic composition (seeded, tools/eval/composed/compose.mjs) of self-contained single-sentence components taken from the sealed test rows only: no pronoun or ellipsis that needs another sentence, one request or statement, a verified analysis; symbolic components need a valid converted SOP with nothing unparsed; neuro components need a verified rewrite target; bad components need a clean target. K1 has 100 cases per sentence count (2, 3, 5, 8), sentences of different forms; K2 and K4 have 34 cases per mix (n of m changed: 2/1, 3/1, 4/1, 4/2, 5/1, 6/2, 6/3, 8/2, 8/4) at first, middle, last or spread positions; K3 has the longest natural sentences and 12 to 48 sentence paragraphs; K5 has 2, 3 and 4 sentence paragraphs whose last sentence refers to an earlier subject by pronoun (the name substituted mechanically, the expected SOP has the name); K6 keeps every test row of a decomposition type with a verified multi-sentence target."
+ },
+ "conditions": {
+  "symbolic_lm": "SymbolicLM (route direct, language auto, CPU Stanza) on the paragraph; every component also analysed alone (cached).",
+  "rewriter_baseline": "models/gemma/proofreader-gemma270m-v1/proofreader/merged-best/gguf/q8_0.gguf (sha256 25f7706cbcec1f2408eaf64a711d3794fc9523fa9be4fd2d5d85bfed7e8da1fa) via llama.cpp llama-server 99d4026b1 on CPU (-t 8, -c 8192, -np 1, own port 8611), message-only chat completion, temperature 0, top_k 1; the role id stays proofreader; it is a baseline measurement of the existing SymbolicProofingLLM (trained on sentences of a median 37 tokens, maximum 547) and is also given K4 although it was not trained for Romanian.",
+  "no_rewrite": "identity rewriter: SymbolicLM on the original paragraph (the comparison row of K2, K5, K6).",
+  "modes": "paragraph: the rewriter gets the whole text. sentence: the host splits (lib/sentence-split.mjs), a gate keeps the sentences that are fine (SymbolicLM handles them alone: valid, nothing unparsed, not uncertain; for K4 the clean-English gate), the rewriter gets only the others one at a time, the host reassembles."
+ },
+ "endpoints": {
+  "primary_symbolic": "Share of K1 cases whose paragraph SOP equals the concatenated expected SOPs, per sentence count, restricted to cases whose components all pass alone (composition effect), Wilson 95%; also the unrestricted share, per-component share, analysis equality (tokens, heads, labels equal to the components alone) and sentence-split agreement.",
+  "primary_rewriter": "Per clean component: changed (break); per component that must change: repaired, not repaired, wrong rewrite; dropped components; cases with added text; order preserved; end-to-end SOP equality after SymbolicLM on the output; splitter agreement with the component boundaries. Denominators are components or cases as named; Wilson 95%.",
+  "k6": "Output sentence count against the expected count; every output sentence within the contract (one finite clause, connective-linked and complement clauses allowed, no coordinated or relative clause, explicit subject); SymbolicLM handles every output sentence; names, numbers, negations and connectives of the message preserved; SOP equal to the gold where one exists."
+ },
+ "analysis": "Strata: sentence count, mix, position (first, middle, last, spread), whether the case exceeds the training p99 and maximum in Gemma tokens (tools/eval/composed-tokens.mjs sidecar), unpunctuated component boundaries.",
+ "stopping_rules": {
+  "stages": "Nested stratified stages of 100, 300 and the full suite; the summary with Wilson intervals is written after each stage.",
+  "decisive": "A stratum whose Wilson interval lies entirely on one side of the hypothesis threshold at stage 100 is decided; the run continues only to complete the tables unless the cost is high (K3: stage 100 only, whole and per-sentence).",
+  "broken": "More than 20% empty or unparsable rewriter outputs on the first 100 cases stops that arm; recorded as a stop.",
+  "no_training": "Nothing here trains, fine-tunes or resumes; the baseline is an existing checkpoint."
+ },
+ "deviations_allowed": "Any component filter, scoring rule or threshold changed after results were seen is recorded as a deviation with its reason and effect.",
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-09-30T18:45:00Z",
+   "what": "A 400-case run of SymbolicLM on K1 was made before the scorer compared blocks in the statements-first order. It showed a large apparent loss with the sentence count that was in part an ordering convention of the SOP emitter (asserted statements are emitted before queries) and not a defect. The scorer now applies the same stable partition to the expected concatenation. Numbers of that first run are discarded; the corrected scorer is the frozen one.",
+   "why": "Scorer bug found by inspecting three failures; no rewriter prediction existed yet.",
+   "effect": "Every reported K1/K3/K5 number uses the corrected comparison; the pilot informed the scorer, so the SymbolicLM numbers on the pre-rebuild suites are not confirmatory."
+  }
+ ]
+}

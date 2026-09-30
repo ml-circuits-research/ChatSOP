@@ -1,0 +1,88 @@
+{
+ "format": "chatsop-suite-manifest-v1",
+ "suite": "clean-english",
+ "sealed": true,
+ "owner_decision": "2026-09-30: formalization evaluation focuses on valid, clean English (status/journal.jsonl)",
+ "builder": "tools/eval/clean-english-suite.mjs",
+ "classifier": "tools/datasets/clean-english.mjs",
+ "source_suites": {
+  "formalizer-v1": "eval/suites/formalizer-v1/test.jsonl",
+  "formalizer-ood-v1": "eval/suites/formalizer-ood-v1/test.jsonl",
+  "formalizer-wild-v1": "eval/suites/formalizer-wild-v1/test.jsonl"
+ },
+ "id_format": "<suite>::<source_id>",
+ "sha256": {
+  "eval/suites/clean-english/test.jsonl": "a1a236f7d1a890b78334ce0fbdfc948b08b61f2a8d38c06c6ef8d65398a84732"
+ },
+ "bytes": {
+  "eval/suites/clean-english/test.jsonl": 15853949
+ },
+ "counts": {
+  "total": 2543,
+  "by_suite": {
+   "formalizer-v1": {
+    "clean_en": 1682,
+    "noisy_en": 816,
+    "ro": 1706,
+    "mixed": 829
+   },
+   "formalizer-ood-v1": {
+    "clean_en": 543,
+    "noisy_en": 237,
+    "ro": 538,
+    "mixed": 260
+   },
+   "formalizer-wild-v1": {
+    "clean_en": 318,
+    "noisy_en": 14,
+    "ro": 278,
+    "mixed": 186
+   }
+  }
+ },
+ "rights": {
+  "license": "MIT (repository LICENSE); original ChatSOP authored text",
+  "rights_decision": "inherited-from-formalizer-v1 (no new source text: a language-quality filter over already rights-cleared rows)",
+  "rights_decision_date": "2026-09-28",
+  "inspired_by": [
+   {
+    "id": "qqp",
+    "name": "Quora Question Pairs (GLUE QQP)",
+    "url": "https://quoradata.quora.com/First-Quora-Dataset-Release-Question-Pairs",
+    "licence": "Quora first release terms (non-commercial research use with attribution); no SPDX licence identified"
+   },
+   {
+    "id": "paws",
+    "name": "PAWS-Wiki labeled final",
+    "url": "https://github.com/google-research-datasets/paws",
+    "licence": "PAWS LICENSE: may be freely used for any purpose, acknowledgement of Google LLC appreciated; underlying Wikipedia text CC BY-SA 4.0"
+   },
+   {
+    "id": "proofwriter",
+    "name": "ProofWriter (OWA structured)",
+    "url": "https://allenai.org/data/proofwriter",
+    "licence": "No dataset licence file in the official release; secondary sources report CC BY 4.0 (unconfirmed)"
+   },
+   {
+    "id": "ambignq",
+    "name": "AmbigNQ (AmbigQA)",
+    "url": "https://nlp.cs.washington.edu/ambigqa/",
+    "licence": "CC BY-SA 3.0 (notice bundled in the publisher release ZIP); underlying Natural Questions CC BY-SA 3.0"
+   },
+   {
+    "id": "qa2d",
+    "name": "QA2D (question to declarative)",
+    "url": "https://github.com/kelvinguu/qanli",
+    "licence": "Code MIT (Demszky 2019); dataset licence not stated (mirror card: Needs More Information); upstream SQuAD CC BY-SA 4.0 plus RACE/NewsQA/QAMR/MovieQA terms"
+   },
+   {
+    "id": "squad",
+    "name": "SQuAD v2.0 (dev)",
+    "url": "https://rajpurkar.github.io/SQuAD-explorer/",
+    "licence": "CC BY-SA 4.0"
+   }
+  ],
+  "text_copied": false,
+  "filtered_from": "datasets/formalizer-v1 (train/dev) and eval/suites/{formalizer-v1,formalizer-ood-v1,formalizer-wild-v1}/test.jsonl (test), by tools/datasets/clean-english.mjs classifyPartition"
+ }
+}

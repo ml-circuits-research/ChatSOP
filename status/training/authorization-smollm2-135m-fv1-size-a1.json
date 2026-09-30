@@ -1,0 +1,22 @@
+{
+  "format": "chatsop-training-authorization-v1",
+  "authorization": "explicit-user-approval",
+  "approved": true,
+  "approved_by": "user",
+  "approved_at": "2026-09-28T18:13:13.644Z",
+  "instruction": "Owner authorizes first fine-tuning experiment: Explicit owner approval (2026-09-28): download SmolLM2 (smallest) and Gemma 3 270M; fine-tune on formalizer-v1 once the data rebuild is final, in order SmolLM2 -> Gemma 3 270M; Qwen3-0.6B only if the smaller models are not good enough. Goal: scientific comparison of how small the formalizer can be, with CPU speed measured. Semantic review for this experiment is satisfied by the independent automated auditor (experiment-grade, no human review). Preregistration (DS010, status/experiments.json) and dry-run precede any optimizer step; single GPU worker per machine.",
+  "journal_event": {
+    "file": "status/journal.jsonl",
+    "ts": "2026-09-28T18:13:13.644Z",
+    "actor": "owner-via-orchestrator"
+  },
+  "model": "smollm2-135m",
+  "run": "fv1-size-a1",
+  "role": "formalizer",
+  "qualification_sha256": "89d162dd2c6610ad0e8c1ef5d572e1f25d437728fbbd0dcf496710a1e73d0860",
+  "recipe_sha256": "3bbc4e05d9d6cfc58c4dca46c67eb2f76c74f1be39ce567632543e3f0f11b525",
+  "dataset_manifest_sha256": "b0c449573a628e8d4e1d21388f650112825a213b9e079b89194e2c2c98233837",
+  "dataset_version_sha256": "c5b31d05f722db492c6eceee8748b07375fae59d849e9bc52812e1ca91124a71",
+  "transcribed_by": "training-agent",
+  "transcribed_at": "2026-09-28T19:58:21.506Z"
+}

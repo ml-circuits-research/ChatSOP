@@ -8,7 +8,7 @@ import { repoPath } from './helpers.mjs';
 // The evaluator over the model-language corpus (DS022): a stratified dev sample, two rows per family, so every
 // question form and family is executed through eval/run.mjs with its referenced verification world.
 const config = { memory: { engine: 'scan' }, policy: { reasoningStrategy: 'reference', retrievalStrategy: 'auto' } };
-const dev = readJsonlShardedSync(repoPath('datasets/formalizer-v1/dev.jsonl'));
+const dev = readJsonlShardedSync(repoPath('datasets_archive/formalizer-v1/dev.jsonl'));
 const byFamily = new Map();
 for (const row of dev) { if (!byFamily.has(row.family)) byFamily.set(row.family, []); byFamily.get(row.family).push(row); }
 const sample = [...byFamily.values()].flatMap(rows => rows.slice(0, 2));
@@ -23,6 +23,7 @@ test('executed gold sanity check over every family preserves status, UNKNOWN and
   assert.equal(report.evaluation_valid, true, JSON.stringify(report.records.filter(record => record.error).slice(0, 3).map(record => [record.id, record.error])));
   assert.deepEqual(metrics.failure_ids_by_stage, { reference: [], generation: [], parse: [], prediction: [], semantic: [] });
   assert.equal(metrics.formalizer.execution_equivalence.value, 1);
+  assert.equal(metrics.formalizer.wire_match.f1, 1); // gold predictions match every wire (DS016 "Wire F1")
   assert.equal(metrics.epistemic.unknown_calibration.recall.value, 1);
   assert.equal(metrics.epistemic.unauthorized_writes.numerator, 0);
   assert(metrics.reasoning_memory.effective_routes['deduce/js/no-fallback'] > 0);

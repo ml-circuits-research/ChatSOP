@@ -24,6 +24,8 @@ const join = (...parts) => parts.filter(Boolean).join(' ');
 
 /** English forms of a construction. `{S}` and `{O}` are the subject and object surface slots. */
 function englishForms(c, types) {
+  // An authored-only construction (no forms) is never realized from its verb spec.
+  if (c.onlyForms && !Object.keys(c.forms ?? {}).length) return {};
   const f = {};
   const tail = join(c.obj0, c.prep);
   const S = '{S}', O = c.O ? '{O}' : '';
@@ -61,6 +63,8 @@ const WHERE_ROLES = new Set(['location', 'destination']);
 
 /** Romanian forms. Gender slots: {g:S:m:f} agrees with the subject filler. */
 function romanianForms(c, types) {
+  // An authored-only construction (no forms) is never realized from its verb spec.
+  if (c.onlyForms && !Object.keys(c.forms ?? {}).length) return {};
   const f = {};
   const S = '{S}', O = c.O ? '{O}' : '';
   const prep = c.prep ?? '';
@@ -111,6 +115,9 @@ function romanianForms(c, types) {
  */
 function predicate(spec) {
   const noCount = spec.noCount;
+  // Held-out constructions (DS022 "Out-of-distribution suite") are appended after the in-distribution ones, so
+  // the ids of existing constructions never shift; they are flagged `oodOnly` and never reach formalizer-v1.
+  for (const language of ['en', 'ro']) spec[language] = [...spec[language], ...(spec.heldout?.[language] ?? []).map(c => ({ ...c, oodOnly: true }))];
   const roleType = Object.fromEntries(spec.roles);
   const first = spec.roles[0][0];
   const orole = converse => [...spec.en, ...spec.ro].find(c => c.O && (c.S !== first) === converse)?.Orole ?? 'object';
@@ -121,14 +128,41 @@ function predicate(spec) {
     const resolved = { ...c, Orole: c.O ? spec.closedRoles[converse ? 'converse' : 'direct'] : null };
     const forms = language === 'en' ? englishForms(resolved, types) : romanianForms(resolved, types);
     if (noCount) { delete forms.cntS; delete forms.cntO; }
-    return { id: `${language}.${index}`, rel: c.rel, S: c.S, O: c.O ?? null, converse, Orole: c.O ? spec.closedRoles[converse ? 'converse' : 'direct'] : null, forms };
+    return { id: `${language}.${index}`, rel: c.rel, S: c.S, O: c.O ?? null, converse, oodOnly: Boolean(c.oodOnly), Orole: c.O ? spec.closedRoles[converse ? 'converse' : 'direct'] : null, forms };
   });
   return spec;
 }
 const V = (base, s3, past) => [base, s3, past];
 
+/**
+ * Held-out constructions of in-distribution predicates: direct constructions that never occur in formalizer-v1
+ * (train, dev or test) and appear only in the construction axis of the out-of-distribution suite, so it tests
+ * whether a formalizer copies an unseen relation phrase of a known relation instead of recalling the phrases it
+ * was trained on. The list is the single source; DS022 documents it.
+ */
+export const HELDOUT_CONSTRUCTIONS = {
+  works_at: { en: [{ rel: 'be on the payroll of', S: 'employee', O: 'employer', cop: 'on the payroll of' }],
+    ro: [{ rel: 'avea un post la', S: 'employee', O: 'employer', v: { p3: 'are', p3pl: 'au', past: 'a avut' }, obj0: 'un post', prep: 'la' }] },
+  lives_in: { en: [{ rel: 'reside in', S: 'resident', O: 'town', verb: V('reside', 'resides', 'resided'), prep: 'in', Orole: 'location', where: true }],
+    ro: [{ rel: 'trăi în', S: 'resident', O: 'town', v: { p3: 'trăiește', p3pl: 'trăiesc', past: 'a trăit' }, prep: 'în', Orole: 'location', where: true }] },
+  sells: { en: [{ rel: 'stock', S: 'seller', O: 'product', verb: V('stock', 'stocks', 'stocked') }],
+    ro: [{ rel: 'comercializa', S: 'seller', O: 'product', v: { p3: 'comercializează', past: 'a comercializat' } }] },
+  attended: { en: [{ rel: 'show up at', S: 'attendee', O: 'event', verb: V('show', 'shows', 'showed'), obj0: 'up', prep: 'at' }],
+    ro: [{ rel: 'fi prezent la', S: 'attendee', O: 'event', cop: { m: 'prezent', f: 'prezentă', pl: 'prezenți' }, prep: 'la' }] },
+  teaches: { en: [{ rel: 'lecture in', S: 'teacher', O: 'subject', verb: V('lecture', 'lectures', 'lectured'), prep: 'in' }],
+    ro: [{ rel: 'da lecții de', S: 'teacher', O: 'subject', v: { p3: 'dă', p3pl: 'dau', past: 'a dat' }, obj0: 'lecții', prep: 'de' }] },
+  coaches: { en: [{ rel: 'be the trainer of', S: 'coach', O: 'team', cop: 'the trainer of' }],
+    ro: [{ rel: 'pregăti', S: 'coach', O: 'team', v: { p3: 'pregătește', p3pl: 'pregătesc', past: 'a pregătit' } }] },
+  maintains: { en: [{ rel: 'take care of', S: 'engineer', O: 'system', verb: V('take', 'takes', 'took'), obj0: 'care', prep: 'of' }],
+    ro: [{ rel: 'avea grijă de', S: 'engineer', O: 'system', v: { p3: 'are', p3pl: 'au', past: 'a avut' }, obj0: 'grijă', prep: 'de' }] },
+  studies_at: { en: [{ rel: 'attend classes at', S: 'student', O: 'school', verb: V('attend', 'attends', 'attended'), obj0: 'classes', prep: 'at' }],
+    ro: [{ rel: 'frecventa', S: 'student', O: 'school', v: { p3: 'frecventează', past: 'a frecventat' } }] },
+  travelled_to: { en: [{ rel: 'go on a trip to', S: 'traveller', O: 'destination', verb: V('go', 'goes', 'went'), obj0: 'on a trip', prep: 'to', Orole: 'destination', where: true }],
+    ro: [{ rel: 'pleca la', S: 'traveller', O: 'destination', v: { p3: 'pleacă', p3pl: 'pleacă', past: 'a plecat' }, prep: 'la', Orole: 'destination', where: true }] },
+};
+
 export const PREDICATES = {
-  works_at: predicate({ domain: 'work', roles: [['employee', 'person'], ['employer', 'company']], gloss: 'works for', senseAliases: { en: ['be an employee of', 'be on the staff of'], ro: ['fi angajatul', 'fi salariat la'] },
+  works_at: predicate({ heldout: HELDOUT_CONSTRUCTIONS.works_at, domain: 'work', roles: [['employee', 'person'], ['employer', 'company']], gloss: 'works for', senseAliases: { en: ['be an employee of', 'be on the staff of'], ro: ['fi angajatul', 'fi salariat la'] },
     en: [{ rel: 'work at', S: 'employee', O: 'employer', verb: V('work', 'works', 'worked'), prep: 'at' }, { rel: 'work for', S: 'employee', O: 'employer', verb: V('work', 'works', 'worked'), prep: 'for' },
       { rel: 'be employed by', S: 'employee', O: 'employer', cop: 'employed by' }, { rel: 'employ', S: 'employer', O: 'employee', verb: V('employ', 'employs', 'employed') },
       { rel: 'have a job at', S: 'employee', O: 'employer', verb: V('have', 'has', 'had'), obj0: 'a job', prep: 'at' }],
@@ -147,10 +181,10 @@ export const PREDICATES = {
     en: [{ rel: 'be married to', S: 'spouse', O: 'partner', cop: 'married to' }, { rel: 'be the spouse of', S: 'spouse', O: 'partner', cop: 'the spouse of' }],
     ro: [{ rel: 'fi căsătorit cu', S: 'spouse', O: 'partner', cop: { m: 'căsătorit', f: 'căsătorită', pl: 'căsătoriți' }, prep: 'cu' }] }),
   // (married_to and located_in have no how-many questions: counting spouses or towns of a site is unnatural)
-  studies_at: predicate({ domain: 'education', roles: [['student', 'person'], ['school', 'school']], gloss: 'studies at', senseAliases: { en: ['be a student at'], ro: ['fi elev la'] },
+  studies_at: predicate({ heldout: HELDOUT_CONSTRUCTIONS.studies_at, domain: 'education', roles: [['student', 'person'], ['school', 'school']], gloss: 'studies at', senseAliases: { en: ['be a student at'], ro: ['fi elev la'] },
     en: [{ rel: 'study at', S: 'student', O: 'school', verb: V('study', 'studies', 'studied'), prep: 'at' }, { rel: 'be enrolled at', S: 'student', O: 'school', cop: 'enrolled at' }, { rel: 'go to', S: 'student', O: 'school', verb: V('go', 'goes', 'went'), prep: 'to', Orole: 'destination' }],
     ro: [{ rel: 'învăța la', S: 'student', O: 'school', v: { p3: 'învață', past: 'a învățat' }, prep: 'la' }, { rel: 'fi înscris la', S: 'student', O: 'school', cop: { m: 'înscris', f: 'înscrisă', pl: 'înscriși' }, prep: 'la' }] }),
-  teaches: predicate({ domain: 'education', roles: [['teacher', 'person'], ['subject', 'course']], gloss: 'teaches',
+  teaches: predicate({ heldout: HELDOUT_CONSTRUCTIONS.teaches, domain: 'education', roles: [['teacher', 'person'], ['subject', 'course']], gloss: 'teaches',
     en: [{ rel: 'teach', S: 'teacher', O: 'subject', verb: V('teach', 'teaches', 'taught') }, { rel: 'give classes in', S: 'teacher', O: 'subject', verb: V('give', 'gives', 'gave'), obj0: 'classes', prep: 'in', Orole: 'topic' }],
     ro: [{ rel: 'preda', S: 'teacher', O: 'subject', v: { p3: 'predă', p3pl: 'predau', past: 'a predat' } }, { rel: 'ține ore de', S: 'teacher', O: 'subject', v: { p3: 'ține', p3pl: 'țin', past: 'a ținut' }, obj0: 'ore', prep: 'de', Orole: 'topic' }] }),
   treats: predicate({ domain: 'health', roles: [['doctor', 'person'], ['patient', 'person']], gloss: 'treats',
@@ -161,19 +195,19 @@ export const PREDICATES = {
     en: [{ rel: 'be allergic to', S: 'person', O: 'allergen', cop: 'allergic to' }, { rel: 'have an allergy to', S: 'person', O: 'allergen', verb: V('have', 'has', 'had'), obj0: 'an allergy', prep: 'to' }],
     ro: [{ rel: 'fi alergic la', S: 'person', O: 'allergen', cop: { m: 'alergic', f: 'alergică', pl: 'alergici' }, prep: 'la' }, { rel: 'avea alergie la', S: 'person', O: 'allergen', v: { p3: 'are', p3pl: 'au', past: 'a avut' }, obj0: 'alergie', prep: 'la' },
       { rel: 'face alergie la', S: 'person', O: 'allergen', v: { p3: 'face', p3pl: 'fac', past: 'a făcut' }, obj0: 'alergie', prep: 'la' }] }),
-  lives_in: predicate({ domain: 'housing', roles: [['resident', 'person'], ['town', 'city']], gloss: 'lives in',
+  lives_in: predicate({ heldout: HELDOUT_CONSTRUCTIONS.lives_in, domain: 'housing', roles: [['resident', 'person'], ['town', 'city']], gloss: 'lives in',
     en: [{ rel: 'live in', S: 'resident', O: 'town', verb: V('live', 'lives', 'lived'), prep: 'in', Orole: 'location', where: true }, { rel: 'be based in', S: 'resident', O: 'town', cop: 'based in', Orole: 'location' }],
     ro: [{ rel: 'locui în', S: 'resident', O: 'town', v: { p3: 'locuiește', p3pl: 'locuiesc', past: 'a locuit' }, prep: 'în', Orole: 'location', where: true }, { rel: 'sta în', S: 'resident', O: 'town', v: { p3: 'stă', p3pl: 'stau', past: 'a stat' }, prep: 'în', Orole: 'location', where: true }] }),
   owns: predicate({ domain: 'housing', roles: [['owner', 'person'], ['property', 'asset']], gloss: 'owns', senseAliases: { en: ['have'], ro: ['avea'] },
     en: [{ rel: 'own', S: 'owner', O: 'property', verb: V('own', 'owns', 'owned'), forms: { whS: ['who owns {O}'] } }, { rel: 'belong to', S: 'property', O: 'owner', verb: V('belong', 'belongs', 'belonged'), prep: 'to' }, { rel: 'be the owner of', S: 'owner', O: 'property', cop: 'the owner of' }],
     ro: [{ rel: 'deține', S: 'owner', O: 'property', v: { p3: 'deține', p3pl: 'dețin', past: 'a deținut' } }] }),
-  sells: predicate({ domain: 'commerce', roles: [['seller', 'company'], ['product', 'product']], gloss: 'sells',
+  sells: predicate({ heldout: HELDOUT_CONSTRUCTIONS.sells, domain: 'commerce', roles: [['seller', 'company'], ['product', 'product']], gloss: 'sells',
     en: [{ rel: 'sell', S: 'seller', O: 'product', verb: V('sell', 'sells', 'sold') }, { rel: 'carry', S: 'seller', O: 'product', verb: V('carry', 'carries', 'carried') }],
     ro: [{ rel: 'vinde', S: 'seller', O: 'product', v: { p3: 'vinde', p3pl: 'vând', past: 'a vândut' } }, { rel: 'avea de vânzare', S: 'seller', O: 'product', v: { p3: 'are', p3pl: 'au', past: 'a avut' }, obj0: 'de vânzare' }] }),
   supplies: predicate({ domain: 'commerce', roles: [['supplier', 'company'], ['client', 'company']], gloss: 'supplies',
     en: [{ rel: 'supply', S: 'supplier', O: 'client', verb: V('supply', 'supplies', 'supplied') }, { rel: 'buy from', S: 'client', O: 'supplier', verb: V('buy', 'buys', 'bought'), prep: 'from', Orole: 'source' }, { rel: 'be a supplier of', S: 'supplier', O: 'client', cop: 'a supplier of' }],
     ro: [{ rel: 'aproviziona', S: 'supplier', O: 'client', v: { p3: 'aprovizionează', past: 'a aprovizionat' } }, { rel: 'cumpăra de la', S: 'client', O: 'supplier', v: { p3: 'cumpără', past: 'a cumpărat' }, prep: 'de la', Orole: 'source' }] }),
-  attended: predicate({ domain: 'events', roles: [['attendee', 'person'], ['event', 'event']], gloss: 'attended', senseAliases: { en: ['be at'], ro: ['fi participant la'] },
+  attended: predicate({ heldout: HELDOUT_CONSTRUCTIONS.attended, domain: 'events', roles: [['attendee', 'person'], ['event', 'event']], gloss: 'attended', senseAliases: { en: ['be at'], ro: ['fi participant la'] },
     en: [{ rel: 'attend', S: 'attendee', O: 'event', verb: V('attend', 'attends', 'attended') }, { rel: 'go to', S: 'attendee', O: 'event', verb: V('go', 'goes', 'went'), prep: 'to', Orole: 'destination' }, { rel: 'take part in', S: 'attendee', O: 'event', verb: V('take', 'takes', 'took'), obj0: 'part', prep: 'in' }],
     ro: [{ rel: 'participa la', S: 'attendee', O: 'event', v: { p3: 'participă', past: 'a participat' }, prep: 'la' }, { rel: 'merge la', S: 'attendee', O: 'event', v: { p3: 'merge', p3pl: 'merg', past: 'a mers' }, prep: 'la', Orole: 'destination' }] }),
   held_at: predicate({ domain: 'events', roles: [['event', 'event'], ['venue', 'venue']], gloss: 'takes place at',
@@ -191,10 +225,10 @@ export const PREDICATES = {
   plays_for: predicate({ domain: 'sports', roles: [['player', 'person'], ['team', 'team']], gloss: 'plays for', senseAliases: { en: ['be a player of'], ro: ['fi jucător la'] },
     en: [{ rel: 'play for', S: 'player', O: 'team', verb: V('play', 'plays', 'played'), prep: 'for' }, { rel: 'be on', S: 'player', O: 'team', cop: 'on' }],
     ro: [{ rel: 'juca la', S: 'player', O: 'team', v: { p3: 'joacă', p3pl: 'joacă', past: 'a jucat' }, prep: 'la' }, { rel: 'fi în lotul', S: 'player', O: 'team', cop: { m: 'în lotul', f: 'în lotul', pl: 'în lotul' }, prep: 'de la' }] }),
-  coaches: predicate({ domain: 'sports', roles: [['coach', 'person'], ['team', 'team']], gloss: 'coaches',
+  coaches: predicate({ heldout: HELDOUT_CONSTRUCTIONS.coaches, domain: 'sports', roles: [['coach', 'person'], ['team', 'team']], gloss: 'coaches',
     en: [{ rel: 'coach', S: 'coach', O: 'team', verb: V('coach', 'coaches', 'coached') }, { rel: 'be the coach of', S: 'coach', O: 'team', cop: 'the coach of' }, { rel: 'train', S: 'coach', O: 'team', verb: V('train', 'trains', 'trained') }],
     ro: [{ rel: 'antrena', S: 'coach', O: 'team', v: { p3: 'antrenează', past: 'a antrenat' } }, { rel: 'fi antrenorul', S: 'coach', O: 'team', cop: { m: 'antrenorul', f: 'antrenoarea', pl: 'antrenorii' }, prep: 'de la' }] }),
-  maintains: predicate({ domain: 'tech', roles: [['engineer', 'person'], ['system', 'system']], gloss: 'maintains',
+  maintains: predicate({ heldout: HELDOUT_CONSTRUCTIONS.maintains, domain: 'tech', roles: [['engineer', 'person'], ['system', 'system']], gloss: 'maintains',
     en: [{ rel: 'maintain', S: 'engineer', O: 'system', verb: V('maintain', 'maintains', 'maintained') }, { rel: 'be responsible for', S: 'engineer', O: 'system', cop: 'responsible for', Orole: 'topic' }, { rel: 'look after', S: 'engineer', O: 'system', verb: V('look', 'looks', 'looked'), prep: 'after' }],
     ro: [{ rel: 'întreține', S: 'engineer', O: 'system', v: { p3: 'întreține', p3pl: 'întrețin', past: 'a întreținut' } }, { rel: 'răspunde de', S: 'engineer', O: 'system', v: { p3: 'răspunde', p3pl: 'răspund', past: 'a răspuns' }, prep: 'de', Orole: 'topic' },
       { rel: 'se ocupa de', S: 'engineer', O: 'system', v: { p3: 'se ocupă', past: 's-a ocupat', pastpl: 's-au ocupat' }, prep: 'de', Orole: 'topic' }] }),
@@ -210,7 +244,7 @@ export const PREDICATES = {
   located_in: predicate({ noCount: true, domain: 'places', roles: [['site', 'site'], ['town', 'city']], gloss: 'is located in',
     en: [{ rel: 'be in', S: 'site', O: 'town', cop: 'in', Orole: 'location' }, { rel: 'be located in', S: 'site', O: 'town', cop: 'located in', Orole: 'location' }, { rel: 'be based in', S: 'site', O: 'town', cop: 'based in', Orole: 'location' }],
     ro: [{ rel: 'se afla în', S: 'site', O: 'town', v: { p3: 'se află', past: 'se afla', pastpl: 'se aflau' }, prep: 'în', Orole: 'location', where: true }, { rel: 'fi în', S: 'site', O: 'town', cop: { m: '', f: '', pl: '' }, prep: 'în', Orole: 'location' }, { rel: 'avea sediul în', S: 'site', O: 'town', v: { p3: 'are', p3pl: 'au', past: 'a avut' }, obj0: 'sediul', prep: 'în', Orole: 'location' }] }),
-  travelled_to: predicate({ domain: 'travel', roles: [['traveller', 'person'], ['destination', 'city']], gloss: 'travelled to',
+  travelled_to: predicate({ heldout: HELDOUT_CONSTRUCTIONS.travelled_to, domain: 'travel', roles: [['traveller', 'person'], ['destination', 'city']], gloss: 'travelled to',
     en: [{ rel: 'travel to', S: 'traveller', O: 'destination', verb: V('travel', 'travels', 'travelled'), prep: 'to', Orole: 'destination', where: true }, { rel: 'visit', S: 'traveller', O: 'destination', verb: V('visit', 'visits', 'visited') }, { rel: 'fly to', S: 'traveller', O: 'destination', verb: V('fly', 'flies', 'flew'), prep: 'to', Orole: 'destination' }],
     ro: [{ rel: 'călători la', S: 'traveller', O: 'destination', v: { p3: 'călătorește', p3pl: 'călătoresc', past: 'a călătorit' }, prep: 'la', Orole: 'destination', where: true }, { rel: 'vizita', S: 'traveller', O: 'destination', v: { p3: 'vizitează', past: 'a vizitat' } }] }),
   // Means and manner: "how" questions ask for the instrument role (DS021). The bare verbs are sense aliases, so
@@ -314,6 +348,36 @@ export const PREDICATES = {
   plans_to_attend: predicate({ domain: 'intention', roles: [['person', 'person'], ['event', 'event']], gloss: 'intends to attend',
     en: [{ rel: 'plan to go to', S: 'person', O: 'event', verb: V('plan', 'plans', 'planned'), obj0: 'to go', prep: 'to', Orole: 'object' }, { rel: 'intend to attend', S: 'person', O: 'event', verb: V('intend', 'intends', 'intended'), obj0: 'to attend', Orole: 'object' }],
     ro: [{ rel: 'vrea să meargă la', S: 'person', O: 'event', v: { p3: 'vrea', p3pl: 'vor', past: 'a vrut' }, obj0: 'să meargă', prep: 'la', Orole: 'object' }, { rel: 'plănui să participe la', S: 'person', O: 'event', v: { p3: 'plănuiește', p3pl: 'plănuiesc', past: 'a plănuit' }, obj0: 'să participe', prep: 'la', Orole: 'object' }] }),
+  // Authored-only predicates of the expansion families (families-expansion.mjs, DS022 "Expansion families"): their
+  // messages are authored per family, so the constructions carry no generated forms (`onlyForms` with none) and
+  // the generic families never draw them (`authored`). Value roles take integers or strings as written (C11).
+  costs: predicate({ authored: true, domain: 'values', roles: [['item', 'asset'], ['price', 'integer']], gloss: 'costs',
+    en: [{ rel: 'cost', S: 'item', O: 'price', verb: V('cost', 'costs', 'cost'), onlyForms: true, forms: {} }],
+    ro: [{ rel: 'costa', S: 'item', O: 'price', v: { p3: 'costă', past: 'a costat' }, onlyForms: true, forms: {} }] }),
+  aged: predicate({ authored: true, domain: 'values', roles: [['person', 'person'], ['age', 'integer']], gloss: 'is aged',
+    en: [{ rel: 'be old', S: 'person', O: 'age', cop: 'old', onlyForms: true, forms: {} }],
+    ro: [{ rel: 'avea ani', S: 'person', O: 'age', v: { p3: 'are', past: 'a avut' }, onlyForms: true, forms: {} }] }),
+  opens_at: predicate({ authored: true, domain: 'values', roles: [['venue', 'venue'], ['hour', 'value']], gloss: 'opens at',
+    en: [{ rel: 'open at', S: 'venue', O: 'hour', verb: V('open', 'opens', 'opened'), prep: 'at', Orole: 'time', onlyForms: true, forms: {} }],
+    ro: [{ rel: 'se deschide la', S: 'venue', O: 'hour', v: { p3: 'se deschide', past: 's-a deschis' }, prep: 'la', Orole: 'time', onlyForms: true, forms: {} }] }),
+  sent_to: predicate({ authored: true, domain: 'transfers', roles: [['sender', 'person'], ['item', 'value'], ['recipient', 'person']], thirdRole: 'recipient', gloss: 'sent to',
+    en: [{ rel: 'send', S: 'sender', O: 'item', verb: V('send', 'sends', 'sent'), onlyForms: true, forms: {} }],
+    ro: [{ rel: 'trimite', S: 'sender', O: 'item', v: { p3: 'trimite', past: 'a trimis' }, onlyForms: true, forms: {} }] }),
+  moved: predicate({ authored: true, domain: 'transfers', roles: [['person', 'person'], ['origin', 'city'], ['destination', 'city']], thirdRole: 'destination', gloss: 'moved from … to',
+    en: [{ rel: 'move', S: 'person', O: 'origin', verb: V('move', 'moves', 'moved'), Orole: 'source', onlyForms: true, forms: {} }],
+    ro: [{ rel: 'se muta', S: 'person', O: 'origin', v: { p3: 'se mută', past: 's-a mutat' }, Orole: 'source', onlyForms: true, forms: {} }] }),
+  bought_together: predicate({ authored: true, domain: 'housing', roles: [['buyers', 'group'], ['property', 'asset']], gloss: 'bought together',
+    en: [{ rel: 'buy together', S: 'buyers', O: 'property', verb: V('buy', 'buys', 'bought'), onlyForms: true, forms: {} }],
+    ro: [{ rel: 'cumpăra împreună', S: 'buyers', O: 'property', v: { p3: 'cumpără', past: 'a cumpărat' }, onlyForms: true, forms: {} }] }),
+  means: predicate({ authored: true, domain: 'definitions', roles: [['term', 'term'], ['meaning', 'value']], gloss: 'means',
+    en: [{ rel: 'mean', S: 'term', O: 'meaning', verb: V('mean', 'means', 'meant'), onlyForms: true, forms: {} }],
+    ro: [{ rel: 'însemna', S: 'term', O: 'meaning', v: { p3: 'înseamnă', past: 'a însemnat' }, onlyForms: true, forms: {} }] }),
+  may_sign: predicate({ authored: true, domain: 'modality', roles: [['person', 'person'], ['document', 'document']], gloss: 'is allowed to sign',
+    en: [{ rel: 'be allowed to sign', S: 'person', O: 'document', cop: 'allowed to sign', onlyForms: true, forms: {} }],
+    ro: [{ rel: 'avea voie să semneze', S: 'person', O: 'document', v: { p3: 'are voie să semneze', past: 'a avut voie să semneze' }, onlyForms: true, forms: {} }] }),
+  should_accept: predicate({ authored: true, domain: 'modality', roles: [['person', 'person'], ['employer', 'company']], gloss: 'should accept the offer from (advice)',
+    en: [{ rel: 'should accept the offer from', S: 'person', O: 'employer', verb: V('accept', 'accepts', 'accepted'), Orole: 'source', onlyForms: true, forms: {} }],
+    ro: [{ rel: 'ar trebui să accepte oferta de la', S: 'person', O: 'employer', v: { p3: 'ar trebui să accepte', past: 'ar fi trebuit să accepte' }, Orole: 'source', onlyForms: true, forms: {} }] }),
 };
 
 /** Entity pools per type (EN/RO labels). Persons come from names.mjs. */
@@ -333,6 +397,8 @@ export const ENTITY_POOLS = {
   work: [['The Salt Road', 'Drumul Sării'], ['Winter in Maramureș', 'Iarna în Maramureș'], ['A Short History of Bridges', 'O scurtă istorie a podurilor'], ['The Glass Orchard', 'Livada de sticlă'], ['Notes from the Night Train', 'Însemnări din trenul de noapte'], ["The Clockmaker's Daughter", 'Fiica ceasornicarului'], ['Soups of Transylvania', 'Ciorbele Transilvaniei'], ['The Quiet Harbour', 'Portul liniștit'], ['Letters to a Young Engineer', 'Scrisori către un tânăr inginer'], ['The Last Ferry', 'Ultimul bac']],
   system: [['the billing service', 'serviciul de facturare'], ['the payroll database', 'baza de date de salarizare'], ['the booking app', 'aplicația de rezervări'], ['the VPN gateway', 'gateway-ul VPN'], ['the analytics pipeline', 'pipeline-ul de analiză'], ['the login service', 'serviciul de autentificare'], ['the search index', 'indexul de căutare'], ['the mail server', 'serverul de e-mail'], ['the inventory API', 'API-ul de inventar'], ['the backup cluster', 'clusterul de backup'], ['the payments gateway', 'gateway-ul de plăți'], ['the reporting dashboard', 'dashboard-ul de raportare']],
   document: [['a building permit', 'autorizația de construire'], ['a passport', 'pașaportul'], ['a residence certificate', 'certificatul de rezidență'], ['a tax clearance certificate', 'certificatul de atestare fiscală'], ['a fire safety approval', 'avizul de securitate la incendiu'], ['a criminal record certificate', 'cazierul judiciar'], ['a birth certificate', 'certificatul de naștere'], ['a driving licence', 'permisul de conducere'], ['a medical certificate', 'adeverința medicală'], ['an ID card', 'cartea de identitate'], ['a land title extract', 'extrasul de carte funciară'], ['a work permit', 'permisul de muncă']],
+  // Terms of the definition family (families-expansion.mjs).
+  term: [['force majeure', 'forță majoră'], ['due diligence', 'due diligence'], ['a power of attorney', 'o procură'], ['escrow', 'escrow'], ['amortization', 'amortizare'], ['a lien', 'un drept de retenție'], ['the statute of limitations', 'termenul de prescripție'], ['a notarized statement', 'o declarație notarială'], ['a grace period', 'o perioadă de grație'], ['a deductible', 'o franșiză']],
 };
 
 /** Declared verification-world type of a generator entity type: organization subkinds share one type. */

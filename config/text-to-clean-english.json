@@ -1,0 +1,16 @@
+{
+  "format": "chatsop-text-to-clean-english-v1",
+  "description": "Config for lib/text-to-clean-english/ (owner decision 2026-09-30): a host step that runs BEFORE the small formalizer -- AGENTS.md 'Model boundary' still holds, the formalizer's own input stays exactly the user's message, added only after this step has replaced it with a cleaned English version (or left it unchanged). `enabled: false` turns the whole step off: textToCleanEnglish then returns the message unchanged with backend 'none', without ever calling a model. `backends.english`/`backends.nonEnglish` choose which lib/text-to-clean-english/backends/<id>.mjs handles a message the cheap gate (lib/text-to-clean-english/gate.mjs) found something to check in, by whether it found a non-English signal. Defaults confirmed by the preregistered survey text-to-clean-english-v1 (eval/reports/current/text-to-clean-english/summary.md): LanguageTool 5.9 for English, `llm.model` (a translate-capable registry model in config/formalizers.json, Qwen3-1.7B Q8_0) for Romanian and mixed text; to change either, edit `backends.english` / `backends.nonEnglish` / `llm.model`. LanguageTool is started by the operator: `node tools/languagetool-server.mjs --port 18123`, and `languagetool.url` names that port; an unreachable backend leaves the message unchanged.",
+  "enabled": true,
+  "backends": {
+    "english": "languagetool",
+    "nonEnglish": "llm"
+  },
+  "languagetool": {
+    "url": "http://127.0.0.1:18123",
+    "language": "en-US"
+  },
+  "llm": {
+    "model": "qwen3-1.7b-base"
+  }
+}

@@ -19,6 +19,7 @@ import {checkModelProgram} from '../../sop/declarative.mjs';
 import {executeTarget} from './diversity/execute.mjs';
 import {hash32} from './diversity/text.mjs';
 import {readJsonlShardedSync, hashJsonlSharded} from '../../lib/jsonl-shards.mjs';
+import {corpusDir, resolveDatasetPath} from '../../lib/dataset-paths.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const args = process.argv.slice(2);
@@ -28,7 +29,7 @@ const sample = Number(value('sample', 400)), all = args.includes('--all'), engin
 if (!corpus && !suite) { console.error('usage: verify-corpus.mjs --corpus NAME | --suite NAME [--sample N] [--all]'); process.exit(2); }
 const readText = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
-const manifestPath = corpus ? `datasets/${corpus}/manifest.json` : `eval/suites/${suite}/manifest.json`;
+const manifestPath = corpus ? `${corpusDir(corpus, root)}/manifest.json` : `eval/suites/${suite}/manifest.json`;
 if (!fs.existsSync(path.join(root, manifestPath))) { console.error(`missing ${manifestPath}`); process.exit(2); }
 const manifest = JSON.parse(readText(manifestPath));
 const failures = [];
@@ -37,7 +38,7 @@ const fail = message => { if (failures.length < 50) failures.push(message); fail
 const rows = [];
 for (const [split, relative] of Object.entries(manifest.splits)) {
   // A split may be stored as one file or as shards (lib/jsonl-shards.mjs); the hash covers the logical file.
-  const file = path.join(root, relative);
+  const file = path.join(root, resolveDatasetPath(relative));
   if (manifest.sha256?.[relative] && await hashJsonlSharded(file) !== manifest.sha256[relative]) fail(`${relative}: sha256 differs from the manifest (rebuild with tools/datasets/build-corpora.mjs, never hand-edit rows)`);
   for (const row of readJsonlShardedSync(file)) { if (row.split !== split) fail(`${row.id}: row of split ${row.split} in the ${split} file`); rows.push(row); }
 }

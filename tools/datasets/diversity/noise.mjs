@@ -2,7 +2,27 @@
  * Operation weights default to the measured QQP typo distribution (inventory `typo_model_measured`) when it is
  * supplied; every applied operation is recorded on the row so evaluation can slice by it.
  */
+import fs from 'node:fs';
 import { foldDiacritics } from './text.mjs';
+
+/**
+ * Formatting-noise weights from the measured rates of real user text (inventory `noise_rates.qqp`, mined by
+ * mine-sources.mjs; statistics only, DS014): each formatting operation gets a weight proportional to its measured
+ * rate, rescaled to the same total as the authored menu and floored so a rare operation still occurs. Without the
+ * inventory the authored weights apply.
+ */
+const INVENTORY = new URL('../../../datasets_archive/diversity/inventory.json', import.meta.url);
+const MEASURED = (() => { try { return JSON.parse(fs.readFileSync(INVENTORY, 'utf8')).noise_rates?.qqp ?? null; } catch { return null; } })();
+const FORMAT_SOURCE = { space_before_punctuation: 'space_before_punctuation', chat_spelling: 'chat_spelling', no_space_after_comma: 'no_space_after_comma',
+  drop_question_mark: 'no_terminal_punctuation', lowercase_i: 'lowercase_i', missing_apostrophe: 'missing_apostrophe', lowercase_start: 'lowercase_start', repeated_punctuation: 'repeated_punctuation' };
+export function formattingWeights(authored, measured = MEASURED) {
+  const ops = authored.filter(([name]) => FORMAT_SOURCE[name]);
+  if (!measured || !ops.length) return authored;
+  const total = ops.reduce((sum, [, weight]) => sum + weight, 0);
+  const rates = ops.map(([name]) => measured[FORMAT_SOURCE[name]] ?? 0), rateTotal = rates.reduce((a, b) => a + b, 0) || 1;
+  const scaled = new Map(ops.map(([name], i) => [name, Math.max(0.3, Number((total * rates[i] / rateTotal).toFixed(3)))]));
+  return authored.map(([name, weight]) => [name, scaled.get(name) ?? weight]);
+}
 
 /**
  * Keyboard layouts for adjacent-key errors. `en` is US QWERTY. `ro_standard` is the Romanian standard layout
@@ -33,7 +53,7 @@ function neighbours(char, layout = 'en') {
  * operations, space errors, diacritic errors, phonetic misspellings and autocorrect substitutions. */
 export const TYPO_OPERATIONS = ['substitution', 'deletion', 'transposition', 'duplication', 'insertion'];
 export const DEFAULT_TYPO_WEIGHTS = { substitution: 0.34, deletion: 0.28, transposition: 0.14, duplication: 0.16, insertion: 0.08 };
-export const WORD_ERRORS = ['space_split', 'space_merge', 'phonetic', 'autocorrect', 'diacritic_drop', 'diacritic_cedilla', 'diacritic_wrong'];
+export const WORD_ERRORS = ['space_split', 'space_merge', 'phonetic', 'autocorrect', 'dictation', 'sms', 'regional', 'diacritic_drop', 'diacritic_cedilla', 'diacritic_wrong'];
 /** Noise levels: how many operations a noisy row receives, and how often each level occurs among noisy rows. */
 export const NOISE_LEVELS = { light: { ops: [1, 1], share: 0.55 }, medium: { ops: [2, 3], share: 0.33 }, heavy: { ops: [4, 6], share: 0.12 } };
 
@@ -74,6 +94,14 @@ const PHONETIC_RO = [[/\bsunt\b/, 'sînt'], [/\bsunt\b/, 'sânt'], [/â(?=\p{L})
 const AUTOCORRECT_EN = [[/\bwork\b/, 'word'], [/\blive\b/, 'love'], [/\bfrom\b/, 'form'], [/\bmanager\b/, 'manger'], [/\bteam\b/, 'tram'], [/\btrained\b/, 'trainee'], [/\bcoach\b/, 'couch'], [/\bbased\b/, 'bases'], [/\bmarried\b/, 'marries'], [/\bflu\b/, 'flue'], [/\bwhere\b/, 'were'], [/\bwhen\b/, 'wen']];
 const AUTOCORRECT_RO = [[/\bunde\b/, 'under'], [/\bcine\b/, 'Cine'], [/\bpe\b/, 'Pe'], [/\bla\b/, 'LA'], [/\bcare\b/, 'car'], [/\bnoi\b/, 'noir'], [/\bdoar\b/, 'door'], [/\bcum\b/, 'cu m'],
   [/\bși\b/, 'si'], [/\bcă\b/, 'ca'], [/\bîn\b/, 'in']];
+// Speech-to-text errors (dictation): homophones and near-homophones a recognizer confuses (proposal gap G22). None
+// creates or removes a negation cue ("know" → "no" would read as a negation).
+const DICTATION_EN = [[/\bbuy\b/, 'by'], [/\bby\b/, 'buy'], [/\btheir\b/, "they're"], [/\bto\b/, 'too'], [/\btwo\b/, 'to'], [/\bwrite\b/, 'right'], [/\bwhether\b/, 'weather'],
+  [/\bfor\b/, 'four'], [/\bhear\b/, 'here'], [/\bweek\b/, 'weak'], [/\bone\b/, 'won'], [/\bplane\b/, 'plain'], [/\bsale\b/, 'sail'], [/\bpeace\b/, 'piece']];
+const DICTATION_RO = [[/\bs-a\b/, 'sa'], [/\bi-a\b/, 'ia'], [/\bcă\b/, 'ca'], [/\bsă\b/, 'sa'], [/\bîntr-un\b/, 'într-un'], [/\bce-i\b/, 'cei']];
+// SMS and regional forms: EN texting abbreviations; Romanian colloquial and regional variants (Moldova, Oltenia).
+const SMS_EN = [[/\btomorrow\b/, 'tmrw'], [/\btonight\b/, 'tonite'], [/\bbecause\b/, 'bc'], [/\bpeople\b/, 'ppl'], [/\bsomeone\b/, 'some1'], [/\bthough\b/, 'tho'], [/\bplease\b/, 'plz'], [/\bthanks\b/i, 'thx']];
+const REGIONAL_RO = [[/\bacum\b/, 'amu'], [/\bdeloc\b/, 'nicidecum'], [/\bfoarte\b/, 'tare'], [/\bunde\b/, 'unde-i'], [/\bmâine\b/, 'mâni'], [/\baici\b/, 'aci'], [/\bpuțin\b/, 'oleacă'], [/\bdoar\b/, 'numa'], [/\bnumai\b/, 'numa']];
 const CEDILLA = { ș: 'ş', ț: 'ţ', Ș: 'Ş', Ț: 'Ţ' };
 const WRONG_DIACRITIC = { ă: 'â', â: 'ă', î: 'â', Î: 'Â' };
 
@@ -142,9 +170,9 @@ export function addNoise(text, { language, random, surfaces = [], weights = DEFA
   const [lo, hi] = NOISE_LEVELS[chosenLevel].ops;
   const n = count ?? lo + random.int(hi - lo + 1);
   const layout = language === 'ro' ? random.pick(['ro_standard', 'ro_programmer', 'en']) : 'en';
-  const menu = language === 'ro'
-    ? [['typo', 6], ['diacritic_drop', 4], ['diacritic_cedilla', 1], ['diacritic_wrong', 1], ['phonetic', 2], ['autocorrect', 1], ['space_split', 1], ['space_merge', 1], ['strip_diacritics', 3], ['lowercase_start', 2], ['drop_question_mark', 2], ['chat_spelling', 2], ['repeated_punctuation', 1], ['space_before_punctuation', 1], ['no_space_after_comma', 1]]
-    : [['typo', 7], ['phonetic', 2], ['autocorrect', 2], ['space_split', 1], ['space_merge', 1], ['lowercase_start', 3], ['drop_question_mark', 2], ['missing_apostrophe', 2], ['chat_spelling', 2], ['lowercase_i', 1], ['repeated_punctuation', 1], ['space_before_punctuation', 1], ['no_space_after_comma', 1]];
+  const menu = formattingWeights(language === 'ro'
+    ? [['typo', 6], ['diacritic_drop', 4], ['diacritic_cedilla', 1], ['diacritic_wrong', 1], ['phonetic', 2], ['autocorrect', 1], ['dictation', 1], ['regional', 1], ['space_split', 1], ['space_merge', 1], ['strip_diacritics', 3], ['lowercase_start', 2], ['drop_question_mark', 2], ['chat_spelling', 2], ['repeated_punctuation', 1], ['space_before_punctuation', 1], ['no_space_after_comma', 1]]
+    : [['typo', 7], ['phonetic', 2], ['autocorrect', 2], ['dictation', 1.5], ['sms', 1], ['space_split', 1], ['space_merge', 1], ['lowercase_start', 3], ['drop_question_mark', 2], ['missing_apostrophe', 2], ['chat_spelling', 2], ['lowercase_i', 1], ['repeated_punctuation', 1], ['space_before_punctuation', 1], ['no_space_after_comma', 1]]);
   const repeatable = new Set(['typo', 'diacritic_drop', 'phonetic', 'space_split', 'space_merge']);
   const chosen = new Set();
   // A word takes at most one character or word error: stacking several typos on one short word ("fact" →
@@ -185,8 +213,9 @@ export function addNoise(text, { language, random, surfaces = [], weights = DEFA
       ops.push({ op, from: site[0], to });
       continue;
     }
-    if (op === 'phonetic' || op === 'autocorrect') {
-      const table = op === 'phonetic' ? (language === 'ro' ? PHONETIC_RO : PHONETIC_EN) : (language === 'ro' ? AUTOCORRECT_RO : AUTOCORRECT_EN);
+    if (op === 'phonetic' || op === 'autocorrect' || op === 'dictation' || op === 'sms' || op === 'regional') {
+      const tables = { phonetic: [PHONETIC_EN, PHONETIC_RO], autocorrect: [AUTOCORRECT_EN, AUTOCORRECT_RO], dictation: [DICTATION_EN, DICTATION_RO], sms: [SMS_EN, SMS_EN], regional: [REGIONAL_RO, REGIONAL_RO] };
+      const table = tables[op][language === 'ro' ? 1 : 0];
       const applied = applyTable(out, table, spans, random);
       if (!applied || applied.text === out) continue;
       out = applied.text;
@@ -225,9 +254,9 @@ export function addNoise(text, { language, random, surfaces = [], weights = DEFA
     else if (op === 'missing_apostrophe') { for (const [pattern, to] of APOSTROPHES) out = out.replace(pattern, to); }
     else if (op === 'lowercase_i') out = out.replace(/\bI\b/g, 'i');
     else if (op === 'chat_spelling') {
-      const table = language === 'ro' ? CHAT_RO : CHAT_EN;
-      const applicable = table.filter(([pattern]) => pattern.test(out));
-      if (applicable.length) { const [pattern, to] = random.pick(applicable); pattern.lastIndex = 0; out = out.replace(pattern, to); }
+      // One chat spelling outside entity surfaces ("mâncare pentru bebeluși" is a name the host must still resolve).
+      const applied = applyTable(out, language === 'ro' ? CHAT_RO : CHAT_EN, spans, random);
+      if (applied) out = applied.text;
     }
     if (out !== before) ops.push({ op });
   }
@@ -284,6 +313,8 @@ export const CODE_SWITCH_KINDS = {
   en_matrix_ro_insertion: 'English sentence with a Romanian word or chunk inside it (intra-sentential)',
   ro_matrix_en_tag: 'Romanian sentence with an English opener or tag at its edge',
   en_matrix_ro_tag: 'English sentence with a Romanian opener or tag at its edge',
+  ro_matrix_en_value: 'Romanian clause naming a common noun of the formalized proposition in English (inside the proposition; the target keeps the English label)',
+  en_matrix_ro_value: 'English clause naming a common noun of the formalized proposition in Romanian (inside the proposition; the target writes its English label)',
 };
 
 const NAME_START = /^(?:\p{Lu}\p{Ll}+(?:[- ]\p{Lu}\p{Ll}+)*)\s+(?:lucrează|e|este|are|a|nu|și|locuiește|stă|învață|predă|joacă|zice|mi-a|vrea|intenționează|deține|vinde)\b/u;

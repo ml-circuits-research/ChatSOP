@@ -5,12 +5,14 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {missingFiles, readJsonl, readJsonlText, repoUrl} from '../helpers.mjs';
+import {corpusDir} from '../../lib/dataset-paths.mjs';
 
 export const SPLITS = ['train', 'dev', 'test'];
 
-/** Project-relative split files: train/dev under datasets/, sealed test under eval/suites/. */
+/** Project-relative split files: train/dev under datasets/ (the three datasets) or datasets_archive/ (legacy corpora), sealed test under eval/suites/. */
 export function splitFiles(name) {
-  return {train: `datasets/${name}/train.jsonl`, dev: `datasets/${name}/dev.jsonl`, test: `eval/suites/${name}/test.jsonl`};
+  const dir = corpusDir(name);
+  return {train: `${dir}/train.jsonl`, dev: `${dir}/dev.jsonl`, test: `eval/suites/${name}/test.jsonl`};
 }
 
 /** Skip reason when a corpus (or any extra file it needs) is absent, else false. */

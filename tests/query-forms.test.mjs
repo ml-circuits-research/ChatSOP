@@ -280,11 +280,11 @@ test('host time normalizer reads day-month-year phrasings and ranges as written 
   for (const text of ['31 februarie 2025', '2021 – 2019', 'sometime in spring']) assert.equal(normalizeTime(text, NOW), null, text);
 });
 
-test('a quoted filter literal is resolved by the host like a role value', () => {
-  const source = query('  select ?e', employees(), '  filter ?e != "Bob"');
+test('a quoted except literal is resolved by the host like a role value', () => {
+  const source = query('  select ?e', employees(), '  except ?e "Bob"');
   const plan = compileDeclarative(source, {lexicon, schema: lexicon.predicates, now: NOW});
-  assert.match(plan.executionSop, /filter \?e != "bob"/);
-  const unknown = compileDeclarative(query('  select ?e', employees(), '  filter ?e != "Zoltan"'), {lexicon, schema: lexicon.predicates, now: NOW});
+  assert.match(plan.executionSop, /except \?e "bob"/);
+  const unknown = compileDeclarative(query('  select ?e', employees(), '  except ?e "Zoltan"'), {lexicon, schema: lexicon.predicates, now: NOW});
   assert.equal(unknown.issues[0].kind, 'entity');
   assert.equal(unknown.issues[0].status, 'unknown');
 });

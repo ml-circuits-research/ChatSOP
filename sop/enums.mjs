@@ -28,8 +28,65 @@ export const QUERY_MODES = Object.freeze(['select', 'exists', 'count', 'explain'
 /** Part of a time variable's interval that a question asks for: since when, until when, how long. */
 export const TIME_MEASURES = Object.freeze(['start', 'end', 'duration']);
 
+/**
+ * Words-only model forms (DS021 "Words, not operators"). Comparators of `compare` lines and constraint
+ * expressions, arithmetic words of constraint expressions, the directions of `rank`, the quantifier words of
+ * `mode every`, the ordering words of `order` and the kinds of `fragment`. The host lowers the words to its
+ * internal operators; a model-authored wire never spells an operator symbol.
+ */
+export const COMPARATOR_WORDS = Object.freeze({above: '>', below: '<', at_least: '>=', at_most: '<=', equal: '==', not_equal: '!='});
+export const ARITHMETIC_WORDS = Object.freeze({plus: '+', minus: '-', times: '*', divided_by: '/'});
+export const RANK_WORDS = Object.freeze(['highest', 'lowest']);
+export const QUANTIFIER_WORDS = Object.freeze(['all', 'none', 'not_all', 'most', 'half', 'at_least']);
+export const ORDER_WORDS = Object.freeze(['before', 'after', 'same_time']);
+export const FRAGMENT_KINDS = Object.freeze(['follow_up']);
+
+/**
+ * Clause links (DS021 "Clauses and links", owner decisions L1, L2 and L4 of 2026-09-29). One finite clause of the
+ * message is one short wire; a subordinate or result clause is related to its main clause by one keyword line
+ * `KEYWORD $id` on a `stated`, `assumed` or `query` wire. The keywords are the English conjunctions themselves
+ * (the owner's L2 choice over an abstract `clause TYPE`); each maps to one semantic type of the PDTB-3-derived
+ * inventory, which is what the host acts on. This one table is the whole set, so an experiment can compare a
+ * different keyword variant by swapping it. Every keyword except `so` sits on the main clause and points at the
+ * clause the conjunction introduces; `so` (a result) sits on the effect clause and points at its cause.
+ *
+ * `target` says what the linked wire must be: `supposed` requires a `stated` wire with `certainty supposed`
+ * (a condition or a purpose is not asserted to have happened); `any` accepts any `stated` or `assumed` wire.
+ */
+export const LINK_KEYWORDS = Object.freeze({
+  because: Object.freeze({type: 'cause', target: 'any'}),
+  so: Object.freeze({type: 'cause', target: 'any'}),
+  if: Object.freeze({type: 'condition', target: 'supposed'}),
+  unless: Object.freeze({type: 'negative_condition', target: 'supposed'}),
+  although: Object.freeze({type: 'concession', target: 'any'}),
+  so_that: Object.freeze({type: 'purpose', target: 'supposed'}),
+  before: Object.freeze({type: 'before', target: 'any'}),
+  after: Object.freeze({type: 'after', target: 'any'}),
+  when: Object.freeze({type: 'during', target: 'any'}),
+  while: Object.freeze({type: 'during', target: 'any'}),
+});
+/** The link keyword lines, in table order; each takes exactly one `$id`. */
+export const LINK_WORDS = Object.freeze(Object.keys(LINK_KEYWORDS));
+/** The semantic types the host distinguishes (DS021): conditions scope a query, timed temporal links bound its period. */
+export const LINK_TYPES = Object.freeze([...new Set(Object.values(LINK_KEYWORDS).map(link => link.type))]);
+/** At most this many link lines per wire (`link_too_many`). */
+export const MAX_LINKS = 3;
+/**
+ * `unparsed` (DS021 "Honest partial formalization", owner decision of 2026-09-29): a verbatim span of the message the
+ * model could not formalize. `hint` names the slot the span probably fills: a role name (`subject`, `object`,
+ * `time`, `location`), a `value`, the `relation` of the `near` wire, a `reference` to something said earlier, or
+ * `other`.
+ */
+export const UNPARSED_HINTS = Object.freeze(['subject', 'object', 'time', 'location', 'value', 'relation', 'reference', 'other']);
+/** Hints that pair with a placeholder variable of any role (a role-name hint pairs with that role only). */
+export const GENERIC_HINTS = Object.freeze(['value', 'reference', 'other']);
+/** Longest `unparsed` span, in characters. */
+export const MAX_SPAN = 200;
+/** Status of a link in the packet (`clause_links[].status`): applied by the host, or recorded and reported only. */
+export const LINK_STATUSES = Object.freeze(['applied', 'not_checked']);
+
 export const ENUMS = Object.freeze({
-  query: {mode: [...QUERY_MODES], measure: [...TIME_MEASURES]},
+  query: {mode: [...QUERY_MODES], measure: [...TIME_MEASURES], fragment: [...FRAGMENT_KINDS]},
   constraint: {task: ['prove', 'possible', 'optimize'], direction: ['min', 'max']},
   rule: {mode: ['logical', 'causal']},
   event: {action: ['end', 'retract', 'correct']},
@@ -37,6 +94,7 @@ export const ENUMS = Object.freeze({
   stated: {polarity: [...POLARITIES], certainty: [...CERTAINTIES]},
   assumed: {polarity: [...POLARITIES], basis: [...BASES]},
   unclear: {kind: Object.keys(UNCLEAR_KINDS), language: [...REPLY_LANGUAGES], readingKinds: [...READING_KINDS]},
+  unparsed: {hint: [...UNPARSED_HINTS]},
 });
 
 /** Is `value` one of the closed values of `type.field`? */

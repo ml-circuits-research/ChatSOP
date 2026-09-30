@@ -5,9 +5,11 @@
  *
  * `createSignedInRoutes` serves the pages and APIs that server/http.mjs
  * dispatches only after authentication: the evaluation browser (`/eval`,
- * `/eval/guide`, `/eval/api/*`) and the fine-tuning & status page
- * (`/project`, `/project/api/*`). `/assets/sop-code.mjs` is the public SOP
- * highlighter module used by the documentation pages.
+ * `/eval/guide`, `/eval/api/*`) and the project history under `/experiments`
+ * (index, one page per task or experiment, topics, reports, timeline,
+ * questions, `/experiments/api/*`). The former `/project` pages redirect to
+ * `/experiments`; `/project/api/*` stays as an API alias. `/assets/sop-code.mjs`
+ * is the public SOP highlighter module used by the documentation pages.
  */
 import {sessionCookie, readCookie} from './auth.mjs';
 import {sendHtml} from './pages/layout.mjs';
@@ -16,12 +18,24 @@ import {loginPage, safeNext} from './pages/login.mjs';
 import {sopCodeModule} from './pages/sop-code.mjs';
 import {evalPage, evalGuidePage} from './pages/eval.mjs';
 import {projectPage} from './pages/project.mjs';
+import {indexPage, entryPageHtml, topicsPageHtml, topicPageHtml, reportsPageHtml, reportPageHtml, questionsPageHtml, notFoundHtml} from './pages/history.mjs';
+import {BASE, loadHistory, entryPage, topicPage, listReports, readReport, questions} from './history.mjs';
 import {createEvalRouter} from './eval-browser.mjs';
 import {evaluationGuide} from './eval-guide.mjs';
-import {createProjectRouter} from './project.mjs';
+import {createProjectRouter, gates as computeGates, dataPipeline} from './project.mjs';
+import {readExperiments} from '../lib/journal.mjs';
 
 /** Pages that a browser should reach through the login page when signed out. */
-export const PROTECTED_PAGES = new Set(['/chat', '/audit', '/eval', '/eval/guide', '/project', '/admin']);
+export const PROTECTED_PAGES = new Set(['/chat', '/audit', '/eval', '/eval/guide', '/experiments', '/admin']);
+/** True for a signed-in browser page: the fixed pages and every `/experiments/…` page except its API. */
+export const isProtectedPage = pathname => PROTECTED_PAGES.has(pathname) || (pathname.startsWith(BASE + '/') && !pathname.startsWith(BASE + '/api/'));
+
+/** The former `/project` pages moved to `/experiments`: `/project` → `/experiments`, `/project/topic/x` → `/experiments/topic/x`. APIs are not redirected. */
+export function legacyProjectRedirect(url) {
+  const parsed = new URL(url, 'http://localhost');
+  if (parsed.pathname !== '/project' && !(parsed.pathname.startsWith('/project/') && !parsed.pathname.startsWith('/project/api/'))) return null;
+  return BASE + parsed.pathname.slice('/project'.length) + parsed.search;
+}
 const CLEAR_COOKIE = 'chatsop_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0';
 
 /** A browser page load asks for HTML; API clients (fetch, curl, SDKs) do not. */
@@ -65,10 +79,18 @@ export async function handleWeb(req, res, pathname, {auth, readiness, formalizer
     res.end(sopCodeModule);
     return true;
   }
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    const moved = legacyProjectRedirect(req.url);
+    if (moved) {
+      res.writeHead(301, {Location: moved, 'Cache-Control': 'no-store'});
+      res.end();
+      return true;
+    }
+  }
   const session = auth ? auth.session(readCookie(req.headers.cookie, 'chatsop_session')) : null;
   if (req.method === 'GET' && pathname === '/') {
     const state = await readiness();
-    sendHtml(res, 200, homePage({signedIn: Boolean(session), configured: Boolean(auth?.configured), passwordStore: Boolean(auth), ready: state.ready, formalizer}));
+    sendHtml(res, 200, homePage({signedIn: Boolean(session), configured: Boolean(auth?.configured), passwordStore: Boolean(auth), ready: state.ready, formalizer, formalizers: state.formalizers ?? null}));
     return true;
   }
   if (!auth) return false;
@@ -124,7 +146,7 @@ export async function handleWeb(req, res, pathname, {auth, readiness, formalizer
     redirect(res, '/login', {'Set-Cookie': CLEAR_COOKIE});
     return true;
   }
-  if (req.method === 'GET' && PROTECTED_PAGES.has(pathname) && !session && !req.headers.authorization && wantsHtml(req)) {
+  if (req.method === 'GET' && isProtectedPage(pathname) && !session && !req.headers.authorization && wantsHtml(req)) {
     redirect(res, '/login?next=' + encodeURIComponent(safeNext(req.url)));
     return true;
   }
@@ -142,10 +164,52 @@ export function createSignedInRoutes({root} = {}) {
   const handle = async (req, res, pathname, query, send, {signedIn = true} = {}) => {
     if (req.method === 'GET' && pathname === '/eval') return sendHtml(res, 200, evalPage({signedIn})), true;
     if (req.method === 'GET' && pathname === '/eval/guide') return sendHtml(res, 200, evalGuidePage({guide: evaluationGuide(root), signedIn})), true;
-    if (req.method === 'GET' && pathname === '/project') return sendHtml(res, 200, projectPage({signedIn})), true;
     if (pathname.startsWith('/eval/api/')) return evaluation.handle(req, res, pathname, query, send);
-    if (pathname.startsWith('/project/api/')) return project.handle(req, res, pathname, query, send);
+    if (pathname.startsWith(BASE + '/api/') || pathname.startsWith('/project/api/')) return project.handle(req, res, pathname, query, send);
+    if (req.method === 'GET' && (pathname === BASE || pathname.startsWith(BASE + '/'))) return experimentsPage(res, pathname, query, {root, signedIn}), true;
     return false;
   };
   return {handle};
+}
+
+/** Serves one `/experiments` page (server/pages/history.mjs); unknown pages answer 404 inside the section. */
+function experimentsPage(res, pathname, query, {root, signedIn}) {
+  const repo = root ?? undefined;
+  const history = loadHistory(repo ? {root: repo} : {});
+  const site = history.root;
+  const missing = what => sendHtml(res, 404, notFoundHtml({what, signedIn}));
+  const rest = pathname.slice(BASE.length).replace(/^\//, '');
+  if (!rest) {
+    let registry = [];
+    try {
+      registry = readExperiments().experiments;
+    } catch {
+      registry = [];
+    }
+    const gateList = computeGates(site, {pipeline: dataPipeline(site), experiments: registry});
+    const rule = gateList.find(gate => gate.id === 'owner-approval')?.evidence ?? null;
+    return sendHtml(res, 200, indexPage({history, gates: gateList, rule, questions: questions(site), signedIn}));
+  }
+  if (rest === 'timeline') return sendHtml(res, 200, projectPage({signedIn}));
+  if (rest === 'topics') return sendHtml(res, 200, topicsPageHtml({history, signedIn}));
+  if (rest === 'questions') return sendHtml(res, 200, questionsPageHtml({questions: questions(site), root: site, signedIn}));
+  if (rest === 'reports' || rest === 'report') {
+    try {
+      if (rest === 'reports') return sendHtml(res, 200, reportsPageHtml({listing: listReports(site, query.dir || null), signedIn}));
+      if (!query.path) return missing('Give ?path=eval/reports/… to view a report.');
+      return sendHtml(res, 200, reportPageHtml({report: readReport(site, query.path), root: site, signedIn}));
+    } catch (error) {
+      return sendHtml(res, error.status ?? 400, notFoundHtml({what: error.message, signedIn}));
+    }
+  }
+  const topic = /^topic\/([a-z0-9-]+)$/.exec(rest);
+  if (topic) {
+    const data = topicPage(history, topic[1]);
+    return data ? sendHtml(res, 200, topicPageHtml({data, root: site, signedIn})) : missing(`No topic ${topic[1]}.`);
+  }
+  if (/^[A-Za-z0-9_.-]+$/.test(rest)) {
+    const data = entryPage(history, rest);
+    return data ? sendHtml(res, 200, entryPageHtml({data, root: site, signedIn})) : missing(`No task or experiment ${rest}.`);
+  }
+  return missing(`No page ${pathname}.`);
 }

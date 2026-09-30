@@ -6,8 +6,8 @@
  * styling lives in one stylesheet, `docs/assets/site-menu.css`, which the docs
  * import and the server layout inlines.
  *
- * Server entries use absolute paths. Documentation entries are relative to the
- * docs root: the server layout prefixes them with `/docs/`, while the docs
+ * Server entries (`href`) use absolute paths, also inside a dropdown (the
+ * Experiments menu). Documentation entries (`doc`) are relative to the docs root: the server layout prefixes them with `/docs/`, while the docs
  * header keeps them relative so `docs/partials-loader.mjs` can rebase them for
  * nested pages (`data-link-base`).
  */
@@ -18,7 +18,13 @@ export const SITE_MENU = Object.freeze([
   {key: 'chat', label: 'Chat', href: '/chat'},
   {key: 'audit', label: 'Audit', href: '/audit'},
   {key: 'eval', label: 'Eval', href: '/eval'},
-  {key: 'project', label: 'Fine-tuning & status', href: '/project'},
+  {key: 'experiments', label: 'Experiments', items: [
+    {key: 'experiments-index', label: 'Index: tasks & experiments', href: '/experiments'},
+    {key: 'experiments-topics', label: 'Topics', href: '/experiments/topics'},
+    {key: 'experiments-reports', label: 'Reports', href: '/experiments/reports'},
+    {key: 'experiments-timeline', label: 'Timeline & live status', href: '/experiments/timeline'},
+    {key: 'experiments-questions', label: 'Open questions', href: '/experiments/questions'},
+  ]},
   {key: 'admin', label: 'Admin', href: '/admin'},
   {key: 'docs', label: 'Docs', items: [
     {key: 'overview', label: 'Overview', doc: 'index.html'},
@@ -47,7 +53,7 @@ export function renderSiteHeader({docsBase = '/docs/', active = '', account = 'l
   const entries = SITE_MENU.map(entry => {
     if (!entry.items) return `<a href="${escape(entry.href)}"${current(entry.key)}>${escape(entry.label)}</a>`;
     const open = entry.items.some(item => item.key === active);
-    const links = entry.items.map(item => `<a href="${escape(docsBase + item.doc)}"${current(item.key)}>${escape(item.label)}</a>`).join('');
+    const links = entry.items.map(item => `<a href="${escape(item.href ?? docsBase + item.doc)}"${current(item.key)}>${escape(item.label)}</a>`).join('');
     return `<details class="menu${open ? ' active' : ''}" data-menu="${escape(entry.key)}"><summary>${escape(entry.label)}</summary><div class="menu__panel">${links}</div></details>`;
   }).join('');
   const slot = account === 'logout'
@@ -59,7 +65,7 @@ export function renderSiteHeader({docsBase = '/docs/', active = '', account = 'l
 /** The documentation partial, exactly as `docs/partials/header.html` must contain it. */
 export const docsHeaderHtml = () => renderSiteHeader({docsBase: '', account: 'logout'}) + '\n';
 
-/** Browser behaviour of the Docs dropdown: one open at a time, closes on outside click or Escape. */
+/** Browser behaviour of the dropdowns (Experiments, Docs): one open at a time, closes on outside click or Escape. */
 export const SITE_MENU_SCRIPT = `(()=>{const menus=()=>[...document.querySelectorAll('.site-header details.menu')];
 document.addEventListener('toggle',e=>{if(e.target.matches?.('.site-header details.menu')&&e.target.open)for(const m of menus())if(m!==e.target)m.open=false;},true);
 document.addEventListener('pointerdown',e=>{for(const m of menus())if(m.open&&!m.contains(e.target))m.open=false;});

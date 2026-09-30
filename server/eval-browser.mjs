@@ -195,7 +195,9 @@ export function createEvalRouter({root = projectRoot} = {}) {
           const full = path.join(dir, entry.name);
           if (entry.isDirectory()) walk(full);
           else {
-            const stat = fs.statSync(full);
+            // A dangling symlink (a report directory that holds a copy of a tool tree) is not an artifact.
+            let stat;
+            try { stat = fs.statSync(full); } catch { continue; }
             out.push({path: rel(full), group: group.key, historical: group.historical, size: stat.size, mtime: stat.mtime.toISOString(), format: formatOf(full, stat.size)});
           }
         }

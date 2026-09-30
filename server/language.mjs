@@ -1,11 +1,14 @@
 /**
  * Answer-language selection (DS021, DS012). English is the default. A caller
- * may select `en` or `ro` explicitly (the chat API `language` field); otherwise
- * an explicit request inside the message is honoured. The detector is a fixed,
+ * may select `en` or `ro` explicitly (the chat API `language` field), which is
+ * then used as is; with `auto` or no selection an explicit request inside the
+ * message is honoured. The detector is a fixed,
  * deterministic list of request phrases, not a language classifier: writing in
  * Romanian does not by itself switch the answer language.
  */
 export const ANSWER_LANGUAGES = Object.freeze(['en', 'ro']);
+/** The chat API `language` choices: a forced answer language, or `auto` (infer it from the message). */
+export const LANGUAGE_CHOICES = Object.freeze([...ANSWER_LANGUAGES, 'auto']);
 
 const fold = text => String(text).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/\s+/g, ' ');
 // Each pattern needs a request verb or phrase next to the language name.
@@ -26,12 +29,13 @@ export function requestedLanguage(text) {
 }
 
 /**
- * Resolve the answer language: an explicit caller selection wins, then an
- * explicit request in the message, then English.
+ * Resolve the answer language: an explicit caller selection (`en`, `ro`) wins
+ * and nothing is detected; otherwise (`auto`, or no selection) an explicit
+ * request in the message, then English.
  * Returns {language, source} with source `request`, `prompt` or `default`.
  */
 export function answerLanguage(text, selected) {
-  if (selected !== undefined && selected !== null) {
+  if (selected !== undefined && selected !== null && selected !== 'auto') {
     if (!ANSWER_LANGUAGES.includes(selected)) throw Error('language must be en or ro');
     return {language: selected, source: 'request'};
   }

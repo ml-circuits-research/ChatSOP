@@ -13,10 +13,11 @@ import {checkModelProgram} from '../../sop/declarative.mjs';
 import {manifestRights} from '../../tools/datasets/rights.mjs';
 import {ALL_FAMILIES} from '../../tools/datasets/diversity/families-questions.mjs';
 import {PREDICATES} from '../../tools/datasets/diversity/domains.mjs';
+import {resolveDatasetPath} from '../../lib/dataset-paths.mjs';
 
 const CORPUS = 'formalizer-v1', OOD = 'formalizer-ood-v1';
 const skip = corpusSkip(CORPUS);
-const manifest = () => JSON.parse(fs.readFileSync(repoPath(`datasets/${CORPUS}/manifest.json`), 'utf8'));
+const manifest = () => JSON.parse(fs.readFileSync(repoPath(`datasets_archive/${CORPUS}/manifest.json`), 'utf8'));
 const oodRows = () => readJsonlShardedSync(repoPath(`eval/suites/${OOD}/test.jsonl`));
 const node = (...args) => spawnSync(process.execPath, args, {cwd: repoPath(), encoding: 'utf8', maxBuffer: 256 * 1024 * 1024});
 export const QUESTION_TYPES = ['yes_no', 'wh', 'count', 'universal', 'when', 'since_when', 'until_when', 'how_long', 'how_many_times', 'where', 'why', 'how', 'claim_check', 'multi', 'numeric', 'none', 'unclear', 'ambiguous'];
@@ -24,14 +25,14 @@ export const QUESTION_TYPES = ['yes_no', 'wh', 'count', 'universal', 'when', 'si
 test('split invariants: disjoint ids, groups inside one split, sane proportions, no file above 50 MB', {skip}, () => {
   const {bySplit} = loadCorpus(CORPUS);
   assertSplitInvariants(bySplit);
-  for (const file of [`datasets/${CORPUS}/train.jsonl`, `datasets/${CORPUS}/dev.jsonl`, `eval/suites/${CORPUS}/test.jsonl`, `eval/suites/${OOD}/test.jsonl`])
+  for (const file of [`datasets_archive/${CORPUS}/train.jsonl`, `datasets_archive/${CORPUS}/dev.jsonl`, `eval/suites/${CORPUS}/test.jsonl`, `eval/suites/${OOD}/test.jsonl`])
     for (const part of shardPaths(repoPath(file))) assert.ok(fs.statSync(part).size < REPOSITORY_FILE_LIMIT, part);
 });
 
 test('manifests: logical-file checksums, rights fields and no training authorization', {skip}, async () => {
   const m = manifest();
   assert.equal(m.format, 'chatsop-corpus-manifest-v2');
-  for (const [file, sha] of Object.entries(m.sha256)) assert.equal(await hashJsonlSharded(repoPath(file)), sha, file);
+  for (const [file, sha] of Object.entries(m.sha256)) assert.equal(await hashJsonlSharded(repoPath(resolveDatasetPath(file))), sha, file);
   assert.deepEqual(Object.keys(m.rights).sort(), Object.keys(manifestRights(['qqp'])).sort());
   assert.equal(m.rights.text_copied, false);
   assert.equal(m.training_authorized, false);
@@ -39,7 +40,7 @@ test('manifests: logical-file checksums, rights fields and no training authoriza
   const ood = JSON.parse(fs.readFileSync(repoPath(`eval/suites/${OOD}/manifest.json`), 'utf8'));
   assert.equal(await hashJsonlSharded(repoPath(`eval/suites/${OOD}/test.jsonl`)), ood.sha256[`eval/suites/${OOD}/test.jsonl`]);
   // The shared verification world is recorded by checksum as well.
-  for (const [file, sha] of Object.entries(m.shared_world.sha256)) assert.equal((await import('node:crypto')).createHash('sha256').update(fs.readFileSync(repoPath(file))).digest('hex'), sha, file);
+  for (const [file, sha] of Object.entries(m.shared_world.sha256)) assert.equal((await import('node:crypto')).createHash('sha256').update(fs.readFileSync(repoPath(resolveDatasetPath(file)))).digest('hex'), sha, file);
 });
 
 test('rows: the message is the only model input and every target is model language', {skip}, () => {
@@ -61,16 +62,22 @@ test('coverage: every family and every question type in train, dev and the seale
     for (const family of [...Object.keys(ALL_FAMILIES), 'unclear']) assert.ok(families.has(family), `${split}: family ${family}`);
     for (const type of QUESTION_TYPES) assert.ok(types.has(type), `${split}: question type ${type}`);
   }
-  const report = JSON.parse(fs.readFileSync(repoPath(`datasets/${CORPUS}/report.json`), 'utf8'))[CORPUS];
+  const report = JSON.parse(fs.readFileSync(repoPath(`datasets_archive/${CORPUS}/report.json`), 'utf8'))[CORPUS];
   assert.deepEqual(report.quota_violations, []);
   assert.equal(report.no_copy.pass, true);
 });
 
-test('the out-of-distribution suite uses only held-out domains', {skip}, () => {
+test('the out-of-distribution suite: held-out domains on the domain axis, held-out constructions on the construction axis', {skip}, () => {
   const ood = new Set(Object.keys(PREDICATES).filter(id => PREDICATES[id].ood));
+  const withHeldout = new Set(Object.keys(PREDICATES).filter(id => !PREDICATES[id].ood && ['en', 'ro'].every(l => PREDICATES[id][l].some(c => c.oodOnly))));
   const base = id => id.replace(/__converse$/, '');
   // `unclear` rows execute nothing; their placeholder world is not a domain of the suite.
-  for (const row of oodRows().filter(item => item.family !== 'unclear')) for (const id of row.world?.predicates ?? []) assert.ok(ood.has(base(id)), `${row.id}: ${id}`);
+  for (const row of oodRows().filter(item => item.family !== 'unclear')) for (const id of row.world?.predicates ?? []) {
+    if (row.ood_axis === 'construction') assert.ok(!ood.has(base(id)), `${row.id}: ${id}`);
+    else assert.ok(ood.has(base(id)), `${row.id}: ${id}`);
+  }
+  // The construction axis asks about predicates that have held-out constructions (the families may add world-only ones).
+  assert.ok(oodRows().filter(row => row.ood_axis === 'construction' && row.family !== 'unclear').every(row => (row.world?.predicates ?? []).some(id => withHeldout.has(base(id)))));
   const {rows} = loadCorpus(CORPUS);
   for (const row of rows) for (const id of row.world?.predicates ?? []) assert.ok(!ood.has(base(id)), `${row.id} uses held-out ${id}`);
 });
@@ -85,7 +92,7 @@ test('corpus audit: invariants hold and no error-severity check fails', {skip}, 
 });
 
 test('no-copy: no row shares a copied span with any source', {skip}, () => {
-  const result = node('tools/datasets/no-copy.mjs', '--files', [`datasets/${CORPUS}/dev.jsonl`, `eval/suites/${CORPUS}/test.jsonl`, `eval/suites/${OOD}/test.jsonl`].join(','), '--name', `${CORPUS}-eval`);
+  const result = node('tools/datasets/no-copy.mjs', '--files', [`datasets_archive/${CORPUS}/dev.jsonl`, `eval/suites/${CORPUS}/test.jsonl`, `eval/suites/${OOD}/test.jsonl`].join(','), '--name', `${CORPUS}-eval`);
   assert.equal(result.status, 0, result.stdout.slice(-2000) + result.stderr.slice(-2000));
 });
 

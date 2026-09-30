@@ -1,0 +1,69 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-translator-compare-v1",
+  "name": "TranslatorService backend comparison (Q-PIPE-1): symbolic vs Opus-MT vs Apertium",
+  "registered_at": "2026-09-29T21:45:00Z",
+  "registered_by": "translator-agent (owner request of 2026-09-29, relayed by the orchestrator)",
+  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "owner_requests": {
+    "intent": "Translation moves out of SymbolicLM into a dedicated, pluggable TranslatorService. Run small, representative CPU-only experiments comparing the existing symbolic translator with Opus-MT ro-en (CPU) and Apertium (if a usable ro-en pair exists). Answer with numbers: (1) can Opus-MT clean up romgleza (Romanian mixed with English) into clean English; (2) what do translators do with niche words they do not know (correct/copied/dropped/hallucinated/transliterated); (3) Q-PIPE-1 (questions.md): which route is the default for Romanian and mixed messages, decided by a preregistered numeric rule, not by opinion.",
+    "constraints": "CPU only; no training; the GPU is reserved for the proofing-dataset agent and must not be touched; do not commit; no file over 50 MB."
+  },
+  "kind": "evaluation-only (CPU inference; no training, no GPU, no LLM)",
+  "system_under_test": {
+    "translator_service": "lib/translator-service/ (index.mjs backend registry; backends/symbolic.mjs = the former lib/symbolic-lm/translate.mjs, moved unchanged; backends/opus-mt.mjs = Helsinki-NLP/opus-mt-ROMANCE-en (Apache-2.0, revision e9ca9975, CPU via ~/mt-venv, training/python/translate_marian.py, num_beams 1); backends/apertium.mjs = unavailable, see below)",
+    "languages_util": "lib/languages-util/ (langid.mjs per-token labels, moved unchanged from lib/symbolic-lm/langid.mjs; frame.mjs detectFrame(), new: Myers-Scotton matrix-language-frame heuristic from closed-class function words, for the `matrix` arm)",
+    "masking": "names, numbers and quoted spans masked before any external translator call and restored after (lib/ud-to-sop/protect.mjs, experiment eval-rewrite-symbolic-v1); the symbolic backend does not need masking (it never guesses an unknown word and copies names/numbers from the UD parse directly)",
+    "apertium_availability": "Checked 2026-09-29: `apt-cache search apertium` lists only apertium-es-ro (Spanish-Romanian data), no ron-eng/eng-ron package; the apertium GitHub organization (655 public repositories, every trunk/incubator/nursery pair as its own repo) has apertium-ron (monolingual analyzer only), apertium-fra-ron, apertium-ron-ina, apertium-ron-rup, apertium-ron-cat, but no apertium-ron-eng or apertium-eng-ron; a GitHub-wide search for both names returns zero results. No usable Romanian-English Apertium pair exists, packaged or unpackaged. Recorded in lib/translator-service/backends/apertium.mjs and dependencies.md; Apertium is dropped from this comparison (H4/H5 below are not testable and are not run).",
+    "input": "the row's message (`question`) only (DS021 model boundary); no context, lexicon of the row, entity list or clock"
+  },
+  "arms": {
+    "direct": "route direct: Stanza in the message's own language(s) + the matching UD-to-SOP rules (Romanian rules keep Romanian lemmas, owner decision D1). Current default for English; current default is `translate` (symbolic backend) for Romanian and mixed.",
+    "symbolic": "route translate, backend `symbolic`, keepConstraints off: Romanian Stanza parse -> TranslatorService symbolic backend -> English Stanza + rules. Matches eval-symbolic-lm-v1's plain `translate` arm.",
+    "symbolic-hybrid": "route translate, backend `symbolic`, keepConstraints on (the SymbolicLM v1.1 default): as `symbolic`, but a Romanian numeric `constraint` wire built by the direct route is kept instead of translated.",
+    "opus-mt": "mask -> Opus-MT CPU translation (backends/opus-mt.mjs) -> restore -> English Stanza + rules (route direct, language forced to en).",
+    "matrix": "mixed-message only: lib/languages-util/frame.mjs detectFrame() finds the grammatical frame language from closed-class function words (Myers-Scotton Matrix Language Frame model). A Romanian frame is parsed with the direct Romanian route unchanged (English insertions are left for the Romanian rules to handle as they already do); an English frame gets its Romanian-labelled content words glossed in place, word by word, from the host dictionary (never guessed; an unknown word is left as written), then parsed with the direct English route. A tied or undetermined frame falls back to the direct Romanian route."
+  },
+  "sets": {
+    "definition": "eval/reports/current/translator-compare/sets.json, written by `node tools/research/translator-compare-eval.mjs sets`.",
+    "deviation_from_instructions": "The task asked for a fresh slice of formalizer-v1 *dev* not consumed by eval-symbolic-lm-v1. Checked against eval/reports/current/symbolic-lm/sets.json: every one of formalizer-v1 dev.jsonl's 5131 rows appears in some arm of eval-symbolic-lm-v1 (roA 622 + roB 652 + mixed 732 + noisyRo 560 + noisyEn 787 + cleanEn 1778 = 5131, an exact partition of dev.jsonl), so there is no unconsumed dev row of either kind. This experiment instead draws its slice from datasets/formalizer-v1/train.jsonl (23,817 rows, never scored by eval-symbolic-lm-v1 or any other registered experiment), which is otherwise the same corpus, generation process and quality bar as dev. Recorded here as a deviation before any row was scored.",
+    "ro": "150 clean monolingual Romanian train rows (language ro, no noise, no code_switch), deterministic seeded sample (mulberry32 seed 20260929) of the 5712 eligible train rows; nested stratified stage of 100 by question_type (seed 42), then the full 150.",
+    "mixed": "100 code-switched train rows (excluding clause_switch, which has no token-level content to translate), deterministic seeded sample (seed 20260930) of the 3616 eligible train rows (kinds ro_matrix_en_insertion/tag/value, en_matrix_ro_insertion/tag/value); nested stratified stage of 50 by question_type (seed 43), then the full 100.",
+    "niche_probe": "eval/reports/current/translator-compare/niche-probe.jsonl: 40 hand-written Romanian messages containing a rare/regional word, a technical/administrative term, or English tech jargon inflected with a Romanian suffix (\"romgleza\": deadline-ul, PR-ul, sprintul, ...). No gold SOP; judged by hand per word into categories: correct, copied, dropped, hallucinated, transliterated (owner question 2)."
+  },
+  "hypotheses": {
+    "H1_ro": "On the `ro` set, some arm other than `direct` reaches a higher host-normalized (tolerant) score than `direct`, with a 95% paired cluster-bootstrap interval lower bound above 0.",
+    "H2_mixed": "On the `mixed` set, some arm other than `direct` reaches a higher host-normalized (tolerant) score than `direct`, with a 95% paired cluster-bootstrap interval lower bound above 0.",
+    "H3_romgleza": "Owner question 1: on the mixed-set messages the Opus-MT backend actually translates (non-empty, non-error), at least half read as fluent, structurally complete English (manual judgement on the stage-50 mixed sample, reported as a count with a Wilson 95% interval, not a preregistered pass/fail gate).",
+    "H4_niche": "Owner question 2: reported as a frequency table only (correct/copied/dropped/hallucinated/transliterated per backend on the 40-message niche probe), no preregistered direction."
+  },
+  "decision_rule_Q_PIPE_1": "Per message class (monolingual Romanian: ro set; mixed: mixed set), the default route becomes the arm with the best host-normalized (tolerant) strict score only if that arm's lower 95% CI bound of (arm - direct) is above 0. Otherwise the class keeps its current default (direct for monolingual Romanian was already the finding of eval-symbolic-lm-v1's H1/H2, though DEFAULT_ROUTES.ro still says `translate`; mixed's current default is `translate` with the symbolic backend). Strict (execution_equivalent, no dictionary) is always reported beside the host-normalized score and never substituted for it; the decision rule itself uses the host-normalized score because English-backend output cannot literally match a Romanian-language gold string, and the strict score is not directionally informative across backends that differ only in output language. Applying the decision: DEFAULT_ROUTES and the TranslatorService backend selection for the winning route are updated in lib/symbolic-lm/index.mjs, Q-PIPE-1 is removed from questions.md, and the decision with its numbers is recorded in DS021, CHANGES.md and the journal as data-driven.",
+  "metrics": {
+    "primary": "execution_equivalent_tolerant (host-normalized: dictionary on) of eval/run.mjs evaluate (DS016), paired arm - direct, per set",
+    "secondary": [
+      "execution_equivalent (strict, dictionary off), reported beside the primary, never replacing it",
+      "invalid or empty outputs",
+      "CPU translation speed: opus-mt batched throughput (messages_per_second from training/python/translate_marian.py's timing report) and messages_per_second/mean_ms derived from it; symbolic backend's own per-row wall time from SymbolicLM's trace",
+      "masking preservation: opus-mt's restore() kept/dropped/duplicated/invented placeholder counts (protect.mjs), a direct measure of the translator mangling a masked name/number/quote token",
+      "per question type (tolerant)"
+    ],
+    "intervals": "paired cluster bootstrap over semantic_case_id (10,000 resamples, seed 7; tools/research/spellfix-eval.mjs bootstrap, reused via tools/research/symbolic-lm-eval.mjs pairedDelta); Wilson intervals for proportions"
+  },
+  "stopping_rules": {
+    "stages": "ro: 100 then full 150. mixed: 50 then full 100. Scored after each stage.",
+    "decisive": "stop staging (move straight to reporting) when the 95% interval of the primary paired delta (best arm - direct) lies entirely above +3 points or entirely below -3 points",
+    "futility": "stop staging when the upper bound of every candidate arm's paired delta is below +2 points (no arm can practically beat direct)",
+    "broken": "stop and report if more than 20% of the first 100 (ro) / 50 (mixed) outputs of an arm are invalid or empty",
+    "note": "Given the small preregistered pool sizes (150 / 100), 'full' is reached quickly regardless; the stage-100/50 checkpoint exists mainly to catch a broken arm before spending the rest of the CPU budget on it.",
+    "record": "every stop is recorded with its stage, numbers and reason in the journal, the topic notes (topic translation), the experiment record and eval/reports/current/translator-compare/summary.md"
+  },
+  "limits": [
+    "The comparison uses train.jsonl, not dev.jsonl (deviation above); results are not directly poolable with eval-symbolic-lm-v1's dev-based numbers, though both draw from the same generator and corpus.",
+    "The host-normalized (tolerant) score depends on sop/dictionary.mjs already knowing the English phrasing an MT backend happens to produce; a correct but non-dictionary English paraphrase of a Romanian relation or value can still score as a miss. This affects opus-mt and matrix more than symbolic, whose vocabulary is drawn from the same dictionary that scores it.",
+    "opus-mt speed is measured as CPU batched throughput (a shared, amortized model load and batch decode), not single-request latency; the symbolic backend's speed is a per-row wall time (its own worker is already sequential). The two are not the same kind of number and are reported separately, not compared head to head.",
+    "The `matrix` arm's word-level gloss substitution is not full clause translation; it is a minimal test of the matrix-language idea, not a production-quality implementation.",
+    "Apertium is not run (see apertium_availability above); H's involving it are dropped, not scored as a loss."
+  ],
+  "outputs": "eval/reports/current/translator-compare/ (sets.json, niche-probe.jsonl, niche-probe.outputs.jsonl, runs/<set>/<arm>.predictions.jsonl, .traces.jsonl, score-<stage>.json, summary.md)",
+  "deviations": []
+}

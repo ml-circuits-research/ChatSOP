@@ -1,0 +1,66 @@
+{
+ "format": "chatsop-dataset-qualification-v1",
+ "status": "qualified",
+ "corpus": "proofing",
+ "role": "proofreader",
+ "grade": "experiment-grade: automated oracle grounding and leakage checks, no human semantic review (matches formalizer-v1's grade, owner decision 2026-09-28)",
+ "dataset_manifest_sha256": "fd0c0bb3f8b7b66b4010d44631e20cc62785d023f9ced75906b801a1184dd4f1",
+ "dataset_version_sha256": "7c6f972744b0f35bf0141c317b772aeec7a58da5d10029a77f0e9eebcefde412",
+ "dataset_version": {
+  "format": "chatsop-dataset-version-v1",
+  "corpus": "proofing",
+  "counter": 3,
+  "label": "proofing build 3 (v2: +88 train / +3 dev / +98 hard_cases rows from Haiku-diversified formalizer-v1 paraphrases, disjoint from diverse-dev.jsonl and eval/suites/**; rules v1.4 unchanged; v1 rows unchanged)",
+  "seed": "chatsop-proofing-v1",
+  "manifest_sha256": "fd0c0bb3f8b7b66b4010d44631e20cc62785d023f9ced75906b801a1184dd4f1"
+ },
+ "dataset_files": {
+  "proofreader/train.jsonl": "124d36b14b6c1131b0f677914948f2e1cdf362a09ca20e59401934e9deff908e",
+  "proofreader/dev.jsonl": "d90d1ec369384f81b1035c29ed236b7c36196481226559af9b6cfcd88607d8c7"
+ },
+ "sealed_suites": {
+  "proofing": "1fd35e1a3c964d1138fbc59a588a7957b48729ef8ea03cc374b8a1efda68ec8d"
+ },
+ "contract_files": {},
+ "checks": {
+  "oracle_grounding": true,
+  "meaning_preservation": true,
+  "leakage": true,
+  "split_integrity": true,
+  "source_rights": true,
+  "token_budget": true
+ },
+ "evidence": {
+  "oracle_grounding": {
+   "path": "eval/reports/current/proofing/build-v1.4.json",
+   "sha256": "70a6ef7ec313b3aadb015a95c2f80140061f52573ae948bbfa2d2cee44dba31e"
+  },
+  "meaning_preservation": {
+   "path": "eval/reports/current/proofing/build-v1.4.json",
+   "sha256": "70a6ef7ec313b3aadb015a95c2f80140061f52573ae948bbfa2d2cee44dba31e"
+  },
+  "leakage": {
+   "path": "eval/reports/current/proofing/overlap.json",
+   "sha256": "87c16d53d40d074db6e8c58ed563767055037addde9dc7b610b67f86d2945993"
+  },
+  "split_integrity": {
+   "path": "eval/reports/current/proofing/overlap.json",
+   "sha256": "87c16d53d40d074db6e8c58ed563767055037addde9dc7b610b67f86d2945993"
+  },
+  "source_rights": {
+   "path": "docs/specs/DS014-source-rights.md",
+   "sha256": "9d2fab14101fd7ee3b28a3fef7008b073629d44a190a0a196241795b94159a86"
+  },
+  "token_budget": {
+   "path": "eval/reports/current/proofing/gemma3-270m-token-audit.json",
+   "sha256": "f847ad2712d3367dd05523dbeb1482c4a32d129ca23263767feeff9377ec6ffe"
+  }
+ },
+ "reviewer": {
+  "kind": "principal_integrator",
+  "id": "proofreader-training-agent (automated qualification; re-issued 2026-09-30 for the new role-conditioned schema in training/cli.mjs)",
+  "reviewed_at": "2026-09-30T00:33:40.977Z"
+ },
+ "blockers": [],
+ "note": "Re-issued 2026-09-30: same underlying evidence as the original 2026-09-29T23:59 record (proofing-data-agent), reshaped to the dataset_files/contract_files/evidence schema training/cli.mjs's qualification() gate actually checks (role 'proofreader', added alongside this run instead of the formalizer/verbalizer-only schema); every evidence file re-verified to still show zero violations and every hash recomputed against the files on disk now. This record documents that the data passes the checks below; it is not a chatsop-training-authorization-v1 receipt (AGENTS.md rule 3)."
+}

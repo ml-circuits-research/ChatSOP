@@ -5,7 +5,8 @@
     "assumed",
     "unclear",
     "query",
-    "constraint"
+    "constraint",
+    "unparsed"
   ],
   "unclearKinds": [
     "gibberish",
@@ -71,7 +72,7 @@
       "classify": "deductive-rules",
       "abduce": "ground-candidates-subset-minimal",
       "diagnose": "abduction-and-test-partition",
-      "associate": "lexical-relational-weaver-score",
+      "associate": "lexical-relational-recall-memory-score",
       "induce": "bounded-candidate-pattern-evaluation",
       "analogize": "injective-entity-mapping",
       "plan": "deterministic-uniform-cost-search",
@@ -144,7 +145,17 @@
       ],
       "many": [
         "role",
-        "valid"
+        "valid",
+        "because",
+        "so",
+        "if",
+        "unless",
+        "although",
+        "so_that",
+        "before",
+        "after",
+        "when",
+        "while"
       ],
       "required": [
         "relation",
@@ -156,7 +167,7 @@
       "declaration": true,
       "authoredByModel": true,
       "effects": "no-world-write",
-      "note": "Model language: a context-free string proposition the user message puts forward (quoted relation phrase, closed-inventory roles with values as written). The host links it to the lexicon; certainty asserted lowers to a turn-local fact source user used as evidence and carried in caller-owned context; hedged, supposed or reported speech (speaker) is used only conditionally. Never stored or reinforced (DS021)."
+      "note": "Model language: a context-free string proposition the user message puts forward, one finite clause per wire (quoted relation phrase and common nouns in the message language, normalized, or in English; closed-inventory roles with names as written; a $id role value names another clause; link lines because, so, if, unless, although, so_that, before, after, when, while name the related clause). The host links it to the lexicon; certainty asserted lowers to a turn-local fact source user used as evidence and carried in caller-owned context; hedged, supposed or reported speech (speaker) is used only conditionally. Never stored or reinforced (DS021)."
     },
     "assumed": {
       "one": [
@@ -166,7 +177,17 @@
       ],
       "many": [
         "role",
-        "valid"
+        "valid",
+        "because",
+        "so",
+        "if",
+        "unless",
+        "although",
+        "so_that",
+        "before",
+        "after",
+        "when",
+        "while"
       ],
       "required": [
         "relation",
@@ -195,6 +216,21 @@
       "authoredByModel": true,
       "effects": "no-world-write",
       "note": "Model language: the only wire of an output that is unintelligible (gibberish), has neither a statement nor a question (no_request), or shows an ambiguity the model does not resolve (ambiguous, with 2 to 4 reading lines paraphrasing the candidate readings); the host renders a fixed reply per kind and lists the readings as a clarification (DS021)."
+    },
+    "unparsed": {
+      "one": [
+        "span",
+        "near",
+        "hint"
+      ],
+      "required": [
+        "span"
+      ],
+      "role": "unformalized-message-span",
+      "declaration": false,
+      "authoredByModel": true,
+      "effects": "no-world-write",
+      "note": "Model language: a verbatim span of the message the model could not formalize (span), optionally near the wire it belongs to (near $id) and the slot it probably fills (hint subject, object, time, location, value, relation, reference or other). A role whose value lies in the span holds a placeholder ?variable paired by near and hint. The host repairs spans symbolically (dates, numbers, money, names, the dictionary, the conversation) before linking and asks one question per unresolved span (DS021)."
     },
     "rule": {
       "one": [
@@ -225,11 +261,27 @@
         "at",
         "during",
         "asof",
-        "limit"
+        "limit",
+        "rank",
+        "quantifier",
+        "order",
+        "fragment"
       ],
       "many": [
         "where",
-        "filter"
+        "filter",
+        "compare",
+        "except",
+        "because",
+        "so",
+        "if",
+        "unless",
+        "although",
+        "so_that",
+        "before",
+        "after",
+        "when",
+        "while"
       ],
       "required": [
         "where"
@@ -238,7 +290,7 @@
       "declaration": true,
       "authoredByModel": true,
       "effects": "no-world-write",
-      "note": "Model language: match blocks (quoted relation, closed roles, polarity) under where; mode select, exists, count, explain (why: the answer is a derivation) or every (a universal question: where is the restriction, scope what must hold); role time ?t asks for the validity interval (when), with measure start, end or duration (since when, until when, how long) and mode count for how many times. span is host plumbing (DS021)."
+      "note": "Model language: match blocks (quoted relation, closed roles, polarity) under where; a $q role value chains the answers of another query (a join); if/unless $s scopes a supposition to this query and a timed before/after/when/while $s bounds its period; mode select, exists, count, explain (why: the answer is a derivation) or every (a universal question: where is the restriction, scope what must hold); role time ?t asks for the validity interval (when), with measure start, end or duration (since when, until when, how long) and mode count for how many times. span is host plumbing (DS021)."
     },
     "constraint": {
       "one": [
@@ -253,9 +305,7 @@
         "var",
         "require"
       ],
-      "required": [
-        "claim"
-      ],
+      "required": [],
       "role": "numeric-problem",
       "declaration": true,
       "authoredByModel": true,

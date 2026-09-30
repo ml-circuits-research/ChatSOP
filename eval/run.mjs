@@ -12,7 +12,7 @@ import { Lexicon } from '../sop/lexicon.mjs';
 import { publishKnowledge } from '../sop/ingest.mjs';
 import { Repository } from '../memory/repository.mjs';
 import { Agent } from '../server/agent.mjs';
-import { complete, formalPrompt } from '../server/llm.mjs';
+import { complete, barePrompt } from '../server/llm.mjs';
 import { stable, digest } from '../lib/util.mjs';
 import { readJsonlShardedSync } from '../lib/jsonl-shards.mjs';
 import { atomKey } from '../lib/types.mjs';
@@ -20,6 +20,10 @@ import { interval, serialInterval } from '../lib/time.mjs';
 import { executionSignature } from './signature.mjs';
 import { withInlineWorld, verificationContext } from '../lib/row-world.mjs';
 import { epistemicResult, fraction, distribution } from './contracts.mjs';
+import { referenceFreeRecord, referenceFreeMetrics } from './reference-free.mjs';
+import { tolerantOntology } from './synonyms.mjs';
+import { rowWireComparison, tolerantCanonicalMatch, wireMetrics } from './metrics.mjs';
+import { sliceFields, slices } from './slices.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha256 = text => createHash('sha256').update(text).digest('hex');
@@ -98,6 +102,10 @@ function metrics(records) {
     runtime: fraction(records.filter(record => record.runtime_valid).length, records.length),
     canonical_match: fraction(records.filter(record => record.canonical_match).length, referenceValid.length),
     execution_equivalence: fraction(records.filter(record => record.execution_equivalent).length, referenceValid.length),
+    execution_equivalence_tolerant: fraction(records.filter(record => record.execution_equivalent_tolerant).length, referenceValid.length),
+    canonical_match_tolerant: fraction(records.filter(record => record.canonical_match_tolerant).length, referenceValid.length),
+    canonical_match_primary: fraction(records.filter(record => record.canonical_match_primary).length, referenceValid.length),
+    execution_equivalence_primary: fraction(records.filter(record => record.execution_equivalent_primary).length, referenceValid.length),
     unknown: fraction(records.filter(record => record.gold_status === 'unknown' && record.predicted_status === 'unknown' && record.execution_equivalent).length, records.filter(record => record.gold_status === 'unknown').length),
     unsupported_or_invalid_reference: records.filter(record => !record.reference_valid).length,
     latency_ms: Object.fromEntries(['model', 'setup', 'gold', 'prediction', 'total'].map(stage => [stage, distribution(records.map(record => record.timing_ms[stage]).filter(Number.isFinite))])),
@@ -143,7 +151,9 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
   for (const row of rows) {
     assert(typeof row.id === 'string' && typeof (row.sop_target ?? row.target) === 'string', 'Each row needs an ID and reference SOP');
     assert(typeof row.setup_sop === 'string' && verificationContext(row), `Missing setup/verification_context: ${row.id}`);
+    assert(row.sop_targets_accepted === undefined || (Array.isArray(row.sop_targets_accepted) && row.sop_targets_accepted.every(text => typeof text === 'string')), `${row.id}: sop_targets_accepted must be a list of SOP strings`);
   }
+  const tolerantLexicons = new Map();
   const ontology = path.resolve(root, config.ontology ?? 'config/ontology.sop');
   const lexicon = Lexicon.load(ontology);
   const lexicons = new Map();
@@ -159,8 +169,9 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
       const record = {
         id: row.id, semantic_case_id: row.semantic_case_id ?? row.id,
         language: row.language, family: row.structure_id ?? row.case, question_type: row.question_type ?? null, evaluation_track: row.evaluation_track,
+        ...sliceFields(row),
         reference_valid: false, syntax_valid: false, runtime_valid: false,
-        canonical_match: false, execution_equivalent: false, timing_ms: {},
+        canonical_match: false, canonical_match_primary: false, canonical_match_tolerant: false, execution_equivalent: false, execution_equivalent_primary: false, execution_equivalent_tolerant: false, timing_ms: {},
       };
       const target = row.sop_target ?? row.target;
       const question = row.question ?? row.input;
@@ -174,6 +185,9 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
         const targetProgram = parse(target);
         checkConversationalTarget(row, targetProgram);
         const targetCanonical = canonical(withoutBasis(targetProgram));
+        // Q-DATA-5: every accepted reading of an ambiguous phrasing is a gold; `sop_target` stays the primary.
+        const alternatives = (row.sop_targets_accepted ?? []).map(text => { const program = parse(text); checkConversationalTarget(row, program); return { text, canonical: canonical(withoutBasis(program)) }; });
+        const acceptedCanonicals = new Set([targetCanonical, ...alternatives.map(item => item.canonical)]);
         let caseLexicon = lexicon;
         if (typeof row.ontology_sop === 'string' && row.ontology_sop.trim()) {
           assert.equal(typeof row.ontology_sop, 'string', 'Host ontology must be SOP text');
@@ -181,7 +195,10 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
           if (!lexicons.has(record.ontology_sha256)) lexicons.set(record.ontology_sha256, new Lexicon(row.ontology_sop));
           caseLexicon = lexicons.get(record.ontology_sha256);
         }
-        const policy = { allowWrite: row.evaluation_track === 'system' && row.input_mode === 'assertions_query', ...config.policy };
+        // Strict scoring links exactly as the world ontology declares: the host dictionary (sop/dictionary.mjs) is off
+        // for every gold and for the prediction. The tolerant rerun below turns it on (DS016 "Equivalence tolerance").
+        const policy = { allowWrite: row.evaluation_track === 'system' && row.input_mode === 'assertions_query', ...config.policy, dictionary: false };
+        const tolerantPolicy = { ...policy, dictionary: true };
         let started = performance.now();
         repo = new Repository(path.join(temp, `case-${index}`), { memory: config.memory ?? { engine: 'sqlite', power: 10 } });
         // `late_setup_sop` holds knowledge that became known later (2025-06-01), for knowledge-cutoff (`asof`) cases.
@@ -209,23 +226,37 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
         record.reference = observedResult(gold);
         record.reference_signature = executionSignature(gold, goldSession);
         checkReference(row, gold, goldSession);
+        const acceptedSignatures = new Set([record.reference_signature]);
+        for (const [n, alternative] of alternatives.entries()) {
+          const session = repo.session('world', `gold-accepted-${n}`, 'evaluation');
+          const executor = makeRuntime(session);
+          executor.guard?.validateVocabulary(alternative.text, question);
+          const observed = await executor.runtime.run(alternative.text, row.evaluation_track === 'formalization' ? modelRun() : { origin:'trusted' });
+          acceptedSignatures.add(executionSignature(observed, session));
+        }
+        record.accepted_golds = 1 + alternatives.length;
         record.timing_ms.gold = performance.now() - started;
         record.reference_valid = true;
         record.gold_status = packetOf(gold).status;
         stage = 'generation';
         started = performance.now();
-        // The prompt is always rebuilt from the message; a stored row.prompt is never model input.
-        const prompt = formalPrompt(question);
+        // The prompt is exactly the message (DS021 message-only prompt, as the trained model sees it); a stored row.prompt is never model input.
+        const prompt = barePrompt(question);
         const predicted = await predictor({ id: row.id, prompt });
         if (source === 'endpoint') requestsSucceeded++;
         record.timing_ms.model = performance.now() - started;
+        // Reference-free checks read only the message and the prediction (eval/reference-free.mjs).
+        record.reference_free = referenceFreeRecord(question, predicted, { lexicon: caseLexicon });
         assert.equal(typeof predicted, 'string', 'Prediction must be SOP text');
         record.prediction = predicted;
         stage = 'parse';
         const predictedProgram = parse(predicted);
         const predictedCanonical = canonical(withoutBasis(predictedProgram));
         record.syntax_valid = true;
-        record.canonical_match = predictedCanonical === targetCanonical;
+        record.canonical_match_primary = predictedCanonical === targetCanonical;
+        record.canonical_match = acceptedCanonicals.has(predictedCanonical);
+        // Tolerant canonical match: id- and order-free wires with relation phrases and values compared by the dictionary.
+        record.canonical_match_tolerant = record.canonical_match || [target, ...alternatives.map(item => item.text)].some(text => tolerantCanonicalMatch(text, predicted));
         record.propositions = compareProgramPropositions(targetProgram, predictedProgram);
         stage = 'prediction';
         started = performance.now();
@@ -240,7 +271,31 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
         record.epistemic = epistemicResult(packetOf(actual));
         record.route = packetOf(actual).route ?? null;
         record.prediction_signature = executionSignature(actual, predSession);
-        record.execution_equivalent = record.prediction_signature === record.reference_signature;
+        record.execution_equivalent_primary = record.prediction_signature === record.reference_signature;
+        record.execution_equivalent = acceptedSignatures.has(record.prediction_signature);
+        record.execution_equivalent_tolerant = record.execution_equivalent;
+        if (!record.execution_equivalent && row.evaluation_track === 'formalization') {
+          // Tolerant comparison: the prediction alone runs again with the host dictionary enabled (Romanian or English
+          // content words and their dictionary synonyms, as production links them) and with evaluation-only relation
+          // synonyms added to the world's predicate declarations (eval/synonyms.mjs); every gold keeps its strict signature.
+          stage = 'tolerant';
+          const worldOntology = typeof row.ontology_sop === 'string' && row.ontology_sop.trim() ? row.ontology_sop : fs.readFileSync(ontology, 'utf8');
+          const tolerant = tolerantOntology(worldOntology, row.verification?.relation_synonyms);
+          const key = sha256(tolerant.ontology);
+          if (!tolerantLexicons.has(key)) tolerantLexicons.set(key, new Lexicon(tolerant.ontology));
+          const tolerantLexicon = tolerantLexicons.get(key);
+          record.synonym_conflicts = tolerant.conflicts.length;
+          const session = repo.session('world', 'prediction-tolerant', 'evaluation');
+          const runtime = new Runtime({ repo, session, lexicon: tolerantLexicon, schema: tolerantLexicon.predicates, now, policy: tolerantPolicy,
+            factGuard: fact => assert.equal(fact.source, 'user', 'Conversational facts require source user') });
+          try {
+            new Agent({ repo, session, lexicon: tolerantLexicon, config }).validateVocabulary(predicted, question);
+            const observed = await runtime.run(predicted, modelRun());
+            record.execution_equivalent_tolerant = acceptedSignatures.has(executionSignature(observed, session));
+          } catch (error) {
+            record.tolerant_error = error.message;
+          }
+        }
       } catch (error) {
         record.error = { stage, message: error.message };
       }
@@ -251,6 +306,7 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
   }
+  const rowsById = new Map(rows.map(row => [row.id, row]));
   const operationalFailures = records.filter(record => !record.reference_valid || record.error?.stage === 'generation').length;
   return {
     format: 'chatsop-evaluation-v1', source,
@@ -267,8 +323,46 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
     config: { memory: config.memory ?? { engine: 'sqlite', power: 10 }, policy: config.policy ?? {} },
     metrics: { ...metrics(records), ...pairedMetrics(rows, records) },
     propositions: propositionMetrics(records.filter(record => record.propositions).map(record => record.propositions)),
+    // Partial credit (DS016 "Wire F1"): strict, tolerant and understood-part wire matches of formalization rows.
+    wire_match: wireMetrics(records.filter(record => record.reference_valid && record.evaluation_track === 'formalization')
+      .map(record => rowWireComparison(rowsById.get(record.id), record.prediction))),
+    // Reference-free metrics read only messages and predictions (eval/reference-free.mjs, DS016).
+    reference_free: referenceFreeMetrics(records.map(record => record.reference_free)),
+    // Every metric by question type, language (en/ro/mixed), noise level, family and the hard slice (eval/slices.mjs).
+    slices: slices(records, group => ({ ...metrics(group), reference_free: referenceFreeMetrics(group.map(record => record.reference_free)) })),
     by_language: groupedMetrics(records, 'language'), by_family: groupedMetrics(records, 'family'), by_question_type: groupedMetrics(records, 'question_type'), by_track:groupedMetrics(records,'evaluation_track'),
     limitations: ['Finite-fixture equivalence is not universal semantic equivalence.', 'No human review is implied.', 'Predictions-file evaluation does not demonstrate neural inference.'],
+    records,
+  };
+}
+
+/**
+ * Unlabeled evaluation (DS016 "Unlabeled mode"): messages and predictions, no gold. Only the reference-free
+ * metrics and their slices are computed; nothing is executed against a world, because there is none. A message
+ * row is `{id, message}` (or `question`), optionally with `language`, `code_switch`, `noise_level` for slicing.
+ */
+export async function evaluateUnlabeled(messages, { predictor, source = 'predictions', lexicon = null } = {}) {
+  assert(Array.isArray(messages) && messages.length > 0, 'Unlabeled evaluation requires a nonempty message list');
+  assert.equal(new Set(messages.map(row => row.id)).size, messages.length, 'Duplicate message IDs');
+  assert.equal(typeof predictor, 'function', 'An explicit predictor is required');
+  const records = [];
+  for (const row of messages) {
+    const message = row.message ?? row.question;
+    assert(typeof row.id === 'string' && typeof message === 'string', 'Each message row needs an id and a message');
+    const record = { id: row.id, question_type: row.question_type ?? 'unspecified', family: row.family ?? 'unspecified', ...sliceFields({ ...row, question: message }) };
+    let predicted;
+    try { predicted = await predictor({ id: row.id, prompt: barePrompt(message) }); } catch (error) { record.error = { stage: 'generation', message: error.message }; }
+    record.prediction = predicted ?? null;
+    record.reference_free = referenceFreeRecord(message, predicted, { lexicon });
+    records.push(record);
+  }
+  return {
+    format: 'chatsop-unlabeled-evaluation-v1', source, rows: records.length,
+    messages_sha256: sha256(stable(messages)),
+    operational_failures: records.filter(record => record.error).length,
+    reference_free: referenceFreeMetrics(records.map(record => record.reference_free)),
+    slices: slices(records, group => referenceFreeMetrics(group.map(record => record.reference_free))),
+    limitations: ['No gold: correctness is not measured, only plausibility (reference-free checks).', 'Predictions-file evaluation does not demonstrate neural inference.'],
     records,
   };
 }
@@ -278,7 +372,7 @@ function argumentsOf(argv) {
   for (let index = 0; index < argv.length; index++) {
     const flag = argv[index];
     if (flag === '--help') return { help: true };
-    assert(['--file', '--predictions', '--config', '--out', '--model-manifest'].includes(flag), `Unknown option: ${flag}`);
+    assert(['--file', '--messages', '--predictions', '--config', '--out', '--model-manifest'].includes(flag), `Unknown option: ${flag}`);
     assert(argv[index + 1] && !argv[index + 1].startsWith('--'), `Missing value for ${flag}`);
     assert(!Object.hasOwn(result, flag.slice(2)), `Duplicate option: ${flag}`);
     result[flag.slice(2)] = argv[++index];
@@ -289,7 +383,33 @@ function argumentsOf(argv) {
 async function main() {
   const args = argumentsOf(process.argv.slice(2));
   if (args.help) {
-    console.log('node eval/run.mjs --file suite.jsonl --out report.json [--predictions predictions.jsonl | --config runtime.json] [--model-manifest manifest.json]');
+    console.log('node eval/run.mjs --file suite.jsonl --out report.json [--predictions predictions.jsonl | --config runtime.json] [--model-manifest manifest.json]\n' +
+      'node eval/run.mjs --messages messages.jsonl --out report.json (--predictions predictions.jsonl | --config runtime.json)   # unlabeled: reference-free metrics only');
+    return;
+  }
+  if (args.messages) {
+    assert(!args.file && args.out, 'Use --messages without --file, with --out');
+    assert(args.predictions || args.config, 'Provide predictions or an explicit endpoint configuration');
+    const messages = readRows(args.messages);
+    const config = args.config ? JSON.parse(fs.readFileSync(args.config, 'utf8')) : {};
+    let predictor, source;
+    if (args.predictions) {
+      const byId = new Map(readRows(args.predictions).map(row => [row.id, row.sop ?? row.prediction]));
+      assert(messages.every(row => typeof byId.get(row.id) === 'string') && byId.size === messages.length, 'Prediction coverage must exactly match the messages');
+      predictor = ({ id }) => byId.get(id);
+      source = 'predictions';
+    } else {
+      assert(config.formalizer?.url && config.formalizer?.model, 'Endpoint config requires formalizer.url and formalizer.model');
+      predictor = ({ prompt }) => complete(config.formalizer, prompt);
+      source = 'endpoint';
+    }
+    const lexicon = Lexicon.load(path.resolve(root, config.ontology ?? 'config/ontology.sop'));
+    const report = await evaluateUnlabeled(messages, { predictor, source, lexicon });
+    const destination = path.resolve(args.out);
+    fs.mkdirSync(path.dirname(destination), { recursive: true });
+    fs.writeFileSync(destination, JSON.stringify(report, null, 2) + '\n');
+    console.log(JSON.stringify({ report: destination, rows: report.rows, ...Object.fromEntries(Object.entries(report.reference_free).filter(([, v]) => v?.value !== undefined).map(([k, v]) => [k, v.value])) }, null, 2));
+    if (report.operational_failures) process.exitCode = 1;
     return;
   }
   assert(args.file && args.out, '--file and --out are required');

@@ -1,0 +1,71 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-spellfix-preproc-v1",
+  "name": "Symbolic spelling correction before the small formalizer",
+  "registered_at": "2026-09-29T04:00:30Z",
+  "registered_by": "eval agent (owner request of 2026-09-29: CPU-only evaluation experiment; no training, no GPU)",
+  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "frozen_before_results": "Written after the corrector was developed and tuned on the formalizer-v1 development split only, and before the corrector or any spellfixed prediction touched any sealed suite (formalizer-v1 test, formalizer-ood-v1, formalizer-wild-v1). Any later change to the corrector, the conditions, the metrics or the decision rule is a recorded deviation.",
+  "kind": "evaluation-only (inference on CPU with an existing checkpoint; no optimizer step, no training data change)",
+  "question": "Does a deterministic, dictionary-based spelling correction of the user's message, applied by the host before the small formalizer, improve formalization of noisy messages without hurting clean ones?",
+  "hypotheses": {
+    "H1": "On formalizer-v1 sealed-test rows with labelled typing noise (noise_level light, medium or heavy), SmolLM2-135M (fv1-size-a4, Q8_0) reaches higher tolerant execution equivalence on the spellfixed message than on the raw message.",
+    "H2": "On clean formalizer-v1 test rows (noise_level null) the spellfixed condition is non-inferior: the paired delta of tolerant execution equivalence has a 95% interval lower bound >= -0.5 points.",
+    "H3": "The corrector alone has precision >= 0.90 on verifiable changes and changes at most 1% of clean messages."
+  },
+  "changed_factor": "The message given to the model: raw (as written) versus the output of lib/spellfix.mjs spellfix-v1. Model, weights, quantization, runtime, decoding and scoring are identical.",
+  "comparator": "The existing raw-message Q8_0 predictions of formalizer-size-v1 arm smollm2-135m (reused, not regenerated).",
+  "corrector": {
+    "version": "spellfix-v1",
+    "code_sha256": {
+      "lib/spellfix.mjs": "6d6dff647ca443235e7daad01cae5ffcceb1c2fe734fcfcd0d7dca71b7ef0c15",
+      "lib/spellfix/hunspell.mjs": "a0f721b3d865626dbd18a0667566aea06ee02e8fff5e988907d1f85d2fdd42d0",
+      "lib/spellfix/keyboard.mjs": "fa775eee3810ecb2379a3271fb8a95704f32a33397debbe18ed854500109d057"
+    },
+    "parameters": {"knownTop": 20000, "minLength": 4, "minPerMillion": 1, "minPerMillionLong": 0.05, "margin": 1.0, "costWeight": 2.0, "otherLanguageWeight": 0.25, "initialCapTop": 500, "contextRatio": 5, "splitPerMillion": 50},
+    "resources_sha256": {
+      "vendor/spellfix/en_index.aff": "8ae1f19d4840d957728ad90555d5a8dff6cc5c046279c95ff0c00fc0a0136c7b",
+      "vendor/spellfix/en_index.dic": "f0b1a234bd178bdd01875b2a392a9647f888b8fe879f79c52aae62c2759b3647",
+      "vendor/spellfix/ro_index.aff": "3ee127a667bdec829faee546ae32033e8f10f7c63117f9b572ef03ad9df2b76b",
+      "vendor/spellfix/ro_index.dic": "c26a9356f598a0ae89e7be650f6bdd9ba70acce66b41d7ab14c0c68639b6ed33",
+      "vendor/spellfix/en_full.txt": "7fea67ab954e2c01df6c608c9826e594cf36f8823b3243554f88245fb75dc506",
+      "vendor/spellfix/ro_full.txt": "a0d0993701e251e91b9047753b6032be751217a5aaba36ed879163e020e33ded"
+    },
+    "resources": "Hunspell en_US (SCOWL 2020.12.07, npm dictionary-en 4.0.0, MIT AND BSD) and ro (Rospell 3.3.10, npm dictionary-ro 3.0.0, GPL-2.0 OR LGPL-2.1 OR MPL-1.1) from wooorm/dictionaries@8cfea406b505e4d7df52d5a19bce525df98c54ab; unigram frequencies hermitdave/FrequencyWords@525f9b560de45753a5ea01069454e72e9aa541c6 content/2018/{en,ro}/*_full.txt (OpenSubtitles 2018; code MIT, content CC BY-SA 4.0). Recorded in dependencies.md; kept in the git-ignored vendor/spellfix/.",
+    "policy": "Changes only words in neither dictionary nor the 20,000 most frequent words of either list; keyboard-aware single edits (QWERTY, Romanian standard layout, diacritic substitutions), split of two merged words, merge of a word split by a space, diacritic restoration; a known word is restored to a diacritic variant only in a Romanian message typed without any diacritic and when the variant is >= 5x more frequent. Never touched: capitalized tokens (except a sentence-initial word absent from the frequency lists and corrected into one of the 500 most frequent words), all-caps, numbers, dates, e-mails, URLs, tokens with digits, quoted text, hyphenated/apostrophized tokens, words shorter than 4 letters (except diacritic restoration), letters repeated three times, contractions typed without an apostrophe, and messages whose lower-case words are mostly unknown and one edit away from nothing known (gibberish). Never produces a negation or quantifier cue word. Every change is logged.",
+    "development": "Tuned on datasets/formalizer-v1/dev.jsonl only (sha256 86c85e9aa12a9bade23e4c8453b694f57838ab7022ecc67949f524a6ffdd88f2): grid costWeight {2,3,4} x margin {0.5,0.7,1.0}; the most precise setting was chosen. Development report eval/reports/current/spellfix/dev-quality.json: verifiable precision 0.944, non-word recall 0.601, 2 of 3,577 clean messages changed."
+  },
+  "model": {
+    "arm": "formalizer-size-v1 / smollm2-135m / run fv1-size-a4, merged-best",
+    "gguf": "models/smollm2-135m/fv1-size-a4/formalizer/merged-best/gguf/q8_0.gguf",
+    "gguf_sha256": "1e487df81bbf635219fbf935c500be59c471de5463150851cdfcb6ebedb7aaf6",
+    "runtime": "llama.cpp ~/llama-cpp-venv/llama.cpp commit 99d4026b116605ed8e1f3ab179b3c63bc4637195, llama-server -ngl 0 --jinja -np 4 -c 32768, CUDA_VISIBLE_DEVICES empty (no GPU), 8 threads (the raw condition used 16; greedy output does not depend on the thread count, checked by the rerun control)",
+    "harness": "tools/research/predict-endpoint.mjs (sha256 d9fba00afa31dc93517f833e9916a08127ab1600a76219830cab0e45703b2ad2), message as the only user turn, temperature 0, top_k 1, max_tokens 6144, parallel 4",
+    "conditional_arm": "gemma (formalizer-size-v1 arm 2) under the same protocol, raw and spellfixed, only if its Q8_0 GGUF exists within this session; otherwise deferred and reported as not run"
+  },
+  "suites": {
+    "formalizer-v1": {"file": "eval/suites/formalizer-v1/test.jsonl", "sha256": "b05c76a83efbad8a6027137cb13bc9eeb57812574663818624a98692a11930ac", "rows": 5033, "baseline_predictions": "eval/reports/current/formalizer-size-v1/smollm2-135m/formalizer-v1-q8_0.predictions.jsonl", "baseline_sha256": "2e15d7fb5cfc1df0065d601da0356fd2fe71e5337b95ea89ad05fbb40e231d23"},
+    "formalizer-ood-v1": {"file": "eval/suites/formalizer-ood-v1/test.jsonl", "sha256": "09acfb2eb820a60f29c83b01a45dd2cc1ca371117de4fc69c517c4b80a307a2a", "rows": 1578, "baseline_predictions": "eval/reports/current/formalizer-size-v1/smollm2-135m/formalizer-ood-v1-q8_0.predictions.jsonl", "baseline_sha256": "ba478b837b25af33bed4cb075ead2bb9f56a8ec64c5b30a3bd92b30ec933fd32"},
+    "formalizer-wild-v1": {"file": "eval/suites/formalizer-wild-v1/test.jsonl", "sha256": "077e7164a3020c1e6c3c28c8f3b5b8f2c08e2e3f59ee0e6830f9991509884163", "rows": 796, "baseline_predictions": "eval/reports/current/formalizer-size-v1/smollm2-135m/formalizer-wild-v1-q8_0.predictions.jsonl", "baseline_sha256": "0eb7828d2dc580fb1a3b50b9f6aa9a7c6280a3b80236cd8ba31ce8ce8f4c2c41"}
+  },
+  "procedure": [
+    "1. Corrector quality on each suite (tools/research/spellfix-eval.mjs quality): every change logged.",
+    "2. Build the spellfixed condition: only rows whose message the corrector changes are predicted again (spellfix-eval.mjs apply, then predict-endpoint.mjs on those rows); an unchanged row has an identical input and keeps its raw prediction (spellfix-eval.mjs merge). All rows are used; no sampling.",
+    "3. Rerun control: 300 unchanged short formalizer-v1 rows (predict-endpoint.mjs --sample 300 --seed 42 on the unchanged set) are predicted again under the new server settings; the share of byte-identical outputs is reported as the run-to-run noise floor.",
+    "4. Score both conditions with the same scorer (tools/metrics/run.mjs for formalizer-v1 and OOD; tools/eval/wild-suite.mjs --score for wild) and compare paired (spellfix-eval.mjs compare)."
+  ],
+  "metrics": {
+    "primary": "Tolerant execution equivalence (DS016, execution_equivalent_tolerant) on formalizer-v1 test noisy rows, paired delta spellfixed minus raw.",
+    "secondary": ["the same delta on clean rows (H2), per noise level (none, light, medium, heavy), per language slice (en, ro, mixed), and per noise level x language", "canonical AST match and parse rate deltas", "formalizer-ood-v1 the same slices", "formalizer-wild-v1 accepted-gold match, decision match and proposition F1 (per-row, paired)", "rows changed by the corrector versus unchanged"],
+    "corrector": ["precision on verifiable changes (exact undo of a recorded word-level noise operation; changes with only a character-level diacritic record are reported separately as unverifiable)", "recall of recorded word-level operations (all, non-word, real-word)", "damage: share of clean messages changed and changes per 1,000 tokens", "synthetic diacritic restoration on clean Romanian rows (diacritics stripped from lower-case words)", "latency per message (ms, p50/p95/p99) on this CPU, one thread, after loading"],
+    "uncertainty": "95% paired cluster bootstrap (clusters = semantic_case_id, 10,000 resamples, seed 7) and exact McNemar test on rows; the wild suite clusters by row."
+  },
+  "decision_rule": "Recommend adoption as a host pre-step only if all hold: (a) the primary delta is positive and its 95% interval excludes 0; (b) H2 holds (clean-row lower bound >= -0.5 points); (c) the formalizer-ood-v1 noisy-row delta and the wild accepted-match delta are not significantly negative (interval upper bound >= 0); (d) H3 holds. If (a) fails but (b)-(d) hold, the conclusion is 'no measurable benefit' and the recommendation is not to adopt. Any significantly negative primary or clean delta means 'harmful, do not adopt'.",
+  "limitations_declared": [
+    "The model was fine-tuned on noisy messages whose gold role values keep typos (DS022 target policy), so correction can move a role value away from the gold string; tolerant execution equivalence links strings to knowledge and is the primary endpoint for that reason, while canonical match is reported as secondary.",
+    "Real-word errors (dictation homophones, autocorrect, SMS forms) are out of scope for a dictionary corrector by construction.",
+    "The formalizer-v1 noise is synthetic; formalizer-wild-v1 has real user text but no noise labels and no execution worlds.",
+    "Single model and seed; experiment-grade, no human review."
+  ],
+  "budget": {"hardware": "CPU only (GB10 host, 20 cores shared with another CPU evaluation), GPU forbidden (a training run owns it)", "threads": 8, "wall_ceiling_hours": 4, "abort": "stop if the host shows memory pressure or the GPU would be touched"}
+}

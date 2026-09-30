@@ -11,6 +11,8 @@
  * the administrator password; the chat API stays blocked until it is set.
  * `CHATSOP_API_KEY` keeps working as an environment-provided bearer token for
  * scripts and SDKs, and `CHATSOP_CONFIG` selects another runtime configuration.
+ * The chat's formalizer models come from config/formalizers.json; the server
+ * runs the selected one in a CPU llama-server on demand (DS012 "Formalizer models").
  */
 import os from 'node:os';
 import {startServer} from '../server/http.mjs';
@@ -34,7 +36,7 @@ const [first] = shown;
 console.log(`\n  chat          : http://${first}:${address.port}/chat`);
 console.log(`  corpus audit  : http://${first}:${address.port}/audit`);
 console.log(`  evaluation    : http://${first}:${address.port}/eval`);
-console.log(`  status        : http://${first}:${address.port}/project`);
+console.log(`  experiments   : http://${first}:${address.port}/experiments`);
 console.log(`  admin         : http://${first}:${address.port}/admin`);
 console.log(`  documentation : http://${first}:${address.port}/docs/`);
 console.log(`  chat API      : http://${first}:${address.port}/v1/chat/completions  (bearer token or session cookie)`);
@@ -47,6 +49,12 @@ if (server.auth?.configured) {
   console.log('  authentication: open the home URL in a browser and choose the administrator password');
 }
 console.log(`  prompt profile: ${process.env.CHATSOP_PROMPT_PROFILE}`);
-console.log('\nChat answers 503 until a formalizer endpoint is configured and ready; documentation, admin and audit work immediately. The home page shows the formalizer state.');
+if (server.formalizers) {
+  const {registry, manager} = server.formalizers;
+  console.log(`\nFormalizer models (${registry.file}): ${registry.models.map(m => m.id + (m.id === registry.default ? ' (default)' : '')).join(', ')}`);
+  console.log(`  choose one in the chat; a selected model starts a CPU llama-server on demand (${manager.bin ?? 'llama-server NOT FOUND: set LLAMA_SERVER_BIN'})`);
+} else {
+  console.log('\nChat answers 503 until a formalizer endpoint is configured and ready; documentation, admin and audit work immediately. The home page shows the formalizer state.');
+}
 if (host !== '127.0.0.1' && host !== '::1' && host !== 'localhost') console.log('Remote binding: the documentation path is unauthenticated, so expose this only on a trusted network.');
 console.log('Stop with Ctrl+C.\n');

@@ -187,7 +187,10 @@ test('fail closed, bearer security, request limits, unsupported surfaces and mod
   for (const route of ['/v1/responses', '/v1/embeddings', '/v1/tools']) assert.equal((await f.request('POST', route, {})).status, 501);
   assert.equal((await f.chat('x', {tools: []})).status, 400);
   const injected = await fixture(t, {replies: {'Record this': '@f fact\n  holds likes ana lab_alpha\n  valid timeless\n@s remember\n  input $f'}});
-  assert.equal((await injected.chat('Record this')).status, 400);
+  const refused = await injected.chat('Record this');
+  assert.equal(refused.status, 422, 'model output with host plumbing is refused, and shown as the rejected model SOP');
+  assert.equal(refused.body.error.code, 'model_output_rejected');
+  assert.match(refused.body.chatSop.rejection, /declarative/);
   assert.equal(Object.keys(injected.repo.session('base', 'alice', 'c1').live.claims).length, 0);
   const offline = createServer({config: {promptProfile: 'formal'}, repo: f.repo, lexicon: f.lex, base: 'base', authTokens: tokens});
   const response = await readyz(await listen(t, offline));

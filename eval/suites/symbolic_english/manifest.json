@@ -1,0 +1,27 @@
+{
+ "format": "chatsop-dataset-manifest-v3",
+ "dataset": "symbolic_english",
+ "split": "test",
+ "sealed": true,
+ "model": "SymbolicLM (regression suite); seed forms for SymbolicProofingLLM",
+ "purpose": "Correct English that SymbolicLM analyses correctly. Each row stores the message, SymbolicLM grammatical analysis (compact UD parse) and the SOP Lang output. A regression suite: whenever SymbolicLM, the Stanza model or the engine changes, every row must still be analysed the same or better (node tools/symbolic-regression.mjs). Also the inventory of forms SymbolicProofingLLM should rewrite into.",
+ "path": "eval/suites/symbolic_english/test.jsonl",
+ "rows": 2447,
+ "sha256": "d73b31477cff56ef9fec18856f629c61476509ceb9fd55d7f022dafd6497ce9f",
+ "bytes": 5837646,
+ "counts": {
+  "rows": 2447,
+  "by_source": {
+   "formalizer-ood-v1": 460,
+   "formalizer-v1": 1712,
+   "formalizer-wild-v1": 56,
+   "new_cases": 219
+  },
+  "by_analysis_verified": {
+   "gold_sop_match": 2228,
+   "parsers_agree_c": 219
+  }
+ },
+ "sources": "eval/suites/{formalizer-v1,formalizer-ood-v1,formalizer-wild-v1,proofing} and the owner-sealed writers of datasets_sources/new_cases (rule 9: only here, never in train/dev)",
+ "built_at": "2026-09-30T17:46:41.244Z"
+}

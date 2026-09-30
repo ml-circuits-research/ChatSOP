@@ -1,5 +1,5 @@
 /** Shared shell for the server-rendered browser pages (home, login, chat,
- * audit, eval, project, admin): one stylesheet, the shared top menu of
+ * audit, eval, experiments, admin): one stylesheet, the shared top menu of
  * server/pages/site-menu.mjs (the same menu as the documentation site) and
  * HTML escaping. The pages only present the existing session-cookie
  * authentication; they never decide access themselves. */
@@ -37,9 +37,9 @@ ul.plain{list-style:none;padding:0;margin:0}ul.plain li{padding:4px 0}
 
 /** Wraps page content with the shared top menu. `signedIn` switches the
  * account slot between "Sign in" and a POST logout button. */
-export function layout({title, active = '', signedIn = false, body, script = '', style = ''}) {
+export function layout({title, active = '', signedIn = false, body, script = '', style = '', next: nextPath = null}) {
   const account = signedIn ? 'logout' : active === 'login' ? 'none' : 'signin';
-  const next = active === 'home' || !active ? '/' : '/' + active;
+  const next = nextPath ?? (active === 'home' || !active ? '/' : '/' + active);
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escapeHtml(title)}</title><style>${STYLE}${SITE_MENU_STYLE}${style}</style></head>

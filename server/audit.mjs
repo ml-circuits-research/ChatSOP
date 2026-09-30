@@ -16,10 +16,8 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import crypto from 'node:crypto';
-import {fileURLToPath} from 'node:url';
 import {assert} from '../lib/util.mjs';
-import {jsonlExists, readJsonlShardedSync} from '../lib/jsonl-shards.mjs';
+import {jsonlExists} from '../lib/jsonl-shards.mjs';
 import {Lexicon} from '../sop/lexicon.mjs';
 import {Repository} from '../memory/repository.mjs';
 import {publishKnowledge} from '../sop/ingest.mjs';
@@ -28,19 +26,20 @@ import {parse} from '../sop/parser.mjs';
 import {auditPage} from './pages/audit.mjs';
 import {barePrompt} from './llm.mjs';
 import {withInlineWorld, verificationContext} from '../lib/row-world.mjs';
-
-const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
-// Corpus splits may be stored as shards (lib/jsonl-shards.mjs); the logical base path reads either form.
-const readJsonl = file => readJsonlShardedSync(file);
-const label = value => (value === undefined || value === null || value === '' ? 'none' : typeof value === 'object' ? JSON.stringify(value) : String(value));
+import {projectRoot, sha256, readJsonl, label, tally, cachedFile, plain, facetValues, symbolicChecker} from './audit-shared.mjs';
+import {DATASET_TYPES, tabOf, tabDescriptions, loadAuditRegistry, corpusType, corpusSealed, extraFiles, cleanTextSources} from './audit-corpora.mjs';
+import {DATASET_FACETS, datasetListItem, loadDatasetCorpus, datasetCaseDetail, executeDatasetCase} from './audit-datasets.mjs';
+import {shardPaths, jsonlBytes} from '../lib/jsonl-shards.mjs';
+import {PROOFREADING_FACETS, indexProofreadingCase, proofreadingCaseDetail, proofreadingListItem, executeProofreadingCase} from './audit-proofreading.mjs';
+import {CLEANTEXT_FACETS, loadCleanTextCorpus, cleanTextCaseDetail, cleanTextListItem, executeCleanTextCase} from './audit-cleantext.mjs';
+import {corpusDir, corpusNames} from '../lib/dataset-paths.mjs';
 
 const targetOf = row => row.sop_target ?? row.target ?? null;
 const themeOf = row => label(row.domain ?? row.theme ?? row.topical_domain ?? row.lineage?.theme ?? row.generation_trace?.theme ?? 'general');
 const shapeOf = row => label(row.structure_id ?? row.form ?? row.surface_design ?? 'general');
 const reviewOf = row => label(row.target_review_status ?? row.review_status ?? row.generation_trace?.review_status ?? 'not_reviewed');
 /** The user's whole message: the model input carried in `question` (DS021). */
-export const messageOf = row => row.question ?? '';
+export const messageOf = row => row.question ?? row.message ?? '';
 /** The exact training prompt the small model receives, built by the same call as tools/research/prepare-experiment.mjs. */
 export const promptOf = row => barePrompt(messageOf(row));
 const fingerprintOf = rows => sha256(rows.map(row => `${row.id}\t${targetOf(row) ?? ''}`).sort().join('\n'));
@@ -61,46 +60,15 @@ const VERDICTS = ['unreviewed', 'approve', 'needs_fix', 'reject'];
 /** Query aliases kept from the first audit API. */
 const ALIASES = {shape: 'family', reviewed: 'verdict'};
 
-const tally = values => {
-  const counts = new Map();
-  for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
-  return Object.fromEntries([...counts].sort((a, b) => String(a[0]).localeCompare(String(b[0]))));
+/** Per-type facet groups, for the tree and for `caseList` filter validation; formalizer keeps its original groups. */
+const TYPE_FACETS = {formalizer: FACETS, proofreading: PROOFREADING_FACETS, cleanText: CLEANTEXT_FACETS, ...DATASET_FACETS};
+/** Per-type extra fields shown on each row of the case list, next to the common id/language/split/verdict/request. */
+const LIST_ITEM = {
+  formalizer: item => ({shape: item.family, family: item.family, theme: item.theme, input_mode: item.input_mode, review: item.review, status: item.status === 'none' ? null : item.status}),
+  proofreading: proofreadingListItem,
+  cleanText: cleanTextListItem,
+  ...Object.fromEntries(DATASET_TYPES.map(type => [type, datasetListItem])),
 };
-
-/** Reads a file once and re-reads it only when its size or mtime changes. */
-function cachedFile(parse) {
-  const cache = new Map();
-  return file => {
-    let stat;
-    try {
-      stat = fs.statSync(file);
-    } catch {
-      cache.delete(file);
-      return null;
-    }
-    const stamp = `${stat.size}:${stat.mtimeMs}`;
-    const hit = cache.get(file);
-    if (hit?.stamp === stamp) return hit.value;
-    const value = parse(fs.readFileSync(file, 'utf8'));
-    cache.set(file, {stamp, value});
-    return value;
-  };
-}
-
-/** JSON-safe copy of a runtime packet (BigInt as string, cycles cut). */
-function plain(value) {
-  const seen = new WeakSet();
-  return JSON.parse(JSON.stringify(value ?? null, (key, item) => {
-    if (typeof item === 'bigint') return item.toString();
-    if (item instanceof Map) return Object.fromEntries(item);
-    if (item instanceof Set) return [...item];
-    if (item && typeof item === 'object') {
-      if (seen.has(item)) return '[circular]';
-      seen.add(item);
-    }
-    return item;
-  }));
-}
 
 /** One case: every row that shares a `semantic_case_id`, plus the fields the list and filters need. */
 function indexCase(id, entries) {
@@ -123,18 +91,12 @@ function indexCase(id, entries) {
   };
 }
 
-/** The value(s) of one facet for a case; `verdict` needs the current ledger. */
-const facetValues = (item, key, verdictOf) => {
-  if (key === 'split') return item.splits;
-  if (key === 'language') return item.languages;
-  if (key === 'verdict') return [verdictOf(item.id)];
-  return [item[key]];
-};
-
 export function createAuditRouter({
   root = projectRoot,
   ledgerDir = path.join(root, 'eval/reports/current/audit'),
   reportDir = path.join(root, 'eval/reports/current/corpus-audit'),
+  symbolic = symbolicChecker(),
+  registry = loadAuditRegistry(),
 } = {}) {
   const corpora = new Map();
   const add = (name, split, file) => {
@@ -142,21 +104,45 @@ export function createAuditRouter({
     if (!corpora.has(name)) corpora.set(name, {name, files: []});
     corpora.get(name).files.push({split, file});
   };
-  for (const entry of fs.readdirSync(path.join(root, 'datasets'), {withFileTypes: true})) {
-    if (!entry.isDirectory()) continue;
-    add(entry.name, 'train', path.join(root, 'datasets', entry.name, 'train.jsonl'));
-    add(entry.name, 'dev', path.join(root, 'datasets', entry.name, 'dev.jsonl'));
+  const datasetDirs = corpusNames(root);
+  for (const name of datasetDirs) {
+    add(name, 'train', path.join(root, corpusDir(name, root), 'train.jsonl'));
+    add(name, 'dev', path.join(root, corpusDir(name, root), 'dev.jsonl'));
   }
   for (const entry of fs.readdirSync(path.join(root, 'eval/suites'), {withFileTypes: true})) {
     if (!entry.isDirectory()) continue;
     add(entry.name, 'test', path.join(root, 'eval/suites', entry.name, 'test.jsonl'));
     add(entry.name, 'test', path.join(root, 'eval/suites', entry.name, 'system/test.jsonl'));
   }
+  // Split files a corpus needs beyond the train/dev/test convention above (DS020 "Corpus registry",
+  // config/audit-corpora.json): every declared `datasets/<name>` directory, even one with no train.jsonl/dev.jsonl
+  // of its own (for example proofing-diverse-dev, whose rows all live in registry-declared extra files).
+  for (const name of new Set([...datasetDirs, ...corpora.keys(), ...Object.keys(registry.corpora ?? {})])) for (const {split, file} of extraFiles(name, registry, root)) add(name, split, file);
+  // cleanText sources (textToCleanEnglish, DS021): read-only local writer drafts, never a train/dev/test corpus.
+  for (const source of cleanTextSources(registry, root)) {
+    if (!fs.existsSync(source.dir)) continue;
+    const files = fs.readdirSync(source.dir).filter(f => f.endsWith('.jsonl')).sort();
+    if (!files.length) continue;
+    corpora.set(source.id, {name: source.id, source, files: files.map(f => ({split: f.replace(/\.jsonl$/, ''), file: path.join(source.dir, f)}))});
+  }
+
+  /** The audit review type of every discovered corpus (DS020 "Corpus registry"): explicit or pattern-matched, except
+   * cleanText sources, which are registered as their own type directly (they carry no `datasets/<name>` directory). */
+  const TYPE = new Map([...corpora.keys()].map(name => [name, corpora.get(name).source ? 'cleanText' : corpusType(name, registry)]));
 
   const cache = new Map();
   const loadCorpus = name => {
     assert(corpora.has(name), 'Unknown corpus ' + name);
-    if (cache.has(name)) return cache.get(name);
+    if (cache.has(name) && !cache.get(name).stale?.()) return cache.get(name);
+    const type = TYPE.get(name);
+    const loaded = DATASET_TYPES.includes(type) ? loadDatasetCorpus(corpora.get(name), type, {root}) : type === 'cleanText' ? loadCleanTextCorpus(corpora.get(name), {root}) : loadSplitCorpus(name, type);
+    cache.set(name, loaded);
+    return loaded;
+  };
+
+  /** formalizer and proofreading corpora: JSONL splits, cases grouped by `semantic_case_id`, one indexer per type. */
+  function loadSplitCorpus(name, type) {
+    const indexFn = type === 'proofreading' ? indexProofreadingCase : indexCase;
     const entries = corpora.get(name).files.flatMap(({split, file}) => readJsonl(file).map(row => ({split, file: path.relative(root, file), row})));
     const grouped = new Map();
     for (const entry of entries) {
@@ -164,13 +150,14 @@ export function createAuditRouter({
       if (!grouped.has(id)) grouped.set(id, []);
       grouped.get(id).push(entry);
     }
-    const cases = [...grouped].map(([id, group]) => indexCase(id, group)).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+    const cases = [...grouped].map(([id, group]) => indexFn(id, group)).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
     const byCase = new Map(cases.map(item => [item.id, item]));
     const facets = {};
-    for (const {key} of FACETS) if (key !== 'verdict') facets[key] = tally(cases.flatMap(item => facetValues(item, key)));
+    for (const {key} of TYPE_FACETS[type] ?? FACETS) if (key !== 'verdict') facets[key] = tally(cases.flatMap(item => facetValues(item, key)));
     const rows = entries.map(entry => entry.row);
-    const loaded = {
+    return {
       name,
+      type,
       entries,
       cases,
       byCase,
@@ -186,9 +173,7 @@ export function createAuditRouter({
         fingerprint: fingerprintOf(rows),
       },
     };
-    cache.set(name, loaded);
-    return loaded;
-  };
+  }
 
   const readLedger = cachedFile(text => {
     const latest = new Map();
@@ -243,18 +228,57 @@ export function createAuditRouter({
     };
   };
 
+  /** Splits read from eval/suites (the sealed test exports) are view-only; a registry `sealed` flag seals the whole corpus. */
+  const sealedSplits = name => [...new Set(corpora.get(name).files.filter(({file}) => path.relative(root, file).startsWith('eval/suites/')).map(({split}) => split))].sort();
+  const sealedOf = name => corpusSealed(name, registry) || (corpora.get(name).files.length > 0 && sealedSplits(name).length === new Set(corpora.get(name).files.map(({split}) => split)).size);
+
+  /** Row count of a split file (all shards), cached by size and mtime; counting lines needs no JSON parsing. */
+  const lineCounts = new Map();
+  const countRows = base => shardPaths(base).reduce((sum, file) => {
+    const stat = fs.statSync(file);
+    const stamp = `${stat.size}:${stat.mtimeMs}`;
+    const hit = lineCounts.get(file);
+    if (hit?.stamp === stamp) return sum + hit.rows;
+    const buffer = fs.readFileSync(file);
+    let rows = 0;
+    let start = 0;
+    while (start < buffer.length) {
+      let end = buffer.indexOf(10, start);
+      if (end < 0) end = buffer.length;
+      if (end > start) rows++;
+      start = end + 1;
+    }
+    lineCounts.set(file, {stamp, rows});
+    return sum + rows;
+  }, 0);
+
+  /** The corpus list entry. Cheap on purpose: row counts come from the files, so listing the corpora never loads a
+   * corpus; `cases` and the language breakdown appear once a corpus has been opened. */
   const summary = name => {
-    const loaded = loadCorpus(name);
     const {latest} = ledger(name);
     const records = [...latest.values()];
+    const type = TYPE.get(name);
+    const files = corpora.get(name).files.map(({split, file}) => ({split, file: path.relative(root, file), rows: countRows(file)}));
+    const splits = {};
+    for (const {split, rows} of files) splits[split] = (splits[split] ?? 0) + rows;
+    const loaded = cache.get(name);
     return {
       corpus: name,
-      ...loaded.summary,
+      type,
+      tab: tabOf(type),
+      rows: files.reduce((sum, file) => sum + file.rows, 0),
+      cases: loaded ? loaded.cases.length : null,
+      splits,
+      languages: loaded?.summary.languages ?? {},
+      fingerprint: sha256(files.map(file => `${file.split}\t${file.file}\t${file.rows}\t${jsonlBytes(path.join(root, file.file))}`).join('\n')),
       reviewed: latest.size,
       approved: records.filter(record => record.verdict === 'approve').length,
       rejected: records.filter(record => record.verdict === 'reject').length,
       needsFix: records.filter(record => record.verdict === 'needs_fix').length,
-      files: corpora.get(name).files.map(({split, file}) => ({split, file: path.relative(root, file)})),
+      files: files.map(({split, file}) => ({split, file})),
+      sealed: sealedOf(name),
+      sealedSplits: sealedSplits(name),
+      localOnly: corpora.get(name).source?.local_only ?? false,
     };
   };
 
@@ -266,20 +290,24 @@ export function createAuditRouter({
     for (const item of loaded.cases) verdict[latest.get(item.id)?.verdict ?? 'unreviewed']++;
     return {
       corpus: name,
+      type: loaded.type,
       rows: loaded.summary.rows,
       cases: loaded.cases.length,
-      groups: FACETS.map(({key, label: title}) => ({key, label: title, values: key === 'verdict' ? verdict : loaded.facets[key]})),
+      groups: (TYPE_FACETS[loaded.type] ?? FACETS).map(({key, label: title}) => ({key, label: title, values: key === 'verdict' ? verdict : loaded.facets[key]})),
     };
   };
 
   const caseList = (name, query = {}) => {
     const loaded = loadCorpus(name);
+    const type = loaded.type;
+    const groups = TYPE_FACETS[type] ?? FACETS;
+    const listItem = LIST_ITEM[type] ?? LIST_ITEM.formalizer;
     const {latest} = ledger(name);
     const verdictOf = id => latest.get(id)?.verdict ?? 'unreviewed';
     const filters = {};
     for (const [key, value] of Object.entries(query)) {
       const facet = ALIASES[key] ?? key;
-      if (value && FACETS.some(entry => entry.key === facet)) filters[facet] = String(value);
+      if (value && groups.some(entry => entry.key === facet)) filters[facet] = String(value);
     }
     const text = String(query.q ?? '').trim().toLowerCase();
     const limit = Math.min(200, Math.max(1, Math.trunc(Number(query.limit ?? 50)) || 50));
@@ -310,6 +338,7 @@ export function createAuditRouter({
     if (offset >= matches.length && matches.length > 0) offset = Math.floor((matches.length - 1) / limit) * limit;
     return {
       corpus: name,
+      type,
       total: matches.length,
       offset,
       limit,
@@ -318,16 +347,12 @@ export function createAuditRouter({
       index,
       items: matches.slice(offset, offset + limit).map(item => ({
         id: item.id,
+        type,
         surfaces: item.entries.length,
         language: item.languages[0],
         languages: item.languages,
         splits: item.splits,
-        shape: item.family,
-        family: item.family,
-        theme: item.theme,
-        input_mode: item.input_mode,
-        review: item.review,
-        status: item.status === 'none' ? null : item.status,
+        ...listItem(item),
         reviewed: verdictOf(item.id),
         verdict: verdictOf(item.id),
         request: item.request.length > 240 ? item.request.slice(0, 239) + '…' : item.request,
@@ -336,15 +361,27 @@ export function createAuditRouter({
   };
 
   const caseDetail = (name, id) => {
-    const item = loadCorpus(name).byCase.get(String(id));
+    const loaded = loadCorpus(name);
+    const item = loaded.byCase.get(String(id));
     assert(item, 'Unknown case ' + id);
+    const {latest, history} = ledger(name);
+    const common = {verdict: latest.get(item.id) ?? null, history: history.get(item.id) ?? [], audit: auditFindings(name, item.entries.map(entry => entry.row.id))};
+    if (DATASET_TYPES.includes(loaded.type)) return datasetCaseDetail(loaded.type, item, {corpus: name, ...common});
+    if (loaded.type === 'proofreading') return proofreadingCaseDetail(item, {corpus: name, ...common});
+    if (loaded.type === 'cleanText') return cleanTextCaseDetail(item, {corpus: name, ...common});
+    return formalizerCaseDetail(item, {corpus: name, root, ...common});
+  };
+
+  /** formalizer case detail (unchanged behaviour): the message the model sees, its target, the verification-only
+   * world, machine-audit findings and the verdict ledger, exactly as DS020 "Visual audit server" documents it. */
+  function formalizerCaseDetail(item, {corpus: name, root, verdict, history, audit}) {
     const {entries} = item;
     const first = entries[0].row;
-    const {latest, history} = ledger(name);
     const flags = first.quality_flags ?? {};
     return {
       id: item.id,
       corpus: name,
+      type: 'formalizer',
       splits: item.splits,
       languages: item.languages,
       theme: item.theme,
@@ -373,17 +410,21 @@ export function createAuditRouter({
         expected_from: flags.expected_from ?? null,
         executed: first.executed ?? first.execution ?? null,
       },
-      verdict: latest.get(item.id) ?? null,
-      history: history.get(item.id) ?? [],
-      audit: auditFindings(name, entries.map(entry => entry.row.id)),
+      verdict,
+      history,
+      audit,
       rows: entries.map(entry => ({id: entry.row.id, split: entry.split, file: entry.file, language: entry.row.language, question: entry.row.question, message: messageOf(entry.row), prompt: promptOf(entry.row), question_type: entry.row.question_type ?? null, target: targetOf(entry.row), expected: entry.row.expected ?? null})),
       raw: entries.map(entry => entry.row),
     };
-  };
+  }
 
   const executeCase = async (name, id) => {
-    const item = loadCorpus(name).byCase.get(String(id));
+    const loaded = loadCorpus(name);
+    const item = loaded.byCase.get(String(id));
     assert(item, 'Unknown case ' + id);
+    if (DATASET_TYPES.includes(loaded.type)) return executeDatasetCase(loaded.type, item, {corpus: name, symbolic});
+    if (loaded.type === 'proofreading') return executeProofreadingCase(item, {corpus: name, symbolic});
+    if (loaded.type === 'cleanText') return executeCleanTextCase(item, {corpus: name, symbolic});
     const rows = item.entries.map(entry => withInlineWorld(entry.row, {root})).filter(row => targetOf(row));
     assert(rows.length > 0, 'This case has no target yet');
     const lexiconSource = rows[0].ontology_sop ?? null;
@@ -435,6 +476,7 @@ export function createAuditRouter({
     const record = {
       ts: new Date().toISOString(),
       corpus,
+      type: detail.type ?? 'formalizer',
       caseId: detail.id,
       verdict,
       note: String(note ?? '').slice(0, 2000),
@@ -449,7 +491,7 @@ export function createAuditRouter({
   const handle = async (req, res, pathname, query, send) => {
     if (req.method === 'GET' && pathname === '/audit') {
       res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store'});
-      res.end(auditPage({signedIn: true}));
+      res.end(auditPage({signedIn: true, tabs: tabDescriptions(registry)}));
       return true;
     }
     if (!pathname.startsWith('/audit/api/')) return false;

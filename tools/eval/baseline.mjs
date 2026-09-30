@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { resolveDatasetPath } from '../../lib/dataset-paths.mjs';
 
 const root = path.resolve(fileURLToPath(new URL('../../', import.meta.url)));
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -10,8 +11,8 @@ const [file, out] = process.argv.slice(2).length === 4 && process.argv[2] === '-
   ? [process.argv[3], process.argv[5]] : [];
 try {
   assert(file && out, 'Usage: node tools/eval/baseline.mjs --file <suite.jsonl> --out eval/predictions/<name>.jsonl');
-  const source = path.resolve(root, file), destination = path.resolve(root, out);
-  assert((source.startsWith(path.join(root, 'datasets') + path.sep) && source.endsWith('/dev.jsonl')) ||
+  const source = path.resolve(root, resolveDatasetPath(file)), destination = path.resolve(root, out);
+  assert(((source.startsWith(path.join(root, 'datasets') + path.sep) || source.startsWith(path.join(root, 'datasets_archive') + path.sep)) && source.endsWith('/dev.jsonl')) ||
     (source.startsWith(path.join(root, 'eval/suites') + path.sep) && source.endsWith('/test.jsonl')), 'Baseline input must be a dev suite or sealed eval test suite');
   assert(destination.startsWith(path.join(root, 'eval/predictions') + path.sep) && destination.endsWith('.jsonl'), 'Baseline output must be eval/predictions/*.jsonl');
   const input = fs.readFileSync(source), rows = input.toString('utf8').trim().split('\n').map(line => JSON.parse(line));

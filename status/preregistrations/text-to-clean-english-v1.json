@@ -1,0 +1,76 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "text-to-clean-english-v1",
+ "name": "textToCleanEnglish: which backend turns a Romanian, mixed or noisy-English chat message into clean, simple, user-reviewed English before formalization",
+ "registered_at": "2026-09-30T07:55:00Z",
+ "registered_by": "clean-english-ui-agent",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "supersedes": "An earlier same-day registration under this same id (registered_at 2026-09-30T06:00:00Z) was written by a parallel run of this same task with a different candidate set (it included Opus-MT and omitted Haiku for lack of credentials) and never produced scored results (no experiments.json 'done' entry, no eval/reports/current/text-to-clean-english/ report existed yet when this version was written). This version replaces it in place, keeping the same id and file path per the calling agent's exact instructions. A second, independently-run instance of the same task also wrote a 'done' status/experiments.json entry for this id in parallel, under eval/reports/current/text-to-clean-english-ui-survey/, using Opus-MT and no EuroLLM/Qwen3-1.7B/LanguageTool/Haiku numbers; that entry is superseded by this run's for the reasons in the top-level handback note (this run follows the calling agent's explicit candidate list and explicit instruction not to rerun Opus-MT).",
+ "owner_request": "Owner decision 2026-09-30: formalization handles only clean English. Build textToCleanEnglish, a UI step before formalization that corrects spelling/grammar, translates and simplifies a message, shown to the user for accept/edit/reject. Survey candidate backends (EuroLLM-1.7B-Instruct, Qwen3-1.7B, Gemma 3 1B-it, Gemma 3 4B-it if time allows, LanguageTool if it runs locally, Claude Haiku as a reference ceiling) with a small preregistered evaluation, then recommend a default (possibly a combination). Opus-MT ro-en is NOT rerun: its mixed-text weakness (42% fluent, hallucinates) is already established by eval-translator-compare-v1 and cited, not re-measured.",
+ "kind": "evaluation (inference only; no training, no fine-tuning, no optimizer step)",
+ "data": {
+  "source": "datasets/formalizer-v1/dev.jsonl (5131 rows: 2933 en, 2198 ro; 732 code_switch; 1554 with noise). datasets_sources/new_cases/raw/ was checked: it holds host-authored candidate rows with 'categories' tags (typos, casual_register, ...) and no gold sop_target, so 10 of them were kept as a small held-out probe slice (fluency/meaning-proxy checks only, no SymbolicLM-vs-gold score, labelled source='new_cases').",
+  "buckets": {
+   "ro": "language === 'ro' && !code_switch (n=40, seeded sample)",
+   "mixed": "code_switch truthy (n=45: 40 sampled directly, plus 5 rows a companion sampling script had mislabelled as noisyEn -- language en with a Romanian insertion counted by that script only via noise_level, missing the !code_switch guard -- corrected back to mixed here since code_switch was in fact set; see samples/bucket-sample.jsonl 'orig_kind')",
+   "noisyEn": "language === 'en' && !code_switch && noise?.length (n=35 after the relabelling above removed 5 mislabelled rows from the original 40-row draw)",
+   "control": "language === 'en' && !code_switch && !noise?.length, n=20, seeded seed 20260930, mulberry32 shuffle of the exact-match pool then take(20)"
+  },
+  "seed": "20260930 for the control draw (tools/research/text-to-clean-english-eval.mjs controlCommand); the ro/mixed/noisyEn bucket draw was produced by a companion Python sampler (random.seed(42), python random.shuffle) that ran as part of the same multi-agent effort on this task before this script existed; both are deterministic and documented so a rerun reproduces the same ids (recorded in samples/*.jsonl)."
+ },
+ "candidates": {
+  "eurollm": "utter-project/EuroLLM-1.7B-Instruct (models/proofing/eurollm-1.7b-instruct, revision a25c7fa6, Apache-2.0, DS014 'Model weights') zero-shot with one new combined prompt (proofread + translate to English + simplify), training/python/proofread_llm.py, GPU, bf16, greedy, batch 16-20.",
+  "qwen3": "Qwen/Qwen3-1.7B (models/proofing/qwen3-1.7b, revision 70d244cc, Apache-2.0), thinking disabled automatically by proofread_llm.py, same prompt/pipeline.",
+  "gemma3_1b": "google/gemma-3-1b-it byte-identical mirror unsloth/gemma-3-1b-it (models/proofing/gemma-3-1b-it, revision 5b11413a, Gemma Terms of Use), same prompt/pipeline.",
+  "gemma3_4b": "NOT RUN this stage: time-boxed after eurollm/qwen3/gemma3-1b/LanguageTool/Haiku were done on a single-session budget; not downloaded, nothing fabricated.",
+  "languagetool": "LanguageTool 5.9 (LGPL), downloaded from https://languagetool.org/download/archive/LanguageTool-5.9.zip, run under the host's only JDK (OpenJDK 1.8.0_482) via `java -cp languagetool-server.jar org.languagetool.server.HTTPServer --port <p> --public` (the fat jar's default main class is the HTTPS server and demands --config; the plain HTTPServer class runs directly on Java 8). English only (en-US /v2/check), top replacement per match applied non-overlapping, no masking of names/numbers in this run (see deviations). Applied to the noisyEn bucket and, as a bonus, the 10 new_cases noisy_en probe rows and the 20-row control set (to measure unwanted changes to already-clean text).",
+  "haiku": "Claude Haiku (claude-haiku-4-5-20251001) via headless `claude -p --model claude-haiku-4-5-20251001 --tools '' --system-prompt <the same combined clean prompt> --no-session-persistence --strict-mcp-config --setting-sources '' --disable-slash-commands`, same invocation pattern as tools/research/haiku-baseline.mjs. Small sample: 10 rows per bucket (ro/mixed/noisyEn) + 10 control rows, 40 calls total. Hard cap $5, ledger at eval/reports/current/text-to-clean-english/haiku-cost-ledger.json, stop before $4.50."
+ },
+ "masking_decision": "Names, numbers and quoted spans were NOT masked (lib/ud-to-sop/protect.mjs) before the LLM candidates in this run. Two of the three LLM outputs were already generated (by a parallel instance of this same task, before this preregistration was finalized) without masking; rerunning masked would have meant a second GPU pass duplicating work already done under AGENTS.md's single-GPU-worker policy, so this run reuses the unmasked outputs and instead measures hallucination directly (entity/number preservation checks below) to compensate. This is a real limitation, stated plainly: masking is the recommended production default (per lib/text-to-clean-english/backends' own doc comments) and should be re-benchmarked before shipping an unmasked LLM backend.",
+ "metrics": {
+  "meaning_preservation": "(a) entities: every verification_context.entities[] label/alias (en+ro) mentioned in the original question must be recoverable (case/diacritic-insensitive substring) in the cleaned text; (b) numbers: digit-sequence set equality (original subset of cleaned); (c) negation: presence of any word in [not,no,never,n't,nu,nici,fara,niciun] preserved as a single before/after boolean; (d) quantifiers: same pattern with [all,every,some,any,none,toti,toate,unii,orice,niciun]; (e) question form: '?' presence and a wh-word regex (en+ro) preserved; (f) SymbolicLM-vs-gold: lib/symbolic-lm createSymbolicLM analyze(cleanedText, {route:'direct', language:'en'}) parsed to SOP, scored by eval/run.mjs evaluate() against the row's own sop_target -- execution_equivalent (strict) and execution_equivalent_tolerant (frame/dictionary-normalized, DS016).",
+  "fluency": "the SymbolicLM parse of the cleaned text has 0 unparsed spans, AND lib/languages-util identify() reports the cleaned text as language 'en'.",
+  "hallucination": "digit sequences appearing in the cleaned text that are absent from the original (numbers_hallucinated); on the CONTROL set specifically, the edit-distance ratio to the original and the share of rows left byte-identical (unchanged_share), which should be ~1 for a good backend and the entity-preservation rate, which should be ~100%.",
+  "latency": "GPU wall-clock ms/row from proofread_llm.py's own batch timing for the 3 LLM candidates; LanguageTool's per-HTTP-request wall time; one 10-row CPU-only (--device cpu) sample for Qwen3-1.7B (the mid-size, generally-competitive candidate) compared against the ~2s/message UI budget."
+ },
+ "stopping": {
+  "rule": "Per AGENTS.md 'Early stopping of experiments': stop at this single stage (~40 rows/bucket, not escalating to ~100) if a candidate is already decisively best or worst on fluency+meaning across all three buckets, or if a candidate's syntax-invalid/empty rate exceeds 20% on its first bucket (per-candidate futility, not a whole-study stop), or if a backend's own numbers already rule it out on latency alone against the ~2s UI budget regardless of accuracy (as expected for CPU LLM inference).",
+  "budget": "GPU: idle NVIDIA GB10 checked before every GPU call (nvidia-smi) -- NOTE: this same host had multiple *other* concurrent proofread_llm.py GPU jobs from other parallel instances of this exact task running during this session (see the handback note); this run's own GPU calls were only issued when nvidia-smi showed 0 compute processes, and none of the jobs listed as candidates here were started concurrently with each other by this run. Haiku: hard cap $5, ledger-tracked, stop before $4.50 (actual spend: see report, well under cap)."
+ },
+ "hypotheses": {
+  "H1": "The shipped symbolic spellfix-only corrector leaves most noisyEn rows unparsed (a spelling fix, not a grammar rewrite); an LLM or LanguageTool grammar/rewrite step raises the fluency rate over spellfix alone.",
+  "H2": "At least one zero-shot multilingual LLM with the single combined 'clean' prompt reaches a fluency rate (0 unparsed, identify() en) at or above the existing decoupled symbolic translate route on ro/mixed, without a large increase in meaning-check failures.",
+  "H3": "LanguageTool, run unmasked, corrupts a nontrivial share of proper names even on already-clean English (control-set hallucination), because English rule-based spellchecking treats unknown capitalized tokens as misspellings.",
+  "H4": "No LLM candidate changes a genuinely clean control message (empty noise list) in a way that breaks its entity/number preservation more than a small minority of the time; LanguageTool (unmasked) does markedly worse than the LLMs on this specific control-set check because of H3."
+ },
+ "amendments": [
+  {
+   "id": "A1",
+   "at": "2026-09-30T08:10:00Z",
+   "by": "clean-english-ui-agent (resumed after the 09:08 host reboot)",
+   "what": "Added deployable arms scored on the same 149 sample rows: `symbolic` (SymbolicLM toEnglish with spelling), `opus-mt` (TranslatorService opus-mt, masked, CPU), `languagetool-masked` and `llm-masked-qwen3-gguf-p1..p4` (the production backends of lib/text-to-clean-english/, masked, Qwen3-1.7B Q8_0 in a CPU llama-server), an `original` arm (SymbolicLM on the untouched message, route auto) and Haiku metrics. The unmasked torch arms and the unmasked LanguageTool arm stay as first recorded. Stopping rule not triggered.",
+   "why": "The recommendation must name a configuration that the repository can run; the torch arms cannot (no GGUF for EuroLLM and Gemma-3-1B, GPU fp32/bf16 only)."
+  },
+  {
+   "id": "A2",
+   "at": "2026-09-30T08:40:00Z",
+   "by": "clean-english-ui-agent",
+   "what": "Added an independent noisy-English check on 230 seeded rows of the owner's writer drafts (datasets_sources/new_cases, local source cache, never exported; 170 noisy, 60 identity) scored against their reference rewrites (exact match after lower-casing and dropping punctuation, distance to the nearest reference, paired bootstrap). Added a gate false-positive count on clean English (300 rows of datasets/clean-english dev, 400 independently written clean drafts).",
+   "why": "The generator-noise bucket is the noise the spelling corrector is built to undo; it cannot rank LanguageTool and the LLM against it."
+  },
+  {
+   "id": "A3",
+   "at": "2026-09-30T09:40:00Z",
+   "by": "clean-english-ui-agent",
+   "what": "The production LLM prompt and masking were iterated four times on the same 149 rows (p1 minimal prompt, p2 explicit Romanian translation, p3 examples plus think-block stripping, p4 Romanian-lexicon aware masking and enable_thinking off). All four are kept in raw/ and metrics/; the shipped one is p4.",
+   "why": "p1 left Romanian untranslated (fluency 15% on Romanian) and the mask hid sentence-opening Romanian words as names. The shipped numbers are therefore optimistic for these rows (development iteration, not a held-out result)."
+  },
+  {
+   "id": "A4",
+   "at": "2026-09-30T09:45:00Z",
+   "by": "clean-english-ui-agent",
+   "what": "GPU latency at batch 1 was not measured: other agents' llama-server processes held the GPU during this session and AGENTS.md rule 2 allows one GPU-intensive worker per machine. GPU numbers are the amortized per-row times of the survey's batched runs. Gemma 3 4B-it was not run.",
+   "why": "Policy and time; production runs on CPU."
+  }
+ ]
+}

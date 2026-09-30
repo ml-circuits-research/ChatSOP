@@ -1,0 +1,67 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "proofing-candidates-v1",
+ "name": "dataset_proofing: which small open LLM is a promising proofreader in front of Stanza + UD rules, and which message -> text pairs would teach it (monolingual EN and RO; no training)",
+ "registered_at": "2026-09-29T17:27:00Z",
+ "registered_by": "proofing-data-agent (owner request of 2026-09-29, relayed by the orchestrator)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_request": "Build a separate dataset named dataset_proofing (corpus id proofing). Run the symbolic parser (Stanza + UD-to-SOP rules) over all formalizer-v1 train+dev examples, find where the parse/formalization fails, and see what candidate small LLMs do as proofreaders/rewriters; check that a small LLM does not tend to break what already works; run several small LLMs over the whole training corpus and produce the right fine-tuning dataset, hoping to bring Stanza parsing close to 100%. Scope: monolingual Romanian and monolingual English rows; mixed RO/EN messages are out of scope (tag and exclude). No training until the dataset is qualified and a small but promising base model that is already good at proofreading has been chosen. Question: which small proofreading LLM should we use?",
+ "frozen_before_results": "Written after (a) a 300-row timing smoke test of the raw-message oracle on formalizer-v1 dev (no rewriter involved) and (b) the start of the full raw-message baseline; before any candidate rewrite was generated or scored.",
+ "kind": "evaluation and data construction (inference only; no training, no fine-tuning, no optimizer step)",
+ "data": {
+  "source": "datasets/formalizer-v1 train (shards via lib/jsonl-shards.mjs) and dev; no eval/suites row is read by the tool or used as material",
+  "scope": "rows without code_switch whose language is en or ro; code_switch rows are tagged 'mixed' and excluded (eval/reports/current/proofing/excluded-mixed.jsonl)",
+  "pilot": "formalizer-v1 dev, one row per semantic case; per language x raw-oracle outcome (ok / failing) cell, a proportional stratified order over question-type groups (seed 20260929); stage s100 = 50 ok + 50 failing per language (200 rows), stage s300 = 150 + 150 per language (600 rows); eval/reports/current/proofing/stages.json"
+ },
+ "oracle": {
+  "definition": "parse_ok(text) := the frozen rules (eval/reports/current/baseline-ud-rules/frozen-rules-v1.3, SHA256SUMS checked; loaded from a copy, so live edits of lib/ud-to-sop cannot change a score) applied to Stanza(text) (frozen worker ud_parse_worker.py, GPU) produce SOP that eval/run.mjs finds execution-equivalent to the source row's gold (strict = execution_equivalent; tolerant = execution_equivalent_tolerant reported separately). The source row keeps its original message; only the parsed text changes.",
+  "rescoring": "at the end every raw and rewritten text is re-scored with the newest frozen rules version on disk (v1.4 if frozen by then); both versions are reported",
+  "signals": "rules-level unparsed spans; spaCy en_core_web_lg 3.8.0 core-arc (root, subject, object, negation) disagreement with Stanza on EN rows (~/spacy-venv); structural diff categories and blame classes of tools/research/symbolic-layers-diff.mjs",
+  "layers": "each raw failure gets one likely layer (tools/research/proofing.mjs layerOf): input (a generator spelling/spacing noise op or a typo-lemma diff) > parser (EN spaCy core disagreement, or an unparsed span) > convention (only gold-convention diff classes, Q-SYM-1/Q-SYM-2) > rules+convention > rules. Repair pairs are built only for layers input, parser, rules and rules+convention; convention-only failures are hard cases, never rewrite targets, so the data does not teach rewrites that game a gold convention."
+ },
+ "candidates": {
+  "llm": "Qwen2.5-0.5B-Instruct, Qwen2.5-1.5B-Instruct, Qwen3-0.6B (thinking off), Qwen3-1.7B (thinking off), Gemma 3 270M IT, Gemma 3 1B IT, SmolLM2-360M-Instruct, SmolLM2-1.7B-Instruct, EuroLLM-1.7B-Instruct; pinned revisions and licences in tools/research/proofing.mjs CANDIDATES, dependencies.md and DS014",
+  "t5_proofreaders": "jbochi/coedit-small, Unbabel/gec-t5_small (EN GEC; prompts and per-sentence use of training/python/proofread.py from eval-rewrite-symbolic-v1)",
+  "prompts": "proof (proofread: spelling, typos, diacritics, spacing, casing, punctuation; keep words) and simple (simple, standard, complete sentences with the same meaning); the text is protected first (frozen protect.mjs placeholders for names, quotes, numbers; a sentence-initial word seen in lower case in the corpus is not a name)",
+  "decoding": "transformers (~/nlp-venv, torch CUDA), bf16, greedy, left-padded length-sorted batches; no prompt cache exists in this path. Reproducibility is checked on 100 pilot rows (same batching rerun, and batch 1 vs batched) before full-corpus results are trusted."
+ },
+ "metrics": {
+  "break_rate": "share of raw-ok rows whose rewrite fails the oracle (owner priority; Wilson 95% CI)",
+  "repair_rate": "share of raw-failing rows whose rewrite passes (Wilson 95% CI)",
+  "net_delta": "pass(rewrite) - pass(raw) on the pilot rows, paired cluster bootstrap 95% CI (clusters = semantic cases, 10,000 resamples, seed 7); the pilot is balanced ok/failing, so a population estimate p_fail*repair - p_ok*break is reported too",
+  "guarded": "the same with a meaning guard: a rewrite failing any meaning check is replaced by the raw message",
+  "meaning_checks": "placeholders all restored and none invented; negation and quantifier word bags equal; question mark kept; language kept; not answer-like; non-empty",
+  "other": "identity share, character edit distance, truncation, GPU output tokens per second (batched), CPU latency on 40 messages for the chosen model(s), EN vs RO slices"
+ },
+ "stopping": {
+  "stage_s100": "a condition stops (recorded with numbers) if (broken) more than 20% of its outputs are empty, answer-like or lose a placeholder; or (harmful) its break-rate Wilson lower bound is >= 25%; or (futile) its repair-rate Wilson upper bound is < 5%",
+  "stage_s300": "surviving conditions run on s300; the 1-2 best (lowest break rate among those with a repair rate at least 5 points above zero and usable RO output, ties by net delta) run on every in-scope train+dev row; the full run stops early if the first 2,000 rows show a break rate above 30%",
+  "teacher": "failing rows (rewrite layers only) that no small candidate repairs get Claude Haiku 4.5 (claude -p, no thinking) with up to 4 proofread/rewrite variants in one call, oracle-filtered; hard budget cap 40 USD total (ledger in eval/reports/current/proofing/teacher-ledger.json), stop at 38 USD"
+ },
+ "dataset_rules": {
+  "pairs": "input = the raw message; target = the raw message itself for oracle-ok rows (identity: do not break); for failing rows of a rewrite layer, the passing rewrite with all meaning checks, preferring the smallest character edit (small candidates first, then the teacher); rows nobody repairs go to a hard-cases file with their layer",
+  "balance_and_split": "dedupe by input text; identity rows capped relative to repair rows per language (identity rows a candidate broke are kept first); split by formalizer-v1 split_group_id: formalizer train -> proofing train, formalizer dev -> proofing dev (including every pilot row) or the sealed proofing test (half of the dev groups outside the pilot)",
+  "leakage": "exact and near-duplicate overlap of proofing inputs/targets with formalizer-v1 sealed test, OOD and wild messages reported; tools/datasets/no-copy.mjs where applicable"
+ },
+ "hypotheses": {
+  "H1": "Zero-shot, at least one small candidate has a break rate below 10% on raw-ok rows (strict oracle, s300).",
+  "H2": "Zero-shot, no small candidate repairs more than 20% of raw-failing rows (most failures are rules/convention, not text).",
+  "H3": "Romanian: the multilingual candidates (Qwen, Gemma, EuroLLM) break fewer RO rows than the English-centric ones (SmolLM2, T5 GEC).",
+  "H4": "Rewriting can repair at most a minority of failures at all (expected ceiling = rows repaired by any candidate or the teacher, reported per layer)."
+ },
+ "non_goals": "no training or fine-tuning of any model; no rule changes; no tuning on sealed rows; the dataset is not training-approved by this experiment",
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-09-29T17:55:00Z",
+   "before": "any candidate rewrite was scored",
+   "what": "Layer heuristic. Message-level spaCy core disagreement covers 70.6% of EN rows (pass rate 32.5% when they disagree vs 50.9% when they agree), too common to blame the parser: the parser layer now needs a core-arc F1 under 0.5 or an unparsed span. The convention gate uses the diff categories that are true conventions (C_boundary, C_role, C_relational_noun, C_assumed; Q-SYM-1/Q-SYM-2): a failing row with any of them never gets a repair target. C_wording (another relation word, mostly a wrong lemma of a misspelled or undiacritized word) does not block a repair; a row whose only difference is wording is tagged 'wording'. Layers: input > parser > convention / rules+convention > wording > rules."
+  },
+  {
+   "id": "D2",
+   "at": "2026-09-29T17:58:00Z",
+   "before": "any candidate rewrite was scored (s100 generation was running)",
+   "what": "Owner clarification of the target pipeline (relayed by the orchestrator, journal 2026-09-29T17:52): message -> SymbolicLM translates Romanian words to English -> the small LLM proofreads/regularizes the ENGLISH text (only when SymbolicLM signals uncertainty, if detectable; otherwise always) -> SymbolicLM parses English and generates SOP. The small LLM never writes SOP. Consequences: (1) the corpus proofing is English-output: inputs are the English text SymbolicLM gives the LLM (EN rows as they are; RO rows as SymbolicLM's English translation once symbolic-lm-agent delivers the translator), targets are English; this version is built from EN rows, and RO rows are added through the translator later; (2) the gold-SOP match is only the arbiter of text quality, never a model target; (3) every row records the uncertainty signals available before rewriting (spaCy/Stanza disagreement, unparsed spans, out-of-vocabulary words as the spelling signal, converter repairs/fallbacks, rule notes; untranslated words once the translator exists), and the report gives gate precision/recall and the break rate with the gate vs always-on. The candidate choice is decided on EN rows; the monolingual RO pilot numbers already generated are reported as supplementary evidence (direct Romanian proofreading is no longer the planned use). The full-corpus run and the teacher cover EN rows."
+  }
+ ]
+}

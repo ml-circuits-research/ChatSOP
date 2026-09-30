@@ -1,0 +1,36 @@
+{
+ "format": "chatsop-dataset-manifest-v3",
+ "dataset": "bad_english",
+ "split": "test",
+ "sealed": true,
+ "model": "LanguageProofingLLM",
+ "purpose": "Messages that are not clean English (Romanian, mixed Romanian/English, spelling and grammar problems, garbled text) with an acceptable clean-English target where one is known. Evaluates and later fine-tunes LanguageProofingLLM, the model behind the chat textToCleanEnglish step (translation plus spelling and grammar repair into acceptable English).",
+ "path": "eval/suites/bad_english/test.jsonl",
+ "rows": 5511,
+ "sha256": "898c3daf328271a2b9e0819c2ba4cc82207ebdabb9e342c1b84a93240fe5c3e9",
+ "bytes": 6877209,
+ "counts": {
+  "rows": 5511,
+  "by_source": {
+   "formalizer-ood-v1": 1035,
+   "formalizer-v1": 3730,
+   "formalizer-wild-v1": 478,
+   "new_cases": 268
+  },
+  "by_language_kind": {
+   "mixed": 1317,
+   "noisy_en": 1672,
+   "ro": 2522
+  },
+  "with_target": 1444,
+  "by_target_source": {
+   "clean-sibling": 3,
+   "new_cases.clean": 262,
+   "noise-inverse": 1068,
+   "none": 4067,
+   "proofing.repair": 111
+  }
+ },
+ "sources": "eval/suites/{formalizer-v1,formalizer-ood-v1,formalizer-wild-v1,proofing} and the owner-sealed writers of datasets_sources/new_cases (rule 9: only here, never in train/dev)",
+ "built_at": "2026-09-30T17:46:41.210Z"
+}

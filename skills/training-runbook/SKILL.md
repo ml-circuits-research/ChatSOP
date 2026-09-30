@@ -29,7 +29,7 @@ quality; `node tools/datasets/audit-corpus.mjs --corpus <corpus>` is the
 machine audit (skill `corpus-audit`), `node tools/datasets/no-copy.mjs` the
 source no-copy check, and the owner reviews rows at `/audit` on the server.
 `node tools/research/prepare-experiment.mjs` writes the message-only
-projection the trainer reads (`datasets/<corpus>/formalizer/{train,dev}.jsonl`,
+projection the trainer reads (`datasets_archive/<corpus>/formalizer/{train,dev}.jsonl` (legacy corpora; `datasets/<name>/` for the three datasets),
 manifest `prompt_profile: message-only`): every prompt is exactly the user's
 message, with no context, identifiers, lexicon or clock. The current corpora
 are `formalizer-v1` (train/dev; sealed test in `eval/suites/formalizer-v1/`)
@@ -94,4 +94,6 @@ as separate qualified workflows, never automatic stages of training.
 
 ## Project journal
 
-Append an event to `status/journal.jsonl` with `node tools/journal.mjs add --area <area> --state <started|progress|done|blocked|decision> --title "…" --detail "…" [--link <path>]` whenever you start, finish or block a meaningful task or record an owner decision; the journal is append-only and the server's `/project` page shows it to the owner in real time (AGENTS.md, "Project journal"). Log every preflight, qualification, approval request, start, stop and evaluation with `tools/journal.mjs` (area `training` or `eval`), and keep the arm's record in `status/experiments.json`. Training remains prohibited until the owner's new explicit approval.
+Append an event to `status/journal.jsonl` with `node tools/journal.mjs add --area <area> --state <started|progress|done|blocked|decision> --title "…" --detail "…" [--link <path>]` whenever you start, finish or block a meaningful task or record an owner decision; the journal is append-only and the server's `/experiments` pages shows it to the owner in real time (AGENTS.md, "Project journal"). Log every preflight, qualification, approval request, start, stop and evaluation with `tools/journal.mjs` (area `training` or `eval`), and keep the arm's record in `status/experiments.json`. Training remains prohibited until the owner's new explicit approval.
+
+Also record each meaningful result, failed or restarted attempt, deviation and owner decision as a topic note: `node tools/notes.mjs add --topic training-experiments --kind <experiment|result|observation|correction|decision> --title "…" --body "…" --link <log or report>` (evaluation numbers under `--topic evaluation`). Notes are append-only; correct one with a new note and `--supersedes <note id>`. The `/experiments` pages are the living index: keep the run's task or experiment record current so its page shows the owner's side and the agents' side.

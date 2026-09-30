@@ -45,14 +45,14 @@ test('generation and checkpoint selection source cannot import or read sealed an
     assert(auditSourceBoundary(temp).violations.some(message => message.includes('build-corpora.mjs') && message.includes('read')));
     fs.writeFileSync(candidate, "import answers from '../../eval/suites/formalizer-v1/test.jsonl';\n");
     assert(auditSourceBoundary(temp).violations.some(message => message.includes('forbidden sealed-answer import')));
-    fs.writeFileSync(candidate, "import answers from '../../datasets/formalizer-v1/test.jsonl';\n");
-    assert(auditSourceBoundary(temp).violations.some(message => message.includes('forbidden sealed-answer import') && message.includes('datasets/formalizer-v1/test.jsonl')));
-    fs.writeFileSync(candidate, "const leaked = fs.readFileSync('datasets/formalizer-v1/test.jsonl');\n");
+    fs.writeFileSync(candidate, "import answers from '../../datasets_archive/formalizer-v1/test.jsonl';\n");
+    assert(auditSourceBoundary(temp).violations.some(message => message.includes('forbidden sealed-answer import') && message.includes('datasets_archive/formalizer-v1/test.jsonl')));
+    fs.writeFileSync(candidate, "const leaked = fs.readFileSync('datasets_archive/formalizer-v1/test.jsonl');\n");
     assert(auditSourceBoundary(temp).violations.some(message => message.includes('build-corpora.mjs') && message.includes('read')));
     fs.writeFileSync(candidate, "const sealed = path.join('eval/suites/formalizer-v1', 'test.jsonl');\nfs.readFileSync(sealed);\n");
     assert(auditSourceBoundary(temp).violations.some(message => message.includes('sealed-answer path variable read')));
     const selector = path.join(temp, 'training/cli.mjs');
-    fs.writeFileSync(selector, "const answer = fs.readFileSync('datasets/formalizer-v1/test.jsonl');\n");
+    fs.writeFileSync(selector, "const answer = fs.readFileSync('datasets_archive/formalizer-v1/test.jsonl');\n");
     assert(auditSourceBoundary(temp).violations.some(message => message.includes('training/cli.mjs')));
     fs.writeFileSync(selector, "const safe = dataset(o,['train','dev']);\nconst unsafe = dataset(o,['train','dev','test'].slice(0,2));\nconst leaked = dataset(o,['train','t'+'est']);\n");
     assert(auditSourceBoundary(temp).violations.some(message => message.includes('unsafe dataset() split list')));
@@ -97,17 +97,5 @@ test('a ready baseline audit still cannot index a missing matrix cell', t => {
   assert.doesNotThrow(() => requireCompleteMatrix(cells, [{ id:'test' }, { id:'dev' }]));
 });
 
-test('labeled baseline records a complete dev-then-test matrix without model attribution', async t => {
-  const { relative } = reportFolder(t, 'complete');
-  {
-    assert.equal(audit(baseline, `${relative}/leakage.json`).ready, true);
-    const result = await run(baseline, relative);
-    assert.equal(result.predictor_identity, 'deterministic-baseline-gold-copy');
-    assert.deepEqual(result.cells.map(cell => cell.split), ['dev', 'test']);
-    const suites = JSON.parse(fs.readFileSync(repoUrl(baseline), 'utf8')).cells.map(cell => readJsonl(repoUrl(cell.suite)).length);
-    assert.deepEqual(result.cells.map(cell => cell.metrics.rows), suites);
-    assert(result.cells.every(cell => cell.metrics.execution_equivalence.numerator === cell.metrics.rows));
-    assert(result.cells.every(cell => JSON.parse(fs.readFileSync(path.join(root, cell.report), 'utf8')).model_identity_verified === false));
-    assert.equal(index(baseline, relative).cells.length, 2);
-  }
-});
+// The full dev-then-test baseline matrix (about 10,000 executed rows) runs with the heavy data tests: tests/data/registry-baseline.test.mjs.
+

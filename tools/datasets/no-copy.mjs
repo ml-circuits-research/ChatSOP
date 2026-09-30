@@ -23,6 +23,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { jsonlExists, readJsonlSharded } from '../../lib/jsonl-shards.mjs';
 import { fileURLToPath } from 'node:url';
+import {corpusDir} from '../../lib/dataset-paths.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const sourcesDir = path.join(root, 'datasets_sources');
@@ -53,7 +54,7 @@ export function ngrams(words, n) {
 export function rowText(row) {
   const context = row.verification_context ?? row.context ?? {};
   return [
-    row.question, ...(row.context_assertions ?? []), ...(context.background_assertions ?? []),
+    row.question ?? row.message, ...(row.context_assertions ?? []), ...(context.background_assertions ?? []),
     ...(context.background_rules ?? []).filter(rule => typeof rule === 'string' && !/\?\w/.test(rule)),
     ...(context.entities ?? []).map(entity => entity.label), ...(context.predicates ?? []).map(p => p.gloss ?? p.meaning ?? p.description),
   ].filter(value => typeof value === 'string' && value.length).join('\n');
@@ -79,7 +80,7 @@ const ID_PATTERNS = [
 ];
 /** Identifier leakage findings for one row. */
 export function identifierFindings(row) {
-  const text = [row.question, ...(row.context_assertions ?? [])].filter(Boolean).join('\n');
+  const text = [row.question ?? row.message, ...(row.context_assertions ?? [])].filter(Boolean).join('\n');
   const findings = [];
   const ids = [row.id, row.split_group_id, row.semantic_case_id].filter(value => typeof value === 'string' && value.length >= 4);
   for (const id of new Set(ids)) for (const form of new Set([id, id.replaceAll('_', '-'), id.replaceAll('_', ' ')]))
@@ -227,7 +228,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const value = name => { const index = args.indexOf(`--${name}`); return index < 0 ? undefined : args[index + 1]; };
   const corpus = value('corpus');
   const files = value('files') ? value('files').split(',').map(file => path.resolve(file))
-    : corpus ? ['train', 'dev'].map(split => path.join(root, 'datasets', corpus, `${split}.jsonl`)) : [];
+    : corpus ? ['train', 'dev'].map(split => path.join(root, corpusDir(corpus, root), `${split}.jsonl`)) : [];
   const name = value('name') ?? corpus;
   if (!files.length || !name || files.some(file => !jsonlExists(file))) {
     console.error('Use --corpus <name> or --files a.jsonl,b.jsonl --name <name>; every file must exist.');

@@ -1,0 +1,676 @@
+{
+  "format": "chatsop-independent-suite-manifest-v1",
+  "corpus": "formalizer-wild-v1",
+  "purpose": "Eval-only sealed suite of independently written messages (EN, RO, EN-RO code-switching, real-looking noise) that measures whether the formalizer handles any text, not only the generator's constructions (DS016).",
+  "process": {
+    "writers": "eight independent writer agents with distinct personas (EN consumers, EN professionals, EN tech teams, RO regional voices, RO young urban, RO formal and administrative, Romglish and diaspora, structurally hard cases); they saw only a list of 34 message phenomena, never the generator, the corpora or the repository",
+    "annotation": "two independent annotators per message following the annotation guide eval/reports/current/wild-suite/annotation-guide.md (DS021 plus conventions C1-C12), then one adjudicator who records every accepted reading in sop_targets_accepted",
+    "validation": "parser, model-wire admission, anchoring for English rows (cross-lingual values are reported, not failed), vocabulary, relation-word and corpus-audit row checks during annotation; tools/eval/wild-suite.mjs --check; tools/datasets/no-copy.mjs"
+  },
+  "independence": "Never feeds the generator or any training data: listed in eval/leakage.mjs INDEPENDENT_SUITES (no generator or training source may name it; no datasets/<name> split may exist); no generator family may be designed from its rows.",
+  "model_input": "question (the user message only); every other field is evaluation-only",
+  "training_authorized": false,
+  "human_reviewed": false,
+  "synthetic": true,
+  "rows": 796,
+  "languages": {
+    "en": 341,
+    "ro": 293,
+    "mixed": 162
+  },
+  "writers": {
+    "G": 100,
+    "F": 100,
+    "D": 100,
+    "J": 100,
+    "E": 99,
+    "K": 99,
+    "I": 99,
+    "H": 99
+  },
+  "question_types": {
+    "wh": 211,
+    "yes_no": 165,
+    "multi": 152,
+    "unclear": 106,
+    "when": 59,
+    "numeric": 24,
+    "count": 22,
+    "where": 20,
+    "ambiguous": 14,
+    "none": 8,
+    "universal": 5,
+    "how": 5,
+    "how_long": 3,
+    "until_when": 2
+  },
+  "gaps": {
+    "G16": 117,
+    "G05": 98,
+    "G06": 97,
+    "G28": 79,
+    "G00": 72,
+    "G19": 67,
+    "G09": 59,
+    "G15": 49,
+    "G01": 49,
+    "G17": 48,
+    "G25": 47,
+    "G03": 46,
+    "G24": 46,
+    "G27": 41,
+    "G31": 40,
+    "G14": 40,
+    "G29": 39,
+    "U-ambiguous": 38,
+    "G10": 35,
+    "G33": 34,
+    "G11": 34,
+    "G34": 34,
+    "G30": 33,
+    "G32": 33,
+    "G13": 33,
+    "G12": 33,
+    "G02": 32,
+    "G07": 30,
+    "G21": 30,
+    "G22": 29,
+    "G20": 29,
+    "G08": 29,
+    "G23": 29,
+    "G26": 28,
+    "G04": 27,
+    "G18": 24,
+    "U-chitchat": 17,
+    "U-gibberish": 15
+  },
+  "rows_with_language_gap": 503,
+  "rows_with_several_accepted_targets": 614,
+  "executed_rows": 0,
+  "agreement": {
+    "exact_any": {
+      "mean": 0.575,
+      "n": 796
+    },
+    "exact_any_without_assumed": {
+      "mean": 0.578,
+      "n": 796
+    },
+    "exact": {
+      "mean": 0.461,
+      "n": 796
+    },
+    "exact_without_assumed": {
+      "mean": 0.467,
+      "n": 796
+    },
+    "shape": {
+      "mean": 0.681,
+      "n": 796
+    },
+    "type_profile": {
+      "mean": 0.863,
+      "n": 796
+    },
+    "decision": {
+      "mean": 0.987,
+      "n": 796
+    },
+    "unclear_kind": {
+      "mean": 0.927,
+      "n": 123
+    },
+    "assumed_presence": {
+      "mean": 0.974,
+      "n": 796
+    },
+    "gap_flag": {
+      "mean": 0.959,
+      "n": 796
+    },
+    "constraint_eq": {
+      "mean": 0.346,
+      "n": 26
+    },
+    "query_f1": {
+      "mean": 0.54,
+      "n": 648
+    },
+    "query_shape_f1": {
+      "mean": 0.796,
+      "n": 648
+    },
+    "stated_f1": {
+      "mean": 0.57,
+      "n": 300
+    },
+    "stated_shape_f1": {
+      "mean": 0.793,
+      "n": 300
+    },
+    "assumed_f1": {
+      "mean": 0.502,
+      "n": 69
+    }
+  },
+  "agreement_by_phenomenon": {
+    "G00": {
+      "n": 72,
+      "exact": 0.76,
+      "exact_without_assumed": 0.78,
+      "shape": 0.86,
+      "decision": 1,
+      "gap_flagged": 0.5
+    },
+    "G01": {
+      "n": 49,
+      "exact": 0.02,
+      "exact_without_assumed": 0.02,
+      "shape": 0.12,
+      "decision": 1,
+      "gap_flagged": 0.88
+    },
+    "G02": {
+      "n": 32,
+      "exact": 0.31,
+      "exact_without_assumed": 0.34,
+      "shape": 0.41,
+      "decision": 1,
+      "gap_flagged": 0.66
+    },
+    "G03": {
+      "n": 46,
+      "exact": 1,
+      "exact_without_assumed": 1,
+      "shape": 0.96,
+      "decision": 0.98,
+      "gap_flagged": 0.96
+    },
+    "G04": {
+      "n": 27,
+      "exact": 0.44,
+      "exact_without_assumed": 0.44,
+      "shape": 0.63,
+      "decision": 1,
+      "gap_flagged": 0.44
+    },
+    "G05": {
+      "n": 98,
+      "exact": 0.36,
+      "exact_without_assumed": 0.36,
+      "shape": 0.57,
+      "decision": 0.99,
+      "gap_flagged": 0.97
+    },
+    "G06": {
+      "n": 97,
+      "exact": 0.55,
+      "exact_without_assumed": 0.55,
+      "shape": 0.64,
+      "decision": 1,
+      "gap_flagged": 0.6
+    },
+    "G07": {
+      "n": 30,
+      "exact": 0.43,
+      "exact_without_assumed": 0.43,
+      "shape": 0.57,
+      "decision": 1,
+      "gap_flagged": 1
+    },
+    "G08": {
+      "n": 29,
+      "exact": 0.55,
+      "exact_without_assumed": 0.55,
+      "shape": 0.76,
+      "decision": 1,
+      "gap_flagged": 0.97
+    },
+    "G09": {
+      "n": 59,
+      "exact": 0.2,
+      "exact_without_assumed": 0.22,
+      "shape": 0.58,
+      "decision": 1,
+      "gap_flagged": 0.83
+    },
+    "G10": {
+      "n": 35,
+      "exact": 0.29,
+      "exact_without_assumed": 0.29,
+      "shape": 0.63,
+      "decision": 1,
+      "gap_flagged": 0.8
+    },
+    "G11": {
+      "n": 34,
+      "exact": 0.62,
+      "exact_without_assumed": 0.65,
+      "shape": 0.74,
+      "decision": 0.94,
+      "gap_flagged": 0.94
+    },
+    "G12": {
+      "n": 33,
+      "exact": 0.45,
+      "exact_without_assumed": 0.48,
+      "shape": 0.73,
+      "decision": 1,
+      "gap_flagged": 0.27
+    },
+    "G13": {
+      "n": 33,
+      "exact": 0.67,
+      "exact_without_assumed": 0.67,
+      "shape": 0.82,
+      "decision": 1,
+      "gap_flagged": 0.61
+    },
+    "G14": {
+      "n": 40,
+      "exact": 0.68,
+      "exact_without_assumed": 0.68,
+      "shape": 0.68,
+      "decision": 0.97,
+      "gap_flagged": 0.63
+    },
+    "G15": {
+      "n": 49,
+      "exact": 0.47,
+      "exact_without_assumed": 0.47,
+      "shape": 0.57,
+      "decision": 1,
+      "gap_flagged": 0.65
+    },
+    "G16": {
+      "n": 117,
+      "exact": 0.43,
+      "exact_without_assumed": 0.43,
+      "shape": 0.57,
+      "decision": 0.97,
+      "gap_flagged": 0.69
+    },
+    "G17": {
+      "n": 48,
+      "exact": 0.54,
+      "exact_without_assumed": 0.54,
+      "shape": 0.71,
+      "decision": 1,
+      "gap_flagged": 0.52
+    },
+    "G18": {
+      "n": 24,
+      "exact": 0.67,
+      "exact_without_assumed": 0.67,
+      "shape": 0.79,
+      "decision": 1,
+      "gap_flagged": 0.13
+    },
+    "G19": {
+      "n": 67,
+      "exact": 0.46,
+      "exact_without_assumed": 0.46,
+      "shape": 0.54,
+      "decision": 1,
+      "gap_flagged": 0.82
+    },
+    "G20": {
+      "n": 29,
+      "exact": 0.62,
+      "exact_without_assumed": 0.62,
+      "shape": 0.62,
+      "decision": 1,
+      "gap_flagged": 0.07
+    },
+    "G21": {
+      "n": 30,
+      "exact": 0.5,
+      "exact_without_assumed": 0.5,
+      "shape": 0.53,
+      "decision": 1,
+      "gap_flagged": 0.73
+    },
+    "G22": {
+      "n": 29,
+      "exact": 0.41,
+      "exact_without_assumed": 0.41,
+      "shape": 0.48,
+      "decision": 0.97,
+      "gap_flagged": 0.83
+    },
+    "G23": {
+      "n": 29,
+      "exact": 0.34,
+      "exact_without_assumed": 0.34,
+      "shape": 0.62,
+      "decision": 1,
+      "gap_flagged": 0.83
+    },
+    "G24": {
+      "n": 46,
+      "exact": 0.22,
+      "exact_without_assumed": 0.22,
+      "shape": 0.28,
+      "decision": 1,
+      "gap_flagged": 0.98
+    },
+    "G25": {
+      "n": 47,
+      "exact": 0.7,
+      "exact_without_assumed": 0.7,
+      "shape": 0.77,
+      "decision": 1,
+      "gap_flagged": 0.89
+    },
+    "G26": {
+      "n": 28,
+      "exact": 0.32,
+      "exact_without_assumed": 0.32,
+      "shape": 0.61,
+      "decision": 1,
+      "gap_flagged": 0.68
+    },
+    "G27": {
+      "n": 41,
+      "exact": 0.39,
+      "exact_without_assumed": 0.39,
+      "shape": 0.49,
+      "decision": 1,
+      "gap_flagged": 0.73
+    },
+    "G28": {
+      "n": 79,
+      "exact": 0.46,
+      "exact_without_assumed": 0.46,
+      "shape": 0.71,
+      "decision": 1,
+      "gap_flagged": 0.96
+    },
+    "G29": {
+      "n": 39,
+      "exact": 0.44,
+      "exact_without_assumed": 0.44,
+      "shape": 0.51,
+      "decision": 1,
+      "gap_flagged": 0.41
+    },
+    "G30": {
+      "n": 33,
+      "exact": 0.42,
+      "exact_without_assumed": 0.42,
+      "shape": 0.55,
+      "decision": 1,
+      "gap_flagged": 0.79
+    },
+    "G31": {
+      "n": 40,
+      "exact": 0.42,
+      "exact_without_assumed": 0.42,
+      "shape": 0.63,
+      "decision": 1,
+      "gap_flagged": 0.88
+    },
+    "G32": {
+      "n": 33,
+      "exact": 0.85,
+      "exact_without_assumed": 0.85,
+      "shape": 0.73,
+      "decision": 0.97,
+      "gap_flagged": 0.91
+    },
+    "G33": {
+      "n": 34,
+      "exact": 0.32,
+      "exact_without_assumed": 0.32,
+      "shape": 0.71,
+      "decision": 0.97,
+      "gap_flagged": 1
+    },
+    "G34": {
+      "n": 34,
+      "exact": 0.94,
+      "exact_without_assumed": 0.94,
+      "shape": 0.94,
+      "decision": 0.97,
+      "gap_flagged": 0.76
+    },
+    "U-ambiguous": {
+      "n": 38,
+      "exact": 0.97,
+      "exact_without_assumed": 0.97,
+      "shape": 0.66,
+      "decision": 0.87,
+      "gap_flagged": 0.47
+    },
+    "U-chitchat": {
+      "n": 17,
+      "exact": 1,
+      "exact_without_assumed": 1,
+      "shape": 0.94,
+      "decision": 0.94,
+      "gap_flagged": 0
+    },
+    "U-gibberish": {
+      "n": 15,
+      "exact": 1,
+      "exact_without_assumed": 1,
+      "shape": 1,
+      "decision": 1,
+      "gap_flagged": 0
+    },
+    "lang:en": {
+      "n": 341,
+      "exact": 0.67,
+      "exact_without_assumed": 0.68,
+      "shape": 0.73,
+      "decision": 1,
+      "gap_flagged": 0.65
+    },
+    "lang:mixed": {
+      "n": 162,
+      "exact": 0.45,
+      "exact_without_assumed": 0.45,
+      "shape": 0.59,
+      "decision": 0.98,
+      "gap_flagged": 0.71
+    },
+    "lang:ro": {
+      "n": 293,
+      "exact": 0.53,
+      "exact_without_assumed": 0.53,
+      "shape": 0.67,
+      "decision": 0.98,
+      "gap_flagged": 0.69
+    },
+    "writer:wd": {
+      "n": 100,
+      "exact": 0.63,
+      "exact_without_assumed": 0.63,
+      "shape": 0.69,
+      "decision": 0.98,
+      "gap_flagged": 0.72
+    },
+    "writer:we": {
+      "n": 99,
+      "exact": 0.66,
+      "exact_without_assumed": 0.66,
+      "shape": 0.78,
+      "decision": 1,
+      "gap_flagged": 0.69
+    },
+    "writer:wf": {
+      "n": 100,
+      "exact": 0.59,
+      "exact_without_assumed": 0.59,
+      "shape": 0.7,
+      "decision": 0.99,
+      "gap_flagged": 0.57
+    },
+    "writer:wg": {
+      "n": 100,
+      "exact": 0.53,
+      "exact_without_assumed": 0.53,
+      "shape": 0.65,
+      "decision": 0.98,
+      "gap_flagged": 0.69
+    },
+    "writer:wh": {
+      "n": 99,
+      "exact": 0.55,
+      "exact_without_assumed": 0.55,
+      "shape": 0.68,
+      "decision": 0.98,
+      "gap_flagged": 0.72
+    },
+    "writer:wi": {
+      "n": 99,
+      "exact": 0.42,
+      "exact_without_assumed": 0.42,
+      "shape": 0.6,
+      "decision": 0.99,
+      "gap_flagged": 0.75
+    },
+    "writer:wj": {
+      "n": 100,
+      "exact": 0.57,
+      "exact_without_assumed": 0.58,
+      "shape": 0.64,
+      "decision": 0.99,
+      "gap_flagged": 0.7
+    },
+    "writer:wk": {
+      "n": 99,
+      "exact": 0.66,
+      "exact_without_assumed": 0.67,
+      "shape": 0.72,
+      "decision": 0.99,
+      "gap_flagged": 0.58
+    }
+  },
+  "adjudication": {
+    "decisions": {
+      "agree": 446,
+      "A": 178,
+      "B": 106,
+      "merge": 59,
+      "new": 7
+    },
+    "categories": {
+      "relation_phrase": 199,
+      "value_span": 197,
+      "role_choice": 91,
+      "remark_rule": 74,
+      "time_expression": 73,
+      "question_form": 63,
+      "unclear_choice": 44,
+      "variable_or_filter": 33,
+      "stated_vs_assumed": 31,
+      "split_vs_conjoin": 26,
+      "gap_approximation": 25,
+      "constraint_setup": 19,
+      "certainty": 12,
+      "other": 4,
+      "polarity": 3
+    }
+  },
+  "no_copy": {
+    "pass_except": "identifier check flags a real product name (Log4j) as hash-like; reviewed and kept",
+    "paired_distinctive_4grams": 0,
+    "rows_with_shared_8gram": 0,
+    "identifiers": {
+      "rows_with_identifier": 1,
+      "by_kind": {
+        "hash_like_name": 1
+      },
+      "examples": [
+        {
+          "id": "wh-071",
+          "findings": [
+            {
+              "kind": "hash_like_name",
+              "value": "Log4j"
+            }
+          ]
+        }
+      ]
+    },
+    "global_4gram": {
+      "corpus_4grams_distinct": 16032,
+      "distinct_found_in_sources": 415,
+      "distinct_rate": 0.025886,
+      "row_4gram_occurrence_rate": 0.028543,
+      "note": "Reported, not failed: common phrasing is legitimately shared."
+    }
+  },
+  "rights": {
+    "license": "MIT (repository LICENSE); original ChatSOP authored text",
+    "text_copied": false,
+    "inspired_by": [],
+    "note": "Written from a phenomenon list; no source text, structure or row of any dataset was used."
+  },
+  "files": {
+    "test.jsonl": "548d76beceb18f1b9a5e9de3fb65856c9965242e779933a2d666198fe6dff897"
+  },
+  "sha256": {
+    "eval/suites/formalizer-wild-v1/test.jsonl": "548d76beceb18f1b9a5e9de3fb65856c9965242e779933a2d666198fe6dff897"
+  },
+  "conversions": [
+    {
+      "tool": "tools/eval/words-syntax.mjs",
+      "note": "mechanical conversion of model-authored operator syntax (filter, require, claim) to the words-only forms of DS021; messages, accepted alternatives and annotations unchanged",
+      "programs_converted": 315
+    }
+  ],
+  "readjudications": [
+    {
+      "date": "2026-09-29",
+      "decision": "owner answer to Q-SYM-3 (questions.md): where DS021 fixes a form explicitly, the gold is re-adjudicated; where DS021 was unclear, DS021 was clarified and the gold kept",
+      "rows": [
+        {
+          "id": "wild_wk_069",
+          "group": "G1 follow-up"
+        },
+        {
+          "id": "wild_wd_003",
+          "group": "G1 follow-up"
+        },
+        {
+          "id": "wild_wf_002",
+          "group": "G1 follow-up"
+        },
+        {
+          "id": "wild_we_071",
+          "group": "G6 most"
+        },
+        {
+          "id": "wild_wj_042",
+          "group": "G1 follow-up"
+        },
+        {
+          "id": "wild_wf_021",
+          "group": "G9 lemma"
+        },
+        {
+          "id": "wild_wj_076",
+          "group": "G7 before or after"
+        },
+        {
+          "id": "wild_wd_041",
+          "group": "G4 all ... not"
+        },
+        {
+          "id": "wild_wk_081",
+          "group": "G2 not all"
+        },
+        {
+          "id": "wild_wf_030",
+          "group": "G1 follow-up"
+        }
+      ],
+      "report": "eval/reports/current/ud-rules-v14/gold-readjudication.jsonl",
+      "sha256_before": "077e7164a3020c1e6c3c28c8f3b5b8f2c08e2e3f59ee0e6830f9991509884163",
+      "sha256_after": "548d76beceb18f1b9a5e9de3fb65856c9965242e779933a2d666198fe6dff897",
+      "note": "Messages, annotations and every other field unchanged; none of these rows is in the eval-ud-rules-v14-v1 sample. The previous file (sha256_before) is reconstructed byte for byte by putting back each reported row's before.sop_target and before.sop_targets_accepted and removing adjudication.readjudication; experiments frozen on sha256_before (formalizer-mt-v1, the formalizer-v1 qualification record) can pin it that way."
+    }
+  ]
+}

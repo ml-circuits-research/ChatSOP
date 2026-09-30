@@ -1,0 +1,106 @@
+{
+ "format": "chatsop-topics-v1",
+ "note": "Topics of the living project history (DS010 'Topic notes'). Ids are stable and never renamed; notes live in status/notes/<id>.jsonl and are shown on /experiments and /experiments/topic/<id>. Add a topic by appending an entry; never remove one that has notes.",
+ "topics": [
+  {
+   "id": "model-language",
+   "title": "SOP Lang and the model surface",
+   "scope": "What the small formalizer writes: the one model language of DS021 (stated, assumed, unclear, query, constraint), one keyword per line, the question forms (every/scope, time variables, measure, explain), the words-only constructs (compare, rank, quantifier, order, fragment, words-only constraints), conventions C1-C12, and the removal of profiles and the premise wire."
+  },
+  {
+   "id": "model-boundary",
+   "title": "Model boundary: no context, strings, languages",
+   "scope": "What the small model sees and may do: the message only (no CONTEXT block, identifiers, knowledge or clock), quoted strings linked by the host, no reasoning and no refusal, English canonical output for English, Romanian and mixed input, the answer language (English by default, Romanian on request), and the guards that enforce the boundary."
+  },
+  {
+   "id": "data-generation",
+   "title": "Data generation",
+   "scope": "How the training and sealed corpora are produced: the diversity inventory mined from released sources (structure and statistics only), the IR-based generator and its families, rebuilds of formalizer-v1 and formalizer-ood-v1 and why each happened, the long-message family, noise and code-switching, and the data-final qualification."
+  },
+  {
+   "id": "data-quality-and-audit",
+   "title": "Data quality and audit",
+   "scope": "Checks that the data is fit for training: the principal data review, the machine corpus audit (faithfulness, triviality, diversity, template leakage), independent auditor rounds and label reviews (including the rounds that failed before a sign-off), the no-copy and vocabulary checks, and the dataset qualification record."
+  },
+  {
+   "id": "evaluation",
+   "title": "Evaluation: suites, metrics and validity",
+   "scope": "How results are measured and whether the measurement is valid: the sealed formalizer-v1 test, the out-of-distribution formalizer-ood-v1 suite, the independent formalizer-wild-v1 suite and its annotator agreement, execution equivalence (strict and tolerant), reference-free metrics, wire F1, the dev-versus-test gap, and evaluation false negatives."
+  },
+  {
+   "id": "training-experiments",
+   "title": "Training experiments",
+   "scope": "Fine-tuning runs and their outcome, including failed and restarted attempts: the formalizer-size-v1 study (SmolLM2-135M, Gemma 3 270M, the exploratory SmolLM2-360M), its deviations, infrastructure incidents on the shared GB10, export defects, and every sealed-suite result with its denominator."
+  },
+  {
+   "id": "baselines",
+   "title": "Reference baselines (Haiku)",
+   "scope": "Comparison points that are not preregistered arms: the prompted Claude Haiku 4.5 reference formalizer with and without extended thinking, its cost and latency, and the evaluation-validity review it produced."
+  },
+  {
+   "id": "preprocessing",
+   "title": "Preprocessing (spellfix)",
+   "scope": "Host-side steps before the formalizer: the symbolic spelling corrector spellfix-v1, the eval-spellfix-preproc-v1 experiment, where it helped and where it hurt, and the proposed spellfix-v2."
+  },
+  {
+   "id": "long-messages",
+   "title": "Long messages",
+   "scope": "Messages longer than 300 characters with many statements: why whole-program scores are near 0%, truncation and harness checks, partial-credit wire F1, real error patterns that grow with length, and the proposals to cap long messages and add a mid-length family."
+  },
+  {
+   "id": "data-improvement-plan",
+   "title": "Data improvement plan (Fable review)",
+   "scope": "The independent data-improvement review of 2026-09-29: its diagnosis of the corpus, the ranked ideas, the E0-E8 experiment sequence, the success thresholds and the owner decisions D1-D8 it asks for, and what was decided and done about each."
+  },
+  {
+   "id": "server-and-ui",
+   "title": "Server and UI",
+   "scope": "The local server's pages and tools the owner uses: login, the three-pane audit, the evaluation browser, the project status and history pages under /project, the shared site menu, the link checker and the read-only report viewer."
+  },
+  {
+   "id": "docs-and-specs",
+   "title": "Documentation and specifications",
+   "scope": "The DS specification set, its consolidation and renumbering, the wire help pages and their executed examples, the wiki, the skills catalog, and the archive under probably_obsolete/."
+  },
+  {
+   "id": "process-and-decisions",
+   "title": "Process and decisions",
+   "scope": "How the project is run: owner decisions that are not about one subject, autonomy and resource rules (GPU sharing, overnight work), the journal, notes and questions workflow, reviews of the whole project, and the training-authorization state."
+  },
+  {
+   "id": "proofing",
+   "title": "Proofreading data for the symbolic path",
+   "scope": "dataset_proofing (corpus proofing): message to proofread-text pairs chosen by the Stanza + UD-rules oracle on formalizer-v1 train+dev (monolingual EN and RO), the small proofreading LLM candidates, their repair and break rates, the teacher fallback, hard cases tagged by blame layer, and the choice of a base model for a future proofreader."
+  },
+  {
+   "id": "symbolic-lm",
+   "title": "SymbolicLM: the symbolic language model",
+   "scope": "The packaged symbolic path (Stanza UD parse, per-token language identification, symbolic spelling correction, dictionary-based Romanian-to-English translation and the UD-to-SOP rules) as one component with one API: its design, its per-component measurements, the direct-versus-translate comparison for Romanian and the mixed-message assessment."
+  },
+  {
+   "id": "translation",
+   "title": "TranslatorService and LanguagesUtil: translation as a pluggable component",
+   "scope": "The split of translation and language-level utilities out of SymbolicLM (owner decision 2026-09-29): TranslatorService's pluggable backends (symbolic, Opus-MT, Apertium), LanguagesUtil's language identification, matrix-language (frame) detection and spelling, the eval-translator-compare-v1 comparison and its Q-PIPE-1 decision, and any later backend adopted into the runtime pipeline."
+  },
+  {
+   "id": "clean-english",
+   "title": "Clean-English partition and formalization scope (owner decision 2026-09-30)",
+   "scope": "Restricting the formalization evaluation to valid, clean English: the operational clean-English filter (tools/datasets/clean-english.mjs), the four-way partition (clean_en, noisy_en, ro, mixed) of formalizer-v1 and the three sealed suites, the sealed datasets/clean-english corpus, the clean-vs-full-EN formalization comparison (eval-clean-english-v1), the proofreader's effect restricted to clean English, and the resulting justified-problems blame list. Romanian, mixed and noisy-English formalization move to the separate textToCleanEnglish service and its own topic/experiment (text-to-clean-english-v1)."
+  },
+  {
+   "id": "three-datasets",
+   "title": "Three datasets: bad_english, symbolic_english, neuro_english",
+   "scope": "The owner decision of 2026-09-30: datasets/ holds only bad_english (not clean English, target for LanguageProofingLLM), symbolic_english (correct English SymbolicLM analyses correctly; the regression suite) and neuro_english (correct English SymbolicLM does not analyse correctly; SymbolicProofingLLM material). Reuse analysis of the legacy corpora and the new cases, classification rules, the SymbolicLM analysis field, the regression runner, and the move of the legacy corpora to datasets_archive/."
+  },
+  {
+   "id": "parse-quality",
+   "title": "Parse quality: judging Stanza analyses and improving the parser",
+   "scope": "Whether an LLM can judge a UD parse (rubric v1, Haiku conditions, the stronger model as reference, gates for symbolic_english), how much the transformer Stanza package (default_accurate) improves the analysis of clean English, the cheap levers (name protection, second-parser agreement), and the realistic ceiling and remaining error classes."
+  },
+  {
+   "id": "laptop-cpu",
+   "title": "Laptop-CPU deployment: base-model speed",
+   "scope": "Generation speed of the candidate base models for SymbolicProofingLLM and LanguageProofingLLM and of Opus-MT on a laptop-class CPU (llama.cpp -ngl 0, 4 and 8 threads, Q4_K_M and Q8_0), the conservative laptop correction, and the model recommendation per role."
+  }
+ ]
+}

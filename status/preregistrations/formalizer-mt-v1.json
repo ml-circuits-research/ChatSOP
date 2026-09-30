@@ -1,0 +1,120 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "formalizer-mt-v1",
+  "registered_at": "2026-09-29T12:00:00Z",
+  "registered_by": "mt-training-agent (for the owner, under the owner's decision logged in status/journal.jsonl at 2026-09-29T11:45:36.367Z)",
+  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "frozen_before_results": "Written before any optimizer step and before any fine-tuned prediction on any split. Any later change is a recorded deviation.",
+  "question": "Does treating NL -> SOP Lang as machine translation into a new target language, starting from a small pretrained Romance -> English translation model, generalize better (above all on Romanian and out-of-distribution text) than the decoder-only chat models of formalizer-size-v1 fine-tuned on the same data?",
+  "owner_idea": "Owner decision 2026-09-29 11:45Z ('SOP Lang as translation'): NL -> SOP is translation into a new language; fine-tune a small translation model (Opus-MT) directly to SOP Lang and compare it with the current models. 'Yes, it must be tried on a small model and compared, to see if it's better.'",
+  "hypotheses": {
+    "H1": "Headline. On the full formalizer-ood-v1 suite, tolerant execution equivalence of the fine-tuned Marian model is higher than SmolLM2-135M's 33.3% (526/1578) (paired 95% bootstrap interval of the difference above 0).",
+    "H2": "The translation prior helps Romanian: formalizer-ood-v1 Romanian-row tolerant execution equivalence is higher than both SmolLM2-135M (8.4%, 46/550) and SmolLM2-360M (15.3%, 84/550).",
+    "H3": "A translation model copies names well: name fidelity (gold role values with a capital letter that occur verbatim in the message and appear quoted in the prediction) on formalizer-ood-v1 and formalizer-wild-v1 is at least that of SmolLM2-360M.",
+    "H4": "Speed: CTranslate2 int8 on this CPU with 10 threads generates >= 100 tokens/s single-stream with p50 latency <= 1 s per message on a 50-message sample (reported against, not gated)."
+  },
+  "changed_factor": "The model family and architecture: a 78M-parameter encoder-decoder translation model (MarianMT, pretrained Romance->English) instead of a decoder-only chat model. Size, tokenizer, pretraining objective and the learning recipe (lr, epochs, batch) change together, so a difference is attributed to 'this translation-model recipe', not to architecture alone. Data, splits, qualification, selection policy and evaluation suites are those of formalizer-size-v1.",
+  "arm": {
+    "model": "opus-mt",
+    "model_id": "Helsinki-NLP/opus-mt-ROMANCE-en",
+    "revision": "e9ca9975e3972afd80732f08ce01d3a1339f47f8",
+    "weights": "main publishes only pytorch_model.bin (LFS sha256 9d77bbbd43a214959e027ffc8713fbe31f8609d14827fba645f1361ca20a6f3a, equal to the Hub LFS oid); training/python/download_model.py converted it with torch.load(weights_only=True) to model.safetensors (sha256 6b55eba06545c6adeb5189d30b0c2921225ebdbcab721035f903d1d62b59befd); config, vocabulary and README git blob ids equal the Hub's (models/opus-mt/bases/<rev>/weights-conversion.json)",
+    "parameters": "77.9M in the base (6+6 layers, d_model 512, shared 65,001-piece vocabulary); 81.6M after the 4,096-row position tables and 8 line tokens, of which 77.4M trainable (the static sinusoidal position tables are frozen)",
+    "license": "Apache-2.0 (model card front matter; no LICENSE file in the repository)",
+    "recipe": "config/train-opus-mt.json",
+    "recipe_sha256": "d8ff105e2776f30f4787e600560de219d997b1f22c613cdb11359f5b3b3a9951",
+    "run": "fmt-a1"
+  },
+  "model_choice": {
+    "requested_primary": "Helsinki-NLP/opus-mt-ro-en does not exist on the Hugging Face Hub (the API answers 401/not found on 2026-09-29), nor does opus-mt-tc-big-ro-en. The Helsinki-NLP models that translate Romanian into English are opus-mt-ROMANCE-en and opus-mt-roa-en (same 78M Marian architecture and the same SentencePiece models) and the 234M opus-mt-tc-bible-big-roa-en. opus-mt-ROMANCE-en is chosen: it lists ro explicitly among its source languages, is the most used (about 97k downloads/month) and is the size the owner asked for.",
+    "tokenizer_measurement": "scratch measurement over all 28,948 train+dev rows (eval/reports/current/training/opus-mt-formalizer-token-audit.json repeats it for the chosen model): with the line encoding below, every SOP target round-trips exactly through tokenize/decode for opus-mt-ROMANCE-en, opus-mt-roa-en, opus-mt-tc-bible-big-roa-en and mt5-small; 0 unknown tokens in any target; 10 source messages contain one unknown token each (the character U+201D, a right double quotation mark). @, $, ?, straight quotes and Romanian diacritics are represented. Without the line encoding, SentencePiece normalization erases newlines and indentation, which SOP needs (sop/parser.mjs: 'wire fields use two spaces').",
+    "lengths": "Marian tokens: source p50 24, p99 1,023, max 1,587; target p50 50, p99 2,187, max 3,099. 1,036 sources and 1,688 targets exceed the base's 512 positions, so the static sinusoidal tables are extended to 4,096 rows; the first 512 rows equal the base's exactly (checked at load) and base translations are unchanged.",
+    "alternatives_not_taken": "mt5-small (300M, 250k vocabulary) also round-trips every target but is 4x larger, has no Romanian->English translation prior of its own and its tokenizer needs protobuf, absent from the training image; opus-mt-tc-bible-big-roa-en is 3x larger. They are kept as follow-ups if the 78M arm is limited by capacity."
+  },
+  "line_encoding": {
+    "code": "training/python/seq2seq_text.py (sha256 6f097b3404619bdc4dbbc2485629cd9507ab98ac0cc53a58bb999666f4d291bc)",
+    "target": "every line break followed by 2*K spaces of indentation becomes the added token <nK> (K = 0..7); decoding is exact for every canonical SOP program",
+    "source": "a line break in the message becomes <n0>; nothing else is added: the encoder input is the user's message only (DS021)",
+    "added_tokens": "<n0>..<n7>, added to the shared vocabulary; their embeddings are initialized from the mean and covariance of the existing embeddings (transformers resize_token_embeddings default)"
+  },
+  "data": {
+    "corpus": "formalizer-v1, identical to formalizer-size-v1",
+    "training_input": "datasets/formalizer-v1/formalizer/{train,dev}.jsonl (message-only projection, manifest prompt_profile message-only)",
+    "dataset_manifest_sha256": "b0c449573a628e8d4e1d21388f650112825a213b9e079b89194e2c2c98233837",
+    "dataset_version_sha256": "c5b31d05f722db492c6eceee8748b07375fae59d849e9bc52812e1ca91124a71",
+    "projection_sha256": {
+      "formalizer/train.jsonl": "1a90af39dba697d7f0a571f36c863b232da99e8594ae4318619a3b68c9003aeb",
+      "formalizer/dev.jsonl": "6528506f62f4b6b14e572c502a8b270010bfaaf280fe670240a06b0cbcdb12c7"
+    },
+    "suite_sha256": {
+      "eval/suites/formalizer-v1/test.jsonl": "b05c76a83efbad8a6027137cb13bc9eeb57812574663818624a98692a11930ac",
+      "eval/suites/formalizer-ood-v1/test.jsonl": "09acfb2eb820a60f29c83b01a45dd2cc1ca371117de4fc69c517c4b80a307a2a",
+      "eval/suites/formalizer-wild-v1/test.jsonl": "077e7164a3020c1e6c3c28c8f3b5b8f2c08e2e3f59ee0e6830f9991509884163"
+    },
+    "rows": {"train": 23817, "dev": 5131, "formalizer-v1 test": 5033, "formalizer-ood-v1 test": 1578, "formalizer-wild-v1 test": 796},
+    "qualification": "status/training/qualification-formalizer-v1.json (sha256 89d162dd2c6610ad0e8c1ef5d572e1f25d437728fbbd0dcf496710a1e73d0860) qualified the same data; on 2026-09-29 (about 11:55Z) training/cli.mjs refuses it because contract files changed after qualification (sop/parser.mjs and server/agent.mjs differ from the recorded hashes). Training needs a qualification record valid for the current contract files; see status.",
+    "token_audit": "eval/reports/current/training/opus-mt-formalizer-token-audit.json: 0 errors, every train and dev target reproduced exactly, 0 target unknown tokens, eos at the end of every label"
+  },
+  "recipe_policy": {
+    "mode": "full fine-tuning (--full)",
+    "precision": "FP32 master weights with BF16 autocast on CUDA, as formalizer-size-v1",
+    "optimizer": "AdamW, weight decay 0.01, gradient clipping 1.0; static position tables frozen",
+    "learning_rate": "peak 1e-4 (full_lr), linear warmup over 5% of steps, then linear decay to a 5% floor (training/python/train.py)",
+    "learning_rate_justification": "Marian models were pretrained at about 3e-4 with inverse-square-root decay; domain fine-tuning usually uses 2e-5 to 5e-5 for a known target language. Here the target is a new language (the decoder must learn SOP keywords, structure and the line tokens), so a value between the two, 1e-4, is used. Not tuned on dev.",
+    "batch": "16 sequences per optimizer step (batch 16, no accumulation), as formalizer-size-v1; encoder inputs and labels padded separately, loss on every label token",
+    "epochs": 6,
+    "epochs_justification": "A 78M encoder-decoder costs about a tenth of the 360M arm per step, and a new target language needs more passes than the 3 epochs of the chat models, which already knew the surface form of text; 6 epochs is about 8,934 optimizer steps. The interim rules below stop the run earlier when it plateaus or fails.",
+    "dropout": "0.1 (base config)",
+    "max_lengths": "source <= 2,048, target <= 4,096 Marian tokens, positions 4,096; the corpus maximum is 1,587 / 3,099; longer rows are refused, never truncated",
+    "seed": 42
+  },
+  "interim_checks_and_stop_rules": {
+    "source": "Owner rule of 2026-09-29 (relayed by the orchestrator): stop early when the answer is clear. Implemented in training/python/train.py (recipe fields interim_check_rows 200, interim_checks_first_epoch 4).",
+    "checks": "after each quarter of epoch 1 (optimizer steps round(k/4 x steps per epoch), k = 1..3) and at the end of every epoch: the full development loss and a greedy decode of a fixed sample of 200 development rows (proportional stratified by language x question type, largest remainder, seed 42) scored by eval/run.mjs for parse validity and tolerant execution equivalence. Each check is appended to models/opus-mt/fmt-a1/formalizer/interim-checks.jsonl.",
+    "stop_failing": "from the end of epoch 1 on: parse validity below 100/200, or more than 100/200 predictions empty or reaching the generation cap. The run stops, keeps latest, selects nothing and is reported as failed.",
+    "stop_plateau": "a check whose tolerant count is not above the previous check's and whose development loss is not below it. The run stops, the current model is scored once on the full development split and becomes best (selection unchanged otherwise).",
+    "no_other_stops": "no stop on any sealed-suite number"
+  },
+  "selection": "select_final_only: the full development split (5,131 rows) is decoded greedily once, after the last epoch or at a plateau stop, with each batch capped at four times its longest message plus 256 tokens (no train or dev gold target is longer, measured); best is that checkpoint. The sealed suites are never used for selection.",
+  "budget": {
+    "wall_time_cap": "240 minutes (podman.mjs --wall-minutes 240)",
+    "attempts": "one run; at most one --resume after an infrastructure interruption; a pipeline defect fixed afterwards starts a new run id and is recorded as a deviation",
+    "abort_conditions": "non-finite loss, OOM or cgroup OOM kill, controller resource floors, wall-time cap, the interim rules",
+    "gpu_policy": "one GPU-intensive worker; nvidia-smi and models/.training.lock checked before each GPU job; small inference jobs of other agents may share the GPU (owner rule 2026-09-29); pause if host MemAvailable drops below about 15 GB"
+  },
+  "evaluation": {
+    "device_rule": "Owner rule of 2026-09-29: every bulk prediction runs on the GPU (transformers, BF16 autocast, greedy, training container via node training/cli.mjs predict); CPU only for the speed sample. The device is recorded with every number.",
+    "predictions": "training/python/predict_seq2seq.py: the message is the only encoder input; greedy (num_beams 1); budget min(4,095, 4 x message tokens + 256); capped rows are listed and count as failures",
+    "staging": "Owner rule of 2026-09-29: each suite is predicted and scored on nested deterministic samples of 100, then 300 rows (mulberry32 seed 42, as predict-endpoint.mjs), then in full. After a stage, the suite stops when (a) the condition is broken (parse below 50% or more than half empty/capped), (b) the paired 95% interval of the tolerant difference against both SmolLM2-135M and SmolLM2-360M excludes 0 with the same sign (decisive), or (c) further rows cannot change the conclusion. A stop is recorded with its reason and numbers.",
+    "suites": {
+      "formalizer-ood-v1": "headline; full suite (1,578) unless a stage rule stops it; slices en/ro/mixed",
+      "formalizer-v1 test": "the same stratified 500-row sample as formalizer-size-v1 (eval/reports/current/formalizer-size-v1/sample500/formalizer-v1-sample500.suite.jsonl), with its short (<= 300 characters) and long slices; the long slice is also scored by wire F1 (DS016, eval/metrics.mjs rowWireComparison)",
+      "formalizer-wild-v1": "full 796 rows: accepted match, decision match, proposition F1 (tools/eval/wild-suite.mjs scoreAgainstAccepted)"
+    },
+    "metrics": {
+      "primary": "formalizer.execution_equivalence_tolerant on formalizer-ood-v1",
+      "secondary": ["tolerant execution equivalence by row language (en, ro, mixed slice)", "parse rate", "sealed 500-row sample tolerant execution equivalence, short and long slices", "wire F1 (micro) and rows with wire F1 >= 0.9 on long messages", "wild accepted match, decision match, proposition F1", "name fidelity (tools/research/translate-eval.mjs definition)"],
+      "comparison": "paired 95% bootstrap over split_group_id (rows for wild), 1,000 resamples, seed 42, against the formalizer-size-v1 predictions of SmolLM2-135M and SmolLM2-360M (Q8_0 GGUF, CPU llama.cpp) on the same rows"
+    },
+    "cpu_speed": "50 formalizer-v1 test messages (mulberry32 seed 42 sample), one message at a time, 10 threads: CTranslate2 int8 (if it installs; recorded) and transformers FP32 on CPU; generated tokens/s and latency p50/p95; load average recorded. The SmolLM2 figures come from formalizer-size-v1 (llama.cpp Q8_0, 300 messages); the comparison is labelled approximate.",
+    "comparability_caveats": ["the SmolLM2 predictions ran as Q8_0 GGUF on CPU with a 6,144-token limit, the Marian predictions as BF16 on GPU with the capped budget", "one seed", "synthetic suites except wild", "no human review (experiment-grade)"]
+  },
+  "success_criteria": {
+    "better": "The translation arm is better if H1 holds (OOD tolerant difference against SmolLM2-135M with a 95% interval above 0). It is better than the best decoder-only arm if the OOD difference against SmolLM2-360M (47.5%) is also above 0.",
+    "adequacy_gate": "The formalizer-size-v1 gate is reported for continuity (parse >= 99%, EN and RO >= 90% on the sealed sample, OOD >= 70%), not required.",
+    "not_a_promotion": "No result of this experiment is a DS010 promotion."
+  },
+  "known_limitations": ["one seed", "family, size, tokenizer and recipe change together", "different decoding devices and precisions across arms", "shared machine: CPU timings affected by other load", "no human semantic review"],
+  "status": "REGISTERED, NOT STARTED: blocked at the training gate on 2026-09-29 (the qualification record no longer matches the current contract files, and no chatsop-training-authorization-v1 receipt exists for opus-mt/fmt-a1). No optimizer step has run.",
+  "deviations": [
+    {
+      "id": "D1",
+      "at": "2026-09-29T21:50:00Z",
+      "by": "symbolic-rules-agent (housekeeping item of the eval-ud-rules-v15-v1 task; no training run, no optimizer step)",
+      "what": "This preregistration's data.suite_sha256['eval/suites/formalizer-wild-v1/test.jsonl'] (077e7164a3020c1e6c3c28c8f3b5b8f2c08e2e3f59ee0e6830f9991509884163) and status/training/qualification-formalizer-v1.json's recorded wild-suite hash both name the wild suite as it stood before the Q-SYM-3 re-adjudication of 10 rows (eval-ud-rules-v14-v1 deviation D2). The suite's current sha256 is 548d76beceb18f1b9a5e9de3fb65856c9965242e779933a2d666198fe6dff897 (verified 2026-09-29 by `sha256sum eval/suites/formalizer-wild-v1/test.jsonl`); the two hashes disagree because of that re-adjudication, not because of any change to this experiment's arm, recipe or data split.",
+      "why_not_fixed_here": "Rewriting either frozen hash, or regenerating the qualification record, would itself be a qualification/training-adjacent action; this task is evaluation-only (CPU, no training, no GPU) and is not authorized to change qualification results or start a training run (owner rule: approval for `train` is never inferred). Left as a recorded deviation instead, per the owner's standing instruction ('formalizer-mt-v1 and the formalizer-v1 qualification record froze the old wild-suite hash: pin it from eval/reports/current/ud-rules-v14/gold-readjudication.jsonl or record a deviation'), TODO.md 'Wild suite alignment (owner decision D6)'.",
+      "how_to_pin_or_rebuild": "Either (a) re-run this experiment's evaluation against the current (548d76be…) suite and update both hash fields to match before any prediction is scored — the wild suite has only gained 10 corrected rows, no row was removed or renumbered, so no other part of this preregistration changes; or (b) reconstruct the exact pre-adjudication file (077e7164…) byte for byte to keep using the originally frozen suite: read eval/reports/current/ud-rules-v14/gold-readjudication.jsonl (10 rows, each `{id, group, reason, before: {sop_target, sop_targets_accepted}, after: {...}}`), and for each of those 10 row ids in the current eval/suites/formalizer-wild-v1/test.jsonl, replace `sop_target` and `sop_targets_accepted` with the row's `before` values AND remove the `adjudication.readjudication` sub-object the re-adjudication stamped on those same 10 rows (date/by/group/note; gold-readjudication.jsonl records no prior value for it, so exact reconstruction deletes the key rather than guessing one), changing nothing else (same row order, same every other field); `sha256sum` the result and confirm it equals 077e7164a3020c1e6c3c28c8f3b5b8f2c08e2e3f59ee0e6830f9991509884163. Verified mechanically by tests/formalizer-mt-v1-wild-suite-hash.test.mjs (reconstructs in memory only; never rewrites the sealed suite on disk). Whichever path is taken, status/training/qualification-formalizer-v1.json needs the same choice applied consistently (it has no independent 'deviations' field, being a machine-generated qualification report, so this entry is also the record for that file's mismatch).",
+      "effect": "None on this preregistration's status (still REGISTERED, NOT STARTED) or on any qualification grade; no training run started; no file rewritten by this deviation."
+    }
+  ]
+}

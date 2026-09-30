@@ -1,0 +1,158 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-symbolic-layers-en-v1",
+ "name": "Layered blame of the English symbolic path: is Stanza's UD analysis correct, is our UD->SOP conversion correct on correct parses, and can wrong parses be saved by a rewrite?",
+ "registered_at": "2026-09-29T14:25:00Z",
+ "registered_by": "symbolic-layers-agent (owner request of 2026-09-29, relayed by the orchestrator)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_requests": {
+  "intent": "\"Let's focus on English now and make Stanza -> SOP Lang come out perfect. We have never properly understood this symbolic translation, and we keep running to LLMs without addressing the elephant in the room. The real check is whether Stanza's analysis is correct: verify that first, then the translation into SOP Lang. If we jump straight to the SOP translation, we don't know who is to blame. And along the way, extract the cases on which we might eventually fine-tune a language-regularization model. The only LLM use here is to validate what Stanza returns. Success or failure is about whether it fails completely, or whether what it extracts is deeply wrong. And even when it is wrong, things may still be saved by rewriting into a form that gets a correct analysis.\"",
+  "clarification": "The real and fatal parser errors (DEEP and FAIL) are fine-tuning material in their own right: a future regularization model turns input Stanza cannot process into input it can. For EVERY DEEP or FAIL sentence record the original text, the error type and wrong arcs, the trigger, all rewrite attempts with their re-parse verdict and SOP outcome, and whether it was saved (status saved | partially_saved | unsaved); the summary characterizes which input patterns Stanza cannot process and which rewrite strategies fix each pattern (the specification of the regularization model)."
+ },
+ "kind": "evaluation-only (inference; no training). LLMs are used only as validators of Stanza's analysis (Layer-1 judge, calibration judge) and as rewriters in Layer 3; one Fable sub-agent writes rule and language proposals from the Layer-2/3 evidence.",
+ "frozen_before_results": "Written before any sample row was parsed, judged or converted in this experiment. The only prior observations are the earlier studies' published aggregates (baseline-ud-rules-v1, eval-rewrite-symbolic-v1).",
+ "system_under_test": {
+  "parser": "Stanza 1.10.1 English (tokenize, mwt, pos, lemma, depparse, ner) through training/python/ud_parse_worker.py in ~/nlp-venv, GPU; input = lib/ud-to-sop maskMessage(question), exactly as the baseline pipeline",
+  "rules_before": "ud-rules-v1.2 (lib/ud-to-sop, frozen under eval/reports/current/baseline-ud-rules/frozen-rules-v1.2/, SHA256SUMS identical to the working tree at registration)",
+  "rules_after": "ud-rules-v1.3: rule fixes (class R) derived from half A only, frozen under eval/reports/current/baseline-ud-rules/frozen-rules-v1.3/ before any v1.3 run on half B"
+ },
+ "sample": {
+  "size": "400 English messages: 160 sealed formalizer-v1 test, 120 formalizer-ood-v1, 120 formalizer-wild-v1",
+  "eligibility": "language en; gold is not `unclear gibberish` (no linguistic analysis to judge); one row per semantic_case_id (test/OOD), so surface variants of one case never fall in both halves",
+  "strata": "source x question-type group (yes_no; wh = wh/where/when/why/how/value/definition; count = count/how_many_times; time = since_when/until_when/how_long; quant = universal/quantified/exists; multi = multi/alternative/compare/order/superlative; numeric; claim_check; none = none/fragment/advice; unclear = unclear/ambiguous) x length (short <= 100 chars, medium <= 300, long > 300); proportional allocation with at least 2 per non-empty stratum, long rows capped at 12% of each source",
+  "seed": 20260929,
+  "halves": "within each stratum the seeded order alternates A, B, A, B...; A = development half for rule fixes, B = held-out half",
+  "ids": "eval/reports/current/symbolic-layers/sample.json"
+ },
+ "layer1": {
+  "unit": "a sentence as the pipeline parses it (the Stanza tokenizer's sentences of the masked message, i.e. what the rules actually consume). The repository segmenter lib/sentence-split.mjs splitSentences is run on every message too; its units are recorded and every disagreement of sentence boundaries is reported as a Layer-1 boundary finding.",
+  "capture": "tokens, UPOS, XPOS, lemma, head, deprel, feats, NER per word (parses.jsonl)",
+  "judge": "claude-haiku-4-5-20251001 through headless `claude -p` (no tools, empty settings, MAX_THINKING_TOKENS=0), one call per sentence, cached by sha256(prompt + sentence + rendering). Input: the sentence, a readable rendering of the parse (one line per word: index, form, lemma, UPOS, head index and head form, deprel, NER), and the rubric; output strict JSON.",
+  "rubric": [
+   "main predicate and its lemma",
+   "subject",
+   "direct and indirect object",
+   "each obl and nmod attachment and its preposition",
+   "negation",
+   "clause boundaries and subordination type (advcl/mark, acl:relcl, ccomp/xcomp, conj, parataxis)",
+   "question word and question type",
+   "NER spans of names, dates and numbers",
+   "copula handling"
+  ],
+  "verdicts": {
+   "CORRECT": "every rubric element is right",
+   "MINOR": "errors exist but none changes the SOP-relevant reading (a determiner or punctuation arc, compound vs amod, a wrong NER label on a non-name, a wrong lemma of a non-predicate word)",
+   "DEEP": "an error changes who did what to whom (subject/object/oblique attachment or head), the polarity, the predicate itself, or the clause structure (a subordinate clause attached to the wrong clause or not recognized, a question read as a statement)",
+   "FAIL": "the analysis is unusable: no recognizable predicate-argument structure (e.g. the main verb tagged as a noun and everything hung off it, fragments glued together, a sentence split in the middle of a clause)"
+  },
+  "triggers": "the judge names the probable trigger of each error from a closed list: typo, lowercase_name, capitalization, passive, ellipsis, question_form, list, long_coordination, pp_attachment, relative_clause, subordinate_clause, copula, light_verb, phrasal_verb, name_as_common_word, number_or_date, code_switch, fragment, sentence_split, other",
+  "early_stop": "if the first 100 judged sentences (sample order) show at least 90% CORRECT+MINOR (Wilson 95% lower bound reported), the remaining sentences are judged only when their message misses the gold under the v1.2 rules or spaCy disagrees with Stanza on a core arc; the rest are counted as 'unjudged, presumed OK' and reported separately. Otherwise every sentence is judged.",
+  "calibration": {
+   "a_stronger_judge": "80 sentences stratified by Haiku verdict and source (about 20 per verdict where available), judged independently with the same rubric by a stronger model (Claude, model `fable`, through the Agent tool) blind to Haiku's verdicts. Report exact 4-class agreement, binary agreement (CORRECT/MINOR vs DEEP/FAIL) and Cohen's kappa with bootstrap 95% CI. If binary kappa < 0.6, Layer-1 numbers are reported as judge-limited and the stronger judge's distribution on the 80 is reported beside Haiku's.",
+   "b_second_parser": "spaCy 3.8 en_core_web_lg 3.8.0 (MIT code, MIT model; separate venv ~/spacy-venv) on the same sentence texts; core-arc agreement with Stanza after label mapping (root lemma, subject head, object head, preposition attachment of each oblique/nmod, negation, clause relations advcl/relcl/ccomp/conj); disagreement rates overall and by Haiku verdict; whether disagreement predicts DEEP/FAIL.",
+   "c_gold_consistency": "for each gold proposition whose subject or object value is a span of the sentence, check that Stanza's parse links the value's head to a predicate whose lemma occurs in the gold relation (directly or through xcomp/conj/cop/aux chains). Weak, independent signal: its rate by Haiku verdict is reported."
+  }
+ },
+ "layer2": {
+  "population": "messages whose every sentence is CORRECT or MINOR",
+  "match": "test/OOD: execution_equivalent_tolerant of eval/run.mjs (row world, evaluation relation synonyms); wild (no world): D1-tolerant all-proposition F1 = 1 (tools/research/ud-baseline-eval.mjs tolerantScores; unparsed and link lines ignored) against any accepted gold",
+  "diff": "structural diff against the best gold: wire types, query form (mode, select, measure, compare, rank, except, order, fragment), relation strings, role names and values, polarity, certainty/speaker, links",
+  "classes": {
+   "R": "missing or wrong rule, fixable in lib/ud-to-sop",
+   "C": "arbitrary gold convention (relation/object boundary such as 'have a valid certificate' vs relation 'have' + object, per-predicate role choice, wording) that a correct conversion cannot know",
+   "L": "SOP Lang lacks a construct to express the message faithfully",
+   "E": "evaluation artifact: the conversion is valid and faithful but scored wrong"
+  },
+  "procedure": "every miss of half A is classified by hand from the diff (primary class plus secondary classes). Half B misses are NOT inspected before v1.3 is frozen; they are classified after the held-out measurement."
+ },
+ "layer3": {
+  "population": "every DEEP or FAIL sentence",
+  "rewrites": "Claude Haiku 4.5 without thinking, up to 3 meaning-preserving English rewrites of the sentence (names, quoted spans and numbers masked by lib/ud-to-sop/protect.mjs and restored symbolically), each rewrite applied in place of the sentence in the whole message",
+  "checks": "each rewrite is re-parsed with Stanza and re-judged with the Layer-1 rubric; the rules convert the whole rewritten message and the result is scored against the gold with the Layer-2 match",
+  "status": {
+   "saved": "a rewrite preserves the protected values, parses CORRECT/MINOR and its message's rules-SOP matches the gold",
+   "partially_saved": "a rewrite parses CORRECT/MINOR but no such rewrite's message matches the gold (the parse is fixed; the rest is a Layer-2 problem)",
+   "unsaved": "no rewrite parses CORRECT/MINOR"
+  },
+  "output": "eval/reports/current/symbolic-layers/regularization-candidates.jsonl: one line per DEEP/FAIL sentence with the original text, verdict, error type, wrong arcs, triggers, every attempt (text, preserved, parse verdict, wrong arcs, SOP outcome) and status"
+ },
+ "outcomes": {
+  "primary": [
+   "Layer-1 verdict distribution (overall, per source, per question-type group, per length) with Wilson 95% CIs",
+   "blame matrix: final outcome of every message attributed to parser, rules, convention, language or eval",
+   "held-out gain of ud-rules-v1.3 over v1.2 on half B (match rate, paired cluster bootstrap 95% CI, 10,000 resamples, seed 7), overall and on the Layer-2 population"
+  ],
+  "secondary": [
+   "Layer-2 class counts with examples",
+   "Layer-3 savable fraction per error type and trigger",
+   "judge calibration (a,b,c)",
+   "error patterns by arc type and trigger"
+  ]
+ },
+ "hypotheses": {
+  "H1": "At least 25% of English sentences have a DEEP or FAIL Stanza analysis (the noisy test/OOD surfaces).",
+  "H2": "Among messages with CORRECT/MINOR parses that miss the gold, class C (gold convention) is at least as frequent as class R (rules).",
+  "H3": "At least half of the DEEP/FAIL sentences are saved or partially saved by one of three rewrites.",
+  "H4": "Rule fixes from half A raise the half-B match rate by a positive amount whose 95% CI excludes 0."
+ },
+ "stop_rules": [
+  "The judge's JSON is unusable on more than 10% of the first 100 sentences: fix the prompt on those 100 only, re-register as a deviation, restart.",
+  "Haiku rewrites drop or invent placeholders on more than 30% of the first 50 attempts: tighten the prompt as a deviation."
+ ],
+ "rigor": [
+  "Rules are developed on half A and measured on half B; half-B diffs are not read before v1.3 is frozen.",
+  "Confidence intervals throughout (Wilson for proportions, cluster bootstrap for paired differences).",
+  "No training; port 9999 untouched; only this experiment's own processes are stopped."
+ ],
+ "records": [
+  "status/experiments.json",
+  "status/tasks.json (task eval-symbolic-layers-en-v1)",
+  "status/notes (baselines, evaluation, model-language)",
+  "status/journal.jsonl",
+  "eval/reports/current/symbolic-layers/summary.md"
+ ],
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-09-29T14:33:00Z",
+   "what": "Judge input and procedure fixed on a 30-sentence pilot (the first sentences in sample order) before the full run: (1) the readable rendering gains a mechanical clause-by-clause READING (predicate, subject, objects, obliques with prepositions, negation, attached clauses, noun attachments, question words, entities) above the arc table; (2) the rubric lists valid UD v2 analyses that are not errors (advmod negation, prepositional verbs as obl+case, copula as dependent, xcomp, flat names, lead-ins); (3) a DEEP or FAIL first verdict is re-checked by a second Haiku call (same model, no thinking) that must confirm or drop each claimed arc; the second verdict counts and both are kept. Sentences that the worker labelled Romanian inside English messages (16 of 1216) are not judged (English-only rubric) and are reported apart.",
+   "why": "On the pilot, the first prompt flagged valid UD analyses as DEEP (copula heads, look after + obl, advmod negation), which would push rules failures onto the parser.",
+   "effect": "The 30 pilot sentences are part of the sample and were re-judged with the final prompt; the pilot verdicts of earlier prompts are discarded. The calibration (a) still measures the final judge against a stronger judge."
+  },
+  {
+   "id": "D2",
+   "at": "2026-09-29T14:44:00Z",
+   "what": "Judge rubric v1 replaces rubric v0 after the full v0 run and BEFORE any Layer-1 number was reported: (1) an explicit UD v2 conventions section with examples (copula as dependent, aux under the main verb, passive, xcomp/ccomp/advcl+mark incl. gerund complements, acl:relcl, prepositions and prepositional verbs, question words, STRANDED prepositions as a real error, negation, lead-ins, complex prepositions, how many times); (2) DEEP defined strictly as an analysis that would change the logical form (who did what to whom, polarity, clause structure, question target); (3) every problem gets an issue type: structure, input_typo, ner_type_only, convention_disagreement, minor_label; (4) a fifth verdict INPUT_TYPO: the structure is right and only misspelled input words get non-word lemmas or odd tags (input noise, not a parse error). The second-stage review of DEEP/FAIL is kept with the new rubric. All 1200 sentences are re-judged; the rubric-v0 verdicts are kept in eval/reports/current/symbolic-layers/v0-judge/ for comparison. Layer 3 covers DEEP, FAIL and INPUT_TYPO sentences (spelling is exactly the regularization model's job); the stronger-judge calibration (80 sentences, blind) is run on rubric v1 before any number is reported, and judge precision/recall on DEEP is reported.",
+   "why": "Orchestrator spot check of 10 random v0 DEEP verdicts: about half were judge errors (copula/aux expected as root, gerund advcl+mark rejected, input typos counted as parse errors, NER type counted as deep). The stronger-judge calibration launched on v0 was stopped before it judged anything.",
+   "effect": "Layer-1 numbers come from rubric v1 only. The v0 distribution (CORRECT 685, MINOR 201, DEEP 297, FAIL 12, unusable 5) is reported only as a judge-validity finding."
+  },
+  {
+   "id": "D3",
+   "at": "2026-09-29T14:52:00Z",
+   "what": "Layer-1 final verdicts: the rubric-v1 Haiku judge (1200 sentences: CORRECT 489, MINOR 238, INPUT_TYPO 38, DEEP 418, FAIL 4, unusable 13; the second-stage review downgraded 178 of 604 first DEEP/FAIL) still flags valid UD analyses as DEEP (spot check of 4 copula DEEP verdicts: 3 judge errors). Therefore every sentence Haiku marks DEEP, FAIL, INPUT_TYPO or leaves unusable (433 outside the calibration set) is adjudicated blind by the stronger judge (Claude, model fable, Agent tool, 5 batches, same rubric v1, without Haiku verdicts); the stronger verdict is final for those. Sentences Haiku marks CORRECT or MINOR keep the Haiku verdict; the DEEP miss rate among them is estimated from the 80-sentence blind calibration and reported. Haiku precision and recall on DEEP are reported from the calibration.",
+   "why": "Orchestrator spot check (about half of Haiku DEEP verdicts were judge errors) and the persistence of copula/aux false positives after rubric v1.",
+   "effect": "Layer-1 DEEP/FAIL counts come from the stronger judge; Haiku stays the first-pass screen (as preregistered) and its reliability is reported. Decided before the calibration result was seen."
+  },
+  {
+   "id": "D4",
+   "at": "2026-09-29T14:53:37Z",
+   "what": "ud-rules-v1.3 frozen (eval/reports/current/baseline-ud-rules/frozen-rules-v1.3/SHA256SUMS) after development on half A only: half-A match 38 -> 73 of 200 (v1.2 -> v1.3, no half-A item lost). Half B had not been converted with any v1.3 development version and none of its diffs were read.",
+   "why": "Freeze point required by the preregistration before the held-out measurement.",
+   "effect": "The held-out comparison on half B uses exactly these files."
+  },
+  {
+   "id": "D5",
+   "at": "2026-09-29T15:45:00Z",
+   "what": "Order of step 4: the rule fixes of ud-rules-v1.3 were derived from the half-A diffs by the experimenter before the Fable proposals agent ran; the proposals (eval/reports/current/symbolic-layers/proposals.md) were written afterwards from all Layer-2/3 evidence. Proposals not already in v1.3 were NOT implemented, because half B has been measured with v1.3 and its Layer-2 misses were then classified (inspected); a v1.4 built from them needs a fresh held-out sample.",
+   "why": "Time order of the work; keeping the held-out measurement clean.",
+   "effect": "The reported held-out gain is that of v1.3 only."
+  },
+  {
+   "id": "D6",
+   "at": "2026-09-29T15:30:00Z",
+   "what": "Layer 3 covers INPUT_TYPO sentences as well as DEEP/FAIL (175 records). The re-parse verdicts of the 458 rewritten sentences come from the stronger judge (Claude fable, blind, rubric v1, 5 batches; its prompt adds one explicit PP-attachment consistency rule) instead of Haiku, whose DEEP precision was 28% in calibration; Haiku verdicts are kept per attempt as haiku_parse_verdict. Rewrites are scored with the frozen v1.3 rules.",
+   "why": "Owner clarification (regularization material) and judge reliability.",
+   "effect": "Layer-3 statuses use the stronger verdicts."
+  }
+ ]
+}

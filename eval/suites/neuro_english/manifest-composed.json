@@ -1,0 +1,79 @@
+{
+ "format": "chatsop-composed-manifest-v1",
+ "dataset": "neuro_english",
+ "split": "test-composed",
+ "sealed": true,
+ "view_only": true,
+ "composer": "composed-v1",
+ "seed": "composed-v1",
+ "path": "eval/suites/neuro_english/test-composed.jsonl",
+ "rows": 336,
+ "sha256": "4603a5460a5dadeb0240f2efd5396c9d3fa31b507e5d7f961fb461eb00809fda",
+ "bytes": 2017685,
+ "source_test_file": "eval/suites/neuro_english/test.jsonl",
+ "source_test_sha256": "93121a681f9a5257dfc3d34a0d2319376a5f7470f55bff40a0ddf1d5b2973158",
+ "counts": {
+  "by_kind": {
+   "K2": 306,
+   "K6": 30
+  },
+  "by_stratum": {
+   "K2:n2m1": 34,
+   "K2:n3m1": 34,
+   "K2:n4m1": 34,
+   "K2:n4m2": 34,
+   "K2:n5m1": 34,
+   "K2:n6m2": 34,
+   "K2:n6m3": 34,
+   "K2:n8m2": 34,
+   "K2:n8m4": 34,
+   "K6:relative_clause": 1,
+   "K6:subordinate_clause": 3,
+   "K6:coordination": 17,
+   "K6:multiple_questions": 9
+  },
+  "by_sentences": {
+   "2": 36,
+   "3": 38,
+   "4": 55,
+   "5": 45,
+   "6": 42,
+   "7": 25,
+   "8": 37,
+   "9": 24,
+   "10": 18,
+   "11": 12,
+   "12": 2,
+   "13": 2
+  },
+  "by_components": {
+   "1": 30,
+   "2": 34,
+   "3": 34,
+   "4": 68,
+   "5": 34,
+   "6": 68,
+   "8": 68
+  },
+  "symbolic_components_pool": 1104,
+  "neuro_components_pool": 61,
+  "bad_components_pool": 1092,
+  "component_rejections": {
+   "symbolic": {
+    "needs_context": 270,
+    "not_one_sentence": 405,
+    "not_a_clean_conversion": 251,
+    "quotes_newlines_or_no_terminal_punctuation": 94,
+    "not_one_request_or_statement": 18,
+    "splitter_sees_several_sentences": 8
+   },
+   "neuro": {
+    "no_verified_target": 1973,
+    "needs_context": 37,
+    "quotes_or_newlines": 11
+   }
+  }
+ },
+ "purpose": "K2: paragraphs mixing symbolic sentences (must stay unchanged) with neuro sentences that have a verified rewrite target (must be replaced). Evaluates SymbolicProofingLLM on longer inputs.",
+ "built_at": "2026-09-30T16:36:12.598Z"
+}

@@ -1,0 +1,22 @@
+{
+ "format": "chatsop-training-authorization-v1",
+ "authorization": "explicit-user-approval",
+ "approved": true,
+ "approved_by": "user",
+ "approved_at": "2026-09-29T21:37:26.749Z",
+ "instruction": "Owner approves training a small proofreader on datasets/proofing; corpus rebuild dropped: Owner (2026-09-29, night): focus only on building the dataset that helps SymbolicLM. Once datasets/proofing is finished and qualified, training ONE small model to test whether it helps is approved (scoped approval: a small proofreading model on datasets/proofing, candidates Qwen3-0.6B and Gemma3-270M; preregistration, dry run and qualification gates first, single GPU worker, staged early stopping, oracle evaluation of break/repair on the sealed proofing test). The formalizer-v1 rebuild in the current language is not needed now; everything else is deprioritized.",
+ "journal_event": {
+  "file": "status/journal.jsonl",
+  "ts": "2026-09-29T21:37:26.749Z",
+  "actor": "orchestrator"
+ },
+ "model": "gemma",
+ "run": "proofreader-gemma270m-v1",
+ "role": "proofreader",
+ "qualification_sha256": "831e5e1b53b27923092a24e670970dbbb14eacecfb74d70936cca1845f115154",
+ "recipe_sha256": "ecc7fe047b1bd075721a51541d38f23610336973d8b2009802db271002d5b6c2",
+ "dataset_manifest_sha256": "7136640096fa9bff3bd921e28b330258ac430d348744fa6088b70195ca6ab698",
+ "dataset_version_sha256": "9f89c3f329aa22e54c5c9165ac38d71d297e4d29977a8ed29f779b7b577eb08f",
+ "transcribed_by": "proofreader-training-agent",
+ "transcribed_at": "2026-09-29T22:25:26.384Z"
+}

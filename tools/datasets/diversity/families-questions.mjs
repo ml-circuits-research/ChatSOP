@@ -19,7 +19,7 @@ const nextDay = iso => new Date(Date.parse(iso + 'T00:00:00Z') + 86400000).toISO
  * (measure duration) and "how many times" (mode count over distinct validity intervals). */
 export function timeQuestion(k) {
   const kind = pickWeighted(k, [['when', 3], ['since', 2], ['until', 2], ['how_long', 2], ['how_many_times', 2]]);
-  const ood = poolName === 'ood';
+  const ood = poolName === 'ood' || poolName === 'ood_construction';
   const pool = ood ? binary : kind === 'how_many_times' ? EVENTS : STATES;
   const relation = k.random.pick(pool);
   const bindings = fill(k, relation);
@@ -405,15 +405,17 @@ const STREETS_RO = { 'Elm Street': 'strada Ulmilor', 'Mill Lane': 'aleea Morii',
 const SCOPE_AMBIGUOUS = {
   en: [['All the players of {org} are not certified?', 'be a player of', 'be certified', 'all the players of {org} are not certified', ['no player of {org} is certified', 'not every player of {org} is certified']],
     ['Are all the students at {org} not vaccinated?', 'be a student at', 'be vaccinated', 'all the students at {org} not vaccinated', ['none of the students at {org} is vaccinated', 'not all the students at {org} are vaccinated']]],
-  ro: [['Toți jucătorii de la {org} nu sunt certificați?', 'fi jucător la', 'fi certificat', 'toți jucătorii de la {org} nu sunt certificați', ['niciun jucător de la {org} nu e certificat', 'nu toți jucătorii de la {org} sunt certificați']],
-    ['Toți elevii de la {org} nu s-au vaccinat?', 'fi elev la', 'fi vaccinat', 'toți elevii de la {org} nu s-au vaccinat', ['niciun elev de la {org} nu s-a vaccinat', 'nu toți elevii de la {org} s-au vaccinat']]],
+  // Romanian messages, English targets and readings (Q-DATA-6): the phrases and readings are the English meaning.
+  ro: [['Toți jucătorii de la {org} nu sunt certificați?', 'be a player of', 'be certified', 'toți jucătorii de la {org} nu sunt certificați', ['no player of {org} is certified', 'not every player of {org} is certified']],
+    ['Toți elevii de la {org} nu s-au vaccinat?', 'be a student at', 'be vaccinated', 'toți elevii de la {org} nu s-au vaccinat', ['none of the students at {org} is vaccinated', 'not all the students at {org} are vaccinated']]],
 };
 // PP-attachment: which noun the prepositional phrase modifies. Only ever listed as readings (no reading is preferable).
 const PP = {
   en: [['Did {A} call the coach of the team from {town}?', ['the coach is from {town}', 'the team is from {town}']], ['Did {A} meet the doctor with the new clinic?', ['{A} met the doctor who has the new clinic', '{A} met the doctor at the new clinic']],
     ['Did {A} see the engineer with the laptop?', ['the engineer had the laptop', '{A} used the laptop to see the engineer']], ['Did {A} visit the owner of the shop in {town}?', ['the owner is in {town}', 'the shop is in {town}']]],
-  ro: [['L-a sunat {A} pe antrenorul echipei din {town}?', ['antrenorul este din {town}', 'echipa este din {town}']], ['A văzut-o {A} pe ingineră cu laptopul?', ['inginera avea laptopul', '{A} s-a uitat prin laptop la ingineră']],
-    ['A vizitat {A} pe proprietarul magazinului din {town}?', ['proprietarul este din {town}', 'magazinul este din {town}']]],
+  // Romanian messages; the readings are written in English (Q-DATA-6).
+  ro: [['L-a sunat {A} pe antrenorul echipei din {town}?', ['the coach is from {town}', 'the team is from {town}']], ['A văzut-o {A} pe ingineră cu laptopul?', ['the engineer had the laptop', '{A} used the laptop to see the engineer']],
+    ['A vizitat {A} pe proprietarul magazinului din {town}?', ['the owner is in {town}', 'the shop is in {town}']]],
 };
 export function visibleAmbiguity(k) {
   // A reading is preferable for a pronoun after a single asymmetric statement (the subject; resolved with
@@ -451,10 +453,12 @@ export function visibleAmbiguity(k) {
     canon.query = { ask: 'whether', where: [{ relation: h.predicate, args: [quote(h.en.alias)], negated: false }] };
     const rel = PREDICATES[h.predicate];
     const custom = {};
-    for (const language of ['en', 'ro']) custom[language] = h[language].questions.map(text => [text, () => [P(rel[language][0].rel, [['subject', quote(text.match(new RegExp(h[language].alias, 'i'))?.[0] ?? h[language].alias)]])], {
-      qtype: 'yes_no',
-      // Each reading paraphrases the whole question with one sense: "Is the sports hall free on Saturday?".
-      ...(unresolved ? { unclearReadings: () => h[language].senses.map(([, reading]) => text.replace(new RegExp(h[language].alias, 'i'), found => found[0] === found[0].toUpperCase() ? reading[0].toUpperCase() + reading.slice(1) : reading)) }
+    // The target is English (Q-DATA-6): relation phrase, the ambiguous common noun ("terenul" -> "the court") and the
+    // readings, which paraphrase the corresponding English question with one sense ("Is the sports hall free?").
+    const englishOf = (language, i) => language === 'en' ? h.en.questions[i] : h.en.questions[Math.min(i, h.en.questions.length - 1)];
+    for (const language of ['en', 'ro']) custom[language] = h[language].questions.map((text, i) => [text, () => [P(rel.en[0].rel, [['subject', quote(language === 'en' ? (text.match(new RegExp(h.en.alias, 'i'))?.[0] ?? h.en.alias) : h.en.alias)]])], {
+      qtype: 'yes_no', ...(language === 'en' ? {} : { translated: [h.en.alias] }),
+      ...(unresolved ? { unclearReadings: () => h.en.senses.map(([, reading]) => englishOf(language, i).replace(new RegExp(h.en.alias, 'i'), found => found[0] === found[0].toUpperCase() ? reading[0].toUpperCase() + reading.slice(1) : reading)) }
         : {}) }]);
     return base('ambiguity_visible', `homonym_${unresolved ? 'unresolved' : 'resolved'}`, ['ambignq'], { canon, facts: [asked], asUnclear: unresolved,
       plan: { clauses: [], question: { custom, slots: {}, ask: 'whether', id: `homonym.${h.en.alias}` } }, expect: unresolved ? 'unclear' : 'clarify',
@@ -462,7 +466,7 @@ export function visibleAmbiguity(k) {
   }
   if (kind === 'scope') {
     const org = k.world.make(k.random.pick(['team', 'school']));
-    const custom = Object.fromEntries(['en', 'ro'].map(language => [language, SCOPE_AMBIGUOUS[language].filter(([, rel]) => (org.type === 'team') === /jucător|player/.test(rel)).map(([text, rel, scopeRel, span, readings]) => [text,
+    const custom = Object.fromEntries(['en', 'ro'].map(language => [language, SCOPE_AMBIGUOUS[language].filter(([, rel]) => (org.type === 'team') === /player/.test(rel)).map(([text, rel, scopeRel, span, readings]) => [text,
       t => ({ ask: 'every', props: [P(rel, [['subject', '?m'], ['object', t.org]])], scope: [P(scopeRel, [['subject', '?m']], 'negated')] }),
       { qtype: 'universal', unclearReadings: t => readings.map(r => r.replace('{org}', JSON.parse(t.org))) }])]));
     const restriction = org.type === 'team' ? 'plays_for' : 'studies_at', property = org.type === 'team' ? 'certified' : 'vaccinated';

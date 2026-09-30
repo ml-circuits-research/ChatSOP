@@ -2,12 +2,12 @@
 
 These files describe working procedures, not automatically loaded executable plugins. Read `AGENTS.md` and then the relevant skill. **Training is prohibited until the owner gives a new explicit approval** (AGENTS.md rule 3); no skill grants it. Open owner decisions go to the root `questions.md` (in Romanian). The project directory remains the workspace; source and code approvals are separate decisions.
 
-**Project journal.** Every skill that starts, finishes or blocks a meaningful task, or records an owner decision, logs it with `node tools/journal.mjs add --area … --title … --detail …` into the append-only `status/journal.jsonl`; experiment records go to `status/experiments.json`. The owner follows both live on the server's `/project` page. The training-rules, training-runbook, night-orchestration and corpus-audit skills state this explicitly.
+**Project journal.** Every skill that starts, finishes or blocks a meaningful task, or records an owner decision, logs it with `node tools/journal.mjs add --area … --title … --detail …` into the append-only `status/journal.jsonl`; experiment records go to `status/experiments.json`. Meaningful analyses, suggestions, results and decisions are also appended as topic notes with `node tools/notes.mjs add --topic … --kind … --title … --body …` (append-only; corrections use `--supersedes`). The owner follows all of it on the server's `/experiments` pages, the living index. The training-rules, training-runbook, night-orchestration, corpus-audit and evaluate-agent skills state this explicitly.
 
 ## Procedural skills (with `SKILL.md`)
 
 **compare-memory** — Compare memory strategies without changing the semantic task.
-**corpus-audit** — Run and triage the machine corpus audit (`tools/datasets/audit-corpus.mjs`): fail-closed invariants plus semantic faithfulness, context triviality, diversity and template-level leakage against the sealed test; reports in `eval/reports/current/corpus-audit/`.
+**corpus-audit** — Run and triage the machine corpus audit (`tools/datasets/audit-corpus.mjs`): fail-closed invariants plus semantic faithfulness, context triviality, diversity and template-level leakage against the sealed test; reports in `eval/reports/current/corpus-audit/`. The visual audit page has one tab per dataset (`bad_english`, `symbolic_english`, `neuro_english`) plus a secondary archive / sources tab (DS020).
 **evaluate-agent** — Audit the complete agent experiment: the formalizer track on the sealed `formalizer-v1` and `formalizer-ood-v1` suites (message-only input) and the whole-system track, with counts, `not_computable` and `unsupported` kept apart.
 **extend-reasoning** — Implement and compare a reasoning strategy.
 **extend-wire** — Add a typed, approved SOP interpreter.

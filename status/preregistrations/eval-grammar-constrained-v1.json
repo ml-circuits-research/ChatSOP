@@ -1,0 +1,121 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-grammar-constrained-v1",
+  "name": "Grammar-constrained decoding (llama.cpp GBNF of the SOP model surface) for the fine-tuned small formalizers",
+  "registered_at": "2026-09-29T12:01:00Z",
+  "registered_by": "grammar-constrained-eval-agent (owner approval of idea 1, 'grammar-constrained decoding experiment on existing models', journal decision 2026-09-29T11:45:36Z, relayed by the orchestrator)",
+  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "frozen_before_results": "Written after the grammar generator (tools/sop-gbnf.mjs) was built and checked for gold coverage, and after a 3-message ad-hoc smoke test (made-up messages, not suite rows), before any prediction of this experiment on a sealed suite. Gold-coverage check (acceptance only, llama.cpp test-gbnf-validator): 23,817/23,817 formalizer-v1 train targets, 5,131/5,131 dev, 5,033/5,033 sealed test, 1,578/1,578 OOD, and 1,772/1,885 wild accepted golds verbatim (88 more differ only in role order, 25 in field order such as `during` after `compare`, `unit EUR` upper case, or `task optimize` without `objective`). One grammar change followed that check: `unit` values may use upper-case letters (seen in a wild gold). No model output on a sealed suite had been seen. Any later change is a recorded deviation.",
+  "kind": "evaluation-only (inference with existing checkpoints; no optimizer step, no training data change)",
+  "question": "Does constraining the fine-tuned small formalizers' greedy decoding to the SOP model-surface grammar remove invalid outputs and improve accuracy, and at what speed cost?",
+  "owner_idea": "Idea 1 (owner approval 2026-09-29): grammar-constrained decoding on the existing models. Expected: parse validity about 100%, some accuracy gain, small speed cost.",
+  "changed_factor": "Decoding constraint only: `free` (no grammar, the formalizer-size-v1 request) versus `gbnf` (the same request plus llama-server `grammar` = eval/reports/current/grammar-constrained/sop-model.gbnf). Weights, quantization, runtime, prompt (message only, DS021), greedy decoding (temperature 0, top_k 1), max_tokens 6144 and scoring are identical.",
+  "grammar": {
+    "generator": "tools/sop-gbnf.mjs (derived from SPEC, MODEL_TYPES, ROLE_NAMES and the sop/enums.mjs, sop/conditions.mjs and sop/unclear.mjs exports; test tests/sop-gbnf.test.mjs)",
+    "file": "eval/reports/current/grammar-constrained/sop-model.gbnf",
+    "sha256": "977c37d5384549c2f9f0a1aaa90685cb2cf3589b46deb93cdab750219085359f",
+    "design": "canonical sub-language of the parser: fields in the corpus order, roles in ROLE_NAMES order (unique, 1..4), two-space indentation per block level, all/any groups nested at most 4 deep, one optional blank line between wires, unclear alone, every/scope, explain without select, measure only with one selected variable, quantifier only with every, constraint needs task and a claim or a select, optimize needs objective. Not context-free and left to the parser/compiler: unique wire ids, time-variable rules, statement anchoring, linking."
+  },
+  "models": {
+    "smollm2-135m": {
+      "arm": "formalizer-size-v1 fv1-size-a4 merged-best Q8_0",
+      "gguf_sha256": "1e487df81bbf635219fbf935c500be59c471de5463150851cdfcb6ebedb7aaf6"
+    },
+    "smollm2-360m": {
+      "arm": "formalizer-size-v1 fv1-size-a4 merged-best Q8_0 (exploratory arm there)",
+      "gguf_sha256": "c8625689cc15b67afc32283ee1ccb4b032b98bdcc56b819b81a5bfc1cd405746"
+    }
+  },
+  "runtime": {
+    "bulk": "GPU (owner instruction 2026-09-29: bulk evaluation on the GPU): llama.cpp 99d4026b llama-server -ngl 99 -t 4 -np 8 -c 65536 --jinja on NVIDIA GB10, own port 18961, 8 rows in parallel. Both conditions run on the same server, so pairs are exact. The formalizer-size-v1 CPU predictions are not reused as the comparator (GPU and CPU greedy outputs are not bit-identical); they serve as a reproducibility control (share of identical free outputs).",
+    "cpu_speed": "40 messages (first rows of the stratified test500 order), -ngl 0 with CUDA_VISIBLE_DEVICES empty, -t 6 -np 1, one request at a time, the two conditions alternating per message; latency per message, server generation tokens/s. Other agents' CPU servers run concurrently, so absolute numbers are load-dependent; the ratio is paired."
+  },
+  "cells": {
+    "wild": {
+      "file": "eval/suites/formalizer-wild-v1/test.jsonl",
+      "sha256": "077e7164a3020c1e6c3c28c8f3b5b8f2c08e2e3f59ee0e6830f9991509884163",
+      "rows": {
+        "smollm2-135m": 796,
+        "smollm2-360m": 796
+      }
+    },
+    "ood": {
+      "file": "eval/suites/formalizer-ood-v1/test.jsonl",
+      "sha256": "09acfb2eb820a60f29c83b01a45dd2cc1ca371117de4fc69c517c4b80a307a2a",
+      "rows": {
+        "smollm2-135m": 500,
+        "smollm2-360m": 1578
+      },
+      "note": "135M: the first 500 rows of the stratified order (a 500-row stratified sample)"
+    },
+    "test500": {
+      "file": "eval/reports/current/formalizer-size-v1/sample500/formalizer-v1-sample500.suite.jsonl",
+      "sha256": "40afdf78a7419967b4b5001418c1e624d4217de516577bd9d41676c839fc9550",
+      "rows": {
+        "smollm2-135m": 500,
+        "smollm2-360m": 500
+      },
+      "note": "the stratified 500-row sample of the sealed formalizer-v1 test (formalizer-size-v1 sample500)"
+    }
+  },
+  "order_and_stages": "Rows of each cell in a stratified order (strata language en/ro/mixed x question_type; each stratum shuffled with mulberry32 seed 42 and placed at its fractional rank), so every prefix is a stratified sample (tools/research/grammar-constrained-eval.mjs stratifiedOrder). Stages are the cumulative prefixes 100, 300 and the whole cell.",
+  "sequential_stopping": {
+    "source": "owner rule of 2026-09-29 (journal 'Early stopping for clearly decided experiments', relayed by the orchestrator before any sealed prediction of this experiment)",
+    "rule": "After each stage, per model x cell, on the cell's primary metric (paired delta gbnf - free, 95% paired cluster bootstrap): stop `broken` if the gbnf condition has > 20% parse failures or empty outputs on the first 100 rows; stop `efficacy` if the interval's lower bound is >= +2 pp; stop `futility` if its upper bound is < +1 pp; otherwise run the next stage. Every stop is recorded as a deviation entry in status/experiments.json with the stage, numbers and reason, and in the journal and notes."
+  },
+  "hypotheses": {
+    "H1": "Parse validity of gbnf >= 99.5% on every cell (free: about 90-95% on wild, >= 99% elsewhere).",
+    "H2": "PRIMARY: the paired delta of the cell's primary metric (tolerant execution equivalence on ood and test500; accepted match on wild) is positive.",
+    "H3": "Compile validity and wire F1 do not fall (delta interval upper bound >= 0), and wild decision match does not fall by more than 2 pp.",
+    "H4": "Speed cost is small: CPU mean latency per message with the grammar <= 1.25x without."
+  },
+  "metrics": {
+    "per_condition": "parse validity and compile validity (eval/reference-free.mjs referenceFreeRecord), empty/error and truncated shares, tolerant execution equivalence (eval/run.mjs evaluate; ood and test500), DS016 micro wire F1 (eval/metrics.mjs rowWireComparison), wild accepted match, decision match and proposition F1 (tools/eval/wild-suite.mjs scoreAgainstAccepted), share of identical outputs",
+    "slices": "language en / ro / mixed",
+    "speed": "bulk GPU latency and generation tokens/s per condition (8 parallel slots); CPU sample latency and tokens/s (1 slot)",
+    "uncertainty": "paired cluster bootstrap of gbnf - free (clusters: split_group_id on ood/test500, row on wild; 2,000 resamples, mulberry32 seed 42)",
+    "examples": "rows where the grammar turned a wrong answer right (helped), a right answer wrong (hurt), an unparsable output parsable, and an unparsable output into a parsable but wrong one (forced wrong completion)"
+  },
+  "decision_rule": "Recommend that the host always decode with the grammar if (a) H1 holds on every cell, (b) no cell's primary delta has an interval entirely below 0, and (c) H4 holds. If (a) and (c) hold but the primary deltas are all neutral, recommend the grammar as a validity guarantee (no accuracy claim). If any cell shows a primary delta entirely below 0, do not make it the default; report where it hurts.",
+  "budgets": "GPU inference only while free memory stays above about 15 GB (owner allowance for small inference jobs next to the Opus-MT training); at most 6 CPU threads for the CPU speed sample; one llama-server of this experiment at a time.",
+  "limitations_declared": [
+    "Single seed, greedy decoding, experiment-grade, no human review; the example labels are heuristic.",
+    "The grammar is the canonical sub-language of the corpora; a program in another field or role order is rejected even when the parser accepts it (wild annotators sometimes use another order; scoring is order-insensitive).",
+    "Bulk numbers come from the GPU, CPU speed from a 40-message sample under shared load.",
+    "Sequential stopping makes the final denominators differ between cells."
+  ],
+  "deviations_recorded_after_freeze": [
+    {
+      "id": "D1",
+      "at": "2026-09-29T12:25:00Z",
+      "what": "Bulk requests sent one at a time (server still -np 8) instead of 8 in parallel; the first 8-parallel stage-1 runs (all six cells) are kept under eval/reports/current/grammar-constrained/superseded-8slots/ and not reported as results.",
+      "why": "An A/A control (SmolLM2-135M, test500 stage 1) found that two identical free runs with 8 parallel requests differ on 6-7 of 100 rows (batch-dependent GPU numerics), while two sequential runs are identical on 100/100. With parallel requests the free-vs-gbnf pairs would mix grammar effects with batch noise (two of the 8-parallel `hurt` rows were such noise).",
+      "effect": "Exact pairing: the two conditions now differ only by the grammar. Speed numbers are single-request GPU latencies. The 8-parallel stage-1 runs had also stopped for futility in every cell.",
+      "note": "appended after freeze; the frozen fields above are unchanged"
+    },
+    {
+      "id": "D2",
+      "at": "2026-09-29T12:35:00Z",
+      "what": "CPU speed sample rerun with 2 ABBA repetitions per message and median statistics; 5 threads for 360M (a grammar-ceiling job used the sixth), 6 for 135M.",
+      "why": "The first single-pass run showed a 1.50x mean latency for 360M that came from one long message slowed by shared load (a repeat gave 13.2 s vs 13.0 s).",
+      "effect": "Speed conclusions use median paired ratios; the first run is kept under superseded-cpu-v1/.",
+      "note": "appended after freeze; the frozen fields above are unchanged"
+    },
+    {
+      "id": "D3",
+      "at": "2026-09-29T12:40:00Z",
+      "what": "All stage-1 runs repeated with llama-server prompt cache off (cache_prompt false) and a same-session A/A control (free-aa); an exploratory parser-faithful grammar (gbnf-lax, strings may start with blanks) added.",
+      "why": "Across server sessions the 135M free outputs differed on up to 33% of wild rows because of prompt-cache reuse; the canonical grammar also rejects parser-valid strings with a leading blank (about 10% of OOD free outputs).",
+      "effect": "A/A identical 100/100 in all six cells; results unchanged (primary delta 0 everywhere). Earlier runs kept under superseded-prompt-cache/.",
+      "note": "appended after freeze; the frozen fields above are unchanged"
+    },
+    {
+      "id": "STOP",
+      "at": "2026-09-29T12:44:15.175Z",
+      "what": "Sequential stop after stage 1 (100 stratified rows) in all six model x cell pairs, reason futility.",
+      "why": "Owner rule 2026-09-29: the 95% upper bound of the primary delta was < +1 pp (delta 0, interval [0, 0]) in every cell; later confirmed by the grammar ceiling (a constrained greedy run can differ only on rows the grammar rejects: 5.4-7.7% of wild, 0.3-0.4% of OOD, 0-0.1% of test outputs); the orchestrator asked to wrap up.",
+      "effect": "Denominators are 100 rows per cell; no stage 2 or full-suite run.",
+      "note": "appended after freeze; the frozen fields above are unchanged"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "note": "SymbolicLM configuration (DS021 \"SymbolicLM\"). `stanza.package` picks the English Stanza package: `default` (charlm models) or `accurate` (Stanza `default_accurate`: electra-large POS, dependency parser and NER). Environment overrides: CHATSOP_STANZA_PACKAGE, CHATSOP_STANZA_DIR (resources dir of the default package, also Romanian and the sentence splitter), CHATSOP_STANZA_ACCURATE_DIR, CHATSOP_STANZA_HF_HOME, CHATSOP_STANZA_LEMMA_MODEL (the lemmatizer file of the accurate package; it keeps the default package's combined_nocharlm lemmatizer). `~` is the home directory.",
+  "stanza": {
+    "package": "accurate",
+    "packages": {
+      "default": {
+        "stanza_package": "default",
+        "resources_dir": "~/nlp-venv/stanza_resources",
+        "hf_home": null
+      },
+      "accurate": {
+        "stanza_package": "default_accurate",
+        "resources_dir": "~/stanza_accurate/resources",
+        "hf_home": "~/stanza_accurate/hf",
+        "lemma_model": "~/nlp-venv/stanza_resources/en/lemma/combined_nocharlm.pt"
+      }
+    }
+  },
+  "uncertainty": {
+    "parsers_disagree": false,
+    "note": "true adds the reason `parsers_disagree` (the other Stanza package parses each English sentence and its core arcs are compared); it runs a second worker and roughly doubles latency, so it is off by default."
+  }
+}

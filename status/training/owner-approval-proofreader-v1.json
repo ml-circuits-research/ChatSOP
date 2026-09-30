@@ -1,0 +1,18 @@
+{
+ "format": "chatsop-owner-approval-scope-v1",
+ "experiment": "train-proofreader-gemma270m-v1",
+ "journal_event": {"file": "status/journal.jsonl", "ts": "2026-09-29T21:37:26.749Z", "area": "training", "state": "decision", "actor": "orchestrator", "title": "Owner approves training a small proofreader on datasets/proofing; corpus rebuild dropped"},
+ "base_model_decision": {"file": "status/journal.jsonl", "ts": "2026-09-29T21:39:19.620Z", "area": "training", "state": "decision", "actor": "orchestrator", "title": "Proofreader base model: Gemma3-270M"},
+ "approved_models": ["gemma"],
+ "order": "gemma only; Qwen3-0.6B and Qwen3-1.7B remain untrained zero-shot reference points, never fine-tuning candidates (owner decision 2026-09-29T21:39:19.620Z: Qwen3-0.6B judged too slow for the CPU deployment target)",
+ "role": "proofreader",
+ "corpus": "proofing",
+ "conditions": [
+  "the dataset qualification record for datasets/proofing (role proofreader) is status 'qualified'",
+  "preregistration status/preregistrations/train-proofreader-gemma270m-v1.json is frozen before any optimizer step",
+  "one GPU-intensive worker on the machine; never concurrent with another uid's GPU job",
+  "experiment-grade: automated oracle grounding and leakage checks, no human semantic review (matches formalizer-v1's grade, owner decision 2026-09-28)",
+  "scoped to this experiment only: fine-tuning google/gemma-3-270m-it on datasets/proofing; no other training"
+ ],
+ "receipts": "tools/research/qualify-proofing.mjs --authorize gemma --run RUN --decision-ts 2026-09-29T21:37:26.749Z writes one chatsop-training-authorization-v1 receipt, bound to the exact recipe, dataset and qualification hashes; it refuses a model outside approved_models"
+}

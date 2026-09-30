@@ -1,0 +1,85 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-symbolic-gate-v1",
+ "name": "Which symbolic_english analyses are trustworthy? A two-parser agreement gate with a two-condition Haiku judge, audited by the stronger model",
+ "registered_at": "2026-09-30T11:40:00Z",
+ "registered_by": "symbolic-judge-agent (owner request relayed by the orchestrator)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_context": "symbolic_english must contain only correct English whose SymbolicLM grammatical analysis is correct: it is the regression suite and the inventory of forms SymbolicProofingLLM rewrites into.",
+ "kind": "evaluation and dataset gating (Stanza inference on GPU; LLM judge calls; no training)",
+ "frozen_before_results": "Written after the accurate parses were started (parsing is deterministic and involves no judge) and before any judge call of this study. Evidence used to choose the gate comes from eval-parse-judge-haiku-v1 (agreement of Haiku conditions b and c: about 99.7% weighted precision, about 45% of sentences kept) and eval-stanza-accurate-v1 (identical default/accurate trees: default analysis DEEP-wrong in about 1% of sentences, different trees: about 55%).",
+ "systems": {
+  "default_analysis": "the stored SymbolicLM analysis of each row (Stanza 1.10.1 default package, frozen rules v1.4); it is the analysis under test",
+  "accurate": "Stanza 1.10.1 default_accurate (electra-large) through tools/research/stanza-accurate/ud_parse_worker_accurate.py, parsing the same masked text (maskMessage) with the English pipeline forced",
+  "judge_b": "claude-haiku-4-5, condition b of tools/research/parse-judge.mjs (rubric v1 with READING and ARCS rendering, extended thinking 2048)",
+  "judge_c": "claude-haiku-4-5, condition c (six checks, compact tree)",
+  "strong_judge": "claude-fable-5-1, condition a (rubric v1, one JSON verdict), all sentences of a row"
+ },
+ "definitions": {
+  "unit": "one sentence of a message (both parsers use the same sentence splitter); a row is the worst of its sentences",
+  "stanza_default_accurate": "identical: same tokens and every head and deprel equal. core_diff: a differing token is a core arc (relation in either tree is root, nsubj*, csubj*, obj, iobj, obl*, ccomp, xcomp, advcl, acl*, conj, cop, aux* or mark; a case token whose head changes; a token that heads a case dependent in either tree, that is the noun of a prepositional phrase attached elsewhere); a subtype-only difference on a non-subject relation with the same head is not core; a different tokenization is core_diff. noncore_diff: differences only elsewhere.",
+  "good_enough": "verdict CORRECT, MINOR or INPUT_TYPO of the judge"
+ },
+ "gate": {
+  "gold_rows": "rows whose SOP matches the gold SOP (analysis_verified gold_sop_match) are never removed; the agreement class is recorded",
+  "no_gold_rows": "rows without a gold SOP (new cases): a sentence is accepted when the two trees are identical (analysis_verified parsers_agree) or, when they differ, when judge b AND judge c both say good_enough on the default analysis (judge_bc); a row is accepted when every sentence is accepted. Everything else leaves symbolic_english for neuro_english with failure_kind parser (both judges say not good_enough on a differing sentence) or unknown (the judges disagree or a verdict is unusable), verification kept, split unchanged.",
+  "tightened_gate": "if the audited precision of the gate is below 97%: require identical trees AND judge b AND c for every accepted sentence, and report what is lost"
+ },
+ "measurements": {
+  "m1_agreement": "counts of identical / noncore_diff / core_diff per dataset, split and analysis_verified value (sentences and rows)",
+  "m2_gold_suspect": "of the gold-matching rows with core_diff, a random sample of at most 300 (seed 20260930, ranking by sha1 of seed and text key) is judged by b and c on the differing sentences; the share that is not good_enough by both estimates how often the SOP is right while the analysis is wrong (Wilson 95% interval); judged-bad rows get analysis_suspect true",
+  "m3_gate_precision": "a random sample of accepted no-gold rows, 5% capped at 120, stratified by acceptance route (identical, judge_bc, at least 20 in the smaller stratum when it has that many), labelled by the strong judge on all sentences; precision = share good_enough; stratified estimate with a bootstrap 95% interval; the strong judge is a fallible reference, not a human",
+  "m4_forms_inventory": "clusters of symbolic_english messages by analysis skeleton (root relation pattern, question type, clause structure): top 40 with counts and one example each"
+ },
+ "hypotheses": {
+  "H1": "Gate precision (m3) is at least 97% (lower bound of the 95% interval is reported; the decision uses the point estimate).",
+  "H2": "Among gold-matching rows with core_diff, at least 30% are judged not good_enough (the SOP can be right while the analysis is wrong).",
+  "H3": "At most 60% of the no-gold rows that differ from the accurate parse are accepted by b AND c."
+ },
+ "stop_rules": [
+  "Stage 1: judge 100 differing no-gold sentences under b and c first; stop and report if more than 20% of the verdicts are unusable.",
+  "Budget: hard cap of 30 USD for all API calls of this study with a ledger (eval/reports/current/three-datasets/judge/ledger.json); a run stops when the cap is reached and the unfinished rows stay out of symbolic_english (never accepted by default).",
+  "Audit: if m3 is decisive below 97% (upper bound of the interval below 97%) the tightened gate replaces the gate without a further judge call (the verdicts already exist).",
+  "Never accepted without evidence: a row without every verdict its route needs is not accepted."
+ ],
+ "honesty": "Haiku alone is not a reliable UD judge; the gate relies on agreement of two parsers and of two judge conditions, and the residual error is estimated with the stronger judge, which is itself unvalidated against humans. No number of this study is a human-review result. Judge input is the compact stored tree (no NER column).",
+ "deliverables": [
+  "eval/reports/current/three-datasets/symbolic-gate-report.md",
+  "eval/reports/current/three-datasets/symbolic-forms-inventory.md",
+  "verification.stanza_default_accurate on every symbolic_english and neuro_english row that has it",
+  "tools/datasets/three-datasets/accurate.mjs, tools/eval/symbolic-gate.mjs"
+ ],
+ "records": [
+  "status/experiments.json",
+  "status/tasks.json",
+  "status/notes",
+  "status/journal.jsonl"
+ ],
+ "rigor": [
+  "No training; one GPU worker; port 9999 untouched.",
+  "Sealed rows are opened only by tools/eval/, never by tools/datasets/ generators (rule 9); a row never changes split."
+ ],
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-09-30T12:05:00Z",
+   "what": "Before any judge call: the strong-judge audit (m3) also samples gold-matching rows (30 identical, 20 noncore_diff, 30 core_diff, capped by stratum size), so that the share of correct analyses of the whole symbolic_english can be estimated, not only that of the no-gold gate. The tightened gate is redefined as 'drop the weakest acceptance route' chosen from the stratum precisions, because requiring judge b AND c on every identical sentence would cost about 50 USD (2,700 sentences x 2 conditions) and exceed the cap.",
+   "why": "The owner wants an estimated correctness of the analyses of symbolic_english; the gold rows are two thirds of it. The identical-tree route is already backed by eval-stanza-accurate-v1 (about 1% DEEP).",
+   "effect": "Extra strong-judge spend of about 5 USD inside the 30 USD cap."
+  },
+  {
+   "id": "D2",
+   "at": "2026-09-30T12:20:00Z",
+   "what": "Still before any judge call: condition c runs first on every differing no-gold sentence and condition b runs only on the sentences that c accepts (acceptance needs both, so the result is the same as running both). failure_kind is parser only when both judges ran and both said not good_enough; a sentence rejected by c alone (b not run) gives failure_kind unknown, because a single Haiku 'bad' verdict is right only about a quarter of the time in eval-parse-judge-haiku-v1.",
+   "why": "The work list has 1,423 differing no-gold sentences and 2,059 gold core_diff rows; running b and c on all would cost about 27 USD before the gold sample and the audit, over the 30 USD cap.",
+   "effect": "Cost about 0.005 USD per sentence for c plus 0.014 USD for b on the accepted-by-c share."
+  },
+  {
+   "id": "D3",
+   "at": "2026-09-30T13:05:00Z",
+   "what": "Result-driven deviation, recorded after the audit: the standard gate (identical trees, or differing trees accepted by b AND c) audited at 92.7% precision (bootstrap 95% [86.9, 97.3], 98 rows; identical stratum 93.6% [85.9, 97.2], judge_bc stratum 85.0% [64.0, 94.8]), below the 97% threshold, so the gate is tightened. Requiring identical trees AND b AND c on every identical sentence would cost about 35 USD for the remaining 1,789 sentences and the cap allows about 8. The tightened gate is therefore identical trees AND condition c alone (0.005 USD per sentence, about 9 USD for all sentences); c alone had 99.5% weighted good-precision against 99.7% for b AND c in eval-parse-judge-haiku-v1. The judge_bc route is dropped (differing trees are not accepted). Judging is prioritised: the 78 audited rows first, then the other identical rows by the seeded rank; the ledger stops at 29.7 USD and rows without a c verdict are held out of both datasets (never accepted without evidence, not called failures) and listed in the manifest. The audited precision of the tightened gate is estimated on the already labelled audit sample rows that pass it (no new strong-judge call), with the audit sample frozen in eval/reports/current/three-datasets/judge/audit-sample.json.",
+   "why": "H1 failed on the standard gate; the tightened gate is the preregistered response, adapted to the cap.",
+   "effect": "The final symbolic_english holds only rows with identical trees and a c verdict good_enough (plus the gold-matching rows, never removed); rows dropped by the tightening move to neuro_english with failure_kind unknown (a single judge)."
+  }
+ ]
+}

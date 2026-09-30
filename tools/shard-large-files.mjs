@@ -17,7 +17,7 @@ import {fileURLToPath} from 'node:url';
 import {DEFAULT_MAX_BYTES, REPOSITORY_FILE_LIMIT, splitJsonlFile} from '../lib/jsonl-shards.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const ROOTS = ['datasets', 'datasets_sources', 'eval', 'status'];
+const ROOTS = ['datasets', 'datasets_archive', 'datasets_sources', 'eval', 'status'];
 const UNITS = {b: 1, kb: 1e3, mb: 1e6, gb: 1e9, kib: 1024, mib: 1024 ** 2, gib: 1024 ** 3};
 
 export function parseSize(text) {

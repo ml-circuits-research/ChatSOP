@@ -1,0 +1,2340 @@
+{
+ "note": "Recorded by `node tools/symbolic-lm.mjs record-fixture`: Stanza 1.10.1 parses of ChatSOP-authored sentences and the word-list entries they touched (frequencies not recorded: the replay treats every frequency as 0).",
+ "cases": [
+  {
+   "message": "Cine antrenează echipa la care joacă Haruka Suzuki?",
+   "english": "Who trains the team for which Haruka Suzuki plays?",
+   "route": "direct",
+   "sop": "@q query\n  select ?x\n  where all\n    match\n      relation \"antrena\"\n      role subject ?x\n      role object ?p\n      polarity affirmed\n    end\n    match\n      relation \"juca la\"\n      role subject \"Haruka Suzuki\"\n      role object ?p\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "message": "Mă întreb dacă Chloé participă la atelierul de fotografie.",
+   "english": "I wonder whether Chloé takes part in the photography workshop.",
+   "route": "direct",
+   "sop": "@q query\n  where match\n    relation \"participa la\"\n    role subject \"Chloé\"\n    role object \"atelierul de fotografie\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "message": "Katalin cât timp a predat matematică?",
+   "english": "How long did Katalin teach mathematics?",
+   "route": "direct",
+   "sop": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"preda\"\n    role subject \"Katalin\"\n    role object \"matematică\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "message": "Nu cumva Traian a antrenat Rapid Bergen pe 10.06.2020?",
+   "english": "Did Traian train Bergen Rapid on 10.06.2020?",
+   "route": "direct",
+   "sop": "@q query\n  where match\n    relation \"antrena\"\n    role subject \"Traian\"\n    role object \"Bergen\"\n    polarity affirmed\n  end\n  at \"10.06.2020\"\n\n@u1 unparsed\n  span \"Rapid\"\n  near $q\n  hint other\n"
+  },
+  {
+   "message": "Există cineva care lucrează la Vertex Analytics și nu locuiește în Montreal?",
+   "english": "Is there someone who works at Vertex Analytics and does there not live in Montreal?",
+   "route": "direct",
+   "sop": "@q query\n  mode exists\n  where match\n    relation \"lucra la\"\n    role object \"Vertex Analytics\"\n    role subject ?x\n    polarity affirmed\n  end\n\n@q2 query\n  mode exists\n  where all\n    match\n      relation \"locui in\"\n      role subject ?x\n      role location \"Montreal\"\n      polarity negated\n    end\n    match\n      relation \"lucra la\"\n      role object \"Vertex Analytics\"\n      role subject ?x\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "message": "Spune-mi de când Rémi stă în Glasgow.",
+   "english": "Tell me since when Rémi lives in Glasgow.",
+   "route": "direct",
+   "sop": "@q query\n  select ?t\n  measure start\n  where match\n    relation \"sta in\"\n    role subject \"Rémi\"\n    role location \"Glasgow\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "message": "Ion lucrează la Carpathia Energy. Lucrează și la Tisa Textile?",
+   "english": "Ion works at Carpathia Energy. Does he work at Tisa Textile si?",
+   "route": "direct",
+   "sop": "@s1 stated\n  relation \"lucra la\"\n  role subject \"Ion\"\n  role object \"Carpathia Energy\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"lucra la\"\n    role object \"și Tisa Textile\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "message": "Verify the claim that autorizația de construire requires a criminal record certificate.",
+   "english": "Verify the claim that the building permit requires a criminal record certificate.",
+   "route": "translate",
+   "sop": "@u unclear\n  kind no_request\n"
+  },
+  {
+   "message": "Who takes care of the garden?",
+   "english": "Who takes care of the garden?",
+   "route": "direct",
+   "sop": "@q query\n  select ?x\n  where match\n    relation \"take care of\"\n    role subject ?x\n    role object \"the garden\"\n    polarity affirmed\n  end\n"
+  }
+ ],
+ "lexicons": {
+  "en": [
+   "a",
+   "analytics",
+   "bergen",
+   "care",
+   "certificate",
+   "cine",
+   "claim",
+   "criminal",
+   "de",
+   "energy",
+   "garden",
+   "glasgow",
+   "ion",
+   "la",
+   "montreal",
+   "nu",
+   "of",
+   "pe",
+   "rapid",
+   "record",
+   "requires",
+   "suzuki",
+   "takes",
+   "textile",
+   "that",
+   "the",
+   "verify",
+   "vertex",
+   "who"
+  ],
+  "ro": [
+   "a",
+   "antrenat",
+   "antrenează",
+   "atelierul",
+   "autorizația",
+   "care",
+   "certificate",
+   "cine",
+   "cineva",
+   "construire",
+   "criminal",
+   "cumva",
+   "când",
+   "cât",
+   "dacă",
+   "de",
+   "echipa",
+   "există",
+   "fotografie",
+   "ion",
+   "joacă",
+   "la",
+   "locuiește",
+   "lucrează",
+   "matematică",
+   "mă",
+   "nu",
+   "of",
+   "participă",
+   "pe",
+   "predat",
+   "record",
+   "spune-mi",
+   "stă",
+   "the",
+   "timp",
+   "tisa",
+   "traian",
+   "în",
+   "întreb",
+   "și"
+  ]
+ },
+ "parses": {
+  "ro|Cine antrenează echipa la care joacă Haruka Suzuki?": {
+   "text": "Cine antrenează echipa la care joacă Haruka Suzuki?",
+   "language": "ro",
+   "sentences": [
+    {
+     "language": "ro",
+     "text": "Cine antrenează echipa la care joacă Haruka Suzuki?",
+     "start": 0,
+     "end": 51,
+     "oov_rate": 0.125,
+     "words": [
+      {
+       "id": 1,
+       "text": "Cine",
+       "lemma": "cine",
+       "upos": "PRON",
+       "xpos": "Pw3--r",
+       "feats": {
+        "Case": "Acc,Nom",
+        "Person": "3",
+        "PronType": "Int,Rel"
+       },
+       "head": 2,
+       "deprel": "nsubj",
+       "start": 0,
+       "end": 4,
+       "token": "Cine",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "antrenează",
+       "lemma": "antrena",
+       "upos": "VERB",
+       "xpos": "Vmip3",
+       "feats": {
+        "Mood": "Ind",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 5,
+       "end": 15,
+       "token": "antrenează",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "echipa",
+       "lemma": "echipă",
+       "upos": "NOUN",
+       "xpos": "Ncfsry",
+       "feats": {
+        "Case": "Acc,Nom",
+        "Definite": "Def",
+        "Gender": "Fem",
+        "Number": "Sing"
+       },
+       "head": 2,
+       "deprel": "obj",
+       "start": 16,
+       "end": 22,
+       "token": "echipa",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "la",
+       "lemma": "la",
+       "upos": "ADP",
+       "xpos": "Spsa",
+       "feats": {
+        "AdpType": "Prep",
+        "Case": "Acc"
+       },
+       "head": 5,
+       "deprel": "case",
+       "start": 23,
+       "end": 25,
+       "token": "la",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "care",
+       "lemma": "care",
+       "upos": "PRON",
+       "xpos": "Pw3--r",
+       "feats": {
+        "Case": "Acc,Nom",
+        "Person": "3",
+        "PronType": "Int,Rel"
+       },
+       "head": 6,
+       "deprel": "obl",
+       "start": 26,
+       "end": 30,
+       "token": "care",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "joacă",
+       "lemma": "juca",
+       "upos": "VERB",
+       "xpos": "Vmip3",
+       "feats": {
+        "Mood": "Ind",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 3,
+       "deprel": "acl",
+       "start": 31,
+       "end": 36,
+       "token": "joacă",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "Haruka",
+       "lemma": "Haruka",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 6,
+       "deprel": "nsubj",
+       "start": 37,
+       "end": 43,
+       "token": "Haruka",
+       "ner": "O",
+       "oov": true
+      },
+      {
+       "id": 8,
+       "text": "Suzuki",
+       "lemma": "Suzuki",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 7,
+       "deprel": "nmod",
+       "start": 44,
+       "end": 50,
+       "token": "Suzuki",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": "QUEST",
+       "feats": {},
+       "head": 2,
+       "deprel": "punct",
+       "start": 50,
+       "end": 51,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "ro|Mă întreb dacă Chloé participă la atelierul de fotografie.": {
+   "text": "Mă întreb dacă Chloé participă la atelierul de fotografie.",
+   "language": "ro",
+   "sentences": [
+    {
+     "language": "ro",
+     "text": "Mă întreb dacă Chloé participă la atelierul de fotografie.",
+     "start": 0,
+     "end": 58,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Mă",
+       "lemma": "eu",
+       "upos": "PRON",
+       "xpos": "Pp1-sa--------w",
+       "feats": {
+        "Case": "Acc",
+        "Number": "Sing",
+        "Person": "1",
+        "PronType": "Prs",
+        "Strength": "Weak"
+       },
+       "head": 2,
+       "deprel": "expl:pv",
+       "start": 0,
+       "end": 2,
+       "token": "Mă",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "întreb",
+       "lemma": "întreba",
+       "upos": "VERB",
+       "xpos": "Vmip1s",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "1",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 3,
+       "end": 9,
+       "token": "întreb",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "dacă",
+       "lemma": "dacă",
+       "upos": "SCONJ",
+       "xpos": "Csssp",
+       "feats": {
+        "Polarity": "Pos"
+       },
+       "head": 5,
+       "deprel": "mark",
+       "start": 10,
+       "end": 14,
+       "token": "dacă",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "Chloé",
+       "lemma": "Chloé",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 5,
+       "deprel": "nsubj",
+       "start": 15,
+       "end": 20,
+       "token": "Chloé",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "participă",
+       "lemma": "participa",
+       "upos": "VERB",
+       "xpos": "Vmip3",
+       "feats": {
+        "Mood": "Ind",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 2,
+       "deprel": "ccomp",
+       "start": 21,
+       "end": 30,
+       "token": "participă",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "la",
+       "lemma": "la",
+       "upos": "ADP",
+       "xpos": "Spsa",
+       "feats": {
+        "AdpType": "Prep",
+        "Case": "Acc"
+       },
+       "head": 7,
+       "deprel": "case",
+       "start": 31,
+       "end": 33,
+       "token": "la",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "atelierul",
+       "lemma": "atelier",
+       "upos": "NOUN",
+       "xpos": "Ncmsry",
+       "feats": {
+        "Case": "Acc,Nom",
+        "Definite": "Def",
+        "Gender": "Masc",
+        "Number": "Sing"
+       },
+       "head": 5,
+       "deprel": "obl",
+       "start": 34,
+       "end": 43,
+       "token": "atelierul",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "de",
+       "lemma": "de",
+       "upos": "ADP",
+       "xpos": "Spsa",
+       "feats": {
+        "AdpType": "Prep",
+        "Case": "Acc"
+       },
+       "head": 9,
+       "deprel": "case",
+       "start": 44,
+       "end": 46,
+       "token": "de",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "fotografie",
+       "lemma": "fotografie",
+       "upos": "NOUN",
+       "xpos": "Ncfsrn",
+       "feats": {
+        "Case": "Acc,Nom",
+        "Definite": "Ind",
+        "Gender": "Fem",
+        "Number": "Sing"
+       },
+       "head": 7,
+       "deprel": "nmod",
+       "start": 47,
+       "end": 57,
+       "token": "fotografie",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": ".",
+       "lemma": ".",
+       "upos": "PUNCT",
+       "xpos": "PERIOD",
+       "feats": {},
+       "head": 2,
+       "deprel": "punct",
+       "start": 57,
+       "end": 58,
+       "token": ".",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "ro|Katalin cât timp a predat matematică?": {
+   "text": "Katalin cât timp a predat matematică?",
+   "language": "ro",
+   "sentences": [
+    {
+     "language": "ro",
+     "text": "Katalin cât timp a predat matematică?",
+     "start": 0,
+     "end": 37,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Katalin",
+       "lemma": "Katalin",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 5,
+       "deprel": "nsubj",
+       "start": 0,
+       "end": 7,
+       "token": "Katalin",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "cât",
+       "lemma": "cât",
+       "upos": "ADV",
+       "xpos": "Rw",
+       "feats": {
+        "PronType": "Int,Rel"
+       },
+       "head": 5,
+       "deprel": "advmod",
+       "start": 8,
+       "end": 11,
+       "token": "cât",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "timp",
+       "lemma": "timp",
+       "upos": "NOUN",
+       "xpos": "Ncms-n",
+       "feats": {
+        "Definite": "Ind",
+        "Gender": "Masc",
+        "Number": "Sing"
+       },
+       "head": 5,
+       "deprel": "obl",
+       "start": 12,
+       "end": 16,
+       "token": "timp",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "a",
+       "lemma": "avea",
+       "upos": "AUX",
+       "xpos": "Va--3s",
+       "feats": {
+        "Number": "Sing",
+        "Person": "3"
+       },
+       "head": 5,
+       "deprel": "aux",
+       "start": 17,
+       "end": 18,
+       "token": "a",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "predat",
+       "lemma": "preda",
+       "upos": "VERB",
+       "xpos": "Vmp--sm",
+       "feats": {
+        "Gender": "Masc",
+        "Number": "Sing",
+        "VerbForm": "Part"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 19,
+       "end": 25,
+       "token": "predat",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "matematică",
+       "lemma": "matematică",
+       "upos": "NOUN",
+       "xpos": "Ncfsrn",
+       "feats": {
+        "Case": "Acc,Nom",
+        "Definite": "Ind",
+        "Gender": "Fem",
+        "Number": "Sing"
+       },
+       "head": 5,
+       "deprel": "obj",
+       "start": 26,
+       "end": 36,
+       "token": "matematică",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": "QUEST",
+       "feats": {},
+       "head": 5,
+       "deprel": "punct",
+       "start": 36,
+       "end": 37,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "ro|Nu cumva Traian a antrenat Rapid Bergen pe 10.06.2020?": {
+   "text": "Nu cumva Traian a antrenat Rapid Bergen pe 10.06.2020?",
+   "language": "ro",
+   "sentences": [
+    {
+     "language": "ro",
+     "text": "Nu cumva Traian a antrenat Rapid Bergen pe 10.06.2020?",
+     "start": 0,
+     "end": 54,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Nu",
+       "lemma": "nu",
+       "upos": "PART",
+       "xpos": "Qz",
+       "feats": {
+        "Polarity": "Neg"
+       },
+       "head": 5,
+       "deprel": "advmod",
+       "start": 0,
+       "end": 2,
+       "token": "Nu",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "cumva",
+       "lemma": "cumva",
+       "upos": "ADV",
+       "xpos": "Rgp",
+       "feats": {
+        "Degree": "Pos"
+       },
+       "head": 5,
+       "deprel": "advmod",
+       "start": 3,
+       "end": 8,
+       "token": "cumva",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "Traian",
+       "lemma": "Traian",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 5,
+       "deprel": "nsubj",
+       "start": 9,
+       "end": 15,
+       "token": "Traian",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "a",
+       "lemma": "avea",
+       "upos": "AUX",
+       "xpos": "Va--3s",
+       "feats": {
+        "Number": "Sing",
+        "Person": "3"
+       },
+       "head": 5,
+       "deprel": "aux",
+       "start": 16,
+       "end": 17,
+       "token": "a",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "antrenat",
+       "lemma": "antrena",
+       "upos": "VERB",
+       "xpos": "Vmp--sm",
+       "feats": {
+        "Gender": "Masc",
+        "Number": "Sing",
+        "VerbForm": "Part"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 18,
+       "end": 26,
+       "token": "antrenat",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "Rapid",
+       "lemma": "rapid",
+       "upos": "ADV",
+       "xpos": "Rgp",
+       "feats": {
+        "Degree": "Pos"
+       },
+       "head": 5,
+       "deprel": "advmod",
+       "start": 27,
+       "end": 32,
+       "token": "Rapid",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "Bergen",
+       "lemma": "Bergen",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 5,
+       "deprel": "obj",
+       "start": 33,
+       "end": 39,
+       "token": "Bergen",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "pe",
+       "lemma": "pe",
+       "upos": "ADP",
+       "xpos": "Spsa",
+       "feats": {
+        "AdpType": "Prep",
+        "Case": "Acc"
+       },
+       "head": 9,
+       "deprel": "case",
+       "start": 40,
+       "end": 42,
+       "token": "pe",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "10.06.2020",
+       "lemma": "10.06.2020",
+       "upos": "NUM",
+       "xpos": "Mc-s-b",
+       "feats": {
+        "NumForm": "Combi",
+        "NumType": "Card",
+        "Number": "Sing"
+       },
+       "head": 5,
+       "deprel": "nummod",
+       "start": 43,
+       "end": 53,
+       "token": "10.06.2020",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": "QUEST",
+       "feats": {},
+       "head": 5,
+       "deprel": "punct",
+       "start": 53,
+       "end": 54,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "ro|Există cineva care lucrează la Vertex Analytics și nu locuiește în Montreal?": {
+   "text": "Există cineva care lucrează la Vertex Analytics și nu locuiește în Montreal?",
+   "language": "ro",
+   "sentences": [
+    {
+     "language": "ro",
+     "text": "Există cineva care lucrează la Vertex Analytics și nu locuiește în Montreal?",
+     "start": 0,
+     "end": 76,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Există",
+       "lemma": "exista",
+       "upos": "VERB",
+       "xpos": "Vmip3",
+       "feats": {
+        "Mood": "Ind",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 0,
+       "end": 6,
+       "token": "Există",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "cineva",
+       "lemma": "cineva",
+       "upos": "PRON",
+       "xpos": "Pi3-sr",
+       "feats": {
+        "Case": "Acc,Nom",
+        "Number": "Sing",
+        "Person": "3",
+        "PronType": "Ind"
+       },
+       "head": 1,
+       "deprel": "nsubj",
+       "start": 7,
+       "end": 13,
+       "token": "cineva",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "care",
+       "lemma": "care",
+       "upos": "PRON",
+       "xpos": "Pw3--r",
+       "feats": {
+        "Case": "Acc,Nom",
+        "Person": "3",
+        "PronType": "Int,Rel"
+       },
+       "head": 4,
+       "deprel": "nsubj",
+       "start": 14,
+       "end": 18,
+       "token": "care",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "lucrează",
+       "lemma": "lucra",
+       "upos": "VERB",
+       "xpos": "Vmip3",
+       "feats": {
+        "Mood": "Ind",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 2,
+       "deprel": "acl",
+       "start": 19,
+       "end": 27,
+       "token": "lucrează",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "la",
+       "lemma": "la",
+       "upos": "ADP",
+       "xpos": "Spsa",
+       "feats": {
+        "AdpType": "Prep",
+        "Case": "Acc"
+       },
+       "head": 6,
+       "deprel": "case",
+       "start": 28,
+       "end": 30,
+       "token": "la",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "Vertex",
+       "lemma": "Vertex",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 4,
+       "deprel": "obl",
+       "start": 31,
+       "end": 37,
+       "token": "Vertex",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "Analytics",
+       "lemma": "Analytics",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 6,
+       "deprel": "flat",
+       "start": 38,
+       "end": 47,
+       "token": "Analytics",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "și",
+       "lemma": "și",
+       "upos": "CCONJ",
+       "xpos": "Crssp",
+       "feats": {
+        "Polarity": "Pos"
+       },
+       "head": 10,
+       "deprel": "cc",
+       "start": 48,
+       "end": 50,
+       "token": "și",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "nu",
+       "lemma": "nu",
+       "upos": "PART",
+       "xpos": "Qz",
+       "feats": {
+        "Polarity": "Neg"
+       },
+       "head": 10,
+       "deprel": "advmod",
+       "start": 51,
+       "end": 53,
+       "token": "nu",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": "locuiește",
+       "lemma": "locui",
+       "upos": "VERB",
+       "xpos": "Vmip3s",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 1,
+       "deprel": "conj",
+       "start": 54,
+       "end": 63,
+       "token": "locuiește",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 11,
+       "text": "în",
+       "lemma": "în",
+       "upos": "ADP",
+       "xpos": "Spsa",
+       "feats": {
+        "AdpType": "Prep",
+        "Case": "Acc"
+       },
+       "head": 12,
+       "deprel": "case",
+       "start": 64,
+       "end": 66,
+       "token": "în",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 12,
+       "text": "Montreal",
+       "lemma": "Montreal",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 10,
+       "deprel": "obl",
+       "start": 67,
+       "end": 75,
+       "token": "Montreal",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 13,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": "QUEST",
+       "feats": {},
+       "head": 1,
+       "deprel": "punct",
+       "start": 75,
+       "end": 76,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "ro|Spune-mi de când Rémi stă în Glasgow.": {
+   "text": "Spune-mi de când Rémi stă în Glasgow.",
+   "language": "ro",
+   "sentences": [
+    {
+     "language": "ro",
+     "text": "Spune-mi de când Rémi stă în Glasgow.",
+     "start": 0,
+     "end": 37,
+     "oov_rate": 0.14285714285714285,
+     "words": [
+      {
+       "id": 1,
+       "text": "Spune",
+       "lemma": "spune",
+       "upos": "VERB",
+       "xpos": "Vmm-2s",
+       "feats": {
+        "Mood": "Imp",
+        "Number": "Sing",
+        "Person": "2",
+        "VerbForm": "Fin"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 0,
+       "end": 5,
+       "token": "Spune",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "-mi",
+       "lemma": "eu",
+       "upos": "PRON",
+       "xpos": "Pp1-sd--y-----w",
+       "feats": {
+        "Case": "Dat",
+        "Number": "Sing",
+        "Person": "1",
+        "PronType": "Prs",
+        "Strength": "Weak",
+        "Variant": "Short"
+       },
+       "head": 1,
+       "deprel": "iobj",
+       "start": 5,
+       "end": 8,
+       "token": "-mi",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "de",
+       "lemma": "de",
+       "upos": "ADP",
+       "xpos": "Spsa",
+       "feats": {
+        "AdpType": "Prep",
+        "Case": "Acc"
+       },
+       "head": 6,
+       "deprel": "mark",
+       "start": 9,
+       "end": 11,
+       "token": "de",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "când",
+       "lemma": "când",
+       "upos": "ADV",
+       "xpos": "Rw",
+       "feats": {
+        "PronType": "Int,Rel"
+       },
+       "head": 6,
+       "deprel": "advmod",
+       "start": 12,
+       "end": 16,
+       "token": "când",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "Rémi",
+       "lemma": "Rémi",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 6,
+       "deprel": "nsubj",
+       "start": 17,
+       "end": 21,
+       "token": "Rémi",
+       "ner": "O",
+       "oov": true
+      },
+      {
+       "id": 6,
+       "text": "stă",
+       "lemma": "sta",
+       "upos": "VERB",
+       "xpos": "Vmip3s",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 1,
+       "deprel": "advcl",
+       "start": 22,
+       "end": 25,
+       "token": "stă",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "în",
+       "lemma": "în",
+       "upos": "ADP",
+       "xpos": "Spsa",
+       "feats": {
+        "AdpType": "Prep",
+        "Case": "Acc"
+       },
+       "head": 8,
+       "deprel": "case",
+       "start": 26,
+       "end": 28,
+       "token": "în",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "Glasgow",
+       "lemma": "Glasgow",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 6,
+       "deprel": "obl",
+       "start": 29,
+       "end": 36,
+       "token": "Glasgow",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": ".",
+       "lemma": ".",
+       "upos": "PUNCT",
+       "xpos": "PERIOD",
+       "feats": {},
+       "head": 1,
+       "deprel": "punct",
+       "start": 36,
+       "end": 37,
+       "token": ".",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "ro|Ion lucrează la Carpathia Energy. Lucrează și la Tisa Textile?": {
+   "text": "Ion lucrează la Carpathia Energy. Lucrează și la Tisa Textile?",
+   "language": "ro",
+   "sentences": [
+    {
+     "language": "ro",
+     "text": "Ion lucrează la Carpathia Energy.",
+     "start": 0,
+     "end": 33,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Ion",
+       "lemma": "Ion",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 2,
+       "deprel": "nsubj",
+       "start": 0,
+       "end": 3,
+       "token": "Ion",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "lucrează",
+       "lemma": "lucra",
+       "upos": "VERB",
+       "xpos": "Vmip3",
+       "feats": {
+        "Mood": "Ind",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 4,
+       "end": 12,
+       "token": "lucrează",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "la",
+       "lemma": "la",
+       "upos": "ADP",
+       "xpos": "Spsa",
+       "feats": {
+        "AdpType": "Prep",
+        "Case": "Acc"
+       },
+       "head": 4,
+       "deprel": "case",
+       "start": 13,
+       "end": 15,
+       "token": "la",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "Carpathia",
+       "lemma": "Carpathia",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 2,
+       "deprel": "obl",
+       "start": 16,
+       "end": 25,
+       "token": "Carpathia",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "Energy",
+       "lemma": "Energy",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 4,
+       "deprel": "flat",
+       "start": 26,
+       "end": 32,
+       "token": "Energy",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": ".",
+       "lemma": ".",
+       "upos": "PUNCT",
+       "xpos": "PERIOD",
+       "feats": {},
+       "head": 2,
+       "deprel": "punct",
+       "start": 32,
+       "end": 33,
+       "token": ".",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    },
+    {
+     "language": "ro",
+     "text": "Lucrează și la Tisa Textile?",
+     "start": 34,
+     "end": 62,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Lucrează",
+       "lemma": "lucra",
+       "upos": "VERB",
+       "xpos": "Vmip3",
+       "feats": {
+        "Mood": "Ind",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 34,
+       "end": 42,
+       "token": "Lucrează",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "și",
+       "lemma": "și",
+       "upos": "CCONJ",
+       "xpos": "Crssp",
+       "feats": {
+        "Polarity": "Pos"
+       },
+       "head": 4,
+       "deprel": "advmod",
+       "start": 43,
+       "end": 45,
+       "token": "și",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "la",
+       "lemma": "la",
+       "upos": "ADP",
+       "xpos": "Spsa",
+       "feats": {
+        "AdpType": "Prep",
+        "Case": "Acc"
+       },
+       "head": 4,
+       "deprel": "case",
+       "start": 46,
+       "end": 48,
+       "token": "la",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "Tisa",
+       "lemma": "tisa",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 1,
+       "deprel": "obl",
+       "start": 49,
+       "end": 53,
+       "token": "Tisa",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "Textile",
+       "lemma": "textil",
+       "upos": "ADJ",
+       "xpos": "Afpfp-n",
+       "feats": {
+        "Definite": "Ind",
+        "Degree": "Pos",
+        "Gender": "Fem",
+        "Number": "Plur"
+       },
+       "head": 4,
+       "deprel": "amod",
+       "start": 54,
+       "end": 61,
+       "token": "Textile",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": "QUEST",
+       "feats": {},
+       "head": 1,
+       "deprel": "punct",
+       "start": 61,
+       "end": 62,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "ro|Verify the claim that autorizația de construire requires a criminal record certificate.": {
+   "text": "Verify the claim that autorizația de construire requires a criminal record certificate.",
+   "language": "ro",
+   "sentences": [
+    {
+     "language": "ro",
+     "text": "Verify the claim that autorizația de construire requires a criminal record certificate.",
+     "start": 0,
+     "end": 87,
+     "oov_rate": 0.08333333333333333,
+     "words": [
+      {
+       "id": 1,
+       "text": "Verify",
+       "lemma": "Verify",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 10,
+       "deprel": "nsubj",
+       "start": 0,
+       "end": 6,
+       "token": "Verify",
+       "ner": "O",
+       "oov": true
+      },
+      {
+       "id": 2,
+       "text": "the",
+       "lemma": "the",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 1,
+       "deprel": "flat",
+       "start": 7,
+       "end": 10,
+       "token": "the",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "claim",
+       "lemma": "claim",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 1,
+       "deprel": "flat",
+       "start": 11,
+       "end": 16,
+       "token": "claim",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "that",
+       "lemma": "that",
+       "upos": "PROPN",
+       "xpos": "Np",
+       "feats": {},
+       "head": 1,
+       "deprel": "flat",
+       "start": 17,
+       "end": 21,
+       "token": "that",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "autorizația",
+       "lemma": "autorizație",
+       "upos": "NOUN",
+       "xpos": "Ncfsry",
+       "feats": {
+        "Case": "Acc,Nom",
+        "Definite": "Def",
+        "Gender": "Fem",
+        "Number": "Sing"
+       },
+       "head": 10,
+       "deprel": "nsubj",
+       "start": 22,
+       "end": 33,
+       "token": "autorizația",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "de",
+       "lemma": "de",
+       "upos": "ADP",
+       "xpos": "Spsa",
+       "feats": {
+        "AdpType": "Prep",
+        "Case": "Acc"
+       },
+       "head": 7,
+       "deprel": "case",
+       "start": 34,
+       "end": 36,
+       "token": "de",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "construire",
+       "lemma": "construire",
+       "upos": "NOUN",
+       "xpos": "Ncfsrn",
+       "feats": {
+        "Case": "Acc,Nom",
+        "Definite": "Ind",
+        "Gender": "Fem",
+        "Number": "Sing"
+       },
+       "head": 5,
+       "deprel": "nmod",
+       "start": 37,
+       "end": 47,
+       "token": "construire",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "requires",
+       "lemma": "requires",
+       "upos": "NOUN",
+       "xpos": "Ncms-n",
+       "feats": {
+        "Definite": "Ind",
+        "Gender": "Masc"
+       },
+       "head": 7,
+       "deprel": "nmod",
+       "start": 48,
+       "end": 56,
+       "token": "requires",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "a",
+       "lemma": "avea",
+       "upos": "AUX",
+       "xpos": "Va--3s",
+       "feats": {
+        "Number": "Sing",
+        "Person": "3"
+       },
+       "head": 10,
+       "deprel": "aux",
+       "start": 57,
+       "end": 58,
+       "token": "a",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": "criminal",
+       "lemma": "criminal",
+       "upos": "VERB",
+       "xpos": "Vmp--sm",
+       "feats": {
+        "Gender": "Masc",
+        "Number": "Sing",
+        "VerbForm": "Part"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 59,
+       "end": 67,
+       "token": "criminal",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 11,
+       "text": "record",
+       "lemma": "record",
+       "upos": "NOUN",
+       "xpos": "Ncms-n",
+       "feats": {
+        "Definite": "Ind",
+        "Gender": "Masc",
+        "Number": "Sing"
+       },
+       "head": 10,
+       "deprel": "obj",
+       "start": 68,
+       "end": 74,
+       "token": "record",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 12,
+       "text": "certificate",
+       "lemma": "certificat",
+       "upos": "ADJ",
+       "xpos": "Afpfp-n",
+       "feats": {
+        "Definite": "Ind",
+        "Degree": "Pos",
+        "Gender": "Fem",
+        "Number": "Plur"
+       },
+       "head": 11,
+       "deprel": "amod",
+       "start": 75,
+       "end": 86,
+       "token": "certificate",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 13,
+       "text": ".",
+       "lemma": ".",
+       "upos": "PUNCT",
+       "xpos": "PERIOD",
+       "feats": {},
+       "head": 10,
+       "deprel": "punct",
+       "start": 86,
+       "end": 87,
+       "token": ".",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|Verify the claim that autorizația de construire requires a criminal record certificate.": {
+   "text": "Verify the claim that autorizația de construire requires a criminal record certificate.",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "Verify the claim that autorizația de construire requires a criminal record certificate.",
+     "start": 0,
+     "end": 87,
+     "oov_rate": 0.16666666666666666,
+     "words": [
+      {
+       "id": 1,
+       "text": "Verify",
+       "lemma": "verify",
+       "upos": "VERB",
+       "xpos": "VB",
+       "feats": {
+        "Mood": "Imp",
+        "VerbForm": "Fin"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 0,
+       "end": 6,
+       "token": "Verify",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "the",
+       "lemma": "the",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Def",
+        "PronType": "Art"
+       },
+       "head": 3,
+       "deprel": "det",
+       "start": 7,
+       "end": 10,
+       "token": "the",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "claim",
+       "lemma": "claim",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 1,
+       "deprel": "obj",
+       "start": 11,
+       "end": 16,
+       "token": "claim",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "that",
+       "lemma": "that",
+       "upos": "SCONJ",
+       "xpos": "IN",
+       "feats": {},
+       "head": 8,
+       "deprel": "mark",
+       "start": 17,
+       "end": 21,
+       "token": "that",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "autorizația",
+       "lemma": "autorizația",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 8,
+       "deprel": "nsubj",
+       "start": 22,
+       "end": 33,
+       "token": "autorizația",
+       "ner": "O",
+       "oov": true
+      },
+      {
+       "id": 6,
+       "text": "de",
+       "lemma": "de",
+       "upos": "PROPN",
+       "xpos": "NNP",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 5,
+       "deprel": "flat",
+       "start": 34,
+       "end": 36,
+       "token": "de",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "construire",
+       "lemma": "construire",
+       "upos": "X",
+       "xpos": "FW",
+       "feats": {
+        "Foreign": "Yes"
+       },
+       "head": 5,
+       "deprel": "flat",
+       "start": 37,
+       "end": 47,
+       "token": "construire",
+       "ner": "O",
+       "oov": true
+      },
+      {
+       "id": 8,
+       "text": "requires",
+       "lemma": "require",
+       "upos": "VERB",
+       "xpos": "VBZ",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 3,
+       "deprel": "acl",
+       "start": 48,
+       "end": 56,
+       "token": "requires",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "a",
+       "lemma": "a",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Ind",
+        "PronType": "Art"
+       },
+       "head": 12,
+       "deprel": "det",
+       "start": 57,
+       "end": 58,
+       "token": "a",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": "criminal",
+       "lemma": "criminal",
+       "upos": "ADJ",
+       "xpos": "JJ",
+       "feats": {
+        "Degree": "Pos"
+       },
+       "head": 12,
+       "deprel": "amod",
+       "start": 59,
+       "end": 67,
+       "token": "criminal",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 11,
+       "text": "record",
+       "lemma": "record",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 12,
+       "deprel": "compound",
+       "start": 68,
+       "end": 74,
+       "token": "record",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 12,
+       "text": "certificate",
+       "lemma": "certificate",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 8,
+       "deprel": "obj",
+       "start": 75,
+       "end": 86,
+       "token": "certificate",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 13,
+       "text": ".",
+       "lemma": ".",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 1,
+       "deprel": "punct",
+       "start": 86,
+       "end": 87,
+       "token": ".",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|Verify the claim that the building permit requires a criminal record certificate.": {
+   "text": "Verify the claim that the building permit requires a criminal record certificate.",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "Verify the claim that the building permit requires a criminal record certificate.",
+     "start": 0,
+     "end": 81,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Verify",
+       "lemma": "verify",
+       "upos": "VERB",
+       "xpos": "VB",
+       "feats": {
+        "Mood": "Imp",
+        "VerbForm": "Fin"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 0,
+       "end": 6,
+       "token": "Verify",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "the",
+       "lemma": "the",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Def",
+        "PronType": "Art"
+       },
+       "head": 3,
+       "deprel": "det",
+       "start": 7,
+       "end": 10,
+       "token": "the",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "claim",
+       "lemma": "claim",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 1,
+       "deprel": "obj",
+       "start": 11,
+       "end": 16,
+       "token": "claim",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "that",
+       "lemma": "that",
+       "upos": "SCONJ",
+       "xpos": "IN",
+       "feats": {},
+       "head": 8,
+       "deprel": "mark",
+       "start": 17,
+       "end": 21,
+       "token": "that",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "the",
+       "lemma": "the",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Def",
+        "PronType": "Art"
+       },
+       "head": 7,
+       "deprel": "det",
+       "start": 22,
+       "end": 25,
+       "token": "the",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "building",
+       "lemma": "building",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 7,
+       "deprel": "compound",
+       "start": 26,
+       "end": 34,
+       "token": "building",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "permit",
+       "lemma": "permit",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 8,
+       "deprel": "nsubj",
+       "start": 35,
+       "end": 41,
+       "token": "permit",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 8,
+       "text": "requires",
+       "lemma": "require",
+       "upos": "VERB",
+       "xpos": "VBZ",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 3,
+       "deprel": "acl",
+       "start": 42,
+       "end": 50,
+       "token": "requires",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 9,
+       "text": "a",
+       "lemma": "a",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Ind",
+        "PronType": "Art"
+       },
+       "head": 12,
+       "deprel": "det",
+       "start": 51,
+       "end": 52,
+       "token": "a",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 10,
+       "text": "criminal",
+       "lemma": "criminal",
+       "upos": "ADJ",
+       "xpos": "JJ",
+       "feats": {
+        "Degree": "Pos"
+       },
+       "head": 12,
+       "deprel": "amod",
+       "start": 53,
+       "end": 61,
+       "token": "criminal",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 11,
+       "text": "record",
+       "lemma": "record",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 12,
+       "deprel": "compound",
+       "start": 62,
+       "end": 68,
+       "token": "record",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 12,
+       "text": "certificate",
+       "lemma": "certificate",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 8,
+       "deprel": "obj",
+       "start": 69,
+       "end": 80,
+       "token": "certificate",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 13,
+       "text": ".",
+       "lemma": ".",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 1,
+       "deprel": "punct",
+       "start": 80,
+       "end": 81,
+       "token": ".",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  },
+  "en|Who takes care of the garden?": {
+   "text": "Who takes care of the garden?",
+   "language": "en",
+   "sentences": [
+    {
+     "language": "en",
+     "text": "Who takes care of the garden?",
+     "start": 0,
+     "end": 29,
+     "oov_rate": 0,
+     "words": [
+      {
+       "id": 1,
+       "text": "Who",
+       "lemma": "who",
+       "upos": "PRON",
+       "xpos": "WP",
+       "feats": {
+        "PronType": "Int"
+       },
+       "head": 2,
+       "deprel": "nsubj",
+       "start": 0,
+       "end": 3,
+       "token": "Who",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 2,
+       "text": "takes",
+       "lemma": "take",
+       "upos": "VERB",
+       "xpos": "VBZ",
+       "feats": {
+        "Mood": "Ind",
+        "Number": "Sing",
+        "Person": "3",
+        "Tense": "Pres",
+        "VerbForm": "Fin"
+       },
+       "head": 0,
+       "deprel": "root",
+       "start": 4,
+       "end": 9,
+       "token": "takes",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 3,
+       "text": "care",
+       "lemma": "care",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 2,
+       "deprel": "obj",
+       "start": 10,
+       "end": 14,
+       "token": "care",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 4,
+       "text": "of",
+       "lemma": "of",
+       "upos": "ADP",
+       "xpos": "IN",
+       "feats": {},
+       "head": 6,
+       "deprel": "case",
+       "start": 15,
+       "end": 17,
+       "token": "of",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 5,
+       "text": "the",
+       "lemma": "the",
+       "upos": "DET",
+       "xpos": "DT",
+       "feats": {
+        "Definite": "Def",
+        "PronType": "Art"
+       },
+       "head": 6,
+       "deprel": "det",
+       "start": 18,
+       "end": 21,
+       "token": "the",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 6,
+       "text": "garden",
+       "lemma": "garden",
+       "upos": "NOUN",
+       "xpos": "NN",
+       "feats": {
+        "Number": "Sing"
+       },
+       "head": 2,
+       "deprel": "obl",
+       "start": 22,
+       "end": 28,
+       "token": "garden",
+       "ner": "O",
+       "oov": false
+      },
+      {
+       "id": 7,
+       "text": "?",
+       "lemma": "?",
+       "upos": "PUNCT",
+       "xpos": ".",
+       "feats": {},
+       "head": 2,
+       "deprel": "punct",
+       "start": 28,
+       "end": 29,
+       "token": "?",
+       "ner": "O",
+       "oov": false
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

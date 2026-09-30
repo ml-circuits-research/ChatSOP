@@ -17,6 +17,12 @@
  * skeleton and the generic browser helpers come from server/pages/three-pane.mjs,
  * shared with the evaluation browser (`/eval`).
  *
+ * Four tabs (registry config/audit-corpora.json, DS020 "Corpus registry"): `bad_english`, `symbolic_english` and
+ * `neuro_english`, the three datasets, each with a statement of purpose, row counts per split, its own filters and case
+ * view and an on-demand check (SymbolicLM re-run, SymbolicLM on message and target, clean-English classifier), and a
+ * secondary `archive / sources` tab for the legacy corpora (formalizer, proofreading and cleanText views) and the
+ * read-only local source cache.
+ *
  * The page only reads `/audit/api/*` and posts executions and verdicts; access
  * control stays with the server. The client code below is plain browser
  * JavaScript, serialised with `Function.prototype.toString`.
@@ -42,6 +48,28 @@ const style = `
 pre.prompt{white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;margin:4px 0 8px}
 .detail section.verify{background:var(--soft);border:1px dashed var(--line);color:var(--muted)}
 .detail section.verify h3{text-transform:uppercase;letter-spacing:.03em;font-size:.9rem}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 8px;position:sticky;top:0;background:var(--panel);z-index:2;padding-bottom:4px}
+.tabs button{flex:1 1 44%;min-width:0;padding:5px 4px;font-size:13px;border-radius:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tabs button[aria-selected=true]{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.tabs .count{color:inherit;margin-left:4px}
+.tabnote{font-size:12px;color:var(--muted);margin:0 4px 8px}
+.banner{border:1px dashed var(--line);background:var(--soft);border-radius:8px;padding:6px 10px;margin:0 0 10px;font-size:13px}
+.diff{white-space:pre-wrap;word-break:break-word;font-size:15px;padding:8px 10px;background:var(--soft);border-radius:6px;margin:4px 0 10px}
+.diff .ins{background:color-mix(in srgb,var(--ok) 28%,transparent);border-radius:3px}
+.diff .del{background:color-mix(in srgb,var(--bad) 24%,transparent);text-decoration:line-through;border-radius:3px}
+.candidate{margin:0 0 10px}
+.symres{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:8px}
+.symres>div{border:1px solid var(--line);border-radius:8px;padding:6px 8px;min-width:0}
+.symres pre{white-space:pre-wrap;word-break:break-word;font-size:12px;margin:4px 0 0}
+.purpose{color:var(--text);font-size:13px;line-height:1.4}
+.stats{font-weight:500}
+.analysis{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+.analysis .deptreebox{flex:1 1 240px;min-width:0}
+.analysis .tablebox{flex:2 1 340px;min-width:0}
+pre.deptree{white-space:pre;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.35;margin:4px 0 8px;padding:8px 10px;background:var(--soft);border-radius:6px}
+table.deps td,table.deps th{padding:2px 6px;white-space:nowrap}
+.sentence{margin:0 0 14px}
+.detail section .why{margin:0 0 6px;font-size:13px}
 .detail section.verify .why{margin:0 0 6px;font-size:13px}
 .detail section.verify pre,.detail section.verify .code{opacity:.9}
 `;
@@ -50,10 +78,12 @@ pre.prompt{white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,S
 function client() {
   const PAGE_SIZE = 50;
   const VERDICT_LABEL = {unreviewed: 'unreviewed', approve: 'ok', needs_fix: 'needs fix', reject: 'reject'};
-  const FILTER_KEYS = ['split', 'family', 'language', 'input_mode', 'review', 'theme', 'status', 'verdict'];
+  const FILTER_KEYS = ['split', 'family', 'language', 'input_mode', 'review', 'theme', 'status', 'verdict', 'kind', 'layer', 'pipeline', 'question_type', 'category', 'domain', 'author', 'source', 'verification', 'judge', 'agreement', 'outcome', 'failure_kind', 'blame', 'target_state', 'flag', 'target_source', 'noise'];
+  const TABS = window.CHATSOP_AUDIT.tabs;
+  const TAB_IDS = TABS.map(tab => tab.id);
   const openGroups = new Set(['split', 'family', 'language', 'verdict']);
 
-  const state = {corpora: [], facets: {}, corpus: null, filters: {}, q: '', page: 1, list: null, selected: null, detail: null};
+  const state = {corpora: [], facets: {}, tab: TAB_IDS[0], corpus: null, filters: {}, q: '', page: 1, list: null, selected: null, detail: null};
   const {$, esc, json, kv, inline, codeBlock} = window.ChatSopPane;
 
   async function api(route, params, body) {
@@ -73,6 +103,7 @@ function client() {
 
   function writeHash() {
     const params = new URLSearchParams();
+    if (state.tab && state.tab !== TAB_IDS[0]) params.set('tab', state.tab);
     if (state.corpus) params.set('corpus', state.corpus);
     for (const key of FILTER_KEYS) if (state.filters[key]) params.set(key, state.filters[key]);
     if (state.q) params.set('q', state.q);
@@ -85,6 +116,7 @@ function client() {
   function readHash() {
     const params = new URLSearchParams(location.hash.slice(1));
     state.corpus = params.get('corpus');
+    state.tab = TAB_IDS.includes(params.get('tab')) ? params.get('tab') : TAB_IDS[0];
     state.filters = {};
     for (const key of FILTER_KEYS) if (params.get(key)) state.filters[key] = params.get(key);
     state.q = params.get('q') ?? '';
@@ -96,7 +128,10 @@ function client() {
 
   function renderTree() {
     $('search').value = state.q;
-    const html = state.corpora.map(corpus => {
+    const inTab = state.corpora.filter(corpus => corpus.tab === state.tab);
+    const tabs = '<div class="tabs" role="tablist" aria-label="Dataset">' + TABS.map(tab => '<button type="button" role="tab" data-tab="' + esc(tab.id) + '" aria-selected="' + (tab.id === state.tab) + '" title="' + esc(tab.label) + '">' + esc(tab.id === 'archive' ? 'archive' : tab.label) + '</button>').join('') + '</div>' +
+      '<p class="tabnote purpose">' + esc(TABS.find(tab => tab.id === state.tab)?.purpose ?? '') + '</p>';
+    const html = tabs + inTab.map(corpus => {
       const active = corpus.corpus === state.corpus;
       const facets = state.facets[corpus.corpus];
       let inner = '';
@@ -116,11 +151,12 @@ function client() {
       } else if (active) {
         inner = '<div class="muted" style="margin-left:30px">loading…</div>';
       }
-      const reviewed = corpus.reviewed ? ' · ' + corpus.reviewed + ' reviewed' : '';
+      const reviewed = (corpus.reviewed ? ' · ' + corpus.reviewed + ' reviewed' : '') + (corpus.sealed ? ' · sealed (view only)' : corpus.sealedSplits?.length ? ' · sealed splits: ' + corpus.sealedSplits.join(', ') : '') + (corpus.localOnly ? ' · local source cache' : '');
       return '<details class="corpus' + (active ? ' active' : '') + '" data-corpus="' + esc(corpus.corpus) + '"' + (active ? ' open' : '') + '>' +
-        '<summary title="' + esc(corpus.rows + ' rows, ' + corpus.cases + ' cases' + reviewed) + '"><span>' + esc(corpus.corpus) + '</span><span class="count">' + corpus.cases.toLocaleString() + '</span></summary>' + inner + '</details>';
+        '<summary title="' + esc(corpus.rows + ' rows' + reviewed) + '"><span>' + esc(corpus.corpus) + '</span><span class="count">' + (corpus.cases ?? corpus.rows).toLocaleString() + '</span></summary>' +
+        '<div class="tabnote stats">' + esc(Object.keys(corpus.splits).length > 6 ? Object.keys(corpus.splits).length + ' files · ' + corpus.rows.toLocaleString() + ' rows' : Object.entries(corpus.splits).map(([split, n]) => split + ' ' + n.toLocaleString() + (corpus.sealedSplits?.includes(split) ? ' (sealed, view only)' : '')).join(' · ')) + (corpus.localOnly ? ' · local source cache, never exported' : '') + '</div>' + inner + '</details>';
     }).join('');
-    $('tree').innerHTML = html || '<p class="muted">No corpora found.</p>';
+    $('tree').innerHTML = html + (inTab.length ? '' : '<p class="muted">No corpus was found for this tab.</p>');
   }
 
   const labelOf = (key, value) => (key === 'verdict' ? VERDICT_LABEL[value] ?? value : value);
@@ -128,6 +164,7 @@ function client() {
   async function openCorpus(name) {
     if (state.corpus !== name) {
       state.corpus = name;
+      state.tab = state.corpora.find(corpus => corpus.corpus === name)?.tab ?? state.tab;
       state.filters = {};
       state.page = 1;
       state.selected = null;
@@ -136,6 +173,26 @@ function client() {
     renderTree();
     await loadFacets();
     await loadList();
+  }
+
+  /** One tab per dataset type; switching opens the first corpus of that type. */
+  async function switchTab(tab) {
+    if (tab === state.tab) return;
+    state.tab = tab;
+    state.corpus = null;
+    state.filters = {};
+    state.page = 1;
+    state.selected = null;
+    state.detail = null;
+    state.list = null;
+    renderDetail();
+    renderList();
+    const first = state.corpora.find(corpus => corpus.tab === tab);
+    if (first) await openCorpus(first.corpus);
+    else {
+      renderTree();
+      writeHash();
+    }
   }
 
   async function loadFacets() {
@@ -161,7 +218,8 @@ function client() {
   }
 
   function badges(item) {
-    return item.languages.map(lang => '<span class="badge">' + esc(lang) + '</span>').join('') +
+    const extra = item.type === 'proofreading' ? [item.kind, item.pipeline] : item.type === 'cleanText' ? [item.kind] : item.type === 'bad_english' ? [item.target_state] : item.type === 'symbolic_english' ? [item.verification] : item.type === 'neuro_english' ? [item.failure_kind, item.target_state] : [];
+    return extra.filter(Boolean).map(text => '<span class="badge">' + esc(text) + '</span>').join('') + item.languages.map(lang => '<span class="badge">' + esc(lang) + '</span>').join('') +
       item.splits.map(split => '<span class="badge">' + esc(split) + '</span>').join('') +
       (item.verdict !== 'unreviewed' ? '<span class="badge v-' + esc(item.verdict) + '">' + esc(VERDICT_LABEL[item.verdict]) + '</span>' : '');
   }
@@ -229,6 +287,11 @@ function client() {
       $('detail').innerHTML = '<div class="empty">Select a case in the list.<br><small>Keys: <kbd>↑</kbd>/<kbd>↓</kbd> or <kbd>k</kbd>/<kbd>j</kbd> move, <kbd>PageUp</kbd>/<kbd>PageDown</kbd> change page, <kbd>/</kbd> search.</small></div>';
       return;
     }
+    if (c.type === 'symbolic_english') return renderSymbolicEnglish(c);
+    if (c.type === 'neuro_english') return renderNeuroEnglish(c);
+    if (c.type === 'bad_english') return renderBadEnglish(c);
+    if (c.type === 'proofreading') return renderProofreading(c);
+    if (c.type === 'cleanText') return renderCleanText(c);
     const flags = Object.entries(c.flags ?? {}).map(([key, value]) => '<span class="badge">' + esc(key) + '=' + esc(typeof value === 'object' ? JSON.stringify(value) : value) + '</span>').join(' ');
     const source = c.source ? inline({id: c.source.id, kind: c.source.kind, uri: c.source.uri, license: c.source.license}) : '';
     const header = '<h2>' + esc(c.id) + '</h2><div class="rowhead" style="margin-bottom:10px">' + c.languages.map(l => '<span class="badge">' + esc(l) + '</span>').join('') + c.splits.map(s => '<span class="badge">' + esc(s) + '</span>').join('') +
@@ -296,7 +359,177 @@ function client() {
     $('detail').innerHTML = header + alert + fields + model + verify + sourceContent + metrics + verdict + raw;
   }
 
+  // ---- Proofreading and cleanText views (message to clean rewrite, word diff, on-demand SymbolicLM) ----
+
+  const diffHtml = spans => '<div class="diff">' + (spans ?? []).map(part => '<span class="' + (part.type === 'insert' ? 'ins' : part.type === 'delete' ? 'del' : 'eq') + '">' + esc(part.text) + '</span>').join('') + '</div>';
+  const corpusInfo = () => state.corpora.find(entry => entry.corpus === state.corpus) ?? {};
+
+  function banner(c) {
+    const info = corpusInfo();
+    const notes = [];
+    if (info.localOnly) notes.push('Local source cache (<code>datasets_sources/</code>): read-only, never exported (DS014). Your verdicts are appended to the audit ledger only.');
+    if (info.sealed || (info.sealedSplits ?? []).some(split => c.splits.includes(split))) notes.push('Sealed suite: view only. The data is never edited here; your verdict is appended to <code>eval/reports/current/audit/' + esc(state.corpus) + '.jsonl</code>.');
+    return notes.map(note => '<div class="banner">' + note + '</div>').join('');
+  }
+
+  function commonHead(c) {
+    return '<h2>' + esc(c.id) + '</h2><div class="rowhead" style="margin-bottom:10px">' + c.languages.map(l => '<span class="badge">' + esc(l) + '</span>').join('') + c.splits.map(s => '<span class="badge">' + esc(s) + '</span>').join('') +
+      (c.verdict ? '<span class="badge v-' + esc(c.verdict.verdict) + '">' + esc(VERDICT_LABEL[c.verdict.verdict]) + '</span>' : '<span class="badge">unreviewed</span>') + '</div>' + banner(c);
+  }
+
+  function verdictSection(c) {
+    const historyRows = (c.history ?? []).slice().reverse().map(record => '<tr><td>' + esc(record.ts) + '</td><td><span class="badge v-' + esc(record.verdict) + '">' + esc(VERDICT_LABEL[record.verdict] ?? record.verdict) + '</span></td><td>' + esc(record.note) + '</td></tr>').join('');
+    return '<section><h3>Verdict</h3><div class="verdicts"><button type="button" data-verdict="approve">ok</button><button type="button" data-verdict="needs_fix">needs fix</button><button type="button" data-verdict="reject">reject</button>' +
+      '<span id="verdictout" class="muted"></span><textarea id="note" placeholder="note (optional, kept in the ledger)" maxlength="2000"></textarea></div>' +
+      (historyRows ? '<h4 style="margin:12px 0 4px">History</h4><div class="tablewrap"><table class="small"><thead><tr><th>time</th><th>verdict</th><th>note</th></tr></thead><tbody>' + historyRows + '</tbody></table></div>' : '<p class="muted" style="margin:8px 0 0">No verdict recorded yet.</p>') + '</section>';
+  }
+
+  const rawSection = c => '<section><details class="fold"><summary>Raw JSON (' + c.raw.length + ' row' + (c.raw.length > 1 ? 's' : '') + ')</summary><pre>' + esc(json(c.raw)) + '</pre></details></section>';
+
+  function commonTail(c, sym) {
+    const audit = c.audit ?? {findings: []};
+    return '<section><h3>SymbolicLM check</h3><button type="button" class="primary" id="run">Check with SymbolicLM</button> <span class="muted">' + esc(sym) + '</span><div id="runout"></div></section>' +
+      '<section><h3>Machine audit</h3>' + auditSummary(audit) + findingsList(audit.findings) + '</section>' + verdictSection(c) + rawSection(c);
+  }
+
+  // ---- The three datasets: symbolic_english, neuro_english, bad_english ----
+
+  const chips = (values, cls = '') => (values ?? []).map(name => '<span class="badge ' + cls + '">' + esc(name) + '</span>').join(' ');
+  const yesNo = value => (value === true ? '<span class="badge good">yes</span>' : value === false ? '<span class="badge bad">no</span>' : '<span class="badge">not available</span>');
+  const judgeText = judge => (judge === null || judge === undefined ? '<span class="badge">pending (no judge verdict yet)</span>' : '<span class="badge">' + esc(typeof judge === 'object' ? judge.verdict ?? judge.status ?? JSON.stringify(judge) : judge) + '</span>');
+
+  function tokenTable(tokens) {
+    return '<div class="tablewrap"><table class="small deps"><thead><tr><th>id</th><th>form</th><th>lemma</th><th>upos</th><th>head</th><th>deprel</th></tr></thead><tbody>' +
+      tokens.map(t => '<tr><td>' + esc(t.id) + '</td><td>' + esc(t.form) + '</td><td>' + esc(t.lemma) + '</td><td>' + esc(t.upos) + '</td><td>' + esc(t.head) + '</td><td>' + esc(t.deprel) + '</td></tr>').join('') + '</tbody></table></div>';
+  }
+
+  /** Grammatical analysis, per sentence: indented dependency tree, dependency table, arc list. */
+  function analysisHtml(sentences) {
+    if (!sentences?.length) return '<p class="muted">No grammatical analysis stored for this row.</p>';
+    return sentences.map((sentence, index) => '<div class="sentence"><div class="rowhead"><b>sentence ' + (index + 1) + '</b></div><div class="message">' + esc(sentence.text) + '</div>' +
+      '<div class="analysis"><div class="deptreebox"><h4>Dependency tree</h4><pre class="deptree">' + esc(sentence.tree) + '</pre></div><div class="tablebox"><h4>Dependency table</h4>' + tokenTable(sentence.tokens) + '</div></div>' +
+      '<details class="fold"><summary>Arc list (' + sentence.arcs.length + ')</summary><pre>' + esc(sentence.arcs.join('\n')) + '</pre></details></div>').join('');
+  }
+
+  const verifyStatus = c => '<span class="badge ' + (c.verification.analysis_verified === 'gold_sop_match' ? 'good' : 'warning') + '">' + esc(c.verification.analysis_verified) + '</span>';
+
+  function lmInfo(c) {
+    return c.symbolic_lm ? inline({version: c.symbolic_lm.version, rules: c.symbolic_lm.rules, stanza: c.symbolic_lm.stanza}) : '';
+  }
+
+  function renderSymbolicEnglish(c) {
+    const fields = '<section>' + kv([['dataset', esc(c.corpus)], ['split', esc(c.splits.join(', '))], ['source corpus', esc(c.source?.corpus)], ['source id', '<code>' + esc(c.source?.id) + '</code>'], ['file', esc(c.file)], ['SymbolicLM', lmInfo(c)], ['review status', esc(c.review_status)]]) + '</section>';
+    const verification = '<section><h3>Verification status</h3>' + kv([
+      ['analysis verified', verifyStatus(c)],
+      ['SOP matches the gold', yesNo(c.verification.sop_gold_match)],
+      ['judge verdict', judgeText(c.verification.judge)],
+      ['Stanza and spaCy agree on the core arcs', yesNo(c.verification.stanza_spacy_agree)],
+    ]) + '<p class="muted" style="margin:6px 0 0">gold_sop_match: the SOP built from this analysis equals the gold SOP strictly. pending_judge: no gold; SymbolicLM produced a valid SOP with no unparsed span and the analysis awaits the parse judge. Stanza-spaCy agreement is a weak second opinion, not a verdict.</p></section>';
+    const message = '<section class="model"><h3>Message</h3><div class="message">' + esc(c.message) + '</div></section>';
+    const analysis = '<section><h3>SymbolicLM grammatical analysis</h3>' + analysisHtml(c.sentences) + '</section>';
+    const sop = '<section><h3>SOP Lang produced from the analysis</h3>' + (c.sop ? codeBlock(c.sop, 'sop') : '<p class="muted">No SOP stored (SOP generation is a later stage).</p>') + kv([['valid', yesNo(c.sop_valid)], ['outcome', esc(c.outcome)], ['unparsed', esc((c.unparsed ?? []).join(' | '))]]) +
+      (c.gold_sop ? '<details class="fold"><summary>Gold SOP</summary>' + codeBlock(c.gold_sop, 'gold_sop') + '</details>' : '') + '</section>';
+    const rerun = '<section><h3>Regression check of this row</h3><button type="button" class="primary" id="run">Re-run SymbolicLM</button> <span class="muted">runs the current engine on this message and reports whether it still gives the same analysis and SOP (same classes as tools/symbolic-regression.mjs)</span><div id="runout"></div></section>';
+    $('detail').innerHTML = commonHead(c) + fields + message + verification + analysis + sop + rerun + verdictSection(c) + rawSection(c);
+  }
+
+  const failureNotes = {parser: 'Stanza analysed the sentence wrongly.', rules: 'The parse is usable but the UD-to-SOP rules miss or mis-build.', gold_convention: 'Only a gold convention differs (boundary, role name, wording); not a rewrite target.', unknown: 'No layer information.'};
+
+  function renderNeuroEnglish(c) {
+    const f = c.failure ?? {};
+    const fields = '<section>' + kv([['dataset', esc(c.corpus)], ['split', esc(c.splits.join(', '))], ['source corpus', esc(c.source?.corpus)], ['file', esc(c.file)], ['SymbolicLM', lmInfo(c)], ['analysis verified', verifyStatus(c)], ['review status', esc(c.review_status)]]) + '</section>';
+    const failure = '<section><h3>Failure: ' + esc(c.failure_kind) + '</h3><p class="why">' + esc(failureNotes[c.failure_kind] ?? '') + '</p>' + kv([
+      ['failure_kind', '<span class="badge">' + esc(c.failure_kind) + '</span>'],
+      ['blame categories', chips(f.categories)],
+      ['difference classes', chips(f.classes)],
+      ['proofing layer', esc(f.proofing_layer)],
+      ['frame recoverable', yesNo(f.frame_recoverable)],
+      ['also a gold convention', yesNo(f.also_gold_convention)],
+      ['formatting only', yesNo(f.formatting_only)],
+      ['unparsed spans', esc((f.unparsed ?? c.unparsed ?? []).join(' | '))],
+      ['rewrite target', c.rewrite_target === false ? '<span class="badge warning">no: not a rewrite target</span>' : '<span class="badge good">yes</span>'],
+      ['flags', chips(c.flags)],
+    ]) + '<details class="fold"><summary>All blame details</summary><pre>' + esc(json(c.failure)) + '</pre></details></section>';
+    const message = '<section class="model"><h3>Message</h3><div class="message">' + esc(c.message) + '</div></section>';
+    const compare = '<section><h3>What SymbolicLM produced against the gold</h3><div class="symres"><div><b>SymbolicLM output</b> <span class="badge ' + (c.sop_valid ? 'good' : 'warning') + '">' + (c.sop_valid ? 'valid SOP' : 'invalid SOP') + '</span> <span class="muted">outcome ' + esc(c.outcome) + '</span>' + (c.sop ? codeBlock(c.sop, 'sop') : '<pre>(empty)</pre>') + '</div><div><b>Gold SOP</b>' + (c.gold_sop ? codeBlock(c.gold_sop, 'gold_sop') : '<p class="muted">No gold (new case).</p>') + '</div></div></section>';
+    const analysis = '<section><h3>SymbolicLM grammatical analysis of the message</h3>' + analysisHtml(c.sentences) + '</section>';
+    const targets = (c.targets ?? []).map((target, index) => '<div class="candidate"><div class="rowhead">target ' + (index + 1) + ' <span class="badge">' + esc(target.source) + '</span></div><div class="message">' + esc(target.text) + '</div>' + (target.spans ? '<h4>Changes</h4>' + diffHtml(target.spans) : '<p class="muted">Identical to the message.</p>') + '</div>').join('');
+    const rewrite = '<section><h3>Rewrite target (meaning-preserving, in a form SymbolicLM handles)</h3>' + (targets || '<p class="muted">No target' + (c.rewrite_target === false ? ' (a gold convention, not a rewrite).' : ' yet.') + '</p>') +
+      ((c.unverified_references ?? []).length ? '<details class="fold"><summary>References that SymbolicLM does not handle (' + c.unverified_references.length + ')</summary><pre>' + esc(json(c.unverified_references)) + '</pre></details>' : '') + '</section>';
+    const check = '<section><h3>SymbolicLM check</h3><button type="button" class="primary" id="run">Check message and target</button> <span class="muted">runs the current engine on the message and on each target and compares with the stored output and the gold</span><div id="runout"></div></section>';
+    $('detail').innerHTML = commonHead(c) + fields + message + failure + compare + analysis + rewrite + check + verdictSection(c) + rawSection(c);
+  }
+
+  function renderBadEnglish(c) {
+    const fields = '<section>' + kv([['dataset', esc(c.corpus)], ['split', esc(c.splits.join(', '))], ['kind', '<span class="badge">' + esc(c.kind) + '</span>'], ['noise categories', chips(c.noise_categories)], ['noise', c.noise ? inline(c.noise) : ''], ['source corpus', esc(c.source?.corpus)], ['file', esc(c.file)], ['review status', esc(c.review_status)]]) + '</section>';
+    const message = '<section class="model"><h3>Message as written</h3><div class="message">' + esc(c.message) + '</div>' + ((c.gate_reasons ?? []).length ? '<details class="fold"><summary>Why the classifier says not clean English</summary><ul>' + c.gate_reasons.map(text => '<li>' + esc(text) + '</li>').join('') + '</ul></details>' : '') + '</section>';
+    const targets = (c.targets ?? []).map((target, index) => '<div class="candidate"><div class="rowhead">target ' + (index + 1) + ' <span class="badge">' + esc(target.source) + '</span></div><div class="message">' + esc(target.text) + '</div>' + (target.spans ? '<h4>Changes</h4>' + diffHtml(target.spans) : '<p class="muted">Identical to the message.</p>') + '</div>').join('');
+    const clean = '<section><h3>Clean English target</h3>' + (targets || '<p class="muted">No clean target known for this row (kept for evaluation; nobody could rewrite it yet).</p>') + '</section>';
+    const check = '<section><h3>Target check</h3><button type="button" class="primary" id="run"' + ((c.targets ?? []).length ? '' : ' disabled') + '>Check the target</button> <span class="muted">classifies the message and each target (is it clean English?) and parses each target with SymbolicLM</span><div id="runout"></div></section>';
+    $('detail').innerHTML = commonHead(c) + fields + message + clean + check + verdictSection(c) + rawSection(c);
+  }
+
+  function renderProofreading(c) {
+    const fields = '<section>' + kv([['corpus', esc(c.corpus)], ['split', esc(c.splits.join(', '))], ['kind', esc(c.kind.join(', '))], ['failing layer', esc(c.layer.join(', '))], ['pipeline', esc(c.pipeline.join(', '))], ['language', esc(c.languages.join(', '))]]) + '</section>';
+    const rows = c.rows.map(row =>
+      '<section><div class="rowhead"><code>' + esc(row.id) + '</code><span class="badge">' + esc(row.split) + '</span><span class="badge">' + esc(row.kind) + '</span>' + (row.layer ? '<span class="badge">layer ' + esc(row.layer) + '</span>' : '') + '<span class="badge">' + esc(row.pipeline) + '</span>' +
+      (row.source_language ? '<span class="badge">from ' + esc(row.source_language) + '</span>' : '') + (row.question_type ? '<span class="badge">' + esc(row.question_type) + '</span>' : '') + (row.char_edit !== null ? '<span>' + esc(row.char_edit) + ' char edits</span>' : '') + '<span>' + esc(row.file) + '</span></div>' +
+      '<h4>Message</h4><div class="message">' + esc(row.input) + '</div>' +
+      '<h4>Clean rewrite</h4>' + (row.target === null ? '<p class="muted">No rewrite yet (a hard case kept for evaluation).</p>' : '<div class="message">' + esc(row.target) + '</div><h4>Changes</h4>' + (row.target === row.input ? '<p class="muted">Unchanged (identity).</p>' : diffHtml(row.spans))) +
+      kv([['target source', esc(row.target_source)], ['noise', esc((row.noise_ops ?? []).join(', '))], ['untranslated', esc((row.untranslated ?? []).join(', '))]]) +
+      '<details class="fold"><summary>Oracle, signals and meaning checks</summary><pre>' + esc(json({raw_oracle: row.raw_oracle, target_oracle: row.target_oracle, signals: row.signals, meaning_checks: row.meaning_checks, flags: row.flags, rights: row.rights})) + '</pre></details></section>').join('');
+    $('detail').innerHTML = commonHead(c) + fields + rows + commonTail(c, 'parses the message and the rewrite of each surface (first ' + 6 + ') with the local Stanza worker and compares them');
+  }
+
+  function renderCleanText(c) {
+    const fields = '<section>' + kv([['corpus', esc(c.corpus)], ['file', esc(c.splits.join(', '))], ['kind', esc(c.kind)], ['categories', c.category.map(name => '<span class="badge">' + esc(name) + '</span>').join(' ')], ['domain', esc(c.domain)], ['author', esc(c.author)], ['source', esc(c.source)], ['notes', esc(c.notes)]]) + '</section>';
+    const row = c.rows[0];
+    const cands = row.candidates.map((cand, index) => '<div class="candidate"><div class="rowhead">candidate ' + (index + 1) + (cand.identity ? ' · identical to the message' : '') + '</div><div class="message">' + esc(cand.text) + '</div>' + (cand.identity ? '' : diffHtml(cand.spans)) + '</div>').join('');
+    const body = '<section><div class="rowhead"><code>' + esc(row.id) + '</code><span class="badge">' + esc(row.language) + '</span><span>' + esc(row.file) + '</span></div><h4>Message as typed</h4><div class="message">' + esc(row.message) + '</div><h4>Clean candidates</h4>' + (cands || '<p class="muted">No clean candidate.</p>') +
+      ((c.clean_ro ?? []).length ? '<h4>Romanian reference</h4>' + c.clean_ro.map(text => '<div class="message">' + esc(text) + '</div>').join('') : '') +
+      (c.gold_sop ? '<details class="fold"><summary>Gold SOP supplied by the writer</summary><pre>' + esc(c.gold_sop) + '</pre></details>' : '') + '</section>';
+    $('detail').innerHTML = commonHead(c) + fields + body + commonTail(c, 'parses the message and each candidate, and compares with the gold SOP when one is given');
+  }
+
+  function symbolicCell(title, check) {
+    if (!check) return '<div><b>' + esc(title) + '</b><p class="muted">no text</p></div>';
+    if (!check.ok) return '<div><b>' + esc(title) + '</b><p class="bad">' + esc(check.error) + '</p></div>';
+    return '<div><b>' + esc(title) + '</b> <span class="badge ' + (check.valid && !check.unparsed ? 'good' : 'warning') + '">' + (check.valid && !check.unparsed ? 'clean parse' : 'check') + '</span>' +
+      '<div class="muted" style="font-size:12px">outcome ' + esc(check.outcome) + ' · route ' + esc(check.route) + ' · ' + esc(check.unparsed) + ' unparsed · ' + esc(check.ms) + ' ms' + (check.uncertain ? ' · uncertain: ' + esc(check.reasons.join(', ')) : '') + '</div><pre>' + esc(check.sop || '(empty)') + '</pre></div>';
+  }
+
+  function renderSymbolic(data) {
+    const verdictOf = entry => entry.improved === true ? '<span class="match ok">rewrite parses cleanly where the message did not</span>' : entry.same_sop === true ? '<span class="muted">same SOP for both</span>' : entry.same_sop === false ? '<span class="muted">different SOP</span>' : '';
+    const note = data.truncated ? '<p class="muted">Only the first surfaces were checked.</p>' : '';
+    if (data.type === 'proofreading') return note + data.rows.map(row => '<h4>' + esc(row.id) + '</h4><div class="symres">' + symbolicCell('message', row.input) + symbolicCell('rewrite', row.target) + '</div><p>' + verdictOf(row) + '</p>').join('');
+    return data.rows.map(row => '<div class="symres">' + symbolicCell('message', row.message.check) + row.candidates.map((cand, index) => symbolicCell('candidate ' + (index + 1), cand.check)).join('') + '</div>' +
+      row.candidates.map((cand, index) => '<p>candidate ' + (index + 1) + ': ' + verdictOf(cand) + (cand.matches_gold === true ? ' <span class="match ok">matches the gold SOP</span>' : cand.matches_gold === false ? ' <span class="match bad">differs from the gold SOP</span>' : '') + '</p>').join('')).join('');
+  }
+
+  const CLASS_NOTE = {same: ['ok', 'same analysis and same SOP: no regression'], analysis_changed_sop_same: ['ok', 'the parse changed but the SOP is the same'], sop_changed_equivalent: ['ok', 'the SOP text changed but still matches the gold'], sop_changed: ['bad', 'the SOP changed and nothing verifies the new one'], now_failing: ['bad', 'the row is no longer handled: invalid SOP, crash, new unparsed span or lost gold match']};
+  const goldNote = value => (value === true ? ' <span class="match ok">text-identical to the gold SOP</span>' : value === false ? ' <span class="match bad">differs from the gold SOP text (may still be equivalent; the dataset build uses the strict oracle)</span>' : '');
+
+  function renderDatasetCheck(data) {
+    if (data.available === false) return '<p class="bad">SymbolicLM is not available: ' + esc(data.error) + '</p>';
+    if (data.type === 'symbolic_english') {
+      const [tone, note] = CLASS_NOTE[data.class] ?? ['bad', ''];
+      return '<p class="match ' + tone + '">' + esc(data.class) + ': ' + esc(note) + '</p>' + kv([['same grammatical analysis', yesNo(data.same_analysis)], ['same SOP', yesNo(data.same_sop)], ['outcome', esc(data.outcome)], ['time', esc(data.ms) + ' ms']]) +
+        (data.same_sop ? '' : '<div class="symres"><div><b>stored SOP</b>' + codeBlock(data.stored_sop, 'stored') + '</div><div><b>current SOP</b>' + codeBlock(data.current_sop, 'current') + '</div></div>') +
+        (data.same_analysis ? '' : '<h4>Current analysis</h4>' + analysisHtml(data.current_sentences)) + '<p class="muted">' + esc(data.note) + '</p>';
+    }
+    if (data.type === 'neuro_english') {
+      return '<div class="symres">' + symbolicCell('message', data.message.check) + data.targets.map((target, index) => symbolicCell('target ' + (index + 1), target.check)).join('') + '</div>' +
+        '<p>message: ' + (data.message.same_as_stored === true ? '<span class="muted">same output as stored</span>' : data.message.same_as_stored === false ? '<span class="match bad">output changed since the dataset was built</span>' : '') + goldNote(data.message.matches_gold) + '</p>' +
+        data.targets.map((target, index) => '<p>target ' + (index + 1) + ': ' + (target.improved === true ? '<span class="match ok">parses cleanly where the message did not</span>' : target.same_sop === true ? '<span class="muted">same SOP as the message</span>' : '<span class="muted">different SOP</span>') + goldNote(target.matches_gold) + '</p>').join('') +
+        (data.targets.length ? '' : '<p class="muted">No target to check.</p>');
+    }
+    const partition = entry => '<span class="badge ' + (entry.partition === 'clean_en' ? 'good' : 'warning') + '">' + esc(entry.partition) + '</span>' + (entry.reasons.length ? ' <span class="muted">' + esc(entry.reasons.join('; ')) + '</span>' : '');
+    return '<p>message classified as ' + partition(data.message) + '</p>' + data.targets.map((target, index) => '<h4>target ' + (index + 1) + '</h4><p>' + (target.clean_english ? '<span class="match ok">clean English</span>' : '<span class="match bad">not clean English</span>') + ' ' + partition(target.classifier) + '</p><div class="symres">' + symbolicCell('target parse', target.check) + '</div>').join('') +
+      (data.targets.length ? '' : '<p class="muted">No target to check.</p>');
+  }
+
   function auditSummary(audit) {
+    if (audit.coverage === 'none' && ['bad_english', 'symbolic_english', 'neuro_english'].includes(corpusInfo().type)) return '<p class="muted" style="margin:0">No machine-audit report for this dataset.</p>';
     if (audit.coverage === 'none') return '<p class="muted" style="margin:0">No corpus-audit report for this corpus. Run <code>node tools/datasets/audit-corpus.mjs --corpus ' + esc(state.corpus) + '</code>.</p>';
     const coverage = audit.coverage === 'all_rows'
       ? 'per-row findings from <code>' + esc(audit.rowsFile) + '</code>'
@@ -319,6 +552,14 @@ function client() {
     out.innerHTML = '<p class="muted">running…</p>';
     try {
       const data = await api('execute', null, {corpus: state.corpus, id: state.selected});
+      if (data.type === 'proofreading' || data.type === 'cleanText') {
+        out.innerHTML = renderSymbolic(data);
+        return;
+      }
+      if (data.type === 'symbolic_english' || data.type === 'neuro_english' || data.type === 'bad_english') {
+        out.innerHTML = renderDatasetCheck(data);
+        return;
+      }
       out.innerHTML = '<p class="match ' + (data.allMatch ? 'ok' : 'bad') + '">' + (data.allMatch ? '✓ matches the stored expectation' : '✗ differs from the stored expectation') + '</p>' +
         data.rows.map(row => '<div style="margin:6px 0 10px">' + kv([
           ['row', '<code>' + esc(row.id) + '</code>'],
@@ -359,7 +600,7 @@ function client() {
 
   function copy(name, button) {
     const c = state.detail;
-    const text = name === 'target' ? c.target : name === 'setup' ? c.setup : name === 'ontology' ? c.ontology : c.rows.find(row => 'row:' + row.id === name)?.target;
+    const text = name === 'sop' ? c.sop : name === 'gold_sop' ? c.gold_sop : name === 'target' ? c.target : name === 'setup' ? c.setup : name === 'ontology' ? c.ontology : c.rows.find(row => 'row:' + row.id === name)?.target;
     window.ChatSopPane.copyText(text, button);
   }
 
@@ -367,6 +608,8 @@ function client() {
 
   function bind() {
     $('tree').addEventListener('click', event => {
+      const tab = event.target.closest('[data-tab]');
+      if (tab) return switchTab(tab.dataset.tab);
       const facet = event.target.closest('[data-facet]');
       if (facet) {
         const {facet: key, value} = facet.dataset;
@@ -450,6 +693,9 @@ function client() {
       return;
     }
     if (state.corpus && !state.corpora.some(entry => entry.corpus === state.corpus)) state.corpus = null;
+    if (state.corpus) state.tab = state.corpora.find(entry => entry.corpus === state.corpus).tab;
+    // Land on the first corpus of the selected tab, so a dataset tab shows its cases at once.
+    else state.corpus = state.corpora.find(entry => entry.tab === state.tab)?.corpus ?? null;
     renderTree();
     renderList();
     if (!state.corpus) return;
@@ -464,5 +710,8 @@ function client() {
 
 const body = threePaneBody({search: 'Search id or message', treeLabel: 'Corpora and categories', listLabel: 'Cases', drawer: 'Cases', treeLoading: 'loading corpora…'});
 
-/** The `/audit` page; the server only serves it to a signed-in administrator. */
-export const auditPage = ({signedIn = true} = {}) => layout({title: 'Corpus audit · ChatSOP', active: 'audit', signedIn, body, style: THREE_PANE_STYLE + style + SOP_CODE_STYLE, script: `${sopCodeScript}\n${paneKitScript}\n(${client})();`});
+/** The `/audit` page; the server only serves it to a signed-in administrator. `tabs` = [{id, label, purpose}]. */
+export const auditPage = ({signedIn = true, tabs = []} = {}) => {
+  const config = JSON.stringify({tabs}).replace(/</g, '\\u003c');
+  return layout({title: 'Corpus audit · ChatSOP', active: 'audit', signedIn, body, style: THREE_PANE_STYLE + style + SOP_CODE_STYLE, script: `window.CHATSOP_AUDIT=${config};\n${sopCodeScript}\n${paneKitScript}\n(${client})();`});
+};

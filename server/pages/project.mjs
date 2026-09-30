@@ -1,6 +1,9 @@
-/** Fine-tuning & status page (`/project`): the owner's near-real-time view.
+/** Timeline & live status page (`/experiments/timeline`, formerly `/project`):
+ * the owner's near-real-time view. The rest of the project history (tasks,
+ * experiments, topic notes, reports, questions) is on the other `/experiments`
+ * pages (server/pages/history.mjs).
  *
- * The page polls `/project/api/status` every 15 seconds and whenever the tab
+ * The page polls `/experiments/api/status` every 15 seconds and whenever the tab
  * regains focus, and renders: the current phase and the gates (training is
  * PROHIBITED until the owner's new explicit approval), the live journal
  * timeline filterable by area, the data pipeline per corpus, the experiment
@@ -119,9 +122,33 @@ function client() {
     $('vocab').innerHTML = v ? 'Vocabulary check: <b class="' + (v.verdict === 'pass' ? 'ok' : 'bad') + '">' + esc(v.verdict) + '</b> · ' + esc(v.totals?.findings ?? '?') + ' findings, ' + esc(v.totals?.failing ?? '?') + ' failing (undocumented wire types or fields) · scope ' + esc(v.scope) + ' · <code>' + esc(v.file) + '</code> (' + esc(v.mtime.slice(0, 16).replace('T', ' ')) + ')' : 'No vocabulary report.';
   }
 
+  /** One registry entry (DS010 "Experiments"): identity, what was done, data, models, results, deviations, reports. */
+  function experimentCard(x) {
+    const list = (items, fn) => Array.isArray(items) && items.length ? '<ul>' + items.map(item => '<li>' + fn(item) + '</li>').join('') + '</ul>' : '';
+    const short = hash => (typeof hash === 'string' && /^[0-9a-f]{64}$/.test(hash) ? '<code title="' + esc(hash) + '">' + esc(hash.slice(0, 12)) + '…</code>' : esc(hash ?? ''));
+    const text = value => (value === null || value === undefined ? '' : typeof value === 'object' ? JSON.stringify(value) : String(value));
+    const fields = [
+      ['category', esc(x.category ?? 'preregistered') + (x.kind ? '<div class="meta">' + esc(x.kind) + '</div>' : '')],
+      ['hypothesis', esc(x.hypothesis)],
+      ['what was done', esc(x.done ?? x.method ?? '')],
+      ['preregistration', /^none: /.test(x.preregistration) ? esc(x.preregistration) : linkOf(x.preregistration.split(' ')[0]) + ' ' + esc(x.preregistration.split(' ').slice(1).join(' '))],
+      ['data version', esc(x.data_version)],
+      ['datasets', list(x.datasets, d => (typeof d === 'string' ? esc(d) : '<b>' + esc(d.name ?? '') + '</b> ' + (d.path ? linkOf(d.path) : '') + (d.sha256 ? ' sha256 ' + short(d.sha256) : '') + (d.rows ? ' · ' + esc(d.rows) + ' rows' : '') + (d.role ? ' · ' + esc(d.role) : '')))],
+      ['models', list(x.models, m => (typeof m === 'string' ? esc(m) : '<b>' + esc(m.name ?? '') + '</b> ' + esc([m.identity, m.version, m.quantization, m.runtime, m.status].filter(Boolean).join(' · '))))],
+      ['metrics', list(x.metrics, m => esc(text(m)))],
+      ['results', esc(x.results_summary ?? '') + (x.results ? '<details><summary class="meta">machine-readable results</summary><pre class="detailtext">' + esc(JSON.stringify(x.results, null, 1)) + '</pre></details>' : (x.results_summary ? '' : '<span class="muted">none yet</span>'))],
+      ['deviations', list(x.deviations, d => (typeof d === 'string' ? esc(d) : '<b>' + esc(d.id ?? '') + '</b> ' + esc(d.at ?? '') + ' — ' + esc(d.what ?? '') + (d.effect ? ' <span class="meta">Effect: ' + esc(d.effect) + '</span>' : '')))],
+      ['conclusions', esc(text(x.conclusions)) || '<span class="muted">none yet</span>'],
+      ['reports', list(x.reports ?? x.links, linkOf)],
+    ].filter(([, value]) => value);
+    return '<details class="card" style="margin:8px 0"' + (x.status === 'running' ? ' open' : '') + '><summary><code>' + esc(x.id) + '</code> <b>' + esc(x.name ?? '') + '</b> <span class="tag">' + esc(x.status) + '</span>' +
+      (x.registered_at ?? x.date ? '<span class="meta"> ' + esc(x.registered_at ?? x.date) + '</span>' : '') + '</summary>' +
+      '<div class="tablewrap"><table class="t"><tbody>' + fields.map(([name, value]) => '<tr><th style="width:12em">' + esc(name) + '</th><td>' + value + '</td></tr>').join('') + '</tbody></table></div></details>';
+  }
+
   function renderExperiments() {
     $('experiments').innerHTML = data.experimentsError ? '<p class="bad">' + esc(data.experimentsError) + '</p>' : data.experiments.length
-      ? '<div class="tablewrap"><table class="t"><thead><tr><th>id</th><th>hypothesis</th><th>preregistration</th><th>data version</th><th>status</th><th>results</th><th>conclusions</th></tr></thead><tbody>' + data.experiments.map(x => '<tr><td><code>' + esc(x.id) + '</code></td><td>' + esc(x.hypothesis) + '</td><td>' + linkOf(x.preregistration) + '</td><td>' + esc(x.data_version) + '</td><td>' + esc(x.status) + '</td><td>' + esc(typeof x.results === 'object' ? JSON.stringify(x.results) : x.results ?? '') + '</td><td>' + esc(typeof x.conclusions === 'object' ? JSON.stringify(x.conclusions) : x.conclusions ?? '') + '</td></tr>').join('') + '</tbody></table></div>'
+      ? data.experiments.map(experimentCard).join('')
       : '<p class="muted">No experiments registered. There are no valid training runs; an experiment is preregistered here (DS010) before any holdout is touched.</p>';
   }
 
@@ -132,9 +159,9 @@ function client() {
 
   async function refresh() {
     try {
-      const response = await fetch('/project/api/status' + (area ? '?area=' + encodeURIComponent(area) : ''), {credentials: 'same-origin'});
+      const response = await fetch('/experiments/api/status' + (area ? '?area=' + encodeURIComponent(area) : ''), {credentials: 'same-origin'});
       if (response.status === 401) {
-        location.href = '/login?next=' + encodeURIComponent('/project' + location.hash);
+        location.href = '/login?next=' + encodeURIComponent('/experiments/timeline' + location.hash);
         return;
       }
       data = await response.json();
@@ -170,20 +197,21 @@ const explanations = `<section class="card explain" id="explain"><h2>What fine-t
 <div class="flow"><span>sources (QQP, PAWS, ProofWriter, AmbigNQ, QA2D, SQuAD) — inspiration only</span><i>→</i><span>diversity inventory</span><i>→</i><span>generator (IR → string targets, worlds)</span><i>→</i><span>execution check + no-copy</span><i>→</i><span>corpus audit (faithfulness, diversity, leakage) + human audit</span><i>→</i><span>qualification</span><i>→</i><span class="future">owner approval</span><i>→</i><span class="future">training (future)</span><i>→</i><span class="future">dev selection → sealed test</span></div>
 <p class="meta">Dashed steps have not happened. Journal entries, the corpus audit (<a href="/audit">/audit</a>) and the evaluation browser (<a href="/eval">/eval</a>, with <a href="/eval/guide">how evaluation works</a>) show each step's evidence.</p></section>`;
 
-/** The `/project` page shell; data arrives from `/project/api/status`. */
+/** The `/experiments/timeline` page shell; data arrives from `/experiments/api/status`. */
 export function projectPage({signedIn = true} = {}) {
   const body = `<main class="wrap status">
-<h1>Fine-tuning &amp; status <span id="stamp" class="muted"></span></h1>
+<nav class="meta"><a href="/experiments">Experiments</a> › Timeline &amp; live status</nav>
+<h1>Timeline &amp; live status <span id="stamp" class="muted"></span></h1>
 <div class="banner"><b class="big">Training: PROHIBITED</b> until the owner's new explicit approval. <span id="rule" class="muted"></span><div class="meta">Current phase: data preparation and owner review before training. No training, fine-tuning, resume, optimizer step or training smoke run is authorized.</div></div>
 <section class="card"><h2>Gates</h2><div id="gates" class="muted">loading…</div></section>
 <div class="cols">
 <section class="card"><h2>Journal — newest first</h2><div class="filters" id="filters"></div><ol class="timeline" id="timeline"></ol><p class="meta">Agents append with <code>node tools/journal.mjs add --area … --title … --detail …</code>; the file is <code>status/journal.jsonl</code> (append-only).</p></section>
 <div>
 <section class="card"><h2>Open questions for the owner</h2><div id="questions" class="muted">loading…</div></section>
-<section class="card"><h2>Experiments</h2><div id="experiments" class="muted">loading…</div><p class="meta"><code>status/experiments.json</code> · preregistration rules: <a href="/docs/specsLoader.html?spec=DS010-experiment-preregistration.md">DS010</a></p></section>
+<section class="card"><h2>Experiments</h2><div id="experiments" class="muted">loading…</div><p class="meta"><code>status/experiments.json</code> · one page per experiment and task on <a href="/experiments">/experiments</a> · preregistration rules: <a href="/docs/specsLoader.html?spec=DS010-experiment-preregistration.md">DS010</a></p></section>
 </div></div>
 <section class="card"><h2>Data pipeline (computed live)</h2><div id="pipeline" class="muted">loading…</div><p id="vocab" class="meta"></p></section>
 ${explanations}
 </main>`;
-  return layout({title: 'Fine-tuning & status · ChatSOP', active: 'project', signedIn, body, style, script: `(${client})();`});
+  return layout({title: 'Timeline & live status · ChatSOP', active: 'experiments-timeline', signedIn, body, style, script: `(${client})();`, next: '/experiments/timeline'});
 }

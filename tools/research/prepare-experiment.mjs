@@ -24,6 +24,7 @@ import {parse} from '../../sop/parser.mjs';
 import {checkModelProgram} from '../../sop/declarative.mjs';
 import {assert} from '../../lib/util.mjs';
 import {readJsonlShardedSync, jsonlExists, hashJsonlSharded} from '../../lib/jsonl-shards.mjs';
+import {corpusDir, corpusNames, resolveDatasetPath} from '../../lib/dataset-paths.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
@@ -68,10 +69,9 @@ function checkCorpus(corpus, rows) {
 function discover() {
   const i = process.argv.indexOf('--corpora');
   if (i >= 0) return process.argv[i + 1].split(',').map(name => name.trim()).filter(Boolean);
-  return fs.readdirSync(path.join(root, 'datasets'), {withFileTypes: true})
-    .filter(entry => entry.isDirectory() && fs.existsSync(path.join(root, 'datasets', entry.name, 'manifest.json')))
-    .filter(entry => JSON.parse(fs.readFileSync(path.join(root, 'datasets', entry.name, 'manifest.json'), 'utf8')).format === 'chatsop-corpus-manifest-v2')
-    .map(entry => entry.name).sort();
+  return corpusNames(root)
+    .filter(name => fs.existsSync(path.join(root, corpusDir(name, root), 'manifest.json')))
+    .filter(name => JSON.parse(fs.readFileSync(path.join(root, corpusDir(name, root), 'manifest.json'), 'utf8')).format === 'chatsop-corpus-manifest-v2');
 }
 
 async function main() {
@@ -80,11 +80,11 @@ async function main() {
   // Project everything first; nothing is written unless every corpus passes every check.
   const outputs = [];
   for (const corpus of corpora) {
-    const base = path.join(root, 'datasets', corpus);
+    const base = path.join(root, corpusDir(corpus, root));
     const manifest = JSON.parse(fs.readFileSync(path.join(base, 'manifest.json'), 'utf8'));
     // Splits may be sharded (lib/jsonl-shards.mjs); the projections are small and written as single files.
-    const splits = Object.fromEntries(['train', 'dev'].map(split => [split, readJsonlShardedSync(path.join(root, manifest.splits[split]))]));
-    const testFile = manifest.splits.test ? path.join(root, manifest.splits.test) : null;
+    const splits = Object.fromEntries(['train', 'dev'].map(split => [split, readJsonlShardedSync(path.join(root, resolveDatasetPath(manifest.splits[split])))]));
+    const testFile = manifest.splits.test ? path.join(root, resolveDatasetPath(manifest.splits.test)) : null;
     const test = testFile && jsonlExists(testFile) ? readJsonlShardedSync(testFile) : [];
     const groups = checkCorpus(corpus, [...splits.train, ...splits.dev, ...test]);
     const projected = Object.fromEntries(Object.entries(splits).map(([split, rows]) => [split, rows.map(project)]));
@@ -97,7 +97,7 @@ async function main() {
     for (const [split, rows] of Object.entries(projected)) {
       const text = rows.map(row => JSON.stringify(row)).join('\n') + '\n';
       fs.writeFileSync(path.join(dir, `${split}.jsonl`), text);
-      files[`datasets/${corpus}/formalizer/${split}.jsonl`] = {rows: rows.length, sha256: sha256(text)};
+      files[`${corpusDir(corpus, root)}/formalizer/${split}.jsonl`] = {rows: rows.length, sha256: sha256(text)};
     }
     const projection = {
       format: 'chatsop-formalizer-projection-v1', corpus, prompt_profile: PROMPT_PROFILE, prompt: 'barePrompt(row.question): the user message and nothing else',

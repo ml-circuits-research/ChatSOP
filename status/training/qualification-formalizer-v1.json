@@ -1,0 +1,74 @@
+{
+  "format": "chatsop-dataset-qualification-v1",
+  "status": "qualified",
+  "corpus": "formalizer-v1",
+  "grade": "experiment-grade: semantic review by the independent automated auditor, no human review (owner decision 2026-09-28)",
+  "dataset_manifest_sha256": "b0c449573a628e8d4e1d21388f650112825a213b9e079b89194e2c2c98233837",
+  "dataset_version_sha256": "c5b31d05f722db492c6eceee8748b07375fae59d849e9bc52812e1ca91124a71",
+  "dataset_version": {
+    "format": "chatsop-dataset-version-v1",
+    "corpus": "formalizer-v1",
+    "counter": 1,
+    "label": "formalizer-v1 build 1 (seed chatsop-formalizer-v1, manifest b0c449573a62)",
+    "seed": "chatsop-formalizer-v1",
+    "manifest_sha256": "b0c449573a628e8d4e1d21388f650112825a213b9e079b89194e2c2c98233837"
+  },
+  "dataset_files": {
+    "formalizer/train.jsonl": "1a90af39dba697d7f0a571f36c863b232da99e8594ae4318619a3b68c9003aeb",
+    "formalizer/dev.jsonl": "6528506f62f4b6b14e572c502a8b270010bfaaf280fe670240a06b0cbcdb12c7"
+  },
+  "sealed_suites": {
+    "formalizer-v1": "b05c76a83efbad8a6027137cb13bc9eeb57812574663818624a98692a11930ac",
+    "formalizer-ood-v1": "09acfb2eb820a60f29c83b01a45dd2cc1ca371117de4fc69c517c4b80a307a2a",
+    "formalizer-wild-v1": "077e7164a3020c1e6c3c28c8f3b5b8f2c08e2e3f59ee0e6830f9991509884163"
+  },
+  "contract_files": {
+    "sop/parser.mjs": "d0a04c3cb2a0861064d3166c8dde20de3b6418ccb3881d339d4b89ddd8006209",
+    "sop/runtime.mjs": "60ae8844d14f20c6af88d723b52fc0f6bf9fd37e3801f710df744b8d7b4b2949",
+    "server/agent.mjs": "f4796692e551758e5cf42645d0675dee4f8617963c631870fb281d653bc75f25",
+    "server/prompts/formalizer.txt": "6fb228ab62dc5882f52179a14de716d21d72c7f39f52efa4c5543d39c00ec2e4",
+    "config/ontology.sop": "47379f43f825488e1aa5e7c71b889bef607bd9b9760ec2a05ec5605948edc0ae",
+    "tools/datasets/schema.mjs": "79f453235bfd81e6ae10c2a4779954096f2d3547bec34ed0d6d708d5d7086122",
+    "tools/research/prepare-experiment.mjs": "d2d735a6d28d19aa6c008e6affc310537d1a1c75feab4fb1486000e6a319c182"
+  },
+  "checks": {
+    "syntax_execution": true,
+    "semantic_review": true,
+    "leakage": true,
+    "coverage": true,
+    "source_rights": true,
+    "independent_reference_suite": true
+  },
+  "evidence": {
+    "syntax_execution": {
+      "path": "eval/reports/current/qualification/formalizer-v1/syntax_execution.json",
+      "sha256": "4f9e6b238d9deb4fd8bc43648b68ba222331270d14519238914e567a6734a5c6"
+    },
+    "semantic_review": {
+      "path": "eval/reports/current/qualification/formalizer-v1/semantic_review.json",
+      "sha256": "6628cbe3818e056e52c08303067c0e510931740cba058b7bb9dd459b9d0a1be8"
+    },
+    "leakage": {
+      "path": "eval/reports/current/qualification/formalizer-v1/leakage.json",
+      "sha256": "d95d4b232cb65959f44ed91b8bf012d20d736c2d15def53467c3b99be1f9d90b"
+    },
+    "coverage": {
+      "path": "eval/reports/current/qualification/formalizer-v1/coverage.json",
+      "sha256": "db33034f975db6349fee03cb914f931f3a2957d62bc428b750292c9af95d7506"
+    },
+    "source_rights": {
+      "path": "eval/reports/current/qualification/formalizer-v1/source_rights.json",
+      "sha256": "d312c88c321fea07e76c85ef63c9b5cf54a99731f4802f9de53a51784a44553e"
+    },
+    "independent_reference_suite": {
+      "path": "eval/reports/current/qualification/formalizer-v1/independent_reference_suite.json",
+      "sha256": "081febf02feaab844397ceff67accbee6a0ebc820e40705e1d9c6ef68dcf93c9"
+    }
+  },
+  "reviewer": {
+    "kind": "principal_integrator",
+    "id": "training-agent (automated qualification; owner approval 2026-09-28)",
+    "reviewed_at": "2026-09-28T19:50:55.901Z"
+  },
+  "blockers": []
+}

@@ -1,0 +1,106 @@
+{
+  "format": "chatsop-formalizers-v1",
+  "description": "Models the chat can use (DS012 'Formalizer models' and 'Chat modes'). `capabilities` says which chat modes offer a model: `formalize` (SOP Lang; fine-tuned formalizers and the configured endpoint only), `chat` and `translate` (the unmodified base instruct models, which cannot write SOP Lang). A `gguf` entry runs on demand in a CPU llama-server and a `service` entry (a local script serving the same chat-completion interface, such as the symbolic baseline) runs on demand on the CPU (at most three managed models at once); a formalizer gets the message-only prompt of the evaluation harness. The `runtime-endpoint` entry is the independently started endpoint of the runtime configuration (formalizer.url). `default` is the default formalizer and `defaults` the default model per mode. Paths are relative to the repository root.",
+  "default": "smollm2-360m",
+  "defaults": {
+    "formalize": "smollm2-360m",
+    "chat": "smollm2-360m-base",
+    "translate": "gemma-3-270m-base"
+  },
+  "models": [
+    {
+      "id": "smollm2-135m",
+      "label": "SmolLM2-135M (fastest)",
+      "gguf": "models/smollm2-135m/fv1-size-a4/formalizer/merged-best/gguf/q8_0.gguf",
+      "note": "Fine-tuned formalizer, run fv1-size-a4, Q8_0. Smallest and fastest arm of experiment formalizer-size-v1.",
+      "capabilities": [
+        "formalize"
+      ]
+    },
+    {
+      "id": "gemma-3-270m",
+      "label": "Gemma 3 270M",
+      "gguf": "models/gemma/fv1-size-a4/formalizer/merged-best/gguf/q8_0.gguf",
+      "note": "Fine-tuned formalizer, run fv1-size-a4, Q8_0. Gemma arm of experiment formalizer-size-v1.",
+      "capabilities": [
+        "formalize"
+      ]
+    },
+    {
+      "id": "smollm2-360m",
+      "label": "SmolLM2-360M (best English OOD)",
+      "gguf": "models/smollm2-360m/fv1-size-a4/formalizer/merged-best/gguf/q8_0.gguf",
+      "note": "Fine-tuned formalizer, run fv1-size-a4, Q8_0. Best English score on the out-of-distribution suite in experiment formalizer-size-v1.",
+      "capabilities": [
+        "formalize"
+      ]
+    },
+    {
+      "id": "smollm2-135m-base",
+      "label": "SmolLM2-135M-Instruct (base)",
+      "gguf": "models/smollm2-135m/chat-base/q8_0.gguf",
+      "capabilities": [
+        "chat",
+        "translate"
+      ],
+      "note": "Unmodified HuggingFaceTB/SmolLM2-135M-Instruct @12fd25f7, Q8_0 (models/smollm2-135m/chat-base/provenance.json). English-centric; not fine-tuned."
+    },
+    {
+      "id": "smollm2-360m-base",
+      "label": "SmolLM2-360M-Instruct (base)",
+      "gguf": "models/smollm2-360m/chat-base/q8_0.gguf",
+      "capabilities": [
+        "chat",
+        "translate"
+      ],
+      "note": "Unmodified HuggingFaceTB/SmolLM2-360M-Instruct @a10cc151, Q8_0 (models/smollm2-360m/chat-base/provenance.json). English-centric; not fine-tuned."
+    },
+    {
+      "id": "qwen3-1.7b-base",
+      "label": "Qwen3-1.7B (translation and cleaning)",
+      "gguf": "models/proofing/gguf/qwen3-1.7b-q8_0.gguf",
+      "capabilities": [
+        "translate"
+      ],
+      "note": "Unmodified Qwen/Qwen3-1.7B, Q8_0 (Apache-2.0, models/proofing/gguf/). Multilingual and clearly stronger than the 270M-360M bases; the textToCleanEnglish llm backend uses it (config/text-to-clean-english.json llm.model) to clean and translate Romanian and mixed messages. Not a formalizer."
+    },
+    {
+      "id": "gemma-3-270m-base",
+      "label": "Gemma 3 270M-it (base)",
+      "gguf": "models/gemma/chat-base/q8_0.gguf",
+      "capabilities": [
+        "chat",
+        "translate"
+      ],
+      "note": "Unmodified google/gemma-3-270m-it (mirror @99073d6b), Q8_0 (models/gemma/chat-base/provenance.json). Multilingual; not fine-tuned."
+    },
+    {
+      "id": "symbolic-lm",
+      "label": "SymbolicLM (Stanza + translation + rules)",
+      "service": "tools/symbolic-lm.mjs",
+      "note": "SymbolicLM (lib/symbolic-lm/, DS021 'SymbolicLM'): the Stanza 1.10.1 English/Romanian parse (Apache-2.0) and the deterministic UD-to-SOP rules lib/ud-to-sop/, calling lib/languages-util/ for per-token Romanian/English language identification and the symbolic spelling corrector (off by default) and lib/translator-service/ for Romanian-to-English translation (the `symbolic` backend, from the Romanian Stanza parse and the host dictionary). Monolingual Romanian and English messages are parsed directly, mixed messages go through English (route `translate`, Q-PIPE-1, 2026-09-30); values stay verbatim message spans and what the rules cannot place is an unparsed wire. Message-only input, no neural model. Needs ~/nlp-venv with Stanza and its models (dependencies.md). CPU, 4 threads. Replaces the earlier `ud-rules` entry (baseline-ud-rules-v1).",
+      "capabilities": [
+        "formalize"
+      ],
+      "rewrite": {
+        "mode": "off",
+        "modes": ["off", "gated", "always"],
+        "note": "OPTIONAL SymbolicProofingLLM rewrite of the English text ahead of the rules (SymbolicProofingLLM is the former 'proofreader'; the run id and paths stay frozen) (DS021 'Uncertainty and the rewrite hook'), off by default; this field is metadata only (documents the option), not read by any code path -- `tools/symbolic-lm.mjs serve --rewrite-url <endpoint> [--rewrite-when always|uncertain]` is the actual switch, and it stays off unless that flag is passed explicitly. `gated` = rewriteWhen 'uncertain' (SymbolicLM's own built-in signal), `always` = every English-text row. Evidence: experiment eval-proofreader-e2e-v1 (status/preregistrations/eval-proofreader-e2e-v1.json), a positive end-to-end strict-accuracy gain (CI excludes 0) on formalizer-v1 and formalizer-ood-v1 EN rows, a null/futile effect on the independently-written formalizer-wild-v1 EN rows; RO monolingual (route direct) has no English text and is out of scope.",
+        "candidate_backend": {
+          "model": "SymbolicProofingLLM: gemma3-270m (fine-tuned, formerly the proofreader; run train-proofreader-gemma270m-v1)",
+          "identity": "models/gemma/proofreader-gemma270m-v1/proofreader/merged-best",
+          "serving": "llama-server GGUF Q8_0 export (--jinja), message-only chat completion, matching training's prompt exactly"
+        }
+      }
+    },
+    {
+      "id": "configured-endpoint",
+      "label": "Configured endpoint (formalizer.url)",
+      "endpoint": "runtime",
+      "note": "The external endpoint of the runtime configuration, started separately; it uses the configured promptProfile and readiness rules.",
+      "capabilities": [
+        "formalize"
+      ]
+    }
+  ]
+}

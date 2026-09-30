@@ -84,4 +84,4 @@ the obsolete imported shell launchers.
 
 ## Project journal
 
-Append an event to `status/journal.jsonl` with `node tools/journal.mjs add --area <area> --state <started|progress|done|blocked|decision> --title "…" --detail "…" [--link <path>]` whenever you start, finish or block a meaningful task or record an owner decision; the journal is append-only and the server's `/project` page shows it to the owner in real time (AGENTS.md, "Project journal"). Record each arm's hypothesis as an entry in `status/experiments.json` (DS010 preregistration link, data version, status, results, conclusions) before running it.
+Append an event to `status/journal.jsonl` with `node tools/journal.mjs add --area <area> --state <started|progress|done|blocked|decision> --title "…" --detail "…" [--link <path>]` whenever you start, finish or block a meaningful task or record an owner decision; the journal is append-only and the server's `/experiments` pages shows it to the owner in real time (AGENTS.md, "Project journal"). Record each arm's hypothesis as an entry in `status/experiments.json` (DS010 preregistration link, data version, status, results, conclusions) before running it.

@@ -1,0 +1,47 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-parse-judge-haiku-v1",
+ "name": "Is Claude Haiku a reliable judge of a Stanza UD parse on clean English, and which hybrid is safe for gating entries into symbolic_english?",
+ "registered_at": "2026-09-30T09:20:00Z",
+ "registered_by": "parse-judge-agent (owner question relayed by the orchestrator)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_context": "Priority: make SymbolicLM's grammatical analysis correct on CLEAN English. Need to know whether a cheap teacher LLM can reliably judge a Stanza analysis (rubric v0 gave kappa 0.20 and a DEEP precision of 28% for Haiku without thinking).",
+ "kind": "evaluation-only (LLM inference through headless `claude -p`; no training, no GPU)",
+ "frozen_before_results": "Written before any judge call of this experiment. The stronger-judge (Claude fable-5-1) verdicts of eval-symbolic-layers-en-v1 (513 sentences: 433 adjudications + 80 blind calibration) are the reference; their distribution on the clean subset was read (152 CORRECT, 106 MINOR, 71 DEEP, 1 FAIL, 2 INPUT_TYPO of 332) before registration, no judge output was.",
+ "reference": {
+  "source": "eval/reports/current/symbolic-layers/calibration/{adjudicate-1..5,fable}.jsonl",
+  "population": "the sentences of messages in the sealed clean-English partition (eval/suites/clean-english/test.jsonl source_id; tools/datasets/clean-english.mjs); 332 of 513. All 513 are also reported as a secondary population.",
+  "limitation": "The reference is enriched: outside the 80-sentence calibration, only sentences the first Haiku screen called DEEP, FAIL, INPUT_TYPO or unusable were adjudicated. Unweighted metrics describe this enriched set; a stratum-weighted estimate (weights = size of the prior-Haiku-verdict stratum among all clean sentences / reference sentences in it) is reported beside them. The stronger judge is not validated against a human."
+ },
+ "conditions": {
+  "a": "Haiku 4.5 (claude-haiku-4-5-20251001), no thinking (MAX_THINKING_TOKENS=0), rewritten rubric v1 (frozen copy tools/research/parse-judge-rubric-v1.txt) + READING/ARCS rendering, one JSON verdict, single stage (no second review call)",
+  "b": "as a with extended thinking, budget 2048 tokens",
+  "c": "no thinking; rubric v1 conventions + sentence + compact indented tree; six specific checks (root, subject, object, clause attachment, PP attachment, coordination); final CORRECT/MINOR/DEEP"
+ },
+ "labels": {
+  "bad": "DEEP or FAIL (FAIL and DEEP merged; condition c has no FAIL)",
+  "good_enough": "CORRECT, MINOR or INPUT_TYPO (the structure is usable). The reference has only 2 INPUT_TYPO clean sentences; they are kept as good_enough and reported.",
+  "binary_positive": "bad; precision/recall of bad, and precision/recall of good_enough as the gating decision"
+ },
+ "metrics": [
+  "Cohen's kappa (binary bad vs good_enough; also 4-class CORRECT/MINOR/INPUT_TYPO/bad) with bootstrap 95% CI (2000 resamples, seed 11)",
+  "precision and recall of bad; precision and recall of good_enough (Wilson 95% CIs); stratum-weighted versions",
+  "unusable-output rate; cost per sentence (total_cost_usd of the CLI) and latency per sentence (wall ms and duration_api_ms), parallel 6 runs report per-call latency, not throughput"
+ ],
+ "stages": "Stage 1: 100 clean reference sentences drawn by a seeded stratified shuffle (mulberry32 seed 20260930; strata = reference label). Stage 2: all 332. A condition continues to stage 2 only if it survives the stage-1 rules.",
+ "stop_rules": [
+  "Broken condition: more than 20% unusable outputs on the first 100 rows stops that condition.",
+  "Futility: after stage 1, a condition whose good_enough precision has a Wilson 95% upper bound below 0.90 cannot reach the gating threshold and is not run at stage 2 (recorded with its numbers).",
+  "Budget: hard cap 15 USD across all calls of this experiment (ledger eval/reports/current/parse-judge/ledger.json); calls refuse to start beyond the cap; no more than 10 USD are spent before the hybrid analysis."
+ ],
+ "gating_threshold": "Haiku (any condition, or a hybrid) is reliable enough to gate entries into symbolic_english only if the lower 95% Wilson bound of the precision of the good_enough decision on the reference, with the stratum-weighted estimate agreeing within its interval, is at least 0.95 AND the recall of good_enough is at least 0.60 (so the gate does not discard most good entries). Otherwise a hybrid is evaluated offline on the same rows: (H1) Stanza-spaCy core agreement AND Haiku good; (H2) Haiku a AND Haiku c both good AND agreement; (H3) any signal disagrees -> the stronger model (its verdict is the reference, so its cost is reported as the escalation rate).",
+ "hypotheses": {
+  "H1": "Rubric v1 without thinking still has kappa < 0.6 on the clean subset.",
+  "H2": "Thinking (b) or the specific-check condition (c) raises kappa by at least 0.10 over (a).",
+  "H3": "No single Haiku condition reaches good_enough precision >= 0.95 (lower bound); a hybrid with the second parser does."
+ },
+ "deliverable": "tools/research/parse-judge.mjs (input rows {id, message, analysis}, output verdicts); tools/research/parse-judge-eval.mjs (this evaluation); eval/reports/current/parse-judge/summary.md",
+ "records": ["status/experiments.json", "status/tasks.json (task eval-parse-judge-haiku-v1)", "status/notes (parse-judge topic)", "status/journal.jsonl"],
+ "rigor": ["No training; port 9999 untouched; only own processes stopped.", "Prompts are frozen before the run; a change after a stage is registered as a deviation."],
+ "deviations": []
+}

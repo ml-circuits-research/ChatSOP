@@ -12,7 +12,7 @@ process.chdir(root);
 const reportDir='eval/reports/current';
 fs.mkdirSync(reportDir,{recursive:true});
 const group=process.argv.includes('--group')?process.argv[process.argv.indexOf('--group')+1]:'all';
-const sources=['package.json','lib','sop','memory','reasoning','server','eval','tests','tools','training','config','datasets','skills/material-to-sop','skills/semantic-sop-review','examples'];
+const sources=['package.json','lib','sop','memory','reasoning','server','eval','tests','tools','training','config','datasets','datasets_archive','skills/material-to-sop','skills/semantic-sop-review','examples'];
 function fingerprints(location){
  const stat=fs.statSync(location);
  if(stat.isFile())return [[location,crypto.createHash('sha256').update(fs.readFileSync(location)).digest('hex')]];
@@ -45,7 +45,7 @@ const jobs=[
 ];
 // The corpus sample executed once per memory engine: the verification worlds must answer the same way on each.
 for(const engine of ['holo-memory','recall-memory','sqlite','scan','hybrid'])jobs.push(['data-'+engine,process.execPath,['tools/datasets/verify-corpus.mjs','--corpus','formalizer-v1','--sample','200','--engine',engine]]);
-jobs.push(['formalizer-dry-run',process.execPath,['training/cli.mjs','train','--dry-run','--role','formalizer','--model','gemma','--run','verify','--data','datasets/formalizer-v1']]);
+jobs.push(['formalizer-dry-run',process.execPath,['training/cli.mjs','train','--dry-run','--role','formalizer','--model','gemma','--run','verify','--data','datasets_archive/formalizer-v1']]);
 const groups={
  core:jobs.filter(job=>!job[0].startsWith('data-')&&!job[0].endsWith('-dry-run')),
  'associative-data':jobs.filter(job=>['data-holo-memory','data-recall-memory'].includes(job[0])),

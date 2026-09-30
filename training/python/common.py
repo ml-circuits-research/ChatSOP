@@ -67,6 +67,19 @@ def write_json(path, value):
     tmp=path.with_suffix(path.suffix+'.tmp')
     tmp.write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n',encoding='utf-8'); tmp.replace(path)
 
+def load_tokenizer(path, cfg):
+    """Tokenizer of a pinned base or checkpoint; a recipe `chat_template` replaces the shipped template.
+
+    SmolLM2 Instruct's shipped template injects a persona system prompt when no system message is given, so the
+    model input would not be the user's message only (DS021). The recipe override is saved with every checkpoint
+    tokenizer and therefore travels into merged models and GGUF exports.
+    """
+    from transformers import AutoTokenizer
+    tok=AutoTokenizer.from_pretrained(path,local_files_only=True,trust_remote_code=False)
+    if cfg.get('chat_template'): tok.chat_template=cfg['chat_template']
+    if tok.pad_token_id is None: tok.pad_token=tok.eos_token
+    return tok
+
 def chat_ids(tokenizer,prompt,target=None):
     messages=[{'role':'user','content':prompt}]
     if target is not None: messages.append({'role':'assistant','content':target})
@@ -82,3 +95,33 @@ def encode_row(tokenizer,row,max_length):
     if len(full)<=len(prefix): raise ValueError('Empty supervised target')
     return {'input_ids':full,'attention_mask':[1]*len(full),'labels':[-100]*len(prefix)+full[len(prefix):]}
 
+
+# Encoder-decoder (seq2seq) formalizer, experiment formalizer-mt-v1 (DS007). The recipe field `architecture: "seq2seq"`
+# selects it; the encoder input is the user's message only (no template, no instruction, DS021) and the decoder
+# label is the SOP target, both through the reversible line encoding of seq2seq_text.py.
+def is_seq2seq(cfg):
+    return cfg.get('architecture')=='seq2seq'
+
+def load_seq2seq_tokenizer(path, cfg):
+    """Translation tokenizer of a pinned base or checkpoint, with the line tokens <n0>..<n7> added once."""
+    from transformers import AutoTokenizer, MarianTokenizer
+    from seq2seq_text import LINE_TOKENS
+    tok=MarianTokenizer.from_pretrained(path) if (Path(path)/'source.spm').exists() else AutoTokenizer.from_pretrained(path,local_files_only=True,trust_remote_code=False)
+    missing=[t for t in LINE_TOKENS if t not in tok.get_vocab()]
+    if missing: tok.add_tokens(missing,special_tokens=False)
+    return tok
+
+def seq2seq_source_ids(tokenizer, message, cfg):
+    from seq2seq_text import encode_source
+    ids=tokenizer(encode_source(message))['input_ids']
+    if len(ids)>cfg['max_source_length']: raise ValueError(f"message of {len(ids)} tokens > max_source_length={cfg['max_source_length']}; no silent truncation")
+    return ids
+
+def encode_seq2seq_row(tokenizer, row, cfg):
+    from seq2seq_text import encode_target, decode_target
+    source=seq2seq_source_ids(tokenizer,row['prompt'],cfg)
+    labels=tokenizer(text_target=encode_target(row['target']))['input_ids']
+    if len(labels)>cfg['max_target_length']: raise ValueError(f"{row.get('id')}: target of {len(labels)} tokens > max_target_length={cfg['max_target_length']}")
+    if decode_target(tokenizer.decode(labels,skip_special_tokens=True))!=row['target']:
+        raise ValueError(f"{row.get('id')}: the tokenizer does not reproduce the SOP target exactly; refusing a lossy label")
+    return {'input_ids':source,'attention_mask':[1]*len(source),'labels':labels}

@@ -1,0 +1,1602 @@
+{
+  "format": "chatsop-corpus-build-report-v1",
+  "quotas": {
+    "max_masked_template_share": 0.02,
+    "max_top10_template_share": 0.12,
+    "max_question_frame_share": 0.08,
+    "max_family_share": 0.15,
+    "min_target_skeletons_total": 40,
+    "min_target_skeletons_per_family": 2,
+    "language_shares": {
+      "en": [
+        0.4,
+        0.6
+      ],
+      "ro": [
+        0.25,
+        0.45
+      ],
+      "mixed": [
+        0.08,
+        0.22
+      ]
+    },
+    "noise_share": [
+      0.12,
+      0.35
+    ],
+    "unclear_share": [
+      0.05,
+      0.12
+    ],
+    "max_near_duplicate_share": 0.05,
+    "max_source_share": 0.25,
+    "min_operator_share": 0.25,
+    "min_formerly_blocked_share": 0.015,
+    "min_interpretation_share": 0.015,
+    "question_type_minima": {
+      "universal": 0.03,
+      "when": 0.015,
+      "since_when": 0.01,
+      "until_when": 0.01,
+      "how_long": 0.01,
+      "how_many_times": 0.01,
+      "where": 0.015,
+      "why": 0.015,
+      "how": 0.01,
+      "wh": 0.04,
+      "count": 0.02,
+      "yes_no": 0.2,
+      "claim_check": 0.01,
+      "numeric": 0.015,
+      "multi": 0.01,
+      "none": 0.01,
+      "unclear": 0.05
+    }
+  },
+  "formalizer-v1": {
+    "rows_generated": 34001,
+    "rows_kept": 33981,
+    "excluded": {
+      "count": 20,
+      "by_reason": {
+        "status_disagreement": 11,
+        "link_problems": 9
+      },
+      "examples": [
+        {
+          "id": "fv1_000403_0_0",
+          "family": "ambiguity",
+          "variant": "event_qualifier",
+          "reason": "status_disagreement",
+          "detail": []
+        },
+        {
+          "id": "fv1_006804_0_0",
+          "family": "conjunction",
+          "variant": "one_denied",
+          "reason": "link_problems",
+          "detail": [
+            "relation \"go to\" [subject,object] -> ambiguous, want studies_at"
+          ]
+        },
+        {
+          "id": "fv1_008314_0_0",
+          "family": "long_message",
+          "variant": "11_parts_5_questions",
+          "reason": "link_problems",
+          "detail": [
+            "subject \"Toma\" -> ambiguous, want toma_popa"
+          ]
+        },
+        {
+          "id": "fv1_013296_0_0",
+          "family": "ambiguity",
+          "variant": "event_qualifier",
+          "reason": "status_disagreement",
+          "detail": []
+        },
+        {
+          "id": "fv1_014586_0_0",
+          "family": "ambiguity",
+          "variant": "event_qualifier",
+          "reason": "status_disagreement",
+          "detail": []
+        },
+        {
+          "id": "fv1_017081_0_0",
+          "family": "long_message",
+          "variant": "45_parts_6_questions",
+          "reason": "link_problems",
+          "detail": [
+            "subject \"Toma\" -> ambiguous, want toma_turcanu"
+          ]
+        },
+        {
+          "id": "fv1_018904_0_0",
+          "family": "multi_question",
+          "variant": "education+events",
+          "reason": "link_problems",
+          "detail": [
+            "relation \"go to\" [subject,object] -> ambiguous, want attended"
+          ]
+        },
+        {
+          "id": "fv1_019522_0_0",
+          "family": "multi_question",
+          "variant": "events+education",
+          "reason": "link_problems",
+          "detail": [
+            "relation \"go to\" [subject,object] -> ambiguous, want studies_at"
+          ]
+        },
+        {
+          "id": "fv1_020143_0_0",
+          "family": "conjunction",
+          "variant": "both",
+          "reason": "link_problems",
+          "detail": [
+            "relation \"go to\" [subject,object] -> ambiguous, want attended"
+          ]
+        },
+        {
+          "id": "fv1_020312_0_0",
+          "family": "ambiguity",
+          "variant": "location_qualifier",
+          "reason": "status_disagreement",
+          "detail": []
+        },
+        {
+          "id": "fv1_020925_0_0",
+          "family": "ambiguity",
+          "variant": "event_qualifier",
+          "reason": "status_disagreement",
+          "detail": []
+        },
+        {
+          "id": "fv1_021795_0_0",
+          "family": "ambiguity",
+          "variant": "event_qualifier",
+          "reason": "status_disagreement",
+          "detail": []
+        },
+        {
+          "id": "fv1_023115_0_0",
+          "family": "ambiguity",
+          "variant": "event_qualifier",
+          "reason": "status_disagreement",
+          "detail": []
+        },
+        {
+          "id": "fv1_025637_0_0",
+          "family": "long_message",
+          "variant": "49_parts_4_questions",
+          "reason": "link_problems",
+          "detail": [
+            "location \"Szeged\" -> ambiguous, want szeged_city",
+            "location \"Szeged\" -> ambiguous, want szeged_city"
+          ]
+        },
+        {
+          "id": "fv1_025743_0_0",
+          "family": "conjunction",
+          "variant": "one_missing",
+          "reason": "link_problems",
+          "detail": [
+            "relation \"go to\" [subject,object] -> ambiguous, want attended"
+          ]
+        },
+        {
+          "id": "fv1_026353_0_0",
+          "family": "ambiguity",
+          "variant": "event_qualifier",
+          "reason": "status_disagreement",
+          "detail": []
+        },
+        {
+          "id": "fv1_028316_0_0",
+          "family": "ambiguity",
+          "variant": "entity_reference",
+          "reason": "status_disagreement",
+          "detail": []
+        },
+        {
+          "id": "fv1_029456_0_0",
+          "family": "ambiguity",
+          "variant": "location_qualifier",
+          "reason": "status_disagreement",
+          "detail": []
+        },
+        {
+          "id": "fv1_031859_0_0",
+          "family": "long_message",
+          "variant": "12_parts_2_questions",
+          "reason": "link_problems",
+          "detail": [
+            "subject \"Mr Martin\" -> ambiguous, want remi_martin",
+            "subject \"Mr Martin\" -> ambiguous, want remi_martin"
+          ]
+        },
+        {
+          "id": "fv1_032700_0_0",
+          "family": "ambiguity",
+          "variant": "event_qualifier",
+          "reason": "status_disagreement",
+          "detail": []
+        }
+      ]
+    },
+    "generation_problems": {
+      "count": 6,
+      "examples": [
+        {
+          "group": "fv1_000530",
+          "family": "attached",
+          "error": "fv1_000530: a role value is not in the message after noise"
+        },
+        {
+          "group": "fv1_001534",
+          "family": "world_assumption",
+          "error": "fv1_001534: a role value is not in the message after noise"
+        },
+        {
+          "group": "fv1_005251",
+          "family": "anchor",
+          "error": "fv1_005251: a role value is not in the message after noise"
+        },
+        {
+          "group": "fv1_012099",
+          "family": "attached",
+          "error": "fv1_012099: a role value is not in the message after noise"
+        },
+        {
+          "group": "fv1_024804",
+          "family": "attached",
+          "error": "fv1_024804: a role value is not in the message after noise"
+        },
+        {
+          "group": "fv1_031975",
+          "family": "attached",
+          "error": "fv1_031975: a role value is not in the message after noise"
+        }
+      ]
+    },
+    "metrics": {
+      "rows": 33981,
+      "masked_templates": 25501,
+      "template_ratio": 0.7504,
+      "top1_template_share": 0.0017,
+      "top10_template_share": 0.014,
+      "top_templates": [
+        {
+          "template": "e coordonează pe cineva care locuiește în e ?",
+          "count": 58
+        },
+        {
+          "template": "are voie e să semneze e ?",
+          "count": 57
+        },
+        {
+          "template": "cine antrenează echipa la care joacă e ?",
+          "count": 56
+        },
+        {
+          "template": "e locuiește în e sau în e ?",
+          "count": 46
+        },
+        {
+          "template": "câți oameni lucrează la e , fără e ?",
+          "count": 45
+        },
+        {
+          "template": "how old is e ?",
+          "count": 45
+        },
+        {
+          "template": "who does e work for, e , right?",
+          "count": 43
+        },
+        {
+          "template": "is e allowed to sign e on their own?",
+          "count": 43
+        }
+      ],
+      "masked_unigram_entropy_bits": 7.319,
+      "masked_bigram_entropy_bits": 10.266,
+      "question_frames": 751,
+      "top_question_frame_share": 0.0598,
+      "target_skeletons": 2349,
+      "target_skeletons_per_family": {
+        "temporal": 4,
+        "conjunction": 12,
+        "interpretation": 8,
+        "ambiguity_visible": 6,
+        "why_question": 2,
+        "intention": 6,
+        "constraint": 3,
+        "unclear": 2,
+        "contrast": 9,
+        "counterfactual": 4,
+        "modality": 2,
+        "fragment": 2,
+        "ordering": 2,
+        "how_question": 2,
+        "definition": 2,
+        "conditional": 2,
+        "general_quantification": 4,
+        "wh_select": 10,
+        "transfer": 3,
+        "ambiguity": 6,
+        "attached": 39,
+        "long_message": 2031,
+        "statement_only": 36,
+        "filtered_count": 2,
+        "filter": 5,
+        "causal": 6,
+        "first_person": 2,
+        "proof_depth": 3,
+        "closure_assumption": 6,
+        "attribute_value": 7,
+        "join": 5,
+        "time_question": 11,
+        "existence": 2,
+        "where_question": 2,
+        "anchor": 25,
+        "quantified": 6,
+        "coordination": 3,
+        "world_assumption": 3,
+        "alternatives": 2,
+        "default_exception": 2,
+        "lookup": 5,
+        "offered_answer": 2,
+        "negation": 10,
+        "abduction": 3,
+        "multi_question": 13,
+        "planning": 3,
+        "count": 10,
+        "claim_check": 10,
+        "arithmetic": 2,
+        "relative_clause": 2
+      },
+      "family_shares": {
+        "temporal": 0.0313,
+        "conjunction": 0.0208,
+        "interpretation": 0.0208,
+        "ambiguity_visible": 0.0235,
+        "why_question": 0.026,
+        "intention": 0.0156,
+        "constraint": 0.0235,
+        "unclear": 0.0547,
+        "contrast": 0.0212,
+        "counterfactual": 0.0156,
+        "modality": 0.0091,
+        "fragment": 0.0078,
+        "ordering": 0.0091,
+        "how_question": 0.0182,
+        "definition": 0.0065,
+        "conditional": 0.0078,
+        "general_quantification": 0.0339,
+        "wh_select": 0.0287,
+        "transfer": 0.0104,
+        "ambiguity": 0.0257,
+        "attached": 0.0315,
+        "long_message": 0.0598,
+        "statement_only": 0.0156,
+        "filtered_count": 0.0091,
+        "filter": 0.0235,
+        "causal": 0.0156,
+        "first_person": 0.0091,
+        "proof_depth": 0.0235,
+        "closure_assumption": 0.0117,
+        "attribute_value": 0.0195,
+        "join": 0.026,
+        "time_question": 0.073,
+        "existence": 0.0078,
+        "where_question": 0.0235,
+        "anchor": 0.0234,
+        "quantified": 0.0117,
+        "coordination": 0.0104,
+        "world_assumption": 0.0143,
+        "alternatives": 0.0065,
+        "default_exception": 0.0156,
+        "lookup": 0.028,
+        "offered_answer": 0.0063,
+        "negation": 0.0235,
+        "abduction": 0.0156,
+        "multi_question": 0.0182,
+        "planning": 0.0156,
+        "count": 0.0261,
+        "claim_check": 0.0182,
+        "arithmetic": 0.0039,
+        "relative_clause": 0.0029
+      },
+      "language_shares": {
+        "en": 0.5001,
+        "ro": 0.3501,
+        "mixed": 0.1498
+      },
+      "noise_share": 0.3077,
+      "unclear_share": 0.0547,
+      "near_duplicate_share": 0.0148,
+      "near_duplicate_examples": [
+        [
+          "fv1_026114_0_0",
+          "fv1_029512_0_0"
+        ],
+        [
+          "fv1_029512_0_0",
+          "fv1_032690_0_0"
+        ],
+        [
+          "fv1_000033_0_0",
+          "fv1_000253_0_0"
+        ],
+        [
+          "fv1_002456_0_0",
+          "fv1_032813_0_0"
+        ],
+        [
+          "fv1_005176_0_0",
+          "fv1_029616_0_0"
+        ]
+      ],
+      "question_type_shares": {
+        "yes_no": 0.3922,
+        "wh": 0.1161,
+        "multi": 0.078,
+        "unclear": 0.0547,
+        "count": 0.0352,
+        "universal": 0.0303,
+        "where": 0.0291,
+        "numeric": 0.0274,
+        "why": 0.026,
+        "when": 0.0207,
+        "how": 0.0182,
+        "claim_check": 0.0182,
+        "none": 0.0156,
+        "until_when": 0.0138,
+        "ambiguous": 0.0132,
+        "since_when": 0.0131,
+        "how_many_times": 0.0129,
+        "how_long": 0.0125,
+        "quantified": 0.0117,
+        "order": 0.0091,
+        "value": 0.008,
+        "fragment": 0.0078,
+        "exists": 0.0078,
+        "compare": 0.0068,
+        "definition": 0.0065,
+        "alternative": 0.0065,
+        "superlative": 0.0047,
+        "advice": 0.0036
+      },
+      "source_shares": {
+        "squad": 0.2257,
+        "proofwriter": 0.1843,
+        "qqp": 0.1832,
+        "qa2d": 0.179,
+        "ambignq": 0.1222,
+        "authored": 0.0547,
+        "paws": 0.0509
+      },
+      "operator_share": 0.2813,
+      "interpretation_share": 0.035
+    },
+    "metrics_by_split": {
+      "train": {
+        "rows": 23817,
+        "masked_templates": 18282,
+        "template_ratio": 0.7676,
+        "top1_template_share": 0.0018,
+        "top10_template_share": 0.0141,
+        "top_templates": [
+          {
+            "template": "e coordonează pe cineva care locuiește în e ?",
+            "count": 44
+          },
+          {
+            "template": "cine antrenează echipa la care joacă e ?",
+            "count": 43
+          },
+          {
+            "template": "is e allowed to sign e on their own?",
+            "count": 33
+          },
+          {
+            "template": "are voie e să semneze e ?",
+            "count": 33
+          },
+          {
+            "template": "did e start working at e after e did?",
+            "count": 32
+          },
+          {
+            "template": "e locuiește în e sau în e ?",
+            "count": 32
+          },
+          {
+            "template": "are all the players of e certified?",
+            "count": 30
+          },
+          {
+            "template": "e bought e together. E e own e ?",
+            "count": 30
+          }
+        ],
+        "masked_unigram_entropy_bits": 7.279,
+        "masked_bigram_entropy_bits": 10.184,
+        "question_frames": 634,
+        "top_question_frame_share": 0.0596,
+        "target_skeletons": 1725,
+        "target_skeletons_per_family": {
+          "conjunction": 10,
+          "why_question": 2,
+          "unclear": 2,
+          "contrast": 8,
+          "counterfactual": 4,
+          "modality": 2,
+          "fragment": 2,
+          "ordering": 2,
+          "how_question": 2,
+          "definition": 2,
+          "conditional": 2,
+          "general_quantification": 4,
+          "transfer": 3,
+          "statement_only": 35,
+          "filtered_count": 2,
+          "filter": 5,
+          "causal": 6,
+          "first_person": 2,
+          "proof_depth": 3,
+          "closure_assumption": 6,
+          "attribute_value": 7,
+          "join": 5,
+          "time_question": 11,
+          "existence": 2,
+          "where_question": 2,
+          "anchor": 22,
+          "quantified": 6,
+          "coordination": 3,
+          "world_assumption": 3,
+          "default_exception": 2,
+          "lookup": 5,
+          "offered_answer": 2,
+          "negation": 10,
+          "multi_question": 13,
+          "long_message": 1420,
+          "temporal": 4,
+          "count": 10,
+          "ambiguity": 6,
+          "ambiguity_visible": 6,
+          "constraint": 3,
+          "interpretation": 8,
+          "claim_check": 9,
+          "attached": 34,
+          "abduction": 3,
+          "intention": 6,
+          "alternatives": 2,
+          "wh_select": 10,
+          "planning": 3,
+          "arithmetic": 2,
+          "relative_clause": 2
+        },
+        "family_shares": {
+          "conjunction": 0.0204,
+          "why_question": 0.026,
+          "unclear": 0.0555,
+          "contrast": 0.0224,
+          "counterfactual": 0.0156,
+          "modality": 0.0084,
+          "fragment": 0.008,
+          "ordering": 0.0086,
+          "how_question": 0.0183,
+          "definition": 0.0065,
+          "conditional": 0.0075,
+          "general_quantification": 0.0339,
+          "transfer": 0.0104,
+          "statement_only": 0.0149,
+          "filtered_count": 0.009,
+          "filter": 0.024,
+          "causal": 0.0159,
+          "first_person": 0.0085,
+          "proof_depth": 0.0233,
+          "closure_assumption": 0.011,
+          "attribute_value": 0.0188,
+          "join": 0.0264,
+          "time_question": 0.0718,
+          "existence": 0.0085,
+          "where_question": 0.0242,
+          "anchor": 0.0227,
+          "quantified": 0.0113,
+          "coordination": 0.0106,
+          "world_assumption": 0.0144,
+          "default_exception": 0.016,
+          "lookup": 0.029,
+          "offered_answer": 0.0058,
+          "negation": 0.0233,
+          "multi_question": 0.0179,
+          "long_message": 0.0596,
+          "temporal": 0.0308,
+          "count": 0.0275,
+          "ambiguity": 0.0263,
+          "ambiguity_visible": 0.0241,
+          "constraint": 0.0233,
+          "interpretation": 0.021,
+          "claim_check": 0.0174,
+          "attached": 0.0312,
+          "abduction": 0.0153,
+          "intention": 0.0157,
+          "alternatives": 0.0065,
+          "wh_select": 0.0296,
+          "planning": 0.016,
+          "arithmetic": 0.0039,
+          "relative_clause": 0.0031
+        },
+        "language_shares": {
+          "ro": 0.3488,
+          "mixed": 0.1518,
+          "en": 0.4993
+        },
+        "noise_share": 0.3104,
+        "unclear_share": 0.0555,
+        "near_duplicate_share": 0.0192,
+        "near_duplicate_examples": [
+          [
+            "fv1_026114_0_0",
+            "fv1_029512_0_0"
+          ],
+          [
+            "fv1_029512_0_0",
+            "fv1_032690_0_0"
+          ],
+          [
+            "fv1_000033_0_0",
+            "fv1_000253_0_0"
+          ],
+          [
+            "fv1_002456_0_0",
+            "fv1_032813_0_0"
+          ],
+          [
+            "fv1_005176_0_0",
+            "fv1_029616_0_0"
+          ]
+        ],
+        "question_type_shares": {
+          "yes_no": 0.3908,
+          "wh": 0.1188,
+          "multi": 0.0775,
+          "unclear": 0.0555,
+          "count": 0.0365,
+          "universal": 0.0308,
+          "where": 0.0299,
+          "numeric": 0.0272,
+          "why": 0.026,
+          "when": 0.0196,
+          "how": 0.0183,
+          "claim_check": 0.0174,
+          "none": 0.0149,
+          "until_when": 0.0139,
+          "ambiguous": 0.0133,
+          "how_many_times": 0.013,
+          "since_when": 0.0127,
+          "how_long": 0.0126,
+          "quantified": 0.0113,
+          "order": 0.0086,
+          "exists": 0.0085,
+          "fragment": 0.008,
+          "value": 0.0076,
+          "alternative": 0.0065,
+          "definition": 0.0065,
+          "compare": 0.0064,
+          "superlative": 0.0047,
+          "advice": 0.0032
+        },
+        "source_shares": {
+          "squad": 0.2235,
+          "proofwriter": 0.1831,
+          "qqp": 0.1824,
+          "qa2d": 0.1807,
+          "ambignq": 0.1234,
+          "authored": 0.0555,
+          "paws": 0.0514
+        },
+        "operator_share": 0.2807,
+        "interpretation_share": 0.0361
+      },
+      "dev": {
+        "rows": 5131,
+        "masked_templates": 4430,
+        "template_ratio": 0.8634,
+        "top1_template_share": 0.0027,
+        "top10_template_share": 0.0189,
+        "top_templates": [
+          {
+            "template": "are voie e să semneze e ?",
+            "count": 14
+          },
+          {
+            "template": "how old is e ?",
+            "count": 11
+          },
+          {
+            "template": "dacă e lucrează la e , atunci are e acces în laborator?",
+            "count": 11
+          },
+          {
+            "template": "e coordonează pe cineva care locuiește în e ?",
+            "count": 9
+          },
+          {
+            "template": "câți oameni care lucrează la e au peste n de ani?",
+            "count": 9
+          },
+          {
+            "template": "e sent n lei to e through the bank. E e send n lei to e ?",
+            "count": 9
+          },
+          {
+            "template": "who coaches the team e plays for?",
+            "count": 9
+          },
+          {
+            "template": "câți oameni lucrează la e , fără e ?",
+            "count": 9
+          }
+        ],
+        "masked_unigram_entropy_bits": 7.272,
+        "masked_bigram_entropy_bits": 10.125,
+        "question_frames": 505,
+        "top_question_frame_share": 0.06,
+        "target_skeletons": 561,
+        "target_skeletons_per_family": {
+          "temporal": 4,
+          "interpretation": 8,
+          "wh_select": 9,
+          "claim_check": 7,
+          "time_question": 11,
+          "anchor": 16,
+          "where_question": 2,
+          "world_assumption": 3,
+          "lookup": 5,
+          "unclear": 2,
+          "join": 5,
+          "count": 10,
+          "transfer": 3,
+          "conjunction": 8,
+          "how_question": 2,
+          "modality": 2,
+          "first_person": 2,
+          "why_question": 2,
+          "constraint": 3,
+          "long_message": 308,
+          "attached": 21,
+          "abduction": 3,
+          "attribute_value": 7,
+          "general_quantification": 4,
+          "quantified": 6,
+          "negation": 8,
+          "definition": 2,
+          "counterfactual": 4,
+          "intention": 6,
+          "filter": 5,
+          "causal": 6,
+          "proof_depth": 3,
+          "ambiguity_visible": 6,
+          "default_exception": 2,
+          "existence": 2,
+          "ordering": 2,
+          "closure_assumption": 6,
+          "statement_only": 15,
+          "multi_question": 9,
+          "coordination": 3,
+          "ambiguity": 5,
+          "planning": 3,
+          "offered_answer": 2,
+          "filtered_count": 2,
+          "alternatives": 2,
+          "fragment": 2,
+          "arithmetic": 2,
+          "relative_clause": 2,
+          "contrast": 7,
+          "conditional": 2
+        },
+        "family_shares": {
+          "temporal": 0.0296,
+          "interpretation": 0.0199,
+          "wh_select": 0.0296,
+          "claim_check": 0.0195,
+          "time_question": 0.0791,
+          "anchor": 0.023,
+          "where_question": 0.0234,
+          "world_assumption": 0.0127,
+          "lookup": 0.0251,
+          "unclear": 0.0546,
+          "join": 0.0273,
+          "count": 0.0228,
+          "transfer": 0.0111,
+          "conjunction": 0.0228,
+          "how_question": 0.0177,
+          "modality": 0.0113,
+          "first_person": 0.0097,
+          "why_question": 0.0257,
+          "constraint": 0.0253,
+          "long_message": 0.06,
+          "attached": 0.0355,
+          "abduction": 0.0131,
+          "attribute_value": 0.0216,
+          "general_quantification": 0.037,
+          "quantified": 0.0134,
+          "negation": 0.0242,
+          "definition": 0.0047,
+          "counterfactual": 0.0156,
+          "intention": 0.016,
+          "filter": 0.0249,
+          "causal": 0.017,
+          "proof_depth": 0.0242,
+          "ambiguity_visible": 0.0195,
+          "default_exception": 0.0156,
+          "existence": 0.0057,
+          "ordering": 0.0084,
+          "closure_assumption": 0.0133,
+          "statement_only": 0.0164,
+          "multi_question": 0.0183,
+          "coordination": 0.0086,
+          "ambiguity": 0.0248,
+          "planning": 0.0142,
+          "offered_answer": 0.006,
+          "filtered_count": 0.0084,
+          "alternatives": 0.0064,
+          "fragment": 0.0072,
+          "arithmetic": 0.0037,
+          "relative_clause": 0.0019,
+          "contrast": 0.015,
+          "conditional": 0.0092
+        },
+        "language_shares": {
+          "en": 0.4999,
+          "mixed": 0.1427,
+          "ro": 0.3574
+        },
+        "noise_share": 0.3029,
+        "unclear_share": 0.0546,
+        "near_duplicate_share": 0.0037,
+        "near_duplicate_examples": [
+          [
+            "fv1_002244_0",
+            "fv1_032718_0"
+          ],
+          [
+            "fv1_004669_0",
+            "fv1_010908_0"
+          ],
+          [
+            "fv1_004669_0",
+            "fv1_024139_0"
+          ],
+          [
+            "fv1_006565_0_0",
+            "fv1_007247_0_0"
+          ],
+          [
+            "fv1_006792_0_0",
+            "fv1_031043_0_0"
+          ]
+        ],
+        "question_type_shares": {
+          "yes_no": 0.3876,
+          "wh": 0.1173,
+          "multi": 0.0783,
+          "unclear": 0.0546,
+          "universal": 0.0318,
+          "count": 0.0312,
+          "where": 0.029,
+          "numeric": 0.029,
+          "why": 0.0257,
+          "when": 0.0218,
+          "claim_check": 0.0195,
+          "how": 0.0177,
+          "none": 0.0164,
+          "since_when": 0.0156,
+          "how_many_times": 0.0152,
+          "quantified": 0.0134,
+          "until_when": 0.0134,
+          "how_long": 0.0131,
+          "ambiguous": 0.0107,
+          "value": 0.0097,
+          "order": 0.0084,
+          "fragment": 0.0072,
+          "compare": 0.007,
+          "alternative": 0.0064,
+          "exists": 0.0057,
+          "superlative": 0.0049,
+          "definition": 0.0047,
+          "advice": 0.0045
+        },
+        "source_shares": {
+          "squad": 0.2339,
+          "qqp": 0.1894,
+          "proofwriter": 0.1869,
+          "qa2d": 0.1754,
+          "ambignq": 0.1142,
+          "authored": 0.0546,
+          "paws": 0.0456
+        },
+        "operator_share": 0.292,
+        "interpretation_share": 0.0318
+      },
+      "test": {
+        "rows": 5033,
+        "masked_templates": 3978,
+        "template_ratio": 0.7904,
+        "top1_template_share": 0.0032,
+        "top10_template_share": 0.0209,
+        "top_templates": [
+          {
+            "template": "and e ?",
+            "count": 16
+          },
+          {
+            "template": "who works at a company in e ?",
+            "count": 13
+          },
+          {
+            "template": "dacă e lucrează la e , atunci are e acces în laborator?",
+            "count": 10
+          },
+          {
+            "template": "are voie e să semneze e ?",
+            "count": 10
+          },
+          {
+            "template": "and in e ?",
+            "count": 10
+          },
+          {
+            "template": "so where did e fly?",
+            "count": 10
+          },
+          {
+            "template": "autobuzul ia între n și n pasageri. E merge exact n ?",
+            "count": 10
+          },
+          {
+            "template": "câți oameni lucrează la e , fără e ?",
+            "count": 9
+          }
+        ],
+        "masked_unigram_entropy_bits": 7.082,
+        "masked_bigram_entropy_bits": 9.712,
+        "question_frames": 321,
+        "top_question_frame_share": 0.0602,
+        "target_skeletons": 542,
+        "target_skeletons_per_family": {
+          "ambiguity_visible": 6,
+          "intention": 6,
+          "constraint": 3,
+          "ambiguity": 6,
+          "attached": 16,
+          "contrast": 4,
+          "long_message": 303,
+          "alternatives": 2,
+          "abduction": 3,
+          "planning": 3,
+          "count": 7,
+          "ordering": 2,
+          "unclear": 2,
+          "offered_answer": 2,
+          "statement_only": 12,
+          "default_exception": 2,
+          "definition": 2,
+          "attribute_value": 7,
+          "quantified": 6,
+          "proof_depth": 3,
+          "where_question": 2,
+          "conjunction": 9,
+          "time_question": 11,
+          "general_quantification": 4,
+          "wh_select": 6,
+          "lookup": 4,
+          "why_question": 2,
+          "interpretation": 8,
+          "fragment": 2,
+          "causal": 6,
+          "anchor": 15,
+          "existence": 2,
+          "closure_assumption": 6,
+          "filtered_count": 2,
+          "counterfactual": 4,
+          "claim_check": 10,
+          "multi_question": 10,
+          "how_question": 2,
+          "join": 5,
+          "first_person": 2,
+          "modality": 2,
+          "temporal": 4,
+          "filter": 5,
+          "world_assumption": 3,
+          "conditional": 2,
+          "transfer": 3,
+          "arithmetic": 2,
+          "negation": 7,
+          "coordination": 3,
+          "relative_clause": 2
+        },
+        "family_shares": {
+          "ambiguity_visible": 0.0246,
+          "intention": 0.0149,
+          "constraint": 0.0225,
+          "ambiguity": 0.024,
+          "attached": 0.0294,
+          "contrast": 0.0221,
+          "long_message": 0.0602,
+          "alternatives": 0.0064,
+          "abduction": 0.0197,
+          "planning": 0.0155,
+          "count": 0.0227,
+          "ordering": 0.0121,
+          "unclear": 0.0511,
+          "offered_answer": 0.0085,
+          "statement_only": 0.0181,
+          "default_exception": 0.0137,
+          "definition": 0.0085,
+          "attribute_value": 0.0211,
+          "quantified": 0.0123,
+          "proof_depth": 0.0234,
+          "where_question": 0.0201,
+          "conjunction": 0.0205,
+          "time_question": 0.0723,
+          "general_quantification": 0.0304,
+          "wh_select": 0.0234,
+          "lookup": 0.0264,
+          "why_question": 0.0266,
+          "interpretation": 0.0211,
+          "fragment": 0.0077,
+          "causal": 0.0131,
+          "anchor": 0.0274,
+          "existence": 0.0068,
+          "closure_assumption": 0.0135,
+          "filtered_count": 0.0105,
+          "counterfactual": 0.0157,
+          "claim_check": 0.0209,
+          "multi_question": 0.0193,
+          "how_question": 0.0185,
+          "join": 0.0232,
+          "first_person": 0.0115,
+          "modality": 0.0103,
+          "temporal": 0.0352,
+          "filter": 0.0195,
+          "world_assumption": 0.0159,
+          "conditional": 0.0079,
+          "transfer": 0.0099,
+          "arithmetic": 0.004,
+          "negation": 0.0236,
+          "coordination": 0.0113,
+          "relative_clause": 0.0026
+        },
+        "language_shares": {
+          "en": 0.5037,
+          "ro": 0.3489,
+          "mixed": 0.1474
+        },
+        "noise_share": 0.2996,
+        "unclear_share": 0.0511,
+        "near_duplicate_share": 0.0052,
+        "near_duplicate_examples": [
+          [
+            "fv1_001307_0_0",
+            "fv1_014187_0_0"
+          ],
+          [
+            "fv1_001889_0_0",
+            "fv1_006721_0_0"
+          ],
+          [
+            "fv1_001889_0_0",
+            "fv1_014799_0_0"
+          ],
+          [
+            "fv1_006721_0_0",
+            "fv1_011373_0_0"
+          ],
+          [
+            "fv1_006721_0_0",
+            "fv1_012465_0_0"
+          ]
+        ],
+        "question_type_shares": {
+          "yes_no": 0.4039,
+          "wh": 0.1021,
+          "multi": 0.0795,
+          "unclear": 0.0511,
+          "count": 0.0332,
+          "universal": 0.0268,
+          "why": 0.0266,
+          "numeric": 0.0264,
+          "where": 0.0258,
+          "when": 0.0246,
+          "claim_check": 0.0209,
+          "how": 0.0185,
+          "none": 0.0181,
+          "ambiguous": 0.0153,
+          "until_when": 0.0137,
+          "since_when": 0.0127,
+          "quantified": 0.0123,
+          "order": 0.0121,
+          "how_long": 0.0113,
+          "how_many_times": 0.0099,
+          "definition": 0.0085,
+          "compare": 0.0085,
+          "value": 0.0079,
+          "fragment": 0.0077,
+          "exists": 0.0068,
+          "alternative": 0.0064,
+          "advice": 0.0046,
+          "superlative": 0.0046
+        },
+        "source_shares": {
+          "squad": 0.2281,
+          "proofwriter": 0.1872,
+          "qqp": 0.1806,
+          "qa2d": 0.1748,
+          "ambignq": 0.1246,
+          "paws": 0.0536,
+          "authored": 0.0511
+        },
+        "operator_share": 0.2736,
+        "interpretation_share": 0.0328
+      }
+    },
+    "quota_violations": [],
+    "no_copy": {
+      "pass": true,
+      "paired": {
+        "rows_with_lineage": 0,
+        "lineage_matches_in_sources": 0,
+        "stock_phrase_df": 20,
+        "shared_4grams_total": 0,
+        "distinctive_shared_4grams": 0,
+        "rows_with_distinctive_shared_4gram": 0,
+        "rows_with_stock_phrase_only": 0,
+        "note": "A shared 4-gram is a stock phrase when it occurs in at least stock_phrase_df source rows (for example \"what is the name\"); only distinctive shared 4-grams count against the bar.",
+        "examples": []
+      },
+      "long_span": {
+        "n": 8,
+        "rows_with_shared_8gram": 0,
+        "shared_8grams_distinct": 0,
+        "examples": []
+      },
+      "global_4gram": {
+        "corpus_4grams_distinct": 814848,
+        "distinct_found_in_sources": 864,
+        "distinct_rate": 0.00106,
+        "row_4gram_occurrence_rate": 0.021029,
+        "note": "Reported, not failed: common phrasing is legitimately shared."
+      },
+      "identifiers": {
+        "rows_with_identifier": 0,
+        "by_kind": {},
+        "examples": []
+      }
+    },
+    "elapsed_ms": 274891
+  },
+  "formalizer-ood-v1": {
+    "rows_generated": 1600,
+    "rows_kept": 1578,
+    "excluded": {
+      "count": 4,
+      "by_reason": {
+        "link_problems": 4
+      },
+      "examples": [
+        {
+          "id": "ood2_000056_0_0",
+          "family": "conjunction",
+          "variant": "one_denied",
+          "reason": "link_problems",
+          "detail": [
+            "relation \"go to\" [subject,object] -> ambiguous, want studies_at"
+          ]
+        },
+        {
+          "id": "ood2_000076_0_0",
+          "family": "long_message",
+          "variant": "42_parts_3_questions",
+          "reason": "link_problems",
+          "detail": [
+            "destination \"Valencia\" -> ambiguous, want valencia_city",
+            "destination \"Valencia\" -> ambiguous, want valencia_city"
+          ]
+        },
+        {
+          "id": "ood2_000204_0_0",
+          "family": "multi_question",
+          "variant": "events+education",
+          "reason": "link_problems",
+          "detail": [
+            "relation \"go to\" [subject,object] -> ambiguous, want studies_at"
+          ]
+        },
+        {
+          "id": "ood2_000415_0_0",
+          "family": "long_message",
+          "variant": "44_parts_5_questions",
+          "reason": "link_problems",
+          "detail": [
+            "destination \"Thessaloniki\" -> ambiguous, want thessaloniki_city",
+            "destination \"Thessaloniki\" -> ambiguous, want thessaloniki_city"
+          ]
+        }
+      ]
+    },
+    "generation_problems": {
+      "count": 1,
+      "examples": [
+        {
+          "group": "ood1_000545",
+          "family": "attached",
+          "error": "ood1_000545: a role value is not in the message after noise"
+        }
+      ]
+    },
+    "metrics": {
+      "rows": 1578,
+      "masked_templates": 1435,
+      "template_ratio": 0.9094,
+      "top1_template_share": 0.0032,
+      "top10_template_share": 0.0222,
+      "top_templates": [
+        {
+          "template": "not counting e , please find out who sings in e .",
+          "count": 5
+        },
+        {
+          "template": "fără s-o pun la socoteală pe e , oare cine e bucătar la e ?",
+          "count": 5
+        },
+        {
+          "template": "not counting e , please find out who rents e .",
+          "count": 4
+        },
+        {
+          "template": "remind me, who is e repaired by?",
+          "count": 3
+        },
+        {
+          "template": "not counting e , please find out who e is repaired by.",
+          "count": 3
+        },
+        {
+          "template": "știi cumva dacă e închiriază e ?",
+          "count": 3
+        },
+        {
+          "template": "fără să-l pun la socoteală pe e , oare cine e membru în e ?",
+          "count": 3
+        },
+        {
+          "template": "does e lease e or not?",
+          "count": 3
+        }
+      ],
+      "masked_unigram_entropy_bits": 6.479,
+      "masked_bigram_entropy_bits": 8.738,
+      "question_frames": 57,
+      "top_question_frame_share": 0.0729,
+      "target_skeletons": 190,
+      "target_skeletons_per_family": {
+        "claim_check": 5,
+        "time_question": 13,
+        "wh_select": 5,
+        "count": 5,
+        "lookup": 3,
+        "conjunction": 6,
+        "multi_question": 6,
+        "statement_only": 9,
+        "attached": 9,
+        "contrast": 3,
+        "filter": 3,
+        "long_message": 115,
+        "negation": 6,
+        "unclear": 2
+      },
+      "family_shares": {
+        "claim_check": 0.0659,
+        "time_question": 0.1312,
+        "wh_select": 0.1134,
+        "count": 0.0754,
+        "lookup": 0.1134,
+        "conjunction": 0.0564,
+        "multi_question": 0.0558,
+        "statement_only": 0.0475,
+        "attached": 0.1046,
+        "contrast": 0.0082,
+        "filter": 0.0564,
+        "long_message": 0.0729,
+        "negation": 0.0754,
+        "unclear": 0.0234
+      },
+      "language_shares": {
+        "en": 0.5019,
+        "ro": 0.3485,
+        "mixed": 0.1496
+      },
+      "noise_share": 0.2833,
+      "unclear_share": 0.0234,
+      "near_duplicate_share": 0.0013,
+      "near_duplicate_examples": [
+        [
+          "ood1_000288_0_1",
+          "ood1_000644_0_0"
+        ]
+      ],
+      "question_type_shares": {
+        "yes_no": 0.358,
+        "wh": 0.1698,
+        "multi": 0.1286,
+        "count": 0.0754,
+        "claim_check": 0.0659,
+        "none": 0.0475,
+        "when": 0.0355,
+        "how_long": 0.0292,
+        "how_many_times": 0.0285,
+        "unclear": 0.0234,
+        "since_when": 0.019,
+        "until_when": 0.019
+      },
+      "source_shares": {
+        "qqp": 0.346,
+        "qa2d": 0.3023,
+        "proofwriter": 0.1401,
+        "squad": 0.1312,
+        "paws": 0.057,
+        "authored": 0.0234
+      },
+      "operator_share": 0.3194,
+      "interpretation_share": 0
+    },
+    "metrics_by_split": {
+      "test": {
+        "rows": 1578,
+        "masked_templates": 1435,
+        "template_ratio": 0.9094,
+        "top1_template_share": 0.0032,
+        "top10_template_share": 0.0222,
+        "top_templates": [
+          {
+            "template": "not counting e , please find out who sings in e .",
+            "count": 5
+          },
+          {
+            "template": "fără s-o pun la socoteală pe e , oare cine e bucătar la e ?",
+            "count": 5
+          },
+          {
+            "template": "not counting e , please find out who rents e .",
+            "count": 4
+          },
+          {
+            "template": "remind me, who is e repaired by?",
+            "count": 3
+          },
+          {
+            "template": "not counting e , please find out who e is repaired by.",
+            "count": 3
+          },
+          {
+            "template": "știi cumva dacă e închiriază e ?",
+            "count": 3
+          },
+          {
+            "template": "fără să-l pun la socoteală pe e , oare cine e membru în e ?",
+            "count": 3
+          },
+          {
+            "template": "does e lease e or not?",
+            "count": 3
+          }
+        ],
+        "masked_unigram_entropy_bits": 6.479,
+        "masked_bigram_entropy_bits": 8.738,
+        "question_frames": 57,
+        "top_question_frame_share": 0.0729,
+        "target_skeletons": 190,
+        "target_skeletons_per_family": {
+          "claim_check": 5,
+          "time_question": 13,
+          "wh_select": 5,
+          "count": 5,
+          "lookup": 3,
+          "conjunction": 6,
+          "multi_question": 6,
+          "statement_only": 9,
+          "attached": 9,
+          "contrast": 3,
+          "filter": 3,
+          "long_message": 115,
+          "negation": 6,
+          "unclear": 2
+        },
+        "family_shares": {
+          "claim_check": 0.0659,
+          "time_question": 0.1312,
+          "wh_select": 0.1134,
+          "count": 0.0754,
+          "lookup": 0.1134,
+          "conjunction": 0.0564,
+          "multi_question": 0.0558,
+          "statement_only": 0.0475,
+          "attached": 0.1046,
+          "contrast": 0.0082,
+          "filter": 0.0564,
+          "long_message": 0.0729,
+          "negation": 0.0754,
+          "unclear": 0.0234
+        },
+        "language_shares": {
+          "en": 0.5019,
+          "ro": 0.3485,
+          "mixed": 0.1496
+        },
+        "noise_share": 0.2833,
+        "unclear_share": 0.0234,
+        "near_duplicate_share": 0.0013,
+        "near_duplicate_examples": [
+          [
+            "ood1_000288_0_1",
+            "ood1_000644_0_0"
+          ]
+        ],
+        "question_type_shares": {
+          "yes_no": 0.358,
+          "wh": 0.1698,
+          "multi": 0.1286,
+          "count": 0.0754,
+          "claim_check": 0.0659,
+          "none": 0.0475,
+          "when": 0.0355,
+          "how_long": 0.0292,
+          "how_many_times": 0.0285,
+          "unclear": 0.0234,
+          "since_when": 0.019,
+          "until_when": 0.019
+        },
+        "source_shares": {
+          "qqp": 0.346,
+          "qa2d": 0.3023,
+          "proofwriter": 0.1401,
+          "squad": 0.1312,
+          "paws": 0.057,
+          "authored": 0.0234
+        },
+        "operator_share": 0.3194,
+        "interpretation_share": 0
+      }
+    },
+    "quota_violations": [],
+    "no_copy": {
+      "pass": true,
+      "paired": {
+        "rows_with_lineage": 0,
+        "lineage_matches_in_sources": 0,
+        "stock_phrase_df": 20,
+        "shared_4grams_total": 0,
+        "distinctive_shared_4grams": 0,
+        "rows_with_distinctive_shared_4gram": 0,
+        "rows_with_stock_phrase_only": 0,
+        "note": "A shared 4-gram is a stock phrase when it occurs in at least stock_phrase_df source rows (for example \"what is the name\"); only distinctive shared 4-grams count against the bar.",
+        "examples": []
+      },
+      "long_span": {
+        "n": 8,
+        "rows_with_shared_8gram": 0,
+        "shared_8grams_distinct": 0,
+        "examples": []
+      },
+      "global_4gram": {
+        "corpus_4grams_distinct": 49095,
+        "distinct_found_in_sources": 167,
+        "distinct_rate": 0.003402,
+        "row_4gram_occurrence_rate": 0.020075,
+        "note": "Reported, not failed: common phrasing is legitimately shared."
+      },
+      "identifiers": {
+        "rows_with_identifier": 0,
+        "by_kind": {},
+        "examples": []
+      }
+    },
+    "elapsed_ms": 16077,
+    "by_axis": {
+      "domain": 945,
+      "construction": 633
+    },
+    "overlap_dropped": {
+      "count": 18,
+      "by_reason": {
+        "message_in_formalizer_v1": 15,
+        "construction_in_train_dev": 3
+      }
+    }
+  },
+  "resource_overlap": {
+    "formalizer-v1:test": {
+      "frame_overlap": {
+        "numerator": 1206,
+        "denominator": 4985,
+        "value": 0.241925777331996
+      },
+      "construction_overlap": {
+        "numerator": 2388,
+        "denominator": 3427,
+        "value": 0.6968193755471258
+      },
+      "uses_ood_only_resource": {
+        "numerator": 0,
+        "denominator": 5033,
+        "value": 0
+      },
+      "held_out_form_or_shape": {
+        "numerator": 0,
+        "denominator": 5033,
+        "value": 0
+      },
+      "definition": "Share of rows whose lead-in frames (surface_design.question_frame, .discourse) or realization constructions (construction ids in surface_design.resources) occur in any formalizer-v1 train or dev row."
+    },
+    "formalizer-ood-v1": {
+      "frame_overlap": {
+        "numerator": 0,
+        "denominator": 1537,
+        "value": 0
+      },
+      "construction_overlap": {
+        "numerator": 0,
+        "denominator": 1541,
+        "value": 0
+      },
+      "uses_ood_only_resource": {
+        "numerator": 988,
+        "denominator": 1578,
+        "value": 0.6261089987325729
+      },
+      "held_out_form_or_shape": {
+        "numerator": 248,
+        "denominator": 1578,
+        "value": 0.15716096324461343
+      },
+      "by_axis": {
+        "domain": {
+          "frame_overlap": {
+            "numerator": 0,
+            "denominator": 918,
+            "value": 0
+          },
+          "construction_overlap": {
+            "numerator": 0,
+            "denominator": 908,
+            "value": 0
+          },
+          "rows": 945
+        },
+        "construction": {
+          "frame_overlap": {
+            "numerator": 0,
+            "denominator": 619,
+            "value": 0
+          },
+          "construction_overlap": {
+            "numerator": 0,
+            "denominator": 633,
+            "value": 0
+          },
+          "rows": 633
+        }
+      },
+      "definition": "Share of rows whose lead-in frames (surface_design.question_frame, .discourse) or realization constructions (construction ids in surface_design.resources) occur in any formalizer-v1 train or dev row."
+    },
+    "formalizer_v1_rows_using_ood_only_resources": 0,
+    "ood_rows_dropped_for_overlap": 18
+  }
+}

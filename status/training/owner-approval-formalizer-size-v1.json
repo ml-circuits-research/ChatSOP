@@ -1,0 +1,17 @@
+{
+  "format": "chatsop-owner-approval-scope-v1",
+  "experiment": "formalizer-size-v1",
+  "journal_event": {"file": "status/journal.jsonl", "ts": "2026-09-28T18:13:13.644Z", "area": "training", "state": "decision", "actor": "owner-via-orchestrator", "title": "Owner authorizes first fine-tuning experiment"},
+  "approved_models": ["smollm2-135m", "gemma", "smollm2-360m", "qwen"],
+  "order": "smollm2-135m, then gemma; smollm2-360m and then qwen only under the preregistered escalation rule",
+  "role": "formalizer",
+  "corpus": "formalizer-v1",
+  "conditions": [
+    "no optimizer step before the orchestrator declares the data final (owner decision 2026-09-28: the data will first change fundamentally)",
+    "the dataset qualification record for the final data is status 'qualified'",
+    "preregistration status/preregistrations/formalizer-size-v1.json has its data hashes filled in",
+    "one GPU-intensive worker on the machine; never concurrent with another uid's GPU job",
+    "experiment-grade: semantic review by the independent automated auditor, no human review"
+  ],
+  "receipts": "tools/research/qualify-dataset.mjs --authorize MODEL --run RUN --decision-ts 2026-09-28T18:13:13.644Z writes one chatsop-training-authorization-v1 receipt per model, bound to the exact recipe, dataset and qualification hashes; it refuses models outside approved_models"
+}

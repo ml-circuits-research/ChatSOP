@@ -1,0 +1,76 @@
+{
+ "format": "chatsop-composed-manifest-v1",
+ "dataset": "bad_english",
+ "split": "test-composed",
+ "sealed": true,
+ "view_only": true,
+ "composer": "composed-v1",
+ "seed": "composed-v1",
+ "path": "eval/suites/bad_english/test-composed.jsonl",
+ "rows": 328,
+ "sha256": "2bc121137bfa0955e078c9123fa42d6bbe4c625f5213daa5dbc1ff171e068599",
+ "bytes": 1707536,
+ "source_test_file": "eval/suites/bad_english/test.jsonl",
+ "source_test_sha256": "898c3daf328271a2b9e0819c2ba4cc82207ebdabb9e342c1b84a93240fe5c3e9",
+ "counts": {
+  "by_kind": {
+   "K4": 306,
+   "K6": 22
+  },
+  "by_stratum": {
+   "K4:n2m1": 34,
+   "K4:n3m1": 34,
+   "K4:n4m1": 34,
+   "K4:n4m2": 34,
+   "K4:n5m1": 34,
+   "K4:n6m2": 34,
+   "K4:n6m3": 34,
+   "K4:n8m2": 34,
+   "K4:n8m4": 34,
+   "K6:multiple_questions": 2,
+   "K6:coordination": 19,
+   "K6:subordinate_clause": 1
+  },
+  "by_sentences": {
+   "2": 49,
+   "3": 33,
+   "4": 52,
+   "5": 50,
+   "6": 47,
+   "7": 23,
+   "8": 40,
+   "9": 24,
+   "10": 9,
+   "11": 1
+  },
+  "by_components": {
+   "1": 22,
+   "2": 34,
+   "3": 34,
+   "4": 68,
+   "5": 34,
+   "6": 68,
+   "8": 68
+  },
+  "symbolic_components_pool": 1104,
+  "neuro_components_pool": 61,
+  "bad_components_pool": 1092,
+  "component_rejections": {
+   "symbolic": {
+    "needs_context": 270,
+    "not_one_sentence": 405,
+    "not_a_clean_conversion": 251,
+    "quotes_newlines_or_no_terminal_punctuation": 94,
+    "not_one_request_or_statement": 18,
+    "splitter_sees_several_sentences": 8
+   },
+   "bad": {
+    "quotes_or_newlines": 90,
+    "no_target": 4067,
+    "needs_context": 262
+   }
+  }
+ },
+ "purpose": "K4: paragraphs mixing clean sentences (must stay unchanged) with Romanian, mixed or noisy sentences that have a clean target (must be replaced). Evaluates LanguageProofingLLM on longer inputs.",
+ "built_at": "2026-09-30T16:36:12.611Z"
+}

@@ -1,0 +1,242 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "formalizer-size-v1",
+  "registered_at": "2026-09-28T18:40:00Z",
+  "registered_by": "training-agent (for the owner, under the owner's approval logged in status/journal.jsonl at 2026-09-28T18:13:13.644Z)",
+  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "frozen_before_results": "Written before any optimizer step and before any fine-tuned prediction on any split. Only the fields marked PENDING_DATA_FINAL may be filled in afterwards, once, when the orchestrator declares the data final and before the first optimizer step. Any other later change is a recorded deviation.",
+  "question": "How small can the ChatSOP formalizer (user message -> model-language SOP, DS021) be while staying accurate, and how fast does it run on this machine's CPU?",
+  "hypotheses": {
+    "H1": "Full fine-tuning of a base of at most 270M parameters on formalizer-v1 train reaches tolerant execution equivalence >= 90% on the formalizer-v1 sealed test separately in English and in Romanian (Q8_0 GGUF, CPU, greedy).",
+    "H2": "Accuracy grows with size within one family: SmolLM2-360M > SmolLM2-135M on formalizer-v1 test tolerant execution equivalence (if the 360M arm runs). The gap between SmolLM2-135M and Gemma 3 270M is below 5 points in-distribution and larger on formalizer-ood-v1.",
+    "H3": "On this CPU with 10 threads, Q8_0 single-stream generation of the 135M and 270M models is >= 200 tokens/s (llama-bench tg128), and Q4_K_M loses at most 1 point of tolerant execution equivalence against Q8_0 on formalizer-v1 test."
+  },
+  "changed_factor": "The base model (size and family). Everything else is held identical across arms. SmolLM2 versus Gemma confounds family, tokenizer and size; the SmolLM2-135M versus SmolLM2-360M pair (if run) isolates size within one family. Conclusions about size are drawn only from that pair; Gemma is a deployable-candidate comparison.",
+  "arms": [
+    {
+      "order": 1,
+      "model": "smollm2-135m",
+      "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+      "weights_sha256": "5af571cbf074e6d21a03528d2330792e532ca608f24ac70a143f6b369968ab8c",
+      "parameters": "135M",
+      "license": "Apache-2.0",
+      "recipe": "config/train-smollm2-135m.json",
+      "recipe_sha256": "81dddd57bcf336d38d9f05d816e7af02c103c9d38849fb093fa021733b4c092e",
+      "run": "fv1-size-a4",
+      "runs": "always"
+    },
+    {
+      "order": 2,
+      "model": "gemma",
+      "model_id": "daniel-dona/gemma-3-270m-it",
+      "upstream": "google/gemma-3-270m-it@ac82b4e820549b854eebf28ce6dedaf9fdfa17b3 (byte-identical, see eval/reports/current/training/base-verification.json)",
+      "revision": "99073d6b6edb0e298d163f964ec2b9d970b3408d",
+      "weights_sha256": "700b710a9a99c295ed546647aa81cacf9f81f4c573ea2be613a0e2517a44afab",
+      "parameters": "270M (about 170M of them in the 262k-token embedding)",
+      "license": "Gemma Terms of Use",
+      "recipe": "config/train-gemma.json",
+      "recipe_sha256": "ecc7fe047b1bd075721a51541d38f23610336973d8b2009802db271002d5b6c2",
+      "run": "fv1-size-a4",
+      "runs": "always"
+    },
+    {
+      "order": 3,
+      "model": "smollm2-360m",
+      "model_id": "HuggingFaceTB/SmolLM2-360M-Instruct",
+      "revision": "a10cc1512eabd3dde888204e902eca88bddb4951",
+      "weights_sha256": "e6bffe7435d7ddc10fd3b9a9efd429dafbacb1cb17015fb5562664e7532bf86e",
+      "parameters": "360M",
+      "license": "Apache-2.0",
+      "recipe": "config/train-smollm2-360m.json",
+      "recipe_sha256": "2964773fe7994a3cb0d3ae6f23b1e3a9f68688cfc6869915c8f97737fea21a02",
+      "run": "fv1-size-a4",
+      "runs": "only under the escalation rule"
+    },
+    {
+      "order": 4,
+      "model": "qwen",
+      "model_id": "Qwen/Qwen3-0.6B",
+      "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+      "weights_sha256": "f47f71177f32bcd101b7573ec9171e6a57f4f4d31148d38e382306f42996874b",
+      "parameters": "0.6B",
+      "license": "Apache-2.0",
+      "recipe": "config/train-qwen.json",
+      "recipe_sha256": "bd628623412cb74f8d89d04ff84b9ca241ef1f9756f812d6f5e68817592cd468",
+      "run": "fv1-size-a4",
+      "runs": "only under the escalation rule"
+    }
+  ],
+  "base_choice": {
+    "instruct_over_base": "Instruct checkpoints of SmolLM2 and Gemma 3 are used because the pipeline formats every row with the tokenizer chat template (training/python/common.py chat_ids/encode_row) and needs a trained end-of-turn stop token (<|im_end|> for SmolLM2, <end_of_turn> for Gemma). The base SmolLM2/Gemma checkpoints would have to learn the turn tokens from scratch. The fine-tune replaces the chat behaviour entirely, so no instruction-following ability is assumed.",
+    "smollm2_template": "SmolLM2 Instruct's shipped template injects the system prompt 'You are a helpful AI assistant named SmolLM, trained by Hugging Face' when no system message is present. The recipe field chat_template removes that injection so the model input is exactly the user's message (DS021); the override is saved with every checkpoint tokenizer and travels to the GGUF export.",
+    "gemma_source": "google/gemma-3-270m-it is gated on Hugging Face and no HF token is configured on this host. The pinned mirror is byte-identical to the upstream revision (all nine model, tokenizer and config files by git blob id, weights also by LFS sha256). The Gemma Terms of Use and Prohibited Use Policy apply unchanged."
+  },
+  "data": {
+    "corpus": "formalizer-v1",
+    "training_input": "datasets/formalizer-v1/formalizer/{train,dev}.jsonl, projection manifest prompt_profile message-only (tools/research/prepare-experiment.mjs); the trainer fails closed otherwise (training/python/common.py read_training_rows)",
+    "selection_dev_rows": "datasets/formalizer-v1/dev.jsonl (same ids as the projection dev split; carries the setup and verification context the evaluator needs)",
+    "data_version": "formalizer-v1 VERSION counter 1 (\"formalizer-v1 build 1 (seed chatsop-formalizer-v1, manifest b0c449573a62)\")",
+    "dataset_manifest_sha256": "b0c449573a628e8d4e1d21388f650112825a213b9e079b89194e2c2c98233837",
+    "dataset_version_sha256": "c5b31d05f722db492c6eceee8748b07375fae59d849e9bc52812e1ca91124a71",
+    "projection_sha256": {
+      "formalizer/train.jsonl": "1a90af39dba697d7f0a571f36c863b232da99e8594ae4318619a3b68c9003aeb",
+      "formalizer/dev.jsonl": "6528506f62f4b6b14e572c502a8b270010bfaaf280fe670240a06b0cbcdb12c7"
+    },
+    "suite_sha256": {
+      "eval/suites/formalizer-v1/test.jsonl": "b05c76a83efbad8a6027137cb13bc9eeb57812574663818624a98692a11930ac",
+      "eval/suites/formalizer-ood-v1/test.jsonl": "09acfb2eb820a60f29c83b01a45dd2cc1ca371117de4fc69c517c4b80a307a2a",
+      "eval/suites/formalizer-wild-v1/test.jsonl": "077e7164a3020c1e6c3c28c8f3b5b8f2c08e2e3f59ee0e6830f9991509884163"
+    },
+    "identical_across_arms": true,
+    "review": "Experiment-grade. Semantic review is satisfied by the independent automated corpus auditor (owner decision 2026-09-28); no human review. No result of this study is a DS010 promotion.",
+    "rows": {
+      "train": 23817,
+      "dev": 5131,
+      "formalizer-v1 test": 5033,
+      "formalizer-ood-v1 test": 1578,
+      "formalizer-wild-v1 test": 796
+    },
+    "qualification": {
+      "path": "status/training/qualification-formalizer-v1.json",
+      "sha256": "89d162dd2c6610ad0e8c1ef5d572e1f25d437728fbbd0dcf496710a1e73d0860",
+      "status": "qualified"
+    },
+    "token_audit": "all four bases pass at max_length 8192 on the final projection; longest row 4,734 tokens (SmolLM2 tokenizer); eval/reports/current/training/<model>-formalizer-token-audit.json"
+  },
+  "recipe_policy": {
+    "mode": "full fine-tuning (--full) for every arm",
+    "justification": "At 135M-600M parameters full fine-tuning costs about 16 bytes per parameter with AdamW (under 10 GiB), trivial on the GB10. It removes the LoRA rank as a confound between models of different width, and a small model learning a new output language benefits from updating every weight, including the embeddings of SOP keywords.",
+    "precision": "FP32 master weights with BF16 autocast on CUDA (pure BF16 weights would round away small AdamW updates)",
+    "optimizer": "AdamW, weight decay 0.01, gradient clipping 1.0",
+    "learning_rate": "peak 5e-5 (full_lr), linear warmup over 5% of steps, then linear decay to a 5% floor (training/python/train.py)",
+    "learning_rate_justification": "Google's documented full fine-tuning setting for Gemma 3 270M is 5e-5; the same value is used for every arm so that the base is the only changed factor.",
+    "batch": "batch_size 2 x gradient_accumulation 8 = 16 sequences per optimizer step, no packing, response-only loss",
+    "max_length": 8192,
+    "max_length_justification": "The longest current row is 5,588 tokens (SmolLM2 tokenizer) after long messages were added; 8192 is SmolLM2's context limit. The token audit refuses any longer row; nothing is truncated.",
+    "attention": "sdpa",
+    "gradient_checkpointing": false
+  },
+  "budget": {
+    "epochs": 3,
+    "expected_optimizer_steps": "ceil(ceil(train_rows/2)/8) x 3, about 4,480 for 23.9k rows",
+    "seed": 42,
+    "seeds": "one seed per arm; differences smaller than the paired confidence interval are reported as not resolved",
+    "checkpoint_cadence": "latest and semantic selection at each epoch end only (deviation 1)",
+    "selection": "the development split is scored once, after the final epoch (deviation 3); best is the final checkpoint; the sealed suites are never used for selection",
+    "wall_time_cap_per_arm": "480 minutes (podman.mjs --wall-minutes 480)",
+    "attempts": "one run per arm; at most one --resume of the same identity after an infrastructure interruption; a pipeline defect fixed afterwards starts a new run id and is recorded as a deviation",
+    "abort_conditions": "non-finite loss, OOM or cgroup OOM kill, controller resource floors (disk 16-20 GiB, host available 16 GiB), wall-time cap",
+    "gpu_policy": "one GPU-intensive worker on the machine; nvidia-smi and models/.training.lock checked before each GPU job; if another uid's GPU job holds the GPU or the 48 GiB CUDA-free floor is not met, wait rather than run concurrently",
+    "device": "CUDA (GB10) by default. If another uid's job holds the GPU when the data is final, SmolLM2-135M may train on the CPU (--cpu) only if the estimate finishes it within the night; the device is then recorded as a deviation, every hyperparameter stays identical, and CPU training runs FP32 without autocast. Estimate on 2026-09-28: about 1.3e16 training FLOPs for 3 epochs (6 x 135M parameters x 15.6M tokens), so at about 0.3 TFLOP/s effective on the 20 CPU cores roughly 12 h before semantic selection, which is also CPU-bound: not feasible in one night."
+  },
+  "evaluation": {
+    "predictions": "best checkpoint -> merge -> GGUF (convert_hf_to_gguf f16 in the training image) -> llama-quantize Q8_0 and Q4_K_M; llama-server CPU only (-ngl 0, GPU hidden), -c 8192, --jinja (the checkpoint's own chat template), greedy (temperature 0, top_k 1), max_tokens 6144; the message is the only user content (tools/research/predict-endpoint.mjs). eval/run.mjs endpoint mode is not used because it wraps the message in the formalizer instruction prompt.",
+    "primary_quantization": "Q8_0",
+    "secondary_quantization": "Q4_K_M on formalizer-v1 test and formalizer-ood-v1 (quantization invariance)",
+    "scoring": "formalizer-v1 and formalizer-ood-v1: node tools/metrics/run.mjs --file <suite> --predictions <predictions> (eval/run.mjs evaluate + eval/metrics.mjs computeMetrics). formalizer-wild-v1: node tools/eval/wild-suite.mjs --score <predictions> (best match over every accepted gold: accepted_match, accepted_match_without_assumed, shape_match, decision_match, proposition and query-block F1, by language and language gap) plus node eval/run.mjs --messages eval/suites/formalizer-wild-v1/test.jsonl --predictions <predictions> (reference-free metrics).",
+    "suites": [
+      "eval/suites/formalizer-v1/test.jsonl (sealed, in-distribution, executed against verification worlds)",
+      "eval/suites/formalizer-ood-v1/test.jsonl (sealed, construction-held-out, executed)",
+      "eval/suites/formalizer-wild-v1/test.jsonl (sealed, independent, 796 messages written by independent writers, no verification worlds; eval/leakage.mjs INDEPENDENT_SUITES; training and selection code never read it)"
+    ],
+    "each_suite_once_per_arm_and_quantization": true,
+    "metrics": {
+      "primary": "formalizer.execution_equivalence_tolerant on formalizer-v1 test, by language (en, ro)",
+      "secondary": [
+        "formalizer.parse_rate",
+        "formalizer.canonical_ast_match (strict) and canonical_ast_match_primary",
+        "formalizer.execution_equivalence (strict: any accepted gold) and execution_equivalence_primary",
+        "formalizer.answer_correctness",
+        "formalizer.abstention",
+        "formalizer.hard_negative_discrimination",
+        "formalizer.paraphrase_invariance",
+        "formalizer.en_to_ro_transfer",
+        "propositions (recall, precision, separation_accuracy)",
+        "epistemic.unknown_calibration and over_inference",
+        "reference_free (all metrics eval/metrics.mjs reports)"
+      ],
+      "slices": "every metric by language (en/ro/mixed), question type, noise level (clean/light/medium/heavy), family, hard slice and hard reason (long, multi_statement, code_switched, high_noise), from eval/slices.mjs",
+      "uncertainty": "95% paired bootstrap intervals over split_group_id (1,000 resamples, seed 42) for every between-arm difference of the primary metric; counts are always reported with percentages",
+      "wild": "accepted_match (primary for the wild suite), decision_match, shape_match, proposition F1, reference-free metrics; by language (en, ro, mixed) and language gap. Reported, not gated."
+    },
+    "cpu_speed": {
+      "micro": "llama-bench -ngl 0 -t 1,4,10 -p 64,512 -n 128 -r 3 for Q8_0 and Q4_K_M (GPU hidden with CUDA_VISIBLE_DEVICES empty)",
+      "end_to_end": "llama-server -np 1, -t 4 and -t 10, a fixed sample of 300 formalizer-v1 test messages (predict-endpoint --sample 300 --seed 42): latency per message p50/p95/max, server prompt and generation tokens/s, completion tokens",
+      "recorded": "thread count, CPU model (10x Cortex-X925 + 10x Cortex-A725), load average before and after, llama.cpp commit (99d4026b116605ed8e1f3ab179b3c63bc4637195 checkout under ~/llama-cpp-venv/llama.cpp, Release, GGML_NATIVE)",
+      "caveat": "shared machine: other users' load is recorded, not controlled"
+    }
+  },
+  "success_criteria": {
+    "adequate": "An arm is adequate when, with Q8_0 CPU predictions: formalizer-v1 test parse_rate >= 99%; formalizer-v1 test tolerant execution equivalence >= 90% in English and >= 90% in Romanian, each over its own language rows; formalizer-ood-v1 tolerant execution equivalence >= 70%.",
+    "speed_target": "Reported against, not gated: Q8_0 or Q4_K_M at 10 threads, single-stream generation >= 100 tokens/s and p50 end-to-end latency <= 1 s on the 300-message sample. Speed cannot be improved by escalating to a larger model, so it does not drive escalation.",
+    "not_a_promotion": "Passing 'adequate' is not a DS010 promotion: no independent human review, one seed, synthetic suites.",
+    "wild": "Reported against, not gated: formalizer-wild-v1 accepted_match and decision_match per language."
+  },
+  "escalation_rule": [
+    "1. Train and evaluate SmolLM2-135M, then Gemma 3 270M (both always run, in this order).",
+    "2. If at least one of them is adequate, stop: the smallest adequate arm answers the question. SmolLM2-360M and Qwen3-0.6B do not run.",
+    "3. If neither is adequate, train and evaluate SmolLM2-360M. If it is adequate, stop.",
+    "4. If SmolLM2-360M is not adequate, train and evaluate Qwen3-0.6B, then stop whatever its outcome.",
+    "5. A failure caused by a pipeline or infrastructure defect (crash, truncation, template error) is not an escalation: it is fixed, recorded as a deviation and rerun under a new run id."
+  ],
+  "falsification": {
+    "H1": "Neither the 135M nor the 270M arm is adequate in both languages.",
+    "H2": "SmolLM2-360M is not better than SmolLM2-135M beyond the paired interval, or the 135M-270M gap is >= 5 points in-distribution.",
+    "H3": "Q8_0 tg128 at 10 threads is below 200 tokens/s, or Q4_K_M loses more than 1 point."
+  },
+  "known_limitations": [
+    "one seed per arm",
+    "synthetic generated suites; the wild suite, if present, is the only non-generated check",
+    "family and size are confounded between SmolLM2 and Gemma",
+    "shared machine: CPU timings are affected by other users' load",
+    "no human semantic review (experiment-grade)"
+  ],
+  "status": "FROZEN: data hashes filled in on the data-final declaration (2026-09-28 ~22:00 local), before the first optimizer step",
+  "deviations": [
+    {
+      "id": 1,
+      "at": "2026-09-28T20:45Z",
+      "before_any_result": true,
+      "what": "Run fv1-size-a1 (SmolLM2-135M) was stopped by its owner at optimizer step 1000 during its first full-development generation, before any development or test score existed. Recipes of every arm now select only at epoch ends (save_every 1000000, 3 selections instead of 7) and decode the development split in length-adaptive batches (generation_batch_size 128, generation_token_budget 131072). All arms rerun as fv1-size-a2.",
+      "why": "One full-development greedy pass with batches of 32 took over 30 minutes and was still running, so seven passes per arm would have used about 6 hours of GPU time per arm and prevented the preregistered arms from finishing in the night.",
+      "effect": "Selection chooses among 3 epoch-end checkpoints instead of 7 checkpoints. The data, the learning policy, the selection metric and the evaluation are unchanged, and the change is identical for every arm."
+    },
+    {
+      "id": 2,
+      "at": "2026-09-28T22:30Z",
+      "before_any_result": true,
+      "what": "Run fv1-size-a2 (SmolLM2-135M) was stopped by its owner after epoch 1, during its first full-development selection pass, which had run for more than 66 minutes without finishing; no score or checkpoint existed. training/python/train.py now caps each selection batch's generation at four times its longest prompt plus 256 tokens (no gold target in train or dev is longer) and prints progress. Recipes are unchanged. All arms run as fv1-size-a3.",
+      "why": "Rows that never emit a stop token held whole batches for up to 6,144 decoding steps.",
+      "effect": "A development prediction longer than the cap counts as a failure at every checkpoint alike. Sealed-suite evaluation keeps the preregistered 6,144-token limit through llama.cpp."
+    },
+    {
+      "id": 3,
+      "at": "2026-09-28T23:30Z",
+      "before_any_result": true,
+      "what": "Run fv1-size-a3 (SmolLM2-135M) was stopped by its owner during its first epoch-end selection pass; no score or checkpoint existed. Every recipe now sets select_final_only: the development split is scored once, after epoch 3, and best is the final checkpoint. All arms run as fv1-size-a4.",
+      "why": "On the shared GPU one full-development pass takes about 45 minutes (its last long-message batches run about 10 minutes each), so three passes per arm would prevent the two preregistered arms from finishing by morning.",
+      "effect": "No checkpoint selection among epochs: every arm is evaluated after exactly 3 epochs. The development score is still recorded. Identical for every arm."
+    }
+  ],
+  "data_final_filled_at": "2026-09-28T19:58:01.972165+00:00",
+  "amendments_before_training": [
+    "2026-09-28 ~20:40 local: formalizer-wild-v1 scoring (accepted golds + reference-free) and the CPU-device clause added while the data hashes were still blank.",
+    "Data-final: eval/run.mjs now sends the message-only prompt itself; predictions still come from the preregistered llama-server harness (message only) and are scored with --predictions."
+  ],
+  "exploratory_arms": [
+    {
+      "model": "smollm2-360m",
+      "run": "fv1-size-a4",
+      "started": "2026-09-29T04:25Z",
+      "label": "EXPLORATORY",
+      "reason": "Owner instruction via the orchestrator (2026-09-29 night): train SmolLM2-360M and Qwen3-0.6B if time remains, whatever the escalation rule says, to trace accuracy against CPU speed. Started before the Gemma sealed-suite results were known. Identical recipe policy, data, selection and evaluation; its results are reported apart from the preregistered decision."
+    }
+  ],
+  "closed": {
+    "at": "2026-09-29T09:05:20.600187+00:00",
+    "status": "done",
+    "summary": "eval/reports/current/training/formalizer-size-v1-summary.md",
+    "decision_rule_outcome": "Neither preregistered arm is adequate. The rule would escalate to SmolLM2-360M (run as an exploratory arm on owner instruction before the rule was applied, short evaluation) and then Qwen3-0.6B; the owner and orchestrator stopped escalation because the failures are data-driven (Romanian OOD, long messages, wild text) rather than size-driven."
+  }
+}

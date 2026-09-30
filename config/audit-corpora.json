@@ -1,0 +1,143 @@
+{
+  "format": "chatsop-audit-corpora-v2",
+  "description": "Registry for the visual corpus audit (DS020, /audit). The audit page has four tabs (owner decision 2026-09-30): `bad_english`, `symbolic_english` and `neuro_english`, the three datasets of datasets/ (DS008 \"Three datasets\"), and a fourth, clearly secondary `archive` tab that holds the legacy corpora of datasets_archive/, the sealed legacy suites of eval/suites/ and the read-only local source cache datasets_sources/new_cases. `tabs` names each tab and states its purpose; `corpora` types a corpus explicitly (a dataset type equals its tab; legacy corpora keep their earlier review types formalizer, proofreading and cleanText, all shown in the archive tab); `patterns` and `default_type` classify an unlisted name; `extra_files` lists split files the directory scan would not find.",
+  "corpora": {
+    "formalizer-v1": {
+      "type": "formalizer"
+    },
+    "formalizer-ood-v1": {
+      "type": "formalizer"
+    },
+    "formalizer-wild-v1": {
+      "type": "formalizer"
+    },
+    "clean-english": {
+      "type": "formalizer",
+      "note": "Clean-English formalization corpus (message -> DS021 SOP target); a formalizer corpus, not the cleanText/textToCleanEnglish step."
+    },
+    "proofing": {
+      "type": "proofreading",
+      "extra_files": [
+        {
+          "split": "hard_cases",
+          "path": "datasets_archive/proofing/hard_cases.jsonl"
+        },
+        {
+          "split": "ro_translated",
+          "path": "datasets_archive/proofing/ro_translated.jsonl"
+        }
+      ],
+      "note": "proofing/proofreader/{train,dev}.jsonl is a flat {prompt,target} training projection of the same rows (no semantic_case_id); it is intentionally not reviewed as a separate split here."
+    },
+    "proofing-diverse-dev": {
+      "type": "proofreading",
+      "extra_files": [
+        {
+          "split": "train",
+          "path": "datasets_archive/proofing-diverse-dev/v2-additions-train.jsonl"
+        },
+        {
+          "split": "dev",
+          "path": "datasets_archive/proofing-diverse-dev/v2-additions-dev.jsonl"
+        },
+        {
+          "split": "hard",
+          "path": "datasets_archive/proofing-diverse-dev/v2-additions-hard.jsonl"
+        }
+      ],
+      "note": "Only the v2-additions-*.jsonl files are proofing-schema rows (input/target/kind). diverse-dev.jsonl, candidates.jsonl and teacher-variants.jsonl in the same directory are DS022 diversity-generator build artifacts for formalizer-v1 (question/family/sop rows, or raw paraphrase pools with no case id), out of scope for this audit; they are not read here."
+    },
+    "bad_english": {
+      "type": "bad_english",
+      "extra_files": [
+        {
+          "split": "test-composed",
+          "path": "eval/suites/bad_english/test-composed.jsonl"
+        },
+        {
+          "split": "incoming",
+          "path": "datasets/bad_english/incoming.jsonl"
+        }
+      ],
+      "note": "test-composed is the sealed composed evaluation suite (tools/eval/composed-suites.mjs, view only); incoming holds production cases pending review (tools/datasets/add-case.mjs)."
+    },
+    "symbolic_english": {
+      "type": "symbolic_english",
+      "extra_files": [
+        {
+          "split": "test-composed",
+          "path": "eval/suites/symbolic_english/test-composed.jsonl"
+        },
+        {
+          "split": "test-variants",
+          "path": "eval/suites/symbolic_english/test-variants.jsonl"
+        },
+        {
+          "split": "incoming",
+          "path": "datasets/symbolic_english/incoming.jsonl"
+        }
+      ],
+      "note": "test-composed is the sealed composed evaluation suite (tools/eval/composed-suites.mjs, view only); incoming holds production cases pending review (tools/datasets/add-case.mjs)."
+    },
+    "neuro_english": {
+      "type": "neuro_english",
+      "extra_files": [
+        {
+          "split": "test-composed",
+          "path": "eval/suites/neuro_english/test-composed.jsonl"
+        },
+        {
+          "split": "incoming",
+          "path": "datasets/neuro_english/incoming.jsonl"
+        }
+      ],
+      "note": "test-composed is the sealed composed evaluation suite (tools/eval/composed-suites.mjs, view only); incoming holds production cases pending review (tools/datasets/add-case.mjs)."
+    }
+  },
+  "patterns": [
+    {
+      "test": "^formalizer",
+      "type": "formalizer"
+    },
+    {
+      "test": "^clean-english",
+      "type": "formalizer"
+    },
+    {
+      "test": "^proofing",
+      "type": "proofreading"
+    }
+  ],
+  "default_type": "formalizer",
+  "clean_text_sources": [
+    {
+      "id": "new-cases",
+      "label": "New cases (writer drafts, textToCleanEnglish)",
+      "dir": "datasets_sources/new_cases/raw",
+      "local_only": true,
+      "note": "Local source cache (AGENTS.md rule 10, DS014-source-rights.md): datasets_sources/ is never exported. Collected per new_cases.md; not yet a train/dev/test corpus. Shown read-only in the cleanText tab so a reviewer can browse and spot-check the writer drafts before tools/datasets/build-new-cases.mjs assembles datasets_sources/new_cases/cases.jsonl."
+    }
+  ],
+  "tabs": [
+    {
+      "id": "bad_english",
+      "label": "bad_english",
+      "purpose": "Messages that are not clean English: Romanian, mixed Romanian/English, spelling and grammar problems, garbled text. Where an acceptable clean-English rewrite is known, the row carries it as the target. Material to evaluate, and only after the owner's approval fine-tune, LanguageProofingLLM (the model behind textToCleanEnglish; currently Qwen3-1.7B plus LanguageTool). Review the kind (ro, mixed, noisy_en), the noise categories and whether the clean target is really clean English that parses."
+    },
+    {
+      "id": "symbolic_english",
+      "label": "symbolic_english",
+      "purpose": "Correct English that SymbolicLM (Stanza analysis plus the UD-to-SOP rules) analyses correctly. Each row stores the message, SymbolicLM's grammatical analysis and the SOP Lang it produced. This is the regression suite (tools/symbolic-regression.mjs) and the inventory of target forms for SymbolicProofingLLM. Review whether the analysis is right; re-run SymbolicLM on a row to see whether the current engine still gives the same analysis."
+    },
+    {
+      "id": "neuro_english",
+      "label": "neuro_english",
+      "purpose": "Correct English that SymbolicLM does not analyse correctly. Rows carry the failure kind (parser, rules, gold_convention, unknown) with blame details, what SymbolicLM produced against the gold, and, where known, a meaning-preserving rewrite that SymbolicLM handles. Material to evaluate, and only after the owner's approval fine-tune, SymbolicProofingLLM. The priority is to fix SymbolicLM with rules and repairs; rewrite only what rules cannot fix."
+    },
+    {
+      "id": "archive",
+      "label": "archive / sources",
+      "purpose": "Secondary view, not a dataset of the current plan. Legacy corpora (datasets_archive/: formalizer-v1, proofing, proofing-diverse-dev, clean-english), their sealed suites in eval/suites/, and the read-only local source cache datasets_sources/new_cases (never exported). They are provenance and earlier work; results on them live in the archive and history reports."
+    }
+  ]
+}

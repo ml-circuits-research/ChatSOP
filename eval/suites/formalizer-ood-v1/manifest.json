@@ -62,110 +62,288 @@
     "no_copy_check": "node tools/datasets/no-copy.mjs",
     "spec": "docs/specs/DS014-source-rights.md"
   },
-  "purpose": "Out-of-distribution sealed suite: generic families over held-out domains (food, garage, garden, music, lettings) whose predicates and relation phrases never occur in formalizer-v1; the vehicle, plant and choir entity pools are OOD-only, persons, places and assets are shared.",
+  "purpose": "Out-of-distribution sealed suite with two axes (row.ood_axis). domain: generic families over held-out domains (food, garage, garden, music, lettings) whose predicates and relation phrases never occur in formalizer-v1; the vehicle, plant and choir entity pools are OOD-only. construction: in-distribution predicates realized only through held-out constructions (domains.mjs HELDOUT_CONSTRUCTIONS) and test-reserved ones. Both axes use only OOD-only and test-reserved lead-in frames (heldout.mjs OOD_ONLY_FRAMES); no lead-in frame or construction of an OOD row occurs in formalizer-v1 train or dev (overlap metrics below).",
+  "held_out": {
+    "frames": {
+      "en": [
+        "yn_would_you_say",
+        "yn_or_not",
+        "yn_do_you_know_tail",
+        "yn_help_me",
+        "wh_if_you_know",
+        "wh_remind_me",
+        "cc_quoted",
+        "d_for_context",
+        "d_because",
+        "when_roughly",
+        "since_first",
+        "until_last",
+        "long_time",
+        "times_occasions",
+        "why_what_makes",
+        "conj.en.4",
+        "multi.en.2"
+      ],
+      "ro": [
+        "yn_ro_sau_nu",
+        "yn_ro_chiar",
+        "wh_ro_te_rog",
+        "wh_ro_amintesti",
+        "cc_ro_confirma",
+        "d_ro_intreb",
+        "when_ro_ce_ani",
+        "since_ro_an",
+        "long_ro_perioada",
+        "times_ro_frecvent",
+        "why_ro_cum_de",
+        "conj.ro.3",
+        "multi.ro.2"
+      ]
+    },
+    "forms": {
+      "en": [
+        "tail_question",
+        "opinion",
+        "alternative"
+      ],
+      "ro": [
+        "alternative",
+        "tail_question"
+      ]
+    },
+    "shapes": {
+      "en": [
+        "parenthetical",
+        "question_then_elaboration"
+      ],
+      "ro": [
+        "question_then_elaboration"
+      ]
+    },
+    "constructions": [
+      "attended.en.3",
+      "attended.ro.2",
+      "coaches.en.3",
+      "coaches.ro.2",
+      "lives_in.en.2",
+      "lives_in.ro.2",
+      "maintains.en.3",
+      "maintains.ro.3",
+      "sells.en.2",
+      "sells.ro.2",
+      "studies_at.en.3",
+      "studies_at.ro.2",
+      "teaches.en.2",
+      "teaches.ro.2",
+      "travelled_to.en.3",
+      "travelled_to.ro.2",
+      "works_at.en.5",
+      "works_at.ro.3"
+    ]
+  },
+  "overlap_with_formalizer_v1_train_dev": {
+    "frame_overlap": {
+      "numerator": 0,
+      "denominator": 1537,
+      "value": 0
+    },
+    "construction_overlap": {
+      "numerator": 0,
+      "denominator": 1541,
+      "value": 0
+    },
+    "uses_ood_only_resource": {
+      "numerator": 988,
+      "denominator": 1578,
+      "value": 0.6261089987325729
+    },
+    "held_out_form_or_shape": {
+      "numerator": 248,
+      "denominator": 1578,
+      "value": 0.15716096324461343
+    },
+    "by_axis": {
+      "domain": {
+        "frame_overlap": {
+          "numerator": 0,
+          "denominator": 918,
+          "value": 0
+        },
+        "construction_overlap": {
+          "numerator": 0,
+          "denominator": 908,
+          "value": 0
+        },
+        "rows": 945
+      },
+      "construction": {
+        "frame_overlap": {
+          "numerator": 0,
+          "denominator": 619,
+          "value": 0
+        },
+        "construction_overlap": {
+          "numerator": 0,
+          "denominator": 633,
+          "value": 0
+        },
+        "rows": 633
+      }
+    },
+    "definition": "Share of rows whose lead-in frames (surface_design.question_frame, .discourse) or realization constructions (construction ids in surface_design.resources) occur in any formalizer-v1 train or dev row."
+  },
   "splits": {
     "test": "eval/suites/formalizer-ood-v1/test.jsonl"
   },
   "sha256": {
-    "eval/suites/formalizer-ood-v1/test.jsonl": "a037a1d73e5eddf8a4660947bcf2a2f59212aae012cc881f6eed8dacfcf74d6c"
+    "eval/suites/formalizer-ood-v1/test.jsonl": "09acfb2eb820a60f29c83b01a45dd2cc1ca371117de4fc69c517c4b80a307a2a"
   },
   "files": {
-    "test.jsonl": "a037a1d73e5eddf8a4660947bcf2a2f59212aae012cc881f6eed8dacfcf74d6c"
+    "test.jsonl": "09acfb2eb820a60f29c83b01a45dd2cc1ca371117de4fc69c517c4b80a307a2a"
   },
   "shared_world": {
     "dir": "eval/suites/formalizer-ood-v1/world",
     "sha256": {
-      "eval/suites/formalizer-ood-v1/world/predicates.sop": "5db240109e416654d01b12347a0230e731700e1a1f1c46a92aa9f15c4bd435ee",
+      "eval/suites/formalizer-ood-v1/world/predicates.sop": "3ee5d580f66d49f3e07532470cc48c2217ea23a14f63b48fe65e7a48a1151d9b",
       "eval/suites/formalizer-ood-v1/world/rules.sop": "b4aec3dfe3538e48fa6b288fcadf2e43d6f9511f85c1a39b9cc34cc9056de300"
     }
   },
   "summary": {
-    "rows": 1600,
+    "lengths": {
+      "all": {
+        "rows": 1578,
+        "message": {
+          "unit": "tokens ~ characters / 4",
+          "mean": 45,
+          "p50": 16,
+          "p90": 31,
+          "p99": 619,
+          "max": 830
+        },
+        "target": {
+          "unit": "tokens ~ characters / 4",
+          "mean": 121,
+          "p50": 41,
+          "p90": 77,
+          "p99": 1626,
+          "max": 2344
+        },
+        "messages_over_500_chars": 115,
+        "long_message_rows": 115
+      },
+      "test": {
+        "rows": 1578,
+        "message": {
+          "unit": "tokens ~ characters / 4",
+          "mean": 45,
+          "p50": 16,
+          "p90": 31,
+          "p99": 619,
+          "max": 830
+        },
+        "target": {
+          "unit": "tokens ~ characters / 4",
+          "mean": 121,
+          "p50": 41,
+          "p90": 77,
+          "p99": 1626,
+          "max": 2344
+        },
+        "messages_over_500_chars": 115,
+        "long_message_rows": 115
+      }
+    },
+    "rows": 1578,
     "by_split": {
-      "test": 1600
+      "test": 1578
     },
     "by_family": {
-      "time_question": 220,
-      "wh_select": 188,
-      "lookup": 188,
-      "attached": 173,
-      "count": 125,
-      "negation": 125,
-      "claim_check": 110,
-      "filter": 95,
-      "conjunction": 94,
-      "multi_question": 94,
-      "unclear": 94,
-      "statement_only": 79,
-      "contrast": 15
+      "time_question": 207,
+      "wh_select": 179,
+      "lookup": 179,
+      "attached": 165,
+      "count": 119,
+      "negation": 119,
+      "long_message": 115,
+      "claim_check": 104,
+      "conjunction": 89,
+      "filter": 89,
+      "multi_question": 88,
+      "statement_only": 75,
+      "unclear": 37,
+      "contrast": 13
     },
     "by_question_type": {
-      "yes_no": 595,
-      "wh": 283,
-      "count": 125,
-      "claim_check": 110,
-      "multi": 94,
-      "unclear": 94,
-      "none": 79,
-      "when": 61,
-      "since_when": 44,
-      "how_long": 42,
-      "how_many_times": 41,
-      "until_when": 32
+      "yes_no": 565,
+      "wh": 268,
+      "multi": 203,
+      "count": 119,
+      "claim_check": 104,
+      "none": 75,
+      "when": 56,
+      "how_long": 46,
+      "how_many_times": 45,
+      "unclear": 37,
+      "since_when": 30,
+      "until_when": 30
     },
     "by_language": {
-      "en": 800,
-      "ro": 560,
-      "en+switch": 124,
-      "ro+switch": 116
+      "en": 792,
+      "ro": 550,
+      "en+switch": 123,
+      "ro+switch": 113
     },
     "by_expected_status": {
-      "supported": 960,
-      "unknown": 336,
-      "refuted": 131,
-      "unclear": 94,
-      "context_updated": 79
+      "supported": 947,
+      "unknown": 357,
+      "refuted": 162,
+      "context_updated": 75,
+      "unclear": 37
     },
     "by_noise_level": {
-      "clean": 1110,
-      "light": 242,
-      "medium": 185,
-      "heavy": 63
+      "clean": 1131,
+      "light": 256,
+      "medium": 133,
+      "heavy": 58
     },
     "code_switch_kinds": {
-      "ro_matrix_en_insertion": 78,
-      "en_matrix_ro_insertion": 78,
-      "en_matrix_ro_tag": 41,
-      "ro_matrix_en_tag": 29,
-      "clause_switch": 14
+      "en_matrix_ro_value": 48,
+      "ro_matrix_en_insertion": 44,
+      "en_matrix_ro_insertion": 35,
+      "ro_matrix_en_value": 35,
+      "clause_switch": 32,
+      "ro_matrix_en_tag": 21,
+      "en_matrix_ro_tag": 21
     },
     "noise_ops": {
-      "typo:substitution": 187,
-      "typo:insertion": 154,
-      "typo:deletion": 115,
-      "lowercase_start": 110,
-      "space_split": 55,
-      "diacritic_drop": 55,
-      "repeated_punctuation": 54,
-      "drop_question_mark": 54,
-      "space_before_punctuation": 45,
-      "space_merge": 44,
-      "strip_diacritics": 39,
-      "chat_spelling": 17,
-      "strip_diacritics_partial": 16,
-      "diacritic_wrong": 13,
-      "no_space_after_comma": 12,
-      "phonetic": 10,
-      "diacritic_cedilla": 9,
-      "typo:duplication": 7,
-      "lowercase_i": 7,
-      "autocorrect": 5,
-      "missing_apostrophe": 3
+      "space_before_punctuation": 197,
+      "typo:substitution": 196,
+      "typo:insertion": 151,
+      "typo:deletion": 99,
+      "diacritic_drop": 75,
+      "space_merge": 53,
+      "strip_diacritics": 51,
+      "drop_question_mark": 45,
+      "no_space_after_comma": 34,
+      "space_split": 31,
+      "chat_spelling": 24,
+      "diacritic_wrong": 21,
+      "repeated_punctuation": 16,
+      "strip_diacritics_partial": 14,
+      "dictation": 12,
+      "lowercase_start": 12,
+      "phonetic": 12,
+      "diacritic_cedilla": 10,
+      "typo:duplication": 9,
+      "autocorrect": 6,
+      "missing_apostrophe": 4,
+      "lowercase_i": 3,
+      "sms": 3
     },
     "assumed_basis": {},
     "unclear_kinds": {
-      "gibberish": 66,
-      "no_request": 28
+      "gibberish": 35,
+      "no_request": 2
     }
   }
 }

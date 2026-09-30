@@ -36,8 +36,8 @@ test('conditional query scalars feed numeric problems without model-authored ope
  const source=`${temperature('p',21,{certainty:'supposed'})}${question}
 @limit constraint
   var ?next int 0 100
-  require ?next == $degrees + 1
-  claim ?next <= 25
+  require ?next equal $degrees plus 1
+  claim ?next at_most 25
   select ?next
   task possible`;
  const out=await runtime().run(source,{origin:'model'});
@@ -53,8 +53,8 @@ test('multiple conditional scalar matches stop dependent calculation and request
  const source=`${temperature('p',21,{certainty:'supposed'})}${temperature('other',22,{certainty:'supposed'})}${question}
 @limit constraint
   var ?next int 0 100
-  require ?next == $degrees + 1
-  claim ?next <= 25
+  require ?next equal $degrees plus 1
+  claim ?next at_most 25
   task possible`;
  const out=await runtime().run(source,{origin:'model'});
  assert.equal(out.outputs.degrees.status,'ambiguous');
@@ -106,7 +106,7 @@ test('model origin rejects operation, sourced fact and clarification authoring',
   ['value','@x value\n  data 1 + 2']
  ];
  for(const [type,source] of sources){
-  await assert.rejects(runtime().run(source,{origin:'model'}),new RegExp(`Model authors stated, assumed, unclear, query or constraint; ${type} belongs to symbolic execution`),type);
+  await assert.rejects(runtime().run(source,{origin:'model'}),new RegExp(`Model authors stated, assumed, unclear, query, constraint or unparsed; ${type} belongs to symbolic execution`),type);
  }
 });
 
@@ -128,7 +128,7 @@ test('host-generated operations cannot collide with authored expansion-shaped na
 });
 
 test('requested scalar ambiguity requires clarification even when the claim is entailed',async()=>{
- const source='@problem constraint\n  var ?x int 1 2\n  claim ?x >= 1\n  select ?x\n  task prove';
+ const source='@problem constraint\n  var ?x int 1 2\n  claim ?x at_least 1\n  select ?x\n  task prove';
  const out=await runtime().run(source,{origin:'model'});
  assert.equal(out.problemResults[0].result.status,'entailed');
  assert.equal(out.result.packet.status,'clarify');

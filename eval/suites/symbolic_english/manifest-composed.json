@@ -1,0 +1,78 @@
+{
+ "format": "chatsop-composed-manifest-v1",
+ "dataset": "symbolic_english",
+ "split": "test-composed",
+ "sealed": true,
+ "view_only": true,
+ "composer": "composed-v1",
+ "seed": "composed-v1",
+ "path": "eval/suites/symbolic_english/test-composed.jsonl",
+ "rows": 784,
+ "sha256": "abf85afc8724080f674ef15cb4cdcb124cccaafcf293114ba8d0cdef30dbdea0",
+ "bytes": 13860061,
+ "source_test_file": "eval/suites/symbolic_english/test.jsonl",
+ "source_test_sha256": "ca67dd9fb84458557a7c232e6ee4cc2a873e97ffaefa420792b42c0210fe0a1a",
+ "counts": {
+  "by_kind": {
+   "K1": 400,
+   "K3": 282,
+   "K5": 102
+  },
+  "by_stratum": {
+   "K1:n2": 100,
+   "K1:n3": 100,
+   "K1:n5": 100,
+   "K1:n8": 100,
+   "K3:n12": 60,
+   "K3:n16": 60,
+   "K3:n24": 60,
+   "K3:n32": 40,
+   "K3:n48": 30,
+   "K3:single": 32,
+   "K5:n2": 34,
+   "K5:n3": 34,
+   "K5:n4": 34
+  },
+  "by_sentences": {
+   "1": 32,
+   "2": 134,
+   "3": 134,
+   "4": 34,
+   "5": 100,
+   "8": 100,
+   "12": 60,
+   "16": 60,
+   "24": 60,
+   "32": 40,
+   "48": 30
+  },
+  "by_components": {
+   "1": 32,
+   "2": 134,
+   "3": 134,
+   "4": 34,
+   "5": 100,
+   "8": 100,
+   "12": 60,
+   "16": 60,
+   "24": 60,
+   "32": 40,
+   "48": 30
+  },
+  "symbolic_components_pool": 1104,
+  "neuro_components_pool": 61,
+  "bad_components_pool": 1092,
+  "component_rejections": {
+   "symbolic": {
+    "needs_context": 270,
+    "not_one_sentence": 405,
+    "not_a_clean_conversion": 251,
+    "quotes_newlines_or_no_terminal_punctuation": 94,
+    "not_one_request_or_statement": 18,
+    "splitter_sees_several_sentences": 8
+   }
+  }
+ },
+ "purpose": "Paragraphs of known-good symbolic sentences (K1), long identity paragraphs (K3) and pronoun-reference paragraphs (K5). Measures whether SymbolicLM still passes every known form when there are many, and whether a rewriter leaves clean text untouched at length.",
+ "built_at": "2026-09-30T16:36:12.581Z"
+}

@@ -60,11 +60,22 @@ test('experiment registry validates entries and rejects duplicates', t => {
   assert.throws(() => readExperiments({file}), /Duplicate experiment id/);
 });
 
-test('the tracked journal and experiment registry are valid and the registry has no runs', () => {
+test('the tracked journal and experiment registry are valid and every preregistered run is owner-approved and frozen', () => {
   const events = readJournal({file: repoPath('status/journal.jsonl')});
   assert.ok(events.length >= 10);
   assert.ok(events.some(item => item.state === 'decision'));
-  assert.deepEqual(readExperiments({file: repoPath('status/experiments.json')}).experiments.filter(item => ['running', 'done'].includes(item.status)), []);
+  const approvals = events.filter(item => item.area === 'training' && item.state === 'decision' && /authoriz|approv/i.test(item.title));
+  const registry = readExperiments({file: repoPath('status/experiments.json')}).experiments;
+  for (const entry of registry.filter(item => item.category && item.category !== 'preregistered')) {
+    assert.match(entry.preregistration, /^none: /, `${entry.id}: a ${entry.category} states why it has no preregistration`);
+  }
+  for (const run of registry.filter(item => ['running', 'done'].includes(item.status) && (item.category ?? 'preregistered') === 'preregistered')) {
+    assert.ok(approvals.length, `${run.id}: a run needs an owner training decision in the journal`);
+    const record = run.preregistration.split(' ')[0];
+    assert.ok(fs.existsSync(repoPath(record)), `${run.id}: preregistration record ${record} must exist`);
+    // An unfilled field holds the placeholder as its value; the record's own explanation may name the placeholder.
+    assert.doesNotMatch(fs.readFileSync(repoPath(record), 'utf8'), /:\s*"PENDING_DATA_FINAL/, `${run.id}: data hashes must be frozen before a run`);
+  }
 });
 
 test('tools/journal.mjs adds, lists and validates from the shell', t => {

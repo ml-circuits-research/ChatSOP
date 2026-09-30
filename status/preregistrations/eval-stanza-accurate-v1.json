@@ -1,0 +1,82 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-stanza-accurate-v1",
+ "name": "How much does the transformer-based Stanza English package (default_accurate) improve the SymbolicLM analysis of clean English over the default charlm package, and what do the cheap extensibility levers add?",
+ "registered_at": "2026-09-30T09:45:00Z",
+ "registered_by": "parse-judge-agent (owner question relayed by the orchestrator)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_context": "Priority: make SymbolicLM's grammatical analysis correct on CLEAN English. How far can Stanza itself be improved?",
+ "kind": "evaluation-only (Stanza inference on GPU and CPU; LLM judge on a small sample; no training)",
+ "frozen_before_results": "Written before any accurate-package parse of an evaluation row. Earlier, only two sentences were parsed to check that the worker starts.",
+ "systems": {
+  "default": "Stanza 1.10.1 English default package (pos/depparse combined_charlm, lemma combined_nocharlm, ner ontonotes-ww-multi_charlm) through the frozen worker of rules v1.4 (SHA256 in eval/reports/current/baseline-ud-rules/frozen-rules-v1.4/SHA256SUMS)",
+  "accurate": "Stanza 1.10.1 English default_accurate package (pos/depparse combined_electra-large on google/electra-large-discriminator, lemma combined_charlm, ner ontonotes-ww-multi_electra-large; tokenize/mwt unchanged) in the separate resources dir ~/stanza_accurate/resources through tools/research/stanza-accurate/ud_parse_worker_accurate.py, a copy of the frozen worker with only the English model directory and package changed; Romanian pipeline and splitter unchanged",
+  "rules": "frozen ud-rules v1.4, copied to a private snapshot (tools/research/proofing-oracle.mjs loadFrozenRules mechanism; live lib/ud-to-sop edits by other agents cannot change a score)"
+ },
+ "data": {
+  "development": "clean-English dev rows (datasets/clean-english/dev.jsonl, resolved at run time; falls back to datasets_archive/clean-english/dev.jsonl), 1717 rows, all from formalizer-v1; stratified by question_type (suite is constant in dev, so the suite split is reported only on the sealed test)",
+  "sealed_test": "eval/suites/clean-english/test.jsonl (2543 rows) is opened only for the final headline numbers of the frozen default and accurate systems and of any lever that helped on dev; nothing is tuned on it. Its per-suite and per-question-type slices are reported.",
+  "stages": "100, 300, full (seed 20260930, stratified by question_type via tools/research/ud-baseline-eval.mjs stages)"
+ },
+ "measurements": {
+  "i_end_to_end": "strict execution equivalence (eval/run.mjs execution_equivalent) and tolerant, frame-normalized as secondary; paired cluster bootstrap over split_group_id (10000 resamples, seed 7) of accurate minus default; McNemar counts (gained/lost)",
+  "ii_parse_differences": "share of sentences whose dependency trees differ (any head or deprel; and core arcs root/subject/object/negation); on a stratified sample of at most 60 differing sentences, a pairwise blind judgement by the stronger model (Claude fable-5-1, rubric v1 conventions, A/B order randomised, answers A / B / both_ok / both_wrong) says which parse is right. Haiku is not used for this decision unless Q1 (eval-parse-judge-haiku-v1) shows it is reliable.",
+  "iii_speed": "ms per sentence for both packages on the GPU (batch of 64 messages, warm) and on the CPU restricted to 4 threads (taskset on 4 cores, OMP_NUM_THREADS=4), 50 sentences after warm-up; model load time and memory"
+ },
+ "levers": {
+  "L1_protect": "name/title protection: the proper-name runs and short quoted titles found by lib/ud-to-sop/protect.mjs (frozen copy) are passed to the tokenizer as one token (spaces replaced by underscores, same length), and the parse words are restored (text with spaces, PROPN); effect measured for default and for accurate separately",
+  "L2_spacy": "spaCy en_core_web_lg 3.8.0 core-arc disagreement (lib/symbolic-lm/uncertainty.mjs coreDisagreement) as an uncertainty signal on clean English: precision/recall/lift for predicting a strict miss and a DEEP/FAIL parse, and the agreement of default and accurate Stanza as a second signal; reported, not used to change any output"
+ },
+ "hypotheses": {
+  "H1": "default_accurate raises strict gold match on clean-English dev by at least +2 pp (95% CI excluding 0).",
+  "H2": "At least 5% of clean-English sentences get a different tree from the accurate package, and among judged differing sentences the accurate parse is right more often than the default (sign test).",
+  "H3": "The accurate package is at least 5x slower per sentence on CPU with 4 threads than the default.",
+  "H4": "Name/title protection changes strict match by less than +1 pp (small, because names already parse as PROPN in most rows).",
+  "H5": "Stanza-spaCy core disagreement predicts a strict miss with lift >= 1.5 on clean English."
+ },
+ "stop_rules": [
+  "Broken condition: more than 20% empty/crashed predictions on the first 100 rows of a variant stops that variant.",
+  "Decisive at stage 300: if the paired 95% CI of a variant vs default excludes 0 by at least 2 pp, only the two headline systems continue to the full dev set (for per-question-type numbers); levers that are still undecided (CI includes 0 and |delta| >= 1 pp) continue to full dev.",
+  "Futility: a lever whose stage-300 paired CI upper bound is below +0.5 pp is not run on the full dev set.",
+  "Judge budget: at most 8 USD of stronger-model calls for the pairwise judgement (about 60 pairs at about 0.12 USD)."
+ ],
+ "honesty": "The realistic ceiling of clean-English parse correctness is assessed from the judged samples of eval-parse-judge-haiku-v1 and this study, with the stronger judge as a fallible reference (not validated against a human); error classes are counted from its issues, not asserted.",
+ "deliverables": [
+  "eval/reports/current/stanza-accurate/summary.md",
+  "note for dependencies.md (licences and hashes)",
+  "tools/research/stanza-accurate-eval.mjs"
+ ],
+ "records": [
+  "status/experiments.json",
+  "status/tasks.json (task eval-parse-judge-haiku-v1 covers all three studies)",
+  "status/notes",
+  "status/journal.jsonl"
+ ],
+ "rigor": [
+  "No training; one GPU worker at a time; port 9999 untouched.",
+  "Frozen rules only; protect lever implemented outside lib/ in tools/research/."
+ ],
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-09-30T10:35:00Z",
+   "what": "Lever L1 redefined after the full-dev run of its first version (protect-v1: multiword names AND quoted spans of 2-8 words joined by underscores): protect-v1 changed default strict by -1.2 pp (95% CI [-1.9, -0.5], 12 gained / 32 lost) and accurate by -0.06 pp; inspection of 12 losses showed that quoted claims (`Is this correct? \"Paula Mocanu is married to Sofia\"`) were joined into one token and that an unknown underscore token can shift the parse (`Ionut_Nistor`). protect-v2 protects only multiword proper-name runs (Ent slots of protect.mjs, no quotes). protect-v1 results are kept in eval/reports/current/stanza-accurate/superseded-protect-v1/ and reported as a failed first design.",
+   "why": "A quoted claim is not a name or title; the lever should test names only. Decided after looking at dev only (no test rows were run).",
+   "effect": "L1 numbers in the summary are protect-v2; protect-v1 is reported beside them."
+  },
+  {
+   "id": "D2",
+   "at": "2026-09-30T11:55:00Z",
+   "what": "Added a measurement: the stronger model judges BOTH parses of a seeded random sample of 110 clean-English dev sentences (not enriched by any difference filter), one call per parse under the rubric v1 single-parse prompt of parse-judge.mjs (identical renderings are cached and cost one call), to estimate the DEEP/FAIL rate of each package directly and the residual error classes; the pairwise judgement (48 pairs, 2.6 USD) had shown 26 accurate wins against 3 default wins.",
+   "why": "The pairwise sample is enriched for differences and cannot give an absolute error rate or the error classes that remain, which the owner asked for.",
+   "effect": "Total stronger-model spend of this study stays within the 8 USD cap of its own ledger (eval/reports/current/stanza-accurate/ledger.json)."
+  },
+  {
+   "id": "D3",
+   "at": "2026-09-30T12:05:00Z",
+   "what": "The stronger-model spend cap of this study was raised from 8 to 9.5 USD after the D2 sample run hit the cap (8.18 USD spent: 2.53 for the 48 pairs, 5.65 for the sample) and left 20 of 110 accurate-parse verdicts empty; the 20 missing calls were completed under the new cap.",
+   "why": "An incomplete paired sample cannot be analysed; the extra cost is under 1 USD.",
+   "effect": "Total stronger-model spend of Q2 is reported in the summary; Q1 stayed under its own 15 USD cap."
+  }
+ ]
+}

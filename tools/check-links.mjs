@@ -27,7 +27,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-export const START_PAGES = ['/', '/chat', '/audit', '/eval', '/eval/guide', '/project', '/admin', '/docs/', '/docs/wire_types.html', '/docs/specsLoader.html?spec=matrix.md'];
+export const START_PAGES = ['/', '/chat', '/audit', '/eval', '/eval/guide', '/experiments', '/experiments/topics', '/experiments/reports', '/experiments/timeline', '/experiments/questions', '/admin', '/docs/', '/docs/wire_types.html', '/docs/specsLoader.html?spec=matrix.md'];
 const SKIP = new Set(['/logout', '/login']);
 const ATTR = /\s(?:href|src)\s*=\s*("([^"]*)"|'([^']*)')/gi;
 

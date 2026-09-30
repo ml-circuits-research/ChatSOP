@@ -2,20 +2,25 @@
  * and the model language; sop/declarative.mjs decides which wire types the model may author. */
 import {outputRegistry,outputSpecs} from './outputs.mjs';
 import {assert,stable} from '../lib/util.mjs';
-import {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS} from './enums.mjs';
-export {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,OUTPUT_MODES,QUERY_MODES,TIME_MEASURES} from './enums.mjs';
+import {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,COMPARATOR_WORDS,RANK_WORDS,QUANTIFIER_WORDS,ORDER_WORDS,LINK_WORDS,MAX_LINKS,UNPARSED_HINTS,MAX_SPAN} from './enums.mjs';
+export {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,OUTPUT_MODES,QUERY_MODES,TIME_MEASURES,COMPARATOR_WORDS,ARITHMETIC_WORDS,RANK_WORDS,QUANTIFIER_WORDS,ORDER_WORDS,FRAGMENT_KINDS,LINK_KEYWORDS,LINK_WORDS,LINK_TYPES,MAX_LINKS,LINK_STATUSES,UNPARSED_HINTS,GENERIC_HINTS,MAX_SPAN} from './enums.mjs';
 import {parseExpression,expressionRefs,evaluateExpression} from './expression.mjs';
-import {conditionField,parseCondition,parseBooleanCondition,formatCondition} from './conditions.mjs';
+import {conditionField,parseCondition,parseBooleanCondition,formatCondition,BLOCK_OPENERS,BLOCK_CLOSER} from './conditions.mjs';
+export {GROUP_OPENERS,MATCH_OPENER,BLOCK_OPENERS,BLOCK_CLOSER,SYNTAX_WORDS,CONDITION_FIELDS} from './conditions.mjs';
+/** The atom negation prefix (`[not ]predicate term…`) and the keyword lines of a query `match` block (DS021). */
+export const ATOM_NEGATION='not';
+export const MATCH_KEYWORDS=Object.freeze(['relation','role','polarity']);
 export const SPEC={
  value:{one:['data'],required:['data']},
  resolve:{one:['text','language','kind','type','domain'],required:['text','language','kind']},
  fact:{one:['holds','valid','source','quote','retention'],required:['holds','valid']},
- stated:{one:['relation','polarity','certainty','speaker'],many:['role','valid'],required:['relation','role','polarity','certainty']},
- assumed:{one:['relation','polarity','basis'],many:['role','valid'],required:['relation','role','polarity']},
+ stated:{one:['relation','polarity','certainty','speaker'],many:['role','valid',...LINK_WORDS],required:['relation','role','polarity','certainty']},
+ assumed:{one:['relation','polarity','basis'],many:['role','valid',...LINK_WORDS],required:['relation','role','polarity']},
  unclear:{one:['kind','language'],many:['reading'],required:['kind']},
+ unparsed:{one:['span','near','hint'],required:['span']},
  rule:{one:['then','valid','mode','source'],many:['when'],required:['then','when']},
- query:{one:['mode','select','scope','measure','span','at','during','asof','limit'],many:['where','filter'],required:['where']},
- constraint:{one:['claim','task','unit','objective','direction','select'],many:['var','require'],required:['claim']},
+ query:{one:['mode','select','scope','measure','span','at','during','asof','limit','rank','quantifier','order','fragment'],many:['where','filter','compare','except',...LINK_WORDS],required:['where']},
+ constraint:{one:['claim','task','unit','objective','direction','select'],many:['var','require'],required:[]},
  event:{one:['action','target','effective','replacement','source'],required:['action','target']},
  pack:{many:['items'],required:['items']},
  remember:{one:['scope'],many:['input','after'],required:['input']},
@@ -83,14 +88,14 @@ export function parse(source,{maxWires=2048,maxBytes=1048576,allowTypes=null}={}
   assert(current&&/^  \S/.test(line),`Line ${i+1}: wire fields use two spaces`);const m=line.trim().match(/^(\S+)(?:\s+(.*))?$/),key=m[1];let value=m[2]??'';
   const spec=specOf(current.type,allowTypes);assert(!spec||(spec.one??[]).includes(key)||(spec.many??[]).includes(key),'Unsupported field '+key+' on '+current.type);
   if(value==='|'){const chunk=[];while(i+1<lines.length){const next=lines[i+1];if(next.trim()&&!next.startsWith('    '))break;i++;chunk.push(next.startsWith('    ')?next.slice(4):'');}value=chunk.join('\n').replace(/\s+$/,'');}
-  else if(conditionField(current.type,key)&&['all','any','match'].includes(value)){
+  else if(conditionField(current.type,key)&&BLOCK_OPENERS.includes(value)){
    const chunk=[value];let depth=1;
    while(depth&&i+1<lines.length){
     const next=lines[++i],text=next.trim();
     if(!text||text.startsWith('#'))continue;
     assert(/^  \s*\S/.test(next),`Line ${i+1}: unclosed condition group`);
-    if(text==='all'||text==='any'||text==='match')depth++;
-    if(text==='end')depth--;
+    if(BLOCK_OPENERS.includes(text))depth++;
+    if(text===BLOCK_CLOSER)depth--;
     assert(depth<=32,'Condition nesting limit');
     chunk.push(text);
    }
@@ -112,7 +117,7 @@ const SYMBOL=/^[a-z][a-z0-9_]*$/;
  * polarity and optional quoted validity. `pairs` is [[keyword, value], …].
  * With `variables` (query `match` blocks) a value may also be a ?variable.
  */
-export function parseProposition(pairs,{where='proposition',variables=false,validity=true}={}){
+export function parseProposition(pairs,{where='proposition',variables=false,validity=true,partial=false,references=true,placeholders=true}={}){
  const text=(key,value)=>{assert(/^"/.test(value??''),where+' '+key+' takes one JSON-quoted string');const v=parseTerm(value);assert(typeof v==='string'&&v.trim(),where+' '+key+' needs a nonempty quoted string');return v;};
  const out={relation:undefined,roles:[],polarity:undefined,valid:{}},names=new Set();
  for(const [key,value] of pairs){
@@ -123,9 +128,14 @@ export function parseProposition(pairs,{where='proposition',variables=false,vali
    const [name,token]=parts;assert(ROLE_NAMES.includes(name),'role_unknown: '+where+' role '+name+' is not one of '+ROLE_NAMES.join(', '));
    assert(!names.has(name),'role_duplicate: '+where+' repeats role '+name);names.add(name);
    let v;
-   if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(token)){assert(variables,'proposition_not_ground: '+where+' role '+name+' cannot take a ?variable; put unknowns in a query');v=token;}
+   // In a stated/assumed wire a ?variable is only a placeholder for a span the model marked `unparsed` (paired by
+   // `near` and `hint` at admission, sop/clauses.mjs); anywhere else it is a query unknown.
+   if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(token)){assert(variables||placeholders,'proposition_not_ground: '+where+' role '+name+' cannot take a ?variable; put unknowns in a query');v=token;}
    else if(/^-?\d+$/.test(token))v=parseTerm(token);
-   else {assert(!/^[$~]/.test(token),'proposition_not_ground: '+where+' role '+name+' cannot take a $reference or ~handle');assert(token.startsWith('"'),where+' role '+name+' value must be a JSON-quoted string as written in the message'+(variables?', a ?variable':'')+' or an integer');v=text('role '+name,token);assert(!/^[?$~]/.test(v),'proposition_not_ground: '+where+' role '+name+' cannot hide a sigil in quotes');}
+   // A `$id` value names another wire of the same model output (DS021 "Clauses and links", owner decision L1):
+   // the proposition of a stated/assumed wire used as an argument, or the answers of an earlier query.
+   else if(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(token)){assert(references,'proposition_not_ground: '+where+' role '+name+' cannot take a $reference');v={ref:token.slice(1)};}
+   else {assert(!/^~/.test(token),'proposition_not_ground: '+where+' role '+name+' cannot take a ~handle');assert(!/^\$/.test(token),'reference_form: '+where+' role '+name+' takes $id, a wire name of this output');assert(token.startsWith('"'),where+' role '+name+' value must be a JSON-quoted string as written in the message'+(variables?', a ?variable':'')+' or an integer');v=text('role '+name,token);assert(!/^[?$~]/.test(v),'proposition_not_ground: '+where+' role '+name+' cannot hide a sigil in quotes');}
    out.roles.push({name,value:v});continue;
   }
   if(key==='valid'&&validity){
@@ -134,21 +144,43 @@ export function parseProposition(pairs,{where='proposition',variables=false,vali
   }
   throw Error('Unsupported field '+key+' in '+where);
  }
- assert(out.relation!==undefined,where+' needs relation');assert(out.roles.length>=1&&out.roles.length<=4,where+' binds 1..4 roles');assert(out.polarity!==undefined,where+' needs polarity');
+ // A follow-up fragment (`fragment follow_up`) carries only what the message says: the relation, the polarity
+ // and all but one role may be missing; the host completes it from the conversation (DS021 Q-LANG-4).
+ if(partial){assert(out.relation!==undefined||out.roles.length>=1,where+' needs a relation or a role');assert(out.roles.length<=4,where+' binds at most 4 roles');}
+ else {assert(out.relation!==undefined,where+' needs relation');assert(out.roles.length>=1&&out.roles.length<=4,where+' binds 1..4 roles');assert(out.polarity!==undefined,where+' needs polarity');}
  assert(!(out.valid.on&&(out.valid.from||out.valid.until)),'time_form: '+where+' valid on excludes valid from/until');
  return out;
 }
 /** A query `match` block: keyword lines between `match` and `end`, parsed as a proposition with ?variables. */
 export const isMatch=text=>typeof text==='string'&&/^match(\n|$)/.test(text);
-export function parseMatch(text,where='match'){
+export function parseMatch(text,where='match',{partial=false}={}){
  const lines=text.split('\n').map(line=>line.trim()).filter(line=>line&&!line.startsWith('#'));
  assert(lines[0]==='match','Expected a match block');
  const pairs=lines.slice(1).map(line=>{const m=line.match(/^(\S+)(?:\s+(.*))?$/);return [m[1],m[2]??''];});
- return {kind:'match',...parseProposition(pairs,{where,variables:true,validity:false})};
+ return {kind:'match',...parseProposition(pairs,{where,variables:true,validity:false,partial})};
 }
 /** Wire fields of a stated/assumed wire as proposition pairs, in written order per keyword. */
-export const propositionPairs=w=>['relation','role','polarity','valid'].flatMap(key=>many(w,key).map(value=>[key,value]));
+export const propositionPairs=w=>[...MATCH_KEYWORDS,'valid'].flatMap(key=>many(w,key).map(value=>[key,value]));
+/** The `$id` target of a link line (`because $s2`): exactly one wire reference, nothing else (`link_form`). */
+export function linkTarget(value,where='link'){const parts=words(value??'');assert(parts.length===1&&/^\$[A-Za-z][A-Za-z0-9_]*$/.test(parts[0]),'link_form: '+where+' takes exactly one $id naming a wire of this output');return parts[0].slice(1);}
+/** The link lines of a wire in written keyword-table order: [{keyword, target}]. */
+export const linksOf=w=>LINK_WORDS.flatMap(keyword=>many(w,keyword).map(value=>({keyword,target:linkTarget(value,'@'+w.id+' '+keyword)})));
+/** `$id` role values of a stated/assumed wire or of the match blocks of a query: [{role, target}]. */
+export function roleReferences(w){
+ const out=[];const add=p=>{for(const r of p.roles)if(r.value&&typeof r.value==='object'&&r.value.ref)out.push({role:r.name,target:r.value.ref});};
+ if(w.type==='stated'||w.type==='assumed')add(parseProposition(propositionPairs(w),{where:'@'+w.id+' '+w.type}));
+ if(w.type==='query'){const partial=w.fields.fragment!==undefined;for(const text of [...many(w,'where'),...many(w,'scope')])parseCondition(text,leaf=>{if(isMatch(leaf))add(parseMatch(leaf,'@'+w.id+' match',{partial}));return leaf;});}
+ return out;
+}
+function validateLinks(w){
+ const links=linksOf(w);
+ assert(links.length<=MAX_LINKS,'link_too_many: @'+w.id+' carries '+links.length+' link lines; at most '+MAX_LINKS+' per wire');
+ assert(new Set(links.map(l=>l.keyword+' '+l.target)).size===links.length,'link_duplicate: @'+w.id+' repeats a link line');
+ // At most one `$id` role value per wire (owner decision L1): one clause is one short proposition.
+ assert(roleReferences(w).length<=1,'reference_multiple: @'+w.id+' uses more than one $id role value; split the clause into its own wire');
+}
 function validateShape(w){
+ if(['stated','assumed','query'].includes(w.type))validateLinks(w);
  if(w.type==='fact')parseAtom(one(w,'holds'));
  if(w.type==='stated'||w.type==='assumed')parseProposition(propositionPairs(w),{where:'@'+w.id+' '+w.type});
  if(w.type==='stated'){
@@ -156,6 +188,12 @@ function validateShape(w){
   if(w.fields.speaker){const s=one(w,'speaker'),v=s.startsWith('"')?parseTerm(s):s;assert(s==='user'||(s.startsWith('"')&&typeof v==='string'&&v.trim()&&!/^[?$~]/.test(v)),'@'+w.id+' speaker must be user or a JSON-quoted name as written in the message');}
  }
  if(w.type==='assumed'&&w.fields.basis)assert(BASES.includes(one(w,'basis')),'@'+w.id+' basis must be one of '+BASES.join(', '));
+ if(w.type==='unparsed'){
+  const span=one(w,'span'),v=/^"/.test(span)?parseTerm(span):null;
+  assert(typeof v==='string'&&v.trim()&&v.length<=MAX_SPAN,'unparsed_span_form: @'+w.id+' span takes one nonempty JSON-quoted verbatim part of the message (at most '+MAX_SPAN+' characters)');
+  if(w.fields.near)linkTarget(one(w,'near'),'@'+w.id+' near');
+  if(w.fields.hint)assert(UNPARSED_HINTS.includes(one(w,'hint')),'@'+w.id+' unparsed hint must be one of '+UNPARSED_HINTS.join(', '));
+ }
  if(w.type==='unclear'){
   assert(ENUMS.unclear.kind.includes(one(w,'kind')),'@'+w.id+' unclear kind must be one of '+ENUMS.unclear.kind.join(', '));
   if(w.fields.language)assert(ENUMS.unclear.language.includes(one(w,'language')),'@'+w.id+' unclear language must be one of '+ENUMS.unclear.language.join(', '));
@@ -175,7 +213,9 @@ function validateShape(w){
  if(w.type==='action'){for(const key of ['requires','adds','removes'])many(w,key).forEach(parseAtom);assert(w.fields.adds||w.fields.removes,'action needs effects');}
  if(['abduce','diagnose','associate','induce','analogize','plan','simulate','temporal'].includes(w.type))outputSpecs(w);
  if(w.type==='query'){
-  const leaf=leaf=>isMatch(leaf)?parseMatch(leaf,'@'+w.id+' match'):parseAtom(leaf);
+  const partial=w.fields.fragment!==undefined;
+  if(partial)assert(ENUMS.query.fragment.includes(one(w,'fragment')),'@'+w.id+' fragment must be one of '+ENUMS.query.fragment.join(', '));
+  const leaf=leaf=>isMatch(leaf)?parseMatch(leaf,'@'+w.id+' match',{partial}):parseAtom(leaf);
   many(w,'where').forEach(s=>parseCondition(s,leaf));if(w.fields.scope)parseCondition(one(w,'scope'),leaf);
   many(w,'filter').forEach(parseBooleanCondition);assert(!(w.fields.at&&w.fields.during),'Use at OR during');
   const mode=one(w,'mode');if(mode!==undefined)assert(ENUMS.query.mode.includes(mode),'@'+w.id+' query mode must be one of '+ENUMS.query.mode.join(', '));
@@ -184,14 +224,39 @@ function validateShape(w){
   if(w.fields.measure){assert(ENUMS.query.measure.includes(one(w,'measure')),'@'+w.id+' measure must be one of '+ENUMS.query.measure.join(', '));assert(words(one(w,'select','')).length===1&&(mode??'select')==='select','measure_needs_time_variable: @'+w.id+' measure applies to exactly one selected time variable in mode select');}
   if(w.fields.span)assert(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(one(w,'span')),'@'+w.id+' span takes one ?variable');
   if(mode==='explain')assert(!w.fields.select,'explain_no_select: @'+w.id+' mode explain asks why a proposition holds; it selects nothing');
+  validateWordFields(w,mode);
  }
  if(w.type==='jsEval')parseExpression(one(w,'expr'));
- if(w.type==='constraint'){many(w,'require').forEach(parseBooleanCondition);parseBooleanCondition(one(w,'claim'));}
+ // A computation ("what is 19% of 2380?") selects its result and needs no claim; every other constraint states one.
+ if(w.type==='constraint'){assert(w.fields.claim||w.fields.select,'@'+w.id+' needs claim (or select for a computation)');many(w,'require').forEach(parseBooleanCondition);if(w.fields.claim)parseBooleanCondition(one(w,'claim'));}
  if(w.type==='value'){const a=parseExpression(one(w,'data'));assert(a.type!=='name','value needs a literal or expression');}
  if(w.type==='event')assert(ENUMS.event.action.includes(one(w,'action')),'Unknown event action');
  if(w.type==='resolve'){assert(ENUMS.resolve.kind.includes(one(w,'kind')),'resolve kind must be entity, predicate or concept');assert(/^[a-z]{2,3}$/.test(one(w,'language')),'resolve needs an explicit language');assert(!w.fields.type||one(w,'kind')==='entity','resolve type is only for entities');for(const key of ['text','type','domain'])if(w.fields[key])assert(typeof unquote(one(w,key))==='string'&&unquote(one(w,key)).length>0,'resolve '+key+' must be nonempty text');}
  if(w.type==='solve'){outputSpecs(w);assert(!(w.fields.constraint&&(w.fields.data||w.fields.assume)),'Constraint solve cannot consume undeclared fact data');}
  if(w.type==='reason'||w.type==='solve')assert(!!w.fields.query!==!!w.fields.constraint,'reason needs exactly query OR constraint');
+}
+const VARIABLE=/^\?[A-Za-z][A-Za-z0-9_]*$/;
+const OPERAND=/^(?:\?[A-Za-z][A-Za-z0-9_]*|-?\d+|"(?:\\.|[^"\\])*")$/;
+/**
+ * The words-only query fields (DS021 "Words, not operators"): `compare ?v above 80`, `except ?x "Ana"`,
+ * `rank highest ?v`, `quantifier most` (mode every), `order ?t1 before ?t2` (the host appends `leaves I J`).
+ */
+function validateWordFields(w,mode){
+ // `compare` is one comparison, or an all/any/end group of them ("BT or UniCredit": compare any … end).
+ const compareLeaf=line=>{const [left,cmp,right,...rest]=words(line);assert(VARIABLE.test(left??'')&&Object.hasOwn(COMPARATOR_WORDS,cmp??'')&&OPERAND.test(right??'')&&!rest.length,'compare_form: @'+w.id+' compare takes ?variable COMPARATOR value, COMPARATOR one of '+Object.keys(COMPARATOR_WORDS).join(', '));return {left,op:cmp,right};};
+ for(const text of many(w,'compare'))parseCondition(text,leaf=>{assert(!isMatch(leaf),'compare_form: @'+w.id+' compare holds comparisons, not match blocks');return compareLeaf(leaf);});
+ for(const line of many(w,'except')){const [variableName,value,...rest]=words(line);assert(VARIABLE.test(variableName??'')&&OPERAND.test(value??'')&&!rest.length,'except_form: @'+w.id+' except takes ?variable "value"');}
+ if(w.fields.rank){const [direction,variableName,...rest]=words(one(w,'rank'));assert(RANK_WORDS.includes(direction)&&VARIABLE.test(variableName??'')&&!rest.length,'rank_form: @'+w.id+' rank takes highest|lowest ?variable');}
+ if(w.fields.quantifier){
+  assert(mode==='every','quantifier_needs_every: @'+w.id+' quantifier belongs to mode every');
+  const [word,count,...rest]=words(one(w,'quantifier'));
+  assert(QUANTIFIER_WORDS.includes(word)&&!rest.length,'quantifier_form: @'+w.id+' quantifier is one of '+QUANTIFIER_WORDS.join(', '));
+  assert(word==='at_least'?/^[1-9]\d*$/.test(count??''):count===undefined,'quantifier_form: @'+w.id+' at_least takes a positive integer; the other quantifiers take none');
+ }
+ if(w.fields.order){
+  const parts=words(one(w,'order'));
+  assert((parts.length===3||(parts.length===6&&parts[3]==='leaves'&&/^\d+$/.test(parts[4])&&/^\d+$/.test(parts[5])))&&VARIABLE.test(parts[0])&&ORDER_WORDS.includes(parts[1])&&VARIABLE.test(parts[2])&&parts[0]!==parts[2],'order_form: @'+w.id+' order takes ?time1 before|after|same_time ?time2');
+ }
 }
 export function validateGraph(program,{allowMaterialized=false}={}) {
  const outputs=outputRegistry(program,{allowMaterialized}),ids=new Set(program.wires.map(w=>w.id)),deps=new Map();

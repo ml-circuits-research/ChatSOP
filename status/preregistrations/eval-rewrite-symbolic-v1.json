@@ -1,0 +1,45 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-rewrite-symbolic-v1",
+ "name": "Does rewriting a message help the symbolic path (Stanza + UD rules)? Proofreaders, Haiku rewrites and the oracle simple text, English rows",
+ "registered_at": "2026-09-29T13:35:00Z",
+ "registered_by": "ud-baseline-agent (owner requests of 2026-09-29, relayed by the orchestrator)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_requests": {
+  "first": "\"A small off-the-shelf English proofreading/GEC model in front of the symbolic path makes messy real messages easier for Stanza + rules, and so improves the SOP.\" Pipeline: message -> EN proofreader -> symbolic sentence split (lib/sentence-split.mjs) -> Stanza + rules -> SOP. No training. English first; a Romanian stage (name masking + Opus-MT roa-en + unmask + EN pipeline) only if English shows a clear gain.",
+  "revision": "Owner revision (deviation from the first request, recorded here before any sealed row): the question becomes whether rewriting or simplifying helps Stanza and whether a small model could be steered to produce text Stanza parses well. Do NOT stop for name or meaning changes; measure them. Protect names, quoted spans and numbers symbolically with placeholders before any rewriter and restore them afterwards. Stop a condition only for futility (no gain at the 100-row stage, CI upper bound under +1 pp) or broken output (the rewriter answers or executes instructions on more than 20% of rows). Add Haiku rewrites (H) and best-of-several Haiku rewrites chosen by the symbolic path's own signals (Hbest). State whether distilling H or Hbest into a small model looks worth training; do not train."
+ },
+ "frozen_before_results": "Written after a pilot on the formalizer-v1 DEVELOPMENT split only (100 English rows of the disjoint dev check sample, eval/reports/current/baseline-ud-rules/dev/dev-check.suite.jsonl) that fixed placeholder bugs (sentence-final periods inside names, 'I'm' masked, T5 splitting 'Ent1' into 'Ent 1', Haiku inventing placeholders) and the Hbest degenerate-variant guard, and before any rewrite of a sealed row. Pilot numbers (dev, tolerant execution, n=100): R 46, P-coedit 46 (0 [-4,+4]), P-gec 50 (+4 [-2,+10]), H 41 (-5 [-15,+5]), Hbest 39 (-7 [-16,+2]), O 60 (+14 [+1,+27]); Haiku pilot cost 0.21 USD.",
+ "kind": "evaluation-only (inference; no training)",
+ "symbolic_path": "baseline-ud-rules run label ud-rules-v1.1 (lib/ud-to-sop/, frozen under eval/reports/current/baseline-ud-rules/frozen-rules-v1.1/), Stanza 1.10.1 EN on the GB10 GPU",
+ "conditions": {
+  "R": "the raw message",
+  "P-coedit": "jbochi/coedit-small @6ce9822b (flan-t5-small fine-tuned on CoEdIT, Apache-2.0, 77M), prompt 'Fix grammatical errors in this sentence: ', per sentence (lib/sentence-split.mjs), greedy, GPU; an empty output keeps its input sentence",
+  "P-gec": "Unbabel/gec-t5_small @c958d53b (t5-small GEC, Apache-2.0, 60M), prefix 'gec: ', per sentence, greedy, GPU; same guard",
+  "H": "Claude Haiku 4.5 (claude-haiku-4-5-20251001) without extended thinking (MAX_THINKING_TOKENS=0), claude -p, no tools, empty settings, system prompt tools/research/rewrite-symbolic-eval.mjs REWRITE_SYSTEM (sha256 0d7bcc34...): rewrite into parser-friendly simple English lines with the DS022 labels, never answer; the model never sees a gold target",
+  "Hbest": "the same model asked for 4 rewrites (REWRITE_BEST_SYSTEM, sha256 32b7f6fd...); the symbolic path picks the variant whose SOP is admitted, formalizes something (not only unclear) and has the fewest unparsed spans, then characters, then the model's order. No gold is used.",
+  "O": "the oracle simple text (DS022 'Simple-text rendering'): wild from eval/reports/current/simplifier/oracle/wild.jsonl (rendered from the gold SOP; an upper bound), OOD and test rendered from each row's surface IR with tools/datasets/diversity/simple-text.mjs",
+  "protection": "before every rewriter (P, H, Hbest), names (capitalized-word runs, sentence-initial common words excluded), double-quoted spans and numbers are replaced by Ent1/Num1/Quote1 placeholders and restored afterwards (lib/ud-to-sop/protect.mjs); preservation = every value restored and no placeholder invented (a repeated subject is allowed)"
+ },
+ "sets": {
+  "wild_en": {"source": "eval/suites/formalizer-wild-v1/test.jsonl (sha256 077e7164...)", "rows": 341, "primary": "proposition F1 (tools/eval/wild-suite.mjs), with accepted and decision match"},
+  "ood_en": {"source": "English rows of eval/reports/current/haiku-baseline/samples/formalizer-ood-v1-sample.suite.jsonl (sha256 c838eb8c...)", "rows": 287, "primary": "tolerant execution equivalence"},
+  "test_en": {"source": "English rows of eval/reports/current/formalizer-size-v1/sample500/formalizer-v1-sample500.suite.jsonl (sha256 40afdf78...)", "rows": 285, "primary": "tolerant execution equivalence"},
+  "stages": "nested stratified 100 / 300 / full per set (eval/reports/current/rewrite-symbolic/stages.json, seed 42)"
+ },
+ "hypotheses": {
+  "H1": "P (either proofreader) raises the primary metric over R on wild EN (real, messy text).",
+  "H2": "H raises the primary metric over R on wild EN.",
+  "H3": "Hbest is at least H on every set (choosing by the symbolic path's own signals helps).",
+  "H4": "O is the upper bound: O > R on every set."
+ },
+ "metrics": "tolerant execution equivalence and wire F1 (eval/run.mjs), wild accepted/decision match and proposition F1 (tools/eval/wild-suite.mjs), D1-tolerant all-proposition F1 (tools/research/ud-baseline-eval.mjs tolerantScores), unparsed rate, invented-value share, name preservation, answer-like outputs (tools/research/rewrite-symbolic-eval.mjs answerLike, spot-checked), rewriter latency (P: GPU ms per message) and cost (H, Hbest: USD from the CLI).",
+ "stopping": {
+  "futility": "after the 100-row stage of a set, a rewriter condition stops on that set when the paired cluster-bootstrap 95% interval of its primary-metric difference to R has an upper bound under +1 pp; it continues to 300/full otherwise",
+  "broken": "a condition stops everywhere if more than 20% of its outputs are answer-like or instruction-following",
+  "not_stopped_for": "name or meaning changes (measured and reported instead)",
+  "reproducibility": "the P and H rewriters are rerun on one 100-row stage and the share of identical texts is reported (P greedy; H via the CLI, which exposes no temperature control)",
+  "romanian": "the Romanian stage runs only if an English rewriter shows a clear gain (CI lower bound > 0 on wild EN)"
+ },
+ "non_goals": "no training; no tuning of prompts, rules or selection on sealed rows"
+}

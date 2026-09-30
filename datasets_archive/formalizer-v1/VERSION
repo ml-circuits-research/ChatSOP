@@ -1,0 +1,8 @@
+{
+  "format": "chatsop-dataset-version-v1",
+  "corpus": "formalizer-v1",
+  "counter": 1,
+  "label": "formalizer-v1 build 1 (seed chatsop-formalizer-v1, manifest b0c449573a62)",
+  "seed": "chatsop-formalizer-v1",
+  "manifest_sha256": "b0c449573a628e8d4e1d21388f650112825a213b9e079b89194e2c2c98233837"
+}

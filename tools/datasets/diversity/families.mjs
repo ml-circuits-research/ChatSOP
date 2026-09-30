@@ -14,14 +14,18 @@ import { PREDICATES } from './domains.mjs';
 import { canonical, emptyCanon } from './ir.mjs';
 
 const EXCLUDED = new Set(['caused_outage', 'wants_to_move', 'plans_to_leave', 'commutes_by', 'pays_with', 'closed_for', 'delayed_by', 'sick_from', 'quit_over']);
-const isBinary = id => PREDICATES[id].roles.length === 2 && !EXCLUDED.has(id);
+// Authored-only predicates (families-expansion.mjs) have no generated forms; generic families never draw them.
+const isBinary = id => PREDICATES[id].roles.length === 2 && !EXCLUDED.has(id) && !PREDICATES[id].authored;
 /** Predicates the generic families draw from. The main corpus excludes the out-of-distribution domains; the OOD
- * suite uses only them (`usePredicatePool('ood')`). A live binding, so every family sees the current pool. */
+ * suite uses only them (`usePredicatePool('ood')`), or the predicates with held-out constructions
+ * (`usePredicatePool('ood_construction')`). A live binding, so every family sees the current pool. */
 export let binary = Object.keys(PREDICATES).filter(id => isBinary(id) && !PREDICATES[id].ood);
 export let poolName = 'main';
 export function usePredicatePool(name) {
   poolName = name;
-  binary = Object.keys(PREDICATES).filter(id => isBinary(id) && (name === 'ood' ? PREDICATES[id].ood : !PREDICATES[id].ood));
+  // `ood_construction`: in-distribution predicates that have held-out constructions (domains.mjs HELDOUT_CONSTRUCTIONS).
+  const inPool = id => name === 'ood' ? PREDICATES[id].ood : name === 'ood_construction' ? !PREDICATES[id].ood && ['en', 'ro'].every(l => PREDICATES[id][l].some(c => c.oodOnly)) : !PREDICATES[id].ood;
+  binary = Object.keys(PREDICATES).filter(id => isBinary(id) && inPool(id));
 }
 const UNARY_CHAIN = ['trained', 'certified', 'authorized', 'eligible', 'vaccinated'];
 export const VAR = { id: '?x' };

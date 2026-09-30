@@ -1,7 +1,8 @@
-import {Runtime} from '../sop/runtime.mjs';import {complete,formalize,verbalize,barePrompt} from './llm.mjs';import {parse} from '../sop/parser.mjs';import {MODEL_TYPES,checkModelWire} from '../sop/declarative.mjs';import {assert} from '../lib/util.mjs';
+import {Runtime} from '../sop/runtime.mjs';import {complete,formalize,verbalize,barePrompt} from './llm.mjs';import {parse} from '../sop/parser.mjs';import {MODEL_TYPES,checkModelWire} from '../sop/declarative.mjs';import {checkModelLinks} from '../sop/clauses.mjs';import {defaultDictionary} from '../sop/dictionary.mjs';import {unquote,one} from '../sop/parser.mjs';import {assert} from '../lib/util.mjs';
 import {propositionOf} from '../sop/propositions.mjs';
-import {mentionedIn} from '../sop/linking.mjs';
+import {mentionedIn,mentionedThroughLexicon,mentionedThroughDictionary} from '../sop/linking.mjs';
 import {answerLanguage} from './language.mjs';
+const verbatim=text=>String(text).normalize('NFC').toLocaleLowerCase('ro').replace(/\s+/g,' ').trim();
 const listTypes=types=>{const t=[...types];return t.slice(0,-1).join(', ')+' or '+t.at(-1);};
 /**
  * The model handles language; all state changes and inference go through SOP.
@@ -9,49 +10,72 @@ const listTypes=types=>{const t=[...types];return t.slice(0,-1).join(', ')+' or 
  * propositions in the model language (DS021); the host links them to the lexicon.
  */
 export class Agent{
- constructor({repo,session,lexicon,config}){Object.assign(this,{repo,session,lexicon,config});this.recent=[];this.last=null;this.context={statements:[]};}
+ constructor({repo,session,lexicon,config}){Object.assign(this,{repo,session,lexicon,config});this.recent=[];this.last=null;
+  // Caller-owned conversation context: carried statements, the last query (for follow-ups) and, when the host
+  // configures it, the caller's own entity for "the user" (DS021 Q-LANG-4, Q-LANG-5).
+  this.context={statements:[],...(config?.user?{user:config.user}:{})};}
  /**
   * `language` is the lexical hint for alias matching ('auto', 'en', 'ro', ...).
   * The answer language is `answerLanguage` when the caller selected one, an
   * explicit request in the message, a concrete en/ro turn language, or English.
+  * `formalizer`, when given, is `{id, promptProfile, formalize: async text => sop}`
+  * (a registry model, server/formalizers.mjs) and replaces the configured endpoint for this turn.
   */
- async turn(text,{language='auto',answerLanguage:selected,languageSource,now=Date.now(),rewrite=true}={}){
+ async turn(text,{language='auto',answerLanguage:selected,languageSource,now=Date.now(),rewrite=true,formalizer=null}={}){
   const chosen=languageSource?{language:selected??language,source:languageSource}:answerLanguage(text,selected??(['en','ro'].includes(language)?language:undefined));
   const replyLanguage=chosen.language;
   assert(this.config.promptProfile===undefined||['formal','bare'].includes(this.config.promptProfile),'Unsupported formalizer prompt profile');
-  const promptProfile=this.config.promptProfile??'formal';
+  const promptProfile=formalizer?.promptProfile??this.config.promptProfile??'formal';
   // The prompt is the message only (plus the fixed instructions in the formal prompt).
-  const sop=promptProfile==='bare'?await complete(this.config.formalizer,barePrompt(text)):await formalize(text,this.config.formalizer),program=this.validateVocabulary(sop,text);
-  assert(MODEL_TYPES.has(program.wires.at(-1)?.type),'Model SOP must end in a model-language declaration');
-  const result=await new Runtime({repo:this.repo,session:this.session,schema:this.lexicon.predicates,lexicon:this.lexicon,now,policy:this.config.policy}).run(sop,{origin:'model',inputText:text,language:replyLanguage,languageSource:chosen.source,context:this.context});
+  const started=performance.now();
+  const sop=formalizer?await formalizer.formalize(text):promptProfile==='bare'?await complete(this.config.formalizer,barePrompt(text)):await formalize(text,this.config.formalizer);
+  const formalization={model:formalizer?.id??this.config.formalizer?.model??null,ms:Math.round(performance.now()-started)};
+  let program;
+  // Model output that is not admitted or cannot be executed keeps its SOP and timing, so the caller can show what the model wrote.
+  let result;
+  try{
+   program=this.validateVocabulary(sop,text);assert(MODEL_TYPES.has(program.wires.at(-1)?.type),'Model SOP must end in a model-language declaration');
+   result=await new Runtime({repo:this.repo,session:this.session,schema:this.lexicon.predicates,lexicon:this.lexicon,now,policy:this.config.policy}).run(sop,{origin:'model',inputText:text,language:replyLanguage,languageSource:chosen.source,context:this.context});
+  }catch(error){throw Object.assign(error,{modelSop:sop,formalization,promptProfile});}
   let output=result.result;
   if(output?.status==='clarify')output={kind:'cnl',text:output.text,language:replyLanguage,packet:output};
   assert(output?.kind==='cnl','The host must produce a conversational result');
-  this.context={statements:result.contextStatements??this.context.statements};
+  this.context={...this.context,statements:result.contextStatements??this.context.statements};
   this.last=output;this.recent.push({user:text.slice(0,400),response:output.text.slice(0,500)});this.recent=this.recent.slice(-3);
   const nl=rewrite&&this.config.verbalizer?await verbalize(output,this.config.verbalizer):{text:output.text};
   const packet=output.packet??{};
   return {sop,executionSop:result.executionSop,cnl:output.text,text:nl.text,packet:output.packet,trace:result.trace,outputs:result.outputs,blocked:result.blocked,generated:result.generated,
    userStatements:packet.user_statements??[],carriedStatements:packet.carried_statements??[],modelAssumptions:packet.model_assumptions??[],assumptionPolicy:packet.assumption_policy??null,assumptionBranch:packet.assumption_branch??null,
-   unclear:packet.status==='unclear'?packet.unclear_kind:null,answerLanguage:replyLanguage,languageSource:chosen.source,promptProfile,neuralFormalization:true,verbalizationCertified:!rewrite};
+   unclear:packet.status==='unclear'?packet.unclear_kind:null,answerLanguage:replyLanguage,languageSource:chosen.source,promptProfile,formalization,neuralFormalization:true,verbalizationCertified:!rewrite};
  }
  /**
-  * Admission of model output: model declarations only, `unclear` alone, and
-  * every value of a `stated` wire (and a non-user speaker) mentioned in this
-  * message (DS021 anchoring). The model had no context, so there is no shortlist.
+  * Admission of model output: model declarations only, `unclear` alone, links and
+  * `$id` references that name wires of this output, every value of a `stated` wire
+  * (and a non-user speaker) mentioned in this message, and every `unparsed` span a
+  * verbatim part of it (DS021 anchoring). The model had no context, so there is no shortlist.
   */
  validateVocabulary(sop,text=''){
   const program=parse(sop);
   if(program.wires.some(w=>w.type==='unclear'))assert(program.wires.length===1,'unclear_not_alone: unclear must be the only wire of the model output');
+  const dictionary=this.config?.policy?.dictionary===false?null:defaultDictionary();
   for(const wire of program.wires){
    assert(MODEL_TYPES.has(wire.type),'Model output must be declarative: '+listTypes(MODEL_TYPES));
    checkModelWire(wire);
    if(wire.type==='stated'){
     const p=propositionOf(wire);
-    for(const {name,value} of p.roles)assert(mentionedIn(value,text),'stated_value_not_in_message: '+JSON.stringify(value)+' (role '+name+' of @'+wire.id+') is not mentioned in this message; use assumed or a query variable');
+    // A value is written as in the message (normalized), or as the English (or Romanian) surface of a dictionary
+    // entry or a lexicon entity the message names. A `$id` (another clause) and a placeholder ?variable (paired with
+    // an unparsed span) are structural and are anchored through the wires they name.
+    for(const {name,value} of p.roles){
+     if(value&&typeof value==='object'||typeof value==='string'&&value.startsWith('?'))continue;
+     assert(mentionedIn(value,text)||mentionedThroughLexicon(value,text,this.lexicon)||mentionedThroughDictionary(value,text,dictionary),'stated_value_not_in_message: '+JSON.stringify(value)+' (role '+name+' of @'+wire.id+') is not mentioned in this message; use assumed, a query variable or an unparsed span');
+    }
     if(p.speaker!=='user')assert(mentionedIn(p.speaker,text),'stated_value_not_in_message: speaker '+JSON.stringify(p.speaker)+' of @'+wire.id+' is not mentioned in this message');
    }
+   // An unparsed span is copied verbatim from the message (case and spacing aside); it is never a paraphrase.
+   if(wire.type==='unparsed'){const span=unquote(one(wire,'span'));assert(verbatim(text).includes(verbatim(span)),'unparsed_span_not_in_message: '+JSON.stringify(span)+' of @'+wire.id+' is not a verbatim part of this message');}
   }
+  checkModelLinks(program);
   return program;
  }
 }

@@ -12,6 +12,7 @@
  */
 import {classifyTerm, literalText, labelOf} from './rows.mjs';
 import {VOCABULARY_ROW_CHECKS} from './vocabulary.mjs';
+import {anchoredValue} from './translation.mjs';
 import {
   COMPARISON_MEANING, QUANTIFIER_MEANING, TEMPORAL_MEANING, contentTokens, guessLanguage, hasNegationCue, hasOmissionCue,
   meaningMatches, nameTokens, negativeMeaning, normalize, phrasePresent, tokenPresent, tokens,
@@ -19,6 +20,16 @@ import {
 
 /** Wires whose content must be supported by the message: grounded statements plus problem wires. */
 export const checkedWires = context => context.analysis.wires.filter(wire => context.config.groundedTypes.has(wire.type) || context.config.problemTypes.has(wire.type));
+
+/** The message's own phrase behind a target relation: itself for English input, the recorded `source_relation` of a
+ * translated phrase, or null when a non-English row does not record it. */
+function sourceRelation(row, relation) {
+  const ir = row.surface_ir ?? {};
+  const props = [...(ir.stated ?? []), ...(ir.assumed ?? []), ...(ir.query?.props ?? []), ...(ir.query?.scope ?? []), ...(ir.moreQueries ?? []).flatMap(q => q.props ?? [])];
+  const found = props.find(p => p.relation === relation && p.source_relation);
+  if (found) return found.source_relation;
+  return (row.language ?? 'en') === 'en' && !row.code_switch ? relation : props.some(p => p.relation === relation) ? relation : null;
+}
 
 const idPhrase = id => normalize(String(id).replace(/[_:.-]+/g, ' '));
 
@@ -59,6 +70,8 @@ function computeMention(entity, context) {
 function literalMentioned(term, context) {
   const text = literalText(term);
   if (phrasePresent(text, context.normMessage)) return true;
+  // Canonical English targets (Q-DATA-6): a translated common noun is anchored through the EN↔RO lexicon.
+  if (anchoredValue(text, context.message, context.row)) return true;
   const content = contentTokens(text);
   const words = content.length ? content : tokens(text);
   return words.length > 0 && words.filter(token => tokenPresent(token, context.messageTokens)).length / words.length >= 0.5;
@@ -96,7 +109,8 @@ export const LABEL_CLAIMS = {
   negation: {tokens: ['negation', 'negative', 'negated'], severity: 'warning'},
 };
 export function claimedConstructs(label) {
-  const parts = new Set(String(label).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean));
+  // Word comparators are single tokens ("quantified:at_least" claims no temporal "at").
+  const parts = new Set(String(label).toLowerCase().replace(/\bat_(least|most)\b/g, 'at$1').split(/[^a-z0-9]+/).filter(Boolean));
   return Object.entries(LABEL_CLAIMS).filter(([, claim]) => claim.tokens.some(token => parts.has(token))).map(([name]) => name);
 }
 export function presentConstructs(context) {
@@ -213,10 +227,14 @@ export const ROW_CHECKS = [
       for (const wire of checkedWires(context)) for (const atom of wire.atoms) {
         if (atom.proposition) {
           // A model-language relation phrase is written from the message; at least one content word must appear there.
+          // Targets are canonical English (Q-DATA-6): for a translated phrase the message's own source phrase
+          // (surface_ir `source_relation`) is checked; a translated phrase without a recorded source is not checkable.
           if (seen.has(atom.predicate)) continue;
           seen.add(atom.predicate);
-          const words = contentTokens(atom.predicate).filter(token => token.length >= 3 && !/\d/.test(token));
-          if (words.length && !words.some(token => tokenPresent(token, context.messageTokens))) findings.push(`relation "${atom.predicate}" has no surface in the message`);
+          const source = sourceRelation(context.row, atom.predicate);
+          if (source === null) continue;
+          const words = contentTokens(source).filter(token => token.length >= 3 && !/\d/.test(token));
+          if (words.length && !words.some(token => tokenPresent(token, context.messageTokens))) findings.push(`relation "${source}" has no surface in the message`);
           continue;
         }
         if (seen.has(atom.predicate) || !context.vocabulary.predicates.has(atom.predicate)) continue;

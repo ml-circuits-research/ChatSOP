@@ -110,7 +110,7 @@ const NEGATION_CUES = [
   /\bnu-(?:i|s|l|mi)\b/,
 ];
 /** Omission/denial lexemes: enough to ground a lexically negative predicate such as `omitted`. */
-const OMISSION_CUES = /\b(?:omit\w*|exclud\w*|left out|leave\w* out|lack\w*|absent|missing|den(?:y|ies|ied|ial|ials)|refut\w*|reject\w*|contradict\w*|negat\w*|negativ\w*|negare\w*|nega\b|lipse\w*|omis\w*|exclus\w*|absen\w*|neag\w*|respins\w*)\b/;
+const OMISSION_CUES = /\b(?:omit\w*|exclud\w*|left out|leave\w* out|lack\w*|absent|missing|den(?:y|ies|ied|ial|ials)|refut\w*|reject\w*|contradict\w*|negat\w*|negativ\w*|negare\w*|nega\b|lipse\w*|lipsi\w*|omis\w*|exclus\w*|absen\w*|neag\w*|respins\w*)\b/;
 
 const cueText = text => String(text ?? '').normalize('NFD').replace(/\p{M}+/gu, '').toLowerCase().replace(/[’`´]/g, "'");
 export const hasNegationCue = text => {

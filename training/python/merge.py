@@ -10,9 +10,9 @@ def main():
  from peft import PeftModel
  folder=Path(a.checkpoint);state=json.loads((folder/'state.json').read_text());out=Path(a.output)
  if out.exists() and any(out.iterdir()):raise ValueError('Output must be empty')
- if state.get('full'):model=AutoModelForCausalLM.from_pretrained(folder/'model',torch_dtype=torch.float32)
+ if state.get('full'):model=AutoModelForCausalLM.from_pretrained(folder/'model',dtype=torch.float32)
  else:
-  base=AutoModelForCausalLM.from_pretrained(a.base,torch_dtype=torch.float32,trust_remote_code=False,local_files_only=True)
+  base=AutoModelForCausalLM.from_pretrained(a.base,dtype=torch.float32,trust_remote_code=False,local_files_only=True)
   model=PeftModel.from_pretrained(base,folder/'adapter').merge_and_unload(safe_merge=True)
  model.save_pretrained(out,safe_serialization=True)
  tok=AutoTokenizer.from_pretrained(folder/'tokenizer');tok.save_pretrained(out)

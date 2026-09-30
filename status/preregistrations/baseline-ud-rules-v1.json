@@ -1,0 +1,67 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "baseline-ud-rules-v1",
+ "name": "Symbolic formalizer baseline: Stanza Universal Dependencies parse + deterministic JavaScript rules (UD → SOP Lang)",
+ "registered_at": "2026-09-29T13:03:00Z",
+ "registered_by": "ud-baseline-agent (owner idea of 2026-09-29, relayed by the orchestrator)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_idea": "\"Is there any reasonably mature NLP system we could compare on our suite? We bring it in, wrap it, and treat it like an LLM: parse the text, then translate the parse into SOP Lang with code we write ourselves.\" English at least, Romanian if possible.",
+ "frozen_before_results": "Written after the rules were developed on two stratified samples of the formalizer-v1 DEVELOPMENT split only (224 tuning rows, seed 7; 224 disjoint check rows, seed 99; <=300 characters, 4 rows per language x question_type) and before any parse or conversion of a sealed row (formalizer-v1 test, formalizer-ood-v1, formalizer-wild-v1). The rule files are frozen by SHA-256 below (copy under eval/reports/current/baseline-ud-rules/frozen-rules/). Any later rule change is a recorded deviation and a new run label.",
+ "kind": "evaluation-only (inference with a pretrained third-party parser and hand-written rules; no training, no optimizer step, no training-data change)",
+ "system": {
+  "parser": "Stanza 1.10.1 (Stanford NLP Group, Apache-2.0). English: default package (combined UD treebanks) tokenize, mwt, pos (combined_charlm), lemma, depparse (combined_charlm), ner (ontonotes-ww-multi_charlm). Romanian: RRT package tokenize, pos, lemma, depparse (rrt_nocharlm); Stanza ships no Romanian MWT or NER model, so Romanian runs without named entities.",
+  "runtime": "~/nlp-venv (Python 3.12, torch 2.14.0+cu130, numpy 2.5.3, protobuf 7.36.2), models under ~/nlp-venv/stanza_resources (resources.json of Stanza 1.10.1). GPU (GB10, shared with another agent's llama-server; small inference allowed) for bulk; CPU latency on a small sample.",
+  "language_detection": "per sentence, function words and diacritics of lower-case words (training/python/ud_parse_worker.py detect); a mixed message is parsed sentence by sentence with each language's pipeline",
+  "input": "the row's question (the user's message) only; greetings, lead-ins ('Fact-check:', 'Background:'), politeness words and tag tails are masked by spaces before parsing (lib/ud-to-sop/index.mjs maskMessage) so every offset still points into the original message",
+  "converter": "lib/ud-to-sop/ (analyze.mjs, emit.mjs, index.mjs, lexicon.mjs, tree.mjs; stanza.mjs is the worker client). Deterministic; no lexicon, entity list, ontology, context or clock. Content words stay in the message's language as lemmas (owner decision D1); values are verbatim message spans; what the rules cannot place is an `unparsed` wire (span, near, hint).",
+  "language_version": "the current SOP Lang of the repository parser (sop/parser.mjs, sop/enums.mjs LINK_KEYWORDS, sop/clauses.mjs): conjunction link lines with $id, $id role values, `unparsed` wires; no older form is emitted (owner decision: one current SOP Lang). Every output is checked with parse + checkModelProgram + compileDeclarative; a rejected wire is dropped (its text is not re-invented) and the drop is logged.",
+  "frozen_files_sha256": {
+   "lib/ud-to-sop/analyze.mjs": "980d633282166cfe5dc25de771bf2b1d02a1ad6347d3d42830f1983c9a996091",
+   "lib/ud-to-sop/emit.mjs": "4fb85c1edef0dc22fcb62b856ffc1afb28f6240b2d3a1f0d6dd811bdad8977a4",
+   "lib/ud-to-sop/index.mjs": "f8cd246723f335a708e9a7ffd7ccc65dc51856b327a946e25c862b4cf5602b91",
+   "lib/ud-to-sop/lexicon.mjs": "04750ee0ee67e8e164651adb7be4aa7ad3786207cb73d63c31e72abf980907c5",
+   "lib/ud-to-sop/tree.mjs": "eb113bae82c950a675864b77cb2b6f214c7209abcbb0f1f82ac20906c106dec1",
+   "lib/ud-to-sop/stanza.mjs": "67ecc483619e34eb2e5993ee756f8ffd9b3ba943d76cb0e77605950da9240a62",
+   "training/python/ud_parse_worker.py": "cce28c691ca128db8a503fa13006f5310bd45c61fa2fed8eaefcfd3bc1d465ac"
+  },
+  "development_numbers": "formalizer-v1 dev, tolerant execution equivalence with the current harness: tuning sample 90/224 (40.2%; en 61/112, ro 29/112), disjoint check sample 78/224 (34.8%; en 48/112, ro 30/112). These are development observations, not results."
+ },
+ "question": "How far does a mature, off-the-shelf symbolic NLP pipeline (UD parse) plus hand-written deterministic rules get on the ChatSOP formalizer suites, compared with the fine-tuned small models and the prompted Haiku baseline, and what could it contribute as a fallback or host repair component?",
+ "hypotheses": {
+  "H1": "On the formalizer-ood-v1 500-row stratified sample, the rule baseline's tolerant execution equivalence is at least that of SmolLM2-135M (fv1-size-a4, Q8_0) on the same rows (paired difference >= 0).",
+  "H2": "On the 500-row stratified sample of the sealed formalizer-v1 test (formalizer-size-v1 sample500), the rule baseline is at least 20 points below SmolLM2-135M in tolerant execution equivalence (the in-distribution models learned the synthetic templates; the rules did not).",
+  "H3": "The rule baseline's distribution gap is small: its OOD score is within 10 points of its sealed-test score, whereas SmolLM2-135M loses more than 30 points.",
+  "H4": "Honesty: the share of quoted role values of the baseline that are not anchored in the message (dictionary-tolerant anchoring, sop/linking.mjs mentionedThroughDictionary) is below 2% on wild and lower than every comparator's.",
+  "H5": "Romanian: on OOD Romanian rows the baseline's tolerant execution equivalence is higher than SmolLM2-135M's and SmolLM2-360M's."
+ },
+ "sets": {
+  "wild": {"path": "eval/suites/formalizer-wild-v1/test.jsonl", "sha256": "077e7164a3020c1e6c3c28c8f3b5b8f2c08e2e3f59ee0e6830f9991509884163", "rows": 796, "use": "full suite; scored against all accepted golds (tools/eval/wild-suite.mjs --score) and with reference-free metrics"},
+  "ood_sample": {"path": "eval/reports/current/haiku-baseline/samples/formalizer-ood-v1-sample.suite.jsonl", "sha256": "c838eb8c0204b6f5bdca1c321c7af85909261d4ee2ffd8c97a1ac256ed7486a4", "rows": 500, "use": "the stratified OOD sample on which Haiku no-thinking was scored; SmolLM2-135M/360M have full-OOD predictions covering it"},
+  "test_sample500": {"path": "eval/reports/current/formalizer-size-v1/sample500/formalizer-v1-sample500.suite.jsonl", "sha256": "40afdf78a7419967b4b5001418c1e624d4217de516577bd9d41676c839fc9550", "rows": 500, "use": "the stratified 500-row sealed-test sample (language x question_type, seed 42) with SmolLM2-135M, SmolLM2-360M and Gemma predictions"},
+  "test_haiku_sample": {"path": "eval/reports/current/haiku-baseline/samples/formalizer-v1-sample.suite.jsonl", "sha256": "de41fe6b3c867cef673d8df7a60b201e433c29b38df186804fbe15e220bdcf6d", "rows": 500, "use": "the Haiku no-thinking sealed-test sample (length x language, seed 42; 375 short + 125 long); SmolLM2-135M full-test predictions cover it"}
+ },
+ "comparators": {
+  "smollm2-135m": "formalizer-size-v1 fv1-size-a4 Q8_0 stored predictions (eval/reports/current/formalizer-size-v1/smollm2-135m/)",
+  "smollm2-360m": "formalizer-size-v1 fv1-size-a4 Q8_0 stored predictions (exploratory arm; sample500, OOD and wild)",
+  "haiku-nothink": "eval-haiku-prompted-baseline-v1 stored predictions, no extended thinking (eval/reports/current/haiku-baseline/*.nothink.predictions.jsonl)",
+  "rescoring": "every comparator's stored predictions are re-scored with the CURRENT evaluator on the same sample files, so all systems meet the same harness; numbers can differ slightly from the originally reported ones, and both are cited with their source"
+ },
+ "metrics": {
+  "parse_validity": "share of outputs the repository parser and model admission accept (eval/run.mjs syntax; wild parsed)",
+  "tolerant_execution_equivalence": "eval/run.mjs execution_equivalence_tolerant: the row's verification world plus the evaluation-only relation synonyms (eval/relation-synonyms.json via eval/synonyms.mjs) and the world's own Romanian labels and aliases; no other lexicon",
+  "wire_f1": "eval/run.mjs wire_match f1 (DS016 'Wire F1'); string-level, so Romanian lemmas count as misses against English golds",
+  "wild_accepted_match_and_decision_match": "tools/eval/wild-suite.mjs --score (strict string level over all accepted golds)",
+  "proposition_f1": "wild-suite proposition F1 (strict), plus a D1-tolerant proposition F1 computed by tools/eval/ud-baseline-eval.mjs for every system alike: `unparsed` wires and link lines are ignored, relation phrases and values compare by sop/dictionary.mjs sameMeaning (either language), variables by position",
+  "honesty_invention_rate": "share of quoted role values in stated wires, query match blocks and except literals that are not anchored in the message: strict (sop/linking.mjs mentionedIn) and dictionary-tolerant (mentionedThroughDictionary; 'the user' anchored by a first-person word)",
+  "unparsed_rate": "share of outputs with at least one unparsed wire, unparsed wires per output, and unparsed characters over message characters",
+  "latency": "per-message parse+convert time: GPU bulk (amortized in batches) and GPU/CPU sequential single-message on a 60-message sample"
+ },
+ "staging_and_stopping": {
+  "stages": "nested stratified subsets per set (language x question_type for test/OOD, language x gap group for wild; seed 42): 100 rows, then 300, then the full set. A paired cluster bootstrap interval (10,000 resamples, seed 7, cluster = semantic_case_id or row id) of the difference to SmolLM2-135M is computed after each stage.",
+  "broken_condition": "stop at stage 100 of a set if more than 20% of outputs are unparsable by the repository parser or empty (the converter or the language contract is broken), record it and fix nothing silently",
+  "decisive_or_futile": "a hypothesis is decided at a stage when its 95% interval lies wholly on one side of its threshold; the decision is recorded with the stage and numbers. Because a full set costs under one minute of shared-GPU parsing and seconds of conversion, and the full rows are needed for the error analysis, the full sets are run for the descriptive analysis even when all hypotheses are decided earlier; this is declared here in advance.",
+  "cpu": "CPU speed is measured on a 60-message sample only"
+ },
+ "error_analysis_plan": "Classify baseline failures on the full sets by construct (question type, language, noise, length) and by cause (parser error, missing rule, lexical mismatch vs gold convention, language-convention mismatch D1, gold property predicates the rules cannot know, constraint/arithmetic, ambiguity). Separately assess what the baseline gets RIGHT where the small models fail (e.g. name copying, polarity, Romanian structure) as candidate inputs for the host repair step of unparsed spans and as a fallback formalizer.",
+ "non_goals": "no training; no rule tuning on sealed rows; no claim that the rules are the ceiling of symbolic NLP"
+}

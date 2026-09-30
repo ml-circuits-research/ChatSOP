@@ -1,0 +1,101 @@
+{
+ "format": "chatsop-corpus-manifest-v2",
+ "corpus": "clean-english",
+ "owner_decision": "2026-09-30: formalization evaluation focuses on valid, clean English (status/journal.jsonl)",
+ "builder": "tools/datasets/build-clean-english.mjs (train, dev) and tools/eval/clean-english-suite.mjs (test)",
+ "classifier": "tools/datasets/clean-english.mjs",
+ "target_language": "DS021 model language (stated, assumed, unclear, query, constraint)",
+ "model_input": "question (the user message only); verification_context, ontology_sop, world, setup_sop, late_setup_sop, verification, surface_ir, expected and execution are evaluation-only (DS022 row fields), unchanged from formalizer-v1",
+ "review_status": "not_reviewed",
+ "human_reviewed": false,
+ "training_authorized": false,
+ "synthetic": true,
+ "splits": {
+  "train": "datasets/clean-english/train.jsonl",
+  "dev": "datasets/clean-english/dev.jsonl",
+  "test": "eval/suites/clean-english/test.jsonl"
+ },
+ "sha256": {
+  "datasets/clean-english/train.jsonl": "2242e424a9861b6c7c7fb75da2a1f0cec98d5f73cf94f8d3a6ece47c927e6bbd",
+  "datasets/clean-english/dev.jsonl": "126b78419c0d0668763a505b7edc365ac2467fd067e0033811b45535e31b89c3",
+  "eval/suites/clean-english/test.jsonl": "a1a236f7d1a890b78334ce0fbdfc948b08b61f2a8d38c06c6ef8d65398a84732"
+ },
+ "bytes": {
+  "datasets/clean-english/train.jsonl": 52226358,
+  "datasets/clean-english/dev.jsonl": 11282508,
+  "eval/suites/clean-english/test.jsonl": 15853949
+ },
+ "counts": {
+  "train": 7966,
+  "dev": 1717,
+  "test": 2543,
+  "test_by_suite": {
+   "formalizer-v1": {
+    "clean_en": 1682,
+    "noisy_en": 816,
+    "ro": 1706,
+    "mixed": 829
+   },
+   "formalizer-ood-v1": {
+    "clean_en": 543,
+    "noisy_en": 237,
+    "ro": 538,
+    "mixed": 260
+   },
+   "formalizer-wild-v1": {
+    "clean_en": 318,
+    "noisy_en": 14,
+    "ro": 278,
+    "mixed": 186
+   }
+  }
+ },
+ "shared_world": {
+  "note": "rows keep their original world reference (row.world, row.ontology_sop, row.setup_sop); this corpus adds no new world"
+ },
+ "rights": {
+  "license": "MIT (repository LICENSE); original ChatSOP authored text",
+  "rights_decision": "inherited-from-formalizer-v1 (no new source text: a language-quality filter over already rights-cleared rows)",
+  "rights_decision_date": "2026-09-28",
+  "inspired_by": [
+   {
+    "id": "qqp",
+    "name": "Quora Question Pairs (GLUE QQP)",
+    "url": "https://quoradata.quora.com/First-Quora-Dataset-Release-Question-Pairs",
+    "licence": "Quora first release terms (non-commercial research use with attribution); no SPDX licence identified"
+   },
+   {
+    "id": "paws",
+    "name": "PAWS-Wiki labeled final",
+    "url": "https://github.com/google-research-datasets/paws",
+    "licence": "PAWS LICENSE: may be freely used for any purpose, acknowledgement of Google LLC appreciated; underlying Wikipedia text CC BY-SA 4.0"
+   },
+   {
+    "id": "proofwriter",
+    "name": "ProofWriter (OWA structured)",
+    "url": "https://allenai.org/data/proofwriter",
+    "licence": "No dataset licence file in the official release; secondary sources report CC BY 4.0 (unconfirmed)"
+   },
+   {
+    "id": "ambignq",
+    "name": "AmbigNQ (AmbigQA)",
+    "url": "https://nlp.cs.washington.edu/ambigqa/",
+    "licence": "CC BY-SA 3.0 (notice bundled in the publisher release ZIP); underlying Natural Questions CC BY-SA 3.0"
+   },
+   {
+    "id": "qa2d",
+    "name": "QA2D (question to declarative)",
+    "url": "https://github.com/kelvinguu/qanli",
+    "licence": "Code MIT (Demszky 2019); dataset licence not stated (mirror card: Needs More Information); upstream SQuAD CC BY-SA 4.0 plus RACE/NewsQA/QAMR/MovieQA terms"
+   },
+   {
+    "id": "squad",
+    "name": "SQuAD v2.0 (dev)",
+    "url": "https://rajpurkar.github.io/SQuAD-explorer/",
+    "licence": "CC BY-SA 4.0"
+   }
+  ],
+  "text_copied": false,
+  "filtered_from": "datasets/formalizer-v1 (train/dev) and eval/suites/{formalizer-v1,formalizer-ood-v1,formalizer-wild-v1}/test.jsonl (test), by tools/datasets/clean-english.mjs classifyPartition"
+ }
+}

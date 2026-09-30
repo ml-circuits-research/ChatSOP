@@ -1,0 +1,8 @@
+{
+ "format": "chatsop-dataset-version-v1",
+ "corpus": "proofing",
+ "counter": 3,
+ "label": "proofing build 3 (v2: +88 train / +3 dev / +98 hard_cases rows from Haiku-diversified formalizer-v1 paraphrases, disjoint from diverse-dev.jsonl and eval/suites/**; rules v1.4 unchanged; v1 rows unchanged)",
+ "seed": "chatsop-proofing-v1",
+ "manifest_sha256": "fd0c0bb3f8b7b66b4010d44631e20cc62785d023f9ced75906b801a1184dd4f1"
+}

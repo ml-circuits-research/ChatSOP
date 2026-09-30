@@ -1,0 +1,162 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-translate-then-formalize-v1",
+  "name": "Base-model translation to English before the fine-tuned formalizer (Romanian and mixed messages)",
+  "registered_at": "2026-09-29T10:58:00Z",
+  "registered_by": "translate-eval-agent (owner question of 2026-09-29, relayed by the orchestrator: CPU-only evaluation; no training, no GPU)",
+  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "frozen_before_results": "Written after the translation prompt and the language detector were chosen on the formalizer-v1 development split only (24-row translation pilot, detector checked on all 5,131 dev rows) and before any translator or translated prediction touched a sealed suite (formalizer-v1 test, formalizer-ood-v1, formalizer-wild-v1). Any later change is a recorded deviation.",
+  "kind": "evaluation-only (CPU inference with existing checkpoints and unmodified base models; no optimizer step, no training data change)",
+  "question": "Do the small fine-tuned formalizers do better on Romanian and mixed messages when the host first translates the message into English with an original (base, not fine-tuned) instruct model?",
+  "owner_scope_correction": "2026-09-29T10:55Z: the translators are the ORIGINAL base versions of the models we fine-tuned. Qwen3-0.6B is out of scope (never fine-tuned); a Qwen GGUF was converted and a server started but no Qwen output was produced on any sealed or dev row, and it was deleted.",
+  "hypotheses": {
+    "H1": "On formalizer-ood-v1 RO+mixed rows, SmolLM2-360M (fv1-size-a4, Q8_0) reaches higher tolerant execution equivalence on the Gemma-translated message (T1) than on the message as written (T0).",
+    "H2": "The same holds on the 400-row stratified RO+mixed sample of the formalizer-v1 sealed test and for the wild accepted-gold match (secondary).",
+    "H3": "Translation preserves the proper names the target keeps as written (name fidelity of the translation >= 0.90)."
+  },
+  "changed_factor": "The single message given to the formalizer: as written (T0) or the output of a base translator (T1, T2). Formalizer weights, quantization, runtime, decoding and scoring are identical to formalizer-size-v1.",
+  "translators": {
+    "T0": "identity (no translation): the existing formalizer-size-v1 Q8_0 predictions, reused; SmolLM2-360M on the formalizer-v1 sample has only a 500-row stratified sample, so T0 is predicted again for the 400-row sample (overlap with sample500 reported as a rerun control).",
+    "T1": {
+      "model": "google/gemma-3-270m-it base @99073d6b (models/gemma/bases/)",
+      "gguf": "models/gemma/translator-base/q8_0.gguf (convert_hf_to_gguf --outtype q8_0, llama.cpp 99d4026b)",
+      "gguf_sha256": "f411cefe293065952eb7a93f0a879b2dca031ee5ccd5d8b21902bd14acab3745",
+      "prompt": "p3",
+      "why": "multilingual (Gemma 3 covers 140+ languages); the most likely small model to translate Romanian"
+    },
+    "T2": {
+      "model": "HuggingFaceTB/SmolLM2-360M-Instruct base @a10cc151 (models/smollm2-360m/bases/)",
+      "gguf": "models/smollm2-360m/translator-base/q8_0.gguf",
+      "gguf_sha256": "71c7a811630124304a2df231f57c5fe7e1e3ba8cb40bdc029a0399f34378dc10",
+      "prompt": "p2",
+      "why": "the owner asked for the original base models; SmolLM2 is English-centric (its pretraining mix is essentially English), so its Romanian translation quality is expected to be poor and is reported as measured"
+    },
+    "T3_optional": "SmolLM2-135M-Instruct base @12fd25f7 (models/smollm2-135m/translator-base/q8_0.gguf, sha256 f38145e7...), only if time allows; SmolLM2 is English-centric, same caveat as T2",
+    "excluded": "Qwen3-0.6B (owner correction: not one of our fine-tuned models)",
+    "T4": {
+      "model": "Helsinki-NLP/opus-mt-roa-en @c26705dd23ff67aa0019dbde41e9456c3a0900ef (MarianMT, Apache-2.0)",
+      "weights_sha256": "9d77bbbd43a214959e027ffc8713fbe31f8609d14827fba645f1361ca20a6f3a",
+      "runtime": "transformers in localhost/chatsop-spark-training:cu130-20260927, CPU 8 threads, no network"
+    }
+  },
+  "prompts": {
+    "p1": "Translate the following message into English. Keep proper names, numbers, dates and any text in quotation marks exactly as written. Output only the English translation, nothing else.\\n\\nMessage:\\n{message}",
+    "p2": "Translate this Romanian text to English. Keep names, numbers, dates and quoted text unchanged. Reply with the English text only.\\n\\n{message}",
+    "p3": "{message}\\n\\nTranslate the text above into English. Keep proper names, numbers, dates and quoted text exactly as written. Write only the translation.",
+    "selection": "Dev pilot of 24 RO/mixed formalizer-v1 dev rows (seed 1): share of Romanian-detected messages that come out detected as English. Gemma p1 2/20, p2 11/20, p3 16/20; SmolLM2-360M base p1 12/20, p2 18/20, p3 15/20. The pilot already showed frequent meaning changes, answers instead of translations and refusals for both models.",
+    "decoding": "one user turn, chat template of the model (--jinja), temperature 0, top_k 1, max_tokens min(2048, ceil(chars/2)+64)",
+    "cleanup": "trim; strip a leading 'Here is the English translation...:', 'English translation:', 'Translation:' or 'English:'; strip surrounding double quotes when the original was not quoted; an empty output falls back to the original message"
+  },
+  "routing": {
+    "label": "primary: rows whose label is Romanian or mixed (row language ro, or code_switch true, or wild language mixed) are translated; all rows in scope are such rows",
+    "detector": "variant: lower-case words with Romanian diacritics count 2, Romanian closed-class words count 1; route when Romanian evidence >= 2 and >= half the English closed-class words. Dev split: routes 93.3% of RO, 64.5% of mixed and 1.2% of EN rows. A row in scope the detector misses keeps its T0 prediction. EN false positives are reported as a rate only (their translated predictions are not produced)."
+  },
+  "formalizers": {
+    "primary": {
+      "arm": "formalizer-size-v1 smollm2-360m fv1-size-a4 merged-best",
+      "gguf_sha256": "c8625689cc15b67afc32283ee1ccb4b032b98bdcc56b819b81a5bfc1cd405746"
+    },
+    "secondary": {
+      "arm": "formalizer-size-v1 smollm2-135m fv1-size-a4 merged-best",
+      "gguf_sha256": "1e487df81bbf635219fbf935c500be59c471de5463150851cdfcb6ebedb7aaf6"
+    },
+    "optional": "gemma fv1-size-a4 (sha256 319fe656...) if time allows",
+    "runtime": "llama.cpp 99d4026b llama-server -ngl 0 -t 8 -tb 8 -np 4 -c 32768 --jinja, CUDA_VISIBLE_DEVICES empty; one server at a time (8 threads total); harness tools/research/predict-endpoint.mjs, message as the only user turn, temperature 0, top_k 1, max_tokens 6144, parallel 4"
+  },
+  "suites": {
+    "formalizer-ood-v1": {
+      "file": "eval/suites/formalizer-ood-v1/test.jsonl",
+      "sha256": "09acfb2eb820a60f29c83b01a45dd2cc1ca371117de4fc69c517c4b80a307a2a",
+      "rows_in_scope": 786,
+      "strata": "ro 550, ro code-switched 113, en code-switched 123"
+    },
+    "formalizer-wild-v1": {
+      "file": "eval/suites/formalizer-wild-v1/test.jsonl",
+      "sha256": "077e7164a3020c1e6c3c28c8f3b5b8f2c08e2e3f59ee0e6830f9991509884163",
+      "rows_in_scope": 455,
+      "strata": "ro 293, mixed 162"
+    },
+    "formalizer-v1": {
+      "file": "eval/suites/formalizer-v1/test.jsonl",
+      "sha256": "b05c76a83efbad8a6027137cb13bc9eeb57812574663818624a98692a11930ac",
+      "rows_in_scope": 400,
+      "sampling": "stratified proportional sample of the 2,498 RO+mixed rows by (language slice, base language), seed 42, mulberry32 shuffle (predict-endpoint.mjs sampleRows): ro 281, ro code-switched 65, en code-switched 54"
+    },
+    "baselines_sha256": {
+      "smollm2-360m ood": "b5728d129f59ce84c1d6c5194670b82a8f90523d8280955e299a82c83e8c3dca",
+      "smollm2-360m wild": "52eda4b75b2f72e71ad2e05e5efcac4758d5a746a785e3307aa119c6e0a68ad3",
+      "smollm2-135m ood": "ba478b837b25af33bed4cb075ead2bb9f56a8ec64c5b30a3bd92b30ec933fd32",
+      "smollm2-135m wild": "0eb7828d2dc580fb1a3b50b9f6aa9a7c6280a3b80236cd8ba31ce8ce8f4c2c41",
+      "smollm2-135m formalizer-v1": "2e15d7fb5cfc1df0065d601da0356fd2fe71e5337b95ea89ad05fbb40e231d23"
+    }
+  },
+  "metrics": {
+    "primary": "Paired delta (T1 minus T0) of tolerant execution equivalence (DS016) for SmolLM2-360M on formalizer-ood-v1 RO+mixed rows.",
+    "secondary": [
+      "the same for T2 and for SmolLM2-135M; per slice (ro, mixed), long/short, detector routed/missed",
+      "formalizer-v1 sample: tolerant execution equivalence, canonical match, parse",
+      "wild: accepted-gold match, decision match, shape match, proposition F1, parse; reference-free metrics (eval/run.mjs --messages) against the ORIGINAL messages",
+      "detector-routed variant of every delta",
+      "name fidelity: gold role values containing a capital letter that occur verbatim in the original message (first accepted target on wild): share present in the translation, in the T0 SOP and in the translated SOP",
+      "latency: translation per message (p50/p95/mean) and end-to-end mean translation + formalization against the direct formalization, measured at 4 parallel slots on 8 threads"
+    ],
+    "uncertainty": "95% paired cluster bootstrap (clusters = semantic_case_id, row id on wild; 10,000 resamples, seed 7) and exact McNemar on rows (tools/research/spellfix-eval.mjs bootstrap/mcnemar)."
+  },
+  "decision_rule": "Recommend a host translation pre-step with translator T only if, for SmolLM2-360M: (a) the OOD RO+mixed delta is positive with a 95% interval excluding 0; (b) the formalizer-v1 sample delta and the wild accepted-match delta are not significantly negative (upper bound >= 0); (c) translation name fidelity >= 0.90; and (d) the end-to-end mean latency is at most 3x the direct one. Any significantly negative primary delta means 'harmful, do not adopt'; otherwise 'no measurable benefit, do not adopt'.",
+  "limitations_declared": [
+    "The targets keep proper names and titles as written (for example 'Grădina Botanică din Timișoara'), so any translation of a name makes a correct formalization impossible: the design penalizes translators that translate names, which is the host's real constraint.",
+    "The formalizers were fine-tuned on Romanian messages with canonical English targets; a translated message is an English message, a distribution the formalizers know well, but translation errors are not recoverable.",
+    "Translator prompts were chosen on a 24-row dev pilot; no translator was tuned.",
+    "Latency is measured with 4 parallel slots on 8 shared threads while the owner uses the chat server; it is a relative, not absolute, figure.",
+    "Single seed, greedy decoding, experiment-grade, no human review."
+  ],
+  "budget": {
+    "hardware": "CPU only, GPU hidden",
+    "threads": 8,
+    "wall_ceiling_hours": 1.5,
+    "priority_if_short": "OOD RO+mixed with SmolLM2-360M and T1 first"
+  },
+  "code_sha256": {
+    "tools/research/translate-eval.mjs": "f9cf545e5b775ede17aa5caf4bbe811929fe6c4c952142cdd0bb00a7cb4e660b",
+    "tools/research/predict-endpoint.mjs": "35695a8391d7413f8022a1ae260f0f46585921513d0a08434eca0a1835184230"
+  },
+  "deviations": [
+    {
+      "id": 1,
+      "at": "2026-09-29T11:10Z",
+      "what": "The formalizer-size-v1 T0 run of SmolLM2-360M on the formalizer-v1 sample ran concurrently with other CPU load (load average up to 15); SmolLM2-360M T2 formalization had 3 OOD and 1 formalizer-v1 request timeouts (300 s), counted as empty predictions.",
+      "effect": "Latency figures only; timeouts are failures in the translated condition (at most 4 rows)."
+    },
+    {
+      "id": 2,
+      "at": "2026-09-29T11:55Z",
+      "what": "Owner decision (relayed by the orchestrator): stop using the base small LLMs (T1 Gemma 3 270M-it, T2 SmolLM2-360M-Instruct) as translators because they cannot translate. Completed: T1 and T2 with the SmolLM2-360M formalizer on all three suites. Not run: the SmolLM2-135M formalizer arm (stopped at its first suite, no output kept) and the optional SmolLM2-135M base translator.",
+      "effect": "Secondary arms dropped; the primary comparison (SmolLM2-360M, T1) is complete."
+    },
+    {
+      "id": 3,
+      "at": "2026-09-29T11:58Z",
+      "what": "Owner addition: T4 = Opus-MT, a dedicated MarianMT RO->EN model, as the only translator from here on. Helsinki-NLP/opus-mt-ro-en does not exist on the Hugging Face hub (HTTP 401/not found on 2026-09-29); the Romance->English model Helsinki-NLP/opus-mt-roa-en @c26705dd (Apache-2.0; source languages include ron; card BLEU ron->eng Tatoeba 55.2, newstest2016 35.8) is used instead, unmodified, greedy (num_beams 1), each message split into sentences on [.!?] + whitespace, sentences translated independently and joined with a space; no prompt. Code: training/python/translate_marian.py run in the training image with no network.",
+      "effect": "New translator condition T4, evaluated under the same scorers, comparator and decision rule as T1/T2."
+    },
+    {
+      "id": 4,
+      "at": "2026-09-29T11:58Z",
+      "what": "Owner asked for GPU bulk inference; the local permission system refused GPU access (a training job owns the GPU), so T4 translation and all formalization stay on the CPU (8 threads), as in the original request.",
+      "effect": "Wall time only; every number records device cpu."
+    },
+    {
+      "id": 5,
+      "at": "2026-09-29T11:58Z",
+      "what": "Owner rule (sequential stopping, added before any T4 sealed-row output): T4 is evaluated in nested stratified stages (100, then 300, then all rows; tools/research/translate-eval.mjs stage, seed 42) on each suite in scope. After each stage the paired delta and its 95% cluster-bootstrap CI are computed on the primary endpoint (SmolLM2-360M, OOD tolerant execution equivalence). Stop when (a) the CI excludes 0 in either direction by a margin of at least 2 points (bound beyond +2 or below -2 points), (b) futility: the CI upper bound is below +1 point, or (c) the condition is broken: parse failures or empty outputs above 20% on the first 100 rows. The full set runs only when the result is still ambiguous. The same stages are run on the formalizer-v1 sample and wild as secondary endpoints and stop with the primary.",
+      "effect": "T4 may be decided on a stratified subset; the stage and reason are recorded here."
+    },
+    {
+      "id": 6,
+      "at": "2026-09-29T12:25Z",
+      "what": "Sequential stop. T4 formalizer-v1 sample stopped at stage 100 (delta -25.0 points [-37.4, -12.0], harm beyond 2 points). T4 OOD and wild ran stage 300 (OOD 0.0 [-5.6, +5.7], still ambiguous; wild accepted match +2.7 [+0.7, +5.0]) and were then stopped by owner decision D1 (the small model no longer translates; the host translates normalized content words with dictionaries), which settles the question. Full sets not run.",
+      "effect": "T4 conclusions rest on stratified stage samples of 300 (OOD, wild) and 100 (formalizer-v1)."
+    }
+  ],
+  "status": "stopped early (owner decision D1); results in eval/reports/current/translate-then-formalize/summary.md"
+}

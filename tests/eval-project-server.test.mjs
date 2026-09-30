@@ -17,14 +17,14 @@ const skip = jsonlExists(repoPath(`eval/suites/${SUITE}/test.jsonl`)) ? false : 
 const serve = t => adminServer(t, {password: PASSWORD});
 const htmlGet = (base, route) => fetch(base + route, {headers: {Accept: 'text/html'}, redirect: 'manual'});
 
-test('signed-out browsers are sent to /login and API clients get 401 on /eval and /project', async t => {
+test('signed-out browsers are sent to /login and API clients get 401 on /eval and /experiments', async t => {
   const {base, call} = await serve(t);
-  for (const route of ['/eval', '/eval/guide', '/project']) {
+  for (const route of ['/eval', '/eval/guide', '/experiments', '/experiments/timeline', '/experiments/topics']) {
     const page = await htmlGet(base, route);
     assert.equal(page.status, 303, route);
     assert.equal(page.headers.get('location'), '/login?next=' + encodeURIComponent(route));
   }
-  for (const route of ['/eval', '/eval/api/suites', `/eval/api/cases?suite=${SUITE}`, '/project', '/project/api/status']) {
+  for (const route of ['/eval', '/eval/api/suites', `/eval/api/cases?suite=${SUITE}`, '/experiments', '/experiments/api/status', '/project/api/status']) {
     const response = await call(route);
     assert.equal(response.status, 401, route);
     assert.equal(response.body.error.code, 'unauthorized');
@@ -114,7 +114,7 @@ test('line diff and target form', () => {
   assert.equal(targetForm({sop_target: '@c constraint\n  claim ?x > 5\n'}), 'undetermined');
 });
 
-test('/project renders from a fixture journal and experiment registry', async t => {
+test('/experiments/timeline renders from a fixture journal and experiment registry', async t => {
   const dir = tempDir(t);
   const file = path.join(dir, 'journal.jsonl');
   appendJournal({ts: '2026-09-28T08:00:00Z', area: 'data', actor: 'a', title: 'Older data event', detail: '', links: [], state: 'done'}, {file});
@@ -133,10 +133,11 @@ test('/project renders from a fixture journal and experiment registry', async t 
   assert.match(projectPage(), /Training: PROHIBITED/);
 
   const {call, session} = await withEnv('CHATSOP_STATUS_DIR', dir, () => serve(t));
-  const page = await call('/project', {cookie: session});
+  const page = await call('/experiments/timeline', {cookie: session});
   assert.equal(page.status, 200);
-  assert.match(page.text, /Fine-tuning &amp; status/);
-  const api = await withEnv('CHATSOP_STATUS_DIR', dir, () => call('/project/api/status?area=language', {cookie: session}));
+  assert.match(page.text, /Timeline &amp; live status/);
+  assert.match(page.text, /\/experiments\/api\/status/);
+  const api = await withEnv('CHATSOP_STATUS_DIR', dir, () => call('/experiments/api/status?area=language', {cookie: session}));
   assert.equal(api.status, 200);
   assert.deepEqual(api.body.journal.map(event => event.title), ['Newer decision']);
   assert.ok(api.body.gates.some(gate => gate.id === 'owner-approval' && gate.prohibited));
@@ -148,7 +149,7 @@ test('the docs header and the server layout render the same menu from one source
   const entries = html => [...html.matchAll(/<a href="([^"]+)"[^>]*>([^<]+)<\/a>|<summary>([^<]+)<\/summary>/g)]
     .map(match => (match[3] ? ['menu', match[3]] : [new URL(match[1], 'http://host/docs/').pathname + new URL(match[1], 'http://host/docs/').search, match[2]]));
   const {call, session} = await serve(t);
-  for (const route of ['/', '/chat', '/audit', '/eval', '/project', '/admin']) {
+  for (const route of ['/', '/chat', '/audit', '/eval', '/experiments', '/experiments/topics', '/admin']) {
     const page = await call(route, {cookie: session});
     assert.equal(page.status, 200, route);
     const header = /<header class="site-header">[\s\S]*?<\/header>/.exec(page.text)[0];
@@ -156,7 +157,7 @@ test('the docs header and the server layout render the same menu from one source
     assert.match(header, /action="\/logout"/);
   }
   const labels = entries(docs).map(([, text]) => text);
-  assert.deepEqual(labels, ['Home', 'Chat', 'Audit', 'Eval', 'Fine-tuning &amp; status', 'Admin', 'Docs', 'Overview', 'Runtime', 'Training', 'Wiki', 'Specifications', 'Wire help', 'How the model writes', 'Question types']);
+  assert.deepEqual(labels, ['Home', 'Chat', 'Audit', 'Eval', 'Experiments', 'Index: tasks &amp; experiments', 'Topics', 'Reports', 'Timeline &amp; live status', 'Open questions', 'Admin', 'Docs', 'Overview', 'Runtime', 'Training', 'Wiki', 'Specifications', 'Wire help', 'How the model writes', 'Question types']);
   assert.equal(SITE_MENU.length, 7);
   assert.match(renderSiteHeader({account: 'signin', next: '/eval'}), /\/login\?next=%2Feval/);
   const asset = await call('/assets/sop-code.mjs');

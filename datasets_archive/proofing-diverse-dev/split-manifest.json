@@ -1,0 +1,31 @@
+{
+ "format": "chatsop-diverse-dev-split-v1",
+ "built_at": "2026-09-30T00:15:03.725Z",
+ "source_pools": [
+  "eval/reports/current/llm-diversify/pilot/accepted.jsonl",
+  "eval/reports/current/llm-diversify/diverse-dev-batch/accepted.jsonl"
+ ],
+ "method": "deterministic fnv1a hash of split_group_id, threshold dev_fraction -- computed before any model is scored on either half; disjoint by split_group_id, never eval/suites/**",
+ "dev_fraction": 0.7,
+ "groups_total": 599,
+ "groups_dev": 410,
+ "groups_candidates": 189,
+ "diverse_dev": {
+  "rows": 669,
+  "by_language": {
+   "ro": 254,
+   "en": 415
+  },
+  "sha256": "eb587c38a73ba7c7f80d9e56712eae7e9296c7639187af5edee2f25824d1f2fa",
+  "min_en_target": 400,
+  "en_target_met": true
+ },
+ "candidates": {
+  "rows": 281,
+  "by_language": {
+   "ro": 92,
+   "en": 189
+  },
+  "sha256": "aad0524da088fda4585fe5bcf61aeffb1af00a0c5d273170f862dc1cf678c547"
+ }
+}

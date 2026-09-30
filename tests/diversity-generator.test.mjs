@@ -66,3 +66,31 @@ test('noise follows the typing-error taxonomy and never touches cue words or nam
   for (let i = 0; i < 300; i++) for (const op of addNoise('Știi dacă Ana nu mai lucrează în Brașov și când s-a mutat?', {language: 'ro', random, surfaces: ['Ana', 'Brașov'], level: 'heavy'}).ops) ro.add(op.op);
   for (const op of ['diacritic_drop', 'diacritic_cedilla', 'diacritic_wrong']) assert.ok(ro.has(op), op);
 });
+
+// Expansion families (DS022 "Expansion families"): Q-LANG-1..7 constructs, conventions C5/C6/C9/C11, first person.
+import {EXPANSION_WEIGHTS} from '../tools/datasets/diversity/families-expansion.mjs';
+const expansion = generate({seed: 'unit-expansion', rows: 260, familyWeights: EXPANSION_WEIGHTS});
+
+test('expansion families link, execute as intended and print words-only targets', async () => {
+  const {rows, problems} = await expansion;
+  assert.ok(problems.length <= 2, JSON.stringify(problems));
+  const families = new Set(rows.map(row => row.family));
+  for (const family of ['coordination', 'transfer', 'existence', 'conditional', 'attribute_value', 'definition', 'filtered_count', 'quantified', 'ordering', 'fragment', 'first_person', 'modality', 'alternatives', 'arithmetic', 'offered_answer', 'relative_clause']) assert.ok(families.has(family), family);
+  for (const row of rows) {
+    checkModelProgram(parse(row.sop_target));
+    assert.deepEqual(row.verification?.link_problems ?? [], [], row.id);
+    if (row.execution?.executed) assert.equal(row.execution.agrees_with_intended, true, `${row.id}: ${row.execution.status} vs ${row.execution.intended}`);
+    // Owner principle: model-authored SOP has no operator symbols and no parentheses.
+    assert.doesNotMatch(row.sop_target, /(^|\s)(>=|<=|==|!=|>|<|\*|\/)(\s|$)|[()]/m, row.id);
+  }
+  const text = rows.map(row => row.sop_target).join('\n');
+  for (const keyword of [/compare \?\w+ (above|below|at_least) /, /rank (highest|lowest) \?/, /quantifier (most|half|not_all|none|all|at_least \d+)/, /order \?t1 (before|after) \?t2/, /fragment follow_up/, /except \?x "/, /claim \?\w+ at_least 0/, /role recipient /, /"the user"/]) assert.match(text, keyword);
+  assert.ok(rows.some(row => row.sop_targets_accepted?.length), 'offered answers carry an accepted wh reading');
+});
+
+test('mixed rows code-switch inside the formalized proposition with an English target value', async () => {
+  const {rows} = await generate({seed: 'unit-switch', rows: 400});
+  const inside = rows.filter(row => ['ro_matrix_en_value', 'en_matrix_ro_value'].includes(row.code_switch?.kind));
+  assert.ok(inside.length > 0, 'inside-proposition switches');
+  for (const row of inside.filter(row => row.code_switch.kind === 'ro_matrix_en_value')) for (const chunk of row.code_switch.inserted) assert.ok(row.question.includes(chunk), row.id);
+});

@@ -70,7 +70,7 @@ test('truncated LLM output is never executed', async t => {
 });
 
 test('model-authored operations and documentary provenance never run', async t => {
-  const declarativeOnly = /Model output must be declarative: stated, assumed, unclear, query or constraint/;
+  const declarativeOnly = /Model output must be declarative: stated, assumed, unclear, query, constraint or unparsed/;
   const forbidden = [
     ['@p fact\n  holds works_at maria lab_alpha\n  valid timeless', declarativeOnly],
     [worksAsk('Maria') + '@s remember\n  input $q', declarativeOnly],
@@ -191,7 +191,7 @@ test('unclear is the only wire and gets a host reply in the requested language',
 });
 
 test('an understood question without an engine is answered as not computable, not refused', async t => {
-  const {agent} = await agentWith(t, ['@c constraint\n  var ?x int\n  require ?x >= 3\n  claim ?x >= 1\n  task prove']);
+  const {agent} = await agentWith(t, ['@c constraint\n  var ?x int\n  require ?x at_least 3\n  claim ?x at_least 1\n  task prove']);
   const answer = await agent.turn('Is every number at least three also at least one?', turn);
   assert.equal(answer.packet.status, 'not_computable');
   assert.match(answer.cnl, /I understood the question as: .*I cannot compute this kind of answer yet/);

@@ -21,6 +21,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {streamJsonl} from './datasets/audit/rows.mjs';
 import {jsonlExists} from '../lib/jsonl-shards.mjs';
+import {corpusDir, corpusNames} from '../lib/dataset-paths.mjs';
 import {
   NON_FAILING, checkHelpPages, checkProgram, checkRow, describeVocabulary, htmlBlocks, loadVocabulary, markdownBlocks,
 } from './datasets/audit/vocabulary.mjs';
@@ -56,17 +57,19 @@ const findings = [];
 const scanned = {corpora: {}, examples: 0, doc_files: 0, doc_blocks: 0, help_pages: false};
 const record = (scopeName, source, location, finding) => findings.push({scope: scopeName, source, location, ...finding});
 
+/** Corpora whose rows carry English text in `target` (message/rewrite pairs), not an SOP program: nothing to check here. */
+const TEXT_TARGET_CORPORA = new Set(['proofing', 'proofing-diverse-dev', 'bad_english', 'symbolic_english', 'neuro_english']);
+
 async function scanCorpora(vocabulary) {
-  const names = new Set();
-  for (const base of ['datasets', 'eval/suites']) {
-    const dir = path.join(root, base);
-    if (fs.existsSync(dir)) for (const entry of fs.readdirSync(dir, {withFileTypes: true})) if (entry.isDirectory()) names.add(entry.name);
-  }
+  const names = new Set(corpusNames(root));
+  const suites = path.join(root, 'eval/suites');
+  if (fs.existsSync(suites)) for (const entry of fs.readdirSync(suites, {withFileTypes: true})) if (entry.isDirectory()) names.add(entry.name);
   for (const corpus of [...names].sort()) {
     if (value('corpus') && corpus !== value('corpus')) continue;
+    if (TEXT_TARGET_CORPORA.has(corpus)) continue;
     const files = {
-      train: path.join(root, 'datasets', corpus, 'train.jsonl'),
-      dev: path.join(root, 'datasets', corpus, 'dev.jsonl'),
+      train: path.join(root, corpusDir(corpus, root), 'train.jsonl'),
+      dev: path.join(root, corpusDir(corpus, root), 'dev.jsonl'),
       test: path.join(root, 'eval', 'suites', corpus, 'test.jsonl'),
     };
     for (const [split, file] of Object.entries(files)) {

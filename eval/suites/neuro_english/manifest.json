@@ -1,0 +1,37 @@
+{
+ "format": "chatsop-dataset-manifest-v3",
+ "dataset": "neuro_english",
+ "split": "test",
+ "sealed": true,
+ "model": "SymbolicProofingLLM",
+ "purpose": "Grammatically correct English that SymbolicLM does not analyse correctly, with a meaning-preserving rewrite that SymbolicLM does handle where one is known. Fine-tuning and evaluation material for SymbolicProofingLLM. Rows nobody can rewrite yet are kept and flagged no_target; rows failing only by gold convention are flagged and are not rewriting targets.",
+ "path": "eval/suites/neuro_english/test.jsonl",
+ "rows": 1785,
+ "sha256": "1b7a139e09fcbeadc4c09f9afadbcb6597b2bade8eb649247e0fa9934fada22e",
+ "bytes": 9809893,
+ "counts": {
+  "rows": 1785,
+  "by_source": {
+   "formalizer-ood-v1": 83,
+   "formalizer-v1": 727,
+   "formalizer-wild-v1": 262,
+   "new_cases": 713
+  },
+  "by_failure_kind": {
+   "gold_convention": 455,
+   "parser": 1,
+   "rules": 598,
+   "unknown": 731
+  },
+  "with_target": 42,
+  "by_target_source": {
+   "new_cases.clean": 34,
+   "none": 1743,
+   "proofing.repair": 7,
+   "regularization": 1
+  },
+  "rewrite_targets": 1330
+ },
+ "sources": "eval/suites/{formalizer-v1,formalizer-ood-v1,formalizer-wild-v1,proofing} and the owner-sealed writers of datasets_sources/new_cases (rule 9: only here, never in train/dev)",
+ "built_at": "2026-09-30T17:46:41.294Z"
+}

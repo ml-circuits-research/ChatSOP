@@ -5,7 +5,7 @@ import {atom,rule,variable,inferVariableTypes} from '../lib/types.mjs';
 import {interval,instant} from '../lib/time.mjs';
 import {assert} from '../lib/util.mjs';
 import {ENUMS} from './enums.mjs';
-import {parseCondition,parseBooleanCondition} from './conditions.mjs';
+import {parseCondition,parseBooleanCondition,isWordForm,wordsToExpression} from './conditions.mjs';
 import {conditionAtoms,definitelyBound} from '../lib/conditions.mjs';
 export function resolveAtom(text,values={},schema=null,{ground=false}={}){const a=parseAtom(text);a.a=a.a.map(v=>v&&typeof v==='object'&&v.ref?scalar('$'+v.ref,values):v);return atom(a,{ground,schema});}
 export function lowerFact(w,values={},schema=null){return {kind:'fact',atom:resolveAtom(one(w,'holds'),values,schema,{ground:true}),valid:interval(one(w,'valid')),source:unquote(one(w,'source','user')),quote:unquote(one(w,'quote','')),retention:one(w,'retention','normal')};}
@@ -17,13 +17,22 @@ export function lowerQuery(w,values={},schema=null,{now=Date.now()}={}){
  const scope=w.fields.scope?[parseCondition(one(w,'scope'),leaf=>resolveAtom(leaf,values,schema))]:undefined;
  const span=one(w,'span');if(span!==undefined)assert(variable(span),'span takes one ?variable');
  const measure=one(w,'measure');if(measure!==undefined){assert(ENUMS.query.measure.includes(measure),'Invalid time measure');assert(span!==undefined&&selected.length===1&&selected[0]===span,'measure needs the selected span variable');}
- const bound=definitelyBound(where);if(span)bound.add(span);assert(selected.every(v=>bound.has(v)),'Unbound selected variable: every alternative must bind selected variables');
+ const bound=definitelyBound(where);if(span)bound.add(span);if(w.fields.order){const [a,,b]=words(one(w,'order'));bound.add(a);bound.add(b);}assert(selected.every(v=>bound.has(v)),'Unbound selected variable: every alternative must bind selected variables');
  const filters=many(w,'filter').map(parseBooleanCondition);const varsIn=n=>{if(!n||typeof n!=='object')return [];return [...(n.type==='var'?[n.value]:[]),...Object.values(n).flatMap(v=>Array.isArray(v)?v.flatMap(varsIn):varsIn(v))];};for(const f of filters)assert(varsIn(f).every(v=>bound.has(v)),'Unbound filter variable');
+ // Words-only fields (DS021): `except ?x "v"` is the filter ?x != "v"; `compare`, `rank`, `quantifier` and
+ // `order` are evaluated by the reasoner with numeric coercion (a value it cannot read as a number is not computable).
+ for(const line of many(w,'except')){const [name,value]=words(line);assert(bound.has(name),'Unbound except variable');filters.push(parseBooleanCondition(name+' != '+value));}
+ const term=token=>variable(token)?token:/^-?\d+$/.test(token)?Number(token):scalar(token,values);
+ const compares=many(w,'compare').map(text=>parseCondition(text,line=>{const [left,op,right]=words(line);assert(bound.has(left)&&(!variable(right)||bound.has(right)),'Unbound compare variable');return {left,op,right:term(right)};}));
+ const rank=w.fields.rank?(([direction,name])=>{assert(bound.has(name),'Unbound rank variable');return {direction,variable:name};})(words(one(w,'rank'))):undefined;
+ const quantifier=w.fields.quantifier?(([word,count])=>({word,...(count?{count:Number(count)}:{})}))(words(one(w,'quantifier'))):undefined;
+ const order=w.fields.order?(parts=>{assert(parts.length===6,'order needs the host leaves; a model order is compiled by the host (sop/declarative.mjs)');return {left:parts[0],relation:parts[1],right:parts[2],leaves:[Number(parts[4]),Number(parts[5])]};})(words(one(w,'order'))):undefined;
+ assert(!w.fields.fragment,'fragment_needs_context: a follow-up fragment is completed by the host from the conversation before execution');
  const limit=Number(one(w,'limit','100'));assert(Number.isSafeInteger(limit)&&limit>=1&&limit<=10000,'Invalid result limit');
  // A time question without at/during looks at the whole timeline rather than at the present instant.
- const time=w.fields.during?{during:interval(one(w,'during'))}:w.fields.at||!span?{at:one(w,'at')?instant(scalar(one(w,'at'),values)):now}:{during:{from:-Infinity,until:Infinity}};
+ const time=w.fields.during?{during:interval(one(w,'during'))}:w.fields.at||(!span&&!w.fields.order)?{at:one(w,'at')?instant(scalar(one(w,'at'),values)):now}:{during:{from:-Infinity,until:Infinity}};
  const asof=one(w,'asof')?instant(scalar(one(w,'asof'),values)):now;
- return {kind:'query',variableTypes:inferVariableTypes(conditionAtoms([...where,...(scope??[])]),schema),mode:kind,where,...(scope?{scope}:{}),...(span?{span}:{}),...(measure?{measure}:{}),select:selected,filters,limit,...time,asof,...(measure==="duration"?{now}:{})};
+ return {kind:'query',variableTypes:inferVariableTypes(conditionAtoms([...where,...(scope??[])]),schema),mode:kind,where,...(scope?{scope}:{}),...(span?{span}:{}),...(measure?{measure}:{}),select:selected,filters,...(compares.length?{compares}:{}),...(rank?{rank}:{}),...(quantifier?{quantifier}:{}),...(order?{order}:{}),limit,...time,asof,...(measure==="duration"?{now}:{})};
 }
 function numericAST(n,vars,values,type){
  if(n.type==='ref')return numericAST({type:'literal',value:values[n.value]},vars,values,type);
@@ -37,7 +46,11 @@ function numericAST(n,vars,values,type){
 export function lowerConstraint(w,values={}){
  const vars={};for(const l of many(w,'var')){const p=words(l);assert((p.length===2||p.length===4)&&/^\?[a-z][a-z0-9_]*$/.test(p[0])&&p[1]==='int','var ?name int [min max]');const name=p[0].slice(1);assert(!Object.hasOwn(vars,name),'Duplicate constraint variable');vars[name]={sort:'Int'};if(p.length===4){const min=Number(scalar(p[2],values)),max=Number(scalar(p[3],values));assert(Number.isSafeInteger(min)&&Number.isSafeInteger(max)&&min<=max,'Invalid finite domain');Object.assign(vars[name],{min,max});}}
  const selected=words(one(w,'select',''));assert(selected.every(v=>variable(v)&&Object.hasOwn(vars,v.slice(1)))&&new Set(selected).size===selected.length,'select needs distinct declared constraint variables');
+ // Arithmetic (DS021 Q-LANG-7): `require ?v equal 2380 times 19` fixes ?v to the computed value, so the model never
+ // chooses a domain for a computed number; an integer result is required (a fraction is not computable).
+ const ground=n=>n.type==='literal'?Number.isSafeInteger(n.value):n.type==='binary'&&['+','-','*'].includes(n.op)&&ground(n.left)&&ground(n.right)||n.type==='unary'&&n.op==='-'&&ground(n.arg);
+ for(const text of many(w,'require')){const ast=parseBooleanCondition(text);if(ast.type==='binary'&&['==','==='].includes(ast.op)&&ast.left.type==='var'&&Object.hasOwn(vars,ast.left.value.slice(1))&&ground(ast.right)){const value=evaluateExpression(ast.right).value;assert(Number.isSafeInteger(value),'Integer arithmetic expected');const v=vars[ast.left.value.slice(1)];assert(v.min===undefined||(value>=v.min&&value<=v.max),'Computed value outside the declared domain');Object.assign(v,{min:value,max:value});}}
  const convert=s=>numericAST(parseBooleanCondition(s),vars,values,'Bool');const task=one(w,'task','prove');assert(ENUMS.constraint.task.includes(task),'constraint task must be prove, possible or optimize');
- const objective=w.fields.objective?numericAST(parseExpression(one(w,'objective')),vars,values,'Int'):undefined;const direction=one(w,'direction','min');assert(ENUMS.constraint.direction.includes(direction),'objective direction must be min or max');assert(task!=='optimize'||objective!==undefined,'optimize needs objective');assert(task==='optimize'||objective===undefined,'objective requires task optimize');
- return {kind:'constraint',vars,...(selected.length?{select:selected}:{}),...(objective===undefined?{}:{objective,direction}),constraints:many(w,'require').map(convert),claim:convert(one(w,'claim')),task,unit:one(w,'unit','scalar')};
+ const objectiveText=one(w,'objective');const objective=w.fields.objective?numericAST(parseExpression(isWordForm(objectiveText)?wordsToExpression(objectiveText,{comparator:false}):objectiveText),vars,values,'Int'):undefined;const direction=one(w,'direction','min');assert(ENUMS.constraint.direction.includes(direction),'objective direction must be min or max');assert(task!=='optimize'||objective!==undefined,'optimize needs objective');assert(task==='optimize'||objective===undefined,'objective requires task optimize');
+ return {kind:'constraint',vars,...(selected.length?{select:selected}:{}),...(objective===undefined?{}:{objective,direction}),constraints:many(w,'require').map(convert),claim:w.fields.claim?convert(one(w,'claim')):{op:'eq',a:[0,0]},task,unit:one(w,'unit','scalar')};
 }

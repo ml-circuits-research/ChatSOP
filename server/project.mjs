@@ -1,4 +1,7 @@
-/** Fine-tuning and project status (`/project`, `/project/api/status`).
+/** Live project status (`/experiments/timeline`, `/experiments/api/status`;
+ * the former `/project/api/status` stays as an API alias) and the JSON APIs of
+ * the project history (`/experiments/api/{tasks,topics,notes,report}`, data in
+ * server/history.mjs).
  *
  * Everything on the page is computed on request from files, so it stays near
  * real time: the append-only journal and the experiment registry
@@ -14,6 +17,8 @@ import {fileURLToPath} from 'node:url';
 import {recentEvents, readExperiments, journalFile, experimentsFile, statusDir, JOURNAL_AREAS} from '../lib/journal.mjs';
 import {jsonlExists, shardPaths} from '../lib/jsonl-shards.mjs';
 import {targetForm} from './eval-browser.mjs';
+import {loadHistory, entries, topicSummaries, readReport, listReports} from './history.mjs';
+import {corpusDir, corpusNames} from '../lib/dataset-paths.mjs';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = file => {
@@ -64,18 +69,21 @@ function jsonlStats(file) {
   return value;
 }
 
-/** Corpus directories under datasets/ (one or two levels deep) that hold train or dev splits. */
+/** Directory of a corpus (or of a nested projection `<corpus>/<sub>`) under datasets/ or datasets_archive/. */
+const corpusPath = (root, name) => path.join(root, corpusDir(name.split('/')[0], root), ...name.split('/').slice(1));
+
+/** Corpus directories under datasets/ and datasets_archive/ (one or two levels deep) that hold train or dev splits. */
 function corpora(root) {
   const found = [];
   const visit = (relative, depth) => {
-    const dir = path.join(root, 'datasets', relative);
+    const dir = corpusPath(root, relative);
     const entries = fs.readdirSync(dir, {withFileTypes: true});
     const corpus = entries.some(entry => entry.isFile() && /^(train|dev)\.jsonl$/.test(entry.name));
     if (corpus) found.push(relative);
     // formalizer/, system/ and verbalizer/ under a corpus are its training projections, not separate corpora.
     if (depth < 2 && !corpus) for (const entry of entries) if (entry.isDirectory()) visit(path.posix.join(relative, entry.name), depth + 1);
   };
-  for (const entry of fs.readdirSync(path.join(root, 'datasets'), {withFileTypes: true})) if (entry.isDirectory()) visit(entry.name, 1);
+  for (const name of corpusNames(root)) visit(name, 1);
   // A sealed-only suite (such as the out-of-distribution suite) has a test split under eval/suites/ and no train/dev.
   const suites = path.join(root, 'eval/suites');
   if (fs.existsSync(suites)) for (const entry of fs.readdirSync(suites, {withFileTypes: true}))
@@ -91,7 +99,7 @@ function auditReports(root) {
   for (const name of fs.readdirSync(dir).filter(file => file.endsWith('.json'))) {
     const report = readJson(path.join(dir, name));
     if (!report) continue;
-    const trainDir = report.files?.train?.file ? path.posix.dirname(report.files.train.file).replace(/^datasets\//, '') : null;
+    const trainDir = report.files?.train?.file ? path.posix.dirname(report.files.train.file).replace(/^datasets(?:_archive)?\//, '') : null;
     byCorpus.set(trainDir ?? report.corpus ?? name.slice(0, -5), {file: `eval/reports/current/corpus-audit/${name}`, report});
   }
   return byCorpus;
@@ -104,13 +112,13 @@ export function dataPipeline(root = projectRoot) {
     const splits = {};
     let sample = [];
     for (const split of ['train', 'dev']) {
-      const stats = jsonlStats(path.join(root, 'datasets', name, split + '.jsonl'));
+      const stats = jsonlStats(path.join(corpusPath(root, name), split + '.jsonl'));
       if (stats) {
         splits[split] = stats.rows;
         if (!sample.length) sample = stats.sample;
       }
     }
-    const sealed = [path.join(root, 'eval/suites', name, 'test.jsonl'), path.join(root, 'datasets', name, 'test.jsonl')].find(file => jsonlExists(file));
+    const sealed = [path.join(root, 'eval/suites', name, 'test.jsonl'), path.join(corpusPath(root, name), 'test.jsonl')].find(file => jsonlExists(file));
     if (sealed) splits.test = jsonlStats(sealed).rows;
     const forms = {};
     if (!sample.length && sealed) sample = jsonlStats(sealed).sample;
@@ -254,15 +262,35 @@ export function projectStatus({root = projectRoot, dir = statusDir(), area = nul
   };
 }
 
-/** Handles `/project/api/*`; returns true when handled. The page is served by server/web.mjs. */
+/** Handles `/experiments/api/*` (and the alias `/project/api/*`); returns true when handled. Pages are served by server/web.mjs. */
 export function createProjectRouter({root = projectRoot} = {}) {
   const handle = async (req, res, pathname, query, send) => {
-    if (!pathname.startsWith('/project/api/')) return false;
-    if (req.method === 'GET' && pathname === '/project/api/status') {
-      send(200, projectStatus({root, area: JOURNAL_AREAS.includes(query.area) ? query.area : null}));
-      return true;
+    const match = /^\/(?:experiments|project)\/api\/([a-z]+)$/.exec(pathname);
+    if (!/^\/(?:experiments|project)\/api\//.test(pathname)) return false;
+    const endpoint = req.method === 'GET' ? match?.[1] : null;
+    const history = () => loadHistory({root});
+    if (endpoint === 'status') return send(200, projectStatus({root, area: JOURNAL_AREAS.includes(query.area) ? query.area : null})), true;
+    if (endpoint === 'tasks') {
+      const data = history();
+      return send(200, {entries: entries(data), tasks: data.tasks, phase: data.phase, errors: data.errors}), true;
     }
-    send(404, {error: {message: 'Unknown project endpoint', code: 'not_found'}});
+    if (endpoint === 'topics') {
+      const data = history();
+      return send(200, {topics: topicSummaries(data).map(({latest, ...topic}) => ({...topic, latest: latest ? {id: latest.id, ts: latest.ts, kind: latest.kind, title: latest.title} : null})), errors: data.errors}), true;
+    }
+    if (endpoint === 'notes') {
+      const data = history();
+      const notes = data.notes.filter(note => (!query.topic || note.topic === query.topic) && (!query.kind || note.kind === query.kind) && (!query.author || note.author === query.author));
+      return send(200, {notes, errors: data.errors}), true;
+    }
+    if (endpoint === 'report') {
+      try {
+        return send(200, query.path ? readReport(root, query.path) : listReports(root, query.dir ?? null)), true;
+      } catch (error) {
+        return send(error.status ?? 400, {error: {message: error.message, code: error.code ?? 'invalid_request'}}), true;
+      }
+    }
+    send(404, {error: {message: 'Unknown experiments endpoint', code: 'not_found'}});
     return true;
   };
   return {handle};

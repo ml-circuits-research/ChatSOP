@@ -1,0 +1,20 @@
+{
+  "format": "chatsop-owner-approval-scope-v1",
+  "experiment": "formalizer-mt-v1",
+  "journal_event": {"file": "status/journal.jsonl", "ts": "2026-09-29T11:45:36.367Z", "area": "process", "state": "decision", "actor": "owner-via-orchestrator", "title": "Owner: SOP Lang as translation — decisions on next research"},
+  "owner_words": "Yes, it must be tried on a small model and compared, to see if it's better.",
+  "approved_models": ["opus-mt"],
+  "scope": "Fine-tuning of ONE small translation model family (Opus-MT / MarianMT), directly on NL -> SOP Lang, on the existing qualified formalizer-v1 data, for comparison with the SmolLM2-135M, Gemma 3 270M and SmolLM2-360M results of formalizer-size-v1. Not blanket approval for anything else.",
+  "role": "formalizer",
+  "corpus": "formalizer-v1",
+  "conditions": [
+    "preregistration status/preregistrations/formalizer-mt-v1.json written before any optimizer step",
+    "a dataset qualification record with status 'qualified' that training/cli.mjs accepts for the current contract files",
+    "one GPU-intensive worker on the machine; small inference jobs of other agents may share the GPU (owner rule 2026-09-29)",
+    "interim checks and early-stop rules of the owner (2026-09-29) preregistered",
+    "experiment-grade: semantic review by the independent automated auditor, no human review"
+  ],
+  "receipts": "No chatsop-training-authorization-v1 receipt has been written for this scope. tools/research/qualify-dataset.mjs --authorize only transcribes 'training'-area decisions under the formalizer-size-v1 scope, and this decision is a 'process'-area event; how the receipt for opus-mt/fmt-a1 is produced awaits the owner's instruction.",
+  "recorded_by": "mt-training-agent",
+  "recorded_at": "2026-09-29T12:00:00Z"
+}

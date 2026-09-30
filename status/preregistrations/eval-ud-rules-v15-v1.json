@@ -1,0 +1,90 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-ud-rules-v15-v1",
+ "name": "UD -> SOP rules v1.5 against v1.4 on a fresh held-out sample, focused on Romanian and the known v1.4 gaps",
+ "registered_at": "2026-09-29T22:00:00Z",
+ "registered_by": "symbolic-rules-agent",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "task": "TODO.md 'Symbolic formalizer v1.5 (after ud-rules-v1.4, eval-ud-rules-v14-v1)'; eval/reports/current/ud-rules-v14/results.json open_issues and lost_rows.",
+ "kind": "evaluation-only (CPU inference; no training, no LLM calls)",
+ "coordination": {
+  "constraint": "Another agent (translator-agent) is refactoring lib/symbolic-lm into LanguagesUtil + TranslatorService + SymbolicLM and running eval-translator-compare-v1, which calls the live lib/ud-to-sop code. lib/ud-to-sop/, lib/symbolic-lm/, lib/languages-util/ and lib/translator-service/ are not modified by this experiment until status/journal.jsonl records a `done` or `blocked` event from actor translator-agent.",
+  "translator_agent_preregistration_read": "status/preregistrations/eval-translator-compare-v1.json (registered_at 2026-09-29T21:41:59Z). Its own recorded deviation: every row of datasets/formalizer-v1/dev.jsonl is already an exact partition of eval-symbolic-lm-v1's arms (roA 622 + roB 652 + mixed 732 + noisyRo 560 + noisyEn 787 + cleanEn 1778 = 5131 = dev.jsonl's length), so eval-translator-compare-v1 draws its RO (150) and mixed (100) rows from datasets/formalizer-v1/train.jsonl instead. That pool is disjoint from the sealed formalizer-v1 test, formalizer-ood-v1 and formalizer-wild-v1 suites this experiment samples from, so no row-id exclusion from it was needed for the fresh sample below.",
+  "development_scratch": "Rule changes are prototyped in tools/research/ud-rules-v15-draft/ (a copy of lib/ud-to-sop's *.mjs files, loaded only via tools/research/ud-rules-v14.mjs's loadRules(dir) for this experiment's own scripts; not imported by lib/, server/ or any other runtime path) until translator-agent's done/blocked event, then ported into lib/ud-to-sop with the exported API kept backward compatible (same function names/signatures re-exported from lib/ud-to-sop/index.mjs)."
+ },
+ "systems": {
+  "parser": "Stanza 1.10.1 (EN default package, RO RRT) through training/python/ud_parse_worker.py on the CPU (device cpu; GPU left to the proofing agent)",
+  "a": "ud-rules-v1.4: eval/reports/current/baseline-ud-rules/frozen-rules-v1.4/ (identical to lib/ud-to-sop at draw time; verified byte-identical except the worker script, which is not part of the rules)",
+  "b": "ud-rules-v1.5: tools/research/ud-rules-v15-draft/ during development; ported into lib/ud-to-sop and frozen under eval/reports/current/baseline-ud-rules/frozen-rules-v1.5/ (SHA256SUMS) once translator-agent's coordination constraint clears and before any v1.5 conversion of a sample row",
+  "host_normalization": "sop/frames.mjs as in eval-ud-rules-v14-v1, reported beside strict, never instead of it"
+ },
+ "development": {
+  "data": "datasets/formalizer-v1/dev.jsonl only (never a sealed suite); RO failures analysed with tools/research/ud-rules-v15.mjs dev --language ro (400-row seeded sample, seed 5, and later the full 2,198 RO rows) and categorize (regex triage into the named v1.4-gap categories).",
+  "known_v14_gaps_targeted": [
+   "Romanian claim tails (\"„P\" — se confirmă?\", \"— așa este?\"): eval-ud-rules-v14-v1 lost rows fv1_011603_0_0, fv1_001307_0_0, fv1_009151_0_0, fv1_010812_0_0, ood1_000268_0_0 (text already disclosed in that experiment's results.json; used only for a direct-output mechanism sanity check, never scored against the sealed harness during development).",
+   "\"de\" + weekday kept as a noun modifier when nested inside a compound NP (\"ședința de consiliu de marți\"): eval-ud-rules-v14-v1 lost row ood2_000100_0_0.",
+   "\"be held at/in\" for where-questions (a named venue after \"held\" was mis-classed as `object` instead of `location` by the DS021 C3 facility convention, which the event-location sense of \"held\" overrides)."
+  ],
+  "known_v14_gaps_not_reached_in_v1.5": [
+   "TR-VERB (pre-tagged re-parse of a verb read as a noun after a name, e.g. \"Kavya lectures in physics\"): needs a second Stanza call, deferred pending translator-agent (shared parsing infrastructure) and further scratch validation.",
+   "TR-SINCE (\"Since A; B, is it the case that C?\" split at ';' and the following comma, each premise linked `because $s` from the query): needs multi-parse orchestration in convertParse, deferred for the same reason.",
+   "the \"Context: … Întrebare: …\" two-clause pattern (2.6% of sealed OOD per eval-symbolic-lm-v1): not analysed in this round.",
+   "Romanian impersonal/reflexive constructions beyond the claim-tail case (\"se poate confirma\", \"se știe\", \"se spune\", \"se crede\", \"se presupune\", \"se consideră\"): broad category, deferred to avoid an unvalidated blanket rule.",
+   "comparisons inside quantity phrases: not analysed in this round.",
+   "mixed-language messages (0/45 gained in v1.4): not targeted; out of scope for a UD-rules-only change."
+  ],
+  "rule_changes": [
+   "index.mjs CLAIM regex: added Romanian tail markers \"se confirm[ăa]\" and \"(a[șs]a|asa) este\" (previously only lead-in/other-tail forms matched, so these tails were parsed as an ordinary clause instead of a claim-check marker).",
+   "index.mjs claimScope(): the quote-boundary lookup also matches the Romanian opening quote „ (U+201E), not only the Western “ (U+201C) or a straight \\\"; without this a Romanian claim quote's scope silently fell back to the coarser sentence-boundary heuristic.",
+   "index.mjs claimCheck(): factored the marker-vs-content test into isClaimMarker(relation, roles), extended with the Romanian reflexive-impersonal relation \"se confirma\"/\"confirma\" and a bare copula \"fi\" with no role but an inherited subject; applied to both the existing query-probe path and (new) to a same-shaped `stated` wire, since the Romanian tail sometimes parses as `stated` rather than `query` before this step runs.",
+   "analyze.mjs R11a (date-inside-NP): a bare weekday/month-name modifier now moves to a clause time only when it modifies the argument's own head or is an explicit NER/numeric date; a bare weekday nested inside a compound chain (\"NP1 de NP2 de <weekday>\") stays in the value.",
+   "analyze.mjs prepRole(): a new HOLD_VENUE lemma set (\"held\"/\"hold\", RO \"ținut\"/\"ține\"/\"desfășurat\"/\"desfășura\") forces role `location` for an \"at\"/\"in\"/RO \"la\" complement of an event-location sense of \"hold\", ahead of the general facility/organization -> `object` convention (DS021 C3), which otherwise does not distinguish an event's venue from an institution one works at."
+  ],
+  "validation_before_freeze": "Each change was checked (i) structurally, via tools/research/ud-rules-v15-draft against constructed and (for the claim-tail fix only) the already-disclosed lost-row text, output inspected directly (not scored by eval/run.mjs or any harness) and (ii) for regressions, via a full paired dev run: RO dev.jsonl (2,198 rows) and an EN dev sample, ud-rules-v1.4 vs the draft, same parses, zero SOP differences outside the targeted patterns required before porting."
+ },
+ "sample": {
+  "size": "600 messages: 240 sealed formalizer-v1 test, 180 formalizer-ood-v1, 180 formalizer-wild-v1; 321 en, 235 ro, 44 mixed",
+  "eligibility": "every row except those consumed by eval-symbolic-layers-en-v1 (400, ids and semantic cases), eval-ud-rules-v14-v1 (600, ids and semantic cases) and eval-symbolic-lm-v1's oodRo set (the 395 clean monolingual Romanian rows of the sealed OOD suite); one row per semantic_case_id",
+  "strata": "source x language x question-type group x length (as in eval-ud-rules-v14-v1), proportional largest-remainder allocation with at least one row per non-empty stratum",
+  "seed": 20261001,
+  "stages": "nested stratified stages of 150 and 300 rows (seed 42) and the full 600",
+  "ids": "eval/reports/current/ud-rules-v15/sample.json",
+  "drawn_at": "2026-09-29T21:49:14.834Z",
+  "rules_at_draw": "ud-rules-v1.4 (lib/ud-to-sop byte-identical to frozen-rules-v1.4 at draw time)",
+  "v14_predictions_frozen_at": "immediately after the draw, via tools/research/ud-rules-v15.mjs convert --rules v1.4 --stage full (predictions-v1.4.jsonl); not scored or inspected until v1.5 is frozen"
+ },
+ "metrics": {
+  "strict": "unchanged harness: test/OOD execution_equivalent_tolerant of eval/run.mjs (row world); wild: D1-tolerant all-proposition F1 = 1 against any accepted gold (tools/research/ud-baseline-eval.mjs tolerantScores). This is the headline score (owner decision Q-SYM-1, carried over from eval-ud-rules-v14-v1).",
+  "frame_normalized": "the same scorer after sop/frames.mjs host frame normalization rewrites the prediction (and, for wild, the gold too); always reported beside strict, never instead of it, per the task instruction 'strict (plus frame-normalized beside it)'.",
+  "secondary": "mean D1-tolerant all-proposition F1; admitted (valid) output rate; the normalization gain (normalized - strict) per rules version"
+ },
+ "outcomes": {
+  "primary": "paired difference of strict match, v1.5 - v1.4, paired cluster bootstrap 95% CI (10,000 resamples, seed 7; clusters = semantic cases), overall",
+  "reported_slices": "test, OOD, wild; en, ro, mixed; wild-en, wild-ro, wild-mixed; the same for the frame-normalized score and for the normalization gain; gained/lost row ids per slice are always reported, never silently accepted"
+ },
+ "hypotheses": {
+  "H1": "v1.5 raises the strict match rate over v1.4 on the fresh sample overall (95% CI excludes 0), driven mainly by the Romanian slice.",
+  "H2": "No source or language slice gets worse: no slice has a 95% CI entirely below 0; every one of the 6 eval-ud-rules-v14-v1 lost-row patterns that recurs in this fresh sample is fixed, not merely not-regressed.",
+  "H3": "The English slice does not move outside noise (the targeted changes are Romanian-specific or, for \"be held at/in\", narrow enough not to touch unrelated English rows): a 95% CI whose lower bound is materially negative would be investigated as a regression, not accepted."
+ },
+ "stop_rules": [
+  "Broken condition: at stage 150, more than 20% of v1.5 outputs are empty or not admitted -> stop, fix as a recorded deviation, restart on the same sample.",
+  "Harm: at stage 150 or 300, the 95% CI of the overall strict delta lies entirely below 0 -> stop and report v1.5 as a regression; do not proceed to the full 600.",
+  "Success is not a reason to stop early: the full 600-row CPU run costs minutes; it is scored unless a stop rule above fires. Every stage result is written (compare-150.json, compare-300.json, compare-full.json) and recorded.",
+  "Coordination stop: if translator-agent has not recorded a done/blocked journal event, v1.5 stays a validated draft (tools/research/ud-rules-v15-draft/) and is not ported into lib/ud-to-sop or scored on this sample; the task record and journal say so explicitly rather than silently completing partial work."
+ ],
+ "rigor": [
+  "v1.5 is developed on datasets/formalizer-v1/dev.jsonl rows only; no sealed row (this sample or otherwise) is converted with a development version of the rules.",
+  "The v1.4 predictions on the fresh sample are frozen before any v1.5 rule change is ported into the live runtime.",
+  "Strict scoring is the unchanged harness; the frame-normalized score is labelled and reported beside it.",
+  "No training; GPU untouched (Stanza on CPU only); port 9999 untouched; only this experiment's own processes are started or stopped."
+ ],
+ "records": [
+  "status/experiments.json",
+  "status/tasks.json (task eval-ud-rules-v15-v1)",
+  "status/topics.json",
+  "status/journal.jsonl",
+  "eval/reports/current/ud-rules-v15/results.json"
+ ],
+ "deviations": []
+}

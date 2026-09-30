@@ -1,0 +1,1281 @@
+{
+ "parses": {
+  "ro_claim_tail_confirma": {
+   "message": "„Ghiță a împrumutat Ciorbele Transilvaniei” — se confirmă?",
+   "parse": {
+    "text": "„Ghiță a împrumutat Ciorbele Transilvaniei” — se confirmă?",
+    "language": "ro",
+    "sentences": [
+     {
+      "language": "ro",
+      "text": "„Ghiță a împrumutat Ciorbele Transilvaniei” — se confirmă?",
+      "start": 0,
+      "end": 58,
+      "oov_rate": 0,
+      "words": [
+       {
+        "id": 1,
+        "text": "„",
+        "lemma": "„",
+        "upos": "PUNCT",
+        "xpos": "DBLQ",
+        "feats": {},
+        "head": 4,
+        "deprel": "punct",
+        "start": 0,
+        "end": 1,
+        "token": "„",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 2,
+        "text": "Ghiță",
+        "lemma": "Ghiță",
+        "upos": "PROPN",
+        "xpos": "Np",
+        "feats": {},
+        "head": 4,
+        "deprel": "nsubj",
+        "start": 1,
+        "end": 6,
+        "token": "Ghiță",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 3,
+        "text": "a",
+        "lemma": "avea",
+        "upos": "AUX",
+        "xpos": "Va--3s",
+        "feats": {
+         "Number": "Sing",
+         "Person": "3"
+        },
+        "head": 4,
+        "deprel": "aux",
+        "start": 7,
+        "end": 8,
+        "token": "a",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 4,
+        "text": "împrumutat",
+        "lemma": "împrumuta",
+        "upos": "VERB",
+        "xpos": "Vmp--sm",
+        "feats": {
+         "Gender": "Masc",
+         "Number": "Sing",
+         "VerbForm": "Part"
+        },
+        "head": 0,
+        "deprel": "root",
+        "start": 9,
+        "end": 19,
+        "token": "împrumutat",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 5,
+        "text": "Ciorbele",
+        "lemma": "ciorbă",
+        "upos": "NOUN",
+        "xpos": "Ncfpry",
+        "feats": {
+         "Case": "Acc,Nom",
+         "Definite": "Def",
+         "Gender": "Fem",
+         "Number": "Plur"
+        },
+        "head": 4,
+        "deprel": "obj",
+        "start": 20,
+        "end": 28,
+        "token": "Ciorbele",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 6,
+        "text": "Transilvaniei",
+        "lemma": "Transilvania",
+        "upos": "PROPN",
+        "xpos": "Npfsoy",
+        "feats": {
+         "Case": "Dat,Gen",
+         "Definite": "Def",
+         "Gender": "Fem",
+         "Number": "Sing"
+        },
+        "head": 5,
+        "deprel": "nmod",
+        "start": 29,
+        "end": 42,
+        "token": "Transilvaniei",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 7,
+        "text": "”",
+        "lemma": "”",
+        "upos": "PUNCT",
+        "xpos": "DBLQ",
+        "feats": {},
+        "head": 4,
+        "deprel": "punct",
+        "start": 42,
+        "end": 43,
+        "token": "”",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 8,
+        "text": "—",
+        "lemma": "—",
+        "upos": "PUNCT",
+        "xpos": "DASH",
+        "feats": {},
+        "head": 10,
+        "deprel": "punct",
+        "start": 44,
+        "end": 45,
+        "token": "—",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 9,
+        "text": "se",
+        "lemma": "sine",
+        "upos": "PRON",
+        "xpos": "Px3--a--------w",
+        "feats": {
+         "Case": "Acc",
+         "Person": "3",
+         "PronType": "Prs",
+         "Reflex": "Yes",
+         "Strength": "Weak"
+        },
+        "head": 10,
+        "deprel": "expl:pv",
+        "start": 46,
+        "end": 48,
+        "token": "se",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 10,
+        "text": "confirmă",
+        "lemma": "confirma",
+        "upos": "VERB",
+        "xpos": "Vmip3",
+        "feats": {
+         "Mood": "Ind",
+         "Person": "3",
+         "Tense": "Pres",
+         "VerbForm": "Fin"
+        },
+        "head": 4,
+        "deprel": "conj",
+        "start": 49,
+        "end": 57,
+        "token": "confirmă",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 11,
+        "text": "?",
+        "lemma": "?",
+        "upos": "PUNCT",
+        "xpos": "QUEST",
+        "feats": {},
+        "head": 4,
+        "deprel": "punct",
+        "start": 57,
+        "end": 58,
+        "token": "?",
+        "ner": "O",
+        "oov": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "ro_claim_tail_asa_este": {
+   "message": "„Radu nu lucrează la Fabrica Nouă” — așa este?",
+   "parse": {
+    "text": "„Radu nu lucrează la Fabrica Nouă” — așa este?",
+    "language": "ro",
+    "sentences": [
+     {
+      "language": "ro",
+      "text": "„Radu nu lucrează la Fabrica Nouă” — așa este?",
+      "start": 0,
+      "end": 46,
+      "oov_rate": 0,
+      "words": [
+       {
+        "id": 1,
+        "text": "„",
+        "lemma": "„",
+        "upos": "PUNCT",
+        "xpos": "DBLQ",
+        "feats": {},
+        "head": 4,
+        "deprel": "punct",
+        "start": 0,
+        "end": 1,
+        "token": "„",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 2,
+        "text": "Radu",
+        "lemma": "Radu",
+        "upos": "PROPN",
+        "xpos": "Np",
+        "feats": {},
+        "head": 4,
+        "deprel": "nsubj",
+        "start": 1,
+        "end": 5,
+        "token": "Radu",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 3,
+        "text": "nu",
+        "lemma": "nu",
+        "upos": "PART",
+        "xpos": "Qz",
+        "feats": {
+         "Polarity": "Neg"
+        },
+        "head": 4,
+        "deprel": "advmod",
+        "start": 6,
+        "end": 8,
+        "token": "nu",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 4,
+        "text": "lucrează",
+        "lemma": "lucra",
+        "upos": "VERB",
+        "xpos": "Vmip3",
+        "feats": {
+         "Mood": "Ind",
+         "Person": "3",
+         "Tense": "Pres",
+         "VerbForm": "Fin"
+        },
+        "head": 0,
+        "deprel": "root",
+        "start": 9,
+        "end": 17,
+        "token": "lucrează",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 5,
+        "text": "la",
+        "lemma": "la",
+        "upos": "ADP",
+        "xpos": "Spsa",
+        "feats": {
+         "AdpType": "Prep",
+         "Case": "Acc"
+        },
+        "head": 6,
+        "deprel": "case",
+        "start": 18,
+        "end": 20,
+        "token": "la",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 6,
+        "text": "Fabrica",
+        "lemma": "fabrică",
+        "upos": "NOUN",
+        "xpos": "Ncfsry",
+        "feats": {
+         "Case": "Acc,Nom",
+         "Definite": "Def",
+         "Gender": "Fem",
+         "Number": "Sing"
+        },
+        "head": 4,
+        "deprel": "obl",
+        "start": 21,
+        "end": 28,
+        "token": "Fabrica",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 7,
+        "text": "Nouă",
+        "lemma": "nou",
+        "upos": "ADJ",
+        "xpos": "Afpfsrn",
+        "feats": {
+         "Case": "Acc,Nom",
+         "Definite": "Ind",
+         "Degree": "Pos",
+         "Gender": "Fem",
+         "Number": "Sing"
+        },
+        "head": 6,
+        "deprel": "amod",
+        "start": 29,
+        "end": 33,
+        "token": "Nouă",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 8,
+        "text": "”",
+        "lemma": "”",
+        "upos": "PUNCT",
+        "xpos": "DBLQ",
+        "feats": {},
+        "head": 6,
+        "deprel": "punct",
+        "start": 33,
+        "end": 34,
+        "token": "”",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 9,
+        "text": "—",
+        "lemma": "—",
+        "upos": "PUNCT",
+        "xpos": "DASH",
+        "feats": {},
+        "head": 11,
+        "deprel": "punct",
+        "start": 35,
+        "end": 36,
+        "token": "—",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 10,
+        "text": "așa",
+        "lemma": "așa",
+        "upos": "ADV",
+        "xpos": "Rgp",
+        "feats": {
+         "Degree": "Pos"
+        },
+        "head": 11,
+        "deprel": "advmod",
+        "start": 37,
+        "end": 40,
+        "token": "așa",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 11,
+        "text": "este",
+        "lemma": "fi",
+        "upos": "AUX",
+        "xpos": "Vaip3s",
+        "feats": {
+         "Mood": "Ind",
+         "Number": "Sing",
+         "Person": "3",
+         "Tense": "Pres",
+         "VerbForm": "Fin"
+        },
+        "head": 4,
+        "deprel": "advcl",
+        "start": 41,
+        "end": 45,
+        "token": "este",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 12,
+        "text": "?",
+        "lemma": "?",
+        "upos": "PUNCT",
+        "xpos": "QUEST",
+        "feats": {},
+        "head": 4,
+        "deprel": "punct",
+        "start": 45,
+        "end": 46,
+        "token": "?",
+        "ner": "O",
+        "oov": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "ro_weekday_nested_in_value": {
+   "message": "Maria este prezentă la întâlnirea de proiect de joi.",
+   "parse": {
+    "text": "Maria este prezentă la întâlnirea de proiect de joi.",
+    "language": "ro",
+    "sentences": [
+     {
+      "language": "ro",
+      "text": "Maria este prezentă la întâlnirea de proiect de joi.",
+      "start": 0,
+      "end": 52,
+      "oov_rate": 0,
+      "words": [
+       {
+        "id": 1,
+        "text": "Maria",
+        "lemma": "Maria",
+        "upos": "PROPN",
+        "xpos": "Np",
+        "feats": {},
+        "head": 3,
+        "deprel": "nsubj",
+        "start": 0,
+        "end": 5,
+        "token": "Maria",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 2,
+        "text": "este",
+        "lemma": "fi",
+        "upos": "AUX",
+        "xpos": "Vaip3s",
+        "feats": {
+         "Mood": "Ind",
+         "Number": "Sing",
+         "Person": "3",
+         "Tense": "Pres",
+         "VerbForm": "Fin"
+        },
+        "head": 3,
+        "deprel": "cop",
+        "start": 6,
+        "end": 10,
+        "token": "este",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 3,
+        "text": "prezentă",
+        "lemma": "prezent",
+        "upos": "ADJ",
+        "xpos": "Afpfsrn",
+        "feats": {
+         "Case": "Acc,Nom",
+         "Definite": "Ind",
+         "Degree": "Pos",
+         "Gender": "Fem",
+         "Number": "Sing"
+        },
+        "head": 0,
+        "deprel": "root",
+        "start": 11,
+        "end": 19,
+        "token": "prezentă",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 4,
+        "text": "la",
+        "lemma": "la",
+        "upos": "ADP",
+        "xpos": "Spsa",
+        "feats": {
+         "AdpType": "Prep",
+         "Case": "Acc"
+        },
+        "head": 5,
+        "deprel": "case",
+        "start": 20,
+        "end": 22,
+        "token": "la",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 5,
+        "text": "întâlnirea",
+        "lemma": "întâlnire",
+        "upos": "NOUN",
+        "xpos": "Ncfsry",
+        "feats": {
+         "Case": "Acc,Nom",
+         "Definite": "Def",
+         "Gender": "Fem",
+         "Number": "Sing"
+        },
+        "head": 3,
+        "deprel": "obl",
+        "start": 23,
+        "end": 33,
+        "token": "întâlnirea",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 6,
+        "text": "de",
+        "lemma": "de",
+        "upos": "ADP",
+        "xpos": "Spsa",
+        "feats": {
+         "AdpType": "Prep",
+         "Case": "Acc"
+        },
+        "head": 7,
+        "deprel": "case",
+        "start": 34,
+        "end": 36,
+        "token": "de",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 7,
+        "text": "proiect",
+        "lemma": "proiect",
+        "upos": "NOUN",
+        "xpos": "Ncms-n",
+        "feats": {
+         "Definite": "Ind",
+         "Gender": "Masc",
+         "Number": "Sing"
+        },
+        "head": 5,
+        "deprel": "nmod",
+        "start": 37,
+        "end": 44,
+        "token": "proiect",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 8,
+        "text": "de",
+        "lemma": "de",
+        "upos": "ADP",
+        "xpos": "Spsa",
+        "feats": {
+         "AdpType": "Prep",
+         "Case": "Acc"
+        },
+        "head": 9,
+        "deprel": "case",
+        "start": 45,
+        "end": 47,
+        "token": "de",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 9,
+        "text": "joi",
+        "lemma": "joi",
+        "upos": "NOUN",
+        "xpos": "Ncf--n",
+        "feats": {
+         "Definite": "Ind",
+         "Gender": "Fem"
+        },
+        "head": 7,
+        "deprel": "nmod",
+        "start": 48,
+        "end": 51,
+        "token": "joi",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 10,
+        "text": ".",
+        "lemma": ".",
+        "upos": "PUNCT",
+        "xpos": "PERIOD",
+        "feats": {},
+        "head": 3,
+        "deprel": "punct",
+        "start": 51,
+        "end": 52,
+        "token": ".",
+        "ner": "O",
+        "oov": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "ro_weekday_clause_time": {
+   "message": "Cursul este programat de luni.",
+   "parse": {
+    "text": "Cursul este programat de luni.",
+    "language": "ro",
+    "sentences": [
+     {
+      "language": "ro",
+      "text": "Cursul este programat de luni.",
+      "start": 0,
+      "end": 30,
+      "oov_rate": 0,
+      "words": [
+       {
+        "id": 1,
+        "text": "Cursul",
+        "lemma": "curs",
+        "upos": "NOUN",
+        "xpos": "Ncmsry",
+        "feats": {
+         "Case": "Acc,Nom",
+         "Definite": "Def",
+         "Gender": "Masc",
+         "Number": "Sing"
+        },
+        "head": 3,
+        "deprel": "nsubj:pass",
+        "start": 0,
+        "end": 6,
+        "token": "Cursul",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 2,
+        "text": "este",
+        "lemma": "fi",
+        "upos": "AUX",
+        "xpos": "Vaip3s",
+        "feats": {
+         "Mood": "Ind",
+         "Number": "Sing",
+         "Person": "3",
+         "Tense": "Pres",
+         "VerbForm": "Fin"
+        },
+        "head": 3,
+        "deprel": "aux:pass",
+        "start": 7,
+        "end": 11,
+        "token": "este",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 3,
+        "text": "programat",
+        "lemma": "programa",
+        "upos": "VERB",
+        "xpos": "Vmp--sm",
+        "feats": {
+         "Gender": "Masc",
+         "Number": "Sing",
+         "VerbForm": "Part"
+        },
+        "head": 0,
+        "deprel": "root",
+        "start": 12,
+        "end": 21,
+        "token": "programat",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 4,
+        "text": "de",
+        "lemma": "de",
+        "upos": "ADP",
+        "xpos": "Spsa",
+        "feats": {
+         "AdpType": "Prep",
+         "Case": "Acc"
+        },
+        "head": 5,
+        "deprel": "case",
+        "start": 22,
+        "end": 24,
+        "token": "de",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 5,
+        "text": "luni",
+        "lemma": "lună",
+        "upos": "NOUN",
+        "xpos": "Ncfp-n",
+        "feats": {
+         "Definite": "Ind",
+         "Gender": "Fem",
+         "Number": "Plur"
+        },
+        "head": 3,
+        "deprel": "obl",
+        "start": 25,
+        "end": 29,
+        "token": "luni",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 6,
+        "text": ".",
+        "lemma": ".",
+        "upos": "PUNCT",
+        "xpos": "PERIOD",
+        "feats": {},
+        "head": 3,
+        "deprel": "punct",
+        "start": 29,
+        "end": 30,
+        "token": ".",
+        "ner": "O",
+        "oov": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "held_at_progressive_passive": {
+   "message": "Is the meeting being held at the Community Centre?",
+   "parse": {
+    "text": "Is the meeting being held at the Community Centre?",
+    "language": "en",
+    "sentences": [
+     {
+      "language": "en",
+      "text": "Is the meeting being held at the Community Centre?",
+      "start": 0,
+      "end": 50,
+      "oov_rate": 0,
+      "words": [
+       {
+        "id": 1,
+        "text": "Is",
+        "lemma": "be",
+        "upos": "AUX",
+        "xpos": "VBZ",
+        "feats": {
+         "Mood": "Ind",
+         "Number": "Sing",
+         "Person": "3",
+         "Tense": "Pres",
+         "VerbForm": "Fin"
+        },
+        "head": 5,
+        "deprel": "aux:pass",
+        "start": 0,
+        "end": 2,
+        "token": "Is",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 2,
+        "text": "the",
+        "lemma": "the",
+        "upos": "DET",
+        "xpos": "DT",
+        "feats": {
+         "Definite": "Def",
+         "PronType": "Art"
+        },
+        "head": 3,
+        "deprel": "det",
+        "start": 3,
+        "end": 6,
+        "token": "the",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 3,
+        "text": "meeting",
+        "lemma": "meeting",
+        "upos": "NOUN",
+        "xpos": "NN",
+        "feats": {
+         "Number": "Sing"
+        },
+        "head": 5,
+        "deprel": "nsubj:pass",
+        "start": 7,
+        "end": 14,
+        "token": "meeting",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 4,
+        "text": "being",
+        "lemma": "be",
+        "upos": "AUX",
+        "xpos": "VBG",
+        "feats": {
+         "Tense": "Pres",
+         "VerbForm": "Part"
+        },
+        "head": 5,
+        "deprel": "aux:pass",
+        "start": 15,
+        "end": 20,
+        "token": "being",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 5,
+        "text": "held",
+        "lemma": "hold",
+        "upos": "VERB",
+        "xpos": "VBN",
+        "feats": {
+         "Tense": "Past",
+         "VerbForm": "Part",
+         "Voice": "Pass"
+        },
+        "head": 0,
+        "deprel": "root",
+        "start": 21,
+        "end": 25,
+        "token": "held",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 6,
+        "text": "at",
+        "lemma": "at",
+        "upos": "ADP",
+        "xpos": "IN",
+        "feats": {},
+        "head": 9,
+        "deprel": "case",
+        "start": 26,
+        "end": 28,
+        "token": "at",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 7,
+        "text": "the",
+        "lemma": "the",
+        "upos": "DET",
+        "xpos": "DT",
+        "feats": {
+         "Definite": "Def",
+         "PronType": "Art"
+        },
+        "head": 9,
+        "deprel": "det",
+        "start": 29,
+        "end": 32,
+        "token": "the",
+        "ner": "B-FAC",
+        "oov": false
+       },
+       {
+        "id": 8,
+        "text": "Community",
+        "lemma": "Community",
+        "upos": "PROPN",
+        "xpos": "NNP",
+        "feats": {
+         "Number": "Sing"
+        },
+        "head": 9,
+        "deprel": "compound",
+        "start": 33,
+        "end": 42,
+        "token": "Community",
+        "ner": "I-FAC",
+        "oov": false
+       },
+       {
+        "id": 9,
+        "text": "Centre",
+        "lemma": "Centre",
+        "upos": "PROPN",
+        "xpos": "NNP",
+        "feats": {
+         "Number": "Sing"
+        },
+        "head": 5,
+        "deprel": "obl",
+        "start": 43,
+        "end": 49,
+        "token": "Centre",
+        "ner": "E-FAC",
+        "oov": false
+       },
+       {
+        "id": 10,
+        "text": "?",
+        "lemma": "?",
+        "upos": "PUNCT",
+        "xpos": ".",
+        "feats": {},
+        "head": 5,
+        "deprel": "punct",
+        "start": 49,
+        "end": 50,
+        "token": "?",
+        "ner": "O",
+        "oov": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "held_at_simple_passive": {
+   "message": "Is the meeting held at the Community Centre?",
+   "parse": {
+    "text": "Is the meeting held at the Community Centre?",
+    "language": "en",
+    "sentences": [
+     {
+      "language": "en",
+      "text": "Is the meeting held at the Community Centre?",
+      "start": 0,
+      "end": 44,
+      "oov_rate": 0,
+      "words": [
+       {
+        "id": 1,
+        "text": "Is",
+        "lemma": "be",
+        "upos": "AUX",
+        "xpos": "VBZ",
+        "feats": {
+         "Mood": "Ind",
+         "Number": "Sing",
+         "Person": "3",
+         "Tense": "Pres",
+         "VerbForm": "Fin"
+        },
+        "head": 4,
+        "deprel": "aux:pass",
+        "start": 0,
+        "end": 2,
+        "token": "Is",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 2,
+        "text": "the",
+        "lemma": "the",
+        "upos": "DET",
+        "xpos": "DT",
+        "feats": {
+         "Definite": "Def",
+         "PronType": "Art"
+        },
+        "head": 3,
+        "deprel": "det",
+        "start": 3,
+        "end": 6,
+        "token": "the",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 3,
+        "text": "meeting",
+        "lemma": "meeting",
+        "upos": "NOUN",
+        "xpos": "NN",
+        "feats": {
+         "Number": "Sing"
+        },
+        "head": 4,
+        "deprel": "nsubj:pass",
+        "start": 7,
+        "end": 14,
+        "token": "meeting",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 4,
+        "text": "held",
+        "lemma": "hold",
+        "upos": "VERB",
+        "xpos": "VBN",
+        "feats": {
+         "Tense": "Past",
+         "VerbForm": "Part",
+         "Voice": "Pass"
+        },
+        "head": 0,
+        "deprel": "root",
+        "start": 15,
+        "end": 19,
+        "token": "held",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 5,
+        "text": "at",
+        "lemma": "at",
+        "upos": "ADP",
+        "xpos": "IN",
+        "feats": {},
+        "head": 8,
+        "deprel": "case",
+        "start": 20,
+        "end": 22,
+        "token": "at",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 6,
+        "text": "the",
+        "lemma": "the",
+        "upos": "DET",
+        "xpos": "DT",
+        "feats": {
+         "Definite": "Def",
+         "PronType": "Art"
+        },
+        "head": 8,
+        "deprel": "det",
+        "start": 23,
+        "end": 26,
+        "token": "the",
+        "ner": "B-FAC",
+        "oov": false
+       },
+       {
+        "id": 7,
+        "text": "Community",
+        "lemma": "Community",
+        "upos": "PROPN",
+        "xpos": "NNP",
+        "feats": {
+         "Number": "Sing"
+        },
+        "head": 8,
+        "deprel": "compound",
+        "start": 27,
+        "end": 36,
+        "token": "Community",
+        "ner": "I-FAC",
+        "oov": false
+       },
+       {
+        "id": 8,
+        "text": "Centre",
+        "lemma": "Centre",
+        "upos": "PROPN",
+        "xpos": "NNP",
+        "feats": {
+         "Number": "Sing"
+        },
+        "head": 4,
+        "deprel": "obl",
+        "start": 37,
+        "end": 43,
+        "token": "Centre",
+        "ner": "E-FAC",
+        "oov": false
+       },
+       {
+        "id": 9,
+        "text": "?",
+        "lemma": "?",
+        "upos": "PUNCT",
+        "xpos": ".",
+        "feats": {},
+        "head": 4,
+        "deprel": "punct",
+        "start": 43,
+        "end": 44,
+        "token": "?",
+        "ner": "O",
+        "oov": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "held_in_gpe_regression": {
+   "message": "Is the meeting held in Cluj?",
+   "parse": {
+    "text": "Is the meeting held in Cluj?",
+    "language": "en",
+    "sentences": [
+     {
+      "language": "en",
+      "text": "Is the meeting held in Cluj?",
+      "start": 0,
+      "end": 28,
+      "oov_rate": 0,
+      "words": [
+       {
+        "id": 1,
+        "text": "Is",
+        "lemma": "be",
+        "upos": "AUX",
+        "xpos": "VBZ",
+        "feats": {
+         "Mood": "Ind",
+         "Number": "Sing",
+         "Person": "3",
+         "Tense": "Pres",
+         "VerbForm": "Fin"
+        },
+        "head": 4,
+        "deprel": "aux:pass",
+        "start": 0,
+        "end": 2,
+        "token": "Is",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 2,
+        "text": "the",
+        "lemma": "the",
+        "upos": "DET",
+        "xpos": "DT",
+        "feats": {
+         "Definite": "Def",
+         "PronType": "Art"
+        },
+        "head": 3,
+        "deprel": "det",
+        "start": 3,
+        "end": 6,
+        "token": "the",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 3,
+        "text": "meeting",
+        "lemma": "meeting",
+        "upos": "NOUN",
+        "xpos": "NN",
+        "feats": {
+         "Number": "Sing"
+        },
+        "head": 4,
+        "deprel": "nsubj:pass",
+        "start": 7,
+        "end": 14,
+        "token": "meeting",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 4,
+        "text": "held",
+        "lemma": "hold",
+        "upos": "VERB",
+        "xpos": "VBN",
+        "feats": {
+         "Tense": "Past",
+         "VerbForm": "Part",
+         "Voice": "Pass"
+        },
+        "head": 0,
+        "deprel": "root",
+        "start": 15,
+        "end": 19,
+        "token": "held",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 5,
+        "text": "in",
+        "lemma": "in",
+        "upos": "ADP",
+        "xpos": "IN",
+        "feats": {},
+        "head": 6,
+        "deprel": "case",
+        "start": 20,
+        "end": 22,
+        "token": "in",
+        "ner": "O",
+        "oov": false
+       },
+       {
+        "id": 6,
+        "text": "Cluj",
+        "lemma": "Cluj",
+        "upos": "PROPN",
+        "xpos": "NNP",
+        "feats": {
+         "Number": "Sing"
+        },
+        "head": 4,
+        "deprel": "obl",
+        "start": 23,
+        "end": 27,
+        "token": "Cluj",
+        "ner": "S-GPE",
+        "oov": false
+       },
+       {
+        "id": 7,
+        "text": "?",
+        "lemma": "?",
+        "upos": "PUNCT",
+        "xpos": ".",
+        "feats": {},
+        "head": 4,
+        "deprel": "punct",
+        "start": 27,
+        "end": 28,
+        "token": "?",
+        "ner": "O",
+        "oov": false
+       }
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

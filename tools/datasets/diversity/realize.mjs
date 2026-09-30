@@ -11,6 +11,7 @@ import { surfaceOf } from './entities.mjs';
 const mapValues = (object, f) => Object.fromEntries(Object.entries(object).map(([k, v]) => [k, f(v)]));
 import { YES_NO, WH, CLAIM_CHECK, DISCOURSE, JOINERS, MONTHS, TIME_FRAMES, WHY_FRAMES } from './frames.mjs';
 import { capitalize } from './text.mjs';
+import { COMMON_NOUN_TYPES, RO_CONSTRUCTION_EN, englishDate, targetValue } from './english.mjs';
 
 /** Fill {S}/{O} and {g:S|O:masc:fem} slots. */
 export function fillTemplate(template, names, genders) {
@@ -47,43 +48,61 @@ export function timePhrase(time, language, random) {
   // One format per phrase: "between 2019-05-01 and July 1, 2022" mixes two.
   const format = random.weighted((language === 'ro' ? [6, 2, 1] : [4, 3, 1, 1]).map((weight, i) => [i, weight]));
   const date = iso => renderDate(iso, language, random, format);
+  // The target writes dates in English whatever the message language (english.mjs, Q-DATA-6).
+  const target = (iso, written) => language === 'en' ? written : englishDate(iso);
   const ro = language === 'ro';
   const from = time.from ?? time.during?.[0], until = time.until ?? time.during?.[1];
   const isYear = from?.endsWith('-01-01') && until?.endsWith('-01-01') && Number(until.slice(0, 4)) === Number(from.slice(0, 4)) + 1;
   if (time.on || time.at) {
-    const d = date(time.on ?? time.at);
-    return { text: ro ? random.pick([`pe ${d}`, `la data de ${d}`, `în ziua de ${d}`]) : random.pick([`on ${d}`, `on ${d}`, `as of ${d}`]), valid: { on: d }, query: { at: d }, iso: { [d]: time.on ?? time.at } };
+    const d = date(time.on ?? time.at), t = target(time.on ?? time.at, d);
+    return { text: ro ? random.pick([`pe ${d}`, `la data de ${d}`, `în ziua de ${d}`]) : random.pick([`on ${d}`, `on ${d}`, `as of ${d}`]), valid: { on: t }, query: { at: t }, iso: { [t]: time.on ?? time.at } };
   }
   if (isYear) {
     const y = from.slice(0, 4);
     return { text: ro ? random.pick([`în ${y}`, `în anul ${y}`, `pe parcursul lui ${y}`]) : random.pick([`in ${y}`, `during ${y}`, `at some point in ${y}`]), valid: { on: y }, query: { during: y }, iso: { [y]: y } };
   }
   if (from && until) {
-    const a = date(from), b = date(until);
-    return { text: ro ? random.pick([`din ${a} până pe ${b}`, `între ${a} și ${b}`, `de la ${a} până la ${b}`]) : random.pick([`from ${a} until ${b}`, `between ${a} and ${b}`, `from ${a} to ${b}`]), valid: { from: a, until: b }, query: { during: `${a} – ${b}` }, iso: { [a]: from, [b]: until } };
+    const a = date(from), b = date(until), ta = target(from, a), tb = target(until, b);
+    return { text: ro ? random.pick([`din ${a} până pe ${b}`, `între ${a} și ${b}`, `de la ${a} până la ${b}`]) : random.pick([`from ${a} until ${b}`, `between ${a} and ${b}`, `from ${a} to ${b}`]), valid: { from: ta, until: tb }, query: { during: `${ta} – ${tb}` }, iso: { [ta]: from, [tb]: until } };
   }
-  if (from) { const a = date(from); return { text: ro ? random.pick([`din ${a}`, `începând cu ${a}`]) : random.pick([`since ${a}`, `from ${a} on`, `starting ${a}`]), valid: { from: a }, query: { at: a }, iso: { [a]: from } }; }
-  if (until) { const b = date(until); return { text: ro ? random.pick([`până pe ${b}`, `până la ${b}`]) : random.pick([`until ${b}`, `up to ${b}`]), valid: { until: b }, query: { at: b }, iso: { [b]: until } }; }
+  if (from) { const a = date(from), ta = target(from, a); return { text: ro ? random.pick([`din ${a}`, `începând cu ${a}`]) : random.pick([`since ${a}`, `from ${a} on`, `starting ${a}`]), valid: { from: ta }, query: { at: ta }, iso: { [ta]: from } }; }
+  if (until) { const b = date(until), tb = target(until, b); return { text: ro ? random.pick([`până pe ${b}`, `până la ${b}`]) : random.pick([`until ${b}`, `up to ${b}`]), valid: { until: tb }, query: { at: tb }, iso: { [tb]: until } }; }
   return null;
 }
 
 // ---------------------------------------------------------------- mentions: surfaces, styles and pronouns
 const PRONOUN = { en: { S: { f: 'she', m: 'he', n: 'it' }, O: { f: 'her', m: 'him', n: 'it' } } };
 /** Tracks how each entity was first mentioned, so later mentions stay consistent or become pronouns. */
+/**
+ * `seen` holds the first surface of each entity in the message; `values` its target value: the surface as
+ * written for a proper name, the English label for a common noun mentioned in Romanian (english.mjs, Q-DATA-6).
+ * `translated` collects the target values that are translations, so value alignment does not look for them in
+ * the message.
+ */
 export class Mentions {
-  constructor(language, random, styles = {}) { this.language = language; this.random = random; this.styles = { ...styles }; this.seen = new Map(); this.all = new Map(); }
+  constructor(language, random, styles = {}) { this.language = language; this.random = random; this.styles = { ...styles }; this.seen = new Map(); this.all = new Map(); this.values = new Map(); this.translated = new Set(); this.switched = []; this.switchedIds = new Set(); this.switchValues = false; }
   surface(entity, { slot = 'S', pronoun = false, language = this.language } = {}) {
     if (!entity || entity.id?.startsWith('?')) return null;
-    if (pronoun && this.seen.has(entity.id) && language === 'en') return { text: PRONOUN.en[slot][entity.type === 'person' ? entity.gender : 'n'] ?? 'they', value: this.seen.get(entity.id), pronoun: true };
-    if (pronoun && this.seen.has(entity.id) && language === 'ro' && slot === 'S') return { text: '', value: this.seen.get(entity.id), pronoun: true };
+    if (pronoun && this.seen.has(entity.id) && language === 'en') return { text: PRONOUN.en[slot][entity.type === 'person' ? entity.gender : 'n'] ?? 'they', value: this.values.get(entity.id), pronoun: true };
+    if (pronoun && this.seen.has(entity.id) && language === 'ro' && slot === 'S') return { text: '', value: this.values.get(entity.id), pronoun: true };
     const style = this.styles[entity.id] ?? (entity.type === 'person' ? this.random.weighted(language === 'ro' ? [['short', 7], ['full', 3]] : [['short', 7], ['full', 2], ['title', 1]]) : 'short');
     this.styles[entity.id] = style;
-    const text = surfaceOf(entity, language, style);
-    if (!this.seen.has(entity.id)) this.seen.set(entity.id, text);
+    let text = surfaceOf(entity, language, style);
+    let value = targetValue(entity, text, language);
+    // Inside-proposition code switch: the English noun without its article, the English label as the value.
+    // An English clause may likewise name it in Romanian ("Ion teaches chimie"); the value stays English.
+    if (this.switchValues && COMMON_NOUN_TYPES.has(entity.type) && entity.labels.ro !== entity.labels.en && (this.switchedIds.has(entity.id) || (!this.seen.has(entity.id) && this.random.chance(0.85)))) {
+      text = language === 'ro' ? entity.labels.en.replace(/^(the|a|an) /i, '') : entity.labels.ro;
+      value = entity.labels.en;
+      this.switched.push(text);
+      this.switchedIds.add(entity.id);
+    }
+    if (value !== text) this.translated.add(value);
+    if (!this.seen.has(entity.id)) { this.seen.set(entity.id, text); this.values.set(entity.id, value); }
     // Every surface used for an entity (a code-switched message may name it once per language).
     if (!this.all.has(entity.id)) this.all.set(entity.id, new Set());
     this.all.get(entity.id).add(text);
-    return { text, value: text, pronoun: false };
+    return { text, value, pronoun: false };
   }
 }
 
@@ -109,6 +128,8 @@ export function realizeProposition(canon, { key, focus = null, language, random,
   const options = spec[language].map(c => ({ id: `${canon.relation}.${c.id}`, c, form: wanted(c) })).filter(o => o.form && hasForm(o.c, o.form) && o.c.forms[o.form].some(usable));
   if (!options.length) return null;
   const chosen = choose(`construction:${canon.relation}:${language}:${key}${focus ? ':' + focus : ''}`, options);
+  // A split may have no usable construction here (every option is reserved for another partition).
+  if (!chosen) return null;
   const c = chosen.c;
   const template = choose(`form:${chosen.id}:${chosen.form}`, c.forms[chosen.form].map((text, index) => ({ id: `${chosen.id}.${chosen.form}.${index}`, text })).filter(t => usable(t.text)));
   if (rewrite) template.text = rewrite(template.text);
@@ -132,7 +153,11 @@ export function realizeProposition(canon, { key, focus = null, language, random,
   if (phrase) text = `${text} ${phrase.text}`;
   const roles = [['subject', values.S]];
   if (c.O) roles.push([c.Orole, values.O]);
-  const prop = { relation: c.rel, roles, polarity: canon.polarity ?? 'affirmed', ...(phrase && !questionLike ? { valid: mapValues(phrase.valid, quote) } : {}),
+  // The target relation phrase is English whatever the message language (english.mjs, Q-DATA-6); `source_relation`
+  // keeps the message's own phrase for the relation-phrase convention check.
+  const english = language === 'en' ? c.rel : RO_CONSTRUCTION_EN[chosen.id];
+  if (!english) throw Error(`no English phrase for construction ${chosen.id} ("${c.rel}")`);
+  const prop = { relation: english, ...(english !== c.rel ? { source_relation: c.rel } : {}), roles, polarity: canon.polarity ?? 'affirmed', ...(phrase && !questionLike ? { valid: mapValues(phrase.valid, quote) } : {}),
     ...(phrase && questionLike ? { queryTime: mapValues(phrase.query, quote) } : {}), link: { predicate: orientedPredicate(canon.relation, c.converse), converse: c.converse }, ...(phrase ? { timeIso: phrase.iso } : {}) };
   return { text: tidy(text), prop, ids: [chosen.id, template.id], construction: chosen.id, parts };
 }

@@ -81,7 +81,7 @@ const substitute=(condition,binding)=>condition.kind==='all'||condition.kind==='
 function evaluateEvery(q,facts,{complete,maxJoins}){
  const valid=q.during??{from:-Infinity,until:Infinity};
  const domain=joinConditions(q.where,facts,{maxJoins,valid});complete&&=domain.complete;
- const members=domain.rows.filter(row=>q.filters.every(ast=>evaluateExpression(ast,{variables:row.binding}).value===true));
+ const members=applyCompares(domain.rows.filter(row=>q.filters.every(ast=>evaluateExpression(ast,{variables:row.binding}).value===true)),q.compares,{});
  let budget=Math.max(0,maxJoins-domain.probes);const groups=new Map(),evidence=new Set();
  for(const row of members){
   const scope=q.scope.map(c=>substitute(c,row.binding));
@@ -95,7 +95,7 @@ function evaluateEvery(q,facts,{complete,maxJoins}){
   if(!groups.has(key))groups.set(key,{binding:Object.fromEntries(q.select.map(v=>[v,row.binding[v]])),members:[],evidence:[]});
   const group=groups.get(key);group.members.push({binding:row.binding,status});group.evidence.push(...row.evidence,...support);
  }
- const statusOf=group=>group.members.some(m=>m.status==='refuted')?'refuted':group.members.every(m=>m.status==='supported')?'supported':'unknown';
+ const statusOf=group=>quantifiedStatus(q.quantifier,group.members);
  const all=[...groups.values()].map(group=>({...group,status:statusOf(group)}));
  const byId=new Map(facts.map(f=>[f.id,f]));
  const trace=id=>{if(evidence.has(id))return;evidence.add(id);for(const p of byId.get(id)?.from??[])trace(p);};
@@ -114,20 +114,120 @@ function evaluateEvery(q,facts,{complete,maxJoins}){
  return {status,kind:'every',query:q,conflictedAnswers:[],answers:answers.map(({evidence,...row})=>row),members:members.length,counterexamples,undecided,proof,depth:0,complete,truncated:false,
   assurance:'Universal checked over the members of the restriction known to the host; members it does not know are not covered.'};
 }
+/**
+ * Status of a universal question under a quantifier word (DS021 Q-LANG-2), from the members' statuses
+ * (supported, refuted or unknown). `all` (default): refuted by any refuted member, supported when every member is
+ * supported. `none`: supported when every member is refuted. `not_all`: supported by any refuted member.
+ * `most`: more than half supported. `half`: exactly half supported (every member decided). `at_least N`: N or
+ * more supported. A result the unknown members could still change is unknown. No member at all is unknown.
+ */
+export function quantifiedStatus(quantifier,members){
+ const n=members.length,s=members.filter(m=>m.status==='supported').length,r=members.filter(m=>m.status==='refuted').length,u=n-s-r;
+ if(!n)return 'unknown';
+ const decide=(yes,no)=>yes?'supported':no?'refuted':'unknown';
+ switch(quantifier?.word??'all'){
+  case 'all':return decide(u===0&&r===0,r>0);
+  case 'none':return decide(u===0&&s===0,s>0);
+  case 'not_all':return decide(r>0,u===0&&r===0);
+  case 'most':return decide(2*s>n,2*(s+u)<=n);
+  case 'half':return decide(u===0&&2*s===n,2*s>n||2*r>n||(u===0&&2*s!==n));
+  case 'at_least':return decide(s>=quantifier.count,s+u<quantifier.count);
+  default:throw Error('Unknown quantifier '+quantifier.word);
+ }
+}
+/** A value read as a number: a number, or a string that starts with one ("2380 lei", "80"). */
+export function numericValue(value){
+ if(typeof value==='number')return Number.isFinite(value)?value:null;
+ const m=typeof value==='string'?value.trim().match(/^(-?\d+(?:\.\d+)?)(?:\s|$)/):null;
+ return m?Number(m[1]):null;
+}
+const COMPARE={above:(a,b)=>a>b,below:(a,b)=>a<b,at_least:(a,b)=>a>=b,at_most:(a,b)=>a<=b};
+/** Apply `compare` lines to rows; `state.notComputable` records values that are not numbers for an ordering comparison. */
+function applyCompares(rows,compares=[],state){
+ if(!compares.length)return rows;
+ const test=(node,row)=>{
+  if(node.kind==='all')return node.children.every(child=>test(child,row));
+  if(node.kind==='any')return node.children.some(child=>test(child,row));
+  const {left,op,right}=node,a=row.binding[left],b=variable(right)?row.binding[right]:right;
+  if(op==='equal'||op==='not_equal'){const x=numericValue(a),y=numericValue(b),same=x!==null&&y!==null?x===y:a===b;return op==='equal'?same:!same;}
+  const x=numericValue(a),y=numericValue(b);
+  if(x===null||y===null){state.notComputable=true;return false;}
+  return COMPARE[op](x,y);
+ };
+ return rows.filter(row=>compares.every(node=>test(node,row)));
+}
+/** `rank highest|lowest ?v`: keep the rows whose value is the best; ties keep every tied row. */
+function applyRank(rows,rank,state){
+ if(!rank||!rows.length)return rows;
+ const valued=rows.map(row=>({row,value:numericValue(row.binding[rank.variable])})).filter(item=>item.value!==null);
+ if(!valued.length){state.notComputable=true;return [];}
+ if(valued.length<rows.length)state.partial=true;
+ const best=rank.direction==='highest'?Math.max(...valued.map(item=>item.value)):Math.min(...valued.map(item=>item.value));
+ return valued.filter(item=>item.value===best).map(item=>item.row);
+}
+const notComputable=(q,reason)=>({status:'not_computable',kind:q.mode,query:q,conflictedAnswers:[],answers:[],proof:[],depth:0,complete:true,truncated:false,reason,
+ assurance:'The host understood the question but cannot compute it from the values it has.'});
+/**
+ * Temporal ordering (DS021 Q-LANG-3, `order ?t1 before ?t2`): each top-level condition of `where` is joined on its
+ * own, without intersecting validity, and the time variables take the intervals of the conditions that hold
+ * their leaves. `before`/`after` compare the interval starts; `same_time` asks for overlapping intervals.
+ * Supported when some combination satisfies the order, refuted when combinations exist with known starts and
+ * none does, otherwise unknown.
+ */
+function evaluateOrder(q,facts,{complete,maxJoins}){
+ const top=q.where.length===1&&q.where[0].kind==='all'?q.where[0].children:q.where;
+ const whole={from:-Infinity,until:Infinity};
+ let offset=0,budget=maxJoins;const parts=[];
+ for(const condition of top){
+  const count=conditionAtoms([condition]).length,joined=joinConditions([condition],facts,{maxJoins:budget,valid:whole});
+  budget=Math.max(0,budget-joined.probes);complete&&=joined.complete;parts.push({from:offset,to:offset+count,rows:joined.rows});offset+=count;
+ }
+ const partOf=leaf=>parts.findIndex(part=>leaf>=part.from&&leaf<part.to);
+ const [li,ri]=q.order.leaves.map(partOf);
+ if(li<0||ri<0||li===ri)return notComputable(q,'order_needs_two_conditions');
+ let rows=[{binding:{},valids:[],evidence:[]}];
+ for(const part of parts){
+  const next=[];
+  for(const row of rows)for(const r of part.rows){
+   if(Object.entries(r.binding).some(([k,v])=>Object.hasOwn(row.binding,k)&&row.binding[k]!==v))continue;
+   next.push({binding:{...row.binding,...r.binding},valids:[...row.valids,r.valid],evidence:[...row.evidence,...r.evidence]});
+  }
+  rows=next;
+ }
+ const state={};
+ const decided=rows.map(row=>{
+  const a=row.valids[li],b=row.valids[ri],known=Number.isFinite(a.from)&&Number.isFinite(b.from);
+  const holds=q.order.relation==='same_time'?!!intersect(a,b):known&&(q.order.relation==='before'?a.from<b.from:a.from>b.from);
+  return {row:{...row,binding:{...row.binding,[q.order.left]:spanValue(a,q),[q.order.right]:spanValue(b,q)}},holds,known:q.order.relation==='same_time'||known};
+ });
+ let matches=decided.filter(d=>d.holds).map(d=>d.row);
+ matches=applyCompares(matches.filter(row=>q.filters.every(ast=>evaluateExpression(ast,{variables:row.binding}).value===true)),q.compares,state);
+ const status=matches.length?'supported':decided.length&&decided.every(d=>d.known)?'refuted':'unknown';
+ const used=new Set([...(matches.length?matches:decided.map(d=>d.row)).flatMap(row=>row.evidence)]);
+ const proof=facts.filter(f=>used.has(f.id));
+ const unique=new Map();for(const row of matches){const binding=Object.fromEntries(q.select.map(k=>[k,row.binding[k]]));unique.set(stable(binding),{binding,valid:whole});}
+ return {status,kind:q.mode,query:q,conflictedAnswers:[],answers:q.select.length?[...unique.values()].slice(0,q.limit):[],count:q.mode==='count'?unique.size:undefined,proof,depth:0,complete,truncated:false,
+  assurance:'Order of the matched validity intervals known to the host.'};
+}
 export function evaluate(q,facts,{complete=true,maxJoins=30000}={}){
  facts=facts.filter(f=>q.at!==undefined?contains(f.valid,q.at):!q.during||intersect(f.valid,q.during));
  if(q.mode==='every')return evaluateEvery(q,facts,{complete,maxJoins});
+ if(q.order)return evaluateOrder(q,facts,{complete,maxJoins});
  const valid=q.during??{from:-Infinity,until:Infinity};
  const positive=joinConditions(q.where,facts,{maxJoins,valid});complete&&=positive.complete;
  // A time variable (`span`) is bound to the interval of the matched facts, or to its start, end or length.
  if(q.span)for(const row of positive.rows)row.binding={...row.binding,[q.span]:spanValue(row.valid,q)};
- const matches=positive.rows.filter(row=>q.filters.every(ast=>evaluateExpression(ast,{variables:row.binding}).value===true));
+ const state={},filtered=positive.rows.filter(row=>q.filters.every(ast=>evaluateExpression(ast,{variables:row.binding}).value===true));
+ const matches=applyRank(applyCompares(filtered,q.compares,state),q.rank,state);
+ // A yes/no question whose known values all fail a numeric comparison is answered no ("Is the Dacia over 5000?" with a price of 4000).
+ const comparedAway=!matches.length&&filtered.length>0&&(q.compares?.length??0)>0&&!state.notComputable&&q.mode==='exists';
+ if(!matches.length&&state.notComputable)return notComputable(q,'value_not_numeric');
  const remaining=Math.max(0,maxJoins-positive.probes);
  const ground=conditionAtoms(q.where).every(a=>a.a.every(v=>!variable(v)));
  const negative=ground?joinConditions(oppositeConditions(q.where),facts,{maxJoins:remaining,valid}):{rows:[],complete:true};
  complete&&=negative.complete;
  const opposing=negative.rows,overlap=matches.some(m=>opposing.some(o=>intersect(m.valid,o.valid)));
- const status=matches.length?(opposing.length?(overlap?'both':'mixed_temporal'):'supported'):opposing.length?'refuted':'unknown';
+ const status=matches.length?(opposing.length?(overlap?'both':'mixed_temporal'):'supported'):opposing.length||comparedAway?'refuted':'unknown';
  const proofMap=new Map(facts.map(f=>[f.id,f])),byAtom=new Map();
  if(matches.length)for(const f of facts){const key=atomKey(f.atom);if(!byAtom.has(key))byAtom.set(key,[]);byAtom.get(key).push(f);}
  const contradicted=row=>row.evidence.some(id=>{
@@ -145,6 +245,7 @@ export function evaluate(q,facts,{complete=true,maxJoins=30000}={}){
  const answers=all.slice(0,q.limit),used=new Set();
  const trace=id=>{if(used.has(id))return;used.add(id);for(const p of proofMap.get(id)?.from??[])trace(p);};
  answers.forEach(a=>a.evidence.forEach(trace));
+ if(comparedAway)filtered.forEach(row=>row.evidence.forEach(trace));
  opposing.forEach(row=>row.evidence.forEach(trace));
  const conflictedAnswers=answers.filter(row=>row.conflicted).map(({conflicted,...row})=>row);
  const projectedAnswers=answers.map(({conflicted,...row})=>row);

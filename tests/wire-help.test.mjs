@@ -7,7 +7,7 @@
 //                              validateGraph, lower its ground declarations,
 //                              compile when it is model-authored only, and run
 //                              without throwing: under the model-origin compiler
-//                              when it uses stated/assumed/unclear, otherwise
+//                              when it uses stated/assumed/unclear/unparsed, otherwise
 //                              under a trusted Runtime. A program of model
 //                              wire types only, without an atom-condition
 //                              query, also passes the model-origin compiler.
@@ -40,7 +40,7 @@ const WIRES = JSON.parse(fs.readFileSync(new URL('../sop/contracts/wires.json', 
 const ONTOLOGY_TYPES = Object.keys(ONTOLOGY_SPEC);
 // The strict ontology SPEC lists every field Lexicon accepts; other keywords are rejected.
 const ONTOLOGY_FIELDS = Object.fromEntries(Object.entries(ONTOLOGY_SPEC).map(([type, spec]) => [type, [...(spec.one ?? []), ...(spec.many ?? [])]]));
-const MODEL_ONLY = new Set(['stated', 'assumed', 'unclear']);
+const MODEL_ONLY = new Set(['stated', 'assumed', 'unclear', 'unparsed']);
 const LEXICON = Lexicon.load(new URL('../config/ontology.sop', import.meta.url));
 const TOPIC_PAGES = new Set(['overview', 'syntax', 'small-model', 'model-guide', 'question-types']);
 const STAGES = ['parse', 'graph', 'lower', 'compile', 'runtime', 'lexicon'];

@@ -1,0 +1,91 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-symbolic-lm-v1",
+  "name": "SymbolicLM: per-component measurements and the Romanian direct-versus-translate comparison",
+  "registered_at": "2026-09-29T18:40:00Z",
+  "registered_by": "symbolic-lm-agent (owner request of 2026-09-29, relayed by the orchestrator)",
+  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "owner_requests": {
+    "intent": "Name the system made of Stanza plus our other processing \"SymbolicLM\" and package it as one component. SymbolicLM only knows how to (1) translate toward English, (2) spell-check, (3) generate SOP Lang from the grammatical analysis. For mixed Romanian/English messages: can Stanza together with a dictionary translate symbolically? The translation need not be perfect, only intelligible: nobody reads it; it only has to feed the English parser and rules. First see whether per-word language detection, translation and a symbolic spellchecker solve it.",
+    "clarification_2026_09_29": "Target pipeline: message -> SymbolicLM translates Romanian words to English (rough but syntactically sane) -> a small proofreading LLM rewrites the English (only when SymbolicLM signals it is unsure, if that can be detected; otherwise always) -> SymbolicLM parses the English and generates SOP. The translation route is the main Romanian route; the direct Romanian Stanza + rules route is reported as the comparison. SymbolicLM exposes an uncertainty signal and a rewrite hook; the gate quality is measured against the gold-SOP oracle on dev rows."
+  },
+  "kind": "evaluation-only (CPU inference; no training, no GPU, no LLM)",
+  "frozen_before_results": "Written after the translator was developed on development half A (roA) only and before any row of half B (roB) or of the OOD suite was run through SymbolicLM. Development observations on roA (for the record: translate 34.1% vs direct 27.8% tolerant execution on 622 roA rows at the time of writing, not a result) are development evidence only. Before the first roB or OOD run a freeze amendment records the SHA-256 of every file of lib/symbolic-lm/, lib/ud-to-sop/, config/dictionary/ and eval/relation-synonyms.json; any later change to them is a recorded deviation.",
+  "system_under_test": {
+    "symbolic_lm": "lib/symbolic-lm/ (index.mjs, langid.mjs, translate.mjs, english.mjs, uncertainty.mjs, spacy.mjs); Stanza 1.10.1 English and Romanian (RRT) through training/python/ud_parse_worker.py in ~/nlp-venv, CPU (GPU hidden), 4 threads; the host dictionary sop/dictionary.mjs with config/dictionary/; the spelling corrector lib/spellfix.mjs spellfix-v1; the UD->SOP rules lib/ud-to-sop/ as they are at the freeze (another agent, symbolic-rules-agent, is changing them concurrently; both arms always run the same rules)",
+    "input": "the row's message (`question`) only (DS021 model boundary); no context, lexicon of the row, entity list or clock"
+  },
+  "arms": {
+    "direct": "route direct with the message language from the language identifier: Romanian messages are parsed with the Romanian pipeline and converted by the Romanian rules (Romanian lemmas as relations, owner decision D1)",
+    "translate": "route translate: Romanian Stanza parse -> symbolic English realization (dictionary + closed tables + realizer) -> English Stanza parse -> English rules -> values mapped back to verbatim message spans; gibberish, pure requests and labelled simple texts keep the direct outcome",
+    "legacy": "exploratory reference only: tools/eval/ud-baseline.mjs formalize (the chat's former `ud-rules` service; per-sentence language detection in the worker)"
+  },
+  "sets": {
+    "definition": "eval/reports/current/symbolic-lm/sets.json, written by `node tools/research/symbolic-lm-eval.mjs sets` from datasets/formalizer-v1/dev.jsonl (sha256 recorded in sets.json) and eval/suites/formalizer-ood-v1/test.jsonl",
+    "roA": "development half: clean monolingual Romanian dev rows (language ro, no noise, no code_switch) whose sha256('symbolic-lm-v1:' + split_group_id) is even (622 rows)",
+    "roB": "held-out half: the odd ones (652 rows); never inspected or run before the freeze",
+    "oodRo": "clean monolingual Romanian rows of the sealed eval/suites/formalizer-ood-v1/test.jsonl (395 rows); final numbers only, never used for tuning",
+    "mixed": "all code-switched dev rows (732): exploratory",
+    "noisyEn / noisyRo": "dev rows with typing noise (787 / 560) for the spelling component; the corrector's parameters were tuned on this dev split in eval-spellfix-preproc-v1, so these are in-sample for the corrector and are reported as such",
+    "cleanEn / cleanRoSpell": "clean monolingual dev rows (1778 / 1274) for spelling breakage",
+    "stages": "nested stratified prefixes by question_type (tools/research/ud-baseline-eval.mjs stages, seed 42): 100, 300, full"
+  },
+  "hypotheses": {
+    "H1": "On roB, translate reaches higher tolerant execution equivalence than direct: paired delta translate - direct with a 95% paired cluster-bootstrap interval whose lower bound is above 0.",
+    "H2": "On oodRo (final numbers), the same delta has a 95% interval lower bound above 0.",
+    "H3": "Language identification: token accuracy >= 0.97 on clean monolingual dev rows of each language and >= 0.95 on the inserted/tag/value code-switched dev rows (clause_switch rows have no token gold and are skipped).",
+    "H4": "Spelling: on noisy rows the spellfixed condition does not lower tolerant execution (paired delta 95% lower bound >= -1 point) for both routes; on clean rows it changes at most 1% of messages.",
+    "H5": "Uncertainty gate: rows flagged uncertain fail (tolerant) more often than unflagged rows, with non-overlapping 95% Wilson intervals, on roB for the translate route."
+  },
+  "metrics": {
+    "primary": "execution_equivalent_tolerant of eval/run.mjs evaluate (DS016), paired translate - direct on roB",
+    "secondary": [
+      "execution_equivalent (strict)",
+      "canonical_match_tolerant",
+      "invalid or empty outputs",
+      "share of messages with untranslated words",
+      "per question type",
+      "automatic per-layer blame of misses: T (an untranslated word) then the Layer-2 diff classes of eval-symbolic-layers-en-v1 (tools/research/symbolic-layers-diff.mjs) after dictionary-tolerant alignment (P input typo, R rules, C gold convention, L language, E evaluation)",
+      "language-id token and message accuracy",
+      "spelling: paired deltas on noisy rows, messages changed on clean rows",
+      "gate: fail rate flagged vs unflagged, precision and recall of `uncertain` as a failure predictor, per reason kind"
+    ],
+    "intervals": "paired cluster bootstrap over semantic_case_id (10,000 resamples, seed 7; tools/research/spellfix-eval.mjs bootstrap), exact McNemar; Wilson intervals for proportions"
+  },
+  "stopping_rules": {
+    "stages": "roB and oodRo are scored at 100, 300 and the full set; after each stage the paired interval is computed",
+    "decisive": "stop when the 95% interval of the primary delta lies entirely above +3 points or entirely below -3 points",
+    "futility": "stop when the upper bound is below +2 points (a practically useful gain is excluded)",
+    "broken": "stop and report if more than 20% of the first 100 outputs of an arm are invalid or empty",
+    "record": "every stop is recorded with its stage, numbers and reason in the journal, the topic notes (topic symbolic-lm), the experiment record and the report"
+  },
+  "limits": [
+    "The golds keep conventions that neither grammar-based route can derive (relation/object boundary, per-predicate role names; owner decisions Q-SYM-1..3), so absolute match rates are low for both arms; the comparison is paired.",
+    "The translate route uses the host dictionary, which contains the DS022 generator's own Romanian/English constructions (config/dictionary/generator.tsv); formalizer-v1 is generated from the same constructions, so the in-distribution advantage is larger than on real text. The OOD suite shares the generator lexicon only partly; the wild suite is not used here.",
+    "Blame classes are automatic signals, not a human or LLM review; there is no Layer-1 parse judge in this study.",
+    "The UD->SOP rules and eval/relation-synonyms.json are being changed concurrently by another agent; absolute numbers of different runs are not comparable unless the freeze hashes match; within a run both arms use the same files."
+  ],
+  "outputs": "eval/reports/current/symbolic-lm/ (sets.json, langid.json, runs/<set>/<arm>.predictions.jsonl, .traces.jsonl, score-<stage>.json, records-<stage>.jsonl, gate-*.json, summary.md)",
+  "deviations": [
+    {
+      "id": "D1",
+      "at": "2026-09-29T18:50:00Z",
+      "what": "The development comparison on roA was confounded: the direct-arm predictions of roA were made at 17:5x UTC with the UD rules of that time, while the translate arm was re-run later with newer rules (symbolic-rules-agent changed lib/ud-to-sop concurrently, adding among other things a Romanian numeric-constraint builder). The roA delta written in the freeze note (+8.8) mixed two rule versions. Re-running roA direct with the frozen code gives direct 37.8% vs translate 36.7%, paired -1.1 [-4.7, +2.4]. Held-out numbers (roB) always ran both arms in one process with the frozen hashes, so they are not affected. From now on every comparison runs its arms in one process and records the loaded hashes."
+    },
+    {
+      "id": "STOP-roB",
+      "at": "2026-09-29T18:48:00Z",
+      "what": "roB stopped at stage 300 by the futility rule: translate - direct = -3.7 points [-8.6, +1.0] (upper bound < +2); stage 100 had -2.0 [-10.1, +6.1]. H1 not supported. The net loss is concentrated in numeric-constraint messages (direct 10/12, translate 0/12 at stage 300); on the other question types the arms are equal (direct 94, translate 93 of 288)."
+    },
+    {
+      "id": "D2",
+      "at": "2026-09-29T18:55:00Z",
+      "what": "Decided after the roB stop and before any OOD row: a third arm `hybrid` (SymbolicLM v1.1, analyze option keepConstraints, now the default) keeps the direct result when the Romanian rules build a numeric `constraint` wire, and otherwise translates. The OOD run compares direct, translate (v1 behaviour, keepConstraints false) and hybrid in one process; H2 stays translate - direct; hybrid - direct is a secondary, post-hoc comparison whose rule was chosen on roB. v1.1 hashes: eval/reports/current/symbolic-lm/freeze-hashes-v1.1.json (only lib/symbolic-lm/index.mjs differs from the v1 freeze)."
+    }
+  ],
+  "freeze": {
+    "at": "2026-09-29T18:44:10Z",
+    "note": "Freeze amendment written after the last development run on roA and before any roB or OOD row was run. The SHA-256 of every deciding file is in eval/reports/current/symbolic-lm/freeze-hashes.json; copies of lib/symbolic-lm and lib/ud-to-sop are under eval/reports/current/symbolic-lm/frozen-symbolic-lm-v1/ and frozen-ud-to-sop/ (SHA256SUMS). Every run writes the hashes of the code it loaded to runs/<set>/manifest-*.json; a run whose hashes differ from the freeze is reported as a deviation.",
+    "last_development_numbers": "roA (622 rows, same scoring run): direct 27.8%, translate 36.7% tolerant execution; paired +8.8 [+5.3, +12.4] (development data, not a result)"
+  }
+}

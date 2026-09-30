@@ -20,12 +20,12 @@ try {
   if (shm > limits.shm || shm <= 0) throw Error(`shared memory size not enforced: ${shm}`);
   const observed = {cpuMax: file('cpu.max'), memoryMax: memory, memoryCurrent: finite('memory.current'), memorySwapMax: swap, pidsMax: pids, pidsCurrent: finite('pids.current'), shmBytes: shm};
   console.log(JSON.stringify({containerCgroups: observed, gpuUnifiedMemoryNotBoundedByMemoryMax: true}));
-  const gpu = spawnSync(process.env.TRAIN_PYTHON, ['-c', 'import torch,sys; assert torch.cuda.is_available(), "CUDA unavailable"; free,total=torch.cuda.mem_get_info(); print(f"CUDA free={free} total={total} device={torch.cuda.get_device_name(0)}"); sys.exit(0 if free >= 48 * 1024**3 else 2)'], {encoding: 'utf8'});
-  if (gpu.error || gpu.status !== 0) throw Error(`CUDA availability/free floor (48 GiB) failed: ${gpu.stderr?.trim() || gpu.stdout?.trim() || gpu.error?.message}`);
+  const gpu = spawnSync(process.env.TRAIN_PYTHON, ['-c', 'import torch,sys; assert torch.cuda.is_available(), "CUDA unavailable"; free,total=torch.cuda.mem_get_info(); print(f"CUDA free={free} total={total} device={torch.cuda.get_device_name(0)}"); sys.exit(0 if free >= float(sys.argv[1]) * 1024**3 else 2)', process.env.TRAIN_MIN_CUDA_FREE_GIB || '48'], {encoding: 'utf8'});
+  if (gpu.error || gpu.status !== 0) throw Error(`CUDA availability/free floor (${process.env.TRAIN_MIN_CUDA_FREE_GIB || 48} GiB) failed: ${gpu.stderr?.trim() || gpu.stdout?.trim() || gpu.error?.message}`);
   process.stdout.write(gpu.stdout);
   writeFileSync(process.env.TRAIN_CONTAINER_EVIDENCE, JSON.stringify({observed, cuda: gpu.stdout.trim(), limits, checkedAt: new Date().toISOString(), gpuUnifiedMemoryNotBoundedByMemoryMax: true}, null, 2) + '\n', {flag: 'wx', mode: 0o600});
   const args = process.argv.slice(2);
-  if (!['preflight', 'train', 'token-audit', 'merge'].includes(args[0])) throw Error('Only reviewed offline training commands are allowed');
+  if (!['preflight', 'train', 'token-audit', 'merge', 'predict'].includes(args[0])) throw Error('Only reviewed offline training commands are allowed');
   const child = spawn('node', ['training/cli.mjs', ...args], {stdio: 'inherit'});
   for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => child.kill(signal));
   child.once('error', error => { console.error(error); process.exitCode = 1; });

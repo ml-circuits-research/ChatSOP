@@ -10,7 +10,11 @@
  *     unclear: {kind: 'gibberish'|'no_request'} | null,
  *     query:   {ask: 'whether'|'which'|'count'|'every'|'explain', select: ['?x'], props: [proposition with ?variables],
  *               scope: [propositions that must hold for every binding of props] (ask every),
- *               measure: 'start'|'end'|'duration' (a selected `role time ?t`), filter: ['?x != "Ana"']} | null,
+ *               measure: 'start'|'end'|'duration' (a selected `role time ?t`), filter: ['?x != "Ana"'] (printed as
+ *               `except ?x "Ana"`), compare: [['?v', 'above', '80']], rank: ['highest'|'lowest', '?v'],
+ *               quantifier: 'all'|'none'|'not_all'|'most'|'half'|'at_least N' (ask every),
+ *               order: ['?t1', 'before'|'after'|'same_time', '?t2'], fragment: 'follow_up' (props may omit the
+ *               relation)} | null,
  *     constraint: {task, vars, require, claim} | null,
  *   }
  * Role values are JSON-quoted strings exactly as mentioned in the message, or ?variables. Closed roles:
@@ -42,14 +46,17 @@ export function canonical(relation, bindings, { polarity = 'affirmed', time = { 
 /** Positional atom of a canonical proposition, e.g. `works_at ana acme` (with `not` when negated). */
 export const atomOf = prop => `${prop.polarity === 'negated' ? 'not ' : ''}${prop.relation} ${prop.args.join(' ')}`;
 
-const checkProp = (p, { ground }) => {
-  if (typeof p.relation !== 'string' || !p.relation.trim()) throw Error('Proposition without relation phrase');
+export const COMPARATORS = new Set(['above', 'below', 'at_least', 'at_most', 'equal', 'not_equal']);
+export const QUANTIFIERS = /^(all|none|not_all|most|half|at_least \d+)$/;
+export const ORDERS = new Set(['before', 'after', 'same_time']);
+const checkProp = (p, { ground, fragment = false }) => {
+  if (!(fragment && p.relation === undefined) && (typeof p.relation !== 'string' || !p.relation.trim())) throw Error('Proposition without relation phrase');
   if (!POLARITIES.has(p.polarity)) throw Error(`Bad polarity ${p.polarity}`);
-  if (!p.roles.some(([role]) => role === 'subject')) throw Error(`${p.relation}: no subject`);
+  if (!fragment && !p.roles.some(([role]) => role === 'subject')) throw Error(`${p.relation}: no subject`);
   for (const [role, value] of p.roles) {
     if (!CLOSED_ROLES.includes(role)) throw Error(`${p.relation}: role ${role} is not in the closed set`);
     if (ground && !/^"/.test(value)) throw Error(`${p.relation}: ${role} must be a quoted string in a statement`);
-    if (!/^"|^\?[a-z]\w*$/.test(value)) throw Error(`${p.relation}: bad value ${value}`);
+    if (!/^"|^\?[a-z]\w*$|^-?\d+$/.test(value)) throw Error(`${p.relation}: bad value ${value}`);
   }
   const roles = p.roles.map(([role]) => role);
   if (new Set(roles).size !== roles.length) throw Error(`${p.relation}: repeated role`);
@@ -74,9 +81,15 @@ export function validateSurface(ir) {
     if (q.ask === 'explain' && q.select?.length) throw Error('explain selects nothing');
     if ((q.ask === 'every') !== Boolean(q.scope?.length)) throw Error('every needs a scope and only every has one');
     if (!q.props?.length) throw Error('query needs at least one proposition');
-    for (const p of [...q.props, ...(q.scope ?? [])]) checkProp(p, { ground: false });
+    for (const p of [...q.props, ...(q.scope ?? [])]) checkProp(p, { ground: false, fragment: Boolean(q.fragment) });
     const times = new Set([...q.props, ...(q.scope ?? [])].flatMap(p => p.roles.filter(([role, value]) => role === 'time' && value.startsWith('?')).map(([, value]) => value)));
-    if (times.size > 1) throw Error('at most one time variable per query');
+    // Two time variables only with an ordering between them (Q-LANG-3).
+    if (times.size > (q.order ? 2 : 1)) throw Error('at most one time variable per query (two with order)');
+    for (const [variable, comparator, operand] of q.compare ?? []) if (!/^\?[a-z]\w*$/.test(variable) || !COMPARATORS.has(comparator) || !/^"|^\?[a-z]\w*$|^-?\d+$/.test(operand)) throw Error(`bad compare ${variable} ${comparator} ${operand}`);
+    if (q.rank && !(['highest', 'lowest'].includes(q.rank[0]) && /^\?[a-z]\w*$/.test(q.rank[1]))) throw Error(`bad rank ${q.rank}`);
+    if (q.quantifier && (q.ask !== 'every' || !QUANTIFIERS.test(q.quantifier))) throw Error(`quantifier ${q.quantifier} needs ask every`);
+    if (q.order && !(times.has(q.order[0]) && ORDERS.has(q.order[1]) && times.has(q.order[2]))) throw Error(`order needs two time variables: ${q.order}`);
+    if (q.fragment && q.fragment !== 'follow_up') throw Error(`bad fragment ${q.fragment}`);
     if (q.measure && !(times.has(q.select?.[0]) && q.select.length === 1)) throw Error('measure needs the selected time variable');
   }
   return ir;
@@ -90,7 +103,7 @@ export function surfaceSkeleton(ir) {
     ...ir.stated.map(p => `S${shape(p)}${p.certainty !== 'asserted' ? '~' + p.certainty : ''}${p.speaker ? '+spk' : ''}`),
     ...ir.assumed.map(p => `A${shape(p)}${p.basis ? '~' + p.basis : ''}`),
   ];
-  const query = q => `Q:${q.ask}${q.measure ? ':' + q.measure : ''}(${q.props.map(shape).join('&')})${q.scope ? `/(${q.scope.map(shape).join('&')})` : ''}${q.select?.length > 1 ? '+sel' + q.select.length : ''}${q.filter?.length ? '+f' : ''}${q.props.some(p => p.queryTime) || q.time ? '+t' : ''}${q.asof ? '+asof' : ''}`;
+  const query = q => `Q:${q.ask}${q.quantifier ? ':' + q.quantifier.split(' ')[0] : ''}${q.fragment ? ':fragment' : ''}${q.compare?.length ? '+cmp' : ''}${q.rank ? '+rank' : ''}${q.order ? '+order' : ''}${q.measure ? ':' + q.measure : ''}(${q.props.map(shape).join('&')})${q.scope ? `/(${q.scope.map(shape).join('&')})` : ''}${q.select?.length > 1 ? '+sel' + q.select.length : ''}${q.filter?.length ? '+f' : ''}${q.props.some(p => p.queryTime) || q.time ? '+t' : ''}${q.asof ? '+asof' : ''}`;
   if (ir.query) parts.push(query(ir.query));
   for (const q of ir.moreQueries ?? []) parts.push(query(q));
   if (ir.constraint) parts.push(`C:${ir.constraint.task}:${ir.constraint.require.length}`);

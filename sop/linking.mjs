@@ -68,8 +68,8 @@ const utc = (y, m = 1, d = 1) => Date.UTC(y, m - 1, d);
  * relative to the host clock `now`. Accepted: ISO dates and UTC timestamps,
  * `YYYY`, `YYYY-MM`, a month name or abbreviation with a year (EN/RO), a day,
  * month and year ("3 March 2025", "March 3, 2025", "the 3rd of March 2025",
- * "3 martie 2025", "03.03.2025"), a range "A – B", `now`/`acum` and
- * today/yesterday/tomorrow (EN/RO), with an optional leading in/on/at/during,
+ * "3 martie 2025", "03.03.2025"), a range "A – B", `now`/`acum`,
+ * today/yesterday/tomorrow (EN/RO) and last/this/next year, with an optional leading in/on/at/during,
  * în/pe/la/din. Anything else returns null and the host asks.
  */
 export function normalizeTime(text, now = Date.now()) {
@@ -89,6 +89,9 @@ export function normalizeTime(text, now = Date.now()) {
   if ((m = t.match(/^([a-z]+)\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})$/)) && MONTHS[m[1]]) return day(+m[3], MONTHS[m[1]], +m[2]);
   if ((m = t.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/))) return day(+m[3], +m[2], +m[1]);
   if (t === 'now' || t === 'acum') return {from: now, until: now + 1};
+  // Relative years ("last year" for a follow-up such as "dar anul trecut?"): the calendar year of the host clock, shifted.
+  const YEARS = {'last year': -1, 'this year': 0, 'next year': 1};
+  if (Object.hasOwn(YEARS, t)) { const y = new Date(now).getUTCFullYear() + YEARS[t]; return {from: utc(y), until: utc(y + 1)}; }
   if (Object.hasOwn(RELATIVE, t)) { const d = new Date(now); const from = utc(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate() + RELATIVE[t]); return {from, until: from + DAY}; }
   return null;
 }
@@ -152,6 +155,40 @@ export function mentionedIn(value, message) {
   if (!wanted.length) return false;
   for (let i = 0; i + wanted.length <= text.length; i++) if (wanted.every((token, j) => near(token, text[i + j]))) return true;
   return false;
+}
+
+/**
+ * Cross-lingual anchoring (DS021 "Input languages and content words"): a `stated` value written in
+ * English for a common noun of a non-English message ("the gym" for "sala de sport") is anchored when the host
+ * lexicon knows an entity with that surface and another surface of the same entity (any language) is mentioned
+ * in the message. The host's own reviewed labels decide; no dictionary or model is involved.
+ */
+export function mentionedThroughLexicon(value, message, lexicon) {
+  if (!lexicon?.folded) return false;
+  const entries = (lexicon.folded.get(fold(String(value))) ?? []).map(index => lexicon.entries[index]).filter(entry => entry.kind === 'entity');
+  for (const id of new Set(entries.map(entry => entry.id))) {
+    for (const alias of lexicon.entities[id]?.aliases ?? []) if (mentionedIn(alias.surface, message)) return true;
+  }
+  return false;
+}
+
+const FIRST_PERSON = /(?<![\p{L}])(?:i|i'm|i've|i'd|me|my|mine|myself|eu|mie|mi|meu|mea|mei|mele|mă|ma|îmi|imi|noi|nostru|noastră|we|our|us)(?![\p{L}])/iu;
+const FUNCTION_TOKENS = new Set(['the', 'a', 'an', 'of', 'in', 'on', 'at', 'to', 'for', 'from', 'by', 'with', 's']);
+/**
+ * Anchoring through the host dictionary (DS021 "Content words"): the model may write a content word in the message's
+ * language (normalized) or in English. A value is anchored when a surface of a dictionary entry it belongs to — in
+ * either language, as a lemma or an inflected form — is mentioned in the message; a multiword value is anchored
+ * when each of its content words is (directly or through the dictionary). "the user" is anchored by a first-person
+ * word (Q-LANG-5).
+ */
+export function mentionedThroughDictionary(value, message, dictionary) {
+  if (!dictionary || typeof value !== 'string') return false;
+  const surfacesOf = text => dictionary.lookup(text).flatMap(hit => [...hit.entry.ro, ...hit.entry.forms.map(form => form.replace(/^def:/, '')), ...hit.entry.en]);
+  const anchored = text => mentionedIn(text, message) || surfacesOf(text).some(surface => mentionedIn(surface, message)) || surfacesOf(text.replace(/^(?:the|a|an)\s+/i, '')).some(surface => mentionedIn(surface, message));
+  if (anchored(value)) return true;
+  const tokens = tokensOf(value).filter(token => !FUNCTION_TOKENS.has(token));
+  if (!tokens.length) return false;
+  return tokens.every(token => (token === 'user' || token === "user's") ? FIRST_PERSON.test(String(message)) : anchored(token));
 }
 
 export {ROLE_NAMES};

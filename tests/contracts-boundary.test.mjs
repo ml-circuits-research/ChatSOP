@@ -11,7 +11,7 @@ import {context, schema} from './helpers.mjs';
 import {readJsonlShardedSync} from '../lib/jsonl-shards.mjs';
 
 /** A model-language formalization row of the regenerated corpus (DS022). */
-const row = () => readJsonlShardedSync(new URL('../datasets/formalizer-v1/dev.jsonl', import.meta.url).pathname)[0];
+const row = () => readJsonlShardedSync(new URL('../datasets_archive/formalizer-v1/dev.jsonl', import.meta.url).pathname)[0];
 
 const run = source => new Runtime({now: Date.parse('2026-09-26')}).run(source);
 const query = '@q query\n  where bird robin\n';

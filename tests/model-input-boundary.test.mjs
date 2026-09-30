@@ -9,6 +9,7 @@ import {barePrompt, formalPrompt} from '../server/llm.mjs';
 import {project, assertMessageOnly, PROMPT_PROFILE, FORBIDDEN_PROMPT} from '../tools/research/prepare-experiment.mjs';
 import {promptOf} from '../server/audit.mjs';
 import {readJsonlShardedSync} from '../lib/jsonl-shards.mjs';
+import {corpusDir, corpusNames} from '../lib/dataset-paths.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const message = 'Ana works at Acme. Does she still work there?';
@@ -41,13 +42,14 @@ test('G1: the training projection and the audit browser use the message only', (
 });
 
 test('G1: every projected formalizer prompt equals its source message', () => {
-  const corpora = fs.readdirSync(path.join(root, 'datasets'), {withFileTypes: true}).filter(entry => entry.isDirectory() && fs.existsSync(path.join(root, 'datasets', entry.name, 'formalizer/manifest.json')));
+  const corpora = corpusNames(root).filter(name => fs.existsSync(path.join(root, corpusDir(name, root), 'formalizer/manifest.json'))).map(name => ({name, dir: path.join(root, corpusDir(name, root))}));
+  assert.ok(corpora.length > 0, 'the legacy corpora with a formalizer projection are found');
   for (const entry of corpora) {
-    const manifest = JSON.parse(fs.readFileSync(path.join(root, 'datasets', entry.name, 'formalizer/manifest.json'), 'utf8'));
+    const manifest = JSON.parse(fs.readFileSync(path.join(entry.dir, 'formalizer/manifest.json'), 'utf8'));
     assert.equal(manifest.prompt_profile, PROMPT_PROFILE, entry.name);
     for (const split of ['train', 'dev']) {
-      const questions = new Map(readJsonlShardedSync(path.join(root, 'datasets', entry.name, `${split}.jsonl`)).map(r => [r.id, r.question]));
-      const projected = readJsonlShardedSync(path.join(root, 'datasets', entry.name, `formalizer/${split}.jsonl`));
+      const questions = new Map(readJsonlShardedSync(path.join(entry.dir, `${split}.jsonl`)).map(r => [r.id, r.question]));
+      const projected = readJsonlShardedSync(path.join(entry.dir, `formalizer/${split}.jsonl`));
       assert.equal(projected.length, questions.size, `${entry.name}/${split}: projection covers every row`);
       for (const p of projected) assert.equal(p.prompt, questions.get(p.id), `${entry.name}/${split}/${p.id}`);
     }

@@ -16,14 +16,15 @@ import {analyzeTarget, messageOf, questionOf, streamJsonl, targetOf, vocabularyO
 import {fnv1a} from './text.mjs';
 import {jsonlExists} from '../../../lib/jsonl-shards.mjs';
 import {pendingFindings} from './vocabulary.mjs';
+import {corpusDir} from '../../../lib/dataset-paths.mjs';
 
 export const SPLITS = ['train', 'dev', 'test'];
 
 /** Default split files of a corpus; the sealed test lives under eval/suites (DS020). */
 export function corpusFiles(root, corpus) {
   return {
-    train: path.join(root, 'datasets', corpus, 'train.jsonl'),
-    dev: path.join(root, 'datasets', corpus, 'dev.jsonl'),
+    train: path.join(root, corpusDir(corpus, root), 'train.jsonl'),
+    dev: path.join(root, corpusDir(corpus, root), 'dev.jsonl'),
     test: path.join(root, 'eval', 'suites', corpus, 'test.jsonl'),
   };
 }

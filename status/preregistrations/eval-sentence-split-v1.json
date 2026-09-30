@@ -1,0 +1,181 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-sentence-split-v1",
+  "name": "Host sentence splitting before the fine-tuned formalizer (long and multi-sentence messages)",
+  "registered_at": "2026-09-29T11:40:39Z",
+  "registered_by": "sentence-split-eval-agent (owner idea of 2026-09-29, relayed by the orchestrator: CPU-only evaluation; no training, no GPU)",
+  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "frozen_before_results": "Written after the segmenter, the merge and the S2 variant were built and chosen on the formalizer-v1 development split only (a 120-row dev pilot: 20 long_message rows and 100 short multi-sentence rows, seed 7) and before any S0/S1/S2 prediction of this experiment touched a sealed suite (formalizer-v1 test, formalizer-ood-v1, formalizer-wild-v1). Earlier formalizer-size-v1 predictions on those suites exist and are used only as a rerun control. Any later change is a recorded deviation.",
+  "kind": "evaluation-only (CPU inference with an existing checkpoint; no optimizer step, no training data change)",
+  "question": "Does the small fine-tuned formalizer do better on long and multi-sentence messages when the host splits the message into sentences, formalizes each one separately and merges the circuits, and at what speed cost?",
+  "owner_idea": "Give the small model the message sentence by sentence so as not to confuse it, then collect the circuits; speed should barely change.",
+  "changed_factor": "How the message is presented to the formalizer: whole (S0), each sentence alone (S1), each sentence with the previous one (S2), with a host merge for S1/S2. Weights, quantization, runtime, decoding and scoring are identical to formalizer-size-v1. Every model input is an exact substring of the user's message (DS021 model boundary: message text only, no context block).",
+  "conditions": {
+    "S0": "the whole message (baseline). Predicted again under the same server and load as S1/S2 so latency is paired; the formalizer-size-v1 predictions are compared as a rerun control (wild 796, OOD rows of the short sample, sample500 overlap).",
+    "S1": "each sentence unit alone; merged.",
+    "S2": "each sentence with the previous one prepended as the exact message slice from the previous unit's start to this unit's end (no delimiter: a spot check showed that a parenthesized previous sentence is formalized anyway, so no delimiter makes the model skip it). Two merges of the same calls: S2diff (pair output minus the previous unit's own S1 output, as a multiset of DS016 wire keys; needs S1 calls too) and S2dedupe (pair outputs, identical wires dropped). The preregistered S2 is the one with the higher pooled micro wire F1 on the dev pilot; the other is reported as secondary.",
+    "S2hybrid": "EXPLORATORY, not part of the decision rule: S1, except units with an EN/RO anaphora cue use their pair output minus the previous unit's output.",
+    "single_unit_messages": "a message with one sentence unit is sent once; S1 and S2 reuse the S0 output (identical input)."
+  },
+  "segmenter": "lib/sentence-split.mjs splitSentences: deterministic EN/RO rules (abbreviations Dr./dl./nr./str./etc., initials, decimals, dates, times, balanced quotes and parentheses, list lines, ellipsis, ?/! kept with their sentence, emoji-only units attached to the previous unit). Tuned on dev only.",
+  "merge": "lib/sentence-split.mjs mergePrograms: per-unit parse (unparsable blocks dropped and counted); unclear wires dropped when any unit has content, else one unclear (ambiguous > no_request > gibberish; gibberish only when every unit is gibberish); identical wires, identical statements and assumed-equal-to-stated dropped; order stated, assumed, query/constraint, each in message order; ids renumbered s1.., a1.., q, q2.., c, c2..",
+  "model": {
+    "primary": {
+      "arm": "formalizer-size-v1 smollm2-360m fv1-size-a4 merged-best Q8_0",
+      "gguf_sha256": "c8625689cc15b67afc32283ee1ccb4b032b98bdcc56b819b81a5bfc1cd405746"
+    },
+    "optional": {
+      "arm": "smollm2-135m fv1-size-a4 merged-best Q8_0, only if time allows",
+      "gguf_sha256": "1e487df81bbf635219fbf935c500be59c471de5463150851cdfcb6ebedb7aaf6"
+    },
+    "runtime": "llama.cpp 99d4026b llama-server -ngl 0 -t 8 -tb 8 -np 4 -c 32768 --jinja, CUDA_VISIBLE_DEVICES empty, own server on port 18851 (8 slots after the dev pilot A: -np 8 -c 65536, 8 rows in parallel); lib/formalizer-endpoint.mjs request (message as the only user turn, temperature 0, top_k 1); max_tokens 6144 whole message, 1024 per unit or pair; 4 rows in parallel, the calls of one row in sequence."
+  },
+  "suites": {
+    "long": {
+      "file": "eval/suites/formalizer-v1/test.jsonl",
+      "sha256": "b05c76a83efbad8a6027137cb13bc9eeb57812574663818624a98692a11930ac",
+      "rows": 303,
+      "selection": "every family long_message row (all > 300 characters)"
+    },
+    "wild": {
+      "file": "eval/suites/formalizer-wild-v1/test.jsonl",
+      "sha256": "077e7164a3020c1e6c3c28c8f3b5b8f2c08e2e3f59ee0e6830f9991509884163",
+      "rows": 796,
+      "selection": "all rows"
+    },
+    "short": {
+      "files": [
+        "eval/suites/formalizer-v1/test.jsonl",
+        "eval/suites/formalizer-ood-v1/test.jsonl"
+      ],
+      "ood_sha256": "09acfb2eb820a60f29c83b01a45dd2cc1ca371117de4fc69c517c4b80a307a2a",
+      "rows": 400,
+      "selection": "non-long rows the segmenter cuts into >= 2 units (1,522 test, 365 OOD); 200 per suite, stratified proportionally by (language, code_switch), predict-endpoint sampleRows seed 42"
+    },
+    "dev_pilot": {
+      "file": "datasets/formalizer-v1/dev.jsonl",
+      "sha256": "86c85e9aa12a9bade23e4c8453b694f57838ab7022ecc67949f524a6ffdd88f2",
+      "rows": 120
+    }
+  },
+  "hypotheses": {
+    "H1": "On the 303 long rows, S1 and S2 raise micro wire F1 over S0 (paired 95% interval above 0). PRIMARY.",
+    "H2": "On the long rows, S1/S2 raise query-part correctness, rows with wire F1 >= 0.9 and tolerant execution equivalence.",
+    "H3": "On wild, S1/S2 do not lower accepted match or decision match by more than 2 pp (non-inferiority: lower 95% bound > -2 pp) and raise proposition F1 on messages cut into >= 2 units.",
+    "H4": "On the 400-row short multi-sentence sample, S1/S2 tolerant execution is non-inferior to S0 (lower 95% bound > -2 pp).",
+    "H5": "Speed barely changes (owner expectation): S1 total model time per message <= 1.25x S0 (ratio of summed per-message latency).",
+    "H6": "S2 >= S1 on wire F1 (cross-sentence references are resolved)."
+  },
+  "metrics": {
+    "per_condition": "tolerant execution equivalence (eval/run.mjs evaluate; test/OOD rows), DS016 micro wire F1 / precision / recall (eval/metrics.mjs rowWireComparison over primary and accepted golds), rows with wire F1 >= 0.9, query-part correctness, statement F1; wild: accepted match, decision match, proposition F1 (tools/eval/wild-suite.mjs scoreAgainstAccepted); latency per message = sum of the calls the condition needs (S2diff counts the S1 calls it subtracts), calls per message; merge statistics",
+    "slices": "language (en/ro/mixed); short: suite; wild: 1 unit vs >= 2 units, gold with >= 2 statements",
+    "uncertainty": "paired cluster bootstrap of metric differences (clusters split_group_id on test/OOD, row on wild; 2,000 resamples, mulberry32 seed 42)",
+    "error_analysis": "rows where S1 or S2 is worse than S0 (execution or accepted match lost, or row wire F1 down >= 0.2), heuristically labelled: pronoun left unresolved, question spanning sentences, conditional split, supposition lost, context/question frame, unclear handling, extra/missing wires; examples kept"
+  },
+  "decision_rule": "Recommend host splitting with variant V (S1 or the preregistered S2) if (a) the long-row wire F1 delta V-S0 has a 95% interval above 0, (b) short-sample tolerant execution and wild accepted match are non-inferior (lower bound > -2 pp), and (c) total latency <= 1.5x S0 on long rows. If (a) holds but (b) fails, recommend splitting only for long messages (> 300 characters or >= 4 units, the long-row definition), and report it as a routing rule. Between S1 and S2 prefer the one with higher long wire F1 if the S2-S1 interval excludes 0, else the cheaper S1. Otherwise do not adopt.",
+  "limitations_declared": [
+    "Long-row golds are large (median 27 wires); tolerant execution on long rows is near 0 for every condition by construction, so wire F1 is the primary endpoint.",
+    "The formalizer was trained on whole messages; sentence units are a distribution shift of their own (short, sometimes context-free sentences).",
+    "Latency is measured with 4 parallel slots on 8 shared threads while other agents' llama-servers run; ratios are paired but absolute numbers are load-dependent.",
+    "Single seed, greedy decoding, experiment-grade, no human review; the error-analysis labels are heuristic."
+  ],
+  "budget": {
+    "hardware": "CPU only, GPU hidden",
+    "threads": 8,
+    "wall_ceiling_hours": 5,
+    "priority_if_short": "360M: long, then wild, then short; 135M only afterwards"
+  },
+  "code_sha256": {
+    "lib/sentence-split.mjs": "99adcdac6d25a9a96cf7abfeae7980675aa751647b8a5cd797d6e3c1a78a99cc",
+    "tools/research/sentence-split-eval.mjs": "2f3ba746ec583e5997a7c8029d08f61777a40a2edd95df7d98160b72eac55085",
+    "tools/research/sentence-split-score.mjs": "4934e8a6c2881ef211debb82dc9bc5e43b665e7dd1104b48fc599cb3a75c5215",
+    "lib/formalizer-endpoint.mjs": "273779c04ad30de96218bad7d0f2153b2de4b45aa9ba2fb702c8782e8a0718ec",
+    "eval/metrics.mjs": "919ecf65d09ffb627fe0a282f112a40dafafca0d8f96c1a6b1bb3489dadd62c2",
+    "eval/run.mjs": "868fbe71a9e03bd6e39c36ff05a86591ff97e39f7e5a28971686079cd3c57748",
+    "tools/eval/wild-suite.mjs": "ebdd42eb2104163a7096b19ce73f45a08bbf4532cc959981c37696be4d06294a"
+  },
+  "dev_pilot_outcome": {
+    "rows": 120,
+    "composition": "20 long_message + 100 short multi-sentence dev rows (seed 7)",
+    "pilot_a": "first run with an earlier segmenter at 4 slots: S0/S1/S2dedupe/S2diff tolerant exec 90.8/46.7/71.7/71.7%, wire F1 0.946/0.907/0.889/0.838; led to two dev-only segmenter fixes (colon lead-ins joined with the next sentence; month abbreviations before a year do not cut)",
+    "pilot_b_final_segmenter": {
+      "S0": {
+        "exec_tolerant": 0.8917,
+        "wire_f1": 0.9453,
+        "rows_f1_ge_0_9": 0.9583,
+        "query_part": 0.9561
+      },
+      "S1": {
+        "exec_tolerant": 0.425,
+        "wire_f1": 0.9056,
+        "rows_f1_ge_0_9": 0.4583,
+        "query_part": 0.4035
+      },
+      "S2": {
+        "exec_tolerant": 0.725,
+        "wire_f1": 0.8421,
+        "rows_f1_ge_0_9": 0.6833,
+        "query_part": 0.7018
+      },
+      "S2dedupe": {
+        "exec_tolerant": 0.725,
+        "wire_f1": 0.8918,
+        "rows_f1_ge_0_9": 0.7333,
+        "query_part": 0.7018
+      },
+      "S2diff": {
+        "exec_tolerant": 0.725,
+        "wire_f1": 0.8421,
+        "rows_f1_ge_0_9": 0.6833,
+        "query_part": 0.7018
+      },
+      "S2hybrid": {
+        "exec_tolerant": 0.5917,
+        "wire_f1": 0.9263,
+        "rows_f1_ge_0_9": 0.6167,
+        "query_part": 0.5789
+      }
+    },
+    "latency_ratio_to_S0_pilot_b": {
+      "S0": 1,
+      "S1": 2.1409,
+      "S2": 4.0836,
+      "S2dedupe": 2.4179,
+      "S2diff": 4.0836,
+      "S2hybrid": 2.2038
+    },
+    "selected_S2": "S2dedupe (pooled wire F1 0.892 > S2diff 0.842; same execution)",
+    "delimiter_check": "'(previous sentence) current sentence' on a two-sentence example: the model formalized both sentences, so no delimiter makes it skip the previous sentence; plain message slices are used.",
+    "note": "On in-distribution dev rows splitting already hurts (S1 -47 pp execution): a sentence with a pronoun or ellipsis alone gets an invented referent. The sealed evaluation is run as preregistered anyway."
+  },
+  "deviations": [
+    {
+      "id": "D1",
+      "at": "2026-09-29T11:28:00Z",
+      "what": "The 8-slot server restart failed to bind the port, so dev pilot B and 739 wild rows ran on the original 4-slot CPU server; that server was stopped at about 11:57Z by another agent (coordinator notice), and 57 wild rows plus every short/long call after it errored. Errored records were quarantined (work/smollm2-360m/invalid/) and those rows re-run on a new own 8-slot CPU server.",
+      "why": "infrastructure incident",
+      "effect": "device and slot count recorded per row; no errored call is scored"
+    },
+    {
+      "id": "D2",
+      "at": "2026-09-29T12:00:00Z",
+      "what": "Owner instruction to use the GPU for bulk evaluation: starting a GPU llama-server was refused by this session's permission guard (a training job holds the GPU); evaluation stayed on CPU.",
+      "why": "permission",
+      "effect": "none on accuracy; slower"
+    },
+    {
+      "id": "D3",
+      "at": "2026-09-29T12:00:00Z",
+      "what": "Sequential stopping added on the owner's instruction: nested stratified stages (100 rows first). Short sample stopped at stage 100: S1 clearly harmful (-33 pp execution), S2 gain futile (upper bound about +1 pp). Wild had already run in full.",
+      "why": "owner rule: stop early when the answer is clear",
+      "effect": "short 100/400 rows"
+    },
+    {
+      "id": "D4",
+      "at": "2026-09-29T12:48:03.890Z",
+      "what": "Experiment stopped early by the orchestrator: superseded by the owner's clause-decomposition language change (compound sentences split into linked clause wires inside the model output); the targets used here are being retired. Long set stopped at 79/303 rows (stage 100 incomplete).",
+      "why": "superseded",
+      "effect": "interim results only; no preregistered decision reached on H1"
+    }
+  ]
+}

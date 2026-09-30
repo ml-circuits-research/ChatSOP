@@ -1,0 +1,16 @@
+{
+ "at": "2026-09-30T00:28:52.085Z",
+ "pool_rows": 189,
+ "raw_pass": 59,
+ "raw_fail": 130,
+ "small_candidate_repaired": 6,
+ "teacher_repaired": 26,
+ "hard": 98,
+ "train_additions": 88,
+ "dev_additions": 3,
+ "hard_additions": 98,
+ "teacher_spend_usd": 0.16770400000000002,
+ "teacher_calls": 124,
+ "dev_fraction": 0.12,
+ "note_split_fix": "Corrected 2026-09-30: the original hash-based train/dev split ignored v1's own existing split_group_id assignment, causing 5 groups to leak across train/dev (same underlying formalizer-v1 message, different surface, in both splits). Fixed in tools/research/build-proofing-v2.mjs to reuse v1's split for any split_group_id v1 already assigned; only brand-new groups fall back to the hash. Re-verified: tools/datasets/audit/proofing-overlap.mjs shared_split_groups all 0 after the fix."
+}

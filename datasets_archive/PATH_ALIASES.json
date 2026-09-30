@@ -1,0 +1,23 @@
+{
+ "format": "chatsop-path-aliases-v1",
+ "moved_on": "2026-09-30",
+ "decision": "Owner decision of 2026-09-30 (status/journal.jsonl): the first level of datasets/ holds only bad_english, symbolic_english and neuro_english. The legacy corpora that feed them moved unchanged (byte for byte, same file names and hashes) into datasets_archive/, where they remain the provenance inputs and the gold-SOP arbiter.",
+ "aliases": {
+  "datasets/formalizer-v1": "datasets_archive/formalizer-v1",
+  "datasets/proofing": "datasets_archive/proofing",
+  "datasets/proofing-diverse-dev": "datasets_archive/proofing-diverse-dev",
+  "datasets/clean-english": "datasets_archive/clean-english",
+  "datasets/diversity": "datasets_archive/diversity"
+ },
+ "resolver": "lib/dataset-paths.mjs: resolveDatasetPath(storedPath), archived(relative), corpusDir(name), corpusNames(). tools/datasets/verify-corpus.mjs, tools/eval/registry.mjs, tools/eval/baseline.mjs, lib/row-world.mjs and training/cli.mjs resolve stored paths through it.",
+ "frozen_records_keep_old_paths": [
+  "status/preregistrations/*.json",
+  "status/training/*.json",
+  "status/experiments.json, status/journal.jsonl, status/notes/*",
+  "eval/registry/*.json, eval/predictions/*.manifest.json",
+  "eval/suites/*/manifest.json and the `world.dir` field of corpus rows (datasets/formalizer-v1/world)",
+  "datasets_archive/*/manifest.json, config/dictionary/*.tsv and lib/ud-to-sop/labels.mjs (provenance comments; their content is hashed by run manifests)",
+  "eval/reports/**, probably_obsolete/**, CHANGES.md, PAS_TASK.md (history)"
+ ],
+ "note": "These records pin file hashes or describe past runs and are never edited; a path they store is read through the resolver or through this table."
+}

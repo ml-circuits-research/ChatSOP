@@ -1,0 +1,30 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-cpu-speed-laptop-v1",
+ "name": "Which small base models reach 30-40 generated tokens/s on an ordinary laptop CPU, for the SymbolicProofingLLM and LanguageProofingLLM roles?",
+ "registered_at": "2026-09-30T10:20:00Z",
+ "registered_by": "parse-judge-agent (owner question relayed by the orchestrator)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_context": "Target: 30-40 tokens/s on an ordinary laptop, not on the DGX Spark. Two roles: SymbolicProofingLLM (English to limited English for SymbolicLM, fine-tuned, currently Gemma3-270M) and LanguageProofingLLM (Romanian, mixed or noisy English to acceptable English, ideally a decent translator).",
+ "kind": "measurement only (CPU inference speed; no training, no GPU, no quality evaluation beyond citing existing reports)",
+ "frozen_before_results": "Written before any llama-bench run of this study. GGUF files were converted/quantized first (f16 from the Hugging Face weights of models/proofing with convert_hf_to_gguf.py in the isolated export venv, Q8_0 and Q4_K_M with llama-quantize); no speed was measured yet.",
+ "method": {
+  "engine": "llama.cpp build in ~/llama-cpp-venv/llama.cpp/build/bin, llama-bench, CPU only (-ngl 0, CUDA_VISIBLE_DEVICES empty), 5 repetitions per cell, batch 1",
+  "cells": "each model x quantization (Q4_K_M, Q8_0) x threads (4 and 8) x core type",
+  "core_types": "this host has 10 Cortex-X925 cores (3.9 GHz, cores 5-9 and 15-19) and 10 Cortex-A725 cores (2.8 GHz, cores 0-4 and 10-14); each cell is pinned with taskset to cores of ONE type: X925 = optimistic bound, A725 = conservative bound for a laptop",
+  "workload": "prompt processing of 30 tokens (pp30), generation of 30 and 64 tokens (tg30, tg64), and a typical message pp30+tg30 (llama-bench -pg 30,30); ms per message = 60 / (pg t/s)",
+  "opus_mt": "Opus-MT (Helsinki-NLP, the ROMANCE-en model used by eval-translator-compare-v1, and ro-en if present) through CTranslate2 int8 (converted by ct2-transformers-converter in ~/mt-venv output to a scratch dir) and through transformers fp32, CPU, 4 threads pinned to each core type; 30-token input, greedy, beam 1 and beam 4; tokens/s of generation and ms per message",
+  "models": "Gemma 3 270M proofreader (fine-tuned GGUF of models/gemma/proofreader-gemma270m-v1), SmolLM2-360M (shipped chat-base GGUF; Q4 by requantization), Qwen3-0.6B (shipped Q8_0; Q4 by requantization), Gemma 3 1B-it, Qwen3-1.7B, SmolLM2-1.7B-instruct, EuroLLM-1.7B-instruct (all converted from models/proofing HF weights)"
+ },
+ "laptop_correction": "Token generation on CPU is memory-bandwidth-bound: tokens/s <= bandwidth / model bytes. An ordinary laptop has dual-channel DDR4-3200 (about 25-35 GB/s achievable) or DDR5-5600 (about 50-70 GB/s achievable); the correction reports for every model both the measured range across core types and the bandwidth ceiling for 30 and 60 GB/s. The Spark's LPDDR5x has a much higher bandwidth than a laptop, so a measured value that is bandwidth-limited on the Spark will be lower on a laptop. A model 'meets the target' only if the conservative estimate (A725 measurement at 4 threads, capped by the 30 GB/s ceiling) is >= 30 tokens/s; 'probably meets' if the optimistic estimate (X925 at 4 threads capped by 60 GB/s) is >= 40 and the conservative one is >= 20.",
+ "roles": "The role table combines the speed with the existing quality evidence: eval/reports/current/proofing/report.md (break/repair of candidate proofreaders), eval/reports/current/text-to-clean-english/summary.md (Romanian/mixed candidates), eval/reports/current/translator-compare/summary.md (Opus-MT).",
+ "hypotheses": {
+  "H1": "Gemma 3 270M and SmolLM2-360M at Q4_K_M reach at least 30 tokens/s with 4 threads even in the conservative estimate.",
+  "H2": "1.7B-class models at Q4_K_M do not reach 30 tokens/s in the conservative estimate (fewer than 30 tokens/s at 4 threads on A725 cores or under the 30 GB/s ceiling).",
+  "H3": "Qwen3-0.6B Q4_K_M is within the 30-40 tokens/s band in the conservative estimate."
+ },
+ "stop_rules": ["No early stopping: the whole matrix is a few minutes of CPU. A cell that fails to run is reported as failed; no cell is dropped silently.", "CPU cells run only when no other CPU-heavy job of this study is active (the LLM judge calls are I/O bound and may run in parallel; parse jobs on the GPU worker are paused)."],
+ "honesty": "Different CPU microarchitecture from a laptop (ARM64 NEON dotprod/i8mm kernels versus x86 AVX2/AVX-512 kernels), different memory system, one host under other load; results are indicative ranges, not a laptop benchmark. Quality claims are only those of the cited reports.",
+ "deliverables": ["eval/reports/current/cpu-speed/summary.md", "tools/research/cpu-speed-bench.mjs", "tools/research/cpu-speed-models.json"],
+ "deviations": []
+}

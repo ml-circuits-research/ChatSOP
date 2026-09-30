@@ -10,7 +10,7 @@
  *   2. docs/specs/matrix.md lists exactly those files, in the same order;
  *   3. every DSnnn token and DSnnn-<slug>.md name in a live file names an existing specification;
  *   4. every probably_obsolete/... path cited in a live file exists;
- *   5. frozen files (probably_obsolete/**, status/journal.jsonl, eval/reports/history/**, and the legacy
+ *   5. frozen files (probably_obsolete/**, status/journal.jsonl, status/notes/*.jsonl, eval/reports/history/**, and the legacy
  *      generated corpus artifacts listed in aliases.json `legacyGenerated`) cite only ids that
  *      docs/specs/aliases.json knows, because former ids stay valid only there;
  *   6. no live file links an archived specification through a docs/specs/ path.
@@ -29,7 +29,7 @@ const option = name => {
 };
 const root = path.resolve(option('root') ?? path.join(path.dirname(fileURLToPath(import.meta.url)), '..'));
 const SPEC_DIR = 'docs/specs';
-const FROZEN = /^(probably_obsolete\/|eval\/reports\/history\/|status\/journal\.jsonl$)/;
+const FROZEN = /^(probably_obsolete\/|eval\/reports\/history\/|status\/journal\.jsonl$|status\/notes\/[^/]+\.jsonl$)/;
 // Generated legacy corpus artifacts awaiting regeneration are listed in aliases.json (`legacyGenerated`) and
 // treated like frozen files: their generators are retired, so they keep the ids of the time.
 const EXEMPT = new Set([SPEC_DIR + '/aliases.json']);

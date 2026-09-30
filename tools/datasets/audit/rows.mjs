@@ -123,6 +123,7 @@ function atomsOf(text) {
 }
 
 const COMPARATOR = /(?:<=|>=|==|!=|<|>)/;
+const WORD_COMPARATOR = /\b(?:above|below|at_least|at_most|equal|not_equal)\b/;
 /** Parse a target into wires with atoms and the constructs the label checks look for. Throws on parse errors. */
 export function analyzeTarget(target) {
   const program = parse(target);
@@ -130,15 +131,16 @@ export function analyzeTarget(target) {
     const fields = wire.fields ?? {};
     const atoms = [...(fields.holds ?? []), ...(fields.where ?? [])].flatMap(atomsOf);
     if (wire.type === 'stated' || wire.type === 'assumed') atoms.push(propositionAtom(parseProposition(propositionPairs(wire), {where: '@' + wire.id})));
-    const expressions = [...(fields.require ?? []), ...(fields.claim ?? []), ...(fields.filter ?? [])].map(String);
+    const expressions = [...(fields.require ?? []), ...(fields.claim ?? []), ...(fields.filter ?? []), ...(fields.compare ?? [])].map(String);
     return {
       id: wire.id,
       type: wire.type,
       atoms,
       mode: fields.mode?.[0] ?? null,
       task: fields.task?.[0] ?? null,
-      temporalFields: ['at', 'during', 'asof', 'valid'].filter(name => fields[name]?.length),
-      comparison: expressions.some(expression => COMPARATOR.test(expression)) || Boolean(fields.objective?.length || fields.direction?.length),
+      temporalFields: ['at', 'during', 'asof', 'valid', 'order'].filter(name => fields[name]?.length),
+      // Comparisons in words (DS021 words-only forms: compare, rank, and above/below/at_least/… in constraints) count like operators.
+      comparison: expressions.some(expression => COMPARATOR.test(expression) || WORD_COMPARATOR.test(expression)) || Boolean(fields.objective?.length || fields.direction?.length || fields.compare?.length || fields.rank?.length),
       numbers: expressions.flatMap(expression => expression.replace(QUOTED, ' ').match(/-?\b\d+(?:\.\d+)?\b/g) ?? []),
       vars: (fields.var ?? []).map(String),
     };

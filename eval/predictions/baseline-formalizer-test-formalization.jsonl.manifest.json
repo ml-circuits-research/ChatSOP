@@ -4,8 +4,8 @@
   "claim": "Gold-copy evaluator sanity check only; not a model prediction or model accuracy.",
   "command": "node tools/eval/baseline.mjs --file eval/suites/formalizer-v1/test.jsonl --out eval/predictions/baseline-formalizer-test-formalization.jsonl",
   "suite": "eval/suites/formalizer-v1/test.jsonl",
-  "suite_sha256": "3d85d74db356cf8e75bf3509764eda0d9980d866daafba2159d2677aceff97b2",
+  "suite_sha256": "b05c76a83efbad8a6027137cb13bc9eeb57812574663818624a98692a11930ac",
   "predictions": "eval/predictions/baseline-formalizer-test-formalization.jsonl",
-  "predictions_sha256": "affea4413e5b980fab44f04cc99fb1531699d99b3556e2e37fb35e0fa9c749c6",
-  "rows": 4951
+  "predictions_sha256": "950df3e62d623707c244dceb9d45480f0af3441dbf944def2f39dfeba6e3f0f6",
+  "rows": 5033
 }

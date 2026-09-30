@@ -6,11 +6,15 @@ import path from 'node:path';
 // `tools/datasets/build-*.mjs` builders, curriculum sources and converters) plus the legacy root generators
 // that still exist. Two kinds of tools are deliberately allowed to open sealed tests and are therefore not
 // generators: the validator (`tools/datasets/validate.mjs`, which re-executes sealed rows) and the sealed
-// auditors below, which measure template-level leakage. Their outputs are reports, never training input, and
+// auditors below, which measure template-level leakage (and the LLM paraphrase layer's sealed-suite guard,
+// which a pipeline runs as a separate process and reads back only as per-candidate pass/fail verdicts). Their outputs are reports, never training input, and
 // this audit fails if any generator or training source imports them.
 const LEGACY_GENERATORS = ['tools/generate-data.mjs', 'tools/build-data.mjs', 'tools/teacher-generate.mjs'];
-const VALIDATORS = ['tools/datasets/validate.mjs'];
-export const SEALED_AUDITORS = ['tools/datasets/audit-corpus.mjs', 'tools/datasets/audit/'];
+const VALIDATORS = ['tools/datasets/validate.mjs', 'tools/datasets/verify-three-datasets.mjs'];
+export const SEALED_AUDITORS = ['tools/datasets/audit-corpus.mjs', 'tools/datasets/audit/', 'tools/datasets/llm-diversify/sealed-guard.mjs'];
+/** Independently written, eval-only sealed suites (DS016): no generator produces them, no generator or training
+ * source may name them, and they never have a `datasets/<name>/` training counterpart. */
+export const INDEPENDENT_SUITES = ['formalizer-wild-v1'];
 const isAuditor = file => SEALED_AUDITORS.some(entry => entry.endsWith('/') ? file.startsWith(entry) : file === entry);
 const forbidden = /(?:eval\/suites\/[^\s'"`)]*\/test\.jsonl|datasets\/[^\s'"`)]*\/test\.jsonl|(?:eval\/suites|datasets)[^\s'"`)]*\/test\.jsonl)/;
 const io = /\b(?:readFileSync|readFile|createReadStream|openSync|open|read_text|open\s*\()\s*\(/g;
@@ -83,10 +87,14 @@ export function auditSourceBoundary(root) {
     }
   }
   const training = auditTrainingSelection(root);
+  for (const suite of INDEPENDENT_SUITES) {
+    if (fs.existsSync(path.join(root, 'datasets', suite))) violations.push(`datasets/${suite}: an independent eval-only suite must have no training or dev split`);
+    for (const name of [...files, ...training.files]) if (fs.readFileSync(path.join(root, name), 'utf8').includes(suite)) violations.push(`${name}: generator/training source names the independent sealed suite ${suite}`);
+  }
   // Sealed auditors may read the test; nothing that generates or selects may depend on them.
   for (const name of [...files, ...training.files]) {
     const source = fs.readFileSync(path.join(root, name), 'utf8');
-    for (const match of source.matchAll(imported)) if (/(?:^|\/)audit-corpus\.mjs$|(?:^|\/)datasets\/audit\/|^\.\.?\/audit\//.test(match[1])) violations.push(`${name}: generator/selection source imports sealed auditor ${match[1]}`);
+    for (const match of source.matchAll(imported)) if (/(?:^|\/)audit-corpus\.mjs$|(?:^|\/)datasets\/audit\/|^\.\.?\/audit\/|(?:^|\/)sealed-guard\.mjs$/.test(match[1])) violations.push(`${name}: generator/selection source imports sealed auditor ${match[1]}`);
   }
-  return { files:[...files, ...training.files], generators:files, sealed_auditors:SEALED_AUDITORS, observed_splits:training.observed_splits, violations:[...violations, ...training.violations] };
+  return { files:[...files, ...training.files], generators:files, sealed_auditors:SEALED_AUDITORS, independent_suites:INDEPENDENT_SUITES, observed_splits:training.observed_splits, violations:[...violations, ...training.violations] };
 }

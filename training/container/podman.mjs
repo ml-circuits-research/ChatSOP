@@ -12,7 +12,11 @@ const lock = join(models, '.training.lock');
 const reports = join(root, 'eval/reports/current');
 const image = 'localhost/chatsop-spark-training:cu130-20260927';
 const gib = 1024 ** 3;
-const limits = {cpus: 6, memoryGiB: 32, pids: 256, shmGiB: 1, availableHostGiB: 48, stopHostGiB: 16, freeDiskGiB: 40, stopDiskGiB: 20, freeCudaGiB: 48};
+// The CUDA-free floor may be lowered explicitly (TRAIN_MIN_CUDA_FREE_GIB, 8..48) when the owner allows sharing the
+// GB10's unified memory with other inference work; the host-memory stop floor still applies.
+const cudaFloor = Number(process.env.TRAIN_MIN_CUDA_FREE_GIB ?? 48);
+if (!Number.isSafeInteger(cudaFloor) || cudaFloor < 8 || cudaFloor > 48) throw Error('TRAIN_MIN_CUDA_FREE_GIB must be an integer 8..48');
+const limits = {cpus: 6, memoryGiB: 32, pids: 256, shmGiB: 1, availableHostGiB: 48, stopHostGiB: 16, freeDiskGiB: 40, stopDiskGiB: 20, freeCudaGiB: cudaFloor};
 function fail(message) { throw Error(message); }
 function cmd(args, options = {}) {
   const result = spawnSync('podman', args, {encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, ...options});
@@ -67,7 +71,7 @@ function build() {
 async function run(args) {
   const {name, rest, dir} = parseJob(args);
   const wallMinutes = Number(rest[1]);
-  if (rest[0] !== '--wall-minutes' || !Number.isSafeInteger(wallMinutes) || wallMinutes < 1 || wallMinutes > 1440 || rest[2] !== '--' || !['preflight', 'train', 'token-audit', 'merge'].includes(rest[3])) fail('Usage: run --job NAME --wall-minutes 15 -- preflight|train|token-audit|merge [training CLI options]');
+  if (rest[0] !== '--wall-minutes' || !Number.isSafeInteger(wallMinutes) || wallMinutes < 1 || wallMinutes > 1440 || rest[2] !== '--' || !['preflight', 'train', 'token-audit', 'merge', 'predict'].includes(rest[3])) fail('Usage: run --job NAME --wall-minutes 15 -- preflight|train|token-audit|merge|predict [training CLI options]');
   if (rest[3] === 'train') {
     const cliArgs = rest.slice(4);
     for (const flag of ['--qualification', '--authorization']) {
@@ -105,7 +109,7 @@ async function run(args) {
       '--cpus=6', '--memory=32g', '--memory-swap=32g', '--pids-limit=256', '--shm-size=1g', '--tmpfs=/tmp:rw,nosuid,size=2g',
       '--mount', `type=bind,src=${root},dst=${root},ro=true`, '--mount', `type=bind,src=${models},dst=${models}`, '--mount', `type=bind,src=${reports},dst=${reports}`,
       '--workdir', root, '--env', 'HOME=/tmp', '--env', `HF_HOME=${join(dir, 'cache')}`, '--env', `XDG_CACHE_HOME=${join(dir, 'cache/xdg')}`, '--env', `TRITON_CACHE_DIR=${join(dir, 'cache/triton')}`,
-      '--env', 'TRAIN_MIN_FREE_GIB=40', '--env', 'TRAIN_STOP_FREE_GIB=20', '--env', 'TRAIN_MIN_AVAILABLE_GIB=48', '--env', 'TRAIN_STOP_AVAILABLE_GIB=16', '--env', 'TRAIN_MIN_CUDA_FREE_GIB=48', '--env', 'TRAIN_EXTERNAL_LOCK=1', '--env', `TRAIN_LOCK_TOKEN=${token}`, '--env', `TRAIN_CONTAINER_EVIDENCE=${join(dir, 'inside-cgroups.json')}`,
+      '--env', 'TRAIN_MIN_FREE_GIB=40', '--env', 'TRAIN_STOP_FREE_GIB=20', '--env', 'TRAIN_MIN_AVAILABLE_GIB=48', '--env', 'TRAIN_STOP_AVAILABLE_GIB=16', '--env', `TRAIN_MIN_CUDA_FREE_GIB=${limits.freeCudaGiB}`, '--env', `TRAIN_CUDA_FREE_CHECK=${process.env.TRAIN_CUDA_FREE_CHECK === 'host' ? 'host' : 'cuda'}`, '--env', 'TRAIN_EXTERNAL_LOCK=1', '--env', `TRAIN_LOCK_TOKEN=${token}`, '--env', `TRAIN_CONTAINER_EVIDENCE=${join(dir, 'inside-cgroups.json')}`,
       '--entrypoint=node', img.Id, 'training/container/inside.mjs', ...rest.slice(3)];
     safelyExited = false;
     const id = cmd(runArgs);

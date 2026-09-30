@@ -1,0 +1,72 @@
+[
+ {
+  "id": "gemma3-270m-proofreader/q4_k_m",
+  "quant": "q4_k_m",
+  "path": "/home/salboaie/work/ChatSOP/models/gemma/proofreader-gemma270m-v1/proofreader/merged-best/gguf/q4_k_m.gguf"
+ },
+ {
+  "id": "gemma3-270m-proofreader/q8_0",
+  "quant": "q8_0",
+  "path": "/home/salboaie/work/ChatSOP/models/gemma/proofreader-gemma270m-v1/proofreader/merged-best/gguf/q8_0.gguf"
+ },
+ {
+  "id": "smollm2-360m/q4_k_m",
+  "quant": "q4_k_m",
+  "path": "~/laptop-cpu-gguf/smollm2-360m-q4_k_m.gguf"
+ },
+ {
+  "id": "smollm2-360m/q8_0",
+  "quant": "q8_0",
+  "path": "/home/salboaie/work/ChatSOP/models/smollm2-360m/chat-base/q8_0.gguf"
+ },
+ {
+  "id": "qwen3-0.6b/q4_k_m",
+  "quant": "q4_k_m",
+  "path": "~/laptop-cpu-gguf/qwen3-0.6b-q4_k_m.gguf"
+ },
+ {
+  "id": "qwen3-0.6b/q8_0",
+  "quant": "q8_0",
+  "path": "/home/salboaie/work/ChatSOP/models/proofing/gguf/qwen3-0.6b-q8_0.gguf"
+ },
+ {
+  "id": "gemma3-1b-it/q4_k_m",
+  "quant": "q4_k_m",
+  "path": "~/laptop-cpu-gguf/gemma-3-1b-it-q4_k_m.gguf"
+ },
+ {
+  "id": "gemma3-1b-it/q8_0",
+  "quant": "q8_0",
+  "path": "~/laptop-cpu-gguf/gemma-3-1b-it-q8_0.gguf"
+ },
+ {
+  "id": "qwen3-1.7b/q4_k_m",
+  "quant": "q4_k_m",
+  "path": "~/laptop-cpu-gguf/qwen3-1.7b-q4_k_m.gguf"
+ },
+ {
+  "id": "qwen3-1.7b/q8_0",
+  "quant": "q8_0",
+  "path": "/home/salboaie/work/ChatSOP/models/proofing/gguf/qwen3-1.7b-q8_0.gguf"
+ },
+ {
+  "id": "smollm2-1.7b/q4_k_m",
+  "quant": "q4_k_m",
+  "path": "~/laptop-cpu-gguf/smollm2-1.7b-instruct-q4_k_m.gguf"
+ },
+ {
+  "id": "smollm2-1.7b/q8_0",
+  "quant": "q8_0",
+  "path": "~/laptop-cpu-gguf/smollm2-1.7b-instruct-q8_0.gguf"
+ },
+ {
+  "id": "eurollm-1.7b/q4_k_m",
+  "quant": "q4_k_m",
+  "path": "~/laptop-cpu-gguf/eurollm-1.7b-instruct-q4_k_m.gguf"
+ },
+ {
+  "id": "eurollm-1.7b/q8_0",
+  "quant": "q8_0",
+  "path": "~/laptop-cpu-gguf/eurollm-1.7b-instruct-q8_0.gguf"
+ }
+]

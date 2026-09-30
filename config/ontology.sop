@@ -100,6 +100,21 @@
   label ro "durează"
   alias en "takes minutes"
 
+@costs predicate
+  role subject entity
+  role object integer
+  description "preț numeric în lei; valori de atribut pentru compare și rank (DS021 Q-LANG-1)"
+  label ro "costă"
+  alias en "cost"
+
+@age predicate
+  role subject person
+  role object integer
+  description "vârsta în ani; valoare de atribut pentru compare și rank (DS021 Q-LANG-1)"
+  label ro "are vârsta"
+  alias en "be aged"
+  alias en "be old"
+
 @likes predicate
   role subject person
   role object entity

@@ -24,8 +24,8 @@ const question = '@q query\n' + match('"Maria"', '"Alpha Lab"');
 const compile = (source, options = {}) => compileDeclarative(source, {lexicon: lex, schema, now: NOW, ...options});
 const runtime = (policy = {}, c = null) => new Runtime({lexicon: lex, schema, now: NOW, policy, ...(c ? {repo: c.repo, session: c.session} : {})});
 
-test('model types: stated/assumed/unclear/query/constraint only', () => {
-  assert.deepEqual([...MODEL_TYPES], ['stated', 'assumed', 'unclear', 'query', 'constraint']);
+test('model types: stated/assumed/unclear/query/constraint/unparsed only', () => {
+  assert.deepEqual([...MODEL_TYPES], ['stated', 'assumed', 'unclear', 'query', 'constraint', 'unparsed']);
   for (const source of ['@x jsEval\n  expr 1 + 2', '@x value\n  data 1 + 2', '@x clarify\n  text "Which?"', '@x fact\n  holds works_at maria lab_alpha\n  valid timeless'])
     assert.throws(() => compile(source), /belongs to symbolic execution/, source);
   // Queries state conditions as string match blocks, never atoms.
@@ -53,8 +53,7 @@ test('parser: strings as written, a closed role inventory, explicit polarity, qu
     [prop('a', 'assumed', {extra: ['basis guess']}), /basis must be one of/],
     [prop('s', 'stated', {roles: [['employee', '"Maria"'], ['object', '"Alpha Lab"']]}), /role_unknown: .* role employee is not one of subject, object/],
     [prop('s', 'stated', {roles: [['subject', '"Maria"'], ['subject', '"Ana"']]}), /role_duplicate/],
-    [prop('s', 'stated', {roles: [['subject', '?who'], ['object', '"Alpha Lab"']]}), /proposition_not_ground: .* put unknowns in a query/],
-    [prop('s', 'stated', {roles: [['subject', '$who'], ['object', '"Alpha Lab"']]}), /proposition_not_ground/],
+    [prop('s', 'stated', {roles: [['subject', '~who'], ['object', '"Alpha Lab"']]}), /proposition_not_ground/],
     [prop('s', 'stated', {roles: [['subject', '"?who"'], ['object', '"Alpha Lab"']]}), /proposition_not_ground/],
     [prop('s', 'stated', {roles: [['subject', 'maria'], ['object', '"Alpha Lab"']]}), /value must be a JSON-quoted string as written in the message/],
     [prop('s', 'stated', {roles: [['subject', '"Maria" extra'], ['object', '"Alpha Lab"']]}), /role takes exactly NAME VALUE/],
@@ -68,6 +67,10 @@ test('parser: strings as written, a closed role inventory, explicit polarity, qu
     ['@u unclear\n  kind gibberish\n  language de', /unclear language must be one of en, ro/],
   ];
   for (const [source, error] of rejects) assert.throws(() => parse(source), error, source);
+  // A ?variable in a statement is only a placeholder paired with an unparsed span, and a $id names a wire of the
+  // output; both parse and are rejected at admission when they are not (DS021 "Honest partial formalization").
+  assert.throws(() => compile(prop('s', 'stated', {roles: [['subject', '?who'], ['object', '"Alpha Lab"']]})), /proposition_not_ground: .*unknowns belong in a query/);
+  assert.throws(() => compile(prop('s', 'stated', {roles: [['subject', '$who'], ['object', '"Alpha Lab"']]})), /reference_unknown/);
   assert.doesNotThrow(() => parse(prop('s', 'stated', {valid: ['from "2025"', 'until "2026"'], extra: ['certainty supposed', 'speaker "Ana"']})));
   assert.doesNotThrow(() => parse(prop('s', 'stated', {relation: '"takes minutes"', roles: [['subject', '"the check"'], ['object', '5']]})));
   assert.equal(canonical(parse(question)), question, 'a match block has a canonical form');
@@ -128,7 +131,7 @@ test('compiler: duplicates, redundant assumptions, assumption budget, unclear al
   assert.throws(() => compile(many + question, {maxModelAssumptions: 2}), /too_many_assumptions/);
   assert.throws(() => compile('@u unclear\n  kind gibberish\n' + question), /unclear_not_alone/);
   assert.equal(compile('@u unclear\n  kind no_request').unclear.kind, 'no_request');
-  assert.throws(() => compile('@c constraint\n  var ?x int 0 3\n  claim ?x >= 1'), /constraint_task_required/);
+  assert.throws(() => compile('@c constraint\n  var ?x int 0 3\n  claim ?x at_least 1'), /constraint_task_required/);
   assert.throws(() => compile(prop('a', 'assumed') + question, {modelAssumptions: 'use'}), /report or branch/);
 });
 
@@ -257,7 +260,7 @@ test('unclear: the kinds a context-free model can recognise, replies from one ta
 });
 
 test('no model refusal: an understood problem without an engine is stated as such', async () => {
-  const out = await runtime().run('@c constraint\n  var ?x int\n  require ?x >= 3\n  claim ?x >= 1\n  task prove', {origin: 'model'});
+  const out = await runtime().run('@c constraint\n  var ?x int\n  require ?x at_least 3\n  claim ?x at_least 1\n  task prove', {origin: 'model'});
   assert.equal(out.result.packet.status, 'not_computable');
   assert.equal(out.result.packet.engine_status, 'unsupported');
   assert.match(out.result.text, /^I understood the question as: @c constraint; var \?x int; .* I cannot compute this kind of answer yet\.$/);

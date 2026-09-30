@@ -1,5 +1,5 @@
 {
-  "description": "Specification renumbering of 2026-09-28. Maps every former DS id to its current spec, the spec it was merged into, or its archive location. Old ids remain valid only in archives (probably_obsolete/**), the project journal (status/journal.jsonl) and historical reports (eval/reports/history/**); tools/check-spec-refs.mjs enforces this.",
+  "description": "Specification renumbering of 2026-09-28. Maps every former DS id to its current spec, the spec it was merged into, or its archive location. Old ids remain valid only in archives (probably_obsolete/**), the project journal (status/journal.jsonl), the append-only topic notes (status/notes/*.jsonl) and historical reports (eval/reports/history/**); tools/check-spec-refs.mjs enforces this.",
   "date": "2026-09-28",
   "ids": {
     "DS000": {

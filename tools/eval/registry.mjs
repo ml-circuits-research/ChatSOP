@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { auditSourceBoundary } from '../../eval/leakage.mjs';
 import { evaluate } from '../../eval/run.mjs';
 import { stable } from '../../lib/util.mjs';
+import { resolveDatasetPath } from '../../lib/dataset-paths.mjs';
 
 const root = path.resolve(fileURLToPath(new URL('../../', import.meta.url)));
 const executionFiles = ['tools/eval/registry.mjs', 'tools/eval/baseline.mjs', 'eval/leakage.mjs', 'eval/run.mjs', 'eval/contracts.mjs', 'eval/signature.mjs', 'sop/parser.mjs', 'sop/runtime.mjs', 'server/agent.mjs', 'config/ontology.sop'];
@@ -15,7 +16,7 @@ const save = (file, value) => { fs.mkdirSync(path.dirname(file), { recursive:tru
 const within = (base, file) => file.startsWith(base + path.sep);
 function resolved(relative) {
   assert(typeof relative === 'string' && relative && !path.isAbsolute(relative), 'Expected a repository-relative artifact');
-  const file = path.resolve(root, relative);
+  const file = path.resolve(root, resolveDatasetPath(relative));
   assert(within(root, file), `Artifact escapes repository: ${relative}`);
   if (fs.existsSync(file)) assert(within(root, fs.realpathSync(file)), `Artifact symlink escapes repository: ${relative}`);
   return file;
@@ -25,7 +26,7 @@ function suiteKind(cell) {
   const file = resolved(cell.suite);
   const actual = fs.existsSync(file) ? fs.realpathSync(file) : file;
   if (cell.split === 'test') assert(within(path.join(root, 'eval/suites'), actual), 'Test answers must live in eval/suites');
-  else assert(cell.split === 'dev' && within(path.join(root, 'datasets'), actual) && /(?:^|\/)dev\.jsonl$/.test(actual), 'Selection requires a dataset dev suite');
+  else assert(cell.split === 'dev' && (within(path.join(root, 'datasets'), actual) || within(path.join(root, 'datasets_archive'), actual)) && /(?:^|\/)dev\.jsonl$/.test(actual), 'Selection requires a dataset dev suite');
 }
 function definition(manifest) {
   assert.equal(manifest.format, 'chatsop-experiment-registry-v1');
@@ -69,6 +70,7 @@ function localTestCorpora() {
     }
   };
   walk(path.join(root, 'datasets'));
+  walk(path.join(root, 'datasets_archive'));
   return found.sort();
 }
 function baselineProvenance(cell) {

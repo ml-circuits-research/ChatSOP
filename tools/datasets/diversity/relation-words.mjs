@@ -9,6 +9,10 @@
  * ("where did Ana fly" → "fly to", "cu ce merge" → "merge la serviciu cu"), articles, auxiliaries and a
  * classifier noun before a name ("autorul cărții X" → "fi autorul").
  *
+ * Targets are canonical English (owner decision Q-DATA-6): for English input the relation phrase is the message's
+ * own words as above; for Romanian input it is the English phrase of the construction's meaning
+ * (english.mjs RO_CONSTRUCTION_EN), and the convention applies to the Romanian source phrase it translates.
+ *
  * `relationWordProblems` checks that every content word of each stated/query relation phrase occurs in the
  * message as an inflected form. The generator applies it to the realized message before noise, so a
  * construction that paraphrases can never reach a corpus; `tests/data/relation-phrases.test.mjs` re-checks the
@@ -31,7 +35,7 @@ const IRREGULAR = {
   keep: ['kept'], run: ['ran'], lead: ['led'], feel: ['felt'], win: ['won'], sit: ['sat'], spend: ['spent'], tell: ['told'], think: ['thought'],
   avea: ['are', 'au', 'avut', 'aveau', 'avea'], lua: ['ia', 'iau', 'luat'], juca: ['joaca', 'joc', 'joaca', 'jucat'], merge: ['mers', 'merg'],
   vrea: ['vor', 'vrut', 'vreau', 'vrei'], face: ['fac', 'facut'], cadea: ['cazut', 'cade', 'cad'], sta: ['sta', 'stat', 'stau'], da: ['dat', 'da', 'dau'],
-  vinde: ['vand', 'vandut'], putea: ['poate', 'pot', 'putut'], creste: ['crescut'], cere: ['cerut'],
+  vinde: ['vand', 'vandut'], insemna: ['inseamna'], trimite: ['trimis'], muta: ['muta', 'mutat'], putea: ['poate', 'pot', 'putut'], creste: ['crescut'], cere: ['cerut'],
 };
 
 const tokens = text => foldDiacritics(String(text)).toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
@@ -57,8 +61,12 @@ export function relationWordProblems(surface, text) {
   const props = [...(surface.stated ?? []), ...(surface.query?.props ?? []), ...(surface.query?.scope ?? []), ...(surface.moreQueries ?? []).flatMap(q => q.props ?? [])];
   const problems = [];
   for (const prop of props) {
-    const missing = missingRelationWords(prop.relation, text);
-    if (missing.length) problems.push(`relation ${JSON.stringify(prop.relation)} lacks ${missing.join(', ')}`);
+    // A Romanian realization carries its English target phrase in `relation` and the message's own phrase in
+    // `source_relation` (english.mjs, Q-DATA-6): the message words are checked on the source phrase.
+    const phrase = prop.source_relation ?? prop.relation;
+    if (!phrase) continue; // a fragment block without a relation (Q-LANG-4)
+    const missing = missingRelationWords(phrase, text);
+    if (missing.length) problems.push(`relation ${JSON.stringify(phrase)} lacks ${missing.join(', ')}`);
   }
   return problems;
 }

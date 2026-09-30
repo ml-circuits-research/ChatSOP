@@ -1,0 +1,92 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-ud-rules-v14-v1",
+ "name": "UD -> SOP rules v1.4 against v1.3 on a fresh held-out sample (EN, RO, mixed; test, OOD, wild), with a separately labelled host-normalized score (synonym and frame list, owner answer to Q-SYM-2)",
+ "registered_at": "2026-09-29T17:25:00Z",
+ "registered_by": "symbolic-rules-agent (owner answers to Q-SYM-1..3 of 2026-09-29, relayed by the orchestrator)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_requests": {
+  "Q-SYM-1": "\"nu eliminam cazuri valide doar ca sa treaca verificarile, sa ramina clar, ce pica, pica; o sa incercam sa fixam din fine tuning\": strict scoring stays exactly as it is; no evaluation normalization hides relation/object boundary misses; a tolerant host-linking score may be reported only beside strict and labelled as such.",
+  "Q-SYM-2": "\"ti-am zis sa avem o lista de sinonime, sa joace rolul hostului cum zici tu, din rezultatele pe care le scoate le putem normaliza. analizeaza daca e suficient o lista mare de sinonime\": build a large synonym and frame list that normalizes produced outputs as host work, measure what it resolves on data not used to build it, and report strict and host-normalized scores side by side.",
+  "rules": "Fix what is clearly fixable (proposals.md R1-R19 and tree repairs); build v1.4 from training/dev data only; measure on a fresh held-out sample drawn before any rule change; paired bootstrap CIs vs v1.3 including wild, EN and RO rows. CPU only (Stanza on CPU); no training."
+ },
+ "kind": "evaluation-only (CPU inference; no training, no LLM calls)",
+ "frozen_before_results": "Written right after the fresh sample was drawn (eval/reports/current/ud-rules-v14/sample.json, 2026-09-29T17:22:21Z, sha256 5a7bb2033137b72493fb4d0899a267aba032d726ccb291d81d9e42300ddbd62a) while lib/ud-to-sop was still byte-identical to frozen-rules-v1.3 (SHA256SUMS verified). The v1.3 predictions of the sample are generated before any rule change and are not scored or inspected until v1.4 is frozen.",
+ "systems": {
+  "parser": "Stanza 1.10.1 (EN default package, RO RRT) through training/python/ud_parse_worker.py on the CPU (CUDA_VISIBLE_DEVICES empty); input = each rules version's own maskMessage(question)",
+  "a": "ud-rules-v1.3 (eval/reports/current/baseline-ud-rules/frozen-rules-v1.3/, loaded from the frozen copy)",
+  "b": "ud-rules-v1.4: lib/ud-to-sop after rule changes developed on datasets/formalizer-v1 train/dev rows and on the example sentences written in proposals.md only; frozen under eval/reports/current/baseline-ud-rules/frozen-rules-v1.4/ (SHA256SUMS) before any v1.4 conversion of a sample row",
+  "host_normalization": "sop/frames.mjs with the frame and synonym list config/dictionary/frames.tsv (built by tools/frames.mjs from datasets/formalizer-v1 train/dev rows, the train verification world, the host dictionary and Princeton WordNet 3.0 verb synsets); frozen (digest recorded) before any sample row is normalized"
+ },
+ "sample": {
+  "size": "600 messages: 240 sealed formalizer-v1 test, 180 formalizer-ood-v1, 180 formalizer-wild-v1; every language (283 en, 272 ro, 45 mixed)",
+  "eligibility": "every row except the 400 consumed rows of eval-symbolic-layers-en-v1 and every surface variant of their semantic cases; one row per semantic_case_id",
+  "strata": "source x language x question-type group x length (as in eval-symbolic-layers-en-v1), proportional largest-remainder allocation with at least one row per non-empty stratum",
+  "seed": 20260930,
+  "stages": "nested stratified stages of 150 and 300 rows (seed 42) and the full 600",
+  "ids": "eval/reports/current/ud-rules-v14/sample.json"
+ },
+ "metrics": {
+  "strict": "unchanged harness: test/OOD execution_equivalent_tolerant of eval/run.mjs (row world); wild: D1-tolerant all-proposition F1 = 1 against any accepted gold (tools/research/ud-baseline-eval.mjs tolerantScores). Owner decision Q-SYM-1: this is the headline score.",
+  "host_normalized": "the same scorer after the host frame normalization rewrites the prediction (relation synonym to a listed frame, relation+preposition frame to role name, single-oblique role relabel, relation/object boundary shift); for the wild suite the gold is normalized too. Always reported beside strict, never instead of it.",
+  "secondary": "mean D1-tolerant all-proposition F1; admitted (valid) output rate; the normalization gain (normalized - strict) per rules version"
+ },
+ "outcomes": {
+  "primary": "paired difference of strict match, v1.4 - v1.3, paired cluster bootstrap 95% CI (10,000 resamples, seed 7; clusters = semantic cases), overall",
+  "reported_slices": "test, OOD, wild; en, ro, mixed; wild-en, wild-ro, wild-mixed; the same for the host-normalized score and for the normalization gain",
+  "q_sym_2": "on the 146 Layer-2 misses of eval-symbolic-layers-en-v1 under v1.3 (sealed rows never used to build the list): how many of the 38 C_role, the 30 C_boundary and all 146 become matches after host normalization; and the normalization gain on the fresh sample"
+ },
+ "hypotheses": {
+  "H1": "v1.4 raises the strict match rate over v1.3 on the fresh sample (95% CI excludes 0).",
+  "H2": "No source or language slice gets worse: no slice has a 95% CI entirely below 0.",
+  "H3": "A synonym and frame list is not sufficient alone: host normalization resolves at least half of the 38 C_role misses but less than half of all 146 Layer-2 misses (the rest are rules and question-form differences a list cannot express)."
+ },
+ "stop_rules": [
+  "Broken condition: at stage 150, more than 20% of v1.4 outputs are empty or not admitted -> stop, fix as a recorded deviation, restart on the same sample.",
+  "Harm: at stage 150 or 300, the 95% CI of the overall strict delta lies entirely below 0 -> stop and report v1.4 as a regression.",
+  "Success is not a reason to stop early: the owner asked for CIs on wild, EN and RO slices, and a full CPU run costs minutes, so the full 600 rows are scored unless a stop rule above fires. Every stage result is written (compare-150.json, compare-300.json, compare-full.json) and recorded."
+ ],
+ "rigor": [
+  "v1.4 and the frame list are developed on datasets/formalizer-v1 train/dev rows only; no sealed row (fresh sample or otherwise) is converted with a development version.",
+  "The v1.3 and v1.4 predictions and the frame list are frozen (SHA-256) before the first compare run.",
+  "Strict scoring is the unchanged harness; the normalized score is labelled and reported beside it.",
+  "No training; GPU untouched (Stanza on CPU); port 9999 untouched; only this experiment's processes are stopped."
+ ],
+ "records": [
+  "status/experiments.json",
+  "status/tasks.json (task eval-ud-rules-v14-v1)",
+  "status/notes (baselines, evaluation, model-language)",
+  "status/journal.jsonl",
+  "eval/reports/current/ud-rules-v14/results.json"
+ ],
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-09-29T19:55:00Z",
+   "what": "Host dictionary change during development (sop/dictionary.mjs compile-3): a Romanian relation form with an inflected copula also answers to its fi lemma form (\"e antrenorul de la\" -> \"fi antrenorul de la\"), and a Romanian verb chain in the short infinitive is translated with an English to-infinitive (\"vrea învăța\" -> \"want to learn\"). The strict harness links through this dictionary.",
+   "why": "DS021 prescribes these lemma forms for Romanian output; the dictionary did not link them, so any DS021-conform producer lost Romanian rows. Owner authorization: synonym entries and host fixes that are clearly fixable.",
+   "effect": "Applies to v1.3 and v1.4 alike: both are scored at compare time with the same frozen host data (eval/reports/current/ud-rules-v14/host-data.SHA256SUMS). On the development slice it moved v1.3 from 29.7% to 30.7%."
+  },
+  {
+   "id": "D2",
+   "at": "2026-09-29T20:40:00Z",
+   "what": "The formalizer-wild-v1 suite was re-adjudicated on 10 rows (owner answer to Q-SYM-3; eval/reports/current/ud-rules-v14/gold-readjudication.jsonl); its sha256 changed from 077e7164… (recorded in sample.json) to 548d76be….",
+   "why": "Owner answer to Q-SYM-3.",
+   "effect": "None of the 10 rows is in this sample (they belong to the consumed eval-symbolic-layers-en-v1 sample); every sample row is byte-identical, so no score of this experiment changes."
+  },
+  {
+   "id": "D3",
+   "at": "2026-09-29T20:45:00Z",
+   "what": "training/python/ud_parse_worker.py was changed by another agent at 19:21 (optional forced language for SymbolicLM; default behaviour unchanged) before the v1.3 predictions were generated; frozen-rules-v1.4 records the current worker hash.",
+   "why": "Shared worker.",
+   "effect": "Both rule versions parse through the same worker without the new option, so the paired comparison is unaffected."
+  },
+  {
+   "id": "D4",
+   "at": "2026-09-29T21:05:00Z",
+   "what": "Post hoc bug fix of the host normalizer (sop/frames.mjs boundary split): a relation that names no frame was split before a participle or after a bare copula (\"be based in\" -> \"be\" + \"based in\", then \"be\" read as a synonym of another frame), which turned 2 strict matches of the sample into normalized misses. The split now moves only a noun tail and never splits off \"be/fi/have/avea/do/get\". Found while reading the full-sample normalization losses.",
+   "why": "A correctness bug of the host step, not a tuning choice; the strict score (primary) does not use the normalizer.",
+   "effect": "Strict numbers unchanged. Host-normalized, full sample: v1.3 28.2% -> 28.5%, v1.4 32.7% -> 33.0%; normalization losses 2 -> 0. The pre-fix results are kept (compare-*.normalizer-before-D4.json); the fix is post hoc and labelled so."
+  }
+ ]
+}
