@@ -1,0 +1,129 @@
+{
+ "format": "chatsop-dataset-manifest-v3",
+ "dataset": "neuro_english",
+ "model": "SymbolicProofingLLM",
+ "purpose": "Grammatically correct English that SymbolicLM does not analyse correctly, with a meaning-preserving rewrite that SymbolicLM does handle where one is known. Fine-tuning and evaluation material for SymbolicProofingLLM. Rows nobody can rewrite yet are kept and flagged no_target; rows failing only by gold convention are flagged and are not rewriting targets.",
+ "review_status": "not_reviewed",
+ "human_reviewed": false,
+ "training_authorized": false,
+ "owner_decision": "2026-09-30, status/journal.jsonl: three datasets with one purpose each",
+ "classification": "datasets/neuro_english/README.md and docs/specs/DS008-data-evaluation.md \"Three datasets\"",
+ "splits": {
+  "train": "datasets/neuro_english/train.jsonl",
+  "dev": "datasets/neuro_english/dev.jsonl",
+  "test": "eval/suites/neuro_english/test.jsonl"
+ },
+ "split_policy": "by split_group_id (source split groups; new cases by writer); rows of sealed suites only in the sealed test, exact-text overlap with a sealed row or across splits is dropped from train/dev",
+ "sha256": {
+  "datasets/neuro_english/train.jsonl": "2e425514de736e209850a256c6815c3108c2fbb51fffcd68abfd7f57aa91e2d1",
+  "datasets/neuro_english/dev.jsonl": "84555d87e28c544390788d76bdd361287063989ef721d17250198214d7c8ff1d",
+  "eval/suites/neuro_english/test.jsonl": "1b7a139e09fcbeadc4c09f9afadbcb6597b2bade8eb649247e0fa9934fada22e"
+ },
+ "bytes": {
+  "datasets/neuro_english/train.jsonl": 26396652,
+  "datasets/neuro_english/dev.jsonl": 4012684,
+  "eval/suites/neuro_english/test.jsonl": 9809893
+ },
+ "counts": {
+  "train": {
+   "rows": 4908,
+   "by_source": {
+    "formalizer-v1": 2353,
+    "new_cases": 2407,
+    "proofing-diverse-dev": 148
+   },
+   "by_failure_kind": {
+    "gold_convention": 1211,
+    "parser": 83,
+    "rules": 1193,
+    "unknown": 2421
+   },
+   "with_target": 216,
+   "by_target_source": {
+    "new_cases.clean": 122,
+    "none": 4692,
+    "proofing.repair": 94
+   },
+   "rewrite_targets": 3697
+  },
+  "dev": {
+   "rows": 779,
+   "by_source": {
+    "formalizer-v1": 302,
+    "new_cases": 477
+   },
+   "by_failure_kind": {
+    "gold_convention": 153,
+    "parser": 12,
+    "rules": 135,
+    "unknown": 479
+   },
+   "with_target": 34,
+   "by_target_source": {
+    "new_cases.clean": 20,
+    "none": 745,
+    "proofing.repair": 14
+   },
+   "rewrite_targets": 626
+  },
+  "test": {
+   "rows": 1785,
+   "by_source": {
+    "formalizer-ood-v1": 83,
+    "formalizer-v1": 727,
+    "formalizer-wild-v1": 262,
+    "new_cases": 713
+   },
+   "by_failure_kind": {
+    "gold_convention": 455,
+    "parser": 1,
+    "rules": 598,
+    "unknown": 731
+   },
+   "with_target": 42,
+   "by_target_source": {
+    "new_cases.clean": 34,
+    "none": 1743,
+    "proofing.repair": 7,
+    "regularization": 1
+   },
+   "rewrite_targets": 1330
+  }
+ },
+ "splits_written": {},
+ "symbolic_lm": {
+  "version": "symbolic-lm-v2.0",
+  "rules": "ud-rules-v2.5",
+  "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_electra-large,lemma=combined_nocharlm,depparse=combined_electra-large",
+  "call": "analyze(text, {route: 'direct', language: 'auto'}), no spelling correction, no rewrite",
+  "code_sha256": {
+   "lib/symbolic-lm/index.mjs": "4453cd85540388e7d25c373a041539238d24bfbd13ae42898f0564d961b729ae",
+   "lib/symbolic-lm/uncertainty.mjs": "569fb335f05cfb20a270d52b75bc060835cf10e977e8e2d46c94522f1b593de2",
+   "lib/languages-util/langid.mjs": "55b9340c918e726fb2cb85238b9ac3f91698ca5954802701d3da769bc87c8a55",
+   "lib/languages-util/spellfix.mjs": "440b65c9b2c6113898c68b3c0963857d0eae9a7297e959327472d2dc7ac8a0fc",
+   "sop/dictionary.mjs": "2f8262691607e098f33e1cb85ea08c5c6796a60be6a5162a842aba5e8a9af333",
+   "training/python/ud_parse_worker.py": "ce5af380c99a7efb9e0c8112f877dd49cf429ab9a6c5d8cefc8444ff28927eb0",
+   "lib/ud-to-sop/analyze.mjs": "a8863315aa6bef8eb44c40f830deaaf7fc3df31fe30ac8857548e909f352ac78",
+   "lib/ud-to-sop/emit.mjs": "62bf950f4f9f4d77da82168cff92f98f85356a4535528889394d5f1e297a03cf",
+   "lib/ud-to-sop/index.mjs": "689598552f1be578fe431d5743c17f6d7042cf4ee830c1acaa7569a86d1d3b07",
+   "lib/ud-to-sop/labels.mjs": "7079726685ee5be352cdf48dc533490d4f583c116107a550049e0d660909fd02",
+   "lib/ud-to-sop/lexicon.mjs": "dc56e72a4c84fd0c85db3c021a850c840c6a212f0ac07b07bfa2dc034c3fc4bf",
+   "lib/ud-to-sop/numeric.mjs": "f78bd2ffc8c62d437511795b3698d61bba00773c480d57479d7fc3ecfc98f181",
+   "lib/ud-to-sop/protect.mjs": "1fd7583b7ab737d2f08eddbf8d3376fa23a8f85ddf7fc4451c7d28648c35e0c3",
+   "lib/ud-to-sop/repair.mjs": "2b0ed2d460771ee1fb45106fd1250f3555f4a78e659f0f88d4b60f6d5c2ee5e3",
+   "lib/ud-to-sop/stanza.mjs": "94c0d3ee717ef5d421bd01f8e473913b3e2b5cacaa9a6940305267d0ba758f8c",
+   "lib/ud-to-sop/tree.mjs": "aa0cb4823aa54f650dd0425c28c5559e504f6dd0e31d0780ca91dd0578c48405",
+   "config/symbolic-lm.json": "50cd0a2f89837ab3d6250ed653c0704087f68d5cd987d4be871ddbf117152da4"
+  }
+ },
+ "sources": {
+  "new_cases": {
+   "path": "datasets_sources/new_cases/cases.jsonl",
+   "sha256": "82ec3d2bdaa0dec3e6d784ee5db7e72cebc83b426fae0f58a9fc7d1338868d99",
+   "rows": 6000,
+   "note": "read-only; LLM-written references marked reviewed-by:pending"
+  }
+ },
+ "train_dev_built_at": "2026-09-30T17:45:17.119Z",
+ "test_built_at": "2026-09-30T17:46:41.294Z"
+}
