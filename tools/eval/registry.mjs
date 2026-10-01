@@ -9,7 +9,7 @@ import { stable } from '../../lib/util.mjs';
 import { resolveDatasetPath } from '../../lib/dataset-paths.mjs';
 
 const root = path.resolve(fileURLToPath(new URL('../../', import.meta.url)));
-const executionFiles = ['tools/eval/registry.mjs', 'tools/eval/baseline.mjs', 'eval/leakage.mjs', 'eval/run.mjs', 'eval/contracts.mjs', 'eval/signature.mjs', 'sop/parser.mjs', 'sop/runtime.mjs', 'server/agent.mjs', 'config/ontology.sop'];
+const executionFiles = ['tools/eval/registry.mjs', 'tools/eval/baseline.mjs', 'eval/leakage.mjs', 'eval/run.mjs', 'eval/contracts.mjs', 'eval/signature.mjs', 'sop/parser.mjs', 'sop/runtime.mjs', 'server/agent.mjs', 'config/knowledge/demo/0001-vocabulary.sop'];
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const json = file => JSON.parse(fs.readFileSync(file, 'utf8'));
 const save = (file, value) => { fs.mkdirSync(path.dirname(file), { recursive:true }); fs.writeFileSync(file, JSON.stringify(value, null, 2) + '\n'); };

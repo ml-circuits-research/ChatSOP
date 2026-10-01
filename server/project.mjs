@@ -20,6 +20,7 @@ import {targetForm} from './eval-browser.mjs';
 import {loadHistory, entries, topicSummaries, readReport, listReports} from './history.mjs';
 import {corpusDir, corpusNames} from '../lib/dataset-paths.mjs';
 
+const THREE_DATASETS = ['bad_english', 'symbolic_english', 'neuro_english'];
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = file => {
   try {
@@ -150,10 +151,10 @@ function vocabulary(root) {
   return {file: 'eval/reports/current/vocabulary.json', verdict: report.verdict ?? null, totals: report.totals ?? null, scope: report.scope ?? null, scanned: report.scanned ?? null, mtime: fs.statSync(file).mtime.toISOString()};
 }
 
-/** The AGENTS.md training rule, quoted live. */
+/** The AGENTS.md training rule (explicit owner approval per run), quoted live. */
 function trainingRule(root) {
   const text = fs.existsSync(path.join(root, 'AGENTS.md')) ? fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8') : '';
-  const line = text.split('\n').find(entry => /prohibits training/.test(entry));
+  const line = text.split('\n').find(entry => /Training happens only with the owner's explicit approval/.test(entry));
   return line ? line.replace(/^\d+\.\s*/, '').replace(/\*\*/g, '') : null;
 }
 
@@ -189,45 +190,50 @@ function preflight(root) {
   });
 }
 
-/** Gates in order. `open` is a computed observation; only the owner opens the training gate. */
+/** Registry model states: every registry entry with a `gguf` path and whether the file is on disk. */
+function registryModels(root) {
+  const registry = readJson(path.join(root, 'config/formalizers.json'));
+  return (registry?.models ?? []).map(model => ({id: model.id, kind: model.gguf ? 'gguf' : model.service ? 'service' : 'other', present: model.gguf ? fs.existsSync(path.join(root, model.gguf)) : true}));
+}
+
+/** Gates in order. `open` is a computed observation; training needs the owner's explicit approval per run and no gate supplies it. */
 export function gates(root = projectRoot, {pipeline = dataPipeline(root), experiments = []} = {}) {
   const rule = trainingRule(root);
   const vocab = vocabulary(root);
-  const leakage = readJson(path.join(root, 'eval/reports/current/registry/leakage.json'));
-  const sweep = readJson(path.join(root, 'eval/reports/current/no-context-sweep.json'));
-  const sweepGone = (sweep?.findings ?? []).filter(finding => finding.file && !fs.existsSync(path.join(root, String(finding.file).split(':')[0]))).length;
-  const guards = ['tests/model-input-boundary.test.mjs', 'tests/no-context-lint.test.mjs', 'tools/lint/model-surface.mjs'].map(file => ({file, exists: fs.existsSync(path.join(root, file))}));
+  const guards = ['tests/model-input-boundary.test.mjs', 'tests/no-context-lint.test.mjs', 'tools/lint/model-surface.mjs', 'eval/leakage.mjs', 'tests/eval-registry.test.mjs'].map(file => ({file, exists: fs.existsSync(path.join(root, file))}));
   const flights = preflight(root);
   const records = qualificationRecords(root);
-  const registry = readJson(path.join(root, 'eval/registry/manifest.json'));
-  const predictionCells = (registry?.cells ?? []).map(cell => ({cell: cell.id, predictions: cell.predictions, exists: fs.existsSync(path.join(root, cell.predictions ?? ''))}));
-  const current = pipeline.filter(entry => entry.form === 'current');
-  const audited = pipeline.filter(entry => entry.audit);
+  const three = pipeline.filter(entry => THREE_DATASETS.includes(entry.corpus));
+  const audited = three.filter(entry => entry.audit);
   const passing = audited.filter(entry => entry.audit.verdict === 'pass');
+  const regression = readJson(path.join(root, 'eval/reports/current/symbolic-regression/report.json'));
+  const verification = readJson(path.join(root, 'eval/reports/current/three-datasets/verification.json'));
+  const smoke = readJson(path.join(root, 'eval/reports/current/chat-smoke/summary.json'));
+  const models = registryModels(root);
   const prereg = experiments.filter(entry => ['preregistered', 'approved', 'running', 'done'].includes(entry.status));
   return [
-    {id: 'owner-approval', title: 'Owner approval for training', open: false, prohibited: true,
-      evidence: rule ?? 'AGENTS.md rule 3', source: 'AGENTS.md', note: 'PROHIBITED until the owner gives a new explicit approval. Never inferred from any check below.'},
-    {id: 'language', title: 'Corpora written in the current language (message-only, string targets)', open: pipeline.length > 0 && current.length === pipeline.length,
-      evidence: `${current.length} of ${pipeline.length} corpora sampled as current${current.length < pipeline.length ? `; not current: ${pipeline.filter(entry => entry.form !== 'current').map(entry => `${entry.corpus} (${entry.form})`).join(', ')}` : ''}`, source: 'datasets/*/{train,dev}.jsonl, eval/suites/*/test.jsonl'},
-    {id: 'corpus-audit', title: 'Machine corpus audit passes', open: audited.length > 0 && passing.length === audited.length && audited.length === pipeline.length,
-      evidence: `${passing.length} of ${audited.length} audited corpora pass; ${pipeline.length - audited.length} corpora have no audit report`, source: 'eval/reports/current/corpus-audit/'},
+    {id: 'owner-approval', title: 'Owner approval for training (per run)', open: false, prohibited: false, perRun: true,
+      evidence: rule ?? 'AGENTS.md Direction 3', source: 'AGENTS.md', note: 'Needed for every run and spent when the run ends. Never inferred from any check below.'},
+    {id: 'three-datasets', title: 'Three datasets verified (bad_english, symbolic_english, neuro_english)', open: verification?.verdict === 'pass',
+      evidence: verification ? `verdict ${verification.verdict}, ${verification.failures} failures (${verification.generated})` : `no verification report; ${three.length} of ${THREE_DATASETS.length} datasets found (${three.map(entry => entry.corpus + ' ' + entry.rows + ' rows').join(', ')}); run node tools/datasets/verify-three-datasets.mjs`, source: 'eval/reports/current/three-datasets/verification.json'},
+    {id: 'corpus-audit', title: 'Machine corpus audit passes on the three datasets', open: audited.length === THREE_DATASETS.length && passing.length === audited.length,
+      evidence: `${passing.length} of ${audited.length} audited datasets pass; ${THREE_DATASETS.length - audited.length} have no audit report`, source: 'eval/reports/current/corpus-audit/'},
+    {id: 'symbolic-regression', title: 'Symbolic regression: no symbolic_english row changed its SOP or fails', open: regression ? regression.failing === false && (regression.changed_total ?? 0) === 0 : false,
+      evidence: regression ? `${regression.rows} rows, failing ${regression.failing}, changed ${regression.changed_total ?? '?'} (${regression.generated_at})` : 'no report', source: 'eval/reports/current/symbolic-regression/report.json'},
     {id: 'vocabulary', title: 'Vocabulary check: no undocumented (hallucinated) wires', open: vocab?.verdict === 'pass',
-      evidence: vocab ? `verdict ${vocab.verdict}; ${vocab.totals?.failing ?? "?"} failing of ${vocab.totals?.findings ?? "?"} findings` : "no report", source: 'eval/reports/current/vocabulary.json'},
-    {id: 'no-context', title: 'Model input is the message only (no-context guards in place)', open: guards.every(guard => guard.exists),
-      evidence: `guards: ${guards.map(guard => `${guard.file} ${guard.exists ? 'present' : 'MISSING'}`).join('; ')} (run by npm test)` +
-        (sweep ? `; the ${sweep.meta?.generated ?? 'undated'} sweep snapshot listed ${sweep.findings?.length ?? '?'} findings, ${sweepGone} of them in files deleted since` : ''),
-      source: 'tests/model-input-boundary.test.mjs, tests/no-context-lint.test.mjs, eval/reports/current/no-context-sweep.json'},
-    {id: 'sealed-boundary', title: 'Sealed-test boundary guard (training/selection reads train/dev only)', open: leakage?.training_selection_guard_passed === true,
-      evidence: leakage ? `training_selection_guard_passed: ${leakage.training_selection_guard_passed}; ${(leakage.problems ?? []).length} problems listed` : 'no leakage audit', source: 'eval/reports/current/registry/leakage.json'},
+      evidence: vocab ? `verdict ${vocab.verdict}; ${vocab.totals?.failing ?? '?'} failing of ${vocab.totals?.findings ?? '?'} findings` : 'no report', source: 'eval/reports/current/vocabulary.json'},
+    {id: 'boundary-guards', title: 'Model-boundary and sealed-test guards in place', open: guards.every(guard => guard.exists),
+      evidence: `guards: ${guards.map(guard => `${guard.file} ${guard.exists ? 'present' : 'MISSING'}`).join('; ')} (run by npm test)`, source: 'tests/, tools/lint/, eval/leakage.mjs'},
+    {id: 'registry-models', title: 'Registry model states: every GGUF of the registry is on disk', open: models.length > 0 && models.every(model => model.present),
+      evidence: models.length ? models.map(model => `${model.id} (${model.kind}) ${model.present ? 'present' : 'MISSING'}`).join('; ') : 'no registry', source: 'config/formalizers.json'},
+    {id: 'chat-smoke', title: 'Chat smoke through /v1/chat/completions and /v1/understand (English and Romanian)', open: smoke?.ok === true,
+      evidence: smoke ? `ok ${smoke.ok}${smoke.generated ? ' (' + smoke.generated + ')' : ''}` : 'no smoke record', source: 'eval/reports/current/chat-smoke/summary.json'},
     {id: 'preflight', title: 'CUDA infrastructure preflight (no optimizer)', open: flights.some(run => run.exitCode === 0 && run.oomKilled === false),
       evidence: flights.length ? flights.map(run => `${run.run}: exit ${run.exitCode}, OOM ${run.oomKilled}`).join('; ') : 'no preflight record', source: 'models/.container-runs/'},
     {id: 'qualification', title: 'Dataset / run qualification record', open: records.length > 0,
       evidence: records.length ? records.join(', ') : 'no qualification record under training/ or models/', source: 'training/, models/'},
     {id: 'preregistration', title: 'Preregistered experiment (DS010)', open: prereg.length > 0,
       evidence: `${prereg.length} preregistered of ${experiments.length} registered`, source: 'status/experiments.json'},
-    {id: 'model-predictions', title: 'Real model predictions for dev and sealed test', open: predictionCells.length > 0 && predictionCells.every(cell => cell.exists),
-      evidence: predictionCells.length ? predictionCells.map(cell => `${cell.cell}: ${cell.exists ? 'present' : 'missing'}`).join('; ') : 'no registry manifest', source: 'eval/registry/manifest.json'},
   ];
 }
 
@@ -253,7 +259,7 @@ export function projectStatus({root = projectRoot, dir = statusDir(), area = nul
   }
   return {
     generated: new Date().toISOString(),
-    phase: {name: 'Data preparation and owner review before training', training: 'prohibited', rule: trainingRule(root)},
+    phase: {name: 'Product chain: textToCleanEnglish, SymbolicLM, linking, reasoning', training: 'owner approval per run', rule: trainingRule(root)},
     gates: gates(root, {pipeline, experiments: registry.experiments}),
     journal, journalError, areas: JOURNAL_AREAS, journalFile: path.relative(root, journalFile(dir)) || journalFile(dir),
     pipeline, vocabulary: vocabulary(root),

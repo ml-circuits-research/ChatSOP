@@ -6,7 +6,7 @@
  * predictions (formalizer-size-v1, CPU Q8_0, full suites) with llama.cpp's own grammar engine (test-gbnf-validator):
  * the share of rejected outputs bounds the rows the grammar can change, and so the possible accuracy gain.
  *
- *   node tools/research/grammar-ceiling.mjs --out eval/reports/current/grammar-constrained/ceiling.json [--grammar file.gbnf]
+ *   node tools/research/grammar-ceiling.mjs --out eval/reports/history/grammar-constrained/ceiling.json [--grammar file.gbnf]
  */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -43,7 +43,7 @@ function rejected(programs) {
   return out;
 }
 const parses = text => { try { checkModelProgram(parse(text)); return true; } catch { return false; } };
-const BASE = 'eval/reports/current/formalizer-size-v1';
+const BASE = 'eval/reports/history/formalizer-size-v1';
 const FILES = {
   'smollm2-135m': {wild: 'smollm2-135m/formalizer-wild-v1-q8_0.predictions.jsonl', ood: 'smollm2-135m/formalizer-ood-v1-q8_0.predictions.jsonl', test: 'smollm2-135m/formalizer-v1-q8_0.predictions.jsonl'},
   'smollm2-360m': {wild: 'smollm2-360m/formalizer-wild-v1-q8_0.predictions.jsonl', ood: 'smollm2-360m/formalizer-ood-v1-q8_0.predictions.jsonl', test500: 'smollm2-360m/formalizer-v1-sample500-q8_0.predictions.jsonl'},

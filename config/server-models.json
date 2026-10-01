@@ -1,0 +1,15 @@
+{
+  "format": "chatsop-server-models-v1",
+  "description": "What the server keeps open and what it does not (DS012 \"Model lifecycle\"). Edited by the chat page (Settings, Server models) and by POST /v1/server/models; the server also reads it at start. keep_open: started at server start, warmed, never evicted or idled out. on_demand: started when needed, stopped after idleMinutes, evicted least-recently-used. off: never started. maxRunning: how many models may run at once (at least the number kept open; one chat turn needs up to four pipeline models plus one more). memoryBudgetMb: null means half of the RAM; the estimated memory of the running models plus the one to start must fit, else an idle on-demand model is stopped first. turnWindowSeconds: a model used this recently is the last choice for an eviction. warmup: start and probe the kept-open models in the background at server start.",
+  "maxRunning": 6,
+  "idleMinutes": 60,
+  "memoryBudgetMb": null,
+  "turnWindowSeconds": 30,
+  "warmup": true,
+  "models": {
+    "symbolic-lm": "keep_open",
+    "language-proofing-llm": "keep_open",
+    "translator-llm": "keep_open",
+    "symbolic-proofing-llm": "keep_open"
+  }
+}

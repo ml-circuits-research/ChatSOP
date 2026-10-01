@@ -1,0 +1,86 @@
+{
+  "format": "chatsop-endpoint-timing-v1",
+  "label": "smollm2-135m/fv1-size-a4 q8_0 bulk",
+  "suite": "eval/suites/formalizer-ood-v1/test.jsonl",
+  "url": "http://127.0.0.1:18741",
+  "rows": 1578,
+  "sample": null,
+  "message_chars": {
+    "min": 0,
+    "max": null
+  },
+  "parallel": 4,
+  "max_tokens": 6144,
+  "wall_seconds": 1431.742900938,
+  "messages_per_second": 1.1021531861385032,
+  "errors": [
+    {
+      "id": "ood1_000526_0_0",
+      "error": "Endpoint /completion returned 500: {\"error\":{\"code\":500,\"message\":\"Failed to parse input at pos 0: @s1 stated\\n  relation \\\"be the coach of\\\"\\n  role subject \\\"Fatima\\\"\\n  role object \\\"the holiday cottage in Dubrovnik\\\"\\n  polarity affirmed\\n  certainty asserted\\n\\n@s2 stated\\n  relation \\\"be on\\\"\\n  role subject \\\"Grace Brown\\\"\\n  "
+    },
+    {
+      "id": "ood2_000242_0_0",
+      "error": "Endpoint /completion returned 500: {\"error\":{\"code\":500,\"message\":\"Failed to parse input at pos 0: @s1 stated\\n  relation \\\"attend classes at\\\"\\n  role subject \\\"Meera Sharma\\\"\\n  role object \\\"Ploie\u0219ti Arts High School\\\"\\n  polarity affirmed\\n  certainty asserted\\n\\n@s2 stated\\n  relation \\\"go to\\\"\\n  role subject \\\"Fatima\\\"\\n  role"
+    }
+  ],
+  "truncated": [],
+  "latency_ms": {
+    "count": 1575,
+    "mean": 3489.845721135873,
+    "p50": 1218.3236870000837,
+    "p95": 20368.144956000033,
+    "max": 145090.935112
+  },
+  "prompt_tokens": {
+    "count": 1575,
+    "mean": 71.3384126984127,
+    "p50": 31,
+    "p95": 394,
+    "max": 1524
+  },
+  "completion_tokens": {
+    "count": 1575,
+    "mean": 127.19492063492063,
+    "p50": 46,
+    "p95": 784,
+    "max": 2508
+  },
+  "server_prompt_tokens_per_second": {
+    "count": 1575,
+    "mean": 594.4004609110883,
+    "p50": 529.9320225129742,
+    "p95": 1415.3025270793728,
+    "max": 1705.7412304652746
+  },
+  "server_generation_tokens_per_second": {
+    "count": 1575,
+    "mean": 44.85324193761939,
+    "p50": 43.11476221199399,
+    "p95": 66.70755592780019,
+    "max": 105.3707469732253
+  },
+  "aggregate_completion_tokens_per_second": 139.92176938244526,
+  "repaired": {
+    "ids": [
+      "ood1_000481_0_0",
+      "ood1_000526_0_0",
+      "ood2_000242_0_0"
+    ],
+    "method": "re-predicted singly with the raw-completion fallback (tools/research/predict-endpoint.mjs) after llama-server rejected the chat-syntax parse",
+    "timing": "/tmp/claude-1000/-home-salboaie-work-ChatSOP/da5fd83f-83ea-4f0e-88a9-e8184cff07c0/scratchpad/ood-repair.timing.json"
+  },
+  "errors_before_repair": [
+    {
+      "id": "ood1_000481_0_0",
+      "error": "Endpoint returned 500: {\"error\":{\"code\":500,\"message\":\"Failed to parse input at pos 22: @s1 stated\\n  relation \\\"grow\\\"\\n  role subject \\\"Giorgos Georgiou\\\"\\n  role object \\\"apple trees\\\"\\n  polarity affirmed\\n  certainty asserted\\n\\n@s2 stated\\n  relation \\\"grow\\\"\\n  role subject \\\"Mathieu\\\"\\n  role object \\\"peppers\\\"\\n "
+    },
+    {
+      "id": "ood1_000526_0_0",
+      "error": "Endpoint returned 500: {\"error\":{\"code\":500,\"message\":\"Failed to parse input at pos 22: @s1 stated\\n  relation \\\"be the coach of\\\"\\n  role subject \\\"Fatima\\\"\\n  role object \\\"the holiday cottage in Dubrovnik\\\"\\n  polarity affirmed\\n  certainty asserted\\n\\n@s2 stated\\n  relation \\\"be on\\\"\\n  role subject \\\"Grace Brown\\\"\\n "
+    },
+    {
+      "id": "ood2_000242_0_0",
+      "error": "Endpoint returned 500: {\"error\":{\"code\":500,\"message\":\"Failed to parse input at pos 22: @s1 stated\\n  relation \\\"attend classes at\\\"\\n  role subject \\\"Meera Sharma\\\"\\n  role object \\\"Ploie\u0219ti Arts High School\\\"\\n  polarity affirmed\\n  certainty asserted\\n\\n@s2 stated\\n  relation \\\"go to\\\"\\n  role subject \\\"Fatima\\\"\\n  rol"
+    }
+  ]
+}

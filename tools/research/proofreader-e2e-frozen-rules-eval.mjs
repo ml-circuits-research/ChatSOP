@@ -50,7 +50,7 @@ import {scoreAgainstAccepted} from '../eval/wild-suite.mjs';
 import {stratifiedOrder} from './grammar-constrained-eval.mjs';
 import {createSymbolicLM} from '../../lib/symbolic-lm/index.mjs';
 
-const OUT = path.join(ROOT, 'eval/reports/current/proofreader-e2e');
+const OUT = path.join(ROOT, 'eval/reports/history/proofreader-e2e');
 const SUITES = {v1: 'eval/suites/formalizer-v1/test.jsonl', ood: 'eval/suites/formalizer-ood-v1/test.jsonl', wild: 'eval/suites/formalizer-wild-v1/test.jsonl'};
 const SUITE_NAMES = {v1: 'formalizer-v1', ood: 'formalizer-ood-v1', wild: 'formalizer-wild-v1'};
 const PY = path.join(os.homedir(), 'nlp-venv/bin/python');

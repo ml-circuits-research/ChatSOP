@@ -5,6 +5,8 @@ import {Agent} from './agent.mjs';
 
 export class SessionStore {
  constructor({repo,lexicon,config,root}) { Object.assign(this,{repo,lexicon,config,root:path.resolve(root)});this.agents=new Map();fs.mkdirSync(this.root,{recursive:true,mode:0o700}); }
+ /** Replaces the lexicon of the store and of the agents already opened (circuits accepted into the session). */
+ setLexicon(lexicon){this.lexicon=lexicon;for(const {agent} of this.agents.values())agent.lexicon=lexicon;}
  get(user,conversation,base) {
   checkName(user);checkName(conversation);checkName(base);
   const key=digest([base,user,conversation]);

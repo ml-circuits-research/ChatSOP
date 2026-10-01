@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 /** Explicit backend×memory matrix: never relabel JS fallback as an external solver. */
+import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
 import {Repository} from '../memory/repository.mjs';
 import {publishKnowledge} from '../sop/ingest.mjs';
@@ -10,7 +11,7 @@ import {cliArgs,digest,saveJSON} from '../lib/util.mjs';
 const args=cliArgs(),out=path.resolve(args.out??new URL('../eval/reports/current/comparisons/reasoners.json',import.meta.url).pathname);
 const engines=['recall-memory','holo-memory','sqlite','scan','hybrid'],backends=['js','prolog','z3'];
 const setup='@f1 fact\n  holds parent ana bogdan\n  valid timeless\n@f2 fact\n  holds parent bogdan carina\n  valid timeless\n@rule rule\n  when parent ?x ?y\n  when parent ?y ?z\n  then grandparent ?x ?z';
-const schema=Lexicon.load(new URL('../config/ontology.sop',import.meta.url)).predicates,available={js:true,prolog:solverAvailable('prolog'),z3:solverAvailable('z3')};
+const schema=demoLexicon().predicates,available={js:true,prolog:solverAvailable('prolog'),z3:solverAvailable('z3')};
 const cells=[];
 const query=backend=>'@q query\n  where grandparent ana carina\n  at 2026-09-26\n@r solve\n  query $q\n  reasoning '+(backend==='js'?'reference':'advanced')+'\n  backend '+backend;
 for(const engine of engines){const root=fs.mkdtempSync(path.join(os.tmpdir(),'comparison-reason-'));try{

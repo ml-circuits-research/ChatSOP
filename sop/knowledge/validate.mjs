@@ -9,9 +9,10 @@ import {VAR, tokens, atomFrom, varsOf, parse, leaves} from './lexical.mjs';
 import {checkValue} from './validate-fields.mjs';
 import {isNumericAction, checkNumericAction, stateVariables} from './numeric-action.mjs';
 import {crossChecks, negativeCycle} from './cross-checks.mjs';
+import {lexiconChecks, roleArgSpecs} from './lexicon-checks.mjs';
 
 /** Validate parsed wires; returns problems. `programs` is used for cross-wire checks (refs, arity, safety, stratification). */
-export function validateWires(wires, {role = 'knowledge', parseErrors = [], authoring = false} = {}) {
+export function validateWires(wires, {role = 'knowledge', parseErrors = [], authoring = false, allowSealed = false} = {}) {
   const problems = [...parseErrors];
   const ctx = {problems, refs: [], atoms: [], tasksCalled: []};
   const byId = new Map(wires.map(w => [w.id, w]));
@@ -31,7 +32,7 @@ export function validateWires(wires, {role = 'knowledge', parseErrors = [], auth
       checkValue(spec, f, w, ctx);
     }
     for (const [k, spec] of Object.entries(g.fields)) if (spec.required && !seen.has(k)) problems.push({code: 'missing_field', line: w.line, message: w.type + ' needs ' + k, wire: w.id});
-    typeChecks(w, problems, {authoring});
+    typeChecks(w, problems, {authoring, allowSealed});
     if (isNumericAction(w)) for (const p of checkNumericAction(w, stateVars ??= stateVariables(wires))) problems.push({...p, line: w.line, wire: w.id});
   }
   for (const r of ctx.refs) {
@@ -41,7 +42,7 @@ export function validateWires(wires, {role = 'knowledge', parseErrors = [], auth
   return {problems, ctx};
 }
 
-function typeChecks(w, problems, {authoring = false} = {}) {
+function typeChecks(w, problems, {authoring = false, allowSealed = false} = {}) {
   const push = (code, message, line = w.line) => problems.push({code, line, message, wire: w.id});
   const f = key => w.fields.find(x => x.key === key);
   const positiveVars = new Set();
@@ -111,9 +112,11 @@ function typeChecks(w, problems, {authoring = false} = {}) {
     const select = f('select') ? tokens(f('select').value) : [];
     for (const s of select) if (!bound.has(s)) push('select_unbound', 'selected variable ' + s + ' does not occur in where');
   }
-  if (w.type === 'predicate' && f('transitive')?.value.trim() === 'true' && tokens(f('args')?.value ?? '').length !== 2) push('bad_transitive', 'transitive needs a predicate of arity 2');
+  const arityOf = () => (f('args') ? (f('args').value.trim() === 'none' ? 0 : tokens(f('args').value).length) : w.fields.filter(x => x.key === 'role').length);
+  if (w.type === 'predicate' && !f('args') && !f('role')) push('missing_field', 'predicate needs args or role lines');
+  if (w.type === 'predicate' && f('transitive')?.value.trim() === 'true' && arityOf() !== 2) push('bad_transitive', 'transitive needs a predicate of arity 2');
   if (w.type === 'predicate' && f('key')) {
-    const n = tokens(f('args')?.value ?? '').length;
+    const n = arityOf();
     const k = Number(f('key').value);
     if (!(k >= 1 && k <= n)) push('bad_key', 'key must be an argument position 1..' + n);
   }
@@ -146,6 +149,14 @@ function typeChecks(w, problems, {authoring = false} = {}) {
     }
     if (modal[0] === 'permit' && !f('overrides')) problems.push({code: 'permit_without_target', severity: 'warning', line: w.line, message: 'a permit without overrides changes nothing: it should override the forbid it excepts', wire: w.id});
   }
+  if (w.type === 'test' || w.type === 'code') {
+    // programming wires (P0): host or turn wires; the executable texts are JSON strings, and a sealed test never leaves eval/suites/
+    for (const key of w.type === 'test' ? ['call', 'expect'] : ['body']) if (f(key) && !f(key).value.trim().startsWith('"')) push('bad_value', key + ' must be a JSON-quoted string');
+    if (w.type === 'test' && f('kind')?.value.trim() === 'sealed' && !allowSealed) push('sealed_test_in_knowledge', 'a test of kind sealed belongs to eval/suites/ only: it is refused in knowledge, task and candidate files');
+    if (w.type === 'code' && f('entry') && f('body')?.value.trim().startsWith('"')) {
+      try { if (!new RegExp('(function\\s+|const\\s+|let\\s+|var\\s+)' + f('entry').value.trim().replace(/[$]/g, '\\$') + '\\b').test(JSON.parse(f('body').value.trim()))) push('code_entry_not_defined', 'the body does not define the entry ' + f('entry').value.trim()); } catch { /* a bad JSON string is reported by the field check */ }
+    }
+  }
   if (/^x_/.test(w.id)) push('reserved_prefix', 'ids starting with x_ are reserved for generated wires');
   if (w.type === 'fact' && (f('speaker') || f('status')) ) {
     const st = f('status')?.value.trim();
@@ -165,7 +176,7 @@ export function validateProgram(files, opts = {}) {
   const ctxs = [];
   for (const file of files) {
     const {wires, errors} = parse(file.text);
-    const {problems: p, ctx} = validateWires(wires, {role: file.role, parseErrors: errors, authoring: Boolean(opts.authoring)});
+    const {problems: p, ctx} = validateWires(wires, {role: file.role, parseErrors: errors, authoring: Boolean(opts.authoring), allowSealed: Boolean(opts.allowSealed)});
     for (const x of p) problems.push({...x, file: file.name});
     ctxs.push({file, wires, ctx});
     for (const w of wires) allWires.push({...w, file: file.name});
@@ -187,7 +198,7 @@ export function validateProgram(files, opts = {}) {
   const predicates = new Map();
   for (const w of allWires.filter(w => w.type === 'predicate')) {
     const args = tokens(w.fields.find(f => f.key === 'args')?.value ?? '');
-    const specs = ctxs.map(c => c.ctx.argSpecs?.[w.id]).find(Boolean) ?? null;
+    const specs = ctxs.map(c => c.ctx.argSpecs?.[w.id]).find(Boolean) ?? roleArgSpecs(ctxs.map(c => c.ctx.roleSpecs?.[w.id]).find(Boolean));
     predicates.set(w.id, {arity: specs ? specs.length : args.length, closed: w.fields.find(f => f.key === 'closed')?.value.trim() === 'true', types: specs?.map(x => x.type) ?? null, key: Number(w.fields.find(f => f.key === 'key')?.value ?? 0) || null, line: w.line, file: w.file});
   }
   const noteArity = (p, n, file, line, wire) => {
@@ -228,6 +239,7 @@ export function validateProgram(files, opts = {}) {
   }
   for (const e of edges) if (e.skip) edges.splice(edges.indexOf(e), 1);
   crossChecks({allWires, ctxs, predicates, problems, headOf, ruleSetComplete: opts.ruleSetComplete ?? null});
+  lexiconChecks({files, allWires, ctxs, problems});
 
   const cycle = negativeCycle(edges);
   if (cycle) problems.push({code: 'not_stratifiable', file: cycle.file, line: cycle.line, message: 'negation, exception or aggregation through recursion: ' + cycle.path.join(' -> '), wire: cycle.wire});

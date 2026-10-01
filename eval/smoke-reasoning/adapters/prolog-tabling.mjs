@@ -4,7 +4,7 @@
  * Prolog program. A circuit that needs a feature the strategy declares unsupported is `not_expressible`, never weakened.
  */
 import {prologTabling, NotExpressibleError} from '../../../reasoning/strategies/prolog-tabling/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 export const prologTablingAdapter = {
   id: 'prolog-tabling', status: 'available', origin: 'reasoning/strategies/prolog-tabling/ (SWI-Prolog 9 tabling, private swipl)',

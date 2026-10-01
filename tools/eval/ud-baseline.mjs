@@ -12,7 +12,7 @@
  * that `node eval/run.mjs --predictions` and `node tools/eval/wild-suite.mjs --score` read. `serve` answers the
  * formalizer endpoint interface of llama.cpp (`GET /health`, `POST /v1/chat/completions` with the message as the
  * last user turn; the reply's content is the SOP text), so the chat server and the evaluation harness call it like
- * a fine-tuned model (lib/formalizer-endpoint.mjs predictMessage).
+ * a fine-tuned model (lib/llama-chat.mjs predictMessage).
  */
 import fs from 'node:fs';
 import http from 'node:http';

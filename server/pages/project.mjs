@@ -4,8 +4,8 @@
  * pages (server/pages/history.mjs).
  *
  * The page polls `/experiments/api/status` every 15 seconds and whenever the tab
- * regains focus, and renders: the current phase and the gates (training is
- * PROHIBITED until the owner's new explicit approval), the live journal
+ * regains focus, and renders: the current phase and the gates (training needs
+ * the owner's explicit approval per run), the live journal
  * timeline filterable by area, the data pipeline per corpus, the experiment
  * registry, the open owner questions from `questions.md`, and explanations of
  * what fine-tuning will do. The explanations are static text; everything else
@@ -87,10 +87,10 @@ function client() {
   }
 
   function renderGates() {
-    $('rule').textContent = data.phase.rule ?? 'AGENTS.md rule 3: training is prohibited until the owner gives a new explicit approval.';
+    $('rule').textContent = data.phase.rule ?? 'AGENTS.md Direction 3: training happens only with the owner\'s explicit approval per run.';
     $('gates').innerHTML = '<table class="t"><thead><tr><th>gate</th><th>state</th><th>evidence (computed now)</th></tr></thead><tbody>' + data.gates.map(gate =>
       '<tr><td>' + esc(gate.title) + (gate.note ? '<div class="meta">' + esc(gate.note) + '</div>' : '') + '</td><td>' +
-      (gate.prohibited ? '<span class="gate prohibited">PROHIBITED</span>' : '<span class="gate ' + (gate.open ? 'open">✓ open' : 'closed">✗ closed') + '</span>') +
+      (gate.perRun ? '<span class="gate prohibited">OWNER, PER RUN</span>' : gate.prohibited ? '<span class="gate prohibited">PROHIBITED</span>' : '<span class="gate ' + (gate.open ? 'open">✓ open' : 'closed">✗ closed') + '</span>') +
       '</td><td>' + esc(gate.evidence) + '<div class="meta">' + esc(gate.source) + '</div></td></tr>').join('') + '</tbody></table>' +
       '<p class="meta" style="margin:6px 0 0">An open check is an observation, never an approval: only the owner opens the training gate.</p>';
   }
@@ -202,7 +202,7 @@ export function projectPage({signedIn = true} = {}) {
   const body = `<main class="wrap status">
 <nav class="meta"><a href="/experiments">Experiments</a> › Timeline &amp; live status</nav>
 <h1>Timeline &amp; live status <span id="stamp" class="muted"></span></h1>
-<div class="banner"><b class="big">Training: PROHIBITED</b> until the owner's new explicit approval. <span id="rule" class="muted"></span><div class="meta">Current phase: data preparation and owner review before training. No training, fine-tuning, resume, optimizer step or training smoke run is authorized.</div></div>
+<div class="banner"><b class="big">Training: only with the owner's explicit approval per run</b> <span id="rule" class="muted"></span><div class="meta">Current phase: the product chain (textToCleanEnglish, SymbolicLM, linking, reasoning) and its evaluation. An approval covers the run it names and is spent when that run ends; no check below supplies it.</div></div>
 <section class="card"><h2>Gates</h2><div id="gates" class="muted">loading…</div></section>
 <div class="cols">
 <section class="card"><h2>Journal — newest first</h2><div class="filters" id="filters"></div><ol class="timeline" id="timeline"></ol><p class="meta">Agents append with <code>node tools/journal.mjs add --area … --title … --detail …</code>; the file is <code>status/journal.jsonl</code> (append-only).</p></section>

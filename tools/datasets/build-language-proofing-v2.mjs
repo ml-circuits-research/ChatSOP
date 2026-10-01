@@ -6,7 +6,7 @@
  *
  * Sources: (1) the iteration-1 projection datasets/bad_english/proofing (unchanged pairs), (2) the DeepSeek back-generated pairs of
  * datasets_sources/language_backgen/output (complete parts only), (3) identity pairs (clean English to itself), (4) keyboard-mash
- * identity pairs. See docs/specs/DS008 and eval/reports/current/language-proofing-it2/summary.md for the rules.
+ * identity pairs. See docs/specs/DS008 and eval/reports/history/language-proofing-it2/summary.md for the rules.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -17,7 +17,7 @@ import {hashText, norm} from './language-proofing/pairs.mjs';
 import {harmonize, promptIsGateClean, entriesOf, pairsOfEntry} from './language-proofing/backgen-v2.mjs';
 import {textKey} from './neuro-oracle/common.mjs';
 
-export const WORK = path.join(ROOT, 'eval/reports/current/language-proofing-it2');
+export const WORK = path.join(ROOT, 'eval/reports/history/language-proofing-it2');
 export const BACKGEN = path.join(ROOT, 'datasets_sources/language_backgen');
 export const JUDGE = path.join(ROOT, 'datasets_sources/language_proofing_it2_backgen_judge');
 export const USED = path.join(JUDGE, 'used');
@@ -329,7 +329,7 @@ function build(o) {
   const heldoutInTrain = files.train.filter(p => HELD_RE.test(p.prompt) || HELD_RE.test(p.target)).length;
   const integrity = {generated_at: new Date().toISOString(), pairs: {train: files.train.length, dev: files.dev.length, dev_backgen: files['dev-backgen'].length, dev_heldout: files['dev-heldout'].length, mash_eval: files['mash-eval'].length},
     ids_in_two_splits: twice.length, exact_matches: {train_dev_heldout_vs_sealed_texts: sealedExact}, train_prompts_also_in_dev: devH.filter(h => trainH.has(h)).length, heldout_vocabulary_words_in_train: heldoutInTrain, heldout_prompts_in_train: files['dev-heldout'].filter(p => trainH.has(hashText(p.prompt))).length,
-    note: 'exact matches after case, diacritic, punctuation and spacing folding against eval/reports/current/language-proofing-it2/sealed-hashes.json (every eval/suites test, proofing test and composed text, messages and sentences)'};
+    note: 'exact matches after case, diacritic, punctuation and spacing folding against eval/reports/history/language-proofing-it2/sealed-hashes.json (every eval/suites test, proofing test and composed text, messages and sentences)'};
   const tokenAudit = {generated_at: integrity.generated_at, tokenizer: 'Gemma 3 (models/gemma/bases/99073d6b..., chat template of training/python/common.py chat_ids)', over_2048: 0, dropped_over_2048: over, ...tokenStats};
   fs.writeFileSync(path.join(EVID, 'integrity.json'), JSON.stringify(integrity, null, 1) + '\n');
   fs.writeFileSync(path.join(EVID, 'token-audit.json'), JSON.stringify(tokenAudit, null, 1) + '\n');
@@ -344,7 +344,7 @@ function build(o) {
     prompt: 'row.prompt verbatim: one sentence of a Romanian, mixed or badly written English message (or clean English, or keyboard mash) and nothing else (DS021 message-only input); training/python/common.py chat_ids()',
     target: 'row.target verbatim: the clean English sentence (repair) or the identical sentence (identity; also for unintelligible keyboard-mash input)',
     created: integrity.generated_at, training_authorized: false, review_status: 'not_reviewed', backgen_parts: parts, identity_share_target: shareTarget, seed: Number(o.seed ?? 20261001), held_out_vocabulary: HELD_OUT,
-    source_sha256: {'datasets/bad_english/proofing-it2-projection/proofreader/train.jsonl': src('datasets/bad_english/proofing-it2-projection/proofreader/train.jsonl'), 'datasets/bad_english/proofing-it2-projection/proofreader/dev.jsonl': src('datasets/bad_english/proofing-it2-projection/proofreader/dev.jsonl'), 'datasets/bad_english/proofing-it2-projection/manifest.json': src('datasets/bad_english/proofing-it2-projection/manifest.json'), 'datasets/bad_english/manifest.json': src('datasets/bad_english/manifest.json'), 'datasets/bad_english/train.jsonl': src('datasets/bad_english/train.jsonl'), 'datasets/bad_english/dev.jsonl': src('datasets/bad_english/dev.jsonl'), [`eval/reports/current/language-proofing-it2/${CAND}`]: sha(path.join(WORK, CAND)), 'datasets_sources/language_proofing_it2_backgen_judge/output/verdicts.jsonl': sha(judgeFile), 'datasets_sources/language_proofing_it2_backgen_judge/used/output (parts, snapshot of datasets_sources/language_backgen/output)': Object.fromEntries(parts.map(p => [`part-${p}`, sha(path.join(USED, 'output', `part-${p}.jsonl`))]))},
+    source_sha256: {'datasets/bad_english/proofing-it2-projection/proofreader/train.jsonl': src('datasets/bad_english/proofing-it2-projection/proofreader/train.jsonl'), 'datasets/bad_english/proofing-it2-projection/proofreader/dev.jsonl': src('datasets/bad_english/proofing-it2-projection/proofreader/dev.jsonl'), 'datasets/bad_english/proofing-it2-projection/manifest.json': src('datasets/bad_english/proofing-it2-projection/manifest.json'), 'datasets/bad_english/manifest.json': src('datasets/bad_english/manifest.json'), 'datasets/bad_english/train.jsonl': src('datasets/bad_english/train.jsonl'), 'datasets/bad_english/dev.jsonl': src('datasets/bad_english/dev.jsonl'), [`eval/reports/history/language-proofing-it2/${CAND}`]: sha(path.join(WORK, CAND)), 'datasets_sources/language_proofing_it2_backgen_judge/output/verdicts.jsonl': sha(judgeFile), 'datasets_sources/language_proofing_it2_backgen_judge/used/output (parts, snapshot of datasets_sources/language_backgen/output)': Object.fromEntries(parts.map(p => [`part-${p}`, sha(path.join(USED, 'output', `part-${p}.jsonl`))]))},
     sealed_hashes_sha256: sha(path.join(WORK, 'sealed-hashes.json')), files: {...written, ...extra}, summary: buildSummary,
     note: 'Targets of llm:deepseek-flash pairs are DeepSeek-written, review pending; the back-generated pairs passed the mechanical checks and the two-vote meaning judge (noisy_en: both votes; ro and mixed: dropped only when both vote no). proofreader/{train,dev}.jsonl are byte-identical to ../{train,dev}.jsonl.'};
   fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 1) + '\n');

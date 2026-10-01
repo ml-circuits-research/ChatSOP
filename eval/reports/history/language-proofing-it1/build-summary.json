@@ -1,0 +1,125 @@
+{
+ "skipped": {
+  "train": {
+   "no_target": 1933,
+   "sentence_count_differs": 253
+  },
+  "dev": {
+   "no_target": 346,
+   "sentence_count_differs": 56
+  }
+ },
+ "dropped_by_problem": {
+  "lost": 1375,
+  "question marks differ": 1023,
+  "line break in target": 111,
+  "length ratio 2.57": 11,
+  "negation differs": 524,
+  "length ratio 0.31": 1
+ },
+ "sealed_leaks_dropped": 3129,
+ "dev_prompt_dupes_dropped_from_dev": 402,
+ "duplicates_dropped": 1708,
+ "inrow_clean_pool": {
+  "train": 5800,
+  "dev": 726
+ },
+ "identity_train": {
+  "wanted": 2141,
+  "from_bad_english_rows": 1070,
+  "from_symbolic_english": 1071,
+  "symbolic_pool": 5689
+ },
+ "identity_dev": {
+  "wanted": 395,
+  "from_bad_english_rows": 197,
+  "from_symbolic_english": 198,
+  "symbolic_pool": 761
+ },
+ "over_token_budget_dropped": 0,
+ "train": {
+  "pairs": 21414,
+  "by_pair": {
+   "identity": 2141,
+   "repair": 19273
+  },
+  "by_kind": {
+   "clean": 2141,
+   "mixed": 1933,
+   "noisy_en": 5425,
+   "ro": 11915
+  },
+  "by_row_kind": {
+   "clean": 1071,
+   "mixed": 5803,
+   "noisy_en": 5264,
+   "ro": 9276
+  },
+  "by_target_source": {
+   "clean-sibling": 2,
+   "identity:in-row": 1070,
+   "identity:symbolic_english": 1071,
+   "llm:deepseek-flash": 13663,
+   "new_cases.clean": 476,
+   "noise-inverse": 2961,
+   "proofing.repair": 1014,
+   "proofing.translate": 1157
+  },
+  "by_review_status": {
+   "n/a": 1071,
+   "not_reviewed": 5710,
+   "pending": 14157,
+   "reviewed-by:pending": 476
+  },
+  "sentences_in_row": {
+   "1": 10558,
+   "2": 4960,
+   "3": 712,
+   "4": 64,
+   "5": 39,
+   "6+": 5081
+  }
+ },
+ "dev": {
+  "pairs": 3946,
+  "by_pair": {
+   "identity": 395,
+   "repair": 3551
+  },
+  "by_kind": {
+   "clean": 395,
+   "mixed": 359,
+   "noisy_en": 689,
+   "ro": 2503
+  },
+  "by_row_kind": {
+   "clean": 198,
+   "mixed": 1078,
+   "noisy_en": 697,
+   "ro": 1973
+  },
+  "by_target_source": {
+   "identity:in-row": 197,
+   "identity:symbolic_english": 198,
+   "llm:deepseek-flash": 2770,
+   "new_cases.clean": 72,
+   "noise-inverse": 350,
+   "proofing.repair": 112,
+   "proofing.translate": 247
+  },
+  "by_review_status": {
+   "n/a": 198,
+   "not_reviewed": 807,
+   "pending": 2869,
+   "reviewed-by:pending": 72
+  },
+  "sentences_in_row": {
+   "1": 2008,
+   "2": 817,
+   "3": 126,
+   "4": 23,
+   "5": 5,
+   "6+": 967
+  }
+ }
+}

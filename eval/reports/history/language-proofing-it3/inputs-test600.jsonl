@@ -1,0 +1,599 @@
+{"id":"formalizer-ood-v1::ood1_000029_0_0#2","text":"Csaba Varga grows apple trees."}
+{"id":"formalizer-ood-v1::ood1_000029_0_0#35","text":"Ms Balogh leases the garage behind the block."}
+{"id":"formalizer-ood-v1::ood1_000029_0_0#7","text":"Also, Grace sings in the university choir."}
+{"id":"formalizer-ood-v1::ood1_000029_0_0#9","text":"În plus, Lin cântă în corul de cameră."}
+{"id":"formalizer-ood-v1::ood1_000052_0_0#5","text":"Mr Romero is a member of the Madrigal choir."}
+{"id":"formalizer-ood-v1::ood1_000064_0_0#12","text":"Elif repară stivuitorul din depozit."}
+{"id":"formalizer-ood-v1::ood1_000064_0_0#5","text":"Wojciech cultivă meri."}
+{"id":"formalizer-ood-v1::ood1_000094_1_0#1","text":"Lucian se ocupă de autobuzul școlii sau nu?"}
+{"id":"formalizer-ood-v1::ood1_000147_0_0#1","text":"Oare Mehmet Çelik este membru în corul Madrigal?"}
+{"id":"formalizer-ood-v1::ood1_000254_0_0#10","text":"Scuze de la început, mesajul o să fie cam lung."}
+{"id":"formalizer-ood-v1::ood1_000262_0_0","text":"Not counting Mr Lefèvre, please find out who cooks at the Bistrița Arena!!"}
+{"id":"formalizer-ood-v1::ood1_000334_0_0#1","text":"Any chance Ildikó leases the vineyard near Sibiu?"}
+{"id":"formalizer-ood-v1::ood1_000501_0_0#1","text":"We have an echipă meeting soon."}
+{"id":"formalizer-ood-v1::ood1_000519_0_0#10","text":"Nils Andersen nu gătește la Arena Vaslui."}
+{"id":"formalizer-ood-v1::ood1_000519_0_0#12","text":"Matei închiriază terenul de lângă râu."}
+{"id":"formalizer-ood-v1::ood1_000519_0_0#3","text":"În plus, Silviu se ocupă de ambulanța spitalului."}
+{"id":"formalizer-ood-v1::ood1_000519_0_0#8","text":"Haruka Tanaka nu repară autobuzul școlii."}
+{"id":"formalizer-ood-v1::ood1_000570_0_0#6","text":"This is mostly for my own notes, to be honest."}
+{"id":"formalizer-ood-v1::ood1_000614_0_0","text":"Remind me, how many choirs does Kenji sing in ?"}
+{"id":"formalizer-ood-v1::ood1_000614_0_1","text":"So how mwany chpoirs does Kenji sing in ?"}
+{"id":"formalizer-ood-v1::ood1_000697_0_0#37","text":"În plus, Lin Zhang nu e bucătăreasă la Filarmonica din Iași."}
+{"id":"formalizer-ood-v1::ood1_000697_0_0#44","text":"În plus, Oluwaseun nu e bucătar la Grădina Botanică din Tulcea."}
+{"id":"formalizer-ood-v1::ood2_000086_0_0","text":"Do you know until whren Petru went on a tfip to Ploiești?"}
+{"id":"formalizer-ood-v1::ood2_000170_0_0#10","text":"Mathieu nu muncește la Crăciun & Asociații."}
+{"id":"formalizer-ood-v1::ood2_000224_0_0#16","text":"Anyway, back to what I actually wanted to ask."}
+{"id":"formalizer-ood-v1::ood2_000224_0_0#39","text":"În plus, Łukasz este prezent la festivalul recoltei."}
+{"id":"formalizer-ood-v1::ood2_000229_0_0#2","text":"Fără să-l pun la socoteală pe Nils, oare cine e prezent la lansarea produsului?"}
+{"id":"formalizer-ood-v1::ood2_000250_0_0#39","text":"Unde trăiește Florin, te rog?"}
+{"id":"formalizer-ood-v1::ood2_000289_0_0#13","text":"Răzvan nu are un post la Tipografia Delta."}
+{"id":"formalizer-ood-v1::ood2_000289_0_0#3","text":"În plus, Oliver nu trăiește în Timișoara."}
+{"id":"formalizer-ood-v1::ood2_000289_0_0#31","text":"În plus, Chinedu Okafor nu muncește la Botoșani Logistic."}
+{"id":"formalizer-ood-v1::ood2_000289_0_0#7","text":"Mirela frecventează Școala Primară Weber."}
+{"id":"formalizer-ood-v1::ood2_000346_0_0#15","text":"Csaba Fekete pleacă la Bacău."}
+{"id":"formalizer-ood-v1::ood2_000346_0_0#44","text":"În plus, Aurel Voicu pleacă la Zalău."}
+{"id":"formalizer-ood-v1::ood2_000346_0_0#52","text":"În plus, Gheorghiu & Asociații comercializează ulei de măsline."}
+{"id":"formalizer-ood-v1::ood2_000346_0_0#56","text":"Emma pleacă la Brașov."}
+{"id":"formalizer-ood-v1::ood2_000346_0_0#63","text":"În plus, Ji-woo are grijă de clusterul de backup."}
+{"id":"formalizer-ood-v1::ood2_000346_0_0#7","text":"În plus, Ethan Hughes este prezent la lansarea produsului."}
+{"id":"formalizer-v1::fv1_000146_0_0#2","text":"Se poate confirma că are certificat valabil?"}
+{"id":"formalizer-v1::fv1_000164_0_0","text":"Oare Taras Shevchenko muncește la Centrul Medical Riverside din Galați?"}
+{"id":"formalizer-v1::fv1_000312_0_0","text":"Since Karim handed in his notide, could you check if he quit because of Mr Taylor?"}
+{"id":"formalizer-v1::fv1_000354_0_0#2","text":"Is it the case that Tisa Textiles is located in Kraków?"}
+{"id":"formalizer-v1::fv1_000404_0_0","text":"Pentdu cât tip a stat Silviu în Timișoara ?"}
+{"id":"formalizer-v1::fv1_000555_0_0#31","text":"În plus, Carpathia Energy are de vânzare uniforme școlare."}
+{"id":"formalizer-v1::fv1_000555_0_0#32","text":"Jun antrenează Rapid Alexandria."}
+{"id":"formalizer-v1::fv1_000555_0_0#35","text":"Yuki Tanaka flies to Iași."}
+{"id":"formalizer-v1::fv1_000555_0_0#39","text":"Lukas Weber este copilul lui Lena."}
+{"id":"formalizer-v1::fv1_000673_0_0","text":"Any idea who has the red Dacia ?"}
+{"id":"formalizer-v1::fv1_000686_0_0#27","text":"Oare Nikos e copilul lui Zoltán?"}
+{"id":"formalizer-v1::fv1_000686_0_0#7","text":"Paloma e autoarea cărții Însemnări din trenul de noapte."}
+{"id":"formalizer-v1::fv1_000819_0#2","text":"zxcvbnjmkzxcv"}
+{"id":"formalizer-v1::fv1_000837_0_0","text":"Dar Nadiya ?"}
+{"id":"formalizer-v1::fv1_001058_0_0#1","text":"Otilia a imprumutat Fiica ceasornicarului."}
+{"id":"formalizer-v1::fv1_001081_0_0#10","text":"Chen se ocupă de serviciul de autentificare."}
+{"id":"formalizer-v1::fv1_001081_0_0#3","text":"În plus, Paloma vrea să meargă la ședința cu părinții."}
+{"id":"formalizer-v1::fv1_001417_0_0#2","text":"Does Esmeralda own the old sailing boat ?"}
+{"id":"formalizer-v1::fv1_001493_0_1#1","text":"let's say Ionuț Moldovan visits Novi Sad."}
+{"id":"formalizer-v1::fv1_001555_0_0#2","text":"Mr Florea gets the flu shot."}
+{"id":"formalizer-v1::fv1_001637_0_0","text":"Fără să-l pun la socoteală pe Alejandro, oare cine e autorul cărții Drumul Sării?"}
+{"id":"formalizer-v1::fv1_001677_0_0#2","text":"Théo Martin muncește la Carpathia Energy."}
+{"id":"formalizer-v1::fv1_001677_0_0#22","text":"Rémi doesn't treat Luminița."}
+{"id":"formalizer-v1::fv1_001677_0_0#25","text":"Arjun is married to Wojciech."}
+{"id":"formalizer-v1::fv1_001690_0_0#13","text":"Mă întreb cum merge Otilia la serviciu."}
+{"id":"formalizer-v1::fv1_001746_0_0#2","text":"And is it the caxse that she borrow ed Soups of Transylvania ?"}
+{"id":"formalizer-v1::fv1_001800_0_0#1","text":"Se poate confirma că Élodie deține via de lângă Sibiu?"}
+{"id":"formalizer-v1::fv1_001823_0_0","text":"Sorry, oare câte proprietăți deține Hannah?"}
+{"id":"formalizer-v1::fv1_001861_0_0","text":"Since Nils is allergic to dust mites and Élodie is allergic to dust mites and Larisa has an allergy to dust mites, do you knw if Florin doesn't have an allergy to dust mites ?"}
+{"id":"formalizer-v1::fv1_002070_0_0#1","text":"Here's what I know: Lars trained Rapid Bălți between May 1, 2021 and June 1, 2024."}
+{"id":"formalizer-v1::fv1_002108_0_0#1","text":"Context: Tamás și-a dat demisia."}
+{"id":"formalizer-v1::fv1_002359_0_0#26","text":"Serviciul de Pașapoarte Novi Sad eliberează cartea de identitate."}
+{"id":"formalizer-v1::fv1_002359_0_0#44","text":"Florică raportează către Ingrid."}
+{"id":"formalizer-v1::fv1_002554_0_0","text":"Mă interesează când Daria a deținut garage behind the block."}
+{"id":"formalizer-v1::fv1_002644_0_0","text":"Poti să verifici dacă Bohdan nu este căsătoit cu Teodora?"}
+{"id":"formalizer-v1::fv1_002811_0_0","text":"Se poate confirma că Giorgos s-a vaccinat antigripal?"}
+{"id":"formalizer-v1::fv1_002812_0_0","text":"Poți să verifici dacă Nadiya raportează către Bogdan-Ionuț?"}
+{"id":"formalizer-v1::fv1_002889_0_0#24","text":"Grădina Botanică din Iași găzduiește festivalul recoltei."}
+{"id":"formalizer-v1::fv1_002889_0_0#28","text":"Also, the Montreal Tax Office issues a residence certificate."}
+{"id":"formalizer-v1::fv1_002889_0_0#5","text":"Craiova Logistics published Soups of Transylvania."}
+{"id":"formalizer-v1::fv1_003024_0_0#19","text":"Clusterul de backup se bazează pe dashboard-ul de raportare."}
+{"id":"formalizer-v1::fv1_003024_0_0#6","text":"Viorica Stoica face alergie la lactoză."}
+{"id":"formalizer-v1::fv1_003049_0_0","text":"Știi de ce Florică nu ia bonusul?"}
+{"id":"formalizer-v1::fv1_003087_0_0","text":"Din curiozitate, cine muncește la Orion Robotics?"}
+{"id":"formalizer-v1::fv1_003099_0_0","text":"Who does Csaba Farkas work for, Greenline Transport, riyht? !"}
+{"id":"formalizer-v1::fv1_003132_0_0#14","text":"În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei."}
+{"id":"formalizer-v1::fv1_003227_0_0#4","text":"Thomas Wright is the spouse of Nikos Nikolaidis."}
+{"id":"formalizer-v1::fv1_003227_0_0#64","text":"Mehmet Şahin wants to learn piano."}
+{"id":"formalizer-v1::fv1_003227_0_0#8","text":"Pipeline-ul de analiză depinde de serviciul de autentificare."}
+{"id":"formalizer-v1::fv1_003411_0_1","text":"Pease fnd out what Vlad is alkergic to."}
+{"id":"formalizer-v1::fv1_003571_0_0#48","text":"Laura Brown ține ore de matematică."}
+{"id":"formalizer-v1::fv1_003665_0_0#4","text":"Întrebare: Poți să verifici dacă Daniel Wright nu e vaccinat?"}
+{"id":"formalizer-v1::fv1_003696_0_0","text":"Whatdoes the vineyard near Sibiu coxst threse days?"}
+{"id":"formalizer-v1::fv1_003727_0","text":"Salut, mhm."}
+{"id":"formalizer-v1::fv1_003792_0_0#2","text":"— Mr Moreau manages Ștefania?"}
+{"id":"formalizer-v1::fv1_003815_0_0#17","text":"Serviciul de Pașapoarte Osaka eliberează certificatul de naștere."}
+{"id":"formalizer-v1::fv1_003815_0_0#54","text":"Constantin antrenează CS Novi Sad."}
+{"id":"formalizer-v1::fv1_003874_0_0#18","text":"Brightfield Foods published Soups of Transylvania."}
+{"id":"formalizer-v1::fv1_003877_0_0#30","text":"Câți oameni plănuiesc să participe la ședința de consiliu de marți?"}
+{"id":"formalizer-v1::fv1_003892_0_0#3","text":"Trebuie să fie peste 4??"}
+{"id":"formalizer-v1::fv1_004270_0_0#13","text":"În plus, Tudor Popa muncește la Atelierul Clarke."}
+{"id":"formalizer-v1::fv1_004529_0_0","text":"Who treats a patient with an allergy to lactoză ?"}
+{"id":"formalizer-v1::fv1_004536_0_0#19","text":"Gheorghe joacă la Șoimii din Timișoara."}
+{"id":"formalizer-v1::fv1_004536_0_0#29","text":"Chloe a împrumutat O scurtă istorie a podurilor."}
+{"id":"formalizer-v1::fv1_004717_0_0#9","text":"În plus, Arena Pune găzduiește festivalul recoltei."}
+{"id":"formalizer-v1::fv1_004985_0_0#10","text":"Cătălin Țurcanu checked out The Quiet Harbour."}
+{"id":"formalizer-v1::fv1_004985_0_0#27","text":"The Botanical Garden in Iași hosts the spring book fair; the harvest festival isn't held at the Nairobi Philharmonic."}
+{"id":"formalizer-v1::fv1_005058_0_0#25","text":"Din curiozitate, câte firme au de vânzare becuri LED?"}
+{"id":"formalizer-v1::fv1_005124_0_0#2","text":"Is it the case that Mr Lăutaru does not go to Nairobi Technical College?"}
+{"id":"formalizer-v1::fv1_005267_0_0#12","text":"Răzvan plays for Brașov United."}
+{"id":"formalizer-v1::fv1_005267_0_0#20","text":"Also, Orion Robotics sells LED bulbs."}
+{"id":"formalizer-v1::fv1_005267_0_0#35","text":"So, my questions: Explain to me why Lin stays home."}
+{"id":"formalizer-v1::fv1_005311_0_0","text":"Poți să verifici dacă Mirela face alergie la cat hair?"}
+{"id":"formalizer-v1::fv1_005453_0_0#24","text":"În plus, Nikos nu este copilul lui Giorgos."}
+{"id":"formalizer-v1::fv1_005485_0_0#28","text":"În plus, Irina nu e înscrisă la Școala de Limbi din Arad."}
+{"id":"formalizer-v1::fv1_005485_0_0#3","text":"În plus, Serviciul de Pașapoarte Buzău eliberează extrasul de carte funciară."}
+{"id":"formalizer-v1::fv1_005485_0_0#44","text":"În plus, Oficiul de Cadastru Suceava nu eliberează permisul de conducere."}
+{"id":"formalizer-v1::fv1_005485_0_0#60","text":"Deci, întrebările mele: Oare Otilia nu muncește la Piatra Neamț Logistic?"}
+{"id":"formalizer-v1::fv1_005562_0_0","text":"Exact jumătate dintre jucătorii de la Șoimii din Alexandria sunt certificați?"}
+{"id":"formalizer-v1::fv1_005595_0_0#13","text":"Petronela participă la dezbaterea de la primărie."}
+{"id":"formalizer-v1::fv1_005595_0_0#55","text":"Permisul de muncă cere cazierul judiciar."}
+{"id":"formalizer-v1::fv1_005595_0_0#6","text":"În plus, Diego nu vizitează Cahul."}
+{"id":"formalizer-v1::fv1_005595_0_0#64","text":"Pentru cat timp a muncit Zsofia la Greenline Transport?"}
+{"id":"formalizer-v1::fv1_005673_0_0#10","text":"An ID card is required for a passport."}
+{"id":"formalizer-v1::fv1_005673_0_0#11","text":"Also, a building permit doesn't require a birth certificate."}
+{"id":"formalizer-v1::fv1_005706_0_0#24","text":"Unde stă Emma?"}
+{"id":"formalizer-v1::fv1_005706_0_0#25","text":"Din curiozitate, cine a publicat Drumul Sării?"}
+{"id":"formalizer-v1::fv1_005856_0_0#38","text":"În plus, dezbaterea de la primărie are loc la Centrul Comunitar de pe strada Ulmilor."}
+{"id":"formalizer-v1::fv1_005862_0_1","text":"Teol me who is based in Bacău."}
+{"id":"formalizer-v1::fv1_005866_0_0#4","text":"Tudor has an allergy to shellfish ."}
+{"id":"formalizer-v1::fv1_006038_0_0#22","text":"Luminița nu se ocupă de baza de date de salarizare."}
+{"id":"formalizer-v1::fv1_006096_0","text":"Ok,am nott ."}
+{"id":"formalizer-v1::fv1_006109_0_0#2","text":"În plus, Petru Lazăr deține Dacia roșie."}
+{"id":"formalizer-v1::fv1_006118_0_0#2","text":"În plus, Carmen este vaccinată."}
+{"id":"formalizer-v1::fv1_006228_0_0","text":"Poți să verifici dacă Oficiul de Cadastru Alba Iulia nu eliberează avizul de securitate la incendiu?"}
+{"id":"formalizer-v1::fv1_006229_0_0#2","text":"Could you check if Mirela is trained?"}
+{"id":"formalizer-v1::fv1_006287_0_0#13","text":"Blue Harbor Media employs Tamás Szabó."}
+{"id":"formalizer-v1::fv1_006439_0_0#18","text":"Emeka nu se ocupă de baza de date de salarizare."}
+{"id":"formalizer-v1::fv1_006493_0_0","text":"How cime Lucian has acc ess to the lab ?"}
+{"id":"formalizer-v1::fv1_006517_0","text":"fije."}
+{"id":"formalizer-v1::fv1_006604_0_0#15","text":"Ms Shevchenko isn't married to Adaeze."}
+{"id":"formalizer-v1::fv1_006604_0_0#18","text":"Diana is allergic to ibuprofen."}
+{"id":"formalizer-v1::fv1_006604_0_0#24","text":"- call the plumber"}
+{"id":"formalizer-v1::fv1_006621_0_0","text":"Verifică dacă Alejandro joacă la Busan United și se ocupă de baza de date de salarizare."}
+{"id":"formalizer-v1::fv1_006760_0_0","text":"Doyou khow if Mr López is marrided to Amira Mansour?!!"}
+{"id":"formalizer-v1::fv1_006897_0_0#2","text":"Sorin lucreqază la Brightfield Foods?"}
+{"id":"formalizer-v1::fv1_006925_0_0","text":"Costă via de lângă Sibiu mai mult de 40000 de lei?"}
+{"id":"formalizer-v1::fv1_006931_0_0","text":"Chen Wang a împrumutat din nou Ciorbele Transilvaniei?"}
+{"id":"formalizer-v1::fv1_007037_0_0#30","text":"Ce vreau de fapt să știu:\nȘtii cumva dacă Amira Mansour vrea să învețe desen?"}
+{"id":"formalizer-v1::fv1_007037_0_0#31","text":"Context: Tunde e copilul lui Dragoș Rusu."}
+{"id":"formalizer-v1::fv1_007037_0_0#5","text":"În plus, Lucian este copilul lui Nils."}
+{"id":"formalizer-v1::fv1_007139_0_0#20","text":"Lucian este antrehorul de la Șoimii din Buzău."}
+{"id":"formalizer-v1::fv1_007139_0_0#4","text":"Chinedu se ocupă de dashboard-ul de raportare."}
+{"id":"formalizer-v1::fv1_007238_0_0#2","text":"Mă interesează când Shirin s-a ocupat de pipeline-ul de analiză."}
+{"id":"formalizer-v1::fv1_007238_0_1","text":"Mă interesează când Shirin s-a ocupat de analytics pipeline."}
+{"id":"formalizer-v1::fv1_007430_0_0#1","text":"Each table takes 3 to 8 guests."}
+{"id":"formalizer-v1::fv1_007474_0_0#31","text":"Vertex Analytics are de vânzare becuri LED."}
+{"id":"formalizer-v1::fv1_007474_0_0#43","text":"În plus, Arena Târgu Mureș găzduiește turneul regional de șah."}
+{"id":"formalizer-v1::fv1_007474_0_0#45","text":"Emre face alergie la păr de pisica."}
+{"id":"formalizer-v1::fv1_007474_0_0#51","text":"În plus, Tudor Moldovan vrea să învețe desen."}
+{"id":"formalizer-v1::fv1_007491_0_0#1","text":"Mihai face aergie la lactoză."}
+{"id":"formalizer-v1::fv1_007566_0_0#11","text":"În plus, serverul de e-mail se bazează pe gateway-ul VPN."}
+{"id":"formalizer-v1::fv1_007689_0_0#3","text":"In Osaka, I think?"}
+{"id":"formalizer-v1::fv1_007760_0_0#10","text":"Pașaportul nu se eliberează la Primăria Bistrița."}
+{"id":"formalizer-v1::fv1_007760_0_0#27","text":"Avizul de securitate la incendiu se eliberează la Administrația Financiară Baia Mare."}
+{"id":"formalizer-v1::fv1_007760_0_0#32","text":"În plus, turneul regional de șah are loc la Arena Bălți."}
+{"id":"formalizer-v1::fv1_007760_0_0#50","text":"Léa vrea să învețe desen."}
+{"id":"formalizer-v1::fv1_007760_0_0#57","text":"Ayşe Kaya e copilul lui Liam."}
+{"id":"formalizer-v1::fv1_007760_0_0#7","text":"Corina Stoica e antrenoarea de la CS Târgu Mureș."}
+{"id":"formalizer-v1::fv1_007814_0_0#1","text":"Presupunem că Tipografia Delta a publicat Ciorbele Transilvaniei."}
+{"id":"formalizer-v1::fv1_007972_0_0","text":"Știi de ce atelierul de fotografie a fost amânat?"}
+{"id":"formalizer-v1::fv1_008039_0_0","text":"Din curiozitate, cîți oameni stau în Brașov?"}
+{"id":"formalizer-v1::fv1_008325_0_0#17","text":"Minh does not look aftr the reporting dashboard."}
+{"id":"formalizer-v1::fv1_008325_0_0#3","text":"Also, Giorgos is a child of Mr Nagy."}
+{"id":"formalizer-v1::fv1_008325_0_0#8","text":"Nikos plans to go to the Tuesday board meeting."}
+{"id":"formalizer-v1::fv1_008327_0_0","text":"Știi cumva dacă Mehmet Kaya a mers la târgul de carte de primăvară?"}
+{"id":"formalizer-v1::fv1_008585_0_0#2","text":"Știi cumva dacă Petronela Barbu e antrenoarea de la CS Piatra Neamț?"}
+{"id":"formalizer-v1::fv1_008713_0_0","text":"Is Ms Gupta older ten Ms Anghel ?"}
+{"id":"formalizer-v1::fv1_008819_0_0#12","text":"How long was Kavya based in Valencia?"}
+{"id":"formalizer-v1::fv1_008927_0_0","text":"E adevărat că nu toți jucătorii de la Lupii din Brașov sunt certificați?"}
+{"id":"formalizer-v1::fv1_009081_0_0#20","text":"În plus, Atelierul Bălan vinde mobilier de grădină."}
+{"id":"formalizer-v1::fv1_009081_0_0#22","text":"API-ul de inventar se bazează pe gateway-ul de plăți."}
+{"id":"formalizer-v1::fv1_009081_0_0#8","text":"În plus, permisul de conducere cere certificatul de naștere."}
+{"id":"formalizer-v1::fv1_009177_0_0#16","text":"Also, Dimitra owns the recording studio."}
+{"id":"formalizer-v1::fv1_009245_0_0","text":"Poți să verifici dacă Taras raportează către Nils?"}
+{"id":"formalizer-v1::fv1_009355_0_0#2","text":"Does my brotbher woek at Blue Harbor Media too?! !"}
+{"id":"formalizer-v1::fv1_009515_0_0#22","text":"Manon checked out The Quiet Harbour and Maria checked out Winter in Maramureș."}
+{"id":"formalizer-v1::fv1_009515_0_0#30","text":"Rubina doesn't work for Müller & Partners."}
+{"id":"formalizer-v1::fv1_009619_0_0","text":"Fără s-o pun la socoteală pe Wanjiru Mwangi, oare cine muncește la Sistemele Nordwind?"}
+{"id":"formalizer-v1::fv1_009630_0_0#11","text":"În plus, Csaba Fekete raportează către Costin."}
+{"id":"formalizer-v1::fv1_009630_0_0#3","text":"În plus, Rémi Lefèvre a împrumutat Ultimul bac."}
+{"id":"formalizer-v1::fv1_009630_0_0#8","text":"Pipeline-ul de analiza se bazeaza pe serviciul de autentificare."}
+{"id":"formalizer-v1::fv1_009720_0_0#11","text":"Sala Moara Veche găzduiește ședința de consiliu de marți."}
+{"id":"formalizer-v1::fv1_009720_0_0#27","text":"Aiko Sato muncește la Osaka Logistic."}
+{"id":"formalizer-v1::fv1_009720_0_0#29","text":"În plus, Lucian plănuiește să participe la târgul de carte de primăvară."}
+{"id":"formalizer-v1::fv1_009720_0_0#39","text":"João este în lotul de la Lupii din Bergen."}
+{"id":"formalizer-v1::fv1_009720_0_0#43","text":"Łukasz e antrenorul de la Lupii din Tulcea."}
+{"id":"formalizer-v1::fv1_009720_0_0#54","text":"Florea & Asociații are de vânzare becuri LED."}
+{"id":"formalizer-v1::fv1_009720_0_0#67","text":"Nils Lindqvist predă geografie."}
+{"id":"formalizer-v1::fv1_009835_0_0#30","text":"Întrebare: Oare Sigrid nu e vaccinată?"}
+{"id":"formalizer-v1::fv1_009928_0_0#2","text":"Xiaoling a împrumutat Drumul Sării."}
+{"id":"formalizer-v1::fv1_009928_0_0#7","text":"În plus, Łukasz se ocupă de serverul de e-mail."}
+{"id":"formalizer-v1::fv1_010041_0_0#10","text":"Grace Hughes goes to the Botoșani Language School."}
+{"id":"formalizer-v1::fv1_010041_0_0#16","text":"Since Nour Nasser gets the flu sbot and Bogdan-Ionuț gets the flu shot, is it true that Iancu doesn't get the flu shot?"}
+{"id":"formalizer-v1::fv1_010090_0_0#11","text":"Otieno Odhiambo e antrenorul de la Lupii din Galați."}
+{"id":"formalizer-v1::fv1_010090_0_0#2","text":"Rubina Lăutaru antrenează Lupii din Piatra Neamț."}
+{"id":"formalizer-v1::fv1_010090_0_0#4","text":"În plus, Luminița nu face alergie la lactoză."}
+{"id":"formalizer-v1::fv1_010091_0_0","text":"Does everybody workig for Szeged Logistics have a valid certificate?"}
+{"id":"formalizer-v1::fv1_010136_0_0#1","text":"Context: Chen e copilul lui Nour."}
+{"id":"formalizer-v1::fv1_010136_0_0#2","text":"Întrebare: Se poate confirma că Nour e copilul lui Chen?"}
+{"id":"formalizer-v1::fv1_010351_0_0","text":"Mă interesează când Costin a predat informatică."}
+{"id":"formalizer-v1::fv1_010363_0_0#17","text":"Agnieszka Krawczyk isn't the coach of Olimpia Recife."}
+{"id":"formalizer-v1::fv1_010626_0_0#8","text":"Ildikó nu ține ore de pian."}
+{"id":"formalizer-v1::fv1_010638_0_0#16","text":"Also, Petru gives classes in geography."}
+{"id":"formalizer-v1::fv1_010638_0_0#17","text":"Agnieszka doesn't teach drawing."}
+{"id":"formalizer-v1::fv1_010638_0_0#22","text":"Also, Chen is allergic to dust mites."}
+{"id":"formalizer-v1::fv1_010638_0_0#35","text":"Tudor Stan owns the plot of land by the river."}
+{"id":"formalizer-v1::fv1_010638_0_0#37","text":"James treats Wojciech Nowak."}
+{"id":"formalizer-v1::fv1_010638_0_0#42","text":"Also, Lucian attends the regional chess tournament ."}
+{"id":"formalizer-v1::fv1_010638_0_0#50","text":"Debrecen Logistics emoloys Radu Căpraru."}
+{"id":"formalizer-v1::fv1_010638_0_0#8","text":"The booking app relies on the analytics pipeline."}
+{"id":"formalizer-v1::fv1_010705_0_0","text":"Explică-mi de ce Mathieu are acces în laborator."}
+{"id":"formalizer-v1::fv1_010748_0_0","text":"A vaaut-o Petronela Popa pe ingineră cu laptopul?"}
+{"id":"formalizer-v1::fv1_010797_0_0#37","text":"Fără s-o pun la socoteală pe Thảo, oare cine o tratează pe Larissa?"}
+{"id":"formalizer-v1::fv1_010910_0_0#1","text":"Is it true that Arjun lives in Leipzig?"}
+{"id":"formalizer-v1::fv1_010947_0_0#3","text":"I need to know if Felix does not go to the town hall debate ."}
+{"id":"formalizer-v1::fv1_010986_0_0#13","text":"Context: Luminița este certificată."}
+{"id":"formalizer-v1::fv1_010986_0_0#8","text":"Nour nu este copilul lui Florică."}
+{"id":"formalizer-v1::fv1_011089_0_0#12","text":"Also, Craiova Children's Clinic is not located in Kraków."}
+{"id":"formalizer-v1::fv1_011089_0_0#33","text":"Greenline Transport nu cumpără de la Tulcea Logistic."}
+{"id":"formalizer-v1::fv1_011089_0_0#38","text":"Anna-Lena nu face alergie la căpșuni."}
+{"id":"formalizer-v1::fv1_011089_0_0#42","text":"Mykola does not fly to Novi Sad."}
+{"id":"formalizer-v1::fv1_011089_0_0#48","text":"Ji-woo is on the Reșița Falcons."}
+{"id":"formalizer-v1::fv1_011165_0_0#38","text":"În plus, Chișinău Logistic are de vânzare huse de telefon."}
+{"id":"formalizer-v1::fv1_011165_0_0#44","text":"Arena Lviv găzduiește atelierul de fotografie."}
+{"id":"formalizer-v1::fv1_011170_0_0#1","text":"Any chance Bohdan has an allergy to shellfish?"}
+{"id":"formalizer-v1::fv1_011602_0_0","text":"since Mykola gets to workby train,wht does Nour co mmute by?"}
+{"id":"formalizer-v1::fv1_011794_0_0#17","text":"Context: Megan a împrumutat Portul liniștit."}
+{"id":"formalizer-v1::fv1_011794_0_0#2","text":"Silviu călătorește la Timișoara."}
+{"id":"formalizer-v1::fv1_011815_0_0#5","text":"Also, Karim has an allergy to lactose."}
+{"id":"formalizer-v1::fv1_011855_0_0#5","text":"Théo Girard wants to learn physical education."}
+{"id":"formalizer-v1::fv1_011858_0_0","text":"True or false: Sorin visits Pune."}
+{"id":"formalizer-v1::fv1_012139_0_0","text":"Din curiozitate, ce instituție eliberează pașaportul?"}
+{"id":"formalizer-v1::fv1_012181_0_0#1","text":"I am thi nking of changi ng jobs soon."}
+{"id":"formalizer-v1::fv1_012285_0_0#13","text":"Ethan Clarke nu e autorul cărții Ciorbele Transilvaniei."}
+{"id":"formalizer-v1::fv1_012285_0_0#14","text":"În plus, Natalia este autoarea cărții Iarna în Maramureș."}
+{"id":"formalizer-v1::fv1_012285_0_0#15","text":"Permisul de muncă necesită adeverința medicală."}
+{"id":"formalizer-v1::fv1_012285_0_0#9","text":"Andrei vizitează Baia Mare."}
+{"id":"formalizer-v1::fv1_012398_0","text":"xcvbnm.. rtyui"}
+{"id":"formalizer-v1::fv1_012430_0_0#12","text":"Linh nu merge la ședința de consiliu de marți."}
+{"id":"formalizer-v1::fv1_012430_0_0#28","text":"Ethan Brown raportează către Ildikó."}
+{"id":"formalizer-v1::fv1_012489_0_0","text":"Fact-check: Emma Bennett is not alle rgic to dust mites ."}
+{"id":"formalizer-v1::fv1_012624_0_0#3","text":"Also, Zsófia intends to attend the product launch."}
+{"id":"formalizer-v1::fv1_012717_0_0#1","text":"Context: Lansarea produsului a fost amânată."}
+{"id":"formalizer-v1::fv1_012810_0_0","text":"Ciould you checkif the mail server reelies on the search index?"}
+{"id":"formalizer-v1::fv1_012909_0_0","text":"Howcome the login service is not dosn ?"}
+{"id":"formalizer-v1::fv1_013094_0","text":"ertyuk er;; xcvbnmjxc"}
+{"id":"formalizer-v1::fv1_013115_0_0#14","text":"Hao Zhang nu a sxris Drumul Sării."}
+{"id":"formalizer-v1::fv1_013115_0_0#8","text":"Alexandru este în lotul de la Rapid Brașov."}
+{"id":"formalizer-v1::fv1_013394_0_0#8","text":"Sofía deține garajul din spatele blocului."}
+{"id":"formalizer-v1::fv1_013425_0_0#19","text":"Câteva întrebări, atunci:\nPentru cât timp a fost Teodora Voicu în lotul de la Alexandria United?"}
+{"id":"formalizer-v1::fv1_013458_0_0#18","text":"Nour predă chimie."}
+{"id":"formalizer-v1::fv1_013458_0_0#29","text":"În plus, Katrin vizitează Kraków."}
+{"id":"formalizer-v1::fv1_013458_0_0#36","text":"Ardeleanu & Asociații nu are de vânzare mobilier de grădină."}
+{"id":"formalizer-v1::fv1_013458_0_0#39","text":"Alexandru Ungureanu face alergie la gluten."}
+{"id":"formalizer-v1::fv1_013458_0_0#4","text":"În plus, Brightfield Foods aprovizionează Tipografia Delta."}
+{"id":"formalizer-v1::fv1_013458_0_0#7","text":"Indexul de căutare depinde de pipeline-ul de analiză."}
+{"id":"formalizer-v1::fv1_013530_0_0#2","text":"Există cineva care lucrează la Craiova Logistic și nu locuiește în Kraków?"}
+{"id":"formalizer-v1::fv1_013585_0_0","text":"Any chance Medeea was on Olimpia Sibiu on August 1, 2020 ?"}
+{"id":"formalizer-v1::fv1_013649_0_0#2","text":"And wyere did Silviu moce from ?"}
+{"id":"formalizer-v1::fv1_013664_0_0","text":"Is thre anyone at Brightfield Foods who works there but does not live in Valencia?"}
+{"id":"formalizer-v1::fv1_013731_0_0","text":"Toți eleii de la Liceul de Arte din Lyon nu s-au vaccinat?"}
+{"id":"formalizer-v1::fv1_013762_0_0","text":"Unde locuiește Bogdan-Ionuț, în Izmir, nu?"}
+{"id":"formalizer-v1::fv1_013794_0_0#2","text":"Înplus, nu antrenează Rapid Osaka."}
+{"id":"formalizer-v1::fv1_013796_0_0#2","text":"Mă interesează când Thiago a învățat la Școala de Limbi din Lyon."}
+{"id":"formalizer-v1::fv1_013914_0_0#28","text":"Since Horia Pătrașcu pays with gift cards, any idea how Botond settles the bll?"}
+{"id":"formalizer-v1::fv1_014095_0_0","text":"Since the Botanical Garden in Craiova is closed, could you check what it is closed for ?"}
+{"id":"formalizer-v1::fv1_014100_0_0#36","text":"Gateway-ul de plăți depinde de serviciul de autentificare."}
+{"id":"formalizer-v1::fv1_014100_0_0#40","text":"Giorgos Nikolaidis seocupă de aplicația de rezervări."}
+{"id":"formalizer-v1::fv1_014100_0_0#50","text":"Chloe munxcește la Sighișoara Logistic."}
+{"id":"formalizer-v1::fv1_014102_0_1#2","text":"Oare cine e căsătorit cu Aiko Sato?"}
+{"id":"formalizer-v1::fv1_014131_0_0#36","text":"Hiroshi ține ore de spaniolă."}
+{"id":"formalizer-v1::fv1_014131_0_0#38","text":"Atelierul Becker vinde ulei de măsline."}
+{"id":"formalizer-v1::fv1_014131_0_0#43","text":"Nikos Papadopoulos participă la ședința de consiliu de marți."}
+{"id":"formalizer-v1::fv1_014131_0_0#7","text":"Pipeline-ul de analiză depinde de dashboard-ul de raportare."}
+{"id":"formalizer-v1::fv1_014476_0_0","text":"Ioana coordonează pe cineva care locuiește în Timișoara?"}
+{"id":"formalizer-v1::fv1_014477_0_0#4","text":"Also, Mr Gupta is married to Florică Stoian."}
+{"id":"formalizer-v1::fv1_014491_0_0#28","text":"Vertex Analytics cumpara de la Brightfield Foods."}
+{"id":"formalizer-v1::fv1_014515_0_0","text":"Unde e Arena Timișoara?"}
+{"id":"formalizer-v1::fv1_014525_0_0#1","text":"Presupunem că Ghiță Lăutaru a participat la ședința de consiliu de marți."}
+{"id":"formalizer-v1::fv1_014526_0_0","text":"Is it trje tht Alexandru went to Osaka Music Academy on the 1st of March 2024 ?"}
+{"id":"formalizer-v1::fv1_014561_0_0#2","text":"Fiecare echipă are între 4 și 11 membri."}
+{"id":"formalizer-v1::fv1_014764_0_1","text":"Bun,do you know if Natalia owns the vineyard near Sibiu and Atelier Vlădescu employs Natalia ?"}
+{"id":"formalizer-v1::fv1_014830_0_0#32","text":"În plus, Filarmonica din Călărași găzduiește crosul caritabil."}
+{"id":"formalizer-v1::fv1_014830_0_0#65","text":"Cine învață la Colegiul Tehnic din Busan?"}
+{"id":"formalizer-v1::fv1_014830_0_0#7","text":"Petronela face alergie la păr de pisică."}
+{"id":"formalizer-v1::fv1_014855_0_0","text":"Ștefan Ciobanu locuiește în Lisbon sau în Bălți?"}
+{"id":"formalizer-v1::fv1_014942_0#1","text":"hjkhj???"}
+{"id":"formalizer-v1::fv1_014994_0_0","text":"Oare Zoltán a participat la târgul de carte de primăvară?"}
+{"id":"formalizer-v1::fv1_014997_0_0#1","text":"Context: Lazăr & Asociații vinde uniforme școlare."}
+{"id":"formalizer-v1::fv1_014997_0_0#3","text":"Întrebare: Ștoi cumva dacă are de vânzare uniforme școlare ?"}
+{"id":"formalizer-v1::fv1_015030_0_0","text":"Din curiozitate, câe cărti a publicat Blue Harbor Media?"}
+{"id":"formalizer-v1::fv1_015284_0_0#11","text":"În plus, Csaba Szabó raportează către Astrid Andersen."}
+{"id":"formalizer-v1::fv1_015284_0_0#2","text":"Sistemele Nordwind aprovizionează Carpathia Energy."}
+{"id":"formalizer-v1::fv1_015284_0_0#3","text":"Xiaoling nu muncește la Piatra Neamț Logistic."}
+{"id":"formalizer-v1::fv1_015342_0_1","text":"Do you know if Fatima lies in Reșița?"}
+{"id":"formalizer-v1::fv1_015492_0_0#18","text":"Alexandru Neagu lifes in Pune."}
+{"id":"formalizer-v1::fv1_015492_0_0#28","text":"Iancu isn't on Olimpia Nairobi..."}
+{"id":"formalizer-v1::fv1_015530_0_0#11","text":"În plus, Vertex Analytics are de vânzare mâncare pentru bebeluși."}
+{"id":"formalizer-v1::fv1_015530_0_0#2","text":"Aditya e căsătorit cu Élodie."}
+{"id":"formalizer-v1::fv1_015653_0_0#2","text":"Întrebare: Poți să verifici dacă Nadiya e copilul lui Mihai?"}
+{"id":"formalizer-v1::fv1_015910_0_0#24","text":"În plus, Mehmet antrenează Lupii din Lisbon."}
+{"id":"formalizer-v1::fv1_016056_0_0#1","text":"Here's what I know: Ioana manages Alina."}
+{"id":"formalizer-v1::fv1_016074_0_0#1","text":"Presupunem că Emma nu a învațat la Școala Primară Hoffmann."}
+{"id":"formalizer-v1::fv1_016153_0#2","text":"vbn"}
+{"id":"formalizer-v1::fv1_016174_0_1","text":"Any chance the mail server doesn't rely on the login service ?"}
+{"id":"formalizer-v1::fv1_016251_0_0","text":"A vizitat Chinedu iar Cahul?"}
+{"id":"formalizer-v1::fv1_016354_0_0#4","text":"Alina raportează către Tudor."}
+{"id":"formalizer-v1::fv1_016395_0_0#1","text":"Context: Doinița raportează către Botond Szabó."}
+{"id":"formalizer-v1::fv1_016414_0_1","text":"How long did Kamau own via de lângă Sibiu?"}
+{"id":"formalizer-v1::fv1_016474_0_0","text":"Stii cumva dacă Paloma Navarro raporteaza către Diego Romero?"}
+{"id":"formalizer-v1::fv1_016517_0_0#2","text":"Știi cumva dacă a fost amânată din cauza problemelor cu serviciul de facturare?"}
+{"id":"formalizer-v1::fv1_016586_0_0#32","text":"Also, Ms Nowak teqaches biology."}
+{"id":"formalizer-v1::fv1_016816_0_0#2","text":"Do u know if he is eligible for the bonus?"}
+{"id":"formalizer-v1::fv1_016890_0_0#2","text":"Since the Nairobi Arena is closed, do u know what it is closed for?"}
+{"id":"formalizer-v1::fv1_016944_0_0#1","text":"Context: Esmeralda lipsește de la serviciu."}
+{"id":"formalizer-v1::fv1_016992_0_0#1","text":"Viorel satys he intends to quit Brightfield Foods."}
+{"id":"formalizer-v1::fv1_017046_0_0#4","text":"Aurel face alergie la lactoză."}
+{"id":"formalizer-v1::fv1_017046_0_0#5","text":"În plus, Mehmet Şahin face alergie la penicilină."}
+{"id":"formalizer-v1::fv1_017093_0_0#1","text":"Florică and Giorgos study at Buzău Technical College."}
+{"id":"formalizer-v1::fv1_017115_0_0#13","text":"Astrid Nilsen este căsătorită cu Dragoș Lazăr."}
+{"id":"formalizer-v1::fv1_017115_0_0#18","text":"Wei Wang nu e în lotul de la Rapid Valencia."}
+{"id":"formalizer-v1::fv1_017129_0_0#1","text":"Context: Tudor e vccinat."}
+{"id":"formalizer-v1::fv1_017182_0_0#5","text":"Brightfield Foods a publicat Ultimul bac."}
+{"id":"formalizer-v1::fv1_017339_0_0#1","text":"Autobuzul ia între 3 și 12 pasageri."}
+{"id":"formalizer-v1::fv1_017417_0_0#48","text":"Also, Viorica Toma flies to Pune."}
+{"id":"formalizer-v1::fv1_017431_0_0#1","text":"Autobuzul ia între 3 și 7 pasageri."}
+{"id":"formalizer-v1::fv1_017667_0_0","text":"Any idea who tra ins CS Brașov?"}
+{"id":"formalizer-v1::fv1_017721_0_0#1","text":"Poți să verifici dacă Lucía participă la sesiunea de code review?"}
+{"id":"formalizer-v1::fv1_017721_0_0#2","text":"Și se poate confirma că a scris Drumul Sării?"}
+{"id":"formalizer-v1::fv1_017776_0_0#2","text":"Nota e 700 de lei și suntem 5."}
+{"id":"formalizer-v1::fv1_017789_0_0#20","text":"Javier Romero doesn't pay for the Osaka Wolves."}
+{"id":"formalizer-v1::fv1_017789_0_0#27","text":"Nils muncește la Vertex Analytics."}
+{"id":"formalizer-v1::fv1_017789_0_0#66","text":"Any chance Elif owns the garage behind the block ?"}
+{"id":"formalizer-v1::fv1_017808_0_0#2","text":"Can 8 people fit in it?"}
+{"id":"formalizer-v1::fv1_017919_0_0","text":"Dupa ce se stia pe 11.09.2023, se poate confirma ca Ion Ciobanu a stat in Piatra Neamt pe 2 martie 2024?"}
+{"id":"formalizer-v1::fv1_017936_0_0#3","text":"În plus, Brightfield Foods vinde huse de telefon ."}
+{"id":"formalizer-v1::fv1_017963_0_0#2","text":"În plus, nu s-a vaccinat antigripal."}
+{"id":"formalizer-v1::fv1_017991_0_0#8","text":"The analytics pipeline depnds on the mail server."}
+{"id":"formalizer-v1::fv1_017991_0_0#9","text":"Ana Oprea is the spouse of Wojciech Nowak."}
+{"id":"formalizer-v1::fv1_018125_0_0#22","text":"Also, Pablo plays for CS Deva."}
+{"id":"formalizer-v1::fv1_018125_0_0#43","text":"Also, Natalia goes to Ploiești Arts High School."}
+{"id":"formalizer-v1::fv1_018222_0_0#2","text":"Since Lucian trains the Kraków Wolves and he doesn't have a valid certificate, is it the case that he is certified?"}
+{"id":"formalizer-v1::fv1_018316_0_0#8","text":"În plus, Oficiul de Cadastru Orhei nu eliberează extrasul de carte funciară."}
+{"id":"formalizer-v1::fv1_018503_0_0#17","text":"Iulia attends the parents' evening."}
+{"id":"formalizer-v1::fv1_018503_0_0#23","text":"Silviu Constantinescu attends the Tuesday board meeting."}
+{"id":"formalizer-v1::fv1_018503_0_0#29","text":"Also, Laura looks after the login service."}
+{"id":"formalizer-v1::fv1_018503_0_0#41","text":"Also, the Timișoara Town Hall is located in Baia Mare."}
+{"id":"formalizer-v1::fv1_018503_0_0#50","text":"A medical certificate is issued by the Focșani Land Office."}
+{"id":"formalizer-v1::fv1_018531_0_0#1","text":"Context: Dashboard-ul de raportare e căzut."}
+{"id":"formalizer-v1::fv1_018532_0_0#1","text":"Petronela moved from Orhei too Galați."}
+{"id":"formalizer-v1::fv1_018565_0_0","text":"Explică-mi de ce serverul de e-mail e căzut."}
+{"id":"formalizer-v1::fv1_018663_0_0","text":"Oare Hao vrea să plece de la Atelierul Ardeleanu?"}
+{"id":"formalizer-v1::fv1_018706_0_1","text":"Fără să-l pun la socoteală pe Cosmin, oare cine stă în Piatra Neamț?"}
+{"id":"formalizer-v1::fv1_018727_0_0#1","text":"So, Ștefan vizitează Orhei."}
+{"id":"formalizer-v1::fv1_018892_0_0","text":"Sorry, ore Victor este eligibil pentru bonus?"}
+{"id":"formalizer-v1::fv1_018943_0_0#10","text":"Kostas Papadopoulos travels to Botoșani; Łukasz visits Glasgow."}
+{"id":"formalizer-v1::fv1_018943_0_0#23","text":"Mykola is the boss of Attila."}
+{"id":"formalizer-v1::fv1_018943_0_0#4","text":"Mateo is the boss of George."}
+{"id":"formalizer-v1::fv1_018943_0_0#52","text":"I'd like to know who Rémi raises."}
+{"id":"formalizer-v1::fv1_018954_0_0","text":"Fără să-l pun la socoteală pe Florică, oare cine e căsătorit cu Yan Liu?"}
+{"id":"formalizer-v1::fv1_019034_0_0#2","text":"În plus, Arjun deține barca veche cu pânze."}
+{"id":"formalizer-v1::fv1_019089_0_0#21","text":"Ce vreau de fapt să știu:\nContext: Emma achită cu un card preplătit."}
+{"id":"formalizer-v1::fv1_019110_0#2","text":"dtghjkldf"}
+{"id":"formalizer-v1::fv1_019113_0_0#1","text":"Context: Elena Gheorghiu e autoarea cărții Drumul Sării."}
+{"id":"formalizer-v1::fv1_019121_0_0#19","text":"Also, Veaceslav does not plan to go to the product launch."}
+{"id":"formalizer-v1::fv1_019225_0_0#1","text":"Botond intends to attend the product launch."}
+{"id":"formalizer-v1::fv1_019268_0_0#38","text":"Lazăr & Partners isn't a supplier of Atelier Neagu."}
+{"id":"formalizer-v1::fv1_019268_0_0#49","text":"Is it true that Mykola does not fly to Piatra Neamț?"}
+{"id":"formalizer-v1::fv1_019318_0_0","text":"Știide ce atelierul de fotografie a fost amânat?"}
+{"id":"formalizer-v1::fv1_019356_0_0#16","text":"Nour face alergie la arahide."}
+{"id":"formalizer-v1::fv1_019356_0_0#5","text":"Hao nu se ocupă de pipeline-ul de analiză."}
+{"id":"formalizer-v1::fv1_019743_0_0#20","text":"În plus, Filarmonica din Chengdu nu găzduiește târgul de carte de primăvară."}
+{"id":"formalizer-v1::fv1_019743_0_0#31","text":"Grădina Botanică din Nairobi găzduiește turneul regional de șah."}
+{"id":"formalizer-v1::fv1_019743_0_0#41","text":"Ce vreau de fapt să știu:\nȘtii de ce Petronela Ciobanu are acces în laborator?"}
+{"id":"formalizer-v1::fv1_019743_0_0#6","text":"Élodie muncește la Tisa Textile."}
+{"id":"formalizer-v1::fv1_019774_0_0#1","text":"Context: Irina e copilul lui Élodie."}
+{"id":"formalizer-v1::fv1_019815_0_0#35","text":"Also, Atelier Enache carries LED bulbs."}
+{"id":"formalizer-v1::fv1_019815_0_0#44","text":"Mr Nasser trains CS Osaka."}
+{"id":"formalizer-v1::fv1_019815_0_0#5","text":"În plus, Irina raportează către Min-jun."}
+{"id":"formalizer-v1::fv1_019815_0_0#60","text":"Botoșani Logistics carries sourdough bread."}
+{"id":"formalizer-v1::fv1_019984_0_0#2","text":"Întrebare: Poți să verifici dacă Iancu rapoertează către Larisa?"}
+{"id":"formalizer-v1::fv1_020009_0_0#2","text":"În plus, Sophie participă la ședința cu părinții."}
+{"id":"formalizer-v1::fv1_020095_0_0#12","text":"Blue Harbor Media aprovizionează Bistrița Logistic."}
+{"id":"formalizer-v1::fv1_020095_0_0#3","text":"În plus, autorizația de construire crere cazierul judiciar."}
+{"id":"formalizer-v1::fv1_020398_0_0#5","text":"Greenline Transport a publicat Ciorbele Transilvaniei."}
+{"id":"formalizer-v1::fv1_020607_0_0#3","text":"Întrebare: Se poate confirma că Florin nu este vaccinat?"}
+{"id":"formalizer-v1::fv1_020776_0_0#1","text":"We have roomfor 23 and a minimum of 8 registrations."}
+{"id":"formalizer-v1::fv1_020908_0_0","text":"Fiecare participant la ședința cu părinții a terminat instruirea de siguranță?"}
+{"id":"formalizer-v1::fv1_021200_0_0#2","text":"Would that be cuz it is under too much load ?"}
+{"id":"formalizer-v1::fv1_021222_0_1#2","text":"The old sailing boat belongs too Chloé?"}
+{"id":"formalizer-v1::fv1_021252_0_0#1","text":"Context: Emil Dumitrescu are gr iopa."}
+{"id":"formalizer-v1::fv1_021363_0_0#1","text":"Here's whqt I know: Ms Lazăr is a child of Mr Popescu."}
+{"id":"formalizer-v1::fv1_021671_0_0#13","text":"Greenline Transport published The Quiet Harbour."}
+{"id":"formalizer-v1::fv1_021700_0_0#1","text":"Here's what I know: Florică is on Rapid Buzău, and he does not complete the safety training."}
+{"id":"formalizer-v1::fv1_022003_0_0#3","text":"În plus, Blue Harbor Media nu a publicat Livada de sticlă."}
+{"id":"formalizer-v1::fv1_022065_0_0","text":"Oare Silviu Bălan e înscris la Colegiul Tehnic din Buzău?"}
+{"id":"formalizer-v1::fv1_022433_0_0#1","text":"Here'swhat I know: Alejandro treats Oluwaseun."}
+{"id":"formalizer-v1::fv1_022509_0_0#39","text":"Iulia o tratează pe Anna-Lena Müller."}
+{"id":"formalizer-v1::fv1_022509_0_0#51","text":"Gheorghe flies to Slatina."}
+{"id":"formalizer-v1::fv1_022509_0_0#56","text":"Rohan raportează către Mathieu."}
+{"id":"formalizer-v1::fv1_022509_0_0#64","text":"Acum, ce vreau să aflu:\nFără s-o pun la socoteală pe Priya, oare cine ține ore de fizică?"}
+{"id":"formalizer-v1::fv1_022509_0_0#66","text":"Știi de ce Teodora Mocanu ia bonusul?"}
+{"id":"formalizer-v1::fv1_022552_0_0#16","text":"În plus, Emre vizitează Reșița."}
+{"id":"formalizer-v1::fv1_022552_0_0#28","text":"Aurelia Pătrașcu vrea să meargă la petrecerea de nuntă."}
+{"id":"formalizer-v1::fv1_022552_0_0#31","text":"În plus, gateway-ul de plăți nu depinde de aplicația de rezervări."}
+{"id":"formalizer-v1::fv1_022704_0_0","text":"Since Ovidiu doesn't have access to the lab, se poate confirma că a terminat instruirea de siguranță?"}
+{"id":"formalizer-v1::fv1_022735_0_0#1","text":"Context: Mehmet face alergie la înțepături de albină."}
+{"id":"formalizer-v1::fv1_022773_0_0#2","text":"Ilinca is ill."}
+{"id":"formalizer-v1::fv1_022793_0_1","text":"How long did Florică Lăutaru teafh computer science?"}
+{"id":"formalizer-v1::fv1_022893_0_0#4","text":"Atelierul Neagu are de vânzare ulei de măsline."}
+{"id":"formalizer-v1::fv1_022930_0_0#1","text":"Poți să verifici dacă Adaeze deține barca veche cu pânze?"}
+{"id":"formalizer-v1::fv1_022932_0_0#1","text":"i am thnking of changing jobs soon."}
+{"id":"formalizer-v1::fv1_023004_0_0#22","text":"Any chance Mirela attends the Tuesday board meeting?"}
+{"id":"formalizer-v1::fv1_023058_0_0#25","text":"Katalin isn't the coch of CS Leeds."}
+{"id":"formalizer-v1::fv1_023058_0_0#26","text":"Mr Liu manages Erik."}
+{"id":"formalizer-v1::fv1_023323_0_0#3","text":"I was wondering whether she intends to attebd the code review session ."}
+{"id":"formalizer-v1::fv1_023556_0","text":"ultgamșor șorvrizor șorult"}
+{"id":"formalizer-v1::fv1_023618_0_0#2","text":"Întrebare: Poți să verifici dacă s-a vaccinat antigripal?"}
+{"id":"formalizer-v1::fv1_023669_0_0#24","text":"Context: Răzvan îl tratează pe Youssef."}
+{"id":"formalizer-v1::fv1_023700_0_0#10","text":"The parents' evening doesn't take place at the Botanical Garden in Galați."}
+{"id":"formalizer-v1::fv1_023703_0_0","text":"Unde locuiește Liam Bennett, în Bălți, nu?"}
+{"id":"formalizer-v1::fv1_023768_0_0#2","text":"Pentru cât timp a muncit Mehmet la Carpathia Energy?"}
+{"id":"formalizer-v1::fv1_023967_0_0#1","text":"I am fjlling in a formular."}
+{"id":"formalizer-v1::fv1_024048_0_0#2","text":"Carpathia Energy a publicat Drumul Sării."}
+{"id":"formalizer-v1::fv1_024156_0_0#10","text":"În plus, Emre îl tratează pe Liviu."}
+{"id":"formalizer-v1::fv1_024156_0_0#40","text":"Florică Lăutaru nu a scris Portul liniștit."}
+{"id":"formalizer-v1::fv1_024156_0_0#44","text":"În plus, târgul de carte de primăvară nu are loc la Grădina Botanică din Baia Mare."}
+{"id":"formalizer-v1::fv1_024156_0_0#48","text":"Atelierul Tóth are de vânzare mobilier de grădină."}
+{"id":"formalizer-v1::fv1_024156_0_0#55","text":"Constantin e copilul lui Raluca."}
+{"id":"formalizer-v1::fv1_024183_0_0#17","text":"Mr Haddad has borrowed The Clockmaker's Daughter."}
+{"id":"formalizer-v1::fv1_024255_0_0","text":"Șrii cumva dacă Thiago muncește la Carpathia Energy?"}
+{"id":"formalizer-v1::fv1_024346_0_0#24","text":"Oliver deține barca veche cu pânze."}
+{"id":"formalizer-v1::fv1_024346_0_0#6","text":"Greenline Transport a publicat Scrisori către un tânăr inginer."}
+{"id":"formalizer-v1::fv1_024390_0_0#11","text":"Sophie este copilul lui Mihai..."}
+{"id":"formalizer-v1::fv1_024495_0","text":"ghjklghjk.. xcvbnm"}
+{"id":"formalizer-v1::fv1_024530_0_0#14","text":"Greenline Transport empoloys Răzvan Anghel."}
+{"id":"formalizer-v1::fv1_024530_0_0#9","text":"Mr Lindqvist doesn't plan tostudy physics."}
+{"id":"formalizer-v1::fv1_024620_0_0#3","text":"Wojciech face alegie la lactoză."}
+{"id":"formalizer-v1::fv1_024733_0_0","text":"Going by what was known on September 15, 2025, is it the case that Izmir Logistics employed Corina on 14 March 2024 ?"}
+{"id":"formalizer-v1::fv1_024849_0_0#2","text":"Luminita locuiește în Novi Sad."}
+{"id":"formalizer-v1::fv1_025096_0_0#3","text":"Quesyion: I need to know if he is the author of A Short History of Bridges."}
+{"id":"formalizer-v1::fv1_025283_0_0#15","text":"„Filarmonica din Bistrița găzduiește petrecerea de nuntă” — se confirmă?"}
+{"id":"formalizer-v1::fv1_025374_0_0","text":"Poți să verifici dacă Amira învață la Școala Primară Stoica?"}
+{"id":"formalizer-v1::fv1_025375_0_0#26","text":"Ștefan Vlădescu e copiljul lui Marius."}
+{"id":"formalizer-v1::fv1_025375_0_0#36","text":"Aplicatia de rezervari depinde de clusterul de backup."}
+{"id":"formalizer-v1::fv1_025433_0_0#8","text":"Diego Navarro trrats Eleni Nikolaidis."}
+{"id":"formalizer-v1::fv1_025511_0#1","text":"tyu tyu???"}
+{"id":"formalizer-v1::fv1_025535_0_0#2","text":"Can you tell me wich office a building permit is issued by?"}
+{"id":"formalizer-v1::fv1_025576_0_0#21","text":"Grădina Botanică din Bergen găzduiește dezbaterea de la primărie."}
+{"id":"formalizer-v1::fv1_025822_0_0#4","text":"Sofía plans to study Spanish."}
+{"id":"formalizer-v1::fv1_025822_0_0#6","text":"Mr Stoica intends to attend the spring book fair."}
+{"id":"formalizer-v1::fv1_025822_0_0#7","text":"Plus, Dariush intends to attend the jazz evening."}
+{"id":"formalizer-v1::fv1_025822_0_0#9","text":"Réka is the spouse of Daniel and Camille is married to Dragoș."}
+{"id":"formalizer-v1::fv1_025925_0_0#8","text":"Cabinetul Stomatologic din Bistrita este in Plovdiv."}
+{"id":"formalizer-v1::fv1_026183_0_0","text":"Știi cumva dacă Nikos dwține studioul de înregistrări?"}
+{"id":"formalizer-v1::fv1_026204_0_0#26","text":"Also, the search index depends on the booking app."}
+{"id":"formalizer-v1::fv1_026204_0_0#30","text":"Also, the code review session tskes place at the Community Centre on Elm Street."}
+{"id":"formalizer-v1::fv1_026204_0_0#37","text":"Victor Vlădescu is married to Karim."}
+{"id":"formalizer-v1::fv1_026224_0_0#2","text":"Do u know if he goes to Busan Music Academy ?"}
+{"id":"formalizer-v1::fv1_026239_0_0#13","text":"Also, Hao Liu attends the photography workshop."}
+{"id":"formalizer-v1::fv1_026239_0_0#26","text":"The search index depends on the inventory API."}
+{"id":"formalizer-v1::fv1_026239_0_0#9","text":"Carmen does not train Olimpia Novi Sad."}
+{"id":"formalizer-v1::fv1_026268_0_0","text":"Esxplain to me why Giorgos is cleared for the lab."}
+{"id":"formalizer-v1::fv1_026331_0_0","text":"Cine are cei mai mulți ani dintre cei care lucrează la Constantinescu & Asociații?"}
+{"id":"formalizer-v1::fv1_026350_0_0#1","text":"Presupunem că Bogdan-Ionuț a fost vaccinat."}
+{"id":"formalizer-v1::fv1_026502_0_0#17","text":"Alexandru deține brutăria din colț."}
+{"id":"formalizer-v1::fv1_026586_0_0","text":"Ai idee since when Omar reports to Ștefania?"}
+{"id":"formalizer-v1::fv1_026714_0_0#8","text":"Amira joacă la Lupii din Timișoara."}
+{"id":"formalizer-v1::fv1_026716_0_0#2","text":"Oare ce act necsesită pașaportul?"}
+{"id":"formalizer-v1::fv1_026872_0_0#19","text":"Larissa is a child of Otieno."}
+{"id":"formalizer-v1::fv1_027247_0_0","text":"Se poate confirma că Chinedu este copilul lui Tunde?"}
+{"id":"formalizer-v1::fv1_027252_0_0#13","text":"Daria is the owner of the bakery on the corner."}
+{"id":"formalizer-v1::fv1_027252_0_0#30","text":"Nordwind Systems published The Glass Orchard, and Vertex Analytics published The Salt Road."}
+{"id":"formalizer-v1::fv1_027346_0_0#2","text":"Any chance he is allergic too gluten ?"}
+{"id":"formalizer-v1::fv1_027410_0_0","text":"Fă-mi o listă cu oamenii și firmele din Kraków la care lucrează."}
+{"id":"formalizer-v1::fv1_027509_0_0#2","text":"Întrebare: Oare esgte ânchisă pentru wedding reception ?"}
+{"id":"formalizer-v1::fv1_027685_0_0#1","text":"According to Ethan, Min-jun is married to Laura."}
+{"id":"formalizer-v1::fv1_027948_0_0#2","text":"Aiko este căsă torită cu James Walker."}
+{"id":"formalizer-v1::fv1_028089_0_0#2","text":"Se poate confirma că Harry Wilson muncește la Centrul Medical Riverside?"}
+{"id":"formalizer-v1::fv1_028205_0_0#19","text":"Sorin is not responsible for the booking app."}
+{"id":"formalizer-v1::fv1_028364_0_0#2","text":"Any chance Irina Rusu is the spouse of Jürgen?"}
+{"id":"formalizer-v1::fv1_028408_0_0#1","text":"Context: Zoltán Varga lipsește de la serviciu."}
+{"id":"formalizer-v1::fv1_028430_0_0","text":"Hypothetically, if Valentina coaches the Chișinău Falcons, can u confirm that Otieno Odhiambo coaches the Chișinău Falcons?"}
+{"id":"formalizer-v1::fv1_028501_0_0#10","text":"Amira antrenează Lupii din Cahul."}
+{"id":"formalizer-v1::fv1_028501_0_0#16","text":"Yuki joacă la Glasgow United ."}
+{"id":"formalizer-v1::fv1_028501_0_0#28","text":"Oprea & Asociații are de vânzare pâine cu maia."}
+{"id":"formalizer-v1::fv1_028501_0_0#47","text":"Dariush nu vizitează Pitesti."}
+{"id":"formalizer-v1::fv1_028501_0_0#62","text":"Oficiul de Cadastru Iași eliberesză certificatul de atestare fiscală."}
+{"id":"formalizer-v1::fv1_028501_0_0#63","text":"Ovidiu Munteanu nu deține cabana de vacanță din Bran."}
+{"id":"formalizer-v1::fv1_028501_0_0#81","text":"Șrii de ce Lena are acces în laborator?"}
+{"id":"formalizer-v1::fv1_028522_0_0#19","text":"Hiroshi Suzuki raporteaza catre James Wright."}
+{"id":"formalizer-v1::fv1_028522_0_0#4","text":"Yan Li locuiește în Cahul."}
+{"id":"formalizer-v1::fv1_028522_0_0#40","text":"Silviu stă în Nairobi."}
+{"id":"formalizer-v1::fv1_028522_0_0#41","text":"În plus, Liviu nu locuiește în Glasgow."}
+{"id":"formalizer-v1::fv1_028547_0","text":"Yes,Isee."}
+{"id":"formalizer-v1::fv1_028588_0_0#40","text":"A building permit does not require a criminal record certificate."}
+{"id":"formalizer-v1::fv1_028588_0_0#76","text":"So where did the wedding reception take place?"}
+{"id":"formalizer-v1::fv1_028621_0_0#16","text":"În plus, James Clarke e antrenorul de la Șoimii din Chengdu."}
+{"id":"formalizer-v1::fv1_028621_0_0#20","text":"Certificatul de rezidență nu necesită certificatul de naștere."}
+{"id":"formalizer-v1::fv1_028621_0_0#46","text":"În plus, Kamau e copilul lui Otilia."}
+{"id":"formalizer-v1::fv1_028754_0_1#2","text":"Poți să verifici dacă Grace Taylor joacă la Lupii din Lisbon ?"}
+{"id":"formalizer-v1::fv1_028850_0_0#2","text":"And where did Youssef move frkm?"}
+{"id":"formalizer-v1::fv1_028877_0_0#17","text":"Owen raportează către Karim."}
+{"id":"formalizer-v1::fv1_028880_0_0#12","text":"Also, Tudor plans to go to the harvest festival."}
+{"id":"formalizer-v1::fv1_028880_0_0#6","text":"Emma goes to Valencia Technical College."}
+{"id":"formalizer-v1::fv1_029118_0","text":"vbn;; uio"}
+{"id":"formalizer-v1::fv1_029129_0_0","text":"Cât înseamnă 15% din 5200 de lei?"}
+{"id":"formalizer-v1::fv1_029164_0_0","text":"Poți să verifici dsacă Thomas Hughes raportează către Alexandru Oprea?"}
+{"id":"formalizer-v1::fv1_029327_0_0","text":"Există cineva care lucrează la Orion Robotics și nu e instruit?"}
+{"id":"formalizer-v1::fv1_029381_0_0#2","text":"Mr Adeyemi is not based in Montreal."}
+{"id":"formalizer-v1::fv1_029381_0_0#24","text":"Also,a work permit doesn't require a birth certificate."}
+{"id":"formalizer-v1::fv1_029381_0_0#6","text":"Sorin Dobre attends the parents' evening."}
+{"id":"formalizer-v1::fv1_029400_0_0#44","text":"A fire safety approval is issued by the Passport Office in Buzău."}
+{"id":"formalizer-v1::fv1_029400_0_0#45","text":"Clarke & Partners carries bicycle parts; Bistrița Logistics carries baby food ."}
+{"id":"formalizer-v1::fv1_029470_0_0#5","text":"În plus, Lucía joacă la Lupii din Oradea."}
+{"id":"formalizer-v1::fv1_029486_0_0#1","text":"Wojciech se ocjupa de dashboard-ul de raportare."}
+{"id":"formalizer-v1::fv1_029543_0","text":"Fihe."}
+{"id":"formalizer-v1::fv1_029637_0","text":"rgtyuio rty"}
+{"id":"formalizer-v1::fv1_029688_0_0#14","text":"Ștefan plays for Rapid Izmir."}
+{"id":"formalizer-v1::fv1_029688_0_0#21","text":"Context: Zeynep s-a ocupat de gateway-ul de plati de la 01.09.2020 pana la 01.03.2024."}
+{"id":"formalizer-v1::fv1_029759_0_0#2","text":"Știi până când Lin Li a muncit la Brightfield Foods?"}
+{"id":"formalizer-v1::fv1_029999_0_0#2","text":"Există cineva care lucrează la Greenline Transport și locuiește în Craiova?"}
+{"id":"formalizer-v1::fv1_030001_0_0","text":"Dacă Nikos lucrează la Carpathia Energy, atunci are Nikos acces în laborator?"}
+{"id":"formalizer-v1::fv1_030300_0_0#21","text":"În plus, Grace vrea să meargă la turneul regional de șah."}
+{"id":"formalizer-v1::fv1_030300_0_0#25","text":"Mehmet Demir raportează către Ghiță Stoian."}
+{"id":"formalizer-v1::fv1_030300_0_0#28","text":"Autorizația de construire cere extrasul de carte funciară."}
+{"id":"formalizer-v1::fv1_030300_0_0#3","text":"Atelierul Stoica aprovizionează Orion Robotics."}
+{"id":"formalizer-v1::fv1_030300_0_0#33","text":"Florin vizitează Osaka."}
+{"id":"formalizer-v1::fv1_030300_0_0#72","text":"Burak muncește la Balogh & Asociații."}
+{"id":"formalizer-v1::fv1_030300_0_0#75","text":"Anna-Lena vizitează Piatra Neamț."}
+{"id":"formalizer-v1::fv1_030347_0_0#3","text":"The Tuesday board meeting takesplace at the Community Centre on Elm Street."}
+{"id":"formalizer-v1::fv1_030347_0_0#34","text":"Any chance Samuel is a child of Zsófia?"}
+{"id":"formalizer-v1::fv1_030347_0_0#39","text":"Is it true that Chioma looks after the login service?"}
+{"id":"formalizer-v1::fv1_030395_0_0#23","text":"În plus, dashboard-ul de raportare depinde de pipeline-ul de analiză."}
+{"id":"formalizer-v1::fv1_030395_0_0#67","text":"În plus, Cabinetul Stomatologic din Alba Iulia e în Baia Mare."}
+{"id":"formalizer-v1::fv1_030429_0_0","text":"Poți să verifici dacă Olena Melnyk vrea să învețe educație fizică?"}
+{"id":"formalizer-v1::fv1_030431_0_0","text":"Since Diego Romero trains Olimpia Buzău, oare este certificat?"}
+{"id":"formalizer-v1::fv1_030601_0_0#10","text":"Zeynep maintains the payments gateway, and Burak Kaya isn't responsible for the billing service."}
+{"id":"formalizer-v1::fv1_030626_0","text":"șorșor snitru raquo!!"}
+{"id":"formalizer-v1::fv1_030728_0#1","text":"uio juio?!"}
+{"id":"formalizer-v1::fv1_030765_0_0","text":"Whwat about Alina?"}
+{"id":"formalizer-v1::fv1_030767_0_0#8","text":"The Tampere Philharmonic hosts the jazz evening, and the Old Mill Hall hosts the charity run."}
+{"id":"formalizer-v1::fv1_030771_0_0","text":"Știi până când Adaeze a deținut via de lângă Sibiu?"}
+{"id":"formalizer-v1::fv1_030772_0_0#1","text":"Amun brainstorming la patru."}
+{"id":"formalizer-v1::fv1_030800_0_0","text":"Fact-check: Mr Navarro intends to attend the product launch ."}
+{"id":"formalizer-v1::fv1_031044_0_0","text":"Oare Chioma are acces în laborator?"}
+{"id":"formalizer-v1::fv1_031200_0_0#1","text":"Presupunem că Alexandru a fost certificat."}
+{"id":"formalizer-v1::fv1_031201_0_0#12","text":"Also, Nour Khalil plans to go to the code review session."}
+{"id":"formalizer-v1::fv1_031202_0_0","text":"Sorry, mă interesează când Javier a jucat la Olimpia Piatra Neamț."}
+{"id":"formalizer-v1::fv1_031317_0_0","text":"Aremost playets of Olimpia Alexandria certfied ?"}
+{"id":"formalizer-v1::fv1_031381_0_0#2","text":"James Walker nu o tratează pe Natalia."}
+{"id":"formalizer-v1::fv1_031381_0_0#29","text":"Ji-woo este autorul cărții Scrisori către un tânăr inginer."}
+{"id":"formalizer-v1::fv1_031381_0_0#47","text":"Kamau o tratează pe Valentina López."}
+{"id":"formalizer-v1::fv1_031381_0_0#51","text":"În plus, Nour nu joacă la Suceava United."}
+{"id":"formalizer-v1::fv1_031426_0_0#2","text":"Any chamnce he is allergkc to lactose ?"}
+{"id":"formalizer-v1::fv1_031486_0_1#1","text":"Here's wat I know: Vertex Analytics cafrries school uniforms."}
+{"id":"formalizer-v1::fv1_031506_0_0#13","text":"Csaba deține via de lângă Sibiu."}
+{"id":"formalizer-v1::fv1_031696_0_0#2","text":"Is it the case that Ghiță is married to Ms Haddad?"}
+{"id":"formalizer-v1::fv1_031717_0_0#2","text":"Întrebare: Poți să verifici dacă Horia muncește la Blue Harbor Media?"}
+{"id":"formalizer-v1::fv1_031817_0_0#2","text":"How long was Sânziana on Olimpia Piatra Neamț?"}
+{"id":"formalizer-v1::fv1_031956_0_0","text":"De când muncește Alejandro la Tipografia Delta?"}
+{"id":"formalizer-v1::fv1_031989_0_0#2","text":"Întrebare: Oare a publicat Ciorbele Transilvaniei?"}
+{"id":"formalizer-v1::fv1_032271_0","text":"wwrtkwe.. vbm vb"}
+{"id":"formalizer-v1::fv1_032272_0_0#6","text":"Răzvan este în lotul de la Șoimii din Piatra Neamț."}
+{"id":"formalizer-v1::fv1_032311_0_0#15","text":"Jessica is not treated by Otieno and Tamás is treated by Daniel."}
+{"id":"formalizer-v1::fv1_032311_0_0#16","text":"Carpathia Energy is in Bergen; the Old Mill Hall is not in Vaslui."}
+{"id":"formalizer-v1::fv1_032311_0_0#6","text":"The payments gateway does not rely on the search index."}
+{"id":"formalizer-v1::fv1_032311_0_0#7","text":"The Slatina Language School is bases in Tulcea."}
+{"id":"formalizer-v1::fv1_032335_0_0#15","text":"Nadiya Kovalenko este căsătorită cu Costin."}
+{"id":"formalizer-v1::fv1_032335_0_0#19","text":"Levente vizitează Sibiu."}
+{"id":"formalizer-v1::fv1_032335_0_0#23","text":"Pipeline-ul de analiză se bazează pe gateway-ul VPN."}
+{"id":"formalizer-v1::fv1_032335_0_0#29","text":"În plus, Rachel se ocupă de serverul de e-mail."}
+{"id":"formalizer-v1::fv1_032335_0_0#37","text":"Sophie se ocupa de baza de date de salarizare."}
+{"id":"formalizer-v1::fv1_032337_0_0","text":"Unde loc uiește Giorgos, în Sibiu, nu?"}
+{"id":"formalizer-v1::fv1_032437_0#2","text":"cvbcvb"}
+{"id":"formalizer-v1::fv1_032489_0_0#2","text":"Dows Sigrid own via de lângă Sibiu ?"}
+{"id":"formalizer-v1::fv1_032620_0_0#2","text":"Is that becau se she took part in the charity run?"}
+{"id":"formalizer-wild-v1::wild_wh_049#3","text":"cat as avea de dat la stat pe suma asta si pana cand trebuie depusa declaratia unica?"}
+{"id":"formalizer-wild-v1::wild_wh_051","text":"la ce ora pleaca ultimul tramvai 7 de la Gara spre Tatarasi?"}
+{"id":"formalizer-wild-v1::wild_wi_022#2","text":"Trebuie să declar suma la ANAF ca donație?"}
+{"id":"formalizer-wild-v1::wild_wj_001","text":"am un sync cu echipa de sales la 11, pot să mut call-ul cu Deloitte după lunch sau e prea tight?"}
+{"id":"formalizer-wild-v1::wild_wj_039","text":"scrie-mi un poem scurt despre dor de casă, half in English half in Romanian, for my mum's birthday"}
+{"id":"formalizer-wild-v1::wild_wj_046#5","text":"I'm pretty sure there's a cap."}
+{"id":"new_cases::nc-002673","text":"Does Marta need an adap ter for her bass amp?"}
+{"id":"new_cases::nc-002892","text":"umm wheel nuts are loose"}
+{"id":"new_cases::nc-005498","text":"quick q can i add a second driver to this booking?"}
+{"id":"new_cases::nc-005681","text":"Safa found the orignal scooter key under the work mat."}
+{"id":"new_cases::nc-005685","text":"yo, tyre flat again lol"}
+{"id":"new_cases::nc-005700","text":"yo i think the charger plug feels loose today"}
+{"id":"new_cases::nc-005866","text":"Please lable that crate."}

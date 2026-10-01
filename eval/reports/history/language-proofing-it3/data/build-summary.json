@@ -1,0 +1,175 @@
+{
+ "train_v3": 61693,
+ "removed_new_heldout": 1772,
+ "removed_by_word": {
+  "bakery": 349,
+  "contractor": 289,
+  "landlord": 195,
+  "nephew": 240,
+  "pharmacy": 142,
+  "postpone": 292,
+  "reject": 98,
+  "warehouse": 167
+ },
+ "dropped_repair_target_defect": 40,
+ "identity_converted_to_spacing_repair": 863,
+ "reserve": {
+  "offered": 1564,
+  "shared_source_row_with_dev_heldout": 252,
+  "target_in_dev_heldout": 6,
+  "new_heldout_word": 48,
+  "target_defect": 0,
+  "duplicate_prompt": 0,
+  "prompt_in_dev": 0,
+  "sealed": 0,
+  "added": 1258
+ },
+ "dev_heldout_v3": {
+  "pairs": 830,
+  "identity": 306,
+  "by_word": {
+   "landlord": {
+    "r": 110,
+    "i": 40
+   },
+   "nephew": {
+    "r": 110,
+    "i": 40
+   },
+   "bakery": {
+    "r": 110,
+    "i": 40
+   },
+   "postpone": {
+    "r": 110,
+    "i": 40
+   },
+   "contractor": {
+    "r": 110,
+    "i": 40
+   },
+   "warehouse": {
+    "r": 110,
+    "i": 40
+   },
+   "pharmacy": {
+    "r": 99,
+    "i": 39
+   },
+   "reject": {
+    "r": 71,
+    "i": 27
+   }
+  },
+  "by_kind": {
+   "mixed": 296,
+   "noisy_en": 178,
+   "ro": 356
+  }
+ },
+ "spacing": {
+  "synthetic_train": 1800,
+  "dev_spacing": 240,
+  "ops_train": {
+   "double-comma": 39,
+   "double-final": 173,
+   "double-space": 299,
+   "no-space-after-comma+double-final": 40,
+   "no-space-after-comma": 46,
+   "space-before-comma+space-before-final": 31,
+   "space-before-comma": 42,
+   "space-before-final+double-space": 164,
+   "space-before-final": 966
+  }
+ },
+ "sealed_exact_in_train": 0,
+ "train_prompts_in_dev_sets": 0,
+ "dropped_sealed_or_dev": 0,
+ "train": {
+  "pairs": 62939,
+  "by_pair": {
+   "identity": 12142,
+   "repair": 50797
+  },
+  "by_kind": {
+   "clean": 11844,
+   "mash": 298,
+   "mixed": 13813,
+   "noisy_en": 13162,
+   "ro": 23822
+  },
+  "by_target_source": {
+   "clean-sibling": 2,
+   "identity:gate-clean-noisy": 1714,
+   "identity:in-row": 986,
+   "identity:keyboard-mash": 298,
+   "identity:lead-in:natural": 684,
+   "identity:lead-in:synthetic": 1051,
+   "identity:new.en": 5123,
+   "identity:symbolic_english": 2286,
+   "llm:deepseek-flash": 12044,
+   "llm:deepseek-flash:backgen-new": 15917,
+   "llm:deepseek-flash:backgen-same": 15187,
+   "new_cases.clean": 469,
+   "noise-inverse": 1932,
+   "proofing.repair": 975,
+   "proofing.translate": 1152,
+   "spacing:natural": 863,
+   "spacing:perturb": 1800,
+   "template:family-relations": 456
+  }
+ },
+ "dev": {
+  "pairs": 5173,
+  "by_pair": {
+   "identity": 1185,
+   "repair": 3988
+  },
+  "by_kind": {
+   "clean": 1125,
+   "mash": 60,
+   "mixed": 661,
+   "noisy_en": 666,
+   "ro": 2661
+  },
+  "by_target_source": {
+   "identity:gate-clean-noisy": 187,
+   "identity:in-row": 180,
+   "identity:keyboard-mash": 60,
+   "identity:lead-in:natural": 79,
+   "identity:lead-in:synthetic": 120,
+   "identity:new.en": 163,
+   "identity:symbolic_english": 396,
+   "llm:deepseek-flash": 2462,
+   "llm:deepseek-flash:backgen-new": 414,
+   "llm:deepseek-flash:backgen-same": 455,
+   "new_cases.clean": 69,
+   "noise-inverse": 233,
+   "proofing.repair": 109,
+   "proofing.translate": 246
+  }
+ },
+ "held_out_v3": [
+  "nephew",
+  "landlord",
+  "contractor",
+  "postpone",
+  "reject",
+  "bakery",
+  "warehouse",
+  "pharmacy"
+ ],
+ "trained_ten": [
+  "cousin",
+  "niece",
+  "uncle",
+  "tenant",
+  "supervisor",
+  "tutor",
+  "owe",
+  "adopt",
+  "audit",
+  "boatyard"
+ ],
+ "identity_share_train": 19.3
+}

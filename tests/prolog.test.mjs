@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {context,queryProgram,solverSkip} from './helpers.mjs';
-import {solveHorn} from '../reasoning/backends/horn.mjs';
+import {solveHorn} from '../reasoning/bridge/solve.mjs';
 
 const swi=solverSkip('prolog');
 

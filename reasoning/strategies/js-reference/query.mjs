@@ -15,8 +15,17 @@ import {applyRowForms, quantifiedStatus} from './forms.mjs';
 const stripVar = v => v.replace(/^\?/, '');
 const rowKey = row => JSON.stringify(Object.entries(row).sort(([a], [b]) => (a < b ? -1 : 1)));
 
-/** A query's unbounded probe counter: the closure was already paid for, reading it is not budgeted. */
+/** A query's unbounded probe counter: the closure was already paid for, reading it is not counted against the probe ceilings. */
 export const READ_BUDGET = {probe() {}, limits: {maxFanout: Infinity}};
+
+/**
+ * The read budget of one solve: probes are not counted, but the wall clock is checked every 1024 candidates, so a selective join over
+ * a large view stops with `budget_exhausted` (reason `wall`) instead of running on. A stop is a BudgetStop the caller maps.
+ */
+export function readBudget(budget) {
+  let n = 0;
+  return {probe() { if ((++n & 1023) === 0) budget.checkTime(); }, limits: {maxFanout: Infinity}};
+}
 
 /** Compile the `where` (and `scope`) part of a query wire. */
 export function planQuery(wire, closed, {mode, select, forms = null}) {
@@ -187,30 +196,54 @@ function evaluateQuantified(qp, ev, ctx) {
   return {status, rows, roots, supportIncomplete: false, reason: 'known_members', quantified: true, members: memberList.length, memberList, counterexamples: withStatus('refuted'), undecided: withStatus('unknown'), state};
 }
 
+/**
+ * The strict universal (`mode every` without a `quantifier`). Without `select` there is one population. With `select` the members are
+ * grouped by the selected variables ("Which teams have only certified players?") and every group is decided on its own, with the
+ * closed and open-domain rules applied per group; the answers are the groups where the universal holds, and the status is
+ * `supported` (some group holds), `refuted` (every group has a counterexample) or `unknown` (with the reason of the first undecided group).
+ */
 function evaluateEvery(qp, ev, ctx) {
   const members = domainEnvs(qp, ctx);
-  let conflicts = 0, counter = null, unknown = 0;
-  const roots = [];
-  for (const env of members) {
-    let holds = false;
-    for (const alt of qp.scopeAlts) {
-      const first = join(alt.leaves, 0, env, [], ctx).next();
-      if (!first.done) {
-        holds = true;
-        roots.push(...first.value.prem);
-        if (conflicted(alt, first.value.env, ev)) conflicts++;
-        break;
+  const decide = group => {
+    let conflicts = 0, counter = null, unknown = 0;
+    const roots = [];
+    for (const env of group) {
+      // a member that satisfies the scope through several bindings is conflicted only when ALL its bindings are (order-independent)
+      let first = null, clean = null;
+      scan: for (const alt of qp.scopeAlts) {
+        for (const sol of join(alt.leaves, 0, env, [], ctx)) {
+          first ??= sol;
+          if (!conflicted(alt, sol.env, ev)) { clean = sol; break scan; }
+        }
       }
+      if (first) {
+        roots.push(...(clean ?? first).prem);
+        if (!clean) conflicts++;
+        continue;
+      }
+      const refuted = qp.scopeAlts.every(alt => altRefuted(alt, env, ev, qp.closed));
+      if (refuted) { counter = counter ?? env; roots.push(...qp.scopeAlts.flatMap(alt => refutationFor(alt, env, ev))); } else unknown++;
     }
-    if (holds) continue;
-    const refuted = qp.scopeAlts.every(alt => altRefuted(alt, env, ev, qp.closed));
-    if (refuted) { counter = counter ?? env; roots.push(...qp.scopeAlts.flatMap(alt => refutationFor(alt, env, ev))); } else unknown++;
+    if (counter) return {status: 'refuted', rows: [], roots, supportIncomplete: false, counterexample: counter};
+    if (!qp.domainClosed) return {status: 'unknown', reason: 'open_domain', rows: [], roots: [], supportIncomplete: true};
+    if (unknown) return {status: 'unknown', reason: 'scope_unknown', rows: [], roots: [], supportIncomplete: true};
+    // every member satisfies the scope by P evidence; a member whose scope atom ALSO has N evidence in every binding makes the universal both
+    return {status: conflicts ? 'both' : 'supported', rows: [], roots, supportIncomplete: true};
+  };
+  if (!qp.select.length) return decide(members);
+  const groups = new Map();
+  for (const env of members) {
+    const key = JSON.stringify(qp.select.map(v => env[v]));
+    if (!groups.has(key)) groups.set(key, {row: Object.fromEntries(qp.select.map(v => [stripVar(v), env[v]])), members: []});
+    groups.get(key).members.push(env);
   }
-  if (counter) return {status: 'refuted', rows: [], roots, supportIncomplete: false, counterexample: counter};
-  if (!qp.domainClosed) return {status: 'unknown', reason: 'open_domain', rows: [], roots: [], supportIncomplete: true};
-  if (unknown) return {status: 'unknown', reason: 'scope_unknown', rows: [], roots: [], supportIncomplete: true};
-  // every member satisfies the scope by P evidence; a member whose scope atom ALSO has N evidence makes the universal both
-  return {status: conflicts ? 'both' : 'supported', rows: [], roots, supportIncomplete: true};
+  const decided = [...groups.values()].map(g => ({...g, out: decide(g.members)}));
+  const holding = decided.filter(g => ['supported', 'both'].includes(g.out.status));
+  const rows = holding.map(g => ({row: g.row, both: g.out.status === 'both', prem: g.out.roots})).sort((x, y) => (rowKey(x.row) < rowKey(y.row) ? -1 : 1));
+  if (rows.length) return {status: rows.some(r => !r.both) ? 'supported' : 'both', rows, roots: rows.flatMap(r => r.prem), supportIncomplete: true};
+  if (decided.length && decided.every(g => g.out.status === 'refuted')) return {status: 'refuted', rows: [], roots: decided.flatMap(g => g.out.roots), supportIncomplete: false, counterexample: decided[0].out.counterexample};
+  const undecided = decided.find(g => g.out.status === 'unknown');
+  return {status: 'unknown', reason: undecided?.out.reason ?? 'no_members', rows: [], roots: [], supportIncomplete: true};
 }
 
 function refutationFor(alt, env, ev) {

@@ -1,5 +1,6 @@
 // Shared test fixtures. Every bundled resource is resolved relative to this
 // module, never relative to the working directory.
+import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -17,7 +18,7 @@ import {jsonlExists, shardPaths} from '../lib/jsonl-shards.mjs';
 export const repoUrl = (relative = '') => new URL(`../${relative}`, import.meta.url);
 export const repoPath = (relative = '') => fileURLToPath(repoUrl(relative));
 
-export const lex = Lexicon.load(repoUrl('config/ontology.sop'));
+export const lex = demoLexicon();
 export const schema = lex.predicates;
 export const fixture = fs.readFileSync(new URL('./fixtures/bootstrap.sop', import.meta.url), 'utf8');
 export const day = s => Date.parse(s);

@@ -299,7 +299,7 @@ test('a model switch invalidates the key: a changed model file is a miss', async
   assert.equal(llmCalls('language-proofing-llm'), 2);
 });
 
-test('cache stats are admin only; capabilities lists the endpoints; clear empties the caches', async t => {
+test('cache stats need no administrator; capabilities lists the endpoints; clear empties the caches', async t => {
   const {request} = await setup(t);
   await request('POST', '/v1/emotion/detect', {message: 'Thanks!'});
   await request('POST', '/v1/emotion/detect', {message: 'Thanks!'});

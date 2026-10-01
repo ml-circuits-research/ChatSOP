@@ -1,0 +1,272 @@
+{
+  "format": "chatsop-translate-names-v1",
+  "suite": "eval/reports/current/translate-then-formalize/work/formalizer-wild-v1.romixed.jsonl",
+  "definition": "gold role values with a capital letter occurring verbatim in the original message (first accepted target for wild)",
+  "totals": {
+    "rows_with_names": 212,
+    "names": 395,
+    "in_translation": 241,
+    "in_direct_sop": 197,
+    "in_translated_sop": 113,
+    "lost_by_translation": 154,
+    "translation_fidelity": 0.610126582278481,
+    "direct_sop_fidelity": 0.49873417721518987,
+    "translated_sop_fidelity": 0.28607594936708863
+  },
+  "by_slice": {
+    "ro": {
+      "names": 226,
+      "in_translation": 143,
+      "in_direct_sop": 113,
+      "in_translated_sop": 69
+    },
+    "mixed": {
+      "names": 169,
+      "in_translation": 98,
+      "in_direct_sop": 84,
+      "in_translated_sop": 44
+    }
+  },
+  "lost_examples": [
+    {
+      "id": "wild_wi_036",
+      "name": "Judecătoria Buftea",
+      "message": "Avocatul l-a sunat pe executor după ce a primit citația de la Judecătoria Buftea. Ce termen are acum ca să răspundă?",
+      "translation": "The lawyer has been appointed by the court for the case of the Bufte case. When will it be decided?"
+    },
+    {
+      "id": "wild_wh_013",
+      "name": "Str. Pasteur nr. 17",
+      "message": "Dr. Popa-Sârbu de la Medicover, Str. Pasteur nr. 17, mai are consultatii sambata dimineata?",
+      "translation": "Dr. Popa-Sârbu de la Medicover, Dr. Popa-Sârbu de la Medicover, Dr. Popa-Sârbu de la Medicover, Dr. Popa-Sârbu de la Medicover, Dr. Popa-Sârbu de la Medicover, Dr. Popa-Sârbu de la Medicover, Dr. Popa-Sârbu de la Medicover, Dr. Popa-Sârbu de la Medic"
+    },
+    {
+      "id": "wild_wi_011",
+      "name": "Primăria Sectorului 3",
+      "message": "Primăria Sectorului 3 eliberează certificatul de atestare fiscală și sâmbăta?",
+      "translation": "The sector of 3 has received a financial certificate and a letter of recommendation."
+    },
+    {
+      "id": "wild_wh_093",
+      "name": "Constanta",
+      "message": "de Paște facem un trip la Balcic cu masina lui Radu, plecam vineri 5 dimineata. cat face drumul din Constanta?",
+      "translation": "I'm sorry, but as a text-based AI, I don't have the ability to translate text. I can help with translations, but I'm not equipped to handle the nuances of language. Could you please provide the text in English?"
+    },
+    {
+      "id": "wild_wh_093",
+      "name": "Balcic",
+      "message": "de Paște facem un trip la Balcic cu masina lui Radu, plecam vineri 5 dimineata. cat face drumul din Constanta?",
+      "translation": "I'm sorry, but as a text-based AI, I don't have the ability to translate text. I can help with translations, but I'm not equipped to handle the nuances of language. Could you please provide the text in English?"
+    },
+    {
+      "id": "wild_wj_030",
+      "name": "Revolut",
+      "message": "eu am cont la Revolut și la Raiffeisen. which one should I use pentru chiria din Dublin?",
+      "translation": "I'm sorry, but as an AI, I don't have the ability to translate text. I can help you with translations, but I'm not equipped to provide the text itself. You can find the text in the original Romanian language."
+    },
+    {
+      "id": "wild_wj_030",
+      "name": "Raiffeisen",
+      "message": "eu am cont la Revolut și la Raiffeisen. which one should I use pentru chiria din Dublin?",
+      "translation": "I'm sorry, but as an AI, I don't have the ability to translate text. I can help you with translations, but I'm not equipped to provide the text itself. You can find the text in the original Romanian language."
+    },
+    {
+      "id": "wild_wj_068",
+      "name": "UK",
+      "message": "care e diferența între unfair dismissal și constructive dismissal în UK? cred că am un caz",
+      "translation": "I'm sorry, but as an AI, I don't have the ability to translate text. I can help you with translations, but I'm not equipped to provide the text itself. Could you please provide the text in question?"
+    },
+    {
+      "id": "wild_wj_095",
+      "name": "Stansted",
+      "message": "Recap pt mine că m-am pierdut: am aterizat în Stansted luni, am mers direct la agenția Kaplan Lettings să semnez contractul de chirie, după aia am deschis cont la Monzo, iar marți dimineață am primit NI number-ul prin poștă. Did I open the bank account before or after I signed the lease?",
+      "translation": "I opened the bank account before I signed the lease."
+    },
+    {
+      "id": "wild_wj_095",
+      "name": "Monzo",
+      "message": "Recap pt mine că m-am pierdut: am aterizat în Stansted luni, am mers direct la agenția Kaplan Lettings să semnez contractul de chirie, după aia am deschis cont la Monzo, iar marți dimineață am primit NI number-ul prin poștă. Did I open the bank account before or after I signed the lease?",
+      "translation": "I opened the bank account before I signed the lease."
+    },
+    {
+      "id": "wild_wj_087",
+      "name": "QA",
+      "message": "Sorry for the wall of text. Avem release-ul 4.12 programat joi la 18:00, dar QA a găsit un blocker pe checkout: plata cu Apple Pay dă timeout doar pe iOS 17 și doar la clienții din Ungaria. Andrei zice că e de la gateway-ul Netopia, Irina zice că e bug la noi în SDK. Nu vreau să amân iar, am amânat deja o dată în august și PM-ul e deja nervos. Question: who owns the Netopia integration on our side now that Cristi left?",
+      "translation": "Sorry for the wall of text. We have a release 4.12 programmatic integration with Apple Pay at 18:00, but the payment gateway is experiencing a timeout due to Apple Pay on iOS 17 and to the clients from Ungaria. Andrei found the issue with the Netopia integration, and we have already fixed it. We also have a PM from Cristi to confirm that we are still in the process of resolving the issue."
+    },
+    {
+      "id": "wild_wj_087",
+      "name": "the Netopia integration on our side",
+      "message": "Sorry for the wall of text. Avem release-ul 4.12 programat joi la 18:00, dar QA a găsit un blocker pe checkout: plata cu Apple Pay dă timeout doar pe iOS 17 și doar la clienții din Ungaria. Andrei zice că e de la gateway-ul Netopia, Irina zice că e bug la noi în SDK. Nu vreau să amân iar, am amânat deja o dată în august și PM-ul e deja nervos. Question: who owns the Netopia integration on our side now that Cristi left?",
+      "translation": "Sorry for the wall of text. We have a release 4.12 programmatic integration with Apple Pay at 18:00, but the payment gateway is experiencing a timeout due to Apple Pay on iOS 17 and to the clients from Ungaria. Andrei found the issue with the Netopia integration, and we have already fixed it. We also have a PM from Cristi to confirm that we are still in the process of resolving the issue."
+    },
+    {
+      "id": "wild_wi_018",
+      "name": "art. 1553 Cod civil",
+      "message": "Ce înseamnă concret pactul comisoriu de la art. 1553 Cod civil din contractul meu de vânzare cu plata în rate?",
+      "translation": "This Romanian text translates to: \"Could you please translate this contract into English, keeping the names, numbers, dates, and quoted text unchanged?\""
+    },
+    {
+      "id": "wild_wh_016",
+      "name": "eMAG",
+      "message": "laptopul pe care l-a comandat Cosmina de pe eMAG si care trebuia adus de Sameday a ajuns in easybox-ul de la Kaufland?",
+      "translation": "The laptop that Cosmina needed to use on Cosmina's computer was a MacBook Pro, and it needed to be connected to a computer called Kaufland."
+    },
+    {
+      "id": "wild_wh_016",
+      "name": "Sameday",
+      "message": "laptopul pe care l-a comandat Cosmina de pe eMAG si care trebuia adus de Sameday a ajuns in easybox-ul de la Kaufland?",
+      "translation": "The laptop that Cosmina needed to use on Cosmina's computer was a MacBook Pro, and it needed to be connected to a computer called Kaufland."
+    },
+    {
+      "id": "wild_wi_001",
+      "name": "I",
+      "message": "Bună ziua. Sunt administratorul unei S.R.L. din jud. Prahova (CUI RO4XXXXX1), înființată în martie 2023, cu activitate de reparații de calculatoare și service de imprimante. Până anul trecut am fost microîntreprindere, dar în decembrie 2025 am încasat o factură mare de la un client din Linz și am depășit plafonul de 100.000 euro. Contabila noastră, dna Stănescu, e în concediu medical până pe 15 octombrie, iar eu nu mă pricep deloc la declarații. Trebuie să trec la impozit pe profit începând cu trimestrul în care am depășit plafonul sau abia de la 1 ianuarie?",
+      "translation": "Bună ziua. Am să înțelegem în viitorul de la un client din Linz, care a fost microîntreprindere în decembrie 2025. Până anul trecut, am încasat o factură mare de 100.000 euro pentru un client din Linz. Contabilă noastră, dna Stănescu, este în concediu medical până pe 15 octombrie, iar eu nu mă pricep începând cu trimestrul în care am depășit plafonul sau abia de la 1 ianuarie."
+    },
+    {
+      "id": "wild_wj_016",
+      "name": "Dublin",
+      "message": "pls zi-mi cat e ora in Dublin acum, nuj daca s-a schimbat ora de vara",
+      "translation": "I'm sorry, but as an AI, I don't have the ability to translate text. I can help you with translations, but I'm not equipped to handle text translations. Could you please provide the text in Romanian, and I'll do my best to assist you?"
+    },
+    {
+      "id": "wild_wi_025",
+      "name": "Colegiul Național «Mihai Viteazul» din Ploiești",
+      "message": "Câte clase a IX-a au mai mult de 28 de elevi la Colegiul Național «Mihai Viteazul» din Ploiești în anul școlar 2026–2027?",
+      "translation": "The Romanian text is: \"Câte clase a IX-a au mai mult de 28 de elevi la Colegiul Național Mihai Viteazul din Ploiești în anul școlar 2026-2027?\""
+    },
+    {
+      "id": "wild_wj_081",
+      "name": "Anglia",
+      "message": "eu și frate-miu avem fiecare câte un Ltd în Anglia. Can we use același accountant?",
+      "translation": "We have a company called \"Eu și Frate-Miu\" with one employee. Can we use a new accountant?"
+    },
+    {
+      "id": "wild_wh_064",
+      "name": "Oana",
+      "message": "nu e adevarat ca nimeni din camin nu a primit loc la Hasdeu anul asta, nu? parca Oana a primit",
+      "translation": "No, I don't understand the translation. Could you please provide the English text?"
+    },
+    {
+      "id": "wild_wh_064",
+      "name": "Hasdeu",
+      "message": "nu e adevarat ca nimeni din camin nu a primit loc la Hasdeu anul asta, nu? parca Oana a primit",
+      "translation": "No, I don't understand the translation. Could you please provide the English text?"
+    },
+    {
+      "id": "wild_wg_038",
+      "name": "Balan",
+      "message": "sora mea o vorbit cu cumnata si zice ca vine de Pasti la Balan. cu ce autobuz vine ea?",
+      "translation": "My name is Sora, and I'm in love with a woman named Vina. What's her name?"
+    },
+    {
+      "id": "wild_wi_070",
+      "name": "România",
+      "message": "Niciunul dintre cei trei asociați nu are domiciliul în România (unul e în Lyon, doi în Chișinău). Putem totuși stabili sediul social la o adresă de domiciliere oferită de un cabinet de avocatură?",
+      "translation": "I don't know what you're referring to, but I can help you translate the text to English. Here's the English translation:\n\n\"There are no two of the three companies in Romania (one in Lyon, the other in Chișinău). I can offer you a social housing address that is available for a cabinet of lawyers.\""
+    },
+    {
+      "id": "wild_wg_087",
+      "name": "primarie Caransebes",
+      "message": "program primarie Caransebes",
+      "translation": "The first program in Caransebes is called \"Programa de înțelegere de înțelegere\" or \"Program of the Information System\"."
+    },
+    {
+      "id": "wild_wj_070",
+      "name": "the contract that was signed at the notary in Alba Iulia",
+      "message": "the contract that was signed at the notary in Alba Iulia who retired last year, mai e valabil?",
+      "translation": "The contract that was signed at the notary in Alba Iulia, which was retired last year, is very valid."
+    },
+    {
+      "id": "wild_wh_076",
+      "name": "Lenovo IdeaPad Slim 5",
+      "message": "ok am nevoie de un laptop pt facultate, sunt la Info la UVT si o sa am mult coding + putin gaming gen LoL si Valorant, nimic heavy. bugetul e max 3500 lei, poate 3800 daca e un deal bun pe Black Friday. am vazut un Lenovo IdeaPad Slim 5 si un Asus Vivobook 16, cel mai important pt mine e bateria ca stau toata ziua in biblioteca. care din ele e mai worth it?",
+      "translation": "I'm sorry, but as an AI, I don't have the ability to translate text. I can help you with translations, but I'm not equipped to provide the text itself. Could you please provide the text in English?"
+    },
+    {
+      "id": "wild_wh_076",
+      "name": "Asus Vivobook 16",
+      "message": "ok am nevoie de un laptop pt facultate, sunt la Info la UVT si o sa am mult coding + putin gaming gen LoL si Valorant, nimic heavy. bugetul e max 3500 lei, poate 3800 daca e un deal bun pe Black Friday. am vazut un Lenovo IdeaPad Slim 5 si un Asus Vivobook 16, cel mai important pt mine e bateria ca stau toata ziua in biblioteca. care din ele e mai worth it?",
+      "translation": "I'm sorry, but as an AI, I don't have the ability to translate text. I can help you with translations, but I'm not equipped to provide the text itself. Could you please provide the text in English?"
+    },
+    {
+      "id": "wild_wj_014",
+      "name": "Banca Transilvania",
+      "message": "can you tell me dacă Banca Transilvania ia comision la un transfer SEPA din Germania?",
+      "translation": "I'm sorry, but as a text-based AI, I don't have the ability to translate text. I can help you with translations, but I'm not equipped to provide the actual text. Could you please provide the text in question?"
+    },
+    {
+      "id": "wild_wh_020",
+      "name": "Raluca",
+      "message": "ce s-a intamplat primul, Raluca s-a mutat din camin sau i s-a taiat bursa?",
+      "translation": "The question is: Who has been the first to walk and who has been the last to receive a scholarship?"
+    },
+    {
+      "id": "wild_wj_063",
+      "name": "Titel",
+      "message": "bă, cât făcu ăla de la Craiova, Titel, cu solariile lui anu trecut? zicea că vândusă tot la Obor",
+      "translation": "We are at the moment, what is the title of the event in Craiova, the date is 2023, and the location is Obor."
+    },
+    {
+      "id": "wild_wh_066",
+      "name": "Bucuresti",
+      "message": "cine nu iubeste shaorma de la Dristor la 3 noaptea? da serios, care e cea mai buna din Bucuresti?",
+      "translation": "We don't know if we'll be able to see the Dristor in 3 o'clock? It's a very important event, and we're very interested in it."
+    },
+    {
+      "id": "wild_wi_094",
+      "name": "Solaris Panou Energ S.R.L.",
+      "message": "Are firma mea certificat digital calificat valabil pentru SPV? Firma e Solaris Panou Energ S.R.L., CUI 4XXXXX2, administrator Radu Ciocârlan.",
+      "translation": "The company I work for is certified digital certificate, which is valid for the Solaris Panou Energy Services, CUI 4XXXXX2."
+    },
+    {
+      "id": "wild_wi_094",
+      "name": "Radu Ciocârlan",
+      "message": "Are firma mea certificat digital calificat valabil pentru SPV? Firma e Solaris Panou Energ S.R.L., CUI 4XXXXX2, administrator Radu Ciocârlan.",
+      "translation": "The company I work for is certified digital certificate, which is valid for the Solaris Panou Energy Services, CUI 4XXXXX2."
+    },
+    {
+      "id": "wild_wj_046",
+      "name": "Codului Muncii",
+      "message": "Ok deci context: suntem în Q3 planning și managerul meu, Dana Crăciun, vrea ca echipa de platform să preia și on-call-ul pentru payments din octombrie. Problema e că suntem doar patru oameni și doi pleacă în concediu în septembrie. I tried to explain it in our 1:1 dar zice că e decizie de la VP. Nu vreau să mă plâng, doar întreb: câte ore de gardă pe lună are voie să facă un angajat conform Codului Muncii? I'm pretty sure there's a cap.",
+      "translation": "We're in Q3 planning and management, Dana Crăciun, for the upcoming quarter. The issue is that we have three people and three clients in the concession period. I tried to explain it in our 1:1 discussion, but I think I'm missing something. I'm pretty sure there's a cap."
+    },
+    {
+      "id": "wild_wh_065",
+      "name": "Botosani",
+      "message": "poti sa verifici daca pachetul trimis de mama din Botosani prin Fan Courier a fost preluat de curier?",
+      "translation": "I'm sorry, but as an AI, I don't have the ability to translate text. I can help you with translations, but I'm not equipped to handle text translations. Could you please provide the text in Romanian?"
+    },
+    {
+      "id": "wild_wh_065",
+      "name": "Fan Courier",
+      "message": "poti sa verifici daca pachetul trimis de mama din Botosani prin Fan Courier a fost preluat de curier?",
+      "translation": "I'm sorry, but as an AI, I don't have the ability to translate text. I can help you with translations, but I'm not equipped to handle text translations. Could you please provide the text in Romanian?"
+    },
+    {
+      "id": "wild_wg_025",
+      "name": "Cotnari",
+      "message": "doctorul de familie mi-o dat Prestarium de 5 mg pentru tensiune acum vreo trei saptamani si de o saptamana am o tuse seaca de nu pot dormi noaptea, nici nu-i raceala ca n-am febra. vecina zice ca-i de la pastila. sa o las singura ori ma duc la el la Cotnari sa-mi dea alta?",
+      "translation": "Doctor, I'm here to help. The text is in Romanian, and I'll translate it to English for you.\n\nDoctor, I'm here to help. The text is in Romanian, and I'll translate it to English for you."
+    },
+    {
+      "id": "wild_wk_014",
+      "name": "S.C. Agro-Vest S.R.L.",
+      "message": "can you check pe site-ul S.C. Agro-Vest S.R.L. what's their CUI? imi trebuie pt factura",
+      "translation": "I'm sorry for the confusion, but as a language model, I don't have the ability to translate text from one language to another. I can, however, provide translations of specific phrases or sentences from Romanian to English."
+    },
+    {
+      "id": "wild_wk_068",
+      "name": "I",
+      "message": "dacă ajung la Otopeni după 23:00, can I still get the express bus to Gara de Nord?",
+      "translation": "You can still get the express bus to Gara de Nord from Otopeni at 23:00."
+    },
+    {
+      "id": "wild_wf_083",
+      "name": "Florin",
+      "message": "mai are cineva cheie la usa de acces pe acoperis la depozitul din Sibiu, besides Florin?",
+      "translation": "I am very pleased to inform you that we have successfully translated the text to English."
+    }
+  ]
+}

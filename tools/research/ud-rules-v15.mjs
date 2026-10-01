@@ -11,7 +11,7 @@
  * on datasets_archive/formalizer-v1/dev.jsonl only, in the scratch copy tools/research/ud-rules-v15-draft/ (not imported by
  * the live runtime) until translator-agent (lib/ud-to-sop/lib/symbolic-lm/lib/languages-util/lib/translator-service)
  * records a `done` or `blocked` journal event; only then is the draft ported into lib/ud-to-sop. Outputs:
- * eval/reports/current/ud-rules-v15/.
+ * eval/reports/history/ud-rules-v15/.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,7 +23,7 @@ import {QGROUP, lengthBucket} from './symbolic-layers.mjs';
 import * as v14 from './ud-rules-v14.mjs';
 
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url));
-export const OUT = path.join(ROOT, 'eval/reports/current/ud-rules-v15');
+export const OUT = path.join(ROOT, 'eval/reports/history/ud-rules-v15');
 const SUITES = {test: 'eval/suites/formalizer-v1/test.jsonl', ood: 'eval/suites/formalizer-ood-v1/test.jsonl', wild: 'eval/suites/formalizer-wild-v1/test.jsonl'};
 const QUOTA = {test: 240, ood: 180, wild: 180};
 const STAGES = [150, 300];
@@ -51,7 +51,7 @@ function consumedIdsAndCases() {
   // eval-symbolic-layers-en-v1 (400 EN test/ood/wild rows)
   for (const item of readJson(path.join(ROOT, 'eval/reports/current/symbolic-layers/sample.json')).items) add(item.id, item.semantic_case_id ?? item.id);
   // eval-ud-rules-v14-v1 (600 test/ood/wild rows, en/ro/mixed)
-  for (const item of readJson(path.join(ROOT, 'eval/reports/current/ud-rules-v14/sample.json')).items) add(item.id, item.semantic_case_id ?? item.id);
+  for (const item of readJson(path.join(ROOT, 'eval/reports/history/ud-rules-v14/sample.json')).items) add(item.id, item.semantic_case_id ?? item.id);
   // eval-symbolic-lm-v1 oodRo (clean monolingual RO rows of the sealed OOD suite; final numbers were read)
   const oodRows = readJsonlShardedSync(path.join(ROOT, OOD));
   for (const row of oodRows) if (row.language === 'ro' && !row.code_switch && !(row.noise?.length)) add(row.id, row.semantic_case_id ?? row.id);

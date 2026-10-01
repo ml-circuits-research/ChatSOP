@@ -8,7 +8,7 @@
  * over the predicate dependency graph (conservative: relation names, polarity ignored), and `compute` outside recursion.
  */
 import {tokens, parseCondition, leaves, atomFrom, MAX_ARITY} from './wires.mjs';
-import {ProgramError, toTerm, varsOfTerms, parseValidity} from './values.mjs';
+import {ProgramError, NotExpressibleError, toTerm, varsOfTerms, parseValidity} from './values.mjs';
 
 const f1 = (w, k) => w.fields.find(f => f.key === k);
 const fAll = (w, k) => w.fields.filter(f => f.key === k);
@@ -183,7 +183,7 @@ export function compileProgram(wires, {origin = new Map()} = {}) {
   }
   const closed = new Set([...predicates.values()].filter(p => p.closed).map(p => p.id));
   const claim = w => ({id: origin.get(w.id) ?? w.id, version: versionOf(w)});
-  const facts = [], rules = [], aggregates = [], actions = [], hypotheses = [], unsupported = [];
+  const facts = [], rules = [], aggregates = [], actions = [], hypotheses = [], unsupported = [], codeWires = [];
 
   for (const w of wires) {
     switch (w.type) {
@@ -240,10 +240,14 @@ export function compileProgram(wires, {origin = new Map()} = {}) {
       case 'procedure': unsupported.push('procedures'); break;
       case 'amendment': unsupported.push('amendment'); break;
       case 'trace': unsupported.push('check_plan'); break;
+      case 'code': case 'test': codeWires.push(w.id); break; // programming wires: only the code-sandbox strategy executes them
       case 'argument': break; // evidence for a negotiation, never evidence of facts
       default: throw new ProgramError('unknown_wire_type', `wire type ${w.type} is unknown`, w.id);
     }
   }
+  // `code` and `test` wires are valid knowledge, but the answer to a question over them is produced by running the program: every other
+  // strategy says so (`not_expressible`, feature code_sandbox) and never answers from the rest of the circuit.
+  if (codeWires.length) throw new NotExpressibleError(['code_sandbox'], `wires ${codeWires.slice(0, 3).join(', ')} are programming wires (code, test): only the code-sandbox strategy runs them`);
   for (const r of rules) for (const alt of r.alts) for (const l of alt.leaves) {
     if (l.kind === 'atom' && l.mode === 'absent' && !closed.has(l.p)) throw new ProgramError('absent_needs_closed', `absent ${l.p} needs a predicate declared closed true`, r.id);
   }

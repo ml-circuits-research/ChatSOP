@@ -6,8 +6,8 @@
  * One sentence-level message -> its clean-English target (tools/datasets/language-proofing/pairs.mjs), from datasets/bad_english/{train,dev}.jsonl;
  * rows without a target (including the ones DeepSeek marked unfixable) are skipped. A small share of identity pairs (clean English -> itself)
  * comes from datasets/symbolic_english/{train,dev}.jsonl. Writes `{train,dev}.jsonl`, `proofreader/{train,dev}.jsonl` (flat {id, prompt, target, ...},
- * prompt = the sentence verbatim, message-only), `audit.jsonl`, `manifest.json`, `VERSION`, and eval/reports/current/language-proofing-it1/{token-audit,integrity,build-summary}.json.
- * Leakage: the sealed texts are known only as folded hashes (eval/reports/current/language-proofing-it1/sealed-hashes.json, written by
+ * prompt = the sentence verbatim, message-only), `audit.jsonl`, `manifest.json`, `VERSION`, and eval/reports/history/language-proofing-it1/{token-audit,integrity,build-summary}.json.
+ * Leakage: the sealed texts are known only as folded hashes (eval/reports/history/language-proofing-it1/sealed-hashes.json, written by
  * tools/eval/language-proofing-test.mjs); this tool never opens a sealed file. Token lengths: Gemma 3 tokenizer (training/python/pair_token_lengths.py).
  */
 import fs from 'node:fs';
@@ -21,7 +21,7 @@ import {splitSentences} from '../../lib/sentence-split.mjs';
 import {projectRow, hashText, countBy, norm} from './language-proofing/pairs.mjs';
 
 // iteration 2 rebuilds the projection from the current bad_english files into its own folder (LP_WORK, LP_SEALED, --out), leaving the iteration-1 artifacts untouched
-const WORK = path.resolve(ROOT, process.env.LP_WORK ?? 'eval/reports/current/language-proofing-it1');
+const WORK = path.resolve(ROOT, process.env.LP_WORK ?? 'eval/reports/history/language-proofing-it1');
 const SEALED = path.resolve(ROOT, process.env.LP_SEALED ?? path.join(path.relative(ROOT, WORK), 'sealed-hashes.json'));
 const args = argv => { const o = {}; for (let i = 0; i < argv.length; i++) if (argv[i].startsWith('--')) o[argv[i].slice(2)] = argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[++i] : true; return o; };
 function rng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }

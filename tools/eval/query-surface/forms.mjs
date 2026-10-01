@@ -4,10 +4,10 @@
  * a rule of SymbolicLM (the rules read the UD analysis) and never feeds one. A message may need several forms
  * (multi-label); `primary` picks one for the one-row-per-question tables.
  *
- * Forms: wh, yes_no, count, quantified, comparative, temporal, why, why_not, plan, what_if, conform, procedure,
+ * Forms: wh, yes_no, count, quantified, comparative, temporal, why, why_not, plan, abduce, what_if, conform, procedure,
  * negated, embedded, multi.
  */
-export const FORMS = Object.freeze(['wh', 'yes_no', 'count', 'quantified', 'comparative', 'temporal', 'why', 'why_not', 'plan', 'what_if', 'conform', 'procedure', 'negated', 'embedded', 'multi']);
+export const FORMS = Object.freeze(['wh', 'yes_no', 'count', 'quantified', 'comparative', 'temporal', 'why', 'why_not', 'plan', 'abduce', 'what_if', 'conform', 'procedure', 'negated', 'embedded', 'multi']);
 
 /** Sentences of a message that are questions: those ending in "?" (a trailing quote or bracket allowed). */
 export function questionSentences(message) {
@@ -25,6 +25,7 @@ const re = {
   why_not: /\bwhy (?:not|(?:is|are|was|were|do|does|did|can|could|will|would|should|has|have|had)n['’]t|(?:isn|aren|wasn|weren|don|doesn|didn|can|couldn|won|wouldn|shouldn|hasn|haven|hadn)['’]t)\b|\bwhat(?:['’]s| is| would be| was) (?:missing|blocking|stopping|preventing|wrong)\b|\bwhat would (?:make|it take)\b|\bwhat (?:prevents|stops|blocks)\b|\bwhy .*\b(?:not|never)\b/i,
   why: /\bwhy\b|\bhow come\b|\bwhat(?:['’]s| is| was) the (?:reason|cause)\b|\bwhat caused\b|\bwhat explains\b|\bwhat could explain\b|\bwhat makes\b|\bhow did .* come to\b/i,
   plan: /\bhow (?:do|can|should|would|could|might|to|will) (?:i|we|you|one|someone)\b|\bhow to\b|\bwhat are the steps\b|\bsteps (?:to|for)\b|\bwhat should (?:i|we) do\b|\bwhat do (?:i|we) need to do\b|\bwhat(?:['’]s| is) the way to\b|\bhow (?:do|can) (?:i|we) (?:get|make|fix|reset|set)/i,
+  abduce: /\bwhat (?:could|might|may|would) (?:have )?(?:explain|caused?|be (?:the )?(?:cause|reason|explanation)|be behind|account for|lead to)\b|\b(?:which|what) (?:fault|cause|reason|factor|event)s? (?:could|might|may|would)\b|\bwhat (?:could|might|may) be behind\b|\bpossible (?:cause|explanation)s?\b/i,
   what_if: /^\W*(?:and )?what if\b|\bwhat (?:would|will|could|might) happen\b|^\W*if\b[^?]*,[^?]*\?|\b(?:would|could|will|might)\b[^?]*\bif\b|\bsuppose\b|\bassuming\b|\bin case\b|\bimagine\b|\bwhat about if\b/i,
   conform: /\b(?:compliant|compliance|complies|comply|follow(?:ed|ing)? (?:the|our|this|that|a) (?:procedure|process|policy|protocol|rules?|checklist|steps?|guidelines?)|allowed to|permitted|permissible|authori[sz]ed to|is it (?:ok|okay|legal|fine|acceptable) to|may (?:i|we)|against (?:the )?(?:policy|rules?|procedure)|according to (?:the )?(?:policy|procedure|rules?)|did we (?:follow|stick to|violate|breach)|violat\w+|required to|supposed to|entitled to|eligible)\b/i,
   procedure: /\bwhat(?:['’]s| is| are) the (?:\w+ )*(?:procedure|process|protocol|policy|checklist|steps)\b|\bwhich (?:procedure|process|protocol|policy) (?:applies|covers|governs)\b|\bwhat does the (?:\w+ )*(?:procedure|policy|process) (?:say|require|specify)\b/i,
@@ -43,7 +44,7 @@ export function sentenceForms(sentence) {
   const isWh = WH.test(s) || /^(?:why|how|when)\b/i.test(lead) || (WH_ANY.test(s) && !YN.test(s));
   if (isWh) forms.add('wh');
   if ((YN.test(s) || YN_TAG.test(s) || (!isWh && !re.embedded.test(s))) && !/^(?:why|how|when|where|who|what|which|whose|whom)\b/i.test(lead)) forms.add('yes_no');
-  for (const key of ['count', 'comparative', 'temporal', 'plan', 'what_if', 'conform', 'procedure', 'embedded']) if (re[key].test(s)) forms.add(key);
+  for (const key of ['count', 'comparative', 'temporal', 'plan', 'abduce', 'what_if', 'conform', 'procedure', 'embedded']) if (re[key].test(s)) forms.add(key);
   if (re.why_not.test(s)) forms.add('why_not'); else if (re.why.test(s)) forms.add('why');
   // quantified: a quantifier word that is not part of a count or a plain "any" inside a negation-free wh question
   if (re.quantified.test(s) && !/^\W*(?:how many|how much)\b/i.test(lead)) {
@@ -67,5 +68,5 @@ export function messageForms(message) {
 }
 
 /** The one form that names a question in a one-row-per-question table (most specific first). */
-const ORDER = ['multi', 'why_not', 'conform', 'procedure', 'plan', 'what_if', 'embedded', 'why', 'count', 'quantified', 'comparative', 'temporal', 'negated', 'wh', 'yes_no'];
+const ORDER = ['multi', 'why_not', 'conform', 'procedure', 'plan', 'abduce', 'what_if', 'embedded', 'why', 'count', 'quantified', 'comparative', 'temporal', 'negated', 'wh', 'yes_no'];
 export const primaryForm = forms => ORDER.find(f => forms.includes(f)) ?? null;

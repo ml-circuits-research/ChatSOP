@@ -1,0 +1,42 @@
+--- eval/reports/current/baseline-ud-rules/frozen-rules-v1.4/analyze.mjs	2026-09-29 20:37:46.654202168 +0200
++++ lib/ud-to-sop/analyze.mjs	2026-09-30 00:12:08.557592109 +0200
+@@ -36,6 +36,8 @@
+ const PARTICLES = new Set(['back', 'out', 'up', 'down', 'away', 'off', 'over', 'around', 'along', 'through']);
+ const MOTION_VERBS = /^(calatori|merge|pleca|veni|zbura|ajunge|intra|go|come|fly|drive|walk|ride|return|travel|head|move|se muta|muta|trimite|duce|visit|vizita|relocate|commute|get|arrive|emigrate|send|bring|take|deliver|ship|transfer)$/;
+ const GIVE_VERBS = new Set(['give', 'send', 'sell', 'write', 'tell', 'lend', 'show', 'offer', 'pay', 'hand', 'deliver', 'da', 'trimite', 'vinde', 'scrie', 'spune', 'oferi', 'plati', 'preda', 'livra', 'imprumuta']);
++// v1.5: "be held", RO "se ține"/"se desfășoară" (past participle text, prepRole's `verb`) of an event: TODO.md "be held at/in".
++const HOLD_VENUE = new Set(['held', 'hold', 'tinut', 'tine', 'desfasurat', 'desfasura']);
+ const INDEFINITE = new Set(['anyone', 'anybody', 'someone', 'somebody', 'anything', 'something', 'cineva', 'ceva', 'vreunul', 'vreuna']);
+ const INDEFINITE_DET = new Set(['any', 'some', 'vreun', 'vreo', 'vreunul', 'niciun', 'nicio']);
+ const COLLECTIVE = new Set(['together', 'jointly', 'impreuna', 'amandoi', 'amandoua', 'both']);
+@@ -832,6 +834,10 @@
+     if (prep === 'to' && GIVE_VERBS.has(verb)) return 'recipient';
+     const place = PLACE_PREPS.has(prep) || (S.language === 'ro' && ['in', 'la', 'pe', 'din'].includes(prep));
+     if (place) {
++      // v1.5: an event "is held at/in X" (Romanian "se ține/desfășoară la/în X") asks where it happens, regardless
++      // of X's entity type (a named venue is still a place here, unlike "study at" C3 below): TODO.md "be held
++      // at/in" candidate. "at"/"in"/RO "la"/"în" only, not "by" (a passive agent is never the venue).
++      if (HOLD_VENUE.has(verb) && ['at', 'in', 'la'].includes(prep)) return 'location';
+       // v1.4 (DS021 C3): a named facility (school, arena, clinic) is an institution or venue, not a geographic place.
+       if (/GPE|LOC/.test(ner)) return 'location';
+       if (/FAC/.test(ner)) return 'object';
+@@ -961,7 +967,18 @@
+       return;
+     }
+     // v1.4 (R11a): a date inside an argument's noun phrase is a time of the clause, never part of the value.
+-    if (!predicate) for (const n of [k, ...chain(k)].flatMap(x => kids(x, 'nmod', 'nmod:tmod', 'obl'))) if (!n.used && this.isTime(n, caseText(n)) && !/DATE|TIME/.test(k.ner ?? '')) { this.addTime(p, n, S, caseText(n)); for (const w of [...subtree(n), ...caseWords(n)]) w.used = true; }
++    // v1.5: a bare weekday/month-name modifier nested inside a compound chain ("ședința de consiliu de marți", a
++    // "meeting of council of Tuesday" compound description) stays in the value; only a modifier of the argument's
++    // own head, or an explicit NER/numeric date anywhere in the chain, is pulled out as a clause time
++    // (eval-ud-rules-v14-v1 lost row ood2_000100_0_0: "de marți" wrongly split off "the Tuesday board meeting").
++    if (!predicate) for (const x of [k, ...chain(k)]) for (const n of kids(x, 'nmod', 'nmod:tmod', 'obl')) {
++      if (n.used || !this.isTime(n, caseText(n)) || /DATE|TIME/.test(k.ner ?? '')) continue;
++      const words = subtree(n, c => ['acl:relcl', 'acl', 'advcl'].includes(c.deprel) || c.used);
++      const strong = words.some(w => /DATE|TIME/.test(w.ner ?? '')) || (DATE.test(words.map(w => w.text).join(' ')) && words.length <= 5);
++      if (x !== k && !strong) continue;
++      this.addTime(p, n, S, caseText(n));
++      for (const w of [...subtree(n), ...caseWords(n)]) w.used = true;
++    }
+     const value = this.value(k, S, ctx, {skipCase, predicate});
+     if (!value.value) { p.leftovers.push([k, hintFor(role)]); return; }
+     const conj = kids(k, 'conj').filter(c => ['NOUN', 'PROPN', 'PRON', 'NUM', 'ADJ'].includes(c.upos) && !c.used && !sameEntity(S, k, c));

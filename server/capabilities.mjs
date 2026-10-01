@@ -22,7 +22,8 @@ import {splitSentences} from '../lib/sentence-split.mjs';
 import {SYMBOLIC_LM_VERSION} from '../lib/symbolic-lm/index.mjs';
 import {INTERPRETATION_VERSION} from '../lib/symbolic-lm/interpretation.mjs';
 import {createDefaultEmotionDetectionSystem, loadConfig as loadEmotionConfig, signalsToSop, adviceFor} from '../lib/emotion-detection/index.mjs';
-import {chatMessages} from '../lib/formalizer-endpoint.mjs';
+import {chatMessages} from '../lib/llama-chat.mjs';
+import {detectAnalysis} from '../lib/symbolic-lm/scope-detect.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 
@@ -113,10 +114,14 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
       const t0 = performance.now();
       const endpoint = llmId ? () => manager.ensure(llmId) : null;
       const translatorEndpoint = trId ? () => manager.ensure(trId) : null;
+      // One turn holds both cleaning models until it ends: no other start may evict the translator or the proofreader in the middle of it.
+      const release = manager?.hold([llmId, trId].filter(Boolean)) ?? (() => {});
       // One cache entry per sentence and backend; a sentence the fallback served is never stored under the translator's key.
       const memo = (parts, compute) => store.proofreadLlm.getOrCompute(cacheKey('proofread-llm', parts.backend === 'translator-llm' && trId ? versionKey(trId) : llmId ? versionKey(llmId) : 'none', parts), compute, {cacheable: v => !v.fallback}).then(r => { units[r.status]++; return r.value; });
-      const outcome = await textToCleanEnglish(message, {backendOptions: {endpoint, translatorEndpoint}, sendAll: effectiveSendAll, partial: true, memo});
-      return {outcome, ms: round(performance.now() - t0)};
+      try {
+        const outcome = await textToCleanEnglish(message, {backendOptions: {endpoint, translatorEndpoint}, sendAll: effectiveSendAll, partial: true, memo});
+        return {outcome, ms: round(performance.now() - t0)};
+      } finally { release(); }
     }, {cacheable: v => !v.outcome.failures && !v.outcome.fallback});
     const {outcome} = value;
     const errors = (outcome.failures ?? []).map(f => ({component: 'language-proofing-llm', code: f.code, message: f.message, span: f.text}));
@@ -141,19 +146,29 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
     const rid = mode === 'off' ? null : rewriteId();
     if (mode !== 'off' && (!rid || !manager?.entries.has(rid))) { requested.rewrite = 'off'; requested.rewrite_error = 'no registry model offers proofread-symbolic'; mode = 'off'; }
     const accept = mode === 'off' ? null : asked.accept ?? REWRITE_OPTIONS[mode].rewrite_accept;
-    const key = cacheKey('symbolic-lm', SYMBOLIC_LM_VERSION, versionKey(id), message, {interpret, mode, accept, rewrite_model: mode === 'off' ? null : versionKey(rid)});
-    const {value, status} = await store.symbolic.getOrCompute(key, async () => {
+    const keyFor = interpreted => cacheKey('symbolic-lm', SYMBOLIC_LM_VERSION, versionKey(id), message, {interpret: interpreted, mode, accept, rewrite_model: mode === 'off' ? null : versionKey(rid)});
+    // An analysis without the interpretation is contained in the same call with it: reuse a stored (or running) interpreted call instead of analysing the message again.
+    if (!interpret) {
+      const richer = keyFor(true);
+      const stored = store.symbolic.get(richer);
+      if (stored) return {...stored, requested: {...stored.requested, interpret}, status: 'hit'};
+    }
+    const {value, status} = await store.symbolic.getOrCompute(keyFor(interpret), async () => {
       const options = {interpret, emotion: false};
       const outRequested = {...requested};
-      if (mode !== 'off') {
-        try {
-          const url = await manager.proofreadSymbolic(rid, async base => base);
-          Object.assign(options, {rewrite_url: url + '/v1/chat/completions', rewrite_version: versionKey(rid)}, REWRITE_OPTIONS[mode], {rewrite_accept: accept});
-          outRequested.rewrite_model = rid;
-        } catch (error) { outRequested.rewrite = 'off'; outRequested.rewrite_error = String(error.message).slice(0, 200); }
-      }
-      const reply = await manager.formalize(id, message, {timeoutMs, extra: {symbolic_lm: options}});
-      return {sop: reply.sop, ms: round(reply.ms ?? 0), symbolic: reply.symbolic ?? null, requested: outRequested};
+      // The SymbolicLM service and the rewrite model are held for the whole call (never evicted in the middle of a turn).
+      const release = manager.hold([id, ...(mode !== 'off' ? [rid] : [])]);
+      try {
+        if (mode !== 'off') {
+          try {
+            const url = await manager.proofreadSymbolic(rid, async base => base);
+            Object.assign(options, {rewrite_url: url + '/v1/chat/completions', rewrite_version: versionKey(rid)}, REWRITE_OPTIONS[mode], {rewrite_accept: accept});
+            outRequested.rewrite_model = rid;
+          } catch (error) { outRequested.rewrite = 'off'; outRequested.rewrite_error = String(error.message).slice(0, 200); }
+        }
+        const reply = await manager.formalize(id, message, {timeoutMs, extra: {symbolic_lm: options}});
+        return {sop: reply.sop, ms: round(reply.ms ?? 0), symbolic: reply.symbolic ?? null, requested: outRequested};
+      } finally { release(); }
     }, {cacheable: v => !v.requested.rewrite_error});
     return {...value, status};
   }
@@ -280,10 +295,10 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
   }
 
   // ---- analyze ----
-  async function analyze(message, {rewrite = 'off', accept} = {}) {
+  async function analyze(message, {rewrite = 'off', accept, interpret = false} = {}) {
     const started = performance.now();
     try {
-      const call = await symbolicCall(message, {interpret: false, rewrite, accept});
+      const call = await symbolicCall(message, {interpret, rewrite, accept});
       const s = call.symbolic ?? {};
       return {object: 'symbolic.analysis', status: 'ok', message, sop: call.sop, analysis: s.analysis ?? null, analysed_text: s.analysed_text ?? message, language: s.language ?? null, route: s.route ?? null,
         english: s.english ?? null, uncertainty: s.uncertainty ?? null, rewrite: s.rewrite ?? null, requested: call.requested, errors: [],
@@ -338,6 +353,62 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
     }
   }
 
-  return {proofread, understand, analyze, rewrite, detectEmotion, symbolicCall, symbolicFormalize, emotionFor, emojiOf, versions, cacheStats: () => caches.stats(), clearCaches: () => caches.clear(),
+  // ---- warm state and the start-up warmup (DS012 "Model lifecycle") ----
+  const warm = {enabled: false, state: 'disabled', started_at: null, finished_at: null, ms: null, resources: 'not_loaded', probes: {}};
+  /** The warm state: the warmup's progress and, per managed model, its mode, state and whether its probe request has been answered. */
+  function warmState() {
+    const models = {};
+    for (const entry of manager?.entries.values() ?? []) {
+      const row = manager.describe(entry);
+      if (entry.mode === 'off' && warm.state === 'disabled') continue;
+      models[row.id] = {mode: row.mode, state: row.state, warm: row.warm, start_ms: row.start_ms, ...(row.error ? {error: row.error} : {}), ...(warm.probes[row.id] ? {probe_ms: warm.probes[row.id].ms, ...(warm.probes[row.id].error ? {probe_error: warm.probes[row.id].error} : {})} : {})};
+    }
+    const kept = Object.entries(models).filter(([, m]) => m.mode === 'keep_open');
+    return {...warm, ready: warm.state === 'warm' && kept.every(([, m]) => m.state === 'ready'), kept_open: kept.map(([id]) => id), models};
+  }
+  /** The first requests of a model are slow (the weights are paged in, the parsers load): one small real request per kept-open model, through the same code the chat uses. */
+  async function probeModel(id) {
+    const model = modelOf(id);
+    if (!model) return;
+    if (id === symbolicId()) {
+      // The whole analysis path of a turn: parse, interpretation, tone, and the scope detector the route step runs on the analysis (each loads resources on first use).
+      await understand('Hello there.', {emotion: true});
+      const analysed = await analyze('Hello there.', {rewrite: rewriteDefault(), interpret: true});
+      if (analysed.analysis?.sentences?.length) detectAnalysis(analysed.analysis);
+      await understand('Bună ziua, ce faci?', {emotion: true});
+    }
+    else if (id === translatorId()) await proofread('Bună ziua, mă duc la piață mâine.');
+    else if (id === proofreadId()) await proofread('i dont no what happen tomorow', {sendAll: true});
+    else if (id === rewriteId()) await rewriteUnit(id, 'The dog bite he yesterday.');
+  }
+  if (manager) manager.warmHook = async id => { await probeModel(id); manager.markWarm(id); };
+  /**
+   * Starts every kept-open model in the background and sends each a probe request; resolves with the warm state when all are done
+   * (the server does not wait for it). Failures are recorded per model and never thrown. Also loads the LanguagesUtil word lists
+   * of the cleaning gate in this process (a synchronous read of several seconds, started after the model processes are spawned).
+   */
+  async function warmup({probe = true, resources = true} = {}) {
+    if (!manager) return warmState();
+    manager.autoRevive = true;
+    Object.assign(warm, {enabled: true, state: 'warming', started_at: new Date().toISOString(), finished_at: null, ms: null, probes: {}});
+    const t0 = performance.now();
+    const ids = manager.keptOpen();
+    const started = ids.map(id => manager.ensure(id).then(() => null, error => ({id, error})));
+    await new Promise(resolve => setImmediate(resolve));
+    if (resources) { try { gateCleaning('Hello'); warm.resources = 'loaded'; } catch (error) { warm.resources = 'failed: ' + String(error.message).slice(0, 100); } }
+    const failed = (await Promise.all(started)).filter(Boolean);
+    if (probe) {
+      await Promise.all(ids.filter(id => !failed.some(f => f.id === id)).map(async id => {
+        const p0 = performance.now();
+        try { await probeModel(id); manager.markWarm(id); warm.probes[id] = {ms: Math.round(performance.now() - p0)}; }
+        catch (error) { warm.probes[id] = {ms: Math.round(performance.now() - p0), error: String(error.message).slice(0, 150)}; }
+      }));
+    } else for (const id of ids) manager.markWarm(id);
+    for (const f of failed) warm.probes[f.id] = {ms: 0, error: String(f.error.message).slice(0, 150)};
+    Object.assign(warm, {state: failed.length || Object.values(warm.probes).some(p => p.error) ? 'partial' : 'warm', finished_at: new Date().toISOString(), ms: Math.round(performance.now() - t0)});
+    return warmState();
+  }
+
+  return {proofread, understand, analyze, warmup, warmState, rewrite, detectEmotion, symbolicCall, symbolicFormalize, emotionFor, emojiOf, versions, cacheStats: () => caches.stats(), clearCaches: () => caches.clear(),
     rewriteDefault, emotionDefault, symbolicId, rewriteId, close: () => system.close?.()};
 }

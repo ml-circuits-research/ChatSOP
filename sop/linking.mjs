@@ -8,20 +8,12 @@
  * `resolve` wires of the declarative compiler (exact and accent-folded aliases).
  */
 import {ROLE_NAMES} from './enums.mjs';
-import {normalize} from './lexicon.mjs';
+import {fold, phraseKey} from './text-keys.mjs';
+export {phraseKey};
 import {formatTime} from '../lib/time.mjs';
+import {defaultRelationLexicon} from './relation-lexicon.mjs';
 
 const DAY = 86400000;
-const fold = s => normalize(s).normalize('NFD').replace(/\p{M}/gu, '');
-const STOPWORDS = new Set(['is', 'are', 'was', 'were', 'be', 'been', 'being', 'a', 'an', 'the', 'does', 'do', 'did', 'has', 'have', 'had', 'este', 'e', 'sunt', 'era', 'fost', 'un', 'o', 'al', 'ale']);
-// Light, deterministic token normalization: plural/third-person -s and a final -e.
-const stem = token => token.length > 3 ? token.replace(/([^s])s$/, '$1').replace(/e$/, '') : token;
-/** Comparison key of a relation phrase: folded tokens, auxiliaries and articles dropped, light stemming. */
-export function phraseKey(text) {
-  const tokens = fold(String(text).replaceAll('_', ' ')).match(/[\p{L}\p{N}]+/gu) ?? [];
-  const content = tokens.filter(token => !STOPWORDS.has(token));
-  return (content.length ? content : tokens).map(stem).join(' ');
-}
 
 /**
  * Role names of a lexicon predicate in argument order: its `role NAME TYPE`
@@ -40,12 +32,16 @@ export function predicateRoleNames(predicate) {
  * to equal the used set; otherwise (query match blocks) the used roles must be
  * declared and missing ones become fresh variables.
  */
-export function linkRelation(text, used, lexicon, {exact = true} = {}) {
+export function linkRelation(text, used, lexicon, {exact = true, relations = defaultRelationLexicon()} = {}) {
   const key = phraseKey(text);
-  const named = Object.values(lexicon?.predicates ?? {}).filter(predicate => {
+  // The lexicon indexes every predicate form by phrase key (id, labels, lexeme forms, description).
+  const declared = lexicon?.predicatesFor ? lexicon.predicatesFor(key) : Object.values(lexicon?.predicates ?? {}).filter(predicate => {
     const forms = [predicate.id, ...(predicate.aliases ?? []).map(alias => alias.surface), ...(predicate.description ? [predicate.description] : [])];
     return forms.some(form => phraseKey(form) === key);
   });
+  // The relation lexicon (reviewed phrase -> predicate entries) adds only predicates the memory in use declares.
+  const listed = (relations?.predicatesFor(phrase => phraseKey(phrase) === key) ?? []).map(id => lexicon?.predicates?.[id]).filter(Boolean);
+  const named = [...new Map([...declared, ...listed].map(predicate => [predicate.id, predicate])).values()];
   if (!named.length) return {status: 'unknown', text};
   const fits = named.filter(predicate => {
     const names = predicateRoleNames(predicate);
@@ -115,6 +111,8 @@ export function linkQuestion(issues, language = 'en') {
   const ro = language === 'ro';
   return issues.map(issue => {
     if (issue.kind === 'entity') return ro ? `La cine sau la ce vă referiți prin ${JSON.stringify(issue.text)}?` : `Which entity do you mean by ${JSON.stringify(issue.text)}?`;
+    // The copula and other readings carry their own precise question (sop/copula-linker.mjs), in both answer languages.
+    if (issue.question) return ro ? issue.question.ro : issue.question.en;
     if (issue.kind === 'time' && issue.status === 'not_an_interval') return ro ? `Variabila ${issue.text} este un argument al relației, nu o perioadă; ce măsură de timp doriți?` : `The variable ${issue.text} is an argument of the relation, not a period; which time measure do you want?`;
     if (issue.kind === 'time') return ro ? `La ce dată sau perioadă vă referiți prin ${JSON.stringify(issue.text)}?` : `Which date or period do you mean by ${JSON.stringify(issue.text)}?`;
     const choices = (issue.candidates ?? []).map(c => c.id + ' (' + c.roles.join(', ') + ')').join(ro ? ' sau ' : ' or ');

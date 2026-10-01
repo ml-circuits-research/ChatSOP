@@ -135,9 +135,9 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
  assert(Array.isArray(statementsIn),'Context statements must be an array');
  assert(['report','branch'].includes(modelAssumptions),'Host policy modelAssumptions must be report or branch');
  const lang=/^[a-z]{2,3}$/.test(language)&&language!=='auto'?language:'en';
- const translations=[],untranslated=[],repairs=[],unresolvedSpans=[];
+ const translations=[],untranslated=[],repairs=[],unresolvedSpans=[],readings=[];
  const empty={problemIds:[],renderIds:[],statements:[],assumptions:[],links:new Map(),evidenceIds:[],suppositionIds:[],assumptionFactIds:[],modelAssumptions,language:lang,inputText,
-  clauseLinks:[],translations,untranslated,repairs,unresolvedSpans,held:new Set(),reportOnly:new Set()};
+  clauseLinks:[],translations,untranslated,repairs,unresolvedSpans,readings,held:new Set(),reportOnly:new Set()};
  if(fragment)empty.completedFragment=canonical({wires:[authored.wires.find(w=>w.id===fragment.id)]});
  const unclear=authored.wires.find(w=>w.type==='unclear');
  if(unclear)return {...empty,unclear:{id:unclear.id,kind:one(unclear,'kind'),language:one(unclear,'language',null),readings:many(unclear,'reading').map(unquote)},authoredSop:canonical(authored),executionSop:''};
@@ -212,7 +212,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
   }
   return first;
  };
- const link=(p,options,wire)=>{const linked=tryLink(p,options,wire);if(linked.issue){issues.push(linked.issue);return null;}return linked;};
+ const link=(p,options,wire)=>{const linked=tryLink(p,options,wire);if(linked.issue){issues.push(linked.issue);return null;}if(linked.reading&&!readings.some(r=>r.wire===wire&&r.relation===linked.reading.relation))readings.push({wire,...linked.reading,predicate:linked.predicate,alternatives:linked.alternatives?.map(a=>a.predicate)});return linked;};
  const hasPlaceholder=p=>p.roles.some(r=>typeof r.value==='string'&&r.value.startsWith('?')||REFERENCE_VALUE(r.value));
  for(const p of [...statements,...assumptions]){
   const validity=propositionValidity(p,now);
@@ -311,7 +311,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
   const fields=Object.fromEntries(Object.entries(w.fields).filter(([key])=>!LINK_WORDS.includes(key)).map(([key,values])=>[key,[...values]]));
   if(w.type==='query'){
    const spans=new Set(),spanLeaf=new Map();let leafIndex=0,failed=false;
-   const leaf=text=>{const index=leafIndex++;const l=link(parseMatch(text,'@'+w.id+' match'),{exact:false,fresh},w.id);if(!l)failed=true;if(l?.span){spans.add(l.span);spanLeaf.set(l.span,index);}return parseAtom(l?normalizeAtom(l.atomText,{wire:w.id}):'unlinked x');};
+   const leaf=text=>{const index=leafIndex++;const l=link(parseMatch(text,'@'+w.id+' match'),{exact:false,fresh},w.id);if(!l)failed=true;if(l?.span){spans.add(l.span);spanLeaf.set(l.span,index);}if(l?.alternatives)return {kind:'any',children:l.alternatives.map(a=>parseAtom(normalizeAtom(a.atomText,{wire:w.id})))};return parseAtom(l?normalizeAtom(l.atomText,{wire:w.id}):'unlinked x');};
    fields.where=many(w,'where').map(text=>emitCondition(parseCondition(text,leaf),emitAtom));
    if(w.fields.scope)fields.scope=[emitCondition(parseCondition(one(w,'scope'),leaf),emitAtom)];
    if(!failed)linkedQueries.add(w.id);
@@ -352,7 +352,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
   if(ok)repairs.push({...span,method:via?'dictionary':'near_wire_linked',value:via?.to??null,filled:!!via});
   else unresolvedSpans.push({...span,blocking:false,question:spanQuestion(span.span,span.hint,lang)});
  }
- const report={clauseLinks:plan.links,joins:expanded.joins,translations,untranslated,repairs,unresolvedSpans,held,reportOnly};
+ const report={clauseLinks:plan.links,joins:expanded.joins,translations,untranslated,repairs,unresolvedSpans,readings,held,reportOnly};
  if(issues.length)return {...empty,...report,authoredSop:canonical(authored),executionSop:'',issues,statements,assumptions,links};
  const collect=ids=>{if(!ids.length)return undefined;if(ids.length===1)return '$'+ids[0];const name=id();execution.push(node(name,'pack',{items:ids.map(n=>'$'+n)}));return '$'+name;};
  const evidenceRef=collect([...carriedIds,...evidenceIds]);
@@ -397,7 +397,7 @@ function linksFor(plan,id){
 }
 /** Packet fields of the clause links, the content-word translation and the unparsed-span repair (DS021). */
 function languageReports(plan){
- return {clause_links:(plan.clauseLinks??[]).map(l=>({...l})),untranslated:plan.untranslated??[],translations:plan.translations??[],repairs:plan.repairs??[],unresolved_spans:plan.unresolvedSpans??[]};
+ return {clause_links:(plan.clauseLinks??[]).map(l=>({...l})),untranslated:plan.untranslated??[],translations:plan.translations??[],copula_readings:plan.readings??[],repairs:plan.repairs??[],unresolved_spans:plan.unresolvedSpans??[]};
 }
 
 /**

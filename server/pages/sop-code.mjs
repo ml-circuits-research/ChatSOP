@@ -22,9 +22,13 @@
  * `window.ChatSopCode.render`). Pages add `SOP_CODE_STYLE` to their styles.
  */
 import * as parser from '../../sop/parser.mjs';
+import {GRAMMAR} from '../../sop/knowledge/grammar.mjs';
 
-/** `{type: [field, ...]}` from the parser contract: executable wires plus host ontology declarations. */
-export const SOP_CONTRACT = Object.fromEntries(Object.entries({...(parser.ONTOLOGY_SPEC ?? {}), ...parser.SPEC}).map(([type, spec]) => [type, [...new Set([...(spec.one ?? []), ...(spec.many ?? [])])].sort()]));
+/** The lexicon wires of the knowledge grammar: the vocabulary of base memories and of the `ontology_sop` of worlds. */
+const LEXICON_CONTRACT = Object.fromEntries(['predicate', 'lexeme', 'entity'].map(type => [type, {one: Object.entries(GRAMMAR[type].fields).filter(([, f]) => f.card === 'one').map(([k]) => k), many: Object.entries(GRAMMAR[type].fields).filter(([, f]) => f.card === 'many').map(([k]) => k)}]));
+
+/** `{type: [field, ...]}` from the parser contract: executable wires plus the lexicon wires of the knowledge grammar. */
+export const SOP_CONTRACT = Object.fromEntries(Object.entries({...LEXICON_CONTRACT, ...parser.SPEC}).map(([type, spec]) => [type, [...new Set([...(spec.one ?? []), ...(spec.many ?? [])])].sort()]));
 export const SOP_DOCS_BASE = '/docs/wire_typs/';
 /** Structural grammar words from the parser, and where they are documented. */
 export const SOP_SYNTAX = Object.freeze({

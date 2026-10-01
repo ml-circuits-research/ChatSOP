@@ -7,6 +7,8 @@ summary: Reviewed temporal claims, snapshot isolation, the common bank and retri
 
 The [repository](wiki.html#definition-repository) stores admitted claims and approved definitions so a user can ask about a time, correct knowledge, and maintain a private session without exposing it to other users or forks. The [memory engine](wiki.html#definition-memory-engine) retrieves candidate facts; it does not decide that a claim is true. This specification states the contracts every memory strategy shares; each strategy has its own specification with its mechanism, verified implementation status and the experiments it still needs.
 
+Base memories and sessions ([DS031](specsLoader.html?spec=DS031-sessions-and-base-memories.md)): the chat names a **base memory**, a forkable store of any strategy below with its validated circuits and provenance, and works in a **session** that clones it; what a conversation adds stays in the session until an administrator commits it to a fork. Adding knowledge to a base memory is an approval recorded with its approver; there is no implicit write path.
+
 ## Core Content
 
 ### Temporal identity and isolation

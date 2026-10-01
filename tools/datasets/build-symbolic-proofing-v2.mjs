@@ -8,7 +8,7 @@
  *   - datasets/symbolic_english train/dev        identity units (every sentence of a working message, gate-checked alone)
  *   - datasets_sources/decomp_backgen            tangled single sentences -> the original multi-sentence message (only when needed, DeepSeek omp task)
  *
- *   node tools/datasets/build-symbolic-proofing-v2.mjs collect     # units, mechanical filters -> eval/reports/current/symbolic-proofing-it2/data/candidates.jsonl
+ *   node tools/datasets/build-symbolic-proofing-v2.mjs collect     # units, mechanical filters -> eval/reports/history/symbolic-proofing-it2/data/candidates.jsonl
  *   node tools/datasets/build-symbolic-proofing-v2.mjs parse       # Stanza parses (GPU, light) and the parse-judge items of the texts still to be judged
  *   node tools/datasets/build-symbolic-proofing-v2.mjs meaning-items   # two-vote meaning items of the units whose pair was altered by the cut
  *   node tools/datasets/build-symbolic-proofing-v2.mjs build       # gate + meaning verdicts + leakage verdicts -> datasets/neuro_english/proofing-it2

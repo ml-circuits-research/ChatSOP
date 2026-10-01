@@ -1,0 +1,252 @@
+{"id":"formalizer-v1::fv1_000555_0_0#39","text":"Lukas Weber este copilul lui Lena."}
+{"id":"formalizer-v1::fv1_000555_0_0#65","text":"Poți să verifici dacă James nu e copilul lui Liam?"}
+{"id":"formalizer-v1::fv1_000555_0_0#67","text":"Context: Meera este copilul lui Nikos."}
+{"id":"formalizer-v1::fv1_000555_0_0#68","text":"Întrebare: Se poate confirma că Nikos este copilul lui Meera?"}
+{"id":"formalizer-v1::fv1_000686_0_0#27","text":"Oare Nikos e copilul lui Zoltán?"}
+{"id":"formalizer-v1::fv1_000879_0_0","text":"Poți să verifici dacă Joaquín e copilul lui Ghiță?"}
+{"id":"formalizer-v1::fv1_000879_1_0","text":"Știi cumva dacă Ghiță este copilul lui Joaquín Romero?"}
+{"id":"formalizer-v1::fv1_001075_0_0","text":"Salut, not counting Ana, please find out who Petru is a child of."}
+{"id":"formalizer-v1::fv1_001879_0_0#8","text":"Petronela nu este copilul lui Kamau."}
+{"id":"formalizer-v1::fv1_001879_0_0#9","text":"În plus, Emma e copilul lui Nadiya."}
+{"id":"formalizer-v1::fv1_002889_0_0#10","text":"Paloma nu este copilul lui Alejandro."}
+{"id":"formalizer-v1::fv1_002889_0_0#58","text":"Context: Ananya este copilul lui Layla."}
+{"id":"formalizer-v1::fv1_002889_0_0#59","text":"Întrebare: Se poate confirma că Layla este copilul lui Ananya?"}
+{"id":"formalizer-v1::fv1_002889_0_0#62","text":"Context: Nils Johansson este copilul lui Yan."}
+{"id":"formalizer-v1::fv1_002889_0_0#63","text":"Întrebare: Se poate confirma că Yan e copilul lui Nils Johansson?"}
+{"id":"formalizer-v1::fv1_003205_0_0","text":"Poți să check-uiești dacă Aurel Constantinescu este copilul lui Xiaoling?"}
+{"id":"formalizer-v1::fv1_003205_1_0","text":"Oare Xiaoling Zhao e copilul lui Aurel Constantinescu, ok?"}
+{"id":"formalizer-v1::fv1_003515_1_0","text":"Hai, any chance Lars is a child of Mihai?"}
+{"id":"formalizer-v1::fv1_003815_0_0#58","text":"Krzysztof Nowak nu e copilul lui Otieno."}
+{"id":"formalizer-v1::fv1_003815_0_0#59","text":"În plus, Aurel e copilul lui Toma."}
+{"id":"formalizer-v1::fv1_003815_0_0#62","text":"Lui ckine e copilul Élodie?"}
+{"id":"formalizer-v1::fv1_003877_0_0#25","text":"Florin Mureșan e copilul lui Ingrid."}
+{"id":"formalizer-v1::fv1_004226_0_0#12","text":"Ilinca Popa este copilul lui Csaba."}
+{"id":"formalizer-v1::fv1_004270_0_0#9","text":"Thomas nu e copilul lui Minh."}
+{"id":"formalizer-v1::fv1_004536_0_0#61","text":"Context: Emeka este copilul lui Petru."}
+{"id":"formalizer-v1::fv1_004536_0_0#62","text":"Întrebare: Știi cumva dacă Emeka e copilul lui Jürgen?"}
+{"id":"formalizer-v1::fv1_004666_0_0#4","text":"Chinedu e copilul lui Carmen."}
+{"id":"formalizer-v1::fv1_004666_0_0#5","text":"În plus, Emma este copilul lui Veaceslav Rotaru."}
+{"id":"formalizer-v1::fv1_004754_0_0","text":"Just curious, unde e Clinica de Copii din Orhei?"}
+{"id":"formalizer-v1::fv1_005267_0_0#29","text":"Also,Hiroshi is a child of Mirela."}
+{"id":"formalizer-v1::fv1_005453_0_0#23","text":"Viorel e copilul lui Veaceslav."}
+{"id":"formalizer-v1::fv1_005453_0_0#24","text":"În plus, Nikos nu este copilul lui Giorgos."}
+{"id":"formalizer-v1::fv1_005485_0_0#20","text":"Chen e copilul lui Youssef."}
+{"id":"formalizer-v1::fv1_005485_0_0#21","text":"În plus, Tudor este copilul lui Horia."}
+{"id":"formalizer-v1::fv1_005595_0_0#16","text":"Thomas e copilul lui Veaceslav."}
+{"id":"formalizer-v1::fv1_005595_0_0#17","text":"În plus, Nils e copilul lui Tunde."}
+{"id":"formalizer-v1::fv1_005595_0_0#41","text":"Jun este copilul lui Thiago."}
+{"id":"formalizer-v1::fv1_005856_0_0#5","text":"Meera Iyer e copilul lui Silviu Moldovan."}
+{"id":"formalizer-v1::fv1_005856_0_0#6","text":"În plus, Iulia Stoica este copilul lui Giorgos."}
+{"id":"formalizer-v1::fv1_005866_0_0#22","text":"Context: Mehmet Demir e copilul lui Diana."}
+{"id":"formalizer-v1::fv1_005866_0_0#23","text":"Întrebare: Se poate confirma că Diana este copilul lui Mehmet Demir?"}
+{"id":"formalizer-v1::fv1_005866_0_0#26","text":"Lui cine e copilul Horia?"}
+{"id":"formalizer-v1::fv1_006125_0_0#6","text":"So, my questions: Fact-check: Alina is a child of Mr Zhang ."}
+{"id":"formalizer-v1::fv1_006125_0_0#7","text":"Since Bohdan is a child of Mr Lindqvist, is it true thwat Mr Lindqvist is a child of Bohdan?"}
+{"id":"formalizer-v1::fv1_006702_0_0","text":"Oare Mihai nu e copilul lui Mehmet Yılmaz?"}
+{"id":"formalizer-v1::fv1_006702_0_1","text":"Se poate confirma că Mihai Neagu nu este copilul lui Mehmet Yılmaz?"}
+{"id":"formalizer-v1::fv1_006845_0_0","text":"Sjnce Can is a child of Vikram, is it the czase thzt Vikram is a chjld of Can ?"}
+{"id":"formalizer-v1::fv1_006975_0_0#1","text":"Context: Mirela este copilul lui Hao."}
+{"id":"formalizer-v1::fv1_006975_0_0#2","text":"Întrebare: Poti să verifici dacă Hao este copilul lui Mirela?"}
+{"id":"formalizer-v1::fv1_007037_0_0#31","text":"Context: Tunde e copilul lui Dragoș Rusu."}
+{"id":"formalizer-v1::fv1_007037_0_0#32","text":"Întrebare: Oare Dragoș Rusu este copilul lui Tunde?"}
+{"id":"formalizer-v1::fv1_007037_0_0#4","text":"Min-jun nu este copilul lui Vlad Căpraru."}
+{"id":"formalizer-v1::fv1_007037_0_0#5","text":"În plus, Lucian este copilul lui Nils."}
+{"id":"formalizer-v1::fv1_007474_0_0#57","text":"Poţi să verifici dacă Zoltán este copilul lui Théo Girard?"}
+{"id":"formalizer-v1::fv1_007760_0_0#4","text":"Otilia nu e copilul lui Zeynep."}
+{"id":"formalizer-v1::fv1_007760_0_0#5","text":"În plus, Tunde Okafor e copilul lui Yan."}
+{"id":"formalizer-v1::fv1_007760_0_0#57","text":"Ayşe Kaya e copilul lui Liam."}
+{"id":"formalizer-v1::fv1_007760_0_0#58","text":"În plus, Takumi este copilul lui Hassan."}
+{"id":"formalizer-v1::fv1_007885_1_0","text":"Any chance Ms Trần is a chiod of Thomas?"}
+{"id":"formalizer-v1::fv1_008286_0_0#1","text":"Context: Silviu Ungureanu e copilul lui Karim."}
+{"id":"formalizer-v1::fv1_008286_0_0#2","text":"Întrebare: Oare Karim este copilul lui Silviu Ungureanu?"}
+{"id":"formalizer-v1::fv1_008440_0_0#59","text":"Agnieszka Nowak este copilul lui Krzysztof."}
+{"id":"formalizer-v1::fv1_008440_0_0#60","text":"În plus, Jessica nu e copilul lui Manon."}
+{"id":"formalizer-v1::fv1_008682_0_0#1","text":"Context: Zoltán Tóth e copilul lui Natalia."}
+{"id":"formalizer-v1::fv1_008682_0_0#2","text":"Întrebare: Poți să verifici dacă Natalia este copilul lui Zoltán Tóth?"}
+{"id":"formalizer-v1::fv1_008959_0_0#1","text":"Context: Teodora e copilul lui Veaceslav."}
+{"id":"formalizer-v1::fv1_008959_0_0#2","text":"Întrebare: Oare Veaceslav este copilul lui Teodora?"}
+{"id":"formalizer-v1::fv1_008970_0_0#9","text":"Irina Dumitrescu is a cild of Nils."}
+{"id":"formalizer-v1::fv1_009081_0_0#24","text":"Context: Hugo este copilul lui Ananya Reddy."}
+{"id":"formalizer-v1::fv1_009081_0_0#25","text":"Întrebare: Poți să verifici dacă Ananya Reddy este copilul lui Hugo?"}
+{"id":"formalizer-v1::fv1_009177_0_0#18","text":"Cotext: Zsófia este copilul lui Mirela Constantinescu."}
+{"id":"formalizer-v1::fv1_009177_0_0#19","text":"Întrebare: Poți să verifici dacă Mirela Constantinescu e copilul lui Zsófia?"}
+{"id":"formalizer-v1::fv1_009458_0_0","text":"Se poate confirma că Otilia e copilul lui Diego García?"}
+{"id":"formalizer-v1::fv1_009458_1_0","text":"Poți să verifici daca Diego e copilul lui Otilia?"}
+{"id":"formalizer-v1::fv1_009720_0_0#79","text":"Rahul este copilul lui Achieng."}
+{"id":"formalizer-v1::fv1_009935_0_0","text":"Știi cumva daca Élodie este copilul lui Agnieszka Mazur?"}
+{"id":"formalizer-v1::fv1_010090_0_0#5","text":"Diego Martínez e copilul lui Wojciech."}
+{"id":"formalizer-v1::fv1_010090_0_0#6","text":"În plus, Tunde e copilul lui Nikos."}
+{"id":"formalizer-v1::fv1_010136_0_0#1","text":"Context: Chen e copilul lui Nour."}
+{"id":"formalizer-v1::fv1_010136_0_0#2","text":"Întrebare: Se poate confirma că Nour e copilul lui Chen?"}
+{"id":"formalizer-v1::fv1_010986_0_0#8","text":"Nour nu este copilul lui Florică."}
+{"id":"formalizer-v1::fv1_010986_0_0#9","text":"În plus, Cristina nu e copilul lui Thiago."}
+{"id":"formalizer-v1::fv1_011165_0_0#70","text":"Context: James e copilul lui Teodora."}
+{"id":"formalizer-v1::fv1_011165_0_0#71","text":"Întrebare: Se poate confirma că Teodora e copilul lui James?"}
+{"id":"formalizer-v1::fv1_011661_0_0","text":"Do you know if Ms Cebotari isa child of Layla?"}
+{"id":"formalizer-v1::fv1_012199_0_0","text":"Since Jürgen is a child of Megan, do you know if Megan is a cuild of Jürgen?"}
+{"id":"formalizer-v1::fv1_012254_0_0","text":"Știi cumva dacă Ștefan Iordache este copilul lui Ingrid?"}
+{"id":"formalizer-v1::fv1_012285_0_0#33","text":"Context: Mehmet e copilul lui Kavya."}
+{"id":"formalizer-v1::fv1_012285_0_0#34","text":"Întrebare: Știi cumva dacă Mehmet este copilul lui Bogdan Popescu?"}
+{"id":"formalizer-v1::fv1_012430_0_0#29","text":"Câteva întrebări, atunci: Se poate confirma că Tudor Lazăr este copilul lui Mirela?"}
+{"id":"formalizer-v1::fv1_013239_0_0","text":"Basically, știi ciumva dacă Larissa Santos exste copilul lui Chinedu?"}
+{"id":"formalizer-v1::fv1_013239_1_0","text":"Ozre Chinedu Eze este copil ul lui Larissa, right ?"}
+{"id":"formalizer-v1::fv1_013366_0_0#2","text":"Chloé nu este copilul lui Petru Oprea."}
+{"id":"formalizer-v1::fv1_013366_0_0#3","text":"În plus, Amira Saleh e copilul lui Răzvan."}
+{"id":"formalizer-v1::fv1_013425_0_0#26","text":"Context: Amira Mansour este copilul lui Petru."}
+{"id":"formalizer-v1::fv1_013425_0_0#27","text":"Întrebare: Poți să verifici dacă Petru este copilul lui Amira Mansour?"}
+{"id":"formalizer-v1::fv1_013458_0_0#38","text":"Esmeralda Stoian nu e copilul lui Nadiya Melnyk."}
+{"id":"formalizer-v1::fv1_014100_0_0#28","text":"Meera e copilul lui Paloma."}
+{"id":"formalizer-v1::fv1_014100_0_0#29","text":"În plus, Karim nu este copilul lui Layla."}
+{"id":"formalizer-v1::fv1_014100_0_0#67","text":"Context: Kamau e copilul lui Amira."}
+{"id":"formalizer-v1::fv1_014100_0_0#68","text":"Întrebare: Se poate confirma că Amira e copilul lui Kamau?"}
+{"id":"formalizer-v1::fv1_014100_0_0#70","text":"Context: Lucía este copilul lui Hao."}
+{"id":"formalizer-v1::fv1_014100_0_0#71","text":"Întrebare: Se poate confirma că Hao este copilul lui Lucía ?"}
+{"id":"formalizer-v1::fv1_014631_0_0","text":"Poți să verifici dacă Thảo Nguyễn e copilul lui Florin Ungureanu?"}
+{"id":"formalizer-v1::fv1_014631_0_1","text":"Se poate confirma că Thảo Nguyễn e copilul lui Florin Ungureanu?"}
+{"id":"formalizer-v1::fv1_014830_0_0#39","text":"Takumi este copilul lui Elif."}
+{"id":"formalizer-v1::fv1_014830_0_0#40","text":"În plus, Lena e copilul lui Felix Müller."}
+{"id":"formalizer-v1::fv1_014832_0_0","text":"Any chnce Kavya is a child of Sorin?"}
+{"id":"formalizer-v1::fv1_015125_0_0#27","text":"Context: Florin e copilul lui Min-jun."}
+{"id":"formalizer-v1::fv1_015125_0_0#28","text":"Întrebare: Oare Min-jun este copilul lui Florin?"}
+{"id":"formalizer-v1::fv1_015415_0_0#10","text":"Nils Johansson este copilul lui Can Kaya."}
+{"id":"formalizer-v1::fv1_015530_0_0#37","text":"Ovidiu nu e copilul lui Sigrid Andersen."}
+{"id":"formalizer-v1::fv1_015530_0_0#38","text":"Kaveh e copilul lui Nadiya."}
+{"id":"formalizer-v1::fv1_015530_0_0#47","text":"Brândușa nu e copilul lui Liviu Stoica."}
+{"id":"formalizer-v1::fv1_015530_0_0#54","text":"Oare Eleni este copilul lui Petronela?"}
+{"id":"formalizer-v1::fv1_015653_0_0#1","text":"Context: Mihai este copilul lui Nadiya."}
+{"id":"formalizer-v1::fv1_015653_0_0#2","text":"Întrebare: Poți să verifici dacă Nadiya e copilul lui Mihai?"}
+{"id":"formalizer-v1::fv1_016354_0_0#10","text":"Context: Hannah Clarke este copilul lui Florică."}
+{"id":"formalizer-v1::fv1_016354_0_0#11","text":"Întrebare: Oare Florică e copilul lui Hannah Clarke?"}
+{"id":"formalizer-v1::fv1_017046_0_0#53","text":"Andrei e copilul lui George."}
+{"id":"formalizer-v1::fv1_017046_0_0#59","text":"Ovidiu Rădulescu este copilul lui Lucía."}
+{"id":"formalizer-v1::fv1_017046_0_0#60","text":"În plus, Gheorghe Tănase este copilul lui Achieng."}
+{"id":"formalizer-v1::fv1_017174_0_0","text":"Is it thecase that Thảo is a child of Fatima?"}
+{"id":"formalizer-v1::fv1_017286_0_0#1","text":"Context: Omar este copiul lui Iurie Cebotari."}
+{"id":"formalizer-v1::fv1_017286_0_0#2","text":"Întreb are: Could you cyheck if Iurie Cebotari is a chuld of Omar"}
+{"id":"formalizer-v1::fv1_017417_0_0#42","text":"Kenji nu este copilul lui Nikos."}
+{"id":"formalizer-v1::fv1_017789_0_0#21","text":"Clinica de Copii din Kraków e în Buzău."}
+{"id":"formalizer-v1::fv1_017789_0_0#56","text":"Layla e copilul lui Tariq."}
+{"id":"formalizer-v1::fv1_018124_0_0#1","text":"Context: Arjun Iyer este copilul lui Lars."}
+{"id":"formalizer-v1::fv1_018124_0_0#2","text":"Întrebare: Poți să verifici dacă Lars este copilul lui Arjun Iyer?"}
+{"id":"formalizer-v1::fv1_018125_0_0#50","text":"Andrei este copilul lui Dimitra."}
+{"id":"formalizer-v1::fv1_018212_0_0#2","text":"Se poate confirma ca Doinița Guțu e copiplul lui Nikos?"}
+{"id":"formalizer-v1::fv1_018212_1_0","text":"Poți să dai un check dacă Nikos este copilul lui Doinița?"}
+{"id":"formalizer-v1::fv1_019089_0_0#7","text":"Nour este copilul lui Csaba."}
+{"id":"formalizer-v1::fv1_019268_0_0#22","text":"Florică is a choild of Florin Rădulescu."}
+{"id":"formalizer-v1::fv1_019356_0_0#11","text":"Petru este copilul lui James Wright."}
+{"id":"formalizer-v1::fv1_019492_0_0#1","text":"context: Paloma Sanchez este copilul lui Felix."}
+{"id":"formalizer-v1::fv1_019492_0_0#2","text":"In plus,nu este copilul lui Felix."}
+{"id":"formalizer-v1::fv1_019743_0_0#17","text":"Ștefan e copilul lui Thiago."}
+{"id":"formalizer-v1::fv1_019774_0_0#1","text":"Context: Irina e copilul lui Élodie."}
+{"id":"formalizer-v1::fv1_019774_0_0#2","text":"Întrebare: Știi cumva dacă Élodie e copilul lui Irina?"}
+{"id":"formalizer-v1::fv1_019958_0_0#37","text":"Could u check if Răzvan is a child of Sigrid?"}
+{"id":"formalizer-v1::fv1_021363_0_0#1","text":"Here's whqt I know: Ms Lazăr is a child of Mr Popescu."}
+{"id":"formalizer-v1::fv1_021363_0_0#2","text":"Is it true that Mr Popescu is a chipd of Ms Lazăr?"}
+{"id":"formalizer-v1::fv1_021671_0_0#17","text":"Dorin is a chld of Botond."}
+{"id":"formalizer-v1::fv1_021671_0_0#8","text":"Aditya is not a chilld of Alexandru."}
+{"id":"formalizer-v1::fv1_022102_0_0#24","text":"Quang Nguyễn is a child of Karim ."}
+{"id":"formalizer-v1::fv1_022102_0_0#30","text":"So, my questions: Here's what i know: Răzvan Ionescu is a child of Mr Balogh."}
+{"id":"formalizer-v1::fv1_022509_0_0#15","text":"Brândușa este copilul lui Meera."}
+{"id":"formalizer-v1::fv1_022509_0_0#65","text":"Știi cumva dacă Veaceslav e copilul lui Zoltán?"}
+{"id":"formalizer-v1::fv1_022552_0_0#5","text":"Aiko e copilul lui Alexandru."}
+{"id":"formalizer-v1::fv1_022893_0_0#7","text":"Ethan e copilul lui Gheorghe."}
+{"id":"formalizer-v1::fv1_023335_0_0","text":"Din curiozitate, câți oamebi sunt copiii lui Shirin?"}
+{"id":"formalizer-v1::fv1_023335_0_1","text":"Câți oameni sunt copiii lui Shirin Farahani?"}
+{"id":"formalizer-v1::fv1_023669_0_0#9","text":"Sigrid Lindqvist e copilul lui Petru Sârbu."}
+{"id":"formalizer-v1::fv1_023700_0_0#13","text":"Alejandro e copilul lui Tudor."}
+{"id":"formalizer-v1::fv1_023700_0_0#14","text":"În plus, Petru este copilul lui Paloma."}
+{"id":"formalizer-v1::fv1_023740_0_0","text":"Fără să-l pun la socoteală pe Thomas, oare lui cine e copilul Chen Liu?"}
+{"id":"formalizer-v1::fv1_024048_0_0#5","text":"Moritz Hoffmann nu e copilul lui Ildikó."}
+{"id":"formalizer-v1::fv1_024075_0_0#1","text":"Context: Levente Nagy e copilul lui Giorgos Georgiou."}
+{"id":"formalizer-v1::fv1_024075_0_0#2","text":"Întrebare: Se poate confirma că Giorgos Georgiou e copilul lui Levente Nagy?"}
+{"id":"formalizer-v1::fv1_024156_0_0#11","text":"Mihai Voicu e copilul lui Wanjiru Kariuki."}
+{"id":"formalizer-v1::fv1_024156_0_0#38","text":"Andreea Manole e copilul lui Hiroshi."}
+{"id":"formalizer-v1::fv1_024156_0_0#39","text":"În plus, Wojciech este copilul lui Théo."}
+{"id":"formalizer-v1::fv1_024156_0_0#55","text":"Constantin e copilul lui Raluca."}
+{"id":"formalizer-v1::fv1_024346_0_0#11","text":"Aditya nu e copilul lui Fatima."}
+{"id":"formalizer-v1::fv1_024346_0_0#12","text":"În plus, Botond Tóth este copilul lui Lucian."}
+{"id":"formalizer-v1::fv1_024346_0_0#13","text":"Dariush este copilul lui Mihai."}
+{"id":"formalizer-v1::fv1_024390_0_0#11","text":"Sophie este copilul lui Mihai..."}
+{"id":"formalizer-v1::fv1_024390_0_0#2","text":"Clinica de Copii din Izmir este în Buzău."}
+{"id":"formalizer-v1::fv1_024849_0_0#8","text":"Mirela nu e copilul lui Nikos."}
+{"id":"formalizer-v1::fv1_024849_0_0#9","text":"În plus, Emma Wilson e copilul lui Teodora Mocanu."}
+{"id":"formalizer-v1::fv1_025389_0_0#22","text":"Nils Nilsen e copilul lui Zoltán."}
+{"id":"formalizer-v1::fv1_025389_0_0#23","text":"În plus, Diego este copilul lui Joaquín."}
+{"id":"formalizer-v1::fv1_025389_0_0#30","text":"Cosmin este copilul lui Viorica."}
+{"id":"formalizer-v1::fv1_025389_0_0#31","text":"În plus, Iancu este copilul lui Rafael."}
+{"id":"formalizer-v1::fv1_025576_0_0#22","text":"Amira Saleh e copilul lui Aiko ."}
+{"id":"formalizer-v1::fv1_025925_0_0#2","text":"Meera e copilul lui Esmeralda."}
+{"id":"formalizer-v1::fv1_025966_0_0#9","text":"Megan este copilul lui Mei."}
+{"id":"formalizer-v1::fv1_026141_0_0#1","text":"Context: Megan e copilul lui Lucian."}
+{"id":"formalizer-v1::fv1_026141_0_0#2","text":"Întrebare: Oare Lucian e copilul lui Megan?"}
+{"id":"formalizer-v1::fv1_026714_0_0#14","text":"Paula este copilul lui Constantin."}
+{"id":"formalizer-v1::fv1_026714_0_0#6","text":"Thảo e copilul lui Ethan."}
+{"id":"formalizer-v1::fv1_026813_0_0#28","text":"Context: Cristina este copilul lui Veaceslav Rotaru."}
+{"id":"formalizer-v1::fv1_026813_0_0#29","text":"Întrebare: Se poate confirma că Veaceslav Rotaru este copilul lui Cristina?"}
+{"id":"formalizer-v1::fv1_027025_0_0#2","text":"Since Sophie is a child of Chen, andshe isn't a child of Chen, is it true that she is a child of Chen?"}
+{"id":"formalizer-v1::fv1_027247_0_0","text":"Se poate confirma că Chinedu este copilul lui Tunde?"}
+{"id":"formalizer-v1::fv1_027247_1_0","text":"Se poate confirma că Tunde este copilul lui Chinedu?"}
+{"id":"formalizer-v1::fv1_028621_0_0#24","text":"Rahul nu e copilul lui Megan."}
+{"id":"formalizer-v1::fv1_028621_0_0#25","text":"În plus, Teodora e copilul lui Veaceslav."}
+{"id":"formalizer-v1::fv1_028621_0_0#45","text":"Ilinca este copilul lui Arjun."}
+{"id":"formalizer-v1::fv1_028621_0_0#46","text":"În plus, Kamau e copilul lui Otilia."}
+{"id":"formalizer-v1::fv1_028621_0_0#54","text":"Viorica nu este copilul lui Rémi."}
+{"id":"formalizer-v1::fv1_028621_0_0#55","text":"În plus, Georgiana este copilul lui Andrei."}
+{"id":"formalizer-v1::fv1_029086_0_0#1","text":"Hsre's what I know: Anna-Lena is a child of Nikos."}
+{"id":"formalizer-v1::fv1_030300_0_0#36","text":"Nour Saleh este copilul lui Hugo."}
+{"id":"formalizer-v1::fv1_030300_0_0#37","text":"În plus, Aiko nu e copilul lui Fatima."}
+{"id":"formalizer-v1::fv1_030300_0_0#48","text":"Doinița Cebotari e copilul lui Iurie Guțu."}
+{"id":"formalizer-v1::fv1_030300_0_0#49","text":"În plus, Ion este copilul lui Elif."}
+{"id":"formalizer-v1::fv1_030325_0_0#2","text":"Luminița nu este copilul lui Sigrid Nilsen."}
+{"id":"formalizer-v1::fv1_030395_0_0#66","text":"Clinica de Copii din Alexandria e în Leipzig."}
+{"id":"formalizer-v1::fv1_030395_0_0#69","text":"Andreea Rusu e copilul lui Julien."}
+{"id":"formalizer-v1::fv1_030395_0_0#78","text":"Context: Traian e copilul lui Alina Ungureanu."}
+{"id":"formalizer-v1::fv1_030395_0_0#79","text":"Întrebare: Oare Alina Ungureanu este copilul lui Traian?"}
+{"id":"formalizer-v1::fv1_030733_0_0#1","text":"Context: Yan e copilul lui Răzvan Rusu."}
+{"id":"formalizer-v1::fv1_030733_0_0#2","text":"Întrebare: Se poate confirma că Răzvan Rusu este copilul lui Yan?"}
+{"id":"formalizer-v1::fv1_031381_0_0#22","text":"Emeka Okafor nu este copilul lui Oana."}
+{"id":"formalizer-v1::fv1_031381_0_0#52","text":"Costin nu este copilul lui Mathieu."}
+{"id":"formalizer-v1::fv1_031381_0_0#53","text":"În plus, Kenji Watanabe nu e copilul lui Hyun-woo."}
+{"id":"formalizer-v1::fv1_031381_0_0#59","text":"Enikő e copilul lui Joaquín."}
+{"id":"formalizer-v1::fv1_032335_0_0#12","text":"Csaba este copilul lui Rafael."}
+{"id":"formalizer-v1::fv1_032573_0_0","text":"Owre Ion Pătrașcu e copilul lui Lukas?"}
+{"id":"formalizer-v1::fv1_032573_1_0","text":"ştii cumva dacă Lukas este copilul lui Ion ?"}
+{"id":"new_cases::nc-005500","text":"pls check if the rented van includes a child seat"}
+{"id":"probe-hand-01","text":"Copilul lui Andrei lucrează la spital."}
+{"id":"probe-hand-02","text":"Cine este copilul Mariei?"}
+{"id":"probe-hand-03","text":"Copilul lui Radu nu locuiește în București."}
+{"id":"probe-hand-04","text":"Fiul lui Mihai studiază la Cluj."}
+{"id":"probe-hand-05","text":"Fiica Elenei predă la liceu."}
+{"id":"probe-hand-06","text":"Este Ion copilul lui Gheorghe?"}
+{"id":"probe-hand-07","text":"Copiii Anei merg la școală pe jos."}
+{"id":"probe-hand-08","text":"Sa stiu cine e copilul lui Victor?"}
+{"id":"probe-hand-09","text":"Copilul Ioanei a câștigat concursul."}
+{"id":"probe-hand-10","text":"Nu cunosc copilul lui Dan."}
+{"id":"probe-hand-11","text":"Fiul Laurei lucreaza la banca."}
+{"id":"probe-hand-12","text":"Fiica lui Petru a plecat la Viena."}
+{"id":"probe-hand-13","text":"Copilul lui Sorin este bolnav."}
+{"id":"probe-hand-14","text":"Cati copii are Cristina?"}
+{"id":"probe-hand-15","text":"Este Maria copilul Alinei?"}
+{"id":"probe-hand-16","text":"Copilul vecinului meu cântă la pian."}
+{"id":"probe-hand-17","text":"Copilul lui Andrei works at the hospital."}
+{"id":"probe-hand-18","text":"Who is the copil of Maria?"}
+{"id":"probe-hand-19","text":"Fiul lui Mihai studies in Cluj."}
+{"id":"probe-hand-20","text":"Is Ion copilul lui Gheorghe?"}
+{"id":"probe-hand-21","text":"Fiica Elenei teaches at the high school."}
+{"id":"probe-hand-22","text":"Does copilul lui Radu live in Bucharest?"}
+{"id":"probe-hand-23","text":"Ana are doi children."}
+{"id":"probe-hand-24","text":"The copil of Victor plays football."}
+{"id":"probe-hand-25","text":"is ion the child of gheorghe"}
+{"id":"probe-hand-26","text":"whos the child of maria"}
+{"id":"probe-hand-27","text":"radus child doesnt live in bucharest"}
+{"id":"probe-hand-28","text":"mihais son studys in cluj"}
+{"id":"probe-hand-29","text":"elenas daughter teachs at the high school"}
+{"id":"probe-hand-30","text":"the child of andrei work at the hospital"}
+{"id":"probe-hand-31","text":"is maria the child of alina?"}
+{"id":"probe-hand-32","text":"how many childs does cristina have"}
+{"id":"probe-hand-33","text":"Victors child is sick"}
+{"id":"probe-hand-34","text":"the daughtr of Petru left for Vienna"}
+{"id":"probe-hand-35","text":"Părintele lui Andrei lucrează la spital."}
+{"id":"probe-hand-36","text":"Cine este părintele Mariei?"}
+{"id":"probe-hand-37","text":"Is Ion părintele lui Gheorghe?"}
+{"id":"probe-hand-38","text":"is ion the parent of gheorghe"}

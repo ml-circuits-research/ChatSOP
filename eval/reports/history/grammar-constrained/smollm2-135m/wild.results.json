@@ -1,0 +1,583 @@
+{
+ "format": "chatsop-grammar-constrained-cell-v1",
+ "model": "smollm2-135m",
+ "cell": "wild",
+ "comparison": "gbnf - free",
+ "suite": "eval/suites/formalizer-wild-v1/test.jsonl",
+ "cell_rows": 796,
+ "stages": [
+  100,
+  300,
+  796
+ ],
+ "stage_results": [
+  {
+   "stage": 1,
+   "rows": 100,
+   "primary": "wild_accepted_match",
+   "summary": {
+    "free": {
+     "rows": 100,
+     "parse_validity": 0.94,
+     "compile_validity": 0.94,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "wire_f1": 0.0535,
+     "wild_accepted_match": 0.08,
+     "wild_decision_match": 0.86,
+     "wild_proposition_f1": 0.555,
+     "counts": {
+      "parse": 94,
+      "compile": 94,
+      "exec": null,
+      "accepted_match": 8
+     }
+    },
+    "gbnf": {
+     "rows": 100,
+     "parse_validity": 0.99,
+     "compile_validity": 0.99,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "wire_f1": 0.053,
+     "wild_accepted_match": 0.08,
+     "wild_decision_match": 0.9,
+     "wild_proposition_f1": 0.605,
+     "counts": {
+      "parse": 99,
+      "compile": 99,
+      "exec": null,
+      "accepted_match": 8
+     }
+    }
+   },
+   "primary_delta": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "decision": {
+    "stop": true,
+    "reason": "futility"
+   }
+  }
+ ],
+ "final_rows": 100,
+ "stopped": {
+  "stop": true,
+  "reason": "futility"
+ },
+ "identical_outputs": 0.92,
+ "metrics": {
+  "all": {
+   "free": {
+    "rows": 100,
+    "parse_validity": 0.94,
+    "compile_validity": 0.94,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0535,
+    "wild_accepted_match": 0.08,
+    "wild_decision_match": 0.86,
+    "wild_proposition_f1": 0.555,
+    "counts": {
+     "parse": 94,
+     "compile": 94,
+     "exec": null,
+     "accepted_match": 8
+    }
+   },
+   "gbnf": {
+    "rows": 100,
+    "parse_validity": 0.99,
+    "compile_validity": 0.99,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.053,
+    "wild_accepted_match": 0.08,
+    "wild_decision_match": 0.9,
+    "wild_proposition_f1": 0.605,
+    "counts": {
+     "parse": 99,
+     "compile": 99,
+     "exec": null,
+     "accepted_match": 8
+    }
+   }
+  },
+  "language:en": {
+   "free": {
+    "rows": 43,
+    "parse_validity": 0.907,
+    "compile_validity": 0.907,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.1125,
+    "wild_accepted_match": 0.1163,
+    "wild_decision_match": 0.8605,
+    "wild_proposition_f1": 0.6395,
+    "counts": {
+     "parse": 39,
+     "compile": 39,
+     "exec": null,
+     "accepted_match": 5
+    }
+   },
+   "gbnf": {
+    "rows": 43,
+    "parse_validity": 0.9767,
+    "compile_validity": 0.9767,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.1084,
+    "wild_accepted_match": 0.1163,
+    "wild_decision_match": 0.9302,
+    "wild_proposition_f1": 0.7093,
+    "counts": {
+     "parse": 42,
+     "compile": 42,
+     "exec": null,
+     "accepted_match": 5
+    }
+   }
+  },
+  "language:mixed": {
+   "free": {
+    "rows": 20,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0227,
+    "wild_accepted_match": 0.05,
+    "wild_decision_match": 0.9,
+    "wild_proposition_f1": 0.45,
+    "counts": {
+     "parse": 20,
+     "compile": 20,
+     "exec": null,
+     "accepted_match": 1
+    }
+   },
+   "gbnf": {
+    "rows": 20,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0227,
+    "wild_accepted_match": 0.05,
+    "wild_decision_match": 0.9,
+    "wild_proposition_f1": 0.45,
+    "counts": {
+     "parse": 20,
+     "compile": 20,
+     "exec": null,
+     "accepted_match": 1
+    }
+   }
+  },
+  "language:ro": {
+   "free": {
+    "rows": 37,
+    "parse_validity": 0.9459,
+    "compile_validity": 0.9459,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0123,
+    "wild_accepted_match": 0.0541,
+    "wild_decision_match": 0.8378,
+    "wild_proposition_f1": 0.5135,
+    "counts": {
+     "parse": 35,
+     "compile": 35,
+     "exec": null,
+     "accepted_match": 2
+    }
+   },
+   "gbnf": {
+    "rows": 37,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0124,
+    "wild_accepted_match": 0.0541,
+    "wild_decision_match": 0.8649,
+    "wild_proposition_f1": 0.5676,
+    "counts": {
+     "parse": 37,
+     "compile": 37,
+     "exec": null,
+     "accepted_match": 2
+    }
+   }
+  }
+ },
+ "deltas": {
+  "all": {
+   "parse_validity": {
+    "delta": 0.05,
+    "ci95": [
+     0.01,
+     0.09
+    ],
+    "clusters": 100
+   },
+   "compile_validity": {
+    "delta": 0.05,
+    "ci95": [
+     0.01,
+     0.09
+    ],
+    "clusters": 100
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "wire_f1": {
+    "delta": -0.0005,
+    "ci95": [
+     -0.0024,
+     0.0006
+    ],
+    "clusters": 100
+   },
+   "wild_decision_match": {
+    "delta": 0.04,
+    "ci95": [
+     0,
+     0.09
+    ],
+    "clusters": 100
+   },
+   "wild_proposition_f1": {
+    "delta": 0.05,
+    "ci95": [
+     0.01,
+     0.09
+    ],
+    "clusters": 100
+   }
+  },
+  "language:en": {
+   "parse_validity": {
+    "delta": 0.0698,
+    "ci95": [
+     0,
+     0.1628
+    ],
+    "clusters": 43
+   },
+   "compile_validity": {
+    "delta": 0.0698,
+    "ci95": [
+     0,
+     0.1628
+    ],
+    "clusters": 43
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 43
+   },
+   "wire_f1": {
+    "delta": -0.0041,
+    "ci95": [
+     -0.0118,
+     0
+    ],
+    "clusters": 43
+   },
+   "wild_decision_match": {
+    "delta": 0.0698,
+    "ci95": [
+     0,
+     0.1628
+    ],
+    "clusters": 43
+   },
+   "wild_proposition_f1": {
+    "delta": 0.0698,
+    "ci95": [
+     0,
+     0.1628
+    ],
+    "clusters": 43
+   }
+  },
+  "language:mixed": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   },
+   "wild_decision_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   },
+   "wild_proposition_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   }
+  },
+  "language:ro": {
+   "parse_validity": {
+    "delta": 0.0541,
+    "ci95": [
+     0,
+     0.1351
+    ],
+    "clusters": 37
+   },
+   "compile_validity": {
+    "delta": 0.0541,
+    "ci95": [
+     0,
+     0.1351
+    ],
+    "clusters": 37
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "wire_f1": {
+    "delta": 0.0002,
+    "ci95": [
+     0,
+     0.0009
+    ],
+    "clusters": 37
+   },
+   "wild_decision_match": {
+    "delta": 0.027,
+    "ci95": [
+     -0.0541,
+     0.1081
+    ],
+    "clusters": 37
+   },
+   "wild_proposition_f1": {
+    "delta": 0.0541,
+    "ci95": [
+     0,
+     0.1351
+    ],
+    "clusters": 37
+   }
+  }
+ },
+ "speed": {
+  "free": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 (server -np 8, one request at a time, cache_prompt false)"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 128.5338,
+    "p50": 116.5101,
+    "p95": 336.1669
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 73.9,
+    "p50": 67,
+    "p95": 203
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 638.3401,
+    "p50": 639.1335,
+    "p95": 647.3712
+   }
+  },
+  "gbnf": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 (server -np 8, one request at a time, cache_prompt false)"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 131.5515,
+    "p50": 116.9458,
+    "p95": 460.1293
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 74.74,
+    "p50": 67,
+    "p95": 266
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 632.4067,
+    "p50": 635.8132,
+    "p95": 642.3983
+   }
+  }
+ },
+ "example_counts": {
+  "helped": 0,
+  "hurt": 0,
+  "repaired_parse": 5,
+  "forced_wrong": 5,
+  "changed_valid": 2
+ },
+ "examples": {
+  "helped": [],
+  "hurt": [],
+  "repaired_parse": [
+   {
+    "id": "wild_wd_029",
+    "language": "en",
+    "question": "is my Indigo flight from Delhi to Jaipur at 6:40 or 8:15? I've lost the email",
+    "gold": "@q query\n  select ?v\n  where match\n    relation \"be at\"\n    role subject \"my Indigo flight from Delhi to Jaipur\"\n    role time ?v\n    polarity affirmed\n  end\n  compare any\n    ?v equal \"6:40\"\n    ?v equal \"8:15\"\n  end",
+    "free": "@q query\n  mode exists\n  where match\n    relation \"fly from\"\n    role subject \"the Indigo\"\n    role destination \"Delhi\"\n    polarity affirmed\n  end\n  match\n    relation \"be at\"\n    role subject \"the Indigo\"\n    role object \"Jaipur\"\n    polarity affirmed\n  end\n  compare ?price between 6:40 and 8:15\n",
+    "gbnf": "@q query\n  mode exists\n  where match\n    relation \"fly from\"\n    role subject \"the Indigo\"\n    role destination \"Delhi\"\n    polarity affirmed\n  end\n  at \"6:40\"\n\n@q2 query\n  mode exists\n  where match\n    relation \"fly from\"\n    role subject \"the Indigo\"\n    role destination \"Jaipur\"\n    polarity affirmed\n  end\n  at \"8:15\"\n"
+   },
+   {
+    "id": "wild_wk_037",
+    "language": "en",
+    "question": "No one on the Tartu team except Kaarel speaks Russian?",
+    "gold": "@a1 assumed\n  relation \"speak\"\n  role subject \"Kaarel\"\n  role object \"Russian\"\n  polarity affirmed\n  basis implicature\n@q query\n  mode every\n  where match\n    relation \"be on\"\n    role subject ?m\n    role object \"the Tartu team\"\n    polarity affirmed\n  end\n  scope match\n    relation \"speak\"\n    role subject ?m\n    role object \"Russian\"\n    polarity negated\n  end\n  except ?m \"Kaarel\"",
+    "free": "@q query\n  mode exists\n  where all\n    match\n      relation \"coach\"\n      role subject \"Kairol\"\n      role object ?t\n      polarity affirmed\n    end\n    match\n      relation \"teach\"\n      role subject \"Kairol\"\n      role object ?t\n      polarity affirmed\n    end\n  end\n  compare ?t not equal \"on the Tartu team\"\n",
+    "gbnf": "@q query\n  mode exists\n  where all\n    match\n      relation \"coach\"\n      role subject \"Kairol\"\n      role object ?t\n      polarity affirmed\n    end\n    match\n      relation \"teach\"\n      role subject \"Kairol\"\n      role object ?t\n      polarity affirmed\n    end\n  end\n  compare ?t not_equal \"none of the team except ...\"\n"
+   },
+   {
+    "id": "wild_we_075",
+    "language": "en",
+    "question": "If the invoice is paid 45 days late and statutory interest is 8% a year, what's the interest on £22,500?",
+    "gold": "@c constraint\n  var ?x int 0 1000000000\n  require 36500 times ?x at_most 22500 times 8 times 45\n  require 36500 times ?x above 22500 times 8 times 45 minus 36500\n  claim ?x at_least 0\n  task possible\n  select ?x",
+    "free": "@c constraint\n  var ?amount_due int 0 45\n  require ?amount_due equal 45\n  require ?amount_due at_least 8%\n  claim ?amount_due at_least 8%\n  task possible\n  select ?amount_due\n",
+    "gbnf": "@c constraint\n  var ?amount_due int 0 45\n  require ?amount_due equal 45\n  require ?amount_due at_least 8\n  claim ?amount_due at_least 0\n  task possible\n  select ?amount_due\n"
+   },
+   {
+    "id": "wild_wi_069",
+    "language": "ro",
+    "question": "Nu e adevărat că nimeni nu mai poate contesta procesul-verbal de la ANPC după 15 zile, nu-i așa?",
+    "gold": "@q query\n  mode exists\n  where match\n    relation \"can still contest\"\n    role subject ?x\n    role object \"the ANPC report\"\n    role time \"after 15 days\"\n    polarity affirmed\n  end",
+    "free": "@q query\n  mode every\n  quantifier not_ than\n  where match\n    relation \"manage\"\n    role subject ?m\n    role object \"the product sale by the Antco Group\"\n    polarity affirmed\n  end\n  scope match\n    relation \"be old\"\n    role subject ?m\n    polarity negated\n  end\n",
+    "gbnf": "@q query\n  mode every\n  quantifier not_all\n  where match\n    relation \"manage\"\n    role subject ?m\n    role object \"the product sale by the Antco\"\n    polarity affirmed\n  end\n  scope match\n    relation \"be old\"\n    role subject ?m\n    polarity negated\n  end\n"
+   },
+   {
+    "id": "wild_wk_016",
+    "language": "ro",
+    "question": "ms frumos! a propo, la ce ora e programarea lu tata la dentist, nuj daca e la 3 sau la 4",
+    "gold": "@q query\n  select ?v\n  where match\n    relation \"be at\"\n    role subject \"dad's dentist appointment\"\n    role time ?v\n    polarity affirmed\n  end",
+    "free": "@q query\n  select ?x\n  where match\n    relation \"be the doctor of\"\n    role subject ?x\n    role object \"the dentist\"\n    polarity affirmed\n  end\n  except ?x at \"3 August 2022\"\n  except ?x at \"4 August 2022\"\n",
+    "gbnf": "@q query\n  select ?x\n  where match\n    relation \"be the doctor of\"\n    role subject ?x\n    role object \"the dentist\"\n    polarity affirmed\n  end\n  except ?x \"3\"\n  except ?x \"4\"\n"
+   }
+  ],
+  "forced_wrong": [
+   {
+    "id": "wild_wd_029",
+    "language": "en",
+    "question": "is my Indigo flight from Delhi to Jaipur at 6:40 or 8:15? I've lost the email",
+    "gold": "@q query\n  select ?v\n  where match\n    relation \"be at\"\n    role subject \"my Indigo flight from Delhi to Jaipur\"\n    role time ?v\n    polarity affirmed\n  end\n  compare any\n    ?v equal \"6:40\"\n    ?v equal \"8:15\"\n  end",
+    "free": "@q query\n  mode exists\n  where match\n    relation \"fly from\"\n    role subject \"the Indigo\"\n    role destination \"Delhi\"\n    polarity affirmed\n  end\n  match\n    relation \"be at\"\n    role subject \"the Indigo\"\n    role object \"Jaipur\"\n    polarity affirmed\n  end\n  compare ?price between 6:40 and 8:15\n",
+    "gbnf": "@q query\n  mode exists\n  where match\n    relation \"fly from\"\n    role subject \"the Indigo\"\n    role destination \"Delhi\"\n    polarity affirmed\n  end\n  at \"6:40\"\n\n@q2 query\n  mode exists\n  where match\n    relation \"fly from\"\n    role subject \"the Indigo\"\n    role destination \"Jaipur\"\n    polarity affirmed\n  end\n  at \"8:15\"\n"
+   },
+   {
+    "id": "wild_wk_037",
+    "language": "en",
+    "question": "No one on the Tartu team except Kaarel speaks Russian?",
+    "gold": "@a1 assumed\n  relation \"speak\"\n  role subject \"Kaarel\"\n  role object \"Russian\"\n  polarity affirmed\n  basis implicature\n@q query\n  mode every\n  where match\n    relation \"be on\"\n    role subject ?m\n    role object \"the Tartu team\"\n    polarity affirmed\n  end\n  scope match\n    relation \"speak\"\n    role subject ?m\n    role object \"Russian\"\n    polarity negated\n  end\n  except ?m \"Kaarel\"",
+    "free": "@q query\n  mode exists\n  where all\n    match\n      relation \"coach\"\n      role subject \"Kairol\"\n      role object ?t\n      polarity affirmed\n    end\n    match\n      relation \"teach\"\n      role subject \"Kairol\"\n      role object ?t\n      polarity affirmed\n    end\n  end\n  compare ?t not equal \"on the Tartu team\"\n",
+    "gbnf": "@q query\n  mode exists\n  where all\n    match\n      relation \"coach\"\n      role subject \"Kairol\"\n      role object ?t\n      polarity affirmed\n    end\n    match\n      relation \"teach\"\n      role subject \"Kairol\"\n      role object ?t\n      polarity affirmed\n    end\n  end\n  compare ?t not_equal \"none of the team except ...\"\n"
+   },
+   {
+    "id": "wild_we_075",
+    "language": "en",
+    "question": "If the invoice is paid 45 days late and statutory interest is 8% a year, what's the interest on £22,500?",
+    "gold": "@c constraint\n  var ?x int 0 1000000000\n  require 36500 times ?x at_most 22500 times 8 times 45\n  require 36500 times ?x above 22500 times 8 times 45 minus 36500\n  claim ?x at_least 0\n  task possible\n  select ?x",
+    "free": "@c constraint\n  var ?amount_due int 0 45\n  require ?amount_due equal 45\n  require ?amount_due at_least 8%\n  claim ?amount_due at_least 8%\n  task possible\n  select ?amount_due\n",
+    "gbnf": "@c constraint\n  var ?amount_due int 0 45\n  require ?amount_due equal 45\n  require ?amount_due at_least 8\n  claim ?amount_due at_least 0\n  task possible\n  select ?amount_due\n"
+   },
+   {
+    "id": "wild_wi_069",
+    "language": "ro",
+    "question": "Nu e adevărat că nimeni nu mai poate contesta procesul-verbal de la ANPC după 15 zile, nu-i așa?",
+    "gold": "@q query\n  mode exists\n  where match\n    relation \"can still contest\"\n    role subject ?x\n    role object \"the ANPC report\"\n    role time \"after 15 days\"\n    polarity affirmed\n  end",
+    "free": "@q query\n  mode every\n  quantifier not_ than\n  where match\n    relation \"manage\"\n    role subject ?m\n    role object \"the product sale by the Antco Group\"\n    polarity affirmed\n  end\n  scope match\n    relation \"be old\"\n    role subject ?m\n    polarity negated\n  end\n",
+    "gbnf": "@q query\n  mode every\n  quantifier not_all\n  where match\n    relation \"manage\"\n    role subject ?m\n    role object \"the product sale by the Antco\"\n    polarity affirmed\n  end\n  scope match\n    relation \"be old\"\n    role subject ?m\n    polarity negated\n  end\n"
+   },
+   {
+    "id": "wild_wk_016",
+    "language": "ro",
+    "question": "ms frumos! a propo, la ce ora e programarea lu tata la dentist, nuj daca e la 3 sau la 4",
+    "gold": "@q query\n  select ?v\n  where match\n    relation \"be at\"\n    role subject \"dad's dentist appointment\"\n    role time ?v\n    polarity affirmed\n  end",
+    "free": "@q query\n  select ?x\n  where match\n    relation \"be the doctor of\"\n    role subject ?x\n    role object \"the dentist\"\n    polarity affirmed\n  end\n  except ?x at \"3 August 2022\"\n  except ?x at \"4 August 2022\"\n",
+    "gbnf": "@q query\n  select ?x\n  where match\n    relation \"be the doctor of\"\n    role subject ?x\n    role object \"the dentist\"\n    polarity affirmed\n  end\n  except ?x \"3\"\n  except ?x \"4\"\n"
+   }
+  ],
+  "changed_valid": [
+   {
+    "id": "wild_wh_098",
+    "language": "ro",
+    "question": "Eu am 3 restante, Ionut are 2, Georgiana are 5 si Tibi niciuna. cati dintre noi mai putem lua bursa daca limita e maxim 2?",
+    "gold": "@s1 stated\n  relation \"have failed exams\"\n  role subject \"I\"\n  role object 3\n  polarity affirmed\n  certainty asserted\n@s2 stated\n  relation \"have failed exams\"\n  role subject \"Ionut\"\n  role object 2\n  polarity affirmed\n  certainty asserted\n@s3 stated\n  relation \"have failed exams\"\n  role subject \"Georgiana\"\n  role object 5\n  polarity affirmed\n  certainty asserted\n@s4 stated\n  relation \"have failed exams\"\n  role subject \"Tibi\"\n  role object 0\n  polarity affirmed\n  certainty asserted\n@s5 stated\n  relation \"be at most\"\n  role subject \"the limit\"\n  role object 2\n  polarity affirmed\n  certainty supposed\n@q query\n  mode count\n  select ?x\n  where all\n    match\n      relation \"be one of\"\n      role subject ?x\n      role object \"us\"\n      polarity affirmed\n    end\n    match\n      relation \"can still get\"\n      role subject ?x\n      role object \"the scholarship\"\n      polarity affirmed\n    end\n  end",
+    "free": "@c constraint\n  var ?x int 0 2 5\n  claim ?x above 2\n  task prove\n\n@q query\n  where match\n    relation \"have\"\n    role subject \"Eugen\"\n    role object ?x\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"have\"\n    role subject \"Georgiana\"\n    role object \"5\"\n    polarity affirmed\n  end\n  at \"the Tuesday after the leap of faith\"\n",
+    "gbnf": "@c constraint\n  var ?x int 0 2\n  require ?x at_least 5\n  claim ?x above 2\n  task prove\n"
+   },
+   {
+    "id": "wild_wi_079",
+    "language": "ro",
+    "question": "Adresa pentru petiții la CJAS Brașov este petitii@casbv.ro sau registratura@casbv.ro?",
+    "gold": "@q query\n  select ?v\n  where match\n    relation \"be\"\n    role subject \"the address for petitions at CJAS Brașov\"\n    role object ?v\n    polarity affirmed\n  end\n  compare any\n    ?v equal \"petitii@casbv.ro\"\n    ?v equal \"registratura@casbv.ro\"\n  end",
+    "free": "@s1 stated\n  relation \"be a player of\"\n  role subject \"Adresa\"\n  role object \" CJAS Brașov\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"be registered\"\n    role subject \"Adresa\"\n    polarity affirmed\n  end\n",
+    "gbnf": "@s1 stated\n  relation \"be a player of\"\n  role subject \"Adresa\"\n  role object \"CJAS Brașov\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"be registered\"\n    role subject \"Adresa\"\n    role object \"@casbv\"\n    polarity affirmed\n  end\n"
+   }
+  ]
+ }
+}

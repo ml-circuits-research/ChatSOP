@@ -1,0 +1,36 @@
+{
+ "generated_at": "2026-10-01T02:49:53.163Z",
+ "tokenizer": "Gemma 3 (models/gemma/bases/99073d6b..., chat template of training/python/common.py chat_ids)",
+ "over_2048": 0,
+ "dropped_over_2048": 0,
+ "train": {
+  "n": 61693,
+  "p50": 36,
+  "p99": 77,
+  "max": 161
+ },
+ "dev": {
+  "n": 5173,
+  "p50": 37,
+  "p99": 77,
+  "max": 142
+ },
+ "dev-backgen": {
+  "n": 1488,
+  "p50": 35,
+  "p99": 60,
+  "max": 93
+ },
+ "dev-heldout": {
+  "n": 574,
+  "p50": 38,
+  "p99": 66,
+  "max": 72
+ },
+ "mash-eval": {
+  "n": 150,
+  "p50": 29,
+  "p99": 51,
+  "max": 61
+ }
+}

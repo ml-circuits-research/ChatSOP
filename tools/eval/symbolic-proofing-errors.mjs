@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Error categories and examples of the SymbolicProofingLLM iteration-2 evaluation (experiment train-symbolic-proofing-gemma270m-it2), from the score files and the composed runs.
  *
- *   SYMPROOF_WORK=eval/reports/current/symbolic-proofing-it2 node tools/eval/symbolic-proofing-errors.mjs [--arm it2] [--out errors.md]
+ *   SYMPROOF_WORK=eval/reports/history/symbolic-proofing-it2 node tools/eval/symbolic-proofing-errors.mjs [--arm it2] [--out errors.md]
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,7 +10,7 @@ import {ROOT} from '../../lib/dataset-paths.mjs';
 import {sentencesOf, foldWords, lostFillers, pronounCount} from '../datasets/symbolic-proofing-v2/units.mjs';
 import {loadCases} from './composed-score.mjs';
 
-const WORK = path.join(ROOT, process.env.SYMPROOF_WORK ?? 'eval/reports/current/symbolic-proofing-it2');
+const WORK = path.join(ROOT, process.env.SYMPROOF_WORK ?? 'eval/reports/history/symbolic-proofing-it2');
 const args = process.argv.slice(2), opt = (n, d) => (args.includes(`--${n}`) ? args[args.indexOf(`--${n}`) + 1] : d);
 const ARM = opt('arm', 'it2'), out = opt('out', 'errors.md');
 const readJson = f => JSON.parse(fs.readFileSync(f, 'utf8'));

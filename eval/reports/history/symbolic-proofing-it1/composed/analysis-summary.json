@@ -1,0 +1,1895 @@
+{
+ "generated_at": "2026-09-30T21:32:56.154Z",
+ "summaries": [
+  {
+   "run": "base-270m-it K2 paragraph",
+   "name": "base-270m-it",
+   "kind": "K2",
+   "mode": "paragraph",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 10,
+    "n": 306,
+    "p": 3.3,
+    "lo": 1.8,
+    "hi": 5.9
+   },
+   "output_analysis_correct": {
+    "k": 134,
+    "n": 306,
+    "p": 43.8,
+    "lo": 38.3,
+    "hi": 49.4
+   },
+   "expected_analysis_correct": {
+    "k": 46,
+    "n": 306,
+    "p": 15,
+    "lo": 11.5,
+    "hi": 19.5
+   },
+   "sentences_correct_in": {
+    "k": 766,
+    "n": 1610,
+    "p": 47.6,
+    "lo": 45.1,
+    "hi": 50
+   },
+   "sentences_correct_out": {
+    "k": 483,
+    "n": 954,
+    "p": 50.6,
+    "lo": 47.5,
+    "hi": 53.8
+   },
+   "sentences_correct_expected": {
+    "k": 1438,
+    "n": 2072,
+    "p": 69.4,
+    "lo": 67.4,
+    "hi": 71.3
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 8,
+    "n": 306,
+    "p": 2.6,
+    "lo": 1.3,
+    "hi": 5.1
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 296,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.3
+   },
+   "worse_than_input": {
+    "k": 5,
+    "n": 10,
+    "p": 50,
+    "lo": 23.7,
+    "hi": 76.3
+   },
+   "text_unchanged": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "same_analysis_as_input": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "sentence_count_equals_expected": {
+    "k": 8,
+    "n": 306,
+    "p": 2.6,
+    "lo": 1.3,
+    "hi": 5.1
+   },
+   "output_one_clause_sentences": {
+    "k": 465,
+    "n": 954,
+    "p": 48.7,
+    "lo": 45.6,
+    "hi": 51.9
+   },
+   "expected_one_clause_sentences": {
+    "k": 1259,
+    "n": 2072,
+    "p": 60.8,
+    "lo": 58.6,
+    "hi": 62.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 793,
+    "n": 954,
+    "p": 83.1,
+    "lo": 80.6,
+    "hi": 85.4
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 1970,
+    "n": 2072,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 95.9
+   }
+  },
+  {
+   "run": "base-270m-it K2 sentence",
+   "name": "base-270m-it",
+   "kind": "K2",
+   "mode": "sentence",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 10,
+    "n": 306,
+    "p": 3.3,
+    "lo": 1.8,
+    "hi": 5.9
+   },
+   "output_analysis_correct": {
+    "k": 17,
+    "n": 306,
+    "p": 5.6,
+    "lo": 3.5,
+    "hi": 8.7
+   },
+   "expected_analysis_correct": {
+    "k": 46,
+    "n": 306,
+    "p": 15,
+    "lo": 11.5,
+    "hi": 19.5
+   },
+   "sentences_correct_in": {
+    "k": 766,
+    "n": 1610,
+    "p": 47.6,
+    "lo": 45.1,
+    "hi": 50
+   },
+   "sentences_correct_out": {
+    "k": 891,
+    "n": 1691,
+    "p": 52.7,
+    "lo": 50.3,
+    "hi": 55.1
+   },
+   "sentences_correct_expected": {
+    "k": 1438,
+    "n": 2072,
+    "p": 69.4,
+    "lo": 67.4,
+    "hi": 71.3
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 196,
+    "n": 306,
+    "p": 64.1,
+    "lo": 58.5,
+    "hi": 69.2
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 6,
+    "n": 306,
+    "p": 2,
+    "lo": 0.9,
+    "hi": 4.2
+   },
+   "fixed_of_failing_inputs": {
+    "k": 2,
+    "n": 296,
+    "p": 0.7,
+    "lo": 0.2,
+    "hi": 2.4
+   },
+   "worse_than_input": {
+    "k": 6,
+    "n": 10,
+    "p": 60,
+    "lo": 31.3,
+    "hi": 83.2
+   },
+   "text_unchanged": {
+    "k": 68,
+    "n": 306,
+    "p": 22.2,
+    "lo": 17.9,
+    "hi": 27.2
+   },
+   "same_analysis_as_input": {
+    "k": 68,
+    "n": 306,
+    "p": 22.2,
+    "lo": 17.9,
+    "hi": 27.2
+   },
+   "sentence_count_equals_expected": {
+    "k": 93,
+    "n": 306,
+    "p": 30.4,
+    "lo": 25.5,
+    "hi": 35.8
+   },
+   "output_one_clause_sentences": {
+    "k": 713,
+    "n": 1691,
+    "p": 42.2,
+    "lo": 39.8,
+    "hi": 44.5
+   },
+   "expected_one_clause_sentences": {
+    "k": 1259,
+    "n": 2072,
+    "p": 60.8,
+    "lo": 58.6,
+    "hi": 62.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 1619,
+    "n": 1691,
+    "p": 95.7,
+    "lo": 94.7,
+    "hi": 96.6
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 1970,
+    "n": 2072,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 95.9
+   }
+  },
+  {
+   "run": "base-270m-it K3 paragraph",
+   "name": "base-270m-it",
+   "kind": "K3",
+   "mode": "paragraph",
+   "cases": 289,
+   "input_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "output_analysis_correct": {
+    "k": 62,
+    "n": 289,
+    "p": 21.5,
+    "lo": 17.1,
+    "hi": 26.5
+   },
+   "expected_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "sentences_correct_in": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "sentences_correct_out": {
+    "k": 2263,
+    "n": 4995,
+    "p": 45.3,
+    "lo": 43.9,
+    "hi": 46.7
+   },
+   "sentences_correct_expected": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 15,
+    "n": 289,
+    "p": 5.2,
+    "lo": 3.2,
+    "hi": 8.4
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 0,
+    "n": 289,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.3
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 271,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "worse_than_input": {
+    "k": 5,
+    "n": 18,
+    "p": 27.8,
+    "lo": 12.5,
+    "hi": 50.9
+   },
+   "text_unchanged": {
+    "k": 0,
+    "n": 289,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.3
+   },
+   "same_analysis_as_input": {
+    "k": 1,
+    "n": 289,
+    "p": 0.3,
+    "lo": 0.1,
+    "hi": 1.9
+   },
+   "sentence_count_equals_expected": {
+    "k": 38,
+    "n": 289,
+    "p": 13.1,
+    "lo": 9.7,
+    "hi": 17.5
+   },
+   "output_one_clause_sentences": {
+    "k": 2795,
+    "n": 4995,
+    "p": 56,
+    "lo": 54.6,
+    "hi": 57.3
+   },
+   "expected_one_clause_sentences": {
+    "k": 2753,
+    "n": 5827,
+    "p": 47.2,
+    "lo": 46,
+    "hi": 48.5
+   },
+   "output_explicit_subject_sentences": {
+    "k": 3978,
+    "n": 4995,
+    "p": 79.6,
+    "lo": 78.5,
+    "hi": 80.7
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5303,
+    "n": 5827,
+    "p": 91,
+    "lo": 90.2,
+    "hi": 91.7
+   }
+  },
+  {
+   "run": "base-270m-it K3 sentence",
+   "name": "base-270m-it",
+   "kind": "K3",
+   "mode": "sentence",
+   "cases": 289,
+   "input_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "output_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "expected_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "sentences_correct_in": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "sentences_correct_out": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "sentences_correct_expected": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 271,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 18,
+    "p": 0,
+    "lo": 0,
+    "hi": 17.6
+   },
+   "text_unchanged": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "output_one_clause_sentences": {
+    "k": 2753,
+    "n": 5827,
+    "p": 47.2,
+    "lo": 46,
+    "hi": 48.5
+   },
+   "expected_one_clause_sentences": {
+    "k": 2753,
+    "n": 5827,
+    "p": 47.2,
+    "lo": 46,
+    "hi": 48.5
+   },
+   "output_explicit_subject_sentences": {
+    "k": 5303,
+    "n": 5827,
+    "p": 91,
+    "lo": 90.2,
+    "hi": 91.7
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5303,
+    "n": 5827,
+    "p": 91,
+    "lo": 90.2,
+    "hi": 91.7
+   }
+  },
+  {
+   "run": "base-270m-it K6-neuro_english whole",
+   "name": "base-270m-it",
+   "kind": "K6",
+   "mode": "whole",
+   "cases": 16,
+   "input_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct": {
+    "k": 7,
+    "n": 16,
+    "p": 43.8,
+    "lo": 23.1,
+    "hi": 66.8
+   },
+   "expected_analysis_correct": {
+    "k": 9,
+    "n": 16,
+    "p": 56.3,
+    "lo": 33.2,
+    "hi": 76.9
+   },
+   "sentences_correct_in": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_out": {
+    "k": 18,
+    "n": 39,
+    "p": 46.2,
+    "lo": 31.6,
+    "hi": 61.4
+   },
+   "sentences_correct_expected": {
+    "k": 35,
+    "n": 45,
+    "p": 77.8,
+    "lo": 63.7,
+    "hi": 87.5
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 1,
+    "n": 16,
+    "p": 6.3,
+    "lo": 1.1,
+    "hi": 28.3
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 12,
+    "p": 0,
+    "lo": 0,
+    "hi": 24.3
+   },
+   "worse_than_input": {
+    "k": 2,
+    "n": 4,
+    "p": 50,
+    "lo": 15,
+    "hi": 85
+   },
+   "text_unchanged": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "same_analysis_as_input": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "sentence_count_equals_expected": {
+    "k": 1,
+    "n": 16,
+    "p": 6.3,
+    "lo": 1.1,
+    "hi": 28.3
+   },
+   "output_one_clause_sentences": {
+    "k": 23,
+    "n": 39,
+    "p": 59,
+    "lo": 43.4,
+    "hi": 72.9
+   },
+   "expected_one_clause_sentences": {
+    "k": 25,
+    "n": 45,
+    "p": 55.6,
+    "lo": 41.2,
+    "hi": 69.1
+   },
+   "output_explicit_subject_sentences": {
+    "k": 34,
+    "n": 39,
+    "p": 87.2,
+    "lo": 73.3,
+    "hi": 94.4
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 45,
+    "n": 45,
+    "p": 100,
+    "lo": 92.1,
+    "hi": 100
+   }
+  },
+  {
+   "run": "identity K2 paragraph",
+   "name": "identity",
+   "kind": "K2",
+   "mode": "paragraph",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 10,
+    "n": 306,
+    "p": 3.3,
+    "lo": 1.8,
+    "hi": 5.9
+   },
+   "output_analysis_correct": {
+    "k": 10,
+    "n": 306,
+    "p": 3.3,
+    "lo": 1.8,
+    "hi": 5.9
+   },
+   "expected_analysis_correct": {
+    "k": 46,
+    "n": 306,
+    "p": 15,
+    "lo": 11.5,
+    "hi": 19.5
+   },
+   "sentences_correct_in": {
+    "k": 766,
+    "n": 1610,
+    "p": 47.6,
+    "lo": 45.1,
+    "hi": 50
+   },
+   "sentences_correct_out": {
+    "k": 766,
+    "n": 1610,
+    "p": 47.6,
+    "lo": 45.1,
+    "hi": 50
+   },
+   "sentences_correct_expected": {
+    "k": 1438,
+    "n": 2072,
+    "p": 69.4,
+    "lo": 67.4,
+    "hi": 71.3
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 10,
+    "n": 306,
+    "p": 3.3,
+    "lo": 1.8,
+    "hi": 5.9
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 296,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.3
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 10,
+    "p": 0,
+    "lo": 0,
+    "hi": 27.8
+   },
+   "text_unchanged": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 124,
+    "n": 306,
+    "p": 40.5,
+    "lo": 35.2,
+    "hi": 46.1
+   },
+   "output_one_clause_sentences": {
+    "k": 768,
+    "n": 1610,
+    "p": 47.7,
+    "lo": 45.3,
+    "hi": 50.1
+   },
+   "expected_one_clause_sentences": {
+    "k": 1259,
+    "n": 2072,
+    "p": 60.8,
+    "lo": 58.6,
+    "hi": 62.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 1411,
+    "n": 1610,
+    "p": 87.6,
+    "lo": 85.9,
+    "hi": 89.2
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 1970,
+    "n": 2072,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 95.9
+   }
+  },
+  {
+   "run": "identity K2 sentence",
+   "name": "identity",
+   "kind": "K2",
+   "mode": "sentence",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 10,
+    "n": 306,
+    "p": 3.3,
+    "lo": 1.8,
+    "hi": 5.9
+   },
+   "output_analysis_correct": {
+    "k": 10,
+    "n": 306,
+    "p": 3.3,
+    "lo": 1.8,
+    "hi": 5.9
+   },
+   "expected_analysis_correct": {
+    "k": 46,
+    "n": 306,
+    "p": 15,
+    "lo": 11.5,
+    "hi": 19.5
+   },
+   "sentences_correct_in": {
+    "k": 766,
+    "n": 1610,
+    "p": 47.6,
+    "lo": 45.1,
+    "hi": 50
+   },
+   "sentences_correct_out": {
+    "k": 766,
+    "n": 1610,
+    "p": 47.6,
+    "lo": 45.1,
+    "hi": 50
+   },
+   "sentences_correct_expected": {
+    "k": 1438,
+    "n": 2072,
+    "p": 69.4,
+    "lo": 67.4,
+    "hi": 71.3
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 10,
+    "n": 306,
+    "p": 3.3,
+    "lo": 1.8,
+    "hi": 5.9
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 296,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.3
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 10,
+    "p": 0,
+    "lo": 0,
+    "hi": 27.8
+   },
+   "text_unchanged": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 124,
+    "n": 306,
+    "p": 40.5,
+    "lo": 35.2,
+    "hi": 46.1
+   },
+   "output_one_clause_sentences": {
+    "k": 768,
+    "n": 1610,
+    "p": 47.7,
+    "lo": 45.3,
+    "hi": 50.1
+   },
+   "expected_one_clause_sentences": {
+    "k": 1259,
+    "n": 2072,
+    "p": 60.8,
+    "lo": 58.6,
+    "hi": 62.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 1411,
+    "n": 1610,
+    "p": 87.6,
+    "lo": 85.9,
+    "hi": 89.2
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 1970,
+    "n": 2072,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 95.9
+   }
+  },
+  {
+   "run": "identity K3 paragraph",
+   "name": "identity",
+   "kind": "K3",
+   "mode": "paragraph",
+   "cases": 289,
+   "input_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "output_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "expected_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "sentences_correct_in": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "sentences_correct_out": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "sentences_correct_expected": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 271,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 18,
+    "p": 0,
+    "lo": 0,
+    "hi": 17.6
+   },
+   "text_unchanged": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "output_one_clause_sentences": {
+    "k": 2753,
+    "n": 5827,
+    "p": 47.2,
+    "lo": 46,
+    "hi": 48.5
+   },
+   "expected_one_clause_sentences": {
+    "k": 2753,
+    "n": 5827,
+    "p": 47.2,
+    "lo": 46,
+    "hi": 48.5
+   },
+   "output_explicit_subject_sentences": {
+    "k": 5303,
+    "n": 5827,
+    "p": 91,
+    "lo": 90.2,
+    "hi": 91.7
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5303,
+    "n": 5827,
+    "p": 91,
+    "lo": 90.2,
+    "hi": 91.7
+   }
+  },
+  {
+   "run": "identity K3 sentence",
+   "name": "identity",
+   "kind": "K3",
+   "mode": "sentence",
+   "cases": 289,
+   "input_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "output_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "expected_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "sentences_correct_in": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "sentences_correct_out": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "sentences_correct_expected": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 271,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 18,
+    "p": 0,
+    "lo": 0,
+    "hi": 17.6
+   },
+   "text_unchanged": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "output_one_clause_sentences": {
+    "k": 2753,
+    "n": 5827,
+    "p": 47.2,
+    "lo": 46,
+    "hi": 48.5
+   },
+   "expected_one_clause_sentences": {
+    "k": 2753,
+    "n": 5827,
+    "p": 47.2,
+    "lo": 46,
+    "hi": 48.5
+   },
+   "output_explicit_subject_sentences": {
+    "k": 5303,
+    "n": 5827,
+    "p": 91,
+    "lo": 90.2,
+    "hi": 91.7
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5303,
+    "n": 5827,
+    "p": 91,
+    "lo": 90.2,
+    "hi": 91.7
+   }
+  },
+  {
+   "run": "identity K6-neuro_english whole",
+   "name": "identity",
+   "kind": "K6",
+   "mode": "whole",
+   "cases": 16,
+   "input_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "expected_analysis_correct": {
+    "k": 9,
+    "n": 16,
+    "p": 56.3,
+    "lo": 33.2,
+    "hi": 76.9
+   },
+   "sentences_correct_in": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_out": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_expected": {
+    "k": 35,
+    "n": 45,
+    "p": 77.8,
+    "lo": 63.7,
+    "hi": 87.5
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 12,
+    "p": 0,
+    "lo": 0,
+    "hi": 24.3
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 4,
+    "p": 0,
+    "lo": 0,
+    "hi": 49
+   },
+   "text_unchanged": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "output_one_clause_sentences": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "expected_one_clause_sentences": {
+    "k": 25,
+    "n": 45,
+    "p": 55.6,
+    "lo": 41.2,
+    "hi": 69.1
+   },
+   "output_explicit_subject_sentences": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 45,
+    "n": 45,
+    "p": 100,
+    "lo": 92.1,
+    "hi": 100
+   }
+  },
+  {
+   "run": "sp-it1-ep3 K2 paragraph",
+   "name": "sp-it1-ep3",
+   "kind": "K2",
+   "mode": "paragraph",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 10,
+    "n": 306,
+    "p": 3.3,
+    "lo": 1.8,
+    "hi": 5.9
+   },
+   "output_analysis_correct": {
+    "k": 16,
+    "n": 306,
+    "p": 5.2,
+    "lo": 3.2,
+    "hi": 8.3
+   },
+   "expected_analysis_correct": {
+    "k": 46,
+    "n": 306,
+    "p": 15,
+    "lo": 11.5,
+    "hi": 19.5
+   },
+   "sentences_correct_in": {
+    "k": 766,
+    "n": 1610,
+    "p": 47.6,
+    "lo": 45.1,
+    "hi": 50
+   },
+   "sentences_correct_out": {
+    "k": 1072,
+    "n": 1865,
+    "p": 57.5,
+    "lo": 55.2,
+    "hi": 59.7
+   },
+   "sentences_correct_expected": {
+    "k": 1438,
+    "n": 2072,
+    "p": 69.4,
+    "lo": 67.4,
+    "hi": 71.3
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 269,
+    "n": 306,
+    "p": 87.9,
+    "lo": 83.8,
+    "hi": 91.1
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 13,
+    "n": 306,
+    "p": 4.2,
+    "lo": 2.5,
+    "hi": 7.1
+   },
+   "fixed_of_failing_inputs": {
+    "k": 4,
+    "n": 296,
+    "p": 1.4,
+    "lo": 0.5,
+    "hi": 3.4
+   },
+   "worse_than_input": {
+    "k": 1,
+    "n": 10,
+    "p": 10,
+    "lo": 1.8,
+    "hi": 40.4
+   },
+   "text_unchanged": {
+    "k": 142,
+    "n": 306,
+    "p": 46.4,
+    "lo": 40.9,
+    "hi": 52
+   },
+   "same_analysis_as_input": {
+    "k": 146,
+    "n": 306,
+    "p": 47.7,
+    "lo": 42.2,
+    "hi": 53.3
+   },
+   "sentence_count_equals_expected": {
+    "k": 154,
+    "n": 306,
+    "p": 50.3,
+    "lo": 44.8,
+    "hi": 55.9
+   },
+   "output_one_clause_sentences": {
+    "k": 1024,
+    "n": 1865,
+    "p": 54.9,
+    "lo": 52.6,
+    "hi": 57.2
+   },
+   "expected_one_clause_sentences": {
+    "k": 1259,
+    "n": 2072,
+    "p": 60.8,
+    "lo": 58.6,
+    "hi": 62.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 1628,
+    "n": 1865,
+    "p": 87.3,
+    "lo": 85.7,
+    "hi": 88.7
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 1970,
+    "n": 2072,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 95.9
+   }
+  },
+  {
+   "run": "sp-it1-ep3 K2 sentence",
+   "name": "sp-it1-ep3",
+   "kind": "K2",
+   "mode": "sentence",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 10,
+    "n": 306,
+    "p": 3.3,
+    "lo": 1.8,
+    "hi": 5.9
+   },
+   "output_analysis_correct": {
+    "k": 11,
+    "n": 306,
+    "p": 3.6,
+    "lo": 2,
+    "hi": 6.3
+   },
+   "expected_analysis_correct": {
+    "k": 46,
+    "n": 306,
+    "p": 15,
+    "lo": 11.5,
+    "hi": 19.5
+   },
+   "sentences_correct_in": {
+    "k": 766,
+    "n": 1610,
+    "p": 47.6,
+    "lo": 45.1,
+    "hi": 50
+   },
+   "sentences_correct_out": {
+    "k": 774,
+    "n": 1617,
+    "p": 47.9,
+    "lo": 45.4,
+    "hi": 50.3
+   },
+   "sentences_correct_expected": {
+    "k": 1438,
+    "n": 2072,
+    "p": 69.4,
+    "lo": 67.4,
+    "hi": 71.3
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 303,
+    "n": 306,
+    "p": 99,
+    "lo": 97.2,
+    "hi": 99.7
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 11,
+    "n": 306,
+    "p": 3.6,
+    "lo": 2,
+    "hi": 6.3
+   },
+   "fixed_of_failing_inputs": {
+    "k": 2,
+    "n": 296,
+    "p": 0.7,
+    "lo": 0.2,
+    "hi": 2.4
+   },
+   "worse_than_input": {
+    "k": 1,
+    "n": 10,
+    "p": 10,
+    "lo": 1.8,
+    "hi": 40.4
+   },
+   "text_unchanged": {
+    "k": 244,
+    "n": 306,
+    "p": 79.7,
+    "lo": 74.9,
+    "hi": 83.9
+   },
+   "same_analysis_as_input": {
+    "k": 272,
+    "n": 306,
+    "p": 88.9,
+    "lo": 84.9,
+    "hi": 91.9
+   },
+   "sentence_count_equals_expected": {
+    "k": 127,
+    "n": 306,
+    "p": 41.5,
+    "lo": 36.1,
+    "hi": 47.1
+   },
+   "output_one_clause_sentences": {
+    "k": 777,
+    "n": 1617,
+    "p": 48.1,
+    "lo": 45.6,
+    "hi": 50.5
+   },
+   "expected_one_clause_sentences": {
+    "k": 1259,
+    "n": 2072,
+    "p": 60.8,
+    "lo": 58.6,
+    "hi": 62.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 1417,
+    "n": 1617,
+    "p": 87.6,
+    "lo": 85.9,
+    "hi": 89.1
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 1970,
+    "n": 2072,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 95.9
+   }
+  },
+  {
+   "run": "sp-it1-ep3 K3 paragraph",
+   "name": "sp-it1-ep3",
+   "kind": "K3",
+   "mode": "paragraph",
+   "cases": 289,
+   "input_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "output_analysis_correct": {
+    "k": 16,
+    "n": 289,
+    "p": 5.5,
+    "lo": 3.4,
+    "hi": 8.8
+   },
+   "expected_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "sentences_correct_in": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "sentences_correct_out": {
+    "k": 3476,
+    "n": 6021,
+    "p": 57.7,
+    "lo": 56.5,
+    "hi": 59
+   },
+   "sentences_correct_expected": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 256,
+    "n": 289,
+    "p": 88.6,
+    "lo": 84.4,
+    "hi": 91.8
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 14,
+    "n": 289,
+    "p": 4.8,
+    "lo": 2.9,
+    "hi": 8
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 271,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "worse_than_input": {
+    "k": 2,
+    "n": 18,
+    "p": 11.1,
+    "lo": 3.1,
+    "hi": 32.8
+   },
+   "text_unchanged": {
+    "k": 139,
+    "n": 289,
+    "p": 48.1,
+    "lo": 42.4,
+    "hi": 53.8
+   },
+   "same_analysis_as_input": {
+    "k": 167,
+    "n": 289,
+    "p": 57.8,
+    "lo": 52,
+    "hi": 63.3
+   },
+   "sentence_count_equals_expected": {
+    "k": 255,
+    "n": 289,
+    "p": 88.2,
+    "lo": 84,
+    "hi": 91.5
+   },
+   "output_one_clause_sentences": {
+    "k": 2917,
+    "n": 6021,
+    "p": 48.4,
+    "lo": 47.2,
+    "hi": 49.7
+   },
+   "expected_one_clause_sentences": {
+    "k": 2753,
+    "n": 5827,
+    "p": 47.2,
+    "lo": 46,
+    "hi": 48.5
+   },
+   "output_explicit_subject_sentences": {
+    "k": 5477,
+    "n": 6021,
+    "p": 91,
+    "lo": 90.2,
+    "hi": 91.7
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5303,
+    "n": 5827,
+    "p": 91,
+    "lo": 90.2,
+    "hi": 91.7
+   }
+  },
+  {
+   "run": "sp-it1-ep3 K3 sentence",
+   "name": "sp-it1-ep3",
+   "kind": "K3",
+   "mode": "sentence",
+   "cases": 289,
+   "input_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "output_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "expected_analysis_correct": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "sentences_correct_in": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "sentences_correct_out": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "sentences_correct_expected": {
+    "k": 3302,
+    "n": 5827,
+    "p": 56.7,
+    "lo": 55.4,
+    "hi": 57.9
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 18,
+    "n": 289,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.6
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 271,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 18,
+    "p": 0,
+    "lo": 0,
+    "hi": 17.6
+   },
+   "text_unchanged": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 289,
+    "n": 289,
+    "p": 100,
+    "lo": 98.7,
+    "hi": 100
+   },
+   "output_one_clause_sentences": {
+    "k": 2753,
+    "n": 5827,
+    "p": 47.2,
+    "lo": 46,
+    "hi": 48.5
+   },
+   "expected_one_clause_sentences": {
+    "k": 2753,
+    "n": 5827,
+    "p": 47.2,
+    "lo": 46,
+    "hi": 48.5
+   },
+   "output_explicit_subject_sentences": {
+    "k": 5303,
+    "n": 5827,
+    "p": 91,
+    "lo": 90.2,
+    "hi": 91.7
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5303,
+    "n": 5827,
+    "p": 91,
+    "lo": 90.2,
+    "hi": 91.7
+   }
+  },
+  {
+   "run": "sp-it1-ep3 K6-neuro_english whole",
+   "name": "sp-it1-ep3",
+   "kind": "K6",
+   "mode": "whole",
+   "cases": 16,
+   "input_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct": {
+    "k": 3,
+    "n": 16,
+    "p": 18.8,
+    "lo": 6.6,
+    "hi": 43
+   },
+   "expected_analysis_correct": {
+    "k": 9,
+    "n": 16,
+    "p": 56.3,
+    "lo": 33.2,
+    "hi": 76.9
+   },
+   "sentences_correct_in": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_out": {
+    "k": 3,
+    "n": 16,
+    "p": 18.8,
+    "lo": 6.6,
+    "hi": 43
+   },
+   "sentences_correct_expected": {
+    "k": 35,
+    "n": 45,
+    "p": 77.8,
+    "lo": 63.7,
+    "hi": 87.5
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 15,
+    "n": 16,
+    "p": 93.8,
+    "lo": 71.7,
+    "hi": 98.9
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 3,
+    "n": 16,
+    "p": 18.8,
+    "lo": 6.6,
+    "hi": 43
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 12,
+    "p": 0,
+    "lo": 0,
+    "hi": 24.3
+   },
+   "worse_than_input": {
+    "k": 1,
+    "n": 4,
+    "p": 25,
+    "lo": 4.6,
+    "hi": 69.9
+   },
+   "text_unchanged": {
+    "k": 14,
+    "n": 16,
+    "p": 87.5,
+    "lo": 64,
+    "hi": 96.5
+   },
+   "same_analysis_as_input": {
+    "k": 15,
+    "n": 16,
+    "p": 93.8,
+    "lo": 71.7,
+    "hi": 98.9
+   },
+   "sentence_count_equals_expected": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "output_one_clause_sentences": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "expected_one_clause_sentences": {
+    "k": 25,
+    "n": 45,
+    "p": 55.6,
+    "lo": 41.2,
+    "hi": 69.1
+   },
+   "output_explicit_subject_sentences": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 45,
+    "n": 45,
+    "p": 100,
+    "lo": 92.1,
+    "hi": 100
+   }
+  }
+ ]
+}

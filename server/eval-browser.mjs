@@ -24,7 +24,6 @@ import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {assert, stable} from '../lib/util.mjs';
 import {jsonlExists, readJsonlShardedSync, shardPaths} from '../lib/jsonl-shards.mjs';
-import {barePrompt} from './llm.mjs';
 import {cite} from './eval-guide.mjs';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -38,9 +37,15 @@ const tally = values => {
   return Object.fromEntries([...counts].sort((a, b) => String(a[0]).localeCompare(String(b[0]))));
 };
 
-/** Suites whose status the eval README records as historical (not an active suite). The legacy suites were
- * deleted with the regeneration (DS022); a historical suite would be listed here with its README citation. */
-const HISTORICAL_SUITES = {};
+/** Suites that are archive and provenance, not reported suites. AGENTS.md rule 9 and DS008 "Form coverage and form variants":
+ * the legacy formalizer suites' rows are learning material re-split across the three datasets (tools/eval/legacy-resplit.mjs).
+ * Value: citation `[file, anchor]` shown next to the suite. The files stay in place (eval/leakage.mjs and data tests read them). */
+const LEGACY_CITE = ['docs/specs/DS008-data-evaluation.md', 'Form coverage and form variants'];
+const HISTORICAL_SUITES = {
+  'formalizer-v1': LEGACY_CITE,
+  'formalizer-ood-v1': LEGACY_CITE,
+  'formalizer-wild-v1': LEGACY_CITE,
+};
 const ARTIFACT_DIRS = [
   {key: 'predictions', label: 'Predictions', dir: 'eval/predictions', historical: false},
   {key: 'registry', label: 'Registry', dir: 'eval/registry', historical: false},
@@ -77,10 +82,10 @@ export function targetForm(row) {
 }
 /** The message a user typed. Legacy rows split it into context_assertions + question. */
 const messageOf = row => [...(row.context_assertions ?? []), row.question ?? row.input ?? ''].join('\n');
-/** The exact instruction-free model input (server/llm.mjs `barePrompt`): the message; legacy rows also carried CONTEXT. */
+/** The exact instruction-free model input (the message alone); legacy rows also carried CONTEXT. */
 function modelInputOf(row, form) {
   try {
-    return barePrompt(messageOf(row));
+    return messageOf(row);
   } catch {
     return messageOf(row);
   }

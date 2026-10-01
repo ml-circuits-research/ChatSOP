@@ -9,7 +9,7 @@ import path from 'node:path';
 import {parse} from '../sop/parser.mjs';
 import {checkModelProgram, completeFragment} from '../sop/declarative.mjs';
 import {wordsToExpression} from '../sop/conditions.mjs';
-import {quantifiedStatus, numericValue} from '../reasoning/reasoner.mjs';
+import {quantifiedStatus, numericValue} from '../reasoning/bridge/index.mjs';
 import {Lexicon} from '../sop/lexicon.mjs';
 import {Runtime} from '../sop/runtime.mjs';
 import {Repository} from '../memory/repository.mjs';

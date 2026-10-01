@@ -1,0 +1,192 @@
+{
+ "suite": "formalizer-wild-v1",
+ "mixed": false,
+ "rows_total": 341,
+ "rows_scored": 100,
+ "model": "/home/salboaie/work/ChatSOP/models/gemma/proofreader-gemma270m-v1/proofreader/merged-best",
+ "stages": [
+  {
+   "stage": 1,
+   "rows": 100,
+   "summary": {
+    "no_rewrite": {
+     "rows": 100,
+     "strict": 0.18,
+     "tolerant": 0.18
+    },
+    "always_on": {
+     "rows": 100,
+     "strict": 0.17,
+     "tolerant": 0.17
+    },
+    "gate_no_spacy": {
+     "rows": 100,
+     "strict": 0.18,
+     "tolerant": 0.18
+    }
+   },
+   "delta_always_on_pp": {
+    "delta": -1,
+    "ci95": [
+     -3,
+     0
+    ]
+   },
+   "delta_gate_no_spacy_pp": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ]
+   },
+   "break_rate_always_on": 0.0556,
+   "decision": {
+    "stop": true,
+    "reason": "futility"
+   }
+  }
+ ],
+ "gained_rows": [],
+ "lost_rows": [
+  "wild_we_041"
+ ],
+ "changed_rows": 17,
+ "examples": [
+  {
+   "id": "wild_wd_072",
+   "before": "Ada, Rekha, Owen and me are in the saturday wheel group at Clay Cabin in Stroud. who's on the rota to bring glazes this week?",
+   "after": "Ada, Rekha, Owen and me are in the Saturday Wheel Group at Clay Cabin in Stroud. Who is on the rota to bring glazes this week?",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_wf_052",
+   "before": "what would happen to the SSO login if we let the okta signing cert expire on Oct 15",
+   "after": "What would happen to the SSO login if we let the okta signing cert expire on Oct 15",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_wf_060",
+   "before": "Emre, Katarzyna, Nnamdi and Beatriz need write access to the analytics bucket for the churn model refresh. Katarzyna thinks she got it back in spring when she was on the pricing project, Nnamdi is new, and I have no idea about the other two. Which of them already have it?",
+   "after": "Emre, Katarzyna, Nnamdi, and Beatriz need write access to the analytics bucket for the churn model refresh. Katarzyna thinks she got it back in spring when she was on the pricing project, Nnamdi is new, and I have no idea about the other two. Which of them already have it?",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_wf_029",
+   "before": "what's the extension number for the Rotterdam warehouse front office",
+   "after": "What is the extension number for the Rotterdam warehouse front office",
+   "gate_no_spacy": false,
+   "no_rewrite_strict": true,
+   "always_on_strict": true
+  },
+  {
+   "id": "wild_wk_029",
+   "before": "what does force majeure actually mean in a rental contract",
+   "after": "What does force majeure mean in a rental contract",
+   "gate_no_spacy": false,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_wd_034",
+   "before": "ok so there's four of us doing the Airbnb in Whitby for the October half term, total came to £186 for two nights. Priya already paid £50 when she put the deposit down, and me, Hannah and Callum haven't paid anything yet. I want to send everyone the right amount tonight so nobody's out of pocket. if we split it equally, how much do the other 3 owe each",
+   "after": "OK so there is four of us doing the Airbnb in Whitby for the October half term, total came to £186 for two nights. Priya already paid £50 when she put the deposit down, and me, Hannah and Callum haven't paid anything yet. I want to send everyone the right amount tonight so nobody's out of pocket. If we split it equally, how much do the other 3 owe each",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_wd_005",
+   "before": "list all the pharmacies near Dundrum that are open after 10pm on a saturday",
+   "after": "list all the pharmacies near Dundrum that are open after 10pm on a Saturday",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_wd_025",
+   "before": "book me a table for 4 at Dishoom Kensington this saturday, around 7:30 if poss",
+   "after": "book me a table for 4 at Dishoom Kensington this Saturday, around 7:30 if poss",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": true,
+   "always_on_strict": true
+  },
+  {
+   "id": "wild_we_079",
+   "before": "hey pls chk if thrs a bed on cdu or amu for mr gallagher thx",
+   "after": "hey pls check if there is a bed on cdu or amu for Mr Gallagher.",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_wk_052",
+   "before": "remind me what the dentist said is it the upper left molar or the lower one that needs a crown she said something about four hundred and fifty euro but i dont remember if thats with the allianz insurance or without",
+   "after": "remind me what the dentist said is it the upper left molar or the lower one that needs a crown she said something about four hundred and fifty euro but i dont remember if that is with the allianz insurance or without",
+   "gate_no_spacy": false,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_wf_044",
+   "before": "can u check the loggs for the sinc job it failed at to thirty am",
+   "after": "can u check the logs for the sinc job it failed at to thirty am",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_we_041",
+   "before": "Who is the current president of the Law Society of England and Wales?",
+   "after": "Who is the current president of the Law Society of England Wales and does the Law Society of England Wales own the Law Society of England Wales?",
+   "gate_no_spacy": false,
+   "no_rewrite_strict": true,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_we_031",
+   "before": "What's the difference between a deed and a simple contract?",
+   "after": "What does a deed mean? What does a simple contract mean?",
+   "gate_no_spacy": false,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_wd_029",
+   "before": "is my Indigo flight from Delhi to Jaipur at 6:40 or 8:15? I've lost the email",
+   "after": "Is my Indigo flight from Delhi to Jaipur at 6:40 or 8:15? I've lost the email",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_wf_061",
+   "before": "whats the monthly cost of the 2TB Backblaze B2 bucket we use for the camera footage",
+   "after": "What is the monthly cost of the 2TB Backblaze B2 bucket we use for the camera footage",
+   "gate_no_spacy": false,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_wd_015",
+   "before": "omg thx sm for yesterday 🙏 btw did u ever find out if the Primark on Briggate in Leeds does refunds w/o a receipt",
+   "after": "omg thx sm for yesterday 🙏 btw did u ever find out if the Primark on Briggate in Leeds does refunds with a receipt",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "wild_wf_086",
+   "before": "what did I just say about the Leuven IP?",
+   "after": "What did I just say about the Leuven IP?",
+   "gate_no_spacy": false,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  }
+ ]
+}

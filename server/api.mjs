@@ -7,7 +7,9 @@
  *   POST /v1/symbolic/analyze     the raw SymbolicLM analysis
  *   POST /v1/emotion/detect       EmotionDetectionSystem signals and emoticon suggestions
  *   GET  /v1/capabilities         the endpoint list and the component versions
- *   GET  /v1/cache/stats          (admin) per-cache statistics; POST /v1/cache/clear (admin) empties the caches
+ *   GET  /v1/server/models        what the server keeps open: per model the mode (keep_open, on_demand, off), the live state, memory and start cost
+ *   POST /v1/server/models        {models?: {id: mode}, maxRunning?, idleMinutes?, memoryBudgetMb?, turnWindowSeconds?, warmup?}: change it (persisted in config/server-models.json)
+ *   GET  /v1/cache/stats          per-cache statistics; POST /v1/cache/clear empties the caches
  *
  * Authentication is the server's own (bearer token or administrator session), checked before a route is reached. A request is a
  * JSON object with a non-empty `message`; the routes answer 200 with `status` ok, partial or unavailable (see capabilities.mjs):
@@ -24,15 +26,17 @@ export const API_ENDPOINTS = Object.freeze([
   {method: 'POST', path: '/v1/symbolic/analyze', capability: 'symbolic.analysis', body: ['message', 'rewrite', 'accept']},
   {method: 'POST', path: '/v1/emotion/detect', capability: 'emotion.detection', body: ['message', 'hasContent']},
   {method: 'GET', path: '/v1/capabilities', capability: 'capabilities'},
-  {method: 'GET', path: '/v1/cache/stats', capability: 'cache.stats', admin: true},
-  {method: 'POST', path: '/v1/cache/clear', capability: 'cache.clear', admin: true, body: []},
+  {method: 'GET', path: '/v1/server/models', capability: 'server.models'},
+  {method: 'POST', path: '/v1/server/models', capability: 'server.models.update', body: ['models', 'maxRunning', 'idleMinutes', 'memoryBudgetMb', 'turnWindowSeconds', 'warmup']},
+  {method: 'GET', path: '/v1/cache/stats', capability: 'cache.stats'},
+  {method: 'POST', path: '/v1/cache/clear', capability: 'cache.clear', body: []},
 ]);
 
 const bad = (message, code = 'invalid_request', status = 400) => Object.assign(new Error(message), {status, code});
 const oneOf = (value, list, name) => { if (value !== undefined && !list.includes(value)) throw bad(`${name} must be one of ${list.join(', ')}`, 'invalid_parameter'); return value; };
 const bool = (value, name) => { if (value !== undefined && typeof value !== 'boolean') throw bad(`${name} must be a boolean`, 'invalid_parameter'); return value; };
 
-export function createApiRouter({capabilities, json, error, readBody, limits, extraEndpoints = []}) {
+export function createApiRouter({capabilities, json, error, readBody, limits, extraEndpoints = [], serverModels = null}) {
   const {maxRequestBytes, maxContextBytes, maxConcurrent} = limits;
   let active = 0;
   const known = new Map(API_ENDPOINTS.map(e => [e.method + ' ' + e.path, e]));
@@ -60,8 +64,15 @@ export function createApiRouter({capabilities, json, error, readBody, limits, ex
     const endpoint = known.get(req.method + ' ' + url);
     if (!endpoint) return false;
     try {
-      if (endpoint.admin && !admin) throw bad('This endpoint needs the administrator session (sign in on /login)', 'forbidden', 403);
-      if (url === '/v1/capabilities') return json(res, 200, {object: 'capabilities', endpoints: [...API_ENDPOINTS, ...extraEndpoints].map(({admin: a, ...e}) => ({...e, ...(a ? {admin: true} : {})})), versions: capabilities.versions(), limits: {max_message_bytes: maxContextBytes, max_request_bytes: maxRequestBytes, max_concurrent: maxConcurrent}}), true;
+      if (url === '/v1/capabilities') return json(res, 200, {object: 'capabilities', endpoints: [...API_ENDPOINTS, ...extraEndpoints].map(({admin: a, ...e}) => ({...e, ...(a ? {admin: true} : {})})), versions: capabilities.versions(), warm: capabilities.warmState(), limits: {max_message_bytes: maxContextBytes, max_request_bytes: maxRequestBytes, max_concurrent: maxConcurrent}}), true;
+      if (url === '/v1/server/models') {
+        if (!serverModels) throw bad('The server has no model registry (config/formalizers.json)', 'not_available', 404);
+        if (req.method === 'GET') return json(res, 200, serverModels.read()), true;
+        const patch = await readBody(req, maxRequestBytes);
+        const extra = !patch || typeof patch !== 'object' || Array.isArray(patch) ? [] : Object.keys(patch).filter(k => !endpoint.body.includes(k));
+        if (extra.length) throw bad(`Unsupported parameter ${JSON.stringify(extra[0])}; ${url} accepts ${endpoint.body.join(', ')}`, 'unsupported_parameter');
+        return json(res, 200, serverModels.update(patch)), true;
+      }
       if (url === '/v1/cache/stats') return json(res, 200, {object: 'cache.stats', caches: capabilities.cacheStats(), services: cacheServices ? await cacheServices() : {}}), true;
       if (url === '/v1/cache/clear') { req.resume(); capabilities.clearCaches(); return json(res, 200, {object: 'cache.clear', cleared: true, caches: capabilities.cacheStats()}), true; }
       if (active >= maxConcurrent) throw bad('Server concurrency limit reached', 'concurrency_limit', 429);

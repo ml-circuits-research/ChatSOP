@@ -1,0 +1,10 @@
+{
+  "role": "verbalizer",
+  "rows": 54,
+  "attempted": 0,
+  "requests_succeeded": 0,
+  "evaluated_rows": 0,
+  "neuralModelTested": false,
+  "accuracy": null,
+  "requiresHumanFaithfulnessReview": true
+}

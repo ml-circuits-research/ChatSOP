@@ -13,7 +13,7 @@
 import {saturate} from './engine.mjs';
 import {join} from './join.mjs';
 import {conditionAlts, orderLeaves} from './program.mjs';
-import {READ_BUDGET} from './query.mjs';
+import {readBudget} from './query.mjs';
 import {BudgetStop} from './budget.mjs';
 import {ProgramError, argsKey, groundArgs, atomText} from './values.mjs';
 
@@ -50,11 +50,11 @@ export function planSearch({program, facts, goalWire, budget}) {
   const stateKey = lits => [...lits.keys()].sort().join(';');
 
   const reaches = ev => {
-    const ctx = {ev, stored: new Map(), budget: READ_BUDGET, notes: new Set()};
+    const ctx = {ev, stored: new Map(), budget: readBudget(budget), notes: new Set()};
     return goalAlts.some(leaves => !join(leaves, 0, {}, [], ctx).next().done);
   };
   const applicable = (lits, ev) => {
-    const ctx = {ev, stored: new Map(), budget: READ_BUDGET, notes: new Set()};
+    const ctx = {ev, stored: new Map(), budget: readBudget(budget), notes: new Set()};
     const out = [];
     for (const a of actions) {
       const seen = new Set();
@@ -106,7 +106,7 @@ export function planSearch({program, facts, goalWire, budget}) {
         const c = cost + m.action.cost;
         if (best.has(k) && best.get(k) <= c) continue;
         best.set(k, c);
-        queue.push(c, {lits: next, cost: c, steps: [...value.steps, {action: m.action.id, args: m.params.map(String), text: atomText(false, m.action.id, m.params)}]});
+        queue.push(c, {lits: next, cost: c, steps: [...value.steps, {action: m.action.id, args: m.params.map(String), text: atomText(false, m.action.id, m.params), binding: Object.fromEntries(m.action.params.map((v, i) => [v, m.params[i]])), adds: m.action.adds.map(x => atomText(x.neg, x.p, groundArgs(x.args, m.env))), removes: m.action.removes.map(x => atomText(x.neg, x.p, groundArgs(x.args, m.env))), cost: m.action.cost}]});
       }
     }
   } catch (e) {

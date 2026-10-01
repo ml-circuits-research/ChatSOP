@@ -7,7 +7,9 @@ description: Audit the complete agent experiment
 
 Read `eval/README.md`, [DS008](../../docs/specs/DS008-data-evaluation.md) (tracks, sealed-test boundary, registry), [DS016](../../docs/specs/DS016-evaluation-metrics.md) (one definition per metric), [DS010](../../docs/specs/DS010-experiment-preregistration.md) (what is frozen before a holdout is used) and [DS021](../../docs/specs/DS021-model-surface.md) (the model surface). The server's `/eval` page and its guide at `/eval/guide` show the suites and reports this skill produces. Keep the two evaluation tracks distinct.
 
-## 1. The small formalizer (track `formalization`)
+## 1. The small formalizer (track `formalization`) — ARCHIVE
+
+This track is the FormalizerLLM evaluation (removed from the product 2026-10-01; kept as procedure and history). The current formalizer is SymbolicLM, evaluated by `tools/symbolic-regression.mjs`, the composed metrics (DS016) and `eval/smoke-reasoning`.
 
 - **Input:** the user's message only. The evaluator sends nothing else to the model: no context, identifiers, lexicon, background knowledge, clock, earlier turns or pending clarification.
 - **Eligible output:** `stated`, `assumed`, `unclear`, `query` and `constraint` written with quoted strings. A host `clarify` is not a model wire; `jsEval`, trusted-circuit wires and coding-agent programs are never model targets.

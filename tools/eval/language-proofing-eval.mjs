@@ -14,7 +14,7 @@
  * Metrics per row: (a) clean-English gate of the output (tools/datasets/clean-english.mjs); (b) content preservation (names, numbers, quoted spans, question
  * marks, length ratio of tools/eval/bad-english-targets.mjs, plus negation parity); (c) chrF and token F1 against the reference; (d) analysis correctness (every
  * output sentence passes the calibrated gate: Stanza default = accurate trees AND the DeepSeek judge a and c good, tools/eval/analysis-layer.mjs); (e) identity:
- * clean input left untouched. `good` = (a) and (b) and (d). Outputs and scores: $LP_WORK/{outputs,scores}/ (default eval/reports/current/language-proofing-it1). Trains nothing.
+ * clean input left untouched. `good` = (a) and (b) and (d). Outputs and scores: $LP_WORK/{outputs,scores}/ (default eval/reports/history/language-proofing-it1). Trains nothing.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -31,9 +31,9 @@ import {renderFull, renderTree, judgeMessage, checkMessage} from '../research/pa
 import {wilson} from './composed/stats.mjs';
 import {textKey} from '../datasets/neuro-oracle/common.mjs';
 
-// Iteration 1 is the default; iteration 2 sets LP_WORK=eval/reports/current/language-proofing-it2 and its own judge folders (verdicts of the iteration-1 folders are reused, they are keyed by text).
+// Iteration 1 is the default; iteration 2 sets LP_WORK=eval/reports/history/language-proofing-it2 and its own judge folders (verdicts of the iteration-1 folders are reused, they are keyed by text).
 const envDir = (name, fallback) => path.resolve(ROOT, process.env[name] ?? fallback);
-export const WORK = envDir('LP_WORK', 'eval/reports/current/language-proofing-it1');
+export const WORK = envDir('LP_WORK', 'eval/reports/history/language-proofing-it1');
 export const JUDGE_DIR = envDir('LP_JUDGE_DIR', 'datasets_sources/language_proofing_parse_judge');
 export const MEANING_DIR = envDir('LP_MEANING_DIR', 'datasets_sources/language_proofing_meaning_judge');
 const OLD_JUDGE_DIR = path.join(ROOT, 'datasets_sources/language_proofing_parse_judge');

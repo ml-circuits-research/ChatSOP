@@ -1,0 +1,1 @@
+{"split":"test","url":"http://127.0.0.1:18214","messages":30,"ms_p50":168,"ms_p90":265,"ms_mean":165,"out_tokens_mean":17,"tokens_per_second_overall":103.1,"generation_tokens_per_second_p50":147.49081255146814}

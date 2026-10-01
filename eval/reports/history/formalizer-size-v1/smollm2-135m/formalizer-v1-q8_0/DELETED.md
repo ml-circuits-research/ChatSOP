@@ -1,0 +1,1 @@
+- evaluation.json (84M) was deleted on 2026-10-01: a per-row dump of an archived FormalizerLLM-era run, over the 50 MB repository limit; the summary files beside it remain.

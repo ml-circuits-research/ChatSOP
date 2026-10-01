@@ -25,7 +25,7 @@ const SRC = path.join(ROOT, 'datasets/bad_english/proofing-it3');
 const OUT = path.join(ROOT, 'datasets/bad_english/proofing-gloss');
 const BUILD = path.resolve(ROOT, process.env.GLOSS_BUILD ?? 'eval/reports/current/gloss/build');
 const SENSES = 2;
-const SEALED = path.join(ROOT, 'eval/reports/current/language-proofing-it3/data/sealed-hashes-union.json');
+const SEALED = path.join(ROOT, 'eval/reports/history/language-proofing-it3/data/sealed-hashes-union.json');
 // [source file, destination file]
 const FILES = [['proofreader/train.jsonl', 'proofreader/train.jsonl'], ['proofreader/dev.jsonl', 'proofreader/dev.jsonl'], ['dev-heldout.jsonl', 'dev-heldout.jsonl'],
   ['dev-heldout-v3.jsonl', 'dev-heldout-v3.jsonl'], ['dev-heldout-v3-identity.jsonl', 'dev-heldout-v3-identity.jsonl'], ['dev-spacing.jsonl', 'dev-spacing.jsonl'],

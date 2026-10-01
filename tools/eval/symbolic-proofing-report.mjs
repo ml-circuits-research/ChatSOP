@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Tables of the SymbolicProofingLLM iteration-2 evaluation report (experiment train-symbolic-proofing-gemma270m-it2), from the score files only.
  *
- *   SYMPROOF_WORK=eval/reports/current/symbolic-proofing-it2 node tools/eval/symbolic-proofing-report.mjs [--out tables.md]
+ *   SYMPROOF_WORK=eval/reports/history/symbolic-proofing-it2 node tools/eval/symbolic-proofing-report.mjs [--out tables.md]
  *
  * Reads `scores/<arm>__<split>.json` (tools/eval/symbolic-proofing-eval.mjs score), `composed/analysis__*.json` (composed-score) and
  * `composed/<arm>__<kind>__<mode>.summary.json` (text-level composed scorer), writes Markdown tables, paired bootstrap intervals (it2 minus the
@@ -14,7 +14,7 @@ import {bootstrap} from '../research/proofing.mjs';
 import {wilson} from './composed/stats.mjs';
 import {sentencesOf, fold, foldWords, lostFillers, fillersOf} from '../datasets/symbolic-proofing-v2/units.mjs';
 
-const WORK = path.join(ROOT, process.env.SYMPROOF_WORK ?? 'eval/reports/current/symbolic-proofing-it2');
+const WORK = path.join(ROOT, process.env.SYMPROOF_WORK ?? 'eval/reports/history/symbolic-proofing-it2');
 const args = process.argv.slice(2);
 const out = args.includes('--out') ? args[args.indexOf('--out') + 1] : 'tables.md';
 const readJson = f => JSON.parse(fs.readFileSync(f, 'utf8'));

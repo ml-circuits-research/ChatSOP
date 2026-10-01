@@ -219,7 +219,7 @@ function assemble(work) {
     purpose: 'Eval-only sealed suite of independently written messages (EN, RO, EN-RO code-switching, real-looking noise) that measures whether the formalizer handles any text, not only the generator\'s constructions (DS016).',
     process: {
       writers: 'eight independent writer agents with distinct personas (EN consumers, EN professionals, EN tech teams, RO regional voices, RO young urban, RO formal and administrative, Romglish and diaspora, structurally hard cases); they saw only a list of 34 message phenomena, never the generator, the corpora or the repository',
-      annotation: 'two independent annotators per message following the annotation guide eval/reports/current/wild-suite/annotation-guide.md (DS021 plus conventions C1-C12), then one adjudicator who records every accepted reading in sop_targets_accepted',
+      annotation: 'two independent annotators per message following the annotation guide eval/reports/history/wild-suite/annotation-guide.md (DS021 plus conventions C1-C12), then one adjudicator who records every accepted reading in sop_targets_accepted',
       validation: 'parser, model-wire admission, anchoring for English rows (cross-lingual values are reported, not failed), vocabulary, relation-word and corpus-audit row checks during annotation; tools/eval/wild-suite.mjs --check; tools/datasets/no-copy.mjs',
     },
     independence: 'Never feeds the generator or any training data: listed in eval/leakage.mjs INDEPENDENT_SUITES (no generator or training source may name it; no datasets/<name> split may exist); no generator family may be designed from its rows.',

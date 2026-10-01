@@ -1,0 +1,40 @@
+{
+ "parts": [
+  "000",
+  "001",
+  "002",
+  "003",
+  "004",
+  "005",
+  "006",
+  "007",
+  "008",
+  "009"
+ ],
+ "rows": 2500,
+ "null_rows": 16,
+ "same_input_sealed_match": 227,
+ "dropped_question marks differ": 1936,
+ "dropped_lost": 289,
+ "skipped_sentence_count_differs": 260,
+ "mixed_version_is_clean": 559,
+ "duplicate_prompt": 195,
+ "dropped_negation differs": 98,
+ "noisy_en_version_is_ro": 1,
+ "sealed_match": 508,
+ "noisy_en_version_is_clean": 250,
+ "ro_version_not_ro_or_mixed": 22,
+ "prompt_equals_target": 5,
+ "candidates": 11832,
+ "sentence_pairs": 13944,
+ "pairs_by_src_lang": {
+  "new/ro": 2966,
+  "new/mixed": 2770,
+  "new/noisy_en": 1681,
+  "same/ro": 2615,
+  "same/mixed": 2431,
+  "same/noisy_en": 1481
+ },
+ "judge_items_added": 0,
+ "judge_items_total": 24328
+}

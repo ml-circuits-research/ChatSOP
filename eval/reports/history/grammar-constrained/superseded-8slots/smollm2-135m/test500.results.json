@@ -1,0 +1,414 @@
+{
+ "format": "chatsop-grammar-constrained-cell-v1",
+ "model": "smollm2-135m",
+ "cell": "test500",
+ "suite": "eval/reports/current/formalizer-size-v1/sample500/formalizer-v1-sample500.suite.jsonl",
+ "cell_rows": 500,
+ "stages": [
+  100,
+  300,
+  500
+ ],
+ "stage_results": [
+  {
+   "stage": 1,
+   "rows": 100,
+   "primary": "execution_equivalence_tolerant",
+   "summary": {
+    "free": {
+     "rows": 100,
+     "parse_validity": 1,
+     "compile_validity": 0.99,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "execution_equivalence_tolerant": 0.81,
+     "wire_f1": 0.6824,
+     "counts": {
+      "parse": 100,
+      "compile": 99,
+      "exec": 81,
+      "accepted_match": null
+     }
+    },
+    "gbnf": {
+     "rows": 100,
+     "parse_validity": 1,
+     "compile_validity": 0.99,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "execution_equivalence_tolerant": 0.79,
+     "wire_f1": 0.6419,
+     "counts": {
+      "parse": 100,
+      "compile": 99,
+      "exec": 79,
+      "accepted_match": null
+     }
+    }
+   },
+   "primary_delta": {
+    "delta": -0.02,
+    "ci95": [
+     -0.05,
+     0
+    ],
+    "clusters": 100
+   },
+   "decision": {
+    "stop": true,
+    "reason": "futility"
+   }
+  }
+ ],
+ "final_rows": 100,
+ "stopped": {
+  "stop": true,
+  "reason": "futility"
+ },
+ "identical_outputs": 0.93,
+ "metrics": {
+  "all": {
+   "free": {
+    "rows": 100,
+    "parse_validity": 1,
+    "compile_validity": 0.99,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.81,
+    "wire_f1": 0.6824,
+    "counts": {
+     "parse": 100,
+     "compile": 99,
+     "exec": 81,
+     "accepted_match": null
+    }
+   },
+   "gbnf": {
+    "rows": 100,
+    "parse_validity": 1,
+    "compile_validity": 0.99,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.79,
+    "wire_f1": 0.6419,
+    "counts": {
+     "parse": 100,
+     "compile": 99,
+     "exec": 79,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:en": {
+   "free": {
+    "rows": 48,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.8542,
+    "wire_f1": 0.824,
+    "counts": {
+     "parse": 48,
+     "compile": 48,
+     "exec": 41,
+     "accepted_match": null
+    }
+   },
+   "gbnf": {
+    "rows": 48,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.8333,
+    "wire_f1": 0.824,
+    "counts": {
+     "parse": 48,
+     "compile": 48,
+     "exec": 40,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:mixed": {
+   "free": {
+    "rows": 15,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.7333,
+    "wire_f1": 0.7826,
+    "counts": {
+     "parse": 15,
+     "compile": 15,
+     "exec": 11,
+     "accepted_match": null
+    }
+   },
+   "gbnf": {
+    "rows": 15,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.6667,
+    "wire_f1": 0.7391,
+    "counts": {
+     "parse": 15,
+     "compile": 15,
+     "exec": 10,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:ro": {
+   "free": {
+    "rows": 37,
+    "parse_validity": 1,
+    "compile_validity": 0.973,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.7838,
+    "wire_f1": 0.5473,
+    "counts": {
+     "parse": 37,
+     "compile": 36,
+     "exec": 29,
+     "accepted_match": null
+    }
+   },
+   "gbnf": {
+    "rows": 37,
+    "parse_validity": 1,
+    "compile_validity": 0.973,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.7838,
+    "wire_f1": 0.473,
+    "counts": {
+     "parse": 37,
+     "compile": 36,
+     "exec": 29,
+     "accepted_match": null
+    }
+   }
+  }
+ },
+ "deltas": {
+  "all": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "execution_equivalence_tolerant": {
+    "delta": -0.02,
+    "ci95": [
+     -0.05,
+     0
+    ],
+    "clusters": 100
+   },
+   "wire_f1": {
+    "delta": -0.0405,
+    "ci95": [
+     -0.0824,
+     0.0017
+    ],
+    "clusters": 100
+   }
+  },
+  "language:en": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 48
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 48
+   },
+   "execution_equivalence_tolerant": {
+    "delta": -0.0208,
+    "ci95": [
+     -0.0625,
+     0
+    ],
+    "clusters": 48
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 48
+   }
+  },
+  "language:mixed": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 15
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 15
+   },
+   "execution_equivalence_tolerant": {
+    "delta": -0.0667,
+    "ci95": [
+     -0.2,
+     0
+    ],
+    "clusters": 15
+   },
+   "wire_f1": {
+    "delta": -0.0435,
+    "ci95": [
+     -0.15,
+     0
+    ],
+    "clusters": 15
+   }
+  },
+  "language:ro": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "wire_f1": {
+    "delta": -0.0743,
+    "ci95": [
+     -0.1211,
+     0.0066
+    ],
+    "clusters": 37
+   }
+  }
+ },
+ "speed": {
+  "free": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 -np 8"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 563.5349,
+    "p50": 293.9206,
+    "p95": 3357.0787
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 114.36,
+    "p50": 52,
+    "p95": 579
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 208.0585,
+    "p50": 205.1636,
+    "p95": 263.685
+   }
+  },
+  "gbnf": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 -np 8"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 521.6951,
+    "p50": 269.7555,
+    "p95": 2621.7426
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 115.47,
+    "p50": 53,
+    "p95": 579
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 222.202,
+    "p50": 218.1487,
+    "p95": 278.5626
+   }
+  }
+ },
+ "example_counts": {
+  "helped": 0,
+  "hurt": 2,
+  "repaired_parse": 0,
+  "forced_wrong": 0
+ },
+ "examples": {
+  "helped": [],
+  "hurt": [
+   {
+    "id": "fv1_014102_0_0",
+    "language": "mixed",
+    "question": "Just curious, cine e căsătorit cu Aiko?",
+    "gold": "@q query\n  select ?x\n  where match\n    relation \"be married to\"\n    role subject ?x\n    role object \"Aiko\"\n    polarity affirmed\n  end\n",
+    "free": "@q query\n  select ?x\n  where match\n    relation \"be married to\"\n    role subject ?x\n    role object \"Aiko\"\n    polarity affirmed\n  end\n",
+    "gbnf": "@q query\n  select ?x\n  where all\n    match\n      relation \"be married to\"\n      role subject ?x\n      role object ?m\n      polarity affirmed\n    end\n    match\n      relation \"be married to\"\n      role subject ?m\n      role object \"Aiko\"\n      polarity affirmed\n    end\n  end\n"
+   },
+   {
+    "id": "fv1_031426_0_0",
+    "language": "en",
+    "question": "sppose Mr Silva has anallergy to lactose. Any chamnce he is allergkc to lactose ?",
+    "gold": "@s1 stated\n  relation \"have an allergy to\"\n  role subject \"Mr Silva\"\n  role object \"lactose\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"be allergic to\"\n    role subject \"Mr Silva\"\n    role object \"lactose\"\n    polarity affirmed\n  end\n",
+    "free": "@s1 stated\n  relation \"have an allergy to\"\n  role subject \"Mr Silva\"\n  role object \"lactose\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"be allergic to\"\n    role subject \"Mr Silva\"\n    role object \"lactose\"\n    polarity affirmed\n  end\n",
+    "gbnf": "@s1 stated\n  relation \"have an allergy to\"\n  role subject \"Mr Silva\"\n  role object \"lactose\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"be allergic to\"\n    role subject \"Mr Silva\"\n    role object \"lactose\"\n    polarity affirmed\n  end\n"
+   }
+  ],
+  "repaired_parse": [],
+  "forced_wrong": []
+ }
+}

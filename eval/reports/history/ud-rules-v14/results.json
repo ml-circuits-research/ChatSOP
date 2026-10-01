@@ -1,0 +1,756 @@
+{
+ "experiment": "eval-ud-rules-v14-v1",
+ "date": "2026-09-29",
+ "preregistration": "status/preregistrations/eval-ud-rules-v14-v1.json",
+ "method": "600 fresh messages (test 240, OOD 180, wild 180; en 283, ro 272, mixed 45) drawn before any rule change; strict = eval/run.mjs tolerant execution (test/OOD), D1-tolerant all-proposition F1 = 1 (wild); host-normalized = the same scorer after sop/frames.mjs; paired cluster bootstrap over semantic cases, 10,000 resamples, seed 7; Stanza on the CPU",
+ "rules": {
+  "v13": "eval/reports/current/baseline-ud-rules/frozen-rules-v1.3/SHA256SUMS",
+  "v14": "eval/reports/current/baseline-ud-rules/frozen-rules-v1.4/SHA256SUMS",
+  "predictions_sha256": {
+   "v1.3": "f916e2f49c3e4a472fb38d1f185d5959dab2e41de592e7570827f9c250af4a70",
+   "v1.4": "a6ba230a2b5d94c2d7ff10e973ddbc4ba9a4b8da115285b76b0fe597cf631993"
+  }
+ },
+ "stages": {
+  "150": {
+   "strict": {
+    "n": 150,
+    "v13_strict": 23.3,
+    "v14_strict": 29.3,
+    "delta_strict": 6,
+    "ci95_strict": [
+     1.3,
+     11.3
+    ],
+    "gained": 12,
+    "lost": 3,
+    "v13_normalized": 31.3,
+    "v14_normalized": 32,
+    "delta_normalized": 0.7,
+    "ci95_normalized": [
+     -3.3,
+     4.7
+    ],
+    "normalization_gain_v13": 8,
+    "normalization_gain_v13_ci95": [
+     3.3,
+     13.3
+    ],
+    "normalization_gain_v14": 2.7,
+    "normalization_gain_v14_ci95": [
+     -0.7,
+     6.7
+    ],
+    "d1_all_f1_delta": 9.1,
+    "d1_all_f1_ci95": [
+     5.1,
+     13.7
+    ]
+   },
+   "stop_check": {
+    "invalid_or_empty_share_v14": 0.006666666666666667,
+    "broken": false,
+    "harm": false
+   }
+  },
+  "300": {
+   "strict": {
+    "n": 300,
+    "v13_strict": 22.7,
+    "v14_strict": 29,
+    "delta_strict": 6.3,
+    "ci95_strict": [
+     3,
+     9.7
+    ],
+    "gained": 23,
+    "lost": 4,
+    "v13_normalized": 29.3,
+    "v14_normalized": 32.3,
+    "delta_normalized": 3,
+    "ci95_normalized": [
+     0.3,
+     6
+    ],
+    "normalization_gain_v13": 6.7,
+    "normalization_gain_v13_ci95": [
+     3.7,
+     9.7
+    ],
+    "normalization_gain_v14": 3.3,
+    "normalization_gain_v14_ci95": [
+     1,
+     5.7
+    ],
+    "d1_all_f1_delta": 8.7,
+    "d1_all_f1_ci95": [
+     5.8,
+     11.8
+    ]
+   },
+   "stop_check": {
+    "invalid_or_empty_share_v14": 0.0033333333333333335,
+    "broken": false,
+    "harm": false
+   }
+  },
+  "full": {
+   "strict": {
+    "n": 600,
+    "v13_strict": 21.7,
+    "v14_strict": 28.7,
+    "delta_strict": 7,
+    "ci95_strict": [
+     4.7,
+     9.3
+    ],
+    "gained": 48,
+    "lost": 6,
+    "v13_normalized": 28.5,
+    "v14_normalized": 33,
+    "delta_normalized": 4.5,
+    "ci95_normalized": [
+     2.5,
+     6.5
+    ],
+    "normalization_gain_v13": 6.8,
+    "normalization_gain_v13_ci95": [
+     4.8,
+     8.8
+    ],
+    "normalization_gain_v14": 4.3,
+    "normalization_gain_v14_ci95": [
+     2.8,
+     6
+    ],
+    "d1_all_f1_delta": 8.9,
+    "d1_all_f1_ci95": [
+     6.7,
+     11.1
+    ]
+   },
+   "stop_check": {
+    "invalid_or_empty_share_v14": 0.0016666666666666668,
+    "broken": false,
+    "harm": false
+   }
+  }
+ },
+ "full_by_slice": {
+  "all": {
+   "n": 600,
+   "v13_strict": 21.7,
+   "v14_strict": 28.7,
+   "delta_strict": 7,
+   "ci95_strict": [
+    4.7,
+    9.3
+   ],
+   "gained": 48,
+   "lost": 6,
+   "v13_normalized": 28.5,
+   "v14_normalized": 33,
+   "delta_normalized": 4.5,
+   "ci95_normalized": [
+    2.5,
+    6.5
+   ],
+   "normalization_gain_v13": 6.8,
+   "normalization_gain_v13_ci95": [
+    4.8,
+    8.8
+   ],
+   "normalization_gain_v14": 4.3,
+   "normalization_gain_v14_ci95": [
+    2.8,
+    6
+   ],
+   "d1_all_f1_delta": 8.9,
+   "d1_all_f1_ci95": [
+    6.7,
+    11.1
+   ]
+  },
+  "test": {
+   "n": 240,
+   "v13_strict": 30.4,
+   "v14_strict": 38.8,
+   "delta_strict": 8.3,
+   "ci95_strict": [
+    4.2,
+    12.5
+   ],
+   "gained": 24,
+   "lost": 4,
+   "v13_normalized": 37.9,
+   "v14_normalized": 46.3,
+   "delta_normalized": 8.3,
+   "ci95_normalized": [
+    4.2,
+    12.5
+   ],
+   "normalization_gain_v13": 7.5,
+   "normalization_gain_v13_ci95": [
+    4.6,
+    10.8
+   ],
+   "normalization_gain_v14": 7.5,
+   "normalization_gain_v14_ci95": [
+    4.2,
+    10.8
+   ],
+   "d1_all_f1_delta": 11.2,
+   "d1_all_f1_ci95": [
+    7.4,
+    15.3
+   ]
+  },
+  "ood": {
+   "n": 180,
+   "v13_strict": 27.2,
+   "v14_strict": 37.8,
+   "delta_strict": 10.6,
+   "ci95_strict": [
+    5.6,
+    15.6
+   ],
+   "gained": 21,
+   "lost": 2,
+   "v13_normalized": 40,
+   "v14_normalized": 42.2,
+   "delta_normalized": 2.2,
+   "ci95_normalized": [
+    -1.1,
+    5.6
+   ],
+   "normalization_gain_v13": 12.8,
+   "normalization_gain_v13_ci95": [
+    8.3,
+    17.8
+   ],
+   "normalization_gain_v14": 4.4,
+   "normalization_gain_v14_ci95": [
+    1.7,
+    7.8
+   ],
+   "d1_all_f1_delta": 12.9,
+   "d1_all_f1_ci95": [
+    8.6,
+    17.4
+   ]
+  },
+  "wild": {
+   "n": 180,
+   "v13_strict": 4.4,
+   "v14_strict": 6.1,
+   "delta_strict": 1.7,
+   "ci95_strict": [
+    0,
+    3.9
+   ],
+   "gained": 3,
+   "lost": 0,
+   "v13_normalized": 4.4,
+   "v14_normalized": 6.1,
+   "delta_normalized": 1.7,
+   "ci95_normalized": [
+    0,
+    3.9
+   ],
+   "normalization_gain_v13": 0,
+   "normalization_gain_v13_ci95": [
+    0,
+    0
+   ],
+   "normalization_gain_v14": 0,
+   "normalization_gain_v14_ci95": [
+    0,
+    0
+   ],
+   "d1_all_f1_delta": 1.9,
+   "d1_all_f1_ci95": [
+    0.2,
+    4.1
+   ]
+  },
+  "en": {
+   "n": 283,
+   "v13_strict": 31.4,
+   "v14_strict": 43.1,
+   "delta_strict": 11.7,
+   "ci95_strict": [
+    8.1,
+    15.5
+   ],
+   "gained": 33,
+   "lost": 0,
+   "v13_normalized": 42,
+   "v14_normalized": 49.5,
+   "delta_normalized": 7.4,
+   "ci95_normalized": [
+    4.6,
+    10.6
+   ],
+   "normalization_gain_v13": 10.6,
+   "normalization_gain_v13_ci95": [
+    7.1,
+    14.5
+   ],
+   "normalization_gain_v14": 6.4,
+   "normalization_gain_v14_ci95": [
+    3.5,
+    9.2
+   ],
+   "d1_all_f1_delta": 13.4,
+   "d1_all_f1_ci95": [
+    9.8,
+    17.2
+   ]
+  },
+  "ro": {
+   "n": 272,
+   "v13_strict": 14.3,
+   "v14_strict": 17.6,
+   "delta_strict": 3.3,
+   "ci95_strict": [
+    0,
+    6.6
+   ],
+   "gained": 15,
+   "lost": 6,
+   "v13_normalized": 18.4,
+   "v14_normalized": 20.6,
+   "delta_normalized": 2.2,
+   "ci95_normalized": [
+    -1.1,
+    5.5
+   ],
+   "normalization_gain_v13": 4,
+   "normalization_gain_v13_ci95": [
+    1.8,
+    6.6
+   ],
+   "normalization_gain_v14": 2.9,
+   "normalization_gain_v14_ci95": [
+    1.1,
+    5.1
+   ],
+   "d1_all_f1_delta": 5.7,
+   "d1_all_f1_ci95": [
+    3.1,
+    8.5
+   ]
+  },
+  "mixed": {
+   "n": 45,
+   "v13_strict": 4.4,
+   "v14_strict": 4.4,
+   "delta_strict": 0,
+   "ci95_strict": [
+    0,
+    0
+   ],
+   "gained": 0,
+   "lost": 0,
+   "v13_normalized": 4.4,
+   "v14_normalized": 4.4,
+   "delta_normalized": 0,
+   "ci95_normalized": [
+    0,
+    0
+   ],
+   "normalization_gain_v13": 0,
+   "normalization_gain_v13_ci95": [
+    0,
+    0
+   ],
+   "normalization_gain_v14": 0,
+   "normalization_gain_v14_ci95": [
+    0,
+    0
+   ],
+   "d1_all_f1_delta": 0,
+   "d1_all_f1_ci95": [
+    -0.1,
+    0
+   ]
+  },
+  "wild-en": {
+   "n": 58,
+   "v13_strict": 8.6,
+   "v14_strict": 12.1,
+   "delta_strict": 3.4,
+   "ci95_strict": [
+    0,
+    8.6
+   ],
+   "gained": 2,
+   "lost": 0,
+   "v13_normalized": 8.6,
+   "v14_normalized": 12.1,
+   "delta_normalized": 3.4,
+   "ci95_normalized": [
+    0,
+    8.6
+   ],
+   "normalization_gain_v13": 0,
+   "normalization_gain_v13_ci95": [
+    0,
+    0
+   ],
+   "normalization_gain_v14": 0,
+   "normalization_gain_v14_ci95": [
+    0,
+    0
+   ],
+   "d1_all_f1_delta": 4.1,
+   "d1_all_f1_ci95": [
+    -0.2,
+    9.5
+   ]
+  },
+  "wild-ro": {
+   "n": 77,
+   "v13_strict": 1.3,
+   "v14_strict": 2.6,
+   "delta_strict": 1.3,
+   "ci95_strict": [
+    0,
+    3.9
+   ],
+   "gained": 1,
+   "lost": 0,
+   "v13_normalized": 1.3,
+   "v14_normalized": 2.6,
+   "delta_normalized": 1.3,
+   "ci95_normalized": [
+    0,
+    3.9
+   ],
+   "normalization_gain_v13": 0,
+   "normalization_gain_v13_ci95": [
+    0,
+    0
+   ],
+   "normalization_gain_v14": 0,
+   "normalization_gain_v14_ci95": [
+    0,
+    0
+   ],
+   "d1_all_f1_delta": 1.3,
+   "d1_all_f1_ci95": [
+    0,
+    3.9
+   ]
+  },
+  "wild-mixed": {
+   "n": 45,
+   "v13_strict": 4.4,
+   "v14_strict": 4.4,
+   "delta_strict": 0,
+   "ci95_strict": [
+    0,
+    0
+   ],
+   "gained": 0,
+   "lost": 0,
+   "v13_normalized": 4.4,
+   "v14_normalized": 4.4,
+   "delta_normalized": 0,
+   "ci95_normalized": [
+    0,
+    0
+   ],
+   "normalization_gain_v13": 0,
+   "normalization_gain_v13_ci95": [
+    0,
+    0
+   ],
+   "normalization_gain_v14": 0,
+   "normalization_gain_v14_ci95": [
+    0,
+    0
+   ],
+   "d1_all_f1_delta": 0,
+   "d1_all_f1_ci95": [
+    -0.1,
+    0
+   ]
+  }
+ },
+ "development": {
+  "dev_slice_seed5_600": {
+   "v13": 30.7,
+   "v14": 41,
+   "gained": 62,
+   "lost": 0,
+   "v13_en": 39.4,
+   "v14_en": 48.8,
+   "v13_ro": 20,
+   "v14_ro": 31.5
+  },
+  "check_slice_seed99_400": {
+   "v13": 31.3,
+   "v14": 40.5,
+   "gained": 38,
+   "lost": 1
+  },
+  "note": "formalizer-v1 dev only; v1.3 dev numbers use the D1 dictionary"
+ },
+ "hypotheses": {
+  "H1": "supported: +7.0 [4.7, 9.3]",
+  "H2": "supported: no slice CI entirely below 0; RO +3.3 [0.0, 6.6] and wild +1.7 [0.0, 3.9] touch 0; mixed 0/45",
+  "H3": "supported: 20/38 role-name misses (53%) but 34/146 misses (23%) resolved"
+ },
+ "lost_rows": {
+  "count": 6,
+  "rows": [
+   "fv1_011603_0_0",
+   "fv1_001307_0_0",
+   "fv1_009151_0_0",
+   "fv1_010812_0_0",
+   "ood1_000268_0_0",
+   "ood2_000100_0_0"
+  ],
+  "causes": [
+   "5 Romanian claim checks with the tail \"— se confirmă?\": v1.3 left it unparsed, v1.4 (corrected conjunct subject inheritance) builds a second query \"se confirma\" that does not link",
+   "1 \"ședința de consiliu de marți\": the v1.4 date-inside-NP rule moves \"de marți\" to valid on; the gold keeps it in the value"
+  ],
+  "fixed_in_v14": false
+ },
+ "q_sym_2": {
+  "misses": {
+   "population": "the 146 Layer-2 misses of eval-symbolic-layers-en-v1 under ud-rules-v1.3 (layer2-cases.jsonl); none of these rows was used to build the frame list",
+   "strict_matches": 4,
+   "variants": {
+    "list: synonyms": {
+     "frames": 78,
+     "changes": {
+      "synonym": 61
+     },
+     "resolved": {
+      "all": {
+       "n": 146,
+       "resolved": 4
+      },
+      "C_role": {
+       "n": 38,
+       "resolved": 0
+      },
+      "C_boundary": {
+       "n": 30,
+       "resolved": 0
+      },
+      "C_only": {
+       "n": 33,
+       "resolved": 0
+      },
+      "R_any": {
+       "n": 112,
+       "resolved": 4
+      }
+     }
+    },
+    "list: synonyms + roles": {
+     "frames": 78,
+     "changes": {
+      "synonym": 61,
+      "role": 59
+     },
+     "resolved": {
+      "all": {
+       "n": 146,
+       "resolved": 24
+      },
+      "C_role": {
+       "n": 38,
+       "resolved": 20
+      },
+      "C_boundary": {
+       "n": 30,
+       "resolved": 0
+      },
+      "C_only": {
+       "n": 33,
+       "resolved": 20
+      },
+      "R_any": {
+       "n": 112,
+       "resolved": 4
+      }
+     }
+    },
+    "list: + boundary": {
+     "frames": 78,
+     "changes": {
+      "synonym": 77,
+      "role": 59,
+      "boundary": 21
+     },
+     "resolved": {
+      "all": {
+       "n": 146,
+       "resolved": 34
+      },
+      "C_role": {
+       "n": 38,
+       "resolved": 20
+      },
+      "C_boundary": {
+       "n": 30,
+       "resolved": 9
+      },
+      "C_only": {
+       "n": 33,
+       "resolved": 26
+      },
+      "R_any": {
+       "n": 112,
+       "resolved": 8
+      }
+     }
+    },
+    "list: + boundary + time": {
+     "frames": 78,
+     "changes": {
+      "synonym": 77,
+      "role": 59,
+      "boundary": 21
+     },
+     "resolved": {
+      "all": {
+       "n": 146,
+       "resolved": 34
+      },
+      "C_role": {
+       "n": 38,
+       "resolved": 20
+      },
+      "C_boundary": {
+       "n": 30,
+       "resolved": 9
+      },
+      "C_only": {
+       "n": 33,
+       "resolved": 26
+      },
+      "R_any": {
+       "n": 112,
+       "resolved": 8
+      }
+     }
+    },
+    "list + WordNet": {
+     "frames": 129,
+     "changes": {
+      "synonym": 103,
+      "role": 61,
+      "boundary": 24
+     },
+     "resolved": {
+      "all": {
+       "n": 146,
+       "resolved": 34
+      },
+      "C_role": {
+       "n": 38,
+       "resolved": 20
+      },
+      "C_boundary": {
+       "n": 30,
+       "resolved": 9
+      },
+      "C_only": {
+       "n": 33,
+       "resolved": 26
+      },
+      "R_any": {
+       "n": 112,
+       "resolved": 8
+      }
+     }
+    },
+    "list + WordNet + generic single-oblique": {
+     "frames": 129,
+     "changes": {
+      "synonym": 103,
+      "role": 61,
+      "boundary": 24,
+      "generic": 19
+     },
+     "resolved": {
+      "all": {
+       "n": 146,
+       "resolved": 35
+      },
+      "C_role": {
+       "n": 38,
+       "resolved": 21
+      },
+      "C_boundary": {
+       "n": 30,
+       "resolved": 9
+      },
+      "C_only": {
+       "n": 33,
+       "resolved": 26
+      },
+      "R_any": {
+       "n": 112,
+       "resolved": 9
+      }
+     }
+    }
+   }
+  },
+  "fresh_sample": {
+   "normalization_gain_v13": "+6.8 [4.8, 8.8], 41 rows, 0 lost",
+   "normalization_gain_v14": "+4.3 [2.8, 6.0], 26 rows, 0 lost",
+   "wild": 0
+  },
+  "verdict": "A large synonym/frame list is not sufficient: it resolves convention-only misses for predicates it knows (26/33) and half the role-name misses (20/38), but only 8/112 misses with a rules defect and nothing on open-vocabulary wild text; WordNet synonyms added rewrites and no resolved case."
+ },
+ "q_sym_3": {
+  "readjudicated_rows": [
+   "wild_wj_042",
+   "wild_wf_030",
+   "wild_wd_003",
+   "wild_wf_002",
+   "wild_wk_069",
+   "wild_wk_081",
+   "wild_wd_041",
+   "wild_we_071",
+   "wild_wj_076",
+   "wild_wf_021"
+  ],
+  "report": "eval/reports/current/ud-rules-v14/gold-readjudication.jsonl",
+  "wild_sha256": {
+   "before": "077e7164a3020c1e6c3c28c8f3b5b8f2c08e2e3f59ee0e6830f9991509884163",
+   "after": "548d76beceb1"
+  },
+  "groups": {
+   "G1": "DS021 explicit (Q-LANG-4 fragment follow_up): 5 wild rows re-adjudicated",
+   "G2": "DS021 explicit (quantifier not_all): wild_wk_081 re-adjudicated",
+   "G3": "DS021 unclear: clarified (\"because of\" stays in the relation, cause is role topic); fv1_001353 kept",
+   "G4": "DS021 clarified (all ... not always ambiguous) and wild_wd_041 re-adjudicated",
+   "G5": "DS021 unclear: clarified (explicit \"both at once\" frame is one where-all query); ood1_000443 kept",
+   "G6": "DS021 explicit (quantifier most): wild_we_071 re-adjudicated",
+   "G7": "DS021 explicit (order): wild_wj_076 re-adjudicated",
+   "G8": "DS021 unclear: clarified (count superlative written literally, not_computable); wild_wf_064 kept",
+   "G9": "DS021 explicit (C2 lemma): wild_wf_021 re-adjudicated",
+   "G10": "DS021 unclear: clarified (valid/at/during canonical; quoted role time read by host normalization level time); 5 wild rows kept"
+  }
+ },
+ "deviations": [
+  "D1 host dictionary (RO copula lemma forms, to-infinitive chains) applies to both versions",
+  "D2 wild suite re-adjudication outside the sample",
+  "D3 shared parse worker change (optional forced language) before the v1.3 run",
+  "D4 post hoc normalizer bug fix (boundary split of be based in); strict unchanged"
+ ],
+ "open_issues": [
+  "v1.5 candidates need a new fresh sample: Romanian claim tails, de + weekday modifiers, TR-VERB, TR-SINCE, comparisons inside quantity phrases, be held at/in, mixed-language messages (0/45)",
+  "host frame normalization is not wired into the chat runtime",
+  "the wild suite still carries pre-Q-LANG forms beyond the ten rows (first person as I, 89 quoted times); owner decision D6 alignment pass needed",
+  "formalizer-mt-v1 and the formalizer-v1 qualification record froze the old wild hash; the old file is reconstructible from gold-readjudication.jsonl"
+ ]
+}

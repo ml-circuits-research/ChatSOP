@@ -5,7 +5,7 @@
  * only user message, with greedy decoding. The output `{id, sop}` rows feed `node eval/run.mjs --predictions`;
  * a separate timing file records per-message latency and the server's own token timings. The script runs no
  * model itself, reads no gold field and writes nothing but its two outputs. The request itself is
- * `predictMessage` in lib/formalizer-endpoint.mjs, shared with the chat server so both send the same call.
+ * `predictMessage` in lib/llama-chat.mjs, shared with the chat server so both send the same call.
  *
  *   node tools/research/predict-endpoint.mjs --suite eval/suites/formalizer-v1/test.jsonl --url http://127.0.0.1:8091 \
  *     --out predictions.jsonl --timing timing.json [--parallel 4] [--sample 300 --seed 42] [--max-tokens 1024]
@@ -16,7 +16,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {readJsonlShardedSync} from '../../lib/jsonl-shards.mjs';
-import {predictMessage} from '../../lib/formalizer-endpoint.mjs';
+import {predictMessage} from '../../lib/llama-chat.mjs';
 
 const OPTIONS = ['suite', 'url', 'out', 'timing', 'parallel', 'sample', 'seed', 'max-tokens', 'label', 'min-chars', 'max-chars', 'grammar'];
 
@@ -42,7 +42,7 @@ export function sampleRows(rows, count, seed) {
   return index.slice(0, count).sort((a, b) => a - b).map(i => rows[i]);
 }
 
-const predictOne = (url, message, maxTokens, grammar) => predictMessage(url, message, {maxTokens, grammar});
+const predictOne = (url, message, maxTokens, grammar) => predictMessage(url, message, {maxTokens, ...(grammar ? {extra: {grammar}} : {})});
 
 function quantiles(values) {
   const sorted = [...values].sort((a, b) => a - b);

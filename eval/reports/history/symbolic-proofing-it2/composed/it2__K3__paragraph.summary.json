@@ -1,0 +1,406 @@
+{
+ "label": "it2 K3 paragraph",
+ "generated_at": "2026-10-01T01:45:26.837Z",
+ "stages": [
+  {
+   "stage": 100,
+   "cases": 100,
+   "errors": 0,
+   "clean_sentences_changed": {
+    "k": 786,
+    "n": 2259,
+    "p": 34.8,
+    "lo": 32.9,
+    "hi": 36.8
+   },
+   "clean_sentences_kept": {
+    "k": 1239,
+    "n": 2259,
+    "p": 54.8,
+    "lo": 52.8,
+    "hi": 56.9
+   },
+   "bad_sentences_fixed": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_untouched": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_wrong_rewrite": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "dropped_components": {
+    "k": 234,
+    "n": 2259,
+    "p": 10.4,
+    "lo": 9.2,
+    "hi": 11.7
+   },
+   "cases_with_added_text": {
+    "k": 41,
+    "n": 100,
+    "p": 41,
+    "lo": 31.9,
+    "hi": 50.8
+   },
+   "cases_order_preserved": {
+    "k": 96,
+    "n": 100,
+    "p": 96,
+    "lo": 90.2,
+    "hi": 98.4
+   },
+   "cases_exact": {
+    "all": {
+     "k": 32,
+     "n": 100,
+     "p": 32,
+     "lo": 23.7,
+     "hi": 41.7
+    },
+    "by": {
+     "n12": {
+      "k": 6,
+      "n": 17,
+      "p": 35.3,
+      "lo": 17.3,
+      "hi": 58.7
+     },
+     "n16": {
+      "k": 5,
+      "n": 17,
+      "p": 29.4,
+      "lo": 13.3,
+      "hi": 53.1
+     },
+     "n24": {
+      "k": 2,
+      "n": 17,
+      "p": 11.8,
+      "lo": 3.3,
+      "hi": 34.3
+     },
+     "n32": {
+      "k": 6,
+      "n": 17,
+      "p": 35.3,
+      "lo": 17.3,
+      "hi": 58.7
+     },
+     "n48": {
+      "k": 2,
+      "n": 17,
+      "p": 11.8,
+      "lo": 3.3,
+      "hi": 34.3
+     },
+     "single": {
+      "k": 11,
+      "n": 15,
+      "p": 73.3,
+      "lo": 48,
+      "hi": 89.1
+     }
+    }
+   },
+   "cases_e2e_sop_exact": {
+    "all": {
+     "k": 0,
+     "n": 0,
+     "p": null,
+     "lo": null,
+     "hi": null
+    },
+    "by": {}
+   },
+   "splitter_agrees": {
+    "k": 100,
+    "n": 100,
+    "p": 100,
+    "lo": 96.3,
+    "hi": 100
+   },
+   "splitter_agrees_when_all_components_punctuated": {
+    "k": 100,
+    "n": 100,
+    "p": 100,
+    "lo": 96.3,
+    "hi": 100
+   },
+   "splitter_agrees_with_an_unpunctuated_component": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "gate": null,
+   "sentence_mode": null,
+   "clean_changed_by_stratum": {
+    "all": {
+     "k": 41,
+     "n": 100,
+     "p": 41,
+     "lo": 31.9,
+     "hi": 50.8
+    },
+    "by": {
+     "n12": {
+      "k": 9,
+      "n": 17,
+      "p": 52.9,
+      "lo": 31,
+      "hi": 73.8
+     },
+     "n16": {
+      "k": 7,
+      "n": 17,
+      "p": 41.2,
+      "lo": 21.6,
+      "hi": 64
+     },
+     "n24": {
+      "k": 5,
+      "n": 17,
+      "p": 29.4,
+      "lo": 13.3,
+      "hi": 53.1
+     },
+     "n32": {
+      "k": 7,
+      "n": 17,
+      "p": 41.2,
+      "lo": 21.6,
+      "hi": 64
+     },
+     "n48": {
+      "k": 2,
+      "n": 17,
+      "p": 11.8,
+      "lo": 3.3,
+      "hi": 34.3
+     },
+     "single": {
+      "k": 11,
+      "n": 15,
+      "p": 73.3,
+      "lo": 48,
+      "hi": 89.1
+     }
+    }
+   }
+  },
+  {
+   "stage": 265,
+   "cases": 265,
+   "errors": 0,
+   "clean_sentences_changed": {
+    "k": 1765,
+    "n": 5855,
+    "p": 30.1,
+    "lo": 29,
+    "hi": 31.3
+   },
+   "clean_sentences_kept": {
+    "k": 3541,
+    "n": 5855,
+    "p": 60.5,
+    "lo": 59.2,
+    "hi": 61.7
+   },
+   "bad_sentences_fixed": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_untouched": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_wrong_rewrite": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "dropped_components": {
+    "k": 549,
+    "n": 5855,
+    "p": 9.4,
+    "lo": 8.7,
+    "hi": 10.2
+   },
+   "cases_with_added_text": {
+    "k": 106,
+    "n": 265,
+    "p": 40,
+    "lo": 34.3,
+    "hi": 46
+   },
+   "cases_order_preserved": {
+    "k": 260,
+    "n": 265,
+    "p": 98.1,
+    "lo": 95.7,
+    "hi": 99.2
+   },
+   "cases_exact": {
+    "all": {
+     "k": 91,
+     "n": 265,
+     "p": 34.3,
+     "lo": 28.9,
+     "hi": 40.2
+    },
+    "by": {
+     "n12": {
+      "k": 29,
+      "n": 60,
+      "p": 48.3,
+      "lo": 36.2,
+      "hi": 60.7
+     },
+     "n16": {
+      "k": 23,
+      "n": 60,
+      "p": 38.3,
+      "lo": 27.1,
+      "hi": 51
+     },
+     "n24": {
+      "k": 16,
+      "n": 60,
+      "p": 26.7,
+      "lo": 17.1,
+      "hi": 39
+     },
+     "n32": {
+      "k": 10,
+      "n": 40,
+      "p": 25,
+      "lo": 14.2,
+      "hi": 40.2
+     },
+     "n48": {
+      "k": 2,
+      "n": 30,
+      "p": 6.7,
+      "lo": 1.8,
+      "hi": 21.3
+     },
+     "single": {
+      "k": 11,
+      "n": 15,
+      "p": 73.3,
+      "lo": 48,
+      "hi": 89.1
+     }
+    }
+   },
+   "cases_e2e_sop_exact": {
+    "all": {
+     "k": 0,
+     "n": 0,
+     "p": null,
+     "lo": null,
+     "hi": null
+    },
+    "by": {}
+   },
+   "splitter_agrees": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "splitter_agrees_when_all_components_punctuated": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "splitter_agrees_with_an_unpunctuated_component": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "gate": null,
+   "sentence_mode": null,
+   "clean_changed_by_stratum": {
+    "all": {
+     "k": 109,
+     "n": 265,
+     "p": 41.1,
+     "lo": 35.4,
+     "hi": 47.1
+    },
+    "by": {
+     "n12": {
+      "k": 36,
+      "n": 60,
+      "p": 60,
+      "lo": 47.4,
+      "hi": 71.4
+     },
+     "n16": {
+      "k": 27,
+      "n": 60,
+      "p": 45,
+      "lo": 33.1,
+      "hi": 57.5
+     },
+     "n24": {
+      "k": 21,
+      "n": 60,
+      "p": 35,
+      "lo": 24.2,
+      "hi": 47.6
+     },
+     "n32": {
+      "k": 11,
+      "n": 40,
+      "p": 27.5,
+      "lo": 16.1,
+      "hi": 42.8
+     },
+     "n48": {
+      "k": 3,
+      "n": 30,
+      "p": 10,
+      "lo": 3.5,
+      "hi": 25.6
+     },
+     "single": {
+      "k": 11,
+      "n": 15,
+      "p": 73.3,
+      "lo": 48,
+      "hi": 89.1
+     }
+    }
+   }
+  }
+ ]
+}

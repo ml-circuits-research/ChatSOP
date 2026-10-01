@@ -165,4 +165,10 @@ if (Object.keys(loaded).length) for (const message of contentWordOverlap({datase
 if (Object.keys(loaded).length) for (const message of naturalOverlap({datasets: Object.keys(loaded), loadRows: (d, split) => loaded[d]?.[split] ?? []}).failures) fail(`natural overlap: ${message} (node tools/datasets/audit/natural-overlap.mjs lists examples)`);
 const report = {datasets: only ? [only] : THREE_DATASETS, rows: Object.fromEntries(Object.entries(loaded).map(([d, s]) => [d, Object.fromEntries(Object.entries(s).map(([k, v]) => [k, v.length]))])), failures: failures.count ?? 0, examples: failures};
 console.log(JSON.stringify(report, null, 1));
+// A full run leaves its verdict for the /experiments gates (server/project.mjs).
+if (!only && !quick) {
+  const dir = path.join(ROOT, 'eval/reports/current/three-datasets');
+  fs.mkdirSync(dir, {recursive: true});
+  fs.writeFileSync(path.join(dir, 'verification.json'), JSON.stringify({generated: new Date().toISOString(), verdict: failures.count ? 'fail' : 'pass', ...report}, null, 1) + '\n');
+}
 if (failures.count) process.exitCode = 1;

@@ -448,3 +448,177 @@ test('every answer packet carries the fields of section 5.3', () => {
   assert.deepEqual(Object.keys(r.budget).sort(), ['exhausted', 'limit', 'partial', 'reason', 'used']);
   assert.equal(r.guarantee, 'exact');
 });
+
+// ---------------------------------------------------------------------------------------------- order, used and wall clock
+
+test('every: a member is conflicted only when ALL its bindings are, whatever the fact order', () => {
+  const head = '@member predicate\n  args subject:entity\n  closed true\n@works predicate\n  args subject:entity object:entity\n  closed true\n@m fact\n  holds member m1\n';
+  const clean = '@f1 fact\n  holds works m1 alpha\n', conflicted = '@f2 fact\n  holds works m1 beta\n@f3 fact\n  holds not works m1 beta\n';
+  const every = '@q query\n  mode every\n  where member ?m\n  scope works ?m ?org\n';
+  // one clean binding and one conflicted binding: the member is clean, in either order
+  assert.equal(run(head + clean + conflicted, every).status, 'supported');
+  assert.equal(run(head + conflicted + clean, every).status, 'supported');
+  // every binding conflicted: the universal is both
+  assert.equal(run(head + conflicted, every).status, 'both');
+});
+
+test('used names the stored fact whose validity start_of read, not the first fact of the tuple', () => {
+  const k = `@t0 fact
+  holds on c
+  valid 2026-01-01 2026-02-01
+@t1 fact
+  holds on c
+@r rule
+  when on ?x
+  when start_of ?s on ?x
+  then began ?x ?s
+`;
+  const q = '@q query\n  mode exists\n  where began c beginning\n';
+  const r = run(k, q);
+  assert.equal(r.status, 'supported');
+  assert.ok(r.used.some(u => u.id === 't1'), 'the timeless fact produced ?s = beginning');
+  // the support set replays: the claims it names alone give the same answer
+  const claims = new Set(r.used.map(u => u.id));
+  const replay = k.split(/(?=^@)/m).filter(w => claims.has(/^@(\S+)/.exec(w)[1])).join('');
+  assert.equal(status(replay, q), 'supported');
+});
+
+test('the wall clock stops a selective join over many facts: budget_exhausted, reason wall', () => {
+  const facts = [];
+  for (let i = 0; i < 3000; i++) facts.push(`@p${i} fact\n  holds pp n${i}\n@q${i} fact\n  holds qq n${i}\n`);
+  const k = facts.join('');
+  const query = '@q query\n  mode exists\n  where all\n    pp ?x\n    qq ?y\n    rr ?x ?y\n  end\n';
+  const started = performance.now();
+  const r = run(k, query, {timeoutMs: 100});
+  assert.equal(r.status, 'budget_exhausted');
+  assert.equal(r.reason, 'wall');
+  assert.equal(r.complete, false);
+  assert.ok(performance.now() - started < 20000, 'the stop happens long before the join would finish');
+});
+
+// ---------------------------------------------------------------------------------------------- query forms (ported from the retired reference route)
+
+import {numericValue, quantifiedStatus} from '../reasoning/strategies/js-reference/forms.mjs';
+
+const WORLD = `@a1 fact
+  holds costs dacia 4000
+@a2 fact
+  holds costs golf 9000
+@a3 fact
+  holds costs fiat "2380 lei"
+@a4 fact
+  holds works ana acme
+@a5 fact
+  holds works bob acme
+@a6 fact
+  holds works dan zeta
+@a7 fact
+  holds certified ana
+@a8 fact
+  holds not certified bob
+@a9 fact
+  holds certified dan
+`;
+
+test('forms: a number is a number or a string that starts with one; a quantifier decides from supported, refuted and unknown members', () => {
+  assert.equal(numericValue(7), 7);
+  assert.equal(numericValue('2380 lei'), 2380);
+  assert.equal(numericValue('80'), 80);
+  assert.equal(numericValue('lei 80'), null);
+  assert.equal(numericValue(Number.NaN), null);
+  const m = (s, r, u) => [...Array(s).fill({status: 'supported'}), ...Array(r).fill({status: 'refuted'}), ...Array(u).fill({status: 'unknown'})];
+  const q = (word, count) => ({word, ...(count !== undefined ? {count} : {})});
+  assert.equal(quantifiedStatus(q('all'), m(2, 0, 0)), 'supported');
+  assert.equal(quantifiedStatus(q('all'), m(1, 1, 0)), 'refuted');
+  assert.equal(quantifiedStatus(q('all'), m(1, 0, 1)), 'unknown');
+  assert.equal(quantifiedStatus(q('none'), m(0, 2, 0)), 'supported');
+  assert.equal(quantifiedStatus(q('none'), m(1, 1, 0)), 'refuted');
+  assert.equal(quantifiedStatus(q('not_all'), m(1, 1, 0)), 'supported');
+  assert.equal(quantifiedStatus(q('not_all'), m(2, 0, 0)), 'refuted');
+  assert.equal(quantifiedStatus(q('not_all'), m(1, 0, 1)), 'unknown');
+  assert.equal(quantifiedStatus(q('most'), m(3, 1, 0)), 'supported');
+  assert.equal(quantifiedStatus(q('most'), m(1, 3, 0)), 'refuted');
+  assert.equal(quantifiedStatus(q('most'), m(1, 1, 1)), 'unknown');
+  assert.equal(quantifiedStatus(q('half'), m(2, 2, 0)), 'supported');
+  assert.equal(quantifiedStatus(q('half'), m(3, 1, 0)), 'refuted');
+  assert.equal(quantifiedStatus(q('half'), m(1, 1, 2)), 'unknown');
+  assert.equal(quantifiedStatus(q('at_least', 2), m(2, 1, 0)), 'supported');
+  assert.equal(quantifiedStatus(q('at_least', 2), m(1, 2, 0)), 'refuted');
+  assert.equal(quantifiedStatus(q('at_least', 2), m(1, 1, 1)), 'unknown');
+  assert.equal(quantifiedStatus(q('all'), []), 'unknown');
+  assert.throws(() => quantifiedStatus(q('some'), m(1, 0, 0)), /bad_quantifier/);
+});
+
+test('forms: compare, rank, except, filter and limit act on the join rows', () => {
+  const sel = lines => run(WORLD, `@q query\n  where costs ?c ?p\n  select ?c\n${lines}`);
+  assert.deepEqual(rowsOf(sel('  compare ?p above 5000\n')), ['{"c":"golf"}']);
+  assert.deepEqual(rowsOf(sel('  compare ?p at_most 4000\n')), ['{"c":"dacia"}', '{"c":"fiat"}']);
+  assert.deepEqual(rowsOf(sel('  compare ?p equal 2380\n')), ['{"c":"fiat"}']);
+  assert.deepEqual(rowsOf(sel('  compare ?p equal "2380 lei"\n')), ['{"c":"fiat"}']);
+  assert.deepEqual(rowsOf(sel('  compare ?p above 3000\n  compare ?p below 5000\n')), ['{"c":"dacia"}']);
+  assert.deepEqual(rowsOf(sel('  compare any\n    ?p above 8000\n    ?p below 3000\n  end\n')), ['{"c":"fiat"}', '{"c":"golf"}']);
+  assert.deepEqual(rowsOf(sel('  rank highest ?p\n')), ['{"c":"golf"}']);
+  assert.deepEqual(rowsOf(sel('  rank lowest ?p\n')), ['{"c":"fiat"}']);
+  assert.deepEqual(rowsOf(sel('  except ?c "dacia"\n')), ['{"c":"fiat"}', '{"c":"golf"}']);
+  // a filter is a typed host expression; it compares numbers with numbers (a mixed comparison is an error, as in the host language)
+  assert.deepEqual(rowsOf(run('@a fact\n  holds costs dacia 4000\n@b fact\n  holds costs golf 9000\n', '@q query\n  where costs ?c ?p\n  select ?c\n  filter ?p > 5000\n')), ['{"c":"golf"}']);
+  const limited = sel('  limit 2\n');
+  assert.equal(limited.rows.length, 2);
+  assert.equal(limited.truncated, true);
+});
+
+test('forms: a yes/no question whose known values all fail the comparison is refuted; a non-number is not_computable', () => {
+  const ask1 = lines => status(WORLD, `@q query\n  mode exists\n  where costs dacia ?p\n${lines}`);
+  assert.equal(ask1('  compare ?p above 3000\n'), 'supported');
+  assert.equal(ask1('  compare ?p above 5000\n'), 'refuted');
+  assert.equal(status(WORLD, '@q query\n  mode exists\n  where costs fiat ?p\n  compare ?p above "cheap"\n'), 'not_computable');
+  // a ranking over values that are not numbers cannot be computed either
+  assert.equal(status('@a fact\n  holds label x "red"\n', '@q query\n  where label ?x ?v\n  select ?x\n  rank highest ?v\n'), 'not_computable');
+});
+
+test('forms: a quantified universal ranges over the known members of an open predicate; without a quantifier the strict every stays unknown', () => {
+  const every = q => run(WORLD, `@q query\n  mode every\n  where works ?e acme\n  scope certified ?e\n${q}`);
+  // the strict every of the proposal: an open domain without a counterexample is unknown; a counterexample still refutes
+  const strictZeta = run(WORLD, '@q query\n  mode every\n  where works ?e zeta\n  scope certified ?e\n');
+  assert.equal(strictZeta.status, 'unknown');
+  assert.equal(strictZeta.reason, 'open_domain');
+  assert.equal(every('').status, 'refuted');
+  const all = every('  quantifier all\n');
+  assert.equal(all.status, 'refuted');
+  assert.equal(all.members, 2);
+  assert.deepEqual(all.counterexamples, [{'?e': 'bob'}]);
+  assert.equal(every('  quantifier not_all\n').status, 'supported');
+  assert.equal(every('  quantifier half\n').status, 'supported');
+  assert.equal(every('  quantifier most\n').status, 'refuted');
+  assert.equal(every('  quantifier at_least 1\n').status, 'supported');
+  assert.equal(every('  quantifier none\n').status, 'refuted');
+  const grouped = run(WORLD, '@q query\n  mode every\n  where works ?e ?org\n  select ?org\n  scope certified ?e\n  quantifier all\n');
+  assert.deepEqual(rowsOf(grouped), ['{"org":"zeta"}']);
+  assert.throws(() => run(WORLD, '@q query\n  mode every\n  where works ?e acme\n  scope certified ?e\n  quantifier at_least\n'), e => e.code === 'bad_quantifier');
+  assert.throws(() => run(WORLD, '@q query\n  mode every\n  where works ?e acme\n  scope certified ?e\n  quantifier all 3\n'), e => e.code === 'bad_quantifier');
+});
+
+test('every with select groups the members: each group is decided on its own, closed and open rules per group', () => {
+  const head = '@player predicate\n  args subject:entity object:entity\n  closed true\n@cert predicate\n  args subject:entity\n  closed true\n';
+  const teams = head + '@a fact\n  holds player ann rapid\n@b fact\n  holds player bob rapid\n@c fact\n  holds player cy united\n@d fact\n  holds player di united\n@k1 fact\n  holds cert ann\n@k2 fact\n  holds cert bob\n@k3 fact\n  holds cert cy\n';
+  const only = '@q query\n  mode every\n  where player ?p ?t\n  select ?t\n  scope cert ?p\n';
+  const r = run(teams, only);
+  // rapid has only certified players; united has a player (di) without certification: closed predicates make that a counterexample
+  assert.equal(r.status, 'supported');
+  assert.deepEqual(rowsOf(r), ['{"t":"rapid"}']);
+  assert.ok(r.used.length >= 1);
+  // every group fails: refuted
+  assert.equal(run(teams.replace('@k1 fact\n  holds cert ann\n@k2 fact\n  holds cert bob\n', ''), only).status, 'refuted');
+  // a group with an explicit negation of its scope is refuted, the others stay
+  const negated = run(head + '@a fact\n  holds player ann rapid\n@c fact\n  holds player cy united\n@k1 fact\n  holds cert ann\n@k2 fact\n  holds not cert cy\n', only);
+  assert.equal(negated.status, 'supported');
+  assert.deepEqual(rowsOf(negated), ['{"t":"rapid"}']);
+  // open predicates: a group without a counterexample is unknown (open_domain), a group with one is refuted
+  const open = '@a fact\n  holds player ann rapid\n@b fact\n  holds player cy united\n@k1 fact\n  holds cert ann\n@k2 fact\n  holds not cert cy\n';
+  const o = run(open, only);
+  assert.equal(o.status, 'unknown');
+  assert.equal(o.reason, 'open_domain');
+  assert.deepEqual(o.rows ?? [], []);
+  // without select the population is one group, as before
+  assert.equal(run(teams, '@q query\n  mode every\n  where player ?p ?t\n  scope cert ?p\n').status, 'refuted');
+});

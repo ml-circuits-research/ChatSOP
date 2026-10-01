@@ -1,0 +1,3 @@
+# Archived runtime configuration variants
+
+Seventeen `runtime-*.json` files (adaptive, advanced, archive, associative, cpu, exact, holo-memory, holo-memory-sharded, hybrid, reference, scan, scan-sharded, sharded-archive, sharded, shared, sqlite, sqlite-sharded) moved here on 2026-10-01 (hygiene finding H6). No code, test or tool read any of them (only `config/runtime.json` is loaded). They still carry the removed `formalizer`/`verbalizer` blocks and predate `memory.engine: sqlite`. DS024, DS026, DS027 and DS028 cite them as examples of engine and retention settings; to reuse one, copy it, drop the `formalizer`/`verbalizer` blocks and pass it with `CHATSOP_CONFIG`.

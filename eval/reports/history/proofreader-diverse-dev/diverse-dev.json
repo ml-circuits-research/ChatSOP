@@ -1,0 +1,539 @@
+{
+ "rows_file": "datasets/proofing-diverse-dev/diverse-dev.jsonl",
+ "rows_total": 415,
+ "rows_scored": 415,
+ "model": "/home/salboaie/work/ChatSOP/models/gemma/proofreader-gemma270m-v1/proofreader/merged-best",
+ "rules": "v1.4",
+ "stages": [
+  {
+   "stage": 1,
+   "rows": 100,
+   "summary": {
+    "no_rewrite": {
+     "rows": 100,
+     "strict": 0.35,
+     "tolerant": 0.35
+    },
+    "gemma_always_on": {
+     "rows": 100,
+     "strict": 0.36,
+     "tolerant": 0.36
+    },
+    "gemma_gate_no_spacy": {
+     "rows": 100,
+     "strict": 0.35,
+     "tolerant": 0.35
+    },
+    "qwen_proof": {
+     "rows": 100,
+     "strict": 0.33,
+     "tolerant": 0.33
+    }
+   },
+   "delta_pp": {
+    "gemma_always_on": {
+     "delta": 1,
+     "ci95": [
+      0,
+      3.06
+     ]
+    },
+    "gemma_gate_no_spacy": {
+     "delta": 0,
+     "ci95": [
+      0,
+      0
+     ]
+    },
+    "qwen_proof": {
+     "delta": -2,
+     "ci95": [
+      -5.1,
+      0
+     ]
+    }
+   },
+   "break_rate": {
+    "gemma_always_on": 0,
+    "gemma_gate_no_spacy": 0,
+    "qwen_proof": 0.0571
+   },
+   "decision": {
+    "stop": false,
+    "reason": "continue"
+   }
+  },
+  {
+   "stage": 2,
+   "rows": 300,
+   "summary": {
+    "no_rewrite": {
+     "rows": 300,
+     "strict": 0.3333,
+     "tolerant": 0.3333
+    },
+    "gemma_always_on": {
+     "rows": 300,
+     "strict": 0.36,
+     "tolerant": 0.36
+    },
+    "gemma_gate_no_spacy": {
+     "rows": 300,
+     "strict": 0.3567,
+     "tolerant": 0.3567
+    },
+    "qwen_proof": {
+     "rows": 300,
+     "strict": 0.34,
+     "tolerant": 0.3433
+    }
+   },
+   "delta_pp": {
+    "gemma_always_on": {
+     "delta": 2.67,
+     "ci95": [
+      0.96,
+      4.95
+     ]
+    },
+    "gemma_gate_no_spacy": {
+     "delta": 2.33,
+     "ci95": [
+      0.66,
+      4.55
+     ]
+    },
+    "qwen_proof": {
+     "delta": 0.67,
+     "ci95": [
+      -1.34,
+      2.89
+     ]
+    }
+   },
+   "break_rate": {
+    "gemma_always_on": 0,
+    "gemma_gate_no_spacy": 0,
+    "qwen_proof": 0.03
+   },
+   "decision": {
+    "stop": false,
+    "reason": "continue"
+   }
+  },
+  {
+   "stage": 3,
+   "rows": 415,
+   "summary": {
+    "no_rewrite": {
+     "rows": 415,
+     "strict": 0.3349,
+     "tolerant": 0.3349
+    },
+    "gemma_always_on": {
+     "rows": 415,
+     "strict": 0.3639,
+     "tolerant": 0.3639
+    },
+    "gemma_gate_no_spacy": {
+     "rows": 415,
+     "strict": 0.3542,
+     "tolerant": 0.3542
+    },
+    "qwen_proof": {
+     "rows": 415,
+     "strict": 0.3446,
+     "tolerant": 0.347
+    }
+   },
+   "delta_pp": {
+    "gemma_always_on": {
+     "delta": 2.89,
+     "ci95": [
+      0.99,
+      5.15
+     ]
+    },
+    "gemma_gate_no_spacy": {
+     "delta": 1.93,
+     "ci95": [
+      0.48,
+      3.92
+     ]
+    },
+    "qwen_proof": {
+     "delta": 0.96,
+     "ci95": [
+      -0.96,
+      3.21
+     ]
+    }
+   },
+   "break_rate": {
+    "gemma_always_on": 0.0072,
+    "gemma_gate_no_spacy": 0,
+    "qwen_proof": 0.0288
+   },
+   "decision": {
+    "stop": true,
+    "reason": "complete"
+   }
+  }
+ ],
+ "transitions": {
+  "gemma_always_on": {
+   "gained": [
+    "fv1_019065_0_0_lp2",
+    "fv1_025939_0_0_lp0",
+    "fv1_028170_0_0_lp1",
+    "fv1_025968_0_1_lp2",
+    "fv1_024379_0_0_lp1",
+    "fv1_031856_0_0_lp2",
+    "fv1_016785_0_0_lp0",
+    "fv1_024379_0_0_lp2",
+    "fv1_024379_0_0_lp0",
+    "fv1_007606_0_0_lp1",
+    "fv1_006296_0_0_lp0",
+    "fv1_021187_0_0_lp1",
+    "fv1_026777_0_0_lp2"
+   ],
+   "lost": [
+    "fv1_002700_0_0_lp2"
+   ]
+  },
+  "gemma_gate_no_spacy": {
+   "gained": [
+    "fv1_025939_0_0_lp0",
+    "fv1_028170_0_0_lp1",
+    "fv1_025968_0_1_lp2",
+    "fv1_024379_0_0_lp1",
+    "fv1_031856_0_0_lp2",
+    "fv1_016785_0_0_lp0",
+    "fv1_024379_0_0_lp2",
+    "fv1_024379_0_0_lp0"
+   ],
+   "lost": []
+  },
+  "qwen_proof": {
+   "gained": [
+    "fv1_025939_0_0_lp0",
+    "fv1_026777_0_0_lp0",
+    "fv1_025968_0_1_lp2",
+    "fv1_024379_0_0_lp1",
+    "fv1_024379_0_0_lp2",
+    "fv1_024379_0_0_lp0",
+    "fv1_009777_0_1_lp0",
+    "fv1_026777_0_0_lp2"
+   ],
+   "lost": [
+    "fv1_006918_0_0_lp1",
+    "fv1_032633_0_0_lp0",
+    "fv1_030764_0_0_lp0",
+    "fv1_019632_0_1_lp0"
+   ]
+  }
+ },
+ "changed_rows_gemma": 66,
+ "examples": [
+  {
+   "id": "fv1_007251_0_0_lp2",
+   "before": "hi! Aplicația de rezervări went down. might it be under too much load?",
+   "gemma_after": "Hi! Aplicația de rezervări went down. might it be under too much load?",
+   "qwen_after": "hi! The reservation application went down. Might it be under too much load?",
+   "gate": false,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_015772_0_0_lp1",
+   "before": "What's the reason Otieno can access the lab?",
+   "gemma_after": "Why can Otieno access the lab?",
+   "qwen_after": "What's the reason Otieno can access the lab?",
+   "gate": false,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_029130_0_0_lp1",
+   "before": "Cosmin sent 2500 lei to Olivia via bank transfer. did Doina send 500 lei to Cosmin?",
+   "gemma_after": "Cosmin sent 2500 lei to Olivia via bank transfer. Did Doina send 500 lei to Cosmin?",
+   "qwen_after": "Cosmin sent 2500 lei to Olivia via bank transfer. Did Doina send 500 lei to Cosmin?",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_023526_0_0_lp1",
+   "before": "can you tell me who coaches CS Slatina other than Noah Wilson",
+   "gemma_after": "can you tell me who coaches CS Slatina and not Noah Wilson",
+   "qwen_after": "Can you tell me who coaches CS Slatina other than Noah Wilson?",
+   "gate": false,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_029670_0_0_lp2",
+   "before": "can you tell me if Katalin Kovács teavels to Sibiu",
+   "gemma_after": "can you tell me if Katalin Kovács teaches to Sibiu",
+   "qwen_after": "can you tell me if Katalin Kovács teavels to Sibiu",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_009339_0_0_lp2",
+   "before": "quick question: does Astrid word at Vlădescu & Partners or Tisa Textiles?",
+   "gemma_after": "quick question: does Astrid work at Vlădescu & Partners or Tisa Textiles?",
+   "qwen_after": "quick question: does Astrid word at Vlădescu & Partners or Tisa Textiles?",
+   "gate": false,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_032674_0_0_lp1",
+   "before": "Is Floarea allowed to sign a medical certificate by themselves?",
+   "gemma_after": "Is Floarea allowed to sign a medical certificate by itself?",
+   "qwen_after": "Is Floarea allowed to sign a medical certificate by themselves?",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_024379_0_0_lp2",
+   "before": "Would you mind checking whether Ms Ardeleanu plans to relocarte to Chengdu?",
+   "gemma_after": "Would you mind checking whether Ms Ardeleanu plans to relocate to Chengdu?",
+   "qwen_after": "Would you mind checking whether Ms Ardeleanu plans to relocate to Chengdu?",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": true,
+   "qwen_proof_strict": true
+  },
+  {
+   "id": "fv1_013940_0_0_lp2",
+   "before": "so Doinița is Diana's doctor... does she want to learn biologie?",
+   "gemma_after": "So Doinița is Diana's doctor... does she want to learn biology?",
+   "qwen_after": "so Doinița is Diana's doctor... does she want to learn biologie?",
+   "gate": false,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_007308_0_0_lp1",
+   "before": "So Manon Martin is sick—did she got sick from the leftover sushi?",
+   "gemma_after": "So Manon Martin is sick—did she get sick from the leftover sushi?",
+   "qwen_after": "So Manon Martin is sick—did she get sick from the leftover sushi?",
+   "gate": false,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_007503_0_0_lp1",
+   "before": "sorry, quick question – what do a power of attorney and force majeure mean?",
+   "gemma_after": "sorry, quick question – what do a power of attorney mean and what does force majeure mean?",
+   "qwen_after": "Sorry, quick question – what do a power of attorney and force majeure mean?",
+   "gate": false,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_013721_0_0_lp1",
+   "before": "do you know of a company that carries baby food? we're out of supplies here at the office",
+   "gemma_after": "do you know of a company that carries baby food? We're out of supplies here at the office",
+   "qwen_after": "Do you know of a company that carries baby food? We're out of supplies here at the office.",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_010861_0_0_lp2",
+   "before": "so for this raport i'm doing, none of the players from Botoșani United are certified, right?",
+   "gemma_after": "so for this report, I'm doing, none of the players from Botoșani United are certified, right?",
+   "qwen_after": "so for this raport i'm doing, none of the players from Botoșani United are certified, right?",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_016631_0_0_lp1",
+   "before": "Mateo și Hassan study at the Nairobi Language School. Wei study there too? Thanks!",
+   "gemma_after": "Mateo and Hassan study at the Nairobi Language School. Wei study there too? Thanks!",
+   "qwen_after": "Mateo și Hassan study at the Nairobi Language School. Wei study there too? Thanks!",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_007606_0_0_lp1",
+   "before": "I need you to verify if Rémi worked at Orion Robotics back on 26 June 2021.",
+   "gemma_after": "I need you to verify if Rémi worked at Orion Robotics on 26 June 2021.",
+   "qwen_after": "I need you to verify if Rémi worked at Orion Robotics back on 26 June 2021.",
+   "gate": false,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": true,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_029739_0_0_lp1",
+   "before": "Hey, is Viorel Oprea certified? He's the antrenorul at Călărași United.",
+   "gemma_after": "Hey, is Viorel Oprea certified? He's the coach at Călărași United.",
+   "qwen_after": "Hey, is Viorel Oprea certified? He's the antrenorul at Călărași United.",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_021201_0_0_lp0",
+   "before": "Who's responsible for the billing service? We plan an upgrade on Friday.",
+   "gemma_after": "Who is responsible for the billing service? We plan an upgrade on Friday.",
+   "qwen_after": "Who's responsible for the billing service? We plan an upgrade on Friday.",
+   "gate": false,
+   "no_rewrite_strict": true,
+   "gemma_always_on_strict": true,
+   "qwen_proof_strict": true
+  },
+  {
+   "id": "fv1_025939_0_0_lp2",
+   "before": "just curious what due diligence mwan means and what a deductible men means?",
+   "gemma_after": "just curious what due diligence means and what a deductible means?",
+   "qwen_after": "just curious what due diligence mwan means and what a deductible men means?",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_009906_0_0_lp1",
+   "before": "I'm curious whether Maria studiesat Pitești Technical College.",
+   "gemma_after": "I'm curious whether Maria studies at Pitești Technical College.",
+   "qwen_after": "I'm curious whether Maria studies at Pitești Technical College.",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_016785_0_0_lp0",
+   "before": "what does A notarized statement mseaning ?",
+   "gemma_after": "What does A notarized statement mean?",
+   "qwen_after": "what does A notarized statement meaning?",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": true,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_024379_0_0_lp0",
+   "before": "Could you verify if Ms Ardeleanu plans to relocarte to Chengdu?",
+   "gemma_after": "Could you verify if Ms Ardeleanu plans to relocate to Chengdu?",
+   "qwen_after": "Could you verify if Ms Ardeleanu plans to relocate to Chengdu?",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": true,
+   "qwen_proof_strict": true
+  },
+  {
+   "id": "fv1_010831_0_0_lp1",
+   "before": "Doina studoes at Iași Arts High School—does she get the flu shot?",
+   "gemma_after": "Doina studies at Iași Arts High School—does she get the flu shot?",
+   "qwen_after": "Doina studies at Iași Arts High School—does she get the flu shot?",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_012258_0_0_lp1",
+   "before": "so Viorel moved from Lagos to Slatina a while back. i'm going to the primărie later. and where did Manon move from originally?",
+   "gemma_after": "So Viorel moved from Lagos to Slatina a while back. I'm going to the primary later. And where did Manon move from originally?",
+   "qwen_after": "so Viorel moved from Lagos to Slatina a while back. I'm going to the primărie later. And where did Manon move from originally?",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_032633_0_0_lp0",
+   "before": "Given that Elif manages Dimitra, is she responsible for serviciul de facturare?",
+   "gemma_after": "Elif manages Dimitra. Is she responsible for serviciul de facturare?",
+   "qwen_after": "Given that Elif manages Dimitra, is she responsible for the service of billing?",
+   "gate": true,
+   "no_rewrite_strict": true,
+   "gemma_always_on_strict": true,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_016785_0_0_lp2",
+   "before": "sorry, what's A notarized statement mseaning ?",
+   "gemma_after": "sorry, what does A mean?",
+   "qwen_after": "Sorry, what's A notarized statement meaning?",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_008755_0_0_lp1",
+   "before": "Ioana e părintele lui Thảo - does she maintain the search index?",
+   "gemma_after": "Ioana and her parents maintain the search index?",
+   "qwen_after": "Ioana e părintele lui Thảo - îi menține indexul de căutare?",
+   "gate": false,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_004118_0_2_lp2",
+   "before": "so what's Roxana responsible for in terms of systems?",
+   "gemma_after": "so what is Roxana responsible for in terms of systems?",
+   "qwen_after": "so what's Roxana responsible for in terms of systems?",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_009777_0_0_lp2",
+   "before": "îmi poti confirma daca Bogdan gives chimie classes?",
+   "gemma_after": "îmi pot confirma daca Bogdan gives chimie classes?",
+   "qwen_after": "îmi poti confirma daca Bogdan gives chimie clase?",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_027211_0_0_lp2",
+   "before": "would Jessica be older than Otieno Kariuki, in your view?",
+   "gemma_after": "Would Jessica be older than Otieno Kariuki, in your view?",
+   "qwen_after": "Would Jessica be older than Otieno Kariuki, in your view?",
+   "gate": false,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  },
+  {
+   "id": "fv1_027924_0_0_lp2",
+   "before": "Is every player on CS Botoșani's roster certfied?",
+   "gemma_after": "Is every player on CS Botoșani's roster certified?",
+   "qwen_after": "Is every player on CS Botoșani's roster certified?",
+   "gate": true,
+   "no_rewrite_strict": false,
+   "gemma_always_on_strict": false,
+   "qwen_proof_strict": false
+  }
+ ]
+}

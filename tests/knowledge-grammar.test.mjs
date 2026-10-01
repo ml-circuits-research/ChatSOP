@@ -24,7 +24,7 @@ const read = rel => fs.readFileSync(new URL('../' + rel, import.meta.url), 'utf8
 const errors = r => r.problems.filter(p => p.severity !== 'warning').map(p => p.code);
 
 test('the grammar has the wire types of DS004 and shares its words with the model language', () => {
-  assert.deepEqual(Object.keys(GRAMMAR), ['predicate', 'fact', 'rule', 'default', 'integrity', 'aggregate', 'constraint', 'action', 'method', 'norm', 'procedure', 'amendment', 'argument', 'trace', 'goal', 'hypothesis', 'policy', 'stated', 'query', 'pack']);
+  assert.deepEqual(Object.keys(GRAMMAR), ['predicate', 'fact', 'rule', 'default', 'integrity', 'aggregate', 'constraint', 'action', 'method', 'norm', 'procedure', 'amendment', 'argument', 'trace', 'goal', 'hypothesis', 'policy', 'stated', 'query', 'test', 'code', 'pack']);
   assert.deepEqual(knowledge.QUERY_MODES, [...QUERY_MODES, ...REASONING_QUERY_MODES]);
   assert.deepEqual(knowledge.ROLE_NAMES, [...ROLE_NAMES]);
   assert.deepEqual(knowledge.LINK_KEYWORDS, [...LINK_WORDS]);
@@ -61,7 +61,8 @@ test('the model-origin compiler rejects every knowledge wire', () => {
     predicate: '  args subject:entity', fact: '  holds p a\n  valid timeless', rule: '  when p ?x\n  then q ?x', default: '  when p ?x\n  then q ?x\n  except r ?x',
     integrity: '  never p ?x\n  witness ?x', aggregate: '  over p ?x\n  count as ?n\n  yields c ?n', action: '  params ?x\n  requires p ?x\n  adds q ?x',
     method: '  achieves p ?x\n  step ~a ?x', norm: '  forbid ~a ?x', procedure: '  members $a', amendment: '  of $a\n  proposed_by user', argument: '  for $a\n  claim "x"',
-    trace: '  step ~a b', goal: '  where p a', hypothesis: '  holds p a', policy: '  effort quick'
+    trace: '  step ~a b', goal: '  where p a', hypothesis: '  holds p a', policy: '  effort quick',
+    test: '  of t1\n  call "f()"\n  expect "1"', code: '  of t1\n  language javascript\n  entry f\n  body "function f() {}"'
   };
   for (const [type, body] of Object.entries(wires)) assert.throws(() => compileDeclarative(`@x1 ${type}\n${body}\n`, {inputText: 'x'}), `${type} is not model-authorable`);
 });

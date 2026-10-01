@@ -1,0 +1,463 @@
+{
+ "pairs": 796,
+ "metrics": {
+  "exact_any": {
+   "mean": 0.575,
+   "n": 796
+  },
+  "exact_any_without_assumed": {
+   "mean": 0.578,
+   "n": 796
+  },
+  "exact": {
+   "mean": 0.461,
+   "n": 796
+  },
+  "exact_without_assumed": {
+   "mean": 0.467,
+   "n": 796
+  },
+  "shape": {
+   "mean": 0.681,
+   "n": 796
+  },
+  "type_profile": {
+   "mean": 0.863,
+   "n": 796
+  },
+  "decision": {
+   "mean": 0.987,
+   "n": 796
+  },
+  "unclear_kind": {
+   "mean": 0.927,
+   "n": 123
+  },
+  "assumed_presence": {
+   "mean": 0.974,
+   "n": 796
+  },
+  "gap_flag": {
+   "mean": 0.959,
+   "n": 796
+  },
+  "constraint_eq": {
+   "mean": 0.346,
+   "n": 26
+  },
+  "query_f1": {
+   "mean": 0.54,
+   "n": 648
+  },
+  "query_shape_f1": {
+   "mean": 0.796,
+   "n": 648
+  },
+  "stated_f1": {
+   "mean": 0.57,
+   "n": 300
+  },
+  "stated_shape_f1": {
+   "mean": 0.793,
+   "n": 300
+  },
+  "assumed_f1": {
+   "mean": 0.502,
+   "n": 69
+  }
+ },
+ "by_phenomenon": {
+  "G00": {
+   "n": 72,
+   "exact": 0.76,
+   "exact_without_assumed": 0.78,
+   "shape": 0.86,
+   "decision": 1,
+   "gap_flagged": 0.5
+  },
+  "G01": {
+   "n": 49,
+   "exact": 0.02,
+   "exact_without_assumed": 0.02,
+   "shape": 0.12,
+   "decision": 1,
+   "gap_flagged": 0.88
+  },
+  "G02": {
+   "n": 32,
+   "exact": 0.31,
+   "exact_without_assumed": 0.34,
+   "shape": 0.41,
+   "decision": 1,
+   "gap_flagged": 0.66
+  },
+  "G03": {
+   "n": 46,
+   "exact": 1,
+   "exact_without_assumed": 1,
+   "shape": 0.96,
+   "decision": 0.98,
+   "gap_flagged": 0.96
+  },
+  "G04": {
+   "n": 27,
+   "exact": 0.44,
+   "exact_without_assumed": 0.44,
+   "shape": 0.63,
+   "decision": 1,
+   "gap_flagged": 0.44
+  },
+  "G05": {
+   "n": 98,
+   "exact": 0.36,
+   "exact_without_assumed": 0.36,
+   "shape": 0.57,
+   "decision": 0.99,
+   "gap_flagged": 0.97
+  },
+  "G06": {
+   "n": 97,
+   "exact": 0.55,
+   "exact_without_assumed": 0.55,
+   "shape": 0.64,
+   "decision": 1,
+   "gap_flagged": 0.6
+  },
+  "G07": {
+   "n": 30,
+   "exact": 0.43,
+   "exact_without_assumed": 0.43,
+   "shape": 0.57,
+   "decision": 1,
+   "gap_flagged": 1
+  },
+  "G08": {
+   "n": 29,
+   "exact": 0.55,
+   "exact_without_assumed": 0.55,
+   "shape": 0.76,
+   "decision": 1,
+   "gap_flagged": 0.97
+  },
+  "G09": {
+   "n": 59,
+   "exact": 0.2,
+   "exact_without_assumed": 0.22,
+   "shape": 0.58,
+   "decision": 1,
+   "gap_flagged": 0.83
+  },
+  "G10": {
+   "n": 35,
+   "exact": 0.29,
+   "exact_without_assumed": 0.29,
+   "shape": 0.63,
+   "decision": 1,
+   "gap_flagged": 0.8
+  },
+  "G11": {
+   "n": 34,
+   "exact": 0.62,
+   "exact_without_assumed": 0.65,
+   "shape": 0.74,
+   "decision": 0.94,
+   "gap_flagged": 0.94
+  },
+  "G12": {
+   "n": 33,
+   "exact": 0.45,
+   "exact_without_assumed": 0.48,
+   "shape": 0.73,
+   "decision": 1,
+   "gap_flagged": 0.27
+  },
+  "G13": {
+   "n": 33,
+   "exact": 0.67,
+   "exact_without_assumed": 0.67,
+   "shape": 0.82,
+   "decision": 1,
+   "gap_flagged": 0.61
+  },
+  "G14": {
+   "n": 40,
+   "exact": 0.68,
+   "exact_without_assumed": 0.68,
+   "shape": 0.68,
+   "decision": 0.97,
+   "gap_flagged": 0.63
+  },
+  "G15": {
+   "n": 49,
+   "exact": 0.47,
+   "exact_without_assumed": 0.47,
+   "shape": 0.57,
+   "decision": 1,
+   "gap_flagged": 0.65
+  },
+  "G16": {
+   "n": 117,
+   "exact": 0.43,
+   "exact_without_assumed": 0.43,
+   "shape": 0.57,
+   "decision": 0.97,
+   "gap_flagged": 0.69
+  },
+  "G17": {
+   "n": 48,
+   "exact": 0.54,
+   "exact_without_assumed": 0.54,
+   "shape": 0.71,
+   "decision": 1,
+   "gap_flagged": 0.52
+  },
+  "G18": {
+   "n": 24,
+   "exact": 0.67,
+   "exact_without_assumed": 0.67,
+   "shape": 0.79,
+   "decision": 1,
+   "gap_flagged": 0.13
+  },
+  "G19": {
+   "n": 67,
+   "exact": 0.46,
+   "exact_without_assumed": 0.46,
+   "shape": 0.54,
+   "decision": 1,
+   "gap_flagged": 0.82
+  },
+  "G20": {
+   "n": 29,
+   "exact": 0.62,
+   "exact_without_assumed": 0.62,
+   "shape": 0.62,
+   "decision": 1,
+   "gap_flagged": 0.07
+  },
+  "G21": {
+   "n": 30,
+   "exact": 0.5,
+   "exact_without_assumed": 0.5,
+   "shape": 0.53,
+   "decision": 1,
+   "gap_flagged": 0.73
+  },
+  "G22": {
+   "n": 29,
+   "exact": 0.41,
+   "exact_without_assumed": 0.41,
+   "shape": 0.48,
+   "decision": 0.97,
+   "gap_flagged": 0.83
+  },
+  "G23": {
+   "n": 29,
+   "exact": 0.34,
+   "exact_without_assumed": 0.34,
+   "shape": 0.62,
+   "decision": 1,
+   "gap_flagged": 0.83
+  },
+  "G24": {
+   "n": 46,
+   "exact": 0.22,
+   "exact_without_assumed": 0.22,
+   "shape": 0.28,
+   "decision": 1,
+   "gap_flagged": 0.98
+  },
+  "G25": {
+   "n": 47,
+   "exact": 0.7,
+   "exact_without_assumed": 0.7,
+   "shape": 0.77,
+   "decision": 1,
+   "gap_flagged": 0.89
+  },
+  "G26": {
+   "n": 28,
+   "exact": 0.32,
+   "exact_without_assumed": 0.32,
+   "shape": 0.61,
+   "decision": 1,
+   "gap_flagged": 0.68
+  },
+  "G27": {
+   "n": 41,
+   "exact": 0.39,
+   "exact_without_assumed": 0.39,
+   "shape": 0.49,
+   "decision": 1,
+   "gap_flagged": 0.73
+  },
+  "G28": {
+   "n": 79,
+   "exact": 0.46,
+   "exact_without_assumed": 0.46,
+   "shape": 0.71,
+   "decision": 1,
+   "gap_flagged": 0.96
+  },
+  "G29": {
+   "n": 39,
+   "exact": 0.44,
+   "exact_without_assumed": 0.44,
+   "shape": 0.51,
+   "decision": 1,
+   "gap_flagged": 0.41
+  },
+  "G30": {
+   "n": 33,
+   "exact": 0.42,
+   "exact_without_assumed": 0.42,
+   "shape": 0.55,
+   "decision": 1,
+   "gap_flagged": 0.79
+  },
+  "G31": {
+   "n": 40,
+   "exact": 0.42,
+   "exact_without_assumed": 0.42,
+   "shape": 0.63,
+   "decision": 1,
+   "gap_flagged": 0.88
+  },
+  "G32": {
+   "n": 33,
+   "exact": 0.85,
+   "exact_without_assumed": 0.85,
+   "shape": 0.73,
+   "decision": 0.97,
+   "gap_flagged": 0.91
+  },
+  "G33": {
+   "n": 34,
+   "exact": 0.32,
+   "exact_without_assumed": 0.32,
+   "shape": 0.71,
+   "decision": 0.97,
+   "gap_flagged": 1
+  },
+  "G34": {
+   "n": 34,
+   "exact": 0.94,
+   "exact_without_assumed": 0.94,
+   "shape": 0.94,
+   "decision": 0.97,
+   "gap_flagged": 0.76
+  },
+  "U-ambiguous": {
+   "n": 38,
+   "exact": 0.97,
+   "exact_without_assumed": 0.97,
+   "shape": 0.66,
+   "decision": 0.87,
+   "gap_flagged": 0.47
+  },
+  "U-chitchat": {
+   "n": 17,
+   "exact": 1,
+   "exact_without_assumed": 1,
+   "shape": 0.94,
+   "decision": 0.94,
+   "gap_flagged": 0
+  },
+  "U-gibberish": {
+   "n": 15,
+   "exact": 1,
+   "exact_without_assumed": 1,
+   "shape": 1,
+   "decision": 1,
+   "gap_flagged": 0
+  },
+  "lang:en": {
+   "n": 341,
+   "exact": 0.67,
+   "exact_without_assumed": 0.68,
+   "shape": 0.73,
+   "decision": 1,
+   "gap_flagged": 0.65
+  },
+  "lang:mixed": {
+   "n": 162,
+   "exact": 0.45,
+   "exact_without_assumed": 0.45,
+   "shape": 0.59,
+   "decision": 0.98,
+   "gap_flagged": 0.71
+  },
+  "lang:ro": {
+   "n": 293,
+   "exact": 0.53,
+   "exact_without_assumed": 0.53,
+   "shape": 0.67,
+   "decision": 0.98,
+   "gap_flagged": 0.69
+  },
+  "writer:wd": {
+   "n": 100,
+   "exact": 0.63,
+   "exact_without_assumed": 0.63,
+   "shape": 0.69,
+   "decision": 0.98,
+   "gap_flagged": 0.72
+  },
+  "writer:we": {
+   "n": 99,
+   "exact": 0.66,
+   "exact_without_assumed": 0.66,
+   "shape": 0.78,
+   "decision": 1,
+   "gap_flagged": 0.69
+  },
+  "writer:wf": {
+   "n": 100,
+   "exact": 0.59,
+   "exact_without_assumed": 0.59,
+   "shape": 0.7,
+   "decision": 0.99,
+   "gap_flagged": 0.57
+  },
+  "writer:wg": {
+   "n": 100,
+   "exact": 0.53,
+   "exact_without_assumed": 0.53,
+   "shape": 0.65,
+   "decision": 0.98,
+   "gap_flagged": 0.69
+  },
+  "writer:wh": {
+   "n": 99,
+   "exact": 0.55,
+   "exact_without_assumed": 0.55,
+   "shape": 0.68,
+   "decision": 0.98,
+   "gap_flagged": 0.72
+  },
+  "writer:wi": {
+   "n": 99,
+   "exact": 0.42,
+   "exact_without_assumed": 0.42,
+   "shape": 0.6,
+   "decision": 0.99,
+   "gap_flagged": 0.75
+  },
+  "writer:wj": {
+   "n": 100,
+   "exact": 0.57,
+   "exact_without_assumed": 0.58,
+   "shape": 0.64,
+   "decision": 0.99,
+   "gap_flagged": 0.7
+  },
+  "writer:wk": {
+   "n": 99,
+   "exact": 0.66,
+   "exact_without_assumed": 0.67,
+   "shape": 0.72,
+   "decision": 0.99,
+   "gap_flagged": 0.58
+  }
+ }
+}

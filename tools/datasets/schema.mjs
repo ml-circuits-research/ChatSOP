@@ -22,7 +22,7 @@ export function authoringProvenance(row, markdown) {
     case_md_sha256: sha256(markdown),
     parser_sha256: sha256(fs.readFileSync(new URL('../../sop/parser.mjs', import.meta.url))),
     prompt_sha256: sha256(fs.readFileSync(new URL('../../server/llm.mjs', import.meta.url))),
-    ontology_sha256: sha256(row.ontology_sop ?? fs.readFileSync(new URL('../../config/ontology.sop', import.meta.url), 'utf8')),
+    ontology_sha256: sha256(row.ontology_sop ?? fs.readFileSync(new URL('../../config/knowledge/demo/0001-vocabulary.sop', import.meta.url), 'utf8')),
     review_status: 'integrator-authored-not-human-validated',
   };
 }

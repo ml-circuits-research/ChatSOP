@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Reasoner, abductParsed, all, any, atom, builtin, condition, loadSOP, none, not, parseSOP, planParsed, provider, reduction, ref, rule, unifyTerms, validateReasoner} from '../reasoning/strategies/datalog-soplab/vendor/index.mjs';
+import {Reasoner, abductParsed, all, any, atom, builtin, condition, loadSOP, none, not, parseSOP, planParsed, provider, reduction, ref, rule, unifyTerms, validateReasoner} from '../eval/reference-engines/datalog-soplab/vendor/index.mjs';
 
 /**
  * The tests of the vendored soplab engine that concern what the strategy uses (soplab-v0.4.0.zip, test/core, cnl, strategy, provider and validate;
@@ -273,7 +273,7 @@ test('negative recursive cycles are rejected as non-stratifiable', () => {
 });
 
 test('materialization strategies are pluggable', async () => {
-  const { materializeNaive } = await import('../reasoning/strategies/datalog-soplab/vendor/index.mjs');
+  const { materializeNaive } = await import('../eval/reference-engines/datalog-soplab/vendor/index.mjs');
   let calls = 0;
   const r = new Reasoner();
   r.fact(atom('edge', 'a', 'b'));
@@ -329,7 +329,7 @@ test('program validator detects unsafe rule heads', () => {
 
 // ---- the strategy on top of the vendored engine
 
-import {datalogSoplab, capabilities, NotExpressibleError} from '../reasoning/strategies/datalog-soplab/index.mjs';
+import {datalogSoplab, capabilities, NotExpressibleError} from '../eval/reference-engines/datalog-soplab/index.mjs';
 
 const ask = (knowledge, query, budget = {}) => datalogSoplab.ask({theory: {knowledge}, query}, budget, {conditional: false});
 const rowsOf = r => r.rows.map(x => JSON.stringify(x)).sort();

@@ -25,7 +25,7 @@ import {desugar} from './desugar.mjs';
 import {compileProgram, sliceProgram, conditionAlts} from './program.mjs';
 import {saturate} from './engine.mjs';
 import {Budget, BudgetStop, CEILINGS} from './budget.mjs';
-import {planQuery, evaluatePart, combineParts, READ_BUDGET} from './query.mjs';
+import {planQuery, evaluatePart, combineParts, readBudget} from './query.mjs';
 import {timeParts, viewAt} from './timeview.mjs';
 import {proofOf, usedOf, explainOf} from './support.mjs';
 import {parseConstraint, solveConstraint} from './constraint.mjs';
@@ -38,7 +38,7 @@ import {ProgramError, NotExpressibleError} from './values.mjs';
 
 export {ProgramError, NotExpressibleError};
 
-const SUPPORTED = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'constraint', 'optimize', 'plan', 'abduce', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars'];
+const SUPPORTED = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'every_grouped', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'constraint', 'optimize', 'plan', 'abduce', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars'];
 const UNSUPPORTED = ['blocked_info', 'method', 'htn_choice', 'on_failure', 'norms_hard', 'norms_soft', 'temporal_norms', 'procedures', 'procedure_render', 'amendment', 'check_plan', 'abduce_waive'];
 
 export const capabilities = {
@@ -249,10 +249,16 @@ function solveOnce(handle, qWires, excluded, budgetArg, opts = {}) {
     const closure = saturate(sliced.program, view, i === 0 ? budget : budget.child());
     for (const n of closure.ctx.notes) notes.add(n);
     exhausted = closure.exhausted;
-    const rctx = {ev: closure.ev, stored: closure.ctx.stored, budget: READ_BUDGET, notes};
+    const rctx = {ev: closure.ev, stored: closure.ctx.stored, budget: readBudget(budget), notes};
     if (q.mode === 'why_not') parts.push({closure, rctx});
     else {
-      parts.push(evaluatePart(qp, closure.ev, rctx));
+      // reading is not counted against the probe ceilings, but the wall clock stops it: a stop is an incomplete part, never an answer
+      try { parts.push(evaluatePart(qp, closure.ev, rctx)); } catch (e) {
+        if (!(e instanceof BudgetStop)) throw e;
+        exhausted = exhausted ?? {reason: e.reason, key: e.key};
+        parts.push({status: 'unknown', rows: [], roots: [], supportIncomplete: true});
+        return;
+      }
       // `reread(fields, mode, select, forms)`: another condition over the SAME closure (the host asks for the opposite of a ground claim)
       detail?.parts.push({instant: t, outcome: parts.at(-1), ev: closure.ev, reread: (fields, rmode = 'select', rselect = [], forms = null) => evaluatePart(planQuery({id: 'reread', fields}, program.closed, {mode: rmode, select: rselect, forms}), closure.ev, rctx)});
     }

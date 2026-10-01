@@ -41,7 +41,9 @@ test('session: starting clones the base memory into its own folder', t => {
   const snap = fs.readdirSync(path.join(sessions.dir(s.id), 'repo/snapshots'))[0];
   assert.ok(fs.statSync(path.join(sessions.dir(s.id), 'repo/snapshots', snap)).nlink >= 2, 'the clone shares the immutable files');
   assert.throws(() => sessions.create({base: 'missing', user: 'alice'}), e => e.status === 404);
-  assert.throws(() => sessions.create({base: base.id, user: 'alice', settings: {authoring: 'sometimes'}}), /authoring must be one of/);
+  assert.throws(() => sessions.create({base: base.id, user: 'alice', settings: {authoring: 'auto'}}), /authoring must be one of off, always/);
+  assert.equal(sessions.create({base: base.id, user: 'alice'}).settings.authoring, 'off', 'the default never starts the coding agent');
+  assert.equal(sessions.create({base: base.id, user: 'alice'}).settings.scope_note, 'ask');
   assert.throws(() => sessions.create({base: base.id, user: 'alice', settings: {bogus: 1}}), /Unknown session setting/);
   assert.equal(memories.circuits(base.id).length, 1);
 });
@@ -61,11 +63,13 @@ test('session: drafts are not knowledge until accepted; accepting adds to the se
   const s = sessions.create({base: base.id, user: 'alice'});
   const draft = sessions.addDraft(s.id, {name: 'extra', text: EXTRA, request: 'r-1', model: 'stub/model'});
   assert.equal(draft.state, 'draft');
+  assert.equal(draft.status, 'proposed', 'authored wires are held as proposed');
   assert.equal(draft.validation.ok, true);
   assert.deepEqual(factsOf(sessions, s.id), ['ann>bob', 'bob>cy', 'cy>di'], 'a draft is not in the memory');
   assert.doesNotMatch(sessions.theory(s.id), /di eve/);
   const accepted = sessions.acceptDraft(s.id, draft.id, {approvedBy: 'alice'});
   assert.equal(accepted.draft.state, 'accepted');
+  assert.equal(accepted.draft.status, 'accepted');
   assert.equal(accepted.record.approved_by, 'alice');
   assert.equal(accepted.record.ingest.facts_ingested, 1);
   assert.deepEqual(factsOf(sessions, s.id), ['ann>bob', 'bob>cy', 'cy>di', 'di>eve']);
@@ -119,20 +123,21 @@ test('session: the transcript is kept and an abandoned session is removed by the
   assert.ok(fs.existsSync(path.join(chatData.baseMemoriesDir, 'family')), 'the base memory stays');
 });
 
-test('sessions API: create on a base memory, drafts, accept, theory, query, commit (admin), delete', async t => {
+test('sessions API: create on a base memory, drafts, accept, theory, query, commit, delete', async t => {
   const s = await productServer(t);
   await s.admin('/v1/memories', 'POST', {name: 'Family', id: 'family', strategy: 'hybrid', circuits: [{name: 'family', text: FAMILY}]});
   assert.equal((await s.user('/v1/sessions', 'POST', {})).status, 400);
   assert.equal((await s.user('/v1/sessions', 'POST', {base: 'nope'})).status, 404);
-  const created = await s.user('/v1/sessions', 'POST', {base: 'family', name: 'Test chat', settings: {authoring: 'off'}});
+  const created = await s.user('/v1/sessions', 'POST', {base: 'family', name: 'Test chat', settings: {scope_note: 'mark'}});
   assert.equal(created.status, 201);
   const id = created.body.id;
-  assert.equal(created.body.settings.authoring, 'off');
+  assert.equal(created.body.settings.authoring, 'off', 'the coding agent is off by default');
+  assert.equal(created.body.settings.scope_note, 'mark');
   assert.equal(created.body.base.strategy, 'hybrid');
   assert.equal((await s.user('/v1/sessions')).body.data.length, 1);
   const settings = await s.user(`/v1/sessions/${id}/settings`, 'POST', {authoring: 'always', omp_model: 'xai-oauth/grok-4.20-0309-non-reasoning'});
   assert.equal(settings.body.settings.authoring, 'always');
-  assert.equal((await s.user(`/v1/sessions/${id}/settings`, 'POST', {authoring: 'x'})).status, 400);
+  assert.equal((await s.user(`/v1/sessions/${id}/settings`, 'POST', {authoring: 'auto'})).status, 400);
   const theory = await s.user(`/v1/sessions/${id}/theory`);
   assert.match(theory.body.theory, /@r_grand rule/);
   const query = await s.user(`/v1/sessions/${id}/query`, 'POST', {query: FAMILY_QUERY});
@@ -149,9 +154,7 @@ test('sessions API: create on a base memory, drafts, accept, theory, query, comm
   assert.equal((await s.user(`/v1/sessions/${id}/drafts/${draft.id}/accept`, 'POST')).status, 409);
   const grown = await s.user(`/v1/sessions/${id}/query`, 'POST', {query: '@q query\n  where parent di ?who\n  select ?who\n'});
   assert.deepEqual(grown.body.answer.rows?.map?.(r => r.who) ?? grown.body.answer.result?.rows?.map(r => r.who), ['eve']);
-  const noAdmin = await s.user(`/v1/sessions/${id}/commit`, 'POST', {name: 'Nope'});
-  assert.equal(noAdmin.status, 403);
-  const commit = await s.admin(`/v1/sessions/${id}/commit`, 'POST', {name: 'Family plus Eve', id: 'family-eve'});
+  const commit = await s.user(`/v1/sessions/${id}/commit`, 'POST', {name: 'Family plus Eve', id: 'family-eve'});
   assert.equal(commit.status, 201);
   assert.equal(commit.body.memory.parent.id, 'family');
   assert.equal(commit.body.added[0].approved_by, 'admin');

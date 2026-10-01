@@ -18,7 +18,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {parse, tokens, parseCondition, leaves} from '../validator.mjs';
 import {desugarText} from '../lib/desugar.mjs';
 import {supposedWireIds} from '../lib/governance.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.resolve(here, '../../..');

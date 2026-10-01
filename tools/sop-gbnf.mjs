@@ -47,7 +47,7 @@ export const FIELD_ORDER = Object.freeze({
 /** Wire types that carry clause-link lines (`because $s2`), always after their other fields. */
 export const LINKED_TYPES = Object.freeze(['stated', 'assumed', 'query']);
 /** SPEC fields a model wire never writes (DS021): trusted-circuit operator syntax and host plumbing. */
-export const EXCLUDED_FIELDS = Object.freeze({query: {filter: 'operator syntax; the model writes compare/except/order words', span: 'host plumbing written by linking'}});
+export const EXCLUDED_FIELDS = Object.freeze({query: {filter: 'operator syntax; the model writes compare/except/order words', span: 'host plumbing written by linking', overlaps: 'written by the UD-to-SOP rules (v2.7); the decoding grammar of the small models keeps at/during'}});
 /** Default maximal nesting of `all`/`any` groups inside a condition field (the parser allows 32; the corpora use at most 2). */
 export const DEFAULT_DEPTH = 4;
 

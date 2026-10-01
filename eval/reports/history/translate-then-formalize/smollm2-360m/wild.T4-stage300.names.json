@@ -1,0 +1,272 @@
+{
+  "format": "chatsop-translate-names-v1",
+  "suite": "eval/reports/current/translate-then-formalize/work/formalizer-wild-v1.romixed.stage300.jsonl",
+  "definition": "gold role values with a capital letter occurring verbatim in the original message (first accepted target for wild)",
+  "totals": {
+    "rows_with_names": 135,
+    "names": 250,
+    "in_translation": 172,
+    "in_direct_sop": 122,
+    "in_translated_sop": 89,
+    "lost_by_translation": 78,
+    "translation_fidelity": 0.688,
+    "direct_sop_fidelity": 0.488,
+    "translated_sop_fidelity": 0.356
+  },
+  "by_slice": {
+    "ro": {
+      "names": 151,
+      "in_translation": 97,
+      "in_direct_sop": 78,
+      "in_translated_sop": 53
+    },
+    "mixed": {
+      "names": 99,
+      "in_translation": 75,
+      "in_direct_sop": 44,
+      "in_translated_sop": 36
+    }
+  },
+  "lost_examples": [
+    {
+      "id": "wild_wi_036",
+      "name": "Judecătoria Buftea",
+      "message": "Avocatul l-a sunat pe executor după ce a primit citația de la Judecătoria Buftea. Ce termen are acum ca să răspundă?",
+      "translation": "The lawyer called the executor after he received the summons from Buffea County. What time does he have to answer now?"
+    },
+    {
+      "id": "wild_wi_011",
+      "name": "Primăria Sectorului 3",
+      "message": "Primăria Sectorului 3 eliberează certificatul de atestare fiscală și sâmbăta?",
+      "translation": "Does the City of Sector 3 issue the tax certificate and Saturday?"
+    },
+    {
+      "id": "wild_wi_018",
+      "name": "art. 1553 Cod civil",
+      "message": "Ce înseamnă concret pactul comisoriu de la art. 1553 Cod civil din contractul meu de vânzare cu plata în rate?",
+      "translation": "What does the Commissioner's agreement in art. 1553 Civil Code from my payment-in-rate contract?"
+    },
+    {
+      "id": "wild_wi_001",
+      "name": "dna Stănescu",
+      "message": "Bună ziua. Sunt administratorul unei S.R.L. din jud. Prahova (CUI RO4XXXXX1), înființată în martie 2023, cu activitate de reparații de calculatoare și service de imprimante. Până anul trecut am fost microîntreprindere, dar în decembrie 2025 am încasat o factură mare de la un client din Linz și am depășit plafonul de 100.000 euro. Contabila noastră, dna Stănescu, e în concediu medical până pe 15 octombrie, iar eu nu mă pricep deloc la declarații. Trebuie să trec la impozit pe profit începând cu trimestrul în care am depășit plafonul sau abia de la 1 ianuarie?",
+      "translation": "Hello. I'm the administrator of an L.R.S. of the court. Prahova (CUI RO4XXXXX1), established in March 2023, with computer repair and printer service. Until last year I was microenterprise, but in December 2025 I collected a large bill from a client in Linz and exceeded the ceiling of 100,000 euros. Our accountant, Mrs Stanescu, is on medical leave until October 15th, and I am not very good at statements. Do I have to go to profit tax from the quarter I crossed the ceiling or just from January 1st?"
+    },
+    {
+      "id": "wild_wi_025",
+      "name": "Colegiul Național «Mihai Viteazul» din Ploiești",
+      "message": "Câte clase a IX-a au mai mult de 28 de elevi la Colegiul Național «Mihai Viteazul» din Ploiești în anul școlar 2026–2027?",
+      "translation": "How many ninth-grade classes do more than 28 students at the National College of \"Mihai the Viteaz\" in Ploiești in the school year 2026–2027?"
+    },
+    {
+      "id": "wild_wi_078",
+      "name": "Dr. Ionescu-Munteanu",
+      "message": "Cât costă o consultație la Dr. Ionescu-Munteanu, cabinet ORL, Str. Avram Iancu nr. 22A, Sibiu?",
+      "translation": "How much a consultation with Dr. Ionescu-Monteanu, ORL cabinet, Str. Iancu no. 22A, Sibiu?"
+    },
+    {
+      "id": "wild_wi_078",
+      "name": "Str. Avram Iancu nr. 22A, Sibiu",
+      "message": "Cât costă o consultație la Dr. Ionescu-Munteanu, cabinet ORL, Str. Avram Iancu nr. 22A, Sibiu?",
+      "translation": "How much a consultation with Dr. Ionescu-Monteanu, ORL cabinet, Str. Iancu no. 22A, Sibiu?"
+    },
+    {
+      "id": "wild_wi_070",
+      "name": "România",
+      "message": "Niciunul dintre cei trei asociați nu are domiciliul în România (unul e în Lyon, doi în Chișinău). Putem totuși stabili sediul social la o adresă de domiciliere oferită de un cabinet de avocatură?",
+      "translation": "None of the three associates have a domicile in Romania (one is in Lyon, two in Chisinau). Can we still establish the registered office at a home address offered by a law firm?"
+    },
+    {
+      "id": "wild_wg_099",
+      "name": "doctor Lungu",
+      "message": "biletul de trimitere dat de doamna doctor Lungu care o plecat la Suceava mai e bun?",
+      "translation": "Is the shipping note given by Dr. Lungu who left for Suceava still good?"
+    },
+    {
+      "id": "wild_wh_026",
+      "name": "Analiza",
+      "message": "majoritatea din an au trecut Analiza sau doar cativa?",
+      "translation": "Most of the year have passed the analysis or just a few?"
+    },
+    {
+      "id": "wild_wh_066",
+      "name": "Bucuresti",
+      "message": "cine nu iubeste shaorma de la Dristor la 3 noaptea? da serios, care e cea mai buna din Bucuresti?",
+      "translation": "Who doesn't love the shaorma from the Dristor at 3 o'clock? Seriously, what's the best in Bucharest?"
+    },
+    {
+      "id": "wild_wj_046",
+      "name": "Dana Crăciun",
+      "message": "Ok deci context: suntem în Q3 planning și managerul meu, Dana Crăciun, vrea ca echipa de platform să preia și on-call-ul pentru payments din octombrie. Problema e că suntem doar patru oameni și doi pleacă în concediu în septembrie. I tried to explain it in our 1:1 dar zice că e decizie de la VP. Nu vreau să mă plâng, doar întreb: câte ore de gardă pe lună are voie să facă un angajat conform Codului Muncii? I'm pretty sure there's a cap.",
+      "translation": "Ok context: we are in Q3 planning and my manager, Dana Christmas, wants the platform team to take over and on-call for October payments. The problem is that we're only four people and two are going on vacation in September. I tried to explain it in our 1:1 but says it's VP decision. I don't want to complain, I just wonder how many hours of guard a month is allowed to make an employee according to the Labour Code? I'm pretty sure there's a deal."
+    },
+    {
+      "id": "wild_wj_046",
+      "name": "Codului Muncii",
+      "message": "Ok deci context: suntem în Q3 planning și managerul meu, Dana Crăciun, vrea ca echipa de platform să preia și on-call-ul pentru payments din octombrie. Problema e că suntem doar patru oameni și doi pleacă în concediu în septembrie. I tried to explain it in our 1:1 dar zice că e decizie de la VP. Nu vreau să mă plâng, doar întreb: câte ore de gardă pe lună are voie să facă un angajat conform Codului Muncii? I'm pretty sure there's a cap.",
+      "translation": "Ok context: we are in Q3 planning and my manager, Dana Christmas, wants the platform team to take over and on-call for October payments. The problem is that we're only four people and two are going on vacation in September. I tried to explain it in our 1:1 but says it's VP decision. I don't want to complain, I just wonder how many hours of guard a month is allowed to make an employee according to the Labour Code? I'm pretty sure there's a deal."
+    },
+    {
+      "id": "wild_wi_091",
+      "name": "Târgu Secuiesc",
+      "message": "Câte școli din județul Covasna au mai puțin de 50 de elevi înscriși, în afară de cele din Târgu Secuiesc?",
+      "translation": "How many schools in Covasna County have fewer than 50 students enrolled, other than those in Târgu Secuesc?"
+    },
+    {
+      "id": "wild_wg_012",
+      "name": "Bistrita Bargaului",
+      "message": "fratii mei Grigore si Toader au o livada de pruni la Bistrita Bargaului, au lucrat-o tat timpu impreuna. pe acte cine ii proprietarul?",
+      "translation": "My brothers Grigore and Toader have a plum orchard at Barga's Bistrita, worked it out for a while. Who's the owner on the papers?"
+    },
+    {
+      "id": "wild_wk_014",
+      "name": "S.C. Agro-Vest S.R.L.",
+      "message": "can you check pe site-ul S.C. Agro-Vest S.R.L. what's their CUI? imi trebuie pt factura",
+      "translation": "can you check on the S.C. website. Agro-West S.R.L. What's theirs? I need to get my bill."
+    },
+    {
+      "id": "wild_wk_068",
+      "name": "the express bus to Gara de Nord",
+      "message": "dacă ajung la Otopeni după 23:00, can I still get the express bus to Gara de Nord?",
+      "translation": "If I get to Otopeni after 11:00, can I still get the express bus to the North Railway Station?"
+    },
+    {
+      "id": "wild_wh_088",
+      "name": "Balea Lac",
+      "message": "Am fost cu gasca la Balea Lac: eu, Sabina, Horia, Vlad si Teo. Horia si Teo au dormit la cabana, restul in cort. Sabina a facut hipotermie usoara. Cei mai multi au zis ca nu mai merg in octombrie. Mai merita sa mergem in noiembrie?",
+      "translation": "I was with the gang at the Lake Ball: me, Sabina, Horia, Vlad and Teo. Horia and Teo slept at the cabin, the rest in the tent. The Sabina did mild hypothermia. Most people said they're not going in October. Is it worth it to go to November?"
+    },
+    {
+      "id": "wild_wk_002",
+      "name": "48.000 EUR",
+      "message": "Deci am avut azi un meeting super lung cu echipa din Lisabona, și Joana zicea că vendor-ul nou, Solaris Data, ne dă 20% discount dacă semnăm pe 2 ani. But Miguel from procurement said the discount only kicks in after the first year, which is kinda different. Anyway, întrebarea e: la ce preț ajungem pe primul an dacă prețul de listă e 48.000 EUR?",
+      "translation": "So we had a super long meeting with the Lisbon team today, and Joana said the new seller, Solaris Data, gives us 20% discount if we sign for 2 years. But Miguel from procurement said the discount only kicks in after the first year, which is kinda different. Anyway, the question is, what price do we get for the first year if the list price is EUR 48,000?"
+    },
+    {
+      "id": "wild_wj_085",
+      "name": "Irlandei de Nord",
+      "message": "Care e capitala Irlandei de Nord?",
+      "translation": "What is the capital of Northern Ireland?"
+    },
+    {
+      "id": "wild_wd_017",
+      "name": "hotel Ambasador in Brasov",
+      "message": "am un booking la hotel Ambasador in Brasov for next weekend, is breakfast included or do we pay extra?",
+      "translation": "I have a booking at the hotel Ambassador in Brasov for next weekend, is breakfast included or do we pay extra?"
+    },
+    {
+      "id": "wild_wj_089",
+      "name": "The notar in Brașov",
+      "message": "Hey, quick one but with context: my partner Gelu and I are thinking of buying a small casă in Bran, around 85,000 EUR, with about 1,200 mp of land. I'm a UK citizen, he's Romanian. I've read foreigners can't easily own agricultural land but can own the house itself? The notar in Brașov quoted us 1.4% in fees. Is it smarter to put everything in his name, or both? What would you do?",
+      "translation": "Hey, quick one but with context: my partner Gelu and I are thinking of buying a small house in Bran, around 85,000 EUR, with about 1,200 mp of land. I'm a UK citizen, he's Romanian. I've read foreigners can't easily own agricultural land but can own the house itself? The notar in Brasov quoted us 1.4% in fees. Is it smarter to could everything in his name, or both? What would you do?"
+    },
+    {
+      "id": "wild_wg_009",
+      "name": "Torino",
+      "message": "vineri i-am trimis nepotului meu Andrei care sta in Torino 300 de euro prin Western Union de la posta din Harlau, am chitanta si tot, si el zice ca pana azi n-o primit nimic. unde pot sa fie banii si cui trebe sa ma plang, la posta sau la ei la Western?",
+      "translation": "Friday I sent my grandson Andrei who is staying in Turin 300 euros through Western Union at the Harlau post office, I have the receipt and everything, and he says that until today he has received nothing. Where can I be the money and whose business is to complain, at the mail or at them at Western?"
+    },
+    {
+      "id": "wild_wi_092",
+      "name": "Casa Județeană de Pensii Dolj",
+      "message": "Tatăl meu a depus dosarul de pensie la Casa Județeană de Pensii Dolj pe 4 august, iar concediul medical i s-a terminat pe 31 iulie. Pe 1-3 august nu a lucrat, iar angajatorul, Electroputere VFU, i-a încetat contractul de muncă abia pe 5 august, cu decizia nr. 312. Decizia de pensie pentru limită de vârstă încă nu a venit, deși au trecut aproape două luni. Primește ceva bani și pentru zilele dintre?",
+      "translation": "My father filed his pension file at the Dolj Pension County House on August 4, and his medical leave was completed on July 31st. On August 1-3, he did not work, and the employer, Electropowere VFU, terminated his employment contract only on August 5, with decision no. 312. The age-limit pension decision has not yet come, although it has been almost two months. Is he getting any money for the days between?"
+    },
+    {
+      "id": "wild_wi_092",
+      "name": "Electroputere VFU",
+      "message": "Tatăl meu a depus dosarul de pensie la Casa Județeană de Pensii Dolj pe 4 august, iar concediul medical i s-a terminat pe 31 iulie. Pe 1-3 august nu a lucrat, iar angajatorul, Electroputere VFU, i-a încetat contractul de muncă abia pe 5 august, cu decizia nr. 312. Decizia de pensie pentru limită de vârstă încă nu a venit, deși au trecut aproape două luni. Primește ceva bani și pentru zilele dintre?",
+      "translation": "My father filed his pension file at the Dolj Pension County House on August 4, and his medical leave was completed on July 31st. On August 1-3, he did not work, and the employer, Electropowere VFU, terminated his employment contract only on August 5, with decision no. 312. The age-limit pension decision has not yet come, although it has been almost two months. Is he getting any money for the days between?"
+    },
+    {
+      "id": "wild_wj_091",
+      "name": "doamna Petrescu",
+      "message": "Right, so this is going to sound silly. I've been living in Iași for about six years, teaching English at a small language school, and my neighbour, doamna Petrescu, keeps leaving jars of zacuscă and cozonac at my door every holiday. This year I want to give her something back for Crăciun, something properly Romanian and not just a box of chocolates from Kaufland. She's in her seventies, widowed, goes to church every Sunday. Is there a traditional gift people give neighbours at Christmas here?",
+      "translation": "Right, so this is going to sound silly. I've been living in Iasi for about six years, teaching English at a small language school, and my neighbor, Mrs. Petrescu, keeps leaving jars of zacuzca and cozonac at my door every holiday. This year I want to give her something back for Christmas, something properly Romanian and not just a box of chocolates from Kaufland. She's in her seventies, wideweed, goes to church every Sunday. Is there a traditional gift people give neighbors at Christmas here?"
+    },
+    {
+      "id": "wild_wj_091",
+      "name": "Iași",
+      "message": "Right, so this is going to sound silly. I've been living in Iași for about six years, teaching English at a small language school, and my neighbour, doamna Petrescu, keeps leaving jars of zacuscă and cozonac at my door every holiday. This year I want to give her something back for Crăciun, something properly Romanian and not just a box of chocolates from Kaufland. She's in her seventies, widowed, goes to church every Sunday. Is there a traditional gift people give neighbours at Christmas here?",
+      "translation": "Right, so this is going to sound silly. I've been living in Iasi for about six years, teaching English at a small language school, and my neighbor, Mrs. Petrescu, keeps leaving jars of zacuzca and cozonac at my door every holiday. This year I want to give her something back for Christmas, something properly Romanian and not just a box of chocolates from Kaufland. She's in her seventies, wideweed, goes to church every Sunday. Is there a traditional gift people give neighbors at Christmas here?"
+    },
+    {
+      "id": "wild_wf_063",
+      "name": "Luminita",
+      "message": "pe 3 ale lunii viitoare vine auditorul de la ISO 27001, si anul trecut ne-a dat neconformitate pe camera serverelor pt ca registrul de acces nu era completat. Sorin, care se ocupa de obicei, pleaca in concediu fix atunci, iar Luminita e noua si nu are inca cheie. cine se ocupa de camera serverelor atunci?",
+      "translation": "on the 3th of next month comes the auditor from ISO 27001, and last year gave us non-conformity on the server room so that the access log was not completed. Sorin, who usually takes care of, leaves on fixed leave then, and the Light is new and has no key yet. Who's in charge of the server room then?"
+    },
+    {
+      "id": "wild_wk_093",
+      "name": "TVA la încasare",
+      "message": "Ce înseamnă TVA la încasare?",
+      "translation": "What does VAT mean when you take it?"
+    },
+    {
+      "id": "wild_wj_073",
+      "name": "Laurențiu",
+      "message": "Laurențiu mi-a transferat 1.200 lei pe Revolut ieri pt biletele la Untold, i-am dat eu mai departe banii Sabinei?",
+      "translation": "Laurentiu transferred me 1,200 lei on the Revolution yesterday for tickets to Untold, did I give Sabina's money further?"
+    },
+    {
+      "id": "wild_wi_048",
+      "name": "Judecătoria Sectorului 2",
+      "message": "Mâine la 9:30 am termen la Judecătoria Sectorului 2 și avocata mea e bolnavă. Can I ask for postponement singur sau trebuie să vină un substitute din partea cabinetului?",
+      "translation": "Tomorrow at 9:30 I'm on time at Sector 2's courthouse and my lawyer is sick. Can I ask for postponement alone or should a substitute come from the cabinet?"
+    },
+    {
+      "id": "wild_wi_071",
+      "name": "Primăria Municipiului Oradea",
+      "message": "Aș dori să aflu dacă certificatul de urbanism nr. 452/12.03.2025, emis de Primăria Municipiului Oradea, mai este valabil.",
+      "translation": "I'd like to know if the urbanism certificate no. 452/12.03.2025, issued by Oradea City Hall, is still valid."
+    },
+    {
+      "id": "wild_wg_092",
+      "name": "Pavel",
+      "message": "ce zici, merita sa pun panouri solare pe casa la Sieu? o firma din Bistrita vine si cere 22 de mii de lei cu montaj cu tot 🤔 vecinul Pavel le-o pus anul trecut si zice ca vara nu mai plateste curent deloc, da iarna tot plateste vreo 150 pe luna. io am pensie mica si ma gandesc daca-mi scot banii inapoi pana mor",
+      "translation": "What do you say, I deserve to put solar panels on the house at Sieu? A company in Bistrita comes and asks for 22 thousand lions with mounting with all the neighbor Paul put it last year and says that summer no longer pays for electricity, but winter still pays about 150 per month. I have a small pension and I think if I take my money back until I die"
+    },
+    {
+      "id": "wild_wi_087",
+      "name": "Liceul Tehnologic din Pașcani",
+      "message": "Dacă îmi transfer fiul de la Liceul Tehnologic din Pașcani la un liceu din Iași în timpul semestrului, cine trimite foaia matricolă la noua școală?",
+      "translation": "If I transfer my son from the Pacific Technological High School to a high school in Iasi during the semester, who sends my matriculate sheet to the new school?"
+    },
+    {
+      "id": "wild_wj_018",
+      "name": "S.C. Nord-Est Logistic S.R.L.",
+      "message": "factura de la S.C. Nord-Est Logistic S.R.L. (CUI RO18830421) e încă pending, cine trebuie s-o aprobe?",
+      "translation": "S.C. bill. North-East Logistics S.R.L. (ROI18830421) is still pending, who has to approve it?"
+    },
+    {
+      "id": "wild_wj_018",
+      "name": "RO18830421",
+      "message": "factura de la S.C. Nord-Est Logistic S.R.L. (CUI RO18830421) e încă pending, cine trebuie s-o aprobe?",
+      "translation": "S.C. bill. North-East Logistics S.R.L. (ROI18830421) is still pending, who has to approve it?"
+    },
+    {
+      "id": "wild_wg_076",
+      "name": "ocolul silvic Baia Mare",
+      "message": "cine nu stie ca iarna asta lemnele-s scumpe ca focu? cat ii metrul cub amu la ocolul silvic Baia Mare",
+      "translation": "Who doesn't know this winter the woods are expensive as fire? How much the metal cube amu at the wild Bay Grand"
+    },
+    {
+      "id": "wild_wg_033",
+      "name": "Filiasi",
+      "message": "ma programasei la cardiologie la Craiova pe 14 ale lunii viitoare, da pe 12 am analizele de sange la Filiasi la laborator. doctorita zisese ceva de analize da nu mai tin minte bine. trebuie sa le fac neaparat inainte de consult sau le pot duce si dupa? ca de la Filiasi la Craiova ma duce cumnatu cu masina numa o data",
+      "translation": "I'm scheduled to be in cardiology at Craiova on 14th of next month, but I have blood tests at the Philiasis on 12th at the lab. The doctor said something about the tests, but I don't remember. Do I have to do them before I consult or can I take them after? As from the filiasi to Craiova I take my brother-in-law with the car at once"
+    },
+    {
+      "id": "wild_wj_088",
+      "name": "Piatra Neamț",
+      "message": "Bună. Sunt asistentă în Freiburg de doi ani, am Anerkennung-ul pentru diplomă de anul trecut. Fetița mea, Sofia, are 9 ani și a rămas cu bunica în Piatra Neamț, dar vreau s-o aduc aici din septembrie. Am auzit că trebuie să fac Anmeldung pentru ea în 14 zile și că școala o repartizează orașul. Ea nu știe deloc germană. Există clase speciale pentru copii străini în Freiburg, gen Vorbereitungsklasse, sau o bag direct în clasa a treia?",
+      "translation": "Hey. I've been a nurse in Freiburg for two years, I have Anerkennung for graduation last year. My little girl, Sofia, is 9 years old and she stayed with her grandmother in the Neamt Stone, but I want to bring her here from September. I heard I had to do Anmeldung for her in 14 days and that school was distributing her to the city. She doesn't know any German. Are there special classes for foreign children in Freiburg, like Vorbereitungsklasse, or do I put it straight into third class?"
+    },
+    {
+      "id": "wild_wi_062",
+      "name": "TSH 4,8 mUI/L",
+      "message": "Stimați colegi, o întrebare de practică: pacientă de 34 de ani, G2P1, sarcină de 11 săptămâni, cu tiroidită Hashimoto cunoscută, TSH 4,8 mUI/L la controlul de ieri, sub levotiroxină 75 µg/zi. Endocrinologul ei e în concediu până la 20.10, iar medicul de familie nu vrea să modifice doza fără scrisoare medicală. La prima sarcină a avut aceeași problemă și doza s-a crescut cu 25 µg abia în trimestrul II. Care este ținta de TSH recomandată în trimestrul I conform ghidurilor actuale?",
+      "translation": "Dear colleagues, a practical question: 34-year-old patient, G2P1, 11-week pregnancy, known Hashimoto thyroiditis, TSH 4.8 mIU/L at yesterday's control, under levothyroxine 75 μg/day. Her endocrinologist is on leave until 20.10, and her family doctor doesn't want to change the dose without a medical letter. The first pregnancy had the same problem and the dose increased by 25 μg only in the second trimester. What is the recommended TSH target in the first quarter according to current guidelines?"
+    }
+  ]
+}

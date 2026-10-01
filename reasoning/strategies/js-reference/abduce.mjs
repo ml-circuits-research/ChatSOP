@@ -7,7 +7,7 @@
  * `maxHypotheses` candidates is `budget_exhausted` (reason `hypotheses`), never a silently shortened search.
  */
 import {saturate} from './engine.mjs';
-import {evaluatePart, READ_BUDGET} from './query.mjs';
+import {evaluatePart, readBudget} from './query.mjs';
 import {atomText} from './values.mjs';
 import {BudgetStop} from './budget.mjs';
 
@@ -19,7 +19,7 @@ function* subsetsOfSize(n, k, start = 0, chosen = []) {
 export function abduce({program, facts, qp, budget, limit = Infinity}) {
   const cands = program.hypotheses;
   if (cands.length > budget.limits.maxHypotheses) return {status: 'budget_exhausted', complete: false, reason: 'hypotheses'};
-  const ctx = (ev, notes) => ({ev, stored: new Map(), budget: READ_BUDGET, notes});
+  const ctx = (ev, notes) => ({ev, stored: new Map(), budget: readBudget(budget), notes});
   const holds = subset => {
     const extra = subset.flatMap(i => cands[i].atoms.map(a => ({neg: a.neg, p: a.p, args: a.args, claim: {id: cands[i].id, version: 1}, status: 'supposed', speaker: null, valid: null})));
     const closure = saturate(program, [...facts, ...extra], budget.child());

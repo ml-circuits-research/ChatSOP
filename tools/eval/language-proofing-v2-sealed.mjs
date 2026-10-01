@@ -5,7 +5,7 @@
  *
  *   node tools/eval/language-proofing-v2-sealed.mjs
  *
- * Reads every eval/suites/** /test*.jsonl and proofing-test*.jsonl and writes eval/reports/current/language-proofing-it2/sealed-hashes.json:
+ * Reads every eval/suites/** /test*.jsonl and proofing-test*.jsonl and writes eval/reports/history/language-proofing-it2/sealed-hashes.json:
  *   hashes      folded hashes (case, diacritics, punctuation, spacing) of every text and of every sentence of every text field,
  *   signatures  content-word signatures (tools/datasets/three-datasets/forms.mjs lightWords, at least 2 words) of the clean English
  *               side of the sealed bad_english rows (target, else message) and of the sealed proofing units.
@@ -22,7 +22,7 @@ import {lightWords} from '../datasets/three-datasets/forms.mjs';
 const TEXT_KEYS = new Set(['message', 'question', 'prompt', 'target', 'text', 'expected_text', 'expected', 'input', 'rewrite', 'original']);
 const walk = dir => fs.readdirSync(dir, {withFileTypes: true}).flatMap(e => (e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]));
 // LP_SEALED_OUT redirects the output (iteration 3 writes its own copy and leaves the iteration-2 file, whose hash the earlier manifests record, untouched)
-const OUT = path.resolve(ROOT, process.env.LP_SEALED_OUT ?? 'eval/reports/current/language-proofing-it2/sealed-hashes.json');
+const OUT = path.resolve(ROOT, process.env.LP_SEALED_OUT ?? 'eval/reports/history/language-proofing-it2/sealed-hashes.json');
 
 function collect(value, key, sink) {
   if (typeof value === 'string') { if (TEXT_KEYS.has(key) && value.length <= 2000) sink(value, key); return; }

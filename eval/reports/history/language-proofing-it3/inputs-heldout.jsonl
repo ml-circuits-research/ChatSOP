@@ -1,0 +1,574 @@
+{"id":"formalizer-v1::fv1_012452_0_0::new:ro#2","text":"Intrebare: ma intrebam daca Nordic Systems furnizeaza firma unchiului meu."}
+{"id":"formalizer-v1::fv1_012039_0_0::new:ro#2","text":"Mă întreb dacă el este angajat la Harbour Boatyard."}
+{"id":"formalizer-v1::fv1_010720_0_0::new:ro#1","text":"Există cineva care lucrează ca tutore la Westbridge School și locuiește în Arad?"}
+{"id":"formalizer-v1::fv1_006457_0_0::new:ro#1","text":"Câți clienți contactează supervizorul?"}
+{"id":"formalizer-v1::fv1_002258_0_0::new:ro#1","text":"Este corect că nepotul meu este soțul nepoatei tale?"}
+{"id":"formalizer-v1::fv1_010326_0_0::new:ro#1","text":"Nepoata mea mi-a spus că intenționează să plece de la Harborline Press."}
+{"id":"formalizer-v1::fv1_004158_0_0::new:ro#1","text":"Până la ce dată a supravegheat nepoata mea proiectul?"}
+{"id":"formalizer-v1::fv1_011691_0_0::new:ro#1","text":"Să zicem că Vasile nu a mers la instruirea de audit."}
+{"id":"formalizer-v1::fv1_003020_0_0::new:ro#1","text":"Stii cine l-a angajat pe chiriasul nou?"}
+{"id":"formalizer-v1::fv1_010302_0_0::new:ro#1","text":"Vărul meu Mihai are un job la Cluj Textiles."}
+{"id":"formalizer-v1::fv1_015219_0_0::new:ro#1","text":"Deci noul chirias este stabilit in Oradea?"}
+{"id":"formalizer-v1::fv1_012818_0_0::new:ro#1","text":"Având în vedere că Mira este verișoara lui Andrei, este corect că ea este supervizorul de la Delta Logistics?"}
+{"id":"formalizer-v1::fv1_016110_0_1::new:ro#1","text":"Rapid: câte bărci repară Harbour Point Boatyard?"}
+{"id":"formalizer-v1::fv1_009789_0_0::new:ro#1","text":"Ana Ionescu este proprietara șantierului de bărci."}
+{"id":"formalizer-v1::fv1_010170_0_0::new:ro#1","text":"Mă întrebam dacă vărul meu are un pașaport valid."}
+{"id":"formalizer-v1::fv1_014989_0_0::new:ro#1","text":"De ce a fost anulata sedinta tutorelui?"}
+{"id":"formalizer-v1::fv1_018162_0_0::new:ro#1","text":"Listează sudorii care lucrează pentru șantiere navale situate în Galați."}
+{"id":"formalizer-v1::fv1_012007_0_0::new:ro#1","text":"Barca deteriorata nu a fost mutata de la santierul de barci la santierul naval de catre Elena, care este responsabila pentru reparatie?"}
+{"id":"formalizer-v1::fv1_018191_0_1::new:ro#1","text":"Mă întreb dacă cursul de siguranță are loc la Galați Boatyard."}
+{"id":"formalizer-v1::fv1_008573_0_0::new:ro#1","text":"Trebuie să știu dacă profesoara intenționează să îl mediteze pe elev."}
+{"id":"formalizer-v1::fv1_003895_0_0::new:ro#3","text":"Este corect că aparține șantierului de bărci din nord?"}
+{"id":"formalizer-v1::fv1_013265_0_0::new:ro#1","text":"Ați spune că domnul Novak datorează mai mult decât Ana?"}
+{"id":"formalizer-v1::fv1_004810_0_0::new:ro#1","text":"Mă întreb dacă chiriașul este angajat la Greenfield Clinic."}
+{"id":"formalizer-v1::fv1_004149_0_0::new:ro#1","text":"Dat fiind că Cluj Arena este plină, poți să confirmi că este plină pentru nunta verișoarei mele?"}
+{"id":"formalizer-ood-v1::ood1_000744_0_0::new:ro#1","text":"Adu-mi aminte, cine îi meditează pe jucători?"}
+{"id":"formalizer-v1::fv1_001728_0_0::new:ro#1","text":"A finalizat fiecare traducător de la Delta Print auditul de instruire?"}
+{"id":"formalizer-v1::fv1_008131_0_1::new:ro#1","text":"Trebuie să știu dacă nepoata mea a împrumutat The Winter Garden."}
+{"id":"formalizer-v1::fv1_007769_0_0::new:ro#1","text":"Spune-mi dacă Marek Nowak este eligibil pentru pensia șantierului naval."}
+{"id":"formalizer-ood-v1::ood2_000088_0_0::new:ro#1","text":"Locuiește noul chiriaș în Timișoara sau nu?"}
+{"id":"formalizer-v1::fv1_007370_0_0::new:ro#1","text":"Este corect că Tudor plănuiește să publice o recenzie a auditului?"}
+{"id":"formalizer-v1::fv1_000276_0_0::new:ro#1","text":"Ai idee când domnul Petrescu a fost responsabil pentru șantierul de bărci și pentru șantierul naval?"}
+{"id":"formalizer-v1::fv1_011674_0_0::new:ro#1","text":"Fiecare antrenor care a participat la audit a primit instruirea?"}
+{"id":"formalizer-v1::fv1_016178_0_0::new:ro#1","text":"Rapid: ce inseamna un santier de barci si ce inseamna un santier naval?"}
+{"id":"formalizer-v1::fv1_005350_0_0::new:ro#1","text":"Vărul meu vrea să coacă un răsfăț."}
+{"id":"formalizer-v1::fv1_000041_0_0::new:ro#1","text":"Poti sa confirmi ca Ilias e responsabil de auditul anual?"}
+{"id":"formalizer-v1::fv1_016203_0_0::new:ro#1","text":"Tamás este proprietarul noului santier de barci din Mangalia?"}
+{"id":"formalizer-v1::fv1_012452_0_1::new:ro#1","text":"Danube Logistics furnizează firma vărului meu."}
+{"id":"formalizer-v1::fv1_014555_0_0::new:ro#1","text":"Verifică asta: vărul meu Radu este la Rapid București."}
+{"id":"formalizer-v1::fv1_009827_0_1::new:ro#1","text":"Petru Marin este supervizorul lui Ana Ionescu."}
+{"id":"formalizer-v1::fv1_012449_0_0::new:ro#1","text":"A invitat verișoara ta mătușa și unchiul ei din nou?"}
+{"id":"formalizer-v1::fv1_014054_0_0::new:ro#2","text":"Poți să verifici dacă ea este supervizorul lui Marek Nowak?"}
+{"id":"formalizer-ood-v1::ood1_000161_0_0::new:ro#1","text":"Poti sa verifici daca nepoata mea este membra a corului gospel?"}
+{"id":"formalizer-v1::fv1_016122_0_0::new:ro#1","text":"Sincer, santierul de barci din Mangalia ii apartine lui Tamás?"}
+{"id":"formalizer-v1::fv1_010296_0_0::new:ro#1","text":"Cred ca nepoata mea preda istorie."}
+{"id":"formalizer-v1::fv1_005705_0_0::new:ro#1","text":"Sa zicem ca Anca nu a lucrat la santierul de barci."}
+{"id":"formalizer-v1::fv1_000228_0::new:ro#1","text":"Frumos, doar verificam daca suntem eligibili pentru turul santierului de barci."}
+{"id":"formalizer-v1::fv1_003113_0_0::new:ro#1","text":"Mă întrebam dacă firma de livrări nu datorează bani furnizorului."}
+{"id":"formalizer-v1::fv1_008584_0_0::new:ro#1","text":"Trebuie să știu cine este tutorele lui Radu."}
+{"id":"formalizer-v1::fv1_004584_0_0::new:ro#1","text":"Cât costă serviciul de meditații zilele astea?"}
+{"id":"formalizer-v1::fv1_012408_0_0::new:ro#1","text":"Daca unchiul meu Petru nu lucreza la Fabrica Nouă, atunci unchiul meu Petru mai are acces la depozit?"}
+{"id":"formalizer-v1::fv1_000494_0_0::new:ro#1","text":"Dacă unchiul meu nu lucrează la Vertex Analytics, atunci unchiul meu mai are acces la studio?"}
+{"id":"formalizer-v1::fv1_006138_0_0::new:ro#1","text":"Să zicem că unchiul meu a împrumutat The Big Book of Rivers."}
+{"id":"formalizer-v1::fv1_012983_0_0::new:ro#2","text":"— este posibil ca el să fi mers la meditații?"}
+{"id":"formalizer-v1::fv1_013418_0_2::new:ro#1","text":"As vrea sa stiu cine este supervisorul lui Marek."}
+{"id":"formalizer-ood-v1::ood1_000561_0_0::new:ro#1","text":"Imprimanta de birou este reparată de supervisor."}
+{"id":"formalizer-v1::fv1_008176_0_0::new:ro#1","text":"Este toată lumea care a participat la nunta vărului meu vaccinată împotriva rujeolei?"}
+{"id":"formalizer-v1::fv1_001153_0_0::new:ro#2","text":"A platit chiriasul 250 de lei unui vecin?"}
+{"id":"formalizer-v1::fv1_002389_0_0::new:ro#1","text":"Mă întreb dacă nepoata mea vrea să se mute la Timișoara."}
+{"id":"formalizer-v1::fv1_016161_0_0::new:ro#1","text":"Mihai este responsabil pentru șantierul de bărci din Brăila."}
+{"id":"formalizer-v1::fv1_001047_0_0::new:ro#1","text":"Dat fiind că licența de predare necesită o diplomă, este corect că pentru un post de tutore este necesară o diplomă?"}
+{"id":"formalizer-v1::fv1_000578_0_0::new:ro#1","text":"Numeste verii care lucreaza pentru companii situate in Suceava."}
+{"id":"formalizer-v1::fv1_007779_0_0::new:ro#2","text":"Este și vărul meu responsabil de inventarul șantierului naval?"}
+{"id":"formalizer-v1::fv1_011071_0_0::new:ro#1","text":"Daca Ruxandra nu vinde masina, atunci Ruxandra mai datoreaza 2000 de lei dealerului?"}
+{"id":"formalizer-v1::fv1_016529_0_0::new:ro#1","text":"În afară de unchiul ei, câte persoane lucrează la Green Valley Hospital?"}
+{"id":"formalizer-v1::fv1_002032_0_0::new:ro#1","text":"Să zicem că Mihai administrează șantierul naval din Sinaia."}
+{"id":"formalizer-v1::fv1_010178_0_0::new:ro#1","text":"În afară de unchiul meu Andrei, câte persoane lucrează la Riverside Bakery?"}
+{"id":"formalizer-v1::fv1_005493_0_0::new:ro#1","text":"Una rapida: ce insemna un training audit si ce inseamna un acord de sponsorizare?"}
+{"id":"formalizer-v1::fv1_013952_0_0::new:ro#1","text":"Sincer, face Liviu parte din echepajul șantierului de bărci?"}
+{"id":"formalizer-v1::fv1_016243_0_0::new:ro#1","text":"Spune-mi dacă Ilinca Barbu este eligibilă pentru postul de la șantierul naval din Brăila."}
+{"id":"formalizer-v1::fv1_015151_0_0::new:ro#1","text":"Intalnirea anuala a voluntarilor are loc la Sibiu Community Hall; instruirea chiriasilor are loc la Brașov Community Hall."}
+{"id":"formalizer-v1::fv1_003160_0_1::new:ro#1","text":"In afara de Daniel, incerc sa aflu cine datoreaza chiria proprietarului."}
+{"id":"formalizer-v1::fv1_018218_0_0::new:ro#1","text":"Vărul meu m-a rugat să verific câteva prețuri."}
+{"id":"formalizer-v1::fv1_012900_0_0::new:ro#2","text":"Poți să verifici cine este responsabil pentru programul tutorilor?"}
+{"id":"formalizer-v1::fv1_014442_0_0::new:ro#1","text":"Trebuie sa stiu daca varul meu calatoreste la Brasov."}
+{"id":"formalizer-v1::fv1_008134_0_0::new:ro#1","text":"Presupunând că vărul meu lucrează la Atelier Popescu: are vărul meu acces la studio atunci?"}
+{"id":"formalizer-v1::fv1_018145_0_0::new:ro#1","text":"Kasia aparține echipajului de la Galați Boatyard."}
+{"id":"formalizer-v1::fv1_016238_0_0::new:ro#1","text":"Spune-mi cine este responsabl pentru șantierul de bărci din Sulina."}
+{"id":"formalizer-v1::fv1_010885_0_0::new:ro#1","text":"Chiriașul nou a semnat contractul săptămâna trecută."}
+{"id":"formalizer-v1::fv1_000544_0_0::new:ro#1","text":"Nepoata mea este înscrisă la Vaslui Art School, corect?"}
+{"id":"formalizer-v1::fv1_016194_0_0::new:ro#1","text":"Oluwaseun este angajat de Harbour Point Boatyard."}
+{"id":"formalizer-v1::fv1_003944_0_0::new:ro#1","text":"Mă întrebam dacă Vlad era persoana responsabilă pentru șantierul de bărci pe 9 iulie 2017."}
+{"id":"formalizer-v1::fv1_002361_0_0::new:ro#1","text":"Context: unchiul meu îl crește pe Victor."}
+{"id":"formalizer-v1::fv1_006208_0_0::new:ro#1","text":"Nepoata mea a jucat pentru Ajax Amsterdam pe 5 martie 2021?"}
+{"id":"formalizer-v1::fv1_002063_0_0::new:ro#1","text":"Aș vrea să știu cine administrează șantierul naval din Sinaia."}
+{"id":"formalizer-v1::fv1_010787_0_1::new:ro#1","text":"Trebuie să știu dacă Westbridge School nu a angajat tutorele."}
+{"id":"formalizer-v1::fv1_000586_0_0::new:ro#1","text":"Trebuie să știu dacă Andrei este soțul verișoarei mele Marta."}
+{"id":"formalizer-ood-v1::ood2_000116_0_0::new:ro#1","text":"Adu-mi aminte, cui datorează bani Danube Motors?"}
+{"id":"formalizer-v1::fv1_013208_0_0::new:ro#1","text":"In afara de Anca, spune-mi cine ii datoreaza bani lui Victor."}
+{"id":"formalizer-v1::fv1_006073_0_0::new:ro#1","text":"Trebuie să știu unde lucrează unchiul meu."}
+{"id":"formalizer-v1::fv1_006736_0_0::new:ro#1","text":"Câți ani are tutorele?"}
+{"id":"formalizer-v1::fv1_014169_0_0::new:ro#1","text":"Nadia este verișoara lui Karim."}
+{"id":"formalizer-v1::fv1_010305_0_0::new:ro#1","text":"Cine este sotul unuia dintre verii lui Radu?"}
+{"id":"formalizer-v1::fv1_013139_0_0::new:ro#1","text":"Chiriasul a fost casatorit cu Mihai Ionescu in 2019, nu?"}
+{"id":"formalizer-v1::fv1_011999_0_0::new:ro#1","text":"Trebuie să știu dacă Petru Marin este proprietarul șantierului de bărci."}
+{"id":"formalizer-v1::fv1_004612_0_0::new:ro#2","text":"Poți să verifici dacă plănuiește să mediteze studentul?"}
+{"id":"formalizer-v1::fv1_000608_0_0::new:ro#1","text":"Mă întrebam dacă verișorul meu plănuiește să plece de la Delta Print."}
+{"id":"formalizer-v1::fv1_018147_0_2::new:ro#1","text":"Din curiozitate, câte șantiere navale depind de baza de date comună?"}
+{"id":"formalizer-v1::fv1_002303_1_0::new:ro#1","text":"Sincer, Elena este soția unchiului meu?"}
+{"id":"formalizer-v1::fv1_002597_0_0::new:ro#1","text":"Supervizorul meu lucrează la Apex Interiors."}
+{"id":"formalizer-v1::fv1_008204_0_0::new:ro#1","text":"Verifică asta: unchiul meu este alergic la unt de arahide."}
+{"id":"formalizer-v1::fv1_000582_0_0::new:ro#1","text":"A finalizat fiecare nepoată a lui Radu Marin cursul de limbă?"}
+{"id":"formalizer-v1::fv1_012482_0_0::new:ro#1","text":"Deci nepoata mea planuieste sa plece de la Balkan Foods?"}
+{"id":"formalizer-v1::fv1_004183_0::new:ro#1","text":"Ok, unchiul meu e amuzant."}
+{"id":"formalizer-v1::fv1_002732_0_0::new:ro#1","text":"Adu-mi aminte cand a fost Andrei tutorele studentului."}
+{"id":"formalizer-v1::fv1_008533_0_0::new:ro#1","text":"Câți tutori lucrează la Cluj Medical Center, fără Andrei?"}
+{"id":"formalizer-v1::fv1_011937_0_0::new:ro#1","text":"Bogdan intentioneaza sa se prezinte la santierul de barci vineri?"}
+{"id":"formalizer-v1::fv1_011991_0_0::new:ro#1","text":"Lucrează Karim la șantierul de bărci sau la șantierul naval, știi?"}
+{"id":"formalizer-v1::fv1_001464_0_0::new:ro#1","text":"Fiica mea are nevoie de meditații private."}
+{"id":"formalizer-v1::fv1_007632_0_0::new:ro#2","text":"Intrebare: sincer, il adopta Andrei pe doamna Popescu?"}
+{"id":"formalizer-v1::fv1_013983_0_0::new:ro#1","text":"Din curiozitate, unde a avut loc sedinta de la santierul de barci?"}
+{"id":"formalizer-v1::fv1_005085_0_0::new:ro#2","text":"Întrebare: Spune-mi dacă el datorează bani proprietarului magazinului din Oradea."}
+{"id":"formalizer-v1::fv1_002370_0_0::new:ro#1","text":"Vărul meu este disponibil?"}
+{"id":"formalizer-v1::fv1_003895_0_0::new:ro#1","text":"Ancora de rezervă aparține șantierului de bărci din nord."}
+{"id":"formalizer-v1::fv1_011443_0_0::new:ro#1","text":"Petru este var cu Vera."}
+{"id":"formalizer-v1::fv1_017101_0_0::new:ro#1","text":"Încerc să aflu care chiriaș depinde de gazdă."}
+{"id":"formalizer-ood-v1::ood2_000015_0_0::new:ro#1","text":"Verificare: tutorele merge într-o excursie la Cluj."}
+{"id":"formalizer-v1::fv1_018129_0_0::new:ro#1","text":"Este fiecare tehnician de la Galați Boatyard certificat in sudura?"}
+{"id":"formalizer-v1::fv1_010941_0_0::new:ro#1","text":"Dacă chiriașul lucrează la Blue Harbor Media, atunci chiriașul are acces la arhivă?"}
+{"id":"formalizer-v1::fv1_003853_0::new:ro#1","text":"Inventează un slogan pentru șantierul meu naval nou."}
+{"id":"formalizer-v1::fv1_010630_0_0::new:ro#1","text":"Cine este supervizorul unui supervizor al lui Amara?"}
+{"id":"formalizer-v1::fv1_013168_0_0::new:ro#1","text":"Ce zici de noul chiriaș?"}
+{"id":"formalizer-v1::fv1_017045_0_0::new:ro#1","text":"Marta este tutorele lui Ion Popa."}
+{"id":"formalizer-v1::fv1_000285_0_0::new:ro#1","text":"Ma intrebam daca Elena a fost supervizoarea lui Ion in 2019."}
+{"id":"formalizer-v1::fv1_001993_0_0::new:ro#1","text":"Ce persoane răspund de un șantier naval cu sediul în Tulcea?"}
+{"id":"formalizer-v1::fv1_011195_0_0::new:ro#1","text":"Karim este proprietarul doamnei Popa; Delia ii datoreaza lui Sorin."}
+{"id":"formalizer-v1::fv1_016157_0_0::new:ro#1","text":"Știi de câte orii a depins șantierul de bărci de șantierul naval?"}
+{"id":"formalizer-v1::fv1_004178_0_0::new:ro#1","text":"Poți să verifici dacă unchiul meu intenționează să participe la cina de familie?"}
+{"id":"formalizer-v1::fv1_004787_0_0::new:ro#1","text":"Chiriașul spune că vecinul a angajt un membru."}
+{"id":"formalizer-v1::fv1_012038_0_0::new:ro#1","text":"Dacă Cristina lucrează la Delta Shipyard, atunci Cristina are acces la șantierul de bărci?"}
+{"id":"formalizer-v1::fv1_013939_0_0::new:ro#1","text":"Spune-mi daca santierul de barci de langa port nu ii apartine lui Marek."}
+{"id":"formalizer-v1::fv1_003886_0_0::new:ro#1","text":"Una rapidă: câți oameni intenționează să participe la instruirea de securitate a șantierului naval?"}
+{"id":"formalizer-v1::fv1_000473_0_0::new:ro#2","text":"Doar verific: vinde catre unchiul meu?"}
+{"id":"formalizer-ood-v1::ood2_000237_0_0::new:ro#1","text":"Iată ce știu: Marco îi datorează bani proprietarului."}
+{"id":"formalizer-ood-v1::ood1_000643_0_0::new:ro#1","text":"Știi dacă studentul e meditat de profesor?"}
+{"id":"formalizer-v1::fv1_007673_0_0::new:ro#1","text":"Marek mi-a spus că plănuiește să se prezinte la șantierul naval din Gdańsk."}
+{"id":"formalizer-v1::fv1_001954_0_0::new:ro#1","text":"Mă întreb dacă Matei Dobre e eligibil pentru un post la șantierul naval."}
+{"id":"formalizer-v1::fv1_017318_0_0::new:ro#2","text":"Întrebare: El datorează bani băncii, nu?"}
+{"id":"formalizer-ood-v1::ood2_000099_0_0::new:ro#1","text":"Cred că chiriașul locuiește în Cluj."}
+{"id":"formalizer-v1::fv1_007480_0_0::new:ro#1","text":"Verific doar: a revizuit Ioana auditul trimestrial?"}
+{"id":"formalizer-v1::fv1_002404_0_0::new:ro#2","text":"Studiază și vărul meu la Babeș-Bolyai?"}
+{"id":"formalizer-ood-v1::ood1_000264_0_1::new:ro#2","text":"Exista vreo sansa ca nepoata ta sa fie membra a corului gospel?"}
+{"id":"formalizer-v1::fv1_014446_0_0::new:ro#1","text":"Nepoata mea este medicul lui Peter Novak."}
+{"id":"formalizer-v1::fv1_006624_0_0::new:ro#2","text":"A trimis tutorul 200 de lei către profesor?"}
+{"id":"formalizer-v1::fv1_008117_0_0::new:ro#1","text":"Cine este un unchi al unuia dintre verii lui Daniel?"}
+{"id":"formalizer-v1::fv1_014487_0_0::new:ro#1","text":"Mătușa și unchiul meu lucrează la Sibiu Textiles."}
+{"id":"formalizer-v1::fv1_005287_0_0::new:ro#1","text":"Context: Aisha Rahman este verișoara lui Tobias."}
+{"id":"formalizer-v1::fv1_014868_0_0::new:ro#1","text":"Spune-mi cine este supervisorul celor de la Cluj Founders."}
+{"id":"formalizer-v1::fv1_014054_0_0::new:ro#1","text":"Doamna Novak este supervizorl lui Marek Nowak."}
+{"id":"formalizer-v1::fv1_004850_0_0::new:ro#1","text":"De ce este noul chirias autorizat pentru laborator?"}
+{"id":"formalizer-v1::fv1_004538_0_0::new:ro#1","text":"Sunt toti elevii de la Greenfield Academy meditati la algebra?"}
+{"id":"formalizer-v1::fv1_007399_0_0::new:ro#1","text":"De ce anume este Sorina autorizata pentru auditul financiar?"}
+{"id":"formalizer-v1::fv1_001742_0_0::new:ro#1","text":"Verifica afirmatia ca portalul de instruire depinde de serviciul de audit."}
+{"id":"formalizer-v1::fv1_014896_0_0::new:ro#1","text":"Există cineva care dă meditații la Deva Polytechnic și locuiește în Sibiu?"}
+{"id":"formalizer-v1::fv1_012433_0_1::new:ro#1","text":"Repede: cate masini ii apartin unchiului meu?"}
+{"id":"formalizer-v1::fv1_002058_0_0::new:ro#2","text":"E corect ca e responsabila de santierul de ambarcatiuni?"}
+{"id":"formalizer-ood-v1::ood1_000477_0_0::new:ro#2","text":"Este adevarat ca supervisorul angajeaza asistenti noi?"}
+{"id":"formalizer-v1::fv1_002704_0_0::new:ro#2","text":"Lucrez la Bluebird Interiors; lucreaza si supervizorul meu la Bluebird Interiors?"}
+{"id":"formalizer-v1::fv1_001004_0_0::new:ro#1","text":"Context: Biroul tutorelui de pe Oak Avenue este deschis."}
+{"id":"formalizer-v1::fv1_013705_0_0::new:ro#1","text":"Verifică afirmația că Radu traduce rapoartele de audit."}
+{"id":"formalizer-v1::fv1_010298_0_1::new:ro#1","text":"În afară de nepoata mea, trebuie să știu cine este alergic la penicilină."}
+{"id":"formalizer-v1::fv1_012686_0_0::new:ro#1","text":"Aș vrea să știu cine este supervizorul de la Delta Logistics."}
+{"id":"formalizer-v1::fv1_001151_0_0::new:ro#1","text":"Locuiește noul chiriaș în Sinaia sau în Brașov, știi?"}
+{"id":"formalizer-v1::fv1_006073_0_1::new:ro#1","text":"As vrea sa stiu unde lucreaza nepoata mea."}
+{"id":"formalizer-v1::fv1_004961_0_0::new:ro#1","text":"Bogdan datorează 300 de lei, corect?"}
+{"id":"formalizer-v1::fv1_013961_0_0::new:ro#2","text":"Stii cine este responsabil de santierul de barci?"}
+{"id":"formalizer-ood-v1::ood1_000157_0_0::new:ro#1","text":"Este unchiul tău membru al corului de camrea sau nu?"}
+{"id":"formalizer-v1::fv1_001991_0_0::new:ro#1","text":"Trebuie să știu dacă Petru Ionescu lucrează la șantierul naval."}
+{"id":"formalizer-v1::fv1_011632_0_0::new:ro#1","text":"Mihnea merge la revizuirea de audit."}
+{"id":"formalizer-v1::fv1_015907_0_0::new:ro#1","text":"Are voie Marek să revizuiască raportul de audit?"}
+{"id":"formalizer-v1::fv1_005780_0_0::new:ro#1","text":"Daniel Reed este eligibil pentru ucenicia de la șantierul de bărci; el nu are o recomandare de la șantierul naval."}
+{"id":"formalizer-v1::fv1_005679_0_0::new:ro#1","text":"Din curiozitate, de ce depinde Radu de șantierul de bărci?"}
+{"id":"formalizer-v1::fv1_001997_0_0::new:ro#1","text":"În afară de Mihai, câte persoane lucrează la șantierul naval din Constanța?"}
+{"id":"formalizer-v1::fv1_010306_0_0::new:ro#1","text":"Unchiul meu a participat la maraton, nu?"}
+{"id":"formalizer-v1::fv1_012892_0_0::new:ro#1","text":"Tutorul a trimis 60 lei studentului prin bancă."}
+{"id":"formalizer-v1::fv1_004441_0_0::new:ro#1","text":"Supervizorul viziteaza filiala si asistentul calatoreste la filiala."}
+{"id":"formalizer-v1::fv1_011999_0_1::new:ro#1","text":"Este corect că Mihai răspunde de șantierul naval?"}
+{"id":"formalizer-v1::fv1_014071_0_0::new:ro#1","text":"In afara de Daria Pop, as vrea sa stiu cine este responsabil de santierul de barci."}
+{"id":"formalizer-v1::fv1_010321_0_0::new:ro#1","text":"Context: Mătușa mea locuiește în Cluj-Napoca și vărul meu își are sediul în Iași."}
+{"id":"formalizer-v1::fv1_008556_0_0::new:ro#1","text":"In afara de tutore, as vrea sa stiu cine preda chimie."}
+{"id":"formalizer-v1::fv1_016537_0_2::new:ro#1","text":"Aș vrea să știu ce bază de date actualizează nepoata mea."}
+{"id":"formalizer-v1::fv1_015291_0_0::new:ro#1","text":"Enumeră fiecare chiriaș împreună cu proprietarul din Cluj de la care închiriază."}
+{"id":"formalizer-v1::fv1_011906_0_0::new:ro#1","text":"Confirmă afirmația că Ioana a fost adoptată de doamna Ionescu."}
+{"id":"formalizer-v1::fv1_009765_0_0::new:ro#1","text":"Adevarat sau fals: un santier de ambarcatiuni nu raporteaza unui santier naval."}
+{"id":"formalizer-v1::fv1_017053_0_0::new:ro#1","text":"Întrebare rapidă: este tutorele antrenorul echipei școlii?"}
+{"id":"formalizer-v1::fv1_008091_1_0::new:ro#1","text":"Serviciul de curierat depinde de unchiul meu?"}
+{"id":"formalizer-v1::fv1_017243_0_0::new:ro#1","text":"Ana este vecina chiriașului."}
+{"id":"formalizer-v1::fv1_007779_0_0::new:ro#1","text":"Sunt responsabil de inventarul șantierului naval."}
+{"id":"formalizer-v1::fv1_009730_0_0::new:ro#2","text":"Sincer, depinde ea de santierul de barci?"}
+{"id":"formalizer-v1::fv1_006101_0_0::new:ro#1","text":"Poți să verifici dacă vărul meu a participat la concursul regional de ortografie?"}
+{"id":"formalizer-v1::fv1_003042_0_0::new:ro#1","text":"Radu Popa merge la întâlnirea chiriașilor."}
+{"id":"formalizer-v1::fv1_011630_0_0::new:ro#1","text":"Sa zicem ca domnul Novak a participat la instruirea de audit."}
+{"id":"formalizer-v1::fv1_016949_0_0::new:ro#1","text":"Cum ajunge tutorele la birou?"}
+{"id":"formalizer-v1::fv1_005780_0_0::new:ro#2","text":"Poți să verifici dacă el este eligibil pentru ucenicia de la șantierul de bărci?"}
+{"id":"formalizer-v1::fv1_005747_0_0::new:ro#1","text":"Lucrez la șantierul de bărci."}
+{"id":"formalizer-v1::fv1_007757_0::new:ro#1","text":"Te rog, sugerează câteva cursuri de siguranță pentru șantierul naval."}
+{"id":"formalizer-v1::fv1_012892_0_0::new:ro#2","text":"A trimis profesorul 75 lei tutorului?"}
+{"id":"formalizer-v1::fv1_012975_0_0::new:ro#2","text":"Tutorul a împrumutat A Guide to Nursing Practice, corect?"}
+{"id":"formalizer-v1::fv1_011182_0_0::new:ro#1","text":"Dana datorează bani și Mihai Popa datorează bani."}
+{"id":"formalizer-v1::fv1_000473_0_0::new:ro#1","text":"Nu sunt complet sigur, dar Delta Print vinde unchiului meu."}
+{"id":"formalizer-v1::fv1_004123_0_0::new:ro#1","text":"Este corect că nepoata mea a lucrat sub Elena Vasilescu pe 8 aprilie 2021?"}
+{"id":"formalizer-v1::fv1_008091_1_0::new:noisy_en#1","text":"does the courier servce rely on my uncle?"}
+{"id":"formalizer-v1::fv1_006138_0_0::new:noisy_en#1","text":"lets say my uncle borrowed The Big Book of Rivers."}
+{"id":"formalizer-v1::fv1_002732_0_0::new:noisy_en#1","text":"remind me when andrei was teh tutor of the student"}
+{"id":"formalizer-ood-v1::ood1_000643_0_0::new:noisy_en#1","text":"do you know if the student is tutorred by the teacher?"}
+{"id":"formalizer-v1::fv1_008662_0_0::new:noisy_en#1","text":"who is a tuter of a tutor of Radu?"}
+{"id":"formalizer-v1::fv1_016238_0_0::new:noisy_en#1","text":"tell me who is responsible for the boatyard in sulina"}
+{"id":"formalizer-v1::fv1_012818_0_0::new:noisy_en#1","text":"given that Mira is a cousin of Andrei, is it correct that she is the supervizor of Delta Logistics?"}
+{"id":"formalizer-v1::fv1_001763_0_0::new:noisy_en#1","text":"id like to know who is responsible for the trianing audit"}
+{"id":"formalizer-v1::fv1_008584_0_0::new:noisy_en#1","text":"I need to know who is the tuter of Radu"}
+{"id":"formalizer-v1::fv1_012014_0_0::new:noisy_en#1","text":"i was wondering whether dorin popa plans to go to the boatyard tour."}
+{"id":"formalizer-v1::fv1_011691_0_0::new:noisy_en#1","text":"lets say Vasile did not go to the audit traing."}
+{"id":"formalizer-v1::fv1_002303_0_0::new:noisy_en#1","text":"honestly is my cousen maried to andrei?"}
+{"id":"formalizer-v1::fv1_011195_0_0::new:noisy_en#1","text":"Karim is the landlord of Ms Popa, Delia oews Sorin."}
+{"id":"formalizer-ood-v1::ood1_000467_0_0::new:noisy_en#1","text":"fact check: the supervisor trains the new asistant"}
+{"id":"formalizer-v1::fv1_003160_0_1::new:noisy_en#1","text":"apart from Daniel im trying to find out who owes rent to the landloard"}
+{"id":"formalizer-v1::fv1_002032_0_0::new:noisy_en#2","text":"i was wondering whether ilinca dobre manages the sinaia boatyard"}
+{"id":"formalizer-v1::fv1_014555_0_0::new:noisy_en#1","text":"chek this: my cousin Radu is on Rapid București"}
+{"id":"formalizer-v1::fv1_008131_0_1::new:noisy_en#1","text":"i need to know if my neice has borrowed The Winter Garden"}
+{"id":"formalizer-v1::fv1_002032_0_0::new:noisy_en#1","text":"lets say mihai manages the sinaia boatyard."}
+{"id":"formalizer-v1::fv1_013705_0_0::new:noisy_en#1","text":"verify the claim that radu translates the audit reportts."}
+{"id":"formalizer-v1::fv1_000796_0_0::new:noisy_en#1","text":"quick one: where did the superviser go?"}
+{"id":"formalizer-v1::fv1_000228_0::new:noisy_en#1","text":"nice, i was just checking whether we are eligibile for the boatyard tour"}
+{"id":"formalizer-v1::fv1_012686_0_0::new:noisy_en#1","text":"id like to know who is the suprevisor of Delta Logistics."}
+{"id":"formalizer-v1::fv1_018100_0_0::new:noisy_en#1","text":"The Sinaia Boatyard doesnt handle a docking permit and the Tulcea Shipyard does not handle a safty inspection"}
+{"id":"formalizer-v1::fv1_010296_0_0::new:noisy_en#1","text":"i think my niece teachs history."}
+{"id":"formalizer-v1::fv1_016566_0_0::new:noisy_en#1","text":"my cousing studys geography, correct?"}
+{"id":"formalizer-ood-v1::ood1_000477_0_0::new:noisy_en#2","text":"is it true that the supervisor hires new asistants?"}
+{"id":"formalizer-v1::fv1_010178_0_0::new:noisy_en#1","text":"apart from my uncle Andrei how many peple work at Riverside Bakery?"}
+{"id":"formalizer-v1::fv1_014442_0_0::new:noisy_en#1","text":"i need to know if my cusin travells to brasov"}
+{"id":"formalizer-v1::fv1_014461_0_0::new:noisy_en#1","text":"my husband buys from deva foods, and cluj print suplies my uncle"}
+{"id":"formalizer-v1::fv1_005780_0_0::new:noisy_en#2","text":"can you check wheter he is eligible for the boatyard apprenticeship?"}
+{"id":"formalizer-ood-v1::ood1_000185_0_1::new:noisy_en#1","text":"how many cousins bake at the Village Hall on Oak Avenue, if u know?"}
+{"id":"formalizer-v1::fv1_007480_0_0::new:noisy_en#1","text":"just checking: did Ioana review the quartely audit?"}
+{"id":"formalizer-ood-v1::ood1_000744_0_0::new:noisy_en#1","text":"remind me, who tutors teh players?"}
+{"id":"formalizer-v1::fv1_015907_0_0::new:noisy_en#1","text":"is Marek alowed to review the audit report?"}
+{"id":"formalizer-v1::fv1_011044_0_1::new:noisy_en#1","text":"can u check whether the new tenant speaks polish?"}
+{"id":"formalizer-v1::fv1_004574_0_1::new:noisy_en#1","text":"i wonder which magazine the tutor publshes"}
+{"id":"formalizer-v1::fv1_014989_0_0::new:noisy_en#1","text":"why was the tutors session cancelld?"}
+{"id":"formalizer-v1::fv1_013172_0_0::new:noisy_en#1","text":"the tenant isnt cleared for the storage room."}
+{"id":"formalizer-v1::fv1_000517_0_0::new:noisy_en#1","text":"i wonder if my cusin works at Blue Harbor Media."}
+{"id":"formalizer-v1::fv1_013139_0_0::new:noisy_en#1","text":"The tenent was married to Mihai Ionescu in 2019, rigth?"}
+{"id":"formalizer-v1::fv1_002404_0_0::new:noisy_en#2","text":"does my cousen study at babes-bolyai too?"}
+{"id":"formalizer-v1::fv1_002063_0_0::new:noisy_en#1","text":"id like to know who manages the sinaia boatyard"}
+{"id":"formalizer-v1::fv1_005755_0_0::new:noisy_en#1","text":"does no one working at the boatyard have a valid lisence?"}
+{"id":"formalizer-v1::fv1_000192_0_0::new:noisy_en#1","text":"hypotheticaly, if mr kowalski was not certified in welding, can you check wether he is eligible for the boatyard?"}
+{"id":"formalizer-v1::fv1_017318_0_0::new:noisy_en#1","text":"background: Vlad owes money to the bank; he doesnt owe money to the bank."}
+{"id":"formalizer-v1::fv1_016243_0_0::new:noisy_en#1","text":"Tell me wether Ilinca Barbu is eligable for the boatyard post in Brăila"}
+{"id":"formalizer-v1::fv1_011443_0_0::new:noisy_en#1","text":"Petru is teh cousin of Vera."}
+{"id":"formalizer-ood-v1::ood1_000658_0_0::new:noisy_en#1","text":"would you say that Radu is not the tuter at the village school?"}
+{"id":"formalizer-v1::fv1_018162_0_0::new:noisy_en#1","text":"List teh welders working for boatyards located in Galați."}
+{"id":"formalizer-v1::fv1_003940_0_0::new:noisy_en#1","text":"all the engineers of the Galați Boatyard are not certified in divng?"}
+{"id":"formalizer-v1::fv1_007769_0_0::new:noisy_en#1","text":"tell me whether Marek Nowak is eligble for the boatyard pension"}
+{"id":"formalizer-v1::fv1_012531_0_0::new:noisy_en#1","text":"i need to know if my cousin visists Brașov"}
+{"id":"formalizer-v1::fv1_001954_0_0::new:noisy_en#1","text":"i wonder if matei dobre is eligable for a role at the boatyard"}
+{"id":"formalizer-v1::fv1_011803_0_0::new:noisy_en#1","text":"teh cluj city council grants a residence permot and an adoption certificate is issued by the sibiu registry office"}
+{"id":"formalizer-v1::fv1_015036_0_0::new:noisy_en#2","text":"does she lead the tutering program?"}
+{"id":"formalizer-v1::fv1_008409_0_0::new:noisy_en#1","text":"is the supervizor allowed to aprove a new contractor on there own?"}
+{"id":"formalizer-v1::fv1_015151_0_0::new:noisy_en#1","text":"the anual volunteer meeting takes place at the Sibiu Community Hall, the tenant training takes place at the Brașov Community Hall"}
+{"id":"formalizer-v1::fv1_002389_0_0::new:noisy_en#1","text":"i wonder if my neice wants to move to Timișoara"}
+{"id":"formalizer-v1::fv1_008142_0_0::new:noisy_en#1","text":"given that Marta is the wife of my uncle, can you check wheather she has a job at Ionescu & Partners?"}
+{"id":"formalizer-v1::fv1_001991_0_0::new:noisy_en#1","text":"i need to know if petru ionescu works for the boatyard"}
+{"id":"formalizer-v1::fv1_013939_0_0::new:noisy_en#1","text":"tell me whether the boatyard near the harbour doesnt belong to Marek"}
+{"id":"formalizer-v1::fv1_015662_0_1::new:noisy_en#1","text":"remind me when petru was the supervisor of Ms Ilie"}
+{"id":"formalizer-v1::fv1_005772_0_0::new:noisy_en#1","text":"Horia reports to the shipyard manager; Ilinca is responsable for the boatyard"}
+{"id":"formalizer-v1::fv1_015017_0_0::new:noisy_en#2","text":"can you tell me who tutors chemestry?"}
+{"id":"formalizer-v1::fv1_010170_0_0::new:noisy_en#1","text":"i was wondering wether my cousin has a valid passport"}
+{"id":"formalizer-v1::fv1_015810_0_0::new:noisy_en#1","text":"i was wondering wether Selin Aydın attended the auditin seminar"}
+{"id":"formalizer-v1::fv1_018247_0_0::new:noisy_en#1","text":"Do you know who has the boatyard leese?"}
+{"id":"formalizer-v1::fv1_003853_0::new:noisy_en#1","text":"make up a slogen for my new boatyard"}
+{"id":"formalizer-v1::fv1_007632_0_0::new:noisy_en#1","text":"backgound: Ms Popescu adopts Andrei."}
+{"id":"formalizer-v1::fv1_005747_0_0::new:noisy_en#2","text":"does my brother work at the boatyard to?"}
+{"id":"formalizer-v1::fv1_005085_0_0::new:noisy_en#1","text":"Question: tell me wheter he owes money to the owner of the shop in Oradea"}
+{"id":"formalizer-v1::fv1_005749_0_0::new:noisy_en#1","text":"do you know why Andrei is responsable for the boatyard?"}
+{"id":"formalizer-v1::fv1_009588_0_1::new:noisy_en#1","text":"i wonder which family adopted the twims"}
+{"id":"formalizer-v1::fv1_003952_0::new:noisy_en#1","text":"sumarize the rules of the boatyard for me"}
+{"id":"formalizer-v1::fv1_008732_0_0::new:noisy_en#1","text":"i was wondering whether a tenant contract requires a witnes"}
+{"id":"formalizer-v1::fv1_001742_0_0::new:noisy_en#1","text":"review the claim that the trianing portal depends on the audit service"}
+{"id":"formalizer-v1::fv1_004920_0_0::new:noisy_en#1","text":"tell me whether the new tennant owes money to the landlord"}
+{"id":"formalizer-v1::fv1_015793_0_0::new:noisy_en#1","text":"given that ines duarte is a tutor of rafael, is it correect that she works for the Lisbon Review?"}
+{"id":"formalizer-v1::fv1_016512_0_0::new:noisy_en#1","text":"my cousing wants to study chemestry, right?"}
+{"id":"formalizer-v1::fv1_000586_0_0::new:noisy_en#1","text":"i need to know if Andrei is the husbend of my cousin Marta"}
+{"id":"formalizer-v1::fv1_011630_0_0::new:noisy_en#1","text":"lets say Mr Novak took part in the audit traing."}
+{"id":"formalizer-v1::fv1_002058_0_0::new:noisy_en#2","text":"is it corect that shes responsible for the boatyard?"}
+{"id":"formalizer-ood-v1::ood2_000019_0_0::new:noisy_en#1","text":"any chance teh tenant goes to Bălcescu Secondary school?"}
+{"id":"formalizer-ood-v1::ood2_000464_0_0::new:noisy_en#1","text":"on how many occassions did vantage media publish the anual audit?"}
+{"id":"formalizer-v1::fv1_008107_0_0::new:noisy_en#1","text":"okay so my cousin goes to the engagment party and Elena takes part in the engagement party."}
+{"id":"formalizer-v1::fv1_000041_0_0::new:noisy_en#1","text":"can u confirm that ilias is responsable for the anual audit?"}
+{"id":"formalizer-v1::fv1_000608_0_0::new:noisy_en#1","text":"i was wondering wheter my cusin plans to leave Delta Print"}
+{"id":"formalizer-v1::fv1_010305_0_0::new:noisy_en#1","text":"who is the husband of one of the cousisn of Radu?"}
+{"id":"formalizer-v1::fv1_017101_0_0::new:noisy_en#1","text":"im trying to find out wich tenant depends on the host"}
+{"id":"formalizer-v1::fv1_016529_0_0::new:noisy_en#1","text":"apart from her uncle, how many pepole work at green valley hospital?"}
+{"id":"formalizer-v1::fv1_003020_0_0::new:noisy_en#1","text":"do you know who hired the new tennant?"}
+{"id":"formalizer-v1::fv1_003886_0_0::new:noisy_en#1","text":"quick one: how many people intend to atend the boatyard safty briefing?"}
+{"id":"formalizer-v1::fv1_002370_0_0::new:noisy_en#1","text":"is my cousen availible?"}
+{"id":"formalizer-v1::fv1_012452_0_0::new:noisy_en#1","text":"Background my uncles firm buys from Danube Logistics."}
+{"id":"formalizer-v1::fv1_009724_0_1::new:noisy_en#1","text":"apart from mr novak im trying to find out who is responsable for the boatyard"}
+{"id":"formalizer-v1::fv1_014868_0_0::new:noisy_en#1","text":"tell me who is the superviser of the Cluj Founders"}
+{"id":"formalizer-v1::fv1_001951_0::new:noisy_en#1","text":"okay thats the whole boatyard"}
+{"id":"formalizer-ood-v1::ood1_000624_0_0::new:noisy_en#1","text":"would you say that the old Mercedes is reparied by the supervisor?"}
+{"id":"formalizer-v1::fv1_012007_0_0::new:noisy_en#1","text":"the damaged boat wasnt moved from the boatyard to the shipyard by Elena, who is responsible for the repair?"}
+{"id":"formalizer-v1::fv1_013807_0_0::new:noisy_en#1","text":"honestly, was the anual audit reviewed by Mirela?"}
+{"id":"formalizer-v1::fv1_011564_0_0::new:noisy_en#2","text":"question: tell me whether she is aproved for the audit"}
+{"id":"formalizer-v1::fv1_008113_0_0::new:noisy_en#1","text":"im trying to find out who repairs my uncles tractor."}
+{"id":"formalizer-v1::fv1_008204_0_0::new:noisy_en#1","text":"chek this: my uncle is alergic to peanut butter"}
+{"id":"formalizer-v1::fv1_014896_0_0::new:noisy_en#1","text":"is there anyone who tutor at Deva Polytechnic and lives in Sibiu?"}
+{"id":"formalizer-v1::fv1_012452_0_0::new:noisy_en#2","text":"Question i was wondering wether Nordic Systems supplies my uncles firm"}
+{"id":"formalizer-v1::fv1_008533_0_0::new:noisy_en#1","text":"how many tuters work at Cluj Medical Center, not counting Andrei?"}
+{"id":"formalizer-v1::fv1_003072_0_0::new:noisy_en#1","text":"i need to know if the manager doesnt fire the tenant"}
+{"id":"formalizer-v1::fv1_008556_0_0::new:noisy_en#1","text":"apart from the tutor, id like to know who teaches chemestry"}
+{"id":"formalizer-v1::fv1_005099_0_0::new:noisy_en#1","text":"who borrowed teh old tractor from one of the cousins of Mihai?"}
+{"id":"formalizer-v1::fv1_004176_0::new:noisy_en#1","text":"give me a recipie with mushrooms for my cousin"}
+{"id":"formalizer-v1::fv1_013418_0_2::new:noisy_en#1","text":"id like to know who is the supervisor of Marek"}
+{"id":"formalizer-v1::fv1_005780_0_0::new:noisy_en#1","text":"daniel reed is eligible for the boatyard apprenticeship; he doesnt have a reference from the shipyard."}
+{"id":"formalizer-v1::fv1_006073_0_1::new:noisy_en#1","text":"id like to know where my niece works"}
+{"id":"formalizer-v1::fv1_008176_0_0::new:noisy_en#1","text":"is everyone who attended my cousins wedding vaccinated against the measles?"}
+{"id":"formalizer-v1::fv1_010941_0_0::new:noisy_en#1","text":"if the tenant works at blue harbor media then does teh tenant have access to the archive?"}
+{"id":"formalizer-v1::fv1_016161_0_0::new:noisy_en#1","text":"Mihai is responsable for the boatyard in Brăila."}
+{"id":"formalizer-v1::fv1_010255_0_0::new:noisy_en#1","text":"can you tell me where my cousin is bsaed?"}
+{"id":"formalizer-v1::fv1_010787_0_1::new:noisy_en#1","text":"i need to know if Westbridge School did not hire the tutour"}
+{"id":"formalizer-v1::fv1_006624_0_0::new:noisy_en#2","text":"did the tutor sen 200 lei to the teacher?"}
+{"id":"formalizer-v1::fv1_010165_0_0::new:noisy_en#1","text":"im tryin to find out who tutors my nephew"}
+{"id":"formalizer-ood-v1::ood1_000633_0_0::new:noisy_en#1","text":"on how many days did the tutor help teh student?"}
+{"id":"formalizer-v1::fv1_008131_0_0::new:noisy_en#1","text":"just checkin: did my cousin check out The Winter Garden?"}
+{"id":"formalizer-v1::fv1_005679_0_0::new:noisy_en#1","text":"out of curiosity, why does Radu depend on teh boatyard?"}
+{"id":"formalizer-v1::fv1_015133_1_0::new:noisy_en#1","text":"the tutor Maria supervizes Dan?"}
+{"id":"formalizer-v1::fv1_005719_0_1::new:noisy_en#1","text":"besides Marco, do you know who the boatyard belongs too?"}
+{"id":"formalizer-v1::fv1_011669_0_0::new:noisy_en#1","text":"im trying to work out whos the sponsor of the teacher trainning audit"}
+{"id":"formalizer-v1::fv1_001464_0_0::new:noisy_en#1","text":"my daugther needs private tutoring."}
+{"id":"formalizer-v1::fv1_003810_0_0::new:noisy_en#1","text":"is Bogdan allowed to be responsable for the boatyard invoices?"}
+{"id":"formalizer-v1::fv1_007779_0_0::new:noisy_en#1","text":"Is my cousin responsible for the boatyard invntory too?"}
+{"id":"formalizer-v1::fv1_000578_0_0::new:noisy_en#1","text":"name the cusins working for companys located in Suceava"}
+{"id":"formalizer-v1::fv1_005239_0_0::new:noisy_en#1","text":"i wonder if camille is teh supervisor of diego"}
+{"id":"formalizer-v1::fv1_001004_0_0::new:noisy_en#1","text":"background: the tutors office on Oak Avenue is open."}
+{"id":"formalizer-v1::fv1_005573_0_1::new:noisy_en#1","text":"im trying to find out who adopted teh twins"}
+{"id":"formalizer-v1::fv1_000582_0_0::new:noisy_en#1","text":"has every neice of Radu Marin completed the langauge course?"}
+{"id":"formalizer-v1::fv1_004441_0_0::new:noisy_en#1","text":"the supervisor visits the branch and the assistant travells to the branch."}
+{"id":"formalizer-v1::fv1_011632_0_0::new:noisy_en#1","text":"Mihnea goes to the audit reveiw"}
+{"id":"formalizer-v1::fv1_003113_0_0::new:noisy_en#1","text":"i was wondering wether the delivery company doesnt owe the supplier money"}
+{"id":"formalizer-v1::fv1_013049_0_0::new:noisy_en#1","text":"i need to know if the tennant got hired by Delta Print in 2019"}
+{"id":"formalizer-v1::fv1_002282_0_0::new:noisy_en#2","text":"could you check who is responsable for contacting my cousins?"}
+{"id":"formalizer-v1::fv1_011999_0_0::new:noisy_en#1","text":"i need to know if petru marin is the owner of the boatyard"}
+{"id":"formalizer-v1::fv1_006780_0_0::new:noisy_en#1","text":"i want to find owt if Karim is the tenant of Ana Popescu"}
+{"id":"formalizer-v1::fv1_001165_0_0::new:noisy_en#1","text":"Why exaclty does the tenant qualify for the subsidy?"}
+{"id":"formalizer-ood-v1::ood1_000561_0_0::new:noisy_en#1","text":"the office printer is repaired by the superviser."}
+{"id":"formalizer-v1::fv1_009765_0_0::new:noisy_en#1","text":"true or false: a boatyard doesnt report to a shipyeard"}
+{"id":"formalizer-v1::fv1_004612_0_0::new:noisy_en#2","text":"can u check wheter he plans to tutor the student?"}
+{"id":"formalizer-v1::fv1_011699_0_0::new:noisy_en#1","text":"The audit reveiw got cancelled."}
+{"id":"formalizer-v1::fv1_018218_0_0::new:noisy_en#1","text":"Do you know wich boatyard repairs wooden hulls?"}
+{"id":"formalizer-ood-v1::ood2_000015_0_0::new:noisy_en#1","text":"fact-check: the tutor goes on a tripp to Cluj."}
+{"id":"formalizer-v1::fv1_012936_0_0::new:noisy_en#1","text":"i need to know if the teahcer is the boss of the tutror"}
+{"id":"formalizer-v1::fv1_015165_0_0::new:noisy_en#1","text":"seriously has mihai hired a new tenant?"}
+{"id":"formalizer-v1::fv1_003042_0_0::new:noisy_en#1","text":"Radu Popa goes to the tenents meeting"}
+{"id":"formalizer-v1::fv1_017045_0_0::new:noisy_en#1","text":"marta is the tutor of ion popa."}
+{"id":"formalizer-v1::fv1_011906_0_0::new:noisy_en#1","text":"confirm the claim that ioana was addopted by Ms Ionescu"}
+{"id":"formalizer-v1::fv1_014071_0_0::new:noisy_en#1","text":"apart from Daria Pop id like to know who is responsible for the boatyard"}
+{"id":"formalizer-ood-v1::ood2_000099_0_0::new:noisy_en#1","text":"i believe teh tenant resides in Cluj."}
+{"id":"formalizer-v1::fv1_008134_0_0::new:noisy_en#1","text":"suppose my cousin works at Atelier Popescu: does my cousin have acces to the studio then?"}
+{"id":"formalizer-v1::fv1_016099_0_0::new:noisy_en#1","text":"is mateo allowed to adopt a child on thier own?"}
+{"id":"formalizer-v1::fv1_017053_0_0::new:noisy_en#1","text":"quick question: is teh tutor the coach of the school team?"}
+{"id":"formalizer-v1::fv1_018199_0_0::new:noisy_en#1","text":"Is Kasia eligble for the boatyard apprenticeship?"}
+{"id":"formalizer-v1::fv1_000285_0_0::new:noisy_en#1","text":"i was wondring wheter elena was the supervisor of ion during 2019"}
+{"id":"formalizer-v1::fv1_008117_0_0::new:noisy_en#1","text":"who is an uncle of one of the cusins of daniel?"}
+{"id":"formalizer-v1::fv1_016537_0_2::new:noisy_en#1","text":"i'd like to know which databse my niece updates"}
+{"id":"formalizer-v1::fv1_005674_0_0::new:noisy_en#1","text":"i was wondering wether Andrei reports to the boatyard mannager"}
+{"id":"formalizer-v1::fv1_005705_0_0::new:noisy_en#1","text":"lets say Anca did not work at the boatyard."}
+{"id":"formalizer-v1::fv1_007681_0_0::new:noisy_en#1","text":"Is there anyone who belongs to the boatyard union and is not certified in weldng?"}
+{"id":"formalizer-v1::fv1_003944_0_0::new:noisy_en#1","text":"i was wondering wether Vlad was the person responsable for the boatyard on july 9 2017"}
+{"id":"formalizer-ood-v1::ood1_000300_0_0::new:noisy_en#1","text":"on how many occassions did your neice bake at the Village Hall on Oak Avenue?"}
+{"id":"formalizer-v1::fv1_014446_0_0::new:noisy_en#1","text":"my neice is the doctor of peter novak."}
+{"id":"formalizer-v1::fv1_002929_0_0::new:noisy_en#1","text":"im not entirely sure but the grammer course was taught by the tutor."}
+{"id":"formalizer-v1::fv1_018129_0_0::new:noisy_en#1","text":"Is every technician at the Galați Boatyard certifed in welding?"}
+{"id":"formalizer-ood-v1::ood2_000089_0_0::new:noisy_en#1","text":"according to elena, the tenant invites the new nieghbour."}
+{"id":"formalizer-v1::fv1_001151_0_0::new:noisy_en#1","text":"does the new tenant liev in Sinaia or Brașov, do you know?"}
+{"id":"formalizer-v1::fv1_004167_0_0::new:noisy_en#1","text":"Sofia is the neice of Radu."}
+{"id":"formalizer-v1::fv1_004787_0_0::new:mixed#1","text":"Chiriașul spune că vecinul a angajat un member."}
+{"id":"formalizer-v1::fv1_013961_0_0::new:mixed#1","text":"Do you know cine este responsabil de șantierul de bărci?"}
+{"id":"formalizer-v1::fv1_012900_0_0::new:mixed#2","text":"Poti sa verifici cine e responsible for the tutor schedule?"}
+{"id":"formalizer-v1::fv1_003895_0_0::new:mixed#2","text":"Plus, nu apartine de santierul de barci din nord."}
+{"id":"formalizer-v1::fv1_018187_0_0::new:mixed#1","text":"Who raporteaza cui, dintre boatyards din Tulcea?"}
+{"id":"formalizer-v1::fv1_012449_0_0::new:mixed#1","text":"A invitat verișoara ta mătușa și unchiul ei again?"}
+{"id":"formalizer-v1::fv1_012452_0_1::new:mixed#2","text":"Honestly, does Baltic Foods supply firma vărului meu?"}
+{"id":"formalizer-v1::fv1_015662_0_1::new:mixed#1","text":"Remind me când Petru era supervizorul doamnei Ilie."}
+{"id":"formalizer-v1::fv1_001993_0_0::new:mixed#1","text":"Which people are responsible for un șantier naval cu sediul în Tulcea?"}
+{"id":"formalizer-v1::fv1_007681_0_0::new:mixed#1","text":"Is there anyone who belongs to the boatyard union si nu e certified in welding?"}
+{"id":"formalizer-v1::fv1_007382_0_0::new:mixed#1","text":"Is Dana allowed să revizuiască auditul anual?"}
+{"id":"formalizer-ood-v1::ood1_000197_0_0::new:mixed#1","text":"Since verisoara mea canta in the gospel choir, do you know if she sings in the gospel choir?"}
+{"id":"formalizer-v1::fv1_007632_0_0::new:mixed#2","text":"Question: Honestly, il adopta Andrei pe Ms Popescu?"}
+{"id":"formalizer-v1::fv1_011182_0_0::new:mixed#2","text":"Is it correct ca Ms Barbu nu datoreaza bani?"}
+{"id":"formalizer-v1::fv1_003940_0_0::new:mixed#1","text":"All the engineers of the Galați Boatyard nu sunt certificati pentru scufundari?"}
+{"id":"formalizer-ood-v1::ood1_000264_0_1::new:mixed#2","text":"Any chance nepoata ta is a member of the gospel choir?"}
+{"id":"formalizer-v1::fv1_013172_0_0::new:mixed#1","text":"Chiriașul nu e cleared pentru storage room."}
+{"id":"formalizer-v1::fv1_008204_0_0::new:mixed#1","text":"Check this: unchiul meu este alergic la peanut butter."}
+{"id":"formalizer-v1::fv1_012452_0_1::new:mixed#1","text":"Danube Logistics supplies firma vărului meu."}
+{"id":"formalizer-v1::fv1_008409_0_0::new:mixed#1","text":"Are voie supervisorul sa approve un contractor nou singur?"}
+{"id":"formalizer-v1::fv1_003952_0::new:mixed#1","text":"Summarize regulile șantierului naval pentru mine."}
+{"id":"formalizer-v1::fv1_001165_0_0::new:mixed#1","text":"Why exactly se califică chiriașul pentru subvenție?"}
+{"id":"formalizer-v1::fv1_002282_0_0::new:mixed#2","text":"Poți să verifici cine is responsible for contacting verii mei?"}
+{"id":"formalizer-v1::fv1_016512_0_0::new:mixed#1","text":"My cousin vrea sa studieze chimie, right?"}
+{"id":"formalizer-v1::fv1_000608_0_0::new:mixed#1","text":"Ma intrebam daca verisorul meu plans to leave Delta Print."}
+{"id":"formalizer-v1::fv1_008113_0_0::new:mixed#1","text":"I'm trying to find out cine repară tractorul unchiului meu."}
+{"id":"formalizer-v1::fv1_007480_0_0::new:mixed#1","text":"Just checking: a revizuit Ioana auditul trimestrial?"}
+{"id":"formalizer-v1::fv1_018160_0_0::new:mixed#1","text":"Ilona e angajata la Sinaia Boatyard si raporteaza ea foreman-ului?"}
+{"id":"formalizer-v1::fv1_012452_0_0::new:mixed#1","text":"Background: firma unchiului meu buys from Danube Logistics."}
+{"id":"formalizer-v1::fv1_007632_0_0::new:mixed#1","text":"Background: Ms Popescu il adopta pe Andrei."}
+{"id":"formalizer-v1::fv1_005705_0_0::new:mixed#1","text":"Let's say Anca nu a lucrat la șantierul de bărci."}
+{"id":"formalizer-v1::fv1_010770_0_1::new:mixed#1","text":"The tutor Ms Weber e căsătorită cu Andrei?"}
+{"id":"formalizer-v1::fv1_016122_0_1::new:mixed#1","text":"Poți să verifici dacă Tamás is the owner of the boatyard in Mangalia?"}
+{"id":"formalizer-v1::fv1_018218_0_0::new:mixed#2","text":"Stii which boatyard repairs wooden hulls?"}
+{"id":"formalizer-v1::fv1_004961_0_0::new:mixed#1","text":"Bogdan owes 300 lei, corect?"}
+{"id":"formalizer-v1::fv1_003020_0_0::new:mixed#1","text":"Do you know cine l-a angajat pe chiriasul nou?"}
+{"id":"formalizer-v1::fv1_002887_0_0::new:mixed#1","text":"Given that Ana e tutorele studentului, can you confirm că ea participă la târgul de știință?"}
+{"id":"formalizer-v1::fv1_005693_0_0::new:mixed#1","text":"I need to know dacă Owen Blake is eligible for the boatyard job."}
+{"id":"formalizer-v1::fv1_010550_0_0::new:mixed#1","text":"Can you confirm că supervizorul a participat la briefingul de securitate?"}
+{"id":"formalizer-v1::fv1_008091_1_0::new:mixed#1","text":"Does serviciul de curierat rely on unchiul meu?"}
+{"id":"formalizer-v1::fv1_010165_0_1::new:mixed#1","text":"Out of curiosity, cine o meditează pe nepoata mea?"}
+{"id":"formalizer-v1::fv1_006138_0_0::new:mixed#1","text":"Sa zicem ca unchiul meu borrowed The Big Book of Rivers."}
+{"id":"formalizer-v1::fv1_017053_0_0::new:mixed#1","text":"Quick question: este tutorele antrenorul echipei scolii?"}
+{"id":"formalizer-v1::fv1_002027_0_0::new:mixed#1","text":"Given that Anca e certified in welding, e corect că she has access to the boatyard?"}
+{"id":"formalizer-ood-v1::ood1_000467_0_0::new:mixed#1","text":"Verificare: supervisorul instruieste noul assistant."}
+{"id":"formalizer-v1::fv1_014054_0_0::new:mixed#1","text":"Ms Novak este supervizorul lui Marek Nowak."}
+{"id":"formalizer-v1::fv1_011674_0_0::new:mixed#1","text":"Has every coach care a participat la audit had the training?"}
+{"id":"formalizer-v1::fv1_004538_0_0::new:mixed#1","text":"Sunt toți elevii de la Greenfield Academy tutored in algebra?"}
+{"id":"formalizer-v1::fv1_003853_0::new:mixed#1","text":"Make up un slogan pentru my new boatyard."}
+{"id":"formalizer-v1::fv1_015036_0_0::new:mixed#2","text":"Does she conduce the tutoring program?"}
+{"id":"formalizer-v1::fv1_004850_0_0::new:mixed#1","text":"De ce e noul tenant cleared for the lab?"}
+{"id":"formalizer-v1::fv1_002063_0_0::new:mixed#1","text":"I'd like to know cine administrează șantierul naval din Sinaia."}
+{"id":"formalizer-v1::fv1_013952_0_0::new:mixed#1","text":"Honestly, face Liviu parte din echipajul șantierului de bărci?"}
+{"id":"formalizer-ood-v1::ood2_000099_0_0::new:mixed#1","text":"I believe chiriasul locuieste in Cluj."}
+{"id":"formalizer-v1::fv1_007799_0_0::new:mixed#1","text":"Apart from Priya, câți oameni depend on boatyard ferry?"}
+{"id":"formalizer-v1::fv1_013265_0_0::new:mixed#1","text":"Would you say domnul Novak owes more than Ana?"}
+{"id":"formalizer-v1::fv1_010630_0_0::new:mixed#1","text":"Who is supervizorul unui supervizor al lui Amara?"}
+{"id":"formalizer-v1::fv1_010165_0_0::new:mixed#1","text":"Încerc să aflu who tutors my nephew."}
+{"id":"formalizer-v1::fv1_001045_0::new:mixed#1","text":"Does the new student live lângă tutore?"}
+{"id":"formalizer-v1::fv1_015810_0_0::new:mixed#1","text":"I was wondering daca Selin Aydın a participat la auditing seminar."}
+{"id":"formalizer-v1::fv1_010813_1_0::new:mixed#1","text":"Can you confirm că tutorul Mr Novak is married to Ms Weber?"}
+{"id":"formalizer-v1::fv1_008662_0_0::new:mixed#1","text":"Cine este a tutor of a tutor of Radu?"}
+{"id":"formalizer-v1::fv1_010302_0_0::new:mixed#1","text":"Vărul meu Mihai are un job at Cluj Textiles."}
+{"id":"formalizer-v1::fv1_001728_0_0::new:mixed#1","text":"Has every translator de la Delta Print completed training audit?"}
+{"id":"formalizer-v1::fv1_015066_0_0::new:mixed#1","text":"Ms Ilie is tutorele lui Andrei."}
+{"id":"formalizer-v1::fv1_008584_0_0::new:mixed#1","text":"I need to know cine este tutorele lui Radu."}
+{"id":"formalizer-v1::fv1_010298_0_1::new:mixed#1","text":"Other than my niece, trebuie să știu cine e alergic la penicilină."}
+{"id":"formalizer-v1::fv1_000973_0_0::new:mixed#1","text":"Dr. Barbu este tutorele lui Ms Popa."}
+{"id":"formalizer-v1::fv1_003113_0_0::new:mixed#1","text":"I was wondering dacă firma de livrări nu owe bani furnizorului."}
+{"id":"formalizer-v1::fv1_003895_0_0::new:mixed#1","text":"The spare anchor belongs to santierul de barci din nord."}
+{"id":"formalizer-v1::fv1_011079_0_0::new:mixed#1","text":"Mihai owes 300 lei lui Radu Ionescu la magazin."}
+{"id":"formalizer-v1::fv1_000914_0_0::new:mixed#1","text":"Sincer, does the school not pay the tutors?"}
+{"id":"formalizer-v1::fv1_010306_0_0::new:mixed#1","text":"Unchiul meu took part in the marathon, nu?"}
+{"id":"formalizer-v1::fv1_012482_0_0::new:mixed#1","text":"So nepoata mea plănuiește să leave Balkan Foods?"}
+{"id":"formalizer-v1::fv1_015907_0_0::new:mixed#1","text":"Is Marek allowed sa revizuiasca audit reportul?"}
+{"id":"formalizer-v1::fv1_006230_0_0::new:mixed#1","text":"Apart from unchiul meu, ma intreb cine manages the Lisbon Lions."}
+{"id":"formalizer-v1::fv1_016529_0_0::new:mixed#1","text":"Apart from unchiul ei, how many people work at Green Valley Hospital?"}
+{"id":"formalizer-v1::fv1_017396_0_0::new:mixed#1","text":"Who is landlord-ul unuia dintre tenants of Kaveh?"}
+{"id":"formalizer-v1::fv1_011195_0_0::new:mixed#1","text":"Karim is the proprietar of Ms Popa; Delia datoreaza lui Sorin."}
+{"id":"formalizer-v1::fv1_008573_0_0::new:mixed#1","text":"Trebuie sa stiu daca the teacher intends sa il mediteze pe student."}
+{"id":"formalizer-v1::fv1_005643_0_0::new:mixed#1","text":"Is Marta Kowalski allowed să adopte un copil?"}
+{"id":"formalizer-v1::fv1_014463_0_0::new:mixed#1","text":"Given that verișoara mea e late, is it possible that she missed the train?"}
+{"id":"formalizer-v1::fv1_014896_0_0::new:mixed#1","text":"Is there anyone who dă meditații at Deva Polytechnic and lives in Sibiu?"}
+{"id":"formalizer-v1::fv1_009765_0_0::new:mixed#1","text":"True or false: un șantier de ambarcațiuni nu raportează unui shipyard."}
+{"id":"formalizer-v1::fv1_015243_0_0::new:mixed#1","text":"How does the new chirias get to work?"}
+{"id":"formalizer-v1::fv1_016238_0_0::new:mixed#1","text":"Tell me cine is responsible for the boatyard in Sulina."}
+{"id":"formalizer-v1::fv1_012441_0_0::new:mixed#1","text":"Do you know cu cine e căsătorit vărul meu?"}
+{"id":"formalizer-v1::fv1_005674_0_0::new:mixed#1","text":"I was wondering dacă Andrei raportează managerului de la boatyard."}
+{"id":"formalizer-v1::fv1_005780_0_0::new:mixed#2","text":"Poți să verifici dacă el este eligibil pentru ucenicia de la boatyard?"}
+{"id":"formalizer-v1::fv1_014467_0_1::new:mixed#1","text":"Just checking: Andrei îl are ca unchi pe Peter?"}
+{"id":"formalizer-v1::fv1_009776_0_0::new:mixed#1","text":"Given that Ana îl conduce pe Petru, does the boatyard belong to Ana?"}
+{"id":"formalizer-ood-v1::ood2_000237_0_0::new:mixed#2","text":"Would you say ca el datoreaza bani proprietarului?"}
+{"id":"formalizer-v1::fv1_002732_0_0::new:mixed#1","text":"Remind me când a fost Andrei tutor pentru student."}
+{"id":"formalizer-v1::fv1_004584_0_0::new:mixed#1","text":"What does serviciul de meditații cost these days?"}
+{"id":"formalizer-v1::fv1_018218_0_0::new:mixed#1","text":"Vărul meu m-a rugat sa verific cateva prices."}
+{"id":"formalizer-v1::fv1_004163_0_0::new:mixed#1","text":"Unchiul meu is a parent of Dana."}
+{"id":"formalizer-ood-v1::ood1_000561_0_0::new:mixed#1","text":"The office printer e reparată de supervisor."}
+{"id":"formalizer-v1::fv1_000544_0_0::new:mixed#1","text":"Nepoata mea is enrolled at Vaslui Art School, correct?"}
+{"id":"formalizer-v1::fv1_003844_0_0::new:mixed#1","text":"Does Radu still face parte din echipa șantierului naval?"}
+{"id":"formalizer-v1::fv1_015017_0_0::new:mixed#2","text":"Can you tell me cine da meditatii la chimie?"}
+{"id":"formalizer-v1::fv1_007769_0_0::new:mixed#1","text":"Tell me dacă Marek Nowak e eligible for boatyard pension."}
+{"id":"formalizer-v1::fv1_008107_0_0::new:mixed#1","text":"Okay so my cousin merge la petrecerea de logodnă and Elena participă la petrecerea de logodnă."}
+{"id":"formalizer-v1::fv1_007757_0::new:mixed#1","text":"Please, sugerează câteva boatyard safety courses."}
+{"id":"formalizer-v1::fv1_004181_0_0::new:mixed#1","text":"Is there anyone care lucreaza pentru unchiul meu si nu e insured against theft?"}
+{"id":"formalizer-v1::fv1_011699_0_0::new:mixed#1","text":"The audit review got anulată."}
+{"id":"formalizer-v1::fv1_011906_0_0::new:mixed#1","text":"Confirmă claim-ul că Ioana a fost adopted by Ms Ionescu."}
+{"id":"formalizer-v1::fv1_017811_0_0::new:mixed#1","text":"Is it true că nu toate sucursalele de la Delta Bank sunt auditate?"}
+{"id":"formalizer-ood-v1::ood1_000624_0_0::new:mixed#1","text":"Would you say că vechiul Mercedes e reparat de supervisor?"}
+{"id":"formalizer-v1::fv1_007399_0_0::new:mixed#1","text":"Why exactly e Sorina cleared pentru auditul financiar?"}
+{"id":"formalizer-v1::fv1_013139_0_0::new:mixed#1","text":"The tenant a fost married to Mihai Ionescu in 2019, right?"}
+{"id":"formalizer-v1::fv1_015793_0_0::new:mixed#1","text":"Given ca Ines Duarte e un tutor al lui Rafael, is it corect ca ea lucreaza pentru Lisbon Review?"}
+{"id":"formalizer-v1::fv1_004441_0_0::new:mixed#1","text":"The supervisor visits the branch and the assistant călătorește la filiala."}
+{"id":"formalizer-v1::fv1_018191_0_1::new:mixed#1","text":"Ma intreb daca safety course-ul are loc la Galați Boatyard."}
+{"id":"formalizer-v1::fv1_013983_0_0::new:mixed#1","text":"Out of curiosity, unde a avut loc ședința de la șantierul de bărci?"}
+{"id":"formalizer-v1::fv1_004612_0_0::new:mixed#1","text":"Poti sa verifci daca planuieste sa mediteze studentul?"}
+{"id":"formalizer-v1::fv1_009789_0_0::new:mixed#1","text":"Ana Ionescu este the owner of the boatyard."}
+{"id":"formalizer-v1::fv1_018098_0_0::new:mixed#2","text":"Poti sa-mi spui cine e foreman-ul de la Tulcea Boatyard?"}
+{"id":"formalizer-v1::fv1_005427_0_0::new:mixed#1","text":"Why is Matei autorizat pentru audit room?"}
+{"id":"formalizer-v1::fv1_000204_0_0::new:mixed#1","text":"Doamna Okonkwo reports to Belfast Boatyard."}
+{"id":"formalizer-v1::fv1_000839_0_0::new:mixed#1","text":"Hypothetically, daca supervizorul a semnat contractul, is it correct that he qualifies for the bonus?"}
+{"id":"formalizer-v1::fv1_008533_0_0::new:mixed#1","text":"How many tutors lucrează la Cluj Medical Center, not counting Andrei?"}
+{"id":"formalizer-v1::fv1_018162_0_0::new:mixed#1","text":"List the welders care lucreaza pentru boatyards din Galați."}
+{"id":"formalizer-v1::fv1_014169_0_0::new:mixed#1","text":"Is it correct ca Karim is a cousin of Nadia?"}
+{"id":"formalizer-v1::fv1_014461_0_0::new:mixed#1","text":"Soțul meu cumpără from Deva Foods, and Cluj Print supplies unchiul meu."}
+{"id":"formalizer-v1::fv1_003944_0_0::new:mixed#1","text":"Mă întrebam dacă Vlad era persoana responsible for the boatyard pe 9 iulie 2017."}
+{"id":"formalizer-v1::fv1_002301_0_0::new:mixed#1","text":"I don't study at Babeș-Bolyai, dar nepoata mea studiază la Babeș-Bolyai?"}
+{"id":"formalizer-v1::fv1_002032_0_0::new:mixed#1","text":"Let's say Mihai manages șantierul naval din Sinaia."}
+{"id":"formalizer-v1::fv1_018100_0_0::new:mixed#1","text":"Sinaia Boatyard nu se ocupa de docking permit, si Tulcea Shipyard nu se ocupa de safety inspection."}
+{"id":"formalizer-v1::fv1_010720_0_0::new:mixed#1","text":"Is there anyone care lucrează ca tutore la Westbridge School and lives in Arad?"}
+{"id":"formalizer-v1::fv1_004133_0_1::new:mixed#1","text":"Apart from Dana, poti verifica cine supervises my cousin?"}
+{"id":"formalizer-ood-v1::ood1_000442_0_1::new:mixed#1","text":"Is it true ca colegul meu is the supervisor at the city depot?"}
+{"id":"formalizer-v1::fv1_002032_0_0::new:mixed#2","text":"Mă întrebam dacă Ilinca Dobre manages the Sinaia boatyard."}
+{"id":"formalizer-v1::fv1_000294_0_0::new:mixed#1","text":"Quick one: unde a avut loc the boatyard meeting?"}
+{"id":"formalizer-v1::fv1_003886_0_0::new:mixed#1","text":"Quick one: câți oameni intend to attend the boatyard safety briefing?"}
+{"id":"formalizer-v1::fv1_000578_0_0::new:mixed#1","text":"Name the verii working for companii in Suceava."}
+{"id":"formalizer-v1::fv1_012452_0_0::new:mixed#2","text":"Question: mă întrebam dacă Nordic Systems supplies firma unchiului meu."}
+{"id":"formalizer-v1::fv1_005239_0_0::new:mixed#1","text":"I wonder if Camille e supervisorul lui Diego."}
+{"id":"formalizer-v1::fv1_002404_0_0::new:mixed#1","text":"Studiază și vărul meu at Babeș-Bolyai?"}
+{"id":"formalizer-v1::fv1_003810_0_0::new:mixed#1","text":"Bogdan is allowed sa fie responsabil for the boatyard invoices?"}
+{"id":"formalizer-v1::fv1_008176_0_0::new:mixed#1","text":"Is everyone care a participat la nunta vărului meu vaccinated against rujeola?"}
+{"id":"formalizer-ood-v1::ood2_000015_0_0::new:mixed#1","text":"Fact-check: tutorele goes on a trip to Cluj."}
+{"id":"formalizer-v1::fv1_000462_0_0::new:mixed#1","text":"Verisorul tau still face voluntariat pentru Delta Print?"}
+{"id":"formalizer-v1::fv1_005099_0_0::new:mixed#1","text":"Who a imprumutat tractorul vechi de la unul dintre verii lui Mihai?"}
+{"id":"formalizer-v1::fv1_003160_0_1::new:mixed#1","text":"Apart from Daniel, I'm trying to find out cine datorează chiria proprietarului."}
+{"id":"formalizer-v1::fv1_004713_0_0::new:mixed#1","text":"Noul tenant e allowed să semneze un lease?"}
+{"id":"formalizer-v1::fv1_001047_0_0::new:mixed#1","text":"Given that licența de predare requires a degree, is it correct că o diplomă is required for a tutor's job?"}
+{"id":"formalizer-v1::fv1_016099_0_0::new:mixed#1","text":"Is Mateo allowed sa adopte a child on their own?"}
+{"id":"formalizer-v1::fv1_008732_0_0::new:mixed#1","text":"I was wondering daca un tenant contract requires a witness."}
+{"id":"formalizer-v1::fv1_005573_0_1::new:mixed#1","text":"I'm trying to find out cine a adoptat gemenii."}
+{"id":"formalizer-v1::fv1_012410_0_0::new:mixed#1","text":"How old e vărul meu Mateusz?"}
+{"id":"formalizer-v1::fv1_000285_0_0::new:mixed#1","text":"I was wondering dacă Elena a fost the supervisor of Ion during 2019."}
+{"id":"formalizer-v1::fv1_010941_0_0::new:mixed#1","text":"If chiriașul works at Blue Harbor Media, then does chiriașul have access la arhivă?"}
+{"id":"formalizer-v1::fv1_009724_0_1::new:mixed#1","text":"Apart from Mr Novak, încerc să aflu cine is responsible for the boatyard."}
+{"id":"formalizer-v1::fv1_011996_0::new:mixed#1","text":"Does the boatyard belong to familia Novak?"}
+{"id":"formalizer-v1::fv1_005780_0_0::new:mixed#1","text":"Daniel Reed is eligible for ucenicia de la boatyard; el nu are o recomandare de la shipyard."}
+{"id":"formalizer-v1::fv1_000490_0_0::new:mixed#1","text":"What about verisorul meu?"}
+{"id":"formalizer-v1::fv1_005350_0_0::new:mixed#1","text":"Varul meu vrea sa bake a treat."}
+{"id":"formalizer-v1::fv1_012007_0_0::new:mixed#1","text":"The damaged boat nu a fost mutata de la santierul de barci la santierul naval de catre Elena, care este responsabila pentru reparatie?"}
+{"id":"formalizer-v1::fv1_009763_0_0::new:mixed#1","text":"Sincer, is Elena the owner of the boatyard?"}
+{"id":"formalizer-ood-v1::ood1_000300_0_0::new:mixed#1","text":"On how many ocazii did nepoata ta bake at the Village Hall on Oak Avenue?"}
+{"id":"formalizer-v1::fv1_001812_0_0::new:mixed#2","text":"Can you tell me which court approves o adopție?"}
+{"id":"formalizer-v1::fv1_015291_0_0::new:mixed#1","text":"List fiecare chiriaș together with the landlord din Cluj they rent from."}
+{"id":"formalizer-v1::fv1_012975_0_0::new:mixed#2","text":"Tutorul borrowed A Guide to Nursing Practice, corect?"}
+{"id":"formalizer-v1::fv1_001742_0_0::new:mixed#1","text":"Review claim-ul ca training portalul depinde de audit service."}
+{"id":"formalizer-v1::fv1_004178_0_1::new:mixed#1","text":"Sincer, does my cousin intend to attend nunta?"}
+{"id":"formalizer-v1::fv1_002597_0_0::new:mixed#1","text":"Supervizorul meu works at Apex Interiors."}
+{"id":"formalizer-v1::fv1_013001_0_0::new:mixed#1","text":"Is it correct că tutorul este certificat?"}
+{"id":"formalizer-v1::fv1_000517_0_0::new:mixed#2","text":"E corect ca apartamentul de pe Dorobanți Street ii apartine verisorului meu?"}
+{"id":"formalizer-v1::fv1_011630_0_0::new:mixed#1","text":"Let's say Mr Novak a participat la audit training."}
+{"id":"formalizer-ood-v1::ood2_000237_0_0::new:mixed#1","text":"Here's what I know: Marco datoreaza bani proprietarului."}
+{"id":"formalizer-v1::fv1_011991_0_0::new:mixed#1","text":"Does Karim work la boatyard or la shipyard, do you know?"}
+{"id":"formalizer-ood-v1::ood1_000149_0_0::new:mixed#1","text":"Does vărul tău sing at the Cluj Philharmonic or not?"}
+{"id":"formalizer-v1::fv1_003677_0_0::new:mixed#1","text":"Sofia și Andrei au adopted the small grey donkey together."}
+{"id":"formalizer-v1::fv1_000251_0_0::new:mixed#1","text":"Tell me la ce boatyard raportează domnul Okafor."}
+{"id":"formalizer-v1::fv1_001763_0_0::new:mixed#1","text":"I'd like to know cine e responsabil for training audit."}
+{"id":"formalizer-v1::fv1_011632_0_0::new:mixed#1","text":"Mihnea goes to the revizuirea de audit."}
+{"id":"formalizer-ood-v1::ood1_000205_0_1::new:mixed#1","text":"Help me with this one: does unchiul tau sing in the chamber choir?"}
+{"id":"formalizer-v1::fv1_011044_0_1::new:mixed#1","text":"Can you check dacă noul chiriaș vorbește Polish?"}
+{"id":"formalizer-v1::fv1_017219_0_0::new:mixed#1","text":"Coral Logistics hires noul chirias, corect?"}
+{"id":"formalizer-v1::fv1_011691_0_0::new:mixed#1","text":"Let's say Vasile nu a mers la audit training."}
+{"id":"formalizer-v1::fv1_007673_0_0::new:mixed#1","text":"Marek told me ca plănuiește să report to the boatyard din Gdańsk."}
+{"id":"formalizer-v1::fv1_003895_0_0::new:mixed#3","text":"Este corect ca it belongs to the northern boatyard?"}
+{"id":"formalizer-v1::fv1_016537_0_2::new:mixed#1","text":"I'd like to know which database actualizeaza nepoata mea."}
+{"id":"formalizer-v1::fv1_007779_0_0::new:mixed#1","text":"Este și vărul meu responsible for the boatyard inventory too?"}
+{"id":"formalizer-v1::fv1_014868_0_0::new:mixed#1","text":"Tell me cine este supervisorul de la Cluj Founders."}
+{"id":"formalizer-v1::fv1_008556_0_0::new:mixed#1","text":"Apart from the tutor, vreau să știu who teaches chemistry."}
+{"id":"formalizer-v1::fv1_015165_0_0::new:mixed#1","text":"Serios, has Mihai hired a new tenant?"}
+{"id":"formalizer-v1::fv1_002831_0_0::new:mixed#1","text":"So tutorul locuiește în Brașov?"}
+{"id":"formalizer-v1::fv1_010170_0_0::new:mixed#1","text":"Mă întrebam whether my cousin has a valid passport."}
+{"id":"formalizer-v1::fv1_005749_0_0::new:mixed#1","text":"Știi de ce Andrei is responsible for the boatyard?"}
+{"id":"formalizer-v1::fv1_001951_0::new:mixed#1","text":"Bine, that's the whole boatyard."}
+{"id":"formalizer-ood-v1::ood1_000157_0_0::new:mixed#1","text":"Is unchiul tău a member of the chamber choir or not?"}
+{"id":"formalizer-v1::fv1_017318_0_0::new:mixed#2","text":"Question: El datoreaza bani bancii, nu?"}
+{"id":"formalizer-v1::fv1_010885_0_0::new:mixed#1","text":"The new tenant signed the lease săptămâna trecută."}
+{"id":"formalizer-v1::fv1_011564_0_0::new:mixed#2","text":"Question: Tell me dacă e aprobată pentru audit."}
+{"id":"formalizer-v1::fv1_014442_0_0::new:mixed#1","text":"I need to know if vărul meu călătorește la Brașov."}
+{"id":"formalizer-v1::fv1_013208_0_0::new:mixed#1","text":"Besides Anca, spune-mi cine owes money to Victor."}
+{"id":"formalizer-v1::fv1_011999_0_1::new:mixed#1","text":"Este corect că Mihai is responsible for the boatyard?"}
+{"id":"formalizer-v1::fv1_012022_0_0::new:mixed#1","text":"Numeste tehnicienii care work for boatyards located in Cluj."}
+{"id":"formalizer-v1::fv1_016157_0_0::new:mixed#1","text":"Do you know de câte ori the boatyard depended on the shipyard?"}

@@ -1,0 +1,18 @@
+{
+ "generated_at": "2026-10-01T02:49:53.163Z",
+ "pairs": {
+  "train": 61693,
+  "dev": 5173,
+  "dev_backgen": 1488,
+  "dev_heldout": 574,
+  "mash_eval": 150
+ },
+ "ids_in_two_splits": 0,
+ "exact_matches": {
+  "train_dev_heldout_vs_sealed_texts": 0
+ },
+ "train_prompts_also_in_dev": 0,
+ "heldout_vocabulary_words_in_train": 0,
+ "heldout_prompts_in_train": 0,
+ "note": "exact matches after case, diacritic, punctuation and spacing folding against eval/reports/current/language-proofing-it2/sealed-hashes.json (every eval/suites test, proofing test and composed text, messages and sentences)"
+}

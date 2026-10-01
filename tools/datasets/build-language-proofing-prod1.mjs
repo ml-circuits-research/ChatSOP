@@ -263,6 +263,6 @@ export function build(o = {}) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [command, ...rest] = process.argv.slice(2), o = {};
   for (let i = 0; i < rest.length; i++) if (rest[i].startsWith('--')) o[rest[i].slice(2)] = rest[i + 1];
-  if (command === 'build') { fs.mkdirSync(EVID, {recursive: true}); if (!fs.existsSync(path.join(EVID, 'sealed-hashes-union.json'))) fs.copyFileSync(path.join(ROOT, 'eval/reports/current/language-proofing-it3/data/sealed-hashes-union.json'), path.join(EVID, 'sealed-hashes-union.json')); build(o); }
+  if (command === 'build') { fs.mkdirSync(EVID, {recursive: true}); if (!fs.existsSync(path.join(EVID, 'sealed-hashes-union.json'))) fs.copyFileSync(path.join(ROOT, 'eval/reports/history/language-proofing-it3/data/sealed-hashes-union.json'), path.join(EVID, 'sealed-hashes-union.json')); build(o); }
   else { console.error('usage: build-language-proofing-prod1.mjs build [--seed S] [--vocab-dev N] [--names-dev-share PCT] [--swaps N] [--typos N]'); process.exitCode = 2; }
 }

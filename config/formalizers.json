@@ -1,60 +1,11 @@
 {
   "format": "chatsop-formalizers-v1",
-  "description": "Models the chat can use (DS012 'Formalizer models' and 'Chat modes'). `capabilities` says which chat modes offer a model: `formalize` (SOP Lang; fine-tuned formalizers and the configured endpoint only), `chat` and `translate` (the unmodified base instruct models, which cannot write SOP Lang). A `gguf` entry runs on demand in a CPU llama-server and a `service` entry (a local script serving the same chat-completion interface, such as the symbolic baseline) runs on demand on the CPU (at most three managed models at once); a formalizer gets the message-only prompt of the evaluation harness. The `runtime-endpoint` entry is the independently started endpoint of the runtime configuration (formalizer.url). `default` is the default formalizer and `defaults` the default model per mode. Paths are relative to the repository root.",
-  "default": "smollm2-360m",
+  "description": "Models the product uses (DS012 'Formalizer models'). `capabilities` is required: `formalize` (SOP Lang; only the SymbolicLM `service` entry, the one formalizer of the chat and the API), `proofread` (LanguageProofingLLM), `proofread-symbolic` (SymbolicProofingLLM) and `translate-clean` (the translator LLM). The fine-tuned FormalizerLLM entries, the configured runtime endpoint and the base-model Chat and Translate modes were removed on 2026-10-01; their artifacts, training code and reports stay as evidence. A `gguf` entry runs on demand in a CPU llama-server and a `service` entry (a local script serving the same chat-completion interface, SymbolicLM) runs on demand on the CPU (the number of managed models at once, their memory budget, and which are kept open, on demand or off are the settings of config/server-models.json, DS012 'Model lifecycle'). `default` is the default formalizer. Paths are relative to the repository root.",
+  "default": "symbolic-lm",
   "defaults": {
-    "formalize": "smollm2-360m",
-    "chat": "smollm2-360m-base",
-    "translate": "gemma-3-270m-base"
+    "formalize": "symbolic-lm"
   },
   "models": [
-    {
-      "id": "smollm2-135m",
-      "label": "SmolLM2-135M (fastest)",
-      "gguf": "models/smollm2-135m/fv1-size-a4/formalizer/merged-best/gguf/q8_0.gguf",
-      "note": "Fine-tuned formalizer, run fv1-size-a4, Q8_0. Smallest and fastest arm of experiment formalizer-size-v1.",
-      "capabilities": [
-        "formalize"
-      ]
-    },
-    {
-      "id": "gemma-3-270m",
-      "label": "Gemma 3 270M",
-      "gguf": "models/gemma/fv1-size-a4/formalizer/merged-best/gguf/q8_0.gguf",
-      "note": "Fine-tuned formalizer, run fv1-size-a4, Q8_0. Gemma arm of experiment formalizer-size-v1.",
-      "capabilities": [
-        "formalize"
-      ]
-    },
-    {
-      "id": "smollm2-360m",
-      "label": "SmolLM2-360M (best English OOD)",
-      "gguf": "models/smollm2-360m/fv1-size-a4/formalizer/merged-best/gguf/q8_0.gguf",
-      "note": "Fine-tuned formalizer, run fv1-size-a4, Q8_0. Best English score on the out-of-distribution suite in experiment formalizer-size-v1.",
-      "capabilities": [
-        "formalize"
-      ]
-    },
-    {
-      "id": "smollm2-135m-base",
-      "label": "SmolLM2-135M-Instruct (base)",
-      "gguf": "models/smollm2-135m/chat-base/q8_0.gguf",
-      "capabilities": [
-        "chat",
-        "translate"
-      ],
-      "note": "Unmodified HuggingFaceTB/SmolLM2-135M-Instruct @12fd25f7, Q8_0 (models/smollm2-135m/chat-base/provenance.json). English-centric; not fine-tuned."
-    },
-    {
-      "id": "smollm2-360m-base",
-      "label": "SmolLM2-360M-Instruct (base)",
-      "gguf": "models/smollm2-360m/chat-base/q8_0.gguf",
-      "capabilities": [
-        "chat",
-        "translate"
-      ],
-      "note": "Unmodified HuggingFaceTB/SmolLM2-360M-Instruct @a10cc151, Q8_0 (models/smollm2-360m/chat-base/provenance.json). English-centric; not fine-tuned."
-    },
     {
       "id": "language-proofing-llm",
       "label": "LanguageProofingLLM (Gemma 3 270M, production build prod1)",
@@ -62,7 +13,7 @@
       "capabilities": [
         "proofread"
       ],
-      "note": "LanguageProofingLLM: Gemma 3 270M-it fine-tuned (LoRA, merged, F16 GGUF) on bad_english/proofing-prod1 (all vocabulary, proper-noun protection pairs), run language-proofing-gemma270m-prod1, epoch 3 (report eval/reports/current/language-proofing-prod1/summary.md). Switched from it3 on 2026-10-01 by the owner's decision ('trece chatul pe prod ... daca numerele sunt mai bune, fa asta automat, chiar daca mai sunt mici pierderi pe anumite dimensiuni'), an explicit deviation from the preregistered switch rule: against it3 on sealed data, names kept 99.2% vs 65.6%, fresh 18-word probe 88.2% vs 69.6%, child flip 0/229, mash unchanged 100%, clean900 untouched 98.3% vs 98.2%, judged composite 79.8% vs 78.3% (n.s.), F16 90 tok/s on CPU; two gates missed without regression (relation word kept 98.3% < 99%, dev eight-word 88.3% < 90%). F16 rather than Q8_0 because Q8_0 agrees with HF bf16 on 93.8% vs 97.0% for F16. The it3 GGUF stays on disk (models/gemma/language-proofing-gemma270m-it3/proofreader/gguf/ep2-q8_0.gguf) for a revert. PREVIOUS (it3): switched from it2 on 2026-10-01 by the preregistered rule of train-language-proofing-gemma270m-it3 (no new catastrophic class: child flip 1/229 = 0.4%, mash unchanged 98.7% = it2, clean900 untouched 98.2% vs 98.1%; AND the trained-vocabulary word rate rose from 45.6% to 94.1%, paired +48.4 pp [44.4, 52.4]); the judged composite did not change (67.2% vs 67.2% judged by the same judges, +0.0 pp [-3.2, +3.0]). Spacing and doubled punctuation are now repaired (dev-spacing exact 99.6% vs 17.9%). Known costs: mechanical content-preserved on the sealed test -0.75 pp [-1.06, -0.45] (names such as Filarmonica are sometimes translated), HF vs GGUF greedy agreement 554/599, and eight words are held out of its training on purpose as the next probe (nephew, landlord, contractor, postpone, reject, bakery, warehouse, pharmacy: word kept 52.0% against 92.2% for it2, which had them in training); the it2 GGUF stays on disk (models/gemma/language-proofing-gemma270m-it2/proofreader/gguf/ep3-q8_0.gguf) for a revert. The textToCleanEnglish step of the chat calls it (config/text-to-clean-english.json llm.model), one sentence per request, message-only prompt, greedy. Not a chat, translate or formalize model, so no chat mode lists it."
+      "note": "LanguageProofingLLM: Gemma 3 270M-it fine-tuned (LoRA, merged, F16 GGUF) on bad_english/proofing-prod1 (all vocabulary, proper-noun protection pairs), run language-proofing-gemma270m-prod1, epoch 3 (report eval/reports/current/language-proofing-prod1/summary.md). Switched from it3 on 2026-10-01 by the owner's decision ('trece chatul pe prod ... daca numerele sunt mai bune, fa asta automat, chiar daca mai sunt mici pierderi pe anumite dimensiuni'), an explicit deviation from the preregistered switch rule: against it3 on sealed data, names kept 99.2% vs 65.6%, fresh 18-word probe 88.2% vs 69.6%, child flip 0/229, mash unchanged 100%, clean900 untouched 98.3% vs 98.2%, judged composite 79.8% vs 78.3% (n.s.), F16 90 tok/s on CPU; two gates missed without regression (relation word kept 98.3% < 99%, dev eight-word 88.3% < 90%). F16 rather than Q8_0 because Q8_0 agrees with HF bf16 on 93.8% vs 97.0% for F16. The it3 GGUF stays on disk (models/gemma/language-proofing-gemma270m-it3/proofreader/gguf/ep2-q8_0.gguf) for a revert. PREVIOUS (it3): switched from it2 on 2026-10-01 by the preregistered rule of train-language-proofing-gemma270m-it3 (no new catastrophic class: child flip 1/229 = 0.4%, mash unchanged 98.7% = it2, clean900 untouched 98.2% vs 98.1%; AND the trained-vocabulary word rate rose from 45.6% to 94.1%, paired +48.4 pp [44.4, 52.4]); the judged composite did not change (67.2% vs 67.2% judged by the same judges, +0.0 pp [-3.2, +3.0]). Spacing and doubled punctuation are now repaired (dev-spacing exact 99.6% vs 17.9%). Known costs: mechanical content-preserved on the sealed test -0.75 pp [-1.06, -0.45] (names such as Filarmonica are sometimes translated), HF vs GGUF greedy agreement 554/599, and eight words are held out of its training on purpose as the next probe (nephew, landlord, contractor, postpone, reject, bakery, warehouse, pharmacy: word kept 52.0% against 92.2% for it2, which had them in training); the it2 GGUF stays on disk (models/gemma/language-proofing-gemma270m-it2/proofreader/gguf/ep3-q8_0.gguf) for a revert. The textToCleanEnglish step of the chat calls it (config/text-to-clean-english.json llm.model), one sentence per request, message-only prompt, greedy.."
     },
     {
       "id": "symbolic-proofing-llm",
@@ -71,7 +22,7 @@
       "capabilities": [
         "proofread-symbolic"
       ],
-      "note": "SymbolicProofingLLM: Gemma 3 270M-it fine-tuned (LoRA, merged, F16 GGUF) on neuro_english/proofing-it3-mix (proofing-it3 plus 3,246 decomposition pairs), run symbolic-proofing-gemma270m-it3, epoch 3 (report eval/reports/current/symbolic-proofing-it3/summary.md; the frozen role id of the run is `proofreader`). Switched from it2 on 2026-10-01 by the owner's auto-switch rule (better overall even with small losses, never with a new catastrophic failure class; an explicit deviation from the preregistration's recommend-only rule). Numbers on the sealed decomposition set (275 cases, gated + certified, the chat default, upper estimate), it3 against it2: sentence count equals the expected 36.7% against 32.0% (paired p = 0.02), every sentence certified 68.4% against 65.5%, catastrophic S4 13.8% against 13.5%, silent meaning change 5.1% against 4.7%; identity change on 500 working sentences 9.2% against 15.4% (sealed identity pairs 14.1% against 19.8%). Losses: with every sentence sent, the sealed repair pairs analysis correct AND meaning kept 37.9% against 41.1% (local only, p = 0.02) and analysis correct 45.7% against 59.5% (local only); in always mode the silent meaning change is 10.5% against 8.0% (not significant); the deciding check, the gated pipeline itself on the 739 sealed repair pairs (gate trees, acceptance certified), is within the 2-point margin: output certified AND meaning kept 44.5% against 46.4% (-1.9 points, bootstrap interval [-4.2, +0.4], meaning by local equivalence or the Grok two-vote; local only 39.0% against 41.7%), no working sentence of the 500 changed by either model. F16 chosen over Q8_0: agreement with the HF bf16 greedy output 113/117 against 107/117, the two arms are otherwise equal; CPU 4 threads p50 233 ms, 117 tokens/s on this host. The it2 GGUF models/gemma/symbolic-proofing-gemma270m-it2/proofreader/gguf/ep3-q8_0.gguf stays on disk for a revert. It rewrites correct English into the limited English SymbolicLM understands. The chat calls it only through SymbolicLM's gated pipeline (the chat setting 'SymbolicProofingLLM rewrite': off, gated = rewriteWhen trees + rewriteAccept certified, always), one sentence per request, message-only prompt, greedy, started on demand like language-proofing-llm. Not a chat, translate or formalize model, so no chat mode lists it. The default of the setting is the symbolic-lm entry's rewrite.mode (gated since the owner's answer to Q-PROOF-1, 2026-10-01)."
+      "note": "SymbolicProofingLLM: Gemma 3 270M-it fine-tuned (LoRA, merged, F16 GGUF) on neuro_english/proofing-it3-mix (proofing-it3 plus 3,246 decomposition pairs), run symbolic-proofing-gemma270m-it3, epoch 3 (report eval/reports/current/symbolic-proofing-it3/summary.md; the frozen role id of the run is `proofreader`). Switched from it2 on 2026-10-01 by the owner's auto-switch rule (better overall even with small losses, never with a new catastrophic failure class; an explicit deviation from the preregistration's recommend-only rule). Numbers on the sealed decomposition set (275 cases, gated + certified, the chat default, upper estimate), it3 against it2: sentence count equals the expected 36.7% against 32.0% (paired p = 0.02), every sentence certified 68.4% against 65.5%, catastrophic S4 13.8% against 13.5%, silent meaning change 5.1% against 4.7%; identity change on 500 working sentences 9.2% against 15.4% (sealed identity pairs 14.1% against 19.8%). Losses: with every sentence sent, the sealed repair pairs analysis correct AND meaning kept 37.9% against 41.1% (local only, p = 0.02) and analysis correct 45.7% against 59.5% (local only); in always mode the silent meaning change is 10.5% against 8.0% (not significant); the deciding check, the gated pipeline itself on the 739 sealed repair pairs (gate trees, acceptance certified), is within the 2-point margin: output certified AND meaning kept 44.5% against 46.4% (-1.9 points, bootstrap interval [-4.2, +0.4], meaning by local equivalence or the Grok two-vote; local only 39.0% against 41.7%), no working sentence of the 500 changed by either model. F16 chosen over Q8_0: agreement with the HF bf16 greedy output 113/117 against 107/117, the two arms are otherwise equal; CPU 4 threads p50 233 ms, 117 tokens/s on this host. The it2 GGUF models/gemma/symbolic-proofing-gemma270m-it2/proofreader/gguf/ep3-q8_0.gguf stays on disk for a revert. It rewrites correct English into the limited English SymbolicLM understands. The chat calls it only through SymbolicLM's gated pipeline (the chat setting 'SymbolicProofingLLM rewrite': off, gated = rewriteWhen trees + rewriteAccept certified, always), one sentence per request, message-only prompt, greedy, started on demand like language-proofing-llm.. The default of the setting is the symbolic-lm entry's rewrite.mode (gated since the owner's answer to Q-PROOF-1, 2026-10-01)."
     },
     {
       "id": "translator-llm",
@@ -80,23 +31,15 @@
       "capabilities": [
         "translate-clean"
       ],
-      "note": "The translator of the chat's first layer for Romanian and mixed sentences (owner decision 2026-10-01, journaled): unmodified Qwen/Qwen3-4B-Instruct-2507 (Apache-2.0), Q4_K_M GGUF made from Q8_0 with llama-quantize (models/qwen3-4b-instruct/provenance.json), one sentence per request, greedy, thinking off, the translate prompt of the winning translate-compare arm (lib/text-to-clean-english/backends/translator.mjs). On the owner's 425 natural sentences: 64.9% good enough (S0-S2, worse of Grok and GLM) against 10.6% for LanguageProofingLLM prod1, Q8_0 62.6%, DeepSeek flash 89.9% (eval/reports/current/translate-compare/summary.md). Speed 15-20 tok/s on CPU is accepted for quality (owner, 2026-10-01). If it cannot start, textToCleanEnglish falls back to language-proofing-llm and reports it. Not a chat, translate or formalize model, so no chat mode lists it."
-    },
-    {
-      "id": "gemma-3-270m-base",
-      "label": "Gemma 3 270M-it (base)",
-      "gguf": "models/gemma/chat-base/q8_0.gguf",
-      "capabilities": [
-        "chat",
-        "translate"
-      ],
-      "note": "Unmodified google/gemma-3-270m-it (mirror @99073d6b), Q8_0 (models/gemma/chat-base/provenance.json). Multilingual; not fine-tuned."
+      "note": "The translator of the chat's first layer for Romanian and mixed sentences (owner decision 2026-10-01, journaled): unmodified Qwen/Qwen3-4B-Instruct-2507 (Apache-2.0), Q4_K_M GGUF made from Q8_0 with llama-quantize (models/qwen3-4b-instruct/provenance.json), one sentence per request, greedy, thinking off, the translate prompt of the winning translate-compare arm (lib/text-to-clean-english/backends/translator.mjs). On the owner's 425 natural sentences: 64.9% good enough (S0-S2, worse of Grok and GLM) against 10.6% for LanguageProofingLLM prod1, Q8_0 62.6%, DeepSeek flash 89.9% (eval/reports/current/translate-compare/summary.md). Speed 15-20 tok/s on CPU is accepted for quality (owner, 2026-10-01). If it cannot start, textToCleanEnglish falls back to language-proofing-llm and reports it.."
     },
     {
       "id": "symbolic-lm",
       "label": "SymbolicLM (Stanza + translation + rules)",
-      "service": "tools/symbolic-lm.mjs",
-      "note": "SymbolicLM (lib/symbolic-lm/, DS021 'SymbolicLM'): the Stanza 1.10.1 English/Romanian parse (Apache-2.0) and the deterministic UD-to-SOP rules lib/ud-to-sop/, calling lib/languages-util/ for per-token Romanian/English language identification and the symbolic spelling corrector (off by default) and lib/translator-service/ for Romanian-to-English translation (the `symbolic` backend, from the Romanian Stanza parse and the host dictionary). Monolingual Romanian and English messages are parsed directly, mixed messages go through English (route `translate`, Q-PIPE-1, 2026-09-30); values stay verbatim message spans and what the rules cannot place is an unparsed wire. Message-only input, no neural model. Needs ~/nlp-venv with Stanza and its models (dependencies.md). CPU, 4 threads. Replaces the earlier `ud-rules` entry (baseline-ud-rules-v1).",
+      "service": "lib/symbolic-lm/serve.mjs",
+      "memoryMb": 2500,
+      "startEstimateMs": 25000,
+      "note": "SymbolicLM (lib/symbolic-lm/, DS021 'SymbolicLM'): the Stanza 1.10.1 English/Romanian parse (Apache-2.0) and the deterministic UD-to-SOP rules lib/ud-to-sop/, calling lib/languages-util/ for per-token Romanian/English language identification and the symbolic spelling corrector (off by default) and lib/translator-service/ for Romanian-to-English translation (the `symbolic` backend, from the Romanian Stanza parse and the host dictionary). Monolingual Romanian and English messages are parsed directly, mixed messages go through English (route `translate`, Q-PIPE-1, 2026-09-30); values stay verbatim message spans and what the rules cannot place is an unparsed wire. Message-only input, no neural model. Needs ~/nlp-venv with Stanza and its models (dependencies.md). CPU, 4 threads. ",
       "capabilities": [
         "formalize"
       ],
@@ -107,22 +50,13 @@
           "gated",
           "always"
         ],
-        "note": "OPTIONAL SymbolicProofingLLM rewrite of the English text ahead of the rules (SymbolicProofingLLM is the former 'proofreader'; the run id and paths stay frozen) (DS021 'Uncertainty and the rewrite hook'); `mode` defaults to `gated` since the owner's answer to Q-PROOF-1 (2026-10-01: 'we do what the numbers say; good to have a flag to change the behaviour'); `mode` is the default of the chat's 'SymbolicProofingLLM rewrite' setting (server/formalizers.mjs `rewriteMode`; the browser's own choice overrides it per browser, and a chat request's `understanding.rewrite` overrides it per message: `gated` = rewriteWhen trees + rewriteAccept certified, `always` = every sentence, every rewrite kept, the SymbolicProofingLLM being the registry entry `symbolic-proofing-llm`); `tools/symbolic-lm.mjs serve --rewrite-url <endpoint> [--rewrite-when always|uncertain]` is the command-line switch, and it stays off unless that flag is passed explicitly. Evidence: experiment eval-proofreader-e2e-v1 (status/preregistrations/eval-proofreader-e2e-v1.json), a positive end-to-end strict-accuracy gain (CI excludes 0) on formalizer-v1 and formalizer-ood-v1 EN rows, a null/futile effect on the independently-written formalizer-wild-v1 EN rows; RO monolingual (route direct) has no English text and is out of scope. A local routing gate and acceptance check around the backend exist as options (DS021 'Optional rewrite pipeline': rewriteWhen trees|trees_or_uncertain, rewriteAccept certified|certified_compare; CLI --rewrite-when, --rewrite-accept), also off by default.",
+        "note": "OPTIONAL SymbolicProofingLLM rewrite of the English text ahead of the rules (SymbolicProofingLLM is the former 'proofreader'; the run id and paths stay frozen) (DS021 'Uncertainty and the rewrite hook'); `mode` defaults to `gated` since the owner's answer to Q-PROOF-1 (2026-10-01: 'we do what the numbers say; good to have a flag to change the behaviour'); `mode` is the default of the chat's 'SymbolicProofingLLM rewrite' setting (server/formalizers.mjs `rewriteMode`; the browser's own choice overrides it per browser, and a chat request's `understanding.rewrite` overrides it per message: `gated` = rewriteWhen trees + rewriteAccept certified, `always` = every sentence, every rewrite kept, the SymbolicProofingLLM being the registry entry `symbolic-proofing-llm`); `node lib/symbolic-lm/serve.mjs serve --rewrite-url <endpoint> [--rewrite-when always|uncertain]` is the command-line switch, and it stays off unless that flag is passed explicitly. Evidence: experiment eval-proofreader-e2e-v1 (status/preregistrations/eval-proofreader-e2e-v1.json), a positive end-to-end strict-accuracy gain (CI excludes 0) on formalizer-v1 and formalizer-ood-v1 EN rows, a null/futile effect on the independently-written formalizer-wild-v1 EN rows; RO monolingual (route direct) has no English text and is out of scope. A local routing gate and acceptance check around the backend exist as options (DS021 'Optional rewrite pipeline': rewriteWhen trees|trees_or_uncertain, rewriteAccept certified|certified_compare; CLI --rewrite-when, --rewrite-accept), also off by default.",
         "candidate_backend": {
           "model": "SymbolicProofingLLM: gemma3-270m (fine-tuned; iteration 3, run symbolic-proofing-gemma270m-it3, the registry entry `symbolic-proofing-llm`; report eval/reports/current/symbolic-proofing-it3/summary.md; iteration 2 (symbolic-pipeline-gate report) stays on disk for a revert; iteration 1 and train-proofreader-gemma270m-v1 are superseded).",
           "identity": "models/gemma/symbolic-proofing-gemma270m-it3/proofreader/gguf/ep3-f16.gguf",
           "serving": "llama-server GGUF F16 export (--jinja), message-only chat completion, matching training's prompt exactly"
         }
       }
-    },
-    {
-      "id": "configured-endpoint",
-      "label": "Configured endpoint (formalizer.url)",
-      "endpoint": "runtime",
-      "note": "The external endpoint of the runtime configuration, started separately; it uses the configured promptProfile and readiness rules.",
-      "capabilities": [
-        "formalize"
-      ]
     }
   ]
 }

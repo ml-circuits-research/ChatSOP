@@ -1,0 +1,310 @@
+{
+  "format": "chatsop-translate-comparison-v1",
+  "suite": "eval/reports/current/translate-then-formalize/work/formalizer-v1.romixed-sample400.jsonl",
+  "direct": "eval/reports/current/translate-then-formalize/smollm2-360m/v1-T0/evaluation.json",
+  "translated": "eval/reports/current/translate-then-formalize/smollm2-360m/v1-T2/evaluation.json",
+  "rows": 400,
+  "interval": "paired cluster bootstrap by semantic_case_id (row id when absent), 10,000 resamples, seed 7; exact McNemar on rows",
+  "metrics": {
+    "tolerant_execution_equivalence": {
+      "all": {
+        "rows": 400,
+        "clusters": 395,
+        "direct": 0.7175,
+        "translated": 0.145,
+        "delta": -0.5725,
+        "ci95": [
+          -0.6215538847117794,
+          -0.5248756218905473
+        ],
+        "helped": 0,
+        "hurt": 229,
+        "mcnemar_p": 2.318253844179637e-69
+      },
+      "detector:missed": {
+        "rows": 57,
+        "clusters": 57,
+        "direct": 0.8245614035087719,
+        "translated": 0.42105263157894735,
+        "delta": -0.40350877192982454,
+        "ci95": [
+          -0.5263157894736842,
+          -0.2807017543859649
+        ],
+        "helped": 0,
+        "hurt": 23,
+        "mcnemar_p": 2.3841857910156245e-7
+      },
+      "detector:routed": {
+        "rows": 343,
+        "clusters": 339,
+        "direct": 0.6997084548104956,
+        "translated": 0.09912536443148688,
+        "delta": -0.6005830903790087,
+        "ci95": [
+          -0.653179190751445,
+          -0.5483870967741935
+        ],
+        "helped": 0,
+        "hurt": 206,
+        "mcnemar_p": 1.944692274331634e-62
+      },
+      "language:mixed": {
+        "rows": 119,
+        "clusters": 117,
+        "direct": 0.7983193277310925,
+        "translated": 0.21008403361344538,
+        "delta": -0.5882352941176471,
+        "ci95": [
+          -0.6776859504132231,
+          -0.4959349593495935
+        ],
+        "helped": 0,
+        "hurt": 70,
+        "mcnemar_p": 1.6940658945086082e-21
+      },
+      "language:ro": {
+        "rows": 281,
+        "clusters": 278,
+        "direct": 0.6832740213523132,
+        "translated": 0.11743772241992882,
+        "delta": -0.5658362989323843,
+        "ci95": [
+          -0.6254416961130742,
+          -0.5070921985815603
+        ],
+        "helped": 0,
+        "hurt": 159,
+        "mcnemar_p": 2.736911063134414e-48
+      },
+      "length:long": {
+        "rows": 27,
+        "clusters": 27,
+        "direct": 0.07407407407407407,
+        "translated": 0,
+        "delta": -0.07407407407407407,
+        "ci95": [
+          -0.18518518518518517,
+          0
+        ],
+        "helped": 0,
+        "hurt": 2,
+        "mcnemar_p": 0.5
+      },
+      "length:short": {
+        "rows": 373,
+        "clusters": 368,
+        "direct": 0.7640750670241286,
+        "translated": 0.1554959785522788,
+        "delta": -0.6085790884718498,
+        "ci95": [
+          -0.6568364611260054,
+          -0.5588235294117647
+        ],
+        "helped": 0,
+        "hurt": 227,
+        "mcnemar_p": 9.273015376718582e-69
+      }
+    },
+    "canonical_match": {
+      "all": {
+        "rows": 400,
+        "clusters": 395,
+        "direct": 0.645,
+        "translated": 0.1075,
+        "delta": -0.5375,
+        "ci95": [
+          -0.5864661654135338,
+          -0.48872180451127817
+        ],
+        "helped": 0,
+        "hurt": 215,
+        "mcnemar_p": 3.7982270983039085e-65
+      },
+      "detector:missed": {
+        "rows": 57,
+        "clusters": 57,
+        "direct": 0.7543859649122807,
+        "translated": 0.3157894736842105,
+        "delta": -0.43859649122807015,
+        "ci95": [
+          -0.5614035087719298,
+          -0.3157894736842105
+        ],
+        "helped": 0,
+        "hurt": 25,
+        "mcnemar_p": 5.96046447753906e-8
+      },
+      "detector:routed": {
+        "rows": 343,
+        "clusters": 339,
+        "direct": 0.6268221574344023,
+        "translated": 0.0728862973760933,
+        "delta": -0.5539358600583091,
+        "ci95": [
+          -0.6075581395348837,
+          -0.5
+        ],
+        "helped": 0,
+        "hurt": 190,
+        "mcnemar_p": 1.2744735289059813e-57
+      },
+      "language:mixed": {
+        "rows": 119,
+        "clusters": 117,
+        "direct": 0.7310924369747899,
+        "translated": 0.18487394957983194,
+        "delta": -0.5462184873949579,
+        "ci95": [
+          -0.6386554621848739,
+          -0.45454545454545453
+        ],
+        "helped": 0,
+        "hurt": 65,
+        "mcnemar_p": 5.4210108624275204e-20
+      },
+      "language:ro": {
+        "rows": 281,
+        "clusters": 278,
+        "direct": 0.608540925266904,
+        "translated": 0.07473309608540925,
+        "delta": -0.5338078291814946,
+        "ci95": [
+          -0.5936395759717314,
+          -0.475
+        ],
+        "helped": 0,
+        "hurt": 150,
+        "mcnemar_p": 1.4012984643248236e-45
+      },
+      "length:long": {
+        "rows": 27,
+        "clusters": 27,
+        "direct": 0.037037037037037035,
+        "translated": 0,
+        "delta": -0.037037037037037035,
+        "ci95": [
+          -0.1111111111111111,
+          0
+        ],
+        "helped": 0,
+        "hurt": 1,
+        "mcnemar_p": 1
+      },
+      "length:short": {
+        "rows": 373,
+        "clusters": 368,
+        "direct": 0.6890080428954424,
+        "translated": 0.11528150134048257,
+        "delta": -0.5737265415549598,
+        "ci95": [
+          -0.6233062330623306,
+          -0.521505376344086
+        ],
+        "helped": 0,
+        "hurt": 214,
+        "mcnemar_p": 7.596454196607831e-65
+      }
+    },
+    "parse": {
+      "all": {
+        "rows": 400,
+        "clusters": 395,
+        "direct": 1,
+        "translated": 0.9725,
+        "delta": -0.0275,
+        "ci95": [
+          -0.04488778054862843,
+          -0.012531328320802004
+        ],
+        "helped": 0,
+        "hurt": 11,
+        "mcnemar_p": 0.0009765624999999999
+      },
+      "detector:missed": {
+        "rows": 57,
+        "clusters": 57,
+        "direct": 1,
+        "translated": 1,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "detector:routed": {
+        "rows": 343,
+        "clusters": 339,
+        "direct": 1,
+        "translated": 0.967930029154519,
+        "delta": -0.03206997084548105,
+        "ci95": [
+          -0.05217391304347826,
+          -0.014619883040935672
+        ],
+        "helped": 0,
+        "hurt": 11,
+        "mcnemar_p": 0.0009765624999999999
+      },
+      "language:mixed": {
+        "rows": 119,
+        "clusters": 117,
+        "direct": 1,
+        "translated": 0.9663865546218487,
+        "delta": -0.03361344537815126,
+        "ci95": [
+          -0.06779661016949153,
+          -0.008264462809917356
+        ],
+        "helped": 0,
+        "hurt": 4,
+        "mcnemar_p": 0.125
+      },
+      "language:ro": {
+        "rows": 281,
+        "clusters": 278,
+        "direct": 1,
+        "translated": 0.9750889679715302,
+        "delta": -0.02491103202846975,
+        "ci95": [
+          -0.0456140350877193,
+          -0.007168458781362007
+        ],
+        "helped": 0,
+        "hurt": 7,
+        "mcnemar_p": 0.015625000000000003
+      },
+      "length:long": {
+        "rows": 27,
+        "clusters": 27,
+        "direct": 1,
+        "translated": 0.9629629629629629,
+        "delta": -0.037037037037037035,
+        "ci95": [
+          -0.1111111111111111,
+          0
+        ],
+        "helped": 0,
+        "hurt": 1,
+        "mcnemar_p": 1
+      },
+      "length:short": {
+        "rows": 373,
+        "clusters": 368,
+        "direct": 1,
+        "translated": 0.9731903485254692,
+        "delta": -0.02680965147453083,
+        "ci95": [
+          -0.043243243243243246,
+          -0.01078167115902965
+        ],
+        "helped": 0,
+        "hurt": 10,
+        "mcnemar_p": 0.001953125
+      }
+    }
+  }
+}

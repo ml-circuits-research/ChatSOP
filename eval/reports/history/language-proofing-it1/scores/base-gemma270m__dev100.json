@@ -1,0 +1,4685 @@
+{
+ "name": "base-gemma270m",
+ "split": "dev100",
+ "generated_at": "2026-09-30T21:04:37.567Z",
+ "analysis": true,
+ "summary": {
+  "rows": 99,
+  "repair_rows": 89,
+  "identity_rows": 10,
+  "repair": {
+   "n": 89,
+   "clean_english_rate": {
+    "k": 30,
+    "n": 89,
+    "pct": 33.7,
+    "ci95": {
+     "k": 30,
+     "n": 89,
+     "p": 33.7,
+     "lo": 24.7,
+     "hi": 44
+    }
+   },
+   "content_preserved": {
+    "k": 23,
+    "n": 89,
+    "pct": 25.8,
+    "ci95": {
+     "k": 23,
+     "n": 89,
+     "p": 25.8,
+     "lo": 17.9,
+     "hi": 35.8
+    }
+   },
+   "content_preserved_with_negation": {
+    "k": 23,
+    "n": 89,
+    "pct": 25.8,
+    "ci95": {
+     "k": 23,
+     "n": 89,
+     "p": 25.8,
+     "lo": 17.9,
+     "hi": 35.8
+    }
+   },
+   "chrf": {
+    "mean": 0.3347,
+    "ci95": [
+     0.29,
+     0.3819
+    ],
+    "n": 89
+   },
+   "token_f1": {
+    "mean": 0.2832,
+    "ci95": [
+     0.2339,
+     0.3366
+    ],
+    "n": 89
+   },
+   "exact_reference": {
+    "k": 0,
+    "n": 89,
+    "pct": 0,
+    "ci95": {
+     "k": 0,
+     "n": 89,
+     "p": 0,
+     "lo": 0,
+     "hi": 4.1
+    }
+   },
+   "unchanged_output": {
+    "k": 4,
+    "n": 89,
+    "pct": 4.5,
+    "ci95": {
+     "k": 4,
+     "n": 89,
+     "p": 4.5,
+     "lo": 1.8,
+     "hi": 11
+    }
+   },
+   "empty_or_truncated": {
+    "k": 7,
+    "n": 89,
+    "pct": 7.9,
+    "ci95": {
+     "k": 7,
+     "n": 89,
+     "p": 7.9,
+     "lo": 3.9,
+     "hi": 15.4
+    }
+   },
+   "analysis_correct": {
+    "k": 20,
+    "n": 89,
+    "pct": 22.5,
+    "ci95": {
+     "k": 20,
+     "n": 89,
+     "p": 22.5,
+     "lo": 15,
+     "hi": 32.2
+    }
+   },
+   "reference_analysis_correct": {
+    "k": 52,
+    "n": 89,
+    "pct": 58.4,
+    "ci95": {
+     "k": 52,
+     "n": 89,
+     "p": 58.4,
+     "lo": 48,
+     "hi": 68.1
+    }
+   },
+   "same_analysis_as_reference": {
+    "k": 0,
+    "n": 89,
+    "pct": 0,
+    "ci95": {
+     "k": 0,
+     "n": 89,
+     "p": 0,
+     "lo": 0,
+     "hi": 4.1
+    }
+   },
+   "good": {
+    "k": 1,
+    "n": 89,
+    "pct": 1.1,
+    "ci95": {
+     "k": 1,
+     "n": 89,
+     "p": 1.1,
+     "lo": 0.2,
+     "hi": 6.1
+    }
+   }
+  },
+  "by_kind": {
+   "ro": {
+    "n": 63,
+    "clean_english_rate": {
+     "k": 9,
+     "n": 63,
+     "pct": 14.3,
+     "ci95": {
+      "k": 9,
+      "n": 63,
+      "p": 14.3,
+      "lo": 7.7,
+      "hi": 25
+     }
+    },
+    "content_preserved": {
+     "k": 17,
+     "n": 63,
+     "pct": 27,
+     "ci95": {
+      "k": 17,
+      "n": 63,
+      "p": 27,
+      "lo": 17.6,
+      "hi": 39
+     }
+    },
+    "content_preserved_with_negation": {
+     "k": 17,
+     "n": 63,
+     "pct": 27,
+     "ci95": {
+      "k": 17,
+      "n": 63,
+      "p": 27,
+      "lo": 17.6,
+      "hi": 39
+     }
+    },
+    "chrf": {
+     "mean": 0.2764,
+     "ci95": [
+      0.2364,
+      0.3184
+     ],
+     "n": 63
+    },
+    "token_f1": {
+     "mean": 0.206,
+     "ci95": [
+      0.1639,
+      0.2492
+     ],
+     "n": 63
+    },
+    "exact_reference": {
+     "k": 0,
+     "n": 63,
+     "pct": 0,
+     "ci95": {
+      "k": 0,
+      "n": 63,
+      "p": 0,
+      "lo": 0,
+      "hi": 5.7
+     }
+    },
+    "unchanged_output": {
+     "k": 4,
+     "n": 63,
+     "pct": 6.3,
+     "ci95": {
+      "k": 4,
+      "n": 63,
+      "p": 6.3,
+      "lo": 2.5,
+      "hi": 15.2
+     }
+    },
+    "empty_or_truncated": {
+     "k": 7,
+     "n": 63,
+     "pct": 11.1,
+     "ci95": {
+      "k": 7,
+      "n": 63,
+      "p": 11.1,
+      "lo": 5.5,
+      "hi": 21.2
+     }
+    },
+    "analysis_correct": {
+     "k": 6,
+     "n": 63,
+     "pct": 9.5,
+     "ci95": {
+      "k": 6,
+      "n": 63,
+      "p": 9.5,
+      "lo": 4.4,
+      "hi": 19.3
+     }
+    },
+    "reference_analysis_correct": {
+     "k": 35,
+     "n": 63,
+     "pct": 55.6,
+     "ci95": {
+      "k": 35,
+      "n": 63,
+      "p": 55.6,
+      "lo": 43.3,
+      "hi": 67.2
+     }
+    },
+    "same_analysis_as_reference": {
+     "k": 0,
+     "n": 63,
+     "pct": 0,
+     "ci95": {
+      "k": 0,
+      "n": 63,
+      "p": 0,
+      "lo": 0,
+      "hi": 5.7
+     }
+    },
+    "good": {
+     "k": 0,
+     "n": 63,
+     "pct": 0,
+     "ci95": {
+      "k": 0,
+      "n": 63,
+      "p": 0,
+      "lo": 0,
+      "hi": 5.7
+     }
+    }
+   },
+   "mixed": {
+    "n": 9,
+    "clean_english_rate": {
+     "k": 7,
+     "n": 9,
+     "pct": 77.8,
+     "ci95": {
+      "k": 7,
+      "n": 9,
+      "p": 77.8,
+      "lo": 45.3,
+      "hi": 93.7
+     }
+    },
+    "content_preserved": {
+     "k": 1,
+     "n": 9,
+     "pct": 11.1,
+     "ci95": {
+      "k": 1,
+      "n": 9,
+      "p": 11.1,
+      "lo": 2,
+      "hi": 43.5
+     }
+    },
+    "content_preserved_with_negation": {
+     "k": 1,
+     "n": 9,
+     "pct": 11.1,
+     "ci95": {
+      "k": 1,
+      "n": 9,
+      "p": 11.1,
+      "lo": 2,
+      "hi": 43.5
+     }
+    },
+    "chrf": {
+     "mean": 0.3428,
+     "ci95": [
+      0.2533,
+      0.4213
+     ],
+     "n": 9
+    },
+    "token_f1": {
+     "mean": 0.3622,
+     "ci95": [
+      0.2227,
+      0.5071
+     ],
+     "n": 9
+    },
+    "exact_reference": {
+     "k": 0,
+     "n": 9,
+     "pct": 0,
+     "ci95": {
+      "k": 0,
+      "n": 9,
+      "p": 0,
+      "lo": 0,
+      "hi": 29.9
+     }
+    },
+    "unchanged_output": {
+     "k": 0,
+     "n": 9,
+     "pct": 0,
+     "ci95": {
+      "k": 0,
+      "n": 9,
+      "p": 0,
+      "lo": 0,
+      "hi": 29.9
+     }
+    },
+    "empty_or_truncated": {
+     "k": 0,
+     "n": 9,
+     "pct": 0,
+     "ci95": {
+      "k": 0,
+      "n": 9,
+      "p": 0,
+      "lo": 0,
+      "hi": 29.9
+     }
+    },
+    "analysis_correct": {
+     "k": 3,
+     "n": 9,
+     "pct": 33.3,
+     "ci95": {
+      "k": 3,
+      "n": 9,
+      "p": 33.3,
+      "lo": 12.1,
+      "hi": 64.6
+     }
+    },
+    "reference_analysis_correct": {
+     "k": 7,
+     "n": 9,
+     "pct": 77.8,
+     "ci95": {
+      "k": 7,
+      "n": 9,
+      "p": 77.8,
+      "lo": 45.3,
+      "hi": 93.7
+     }
+    },
+    "same_analysis_as_reference": {
+     "k": 0,
+     "n": 9,
+     "pct": 0,
+     "ci95": {
+      "k": 0,
+      "n": 9,
+      "p": 0,
+      "lo": 0,
+      "hi": 29.9
+     }
+    },
+    "good": {
+     "k": 0,
+     "n": 9,
+     "pct": 0,
+     "ci95": {
+      "k": 0,
+      "n": 9,
+      "p": 0,
+      "lo": 0,
+      "hi": 29.9
+     }
+    }
+   },
+   "noisy_en": {
+    "n": 17,
+    "clean_english_rate": {
+     "k": 14,
+     "n": 17,
+     "pct": 82.4,
+     "ci95": {
+      "k": 14,
+      "n": 17,
+      "p": 82.4,
+      "lo": 59,
+      "hi": 93.8
+     }
+    },
+    "content_preserved": {
+     "k": 5,
+     "n": 17,
+     "pct": 29.4,
+     "ci95": {
+      "k": 5,
+      "n": 17,
+      "p": 29.4,
+      "lo": 13.3,
+      "hi": 53.1
+     }
+    },
+    "content_preserved_with_negation": {
+     "k": 5,
+     "n": 17,
+     "pct": 29.4,
+     "ci95": {
+      "k": 5,
+      "n": 17,
+      "p": 29.4,
+      "lo": 13.3,
+      "hi": 53.1
+     }
+    },
+    "chrf": {
+     "mean": 0.5466,
+     "ci95": [
+      0.4156,
+      0.6734
+     ],
+     "n": 17
+    },
+    "token_f1": {
+     "mean": 0.5272,
+     "ci95": [
+      0.3885,
+      0.6556
+     ],
+     "n": 17
+    },
+    "exact_reference": {
+     "k": 0,
+     "n": 17,
+     "pct": 0,
+     "ci95": {
+      "k": 0,
+      "n": 17,
+      "p": 0,
+      "lo": 0,
+      "hi": 18.4
+     }
+    },
+    "unchanged_output": {
+     "k": 0,
+     "n": 17,
+     "pct": 0,
+     "ci95": {
+      "k": 0,
+      "n": 17,
+      "p": 0,
+      "lo": 0,
+      "hi": 18.4
+     }
+    },
+    "empty_or_truncated": {
+     "k": 0,
+     "n": 17,
+     "pct": 0,
+     "ci95": {
+      "k": 0,
+      "n": 17,
+      "p": 0,
+      "lo": 0,
+      "hi": 18.4
+     }
+    },
+    "analysis_correct": {
+     "k": 11,
+     "n": 17,
+     "pct": 64.7,
+     "ci95": {
+      "k": 11,
+      "n": 17,
+      "p": 64.7,
+      "lo": 41.3,
+      "hi": 82.7
+     }
+    },
+    "reference_analysis_correct": {
+     "k": 10,
+     "n": 17,
+     "pct": 58.8,
+     "ci95": {
+      "k": 10,
+      "n": 17,
+      "p": 58.8,
+      "lo": 36,
+      "hi": 78.4
+     }
+    },
+    "same_analysis_as_reference": {
+     "k": 0,
+     "n": 17,
+     "pct": 0,
+     "ci95": {
+      "k": 0,
+      "n": 17,
+      "p": 0,
+      "lo": 0,
+      "hi": 18.4
+     }
+    },
+    "good": {
+     "k": 1,
+     "n": 17,
+     "pct": 5.9,
+     "ci95": {
+      "k": 1,
+      "n": 17,
+      "p": 5.9,
+      "lo": 1,
+      "hi": 27
+     }
+    }
+   }
+  },
+  "identity": {
+   "n": 10,
+   "left_untouched": {
+    "k": 0,
+    "n": 10,
+    "pct": 0,
+    "ci95": {
+     "k": 0,
+     "n": 10,
+     "p": 0,
+     "lo": 0,
+     "hi": 27.8
+    }
+   },
+   "text_changed": {
+    "k": 10,
+    "n": 10,
+    "pct": 100,
+    "ci95": {
+     "k": 10,
+     "n": 10,
+     "p": 100,
+     "lo": 72.2,
+     "hi": 100
+    }
+   },
+   "content_broken": {
+    "k": 5,
+    "n": 10,
+    "pct": 50,
+    "ci95": {
+     "k": 5,
+     "n": 10,
+     "p": 50,
+     "lo": 23.7,
+     "hi": 76.3
+    }
+   },
+   "clean_gate_after": {
+    "k": 10,
+    "n": 10,
+    "pct": 100,
+    "ci95": {
+     "k": 10,
+     "n": 10,
+     "p": 100,
+     "lo": 72.2,
+     "hi": 100
+    }
+   },
+   "analysis_changed": {
+    "k": 10,
+    "n": 10,
+    "pct": 100,
+    "ci95": {
+     "k": 10,
+     "n": 10,
+     "p": 100,
+     "lo": 72.2,
+     "hi": 100
+    }
+   },
+   "analysis_correct_before_and_not_after": {
+    "k": 0,
+    "n": 6,
+    "pct": 0,
+    "ci95": {
+     "k": 0,
+     "n": 6,
+     "p": 0,
+     "lo": 0,
+     "hi": 39
+    }
+   }
+  },
+  "all": {
+   "n": 99,
+   "clean_english_rate": {
+    "k": 40,
+    "n": 99,
+    "pct": 40.4,
+    "ci95": {
+     "k": 40,
+     "n": 99,
+     "p": 40.4,
+     "lo": 31.3,
+     "hi": 50.3
+    }
+   },
+   "content_preserved": {
+    "k": 28,
+    "n": 99,
+    "pct": 28.3,
+    "ci95": {
+     "k": 28,
+     "n": 99,
+     "p": 28.3,
+     "lo": 20.4,
+     "hi": 37.8
+    }
+   },
+   "content_preserved_with_negation": {
+    "k": 28,
+    "n": 99,
+    "pct": 28.3,
+    "ci95": {
+     "k": 28,
+     "n": 99,
+     "p": 28.3,
+     "lo": 20.4,
+     "hi": 37.8
+    }
+   },
+   "chrf": {
+    "mean": 0.3695,
+    "ci95": [
+     0.3241,
+     0.4172
+    ],
+    "n": 99
+   },
+   "token_f1": {
+    "mean": 0.3273,
+    "ci95": [
+     0.276,
+     0.3823
+    ],
+    "n": 99
+   },
+   "exact_reference": {
+    "k": 0,
+    "n": 99,
+    "pct": 0,
+    "ci95": {
+     "k": 0,
+     "n": 99,
+     "p": 0,
+     "lo": 0,
+     "hi": 3.7
+    }
+   },
+   "unchanged_output": {
+    "k": 4,
+    "n": 99,
+    "pct": 4,
+    "ci95": {
+     "k": 4,
+     "n": 99,
+     "p": 4,
+     "lo": 1.6,
+     "hi": 9.9
+    }
+   },
+   "empty_or_truncated": {
+    "k": 7,
+    "n": 99,
+    "pct": 7.1,
+    "ci95": {
+     "k": 7,
+     "n": 99,
+     "p": 7.1,
+     "lo": 3.5,
+     "hi": 13.9
+    }
+   },
+   "analysis_correct": {
+    "k": 27,
+    "n": 99,
+    "pct": 27.3,
+    "ci95": {
+     "k": 27,
+     "n": 99,
+     "p": 27.3,
+     "lo": 19.5,
+     "hi": 36.8
+    }
+   },
+   "reference_analysis_correct": {
+    "k": 58,
+    "n": 99,
+    "pct": 58.6,
+    "ci95": {
+     "k": 58,
+     "n": 99,
+     "p": 58.6,
+     "lo": 48.7,
+     "hi": 67.8
+    }
+   },
+   "same_analysis_as_reference": {
+    "k": 0,
+    "n": 99,
+    "pct": 0,
+    "ci95": {
+     "k": 0,
+     "n": 99,
+     "p": 0,
+     "lo": 0,
+     "hi": 3.7
+    }
+   },
+   "good": {
+    "k": 4,
+    "n": 99,
+    "pct": 4,
+    "ci95": {
+     "k": 4,
+     "n": 99,
+     "p": 4,
+     "lo": 1.6,
+     "hi": 9.9
+    }
+   }
+  }
+ },
+ "records": [
+  {
+   "id": "formalizer-v1::fv1_025987_0_0#28",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "llm:deepseek-flash",
+   "input": "Attila Szabó is not the spoouse of Vikram.",
+   "target": "Attila Szabó is not the spouse of Vikram.",
+   "output": "You are absolutely correct. Attila Szabó is not the spoouse of Vikram.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "spellfix would change: spoouse->spouse"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.8151547936676343,
+   "f1": 0.7000000000000001,
+   "out_sentences_n": null,
+   "in_tokens": 22,
+   "out_tokens": 20,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 2,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_002166_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Din ce motiv are Aurel acces în laborator?",
+   "target": "For what reason does Aurel have access to the lab?",
+   "output": "Aurel este acces în laborator pentru următoarele motive:\n\n*   **Experiența și abilitățile:** Aurel are o experiență solidă în laborator și este o expertă în domeniile care îl fac relevant pentru laboratorul respectiv.\n*   **Competențe:** Aurel are o competență în domeniile care îl fac relevant pentru laboratorul respectiv.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": true,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: este, acces, în, laborator, pentru, următoarele, și, abilitățile, experiență, solidă, în, laborator, și, este, expertă, în, domeniile, îl, fac, pentru, laboratorul, respectiv, competență, în, domeniile, îl, fac, pentru, laboratorul, respectiv"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "line break in target",
+    "question marks differ",
+    "length ratio 7.71"
+   ],
+   "chrf": 0.1523993011617232,
+   "f1": 0.03636363636363636,
+   "out_sentences_n": null,
+   "in_tokens": 19,
+   "out_tokens": 81,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_018309_0_0",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "proofing.repair",
+   "input": "I need to know if Joaquín was mareied to Alina Rădulescu as of 1 September 2024.",
+   "target": "I need to know if Joaquín was married to Alina Rădulescu as of 1 September 2024.",
+   "output": "Yes, Joaquín was mareied to Alina Rădulescu as of September 1, 2024.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "spellfix would change: mareied->married"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.6620697031310038,
+   "f1": 0.7142857142857143,
+   "out_sentences_n": null,
+   "in_tokens": 36,
+   "out_tokens": 27,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_023840_0_0#9",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Layla nu plănuiește să participe la seara de jazz.",
+   "target": "Layla does not plan to take part in the jazz evening.",
+   "output": "Să te ajut să te asiguri că ta este în stare bună pentru a participa la seara de jazz. Este important să te asiguri că ai o bună planificare și că ai o idee clară despre ce vrei să faci.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: ajut, să, asiguri, că, este, în, bună, pentru, participa, seara, să, asiguri, că, bună, planificare, și, că, idee, clară, despre, vrei, să, faci"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "negation differs",
+    "length ratio 3.72"
+   ],
+   "chrf": 0.19852821823877742,
+   "f1": 0.03921568627450981,
+   "out_sentences_n": null,
+   "in_tokens": 23,
+   "out_tokens": 53,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_007190_0_0",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "noise-inverse",
+   "input": "Hypothetically, if Oluwaseun was vaccinated against the flu, he has accss to the lab? !",
+   "target": "Hypothetically, if Oluwaseun was vaccinated against the flu, he has access to the lab?!",
+   "output": "No, if Oluwaseun is vaccinated against the flu, he does not have access to the lab.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "negation differs",
+    "question marks differ"
+   ],
+   "chrf": 0.6711801856700336,
+   "f1": 0.7333333333333334,
+   "out_sentences_n": null,
+   "in_tokens": 33,
+   "out_tokens": 24,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_022366_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Sanziana Dumitrescu a imprumutat Fiica ceasornicarului?",
+   "target": "Did Sanziana Dumitrescu borrow \"Fiica ceasornicarului\"?",
+   "output": "Sanziana Dumitrescu a imprumutat Fiica ceasornicarului.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "spellfix would change: imprumutat->împrumutat",
+    "non-English tokens: imprumutat, ceasornicarului"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.699712401663307,
+   "f1": 0.6666666666666666,
+   "out_sentences_n": null,
+   "in_tokens": 27,
+   "out_tokens": 19,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_022413_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Elif când a predat germană?",
+   "target": "When did Elif teach German?",
+   "output": "Elif a predat germană.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: predat, germană"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.2290876657282388,
+   "f1": 0.22222222222222224,
+   "out_sentences_n": null,
+   "in_tokens": 18,
+   "out_tokens": 10,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_012309_0_1",
+   "pair": "repair",
+   "kind": "mixed",
+   "target_source": "llm:deepseek-flash",
+   "input": "Does Lena Müller teach chimie and is she theauthor of Fiica ceasornicarului?",
+   "target": "Does Lena Müller teach chemistry and is she the author of \"Fiica ceasornicarului\"?",
+   "output": "No, Lena Müller does not teach chemistry.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: Fiica",
+    "negation differs",
+    "question marks differ"
+   ],
+   "chrf": 0.3420010610911859,
+   "f1": 0.5,
+   "out_sentences_n": null,
+   "in_tokens": 27,
+   "out_tokens": 11,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_020733_0_0",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "noise-inverse",
+   "input": "Name the people woriing for companies located in Bacău .",
+   "target": "Name the people working for companies located in Bacău.",
+   "output": "The people working for companies located in Bacău are:\n*   **Local employees**\n*   **Management personnel**\n*   **Other employees**",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "line break in target"
+   ],
+   "chrf": 0.6987043878747355,
+   "f1": 0.6666666666666667,
+   "out_sentences_n": null,
+   "in_tokens": 22,
+   "out_tokens": 33,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "core_diff"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-ood-v1::ood1_000249_0_0#2",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Întrebare: Poți să verifici dacă Tariq Mansour plantează lavandă?",
+   "target": "Question: Can you check whether Tariq Mansour plants lavender?",
+   "output": "Da, poate. Tariq Mansour este un botanist și botanist de plante, iar plantele sale sunt considerate un plantat de lavandă.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: poate, este, și, plante, iar, plantele, sunt, plantat, lavandă"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.307981972517726,
+   "f1": 0.13793103448275865,
+   "out_sentences_n": null,
+   "in_tokens": 30,
+   "out_tokens": 34,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_024715_0_0#7",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Hiroshi joacă la CS Deva si Sofía e în lotul de la Șoimii din Pune.",
+   "target": "Hiroshi plays for CS Deva and Sofía is in the squad of Șoimii din Pune.",
+   "output": "",
+   "unchanged": false,
+   "exact": false,
+   "empty": true,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "gibberish verdict: gibberish"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "empty target"
+   ],
+   "chrf": 0,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 33,
+   "out_tokens": 1,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_007826_0_1",
+   "pair": "identity",
+   "kind": "clean",
+   "target_source": "identity:symbolic_english",
+   "input": "How many towns does Thảo Phạm travel to?",
+   "target": "How many towns does Thảo Phạm travel to?",
+   "output": "Thảo Phạm travels to **10** towns.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.4871716497040554,
+   "f1": 0.5714285714285715,
+   "out_sentences_n": null,
+   "in_tokens": 19,
+   "out_tokens": 12,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "noncore_diff"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_016432_0_0#2",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "llm:deepseek-flash",
+   "input": "Honestly,did it publish The Clockmaker's Daughter?",
+   "target": "Honestly, did it publish \"The Clockmaker's Daughter\"?",
+   "output": "Yes, The Clockmaker's Daughter was published.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.5961720500022217,
+   "f1": 0.5333333333333333,
+   "out_sentences_n": null,
+   "in_tokens": 21,
+   "out_tokens": 13,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_023853_0_0#1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Vasile și Paula au cumpărat împreună barca veche cu pânze.",
+   "target": "Vasile and Paula bought the old sailboat together.",
+   "output": "Vasile și Paula au cumpărat barca veche cu pânze.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: și, cumpărat, barca, veche, pânze"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.20904507973265396,
+   "f1": 0.23529411764705882,
+   "out_sentences_n": null,
+   "in_tokens": 27,
+   "out_tokens": 18,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_024287_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "proofing.translate",
+   "input": "Mă întreb dacă Otieno e angajat la Centrul Medical Riverside.",
+   "target": "I wonder whether Otieno is employed by Centrul Medical Riverside.",
+   "output": "Da, Otieno este angajat la Centrul Medical Riverside.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: este, angajat"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.5022905218389487,
+   "f1": 0.4444444444444445,
+   "out_sentences_n": null,
+   "in_tokens": 24,
+   "out_tokens": 14,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_008106_0_0",
+   "pair": "repair",
+   "kind": "mixed",
+   "target_source": "llm:deepseek-flash",
+   "input": "Intrebare rapida: Mathieu nu detine blue van ?",
+   "target": "Quick question: does Mathieu not own the blue van?",
+   "output": "Absolut!",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "negation differs",
+    "question marks differ",
+    "length ratio 0.17"
+   ],
+   "chrf": 0.03328451604313673,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 22,
+   "out_tokens": 4,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_016895_0_1",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "noise-inverse",
+   "input": "How many compaies publish A Short History of Bridges ?",
+   "target": "How many companies publish A Short History of Bridges?",
+   "output": "There are 108 copyrights in the United States.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: Short",
+    "lost: History",
+    "lost: Bridges",
+    "question marks differ"
+   ],
+   "chrf": 0.10871356958463219,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 21,
+   "out_tokens": 14,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "core_diff"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_021004_0_0#1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Sazicem ca Hyun-woo Lee a im prumutat Fiica ceasornicarului.",
+   "target": "Let's say that Hyun-woo Lee borrowed \"Fiica ceasornicarului\".",
+   "output": "Sazicem ca Hyun-woo Lee a im prumutat Fiica ceasornicarului.",
+   "unchanged": true,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: im, prumutat, ceasornicarului"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.5320722900207626,
+   "f1": 0.5,
+   "out_sentences_n": null,
+   "in_tokens": 29,
+   "out_tokens": 21,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": true,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_031173_0_1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "proofing.translate",
+   "input": "Știi de câte ori Burak Demir a împrumutat Iarna în Maramureș?",
+   "target": "Do you know how many times Burak Demir borrowed Iarna in Maramureș?",
+   "output": "Burak Demir a împrumutat Iarna în Maramureș 12 ori.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: împrumutat, în, ori"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.37209073652260233,
+   "f1": 0.380952380952381,
+   "out_sentences_n": null,
+   "in_tokens": 31,
+   "out_tokens": 21,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_024994_0_1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Ioana Constantinescu până când a predat istorie?",
+   "target": "Until when did Ioana Constantinescu teach history?",
+   "output": "Nu, Ioana Constantinescu nu a predat istorie.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: predat, istorie"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "negation differs",
+    "question marks differ"
+   ],
+   "chrf": 0.4975076135456213,
+   "f1": 0.2857142857142857,
+   "out_sentences_n": null,
+   "in_tokens": 22,
+   "out_tokens": 16,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_027000_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Basically, mă întreb de ce Noah are acces în laborator.",
+   "target": "Basically, I wonder why Noah has access to the lab.",
+   "output": "Noah are acces în laborator.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: acces, în, laborator"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.18661638687762025,
+   "f1": 0.13333333333333333,
+   "out_sentences_n": null,
+   "in_tokens": 21,
+   "out_tokens": 8,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_021718_0_0#9",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Jack Walker întreține serviciul de facturare.",
+   "target": "Jack Walker maintains the billing service.",
+   "output": "Jack Walker este un serviciu de facturare.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: este, serviciu, facturare"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.37577500667228325,
+   "f1": 0.30769230769230765,
+   "out_sentences_n": null,
+   "in_tokens": 19,
+   "out_tokens": 12,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_032760_0_0#2",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Blue Harbor Media cumpără de la Greenline Transport.",
+   "target": "Blue Harbor Media buys from Greenline Transport.",
+   "output": "The answer is: **Blue Harbor Media**",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: Greenline",
+    "lost: Transport"
+   ],
+   "chrf": 0.3844246458968371,
+   "f1": 0.4615384615384615,
+   "out_sentences_n": null,
+   "in_tokens": 20,
+   "out_tokens": 11,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_002495_0_0",
+   "pair": "identity",
+   "kind": "clean",
+   "target_source": "identity:symbolic_english",
+   "input": "Is Costin allowed to sign a residence certificate?",
+   "target": "Is Costin allowed to sign a residence certificate?",
+   "output": "Yes, Costin is allowed to sign a residence certificate.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.8492882103132133,
+   "f1": 0.9411764705882353,
+   "out_sentences_n": null,
+   "in_tokens": 19,
+   "out_tokens": 14,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_006532_0_0#2",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Învață și Olivia la Școala Primară Diaconu?",
+   "target": "Does Olivia also study at Școala Primară Diaconu?",
+   "output": "Învață și Olivia la Școala Primară Diaconu (SDI) este o experiență excelentă. Este o școală de învăț aprofundată, cu o gamă largă de programe și un curr de calitate.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: și, este, experiență, excelentă, școală, învăț, aprofundată, gamă, largă, programe, și, curr, calitate"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ",
+    "length ratio 3.84"
+   ],
+   "chrf": 0.4070765001008461,
+   "f1": 0.2162162162162162,
+   "out_sentences_n": null,
+   "in_tokens": 24,
+   "out_tokens": 57,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_032104_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "L-a sunat Oluwaseun Balogun pe antrenorul echipei din Slatina?",
+   "target": "Did Oluwaseun Balogun call the coach of the team from Slatina?",
+   "output": "Nu există o informație specifică despre antrenorul L-a sunat Oluwaseun Balogun pe antrenorul echipei din Slatina.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: există, informație, specifică, despre, antrenorul, sunat, antrenorul, echipei"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "negation differs",
+    "question marks differ"
+   ],
+   "chrf": 0.38166545333424146,
+   "f1": 0.21428571428571427,
+   "out_sentences_n": null,
+   "in_tokens": 31,
+   "out_tokens": 35,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_024899_0_0#2",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Dar în Slatina?",
+   "target": "But in Slatina?",
+   "output": "Da, în Slatina.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: în"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.5106028231028231,
+   "f1": 0.3333333333333333,
+   "out_sentences_n": null,
+   "in_tokens": 15,
+   "out_tokens": 8,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_023106_1_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Verifică, te rog, dacă cartea de identitate necesită permisul de conducere.",
+   "target": "Check, please, whether the identity card requires the driver's license.",
+   "output": "Da, cartea de identitate necesită permisul de conducere.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: cartea, identitate, necesită, permisul, conducere"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.21997814442276084,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 30,
+   "out_tokens": 17,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_023252_0_0#11",
+   "pair": "identity",
+   "kind": "clean",
+   "target_source": "identity:in-row",
+   "input": "Plus, Alina does not have an allergy to pollen.",
+   "target": "Plus, Alina does not have an allergy to pollen.",
+   "output": "You are correct. Alina does not have an allergy to pollen.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.8261980015974387,
+   "f1": 0.7999999999999999,
+   "out_sentences_n": null,
+   "in_tokens": 20,
+   "out_tokens": 15,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 2,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": true
+  },
+  {
+   "id": "formalizer-v1::fv1_000807_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Când anume a întreținut Viorel gateway-ul de plăți?",
+   "target": "When exactly did Viorel maintain the payment gateway?",
+   "output": "Viorel Gateway-ul de plăți este un sistem de gestionare a plății care permite utilizatorilor să își gestioneze plătrii, să își asigureze conturile și să își gestioneze plătriile în funcție de datele de pe site-ul său.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: plăți, este, sistem, gestionare, plății, permite, utilizatorilor, să, își, gestioneze, plătrii, să, își, asigureze, conturile, și, să, își, gestioneze, plătriile, în, funcție, datele, site-ul, său"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ",
+    "length ratio 4.25"
+   ],
+   "chrf": 0.16586454613466656,
+   "f1": 0.08888888888888889,
+   "out_sentences_n": null,
+   "in_tokens": 25,
+   "out_tokens": 61,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_014455_0_0#2",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Întrebare rapidă: e autorul cărții Însemnări din trenul de noapte?",
+   "target": "Quick question: is he the author of the book \"Însemnări din trenul de noapte\"?",
+   "output": "Da, autorul cărții \"Însemnări din trenul de noapte\" este autorul cărții \"Însemnări din trenul de noapte\".",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: autorul, cărții, este, autorul, cărții"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.45647976306647486,
+   "f1": 0.3333333333333333,
+   "out_sentences_n": null,
+   "in_tokens": 33,
+   "out_tokens": 39,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_016547_0_1#1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Parcă Beatriz se tratează la Maria.",
+   "target": "I think Beatriz is treated at Maria's.",
+   "output": "Parcă Beatriz se tratează la Maria.",
+   "unchanged": true,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: tratează"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.3093394324240742,
+   "f1": 0.28571428571428575,
+   "out_sentences_n": null,
+   "in_tokens": 18,
+   "out_tokens": 11,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": true,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_012911_0_0",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "noise-inverse",
+   "input": "Given that Burak Şahin visits Bacău and Priya visits Bacău, and Maria Rădulescu travels too Bacău, can you confirm that Lena does not travel to Bacău?",
+   "target": "Given that Burak Şahin visits Bacău and Priya visits Bacău, and Maria Rădulescu travels to Bacău, can you confirm that Lena does not travel to Bacău?",
+   "output": "No, Lena does not travel to Bacău.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: Burak",
+    "lost: Şahin",
+    "lost: Priya",
+    "lost: Maria",
+    "lost: Rădulescu",
+    "question marks differ",
+    "length ratio 0.23"
+   ],
+   "chrf": 0.21315525614149758,
+   "f1": 0.36363636363636365,
+   "out_sentences_n": null,
+   "in_tokens": 48,
+   "out_tokens": 12,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_028410_0_0#2",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Elif Çelik zice că vrea să plece de la Sistemele Nordwind.",
+   "target": "Elif Çelik says that she wants to leave Sistemele Nordwind.",
+   "output": "",
+   "unchanged": false,
+   "exact": false,
+   "empty": true,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "gibberish verdict: gibberish"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "empty target"
+   ],
+   "chrf": 0,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 28,
+   "out_tokens": 1,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_008104_0_1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Ipotetic, dacă certificatul de rezidență necesită adeverința medicală, e adevărat că permisul de muncă cere adeverința medicală?",
+   "target": "Hypothetically, if the residence certificate requires the medical certificate, is it true that the work permit requires the medical certificate?",
+   "output": "Da, certificatul de rezidență necesită adeverința medicală.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: certificatul, rezidență, necesită, adeverința, medicală"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.17419233841343126,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 46,
+   "out_tokens": 19,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_023840_0_0#24",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "E corectă afirmația asta: Attila predă spaniolă?",
+   "target": "Is this statement correct: Attila teaches Spanish?",
+   "output": "Afirmația este corectă. Attila a fost un lider militar și un războaragd, iar spaniolă este un fel de limbă folosit în Spania.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: este, corectă, fost, lider, militar, și, războaragd, iar, spaniolă, este, fel, limbă, folosit, în"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ",
+    "length ratio 2.60"
+   ],
+   "chrf": 0.2333567051401575,
+   "f1": 0.06896551724137931,
+   "out_sentences_n": null,
+   "in_tokens": 26,
+   "out_tokens": 40,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_004098_0_0",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "noise-inverse",
+   "input": "Hypothetically, if Viorica didn't take part in the regional chess tournament, can you confirm that she is eligible for the bonus ?",
+   "target": "Hypothetically, if Viorica didn't take part in the regional chess tournament, can you confirm that she is eligible for the bonus?",
+   "output": "Yes, I can confirm that Viorica is eligible for the bonus.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "negation differs",
+    "question marks differ"
+   ],
+   "chrf": 0.35048715665642677,
+   "f1": 0.5454545454545455,
+   "out_sentences_n": null,
+   "in_tokens": 39,
+   "out_tokens": 17,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_001228_0_0#19",
+   "pair": "identity",
+   "kind": "clean",
+   "target_source": "identity:in-row",
+   "input": "I need to know if Can plans to study chemistry.",
+   "target": "I need to know if Can plans to study chemistry.",
+   "output": "Yes, Can plans to study chemistry.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.6714266262214516,
+   "f1": 0.625,
+   "out_sentences_n": null,
+   "in_tokens": 20,
+   "out_tokens": 10,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "core_diff"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_012065_0_0#2",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Unde locuiește Laura, în Alba Iulia, nu?",
+   "target": "Where does Laura live, in Alba Iulia, doesn't she?",
+   "output": "Laura este locuitoră a Alba Iulia, în România.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: este, locuitoră, în"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "negation differs",
+    "question marks differ"
+   ],
+   "chrf": 0.3061338310391641,
+   "f1": 0.33333333333333326,
+   "out_sentences_n": null,
+   "in_tokens": 23,
+   "out_tokens": 14,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-ood-v1::ood1_000323_0_0#16",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "În plus, Georgiana închiriază terenul de lângă râu.",
+   "target": "In addition, Georgiana rents the land near the river.",
+   "output": "În plus, Georgiana închiriază terenul de lângă râu.",
+   "unchanged": true,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: închiriază, terenul, lângă, râu"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.26956463394215024,
+   "f1": 0.11764705882352941,
+   "out_sentences_n": null,
+   "in_tokens": 25,
+   "out_tokens": 17,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": true,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-ood-v1::ood2_000463_0_1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Stii cumva dacă Alexandru ppleacă la Brașov ?",
+   "target": "Do you happen to know whether Alexandru is leaving for Brașov?",
+   "output": "Alexandru ppleacă la Brașov.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "spellfix would change: ppleacă->pleacă",
+    "non-English tokens: ppleacă"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.2602877961454051,
+   "f1": 0.26666666666666666,
+   "out_sentences_n": null,
+   "in_tokens": 24,
+   "out_tokens": 12,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_001666_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "proofing.translate",
+   "input": "Știi cine are Iarna în Maramureș?",
+   "target": "Do you know who he has Iarna in Maramureș?",
+   "output": "Da, sunt știi cine are Iarna în Maramureș.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: sunt, știi, în"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.34967664351701394,
+   "f1": 0.23529411764705882,
+   "out_sentences_n": null,
+   "in_tokens": 22,
+   "out_tokens": 17,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_022202_0_0#2",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Sala are cel mult 30 de locuri și s-au înscris cel puțin 7 oameni.",
+   "target": "The room has at most 30 seats and at least 7 people have signed up.",
+   "output": "Să verificăm dacă există o combinație de locuri și persoane care se înscrie la sala are cel mult 30 de locuri și se înscrie cel puțin 7 persoane.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: verificăm, dacă, există, combinație, locuri, și, persoane, înscrie, sala, cel, mult, locuri, și, înscrie, cel, puțin, persoane"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.1624758645157563,
+   "f1": 0.09302325581395349,
+   "out_sentences_n": null,
+   "in_tokens": 32,
+   "out_tokens": 43,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-wild-v1::wild_wk_010",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Traduce-mi în engleză: „Vă mulțumim pentru răbdare și vă așteptăm cu drag.”",
+   "target": "Translate into English for me: \"Vă mulțumim pentru răbdare și Vă așteptăm cu drag.\"",
+   "output": "The most common and natural translation of \"Vă mulțumim pentru răbdare și vă așteptăm cu drag\" in engilish is:\n\n**\"Thank you for your kindness and we are looking forward to you.\"**",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "spellfix would change: engilish->english"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "line break in target",
+    "lost: Vă mulțumim pentru răbdare și vă așteptăm cu drag."
+   ],
+   "chrf": 0.5496786175691688,
+   "f1": 0.4444444444444444,
+   "out_sentences_n": null,
+   "in_tokens": 35,
+   "out_tokens": 48,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "identical",
+     "a": "DEEP",
+     "c": "DEEP"
+    },
+    {
+     "sentence": 1,
+     "tree": "identical",
+     "a": "CORRECT",
+     "c": "DEEP"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 2,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_004291_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "O întrebare: comandă-mi un taxi la aeroport mâine la șase.",
+   "target": "A question: order me a taxi to the airport tomorrow at six.",
+   "output": "Bine, am înțeles.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: înțeles"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "length ratio 0.29"
+   ],
+   "chrf": 0.04035786636563713,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 28,
+   "out_tokens": 9,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_001667_0_0#1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Atat Levente Balogh cat si Xiaoling Wang lucreaza la Carpathia Energy.",
+   "target": "Both Levente Balogh and Xiaoling Wang work at Carpathia Energy.",
+   "output": "Yes, that is correct.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: Levente",
+    "lost: Balogh",
+    "lost: Xiaoling",
+    "lost: Wang",
+    "lost: Carpathia",
+    "lost: Energy",
+    "length ratio 0.30"
+   ],
+   "chrf": 0.057292214854576695,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 28,
+   "out_tokens": 8,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_001836_0_1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "proofing.translate",
+   "input": "Întrebare rapidă: unde a călătorit Hannah Brown?",
+   "target": "Where did Hannah Brown travel?",
+   "output": "Întrebare rapidă: unde a călătorit Hannah Brown?",
+   "unchanged": true,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: rapidă, unde, călătorit"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.42569815471338607,
+   "f1": 0.3333333333333333,
+   "out_sentences_n": null,
+   "in_tokens": 25,
+   "out_tokens": 18,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": true,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_027047_0_1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "proofing.translate",
+   "input": "Sincer, Andreea a locuit în Nairobi pe 1 ianuarie 2023?",
+   "target": "Did Andreea live in Nairobi on 1 January 2023?",
+   "output": "Sincer, Andreea a locuit în Nairobi pe 1 ianuarie 2023.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: locuit, în, ianuarie"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.4167808775847918,
+   "f1": 0.4210526315789474,
+   "out_sentences_n": null,
+   "in_tokens": 31,
+   "out_tokens": 23,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_012357_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Cât înseamnă 5% din 2600 de lei?",
+   "target": "How much is 5% of 2600 lei?",
+   "output": "5% din 2600 de lei este 5% de 2600 de lei.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: este"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.15591202757137285,
+   "f1": 0.33333333333333326,
+   "out_sentences_n": null,
+   "in_tokens": 26,
+   "out_tokens": 25,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_005344_0_0#2",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Verifică, te rog, dacă a demisionat din cauza conflictelor cu Emeka.",
+   "target": "Please check whether he resigned because of the conflicts with Emeka.",
+   "output": "Da, a demisionat din cauza conflictelor cu Emeka.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: demisionat, cauza, conflictelor"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.22782723022538917,
+   "f1": 0.10526315789473685,
+   "out_sentences_n": null,
+   "in_tokens": 29,
+   "out_tokens": 15,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_008302_0_1#1",
+   "pair": "repair",
+   "kind": "mixed",
+   "target_source": "llm:deepseek-flash",
+   "input": "I'm not 100% sure, but the Plovdiv Land Office iwsues certificatul de atestare fiscală.",
+   "target": "I'm not 100% sure, but the Plovdiv Land Office issues the tax attestation certificate.",
+   "output": "I understand you're unsure about the Plovdiv Land Office's certification. \n\nTo help me assist you further, could you tell me more about what you're looking for? For example:\n\n*   **What specific aspects of the certification are you interested in?** (e.g., specific types of certifications, the process, the requirements, etc.)\n*   **What are your specific questions or concerns?**\n\nThe more information you can provide, the better I can help you.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "line break in target",
+    "lost: 100",
+    "negation differs",
+    "question marks differ",
+    "length ratio 5.13"
+   ],
+   "chrf": 0.3166001070903575,
+   "f1": 0.13953488372093023,
+   "out_sentences_n": null,
+   "in_tokens": 39,
+   "out_tokens": 105,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 1,
+     "tree": "core_diff"
+    },
+    {
+     "sentence": 3,
+     "tree": "core_diff"
+    },
+    {
+     "sentence": 4,
+     "tree": "core_diff"
+    },
+    {
+     "sentence": 5,
+     "tree": "core_diff"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 6,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_017214_0_0#1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Șgiu câ Cristina particippă la festivalul recoltei, iar Pablo López participă la festivalul recoltei; Traian merge la festivalul recoltei.",
+   "target": "I know that Cristina takes part in the harvest festival, and Pablo López takes part in the harvest festival; Traian goes to the harvest festival.",
+   "output": "Perfect!",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: Cristina",
+    "lost: Pablo",
+    "lost: López",
+    "length ratio 0.06"
+   ],
+   "chrf": 0.011874119536154254,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 43,
+   "out_tokens": 4,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_020395_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Ai idee la ce instituție se eliberează avizul de securitate la incendiu?",
+   "target": "Do you have any idea at which institution the fire safety permit is issued?",
+   "output": "La incendiu, la instituția se eliberează avizul de securitate, care este un document important care protejează sistemele și informațiile de la accesul neautorizat.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: incendiu, instituția, eliberează, avizul, securitate, este, protejează, sistemele, și, informațiile, accesul, neautorizat"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.19697295166706652,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 30,
+   "out_tokens": 43,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_002253_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Cel puțin 3 jucători de la Olimpia Bacău sunt certificați?",
+   "target": "Are at least 3 players from Olimpia Bacău certified?",
+   "output": "Nu, cel puțin 3 jucători de la Olimpia Bacău nu sunt certificați.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: cel, puțin, jucători, sunt, certificați"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "negation differs",
+    "question marks differ"
+   ],
+   "chrf": 0.3773817737400742,
+   "f1": 0.28571428571428575,
+   "out_sentences_n": null,
+   "in_tokens": 25,
+   "out_tokens": 20,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_004930_0_0#26",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Liam e angajat la Tisa Textile; Nicolae lucrează la Nairobi Logistic.",
+   "target": "Liam is employed at Tisa Textile; Nicolae works at Nairobi Logistic.",
+   "output": "",
+   "unchanged": false,
+   "exact": false,
+   "empty": true,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "gibberish verdict: gibberish"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "empty target"
+   ],
+   "chrf": 0,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 27,
+   "out_tokens": 1,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-wild-v1::wild_wj_050#1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Petra e din Olomouc, s-a mutat la Timișoara în 2022, are un câine, Bruno, și un Škoda Fabia din 2014.",
+   "target": "Petra is from Olomouc, she moved to Timișoara in 2022, she has a dog, Bruno, and a Škoda Fabia from 2014.",
+   "output": "Correct!",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: 2022",
+    "lost: 2014",
+    "lost: Olomouc",
+    "lost: Timișoara",
+    "lost: Bruno",
+    "lost: Škoda",
+    "lost: Fabia",
+    "length ratio 0.08"
+   ],
+   "chrf": 0.014367816091954025,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 53,
+   "out_tokens": 4,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_018067_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "proofing.translate",
+   "input": "Ai idee dacă Bogdan a fost căsătorit cu Andreea pe 5 august 2019?",
+   "target": "Do you have an idea whether Bogdan was married to Andreea on 5 August 2019?",
+   "output": "Bogdan a fost căsătorit cu Andreea pe 5 august 2019.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: fost, căsătorit"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.3022236498939461,
+   "f1": 0.4,
+   "out_sentences_n": null,
+   "in_tokens": 32,
+   "out_tokens": 22,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_011980_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "De ce e Hyun-woo Lee bolnav?",
+   "target": "Why is Hyun-woo Lee sick?",
+   "output": "De e Hyun-woo Lee bolnav (Lee Hyun-woo Lee) is een **Amerikaanse acteur** die bekend staat om zijn **grote en diverse rollen in films en televisieseries**. Hij heeft een lange carrière in de filmindustrie en is een van de meest bekende en succesvolle acteurs van de afgelopen jaren.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "spellfix would change: meest->meet",
+    "non-English tokens: bolnav, bekend, staat, zijn, grote, lange, carrière, meest, acteurs, afgelopen, jaren"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ",
+    "length ratio 10.07"
+   ],
+   "chrf": 0.169222232681048,
+   "f1": 0.14545454545454545,
+   "out_sentences_n": null,
+   "in_tokens": 19,
+   "out_tokens": 68,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "identical",
+     "a": "FAIL",
+     "c": "DEEP"
+    },
+    {
+     "sentence": 1,
+     "tree": "identical",
+     "a": "FAIL",
+     "c": "FAIL"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 2,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_000093_0_1",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "noise-inverse",
+   "input": "How many systems does Wanjiru Odhiambo maintain ?",
+   "target": "How many systems does Wanjiru Odhiambo maintain?",
+   "output": "Wanjiru Odhiambo maintains 1 system.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.6413539449016286,
+   "f1": 0.3333333333333333,
+   "out_sentences_n": null,
+   "in_tokens": 21,
+   "out_tokens": 13,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_004140_0_0",
+   "pair": "repair",
+   "kind": "mixed",
+   "target_source": "llm:deepseek-flash",
+   "input": "Din curiozitate, why does Hannah quali fy for the bonus?",
+   "target": "Out of curiosity, why does Hannah qualify for the bonus?",
+   "output": "Hannah quali fy for the bonus because she's a **very talented and dedicated individual**. She's been working hard and has a lot of experience in the field.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ",
+    "length ratio 2.77"
+   ],
+   "chrf": 0.41594000003891723,
+   "f1": 0.25641025641025644,
+   "out_sentences_n": null,
+   "in_tokens": 24,
+   "out_tokens": 36,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "core_diff"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 2,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_011280_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "E adevărat că nu toți jucătorii de la Călărași United sunt certificați?",
+   "target": "Is it true that not all the players at Călărași United are certified?",
+   "output": "Da, în general, jucătorii de la Călărași United sunt certificați.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: în, jucătorii, sunt, certificați"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "negation differs",
+    "question marks differ"
+   ],
+   "chrf": 0.35768123691803727,
+   "f1": 0.17391304347826086,
+   "out_sentences_n": null,
+   "in_tokens": 31,
+   "out_tokens": 22,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_023252_0_0#41",
+   "pair": "identity",
+   "kind": "clean",
+   "target_source": "identity:in-row",
+   "input": "The VPN gateway doesn't depend on the reporting dashboard.",
+   "target": "The VPN gateway doesn't depend on the reporting dashboard.",
+   "output": "You are absolutely correct. The VPN gateway doesn't rely on the reporting dashboard.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.7562373369318063,
+   "f1": 0.75,
+   "out_sentences_n": null,
+   "in_tokens": 21,
+   "out_tokens": 19,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 2,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": true
+  },
+  {
+   "id": "formalizer-v1::fv1_030014_0_0#31",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Erik Lindqvist lucrează la Busan Logistic.",
+   "target": "Erik Lindqvist works at Busan Logistic.",
+   "output": "",
+   "unchanged": false,
+   "exact": false,
+   "empty": true,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "gibberish verdict: gibberish"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "empty target"
+   ],
+   "chrf": 0,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 19,
+   "out_tokens": 1,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_005630_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Anyway, am nevoie sa stu daca Adaeze a participst la targul de carte de primavara.",
+   "target": "Anyway, I need to know whether Adaeze took part in the spring book fair.",
+   "output": "Adaeze a participat la targul de carte de primavara.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "spellfix would change: targul->târgul",
+    "non-English tokens: participat, targul, carte, primavara"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.1729965377373012,
+   "f1": 0.08695652173913043,
+   "out_sentences_n": null,
+   "in_tokens": 31,
+   "out_tokens": 16,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_029778_0_0#13",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Și Cătălin nu joacă la Șoimii din Pune.",
+   "target": "And Cătălin does not play for Șoimii from Pune.",
+   "output": "Vă rog, am înțeles. Ce vrei să facă?",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: rog, înțeles, vrei, să, facă"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: Cătălin",
+    "lost: Șoimii",
+    "lost: Pune",
+    "negation differs",
+    "question marks differ"
+   ],
+   "chrf": 0.08133142139496523,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 25,
+   "out_tokens": 18,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_009387_0_0#5",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Mădălina nu a împrumutat Iarna în Maramureș.",
+   "target": "Mădălina did not borrow \"Iarna în Maramureș\".",
+   "output": "Este foarte bine! Este o informație clară.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: foarte, bine, informație, clară"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: Iarna",
+    "lost: Maramureș",
+    "negation differs"
+   ],
+   "chrf": 0.10463087835455877,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 28,
+   "out_tokens": 12,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_025987_0_0#57",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "llm:deepseek-flash",
+   "input": "Pitești Logistics buys form Varga & Partners.",
+   "target": "Pitești Logistics buys from Varga & Partners.",
+   "output": "The information you provided is correct. Pitești Logistics has purchased Form Varga & Partners.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.6213320407044479,
+   "f1": 0.42105263157894735,
+   "out_sentences_n": null,
+   "in_tokens": 20,
+   "out_tokens": 21,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 1,
+     "tree": "core_diff"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 2,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "new_cases::nc-000228",
+   "pair": "identity",
+   "kind": "clean",
+   "target_source": "identity:symbolic_english",
+   "input": "Has Emre Yılmaz enrolled yet?",
+   "target": "Has Emre Yılmaz enrolled yet?",
+   "output": "Yes, Emre Yılmaz has enrolled in the University of Applied Sciences.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.47338916716613194,
+   "f1": 0.5000000000000001,
+   "out_sentences_n": null,
+   "in_tokens": 17,
+   "out_tokens": 17,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_017043_0_0#4",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Burak nu călătoreste la Porto ?",
+   "target": "Doesn't Burak travel to Porto?",
+   "output": "Da, Burak nu călătorește la Porto.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: călătorește"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.2740671432723233,
+   "f1": 0.3333333333333333,
+   "out_sentences_n": null,
+   "in_tokens": 20,
+   "out_tokens": 14,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_009691_0_0#14",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "noise-inverse",
+   "input": "Pune Arts High School is based in Călărași .",
+   "target": "Pune Arts High School is based in Călărași.",
+   "output": "Yes, Pune Arts High School is based in Călărași.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.9766232958024537,
+   "f1": 0.9411764705882353,
+   "out_sentences_n": null,
+   "in_tokens": 22,
+   "out_tokens": 17,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": true
+  },
+  {
+   "id": "formalizer-v1::fv1_014320_0_0",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "proofing.repair",
+   "input": "I wohnder where Ingrid is based.",
+   "target": "I wonder where Ingrid is based.",
+   "output": "I am Gemma, an open-weights AI assistant. I am a large language model created by the Gemma team.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: Ingrid",
+    "length ratio 3.00"
+   ],
+   "chrf": 0.13751171731015202,
+   "f1": 0.08,
+   "out_sentences_n": null,
+   "in_tokens": 17,
+   "out_tokens": 24,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "noncore_diff"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 2,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-ood-v1::ood1_000291_1_0#2",
+   "pair": "identity",
+   "kind": "clean",
+   "target_source": "identity:in-row",
+   "input": "I'm asking because Meera doesn't lease the vineyard near Sibiu.",
+   "target": "I'm asking because Meera doesn't lease the vineyard near Sibiu.",
+   "output": "I understand you're asking because Meera doesn't lease the vineyard near Sibiu.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.8989570571387687,
+   "f1": 0.8461538461538461,
+   "out_sentences_n": null,
+   "in_tokens": 26,
+   "out_tokens": 22,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "core_diff"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_004274_0_1",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "proofing.repair",
+   "input": "Hypotheticslly, if Owen Wilson is the spouse of Rachel, can you confirm thsat he is thespouse of Rachel?",
+   "target": "Hypotheticslly, if Owen Wilson is the spouse of Rachel, can you confirm that he is the spouse of Rachel?",
+   "output": "Yes, I can confirm that Owen Wilson is the spouse of Rachel.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.4805003237568857,
+   "f1": 0.6451612903225806,
+   "out_sentences_n": null,
+   "in_tokens": 35,
+   "out_tokens": 16,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_025751_0_1",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "noise-inverse",
+   "input": "Can you coubt how maby times Larisa Crăciun resihgned?",
+   "target": "Can you count how many times Larisa Crăciun resigned?",
+   "output": "I am Gemma, a large language model created by the Gemma team. I am an open-weights model, meaning I am trained by Google DeepMind.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: Larisa",
+    "lost: Crăciun",
+    "question marks differ"
+   ],
+   "chrf": 0.14015049992249257,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 28,
+   "out_tokens": 32,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 1,
+     "tree": "core_diff"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 2,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_014222_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Din ce motiv ia Adaeze Adeyemi bonusul?",
+   "target": "For what reason does Adaeze Adeyemi get the bonus?",
+   "output": "Adaeze Adeyemi a fost o persoană foarte apreciată pentru contribuția sa la dezvoltarea și promovarea comunității de la **\"Adaeze Adeyemi\"**. \n\nÎn ceea ce privește bonusul, este important să înțelegem ce înseamnă \"bonusul\". Este o formă de incentivizare, care poate fi folosită pentru a stimula activită",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": true,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: fost, persoană, foarte, apreciată, pentru, contribuția, dezvoltarea, și, promovarea, comunității, ceea, privește, bonusul, este, să, înțelegem, înseamnă, formă, incentivizare, poate, fi, folosită, pentru, stimula, activită"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "line break in target",
+    "question marks differ",
+    "length ratio 7.74"
+   ],
+   "chrf": 0.22666484637030626,
+   "f1": 0.07407407407407407,
+   "out_sentences_n": null,
+   "in_tokens": 21,
+   "out_tokens": 81,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_022528_0_0#2",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Ovidiu Dumitrescu lipsește de la serviciu.",
+   "target": "Ovidiu Dumitrescu is missing from work.",
+   "output": "The statement \"Ovidiu Dumitrescu lipsește de la serviciu\" is a very common and understandable expression. It's a common phrase used to express confusion or frustration.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "length ratio 4.00"
+   ],
+   "chrf": 0.3176271271324518,
+   "f1": 0.1875,
+   "out_sentences_n": null,
+   "in_tokens": 23,
+   "out_tokens": 40,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 2,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_030014_0_0#42",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Valentina deține cabana de vacanță din Bran.",
+   "target": "Valentina owns the vacation cabin in Bran.",
+   "output": "The statement \"Valentina deține cabana de vacanță din Bran\" is incorrect.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.40566040934976805,
+   "f1": 0.33333333333333326,
+   "out_sentences_n": null,
+   "in_tokens": 22,
+   "out_tokens": 21,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "identical",
+     "a": "DEEP",
+     "c": "DEEP"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "new_cases::nc-001284",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "new_cases.clean",
+   "input": "please remeber that Deniz wants the photo booth near the exit",
+   "target": "Please remember that Deniz wants the photo booth near the exit.",
+   "output": "I understand. I will remember that Deniz wants the photo booth near the exit.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.8593966180879614,
+   "f1": 0.8,
+   "out_sentences_n": null,
+   "in_tokens": 21,
+   "out_tokens": 18,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 1,
+     "tree": "core_diff"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 2,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_003492_0_0#1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Deci, Constantin Toma e bolnav.",
+   "target": "So, Constantin Toma is sick.",
+   "output": "Deci, Constantin Toma!",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.615533443823969,
+   "f1": 0.5,
+   "out_sentences_n": null,
+   "in_tokens": 18,
+   "out_tokens": 9,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_014048_0_0#7",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Wei nu o crește pe Oksana Shevchenko.",
+   "target": "Wei does not raise Oksana Shevchenko.",
+   "output": "The answer is yes.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: Oksana",
+    "lost: Shevchenko",
+    "negation differs"
+   ],
+   "chrf": 0.0940869799465982,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 22,
+   "out_tokens": 7,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_010478_0_0#6",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Ngozi Adeyemi e căsătorită cu Léa.",
+   "target": "Ngozi Adeyemi is married to Léa.",
+   "output": "Yes, Ngozi Adeyemi și Léa are o căsătorie.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: și, căsătorie"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.4857877699596484,
+   "f1": 0.42857142857142855,
+   "out_sentences_n": null,
+   "in_tokens": 24,
+   "out_tokens": 18,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "identical",
+     "a": "DEEP",
+     "c": "DEEP"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_030415_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "proofing.translate",
+   "input": "Octavian a călătorit din nou la Oradea?",
+   "target": "Did Octavian travel to Oradea again?",
+   "output": "",
+   "unchanged": false,
+   "exact": false,
+   "empty": true,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "gibberish verdict: gibberish"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "empty target"
+   ],
+   "chrf": 0,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 23,
+   "out_tokens": 1,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_029233_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Btw, Gheorghe Lazăr a stat în Leeds în ziua de 01.06.2019, nu?",
+   "target": "Btw, Gheorghe Lazăr stayed in Leeds on 01.06.2019, didn't he?",
+   "output": "Da, Gheorghe Lazăr a stat în Leeds în ziua de 01.06.2019.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: în, în, ziua"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "negation differs",
+    "question marks differ"
+   ],
+   "chrf": 0.4969790455657687,
+   "f1": 0.46153846153846156,
+   "out_sentences_n": null,
+   "in_tokens": 38,
+   "out_tokens": 27,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_003787_0_1",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "noise-inverse",
+   "input": "qhuick one: how many schools is Samuel enrolled at ?",
+   "target": "Quick one: how many schools is Samuel enrolled at?",
+   "output": "Samuel is enrolled at 10 schools.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.4296328956814101,
+   "f1": 0.6666666666666667,
+   "out_sentences_n": null,
+   "in_tokens": 22,
+   "out_tokens": 10,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_021057_0_0#1",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "O cutie are între 3 și 6 bor cane.",
+   "target": "A box has between 3 and 6 cans.",
+   "output": "The cutie are between 3 and 6 bor canes.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: bor"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.5008067644179629,
+   "f1": 0.47058823529411764,
+   "out_sentences_n": null,
+   "in_tokens": 22,
+   "out_tokens": 15,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "identical",
+     "a": "DEEP",
+     "c": "MINOR"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_023499_0_0#6",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Târgul de carte de primăvară nu are loc la Arena Deva.",
+   "target": "The spring book fair does not take place at Arena Deva.",
+   "output": "Îmi pare rău că nu am înțeles clar ce aș putea face. Poți să-mi dai mai multe informații despre ce aș putea face?",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: rău, că, înțeles, clar, aș, putea, să-mi, dai, multe, informații, despre, aș, putea"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: Arena",
+    "lost: Deva",
+    "question marks differ"
+   ],
+   "chrf": 0.158174182311133,
+   "f1": 0,
+   "out_sentences_n": null,
+   "in_tokens": 28,
+   "out_tokens": 36,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_022088_0_0",
+   "pair": "repair",
+   "kind": "mixed",
+   "target_source": "llm:deepseek-flash",
+   "input": "Întrebare rapidă: does Octavian havea valid certificate?",
+   "target": "Quick question: does Octavian have a valid certificate?",
+   "output": "Da, Octavian a valid certificate.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.48086758064609625,
+   "f1": 0.6153846153846154,
+   "out_sentences_n": null,
+   "in_tokens": 24,
+   "out_tokens": 10,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_025409_0_1",
+   "pair": "repair",
+   "kind": "mixed",
+   "target_source": "llm:deepseek-flash",
+   "input": "Wuen did Noah Walker stat to maihtain the search index ?",
+   "target": "When did Noah Walker start to maintain the search index?",
+   "output": "Wuen did not stat to the search index.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: Noah",
+    "lost: Walker",
+    "negation differs",
+    "question marks differ"
+   ],
+   "chrf": 0.3977575824171255,
+   "f1": 0.5555555555555556,
+   "out_sentences_n": null,
+   "in_tokens": 23,
+   "out_tokens": 12,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "identical",
+     "a": "DEEP",
+     "c": "DEEP"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_021897_0_0",
+   "pair": "repair",
+   "kind": "noisy_en",
+   "target_source": "noise-inverse",
+   "input": "has everyone who attended the photography workshop completed the safery training?",
+   "target": "Has everyone who attended the photography workshop completed the safety training?",
+   "output": "No, everyone who attended the photography workshop completed the safery training.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "spellfix would change: safery->safety"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "negation differs",
+    "question marks differ"
+   ],
+   "chrf": 0.8898205558607487,
+   "f1": 0.8181818181818182,
+   "out_sentences_n": null,
+   "in_tokens": 22,
+   "out_tokens": 16,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_016976_0_0#4",
+   "pair": "identity",
+   "kind": "clean",
+   "target_source": "identity:in-row",
+   "input": "Javier does not visit Tampere; Ms Bennett travels to Oradea.",
+   "target": "Javier does not visit Tampere; Ms Bennett travels to Oradea.",
+   "output": "You are absolutely correct. Javier does not visit Tampere. Ms Bennett travels to Oradea.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.8431116680842933,
+   "f1": 0.8333333333333333,
+   "out_sentences_n": null,
+   "in_tokens": 25,
+   "out_tokens": 22,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 3,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": true
+  },
+  {
+   "id": "formalizer-v1::fv1_000126_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Dariush coordonează pe cineva care locuiește în Ploiești?",
+   "target": "Does Dariush coordinate someone who lives in Ploiești?",
+   "output": "Dariush coordonează pe cineva care locuiește în Ploiești.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: coordonează, cineva, locuiește, în"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.4228846645357212,
+   "f1": 0.25,
+   "out_sentences_n": null,
+   "in_tokens": 26,
+   "out_tokens": 18,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_009691_0_0#13",
+   "pair": "identity",
+   "kind": "clean",
+   "target_source": "identity:in-row",
+   "input": "Ms García checked out The Clockmaker's Daughter.",
+   "target": "Ms García checked out The Clockmaker's Daughter.",
+   "output": "The clockmaker's daughter was in the room.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "lost: García"
+   ],
+   "chrf": 0.4145617936953722,
+   "f1": 0.5,
+   "out_sentences_n": null,
+   "in_tokens": 20,
+   "out_tokens": 13,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_025626_0_0",
+   "pair": "repair",
+   "kind": "mixed",
+   "target_source": "llm:deepseek-flash",
+   "input": "De când anume deține Traian flat on Mihai Viteazu Street?",
+   "target": "Since when exactly has Traian owned the flat on Mihai Viteazu Street?",
+   "output": "Traian flat on Mihai Viteazu Street.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.49729648006651456,
+   "f1": 0.6666666666666666,
+   "out_sentences_n": null,
+   "in_tokens": 25,
+   "out_tokens": 11,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "noncore_diff"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_001890_0_0",
+   "pair": "identity",
+   "kind": "clean",
+   "target_source": "identity:symbolic_english",
+   "input": "Honestly, is Haruka based in Botoșani?",
+   "target": "Honestly, is Haruka based in Botoșani?",
+   "output": "Yes, Haruka is based in Botoșani.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.5742631604828224,
+   "f1": 0.8333333333333334,
+   "out_sentences_n": null,
+   "in_tokens": 21,
+   "out_tokens": 14,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_024715_0_0#6",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Și Traian deține garajul din spatele blocului.",
+   "target": "And Traian owns the garage behind the apartment block.",
+   "output": "Să știi, Traian deține garajul din spatele blocului.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: știi, deține, garajul, spatele, blocului"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.24243311180179516,
+   "f1": 0.11764705882352941,
+   "out_sentences_n": null,
+   "in_tokens": 23,
+   "out_tokens": 19,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_012671_0_0#2",
+   "pair": "repair",
+   "kind": "mixed",
+   "target_source": "llm:deepseek-flash",
+   "input": "Sincer, a fost amânat din cauza problemelor cu search index?",
+   "target": "Honestly, was it postponed because of the problems with the search index?",
+   "output": "Sincer, a fost amânat din cauza problemelor cu search index.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: fost, amânat, cauza, problemelor"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.30107731565039586,
+   "f1": 0.1818181818181818,
+   "out_sentences_n": null,
+   "in_tokens": 25,
+   "out_tokens": 18,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": true,
+   "same_analysis_as_input": true,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_024775_0_0#2",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "Javier o crește pe Lena; nu o crește pe Lena.",
+   "target": "Javier is raising Lena; he is not raising Lena.",
+   "output": "This is a classic riddle! The answer is:\n\n**\"Javier o crește pe Lena; nu o crește pe Lena.\"**",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": true,
+   "clean_gate_reasons": [],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "line break in target"
+   ],
+   "chrf": 0.29975506872252383,
+   "f1": 0.3703703703703704,
+   "out_sentences_n": null,
+   "in_tokens": 24,
+   "out_tokens": 31,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 2,
+     "tree": "identical",
+     "a": "DEEP",
+     "c": "DEEP"
+    }
+   ],
+   "analysis_parsed": true,
+   "analysis_sentences": 3,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_003510_0_0",
+   "pair": "repair",
+   "kind": "ro",
+   "target_source": "llm:deepseek-flash",
+   "input": "E adevărat că Ion Barbu vrea să învețe germană și este antrenorul de la Lupii din Iași?",
+   "target": "Is it true that Ion Barbu wants to learn German and is the coach of Lupii din Iași?",
+   "output": "Da, Ion Barbu are o interesă puternică pentru germană și este antrenorul de la Lupii din Iași.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: interesă, puternică, pentru, germană, și, este, antrenorul"
+   ],
+   "content_ok": false,
+   "content_ok_neg": false,
+   "content_problems": [
+    "question marks differ"
+   ],
+   "chrf": 0.35430822147852536,
+   "f1": 0.28571428571428575,
+   "out_sentences_n": null,
+   "in_tokens": 37,
+   "out_tokens": 29,
+   "analysis_pass": false,
+   "analysis_failed": [
+    {
+     "sentence": 0,
+     "tree": "no_parse"
+    }
+   ],
+   "analysis_parsed": false,
+   "analysis_sentences": 0,
+   "target_analysis_pass": false,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  },
+  {
+   "id": "formalizer-v1::fv1_021791_0_0",
+   "pair": "repair",
+   "kind": "mixed",
+   "target_source": "llm:deepseek-flash",
+   "input": "Am nevoie să știu dacă Dimitra a răspuns de booking app la data de 19 martie 2020.",
+   "target": "I need to know whether Dimitra was responsible for the booking app on 19 March 2020.",
+   "output": "Da, Dimitra a răspuns de booking app la data de 19 martie 2020.",
+   "unchanged": false,
+   "exact": false,
+   "empty": false,
+   "truncated": false,
+   "clean_gate": false,
+   "clean_gate_reasons": [
+    "non-English tokens: răspuns, martie"
+   ],
+   "content_ok": true,
+   "content_ok_neg": true,
+   "content_problems": [],
+   "chrf": 0.30065662194129505,
+   "f1": 0.3448275862068966,
+   "out_sentences_n": null,
+   "in_tokens": 38,
+   "out_tokens": 26,
+   "analysis_pass": true,
+   "analysis_failed": [],
+   "analysis_parsed": true,
+   "analysis_sentences": 1,
+   "target_analysis_pass": true,
+   "input_analysis_pass": false,
+   "same_analysis_as_input": false,
+   "same_analysis_as_target": false,
+   "good": false
+  }
+ ]
+}

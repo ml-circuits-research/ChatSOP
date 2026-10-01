@@ -1,0 +1,22 @@
+{
+ "generated_at": "2026-10-01T00:15:36.307Z",
+ "tokenizer": "Gemma 3 (models/gemma/bases/99073d6b..., chat template of training/python/common.py chat_ids)",
+ "train": {
+  "n": 8890,
+  "min": 17,
+  "p50": 39,
+  "p90": 59,
+  "p99": 86,
+  "max": 120
+ },
+ "dev": {
+  "n": 1119,
+  "min": 21,
+  "p50": 39,
+  "p90": 59,
+  "p99": 87,
+  "max": 103
+ },
+ "over_2048": 0,
+ "over_cap": 0
+}

@@ -50,7 +50,7 @@ The solver qualification follows the same evidence rules as the comparisons abov
 
 ### Solver scope and reproduction
 
-This qualification compares the inspectable, bounded JavaScript reference reasoning route with SWI-Prolog on function-free Horn queries and with Z3 on integer constraints. `advanced` is the route selector, **not** a fourth independent solver. The cases are typed reasoning requests, not model-generated SOP or a model-quality benchmark. No training, optimization of neural weights, or neural inference is part of this exercise.
+This qualification compares the inspectable reference reasoning route (the `js-reference` oracle, with its finite integer enumeration) with SWI-Prolog tabling (the `prolog-tabling` strategy) on function-free Horn queries and with Z3 (`z3-smt-bounded`) on integer constraints. `advanced` is the route selector, **not** a fourth independent solver. The cases are typed reasoning requests, not model-generated SOP or a model-quality benchmark. No training, optimization of neural weights, or neural inference is part of this exercise.
 
 From the repository root, regenerate the evidence with the actual optional executables:
 
@@ -65,19 +65,19 @@ The first command executed on the prepared ARM64 host and wrote [`eval/reports/c
 
 All rows below refer to the executed command and same-named cells in the linked report; `supported` means derivable from admitted facts, not independently true in the world.
 
-| Common Horn profile | Reference JS | SWI adapter | Qualification boundary |
+| Common Horn profile | Reference (oracle) | Prolog route (`prolog-tabling`) | Qualification boundary |
 | --- | --- | --- | --- |
-| `recursion` (two-step ancestry) | supported; proof includes both parent facts | supported; closure agrees with JS | SWI computes ground closure; JS reconstructs proof |
+| `recursion` (two-step ancestry) | supported; proof includes both parent facts | supported; relational core agrees with the oracle | prolog-tabling answers the relational core; the oracle reconstructs the proof |
 | `variables-output` (select descendant) | supported; `bogdan`, `carina` | supported; same bindings | Answer projection is checked, not just status |
 | `explicit-negation` | refuted | refuted | Explicit contrary evidence, not negation as failure |
-| `time-in-range` / `time-out-of-range` | supported / unknown | supported / unknown | SWI facts are scoped at the explicit query instant |
+| `time-in-range` / `time-out-of-range` | supported / unknown | supported / unknown | the facts are scoped at the explicit query instant |
 | `contradiction` | both | both | Contradictory facts do not explode into arbitrary claims |
 | `hypothesis` / `defeated-hypothesis` | conditional support / refuted | conditional support / refuted | Admitted hypothesis retains `hypothetical`; contrary fact defeats it |
 | `fact-limit` (`maxFacts: 2`) | unknown, incomplete | unknown, incomplete | A truncated closure does not establish the missing derivation; agreement of two truncated *sets* is not a complete-profile proof |
 
-The SWI rows separately record `costMs.nativeClosure` (direct `runSWI` process and compilation), `costMs.jsVerification` (JavaScript closure and proof-oriented reasoner), and `costMs.composedAdapter` (complete `solveHorn` path). The latter is not the sum of the first two independently timed calls. SWI does **not** supply an independent proof: `proofBackend` identifies the JS derivation checked against SWI closure. Completed closure cells assert set agreement; incomplete limit cells report the observed agreement flag but cannot establish equivalence. Reference JS exposes proof IDs and query bindings and uses explicit limits; it is an inspectable **oracle for this declared finite profile**, not an oracle for unobserved facts or unrestricted logic.
+The Prolog rows separately record `costMs.oracle` (the oracle answer alone) and `costMs.composedAdapter` (the complete `solveHorn` path with `backend prolog`: the oracle answer plus the prolog-tabling run of the relational core and the agreement check); the second is not an independent Prolog timing. Prolog does **not** supply the proof: `proofBackend` (`js-reference-derivation-checked-against-prolog-tabling`) identifies the oracle's derivation checked against the Prolog answer. Completed cells assert agreement of status and rows; incomplete limit cells cannot establish equivalence. The earlier direct-closure comparison (`runSWI`, the retired SWI adapter) no longer exists. Reference JS exposes proof IDs and query bindings and uses explicit limits; it is an inspectable **oracle for this declared finite profile**, not an oracle for unobserved facts or unrestricted logic.
 
-| Integer profile | Reference JS | Z3 | Qualification boundary |
+| Integer profile | Reference (oracle) | Z3 (`z3-smt-bounded` typed constraints) | Qualification boundary |
 | --- | --- | --- | --- |
 | `sat-not-entailment` (`x=1` possible in `0..2`) | possible | possible; base, claim, and negated claim all sat | Existence is not entailment |
 | `same-claim-not-entailed` | unknown | unknown; both claim and negated claim sat | An arbitrary model is not a proven scalar |
@@ -86,7 +86,7 @@ The SWI rows separately record `costMs.nativeClosure` (direct `runSWI` process a
 | `non-unique-optimum` (`x+y=2`, maximize `x+y`) | optimal objective 2, scalar `x` ambiguous | optimal objective 2, strictly-better check impossible, scalar `x` ambiguous | Three distinct optimal assignments are present in the finite JS case; no single `x` is licensed |
 | `timeout-1ms` (40 binary integers, sum claim) | **incomparable**; not enumerated | unknown, incomplete; base sat, both claim checks unknown on this run | A 1 ms solver bound is not refutation; result remains native Z3, not fallback JS |
 
-`routing.reference-constraint` and `routing.reference-horn` observed JS, `routing.advanced-constraint` observed Z3, and `routing.advanced-horn` observed SWI. An `advanced` automatic constraint request with simulated unavailability used JS and disclosed the Z3 fallback (`routing.advanced-auto-unavailable`); this is not independent Z3 evidence. A direct Z3 request with the executable path intentionally made unavailable returned `unsupported` with backend `z3`, not a JS answer (`routing.explicit-z3-unavailable`).
+`routing.reference-constraint` and `routing.reference-horn` observed the oracle, `routing.advanced-constraint` observed Z3, and `routing.advanced-horn` observed prolog-tabling (`advanced` is deprecated). An `advanced` automatic constraint request with simulated unavailability used JS and disclosed the Z3 fallback (`routing.advanced-auto-unavailable`); this is not independent Z3 evidence. A direct Z3 request with the executable path intentionally made unavailable returned `unsupported` with backend `z3`, not a JS answer (`routing.explicit-z3-unavailable`).
 
 **Explicitly unsupported / incomparable:** SWI interval queries (only point-time compilation was exercised), SWI numeric constraints, Z3 Horn proofs, and unbounded-integer JS enumeration are marked `unsupported` by observed rejection cells. Cross-family accuracy/latency aggregation is **incomparable**: the domains, proof responsibility, and composed process costs differ. There is no global winner or score.
 

@@ -1,0 +1,184 @@
+{
+ "population": "the 146 Layer-2 misses of eval-symbolic-layers-en-v1 under ud-rules-v1.3 (layer2-cases.jsonl); none of these rows was used to build the frame list",
+ "strict_matches": 4,
+ "variants": {
+  "list: synonyms": {
+   "frames": 78,
+   "changes": {
+    "synonym": 61
+   },
+   "resolved": {
+    "all": {
+     "n": 146,
+     "resolved": 4
+    },
+    "C_role": {
+     "n": 38,
+     "resolved": 0
+    },
+    "C_boundary": {
+     "n": 30,
+     "resolved": 0
+    },
+    "C_only": {
+     "n": 33,
+     "resolved": 0
+    },
+    "R_any": {
+     "n": 112,
+     "resolved": 4
+    }
+   }
+  },
+  "list: synonyms + roles": {
+   "frames": 78,
+   "changes": {
+    "synonym": 61,
+    "role": 59
+   },
+   "resolved": {
+    "all": {
+     "n": 146,
+     "resolved": 24
+    },
+    "C_role": {
+     "n": 38,
+     "resolved": 20
+    },
+    "C_boundary": {
+     "n": 30,
+     "resolved": 0
+    },
+    "C_only": {
+     "n": 33,
+     "resolved": 20
+    },
+    "R_any": {
+     "n": 112,
+     "resolved": 4
+    }
+   }
+  },
+  "list: + boundary": {
+   "frames": 78,
+   "changes": {
+    "synonym": 77,
+    "role": 59,
+    "boundary": 21
+   },
+   "resolved": {
+    "all": {
+     "n": 146,
+     "resolved": 34
+    },
+    "C_role": {
+     "n": 38,
+     "resolved": 20
+    },
+    "C_boundary": {
+     "n": 30,
+     "resolved": 9
+    },
+    "C_only": {
+     "n": 33,
+     "resolved": 26
+    },
+    "R_any": {
+     "n": 112,
+     "resolved": 8
+    }
+   }
+  },
+  "list: + boundary + time": {
+   "frames": 78,
+   "changes": {
+    "synonym": 77,
+    "role": 59,
+    "boundary": 21
+   },
+   "resolved": {
+    "all": {
+     "n": 146,
+     "resolved": 34
+    },
+    "C_role": {
+     "n": 38,
+     "resolved": 20
+    },
+    "C_boundary": {
+     "n": 30,
+     "resolved": 9
+    },
+    "C_only": {
+     "n": 33,
+     "resolved": 26
+    },
+    "R_any": {
+     "n": 112,
+     "resolved": 8
+    }
+   }
+  },
+  "list + WordNet": {
+   "frames": 129,
+   "changes": {
+    "synonym": 103,
+    "role": 61,
+    "boundary": 24
+   },
+   "resolved": {
+    "all": {
+     "n": 146,
+     "resolved": 34
+    },
+    "C_role": {
+     "n": 38,
+     "resolved": 20
+    },
+    "C_boundary": {
+     "n": 30,
+     "resolved": 9
+    },
+    "C_only": {
+     "n": 33,
+     "resolved": 26
+    },
+    "R_any": {
+     "n": 112,
+     "resolved": 8
+    }
+   }
+  },
+  "list + WordNet + generic single-oblique": {
+   "frames": 129,
+   "changes": {
+    "synonym": 103,
+    "role": 61,
+    "boundary": 24,
+    "generic": 19
+   },
+   "resolved": {
+    "all": {
+     "n": 146,
+     "resolved": 35
+    },
+    "C_role": {
+     "n": 38,
+     "resolved": 21
+    },
+    "C_boundary": {
+     "n": 30,
+     "resolved": 9
+    },
+    "C_only": {
+     "n": 33,
+     "resolved": 26
+    },
+    "R_any": {
+     "n": 112,
+     "resolved": 9
+    }
+   }
+  }
+ }
+}

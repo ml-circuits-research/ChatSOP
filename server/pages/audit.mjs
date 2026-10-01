@@ -7,7 +7,7 @@
  *             navigable (up/down, j/k), selection kept in the URL hash;
  *   right   — the selected case in full, in two separated groups: what the
  *             model sees (the user message only, which is the exact training
- *             prompt from server/llm.mjs `barePrompt`, and the target SOP it
+ *             prompt (the message alone), and the target SOP it
  *             must output) and the verification-only world, vocabulary, entity
  *             and predicate index, expected result and execution it never
  *             sees; then fields, machine-audit findings, verdicts and raw JSON.

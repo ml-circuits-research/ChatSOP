@@ -1,0 +1,17 @@
+{
+ "format": "chatsop-code-instructions-suite-v1",
+ "experiment": "programming-kb-p0",
+ "created": "2026-10-01",
+ "rows": 20,
+ "by_topic": {
+  "strings": 5,
+  "arrays": 5,
+  "objects": 4,
+  "math": 3,
+  "algorithms": 3
+ },
+ "language": "javascript",
+ "sha256": "6c6c6b47d64228bc0bc7930fee898c08c384f198eea5aef0bd37fff3dab7f22c",
+ "selection": "written by hand for the project (code-p0-agent, 2026-10-01); every instruction names its function; 2 or 3 visible examples and 3 hidden tests per task; a few instructions in Romanian; nothing taken from HumanEval, MBPP or another benchmark",
+ "sealed": "hidden tests and reference solutions are sealed: the proposer sees id, entry, instruction and the visible examples only (lib/programming/solve-instruction.mjs never reads this folder); the evaluation harness runs the hidden tests after the arm has committed its answer"
+}

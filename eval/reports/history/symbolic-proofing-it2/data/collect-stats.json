@@ -1,0 +1,38 @@
+{
+ "candidates": 18109,
+ "by_origin_kind": {
+  "proofing:repair:train": 1914,
+  "proofing:repair:dev": 304,
+  "backgen_identity:identity:train": 2872,
+  "backgen:repair:train": 4444,
+  "backgen_identity:identity:dev": 419,
+  "backgen:repair:dev": 551,
+  "symbolic:identity:train": 6694,
+  "symbolic:identity:dev": 911
+ },
+ "rejected": {
+  "proofing_name_lost": 61,
+  "proofing_statement_to_question": 66,
+  "proofing_content_added": 170,
+  "proofing_alignment_gap": 119,
+  "proofing_no_unit": 77,
+  "duplicate_pair": 611,
+  "proofing_filler_dropped": 355,
+  "proofing_pronoun_dropped": 69,
+  "proofing_name_added": 43,
+  "proofing_negation": 35,
+  "proofing_question_mark": 14,
+  "proofing_numbers": 42,
+  "identity_backgen_multi_sentence": 84,
+  "backgen_pronoun_dropped": 892,
+  "backgen_question_mark": 492,
+  "backgen_filler_dropped": 289,
+  "backgen_name_lost": 142,
+  "backgen_statement_to_question": 67,
+  "backgen_alignment_gap": 12,
+  "backgen_no_unit": 12,
+  "backgen_content_added": 23,
+  "backgen_name_added": 12,
+  "backgen_negation": 1
+ }
+}

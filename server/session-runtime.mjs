@@ -1,6 +1,7 @@
 /**
  * The chat agents of the sessions (DS031 "Sessions"). Each session has its own repository (the clone of its base memory), its own
- * `SessionStore` (the conversation context under `agent/`) and one Agent per user. A circuit accepted into the session after the
+ * `SessionStore` (the conversation context under `agent/`) and one Agent per user. Every session links against the lexicon of its own
+ * base memory (`Sessions.lexicon`), never a global one. A circuit accepted into the session after the
  * agent opened is made visible by `refresh`, which moves the agent's repository session onto the new base head.
  */
 import path from 'node:path';
@@ -12,8 +13,8 @@ import {assertFolderId} from '../lib/chat-data/index.mjs';
 const CONVERSATION = 'chat';
 
 export class SessionRuntimes {
-  constructor({sessions, memories, lexicon, config, defaultBase = 'default'}) {
-    Object.assign(this, {sessions, memories, lexicon, config, defaultBase});
+  constructor({sessions, memories, config, defaultBase = 'default'}) {
+    Object.assign(this, {sessions, memories, config, defaultBase});
     this.runtimes = new Map();
   }
 
@@ -32,21 +33,23 @@ export class SessionRuntimes {
     const info = this.sessions.visible(id, {user, admin});
     if (!this.runtimes.has(id)) {
       const repo = this.sessions.repository(id);
-      const store = new SessionStore({repo, lexicon: this.lexicon, config: this.config, root: path.join(this.sessions.dir(id), 'agent')});
+      // The lexicon is the session's own: the layered circuits of its base memory plus what the user accepted (DS031 "Lexicon of a memory").
+      const store = new SessionStore({repo, lexicon: this.sessions.lexicon(id), config: this.config, root: path.join(this.sessions.dir(id), 'agent')});
       this.runtimes.set(id, {id, repo, store, users: new Set()});
     }
     const rt = this.runtimes.get(id);
     return {
-      id, info, repo: rt.repo,
+      id, info, repo: rt.repo, lexicon: rt.store.lexicon,
       entry: owner => { rt.users.add(owner); return rt.store.get(owner, CONVERSATION, BASE_NAME); },
       save: (entry, owner) => rt.store.save(entry, owner, CONVERSATION, BASE_NAME),
     };
   }
 
-  /** Makes circuits accepted into the session visible to its open agents. */
+  /** Makes circuits accepted into the session visible to its open agents: their repository session and their lexicon. */
   refresh(id) {
     const rt = this.runtimes.get(id);
     if (!rt) return;
+    rt.store.setLexicon(this.sessions.lexicon(id));
     for (const user of rt.users) rt.repo.rebase(rt.store.get(user, CONVERSATION, BASE_NAME).agent.session);
   }
 

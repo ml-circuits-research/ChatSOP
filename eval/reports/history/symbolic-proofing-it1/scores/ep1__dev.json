@@ -1,0 +1,6725 @@
+{
+ "name": "ep1",
+ "split": "dev",
+ "generated_at": "2026-09-30T21:43:27.294Z",
+ "lm_id": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_electra-large,lemma=combined_nocharlm,depparse=combined_electra-large|4b33d72253ac",
+ "summary": {
+  "rows": 102,
+  "repair_rows": 56,
+  "identity_rows": 46,
+  "primary_repair": {
+   "input_analysis_correct": {
+    "k": 11,
+    "n": 56,
+    "p": 19.6,
+    "lo": 11.3,
+    "hi": 31.8
+   },
+   "target_analysis_correct": {
+    "k": 26,
+    "n": 56,
+    "p": 46.4,
+    "lo": 34,
+    "hi": 59.3
+   },
+   "output_analysis_correct": {
+    "k": 26,
+    "n": 56,
+    "p": 46.4,
+    "lo": 34,
+    "hi": 59.3
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 42,
+    "n": 56,
+    "p": 75,
+    "lo": 62.3,
+    "hi": 84.5
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 19,
+    "n": 56,
+    "p": 33.9,
+    "lo": 22.9,
+    "hi": 47
+   },
+   "fixed_of_failing_inputs": {
+    "k": 12,
+    "n": 45,
+    "p": 26.7,
+    "lo": 16,
+    "hi": 41
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 11,
+    "p": 0,
+    "lo": 0,
+    "hi": 25.9
+   },
+   "output_one_clause_sentences": {
+    "k": 202,
+    "n": 268,
+    "p": 75.4,
+    "lo": 69.9,
+    "hi": 80.1
+   },
+   "output_explicit_subject_sentences": {
+    "k": 247,
+    "n": 268,
+    "p": 92.2,
+    "lo": 88.3,
+    "hi": 94.8
+   },
+   "target_one_clause_sentences": {
+    "k": 218,
+    "n": 272,
+    "p": 80.1,
+    "lo": 75,
+    "hi": 84.5
+   },
+   "sentence_count_equals_target": {
+    "k": 38,
+    "n": 56,
+    "p": 67.9,
+    "lo": 54.8,
+    "hi": 78.6
+   }
+  },
+  "primary_identity": {
+   "analysis_changed": {
+    "k": 8,
+    "n": 46,
+    "p": 17.4,
+    "lo": 9.1,
+    "hi": 30.7
+   },
+   "working_inputs": 15,
+   "working_analysis_changed": {
+    "k": 2,
+    "n": 15,
+    "p": 13.3,
+    "lo": 3.7,
+    "hi": 37.9
+   },
+   "working_no_longer_analysis_correct": {
+    "k": 1,
+    "n": 15,
+    "p": 6.7,
+    "lo": 1.2,
+    "hi": 29.8
+   },
+   "text_changed": {
+    "k": 11,
+    "n": 46,
+    "p": 23.9,
+    "lo": 13.9,
+    "hi": 37.9
+   },
+   "meaning_broken_mechanical": {
+    "k": 2,
+    "n": 46,
+    "p": 4.3,
+    "lo": 1.2,
+    "hi": 14.5
+   }
+  },
+  "repair_by_source_failure_kind": {
+   "parser_or_unknown (SOP-proxy split)": {
+    "rows": 25,
+    "input_analysis_correct": {
+     "k": 1,
+     "n": 25,
+     "p": 4,
+     "lo": 0.7,
+     "hi": 19.5
+    },
+    "output_analysis_correct": {
+     "k": 10,
+     "n": 25,
+     "p": 40,
+     "lo": 23.4,
+     "hi": 59.3
+    },
+    "output_analysis_correct_and_meaning_ok": {
+     "k": 9,
+     "n": 25,
+     "p": 36,
+     "lo": 20.2,
+     "hi": 55.5
+    },
+    "fixed_of_failing_inputs": {
+     "k": 9,
+     "n": 24,
+     "p": 37.5,
+     "lo": 21.2,
+     "hi": 57.3
+    },
+    "worse_than_input": {
+     "k": 0,
+     "n": 1,
+     "p": 0,
+     "lo": 0,
+     "hi": 79.3
+    },
+    "sop_accepted": {
+     "k": 7,
+     "n": 25,
+     "p": 28,
+     "lo": 14.3,
+     "hi": 47.6
+    }
+   },
+   "rules_or_convention (SOP-proxy split)": {
+    "rows": 31,
+    "input_analysis_correct": {
+     "k": 10,
+     "n": 31,
+     "p": 32.3,
+     "lo": 18.6,
+     "hi": 49.9
+    },
+    "output_analysis_correct": {
+     "k": 16,
+     "n": 31,
+     "p": 51.6,
+     "lo": 34.8,
+     "hi": 68
+    },
+    "output_analysis_correct_and_meaning_ok": {
+     "k": 10,
+     "n": 31,
+     "p": 32.3,
+     "lo": 18.6,
+     "hi": 49.9
+    },
+    "fixed_of_failing_inputs": {
+     "k": 3,
+     "n": 21,
+     "p": 14.3,
+     "lo": 5,
+     "hi": 34.6
+    },
+    "worse_than_input": {
+     "k": 0,
+     "n": 10,
+     "p": 0,
+     "lo": 0,
+     "hi": 27.8
+    },
+    "sop_accepted": {
+     "k": 14,
+     "n": 31,
+     "p": 45.2,
+     "lo": 29.2,
+     "hi": 62.2
+    }
+   }
+  },
+  "repair_accepted_sop": {
+   "k": 21,
+   "n": 56,
+   "p": 37.5,
+   "lo": 26,
+   "hi": 50.6
+  },
+  "repair_strict_gold": {
+   "k": 21,
+   "n": 56,
+   "p": 37.5,
+   "lo": 26,
+   "hi": 50.6
+  },
+  "repair_normalized_gold": {
+   "k": 21,
+   "n": 56,
+   "p": 37.5,
+   "lo": 26,
+   "hi": 50.6
+  },
+  "repair_exact_text": {
+   "k": 9,
+   "n": 56,
+   "p": 16.1,
+   "lo": 8.7,
+   "hi": 27.8
+  },
+  "repair_left_unchanged": {
+   "k": 9,
+   "n": 56,
+   "p": 16.1,
+   "lo": 8.7,
+   "hi": 27.8
+  },
+  "repair_parsed_clean": {
+   "k": 38,
+   "n": 56,
+   "p": 67.9,
+   "lo": 54.8,
+   "hi": 78.6
+  },
+  "repair_meaning_ok": {
+   "k": 42,
+   "n": 56,
+   "p": 75,
+   "lo": 62.3,
+   "hi": 84.5
+  },
+  "identity_break": {
+   "k": 6,
+   "n": 46,
+   "p": 13,
+   "lo": 6.1,
+   "hi": 25.7
+  },
+  "identity_break_normalized": {
+   "k": 6,
+   "n": 46,
+   "p": 13,
+   "lo": 6.1,
+   "hi": 25.7
+  },
+  "identity_text_changed": {
+   "k": 11,
+   "n": 46,
+   "p": 23.9,
+   "lo": 13.9,
+   "hi": 37.9
+  },
+  "identity_meaning_broken": {
+   "k": 2,
+   "n": 46,
+   "p": 4.3,
+   "lo": 1.2,
+   "hi": 14.5
+  },
+  "identity_parsed_clean": {
+   "k": 35,
+   "n": 46,
+   "p": 76.1,
+   "lo": 62.1,
+   "hi": 86.1
+  },
+  "empty_or_truncated": {
+   "k": 1,
+   "n": 102,
+   "p": 1,
+   "lo": 0.2,
+   "hi": 5.3
+  },
+  "parsed_clean_all": {
+   "k": 73,
+   "n": 102,
+   "p": 71.6,
+   "lo": 62.2,
+   "hi": 79.4
+  },
+  "meaning_ok_all": {
+   "k": 86,
+   "n": 102,
+   "p": 84.3,
+   "lo": 76,
+   "hi": 90.1
+  }
+ },
+ "records": [
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 3,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 3,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 9,
+     "clauses": 5
+    },
+    "shape_target": {
+     "sentences": 4,
+     "one_clause": 2,
+     "subject": 3,
+     "max_words": 13,
+     "clauses": 7
+    }
+   },
+   "id": "composed::composed-dev-decomposition-n02m1-0001",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 130,
+   "output_chars": 128,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "the mint arrived early but the parsley came late and Yusuf still needs both for the display Tell me which book is written by Yuki.",
+   "target": "The mint was early to arrive, but the parsley was late to come. Yusuf still needs both. Both are for the display. Tell me which book is written by Yuki.",
+   "output": "The mint arrived early but the parsley came late. Yusuf still needs both for the display. Tell me which book is written by Yuki."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 2,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 0,
+     "subject": 2,
+     "max_words": 16,
+     "clauses": 5
+    },
+    "shape_target": {
+     "sentences": 3,
+     "one_clause": 2,
+     "subject": 3,
+     "max_words": 16,
+     "clauses": 5
+    }
+   },
+   "id": "composed::composed-dev-decomposition-n02m1-0002",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 170,
+   "output_chars": 171,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "most of the gift boxes are intact but not every lid closes properly Hypothetically, if Costin Oprea raises Cristina, can you check whether Chioma is a parent of Cristina?",
+   "target": "Most of the gift boxes are intact. Not every lid has a proper closure. Hypothetically, if Costin Oprea raises Cristina, can you check whether Chioma is a parent of Cristina?",
+   "output": "most of the gift boxes are intact but not every lid closes properly. Hypothetically, if Costin Oprea raises Cristina, can you check whether Chioma is a parent of Cristina?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 3,
+    "in_sentences": 2,
+    "out_failed": [],
+    "good": false,
+    "shape_out": {
+     "sentences": 3,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 13,
+     "clauses": 5
+    },
+    "shape_target": {
+     "sentences": 3,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 13,
+     "clauses": 4
+    }
+   },
+   "id": "composed::composed-dev-decomposition-n02m1-0003",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 176,
+   "output_chars": 207,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": false,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": false,
+    "lost_names": []
+   },
+   "input": "With what was known as of 27 August 2025, tell me whether Youssef Saleh lived in Chișinău as of April 25, 2024. most grandparents want tea but none have asked for coffee so far",
+   "target": "With what was known as of 27 August 2025, tell me whether Youssef Saleh lived in Chișinău as of April 25, 2024. Most grandparents want tea. None have asked for coffee yet.",
+   "output": "With what was known as of 27 August 2025, tell me whether Youssef Saleh lived in Chișinău as of April 25, 2024. Most grandparents want tea but none have asked for coffee. So far, no one has asked for coffee."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 3,
+    "in_sentences": 2,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 2,
+      "tree": "identical",
+      "a": "DEEP",
+      "c": "DEEP"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 3,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 13,
+     "clauses": 5
+    },
+    "shape_target": {
+     "sentences": 4,
+     "one_clause": 3,
+     "subject": 3,
+     "max_words": 13,
+     "clauses": 5
+    }
+   },
+   "id": "composed::composed-dev-decomposition-n03m1-0001",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 187,
+   "output_chars": 188,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "most of the gift boxes are intact but not every lid closes properly Can you confirm that Letters to a Young Engineer was written by Tamás? Quick question: is Sânziana a parent of Cătălin?",
+   "target": "Most of the gift boxes are intact. Not every lid has a proper closure. Can you confirm that Letters to a Young Engineer was written by Tamás? Quick question: is Sânziana a parent of Cătălin?",
+   "output": "most of the gift boxes are intact but not every lid closes properly. Can you confirm that Letters to a Young Engineer was written by Tamás? Quick question: is Sânziana a parent of Cătălin?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 3,
+    "in_sentences": 2,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 3,
+     "one_clause": 0,
+     "subject": 2,
+     "max_words": 13,
+     "clauses": 7
+    },
+    "shape_target": {
+     "sentences": 4,
+     "one_clause": 2,
+     "subject": 3,
+     "max_words": 13,
+     "clauses": 7
+    }
+   },
+   "id": "composed::composed-dev-decomposition-n03m1-0002",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 167,
+   "output_chars": 161,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Is there somebody at Delta Print who works there and lives in Zalău? most grandparents want tea but none have asked for coffee so far Tell me who is married to Hassan.",
+   "target": "Is there somebody at Delta Print who works there and lives in Zalău? Most grandparents want tea. None have asked for coffee yet. Tell me who is married to Hassan.",
+   "output": "Is there somebody at Delta Print who works there and lives in Zalău? Most grandparents want tea but none have asked for coffee. Tell me who is married to Hassan."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 4,
+    "in_sentences": 3,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 4,
+     "one_clause": 3,
+     "subject": 4,
+     "max_words": 9,
+     "clauses": 5
+    },
+    "shape_target": {
+     "sentences": 5,
+     "one_clause": 4,
+     "subject": 5,
+     "max_words": 13,
+     "clauses": 7
+    }
+   },
+   "id": "composed::composed-dev-decomposition-n03m1-0003",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 152,
+   "output_chars": 150,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "The choir meets on Thursday. Where is Kenji staying tonight? the mint arrived early but the parsley came late and Yusuf still needs both for the display",
+   "target": "The choir meets on Thursday. Where is Kenji staying tonight? The mint was early to arrive, but the parsley was late to come. Yusuf still needs both. Both are for the display.",
+   "output": "The choir meets on Thursday. Where is Kenji staying tonight? The mint arrived early but the parsley came late. Yusuf still needs both for the display."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 6,
+    "in_sentences": 2,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 5,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 6,
+     "one_clause": 5,
+     "subject": 6,
+     "max_words": 13,
+     "clauses": 7
+    },
+    "shape_target": {
+     "sentences": 7,
+     "one_clause": 6,
+     "subject": 7,
+     "max_words": 13,
+     "clauses": 9
+    }
+   },
+   "id": "composed::composed-dev-decomposition-n04m2-0001",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 257,
+   "output_chars": 240,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "most of the gift boxes are intact but not every lid closes properly the mint arrived early but the parsley came late and Yusuf still needs both for the display Who grows peppers, if you know? Is the Banca Transilvania branch in Iulius Town open on Saturday?",
+   "target": "Most of the gift boxes are intact. Not every lid has a proper closure. The mint was early to arrive, but the parsley was late to come. Yusuf still needs both. Both are for the display. Who grows peppers, if you know? Is the Banca Transilvania branch in Iulius Town open on Saturday?",
+   "output": "most of the gift boxes are intact but not every lid closes properly. The mint arrived early. The parsley came late. Yusuf still needs both for the display. Who grows peppers? Is the Banca Transilvania branch in Iulius Town open on Saturday?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 5,
+    "in_sentences": 2,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "identical",
+      "a": "MINOR",
+      "c": "DEEP"
+     },
+     {
+      "sentence": 4,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 5,
+     "one_clause": 2,
+     "subject": 3,
+     "max_words": 11,
+     "clauses": 8
+    },
+    "shape_target": {
+     "sentences": 7,
+     "one_clause": 5,
+     "subject": 5,
+     "max_words": 13,
+     "clauses": 10
+    }
+   },
+   "id": "composed::composed-dev-decomposition-n04m2-0002",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 230,
+   "output_chars": 230,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Tell me until when Agnieszka was married to Mr Navarro. most grandparents want tea but none have asked for coffee so far the mint arrived early but the parsley came late and Yusuf still needs both for the display What about Ioana?",
+   "target": "Tell me until when Agnieszka was married to Mr Navarro. Most grandparents want tea. None have asked for coffee yet. The mint was early to arrive, but the parsley was late to come. Yusuf still needs both. Both are for the display. What about Ioana?",
+   "output": "Tell me until when Agnieszka was married to Mr Navarro. Most grandparents want tea but none have asked for coffee. So far, the mint arrived early but the parsley came late. Yusuf still needs both for the display. What about Ioana?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 5,
+    "in_sentences": 3,
+    "out_failed": [
+     {
+      "sentence": 1,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 5,
+     "one_clause": 2,
+     "subject": 5,
+     "max_words": 13,
+     "clauses": 8
+    },
+    "shape_target": {
+     "sentences": 6,
+     "one_clause": 5,
+     "subject": 6,
+     "max_words": 8,
+     "clauses": 7
+    }
+   },
+   "id": "composed::composed-dev-decomposition-n04m2-0003",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 214,
+   "output_chars": 246,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": false,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": false,
+    "lost_names": []
+   },
+   "input": "I need to know where Levente is based. most of the gift boxes are intact but not every lid closes properly Remind me, which town does Dariush fly to? most grandparents want tea but none have asked for coffee so far",
+   "target": "I need to know where Levente is based. Most of the gift boxes are intact. Not every lid has a proper closure. Remind me, which town does Dariush fly to? Most grandparents want tea. None have asked for coffee yet.",
+   "output": "I need to know where Levente is based. Most of the gift boxes are intact but not every lid closes properly. Remind me, which town does Dariush fly to? Most grandparents want tea but none have asked for coffee. So far, no one has asked for coffee."
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 2,
+    "in_sentences": 2,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 8,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 8,
+     "clauses": 3
+    }
+   },
+   "id": "composed::composed-dev-identity-n02-0001",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 67,
+   "output_chars": 67,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Can you tell me where Sânziana is based? Is Nela bringing the cake?",
+   "target": "Can you tell me where Sânziana is based? Is Nela bringing the cake?",
+   "output": "Can you tell me where Sânziana is based? Is Nela bringing the cake?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 2,
+    "in_sentences": 2,
+    "out_failed": [],
+    "good": false,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 8,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 7,
+     "clauses": 2
+    }
+   },
+   "id": "composed::composed-dev-identity-n02-0002",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 73,
+   "output_chars": 76,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": false,
+    "numbers": true,
+    "ok": false,
+    "lost_names": [
+     "priya"
+    ]
+   },
+   "input": "When does art club finish? Who does Priya work for, Atelier Oprea, right?",
+   "target": "When does art club finish? Who does Priya work for, Atelier Oprea, right?",
+   "output": "When does art club finish? Who works for the art club, Atelier Oprea, right?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 2,
+    "in_sentences": 2,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 7,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 7,
+     "clauses": 2
+    }
+   },
+   "id": "composed::composed-dev-identity-n02-0003",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 72,
+   "output_chars": 72,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Ayşe is not based in Lyon? Is Kenji still playing for Sighișoara United?",
+   "target": "Ayşe is not based in Lyon? Is Kenji still playing for Sighișoara United?",
+   "output": "Ayşe is not based in Lyon? Is Kenji still playing for Sighișoara United?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 4,
+    "in_sentences": 4,
+    "out_failed": [
+     {
+      "sentence": 2,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 3,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 4,
+     "one_clause": 3,
+     "subject": 3,
+     "max_words": 13,
+     "clauses": 5
+    },
+    "shape_target": {
+     "sentences": 4,
+     "one_clause": 3,
+     "subject": 3,
+     "max_words": 13,
+     "clauses": 5
+    }
+   },
+   "id": "composed::composed-dev-identity-n04-0001",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 235,
+   "output_chars": 235,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Quick question: was Thảo the boss of Mr Reddy on 1 September 2020? Did Cem Şen read access notes for Quiet Bridges? Tell me whether Rémi was on Rapid Arad at some point in 2021. Are all the students at Ploiești Music Academy certified?",
+   "target": "Quick question: was Thảo the boss of Mr Reddy on 1 September 2020? Did Cem Şen read access notes for Quiet Bridges? Tell me whether Rémi was on Rapid Arad at some point in 2021. Are all the students at Ploiești Music Academy certified?",
+   "output": "Quick question: was Thảo the boss of Mr Reddy on 1 September 2020? Did Cem Şen read access notes for Quiet Bridges? Tell me whether Rémi was on Rapid Arad at some point in 2021. Are all the students at Ploiești Music Academy certified?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 4,
+    "in_sentences": 4,
+    "out_failed": [
+     {
+      "sentence": 1,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 3,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 4,
+     "one_clause": 3,
+     "subject": 4,
+     "max_words": 12,
+     "clauses": 5
+    },
+    "shape_target": {
+     "sentences": 4,
+     "one_clause": 3,
+     "subject": 4,
+     "max_words": 12,
+     "clauses": 5
+    }
+   },
+   "id": "composed::composed-dev-identity-n04-0003",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 202,
+   "output_chars": 202,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "For how long was Linh enrolled at Sibiu Music Academy? I need to know if Mykola went to the junior chess tournament. Where did Katalin put the receipt? How many years did Zofia work at Bergen Logistics?",
+   "target": "For how long was Linh enrolled at Sibiu Music Academy? I need to know if Mykola went to the junior chess tournament. Where did Katalin put the receipt? How many years did Zofia work at Bergen Logistics?",
+   "output": "For how long was Linh enrolled at Sibiu Music Academy? I need to know if Mykola went to the junior chess tournament. Where did Katalin put the receipt? How many years did Zofia work at Bergen Logistics?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 5,
+    "in_sentences": 4,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 5,
+     "one_clause": 3,
+     "subject": 5,
+     "max_words": 14,
+     "clauses": 7
+    },
+    "shape_target": {
+     "sentences": 4,
+     "one_clause": 1,
+     "subject": 4,
+     "max_words": 14,
+     "clauses": 7
+    }
+   },
+   "id": "composed::composed-dev-identity-n04-0004",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 261,
+   "output_chars": 261,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Besides Mr Mureșan, I need to know who intends to attend the photography workshop. Emre Şahin has borrowed The Quiet Harbour; Parisa Farahani borrowed The Glass Orchard. I was wondering whether Diana studies at the Botoșani Language School. How does Otieno pay?",
+   "target": "Besides Mr Mureșan, I need to know who intends to attend the photography workshop. Emre Şahin has borrowed The Quiet Harbour; Parisa Farahani borrowed The Glass Orchard. I was wondering whether Diana studies at the Botoșani Language School. How does Otieno pay?",
+   "output": "Besides Mr Mureșan, I need to know who intends to attend the photography workshop. Emre Şahin has borrowed The Quiet Harbour. Parisa Farahani borrowed The Glass Orchard. I was wondering whether Diana studies at the Botoșani Language School. How does Otieno pay?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 8,
+    "in_sentences": 6,
+    "out_failed": [
+     {
+      "sentence": 2,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 3,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 4,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 8,
+     "one_clause": 4,
+     "subject": 7,
+     "max_words": 14,
+     "clauses": 12
+    },
+    "shape_target": {
+     "sentences": 6,
+     "one_clause": 3,
+     "subject": 5,
+     "max_words": 14,
+     "clauses": 9
+    }
+   },
+   "id": "composed::composed-dev-identity-n06-0001",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 270,
+   "output_chars": 370,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": false,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": false,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": false,
+    "ok": false,
+    "lost_names": []
+   },
+   "input": "Remind me when Andrei lived in Zalău. How many people who work at Weber & Partners are over 45 years old? Up to what date was Carmen the owner of the recording studio? Is the induction loop switched on? Do you know how Wanjiru Mwangi pays? Can Lian reserve a microscope?",
+   "target": "Remind me when Andrei lived in Zalău. How many people who work at Weber & Partners are over 45 years old? Up to what date was Carmen the owner of the recording studio? Is the induction loop switched on? Do you know how Wanjiru Mwangi pays? Can Lian reserve a microscope?",
+   "output": "Remind me when Andrei lived in Zalău. How many people work at Weber & Partners? Are there over 45 years old who work at Weber & Partners? How many people who work at Weber & Partners are over 45 years old? Up to what date was Carmen the owner of the recording studio? Is the induction loop switched on? Do you know how Wanjiru Mwangi pays? Can Lian reserve a microscope?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 6,
+    "in_sentences": 6,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 3,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 4,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 6,
+     "one_clause": 3,
+     "subject": 6,
+     "max_words": 12,
+     "clauses": 9
+    },
+    "shape_target": {
+     "sentences": 6,
+     "one_clause": 3,
+     "subject": 6,
+     "max_words": 12,
+     "clauses": 9
+    }
+   },
+   "id": "composed::composed-dev-identity-n06-0002",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 302,
+   "output_chars": 286,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Could you check where Sânziana is based? Which doctors treat someone who is allergic to pollen? The choir meets on Thursday. Who maintained the booking app at some point in 2020? Can you confirm that Bogdan Neagu studies at Baia Mare Technical College? How many choirs does Sophie sing in, if you know?",
+   "target": "Could you check where Sânziana is based? Which doctors treat someone who is allergic to pollen? The choir meets on Thursday. Who maintained the booking app at some point in 2020? Can you confirm that Bogdan Neagu studies at Baia Mare Technical College? How many choirs does Sophie sing in, if you know?",
+   "output": "Could you check where Sânziana is based? Which doctors treat someone who is allergic to pollen? The choir meets on Thursday. Who maintained the booking app at some point in 2020? Can you confirm that Bogdan Neagu studies at Baia Mare Technical College? How many choirs does Sophie sing?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 7,
+    "in_sentences": 6,
+    "out_failed": [
+     {
+      "sentence": 3,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 7,
+     "one_clause": 4,
+     "subject": 7,
+     "max_words": 12,
+     "clauses": 10
+    },
+    "shape_target": {
+     "sentences": 6,
+     "one_clause": 2,
+     "subject": 6,
+     "max_words": 14,
+     "clauses": 10
+    }
+   },
+   "id": "composed::composed-dev-identity-n06-0003",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 355,
+   "output_chars": 306,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Andrei Lazăr gives classes in history, and Toma doesn't give classes in drawing. What were the dates when Octavian was the coach of CS Oradea? Is none of the players of CS Cluj-Napoca certified? Is it true that Thomas doesn't reside in Cluj-Napoca? I need to know if Mr Vlădescu does not manage Hugo Martin. I'd like to know which system Viorel maintains.",
+   "target": "Andrei Lazăr gives classes in history, and Toma doesn't give classes in drawing. What were the dates when Octavian was the coach of CS Oradea? Is none of the players of CS Cluj-Napoca certified? Is it true that Thomas doesn't reside in Cluj-Napoca? I need to know if Mr Vlădescu does not manage Hugo Martin. I'd like to know which system Viorel maintains.",
+   "output": "Andrei Lazăr teaches history. Toma doesn't teach drawing. Octavian was the coach of CS Oradea. Is none of the players of CS Cluj-Napoca certified? Is it true that Thomas doesn't reside in Cluj-Napoca? I need to know if Mr Vlădescu doesn't manage Hugo Martin. I'd like to know which system Viorel maintains."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 3,
+    "in_sentences": 3,
+    "out_failed": [
+     {
+      "sentence": 2,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 3,
+     "one_clause": 1,
+     "subject": 3,
+     "max_words": 12,
+     "clauses": 5
+    },
+    "shape_target": {
+     "sentences": 3,
+     "one_clause": 1,
+     "subject": 3,
+     "max_words": 12,
+     "clauses": 5
+    }
+   },
+   "id": "composed::composed-dev-mixed-n03m1-0001",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 137,
+   "output_chars": 137,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Other than Ms Sârbu, I'd like to know who raises Kamau. Why exactly did Gheorghe Rusu resign? Do you know how many times Vasile resigned?",
+   "target": "Apart from Ms Sârbu, I would like to know who raises Kamau. Why exactly did Gheorghe Rusu resign? Do you know how many times Vasile resigned?",
+   "output": "Apart from Ms Sârbu, I'd like to know who raises Kamau. Why exactly did Gheorghe Rusu resign? Do you know how many times Vasile resigned?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 3,
+    "in_sentences": 3,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 2,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 3,
+     "one_clause": 2,
+     "subject": 3,
+     "max_words": 16,
+     "clauses": 4
+    },
+    "shape_target": {
+     "sentences": 3,
+     "one_clause": 2,
+     "subject": 3,
+     "max_words": 16,
+     "clauses": 4
+    }
+   },
+   "id": "composed::composed-dev-mixed-n03m1-0002",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 189,
+   "output_chars": 189,
+   "unchanged": true,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Apart from Roxana, I'd like to know who takes part in the spring book fair. Aurel Stan doesn't go to the jazz evening. Roughly when was Diego the chef at the Botanical Garden in Alexandria?",
+   "target": "Apart from Roxana, I'd like to know who takes part in the spring book fair. Aurel Stan does not attend the jazz evening. Roughly when was Diego the chef at the Botanical Garden in Alexandria?",
+   "output": "Apart from Roxana, I'd like to know who takes part in the spring book fair. Aurel Stan doesn't go to the jazz evening. Roughly when was Diego the chef at the Botanical Garden in Alexandria?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 3,
+    "in_sentences": 3,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 1,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 2,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 3,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 14,
+     "clauses": 5
+    },
+    "shape_target": {
+     "sentences": 3,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 14,
+     "clauses": 4
+    }
+   },
+   "id": "composed::composed-dev-mixed-n03m1-0003",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 186,
+   "output_chars": 186,
+   "unchanged": true,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Tell me whether Oluwaseun was responsible for the booking app as of 2022-08-01. Is the Banca Transilvania branch in Iulius Town open on Saturday? What is the reason that Oksana resigned?",
+   "target": "Tell me whether Oluwaseun was responsible for the booking app as of 2022-08-01. Is the Banca Transilvania branch in Iulius Town open on Saturday? Why did Oksana resign?",
+   "output": "Tell me whether Oluwaseun was responsible for the booking app as of 2022-08-01. Is the Banca Transilvania branch in Iulius Town open on Saturday? What is the reason that Oksana resigned?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 5,
+    "in_sentences": 3,
+    "out_failed": [
+     {
+      "sentence": 3,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 4,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 5,
+     "one_clause": 4,
+     "subject": 5,
+     "max_words": 10,
+     "clauses": 6
+    },
+    "shape_target": {
+     "sentences": 4,
+     "one_clause": 3,
+     "subject": 4,
+     "max_words": 22,
+     "clauses": 6
+    }
+   },
+   "id": "composed::composed-dev-mixed-n04m2-0001",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 230,
+   "output_chars": 208,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "What is the reason that Katalin is absent from work? the 20-minute break is now 15 minutes long and my daughter says the lunch bell still rings at 12:40 Who did Achieng send 40 lei to? Until when was Dariush on the Bergen Falcons?",
+   "target": "Why is Katalin absent from work? The 20-minute break is now a break of 15 minutes, and my daughter says the lunch bell still rings at 12:40. Who did Achieng send 40 lei to? Until when was Dariush on the Bergen Falcons?",
+   "output": "Why is Katalin absent from work? The 20-minute break is now 15 minutes long. My daughter says the lunch bell still rings at 12:40. Who did Achieng send 40 lei to? Until when was Dariush on the Bergen Falcons?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 4,
+    "in_sentences": 3,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "identical",
+      "a": "DEEP",
+      "c": "DEEP"
+     },
+     {
+      "sentence": 1,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 2,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 3,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 4,
+     "one_clause": 2,
+     "subject": 4,
+     "max_words": 13,
+     "clauses": 6
+    },
+    "shape_target": {
+     "sentences": 5,
+     "one_clause": 5,
+     "subject": 5,
+     "max_words": 8,
+     "clauses": 5
+    }
+   },
+   "id": "composed::composed-dev-mixed-n04m2-0002",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 190,
+   "output_chars": 207,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "A power of attorney meaning? most of the gift boxes are intact but not every lid closes properly Are all the players of Rapid Nairobi certified? Does Aurel study at Saint Andrew High School?",
+   "target": "What does a power of attorney mean? Most of the gift boxes are intact. Not every lid has a proper closure. Are all the players of Rapid Nairobi certified? Does Aurel study at Saint Andrew High School?",
+   "output": "A power of attorney means what does it mean? Most of the gift boxes are intact but not every lid closes properly. Are all the players of Rapid Nairobi certified? Does Aurel study at Saint Andrew High School?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 5,
+    "in_sentences": 5,
+    "out_failed": [
+     {
+      "sentence": 1,
+      "tree": "identical",
+      "a": "DEEP",
+      "c": "DEEP"
+     },
+     {
+      "sentence": 3,
+      "tree": "identical",
+      "a": "DEEP",
+      "c": "CORRECT"
+     },
+     {
+      "sentence": 4,
+      "tree": "identical",
+      "a": "CORRECT",
+      "c": "DEEP"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 5,
+     "one_clause": 3,
+     "subject": 5,
+     "max_words": 14,
+     "clauses": 7
+    },
+    "shape_target": {
+     "sentences": 6,
+     "one_clause": 5,
+     "subject": 6,
+     "max_words": 9,
+     "clauses": 7
+    }
+   },
+   "id": "composed::composed-dev-mixed-n04m2-0003",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 316,
+   "output_chars": 298,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "What were the dates when Shirin was the coach of Olimpia Baia Mare? Hiroshi is absent from work. — would that be because he took part in the regional chess tournament? Liam Taylor is absent from work. Would that be because he took part in the photography workshop? Could you check which book Tisa Textiles publishes?",
+   "target": "What were the dates when Shirin was the coach of Olimpia Baia Mare? Hiroshi is absent from work. Did he take part in the regional chess tournament? Liam Taylor is absent from work. Did he take part in the photography workshop? Could you check which book Tisa Textiles publishes?",
+   "output": "When Shirin was the coach of Olimpia Baia Mare, Hiroshi was absent from work. — would that be because he took part in the regional chess tournament? Liam Taylor was absent from work. Would that be because he took part in the photography workshop? Could you check which book Tisa Textiles publishes?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 9,
+    "in_sentences": 7,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 1,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 3,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 4,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 9,
+     "one_clause": 6,
+     "subject": 9,
+     "max_words": 14,
+     "clauses": 12
+    },
+    "shape_target": {
+     "sentences": 7,
+     "one_clause": 4,
+     "subject": 7,
+     "max_words": 22,
+     "clauses": 11
+    }
+   },
+   "id": "composed::composed-dev-mixed-n06m3-0001",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 405,
+   "output_chars": 427,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": false,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": false,
+    "lost_names": []
+   },
+   "input": "How many towns is Laura Hughes based in? I need to know if Doina Dobre is enrolled at Saint Andrew High School. there aren't fewer than five bridesmaids coming with Leila are there The fitting room is closed. Liam Taylor is absent from work. Would that be because he took part in the photography workshop? the 20-minute break is now 15 minutes long and my daughter says the lunch bell still rings at 12:40",
+   "target": "How many towns is Laura Hughes based in? I need to know if Doina Dobre is enrolled at Saint Andrew High School. Aren't there fewer than five bridesmaids coming with Leila? The fitting room is closed. Liam Taylor is absent from work. Did he take part in the photography workshop? The 20-minute break is now a break of 15 minutes, and my daughter says the lunch bell still rings at 12:40.",
+   "output": "How many towns is Laura Hughes based in? I need to know if Doina Dobre is enrolled at Saint Andrew High School. There aren't fewer than five bridesmaids coming with Leila. Are there fewer than five bridesmaids with Leila? The fitting room is closed. Liam Taylor is absent from work. Does he take part in the photography workshop? The 20-minute break is now 15 minutes long. My daughter says the lunch bell still rings at 12:40."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 6,
+    "in_sentences": 5,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 2,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 3,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 6,
+     "one_clause": 2,
+     "subject": 3,
+     "max_words": 13,
+     "clauses": 10
+    },
+    "shape_target": {
+     "sentences": 7,
+     "one_clause": 4,
+     "subject": 4,
+     "max_words": 14,
+     "clauses": 10
+    }
+   },
+   "id": "composed::composed-dev-mixed-n06m3-0002",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 300,
+   "output_chars": 301,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "most of the gift boxes are intact but not every lid closes properly Can Priya arrange the bouquets? Costin is a parent of Bogdan Ungureanu. — he goes to the photography workshop? What about Ioana? Verify the claim that Smaranda is responsible for the billing service. Tell me where Octavian is based.",
+   "target": "Most of the gift boxes are intact. Not every lid has a proper closure. Can Priya arrange the bouquets? Costin is a parent of Bogdan Ungureanu. — does he go to the photography workshop? What about Ioana? Verify that Smaranda is responsible for the billing service. Tell me where Octavian is based.",
+   "output": "most of the gift boxes are intact but not every lid closes properly. Can Priya arrange the bouquets? Costin is a parent of Bogdan Ungureanu. — he goes to the photography workshop? What about Ioana? Verify the claim that Smaranda is responsible for the billing service. Tell me where Octavian is based."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 6,
+    "in_sentences": 6,
+    "out_failed": [
+     {
+      "sentence": 2,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 4,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 5,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 6,
+     "one_clause": 1,
+     "subject": 6,
+     "max_words": 27,
+     "clauses": 12
+    },
+    "shape_target": {
+     "sentences": 6,
+     "one_clause": 2,
+     "subject": 6,
+     "max_words": 27,
+     "clauses": 11
+    }
+   },
+   "id": "composed::composed-dev-mixed-n06m3-0003",
+   "kind": "repair",
+   "failure_kind": "unknown",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 477,
+   "output_chars": 477,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Other than Ms Sârbu, I'd like to know who raises Kamau. Apart from Rahul, I need to know who is enrolled at Tóth Primary School. Whom is the toast from, according to the printed program? The accessible toilet has a shelf beside the sink, a grab rail near the door, and enough space for my chair to turn without hitting the bin. What is the reason that Katalin is absent from work? Constanța Logistics published The Quiet Harbour, and Blue Harbor Media published The Last Ferry.",
+   "target": "Apart from Ms Sârbu, I would like to know who raises Kamau. Apart from Rahul, I need to know who is enrolled at Tóth Primary School. From whom is the toast, according to the printed program? The accessible toilet has a shelf beside the sink, a grab rail near the door, and enough space for my chair to turn without hitting the bin. Why is Katalin absent from work? Constanța Logistics published The Quiet Harbour, and Blue Harbor Media published The Last Ferry.",
+   "output": "Apart from Ms Sârbu, I'd like to know who raises Kamau. Apart from Rahul, I need to know who is enrolled at Tóth Primary School. Whom is the toast from, according to the printed program? The accessible toilet has a shelf beside the sink, a grab rail near the door, and enough space for my chair to turn without hitting the bin. What is the reason that Katalin is absent from work? Constanța Logistics published The Quiet Harbour, and Blue Harbor Media published The Last Ferry."
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 14,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 14,
+     "clauses": 2
+    }
+   },
+   "id": "form-variant::fv-form-0eca177c09-010",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 62,
+   "output_chars": 62,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Is it the case that Ioana Guțu does not curl the boss near Bo?",
+   "target": "Is it the case that Ioana Guțu does not curl the boss near Bo?",
+   "output": "Is it the case that Ioana Guțu does not curl the boss near Bo?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 7,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 7,
+     "clauses": 1
+    }
+   },
+   "id": "form-variant::fv-form-16966c20ad-004",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 46,
+   "output_chars": 46,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "How often was the consultation rail delivered?",
+   "target": "How often was the consultation rail delivered?",
+   "output": "How often was the consultation rail delivered?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 9,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 9,
+     "clauses": 2
+    }
+   },
+   "id": "form-variant::fv-form-1a2d4388bf-002",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 42,
+   "output_chars": 42,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Explain to me why Jonas doesn't stay home.",
+   "target": "Explain to me why Jonas doesn't stay home.",
+   "output": "Explain to me why Jonas doesn't stay home."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "identical",
+      "a": "DEEP",
+      "c": "DEEP"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 0,
+     "max_words": 10,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 0,
+     "max_words": 10,
+     "clauses": 1
+    }
+   },
+   "id": "form-variant::fv-form-1a5dee6a0f-003",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 43,
+   "output_chars": 43,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Explain to me why the kit cabin isn't down.",
+   "target": "Explain to me why the kit cabin isn't down.",
+   "output": "Explain to me why the kit cabin isn't down."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "identical",
+      "a": "CORRECT",
+      "c": "DEEP"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 17,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 17,
+     "clauses": 3
+    }
+   },
+   "id": "form-variant::fv-form-3ca21f34b4-001",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 85,
+   "output_chars": 85,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Do you know if Traian is allergic to portal seats and he looks after the mail server?",
+   "target": "Do you know if Traian is allergic to portal seats and he looks after the mail server?",
+   "output": "Do you know if Traian is allergic to portal seats and he looks after the mail server?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "identical",
+      "a": "DEEP",
+      "c": "DEEP"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 17,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 17,
+     "clauses": 3
+    }
+   },
+   "id": "form-variant::fv-form-3ca21f34b4-002",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 88,
+   "output_chars": 88,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Do you know if Ananya is allergic to picnic visitors and he looks after the mail server?",
+   "target": "Do you know if Ananya is allergic to picnic visitors and he looks after the mail server?",
+   "output": "Do you know if Ananya is allergic to picnic visitors and he looks after the mail server?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "identical",
+      "a": "DEEP",
+      "c": "DEEP"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 17,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 17,
+     "clauses": 3
+    }
+   },
+   "id": "form-variant::fv-form-3ca21f34b4-006",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 83,
+   "output_chars": 83,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Do you know if Toma is allergic to fee headsets and he looks after the mail server?",
+   "target": "Do you know if Toma is allergic to fee headsets and he looks after the mail server?",
+   "output": "Do you know if Toma is allergic to fee headsets and he looks after the mail server?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 8,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 8,
+     "clauses": 2
+    }
+   },
+   "id": "form-variant::fv-form-67753ba22d-002",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 43,
+   "output_chars": 43,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "How come the headphones' rye was postponed?",
+   "target": "How come the headphones' rye was postponed?",
+   "output": "How come the headphones' rye was postponed?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 7,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 7,
+     "clauses": 2
+    }
+   },
+   "id": "form-variant::fv-form-67753ba22d-006",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 43,
+   "output_chars": 42,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "How come the dressing' olive was postponed?",
+   "target": "How come the dressing' olive was postponed?",
+   "output": "How come the dressing olive was postponed?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 6,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 6,
+     "clauses": 2
+    }
+   },
+   "id": "form-variant::fv-form-725f0bf4bc-005",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 44,
+   "output_chars": 44,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Please find out which company employs Maria.",
+   "target": "Please find out which company employs Maria.",
+   "output": "Please find out which company employs Maria."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "identical",
+      "a": "CORRECT",
+      "c": "DEEP"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 6,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 6,
+     "clauses": 2
+    }
+   },
+   "id": "form-variant::fv-form-a294c32603-005",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 37,
+   "output_chars": 37,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Please find out where Arjun is based.",
+   "target": "Please find out where Arjun is based.",
+   "output": "Please find out where Arjun is based."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "identical",
+      "a": "DEEP",
+      "c": "DEEP"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 17,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 17,
+     "clauses": 3
+    }
+   },
+   "id": "form-variant::fv-form-b3c1f0963f-003",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 97,
+   "output_chars": 97,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Do you know if Mircea intends to attend the items' appointment and he teaches physical education?",
+   "target": "Do you know if Mircea intends to attend the items' appointment and he teaches physical education?",
+   "output": "Do you know if Mircea intends to attend the items' appointment and he teaches physical education?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": false,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 3,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 2,
+      "tree": "identical",
+      "a": "CORRECT",
+      "c": "DEEP"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 3,
+     "one_clause": 2,
+     "subject": 3,
+     "max_words": 15,
+     "clauses": 4
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 26,
+     "clauses": 3
+    }
+   },
+   "id": "formalizer-ood-v1::ood1_000125_0_0",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 133,
+   "output_chars": 181,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Since Florin is the chef at the Botanical Garden in Tulcea, is it the case that Paloma is the chef at the Botanical Garden in Tulcea?",
+   "target": "Since Florin is the chef at the Botanical Garden in Tulcea, is it the case that Paloma is the chef at the Botanical Garden in Tulcea?",
+   "output": "Florin is the chef at the Botanical Garden in Tulcea. Paloma is the chef at the Botanical Garden in Tulcea. Is it the case that Paloma is the chef at the Botanical Garden in Tulcea?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 2,
+    "in_sentences": 2,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 13,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 13,
+     "clauses": 3
+    }
+   },
+   "id": "formalizer-ood-v1::ood1_000528_0_0",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 140,
+   "output_chars": 140,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Help me with this one: is Mihai the chef at the Community Centre on Elm Street? And is it the case that the school bus is repaired by Mihai?",
+   "target": "Help me with this one: is Mihai the chef at the Community Centre on Elm Street? And is it the case that the school bus is repaired by Mihai?",
+   "output": "Help me with this one: is Mihai the chef at the Community Centre on Elm Street? And is it the case that the school bus is repaired by Mihai?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 21,
+    "in_sentences": 23,
+    "out_failed": [
+     {
+      "sentence": 14,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 21,
+     "one_clause": 17,
+     "subject": 19,
+     "max_words": 11,
+     "clauses": 25
+    },
+    "shape_target": {
+     "sentences": 29,
+     "one_clause": 26,
+     "subject": 28,
+     "max_words": 11,
+     "clauses": 32
+    }
+   },
+   "id": "formalizer-v1::fv1_000376_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 1437,
+   "output_chars": 884,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": false,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": false,
+    "numbers": true,
+    "ok": false,
+    "lost_names": [
+     "analytics",
+     "notes",
+     "night",
+     "train",
+     "brightfield",
+     "foods",
+     "clockmaker's",
+     "daughter",
+     "iași",
+     "tax",
+     "office",
+     "montreal",
+     "high",
+     "cristina",
+     "ploiești",
+     "language",
+     "background"
+    ]
+   },
+   "input": "I hope you are having a good day. Erik teaches geography. Nicolae Pătrașcu visits Tulcea. Plus, Gábor visits Botoșani. Sorin is the owner of the flat on Mihai Viteazu Street; Carmen is the owner of the holiday cottage in Bran.\n\nChișinău Riverside Clinic is based in Oradea. The Constanța Philharmonic doesn't host the wedding reception, and the Community Centre on Elm Street hosts the jazz evening. Mr Gupta doesn't visit Sibiu. Esmeralda is enrolled at Porto Technical College; Oluwaseun isn't enrolled at Mureșan Primary School.\n\nBlue Harbor Media buys from Delta Print. I hope you are having a good day. Horia is the owner of the bakery on the corner; the old sailing boat does not belong to Andrei.\n\nVertex Analytics published Notes from the Night Train and Brightfield Foods published The Clockmaker's Daughter. A work permit doesn't require a criminal record certificate. The Iași Tax Office issues a tax clearance certificate. I have been meaning to ask about this for a while. Léa is enrolled at Montreal Arts High School and Cristina studies at the Ploiești Language School.\n\nA driving licence does not require a medical certificate and a residence certificate requires an ID card.\n\nSo, my questions: Background: Wanjiru works under Ananya Nair. Question: Can you check whether Wanjiru is the boss of Ananya Nair? Let's say Tisa Textiles sells bicycle parts. Quick question: does Orion Robotics carry bicycle parts?\n\nTalk soon!",
+   "target": "I hope you are having a good day. Erik teaches geography. Nicolae Pătrașcu visits Tulcea. Plus, Gábor visits Botoșani. Sorin is the owner of the flat on Mihai Viteazu Street. Carmen is the owner of the holiday cottage in Bran. Chișinău Riverside Clinic is based in Oradea. The Constanța Philharmonic doesn't host the wedding reception. The Community Centre on Elm Street hosts the jazz evening. Mr Gupta doesn't visit Sibiu. Esmeralda is enrolled at Porto Technical College. Oluwaseun isn't enrolled at Mureșan Primary School. Blue Harbor Media buys from Delta Print. I hope you are having a good day. Horia is the owner of the bakery on the corner. The old sailing boat does not belong to Andrei. Vertex Analytics published Notes from the Night Train. Brightfield Foods published The Clockmaker's Daughter. A work permit doesn't require a criminal record certificate. The Iași Tax Office issues a tax clearance certificate. I have been meaning to ask about this for a while. Léa is enrolled at Montreal Arts High School. Cristina studies at the Ploiești Language School. A driving licence does not require a medical certificate. A residence certificate requires an ID card. Wanjiru works under Ananya Nair. Is Wanjiru the boss of Ananya Nair? Let's say Tisa Textiles sells bicycle parts. Does Orion Robotics carry bicycle parts?",
+   "output": "I hope you are having a good day. Erik teaches geography. Nicolae Pătrașcu visits Tulcea. Plus, Gábor visits Botoșani. Sorin is the owner of the flat on Mihai Viteazu Street. Carmen is the owner of the holiday cottage in Bran. Chișinău Riverside Clinic is based in Oradea. The Constanța Philharmonic doesn't host the wedding reception. The Community Centre on Elm Street hosts the jazz evening. Mr Gupta doesn't visit Sibiu. Esmeralda is enrolled at Porto Technical College. Oluwaseun isn't enrolled at Mureșan Primary School. Blue Harbor Media buys from Delta Print. I hope you are having a good day. Horia is the owner of the bakery on the corner. The old sailing boat doesn't belong to Andrei. Wanjiru works under Ananya Nair. Can you check whether Wanjiru is the boss of Ananya Nair? Let's say Tisa Textiles sells bicycle parts. Does Orion Robotics carry bicycle parts? Talk soon!"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 2,
+    "in_sentences": 2,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 8,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 8,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_000772_0_0",
+   "kind": "repair",
+   "failure_kind": "parser",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 96,
+   "output_chars": 78,
+   "unchanged": false,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Liam Taylor is absent from work. Would that be because he took part in the photography workshop?",
+   "target": "Liam Taylor is absent from work. Did he take part in the photography workshop?",
+   "output": "Liam Taylor is absent from work. Did he take part in the photography workshop?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 9,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 8,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_001930_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 42,
+   "output_chars": 42,
+   "unchanged": true,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Aurel Stan doesn't go to the jazz evening.",
+   "target": "Aurel Stan does not attend the jazz evening.",
+   "output": "Aurel Stan doesn't go to the jazz evening."
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 14,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 14,
+     "clauses": 3
+    }
+   },
+   "id": "formalizer-v1::fv1_002515_0_0",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 85,
+   "output_chars": 85,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Given that Agnieszka works under Quang Nguyễn, is Agnieszka the boss of Quang Nguyễn?",
+   "target": "Given that Agnieszka works under Quang Nguyễn, is Agnieszka the boss of Quang Nguyễn?",
+   "output": "Given that Agnieszka works under Quang Nguyễn, is Agnieszka the boss of Quang Nguyễn?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 2,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 9,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 9,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_002780_0_0",
+   "kind": "repair",
+   "failure_kind": "parser",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 99,
+   "output_chars": 79,
+   "unchanged": false,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Hiroshi is absent from work. — would that be because he took part in the regional chess tournament?",
+   "target": "Hiroshi is absent from work. Did he take part in the regional chess tournament?",
+   "output": "Hiroshi is absent from work. Did he take part in the regional chess tournament?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 2,
+    "in_sentences": 2,
+    "out_failed": [
+     {
+      "sentence": 1,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 9,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 11,
+     "clauses": 3
+    }
+   },
+   "id": "formalizer-v1::fv1_003691_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 73,
+   "output_chars": 69,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Omar Khalil is ill. Could it be that he got sick from the leftover sushi?",
+   "target": "Omar Khalil is ill. Is it possible that he got sick from the leftover sushi?",
+   "output": "Omar Khalil is ill. Did Omar Khalil get sick from the leftover sushi?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 9,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 8,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_003849_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 61,
+   "output_chars": 55,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": false,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": false,
+    "lost_names": []
+   },
+   "input": "Name the people working for companies located in Târgu Mureș.",
+   "target": "Who works for companies located in Târgu Mureș?",
+   "output": "Which people work for companies located in Târgu Mureș?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 0,
+     "max_words": 9,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 0,
+     "max_words": 9,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_005393_0",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 52,
+   "output_chars": 52,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Hey, help me write a birthday message for my sister.",
+   "target": "Hey, help me write a birthday message for my sister.",
+   "output": "Hey, help me write a birthday message for my sister."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 16,
+    "in_sentences": 13,
+    "out_failed": [
+     {
+      "sentence": 2,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 3,
+      "tree": "identical",
+      "a": "MINOR",
+      "c": "DEEP"
+     },
+     {
+      "sentence": 11,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 16,
+     "one_clause": 14,
+     "subject": 16,
+     "max_words": 15,
+     "clauses": 18
+    },
+    "shape_target": {
+     "sentences": 14,
+     "one_clause": 13,
+     "subject": 14,
+     "max_words": 15,
+     "clauses": 15
+    }
+   },
+   "id": "formalizer-v1::fv1_006739_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 788,
+   "output_chars": 767,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "I will try to keep the rest short. A building permit requires an ID card. Plus, a criminal record certificate isn't required for a work permit. Burak borrowed The Glass Orchard. Plus, Marius borrowed A Short History of Bridges. I will try to keep the rest short.\n\nThe Arad Town Hall issues a medical certificate; a fire safety approval is issued by the Slatina Tax Office. Agnieszka is a parent of Corina Gheorghiu. Ingrid Andersen is allergic to shellfish and Seo-yeon has an allergy to latex.\n\nWhat I actually want to know: Okay so Aurelia works under Mr Watanabe. Aurelia manages Mr Watanabe, correct? Bogdan was enrolled at Constanța Music Academy from 2021-08-01 until 2024-05-01. — can you confirm that he studied at Constanța Music Academy as of 1 May 2024? Where did Jonas travel?",
+   "target": "A building permit requires an ID card. Plus, a criminal record certificate isn't required for a work permit. Burak borrowed The Glass Orchard. Plus, Marius borrowed A Short History of Bridges. The Arad Town Hall issues a medical certificate. A fire safety approval is issued by the Slatina Tax Office. Agnieszka is a parent of Corina Gheorghiu. Ingrid Andersen is allergic to shellfish. Seo-yeon has an allergy to latex. Okay so Aurelia works under Mr Watanabe. Does Aurelia manage Mr Watanabe? Bogdan was enrolled at Constanța Music Academy from 2021-08-01 until 2024-05-01. Can you confirm that he studied at Constanța Music Academy as of 1 May 2024? Where did Jonas travel?",
+   "output": "I will try to keep the rest short. A building permit requires an ID card. Plus, a criminal record certificate isn't required for a work permit. Burak borrowed The Glass Orchard. Plus, Marius borrowed A Short History of Bridges. I will try to keep the rest short. The Arad Town Hall issues a medical certificate. A fire safety approval is issued by the Slatina Tax Office. Agnieszka is a parent of Corina Gheorghiu. Ingrid Andersen is allergic to shellfish. Seo-yeon has an allergy to latex. I actually want to know: Okay so Aurelia works under Mr Watanabe. Aurelia manages Mr Watanabe. Bogdan was enrolled at Constanța Music Academy from 2021-08-01 until 2024-05-01. Can you confirm that he studied at Constanța Music Academy as of 1 May 2024? Where did Jonas travel?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 2,
+    "in_sentences": 2,
+    "out_failed": [],
+    "good": false,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 6,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 6,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_006771_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 77,
+   "output_chars": 44,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": false,
+    "numbers": true,
+    "ok": false,
+    "lost_names": [
+     "could"
+    ]
+   },
+   "input": "Background: Rahul resigned. Question: Could you check who he quit because of?",
+   "target": "Rahul resigned. Because of whom did he quit?",
+   "output": "Rahul resigned. Did he quit because of whom?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 17,
+    "in_sentences": 13,
+    "out_failed": [
+     {
+      "sentence": 7,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 8,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 14,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 17,
+     "one_clause": 13,
+     "subject": 14,
+     "max_words": 19,
+     "clauses": 24
+    },
+    "shape_target": {
+     "sentences": 17,
+     "one_clause": 13,
+     "subject": 11,
+     "max_words": 18,
+     "clauses": 23
+    }
+   },
+   "id": "formalizer-v1::fv1_007405_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 854,
+   "output_chars": 755,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "My manager wants a summary by the end of the day. Tisa Textiles doesn't supply Greenline Transport and Atelier Gheorghiu buys from Nordwind Systems. Mr Reddy is the boss of Erik and Aditya doesn't manage Ngozi. Mykola plans to go to the regional chess tournament and Tamás plans to go to the photography workshop.\n\nThings I still have to do today:\n- book the train tickets\n- finish the slides\n- pay the phone bill\n- buy groceries\n\nWhat I actually want to know:\nWhat is the reason that Camille isn't eligible for the bonus?\nRemind me when Ms Girard was enrolled at Pitești Arts High School.\nI wonder if the bakery on the corner belongs to Omar.\nHonestly, does Chloé want to learn mathematics?\nGiven that Mr Popescu is the boss of Enikő, can you check whether Mr Popescu works under Enikő?\nCheck this: Agnieszka Wójcik is the owner of the old sailing boat.",
+   "target": "My manager wants a summary by the end of the day. Tisa Textiles doesn't supply Greenline Transport. Atelier Gheorghiu buys from Nordwind Systems. Mr Reddy is the boss of Erik. Aditya doesn't manage Ngozi. Mykola plans to go to the regional chess tournament. Tamás plans to go to the photography workshop. Book the train tickets today. Finish the slides today. Pay the phone bill today. Buy groceries today. Why isn't Camille eligible for the bonus? Remind me when Ms Girard was enrolled at Pitești Arts High School. I wonder if the bakery on the corner belongs to Omar. Does Chloé want to learn mathematics? Given that Mr Popescu is the boss of Enikő, can you check whether Mr Popescu works under Enikő? Check whether Agnieszka Wójcik is the owner of the old sailing boat.",
+   "output": "My manager wants a summary by the end of the day. Tisa Textiles doesn't supply Greenline Transport. Atelier Gheorghiu buys from Nordwind Systems. Mr Reddy is the boss of Erik. Aditya doesn't manage Ngozi. Mykola plans to go to the regional chess tournament. Tamás plans to go to the photography workshop. I still have to do today:\n- book the train tickets\n- finish the slides\n- pay the phone bill\n- buy groceries\nWhat I actually want to know: Why is Camille not eligible for the bonus? Remind me when Ms Girard was enrolled at Pitești Arts High School. I wonder if the bakery on the corner belongs to Omar. Does Chloé want to learn mathematics? Mr Popescu is the boss of Enikő. Does Mr Popescu work under Enikő? Agnieszka Wójcik owns the old sailing boat."
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 8,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 8,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_009832_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 54,
+   "output_chars": 48,
+   "unchanged": false,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": false,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": false,
+    "lost_names": []
+   },
+   "input": "Name the people working for companies located in Iași.",
+   "target": "Which people work for companies located in Iași?",
+   "output": "Which people work for companies located in Iași?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 2,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 8,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 8,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_010107_0_0",
+   "kind": "repair",
+   "failure_kind": "parser",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 103,
+   "output_chars": 75,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Given that Rubina is absent from work, would that be because she went to the regional chess tournament?",
+   "target": "Rubina is absent from work. Did she go to the regional chess tournament?",
+   "output": "Rubina is absent from work. Did Rubina go to the regional chess tournament?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 2,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 9,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 10,
+     "clauses": 3
+    }
+   },
+   "id": "formalizer-v1::fv1_010980_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 104,
+   "output_chars": 80,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Rafael manages Mykola Shevchenko. — can you check whether he is the author of The Clockmaker's Daughter?",
+   "target": "Rafael manages Mykola Shevchenko. Can you check whether he wrote The Clockmaker's Daughter?",
+   "output": "Rafael manages Mykola Shevchenko. Is he the author of The Clockmaker's Daughter?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 13,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 14,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_011889_0_0",
+   "kind": "repair",
+   "failure_kind": "parser",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 78,
+   "output_chars": 78,
+   "unchanged": true,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Costin is a parent of Bogdan Ungureanu. — he goes to the photography workshop?",
+   "target": "Costin is a parent of Bogdan Ungureanu. — does he go to the photography workshop?",
+   "output": "Costin is a parent of Bogdan Ungureanu. — he goes to the photography workshop?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 10,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 10,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_012779_0_0",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 55,
+   "output_chars": 55,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Tell me whether Traian Moldovan wants to move to Sibiu.",
+   "target": "Tell me whether Traian Moldovan wants to move to Sibiu.",
+   "output": "Tell me whether Traian Moldovan wants to move to Sibiu."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 12,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 12,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_012860_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 62,
+   "output_chars": 62,
+   "unchanged": true,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Have the players of the Ploiești Falcons all had the flu shot?",
+   "target": "Have all the players of the Ploiești Falcons had the flu shot?",
+   "output": "Have the players of the Ploiești Falcons all had the flu shot?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 10,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 6,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_013573_0_1",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 59,
+   "output_chars": 55,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Other than Brândușa, I need to know who travels to Chengdu.",
+   "target": "Besides Brândușa, who travels to Chengdu?",
+   "output": "I need to know who travels to Chengdu besides Brândușa."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 7,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 7,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_015438_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 28,
+   "output_chars": 35,
+   "unchanged": false,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "A power of attorney meaning?",
+   "target": "What does a power of attorney mean?",
+   "output": "What does a power of attorney mean?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 3,
+    "in_sentences": 2,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 1,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 2,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 3,
+     "one_clause": 3,
+     "subject": 3,
+     "max_words": 6,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 3,
+     "one_clause": 3,
+     "subject": 3,
+     "max_words": 6,
+     "clauses": 3
+    }
+   },
+   "id": "formalizer-v1::fv1_016545_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 87,
+   "output_chars": 101,
+   "unchanged": false,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": false,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": false,
+    "lost_names": []
+   },
+   "input": "Ștefania Dobre and Carmen both live in Cluj-Napoca. Does Krzysztof live in Cluj-Napoca?",
+   "target": "Ștefania Dobre lives in Cluj-Napoca. Carmen lives in Cluj-Napoca. Does Krzysztof live in Cluj-Napoca?",
+   "output": "Ștefania Dobre lives in Cluj-Napoca. Carmen lives in Cluj-Napoca. Does Krzysztof live in Cluj-Napoca?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 17,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 17,
+     "clauses": 3
+    }
+   },
+   "id": "formalizer-v1::fv1_017449_0_0",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 119,
+   "output_chars": 119,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Hypothetically, if Carpathia Energy published Winter in Maramureș, is it correct that it published Winter in Maramureș?",
+   "target": "Hypothetically, if Carpathia Energy published Winter in Maramureș, is it correct that it published Winter in Maramureș?",
+   "output": "Hypothetically, if Carpathia Energy published Winter in Maramureș, is it correct that it published Winter in Maramureș?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 64,
+    "in_sentences": 28,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 3,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 64,
+     "one_clause": 63,
+     "subject": 64,
+     "max_words": 9,
+     "clauses": 65
+    },
+    "shape_target": {
+     "sentences": 34,
+     "one_clause": 31,
+     "subject": 33,
+     "max_words": 11,
+     "clauses": 37
+    }
+   },
+   "id": "formalizer-v1::fv1_017920_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 1461,
+   "output_chars": 3107,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": true,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": false,
+    "quantifiers": false,
+    "question": false,
+    "nonempty": true,
+    "names": false,
+    "numbers": true,
+    "ok": false,
+    "lost_names": [
+     "brightfield",
+     "foods",
+     "arad",
+     "wolves",
+     "sato",
+     "larissa",
+     "silva",
+     "tariq",
+     "laura",
+     "textiles",
+     "blue",
+     "harbor",
+     "media",
+     "carpathia",
+     "energy",
+     "țurcanu",
+     "lviv",
+     "thảo",
+     "ploiești",
+     "anghel",
+     "lagos",
+     "baia",
+     "mare",
+     "high",
+     "school",
+     "passport",
+     "office",
+     "sibiu",
+     "jessica",
+     "vikram"
+    ]
+   },
+   "input": "Honestly, I keep losing track of who does what. Mr Mureșan is responsible for the billing service and Mr Bondarenko is responsible for the inventory API. Erik gives classes in biology. Dimitra Georgiou works for Delta Print.\n\nNordwind Systems does not sell bicycle parts. Rahul Reddy is the author of The Quiet Harbour. I will probably forget half of this by tomorrow.\n\nParisa has a job at Brightfield Foods. My coffee went cold while I was typing this. Medeea plays for the Arad Wolves. I have been meaning to ask about this for a while. Takumi Sato is the spouse of Larissa Silva.\n\nPablo is allergic to strawberries; Tariq is allergic to peanuts. I only have a few minutes before my next call. Zofia maintains the payments gateway. The bakery on the corner belongs to Laura.\n\nTisa Textiles buys from Blue Harbor Media and Carpathia Energy supplies Țurcanu & Partners. Iurie visits Lviv; Thảo travels to Ploiești. Cosmin Anghel does not visit Lagos. My manager wants a summary by the end of the day.\n\nA driving licence requires a criminal record certificate; a building permit does not require a medical certificate. Priya studies at Baia Mare Arts High School. The analytics pipeline relies on the reporting dashboard. I tried to sort this out myself but got confused.\n\nA few questions, then:\nI'm trying to find out which town the Passport Office in Sibiu is in.\nI wonder if Jessica wants to learn history.\nWhy is Vikram ill?\n\nCheers, and have a nice evening.",
+   "target": "I keep losing track of who does what. Mr Mureșan is responsible for the billing service. Mr Bondarenko is responsible for the inventory API. Erik gives classes in biology. Dimitra Georgiou works for Delta Print. Nordwind Systems does not sell bicycle parts. Rahul Reddy is the author of The Quiet Harbour. I will probably forget half of this by tomorrow. Parisa has a job at Brightfield Foods. My coffee went cold while I was typing this. Medeea plays for the Arad Wolves. I have been meaning to ask about this for a while. Takumi Sato is the spouse of Larissa Silva. Pablo is allergic to strawberries. Tariq is allergic to peanuts. I only have a few minutes before my next call. Zofia maintains the payments gateway. The bakery on the corner belongs to Laura. Tisa Textiles buys from Blue Harbor Media. Carpathia Energy supplies Țurcanu & Partners. Iurie visits Lviv. Thảo travels to Ploiești. Cosmin Anghel does not visit Lagos. My manager wants a summary by the end of the day. A driving licence requires a criminal record certificate. A building permit does not require a medical certificate. Priya studies at Baia Mare Arts High School. The analytics pipeline relies on the reporting dashboard. I tried to sort this out myself. I got confused. Which town is the Passport Office in Sibiu in? Does Jessica want to learn history? Why is Vikram ill? Cheers, and have a nice evening.",
+   "output": "Honestly, I keep losing track of who does what. Mr Mureșan is responsible for the billing service. Mr Bondarenko is responsible for the inventory API. Erik gives classes in biology. Dimitra Georgiou works for Delta Print. Nordwind Systems does not sell bicycle parts. Rahul Reddy is the author of The Quiet Harbour. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow. I will probably forget half of this by tomorrow"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 8,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 8,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_019107_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 59,
+   "output_chars": 39,
+   "unchanged": false,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "What is the reason that Réka is not eligible for the bonus?",
+   "target": "Why is Réka not eligible for the bonus?",
+   "output": "Why is Réka not eligible for the bonus?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 4,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 4,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_019495_0_0",
+   "kind": "repair",
+   "failure_kind": "parser",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 40,
+   "output_chars": 22,
+   "unchanged": false,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "What is the reason that Oksana resigned?",
+   "target": "Why did Oksana resign?",
+   "output": "Why did Oksana resign?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 2,
+    "in_sentences": 13,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 1,
+     "max_words": 8,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 15,
+     "one_clause": 15,
+     "subject": 14,
+     "max_words": 11,
+     "clauses": 15
+    }
+   },
+   "id": "formalizer-v1::fv1_020188_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 692,
+   "output_chars": 82,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": false,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": false,
+    "numbers": true,
+    "ok": false,
+    "lost_names": [
+     "cătălin",
+     "hassan",
+     "ruxandra",
+     "notes",
+     "night",
+     "train",
+     "aditya",
+     "clockmaker's",
+     "daughter",
+     "tulcea",
+     "tax",
+     "office",
+     "zalău",
+     "nairobi",
+     "land",
+     "suceava",
+     "oksana",
+     "vpn"
+    ]
+   },
+   "input": "Anyway, back to what I actually wanted to ask. Małgorzata is the doctor of Cătălin. Burak is married to Hassan. Rubina wants to learn biology, and Ruxandra wants to learn geography. Vikram checked out Notes from the Night Train. Plus, Aditya checked out The Clockmaker's Daughter.\n\nThe Tulcea Tax Office is based in Zalău and the Nairobi Land Office is in Suceava. Emeka doesn't plan to study mathematics; Oksana doesn't plan to study drawing. The booking app depends on the inventory API; the backup cluster relies on the VPN gateway. My manager wants a summary by the end of the day.\n\nNow, what I need to know: I wonder why the payments gateway is out of service. What does Rachel pay with?",
+   "target": "Małgorzata is the doctor of Cătălin. Burak is married to Hassan. Rubina wants to learn biology. Ruxandra wants to learn geography. Vikram checked out Notes from the Night Train. Plus, Aditya checked out The Clockmaker's Daughter. The Tulcea Tax Office is based in Zalău. The Nairobi Land Office is in Suceava. Emeka doesn't plan to study mathematics. Oksana doesn't plan to study drawing. The booking app depends on the inventory API. The backup cluster relies on the VPN gateway. My manager wants a summary by the end of the day. Why is the payments gateway out of service? What does Rachel pay with?",
+   "output": "Why is the payment gateway out of service? Does Rachel pay with the inventory API?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 8,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 8,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_021901_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 59,
+   "output_chars": 51,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Verify the claim that Chloe has an allergy to strawberries.",
+   "target": "Verify that Chloe has an allergy to strawberries.",
+   "output": "Check whether Chloe has an allergy to strawberries."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 6,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 6,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_022025_0_0",
+   "kind": "repair",
+   "failure_kind": "parser",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 52,
+   "output_chars": 32,
+   "unchanged": false,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "What is the reason that Katalin is absent from work?",
+   "target": "Why is Katalin absent from work?",
+   "output": "Why is Katalin absent from work?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 2,
+    "in_sentences": 2,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 1,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 8,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 8,
+     "clauses": 3
+    }
+   },
+   "id": "formalizer-v1::fv1_022471_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 82,
+   "output_chars": 78,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Hi! The spring book fair got postponed. I wonder what it was postponed because of.",
+   "target": "The spring book fair got postponed. I wonder because of what it was postponed.",
+   "output": "The spring book fair got postponed. I wonder what it was postponed because of."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 7,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 5,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_023498_0_2",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 35,
+   "output_chars": 35,
+   "unchanged": true,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "What does Dorin have an allergy to?",
+   "target": "What is Dorin allergic to?",
+   "output": "What does Dorin have an allergy to?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 8,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 8,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_024582_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 57,
+   "output_chars": 50,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Verify the claim that Hassan Mansour is based in Nairobi.",
+   "target": "Check whether Hassan Mansour is based in Nairobi.",
+   "output": "Verify whether Hassan Mansour is based in Nairobi."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 13,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 13,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_024716_0_1",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 66,
+   "output_chars": 66,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Tell me whether Vikram does not take part in the spring book fair.",
+   "target": "Tell me whether Vikram does not take part in the spring book fair.",
+   "output": "Tell me whether Vikram does not take part in the spring book fair."
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 9,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 9,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_025675_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 70,
+   "output_chars": 63,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Verify the claim that Smaranda is responsible for the billing service.",
+   "target": "Verify that Smaranda is responsible for the billing service.",
+   "output": "Verify whether Smaranda is responsible for the billing service."
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 0,
+     "max_words": 2,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 0,
+     "max_words": 2,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_025862_0",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 15,
+   "output_chars": 17,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Ok, talk later!",
+   "target": "Ok, talk later!",
+   "output": "Okay, talk later!"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 7,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 7,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_028506_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 42,
+   "output_chars": 31,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Quick one: how many teams is Ms Nguyễn on?",
+   "target": "Ms Nguyễn is on how many teams?",
+   "output": "How many teams is Ms Nguyễn on?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 2,
+    "in_sentences": 2,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 7,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 3,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_028801_0_0",
+   "kind": "repair",
+   "failure_kind": "parser",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 46,
+   "output_chars": 49,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Eleni stays home. Could it be that she is ill?",
+   "target": "Eleni stays home. Is she ill?",
+   "output": "Eleni stays home. Is it possible that she is ill?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 8,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 7,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_028872_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 39,
+   "output_chars": 39,
+   "unchanged": true,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Did Aurel go to the jazz evening again?",
+   "target": "Did Aurel attend the jazz evening again?",
+   "output": "Did Aurel go to the jazz evening again?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 2,
+    "in_sentences": 2,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 1,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 9,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 2,
+     "max_words": 10,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_029377_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 97,
+   "output_chars": 94,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Does Aurelia Iordache give classes in drawing and does she intend to attend the spring book fair?",
+   "target": "Does Aurelia Iordache give classes in drawing? Does Aurelia Iordache intend to attend the spring book fair?",
+   "output": "Does Aurelia Iordache give classes in drawing? Does she intend to attend the spring book fair?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 12,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 12,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_029489_0_0",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 55,
+   "output_chars": 55,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "So was Emre the coach of CS Sighișoara on 1 April 2024?",
+   "target": "So was Emre the coach of CS Sighișoara on 1 April 2024?",
+   "output": "So was Emre the coach of CS Sighișoara on 1 April 2024?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 2,
+    "in_sentences": 2,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 14,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 1,
+     "subject": 2,
+     "max_words": 11,
+     "clauses": 3
+    }
+   },
+   "id": "formalizer-v1::fv1_030035_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 110,
+   "output_chars": 110,
+   "unchanged": true,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Okay so Layla manages Mădălina Oprea. I was wondering whether she is the author of A Short History of Bridges.",
+   "target": "Okay so Layla manages Mădălina Oprea. I was wondering whether she wrote A Short History of Bridges.",
+   "output": "Okay so Layla manages Mădălina Oprea. I was wondering whether she is the author of A Short History of Bridges."
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 11,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 11,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_030093_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 69,
+   "output_chars": 59,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Verify the claim that Carmen Rusu is the author of The Glass Orchard.",
+   "target": "Check whether Carmen Rusu is the author of The Glass Orchard.",
+   "output": "Verify that Carmen Rusu is the author of The Glass Orchard."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 10,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 8,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-v1::fv1_031084_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 69,
+   "output_chars": 48,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": false,
+    "numbers": true,
+    "ok": false,
+    "lost_names": [
+     "tariq",
+     "nasser",
+     "i'd"
+    ]
+   },
+   "input": "Other than Tariq Nasser, I'd like to know who wants to learn history.",
+   "target": "Besides Tariq Nasser, who wants to learn history?",
+   "output": "I would like to know who wants to learn history."
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 8,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 1,
+     "max_words": 12,
+     "clauses": 2
+    }
+   },
+   "id": "formalizer-v1::fv1_031441_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 55,
+   "output_chars": 38,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": false,
+    "numbers": true,
+    "ok": false,
+    "lost_names": [
+     "ms",
+     "sârbu",
+     "i'd"
+    ]
+   },
+   "input": "Other than Ms Sârbu, I'd like to know who raises Kamau.",
+   "target": "Apart from Ms Sârbu, I would like to know who raises Kamau.",
+   "output": "I would like to know who raises Kamau."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 26,
+    "in_sentences": 27,
+    "out_failed": [
+     {
+      "sentence": 2,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 3,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 8,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 9,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 11,
+      "tree": "noncore_diff"
+     },
+     {
+      "sentence": 18,
+      "tree": "core_diff"
+     },
+     {
+      "sentence": 23,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 26,
+     "one_clause": 25,
+     "subject": 26,
+     "max_words": 14,
+     "clauses": 27
+    },
+    "shape_target": {
+     "sentences": 32,
+     "one_clause": 29,
+     "subject": 32,
+     "max_words": 12,
+     "clauses": 35
+    }
+   },
+   "id": "formalizer-v1::fv1_031500_0_0",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 1640,
+   "output_chars": 1208,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": false,
+    "quantifiers": false,
+    "question": true,
+    "nonempty": true,
+    "names": false,
+    "numbers": true,
+    "ok": false,
+    "lost_names": [
+     "viorel",
+     "history",
+     "bridges",
+     "carmen",
+     "yuki",
+     "lagos",
+     "tax",
+     "pitești"
+    ]
+   },
+   "input": "I will probably forget half of this by tomorrow. Mircea doesn't intend to attend the wedding reception and Hyun-woo intends to attend the spring book fair. Honestly, I keep losing track of who does what.\n\nGreenline Transport does not supply Carpathia Energy. Mr Nagy isn't the doctor of Zofia and Larisa is the doctor of Tariq. Ingrid plans to go to the code review session. Hannah doesn't give classes in geography. Łukasz Kaczmarek is not married to Anna-Lena Wagner; Daniel Wright isn't the spouse of Felix.\n\nNoah plays for Novi Sad United. A fire safety approval is issued by the Szeged Land Office; the Chișinău Land Office issues a medical certificate. Haruka Sato is based in Debrecen. The Nairobi Philharmonic hosts the jazz evening.\n\nWei Wang goes to the regional chess tournament and Sânziana doesn't go to the harvest festival. A criminal record certificate is issued by the Passport Office in Suceava. The Deva Land Office does not issue a work permit.\n\nThe recording studio belongs to Ngozi. Sighișoara Logistics buys from Orion Robotics. Sorry in advance, this is going to be a long one.\n\nLéa doesn't have an allergy to pollen, and Viorel is allergic to cat hair. A Short History of Bridges was not written by Carmen. I will try to keep the rest short.\n\nIonuț is not married to Yuki. The Lagos Tax Office issues a tax clearance certificate, and a driving licence is not issued by the Passport Office in Pitești. My coffee went cold while I was typing this.\n\nA few questions, then:\nOut of curiosity, why is the search index out of service?\nIs this correct? \"Ms Tănase intends to attend the town hall debate\"\n\nThanks in advance!",
+   "target": "I will probably forget half of this by tomorrow. Mircea doesn't intend to attend the wedding reception. Hyun-woo intends to attend the spring book fair. I keep losing track of who does what. Greenline Transport does not supply Carpathia Energy. Mr Nagy isn't the doctor of Zofia. Larisa is the doctor of Tariq. Ingrid plans to go to the code review session. Hannah doesn't give classes in geography. Łukasz Kaczmarek is not married to Anna-Lena Wagner. Daniel Wright isn't the spouse of Felix. Noah plays for Novi Sad United. A fire safety approval is issued by the Szeged Land Office. The Chișinău Land Office issues a medical certificate. Haruka Sato is based in Debrecen. The Nairobi Philharmonic hosts the jazz evening. Wei Wang goes to the regional chess tournament. Sânziana doesn't go to the harvest festival. A criminal record certificate is issued by the Passport Office in Suceava. The Deva Land Office does not issue a work permit. The recording studio belongs to Ngozi. Sighișoara Logistics buys from Orion Robotics. Léa doesn't have an allergy to pollen. Viorel is allergic to cat hair. A Short History of Bridges was not written by Carmen. I will try to keep the rest short. Ionuț is not married to Yuki. The Lagos Tax Office issues a tax clearance certificate. A driving licence is not issued by the Passport Office in Pitești. My coffee went cold while I was typing this. Why is the search index out of service? Is \"Ms Tănase intends to attend the town hall debate\" correct?",
+   "output": "I will probably forget half of this by tomorrow. Mircea doesn't intend to attend the wedding reception. Hyun-woo intends to attend the spring book fair. Honestly, I keep losing track of who does what. Greenline Transport doesn't supply Carpathia Energy. Mr Nagy isn't the doctor of Zofia. Larisa is the doctor of Tariq. Ingrid plans to go to the code review session. Hannah doesn't give classes in geography. Łukasz Kaczmarek isn't married to Anna-Lena Wagner. Daniel Wright isn't the spouse of Felix. Noah plays for Novi Sad United. A fire safety approval is issued by the Szeged Land Office. The Chișinău Land Office issues a medical certificate. Haruka Sato is based in Debrecen. The Nairobi Philharmonic hosts the jazz evening. Wei Wang goes to the regional chess tournament. Sânziana doesn't go to the harvest festival. A criminal record certificate is issued by the Passport Office in Suceava. The Deva Land Office doesn't issue a work permit. The recording studio belongs to Ngozi. Sighișoara Logistics buys from Orion Robotics. I will try to keep the rest short. I also have a question about why the search index is out of service. Is this correct? \"Ms Tănase intends to attend the town hall debate.\""
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": false,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 4,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 4,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-wild-v1::wild_wd_056",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 15,
+   "output_chars": 17,
+   "unchanged": false,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": false,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": false,
+    "lost_names": []
+   },
+   "input": "what's an ETIAS",
+   "target": "What is an ETIAS?",
+   "output": "What is an ETIAS?"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 0,
+     "max_words": 3,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 1,
+     "max_words": 6,
+     "clauses": 1
+    }
+   },
+   "id": "formalizer-wild-v1::wild_we_055",
+   "kind": "repair",
+   "failure_kind": "rules",
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 14,
+   "output_chars": 14,
+   "unchanged": true,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": false,
+   "strict": false,
+   "normalized": false,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Q3 close date?",
+   "target": "On what date does Q3 close?",
+   "output": "Q3 close date?"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 14,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 14,
+     "clauses": 2
+    }
+   },
+   "id": "new_cases::nc-000223",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 77,
+   "output_chars": 77,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Please leave the spelling sheet in Lucia's bag if she misses the last lesson.",
+   "target": "Please leave the spelling sheet in Lucia's bag if she misses the last lesson.",
+   "output": "Please leave the spelling sheet in Lucia's bag if she misses the last lesson."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 2,
+    "in_sentences": 2,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 0,
+     "max_words": 10,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 2,
+     "one_clause": 2,
+     "subject": 0,
+     "max_words": 10,
+     "clauses": 2
+    }
+   },
+   "id": "new_cases::nc-000368",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 110,
+   "output_chars": 110,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "1. ask the teacher about tomorrow's choir rehearsal\n2. collect the second child's lost sweater from the office",
+   "target": "1. ask the teacher about tomorrow's choir rehearsal\n2. collect the second child's lost sweater from the office",
+   "output": "1. Ask the teacher about tomorrow's choir rehearsal\n2. Collect the second child's lost sweater from the office"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "identical",
+      "a": "DEEP",
+      "c": "DEEP"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 26,
+     "clauses": 4
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 26,
+     "clauses": 4
+    }
+   },
+   "id": "new_cases::nc-000822",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 171,
+   "output_chars": 171,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Please keep the returned headphones behind the counter until Jürgen Schmidt checks whether the seal was broken before the customer brought them back to the shop yesterday.",
+   "target": "Please keep the returned headphones behind the counter until Jürgen Schmidt checks whether the seal was broken before the customer brought them back to the shop yesterday.",
+   "output": "Please keep the returned headphones behind the counter until Jürgen Schmidt checks whether the seal was broken before the customer brought them back to the shop yesterday."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": false,
+    "out_sentences": 2,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 2,
+     "one_clause": 1,
+     "subject": 0,
+     "max_words": 17,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 27,
+     "clauses": 3
+    }
+   },
+   "id": "new_cases::nc-000825",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 155,
+   "output_chars": 152,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Before the shop opens tomorrow, move the winter gloves from the back cabinet to the front table and leave the empty cardboard sleeves in the recycling bin.",
+   "target": "Before the shop opens tomorrow, move the winter gloves from the back cabinet to the front table and leave the empty cardboard sleeves in the recycling bin.",
+   "output": "Before the shop opens tomorrow, move the winter gloves from the back cabinet to the front table. Leave the empty cardboard sleeves in the recycling bin."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 10,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 10,
+     "clauses": 2
+    }
+   },
+   "id": "new_cases::nc-000839",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 52,
+   "output_chars": 52,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Keep the oat milk chilled until the fridge is clear.",
+   "target": "Keep the oat milk chilled until the fridge is clear.",
+   "output": "Keep the oat milk chilled until the fridge is clear."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 28,
+     "clauses": 4
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 28,
+     "clauses": 4
+    }
+   },
+   "id": "new_cases::nc-000970",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 170,
+   "output_chars": 157,
+   "unchanged": false,
+   "exact_text": false,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "shift notes:\n- ask Duy to check the labels on the summer sandals before the doors open\n- leave the damaged sunglasses at the returns desk until Keiko can inspect the case",
+   "target": "shift notes:\n- ask Duy to check the labels on the summer sandals before the doors open\n- leave the damaged sunglasses at the returns desk until Keiko can inspect the case",
+   "output": "- ask Duy to check the labels on the summer sandals before the doors open\n- leave the damaged sunglasses at the returns desk until Keiko can inspect the case"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 12,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 12,
+     "clauses": 3
+    }
+   },
+   "id": "new_cases::nc-000972",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 70,
+   "output_chars": 70,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "morning jobs:\n1. weigh the pears\n2. mark the dairy shelf\n3. call Alina",
+   "target": "morning jobs:\n1. weigh the pears\n2. mark the dairy shelf\n3. call Alina",
+   "output": "morning jobs:\n1. weigh the pears\n2. mark the dairy shelf\n3. call Alina"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 19,
+     "clauses": 4
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 19,
+     "clauses": 4
+    }
+   },
+   "id": "new_cases::nc-000973",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 119,
+   "output_chars": 119,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "for tomorrow:\n- keep the mint in the cooler\n- set out the empty baskets\n- check whether the fish counter has spare bags",
+   "target": "for tomorrow:\n- keep the mint in the cooler\n- set out the empty baskets\n- check whether the fish counter has spare bags",
+   "output": "for tomorrow:\n- keep the mint in the cooler\n- set out the empty baskets\n- check whether the fish counter has spare bags"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 29,
+     "clauses": 5
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 29,
+     "clauses": 5
+    }
+   },
+   "id": "new_cases::nc-000974",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 201,
+   "output_chars": 201,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "closing list:\n* count the remaining cartons of oat milk before shutting the chilled aisle\n* sweep beneath the potato display after the customer queue clears\n* tell Felipe about the broken produce scale",
+   "target": "closing list:\n* count the remaining cartons of oat milk before shutting the chilled aisle\n* sweep beneath the potato display after the customer queue clears\n* tell Felipe about the broken produce scale",
+   "output": "closing list:\n* count the remaining cartons of oat milk before shutting the chilled aisle\n* sweep beneath the potato display after the customer queue clears\n* tell Felipe about the broken produce scale"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 6,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 6,
+     "clauses": 2
+    }
+   },
+   "id": "new_cases::nc-001222",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 39,
+   "output_chars": 39,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Check whether Anke Weber received hers.",
+   "target": "Check whether Anke Weber received hers.",
+   "output": "Check whether Anke Weber received hers."
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 0,
+     "max_words": 4,
+     "clauses": 1
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 1,
+     "subject": 0,
+     "max_words": 4,
+     "clauses": 1
+    }
+   },
+   "id": "new_cases::nc-001225",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 27,
+   "output_chars": 27,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "Please send Salma the menu.",
+   "target": "Please send Salma the menu.",
+   "output": "Please send Salma the menu."
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "noncore_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 12,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 12,
+     "clauses": 2
+    }
+   },
+   "id": "new_cases::nc-001368",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 80,
+   "output_chars": 80,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "reception errands:\n1. pick up the rings from Oksana\n2. carry the programs inside",
+   "target": "reception errands:\n1. pick up the rings from Oksana\n2. carry the programs inside",
+   "output": "reception errands:\n1. pick up the rings from Oksana\n2. carry the programs inside"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 12,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 12,
+     "clauses": 2
+    }
+   },
+   "id": "new_cases::nc-001371",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 83,
+   "output_chars": 83,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": false,
+   "handled": false,
+   "input_handled": false,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "reunion jobs:\n- write names on the cups\n- set aside two chairs for the grandparents",
+   "target": "reunion jobs:\n- write names on the cups\n- set aside two chairs for the grandparents",
+   "output": "reunion jobs:\n- write names on the cups\n- set aside two chairs for the grandparents"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 13,
+     "clauses": 3
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 13,
+     "clauses": 3
+    }
+   },
+   "id": "new_cases::nc-001372",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 96,
+   "output_chars": 96,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "hotel checklist:\n- give Kenji the room key\n- take the flowers upstairs\n- count the spare pillows",
+   "target": "hotel checklist:\n- give Kenji the room key\n- take the flowers upstairs\n- count the spare pillows",
+   "output": "hotel checklist:\n- give Kenji the room key\n- take the flowers upstairs\n- count the spare pillows"
+  },
+  {
+   "analysis": {
+    "in_pass": false,
+    "out_pass": false,
+    "target_pass": false,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [
+     {
+      "sentence": 0,
+      "tree": "core_diff"
+     }
+    ],
+    "good": false,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 12,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 12,
+     "clauses": 2
+    }
+   },
+   "id": "new_cases::nc-001373",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 74,
+   "output_chars": 74,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "anniversary tasks:\n1) find the old photo album\n2) ask Mei to bring candles",
+   "target": "anniversary tasks:\n1) find the old photo album\n2) ask Mei to bring candles",
+   "output": "anniversary tasks:\n1) find the old photo album\n2) ask Mei to bring candles"
+  },
+  {
+   "analysis": {
+    "in_pass": true,
+    "out_pass": true,
+    "target_pass": true,
+    "same_analysis": true,
+    "out_sentences": 1,
+    "in_sentences": 1,
+    "out_failed": [],
+    "good": true,
+    "shape_out": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 12,
+     "clauses": 2
+    },
+    "shape_target": {
+     "sentences": 1,
+     "one_clause": 0,
+     "subject": 0,
+     "max_words": 12,
+     "clauses": 2
+    }
+   },
+   "id": "new_cases::nc-001386",
+   "kind": "identity",
+   "failure_kind": null,
+   "has_gold": false,
+   "decomposition": false,
+   "tokens": null,
+   "input_chars": 68,
+   "output_chars": 68,
+   "unchanged": true,
+   "exact_text": true,
+   "empty": false,
+   "truncated": false,
+   "sop_match": true,
+   "strict": true,
+   "normalized": true,
+   "parsed_clean": true,
+   "handled": true,
+   "input_handled": true,
+   "meaning": {
+    "negation": true,
+    "quantifiers": true,
+    "question": true,
+    "nonempty": true,
+    "names": true,
+    "numbers": true,
+    "ok": true,
+    "lost_names": []
+   },
+   "input": "please don't remove any seats until the entire guest list is checked",
+   "target": "please don't remove any seats until the entire guest list is checked",
+   "output": "please don't remove any seats until the entire guest list is checked"
+  }
+ ]
+}

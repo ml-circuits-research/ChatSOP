@@ -1,0 +1,182 @@
+{
+  "format": "chatsop-translate-names-v1",
+  "suite": "eval/reports/current/translate-then-formalize/work/formalizer-wild-v1.romixed.stage100.jsonl",
+  "definition": "gold role values with a capital letter occurring verbatim in the original message (first accepted target for wild)",
+  "totals": {
+    "rows_with_names": 47,
+    "names": 89,
+    "in_translation": 64,
+    "in_direct_sop": 47,
+    "in_translated_sop": 34,
+    "lost_by_translation": 25,
+    "translation_fidelity": 0.7191011235955056,
+    "direct_sop_fidelity": 0.5280898876404494,
+    "translated_sop_fidelity": 0.38202247191011235
+  },
+  "by_slice": {
+    "ro": {
+      "names": 52,
+      "in_translation": 34,
+      "in_direct_sop": 26,
+      "in_translated_sop": 18
+    },
+    "mixed": {
+      "names": 37,
+      "in_translation": 30,
+      "in_direct_sop": 21,
+      "in_translated_sop": 16
+    }
+  },
+  "lost_examples": [
+    {
+      "id": "wild_wi_036",
+      "name": "Judecătoria Buftea",
+      "message": "Avocatul l-a sunat pe executor după ce a primit citația de la Judecătoria Buftea. Ce termen are acum ca să răspundă?",
+      "translation": "The lawyer called the executor after he received the summons from Buffea County. What time does he have to answer now?"
+    },
+    {
+      "id": "wild_wi_018",
+      "name": "art. 1553 Cod civil",
+      "message": "Ce înseamnă concret pactul comisoriu de la art. 1553 Cod civil din contractul meu de vânzare cu plata în rate?",
+      "translation": "What does the Commissioner's agreement in art. 1553 Civil Code from my payment-in-rate contract?"
+    },
+    {
+      "id": "wild_wg_099",
+      "name": "doctor Lungu",
+      "message": "biletul de trimitere dat de doamna doctor Lungu care o plecat la Suceava mai e bun?",
+      "translation": "Is the shipping note given by Dr. Lungu who left for Suceava still good?"
+    },
+    {
+      "id": "wild_wj_046",
+      "name": "Dana Crăciun",
+      "message": "Ok deci context: suntem în Q3 planning și managerul meu, Dana Crăciun, vrea ca echipa de platform să preia și on-call-ul pentru payments din octombrie. Problema e că suntem doar patru oameni și doi pleacă în concediu în septembrie. I tried to explain it in our 1:1 dar zice că e decizie de la VP. Nu vreau să mă plâng, doar întreb: câte ore de gardă pe lună are voie să facă un angajat conform Codului Muncii? I'm pretty sure there's a cap.",
+      "translation": "Ok context: we are in Q3 planning and my manager, Dana Christmas, wants the platform team to take over and on-call for October payments. The problem is that we're only four people and two are going on vacation in September. I tried to explain it in our 1:1 but says it's VP decision. I don't want to complain, I just wonder how many hours of guard a month is allowed to make an employee according to the Labour Code? I'm pretty sure there's a deal."
+    },
+    {
+      "id": "wild_wj_046",
+      "name": "Codului Muncii",
+      "message": "Ok deci context: suntem în Q3 planning și managerul meu, Dana Crăciun, vrea ca echipa de platform să preia și on-call-ul pentru payments din octombrie. Problema e că suntem doar patru oameni și doi pleacă în concediu în septembrie. I tried to explain it in our 1:1 dar zice că e decizie de la VP. Nu vreau să mă plâng, doar întreb: câte ore de gardă pe lună are voie să facă un angajat conform Codului Muncii? I'm pretty sure there's a cap.",
+      "translation": "Ok context: we are in Q3 planning and my manager, Dana Christmas, wants the platform team to take over and on-call for October payments. The problem is that we're only four people and two are going on vacation in September. I tried to explain it in our 1:1 but says it's VP decision. I don't want to complain, I just wonder how many hours of guard a month is allowed to make an employee according to the Labour Code? I'm pretty sure there's a deal."
+    },
+    {
+      "id": "wild_wk_002",
+      "name": "48.000 EUR",
+      "message": "Deci am avut azi un meeting super lung cu echipa din Lisabona, și Joana zicea că vendor-ul nou, Solaris Data, ne dă 20% discount dacă semnăm pe 2 ani. But Miguel from procurement said the discount only kicks in after the first year, which is kinda different. Anyway, întrebarea e: la ce preț ajungem pe primul an dacă prețul de listă e 48.000 EUR?",
+      "translation": "So we had a super long meeting with the Lisbon team today, and Joana said the new seller, Solaris Data, gives us 20% discount if we sign for 2 years. But Miguel from procurement said the discount only kicks in after the first year, which is kinda different. Anyway, the question is, what price do we get for the first year if the list price is EUR 48,000?"
+    },
+    {
+      "id": "wild_wj_089",
+      "name": "The notar in Brașov",
+      "message": "Hey, quick one but with context: my partner Gelu and I are thinking of buying a small casă in Bran, around 85,000 EUR, with about 1,200 mp of land. I'm a UK citizen, he's Romanian. I've read foreigners can't easily own agricultural land but can own the house itself? The notar in Brașov quoted us 1.4% in fees. Is it smarter to put everything in his name, or both? What would you do?",
+      "translation": "Hey, quick one but with context: my partner Gelu and I are thinking of buying a small house in Bran, around 85,000 EUR, with about 1,200 mp of land. I'm a UK citizen, he's Romanian. I've read foreigners can't easily own agricultural land but can own the house itself? The notar in Brasov quoted us 1.4% in fees. Is it smarter to could everything in his name, or both? What would you do?"
+    },
+    {
+      "id": "wild_wi_092",
+      "name": "Casa Județeană de Pensii Dolj",
+      "message": "Tatăl meu a depus dosarul de pensie la Casa Județeană de Pensii Dolj pe 4 august, iar concediul medical i s-a terminat pe 31 iulie. Pe 1-3 august nu a lucrat, iar angajatorul, Electroputere VFU, i-a încetat contractul de muncă abia pe 5 august, cu decizia nr. 312. Decizia de pensie pentru limită de vârstă încă nu a venit, deși au trecut aproape două luni. Primește ceva bani și pentru zilele dintre?",
+      "translation": "My father filed his pension file at the Dolj Pension County House on August 4, and his medical leave was completed on July 31st. On August 1-3, he did not work, and the employer, Electropowere VFU, terminated his employment contract only on August 5, with decision no. 312. The age-limit pension decision has not yet come, although it has been almost two months. Is he getting any money for the days between?"
+    },
+    {
+      "id": "wild_wi_092",
+      "name": "Electroputere VFU",
+      "message": "Tatăl meu a depus dosarul de pensie la Casa Județeană de Pensii Dolj pe 4 august, iar concediul medical i s-a terminat pe 31 iulie. Pe 1-3 august nu a lucrat, iar angajatorul, Electroputere VFU, i-a încetat contractul de muncă abia pe 5 august, cu decizia nr. 312. Decizia de pensie pentru limită de vârstă încă nu a venit, deși au trecut aproape două luni. Primește ceva bani și pentru zilele dintre?",
+      "translation": "My father filed his pension file at the Dolj Pension County House on August 4, and his medical leave was completed on July 31st. On August 1-3, he did not work, and the employer, Electropowere VFU, terminated his employment contract only on August 5, with decision no. 312. The age-limit pension decision has not yet come, although it has been almost two months. Is he getting any money for the days between?"
+    },
+    {
+      "id": "wild_wk_093",
+      "name": "TVA la încasare",
+      "message": "Ce înseamnă TVA la încasare?",
+      "translation": "What does VAT mean when you take it?"
+    },
+    {
+      "id": "wild_wj_073",
+      "name": "Laurențiu",
+      "message": "Laurențiu mi-a transferat 1.200 lei pe Revolut ieri pt biletele la Untold, i-am dat eu mai departe banii Sabinei?",
+      "translation": "Laurentiu transferred me 1,200 lei on the Revolution yesterday for tickets to Untold, did I give Sabina's money further?"
+    },
+    {
+      "id": "wild_wi_048",
+      "name": "Judecătoria Sectorului 2",
+      "message": "Mâine la 9:30 am termen la Judecătoria Sectorului 2 și avocata mea e bolnavă. Can I ask for postponement singur sau trebuie să vină un substitute din partea cabinetului?",
+      "translation": "Tomorrow at 9:30 I'm on time at Sector 2's courthouse and my lawyer is sick. Can I ask for postponement alone or should a substitute come from the cabinet?"
+    },
+    {
+      "id": "wild_wi_087",
+      "name": "Liceul Tehnologic din Pașcani",
+      "message": "Dacă îmi transfer fiul de la Liceul Tehnologic din Pașcani la un liceu din Iași în timpul semestrului, cine trimite foaia matricolă la noua școală?",
+      "translation": "If I transfer my son from the Pacific Technological High School to a high school in Iasi during the semester, who sends my matriculate sheet to the new school?"
+    },
+    {
+      "id": "wild_wh_029",
+      "name": "Politehnica Timisoara",
+      "message": "spune-mi te rog cand incepe sesiunea de iarna la Politehnica Timisoara",
+      "translation": "Please tell me when the winter session begins at Timisoara Polytechnic"
+    },
+    {
+      "id": "wild_wk_077",
+      "name": "Timișoara",
+      "message": "Liviu e tot la Timișoara, nu?",
+      "translation": "Liviu's still at Timisoara, right?"
+    },
+    {
+      "id": "wild_wh_031",
+      "name": "Floreasca",
+      "message": "Luca are 22 de ani, sta in Floreasca si e rider la Tazz. Iulia e sora lui, mai mica cu 3 ani. cati ani are Iulia?",
+      "translation": "Luca's 22 years old, he's in Florence and he's a Tizz rider. Julia's his sister, three years younger. How old is Julia?"
+    },
+    {
+      "id": "wild_wh_031",
+      "name": "Tazz",
+      "message": "Luca are 22 de ani, sta in Floreasca si e rider la Tazz. Iulia e sora lui, mai mica cu 3 ani. cati ani are Iulia?",
+      "translation": "Luca's 22 years old, he's in Florence and he's a Tizz rider. Julia's his sister, three years younger. How old is Julia?"
+    },
+    {
+      "id": "wild_wh_031",
+      "name": "Iulia",
+      "message": "Luca are 22 de ani, sta in Floreasca si e rider la Tazz. Iulia e sora lui, mai mica cu 3 ani. cati ani are Iulia?",
+      "translation": "Luca's 22 years old, he's in Florence and he's a Tizz rider. Julia's his sister, three years younger. How old is Julia?"
+    },
+    {
+      "id": "wild_wi_016",
+      "name": "S.C. Delta-Vest Logistic S.R.L.",
+      "message": "Firma S.C. Delta-Vest Logistic S.R.L., CUI 3XXXXX8, cu sediul în Str. Gen. Traian Moșoiu nr. 14, et. 2, Brașov, mai figurează ca activă la ONRC?",
+      "translation": "S.C. Delta-West Logistics S.R.L., which is located in Str. Gen. Traian Santa Claus no. 14, et. 2, Brasov, are you still active at ONRC?"
+    },
+    {
+      "id": "wild_wi_016",
+      "name": "Str. Gen. Traian Moșoiu nr. 14, et. 2, Brașov",
+      "message": "Firma S.C. Delta-Vest Logistic S.R.L., CUI 3XXXXX8, cu sediul în Str. Gen. Traian Moșoiu nr. 14, et. 2, Brașov, mai figurează ca activă la ONRC?",
+      "translation": "S.C. Delta-West Logistics S.R.L., which is located in Str. Gen. Traian Santa Claus no. 14, et. 2, Brasov, are you still active at ONRC?"
+    },
+    {
+      "id": "wild_wi_016",
+      "name": "3XXXXX8",
+      "message": "Firma S.C. Delta-Vest Logistic S.R.L., CUI 3XXXXX8, cu sediul în Str. Gen. Traian Moșoiu nr. 14, et. 2, Brașov, mai figurează ca activă la ONRC?",
+      "translation": "S.C. Delta-West Logistics S.R.L., which is located in Str. Gen. Traian Santa Claus no. 14, et. 2, Brasov, are you still active at ONRC?"
+    },
+    {
+      "id": "wild_wd_098",
+      "name": "the 7:10 train from Brasov to Bucuresti Nord",
+      "message": "can you check dacă the 7:10 train from Brasov to Bucuresti Nord e anulat, if it is I need to find a bus",
+      "translation": "can you check if the 7:10 train from Brasov to Bucharest Nord is canceled, if it is I need to find a bus"
+    },
+    {
+      "id": "wild_wh_048",
+      "name": "Cezar",
+      "message": "Deci in apartamentul din Tatarasi suntem 4: eu, Cezar, Florina si Nadia. Cezar si Florina sunt impreuna si au camera mare, Nadia plateste cel mai putin ca are camera de trecere, iar eu am balconul. Proprietara, doamna Chirilă, a zis ca de la 1 decembrie creste chiria cu 200 lei in total. cine ar trebui sa plateasca cel mai mult din marire?",
+      "translation": "So in the apartment of Tatarasi we are 4: me, Caesar, Florina and Nadia. Caesar and Florina are together and have a big room, Nadia pays least for having a room to pass, and I have the balcony. The owner, Mrs. Chirilla, said that since December 1st she has been raising the rent by 200 lei in total. Who should pay the most out of the grand?"
+    },
+    {
+      "id": "wild_wh_048",
+      "name": "doamna Chirilă",
+      "message": "Deci in apartamentul din Tatarasi suntem 4: eu, Cezar, Florina si Nadia. Cezar si Florina sunt impreuna si au camera mare, Nadia plateste cel mai putin ca are camera de trecere, iar eu am balconul. Proprietara, doamna Chirilă, a zis ca de la 1 decembrie creste chiria cu 200 lei in total. cine ar trebui sa plateasca cel mai mult din marire?",
+      "translation": "So in the apartment of Tatarasi we are 4: me, Caesar, Florina and Nadia. Caesar and Florina are together and have a big room, Nadia pays least for having a room to pass, and I have the balcony. The owner, Mrs. Chirilla, said that since December 1st she has been raising the rent by 200 lei in total. Who should pay the most out of the grand?"
+    },
+    {
+      "id": "wild_wi_061",
+      "name": "Republicii Moldova",
+      "message": "Sunt avocat stagiar în Baroul Timiș, anul II. Am un client, cetățean al Republicii Moldova cu drept de ședere temporară, căruia proprietarul i-a reziliat contractul de închiriere pentru apartamentul din str. Ciprian Porumbescu nr. 3, ap. 8, invocând neplata a două chirii de câte 2.100 lei, deși clientul susține că le-a plătit cash, fără chitanță. Pe 11.09 proprietarul a schimbat yala în lipsa lui, iar bunurile personale au rămas înăuntru. Avocatul coordonator e la un congres la Lisabona până pe 5 octombrie. Ce cale e mai rapidă pentru recuperarea bunurilor: ordonanță președințială sau plângere penală pentru violare de domiciliu?",
+      "translation": "I'm an intern lawyer in the second year of Baroul Timis. I have a client, a citizen of the Republic of Moldova with a right of temporary residence, to whom the owner has terminated his lease for the apartment in the street. Ciprian Poorbenescu no. 3, ap. 8, invoking the non-payment of two rents of 2,100 lei, although the customer claims that he paid them cash, without receipt. On 11.09 the owner changed the yala in his absence, and the personal belongings remained inside. The co-ordinator's at a congress in Lisbon by October 5. What is the fastest way to recover property: presidential order or criminal complaint for home abuse?"
+    }
+  ]
+}

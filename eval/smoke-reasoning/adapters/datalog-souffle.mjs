@@ -4,7 +4,7 @@
  * `conditional` is left to the harness (the same host rule around every strategy), `used` to the harness' deletion method.
  */
 import {datalogSouffle, NotExpressibleError} from '../../../reasoning/strategies/datalog-souffle/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 export const datalogSouffleAdapter = {
   id: 'datalog-souffle', status: 'available', origin: 'reasoning/strategies/datalog-souffle/ (Soufflé 2.5 subprocess, private build under tools/.solvers/souffle)',

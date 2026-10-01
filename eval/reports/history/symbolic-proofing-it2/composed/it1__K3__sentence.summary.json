@@ -1,0 +1,456 @@
+{
+ "label": "it1 K3 sentence",
+ "generated_at": "2026-10-01T00:28:05.917Z",
+ "stages": [
+  {
+   "stage": 100,
+   "cases": 100,
+   "errors": 0,
+   "clean_sentences_changed": {
+    "k": 240,
+    "n": 2259,
+    "p": 10.6,
+    "lo": 9.4,
+    "hi": 12
+   },
+   "clean_sentences_kept": {
+    "k": 2019,
+    "n": 2259,
+    "p": 89.4,
+    "lo": 88,
+    "hi": 90.6
+   },
+   "bad_sentences_fixed": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_untouched": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_wrong_rewrite": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "dropped_components": {
+    "k": 0,
+    "n": 2259,
+    "p": 0,
+    "lo": 0,
+    "hi": 0.2
+   },
+   "cases_with_added_text": {
+    "k": 21,
+    "n": 100,
+    "p": 21,
+    "lo": 14.2,
+    "hi": 30
+   },
+   "cases_order_preserved": {
+    "k": 100,
+    "n": 100,
+    "p": 100,
+    "lo": 96.3,
+    "hi": 100
+   },
+   "cases_exact": {
+    "all": {
+     "k": 19,
+     "n": 100,
+     "p": 19,
+     "lo": 12.5,
+     "hi": 27.8
+    },
+    "by": {
+     "n12": {
+      "k": 4,
+      "n": 17,
+      "p": 23.5,
+      "lo": 9.6,
+      "hi": 47.3
+     },
+     "n16": {
+      "k": 3,
+      "n": 17,
+      "p": 17.6,
+      "lo": 6.2,
+      "hi": 41
+     },
+     "n24": {
+      "k": 1,
+      "n": 17,
+      "p": 5.9,
+      "lo": 1,
+      "hi": 27
+     },
+     "n32": {
+      "k": 0,
+      "n": 17,
+      "p": 0,
+      "lo": 0,
+      "hi": 18.4
+     },
+     "n48": {
+      "k": 0,
+      "n": 17,
+      "p": 0,
+      "lo": 0,
+      "hi": 18.4
+     },
+     "single": {
+      "k": 11,
+      "n": 15,
+      "p": 73.3,
+      "lo": 48,
+      "hi": 89.1
+     }
+    }
+   },
+   "cases_e2e_sop_exact": {
+    "all": {
+     "k": 0,
+     "n": 0,
+     "p": null,
+     "lo": null,
+     "hi": null
+    },
+    "by": {}
+   },
+   "splitter_agrees": {
+    "k": 100,
+    "n": 100,
+    "p": 100,
+    "lo": 96.3,
+    "hi": 100
+   },
+   "splitter_agrees_when_all_components_punctuated": {
+    "k": 100,
+    "n": 100,
+    "p": 100,
+    "lo": 96.3,
+    "hi": 100
+   },
+   "splitter_agrees_with_an_unpunctuated_component": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "gate": {
+    "recall_of_sentences_that_need_a_rewrite": {
+     "k": 0,
+     "n": 0,
+     "p": null,
+     "lo": null,
+     "hi": null
+    },
+    "clean_sentences_sent_to_the_rewriter": {
+     "k": 2259,
+     "n": 2259,
+     "p": 100,
+     "lo": 99.8,
+     "hi": 100
+    }
+   },
+   "sentence_mode": {
+    "rewriter_calls": 2259,
+    "sentences": 2259,
+    "share_sent": {
+     "k": 2259,
+     "n": 2259,
+     "p": 100,
+     "lo": 99.8,
+     "hi": 100
+    }
+   },
+   "clean_changed_by_stratum": {
+    "all": {
+     "k": 19,
+     "n": 100,
+     "p": 19,
+     "lo": 12.5,
+     "hi": 27.8
+    },
+    "by": {
+     "n12": {
+      "k": 4,
+      "n": 17,
+      "p": 23.5,
+      "lo": 9.6,
+      "hi": 47.3
+     },
+     "n16": {
+      "k": 3,
+      "n": 17,
+      "p": 17.6,
+      "lo": 6.2,
+      "hi": 41
+     },
+     "n24": {
+      "k": 1,
+      "n": 17,
+      "p": 5.9,
+      "lo": 1,
+      "hi": 27
+     },
+     "n32": {
+      "k": 0,
+      "n": 17,
+      "p": 0,
+      "lo": 0,
+      "hi": 18.4
+     },
+     "n48": {
+      "k": 0,
+      "n": 17,
+      "p": 0,
+      "lo": 0,
+      "hi": 18.4
+     },
+     "single": {
+      "k": 11,
+      "n": 15,
+      "p": 73.3,
+      "lo": 48,
+      "hi": 89.1
+     }
+    }
+   }
+  },
+  {
+   "stage": 265,
+   "cases": 265,
+   "errors": 0,
+   "clean_sentences_changed": {
+    "k": 634,
+    "n": 5855,
+    "p": 10.8,
+    "lo": 10.1,
+    "hi": 11.7
+   },
+   "clean_sentences_kept": {
+    "k": 5221,
+    "n": 5855,
+    "p": 89.2,
+    "lo": 88.3,
+    "hi": 89.9
+   },
+   "bad_sentences_fixed": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_untouched": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_wrong_rewrite": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "dropped_components": {
+    "k": 0,
+    "n": 5855,
+    "p": 0,
+    "lo": 0,
+    "hi": 0.1
+   },
+   "cases_with_added_text": {
+    "k": 54,
+    "n": 265,
+    "p": 20.4,
+    "lo": 16,
+    "hi": 25.6
+   },
+   "cases_order_preserved": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "cases_exact": {
+    "all": {
+     "k": 36,
+     "n": 265,
+     "p": 13.6,
+     "lo": 10,
+     "hi": 18.2
+    },
+    "by": {
+     "n12": {
+      "k": 16,
+      "n": 60,
+      "p": 26.7,
+      "lo": 17.1,
+      "hi": 39
+     },
+     "n16": {
+      "k": 6,
+      "n": 60,
+      "p": 10,
+      "lo": 4.7,
+      "hi": 20.1
+     },
+     "n24": {
+      "k": 3,
+      "n": 60,
+      "p": 5,
+      "lo": 1.7,
+      "hi": 13.7
+     },
+     "n32": {
+      "k": 0,
+      "n": 40,
+      "p": 0,
+      "lo": 0,
+      "hi": 8.8
+     },
+     "n48": {
+      "k": 0,
+      "n": 30,
+      "p": 0,
+      "lo": 0,
+      "hi": 11.4
+     },
+     "single": {
+      "k": 11,
+      "n": 15,
+      "p": 73.3,
+      "lo": 48,
+      "hi": 89.1
+     }
+    }
+   },
+   "cases_e2e_sop_exact": {
+    "all": {
+     "k": 0,
+     "n": 0,
+     "p": null,
+     "lo": null,
+     "hi": null
+    },
+    "by": {}
+   },
+   "splitter_agrees": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "splitter_agrees_when_all_components_punctuated": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "splitter_agrees_with_an_unpunctuated_component": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "gate": {
+    "recall_of_sentences_that_need_a_rewrite": {
+     "k": 0,
+     "n": 0,
+     "p": null,
+     "lo": null,
+     "hi": null
+    },
+    "clean_sentences_sent_to_the_rewriter": {
+     "k": 5855,
+     "n": 5855,
+     "p": 100,
+     "lo": 99.9,
+     "hi": 100
+    }
+   },
+   "sentence_mode": {
+    "rewriter_calls": 5855,
+    "sentences": 5855,
+    "share_sent": {
+     "k": 5855,
+     "n": 5855,
+     "p": 100,
+     "lo": 99.9,
+     "hi": 100
+    }
+   },
+   "clean_changed_by_stratum": {
+    "all": {
+     "k": 36,
+     "n": 265,
+     "p": 13.6,
+     "lo": 10,
+     "hi": 18.2
+    },
+    "by": {
+     "n12": {
+      "k": 16,
+      "n": 60,
+      "p": 26.7,
+      "lo": 17.1,
+      "hi": 39
+     },
+     "n16": {
+      "k": 6,
+      "n": 60,
+      "p": 10,
+      "lo": 4.7,
+      "hi": 20.1
+     },
+     "n24": {
+      "k": 3,
+      "n": 60,
+      "p": 5,
+      "lo": 1.7,
+      "hi": 13.7
+     },
+     "n32": {
+      "k": 0,
+      "n": 40,
+      "p": 0,
+      "lo": 0,
+      "hi": 8.8
+     },
+     "n48": {
+      "k": 0,
+      "n": 30,
+      "p": 0,
+      "lo": 0,
+      "hi": 11.4
+     },
+     "single": {
+      "k": 11,
+      "n": 15,
+      "p": 73.3,
+      "lo": 48,
+      "hi": 89.1
+     }
+    }
+   }
+  }
+ ]
+}

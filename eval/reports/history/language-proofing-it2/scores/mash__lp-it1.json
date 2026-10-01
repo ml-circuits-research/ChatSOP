@@ -1,0 +1,34 @@
+{
+ "name": "lp-it1",
+ "unchanged": {
+  "k": 100,
+  "n": 150,
+  "pct": 66.7
+ },
+ "examples_changed": [
+  [
+   "lkjhgfdsalkjh!",
+   "lkljhgfdsalkjh!"
+  ],
+  [
+   "eeeeeeeee",
+   "eeeeeeeeee"
+  ],
+  [
+   "gqdtrlk ghjklasdfgh Xvpkfzm",
+   "gqdtrk ghjklasdfgh Xvpkfzm"
+  ],
+  [
+   "ssssss iiiiiiii eeeeeeeeeee.",
+   "ssssss iiiiii issss iiiiii."
+  ],
+  [
+   "hcxrfm",
+   "hxcrm"
+  ],
+  [
+   "uytrewqp xzmnbvc jjjjjjj",
+   "uytrewqp xzmnbvc jjjjj"
+  ]
+ ]
+}

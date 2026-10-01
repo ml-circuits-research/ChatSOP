@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Sealed-overlap auditor of the SymbolicProofingLLM iteration-2 candidate units (a sealed auditor: eval/leakage.mjs SEALED_AUDITORS).
  *
- *   node tools/datasets/audit/symbolic-proofing-overlap.mjs [--in eval/reports/current/symbolic-proofing-it2/data/candidates.jsonl] [--min-words 2]
+ *   node tools/datasets/audit/symbolic-proofing-overlap.mjs [--in eval/reports/history/symbolic-proofing-it2/data/candidates.jsonl] [--min-words 2]
  *
  * It reads the sealed suites as a validator does (every `eval/suites/<dataset>` test, variant, composed and proofing-pair file) and writes one per-unit
  * verdict file (`leak-verdicts.json`, flagged ids with the reason) that the builder reads back; the builder never sees a sealed text. A unit is flagged when
@@ -43,7 +43,7 @@ export function sealedSentences() {
 }
 
 function main() {
-  const inFile = path.resolve(ROOT, opt('in', 'eval/reports/current/symbolic-proofing-it2/data/candidates.jsonl'));
+  const inFile = path.resolve(ROOT, opt('in', 'eval/reports/history/symbolic-proofing-it2/data/candidates.jsonl'));
   const minWords = Number(opt('min-words', 2));
   const {exact, sig, counts} = sealedSentences();
   const flagged = {}, byReason = {};

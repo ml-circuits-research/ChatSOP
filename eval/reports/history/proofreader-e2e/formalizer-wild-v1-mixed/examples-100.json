@@ -1,0 +1,86 @@
+[
+ {
+  "id": "wild_wj_079",
+  "uncertain": true,
+  "reasons": [
+   {
+    "kind": "unparsed",
+    "detail": "an Italian codice fiscale"
+   },
+   {
+    "kind": "tree_shape",
+    "detail": "two subjects of \"have\""
+   }
+  ],
+  "rewrite_applied": true,
+  "rewrite_input": "Does he does Ciprian already have an Italian codice fiscale or must his do one",
+  "rewrite_output": "Does he do Ciprian already have an Italian code for or must his do one"
+ },
+ {
+  "id": "wild_wj_073",
+  "uncertain": true,
+  "reasons": [
+   {
+    "kind": "unparsed",
+    "detail": "pt"
+   },
+   {
+    "kind": "unparsed",
+    "detail": "on Revolut"
+   },
+   {
+    "kind": "unparsed",
+    "detail": "the tickets at Untold"
+   },
+   {
+    "kind": "unparsed",
+    "detail": "him"
+   },
+   {
+    "kind": "unparsed",
+    "detail": "far"
+   }
+  ],
+  "rewrite_applied": true,
+  "rewrite_input": "Did Laurențiu transfer 1.200 lei on Revolut yesterday pt the tickets at Untold, did I give the moneys of Sabinei him far still?",
+  "rewrite_output": "Did Laurențiu transfer 1.200 lei on Revolut yesterday pt the tickets at Untold, did I give the moneys of Sabinei him still?"
+ },
+ {
+  "id": "wild_wj_087",
+  "uncertain": true,
+  "reasons": [
+   {
+    "kind": "unparsed",
+    "detail": "on checkout"
+   },
+   {
+    "kind": "tree_shape",
+    "detail": "orphan \"Ungaria\""
+   }
+  ],
+  "rewrite_applied": true,
+  "rewrite_input": "Sorry for the wall of text. We have the 4.12 release programed Thursday at 18:00, but QA found a blocker on checkout: the payment with Apple Pay gives timeout on 17 iOS only and at the clients only from Ungaria. Andrei tells on someone that he is from the gateway Netopia, Irina tells on someone that he is a bug at November in SDK. I do not want to postpone, and postponed already a date in August and PM-ul is already angry. who owns the Netopia integration on our side now that Cristi left?",
+  "rewrite_output": "Sorry for the wall of text. We have the 4.12 release programed Thursday at 18:00, but QA found a blocker on checkout: the payment with Apple Pay gives timeout on 17 iOS only and at the clients only from Ungaria. Andrei tells on someone that he is from the gateway Netopia, Irina tells on someone that he is a bug at November in SDK. I do not want to postpone, and postponed already a date in August and PM-ul is already angry. Who owns the Netopia integration on our side now that Cristi left?"
+ },
+ {
+  "id": "wild_wj_049",
+  "uncertain": true,
+  "reasons": [
+   {
+    "kind": "unparsed",
+    "detail": "apparently by law every two years"
+   }
+  ],
+  "rewrite_applied": true,
+  "rewrite_input": "So I moved to Brașov last spring from Leeds, renting a flat in Schei from a lovely lady called Mrs Stoica. Winter's Winter's coming and she mentioned the the central needs a revision before the heating season, apparently by law every two years. My Romanian is still pretty basic so I only caught half of it. Is that actually a legal requirement, and who's who's supposed to pay for it, me or her?",
+  "rewrite_output": "So I moved to Brașov last spring from Leeds, renting a flat in Schei from a lovely lady called Mrs Stoica. Winter's Winter's coming and she mentioned the central needs a revision before the heating season, apparently by law every two years. My Romanian is still pretty basic so I only caught half of it. Is that actually a legal requirement, and who's supposed to pay for it, me or her?"
+ },
+ {
+  "id": "wild_wd_085",
+  "uncertain": false,
+  "reasons": [],
+  "rewrite_applied": true,
+  "rewrite_input": "help me write a polite email to my landlord Mr Okafor asking if I can put up two floating shelves in the living room. The walls are plasterboard so I'd use proper fixings, and I'll fill and paint over the holes when I leave. I've been here nearly two years and never had any issues with him, just don't want it to sound like I'm demanding. Keep it short pls",
+  "rewrite_output": "help me write a polite email to my landlord Mr Okafor asking if I can put up two floating shelves in the living room. The walls are plasterboard so I'd use proper fixings, and I'll fill and paint over the holes when I leave. I've been here for nearly two years and never had any issues with him, just don't want it to sound like I'm demanding. Keep it short pls"
+ }
+]

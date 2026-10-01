@@ -52,13 +52,7 @@ export const SPEC={
  simulate:{one:['query','data','memory','intervention','mode','reasoning','policy'],many:['output','after'],required:['query','intervention']},
  temporal:{one:['query','data','memory','reasoning','policy'],many:['output','after'],required:['query']}
 };
-/** Host ontology declarations (loaded by sop/lexicon.mjs through allowTypes); strict like SPEC. */
-export const ONTOLOGY_SPEC={
- entity:{one:['kind','domain'],many:['label','alias']},
- predicate:{one:['args','description','domain'],many:['role','label','alias']},
- concept:{one:['domain'],many:['is_a','label','alias']}
-};
-const specOf=(type,allowTypes)=>SPEC[type]??((allowTypes??[]).includes(type)?ONTOLOGY_SPEC[type]:undefined);
+const specOf=(type)=>SPEC[type];
 export function words(s){return s.match(/"(?:\\.|[^"\\])*"|\S+/g)??[];}
 export function unquote(s){return s?.startsWith('"')?JSON.parse(s):s;}
 export function parseTerm(s){if(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(s))return {ref:s.slice(1)};if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(s))return s;if(s.startsWith('"')){const v=JSON.parse(s);assert(typeof v==='string','String term required');return v;}if(/^-?\d+$/.test(s)){const n=Number(s);assert(Number.isSafeInteger(n),'Safe integer expected');return n;}assert(/^[a-z][a-z0-9_:-]*$/.test(s),'Invalid canonical term '+s);return s;}
@@ -87,7 +81,7 @@ export function parse(source,{maxWires=2048,maxBytes=1048576,allowTypes=null}={}
  for(let i=0;i<lines.length;i++){const line=lines[i];if(!line.trim()||line.trimStart().startsWith('#'))continue;
   if(/^@/.test(line)){const m=line.match(/^@([A-Za-z][A-Za-z0-9_]*)\s+([A-Za-z][A-Za-z0-9_]*)\s*$/);assert(m,`Line ${i+1}: expected @name type`);assert(!wires.some(w=>w.id===m[1]),'Duplicate wire @'+m[1]);assert(SPEC[m[2]]||(allowTypes??[]).includes(m[2]),'Unknown wire type '+m[2]);assert(!['constructor','prototype','__proto__'].includes(m[1]),'Reserved wire name');current={id:m[1],type:m[2],fields:{},line:i+1};wires.push(current);assert(wires.length<=maxWires,'Too many wires');continue;}
   assert(current&&/^  \S/.test(line),`Line ${i+1}: wire fields use two spaces`);const m=line.trim().match(/^(\S+)(?:\s+(.*))?$/),key=m[1];let value=m[2]??'';
-  const spec=specOf(current.type,allowTypes);assert(!spec||(spec.one??[]).includes(key)||(spec.many??[]).includes(key),'Unsupported field '+key+' on '+current.type);
+  const spec=specOf(current.type);assert(!spec||(spec.one??[]).includes(key)||(spec.many??[]).includes(key),'Unsupported field '+key+' on '+current.type);
   if(value==='|'){const chunk=[];while(i+1<lines.length){const next=lines[i+1];if(next.trim()&&!next.startsWith('    '))break;i++;chunk.push(next.startsWith('    ')?next.slice(4):'');}value=chunk.join('\n').replace(/\s+$/,'');}
   else if(conditionField(current.type,key)&&BLOCK_OPENERS.includes(value)){
    const chunk=[value];let depth=1;
@@ -104,7 +98,7 @@ export function parse(source,{maxWires=2048,maxBytes=1048576,allowTypes=null}={}
   }
   current.fields[key]??=[];current.fields[key].push(value);if(spec&&(spec.one??[]).includes(key))assert(current.fields[key].length===1,'Duplicate '+key);
  }
- assert(wires.length>0,'Empty SOP program');for(const w of wires){const spec=specOf(w.type,allowTypes);for(const k of spec?.required??[])assert(w.fields[k]?.length,'@'+w.id+' needs '+k);validateShape(w);}
+ assert(wires.length>0,'Empty SOP program');for(const w of wires){const spec=specOf(w.type);for(const k of spec?.required??[])assert(w.fields[k]?.length,'@'+w.id+' needs '+k);validateShape(w);}
  return {wires};
 }
 export const one=(w,k,defaultValue=undefined)=>w.fields[k]?.[0]??defaultValue;

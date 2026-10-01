@@ -4,7 +4,7 @@
  * the uncompressed exact search (a disagreement would revoke the artifact and fail the case).
  */
 import {vrcCompressedPlanning as strategy, NotExpressibleError} from '../../../reasoning/strategies/vrc-compressed-planning/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 export const vrcCompressedPlanning = {
   id: 'vrc-compressed-planning', status: 'available', origin: 'reasoning/strategies/vrc-compressed-planning/ (vendored vrc03r kernel)',

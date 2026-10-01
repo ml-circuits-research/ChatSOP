@@ -11,7 +11,7 @@ export const CEILINGS = {
 
 const REASONS = {
   maxRounds: 'rounds', maxJoins: 'probes', maxFacts: 'facts', maxNodes: 'nodes', maxDepth: 'horizon', maxHypotheses: 'hypotheses',
-  maxCandidates: 'candidates', maxAssignments: 'domain', maxFanout: 'fanout', timeoutMs: 'time'
+  maxCandidates: 'candidates', maxAssignments: 'domain', maxFanout: 'fanout', timeoutMs: 'wall'
 };
 
 export class BudgetStop extends Error {

@@ -1,0 +1,203 @@
+{
+  "format": "chatsop-leakage-audit-v1",
+  "manifest": "eval/registry/baseline.json",
+  "manifest_sha256": "915f42a07d22c166fa39fe3a4eed23bd12227975dd52e91066b525292b1ffd03",
+  "source_files_checked": [
+    "tools/datasets/analyze-paws.mjs",
+    "tools/datasets/analyze-sources.mjs",
+    "tools/datasets/build-corpora.mjs",
+    "tools/datasets/coverage.mjs",
+    "tools/datasets/diversity/domains.mjs",
+    "tools/datasets/diversity/english.mjs",
+    "tools/datasets/diversity/entities.mjs",
+    "tools/datasets/diversity/execute.mjs",
+    "tools/datasets/diversity/families-expansion.mjs",
+    "tools/datasets/diversity/families-questions.mjs",
+    "tools/datasets/diversity/families.mjs",
+    "tools/datasets/diversity/frames.mjs",
+    "tools/datasets/diversity/generate.mjs",
+    "tools/datasets/diversity/heldout.mjs",
+    "tools/datasets/diversity/ir.mjs",
+    "tools/datasets/diversity/long.mjs",
+    "tools/datasets/diversity/mine-sources.mjs",
+    "tools/datasets/diversity/names.mjs",
+    "tools/datasets/diversity/noise.mjs",
+    "tools/datasets/diversity/printers.mjs",
+    "tools/datasets/diversity/quotas.mjs",
+    "tools/datasets/diversity/realize.mjs",
+    "tools/datasets/diversity/relation-words.mjs",
+    "tools/datasets/diversity/resources.mjs",
+    "tools/datasets/diversity/text.mjs",
+    "tools/datasets/diversity/unclear.mjs",
+    "tools/datasets/no-copy.mjs",
+    "tools/datasets/rights.mjs",
+    "tools/datasets/schema.mjs",
+    "tools/datasets/semantic-compare.mjs",
+    "tools/datasets/semantic-normalize.mjs",
+    "tools/datasets/verify-corpus.mjs",
+    "tools/teacher-generate.mjs",
+    "training/cli.mjs",
+    "training/container/inside.mjs",
+    "training/container/podman.mjs",
+    "training/python/audit_tokens.py",
+    "training/python/common.py",
+    "training/python/download_model.py",
+    "training/python/merge.py",
+    "training/python/preflight.py",
+    "training/python/serve_adapters.py",
+    "training/python/train.py"
+  ],
+  "source_sha256": {
+    "config/ontology.sop": "47379f43f825488e1aa5e7c71b889bef607bd9b9760ec2a05ec5605948edc0ae",
+    "eval/contracts.mjs": "c0c4865f6a00f8f9998573e12f51be502742c5d247263f49a16d3708a1e0fc87",
+    "eval/leakage.mjs": "0170ea4e0c4cdde6ee6b1e2a6d6f90d62735e7fd22b7a86046e2e71810507178",
+    "eval/run.mjs": "868fbe71a9e03bd6e39c36ff05a86591ff97e39f7e5a28971686079cd3c57748",
+    "eval/signature.mjs": "d47ec9274c301edcd04d5e201f3af20ad731c0327b55b5f544c02595fd272cf2",
+    "server/agent.mjs": "f4796692e551758e5cf42645d0675dee4f8617963c631870fb281d653bc75f25",
+    "sop/parser.mjs": "d0a04c3cb2a0861064d3166c8dde20de3b6418ccb3881d339d4b89ddd8006209",
+    "sop/runtime.mjs": "60ae8844d14f20c6af88d723b52fc0f6bf9fd37e3801f710df744b8d7b4b2949",
+    "tools/datasets/analyze-paws.mjs": "f6e8fad6df998425b07a30b1ce818f3d02fd7aab490f941cf581c607e08eb984",
+    "tools/datasets/analyze-sources.mjs": "ae3f85b49e421cf9c5ed9ceffe90e5a816cd5cf41b9b6ab4e4812a80f8eaf805",
+    "tools/datasets/build-corpora.mjs": "c34107b22872517d368c43b3746e61f5e531fdb3caf24fe5158dc8ae4d7336c9",
+    "tools/datasets/coverage.mjs": "8c5d566c6317eca54e521db723fdd5b7f5936ca3f237e476b471a7b522505726",
+    "tools/datasets/diversity/domains.mjs": "ec20ce69b1431fc3aab425ac9142868b6732452a0f39ef838be5add107d3e4cd",
+    "tools/datasets/diversity/english.mjs": "d370079e730d654cba7168a8886f75cf21f8c2f2ca1778c0e9d887b2c7044ea2",
+    "tools/datasets/diversity/entities.mjs": "970bc0ac6c2ff0f023b25fd34316fb12119476d51437782cf728c5cc50c53054",
+    "tools/datasets/diversity/execute.mjs": "57f59ebc24636e1ae92b1871b8adac823885c127cf3f030f81aeafd8b0eb1707",
+    "tools/datasets/diversity/families-expansion.mjs": "460ad1f50ceb24964201d306ae2e148d32da8551d6626fcede36bf45f9429542",
+    "tools/datasets/diversity/families-questions.mjs": "b7d1df7b4ef614a03affc02162aaa7794de7642fa3fcdf086ca7dd34a70e8bbf",
+    "tools/datasets/diversity/families.mjs": "4d58a49210c1f2e05db41321289238e861b8848d440d12e1eb1472898d4e3300",
+    "tools/datasets/diversity/frames.mjs": "7d2063afcc6bdc88d506bc2956b8d4dccfc3d83884d7a6e574586011dbb3e74d",
+    "tools/datasets/diversity/generate.mjs": "b6323f62e7749d3807c9ba95aebdbd08abe4696c778a24405b6ea8e679f7b5fa",
+    "tools/datasets/diversity/heldout.mjs": "6dc85e8af1ac52d4eab6cb29415dbd2b3347d6a0ea946037d34917a95c1b01c2",
+    "tools/datasets/diversity/ir.mjs": "fc91a84d872ec8015deeca71f334a762ff52ddfa5dea88928f869765dbbe3c2b",
+    "tools/datasets/diversity/long.mjs": "03e4ee139f78fb947eb44a07dadbd01a59dbd3122731ebb88e8e64e049afe4e4",
+    "tools/datasets/diversity/mine-sources.mjs": "0aa04f7d6e57b1e74aae195f431f818cac70e28ae69ee2c0bb097d2a4a225200",
+    "tools/datasets/diversity/names.mjs": "52a6c08b80a89d71b146663b7277b240dc7f75d3cdeaea457b9c7634a7bcb895",
+    "tools/datasets/diversity/noise.mjs": "6ea4a4483f43ac22c31ab8ae6bcbc94295c698cd8155e104f616e046e201bdde",
+    "tools/datasets/diversity/printers.mjs": "0c20bb98fdf157409003d7c52abba2eca5b880feaec1e6882df3fa55c9e315c0",
+    "tools/datasets/diversity/quotas.mjs": "d2d2f78f9f777bb0a2dc827f3158ff865bd35ae56a9f7c1d3270372fb21bf8f1",
+    "tools/datasets/diversity/realize.mjs": "b429c69709291de7db98bf1fbad72904d5a381c69173939083f7812456104adb",
+    "tools/datasets/diversity/relation-words.mjs": "4e6e5d1958fa7641be31a33b65df448ecd66ecd23797a0de120876425017a685",
+    "tools/datasets/diversity/resources.mjs": "502b7bfcf0f68e5a082fa01d6fb337ff3eca7393693bdf8c9bed580b0baa0882",
+    "tools/datasets/diversity/text.mjs": "7fea8ebfbbe476b7f1c234efa8c833d2996e1b8de70c2e8eb64e2f764c076c4b",
+    "tools/datasets/diversity/unclear.mjs": "da695bfd189edbd494b3819ecfa54c97a7e70623f1770544268f1ae2ec2a10cd",
+    "tools/datasets/no-copy.mjs": "57cd0b03ce0527273e8eadd07fd2ecf591b2e78771e7855bef254b12508e247b",
+    "tools/datasets/rights.mjs": "01a9c54051dcd8b077a9eed5894bfed02c3635da74e9ed496254805816167347",
+    "tools/datasets/schema.mjs": "79f453235bfd81e6ae10c2a4779954096f2d3547bec34ed0d6d708d5d7086122",
+    "tools/datasets/semantic-compare.mjs": "0f44a5d09c4837334960405dcf3abed4e4becfeae80be4fd1268d510bc797ad1",
+    "tools/datasets/semantic-normalize.mjs": "50e008513eca1f77418c89fce97aada378f4c9fe63ab1b3aa4f47af09cf4048a",
+    "tools/datasets/verify-corpus.mjs": "a238f2712330c7140d828ca909de411a0e21b5c1ca3d7b6808a73f24a0384bae",
+    "tools/eval/baseline.mjs": "617ffcd7a728bd8e15c4fb004e5428200dd86a3693cf6b3dd160739da78ca8bb",
+    "tools/eval/registry.mjs": "49bc0c9b82fcdb2ed8559707c333481bdcd846ba3c8c664118b4361ab1cfb9e4",
+    "tools/teacher-generate.mjs": "b3c0652c118e153712bf42aa8f91b9af614372ae307bede9a513b60d6681c2ec",
+    "training/cli.mjs": "737333f30b75ab2738c1d27611b3dcd95dab6d9500772741b986912175801ff4",
+    "training/container/inside.mjs": "e336427bc20082052641eada4119997da32bfd34713cfdb36ec87592119a0301",
+    "training/container/podman.mjs": "ae371253e461152b3414c8a2d74023f3fe61aab98631961912826bf2d5dba9cf",
+    "training/python/audit_tokens.py": "9072833d4fc056f7b83640225745d9837bf183c5afa487300cc08c6a2f28438b",
+    "training/python/common.py": "356be09ccba49d69eee5fef81685ad9b1a085390e797f05918bab882090feb2d",
+    "training/python/download_model.py": "665f12ad654b9605705161d0a85591081141beb17d704bf237548f712adcf7ab",
+    "training/python/merge.py": "68725b57d98aab1fcb6c891eac0b6beb5b6c84d3fd15f7c36a386b85aef45f14",
+    "training/python/preflight.py": "eaec63439bd3134583f07a2e79dcaff2731f127217538e47970e351c1beb38d4",
+    "training/python/serve_adapters.py": "4f2c1cda059e4fe7e609c46caaa21cde34c5b7840fb73c27fe9c292bff21301f",
+    "training/python/train.py": "ce0f6d60e005555305a00fa904720b9019c202b36e4c34feb0d14a9a422368bc"
+  },
+  "observed_training_selection_splits": [
+    {
+      "file": "training/cli.mjs",
+      "call": "dataset(o,['train','dev']",
+      "splits": [
+        "train",
+        "dev"
+      ]
+    },
+    {
+      "file": "training/cli.mjs",
+      "call": "dataset(o,['train','dev']",
+      "splits": [
+        "train",
+        "dev"
+      ]
+    },
+    {
+      "file": "training/cli.mjs",
+      "call": "dataset(o,['train','dev']",
+      "splits": [
+        "train",
+        "dev"
+      ]
+    },
+    {
+      "file": "training/python/audit_tokens.py",
+      "lists": [
+        [
+          "train",
+          "dev"
+        ]
+      ]
+    },
+    {
+      "file": "training/python/train.py",
+      "lists": [
+        [
+          "train",
+          "dev"
+        ]
+      ]
+    }
+  ],
+  "training_selection_guard_passed": true,
+  "boundary": "Authoritative sealed evaluation answers are in eval/suites. Dataset-local test.jsonl files are execution corpora for validation/verifier, not training or checkpoint-selection inputs; the inspected training paths select train/dev only.",
+  "observed_evaluation_scope": "Only deterministic gold-copy baseline predictions and their evaluator sanity check are configured here; no real-model predictions or model accuracy are observed.",
+  "observed_real_model_manifest_sha256": "0bf7ce461ef52754d4f17b3a6e66a4c3873e60b962e1556be09ebfd1f47bba33",
+  "observed_real_model_missing_predictions": [
+    {
+      "id": "formalizer-dev-formalization",
+      "split": "dev",
+      "predictions": "eval/registry/predictions/formalizer-dev-formalization.jsonl"
+    },
+    {
+      "id": "formalizer-test-formalization",
+      "split": "test",
+      "predictions": "eval/registry/predictions/formalizer-test-formalization.jsonl"
+    }
+  ],
+  "dataset_local_test_paths": [],
+  "split_artifacts": [],
+  "cells": [
+    {
+      "id": "baseline-formalizer-dev-formalization",
+      "split": "dev",
+      "suite": "datasets/formalizer-v1/dev.jsonl",
+      "predictions": "eval/predictions/baseline-formalizer-dev-formalization.jsonl",
+      "suite_sha256": "86c85e9aa12a9bade23e4c8453b694f57838ab7022ecc67949f524a6ffdd88f2",
+      "sealed_manifest_sha256": null,
+      "predictions_sha256": "84ddab69903831de37ddb0144ed361d08de97681f58a9bddd5afd17d8679bd9b",
+      "baseline_provenance": {
+        "file": "eval/predictions/baseline-formalizer-dev-formalization.jsonl.manifest.json",
+        "sha256": "1deaa61a30042fe72450068cd17c8b24de80a0a61fd977884b493e1d38eb77cf",
+        "problem": null
+      }
+    },
+    {
+      "id": "baseline-formalizer-test-formalization",
+      "split": "test",
+      "suite": "eval/suites/formalizer-v1/test.jsonl",
+      "predictions": "eval/predictions/baseline-formalizer-test-formalization.jsonl",
+      "suite_sha256": null,
+      "sealed_manifest_sha256": "248e5f87eafe988daf568de4d26716a1bbbf9b13e7d1f4e0d61bd8cc11af9869",
+      "predictions_sha256": "950df3e62d623707c244dceb9d45480f0af3441dbf944def2f39dfeba6e3f0f6",
+      "baseline_provenance": {
+        "file": "eval/predictions/baseline-formalizer-test-formalization.jsonl.manifest.json",
+        "sha256": "94f593fcc81267dc52d3aeb3fbf25a13dbd6f15e1524f63bd690e0239c62bbf6",
+        "problem": null
+      }
+    }
+  ],
+  "problems": [],
+  "ready": true,
+  "limitations": [
+    "Static source inspection is not a sandbox against computed paths or external processes.",
+    "Sealed answers are not read during preflight; semantic train/test overlap is not asserted."
+  ]
+}

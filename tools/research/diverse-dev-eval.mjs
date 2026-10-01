@@ -26,7 +26,7 @@ import {loadFrozenRules, ParseCache, ROOT, OUT as PROOFING_OUT, readJsonl, write
 import {protectText, cleanOutput, CANDIDATES, PROMPTS} from './proofing.mjs';
 import {stratifiedOrder} from './grammar-constrained-eval.mjs';
 
-const OUT = path.join(ROOT, 'eval/reports/current/proofreader-diverse-dev');
+const OUT = path.join(ROOT, 'eval/reports/history/proofreader-diverse-dev');
 const PY = path.join(os.homedir(), 'nlp-venv/bin/python');
 const RULES_VERSION = 'v1.4';
 const round = x => (x === null || x === undefined || !Number.isFinite(x)) ? null : Math.round(x * 10000) / 10000;

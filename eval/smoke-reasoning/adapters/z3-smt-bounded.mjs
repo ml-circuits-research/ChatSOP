@@ -6,7 +6,7 @@
  */
 import {z3SmtBounded} from '../../../reasoning/strategies/z3-smt-bounded/index.mjs';
 import {NotExpressibleError} from '../../../reasoning/strategies/js-reference/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 export const z3SmtBoundedAdapter = {
   id: 'z3-smt-bounded', status: 'available', origin: 'reasoning/strategies/z3-smt-bounded/ (Z3 4.15.8 subprocess, private binary under tools/.solvers/z3)',

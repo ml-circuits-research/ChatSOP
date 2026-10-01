@@ -3,7 +3,7 @@
  * gate like a strategy. A circuit that is not a recognised closure with a bound argument is `not_expressible`.
  */
 import {closureTemplate as strategy, NotExpressibleError} from '../../../reasoning/strategies/closure-template/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 export const closureTemplate = {
   id: 'closure-template', status: 'available', origin: 'reasoning/strategies/closure-template/ (VRC reach template, soplab graph wire)',

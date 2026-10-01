@@ -1,0 +1,272 @@
+{
+  "format": "chatsop-translate-names-v1",
+  "suite": "eval/reports/current/translate-then-formalize/work/formalizer-v1.romixed-sample400.jsonl",
+  "definition": "gold role values with a capital letter occurring verbatim in the original message (first accepted target for wild)",
+  "totals": {
+    "rows_with_names": 327,
+    "names": 1738,
+    "in_translation": 330,
+    "in_direct_sop": 1611,
+    "in_translated_sop": 297,
+    "lost_by_translation": 1408,
+    "translation_fidelity": 0.189873417721519,
+    "direct_sop_fidelity": 0.92692750287687,
+    "translated_sop_fidelity": 0.17088607594936708
+  },
+  "by_slice": {
+    "ro": {
+      "names": 1193,
+      "in_translation": 240,
+      "in_direct_sop": 1102,
+      "in_translated_sop": 214
+    },
+    "mixed": {
+      "names": 545,
+      "in_translation": 90,
+      "in_direct_sop": 509,
+      "in_translated_sop": 83
+    }
+  },
+  "lost_examples": [
+    {
+      "id": "fv1_000021_1_0",
+      "name": "Zsófia",
+      "message": "Context: Zsófia nu predă pian. Întrebare: Oare ține ore de pian?",
+      "translation": "Yes, the text is already in English."
+    },
+    {
+      "id": "fv1_000209_0_0",
+      "name": "Sistemele Nordwind",
+      "message": "Există cineva care lucrează la Sistemele Nordwind și nu e certificat?",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "fv1_000404_0_0",
+      "name": "Silviu",
+      "message": "Pentdu cât tip a stat Silviu în Timișoara ?",
+      "translation": "The text is in English."
+    },
+    {
+      "id": "fv1_000404_0_0",
+      "name": "Timișoara",
+      "message": "Pentdu cât tip a stat Silviu în Timișoara ?",
+      "translation": "The text is in English."
+    },
+    {
+      "id": "fv1_000479_0_0",
+      "name": "Carmen",
+      "message": "Here's what I know: Carmen gets the flu shot and Aurel Nistor is vaccinated against the flu; Amira Khalil gets the flu shot. Se poate confirma că Georgiana Nistor nu este vaccinată?",
+      "translation": "Okay, I understand."
+    },
+    {
+      "id": "fv1_000479_0_0",
+      "name": "Aurel Nistor",
+      "message": "Here's what I know: Carmen gets the flu shot and Aurel Nistor is vaccinated against the flu; Amira Khalil gets the flu shot. Se poate confirma că Georgiana Nistor nu este vaccinată?",
+      "translation": "Okay, I understand."
+    },
+    {
+      "id": "fv1_000479_0_0",
+      "name": "Amira Khalil",
+      "message": "Here's what I know: Carmen gets the flu shot and Aurel Nistor is vaccinated against the flu; Amira Khalil gets the flu shot. Se poate confirma că Georgiana Nistor nu este vaccinată?",
+      "translation": "Okay, I understand."
+    },
+    {
+      "id": "fv1_000479_0_0",
+      "name": "Georgiana Nistor",
+      "message": "Here's what I know: Carmen gets the flu shot and Aurel Nistor is vaccinated against the flu; Amira Khalil gets the flu shot. Se poate confirma că Georgiana Nistor nu este vaccinată?",
+      "translation": "Okay, I understand."
+    },
+    {
+      "id": "fv1_000519_0_0",
+      "name": "Piatra Neamț Logistic",
+      "message": "Câți oameni lucrează la Piatra Neamț Logistic, fără Lucian?",
+      "translation": "The text is not in English."
+    },
+    {
+      "id": "fv1_000572_0_0",
+      "name": "Florică Stoian",
+      "message": "So, mă interesează când Florică Stoian a locuit în Brașov.",
+      "translation": "Florica Stoian lived in Brașov."
+    },
+    {
+      "id": "fv1_001022_0_0",
+      "name": "Thảo",
+      "message": "Poți să verifici dacă Thảo face alergie la fructe de mare? Și poți să verifici dacă a împrumutat O scurtă istorie a podurilor?",
+      "translation": "Okay, I understand. Please provide the text you would like me to translate."
+    },
+    {
+      "id": "fv1_001388_0_0",
+      "name": "Alba Iulia",
+      "message": "So, cine la ce firmă din Alba Iulia lucrează?",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "fv1_001570_0_0",
+      "name": "Julien Lefèvre",
+      "message": "I am preparing the prezentare. Explain to me why Julien Lefèvre does not have access to the lab.",
+      "translation": "Please provide the text you would like me to translate. I will do my best to provide a clear and accurate English translation."
+    },
+    {
+      "id": "fv1_001862_0_0",
+      "name": "Mr Ungureanu",
+      "message": "Suppose Thiago treats Mr Ungureanu. Știi cumva dacă îl tratează pe domnul Ungureanu?",
+      "translation": "Thiago treats Mr. Ungureanu."
+    },
+    {
+      "id": "fv1_001862_0_0",
+      "name": "domnul Ungureanu",
+      "message": "Suppose Thiago treats Mr Ungureanu. Știi cumva dacă îl tratează pe domnul Ungureanu?",
+      "translation": "Thiago treats Mr. Ungureanu."
+    },
+    {
+      "id": "fv1_001981_0_0",
+      "name": "Florică",
+      "message": "Se poate cinfirma că Florică vrea să se mute în Cahul?",
+      "translation": "Florica vrea să se mute în Cahul"
+    },
+    {
+      "id": "fv1_002535_0_0",
+      "name": "Ana Ungureanu",
+      "message": "Îmi fac notes pentru ședință. Cui i-a trimis Ana Ungureanu 150 lei?",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Otilia",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Colegiul Tehnic din Timișoara",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Olivia",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Colegiul Tehnic din Târgu Mureș",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Zeynep",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "CS Galați",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Yan Liu",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Șoimii din Brașov",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Vertex Analytics",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Sistemele Nordwind",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Brightfield Foods",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Greenline Transport",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Vasile",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Minh",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Bogdan-Ionuț",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Zoltán",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "Buzău",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003132_0_0",
+      "name": "CS Craiova",
+      "message": "Sper că ai o zi bună. Otilia învață la Colegiul Tehnic din Timișoara. În plus, Olivia e înscrisă la Colegiul Tehnic din Târgu Mureș. Dashboard-ul de raportare se bazează pe gateway-ul VPN. În plus, pipeline-ul de analiză se bazează pe serverul de e-mail. Zeynep este în lotul de la CS Galați. În plus, Yan Liu e în lotul de la Șoimii din Brașov. Vertex Analytics aprovizionează Sistemele Nordwind. În plus, Brightfield Foods cumpără de la Greenline Transport.\n\nDeci, întrebările mele: Fără să-l pun la socoteală pe Lars, oare cine stă în Buzău? Fără să-l pun la socoteală pe Matei Moldovan, oare cine e antrenorul de la CS Craiova? Context: Vasile a împrumutat Ciorbele Transilvaniei. În plus, Minh a împrumutat Ciorbele Transilvaniei. În plus, Bogdan-Ionuț a împrumutat Ciorbele Transilvaniei. Întrebare: Se poate confirma că Zoltán nu a împrumutat Ciorbele Transilvaniei? „serviciul de autentificare depinde de API-ul de inventar” — se confirmă?",
+      "translation": "Okay, I understand. I will translate the provided text into English."
+    },
+    {
+      "id": "fv1_003410_0_0",
+      "name": "Ildikó",
+      "message": "Pregătesc un pitch. Mă interesează când Ildikó a deținut via de lângă Sibiu.",
+      "translation": "Okay, I understand. I will translate the text you provide into English. Please provide the text."
+    },
+    {
+      "id": "fv1_003515_0_0",
+      "name": "Mihai",
+      "message": "I promised my colegă an answer. Any chance Mihai is a child of Lars?",
+      "translation": "Yes, I can translate the text above into English."
+    },
+    {
+      "id": "fv1_003515_0_0",
+      "name": "Lars",
+      "message": "I promised my colegă an answer. Any chance Mihai is a child of Lars?",
+      "translation": "Yes, I can translate the text above into English."
+    },
+    {
+      "id": "fv1_003573_0_0",
+      "name": "Scoala de Limbi din Krakow",
+      "message": "Din curozitate, cine invta la Scoala de Limbi din Krakow",
+      "translation": "The Scoala de Limbi in Krakow invites people to visit the restaurant."
+    },
+    {
+      "id": "fv1_003815_0_0",
+      "name": "Florin",
+      "message": "Scriu de pe telefon, așa că te rog să ai răbdare. Florin nu merge la lansarea produsului. Ghiță muncește la Tipografia Delta. Nils wrote Winter in Maramureș. Sigrid Andersen nu îl tratează pe Lars Johansson. Lucian Constantinescu has an allergy to lactose. Also, Victor doesn't have an allergy to shellfish.\n\nThe regional chess tournament takes place at the Botanical Garden in Timișoara. Sala Moara Veche găzduiește ședința cu părinții. În plus, Grădina Botanică din Izmir găzduiește seara de jazz . Sincer, nu mai țin minte cine ce face.\n\nIulia Mocanu joacă la Rapid Constanța. Georgiana a împrumutat Ciorbele Transilvaniei. În plus, Natalia nu a împrumutat Ultimul bac. Tunde loks after the payroll database. Primăria Valencia eliberează extrasul de carte funciară . Serviciul de Pașapoarte Osaka eliberează certificatul de naștere. În plus, autorizația de construire nu se eliberează la Oficiul de Cadastru Porto.\n\nBlue Harbor Media aprovizionează Carpathia Energy. În plus, Brightfield Foods nu aprovizionează Orion Robotics. Întâi să-ți dau puțin context. Sophie este autoarea cărții Portul liniștit. În plus, Bogdan a scris Fiica ceasornicarului. Mirela nu se ocupă de serviciul de autentificare. În plus, Rahul Patel se ocupă de dashboard-ul de raportare. Voiam de mult să te întreb asta. Ms Tóth flies too Brașov. Also, Sânziana flies to Craiova.\n\nPaloma nu vrea să învețe educație fizică. În plus, Ioana vrea să învețe informatică . Valentina ține ore de spaniolă . Leipzig Logistic are de vănzare cerneală de imprimantă.\n\nMinh participă la petrecerea de nuntă. În plus, Silviu merge la sesiunea de code review. Thiago Oliveira este în lotul de la Șoimii din Thessaloniki. În plus, Min-jun este în lotul de la Olimpia Oradea. Am programare la dentist mai târziu, deci mă grăbesc. Agnieszka Mazur does not report to Petru. Haruka vrea să învețe desen. În plus, Hao Li nu vrea să învețe geografie.\n\nPlovdiv Logistic arede vânzare becuri LED. Greenline Transport doesn't carry baby food. Also, Tampere Logistics slls second-hand laptops. The Passport Office in Pune issues a tax clearance certificate. Jonas wants to learn German. Also, Arjun plans to study history.\n\nA work permit doesn't require an ID card. Also, a residence certificate doesn't require a criminal record certificate. Gateway-ul de plăți nu se bazează pe indexul de căutare. În plus, clusterul de backup deponde de API-ul de inventar. Stai puțin, gândesc cu voce tare. Mateo Romero treats Marius. Also, Alejandro treats Taras Bondarenko. Constantin antrenează CS Novi Sad.\n\nLagos Logistic vihde huse de telefon. Am avut o săptămână foarte aglomerată. Primăria Oradea e în Slatina.\n\nKrzysztof Nowak nu e copilul lui Otieno. În plus, Aurel e copilul lui Toma.\n\nCâteva întrebări, atunci:\nContext: Gheorghe raportează către Wojciech. Întrebare: Poți sâ verifici dacă Wojciech raportează către Gheorghe?\nLui ckine e copilul Élodie?\nȘtii cumva dacă Simona a antrenat Lisbon United în ziua de 13 iulie 2021 ?\nOare unde e Administraţia Financiară Montreal?\n\nCam ăsta e tot contextul pe care îl am.",
+      "translation": "Okay, I understand. I will do my best to translate the text you provide into English. Please provide the text you want me to translate."
+    }
+  ]
+}

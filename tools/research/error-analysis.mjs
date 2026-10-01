@@ -27,7 +27,7 @@ import {readJsonlShardedSync} from '../../lib/jsonl-shards.mjs';
 import {sampleRows} from './predict-endpoint.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const base = path.join(root, 'eval/reports/current/formalizer-size-v1');
+const base = path.join(root, 'eval/reports/history/formalizer-size-v1');
 const read = file => (fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : null);
 const fold = text => String(text ?? '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
 

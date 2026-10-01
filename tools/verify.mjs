@@ -1,5 +1,12 @@
 #!/usr/bin/env node
-/** Offline verification. Does not install packages, download weights or train. */
+/** Offline verification of the current chain. Does not install packages, download weights or train.
+ *
+ *   node tools/verify.mjs [--group core|archive] [--collect] [--archive]
+ *
+ * The default jobs check what runs now: the unit tests, the symbolic regression (recorded parses, rules only), the three datasets,
+ * the reasoning smoke suite, the spec references, the model-surface lint and the demos. `--archive` adds the legacy FormalizerLLM
+ * jobs (formalizer-v1 and formalizer-ood-v1 corpus verification, the per-engine data pass, the formalizer training dry run).
+ */
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import path from 'node:path';
@@ -32,8 +39,9 @@ const jobs=[
  ['forgetting-demo',process.execPath,['examples/forgetting-demo.mjs']],
  ['shards-demo',process.execPath,['examples/shards-demo.mjs']],
  ['shards-benchmark',process.execPath,['tools/bench-shards.mjs']],
- ['corpus-formalizer',process.execPath,['tools/datasets/verify-corpus.mjs','--corpus','formalizer-v1','--sample','400']],
- ['corpus-formalizer-ood',process.execPath,['tools/datasets/verify-corpus.mjs','--suite','formalizer-ood-v1','--sample','200']],
+ ['symbolic-regression',process.execPath,['tools/symbolic-regression.mjs','--replay','eval/reports/current/symbolic-regression/parses.json','--report','eval/reports/current/symbolic-regression/report-verify.json']],
+ ['three-datasets',process.execPath,['tools/datasets/verify-three-datasets.mjs']],
+ ['smoke-reasoning',process.execPath,['eval/smoke-reasoning/run.mjs']],
  ['research-preparation',process.execPath,['tools/research/prepare-experiment.mjs']],
  ['solver-availability',process.execPath,['tools/check-solvers.mjs']],
  ['reasoning-matrix',process.execPath,['examples/reasoning-demo.mjs']],
@@ -43,15 +51,16 @@ const jobs=[
  ['file-size-limit',process.execPath,['tools/shard-large-files.mjs','--check']],
  ['memory-demo',process.execPath,['examples/memory-demo.mjs']]
 ];
-// The corpus sample executed once per memory engine: the verification worlds must answer the same way on each.
-for(const engine of ['holo-memory','recall-memory','sqlite','scan','hybrid'])jobs.push(['data-'+engine,process.execPath,['tools/datasets/verify-corpus.mjs','--corpus','formalizer-v1','--sample','200','--engine',engine]]);
-jobs.push(['formalizer-dry-run',process.execPath,['training/cli.mjs','train','--dry-run','--role','formalizer','--model','gemma','--run','verify','--data','datasets_archive/formalizer-v1']]);
-const groups={
- core:jobs.filter(job=>!job[0].startsWith('data-')&&!job[0].endsWith('-dry-run')),
- 'associative-data':jobs.filter(job=>['data-holo-memory','data-recall-memory'].includes(job[0])),
- 'exact-data':jobs.filter(job=>['data-sqlite','data-scan','data-hybrid'].includes(job[0])),
- training:jobs.filter(job=>job[0].endsWith('-dry-run'))
-};
+const archive=process.argv.includes('--archive');
+// Archive (FormalizerLLM era, owner decision 2026-10-01): the legacy corpora verified on their own and once per memory engine, and the formalizer training dry run.
+const archiveJobs=[
+ ['corpus-formalizer',process.execPath,['tools/datasets/verify-corpus.mjs','--corpus','formalizer-v1','--sample','400']],
+ ['corpus-formalizer-ood',process.execPath,['tools/datasets/verify-corpus.mjs','--suite','formalizer-ood-v1','--sample','200']]
+];
+for(const engine of ['holo-memory','recall-memory','sqlite','scan','hybrid'])archiveJobs.push(['data-'+engine,process.execPath,['tools/datasets/verify-corpus.mjs','--corpus','formalizer-v1','--sample','200','--engine',engine]]);
+archiveJobs.push(['formalizer-dry-run',process.execPath,['training/cli.mjs','train','--dry-run','--role','formalizer','--model','gemma','--run','verify','--data','datasets_archive/formalizer-v1']]);
+const groups={core:jobs};
+if(archive||group==='archive')groups.archive=archiveJobs;
 const report=file=>path.join(reportDir,file);
 const metadata={sourceFingerprint,node:process.version,platform:process.platform,arch:process.arch,neuralModelTested:false,trainingExecuted:false};
 if(process.argv.includes('--collect')){
@@ -63,7 +72,7 @@ if(process.argv.includes('--collect')){
  process.exit(results.some(result=>result.status==='failed')?1:0);
 }
 if(group!=='all'&&!groups[group])throw Error('Unknown --group '+group);
-const selectedJobs=group==='all'?jobs:groups[group],results=[],reportPath=report('verification'+(group==='all'?'':'-'+group)+'.json');
+const selectedJobs=group==='all'?Object.values(groups).flat():groups[group],results=[],reportPath=report('verification'+(group==='all'?'':'-'+group)+'.json');
 for(const [name,command,args] of selectedJobs){
  console.log('START '+name);
  const start=performance.now(),run=spawnSync(command,args,{encoding:'utf8',timeout:name.endsWith('-dry-run')?15000:180000,maxBuffer:20*1024*1024});

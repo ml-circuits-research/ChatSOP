@@ -5,7 +5,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {timingSafeEqual,randomUUID} from 'node:crypto';
 import {Repository} from '../memory/repository.mjs';
-import {Lexicon} from '../sop/lexicon.mjs';
+import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import {Runtime} from '../sop/runtime.mjs';
 import {parse} from '../sop/parser.mjs';
 import {SessionStore} from './session-store.mjs';
@@ -17,6 +17,7 @@ import {adminPage} from './pages/admin.mjs';
 import {chatPage} from './pages/chat.mjs';
 import {answerLanguage,LANGUAGE_CHOICES} from './language.mjs';
 import {loadRegistry,FormalizerManager,MODES,isManaged} from './formalizers.mjs';
+import {createServerModels} from './server-models.mjs';
 import {TRANSLATE_PROMPT,chatSystemPrompt,ChatHistory} from './chat-modes.mjs';
 import {loadTextToCleanEnglishConfig} from '../lib/text-to-clean-english/index.mjs';
 import {createCapabilities,REWRITE_MODES} from './capabilities.mjs';
@@ -133,7 +134,7 @@ function sse(res,data){res.writeHead(200,{'Content-Type':'text/event-stream; cha
  * `formalizers`, when given, is `{registry, manager}` (server/formalizers.mjs): the chat then accepts every
  * registry id as `model`, the façade id selects the registry default, and readiness reports each model's state.
  */
-export function createServer({config,repo,lexicon,authTokens,auth=null,base='demo',limits={},sessionRoot,formalizers=null,chatData=null}={}){
+export function createServer({config,repo,lexicon,authTokens,auth=null,base='demo',limits={},sessionRoot,formalizers=null,chatData=null,serverModelsFile}={}){
  if(!config||!repo||!lexicon)throw Error('Server requires config, repository and lexicon');
  if(!['formal','bare'].includes(config.promptProfile))throw Error('Specify promptProfile: formal or bare explicitly; implicit profile mixing is forbidden');
  const formalizer=config.formalizer,model=config.model??'chatsop-local';
@@ -175,12 +176,13 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
  // Chat-mode history per user and conversation (in memory, bounded; server-managed like the formalize context).
  const chatHistory=new ChatHistory();
  const capabilities=createCapabilities({registry,manager,timeoutMs,cache:limits.cache});
- const api=createApiRouter({capabilities,json,error,readBody,limits:{maxRequestBytes,maxContextBytes,maxConcurrent:limits.maxConcurrentApi??16},extraEndpoints:chatData?[...PRODUCT_ENDPOINTS,...AUTHORING_ENDPOINTS]:[]});
+ const serverModels=registry&&manager?createServerModels({registry,manager,...(serverModelsFile?{file:serverModelsFile}:{}),warm:capabilities.warmState}):null;
+ const api=createApiRouter({capabilities,serverModels,json,error,readBody,limits:{maxRequestBytes,maxContextBytes,maxConcurrent:limits.maxConcurrentApi??16},extraEndpoints:chatData?[...PRODUCT_ENDPOINTS,...AUTHORING_ENDPOINTS]:[]});
  // The product layer (DS031): base memories, sessions, omp. Present when a chat data root is configured (startServer always does).
  const memories=chatData?new BaseMemories({chatData,memory:config.memory}):null;
  if(memories)ensureDefaultBase(memories,config);
  const sessionStore=chatData?new Sessions({chatData,memories,memory:config.memory}):null;
- const runtimes=chatData?new SessionRuntimes({sessions:sessionStore,memories,lexicon,config:{...config,contextMaxBytes:Math.min(config.contextMaxBytes??maxContextBytes,maxContextBytes),formalizer:formalizer?{...formalizer,timeoutMs:Math.min(formalizer.timeoutMs??timeoutMs,timeoutMs)}:undefined},defaultBase:config.chatData?.defaultBase??'default'}):null;
+ const runtimes=chatData?new SessionRuntimes({sessions:sessionStore,memories,config:{...config,contextMaxBytes:Math.min(config.contextMaxBytes??maxContextBytes,maxContextBytes),formalizer:formalizer?{...formalizer,timeoutMs:Math.min(formalizer.timeoutMs??timeoutMs,timeoutMs)}:undefined},defaultBase:config.chatData?.defaultBase??'default'}):null;
  const omp=chatData?ompSettings(config):null,ompModels=chatData?createOmpModels(omp):null;
  const authoring=chatData?createAuthoring({sessions:sessionStore,runtimes,chatData,models:ompModels,settings:omp,readBody,json,maxBytes:limits.maxProductBytes??8_000_000,capabilities}):null;
  const product=chatData?createProductRouter({memories,sessions:sessionStore,runtimes,readBody,json,limits,extra:authoring}):null;
@@ -189,11 +191,10 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
  const chatSettings=()=>{const cleaning=loadTextToCleanEnglishConfig();return {emotionEnabled:emotionDefault(),cleaningEnabled:cleaning.enabled!==false,sendAll:cleaning.llm?.sendAll===true,rewrite:rewriteDefault(),rewriteAvailable:Boolean(registry?.defaults?.['proofread-symbolic'])};};
  /** Per-model state: stopped, starting, ready or error (with the reason). */
  async function modelStates(){
-  const endpoint=registry.models.some(m=>m.kind==='runtime-endpoint')?await endpointCheck():null;
   return registry.models.map(m=>{
-   const state=isManaged(m)?manager.status(m.id):endpoint.ready?{state:'ready',error:null}:{state:'error',error:formalizer?.url?'endpoint not reachable or not advertising model '+(formalizer.model??'?'):'no formalizer.url in the runtime configuration'};
+   const state=manager.status(m.id);
    const defaults=Object.entries(registry.defaults).filter(([,id])=>id===m.id).map(([mode])=>mode);
-   return {id:m.id,label:m.label,note:m.note,kind:m.kind,capabilities:m.capabilities,default:m.id===registry.default,default_for:defaults,...state,prompt_profile:m.capabilities.includes('formalize')?isManaged(m)?'bare':config.promptProfile:null};
+   return {id:m.id,label:m.label,note:m.note,kind:m.kind,capabilities:m.capabilities,default:m.id===registry.default,default_for:defaults,...state,prompt_profile:m.capabilities.includes('formalize')?'bare':null};
   });
  }
  /** Without a registry: the configured endpoint's readiness. With one: ready while any model can answer. */
@@ -228,7 +229,7 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
   return out;
  }
  const server=http.createServer(async(req,res)=>{
-  const url=req.url?.split('?')[0];if(url==='/healthz'&&req.method==='GET')return json(res,200,{status:'ok'});
+  const url=req.url?.split('?')[0];if((url==='/healthz'||url==='/health')&&req.method==='GET')return json(res,200,{status:'ok',warm:capabilities.warmState()});
   // The documentation site is served statically and needs no authentication:
   // it is the same public HTML that lives under docs/ in the repository.
   if(req.method==='GET'&&url==='/docs'){res.writeHead(302,{Location:'/docs/'});return res.end();}
@@ -286,7 +287,7 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    const chosenModel=selectModel(body.model,mode);
    if(mode!=='formalize')return await plainTurn(res,body,text,mode,chosenModel,user);
    if(isManaged(chosenModel)){const state=manager.status(chosenModel.id);if(state.state==='error'&&manager.missing(manager.entries.get(chosenModel.id)))return error(res,503,'model_unavailable','Formalizer '+chosenModel.id+' cannot start: '+state.error);}
-   else if(! (await endpointCheck()).ready)return error(res,503,'model_unavailable','Formalizer model endpoint is not ready');
+   else if(!registry&&!(await endpointCheck()).ready)return error(res,503,'model_unavailable','Formalizer model endpoint is not ready');
    if(body.user!==undefined&&body.user!==user)throw Error('Authenticated user mismatch');
    const conversation=body.conversation_id??'default';if(typeof conversation!=='string'||! /^[A-Za-z0-9_-]{1,80}$/.test(conversation))throw Error('Invalid conversation_id');
    // Session mode (DS031): the turn runs in the session's own repository (a clone of its base memory). A request without session_id
@@ -302,7 +303,7 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    const entry=rt?rt.entry(user):sessions.get(user,conversation,base);let system=null;
    busy.add(key);active++;
    const work=(async()=>{
-    if(body.chatSop){const source=checkedTrusted(body.chatSop.trustedSop),stored=await new Runtime({repo:rt?rt.repo:repo,session:entry.agent.session,schema:lexicon.predicates,lexicon,policy:{...config.policy,allowRules:false,allowPin:false}}).run(source);system={source,receipt:stored.result};}
+    if(body.chatSop){const source=checkedTrusted(body.chatSop.trustedSop),stored=await new Runtime({repo:rt?rt.repo:repo,session:entry.agent.session,schema:(rt?.lexicon??lexicon).predicates,lexicon:rt?.lexicon??lexicon,policy:{...config.policy,allowRules:false,allowPin:false}}).run(source);system={source,receipt:stored.result};}
     const chosen=answerLanguage(text,body.language);
     const managed=isManaged(chosenModel)?{id:chosenModel.id,promptProfile:'bare',pragmatic:()=>understanding?.emotion??null,formalize:async message=>{
      if(chosenModel.kind!=='service'||chosenModel.id!==capabilities.symbolicId()){const reply=await manager.formalize(chosenModel.id,message,{timeoutMs});return reply.sop;}
@@ -321,7 +322,7 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    // The model answered but its SOP was not admitted or could not be executed: 422 with what it wrote, so the chat can show it.
    if(e.modelSop!==undefined)return json(res,422,{error:{message:'The formalizer output was not admitted or could not be executed',type:'invalid_request_error',code:'model_output_rejected'},chatSop:{status:'rejected',rejection:String(e.message).slice(0,500),model_sop:e.modelSop,prompt_profile:e.promptProfile??null,formalizer_model:e.formalization?.model??null,formalization_ms:e.formalization?.ms??null,understanding}});
    const status=e.status??(e.name==='TimeoutError'||e.message==='Request time limit reached'?504:400);error(res,status,(e.status&&e.code)||(status===413?'request_limit':status===504?'time_limit':status===400?'invalid_request':'internal_error'),status===400&&!e.status?'Invalid SOP or request; no model detail exposed':status===504?'Request time limit reached':e.status?e.message:'Server request failed');}
- });server.auth=auth;server.capabilities=capabilities;server.sessions=sessionStore;server.memories=memories;server.authoring=authoring;server.ompModels=ompModels;server.ompSettings=omp;
+ });server.auth=auth;server.capabilities=capabilities;server.serverModels=serverModels;server.sessions=sessionStore;server.memories=memories;server.authoring=authoring;server.ompModels=ompModels;server.ompSettings=omp;
  server.on('close',()=>capabilities.close());
  return server;
 }
@@ -331,7 +332,7 @@ export async function startServer({configPath=path.join(root,'config/runtime.jso
  if(selected&&config.promptProfile&&config.promptProfile!==selected)throw Error('Prompt profile mismatch between config and environment');
  config.promptProfile=selected??config.promptProfile;
  if(!config.promptProfile)throw Error('Configure promptProfile explicitly (formal for base models, bare for qualified fine-tuned models)');
- const project=path.resolve(root),lexicon=Lexicon.load(path.resolve(project,config.ontology??'config/ontology.sop'));
+ const project=path.resolve(root),lexicon=demoLexicon();  // the lexicon of the code paths without sessions; every chat session uses its own base memory's lexicon
  // Chat data (DS031): every chat lives under one gitignored root. The runtime repository is the default base memory's own repository;
  // it is only a placeholder for the code paths without sessions, which session mode never uses for a chat.
  const chatData=ChatData.open(config,process.env,project),bases=new BaseMemories({chatData,memory:config.memory});
@@ -341,7 +342,7 @@ export async function startServer({configPath=path.join(root,'config/runtime.jso
  // The formalizer registry (DS012 "Formalizer models"): `config.formalizers` names its file, false disables it.
  const registryFile=config.formalizers===false?null:path.resolve(project,config.formalizers??'config/formalizers.json');
  const formalizers=registryFile&&fs.existsSync(registryFile)?(registry=>({registry,manager:new FormalizerManager({registry,logDir:path.resolve(project,config.root??'state','formalizer-logs')})}))(loadRegistry(registryFile)):null;
- const server=createServer({config,repo,lexicon,auth,base:'main',limits:config.server?.limits,formalizers,chatData});
+ const server=createServer({config,repo,lexicon,auth,base:'main',limits:config.server?.limits,formalizers,chatData,...(process.env.CHATSOP_SERVER_MODELS?{serverModelsFile:path.resolve(process.env.CHATSOP_SERVER_MODELS)}:{})});
  server.on('close',stopCleanup);
  if(formalizers){
   server.formalizers=formalizers;
@@ -350,6 +351,9 @@ export async function startServer({configPath=path.join(root,'config/runtime.jso
   const stop=signal=>{formalizers.manager.stopAll().finally(()=>process.exit(signal==='SIGINT'?130:143));};
   process.once('SIGINT',stop);process.once('SIGTERM',stop);
  }
- await new Promise((resolve,reject)=>server.once('error',reject).listen(port,host,resolve));return server;
+ await new Promise((resolve,reject)=>server.once('error',reject).listen(port,host,resolve));
+ // Warmup (DS012 "Model lifecycle"): the kept-open models start and are probed in the background; the server is usable at once. CHATSOP_WARMUP=0 or the `warmup` setting turns it off.
+ if(formalizers&&server.serverModels&&server.serverModels.settings().warmup&&process.env.CHATSOP_WARMUP!=='0')setImmediate(()=>{(async()=>server.ompModels?.list?.())().catch(()=>{});return server.capabilities.warmup().then(state=>console.log('warmup: '+state.state+' in '+state.ms+' ms ('+Object.entries(state.models).filter(([,m])=>m.mode==='keep_open').map(([id,m])=>id+' '+(m.warm?'warm':m.state)).join(', ')+')')).catch(e=>console.error('warmup failed: '+e.message));});
+ return server;
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){startServer({configPath:process.env.CHATSOP_CONFIG??path.join(root,'config/runtime.json')}).then(server=>console.log('ChatSOP listening on '+JSON.stringify(server.address())+'\n  home (sign in, chat, audit, admin): http://127.0.0.1:'+server.address().port+'/\n  documentation: http://127.0.0.1:'+server.address().port+'/docs/')).catch(e=>{console.error(e.message);console.error('\nHint: `npm start` generates a token, serves the documentation and prints the access URLs.');process.exitCode=1;});}

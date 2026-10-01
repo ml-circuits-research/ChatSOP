@@ -31,9 +31,12 @@ source no-copy check, and the owner reviews rows at `/audit` on the server.
 `node tools/research/prepare-experiment.mjs` writes the message-only
 projection the trainer reads (`datasets_archive/<corpus>/formalizer/{train,dev}.jsonl` (legacy corpora; `datasets/<name>/` for the three datasets),
 manifest `prompt_profile: message-only`): every prompt is exactly the user's
-message, with no context, identifiers, lexicon or clock. The current corpora
-are `formalizer-v1` (train/dev; sealed test in `eval/suites/formalizer-v1/`)
-and the out-of-distribution suite `formalizer-ood-v1` (sealed test only).
+message, with no context, identifiers, lexicon or clock. The current training
+data are the `datasets/bad_english` (LanguageProofingLLM) and
+`datasets/neuro_english` (SymbolicProofingLLM) splits. ARCHIVE (FormalizerLLM,
+removed from the product 2026-10-01): the corpora `formalizer-v1` (sealed test
+in `eval/suites/formalizer-v1/`) and `formalizer-ood-v1`, the `--role
+formalizer` runs and their evaluation procedure stay as history.
 Large splits are stored as `<split>.part-NNN.jsonl` shards under 50 MB and
 read through `lib/jsonl-shards.mjs` (Python: `training/python/common.py`).
 Freeze the dataset before a GPU run. Preserve the sealed holdouts for
@@ -53,7 +56,7 @@ Do not install dependencies or download weights implicitly at startup.
 
 After a separate explicit approved base download, train from the root via
 `TRAIN_PYTHON=<reviewed-venv>/bin/python node training/cli.mjs train
---model qwen --run <new-run> --role formalizer --data <reviewed-dataset>
+--model qwen --run <new-run> --role proofreader --data <reviewed-dataset>
 --qualification <qualification.json> --authorization <new-user-approval.json>`.
 The controller refuses to train without a `chatsop-dataset-qualification-v1`
 record (status `qualified`, every check with evidence, a named reviewer) and a
@@ -80,11 +83,12 @@ closed-run intermediates.
 
 ## 5. Evaluate independently
 
-The formalizer's full-development predictions at saves are scored by
-`eval/run.mjs` for execution equivalence, with syntax as tiebreak; those
-development metrics select `best`, not the sealed test score. Evaluate
-the selected winner once on each sealed holdout (`formalizer-v1` and
-`formalizer-ood-v1`) and report counts by family, question type, language,
+The proofing models are scored on their dataset dev split and on the
+end-to-end checks of `eval/reports/current/` (for example
+`language-proofing-prod1`, `symbolic-proofing-it3`); development metrics select
+`best`, not the sealed test score. (Archive: the FormalizerLLM procedure scored
+full-development predictions by execution equivalence with `eval/run.mjs` and
+evaluated the winner once on `formalizer-v1` and `formalizer-ood-v1`.) Report counts by family, question type, language,
 noise level, negative/UNKNOWN case, and reasoning outcome. The
 verbalizer/shared dev-loss best is diagnostic, not proof of faithful
 wording. A log completion line, a checkpoint directory and a generated

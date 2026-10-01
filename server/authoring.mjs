@@ -1,10 +1,12 @@
 /**
- * The authoring path over HTTP (DS031): `GET /v1/omp/models` (admin) and `POST /v1/author`, plus the status of a request.
+ * The authoring path over HTTP (DS031): `GET /v1/omp/models` and `POST /v1/author`, plus the status of a request.
  *
- *   GET  /v1/omp/models                          the models omp can use with their cost class (admin, cached; ?refresh=1 re-reads)
+ *   GET  /v1/omp/models                          the models omp can use with their cost class (cached; ?refresh=1 re-reads)
  *   POST /v1/author                              {session?, files?: [{name, text}], instructions?, model?, wait?}
  *   GET  /v1/sessions/{id}/requests/{request}    the status, and when finished the result, of an authoring request
- *   POST /v1/route                               {session?, message, files?, understanding?, analysis?}: which path a message takes, and why
+ *   POST /v1/route                               {session?, message, files?, understanding?, analysis?}: which path a message takes, and why;
+ *                                                a detection only returns a `suggestion` (and `ask: true` with the setting scope_note ask)
+ *   POST /v1/sessions/{id}/scope-answer          {message, wires, cues?, answer: yes|no}: the user's answer to the suggestion, logged; a no mutes those wire types
  *
  * A request creates `chat_data/sessions/<id>/requests/<request>/` (or a folder under `chat_data/tmp/` without a session), runs omp
  * there (lib/omp), validates the circuits, repairs them for a bounded number of rounds and, with a session, stores the circuits as
@@ -22,9 +24,10 @@ const bad = (message, code = 'invalid_request', status = 400) => Object.assign(n
 const ID = '([a-z0-9][a-z0-9_-]{0,63})';
 
 export const AUTHORING_ENDPOINTS = Object.freeze([
-  {method: 'GET', path: '/v1/omp/models', capability: 'omp.models', admin: true},
+  {method: 'GET', path: '/v1/omp/models', capability: 'omp.models'},
   {method: 'POST', path: '/v1/author', capability: 'omp.author', body: ['session', 'files', 'instructions', 'model', 'wait']},
   {method: 'GET', path: '/v1/sessions/{id}/requests/{request}', capability: 'omp.request'},
+  {method: 'POST', path: '/v1/sessions/{id}/scope-answer', capability: 'omp.scope_answer', body: ['message', 'wires', 'cues', 'answer', 'trigger']},
   {method: 'POST', path: '/v1/route', capability: 'omp.route', body: ['session', 'message', 'files', 'understanding', 'analysis']},
 ]);
 
@@ -118,11 +121,22 @@ export function createAuthoring({sessions, runtimes = null, chatData, models, se
       let analysis = body.analysis ?? null;
       let scopeSource = analysis ? 'request' : null;
       if (!analysis && capabilities && !body.files) {
-        try { analysis = (await capabilities.analyze(body.message, {}))?.analysis ?? null; scopeSource = analysis ? 'symbolic_lm' : null; } catch { analysis = null; }
+        // The same cached call as POST /v1/understand (same message, interpretation and rewrite setting), so the analysis the page already asked for is reused, not made again.
+        const rewrite = body.understanding?.requested?.rewrite ?? capabilities.rewriteDefault();
+        try { analysis = (await capabilities.analyze(body.message, {rewrite, interpret: true}))?.analysis ?? null; scopeSource = analysis ? 'symbolic_lm' : null; } catch { analysis = null; }
       }
       const scope = analysis?.sentences?.length ? detectAnalysis(analysis) : null;
-      const route = decideRoute({filesAttached: body.files ?? 0, authoring: info?.settings?.authoring ?? 'auto', omp, understanding: body.understanding ?? null, scope, detector: settings.detector});
+      const route = decideRoute({filesAttached: body.files ?? 0, authoring: info?.settings?.authoring ?? 'off', scopeNote: info?.settings?.scope_note ?? settings.scopeNote ?? 'ask', declined: info?.scope_declined ?? [],
+        omp, understanding: body.understanding ?? null, scope, detector: settings.detector});
+      if (info && (route.suggestion || scope)) sessions.logScope(info.id, {kind: 'verdict', message: body.message.slice(0, 2000), scope: scope ? {label: scope.label, wires: scope.wires.map(w => w.wire)} : null, trigger: route.suggestion?.trigger ?? route.reason.trigger, asked: route.ask});
       json(res, 200, {object: 'route', session: body.session ?? null, ...route, scope_source: scopeSource});
+    },
+    async scopeAnswer({req, res, match, user, admin}) {
+      sessions.visible(match[1], {user, admin});
+      const body = await readBody(req, maxBytes);
+      const extra = Object.keys(body).filter(k => !['message', 'wires', 'cues', 'answer', 'trigger'].includes(k));
+      if (extra.length) throw bad(`Unsupported parameter ${JSON.stringify(extra[0])}; accepted: message, wires, cues, answer, trigger`, 'unsupported_parameter');
+      json(res, 200, {object: 'scope.answer', session: match[1], ...sessions.answerScope(match[1], body)});
     },
     requestStatus({res, match, user, admin}) {
       const [, id, requestId] = match;
@@ -135,9 +149,10 @@ export function createAuthoring({sessions, runtimes = null, chatData, models, se
     },
   };
   const routes = [
-    ['GET', /^\/v1\/omp\/models$/, 'ompModels', true],
+    ['GET', /^\/v1\/omp\/models$/, 'ompModels'],
     ['POST', /^\/v1\/author$/, 'author'],
     ['POST', /^\/v1\/route$/, 'route'],
+    ['POST', new RegExp(`^/v1/sessions/${ID}/scope-answer$`), 'scopeAnswer'],
     ['GET', new RegExp(`^/v1/sessions/${ID}/requests/${ID}$`), 'requestStatus'],
   ];
   return {actions, routes, start, jobs, running: () => running};

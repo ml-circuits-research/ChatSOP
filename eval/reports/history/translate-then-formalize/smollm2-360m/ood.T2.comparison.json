@@ -1,0 +1,310 @@
+{
+  "format": "chatsop-translate-comparison-v1",
+  "suite": "eval/reports/current/translate-then-formalize/work/formalizer-ood-v1.romixed.jsonl",
+  "direct": "eval/reports/current/translate-then-formalize/smollm2-360m/ood-T0/evaluation.json",
+  "translated": "eval/reports/current/translate-then-formalize/smollm2-360m/ood-T2/evaluation.json",
+  "rows": 786,
+  "interval": "paired cluster bootstrap by semantic_case_id (row id when absent), 10,000 resamples, seed 7; exact McNemar on rows",
+  "metrics": {
+    "tolerant_execution_equivalence": {
+      "all": {
+        "rows": 786,
+        "clusters": 592,
+        "direct": 0.20737913486005088,
+        "translated": 0.054707379134860054,
+        "delta": -0.15267175572519084,
+        "ci95": [
+          -0.18397997496871088,
+          -0.12121212121212122
+        ],
+        "helped": 7,
+        "hurt": 127,
+        "mcnemar_p": 1.2744890589666264e-29
+      },
+      "detector:missed": {
+        "rows": 111,
+        "clusters": 93,
+        "direct": 0.5585585585585585,
+        "translated": 0.3063063063063063,
+        "delta": -0.25225225225225223,
+        "ci95": [
+          -0.3565217391304348,
+          -0.14814814814814814
+        ],
+        "helped": 5,
+        "hurt": 33,
+        "mcnemar_p": 0.0000042559622670523755
+      },
+      "detector:routed": {
+        "rows": 675,
+        "clusters": 515,
+        "direct": 0.14962962962962964,
+        "translated": 0.013333333333333334,
+        "delta": -0.1362962962962963,
+        "ci95": [
+          -0.16862170087976538,
+          -0.10534124629080119
+        ],
+        "helped": 2,
+        "hurt": 94,
+        "mcnemar_p": 1.1755920753965703e-25
+      },
+      "language:mixed": {
+        "rows": 236,
+        "clusters": 179,
+        "direct": 0.3347457627118644,
+        "translated": 0.13135593220338984,
+        "delta": -0.2033898305084746,
+        "ci95": [
+          -0.2719665271966527,
+          -0.13636363636363635
+        ],
+        "helped": 7,
+        "hurt": 55,
+        "mcnemar_p": 2.4300843108615495e-10
+      },
+      "language:ro": {
+        "rows": 550,
+        "clusters": 413,
+        "direct": 0.15272727272727274,
+        "translated": 0.02181818181818182,
+        "delta": -0.13090909090909092,
+        "ci95": [
+          -0.16607142857142856,
+          -0.09854014598540146
+        ],
+        "helped": 0,
+        "hurt": 72,
+        "mcnemar_p": 4.235164736271505e-22
+      },
+      "length:long": {
+        "rows": 58,
+        "clusters": 58,
+        "direct": 0,
+        "translated": 0,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "length:short": {
+        "rows": 728,
+        "clusters": 534,
+        "direct": 0.2239010989010989,
+        "translated": 0.059065934065934064,
+        "delta": -0.16483516483516483,
+        "ci95": [
+          -0.19915848527349228,
+          -0.13146853146853146
+        ],
+        "helped": 7,
+        "hurt": 127,
+        "mcnemar_p": 1.2744890589666264e-29
+      }
+    },
+    "canonical_match": {
+      "all": {
+        "rows": 786,
+        "clusters": 592,
+        "direct": 0.10814249363867684,
+        "translated": 0.02544529262086514,
+        "delta": -0.08269720101781171,
+        "ci95": [
+          -0.10695876288659793,
+          -0.059850374064837904
+        ],
+        "helped": 3,
+        "hurt": 68,
+        "mcnemar_p": 5.0578031346449096e-17
+      },
+      "detector:missed": {
+        "rows": 111,
+        "clusters": 93,
+        "direct": 0.42342342342342343,
+        "translated": 0.16216216216216217,
+        "delta": -0.26126126126126126,
+        "ci95": [
+          -0.3611111111111111,
+          -0.168141592920354
+        ],
+        "helped": 2,
+        "hurt": 31,
+        "mcnemar_p": 1.3085082173347505e-7
+      },
+      "detector:routed": {
+        "rows": 675,
+        "clusters": 515,
+        "direct": 0.056296296296296296,
+        "translated": 0.002962962962962963,
+        "delta": -0.05333333333333334,
+        "ci95": [
+          -0.07488986784140969,
+          -0.033823529411764704
+        ],
+        "helped": 1,
+        "hurt": 37,
+        "mcnemar_p": 2.8376234695315366e-10
+      },
+      "language:mixed": {
+        "rows": 236,
+        "clusters": 179,
+        "direct": 0.2033898305084746,
+        "translated": 0.07627118644067797,
+        "delta": -0.1271186440677966,
+        "ci95": [
+          -0.1853448275862069,
+          -0.07234042553191489
+        ],
+        "helped": 3,
+        "hurt": 33,
+        "mcnemar_p": 2.272136043757197e-7
+      },
+      "language:ro": {
+        "rows": 550,
+        "clusters": 413,
+        "direct": 0.06727272727272728,
+        "translated": 0.0036363636363636364,
+        "delta": -0.06363636363636363,
+        "ci95": [
+          -0.08872458410351201,
+          -0.04212454212454213
+        ],
+        "helped": 0,
+        "hurt": 35,
+        "mcnemar_p": 5.820766091346754e-11
+      },
+      "length:long": {
+        "rows": 58,
+        "clusters": 58,
+        "direct": 0,
+        "translated": 0,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "length:short": {
+        "rows": 728,
+        "clusters": 534,
+        "direct": 0.11675824175824176,
+        "translated": 0.027472527472527472,
+        "delta": -0.08928571428571429,
+        "ci95": [
+          -0.11517615176151762,
+          -0.06504065040650407
+        ],
+        "helped": 3,
+        "hurt": 68,
+        "mcnemar_p": 5.0578031346449096e-17
+      }
+    },
+    "parse": {
+      "all": {
+        "rows": 786,
+        "clusters": 592,
+        "direct": 0.9961832061068703,
+        "translated": 0.9758269720101781,
+        "delta": -0.020356234096692113,
+        "ci95": [
+          -0.031806615776081425,
+          -0.010037641154328732
+        ],
+        "helped": 2,
+        "hurt": 18,
+        "mcnemar_p": 0.0004024505615234378
+      },
+      "detector:missed": {
+        "rows": 111,
+        "clusters": 93,
+        "direct": 1,
+        "translated": 0.954954954954955,
+        "delta": -0.04504504504504504,
+        "ci95": [
+          -0.08695652173913043,
+          -0.00909090909090909
+        ],
+        "helped": 0,
+        "hurt": 5,
+        "mcnemar_p": 0.0625
+      },
+      "detector:routed": {
+        "rows": 675,
+        "clusters": 515,
+        "direct": 0.9955555555555555,
+        "translated": 0.9792592592592593,
+        "delta": -0.016296296296296295,
+        "ci95": [
+          -0.028189910979228485,
+          -0.005847953216374269
+        ],
+        "helped": 2,
+        "hurt": 13,
+        "mcnemar_p": 0.007385253906250002
+      },
+      "language:mixed": {
+        "rows": 236,
+        "clusters": 179,
+        "direct": 1,
+        "translated": 0.961864406779661,
+        "delta": -0.038135593220338986,
+        "ci95": [
+          -0.06521739130434782,
+          -0.01639344262295082
+        ],
+        "helped": 0,
+        "hurt": 9,
+        "mcnemar_p": 0.00390625
+      },
+      "language:ro": {
+        "rows": 550,
+        "clusters": 413,
+        "direct": 0.9945454545454545,
+        "translated": 0.9818181818181818,
+        "delta": -0.012727272727272728,
+        "ci95": [
+          -0.025179856115107913,
+          -0.0017889087656529517
+        ],
+        "helped": 2,
+        "hurt": 9,
+        "mcnemar_p": 0.0654296875
+      },
+      "length:long": {
+        "rows": 58,
+        "clusters": 58,
+        "direct": 0.9655172413793104,
+        "translated": 0.8793103448275862,
+        "delta": -0.08620689655172414,
+        "ci95": [
+          -0.1724137931034483,
+          0
+        ],
+        "helped": 1,
+        "hurt": 6,
+        "mcnemar_p": 0.12500000000000006
+      },
+      "length:short": {
+        "rows": 728,
+        "clusters": 534,
+        "direct": 0.9986263736263736,
+        "translated": 0.9835164835164835,
+        "delta": -0.01510989010989011,
+        "ci95": [
+          -0.025210084033613446,
+          -0.00554016620498615
+        ],
+        "helped": 1,
+        "hurt": 12,
+        "mcnemar_p": 0.003417968750000001
+      }
+    }
+  }
+}

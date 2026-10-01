@@ -1,0 +1,1034 @@
+{
+ "format": "chatsop-eval-validity-review-v1",
+ "reviewer": "haiku-baseline-agent (single reviewer, no second annotator)",
+ "criterion": "fn = the prediction is a correct formalization under current DS021 and the gold/scorer rejects it; partial = the meaning is right but it breaks an explicit minor convention or mixes such a break with an eval cause; genuine = a model error under DS021",
+ "rows": [
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wd_067",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "relation phrases absorb objects (\"get the message\"), speaker Paddy dropped, explicit \"not the WhatsApp\" made assumed",
+   "message": "Not everyone in our book club got the message that we're moving from the library to Hugo's Café on Camden Street next Thursday. Ines definitely got it because she replied with a thumbs up, Paddy said he didn't, and Siobhán only saw it on the Facebook group, not the WhatsApp. We're reading 'The Salt Path' this month so it'd be a shame if anyone turned up at the wrong place. Did Rahul get it?",
+   "prediction": "@s1 stated\n  relation \"move from the library to Hugo's Café on Camden Street\"\n  role subject \"the book club\"\n  role time \"next Thursday\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"get the message\"\n  role subject \"Ines\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"get the message\"\n  role subject \"Paddy\"\n  polarity negated\n  certainty asserted\n\n@s4 stated\n  relation \"see the message on the Facebook group\"\n  role subject \"Siobhán\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"read\"\n  role subject \"the book club\"\n  role object \"The Salt Path\"\n  role time \"this month\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"see the message on the WhatsApp\"\n  role subject \"Siobhán\"\n  polarity negated\n  basis implicature\n\n@q query\n  where match\n    relation \"get the message\"\n    role subject \"Rahul\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wi_041",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "no_request on a definition + wh question",
+   "message": "Could you explain what a 'certificat de urbanism' is and who issues it?",
+   "prediction": "@u unclear\n  kind no_request"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wd_015",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "no_request on an embedded yes/no question",
+   "message": "omg thx sm for yesterday 🙏 btw did u ever find out if the Primark on Briggate in Leeds does refunds w/o a receipt",
+   "prediction": "@u unclear\n  kind no_request\n  language en"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wf_038",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "modal \"supposed to\" dropped (C2), spurious implicature",
+   "message": "the freezer in aisle 9 is supposed to be at -18°C, isn't it?",
+   "prediction": "@a1 assumed\n  relation \"be at\"\n  role subject \"the freezer in aisle 9\"\n  role object \"-18°C\"\n  polarity affirmed\n  basis implicature\n\n@q query\n  where match\n    relation \"be at\"\n    role subject \"the freezer in aisle 9\"\n    role object \"-18°C\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_we_039",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "measure end without role time ?t: rejected by the parser",
+   "message": "When does the term end for Professor Adeyemi?",
+   "prediction": "@q query\n  select ?t\n  measure end\n  where match\n    relation \"end\"\n    role subject \"the term\"\n    role object \"Professor Adeyemi\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wd_026",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "no_request on an attribute-value question",
+   "message": "what size is a UK 7 shoe in EU sizes",
+   "prediction": "@u unclear\n  kind no_request"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wk_008",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "no_request on a bare attribute query",
+   "message": "plovdiv population",
+   "prediction": "@u unclear\n  kind no_request"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wi_076",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "\"how long must we wait\" rewritten as a when-query on a different relation",
+   "message": "Io am depus dosarul de ajutor pentru încălzire la primăria din Năsăud încă din noiembrie, dară n-am primit nimica. Cât mai trebe să așteptăm, că-i frig în casă?",
+   "prediction": "@s1 stated\n  relation \"submit\"\n  role subject \"the user\"\n  role object \"the heating assistance application\"\n  role destination \"the town hall in Năsăud\"\n  role time \"November\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"receive\"\n  role subject \"the user\"\n  role object \"anything\"\n  polarity negated\n  certainty asserted\n\n@a1 assumed\n  relation \"be cold\"\n  role location \"the user's house\"\n  polarity affirmed\n  basis implicature\n\n@q query\n  select ?t\n  where match\n    relation \"receive a response\"\n    role subject \"the user\"\n    role object \"the heating assistance application\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wj_016",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "no_request on a clock-time question",
+   "message": "pls zi-mi cat e ora in Dublin acum, nuj daca s-a schimbat ora de vara",
+   "prediction": "@u unclear\n  kind no_request"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wh_023",
+   "language": "ro",
+   "verdict": "partial",
+   "causes": [
+    "first_person_drift",
+    "relation_paraphrase"
+   ],
+   "reason": "reasonable reading; blockers: \"the user\" (current DS021 Q-LANG-5) vs gold \"I\", \"deliver for/work for\" vs \"deliver on/work on\", diacritic added to Constanța (violates names-as-written)",
+   "message": "eu livrez pe Glovo in Constanta de vreo doua luni. cine mai din grupul nostru lucreaza tot pe Glovo?",
+   "prediction": "@s1 stated\n  relation \"deliver for\"\n  role subject \"the user\"\n  role object \"Glovo\"\n  role location \"Constanța\"\n  polarity affirmed\n  certainty asserted\n  valid from \"approximately two months ago\"\n\n@q query\n  select ?x\n  where all\n    match\n      relation \"be in\"\n      role subject ?x\n      role object \"the user's group\"\n      polarity affirmed\n    end\n    match\n      relation \"work for\"\n      role subject ?x\n      role object \"Glovo\"\n      polarity affirmed\n    end\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wk_057",
+   "language": "ro",
+   "verdict": "fn",
+   "causes": [
+    "value_paraphrase"
+   ],
+   "reason": "matches the accepted \"be before\" alternative except \"the conference at Alba Iulia\" vs \"in Alba Iulia\"",
+   "message": "Conferința de la Alba Iulia e înainte de Paște?",
+   "prediction": "@q query\n  where match\n    relation \"be before\"\n    role subject \"the conference at Alba Iulia\"\n    role object \"Easter\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wi_005",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "unclear ambiguous with two near-identical readings",
+   "message": "Termenul pentru Declarația unică e tot 25 mai sau s-a prelungit anul ăsta până la 1 iunie? Am văzut ceva pe 14/05 la știri, dar nu mai știu sigur.",
+   "prediction": "@u unclear\n  kind ambiguous\n  reading \"the deadline for the unique declaration is 25 May or has it been extended this year until 1 June\"\n  reading \"the deadline for the unique declaration is 25 May or has it been extended this year until 1 June, and you saw something on 14 May in the news but are not sure\"\n  language en"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wi_092",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "invented valid from, odd roles; long message",
+   "message": "Tatăl meu a depus dosarul de pensie la Casa Județeană de Pensii Dolj pe 4 august, iar concediul medical i s-a terminat pe 31 iulie. Pe 1-3 august nu a lucrat, iar angajatorul, Electroputere VFU, i-a încetat contractul de muncă abia pe 5 august, cu decizia nr. 312. Decizia de pensie pentru limită de vârstă încă nu a venit, deși au trecut aproape două luni. Primește ceva bani și pentru zilele dintre?",
+   "prediction": "@s1 stated\n  relation \"file for pension\"\n  role subject \"the user's father\"\n  role object \"Casa Județeană de Pensii Dolj\"\n  role time \"4 August\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"end\"\n  role subject \"medical leave\"\n  role object \"the user's father\"\n  role time \"31 July\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"work\"\n  role subject \"the user's father\"\n  polarity negated\n  valid on \"1 August to 3 August\"\n  certainty asserted\n\n@s4 stated\n  relation \"terminate employment contract\"\n  role subject \"Electroputere VFU\"\n  role object \"the user's father\"\n  role time \"5 August\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"have decision number\"\n  role subject \"employment termination\"\n  role object \"312\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"arrive\"\n  role subject \"pension decision for age limit\"\n  polarity negated\n  valid from \"4 August\"\n  certainty asserted\n\n@a1 assumed\n  relation \"pass\"\n  role subject \"almost two months\"\n  role object \"time\"\n  polarity affirmed\n  basis implicature\n\n@q query\n  where match\n    relation \"receive payment\"\n    role subject \"the user's father\"\n    role topic \"days between medical leave end and employment termination\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wg_028",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "ambiguous for a clear tag question",
+   "message": "preotul nou de la Suciu de Sus ii din Vadu Izei, nu-i asa?",
+   "prediction": "@u unclear\n  kind ambiguous\n  reading \"the new priest from Suciu de Sus is from Vadu Izei\"\n  reading \"the new priest at Suciu de Sus is from Vadu Izei\"\n  language ro"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wj_081",
+   "language": "mixed",
+   "verdict": "partial",
+   "causes": [
+    "first_person_drift",
+    "convention_violation"
+   ],
+   "reason": "faithful meaning; \"the user\" vs gold \"I\", \"England\" translates the place name \"Anglia\" (C1 violation), \"be able to use\" vs \"can use\"",
+   "message": "eu și frate-miu avem fiecare câte un Ltd în Anglia. Can we use același accountant?",
+   "prediction": "@s1 stated\n  relation \"have\"\n  role subject \"the user\"\n  role object \"an Ltd in England\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"have\"\n  role subject \"the user's brother\"\n  role object \"an Ltd in England\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"be able to use\"\n    role subject \"the user and the user's brother\"\n    role object \"the same accountant\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wj_029",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "\"X or Y?\" written as one any-query instead of one yes/no query per option (C7)",
+   "message": "o să vină Livia la offsite-ul din Sinaia next week sau rămâne în Berlin?",
+   "prediction": "@q query\n  where any\n    match\n      relation \"come to\"\n      role subject \"Livia\"\n      role destination \"the offsite in Sinaia\"\n      role time \"next week\"\n      polarity affirmed\n    end\n    match\n      relation \"stay in\"\n      role subject \"Livia\"\n      role location \"Berlin\"\n      role time \"next week\"\n      polarity affirmed\n    end\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wj_025",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "wrong exclusion semantics and merged blocks",
+   "message": "how many tickets din sprintul ăsta sunt încă în review, besides the ones assigned to Bogdan?",
+   "prediction": "@q query\n  mode count\n  select ?t\n  where all\n    match\n      relation \"be in review\"\n      role subject ?t\n      role object \"the sprint\"\n      polarity affirmed\n    end\n    match\n      relation \"be assigned to\"\n      role subject ?t\n      role object ?p\n      polarity affirmed\n    end\n  end\n  except ?p \"Bogdan\""
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wf_016",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "count question without mode count; ?n unbound",
+   "message": "Am mutat 40 de paleti cu SKU HX-2210 de la dock 3 la overflow-ul din Ploiesti luni dimineata, iar Costel a mai scos 12 pentru comanda Kaufland. Cati au mai ramas pe dock 3? Vreau sa stiu inainte sa vina inventarul de joi, ca data trecuta nu ne-a iesit nimic la numaratoare si a fost scandal cu contabilitatea.",
+   "prediction": "@s1 stated\n  relation \"move\"\n  role subject \"the user\"\n  role object \"40 pallets with SKU HX-2210\"\n  role source \"dock 3\"\n  role destination \"the overflow in Ploiești\"\n  role time \"Monday morning\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"remove\"\n  role subject \"Costel\"\n  role object \"12\"\n  role source \"dock 3\"\n  role destination \"Kaufland order\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be on\"\n  role subject \"pallets with SKU HX-2210\"\n  role location \"dock 3\"\n  polarity affirmed\n  basis closure\n\n@q query\n  select ?n\n  where match\n    relation \"remain on\"\n    role subject \"pallets with SKU HX-2210\"\n    role location \"dock 3\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wf_055",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "wrong arithmetic (needs a ceiling)",
+   "message": "daca un tote tine 24 de bucati si comanda e de 1,130 units, de cate totes avem nevoie?",
+   "prediction": "@c constraint\n  var ?t int\n  require ?t times 24 equal 1130\n  task possible\n  select ?t"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "wild",
+   "id": "wild_wj_049",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "reported claim flattened into a \"mention\" object, Romanian nouns untranslated",
+   "message": "So I moved to Brașov last spring from Leeds, renting a flat in Schei from a lovely doamnă called Mrs Stoica. Winter's coming and she mentioned the centrala needs a revizie before the heating season, apparently by law every two years. My Romanian is still pretty basic so I only caught half of it. Is that actually a legal requirement, and who's supposed to pay for it, me or her?",
+   "prediction": "@s1 stated\n  relation \"move to\"\n  role subject \"the user\"\n  role destination \"Brașov\"\n  role source \"Leeds\"\n  role time \"last spring\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"rent a flat in Schei from\"\n  role subject \"the user\"\n  role object \"Mrs Stoica\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"mention\"\n  role subject \"Mrs Stoica\"\n  role object \"the centrala needs a revizie before the heating season\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be required by law\"\n  role subject \"a revizie of the centrala\"\n  role time \"every two years\"\n  polarity affirmed\n  basis implicature\n\n@q query\n  where match\n    relation \"be a legal requirement\"\n    role subject \"a revizie of the centrala\"\n    role time \"every two years\"\n    polarity affirmed\n  end\n\n@q2 query\n  select ?p\n  where match\n    relation \"be responsible for paying for\"\n    role subject ?p\n    role object \"a revizie of the centrala\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_005728_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "constraint uses divided_by and an undeclared variable",
+   "message": "Wghat is 15% of 2700 lei ?",
+   "prediction": "@c constraint\n  var ?v int\n  require ?v equal 2700 times 15\n  require ?v equal ?result divided_by 100\n  task possible\n  select ?result"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_020042_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "asserted premise written as assumed",
+   "message": "Since Haruka doesn't have access to the lab, could you check if she is trained?",
+   "prediction": "@a1 assumed\n  relation \"have access to the lab\"\n  role subject \"Haruka\"\n  polarity negated\n  basis implicature\n\n@q query\n  where match\n    relation \"be trained\"\n    role subject \"Haruka\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_023456_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "role time and at-time misuse",
+   "message": "Here's what I know: Csaba lived in Bistrița from 1 March 2019 to 1 May 2022. Any chance he lived in Bistrița on 1 May 2022?",
+   "prediction": "@s1 stated\n  relation \"live in\"\n  role subject \"Csaba\"\n  role location \"Bistrița\"\n  role time \"1 March 2019\"\n  valid from \"1 March 2019\"\n  valid until \"1 May 2022\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"live in\"\n    role subject \"Csaba\"\n    role location \"Bistrița\"\n    role time \"1 May 2022\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_010544_0_0",
+   "language": "en",
+   "verdict": "partial",
+   "causes": [
+    "role_choice",
+    "relation_paraphrase"
+   ],
+   "reason": "25-wire message; blockers: role object vs corpus role topic for \"want to learn/plan to study\", \"play for\" vs \"be on\"",
+   "message": "I will probably forget half of this by tomorrow. Vlad is on the Timișoara Falcons. I am writing this on my phone, so bear with me. Nour did not write Soups of Transylvania. Atelier Bălan is a supplier of Glasgow Logistics.\n\nIldikó Varga gives classes in piano. I tried to sort this out myself but got confused. Orion Robotics sells phone cases. Let me give you some background first.\n\nAtelier Farkas employs Ngozi. My coffee went cold while I was typing this. Constantin Toma doesn't train Izmir United. The weather here has been awful all week.\n\nThe Lviv Land Office is located in Cluj-Napoca. Mr Rădulescu attends the wedding reception. Also, Megan attends the town hall debate. We had a power cut this morning, which did not help. Mircea plans to study physical education.\n\nA passport requires a medical certificate. Takumi treats Silviu. Honestly, I keep losing track of who does what. James Clarke trains CS Tampere.\n\nThe jazz evening takes place at the Botanical Garden in Busan. Also, the regional chess tournament does not take place at the Cahul Philharmonic. Atelier Neagu is a supplier of Vertex Analytics. Also, Craiova Logistics is a supplier of Atelier Lazăr. Thanks for your patience with all my questions.\n\nLars plays for the Arad Falcons. Amira wants to learn computer science. Also, Liviu wants to learn Spanish. The charity run takes place at the Botanical Garden in Bacău.\n\nHere is what I would like to check:\nSince Ștefan reports to Carmen, could you check if Ștefan reports to Karim?\nSo how many properties does Wojciech own?\n\nCheers, and have a nice evening.",
+   "prediction": "@s1 stated\n  relation \"report to\"\n  role subject \"Ștefan\"\n  role object \"Carmen\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"play for\"\n  role subject \"Vlad\"\n  role object \"Timișoara Falcons\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"write\"\n  role subject \"Nour\"\n  role object \"Soups of Transylvania\"\n  polarity negated\n  certainty asserted\n\n@s4 stated\n  relation \"be a supplier of\"\n  role subject \"Atelier Bălan\"\n  role object \"Glasgow Logistics\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"give classes in\"\n  role subject \"Ildikó Varga\"\n  role object \"piano\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"sell\"\n  role subject \"Orion Robotics\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"employ\"\n  role subject \"Atelier Farkas\"\n  role object \"Ngozi\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"train\"\n  role subject \"Constantin Toma\"\n  role object \"Izmir United\"\n  polarity negated\n  certainty asserted\n\n@s9 stated\n  relation \"be located in\"\n  role subject \"The Lviv Land Office\"\n  role location \"Cluj-Napoca\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"attend\"\n  role subject \"Mr Rădulescu\"\n  role object \"the wedding reception\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"attend\"\n  role subject \"Megan\"\n  role object \"the town hall debate\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"plan to study\"\n  role subject \"Mircea\"\n  role object \"physical education\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"require\"\n  role subject \"a passport\"\n  role object \"a medical certificate\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"treat\"\n  role subject \"Takumi\"\n  role object \"Silviu\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"train\"\n  role subject \"James Clarke\"\n  role object \"CS Tampere\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"take place at\"\n  role subject \"The jazz evening\"\n  role location \"the Botanical Garden in Busan\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"take place at\"\n  role subject \"the regional chess tournament\"\n  role location \"the Cahul Philharmonic\"\n  polarity negated\n  certainty asserted\n\n@s18 stated\n  relation \"be a supplier of\"\n  role subject \"Atelier Neagu\"\n  role object \"Vertex Analytics\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"be a supplier of\"\n  role subject \"Craiova Logistics\"\n  role object \"Atelier Lazăr\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"play for\"\n  role subject \"Lars\"\n  role object \"the Arad Falcons\"\n  polarity affirmed\n  certainty asserted\n\n@s21 stated\n  relation \"want to learn\"\n  role subject \"Amira\"\n  role object \"computer science\"\n  polarity affirmed\n  certainty asserted\n\n@s22 stated\n  relation \"want to learn\"\n  role subject \"Liviu\"\n  role object \"Spanish\"\n  polarity affirmed\n  certainty asserted\n\n@s23 stated\n  relation \"take place at\"\n  role subject \"the charity run\"\n  role location \"the Botanical Garden in Bacău\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"report to\"\n    role subject \"Ștefan\"\n    role object \"Karim\"\n    polarity affirmed\n  end\n\n@q2 query\n  mode count\n  select ?x\n  where match\n    relation \"own\"\n    role subject \"Wojciech\"\n    role object ?x\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_011815_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "duplicate measure (parser rejects)",
+   "message": "Bear with me, I am thinking out loud here. Min-jun lives in Ploiești. I am new to all of this, so apologies if it is obvious.\n\nRachel Clarke is allergic to bee stings. Also, Karim has an allergy to lactose. Lucian Constantinescu teaches drawing. Aiko reports to Yan. Also, Jürgen reports too Alejandro.\n\nA few questions, then:\nAny idea where Aurelia is based?\nNot counting Silviu Ardeleanu, please fuind out who attends the product launch.\nIn what period did Mr Hughes report to Théo?\nSince Otilia flies to Sibiu and Lars flies to Sibiu and Thiago flies to Sibiu, is it the case that Dimitra Nikolaidis does not fly to Sibiu?\nExplain to me why the Cahul Arena is closed.\n\nTalk soon!",
+   "prediction": "@s1 stated\n  relation \"live in\"\n  role subject \"Min-jun\"\n  role location \"Ploiești\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be allergic to\"\n  role subject \"Rachel Clarke\"\n  role object \"bee stings\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be allergic to\"\n  role subject \"Karim\"\n  role object \"lactose\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"teach\"\n  role subject \"Lucian Constantinescu\"\n  role object \"drawing\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"report to\"\n  role subject \"Aiko\"\n  role object \"Yan\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"report to\"\n  role subject \"Jürgen\"\n  role object \"Alejandro\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  select ?l\n  where match\n    relation \"be based in\"\n    role subject \"Aurelia\"\n    role location ?l\n    polarity affirmed\n  end\n\n@q2 query\n  select ?x\n  where match\n    relation \"attend\"\n    role subject ?x\n    role object \"the product launch\"\n    polarity affirmed\n  end\n  except ?x \"Silviu Ardeleanu\"\n\n@q3 query\n  select ?t\n  measure start\n  measure end\n  where match\n    relation \"report to\"\n    role subject \"Mr Hughes\"\n    role object \"Théo\"\n    role time ?t\n    polarity affirmed\n  end\n\n@q4 query\n  where match\n    relation \"fly to\"\n    role subject \"Dimitra Nikolaidis\"\n    role destination \"Sibiu\"\n    polarity negated\n  end\n\n@q5 query\n  mode explain\n  where match\n    relation \"be closed\"\n    role subject \"the Cahul Arena\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_019121_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "role object for \"be located in\"/\"fly to\" (role table says location/destination)",
+   "message": "I only have a few minutes before my next call. Nils is the spouse of Fatima. Ștefan is a child of Mr Krawczyk. Also, Tamás is a child of Mirela. Tunde trains CS Reșița. The Bistrița Town Hall is not located in Valencia. Also, Piatra Neamț Technical College is located in Vaslui.\n\nMihai Rădulescu didn't write The Clockmaker's Daughter. Also, Alexandru wrote The Quiet Harbour. The mail server does not dep end on the VPN gateway. Also, the analytics pipeline relies on the payroll database. Ananya plans to study piano. Also, Iancu does not plan to study physical education. Tudor goes to Baia Mare Technical College. Also, Jonas goes to the Kraków Language School. Csaba Fekete flies to Osaka. Also, Sophie Taylor flies to Porto.\n\nMr Papadopoulos intends to attend the regional chess tournament. Also, Veaceslav does not plan to go to the product launch. The login service relies on the billing service. I only have a few minutes before my next call.\n\nKarim Haddad trains Rapid Oradea. Paloma García does not plan to study chemistry. Also, Bogdan-Ionuț Constantinescu wants to learn German .\n\nSince the Galați Arena is located in Izmir, could you check if it is located in Izmir?\nFact-check: Megan owns the vineyard near Sibiu.",
+   "prediction": "@s1 stated\n  relation \"be the spouse of\"\n  role subject \"Nils\"\n  role object \"Fatima\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be a child of\"\n  role subject \"Ștefan\"\n  role object \"Mr Krawczyk\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be a child of\"\n  role subject \"Tamás\"\n  role object \"Mirela\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"train\"\n  role subject \"Tunde\"\n  role object \"CS Reșița\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"be located in\"\n  role subject \"the Bistrița Town Hall\"\n  role object \"Valencia\"\n  polarity negated\n  certainty asserted\n\n@s6 stated\n  relation \"be located in\"\n  role subject \"Piatra Neamț Technical College\"\n  role object \"Vaslui\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"write\"\n  role subject \"Mihai Rădulescu\"\n  role object \"The Clockmaker's Daughter\"\n  polarity negated\n  certainty asserted\n\n@s8 stated\n  relation \"write\"\n  role subject \"Alexandru\"\n  role object \"The Quiet Harbour\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"depend on\"\n  role subject \"the mail server\"\n  role object \"the VPN gateway\"\n  polarity negated\n  certainty asserted\n\n@s10 stated\n  relation \"rely on\"\n  role subject \"the analytics pipeline\"\n  role object \"the payroll database\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"plan to study\"\n  role subject \"Ananya\"\n  role object \"piano\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"plan to study\"\n  role subject \"Iancu\"\n  role object \"physical education\"\n  polarity negated\n  certainty asserted\n\n@s13 stated\n  relation \"go to\"\n  role subject \"Tudor\"\n  role object \"Baia Mare Technical College\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"go to\"\n  role subject \"Jonas\"\n  role object \"the Kraków Language School\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"fly to\"\n  role subject \"Csaba Fekete\"\n  role object \"Osaka\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"fly to\"\n  role subject \"Sophie Taylor\"\n  role object \"Porto\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"intend to attend\"\n  role subject \"Mr Papadopoulos\"\n  role object \"the regional chess tournament\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"plan to go to\"\n  role subject \"Veaceslav\"\n  role object \"the product launch\"\n  polarity negated\n  certainty asserted\n\n@s19 stated\n  relation \"rely on\"\n  role subject \"the login service\"\n  role object \"the billing service\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"train\"\n  role subject \"Karim Haddad\"\n  role object \"Rapid Oradea\"\n  polarity affirmed\n  certainty asserted\n\n@s21 stated\n  relation \"plan to study\"\n  role subject \"Paloma García\"\n  role object \"chemistry\"\n  polarity negated\n  certainty asserted\n\n@s22 stated\n  relation \"want to learn\"\n  role subject \"Bogdan-Ionuț Constantinescu\"\n  role object \"German\"\n  polarity affirmed\n  certainty asserted\n\n@s23 stated\n  relation \"be located in\"\n  role subject \"the Galați Arena\"\n  role object \"Izmir\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"be located in\"\n    role subject \"the Galați Arena\"\n    role object \"Izmir\"\n    polarity affirmed\n  end\n\n@a1 assumed\n  relation \"own\"\n  role subject \"Megan\"\n  role object \"the vineyard near Sibiu\"\n  polarity affirmed\n  basis default"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_021164_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "\"Fact-check: …\" written as a stated claim",
+   "message": "My coffee went cold while I was typing this. Vikram looks after the reporting dashboard. Ștefan is allergic to penicillin. Also, Florin Crăciun isn't allergic to lactose. Alba Iulia Logistics is a supplier of Alexandria Logistics. Also, Vertex Analytics is a supplier of Greenline Transport. I have a dentist appointment later, so I am in a bit of a rush.\n\nMr García is a child of Natalia Rotaru. Also, Hao is a child of Yan. The booking app relies on the payroll database. Also, the analytics pipeline depends on the mail server. Paloma trains Piatra Neamț United. The login service depends on the payments gateway. Luminița goes to Izmir Music Academy. Also, Tudor Constantinescu goes to Deva Technical College.\n\nHugo Moreau trains the Călărași Falcons.\n\nThings I still have to do today:\n- water the plants\n- return the library books\n- book the train tickets\n- answer my emails\n- pay the phone bill\n- buy groceries\n\nWhat I actually want to know: Any idea since when Ms Ardeleanu goes to Cahul Technical College? According to Emma, Constantin trains Olimpia Reșița. Could you check if Ethan Hughes trains Olimpia Reșița? Fact-check: Mr Trần borrowed Soups of Transylvania.\n\nThat is all the background I have for now.",
+   "prediction": "@s1 stated\n  relation \"look after\"\n  role subject \"Vikram\"\n  role object \"the reporting dashboard\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be allergic to\"\n  role subject \"Ștefan\"\n  role object \"penicillin\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be allergic to\"\n  role subject \"Florin Crăciun\"\n  role object \"lactose\"\n  polarity negated\n  certainty asserted\n\n@s4 stated\n  relation \"be a supplier of\"\n  role subject \"Alba Iulia Logistics\"\n  role object \"Alexandria Logistics\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"be a supplier of\"\n  role subject \"Vertex Analytics\"\n  role object \"Greenline Transport\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"rely on\"\n  role subject \"the booking app\"\n  role object \"the payroll database\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"depend on\"\n  role subject \"the analytics pipeline\"\n  role object \"the mail server\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"train\"\n  role subject \"Paloma\"\n  role object \"Piatra Neamț United\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"go to\"\n  role subject \"Luminița\"\n  role object \"Izmir Music Academy\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"go to\"\n  role subject \"Tudor Constantinescu\"\n  role object \"Deva Technical College\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"train\"\n  role subject \"Hugo Moreau\"\n  role object \"the Călărași Falcons\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"be a child of\"\n  role subject \"Mr García\"\n  role object \"Natalia Rotaru\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"be a child of\"\n  role subject \"Hao\"\n  role object \"Yan\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"depend on\"\n  role subject \"the login service\"\n  role object \"the payments gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"train\"\n  role subject \"Constantin\"\n  role object \"Olimpia Reșița\"\n  polarity affirmed\n  certainty asserted\n  speaker \"Emma\"\n\n@s16 stated\n  relation \"borrow\"\n  role subject \"Mr Trần\"\n  role object \"Soups of Transylvania\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  select ?t\n  measure start\n  where match\n    relation \"go to\"\n    role subject \"Ms Ardeleanu\"\n    role object \"Cahul Technical College\"\n    role time ?t\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"train\"\n    role subject \"Ethan Hughes\"\n    role object \"Olimpia Reșița\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_010433_0_0",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "ambiguous for a clear list request",
+   "message": "Fă-mi o listă cu oamenii și firmele din Oradea la care lucrează.",
+   "prediction": "@u unclear\n  kind ambiguous\n  reading \"list the people and companies in Oradea where the user works\"\n  reading \"list the people and companies in Oradea at which the user works\"\n  language ro"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_010810_0_0",
+   "language": "ro",
+   "verdict": "fn",
+   "causes": [
+    "value_alias_article"
+   ],
+   "reason": "\"certificatul de naștere\" → \"the birth certificate\" (literal) vs gold \"a birth certificate\"; linking fails on the article",
+   "message": "Are voie Amira să semneze certificatul de naștere?",
+   "prediction": "@q query\n  where match\n    relation \"be allowed to sign\"\n    role subject \"Amira\"\n    role object \"the birth certificate\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_017877_0_0",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "quoted claim check written as stated",
+   "message": "„Thomas deține via de lângă Sibiu” — se confirmă",
+   "prediction": "@s1 stated\n  relation \"own\"\n  role subject \"Thomas\"\n  role object \"vineyard near Sibiu\"\n  polarity affirmed\n  certainty asserted"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_026850_0_0",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "\"de la ce\" (from what) rewritten as why",
+   "message": "Context: Thomas e bolnav. Întrebare: Oare de la ce s-a îmbolnăvit?",
+   "prediction": "@s1 stated\n  relation \"be sick\"\n  role subject \"Thomas\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  mode explain\n  where match\n    relation \"be sick\"\n    role subject \"Thomas\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_009630_0_0",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "dropped all statements of a long message; supposition written as assumed",
+   "message": "Întâi să-ți dau puțin context. Vikram a împrumutat Ciorbele Transilvaniei. În plus, Rémi Lefèvre a împrumutat Ultimul bac. Azi-dimineață s-a luat curentul, ceea ce nu m-a ajutat. Megan locuiește în Buzău. Șefa vrea un rezumat până la sfârșitul zilei.\n\nEthan muncște la Sistemele Nordwind. Pipeline-ul de analiza se bazeaza pe serviciul de autentificare. Natalia învață la Școala Primară Diaconu . Léa raportează catre James Clarke. În plus, Csaba Fekete raportează către Costin.\n\nBrightfield Foods cumpără de la Atelierul Lazăr. Galați Logistic a publicat Portul liniștit. Chloé este înscrisă la Liceul de Arte din Orhei. În plus, Iancu Barbu învață la Școala de Limbi din Bălți.\n\nȘedința cu părinții are loc la Arena Timișoara.\n\nCe mai am de făcut azi:\n- să termin prezentarea\n- să sun instalatorul\n- să plătesc factura la telefon\n- să duc hainele la curățătorie\n\nAcum, ce vreau să aflu:\nUnde locuiește Lars?\nȘtii până când Mircea s-a ocupat de dashboard-ul de raportare?\nCine e antrenorul de la Busan United?\nPresupunem că Blue Harbor Media a publicat Drumul Sării. Poți să verifici dacă a publicat Drumul Sării?",
+   "prediction": "@q query\n  select ?place\n  where match\n    relation \"live in\"\n    role subject \"Lars\"\n    role location ?place\n    polarity affirmed\n  end\n\n@q2 query\n  select ?t\n  measure end\n  where match\n    relation \"take care of\"\n    role subject \"Mircea\"\n    role object \"the reporting dashboard\"\n    role time ?t\n    polarity affirmed\n  end\n\n@q3 query\n  select ?coach\n  where match\n    relation \"be the coach of\"\n    role subject ?coach\n    role object \"Busan United\"\n    polarity affirmed\n  end\n\n@a1 assumed\n  relation \"publish\"\n  role subject \"Blue Harbor Media\"\n  role object \"Drumul Sării\"\n  polarity affirmed\n  basis disambiguation\n\n@q4 query\n  where match\n    relation \"publish\"\n    role subject \"Blue Harbor Media\"\n    role object \"Drumul Sării\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_009835_0_0",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "chit-chat formalized, proper names translated",
+   "message": "Aici a plouat toată săptămâna. Minh merge la lansarea produsului. În plus, James nu participă la ședința cu părinții. Alexandria Logistic vinde uniforme școlare. Stai puțin, gândesc cu voce tare.\n\nGiorgos deține brutăria din colț. În plus, Ildikó nu deține via de lângă Sibiu. Kostas deține Dacia roșie. Cazierul judiciar nu se eliberează la Oficiul de Cadastru Debrecen. Azi-dimineață s-a luat curentul, ceea ce nu m-a ajutat.\n\nFlorin Voicu o tratează pe Kavya. În plus, Meera nu îl tratează pe Mehmet. Sunt nou în toate astea, scuze dacă e evident. Arena Bălți găzduiește ședința de consiliu de marți. În plus, Centrul Comunitar de pe strada Ulmilor găzduiește crosul caritabil. Încerc să fiu scurt cu restul.\n\nLucian e autorul cărții Drumul Sării. Serverul de e-mail se bazează pe pipeline-ul de analiză. Orion Robotics are de vânzare mobilier de grădină. În plus, Tisa Textile nu are de vânzare becuri LED. Sala Moara Veche nu găzduiește festivalul recoltei. În plus, sesiunea de code review are loc la Grădina Botanică din Craiova.\n\nOlivia face alergie la lactoză. Sper că ai o zi bună. Răzvan Ardeleanu face alergie la înțepături de albină. Certificatul de naștere se eliberează la Serviciul de Pașapoarte Kraków. Am programare la dentist mai târziu, deci mă grăbesc.\n\nCâteva întrebări, atunci:\nContext: Lukas este vaccinat. În plus, Linh este vaccinată. Întrebare: Oare Sigrid nu e vaccinată?\nMă întreb cum merge Mathieu la serviciu.\nFără să-l pun la socoteală pe Ethan, oare cine ține ore de pian?",
+   "prediction": "@s1 stated\n  relation \"rain\"\n  role location \"here\"\n  role time \"the whole week\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"go to\"\n  role subject \"Minh\"\n  role destination \"the product launch\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"participate in\"\n  role subject \"James\"\n  role object \"the meeting with parents\"\n  polarity negated\n  certainty asserted\n\n@s4 stated\n  relation \"sell\"\n  role subject \"Alexandria Logistic\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"own\"\n  role subject \"Giorgos\"\n  role object \"the corner bakery\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"own\"\n  role subject \"Ildikó\"\n  role object \"the vineyard near Sibiu\"\n  polarity negated\n  certainty asserted\n\n@s7 stated\n  relation \"own\"\n  role subject \"Kostas\"\n  role object \"the red Dacia\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"be issued at\"\n  role subject \"the judicial record\"\n  role location \"the Cadastral Office Debrecen\"\n  polarity negated\n  certainty asserted\n\n@s9 stated\n  relation \"treat\"\n  role subject \"Florin Voicu\"\n  role object \"Kavya\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"treat\"\n  role subject \"Meera\"\n  role object \"Mehmet\"\n  polarity negated\n  certainty asserted\n\n@s11 stated\n  relation \"host\"\n  role subject \"Arena Bălți\"\n  role object \"the council meeting\"\n  role time \"Tuesday\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"host\"\n  role subject \"the Community Center on Ulmilor Street\"\n  role object \"the charity run\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"be the author of\"\n  role subject \"Lucian\"\n  role object \"the book Drumul Sării\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"be based on\"\n  role subject \"the email server\"\n  role object \"the analysis pipeline\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"have for sale\"\n  role subject \"Orion Robotics\"\n  role object \"garden furniture\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"have for sale\"\n  role subject \"Tisa Textile\"\n  role object \"LED bulbs\"\n  polarity negated\n  certainty asserted\n\n@s17 stated\n  relation \"host\"\n  role subject \"the Moara Veche Hall\"\n  role object \"the harvest festival\"\n  polarity negated\n  certainty asserted\n\n@s18 stated\n  relation \"take place at\"\n  role subject \"the code review session\"\n  role location \"the Botanical Garden of Craiova\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"be allergic to\"\n  role subject \"Olivia\"\n  role object \"lactose\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"be allergic to\"\n  role subject \"Răzvan Ardeleanu\"\n  role object \"bee stings\"\n  polarity affirmed\n  certainty asserted\n\n@s21 stated\n  relation \"be issued at\"\n  role subject \"the birth certificate\"\n  role location \"the Passport Service Kraków\"\n  polarity affirmed\n  certainty asserted\n\n@s22 stated\n  relation \"be vaccinated\"\n  role subject \"Lukas\"\n  polarity affirmed\n  certainty asserted\n\n@s23 stated\n  relation \"be vaccinated\"\n  role subject \"Linh\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"be vaccinated\"\n    role subject \"Sigrid\"\n    polarity negated\n  end\n\n@q2 query\n  select ?h\n  where match\n    relation \"go to work\"\n    role subject \"Mathieu\"\n    role instrument ?h\n    polarity affirmed\n  end\n\n@q3 query\n  select ?x\n  where all\n    match\n      relation \"teach piano\"\n      role subject ?x\n      polarity affirmed\n    end\n    match\n      relation \"be\"\n      role subject ?x\n      role object \"Ethan\"\n      polarity negated\n    end\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_030300_0_0",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "chit-chat formalized; many convention violations (titles as written are correct per DS021 but the gold translates them)",
+   "message": "Aici a plouat toată săptămâna. Thiago vrea să învețe desen. Atelierul Stoica aprovizionează Orion Robotics. În plus, Atelierul Nagy aprovizionează Blue Harbor Media. Dragoș plănuiește să participe la ședința de consiliu de marți. Pașaportul cere certificatul de naștere.\n\nNadiya e căsătorită cu Tamás. Mirela Gheorghiu predă istorie. Mersi că ai răbdare cu toate întrebările mele. Arena Bergen găzduiește ședința cu părinții. Am încercat să mă lămuresc singur, dar m-am încurcat.\n\nJames o tratează pe Zsófia Szabó. În plus, Mei o tratează pe Ruxandra. Joaquín García a scris Drumul Sării. Atelierul Wilson aprovizionează Carpathia Energy. În plus, Sistemele Nordwind cumpără de la Vertex Analytics. Am doar câteva minute până la următorul apel. Clusterul de backup nu se bazează pe dashboard-ul de raportare.\n\nBălan & Asociații aprovizionează Greenline Transport. Hao plănuiește să participe la seara de jazz. În plus, Grace vrea să meargă la turneul regional de șah. Sesiunea de code review are loc la Grădina Botanică din Chișinău. Iancu a împrumutat Livada de sticlă.\n\nTunde vizitează Alba Iulia. Mehmet Demir raportează către Ghiță Stoian. În plus, Bohdan raportează către Costin. Aici a plouat toată săptămâna. Autorizația de construire cere extrasul de carte funciară.\n\nVeaceslav este autorul cărții Iarna în Maramureș. În plus, Lena nu a scris Scrisori către un tânăr inginer. Sper că ai o zi bună. Arjun Reddy antrenează Șoimii din Bălți. Florin vizitează Osaka. În plus, Marius vizitează Sibiu.\n\nFilarmonica din Chengdu găzduiește atelierul de fotografie. Nour Saleh este copilul lui Hugo. În plus, Aiko nu e copilul lui Fatima. Probabil că mâine uit jumătate din ce am scris. Ngozi vizitează Leeds. În plus, Lucian vizitează Novi Sad. Amira nu se ocupă de gateway-ul VPN. În plus, Parisa se ocupă de pipeline-ul de analiză.\n\nCătălin ține ore de pian. Am programare la dentist mai târziu, deci mă grăbesc. Baza de date de salarizare se bazează pe gateway-ul de plăți. În plus, aplicația de rezervări se bazează pe API-ul de inventar. Sper că ai o zi bună. Doinița Cebotari e copilul lui Iurie Guțu. În plus, Ion este copilul lui Elif.\n\nÉlodie nu învață la Școala de Limbi din Szeged. Azi-dimineață s-a luat curentul, ceea ce nu m-a ajutat. Giorgos Georgiou nu antrenează Olimpia Cahul. Am încercat să mă lămuresc singur, dar m-am încurcat. Layla muncește la Crăciun & Asociații. Floarea e în lotul de la Olimpia Leipzig.\n\nSorin face alergie la lactoză. Tatiana antrenează Șoimii din Călărași. În plus, Bogdan-Ionuț antrenează Valencia United. Jürgen nu muncește la Pitești Logistic.\n\nBrightfield Foods cumpără de la Tulcea Logistic. Vasile ține ore de geografie. În plus, Priya predă matematică. Tampere Logistic are de vânzare uniforme școlare. Sunt nou în toate astea, scuze dacă e evident.\n\nPlovdiv Logistic are de vânzare huse de telefon. Paweł Nowak o tratează pe Larissa. Probabil că mâine uit jumătate din ce am scris. Bogdan muncește la Turner & Asociații. În plus, Tudor muncește la Atelierul Munteanu. Cartea de identitate se eliberează la Serviciul de Pașapoarte Arad. În plus, certificatul de atestare fiscală se eliberează la Oficiul de Cadastru Deva. Burak muncește la Balogh & Asociații.\n\nIngrid Nilsen o tratează pe Diana. În plus, Eleni îl tratează pe Owen Bennett. Anna-Lena vizitează Piatra Neamț. Încerc să fiu scurt cu restul. Hyun-woo nu o tratează pe Andreea Mocanu.\n\nHughes & Asociații cumpără de la Atelierul Dumitrescu. Aici a plouat toată săptămâna.\n\nDeci, întrebările mele: Unde stă Théo Martin? Explică-mi de ce Sala Moara Veche este închisă.",
+   "prediction": "@s1 stated\n  relation \"rain\"\n  role location \"here\"\n  role time \"the whole week\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"want to learn\"\n  role subject \"Thiago\"\n  role object \"drawing\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"supply\"\n  role subject \"Atelierul Stoica\"\n  role object \"Orion Robotics\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"supply\"\n  role subject \"Atelierul Nagy\"\n  role object \"Blue Harbor Media\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"plan to attend\"\n  role subject \"Dragoș\"\n  role object \"the council meeting\"\n  role time \"Tuesday\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"require\"\n  role subject \"the passport\"\n  role object \"the birth certificate\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"be married to\"\n  role subject \"Nadiya\"\n  role object \"Tamás\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"teach\"\n  role subject \"Mirela Gheorghiu\"\n  role object \"history\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"host\"\n  role subject \"Arena Bergen\"\n  role object \"the meeting with parents\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"treat\"\n  role subject \"James\"\n  role object \"Zsófia Szabó\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"treat\"\n  role subject \"Mei\"\n  role object \"Ruxandra\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"write\"\n  role subject \"Joaquín García\"\n  role object \"Drumul Sării\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"supply\"\n  role subject \"Atelierul Wilson\"\n  role object \"Carpathia Energy\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"buy from\"\n  role subject \"Sistemele Nordwind\"\n  role object \"Vertex Analytics\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"supply\"\n  role subject \"Bălan & Asociații\"\n  role object \"Greenline Transport\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"plan to attend\"\n  role subject \"Hao\"\n  role object \"the jazz evening\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"want to go to\"\n  role subject \"Grace\"\n  role object \"the regional chess tournament\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"take place\"\n  role subject \"the code review session\"\n  role location \"the Botanical Garden in Chișinău\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"borrow\"\n  role subject \"Iancu\"\n  role object \"Livada de sticlă\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"visit\"\n  role subject \"Tunde\"\n  role destination \"Alba Iulia\"\n  polarity affirmed\n  certainty asserted\n\n@s21 stated\n  relation \"report to\"\n  role subject \"Mehmet Demir\"\n  role object \"Ghiță Stoian\"\n  polarity affirmed\n  certainty asserted\n\n@s22 stated\n  relation \"report to\"\n  role subject \"Bohdan\"\n  role object \"Costin\"\n  polarity affirmed\n  certainty asserted\n\n@s23 stated\n  relation \"require\"\n  role subject \"the building permit\"\n  role object \"the land register extract\"\n  polarity affirmed\n  certainty asserted\n\n@s24 stated\n  relation \"be the author of\"\n  role subject \"Veaceslav\"\n  role object \"Iarna în Maramureș\"\n  polarity affirmed\n  certainty asserted\n\n@s25 stated\n  relation \"write\"\n  role subject \"Lena\"\n  role object \"Scrisori către un tânăr inginer\"\n  polarity negated\n  certainty asserted\n\n@s26 stated\n  relation \"coach\"\n  role subject \"Arjun Reddy\"\n  role object \"Șoimii din Bălți\"\n  polarity affirmed\n  certainty asserted\n\n@s27 stated\n  relation \"visit\"\n  role subject \"Florin\"\n  role destination \"Osaka\"\n  polarity affirmed\n  certainty asserted\n\n@s28 stated\n  relation \"visit\"\n  role subject \"Marius\"\n  role destination \"Sibiu\"\n  polarity affirmed\n  certainty asserted\n\n@s29 stated\n  relation \"host\"\n  role subject \"Filarmonica din Chengdu\"\n  role object \"the photography workshop\"\n  polarity affirmed\n  certainty asserted\n\n@s30 stated\n  relation \"be the child of\"\n  role subject \"Nour Saleh\"\n  role object \"Hugo\"\n  polarity affirmed\n  certainty asserted\n\n@s31 stated\n  relation \"be the child of\"\n  role subject \"Aiko\"\n  role object \"Fatima\"\n  polarity negated\n  certainty asserted\n\n@s32 stated\n  relation \"visit\"\n  role subject \"Ngozi\"\n  role destination \"Leeds\"\n  polarity affirmed\n  certainty asserted\n\n@s33 stated\n  relation \"visit\"\n  role subject \"Lucian\"\n  role destination \"Novi Sad\"\n  polarity affirmed\n  certainty asserted\n\n@s34 stated\n  relation \"manage\"\n  role subject \"Amira\"\n  role object \"the VPN gateway\"\n  polarity negated\n  certainty asserted\n\n@s35 stated\n  relation \"manage\"\n  role subject \"Parisa\"\n  role object \"the analytics pipeline\"\n  polarity affirmed\n  certainty asserted\n\n@s36 stated\n  relation \"teach piano\"\n  role subject \"Cătălin\"\n  polarity affirmed\n  certainty asserted\n\n@s37 stated\n  relation \"be based on\"\n  role subject \"the payroll database\"\n  role object \"the payment gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s38 stated\n  relation \"be based on\"\n  role subject \"the booking application\"\n  role object \"the inventory API\"\n  polarity affirmed\n  certainty asserted\n\n@s39 stated\n  relation \"be the child of\"\n  role subject \"Doinița Cebotari\"\n  role object \"Iurie Guțu\"\n  polarity affirmed\n  certainty asserted\n\n@s40 stated\n  relation \"be the child of\"\n  role subject \"Ion\"\n  role object \"Elif\"\n  polarity affirmed\n  certainty asserted\n\n@s41 stated\n  relation \"study at\"\n  role subject \"Élodie\"\n  role object \"the School of Languages in Szeged\"\n  polarity negated\n  certainty asserted\n\n@s42 stated\n  relation \"coach\"\n  role subject \"Giorgos Georgiou\"\n  role object \"Olimpia Cahul\"\n  polarity negated\n  certainty asserted\n\n@s43 stated\n  relation \"work at\"\n  role subject \"Layla\"\n  role object \"Crăciun & Asociații\"\n  polarity affirmed\n  certainty asserted\n\n@s44 stated\n  relation \"be on\"\n  role subject \"Floarea\"\n  role object \"Olimpia Leipzig\"\n  polarity affirmed\n  certainty asserted\n\n@s45 stated\n  relation \"be allergic to\"\n  role subject \"Sorin\"\n  role object \"lactose\"\n  polarity affirmed\n  certainty asserted\n\n@s46 stated\n  relation \"coach\"\n  role subject \"Tatiana\"\n  role object \"Șoimii din Călărași\"\n  polarity affirmed\n  certainty asserted\n\n@s47 stated\n  relation \"coach\"\n  role subject \"Bogdan-Ionuț\"\n  role object \"Valencia United\"\n  polarity affirmed\n  certainty asserted\n\n@s48 stated\n  relation \"work at\"\n  role subject \"Jürgen\"\n  role object \"Pitești Logistic\"\n  polarity negated\n  certainty asserted\n\n@s49 stated\n  relation \"buy from\"\n  role subject \"Brightfield Foods\"\n  role object \"Tulcea Logistic\"\n  polarity affirmed\n  certainty asserted\n\n@s50 stated\n  relation \"teach geography\"\n  role subject \"Vasile\"\n  polarity affirmed\n  certainty asserted\n\n@s51 stated\n  relation \"teach\"\n  role subject \"Priya\"\n  role object \"mathematics\"\n  polarity affirmed\n  certainty asserted\n\n@s52 stated\n  relation \"have for sale\"\n  role subject \"Tampere Logistic\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s53 stated\n  relation \"have for sale\"\n  role subject \"Plovdiv Logistic\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s54 stated\n  relation \"treat\"\n  role subject \"Paweł Nowak\"\n  role object \"Larissa\"\n  polarity affirmed\n  certainty asserted\n\n@s55 stated\n  relation \"work at\"\n  role subject \"Bogdan\"\n  role object \"Turner & Asociații\"\n  polarity affirmed\n  certainty asserted\n\n@s56 stated\n  relation \"work at\"\n  role subject \"Tudor\"\n  role object \"Atelierul Munteanu\"\n  polarity affirmed\n  certainty asserted\n\n@s57 stated\n  relation \"be issued at\"\n  role subject \"the identity card\"\n  role object \"the Passport Service Arad\"\n  polarity affirmed\n  certainty asserted\n\n@s58 stated\n  relation \"be issued at\"\n  role subject \"the tax clearance certificate\"\n  role object \"the Cadastral Office Deva\"\n  polarity affirmed\n  certainty asserted\n\n@s59 stated\n  relation \"work at\"\n  role subject \"Burak\"\n  role object \"Balogh & Asociații\"\n  polarity affirmed\n  certainty asserted\n\n@s60 stated\n  relation \"treat\"\n  role subject \"Ingrid Nilsen\"\n  role object \"Diana\"\n  polarity affirmed\n  certainty asserted\n\n@s61 stated\n  relation \"treat\"\n  role subject \"Eleni\"\n  role object \"Owen Bennett\"\n  polarity affirmed\n  certainty asserted\n\n@s62 stated\n  relation \"visit\"\n  role subject \"Anna-Lena\"\n  role destination \"Piatra Neamț\"\n  polarity affirmed\n  certainty asserted\n\n@s63 stated\n  relation \"treat\"\n  role subject \"Hyun-woo\"\n  role object \"Andreea Mocanu\"\n  polarity negated\n  certainty asserted\n\n@s64 stated\n  relation \"buy from\"\n  role subject \"Hughes & Asociații\"\n  role object \"Atelierul Dumitrescu\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  select ?l\n  where match\n    relation \"live in\"\n    role subject \"Théo Martin\"\n    role location ?l\n    polarity affirmed\n  end\n\n@q2 query\n  mode explain\n  where match\n    relation \"be closed\"\n    role subject \"Sala Moara Veche\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_001862_0_0",
+   "language": "mixed",
+   "verdict": "fn",
+   "causes": [
+    "scorer_signature_outputs"
+   ],
+   "reason": "same answer and status as gold; the execution signature differs only because the gold resolves \"domnul Ungureanu\" and \"Mr Ungureanu\" separately",
+   "message": "Suppose Thiago treats Mr Ungureanu. Știi cumva dacă îl tratează pe domnul Ungureanu?",
+   "prediction": "@s1 stated\n  relation \"treat\"\n  role subject \"Thiago\"\n  role object \"Mr Ungureanu\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"treat\"\n    role subject \"Thiago\"\n    role object \"Mr Ungureanu\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_011181_0_0",
+   "language": "mixed",
+   "verdict": "partial",
+   "causes": [
+    "relation_paraphrase",
+    "value_alias_article"
+   ],
+   "reason": "\"be on\" for \"players of\" and no article on \"Deva Falcons\"",
+   "message": "We have an echipă meeting soon. Are at least 3 players of the Deva Falcons certified ?",
+   "prediction": "@q query\n  mode every\n  quantifier at_least 3\n  where match\n    relation \"be on\"\n    role subject ?p\n    role object \"Deva Falcons\"\n    polarity affirmed\n  end\n  scope match\n    relation \"be certified\"\n    role subject ?p\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_015104_0_0",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "spurious assumed refer-to rewriting the value",
+   "message": "Oare Karim nu vrea sa mearga la Tuesday board meeting?",
+   "prediction": "@a1 assumed\n  relation \"refer to\"\n  role subject \"Tuesday board meeting\"\n  role object \"the board meeting on Tuesday\"\n  polarity affirmed\n  basis disambiguation\n\n@q query\n  where match\n    relation \"want to go to\"\n    role subject \"Karim\"\n    role object \"the board meeting on Tuesday\"\n    polarity negated\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_025091_0_1",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "role object for \"buy from\" (C3: source)",
+   "message": "Am un brainstorming la patru. Oare cite firme cumpară de la Tisa Textile",
+   "prediction": "@q query\n  mode count\n  select ?x\n  where match\n    relation \"buy from\"\n    role subject ?x\n    role object \"Tisa Textile\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_029021_0_0",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "ambiguous on a noisy but readable question",
+   "message": "Hai, is it the cade that Ms Trần fies to Reșița ?",
+   "prediction": "@u unclear\n  kind ambiguous\n  reading \"is it the case that Ms Trần flies to Reșița\"\n  reading \"is it the code that Ms Trần flies to Reșitza\""
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-v1",
+   "id": "fv1_025522_0_0",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "\"be for sale\" mistranslates \"are de vânzare\" (has for sale)",
+   "message": "It has been a hectic week on my side. Anca plans to study computer science. Mr Papadopoulos wrote The Glass Orchard. Also, Giorgos did not write The Salt Road. Otilia o tratează pe Natalia. În plus, Amira o tratează pe Jessica.\n\nMr Romero doesn't go to Sibiu Technical College. Carpathia Energy are de vânzare mobilier de grădină.\n\nThings I still have to do today:\n- pay the phone bill\n- call the plumber\n- water the plants\n\nNow, what I need to know: Câți oameni au împrumutat Însemnări din trenul de noapte? Știi până când Ayşe a fost căsătorită cu Megan? Here's what I know: Radu gets to work by bus. I wonder how Mr Stoica goes to work. Could you check if Alexandru Rusu does not live in Thessaloniki? So where did the parents' evening take place?\n\nThanks a lot, I really appreciate it.",
+   "prediction": "@s1 stated\n  relation \"plan to study\"\n  role subject \"Anca\"\n  role object \"computer science\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"write\"\n  role subject \"Mr Papadopoulos\"\n  role object \"The Glass Orchard\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"write\"\n  role subject \"Giorgos\"\n  role object \"The Salt Road\"\n  polarity negated\n  certainty asserted\n\n@s4 stated\n  relation \"treat\"\n  role subject \"Otilia\"\n  role object \"Natalia\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"treat\"\n  role subject \"Amira\"\n  role object \"Jessica\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"go to\"\n  role subject \"Mr Romero\"\n  role object \"Sibiu Technical College\"\n  polarity negated\n  certainty asserted\n\n@s7 stated\n  relation \"be for sale\"\n  role subject \"Carpathia Energy\"\n  role object \"garden furniture\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"get to work by\"\n  role subject \"Radu\"\n  role instrument \"bus\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  mode count\n  select ?x\n  where match\n    relation \"borrow\"\n    role subject ?x\n    role object \"Însemnări din trenul de noapte\"\n    polarity affirmed\n  end\n\n@q2 query\n  select ?t\n  measure end\n  where match\n    relation \"be married to\"\n    role subject \"Ayşe\"\n    role object \"Megan\"\n    role time ?t\n    polarity affirmed\n  end\n\n@q3 query\n  select ?h\n  where match\n    relation \"go to work by\"\n    role subject \"Mr Stoica\"\n    role instrument ?h\n    polarity affirmed\n  end\n\n@q4 query\n  where match\n    relation \"live in\"\n    role subject \"Alexandru Rusu\"\n    role location \"Thessaloniki\"\n    polarity negated\n  end\n\n@q5 query\n  select ?p\n  where match\n    relation \"take place\"\n    role subject \"the parents' evening\"\n    role location ?p\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000001_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "gibberish on a noisy readable claim check",
+   "message": "\"Bohdan Kovalenko dodes not rebt the old sailing boat\" — doesthat hokld ?",
+   "prediction": "@u unclear\n  kind gibberish\n  language en"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000537_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "duplicate measure",
+   "message": "When exactly did Csaba Varga cook at the Botanical Garden in Buzău?",
+   "prediction": "@q query\n  select ?t\n  measure start\n  measure end\n  where match\n    relation \"cook at\"\n    role subject \"Csaba Varga\"\n    role location \"the Botanical Garden in Buzău\"\n    role time ?t\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000550_0_1",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "ambiguous on a clear count question",
+   "message": "How many vehicles are repaired by Teodora, if you know ?",
+   "prediction": "@u unclear\n  kind ambiguous\n  reading \"How many vehicles does Teodora repair?\"\n  reading \"How many vehicles are repaired by Teodora, given some condition?\""
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000015_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "\"Fact-check:\" claim written as stated",
+   "message": "Fact-check: Ștefan goes on a trip to Cahul.",
+   "prediction": "@s1 stated\n  relation \"go on a trip to\"\n  role subject \"Ștefan\"\n  role destination \"Cahul\"\n  polarity affirmed\n  certainty asserted"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000228_0_0",
+   "language": "en",
+   "verdict": "partial",
+   "causes": [
+    "multiple_readings",
+    "role_choice"
+   ],
+   "reason": "two yes/no queries instead of one conjunctive query (both readable); destination vs object for \"show up at\"",
+   "message": "Both at once: does Karim reside in Busan, and does he show up at the product launch?",
+   "prediction": "@q query\n  where match\n    relation \"reside in\"\n    role subject \"Karim\"\n    role location \"Busan\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"show up at\"\n    role subject \"Karim\"\n    role destination \"the product launch\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000237_1_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "asserted premise written as assumed; role object for reside in",
+   "message": "Since Beatriz does not reside in Alexandria, could you check if she resides in Alexandria?",
+   "prediction": "@a1 assumed\n  relation \"reside in\"\n  role subject \"Beatriz\"\n  role object \"Alexandria\"\n  polarity negated\n  basis implicature\n\n@q query\n  where match\n    relation \"reside in\"\n    role subject \"Beatriz\"\n    role object \"Alexandria\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000388_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "role object for \"reside in\" (role table: location)",
+   "message": "Sorry in advance, this is going to be a long one. Nadiya doesn't reside in Piatra Neamț. Vertex Analytics doesn't stock phone cases. Cristina Popescu does not reside in Osaka. Blue Harbor Media employs Théo.\n\nCsaba lectures in chemistry. Also, Mr Martínez lectures in physics. Veaceslav goes on a trip to Craiova. Also, Răzvan goes on a trip to Baia Mare. Bohdan resides in Kraków. Marius does not attend the charity run.\n\nCan is on the payroll of Tisa Textiles. Wojciech is not on the payroll of Orion Robotics. Also, Carmen is not on the payroll of Vaslui Logistics. Karim does not train Olimpia Cahul. My coffee went cold while I was typing this. Florin Ardeleanu looks after the billing service.\n\nGeorge does not attend the regional chess tournament. Also, Beatriz doesn't show up at the code review session.\n\nNot counting Alexandru, please find out who resides in Galați.\nSince Élodie lectures in computer science, is it the case that Ionuț Anghel lectures in computer science?\nSo which town does Vlad reside in?\nAny idea which event Arjun attends?\nAny idea which town Sigrid resides in?",
+   "prediction": "@s1 stated\n  relation \"reside in\"\n  role subject \"Nadiya\"\n  role object \"Piatra Neamț\"\n  polarity negated\n  certainty asserted\n\n@s2 stated\n  relation \"stock\"\n  role subject \"Vertex Analytics\"\n  role object \"phone cases\"\n  polarity negated\n  certainty asserted\n\n@s3 stated\n  relation \"reside in\"\n  role subject \"Cristina Popescu\"\n  role object \"Osaka\"\n  polarity negated\n  certainty asserted\n\n@s4 stated\n  relation \"employ\"\n  role subject \"Blue Harbor Media\"\n  role object \"Théo\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"lecture in\"\n  role subject \"Csaba\"\n  role object \"chemistry\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"lecture in\"\n  role subject \"Mr Martínez\"\n  role object \"physics\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"go on a trip to\"\n  role subject \"Veaceslav\"\n  role destination \"Craiova\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"go on a trip to\"\n  role subject \"Răzvan\"\n  role destination \"Baia Mare\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"reside in\"\n  role subject \"Bohdan\"\n  role object \"Kraków\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"attend\"\n  role subject \"Marius\"\n  role object \"the charity run\"\n  polarity negated\n  certainty asserted\n\n@s11 stated\n  relation \"be on the payroll of\"\n  role subject \"Can\"\n  role object \"Tisa Textiles\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"be on the payroll of\"\n  role subject \"Wojciech\"\n  role object \"Orion Robotics\"\n  polarity negated\n  certainty asserted\n\n@s13 stated\n  relation \"be on the payroll of\"\n  role subject \"Carmen\"\n  role object \"Vaslui Logistics\"\n  polarity negated\n  certainty asserted\n\n@s14 stated\n  relation \"train\"\n  role subject \"Karim\"\n  role object \"Olimpia Cahul\"\n  polarity negated\n  certainty asserted\n\n@s15 stated\n  relation \"look after\"\n  role subject \"Florin Ardeleanu\"\n  role object \"the billing service\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"attend\"\n  role subject \"George\"\n  role object \"the regional chess tournament\"\n  polarity negated\n  certainty asserted\n\n@s17 stated\n  relation \"show up at\"\n  role subject \"Beatriz\"\n  role object \"the code review session\"\n  polarity negated\n  certainty asserted\n\n@s18 stated\n  relation \"lecture in\"\n  role subject \"Élodie\"\n  role object \"computer science\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  select ?x\n  where match\n    relation \"reside in\"\n    role subject ?x\n    role object \"Galați\"\n    polarity affirmed\n  end\n  except ?x \"Alexandru\"\n\n@q2 query\n  where match\n    relation \"lecture in\"\n    role subject \"Ionuț Anghel\"\n    role object \"computer science\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?t\n  where match\n    relation \"reside in\"\n    role subject \"Vlad\"\n    role object ?t\n    polarity affirmed\n  end\n\n@q4 query\n  select ?e\n  where match\n    relation \"attend\"\n    role subject \"Arjun\"\n    role object ?e\n    polarity affirmed\n  end\n\n@q5 query\n  select ?t\n  where match\n    relation \"reside in\"\n    role subject \"Sigrid\"\n    role object ?t\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000027_0_0",
+   "language": "ro",
+   "verdict": "fn",
+   "causes": [
+    "value_alias_article"
+   ],
+   "reason": "\"corul Madrigal\" → the name \"Madrigal\"; world has only \"the Madrigal choir\"",
+   "message": "Pe ce periodă de timp a cântat Sophie Brown în corul Madrigal?",
+   "prediction": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"sing in\"\n    role subject \"Sophie Brown\"\n    role object \"Madrigal\"\n    role time ?t\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000531_0_0",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "translated a Romanian proper name, spurious match block",
+   "message": "Făra să-l pun la socoteala pe Mehmet, oare cine e bucătar la Centrul Comunitar de pe strada Ulmilor?",
+   "prediction": "@q query\n  select ?x\n  where all\n    match\n      relation \"be a cook at\"\n      role subject ?x\n      role object \"the Community Center on Ulmilor Street\"\n      polarity affirmed\n    end\n    match\n      relation \"be\"\n      role subject ?x\n      role object ?y\n      polarity affirmed\n    end\n  end\n  except ?x \"Mehmet\""
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000591_0_1",
+   "language": "ro",
+   "verdict": "fn",
+   "causes": [
+    "relation_paraphrase"
+   ],
+   "reason": "\"se ocupă de\" → \"take care of\" (a correct translation) vs gold \"work on\"",
+   "message": "Câți oameni se ocupă de autobuzul școlii, te rog?",
+   "prediction": "@q query\n  mode count\n  select ?x\n  where match\n    relation \"take care of\"\n    role subject ?x\n    role object \"the school bus\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000609_0_0",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "\"meri\" (apple trees) → \"apples\"",
+   "message": "Oare Diego Sánchez cultiă meri și se ocupă de mașina de pompieri?",
+   "prediction": "@q query\n  where all\n    match\n      relation \"grow\"\n      role subject \"Diego Sánchez\"\n      role object \"apples\"\n      polarity affirmed\n    end\n    match\n      relation \"take care of\"\n      role subject \"Diego Sánchez\"\n      role object \"the fire engine\"\n      polarity affirmed\n    end\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000656_0_0",
+   "language": "ro",
+   "verdict": "fn",
+   "causes": [
+    "value_alias_article"
+   ],
+   "reason": "same as #8 (\"Madrigal\")",
+   "message": "Poți să verifici dacă Fatima cântă în corul Madrigal?",
+   "prediction": "@q query\n  where match\n    relation \"sing in\"\n    role subject \"Fatima\"\n    role object \"Madrigal\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000052_0_0",
+   "language": "ro",
+   "verdict": "partial",
+   "causes": [
+    "relation_paraphrase"
+   ],
+   "reason": "\"teach piano lessons\" folds the object into the relation (C2)",
+   "message": "Chiar Bogdan-Ionuț dă lecții de pian?",
+   "prediction": "@q query\n  where match\n    relation \"teach piano lessons\"\n    role subject \"Bogdan-Ionuț\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000346_0_0",
+   "language": "ro",
+   "verdict": "fn",
+   "causes": [
+    "anchoring_guard",
+    "relation_paraphrase"
+   ],
+   "reason": "57-statement message formalized faithfully; the agent guard rejects the correct translation \"the meeting with parents\" (anchoring), and \"go to\"/\"coach\"/\"be in charge of\" paraphrase the corpus phrases",
+   "message": "Încerc să fiu scurt cu restul. Paloma Martínez pregătește CS Osaka. În plus, Sophie pregătește Șoimii din Cahul. Șefa vrea un rezumat până la sfârșitul zilei.\n\nBotond Balogh are un post la Tisa Textile. Iulia Ardeleanu este prezentă la sesiunea de code review. În plus, Ethan Hughes este prezent la lansarea produsului. Elif Demir pleacă la Sighișoara.\n\nPetru este prezent la ședința cu părinții. Krzysztof nu pleacă la Montreal. În plus, Mehmet pleacă la Bălți. Lukas e prezent la ședința de consiliu de marți. Tunde nu trăiește în Plovdiv. Mersi că ai răbdare cu toate întrebările mele.\n\nCsaba Fekete pleacă la Bacău. Bun, revin la ce voiam de fapt să întreb. Karim pleacă la Buzău. În plus, Bogdan-Ionuț pleacă la Oradea.\n\nAtelierul Iordache comercializează huse de telefon. În plus, Bistrița Logistic comercializează uniforme școlare. Sistemele Nordwind comercializează piese de bicicletă. Élodie e prezentă la crosul caritabil. Anna-Lena dă lecții de informatică. Am programare la dentist mai târziu, deci mă grăbesc.\n\nChen dă lecții de fizică. În plus, Ioana dă lecții de geografie. Mersi că ai răbdare cu toate întrebările mele. Beatriz nu se ocupă de indexul de căutare. Am programare la dentist mai târziu, deci mă grăbesc.\n\nNikos are un post la Carpathia Energy. În plus, Petronela Neagu muncește la Brightfield Foods. James muncește la Orion Robotics. Camille nu este prezentă la festivalul recoltei. Giorgos pregătește Lupii din Thessaloniki. În plus, Lucian pregătește Rapid Chengdu. Șefa vrea un rezumat până la sfârșitul zilei. Minh pregătește CS Târgu Mureș. În plus, Taras pregătește Vaslui United. Mersi că ai răbdare cu toate întrebările mele.\n\nKavya Iyer se ocupă de gateway-ul VPN. Florică Stoian pleacă la Lviv. Lars este prezent la târgul de carte de primăvară. Julien pleacă la Debrecen. În plus, Aurel Voicu pleacă la Zalău. Gheorghe Căpraru nu pleacă la Tampere. Asta e mai mult pentru notițele mele, sincer.\n\nMatei Tănase nu are un post la Greenline Transport. Bohdan Bondarenko pleacă la Leipzig. În plus, Georgiana nu pleacă la Leeds. Katalin Varga pregătește CS Lyon. Cluj-Napoca Logistic comercializează pâine cu maia. În plus, Gheorghiu & Asociații comercializează ulei de măsline. Mi s-a răcit cafeaua cât am scris asta.\n\nJürgen pleacă la Craiova. În plus, Teodora Florea pleacă la Deva. Emma pleacă la Brașov. Valentina trăiește în Alexandria.\n\nOksana trăiește în Constanța. Zeynep Kaya are grijă de serviciul de autentificare. Sper că ai o zi bună. Traian pregătește Rapid Kraków.\n\nLaura Taylor are grijă de gateway-ul de plăți. În plus, Ji-woo are grijă de clusterul de backup. Attila pleacă la Sibiu. Raluca Mureșan se ocupă de serviciul de facturare.\n\nIonuț muncește la Atelierul Nagy. Mei Wang pregătește Rapid Ploiești. În plus, Hugo Dubois pregătește Rapid Baia Mare. Burak pleacă la Lagos.\n\nCe mai am de făcut azi:\n- cumpărături\n- să termin prezentarea\n- să sun instalatorul\n- să duc hainele la curățătorie\n- să răspund la mailuri\n- să plătesc factura la telefon\n\nAcum, ce vreau să aflu: Știi până când Yan a trăit în Galați? Poți să verifici dacă Blue Harbor Media nu comercializează becuri LED?\n\nMersi anticipat!",
+   "prediction": "@s1 stated\n  relation \"coach\"\n  role subject \"Paloma Martínez\"\n  role object \"CS Osaka\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"coach\"\n  role subject \"Sophie\"\n  role object \"Șoimii din Cahul\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"have a post at\"\n  role subject \"Botond Balogh\"\n  role object \"Tisa Textile\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"be present at\"\n  role subject \"Iulia Ardeleanu\"\n  role object \"the code review session\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"be present at\"\n  role subject \"Ethan Hughes\"\n  role object \"the product launch\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"go to\"\n  role subject \"Elif Demir\"\n  role destination \"Sighișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"be present at\"\n  role subject \"Petru\"\n  role object \"the meeting with parents\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"go to\"\n  role subject \"Krzysztof\"\n  role destination \"Montreal\"\n  polarity negated\n  certainty asserted\n\n@s9 stated\n  relation \"go to\"\n  role subject \"Mehmet\"\n  role destination \"Bălți\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"be present at\"\n  role subject \"Lukas\"\n  role object \"the council meeting\"\n  role time \"Tuesday\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"live in\"\n  role subject \"Tunde\"\n  role location \"Plovdiv\"\n  polarity negated\n  certainty asserted\n\n@s12 stated\n  relation \"go to\"\n  role subject \"Csaba Fekete\"\n  role destination \"Bacău\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"go to\"\n  role subject \"Karim\"\n  role destination \"Buzău\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"go to\"\n  role subject \"Bogdan-Ionuț\"\n  role destination \"Oradea\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"sell\"\n  role subject \"Atelierul Iordache\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"sell\"\n  role subject \"Bistrița Logistic\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"sell\"\n  role subject \"Sistemele Nordwind\"\n  role object \"bicycle parts\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"be present at\"\n  role subject \"Élodie\"\n  role object \"the charity run\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"teach\"\n  role subject \"Anna-Lena\"\n  role object \"computer science\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"teach\"\n  role subject \"Chen\"\n  role object \"physics\"\n  polarity affirmed\n  certainty asserted\n\n@s21 stated\n  relation \"teach\"\n  role subject \"Ioana\"\n  role object \"geography\"\n  polarity affirmed\n  certainty asserted\n\n@s22 stated\n  relation \"be in charge of\"\n  role subject \"Beatriz\"\n  role object \"the search index\"\n  polarity negated\n  certainty asserted\n\n@s23 stated\n  relation \"have a post at\"\n  role subject \"Nikos\"\n  role object \"Carpathia Energy\"\n  polarity affirmed\n  certainty asserted\n\n@s24 stated\n  relation \"work at\"\n  role subject \"Petronela Neagu\"\n  role object \"Brightfield Foods\"\n  polarity affirmed\n  certainty asserted\n\n@s25 stated\n  relation \"work at\"\n  role subject \"James\"\n  role object \"Orion Robotics\"\n  polarity affirmed\n  certainty asserted\n\n@s26 stated\n  relation \"be present at\"\n  role subject \"Camille\"\n  role object \"the harvest festival\"\n  polarity negated\n  certainty asserted\n\n@s27 stated\n  relation \"coach\"\n  role subject \"Giorgos\"\n  role object \"Lupii din Thessaloniki\"\n  polarity affirmed\n  certainty asserted\n\n@s28 stated\n  relation \"coach\"\n  role subject \"Lucian\"\n  role object \"Rapid Chengdu\"\n  polarity affirmed\n  certainty asserted\n\n@s29 stated\n  relation \"coach\"\n  role subject \"Minh\"\n  role object \"CS Târgu Mureș\"\n  polarity affirmed\n  certainty asserted\n\n@s30 stated\n  relation \"coach\"\n  role subject \"Taras\"\n  role object \"Vaslui United\"\n  polarity affirmed\n  certainty asserted\n\n@s31 stated\n  relation \"be in charge of\"\n  role subject \"Kavya Iyer\"\n  role object \"the VPN gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s32 stated\n  relation \"go to\"\n  role subject \"Florică Stoian\"\n  role destination \"Lviv\"\n  polarity affirmed\n  certainty asserted\n\n@s33 stated\n  relation \"be present at\"\n  role subject \"Lars\"\n  role object \"the spring book fair\"\n  polarity affirmed\n  certainty asserted\n\n@s34 stated\n  relation \"go to\"\n  role subject \"Julien\"\n  role destination \"Debrecen\"\n  polarity affirmed\n  certainty asserted\n\n@s35 stated\n  relation \"go to\"\n  role subject \"Aurel Voicu\"\n  role destination \"Zalău\"\n  polarity affirmed\n  certainty asserted\n\n@s36 stated\n  relation \"go to\"\n  role subject \"Gheorghe Căpraru\"\n  role destination \"Tampere\"\n  polarity negated\n  certainty asserted\n\n@s37 stated\n  relation \"have a post at\"\n  role subject \"Matei Tănase\"\n  role object \"Greenline Transport\"\n  polarity negated\n  certainty asserted\n\n@s38 stated\n  relation \"go to\"\n  role subject \"Bohdan Bondarenko\"\n  role destination \"Leipzig\"\n  polarity affirmed\n  certainty asserted\n\n@s39 stated\n  relation \"go to\"\n  role subject \"Georgiana\"\n  role destination \"Leeds\"\n  polarity negated\n  certainty asserted\n\n@s40 stated\n  relation \"coach\"\n  role subject \"Katalin Varga\"\n  role object \"CS Lyon\"\n  polarity affirmed\n  certainty asserted\n\n@s41 stated\n  relation \"sell\"\n  role subject \"Cluj-Napoca Logistic\"\n  role object \"sourdough bread\"\n  polarity affirmed\n  certainty asserted\n\n@s42 stated\n  relation \"sell\"\n  role subject \"Gheorghiu & Asociații\"\n  role object \"olive oil\"\n  polarity affirmed\n  certainty asserted\n\n@s43 stated\n  relation \"go to\"\n  role subject \"Jürgen\"\n  role destination \"Craiova\"\n  polarity affirmed\n  certainty asserted\n\n@s44 stated\n  relation \"go to\"\n  role subject \"Teodora Florea\"\n  role destination \"Deva\"\n  polarity affirmed\n  certainty asserted\n\n@s45 stated\n  relation \"go to\"\n  role subject \"Emma\"\n  role destination \"Brașov\"\n  polarity affirmed\n  certainty asserted\n\n@s46 stated\n  relation \"live in\"\n  role subject \"Valentina\"\n  role location \"Alexandria\"\n  polarity affirmed\n  certainty asserted\n\n@s47 stated\n  relation \"live in\"\n  role subject \"Oksana\"\n  role location \"Constanța\"\n  polarity affirmed\n  certainty asserted\n\n@s48 stated\n  relation \"be in charge of\"\n  role subject \"Zeynep Kaya\"\n  role object \"the authentication service\"\n  polarity affirmed\n  certainty asserted\n\n@s49 stated\n  relation \"coach\"\n  role subject \"Traian\"\n  role object \"Rapid Kraków\"\n  polarity affirmed\n  certainty asserted\n\n@s50 stated\n  relation \"be in charge of\"\n  role subject \"Laura Taylor\"\n  role object \"the payment gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s51 stated\n  relation \"be in charge of\"\n  role subject \"Ji-woo\"\n  role object \"the backup cluster\"\n  polarity affirmed\n  certainty asserted\n\n@s52 stated\n  relation \"go to\"\n  role subject \"Attila\"\n  role destination \"Sibiu\"\n  polarity affirmed\n  certainty asserted\n\n@s53 stated\n  relation \"be in charge of\"\n  role subject \"Raluca Mureșan\"\n  role object \"the billing service\"\n  polarity affirmed\n  certainty asserted\n\n@s54 stated\n  relation \"work at\"\n  role subject \"Ionuț\"\n  role object \"Atelierul Nagy\"\n  polarity affirmed\n  certainty asserted\n\n@s55 stated\n  relation \"coach\"\n  role subject \"Mei Wang\"\n  role object \"Rapid Ploiești\"\n  polarity affirmed\n  certainty asserted\n\n@s56 stated\n  relation \"coach\"\n  role subject \"Hugo Dubois\"\n  role object \"Rapid Baia Mare\"\n  polarity affirmed\n  certainty asserted\n\n@s57 stated\n  relation \"go to\"\n  role subject \"Burak\"\n  role destination \"Lagos\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  select ?t\n  measure end\n  where match\n    relation \"live in\"\n    role subject \"Yan\"\n    role location \"Galați\"\n    role time ?t\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"sell\"\n    role subject \"Blue Harbor Media\"\n    role object \"LED bulbs\"\n    polarity negated\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000427_0_1",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [
+    "ds021_underspecified"
+   ],
+   "reason": "\"îmi amintești cine …\" (remind me who …) as no_request; DS021 C8 lists \"remind\" among no_request actions, which invites this",
+   "message": "Ok, îmi amintești cine se ocupă de autobuzul școlii?",
+   "prediction": "@u unclear\n  kind no_request\n  language ro"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000737_0_0",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "duplicate measure",
+   "message": "I promised my colegă an answer. When exactly was Tunde the chef at the Botanical Garden in Tampere?",
+   "prediction": "@q query\n  select ?t\n  measure start\n  measure end\n  where match\n    relation \"be the chef at\"\n    role subject \"Tunde\"\n    role object \"the Botanical Garden in Tampere\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000745_0_0",
+   "language": "mixed",
+   "verdict": "partial",
+   "causes": [
+    "role_choice"
+   ],
+   "reason": "active \"Jack does not repair the ambulance\" for the by-agent passive (C2 keeps the passive); same meaning",
+   "message": "Ambulanța spitalului is not repaired by Jack.",
+   "prediction": "@s1 stated\n  relation \"repair\"\n  role subject \"Jack\"\n  role object \"the hospital ambulance\"\n  polarity negated\n  certainty asserted"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000041_0_1",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "role line on the query (parser rejects)",
+   "message": "Cat de frecvent a avut Mircea grijă de login service ?",
+   "prediction": "@q query\n  mode count\n  select ?t\n  role time ?t\n  where match\n    relation \"take care of\"\n    role subject \"Mircea\"\n    role object \"login service\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000381_0_0",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "\"commercialize\" calque",
+   "message": "Presupunem că Orion Robotics comercializează becuri LED. Help me with this one: does it stock LED bulbs?",
+   "prediction": "@s1 stated\n  relation \"commercialize\"\n  role subject \"Orion Robotics\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"stock\"\n    role subject \"Orion Robotics\"\n    role object \"LED bulbs\"\n    polarity affirmed\n  end"
+  },
+  {
+   "condition": "haiku-nothink",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000409_0_1",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "spurious match block",
+   "message": "We have an echipă meeting soon. Not counting Aiko Watanabe, please find out who is on the payroll of Vertex Analytics.",
+   "prediction": "@q query\n  select ?x\n  where all\n    match\n      relation \"be on the payroll of\"\n      role subject ?x\n      role object \"Vertex Analytics\"\n      polarity affirmed\n    end\n    match\n      relation \"be\"\n      role subject ?x\n      role object ?x\n      polarity affirmed\n    end\n  end\n  except ?x \"Aiko Watanabe\""
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-v1",
+   "id": "fv1_009447_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Not counting Paloma López, please find out who plans to go to the product launch.",
+   "prediction": "@q query\n  select ?x\n  where match\n    relation \"plan to go to\"\n    role subject ?x\n    role object \"the product launch\"\n    polarity affirmed\n  end\n  except ?x \"Palaoma López\"\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-v1",
+   "id": "fv1_026851_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Here's what I know: Bistrița Children's Clinic employs Élodie. Is it the case that she is vaccinated against the flu ?",
+   "prediction": "@s1 stated\n  relation \"be employed by\"\n  role subject \"Bistrița Children's Clinic\"\n  role object \"Elodie\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be vaccinated against the flu\"\n  role subject \"Eliot\"\n  polarity affirmed\n  basis default\n\n@q query\n  where match\n    relation \"be vaccinated against the flu\"\n    role subject \"Eliot\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-v1",
+   "id": "fv1_027100_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "How long did Florică go to the Piatra Neamț Language School?",
+   "prediction": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"go to\"\n    role subject \"Floctice\"\n    role object \"the Piatra Neamț Language School\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-v1",
+   "id": "fv1_032434_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Here's what I know: Tudor is a child of Ms Kovács. Could you check if Ms Kovács is a child of Tudor?",
+   "prediction": "@s1 stated\n  relation \"be a child of\"\n  role subject \"Tudor\"\n  role object \"Ms Kovács\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be a parent of\"\n  role subject \"Ms Kovács\"\n  role object \"Tudor\"\n  polarity negated\n  basis world\n\n@q query\n  where match\n    relation \"be a parent of\"\n    role subject \"Ms Kovács\"\n    role object \"Tudor\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-v1",
+   "id": "fv1_001350_0_1",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Poți să verifici dacă Manon a muncit la Tisa Textile pe parcursul lui 2020?",
+   "prediction": "@q query\n  where match\n    relation \"study at\"\n    role subject \"Manon\"\n    role object \"Tisa Textile\"\n    polarity affirmed\n  end\n  during \"2020\"\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-v1",
+   "id": "fv1_006806_0_0",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Se poate confirma că Minh vrea să învețe fizică?",
+   "prediction": "@q query\n  where match\n    relation \"want to learn\"\n    role subject \"M Minh\"\n    role topic \"physics\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-v1",
+   "id": "fv1_009619_0_1",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Fără s-o pun la socoteală pe Wanjiru, oare cine muncește la Sistemele Nordwind?",
+   "prediction": "@q query\n  select ?x\n  where match\n    relation \"manage\"\n    role subject ?x\n    role object \"Sistemele Nordwind\"\n    polarity affirmed\n  end\n  except ?x \"Wanjiru\"\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-v1",
+   "id": "fv1_024114_0_0",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Potrivit lui Ingrid Nilsen, vrea să învețe informatică. Se poate confirma că învață la Școala Primară Căpraru?",
+   "prediction": "@s1 stated\n  relation \"want to learn\"\n  role subject \"Ingrid Nilsen\"\n  role topic \"computer science\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"study at\"\n    role subject \"Ingrid Nilsen\"\n    role object \"Școala Primară Căpraru\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-v1",
+   "id": "fv1_018926_0_0",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Am un workshop mâine. Poți să-mi spui ce înseamnă termenul de prescripție?",
+   "prediction": "@q query\n  select ?m\n  where match\n    relation \"mean\"\n    role subject \"a power of attorney\"\n    role object ?m\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-v1",
+   "id": "fv1_021598_0_0",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Pregătesc un pitch. Se poate confirma că Natalia a muncit la Tipografia Delta pe 1 martie 2020?",
+   "prediction": "@q query\n  where match\n    relation \"study at\"\n    role subject \"Natalia\"\n    role object \"Tipografia Delta\"\n    polarity affirmed\n  end\n  at \"1 March 2020\"\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000081_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Help me with this one: is Răzvan a member of the Madrigal choir? One more thing: Do you know if he rents the vineyard near Sibiu ?",
+   "prediction": "@q query\n  where match\n    relation \"be a member of\"\n    role subject \"Răzvan\"\n    role object \"the Madrigal choir\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"rent the vineyard near Sibiu\"\n    role subject \"Răzvan\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000733_0_1",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Since Veaceslav Guțu leases the red Dacia, is it true that Élodie Martin leases the red Dacia?",
+   "prediction": "@s1 stated\n  relation \"L lease\"\n  role subject \"Veaceslav Guțu\"\n  role object \"the red Dacia\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"be the owner of\"\n    role subject \"Elenodie Martin\"\n    role object \"the red Dacia\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000160_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Both at once: does Jack train CS Sighișoara, and does Brightfield Foods employ Jack?",
+   "prediction": "@q query\n  where all\n    match\n      relation \"train\"\n      role subject \"Jack\"\n      role object \"CS Sighișoara\"\n      polarity affirmed\n    end\n    match\n      relation \"be employed by\"\n      role subject \"Brightfield Foods\"\n      role object \"Jack\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000242_0_0",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "I will try to keep the rest short. Meera Sharma attends classes at Ploiești Arts High School. Fatima goes to Schmidt Primary School. Also, Lars attends classes at Chengdu Music Academy. My manager wants a summary by the end of the day.\n\nGiorgos Papadopoulos goes to Sighișoara Music Academy. Also, Lucian goes to Reșița Technical College. Dariush flies to Izmir. Also, Iulia goes on a trip to Timișoara. Ildikó goes to Wilson Primary School. Delta Print does not stock phone cases. Also, Tisa Textiles stocks LED bulbs. Ngozi Balogun resides in Alexandria. Also, Sophie resides in Brașov.\n\nTeodora flies to Bălți. Yuki resides in Bistrița. Ghiță resides in Buzău. Also, João resides in Zalău. Mihai Tănase flies to Orhei.\n\nBurak Çelik goes to Bergen Technical College. Also, James attends classes at Szabó Primary School. Mehmet trains Olimpia Hanoi. Also, Florin trains the Kraków Wolves. Mr Nistor takes care of the search index. Also, Lukas looks after the analytics pipeline.\n\nMr Adeyemi is the trainer of the Constanța Wolves. Also, Zeynep Yılmaz trains the Plovdiv Falcons. Atelier Sârbu employs Min-jun. Karim is the trainer of Rapid Busan. Carpathia Energy stocks school uniforms. Also, Greenline Transport stocks second-hand laptops.\n\nLuminița lectures in drawing. Also, Ms Martínez does not lecture in chemistry. Sânziana looks after the login service. Also, Ilinca Iordache looks after the mail server. Csaba resides in Tampere.\n\nFrom what date on is Attila on the payroll of Blue Harbor Media?\nHow many subjects does Ethan Bennett lecture in, if you know?\n\nCheers, and have a nice evening.",
+   "prediction": ""
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000466_0_1",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "În ce ani s-a ocupat Can de Volvo-ul vechi?",
+   "prediction": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"be responsible for\"\n    role subject \"Can\"\n    role object \"the Volvo engine\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000562_0_0",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Din curiozitate, cine închiriază Dacia roșie?",
+   "prediction": "@q query\n  select ?x\n  where match\n    relation \"maintain\"\n    role subject ?x\n    role object \"the red Dacia\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000184_0_0",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Stai puțin, gândesc cu voce tare. Octavian pleacă la Nairobi. În plus, Kaveh pleacă la Craiova. Mihai Țurcanu nu trăiește în Lyon. Chinedu Adeyemi nu trăiește în Bălți. Irina Anghel trăiește în Piatra Neamț.\n\nViorica nu are grijă de clusterul de backup. Hao Wang pleacă la Reșița. În plus, Carmen pleacă la Tampere. Diego García are grijă de dashboard-ul de raportare. În plus, Réka se ocupă de serviciul de autentificare. Nils Lindqvist nu este prezent la atelierul de fotografie. Lukas pregătește Șoimii din Cluj-Napoca.\n\nBeatriz este prezentă la crosul caritabil. În plus, Sânziana este prezentă la dezbaterea de la primărie. Mateo nu muncește la Brightfield Foods. Orion Robotics comercializează uniforme școlare. Élodie dă lecții de matematică. În plus, Marius dă lecții de educație fizică. Sârbu & Asociații comercializează pâine cu maia. Sincer, nu mai țin minte cine ce face.\n\nCe mai am de făcut azi:\n- să termin prezentarea\n- să ud florile\n- cumpărături\n- să răspund la mailuri\n- să iau bilete de tren\n- să plătesc factura la telefon\n\nUite ce aș vrea să verific:\nÎn ce ani a plecat Ștefan Șerban la Brașov?\nLa ce eveniment e prezentă Corina?\n„Iancu se ocupă de serverul de e-mail” — se confirmă?\nCred că Wojciech pregătește Olimpia Slatina. Se poate confirma că Mirela pregătește Olimpia Slatina?\nFără să-l pun la socoteală pe Emeka Balogun, oare cine are grijă de API-ul de inventar?\nChiar Atelierul Barbu comercializează huse de telefon?\n\nMersi mult, chiar apreciez.",
+   "prediction": "@s1 stated\n  relation \"play for\"\n  role subject \"Octavian\"\n  role object \"Nairobi\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"play for\"\n  role subject \"Kaveh\"\n  role object \"Craiova\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"travel to\"\n  role subject \"Mihai Țurcanu\"\n  role destination \"Lyon\"\n  polarity negated\n  certainty asserted\n\n@s4 stated\n  relation \"travel to\"\n  role subject \"Chinedu Adeyemi\"\n  role destination \"Bălți\"\n  polarity negated\n  certainty asserted\n\n@s5 stated\n  relation \"train\"\n  role subject \"Irina Anghel\"\n  role object \"the photography workshop\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"be treated by\"\n  role subject \"Nils Lindqvist\"\n  role object \"the photography workshop\"\n  polarity negated\n  certainty asserted\n\n@s7 stated\n  relation \"be employed by\"\n  role subject \"Lukas\"\n  role object \"the photography workshop\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"be married to\"\n  role subject \"Sânziana\"\n  role object \"Brightfield Foods\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"manage\"\n  role subject \"Mateo\"\n  role object \"Brightfield Foods\"\n  polarity negated\n  certainty asserted\n\n@s10 stated\n  relation \"commute by\"\n  role subject \"Orion Robotics\"\n  role instrument \"car\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"have for sale\"\n  role subject \"Elena García\"\n  role object \"sourdough bread\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"sell\"\n  role subject \"Marius\"\n  role object \"sourdough bread\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"be the coach of\"\n  role subject \"Sârbu & Asociații\"\n  role object \"the photography app\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"be responsible for\"\n  role subject \"Căerat\"\n  role object \"the payments gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be the coach of\"\n  role subject \"Wojciech\"\n  role object \"Olimpia Slatina\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"raise\"\n  role subject \"Mirela\"\n  role object \"Olimpia Slatina\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"raise\"\n  role subject \"Olimpia Slatina\"\n  role object \"Mirce\"\n  polarity negated\n  basis world\n\n@q query\n  select ?t\n  measure duration\n  where match\n    relation \"play for\"\n    role subject \"Ștefan Șerban\"\n    role object \"Brașov\"\n    role time ?t\n    polarity affirmed\n  end\n\n@q2 query\n  select ?x\n  where match\n    relation \"be the coach of\"\n    role subject \"Corina\"\n    role object ?x\n    polarity affirmed\n  end\n\n@q3 query\n  where match\n    relation \"be responsible for\"\n    role subject \"Iancu\"\n    role object \"the mail server\"\n    polarity affirmed\n  end\n\n@q4 query\n  where match\n    relation \"teach\"\n    role subject \"Wojciech\"\n    role object \"Olimpia Slatina\"\n    polarity affirmed\n  end\n\n@q5 query\n  select ?x\n  where match\n    relation \"have for sale\"\n    role subject ?x\n    role object \"the inventory API\"\n    polarity affirmed\n  end\n  except ?x \"Mirela\"\n\n@q6 query\n  select ?x\n  where match\n    relation \"have in mind\"\n    role subject \"Emeka Balogun\"\n    role object ?x\n    polarity affirmed\n  end\n\n@q7 query\n  select ?how\n  where match\n    relation \"commute\"\n    role subject \"Wojciech\"\n    role instrument ?how\n    polarity affirmed\n  end\n\n@q8 query\n  where match\n    relation \"be employed by\"\n    role subject \"Mirela\"\n    role object \"Soups of Biafra\"\n    polarity affirmed\n  end\n\n@q9 query\n  select ?x\n  where match\n    relation \"have in mind\"\n    role subject ?x\n    role object \"the inventory API\"\n    polarity affirmed\n  end\n  except ?x \"Emeka Balogun\"\n\n@q10 query\n  select ?x\n  where match\n    relation \"be married to\"\n    role subject ?x\n    role object \"Ștefan Șerban\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000419_0_0",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Oare Taras pleacă la Bistrița și dă lecții de geografie?",
+   "prediction": "@q query\n  where all\n    match\n      relation \"play for\"\n      role subject \"Taras\"\n      role object \"Bistrița\"\n      polarity affirmed\n    end\n    match\n      relation \"study at\"\n      role subject \"Taras\"\n      role object \"Bistrița\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-ood-v1",
+   "id": "ood1_000720_0_0",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "„Arjun Iyer se ocupâ de school bus” — se confirma?",
+   "prediction": "@q query\n  where match\n    relation \"be the coach of\"\n    role subject \"Arjun Iyer\"\n    role object \"the school bus\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-ood-v1",
+   "id": "ood2_000261_0_0",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Am un workshop mâine. Oare Ethan Wilson nu pregătește CS Craiova?",
+   "prediction": "@q query\n  where match\n    relation \"plan to study\"\n    role subject \"Ethan Wilson\"\n    role topic \"CS Craiova\"\n    polarity negated\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-wild-v1",
+   "id": "wild_we_001",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "What's the half-life of amiodarone?",
+   "prediction": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"be the half-life of\"\n    role subject \"amiodarone\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-wild-v1",
+   "id": "wild_we_086",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Dr Sato and Dr Mbeki co-authored the Wellcome grant application. Do they each need to submit a conflict of interest form or is one joint form enough?",
+   "prediction": "@s1 stated\n  relation \"coach\"\n  role subject \"Dr Sato\"\n  role object \"the Wellcome grant application\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"coach\"\n  role subject \"Dr Mbeki\"\n  role object \"the Wellcome grant application\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"require\"\n    role subject \"a conflict of interest form\"\n    role object \"a medical certificate\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-wild-v1",
+   "id": "wild_wd_074",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "is it worth getting a 16-25 Railcard if I only go down to Brighton like 5 times a year, return is about £38",
+   "prediction": "@q query\n  mode exists\n  where all\n    match\n      relation \"get\"\n      role subject ?x\n      role object \"a 16-25 Railcard\"\n      polarity affirmed\n    end\n    match\n      relation \"go to\"\n      role subject ?x\n      role object \"Brighton\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-wild-v1",
+   "id": "wild_wd_030",
+   "language": "en",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "is there a 24 hour vet anywhere near Salt Lake Sector V",
+   "prediction": "@q query\n  mode exists\n  where match\n    relation \"be in\"\n    role subject \"the 24-hour vet\"\n    role location \"Salt Lake Sector V\"\n    polarity affirmed\n  end\n  compare ?q\n  where match\n    relation \"be in\"\n    role subject \"the 24-hour vet\"\n    role location \"Salt Lake Sector V\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-wild-v1",
+   "id": "wild_wh_084",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "am 6 baxuri de bere a cate 12 doze si suntem 18 oameni, cate doze de caciula?",
+   "prediction": "@c constraint\n  var ?x int 0 120\n  require ?x at_least 18\n  claim ?x above 12\n  task prove\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-wild-v1",
+   "id": "wild_wg_008",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "la biserica din Rebrisoara slujba de Rusalii ii inainte de parastas ori dupa? ca vreau sa aduc coliva pana la noua",
+   "prediction": "@q query\n  mode count\n  select ?t\n  where match\n    relation \"be postponed\"\n    role subject \"the payments gateway\"\n    role time ?t\n    polarity affirmed\n  end\n\n@q2 query\n  mode count\n  select ?t\n  where match\n    relation \"be postponed\"\n    role subject \"the payments gateway\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-wild-v1",
+   "id": "wild_wg_012",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "fratii mei Grigore si Toader au o livada de pruni la Bistrita Bargaului, au lucrat-o tat timpu impreuna. pe acte cine ii proprietarul?",
+   "prediction": "@s1 stated\n  relation \"work at\"\n  role subject \"Grigore\"\n  role object \"Bistrita Bargaului\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"work at\"\n  role subject \"Toader\"\n  role object \"Bistrita Bargaului\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  select ?x\n  where match\n    relation \"be the owner of\"\n    role subject ?x\n    role object \"the bakery on the corner\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-wild-v1",
+   "id": "wild_wh_005",
+   "language": "ro",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Andreea, Bogdan, Ilinca si Radu stau toti in caminul C4 din Tudor Vladimirescu. cati dintre ei au restante la Algebra?",
+   "prediction": "@c constraint\n  var ?x int 0 24\n  require ?x at_least 3\n  claim ?x equal 4\n  task possible\n  select ?x\n\n@q query\n  where match\n    relation \"study at\"\n    role subject \"Andreea\"\n    role object \"C4 din Tudor Vladimirescu\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-wild-v1",
+   "id": "wild_wf_079",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "Situatie: aerul conditionat din biroul de la depozit picura fix pe label printer-ul Zebra, am pus o galeata dar se umple in vreo ora, si Dorin, care are contractul cu firma de service, e in concediu pana miercuri. Tura de noapte incepe la 22:00 si fara printer nu putem eticheta nimic. Should I just unplug the AC or call Dorin anyway?",
+   "prediction": "@s1 stated\n  relation \"be down\"\n  role subject \"the payments gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be down\"\n  role subject \"the printer\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be responsible for\"\n  role subject \"Dorin\"\n  role object \"the service contract\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"be responsible for\"\n  role subject \"Dorin\"\n  role object \"the printer\"\n  polarity negated\n  certainty asserted\n\n@a1 assumed\n  relation \"be down\"\n  role subject \"the payments gateway\"\n  polarity affirmed\n  basis default\n\n@q query\n  where match\n    relation \"be down\"\n    role subject \"the payments gateway\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"be responsible for\"\n    role subject \"Dorin\"\n    role object \"the printer\"\n    polarity affirmed\n  end\n\n@q3 query\n  mode explain\n  where match\n    relation \"be absent from work\"\n    role subject \"Dorin\"\n    polarity affirmed\n  end\n\n@q4 query\n  where match\n    relation \"get sick from\"\n    role subject \"Dorin\"\n    role source \"the printer\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "condition": "smollm2-135m",
+   "suite": "formalizer-wild-v1",
+   "id": "wild_wj_012",
+   "language": "mixed",
+   "verdict": "genuine",
+   "causes": [],
+   "reason": "model error",
+   "message": "which one is cheaper for trimis colete from Dublin to Craiova, Nobel Transport or DPD?",
+   "prediction": "@q query\n  mode exists\n  where all\n    match\n      relation \"travel from\"\n      role subject ?x\n      role destination \"Dublin\"\n      polarity affirmed\n    end\n    match\n      relation \"travel to\"\n      role subject \"Narini\"\n      role destination \"Craiova\"\n      polarity affirmed\n    end\n  end\n"
+  }
+ ],
+ "smollm_note": "30 failures (10 per suite, EN/RO/mixed): all genuine model errors (name corruption, wrong relations such as \"study at\" for \"lucrează la\", hallucinated values, empty output on a long message, role reversals); no eval false negative found."
+}

@@ -1,0 +1,223 @@
+{
+ "parts": [
+  "000",
+  "001",
+  "002",
+  "003",
+  "004",
+  "005",
+  "006",
+  "007",
+  "008",
+  "009"
+ ],
+ "filters": {
+  "judge_dropped_mixed": 160,
+  "judge_dropped_ro": 115,
+  "judge_dropped_noisy_en": 41,
+  "harmonized_target": 986,
+  "noisy_gate_clean_to_identity": 757,
+  "family_term_misaligned": 20,
+  "harmonize_dropped": 2,
+  "it1_train_harmonized_target": 352,
+  "it1_train_noisy_gate_clean_to_identity": 1111,
+  "it1_train_dropped_held_out_vocabulary": 5,
+  "it1_dev_harmonized_target": 66,
+  "it1_dev_noisy_gate_clean_to_identity": 146,
+  "it1_dev_dropped_held_out_vocabulary": 6,
+  "train_duplicate_prompt": 709,
+  "template_dropped": 9,
+  "dev_prompt_also_in_train_or_dev": 144
+ },
+ "judge_votes": {
+  "new/ro": {
+   "yy": 2105,
+   "yn": 151,
+   "ny": 76,
+   "nn": 54
+  },
+  "new/mixed": {
+   "yy": 2053,
+   "yn": 141,
+   "ny": 124,
+   "nn": 76
+  },
+  "new/noisy_en": {
+   "yy": 1411,
+   "yn": 9,
+   "ny": 6,
+   "nn": 11
+  },
+  "same/ro": {
+   "yy": 1924,
+   "yn": 115,
+   "ny": 73,
+   "nn": 38
+  },
+  "same/mixed": {
+   "yy": 1927,
+   "yn": 101,
+   "ny": 69,
+   "nn": 71
+  },
+  "same/noisy_en": {
+   "yy": 1283,
+   "yn": 4,
+   "ny": 4,
+   "nn": 6
+  }
+ },
+ "backgen_pairs": {
+  "train": 11748,
+  "dev": 927,
+  "heldout_all": 896
+ },
+ "identity_pools": {
+  "train": {
+   "identity:lead-in:natural": 972,
+   "identity:new.en": 2481,
+   "identity:symbolic_english": 5201
+  },
+  "dev": {
+   "identity:lead-in:natural": 101,
+   "identity:new.en": 194,
+   "identity:symbolic_english": 734
+  }
+ },
+ "identity_synthetic": {
+  "train": 1100,
+  "dev": 120
+ },
+ "identity_train": {
+  "existing_it1": 3722,
+  "added": 4195,
+  "wanted": 4195
+ },
+ "template_pairs": 489,
+ "oversampled_copies": 441,
+ "train": {
+  "pairs": 36915,
+  "by_pair": {
+   "identity": 8215,
+   "repair": 28700
+  },
+  "by_kind": {
+   "clean": 7917,
+   "mash": 298,
+   "mixed": 6414,
+   "noisy_en": 6289,
+   "ro": 15997
+  },
+  "by_target_source": {
+   "clean-sibling": 2,
+   "identity:gate-clean-noisy": 1743,
+   "identity:in-row": 990,
+   "identity:keyboard-mash": 298,
+   "identity:lead-in:natural": 771,
+   "identity:lead-in:synthetic": 1099,
+   "identity:new.en": 2106,
+   "identity:symbolic_english": 1208,
+   "llm:deepseek-flash": 12193,
+   "llm:deepseek-flash:backgen-new": 5877,
+   "llm:deepseek-flash:backgen-same": 5565,
+   "new_cases.clean": 472,
+   "noise-inverse": 1960,
+   "proofing.repair": 989,
+   "proofing.translate": 1153,
+   "template:family-relations": 489
+  }
+ },
+ "dev": {
+  "pairs": 5173,
+  "by_pair": {
+   "identity": 1185,
+   "repair": 3988
+  },
+  "by_kind": {
+   "clean": 1125,
+   "mash": 60,
+   "mixed": 661,
+   "noisy_en": 666,
+   "ro": 2661
+  },
+  "by_target_source": {
+   "identity:gate-clean-noisy": 187,
+   "identity:in-row": 180,
+   "identity:keyboard-mash": 60,
+   "identity:lead-in:natural": 79,
+   "identity:lead-in:synthetic": 120,
+   "identity:new.en": 163,
+   "identity:symbolic_english": 396,
+   "llm:deepseek-flash": 2462,
+   "llm:deepseek-flash:backgen-new": 414,
+   "llm:deepseek-flash:backgen-same": 455,
+   "new_cases.clean": 69,
+   "noise-inverse": 233,
+   "proofing.repair": 109,
+   "proofing.translate": 246
+  }
+ },
+ "dev_backgen": {
+  "pairs": 1488,
+  "by_pair": {
+   "identity": 619,
+   "repair": 869
+  },
+  "by_kind": {
+   "clean": 619,
+   "mixed": 348,
+   "noisy_en": 156,
+   "ro": 365
+  },
+  "by_target_source": {
+   "identity:gate-clean-noisy": 41,
+   "identity:lead-in:natural": 79,
+   "identity:lead-in:synthetic": 120,
+   "identity:new.en": 163,
+   "identity:symbolic_english": 216,
+   "llm:deepseek-flash:backgen-new": 414,
+   "llm:deepseek-flash:backgen-same": 455
+  }
+ },
+ "dev_heldout": {
+  "pairs": 574,
+  "by_pair": {
+   "repair": 574
+  },
+  "by_kind": {
+   "mixed": 200,
+   "noisy_en": 174,
+   "ro": 200
+  },
+  "by_target_source": {
+   "llm:deepseek-flash:backgen-new": 574
+  }
+ },
+ "mash_eval": {
+  "pairs": 150,
+  "by_pair": {
+   "identity": 150
+  },
+  "by_kind": {
+   "mash": 150
+  },
+  "by_target_source": {
+   "identity:keyboard-mash": 150
+  }
+ },
+ "reserve_heldout": 322,
+ "held_out_vocabulary": [
+  "cousin",
+  "niece",
+  "uncle",
+  "tenant",
+  "supervisor",
+  "tutor",
+  "owe",
+  "adopt",
+  "audit",
+  "boatyard"
+ ],
+ "identity_share_train": 22.3,
+ "identity_share_dev": 22.9
+}

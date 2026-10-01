@@ -1,0 +1,83 @@
+{
+  "helped": [
+    {
+      "id": "ood1_000013_0_0",
+      "message": "So, știi cjmva daca Mihai Barbu inchiriază Dacia roșie",
+      "translation": "So, you know what I mean if Mihai Barbu rents Dacia red",
+      "direct": "@q query\n  where match\n    relation \"sell\"\n    role subject \"Mihai Barbu\"\n    role object \"the red Dacia\"\n    polarity affirmed\n  end\n",
+      "translated": "@q query\n  select ?m\n  where match\n    relation \"rent\"\n    role subject \"Mihai Barbu\"\n    role object \"the red Dacia\"\n    role time ?m\n    polarity affirmed\n  end\n"
+    },
+    {
+      "id": "ood1_000030_0_0",
+      "message": "Oare Katrin cultivă lavandă?",
+      "translation": "Does Katrin grow lavender?",
+      "direct": "@q query\n  where match\n    relation \"raise\"\n    role subject \"Katrin\"\n    role object \"the garden\"\n    polarity affirmed\n  end\n",
+      "translated": "@q query\n  where match\n    relation \"grow\"\n    role subject \"Katrin\"\n    role object \"lavender\"\n    polarity affirmed\n  end\n"
+    },
+    {
+      "id": "ood1_000034_0_0",
+      "message": "„Emma Taylor cultivă ardei” — se confirmă?",
+      "translation": "\"Emma Taylor grows peppers — is it confirmed?",
+      "direct": "@q query\n  where match\n    relation \"raise\"\n    role subject \"Emma Taylor\"\n    role object \"the arbor\"\n    polarity affirmed\n  end\n",
+      "translated": "@q query\n  where match\n    relation \"grow\"\n    role subject \"Emma Taylor\"\n    role object \"peppers\"\n    polarity affirmed\n  end\n"
+    },
+    {
+      "id": "ood1_000077_0_0",
+      "message": "Știi cumva dacă Bogdan-Ionuț închiriază Dacia roșie?",
+      "translation": "Do you know if Bogdan-Ionut rents Dacia red?",
+      "direct": "@q query\n  where match\n    relation \"sell\"\n    role subject \"Bogdan-Ionuț\"\n    role object \"the red Dacia\"\n    polarity affirmed\n  end\n",
+      "translated": "@q query\n  where match\n    relation \"rent\"\n    role subject \"Bogdan-Ionut\"\n    role object \"the red Dacia\"\n    polarity affirmed\n  end\n"
+    },
+    {
+      "id": "ood1_000082_0_0",
+      "message": "Fără să-l pun la socoteală pe Botond, oare cine e membru în corul de tineret?",
+      "translation": "Without counting Botond, who's a member of the youth choir?",
+      "direct": "@q query\n  select ?x\n  where match\n    relation \"be employed by\"\n    role subject ?x\n    role object \"the tennis club\"\n    polarity affirmed\n  end\n  except ?x \"Botond\"\n",
+      "translated": "@q query\n  select ?x\n  where match\n    relation \"be a member of\"\n    role subject ?x\n    role object \"the youth choir\"\n    polarity affirmed\n  end\n  except ?x \"Botond\"\n"
+    }
+  ],
+  "hurt": [
+    {
+      "id": "ood1_000217_0_1",
+      "message": "I am preparing the prezentare. pls find out what Megan leases.",
+      "translation": "I'm preparing the presentation. pls find out what Megan reads.",
+      "direct": "@q query\n  select ?x\n  where match\n    relation \" lease\"\n    role subject \"Megan\"\n    role object ?x\n    polarity affirmed\n  end\n",
+      "translated": "@q query\n  select ?x\n  where match\n    relation \"read\"\n    role subject \"Megan\"\n    role object ?x\n    polarity affirmed\n  end\n"
+    },
+    {
+      "id": "ood1_000275_0_0",
+      "message": "Ai idee which venue Kavya cooks at?",
+      "translation": "Do you have any idea what Kavya cooks came up with?",
+      "direct": "@q query\n  select ?x\n  where match\n    relation \"cook at\"\n    role subject \"Kavya\"\n    role object ?x\n    polarity affirmed\n  end\n",
+      "translated": "@q query\n  select ?x\n  where match\n    relation \"cook\"\n    role subject \"Kavya\"\n    role object ?x\n    polarity affirmed\n  end\n"
+    },
+    {
+      "id": "ood1_000341_0_0",
+      "message": "I have a quick întrebare. How long did Botond cook at the Galați Philharmonic?",
+      "translation": "I have a quick question. How long did Botond cook at the Galatii Philharmonic?",
+      "direct": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"cook at\"\n    role subject \"Botond\"\n    role object \"the Galați Philharmonic\"\n    role time ?t\n    polarity affirmed\n  end\n",
+      "translated": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"cook at\"\n    role subject \"Botond\"\n    role object \"the Galatii Philharmonic\"\n    role time ?t\n    polarity affirmed\n  end\n"
+    },
+    {
+      "id": "ood1_000569_0_0",
+      "message": "Any chance Mehmet leases studioul de înregistrări? One more thing: Could you check if he is the chef at the Old Mill Hall?",
+      "translation": "Any chance Mehmet's letting the recording studio? One more thing: Could you check if he is the chef at the Old Mill Hall?",
+      "direct": "@q query\n  where match\n    relation \" lease\"\n    role subject \"Mehmet\"\n    role object \"the recording studio\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"be the chef at\"\n    role subject \"Mehmet\"\n    role object \"the Old Mill Hall\"\n    polarity affirmed\n  end\n",
+      "translated": "@q query\n  where match\n    relation \"let the recording studio\"\n    role subject \"Mehmet\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"be the chef at\"\n    role subject \"Mehmet\"\n    role object \"the Old Mill Hall\"\n    polarity affirmed\n  end\n"
+    },
+    {
+      "id": "ood2_000004_0_0",
+      "message": "Deci,until what date did Ovidiu go to Alba Iulia Music Academy?",
+      "translation": "So, how much did Ovidiu go to Alba Iulia Music Academy?",
+      "direct": "@q query\n  select ?t\n  measure end\n  where match\n    relation \"go to\"\n    role subject \"Ovidiu\"\n    role object \"Alba Iulia Music Academy\"\n    role time ?t\n    polarity affirmed\n  end\n",
+      "translated": "@q query\n  select ?t\n  measure cost\n  where match\n    relation \"go to\"\n    role subject \"Ovidiu\"\n    role object \"Alba Iulia Music Academy\"\n    role time ?t\n    polarity affirmed\n  end\n"
+    },
+    {
+      "id": "ood2_000007_0_1",
+      "message": "Îmi amintești cine e prezent la ședința de consiliu de marti?",
+      "translation": "Do you remind me of who's present at the Tuesday Council meeting?",
+      "direct": "@q query\n  select ?x\n  where match\n    relation \"be at\"\n    role subject ?x\n    role object \"the Tuesday board meeting\"\n    polarity affirmed\n  end\n",
+      "translated": "@q query\n  select ?x\n  where match\n    relation \"be at\"\n    role subject ?x\n    role object \"the Tuesday Council meeting\"\n    polarity affirmed\n  end\n"
+    }
+  ]
+}

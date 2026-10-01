@@ -1,0 +1,418 @@
+{
+ "format": "chatsop-grammar-constrained-cell-v1",
+ "model": "smollm2-360m",
+ "cell": "ood",
+ "comparison": "gbnf-lax - free",
+ "suite": "eval/suites/formalizer-ood-v1/test.jsonl",
+ "cell_rows": 1578,
+ "stages": [
+  100,
+  300,
+  1578
+ ],
+ "stage_results": [
+  {
+   "stage": 1,
+   "rows": 100,
+   "primary": "execution_equivalence_tolerant",
+   "summary": {
+    "free": {
+     "rows": 100,
+     "parse_validity": 0.99,
+     "compile_validity": 0.98,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "execution_equivalence_tolerant": 0.42,
+     "wire_f1": 0.4792,
+     "counts": {
+      "parse": 99,
+      "compile": 98,
+      "exec": 42,
+      "accepted_match": null
+     }
+    },
+    "gbnf-lax": {
+     "rows": 100,
+     "parse_validity": 1,
+     "compile_validity": 0.99,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "execution_equivalence_tolerant": 0.42,
+     "wire_f1": 0.4792,
+     "counts": {
+      "parse": 100,
+      "compile": 99,
+      "exec": 42,
+      "accepted_match": null
+     }
+    }
+   },
+   "primary_delta": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "decision": {
+    "stop": true,
+    "reason": "futility"
+   }
+  }
+ ],
+ "final_rows": 100,
+ "stopped": {
+  "stop": true,
+  "reason": "futility"
+ },
+ "identical_outputs": 0.99,
+ "metrics": {
+  "all": {
+   "free": {
+    "rows": 100,
+    "parse_validity": 0.99,
+    "compile_validity": 0.98,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.42,
+    "wire_f1": 0.4792,
+    "counts": {
+     "parse": 99,
+     "compile": 98,
+     "exec": 42,
+     "accepted_match": null
+    }
+   },
+   "gbnf-lax": {
+    "rows": 100,
+    "parse_validity": 1,
+    "compile_validity": 0.99,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.42,
+    "wire_f1": 0.4792,
+    "counts": {
+     "parse": 100,
+     "compile": 99,
+     "exec": 42,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:ro": {
+   "free": {
+    "rows": 37,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.1081,
+    "wire_f1": 0.0645,
+    "counts": {
+     "parse": 37,
+     "compile": 37,
+     "exec": 4,
+     "accepted_match": null
+    }
+   },
+   "gbnf-lax": {
+    "rows": 37,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.1081,
+    "wire_f1": 0.0645,
+    "counts": {
+     "parse": 37,
+     "compile": 37,
+     "exec": 4,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:en": {
+   "free": {
+    "rows": 50,
+    "parse_validity": 0.98,
+    "compile_validity": 0.98,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.74,
+    "wire_f1": 0.7171,
+    "counts": {
+     "parse": 49,
+     "compile": 49,
+     "exec": 37,
+     "accepted_match": null
+    }
+   },
+   "gbnf-lax": {
+    "rows": 50,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.74,
+    "wire_f1": 0.7171,
+    "counts": {
+     "parse": 50,
+     "compile": 50,
+     "exec": 37,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:mixed": {
+   "free": {
+    "rows": 13,
+    "parse_validity": 1,
+    "compile_validity": 0.9231,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.0769,
+    "wire_f1": 0.4551,
+    "counts": {
+     "parse": 13,
+     "compile": 12,
+     "exec": 1,
+     "accepted_match": null
+    }
+   },
+   "gbnf-lax": {
+    "rows": 13,
+    "parse_validity": 1,
+    "compile_validity": 0.9231,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.0769,
+    "wire_f1": 0.4551,
+    "counts": {
+     "parse": 13,
+     "compile": 12,
+     "exec": 1,
+     "accepted_match": null
+    }
+   }
+  }
+ },
+ "deltas": {
+  "all": {
+   "parse_validity": {
+    "delta": 0.01,
+    "ci95": [
+     0,
+     0.03
+    ],
+    "clusters": 100
+   },
+   "compile_validity": {
+    "delta": 0.01,
+    "ci95": [
+     0,
+     0.03
+    ],
+    "clusters": 100
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   }
+  },
+  "language:ro": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   }
+  },
+  "language:en": {
+   "parse_validity": {
+    "delta": 0.02,
+    "ci95": [
+     0,
+     0.06
+    ],
+    "clusters": 50
+   },
+   "compile_validity": {
+    "delta": 0.02,
+    "ci95": [
+     0,
+     0.06
+    ],
+    "clusters": 50
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 50
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 50
+   }
+  },
+  "language:mixed": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 13
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 13
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 13
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 13
+   }
+  }
+ },
+ "speed": {
+  "free": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 (server -np 8, one request at a time, cache_prompt false)"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 530.6787,
+    "p50": 132.3511,
+    "p95": 3806.8688
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 167.72,
+    "p50": 42,
+    "p95": 1238
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 352.594,
+    "p50": 354.9906,
+    "p95": 361.86
+   }
+  },
+  "gbnf-lax": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 (server -np 8, one request at a time, cache_prompt false)"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 535.6154,
+    "p50": 134.3868,
+    "p95": 3823.0974
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 167.72,
+    "p50": 42,
+    "p95": 1238
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 348.3784,
+    "p50": 353.9339,
+    "p95": 360.6925
+   }
+  }
+ },
+ "example_counts": {
+  "helped": 0,
+  "hurt": 0,
+  "repaired_parse": 1,
+  "forced_wrong": 1,
+  "changed_valid": 0
+ },
+ "examples": {
+  "helped": [],
+  "hurt": [],
+  "repaired_parse": [
+   {
+    "id": "ood2_000317_0_0",
+    "language": "en",
+    "question": "My coffee went cold while I was typing this. Eleni resides in Osaka. Atelier Stan stocks school uniforms. Also, Atelier Bennett stocks LED bulbs. I only have a few minutes before my next call. Mr Romero goes to Târgu Mureș Arts High School.\n\nArjun takes care of the VPN gateway. Also, João looks after the mail server. Ms Liu resides in Szeged. Also, Amira Saleh resides in Sighișoara. Hughes & Partners does not stock printer ink. Also, Atelier Becker stocks phone cases. I only have a few minutes before my next call. Sofía resides in Brașov. Also, Tunde does not reside in Orhei.\n\nOrion Robotics stocks garden furniture. Also, Atelier Schmidt stocks second-hand laptops. Mr Mocanu isn't the trainer of the Bălți Falcons. Also, Mr Bernard trains Izmir United. Carpathia Energy employs Petru Vlădescu. Also, Ms Mansour is not on the payroll of Brightfield Foods. Alejandro goes to Focșani Music Academy. Also, Emma Taylor doesn't attend classes at Sibiu Arts High School.\n\nThings I still have to do today:\n- buy groceries\n- return the library books\n- finish the slides\n- answer my emails\n- book the train tickets\n\nNow, what I need to know: Could you check if Delta Print employs Chloé? Is it true that Ethan resides in Reșița? So who trains the Bistrița Wolves?\n\nThanks in advance!",
+    "gold": "@s1 stated\n  relation \"reside in\"\n  role subject \"Eleni\"\n  role location \"Osaka\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"stock\"\n  role subject \"Atelier Stan\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"stock\"\n  role subject \"Atelier Bennett\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"go to\"\n  role subject \"Mr Romero\"\n  role object \"Târgu Mureș Arts High School\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"take care of\"\n  role subject \"Arjun\"\n  role object \"the VPN gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"look after\"\n  role subject \"João\"\n  role object \"the mail server\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"reside in\"\n  role subject \"Ms Liu\"\n  role location \"Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"reside in\"\n  role subject \"Amira Saleh\"\n  role location \"Sighișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"stock\"\n  role subject \"Hughes & Partners\"\n  role object \"printer ink\"\n  polarity negated\n  certainty asserted\n\n@s10 stated\n  relation \"stock\"\n  role subject \"Atelier Becker\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"reside in\"\n  role subject \"Sofía\"\n  role location \"Brașov\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"reside in\"\n  role subject \"Tunde\"\n  role location \"Orhei\"\n  polarity negated\n  certainty asserted\n\n@s13 stated\n  relation \"stock\"\n  role subject \"Orion Robotics\"\n  role object \"garden furniture\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"stock\"\n  role subject \"Atelier Schmidt\"\n  role object \"second-hand laptops\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be the trainer of\"\n  role subject \"Mr Mocanu\"\n  role object \"the Bălți Falcons\"\n  polarity negated\n  certainty asserted\n\n@s16 stated\n  relation \"train\"\n  role subject \"Mr Bernard\"\n  role object \"Izmir United\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"employ\"\n  role subject \"Carpathia Energy\"\n  role object \"Petru Vlădescu\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"be on the payroll of\"\n  role subject \"Ms Mansour\"\n  role object \"Brightfield Foods\"\n  polarity negated\n  certainty asserted\n\n@s19 stated\n  relation \"go to\"\n  role subject \"Alejandro\"\n  role object \"Focșani Music Academy\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"attend classes at\"\n  role subject \"Emma Taylor\"\n  role object \"Sibiu Arts High School\"\n  polarity negated\n  certainty asserted\n\n@q query\n  where match\n    relation \"employ\"\n    role subject \"Delta Print\"\n    role object \"Chloé\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"reside in\"\n    role subject \"Ethan\"\n    role location \"Reșița\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?x\n  where match\n    relation \"train\"\n    role subject ?x\n    role object \"the Bistrița Wolves\"\n    polarity affirmed\n  end\n",
+    "free": "@s1 stated\n  relation \"resign\"\n  role subject \"Eleni\"\n  role object \"Osaka\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"stock\"\n  role subject \"Atelier Stan\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"stock\"\n  role subject \"Atelier Bennett\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"go to\"\n  role subject \"Mr Romero\"\n  role object \"Târgu Mureș Arts High School\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"take care of\"\n  role subject \"Arjun\"\n  role object \"the VPN gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"be responsible for\"\n  role subject \"João\"\n  role object \"the mail server\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"live in\"\n  role subject \"Ms Liu\"\n  role location \"Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"live in\"\n  role subject \"Amira Saleh\"\n  role location \"Sighișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"buy from\"\n  role subject \"Hughes & Partners\"\n  role source \"printer ink\"\n  polarity negated\n  certainty asserted\n\n@s10 stated\n  relation \"stock\"\n  role subject \"Atelier Becker\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"resign\"\n  role subject \"Sofía\"\n  role object \"Brașov\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"live in\"\n  role subject \"Tunde\"\n  role location \"Orhei\"\n  polarity negated\n  certainty asserted\n\n@s13 stated\n  relation \"buy from\"\n  role subject \"Orion Robotics\"\n  role source \"garden furniture\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"stock\"\n  role subject \"Atelier Schmidt\"\n  role object \"second-hand laptops\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be the trainer of\"\n  role subject \"Mr Mocanu\"\n  role object \"the Bălți Falcons\"\n  polarity negated\n  certainty asserted\n\n@s16 stated\n  relation \"train\"\n  role subject \"Mr Bernard\"\n  role object \"Izmir United\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"employ\"\n  role subject \"Carpathia Energy\"\n  role object \"Petru Vlădescu\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"be on\"\n  role subject \"Ms Mansour\"\n  role object \"the payroll of\"\n  role preposition \"the Brightfield Foods\"\n  polarity negated\n  certainty asserted\n\n@s19 stated\n  relation \"go to\"\n  role subject \"Alejandro\"\n  role object \"Focșani Music Academy\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"attend\"\n  role subject \"Emma Taylor\"\n  role object \"Sibiu Arts High School\"\n  polarity negated\n  certainty asserted\n\n@q query\n  where match\n    relation \"be employed by\"\n    role subject \"Delta Print\"\n    role object \"Chloé\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"live in\"\n    role subject \"Ethan\"\n    role location \"Reșița\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?x\n  where match\n    relation \"train\"\n    role subject ?x\n    role object \"the Bistrița Wolves\"\n    polarity affirmed\n  end\n",
+    "gbnf-lax": "@s1 stated\n  relation \"resign\"\n  role subject \"Eleni\"\n  role object \"Osaka\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"stock\"\n  role subject \"Atelier Stan\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"stock\"\n  role subject \"Atelier Bennett\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"go to\"\n  role subject \"Mr Romero\"\n  role object \"Târgu Mureș Arts High School\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"take care of\"\n  role subject \"Arjun\"\n  role object \"the VPN gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"be responsible for\"\n  role subject \"João\"\n  role object \"the mail server\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"live in\"\n  role subject \"Ms Liu\"\n  role location \"Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"live in\"\n  role subject \"Amira Saleh\"\n  role location \"Sighișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"buy from\"\n  role subject \"Hughes & Partners\"\n  role source \"printer ink\"\n  polarity negated\n  certainty asserted\n\n@s10 stated\n  relation \"stock\"\n  role subject \"Atelier Becker\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"resign\"\n  role subject \"Sofía\"\n  role object \"Brașov\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"live in\"\n  role subject \"Tunde\"\n  role location \"Orhei\"\n  polarity negated\n  certainty asserted\n\n@s13 stated\n  relation \"buy from\"\n  role subject \"Orion Robotics\"\n  role source \"garden furniture\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"stock\"\n  role subject \"Atelier Schmidt\"\n  role object \"second-hand laptops\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be the trainer of\"\n  role subject \"Mr Mocanu\"\n  role object \"the Bălți Falcons\"\n  polarity negated\n  certainty asserted\n\n@s16 stated\n  relation \"train\"\n  role subject \"Mr Bernard\"\n  role object \"Izmir United\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"employ\"\n  role subject \"Carpathia Energy\"\n  role object \"Petru Vlădescu\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"be on\"\n  role subject \"Ms Mansour\"\n  role object \"the payroll of\"\n  role time \"Brightfield Foods\"\n  polarity negated\n  certainty asserted\n\n@s19 stated\n  relation \"go to\"\n  role subject \"Alejandro\"\n  role object \"Focșani Music Academy\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"attend\"\n  role subject \"Emma Taylor\"\n  role object \"Sibiu Arts High School\"\n  polarity negated\n  certainty asserted\n\n@q query\n  where match\n    relation \"be employed by\"\n    role subject \"Delta Print\"\n    role object \"Chloé\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"live in\"\n    role subject \"Ethan\"\n    role location \"Reșița\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?x\n  where match\n    relation \"train\"\n    role subject ?x\n    role object \"the Bistrița Wolves\"\n    polarity affirmed\n  end\n"
+   }
+  ],
+  "forced_wrong": [
+   {
+    "id": "ood2_000317_0_0",
+    "language": "en",
+    "question": "My coffee went cold while I was typing this. Eleni resides in Osaka. Atelier Stan stocks school uniforms. Also, Atelier Bennett stocks LED bulbs. I only have a few minutes before my next call. Mr Romero goes to Târgu Mureș Arts High School.\n\nArjun takes care of the VPN gateway. Also, João looks after the mail server. Ms Liu resides in Szeged. Also, Amira Saleh resides in Sighișoara. Hughes & Partners does not stock printer ink. Also, Atelier Becker stocks phone cases. I only have a few minutes before my next call. Sofía resides in Brașov. Also, Tunde does not reside in Orhei.\n\nOrion Robotics stocks garden furniture. Also, Atelier Schmidt stocks second-hand laptops. Mr Mocanu isn't the trainer of the Bălți Falcons. Also, Mr Bernard trains Izmir United. Carpathia Energy employs Petru Vlădescu. Also, Ms Mansour is not on the payroll of Brightfield Foods. Alejandro goes to Focșani Music Academy. Also, Emma Taylor doesn't attend classes at Sibiu Arts High School.\n\nThings I still have to do today:\n- buy groceries\n- return the library books\n- finish the slides\n- answer my emails\n- book the train tickets\n\nNow, what I need to know: Could you check if Delta Print employs Chloé? Is it true that Ethan resides in Reșița? So who trains the Bistrița Wolves?\n\nThanks in advance!",
+    "gold": "@s1 stated\n  relation \"reside in\"\n  role subject \"Eleni\"\n  role location \"Osaka\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"stock\"\n  role subject \"Atelier Stan\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"stock\"\n  role subject \"Atelier Bennett\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"go to\"\n  role subject \"Mr Romero\"\n  role object \"Târgu Mureș Arts High School\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"take care of\"\n  role subject \"Arjun\"\n  role object \"the VPN gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"look after\"\n  role subject \"João\"\n  role object \"the mail server\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"reside in\"\n  role subject \"Ms Liu\"\n  role location \"Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"reside in\"\n  role subject \"Amira Saleh\"\n  role location \"Sighișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"stock\"\n  role subject \"Hughes & Partners\"\n  role object \"printer ink\"\n  polarity negated\n  certainty asserted\n\n@s10 stated\n  relation \"stock\"\n  role subject \"Atelier Becker\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"reside in\"\n  role subject \"Sofía\"\n  role location \"Brașov\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"reside in\"\n  role subject \"Tunde\"\n  role location \"Orhei\"\n  polarity negated\n  certainty asserted\n\n@s13 stated\n  relation \"stock\"\n  role subject \"Orion Robotics\"\n  role object \"garden furniture\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"stock\"\n  role subject \"Atelier Schmidt\"\n  role object \"second-hand laptops\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be the trainer of\"\n  role subject \"Mr Mocanu\"\n  role object \"the Bălți Falcons\"\n  polarity negated\n  certainty asserted\n\n@s16 stated\n  relation \"train\"\n  role subject \"Mr Bernard\"\n  role object \"Izmir United\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"employ\"\n  role subject \"Carpathia Energy\"\n  role object \"Petru Vlădescu\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"be on the payroll of\"\n  role subject \"Ms Mansour\"\n  role object \"Brightfield Foods\"\n  polarity negated\n  certainty asserted\n\n@s19 stated\n  relation \"go to\"\n  role subject \"Alejandro\"\n  role object \"Focșani Music Academy\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"attend classes at\"\n  role subject \"Emma Taylor\"\n  role object \"Sibiu Arts High School\"\n  polarity negated\n  certainty asserted\n\n@q query\n  where match\n    relation \"employ\"\n    role subject \"Delta Print\"\n    role object \"Chloé\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"reside in\"\n    role subject \"Ethan\"\n    role location \"Reșița\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?x\n  where match\n    relation \"train\"\n    role subject ?x\n    role object \"the Bistrița Wolves\"\n    polarity affirmed\n  end\n",
+    "free": "@s1 stated\n  relation \"resign\"\n  role subject \"Eleni\"\n  role object \"Osaka\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"stock\"\n  role subject \"Atelier Stan\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"stock\"\n  role subject \"Atelier Bennett\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"go to\"\n  role subject \"Mr Romero\"\n  role object \"Târgu Mureș Arts High School\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"take care of\"\n  role subject \"Arjun\"\n  role object \"the VPN gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"be responsible for\"\n  role subject \"João\"\n  role object \"the mail server\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"live in\"\n  role subject \"Ms Liu\"\n  role location \"Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"live in\"\n  role subject \"Amira Saleh\"\n  role location \"Sighișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"buy from\"\n  role subject \"Hughes & Partners\"\n  role source \"printer ink\"\n  polarity negated\n  certainty asserted\n\n@s10 stated\n  relation \"stock\"\n  role subject \"Atelier Becker\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"resign\"\n  role subject \"Sofía\"\n  role object \"Brașov\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"live in\"\n  role subject \"Tunde\"\n  role location \"Orhei\"\n  polarity negated\n  certainty asserted\n\n@s13 stated\n  relation \"buy from\"\n  role subject \"Orion Robotics\"\n  role source \"garden furniture\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"stock\"\n  role subject \"Atelier Schmidt\"\n  role object \"second-hand laptops\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be the trainer of\"\n  role subject \"Mr Mocanu\"\n  role object \"the Bălți Falcons\"\n  polarity negated\n  certainty asserted\n\n@s16 stated\n  relation \"train\"\n  role subject \"Mr Bernard\"\n  role object \"Izmir United\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"employ\"\n  role subject \"Carpathia Energy\"\n  role object \"Petru Vlădescu\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"be on\"\n  role subject \"Ms Mansour\"\n  role object \"the payroll of\"\n  role preposition \"the Brightfield Foods\"\n  polarity negated\n  certainty asserted\n\n@s19 stated\n  relation \"go to\"\n  role subject \"Alejandro\"\n  role object \"Focșani Music Academy\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"attend\"\n  role subject \"Emma Taylor\"\n  role object \"Sibiu Arts High School\"\n  polarity negated\n  certainty asserted\n\n@q query\n  where match\n    relation \"be employed by\"\n    role subject \"Delta Print\"\n    role object \"Chloé\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"live in\"\n    role subject \"Ethan\"\n    role location \"Reșița\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?x\n  where match\n    relation \"train\"\n    role subject ?x\n    role object \"the Bistrița Wolves\"\n    polarity affirmed\n  end\n",
+    "gbnf-lax": "@s1 stated\n  relation \"resign\"\n  role subject \"Eleni\"\n  role object \"Osaka\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"stock\"\n  role subject \"Atelier Stan\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"stock\"\n  role subject \"Atelier Bennett\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"go to\"\n  role subject \"Mr Romero\"\n  role object \"Târgu Mureș Arts High School\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"take care of\"\n  role subject \"Arjun\"\n  role object \"the VPN gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"be responsible for\"\n  role subject \"João\"\n  role object \"the mail server\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"live in\"\n  role subject \"Ms Liu\"\n  role location \"Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"live in\"\n  role subject \"Amira Saleh\"\n  role location \"Sighișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"buy from\"\n  role subject \"Hughes & Partners\"\n  role source \"printer ink\"\n  polarity negated\n  certainty asserted\n\n@s10 stated\n  relation \"stock\"\n  role subject \"Atelier Becker\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"resign\"\n  role subject \"Sofía\"\n  role object \"Brașov\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"live in\"\n  role subject \"Tunde\"\n  role location \"Orhei\"\n  polarity negated\n  certainty asserted\n\n@s13 stated\n  relation \"buy from\"\n  role subject \"Orion Robotics\"\n  role source \"garden furniture\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"stock\"\n  role subject \"Atelier Schmidt\"\n  role object \"second-hand laptops\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be the trainer of\"\n  role subject \"Mr Mocanu\"\n  role object \"the Bălți Falcons\"\n  polarity negated\n  certainty asserted\n\n@s16 stated\n  relation \"train\"\n  role subject \"Mr Bernard\"\n  role object \"Izmir United\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"employ\"\n  role subject \"Carpathia Energy\"\n  role object \"Petru Vlădescu\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"be on\"\n  role subject \"Ms Mansour\"\n  role object \"the payroll of\"\n  role time \"Brightfield Foods\"\n  polarity negated\n  certainty asserted\n\n@s19 stated\n  relation \"go to\"\n  role subject \"Alejandro\"\n  role object \"Focșani Music Academy\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"attend\"\n  role subject \"Emma Taylor\"\n  role object \"Sibiu Arts High School\"\n  polarity negated\n  certainty asserted\n\n@q query\n  where match\n    relation \"be employed by\"\n    role subject \"Delta Print\"\n    role object \"Chloé\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"live in\"\n    role subject \"Ethan\"\n    role location \"Reșița\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?x\n  where match\n    relation \"train\"\n    role subject ?x\n    role object \"the Bistrița Wolves\"\n    polarity affirmed\n  end\n"
+   }
+  ],
+  "changed_valid": []
+ }
+}

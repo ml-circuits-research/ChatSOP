@@ -8,21 +8,31 @@
  * and `sop/parser.mjs`; the words both surfaces share are imported from there, never respelled.
  */
 import {NUMERIC_FIELDS, NUMERIC_FEATURE, NUMERIC_ARG_TYPE} from './numeric-action.mjs';
-import {COMPARATOR_WORDS, ARITHMETIC_WORDS, ORDER_WORDS, ROLE_NAMES, LINK_WORDS, QUERY_MODES as MODEL_QUERY_MODES, REASONING_QUERY_MODES} from '../enums.mjs';
+import {COMPARATOR_WORDS, ARITHMETIC_WORDS, ORDER_WORDS, ROLE_NAMES, COPULA_READINGS, LINK_WORDS, QUERY_MODES as MODEL_QUERY_MODES, REASONING_QUERY_MODES} from '../enums.mjs';
 
 /** Words of the condition leaves; the model language and the knowledge language share these tables (sop/enums.mjs). */
 export const COMPARATORS = Object.keys(COMPARATOR_WORDS);
 export const ARITHMETIC = Object.keys(ARITHMETIC_WORDS);
-export {ORDER_WORDS, ROLE_NAMES};
+export {ORDER_WORDS, ROLE_NAMES, COPULA_READINGS};
 /** Every query mode of the knowledge grammar: the five of the model language and the five reasoning modes of DS004. */
 export const QUERY_MODES = [...MODEL_QUERY_MODES, ...REASONING_QUERY_MODES];
 export const MAX_ARITY = 6;
+/** Parts of speech of a lexeme (DS004 "Lexicon wires"). */
+export const LEXEME_POS = ['verb', 'noun', 'adj', 'prep', 'copula'];
+/** Language codes of labels, aliases and lexemes: two or three lowercase letters. */
+export const LANGUAGE_CODE = /^[a-z]{2,3}$/;
+/** The class every entity belongs to when its `kind` is absent, and the kind of a class symbol. */
+export const ROOT_CLASS = 'entity';
+export const CLASS_KIND = 'class';
 export const RESERVED_PREFIX = 'x_';
-export const FEATURES = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'constraint', 'optimize', 'plan', 'blocked_info', 'method', 'htn_choice', 'on_failure', 'norms_hard', 'norms_soft', 'temporal_norms', 'procedures', 'procedure_render', 'amendment', 'check_plan', 'abduce', 'abduce_waive', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars', 'binding_advisory', 'norm_conflict', 'conform_asof', 'conform_deviation', NUMERIC_FEATURE];
+export const FEATURES = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'every_grouped', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'constraint', 'optimize', 'plan', 'blocked_info', 'method', 'htn_choice', 'on_failure', 'norms_hard', 'norms_soft', 'temporal_norms', 'procedures', 'procedure_render', 'amendment', 'check_plan', 'abduce', 'abduce_waive', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars', 'binding_advisory', 'norm_conflict', 'conform_asof', 'conform_deviation', 'code_sandbox', NUMERIC_FEATURE];
 export const STEP_BLOCKS = ['choose', 'any_order', 'if', 'until'];
 export const LINK_KEYWORDS = [...LINK_WORDS];
 export const HOST_WRITTEN = ['approval', 'approved_by', 'approved_at'];
 export const BUDGET_KEYS = ['maxNodes', 'maxDepth', 'maxHypotheses', 'maxCandidates', 'maxPlans', 'maxRounds', 'maxFacts', 'maxJoins', 'maxAssignments', 'maxFanout', 'timeoutMs'];
+export const TEST_KINDS = ['example', 'property', 'generated', 'sealed'];
+export const CODE_LANGUAGES = ['javascript'];
+export const CODE_PRODUCERS = ['renderer', 'llm-agent', 'user', 'dream'];
 export const ARG_TYPES = ['entity', 'integer', 'text', 'time', 'value', NUMERIC_ARG_TYPE];
 const APPROVALS = ['proposed', 'approved', 'contested', 'rejected', 'superseded', 'retired'];
 
@@ -37,8 +47,18 @@ export const GOV = {version: one('posint'), supersedes: one('ref'), approval: on
 export const GRAMMAR = {
   predicate: {
     status: 'existing, extended', side: 'knowledge',
-    doc: 'Declares a relation: arguments as role:type (closed role inventory, types entity integer text time value), closed-world flag, optional key position (lint), advisory routing hints (transitive, inverse) and unit.',
-    fields: {args: req(one('argtypes')), closed: one('bool'), key: one('int'), transitive: one('bool'), inverse: one('sym'), unit: one('text'), description: one('text')}
+    doc: 'Declares a relation: arguments as role:type in args and/or as role NAME TYPE lines (a type is a value type entity integer text time value, or the class symbol an entity argument belongs to; both spellings must agree), display labels per language (a label is also a link form with the natural frame), closed-world flag, optional key position (lint), advisory routing hints (transitive, inverse), unit and the copula readings the relation carries (reading, describe_rank).',
+    fields: {args: one('argtypes'), role: many('roletype'), label: many('langtext'), domain: one('sym'), closed: one('bool'), key: one('int'), transitive: one('bool'), inverse: one('sym'), unit: one('text'), description: one('text'), reading: many('enum', {values: COPULA_READINGS}), describe_rank: one('posint')}
+  },
+  lexeme: {
+    status: 'new', side: 'knowledge',
+    doc: 'One lexicalization of one predicate: the relation phrases (model-language convention: the lemma with its particles and prepositions, the copula included for copular phrases) in one language, the part of speech, and the roles the surface realizes in order (the grammatical subject first; a converse lists the object role first). A restrict line limits the form to values of a class; two predicates that share a form with the same frame must declare restrict or distinct weights.',
+    fields: {of: req(one('sym')), language: req(one('langcode')), pos: one('enum', {values: LEXEME_POS}), form: req(many('phrase')), frame: req(one('rolelist')), restrict: many('restrict'), weight: one('int'), source: one('text'), quote: one('text')}
+  },
+  entity: {
+    status: 'new', side: 'knowledge',
+    doc: 'A reviewed identity: its class (kind, a class symbol; absent means the root class entity), one label per language and any number of aliases (inflected forms, abbreviations) that mentions resolve through. A class is an entity of kind class; class membership is also read from is_a facts. notability (an integer the memory supplies, for example the number of Wikipedia editions) only decides at build time which namesake keeps the plain label.',
+    fields: {kind: one('sym'), label: many('langtext'), alias: many('langtext'), domain: one('sym'), notability: one('int'), source: one('text')}
   },
   fact: {
     status: 'existing, extended', side: 'knowledge',
@@ -136,6 +156,16 @@ export const GRAMMAR = {
       ...NUMERIC_FIELDS.query,
       ...Object.fromEntries(LINK_KEYWORDS.map(k => [k, many('ref')]))
     }
+  },
+  test: {
+    status: 'new (programming, P0)', side: 'host',
+    doc: 'One executable check of a program (host or turn wire, never on the model surface, never evidence): a call expression and the expected value expression, run by the code-sandbox strategy. A test of kind sealed never leaves eval/suites/ and is refused in every other file.',
+    fields: {of: req(one('sym')), call: req(one('text')), expect: req(one('text')), kind: one('enum', {values: TEST_KINDS}), timeout: one('posint'), source: one('text')}
+  },
+  code: {
+    status: 'new (programming, P0)', side: 'host',
+    doc: 'A program for a task (host or turn wire, never on the model surface): language, entry function and body text, with its producer. Opaque to every engine; it runs only in the code-sandbox strategy. A verified body may become a library component through a host write.',
+    fields: {of: req(one('sym')), language: req(one('enum', {values: CODE_LANGUAGES})), entry: req(one('ident')), body: req(one('text')), produced_by: one('enum', {values: CODE_PRODUCERS}), ...GOV}
   },
   pack: {
     status: 'existing', side: 'host', doc: 'Bundles values (host plumbing; not a knowledge wire).', fields: {items: req(many('ref'))}

@@ -9,7 +9,7 @@
  *
  * Preregistration: status/preregistrations/eval-ud-rules-v14-v1.json. Stanza runs on the CPU only (another agent
  * owns the GPU). The fresh sample excludes every row of the consumed eval-symbolic-layers-en-v1 sample and every
- * surface variant of its semantic cases. Outputs: eval/reports/current/ud-rules-v14/.
+ * surface variant of its semantic cases. Outputs: eval/reports/history/ud-rules-v14/.
  */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -23,7 +23,7 @@ import {bootstrap} from './spellfix-eval.mjs';
 import {QGROUP, lengthBucket} from './symbolic-layers.mjs';
 
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url));
-export const OUT = path.join(ROOT, 'eval/reports/current/ud-rules-v14');
+export const OUT = path.join(ROOT, 'eval/reports/history/ud-rules-v14');
 const SUITES = {test: 'eval/suites/formalizer-v1/test.jsonl', ood: 'eval/suites/formalizer-ood-v1/test.jsonl', wild: 'eval/suites/formalizer-wild-v1/test.jsonl'};
 const QUOTA = {test: 240, ood: 180, wild: 180};
 const STAGES = [150, 300];

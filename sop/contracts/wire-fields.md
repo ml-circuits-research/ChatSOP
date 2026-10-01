@@ -72,6 +72,16 @@ Required fields: `span`.
 
 Can be authored in model-origin SOP: yes, subject to semantic validation. Model language: a verbatim span of the message the model could not formalize (span), optionally near the wire it belongs to (near $id) and the slot it probably fills (hint subject, object, time, location, value, relation, reference or other). A role whose value lies in the span holds a placeholder ?variable paired by near and hint. The host repairs spans symbolically (dates, numbers, money, names, the dictionary, the conversation) before linking and asks one question per unresolved span (DS021).
 
+## `pragmatic`
+
+Unique fields: `kind`, `score`, `span`, `near`, `source`, `basis`.
+
+Repeatable fields: none.
+
+Required fields: `kind`, `score`, `source`, `basis`.
+
+Can be authored in model-origin SOP: no; host/trusted runtime only. 
+
 ## `rule`
 
 Unique fields: `then`, `valid`, `mode`, `source`.

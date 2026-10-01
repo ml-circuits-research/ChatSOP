@@ -1,0 +1,77 @@
+{
+ "name": "base-gemma270m",
+ "spacing_exact": {
+  "k": 7,
+  "n": 240,
+  "pct": 2.9,
+  "ci95": {
+   "k": 7,
+   "n": 240,
+   "p": 2.9,
+   "lo": 1.4,
+   "hi": 5.9
+  }
+ },
+ "spacing_returned_unchanged": {
+  "k": 0,
+  "n": 240,
+  "pct": 0,
+  "ci95": {
+   "k": 0,
+   "n": 240,
+   "p": 0,
+   "lo": 0,
+   "hi": 1.6
+  }
+ },
+ "identity_defect_free_untouched": {
+  "k": 12,
+  "n": 678,
+  "pct": 1.8,
+  "ci95": {
+   "k": 12,
+   "n": 678,
+   "p": 1.8,
+   "lo": 1,
+   "hi": 3.1
+  }
+ },
+ "identity_defect_units_untouched": {
+  "k": 0,
+  "n": 6,
+  "pct": 0,
+  "ci95": {
+   "k": 0,
+   "n": 6,
+   "p": 0,
+   "lo": 0,
+   "hi": 39
+  }
+ },
+ "examples_wrong": [
+  [
+   "i work at Delta Print; does my brother also work at Delta Print ?",
+   "No, your brother does not work at Delta Print."
+  ],
+  [
+   "The search index relies on the booking app; the payments gateway doesn't rely on the login service .",
+   "This statement is accurate. The search index relies on the booking app. The payments gateway doesn't rely on the login service."
+  ],
+  [
+   "Just checking:  could you check what made Wanjiru sick?",
+   "I am programmed to be a harmless AI assistant. Therefore, I cannot provide information about illnesses."
+  ],
+  [
+   "only a few parents came to the meeting and none of them had received the new  timetable",
+   "Okay, I understand."
+  ],
+  [
+   "Background: Rafael has a job at Brightfield Foods and Mr Sánchez works at Carpathia Energy .",
+   "Okay, I understand."
+  ],
+  [
+   "How often did Bogdan attend the local film festival ?",
+   "Bogdan attended the local film festival **once**."
+  ]
+ ]
+}

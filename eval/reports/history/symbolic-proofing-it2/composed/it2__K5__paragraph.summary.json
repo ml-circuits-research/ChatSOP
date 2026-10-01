@@ -1,0 +1,322 @@
+{
+ "label": "it2 K5 paragraph",
+ "generated_at": "2026-10-01T01:45:46.455Z",
+ "stages": [
+  {
+   "stage": 100,
+   "cases": 100,
+   "errors": 0,
+   "clean_sentences_changed": {
+    "k": 19,
+    "n": 299,
+    "p": 6.4,
+    "lo": 4.1,
+    "hi": 9.7
+   },
+   "clean_sentences_kept": {
+    "k": 264,
+    "n": 299,
+    "p": 88.3,
+    "lo": 84.2,
+    "hi": 91.5
+   },
+   "bad_sentences_fixed": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_untouched": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_wrong_rewrite": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "dropped_components": {
+    "k": 16,
+    "n": 299,
+    "p": 5.4,
+    "lo": 3.3,
+    "hi": 8.5
+   },
+   "cases_with_added_text": {
+    "k": 7,
+    "n": 100,
+    "p": 7,
+    "lo": 3.4,
+    "hi": 13.7
+   },
+   "cases_order_preserved": {
+    "k": 99,
+    "n": 100,
+    "p": 99,
+    "lo": 94.6,
+    "hi": 99.8
+   },
+   "cases_exact": {
+    "all": {
+     "k": 78,
+     "n": 100,
+     "p": 78,
+     "lo": 68.9,
+     "hi": 85
+    },
+    "by": {
+     "n2": {
+      "k": 24,
+      "n": 34,
+      "p": 70.6,
+      "lo": 53.8,
+      "hi": 83.2
+     },
+     "n3": {
+      "k": 28,
+      "n": 33,
+      "p": 84.8,
+      "lo": 69.1,
+      "hi": 93.3
+     },
+     "n4": {
+      "k": 26,
+      "n": 33,
+      "p": 78.8,
+      "lo": 62.2,
+      "hi": 89.3
+     }
+    }
+   },
+   "cases_e2e_sop_exact": {
+    "all": {
+     "k": 0,
+     "n": 0,
+     "p": null,
+     "lo": null,
+     "hi": null
+    },
+    "by": {}
+   },
+   "splitter_agrees": {
+    "k": 100,
+    "n": 100,
+    "p": 100,
+    "lo": 96.3,
+    "hi": 100
+   },
+   "splitter_agrees_when_all_components_punctuated": {
+    "k": 100,
+    "n": 100,
+    "p": 100,
+    "lo": 96.3,
+    "hi": 100
+   },
+   "splitter_agrees_with_an_unpunctuated_component": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "gate": null,
+   "sentence_mode": null,
+   "clean_changed_by_stratum": {
+    "all": {
+     "k": 86,
+     "n": 100,
+     "p": 86,
+     "lo": 77.9,
+     "hi": 91.5
+    },
+    "by": {
+     "n2": {
+      "k": 28,
+      "n": 34,
+      "p": 82.4,
+      "lo": 66.5,
+      "hi": 91.7
+     },
+     "n3": {
+      "k": 30,
+      "n": 33,
+      "p": 90.9,
+      "lo": 76.4,
+      "hi": 96.9
+     },
+     "n4": {
+      "k": 28,
+      "n": 33,
+      "p": 84.8,
+      "lo": 69.1,
+      "hi": 93.3
+     }
+    }
+   }
+  },
+  {
+   "stage": 102,
+   "cases": 102,
+   "errors": 0,
+   "clean_sentences_changed": {
+    "k": 19,
+    "n": 306,
+    "p": 6.2,
+    "lo": 4,
+    "hi": 9.5
+   },
+   "clean_sentences_kept": {
+    "k": 271,
+    "n": 306,
+    "p": 88.6,
+    "lo": 84.5,
+    "hi": 91.7
+   },
+   "bad_sentences_fixed": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_untouched": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_wrong_rewrite": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "dropped_components": {
+    "k": 16,
+    "n": 306,
+    "p": 5.2,
+    "lo": 3.2,
+    "hi": 8.3
+   },
+   "cases_with_added_text": {
+    "k": 7,
+    "n": 102,
+    "p": 6.9,
+    "lo": 3.4,
+    "hi": 13.5
+   },
+   "cases_order_preserved": {
+    "k": 101,
+    "n": 102,
+    "p": 99,
+    "lo": 94.7,
+    "hi": 99.8
+   },
+   "cases_exact": {
+    "all": {
+     "k": 80,
+     "n": 102,
+     "p": 78.4,
+     "lo": 69.5,
+     "hi": 85.3
+    },
+    "by": {
+     "n2": {
+      "k": 24,
+      "n": 34,
+      "p": 70.6,
+      "lo": 53.8,
+      "hi": 83.2
+     },
+     "n3": {
+      "k": 29,
+      "n": 34,
+      "p": 85.3,
+      "lo": 69.9,
+      "hi": 93.6
+     },
+     "n4": {
+      "k": 27,
+      "n": 34,
+      "p": 79.4,
+      "lo": 63.2,
+      "hi": 89.7
+     }
+    }
+   },
+   "cases_e2e_sop_exact": {
+    "all": {
+     "k": 0,
+     "n": 0,
+     "p": null,
+     "lo": null,
+     "hi": null
+    },
+    "by": {}
+   },
+   "splitter_agrees": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "splitter_agrees_when_all_components_punctuated": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "splitter_agrees_with_an_unpunctuated_component": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "gate": null,
+   "sentence_mode": null,
+   "clean_changed_by_stratum": {
+    "all": {
+     "k": 88,
+     "n": 102,
+     "p": 86.3,
+     "lo": 78.3,
+     "hi": 91.6
+    },
+    "by": {
+     "n2": {
+      "k": 28,
+      "n": 34,
+      "p": 82.4,
+      "lo": 66.5,
+      "hi": 91.7
+     },
+     "n3": {
+      "k": 31,
+      "n": 34,
+      "p": 91.2,
+      "lo": 77,
+      "hi": 97
+     },
+     "n4": {
+      "k": 29,
+      "n": 34,
+      "p": 85.3,
+      "lo": 69.9,
+      "hi": 93.6
+     }
+    }
+   }
+  }
+ ]
+}

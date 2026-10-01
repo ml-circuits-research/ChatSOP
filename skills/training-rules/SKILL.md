@@ -4,11 +4,13 @@ These are experimental design heuristics from earlier small-model runs, not
 universal percentages, scaling laws or evidence of ChatSOP model accuracy.
 Measure each claim again on this task with representative held-out examples.
 
-**Approval gate:** training is prohibited until the owner gives a new
-explicit approval (AGENTS.md rule 3). These rules shape a future arm; they
-authorize nothing. For ChatSOP the formalizer's input is the user's message
-only and its data comes from the DS022 corpora `formalizer-v1` and
-`formalizer-ood-v1` (skill `synthetic-sop-data`).
+**Approval gate:** training happens only with the owner's explicit approval
+per run (AGENTS.md Direction 3). These rules shape an arm; they authorize
+nothing. The current training subjects are LanguageProofingLLM and
+SymbolicProofingLLM (Gemma 3 270M first); their data comes from the
+`bad_english` and `neuro_english` datasets (DS008 "Three datasets"). The
+FormalizerLLM programme (message-only input, DS022 corpora `formalizer-v1`
+and `formalizer-ood-v1`) is archived: read it as history only.
 
 ## 1. Coverage is an empirical question
 

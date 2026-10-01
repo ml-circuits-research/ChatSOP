@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {ask as oracle, NotExpressibleError} from '../reasoning/strategies/js-reference/index.mjs';
 import {datalogSouffle} from '../reasoning/strategies/datalog-souffle/index.mjs';
 import {datalogE10} from '../reasoning/strategies/datalog-e10/index.mjs';
-import {datalogSoplab} from '../reasoning/strategies/datalog-soplab/index.mjs';
+import {datalogSoplab} from '../eval/reference-engines/datalog-soplab/index.mjs';
 
 /**
  * Differential test of the three Datalog strategies against the oracle (`js-reference`) on random stratified programs: facts (positive and

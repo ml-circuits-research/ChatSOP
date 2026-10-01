@@ -1,0 +1,34 @@
+{
+ "generated_at": "2026-10-01T03:38:02.104Z",
+ "pairs": {
+  "train": 62939,
+  "dev": 5173,
+  "dev_backgen": 1488,
+  "dev_heldout_trained_vocabulary": 574,
+  "dev_heldout_v3": 830,
+  "dev_heldout_v3_identity": 306,
+  "dev_spacing": 240,
+  "mash_eval": 150
+ },
+ "ids_in_two_splits": 0,
+ "exact_matches": {
+  "train_dev_sets_vs_sealed_texts": 0
+ },
+ "train_prompts_also_in_dev": 0,
+ "heldout_vocabulary_words_in_train": 0,
+ "heldout_prompts_in_train": 0,
+ "trained_vocabulary_words_in_train_targets": {
+  "cousin": 144,
+  "niece": 65,
+  "uncle": 107,
+  "tenant": 193,
+  "supervisor": 118,
+  "tutor": 206,
+  "owe": 53,
+  "adopt": 40,
+  "audit": 94,
+  "boatyard": 254
+ },
+ "train_targets_equal_to_dev_heldout_targets": 0,
+ "note": "exact matches after case, diacritic, punctuation and spacing folding against data/sealed-hashes-union.json; heldout_vocabulary_words_in_train counts train pairs that contain one of the NEW held-out words (nephew, landlord, contractor, postpone, reject, bakery, warehouse, pharmacy); the ten earlier held-out words are in train on purpose (trained_vocabulary_words_in_train_targets)"
+}

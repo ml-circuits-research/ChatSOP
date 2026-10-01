@@ -1,0 +1,11 @@
+{
+ "generated_at": "2026-10-01T00:15:46.186Z",
+ "rows": 10009,
+ "ungrounded": [],
+ "by_basis": {
+  "target_gate": 1731,
+  "decomp_group_of_symbolic_sentences": 499,
+  "identity_gate": 5561,
+  "target_in_symbolic_english": 2218
+ }
+}

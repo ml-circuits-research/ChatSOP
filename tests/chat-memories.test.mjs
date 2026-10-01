@@ -59,7 +59,7 @@ test('base memory: a fork that changes the strategy replays the circuits into th
 test('base memory: adding knowledge validates, records provenance and writes nothing on failure', t => {
   const bm = library(t);
   const m = bm.create({name: 'k', strategy: 'scan'});
-  assert.throws(() => bm.addKnowledge(m.id, {circuits: family}), /approving administrator/);
+  assert.throws(() => bm.addKnowledge(m.id, {circuits: family}), /acting user/);
   const broken = [{name: 'broken', text: '@r1 rule\n  when parent ?x ?y\n'}];
   assert.throws(() => bm.addKnowledge(m.id, {circuits: broken, approvedBy: 'admin'}), e => e.code === 'validation_failed' && e.problems.length > 0);
   for (const text of ['@j jsEval\n  expression 1\n', '@s stated\n  relation "x"\n', '@q query\n  where parent ?x ?y\n  select ?x\n']) {
@@ -102,15 +102,15 @@ test('base memory: cloneRepository shares files and does not copy sessions or us
   assert.ok(!fs.existsSync(path.join(to, 'sessions')));
 });
 
-test('memories API: list, create, import, fork, knowledge, admin only for writes', async t => {
+test('memories API: list, create, import, fork, knowledge, writes open to any authenticated user', async t => {
   const s = await productServer(t);
   const list = await s.user('/v1/memories');
   assert.equal(list.status, 200);
   assert.deepEqual(list.body.data.map(m => m.id), ['default'], 'only the empty default base memory exists at first');
   assert.equal(list.body.strategies.length, 5);
-  const denied = await s.user('/v1/memories', 'POST', {name: 'x'});
-  assert.equal(denied.status, 403);
-  assert.equal(denied.body.error.code, 'forbidden');
+  const open = await s.user('/v1/memories', 'POST', {name: 'Bearer made', id: 'bearer-made'});
+  assert.equal(open.status, 201, 'a bearer-token caller may create');
+  assert.equal((await s.user('/v1/memories/bearer-made', 'DELETE')).status, 200);
   const created = await s.admin('/v1/memories', 'POST', {name: 'Family', strategy: 'holo-memory', description: 'demo', id: 'family'});
   assert.equal(created.status, 201);
   assert.equal(created.body.strategy, 'holo-memory');

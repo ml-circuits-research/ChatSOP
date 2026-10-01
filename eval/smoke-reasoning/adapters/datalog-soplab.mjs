@@ -1,12 +1,12 @@
 /**
- * Adapter for the product strategy `datalog-soplab` (reasoning/strategies/datalog-soplab/): the desugared core lowered to the vendored soplab
+ * Adapter for the reference engine `datalog-soplab` (eval/reference-engines/datalog-soplab/, demoted from product strategy on 2026-10-01; opt-in column): the desugared core lowered to the vendored soplab
  * engine (sop-reasoning-lab 0.4.0). Replaces the read-only adapter on the unpacked zip (`zip-soplab.mjs`, legacy, not registered by default).
  */
-import {datalogSoplab, NotExpressibleError} from '../../../reasoning/strategies/datalog-soplab/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {datalogSoplab, NotExpressibleError} from '../../reference-engines/datalog-soplab/index.mjs';
+import {NotExpressible} from './common.mjs';
 
 export const datalogSoplabAdapter = {
-  id: 'datalog-soplab', status: 'available', origin: 'reasoning/strategies/datalog-soplab/ (vendored soplab: delta materialisation, NONE, reduce, transition planner; all-minimal abduction on top)',
+  id: 'datalog-soplab', status: 'available', origin: 'eval/reference-engines/datalog-soplab/ (vendored soplab: delta materialisation, NONE, reduce, transition planner; all-minimal abduction on top)',
   description: 'soplab: relation-of-bindings engine with naive/delta evaluation, stratified NONE, reduce aggregates, transition planner; abduction enumerates all minimal explanations over soplab closures. Vendored, plain Node.',
   supports: new Set(datalogSoplab.features),
   available: () => datalogSoplab.available(),

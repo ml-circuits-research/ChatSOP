@@ -1,0 +1,30 @@
+{
+  "model": "claude-haiku-4-5-20251001",
+  "system_prompt_sha256": "0cc0e4657746322f26e50569cbf5d9564cdaa43cbba63466d0a5ed65569d5fc9",
+  "user_turn": "the row message (question) alone, verbatim",
+  "sources": [
+    "server/prompts/formalizer.txt (verbatim)",
+    "DS021 Conventions C1-C12 and Question forms (condensed)",
+    "docs/wire_typs/model-guide.html",
+    "docs/wire_typs/question-types.html"
+  ],
+  "few_shot_ids": [
+    "fv1_010447_0_0",
+    "fv1_032453_0_0",
+    "fv1_020353_0_0",
+    "fv1_028649_0_0",
+    "fv1_031945_0_0",
+    "fv1_006816_0_0",
+    "fv1_002293_0_0",
+    "fv1_002289_0_0",
+    "fv1_026265_0_0",
+    "fv1_008607_0_0",
+    "fv1_000706_0_0",
+    "fv1_032501_0_0",
+    "fv1_023799_0_0",
+    "fv1_004321_0",
+    "fv1_026787_0_0"
+  ],
+  "few_shot_source": "datasets/formalizer-v1/train.jsonl",
+  "chars": 15974
+}

@@ -1,0 +1,563 @@
+{
+ "format": "chatsop-grammar-constrained-cell-v1",
+ "model": "smollm2-360m",
+ "cell": "wild",
+ "suite": "eval/suites/formalizer-wild-v1/test.jsonl",
+ "cell_rows": 796,
+ "stages": [
+  100,
+  300,
+  796
+ ],
+ "stage_results": [
+  {
+   "stage": 1,
+   "rows": 100,
+   "primary": "wild_accepted_match",
+   "summary": {
+    "free": {
+     "rows": 100,
+     "parse_validity": 0.95,
+     "compile_validity": 0.95,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "wire_f1": 0.0761,
+     "wild_accepted_match": 0.13,
+     "wild_decision_match": 0.91,
+     "wild_proposition_f1": 0.6033,
+     "counts": {
+      "parse": 95,
+      "compile": 95,
+      "exec": null,
+      "accepted_match": 13
+     }
+    },
+    "gbnf": {
+     "rows": 100,
+     "parse_validity": 1,
+     "compile_validity": 0.98,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "wire_f1": 0.0704,
+     "wild_accepted_match": 0.13,
+     "wild_decision_match": 0.95,
+     "wild_proposition_f1": 0.6233,
+     "counts": {
+      "parse": 100,
+      "compile": 98,
+      "exec": null,
+      "accepted_match": 13
+     }
+    }
+   },
+   "primary_delta": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "decision": {
+    "stop": true,
+    "reason": "futility"
+   }
+  }
+ ],
+ "final_rows": 100,
+ "stopped": {
+  "stop": true,
+  "reason": "futility"
+ },
+ "identical_outputs": 0.75,
+ "metrics": {
+  "all": {
+   "free": {
+    "rows": 100,
+    "parse_validity": 0.95,
+    "compile_validity": 0.95,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0761,
+    "wild_accepted_match": 0.13,
+    "wild_decision_match": 0.91,
+    "wild_proposition_f1": 0.6033,
+    "counts": {
+     "parse": 95,
+     "compile": 95,
+     "exec": null,
+     "accepted_match": 13
+    }
+   },
+   "gbnf": {
+    "rows": 100,
+    "parse_validity": 1,
+    "compile_validity": 0.98,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0704,
+    "wild_accepted_match": 0.13,
+    "wild_decision_match": 0.95,
+    "wild_proposition_f1": 0.6233,
+    "counts": {
+     "parse": 100,
+     "compile": 98,
+     "exec": null,
+     "accepted_match": 13
+    }
+   }
+  },
+  "language:en": {
+   "free": {
+    "rows": 43,
+    "parse_validity": 0.9767,
+    "compile_validity": 0.9767,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.1242,
+    "wild_accepted_match": 0.1628,
+    "wild_decision_match": 0.9535,
+    "wild_proposition_f1": 0.6822,
+    "counts": {
+     "parse": 42,
+     "compile": 42,
+     "exec": null,
+     "accepted_match": 7
+    }
+   },
+   "gbnf": {
+    "rows": 43,
+    "parse_validity": 1,
+    "compile_validity": 0.9535,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.1118,
+    "wild_accepted_match": 0.1628,
+    "wild_decision_match": 0.9767,
+    "wild_proposition_f1": 0.7054,
+    "counts": {
+     "parse": 43,
+     "compile": 41,
+     "exec": null,
+     "accepted_match": 7
+    }
+   }
+  },
+  "language:mixed": {
+   "free": {
+    "rows": 20,
+    "parse_validity": 0.95,
+    "compile_validity": 0.95,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0247,
+    "wild_accepted_match": 0.05,
+    "wild_decision_match": 0.85,
+    "wild_proposition_f1": 0.45,
+    "counts": {
+     "parse": 19,
+     "compile": 19,
+     "exec": null,
+     "accepted_match": 1
+    }
+   },
+   "gbnf": {
+    "rows": 20,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0241,
+    "wild_accepted_match": 0.05,
+    "wild_decision_match": 0.9,
+    "wild_proposition_f1": 0.45,
+    "counts": {
+     "parse": 20,
+     "compile": 20,
+     "exec": null,
+     "accepted_match": 1
+    }
+   }
+  },
+  "language:ro": {
+   "free": {
+    "rows": 37,
+    "parse_validity": 0.9189,
+    "compile_validity": 0.9189,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0526,
+    "wild_accepted_match": 0.1351,
+    "wild_decision_match": 0.8919,
+    "wild_proposition_f1": 0.5946,
+    "counts": {
+     "parse": 34,
+     "compile": 34,
+     "exec": null,
+     "accepted_match": 5
+    }
+   },
+   "gbnf": {
+    "rows": 37,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0519,
+    "wild_accepted_match": 0.1351,
+    "wild_decision_match": 0.9459,
+    "wild_proposition_f1": 0.6216,
+    "counts": {
+     "parse": 37,
+     "compile": 37,
+     "exec": null,
+     "accepted_match": 5
+    }
+   }
+  }
+ },
+ "deltas": {
+  "all": {
+   "parse_validity": {
+    "delta": 0.05,
+    "ci95": [
+     0.01,
+     0.09
+    ],
+    "clusters": 100
+   },
+   "compile_validity": {
+    "delta": 0.03,
+    "ci95": [
+     -0.01,
+     0.07
+    ],
+    "clusters": 100
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "wire_f1": {
+    "delta": -0.0058,
+    "ci95": [
+     -0.0169,
+     0.0002
+    ],
+    "clusters": 100
+   },
+   "wild_decision_match": {
+    "delta": 0.04,
+    "ci95": [
+     0,
+     0.09
+    ],
+    "clusters": 100
+   },
+   "wild_proposition_f1": {
+    "delta": 0.02,
+    "ci95": [
+     -0.02,
+     0.06
+    ],
+    "clusters": 100
+   }
+  },
+  "language:en": {
+   "parse_validity": {
+    "delta": 0.0233,
+    "ci95": [
+     0,
+     0.0698
+    ],
+    "clusters": 43
+   },
+   "compile_validity": {
+    "delta": -0.0233,
+    "ci95": [
+     -0.0698,
+     0
+    ],
+    "clusters": 43
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 43
+   },
+   "wire_f1": {
+    "delta": -0.0124,
+    "ci95": [
+     -0.0377,
+     0
+    ],
+    "clusters": 43
+   },
+   "wild_decision_match": {
+    "delta": 0.0233,
+    "ci95": [
+     0,
+     0.0698
+    ],
+    "clusters": 43
+   },
+   "wild_proposition_f1": {
+    "delta": 0.0233,
+    "ci95": [
+     0,
+     0.0698
+    ],
+    "clusters": 43
+   }
+  },
+  "language:mixed": {
+   "parse_validity": {
+    "delta": 0.05,
+    "ci95": [
+     0,
+     0.15
+    ],
+    "clusters": 20
+   },
+   "compile_validity": {
+    "delta": 0.05,
+    "ci95": [
+     0,
+     0.15
+    ],
+    "clusters": 20
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   },
+   "wire_f1": {
+    "delta": -0.0006,
+    "ci95": [
+     -0.0042,
+     0.0008
+    ],
+    "clusters": 20
+   },
+   "wild_decision_match": {
+    "delta": 0.05,
+    "ci95": [
+     0,
+     0.15
+    ],
+    "clusters": 20
+   },
+   "wild_proposition_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   }
+  },
+  "language:ro": {
+   "parse_validity": {
+    "delta": 0.0811,
+    "ci95": [
+     0,
+     0.1622
+    ],
+    "clusters": 37
+   },
+   "compile_validity": {
+    "delta": 0.0811,
+    "ci95": [
+     0,
+     0.1622
+    ],
+    "clusters": 37
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "wire_f1": {
+    "delta": -0.0007,
+    "ci95": [
+     -0.0045,
+     0.0013
+    ],
+    "clusters": 37
+   },
+   "wild_decision_match": {
+    "delta": 0.0541,
+    "ci95": [
+     -0.0541,
+     0.1622
+    ],
+    "clusters": 37
+   },
+   "wild_proposition_f1": {
+    "delta": 0.027,
+    "ci95": [
+     -0.0541,
+     0.1351
+    ],
+    "clusters": 37
+   }
+  }
+ },
+ "speed": {
+  "free": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 -np 8"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 456.0269,
+    "p50": 428.0435,
+    "p95": 1108.5021
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 66.29,
+    "p50": 62,
+    "p95": 169
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 159.0375,
+    "p50": 157.1051,
+    "p95": 188.6152
+   }
+  },
+  "gbnf": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 -np 8"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 436.9909,
+    "p50": 417.1727,
+    "p95": 1023.2172
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 67.84,
+    "p50": 66,
+    "p95": 167
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 166.792,
+    "p50": 165.5269,
+    "p95": 194.3345
+   }
+  }
+ },
+ "example_counts": {
+  "helped": 0,
+  "hurt": 0,
+  "repaired_parse": 5,
+  "forced_wrong": 5
+ },
+ "examples": {
+  "helped": [],
+  "hurt": [],
+  "repaired_parse": [
+   {
+    "id": "wild_wg_033",
+    "language": "ro",
+    "question": "ma programasei la cardiologie la Craiova pe 14 ale lunii viitoare, da pe 12 am analizele de sange la Filiasi la laborator. doctorita zisese ceva de analize da nu mai tin minte bine. trebuie sa le fac neaparat inainte de consult sau le pot duce si dupa? ca de la Filiasi la Craiova ma duce cumnatu cu masina numa o data",
+    "gold": "@s1 stated\n  relation \"be scheduled at\"\n  role subject \"I\"\n  role object \"cardiology\"\n  role location \"Craiova\"\n  polarity affirmed\n  valid on \"the 14th of next month\"\n  certainty asserted\n@s2 stated\n  relation \"have blood tests at\"\n  role subject \"I\"\n  role location \"the laboratory in Filiasi\"\n  polarity affirmed\n  valid on \"the 12th\"\n  certainty asserted\n@s3 stated\n  relation \"say something about\"\n  role subject \"the doctor\"\n  role topic \"the tests\"\n  polarity affirmed\n  certainty asserted\n@s4 stated\n  relation \"take only once\"\n  role subject \"my brother-in-law\"\n  role object \"me\"\n  role source \"Filiasi\"\n  role destination \"Craiova\"\n  polarity affirmed\n  certainty asserted\n@q query\n  where match\n    relation \"must do before\"\n    role subject \"I\"\n    role object \"the tests\"\n    role time \"the consultation\"\n    polarity affirmed\n  end\n@q2 query\n  where match\n    relation \"can bring after\"\n    role subject \"I\"\n    role object \"the tests\"\n    role time \"the consultation\"\n    polarity affirmed\n  end",
+    "free": "@c constraint\n  var ?x int 14 12\n  require ?x at_least 12\n  claim ?x above 12\n  task prove\n\n@q query\n  mode exists\n  where all\n    match\n      relation \"travel to\"\n      role subject ?x\n      role destination \"Craiova\"\n      polarity affirmed\n    end\n    match\n      relation \"take place at\"\n      role subject ?x\n      role location \"Filiasi\"\n      polarity affirmed\n    end\n  end\n  compare ?x above 12\n\n@q2 query\n  mode exists\n  where all\n    match\n      relation \"complete the safety training\"\n      role subject ?x\n      polarity affirmed\n    end\n  end\n\n@q3 query\n  mode exists\n  where all\n    match\n      relation \"work at\"\n      role subject ?x\n      role object \"the bakery on the corner\"\n      polarity affirmed\n    end\n  end\n  compare ?x before 12\n",
+    "gbnf": "@c constraint\n  var ?x int 14 12\n  require ?x at_least 12\n  claim ?x above 12\n  task prove\n\n@q query\n  mode exists\n  where all\n    match\n      relation \"travel to\"\n      role subject ?x\n      role destination \"Craiova\"\n      polarity affirmed\n    end\n    match\n      relation \"take place at\"\n      role subject ?x\n      role location \"Filiasi\"\n      polarity affirmed\n    end\n  end\n  compare ?x above 12\n\n@q2 query\n  mode exists\n  where all\n    match\n      relation \"complete the safety training\"\n      role subject ?x\n      polarity affirmed\n    end\n  end\n\n@q3 query\n  mode exists\n  where all\n    match\n      relation \"work at\"\n      role subject ?x\n      role object \"the bakery on the corner\"\n      polarity affirmed\n    end\n  end\n  compare ?x above 12\n"
+   },
+   {
+    "id": "wild_wi_015",
+    "language": "mixed",
+    "question": "Am un call cu clientul din Hamburg mâine la 10 și trebuie să știu dacă factura de servicii de consultanță se emite cu taxare inversă sau cu TVA 21%. Clientul are cod VIES valid.",
+    "gold": "@s1 stated\n  relation \"have\"\n  role subject \"the client\"\n  role object \"a valid VIES code\"\n  polarity affirmed\n  certainty asserted\n@q query\n  select ?v\n  where match\n    relation \"be issued with\"\n    role subject \"the invoice for consulting services\"\n    role instrument ?v\n    polarity affirmed\n  end\n  compare any\n    ?v equal \"reverse charge\"\n    ?v equal \"21% VAT\"\n  end",
+    "free": "@q query\n  where match\n    relation \"sell\"\n    role subject \"the consulting service\"\n    role object \"the billing service\"\n    polarity affirmed\n  end\n  except ?x\n  where match\n    relation \"be down\"\n    role subject \"the billing service\"\n    polarity negated\n  end\n",
+    "gbnf": "@q query\n  where match\n    relation \"sell\"\n    role subject \"the consulting service\"\n    role object \"the billing service\"\n    polarity affirmed\n  end\n  except ?x \"Hamburg\"\n\n@q2 query\n  where match\n    relation \"be down\"\n    role subject \"the billing service\"\n    polarity affirmed\n  end\n\n@q3 query\n  where match\n    relation \"have valid code\"\n    role subject \"the consulting service\"\n    polarity affirmed\n  end\n"
+   },
+   {
+    "id": "wild_wk_047",
+    "language": "ro",
+    "question": "Merită să iau Dacia Jogger pe GPL sau pe benzină dacă fac 60 de km pe zi?",
+    "gold": "@s1 stated\n  relation \"drive\"\n  role subject \"I\"\n  role object \"60 km per day\"\n  polarity affirmed\n  certainty supposed\n@q query\n  select ?v\n  where match\n    relation \"be worth buying\"\n    role subject \"I\"\n    role object \"Dacia Jogger\"\n    role instrument ?v\n    polarity affirmed\n  end\n  compare any\n    ?v equal \"LPG\"\n    ?v equal \"petrol\"\n  end",
+    "free": "@q query\n  where match\n    relation \"cost\"\n    role subject \"the Dacia Jogger\"\n    role object \"the garage sale\"\n    polarity affirmed\n  end\n  except ?x where match\n    relation \"cost\"\n    role subject \"the Dacia Jogger\"\n    role object ?x\n    polarity affirmed\n  end\n",
+    "gbnf": "@q query\n  where match\n    relation \"cost\"\n    role subject \"the Dacia Jogger\"\n    role object \"the garage sale\"\n    polarity affirmed\n  end\n  except ?x 60\n"
+   },
+   {
+    "id": "wild_we_051",
+    "language": "en",
+    "question": "Heparin half-life?",
+    "gold": "@q query\n  select ?v\n  where match\n    relation \"have half-life\"\n    role subject \"Heparin\"\n    role object ?v\n    polarity affirmed\n  end",
+    "free": "@q query\n  select ?t\n  measure half_life\n  where match\n    relation \"be broken\"\n    role subject \"Heparin\"\n    role time ?t\n    polarity affirmed\n  end\n",
+    "gbnf": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"be broken down into\"\n    role subject \"heparin\"\n    role object ?t\n    polarity affirmed\n  end\n"
+   },
+   {
+    "id": "wild_wg_053",
+    "language": "ro",
+    "question": "podul care o fost facut de firma aia din Deva anul trecut peste Somes la Ciceu-Mihaiesti iar s-o stricat. cum se cheama firma care l-o construit?",
+    "gold": "@s1 stated\n  relation \"break\"\n  role subject \"the bridge over Somes at Ciceu-Mihaiesti\"\n  polarity affirmed\n  certainty asserted\n@s2 stated\n  relation \"be made by\"\n  role subject \"the bridge over Somes at Ciceu-Mihaiesti\"\n  role object \"that company from Deva\"\n  polarity affirmed\n  valid on \"last year\"\n  certainty asserted\n@q query\n  select ?n\n  where all\n    match\n      relation \"build\"\n      role subject ?c\n      role object \"the bridge over Somes at Ciceu-Mihaiesti\"\n      polarity affirmed\n    end\n    match\n      relation \"be called\"\n      role subject ?c\n      role object ?n\n      polarity affirmed\n    end\n  end",
+    "free": "@q query\n  mode exists\n  where all\n    match\n      relation \"be based in\"\n      role subject ?x\n      role location \"Deva\"\n      polarity affirmed\n    end\n    match\n      relation \"be down\"\n      role subject ?x\n      polarity affirmed\n    end\n  end\n  except ?x \"Somes\"\n  end\n",
+    "gbnf": "@q query\n  mode exists\n  where all\n    match\n      relation \"be based in\"\n      role subject ?x\n      role location \"Deva\"\n      polarity affirmed\n    end\n    match\n      relation \"be down\"\n      role subject ?x\n      polarity affirmed\n    end\n  end\n  except ?x \"Somes\"\n  except ?x \"Ciceu-Mihaiesti\"\n"
+   }
+  ],
+  "forced_wrong": [
+   {
+    "id": "wild_wg_033",
+    "language": "ro",
+    "question": "ma programasei la cardiologie la Craiova pe 14 ale lunii viitoare, da pe 12 am analizele de sange la Filiasi la laborator. doctorita zisese ceva de analize da nu mai tin minte bine. trebuie sa le fac neaparat inainte de consult sau le pot duce si dupa? ca de la Filiasi la Craiova ma duce cumnatu cu masina numa o data",
+    "gold": "@s1 stated\n  relation \"be scheduled at\"\n  role subject \"I\"\n  role object \"cardiology\"\n  role location \"Craiova\"\n  polarity affirmed\n  valid on \"the 14th of next month\"\n  certainty asserted\n@s2 stated\n  relation \"have blood tests at\"\n  role subject \"I\"\n  role location \"the laboratory in Filiasi\"\n  polarity affirmed\n  valid on \"the 12th\"\n  certainty asserted\n@s3 stated\n  relation \"say something about\"\n  role subject \"the doctor\"\n  role topic \"the tests\"\n  polarity affirmed\n  certainty asserted\n@s4 stated\n  relation \"take only once\"\n  role subject \"my brother-in-law\"\n  role object \"me\"\n  role source \"Filiasi\"\n  role destination \"Craiova\"\n  polarity affirmed\n  certainty asserted\n@q query\n  where match\n    relation \"must do before\"\n    role subject \"I\"\n    role object \"the tests\"\n    role time \"the consultation\"\n    polarity affirmed\n  end\n@q2 query\n  where match\n    relation \"can bring after\"\n    role subject \"I\"\n    role object \"the tests\"\n    role time \"the consultation\"\n    polarity affirmed\n  end",
+    "free": "@c constraint\n  var ?x int 14 12\n  require ?x at_least 12\n  claim ?x above 12\n  task prove\n\n@q query\n  mode exists\n  where all\n    match\n      relation \"travel to\"\n      role subject ?x\n      role destination \"Craiova\"\n      polarity affirmed\n    end\n    match\n      relation \"take place at\"\n      role subject ?x\n      role location \"Filiasi\"\n      polarity affirmed\n    end\n  end\n  compare ?x above 12\n\n@q2 query\n  mode exists\n  where all\n    match\n      relation \"complete the safety training\"\n      role subject ?x\n      polarity affirmed\n    end\n  end\n\n@q3 query\n  mode exists\n  where all\n    match\n      relation \"work at\"\n      role subject ?x\n      role object \"the bakery on the corner\"\n      polarity affirmed\n    end\n  end\n  compare ?x before 12\n",
+    "gbnf": "@c constraint\n  var ?x int 14 12\n  require ?x at_least 12\n  claim ?x above 12\n  task prove\n\n@q query\n  mode exists\n  where all\n    match\n      relation \"travel to\"\n      role subject ?x\n      role destination \"Craiova\"\n      polarity affirmed\n    end\n    match\n      relation \"take place at\"\n      role subject ?x\n      role location \"Filiasi\"\n      polarity affirmed\n    end\n  end\n  compare ?x above 12\n\n@q2 query\n  mode exists\n  where all\n    match\n      relation \"complete the safety training\"\n      role subject ?x\n      polarity affirmed\n    end\n  end\n\n@q3 query\n  mode exists\n  where all\n    match\n      relation \"work at\"\n      role subject ?x\n      role object \"the bakery on the corner\"\n      polarity affirmed\n    end\n  end\n  compare ?x above 12\n"
+   },
+   {
+    "id": "wild_wi_015",
+    "language": "mixed",
+    "question": "Am un call cu clientul din Hamburg mâine la 10 și trebuie să știu dacă factura de servicii de consultanță se emite cu taxare inversă sau cu TVA 21%. Clientul are cod VIES valid.",
+    "gold": "@s1 stated\n  relation \"have\"\n  role subject \"the client\"\n  role object \"a valid VIES code\"\n  polarity affirmed\n  certainty asserted\n@q query\n  select ?v\n  where match\n    relation \"be issued with\"\n    role subject \"the invoice for consulting services\"\n    role instrument ?v\n    polarity affirmed\n  end\n  compare any\n    ?v equal \"reverse charge\"\n    ?v equal \"21% VAT\"\n  end",
+    "free": "@q query\n  where match\n    relation \"sell\"\n    role subject \"the consulting service\"\n    role object \"the billing service\"\n    polarity affirmed\n  end\n  except ?x\n  where match\n    relation \"be down\"\n    role subject \"the billing service\"\n    polarity negated\n  end\n",
+    "gbnf": "@q query\n  where match\n    relation \"sell\"\n    role subject \"the consulting service\"\n    role object \"the billing service\"\n    polarity affirmed\n  end\n  except ?x \"Hamburg\"\n\n@q2 query\n  where match\n    relation \"be down\"\n    role subject \"the billing service\"\n    polarity affirmed\n  end\n\n@q3 query\n  where match\n    relation \"have valid code\"\n    role subject \"the consulting service\"\n    polarity affirmed\n  end\n"
+   },
+   {
+    "id": "wild_wk_047",
+    "language": "ro",
+    "question": "Merită să iau Dacia Jogger pe GPL sau pe benzină dacă fac 60 de km pe zi?",
+    "gold": "@s1 stated\n  relation \"drive\"\n  role subject \"I\"\n  role object \"60 km per day\"\n  polarity affirmed\n  certainty supposed\n@q query\n  select ?v\n  where match\n    relation \"be worth buying\"\n    role subject \"I\"\n    role object \"Dacia Jogger\"\n    role instrument ?v\n    polarity affirmed\n  end\n  compare any\n    ?v equal \"LPG\"\n    ?v equal \"petrol\"\n  end",
+    "free": "@q query\n  where match\n    relation \"cost\"\n    role subject \"the Dacia Jogger\"\n    role object \"the garage sale\"\n    polarity affirmed\n  end\n  except ?x where match\n    relation \"cost\"\n    role subject \"the Dacia Jogger\"\n    role object ?x\n    polarity affirmed\n  end\n",
+    "gbnf": "@q query\n  where match\n    relation \"cost\"\n    role subject \"the Dacia Jogger\"\n    role object \"the garage sale\"\n    polarity affirmed\n  end\n  except ?x 60\n"
+   },
+   {
+    "id": "wild_we_051",
+    "language": "en",
+    "question": "Heparin half-life?",
+    "gold": "@q query\n  select ?v\n  where match\n    relation \"have half-life\"\n    role subject \"Heparin\"\n    role object ?v\n    polarity affirmed\n  end",
+    "free": "@q query\n  select ?t\n  measure half_life\n  where match\n    relation \"be broken\"\n    role subject \"Heparin\"\n    role time ?t\n    polarity affirmed\n  end\n",
+    "gbnf": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"be broken down into\"\n    role subject \"heparin\"\n    role object ?t\n    polarity affirmed\n  end\n"
+   },
+   {
+    "id": "wild_wg_053",
+    "language": "ro",
+    "question": "podul care o fost facut de firma aia din Deva anul trecut peste Somes la Ciceu-Mihaiesti iar s-o stricat. cum se cheama firma care l-o construit?",
+    "gold": "@s1 stated\n  relation \"break\"\n  role subject \"the bridge over Somes at Ciceu-Mihaiesti\"\n  polarity affirmed\n  certainty asserted\n@s2 stated\n  relation \"be made by\"\n  role subject \"the bridge over Somes at Ciceu-Mihaiesti\"\n  role object \"that company from Deva\"\n  polarity affirmed\n  valid on \"last year\"\n  certainty asserted\n@q query\n  select ?n\n  where all\n    match\n      relation \"build\"\n      role subject ?c\n      role object \"the bridge over Somes at Ciceu-Mihaiesti\"\n      polarity affirmed\n    end\n    match\n      relation \"be called\"\n      role subject ?c\n      role object ?n\n      polarity affirmed\n    end\n  end",
+    "free": "@q query\n  mode exists\n  where all\n    match\n      relation \"be based in\"\n      role subject ?x\n      role location \"Deva\"\n      polarity affirmed\n    end\n    match\n      relation \"be down\"\n      role subject ?x\n      polarity affirmed\n    end\n  end\n  except ?x \"Somes\"\n  end\n",
+    "gbnf": "@q query\n  mode exists\n  where all\n    match\n      relation \"be based in\"\n      role subject ?x\n      role location \"Deva\"\n      polarity affirmed\n    end\n    match\n      relation \"be down\"\n      role subject ?x\n      polarity affirmed\n    end\n  end\n  except ?x \"Somes\"\n  except ?x \"Ciceu-Mihaiesti\"\n"
+   }
+  ]
+ }
+}

@@ -33,7 +33,7 @@ function scratch(t) {
   const log = path.join(root, 'calls.jsonl');
   const run = (fail = '') => {
     fs.rmSync(log, {force: true});
-    const result = spawnSync(process.execPath, [path.join(root, 'check-datasets.mjs'), '--no-audit'], {cwd: root, encoding: 'utf8', env: {...process.env, CHECK_LOG: log, CHECK_FAIL: fail}});
+    const result = spawnSync(process.execPath, [path.join(root, 'check-datasets.mjs'), '--no-audit', '--archive'], {cwd: root, encoding: 'utf8', env: {...process.env, CHECK_LOG: log, CHECK_FAIL: fail}});
     return {...result, calls: fs.existsSync(log) ? readJsonl(log) : []};
   };
   return run;

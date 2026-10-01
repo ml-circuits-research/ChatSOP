@@ -1,0 +1,77 @@
+{
+ "name": "lp-it3-epoch1",
+ "spacing_exact": {
+  "k": 232,
+  "n": 240,
+  "pct": 96.7,
+  "ci95": {
+   "k": 232,
+   "n": 240,
+   "p": 96.7,
+   "lo": 93.6,
+   "hi": 98.3
+  }
+ },
+ "spacing_returned_unchanged": {
+  "k": 34,
+  "n": 240,
+  "pct": 14.2,
+  "ci95": {
+   "k": 34,
+   "n": 240,
+   "p": 14.2,
+   "lo": 10.3,
+   "hi": 19.1
+  }
+ },
+ "identity_defect_free_untouched": {
+  "k": 651,
+  "n": 678,
+  "pct": 96,
+  "ci95": {
+   "k": 651,
+   "n": 678,
+   "p": 96,
+   "lo": 94.3,
+   "hi": 97.2
+  }
+ },
+ "identity_defect_units_untouched": {
+  "k": 0,
+  "n": 6,
+  "pct": 0,
+  "ci95": {
+   "k": 0,
+   "n": 6,
+   "p": 0,
+   "lo": 0,
+   "hi": 39
+  }
+ },
+ "examples_wrong": [
+  [
+   "please don't  remove any seats until the entire guest list is checked",
+   "Please don't remove any seats until the entire guest list is checked"
+  ],
+  [
+   "Could you check which form is  needed for a rental contract?",
+   "Could you check which form is required for a rental contract?"
+  ],
+  [
+   "does Emil study at Ploiești Technical College too ?",
+   "Does Emil study at Ploiești Technical College too?"
+  ],
+  [
+   "does Dana volunteer at the Riverside Shelter too ?",
+   "Does Dana volunteer at the Riverside Shelter too?"
+  ],
+  [
+   "the nurse Elena handed 3000 lei  to the doctor Pavel at the clinic.",
+   "The nurse Elena handed 3000 lei to the doctor Pavel at the clinic."
+  ],
+  [
+   "also, she books hotels in Sofia??",
+   "Also, she books hotels in Sofia?"
+  ]
+ ]
+}

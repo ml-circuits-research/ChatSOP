@@ -1,0 +1,34 @@
+{
+ "name": "lp-it3-epoch1",
+ "unchanged": {
+  "k": 139,
+  "n": 150,
+  "pct": 92.7
+ },
+ "examples_changed": [
+  [
+   "uytrewqp xzmnbvc jjjjjjj",
+   "uytrewqp xzmnbvc jjjjjjjjj"
+  ],
+  [
+   "678901234 rewq jjjjjjj",
+   "678901234 rewq jjjjjjjjj"
+  ],
+  [
+   "dddddddddd Ttttttttttt vcxzm",
+   "dddddddddddd Ttttttttttt vcxzm"
+  ],
+  [
+   "tmjplfxgz Kkkkkkkk vcxzmnbvcxz?",
+   "tmjplfxgz Kkkkkkkkkk vcxzmnbvcxz?"
+  ],
+  [
+   "bnmzxcvbnmz Vvvvvvvvv...",
+   "bnmzxcvbnmz Vvvvvvvvvvv..."
+  ],
+  [
+   "Lasdfghjk Uytre jjjjjjjjjjj...",
+   "Letdfghjk Uytre jjjjjjjjjjjjj..."
+  ]
+ ]
+}

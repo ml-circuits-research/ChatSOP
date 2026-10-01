@@ -31,12 +31,12 @@ test('result projection retains contradiction, hypothesis and search completenes
   assert.equal(result.result.status, 'both');
   assert.equal(packet(result).status, 'CONFLICT');
   assert.equal(packet(result).runtime_status, 'both');
-  const limited = await run('@rule rule\n  when flying ?x\n  then bird ?x\n@h hypothesis\n  holds flying robin\n@data pack\n  items $rule\n' + query + '@limit policy\n  maxNodes 1\n@r abduce\n  query $q\n  data $data\n  candidates $h\n  policy $limit');
+  const limited = await run('@rule rule\n  when flying ?x\n  then bird ?x\n@h hypothesis\n  holds flying robin\n@data pack\n  items $rule\n' + query + '@limit policy\n  maxCandidates 1\n@r abduce\n  query $q\n  data $data\n  candidates $h\n  policy $limit');
   assert.equal(limited.result.complete, false);
   assert.equal(packet(limited).complete, false);
   assert.notEqual(packet(limited).status, 'ENTAILED');
-  assert.deepEqual(epistemicResult({status:'supported', conflictedAnswers:[{binding:{}}], complete:false, hypothetical:true, epistemic:'hypothetical'}), {
-    status:'CONFLICT', runtime_status:'supported', complete:false, hypothetical:true, epistemic:'hypothetical',
+  assert.deepEqual(epistemicResult({status:'supported', conflictedAnswers:[{binding:{}}], complete:false, hypothetical:true, guarantee:'bounded'}), {
+    status:'CONFLICT', runtime_status:'supported', complete:false, hypothetical:true, guarantee:'bounded',
   });
   assert.throws(() => epistemicResult({complete:true}), /runtime status/);
 });

@@ -1,0 +1,6 @@
+total 508960
+drwxrwxr-x 2 salboaie salboaie      4096 Sep 29 03:57 .
+drwxrwxr-x 3 salboaie salboaie      4096 Sep 29 03:57 ..
+-rw-r--r-- 1 salboaie salboaie 270885600 Sep 29 03:57 f16.gguf
+-rw-rw-r-- 1 salboaie salboaie 105453792 Sep 29 03:57 q4_k_m.gguf
+-rw-rw-r-- 1 salboaie salboaie 144810720 Sep 29 03:57 q8_0.gguf

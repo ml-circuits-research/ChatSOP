@@ -1,0 +1,310 @@
+{
+  "format": "chatsop-translate-comparison-v1",
+  "suite": "eval/reports/current/translate-then-formalize/work/formalizer-ood-v1.romixed.stage300.jsonl",
+  "direct": "eval/reports/current/translate-then-formalize/smollm2-360m/ood-T0/evaluation.json",
+  "translated": "eval/reports/current/translate-then-formalize/smollm2-360m/ood-T4-stage300/evaluation.json",
+  "rows": 300,
+  "interval": "paired cluster bootstrap by semantic_case_id (row id when absent), 10,000 resamples, seed 7; exact McNemar on rows",
+  "metrics": {
+    "tolerant_execution_equivalence": {
+      "all": {
+        "rows": 300,
+        "clusters": 259,
+        "direct": 0.20666666666666667,
+        "translated": 0.20666666666666667,
+        "delta": 0,
+        "ci95": [
+          -0.05573770491803279,
+          0.05704697986577181
+        ],
+        "helped": 33,
+        "hurt": 33,
+        "mcnemar_p": 1
+      },
+      "detector:missed": {
+        "rows": 40,
+        "clusters": 34,
+        "direct": 0.55,
+        "translated": 0.45,
+        "delta": -0.1,
+        "ci95": [
+          -0.2857142857142857,
+          0.07894736842105263
+        ],
+        "helped": 4,
+        "hurt": 8,
+        "mcnemar_p": 0.3876953125000002
+      },
+      "detector:routed": {
+        "rows": 260,
+        "clusters": 227,
+        "direct": 0.15384615384615385,
+        "translated": 0.16923076923076924,
+        "delta": 0.015384615384615385,
+        "ci95": [
+          -0.045454545454545456,
+          0.07575757575757576
+        ],
+        "helped": 29,
+        "hurt": 25,
+        "mcnemar_p": 0.6834892282353378
+      },
+      "language:mixed": {
+        "rows": 91,
+        "clusters": 75,
+        "direct": 0.3076923076923077,
+        "translated": 0.2857142857142857,
+        "delta": -0.02197802197802198,
+        "ci95": [
+          -0.14130434782608695,
+          0.09782608695652174
+        ],
+        "helped": 12,
+        "hurt": 14,
+        "mcnemar_p": 0.8450189828872707
+      },
+      "language:ro": {
+        "rows": 209,
+        "clusters": 184,
+        "direct": 0.16267942583732056,
+        "translated": 0.1722488038277512,
+        "delta": 0.009569377990430622,
+        "ci95": [
+          -0.05263157894736842,
+          0.07317073170731707
+        ],
+        "helped": 21,
+        "hurt": 19,
+        "mcnemar_p": 0.8746293123804235
+      },
+      "length:long": {
+        "rows": 16,
+        "clusters": 16,
+        "direct": 0,
+        "translated": 0,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "length:short": {
+        "rows": 284,
+        "clusters": 243,
+        "direct": 0.21830985915492956,
+        "translated": 0.21830985915492956,
+        "delta": 0,
+        "ci95": [
+          -0.059233449477351915,
+          0.060714285714285714
+        ],
+        "helped": 33,
+        "hurt": 33,
+        "mcnemar_p": 1
+      }
+    },
+    "canonical_match": {
+      "all": {
+        "rows": 300,
+        "clusters": 259,
+        "direct": 0.10333333333333333,
+        "translated": 0.12666666666666668,
+        "delta": 0.023333333333333334,
+        "ci95": [
+          -0.020618556701030927,
+          0.06885245901639345
+        ],
+        "helped": 25,
+        "hurt": 18,
+        "mcnemar_p": 0.360377652935768
+      },
+      "detector:missed": {
+        "rows": 40,
+        "clusters": 34,
+        "direct": 0.4,
+        "translated": 0.375,
+        "delta": -0.025,
+        "ci95": [
+          -0.20512820512820512,
+          0.15
+        ],
+        "helped": 5,
+        "hurt": 6,
+        "mcnemar_p": 1
+      },
+      "detector:routed": {
+        "rows": 260,
+        "clusters": 227,
+        "direct": 0.057692307692307696,
+        "translated": 0.08846153846153847,
+        "delta": 0.03076923076923077,
+        "ci95": [
+          -0.015209125475285171,
+          0.07722007722007722
+        ],
+        "helped": 20,
+        "hurt": 12,
+        "mcnemar_p": 0.21532714972272488
+      },
+      "language:mixed": {
+        "rows": 91,
+        "clusters": 75,
+        "direct": 0.1978021978021978,
+        "translated": 0.16483516483516483,
+        "delta": -0.03296703296703297,
+        "ci95": [
+          -0.13953488372093023,
+          0.07291666666666667
+        ],
+        "helped": 8,
+        "hurt": 11,
+        "mcnemar_p": 0.6476058959960936
+      },
+      "language:ro": {
+        "rows": 209,
+        "clusters": 184,
+        "direct": 0.06220095693779904,
+        "translated": 0.11004784688995216,
+        "delta": 0.04784688995215311,
+        "ci95": [
+          0,
+          0.0970873786407767
+        ],
+        "helped": 17,
+        "hurt": 7,
+        "mcnemar_p": 0.06391465663909926
+      },
+      "length:long": {
+        "rows": 16,
+        "clusters": 16,
+        "direct": 0,
+        "translated": 0,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "length:short": {
+        "rows": 284,
+        "clusters": 243,
+        "direct": 0.10915492957746478,
+        "translated": 0.13380281690140844,
+        "delta": 0.02464788732394366,
+        "ci95": [
+          -0.021505376344086023,
+          0.0726643598615917
+        ],
+        "helped": 25,
+        "hurt": 18,
+        "mcnemar_p": 0.360377652935768
+      }
+    },
+    "parse": {
+      "all": {
+        "rows": 300,
+        "clusters": 259,
+        "direct": 0.9966666666666667,
+        "translated": 0.9966666666666667,
+        "delta": 0,
+        "ci95": [
+          -0.009966777408637873,
+          0.01
+        ],
+        "helped": 1,
+        "hurt": 1,
+        "mcnemar_p": 1
+      },
+      "detector:missed": {
+        "rows": 40,
+        "clusters": 34,
+        "direct": 1,
+        "translated": 0.975,
+        "delta": -0.025,
+        "ci95": [
+          -0.08108108108108109,
+          0
+        ],
+        "helped": 0,
+        "hurt": 1,
+        "mcnemar_p": 1
+      },
+      "detector:routed": {
+        "rows": 260,
+        "clusters": 227,
+        "direct": 0.9961538461538462,
+        "translated": 1,
+        "delta": 0.0038461538461538464,
+        "ci95": [
+          0,
+          0.011904761904761904
+        ],
+        "helped": 1,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "language:mixed": {
+        "rows": 91,
+        "clusters": 75,
+        "direct": 1,
+        "translated": 0.989010989010989,
+        "delta": -0.01098901098901099,
+        "ci95": [
+          -0.03488372093023256,
+          0
+        ],
+        "helped": 0,
+        "hurt": 1,
+        "mcnemar_p": 1
+      },
+      "language:ro": {
+        "rows": 209,
+        "clusters": 184,
+        "direct": 0.9952153110047847,
+        "translated": 1,
+        "delta": 0.004784688995215311,
+        "ci95": [
+          0,
+          0.014778325123152709
+        ],
+        "helped": 1,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "length:long": {
+        "rows": 16,
+        "clusters": 16,
+        "direct": 0.9375,
+        "translated": 1,
+        "delta": 0.0625,
+        "ci95": [
+          0,
+          0.1875
+        ],
+        "helped": 1,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "length:short": {
+        "rows": 284,
+        "clusters": 243,
+        "direct": 1,
+        "translated": 0.9964788732394366,
+        "delta": -0.0035211267605633804,
+        "ci95": [
+          -0.010869565217391304,
+          0
+        ],
+        "helped": 0,
+        "hurt": 1,
+        "mcnemar_p": 1
+      }
+    }
+  }
+}

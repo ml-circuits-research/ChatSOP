@@ -1,0 +1,71 @@
+{
+ "generated_at": "2026-09-30T22:14:57.743Z",
+ "note": "train/dev pairs (as trained) against the folded hashes of the sealed bad_english test AFTER the owner-approved merge of DeepSeek targets (journal 2026-09-30T21:18:47Z); the training projection was built against the hashes of the test before the merge",
+ "train": {
+  "pairs": 21414,
+  "prompt_in_sealed": 7,
+  "target_in_sealed": 94,
+  "both_in_sealed": 7,
+  "target_in_sealed_by_kind": {
+   "repair/ro": 47,
+   "identity/clean": 3,
+   "repair/noisy_en": 37,
+   "repair/mixed": 7
+  },
+  "examples": [
+   [
+    "Trebuie să progrzmez o migrare.",
+    "I have to schedule a migration."
+   ],
+   [
+    "E libera ssala?",
+    "Is the room free?"
+   ],
+   [
+    "Mersi, thanjs!",
+    "Thanks, thanks!"
+   ],
+   [
+    "I work at Vertex Analytics.",
+    "I work at Vertex Analytics."
+   ],
+   [
+    "ms,tanks!",
+    "Thanks, thanks!"
+   ]
+  ]
+ },
+ "dev": {
+  "pairs": 3946,
+  "prompt_in_sealed": 0,
+  "target_in_sealed": 10,
+  "both_in_sealed": 0,
+  "target_in_sealed_by_kind": {
+   "repair/mixed": 3,
+   "repair/ro": 6,
+   "repair/noisy_en": 1
+  },
+  "examples": [
+   [
+    "Ce medici tratează pe coneva alergic la ibuprofen?",
+    "Which doctors treat someone allergic to ibuprofen?"
+   ],
+   [
+    "Eu nu lucrez la Vertex Analytics, dar fratele meu lucrează la Vertex Analytics?",
+    "I do not work at Vertex Analytics, but does my brother work at Vertex Analytics?"
+   ],
+   [
+    "Vreau să depun actele curâmd.",
+    "I want to submit the documents soon."
+   ],
+   [
+    "Wehave an echipă meeting sion.",
+    "We have a team meeting soon."
+   ],
+   [
+    "Carpathia Energy comercializează uniforme școlare.",
+    "Carpathia Energy sells school uniforms."
+   ]
+  ]
+ }
+}

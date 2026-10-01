@@ -8,7 +8,7 @@
  *   eval/suites/bad_english/proofing-test.jsonl   sentence-level pairs {id, prompt, target, kind, ...}: repair pairs of the test rows
  *                                                 that have a target, plus identity pairs (clean English -> itself) from the sealed
  *                                                 symbolic_english test (`kind: identity`),
- *   eval/reports/current/language-proofing-it1/sealed-hashes.json   folded hashes of every sealed text (messages, targets, composed
+ *   eval/reports/history/language-proofing-it1/sealed-hashes.json   folded hashes of every sealed text (messages, targets, composed
  *                                                 components, identity messages), the only thing the train/dev side reads.
  * The train/dev builder (tools/datasets/build-language-proofing.mjs) never opens a sealed file.
  */
@@ -21,7 +21,7 @@ import {ROOT} from '../../lib/dataset-paths.mjs';
 import {splitSentences} from '../../lib/sentence-split.mjs';
 import {projectRow, projectUnlabelled, hashText, countBy, norm} from '../datasets/language-proofing/pairs.mjs';
 
-export const WORK = path.join(ROOT, 'eval/reports/current/language-proofing-it1');
+export const WORK = path.join(ROOT, 'eval/reports/history/language-proofing-it1');
 export const TEST_FILE = path.join(ROOT, 'eval/suites/bad_english/proofing-test.jsonl');
 export const CLEAN_FILE = path.join(ROOT, 'eval/suites/bad_english/proofing-test-clean.jsonl');
 const args = argv => { const o = {}; for (let i = 0; i < argv.length; i++) if (argv[i].startsWith('--')) o[argv[i].slice(2)] = argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[++i] : true; return o; };

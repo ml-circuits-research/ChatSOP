@@ -16,14 +16,19 @@
 <tr><td class="ep">POST /v1/symbolic/rewrite</td><td>Rewrite correct English into the limited English SymbolicLM understands, with the trace</td><td>SymbolicProofingLLM</td></tr>
 <tr><td class="ep">POST /v1/symbolic/analyze</td><td>The raw grammatical analysis and the generated SOP</td><td>SymbolicLM</td></tr>
 <tr><td class="ep">POST /v1/emotion/detect</td><td>Pragmatic and emotional signals with emoticon suggestions</td><td>EmotionDetectionSystem</td></tr>
-<tr><td class="ep">GET /v1/capabilities</td><td>This list, the component versions and the limits</td><td>server</td></tr>
-<tr><td class="ep">GET /v1/cache/stats</td><td>Per-cache statistics (administrator session or, on a token-only server, any token); <code>POST /v1/cache/clear</code> empties the caches</td><td>server</td></tr>
+<tr><td class="ep">GET, POST /v1/memories, GET, DELETE /v1/memories/{id}, POST /v1/memories/{id}/fork, POST /v1/memories/{id}/knowledge</td><td>Base memories: list, create or import, view, delete, fork with a chosen memory strategy, add validated knowledge with provenance (any authenticated user may write; section 10)</td><td>chat data root, memory strategies DS023 to DS028, knowledge validator</td></tr>
+<tr><td class="ep">POST /v1/sessions, GET /v1/sessions, GET, DELETE /v1/sessions/{id}, POST .../settings, .../drafts, .../drafts/{d}/accept, .../drafts/{d}/reject, .../commit, .../theory, .../query, .../scope-answer</td><td>Sessions on a cloned base memory: settings, draft circuits, acceptance, commit to a fork, the theory and a query over it, the answer to a scope suggestion (section 11)</td><td>chat data root, exact oracle</td></tr>
+<tr><td class="ep">GET /v1/omp/models, POST /v1/author, GET /v1/sessions/{id}/requests/{request}</td><td>The models omp can use with their cost class, the authoring path that turns attached files and instructions into proposed circuits, the status of a request (section 12)</td><td>omp coding agent, skill sop-wire-authoring</td></tr>
+<tr><td class="ep">POST /v1/route</td><td>Which path a message takes (SymbolicLM or the coding agent) and why, with the suggestion of the scope detector (section 13)</td><td>scope detector, SymbolicLM signals</td></tr>
+<tr><td class="ep">GET /v1/capabilities</td><td>This list, the component versions, the limits and the warm state of the models</td><td>server</td></tr>
+<tr><td class="ep">GET, POST /v1/server/models</td><td>What the server keeps open: per model the mode (<code>keep_open</code>, <code>on_demand</code>, <code>off</code>), the live state, memory and start cost; change it (section 15)</td><td>model manager</td></tr>
+<tr><td class="ep">GET /v1/cache/stats</td><td>Per-cache statistics (any authenticated user); <code>POST /v1/cache/clear</code> empties the caches</td><td>server</td></tr>
 </tbody></table></div></section>
 
 <section id="conventions"><h2>2. Conventions</h2>
 <ul>
 <li><b>Authentication.</b> Exactly as the other APIs: <code>Authorization: Bearer &lt;token&gt;</code>, or the administrator session cookie of <a href="/login">/login</a> (the chat page uses it). Without either: 401 <code>unauthorized</code>; before the administrator password is set: 403 <code>setup_required</code>.</li>
-<li><b>Request.</b> A JSON object with a non-empty string <code>message</code> and only the parameters listed for the endpoint (an unknown parameter is 400 <code>unsupported_parameter</code>). A message is limited to <code>maxContextBytes</code> (default 4800 bytes, 413 <code>request_limit</code>), a body to <code>maxRequestBytes</code> (default 65536), and at most <code>maxConcurrentApi</code> (default 16) capability requests run at once (429 <code>concurrency_limit</code>).</li>
+<li><b>Request.</b> (The capability endpoints of sections 3 to 7; the product endpoints of sections 10 to 14 take the parameters listed there.) A JSON object with a non-empty string <code>message</code> and only the parameters listed for the endpoint (an unknown parameter is 400 <code>unsupported_parameter</code>). A message is limited to <code>maxContextBytes</code> (default 4800 bytes, 413 <code>request_limit</code>), a body to <code>maxRequestBytes</code> (default 65536), and at most <code>maxConcurrentApi</code> (default 16) capability requests run at once (429 <code>concurrency_limit</code>).</li>
 <li><b>Answer.</b> HTTP 200 with <code>object</code> (the result type), <code>status</code> (<code>ok</code>, <code>partial</code> or <code>unavailable</code>), <code>errors</code> (a list of <code>{component, code, message, span?}</code>), <code>timings</code> (<code>total_ms</code> of this request and <code>compute_ms</code>, the time of the computation that produced the result, so a hit shows the cost it saved), <code>cache</code> (<code>hit</code> when every expensive component came from a cache, else <code>miss</code>), <code>cache_detail</code> (each component: <code>hit</code>, <code>miss</code> or <code>shared</code>, a request that joined a computation already in flight) and <code>versions</code> (the API version and, for each component used, its version: SymbolicLM and interpretation versions, the model id, run, file and stamp of each language model, the tone configuration signature).</li>
 <li><b>Errors.</b> Only an invalid request, a limit or authentication is an HTTP error, always <code>{"error": {"message", "type": "invalid_request_error", "code"}}</code>: 400 <code>invalid_request</code>, <code>invalid_message</code>, <code>invalid_parameter</code>, <code>unsupported_parameter</code>; 401 <code>unauthorized</code>; 403 <code>forbidden</code>; 404 <code>not_found</code>; 413 <code>request_limit</code>; 429 <code>concurrency_limit</code>.</li>
 <li><b>Never a total failure.</b> Analysis returns what was understood and marks the rest. A model that cannot start, a sentence the parser fails on or a span the interpretation does not represent never turns the answer into an error: the answer is 200 with <code>status: "partial"</code> (or <code>"unavailable"</code> when nothing could be done), the failure is in <code>errors</code> and, where the message was not fully understood, <code>clarify</code> holds a follow-up for the user, for example <em>I did not understand: &ldquo;xyz&rdquo;. Could you rephrase it?</em>, with <code>clarify_items</code> (<code>not_represented</code>, <code>uncertain</code> or <code>failed</code>, each with its text). Degraded answers are never cached.</li>
@@ -97,10 +102,11 @@
 }</code></pre></section>
 
 <section id="meta"><h2>8. GET /v1/capabilities and the cache endpoints</h2>
-<pre class="api-example" data-endpoint="GET /v1/capabilities" data-request="" data-response-keys="object,endpoints,versions,limits"><code>curl -s -X GET http://127.0.0.1:9999/v1/capabilities -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
+<pre class="api-example" data-endpoint="GET /v1/capabilities" data-request="" data-response-keys="object,endpoints,versions,warm,limits"><code>curl -s -X GET http://127.0.0.1:9999/v1/capabilities -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
 <p>Abridged response:</p>
 <pre class="api-response"><code>{&quot;object&quot;: &quot;capabilities&quot;, &quot;endpoints&quot;: [{&quot;method&quot;: &quot;POST&quot;, &quot;path&quot;: &quot;/v1/understand&quot;, &quot;capability&quot;: &quot;symbolic.understanding&quot;, &quot;body&quot;: [&quot;message&quot;, &quot;rewrite&quot;, &quot;accept&quot;, &quot;emotion&quot;, &quot;interpret&quot;]}, &quot;...&quot;],
  &quot;versions&quot;: {&quot;api&quot;: &quot;capability-api-v1&quot;, &quot;symbolic_lm&quot;: {&quot;version&quot;: &quot;symbolic-lm-v2.0&quot;, &quot;service&quot;: &quot;symbolic-lm&quot;}, &quot;...&quot;: &quot;...&quot;},
+ &quot;warm&quot;: {&quot;state&quot;: &quot;warm&quot;, &quot;ready&quot;: true, &quot;ms&quot;: 28178, &quot;kept_open&quot;: [&quot;symbolic-lm&quot;, &quot;...&quot;], &quot;models&quot;: {&quot;symbolic-lm&quot;: {&quot;mode&quot;: &quot;keep_open&quot;, &quot;state&quot;: &quot;ready&quot;, &quot;warm&quot;: true, &quot;start_ms&quot;: 27548}, &quot;...&quot;: &quot;...&quot;}},
  &quot;limits&quot;: {&quot;max_message_bytes&quot;: 4800, &quot;max_request_bytes&quot;: 65536, &quot;max_concurrent&quot;: 16}}</code></pre>
 <pre class="api-example" data-endpoint="GET /v1/cache/stats" data-request="" data-response-keys="object,caches,services"><code>curl -s -X GET http://127.0.0.1:9999/v1/cache/stats -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
 <p>Abridged response:</p>
@@ -116,4 +122,678 @@
 <li><b>Failures.</b> A failed or degraded computation is not stored.</li>
 <li><b>Reuse by the chat.</b> The chat page calls proofread, emotion detect and understand while the user reads the proposal, then sends the final formalize request, which calls the same cached analysis and tone detection instead of recomputing them.</li>
 </ul></section>
+<section id="memories"><h2>10. Base memories</h2>
+<p class="note">Sections 10 to 14 are the product endpoints (sessions, base memories, the coding agent). Their examples are executed against a live test server by <code>tests/product-api-docs.test.mjs</code>, with the repository's stub of the omp CLI (no model is called), so the model list and the costs below are those of the stub.</p>
+<p>A base memory is a named, forkable knowledge store of one memory strategy (<code>recall-memory</code>, <code>holo-memory</code>, <code>sqlite</code>, <code>scan</code>, <code>hybrid</code>), kept under <code>chat_data/base_memories/&lt;id&gt;/</code> (<a href="specsLoader.html?spec=DS031-sessions-and-base-memories.md">DS031</a>). Reading needs any token; creating, importing, forking, adding knowledge and deleting need the <b>administrator session</b> (the cookie of <a href="/login">/login</a>), because adding knowledge is an approval recorded with the approver in the memory's provenance. Circuits are checked by the knowledge validator (<code>sop/knowledge/</code>) together with the circuits already stored; a failing circuit answers 422 <code>validation_failed</code> with <code>problems</code> and <code>warnings</code> and nothing is written. A circuit may not contain <code>jsEval</code>, model-surface wires, <code>query</code> wires or governance fields.</p>
+<h3>List</h3>
+<pre class="api-example product-example" data-endpoint="GET /v1/memories" data-request="{}" data-as="user" data-status="200" data-response-keys="object,data,strategies"><code>curl -s -X GET http://127.0.0.1:9999/v1/memories -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;list&quot;,
+ &quot;data&quot;: [
+  {
+   &quot;id&quot;: &quot;default&quot;,
+   &quot;name&quot;: &quot;Default (empty)&quot;,
+   &quot;parent&quot;: null,
+   &quot;strategy&quot;: &quot;recall-memory&quot;,
+   &quot;exact&quot;: false,
+   &quot;created_at&quot;: &quot;2026-10-01T14:12:27.009Z&quot;,
+   &quot;description&quot;: &quot;Empty base memory used by chats that name none.&quot;,
+   &quot;circuits&quot;: 0,
+   &quot;facts&quot;: 0
+  }
+ ],
+ &quot;strategies&quot;: [
+  {
+   &quot;id&quot;: &quot;recall-memory&quot;,
+   &quot;note&quot;: &quot;RecallMemory (DS023): associative candidates, bounded memory&quot;
+  },
+  {
+   &quot;id&quot;: &quot;holo-memory&quot;,
+   &quot;note&quot;: &quot;HoloMemory (DS024): superposed codes, known-handle plane&quot;
+  },
+  &quot;...&quot;
+ ]
+}</code></pre>
+<h3>Create or import</h3>
+<p>Without <code>circuits</code> an empty memory is created; with them it is imported all or nothing. <code>id</code> is optional (lowercase letters, digits, <code>_</code>, <code>-</code>).</p>
+<pre class="api-example product-example" data-endpoint="POST /v1/memories" data-request="{&quot;name&quot;:&quot;Family&quot;,&quot;id&quot;:&quot;family&quot;,&quot;strategy&quot;:&quot;sqlite&quot;,&quot;description&quot;:&quot;Parent facts&quot;,&quot;circuits&quot;:[{&quot;name&quot;:&quot;family&quot;,&quot;text&quot;:&quot;@parent predicate\n  args subject:entity object:entity\n\n@f1 fact\n  holds parent ann bob\n  source \&quot;family register\&quot;\n&quot;}],&quot;reason&quot;:&quot;import of the family register&quot;,&quot;source&quot;:&quot;family register&quot;}" data-as="user" data-status="201" data-response-keys="object,id,name,parent,strategy,exact,created_at,description"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories -b cookies.txt -H &quot;Content-Type: application/json&quot; -d '{&quot;name&quot;:&quot;Family&quot;,&quot;id&quot;:&quot;family&quot;,&quot;strategy&quot;:&quot;sqlite&quot;,&quot;description&quot;:&quot;Parent facts&quot;,&quot;circuits&quot;:[{&quot;name&quot;:&quot;family&quot;,&quot;text&quot;:&quot;@parent predicate\n  args subject:entity object:entity\n\n@f1 fact\n  holds parent ann bob\n  source \&quot;family register\&quot;\n&quot;}],&quot;reason&quot;:&quot;import of the family register&quot;,&quot;source&quot;:&quot;family register&quot;}'</code></pre>
+<p>Abridged response (HTTP 201):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;memory&quot;,
+ &quot;id&quot;: &quot;family&quot;,
+ &quot;name&quot;: &quot;Family&quot;,
+ &quot;parent&quot;: null,
+ &quot;strategy&quot;: &quot;sqlite&quot;,
+ &quot;exact&quot;: false,
+ &quot;created_at&quot;: &quot;2026-10-01T14:12:27.155Z&quot;,
+ &quot;description&quot;: &quot;Parent facts&quot;,
+ &quot;circuits&quot;: 1,
+ &quot;facts&quot;: 1
+}</code></pre>
+<h3>View one</h3>
+<pre class="api-example product-example" data-endpoint="GET /v1/memories/family" data-request="{}" data-as="user" data-status="200" data-response-keys="object,id,name,parent,strategy,exact,created_at,description"><code>curl -s -X GET http://127.0.0.1:9999/v1/memories/family -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;memory&quot;,
+ &quot;id&quot;: &quot;family&quot;,
+ &quot;name&quot;: &quot;Family&quot;,
+ &quot;strategy&quot;: &quot;sqlite&quot;,
+ &quot;circuits&quot;: 1,
+ &quot;facts&quot;: 1,
+ &quot;circuit_files&quot;: [
+  &quot;0001-family.sop&quot;
+ ],
+ &quot;provenance&quot;: [
+  {
+   &quot;kind&quot;: &quot;import&quot;,
+   &quot;seq&quot;: 1,
+   &quot;file&quot;: &quot;0001-family.sop&quot;,
+   &quot;sha256&quot;: &quot;90ae8ccd6a61c506c6f47349ed01e99d54dcd8139377fd50db1d871c827dde7a&quot;,
+   &quot;approved_by&quot;: &quot;admin&quot;,
+   &quot;approved_at&quot;: &quot;2026-10-01T14:12:27.155Z&quot;,
+   &quot;reason&quot;: &quot;import of the family register&quot;,
+   &quot;source&quot;: &quot;family register&quot;,
+   &quot;wires&quot;: 2,
+   &quot;ingest&quot;: {
+    &quot;facts_in_circuit&quot;: 1,
+    &quot;facts_ingested&quot;: 1,
+    &quot;facts_defaulted_valid&quot;: 1,
+    &quot;facts_skipped&quot;: [
+     &quot;...&quot;
+    ]
+   }
+  }
+ ]
+}</code></pre>
+<p><code>?facts=1</code> adds <code>stored_facts</code>, what the memory strategy would retrieve.</p>
+<h3>Fork</h3>
+<p>The same strategy clones the repository by hard links (copy-on-write, <code>method: clone</code>); another strategy replays the circuits into the new engine (<code>method: replay</code>).</p>
+<pre class="api-example product-example" data-endpoint="POST /v1/memories/family/fork" data-request="{&quot;name&quot;:&quot;Family (scan)&quot;,&quot;id&quot;:&quot;family-scan&quot;,&quot;strategy&quot;:&quot;scan&quot;}" data-as="user" data-status="201" data-response-keys="object,memory,method,rebuilt"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories/family/fork -b cookies.txt -H &quot;Content-Type: application/json&quot; -d '{&quot;name&quot;:&quot;Family (scan)&quot;,&quot;id&quot;:&quot;family-scan&quot;,&quot;strategy&quot;:&quot;scan&quot;}'</code></pre>
+<p>Abridged response (HTTP 201):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;memory.fork&quot;,
+ &quot;memory&quot;: {
+  &quot;id&quot;: &quot;family-scan&quot;,
+  &quot;name&quot;: &quot;Family (scan)&quot;,
+  &quot;parent&quot;: {
+   &quot;id&quot;: &quot;family&quot;,
+   &quot;name&quot;: &quot;Family&quot;,
+   &quot;strategy&quot;: &quot;sqlite&quot;,
+   &quot;circuits&quot;: 1,
+   &quot;forked_at&quot;: &quot;2026-10-01T14:12:27.174Z&quot;
+  },
+  &quot;strategy&quot;: &quot;scan&quot;,
+  &quot;exact&quot;: false,
+  &quot;created_at&quot;: &quot;2026-10-01T14:12:27.174Z&quot;,
+  &quot;description&quot;: &quot;&quot;,
+  &quot;circuits&quot;: 1,
+  &quot;facts&quot;: 1
+ },
+ &quot;method&quot;: &quot;replay&quot;,
+ &quot;rebuilt&quot;: {
+  &quot;facts_ingested&quot;: 1,
+  &quot;facts_skipped&quot;: 0
+ }
+}</code></pre>
+<h3>Add knowledge</h3>
+<pre class="api-example product-example" data-endpoint="POST /v1/memories/family-scan/knowledge" data-request="{&quot;circuits&quot;:[{&quot;name&quot;:&quot;more&quot;,&quot;text&quot;:&quot;@f3 fact\n  holds parent cy di\n  source \&quot;family register\&quot;\n&quot;}],&quot;reason&quot;:&quot;one more row&quot;}" data-as="user" data-status="200" data-response-keys="object,memory,added,warnings"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories/family-scan/knowledge -b cookies.txt -H &quot;Content-Type: application/json&quot; -d '{&quot;circuits&quot;:[{&quot;name&quot;:&quot;more&quot;,&quot;text&quot;:&quot;@f3 fact\n  holds parent cy di\n  source \&quot;family register\&quot;\n&quot;}],&quot;reason&quot;:&quot;one more row&quot;}'</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;memory.knowledge&quot;,
+ &quot;memory&quot;: {
+  &quot;id&quot;: &quot;family-scan&quot;,
+  &quot;name&quot;: &quot;Family (scan)&quot;,
+  &quot;parent&quot;: {
+   &quot;id&quot;: &quot;family&quot;,
+   &quot;name&quot;: &quot;Family&quot;,
+   &quot;strategy&quot;: &quot;sqlite&quot;,
+   &quot;circuits&quot;: 1,
+   &quot;forked_at&quot;: &quot;2026-10-01T14:12:27.174Z&quot;
+  },
+  &quot;strategy&quot;: &quot;scan&quot;,
+  &quot;exact&quot;: false,
+  &quot;created_at&quot;: &quot;2026-10-01T14:12:27.174Z&quot;,
+  &quot;description&quot;: &quot;&quot;,
+  &quot;circuits&quot;: 2,
+  &quot;facts&quot;: 2
+ },
+ &quot;added&quot;: [
+  {
+   &quot;kind&quot;: &quot;add&quot;,
+   &quot;seq&quot;: 2,
+   &quot;file&quot;: &quot;0002-more.sop&quot;,
+   &quot;sha256&quot;: &quot;370a68f26a2483481d28cfba73caf2bf41378fa42122db2dbb8dd7969b5b7f03&quot;,
+   &quot;approved_by&quot;: &quot;admin&quot;,
+   &quot;approved_at&quot;: &quot;2026-10-01T14:12:27.180Z&quot;,
+   &quot;reason&quot;: &quot;one more row&quot;,
+   &quot;source&quot;: null,
+   &quot;wires&quot;: 1,
+   &quot;ingest&quot;: {
+    &quot;facts_in_circuit&quot;: 1,
+    &quot;facts_ingested&quot;: 1,
+    &quot;facts_defaulted_valid&quot;: 1,
+    &quot;facts_skipped&quot;: [
+     &quot;...&quot;
+    ]
+   }
+  }
+ ],
+ &quot;warnings&quot;: []
+}</code></pre>
+</section>
+
+<section id="sessions"><h2>11. Sessions</h2>
+<p>A session works on its own copy of a base memory under <code>chat_data/sessions/&lt;id&gt;/</code>: the repository is cloned by hard links, the base circuits are copied. What the conversation adds stays in the session; it is visible to the user who started it and to an administrator. The chat request <code>POST /v1/chat/completions</code> carries <code>session_id</code>; without it one automatic session per user and conversation is used, on the empty <code>default</code> base memory. Sessions abandoned for <code>chatData.sessionTtlDays</code> (14) are removed.</p>
+<h3>Start</h3>
+<pre class="api-example product-example" data-endpoint="POST /v1/sessions" data-request="{&quot;base&quot;:&quot;family&quot;,&quot;id&quot;:&quot;demo-session&quot;,&quot;name&quot;:&quot;Demo chat&quot;}" data-as="user" data-status="201" data-response-keys="object,id,user,name,created_at,last_active_at,base,settings"><code>curl -s -X POST http://127.0.0.1:9999/v1/sessions -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; -d '{&quot;base&quot;:&quot;family&quot;,&quot;id&quot;:&quot;demo-session&quot;,&quot;name&quot;:&quot;Demo chat&quot;}'</code></pre>
+<p>Abridged response (HTTP 201):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;session&quot;,
+ &quot;id&quot;: &quot;demo-session&quot;,
+ &quot;name&quot;: &quot;Demo chat&quot;,
+ &quot;base&quot;: {
+  &quot;id&quot;: &quot;family&quot;,
+  &quot;name&quot;: &quot;Family&quot;,
+  &quot;strategy&quot;: &quot;sqlite&quot;,
+  &quot;exact&quot;: false,
+  &quot;circuits&quot;: 1
+ },
+ &quot;settings&quot;: {
+  &quot;authoring&quot;: &quot;off&quot;,
+  &quot;omp_model&quot;: null,
+  &quot;scope_note&quot;: &quot;ask&quot;
+ },
+ &quot;created_at&quot;: &quot;2026-10-01T14:12:27.186Z&quot;
+}</code></pre>
+<h3>Settings</h3>
+<p><code>authoring</code>: <code>off</code> (the default: the coding agent runs only when the user attaches files or answers yes to a scope note) or <code>always</code> (every message goes to the coding agent when omp is configured). <code>scope_note</code>: what a detection does, never start the agent: <code>ask</code> (the default: a note asks whether to send the message), <code>mark</code> (only mark it) or <code>none</code>. <code>omp_model</code>: a model id from <code>GET /v1/omp/models</code>.</p>
+<pre class="api-example product-example" data-endpoint="POST /v1/sessions/demo-session/settings" data-request="{&quot;authoring&quot;:&quot;off&quot;,&quot;scope_note&quot;:&quot;ask&quot;,&quot;omp_model&quot;:&quot;deepseek/deepseek-flash&quot;}" data-as="user" data-status="200" data-response-keys="object,id,user,name,created_at,last_active_at,base,settings"><code>curl -s -X POST http://127.0.0.1:9999/v1/sessions/demo-session/settings -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; -d '{&quot;authoring&quot;:&quot;off&quot;,&quot;scope_note&quot;:&quot;ask&quot;,&quot;omp_model&quot;:&quot;deepseek/deepseek-flash&quot;}'</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;session&quot;,
+ &quot;id&quot;: &quot;demo-session&quot;,
+ &quot;settings&quot;: {
+  &quot;authoring&quot;: &quot;off&quot;,
+  &quot;omp_model&quot;: &quot;deepseek/deepseek-flash&quot;,
+  &quot;scope_note&quot;: &quot;ask&quot;
+ }
+}</code></pre>
+</section>
+
+<section id="authoring"><h2>12. The coding agent: models and authoring</h2>
+<p>Complex inputs, attached instruction or source files and the sentences the scope detector marks go to a coding agent (omp, with the skill <code>sop-wire-authoring</code>) that writes SOP circuits in a temporary folder. The circuits come back as <b>proposed drafts</b>; nothing is knowledge until the user accepts a draft. Setting <code>omp.enabled</code>, <code>omp.bin</code>, <code>omp.timeoutSeconds</code>, <code>omp.maxFixRounds</code> and the others are in <code>config/runtime.json</code> (<a href="specsLoader.html?spec=DS031-sessions-and-base-memories.md">DS031</a>, skill <code>omp-run</code>).</p>
+<h3>GET /v1/omp/models</h3>
+<p>The models omp can use, each with a cost class: <code>subscription</code> (no per-token cost to the owner), <code>paid_api</code> or <code>unknown</code>. The list is cached; <code>?refresh=1</code> reads it again. An absent omp answers <code>available: false</code> with the reason.</p>
+<pre class="api-example product-example" data-endpoint="GET /v1/omp/models" data-request="{}" data-as="user" data-status="200" data-response-keys="object,available,omp_version,default_model,models,providers,fetched_at,cached"><code>curl -s -X GET http://127.0.0.1:9999/v1/omp/models -b cookies.txt</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;omp.models&quot;,
+ &quot;available&quot;: true,
+ &quot;omp_version&quot;: &quot;omp v0.0.0-stub&quot;,
+ &quot;default_model&quot;: &quot;deepseek/deepseek-flash:high&quot;,
+ &quot;models&quot;: [
+  {
+   &quot;id&quot;: &quot;deepseek/deepseek-flash&quot;,
+   &quot;provider&quot;: &quot;deepseek&quot;,
+   &quot;name&quot;: &quot;deepseek-flash&quot;,
+   &quot;context_window&quot;: 1000000,
+   &quot;reasoning&quot;: false,
+   &quot;thinking&quot;: [],
+   &quot;cost_class&quot;: &quot;paid_api&quot;,
+   &quot;price_per_mtok&quot;: {
+    &quot;input&quot;: 0.3,
+    &quot;output&quot;: 1.2
+   }
+  },
+  {
+   &quot;id&quot;: &quot;xai-oauth/grok-4.20-0309-non-reasoning&quot;,
+   &quot;provider&quot;: &quot;xai-oauth&quot;,
+   &quot;name&quot;: &quot;grok-4.20-0309-non-reasoning&quot;,
+   &quot;context_window&quot;: 1000000,
+   &quot;reasoning&quot;: false,
+   &quot;thinking&quot;: [],
+   &quot;cost_class&quot;: &quot;subscription&quot;,
+   &quot;price_per_mtok&quot;: {
+    &quot;input&quot;: 1.25,
+    &quot;output&quot;: 2.5
+   }
+  },
+  &quot;...&quot;
+ ],
+ &quot;providers&quot;: [
+  {
+   &quot;id&quot;: &quot;deepseek&quot;,
+   &quot;cost_class&quot;: &quot;paid_api&quot;,
+   &quot;models&quot;: 1
+  },
+  {
+   &quot;id&quot;: &quot;xai-oauth&quot;,
+   &quot;cost_class&quot;: &quot;subscription&quot;,
+   &quot;models&quot;: 1
+  },
+  &quot;...&quot;
+ ],
+ &quot;cached&quot;: false
+}</code></pre>
+<h3>POST /v1/author</h3>
+<p><code>files</code> are UTF-8 text files (at most 10, 2 MB each); <code>session</code> makes the circuits a draft of that session (without it only the circuits are returned and the temporary folder is under <code>chat_data/tmp/</code>); <code>wait: false</code> answers 202 at once and <code>GET /v1/sessions/&lt;id&gt;/requests/&lt;request&gt;</code> reports the progress and the result. The folder holds <code>TASK.md</code>, the skill, the input and omp's output; the host validates the circuits and sends the validator's output back to omp for at most <code>omp.maxFixRounds</code> rounds. Errors: 503 <code>omp_unavailable</code>, 429 <code>omp_busy</code>, 400 <code>unknown_model</code>.</p>
+<pre class="api-example product-example" data-endpoint="POST /v1/author" data-request="{&quot;session&quot;:&quot;demo-session&quot;,&quot;instructions&quot;:&quot;Compile the register.&quot;,&quot;files&quot;:[{&quot;name&quot;:&quot;register.txt&quot;,&quot;text&quot;:&quot;Ann is the parent of Bob. Bob is the parent of Cy. A grandparent is a parent of a parent.&quot;}],&quot;model&quot;:&quot;deepseek/deepseek-flash&quot;}" data-as="user" data-status="200" data-response-keys="object,request_id,session,status,ok,rounds,model,cost_class"><code>curl -s -X POST http://127.0.0.1:9999/v1/author -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; -d '{&quot;session&quot;:&quot;demo-session&quot;,&quot;instructions&quot;:&quot;Compile the register.&quot;,&quot;files&quot;:[{&quot;name&quot;:&quot;register.txt&quot;,&quot;text&quot;:&quot;Ann is the parent of Bob. Bob is the parent of Cy. A grandparent is a parent of a parent.&quot;}],&quot;model&quot;:&quot;deepseek/deepseek-flash&quot;}'</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;author.result&quot;,
+ &quot;request_id&quot;: &quot;r-mupm5li1-c33fe0&quot;,
+ &quot;session&quot;: &quot;demo-session&quot;,
+ &quot;status&quot;: &quot;validated&quot;,
+ &quot;ok&quot;: true,
+ &quot;rounds&quot;: 1,
+ &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
+ &quot;cost_class&quot;: &quot;paid_api&quot;,
+ &quot;draft&quot;: {
+  &quot;id&quot;: &quot;d-mupm5ljk-18eca1&quot;,
+  &quot;name&quot;: &quot;authored-r-mupm5li1-c33fe0&quot;,
+  &quot;text&quot;: &quot;@grandparent predicate\n  args subject:entity object:entity\n\n@f_bc fact\n  holds parent b...&quot;,
+  &quot;state&quot;: &quot;draft&quot;,
+  &quot;status&quot;: &quot;proposed&quot;,
+  &quot;created_at&quot;: &quot;2026-10-01T14:12:27.344Z&quot;,
+  &quot;request&quot;: &quot;r-mupm5li1-c33fe0&quot;,
+  &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
+  &quot;validation&quot;: {
+   &quot;ok&quot;: true,
+   &quot;problems&quot;: [],
+   &quot;warnings&quot;: []
+  },
+  &quot;queries&quot;: &quot;@q query\n  where parent ?x bob\n  select ?x\n&quot;,
+  &quot;report&quot;: &quot;Stub report: nothing was left out.\n&quot;,
+  &quot;source_instructions&quot;: &quot;Compile the register.&quot;,
+  &quot;cost_usd&quot;: 0.0025
+ },
+ &quot;validation&quot;: {
+  &quot;ok&quot;: true,
+  &quot;problems&quot;: [],
+  &quot;warnings&quot;: []
+ },
+ &quot;usage&quot;: {
+  &quot;turns&quot;: 1,
+  &quot;input_tokens&quot;: 1000,
+  &quot;output_tokens&quot;: 200,
+  &quot;cache_read_tokens&quot;: 50,
+  &quot;cost_usd&quot;: 0.0025
+ },
+ &quot;duration_ms&quot;: 55,
+ &quot;folder&quot;: &quot;sessions/demo-session/requests/r-mupm5li1-c33fe0&quot;,
+ &quot;note&quot;: &quot;The circuits are drafts: nothing is knowledge until the user accepts the draft.&quot;
+}</code></pre>
+<h3>Status of a request</h3>
+<pre class="api-example product-example" data-endpoint="GET /v1/sessions/demo-session/requests/{request}" data-request="{}" data-as="user" data-status="200" data-response-keys="object,request_id,session,status,phase,round,model,cost_class"><code>curl -s -X GET http://127.0.0.1:9999/v1/sessions/demo-session/requests/&lt;request-id&gt; -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;author.status&quot;,
+ &quot;request_id&quot;: &quot;r-mupm5li1-c33fe0&quot;,
+ &quot;status&quot;: &quot;validated&quot;,
+ &quot;phase&quot;: &quot;done&quot;,
+ &quot;round&quot;: 0,
+ &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
+ &quot;cost_class&quot;: &quot;paid_api&quot;,
+ &quot;started_at&quot;: &quot;2026-10-01T14:12:27.289Z&quot;
+}</code></pre>
+<h3>Drafts and acceptance</h3>
+<pre class="api-example product-example" data-endpoint="GET /v1/sessions/demo-session/drafts" data-request="{}" data-as="user" data-status="200" data-response-keys="object,data"><code>curl -s -X GET http://127.0.0.1:9999/v1/sessions/demo-session/drafts -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;list&quot;,
+ &quot;data&quot;: [
+  {
+   &quot;id&quot;: &quot;d-mupm5ljk-18eca1&quot;,
+   &quot;name&quot;: &quot;authored-r-mupm5li1-c33fe0&quot;,
+   &quot;text&quot;: &quot;@grandparent predicate\n  args subject:entity object:entity\n\n@f_bc fact\n  holds parent b...&quot;,
+   &quot;state&quot;: &quot;draft&quot;,
+   &quot;status&quot;: &quot;proposed&quot;,
+   &quot;created_at&quot;: &quot;2026-10-01T14:12:27.344Z&quot;,
+   &quot;request&quot;: &quot;r-mupm5li1-c33fe0&quot;,
+   &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
+   &quot;validation&quot;: {
+    &quot;ok&quot;: true,
+    &quot;problems&quot;: [
+     &quot;...&quot;
+    ],
+    &quot;warnings&quot;: [
+     &quot;...&quot;
+    ]
+   },
+   &quot;queries&quot;: &quot;@q query\n  where parent ?x bob\n  select ?x\n&quot;,
+   &quot;report&quot;: &quot;Stub report: nothing was left out.\n&quot;,
+   &quot;source_instructions&quot;: &quot;Compile the register.&quot;,
+   &quot;cost_usd&quot;: 0.0025
+  }
+ ]
+}</code></pre>
+<p>Accepting validates the draft again together with the base and session circuits, stores it as the next session circuit and ingests its facts into the session repository only. <code>POST .../drafts/&lt;draft&gt;/reject</code> discards it.</p>
+<pre class="api-example product-example" data-endpoint="POST /v1/sessions/demo-session/drafts/{draft}/accept" data-request="{}" data-as="user" data-status="200" data-response-keys="object,draft,record,warnings"><code>curl -s -X POST http://127.0.0.1:9999/v1/sessions/demo-session/drafts/&lt;draft-id&gt;/accept -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;session.draft&quot;,
+ &quot;draft&quot;: {
+  &quot;id&quot;: &quot;d-mupm5ljk-18eca1&quot;,
+  &quot;name&quot;: &quot;authored-r-mupm5li1-c33fe0&quot;,
+  &quot;text&quot;: &quot;@grandparent predicate\n  args subject:entity object:entity\n\n@f_bc fact\n  holds parent b...&quot;,
+  &quot;state&quot;: &quot;accepted&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;created_at&quot;: &quot;2026-10-01T14:12:27.344Z&quot;,
+  &quot;request&quot;: &quot;r-mupm5li1-c33fe0&quot;,
+  &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
+  &quot;validation&quot;: {
+   &quot;ok&quot;: true,
+   &quot;problems&quot;: [],
+   &quot;warnings&quot;: []
+  },
+  &quot;queries&quot;: &quot;@q query\n  where parent ?x bob\n  select ?x\n&quot;,
+  &quot;report&quot;: &quot;Stub report: nothing was left out.\n&quot;,
+  &quot;source_instructions&quot;: &quot;Compile the register.&quot;,
+  &quot;cost_usd&quot;: 0.0025,
+  &quot;closed_at&quot;: &quot;2026-10-01T14:12:27.353Z&quot;,
+  &quot;circuit&quot;: &quot;0001-authored-r-mupm5li1-c33fe0.sop&quot;
+ },
+ &quot;record&quot;: {
+  &quot;kind&quot;: &quot;accept&quot;,
+  &quot;seq&quot;: 1,
+  &quot;file&quot;: &quot;0001-authored-r-mupm5li1-c33fe0.sop&quot;,
+  &quot;draft&quot;: &quot;d-mupm5ljk-18eca1&quot;,
+  &quot;sha256&quot;: &quot;80b36325c189a8f52a002ec05a430f0d6c11f71ed7864fa47ff36b84dd0ddf95&quot;,
+  &quot;approved_by&quot;: &quot;admin&quot;,
+  &quot;approved_at&quot;: &quot;2026-10-01T14:12:27.353Z&quot;,
+  &quot;request&quot;: &quot;r-mupm5li1-c33fe0&quot;,
+  &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
+  &quot;ingest&quot;: {
+   &quot;facts_in_circuit&quot;: 1,
+   &quot;facts_ingested&quot;: 1,
+   &quot;facts_defaulted_valid&quot;: 1,
+   &quot;facts_skipped&quot;: []
+  }
+ }
+}</code></pre>
+</section>
+
+<section id="routing"><h2>13. Routing: which path a message takes</h2>
+<p><code>POST /v1/route {session?, message, files?, understanding?, analysis?}</code> says whether a message goes to SymbolicLM or to the coding agent, and why. Only the user's own act sends a message to the coding agent: attached files (<code>files</code> is their number) and the setting <code>authoring: always</code>. A detection only returns a <code>suggestion</code> (the scope detector says a sentence needs knowledge authoring, with the wire types, their confidence and the cue quoted; or SymbolicLM failed: a failed sentence, half the sentences uncertain, a clarify result, an unavailable analysis) and, with <code>scope_note: ask</code>, <code>ask: true</code>: the page then asks the user. A wire type the user declined is not suggested again in that session. When the coding agent is wanted but omp is unavailable the answer is the SymbolicLM path with a <code>fallback</code> that says why.</p>
+<pre class="api-example product-example" data-endpoint="POST /v1/route" data-request="{&quot;session&quot;:&quot;demo-session&quot;,&quot;message&quot;:&quot;See the attached register.&quot;,&quot;files&quot;:1}" data-as="user" data-status="200" data-response-keys="object,session,path,reason,fallback,suggestion,ask,signals"><code>curl -s -X POST http://127.0.0.1:9999/v1/route -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; -d '{&quot;session&quot;:&quot;demo-session&quot;,&quot;message&quot;:&quot;See the attached register.&quot;,&quot;files&quot;:1}'</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;route&quot;,
+ &quot;session&quot;: &quot;demo-session&quot;,
+ &quot;path&quot;: &quot;authoring&quot;,
+ &quot;reason&quot;: {
+  &quot;trigger&quot;: &quot;attached_files&quot;,
+  &quot;text&quot;: &quot;1 file(s) attached: only the coding agent can read them&quot;
+ },
+ &quot;fallback&quot;: null,
+ &quot;suggestion&quot;: null,
+ &quot;ask&quot;: false,
+ &quot;omp&quot;: {
+  &quot;available&quot;: true,
+  &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
+  &quot;cost_class&quot;: &quot;paid_api&quot;
+ }
+}</code></pre>
+<h3>The user's answer</h3>
+<p>Every verdict and answer is logged in the session (<code>scope-log.jsonl</code>); a <code>no</code> mutes those wire types for the session.</p>
+<pre class="api-example product-example" data-endpoint="POST /v1/sessions/demo-session/scope-answer" data-request="{&quot;message&quot;:&quot;Every visitor must wear a badge.&quot;,&quot;wires&quot;:[&quot;norm&quot;],&quot;answer&quot;:&quot;no&quot;}" data-as="user" data-status="200" data-response-keys="object,session,declined"><code>curl -s -X POST http://127.0.0.1:9999/v1/sessions/demo-session/scope-answer -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; -d '{&quot;message&quot;:&quot;Every visitor must wear a badge.&quot;,&quot;wires&quot;:[&quot;norm&quot;],&quot;answer&quot;:&quot;no&quot;}'</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;scope.answer&quot;,
+ &quot;session&quot;: &quot;demo-session&quot;,
+ &quot;declined&quot;: [
+  &quot;norm&quot;
+ ]
+}</code></pre>
+</section>
+
+<section id="session-use"><h2>14. Using the session: theory, query, commit</h2>
+<h3>The theory and a query over it</h3>
+<p>The theory is the base circuits followed by the circuits accepted in the session; a query circuit runs over it with the exact oracle.</p>
+<pre class="api-example product-example" data-endpoint="GET /v1/sessions/demo-session/theory" data-request="{}" data-as="user" data-status="200" data-response-keys="object,theory,base,session_circuits"><code>curl -s -X GET http://127.0.0.1:9999/v1/sessions/demo-session/theory -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;session.theory&quot;,
+ &quot;theory&quot;: &quot;@parent predicate\n  args subject:entity object:entity\n\n@f1 fact\n  holds parent ann bob\n...&quot;,
+ &quot;base&quot;: {
+  &quot;id&quot;: &quot;family&quot;,
+  &quot;name&quot;: &quot;Family&quot;,
+  &quot;strategy&quot;: &quot;sqlite&quot;,
+  &quot;exact&quot;: false,
+  &quot;circuits&quot;: 1
+ },
+ &quot;session_circuits&quot;: [
+  &quot;0001-authored-r-mupm5li1-c33fe0.sop&quot;
+ ]
+}</code></pre>
+<pre class="api-example product-example" data-endpoint="POST /v1/sessions/demo-session/query" data-request="{&quot;query&quot;:&quot;@q query\n  where grandparent ann ?who\n  select ?who\n&quot;}" data-as="user" data-status="200" data-response-keys="object,session,answer"><code>curl -s -X POST http://127.0.0.1:9999/v1/sessions/demo-session/query -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; -d '{&quot;query&quot;:&quot;@q query\n  where grandparent ann ?who\n  select ?who\n&quot;}'</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;session.query&quot;,
+ &quot;session&quot;: &quot;demo-session&quot;,
+ &quot;answer&quot;: {
+  &quot;strategy&quot;: &quot;js-reference&quot;,
+  &quot;guarantee&quot;: &quot;exact&quot;,
+  &quot;status&quot;: &quot;supported&quot;,
+  &quot;complete&quot;: true,
+  &quot;budget&quot;: {
+   &quot;limit&quot;: {
+    &quot;maxRounds&quot;: 1000,
+    &quot;maxJoins&quot;: 2000000,
+    &quot;maxFacts&quot;: 200000,
+    &quot;maxNodes&quot;: 200000,
+    &quot;maxDepth&quot;: 20,
+    &quot;maxHypotheses&quot;: 12,
+    &quot;maxCandidates&quot;: 4096,
+    &quot;maxAssignments&quot;: 2000000,
+    &quot;maxFanout&quot;: 100000,
+    &quot;maxPlans&quot;: 1,
+    &quot;timeoutMs&quot;: 30000
+   },
+   &quot;used&quot;: {
+    &quot;maxRounds&quot;: 1,
+    &quot;maxJoins&quot;: 12,
+    &quot;maxFacts&quot;: 1,
+    &quot;maxNodes&quot;: 0,
+    &quot;maxFanout&quot;: 0,
+    &quot;maxAssignments&quot;: 0,
+    &quot;maxHypotheses&quot;: 0,
+    &quot;maxCandidates&quot;: 0,
+    &quot;ms&quot;: 3
+   },
+   &quot;exhausted&quot;: false,
+   &quot;reason&quot;: null,
+   &quot;partial&quot;: false
+  },
+  &quot;sensitivity&quot;: {
+   &quot;monotone&quot;: true,
+   &quot;over&quot;: [],
+   &quot;defaults&quot;: [],
+   &quot;aggregates&quot;: []
+  },
+  &quot;ignored&quot;: [],
+  &quot;notes&quot;: [],
+  &quot;retrieval&quot;: {
+   &quot;complete&quot;: true,
+   &quot;truncated&quot;: false,
+   &quot;keyed&quot;: false,
+   &quot;steps&quot;: 0,
+   &quot;wires&quot;: 2,
+   &quot;probes&quot;: 0
+  },
+  &quot;rows&quot;: [
+   {
+    &quot;who&quot;: &quot;cy&quot;
+   }
+  ],
+  &quot;used&quot;: [
+   {
+    &quot;id&quot;: &quot;r_grand&quot;,
+    &quot;version&quot;: 1
+   },
+   {
+    &quot;id&quot;: &quot;f1&quot;,
+    &quot;version&quot;: 1
+   },
+   &quot;...&quot;
+  ],
+  &quot;timings&quot;: {
+   &quot;ask&quot;: 1,
+   &quot;total&quot;: 4
+  },
+  &quot;route&quot;: {
+   &quot;requested&quot;: null,
+   &quot;chosen&quot;: &quot;js-reference&quot;,
+   &quot;reason&quot;: &quot;direct call to the oracle&quot;,
+   &quot;fallback&quot;: null
+  }
+ }
+}</code></pre>
+<h3>Commit to a fork</h3>
+<p>Creates a new base memory: a fork of the session's base memory plus the circuits accepted in the session, validated again, with provenance. The original base memory does not change. Asserted statements are turn-local evidence and are not committed.</p>
+<pre class="api-example product-example" data-endpoint="POST /v1/sessions/demo-session/commit" data-request="{&quot;name&quot;:&quot;Family plus register&quot;,&quot;id&quot;:&quot;family-register&quot;}" data-as="user" data-status="201" data-response-keys="object,memory,added,fork_method"><code>curl -s -X POST http://127.0.0.1:9999/v1/sessions/demo-session/commit -b cookies.txt -H &quot;Content-Type: application/json&quot; -d '{&quot;name&quot;:&quot;Family plus register&quot;,&quot;id&quot;:&quot;family-register&quot;}'</code></pre>
+<p>Abridged response (HTTP 201):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;session.commit&quot;,
+ &quot;memory&quot;: {
+  &quot;id&quot;: &quot;family-register&quot;,
+  &quot;name&quot;: &quot;Family plus register&quot;,
+  &quot;parent&quot;: {
+   &quot;id&quot;: &quot;family&quot;,
+   &quot;name&quot;: &quot;Family&quot;,
+   &quot;strategy&quot;: &quot;sqlite&quot;,
+   &quot;circuits&quot;: 1,
+   &quot;forked_at&quot;: &quot;2026-10-01T14:12:27.373Z&quot;
+  },
+  &quot;strategy&quot;: &quot;sqlite&quot;,
+  &quot;exact&quot;: false,
+  &quot;created_at&quot;: &quot;2026-10-01T14:12:27.373Z&quot;,
+  &quot;description&quot;: &quot;Committed from session demo-session&quot;,
+  &quot;circuits&quot;: 2,
+  &quot;facts&quot;: 2,
+  &quot;circuit_files&quot;: [
+   &quot;0001-family.sop&quot;,
+   &quot;0002-authored-r-mupm5li1-c33fe0-sop.sop&quot;
+  ],
+  &quot;provenance&quot;: [
+   {
+    &quot;kind&quot;: &quot;import&quot;,
+    &quot;seq&quot;: 1,
+    &quot;file&quot;: &quot;0001-family.sop&quot;,
+    &quot;sha256&quot;: &quot;90ae8ccd6a61c506c6f47349ed01e99d54dcd8139377fd50db1d871c827dde7a&quot;,
+    &quot;approved_by&quot;: &quot;admin&quot;,
+    &quot;approved_at&quot;: &quot;2026-10-01T14:12:27.155Z&quot;,
+    &quot;reason&quot;: &quot;import of the family register&quot;,
+    &quot;source&quot;: &quot;family register&quot;,
+    &quot;wires&quot;: 2,
+    &quot;ingest&quot;: &quot;...&quot;
+   },
+   {
+    &quot;kind&quot;: &quot;fork&quot;,
+    &quot;from&quot;: &quot;family&quot;,
+    &quot;strategy_from&quot;: &quot;sqlite&quot;,
+    &quot;strategy_to&quot;: &quot;sqlite&quot;,
+    &quot;method&quot;: &quot;hard-link clone (copy-on-write)&quot;,
+    &quot;at&quot;: &quot;2026-10-01T14:12:27.373Z&quot;
+   },
+   &quot;...&quot;
+  ]
+ },
+ &quot;added&quot;: [
+  {
+   &quot;kind&quot;: &quot;commit&quot;,
+   &quot;seq&quot;: 2,
+   &quot;file&quot;: &quot;0002-authored-r-mupm5li1-c33fe0-sop.sop&quot;,
+   &quot;sha256&quot;: &quot;80b36325c189a8f52a002ec05a430f0d6c11f71ed7864fa47ff36b84dd0ddf95&quot;,
+   &quot;approved_by&quot;: &quot;admin&quot;,
+   &quot;approved_at&quot;: &quot;2026-10-01T14:12:27.373Z&quot;,
+   &quot;reason&quot;: &quot;commit of session demo-session&quot;,
+   &quot;source&quot;: &quot;session:demo-session&quot;,
+   &quot;wires&quot;: 3,
+   &quot;ingest&quot;: {
+    &quot;facts_in_circuit&quot;: 1,
+    &quot;facts_ingested&quot;: 1,
+    &quot;facts_defaulted_valid&quot;: 1,
+    &quot;facts_skipped&quot;: [
+     &quot;...&quot;
+    ]
+   }
+  }
+ ],
+ &quot;fork_method&quot;: &quot;clone&quot;
+}</code></pre>
+<pre class="api-example product-example" data-endpoint="GET /v1/sessions/demo-session" data-request="{}" data-as="user" data-status="200" data-response-keys="object,id,user,name,created_at,last_active_at,base,settings"><code>curl -s -X GET http://127.0.0.1:9999/v1/sessions/demo-session -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;session&quot;,
+ &quot;id&quot;: &quot;demo-session&quot;,
+ &quot;base&quot;: {
+  &quot;id&quot;: &quot;family&quot;,
+  &quot;name&quot;: &quot;Family&quot;,
+  &quot;strategy&quot;: &quot;sqlite&quot;,
+  &quot;exact&quot;: false,
+  &quot;circuits&quot;: 1
+ },
+ &quot;circuits&quot;: [
+  &quot;0001-authored-r-mupm5li1-c33fe0.sop&quot;
+ ],
+ &quot;drafts&quot;: [
+  {
+   &quot;id&quot;: &quot;d-mupm5ljk-18eca1&quot;,
+   &quot;name&quot;: &quot;authored-r-mupm5li1-c33fe0&quot;,
+   &quot;state&quot;: &quot;accepted&quot;,
+   &quot;status&quot;: &quot;accepted&quot;,
+   &quot;created_at&quot;: &quot;2026-10-01T14:12:27.344Z&quot;,
+   &quot;request&quot;: &quot;r-mupm5li1-c33fe0&quot;,
+   &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
+   &quot;validation&quot;: {
+    &quot;ok&quot;: true,
+    &quot;problems&quot;: [
+     &quot;...&quot;
+    ],
+    &quot;warnings&quot;: [
+     &quot;...&quot;
+    ]
+   },
+   &quot;queries&quot;: &quot;@q query\n  where parent ?x bob\n  select ?x\n&quot;,
+   &quot;report&quot;: &quot;Stub report: nothing was left out.\n&quot;,
+   &quot;source_instructions&quot;: &quot;Compile the register.&quot;,
+   &quot;cost_usd&quot;: 0.0025,
+   &quot;closed_at&quot;: &quot;2026-10-01T14:12:27.353Z&quot;,
+   &quot;circuit&quot;: &quot;0001-authored-r-mupm5li1-c33fe0.sop&quot;
+  }
+ ],
+ &quot;committed_to&quot;: [
+  {
+   &quot;id&quot;: &quot;family-register&quot;,
+   &quot;at&quot;: &quot;2026-10-01T14:12:27.373Z&quot;,
+   &quot;by&quot;: &quot;admin&quot;
+  }
+ ],
+ &quot;scope_declined&quot;: [
+  &quot;norm&quot;
+ ]
+}</code></pre>
+
+</section>
+<section id="server-models"><h2>15. Server models: what the server keeps open</h2>
+<p>The model processes of the chat pipeline (SymbolicLM, LanguageProofingLLM, the translator LLM, SymbolicProofingLLM) take seconds to start, so the server starts them once and keeps them. <code>GET /v1/server/models</code> reads the lifecycle settings and the live state of every managed model; <code>POST /v1/server/models</code> changes them at once and persists them in <code>config/server-models.json</code>. The same controls are in the chat page under Settings, Server models. <code>GET /health</code> (no authentication) and <code>GET /v1/capabilities</code> carry the warm state of the start-up warmup.</p>
+<ul>
+<li><code>keep_open</code>: started in the background when the server starts, probed with one small real request (so the first message is not slow), never evicted or idled out, started again if it dies.</li>
+<li><code>on_demand</code>: started by the first request that needs it, stopped after <code>idleMinutes</code> without use, evicted least-recently-used when room is needed.</li>
+<li><code>off</code>: never started; a request that needs it gets <code>model_off</code> and the caller degrades (the translator falls back to LanguageProofingLLM and says so).</li>
+</ul>
+<pre class="api-example" data-endpoint="GET /v1/server/models" data-request="" data-response-keys="object,settings,modes,models,running,memory,warm"><code>curl -s -X GET http://127.0.0.1:9999/v1/server/models -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
+<p>Abridged response (<code>memory_mb</code> is the resident memory of a running model, measured; <code>start_ms</code> the measured start time, <code>start_estimate_ms</code> what a start would cost):</p>
+<pre class="api-response"><code>{&quot;object&quot;: &quot;server.models&quot;,
+ &quot;settings&quot;: {&quot;maxRunning&quot;: 6, &quot;idleMinutes&quot;: 60, &quot;memoryBudgetMb&quot;: null, &quot;memoryBudgetEffectiveMb&quot;: 61250, &quot;turnWindowSeconds&quot;: 30, &quot;warmup&quot;: true},
+ &quot;modes&quot;: [&quot;keep_open&quot;, &quot;on_demand&quot;, &quot;off&quot;],
+ &quot;models&quot;: [{&quot;id&quot;: &quot;translator-llm&quot;, &quot;mode&quot;: &quot;keep_open&quot;, &quot;state&quot;: &quot;ready&quot;, &quot;warm&quot;: true, &quot;memory_mb&quot;: 3784, &quot;start_ms&quot;: 13163, &quot;start_estimate_ms&quot;: 13163, &quot;idle_s&quot;: 29, &quot;...&quot;: &quot;...&quot;}, &quot;...&quot;],
+ &quot;running&quot;: 4, &quot;memory&quot;: {&quot;estimated_mb&quot;: 11078, &quot;budget_mb&quot;: 61250, &quot;total_mb&quot;: 122501},
+ &quot;warm&quot;: {&quot;state&quot;: &quot;warm&quot;, &quot;ready&quot;: true, &quot;...&quot;: &quot;...&quot;}}</code></pre>
+<p>Change it with a partial object (not run by the page tests, because it writes the configuration): <code>models</code> (model id to mode), <code>maxRunning</code> (1 to 32, at least the number kept open), <code>idleMinutes</code>, <code>memoryBudgetMb</code> (<code>null</code>: half of the RAM), <code>turnWindowSeconds</code>, <code>warmup</code>. An unknown model, an invalid mode or a <code>maxRunning</code> below the number kept open is a 400 and changes nothing.</p>
+<pre class="api-request"><code>curl -s -X POST http://127.0.0.1:9999/v1/server/models -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;models&quot;: {&quot;smollm2-360m-base&quot;: &quot;keep_open&quot;, &quot;gemma-3-270m-base&quot;: &quot;off&quot;}, &quot;maxRunning&quot;: 7}&#39;</code></pre>
+<p>Limits that protect a turn: a model held by a running turn, a busy model and a kept-open model are never evicted; the memory budget compares the measured or estimated memory of the running models plus the one to start; with no model to evict the start fails with a retryable 503 <code>formalizer_capacity</code>.</p></section>
 </article></main></body></html>

@@ -126,11 +126,11 @@ test('/experiments/timeline renders from a fixture journal and experiment regist
   assert.equal(status.experiments[0].id, 'exp-a');
   const approval = status.gates.find(gate => gate.id === 'owner-approval');
   assert.equal(approval.open, false);
-  assert.equal(approval.prohibited, true);
-  assert.match(approval.evidence, /prohibits training/);
+  assert.equal(approval.perRun, true);
+  assert.match(approval.evidence, /explicit approval/);
   assert.ok(status.pipeline.length > 0);
   for (const entry of status.pipeline) assert.ok(['current', 'legacy', 'mixed', 'unknown'].includes(entry.form), entry.corpus);
-  assert.match(projectPage(), /Training: PROHIBITED/);
+  assert.match(projectPage(), /explicit approval per run/);
 
   const {call, session} = await withEnv('CHATSOP_STATUS_DIR', dir, () => serve(t));
   const page = await call('/experiments/timeline', {cookie: session});
@@ -140,7 +140,7 @@ test('/experiments/timeline renders from a fixture journal and experiment regist
   const api = await withEnv('CHATSOP_STATUS_DIR', dir, () => call('/experiments/api/status?area=language', {cookie: session}));
   assert.equal(api.status, 200);
   assert.deepEqual(api.body.journal.map(event => event.title), ['Newer decision']);
-  assert.ok(api.body.gates.some(gate => gate.id === 'owner-approval' && gate.prohibited));
+  assert.ok(api.body.gates.some(gate => gate.id === 'owner-approval' && gate.perRun));
 });
 
 test('the docs header and the server layout render the same menu from one source', async t => {

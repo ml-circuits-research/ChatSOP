@@ -12,7 +12,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {llmAgent, NotExpressibleError} from '../../../reasoning/strategies/llm-agent/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 const casesRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), '../cases');
 

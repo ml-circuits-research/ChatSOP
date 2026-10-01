@@ -45,7 +45,8 @@ function packetOf({qp, sliced, outcome, exhausted, policy, budget, notes, viewSi
   }
   const packet = {status: outcome.status, complete: true, ...common};
   if (outcome.reason) packet.reason = outcome.reason;
-  if (qp.mode === 'select') packet.rows = outcome.rows.map(r => r.row);
+  // `mode every` with `select` answers the groups where the universal holds (the oracle's grouped every)
+  if (qp.mode === 'select' || (qp.mode === 'every' && qp.select.length)) packet.rows = outcome.rows.map(r => r.row);
   if (qp.mode === 'count') { packet.count = outcome.count; if (outcome.bound) packet.bound = outcome.bound; }
   Object.assign(packet, support ?? {});
   return baseInfo(packet);

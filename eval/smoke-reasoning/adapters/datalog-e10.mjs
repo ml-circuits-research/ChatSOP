@@ -4,7 +4,7 @@
  * `zip-datalog-e10` column only for a side-by-side comparison, not registered by default).
  */
 import {datalogE10, NotExpressibleError} from '../../../reasoning/strategies/datalog-e10/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 export const datalogE10Adapter = {
   id: 'datalog-e10', status: 'available', origin: 'reasoning/strategies/datalog-e10/ (vendored E10: semi-naive, greedy joins, magic sets, INCOMPLETE on budget overrun)',

@@ -1,0 +1,370 @@
+{
+  "format": "chatsop-translate-comparison-v1",
+  "suite": "eval/reports/current/translate-then-formalize/work/formalizer-wild-v1.romixed.jsonl",
+  "direct": "eval/reports/current/translate-then-formalize/smollm2-360m/wild-T0.wild.json",
+  "translated": "eval/reports/current/translate-then-formalize/smollm2-360m/wild-T1-detector.wild.json",
+  "rows": 455,
+  "interval": "paired cluster bootstrap by semantic_case_id (row id when absent), 10,000 resamples, seed 7; exact McNemar on rows",
+  "metrics": {
+    "accepted_match": {
+      "all": {
+        "rows": 455,
+        "clusters": 455,
+        "direct": 0.07472527472527472,
+        "translated": 0.09010989010989011,
+        "delta": 0.015384615384615385,
+        "ci95": [
+          -0.002197802197802198,
+          0.03296703296703297
+        ],
+        "helped": 12,
+        "hurt": 5,
+        "mcnemar_p": 0.14346313476562494
+      },
+      "detector:missed": {
+        "rows": 57,
+        "clusters": 57,
+        "direct": 0.24561403508771928,
+        "translated": 0.24561403508771928,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "detector:routed": {
+        "rows": 398,
+        "clusters": 398,
+        "direct": 0.05025125628140704,
+        "translated": 0.0678391959798995,
+        "delta": 0.017587939698492462,
+        "ci95": [
+          -0.002512562814070352,
+          0.03768844221105527
+        ],
+        "helped": 12,
+        "hurt": 5,
+        "mcnemar_p": 0.14346313476562494
+      },
+      "language:mixed": {
+        "rows": 162,
+        "clusters": 162,
+        "direct": 0.08641975308641975,
+        "translated": 0.09259259259259259,
+        "delta": 0.006172839506172839,
+        "ci95": [
+          -0.024691358024691357,
+          0.037037037037037035
+        ],
+        "helped": 4,
+        "hurt": 3,
+        "mcnemar_p": 0.9999999999999998
+      },
+      "language:ro": {
+        "rows": 293,
+        "clusters": 293,
+        "direct": 0.06825938566552901,
+        "translated": 0.08873720136518772,
+        "delta": 0.020477815699658702,
+        "ci95": [
+          0,
+          0.040955631399317405
+        ],
+        "helped": 8,
+        "hurt": 2,
+        "mcnemar_p": 0.10937500000000003
+      }
+    },
+    "decision_match": {
+      "all": {
+        "rows": 455,
+        "clusters": 455,
+        "direct": 0.832967032967033,
+        "translated": 0.432967032967033,
+        "delta": -0.4,
+        "ci95": [
+          -0.45054945054945056,
+          -0.34725274725274724
+        ],
+        "helped": 16,
+        "hurt": 198,
+        "mcnemar_p": 4.296967042525874e-41
+      },
+      "detector:missed": {
+        "rows": 57,
+        "clusters": 57,
+        "direct": 0.631578947368421,
+        "translated": 0.631578947368421,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "detector:routed": {
+        "rows": 398,
+        "clusters": 398,
+        "direct": 0.8618090452261307,
+        "translated": 0.4045226130653266,
+        "delta": -0.457286432160804,
+        "ci95": [
+          -0.5125628140703518,
+          -0.39949748743718594
+        ],
+        "helped": 16,
+        "hurt": 198,
+        "mcnemar_p": 4.296967042525874e-41
+      },
+      "language:mixed": {
+        "rows": 162,
+        "clusters": 162,
+        "direct": 0.8395061728395061,
+        "translated": 0.42592592592592593,
+        "delta": -0.41358024691358025,
+        "ci95": [
+          -0.5,
+          -0.3271604938271605
+        ],
+        "helped": 7,
+        "hurt": 74,
+        "mcnemar_p": 3.1673827557266045e-15
+      },
+      "language:ro": {
+        "rows": 293,
+        "clusters": 293,
+        "direct": 0.8293515358361775,
+        "translated": 0.43686006825938567,
+        "delta": -0.3924914675767918,
+        "ci95": [
+          -0.45733788395904434,
+          -0.3310580204778157
+        ],
+        "helped": 9,
+        "hurt": 124,
+        "mcnemar_p": 5.382092478925074e-27
+      }
+    },
+    "shape_match": {
+      "all": {
+        "rows": 455,
+        "clusters": 455,
+        "direct": 0.15384615384615385,
+        "translated": 0.11868131868131868,
+        "delta": -0.035164835164835165,
+        "ci95": [
+          -0.06373626373626373,
+          -0.006593406593406593
+        ],
+        "helped": 14,
+        "hurt": 30,
+        "mcnemar_p": 0.02262884120591481
+      },
+      "detector:missed": {
+        "rows": 57,
+        "clusters": 57,
+        "direct": 0.38596491228070173,
+        "translated": 0.38596491228070173,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "detector:routed": {
+        "rows": 398,
+        "clusters": 398,
+        "direct": 0.12060301507537688,
+        "translated": 0.08040201005025126,
+        "delta": -0.04020100502512563,
+        "ci95": [
+          -0.0728643216080402,
+          -0.007537688442211055
+        ],
+        "helped": 14,
+        "hurt": 30,
+        "mcnemar_p": 0.02262884120591481
+      },
+      "language:mixed": {
+        "rows": 162,
+        "clusters": 162,
+        "direct": 0.13580246913580246,
+        "translated": 0.11728395061728394,
+        "delta": -0.018518518518518517,
+        "ci95": [
+          -0.06172839506172839,
+          0.024691358024691357
+        ],
+        "helped": 6,
+        "hurt": 9,
+        "mcnemar_p": 0.6072387695312507
+      },
+      "language:ro": {
+        "rows": 293,
+        "clusters": 293,
+        "direct": 0.16382252559726962,
+        "translated": 0.11945392491467577,
+        "delta": -0.04436860068259386,
+        "ci95": [
+          -0.07849829351535836,
+          -0.010238907849829351
+        ],
+        "helped": 8,
+        "hurt": 21,
+        "mcnemar_p": 0.024119544774293844
+      }
+    },
+    "proposition_f1": {
+      "all": {
+        "rows": 455,
+        "clusters": 455,
+        "direct": 0.5174603174603175,
+        "translated": 0.4571428571428571,
+        "delta": -0.06031746031746041,
+        "ci95": [
+          -0.09914529914529915,
+          -0.02124542124542125
+        ],
+        "helped": 29,
+        "hurt": 58,
+        "mcnemar_p": 0.002479419793816107
+      },
+      "detector:missed": {
+        "rows": 57,
+        "clusters": 57,
+        "direct": 0.7543859649122807,
+        "translated": 0.7543859649122807,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "detector:routed": {
+        "rows": 398,
+        "clusters": 398,
+        "direct": 0.4835287548855388,
+        "translated": 0.41457286432160795,
+        "delta": -0.06895589056393087,
+        "ci95": [
+          -0.11446119486320491,
+          -0.02512562814070352
+        ],
+        "helped": 29,
+        "hurt": 58,
+        "mcnemar_p": 0.002479419793816107
+      },
+      "language:mixed": {
+        "rows": 162,
+        "clusters": 162,
+        "direct": 0.49519890260631005,
+        "translated": 0.40946502057613177,
+        "delta": -0.0857338820301783,
+        "ci95": [
+          -0.15569272976680384,
+          -0.012345679012345678
+        ],
+        "helped": 12,
+        "hurt": 26,
+        "mcnemar_p": 0.03355243967962439
+      },
+      "language:ro": {
+        "rows": 293,
+        "clusters": 293,
+        "direct": 0.5297686765263557,
+        "translated": 0.4835039817974972,
+        "delta": -0.04626469472885851,
+        "ci95": [
+          -0.09328782707622298,
+          -0.0007584376185058782
+        ],
+        "helped": 17,
+        "hurt": 32,
+        "mcnemar_p": 0.0443841609871496
+      }
+    },
+    "parsed": {
+      "all": {
+        "rows": 455,
+        "clusters": 455,
+        "direct": 0.9208791208791208,
+        "translated": 0.9362637362637363,
+        "delta": 0.015384615384615385,
+        "ci95": [
+          -0.008791208791208791,
+          0.03956043956043956
+        ],
+        "helped": 18,
+        "hurt": 11,
+        "mcnemar_p": 0.26493089646100865
+      },
+      "detector:missed": {
+        "rows": 57,
+        "clusters": 57,
+        "direct": 0.8596491228070176,
+        "translated": 0.8596491228070176,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "detector:routed": {
+        "rows": 398,
+        "clusters": 398,
+        "direct": 0.9296482412060302,
+        "translated": 0.9472361809045227,
+        "delta": 0.017587939698492462,
+        "ci95": [
+          -0.007537688442211055,
+          0.04522613065326633
+        ],
+        "helped": 18,
+        "hurt": 11,
+        "mcnemar_p": 0.26493089646100865
+      },
+      "language:mixed": {
+        "rows": 162,
+        "clusters": 162,
+        "direct": 0.9135802469135802,
+        "translated": 0.9382716049382716,
+        "delta": 0.024691358024691357,
+        "ci95": [
+          -0.012345679012345678,
+          0.06172839506172839
+        ],
+        "helped": 7,
+        "hurt": 3,
+        "mcnemar_p": 0.3437500000000002
+      },
+      "language:ro": {
+        "rows": 293,
+        "clusters": 293,
+        "direct": 0.9249146757679181,
+        "translated": 0.9351535836177475,
+        "delta": 0.010238907849829351,
+        "ci95": [
+          -0.020477815699658702,
+          0.040955631399317405
+        ],
+        "helped": 11,
+        "hurt": 8,
+        "mcnemar_p": 0.6476058959960936
+      }
+    }
+  }
+}

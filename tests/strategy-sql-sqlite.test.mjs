@@ -337,7 +337,7 @@ test('budgets: probe, fact and time ceilings are budget_exhausted, never unknown
   const k = '@n predicate\n  args subject:entity\n  closed true\n' + facts(Array.from({length: n}, (_, i) => `n i${i}`)) + '@r rule\n  when n ?x\n  when n ?y\n  then pair ?x ?y\n';
   const full = run(k, '@q query\n  mode count\n  where pair ?x ?y\n  select ?x ?y\n', {}, {provenance: false});
   assert.equal(full.count, n * n);
-  for (const [limits, reason] of [[{maxJoins: 1000}, 'probes'], [{maxFacts: 500}, 'facts'], [{timeoutMs: 20}, 'time']]) {
+  for (const [limits, reason] of [[{maxJoins: 1000}, 'probes'], [{maxFacts: 500}, 'facts'], [{timeoutMs: 20}, 'wall']]) {
     const r = run(k, '@q query\n  mode count\n  where pair ?x ?y\n  select ?x ?y\n', limits, {provenance: false});
     assert.equal(r.status, 'budget_exhausted', JSON.stringify(limits));
     assert.equal(r.complete, false);
@@ -360,7 +360,7 @@ test('a statement that explodes is stopped inside SQLite by the tick function (t
   const r = run(k, '@q query\n  mode exists\n  where triple i1 i2 i3\n', {timeoutMs: 100, maxJoins: 5_000_000}, {provenance: false});
   assert.equal(r.status, 'budget_exhausted');
   assert.ok(performance.now() - t < 5000, 'a 27-billion-row join is cut after the ceiling');
-  assert.ok(['probes', 'time'].includes(r.reason));
+  assert.ok(['probes', 'wall'].includes(r.reason));
 });
 
 // ------------------------------------------------------------------------------------------------ used and explain

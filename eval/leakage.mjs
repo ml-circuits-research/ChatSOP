@@ -101,3 +101,33 @@ export function auditSourceBoundary(root, {independentSuites = INDEPENDENT_SUITE
   }
   return { files:[...files, ...training.files], generators:files, sealed_auditors:SEALED_AUDITORS, independent_suites:INDEPENDENT_SUITES, observed_splits:training.observed_splits, violations:[...violations, ...training.violations] };
 }
+
+/**
+ * Sealed tests of the programming path (programming plan P0, DS004 "Programming wires"): a `test` wire of `kind sealed` lives in `eval/suites/**` only.
+ * The audit fails when (1) a `.sop` file outside `eval/suites/` and outside an `invalid/` fixture folder holds a wire with `kind sealed`, or (2) a source of
+ * the host loop, the sandbox or the proposer (`lib/programming/`, `reasoning/strategies/code-sandbox/`, `reasoning/strategies/llm-agent/`) names `eval/suites`
+ * or a `test.jsonl`, so the proposer and the repair loop can never read a hidden test. The validator refuses the same wire (`sealed_test_in_knowledge`).
+ */
+export function auditSealedTests(root) {
+  const violations = [];
+  const skip = /^(?:eval\/suites|node_modules|state|datasets_sources|probably_obsolete|\.git)(?:\/|$)|(?:^|\/)invalid\//;
+  const walk = relativeDir => {
+    const absolute = path.join(root, relativeDir);
+    if (!fs.existsSync(absolute)) return [];
+    const out = [];
+    for (const entry of fs.readdirSync(absolute, { withFileTypes:true })) {
+      const relative = path.posix.join(relativeDir, entry.name);
+      if (skip.test(relative)) continue;
+      if (entry.isDirectory()) out.push(...walk(relative));
+      else out.push(relative);
+    }
+    return out;
+  };
+  const sources = ['lib/programming', 'reasoning/strategies/code-sandbox', 'reasoning/strategies/llm-agent'];
+  for (const dir of sources) for (const file of walk(dir).filter(name => /\.mjs$/.test(name)))
+    if (/eval\/suites|test\.jsonl/.test(fs.readFileSync(path.join(root, file), 'utf8').replace(/\/\*[\s\S]*?\*\/|^\s*\/\/.*$/gm, ''))) violations.push(`${file}: the host loop, the sandbox and the proposer never name eval/suites or a test.jsonl`);
+  for (const dir of ['config', 'lib', 'sop', 'reasoning', 'memory', 'skills', 'tests', 'examples', 'experiments', 'eval/smoke-reasoning', 'datasets', 'models', 'status'])
+    for (const file of walk(dir).filter(name => /\.sop$/.test(name)))
+      if (/^  kind sealed\s*$/m.test(fs.readFileSync(path.join(root, file), 'utf8'))) violations.push(`${file}: a sealed test (kind sealed) belongs to eval/suites/ only`);
+  return { violations };
+}

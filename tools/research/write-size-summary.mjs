@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Tables of the formalizer size study as Markdown, from eval/reports/current/formalizer-size-v1/summary.json.
+/** Tables of the formalizer size study as Markdown, from eval/reports/history/formalizer-size-v1/summary.json.
  *
  * Writes the generated tables to stdout; eval/reports/current/training/formalizer-size-v1-summary.md combines them
  * with the written conclusions. A cell without a finished report reads "pending" (never an estimate).
@@ -12,7 +12,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const base = path.join(root, 'eval/reports/current/formalizer-size-v1');
+const base = path.join(root, 'eval/reports/history/formalizer-size-v1');
 const summary = JSON.parse(fs.readFileSync(path.join(base, 'summary.json'), 'utf8'));
 const pct = f => (f && f.denominator ? `${(100 * f.value).toFixed(1)}% (${f.numerator}/${f.denominator})` : 'pending');
 const rate = (v, n) => (typeof v === 'number' ? `${(100 * v).toFixed(1)}%${n ? ` of ${n}` : ''}` : 'pending');

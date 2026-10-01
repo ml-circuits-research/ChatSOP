@@ -1,0 +1,15 @@
+{
+ "rows": 599,
+ "ms_p50": 105,
+ "ms_mean": 110,
+ "ms_max": 356,
+ "out_tokens_mean": 12.9,
+ "tokens_per_s_overall": 117.7,
+ "threads": 4,
+ "quant": "Q8_0",
+ "server": "llama-server -ngl 0 -t 4 -c 4096",
+ "model": "models/gemma/language-proofing-gemma270m-it3/proofreader/gguf/ep2-q8_0.gguf",
+ "hf_vs_gguf_agreement_599": "554/599",
+ "hf_vs_gguf_agreement_first50": "43/50",
+ "note": "sequential requests of the 599 judged-sample units, load average about 6 (other agents jobs), CPU only; the iteration-2 figure (233 ms p50, 52 tokens/s) was measured under load average about 5"
+}

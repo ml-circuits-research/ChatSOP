@@ -1,16 +1,80 @@
 # ChatSOP — open tasks and acceptance gates
 
+## 0. Session handoff (orchestrator, 2026-10-01 ~15:30 UTC; read this first after a restart)
+
+The orchestrator session was reset on the owner's request. All background agents of that session stopped with it. Their work is on disk and uncommitted. The journal (`status/journal.jsonl`, filter by actor) holds each agent's last state.
+
+**Owner working rules set today (also in the orchestrator memory):**
+- Decide technical choices by principle: correct, generic, production-grade, no hacks, user value. Do not put technical questions in questions.md.
+- Never plan in human weeks. Launch milestones in parallel.
+- Name architecture components; never say "host".
+- Soft approvals ("pare bun", "e ok") mean yes. Training still needs the owner's own words per run, and the permission system refuses agent-written approval receipts: the owner writes them, or runs the receipt command himself.
+- Use the z.ai GLM subscription in parallel with Grok for any LLM batch work.
+- Sonnet does the implementation work. Fable only reviews and plans, never implements.
+- Never touch port 9999.
+
+**Interrupted work: restart each item from its journal state.**
+
+1. **Linking M0/M1** (linker-m1-agent; plan `experiments/proposal/linking-proposal.md` §8, adopted).
+   - Done: the lexeme/entity grammar landed in `sop/knowledge/` (grammar.mjs, lexicon-checks.mjs).
+   - To do: M0 per-session lexicon (server/http.mjs:336 and server/session-runtime.mjs still hand every session the global `config/ontology.sop`); `Lexicon.fromCircuits`; `BaseMemories.lexicon(id)` with imports; `config/knowledge/core-min/`; ONTOLOGY_SPEC retired; the `linking` report in the packet and the panel; the mining and linking-suite tools; the acceptance checks ("Who is Ada Lovelace?", "Is Paris a city?", "Where is Paris?" on world-v1 through the HTTP chat on a private port).
+2. **core-en content, M2** (core-en-agent).
+   - Done: mining reproduces the proposal (40,040 mentions, 2,558 phrases, top 238 = 90.2%); 173 Wikidata property aliases cached.
+   - To do: author `config/knowledge/core-en/*.sop` (≈30 classes, 200–250 predicates, 600–900 EN and 100–150 RO forms, copula readings) with omp batches (Grok and GLM); validate; coverage report `eval/reports/current/core-en/summary.md`.
+3. **KBQA end-to-end evaluation** (kbqa-eval-agent; the yardstick from now on).
+   - Benchmarks: Mintaka, LC-QuAD 2.0, SimpleQuestions-Wikidata and QALD-10.
+   - Pipeline: Wikidata slices as base memories, harness `tools/eval/kbqa.mjs`, staged 100/300/all.
+   - Report: accuracy, wrong versus honest-unknown, failure attribution by layer, and the llm-agent baselines (Grok and GLM).
+   - State: started; check `eval/reports/current/kbqa/` and the journal for how far it got.
+4. **world-v1 base memory** (worldkb-agent).
+   - Done: the Wikidata selection was fetched (197 countries, ≈17.7k people, cities, orgs, works; `datasets_sources/world-kb/`).
+   - To do: mechanical mapping (`tools/world-kb/`, with the `reading` declarations on is_a/occupation/description_en/located_in); loading as base memory `world-v1` (SQLite); the 30-question chat check.
+5. **Hygiene cleanup** (cleanup-agent; findings `experiments/proposal/hygiene-review.md`; all decisions in the journal event "Hygiene cleanup decided").
+   - Phase A, partly done: H6, H10, H11, H12.
+   - Phase A remaining: H7/H8 (the eval guide and the historical suites), H9 (the timeline banner), H16 (`npm run verify`), and the steering docs (AGENTS.md, this file's §1–§4, the skills) plus the product docs.
+   - Phase B: H1 (remove the Chat/Translate base-model modes), H2/H3 (formalize only via the SymbolicLM service; remove the no-registry, promptProfile and verbalizer paths), H4 (the CLI chat), H5 (remove `advanced`, keeping rule 8), H17 (move the SymbolicLM service out of tools/), H15, H18.
+   - Phase C: H14, H19 (remove spaCy, LanguageTool and the emotion neural/llm strategies), H20 (SQLite-only base memories in the product), H13 (DS006 states the status of the strategy set).
+6. **Decisions Q-QUERY-1 / Q-REASON-1** (decisions-agent).
+   - A: rules v2.8, where coordinated questions follow grammar only.
+   - B: one result packet, with the runtime controllers on the oracle's native packet.
+   - C: the reason `wall` everywhere.
+   - Also: code/test wires give `not_expressible` in non-sandbox strategies.
+   - It was waiting on a background run. Verify each item and re-baseline the regression with `node tools/symbolic-regression.mjs --update` after v2.8.
+7. **docs/architecture.html** (architecture-doc-agent): diagrams a–f taken from the code, component cards, "not in the product", the hygiene suspects and the discrepancies. Verify it exists and passes site-links; finish it if partial.
+
+**Next after these (decided):**
+- **StrategyRouter v1**: rule-based, choosing by circuit features and memory size (Soufflé, SQLite or clingo for scale; the oracle stays the verifier).
+- **The product path from memory to engine**: slice retrieval and the completeness guard (proposal §11, R-P1..R-P5), today only in the smoke harness.
+- Both are needed before world-v1 or KBQA memories run in the chat at scale.
+
+**Paused by the owner ("stop what is not essential"):**
+- **Programming P0.** Partial: the `test`/`code` wires, `reasoning/strategies/code-sandbox/`, `eval/suites/code-instructions-v1/`, `lib/programming/`. Plan: `experiments/proposal/programming-kb-plan.md` revision 2.
+- **Unified Qwen3-4B (u2).** Trained in `models/qwen3-4b/unified-qwen3-4b-u2/`; the evaluation against the chain is not done.
+- **opus-mt distillation.** Ready: dataset `datasets/bad_english/translate-jargon-v1` (4,923/431) requalified; script `training/python/train_translator_marian.py`. It waits for the owner-written receipt `status/training/authorization-opus-translate-distill-v1.json`.
+- **SymbolicProofingLLM it3** is in the chat (F16). LanguageProofingLLM prod1 is in the chat for English. Qwen3-4B Q4 is the Romanian translator.
+
+**First step after the restart.** The agents were stopped in the middle of edits, so the tree may contain half-finished changes:
+- `tools/world-kb/build.mjs` has a known syntax error (`order` is declared twice, line 190).
+- The linker agent was replacing definitions in `sop/linking.mjs` / `sop/lexicon.mjs`.
+- The cleanup agent and its fork were editing server and eval pages.
+
+Run `node --test --test-concurrency=4 tests/*.test.mjs`, `node eval/smoke-reasoning/run.mjs` and `node tools/check-spec-refs.mjs` first, and repair what broke before relaunching any work.
+
+**Owner actions pending:**
+- Restart the 9999 server: it picks up the warmup, the server-models settings, the new chat UI and SymbolicLM as the only formalizer.
+- Write the opus-mt receipt if that run is still wanted.
+- Commit the day's work.
+
 Reference date: 2026-09-27. Direction: [AGENTS.md](AGENTS.md). Delivered work with observed evidence: [PAS_TASK.md](PAS_TASK.md). Open owner decisions: [questions.md](questions.md).
 
 **Progress rule:** `[ ]` means not executed or incomplete. When a task closes, move it into `PAS_TASK.md` with its artifact and the command/scenario that was actually observed. A failed gate blocks its dependants; it is never bypassed.
 
-**Current training interdiction (owner decision 2026-09-30):** the earlier scoped approval is spent; no fine-tuning of LanguageProofingLLM or SymbolicProofingLLM (Gemma 3 270M is the base to try first for both) until the three datasets are completely cleaned, on disk, well presented in the audit page and the owner gives an explicit OK. In general: no training, fine-tuning, resume, optimizer step or training smoke until a **new explicit user approval**, even if the infrastructure passes. Dataset qualification and user approval are separate gates, and no approval receipt is fabricated. Preparation, tokenization, symbolic evaluation and CUDA infrastructure probes without an optimizer remain allowed.
+**Training rule (AGENTS.md Direction 3, restated 2026-10-01):** training, fine-tuning, resume, optimizer step or training smoke happens only with the owner's explicit approval per run; an approval is spent when its run ends, and a passing infrastructure check is never an approval. Dataset qualification and user approval are separate gates, and no approval receipt is fabricated. Preparation, tokenization, symbolic evaluation and CUDA infrastructure probes without an optimizer remain allowed.
 
 **Current verification:** run `node tools/verify.mjs` (with `Z3_BIN`/`SWIPL_BIN` for the optional solvers); the latest observed result, its fingerprint and per-job logs are in `eval/reports/current/verification.json`, and delivered runs are recorded in `PAS_TASK.md`. Earlier figures (359, 394, 455, 468, 481, 487) belong to the historical delivery record. These checks are symbolic: they do not measure a model, human review or training qualification.
 
 ## 1. Blocked in this environment — prerequisites, not preferences
 
-- [ ] **Real model evaluation and serving smoke.** No trained ChatSOP checkpoint exists (`models/qwen/bases/...` is the untrained base only), the configured formalizer endpoint (`http://127.0.0.1:8080/v1/chat/completions`) is not running, and no model credentials are present. `server/http.mjs` is implemented and exercised against a deterministic mock; `/readyz` reports `model_available: false`. Unblocked by a qualified checkpoint plus an explicit serving decision — or by an explicit go-ahead for a clearly labeled *base-model* diagnostic.
 - [ ] **External generator qualification (P1.9).** No external generator endpoint or credentials are available, so no paraphrase supplier can be qualified or costed; nothing was invented. Unblocked by documented generator access.
 - [ ] **Source text stays in the local cache.** By the owner decision of 2026-09-28 the corpora inspired by QQP, PAWS, ProofWriter, AmbigNQ, QA2D and SQuAD are released (`inspired-by-released`, `docs/specs/DS014-source-rights.md`); they take structure, label types, phenomena and statistics, never text, and must pass `node tools/datasets/no-copy.mjs`. Raw source text stays in `datasets_sources/` and is never exported.
 - [ ] **Training-dependent gates (P4, P5, P6, P9/P10 studies).** These require an authorized training run and a qualified checkpoint. Their obligations are documented in DS007, DS010 and DS010. Do not start them without a new explicit user approval.
@@ -87,16 +151,10 @@ Reference date: 2026-09-27. Direction: [AGENTS.md](AGENTS.md). Delivered work wi
 
 ## 2. Remaining work that is executable without training
 
-- [ ] **Generator and corpora in the current language (next data step).** The model language gained clause links, `$id` references, `$q` chains and `unparsed` spans, and content words now follow the message's language (DS021, owner decisions D1 and L1–L4 of 2026-09-29). The DS022 generator still prints the previous English-content targets without links: implement the target convention of DS022 items 3, 5 and 6 (message-language lemmas, the clause layer with negative connective rows, unparsed rows with jargon, idioms, garbled fragments and references to earlier turns), then regenerate train/dev and convert or regenerate the sealed suites (`node tools/datasets/convert-targets.mjs` converts the mechanical cases and lists the rows to regenerate).
-- [ ] **Symbolic formalizer v1.5 (after ud-rules-v1.4, `eval-ud-rules-v14-v1`).** Candidates seen on the v1.4 held-out losses and dev: Romanian claim tails ("„P” — se confirmă?", "— așa este?"), "de" + weekday kept as a noun modifier, TR-VERB (pre-tagged re-parse of a verb read as a noun after a name), TR-SINCE, comparisons inside quantity phrases, "be held at/in" for where-questions, mixed-language messages (0 of 45 gained). Measure on a new fresh held-out sample; the v1.4 sample is consumed.
 - [ ] **Wire the host frame normalization into the chat runtime.** `sop/frames.mjs` (owner answer to Q-SYM-2) runs in evaluations only; call it in host linking before the dictionary tiers, report its `changes` in the packet, and keep strict scoring free of it.
-- [ ] **Wild suite alignment (owner decision D6).** Ten rows were re-adjudicated for Q-SYM-3; the suite still writes first person as "I" instead of "the user" and 89 quoted `role time` values (accepted, DS021 "Time of a clause"). `formalizer-mt-v1` and the formalizer-v1 qualification record froze the previous suite hash: pin it from `eval/reports/current/ud-rules-v14/gold-readjudication.jsonl` (reconstructs it byte for byte) or record a deviation.
 - [ ] **Dictionary review.** `config/dictionary/wiktionary.tsv` (≈65k entries, CC BY-SA 4.0) is filtered but unreviewed; `generator.tsv` has three relation conflicts from generic sense aliases ("avea", "face", "se ocupa de"). Review conflicts and the synonyms proposed by evaluation (`node tools/dictionary.mjs review`).
 - [ ] **Clause links without an engine.** `because`, `so`, `although`, `so_that` and untimed temporal links are reported `not_checked`; a proposition used as an argument (`$s`) is not computable. An audited interpreter for any of them needs the DS021 checklist first.
 - [ ] **Host continuation of a pending clarification.** The context-free model does not see the pending question; the host keeps `pendingSop` but does not yet rebind an answer such as "the first one" to the pending problem.
-- [ ] **Independent semantic adjudication of the corpora.** Everything is `not_reviewed`. The corpora are `formalizer-v1` (train/dev under `datasets/`, sealed test under `eval/suites/`) and the out-of-distribution suite `formalizer-ood-v1`; `datasets_archive/formalizer-v1/report.json`, the manifests and the machine audit in `eval/reports/current/corpus-audit/` hold current counts, and `datasets_archive/formalizer-v1/formalizer/manifest.json` records the message-only training projection. Reviews go through the visual corpus audit (DS020), whose verdicts land in `eval/reports/current/audit/`. The next real step is an independent reviewer (not the authoring assistant) adjudicating holdouts with receipts — the owner still has to name that reviewer (decision Q-ARCH-4 of 2026-09-28, DS010); ambiguity handling follows Q-ARCH-1.
-- [ ] **Preregister the experiment on the prepared corpora.** `DS010` holds the template; the concrete study should freeze which corpora and splits are train/dev/selection/test, the EN→RO transfer arm, the budgets and the promotion thresholds before any run.
-- [ ] **Optional base-model diagnostic.** With an endpoint on `:8080` (local inference server, no training), produce the first real read of how far the untrained base is from the declarative target, labeled explicitly as a base-model diagnostic rather than a qualified result.
 - [ ] **Rights re-verification before any release** that depends on SQuAD-derived material (CC BY-SA 4.0), AmbigNQ (CC BY-SA 3.0), PAWS (acknowledgement) or a newly cleared asset; update `DS014` with the new evidence.
 - [ ] **Article and artifact assembly (P10)** may be drafted from `DS010` and the recorded reports, but no claim may exceed the observed symbolic evidence; venue rules must be rechecked immediately before submission.
 - [ ] **Leftovers of the archived wire proposal** (`probably_obsolete/specs/proposals/wire-redesign-2026-09-28.md`): §2.1 split `source` into a closed `origin` enum plus free-text `cite` and enforce the assumption origin in `Runtime`; §2.7 naming collisions (`solve.assume`, `task`, `recall`/`link`, `policy`, `mode`, `status`, `entity.kind`); §6 Phase 3 host renames with a one-release dual spelling and Phase 4 items (per-variable units, a `none` group; `speaker` is implemented on `stated`). Each needs an owner decision in `questions.md` before implementation.
@@ -111,7 +169,12 @@ P0.1, P0.2, P0.4, P0.5, P0.6 · P1.1, P1.2, P1.3, P1.4, P1.5, P1.7, P1.8, P1.11 
 
 ## 4. Recommended next step
 
-Independent semantic adjudication plus target review of `formalizer-v1` and `formalizer-ood-v1` (section 2), then the preregistration of the experiment on the message-only projection `datasets_archive/formalizer-v1/formalizer/` with its sealed suites. Everything else executable without a trained model is implemented and exercised.
+The current chain is textToCleanEnglish (translator-llm for Romanian and mixed text, LanguageProofingLLM prod1 for English) -> SymbolicLM (Stanza analysis plus the UD-to-SOP rules, rewrite by SymbolicProofingLLM it3 only when gated) -> host linking -> oracle route. In order:
+
+1. Finish the hygiene cleanup (`experiments/proposal/hygiene-review.md`, journal 2026-10-01): product surface, status pages, code placement.
+2. Linking milestones M0 to M2 (`experiments/proposal/linking-proposal.md`): per-session lexicon, one grammar, core-en base memory.
+3. Keep `tools/symbolic-regression.mjs`, `tools/datasets/verify-three-datasets.mjs` and the chat smoke green (`npm run verify`); improve SymbolicLM by rules first.
+4. Q-DATA-3 rebuild of the three datasets after the current production trainings, and training of any further iteration only with the owner's explicit approval per run.
 
 - Data (DS022): generate AmbigNQ answer-type ambiguity (the one AmbigNQ disambiguation type still missing); decide whether a host-side interpreter for proportional quantifiers ("most", "half") is wanted before the model language gets a form for them.
 

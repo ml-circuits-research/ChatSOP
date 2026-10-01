@@ -55,11 +55,11 @@ an automatic unlimited retry/restart loop.
 Start at the root with `node training/cli.mjs --help`. For a reviewed native
 Python environment, run `TRAIN_PYTHON=<venv>/bin/python node training/cli.mjs
 preflight`, then `node training/cli.mjs train --model qwen --run <name>
---role formalizer --data <reviewed-dataset> --qualification <qualification.json> --authorization <new-user-approval.json>` with the same `TRAIN_PYTHON`, only after that new explicit user approval.
+--role proofreader --data <reviewed-dataset> --qualification <qualification.json> --authorization <new-user-approval.json>` with the same `TRAIN_PYTHON`, only after that new explicit user approval.
 Use `--resume` only for a verified same-identity checkpoint. `--dry-run` checks
 configuration without Python/GPU work and is not hardware qualification.
 The run's `models/<model>/<run>/<role>/identity.json`, `latest/`, `best/`,
-`semantic/` and `summary.json` are the records to inspect; a formalizer's
+`semantic/` and `summary.json` are the records to inspect; a FormalizerLLM's (archive)
 semantic best is chosen by full-development execution equivalence with syntax
 as tiebreak. Verbalizer/shared dev-loss best does not certify faithfulness.
 For the container variant follow `skills/spark-training/SKILL.md`; it still

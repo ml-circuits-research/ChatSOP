@@ -1,0 +1,1824 @@
+{
+ "generated_at": "2026-10-01T02:49:59.750Z",
+ "held_out_vocabulary": [
+  "cousin",
+  "niece",
+  "uncle",
+  "tenant",
+  "supervisor",
+  "tutor",
+  "owe",
+  "adopt",
+  "audit",
+  "boatyard"
+ ],
+ "train_rows_counting_oversampled_copies": 61693,
+ "words": {
+  "parent": {
+   "category": "family",
+   "held_out": false,
+   "train": 721,
+   "dev": 102,
+   "heldout": 1,
+   "reserve": 2,
+   "train_by_source": {
+    "it1": 307,
+    "backgen-new": 115,
+    "backgen-same": 293,
+    "oversample": 6
+   },
+   "train_identity": 176
+  },
+  "child": {
+   "category": "family",
+   "held_out": false,
+   "train": 336,
+   "dev": 4,
+   "heldout": 3,
+   "reserve": 7,
+   "train_by_source": {
+    "backgen-new": 43,
+    "template": 207,
+    "oversample": 86
+   },
+   "train_identity": 18
+  },
+  "son": {
+   "category": "family",
+   "held_out": false,
+   "train": 461,
+   "dev": 9,
+   "heldout": 0,
+   "reserve": 7,
+   "train_by_source": {
+    "backgen-new": 188,
+    "backgen-same": 1,
+    "template": 83,
+    "oversample": 189
+   },
+   "train_identity": 84
+  },
+  "daughter": {
+   "category": "family",
+   "held_out": false,
+   "train": 623,
+   "dev": 21,
+   "heldout": 2,
+   "reserve": 2,
+   "train_by_source": {
+    "it1": 38,
+    "backgen-new": 151,
+    "backgen-same": 81,
+    "template": 83,
+    "oversample": 270
+   },
+   "train_identity": 113
+  },
+  "mother": {
+   "category": "family",
+   "held_out": false,
+   "train": 381,
+   "dev": 7,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 161,
+    "template": 57,
+    "oversample": 163
+   },
+   "train_identity": 76
+  },
+  "father": {
+   "category": "family",
+   "held_out": false,
+   "train": 300,
+   "dev": 6,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 118,
+    "template": 59,
+    "oversample": 123
+   },
+   "train_identity": 57
+  },
+  "sister": {
+   "category": "family",
+   "held_out": false,
+   "train": 311,
+   "dev": 23,
+   "heldout": 0,
+   "reserve": 6,
+   "train_by_source": {
+    "it1": 61,
+    "backgen-new": 203,
+    "backgen-same": 30,
+    "oversample": 17
+   },
+   "train_identity": 112
+  },
+  "brother": {
+   "category": "family",
+   "held_out": false,
+   "train": 375,
+   "dev": 18,
+   "heldout": 1,
+   "reserve": 4,
+   "train_by_source": {
+    "it1": 38,
+    "backgen-new": 251,
+    "backgen-same": 46,
+    "oversample": 40
+   },
+   "train_identity": 124
+  },
+  "grandparent": {
+   "category": "family",
+   "held_out": false,
+   "train": 144,
+   "dev": 4,
+   "heldout": 0,
+   "reserve": 4,
+   "train_by_source": {
+    "backgen-new": 61,
+    "backgen-same": 7,
+    "oversample": 76
+   },
+   "train_identity": 32
+  },
+  "grandchild": {
+   "category": "family",
+   "held_out": false,
+   "train": 48,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 24,
+    "oversample": 24
+   },
+   "train_identity": 13
+  },
+  "cousin": {
+   "category": "family",
+   "held_out": true,
+   "train": 0,
+   "dev": 0,
+   "heldout": 80,
+   "reserve": 189,
+   "train_by_source": {},
+   "train_identity": 0
+  },
+  "aunt": {
+   "category": "family",
+   "held_out": false,
+   "train": 204,
+   "dev": 5,
+   "heldout": 4,
+   "reserve": 21,
+   "train_by_source": {
+    "it1": 1,
+    "backgen-new": 179,
+    "backgen-same": 8,
+    "oversample": 16
+   },
+   "train_identity": 87
+  },
+  "uncle": {
+   "category": "family",
+   "held_out": true,
+   "train": 0,
+   "dev": 0,
+   "heldout": 48,
+   "reserve": 140,
+   "train_by_source": {},
+   "train_identity": 0
+  },
+  "niece": {
+   "category": "family",
+   "held_out": true,
+   "train": 0,
+   "dev": 0,
+   "heldout": 34,
+   "reserve": 83,
+   "train_by_source": {},
+   "train_identity": 0
+  },
+  "nephew": {
+   "category": "family",
+   "held_out": false,
+   "train": 163,
+   "dev": 3,
+   "heldout": 3,
+   "reserve": 9,
+   "train_by_source": {
+    "backgen-new": 161,
+    "oversample": 2
+   },
+   "train_identity": 77
+  },
+  "spouse": {
+   "category": "family",
+   "held_out": false,
+   "train": 223,
+   "dev": 14,
+   "heldout": 1,
+   "reserve": 1,
+   "train_by_source": {
+    "it1": 41,
+    "backgen-same": 139,
+    "backgen-new": 43
+   },
+   "train_identity": 105
+  },
+  "husband": {
+   "category": "family",
+   "held_out": false,
+   "train": 148,
+   "dev": 0,
+   "heldout": 7,
+   "reserve": 9,
+   "train_by_source": {
+    "backgen-new": 74,
+    "oversample": 74
+   },
+   "train_identity": 34
+  },
+  "wife": {
+   "category": "family",
+   "held_out": false,
+   "train": 100,
+   "dev": 0,
+   "heldout": 1,
+   "reserve": 12,
+   "train_by_source": {
+    "backgen-new": 50,
+    "oversample": 50
+   },
+   "train_identity": 24
+  },
+  "fiance": {
+   "category": "family",
+   "held_out": false,
+   "train": 119,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 116,
+    "oversample": 3
+   },
+   "train_identity": 52
+  },
+  "in-law": {
+   "category": "family",
+   "held_out": false,
+   "train": 39,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 30,
+    "oversample": 9
+   },
+   "train_identity": 12
+  },
+  "stepchild": {
+   "category": "family",
+   "held_out": false,
+   "train": 32,
+   "dev": 2,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 16,
+    "oversample": 16
+   },
+   "train_identity": 20
+  },
+  "twin": {
+   "category": "family",
+   "held_out": false,
+   "train": 176,
+   "dev": 2,
+   "heldout": 3,
+   "reserve": 3,
+   "train_by_source": {
+    "backgen-new": 88,
+    "oversample": 88
+   },
+   "train_identity": 44
+  },
+  "boss": {
+   "category": "work",
+   "held_out": false,
+   "train": 685,
+   "dev": 74,
+   "heldout": 1,
+   "reserve": 4,
+   "train_by_source": {
+    "it1": 311,
+    "backgen-new": 173,
+    "backgen-same": 190,
+    "oversample": 11
+   },
+   "train_identity": 158
+  },
+  "manager": {
+   "category": "work",
+   "held_out": false,
+   "train": 435,
+   "dev": 15,
+   "heldout": 4,
+   "reserve": 34,
+   "train_by_source": {
+    "it1": 4,
+    "backgen-new": 412,
+    "backgen-same": 9,
+    "oversample": 10
+   },
+   "train_identity": 195
+  },
+  "employee": {
+   "category": "work",
+   "held_out": false,
+   "train": 189,
+   "dev": 15,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "it1": 43,
+    "backgen-same": 42,
+    "backgen-new": 102,
+    "oversample": 2
+   },
+   "train_identity": 52
+  },
+  "colleague": {
+   "category": "work",
+   "held_out": false,
+   "train": 212,
+   "dev": 0,
+   "heldout": 1,
+   "reserve": 1,
+   "train_by_source": {
+    "it1": 9,
+    "backgen-new": 197,
+    "oversample": 6
+   },
+   "train_identity": 87
+  },
+  "intern": {
+   "category": "work",
+   "held_out": false,
+   "train": 352,
+   "dev": 11,
+   "heldout": 0,
+   "reserve": 3,
+   "train_by_source": {
+    "backgen-new": 338,
+    "backgen-same": 6,
+    "oversample": 8
+   },
+   "train_identity": 158
+  },
+  "supervisor": {
+   "category": "work",
+   "held_out": true,
+   "train": 0,
+   "dev": 0,
+   "heldout": 44,
+   "reserve": 156,
+   "train_by_source": {},
+   "train_identity": 0
+  },
+  "assistant": {
+   "category": "work",
+   "held_out": false,
+   "train": 250,
+   "dev": 9,
+   "heldout": 7,
+   "reserve": 32,
+   "train_by_source": {
+    "it1": 4,
+    "backgen-new": 246
+   },
+   "train_identity": 104
+  },
+  "contractor": {
+   "category": "work",
+   "held_out": false,
+   "train": 200,
+   "dev": 10,
+   "heldout": 2,
+   "reserve": 18,
+   "train_by_source": {
+    "backgen-new": 199,
+    "backgen-same": 1
+   },
+   "train_identity": 89
+  },
+  "client": {
+   "category": "work",
+   "held_out": false,
+   "train": 199,
+   "dev": 3,
+   "heldout": 1,
+   "reserve": 1,
+   "train_by_source": {
+    "it1": 4,
+    "backgen-new": 172,
+    "backgen-same": 23
+   },
+   "train_identity": 79
+  },
+  "supplier": {
+   "category": "work",
+   "held_out": false,
+   "train": 230,
+   "dev": 2,
+   "heldout": 3,
+   "reserve": 0,
+   "train_by_source": {
+    "it1": 1,
+    "backgen-new": 220,
+    "backgen-same": 9
+   },
+   "train_identity": 105
+  },
+  "owner": {
+   "category": "work",
+   "held_out": false,
+   "train": 312,
+   "dev": 13,
+   "heldout": 9,
+   "reserve": 17,
+   "train_by_source": {
+    "it1": 77,
+    "backgen-new": 135,
+    "backgen-same": 96,
+    "oversample": 4
+   },
+   "train_identity": 111
+  },
+  "founder": {
+   "category": "work",
+   "held_out": false,
+   "train": 92,
+   "dev": 6,
+   "heldout": 3,
+   "reserve": 6,
+   "train_by_source": {
+    "backgen-new": 92
+   },
+   "train_identity": 42
+  },
+  "director": {
+   "category": "work",
+   "held_out": false,
+   "train": 202,
+   "dev": 6,
+   "heldout": 0,
+   "reserve": 7,
+   "train_by_source": {
+    "it1": 1,
+    "backgen-new": 197,
+    "backgen-same": 4
+   },
+   "train_identity": 93
+  },
+  "coach": {
+   "category": "work",
+   "held_out": false,
+   "train": 1349,
+   "dev": 108,
+   "heldout": 5,
+   "reserve": 10,
+   "train_by_source": {
+    "it1": 519,
+    "backgen-new": 427,
+    "backgen-same": 383,
+    "oversample": 20
+   },
+   "train_identity": 383
+  },
+  "player": {
+   "category": "work",
+   "held_out": false,
+   "train": 311,
+   "dev": 42,
+   "heldout": 2,
+   "reserve": 0,
+   "train_by_source": {
+    "it1": 183,
+    "backgen-new": 32,
+    "backgen-same": 96
+   },
+   "train_identity": 58
+  },
+  "teacher": {
+   "category": "work",
+   "held_out": false,
+   "train": 137,
+   "dev": 2,
+   "heldout": 9,
+   "reserve": 13,
+   "train_by_source": {
+    "it1": 5,
+    "backgen-new": 130,
+    "oversample": 2
+   },
+   "train_identity": 66
+  },
+  "student": {
+   "category": "work",
+   "held_out": false,
+   "train": 222,
+   "dev": 14,
+   "heldout": 16,
+   "reserve": 70,
+   "train_by_source": {
+    "it1": 32,
+    "backgen-new": 163,
+    "backgen-same": 27
+   },
+   "train_identity": 88
+  },
+  "tutor": {
+   "category": "work",
+   "held_out": true,
+   "train": 0,
+   "dev": 0,
+   "heldout": 85,
+   "reserve": 245,
+   "train_by_source": {},
+   "train_identity": 0
+  },
+  "doctor": {
+   "category": "work",
+   "held_out": false,
+   "train": 595,
+   "dev": 36,
+   "heldout": 2,
+   "reserve": 14,
+   "train_by_source": {
+    "it1": 199,
+    "backgen-new": 178,
+    "backgen-same": 212,
+    "oversample": 6
+   },
+   "train_identity": 161
+  },
+  "patient": {
+   "category": "work",
+   "held_out": false,
+   "train": 192,
+   "dev": 15,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "it1": 7,
+    "backgen-new": 174,
+    "backgen-same": 11
+   },
+   "train_identity": 85
+  },
+  "nurse": {
+   "category": "work",
+   "held_out": false,
+   "train": 244,
+   "dev": 7,
+   "heldout": 0,
+   "reserve": 4,
+   "train_by_source": {
+    "it1": 10,
+    "backgen-new": 210,
+    "backgen-same": 22,
+    "oversample": 2
+   },
+   "train_identity": 108
+  },
+  "lawyer": {
+   "category": "work",
+   "held_out": false,
+   "train": 98,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 2,
+   "train_by_source": {
+    "backgen-new": 98
+   },
+   "train_identity": 47
+  },
+  "landlord": {
+   "category": "work",
+   "held_out": false,
+   "train": 137,
+   "dev": 0,
+   "heldout": 13,
+   "reserve": 11,
+   "train_by_source": {
+    "it1": 8,
+    "backgen-new": 123,
+    "backgen-same": 6
+   },
+   "train_identity": 58
+  },
+  "tenant": {
+   "category": "work",
+   "held_out": true,
+   "train": 0,
+   "dev": 0,
+   "heldout": 54,
+   "reserve": 218,
+   "train_by_source": {},
+   "train_identity": 0
+  },
+  "neighbour": {
+   "category": "work",
+   "held_out": false,
+   "train": 211,
+   "dev": 3,
+   "heldout": 5,
+   "reserve": 37,
+   "train_by_source": {
+    "it1": 1,
+    "backgen-new": 197,
+    "backgen-same": 8,
+    "oversample": 5
+   },
+   "train_identity": 99
+  },
+  "member": {
+   "category": "work",
+   "held_out": false,
+   "train": 222,
+   "dev": 5,
+   "heldout": 7,
+   "reserve": 8,
+   "train_by_source": {
+    "it1": 14,
+    "backgen-new": 203,
+    "backgen-same": 4,
+    "oversample": 1
+   },
+   "train_identity": 88
+  },
+  "volunteer": {
+   "category": "work",
+   "held_out": false,
+   "train": 431,
+   "dev": 10,
+   "heldout": 3,
+   "reserve": 32,
+   "train_by_source": {
+    "it1": 3,
+    "backgen-new": 398,
+    "backgen-same": 28,
+    "oversample": 2
+   },
+   "train_identity": 185
+  },
+  "guest": {
+   "category": "work",
+   "held_out": false,
+   "train": 242,
+   "dev": 8,
+   "heldout": 0,
+   "reserve": 2,
+   "train_by_source": {
+    "it1": 31,
+    "backgen-new": 175,
+    "backgen-same": 27,
+    "oversample": 9
+   },
+   "train_identity": 84
+  },
+  "host": {
+   "category": "work",
+   "held_out": false,
+   "train": 335,
+   "dev": 32,
+   "heldout": 2,
+   "reserve": 11,
+   "train_by_source": {
+    "it1": 93,
+    "backgen-new": 195,
+    "backgen-same": 47
+   },
+   "train_identity": 147
+  },
+  "hire": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 203,
+   "dev": 22,
+   "heldout": 13,
+   "reserve": 32,
+   "train_by_source": {
+    "it1": 22,
+    "backgen-new": 174,
+    "oversample": 7
+   },
+   "train_identity": 78
+  },
+  "fire": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 98,
+   "dev": 7,
+   "heldout": 1,
+   "reserve": 5,
+   "train_by_source": {
+    "it1": 33,
+    "backgen-new": 48,
+    "backgen-same": 17
+   },
+   "train_identity": 46
+  },
+  "promote": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 64,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 15,
+   "train_by_source": {
+    "backgen-new": 64
+   },
+   "train_identity": 27
+  },
+  "lend": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 36,
+   "dev": 5,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 36
+   },
+   "train_identity": 16
+  },
+  "borrow": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 698,
+   "dev": 96,
+   "heldout": 9,
+   "reserve": 9,
+   "train_by_source": {
+    "it1": 357,
+    "backgen-new": 117,
+    "backgen-same": 194,
+    "oversample": 30
+   },
+   "train_identity": 153
+  },
+  "rent": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 310,
+   "dev": 11,
+   "heldout": 5,
+   "reserve": 26,
+   "train_by_source": {
+    "it1": 15,
+    "backgen-new": 280,
+    "backgen-same": 12,
+    "oversample": 3
+   },
+   "train_identity": 142
+  },
+  "own": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 622,
+   "dev": 102,
+   "heldout": 4,
+   "reserve": 5,
+   "train_by_source": {
+    "it1": 365,
+    "backgen-new": 156,
+    "backgen-same": 95,
+    "oversample": 6
+   },
+   "train_identity": 115
+  },
+  "sell": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 479,
+   "dev": 49,
+   "heldout": 3,
+   "reserve": 4,
+   "train_by_source": {
+    "it1": 183,
+    "backgen-new": 168,
+    "backgen-same": 122,
+    "oversample": 6
+   },
+   "train_identity": 153
+  },
+  "buy": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 343,
+   "dev": 24,
+   "heldout": 4,
+   "reserve": 7,
+   "train_by_source": {
+    "it1": 173,
+    "backgen-new": 78,
+    "backgen-same": 85,
+    "oversample": 7
+   },
+   "train_identity": 102
+  },
+  "pay": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 481,
+   "dev": 29,
+   "heldout": 2,
+   "reserve": 8,
+   "train_by_source": {
+    "it1": 181,
+    "backgen-new": 195,
+    "backgen-same": 105
+   },
+   "train_identity": 134
+  },
+  "owe": {
+   "category": "verbs",
+   "held_out": true,
+   "train": 0,
+   "dev": 0,
+   "heldout": 29,
+   "reserve": 70,
+   "train_by_source": {},
+   "train_identity": 0
+  },
+  "send": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 339,
+   "dev": 17,
+   "heldout": 3,
+   "reserve": 9,
+   "train_by_source": {
+    "it1": 81,
+    "backgen-new": 128,
+    "backgen-same": 122,
+    "oversample": 8
+   },
+   "train_identity": 110
+  },
+  "receive": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 122,
+   "dev": 5,
+   "heldout": 0,
+   "reserve": 2,
+   "train_by_source": {
+    "it1": 13,
+    "backgen-new": 72,
+    "backgen-same": 37
+   },
+   "train_identity": 36
+  },
+  "deliver": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 213,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 2,
+   "train_by_source": {
+    "it1": 3,
+    "backgen-new": 197,
+    "backgen-same": 11,
+    "oversample": 2
+   },
+   "train_identity": 99
+  },
+  "sign": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 684,
+   "dev": 29,
+   "heldout": 4,
+   "reserve": 26,
+   "train_by_source": {
+    "it1": 89,
+    "backgen-new": 398,
+    "backgen-same": 179,
+    "oversample": 18
+   },
+   "train_identity": 209
+  },
+  "approve": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 302,
+   "dev": 6,
+   "heldout": 5,
+   "reserve": 20,
+   "train_by_source": {
+    "it1": 8,
+    "backgen-new": 221,
+    "backgen-same": 71,
+    "oversample": 2
+   },
+   "train_identity": 109
+  },
+  "reject": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 71,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 3,
+   "train_by_source": {
+    "it1": 1,
+    "backgen-new": 54,
+    "backgen-same": 16
+   },
+   "train_identity": 27
+  },
+  "cancel": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 38,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 38
+   },
+   "train_identity": 17
+  },
+  "postpone": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 243,
+   "dev": 35,
+   "heldout": 0,
+   "reserve": 3,
+   "train_by_source": {
+    "it1": 92,
+    "backgen-same": 94,
+    "backgen-new": 57
+   },
+   "train_identity": 49
+  },
+  "book": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 1237,
+   "dev": 150,
+   "heldout": 3,
+   "reserve": 12,
+   "train_by_source": {
+    "it1": 596,
+    "backgen-new": 334,
+    "backgen-same": 291,
+    "oversample": 16
+   },
+   "train_identity": 288
+  },
+  "visit": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 782,
+   "dev": 63,
+   "heldout": 4,
+   "reserve": 13,
+   "train_by_source": {
+    "it1": 260,
+    "backgen-new": 275,
+    "backgen-same": 208,
+    "oversample": 39
+   },
+   "train_identity": 229
+  },
+  "attend": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 604,
+   "dev": 36,
+   "heldout": 11,
+   "reserve": 12,
+   "train_by_source": {
+    "it1": 190,
+    "backgen-new": 241,
+    "backgen-same": 166,
+    "oversample": 7
+   },
+   "train_identity": 192
+  },
+  "organize": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 92,
+   "dev": 6,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 90,
+    "oversample": 2
+   },
+   "train_identity": 40
+  },
+  "lead": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 145,
+   "dev": 3,
+   "heldout": 2,
+   "reserve": 7,
+   "train_by_source": {
+    "it1": 2,
+    "backgen-new": 134,
+    "backgen-same": 9
+   },
+   "train_identity": 60
+  },
+  "join": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 198,
+   "dev": 7,
+   "heldout": 0,
+   "reserve": 7,
+   "train_by_source": {
+    "it1": 4,
+    "backgen-new": 176,
+    "backgen-same": 7,
+    "oversample": 11
+   },
+   "train_identity": 84
+  },
+  "leave": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 374,
+   "dev": 18,
+   "heldout": 6,
+   "reserve": 23,
+   "train_by_source": {
+    "it1": 93,
+    "backgen-same": 156,
+    "backgen-new": 117,
+    "oversample": 8
+   },
+   "train_identity": 106
+  },
+  "replace": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 41,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 6,
+   "train_by_source": {
+    "it1": 1,
+    "backgen-new": 35,
+    "backgen-same": 5
+   },
+   "train_identity": 22
+  },
+  "repair": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 309,
+   "dev": 9,
+   "heldout": 13,
+   "reserve": 15,
+   "train_by_source": {
+    "it1": 10,
+    "backgen-new": 264,
+    "backgen-same": 27,
+    "oversample": 8
+   },
+   "train_identity": 135
+  },
+  "install": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 94,
+   "dev": 3,
+   "heldout": 0,
+   "reserve": 3,
+   "train_by_source": {
+    "backgen-new": 94
+   },
+   "train_identity": 41
+  },
+  "check": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 2875,
+   "dev": 195,
+   "heldout": 40,
+   "reserve": 98,
+   "train_by_source": {
+    "it1": 714,
+    "backgen-new": 954,
+    "backgen-same": 1060,
+    "template": 46,
+    "oversample": 101
+   },
+   "train_identity": 1024
+  },
+  "audit": {
+   "category": "verbs",
+   "held_out": true,
+   "train": 0,
+   "dev": 0,
+   "heldout": 44,
+   "reserve": 113,
+   "train_by_source": {},
+   "train_identity": 0
+  },
+  "treat": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 317,
+   "dev": 39,
+   "heldout": 2,
+   "reserve": 0,
+   "train_by_source": {
+    "it1": 169,
+    "backgen-new": 54,
+    "backgen-same": 84,
+    "oversample": 10
+   },
+   "train_identity": 70
+  },
+  "teach": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 843,
+   "dev": 106,
+   "heldout": 7,
+   "reserve": 16,
+   "train_by_source": {
+    "it1": 367,
+    "backgen-new": 252,
+    "backgen-same": 206,
+    "oversample": 18
+   },
+   "train_identity": 217
+  },
+  "train": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 1270,
+   "dev": 96,
+   "heldout": 22,
+   "reserve": 30,
+   "train_by_source": {
+    "it1": 424,
+    "backgen-new": 451,
+    "backgen-same": 390,
+    "oversample": 5
+   },
+   "train_identity": 354
+  },
+  "sponsor": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 119,
+   "dev": 2,
+   "heldout": 2,
+   "reserve": 3,
+   "train_by_source": {
+    "backgen-new": 103,
+    "backgen-same": 6,
+    "oversample": 10
+   },
+   "train_identity": 46
+  },
+  "publish": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 411,
+   "dev": 39,
+   "heldout": 3,
+   "reserve": 16,
+   "train_by_source": {
+    "it1": 214,
+    "backgen-new": 89,
+    "backgen-same": 90,
+    "oversample": 18
+   },
+   "train_identity": 108
+  },
+  "translate": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 80,
+   "dev": 8,
+   "heldout": 2,
+   "reserve": 3,
+   "train_by_source": {
+    "it1": 12,
+    "backgen-same": 8,
+    "backgen-new": 60
+   },
+   "train_identity": 30
+  },
+  "review": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 345,
+   "dev": 24,
+   "heldout": 19,
+   "reserve": 28,
+   "train_by_source": {
+    "it1": 131,
+    "backgen-new": 106,
+    "backgen-same": 104,
+    "oversample": 4
+   },
+   "train_identity": 86
+  },
+  "invite": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 115,
+   "dev": 3,
+   "heldout": 3,
+   "reserve": 10,
+   "train_by_source": {
+    "backgen-new": 113,
+    "backgen-same": 2
+   },
+   "train_identity": 50
+  },
+  "meet": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 325,
+   "dev": 22,
+   "heldout": 7,
+   "reserve": 19,
+   "train_by_source": {
+    "it1": 58,
+    "backgen-new": 215,
+    "backgen-same": 40,
+    "oversample": 12
+   },
+   "train_identity": 106
+  },
+  "marry": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 10,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 10
+   },
+   "train_identity": 5
+  },
+  "divorce": {
+   "category": "verbs",
+   "held_out": false,
+   "train": 34,
+   "dev": 3,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 29,
+    "oversample": 5
+   },
+   "train_identity": 13
+  },
+  "adopt": {
+   "category": "verbs",
+   "held_out": true,
+   "train": 0,
+   "dev": 0,
+   "heldout": 14,
+   "reserve": 43,
+   "train_by_source": {},
+   "train_identity": 0
+  },
+  "boatyard": {
+   "category": "places",
+   "held_out": true,
+   "train": 0,
+   "dev": 0,
+   "heldout": 151,
+   "reserve": 325,
+   "train_by_source": {},
+   "train_identity": 0
+  },
+  "shipyard": {
+   "category": "places",
+   "held_out": false,
+   "train": 339,
+   "dev": 2,
+   "heldout": 19,
+   "reserve": 21,
+   "train_by_source": {
+    "backgen-new": 337,
+    "oversample": 2
+   },
+   "train_identity": 148
+  },
+  "warehouse": {
+   "category": "places",
+   "held_out": false,
+   "train": 123,
+   "dev": 5,
+   "heldout": 1,
+   "reserve": 6,
+   "train_by_source": {
+    "backgen-new": 123
+   },
+   "train_identity": 58
+  },
+  "clinic": {
+   "category": "places",
+   "held_out": false,
+   "train": 263,
+   "dev": 8,
+   "heldout": 1,
+   "reserve": 9,
+   "train_by_source": {
+    "it1": 13,
+    "backgen-new": 194,
+    "backgen-same": 20,
+    "oversample": 36
+   },
+   "train_identity": 108
+  },
+  "pharmacy": {
+   "category": "places",
+   "held_out": false,
+   "train": 105,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 4,
+   "train_by_source": {
+    "it1": 1,
+    "backgen-new": 77,
+    "backgen-same": 2,
+    "template": 21,
+    "oversample": 4
+   },
+   "train_identity": 40
+  },
+  "bakery": {
+   "category": "places",
+   "held_out": false,
+   "train": 260,
+   "dev": 20,
+   "heldout": 2,
+   "reserve": 3,
+   "train_by_source": {
+    "it1": 54,
+    "backgen-new": 168,
+    "backgen-same": 9,
+    "template": 12,
+    "oversample": 17
+   },
+   "train_identity": 85
+  },
+  "library": {
+   "category": "places",
+   "held_out": false,
+   "train": 155,
+   "dev": 1,
+   "heldout": 0,
+   "reserve": 4,
+   "train_by_source": {
+    "it1": 1,
+    "backgen-new": 121,
+    "backgen-same": 9,
+    "template": 21,
+    "oversample": 3
+   },
+   "train_identity": 57
+  },
+  "museum": {
+   "category": "places",
+   "held_out": false,
+   "train": 140,
+   "dev": 2,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "it1": 5,
+    "backgen-new": 117,
+    "backgen-same": 9,
+    "template": 9
+   },
+   "train_identity": 55
+  },
+  "stadium": {
+   "category": "places",
+   "held_out": false,
+   "train": 31,
+   "dev": 2,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 31
+   },
+   "train_identity": 17
+  },
+  "harbor": {
+   "category": "places",
+   "held_out": false,
+   "train": 449,
+   "dev": 35,
+   "heldout": 4,
+   "reserve": 5,
+   "train_by_source": {
+    "it1": 195,
+    "backgen-new": 118,
+    "backgen-same": 134,
+    "oversample": 2
+   },
+   "train_identity": 122
+  },
+  "airport": {
+   "category": "places",
+   "held_out": false,
+   "train": 66,
+   "dev": 3,
+   "heldout": 0,
+   "reserve": 2,
+   "train_by_source": {
+    "it1": 14,
+    "backgen-new": 49,
+    "backgen-same": 3
+   },
+   "train_identity": 23
+  },
+  "courthouse": {
+   "category": "places",
+   "held_out": false,
+   "train": 14,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 14
+   },
+   "train_identity": 5
+  },
+  "garage": {
+   "category": "places",
+   "held_out": false,
+   "train": 136,
+   "dev": 13,
+   "heldout": 0,
+   "reserve": 6,
+   "train_by_source": {
+    "it1": 75,
+    "backgen-same": 23,
+    "backgen-new": 34,
+    "oversample": 4
+   },
+   "train_identity": 38
+  },
+  "greenhouse": {
+   "category": "places",
+   "held_out": false,
+   "train": 24,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 21,
+    "backgen-same": 3
+   },
+   "train_identity": 8
+  },
+  "vineyard": {
+   "category": "places",
+   "held_out": false,
+   "train": 26,
+   "dev": 1,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "it1": 2,
+    "backgen-new": 21,
+    "backgen-same": 3
+   },
+   "train_identity": 12
+  },
+  "farm": {
+   "category": "places",
+   "held_out": false,
+   "train": 31,
+   "dev": 3,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 29,
+    "oversample": 2
+   },
+   "train_identity": 12
+  },
+  "factory": {
+   "category": "places",
+   "held_out": false,
+   "train": 36,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 27,
+    "template": 9
+   },
+   "train_identity": 11
+  },
+  "laboratory": {
+   "category": "places",
+   "held_out": false,
+   "train": 14,
+   "dev": 2,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "it1": 1,
+    "backgen-new": 13
+   },
+   "train_identity": 7
+  },
+  "gym": {
+   "category": "places",
+   "held_out": false,
+   "train": 23,
+   "dev": 2,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 18,
+    "backgen-same": 2,
+    "oversample": 3
+   },
+   "train_identity": 7
+  },
+  "theater": {
+   "category": "places",
+   "held_out": false,
+   "train": 15,
+   "dev": 3,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "backgen-new": 15
+   },
+   "train_identity": 6
+  },
+  "invoice": {
+   "category": "places",
+   "held_out": false,
+   "train": 230,
+   "dev": 3,
+   "heldout": 2,
+   "reserve": 32,
+   "train_by_source": {
+    "it1": 5,
+    "backgen-new": 192,
+    "backgen-same": 28,
+    "oversample": 5
+   },
+   "train_identity": 99
+  },
+  "contract": {
+   "category": "places",
+   "held_out": false,
+   "train": 312,
+   "dev": 2,
+   "heldout": 4,
+   "reserve": 11,
+   "train_by_source": {
+    "it1": 3,
+    "backgen-new": 296,
+    "backgen-same": 10,
+    "oversample": 3
+   },
+   "train_identity": 128
+  },
+  "permit": {
+   "category": "places",
+   "held_out": false,
+   "train": 430,
+   "dev": 56,
+   "heldout": 3,
+   "reserve": 9,
+   "train_by_source": {
+    "it1": 227,
+    "backgen-same": 120,
+    "backgen-new": 83
+   },
+   "train_identity": 99
+  },
+  "certificate": {
+   "category": "places",
+   "held_out": false,
+   "train": 850,
+   "dev": 115,
+   "heldout": 1,
+   "reserve": 7,
+   "train_by_source": {
+    "it1": 480,
+    "backgen-same": 329,
+    "backgen-new": 39,
+    "oversample": 2
+   },
+   "train_identity": 174
+  },
+  "license": {
+   "category": "places",
+   "held_out": false,
+   "train": 127,
+   "dev": 18,
+   "heldout": 0,
+   "reserve": 3,
+   "train_by_source": {
+    "it1": 69,
+    "backgen-new": 53,
+    "backgen-same": 3,
+    "oversample": 2
+   },
+   "train_identity": 24
+  },
+  "receipt": {
+   "category": "places",
+   "held_out": false,
+   "train": 127,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 8,
+   "train_by_source": {
+    "it1": 6,
+    "backgen-new": 59,
+    "backgen-same": 62
+   },
+   "train_identity": 39
+  },
+  "parcel": {
+   "category": "places",
+   "held_out": false,
+   "train": 121,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 5,
+   "train_by_source": {
+    "it1": 8,
+    "backgen-new": 93,
+    "backgen-same": 20
+   },
+   "train_identity": 46
+  },
+  "laptop": {
+   "category": "places",
+   "held_out": false,
+   "train": 96,
+   "dev": 12,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "it1": 47,
+    "backgen-same": 24,
+    "backgen-new": 25
+   },
+   "train_identity": 27
+  },
+  "van": {
+   "category": "places",
+   "held_out": false,
+   "train": 242,
+   "dev": 20,
+   "heldout": 0,
+   "reserve": 3,
+   "train_by_source": {
+    "it1": 70,
+    "backgen-new": 105,
+    "backgen-same": 67
+   },
+   "train_identity": 67
+  },
+  "tractor": {
+   "category": "places",
+   "held_out": false,
+   "train": 9,
+   "dev": 0,
+   "heldout": 4,
+   "reserve": 2,
+   "train_by_source": {
+    "backgen-new": 8,
+    "backgen-same": 1
+   },
+   "train_identity": 6
+  },
+  "piano": {
+   "category": "places",
+   "held_out": false,
+   "train": 31,
+   "dev": 0,
+   "heldout": 0,
+   "reserve": 0,
+   "train_by_source": {
+    "it1": 6,
+    "backgen-new": 23,
+    "oversample": 2
+   },
+   "train_identity": 13
+  }
+ },
+ "romanian_sources_of_child_son_daughter": {
+  "child": {
+   "train": {
+    "romanian_source_pairs": 380,
+    "target_has_relation_word": 380,
+    "misaligned": 0
+   },
+   "dev": {
+    "romanian_source_pairs": 3,
+    "target_has_relation_word": 3,
+    "misaligned": 0
+   },
+   "heldout": {
+    "romanian_source_pairs": 1,
+    "target_has_relation_word": 1,
+    "misaligned": 0
+   }
+  },
+  "son": {
+   "train": {
+    "romanian_source_pairs": 227,
+    "target_has_relation_word": 227,
+    "misaligned": 0
+   },
+   "dev": {
+    "romanian_source_pairs": 4,
+    "target_has_relation_word": 4,
+    "misaligned": 0
+   },
+   "heldout": {
+    "romanian_source_pairs": 0,
+    "target_has_relation_word": 0,
+    "misaligned": 0
+   }
+  },
+  "daughter": {
+   "train": {
+    "romanian_source_pairs": 368,
+    "target_has_relation_word": 269,
+    "misaligned": 99
+   },
+   "dev": {
+    "romanian_source_pairs": 34,
+    "target_has_relation_word": 1,
+    "misaligned": 33
+   },
+   "heldout": {
+    "romanian_source_pairs": 1,
+    "target_has_relation_word": 1,
+    "misaligned": 0
+   }
+  }
+ },
+ "english_targets": {
+  "child": {
+   "train_targets": 636,
+   "train_distinct_targets": 190,
+   "parent_targets": 721
+  },
+  "son": {
+   "train_targets": 461,
+   "train_distinct_targets": 132,
+   "parent_targets": 721
+  },
+  "daughter": {
+   "train_targets": 623,
+   "train_distinct_targets": 185,
+   "parent_targets": 721
+  }
+ },
+ "words_with_no_train_target": [
+  "cousin (held out)",
+  "uncle (held out)",
+  "niece (held out)",
+  "supervisor (held out)",
+  "tutor (held out)",
+  "tenant (held out)",
+  "owe (held out)",
+  "audit (held out)",
+  "adopt (held out)",
+  "boatyard (held out)"
+ ]
+}

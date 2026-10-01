@@ -1,0 +1,21 @@
+{
+ "rows": 30,
+ "ms_p50": 233.0,
+ "ms_mean": 248.9,
+ "ms_max": 423,
+ "out_tokens_mean": 12.83,
+ "tokens_per_s_overall": 51.6,
+ "all600": {
+  "ms_p50": 239,
+  "tokens_per_s": 51.0
+ },
+ "threads": 4,
+ "quant": "Q8_0",
+ "server": "llama-server -ngl 0 -t 4 -c 4096",
+ "model": "models/gemma/language-proofing-gemma270m-it2/proofreader/gguf/ep3-q8_0.gguf",
+ "note": "measured with other agents jobs running (load average about 5); the earlier measurement during the K4 run gave p50 314 ms",
+ "iteration_1_same_load": {
+  "ms_p50": 254.0,
+  "tokens_per_s_overall": 51.2
+ }
+}

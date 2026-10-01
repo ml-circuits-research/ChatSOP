@@ -1,0 +1,57 @@
+{
+ "name": "lp-it3-epoch2",
+ "spacing_exact": {
+  "k": 239,
+  "n": 240,
+  "pct": 99.6,
+  "ci95": {
+   "k": 239,
+   "n": 240,
+   "p": 99.6,
+   "lo": 97.7,
+   "hi": 99.9
+  }
+ },
+ "spacing_returned_unchanged": {
+  "k": 37,
+  "n": 240,
+  "pct": 15.4,
+  "ci95": {
+   "k": 37,
+   "n": 240,
+   "p": 15.4,
+   "lo": 11.4,
+   "hi": 20.5
+  }
+ },
+ "identity_defect_free_untouched": {
+  "k": 662,
+  "n": 678,
+  "pct": 97.6,
+  "ci95": {
+   "k": 662,
+   "n": 678,
+   "p": 97.6,
+   "lo": 96.2,
+   "hi": 98.5
+  }
+ },
+ "identity_defect_units_untouched": {
+  "k": 0,
+  "n": 6,
+  "pct": 0,
+  "ci95": {
+   "k": 0,
+   "n": 6,
+   "p": 0,
+   "lo": 0,
+   "hi": 39
+  }
+ },
+ "examples_wrong": [
+  [
+   "Question: quick question: is he enrolled at Munteanu Primary School ?",
+   "Question: Quick question: is he enrolled at Munteanu Primary School?"
+  ]
+ ]
+}

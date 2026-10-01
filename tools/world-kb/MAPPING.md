@@ -4,58 +4,69 @@ One row per Wikidata property read. Facts carry `source "Wikidata <item> <proper
 
 | Property | Predicate | Args | Kind | Scope | Note |
 | --- | --- | --- | --- | --- | --- |
-| P36 | `capital` | `subject:entity object:entity` | entity | country | capital of the country (current) |
-| P30 | `on_continent` | `subject:entity object:entity` | entity | country |  |
-| P37 | `official_language` | `subject:entity object:entity` | entity | country |  |
+| P36 | `capital_of` | `subject:entity object:entity` | entity | country | capital of the country (current); flipped |
+| P30 | `located_in` | `subject:entity location:entity` | entity | country | continent; merged into located_in so that "which continent is X in" links |
+| P37 | `official_language_of` | `subject:entity object:entity` | entity | country | flipped |
 | P38 | `uses_currency` | `subject:entity object:entity` | entity | country |  |
-| P35 | `head_of_state` | `subject:entity object:entity` | entity | country | current holder, best rank |
-| P6 | `head_of_government` | `subject:entity object:entity` | entity | country | current holder, best rank |
+| P35 | `head_of_state_of` | `subject:entity object:entity` | entity | country | current holder, best rank; flipped |
+| P6 | `head_of_government_of` | `subject:entity object:entity` | entity | country | current holder, best rank; flipped |
 | P47 | `borders` | `subject:entity object:entity` | entity | country | shares a land border; Wikidata states both directions |
 | P463 | `member_of` | `subject:entity object:entity` | entity | country | membership in a curated list of international organizations (curated values) |
-| P1082 | `population` | `subject:entity object:integer` | integer | country, city, language, currency | best-rank value |
-| P2046 | `area_km2` | `subject:entity object:integer` | integer | country | square kilometres, rounded |
-| P571 | `founded_year` | `subject:entity object:integer` | year | country, company, university, organization, city | inception; year precision |
+| P1082 | `population_of` | `subject:integer object:entity` | integer | country, city, language, currency | best-rank value; flipped |
+| P2046 | `area_km2_of` | `subject:integer object:entity` | integer | country | square kilometres, rounded; flipped |
+| P571 | `founded_year` | `subject:entity time:integer` | year | country, company, university, organization, city | inception; year precision |
 | P297 | `iso_country_code` | `subject:entity object:text` | text | country | ISO 3166-1 alpha-2 |
 | P218 | `iso_language_code` | `subject:entity object:text` | text | language | ISO 639-1 |
 | P498 | `iso_currency_code` | `subject:entity object:text` | text | currency | ISO 4217 |
 | P279 | `language_family` | `subject:entity object:entity` | entity | language | subclass of: the family or parent language |
-| P17 | `located_in` | `subject:entity object:entity` | entity | country, city, company, university, organization, literary_work, film, painting | country; merged with P131 under one predicate (rule located_in_transitive) |
-| P131 | `located_in` | `subject:entity object:entity` | entity | city, company, university, organization | located in the administrative territorial entity |
-| P569 | `birth_year` | `subject:entity object:integer` | year | person |  |
-| P569 | `birth_date` | `subject:entity time:time` | date | person | only when the date has day precision |
-| P570 | `death_year` | `subject:entity object:integer` | year | person |  |
-| P570 | `death_date` | `subject:entity time:time` | date | person | only when the date has day precision |
-| P19 | `born_in` | `subject:entity object:entity` | entity | person |  |
-| P20 | `died_in` | `subject:entity object:entity` | entity | person |  |
+| P17 | `located_in` | `subject:entity location:entity` | entity | country, city, company, university, organization, literary_work, film, painting | country; merged with P131 and P30 under one predicate (rule r_located_trans) |
+| P131 | `located_in` | `subject:entity location:entity` | entity | city, company, university, organization | located in the administrative territorial entity |
+| P569 | `birth_year` | `subject:entity time:integer` | year | person |  |
+| P569 | `birth_date` | `subject:entity time:text` | date | person | ISO 8601 text, only when the date has day precision |
+| P570 | `death_year` | `subject:entity time:integer` | year | person |  |
+| P570 | `death_date` | `subject:entity time:text` | date | person | ISO 8601 text, only when the date has day precision |
+| P19 | `born_in` | `subject:entity location:entity` | entity | person |  |
+| P20 | `died_in` | `subject:entity location:entity` | entity | person |  |
 | P27 | `citizen_of` | `subject:entity object:entity` | entity | person |  |
 | P106 | `occupation` | `subject:entity object:entity` | entity | person |  |
 | P21 | `gender` | `subject:entity object:entity` | entity | person |  |
 | P69 | `educated_at` | `subject:entity object:entity` | entity | person |  |
-| P166 | `award_received` | `subject:entity object:entity` | entity | person | curated list: the Nobel Prizes, Fields Medal, Turing Award (curated values) |
-| P159 | `headquartered_in` | `subject:entity object:entity` | entity | company, university, organization |  |
-| P112 | `founded_by` | `subject:entity object:entity` | entity | company, organization |  |
+| P166 | `won` | `subject:entity object:entity` | entity | person | award received; curated list: the Nobel Prizes, Fields Medal, Turing Award (curated values) |
+| P159 | `headquartered_in` | `subject:entity location:entity` | entity | company, university, organization |  |
+| P112 | `founded` | `subject:entity object:entity` | entity | company, organization | founded by; flipped |
 | P452 | `industry` | `subject:entity object:entity` | entity | company |  |
 | P749 | `parent_organization` | `subject:entity object:entity` | entity | company, university |  |
-| P50 | `author` | `subject:entity object:entity` | entity | literary_work |  |
-| P57 | `director` | `subject:entity object:entity` | entity | film |  |
-| P170 | `creator` | `subject:entity object:entity` | entity | painting |  |
-| P577 | `publication_year` | `subject:entity object:integer` | year | literary_work, film, painting | publication or release; for paintings P571 is used instead |
-| P571 | `publication_year` | `subject:entity object:integer` | year | painting | inception of the painting |
-| P407 | `language_of_work` | `subject:entity object:entity` | entity | literary_work, film | P407 for literary works, P364 for films (original language) |
+| P50 | `wrote` | `subject:entity object:entity` | entity | literary_work | author; flipped |
+| P57 | `directed` | `subject:entity object:entity` | entity | film | director; flipped |
+| P170 | `painted` | `subject:entity object:entity` | entity | painting | creator of a painting; flipped |
+| P577 | `publication_year` | `subject:entity time:integer` | year | literary_work, film | publication or release year |
+| P571 | `publication_year` | `subject:entity time:integer` | year | painting | inception of the painting |
+| P407 | `language_of_work` | `subject:entity object:entity` | entity | literary_work | P407 for literary works, P364 for films (original language) |
 | P364 | `language_of_work` | `subject:entity object:entity` | entity | film |  |
 | P495 | `origin_country` | `subject:entity object:entity` | entity | literary_work, film |  |
-| P1086 | `atomic_number` | `subject:entity object:integer` | integer | element |  |
-| P246 | `element_symbol` | `subject:entity object:text` | text | element |  |
-| P575 | `discovery_year` | `subject:entity object:integer` | year | element |  |
-| P61 | `discoverer` | `subject:entity object:entity` | entity | element |  |
+| P1086 | `atomic_number_of` | `subject:integer object:entity` | integer | element | flipped |
+| P246 | `symbol_of` | `subject:text object:entity` | text | element | flipped |
+| P575 | `discovery_year` | `subject:entity time:integer` | year | element |  |
+| P61 | `discovered` | `subject:entity object:entity` | entity | element | discoverer; flipped |
 | P397 | `orbits` | `subject:entity object:entity` | entity | planet | parent astronomical body |
-| P575 | `discovery_year` | `subject:entity object:integer` | year | planet |  |
-| P61 | `discoverer` | `subject:entity object:entity` | entity | planet |  |
+| P575 | `discovery_year` | `subject:entity time:integer` | year | planet |  |
+| P61 | `discovered` | `subject:entity object:entity` | entity | planet |  |
 | P31 | `is_a` | `subject:entity object:entity` | derived | all selected | instance of: only the curated classes of CLASSES (country, city, human, ...), plus the selection class |
 | label | `label_en` | `subject:entity object:text` | derived | all selected | English label (rdfs:label@en) |
 | label | `label_ro` | `subject:entity object:text` | derived | all selected | Romanian label (rdfs:label@ro) when present; helps the host dictionary |
 | description | `description_en` | `subject:entity object:text` | derived | all selected | English description (schema:description@en) of selected entities |
 | wikibase:sitelinks | `sitelinks` | `subject:entity object:integer` | derived | all selected | number of Wikipedia editions; a notability measure used to pick the plain symbol on a name collision |
+
+## Copula readings
+
+The memory declares which predicates carry a reading of "be" (`reading NAME`, `describe_rank N` on the predicate wire, emitted by `ontology.mjs`); the KnowledgeLinker code names no predicate (DS021).
+
+| Predicate | Readings | Describe rank |
+| --- | --- | --- |
+| `is_a` | class, describe | 1 |
+| `occupation` | occupation, describe | 2 |
+| `description_en` | describe | 3 |
+| `located_in` | location |  |
 
 ## Entity classes
 

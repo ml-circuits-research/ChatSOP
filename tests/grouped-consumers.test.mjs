@@ -76,10 +76,10 @@ const abduce=group=>abduction+`@q query
 test('abduction treats any target as alternatives and all target as a joint obligation',async()=>{
  const any=await run(abduce('any'));
  assert.equal(any.result.explanations.length,2);
- assert.deepEqual(any.result.explanations.map(e=>e.members[0]).sort(),['one','two']);
+ assert.deepEqual(any.result.explanations.map(e=>e.hypotheses[0]).sort(),['one','two']);
  const all=await run(abduce('all'));
  assert.equal(all.result.explanations.length,1);
- assert.deepEqual(all.result.explanations[0].members.sort(),['one','two']);
+ assert.deepEqual(all.result.explanations[0].hypotheses.sort(),['one','two']);
 });
 
 test('diagnosis preserves grouped test alternatives as structured recommendations',async()=>{
@@ -95,8 +95,8 @@ test('diagnosis preserves grouped test alternatives as structured recommendation
   tests $test
 @text cnl
   result $d`);
- assert.equal(result.values.d.tests[0].separatedPairs,1);
- assert.deepEqual(result.values.d.nextTest.query.where[0],{kind:'any',children:[{p:'cause_one',a:['s'],neg:false},{p:'unrelated',a:['s'],neg:false}]});
+ assert.equal(result.values.d.tests[0].separated_pairs,1);
+ assert.deepEqual(result.values.d.next_test.query.where[0],{kind:'any',children:[{p:'cause_one',a:['s'],neg:false},{p:'unrelated',a:['s'],neg:false}]});
 });
 
 test('association traverses grouped query cue atoms for relational ranking',()=>{

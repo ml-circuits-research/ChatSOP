@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /** End-to-end SOP proof, cold promotion, protected history and physical GC.
  * Synthetic fixtures; no LLM, external solver, or dependency is required. */
+import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
 import assert from 'node:assert/strict';
 import {Repository} from '../memory/repository.mjs';import {Runtime} from '../sop/runtime.mjs';
@@ -9,7 +10,7 @@ import {saveJSON,cliArgs} from '../lib/util.mjs';
 const args=cliArgs(),root=fs.mkdtempSync(path.join(os.tmpdir(),'sop-shards-demo-'));
 const config={power:9,arity:3,verification:'receipt',retention:{writeStrength:2,useStrength:1,reinforceOnUse:true},
  sharding:{enabled:true,mode:'bounded',maxClaimsPerShard:2,maxColdShards:2,safeOccupancy:.9,gcEveryWrites:0}};
-const schema=Lexicon.load(new URL('../config/ontology.sop',import.meta.url)).predicates;
+const schema=demoLexicon().predicates;
 const fixture='@kinship rule\n  when parent ?x ?y\n  when parent ?y ?z\n  then grandparent ?x ?z';
 const query='@q query\n  where grandparent ana carina\n@r solve\n  query $q\n@answer cnl\n  result $r\n  language ro';
 const fact=(i)=>({kind:'fact',atom:{p:'likes',a:['person_'+i,'org_'+i],neg:false},valid:{from:-Infinity,until:Infinity},source:'demo'});

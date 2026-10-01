@@ -1,0 +1,199 @@
+{
+  "format": "chatsop-experiment-index-v1",
+  "predictor_identity": "deterministic-baseline-gold-copy",
+  "evaluation_kind": "gold-copy evaluator sanity check; no model predictions or model accuracy",
+  "manifest": "eval/registry/baseline.json",
+  "manifest_sha256": "915f42a07d22c166fa39fe3a4eed23bd12227975dd52e91066b525292b1ffd03",
+  "leakage_report": "eval/reports/current/registry-baseline/leakage.json",
+  "leakage_sha256": "26614f71f2ae15c680f133d37b6976212aec25ff00c682c79e233bba4bad9793",
+  "cells": [
+    {
+      "id": "baseline-formalizer-dev-formalization",
+      "split": "dev",
+      "suite_sha256": "86c85e9aa12a9bade23e4c8453b694f57838ab7022ecc67949f524a6ffdd88f2",
+      "predictions_sha256": "84ddab69903831de37ddb0144ed361d08de97681f58a9bddd5afd17d8679bd9b",
+      "report": "eval/reports/current/registry-baseline/baseline-formalizer-dev-formalization.json",
+      "report_sha256": "683c31c18659cb9e78fccf980d2e28c9121d293afaa1a7e7e725b50e1434e3e3",
+      "metrics": {
+        "rows": 5131,
+        "syntax": {
+          "numerator": 5131,
+          "denominator": 5131,
+          "value": 1
+        },
+        "runtime": {
+          "numerator": 5131,
+          "denominator": 5131,
+          "value": 1
+        },
+        "canonical_match": {
+          "numerator": 5131,
+          "denominator": 5131,
+          "value": 1
+        },
+        "execution_equivalence": {
+          "numerator": 5131,
+          "denominator": 5131,
+          "value": 1
+        },
+        "execution_equivalence_tolerant": {
+          "numerator": 5131,
+          "denominator": 5131,
+          "value": 1
+        },
+        "canonical_match_primary": {
+          "numerator": 5131,
+          "denominator": 5131,
+          "value": 1
+        },
+        "execution_equivalence_primary": {
+          "numerator": 5131,
+          "denominator": 5131,
+          "value": 1
+        },
+        "unknown": {
+          "numerator": 1184,
+          "denominator": 1184,
+          "value": 1
+        },
+        "unsupported_or_invalid_reference": 0,
+        "latency_ms": {
+          "model": {
+            "count": 5131,
+            "p50": 0.002304000001458917,
+            "p95": 0.004064000000653323,
+            "max": 0.37291199999890523
+          },
+          "setup": {
+            "count": 5131,
+            "p50": 2.291410999998334,
+            "p95": 3.1440199999997276,
+            "max": 7.940411000003223
+          },
+          "gold": {
+            "count": 5131,
+            "p50": 1.3720810000013444,
+            "p95": 9.917453999994905,
+            "max": 591.1760360000044
+          },
+          "prediction": {
+            "count": 5131,
+            "p50": 0.7614729999986594,
+            "p95": 8.542381000000205,
+            "max": 405.3281930000012
+          },
+          "total": {
+            "count": 5131,
+            "p50": 4.862087000001338,
+            "p95": 30.39469900000404,
+            "max": 595.8989230000007
+          }
+        },
+        "paraphrase_invariance": {
+          "numerator": 496,
+          "denominator": 499,
+          "value": 0.9939879759519038
+        },
+        "hard_negative_pair_correctness": {
+          "numerator": 46,
+          "denominator": 46,
+          "value": 1
+        }
+      }
+    },
+    {
+      "id": "baseline-formalizer-test-formalization",
+      "split": "test",
+      "suite_sha256": "b05c76a83efbad8a6027137cb13bc9eeb57812574663818624a98692a11930ac",
+      "predictions_sha256": "950df3e62d623707c244dceb9d45480f0af3441dbf944def2f39dfeba6e3f0f6",
+      "report": "eval/reports/current/registry-baseline/baseline-formalizer-test-formalization.json",
+      "report_sha256": "f92361e87764b96fa46e456fe1f230e6f2d1d7ccd3c14467d31c8147b88268b5",
+      "metrics": {
+        "rows": 5033,
+        "syntax": {
+          "numerator": 5033,
+          "denominator": 5033,
+          "value": 1
+        },
+        "runtime": {
+          "numerator": 5033,
+          "denominator": 5033,
+          "value": 1
+        },
+        "canonical_match": {
+          "numerator": 5033,
+          "denominator": 5033,
+          "value": 1
+        },
+        "execution_equivalence": {
+          "numerator": 5033,
+          "denominator": 5033,
+          "value": 1
+        },
+        "execution_equivalence_tolerant": {
+          "numerator": 5033,
+          "denominator": 5033,
+          "value": 1
+        },
+        "canonical_match_primary": {
+          "numerator": 5033,
+          "denominator": 5033,
+          "value": 1
+        },
+        "execution_equivalence_primary": {
+          "numerator": 5033,
+          "denominator": 5033,
+          "value": 1
+        },
+        "unknown": {
+          "numerator": 1229,
+          "denominator": 1229,
+          "value": 1
+        },
+        "unsupported_or_invalid_reference": 0,
+        "latency_ms": {
+          "model": {
+            "count": 5033,
+            "p50": 0.0026239999860990793,
+            "p95": 0.007215999998152256,
+            "max": 0.041456000006292015
+          },
+          "setup": {
+            "count": 5033,
+            "p50": 2.6158920000016224,
+            "p95": 3.684517000001506,
+            "max": 8.993260999995982
+          },
+          "gold": {
+            "count": 5033,
+            "p50": 1.542306000003009,
+            "p95": 12.857282000011764,
+            "max": 136.68697599999723
+          },
+          "prediction": {
+            "count": 5033,
+            "p50": 0.8239849999954458,
+            "p95": 10.868046999996295,
+            "max": 136.8999679999979
+          },
+          "total": {
+            "count": 5033,
+            "p50": 5.698279999996885,
+            "p95": 39.9912239999976,
+            "max": 475.0486810000002
+          }
+        },
+        "paraphrase_invariance": {
+          "numerator": 406,
+          "denominator": 408,
+          "value": 0.9950980392156863
+        },
+        "hard_negative_pair_correctness": {
+          "numerator": 61,
+          "denominator": 61,
+          "value": 1
+        }
+      }
+    }
+  ]
+}

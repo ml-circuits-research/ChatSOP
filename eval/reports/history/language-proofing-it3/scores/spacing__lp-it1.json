@@ -1,0 +1,77 @@
+{
+ "name": "lp-it1",
+ "spacing_exact": {
+  "k": 204,
+  "n": 240,
+  "pct": 85,
+  "ci95": {
+   "k": 204,
+   "n": 240,
+   "p": 85,
+   "lo": 79.9,
+   "hi": 89
+  }
+ },
+ "spacing_returned_unchanged": {
+  "k": 40,
+  "n": 240,
+  "pct": 16.7,
+  "ci95": {
+   "k": 40,
+   "n": 240,
+   "p": 16.7,
+   "lo": 12.5,
+   "hi": 21.9
+  }
+ },
+ "identity_defect_free_untouched": {
+  "k": 616,
+  "n": 678,
+  "pct": 90.9,
+  "ci95": {
+   "k": 616,
+   "n": 678,
+   "p": 90.9,
+   "lo": 88.4,
+   "hi": 92.8
+  }
+ },
+ "identity_defect_units_untouched": {
+  "k": 0,
+  "n": 6,
+  "pct": 0,
+  "ci95": {
+   "k": 0,
+   "n": 6,
+   "p": 0,
+   "lo": 0,
+   "hi": 39
+  }
+ },
+ "examples_wrong": [
+  [
+   "i work at Delta Print; does my brother also work at Delta Print ?",
+   "I work at Delta Print; does my brother also work at Delta Print?"
+  ],
+  [
+   "The search index relies on the booking app; the payments gateway doesn't rely on the login service .",
+   "The search index relies on the booking app; The payments gateway doesn't rely on the login service."
+  ],
+  [
+   "only a few parents came to the meeting and none of them had received the new  timetable",
+   "Only a few parents came to the meeting and none of them had received the new timetable."
+  ],
+  [
+   "Quick question: Emre Şahin has borrowed The Quiet Harbour; Parisa Farahani  borrowed The Glass Orchard.",
+   "Quick question: Emre Şahin has borrowed The Quiet Harbour; Parisa Farahani has borrowed The Glass Orchard."
+  ],
+  [
+   "tariq  maintains the inventory api .",
+   "Tariq maintains the inventory API."
+  ],
+  [
+   "So is Roxana the owner of the holiday cottage in Bran???",
+   "So is Roxana the owner of the holiday cottage in Bran???"
+  ]
+ ]
+}

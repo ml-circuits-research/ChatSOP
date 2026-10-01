@@ -1,0 +1,104 @@
+{
+ "test_it2_minus_identity": {
+  "repair_good_with_judges": {
+   "n": 739,
+   "delta": 32.2,
+   "lo": 28.7,
+   "hi": 35.6
+  },
+  "repair_good_local_only": {
+   "n": 739,
+   "delta": 16.1,
+   "lo": 12.7,
+   "hi": 19.4
+  },
+  "fixed": {
+   "n": 699,
+   "delta": 34.6,
+   "lo": 31,
+   "hi": 38.2
+  },
+  "identity_kept": {
+   "n": 495,
+   "delta": -19.8,
+   "lo": -23.2,
+   "hi": -16.4
+  }
+ },
+ "test_it2_minus_base": {
+  "repair_good_with_judges": {
+   "n": 739,
+   "delta": 37.2,
+   "lo": 33.7,
+   "hi": 40.6
+  },
+  "repair_good_local_only": {
+   "n": 739,
+   "delta": 40.6,
+   "lo": 37.2,
+   "hi": 44.1
+  },
+  "fixed": {
+   "n": 699,
+   "delta": 34.5,
+   "lo": 30.9,
+   "hi": 38.1
+  },
+  "identity_kept": {
+   "n": 495,
+   "delta": 78.4,
+   "lo": 74.7,
+   "hi": 82
+  }
+ },
+ "test_it2_minus_it1": {
+  "repair_good_with_judges": {
+   "n": 739,
+   "delta": 28.3,
+   "lo": 24.5,
+   "hi": 32.1
+  },
+  "repair_good_local_only": {
+   "n": 739,
+   "delta": 16.2,
+   "lo": 12.9,
+   "hi": 19.6
+  },
+  "fixed": {
+   "n": 699,
+   "delta": 29.9,
+   "lo": 26,
+   "hi": 33.8
+  },
+  "identity_kept": {
+   "n": 495,
+   "delta": -3.6,
+   "lo": -8.3,
+   "hi": 1.2
+  }
+ },
+ "sym500_it2_minus_identity": {
+  "identity_kept": {
+   "n": 500,
+   "delta": -15.4,
+   "lo": -18.8,
+   "hi": -12.4
+  }
+ },
+ "sym500_it2_minus_base": {
+  "identity_kept": {
+   "n": 500,
+   "delta": 83,
+   "lo": 79.6,
+   "hi": 86.2
+  }
+ },
+ "sym500_it2_minus_it1": {
+  "identity_kept": {
+   "n": 500,
+   "delta": 1.2,
+   "lo": -3,
+   "hi": 5.6
+  }
+ }
+}

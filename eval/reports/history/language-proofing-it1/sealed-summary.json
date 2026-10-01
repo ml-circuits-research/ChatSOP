@@ -1,0 +1,42 @@
+{
+ "file": "eval/suites/bad_english/proofing-test.jsonl",
+ "sha256": "dc806bd35f7463ab40f54207d56cb6bbdb44bf9a71e9719de1203ce5bff1c178",
+ "pairs": 10711,
+ "by_pair": {
+  "identity": 2276,
+  "repair": 8435
+ },
+ "by_kind": {
+  "clean": 2276,
+  "mixed": 422,
+  "noisy_en": 1776,
+  "ro": 6237
+ },
+ "by_row_kind": {
+  "mixed": 3995,
+  "noisy_en": 2651,
+  "ro": 4065
+ },
+ "by_target_source": {
+  "identity:in-row": 2276,
+  "llm:deepseek-flash": 3336,
+  "new_cases.clean": 157,
+  "noise-inverse": 1073,
+  "none": 3752,
+  "proofing.repair": 117
+ },
+ "with_reference": 6959,
+ "rows": 4245,
+ "skipped": {
+  "sentence_count_differs": 71
+ },
+ "dropped": 646,
+ "dropped_train_overlap": 0,
+ "unlabelled_rows": 462,
+ "sealed_hashes": 22778,
+ "clean_units": {
+  "file": "eval/suites/bad_english/proofing-test-clean.jsonl",
+  "sha256": "760fad92211c366b5726bef17f979cf61b8758224bf2d83979f0a9fb2e79cfd9",
+  "units": 900
+ }
+}

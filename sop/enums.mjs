@@ -15,6 +15,14 @@ export const BASES = Object.freeze(['closure', 'default', 'disambiguation', 'imp
  * its argument positions to them with `role NAME TYPE` lines.
  */
 export const ROLE_NAMES = Object.freeze(['subject', 'object', 'recipient', 'location', 'source', 'destination', 'instrument', 'time', 'topic']);
+/**
+ * Copula readings (DS021 "KnowledgeLinker: the copula"): the only readings of "be" the linker code knows. A base
+ * memory declares which of its predicates carry one (`reading NAME` on a predicate wire); the linker never names a
+ * predicate itself. `class` = membership in a kind, `occupation` = what someone does for a living, `attribute` = a
+ * property, `identity` = the same thing, `location` = where something is, `describe` = a predicate whose facts about a
+ * subject answer "who/what is X?" (ranked by `describe_rank`).
+ */
+export const COPULA_READINGS = Object.freeze(['class', 'occupation', 'attribute', 'identity', 'location', 'describe']);
 /** Validity forms of a proposition: `valid on|from|until "text"`; the host normalizes the text. */
 export const VALIDITY_FORMS = Object.freeze(['on', 'from', 'until']);
 /** Output port modes: `output ?name MODE` on solve and reasoning operations (default one). */
@@ -107,7 +115,7 @@ export const ENUMS = Object.freeze({
   constraint: {task: ['prove', 'possible', 'optimize'], direction: ['min', 'max']},
   rule: {mode: ['logical', 'causal']},
   event: {action: ['end', 'retract', 'correct']},
-  resolve: {kind: ['entity', 'predicate', 'concept']},
+  resolve: {kind: ['entity', 'predicate']},
   stated: {polarity: [...POLARITIES], certainty: [...CERTAINTIES]},
   assumed: {polarity: [...POLARITIES], basis: [...BASES]},
   unclear: {kind: Object.keys(UNCLEAR_KINDS), language: [...REPLY_LANGUAGES], readingKinds: [...READING_KINDS]},

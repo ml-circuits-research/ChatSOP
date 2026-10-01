@@ -51,7 +51,7 @@ The language is documented in `docs/specs/DS004-sop.md` (section "Knowledge wire
 
 ## No jsEval, no approval, no model-surface wires
 
-Never write `jsEval`: it is a trusted, host-only wire, opaque to every engine, and an expression from a source is code, not knowledge. What `compute`, `compare`, the aggregates and `constraint` cannot express goes in the report. Never write `approval`, `approved_by` or `approved_at`, and never write an `amendment` (the host composes it). Never write the model-surface wires `stated`, `assumed`, `unclear`, `unparsed`: they are what the small model emits from a user's message, and the model-origin compiler rejects every knowledge wire. A `query` wire is allowed only in `queries.sop`, as a test.
+Never write `jsEval`: it is a trusted, host-only wire, opaque to every engine, and an expression from a source is code, not knowledge. What `compute`, `compare`, the aggregates and `constraint` cannot express goes in the report. Never write `approval`, `approved_by` or `approved_at`, and never write an `amendment` (the host composes it). The programming wires `test` and `code` are host or turn wires: write them only under the programming task `programming/TASK.md` (an instruction to a small JavaScript function), never in knowledge compiled from a source, and never a `test` of `kind sealed`. Never write the model-surface wires `stated`, `assumed`, `unclear`, `unparsed`: they are what the small model emits from a user's message, and the model-origin compiler rejects every knowledge wire. A `query` wire is allowed only in `queries.sop`, as a test.
 
 ## The differential check
 

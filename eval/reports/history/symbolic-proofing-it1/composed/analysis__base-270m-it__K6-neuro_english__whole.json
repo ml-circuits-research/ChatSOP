@@ -1,0 +1,643 @@
+{
+ "generated_at": "2026-09-30T21:32:54.889Z",
+ "summary": {
+  "run": "base-270m-it K6-neuro_english whole",
+  "name": "base-270m-it",
+  "kind": "K6",
+  "mode": "whole",
+  "cases": 16,
+  "input_analysis_correct": {
+   "k": 4,
+   "n": 16,
+   "p": 25,
+   "lo": 10.2,
+   "hi": 49.5
+  },
+  "output_analysis_correct": {
+   "k": 7,
+   "n": 16,
+   "p": 43.8,
+   "lo": 23.1,
+   "hi": 66.8
+  },
+  "expected_analysis_correct": {
+   "k": 9,
+   "n": 16,
+   "p": 56.3,
+   "lo": 33.2,
+   "hi": 76.9
+  },
+  "sentences_correct_in": {
+   "k": 4,
+   "n": 16,
+   "p": 25,
+   "lo": 10.2,
+   "hi": 49.5
+  },
+  "sentences_correct_out": {
+   "k": 18,
+   "n": 39,
+   "p": 46.2,
+   "lo": 31.6,
+   "hi": 61.4
+  },
+  "sentences_correct_expected": {
+   "k": 35,
+   "n": 45,
+   "p": 77.8,
+   "lo": 63.7,
+   "hi": 87.5
+  },
+  "output_meaning_ok_mechanical": {
+   "k": 4,
+   "n": 16,
+   "p": 25,
+   "lo": 10.2,
+   "hi": 49.5
+  },
+  "output_analysis_correct_and_meaning_ok": {
+   "k": 1,
+   "n": 16,
+   "p": 6.3,
+   "lo": 1.1,
+   "hi": 28.3
+  },
+  "fixed_of_failing_inputs": {
+   "k": 0,
+   "n": 12,
+   "p": 0,
+   "lo": 0,
+   "hi": 24.3
+  },
+  "worse_than_input": {
+   "k": 2,
+   "n": 4,
+   "p": 50,
+   "lo": 15,
+   "hi": 85
+  },
+  "text_unchanged": {
+   "k": 0,
+   "n": 16,
+   "p": 0,
+   "lo": 0,
+   "hi": 19.4
+  },
+  "same_analysis_as_input": {
+   "k": 0,
+   "n": 16,
+   "p": 0,
+   "lo": 0,
+   "hi": 19.4
+  },
+  "sentence_count_equals_expected": {
+   "k": 1,
+   "n": 16,
+   "p": 6.3,
+   "lo": 1.1,
+   "hi": 28.3
+  },
+  "output_one_clause_sentences": {
+   "k": 23,
+   "n": 39,
+   "p": 59,
+   "lo": 43.4,
+   "hi": 72.9
+  },
+  "expected_one_clause_sentences": {
+   "k": 25,
+   "n": 45,
+   "p": 55.6,
+   "lo": 41.2,
+   "hi": 69.1
+  },
+  "output_explicit_subject_sentences": {
+   "k": 34,
+   "n": 39,
+   "p": 87.2,
+   "lo": 73.3,
+   "hi": 94.4
+  },
+  "expected_explicit_subject_sentences": {
+   "k": 45,
+   "n": 45,
+   "p": 100,
+   "lo": 92.1,
+   "hi": 100
+  }
+ },
+ "records": [
+  {
+   "id": "composed-k6-0005",
+   "n_sentences": 3,
+   "unchanged": false,
+   "in_pass": true,
+   "out_pass": false,
+   "expected_pass": true,
+   "out_sentences": 16,
+   "out_sentences_pass": 5,
+   "in_sentences": 1,
+   "in_sentences_pass": 1,
+   "expected_sentences": 3,
+   "expected_sentences_pass": 3,
+   "same_analysis": false,
+   "meaning_ok": false,
+   "good": false,
+   "shape_out": {
+    "sentences": 16,
+    "one_clause": 12,
+    "subject": 12,
+    "max_words": 13,
+    "clauses": 21
+   },
+   "shape_expected": {
+    "sentences": 3,
+    "one_clause": 2,
+    "subject": 3,
+    "max_words": 16,
+    "clauses": 4
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0003",
+   "n_sentences": 2,
+   "unchanged": false,
+   "in_pass": false,
+   "out_pass": false,
+   "expected_pass": true,
+   "out_sentences": 1,
+   "out_sentences_pass": 0,
+   "in_sentences": 1,
+   "in_sentences_pass": 0,
+   "expected_sentences": 2,
+   "expected_sentences_pass": 2,
+   "same_analysis": false,
+   "meaning_ok": false,
+   "good": false,
+   "shape_out": {
+    "sentences": 1,
+    "one_clause": 0,
+    "subject": 1,
+    "max_words": 14,
+    "clauses": 3
+   },
+   "shape_expected": {
+    "sentences": 2,
+    "one_clause": 1,
+    "subject": 2,
+    "max_words": 9,
+    "clauses": 3
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0015",
+   "n_sentences": 2,
+   "unchanged": false,
+   "in_pass": false,
+   "out_pass": false,
+   "expected_pass": false,
+   "out_sentences": 1,
+   "out_sentences_pass": 0,
+   "in_sentences": 1,
+   "in_sentences_pass": 0,
+   "expected_sentences": 2,
+   "expected_sentences_pass": 1,
+   "same_analysis": false,
+   "meaning_ok": false,
+   "good": false,
+   "shape_out": {
+    "sentences": 1,
+    "one_clause": 0,
+    "subject": 1,
+    "max_words": 16,
+    "clauses": 2
+   },
+   "shape_expected": {
+    "sentences": 2,
+    "one_clause": 0,
+    "subject": 2,
+    "max_words": 14,
+    "clauses": 4
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0006",
+   "n_sentences": 5,
+   "unchanged": false,
+   "in_pass": false,
+   "out_pass": true,
+   "expected_pass": true,
+   "out_sentences": 1,
+   "out_sentences_pass": 1,
+   "in_sentences": 1,
+   "in_sentences_pass": 0,
+   "expected_sentences": 5,
+   "expected_sentences_pass": 5,
+   "same_analysis": false,
+   "meaning_ok": false,
+   "good": false,
+   "shape_out": {
+    "sentences": 1,
+    "one_clause": 1,
+    "subject": 1,
+    "max_words": 6,
+    "clauses": 1
+   },
+   "shape_expected": {
+    "sentences": 5,
+    "one_clause": 4,
+    "subject": 5,
+    "max_words": 8,
+    "clauses": 6
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0004",
+   "n_sentences": 3,
+   "unchanged": false,
+   "in_pass": false,
+   "out_pass": true,
+   "expected_pass": false,
+   "out_sentences": 1,
+   "out_sentences_pass": 1,
+   "in_sentences": 1,
+   "in_sentences_pass": 0,
+   "expected_sentences": 3,
+   "expected_sentences_pass": 1,
+   "same_analysis": false,
+   "meaning_ok": false,
+   "good": false,
+   "shape_out": {
+    "sentences": 1,
+    "one_clause": 0,
+    "subject": 1,
+    "max_words": 16,
+    "clauses": 2
+   },
+   "shape_expected": {
+    "sentences": 3,
+    "one_clause": 2,
+    "subject": 3,
+    "max_words": 23,
+    "clauses": 6
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0008",
+   "n_sentences": 3,
+   "unchanged": false,
+   "in_pass": false,
+   "out_pass": false,
+   "expected_pass": false,
+   "out_sentences": 1,
+   "out_sentences_pass": 0,
+   "in_sentences": 1,
+   "in_sentences_pass": 0,
+   "expected_sentences": 3,
+   "expected_sentences_pass": 2,
+   "same_analysis": false,
+   "meaning_ok": true,
+   "good": false,
+   "shape_out": {
+    "sentences": 1,
+    "one_clause": 0,
+    "subject": 1,
+    "max_words": 35,
+    "clauses": 6
+   },
+   "shape_expected": {
+    "sentences": 3,
+    "one_clause": 1,
+    "subject": 3,
+    "max_words": 15,
+    "clauses": 6
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0002",
+   "n_sentences": 2,
+   "unchanged": false,
+   "in_pass": true,
+   "out_pass": true,
+   "expected_pass": true,
+   "out_sentences": 1,
+   "out_sentences_pass": 1,
+   "in_sentences": 1,
+   "in_sentences_pass": 1,
+   "expected_sentences": 2,
+   "expected_sentences_pass": 2,
+   "same_analysis": false,
+   "meaning_ok": false,
+   "good": false,
+   "shape_out": {
+    "sentences": 1,
+    "one_clause": 1,
+    "subject": 1,
+    "max_words": 7,
+    "clauses": 1
+   },
+   "shape_expected": {
+    "sentences": 2,
+    "one_clause": 1,
+    "subject": 2,
+    "max_words": 10,
+    "clauses": 3
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0014",
+   "n_sentences": 3,
+   "unchanged": false,
+   "in_pass": true,
+   "out_pass": true,
+   "expected_pass": true,
+   "out_sentences": 1,
+   "out_sentences_pass": 1,
+   "in_sentences": 1,
+   "in_sentences_pass": 1,
+   "expected_sentences": 3,
+   "expected_sentences_pass": 3,
+   "same_analysis": false,
+   "meaning_ok": true,
+   "good": true,
+   "shape_out": {
+    "sentences": 1,
+    "one_clause": 0,
+    "subject": 1,
+    "max_words": 15,
+    "clauses": 2
+   },
+   "shape_expected": {
+    "sentences": 3,
+    "one_clause": 2,
+    "subject": 3,
+    "max_words": 17,
+    "clauses": 4
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0016",
+   "n_sentences": 2,
+   "unchanged": false,
+   "in_pass": false,
+   "out_pass": false,
+   "expected_pass": true,
+   "out_sentences": 1,
+   "out_sentences_pass": 0,
+   "in_sentences": 1,
+   "in_sentences_pass": 0,
+   "expected_sentences": 2,
+   "expected_sentences_pass": 2,
+   "same_analysis": false,
+   "meaning_ok": false,
+   "good": false,
+   "shape_out": {
+    "sentences": 1,
+    "one_clause": 0,
+    "subject": 1,
+    "max_words": 18,
+    "clauses": 2
+   },
+   "shape_expected": {
+    "sentences": 2,
+    "one_clause": 0,
+    "subject": 2,
+    "max_words": 14,
+    "clauses": 5
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0007",
+   "n_sentences": 2,
+   "unchanged": false,
+   "in_pass": false,
+   "out_pass": true,
+   "expected_pass": true,
+   "out_sentences": 1,
+   "out_sentences_pass": 1,
+   "in_sentences": 1,
+   "in_sentences_pass": 0,
+   "expected_sentences": 2,
+   "expected_sentences_pass": 2,
+   "same_analysis": false,
+   "meaning_ok": false,
+   "good": false,
+   "shape_out": {
+    "sentences": 1,
+    "one_clause": 1,
+    "subject": 1,
+    "max_words": 9,
+    "clauses": 1
+   },
+   "shape_expected": {
+    "sentences": 2,
+    "one_clause": 0,
+    "subject": 2,
+    "max_words": 18,
+    "clauses": 4
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0010",
+   "n_sentences": 3,
+   "unchanged": false,
+   "in_pass": false,
+   "out_pass": true,
+   "expected_pass": true,
+   "out_sentences": 1,
+   "out_sentences_pass": 1,
+   "in_sentences": 1,
+   "in_sentences_pass": 0,
+   "expected_sentences": 3,
+   "expected_sentences_pass": 3,
+   "same_analysis": false,
+   "meaning_ok": false,
+   "good": false,
+   "shape_out": {
+    "sentences": 1,
+    "one_clause": 1,
+    "subject": 1,
+    "max_words": 9,
+    "clauses": 1
+   },
+   "shape_expected": {
+    "sentences": 3,
+    "one_clause": 1,
+    "subject": 3,
+    "max_words": 17,
+    "clauses": 6
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0009",
+   "n_sentences": 4,
+   "unchanged": false,
+   "in_pass": false,
+   "out_pass": false,
+   "expected_pass": false,
+   "out_sentences": 1,
+   "out_sentences_pass": 0,
+   "in_sentences": 1,
+   "in_sentences_pass": 0,
+   "expected_sentences": 4,
+   "expected_sentences_pass": 3,
+   "same_analysis": false,
+   "meaning_ok": true,
+   "good": false,
+   "shape_out": {
+    "sentences": 1,
+    "one_clause": 0,
+    "subject": 1,
+    "max_words": 15,
+    "clauses": 2
+   },
+   "shape_expected": {
+    "sentences": 4,
+    "one_clause": 3,
+    "subject": 4,
+    "max_words": 13,
+    "clauses": 6
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0012",
+   "n_sentences": 3,
+   "unchanged": false,
+   "in_pass": true,
+   "out_pass": false,
+   "expected_pass": true,
+   "out_sentences": 1,
+   "out_sentences_pass": 0,
+   "in_sentences": 1,
+   "in_sentences_pass": 1,
+   "expected_sentences": 3,
+   "expected_sentences_pass": 3,
+   "same_analysis": false,
+   "meaning_ok": true,
+   "good": false,
+   "shape_out": {
+    "sentences": 1,
+    "one_clause": 1,
+    "subject": 1,
+    "max_words": 5,
+    "clauses": 1
+   },
+   "shape_expected": {
+    "sentences": 3,
+    "one_clause": 3,
+    "subject": 3,
+    "max_words": 8,
+    "clauses": 3
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0013",
+   "n_sentences": 2,
+   "unchanged": false,
+   "in_pass": false,
+   "out_pass": false,
+   "expected_pass": false,
+   "out_sentences": 8,
+   "out_sentences_pass": 5,
+   "in_sentences": 1,
+   "in_sentences_pass": 0,
+   "expected_sentences": 2,
+   "expected_sentences_pass": 1,
+   "same_analysis": false,
+   "meaning_ok": false,
+   "good": false,
+   "shape_out": {
+    "sentences": 8,
+    "one_clause": 4,
+    "subject": 7,
+    "max_words": 21,
+    "clauses": 13
+   },
+   "shape_expected": {
+    "sentences": 2,
+    "one_clause": 2,
+    "subject": 2,
+    "max_words": 8,
+    "clauses": 2
+   },
+   "sentence_count_equals_expected": false
+  },
+  {
+   "id": "composed-k6-0011",
+   "n_sentences": 2,
+   "unchanged": false,
+   "in_pass": false,
+   "out_pass": false,
+   "expected_pass": false,
+   "out_sentences": 2,
+   "out_sentences_pass": 1,
+   "in_sentences": 1,
+   "in_sentences_pass": 0,
+   "expected_sentences": 2,
+   "expected_sentences_pass": 1,
+   "same_analysis": false,
+   "meaning_ok": false,
+   "good": false,
+   "shape_out": {
+    "sentences": 2,
+    "one_clause": 1,
+    "subject": 2,
+    "max_words": 24,
+    "clauses": 5
+   },
+   "shape_expected": {
+    "sentences": 2,
+    "one_clause": 0,
+    "subject": 2,
+    "max_words": 17,
+    "clauses": 6
+   },
+   "sentence_count_equals_expected": true
+  },
+  {
+   "id": "composed-k6-0001",
+   "n_sentences": 4,
+   "unchanged": false,
+   "in_pass": false,
+   "out_pass": true,
+   "expected_pass": false,
+   "out_sentences": 1,
+   "out_sentences_pass": 1,
+   "in_sentences": 1,
+   "in_sentences_pass": 0,
+   "expected_sentences": 4,
+   "expected_sentences_pass": 1,
+   "same_analysis": false,
+   "meaning_ok": false,
+   "good": false,
+   "shape_out": {
+    "sentences": 1,
+    "one_clause": 1,
+    "subject": 1,
+    "max_words": 4,
+    "clauses": 1
+   },
+   "shape_expected": {
+    "sentences": 4,
+    "one_clause": 3,
+    "subject": 4,
+    "max_words": 13,
+    "clauses": 5
+   },
+   "sentence_count_equals_expected": false
+  }
+ ]
+}

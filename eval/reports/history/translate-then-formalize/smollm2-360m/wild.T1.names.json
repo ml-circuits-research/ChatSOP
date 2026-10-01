@@ -1,0 +1,272 @@
+{
+  "format": "chatsop-translate-names-v1",
+  "suite": "eval/reports/current/translate-then-formalize/work/formalizer-wild-v1.romixed.jsonl",
+  "definition": "gold role values with a capital letter occurring verbatim in the original message (first accepted target for wild)",
+  "totals": {
+    "rows_with_names": 212,
+    "names": 395,
+    "in_translation": 174,
+    "in_direct_sop": 197,
+    "in_translated_sop": 79,
+    "lost_by_translation": 221,
+    "translation_fidelity": 0.44050632911392407,
+    "direct_sop_fidelity": 0.49873417721518987,
+    "translated_sop_fidelity": 0.2
+  },
+  "by_slice": {
+    "ro": {
+      "names": 226,
+      "in_translation": 107,
+      "in_direct_sop": 113,
+      "in_translated_sop": 49
+    },
+    "mixed": {
+      "names": 169,
+      "in_translation": 67,
+      "in_direct_sop": 84,
+      "in_translated_sop": 30
+    }
+  },
+  "lost_examples": [
+    {
+      "id": "wild_wi_036",
+      "name": "Judecătoria Buftea",
+      "message": "Avocatul l-a sunat pe executor după ce a primit citația de la Judecătoria Buftea. Ce termen are acum ca să răspundă?",
+      "translation": "The correct translation is:\n\n**The defendant has received the letter from the court.**"
+    },
+    {
+      "id": "wild_wi_011",
+      "name": "Primăria Sectorului 3",
+      "message": "Primăria Sectorului 3 eliberează certificatul de atestare fiscală și sâmbăta?",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wh_047",
+      "name": "Carpathian Wolves",
+      "message": "ok deci context: joc Valorant de vreo 3 ani, sunt Diamond 2, si m-a chemat un tip, Ștefan, sa intru intr-o echipa semi-pro din Brasov, 'Carpathian Wolves'. zice ca au sponsor de la o firma de periferice si ca ne dau 300 eur pe luna fiecaruia daca intram la un turneu in decembrie. doar ca trebuie sa ma mut la ei in bootcamp si eu am sesiune in ianuarie 😬 prietena mea zice ca e scam. merita sa renunt la facultate un semestru pt asta sau e prea riscant?",
+      "translation": "Okay, I understand. I will translate the text you provided into English. Please let me know if you have any other questions."
+    },
+    {
+      "id": "wild_wh_047",
+      "name": "Brasov",
+      "message": "ok deci context: joc Valorant de vreo 3 ani, sunt Diamond 2, si m-a chemat un tip, Ștefan, sa intru intr-o echipa semi-pro din Brasov, 'Carpathian Wolves'. zice ca au sponsor de la o firma de periferice si ca ne dau 300 eur pe luna fiecaruia daca intram la un turneu in decembrie. doar ca trebuie sa ma mut la ei in bootcamp si eu am sesiune in ianuarie 😬 prietena mea zice ca e scam. merita sa renunt la facultate un semestru pt asta sau e prea riscant?",
+      "translation": "Okay, I understand. I will translate the text you provided into English. Please let me know if you have any other questions."
+    },
+    {
+      "id": "wild_wh_047",
+      "name": "Ștefan",
+      "message": "ok deci context: joc Valorant de vreo 3 ani, sunt Diamond 2, si m-a chemat un tip, Ștefan, sa intru intr-o echipa semi-pro din Brasov, 'Carpathian Wolves'. zice ca au sponsor de la o firma de periferice si ca ne dau 300 eur pe luna fiecaruia daca intram la un turneu in decembrie. doar ca trebuie sa ma mut la ei in bootcamp si eu am sesiune in ianuarie 😬 prietena mea zice ca e scam. merita sa renunt la facultate un semestru pt asta sau e prea riscant?",
+      "translation": "Okay, I understand. I will translate the text you provided into English. Please let me know if you have any other questions."
+    },
+    {
+      "id": "wild_wj_030",
+      "name": "Revolut",
+      "message": "eu am cont la Revolut și la Raiffeisen. which one should I use pentru chiria din Dublin?",
+      "translation": "I am sorry, but I cannot provide a translation of the text provided."
+    },
+    {
+      "id": "wild_wj_030",
+      "name": "Raiffeisen",
+      "message": "eu am cont la Revolut și la Raiffeisen. which one should I use pentru chiria din Dublin?",
+      "translation": "I am sorry, but I cannot provide a translation of the text provided."
+    },
+    {
+      "id": "wild_wj_095",
+      "name": "Stansted",
+      "message": "Recap pt mine că m-am pierdut: am aterizat în Stansted luni, am mers direct la agenția Kaplan Lettings să semnez contractul de chirie, după aia am deschis cont la Monzo, iar marți dimineață am primit NI number-ul prin poștă. Did I open the bank account before or after I signed the lease?",
+      "translation": "I did not open the bank account before or after I signed the lease."
+    },
+    {
+      "id": "wild_wj_095",
+      "name": "Monzo",
+      "message": "Recap pt mine că m-am pierdut: am aterizat în Stansted luni, am mers direct la agenția Kaplan Lettings să semnez contractul de chirie, după aia am deschis cont la Monzo, iar marți dimineață am primit NI number-ul prin poștă. Did I open the bank account before or after I signed the lease?",
+      "translation": "I did not open the bank account before or after I signed the lease."
+    },
+    {
+      "id": "wild_wj_074",
+      "name": "Tallaght",
+      "message": "merită să-mi iau mașină în Irlanda sau mă descurc cu Leap card-ul? stau în Tallaght și merg în centru zilnic",
+      "translation": "Okay, I understand. Please provide the text you want me to translate. I will do my best to provide a clear and accurate English translation."
+    },
+    {
+      "id": "wild_wh_017",
+      "name": "Sergiu",
+      "message": "Ioana si Sergiu au un apartament in Brasov pe Bdul Grivitei. e al amandurora sau fiecare are unul?",
+      "translation": "Ioana is staying in a house in Brasov, with one of them being a flat or a floor."
+    },
+    {
+      "id": "wild_wg_061",
+      "name": "Timisoara",
+      "message": "Daca nepotul vine cu masina de la Timisoara vineri seara, mai are rost sa-mi iau bilet la trenul de Lugoj? Ca biletul il cumpar de la gara din Gavojdia si trebe sa merg pana acolo pe jos vreo 3 kilometri, si daca el nu mai vine raman fara nimic. Tu ce zici?",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wj_016",
+      "name": "Dublin",
+      "message": "pls zi-mi cat e ora in Dublin acum, nuj daca s-a schimbat ora de vara",
+      "translation": "Okay, I understand. Please provide the text you want me to translate."
+    },
+    {
+      "id": "wild_wi_025",
+      "name": "Colegiul Național «Mihai Viteazul» din Ploiești",
+      "message": "Câte clase a IX-a au mai mult de 28 de elevi la Colegiul Național «Mihai Viteazul» din Ploiești în anul școlar 2026–2027?",
+      "translation": "The IX-a class at the National \"Mihai Viteazul\" school in Ploiești in 2026-2027 will have 28 students."
+    },
+    {
+      "id": "wild_wk_044",
+      "name": "Cosmina",
+      "message": "și Cosmina e in the loop, right?",
+      "translation": "Yes, the text is already in English."
+    },
+    {
+      "id": "wild_wg_018",
+      "name": "Dobresti",
+      "message": "daca ploua maine la Dobresti mai vine autobuzul de la sase sau nu",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wj_081",
+      "name": "Anglia",
+      "message": "eu și frate-miu avem fiecare câte un Ltd în Anglia. Can we use același accountant?",
+      "translation": "We have each Ltd in England. We can use the same accountant."
+    },
+    {
+      "id": "wild_wh_064",
+      "name": "Oana",
+      "message": "nu e adevarat ca nimeni din camin nu a primit loc la Hasdeu anul asta, nu? parca Oana a primit",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wh_064",
+      "name": "Hasdeu",
+      "message": "nu e adevarat ca nimeni din camin nu a primit loc la Hasdeu anul asta, nu? parca Oana a primit",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wi_070",
+      "name": "România",
+      "message": "Niciunul dintre cei trei asociați nu are domiciliul în România (unul e în Lyon, doi în Chișinău). Putem totuși stabili sediul social la o adresă de domiciliere oferită de un cabinet de avocatură?",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wi_013",
+      "name": "CNAS",
+      "message": "Bună seara 🙂 scuzați deranjul la ora asta... la CNAS se mai poate cere online cardul european de sănătate sau doar la ghișeu? mulțumesc frumos!!",
+      "translation": "Please provide the text you would like me to translate. I am ready to help!"
+    },
+    {
+      "id": "wild_wk_086",
+      "name": "Sergiu",
+      "message": "i-am dat laptop-ul lui Sergiu marți to fix the charger, i l-a dat mai departe lui Emil?",
+      "translation": "I am a laptop."
+    },
+    {
+      "id": "wild_wk_086",
+      "name": "Emil",
+      "message": "i-am dat laptop-ul lui Sergiu marți to fix the charger, i l-a dat mai departe lui Emil?",
+      "translation": "I am a laptop."
+    },
+    {
+      "id": "wild_wj_070",
+      "name": "the contract that was signed at the notary in Alba Iulia",
+      "message": "the contract that was signed at the notary in Alba Iulia who retired last year, mai e valabil?",
+      "translation": "The contract that was signed at the notary in Alba Iulia who retired last year, mai e valabil?"
+    },
+    {
+      "id": "wild_wi_100",
+      "name": "Primăria Buzău",
+      "message": "Doar voiam să spun că la Primăria Buzău ghișeul 4 funcționează din nou după renovare, de luni 21.09, poate ajută pe cineva.",
+      "translation": "The city council is scheduled to renew the 4th floor of the building on September 21st."
+    },
+    {
+      "id": "wild_wh_076",
+      "name": "Lenovo IdeaPad Slim 5",
+      "message": "ok am nevoie de un laptop pt facultate, sunt la Info la UVT si o sa am mult coding + putin gaming gen LoL si Valorant, nimic heavy. bugetul e max 3500 lei, poate 3800 daca e un deal bun pe Black Friday. am vazut un Lenovo IdeaPad Slim 5 si un Asus Vivobook 16, cel mai important pt mine e bateria ca stau toata ziua in biblioteca. care din ele e mai worth it?",
+      "translation": "Okay, I understand. Please provide the text you would like me to translate."
+    },
+    {
+      "id": "wild_wh_076",
+      "name": "Asus Vivobook 16",
+      "message": "ok am nevoie de un laptop pt facultate, sunt la Info la UVT si o sa am mult coding + putin gaming gen LoL si Valorant, nimic heavy. bugetul e max 3500 lei, poate 3800 daca e un deal bun pe Black Friday. am vazut un Lenovo IdeaPad Slim 5 si un Asus Vivobook 16, cel mai important pt mine e bateria ca stau toata ziua in biblioteca. care din ele e mai worth it?",
+      "translation": "Okay, I understand. Please provide the text you would like me to translate."
+    },
+    {
+      "id": "wild_wi_064",
+      "name": "BCR",
+      "message": "BCR mi-a crescut rata la creditul ipotecar de la 2.340 lei la 2.610 lei începând din august. Cu cât la sută a crescut rata?",
+      "translation": "The text is in English."
+    },
+    {
+      "id": "wild_wj_071",
+      "name": "Galway",
+      "message": "Mara și Victor sunt căsătoriți? or just colegi de apartament in Galway?",
+      "translation": "Mara and Victor are celebrities?"
+    },
+    {
+      "id": "wild_wh_052",
+      "name": "Sighisoara",
+      "message": "cat de departe e Sighisoara de Brasov cu masina?",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wh_052",
+      "name": "Brasov",
+      "message": "cat de departe e Sighisoara de Brasov cu masina?",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wh_020",
+      "name": "Raluca",
+      "message": "ce s-a intamplat primul, Raluca s-a mutat din camin sau i s-a taiat bursa?",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wh_023",
+      "name": "Glovo",
+      "message": "eu livrez pe Glovo in Constanta de vreo doua luni. cine mai din grupul nostru lucreaza tot pe Glovo?",
+      "translation": "The correct translation is:"
+    },
+    {
+      "id": "wild_wh_023",
+      "name": "Constanta",
+      "message": "eu livrez pe Glovo in Constanta de vreo doua luni. cine mai din grupul nostru lucreaza tot pe Glovo?",
+      "translation": "The correct translation is:"
+    },
+    {
+      "id": "wild_wh_075",
+      "name": "I",
+      "message": "am facut transfer de pe contul de ING pe cel de Revolut ieri, 500 ron, si nu apar. cand ajung?",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wj_063",
+      "name": "Titel",
+      "message": "bă, cât făcu ăla de la Craiova, Titel, cu solariile lui anu trecut? zicea că vândusă tot la Obor",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wj_063",
+      "name": "Craiova",
+      "message": "bă, cât făcu ăla de la Craiova, Titel, cu solariile lui anu trecut? zicea că vândusă tot la Obor",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wj_063",
+      "name": "Obor",
+      "message": "bă, cât făcu ăla de la Craiova, Titel, cu solariile lui anu trecut? zicea că vândusă tot la Obor",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wh_066",
+      "name": "Bucuresti",
+      "message": "cine nu iubeste shaorma de la Dristor la 3 noaptea? da serios, care e cea mai buna din Bucuresti?",
+      "translation": "The text is already in English."
+    },
+    {
+      "id": "wild_wj_021",
+      "name": "Stuttgart",
+      "message": "Cosmin și Adela au cumpărat o mașină în Stuttgart, trebuie s-o înmatriculeze amândoi sau e enough unul singur?",
+      "translation": "The text is already in English."
+    }
+  ]
+}

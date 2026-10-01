@@ -2,7 +2,7 @@
 /** Vocabulary coverage of the LanguageProofingLLM iteration-2 data: counts of the datasets_sources/language_backgen/TASK.md vocabulary list in the targets of
  * train (by source), dev, the held-out vocabulary dev, and of the Romanian sources of child/son/daughter and whether their targets carry the right relation.
  *
- *   node tools/datasets/language-proofing-v2-coverage.mjs      # writes eval/reports/current/language-proofing-it2/vocab-coverage.json
+ *   node tools/datasets/language-proofing-v2-coverage.mjs      # writes eval/reports/history/language-proofing-it2/vocab-coverage.json
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -11,7 +11,7 @@ import {ROOT} from '../../lib/dataset-paths.mjs';
 import {HELD_OUT} from './build-language-proofing-v2.mjs';
 
 const DATA = path.resolve(ROOT, process.env.LP_DATA ?? 'datasets/bad_english/proofing-v2');
-const OUT = path.resolve(ROOT, process.env.LP_EVIDENCE ?? 'eval/reports/current/language-proofing-it2', 'vocab-coverage.json');
+const OUT = path.resolve(ROOT, process.env.LP_EVIDENCE ?? 'eval/reports/history/language-proofing-it2', 'vocab-coverage.json');
 const readJsonl = file => fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l));
 const fold = t => String(t).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 export const VOCAB = {

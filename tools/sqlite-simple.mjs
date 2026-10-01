@@ -6,7 +6,7 @@ import {cliArgs} from '../lib/util.mjs';
 import {parse} from '../sop/parser.mjs';
 import {lowerQuery} from '../sop/lower.mjs';
 import {planGoals} from '../reasoning/linker.mjs';
-import {reason} from '../reasoning/reasoner.mjs';
+import {reason} from '../reasoning/bridge/index.mjs';
 import {cnl} from '../sop/cnl.mjs';
 const args=cliArgs(),cmd=args._[0];
 if(args.help||!cmd){console.log(`node tools/sqlite-simple.mjs ingest --db demo.sqlite --file examples/memory-knowledge.sop --reviewed

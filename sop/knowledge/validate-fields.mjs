@@ -3,7 +3,7 @@
  * grammar of a method (`checkSteps`) and the integer expressions of a constraint.
  */
 import {checkNumericValue} from './numeric-action.mjs';
-import {COMPARATORS, ARITHMETIC, ROLE_NAMES, MAX_ARITY, STEP_BLOCKS, ARG_TYPES} from './grammar.mjs';
+import {COMPARATORS, ARITHMETIC, ROLE_NAMES, MAX_ARITY, STEP_BLOCKS, ARG_TYPES, LANGUAGE_CODE} from './grammar.mjs';
 import {VAR, SYMBOL, INTEGER, REF, DATE, tokens, termError, atomFrom, varsOf, parseCondition} from './lexical.mjs';
 
 export function checkValue(spec, f, wire, ctx) {
@@ -31,10 +31,39 @@ export function checkValue(spec, f, wire, ctx) {
       (ctx.argSpecs ??= {})[wire.id] = specs;
       break;
     }
+    case 'langcode': if (!LANGUAGE_CODE.test(v)) push('bad_language', f.key + ' needs a language code of two or three lowercase letters, got "' + v + '"'); break;
+    case 'phrase': {
+      let text = null;
+      try { text = v.startsWith('"') ? JSON.parse(v) : null; } catch { text = null; }
+      if (typeof text !== 'string' || !text.trim() || /[\r\n]/.test(text)) push('bad_value', f.key + ' needs one JSON-quoted nonempty phrase without a line break');
+      break;
+    }
+    case 'langtext': {
+      const [lang, ...rest] = toks;
+      let text = null;
+      try { text = rest.length === 1 && rest[0].startsWith('"') ? JSON.parse(rest[0]) : null; } catch { text = null; }
+      if (!LANGUAGE_CODE.test(lang ?? '') || typeof text !== 'string' || !text.trim() || /[\r\n]/.test(text)) push('bad_value', f.key + ' needs LANGUAGE "surface" (a two or three letter language code and one JSON-quoted nonempty surface)');
+      else (ctx.surfaces ??= []).push({wire: wire.id, key: f.key, language: lang, surface: text, line: f.line});
+      break;
+    }
+    case 'roletype': {
+      if (toks.length !== 2 || !ROLE_NAMES.includes(toks[0]) || !/^[a-z][a-z0-9_]*$/.test(toks[1])) { push('bad_role', 'role NAME TYPE with NAME in ' + ROLE_NAMES.join('|') + ' and TYPE a value type (' + ARG_TYPES.join('|') + ') or a class symbol'); break; }
+      ((ctx.roleSpecs ??= {})[wire.id] ??= []).push({role: toks[0], type: toks[1], line: f.line});
+      break;
+    }
+    case 'rolelist': {
+      if (!toks.length || toks.length > MAX_ARITY || !toks.every(t => ROLE_NAMES.includes(t)) || new Set(toks).size !== toks.length) push('bad_frame', f.key + ' needs one to ' + MAX_ARITY + ' distinct role names from ' + ROLE_NAMES.join('|') + ' in realization order');
+      break;
+    }
+    case 'restrict': {
+      if (toks.length !== 2 || !ROLE_NAMES.includes(toks[0]) || !/^[a-z][a-z0-9_]*$/.test(toks[1])) push('bad_restrict', 'restrict ROLE CLASS with ROLE in ' + ROLE_NAMES.join('|') + ' and CLASS a class symbol');
+      break;
+    }
     case 'reflist': if (!toks.length || !toks.every(t => /^\$[A-Za-z][A-Za-z0-9_]*$/.test(t))) push('bad_ref', f.key + ' needs one or more $id'); else for (const t of toks) ctx.refs.push({id: t.slice(1), line: f.line, wire: wire.id, sigil: '$'}); break;
     case 'date': if (!(toks.length === 1 && DATE.test(toks[0]))) push('bad_time', f.key + ' needs one ISO date or timestamp'); break;
     case 'instant': if (!(toks.length === 1 && DATE.test(toks[0]))) push('bad_time', f.key + ' needs one ISO date or timestamp'); break;
     case 'interval': if (!(toks.length === 2 && toks.every(t => DATE.test(t)))) push('bad_time', f.key + ' needs "START END" (start inclusive, end exclusive; beginning and open allowed)'); break;
+    case 'ident': if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(v)) push('bad_value', f.key + ' needs a JavaScript identifier'); break;
     case 'sym': if (!SYMBOL.test(v)) push('bad_value', f.key + ' needs a lowercase symbol'); break;
     case 'flag': if (v) push('bad_value', f.key + ' takes no value'); break;
     case 'stepref': if (!/^~[A-Za-z][A-Za-z0-9_]*$/.test(v)) push('bad_ref', f.key + ' needs ~action'); else ctx.refs.push({id: v.slice(1), line: f.line, wire: wire.id, sigil: '~'}); break;

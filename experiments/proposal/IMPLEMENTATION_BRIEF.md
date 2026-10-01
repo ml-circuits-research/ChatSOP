@@ -36,7 +36,7 @@ Every implementation agent reads this file first. The approved design is `experi
    - Run subprocesses with a timeout, and map a timeout to `budget_exhausted reason wall`.
 8. **Tests.** Write `tests/strategy-<id>.test.mjs` with unit tests for the tricky semantics. `npm test` must be green for your files. Other agents work concurrently: if a failure comes from someone else's files, report it and do not fix it.
 9. **Limits.**
-   - Do not touch port 9999, `datasets/`, `config/formalizers.json`, the chat, or the existing `reference`/`advanced` routes in `reasoning/reasoner.mjs`. Routing changes come later.
+   - Do not touch port 9999, `datasets/`, `config/formalizers.json` or the chat. (Superseded on 2026-10-01: the old `reference`/`advanced` routes of `reasoning/reasoner.mjs` were retired; `reference` is now the oracle through `reasoning/bridge/`, see the note at the end of this brief.)
    - No GPU. Do not kill processes you did not start. Do not commit.
 10. **Records.**
     - Journal events, actor `CHATSOP_ACTOR=<your agent name>`, exported in every shell: started, milestones in plain words, done.
@@ -69,3 +69,12 @@ The unpacked zips under `datasets_sources/experiments_unpacked/` are gitignored,
 - When a strategy is based on a zip engine (E10, soplab, VRC, sop-r), copy the needed modules into `reasoning/strategies/<id>/vendor/` with a header naming the zip, path and version. The engines are the owner's own experiments, the same project lineage.
 - Keep the zip's own tests that matter, adapted under `tests/`.
 - Then switch the smoke adapter from the zip path to the product strategy.
+
+## Pruned on 2026-10-01
+
+Owner decisions in chat, recorded after the strategies were built:
+
+- The old JavaScript reference reasoner (`reasoning/reasoner.mjs` and its `js-reference` smoke column) is retired: the oracle `js-reference` does everything it did (the query forms were ported to `js-reference/forms.mjs`, time and the packet of the runtime live in `reasoning/bridge/`). `reference` is an alias of the oracle; `advanced` is deprecated (the oracle plus the optional external backends).
+- `prolog-swi` (the old SWI adapter) and `z3-lia` (the old Z3 adapter) are removed: `prolog-tabling` and `z3-smt-bounded` supersede them. The `neural-assist` stub is removed.
+- `datalog-soplab` is demoted to a reference engine (`eval/reference-engines/datalog-soplab/`, opt-in smoke column `--with-reference-engines`, differential tests only); `golog-swi` is frozen (`--with-frozen`); `conform-core` is merged into the `js-oracle` column as its `conform` capability.
+- The default smoke columns are the oracle, `prolog-tabling`, `datalog-e10`, `datalog-souffle`, `asp-clingo`, `sql-sqlite`, `z3-smt-bounded`, `htn-strips-planner`, `vrc-compressed-planning`, `worlds-sopr`, `closure-template`, `dreaming-session` and the two `llm-agent` baselines.

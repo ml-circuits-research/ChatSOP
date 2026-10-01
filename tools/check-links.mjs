@@ -21,6 +21,7 @@
  * Exit status 1 when anything is broken. The scratch server never touches the
  * repository state: repository, auth file and audit ledger live in a temp dir.
  */
+import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -168,7 +169,7 @@ export async function scratchServer({password = 'link-checker-password'} = {}) {
   let server;
   try {
     // An unreachable formalizer: the chat page renders and the API answers 503.
-    server = createServer({config: {promptProfile: 'formal', formalizer: {url: 'http://127.0.0.1:9/v1/chat/completions', model: 'unavailable'}}, repo, lexicon: Lexicon.load(path.join(ROOT, 'config/ontology.sop')), auth});
+    server = createServer({config: {promptProfile: 'formal', formalizer: {url: 'http://127.0.0.1:9/v1/chat/completions', model: 'unavailable'}}, repo, lexicon: demoLexicon(), auth});
   } finally {
     if (previous === undefined) delete process.env.CHATSOP_AUDIT_LEDGER; else process.env.CHATSOP_AUDIT_LEDGER = previous;
   }

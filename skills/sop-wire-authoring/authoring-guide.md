@@ -28,7 +28,7 @@ The loop is mandatory: (1) declare the vocabulary, (2) write the wires, (3) run 
 `*` required, `+` repeatable. Governance fields are written only where stated in section 3.8.
 
 <!-- grammar:begin -->
-- `@id predicate`: args* closed key transitive inverse unit description
+- `@id predicate`: args* closed key transitive inverse unit description reading+ describe_rank
 - `@id fact`: holds* valid status speaker source quote
 - `@id rule`: when*+ then* mode valid source + governance
 - `@id default`: when*+ then* except+ priority overrides+ source + governance
@@ -47,6 +47,8 @@ The loop is mandatory: (1) declare the vocabulary, (2) write the wires, (3) run 
 - `@id policy`: effort partial procedures+ scope+ objective binding
 - `@id stated`: relation* role+ polarity valid certainty speaker
 - `@id query`: where+ select mode scope+ at during overlaps asof trace via+ compare+ order+ rank filter+ measure quantifier except+ limit policy observe horizon
+- `@id test`: of* call* expect* kind timeout source
+- `@id code`: of* language* entry* body* produced_by + governance
 - `@id pack`: items*+
 - governance = version supersedes approval approved_by approved_at retired_at scope quote
 <!-- grammar:end -->

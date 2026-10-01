@@ -66,7 +66,8 @@ export function parse(text) {
     field = {key: m[1], value: m[2] ?? '', line: n, block: []};
     cur.fields.push(field);
     const first = tokens(field.value)[0];
-    if (['all', 'any', 'match'].includes(field.value.trim())) stack.push(field.value.trim());
+    // `quantifier all` names a quantifier, it does not open a condition group
+    if (['all', 'any', 'match'].includes(field.value.trim()) && m[1] !== 'quantifier') stack.push(field.value.trim());
     else if (m[1] === 'step' && STEP_BLOCKS.includes(first)) stack.push('step');
   }
   if (stack.length) errors.push({code: 'unclosed_block', line: lines.length, message: 'a block is not closed with end', wire: cur?.id ?? null});

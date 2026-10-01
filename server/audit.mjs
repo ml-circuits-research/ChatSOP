@@ -14,6 +14,7 @@
  * computed once, so a 90k-row corpus pages and filters server-side without
  * re-sorting. Only the verdict counts follow the (small) ledger.
  */
+import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {assert} from '../lib/util.mjs';
@@ -24,7 +25,6 @@ import {publishKnowledge} from '../sop/ingest.mjs';
 import {Runtime} from '../sop/runtime.mjs';
 import {parse} from '../sop/parser.mjs';
 import {auditPage} from './pages/audit.mjs';
-import {barePrompt} from './llm.mjs';
 import {withInlineWorld, verificationContext} from '../lib/row-world.mjs';
 import {projectRoot, sha256, readJsonl, label, tally, cachedFile, plain, facetValues, symbolicChecker} from './audit-shared.mjs';
 import {DATASET_TYPES, tabOf, tabDescriptions, loadAuditRegistry, corpusType, corpusSealed, extraFiles, cleanTextSources} from './audit-corpora.mjs';
@@ -41,7 +41,7 @@ const reviewOf = row => label(row.target_review_status ?? row.review_status ?? r
 /** The user's whole message: the model input carried in `question` (DS021). */
 export const messageOf = row => row.question ?? row.message ?? '';
 /** The exact training prompt the small model receives, built by the same call as tools/research/prepare-experiment.mjs. */
-export const promptOf = row => barePrompt(messageOf(row));
+export const promptOf = row => messageOf(row);
 const fingerprintOf = rows => sha256(rows.map(row => `${row.id}\t${targetOf(row) ?? ''}`).sort().join('\n'));
 
 /** Browsable category groups, in tree order. `verdict` follows the ledger; the others are fixed at load. */
@@ -428,7 +428,7 @@ export function createAuditRouter({
     const rows = item.entries.map(entry => withInlineWorld(entry.row, {root})).filter(row => targetOf(row));
     assert(rows.length > 0, 'This case has no target yet');
     const lexiconSource = rows[0].ontology_sop ?? null;
-    const lexicon = lexiconSource ? new Lexicon(lexiconSource) : Lexicon.load(new URL('../config/ontology.sop', import.meta.url));
+    const lexicon = lexiconSource ? new Lexicon(lexiconSource) : demoLexicon();
     const work = fs.mkdtempSync(path.join(process.env.TMPDIR ?? '/tmp', 'chatsop-audit-'));
     try {
       const repo = new Repository(work, {memory: {engine: 'sqlite', power: 8}});

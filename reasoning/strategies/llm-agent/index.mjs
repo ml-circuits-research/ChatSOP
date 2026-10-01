@@ -7,6 +7,7 @@
  *                 language semantics attached; `nl` gives the natural-language source text of the case (`source.md`), the true "big model reads the text" baseline;
  *   output        one JSON object in the result-packet shape, parsed STRICTLY (packet.mjs): malformed output is `status: 'error'`, never a guess;
  *   honesty       `exact: false`, `bounded: false`, `verified: false`; a wall timeout is `budget_exhausted` reason `wall`; a paid-cost cap is `budget_exhausted` reason `cost`;
+ *   presentation `code` (programming plan P0): the input is one programming instruction `{task: {id, entry, instruction, examples}, repair?}` and the model writes `task.sop` and `candidate.sop` in two fenced blocks (code.mjs); the packet is `{status: 'proposed', files}` and nothing is verified here: the host loop (`lib/programming/`) validates and runs it in `code-sandbox`;
  *   verify mode   `options.verify` replays the claimed `used` support in the js-oracle (verify.mjs) and reports `verified` per row;
  *   model, cost   chosen by config (config/llm-agent.json) or `options.model`; the cost is read from the omp usage events (`usage.cost.total`) and reported
  *                 per call; answers are cached by (model, presentation, prompt version, prompt text) so reruns are free.
@@ -21,6 +22,7 @@ import {parseAnswer} from './packet.mjs';
 import {runOmp, isSubscription} from './runner.mjs';
 import {cacheKey, readCache, writeCache, readLedger, addPaid} from './cache.mjs';
 import {verifyUsed} from './verify.mjs';
+import {codePrompt, parseCodeAnswer, CODE_SYSTEM_PROMPT} from './code.mjs';
 
 export {NotExpressibleError, ProgramError};
 
@@ -38,8 +40,8 @@ export function loadConfig() {
 
 export const capabilities = {
   id: 'llm-agent',
-  features: [...FEATURES],
-  notExpressible: [],
+  features: FEATURES.filter(f => f !== 'code_sandbox'),
+  notExpressible: ['code_sandbox'],
   delivery: 'slice',
   limits: {max_wires: Infinity, max_chars: 90000, max_arity: 6, integer_range: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]},
   guarantee: 'advisory',
@@ -51,7 +53,7 @@ export const capabilities = {
   budgetKeys: ['wall', 'cost'],
   determinism: 'seeded',
   isolation: true,
-  presentations: ['sop', 'nl']
+  presentations: ['sop', 'nl', 'code']
 };
 
 export async function available() {
@@ -76,9 +78,12 @@ export async function ask(problem, budgetArg = {}, options = {}) {
   if (presentation === 'nl') {
     if (!problem.source) throw new NotExpressibleError(['source'], 'the nl presentation needs the natural-language source text of the case (source.md)');
     prompt = nlPrompt({source: problem.source, reasoning});
+  } else if (presentation === 'code') {
+    if (!problem.task?.instruction) throw new NotExpressibleError(['task'], 'the code presentation needs problem.task = {id, entry, instruction}');
+    prompt = codePrompt({task: problem.task, repair: problem.repair ?? null});
   } else if (presentation === 'sop') {
     prompt = sopPrompt({knowledge: problem.theory?.knowledge ?? '', query: problem.query, reasoning});
-  } else throw new ProgramError(`unknown presentation "${presentation}" (sop or nl)`);
+  } else throw new ProgramError(`unknown presentation "${presentation}" (sop, nl or code)`);
   if (prompt.length > cfg.maxChars) throw new NotExpressibleError(['input_size'], `input_too_large: the prompt has ${prompt.length} characters, the limit is ${cfg.maxChars} (a slice this large is split or refused before the call)`);
   const timeoutMs = budgetArg.wallMs ?? cfg.timeoutMs;
   const run = cfg.run ?? runOmp;
@@ -91,13 +96,18 @@ export async function ask(problem, budgetArg = {}, options = {}) {
     if (!entry) {
       if (!isSubscription(model) && readLedger(cfg.cacheDir).paid_usd >= cfg.maxPaidUsd)
         return result({status: 'budget_exhausted', reason: 'cost', complete: false, notes: [`paid cost cap of ${cfg.maxPaidUsd} USD reached`]}, {requested: problem.requested, backend: 'omp:' + model, llm: {model, presentation, cost: 0, paid: false, cached: false}});
-      const r = await run({model, prompt, system: SYSTEM_PROMPT, timeoutMs, thinking: cfg.thinking});
+      const r = await run({model, prompt, system: presentation === 'code' ? CODE_SYSTEM_PROMPT : SYSTEM_PROMPT, timeoutMs, thinking: cfg.thinking});
       totalCost += r.cost ?? 0;
       if (!isSubscription(model) && r.cost) { addPaid(cfg.cacheDir, r.cost); paid += r.cost; }
       if (r.timedOut) return result({status: 'budget_exhausted', reason: 'wall', complete: false, notes: [`no answer within ${timeoutMs} ms`]}, {requested: problem.requested, backend: 'omp:' + model, llm: {model, presentation, cost: totalCost, paid: paid > 0, cached: false, ms: Date.now() - t0}});
       if (!r.ok) { last = {model, error: r.error}; continue; }
       entry = {model, presentation, text: r.text, cost: r.cost ?? 0, usage: r.usage, ms: r.ms};
       writeCache(cfg.cacheDir, key, entry);
+    }
+    if (presentation === 'code') {
+      const code = parseCodeAnswer(entry.text);
+      const llm = {model, presentation, cost: cached ? 0 : (entry.cost ?? 0), notional_cost: entry.cost ?? 0, paid: !isSubscription(model), cached, ms: cached ? 0 : (entry.ms ?? Date.now() - t0), tokens: entry.usage ? {input: entry.usage.input, output: entry.usage.output} : undefined, raw: code.ok ? undefined : String(entry.text).slice(0, 400)};
+      return result(code.ok ? {status: 'proposed', complete: true, files: code.files, verified: false} : {status: 'error', reason: 'malformed_output', complete: true, detail: code.error, verified: false}, {requested: problem.requested, backend: 'omp:' + model, llm});
     }
     const parsed = parseAnswer(entry.text, reasoning === 'cot' ? ANSWER_MARKER : null);
     let packet = parsed.packet;

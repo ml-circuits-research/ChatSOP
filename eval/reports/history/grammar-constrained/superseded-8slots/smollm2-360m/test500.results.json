@@ -1,0 +1,397 @@
+{
+ "format": "chatsop-grammar-constrained-cell-v1",
+ "model": "smollm2-360m",
+ "cell": "test500",
+ "suite": "eval/reports/current/formalizer-size-v1/sample500/formalizer-v1-sample500.suite.jsonl",
+ "cell_rows": 500,
+ "stages": [
+  100,
+  300,
+  500
+ ],
+ "stage_results": [
+  {
+   "stage": 1,
+   "rows": 100,
+   "primary": "execution_equivalence_tolerant",
+   "summary": {
+    "free": {
+     "rows": 100,
+     "parse_validity": 1,
+     "compile_validity": 0.99,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "execution_equivalence_tolerant": 0.83,
+     "wire_f1": 0.7711,
+     "counts": {
+      "parse": 100,
+      "compile": 99,
+      "exec": 83,
+      "accepted_match": null
+     }
+    },
+    "gbnf": {
+     "rows": 100,
+     "parse_validity": 1,
+     "compile_validity": 0.99,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "execution_equivalence_tolerant": 0.83,
+     "wire_f1": 0.7658,
+     "counts": {
+      "parse": 100,
+      "compile": 99,
+      "exec": 83,
+      "accepted_match": null
+     }
+    }
+   },
+   "primary_delta": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "decision": {
+    "stop": true,
+    "reason": "futility"
+   }
+  }
+ ],
+ "final_rows": 100,
+ "stopped": {
+  "stop": true,
+  "reason": "futility"
+ },
+ "identical_outputs": 0.94,
+ "metrics": {
+  "all": {
+   "free": {
+    "rows": 100,
+    "parse_validity": 1,
+    "compile_validity": 0.99,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.83,
+    "wire_f1": 0.7711,
+    "counts": {
+     "parse": 100,
+     "compile": 99,
+     "exec": 83,
+     "accepted_match": null
+    }
+   },
+   "gbnf": {
+    "rows": 100,
+    "parse_validity": 1,
+    "compile_validity": 0.99,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.83,
+    "wire_f1": 0.7658,
+    "counts": {
+     "parse": 100,
+     "compile": 99,
+     "exec": 83,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:en": {
+   "free": {
+    "rows": 48,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.8958,
+    "wire_f1": 0.8988,
+    "counts": {
+     "parse": 48,
+     "compile": 48,
+     "exec": 43,
+     "accepted_match": null
+    }
+   },
+   "gbnf": {
+    "rows": 48,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.8958,
+    "wire_f1": 0.8826,
+    "counts": {
+     "parse": 48,
+     "compile": 48,
+     "exec": 43,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:mixed": {
+   "free": {
+    "rows": 15,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.8,
+    "wire_f1": 0.8889,
+    "counts": {
+     "parse": 15,
+     "compile": 15,
+     "exec": 12,
+     "accepted_match": null
+    }
+   },
+   "gbnf": {
+    "rows": 15,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.8,
+    "wire_f1": 0.8444,
+    "counts": {
+     "parse": 15,
+     "compile": 15,
+     "exec": 12,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:ro": {
+   "free": {
+    "rows": 37,
+    "parse_validity": 1,
+    "compile_validity": 0.973,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.7568,
+    "wire_f1": 0.6436,
+    "counts": {
+     "parse": 37,
+     "compile": 36,
+     "exec": 28,
+     "accepted_match": null
+    }
+   },
+   "gbnf": {
+    "rows": 37,
+    "parse_validity": 1,
+    "compile_validity": 0.973,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.7568,
+    "wire_f1": 0.6553,
+    "counts": {
+     "parse": 37,
+     "compile": 36,
+     "exec": 28,
+     "accepted_match": null
+    }
+   }
+  }
+ },
+ "deltas": {
+  "all": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "wire_f1": {
+    "delta": -0.0053,
+    "ci95": [
+     -0.0245,
+     0.0083
+    ],
+    "clusters": 100
+   }
+  },
+  "language:en": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 48
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 48
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 48
+   },
+   "wire_f1": {
+    "delta": -0.0162,
+    "ci95": [
+     -0.0345,
+     0
+    ],
+    "clusters": 48
+   }
+  },
+  "language:mixed": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 15
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 15
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 15
+   },
+   "wire_f1": {
+    "delta": -0.0444,
+    "ci95": [
+     -0.1395,
+     0
+    ],
+    "clusters": 15
+   }
+  },
+  "language:ro": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "wire_f1": {
+    "delta": 0.0117,
+    "ci95": [
+     0,
+     0.0212
+    ],
+    "clusters": 37
+   }
+  }
+ },
+ "speed": {
+  "free": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 -np 8"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 837.218,
+    "p50": 420.5522,
+    "p95": 4940.9733
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 109.93,
+    "p50": 50,
+    "p95": 570
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 142.3984,
+    "p50": 140.5778,
+    "p95": 186.4843
+   }
+  },
+  "gbnf": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 -np 8"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 781.8922,
+    "p50": 369.2949,
+    "p95": 4799.2627
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 111.2,
+    "p50": 50,
+    "p95": 572
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 150.9445,
+    "p50": 150.0104,
+    "p95": 190.9207
+   }
+  }
+ },
+ "example_counts": {
+  "helped": 0,
+  "hurt": 0,
+  "repaired_parse": 0,
+  "forced_wrong": 0
+ },
+ "examples": {
+  "helped": [],
+  "hurt": [],
+  "repaired_parse": [],
+  "forced_wrong": []
+ }
+}

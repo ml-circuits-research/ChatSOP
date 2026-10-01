@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /** Fully offline demonstration. No LLM outputs are fabricated. */
+import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
 import {Repository} from '../memory/repository.mjs';import {Runtime} from '../sop/runtime.mjs';
 import {publishKnowledge} from '../sop/ingest.mjs';import {Lexicon} from '../sop/lexicon.mjs';
-import {compileProlog} from '../reasoning/solvers.mjs';import {compileSMT} from '../reasoning/backends/constraints.mjs';
+import {compileProlog,compileSMT} from '../reasoning/bridge/export.mjs';
 const root=fs.mkdtempSync(path.join(os.tmpdir(),'chatsop-link-'));
 const reportDir=new URL('../eval/reports/current/linker/',import.meta.url);fs.mkdirSync(reportDir,{recursive:true});
-const lex=Lexicon.load(new URL('../config/ontology.sop',import.meta.url));
+const lex=demoLexicon();
 const repo=new Repository(root,{memory:{power:10,exact:true}}),fixture=fs.readFileSync(new URL('../tests/fixtures/bootstrap.sop',import.meta.url),'utf8');
 publishKnowledge(repo,'demo',fixture,{schema:lex.predicates,reviewed:true,knownAt:Date.parse('2024-01-01')});
 const runs=[];

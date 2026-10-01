@@ -1,4 +1,9 @@
 /**
+ * FROZEN (owner decision of 2026-10-01, in chat): kept as code and tests, no longer a default smoke column and not a routing candidate.
+ * Reason: it overlaps `htn-strips-planner` (plans and methods) and `conform` (conformance of a trace), which cover the same cases
+ * with fewer moving parts (a subprocess per run). Run it only on request: `node eval/smoke-reasoning/run.mjs --with-frozen` or
+ * `--adapter golog-swi`; `tests/strategy-golog-swi.test.mjs` keeps it honest.
+ *
  * golog-swi: a small Golog interpreter in SWI-Prolog for the strict procedures (methods) of the modes of work.
  *
  * WHAT IT IS. A method of the circuits is a Golog program: sequence, nondeterministic choice (`choose`), optional steps, `any_order`,

@@ -7,10 +7,11 @@
  * nothing here executes, stores or trusts a proposition.
  */
 import {one,parseProposition,propositionPairs,unquote} from './parser.mjs';
-import {normalize} from './lexicon.mjs';
+import {normalize} from './text-keys.mjs';
 import {formatTime} from '../lib/time.mjs';
 import {stable} from '../lib/util.mjs';
 import {linkRelation,linkValidity} from './linking.mjs';
+import {linkCopula} from './copula-linker.mjs';
 
 export const PROPOSITION_TYPES = new Set(['stated', 'assumed']);
 const fold = s => normalize(s).normalize('NFD').replace(/\p{M}/gu, '');
@@ -36,15 +37,21 @@ const termToken = value => typeof value === 'number' || /^\?/.test(value) ? Stri
  * matches may leave declared roles unbound; `fresh()` names those variables.
  * `span` is a time variable bound to the matched fact's validity interval.
  */
-export function linkProposition(p, lexicon, {exact = true, fresh = null} = {}) {
+export function linkProposition(p, lexicon, {exact = true, fresh = null, relations = undefined} = {}) {
   let roles = p.roles, span = null;
-  let link = linkRelation(p.relation, roles.map(role => role.name), lexicon, {exact});
+  let link = linkRelation(p.relation, roles.map(role => role.name), lexicon, {exact, relations});
+  // The copula ("be", "be in"): the readings the base memory declares, tried in order (sop/copula-linker.mjs).
+  if (link.status !== 'bound') {
+    const copula = linkCopula(p, lexicon, {exact, fresh: fresh ?? (() => '?host_any'), relations});
+    if (copula) return copula.issue ? {issue: copula.issue} : {atomText: (p.polarity === 'negated' ? 'not ' : '') + copula.atomText, predicate: copula.predicate, reading: copula.reading,
+      ...(copula.alternatives ? {alternatives: copula.alternatives.map(item => ({...item, atomText: (p.polarity === 'negated' ? 'not ' : '') + item.atomText}))} : {})};
+  }
   // A query's `role time ?t` on a relation that declares no time role asks for the validity interval of
   // the matched fact (a "when" question): the role is dropped from the atom and ?t becomes the host span.
   const timeVariable = !exact && p.roles.find(role => role.name === 'time' && typeof role.value === 'string' && role.value.startsWith('?'));
   if (link.status !== 'bound' && timeVariable) {
     const without = p.roles.filter(role => role !== timeVariable);
-    const retry = linkRelation(p.relation, without.map(role => role.name), lexicon, {exact});
+    const retry = linkRelation(p.relation, without.map(role => role.name), lexicon, {exact, relations});
     if (retry.status === 'bound') { link = retry; roles = without; span = timeVariable.value; }
   }
   if (link.status !== 'bound') return {issue: {kind: 'relation', ...link}};

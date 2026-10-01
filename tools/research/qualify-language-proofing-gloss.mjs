@@ -32,7 +32,7 @@ const DATA = path.join(root, 'datasets/bad_english/proofing-gloss');
 const SRC = path.join(root, 'datasets/bad_english/proofing-it3');
 const EVID = path.join(root, 'eval/reports/current/gloss/data');
 const QUAL = path.join(root, 'status/training/qualification-language-proofing-gloss.json');
-const SEALED = path.join(root, 'eval/reports/current/language-proofing-it3/data/sealed-hashes-union.json');
+const SEALED = path.join(root, 'eval/reports/history/language-proofing-it3/data/sealed-hashes-union.json');
 const rel = file => path.relative(root, file).split(path.sep).join('/');
 const sha = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const readJson = file => JSON.parse(fs.readFileSync(file, 'utf8'));

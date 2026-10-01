@@ -1,0 +1,55 @@
+{
+  "format": "chatsop-endpoint-timing-v1",
+  "label": "gemma/fv1-size-a4 q8_0 bulk",
+  "suite": "eval/suites/formalizer-v1/test.jsonl",
+  "url": "http://127.0.0.1:18762",
+  "rows": 4730,
+  "sample": null,
+  "message_chars": {
+    "min": 0,
+    "max": 300
+  },
+  "parallel": 4,
+  "max_tokens": 6144,
+  "wall_seconds": 2737.210913783,
+  "messages_per_second": 1.7280363658432294,
+  "errors": [],
+  "truncated": [],
+  "raw_completion_fallback": [],
+  "latency_ms": {
+    "count": 4730,
+    "mean": 2314.2709168862516,
+    "p50": 1995.114949000068,
+    "p95": 5085.530786999967,
+    "max": 18622.85401400001
+  },
+  "prompt_tokens": {
+    "count": 4730,
+    "mean": 27.964693446088795,
+    "p50": 26,
+    "p95": 44,
+    "max": 91
+  },
+  "completion_tokens": {
+    "count": 4730,
+    "mean": 59.99027484143763,
+    "p50": 54,
+    "p95": 113,
+    "max": 203
+  },
+  "server_prompt_tokens_per_second": {
+    "count": 4730,
+    "mean": 240.10876673479046,
+    "p50": 225.7048369527884,
+    "p95": 448.8813875821453,
+    "max": 762.6580043782218
+  },
+  "server_generation_tokens_per_second": {
+    "count": 4730,
+    "mean": 32.18866435774123,
+    "p50": 33.60041515179609,
+    "p95": 43.809530763417584,
+    "max": 72.8045779518616
+  },
+  "aggregate_completion_tokens_per_second": 103.6653765229344
+}

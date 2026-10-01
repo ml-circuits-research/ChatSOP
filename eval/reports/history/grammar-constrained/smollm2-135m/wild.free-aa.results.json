@@ -1,0 +1,484 @@
+{
+ "format": "chatsop-grammar-constrained-cell-v1",
+ "model": "smollm2-135m",
+ "cell": "wild",
+ "comparison": "free-aa - free",
+ "suite": "eval/suites/formalizer-wild-v1/test.jsonl",
+ "cell_rows": 796,
+ "stages": [
+  100,
+  300,
+  796
+ ],
+ "stage_results": [
+  {
+   "stage": 1,
+   "rows": 100,
+   "primary": "wild_accepted_match",
+   "summary": {
+    "free": {
+     "rows": 100,
+     "parse_validity": 0.94,
+     "compile_validity": 0.94,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "wire_f1": 0.0535,
+     "wild_accepted_match": 0.08,
+     "wild_decision_match": 0.86,
+     "wild_proposition_f1": 0.555,
+     "counts": {
+      "parse": 94,
+      "compile": 94,
+      "exec": null,
+      "accepted_match": 8
+     }
+    },
+    "free-aa": {
+     "rows": 100,
+     "parse_validity": 0.94,
+     "compile_validity": 0.94,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "wire_f1": 0.0535,
+     "wild_accepted_match": 0.08,
+     "wild_decision_match": 0.86,
+     "wild_proposition_f1": 0.555,
+     "counts": {
+      "parse": 94,
+      "compile": 94,
+      "exec": null,
+      "accepted_match": 8
+     }
+    }
+   },
+   "primary_delta": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "decision": {
+    "stop": true,
+    "reason": "futility"
+   }
+  }
+ ],
+ "final_rows": 100,
+ "stopped": {
+  "stop": true,
+  "reason": "futility"
+ },
+ "identical_outputs": 1,
+ "metrics": {
+  "all": {
+   "free": {
+    "rows": 100,
+    "parse_validity": 0.94,
+    "compile_validity": 0.94,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0535,
+    "wild_accepted_match": 0.08,
+    "wild_decision_match": 0.86,
+    "wild_proposition_f1": 0.555,
+    "counts": {
+     "parse": 94,
+     "compile": 94,
+     "exec": null,
+     "accepted_match": 8
+    }
+   },
+   "free-aa": {
+    "rows": 100,
+    "parse_validity": 0.94,
+    "compile_validity": 0.94,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0535,
+    "wild_accepted_match": 0.08,
+    "wild_decision_match": 0.86,
+    "wild_proposition_f1": 0.555,
+    "counts": {
+     "parse": 94,
+     "compile": 94,
+     "exec": null,
+     "accepted_match": 8
+    }
+   }
+  },
+  "language:en": {
+   "free": {
+    "rows": 43,
+    "parse_validity": 0.907,
+    "compile_validity": 0.907,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.1125,
+    "wild_accepted_match": 0.1163,
+    "wild_decision_match": 0.8605,
+    "wild_proposition_f1": 0.6395,
+    "counts": {
+     "parse": 39,
+     "compile": 39,
+     "exec": null,
+     "accepted_match": 5
+    }
+   },
+   "free-aa": {
+    "rows": 43,
+    "parse_validity": 0.907,
+    "compile_validity": 0.907,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.1125,
+    "wild_accepted_match": 0.1163,
+    "wild_decision_match": 0.8605,
+    "wild_proposition_f1": 0.6395,
+    "counts": {
+     "parse": 39,
+     "compile": 39,
+     "exec": null,
+     "accepted_match": 5
+    }
+   }
+  },
+  "language:mixed": {
+   "free": {
+    "rows": 20,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0227,
+    "wild_accepted_match": 0.05,
+    "wild_decision_match": 0.9,
+    "wild_proposition_f1": 0.45,
+    "counts": {
+     "parse": 20,
+     "compile": 20,
+     "exec": null,
+     "accepted_match": 1
+    }
+   },
+   "free-aa": {
+    "rows": 20,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0227,
+    "wild_accepted_match": 0.05,
+    "wild_decision_match": 0.9,
+    "wild_proposition_f1": 0.45,
+    "counts": {
+     "parse": 20,
+     "compile": 20,
+     "exec": null,
+     "accepted_match": 1
+    }
+   }
+  },
+  "language:ro": {
+   "free": {
+    "rows": 37,
+    "parse_validity": 0.9459,
+    "compile_validity": 0.9459,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0123,
+    "wild_accepted_match": 0.0541,
+    "wild_decision_match": 0.8378,
+    "wild_proposition_f1": 0.5135,
+    "counts": {
+     "parse": 35,
+     "compile": 35,
+     "exec": null,
+     "accepted_match": 2
+    }
+   },
+   "free-aa": {
+    "rows": 37,
+    "parse_validity": 0.9459,
+    "compile_validity": 0.9459,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0123,
+    "wild_accepted_match": 0.0541,
+    "wild_decision_match": 0.8378,
+    "wild_proposition_f1": 0.5135,
+    "counts": {
+     "parse": 35,
+     "compile": 35,
+     "exec": null,
+     "accepted_match": 2
+    }
+   }
+  }
+ },
+ "deltas": {
+  "all": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "wild_decision_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "wild_proposition_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   }
+  },
+  "language:en": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 43
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 43
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 43
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 43
+   },
+   "wild_decision_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 43
+   },
+   "wild_proposition_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 43
+   }
+  },
+  "language:mixed": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   },
+   "wild_decision_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   },
+   "wild_proposition_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   }
+  },
+  "language:ro": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "wild_decision_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "wild_proposition_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   }
+  }
+ },
+ "speed": {
+  "free": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 (server -np 8, one request at a time, cache_prompt false)"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 128.5338,
+    "p50": 116.5101,
+    "p95": 336.1669
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 73.9,
+    "p50": 67,
+    "p95": 203
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 638.3401,
+    "p50": 639.1335,
+    "p95": 647.3712
+   }
+  },
+  "free-aa": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 (server -np 8, one request at a time, cache_prompt false)"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 127.3393,
+    "p50": 114.9732,
+    "p95": 336.6364
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 73.9,
+    "p50": 67,
+    "p95": 203
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 640.4234,
+    "p50": 641.6426,
+    "p95": 646.5249
+   }
+  }
+ },
+ "example_counts": {
+  "helped": 0,
+  "hurt": 0,
+  "repaired_parse": 0,
+  "forced_wrong": 0,
+  "changed_valid": 0
+ },
+ "examples": {
+  "helped": [],
+  "hurt": [],
+  "repaired_parse": [],
+  "forced_wrong": [],
+  "changed_valid": []
+ }
+}

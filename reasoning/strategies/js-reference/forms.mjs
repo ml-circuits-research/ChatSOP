@@ -135,6 +135,7 @@ export function applyRowForms(candidates, forms, state) {
   if (!hasRowForms(forms)) return candidates;
   let rows = candidates.filter(c => forms.filters.every(ast => evaluateExpression(ast, {variables: c.env}).value === true));
   state.filtered = rows.length;
+  state.afterFilters = rows;
   state.compared = forms.compares.length > 0;
   if (forms.compares.length) rows = rows.filter(c => forms.compares.every(node => testCompare(node, c.env, state)));
   if (forms.rank && rows.length) {

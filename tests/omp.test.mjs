@@ -162,11 +162,11 @@ test('omp settings: the binary can be overridden by the environment', () => {
   assert.equal(ompSettings({omp: {maxFixRounds: 1}}, {}).maxFixRounds, 1);
 });
 
-test('API: GET /v1/omp/models is admin only and cached; POST /v1/author makes a draft of the session', async t => {
+test('API: GET /v1/omp/models is open to any authenticated user and cached; POST /v1/author makes a draft of the session', async t => {
   const {calls} = withStub(t, 'good', {STUB_OMP_GOOD: goodFile(t)});
   const s = await productServer(t, {config: {omp: {bin: STUB}}});
   await s.admin('/v1/memories', 'POST', {name: 'Empty', id: 'empty'});
-  assert.equal((await s.user('/v1/omp/models')).status, 403);
+  assert.equal((await s.user('/v1/omp/models')).status, 200);
   const listing = await s.admin('/v1/omp/models');
   assert.equal(listing.status, 200);
   assert.equal(listing.body.available, true);

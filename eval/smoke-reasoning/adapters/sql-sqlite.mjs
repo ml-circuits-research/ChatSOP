@@ -5,7 +5,7 @@
  * loop, NOT EXISTS and GROUP BY. Per-row `conditional` is the host rule applied by the harness around every strategy.
  */
 import {sqlSqlite, NotExpressibleError} from '../../../reasoning/strategies/sql-sqlite/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 export const sqlSqliteAdapter = {
   id: 'sql-sqlite', status: 'available', origin: 'reasoning/strategies/sql-sqlite/ (node:sqlite: tables per predicate polarity, recursive CTE and semi-naive loop, NOT EXISTS, GROUP BY)',

@@ -1,47 +1,71 @@
-/** Finite generate-and-test abduction. Hypotheses are explicit ground candidates.
- * Enumerate cost-ordered subsets, validate by Horn closure, retain subset-minimal
- * explanations. Removing the observed target avoids the circular explanation
- * "the effect is true because it was observed". No candidates are asserted.
+/**
+ * `abduce` and `diagnose` over the oracle (reasoning/bridge/operations.mjs lowers the typed facts, rules and hypotheses to knowledge wires
+ * and asks the oracle's `abduce`). The packet is the oracle's (reasoning/bridge/packet.mjs). Host work before the question: the observed
+ * target is removed from the premises ("true because observed" is never an explanation), a candidate that repeats the target or
+ * contradicts an observed fact is rejected and reported, and missing-condition candidates are generated from the retrieved rules
+ * (abducibles.mjs) when none are supplied. Nothing is asserted.
  */
+import {Lowering, queryWire } from './bridge/lower.mjs';
+import {lowerWorld, hypothesisWire, askOracle, groundTarget} from './bridge/operations.mjs';
+import {operationBudget} from './bridge/packet.mjs';
 import {generateAbducibles} from './abducibles.mjs';
-import {closure,evaluate} from './reasoner.mjs';
 import {atomKey} from '../lib/types.mjs';
 import {conditionAtoms} from '../lib/conditions.mjs';
-import {stable} from '../lib/util.mjs';
-import {Budget,flat,asFact,opposite,partitions,packet,queryFor,conflicts} from './common.mjs';
-export function abduce({query,data,memory,candidates=[],...options}){
- const b=new Budget(options),k=partitions(data,memory,query);let cs=flat(candidates).length?flat(candidates):k.hypotheses;
- if(!query||conditionAtoms(query.where).some(a=>a.a.some(v=>typeof v==='string'&&v.startsWith('?'))))throw Error('Abduction requires a ground observed target');
- if(cs.some(h=>h.kind!=='hypothesis'))throw Error('Abducibles must be hypothesis declarations');
- const targets=new Set(conditionAtoms(query.where).map(atomKey)),base=k.facts.filter(f=>!targets.has(atomKey(f.atom))),baseKeys=new Set(base.map(f=>atomKey(f.atom)));
- let generated=null;if(!cs.length){generated=generateAbducibles(query,base,k.rules,b,options.schema);cs=generated.candidates;}
- let complete=k.complete&&(generated?.complete!==false),depthLimited=false;const candidatesUsed=cs.filter(h=>h.status!=='rejected'&&!h.assumptions.some(a=>targets.has(atomKey(a))||baseKeys.has(atomKey(opposite(a)))));
- if(candidatesUsed.length>b.limits.maxCandidates){complete=false;candidatesUsed.length=b.limits.maxCandidates;}
- const frontier=[{indices:[],next:0,cost:0}],answers=[];let checked=0;
- while(frontier.length&&b.step()){
-  frontier.sort((a,c)=>a.cost-c.cost||a.indices.length-c.indices.length||stable(a.indices).localeCompare(stable(c.indices)));
-  const node=frontier.shift();if(answers.some(a=>a.indices.every(i=>node.indices.includes(i))))continue;
-  const hypotheses=node.indices.map(i=>candidatesUsed[i]),assumptions=[...new Map(hypotheses.flatMap(h=>h.assumptions).map(a=>[atomKey(a),a])).values()];
-  const cl=closure([...base,...assumptions.map((a,i)=>asFact(a,'hyp_'+i))],k.rules,b.limits);complete&&=cl.complete;checked++;
-  const priorConflicts=new Set(conflicts(base)),introduced=conflicts(cl.facts).filter(x=>!priorConflicts.has(x));
-  const r=evaluate({...query,mode:'exists',select:[],filters:query.filters??[],limit:1},cl.facts,{complete:cl.complete,maxJoins:b.limits.maxJoins});
-  if(r.status==='supported'&&!introduced.length){answers.push({kind:'hypothesis',id:'explanation_'+answers.length,status:'untested',assumptions,cost:node.cost,members:hypotheses.map(h=>h.id),proof:r.proof,indices:node.indices});if(answers.length>=b.limits.maxHypotheses){complete=false;break;}continue;}
-  if(node.indices.length>=b.limits.maxDepth){if(node.next<candidatesUsed.length)depthLimited=true;continue;}
-  for(let i=node.next;i<candidatesUsed.length;i++){if(frontier.length>=b.limits.maxNodes){complete=false;break;}frontier.push({indices:[...node.indices,i],next:i+1,cost:node.cost+candidatesUsed[i].cost});}
- }
- const minimal=answers.filter(a=>!answers.some(x=>x!==a&&x.indices.length<a.indices.length&&x.indices.every(i=>a.indices.includes(i))));
- return packet('abduction',minimal.length?'hypotheses':'unknown',{explanations:minimal.map(({indices,...a})=>a),complete:complete&&!b.exhausted&&!depthLimited,depthLimited,epistemic:'hypothetical',checked,candidateCount:candidatesUsed.length,generator:generated?{...generated,candidates:undefined}:null,ignored:k.patterns.map(p=>({id:p.id,reason:'pattern-not-a-rule'})),proof:[],query},b);
+import {flat,asFact,opposite,partitions} from './common.mjs';
+
+/**
+ * `abduce`: every inclusion-minimal set of candidate hypotheses that, added to the facts, makes the observation hold. The packet is the
+ * oracle's: `status hypotheses|unknown|budget_exhausted`, `hypotheses` (atom texts of each explanation), `explanations`
+ * (`{hypotheses: ids, atoms, cost}`, cheapest first), plus `candidates` (how many were tried), `rejected` and `generator`.
+ */
+export function abduce({query, data, memory, candidates = [], schema, ...options}) {
+  const budget = operationBudget(options), k = partitions(data, memory, query);
+  if (!query || !groundTarget(query.where)) throw Error('Abduction requires a ground observed target');
+  let given = flat(candidates).length ? flat(candidates) : k.hypotheses;
+  if (given.some(h => h.kind !== 'hypothesis')) throw Error('Abducibles must be hypothesis declarations');
+  const targets = new Set(conditionAtoms(query.where).map(atomKey)), base = k.facts.filter(f => !targets.has(atomKey(f.atom))), baseKeys = new Set(base.map(f => atomKey(f.atom)));
+  let generated = null;
+  if (!given.length) { generated = generateAbducibles(query, base, k.rules, budget.child(), schema); given = generated.candidates; }
+  const rejected = [], usable = [];
+  for (const h of given) {
+    const reason = h.status === 'rejected' ? 'status_rejected' : h.assumptions.some(a => targets.has(atomKey(a))) ? 'repeats_the_observation' : h.assumptions.some(a => baseKeys.has(atomKey(opposite(a)))) ? 'contradicts_an_observed_fact' : null;
+    (reason ? rejected : usable).push(reason ? {id: h.id, reason} : h);
+  }
+  const lowering = new Lowering();
+  const wires = lowerWorld(lowering, base, k.rules, usable.map(h => hypothesisWire(lowering, h)));
+  const out = askOracle(wires, queryWire(lowering, {where: query.where, mode: 'abduce'}), budget);
+  const complete = out.complete !== false && k.complete && generated?.complete !== false;
+  return {...out, complete, candidate_count: usable.length, rejected, ...(generated ? {generator: {...generated, candidates: undefined}} : {}),
+    ignored: [...(out.ignored ?? []), ...k.patterns.map(p => ({id: p.id, kind: 'pattern', reason: 'not-admitted-as-deductive-evidence'}))]};
 }
-export function diagnose(args){
- const result=abduce(args),k=partitions(args.data,args.memory,args.query),tests=flat(args.tests),ranked=[],targets=new Set(conditionAtoms(args.query.where).map(atomKey));let complete=result.complete;
- const budget=new Budget(args);
- for(const test of tests){
-  if(test.kind!=='query'||conditionAtoms(test.where).some(a=>a.a.some(x=>typeof x==='string'&&x.startsWith('?'))))throw Error('Diagnostic tests must be ground queries');
-  const predictions=[];
-  for(const e of result.explanations){if(!budget.step()){complete=false;break;}const cl=closure([...k.facts.filter(f=>!targets.has(atomKey(f.atom))),...e.assumptions.map((a,i)=>asFact(a,'h_'+i))],k.rules,budget.limits);complete&&=cl.complete;predictions.push({explanation:e.id,status:evaluate(test,cl.facts).status});}
-  let separated=0;for(let i=0;i<predictions.length;i++)for(let j=i+1;j<predictions.length;j++)if(predictions[i].status!==predictions[j].status)separated++;
-  ranked.push({kind:'test-recommendation',query:test,separatedPairs:separated,predictions,scoreMeaning:'pair-separation heuristic, not expected information gain under a probability model'});
- }
- ranked.sort((a,b)=>b.separatedPairs-a.separatedPairs);
- return {...result,kind:'diagnosis',tests:ranked,complete:complete&&!budget.exhausted,nextTest:ranked.find(t=>t.separatedPairs>0)??null,executedTests:false};
+
+/**
+ * `diagnose`: the explanations of `abduce` plus, for each supplied ground test, how many pairs of explanations it separates (the
+ * oracle answers the test under each explanation). `tests` is ordered by that count, `next_test` is the first that separates any pair;
+ * a test is never executed.
+ */
+export function diagnose(args) {
+  const result = abduce(args), budget = operationBudget(args), k = partitions(args.data, args.memory, args.query);
+  const targets = new Set(conditionAtoms(args.query.where).map(atomKey)), base = k.facts.filter(f => !targets.has(atomKey(f.atom)));
+  const explanations = result.explanations ?? [], byId = new Map(flat(args.candidates).concat(k.hypotheses).map(h => [h.id, h]));
+  let complete = result.complete;
+  const ranked = [];
+  for (const test of flat(args.tests)) {
+    if (test.kind !== 'query' || !groundTarget(test.where)) throw Error('Diagnostic tests must be ground queries');
+    const predictions = [];
+    for (const e of explanations) {
+      const atoms = e.hypotheses.flatMap(id => byId.get(id)?.assumptions ?? []);
+      const lowering = new Lowering();
+      const out = askOracle(lowerWorld(lowering, [...base, ...atoms.map((a, i) => asFact(a, 'h_' + i))], k.rules), queryWire(lowering, {where: test.where, mode: 'exists'}), budget);
+      complete &&= out.complete !== false;
+      predictions.push({explanation: e.hypotheses.join('+'), status: out.status});
+    }
+    let separated = 0;
+    for (let i = 0; i < predictions.length; i++) for (let j = i + 1; j < predictions.length; j++) if (predictions[i].status !== predictions[j].status) separated++;
+    ranked.push({query: test, separated_pairs: separated, predictions});
+  }
+  ranked.sort((a, b) => b.separated_pairs - a.separated_pairs);
+  return {...result, complete, tests: ranked, next_test: ranked.find(t => t.separated_pairs > 0) ?? null, executed_tests: false,
+    notes: [...(result.notes ?? []), 'test ranking is a pair-separation count, not expected information gain; no test is executed']};
 }
+

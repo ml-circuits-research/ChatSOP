@@ -55,7 +55,7 @@ test('a broken gold oracle is a reference failure, not a model error', async () 
 
 test('epistemic projection retains conflict, possibility and conditional incompleteness', () => {
   assert.deepEqual(epistemicResult({ status: 'both', complete: false, hypothetical: true }), {
-    status: 'CONFLICT', runtime_status: 'both', complete: false, hypothetical: true, epistemic: null,
+    status: 'CONFLICT', runtime_status: 'both', complete: false, hypothetical: true, guarantee: null,
   });
   assert.equal(epistemicResult({ status: 'possible', complete: true }).status, 'POSSIBLE');
   assert.equal(epistemicResult({ status: 'hypotheses' }).status, 'PLAUSIBLE');

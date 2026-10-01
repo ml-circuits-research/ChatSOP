@@ -1,0 +1,64 @@
+{
+  "format": "chatsop-endpoint-timing-v1",
+  "label": "gemma/fv1-size-a4 q8_0 bulk",
+  "suite": "eval/suites/formalizer-ood-v1/test.jsonl",
+  "url": "http://127.0.0.1:18762",
+  "rows": 1578,
+  "sample": null,
+  "message_chars": {
+    "min": 0,
+    "max": null
+  },
+  "parallel": 4,
+  "max_tokens": 6144,
+  "wall_seconds": 2465.098511665,
+  "messages_per_second": 0.6401366892774489,
+  "errors": [
+    {
+      "id": "ood2_000346_0_0",
+      "error": "The operation was aborted due to timeout"
+    }
+  ],
+  "truncated": [
+    "ood1_000191_0_0",
+    "ood1_000431_0_0",
+    "ood1_000647_0_0"
+  ],
+  "raw_completion_fallback": [],
+  "latency_ms": {
+    "count": 1577,
+    "mean": 5999.495565271404,
+    "p50": 2377.915416999953,
+    "p95": 29296.881468000123,
+    "max": 255186.63940700004
+  },
+  "prompt_tokens": {
+    "count": 1577,
+    "mean": 58.48256182625238,
+    "p50": 26,
+    "p95": 325,
+    "max": 1094
+  },
+  "completion_tokens": {
+    "count": 1577,
+    "mean": 136.0577045022194,
+    "p50": 51,
+    "p95": 738,
+    "max": 6144
+  },
+  "server_prompt_tokens_per_second": {
+    "count": 1577,
+    "mean": 268.11338954210504,
+    "p50": 205.10848315867065,
+    "p95": 958.3466691052079,
+    "max": 1349.373154834436
+  },
+  "server_generation_tokens_per_second": {
+    "count": 1577,
+    "mean": 25.762323593810542,
+    "p50": 26.42970094278519,
+    "p95": 34.03393103775788,
+    "max": 45.56392778011484
+  },
+  "aggregate_completion_tokens_per_second": 87.04033489317952
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Summary of the formalizer size study (status/preregistrations/formalizer-size-v1.json) from its raw reports.
  *
- * Reads eval/reports/current/formalizer-size-v1/<model>/ as written by training/scripts/evaluate-arm.sh and the
+ * Reads eval/reports/history/formalizer-size-v1/<model>/ as written by training/scripts/evaluate-arm.sh and the
  * run records under models/<model>/<run>/formalizer/. It reports every number with its counts, the preregistered
  * adequacy gate, and a 95% paired bootstrap interval (1,000 resamples over split_group_id, seed 42) for each
  * between-arm difference of the primary metric. It trains and predicts nothing.
@@ -14,7 +14,7 @@ import {fileURLToPath} from 'node:url';
 import {readJsonlShardedSync} from '../../lib/jsonl-shards.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const base = path.join(root, 'eval/reports/current/formalizer-size-v1');
+const base = path.join(root, 'eval/reports/history/formalizer-size-v1');
 const read = file => (fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : null);
 const frac = (n, d) => ({numerator: n, denominator: d, value: d ? n / d : null});
 const pct = f => (f?.value == null ? 'n/a' : `${(100 * f.value).toFixed(1)}% (${f.numerator}/${f.denominator})`);

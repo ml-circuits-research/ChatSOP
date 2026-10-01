@@ -1,0 +1,1488 @@
+{"id":"formalizer-ood-v1::ood1_000088_0_0::new:ro#1","text":"Verificare: furgoneta familiei este reparată de tatăl meu."}
+{"id":"formalizer-ood-v1::ood1_000088_0_0::new:mixed#1","text":"Fact-check: furgoneta familiei e repaired by tatăl meu."}
+{"id":"formalizer-ood-v1::ood1_000088_0_0::new:noisy_en#1","text":"fact check: the family van is reparied by my father"}
+{"id":"formalizer-ood-v1::ood1_000190_0_0::new:ro#1","text":"Ce inchiriaza matusa ta, daca stii?"}
+{"id":"formalizer-ood-v1::ood1_000332_0_0::new:ro#1","text":"E adevărat că managerul tău pregătește internul nou?"}
+{"id":"formalizer-ood-v1::ood1_000332_0_0::new:mixed#1","text":"Is it true ca managerul tau pregateste internul nou?"}
+{"id":"formalizer-ood-v1::ood1_000394_0_0::new:ro#1","text":"E adevărat că șeful tău nu îi îndrumă pe stagiari?"}
+{"id":"formalizer-ood-v1::ood1_000394_0_0::new:mixed#1","text":"Is it true ca seful tau nu ii indruma pe stagiari?"}
+{"id":"formalizer-ood-v1::ood1_000477_0_0::new:ro#1","text":"Cred ca fondatorul angajeaza asistenti noi."}
+{"id":"formalizer-ood-v1::ood1_000477_0_0::new:mixed#1","text":"Cred ca fondatorul angajeaza new assistants."}
+{"id":"formalizer-ood-v1::ood1_000477_0_0::new:noisy_en#1","text":"i belive the founder hires new assistants."}
+{"id":"formalizer-ood-v1::ood1_000694_0_1::new:ro#1","text":"Câți pacienți sunt examinați de asistentă, dacă știi?"}
+{"id":"formalizer-ood-v1::ood1_000694_0_1::new:mixed#1","text":"Câți patients sunt examinati de asistenta, daca stii?"}
+{"id":"formalizer-ood-v1::ood1_000694_0_1::new:noisy_en#1","text":"how many patients are examinned by the nurse, if you know?"}
+{"id":"formalizer-ood-v1::ood2_000039_0_0::new:ro#1","text":"Cred că Delta Logistics angajează șoferi sezonieri."}
+{"id":"formalizer-ood-v1::ood2_000039_0_0::new:ro#2","text":"Ai spune că Orion Foods angajează șoferi sezonieri?"}
+{"id":"formalizer-ood-v1::ood2_000039_0_0::new:mixed#1","text":"I believe Delta Logistics angajeaza soferi sezonieri."}
+{"id":"formalizer-ood-v1::ood2_000039_0_0::new:mixed#2","text":"Ai spune ca Orion Foods hires seasonal drivers?"}
+{"id":"formalizer-ood-v1::ood2_000039_0_0::new:noisy_en#1","text":"i believe Delta Logistics hires seasonal drivers."}
+{"id":"formalizer-ood-v1::ood2_000251_0_0::new:ro#1","text":"Poți să verifici dacă doamna Ionescu nu este proprietara firmei de livrări din Sibiu?"}
+{"id":"formalizer-ood-v1::ood2_000251_0_0::new:mixed#1","text":"Poti sa verifici daca doamna Ionescu nu e owner la firma de livrari din Sibiu?"}
+{"id":"formalizer-ood-v1::ood2_000251_0_0::new:noisy_en#1","text":"could you chek if Ms Ionescu is not the owner of the Sibiu delivery firm?"}
+{"id":"formalizer-ood-v1::ood2_000456_0_2::new:ro#1","text":"Adu-mi aminte, ce traduce Delta Publishing?"}
+{"id":"formalizer-v1::fv1_000009_1_0::same:ro#1","text":"Mă întrebam dacă Réka Kovács lucrează sub Mircea Enache."}
+{"id":"formalizer-v1::fv1_000009_1_0::same:mixed#1","text":"I was wondering dacă Réka Kovács works under Mircea Enache."}
+{"id":"formalizer-v1::fv1_000009_1_0::same:noisy_en#1","text":"i was wondering wether Réka Kovács works under Mircea Enache"}
+{"id":"formalizer-v1::fv1_000009_1_0::new:ro#1","text":"Ma intrebam daca Kwame Osei lucreaza sub Nadia Petrescu."}
+{"id":"formalizer-v1::fv1_000009_1_0::new:mixed#1","text":"I was wondering daca Kwame Osei lucreaza sub Nadia Petrescu."}
+{"id":"formalizer-v1::fv1_000009_1_0::new:noisy_en#1","text":"i was wondering wether kwame osei works under nadia petrescu"}
+{"id":"formalizer-v1::fv1_000105_0_0::same:ro#1","text":"Iarna in Maramureș a fost scrisă de Yuki."}
+{"id":"formalizer-v1::fv1_000105_0_0::same:ro#2","text":"A fost scrisă de Yuki, nu?"}
+{"id":"formalizer-v1::fv1_000105_0_0::same:mixed#1","text":"Winter in Maramureș a fost scrisă de Yuki."}
+{"id":"formalizer-v1::fv1_000105_0_0::same:noisy_en#1","text":"winter in maramureș was written by yuki."}
+{"id":"formalizer-v1::fv1_000105_0_0::new:ro#1","text":"Primăvara în Brașov a fost scrisă de Aiko."}
+{"id":"formalizer-v1::fv1_000105_0_0::new:ro#2","text":"A fost scrisă de Aiko, nu?"}
+{"id":"formalizer-v1::fv1_000105_0_0::new:mixed#1","text":"Spring in Brașov a fost scrisă de Aiko."}
+{"id":"formalizer-v1::fv1_000105_0_0::new:noisy_en#1","text":"spring in brașov was written by aiko."}
+{"id":"formalizer-v1::fv1_000105_0_0::new:noisy_en#2","text":"it was written by aiko right?"}
+{"id":"formalizer-v1::fv1_000248_0_0::same:ro#1","text":"Bun, deci Mateo il creste pe Julien."}
+{"id":"formalizer-v1::fv1_000248_0_0::same:ro#2","text":"Ma intreb daca el este autorul cartii The Clockmaker's Daughter."}
+{"id":"formalizer-v1::fv1_000248_0_0::same:mixed#1","text":"Mă întreb dacă he is the author of The Clockmaker's Daughter."}
+{"id":"formalizer-v1::fv1_000248_0_0::same:noisy_en#1","text":"okay so Mateo raises Julien."}
+{"id":"formalizer-v1::fv1_000248_0_0::same:noisy_en#2","text":"i wonder if he is the autor of The Clockmaker's Daughter."}
+{"id":"formalizer-v1::fv1_000248_0_0::new:ro#1","text":"Bun, deci Nadia il supravegheaza pe Bogdan."}
+{"id":"formalizer-v1::fv1_000248_0_0::new:ro#2","text":"Ma intreb daca ea este autoarea cartii Winter Harbour."}
+{"id":"formalizer-v1::fv1_000248_0_0::new:mixed#1","text":"Mă întreb dacă she is the author of Winter Harbour."}
+{"id":"formalizer-v1::fv1_000248_0_0::new:noisy_en#1","text":"okay so nadia supervises bogdan."}
+{"id":"formalizer-v1::fv1_000248_0_0::new:noisy_en#2","text":"i wonder if she is the auther of Winter Harbour"}
+{"id":"formalizer-v1::fv1_000251_0_0::same:ro#1","text":"Spune-mi unde locuiește Ayşe."}
+{"id":"formalizer-v1::fv1_000251_0_0::same:mixed#1","text":"Tell me unde locuiește Ayşe."}
+{"id":"formalizer-v1::fv1_000251_0_0::same:noisy_en#1","text":"tel me where Ayşe lives"}
+{"id":"formalizer-v1::fv1_000276_0_0::same:ro#1","text":"Ai idee cand domnul Ciobanu a fost sotul lui Jessica Wright?"}
+{"id":"formalizer-v1::fv1_000276_0_0::same:mixed#1","text":"Ai idee când Mr Ciobanu a fost the spouse of Jessica Wright?"}
+{"id":"formalizer-v1::fv1_000342_0_0::same:ro#1","text":"Poti sa-mi spui cine e responsabil pentru gateway-ul de plati?"}
+{"id":"formalizer-v1::fv1_000342_0_0::same:mixed#1","text":"Can you tell me cine e responsabil pentru payments gateway?"}
+{"id":"formalizer-v1::fv1_000342_0_0::new:ro#1","text":"Poti sa-mi spui cine este responsabil pentru stadion?"}
+{"id":"formalizer-v1::fv1_000342_0_0::new:mixed#1","text":"Can you tell me cine e responsabil pentru stadion?"}
+{"id":"formalizer-v1::fv1_000355_0_0::same:ro#1","text":"Ce persoane sunt angajate de o firma cu sediul in Alba Iulia?"}
+{"id":"formalizer-v1::fv1_000355_0_0::same:mixed#1","text":"Ce persoane sunt angajate de o firma based in Alba Iulia?"}
+{"id":"formalizer-v1::fv1_000355_0_0::new:ro#1","text":"Ce muncitori sunt angajați de o brutărie din Sibiu?"}
+{"id":"formalizer-v1::fv1_000355_0_0::new:mixed#1","text":"Ce workers sunt angajati de o brutarie cu sediul in Sibiu?"}
+{"id":"formalizer-v1::fv1_000372_0_0::same:ro#1","text":"Emil este doctorul lui Dragoș."}
+{"id":"formalizer-v1::fv1_000372_0_0::same:ro#2","text":"Este corect că el are o alergie la fructe de mare?"}
+{"id":"formalizer-v1::fv1_000372_0_0::same:mixed#1","text":"Is it correct că el are o alergie la fructe de mare?"}
+{"id":"formalizer-v1::fv1_000372_0_0::same:noisy_en#1","text":"Emil is teh doctor of Dragoș."}
+{"id":"formalizer-v1::fv1_000372_0_0::same:noisy_en#2","text":"is it correct that he has an alergy to shellfish?"}
+{"id":"formalizer-v1::fv1_000372_0_0::new:ro#1","text":"Sora mea este mama fiului lui."}
+{"id":"formalizer-v1::fv1_000372_0_0::new:ro#2","text":"Este corect ca ea are o intoleranta la arahide?"}
+{"id":"formalizer-v1::fv1_000372_0_0::new:mixed#1","text":"My sister este mama fiului lui."}
+{"id":"formalizer-v1::fv1_000372_0_0::new:mixed#2","text":"Is it correct că ea are an intolerance to peanuts?"}
+{"id":"formalizer-v1::fv1_000372_0_0::new:noisy_en#1","text":"my sister is teh mother of his son."}
+{"id":"formalizer-v1::fv1_000372_0_0::new:noisy_en#2","text":"is it correct that she has an intolerence to peanuts?"}
+{"id":"formalizer-v1::fv1_000405_0_0::same:ro#1","text":"Oluwaseun Balogun este un parinte al lui Mircea."}
+{"id":"formalizer-v1::fv1_000405_0_0::same:ro#2","text":"— intentioneaza sa participe la receptia nuntii?"}
+{"id":"formalizer-v1::fv1_000405_0_0::same:mixed#1","text":"Oluwaseun Balogun este un parent of Mircea."}
+{"id":"formalizer-v1::fv1_000405_0_0::new:ro#1","text":"Fatima Adeyemi este o soră a lui Vlad."}
+{"id":"formalizer-v1::fv1_000405_0_0::new:ro#2","text":"— intenționează să participe la petrecerea de absolvire?"}
+{"id":"formalizer-v1::fv1_000405_0_0::new:mixed#1","text":"Fatima Adeyemi este o sister of Vlad."}
+{"id":"formalizer-v1::fv1_000426_0_0::same:ro#1","text":"Are voie Krzysztof să semneze un permis de constructie de unul singur?"}
+{"id":"formalizer-v1::fv1_000426_0_0::same:mixed#1","text":"Is Krzysztof allowed să semneze un building permit on their own?"}
+{"id":"formalizer-v1::fv1_000426_0_0::new:ro#1","text":"Are voie Elena să aibă grijă de fratele ei singură?"}
+{"id":"formalizer-v1::fv1_000426_0_0::new:mixed#1","text":"Is Elena allowed să aibă grijă de her brother on her own?"}
+{"id":"formalizer-v1::fv1_000462_0_0::same:ro#1","text":"Joaca Javier García inca pentru Olimpia Sighișoara?"}
+{"id":"formalizer-v1::fv1_000462_0_0::same:mixed#1","text":"Javier García still joaca pentru Olimpia Sighișoara?"}
+{"id":"formalizer-v1::fv1_000482_0_0::same:ro#1","text":"Cine lucrează unde, dintre companiile cu sediul în Constanța?"}
+{"id":"formalizer-v1::fv1_000482_0_0::same:noisy_en#1","text":"who works where, among the companys based in Constanța?"}
+{"id":"formalizer-v1::fv1_000608_0_0::same:ro#1","text":"Ma intrebam daca Sânziana planuieste sa plece de la Vertex Analytics."}
+{"id":"formalizer-v1::fv1_000608_0_0::same:mixed#1","text":"Ma intrebam whether Sânziana plans sa plece de la Vertex Analytics."}
+{"id":"formalizer-v1::fv1_000608_0_0::same:noisy_en#1","text":"i was wondering wether Sânziana plans to leave Vertex Analytics"}
+{"id":"formalizer-v1::fv1_000634_0_0::same:ro#1","text":"Liviu si domnul Hughes studiaza la Manole Primary School."}
+{"id":"formalizer-v1::fv1_000634_0_0::same:ro#2","text":"Studiaza si Valentina la Manole Primary School?"}
+{"id":"formalizer-v1::fv1_000634_0_0::same:mixed#1","text":"Liviu and Mr Hughes invata la Manole Primary School."}
+{"id":"formalizer-v1::fv1_000634_0_0::same:mixed#2","text":"Invata si Valentina la Manole Primary School?"}
+{"id":"formalizer-v1::fv1_000634_0_0::same:noisy_en#1","text":"liviu and mr hughes study at manole primary school."}
+{"id":"formalizer-v1::fv1_000634_0_0::new:mixed#1","text":"Twin-ul meu și domnul Popescu studiază la Lakeview Secondary School."}
+{"id":"formalizer-v1::fv1_000634_0_0::new:mixed#2","text":"Studiază și internul la Lakeview Secondary School?"}
+{"id":"formalizer-v1::fv1_000634_0_0::new:noisy_en#1","text":"my twin and mr popescu study at lakeview secondary school."}
+{"id":"formalizer-v1::fv1_000763_0_0::same:ro#1","text":"Cine a făcut The Clockmaker's Daughter?"}
+{"id":"formalizer-v1::fv1_000763_0_0::same:mixed#1","text":"Who a făcut The Clockmaker's Daughter?"}
+{"id":"formalizer-v1::fv1_000763_0_0::new:ro#1","text":"Cine a angajat contractorul?"}
+{"id":"formalizer-v1::fv1_000763_0_0::new:mixed#1","text":"Who a angajat contractorul?"}
+{"id":"formalizer-v1::fv1_000763_0_0::new:noisy_en#1","text":"who hired the contratcor?"}
+{"id":"formalizer-v1::fv1_000766_0_0::same:ro#1","text":"E Ananya mai mare decat Ștefania?"}
+{"id":"formalizer-v1::fv1_000766_0_0::same:mixed#1","text":"Ananya e older than Ștefania?"}
+{"id":"formalizer-v1::fv1_000766_0_0::same:noisy_en#1","text":"is Ananya older then Ștefania?"}
+{"id":"formalizer-v1::fv1_000766_0_0::new:ro#1","text":"Este fondatorul mai tânăr decât directorul?"}
+{"id":"formalizer-v1::fv1_000766_0_0::new:mixed#1","text":"Fondatorul e younger than directorul?"}
+{"id":"formalizer-v1::fv1_000766_0_0::new:noisy_en#1","text":"is the founder younger then the director?"}
+{"id":"formalizer-v1::fv1_000880_0_0::same:ro#1","text":"Ai putea verifica ce sistem se bazează pe gateway-ul de plăți?"}
+{"id":"formalizer-v1::fv1_000880_0_0::same:mixed#1","text":"Could you check ce sistem se bazează pe payments gateway?"}
+{"id":"formalizer-v1::fv1_000880_0_0::same:noisy_en#1","text":"could you check which system relies on the payments gatewy?"}
+{"id":"formalizer-v1::fv1_000880_0_0::new:ro#1","text":"Ai putea verifica ce asistent se bazează pe aplicația de rezervări?"}
+{"id":"formalizer-v1::fv1_000880_0_0::new:mixed#1","text":"Could you check ce asistent se bazeaza pe booking app?"}
+{"id":"formalizer-v1::fv1_000964_0_0::same:ro#1","text":"Cine este părintele unuia dintre părinții lui Bogdan Moldovan?"}
+{"id":"formalizer-v1::fv1_000964_0_0::same:mixed#1","text":"Who este un părinte al unuia dintre părinții lui Bogdan Moldovan?"}
+{"id":"formalizer-v1::fv1_000964_0_0::new:ro#1","text":"Cine este profesorul unuia dintre studenții lui Mihai Popescu?"}
+{"id":"formalizer-v1::fv1_000964_0_0::new:mixed#1","text":"Who este profesorul unuia dintre studenții lui Mihai Popescu?"}
+{"id":"formalizer-v1::fv1_001057_0_0::same:mixed#1","text":"Lin și Larisa studiază la Ploiești Technical College."}
+{"id":"formalizer-v1::fv1_001057_0_0::same:mixed#2","text":"Does Emil study la Ploiești Technical College too?"}
+{"id":"formalizer-v1::fv1_001057_0_0::same:noisy_en#1","text":"does Emil study at Ploiești Technical College too?"}
+{"id":"formalizer-v1::fv1_001057_0_0::new:mixed#1","text":"Ana și Mihai fac voluntariat la Riverside Shelter."}
+{"id":"formalizer-v1::fv1_001057_0_0::new:mixed#2","text":"Does Dana volunteer la Riverside Shelter too?"}
+{"id":"formalizer-v1::fv1_001057_0_0::new:noisy_en#1","text":"Ana and Mihai volonteer at the Riverside Shelter."}
+{"id":"formalizer-v1::fv1_001057_0_0::new:noisy_en#2","text":"does Dana volunteer at the Riverside Shelter too?"}
+{"id":"formalizer-v1::fv1_001224_0_0::same:mixed#1","text":"E cineva care studies la Oradea Language School si nu e trained?"}
+{"id":"formalizer-v1::fv1_001224_0_0::new:mixed#1","text":"E cineva care borrows carti de la Central Library dar nu e registered?"}
+{"id":"formalizer-v1::fv1_001289_0_0::same:ro#1","text":"Poți să verifici ce document e necesar pentru un certificat de rezidență?"}
+{"id":"formalizer-v1::fv1_001289_0_0::same:mixed#1","text":"Could you check ce document e needed pentru un residence certificate?"}
+{"id":"formalizer-v1::fv1_001289_0_0::new:ro#1","text":"Vreau să mă mut în curând."}
+{"id":"formalizer-v1::fv1_001289_0_0::new:ro#2","text":"Poți să verifici ce formular e necesar pentru un contract de închiriere?"}
+{"id":"formalizer-v1::fv1_001289_0_0::new:mixed#1","text":"Vreau sa ma mut soon."}
+{"id":"formalizer-v1::fv1_001289_0_0::new:mixed#2","text":"Could you check ce formular e needed pentru un rental contract?"}
+{"id":"formalizer-v1::fv1_001289_0_0::new:noisy_en#1","text":"i want to move soon."}
+{"id":"formalizer-v1::fv1_001458_0_0::same:ro#1","text":"Întrebare rapida: Paweł este antrenorul de la Constanța Falcons?"}
+{"id":"formalizer-v1::fv1_001458_0_0::same:ro#2","text":"Și, el viziteaza Lviv?"}
+{"id":"formalizer-v1::fv1_001458_0_0::same:mixed#1","text":"Quick question: is Paweł antrenorul de la Constanța Falcons?"}
+{"id":"formalizer-v1::fv1_001458_0_0::same:mixed#2","text":"Also, el viziteaza Lviv?"}
+{"id":"formalizer-v1::fv1_001458_0_0::new:ro#1","text":"Întrebare rapidă: Ingrid este managerul celor de la Cluj Otters?"}
+{"id":"formalizer-v1::fv1_001458_0_0::new:ro#2","text":"Și, ea rezervă hoteluri în Sofia?"}
+{"id":"formalizer-v1::fv1_001458_0_0::new:noisy_en#1","text":"quick qustion: is Ingrid the manager of the Cluj Otters?"}
+{"id":"formalizer-v1::fv1_001458_0_0::new:noisy_en#2","text":"also, she books hotels in Sofia?"}
+{"id":"formalizer-v1::fv1_001593_0_0::same:ro#1","text":"Cât de des a mers Ruxandra la turneul regional de șah?"}
+{"id":"formalizer-v1::fv1_001593_0_0::same:mixed#1","text":"How often did Ruxandra merge la turneul regional de sah?"}
+{"id":"formalizer-v1::fv1_001593_0_0::same:noisy_en#1","text":"how often did Ruxandra go to the regional chess tournamnet?"}
+{"id":"formalizer-v1::fv1_001593_0_0::new:ro#1","text":"Cât de des a participat Bogdan la festivalul local de film?"}
+{"id":"formalizer-v1::fv1_001593_0_0::new:mixed#1","text":"How often did Bogdan participa la festivalul local de film?"}
+{"id":"formalizer-v1::fv1_001593_0_0::new:noisy_en#1","text":"how often did Bogdan attend the local film fesitval?"}
+{"id":"formalizer-v1::fv1_001602_0_0::same:ro#1","text":"Doar verific: Alina este responsabila de gateway-ul de plati?"}
+{"id":"formalizer-v1::fv1_001602_0_0::same:ro#2","text":"Si, ea viziteaza Tampere?"}
+{"id":"formalizer-v1::fv1_001602_0_0::same:mixed#1","text":"Just checking: e Alina responsabila de payments gateway?"}
+{"id":"formalizer-v1::fv1_001602_0_0::same:mixed#2","text":"Also, she viziteaza Tampere?"}
+{"id":"formalizer-v1::fv1_001602_0_0::same:noisy_en#1","text":"just checking: is Alina responsable for the payments gateway?"}
+{"id":"formalizer-v1::fv1_001602_0_0::new:ro#1","text":"Doar verific: Irina este responsabilă de noua instalație?"}
+{"id":"formalizer-v1::fv1_001602_0_0::new:ro#2","text":"Și, ea conduce atelierul?"}
+{"id":"formalizer-v1::fv1_001602_0_0::new:mixed#1","text":"Just checking: is Irina responsabila for the new installation?"}
+{"id":"formalizer-v1::fv1_001602_0_0::new:mixed#2","text":"Also, she conduce atelierul?"}
+{"id":"formalizer-v1::fv1_001602_0_0::new:noisy_en#1","text":"just checking: is Irina responsable for the new instalation?"}
+{"id":"formalizer-v1::fv1_001602_0_0::new:noisy_en#2","text":"also, she leads the workshop?"}
+{"id":"formalizer-v1::fv1_002060_0_1::same:ro#1","text":"Incerc sa aflu unde locuieste Javier."}
+{"id":"formalizer-v1::fv1_002060_0_1::same:mixed#1","text":"I'm trying to find out unde locuiește Javier."}
+{"id":"formalizer-v1::fv1_002060_0_1::same:noisy_en#1","text":"im trying to find out where javier lives"}
+{"id":"formalizer-v1::fv1_002060_0_1::new:ro#1","text":"Încerc să aflu unde lucrează Petru Lazăr."}
+{"id":"formalizer-v1::fv1_002060_0_1::new:mixed#1","text":"I'm trying to find out unde lucrează Petru Lazăr."}
+{"id":"formalizer-v1::fv1_002060_0_1::new:noisy_en#1","text":"im trying to find out where petru lazar works"}
+{"id":"formalizer-v1::fv1_002068_0_1::same:ro#1","text":"Ma intrebam daca Dorin Mocanu il creste pe Gheorghe."}
+{"id":"formalizer-v1::fv1_002068_0_1::same:mixed#1","text":"Ma intrebam daca Dorin Mocanu raises Gheorghe."}
+{"id":"formalizer-v1::fv1_002068_0_1::same:noisy_en#1","text":"i was wondering wheter Dorin Mocanu raises Gheorghe"}
+{"id":"formalizer-v1::fv1_002068_0_1::new:ro#1","text":"Mă întrebam dacă Elena Barbu administrează depozitul."}
+{"id":"formalizer-v1::fv1_002068_0_1::new:mixed#1","text":"Ma intrebam daca Elena Barbu manages depozitul."}
+{"id":"formalizer-v1::fv1_002068_0_1::new:noisy_en#1","text":"i was wondering wheter Elena Barbu manages teh warehouse"}
+{"id":"formalizer-v1::fv1_002241_0_0::same:ro#1","text":"Deci domnul Santos a participat la turneul de sah pentru juniori?"}
+{"id":"formalizer-v1::fv1_002241_0_0::same:mixed#1","text":"Deci Mr Santos a participat la junior chess tournament?"}
+{"id":"formalizer-v1::fv1_002241_0_0::same:noisy_en#1","text":"so did mr santos take part in the junior chess torunament?"}
+{"id":"formalizer-v1::fv1_002241_0_0::new:ro#1","text":"Deci nepotul meu a participat la competitia regionala de inot?"}
+{"id":"formalizer-v1::fv1_002241_0_0::new:mixed#1","text":"So did nepotul meu take part in the regional swimming competition?"}
+{"id":"formalizer-v1::fv1_002241_0_0::new:noisy_en#1","text":"so did my nefew take part in the regional swiming competition?"}
+{"id":"formalizer-v1::fv1_002348_0_0::same:ro#1","text":"Ce doctori trateaza pe cineva care este alergic la arahide?"}
+{"id":"formalizer-v1::fv1_002348_0_0::same:mixed#1","text":"Which doctors tratează pe cineva who is allergic to arahide?"}
+{"id":"formalizer-v1::fv1_002348_0_0::same:noisy_en#1","text":"which doctors treat someone who is allergic to peanuts?"}
+{"id":"formalizer-v1::fv1_002348_0_0::new:mixed#1","text":"Which nurses ajută pe cineva who is recovering from surgery?"}
+{"id":"formalizer-v1::fv1_002348_0_0::new:noisy_en#1","text":"which nurses assist someone who is recovering from surgey?"}
+{"id":"formalizer-v1::fv1_002574_0_0::same:ro#1","text":"Cine este responsabil de API-ul de inventar?"}
+{"id":"formalizer-v1::fv1_002574_0_0::same:mixed#1","text":"Cine e responsible for the inventory API?"}
+{"id":"formalizer-v1::fv1_002574_0_0::same:noisy_en#1","text":"who is responsable for the inventory API?"}
+{"id":"formalizer-v1::fv1_002574_0_0::new:ro#1","text":"Planuim o lansare luni."}
+{"id":"formalizer-v1::fv1_002574_0_0::new:ro#2","text":"Cine este responsabil de gateway-ul de plati?"}
+{"id":"formalizer-v1::fv1_002574_0_0::new:mixed#1","text":"We plan a rollout luni."}
+{"id":"formalizer-v1::fv1_002574_0_0::new:mixed#2","text":"Cine e responsible for payments gateway?"}
+{"id":"formalizer-v1::fv1_002574_0_0::new:noisy_en#1","text":"we plan a rollout on monday."}
+{"id":"formalizer-v1::fv1_002574_0_0::new:noisy_en#2","text":"who is responsable for the payments gateway?"}
+{"id":"formalizer-v1::fv1_002701_0_0::same:ro#1","text":"Are voie Dimitra să semneze un permis de muncă pe cont propriu?"}
+{"id":"formalizer-v1::fv1_002701_0_0::same:mixed#1","text":"Is Dimitra allowed să semneze un work permit pe cont propriu?"}
+{"id":"formalizer-v1::fv1_002701_0_0::same:noisy_en#1","text":"is Dimitra alowed to sign a work permit on thier own?"}
+{"id":"formalizer-v1::fv1_002701_0_0::new:ro#1","text":"Are voie asistentul să aprobe o comandă de achiziție pe cont propriu?"}
+{"id":"formalizer-v1::fv1_002701_0_0::new:mixed#1","text":"Is the assistant allowed să aprobe o purchase order pe cont propriu?"}
+{"id":"formalizer-v1::fv1_002701_0_0::new:noisy_en#1","text":"is the assistant alowed to aprove a purchase order on their own?"}
+{"id":"formalizer-v1::fv1_002818_0_0::same:ro#1","text":"Wei este alergic la arahide."}
+{"id":"formalizer-v1::fv1_002818_0_0::same:mixed#1","text":"Wei e alergic la peanuts."}
+{"id":"formalizer-v1::fv1_002818_0_0::same:noisy_en#1","text":"wei is alergic to peanuts"}
+{"id":"formalizer-v1::fv1_002818_0_0::new:ro#1","text":"Pacientul este alergic la penicilina."}
+{"id":"formalizer-v1::fv1_002818_0_0::new:mixed#1","text":"Pacientul e alergic la penicillin."}
+{"id":"formalizer-v1::fv1_002818_0_0::new:noisy_en#1","text":"the patient is alergic to penicilin"}
+{"id":"formalizer-v1::fv1_003281_0_0::same:ro#1","text":"Domnul Munteanu lucreaza sub Linh."}
+{"id":"formalizer-v1::fv1_003281_0_0::same:ro#2","text":"Domnul Munteanu o conduce pe Linh?"}
+{"id":"formalizer-v1::fv1_003281_0_0::same:mixed#1","text":"Mr Munteanu o manages pe Linh?"}
+{"id":"formalizer-v1::fv1_003281_0_0::new:ro#1","text":"Doamna Ionescu lucrează sub Andrei."}
+{"id":"formalizer-v1::fv1_003281_0_0::new:ro#2","text":"Doamna Ionescu îl plătește pe Andrei?"}
+{"id":"formalizer-v1::fv1_003281_0_0::new:mixed#1","text":"Doamna Ionescu works under Andrei."}
+{"id":"formalizer-v1::fv1_003281_0_0::new:mixed#2","text":"Doamna Ionescu pays Andrei?"}
+{"id":"formalizer-v1::fv1_003308_0_0::same:ro#1","text":"Deci Aditya îl conduce pe Burak?"}
+{"id":"formalizer-v1::fv1_003308_0_0::same:mixed#1","text":"Deci Aditya manage Burak?"}
+{"id":"formalizer-v1::fv1_003308_0_0::new:mixed#1","text":"So does Priya aprobă vizita lui Karim?"}
+{"id":"formalizer-v1::fv1_003390_0_0::same:ro#1","text":"Este corect ca Valentina a antrenat Călărași United pe 1 februarie 2018?"}
+{"id":"formalizer-v1::fv1_003390_0_0::same:mixed#1","text":"Is it correct ca Valentina a antrenat Călărași United on February 1, 2018?"}
+{"id":"formalizer-v1::fv1_003390_0_0::new:ro#1","text":"Este corect ca domnul Novak a aprobat bugetul pe 3 martie 2020?"}
+{"id":"formalizer-v1::fv1_003390_0_0::new:mixed#1","text":"Is it correct ca Mr Novak a aprobat bugetul on March 3, 2020?"}
+{"id":"formalizer-v1::fv1_003413_0_0::same:ro#1","text":"Mă întrebam dacă Lena o conduce pe Elena."}
+{"id":"formalizer-v1::fv1_003413_0_0::same:mixed#1","text":"Elena e sefa lui Lena."}
+{"id":"formalizer-v1::fv1_003413_0_0::new:ro#1","text":"Mă întrebam dacă Andreea îl conduce pe Bogdan."}
+{"id":"formalizer-v1::fv1_003425_0_0::same:ro#1","text":"Poți să confirmi că Omar nu este stabilit în Slatina?"}
+{"id":"formalizer-v1::fv1_003425_0_0::same:mixed#1","text":"Poti sa confirmi ca Omar nu e based in Slatina?"}
+{"id":"formalizer-v1::fv1_003425_0_0::new:ro#1","text":"Poți să confirmi că Petra nu participă la atelierul din Cluj?"}
+{"id":"formalizer-v1::fv1_003425_0_0::new:mixed#1","text":"Poti sa confirmi ca Petra nu attend la workshop in Cluj?"}
+{"id":"formalizer-v1::fv1_003544_0_0::same:ro#1","text":"Sincer, Gheorghe e stabilit in Slatina?"}
+{"id":"formalizer-v1::fv1_003544_0_0::same:mixed#1","text":"Sincer, Gheorghe e based in Slatina?"}
+{"id":"formalizer-v1::fv1_003544_0_0::new:ro#1","text":"Sincer, Bogdan instruieste angajatii noi?"}
+{"id":"formalizer-v1::fv1_003544_0_0::new:mixed#1","text":"Sincer, Bogdan is training the new staff?"}
+{"id":"formalizer-v1::fv1_003560_0_0::same:ro#1","text":"Doar verific: Ionuț se ocupa de aplicatia de rezervari?"}
+{"id":"formalizer-v1::fv1_003560_0_0::same:ro#2","text":"E corect ca el este inscris la Bergen Language School?"}
+{"id":"formalizer-v1::fv1_003560_0_0::same:mixed#1","text":"Doar checking: Ionuț se ocupă de booking app?"}
+{"id":"formalizer-v1::fv1_003560_0_0::same:mixed#2","text":"E corect că e enrolled la Bergen Language School?"}
+{"id":"formalizer-v1::fv1_003560_0_0::same:noisy_en#1","text":"just checking: does Ionuț maintian the booking app?"}
+{"id":"formalizer-v1::fv1_003560_0_0::same:noisy_en#2","text":"is it correct that hes enrolled at the Bergen Language School?"}
+{"id":"formalizer-v1::fv1_003560_0_0::new:ro#1","text":"Doar verific: Andrei antrenează corul de tineret?"}
+{"id":"formalizer-v1::fv1_003560_0_0::new:ro#2","text":"E corect că el este înscris la Lisbon Music Academy?"}
+{"id":"formalizer-v1::fv1_003560_0_0::new:mixed#1","text":"Doar checking: Andrei antrenează corul de tineret?"}
+{"id":"formalizer-v1::fv1_003560_0_0::new:mixed#2","text":"E corect că e enrolled la Lisbon Music Academy?"}
+{"id":"formalizer-v1::fv1_003560_0_0::new:noisy_en#1","text":"just checking: does Andrei coah the youth choir?"}
+{"id":"formalizer-v1::fv1_003560_0_0::new:noisy_en#2","text":"is it correct that hes enrolled at the Lisbon Music Academy?"}
+{"id":"formalizer-v1::fv1_003640_0_0::same:ro#1","text":"Quang planuieste sa studieze chimie?"}
+{"id":"formalizer-v1::fv1_003640_0_0::same:mixed#1","text":"Quang plănuiește să study chemistry?"}
+{"id":"formalizer-v1::fv1_003640_0_0::new:ro#1","text":"Radu plănuiește să predea matematică?"}
+{"id":"formalizer-v1::fv1_003640_0_0::new:mixed#1","text":"Radu plănuiește să teach mathematics?"}
+{"id":"formalizer-v1::fv1_003669_0_1::same:ro#1","text":"Poti să verifici cine e angajat la Tisa Textiles?"}
+{"id":"formalizer-v1::fv1_003669_0_1::same:mixed#1","text":"Poți să check cine e angajat la Tisa Textiles?"}
+{"id":"formalizer-v1::fv1_003669_0_1::new:ro#1","text":"Poți să verifici cine lucrează pentru Danubia Shipping?"}
+{"id":"formalizer-v1::fv1_003669_0_1::new:mixed#1","text":"Could you check cine lucrează pentru Danubia Shipping?"}
+{"id":"formalizer-v1::fv1_003684_0_0::same:ro#1","text":"A zburat Olivia din nou la Glasgow?"}
+{"id":"formalizer-v1::fv1_003684_0_0::same:mixed#1","text":"Did Olivia fly din nou la Glasgow?"}
+{"id":"formalizer-v1::fv1_003684_0_0::new:ro#1","text":"S-a mutat Andrei din nou la Arad?"}
+{"id":"formalizer-v1::fv1_003684_0_0::new:mixed#1","text":"Did Andrei move din nou la Arad?"}
+{"id":"formalizer-v1::fv1_003940_0_0::same:ro#1","text":"Toti jucatorii de la Sighișoara Wolves nu sunt certificati?"}
+{"id":"formalizer-v1::fv1_003940_0_0::same:mixed#1","text":"All the players of the Sighișoara Wolves nu sunt certificati?"}
+{"id":"formalizer-v1::fv1_003940_0_0::same:noisy_en#1","text":"all the players of the Sighișoara Wolves are not certfied?"}
+{"id":"formalizer-v1::fv1_004068_0_0::same:ro#1","text":"Cine este un parinte al unui parinte al lui Olena Kovalenko?"}
+{"id":"formalizer-v1::fv1_004068_0_0::same:mixed#1","text":"Who is un părinte al unui părinte al lui Olena Kovalenko?"}
+{"id":"formalizer-v1::fv1_004068_0_0::new:ro#1","text":"Cine este bunicul unui fiu al lui Marta Nowak?"}
+{"id":"formalizer-v1::fv1_004068_0_0::new:mixed#1","text":"Who is bunicul unui fiu al lui Marta Nowak?"}
+{"id":"formalizer-v1::fv1_004178_0_0::same:ro#1","text":"Poti sa verifici daca Ștefania intentioneaza sa participe la seara de jazz?"}
+{"id":"formalizer-v1::fv1_004178_0_0::same:mixed#1","text":"Poti sa verifici whether Ștefania intends to attend the jazz evening?"}
+{"id":"formalizer-v1::fv1_004298_0_0::same:ro#1","text":"Spune-mi cand Ayşe Çelik a lucrat la Delta Print."}
+{"id":"formalizer-v1::fv1_004298_0_0::same:mixed#1","text":"Tell me când Ayşe Çelik a lucrat la Delta Print."}
+{"id":"formalizer-v1::fv1_004298_0_0::same:noisy_en#1","text":"tell me when Ayşe Çelik worked at Delta Print"}
+{"id":"formalizer-v1::fv1_004298_0_0::new:noisy_en#1","text":"tell me when your stepchild workd at Orion Robotics"}
+{"id":"formalizer-v1::fv1_004389_0_0::same:ro#1","text":"Old Mill Hall este inchis."}
+{"id":"formalizer-v1::fv1_004389_0_0::same:ro#2","text":"Spune-mi daca este inchis pentru turneul regional de sah."}
+{"id":"formalizer-v1::fv1_004389_0_0::same:mixed#1","text":"Old Mill Hall e închis."}
+{"id":"formalizer-v1::fv1_004389_0_0::same:mixed#2","text":"Tell me whether it's closed for turneul regional de șah."}
+{"id":"formalizer-v1::fv1_004389_0_0::same:noisy_en#1","text":"the Old Mill Hall is closed."}
+{"id":"formalizer-v1::fv1_004389_0_0::same:noisy_en#2","text":"tell me wether its closed for the regional chess tournament"}
+{"id":"formalizer-v1::fv1_004389_0_0::new:ro#1","text":"Biroul contractorului este deschis."}
+{"id":"formalizer-v1::fv1_004389_0_0::new:ro#2","text":"Spune-mi dacă este deschis pentru întâlnirea cu clientul."}
+{"id":"formalizer-v1::fv1_004389_0_0::new:mixed#1","text":"Biroul contractorului e open."}
+{"id":"formalizer-v1::fv1_004389_0_0::new:mixed#2","text":"Tell me whether it's open for the client meeting."}
+{"id":"formalizer-v1::fv1_004389_0_0::new:noisy_en#1","text":"the contractors office is open."}
+{"id":"formalizer-v1::fv1_004389_0_0::new:noisy_en#2","text":"tell me whether its open for the client meeting"}
+{"id":"formalizer-v1::fv1_004449_0_0::same:ro#1","text":"Exista cineva la Carpathia Energy care lucreaza acolo si locuieste in Tulcea?"}
+{"id":"formalizer-v1::fv1_004449_0_0::same:mixed#1","text":"Is there somebody at Carpathia Energy who works there and locuiește în Tulcea?"}
+{"id":"formalizer-v1::fv1_004449_0_0::new:ro#1","text":"Exista cineva la firma contractorului care lucreaza acolo si locuieste in Iași?"}
+{"id":"formalizer-v1::fv1_004449_0_0::new:mixed#1","text":"Is there somebody at the contractor's company who works there and locuiește în Iași?"}
+{"id":"formalizer-v1::fv1_004547_0_0::same:ro#1","text":"De ce exact este gateway-ul de plăți picat?"}
+{"id":"formalizer-v1::fv1_004547_0_0::same:mixed#1","text":"De ce exact e payments gateway-ul down?"}
+{"id":"formalizer-v1::fv1_004547_0_0::new:ro#1","text":"De ce exact este portalul pacientilor picat?"}
+{"id":"formalizer-v1::fv1_004547_0_0::new:mixed#1","text":"Why exactly is portalul pacienților picat?"}
+{"id":"formalizer-v1::fv1_004625_0_0::same:ro#1","text":"Cine preda biologie?"}
+{"id":"formalizer-v1::fv1_004625_0_0::new:ro#1","text":"Vreau să încep lecții din primăvară."}
+{"id":"formalizer-v1::fv1_004625_0_0::new:mixed#1","text":"Vreau să încep lessons in the spring."}
+{"id":"formalizer-v1::fv1_004715_0_0::same:ro#1","text":"Mă întrebam dacă e nevoie de buletin pentru un certificat de rezidență."}
+{"id":"formalizer-v1::fv1_004715_0_0::same:mixed#1","text":"Mă întrebam dacă an ID card is required for a residence certificate."}
+{"id":"formalizer-v1::fv1_004715_0_0::new:ro#1","text":"Ma intrebam daca e nevoie de o legitimtie de oaspete pentru piscina."}
+{"id":"formalizer-v1::fv1_004715_0_0::new:mixed#1","text":"Mă întrebam dacă a guest pass is required for the swimming pool."}
+{"id":"formalizer-v1::fv1_004715_0_0::new:noisy_en#1","text":"i was wondering whether a guest pass is required for the swiming pool"}
+{"id":"formalizer-v1::fv1_004739_0_0::same:ro#1","text":"Wanjiru spune ca vrea sa se mute la Chișinău."}
+{"id":"formalizer-v1::fv1_004739_0_0::same:ro#2","text":"Intentionaza sa plece de la Brightfield Foods, nu?"}
+{"id":"formalizer-v1::fv1_004739_0_0::same:mixed#1","text":"Wanjiru says she wants să se mute la Chișinău."}
+{"id":"formalizer-v1::fv1_004739_0_0::new:ro#1","text":"Ravi spune că vrea să se mute la Cluj."}
+{"id":"formalizer-v1::fv1_004739_0_0::new:ro#2","text":"Intenționează să-și dea afară asistentul, nu?"}
+{"id":"formalizer-v1::fv1_004739_0_0::new:mixed#1","text":"Ravi says he wants să se mute la Cluj."}
+{"id":"formalizer-v1::fv1_004950_0_0::same:ro#1","text":"Levente este părintele domnului Neagu."}
+{"id":"formalizer-v1::fv1_004950_0_0::same:ro#2","text":"Domnul Neagu este părintele lui Levente, nu?"}
+{"id":"formalizer-v1::fv1_004950_0_0::same:mixed#1","text":"Levente este parintele lui Mr Neagu."}
+{"id":"formalizer-v1::fv1_004950_0_0::same:mixed#2","text":"Mr Neagu e parintele lui Levente, right?"}
+{"id":"formalizer-v1::fv1_004950_0_0::new:ro#1","text":"Marta îi vinde o bicicletă domnului Popa."}
+{"id":"formalizer-v1::fv1_004950_0_0::new:mixed#1","text":"Marta ii vinde o bicicleta lui Mr Popa."}
+{"id":"formalizer-v1::fv1_005085_0_0::same:ro#1","text":"Context: Kostas este părintele lui Youssef Saleh."}
+{"id":"formalizer-v1::fv1_005085_0_0::same:ro#2","text":"Întrebare: Spune-mi dacă el studiază la Montreal Technical College."}
+{"id":"formalizer-v1::fv1_005085_0_0::same:mixed#1","text":"Background: Kostas e parintele lui Youssef Saleh."}
+{"id":"formalizer-v1::fv1_005085_0_0::same:mixed#2","text":"Question: Spune-mi daca el studiaza la Montreal Technical College."}
+{"id":"formalizer-v1::fv1_005085_0_0::same:noisy_en#1","text":"background: Kostas is a parent of Youssef Saleh."}
+{"id":"formalizer-v1::fv1_005085_0_0::same:noisy_en#2","text":"question: tell me whether he studies at Montreal Technical College"}
+{"id":"formalizer-v1::fv1_005085_0_0::new:ro#1","text":"Context: Radu este părintele lui Ilinca Barbu."}
+{"id":"formalizer-v1::fv1_005085_0_0::new:mixed#1","text":"Background: Radu e parintele lui Ilinca Barbu."}
+{"id":"formalizer-v1::fv1_005315_0_0::same:ro#1","text":"Cate carti publica Oradea Logistics?"}
+{"id":"formalizer-v1::fv1_005315_0_0::same:noisy_en#1","text":"how many books does Oradea Logistics publsih?"}
+{"id":"formalizer-v1::fv1_005315_0_0::new:ro#1","text":"Cate masini imprumuta Cluj Motors?"}
+{"id":"formalizer-v1::fv1_005315_0_0::new:mixed#1","text":"Cate cars does Cluj Motors lend?"}
+{"id":"formalizer-v1::fv1_005315_0_0::new:noisy_en#1","text":"how meny cars does Cluj Motors lend?"}
+{"id":"formalizer-v1::fv1_005326_0_0::same:ro#1","text":"Știi cine a făcut The Quiet Harbour?"}
+{"id":"formalizer-v1::fv1_005326_0_0::same:mixed#1","text":"Stii who made The Quiet Harbour?"}
+{"id":"formalizer-v1::fv1_005326_0_0::new:ro#1","text":"Știi cine a organizat târgul de caritate?"}
+{"id":"formalizer-v1::fv1_005326_0_0::new:mixed#1","text":"Stii who organized the charity fair?"}
+{"id":"formalizer-v1::fv1_005326_0_0::new:noisy_en#1","text":"do you know who organizd the charity fair?"}
+{"id":"formalizer-v1::fv1_005370_0_0::same:ro#1","text":"Toți oamenii care au fost la târgul de carte de primăvară au un certificat valabil?"}
+{"id":"formalizer-v1::fv1_005370_0_0::same:mixed#1","text":"Toate persoanele care au fost la spring book fair au un certificat valid?"}
+{"id":"formalizer-v1::fv1_005370_0_0::new:ro#1","text":"Toți părinții care au fost la cursul de training de iarnă au un formular de sponsorizare semnat?"}
+{"id":"formalizer-v1::fv1_005370_0_0::new:mixed#1","text":"Toți părinții care au mers la winter training course au un sponsor form semnat?"}
+{"id":"formalizer-v1::fv1_005480_0_0::same:ro#1","text":"Camille joaca pentru Montreal Wolves; doamna Popa joaca pentru Iași Wolves."}
+{"id":"formalizer-v1::fv1_005480_0_0::same:ro#2","text":"Ma intreb daca ea planuieste sa mearga la atelierul de fotografie."}
+{"id":"formalizer-v1::fv1_005480_0_0::same:mixed#1","text":"Camille joacă pentru Montreal Wolves; Ms Popa plays for Iași Wolves."}
+{"id":"formalizer-v1::fv1_005480_0_0::same:mixed#2","text":"I wonder dacă ea plănuiește să meargă la photography workshop."}
+{"id":"formalizer-v1::fv1_005480_0_0::new:ro#1","text":"Andreea joaca pentru Cluj Ravens; domnul Ionescu joaca pentru Brașov Ravens."}
+{"id":"formalizer-v1::fv1_005480_0_0::new:ro#2","text":"Ma intreb daca el planuieste sa mearga la atelierul de coaching."}
+{"id":"formalizer-v1::fv1_005480_0_0::new:mixed#1","text":"Andreea joacă pentru Cluj Ravens; Mr Ionescu plays for Brașov Ravens."}
+{"id":"formalizer-v1::fv1_005480_0_0::new:mixed#2","text":"I wonder dacă el plănuiește să meargă la coaching workshop."}
+{"id":"formalizer-v1::fv1_005534_0_0::same:ro#1","text":"Nu lucrez la Orion Robotics, dar lucreaza sora mea la Orion Robotics?"}
+{"id":"formalizer-v1::fv1_005534_0_0::same:mixed#1","text":"I don't work la Orion Robotics, but lucreaza sora mea la Orion Robotics?"}
+{"id":"formalizer-v1::fv1_005534_0_0::new:ro#1","text":"Nu lucrez pentru Nexus Media, dar lucreaza fratele meu pentru Nexus Media?"}
+{"id":"formalizer-v1::fv1_005534_0_0::new:mixed#1","text":"I don't work pentru Nexus Media, but lucreaza fratele meu pentru Nexus Media?"}
+{"id":"formalizer-v1::fv1_005674_0_1::same:ro#1","text":"Deci Emre merge la seara de jazz?"}
+{"id":"formalizer-v1::fv1_005674_0_1::same:mixed#1","text":"Deci Emre merge la jazz evening?"}
+{"id":"formalizer-v1::fv1_005674_0_1::same:noisy_en#1","text":"so does Emre go to the jazz evning?"}
+{"id":"formalizer-v1::fv1_005772_0_0::same:ro#1","text":"Emil lucrează pentru Ploiești Logistics; Astrid are un job la Carpathia Energy."}
+{"id":"formalizer-v1::fv1_005772_0_0::same:mixed#1","text":"Emil lucrează pentru Ploiești Logistics; Astrid has a job at Carpathia Energy."}
+{"id":"formalizer-v1::fv1_005772_0_0::same:noisy_en#1","text":"Emil works for Ploiești Logistics; Astrid has a jobb at Carpathia Energy"}
+{"id":"formalizer-v1::fv1_005958_0_1::same:ro#1","text":"Una rapidă: unde a călătorit domnul Girard?"}
+{"id":"formalizer-v1::fv1_005958_0_1::same:mixed#1","text":"Quick one: unde a călătorit Mr Girard?"}
+{"id":"formalizer-v1::fv1_005958_0_1::same:noisy_en#1","text":"quick one: where did Mr Girard travell?"}
+{"id":"formalizer-v1::fv1_005958_0_1::new:ro#1","text":"Una rapidă: unde s-a mutat fratele meu?"}
+{"id":"formalizer-v1::fv1_005958_0_1::new:mixed#1","text":"Quick one: unde s-a mutat fratele meu?"}
+{"id":"formalizer-v1::fv1_005958_0_1::new:noisy_en#1","text":"quick one: where did my brother moove?"}
+{"id":"formalizer-v1::fv1_006042_0_0::same:ro#1","text":"Lucrez la Delta Print; lucrează și fratele meu la Delta Print?"}
+{"id":"formalizer-v1::fv1_006042_0_0::same:mixed#1","text":"I work la Delta Print; does my brother also work la Delta Print?"}
+{"id":"formalizer-v1::fv1_006042_0_0::same:noisy_en#1","text":"i work at Delta Print; does my brother also work at Delta Print?"}
+{"id":"formalizer-v1::fv1_006042_0_0::new:ro#1","text":"Studiez la Porto Design School; studiază și sora mea la Porto Design School?"}
+{"id":"formalizer-v1::fv1_006042_0_0::new:mixed#1","text":"I am thinking of mutat abroad soon."}
+{"id":"formalizer-v1::fv1_006042_0_0::new:mixed#2","text":"I study la Porto Design School; does my sister also study la Porto Design School?"}
+{"id":"formalizer-v1::fv1_006042_0_0::new:noisy_en#1","text":"im thinking of moving abroad soon."}
+{"id":"formalizer-v1::fv1_006042_0_0::new:noisy_en#2","text":"i study at Porto Design School; does my sister also study at Porto Design School?"}
+{"id":"formalizer-v1::fv1_006160_0_0::same:ro#1","text":"Au terminat toti cei inscrisi la Montreal Arts High School instruirea de siguranta?"}
+{"id":"formalizer-v1::fv1_006160_0_0::same:mixed#1","text":"Have all those inscrisi la Montreal Arts High School completed instruirea de siguranta?"}
+{"id":"formalizer-v1::fv1_006160_0_0::same:noisy_en#1","text":"have all those enrolled at Montreal Arts High School completed the safty training?"}
+{"id":"formalizer-v1::fv1_006160_0_0::new:ro#1","text":"Au terminat toti cei inscrisi la Dover Arts High School cursul de prim ajutor?"}
+{"id":"formalizer-v1::fv1_006160_0_0::new:mixed#1","text":"Have all those inscrisi la Dover Arts High School finished cursul de prim ajutor?"}
+{"id":"formalizer-v1::fv1_006160_0_0::new:noisy_en#1","text":"have all those enrolld at Dover Arts High School finished the first aid course?"}
+{"id":"formalizer-v1::fv1_006366_0_0::same:ro#1","text":"Tatiana a mers din nou la petrecerea de nuntă?"}
+{"id":"formalizer-v1::fv1_006366_0_0::same:mixed#1","text":"Did Tatiana go la wedding reception again?"}
+{"id":"formalizer-v1::fv1_006366_0_0::new:ro#1","text":"Mihai a mers din nou la petrecerea de absolvire?"}
+{"id":"formalizer-v1::fv1_006366_0_0::new:mixed#1","text":"Did Mihai go la graduation party again?"}
+{"id":"formalizer-v1::fv1_006366_0_0::new:noisy_en#1","text":"did Mihai go to the gradution party again?"}
+{"id":"formalizer-v1::fv1_006390_0_0::same:ro#1","text":"Context: Kamau este șeful domnului Çelik."}
+{"id":"formalizer-v1::fv1_006390_0_0::same:mixed#1","text":"Background: Kamau e boss-ul lui Mr Çelik."}
+{"id":"formalizer-v1::fv1_006390_0_0::same:mixed#2","text":"Question: Quick question: is he enrolled la Munteanu Primary School?"}
+{"id":"formalizer-v1::fv1_006390_0_0::same:noisy_en#1","text":"Question: quick question: is he enrolled at Munteanu Primary School?"}
+{"id":"formalizer-v1::fv1_006390_0_0::new:ro#1","text":"Context: Elena este managerul domnului Ionescu."}
+{"id":"formalizer-v1::fv1_006390_0_0::new:mixed#1","text":"Background: Elena e managerul lui Mr Ionescu."}
+{"id":"formalizer-v1::fv1_006390_0_0::new:mixed#2","text":"Question: Quick question: is he enrolled la Bălcescu Primary School?"}
+{"id":"formalizer-v1::fv1_006390_0_0::new:noisy_en#1","text":"Question: quick question: is he enrolled at Bălcescu Primary School?"}
+{"id":"formalizer-v1::fv1_006628_0_0::same:ro#1","text":"Hannah joacă pentru Olimpia Iași, corect?"}
+{"id":"formalizer-v1::fv1_006628_0_0::same:mixed#1","text":"Hannah plays for Olimpia Iași, corect?"}
+{"id":"formalizer-v1::fv1_006628_0_0::same:noisy_en#1","text":"Hannah playes for Olimpia Iași, correct?"}
+{"id":"formalizer-v1::fv1_006628_0_0::new:ro#1","text":"Hannah a trimis numarul de factura catre Olimpia Iași, corect?"}
+{"id":"formalizer-v1::fv1_006628_0_0::new:mixed#1","text":"Hannah a trimis invoice number-ul la Olimpia Iași, corect?"}
+{"id":"formalizer-v1::fv1_006628_0_0::new:noisy_en#1","text":"Hannah sent the invoice numer to Olimpia Iași, correct?"}
+{"id":"formalizer-v1::fv1_006699_0_1::same:ro#1","text":"Întrebare rapidă: Javier joacă pentru CS Szeged?"}
+{"id":"formalizer-v1::fv1_006699_0_1::same:mixed#1","text":"Quick question: Javier joacă pentru CS Szeged?"}
+{"id":"formalizer-v1::fv1_006699_0_1::new:ro#1","text":"Întrebare rapidă: Andrei joacă pentru FC Brașov?"}
+{"id":"formalizer-v1::fv1_006699_0_1::new:mixed#1","text":"Quick question: Andrei joaca pentru FC Brașov?"}
+{"id":"formalizer-v1::fv1_006780_0_0::same:mixed#1","text":"I need to know dacă Olivia is the spouse of Ruxandra Țurcanu."}
+{"id":"formalizer-v1::fv1_006780_0_0::same:noisy_en#1","text":"i need to know if Olivia is the spouce of Ruxandra Țurcanu"}
+{"id":"formalizer-v1::fv1_006785_0_0::same:ro#1","text":"Este corect că Floarea a mers la turneul de șah?"}
+{"id":"formalizer-v1::fv1_006785_0_0::same:mixed#1","text":"Is it correct ca Floarea a mers la turneul de sah?"}
+{"id":"formalizer-v1::fv1_006785_0_0::same:noisy_en#1","text":"is it correct that Floarea went to the chess tournamnet?"}
+{"id":"formalizer-v1::fv1_006785_0_0::new:ro#1","text":"Este corect că noul membru a mers la repetiția corului?"}
+{"id":"formalizer-v1::fv1_006785_0_0::new:mixed#1","text":"Is it correct ca noul membru a mers la repetitia corului?"}
+{"id":"formalizer-v1::fv1_006785_0_0::new:noisy_en#1","text":"is it correct that the new member went to the choir rehersal?"}
+{"id":"formalizer-v1::fv1_006807_0_0::same:ro#1","text":"Mă întreb ce companie vinde pâine cu maia."}
+{"id":"formalizer-v1::fv1_006807_0_0::same:mixed#1","text":"I wonder ce companie sells sourdough bread."}
+{"id":"formalizer-v1::fv1_006807_0_0::same:noisy_en#1","text":"i wonder wich company sells sourdough bread"}
+{"id":"formalizer-v1::fv1_006807_0_0::new:ro#1","text":"Mă întreb ce piață vinde miere organică."}
+{"id":"formalizer-v1::fv1_006807_0_0::new:mixed#1","text":"I wonder ce piata vinde miere organica."}
+{"id":"formalizer-v1::fv1_006807_0_0::new:noisy_en#1","text":"i wonder wich market sells organic hony"}
+{"id":"formalizer-v1::fv1_006898_0_0::same:ro#1","text":"Sa zicem ca Hugo a studiat la Lviv Arts High School."}
+{"id":"formalizer-v1::fv1_006898_0_0::same:ro#2","text":"Ma intreb daca are un certificat valid."}
+{"id":"formalizer-v1::fv1_006898_0_0::same:mixed#1","text":"Let's say Hugo a studiat la Lviv Arts High School."}
+{"id":"formalizer-v1::fv1_006898_0_0::same:mixed#2","text":"Ma intreb daca he has a valid certificate."}
+{"id":"formalizer-v1::fv1_006898_0_0::new:ro#1","text":"Sa zicem ca Victor a inchiriat un studio in Sibiu."}
+{"id":"formalizer-v1::fv1_006898_0_0::new:ro#2","text":"Ma intreb daca are o licenta valida."}
+{"id":"formalizer-v1::fv1_006898_0_0::new:mixed#1","text":"Let's say Victor a inchiriat un studio in Sibiu."}
+{"id":"formalizer-v1::fv1_006898_0_0::new:mixed#2","text":"I wonder if he has o licenta valida."}
+{"id":"formalizer-v1::fv1_006972_0_0::same:ro#1","text":"Roxana este sotia dlui Cebotari, corect?"}
+{"id":"formalizer-v1::fv1_006972_0_0::same:mixed#1","text":"Roxana is the spouse of dl Cebotari, corect?"}
+{"id":"formalizer-v1::fv1_006972_0_0::same:noisy_en#1","text":"roxana is the spouse of Mr Cebotari correct?"}
+{"id":"formalizer-v1::fv1_006972_0_0::new:ro#1","text":"Dana este sora dlui Petrescu, corect?"}
+{"id":"formalizer-v1::fv1_006972_0_0::new:mixed#1","text":"Dana is sora dlui Petrescu, corect?"}
+{"id":"formalizer-v1::fv1_006972_0_0::new:noisy_en#1","text":"dana is the sister of mr petrescu correct?"}
+{"id":"formalizer-v1::fv1_007200_0_1::same:ro#1","text":"Deci Owen are alergie la polen?"}
+{"id":"formalizer-v1::fv1_007200_0_1::same:mixed#1","text":"Deci Owen has an allergy to pollen?"}
+{"id":"formalizer-v1::fv1_007200_0_1::same:noisy_en#1","text":"so does Owen have an allergie to polen?"}
+{"id":"formalizer-v1::fv1_007200_0_1::new:ro#1","text":"Deci Vera are o rezervare la hotel?"}
+{"id":"formalizer-v1::fv1_007200_0_1::new:mixed#1","text":"So does Vera have o rezervare la hotel?"}
+{"id":"formalizer-v1::fv1_007200_0_1::new:noisy_en#1","text":"so does Vera have a booking for teh hotel?"}
+{"id":"formalizer-v1::fv1_007256_0_0::new:ro#1","text":"Cât costă înlocuirea centralei zilele astea?"}
+{"id":"formalizer-v1::fv1_007256_0_0::new:mixed#1","text":"What does the boiler replacement costa zilele astea?"}
+{"id":"formalizer-v1::fv1_007293_0_0::same:ro#1","text":"A zburat Aurelia din nou la Focșani?"}
+{"id":"formalizer-v1::fv1_007293_0_0::same:mixed#1","text":"Did Aurelia fly din nou la Focșani?"}
+{"id":"formalizer-v1::fv1_007293_0_0::new:mixed#1","text":"Did Marek drive din nou la Timișoara?"}
+{"id":"formalizer-v1::fv1_007348_0_0::new:ro#1","text":"Ma intreb daca Radu Munteanu s-a inscris la cursul de reparatii."}
+{"id":"formalizer-v1::fv1_007348_0_0::new:mixed#1","text":"I wonder daca Radu Munteanu s-a inscris la cursul de reparatii."}
+{"id":"formalizer-v1::fv1_007348_0_0::new:noisy_en#1","text":"i wonder if radu munteanu joined teh repair course"}
+{"id":"formalizer-v1::fv1_007372_0_0::same:ro#1","text":"Diana este angajată la Sibiu Riverside Clinic."}
+{"id":"formalizer-v1::fv1_007372_0_0::same:ro#2","text":"Ea primește vaccinul antigripal, corect?"}
+{"id":"formalizer-v1::fv1_007372_0_0::same:mixed#1","text":"Diana e angajată la Sibiu Riverside Clinic."}
+{"id":"formalizer-v1::fv1_007372_0_0::same:mixed#2","text":"She gets the flu shot, corect?"}
+{"id":"formalizer-v1::fv1_007372_0_0::same:noisy_en#1","text":"Diana is employd by Sibiu Riverside Clinic."}
+{"id":"formalizer-v1::fv1_007372_0_0::new:ro#1","text":"Tomas este angajat la Iasi Dental Clinic."}
+{"id":"formalizer-v1::fv1_007372_0_0::new:ro#2","text":"El trateaza pacientii de urgenta, corect?"}
+{"id":"formalizer-v1::fv1_007466_0_0::same:ro#1","text":"Spune-mi cand a predat Xiaoling biologie."}
+{"id":"formalizer-v1::fv1_007466_0_0::same:mixed#1","text":"Tell me când a predat Xiaoling biologie."}
+{"id":"formalizer-v1::fv1_007466_0_0::same:noisy_en#1","text":"tell me when Xiaoling taught bilogy"}
+{"id":"formalizer-v1::fv1_007466_0_0::new:ro#1","text":"Spune-mi când a publicat Andrei manualul de geografie."}
+{"id":"formalizer-v1::fv1_007466_0_0::new:mixed#1","text":"Tell me when Andrei a publicat manualul de geografie."}
+{"id":"formalizer-v1::fv1_007466_0_0::new:noisy_en#1","text":"tell me when Andrei publised the geography textbook"}
+{"id":"formalizer-v1::fv1_007637_0_0::same:ro#1","text":"E adevarat ca nu toti jucatorii de la Rapid Leeds sunt certificati?"}
+{"id":"formalizer-v1::fv1_007637_0_0::same:mixed#1","text":"Is it true ca nu toti jucatorii de la Rapid Leeds sunt certificati?"}
+{"id":"formalizer-v1::fv1_007637_0_0::new:ro#1","text":"E adevarat ca nu toti angajatii de la Greenline Transport sunt asigurati?"}
+{"id":"formalizer-v1::fv1_007637_0_0::new:mixed#1","text":"Is it true ca nu toti angajatii de la Greenline Transport sunt asigurati?"}
+{"id":"formalizer-v1::fv1_007988_0::same:ro#1","text":"Te rog, traduce \"good morning\" in japoneza."}
+{"id":"formalizer-v1::fv1_007988_0::same:mixed#1","text":"Te rog, translate \"good morning\" in japoneză."}
+{"id":"formalizer-v1::fv1_007988_0::new:ro#1","text":"Te rog, traduce \"my daughter\" în poloneză."}
+{"id":"formalizer-v1::fv1_007988_0::new:mixed#1","text":"Te rog, translate \"my daughter\" in poloneză."}
+{"id":"formalizer-v1::fv1_007988_0::new:noisy_en#1","text":"please translate my daughter into polish"}
+{"id":"formalizer-v1::fv1_008233_0_0::same:ro#1","text":"Chloé a terminat instruirea de securitate."}
+{"id":"formalizer-v1::fv1_008233_0_0::same:ro#2","text":"— se califică pentru bonus?"}
+{"id":"formalizer-v1::fv1_008233_0_0::same:mixed#1","text":"Chloé a completed safety training-ul."}
+{"id":"formalizer-v1::fv1_008233_0_0::same:noisy_en#1","text":"Chloé completed the safety trainig."}
+{"id":"formalizer-v1::fv1_008233_0_0::new:ro#1","text":"Internul nou a terminat săptămâna de orientare."}
+{"id":"formalizer-v1::fv1_008233_0_0::new:ro#2","text":"— se califică pentru indemnizația de cazare?"}
+{"id":"formalizer-v1::fv1_008233_0_0::new:mixed#1","text":"Noul intern a finished orientation week-ul."}
+{"id":"formalizer-v1::fv1_008233_0_0::new:mixed#2","text":"— does he qualify for housing allowance?"}
+{"id":"formalizer-v1::fv1_008251_0_0::same:ro#1","text":"Verifică afirmația că Felix nu este doctorul domnului Demir."}
+{"id":"formalizer-v1::fv1_008251_0_0::same:mixed#1","text":"Verifică claim-ul că Felix is not the doctor of Mr Demir."}
+{"id":"formalizer-v1::fv1_008251_0_0::same:noisy_en#1","text":"verfiy the claim that Felix is not the doctor of Mr Demir"}
+{"id":"formalizer-v1::fv1_008251_0_0::new:ro#1","text":"Confirmă zvonul că Ana nu este managerul domnului Popescu."}
+{"id":"formalizer-v1::fv1_008251_0_0::new:mixed#1","text":"Confirma zvonul ca Ana is not the manager of Mr Popescu."}
+{"id":"formalizer-v1::fv1_008251_0_0::new:noisy_en#1","text":"Confirm the rumor that Ana is not the manger of Mr Popescu."}
+{"id":"formalizer-v1::fv1_008424_0_0::same:ro#1","text":"A participat Toma Mureșan din nou la dezbaterea de la primărie?"}
+{"id":"formalizer-v1::fv1_008424_0_0::same:mixed#1","text":"Did Toma Mureșan participa again la dezbaterea de la primarie?"}
+{"id":"formalizer-v1::fv1_008424_0_0::same:noisy_en#1","text":"did Toma Mureșan atend the townhall debate again?"}
+{"id":"formalizer-v1::fv1_008424_0_0::new:ro#1","text":"A participat directorul din nou la ședința de buget?"}
+{"id":"formalizer-v1::fv1_008424_0_0::new:mixed#1","text":"Did directorul participa again la sedinta de buget?"}
+{"id":"formalizer-v1::fv1_008424_0_0::new:noisy_en#1","text":"did the director join the budget meeting agian?"}
+{"id":"formalizer-v1::fv1_008520_0_0::same:ro#1","text":"Ce persoane sunt angajate de o firma cu sediul in Novi Sad?"}
+{"id":"formalizer-v1::fv1_008520_0_0::same:mixed#1","text":"Which people sunt angajate de a firm based in Novi Sad?"}
+{"id":"formalizer-v1::fv1_008520_0_0::new:ro#1","text":"Ce persoane sunt supravegheate de un contractor cu sediul în Bergen?"}
+{"id":"formalizer-v1::fv1_008520_0_0::new:mixed#1","text":"Which people sunt supravegheate de un contractor based in Bergen?"}
+{"id":"formalizer-v1::fv1_008520_0_0::new:noisy_en#1","text":"which people are supervised by a contractor based in Bergen?"}
+{"id":"formalizer-v1::fv1_008556_0_0::same:ro#1","text":"In afara de Doina, as vrea sa stiu cine preda biologie."}
+{"id":"formalizer-v1::fv1_008556_0_0::same:mixed#1","text":"În afară de Doina, vreau să știu who teaches biology."}
+{"id":"formalizer-v1::fv1_008556_0_0::same:noisy_en#1","text":"apart from Doina, I'd like to know who teachs biology"}
+{"id":"formalizer-v1::fv1_008676_0_0::same:ro#1","text":"Pe langa Liviu Tănase, vreau sa stiu cine e responsabil pentru gateway-ul de plati."}
+{"id":"formalizer-v1::fv1_008676_0_0::same:mixed#1","text":"Besides Liviu Tănase, I need to know cine e responsabil pentru payments gateway."}
+{"id":"formalizer-v1::fv1_008676_0_0::same:noisy_en#1","text":"besides Liviu Tănase i need to know who is responsible for the payments gatewy"}
+{"id":"formalizer-v1::fv1_008676_0_0::new:ro#1","text":"Pe lângă Ana Moldovan, vreau să știu cine este responsabil pentru angajarea voluntarilor."}
+{"id":"formalizer-v1::fv1_008676_0_0::new:mixed#1","text":"Besides Ana Moldovan, I need to know cine e responsabil pentru angajarea voluntarilor."}
+{"id":"formalizer-v1::fv1_008676_0_0::new:noisy_en#1","text":"besides Ana Moldovan i need to know who is responsibel for hiring volunteers"}
+{"id":"formalizer-v1::fv1_008768_0_0::same:ro#1","text":"Context: Anca întreține serviciul de facturare."}
+{"id":"formalizer-v1::fv1_008768_0_0::same:ro#2","text":"Întrebare: are acces la laborator, corect?"}
+{"id":"formalizer-v1::fv1_008768_0_0::same:mixed#1","text":"Context: Anca maintains billing service-ul."}
+{"id":"formalizer-v1::fv1_008768_0_0::same:noisy_en#1","text":"background: Anca maintains the billing service."}
+{"id":"formalizer-v1::fv1_008768_0_0::new:ro#2","text":"Întrebare: are acces la garaj, corect?"}
+{"id":"formalizer-v1::fv1_008831_0_0::same:ro#1","text":"Cum plătește Katrin?"}
+{"id":"formalizer-v1::fv1_008831_0_0::same:mixed#1","text":"How does Katrin plateste?"}
+{"id":"formalizer-v1::fv1_008831_0_0::new:ro#1","text":"Cum angajează Marius voluntari?"}
+{"id":"formalizer-v1::fv1_008831_0_0::new:mixed#1","text":"How does Marius angajeaza voluntari?"}
+{"id":"formalizer-v1::fv1_008882_0_0::same:ro#1","text":"A participat Tatiana din nou la atelierul de fotografie?"}
+{"id":"formalizer-v1::fv1_008882_0_0::same:mixed#1","text":"A participat Tatiana din nou la photography workshop?"}
+{"id":"formalizer-v1::fv1_008882_0_0::new:mixed#1","text":"Did Sorin borrow the bormașina again?"}
+{"id":"formalizer-v1::fv1_008889_0_0::same:ro#1","text":"Mă întreb de ce Youssef Haddad se califică pentru bonus."}
+{"id":"formalizer-v1::fv1_008889_0_0::same:mixed#1","text":"I wonder why Youssef Haddad se califică pentru bonus."}
+{"id":"formalizer-v1::fv1_008889_0_0::same:noisy_en#1","text":"i wonder why Youssef Haddad qualifies for teh bonus"}
+{"id":"formalizer-v1::fv1_008889_0_0::new:ro#1","text":"Mă întreb de ce Pavel se califică pentru subvenția de chirie."}
+{"id":"formalizer-v1::fv1_008889_0_0::new:mixed#1","text":"I wonder why Pavel se califica pentru rent subsidy."}
+{"id":"formalizer-v1::fv1_008889_0_0::new:noisy_en#1","text":"i wonder why Pavel qualifes for the rent subsidy"}
+{"id":"formalizer-v1::fv1_009443_0_0::same:ro#1","text":"Ai idee când a avut Moritz un job la Schmidt & Partners?"}
+{"id":"formalizer-v1::fv1_009443_0_0::same:mixed#1","text":"Any idea cand a avut Moritz un job la Schmidt & Partners?"}
+{"id":"formalizer-v1::fv1_009443_0_0::new:ro#1","text":"Ai idee când a predat Ilse la Northgate Academy?"}
+{"id":"formalizer-v1::fv1_009443_0_0::new:mixed#1","text":"Any idea cand a predat Ilse la Northgate Academy?"}
+{"id":"formalizer-v1::fv1_009496_0_0::same:ro#1","text":"Context: Priya Sharma este bolnavă."}
+{"id":"formalizer-v1::fv1_009496_0_0::same:ro#2","text":"Întrebare: vreau să știu dacă s-a îmbolnăvit de la supa de ciuperci."}
+{"id":"formalizer-v1::fv1_009496_0_0::same:mixed#1","text":"Background: Priya Sharma e bolnava."}
+{"id":"formalizer-v1::fv1_009496_0_0::same:mixed#2","text":"Question: trebuie sa stiu daca s-a imbolnavit de la mushroom soup."}
+{"id":"formalizer-v1::fv1_009496_0_0::same:noisy_en#1","text":"background: Priya Sharma is sick."}
+{"id":"formalizer-v1::fv1_009496_0_0::same:noisy_en#2","text":"question: i need to know if she got sick from the mushroom soup"}
+{"id":"formalizer-v1::fv1_009496_0_0::new:ro#1","text":"Context: Elena Popescu este epuizată."}
+{"id":"formalizer-v1::fv1_009496_0_0::new:ro#2","text":"Întrebare: trebuie să știu dacă s-a epuizat de la tura de noapte."}
+{"id":"formalizer-v1::fv1_009496_0_0::new:mixed#1","text":"Background: Elena Popescu e epuizata."}
+{"id":"formalizer-v1::fv1_009496_0_0::new:mixed#2","text":"Question: trebuie sa stiu daca s-a epuizat de la night shift."}
+{"id":"formalizer-v1::fv1_009496_0_0::new:noisy_en#1","text":"background: Elena Popescu is exhausted."}
+{"id":"formalizer-v1::fv1_009496_0_0::new:noisy_en#2","text":"question: i need to know if she got exhausted from the night shift"}
+{"id":"formalizer-v1::fv1_009513_0_0::same:ro#1","text":"Trebuie să știu cine călătorește la Iași."}
+{"id":"formalizer-v1::fv1_009513_0_0::same:mixed#1","text":"I need to know cine calatoreste la Iași."}
+{"id":"formalizer-v1::fv1_009513_0_0::same:noisy_en#1","text":"i need to know who travels to Iași"}
+{"id":"formalizer-v1::fv1_009513_0_0::new:ro#1","text":"Trebuie să știu cine conduce la Cluj."}
+{"id":"formalizer-v1::fv1_009513_0_0::new:mixed#1","text":"I need to know cine conduce la Cluj."}
+{"id":"formalizer-v1::fv1_009554_0::same:ro#1","text":"Te rog, te rog, rezervă o sală de ședințe pentru joi dimineată."}
+{"id":"formalizer-v1::fv1_009554_0::same:mixed#1","text":"Te rog, te rog, rezervă o meeting room pentru joi dimineață."}
+{"id":"formalizer-v1::fv1_009554_0::same:noisy_en#1","text":"please, please reserve a meting room for thursday morning"}
+{"id":"formalizer-v1::fv1_009554_0::new:ro#1","text":"Te rog, te rog, pregătește un raport de bugget pentru luna trecută."}
+{"id":"formalizer-v1::fv1_009554_0::new:mixed#1","text":"Te rog, te rog, pregătește un budget report pentru luna trecută."}
+{"id":"formalizer-v1::fv1_009554_0::new:noisy_en#1","text":"please, please prepare a budjet report for last month"}
+{"id":"formalizer-v1::fv1_009556_0_0::same:ro#1","text":"Verific doar: ține Ovidiu cursuri de spaniolă?"}
+{"id":"formalizer-v1::fv1_009556_0_0::same:ro#2","text":"Și, poți să verifici dacă merge la atelierul de fotografie?"}
+{"id":"formalizer-v1::fv1_009556_0_0::same:mixed#1","text":"Just checking: ține Ovidiu cursuri de spaniolă?"}
+{"id":"formalizer-v1::fv1_009556_0_0::same:mixed#2","text":"Also, can you check dacă merge la atelierul de fotografie?"}
+{"id":"formalizer-v1::fv1_009556_0_0::same:noisy_en#2","text":"also, can u check wether he goes to the photography workshop?"}
+{"id":"formalizer-v1::fv1_009556_0_0::new:ro#1","text":"Verific doar: face Mihai tururi ale fermei?"}
+{"id":"formalizer-v1::fv1_009556_0_0::new:ro#2","text":"Și, poți să verifici dacă merge la atelierul de olărit?"}
+{"id":"formalizer-v1::fv1_009556_0_0::new:mixed#1","text":"Just checking: does Mihai give tururi ale fermei?"}
+{"id":"formalizer-v1::fv1_009556_0_0::new:mixed#2","text":"Also, can you check dacă merge la pottery workshop?"}
+{"id":"formalizer-v1::fv1_009556_0_0::new:noisy_en#1","text":"just checking: does mihai give tours of the farm?"}
+{"id":"formalizer-v1::fv1_009556_0_0::new:noisy_en#2","text":"also, can u check wether he goes to the pottery workshop?"}
+{"id":"formalizer-v1::fv1_009684_0_0::same:ro#1","text":"Nu sunt 100% sigur, dar Ms Moldovan a imprumutat The Glass Orchard."}
+{"id":"formalizer-v1::fv1_009684_0_0::same:ro#2","text":"Samuel Turner a imprumutat The Glass Orchard, corect?"}
+{"id":"formalizer-v1::fv1_009684_0_0::same:mixed#1","text":"Nu sunt 100% sigur, dar Ms Moldovan borrowed The Glass Orchard."}
+{"id":"formalizer-v1::fv1_009684_0_0::same:mixed#2","text":"Samuel Turner checked out The Glass Orchard, corect?"}
+{"id":"formalizer-v1::fv1_009684_0_0::same:noisy_en#1","text":"im not 100% sure, but Ms Moldovan borowed The Glass Orchard."}
+{"id":"formalizer-v1::fv1_009684_0_0::new:ro#1","text":"Nu sunt 100% sigur, dar Elena Vasquez a divortat de Tomas Novak."}
+{"id":"formalizer-v1::fv1_009684_0_0::new:ro#2","text":"Ana Ferreira s-a casatorit cu Tomas Novak, corect?"}
+{"id":"formalizer-v1::fv1_009684_0_0::new:mixed#1","text":"Nu sunt 100% sigur, dar Elena Vasquez divorced Tomas Novak."}
+{"id":"formalizer-v1::fv1_009684_0_0::new:mixed#2","text":"Ana Ferreira married Tomas Novak, corect?"}
+{"id":"formalizer-v1::fv1_009684_0_0::new:noisy_en#1","text":"im not 100% sure, but Elena Vasquez divorced Tomas Novak."}
+{"id":"formalizer-v1::fv1_009684_0_0::new:noisy_en#2","text":"Ana Ferreira maried Tomas Novak, correct?"}
+{"id":"formalizer-v1::fv1_009724_0_0::same:ro#1","text":"În afară de Rachel Brown, mă întreb cine a împrumutt The Quiet Harbour."}
+{"id":"formalizer-v1::fv1_009724_0_0::same:mixed#1","text":"În afară de Rachel Brown, mă întreb cine a checked out The Quiet Harbour."}
+{"id":"formalizer-v1::fv1_009724_0_0::new:ro#1","text":"În afară de David Klein, mă întreb cine a rezervat teatrul."}
+{"id":"formalizer-v1::fv1_009724_0_0::new:mixed#1","text":"Apart from David Klein, ma intreb cine a reserved the theater."}
+{"id":"formalizer-v1::fv1_009724_0_0::new:noisy_en#1","text":"apart from david klein i wonder who reservd the theater"}
+{"id":"formalizer-v1::fv1_009765_0_0::same:ro#1","text":"Adevarat sau fals: permisul de conducere nu necesita certifiat medical."}
+{"id":"formalizer-v1::fv1_009765_0_0::same:mixed#1","text":"Adevarat sau fals: permisul de conducere nu require certificat medical."}
+{"id":"formalizer-v1::fv1_009765_0_0::same:noisy_en#1","text":"true or false: a driving licence doesnt require a medical certifcate"}
+{"id":"formalizer-v1::fv1_009941_0_0::same:ro#1","text":"Cine e parinre al unui parinte al lui Katrin?"}
+{"id":"formalizer-v1::fv1_009941_0_0::same:mixed#1","text":"Who is a parinte of a parinte of Katrin?"}
+{"id":"formalizer-v1::fv1_009941_0_0::new:ro#1","text":"Cine este un manager al unui gardian al muzeului?"}
+{"id":"formalizer-v1::fv1_009941_0_0::new:mixed#1","text":"Cine e un manager of a guard of the museum?"}
+{"id":"formalizer-v1::fv1_010005_0_0::same:ro#1","text":"Cat timp a lucrat Aurel sub Elena?"}
+{"id":"formalizer-v1::fv1_010005_0_0::same:mixed#1","text":"For how long a lucrat Aurel sub Elena?"}
+{"id":"formalizer-v1::fv1_010005_0_0::new:ro#1","text":"Cât timp a lucrat Victor sub Doina?"}
+{"id":"formalizer-v1::fv1_010005_0_0::new:mixed#1","text":"For how long a lucrat Victor sub Doina?"}
+{"id":"formalizer-v1::fv1_010058_0_0::same:ro#1","text":"Traian Țurcanu este alergic la fructe de mare, iar Jessica este alergică la fructe de mare."}
+{"id":"formalizer-v1::fv1_010058_0_0::same:ro#2","text":"Doar verific: Mei nu are alergie la fructe de mare?"}
+{"id":"formalizer-v1::fv1_010058_0_0::same:mixed#1","text":"Traian Țurcanu e allergic to shellfish, și Jessica e allergic to shellfish."}
+{"id":"formalizer-v1::fv1_010058_0_0::same:mixed#2","text":"Just checking: Mei nu are allergy to shellfish?"}
+{"id":"formalizer-v1::fv1_010058_0_0::same:noisy_en#1","text":"traian Țurcanu is allergic to shellfish and jessica is allergic to shellfish."}
+{"id":"formalizer-v1::fv1_010058_0_0::new:ro#1","text":"Victor Ionescu este alergic la arahide, iar Maria este alergica la arahide."}
+{"id":"formalizer-v1::fv1_010058_0_0::new:ro#2","text":"Doar verific: Ana nu are alergie la arahide?"}
+{"id":"formalizer-v1::fv1_010058_0_0::new:mixed#1","text":"Victor Ionescu e allergic to peanuts, și Maria e allergic to peanuts."}
+{"id":"formalizer-v1::fv1_010058_0_0::new:mixed#2","text":"Just checking: Ana nu are allergy to peanuts?"}
+{"id":"formalizer-v1::fv1_010125_0_0::same:ro#1","text":"Radu predă cursuri de spaniolă, nu?"}
+{"id":"formalizer-v1::fv1_010125_0_0::same:ro#2","text":"Poți să verifici dacă lucrează pentru Tisa Textiles?"}
+{"id":"formalizer-v1::fv1_010125_0_0::same:mixed#1","text":"Radu gives classes in Spanish, nu?"}
+{"id":"formalizer-v1::fv1_010125_0_0::same:mixed#2","text":"Poți să verifici dacă he works for Tisa Textiles?"}
+{"id":"formalizer-v1::fv1_010125_0_0::new:ro#1","text":"Vlad preda cursuri de geografie, nu?"}
+{"id":"formalizer-v1::fv1_010125_0_0::new:ro#2","text":"Poti sa verifici daca lucreaza pentru Someș Textiles?"}
+{"id":"formalizer-v1::fv1_010125_0_0::new:mixed#1","text":"Vlad gives classes in geography, nu?"}
+{"id":"formalizer-v1::fv1_010125_0_0::new:mixed#2","text":"Can you check dacă lucrează pentru Someș Textiles?"}
+{"id":"formalizer-v1::fv1_010305_0_0::same:ro#1","text":"Cine este un parinte al unuia dintre parintii lui Eleni?"}
+{"id":"formalizer-v1::fv1_010305_0_0::same:mixed#1","text":"Who is a parinte of one of the parintii of Eleni?"}
+{"id":"formalizer-v1::fv1_010344_0_0::same:ro#1","text":"Dna Popescu e la Constanța United."}
+{"id":"formalizer-v1::fv1_010344_0_0::same:mixed#1","text":"Dna Popescu e on Constanța United."}
+{"id":"formalizer-v1::fv1_010344_0_0::same:noisy_en#1","text":"ms popescu is on Constanța united"}
+{"id":"formalizer-v1::fv1_010344_0_0::new:mixed#1","text":"My boss e la Cluj United."}
+{"id":"formalizer-v1::fv1_010344_0_0::new:noisy_en#1","text":"my boss is on cluj united"}
+{"id":"formalizer-v1::fv1_010502_0_0::same:ro#1","text":"Hassan este doctorul lui Ionuț."}
+{"id":"formalizer-v1::fv1_010502_0_0::same:ro#2","text":"— poți să verivici dacă el merge la cursa de caritate?"}
+{"id":"formalizer-v1::fv1_010502_0_0::same:mixed#1","text":"Hassan e doctorul lui Ionuț."}
+{"id":"formalizer-v1::fv1_010502_0_0::same:mixed#2","text":"— can you check dacă el merge la cursa de caritate?"}
+{"id":"formalizer-v1::fv1_010502_0_0::same:noisy_en#1","text":"— can you check wether he goes to the charity run?"}
+{"id":"formalizer-v1::fv1_010502_0_0::new:ro#1","text":"Marko este șeful lui Lucia."}
+{"id":"formalizer-v1::fv1_010502_0_0::new:ro#2","text":"— poți să verifici dacă el merge la ședința echipei?"}
+{"id":"formalizer-v1::fv1_010502_0_0::new:mixed#1","text":"Marko e the boss of Lucia."}
+{"id":"formalizer-v1::fv1_010770_0_1::same:ro#1","text":"Agnieszka este măritată cu Kostas?"}
+{"id":"formalizer-v1::fv1_010770_0_1::same:mixed#1","text":"Agnieszka is căsătorită cu Kostas?"}
+{"id":"formalizer-v1::fv1_010886_0_0::same:ro#1","text":"Dat fiind ca Agnieszka o creste pe Carmen, poti sa confirmi ca Léa este un parinte al lui Carmen?"}
+{"id":"formalizer-v1::fv1_010886_0_0::same:mixed#1","text":"Given that Agnieszka o crește pe Carmen, can you confirm that Léa is a parent of Carmen?"}
+{"id":"formalizer-v1::fv1_010886_0_0::same:noisy_en#1","text":"given that agnieszka raises carmen can you confirm that Léa is a parent of carmen?"}
+{"id":"formalizer-v1::fv1_010886_0_0::new:ro#1","text":"Dat fiind că Dana l-a angajat pe Matei, poți să confirmi că Sorin este un vecin al lui Matei?"}
+{"id":"formalizer-v1::fv1_010886_0_0::new:mixed#1","text":"Given that Dana l-a angajat pe Matei, can you confirm că Sorin e a neighbour of Matei?"}
+{"id":"formalizer-v1::fv1_010886_0_0::new:noisy_en#1","text":"given that dana hired matei can you confirm that sorin is a neighbour of matei?"}
+{"id":"formalizer-v1::fv1_010968_0_0::same:ro#1","text":"Sincer, ea antrenează Rapid Pitești?"}
+{"id":"formalizer-v1::fv1_010968_0_0::same:mixed#1","text":"Let's say Eleni e antrenorul Rapid Pitești."}
+{"id":"formalizer-v1::fv1_010968_0_0::same:noisy_en#1","text":"lets say eleni is the coach of rapid pitesti."}
+{"id":"formalizer-v1::fv1_010968_0_0::new:ro#1","text":"Să zicem că Ioana este gazda târgului orășenesc."}
+{"id":"formalizer-v1::fv1_010968_0_0::new:ro#2","text":"Sincer, găzduiește ea târgul orășenesc?"}
+{"id":"formalizer-v1::fv1_010968_0_0::new:mixed#1","text":"Let's say Ioana e gazda târgului orășenesc."}
+{"id":"formalizer-v1::fv1_010968_0_0::new:noisy_en#1","text":"lets say ioana is the host of the town fair."}
+{"id":"formalizer-v1::fv1_010968_0_0::new:noisy_en#2","text":"honestly does she host the town fair?"}
+{"id":"formalizer-v1::fv1_011079_0_0::same:ro#1","text":"Linh i-a trimis 75 de lei lui Taras Kovalenko prin bancă."}
+{"id":"formalizer-v1::fv1_011079_0_0::same:ro#2","text":"Alina Toma i-a trimis 500 de lei lui Linh?"}
+{"id":"formalizer-v1::fv1_011079_0_0::same:mixed#1","text":"Linh a trimis 75 lei to Taras Kovalenko through the bank."}
+{"id":"formalizer-v1::fv1_011079_0_0::same:mixed#2","text":"A trimis Alina Toma 500 lei lui Linh?"}
+{"id":"formalizer-v1::fv1_011079_0_0::new:ro#2","text":"I-a plătit Sofia Marin 150 de lei lui Mihai?"}
+{"id":"formalizer-v1::fv1_011176_0_0::same:ro#1","text":"De ce stă Parisa acasă?"}
+{"id":"formalizer-v1::fv1_011176_0_0::same:mixed#1","text":"Why does Parisa sta acasa?"}
+{"id":"formalizer-v1::fv1_011176_0_0::new:ro#1","text":"De ce își vinde Andrei mașina?"}
+{"id":"formalizer-v1::fv1_011176_0_0::new:mixed#1","text":"Why does Andrei isi vinde masina?"}
+{"id":"formalizer-v1::fv1_011413_0_1::same:ro#1","text":"Mă întrebam dacă Quang Phạm este tratat de Ananya."}
+{"id":"formalizer-v1::fv1_011413_0_1::same:mixed#1","text":"I was wondering daca Quang Phạm e tratat de Ananya."}
+{"id":"formalizer-v1::fv1_011413_0_1::new:ro#1","text":"Ma intrebam daca Elif este examinata de Dr Novak."}
+{"id":"formalizer-v1::fv1_011413_0_1::new:mixed#1","text":"Ma intrebam daca Elif is examined by Dr Novak."}
+{"id":"formalizer-v1::fv1_011413_0_1::new:noisy_en#1","text":"i was wondering wether elif is examined by dr novak"}
+{"id":"formalizer-v1::fv1_011429_0_0::same:ro#1","text":"Stiu ca Horia a trimis 200 lei cuiva luna trecuta."}
+{"id":"formalizer-v1::fv1_011429_0_0::same:mixed#1","text":"Stiu ca Horia sent 200 lei cuiva luna trecuta."}
+{"id":"formalizer-v1::fv1_011429_0_0::same:noisy_en#1","text":"i know horia sent 200 lei to someone last month."}
+{"id":"formalizer-v1::fv1_011429_0_0::new:ro#1","text":"Stiu ca Victor a instalat programul pentru cineva saptamana trecuta."}
+{"id":"formalizer-v1::fv1_011429_0_0::new:ro#2","text":"Pentru cine a fost instalat?"}
+{"id":"formalizer-v1::fv1_011429_0_0::new:mixed#1","text":"Stiu ca Victor installed the software pentru cineva saptamana trecuta."}
+{"id":"formalizer-v1::fv1_011429_0_0::new:noisy_en#1","text":"i know victor installed the software for someone last week."}
+{"id":"formalizer-v1::fv1_011552_0_0::same:ro#1","text":"Care au fost datele cand Eleni Papadopoulos a fost casatorita cu Otieno Mwangi?"}
+{"id":"formalizer-v1::fv1_011552_0_0::same:mixed#1","text":"Care au fost datele cand Eleni Papadopoulos was married to Otieno Mwangi?"}
+{"id":"formalizer-v1::fv1_011552_0_0::new:ro#1","text":"Care au fost datele cand Ingrid Larsen a fost logodita cu Kwame Boateng?"}
+{"id":"formalizer-v1::fv1_011552_0_0::new:mixed#1","text":"Care au fost datele cand Ingrid Larsen was engaged to Kwame Boateng?"}
+{"id":"formalizer-v1::fv1_011642_0_1::same:ro#1","text":"Cand a inceput Larissa sa lucreze la Nistor & Partners?"}
+{"id":"formalizer-v1::fv1_011642_0_1::same:mixed#1","text":"Când a început Larissa sa lucreze at Nistor & Partners?"}
+{"id":"formalizer-v1::fv1_011642_0_1::new:ro#1","text":"Când a început Bogdan să predea la Astra & Sons?"}
+{"id":"formalizer-v1::fv1_011642_0_1::new:mixed#1","text":"Când a început Bogdan sa predea at Astra & Sons?"}
+{"id":"formalizer-v1::fv1_011745_0_0::same:ro#1","text":"Sincer, se ocupă Otieno Mwangi de Larissa?"}
+{"id":"formalizer-v1::fv1_011745_0_0::same:mixed#1","text":"Honestly, does Otieno Mwangi se ocupa de Larissa?"}
+{"id":"formalizer-v1::fv1_011745_0_0::same:noisy_en#1","text":"honestly does Otieno Mwangi mangae Larissa?"}
+{"id":"formalizer-v1::fv1_011745_0_0::new:ro#1","text":"Sincer, o invită Bekele pe Nadia?"}
+{"id":"formalizer-v1::fv1_011745_0_0::new:mixed#1","text":"Honestly, does Bekele o invita pe Nadia?"}
+{"id":"formalizer-v1::fv1_011745_0_0::new:noisy_en#1","text":"honestly, does Bekele invtie Nadia?"}
+{"id":"formalizer-v1::fv1_011798_0_0::same:ro#1","text":"Jonas e seful lui Ion."}
+{"id":"formalizer-v1::fv1_011798_0_0::same:mixed#1","text":"Jonas e boss-ul lui Ion."}
+{"id":"formalizer-v1::fv1_011798_0_0::new:ro#1","text":"Elena e mama lui Dan."}
+{"id":"formalizer-v1::fv1_011937_0_1::same:ro#1","text":"Intenționează Emre Kaya să participe la atelierul de fotografie?"}
+{"id":"formalizer-v1::fv1_011937_0_1::same:mixed#1","text":"Does Emre Kaya intend sa mearga la atelierul de fotografie?"}
+{"id":"formalizer-v1::fv1_011937_0_1::new:ro#1","text":"Intenționează Selin să fie certificată în prim ajutor?"}
+{"id":"formalizer-v1::fv1_011937_0_1::new:mixed#1","text":"Vrea Selin sa fie certified in prim ajutor?"}
+{"id":"formalizer-v1::fv1_011947_0_1::same:ro#1","text":"Stii cat timp a jucat Marius pentru CS Suceava?"}
+{"id":"formalizer-v1::fv1_011947_0_1::same:mixed#1","text":"Do you know cat timp Marius a jucat pentru CS Suceava?"}
+{"id":"formalizer-v1::fv1_011947_0_1::same:noisy_en#1","text":"do you know how long marius playd for CS Suceava?"}
+{"id":"formalizer-v1::fv1_011947_0_1::new:ro#1","text":"Știi cât timp a depins Andrei de șantierul naval?"}
+{"id":"formalizer-v1::fv1_011947_0_1::new:mixed#1","text":"Stii cat timp Andrei a depins de shipyard?"}
+{"id":"formalizer-v1::fv1_011999_0_1::same:ro#1","text":"E corect ca Viorel o conduce pe Floarea Șerban?"}
+{"id":"formalizer-v1::fv1_011999_0_1::same:mixed#1","text":"Is it correct that Viorel o conduce pe Floarea Șerban?"}
+{"id":"formalizer-v1::fv1_011999_0_1::same:noisy_en#1","text":"is it correct that Viorel manges Floarea Șerban?"}
+{"id":"formalizer-v1::fv1_012030_0_0::same:ro#1","text":"Adaeze este un părinte al lui Shirin Tehrani."}
+{"id":"formalizer-v1::fv1_012030_0_0::same:ro#2","text":"Este corect că ea merge la seara de jazz?"}
+{"id":"formalizer-v1::fv1_012030_0_0::same:mixed#1","text":"Adaeze is a parinte of Shirin Tehrani."}
+{"id":"formalizer-v1::fv1_012030_0_0::same:mixed#2","text":"Este corect ca she goes to the jazz evening?"}
+{"id":"formalizer-v1::fv1_012030_0_0::same:noisy_en#1","text":"adaeze is a parent of shirin tehrani."}
+{"id":"formalizer-v1::fv1_012030_0_0::new:mixed#1","text":"Miriam is a parinte of Selin Aksoy."}
+{"id":"formalizer-v1::fv1_012070_0_1::same:ro#1","text":"Spune-mi dacă Dariush îl conduce pe Kamau Mwangi."}
+{"id":"formalizer-v1::fv1_012070_0_1::same:mixed#1","text":"Tell me daca Dariush il conduce pe Kamau Mwangi."}
+{"id":"formalizer-v1::fv1_012070_0_1::same:noisy_en#1","text":"tell me wether Dariush manages Kamau Mwangi"}
+{"id":"formalizer-v1::fv1_012070_0_1::new:ro#1","text":"Spune-mi daca Beatriz il supravegheaza pe Tomás Herrera."}
+{"id":"formalizer-v1::fv1_012070_0_1::new:mixed#1","text":"Tell me daca Beatriz il supravegheaza pe Tomás Herrera."}
+{"id":"formalizer-v1::fv1_012070_0_1::new:noisy_en#1","text":"tell me whether Beatriz supvervises Tomás Herrera"}
+{"id":"formalizer-v1::fv1_012161_0_0::same:ro#1","text":"Numiți persoanele care lucrează pentru companii situate în Montreal."}
+{"id":"formalizer-v1::fv1_012161_0_0::same:mixed#1","text":"Name the people care lucreaza pentru companii din Montreal."}
+{"id":"formalizer-v1::fv1_012161_0_0::same:noisy_en#1","text":"name the people working for companys located in Montreal"}
+{"id":"formalizer-v1::fv1_012161_0_0::new:ro#1","text":"Numiți mamele și tații care lucrează pentru spitale situate în Brașov."}
+{"id":"formalizer-v1::fv1_012161_0_0::new:mixed#1","text":"Name the mothers and fathers working for spitale located in Brașov."}
+{"id":"formalizer-v1::fv1_012161_0_0::new:noisy_en#1","text":"name the mothers and fathers working for hospitals locaed in Brașov"}
+{"id":"formalizer-v1::fv1_012167_0_0::same:ro#1","text":"Ma intrebam daca Elena se califica pentru bonus."}
+{"id":"formalizer-v1::fv1_012167_0_0::same:mixed#1","text":"I was wondering daca Elena se califica pentru bonus."}
+{"id":"formalizer-v1::fv1_012167_0_0::same:noisy_en#1","text":"i was wondering wether Elena qualifies for the bonus"}
+{"id":"formalizer-v1::fv1_012167_0_0::new:ro#1","text":"Mă întrebam dacă fratele meu se califică pentru reducere."}
+{"id":"formalizer-v1::fv1_012167_0_0::new:mixed#1","text":"I was wondering daca fratele meu se califica pentru reducere."}
+{"id":"formalizer-v1::fv1_012167_0_0::new:noisy_en#1","text":"i was wondering whether my brother qualifies for the discount"}
+{"id":"formalizer-v1::fv1_012246_0_0::same:ro#1","text":"Conduce Vikram pe cineva care locuieste in Leeds?"}
+{"id":"formalizer-v1::fv1_012246_0_0::same:mixed#1","text":"Does Vikram manage cineva care locuieste in Leeds?"}
+{"id":"formalizer-v1::fv1_012246_0_0::new:ro#1","text":"Supraveghează Marta un copil care locuiește în Porto?"}
+{"id":"formalizer-v1::fv1_012246_0_0::new:mixed#1","text":"Does Marta supervise un copil care locuieste in Porto?"}
+{"id":"formalizer-v1::fv1_012283_0_0::same:ro#1","text":"Din curiozitate, cine a fost responsabil pentru API-ul de inventar in 2020?"}
+{"id":"formalizer-v1::fv1_012283_0_0::same:mixed#1","text":"Out of curiosity, cine a fost responsabil pentru inventory API in 2020?"}
+{"id":"formalizer-v1::fv1_012283_0_0::same:noisy_en#1","text":"out of curiosity who was responsable for the inventory API during 2020?"}
+{"id":"formalizer-v1::fv1_012283_0_0::new:ro#1","text":"Din curiozitate, cine a fost responsabil pentru sistemul de salarizare in 2021?"}
+{"id":"formalizer-v1::fv1_012283_0_0::new:mixed#1","text":"Out of curiosity, cine a fost responsabil pentru payroll system in 2021?"}
+{"id":"formalizer-v1::fv1_012449_0_0::same:ro#1","text":"A împrumutat Mathieu din nou The Last Ferry?"}
+{"id":"formalizer-v1::fv1_012449_0_0::same:mixed#1","text":"A împrumutat Mathieu The Last Ferry again?"}
+{"id":"formalizer-v1::fv1_012477_0_0::same:ro#1","text":"Știi cine întreține gateway-ul de plăți?"}
+{"id":"formalizer-v1::fv1_012477_0_0::same:mixed#1","text":"Știi cine maintains payments gateway-ul?"}
+{"id":"formalizer-v1::fv1_012477_0_0::new:ro#1","text":"Planificam o mutare luni."}
+{"id":"formalizer-v1::fv1_012477_0_0::new:ro#2","text":"Stii cine intretine gradina matusii mele?"}
+{"id":"formalizer-v1::fv1_012477_0_0::new:mixed#1","text":"We plan a move luni."}
+{"id":"formalizer-v1::fv1_012477_0_0::new:mixed#2","text":"Știi cine maintains grădina mătușii mele?"}
+{"id":"formalizer-v1::fv1_012531_0_0::same:ro#1","text":"Trebuie să știu dacă Liam vizitează Sighișoara."}
+{"id":"formalizer-v1::fv1_012531_0_0::same:mixed#1","text":"I need to know dacă Liam visits Sighișoara."}
+{"id":"formalizer-v1::fv1_012531_0_0::same:noisy_en#1","text":"i need to know if Liam visists Sighișoara"}
+{"id":"formalizer-v1::fv1_012597_0_0::same:ro#1","text":"Adevarat sau fals: Carmen este inscrisa la Plovdiv Music Academy."}
+{"id":"formalizer-v1::fv1_012597_0_0::same:mixed#1","text":"True or false: Carmen este inscrisa la Plovdiv Music Academy."}
+{"id":"formalizer-v1::fv1_012597_0_0::same:noisy_en#1","text":"true or false: Carmen is enrolld at Plovdiv Music Academy"}
+{"id":"formalizer-v1::fv1_012597_0_0::new:noisy_en#1","text":"true or false: my stepchild is enrolld at Camden Art Academy"}
+{"id":"formalizer-v1::fv1_012900_0_0::same:ro#1","text":"Poti sa verifici cine e responsabil pentru gateway-ul de plati?"}
+{"id":"formalizer-v1::fv1_012900_0_0::same:mixed#1","text":"Poți să verifici cine e responsible for the payments gateway?"}
+{"id":"formalizer-v1::fv1_012900_0_0::new:ro#1","text":"Planificăm o zi de training luni."}
+{"id":"formalizer-v1::fv1_012900_0_0::new:mixed#1","text":"Planificam o zi de training Monday."}
+{"id":"formalizer-v1::fv1_012983_0_0::same:ro#1","text":"Dorin este absent de la muncă."}
+{"id":"formalizer-v1::fv1_012983_0_0::same:ro#2","text":"— este posibil ca el să fi mers la atelierul de fotografie?"}
+{"id":"formalizer-v1::fv1_012983_0_0::same:mixed#1","text":"Dorin e absent from muncă."}
+{"id":"formalizer-v1::fv1_012983_0_0::same:noisy_en#1","text":"Dorin is absnet from work."}
+{"id":"formalizer-v1::fv1_012983_0_0::new:ro#1","text":"Studentul este absent de la curs."}
+{"id":"formalizer-v1::fv1_012983_0_0::new:mixed#1","text":"Studentul e absent from class."}
+{"id":"formalizer-v1::fv1_012983_0_0::new:noisy_en#1","text":"the student is absnet from class."}
+{"id":"formalizer-v1::fv1_012992_0_0::same:ro#1","text":"Aș vrea să știu cine este responsabil pentru serviciul de facturare."}
+{"id":"formalizer-v1::fv1_012992_0_0::same:mixed#1","text":"Aș vrea să știu who is responsible for the billing service."}
+{"id":"formalizer-v1::fv1_012992_0_0::same:noisy_en#1","text":"Id like to know who is responsable for the billing service"}
+{"id":"formalizer-v1::fv1_012992_0_0::new:ro#1","text":"Aș vrea să știu cine este responsabil pentru dosarele pacienților."}
+{"id":"formalizer-v1::fv1_012992_0_0::new:mixed#1","text":"I'd like to know cine e responsible for the patient records."}
+{"id":"formalizer-v1::fv1_012992_0_0::new:noisy_en#1","text":"Id like to know who is responsible for the pacient records"}
+{"id":"formalizer-v1::fv1_013001_0_0::same:ro#1","text":"Este corect că Laura este instruită?"}
+{"id":"formalizer-v1::fv1_013001_0_0::same:mixed#1","text":"Is it correct că Laura este instruită?"}
+{"id":"formalizer-v1::fv1_013036_0_0::same:ro#1","text":"Este fiecare angajat al Carpathia Energy vacinat împotriva gripei?"}
+{"id":"formalizer-v1::fv1_013036_0_0::same:mixed#1","text":"Is every angajat of Carpathia Energy vaccinat against the flu?"}
+{"id":"formalizer-v1::fv1_013036_0_0::new:ro#1","text":"Este fiecare membru al Nordwind Systems vaccinat împotriva gripei?"}
+{"id":"formalizer-v1::fv1_013036_0_0::new:mixed#1","text":"Is every membru of Nordwind Systems vaccinat against the flu?"}
+{"id":"formalizer-v1::fv1_013248_0_0::same:ro#1","text":"Context: Erik este vaccinat împotriva gripei, iar domnul Silva face vaccinul antigripal."}
+{"id":"formalizer-v1::fv1_013248_0_0::same:ro#2","text":"Plus, Raluca face vaccinul antigripal."}
+{"id":"formalizer-v1::fv1_013248_0_0::same:ro#3","text":"Întrebare: Poți să confirmi că Réka nu este vaccinată împotriva gripei?"}
+{"id":"formalizer-v1::fv1_013248_0_0::same:mixed#1","text":"Background: Erik is vaccinated against gripa, and Mr Silva gets flu shot-ul."}
+{"id":"formalizer-v1::fv1_013248_0_0::same:mixed#2","text":"Plus, Raluca gets flu shot-ul."}
+{"id":"formalizer-v1::fv1_013248_0_0::same:mixed#3","text":"Question: Can you confirm ca Réka is not vaccinated against gripa?"}
+{"id":"formalizer-v1::fv1_013248_0_0::new:ro#1","text":"Context: Elena a plătit chiria, iar domnul Novak plătește avansul."}
+{"id":"formalizer-v1::fv1_013248_0_0::new:ro#2","text":"Plus, Pavel plătește avansul."}
+{"id":"formalizer-v1::fv1_013248_0_0::new:ro#3","text":"Întrebare: Poți să confirmi că Ana nu a plătit chiria?"}
+{"id":"formalizer-v1::fv1_013248_0_0::new:mixed#1","text":"Background: Elena has paid rent-ul, and Mr Novak pays deposit-ul."}
+{"id":"formalizer-v1::fv1_013248_0_0::new:mixed#2","text":"Plus, Pavel pays deposit-ul."}
+{"id":"formalizer-v1::fv1_013248_0_0::new:mixed#3","text":"Question: Can you confirm ca Ana has not paid rent-ul?"}
+{"id":"formalizer-v1::fv1_013381_0_0::same:ro#1","text":"Trebuie să știu când Priya Patel a fost proprietara Dacia roșie."}
+{"id":"formalizer-v1::fv1_013381_0_0::same:noisy_en#1","text":"i need to know when Priya Patel was the owner of the red Dacia"}
+{"id":"formalizer-v1::fv1_013381_0_0::new:ro#1","text":"Trebuie să știu când Selma a primit Renault-ul alb."}
+{"id":"formalizer-v1::fv1_013381_0_0::new:noisy_en#1","text":"i need to know when Selma recieved the white Renault"}
+{"id":"formalizer-v1::fv1_013578_0_0::same:ro#1","text":"Esmeralda Stoian este stabilită în Slatina?"}
+{"id":"formalizer-v1::fv1_013578_0_0::same:mixed#1","text":"Esmeralda Stoian este based in Slatina?"}
+{"id":"formalizer-v1::fv1_013578_0_0::new:ro#1","text":"Tudor Marin este stabilit în Brașov?"}
+{"id":"formalizer-v1::fv1_013578_0_0::new:mixed#1","text":"Tudor Marin este based in Brașov?"}
+{"id":"formalizer-v1::fv1_013629_0_0::same:ro#1","text":"Aș vrea să știu cine îl coordonează pe Ionuț."}
+{"id":"formalizer-v1::fv1_013629_0_0::same:mixed#1","text":"I'd like to know cine il coordoneaza pe Ionuț."}
+{"id":"formalizer-v1::fv1_013629_0_0::same:noisy_en#1","text":"id like to know who manages Ionuț"}
+{"id":"formalizer-v1::fv1_013629_0_0::new:ro#1","text":"Aș vrea să știu cine organizează tabăra de vară."}
+{"id":"formalizer-v1::fv1_013629_0_0::new:mixed#1","text":"I'd like to know cine organizeaza tabara de vara."}
+{"id":"formalizer-v1::fv1_013629_0_0::new:noisy_en#1","text":"id like to know who organizes the summer camp"}
+{"id":"formalizer-v1::fv1_013710_0_0::same:mixed#1","text":"Do all the students at Zalău Arts High School au certificat valabil?"}
+{"id":"formalizer-v1::fv1_013710_0_0::same:noisy_en#1","text":"do all the studnets at Zalău Arts High School have a valid certficate?"}
+{"id":"formalizer-v1::fv1_013710_0_0::new:mixed#1","text":"Do all the trainers at Sibiu Sports School au licenta valabila?"}
+{"id":"formalizer-v1::fv1_013710_0_0::new:noisy_en#1","text":"do all the trainers at Sibiu Sports School have a valid licnence?"}
+{"id":"formalizer-v1::fv1_013784_0_0::same:ro#1","text":"Tariq se ocupa de API-ul de inventar."}
+{"id":"formalizer-v1::fv1_013784_0_0::same:ro#2","text":"Plus, nu are acces la laborator."}
+{"id":"formalizer-v1::fv1_013784_0_0::same:ro#3","text":"Spune-mi daca este autorizat pentru laborator."}
+{"id":"formalizer-v1::fv1_013784_0_0::same:mixed#1","text":"Tariq se ocupa de inventory API."}
+{"id":"formalizer-v1::fv1_013784_0_0::same:noisy_en#1","text":"tariq maintains the inventory api."}
+{"id":"formalizer-v1::fv1_013784_0_0::same:noisy_en#2","text":"plus he doesnt have access to the lab."}
+{"id":"formalizer-v1::fv1_013784_0_0::same:noisy_en#3","text":"tell me whether hes cleared for the lab"}
+{"id":"formalizer-v1::fv1_013784_0_0::new:ro#1","text":"Nadia se ocupa de portalul de salarizare."}
+{"id":"formalizer-v1::fv1_013784_0_0::new:ro#2","text":"Plus, nu are licenta."}
+{"id":"formalizer-v1::fv1_013784_0_0::new:ro#3","text":"Spune-mi daca este eligibila pentru licenta."}
+{"id":"formalizer-v1::fv1_013784_0_0::new:noisy_en#1","text":"nadia maintains the payroll portal."}
+{"id":"formalizer-v1::fv1_013784_0_0::new:noisy_en#2","text":"plus she doesnt have a license."}
+{"id":"formalizer-v1::fv1_013784_0_0::new:noisy_en#3","text":"tell me wheter she is eligible for the license"}
+{"id":"formalizer-v1::fv1_014169_0_0::same:ro#1","text":"Ana este părintele lui Raluca."}
+{"id":"formalizer-v1::fv1_014169_0_0::same:ro#2","text":"Este corect că Raluca este părintele lui Ana?"}
+{"id":"formalizer-v1::fv1_014169_0_0::same:mixed#1","text":"Ana is a părinte of Raluca."}
+{"id":"formalizer-v1::fv1_014169_0_0::same:mixed#2","text":"Este corect că Raluca is a parent of Ana?"}
+{"id":"formalizer-v1::fv1_014407_0_0::same:ro#2","text":"Spune-mi daca a fost amanat din cauza clusterului de backup."}
+{"id":"formalizer-v1::fv1_014407_0_0::same:mixed#1","text":"Tell me dacă a fost amânat din cauza backup cluster."}
+{"id":"formalizer-v1::fv1_014407_0_0::same:noisy_en#1","text":"the regional chess tournament got postponned."}
+{"id":"formalizer-v1::fv1_014407_0_0::same:noisy_en#2","text":"tell me whether it was postponed becuase of the backup cluster"}
+{"id":"formalizer-v1::fv1_014407_0_0::new:ro#1","text":"Petrecerea aniversară a bunicilor a fost amânată."}
+{"id":"formalizer-v1::fv1_014407_0_0::new:ro#2","text":"Spune-mi dacă a fost amânată din cauza furtunii."}
+{"id":"formalizer-v1::fv1_014407_0_0::new:mixed#1","text":"Tell me dacă a fost amânată din cauza furtunii."}
+{"id":"formalizer-v1::fv1_014407_0_0::new:noisy_en#1","text":"the grandparents anniversary party got postponed."}
+{"id":"formalizer-v1::fv1_014407_0_0::new:noisy_en#2","text":"tell me whether it was postponed becuase of the storm"}
+{"id":"formalizer-v1::fv1_014755_0_0::same:ro#1","text":"Ce zici de Vasile?"}
+{"id":"formalizer-v1::fv1_014755_0_0::same:mixed#1","text":"Dar how about Vasile?"}
+{"id":"formalizer-v1::fv1_014755_0_0::new:ro#1","text":"Ce zici de furnizor?"}
+{"id":"formalizer-v1::fv1_014755_0_0::new:noisy_en#1","text":"how about the suplier?"}
+{"id":"formalizer-v1::fv1_015019_0_0::same:ro#1","text":"Dacă Jessica nu lucrează la Greenline Transport, atunci Jessica mai are acces la laborator?"}
+{"id":"formalizer-v1::fv1_015019_0_0::same:mixed#1","text":"If Jessica nu lucrează la Greenline Transport, then does Jessica still have acces la laborator?"}
+{"id":"formalizer-v1::fv1_015019_0_0::new:ro#1","text":"Daca Marta nu preda la Cluj Polytechnic, atunci Marta mai are acces la sala de sport?"}
+{"id":"formalizer-v1::fv1_015019_0_0::new:mixed#1","text":"If Marta nu predă la Cluj Polytechnic, atunci does Marta still have access to the gym?"}
+{"id":"formalizer-v1::fv1_015047_0_0::same:ro#1","text":"Ingrid e alergică la polen?"}
+{"id":"formalizer-v1::fv1_015047_0_0::same:mixed#1","text":"Ingrid is alergică la polen?"}
+{"id":"formalizer-v1::fv1_015047_0_0::same:noisy_en#1","text":"ingrid is allergic to polen?"}
+{"id":"formalizer-v1::fv1_015047_0_0::new:ro#1","text":"Pacientul Igor e alergic la arahide?"}
+{"id":"formalizer-v1::fv1_015047_0_0::new:mixed#1","text":"Patient Igor is alergic la arahide?"}
+{"id":"formalizer-v1::fv1_015047_0_0::new:noisy_en#1","text":"pateint Igor is allergic to peanuts?"}
+{"id":"formalizer-v1::fv1_015139_0_0::same:ro#1","text":"Maria i-a trimis 90 de lei lui Costin?"}
+{"id":"formalizer-v1::fv1_015139_0_0::same:mixed#1","text":"Costin a trimis 2500 lei to Cristina through the bank."}
+{"id":"formalizer-v1::fv1_015139_0_0::same:mixed#2","text":"Did Maria send 90 lei lui Costin?"}
+{"id":"formalizer-v1::fv1_015139_0_0::same:noisy_en#1","text":"costin sent 2500 lei to cristina thruogh the bank."}
+{"id":"formalizer-v1::fv1_015139_0_0::same:noisy_en#2","text":"did maria send 90 lei to costin?"}
+{"id":"formalizer-v1::fv1_015139_0_0::new:ro#1","text":"Asistenta Elena i-a inmanat 3000 de lei doctorului Pavel la clinica."}
+{"id":"formalizer-v1::fv1_015139_0_0::new:mixed#1","text":"The nurse Elena a înmânat 3000 lei to the doctor Pavel at the clinic."}
+{"id":"formalizer-v1::fv1_015139_0_0::new:noisy_en#1","text":"the nurse Elena handed 3000 lei to the doctor Pavel at the clinic."}
+{"id":"formalizer-v1::fv1_015139_0_0::new:noisy_en#2","text":"did dan hand 150 lei to Elena?"}
+{"id":"formalizer-v1::fv1_015149_0_1::same:ro#1","text":"Ma intreb unde e stabilit Tamás."}
+{"id":"formalizer-v1::fv1_015149_0_1::same:mixed#1","text":"I wonder unde e stabilit Tamás."}
+{"id":"formalizer-v1::fv1_015149_0_1::same:noisy_en#1","text":"i wonder were Tamás is based"}
+{"id":"formalizer-v1::fv1_015149_0_1::new:ro#1","text":"Ma intreb unde este stabilita noua gazda."}
+{"id":"formalizer-v1::fv1_015149_0_1::new:mixed#1","text":"I wonder unde este stabilit noul host."}
+{"id":"formalizer-v1::fv1_015149_0_1::new:noisy_en#1","text":"i wonder were the new host is based"}
+{"id":"formalizer-v1::fv1_015225_0_0::same:ro#1","text":"Repede: unde a calatorit Sânziana Dobre?"}
+{"id":"formalizer-v1::fv1_015225_0_0::same:mixed#1","text":"Quick one: unde a călătorit Sânziana Dobre?"}
+{"id":"formalizer-v1::fv1_015225_0_0::new:ro#1","text":"Repede: unde s-a mutat Radu Munteanu?"}
+{"id":"formalizer-v1::fv1_015225_0_0::new:mixed#1","text":"Quick one: unde s-a mutat Radu Munteanu?"}
+{"id":"formalizer-v1::fv1_015281_0_0::same:noisy_en#1","text":"Ms Crăciun was enroled at Bacău Music Academy on 1 June 2021, correct?"}
+{"id":"formalizer-v1::fv1_015281_0_0::new:ro#1","text":"Dl Lazăr a fost angajat la Cluj Design Studio pe 3 martie 2019, nu?"}
+{"id":"formalizer-v1::fv1_015281_0_0::new:mixed#1","text":"Mr Lazăr was hired by Cluj Design Studio pe 3 martie 2019, correct?"}
+{"id":"formalizer-v1::fv1_015281_0_0::new:noisy_en#1","text":"Mr Lazăr was hired by Cluj Design Studio on 3 March 2019 correct?"}
+{"id":"formalizer-v1::fv1_015312_0_0::same:ro#1","text":"Dragoș inca locuieste in Vaslui?"}
+{"id":"formalizer-v1::fv1_015312_0_0::same:mixed#1","text":"Does Dragoș still locui in Vaslui?"}
+{"id":"formalizer-v1::fv1_015312_0_0::same:noisy_en#1","text":"does Dragoș still live in Vaslui?"}
+{"id":"formalizer-v1::fv1_015312_0_0::new:ro#1","text":"Raluca încă închiriază apartamentul din Sinaia?"}
+{"id":"formalizer-v1::fv1_015312_0_0::new:mixed#1","text":"Does Raluca still închiria apartamentul in Sinaia?"}
+{"id":"formalizer-v1::fv1_015325_0_0::same:mixed#1","text":"When did Anna-Lena studia la Suceava Arts High School?"}
+{"id":"formalizer-v1::fv1_015325_0_0::new:ro#1","text":"Cand a lucrat Bogdan la Cluj Rentals?"}
+{"id":"formalizer-v1::fv1_015325_0_0::new:mixed#1","text":"When did Bogdan lucra at Cluj Rentals?"}
+{"id":"formalizer-v1::fv1_015646_0_0::same:ro#1","text":"Dacă Kaveh lucrează la Delta Print, atunci Kaveh are acces la laborator?"}
+{"id":"formalizer-v1::fv1_015646_0_0::same:mixed#1","text":"If Kaveh works at Delta Print, atunci Kaveh are acces la lab?"}
+{"id":"formalizer-v1::fv1_015646_0_0::new:ro#1","text":"Dacă Tomás lucrează la Atlas Repair, atunci Tomás are acces la depozit?"}
+{"id":"formalizer-v1::fv1_015646_0_0::new:mixed#1","text":"If Tomás works at Atlas Repair, atunci Tomás are acces la warehouse?"}
+{"id":"formalizer-v1::fv1_015697_0_1::same:ro#1","text":"Spune-mi daca Zeynep a locuit in Călărași in 2021."}
+{"id":"formalizer-v1::fv1_015697_0_1::same:mixed#1","text":"Tell me whether Zeynep a locuit în Călărași during 2021."}
+{"id":"formalizer-v1::fv1_015697_0_1::same:noisy_en#1","text":"tell me whether zeynep lived in Călărași during 2021"}
+{"id":"formalizer-v1::fv1_015697_0_1::new:ro#1","text":"Spune-mi daca Mirela a lucrat in Târgu Mureș in 2022."}
+{"id":"formalizer-v1::fv1_015697_0_1::new:mixed#1","text":"Tell me whether Mirela a lucrat în Târgu Mureș during 2022."}
+{"id":"formalizer-v1::fv1_015697_0_1::new:noisy_en#1","text":"tell me whether mirela worked in Târgu Mureș during 2022"}
+{"id":"formalizer-v1::fv1_016145_0_0::same:ro#1","text":"Exista cineva la Atelier Bennett care lucreaza acolo si locuieste in Iași?"}
+{"id":"formalizer-v1::fv1_016145_0_0::same:mixed#1","text":"Is there somebody at Atelier Bennett care lucreaza acolo si locuieste in Iași?"}
+{"id":"formalizer-v1::fv1_016145_0_0::new:ro#1","text":"Exista cineva la Orion Robotics care ii raporteaza lui Bianca si locuieste in Recife?"}
+{"id":"formalizer-v1::fv1_016145_0_0::new:mixed#1","text":"Is there somebody at Orion Robotics care ii raporteaza lui Bianca si locuieste in Recife?"}
+{"id":"formalizer-v1::fv1_016158_0_0::same:ro#1","text":"Cine lucrează unde, dintre companiile cu sediul în Recife?"}
+{"id":"formalizer-v1::fv1_016158_0_0::same:mixed#1","text":"Who works where, dintre companiile cu sediul în Recife?"}
+{"id":"formalizer-v1::fv1_016468_0_0::same:ro#1","text":"Trebuie sa stiu unde locuieste Réka."}
+{"id":"formalizer-v1::fv1_016468_0_0::same:mixed#1","text":"I need to know unde locuiește Réka."}
+{"id":"formalizer-v1::fv1_016468_0_0::same:noisy_en#1","text":"i need to kno where Réka lives"}
+{"id":"formalizer-v1::fv1_016468_0_0::new:ro#1","text":"Trebuie să știu unde doarme copilul."}
+{"id":"formalizer-v1::fv1_016468_0_0::new:mixed#1","text":"Trebuie să știu where the child sleeps."}
+{"id":"formalizer-v1::fv1_016512_0_0::same:ro#1","text":"Quang Phạm vrea sa invete biologie, nu?"}
+{"id":"formalizer-v1::fv1_016512_0_0::same:mixed#1","text":"Quang Phạm wants sa invete biologie, right?"}
+{"id":"formalizer-v1::fv1_016512_0_0::same:noisy_en#1","text":"Quang Phạm wants to learn biolgy, right?"}
+{"id":"formalizer-v1::fv1_016670_0_0::same:ro#1","text":"Câte materii predă Burak?"}
+{"id":"formalizer-v1::fv1_016670_0_0::same:mixed#1","text":"How many materii does Burak teach?"}
+{"id":"formalizer-v1::fv1_016670_0_0::new:ro#1","text":"Câți interni supraveghează managerul?"}
+{"id":"formalizer-v1::fv1_016753_0_0::same:ro#1","text":"Mă întreb dacă Olivia nu este tratată de Ilinca."}
+{"id":"formalizer-v1::fv1_016753_0_0::same:mixed#1","text":"I wonder if Olivia nu este tratata de Ilinca."}
+{"id":"formalizer-v1::fv1_016753_0_0::same:noisy_en#1","text":"i wonder if olivia is not treated by ilinca"}
+{"id":"formalizer-v1::fv1_016753_0_0::new:ro#1","text":"Mă întreb dacă internul nu este supravegheat de manager."}
+{"id":"formalizer-v1::fv1_016753_0_0::new:mixed#1","text":"I wonder if internul nu este supravegheat de manager."}
+{"id":"formalizer-v1::fv1_016753_0_0::new:noisy_en#1","text":"i wonder if the intern is not supervisd by the manager"}
+{"id":"formalizer-v1::fv1_017028_0_1::same:ro#1","text":"Rubina spune ca Carpathia Energy vinde cerneala pentru imprimanta."}
+{"id":"formalizer-v1::fv1_017028_0_1::same:ro#2","text":"Deci Greenline Transport comercializeaza cerneala pentru imprimanta?"}
+{"id":"formalizer-v1::fv1_017028_0_1::same:mixed#1","text":"Rubina says Carpathia Energy vinde printer ink."}
+{"id":"formalizer-v1::fv1_017028_0_1::new:ro#1","text":"Tudor spune că Mega Print vinde scaune de birou."}
+{"id":"formalizer-v1::fv1_017028_0_1::new:ro#2","text":"Deci Delta Office comercializează scaune de birou?"}
+{"id":"formalizer-v1::fv1_017028_0_1::new:mixed#1","text":"Tudor spune ca Mega Print sells office chairs."}
+{"id":"formalizer-v1::fv1_017032_0::same:ro#1","text":"Super, mulțumesc, doar testam."}
+{"id":"formalizer-v1::fv1_017032_0::same:mixed#1","text":"Great, mersi, doar testam."}
+{"id":"formalizer-v1::fv1_017032_0::new:ro#1","text":"Minunat, mersi, doar verificam."}
+{"id":"formalizer-v1::fv1_017032_0::new:mixed#1","text":"Lovely, mersi, doar verificam."}
+{"id":"formalizer-v1::fv1_017032_0::new:noisy_en#1","text":"lovely thanks i was just checking"}
+{"id":"formalizer-v1::fv1_017221_0_0::same:ro#1","text":"Verifică asta: Jun participă la recepția nunții."}
+{"id":"formalizer-v1::fv1_017221_0_0::same:mixed#1","text":"Check asta: Jun participa la wedding reception."}
+{"id":"formalizer-v1::fv1_017221_0_0::new:ro#1","text":"Verifică asta: voluntarul participă la cursa caritabilă."}
+{"id":"formalizer-v1::fv1_017221_0_0::new:mixed#1","text":"Check asta: voluntarul participa la charity run."}
+{"id":"formalizer-v1::fv1_017221_0_0::new:noisy_en#1","text":"check this the volunteer takes part in the charity run"}
+{"id":"formalizer-v1::fv1_017390_0_0::same:ro#1","text":"Toma nu este proprietarul dubei albastre."}
+{"id":"formalizer-v1::fv1_017390_0_0::same:mixed#1","text":"Toma nu e owner-ul blue van-ului."}
+{"id":"formalizer-v1::fv1_017390_0_0::same:noisy_en#1","text":"Toma isnt the owner of the blue van"}
+{"id":"formalizer-v1::fv1_017390_0_0::new:ro#1","text":"Marta nu este chiriașa bărcii roșii."}
+{"id":"formalizer-v1::fv1_017390_0_0::new:mixed#1","text":"Marta nu e renter-ul red boat-ului."}
+{"id":"formalizer-v1::fv1_017390_0_0::new:noisy_en#1","text":"Marta isnt the renter of the red boat"}
+{"id":"formalizer-v1::fv1_017736_0_0::same:mixed#1","text":"Carmen Romero locuieste in Tulcea, right?"}
+{"id":"formalizer-v1::fv1_017736_0_0::same:noisy_en#1","text":"Carmen Romero lives in Tulcea, rigth?"}
+{"id":"formalizer-v1::fv1_017736_0_0::new:mixed#1","text":"Elena Popescu locuieste in Craiova, right?"}
+{"id":"formalizer-v1::fv1_017736_0_0::new:noisy_en#1","text":"Elena Popescu lives in Craiova, rigth?"}
+{"id":"formalizer-v1::fv1_017807_0_0::same:ro#1","text":"Știi de câte ori a fost bolnavă Valentina?"}
+{"id":"formalizer-v1::fv1_017807_0_0::same:mixed#1","text":"Do you know de câte ori a fost bolnavă Valentina?"}
+{"id":"formalizer-v1::fv1_017807_0_0::new:ro#1","text":"Știi de câte ori a fost bolnav Bogdan?"}
+{"id":"formalizer-v1::fv1_017807_0_0::new:mixed#1","text":"Do you know de câte ori a fost bolnav Bogdan?"}
+{"id":"formalizer-v1::fv1_017853_0_0::same:ro#1","text":"Care persoane sunt angajate de o firma cu sediul in Deva?"}
+{"id":"formalizer-v1::fv1_017853_0_0::same:mixed#1","text":"Which people sunt angajate de o firmă based in Deva?"}
+{"id":"formalizer-v1::fv1_017853_0_0::same:noisy_en#1","text":"which people are employd by a firm based in Deva?"}
+{"id":"formalizer-v1::fv1_017853_0_0::new:ro#1","text":"Care persoane sunt antrenate de un club cu sediul în Brașov?"}
+{"id":"formalizer-v1::fv1_017853_0_0::new:mixed#1","text":"Which people sunt antrenate de un club based in Brașov?"}
+{"id":"formalizer-v1::fv1_017912_0_1::same:ro#1","text":"Este corect că Ms Nowak lucrează la Nordwind Systems?"}
+{"id":"formalizer-v1::fv1_017912_0_1::same:mixed#1","text":"Is it correct că Ms Nowak lucrează la Nordwind Systems?"}
+{"id":"formalizer-v1::fv1_017912_0_1::new:ro#1","text":"Este corect că Mr Novak publică la Delta Press?"}
+{"id":"formalizer-v1::fv1_017912_0_1::new:mixed#1","text":"Is it correct că Mr Novak publică la Delta Press?"}
+{"id":"id2::005143a04f2e9390797c16e7","text":"Also, does she want to learn drawing?"}
+{"id":"id2::069799671528f6d4ec1adaa0","text":"Ms Clarke is vaccinated against the flu, right?"}
+{"id":"id2::0d2c6ef30ef261d700ceef89","text":"I was wondering whether it was postponed because of the billing service."}
+{"id":"id2::16dba3f9797d2b23d080300f","text":"Just checking: does Vasile not manage Laura?"}
+{"id":"id2::1881f84071ea2b8d16ffbd7f","text":"So does Jack work under Rachel?"}
+{"id":"id2::2132414538703a99ac1a4b55","text":"So was Erik based in Tulcea on 1 September 2024?"}
+{"id":"id2::2221b6b2cf878701238c4262","text":"Just checking: is it in Suceava?"}
+{"id":"id2::23d1f91d7c034e6e61979fd5","text":"Quick question: is Toma the doctor of George Taylor?"}
+{"id":"id2::28d8c60d48d7deda7f817464","text":"So does Laura not intend to attend the regional chess tournament?"}
+{"id":"id2::2c5592800e2b356ac071b0f1","text":"Honestly, does he study at Călărași Music Academy?"}
+{"id":"id2::30348323d29e1ed01d4940e1","text":"Nicolae is enrolled at Deva Arts High School, right?"}
+{"id":"id2::31becb7e25e2bb4039bb2b51","text":"I was wondering whether the search index depends on the backup cluster."}
+{"id":"id2::326f4a2b2b00846d7fe691e7","text":"Out of curiosity, how many towns does Thảo visit?"}
+{"id":"id2::32916dc2cbe5972e19de0aa5","text":"Honestly, does Simona Țurcanu not work for Brightfield Foods?"}
+{"id":"id2::3376e197406271817b4e43c5","text":"Quick question: has he borrowed The Last Ferry?"}
+{"id":"id2::3803de19b7757a7b47df5de4","text":"Just checking: was Dariush Farahani the spouse of Valentina as of 8 August 2020?"}
+{"id":"id2::39fbfbcdf76718a779b65ee1","text":"Quick question: is Sânziana a parent of Cătălin?"}
+{"id":"id2::41e0ca4fc58931581cdd8a57","text":"Quick question: does Daria raise Ms Smith?"}
+{"id":"id2::43abd6cc46adb854c5be40cf","text":"Quick question: does Moritz study at Farkas Primary School?"}
+{"id":"id2::440d62b44d9c79740f815dad","text":"Also, she gives classes in German?"}
+{"id":"id2::46abb28b337a301b4d900e3b","text":"Out of curiosity, what brought down the backup cluster?"}
+{"id":"id2::47ee24deb0eccc81294a6fe3","text":"Rusu & Partners published The Last Ferry, right?"}
+{"id":"id2::4953c42f89c8019d4b8b4172","text":"Honestly, should Jonas Becker accept the offer from Orion Robotics or not?"}
+{"id":"id2::4e6e652628c51e4891066d76","text":"Quick one: how many systems does Wanjiru maintain?"}
+{"id":"id2::53a8249273887be3346b08d9","text":"Also, does he go to the charity run?"}
+{"id":"id2::564c52d960e7a7230c794584","text":"Quick question: does Lin not study at Toma Primary School?"}
+{"id":"id2::57d2fd611b0e31c76e93c473","text":"Quick question: was The Last Ferry written by Oksana?"}
+{"id":"id2::5bcb8aaa6d21ea87efecc4c6","text":"So does Brightfield Foods buy from Popa & Partners?"}
+{"id":"id2::6120f7ec39f011a795419ff5","text":"Also, can you check whether she borrowed A Short History of Bridges?"}
+{"id":"id2::625241ca7ee89a6ea86f90c6","text":"Honestly, does Linh Trần have an allergy to gluten?"}
+{"id":"id2::692aba5449e062264faf40cb","text":"So is Costin a parent of Ionuț Constantinescu?"}
+{"id":"id2::6b53dba645dd6153a36a27bb","text":"Honestly, is he certified?"}
+{"id":"id2::6b80b9004dbe62527c0d3788","text":"So does it belong to Nicolae?"}
+{"id":"id2::6bbe2690b08fda52022a0374","text":"I was wondering whether Vertex Analytics carries bicycle parts."}
+{"id":"id2::6c7baa84db209e8a2211c850","text":"Out of curiosity, why does Aurel have access to the lab?"}
+{"id":"id2::6eca2c082b07a8aa1e82a325","text":"Honestly, is Haruka based in Botoșani?"}
+{"id":"id2::7481a1b73ca49cee09ba1eb5","text":"Quick question: is João treated by Smaranda?"}
+{"id":"id2::7574157b03ee4284819b8cbc","text":"Out of curiosity, how many documents are issued by the Lagos Town Hall?"}
+{"id":"id2::7650917084afd8bfbf0cf906","text":"Check this: Rubina coaches CS Vaslui."}
+{"id":"id2::77c7005021aa0a1676a21e57","text":"Alina Iordache is the doctor of Costin, right?"}
+{"id":"id2::7af5aa9d9f451965ba63cf9a","text":"Quick question: was Thảo the boss of Mr Reddy on 1 September 2020?"}
+{"id":"id2::7ec56bdbb7c3e113b536824b","text":"So is Medeea based in Sibiu?"}
+{"id":"id2::8096b69bafc48ed33c510425","text":"He is the coach of CS Arad, right?"}
+{"id":"id2::8394066ef9f2663514b36569","text":"Out of curiosity, why is Sofía sick?"}
+{"id":"id2::89fc5a06443ed561bbfb9d27","text":"I was wondering whether Diana studies at the Botoșani Language School."}
+{"id":"id2::8ab9a15a10976a7684637c70","text":"Out of curiosity, why is the backup cluster down?"}
+{"id":"id2::8bb7960b62059fc0d9082466","text":"Out of curiosity, why is Moritz cleared for the lab?"}
+{"id":"id2::939be4056f3000ee092d493b","text":"Quick one: how many people are allergic to latex?"}
+{"id":"id2::953f9ca996c432dde330f5d0","text":"I was wondering whether Emeka Adeyemi is employed by Delta Print."}
+{"id":"id2::98b5a5d662f57208bd58491f","text":"Also, she is enrolled at Deva Arts High School?"}
+{"id":"id2::99f4bdb1416ca9bc8862af53","text":"Quick one: how many towns does Thảo Phạm visit?"}
+{"id":"id2::9c5c802038c4f4058d62851c","text":"Quick question: does he qualify for the bonus?"}
+{"id":"id2::9c795618d00a4455d9628e32","text":"I was wondering whether Mircea intends to attend the charity run."}
+{"id":"id2::9d6e5e7ea4c10696ce796871","text":"Quick one: what does a lien mean, and what does due diligence mean?"}
+{"id":"id2::a1f96441be2fd47e98d6b0a0","text":"I was wondering whether Brightfield Foods published The Clockmaker's Daughter."}
+{"id":"id2::a2610e4790711fda819ebfc3","text":"I was wondering whether he travels to Slatina."}
+{"id":"id2::a9f688e5bff2ec94b7bdfec1","text":"He is treated by Tamás, right?"}
+{"id":"id2::afbe514760a1c739bbca3002","text":"Honestly, should Carmen accept the offer from Greenline Transport or not?"}
+{"id":"id2::b1c8ec4db8a0b4cda35e3c57","text":"Question: She studies at Leipzig Technical College, right?"}
+{"id":"id2::b35b9c76a92386b40b88fd4a","text":"So is Roxana the owner of the holiday cottage in Bran?"}
+{"id":"id2::b6ab53a69ef05b2e1bbf3fd1","text":"Just checking: does Liam Clarke work under Larissa?"}
+{"id":"id2::b9029986b5d8233aa075bed8","text":"So does she want to learn mathematics?"}
+{"id":"id2::bbdd5d18d83ac3fe9ec755ae","text":"So did he quit because of Larisa Căpraru?"}
+{"id":"id2::be15461e9ea3503528eb8658","text":"Out of curiosity, how many people are enrolled at Sibiu Arts High School?"}
+{"id":"id2::c043cdae6be1eabeede85726","text":"Quick one: how many towns does Harry Wright visit?"}
+{"id":"id2::c47e34618da5424343b577b8","text":"Question: It depends on the backup cluster, right?"}
+{"id":"id2::ca10bcc48ac90d54ba19d408","text":"Just checking: does the billing service rely on the inventory API?"}
+{"id":"id2::cb65634efa366c471a6ebd15","text":"Honestly, is he the spouse of Rachel?"}
+{"id":"id2::cb72829cccc62b685cdad07d","text":"Honestly, is Roxana the spouse of Aurel Vlădescu?"}
+{"id":"id2::d636df9617c59c0464b30fed","text":"Any idea how long Esmeralda lived in Sibiu?"}
+{"id":"id2::da8a046d3a598b01db8132bd","text":"Just checking: is Andreea allergic to shellfish?"}
+{"id":"id2::e0547e165add862b8bf69b12","text":"Quick question: does Atelier Becker sell second-hand laptops?"}
+{"id":"id2::e2483ae2966e467a660c4360","text":"Quick one: how many subjects does Jonas plan to study?"}
+{"id":"id2::eeb0b462ad8155a513d3609d","text":"Honestly, does Georgiana plan to study German?"}
+{"id":"id2::f149be5c08cbf10d4bd8dd74","text":"Honestly, is Ms Martin eligible for the bonus?"}
+{"id":"id2::f50de280977f6a28229445e2","text":"Check this: Layla doesn't maintain the inventory API."}
+{"id":"id2::fc01338cd6c639261ef49ba4","text":"Honestly, has Ion borrowed The Clockmaker's Daughter?"}
+{"id":"id2::fcdfe7a6f9de404000d86965","text":"So does Voicu & Partners buy from Călărași Logistics?"}
+{"id":"id2::fdd0dd9854d22e9f900a0d64","text":"Any idea how long Doinița was enrolled at Căpraru Primary School?"}
+{"id":"id2::024e136fb849ac07afac2846","text":"Honestly, did Priya upload the slides?"}
+{"id":"id2::04407edb825f4b01221135ac","text":"Quick question: \"the Recife Land Office does not issue a tax clearance certificate\""}
+{"id":"id2::05674b65f26ef95f8f33e4d9","text":"Just checking: could you check what made Wanjiru sick?"}
+{"id":"id2::0d134b28741754de1c77516b","text":"Also, which people are supervised by a contractor based in Bergen?"}
+{"id":"id2::11293efc50485342764cd66c","text":"Honestly, Toma Vlădescu does not manage Hugo?"}
+{"id":"id2::1463b114403c905ed338d582","text":"So, are Zoltán's shoes in class?"}
+{"id":"id2::15992e0adeba43c2f7b837dd","text":"Just checking: I need to know if Călărași Logistics supplies Voicu & Partners."}
+{"id":"id2::1663c0e996c3602a1cd37c83","text":"Quick question: Emre Şahin has borrowed The Quiet Harbour; Parisa Farahani borrowed The Glass Orchard."}
+{"id":"id2::1675fcc6dbc39a5a5fd917e9","text":"By the way, does Georgiana work at Brightfield Foods too?"}
+{"id":"id2::16b0ceabfa9c37c65cdcbfae","text":"Honestly, is Dorin allowed to sign a medical certificate on their own?"}
+{"id":"id2::198daf2946ff0e9a3c0e4f2d","text":"By the way, do all the people who work at Vertex Analytics have a valid certificate?"}
+{"id":"id2::1b839048e5c8e720ed09156c","text":"So, I work at Leipzig Logistics; does my brother also work at Leipzig Logistics?"}
+{"id":"id2::1e8c9eff02107776545d78a6","text":"By the way, my boss is on Cluj United."}
+{"id":"id2::1fdef665ec080da870482e68","text":"So, what does your aunt lease, if you know?"}
+{"id":"id2::2284e830f3fd434b0c8e4fe7","text":"Just checking: Fatima Adeyemi is a sister of Vlad."}
+{"id":"id2::25fb186627dcb895568d9064","text":"Just checking: where is the chemistry lab?"}
+{"id":"id2::2f224ea52b3b5a2f8b7160a4","text":"By the way, can you tell me who is responsible for the stadium?"}
+{"id":"id2::3119318c523bdb98357ac3a1","text":"By the way, the patient is allergic to penicillin."}
+{"id":"id2::34a0b52e854651a5591d5d39","text":"Also, has Aunt Camila replied and does her grandson need a seat?"}
+{"id":"id2::34ff16dfaac06dde3f173de9","text":"Quick question: has Eleni chosen a song for the walk down the aisle?"}
+{"id":"id2::37bc1365bf8d2953d22eacbb","text":"So, are we inviting Katalin?"}
+{"id":"id2::3ddd6357a534ea3d71e69761","text":"Also, does Sofía work at Tisa Textiles or at Carpathia Energy?"}
+{"id":"id2::3eb62fb534b3b9ad264d7809","text":"Also, the lettuce is on ice and the peppers are outside but the tomatoes need shade"}
+{"id":"id2::40e5111efee5276b714d0123","text":"By the way, who hired the contractor?"}
+{"id":"id2::40e9a39e278ecb2b72070fb6","text":"Just checking: can you confirm that she travels to Arad?"}
+{"id":"id2::40f83fffa625cdc0cb1201a3","text":"Honestly, Mei kept the gift receipts."}
+{"id":"id2::42c9b3d6cd38fe6a67873921","text":"I wonder if she is the author of Winter Harbour, right?"}
+{"id":"id2::47312958fc2ddc1a550fedb8","text":"Just checking: did Levente Nagy go to the wedding reception again?"}
+{"id":"id2::48c883711026b56129c044c6","text":"By the way, the choir meets on Thursday."}
+{"id":"id2::4b6b58748c4cb1618e123a5e","text":"Just checking: I wonder if the Tulcea Philharmonic hosts the regional chess tournament."}
+{"id":"id2::4ff38ee7d21b0b8234c67558","text":"Just checking: where is Kenji staying tonight?"}
+{"id":"id2::50f5eb97c5184089debb216a","text":"I need to know where the child sleeps, right?"}
+{"id":"id2::52b33f9bc85361c33dda4c49","text":"By the way, is it correct that Moritz studies at Botoșani Arts High School?"}
+{"id":"id2::52c5214ed204ab8414ca1c62","text":"Also, could you put the new batch of yogurt behind the older tubs?"}
+{"id":"id2::58cf080df0f225c27595f01d","text":"Quick question: the desk across from it."}
+{"id":"id2::5b438d991e4d65e3d5dccdbf","text":"Also, who took the last black belt and did they pay"}
+{"id":"id2::5beca940a4504f28720e864e","text":"Honestly, Ovidiu visits Pune; George visits Vaslui."}
+{"id":"id2::609a20e219349ffc87945313","text":"So, is it correct that it sells printer ink?"}
+{"id":"id2::638694735a5419cf93b17098","text":"Zoltán has the family photographs, right?"}
+{"id":"id2::64edeefedbc46ca0f011e3d7","text":"Quick question: when the ceremony finishes please ask the ushers to carry the flowers indoors"}
+{"id":"id2::6739ef4b1c1eb1ef2ce69a02","text":"By the way, is there somebody at Orion Robotics who reports to Bianca and lives in Recife?"}
+{"id":"id2::677ec4f34739ddbb3352e3cf","text":"By the way, Alina requested a lower desk."}
+{"id":"id2::6d3f0c9444e3fc2926d26480","text":"Any chance Tariq told me that he plans to relocate to Hanoi?"}
+{"id":"id2::6d887f52b77c333f97f76957","text":"By the way, does Ștefania still work at Carpathia Energy?"}
+{"id":"id2::70427c87148e3b597ca901b5","text":"So, have all those enrolled at Dover Arts High School finished the first aid course?"}
+{"id":"id2::7245cf7430868fb3fae74a6d","text":"Also, which company sells printer ink?"}
+{"id":"id2::753f21580d2c00bdca2b82ce","text":"Honestly, the contractor's office is open."}
+{"id":"id2::761391cf4d30854936073383","text":"Also, did Ingrid borrow A Short History of Bridges again?"}
+{"id":"id2::7a0f7a87f3431655f53f2f57","text":"Quick question: Shirin goes to the regional chess tournament."}
+{"id":"id2::7a4f503567588a00268be73c","text":"Just checking: did Takumi send 90 lei to Katrin Becker?"}
+{"id":"id2::7aae677a8e85a7563dcb46c3","text":"Andreea plays for the Cluj Ravens; Mr Ionescu plays for the Brașov Ravens, right?"}
+{"id":"id2::7c34b43293988a0785d00686","text":"Just checking: does Omar live in Arad as well?"}
+{"id":"id2::7d8236b42bee329ab09c15c1","text":"By the way, is the playground open and can Dima stay till pickup"}
+{"id":"id2::7f8b9b927dda7fbd6c3c922a","text":"Also, has everybody working for Brightfield Foods had the flu shot?"}
+{"id":"id2::8253b66eca84bf9ce82803d0","text":"Just checking: could you check which subject Elena Mocanu teaches?"}
+{"id":"id2::82b3f2e53d896dd7f3467b46","text":"By the way, Enikő Varga says Ms Odhiambo checked out The Clockmaker's Daughter."}
+{"id":"id2::85cf72d157d2e5808b2c35e9","text":"Also, is Costin allowed to sign a residence certificate?"}
+{"id":"id2::87512540a690b4cb5f55a694","text":"Just checking: do you know how long Kenji Sato lived in Botoșani?"}
+{"id":"id2::88b08f306804c4f2cd5f127f","text":"Honestly, which doctors treat someone who is allergic to strawberries?"}
+{"id":"id2::8927bb30ca9e773d65eb96e1","text":"By the way, Irina and Noah live in Arad."}
+{"id":"id2::8c81c2baf433905ea448f0f0","text":"Quick question: I need to know if Andreea Căpraru coached the Szeged Wolves on 1 February 2026."}
+{"id":"id2::8d52fa2a09e5e8e54b7ef711","text":"Honestly, has Katalin finished her worksheet?"}
+{"id":"id2::8dbd6f1abb30ba48071060d5","text":"So, she is at the venue."}
+{"id":"id2::90a4a4ff0b0a1daa6b979be6","text":"Just checking: Ingrid sent 75 lei to Mr Okafor through the bank."}
+{"id":"id2::9331bbcaf6e88d2803379f9b","text":"By the way, I was wondering whether a guest pass is required for the swimming pool."}
+{"id":"id2::954a3ae5641e50ceeeade8e5","text":"Honestly, he intends to fire his assistant, right?"}
+{"id":"id2::959d5216f2316da75dc26a38","text":"Honestly, the exam starts at noon."}
+{"id":"id2::9645b045d2e923e416a7855b","text":"Also, I believe the founder hires new assistants."}
+{"id":"id2::97b5568130b00a39da42ca23","text":"Just checking: Ingrid Nilsen raises Kenji Suzuki, correct?"}
+{"id":"id2::997831d00fdc82f1691d0cfb","text":"Any idea who wants to learn Spanish?"}
+{"id":"id2::9a439bfb1d02eeebd8d3f8c6","text":"Honestly, I wonder which market sells organic honey."}
+{"id":"id2::9c89e4df6ad404da6a91af73","text":"Honestly, is it correct that he is enrolled at the Lisbon Music Academy?"}
+{"id":"id2::9ec58794014cf916954268a7","text":"Any idea which route avoids the stairs?"}
+{"id":"id2::9fc902dd95166895c3342d4c","text":"Quick question: he is on Leipzig United?"}
+{"id":"id2::a0945367146b3316eb9fb9d8","text":"Just checking: the lift stopped and Milena waited and the guard called maintenance."}
+{"id":"id2::a258351f6c50bec843e7130f","text":"Quick question: I need to know who drives to Cluj."}
+{"id":"id2::a2e26d3241bbe429cba7385c","text":"So, is Elena allowed to care for her brother on her own?"}
+{"id":"id2::a42b93051e8e9acc7ee292a3","text":"By the way, I was wondering whether Kwame Osei works under Nadia Petrescu."}
+{"id":"id2::a69bc09ecab7f622a2f42540","text":"Honestly, Mei Li told me that Réka works under Maria."}
+{"id":"id2::a825a81517c49f3ae8e3c78f","text":"So, I need to know if Mr Vlădescu does not manage Hugo Martin."}
+{"id":"id2::ab3aae633d35c72df1c991ef","text":"Honestly, can Anke Weber ask The Willow Room whether we may leave the flowers overnight"}
+{"id":"id2::ad5a80b5d1de1783a3cec069","text":"So, I need to know where Javier Sánchez is based."}
+{"id":"id2::b166374366f896a460b3e8b3","text":"Honestly, does the intern study at Lakeview Secondary School too?"}
+{"id":"id2::b2f9a9b5ddb905730a6b8e0c","text":"Also, did Sofía work at Orion Robotics on 19 April 2023?"}
+{"id":"id2::b3abec4a88a90508cc05db74","text":"So, the eggs are behind the milk."}
+{"id":"id2::b562972a43dd8c1b11622d87","text":"Any chance Aurel Stan doesn't go to the jazz evening?"}
+{"id":"id2::b5d3237724dd693fb30ee5a7","text":"So, Bogdan is the captain of Andreea."}
+{"id":"id2::ba2eaf454c9021f06d73462b","text":"So, is the induction loop switched on?"}
+{"id":"id2::ba6483e4b87d4b04dabe88b4","text":"Just checking: can you tell me where Sânziana is based?"}
+{"id":"id2::bb32176c3394de2959f017d1","text":"Just checking: who is a teacher of one of the students of Mihai Popescu?"}
+{"id":"id2::bcc66e33d99cfcc5fe63d708","text":"Also, we plan a training day on Monday."}
+{"id":"id2::bd9e9373d9b5ed4a989c95fd","text":"Just checking: is it true that your manager trains the new intern?"}
+{"id":"id2::c17c365775e7d3fcf920872f","text":"Honestly, I wonder if Liam takes part in the code review session."}
+{"id":"id2::c2778427a83ea2fed087e7c3","text":"Any idea why exactly does Astrid qualify for the bonus?"}
+{"id":"id2::c28dda63c446850ba369cffe","text":"By the way, when does Leila collect her dress?"}
+{"id":"id2::c50351557fcb1867e21bcf32","text":"So, how about Ingrid Johansson?"}
+{"id":"id2::c80bc2fe01f725efd4ef2846","text":"So, I need to know who is the owner of the recording studio."}
+{"id":"id2::c9fcc929039532edf92fcd1a","text":"Just checking: does my brother work at Atelier Nagy too?"}
+{"id":"id2::d4be4b774bbee302b31321ab","text":"By the way, can you confirm that it was postponed because of the billing service?"}
+{"id":"id2::d59c0f40f18fdd9ca65d2d81","text":"I need to know if Ioana has access to the lab, right?"}
+{"id":"id2::d5c6e124ef63d396e7bb5b86","text":"By the way, can Priya arrange the bouquets?"}
+{"id":"id2::d5d53c8fd97ba96ec023d612","text":"Quick question: I packed the costume for Ioana-Maria, but she says the rehearsal has moved to the gym, and I cannot tell whether she should leave it in her locker or take it there."}
+{"id":"id2::dac336d884f55da34e61ac07","text":"Any idea which coach trains the team that Ana is on?"}
+{"id":"id2::db6e6133f3d8c00cf13d322c","text":"Honestly, which lecturer should I speak to about the missing grade"}
+{"id":"id2::dc06ed17e7c6fc3155955852","text":"Quick question: can you check whether Ingrid wants to move to Szeged?"}
+{"id":"id2::e08417496d4e8dcaf746a41b","text":"So, does Raluca still rent the flat in Sinaia?"}
+{"id":"id2::e138af2654b30d1c22797066","text":"Quick question: my bursary payment is late."}
+{"id":"id2::e364224caf8e63db42075694","text":"Also, Ayşe is not based in Lyon?"}
+{"id":"id2::e6398ff0450f17030ae6dee4","text":"Quick question: does Simona not work for Brightfield Foods?"}
+{"id":"id2::e781805ff8dceab6d895c6d3","text":"Also, which workers are hired by a bakery located in Sibiu?"}
+{"id":"id2::e927394016079915aa403c5b","text":"So, I know Brândușa sent 150 lei to someone last month."}
+{"id":"id2::eb88d0a6fb6ba839f4b4ccda","text":"By the way, which nurses assist someone who is recovering from surgery?"}
+{"id":"id2::ebe26bab85517df84dcb1f84","text":"Any idea where is Ioana's lunchbox?"}
+{"id":"id2::f3061e027d4c8a5320461ac7","text":"My student card stopped working, right?"}
+{"id":"id2::f95e15ef42bc635c99ff1dd8","text":"Also, I wonder if Layla wants to learn history."}
+{"id":"id2::f9c2919e0c51c86ae518bcd3","text":"So, did Kenji Watanabe fly to Sighișoara again?"}
+{"id":"id2::fc58bbda57b4425ca8f67540","text":"So, are all the people who went to the photography workshop vaccinated against the flu?"}
+{"id":"id2::fcb29fc2fefa4b935242b94a","text":"Also, the one from yesterday."}
+{"id":"id2::fcdacc877b9610a3dba1ce7b","text":"Also, is the assistant allowed to approve a purchase order on their own?"}
+{"id":"id2::ff22830e9b6cfbdff2f5deca","text":"Katalin checked out A Short History of Bridges, right?"}
+{"id":"id2::0040a1cea7ab97907bb33f38","text":"Did Andrei move to Arad again?"}
+{"id":"id2::00ceb66562ed6e94fefbc366","text":"Name the mothers and fathers working for hospitals located in Brașov."}
+{"id":"id2::0697f5c6bb8d39b7eb6cc035","text":"How many cars does Cluj Motors lend?"}
+{"id":"id2::0946c0c2bf25c0a4dbbac3f5","text":"Tell me whether it was postponed because of the storm."}
+{"id":"id2::0d2d3d498d5ac1d612a9c35f","text":"Remind me, what does Delta Publishing translate?"}
+{"id":"id2::106b533ab0c4760077bd87ff","text":"Which workers are hired by a bakery located in Sibiu?"}
+{"id":"id2::1418107f492778a482581cbe","text":"Just checking: is Irina responsible for the new installation?"}
+{"id":"id2::1558505d2613af6e9eb5ac58","text":"How about the supplier?"}
+{"id":"id2::155b810c97767d131bf73c6f","text":"Which nurses assist someone who is recovering from surgery?"}
+{"id":"id2::17302b433784bc1717194f1c","text":"Is it correct that she has an intolerance to peanuts?"}
+{"id":"id2::18f8eade9fccd8eaed38a197","text":"Do all the parents who went to the winter training course have a signed sponsor form?"}
+{"id":"id2::1a7e22542831bbe513d655a7","text":"Is the assistant allowed to approve a purchase order on their own?"}
+{"id":"id2::1ad38e30e57593ead8adbe31","text":"Could you check if Ms Ionescu is not the owner of the Sibiu delivery firm?"}
+{"id":"id2::1b2eb945c6b4b87803a66b93","text":"Do you know who organized the charity fair?"}
+{"id":"id2::1e7dfc8be57e8caf31505e3e","text":"What were the dates when Ingrid Larsen was engaged to Kwame Boateng?"}
+{"id":"id2::213a9f5d33eb6eaa8a40666e","text":"I wonder where the new host is based."}
+{"id":"id2::24b972f3efd5baf49ad6a46c","text":"I was wondering whether Andreea leads Bogdan."}
+{"id":"id2::263635fce7c28c2edde8b470","text":"Tomas is employed by Iasi Dental Clinic."}
+{"id":"id2::268efa44a5b3de816827d4e5","text":"Can you confirm that Petra does not attend the workshop in Cluj?"}
+{"id":"id2::26bf117fd213f55e1c1e0aca","text":"Fatima Adeyemi is a sister of Vlad."}
+{"id":"id2::28aac19979c1d5f50cb98ed9","text":"I'm trying to find out where Petru Lazăr works."}
+{"id":"id2::29408e6ecb18020868868634","text":"The contractor's office is open."}
+{"id":"id2::29bc5ee3901e4db40d466324","text":"I was wondering whether Elena Barbu manages the warehouse."}
+{"id":"id2::2e88cfb853171b3014068f87","text":"Ravi says he wants to move to Cluj."}
+{"id":"id2::2fbdac2e2dc65dc7f366b3c5","text":"True or false: my stepchild is enrolled at Camden Art Academy."}
+{"id":"id2::3121221d7d29ad3afef8bdf1","text":"— can you check whether he goes to the staff meeting?"}
+{"id":"id2::312a3a751c047e79d1b60c87","text":"Just checking: does Andrei coach the youth choir?"}
+{"id":"id2::33e1e216b6cfed62bcc959ac","text":"What does the boiler replacement cost these days?"}
+{"id":"id2::34be7fc49e5252c97fceef08","text":"If Marta doesn't teach at Cluj Polytechnic, then does Marta still have access to the gym?"}
+{"id":"id2::3c6db4be60b947cb7b96bb75","text":"Does Raluca still rent the flat in Sinaia?"}
+{"id":"id2::3f3f73b4860db9a5ac971068","text":"I was wondering whether Elif is examined by Dr Novak."}
+{"id":"id2::3f5c23d29b7b84a19593a00f","text":"Elena Popescu lives in Craiova, right?"}
+{"id":"id2::410d266db78a46823a899b32","text":"The patient is allergic to penicillin."}
+{"id":"id2::42689c302e5a6b00ff5ff95e","text":"Marko is the boss of Lucia."}
+{"id":"id2::43119d5fc8e5c6bfb4773dff","text":"How many patients are examined by the nurse, if you know?"}
+{"id":"id2::43986d664d98e560dee678a1","text":"How often did Bogdan attend the local film festival?"}
+{"id":"id2::464fa3186c3fdf3b2098353c","text":"Could you check which form is needed for a rental contract?"}
+{"id":"id2::47dd64206ae6981c4fe9a636","text":"So does Vera have a booking for the hotel?"}
+{"id":"id2::4b387a31088bd1955ef75898","text":"Ana and Mihai volunteer at the Riverside Shelter."}
+{"id":"id2::4bd2161d3948579937074185","text":"Mr Popa sells a bike to Marta, right?"}
+{"id":"id2::52a8eb67f969125b0ca14d37","text":"He intends to fire his assistant, right?"}
+{"id":"id2::54462fd9b9c2282144d76c99","text":"Did Mihai go to the graduation party again?"}
+{"id":"id2::561ea714cd225f23016899ca","text":"I wonder if she is the author of Winter Harbour."}
+{"id":"id2::5688f915ab6147cd99e085a7","text":"I wonder why Pavel qualifies for the rent subsidy."}
+{"id":"id2::586e942649ef65ff7b215623","text":"Who was it installed for?"}
+{"id":"id2::594597365f50c3d9997a2ba9","text":"Did Sorin borrow the drill again?"}
+{"id":"id2::5c46736ba191071774f81b50","text":"I wonder which market sells organic honey."}
+{"id":"id2::5cc40656af8257962123bccd","text":"Vlad gives classes in geography, correct?"}
+{"id":"id2::5d55d04cdc3c437171cd3aca","text":"Tell me when your stepchild worked at Orion Robotics."}
+{"id":"id2::5df61d826b95aebb5ae8b47c","text":"For how long did Victor work under Doina?"}
+{"id":"id2::5e5b0c49efa34f78b0f90ce3","text":"Background: Radu is a parent of Ilinca Barbu."}
+{"id":"id2::5f6d54abe52e272bd65f3487","text":"How does Marius hire volunteers?"}
+{"id":"id2::5f70cb7ed9d5980f2ed8a584","text":"Did the director join the budget meeting again?"}
+{"id":"id2::6055d91f89d1177b015c0218","text":"Just checking: does Ana not have an allergy to peanuts?"}
+{"id":"id2::61b6377fe914f6bab68eff71","text":"Ms Ionescu works under Andrei."}
+{"id":"id2::622ac2127e3a3c886f2068cf","text":"Could you check which assistant relies on the booking app?"}
+{"id":"id2::628b3bc439e43dea7c9b0812","text":"Please, please prepare a budget report for last month."}
+{"id":"id2::62f9685bfd9d9b505e05e8cc","text":"Tell me whether she is eligible for the license."}
+{"id":"id2::644f7799cc490aabf94849f2","text":"I want to start lessons in the spring."}
+{"id":"id2::65c750c85c3c7dfb73fdb846","text":"What does your aunt lease, if you know?"}
+{"id":"id2::677b80fd962d292bf9d95dfb","text":"How many interns does the manager supervise?"}
+{"id":"id2::6b7748ca680c1142d359aa44","text":"I was wondering whether a guest pass is required for the swimming pool."}
+{"id":"id2::6bd8955ef89b174abfb15dce","text":"Have all those enrolled at Dover Arts High School finished the first aid course?"}
+{"id":"id2::6ef18728b0c199ab5038a7ee","text":"When did Bogdan work at Cluj Rentals?"}
+{"id":"id2::7050a42f6bc83d59af1b3d15","text":"— does he qualify for the housing allowance?"}
+{"id":"id2::706fab9f0d478dd8338e3b3b","text":"Do you know who maintains my aunt's garden?"}
+{"id":"id2::723068a9952dd99e36f3906f","text":"Background: Elena is the manager of Mr Ionescu."}
+{"id":"id2::75c019d6b57b0ce95db44776","text":"Is it correct that Mr Novak approved the budget on March 3, 2020?"}
+{"id":"id2::7633561e6312eb592523168e","text":"Does the intern study at Lakeview Secondary School too?"}
+{"id":"id2::7658e0473108fe1de53746d7","text":"He treats the emergency patients, correct?"}
+{"id":"id2::76c518c0f7cb1b9270d06d2f","text":"I'd like to know who is responsible for the patient records."}
+{"id":"id2::78417a9ced9c8bb992d66f63","text":"Andreea plays for the Cluj Ravens; Mr Ionescu plays for the Brașov Ravens."}
+{"id":"id2::78ad83c0cd3c209326a3e9d1","text":"Do you know how many times Bogdan was ill?"}
+{"id":"id2::790885fbee509fd6bc6c658c","text":"Plus, Pavel pays the deposit."}
+{"id":"id2::799e7587e5be27525c823147","text":"Ana Ferreira married Tomas Novak, correct?"}
+{"id":"id2::7d706a6886e0abd2e4eea097","text":"Confirm the rumor that Ana is not the manager of Mr Popescu."}
+{"id":"id2::7e3bd14367e8e2eae30e8653","text":"Victor Ionescu is allergic to peanuts, and Maria is allergic to peanuts."}
+{"id":"id2::7e6acf785690a87f4ed81c8e","text":"And do you know if she lectures in violin?"}
+{"id":"id2::811764e52f76622a6098cfb8","text":"Who hired the contractor?"}
+{"id":"id2::828620ad3918aafe5b35c459","text":"When did Bogdan start to teach at Astra & Sons?"}
+{"id":"id2::8385ebf361614d6378c7bf6a","text":"So does Delta Office carry office chairs?"}
+{"id":"id2::852d232cc1b8e1a4ece15231","text":"Does Selin intend to be certified in first aid?"}
+{"id":"id2::87528c86831ffa808e67ffc8","text":"Honestly, does Bekele invite Nadia?"}
+{"id":"id2::89df29b6d332bde8928fb5b5","text":"Marta sells a bike to Mr Popa."}
+{"id":"id2::8a0e0d5ce6bdd1d65e2fe87c","text":"Tell me whether it is open for the client meeting."}
+{"id":"id2::8b6b8a95d206ecd9d75c1300","text":"Does Marta supervise a child who lives in Porto?"}
+{"id":"id2::8b764be37d53190ee73d852a","text":"My sister is the mother of his son."}
+{"id":"id2::8d0eabec849cfcede685120e","text":"Can you check whether he works for Someș Textiles?"}
+{"id":"id2::8ddd97d5b6e1003c98fcf235","text":"The new intern finished the orientation week."}
+{"id":"id2::8f848beb8f4d924e7cb3cccf","text":"Did Sofia Marin pay 150 lei to Mihai?"}
+{"id":"id2::8fcfd052dead11007bb515ae","text":"Is it true that your manager trains the new intern?"}
+{"id":"id2::937167679d73e7ee9d9c6555","text":"Quick one: where did Radu Munteanu move?"}
+{"id":"id2::93aeed397df0a5a1a23b0645","text":"Fact-check: the family van is repaired by my father."}
+{"id":"id2::9430339686402d9c56d2ffd6","text":"Hannah sent the invoice number to Olimpia Iași, correct?"}
+{"id":"id2::9548f1df0775f8931d75241c","text":"Marta isn't the renter of the red boat."}
+{"id":"id2::99269ba5ff15c2034d74be58","text":"The student is absent from class."}
+{"id":"id2::994a8c81574f0fa654425a00","text":"Why exactly is the patient portal down?"}
+{"id":"id2::9aa7211753489bbe548080b5","text":"Question: He has access to the garage, correct?"}
+{"id":"id2::9ee433802b370e86dc6ef2eb","text":"I need to know where the child sleeps."}
+{"id":"id2::a073e9a3df2b5755bb708cf1","text":"Also, can you check whether he goes to the pottery workshop?"}
+{"id":"id2::a1076bee3956daa11a752e35","text":"Is Elena allowed to care for her brother on her own?"}
+{"id":"id2::a2c987b884617de567857eba","text":"Let's say Victor rented a studio in Sibiu."}
+{"id":"id2::a2eb4df5e54e2ff300e3206a","text":"Background: Elena has paid the rent, and Mr Novak pays the deposit."}
+{"id":"id2::a31dc880ca880b1dd84304c4","text":"Is the founder younger than the director?"}
+{"id":"id2::a344e835dc5a7823d34e953b","text":"Why does Andrei sell his car?"}
+{"id":"id2::a3b329a0f8f3562184d05a2d","text":"Tell me when Andrei published the geography textbook."}
+{"id":"id2::a5744d843ea5f59d8a1e22c7","text":"So is she studying at Cluj Arts College?"}
+{"id":"id2::a5e40143949056bfdf54db81","text":"Out of curiosity, who was responsible for the payroll system during 2021?"}
+{"id":"id2::a7931d7a50976cad2261d7a4","text":"— she intends to attend the graduation party?"}
+{"id":"id2::a9ef64fc5b2d8507da1d1e01","text":"I need to know who drives to Cluj."}
+{"id":"id2::aa4727f4f677434e33273ca4","text":"Is it true that your boss does not mentor the interns?"}
+{"id":"id2::ab003460be9331f463f79a68","text":"Tudor says Mega Print sells office chairs."}
+{"id":"id2::ab6ecbe703505a85bc84e756","text":"Besides Ana Moldovan, I need to know who is responsible for hiring volunteers."}
+{"id":"id2::ab8ecfd4cf772f7eed408530","text":"Is there somebody at Orion Robotics who reports to Bianca and lives in Recife?"}
+{"id":"id2::ae3aa2bb439aa25757140fd8","text":"Did Marek drive to Timișoara again?"}
+{"id":"id2::af27cb470f1e6619b3663c36","text":"Is there somebody at the contractor's company who works there and lives in Iași?"}
+{"id":"id2::b085c18a9ca399a89dc8a711","text":"If Tomás works at Atlas Repair, then does Tomás have access to the warehouse?"}
+{"id":"id2::b3c30a6c09f9a6487c47a690","text":"I was wondering whether Kwame Osei works under Nadia Petrescu."}
+{"id":"id2::b3c545c2bc0326a875c59a49","text":"I believe the founder hires new assistants."}
+{"id":"id2::b4d9f5138245e94ff875adcd","text":"Quick question: is Ingrid the manager of the Cluj Otters?"}
+{"id":"id2::b79ee51869e48fe827fa066d","text":"Is it correct that Mr Novak publishes at Delta Press?"}
+{"id":"id2::b980784e954963ac2cb3cb3b","text":"Quick question: does Andrei play for FC Brașov?"}
+{"id":"id2::b98a781bfce00a5cd6d4e9bd","text":"Ms Ionescu pays Andrei?"}
+{"id":"id2::ba06f842852454abe1f7717d","text":"Does Radu plan to teach mathematics?"}
+{"id":"id2::ba432a1d28c129e103fa7fba","text":"Apart from David Klein, I wonder who reserved the theater."}
+{"id":"id2::bb3fa9eef419cac2e2ccb855","text":"Patient Igor is allergic to peanuts?"}
+{"id":"id2::bcf369fe99f28873f8d50c92","text":"Would you say that Orion Foods hires seasonal drivers?"}
+{"id":"id2::bdb8223cb447986e1dcf58ca","text":"I wonder if Radu Munteanu joined the repair course."}
+{"id":"id2::bde8d66fd98098ac88ac9ccb","text":"Is it correct that the new member went to the choir rehearsal?"}
+{"id":"id2::bf2779c30fd7b48d9d58b8b8","text":"Any idea when Ilse taught at Northgate Academy?"}
+{"id":"id2::c080cedcf5690f194205b87a","text":"Who is a grandparent of a son of Marta Nowak?"}
+{"id":"id2::c112d9031c7981707bef3f8b","text":"I wonder if he has a valid licence."}
+{"id":"id2::c257d986d9b44d4957dcd54d","text":"Miriam is a parent of Selin Aksoy."}
+{"id":"id2::c60c85889840c9abeeab5e2b","text":"Honestly, is Bogdan training the new staff?"}
+{"id":"id2::c6601efdadd02dffc7360995","text":"Is every member of Nordwind Systems vaccinated against the flu?"}
+{"id":"id2::c6858721b46dbed771693da4","text":"Is it correct that he is enrolled at the Lisbon Music Academy?"}
+{"id":"id2::c77fd556040bc8b71d52f7b4","text":"Tudor Marin is based in Brașov?"}
+{"id":"id2::c7a03953eb0d5d2f845d0650","text":"I'd like to know who organizes the summer camp."}
+{"id":"id2::cb30ee0c1011371f739890df","text":"Elena is the mother of Dan."}
+{"id":"id2::cba801a6bb122e03ffbeec1d","text":"Can you tell me who is responsible for the stadium?"}
+{"id":"id2::ccb2ddb1c6ed844de971abdd","text":"Question: Can you confirm that Ana has not paid the rent?"}
+{"id":"id2::ccc6989a8a2836a63337a536","text":"Is it true that not all employees of Greenline Transport are insured?"}
+{"id":"id2::d0253715f68ef685a6d4faf3","text":"I don't work for Nexus Media, but does my brother work for Nexus Media?"}
+{"id":"id2::d04fd75afed1a848e84c7d85","text":"Could you check who works for Danubia Shipping?"}
+{"id":"id2::d2d3eb7d891062f3c0070e5a","text":"Who is a teacher of one of the students of Mihai Popescu?"}
+{"id":"id2::d2d82120af499b532583cbc1","text":"So does Priya approve Karim's visit?"}
+{"id":"id2::d305d704be04424b92aebab8","text":"Bogdan is the captain of Andreea."}
+{"id":"id2::d68406674d79296abee8d0dd","text":"Tell me whether Beatriz supervises Tomás Herrera."}
+{"id":"id2::d7ed5dbe2a98cda0dc4aa406","text":"Plus, she doesn't have a license."}
+{"id":"id2::da6ad3a2ebd8118f2b309544","text":"Who is a manager of a guard of the museum?"}
+{"id":"id2::dc4007fed169f098e771254f","text":"I need to know when Selma received the white Renault."}
+{"id":"id2::e394e942f74dd5319e290f9e","text":"Do you know how long Andrei depended on the shipyard?"}
+{"id":"id2::e561823239e2bacb8f6a9c78","text":"So did my nephew take part in the regional swimming competition?"}
+{"id":"id2::e63a81f9285e2653f569b2f9","text":"Quick one: where did my brother move?"}
+{"id":"id2::e8300f7dddfd8ef20c463bc6","text":"Is anyone who borrows books from the Central Library not registered?"}
+{"id":"id2::e8f584350463eb6db742a1db","text":"We plan a move on Monday."}
+{"id":"id2::f16ff9c1f3d35e068d77501e","text":"We plan a training day on Monday."}
+{"id":"id2::f8cdbf1b473c06fe0575d64f","text":"Let's say Ioana is the host of the town fair."}
+{"id":"id2::f8ecc7e486c025833c3b5db4","text":"I'm not 100% sure, but Elena Vasquez divorced Tomas Novak."}
+{"id":"id2::f9b34646cedffd91811c8794","text":"Do all the trainers at Sibiu Sports School have a valid licence?"}
+{"id":"id2::fa862f0283554e89f1522a87","text":"I wonder if he plans to go to the coaching workshop."}
+{"id":"id2::fbf3a5785fe9e77c9821698f","text":"Which people are coached by a club based in Brașov?"}
+{"id":"id2::ff9251e2b083391218190ad2","text":"I wonder if the intern is not supervised by the manager."}
+{"id":"id2::002f4a1205c03a59b79d8e4e","text":"Radu Bălan borrowed The Quiet Harbour."}
+{"id":"id2::004ad475e65eb3b45498ca7d","text":"Plus, Mr Yılmaz is the coach of the Hanoi Falcons."}
+{"id":"id2::00e5aebaab12cb04aee7e693","text":"Ok, talk later!"}
+{"id":"id2::0169a84929b9e4d9cff9f8cd","text":"Did Ingrid borrow A Short History of Bridges again?"}
+{"id":"id2::01d3f6c9781156ac100ccf69","text":"Ms Voicu told me that she plans to study biology."}
+{"id":"id2::038214b633b17b92f2322151","text":"unless the bread arrives soon should we change the display"}
+{"id":"id2::03d71e960f7a0bfd8a650f94","text":"Verify the claim that Smaranda is responsible for the billing service."}
+{"id":"id2::06158f202a343ff035d714a2","text":"Did Yuki borrow The Last Ferry again?"}
+{"id":"id2::063f02495cc5a5cf795cea3f","text":"Who has Winter in Maramureș?"}
+{"id":"id2::06778c0e68fc99cee575c379","text":"Suppose Dorin works at Montreal Logistics: does Dorin have access to the lab then?"}
+{"id":"id2::0689b83aa81cee4db3e35286","text":"Plus, Attila is a parent of Floarea."}
+{"id":"id2::06f335f6229461fadfb7be8d","text":"Will Sorin visit Long Meadow after the consultation"}
+{"id":"id2::07bbb1c862ebcbb280de3ab2","text":"I wonder if she studies at Focșani Music Academy."}
+{"id":"id2::08d73bc2a935565b3db3d53f","text":"Can you check whether she works under Maria?"}
+{"id":"id2::091cf9ddb4df8c2fdbc4c170","text":"The accessible shuttle leaves at 08:30, and the appointment starts at 09:15, so could you tell Amadou whether the shuttle arrives before the appointment?"}
+{"id":"id2::0964b93abf88a002e9c9d5a3","text":"Background: Chloé Martin travels to Tulcea, and Tamás travels to Tulcea."}
+{"id":"id2::0993da5766f18922d50074dd","text":"The ceremony starts at 4."}
+{"id":"id2::0a23ca6bab09706e776ea565","text":"I wonder why Hassan Nasser stays home."}
+{"id":"id2::0a26c45a3b6f4d30cc517e7a","text":"The eggs are behind the milk."}
+{"id":"id2::0b5d4fd985761c2f633c282e","text":"Since what date does Ruxandra coach the Sibiu Wolves?"}
+{"id":"id2::0bc314a4ffd11e45fc1e6d00","text":"And the other lift?"}
+{"id":"id2::0c37752409af981d336d8dcb","text":"Is Larisa still employed by Orion Robotics?"}
+{"id":"id2::0c669c531079052194dafa3f","text":"Has everyone who attended the regional chess tournament completed the safety training?"}
+{"id":"id2::0ce5a8b15c7743807cec1fa6","text":"Tell me whether Jonas Weber raises Larisa."}
+{"id":"id2::0d2fdb1b039a3a38f80b9488","text":"after 6 weeks in the dorm the rent rose from €80 to €95 and my housing page has not changed"}
+{"id":"id2::0d3b75c04d6cf674c3230317","text":"Do you know how long Jun studied at Oradea Music Academy?"}
+{"id":"id2::0dbae11d0480820f0bab2b7b","text":"The threshold is 4 centimeters high at the south door."}
+{"id":"id2::0deea54e8dd2fe349504cade","text":"Noah resigned."}
+{"id":"id2::0e074aa743d5d6bc6057f279","text":"Verify the claim that Chloe has an allergy to strawberries."}
+{"id":"id2::0ead41e99acb01f80fecec3e","text":"only some of the peaches were damaged and none of the plums were bruised"}
+{"id":"id2::0ece1a8a269c6c49bbe3d66a","text":"Background: Doinița is vaccinated against the flu, and Linh Phạm gets the flu shot."}
+{"id":"id2::0ef618ed667f711d279bc8cd","text":"Otieno says he plans to relocate to Recife."}
+{"id":"id2::1011581039d6450a6fa4030d","text":"Tell me whether Traian Moldovan wants to move to Sibiu."}
+{"id":"id2::10704eca07fd3873616eb8e2","text":"How many people visit Ploiești?"}
+{"id":"id2::108a2e902715eba3eeb56102","text":"Ayşe is not based in Lyon?"}
+{"id":"id2::112fd7ddeb269db94010d66e","text":"Question: Just checking: is Ștefania not allergic to ibuprofen?"}
+{"id":"id2::116af55af371dea72069caed","text":"Background: A building permit requires an ID card."}
+{"id":"id2::125aee3881396ebd00c88297","text":"Background: Dariush is sick."}
+{"id":"id2::126a3a36cc17f19b8d72e80e","text":"Can Hugo confirm the caterer?"}
+{"id":"id2::1296c381d3bfb12398892d2a","text":"Which route avoids the stairs?"}
+{"id":"id2::12bf014006b0ac0bf028eb2b","text":"Who ordered the ramp and who checked its width?"}
+{"id":"id2::131f7e1e8db1b01eb550787c","text":"Can you confirm that Ms Oprea is enrolled at Popescu Primary School?"}
+{"id":"id2::13556ab236be73ae21efdc9b","text":"The accessible toilet has a shelf beside the sink, a grab rail near the door, and enough space for my chair to turn without hitting the bin."}
+{"id":"id2::13ebddcfb747b99d1b44ec11","text":"I packed the costume for Ioana-Maria, but she says the rehearsal has moved to the gym, and I cannot tell whether she should leave it in her locker or take it there."}
+{"id":"id2::14101f11d18d4e09c7e2ffb5","text":"Question: He is enrolled at Tóth Primary School, correct?"}
+{"id":"id2::141df07491d045434999ae84","text":"Plus, Diana has borrowed The Quiet Harbour."}
+{"id":"id2::1496cc53f4e113ee6ced3c22","text":"I work at Tisa Textiles; does my sister also work at Tisa Textiles?"}
+{"id":"id2::14b141353ef5e6b1350a8591","text":"Julien is the doctor of Jürgen."}
+{"id":"id2::156cdfc0d0d5c057de137ea3","text":"Enikő Varga says Ms Odhiambo checked out The Clockmaker's Daughter."}
+{"id":"id2::15f0fabd98dfbce5a328364f","text":"did Orange Grove Hall send the christening room deposit back to Aunt Amira"}
+{"id":"id2::16dfc8810845771587b6b67d","text":"Background: Jürgen is trained."}
+{"id":"id2::17f9c426678f02cdd87be419","text":"Emre Yılmaz has the keys."}
+{"id":"id2::1826908fe674e0722255fe64","text":"Verify the claim that Carmen Rusu is the author of The Glass Orchard."}
+{"id":"id2::18a02a550b702b1a0dff1c58","text":"Why exactly did Gheorghe Rusu resign?"}
+{"id":"id2::18e78a65b1d7a02252bbf043","text":"Is Horia older than Georgiana?"}
+{"id":"id2::19590c1bd30c3e1980f9fb68","text":"He intends to quit Brightfield Foods, correct?"}
+{"id":"id2::19668e8e26b6bdd995f3fb40","text":"I need to know if the backup cluster caused the outage of the billing service."}
+{"id":"id2::199a11dc7f7407df66cc3f10","text":"Tell me whether Maria plans to study German."}
+{"id":"id2::19f972a112d806d3bb3fe3bc","text":"Does Georgiana work at Brightfield Foods too?"}
+{"id":"id2::1af30aeab77d74932a174355","text":"I wonder if Layla wants to learn history."}
+{"id":"id2::1af6c1fd4ce206622772700c","text":"since the florist arrives after the guests where should we keep the empty vases"}
+{"id":"id2::1c279b36c1d7a49789c780c4","text":"I wonder if Liam takes part in the code review session."}
+{"id":"id2::1dbb0c6666c44b0c000b166b","text":"for the christening:\n- wash the borrowed blankets"}
+{"id":"id2::1dd56f99dfd0c0ae4d1fcb61","text":"not every bay beside the clinic is reserved, but most of the spaces near the ramp were full when Petra arrived for her afternoon meeting"}
+{"id":"id2::1f3126663349b5272d0c8f47","text":"She is eligible for the bonus?"}
+{"id":"id2::1fbbbc2102f5c8fe4bb7e0fd","text":"He is on Leipzig United?"}
+{"id":"id2::1fdb110e6f043c0dcdb17e11","text":"Gheorghe takes part in the jazz evening."}
+{"id":"id2::1fdc2429e1137fd124e41734","text":"Can you confirm that Letters to a Young Engineer was written by Tamás?"}
+{"id":"id2::20524e9f445893855a3578ac","text":"For my visit, please: confirm the lift, reserve the wider bay, and let Mina know the dog is coming."}
+{"id":"id2::2054a7406896221efbede61e","text":"- bring candles for the table"}
+{"id":"id2::206ff71b0249a6282e77b719","text":"I wonder where Kaveh is based."}
+{"id":"id2::20f618708ce7610b582b06fe","text":"Besides Brândușa Lazăr, can you tell me who visits Chengdu?"}
+{"id":"id2::21666c3f39a6e825696491f2","text":"no one got the grades"}
+{"id":"id2::21eb45447064fafa95c6cd85","text":"before the weekend sale begins Ilya needs to remove the old stickers from the perfume cabinet"}
+{"id":"id2::22ea420eac219fae7a33bc25","text":"Background: Doinița works at Nordwind Systems and Ingrid Andersen is employed by Taylor & Partners."}
+{"id":"id2::2331a87e76cc472f2a87d60d","text":"Plus, Dimitra Papadopoulos borrowed Winter in Maramureș."}
+{"id":"id2::23c25e1b2a9730b8c2155340","text":"Is it correct that the spring book fair is held at the Old Mill Hall?"}
+{"id":"id2::2411986fe69c0d555aeb8f31","text":"Plus, Olivia has a job at Greenline Transport."}
+{"id":"id2::245d74b55eaaa422a5fbc663","text":"Suppose Léa Moreau works at Ciobanu & Partners: does Léa Moreau have access to the lab then?"}
+{"id":"id2::255bc01c85c5029c4c76e82a","text":"How often did Larisa resign?"}
+{"id":"id2::258d346a3fbdd36dcc940384","text":"Can you check whether Cosmin does not raise Iurie?"}
+{"id":"id2::25c432de7d0b00354c521754","text":"Did Aurel go to the jazz evening again?"}
+{"id":"id2::25cf0c4af546a68e0a3cfe56","text":"I need to know if Erik was based in Tulcea as of the 1st of September 2024."}
+{"id":"id2::26b032899956e753f3e19338","text":"Did Ms Şahin go to the wedding reception again?"}
+{"id":"id2::2766094d20bd458a4d3395eb","text":"Can you explain why Oliver Hughes qualifies for the bonus?"}
+{"id":"id2::27b026743cffc19beef0fb79","text":"Background: Rafael has a job at Brightfield Foods and Mr Sánchez works at Carpathia Energy."}
+{"id":"id2::27d40f1cc167ca4a5cfc0508","text":"Background: Mr Navarro is based in Slatina, and Yuki is based in Baia Mare."}
+{"id":"id2::27fb96d890d6c9d62878e35e","text":"When did Mădălina start to be the spouse of Nicolae?"}
+{"id":"id2::2946988ce4eac339d64c8cea","text":"Can you count how many times Parisa was ill?"}
+{"id":"id2::294b4d750d0656dbe1286e8f","text":"Does Hannah Wilson live in Focșani or in Târgu Mureș?"}
+{"id":"id2::296f0d0dbcf32dc5aa76ba8f","text":"Gabriela says since the hall is smaller we need to move the band"}
+{"id":"id2::29df47e4f6d07f9bbc6ce6b3","text":"Who is a parent of a parent of Emre?"}
+{"id":"id2::2a0cf635aedd885b16a317ce","text":"Question: Is Parisa Tehrani not certified?"}
+{"id":"id2::2a748b6fcebf56e6906388cf","text":"Question: Can you confirm that it was postponed because of the backup cluster?"}
+{"id":"id2::2b10b5a3bf8c94cdcb43c546","text":"Hi, no worries!"}
+{"id":"id2::2b6e89b6ea80ce6a5453a3cd","text":"Do you know how many times Yuki Tanaka handed in his notice?"}
+{"id":"id2::2be096b660223f1c5ee31643","text":"Do you know how Łukasz pays?"}
+{"id":"id2::2c6aac62147c4351e600a0bb","text":"Is it correct that Takumi is trained?"}
+{"id":"id2::2cf2cf80b6764820ddfd6210","text":"Did Rima file the appeal and did the clerk give her a receipt?"}
+{"id":"id2::2df5a506b50bc234ebdbd220","text":"Can you tell me where Sânziana is based?"}
+{"id":"id2::2e20d00ec8786bbc45ea2cb5","text":"Helena has asked the photographer for an earlier arrival because the grandparents want a family portrait before the guests take their seats."}
+{"id":"id2::2e8efada39ea9f2715f3bdb8","text":"Could you check which subject Mathieu Martin teaches?"}
+{"id":"id2::2eb81b86395a827abcbe1b7f","text":"Is it correct that Chloe intends to attend the jazz evening?"}
+{"id":"id2::2eb8ba49c4bf63f4e41913ec","text":"Is every student at Suceava Technical College vaccinated against the flu?"}
+{"id":"id2::2f4503c0ed42ba7ebf5d2f0c","text":"Ngozi is on the Recife Falcons, and she doesn't complete the safety training."}
+{"id":"id2::2f699fa3e0b78169049c900d","text":"Given that Cristina Toma is the coach of the Slatina Wolves, can you confirm that she is the coach of the Slatina Wolves?"}
+{"id":"id2::2f73f4adea547e35f94a106a","text":"I'd like to know what Dorin is allergic to."}
+{"id":"id2::3005c4bba2b8d307224e35ff","text":"Question: Can you check whether he teaches drawing?"}
+{"id":"id2::30a24fb659da4d1fdfa5c8eb","text":"Background: Chloé manages Doina."}
+{"id":"id2::30e38ec35bda8566fe2d0b4e","text":"My bursary payment is late."}
+{"id":"id2::316c78000bd1e9dc661f490e","text":"Mei Li told me that Réka works under Maria."}
+{"id":"id2::319677cc9a27e4f8d71e3c38","text":"Irina and Noah live in Arad."}
+{"id":"id2::31d188bd9cbdccdc1c5f0b57","text":"Hypothetically, if Jun went to the regional chess tournament, can you check whether he qualifies for the bonus?"}
+{"id":"id2::32c96e84f9cd0d4c894df9cc","text":"Does Omar live in Arad as well?"}
+{"id":"id2::34607bdfb41146c43bf7bd8e","text":"We close at nine."}
+{"id":"id2::35198f4e34dd5fd21ef94638","text":"True or false: the Old Mill Hall hosts the jazz evening."}
+{"id":"id2::3778bfa4a028e08f218d6ef3","text":"I wonder why Dragoș has access to the lab."}
+{"id":"id2::3802eaf8b3c77da6184c6baf","text":"Can you count how many times Iurie was absent from work?"}
+{"id":"id2::39ce29c048f275db29f75223","text":"Is Nela bringing the cake?"}
+{"id":"id2::39f80c696956bc1a20f61f33","text":"Who is a parent of one of the parents of Cosmin?"}
+{"id":"id2::3a8a8629e846c9d3aa89ea82","text":"Diana Ciobanu raises Rachel Taylor."}
+{"id":"id2::3acce2cd8cee0e0b6ded590f","text":"The lift stopped and Milena waited and the guard called maintenance."}
+{"id":"id2::3ad57970338b754c83199371","text":"Which people are employed by a firm based in Szeged?"}
+{"id":"id2::3af6101ec4aff2ab5aa7fc00","text":"Oksana is the coach of Olimpia Chengdu."}
+{"id":"id2::3b462dd122121ee2b6d208c4","text":"I'm trying to find out where Lucía lives."}
+{"id":"id2::3b67355304e4ebda2cfbb927","text":"Please excuse Soraya tomorrow."}
+{"id":"id2::3cdb6ae0716c2a107bd3402b","text":"Since what date does Wanjiru work under Bianca?"}
+{"id":"id2::3dada738e882018ca943966f","text":"Who wants to learn Spanish?"}
+{"id":"id2::3db321ac759b32d801fd0598","text":"Background: Anca has an allergy to ibuprofen; Wei is allergic to ibuprofen."}
+{"id":"id2::3dbf3ca1368f76ef2fd98dcf","text":"Can the till print a receipt for the weighed mushrooms?"}
+{"id":"id2::406fed9d5b0ddd2deee21fdb","text":"Given that Medeea is cleared for the lab, is it correct that she is vaccinated against the flu?"}
+{"id":"id2::40b94d280ad2dd58c18f0adb","text":"Tell me where Octavian is based."}
+{"id":"id2::4143e05046fd4f31de30e052","text":"How does Shirin get to work, do you know?"}
+{"id":"id2::41ab43cd9e46773239ed3ded","text":"Apart from Shirin Tehrani, how many people work at Greenline Transport?"}
+{"id":"id2::41d58ab8cdba861e8cf3fc22","text":"Does Simona not work for Brightfield Foods?"}
+{"id":"id2::428e655173153604d7c6e289","text":"How old is Owen?"}
+{"id":"id2::4326c53d557c2a623a9bdb83","text":"Did Ștefan approve the refund?"}
+{"id":"id2::433ba024f25b414c9c93a80d","text":"Can you confirm that it was postponed because of the booking app?"}
+{"id":"id2::438d4d74bb8093e08abd239d","text":"I'm not 100% sure, but Shirin raises Ms Smith."}
+{"id":"id2::43c284daccedbab25c8784a9","text":"Suppose Liam works at Carpathia Energy: does Liam have access to the lab then?"}
+{"id":"id2::43de356bfa7dc76cf3b9b651","text":"Zeynep maintains the backup cluster."}
+{"id":"id2::441a2654839386a58e4e0d94","text":"Please remind me to take the pens when we leave."}
+{"id":"id2::445aeb49d12e205c8f9b6b9c","text":"at the institute near Sibiu does Dean Marin teach a class called Between Two Rivers"}
+{"id":"id2::44d6f11380435ffecf8082fe","text":"Keiko said that when the workshop ends the archive opens again"}
+{"id":"id2::4501b5ba13f386b9f2ac7213","text":"Please seat Farah beside her aunt."}
+{"id":"id2::45207010e5070cfaefae66d6","text":"Who made The Quiet Harbour?"}
+{"id":"id2::4622726c46c00b54db5fe67b","text":"because Doru has the only car can he take Auntie's cake to the hall"}
+{"id":"id2::4695976b9784cd6b42b61b6d","text":"Can you confirm that Chioma raises Cristina?"}
+{"id":"id2::46d0c3da7bb1eacda1088435","text":"Are Zoltán's shoes in class?"}
+{"id":"id2::476a99920b1d36d631d2f5dd","text":"I need to know if he maintains the billing service."}
+{"id":"id2::48bd750561720ae09f76a7fe","text":"after the christening ends we can give the grandparents the framed photograph"}
+{"id":"id2::494a0719bf101cb51846b43b","text":"Is it correct that Moritz studies at Botoșani Arts High School?"}
+{"id":"id2::4974ef643c4bc8583b1a065a","text":"Dorin works for Blue Harbor Media."}
+{"id":"id2::4bd6797ad692aafb752d11f9","text":"Gabriela has the guest book."}
+{"id":"id2::4bebf018281cbd4aa682c46b","text":"Which lecture follows statistics?"}
+{"id":"id2::4c01086041384496e6a4e221","text":"The price of the loose tomatoes changed this morning, but the handwritten sign beside the baskets still shows yesterday's price per kilogram in thick black marker."}
+{"id":"id2::4c89dc0e307078818130c696","text":"— can you check whether he is the author of The Clockmaker's Daughter?"}
+{"id":"id2::4cec20b3be1145c1b8a6805e","text":"I work at Atelier Nagy."}
+{"id":"id2::4e111c5fd7009f617d570330","text":"— she gives classes in German?"}
+{"id":"id2::4e7a77c04e81fd81cde5e5e7","text":"Enikő says Achieng Odhiambo checked out The Clockmaker's Daughter."}
+{"id":"id2::4f4948ee884ee47c3f42305d","text":"Mei kept the gift receipts."}
+{"id":"id2::500e371d5ebcc57742017516","text":"In what period was Dorin located in Cluj-Napoca?"}
+{"id":"id2::501203c59cf6fb10dea2d31c","text":"Did Andreea submit the poster?"}
+{"id":"id2::5029ed7d071fddae52462584","text":"\"Wanjiru isn't on the Hanoi Wolves\""}
+{"id":"id2::503020a98b122a362a9bb9d7","text":"True or false: Jack isn't allergic to strawberries."}
+{"id":"id2::50500a0e253db65d12a22270","text":"when the ceremony finishes please ask the ushers to carry the flowers indoors"}
+{"id":"id2::506ae15c52c2117b4e0ba00a","text":"The handrail is loose near the lower ramp landing."}
+{"id":"id2::50e3bad859cff60e296a7af5","text":"Is Ilinca allowed to sign a tax clearance certificate?"}
+{"id":"id2::515e1f14b6fe6192d359f044","text":"is the playground open and can Dima stay till pickup"}
+{"id":"id2::51eb8b2f466c814988811727","text":"Remind me when Mr Farahani was the coach of Constanța United."}
+{"id":"id2::523aa5f5d35b4647316e2580","text":"Diana Șerban manages Levente."}
+{"id":"id2::52d3cbacde9176a6d32c5cc5","text":"Pablo works at Porto Riverside Clinic."}
+{"id":"id2::530f7c4610cb3e838ecb088c","text":"Verify the claim that Takumi is on CS Arad."}
+{"id":"id2::5322b74052f6fc86c94f5309","text":"Hypothetically, if Oluwaseun Okafor did not get the flu shot, can you check whether he is cleared for the lab?"}
+{"id":"id2::53df9aac1af3e2dcc07d786b","text":"João is cleared for the lab."}
+{"id":"id2::542c6985f9daf5fa217a482e","text":"João is not a parent of Mr Kovács."}
+{"id":"id2::54385174fec9541e7f3372b6","text":"I work at Leipzig Logistics; does my brother also work at Leipzig Logistics?"}
+{"id":"id2::54d444d045694cd5efc64228","text":"Taras Shevchenko and Vasile work at Brightfield Foods."}
+{"id":"id2::5500e3f4d1072a5ca3353a39","text":"Paweł is responsible for the billing service."}
+{"id":"id2::56b80a2ce744e0302da26672","text":"I need to know if she is the coach of the Slatina Wolves."}
+{"id":"id2::57aedee1712774f5f8af8617","text":"Not the one by Omar."}
+{"id":"id2::59a56188a0effeb59f907b62","text":"Something for Aunt Ioana."}
+{"id":"id2::59d1ed5d7a582d78722c336a","text":"Mateo cleaned the counter and Jisoo folded the blankets and I checked the tags"}
+{"id":"id2::5a54bc090e3ad92ed30f2d14","text":"How old is Radu?"}
+{"id":"id2::5b42557e3d00c214545aca65","text":"Sofia wants to see the final invitation before we print it."}
+{"id":"id2::5bb7018302c56fb89dce4c6e","text":"Tell me whether he qualifies for the bonus."}
+{"id":"id2::5d01213c0d714c3148b6b2fb","text":"Remind me when Andrei lived in Zalău."}
+{"id":"id2::5d28f4f8542bfa74775d3167","text":"Could you check what made Wanjiru sick?"}
+{"id":"id2::5dc69ceac3c9ca9e547be70b","text":"Background: Kenji is certified and Emeka Balogun is certified."}
+{"id":"id2::5dd487e27192c29957abd4f4","text":"I don't work at Vertex Analytics, but does my sister work at Vertex Analytics?"}
+{"id":"id2::5e271bac58271e156de7e9a8","text":"Tell me whether he has access to the lab."}
+{"id":"id2::5e4270821776410d87e9cc5c","text":"Is Jack on Olimpia Zalău?"}
+{"id":"id2::5e51f60e7f59812d234abe63","text":"If Rafael works at Vertex Analytics, then does Rafael have access to the lab?"}
+{"id":"id2::5e7cfa5066cd95a2493aaece","text":"I'm trying to find out who is enrolled at Dumitrescu Primary School."}
+{"id":"id2::5f861499af71797eb5cf4888","text":"Name the people working for companies located in Ploiești."}
+{"id":"id2::606b58c1df46cfa9942de658","text":"only a few parents came to the meeting and none of them had received the new timetable"}
+{"id":"id2::61dd83a22540455516b92adc","text":"did Rose Hill School send the play tickets"}
+{"id":"id2::63562c999fcc0384bf288aaa","text":"Can you tell Pavel whether the accessible toilet beside the library is open today, and can you tell me whether the toilet near the courtyard has a working lock?"}
+{"id":"id2::6362cde4079096328388e080","text":"Hugo Dubois sent 40 lei to Octavian through the bank."}
+{"id":"id2::63ed476ec70bf89ac5ace7cb","text":"Is the geography project due before the holiday or on the first day back?"}
+{"id":"id2::642a984f6faa32645068172b","text":"The loyalty card works at the front till, but the scanner near the returns counter has rejected it twice since the morning shift started at eight."}
+{"id":"id2::6453a41781cae5b5ad729c2b","text":"Name the people working for companies located in Iași."}
+{"id":"id2::64e47707a6a191cf32ea3e83","text":"I wonder if Małgorzata is eligible for the bonus."}
+{"id":"id2::651808296133c470f6588946","text":"Plus, she doesn't manage Mr Shevchenko."}
+{"id":"id2::6539910bad0c542222e80423","text":"About that extra place."}
+{"id":"id2::657511bf132f951944f14cf8","text":"I wonder if Katrin has access to the lab."}
+{"id":"id2::66198ab09b89e7891d23df86","text":"Which doctors treat someone who is allergic to pollen?"}
+{"id":"id2::66b3b0598435deb82130eaae","text":"Can you confirm that Mateo López is not allergic to ibuprofen?"}
+{"id":"id2::66e5b78d1820ac20cdebf2f5","text":"Did Mathieu fly to Cluj-Napoca again?"}
+{"id":"id2::685edbc4a446c050f85372d4","text":"Is Costin allowed to sign a residence certificate?"}
+{"id":"id2::6888d280f6d57e2249601fb3","text":"Given that Agnieszka works under Quang Nguyễn, is Agnieszka the boss of Quang Nguyễn?"}
+{"id":"id2::689cfce2fdddd709b01e233f","text":"Is it correct that it sells printer ink?"}
+{"id":"id2::68c3b0b12b664f72b1e774ac","text":"Background: Omar is the doctor of Youssef."}
+{"id":"id2::68f1472a7d95e95d07e0fca0","text":"Besides Mr Dumitrescu, can you tell me who plays for CS Slatina?"}
+{"id":"id2::6a1f2cf9ee93ab2f05ac3658","text":"My bag still holds the pens."}
+{"id":"id2::6a721245ce7f44f7ea7e6eaf","text":"Kostas is a parent of Kenji."}

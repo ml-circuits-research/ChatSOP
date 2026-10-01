@@ -2,12 +2,6 @@ import {assert,stable,digest} from '../lib/util.mjs';
 import {atomKey,variable} from '../lib/types.mjs';
 import {definitelyBound} from '../lib/conditions.mjs';
 import {contains,intersect} from '../lib/time.mjs';
-export const LIMITS={maxNodes:5000,maxDepth:8,maxHypotheses:64,maxCandidates:512,maxPlans:1,maxRounds:32,maxFacts:10000,maxJoins:30000,maxAssignments:100000,timeoutMs:3000};
-export class Budget {
- constructor(limits={}){this.limits={...LIMITS,...limits};for(const k of Object.keys(LIMITS))assert(Number.isSafeInteger(this.limits[k])&&this.limits[k]>0,'Invalid reasoning budget '+k);this.nodes=0;this.started=performance.now();this.exhausted=false;this.reason=null;}
- step(n=1){if(this.exhausted)return false;if(this.nodes+n>this.limits.maxNodes){this.exhausted=true;this.reason='maxNodes';return false;}if(performance.now()-this.started>this.limits.timeoutMs){this.exhausted=true;this.reason='timeout';return false;}this.nodes+=n;return true;}
- stats(){return {nodes:this.nodes,exhausted:this.exhausted,reason:this.reason,limits:this.limits};}
-}
 export const flat=x=>Array.isArray(x)?x.flatMap(flat):x==null?[]:[x];
 export const opposite=a=>({...a,neg:!a.neg});
 export const substitute=(a,binding)=>({...a,a:a.a.map(v=>variable(v)?binding[v]??v:v)});
@@ -34,5 +28,5 @@ export function partitions(input=[],memory=null,q=null){
 }
 export function conflicts(facts){const keys=new Set(facts.map(f=>atomKey(f.atom)));return facts.filter(f=>keys.has(atomKey(opposite(f.atom)))).map(f=>atomKey(f.atom));}
 export function queryFor(where,base={}){return {kind:'query',mode:'select',where,select:[...definitelyBound(where)],filters:[],limit:10000,at:Date.now(),asof:Infinity,...base};}
-export function unsupported(code,detail){return {kind:'reasoning',status:'unsupported',code,detail,complete:false,epistemic:'undecided',proof:[]};}
-export function packet(kind,status,data={},budget=null){return {kind,status,complete:!budget?.exhausted,epistemic:'candidate',proof:[],assurance:'Result relative to the supplied finite model and the retained memory view; scores are not truth probabilities.',...data,...(budget?{search:budget.stats()}:{} )};}
+/** Rule 8 (AGENTS.md): an explicit request the route cannot honour is `unsupported`, in the native envelope, and nothing is substituted. */
+export function unsupported(code,detail){return {status:'unsupported',code,detail,complete:false,guarantee:'exact',used:[],notes:[],ignored:[],strategy:'js-reference'};}

@@ -12,7 +12,7 @@ import { Lexicon } from '../sop/lexicon.mjs';
 import { publishKnowledge } from '../sop/ingest.mjs';
 import { Repository } from '../memory/repository.mjs';
 import { Agent } from '../server/agent.mjs';
-import { complete, barePrompt } from '../server/llm.mjs';
+import { complete, barePrompt } from './llm.mjs';
 import { stable, digest } from '../lib/util.mjs';
 import { readJsonlShardedSync } from '../lib/jsonl-shards.mjs';
 import { atomKey } from '../lib/types.mjs';
@@ -22,6 +22,7 @@ import { withInlineWorld, verificationContext } from '../lib/row-world.mjs';
 import { epistemicResult, fraction, distribution } from './contracts.mjs';
 import { referenceFreeRecord, referenceFreeMetrics } from './reference-free.mjs';
 import { tolerantOntology } from './synonyms.mjs';
+import { demoLexicon, seedLayers, DEMO_SEED } from '../lib/knowledge-seeds.mjs';
 import { rowWireComparison, tolerantCanonicalMatch, wireMetrics } from './metrics.mjs';
 import { sliceFields, slices } from './slices.mjs';
 
@@ -154,8 +155,7 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
     assert(row.sop_targets_accepted === undefined || (Array.isArray(row.sop_targets_accepted) && row.sop_targets_accepted.every(text => typeof text === 'string')), `${row.id}: sop_targets_accepted must be a list of SOP strings`);
   }
   const tolerantLexicons = new Map();
-  const ontology = path.resolve(root, config.ontology ?? 'config/ontology.sop');
-  const lexicon = Lexicon.load(ontology);
+  const lexicon = demoLexicon();
   const lexicons = new Map();
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'chatsop-evaluation-'));
   const records = [];
@@ -279,7 +279,7 @@ export async function evaluate(rows, { predictor, config = {}, source = 'predict
           // content words and their dictionary synonyms, as production links them) and with evaluation-only relation
           // synonyms added to the world's predicate declarations (eval/synonyms.mjs); every gold keeps its strict signature.
           stage = 'tolerant';
-          const worldOntology = typeof row.ontology_sop === 'string' && row.ontology_sop.trim() ? row.ontology_sop : fs.readFileSync(ontology, 'utf8');
+          const worldOntology = typeof row.ontology_sop === 'string' && row.ontology_sop.trim() ? row.ontology_sop : seedLayers(DEMO_SEED).map(c => c.text).join('\n\n');
           const tolerant = tolerantOntology(worldOntology, row.verification?.relation_synonyms);
           const key = sha256(tolerant.ontology);
           if (!tolerantLexicons.has(key)) tolerantLexicons.set(key, new Lexicon(tolerant.ontology));
@@ -403,7 +403,7 @@ async function main() {
       predictor = ({ prompt }) => complete(config.formalizer, prompt);
       source = 'endpoint';
     }
-    const lexicon = Lexicon.load(path.resolve(root, config.ontology ?? 'config/ontology.sop'));
+    const lexicon = demoLexicon();
     const report = await evaluateUnlabeled(messages, { predictor, source, lexicon });
     const destination = path.resolve(args.out);
     fs.mkdirSync(path.dirname(destination), { recursive: true });

@@ -1,0 +1,41 @@
+{
+  "format": "chatsop-translate-pairs-v1",
+  "dataset": "bad_english",
+  "name": "translate-jargon-v1",
+  "purpose": "jargon-aware Romanian/mixed to English translation pairs for the translator distillation study (opus-mt-tc-bible-big-roa-en)",
+  "created": "2026-10-01T14:04:36.815Z",
+  "training_authorized": false,
+  "training_authorization_note": "Owner approval 2026-10-01 (journal decision \"Owner approves opus-mt distillation with jargon-aware data\"): one run plus at most one corrective rerun; see status/training/authorization-opus-translate-distill-v1.json",
+  "review_status": "not_reviewed",
+  "counts": {
+    "train": 4923,
+    "dev": 431,
+    "dev_heldout_terms": 275,
+    "heldout_terms": 166,
+    "distinct_terms": 5090,
+    "clean_rows": 809
+  },
+  "by_writer": {
+    "glm": 1412,
+    "grok": 3943
+  },
+  "dropped_in_assembly": {
+    "term_not_kept": 292,
+    "quote_not_kept": 14,
+    "opus_8gram": 4,
+    "blocklist_target": 7,
+    "romanian_left_in_target": 3,
+    "blocklist_source_post_check": 1
+  },
+  "sources": "datasets/SOURCES.md; DS014 section \"Jargon term sources for translate-jargon-v1\"",
+  "blocklist": "tools/datasets/translate-jargon/blocklist.mjs",
+  "files_sha256": {
+    "train.jsonl": "b493ca05dfb7f156be915b8b8c91d2f53f6459d66092a35d93699ecccf1ea5b6",
+    "dev.jsonl": "1211315f6fcafb53f63484aed078c9c40c4016ab06b0d53df094d8604ae81cf4"
+  },
+  "checks": {
+    "verify": "eval/reports/current/translate-distill/data-checks.json",
+    "no_copy": "eval/reports/current/translate-distill/no-copy.json"
+  },
+  "reassembled": "2026-10-01: blocklist narrowed to the project's own vocabulary (owner decision); qualification must be re-run"
+}

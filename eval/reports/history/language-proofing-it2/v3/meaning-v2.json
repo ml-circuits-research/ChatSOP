@@ -1,0 +1,22 @@
+{
+ "generated_at": "2026-10-01T02:50:23.556Z",
+ "pairs": 66866,
+ "sets_checked": [
+  "train",
+  "dev",
+  "dev-backgen",
+  "dev-heldout"
+ ],
+ "mechanical_failures": 0,
+ "judge_violations": 0,
+ "pairs_by_source": {
+  "backgen": 34586,
+  "it1": 23440,
+  "identity": 9163,
+  "mash": 360,
+  "template": 489,
+  "oversample": 1269
+ },
+ "judge_folder": "datasets_sources/language_proofing_it2_backgen_judge",
+ "note": "noisy_en back-generated pairs need both judge votes (m1 AND m2); ro and mixed pairs are dropped only when both votes say no (the judge is calibrated on English originals only); it1 pairs keep the it1 checks (mechanical only, DeepSeek targets pending review)"
+}

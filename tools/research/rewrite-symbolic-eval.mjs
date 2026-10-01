@@ -36,7 +36,7 @@ const SETS = {
   wild: {suite: UD_SETS.wild.suite, kind: 'wild', strata: UD_SETS.wild.strata},
   ood: {suite: UD_SETS.ood.suite, kind: 'executed', strata: UD_SETS.ood.strata},
   test: {suite: UD_SETS.test500.suite, kind: 'executed', strata: UD_SETS.test500.strata},
-  dev: {suite: 'eval/reports/current/baseline-ud-rules/dev/dev-check.suite.jsonl', kind: 'executed', strata: row => row.question_type},
+  dev: {suite: 'eval/reports/history/baseline-ud-rules/dev/dev-check.suite.jsonl', kind: 'executed', strata: row => row.question_type},
 };
 const CONDITIONS = ['R', 'P-coedit', 'P-gec', 'H', 'Hbest', 'O'];
 const PROOFREADERS = {'P-coedit': 'coedit-small', 'P-gec': 'gec-t5-small'};

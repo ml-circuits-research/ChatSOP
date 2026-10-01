@@ -4,7 +4,7 @@
  * cover (blind planning, a relational mode) is `not_expressible`, never weakened.
  */
 import {gologSwi, NotExpressibleError} from '../../../reasoning/strategies/golog-swi/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 export const gologSwiAdapter = {
   id: 'golog-swi', status: 'available', origin: 'reasoning/strategies/golog-swi/ (Golog interpreter, private swipl)',

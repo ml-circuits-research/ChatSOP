@@ -3,7 +3,7 @@
  * (Stanza UD worker + lib/ud-to-sop at a frozen rules version) turns it into an SOP program that matches the gold of
  * its source row. No human and no LLM judge is involved.
  *
- * A frozen version lives in eval/reports/current/baseline-ud-rules/frozen-rules-<v>/ (SHA256SUMS). Its files import
+ * A frozen version lives in eval/reports/history/baseline-ud-rules/frozen-rules-<v>/ (SHA256SUMS). Its files import
  * the repository parser by a path relative to lib/ud-to-sop/, so `loadFrozenRules(v)` copies the directory to
  * eval/reports/current/proofing/rules/<v>/ after checking every hash, rewrites only the `../../sop/` imports and the
  * worker path to absolute file URLs, and imports the copy. Live edits of lib/ud-to-sop by other agents therefore never
@@ -21,7 +21,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 export const OUT = path.join(ROOT, 'eval/reports/current/proofing');
-const FROZEN = path.join(ROOT, 'eval/reports/current/baseline-ud-rules');
+const FROZEN = path.join(ROOT, 'eval/reports/history/baseline-ud-rules');
 export const sha = text => createHash('sha256').update(text).digest('hex');
 export const readJsonl = file => (fs.existsSync(file) ? fs.readFileSync(file, 'utf8').split('\n').filter(l => l.trim()).map(l => JSON.parse(l)) : []);
 export const writeJsonl = (file, rows) => { fs.mkdirSync(path.dirname(file), {recursive: true}); fs.writeFileSync(file, rows.map(r => JSON.stringify(r)).join('\n') + (rows.length ? '\n' : '')); };

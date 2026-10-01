@@ -1,0 +1,1967 @@
+{
+ "format": "chatsop-grammar-constrained-cpu-v2",
+ "model": "smollm2-360m",
+ "device": "cpu: llama.cpp 99d4026b -ngl 0 CUDA hidden -t 5 -np 1, 1 request at a time, ABBA x2, shared load",
+ "rows": 40,
+ "reps": 2,
+ "sample": "first rows of the stratified test500 order",
+ "summary": {
+  "free": {
+   "latency_ms": {
+    "mean": 1067.3343,
+    "p50": 479.4168,
+    "p95": 5224.0011
+   },
+   "gen_tokens_per_second": {
+    "mean": 117.7776,
+    "p50": 119.0971,
+    "p95": 136.3864
+   },
+   "completion_tokens": 6724,
+   "aggregate_tokens_per_second": 82.4724
+  },
+  "gbnf": {
+   "latency_ms": {
+    "mean": 1043.0495,
+    "p50": 483.9129,
+    "p95": 5556.5493
+   },
+   "gen_tokens_per_second": {
+    "mean": 118.3981,
+    "p50": 120.0595,
+    "p95": 138.1817
+   },
+   "completion_tokens": 6724,
+   "aggregate_tokens_per_second": 86.9931
+  }
+ },
+ "latency_ratio_median": 0.9984,
+ "ms_per_token_ratio_median": 0.9947,
+ "latency_ratio_of_means": 0.9772,
+ "tokens_per_second_ratio": 1.0548,
+ "identical_outputs": 40,
+ "per_message": [
+  {
+   "id": "fv1_028642_0_1",
+   "free_ms": 308.67748400000005,
+   "gbnf_ms": 329.07041699999996,
+   "free_ms_per_token": 7.715861111111112,
+   "gbnf_ms_per_token": 8.701333333333332,
+   "identical": true
+  },
+  {
+   "id": "fv1_026112_0_0",
+   "free_ms": 616.732935,
+   "gbnf_ms": 596.8783060000001,
+   "free_ms_per_token": 8.90594117647059,
+   "gbnf_ms_per_token": 8.546955882352941,
+   "identical": true
+  },
+  {
+   "id": "fv1_016978_0_0",
+   "free_ms": 558.7405689999996,
+   "gbnf_ms": 545.1075730000002,
+   "free_ms_per_token": 8.72858064516129,
+   "gbnf_ms_per_token": 8.547161290322581,
+   "identical": true
+  },
+  {
+   "id": "fv1_008284_0_0",
+   "free_ms": 341.87539599999945,
+   "gbnf_ms": 372.35105099999964,
+   "free_ms_per_token": 7.846523809523809,
+   "gbnf_ms_per_token": 8.1785,
+   "identical": true
+  },
+  {
+   "id": "fv1_002449_0_1",
+   "free_ms": 285.73959000000013,
+   "gbnf_ms": 303.09200899999996,
+   "free_ms_per_token": 7.432297297297297,
+   "gbnf_ms_per_token": 7.847216216216216,
+   "identical": true
+  },
+  {
+   "id": "fv1_004217_0_0",
+   "free_ms": 610.5263400000003,
+   "gbnf_ms": 558.7609520000005,
+   "free_ms_per_token": 8.426112676056338,
+   "gbnf_ms_per_token": 7.659197183098591,
+   "identical": true
+  },
+  {
+   "id": "fv1_014096_0_0",
+   "free_ms": 479.41683600000033,
+   "gbnf_ms": 483.91294899999957,
+   "free_ms_per_token": 8.080982456140351,
+   "gbnf_ms_per_token": 8.130508771929826,
+   "identical": true
+  },
+  {
+   "id": "fv1_006917_0_0",
+   "free_ms": 621.1331890000001,
+   "gbnf_ms": 619.6621489999998,
+   "free_ms_per_token": 8.233243243243242,
+   "gbnf_ms_per_token": 8.189797297297297,
+   "identical": true
+  },
+  {
+   "id": "fv1_002257_0_0",
+   "free_ms": 350.42515600000115,
+   "gbnf_ms": 327.8036150000007,
+   "free_ms_per_token": 9.059945945945946,
+   "gbnf_ms_per_token": 8.468081081081081,
+   "identical": true
+  },
+  {
+   "id": "fv1_025993_0_0",
+   "free_ms": 312.6969559999998,
+   "gbnf_ms": 312.20674599999984,
+   "free_ms_per_token": 8.280388888888888,
+   "gbnf_ms_per_token": 8.28361111111111,
+   "identical": true
+  },
+  {
+   "id": "fv1_018580_0_0",
+   "free_ms": 363.40306300000157,
+   "gbnf_ms": 338.547681,
+   "free_ms_per_token": 8.361833333333333,
+   "gbnf_ms_per_token": 7.729904761904762,
+   "identical": true
+  },
+  {
+   "id": "fv1_015080_0_0",
+   "free_ms": 19935.232571,
+   "gbnf_ms": 18726.489258,
+   "free_ms_per_token": 20.317796523517384,
+   "gbnf_ms_per_token": 19.118134969325155,
+   "identical": true
+  },
+  {
+   "id": "fv1_016414_0_1",
+   "free_ms": 412.80704899999546,
+   "gbnf_ms": 439.00850899999205,
+   "free_ms_per_token": 8.00882,
+   "gbnf_ms_per_token": 8.47168,
+   "identical": true
+  },
+  {
+   "id": "fv1_016251_0_0",
+   "free_ms": 647.6300390000106,
+   "gbnf_ms": 674.6852459999936,
+   "free_ms_per_token": 9.180608695652174,
+   "gbnf_ms_per_token": 9.550942028985506,
+   "identical": true
+  },
+  {
+   "id": "fv1_012660_0_0",
+   "free_ms": 345.38153699999384,
+   "gbnf_ms": 372.760958999992,
+   "free_ms_per_token": 9.139666666666667,
+   "gbnf_ms_per_token": 9.936833333333333,
+   "identical": true
+  },
+  {
+   "id": "fv1_023812_0_0",
+   "free_ms": 854.2454709999874,
+   "gbnf_ms": 867.4611659999937,
+   "free_ms_per_token": 10.20720731707317,
+   "gbnf_ms_per_token": 10.109817073170731,
+   "identical": true
+  },
+  {
+   "id": "fv1_025698_0",
+   "free_ms": 96.33331799998996,
+   "gbnf_ms": 105.57100299999001,
+   "free_ms_per_token": 8.4429,
+   "gbnf_ms_per_token": 8.7706,
+   "identical": true
+  },
+  {
+   "id": "fv1_031181_0_0",
+   "free_ms": 325.4039349999948,
+   "gbnf_ms": 290.7682679999998,
+   "free_ms_per_token": 8.647222222222222,
+   "gbnf_ms_per_token": 7.626611111111111,
+   "identical": true
+  },
+  {
+   "id": "fv1_020950_0_0",
+   "free_ms": 221.76545399999304,
+   "gbnf_ms": 266.7878860000055,
+   "free_ms_per_token": 8.409640000000001,
+   "gbnf_ms_per_token": 9.87576,
+   "identical": true
+  },
+  {
+   "id": "fv1_003226_0_0",
+   "free_ms": 254.20467599999392,
+   "gbnf_ms": 263.09503199999745,
+   "free_ms_per_token": 7.995866666666667,
+   "gbnf_ms_per_token": 8.3292,
+   "identical": true
+  },
+  {
+   "id": "fv1_002572_0_0",
+   "free_ms": 732.9673110000003,
+   "gbnf_ms": 716.2042990000045,
+   "free_ms_per_token": 8.900543209876544,
+   "gbnf_ms_per_token": 8.620765432098766,
+   "identical": true
+  },
+  {
+   "id": "fv1_003243_0_0",
+   "free_ms": 463.94592899999407,
+   "gbnf_ms": 397.8538910000061,
+   "free_ms_per_token": 12.125,
+   "gbnf_ms_per_token": 10.244837837837839,
+   "identical": true
+  },
+  {
+   "id": "fv1_011516_0_0",
+   "free_ms": 614.5069010000007,
+   "gbnf_ms": 639.6867800000036,
+   "free_ms_per_token": 8.576185714285714,
+   "gbnf_ms_per_token": 8.9185,
+   "identical": true
+  },
+  {
+   "id": "fv1_001721_0_0",
+   "free_ms": 487.8176769999991,
+   "gbnf_ms": 532.4513069999957,
+   "free_ms_per_token": 9.079653846153846,
+   "gbnf_ms_per_token": 9.922923076923077,
+   "identical": true
+  },
+  {
+   "id": "fv1_032436_0_0",
+   "free_ms": 580.1071850000008,
+   "gbnf_ms": 573.0557600000029,
+   "free_ms_per_token": 8.445194029850747,
+   "gbnf_ms_per_token": 8.329462686567163,
+   "identical": true
+  },
+  {
+   "id": "fv1_006620_0_0",
+   "free_ms": 996.6760090000025,
+   "gbnf_ms": 964.5782019999897,
+   "free_ms_per_token": 9.260349056603774,
+   "gbnf_ms_per_token": 8.969273584905661,
+   "identical": true
+  },
+  {
+   "id": "fv1_022094_0_0",
+   "free_ms": 633.0233149999985,
+   "gbnf_ms": 657.5649409999896,
+   "free_ms_per_token": 8.728225352112675,
+   "gbnf_ms_per_token": 9.068197183098592,
+   "identical": true
+  },
+  {
+   "id": "fv1_014701_0_0",
+   "free_ms": 627.7683319999924,
+   "gbnf_ms": 624.2140990000044,
+   "free_ms_per_token": 9.446184615384615,
+   "gbnf_ms_per_token": 9.256723076923077,
+   "identical": true
+  },
+  {
+   "id": "fv1_008361_0_0",
+   "free_ms": 337.9551829999982,
+   "gbnf_ms": 344.03419000000576,
+   "free_ms_per_token": 8.259051282051283,
+   "gbnf_ms_per_token": 8.38951282051282,
+   "identical": true
+  },
+  {
+   "id": "fv1_004667_0_0",
+   "free_ms": 601.8466509999998,
+   "gbnf_ms": 610.9106940000056,
+   "free_ms_per_token": 9.340476190476192,
+   "gbnf_ms_per_token": 9.433698412698412,
+   "identical": true
+  },
+  {
+   "id": "fv1_032010_0_0",
+   "free_ms": 352.92382499999076,
+   "gbnf_ms": 367.8044660000014,
+   "free_ms_per_token": 8.963657894736842,
+   "gbnf_ms_per_token": 9.156184210526316,
+   "identical": true
+  },
+  {
+   "id": "fv1_019875_0_0",
+   "free_ms": 367.04269800000475,
+   "gbnf_ms": 404.6904099999956,
+   "free_ms_per_token": 8.401309523809525,
+   "gbnf_ms_per_token": 9.305523809523809,
+   "identical": true
+  },
+  {
+   "id": "fv1_029346_0_0",
+   "free_ms": 5224.0011049999885,
+   "gbnf_ms": 5556.549333000003,
+   "free_ms_per_token": 11.121010683760684,
+   "gbnf_ms_per_token": 11.83434188034188,
+   "identical": true
+  },
+  {
+   "id": "fv1_031266_0_0",
+   "free_ms": 268.0741229999985,
+   "gbnf_ms": 220.16467299999204,
+   "free_ms_per_token": 9.731307692307693,
+   "gbnf_ms_per_token": 7.870038461538462,
+   "identical": true
+  },
+  {
+   "id": "fv1_012616_0_0",
+   "free_ms": 293.80009400000563,
+   "gbnf_ms": 285.39849900000263,
+   "free_ms_per_token": 8.030114285714285,
+   "gbnf_ms_per_token": 7.697971428571428,
+   "identical": true
+  },
+  {
+   "id": "fv1_026267_0_0",
+   "free_ms": 664.4985650000162,
+   "gbnf_ms": 635.2427259999968,
+   "free_ms_per_token": 10.10503125,
+   "gbnf_ms_per_token": 9.67534375,
+   "identical": true
+  },
+  {
+   "id": "fv1_007155_0_0",
+   "free_ms": 522.941021000006,
+   "gbnf_ms": 507.2270800000115,
+   "free_ms_per_token": 10.350122448979592,
+   "gbnf_ms_per_token": 9.998367346938776,
+   "identical": true
+  },
+  {
+   "id": "fv1_002767_0",
+   "free_ms": 91.0906959999993,
+   "gbnf_ms": 81.18096500000684,
+   "free_ms_per_token": 7.5154,
+   "gbnf_ms_per_token": 6.6979,
+   "identical": true
+  },
+  {
+   "id": "fv1_026794_0_0",
+   "free_ms": 300.3444160000072,
+   "gbnf_ms": 295.42348100000527,
+   "free_ms_per_token": 7.700378378378378,
+   "gbnf_ms_per_token": 7.607945945945946,
+   "identical": true
+  },
+  {
+   "id": "fv1_030584_0_0",
+   "free_ms": 589.6692029999977,
+   "gbnf_ms": 513.7251810000162,
+   "free_ms_per_token": 8.978859375,
+   "gbnf_ms_per_token": 7.77315625,
+   "identical": true
+  }
+ ],
+ "records": [
+  {
+   "id": "fv1_028642_0_1",
+   "condition": "free",
+   "ms": 308.67748400000005,
+   "completion_tokens": 36,
+   "gen_tps": 129.60316231716052,
+   "prompt_ms": 9.736,
+   "predicted_ms": 277.771,
+   "text": "@q query\n  where match\n    relation \"depend on\"\n    role subject \"the VPN gateway\"\n    role object \"the payroll database\"\n    polarity negated\n  end\n"
+  },
+  {
+   "id": "fv1_028642_0_1",
+   "condition": "gbnf",
+   "ms": 329.07041699999996,
+   "completion_tokens": 36,
+   "gen_tps": 114.92491572172848,
+   "prompt_ms": 9.84,
+   "predicted_ms": 313.248,
+   "text": "@q query\n  where match\n    relation \"depend on\"\n    role subject \"the VPN gateway\"\n    role object \"the payroll database\"\n    polarity negated\n  end\n"
+  },
+  {
+   "id": "fv1_028642_0_1",
+   "condition": "gbnf",
+   "ms": 290.85602300000005,
+   "completion_tokens": 36,
+   "gen_tps": 129.27226894377372,
+   "prompt_ms": 7.227,
+   "predicted_ms": 278.482,
+   "text": "@q query\n  where match\n    relation \"depend on\"\n    role subject \"the VPN gateway\"\n    role object \"the payroll database\"\n    polarity negated\n  end\n"
+  },
+  {
+   "id": "fv1_028642_0_1",
+   "condition": "free",
+   "ms": 284.25136599999996,
+   "completion_tokens": 36,
+   "gen_tps": 131.82853501878557,
+   "prompt_ms": 7.422,
+   "predicted_ms": 273.082,
+   "text": "@q query\n  where match\n    relation \"depend on\"\n    role subject \"the VPN gateway\"\n    role object \"the payroll database\"\n    polarity negated\n  end\n"
+  },
+  {
+   "id": "fv1_026112_0_0",
+   "condition": "gbnf",
+   "ms": 596.8783060000001,
+   "completion_tokens": 68,
+   "gen_tps": 117.0007209309128,
+   "prompt_ms": 9.131,
+   "predicted_ms": 581.193,
+   "text": "@q query\n  where match\n    relation \"teach\"\n    role subject \"Hao\"\n    role object \"piano\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"borrow\"\n    role subject \"Hao\"\n    role object \"The Salt Road\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_026112_0_0",
+   "condition": "free",
+   "ms": 583.7927030000001,
+   "completion_tokens": 68,
+   "gen_tps": 119.87406172103897,
+   "prompt_ms": 10.444,
+   "predicted_ms": 567.262,
+   "text": "@q query\n  where match\n    relation \"teach\"\n    role subject \"Hao\"\n    role object \"piano\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"borrow\"\n    role subject \"Hao\"\n    role object \"The Salt Road\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_026112_0_0",
+   "condition": "free",
+   "ms": 616.732935,
+   "completion_tokens": 68,
+   "gen_tps": 112.28459521403424,
+   "prompt_ms": 7.409,
+   "predicted_ms": 605.604,
+   "text": "@q query\n  where match\n    relation \"teach\"\n    role subject \"Hao\"\n    role object \"piano\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"borrow\"\n    role subject \"Hao\"\n    role object \"The Salt Road\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_026112_0_0",
+   "condition": "gbnf",
+   "ms": 595.79781,
+   "completion_tokens": 68,
+   "gen_tps": 118.16489911671738,
+   "prompt_ms": 14.64,
+   "predicted_ms": 575.467,
+   "text": "@q query\n  where match\n    relation \"teach\"\n    role subject \"Hao\"\n    role object \"piano\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"borrow\"\n    role subject \"Hao\"\n    role object \"The Salt Road\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_016978_0_0",
+   "condition": "free",
+   "ms": 558.7405689999996,
+   "completion_tokens": 62,
+   "gen_tps": 114.56616380744015,
+   "prompt_ms": 8.523,
+   "predicted_ms": 541.172,
+   "text": "@q query\n  mode every\n  where match\n    relation \"be a student at\"\n    role subject ?m\n    role object \"Buzău Arts High School\"\n    polarity affirmed\n  end\n  scope match\n    relation \"have the flu shot\"\n    role subject ?m\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_016978_0_0",
+   "condition": "gbnf",
+   "ms": 510.0415489999996,
+   "completion_tokens": 62,
+   "gen_tps": 125.81219891314493,
+   "prompt_ms": 10.244,
+   "predicted_ms": 492.798,
+   "text": "@q query\n  mode every\n  where match\n    relation \"be a student at\"\n    role subject ?m\n    role object \"Buzău Arts High School\"\n    polarity affirmed\n  end\n  scope match\n    relation \"have the flu shot\"\n    role subject ?m\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_016978_0_0",
+   "condition": "gbnf",
+   "ms": 545.1075730000002,
+   "completion_tokens": 62,
+   "gen_tps": 116.99790913414,
+   "prompt_ms": 8.756,
+   "predicted_ms": 529.924,
+   "text": "@q query\n  mode every\n  where match\n    relation \"be a student at\"\n    role subject ?m\n    role object \"Buzău Arts High School\"\n    polarity affirmed\n  end\n  scope match\n    relation \"have the flu shot\"\n    role subject ?m\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_016978_0_0",
+   "condition": "free",
+   "ms": 534.7194419999996,
+   "completion_tokens": 62,
+   "gen_tps": 118.37302011577644,
+   "prompt_ms": 6.946,
+   "predicted_ms": 523.768,
+   "text": "@q query\n  mode every\n  where match\n    relation \"be a student at\"\n    role subject ?m\n    role object \"Buzău Arts High School\"\n    polarity affirmed\n  end\n  scope match\n    relation \"have the flu shot\"\n    role subject ?m\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_008284_0_0",
+   "condition": "gbnf",
+   "ms": 350.3621010000006,
+   "completion_tokens": 42,
+   "gen_tps": 124.17438814548508,
+   "prompt_ms": 6.509,
+   "predicted_ms": 338.234,
+   "text": "@q query\n  where match\n    relation \"be enrolled at\"\n    role subject \"Elena\"\n    role object \"Colegiul Tehnic din Galati\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_008284_0_0",
+   "condition": "free",
+   "ms": 341.87539599999945,
+   "completion_tokens": 42,
+   "gen_tps": 127.4449710821292,
+   "prompt_ms": 6.924,
+   "predicted_ms": 329.554,
+   "text": "@q query\n  where match\n    relation \"be enrolled at\"\n    role subject \"Elena\"\n    role object \"Colegiul Tehnic din Galati\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_008284_0_0",
+   "condition": "free",
+   "ms": 331.738832,
+   "completion_tokens": 42,
+   "gen_tps": 131.88842239465413,
+   "prompt_ms": 8.715,
+   "predicted_ms": 318.451,
+   "text": "@q query\n  where match\n    relation \"be enrolled at\"\n    role subject \"Elena\"\n    role object \"Colegiul Tehnic din Galati\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_008284_0_0",
+   "condition": "gbnf",
+   "ms": 372.35105099999964,
+   "completion_tokens": 42,
+   "gen_tps": 122.27181023415052,
+   "prompt_ms": 23.214,
+   "predicted_ms": 343.497,
+   "text": "@q query\n  where match\n    relation \"be enrolled at\"\n    role subject \"Elena\"\n    role object \"Colegiul Tehnic din Galati\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_002449_0_1",
+   "condition": "free",
+   "ms": 285.73959000000013,
+   "completion_tokens": 37,
+   "gen_tps": 134.54790087092493,
+   "prompt_ms": 6.465,
+   "predicted_ms": 274.995,
+   "text": "@q query\n  select ?place\n  where match\n    relation \"take place at\"\n    role subject \"the wedding reception\"\n    role location ?place\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_002449_0_1",
+   "condition": "gbnf",
+   "ms": 303.09200899999996,
+   "completion_tokens": 37,
+   "gen_tps": 127.43372585217,
+   "prompt_ms": 6.84,
+   "predicted_ms": 290.347,
+   "text": "@q query\n  select ?place\n  where match\n    relation \"take place at\"\n    role subject \"the wedding reception\"\n    role location ?place\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_002449_0_1",
+   "condition": "gbnf",
+   "ms": 299.835881,
+   "completion_tokens": 37,
+   "gen_tps": 129.255835726313,
+   "prompt_ms": 8.441,
+   "predicted_ms": 286.254,
+   "text": "@q query\n  select ?place\n  where match\n    relation \"take place at\"\n    role subject \"the wedding reception\"\n    role location ?place\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_002449_0_1",
+   "condition": "free",
+   "ms": 264.72303999999986,
+   "completion_tokens": 37,
+   "gen_tps": 145.96582032791022,
+   "prompt_ms": 6.83,
+   "predicted_ms": 253.484,
+   "text": "@q query\n  select ?place\n  where match\n    relation \"take place at\"\n    role subject \"the wedding reception\"\n    role location ?place\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_004217_0_0",
+   "condition": "gbnf",
+   "ms": 558.7609520000005,
+   "completion_tokens": 71,
+   "gen_tps": 130.5619866017657,
+   "prompt_ms": 8.613,
+   "predicted_ms": 543.803,
+   "text": "@a1 assumed\n  relation \"mean\"\n  role subject \"a facut\"\n  role object \"a scris\"\n  polarity affirmed\n  basis disambiguation\n\n@q query\n  select ?x\n  where match\n    relation \"make\"\n    role subject ?x\n    role object \"The Last Ferry\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_004217_0_0",
+   "condition": "free",
+   "ms": 560.3062000000009,
+   "completion_tokens": 71,
+   "gen_tps": 130.45259701722892,
+   "prompt_ms": 9.914,
+   "predicted_ms": 544.259,
+   "text": "@a1 assumed\n  relation \"mean\"\n  role subject \"a facut\"\n  role object \"a scris\"\n  polarity affirmed\n  basis disambiguation\n\n@q query\n  select ?x\n  where match\n    relation \"make\"\n    role subject ?x\n    role object \"The Last Ferry\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_004217_0_0",
+   "condition": "free",
+   "ms": 610.5263400000003,
+   "completion_tokens": 71,
+   "gen_tps": 118.67868831633386,
+   "prompt_ms": 9.278,
+   "predicted_ms": 598.254,
+   "text": "@a1 assumed\n  relation \"mean\"\n  role subject \"a facut\"\n  role object \"a scris\"\n  polarity affirmed\n  basis disambiguation\n\n@q query\n  select ?x\n  where match\n    relation \"make\"\n    role subject ?x\n    role object \"The Last Ferry\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_004217_0_0",
+   "condition": "gbnf",
+   "ms": 545.2711399999989,
+   "completion_tokens": 71,
+   "gen_tps": 133.77876007815695,
+   "prompt_ms": 8.812,
+   "predicted_ms": 530.727,
+   "text": "@a1 assumed\n  relation \"mean\"\n  role subject \"a facut\"\n  role object \"a scris\"\n  polarity affirmed\n  basis disambiguation\n\n@q query\n  select ?x\n  where match\n    relation \"make\"\n    role subject ?x\n    role object \"The Last Ferry\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_014096_0_0",
+   "condition": "free",
+   "ms": 476.4778750000005,
+   "completion_tokens": 57,
+   "gen_tps": 123.74732966288623,
+   "prompt_ms": 10.787,
+   "predicted_ms": 460.616,
+   "text": "@q query\n  where match\n    relation \"go to\"\n    role subject \"Luminița\"\n    role object \"Piatra Neamț Arts High School\"\n    polarity affirmed\n  end\n  at \"18 February 2021\"\n"
+  },
+  {
+   "id": "fv1_014096_0_0",
+   "condition": "gbnf",
+   "ms": 483.91294899999957,
+   "completion_tokens": 57,
+   "gen_tps": 122.99353312949492,
+   "prompt_ms": 12.976,
+   "predicted_ms": 463.439,
+   "text": "@q query\n  where match\n    relation \"go to\"\n    role subject \"Luminița\"\n    role object \"Piatra Neamț Arts High School\"\n    polarity affirmed\n  end\n  at \"18 February 2021\"\n"
+  },
+  {
+   "id": "fv1_014096_0_0",
+   "condition": "gbnf",
+   "ms": 468.7062569999998,
+   "completion_tokens": 57,
+   "gen_tps": 129.48071418836037,
+   "prompt_ms": 22.681,
+   "predicted_ms": 440.22,
+   "text": "@q query\n  where match\n    relation \"go to\"\n    role subject \"Luminița\"\n    role object \"Piatra Neamț Arts High School\"\n    polarity affirmed\n  end\n  at \"18 February 2021\"\n"
+  },
+  {
+   "id": "fv1_014096_0_0",
+   "condition": "free",
+   "ms": 479.41683600000033,
+   "completion_tokens": 57,
+   "gen_tps": 124.62203448750829,
+   "prompt_ms": 16.73,
+   "predicted_ms": 457.383,
+   "text": "@q query\n  where match\n    relation \"go to\"\n    role subject \"Luminița\"\n    role object \"Piatra Neamț Arts High School\"\n    polarity affirmed\n  end\n  at \"18 February 2021\"\n"
+  },
+  {
+   "id": "fv1_006917_0_0",
+   "condition": "gbnf",
+   "ms": 603.1082580000002,
+   "completion_tokens": 74,
+   "gen_tps": 125.45328475691731,
+   "prompt_ms": 6.836,
+   "predicted_ms": 589.861,
+   "text": "@q query\n  where match\n    relation \"write\"\n    role subject \"Lukas\"\n    role object \"Soups of Transylvania\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"be allergic to\"\n    role subject \"Lukas\"\n    role object \"cat hair\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_006917_0_0",
+   "condition": "free",
+   "ms": 621.1331890000001,
+   "completion_tokens": 74,
+   "gen_tps": 121.45881889505301,
+   "prompt_ms": 6.664,
+   "predicted_ms": 609.26,
+   "text": "@q query\n  where match\n    relation \"write\"\n    role subject \"Lukas\"\n    role object \"Soups of Transylvania\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"be allergic to\"\n    role subject \"Lukas\"\n    role object \"cat hair\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_006917_0_0",
+   "condition": "free",
+   "ms": 613.5968200000007,
+   "completion_tokens": 74,
+   "gen_tps": 122.79426650338347,
+   "prompt_ms": 7.663,
+   "predicted_ms": 602.634,
+   "text": "@q query\n  where match\n    relation \"write\"\n    role subject \"Lukas\"\n    role object \"Soups of Transylvania\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"be allergic to\"\n    role subject \"Lukas\"\n    role object \"cat hair\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_006917_0_0",
+   "condition": "gbnf",
+   "ms": 619.6621489999998,
+   "completion_tokens": 74,
+   "gen_tps": 122.10314415596203,
+   "prompt_ms": 8.055,
+   "predicted_ms": 606.045,
+   "text": "@q query\n  where match\n    relation \"write\"\n    role subject \"Lukas\"\n    role object \"Soups of Transylvania\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"be allergic to\"\n    role subject \"Lukas\"\n    role object \"cat hair\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_002257_0_0",
+   "condition": "free",
+   "ms": 327.43623900000057,
+   "completion_tokens": 37,
+   "gen_tps": 118.55706439891568,
+   "prompt_ms": 10.724,
+   "predicted_ms": 312.086,
+   "text": "@q query\n  select ?x\n  where match\n    relation \"take place at\"\n    role subject \"the product launch\"\n    role location ?x\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_002257_0_0",
+   "condition": "gbnf",
+   "ms": 283.48153999999886,
+   "completion_tokens": 37,
+   "gen_tps": 136.67459625585485,
+   "prompt_ms": 8.435,
+   "predicted_ms": 270.716,
+   "text": "@q query\n  select ?x\n  where match\n    relation \"take place at\"\n    role subject \"the product launch\"\n    role location ?x\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_002257_0_0",
+   "condition": "gbnf",
+   "ms": 327.8036150000007,
+   "completion_tokens": 37,
+   "gen_tps": 118.09050839559681,
+   "prompt_ms": 9.274,
+   "predicted_ms": 313.319,
+   "text": "@q query\n  select ?x\n  where match\n    relation \"take place at\"\n    role subject \"the product launch\"\n    role location ?x\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_002257_0_0",
+   "condition": "free",
+   "ms": 350.42515600000115,
+   "completion_tokens": 37,
+   "gen_tps": 110.37593446652626,
+   "prompt_ms": 11.195,
+   "predicted_ms": 335.218,
+   "text": "@q query\n  select ?x\n  where match\n    relation \"take place at\"\n    role subject \"the product launch\"\n    role location ?x\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_025993_0_0",
+   "condition": "gbnf",
+   "ms": 303.922297000001,
+   "completion_tokens": 36,
+   "gen_tps": 124.23346228306596,
+   "prompt_ms": 8.778,
+   "predicted_ms": 289.777,
+   "text": "@q query\n  where match\n    relation \"be allergic to\"\n    role subject \"Ms Tóth\"\n    role object \"dust mites\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_025993_0_0",
+   "condition": "free",
+   "ms": 299.3327910000007,
+   "completion_tokens": 36,
+   "gen_tps": 125.01779767258533,
+   "prompt_ms": 7.333,
+   "predicted_ms": 287.959,
+   "text": "@q query\n  where match\n    relation \"be allergic to\"\n    role subject \"Ms Tóth\"\n    role object \"dust mites\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_025993_0_0",
+   "condition": "free",
+   "ms": 312.6969559999998,
+   "completion_tokens": 36,
+   "gen_tps": 120.76727475225935,
+   "prompt_ms": 10.75,
+   "predicted_ms": 298.094,
+   "text": "@q query\n  where match\n    relation \"be allergic to\"\n    role subject \"Ms Tóth\"\n    role object \"dust mites\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_025993_0_0",
+   "condition": "gbnf",
+   "ms": 312.20674599999984,
+   "completion_tokens": 36,
+   "gen_tps": 120.72029777673453,
+   "prompt_ms": 8.696,
+   "predicted_ms": 298.21,
+   "text": "@q query\n  where match\n    relation \"be allergic to\"\n    role subject \"Ms Tóth\"\n    role object \"dust mites\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_018580_0_0",
+   "condition": "free",
+   "ms": 320.6281409999974,
+   "completion_tokens": 42,
+   "gen_tps": 135.57177395666224,
+   "prompt_ms": 6.907,
+   "predicted_ms": 309.799,
+   "text": "@q query\n  select ?how\n  where match\n    relation \"settle the bill\"\n    role subject \"Wojciech Mazur\"\n    role instrument ?how\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_018580_0_0",
+   "condition": "gbnf",
+   "ms": 338.547681,
+   "completion_tokens": 42,
+   "gen_tps": 129.36769996550194,
+   "prompt_ms": 8.867,
+   "predicted_ms": 324.656,
+   "text": "@q query\n  select ?how\n  where match\n    relation \"settle the bill\"\n    role subject \"Wojciech Mazur\"\n    role instrument ?how\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_018580_0_0",
+   "condition": "gbnf",
+   "ms": 324.5373260000015,
+   "completion_tokens": 42,
+   "gen_tps": 135.59059388680126,
+   "prompt_ms": 9.195,
+   "predicted_ms": 309.756,
+   "text": "@q query\n  select ?how\n  where match\n    relation \"settle the bill\"\n    role subject \"Wojciech Mazur\"\n    role instrument ?how\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_018580_0_0",
+   "condition": "free",
+   "ms": 363.40306300000157,
+   "completion_tokens": 42,
+   "gen_tps": 119.59099878415817,
+   "prompt_ms": 7.998,
+   "predicted_ms": 351.197,
+   "text": "@q query\n  select ?how\n  where match\n    relation \"settle the bill\"\n    role subject \"Wojciech Mazur\"\n    role instrument ?how\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_015080_0_0",
+   "condition": "gbnf",
+   "ms": 15423.088092000002,
+   "completion_tokens": 978,
+   "gen_tps": 63.547696347274524,
+   "prompt_ms": 15.68,
+   "predicted_ms": 15390.015,
+   "text": "@s1 stated\n  relation \"be located in\"\n  role subject \"Școala de Limbi din Reșița\"\n  role location \"Timișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be the author of\"\n  role subject \"Natalia Cebotari\"\n  role object \"Soups of Transylvania\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be the boss of\"\n  role subject \"Silviu\"\n  role object \"Achieng\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"be the boss of\"\n  role subject \"Adaeze Eze\"\n  role object \"Florică Stoian\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"have for sale\"\n  role subject \"Constantinescu & Asociații\"\n  role object \"phone cases\"\n  polarity negated\n  certainty asserted\n\n@s6 stated\n  relation \"have for sale\"\n  role subject \"Sistemele Nordwind\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"plan to attend\"\n  role subject \"Amira Saleh\"\n  role object \"the jazz evening\"\n  polarity negated\n  certainty asserted\n\n@s8 stated\n  relation \"require\"\n  role subject \"a birth certificate\"\n  role object \"Administrația Financiară Orhei\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"be the boss of\"\n  role subject \"Mohammad\"\n  role object \"Mihai\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"be the boss of\"\n  role subject \"Tunde Balogun\"\n  role object \"Hao\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"have for sale\"\n  role subject \"Buzau Logistic\"\n  role object \"movable property\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"have for sale\"\n  role subject \"Brightfield Foods\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"issue\"\n  role subject \"Serviciul de Pașapoarte Târgu Mureș\"\n  role object \"a work permit\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"depend on\"\n  role subject \"the VPN gateway\"\n  role object \"the mail server\"\n  polarity negated\n  certainty asserted\n\n@s15 stated\n  relation \"rely on\"\n  role subject \"the payroll database\"\n  role object \"the billing service\"\n  polarity negated\n  certainty asserted\n\n@s16 stated\n  relation \"require\"\n  role subject \"a driving licence\"\n  role object \"a medical certificate\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"require\"\n  role subject \"a building permit\"\n  role object \"an ID card\"\n  polarity negated\n  certainty asserted\n\n@s18 stated\n  relation \"have an allergy to\"\n  role subject \"Rubina\"\n  role object \"pollen\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"be the boss of\"\n  role subject \"Grace Bennett\"\n  role object \"Arjun Gupta\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"be the boss of\"\n    role subject \"Arjun Gupta\"\n    role object \"Grace Bennett\"\n    polarity affirmed\n  end\n\n@q2 query\n  mode count\n  select ?x\n  where match\n    relation \"write\"\n    role subject ?x\n    role object \"The Last Ferry\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?t\n  where match\n    relation \"be the coach of\"\n    role subject \"Jürgen\"\n    role object \"Rapid Alexandria\"\n    role time ?t\n    polarity affirmed\n  end\n\n@q4 query\n  select ?x\n  where match\n    relation \"travel to\"\n    role subject ?x\n    role destination \"Călărași\"\n    polarity affirmed\n  end\n\n@q5 query\n  select ?x\n  where match\n    relation \"sell\"\n    role subject \"Atelierul Lazăr\"\n    role object ?x\n    polarity affirmed\n  end\n\n@q6 query\n  where match\n    relation \"want to learn\"\n    role subject \"Oare\"\n    role topic \"physical education\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_015080_0_0",
+   "condition": "free",
+   "ms": 19935.232571,
+   "completion_tokens": 978,
+   "gen_tps": 49.21793555922873,
+   "prompt_ms": 32.025,
+   "predicted_ms": 19870.805,
+   "text": "@s1 stated\n  relation \"be located in\"\n  role subject \"Școala de Limbi din Reșița\"\n  role location \"Timișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be the author of\"\n  role subject \"Natalia Cebotari\"\n  role object \"Soups of Transylvania\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be the boss of\"\n  role subject \"Silviu\"\n  role object \"Achieng\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"be the boss of\"\n  role subject \"Adaeze Eze\"\n  role object \"Florică Stoian\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"have for sale\"\n  role subject \"Constantinescu & Asociații\"\n  role object \"phone cases\"\n  polarity negated\n  certainty asserted\n\n@s6 stated\n  relation \"have for sale\"\n  role subject \"Sistemele Nordwind\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"plan to attend\"\n  role subject \"Amira Saleh\"\n  role object \"the jazz evening\"\n  polarity negated\n  certainty asserted\n\n@s8 stated\n  relation \"require\"\n  role subject \"a birth certificate\"\n  role object \"Administrația Financiară Orhei\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"be the boss of\"\n  role subject \"Mohammad\"\n  role object \"Mihai\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"be the boss of\"\n  role subject \"Tunde Balogun\"\n  role object \"Hao\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"have for sale\"\n  role subject \"Buzau Logistic\"\n  role object \"movable property\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"have for sale\"\n  role subject \"Brightfield Foods\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"issue\"\n  role subject \"Serviciul de Pașapoarte Târgu Mureș\"\n  role object \"a work permit\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"depend on\"\n  role subject \"the VPN gateway\"\n  role object \"the mail server\"\n  polarity negated\n  certainty asserted\n\n@s15 stated\n  relation \"rely on\"\n  role subject \"the payroll database\"\n  role object \"the billing service\"\n  polarity negated\n  certainty asserted\n\n@s16 stated\n  relation \"require\"\n  role subject \"a driving licence\"\n  role object \"a medical certificate\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"require\"\n  role subject \"a building permit\"\n  role object \"an ID card\"\n  polarity negated\n  certainty asserted\n\n@s18 stated\n  relation \"have an allergy to\"\n  role subject \"Rubina\"\n  role object \"pollen\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"be the boss of\"\n  role subject \"Grace Bennett\"\n  role object \"Arjun Gupta\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"be the boss of\"\n    role subject \"Arjun Gupta\"\n    role object \"Grace Bennett\"\n    polarity affirmed\n  end\n\n@q2 query\n  mode count\n  select ?x\n  where match\n    relation \"write\"\n    role subject ?x\n    role object \"The Last Ferry\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?t\n  where match\n    relation \"be the coach of\"\n    role subject \"Jürgen\"\n    role object \"Rapid Alexandria\"\n    role time ?t\n    polarity affirmed\n  end\n\n@q4 query\n  select ?x\n  where match\n    relation \"travel to\"\n    role subject ?x\n    role destination \"Călărași\"\n    polarity affirmed\n  end\n\n@q5 query\n  select ?x\n  where match\n    relation \"sell\"\n    role subject \"Atelierul Lazăr\"\n    role object ?x\n    polarity affirmed\n  end\n\n@q6 query\n  where match\n    relation \"want to learn\"\n    role subject \"Oare\"\n    role topic \"physical education\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_015080_0_0",
+   "condition": "free",
+   "ms": 18950.710525000002,
+   "completion_tokens": 978,
+   "gen_tps": 51.65395379062646,
+   "prompt_ms": 11.618,
+   "predicted_ms": 18933.691,
+   "text": "@s1 stated\n  relation \"be located in\"\n  role subject \"Școala de Limbi din Reșița\"\n  role location \"Timișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be the author of\"\n  role subject \"Natalia Cebotari\"\n  role object \"Soups of Transylvania\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be the boss of\"\n  role subject \"Silviu\"\n  role object \"Achieng\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"be the boss of\"\n  role subject \"Adaeze Eze\"\n  role object \"Florică Stoian\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"have for sale\"\n  role subject \"Constantinescu & Asociații\"\n  role object \"phone cases\"\n  polarity negated\n  certainty asserted\n\n@s6 stated\n  relation \"have for sale\"\n  role subject \"Sistemele Nordwind\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"plan to attend\"\n  role subject \"Amira Saleh\"\n  role object \"the jazz evening\"\n  polarity negated\n  certainty asserted\n\n@s8 stated\n  relation \"require\"\n  role subject \"a birth certificate\"\n  role object \"Administrația Financiară Orhei\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"be the boss of\"\n  role subject \"Mohammad\"\n  role object \"Mihai\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"be the boss of\"\n  role subject \"Tunde Balogun\"\n  role object \"Hao\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"have for sale\"\n  role subject \"Buzau Logistic\"\n  role object \"movable property\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"have for sale\"\n  role subject \"Brightfield Foods\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"issue\"\n  role subject \"Serviciul de Pașapoarte Târgu Mureș\"\n  role object \"a work permit\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"depend on\"\n  role subject \"the VPN gateway\"\n  role object \"the mail server\"\n  polarity negated\n  certainty asserted\n\n@s15 stated\n  relation \"rely on\"\n  role subject \"the payroll database\"\n  role object \"the billing service\"\n  polarity negated\n  certainty asserted\n\n@s16 stated\n  relation \"require\"\n  role subject \"a driving licence\"\n  role object \"a medical certificate\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"require\"\n  role subject \"a building permit\"\n  role object \"an ID card\"\n  polarity negated\n  certainty asserted\n\n@s18 stated\n  relation \"have an allergy to\"\n  role subject \"Rubina\"\n  role object \"pollen\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"be the boss of\"\n  role subject \"Grace Bennett\"\n  role object \"Arjun Gupta\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"be the boss of\"\n    role subject \"Arjun Gupta\"\n    role object \"Grace Bennett\"\n    polarity affirmed\n  end\n\n@q2 query\n  mode count\n  select ?x\n  where match\n    relation \"write\"\n    role subject ?x\n    role object \"The Last Ferry\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?t\n  where match\n    relation \"be the coach of\"\n    role subject \"Jürgen\"\n    role object \"Rapid Alexandria\"\n    role time ?t\n    polarity affirmed\n  end\n\n@q4 query\n  select ?x\n  where match\n    relation \"travel to\"\n    role subject ?x\n    role destination \"Călărași\"\n    polarity affirmed\n  end\n\n@q5 query\n  select ?x\n  where match\n    relation \"sell\"\n    role subject \"Atelierul Lazăr\"\n    role object ?x\n    polarity affirmed\n  end\n\n@q6 query\n  where match\n    relation \"want to learn\"\n    role subject \"Oare\"\n    role topic \"physical education\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_015080_0_0",
+   "condition": "gbnf",
+   "ms": 18726.489258,
+   "completion_tokens": 978,
+   "gen_tps": 52.306357372436665,
+   "prompt_ms": 22.403,
+   "predicted_ms": 18697.536,
+   "text": "@s1 stated\n  relation \"be located in\"\n  role subject \"Școala de Limbi din Reșița\"\n  role location \"Timișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be the author of\"\n  role subject \"Natalia Cebotari\"\n  role object \"Soups of Transylvania\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be the boss of\"\n  role subject \"Silviu\"\n  role object \"Achieng\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"be the boss of\"\n  role subject \"Adaeze Eze\"\n  role object \"Florică Stoian\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"have for sale\"\n  role subject \"Constantinescu & Asociații\"\n  role object \"phone cases\"\n  polarity negated\n  certainty asserted\n\n@s6 stated\n  relation \"have for sale\"\n  role subject \"Sistemele Nordwind\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"plan to attend\"\n  role subject \"Amira Saleh\"\n  role object \"the jazz evening\"\n  polarity negated\n  certainty asserted\n\n@s8 stated\n  relation \"require\"\n  role subject \"a birth certificate\"\n  role object \"Administrația Financiară Orhei\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"be the boss of\"\n  role subject \"Mohammad\"\n  role object \"Mihai\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"be the boss of\"\n  role subject \"Tunde Balogun\"\n  role object \"Hao\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"have for sale\"\n  role subject \"Buzau Logistic\"\n  role object \"movable property\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"have for sale\"\n  role subject \"Brightfield Foods\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"issue\"\n  role subject \"Serviciul de Pașapoarte Târgu Mureș\"\n  role object \"a work permit\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"depend on\"\n  role subject \"the VPN gateway\"\n  role object \"the mail server\"\n  polarity negated\n  certainty asserted\n\n@s15 stated\n  relation \"rely on\"\n  role subject \"the payroll database\"\n  role object \"the billing service\"\n  polarity negated\n  certainty asserted\n\n@s16 stated\n  relation \"require\"\n  role subject \"a driving licence\"\n  role object \"a medical certificate\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"require\"\n  role subject \"a building permit\"\n  role object \"an ID card\"\n  polarity negated\n  certainty asserted\n\n@s18 stated\n  relation \"have an allergy to\"\n  role subject \"Rubina\"\n  role object \"pollen\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"be the boss of\"\n  role subject \"Grace Bennett\"\n  role object \"Arjun Gupta\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"be the boss of\"\n    role subject \"Arjun Gupta\"\n    role object \"Grace Bennett\"\n    polarity affirmed\n  end\n\n@q2 query\n  mode count\n  select ?x\n  where match\n    relation \"write\"\n    role subject ?x\n    role object \"The Last Ferry\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?t\n  where match\n    relation \"be the coach of\"\n    role subject \"Jürgen\"\n    role object \"Rapid Alexandria\"\n    role time ?t\n    polarity affirmed\n  end\n\n@q4 query\n  select ?x\n  where match\n    relation \"travel to\"\n    role subject ?x\n    role destination \"Călărași\"\n    polarity affirmed\n  end\n\n@q5 query\n  select ?x\n  where match\n    relation \"sell\"\n    role subject \"Atelierul Lazăr\"\n    role object ?x\n    polarity affirmed\n  end\n\n@q6 query\n  where match\n    relation \"want to learn\"\n    role subject \"Oare\"\n    role topic \"physical education\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_016414_0_1",
+   "condition": "free",
+   "ms": 412.80704899999546,
+   "completion_tokens": 50,
+   "gen_tps": 124.86233927095378,
+   "prompt_ms": 8.006,
+   "predicted_ms": 400.441,
+   "text": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"own\"\n    role subject \"Kamau\"\n    role object \"the plot of land by Sibiu\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_016414_0_1",
+   "condition": "gbnf",
+   "ms": 439.00850899999205,
+   "completion_tokens": 50,
+   "gen_tps": 118.04034146709978,
+   "prompt_ms": 8.735,
+   "predicted_ms": 423.584,
+   "text": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"own\"\n    role subject \"Kamau\"\n    role object \"the plot of land by Sibiu\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_016414_0_1",
+   "condition": "gbnf",
+   "ms": 411.2201730000088,
+   "completion_tokens": 50,
+   "gen_tps": 126.066522782742,
+   "prompt_ms": 9.567,
+   "predicted_ms": 396.616,
+   "text": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"own\"\n    role subject \"Kamau\"\n    role object \"the plot of land by Sibiu\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_016414_0_1",
+   "condition": "free",
+   "ms": 386.4109060000046,
+   "completion_tokens": 50,
+   "gen_tps": 134.12484877423302,
+   "prompt_ms": 9.51,
+   "predicted_ms": 372.787,
+   "text": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"own\"\n    role subject \"Kamau\"\n    role object \"the plot of land by Sibiu\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_016251_0_0",
+   "condition": "gbnf",
+   "ms": 588.109558000011,
+   "completion_tokens": 69,
+   "gen_tps": 131.94176205354924,
+   "prompt_ms": 59.726,
+   "predicted_ms": 522.958,
+   "text": "@a1 assumed\n  relation \"visit\"\n  role subject \"Chinedu\"\n  role destination \"Cahul\"\n  polarity affirmed\n  basis implicature\n\n@q query\n  where match\n    relation \"visit\"\n    role subject \"Chinedu\"\n    role destination \"Cahul\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_016251_0_0",
+   "condition": "free",
+   "ms": 541.8558150000026,
+   "completion_tokens": 69,
+   "gen_tps": 130.87391531129973,
+   "prompt_ms": 10.549,
+   "predicted_ms": 527.225,
+   "text": "@a1 assumed\n  relation \"visit\"\n  role subject \"Chinedu\"\n  role destination \"Cahul\"\n  polarity affirmed\n  basis implicature\n\n@q query\n  where match\n    relation \"visit\"\n    role subject \"Chinedu\"\n    role destination \"Cahul\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_016251_0_0",
+   "condition": "free",
+   "ms": 647.6300390000106,
+   "completion_tokens": 69,
+   "gen_tps": 108.92523939873269,
+   "prompt_ms": 9.874,
+   "predicted_ms": 633.462,
+   "text": "@a1 assumed\n  relation \"visit\"\n  role subject \"Chinedu\"\n  role destination \"Cahul\"\n  polarity affirmed\n  basis implicature\n\n@q query\n  where match\n    relation \"visit\"\n    role subject \"Chinedu\"\n    role destination \"Cahul\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_016251_0_0",
+   "condition": "gbnf",
+   "ms": 674.6852459999936,
+   "completion_tokens": 69,
+   "gen_tps": 104.7017139215344,
+   "prompt_ms": 10.748,
+   "predicted_ms": 659.015,
+   "text": "@a1 assumed\n  relation \"visit\"\n  role subject \"Chinedu\"\n  role destination \"Cahul\"\n  polarity affirmed\n  basis implicature\n\n@q query\n  where match\n    relation \"visit\"\n    role subject \"Chinedu\"\n    role destination \"Cahul\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_012660_0_0",
+   "condition": "free",
+   "ms": 316.17806000000564,
+   "completion_tokens": 36,
+   "gen_tps": 119.89928460093522,
+   "prompt_ms": 11.598,
+   "predicted_ms": 300.252,
+   "text": "@q query\n  select ?age\n  where match\n    relation \"be old\"\n    role subject \"Kavya\"\n    role object ?age\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_012660_0_0",
+   "condition": "gbnf",
+   "ms": 343.69432799999777,
+   "completion_tokens": 36,
+   "gen_tps": 110.41556123309645,
+   "prompt_ms": 12.065,
+   "predicted_ms": 326.041,
+   "text": "@q query\n  select ?age\n  where match\n    relation \"be old\"\n    role subject \"Kavya\"\n    role object ?age\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_012660_0_0",
+   "condition": "gbnf",
+   "ms": 372.760958999992,
+   "completion_tokens": 36,
+   "gen_tps": 100.63568205833515,
+   "prompt_ms": 9.187,
+   "predicted_ms": 357.726,
+   "text": "@q query\n  select ?age\n  where match\n    relation \"be old\"\n    role subject \"Kavya\"\n    role object ?age\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_012660_0_0",
+   "condition": "free",
+   "ms": 345.38153699999384,
+   "completion_tokens": 36,
+   "gen_tps": 109.41318064116123,
+   "prompt_ms": 12.105,
+   "predicted_ms": 329.028,
+   "text": "@q query\n  select ?age\n  where match\n    relation \"be old\"\n    role subject \"Kavya\"\n    role object ?age\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_023812_0_0",
+   "condition": "gbnf",
+   "ms": 761.8429810000089,
+   "completion_tokens": 82,
+   "gen_tps": 109.94654184605608,
+   "prompt_ms": 9.798,
+   "predicted_ms": 745.817,
+   "text": "@s1 stated\n  relation \"play for\"\n  role subject \"Csaba\"\n  role object \"the Piatra Neamț Wolves\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"be on\"\n    role subject \"Emma Bennett\"\n    role object \"the Piatra Neamț Wolves\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_023812_0_0",
+   "condition": "free",
+   "ms": 854.2454709999874,
+   "completion_tokens": 82,
+   "gen_tps": 97.96999011936808,
+   "prompt_ms": 11.125,
+   "predicted_ms": 836.991,
+   "text": "@s1 stated\n  relation \"play for\"\n  role subject \"Csaba\"\n  role object \"the Piatra Neamț Wolves\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"be on\"\n    role subject \"Emma Bennett\"\n    role object \"the Piatra Neamț Wolves\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_023812_0_0",
+   "condition": "free",
+   "ms": 744.0828990000009,
+   "completion_tokens": 82,
+   "gen_tps": 112.45323591043235,
+   "prompt_ms": 10.705,
+   "predicted_ms": 729.192,
+   "text": "@s1 stated\n  relation \"play for\"\n  role subject \"Csaba\"\n  role object \"the Piatra Neamț Wolves\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"be on\"\n    role subject \"Emma Bennett\"\n    role object \"the Piatra Neamț Wolves\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_023812_0_0",
+   "condition": "gbnf",
+   "ms": 867.4611659999937,
+   "completion_tokens": 82,
+   "gen_tps": 98.9137580593603,
+   "prompt_ms": 33.038,
+   "predicted_ms": 829.005,
+   "text": "@s1 stated\n  relation \"play for\"\n  role subject \"Csaba\"\n  role object \"the Piatra Neamț Wolves\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"be on\"\n    role subject \"Emma Bennett\"\n    role object \"the Piatra Neamț Wolves\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_025698_0",
+   "condition": "free",
+   "ms": 96.33331799998996,
+   "completion_tokens": 10,
+   "gen_tps": 118.4427151808028,
+   "prompt_ms": 8.415,
+   "predicted_ms": 84.429,
+   "text": "@u unclear\n  kind gibberish\n"
+  },
+  {
+   "id": "fv1_025698_0",
+   "condition": "gbnf",
+   "ms": 105.57100299999001,
+   "completion_tokens": 10,
+   "gen_tps": 114.01728502040909,
+   "prompt_ms": 12.406,
+   "predicted_ms": 87.706,
+   "text": "@u unclear\n  kind gibberish\n"
+  },
+  {
+   "id": "fv1_025698_0",
+   "condition": "gbnf",
+   "ms": 91.33319300001313,
+   "completion_tokens": 10,
+   "gen_tps": 130.91918358797116,
+   "prompt_ms": 9.669,
+   "predicted_ms": 76.383,
+   "text": "@u unclear\n  kind gibberish\n"
+  },
+  {
+   "id": "fv1_025698_0",
+   "condition": "free",
+   "ms": 93.37970199999108,
+   "completion_tokens": 10,
+   "gen_tps": 126.76038484452839,
+   "prompt_ms": 10.275,
+   "predicted_ms": 78.889,
+   "text": "@u unclear\n  kind gibberish\n"
+  },
+  {
+   "id": "fv1_031181_0_0",
+   "condition": "gbnf",
+   "ms": 290.7682679999998,
+   "completion_tokens": 36,
+   "gen_tps": 131.1198362458934,
+   "prompt_ms": 10.601,
+   "predicted_ms": 274.558,
+   "text": "@q query\n  select ?age\n  where match\n    relation \"be old\"\n    role subject \"Yan Zhang\"\n    role object ?age\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_031181_0_0",
+   "condition": "free",
+   "ms": 311.1191649999964,
+   "completion_tokens": 36,
+   "gen_tps": 121.38418431514032,
+   "prompt_ms": 10.337,
+   "predicted_ms": 296.579,
+   "text": "@q query\n  select ?age\n  where match\n    relation \"be old\"\n    role subject \"Yan Zhang\"\n    role object ?age\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_031181_0_0",
+   "condition": "free",
+   "ms": 325.4039349999948,
+   "completion_tokens": 36,
+   "gen_tps": 115.64407324124639,
+   "prompt_ms": 10.728,
+   "predicted_ms": 311.3,
+   "text": "@q query\n  select ?age\n  where match\n    relation \"be old\"\n    role subject \"Yan Zhang\"\n    role object ?age\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_031181_0_0",
+   "condition": "gbnf",
+   "ms": 284.2581480000081,
+   "completion_tokens": 36,
+   "gen_tps": 133.21984975761387,
+   "prompt_ms": 8.199,
+   "predicted_ms": 270.23,
+   "text": "@q query\n  select ?age\n  where match\n    relation \"be old\"\n    role subject \"Yan Zhang\"\n    role object ?age\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_020950_0_0",
+   "condition": "free",
+   "ms": 216.55185699999856,
+   "completion_tokens": 25,
+   "gen_tps": 122.53460377210523,
+   "prompt_ms": 7.878,
+   "predicted_ms": 204.024,
+   "text": "@c constraint\n  var ?x int 5 13\n  claim ?x equal 9\n  task possible\n"
+  },
+  {
+   "id": "fv1_020950_0_0",
+   "condition": "gbnf",
+   "ms": 266.7878860000055,
+   "completion_tokens": 25,
+   "gen_tps": 101.2580297617601,
+   "prompt_ms": 15.759,
+   "predicted_ms": 246.894,
+   "text": "@c constraint\n  var ?x int 5 13\n  claim ?x equal 9\n  task possible\n"
+  },
+  {
+   "id": "fv1_020950_0_0",
+   "condition": "gbnf",
+   "ms": 208.90586100000655,
+   "completion_tokens": 25,
+   "gen_tps": 127.9001355741437,
+   "prompt_ms": 8.807,
+   "predicted_ms": 195.465,
+   "text": "@c constraint\n  var ?x int 5 13\n  claim ?x equal 9\n  task possible\n"
+  },
+  {
+   "id": "fv1_020950_0_0",
+   "condition": "free",
+   "ms": 221.76545399999304,
+   "completion_tokens": 25,
+   "gen_tps": 118.91115434192187,
+   "prompt_ms": 7.84,
+   "predicted_ms": 210.241,
+   "text": "@c constraint\n  var ?x int 5 13\n  claim ?x equal 9\n  task possible\n"
+  },
+  {
+   "id": "fv1_003226_0_0",
+   "condition": "gbnf",
+   "ms": 263.09503199999745,
+   "completion_tokens": 30,
+   "gen_tps": 120.05954953657013,
+   "prompt_ms": 7.101,
+   "predicted_ms": 249.876,
+   "text": "@q query\n  mode explain\n  where match\n    relation \"be postponed\"\n    role subject \"the product launch\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_003226_0_0",
+   "condition": "free",
+   "ms": 251.88826300000073,
+   "completion_tokens": 30,
+   "gen_tps": 125.06461671863798,
+   "prompt_ms": 7.973,
+   "predicted_ms": 239.876,
+   "text": "@q query\n  mode explain\n  where match\n    relation \"be postponed\"\n    role subject \"the product launch\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_003226_0_0",
+   "condition": "free",
+   "ms": 254.20467599999392,
+   "completion_tokens": 30,
+   "gen_tps": 127.32635867835239,
+   "prompt_ms": 14.201,
+   "predicted_ms": 235.615,
+   "text": "@q query\n  mode explain\n  where match\n    relation \"be postponed\"\n    role subject \"the product launch\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_003226_0_0",
+   "condition": "gbnf",
+   "ms": 252.3656420000043,
+   "completion_tokens": 30,
+   "gen_tps": 124.90892057874467,
+   "prompt_ms": 6.893,
+   "predicted_ms": 240.175,
+   "text": "@q query\n  mode explain\n  where match\n    relation \"be postponed\"\n    role subject \"the product launch\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_002572_0_0",
+   "condition": "free",
+   "ms": 686.4875100000063,
+   "completion_tokens": 81,
+   "gen_tps": 120.57429088175532,
+   "prompt_ms": 9.22,
+   "predicted_ms": 671.785,
+   "text": "@s1 stated\n  relation \"be a parent of\"\n  role subject \"Luminița\"\n  role object \"Traian Gheorghiu\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be a parent of\"\n  role subject \"Amira\"\n  role object \"Matei Bălan\"\n  polarity affirmed\n  certainty asserted\n"
+  },
+  {
+   "id": "fv1_002572_0_0",
+   "condition": "gbnf",
+   "ms": 716.2042990000045,
+   "completion_tokens": 81,
+   "gen_tps": 115.99898035464182,
+   "prompt_ms": 10.968,
+   "predicted_ms": 698.282,
+   "text": "@s1 stated\n  relation \"be a parent of\"\n  role subject \"Luminița\"\n  role object \"Traian Gheorghiu\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be a parent of\"\n  role subject \"Amira\"\n  role object \"Matei Bălan\"\n  polarity affirmed\n  certainty asserted\n"
+  },
+  {
+   "id": "fv1_002572_0_0",
+   "condition": "gbnf",
+   "ms": 712.1211190000031,
+   "completion_tokens": 81,
+   "gen_tps": 116.33200868037852,
+   "prompt_ms": 10.731,
+   "predicted_ms": 696.283,
+   "text": "@s1 stated\n  relation \"be a parent of\"\n  role subject \"Luminița\"\n  role object \"Traian Gheorghiu\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be a parent of\"\n  role subject \"Amira\"\n  role object \"Matei Bălan\"\n  polarity affirmed\n  certainty asserted\n"
+  },
+  {
+   "id": "fv1_002572_0_0",
+   "condition": "free",
+   "ms": 732.9673110000003,
+   "completion_tokens": 81,
+   "gen_tps": 112.35269313566657,
+   "prompt_ms": 8.479,
+   "predicted_ms": 720.944,
+   "text": "@s1 stated\n  relation \"be a parent of\"\n  role subject \"Luminița\"\n  role object \"Traian Gheorghiu\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be a parent of\"\n  role subject \"Amira\"\n  role object \"Matei Bălan\"\n  polarity affirmed\n  certainty asserted\n"
+  },
+  {
+   "id": "fv1_003243_0_0",
+   "condition": "gbnf",
+   "ms": 317.67269099999976,
+   "completion_tokens": 37,
+   "gen_tps": 121.80909551808371,
+   "prompt_ms": 8.991,
+   "predicted_ms": 303.754,
+   "text": "@q query\n  where match\n    relation \"issue\"\n    role subject \"the Passport Office in Busan\"\n    role object \"a passport\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_003243_0_0",
+   "condition": "free",
+   "ms": 293.6821040000068,
+   "completion_tokens": 37,
+   "gen_tps": 131.0653130335598,
+   "prompt_ms": 7.082,
+   "predicted_ms": 282.302,
+   "text": "@q query\n  where match\n    relation \"issue\"\n    role subject \"the Passport Office in Busan\"\n    role object \"a passport\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_003243_0_0",
+   "condition": "free",
+   "ms": 463.94592899999407,
+   "completion_tokens": 37,
+   "gen_tps": 82.47422680412372,
+   "prompt_ms": 9.779,
+   "predicted_ms": 448.625,
+   "text": "@q query\n  where match\n    relation \"issue\"\n    role subject \"the Passport Office in Busan\"\n    role object \"a passport\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_003243_0_0",
+   "condition": "gbnf",
+   "ms": 397.8538910000061,
+   "completion_tokens": 37,
+   "gen_tps": 97.6101345700801,
+   "prompt_ms": 14.304,
+   "predicted_ms": 379.059,
+   "text": "@q query\n  where match\n    relation \"issue\"\n    role subject \"the Passport Office in Busan\"\n    role object \"a passport\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_011516_0_0",
+   "condition": "free",
+   "ms": 614.5069010000007,
+   "completion_tokens": 70,
+   "gen_tps": 116.60195258298312,
+   "prompt_ms": 9.162,
+   "predicted_ms": 600.333,
+   "text": "@q query\n  select ?x\n  where all\n    match\n      relation \"be a parent of\"\n      role subject ?x\n      role object ?m\n      polarity affirmed\n    end\n    match\n      relation \"be a parent of\"\n      role subject ?m\n      role object \"Silviu Bălan\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_011516_0_0",
+   "condition": "gbnf",
+   "ms": 623.3071059999929,
+   "completion_tokens": 70,
+   "gen_tps": 115.77806997957343,
+   "prompt_ms": 12.15,
+   "predicted_ms": 604.605,
+   "text": "@q query\n  select ?x\n  where all\n    match\n      relation \"be a parent of\"\n      role subject ?x\n      role object ?m\n      polarity affirmed\n    end\n    match\n      relation \"be a parent of\"\n      role subject ?m\n      role object \"Silviu Bălan\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_011516_0_0",
+   "condition": "gbnf",
+   "ms": 639.6867800000036,
+   "completion_tokens": 70,
+   "gen_tps": 112.12647866793745,
+   "prompt_ms": 9.8,
+   "predicted_ms": 624.295,
+   "text": "@q query\n  select ?x\n  where all\n    match\n      relation \"be a parent of\"\n      role subject ?x\n      role object ?m\n      polarity affirmed\n    end\n    match\n      relation \"be a parent of\"\n      role subject ?m\n      role object \"Silviu Bălan\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_011516_0_0",
+   "condition": "free",
+   "ms": 559.2735070000053,
+   "completion_tokens": 70,
+   "gen_tps": 128.5939718820095,
+   "prompt_ms": 10.533,
+   "predicted_ms": 544.349,
+   "text": "@q query\n  select ?x\n  where all\n    match\n      relation \"be a parent of\"\n      role subject ?x\n      role object ?m\n      polarity affirmed\n    end\n    match\n      relation \"be a parent of\"\n      role subject ?m\n      role object \"Silviu Bălan\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_001721_0_0",
+   "condition": "gbnf",
+   "ms": 532.4513069999957,
+   "completion_tokens": 52,
+   "gen_tps": 100.77675622877875,
+   "prompt_ms": 10.789,
+   "predicted_ms": 515.992,
+   "text": "@q query\n  select ?t\n  measure start\n  where match\n    relation \"occupy\"\n    role subject \"Giorgos Nikolaidis\"\n    role object \"the payroll database\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_001721_0_0",
+   "condition": "free",
+   "ms": 487.8176769999991,
+   "completion_tokens": 52,
+   "gen_tps": 110.13635728234303,
+   "prompt_ms": 10.231,
+   "predicted_ms": 472.142,
+   "text": "@q query\n  select ?t\n  measure start\n  where match\n    relation \"occupy\"\n    role subject \"Giorgos Nikolaidis\"\n    role object \"the payroll database\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_001721_0_0",
+   "condition": "free",
+   "ms": 475.15274099999806,
+   "completion_tokens": 52,
+   "gen_tps": 112.0950566080036,
+   "prompt_ms": 8.631,
+   "predicted_ms": 463.892,
+   "text": "@q query\n  select ?t\n  measure start\n  where match\n    relation \"occupy\"\n    role subject \"Giorgos Nikolaidis\"\n    role object \"the payroll database\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_001721_0_0",
+   "condition": "gbnf",
+   "ms": 449.333249000003,
+   "completion_tokens": 52,
+   "gen_tps": 120.4679717363605,
+   "prompt_ms": 12.916,
+   "predicted_ms": 431.65,
+   "text": "@q query\n  select ?t\n  measure start\n  where match\n    relation \"occupy\"\n    role subject \"Giorgos Nikolaidis\"\n    role object \"the payroll database\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_032436_0_0",
+   "condition": "free",
+   "ms": 579.4561679999897,
+   "completion_tokens": 67,
+   "gen_tps": 119.09713704703091,
+   "prompt_ms": 11.994,
+   "predicted_ms": 562.566,
+   "text": "@q query\n  where all\n    match\n      relation \"live in\"\n      role subject \"Sigrid\"\n      role location \"Valencia\"\n      polarity affirmed\n    end\n    match\n      relation \"have an allergy to\"\n      role subject \"Sigrid\"\n      role object \"lactose\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_032436_0_0",
+   "condition": "gbnf",
+   "ms": 573.0557600000029,
+   "completion_tokens": 67,
+   "gen_tps": 120.05576321419741,
+   "prompt_ms": 8.881,
+   "predicted_ms": 558.074,
+   "text": "@q query\n  where all\n    match\n      relation \"live in\"\n      role subject \"Sigrid\"\n      role location \"Valencia\"\n      polarity affirmed\n    end\n    match\n      relation \"have an allergy to\"\n      role subject \"Sigrid\"\n      role object \"lactose\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_032436_0_0",
+   "condition": "gbnf",
+   "ms": 557.9152570000006,
+   "completion_tokens": 67,
+   "gen_tps": 123.20683485319077,
+   "prompt_ms": 8.704,
+   "predicted_ms": 543.801,
+   "text": "@q query\n  where all\n    match\n      relation \"live in\"\n      role subject \"Sigrid\"\n      role location \"Valencia\"\n      polarity affirmed\n    end\n    match\n      relation \"have an allergy to\"\n      role subject \"Sigrid\"\n      role object \"lactose\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_032436_0_0",
+   "condition": "free",
+   "ms": 580.1071850000008,
+   "completion_tokens": 67,
+   "gen_tps": 118.41054171939177,
+   "prompt_ms": 10.948,
+   "predicted_ms": 565.828,
+   "text": "@q query\n  where all\n    match\n      relation \"live in\"\n      role subject \"Sigrid\"\n      role location \"Valencia\"\n      polarity affirmed\n    end\n    match\n      relation \"have an allergy to\"\n      role subject \"Sigrid\"\n      role object \"lactose\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_006620_0_0",
+   "condition": "gbnf",
+   "ms": 964.5782019999897,
+   "completion_tokens": 106,
+   "gen_tps": 111.49174908466325,
+   "prompt_ms": 7.696,
+   "predicted_ms": 950.743,
+   "text": "@s1 stated\n  relation \"work at\"\n  role subject \"Adaeze\"\n  role object \"Atelier Bennett\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"work at\"\n  role subject \"Kavya\"\n  role object \"Atelier Bennett\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"work at\"\n    role subject \"Iulia\"\n    role object \"Atelier Bennett\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_006620_0_0",
+   "condition": "free",
+   "ms": 917.6934350000083,
+   "completion_tokens": 106,
+   "gen_tps": 117.73813927088992,
+   "prompt_ms": 10.707,
+   "predicted_ms": 900.303,
+   "text": "@s1 stated\n  relation \"work at\"\n  role subject \"Adaeze\"\n  role object \"Atelier Bennett\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"work at\"\n  role subject \"Kavya\"\n  role object \"Atelier Bennett\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"work at\"\n    role subject \"Iulia\"\n    role object \"Atelier Bennett\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_006620_0_0",
+   "condition": "free",
+   "ms": 996.6760090000025,
+   "completion_tokens": 106,
+   "gen_tps": 107.98729009970488,
+   "prompt_ms": 11.307,
+   "predicted_ms": 981.597,
+   "text": "@s1 stated\n  relation \"work at\"\n  role subject \"Adaeze\"\n  role object \"Atelier Bennett\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"work at\"\n  role subject \"Kavya\"\n  role object \"Atelier Bennett\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"work at\"\n    role subject \"Iulia\"\n    role object \"Atelier Bennett\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_006620_0_0",
+   "condition": "gbnf",
+   "ms": 915.3073100000038,
+   "completion_tokens": 106,
+   "gen_tps": 117.73827004716195,
+   "prompt_ms": 9.594,
+   "predicted_ms": 900.302,
+   "text": "@s1 stated\n  relation \"work at\"\n  role subject \"Adaeze\"\n  role object \"Atelier Bennett\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"work at\"\n  role subject \"Kavya\"\n  role object \"Atelier Bennett\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"work at\"\n    role subject \"Iulia\"\n    role object \"Atelier Bennett\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_022094_0_0",
+   "condition": "free",
+   "ms": 611.7613200000051,
+   "completion_tokens": 71,
+   "gen_tps": 118.21669286304181,
+   "prompt_ms": 6.063,
+   "predicted_ms": 600.592,
+   "text": "@s1 stated\n  relation \"raise\"\n  role subject \"Enikő\"\n  role object \"Ms Bennett\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"have an allergy to\"\n    role subject \"Enikő\"\n    role object \"lactose\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_022094_0_0",
+   "condition": "gbnf",
+   "ms": 644.8304280000011,
+   "completion_tokens": 71,
+   "gen_tps": 113.10036781513985,
+   "prompt_ms": 9.927,
+   "predicted_ms": 627.761,
+   "text": "@s1 stated\n  relation \"raise\"\n  role subject \"Enikő\"\n  role object \"Ms Bennett\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"have an allergy to\"\n    role subject \"Enikő\"\n    role object \"lactose\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_022094_0_0",
+   "condition": "gbnf",
+   "ms": 657.5649409999896,
+   "completion_tokens": 71,
+   "gen_tps": 110.27550237480624,
+   "prompt_ms": 8.308,
+   "predicted_ms": 643.842,
+   "text": "@s1 stated\n  relation \"raise\"\n  role subject \"Enikő\"\n  role object \"Ms Bennett\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"have an allergy to\"\n    role subject \"Enikő\"\n    role object \"lactose\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_022094_0_0",
+   "condition": "free",
+   "ms": 633.0233149999985,
+   "completion_tokens": 71,
+   "gen_tps": 114.57082736274093,
+   "prompt_ms": 8.743,
+   "predicted_ms": 619.704,
+   "text": "@s1 stated\n  relation \"raise\"\n  role subject \"Enikő\"\n  role object \"Ms Bennett\"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation \"have an allergy to\"\n    role subject \"Enikő\"\n    role object \"lactose\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_014701_0_0",
+   "condition": "gbnf",
+   "ms": 584.5573000000004,
+   "completion_tokens": 65,
+   "gen_tps": 114.25578178200348,
+   "prompt_ms": 10.116,
+   "predicted_ms": 568.899,
+   "text": "@q query\n  asof \"20 October 2025\"\n  where match\n    relation \"coach\"\n    role subject \"Ildikó\"\n    role object \"Olimpia Craiova\"\n    polarity affirmed\n  end\n  at \"13 September 2024\"\n"
+  },
+  {
+   "id": "fv1_014701_0_0",
+   "condition": "free",
+   "ms": 579.0487379999977,
+   "completion_tokens": 65,
+   "gen_tps": 114.99499329490732,
+   "prompt_ms": 9.322,
+   "predicted_ms": 565.242,
+   "text": "@q query\n  asof \"20 October 2025\"\n  where match\n    relation \"coach\"\n    role subject \"Ildikó\"\n    role object \"Olimpia Craiova\"\n    polarity affirmed\n  end\n  at \"13 September 2024\"\n"
+  },
+  {
+   "id": "fv1_014701_0_0",
+   "condition": "free",
+   "ms": 627.7683319999924,
+   "completion_tokens": 65,
+   "gen_tps": 105.86284735228875,
+   "prompt_ms": 9.417,
+   "predicted_ms": 614.002,
+   "text": "@q query\n  asof \"20 October 2025\"\n  where match\n    relation \"coach\"\n    role subject \"Ildikó\"\n    role object \"Olimpia Craiova\"\n    polarity affirmed\n  end\n  at \"13 September 2024\"\n"
+  },
+  {
+   "id": "fv1_014701_0_0",
+   "condition": "gbnf",
+   "ms": 624.2140990000044,
+   "completion_tokens": 65,
+   "gen_tps": 108.02959013573502,
+   "prompt_ms": 17.451,
+   "predicted_ms": 601.687,
+   "text": "@q query\n  asof \"20 October 2025\"\n  where match\n    relation \"coach\"\n    role subject \"Ildikó\"\n    role object \"Olimpia Craiova\"\n    polarity affirmed\n  end\n  at \"13 September 2024\"\n"
+  },
+  {
+   "id": "fv1_008361_0_0",
+   "condition": "free",
+   "ms": 337.9551829999982,
+   "completion_tokens": 39,
+   "gen_tps": 121.07928209299509,
+   "prompt_ms": 9.317,
+   "predicted_ms": 322.103,
+   "text": "@q query\n  select ?how\n  where match\n    relation \"go to work by\"\n    role subject \"Enikő\"\n    role instrument ?how\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_008361_0_0",
+   "condition": "gbnf",
+   "ms": 344.03419000000576,
+   "completion_tokens": 39,
+   "gen_tps": 119.19643266471266,
+   "prompt_ms": 10.349,
+   "predicted_ms": 327.191,
+   "text": "@q query\n  select ?how\n  where match\n    relation \"go to work by\"\n    role subject \"Enikő\"\n    role instrument ?how\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_008361_0_0",
+   "condition": "gbnf",
+   "ms": 342.154899000001,
+   "completion_tokens": 39,
+   "gen_tps": 119.40188838678864,
+   "prompt_ms": 10.217,
+   "predicted_ms": 326.628,
+   "text": "@q query\n  select ?how\n  where match\n    relation \"go to work by\"\n    role subject \"Enikő\"\n    role instrument ?how\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_008361_0_0",
+   "condition": "free",
+   "ms": 324.3123690000066,
+   "completion_tokens": 39,
+   "gen_tps": 126.81071062771302,
+   "prompt_ms": 13,
+   "predicted_ms": 307.545,
+   "text": "@q query\n  select ?how\n  where match\n    relation \"go to work by\"\n    role subject \"Enikő\"\n    role instrument ?how\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_004667_0_0",
+   "condition": "gbnf",
+   "ms": 554.1665839999914,
+   "completion_tokens": 63,
+   "gen_tps": 117.7847493054439,
+   "prompt_ms": 12.721,
+   "predicted_ms": 534.874,
+   "text": "@q query\n  mode every\n  where match\n    relation \"be a student at\"\n    role subject ?m\n    role object \"Bistrița Music Academy\"\n    polarity affirmed\n  end\n  scope match\n    relation \"complete the safety training\"\n    role subject ?m\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_004667_0_0",
+   "condition": "free",
+   "ms": 601.8466509999998,
+   "completion_tokens": 63,
+   "gen_tps": 107.06092276319143,
+   "prompt_ms": 7.442,
+   "predicted_ms": 588.45,
+   "text": "@q query\n  mode every\n  where match\n    relation \"be a student at\"\n    role subject ?m\n    role object \"Bistrița Music Academy\"\n    polarity affirmed\n  end\n  scope match\n    relation \"complete the safety training\"\n    role subject ?m\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_004667_0_0",
+   "condition": "free",
+   "ms": 577.9826770000072,
+   "completion_tokens": 63,
+   "gen_tps": 111.21506875915759,
+   "prompt_ms": 7.069,
+   "predicted_ms": 566.47,
+   "text": "@q query\n  mode every\n  where match\n    relation \"be a student at\"\n    role subject ?m\n    role object \"Bistrița Music Academy\"\n    polarity affirmed\n  end\n  scope match\n    relation \"complete the safety training\"\n    role subject ?m\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_004667_0_0",
+   "condition": "gbnf",
+   "ms": 610.9106940000056,
+   "completion_tokens": 63,
+   "gen_tps": 106.00296471783862,
+   "prompt_ms": 11.145,
+   "predicted_ms": 594.323,
+   "text": "@q query\n  mode every\n  where match\n    relation \"be a student at\"\n    role subject ?m\n    role object \"Bistrița Music Academy\"\n    polarity affirmed\n  end\n  scope match\n    relation \"complete the safety training\"\n    role subject ?m\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_032010_0_0",
+   "condition": "free",
+   "ms": 346.74596999998903,
+   "completion_tokens": 38,
+   "gen_tps": 114.59866341769404,
+   "prompt_ms": 10.434,
+   "predicted_ms": 331.592,
+   "text": "@q query\n  where match\n    relation \"live in\"\n    role subject \"Lukas\"\n    role location \"Bistrița\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_032010_0_0",
+   "condition": "gbnf",
+   "ms": 327.3572089999943,
+   "completion_tokens": 38,
+   "gen_tps": 121.92461208722102,
+   "prompt_ms": 9.948,
+   "predicted_ms": 311.668,
+   "text": "@q query\n  where match\n    relation \"live in\"\n    role subject \"Lukas\"\n    role location \"Bistrița\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_032010_0_0",
+   "condition": "gbnf",
+   "ms": 367.8044660000014,
+   "completion_tokens": 38,
+   "gen_tps": 109.21580180206072,
+   "prompt_ms": 14.101,
+   "predicted_ms": 347.935,
+   "text": "@q query\n  where match\n    relation \"live in\"\n    role subject \"Lukas\"\n    role location \"Bistrița\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_032010_0_0",
+   "condition": "free",
+   "ms": 352.92382499999076,
+   "completion_tokens": 38,
+   "gen_tps": 111.5615981492518,
+   "prompt_ms": 9.063,
+   "predicted_ms": 340.619,
+   "text": "@q query\n  where match\n    relation \"live in\"\n    role subject \"Lukas\"\n    role location \"Bistrița\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_019875_0_0",
+   "condition": "gbnf",
+   "ms": 404.6904099999956,
+   "completion_tokens": 42,
+   "gen_tps": 107.46305317885947,
+   "prompt_ms": 8.336,
+   "predicted_ms": 390.832,
+   "text": "@q query\n  mode explain\n  where match\n    relation \"get the bonus\"\n    role subject \"Bogdan-Ionuț Ungureanu\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_019875_0_0",
+   "condition": "free",
+   "ms": 359.59356999999727,
+   "completion_tokens": 42,
+   "gen_tps": 121.48173001553232,
+   "prompt_ms": 9.004,
+   "predicted_ms": 345.731,
+   "text": "@q query\n  mode explain\n  where match\n    relation \"get the bonus\"\n    role subject \"Bogdan-Ionuț Ungureanu\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_019875_0_0",
+   "condition": "free",
+   "ms": 367.04269800000475,
+   "completion_tokens": 42,
+   "gen_tps": 119.02906292953196,
+   "prompt_ms": 9.998,
+   "predicted_ms": 352.855,
+   "text": "@q query\n  mode explain\n  where match\n    relation \"get the bonus\"\n    role subject \"Bogdan-Ionuț Ungureanu\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_019875_0_0",
+   "condition": "gbnf",
+   "ms": 361.33980200000224,
+   "completion_tokens": 42,
+   "gen_tps": 121.43536602643242,
+   "prompt_ms": 9.918,
+   "predicted_ms": 345.863,
+   "text": "@q query\n  mode explain\n  where match\n    relation \"get the bonus\"\n    role subject \"Bogdan-Ionuț Ungureanu\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_029346_0_0",
+   "condition": "free",
+   "ms": 5224.0011049999885,
+   "completion_tokens": 468,
+   "gen_tps": 89.91988484106372,
+   "prompt_ms": 10.11,
+   "predicted_ms": 5204.633,
+   "text": "@s1 stated\n  relation \"carry\"\n  role subject \"Varga & Partners\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"carry\"\n  role subject \"Nordwind Systems\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be a parent of\"\n  role subject \"Csaba Balogh\"\n  role object \"Hao Li\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"publish\"\n  role subject \"Vertex Analytics\"\n  role object \"The Glass Orchard\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"plan to study\"\n  role subject \"Yan\"\n  role topic \"physical education\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"rely on\"\n  role subject \"The billing service\"\n  role object \"the reporting dashboard\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"pay with\"\n  role subject \"Paloma\"\n  role instrument \"a credit card\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"be a parent of\"\n  role subject \"Otilia Ciobanu\"\n  role object \"the inventory API\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be a parent of\"\n  role subject \"Nour\"\n  role object \"Pune\"\n  polarity negated\n  basis world\n\n@q query\n  select ?how\n  where match\n    relation \"settle the bill\"\n    role subject \"Ionuț\"\n    role instrument ?how\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"live in\"\n    role subject \"Nour\"\n    role location \"Pune\"\n    polarity affirmed\n  end\n\n@q3 query\n  where match\n    relation \"be a parent of\"\n    role subject \"Natalia\"\n    role object \"the inventory API\"\n    polarity affirmed\n  end\n\n@q4 query\n  select ?x\n  where match\n    relation \"own\"\n    role subject ?x\n    role object \"the garage behind the block\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_029346_0_0",
+   "condition": "gbnf",
+   "ms": 5556.549333000003,
+   "completion_tokens": 468,
+   "gen_tps": 84.49984038919038,
+   "prompt_ms": 12.05,
+   "predicted_ms": 5538.472,
+   "text": "@s1 stated\n  relation \"carry\"\n  role subject \"Varga & Partners\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"carry\"\n  role subject \"Nordwind Systems\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be a parent of\"\n  role subject \"Csaba Balogh\"\n  role object \"Hao Li\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"publish\"\n  role subject \"Vertex Analytics\"\n  role object \"The Glass Orchard\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"plan to study\"\n  role subject \"Yan\"\n  role topic \"physical education\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"rely on\"\n  role subject \"The billing service\"\n  role object \"the reporting dashboard\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"pay with\"\n  role subject \"Paloma\"\n  role instrument \"a credit card\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"be a parent of\"\n  role subject \"Otilia Ciobanu\"\n  role object \"the inventory API\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be a parent of\"\n  role subject \"Nour\"\n  role object \"Pune\"\n  polarity negated\n  basis world\n\n@q query\n  select ?how\n  where match\n    relation \"settle the bill\"\n    role subject \"Ionuț\"\n    role instrument ?how\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"live in\"\n    role subject \"Nour\"\n    role location \"Pune\"\n    polarity affirmed\n  end\n\n@q3 query\n  where match\n    relation \"be a parent of\"\n    role subject \"Natalia\"\n    role object \"the inventory API\"\n    polarity affirmed\n  end\n\n@q4 query\n  select ?x\n  where match\n    relation \"own\"\n    role subject ?x\n    role object \"the garage behind the block\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_029346_0_0",
+   "condition": "gbnf",
+   "ms": 5259.009175999992,
+   "completion_tokens": 468,
+   "gen_tps": 89.3720411027364,
+   "prompt_ms": 14.895,
+   "predicted_ms": 5236.537,
+   "text": "@s1 stated\n  relation \"carry\"\n  role subject \"Varga & Partners\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"carry\"\n  role subject \"Nordwind Systems\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be a parent of\"\n  role subject \"Csaba Balogh\"\n  role object \"Hao Li\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"publish\"\n  role subject \"Vertex Analytics\"\n  role object \"The Glass Orchard\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"plan to study\"\n  role subject \"Yan\"\n  role topic \"physical education\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"rely on\"\n  role subject \"The billing service\"\n  role object \"the reporting dashboard\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"pay with\"\n  role subject \"Paloma\"\n  role instrument \"a credit card\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"be a parent of\"\n  role subject \"Otilia Ciobanu\"\n  role object \"the inventory API\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be a parent of\"\n  role subject \"Nour\"\n  role object \"Pune\"\n  polarity negated\n  basis world\n\n@q query\n  select ?how\n  where match\n    relation \"settle the bill\"\n    role subject \"Ionuț\"\n    role instrument ?how\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"live in\"\n    role subject \"Nour\"\n    role location \"Pune\"\n    polarity affirmed\n  end\n\n@q3 query\n  where match\n    relation \"be a parent of\"\n    role subject \"Natalia\"\n    role object \"the inventory API\"\n    polarity affirmed\n  end\n\n@q4 query\n  select ?x\n  where match\n    relation \"own\"\n    role subject ?x\n    role object \"the garage behind the block\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_029346_0_0",
+   "condition": "free",
+   "ms": 4919.965026999998,
+   "completion_tokens": 468,
+   "gen_tps": 95.39238475254645,
+   "prompt_ms": 8.664,
+   "predicted_ms": 4906.052,
+   "text": "@s1 stated\n  relation \"carry\"\n  role subject \"Varga & Partners\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"carry\"\n  role subject \"Nordwind Systems\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be a parent of\"\n  role subject \"Csaba Balogh\"\n  role object \"Hao Li\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"publish\"\n  role subject \"Vertex Analytics\"\n  role object \"The Glass Orchard\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"plan to study\"\n  role subject \"Yan\"\n  role topic \"physical education\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"rely on\"\n  role subject \"The billing service\"\n  role object \"the reporting dashboard\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"pay with\"\n  role subject \"Paloma\"\n  role instrument \"a credit card\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"be a parent of\"\n  role subject \"Otilia Ciobanu\"\n  role object \"the inventory API\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be a parent of\"\n  role subject \"Nour\"\n  role object \"Pune\"\n  polarity negated\n  basis world\n\n@q query\n  select ?how\n  where match\n    relation \"settle the bill\"\n    role subject \"Ionuț\"\n    role instrument ?how\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"live in\"\n    role subject \"Nour\"\n    role location \"Pune\"\n    polarity affirmed\n  end\n\n@q3 query\n  where match\n    relation \"be a parent of\"\n    role subject \"Natalia\"\n    role object \"the inventory API\"\n    polarity affirmed\n  end\n\n@q4 query\n  select ?x\n  where match\n    relation \"own\"\n    role subject ?x\n    role object \"the garage behind the block\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_031266_0_0",
+   "condition": "gbnf",
+   "ms": 220.16467299999204,
+   "completion_tokens": 26,
+   "gen_tps": 127.06418207319874,
+   "prompt_ms": 9.92,
+   "predicted_ms": 204.621,
+   "text": "@c constraint\n  var ?x int 3 10\n  claim ?x equal 14\n  task possible\n"
+  },
+  {
+   "id": "fv1_031266_0_0",
+   "condition": "free",
+   "ms": 265.27610800002003,
+   "completion_tokens": 26,
+   "gen_tps": 104.43990086243257,
+   "prompt_ms": 12.485,
+   "predicted_ms": 248.947,
+   "text": "@c constraint\n  var ?x int 3 10\n  claim ?x equal 14\n  task possible\n"
+  },
+  {
+   "id": "fv1_031266_0_0",
+   "condition": "free",
+   "ms": 268.0741229999985,
+   "completion_tokens": 26,
+   "gen_tps": 102.76111203332621,
+   "prompt_ms": 11.201,
+   "predicted_ms": 253.014,
+   "text": "@c constraint\n  var ?x int 3 10\n  claim ?x equal 14\n  task possible\n"
+  },
+  {
+   "id": "fv1_031266_0_0",
+   "condition": "gbnf",
+   "ms": 205.13169599999674,
+   "completion_tokens": 26,
+   "gen_tps": 138.18174087734778,
+   "prompt_ms": 11.314,
+   "predicted_ms": 188.158,
+   "text": "@c constraint\n  var ?x int 3 10\n  claim ?x equal 14\n  task possible\n"
+  },
+  {
+   "id": "fv1_012616_0_0",
+   "condition": "free",
+   "ms": 251.3929459999781,
+   "completion_tokens": 35,
+   "gen_tps": 148.80952380952382,
+   "prompt_ms": 10.68,
+   "predicted_ms": 235.2,
+   "text": "@q query\n  where match\n    relation \"attend\"\n    role subject \"Karim\"\n    role object \"the chess tournament\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_012616_0_0",
+   "condition": "gbnf",
+   "ms": 285.39849900000263,
+   "completion_tokens": 35,
+   "gen_tps": 129.9043532804561,
+   "prompt_ms": 9.991,
+   "predicted_ms": 269.429,
+   "text": "@q query\n  where match\n    relation \"attend\"\n    role subject \"Karim\"\n    role object \"the chess tournament\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_012616_0_0",
+   "condition": "gbnf",
+   "ms": 280.5453540000017,
+   "completion_tokens": 35,
+   "gen_tps": 132.16424617290104,
+   "prompt_ms": 10.547,
+   "predicted_ms": 264.822,
+   "text": "@q query\n  where match\n    relation \"attend\"\n    role subject \"Karim\"\n    role object \"the chess tournament\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_012616_0_0",
+   "condition": "free",
+   "ms": 293.80009400000563,
+   "completion_tokens": 35,
+   "gen_tps": 124.53122887416654,
+   "prompt_ms": 9.727,
+   "predicted_ms": 281.054,
+   "text": "@q query\n  where match\n    relation \"attend\"\n    role subject \"Karim\"\n    role object \"the chess tournament\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_026267_0_0",
+   "condition": "gbnf",
+   "ms": 621.4550180000078,
+   "completion_tokens": 64,
+   "gen_tps": 105.93185271500028,
+   "prompt_ms": 10.43,
+   "predicted_ms": 604.162,
+   "text": "@q query\n  mode exists\n  where all\n    match\n      relation \"manage\"\n      role subject \"Viorica\"\n      role object ?r\n      polarity affirmed\n    end\n    match\n      relation \"live in\"\n      role subject ?r\n      role location \"Alexandria\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_026267_0_0",
+   "condition": "free",
+   "ms": 664.4985650000162,
+   "completion_tokens": 64,
+   "gen_tps": 98.96060440189139,
+   "prompt_ms": 11.918,
+   "predicted_ms": 646.722,
+   "text": "@q query\n  mode exists\n  where all\n    match\n      relation \"manage\"\n      role subject \"Viorica\"\n      role object ?r\n      polarity affirmed\n    end\n    match\n      relation \"live in\"\n      role subject ?r\n      role location \"Alexandria\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_026267_0_0",
+   "condition": "free",
+   "ms": 616.3190170000016,
+   "completion_tokens": 64,
+   "gen_tps": 106.3041694488461,
+   "prompt_ms": 10.935,
+   "predicted_ms": 602.046,
+   "text": "@q query\n  mode exists\n  where all\n    match\n      relation \"manage\"\n      role subject \"Viorica\"\n      role object ?r\n      polarity affirmed\n    end\n    match\n      relation \"live in\"\n      role subject ?r\n      role location \"Alexandria\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_026267_0_0",
+   "condition": "gbnf",
+   "ms": 635.2427259999968,
+   "completion_tokens": 64,
+   "gen_tps": 103.3555009350443,
+   "prompt_ms": 10.661,
+   "predicted_ms": 619.222,
+   "text": "@q query\n  mode exists\n  where all\n    match\n      relation \"manage\"\n      role subject \"Viorica\"\n      role object ?r\n      polarity affirmed\n    end\n    match\n      relation \"live in\"\n      role subject ?r\n      role location \"Alexandria\"\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_007155_0_0",
+   "condition": "free",
+   "ms": 522.941021000006,
+   "completion_tokens": 49,
+   "gen_tps": 96.61721442711907,
+   "prompt_ms": 10.786,
+   "predicted_ms": 507.156,
+   "text": "@q query\n  select ?t\n  where match\n    relation \"be married to\"\n    role subject \"Olivia\"\n    role object \"Ștefan Tănase\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_007155_0_0",
+   "condition": "gbnf",
+   "ms": 507.2270800000115,
+   "completion_tokens": 49,
+   "gen_tps": 100.01632919660352,
+   "prompt_ms": 10.555,
+   "predicted_ms": 489.92,
+   "text": "@q query\n  select ?t\n  where match\n    relation \"be married to\"\n    role subject \"Olivia\"\n    role object \"Ștefan Tănase\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_007155_0_0",
+   "condition": "gbnf",
+   "ms": 428.2681089999969,
+   "completion_tokens": 49,
+   "gen_tps": 118.20245426891782,
+   "prompt_ms": 8.872,
+   "predicted_ms": 414.543,
+   "text": "@q query\n  select ?t\n  where match\n    relation \"be married to\"\n    role subject \"Olivia\"\n    role object \"Ștefan Tănase\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_007155_0_0",
+   "condition": "free",
+   "ms": 424.73944899998605,
+   "completion_tokens": 49,
+   "gen_tps": 119.19125087569084,
+   "prompt_ms": 9.578,
+   "predicted_ms": 411.104,
+   "text": "@q query\n  select ?t\n  where match\n    relation \"be married to\"\n    role subject \"Olivia\"\n    role object \"Ștefan Tănase\"\n    role time ?t\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_002767_0",
+   "condition": "gbnf",
+   "ms": 78.03587600000901,
+   "completion_tokens": 10,
+   "gen_tps": 157.8731331502005,
+   "prompt_ms": 9.298,
+   "predicted_ms": 63.342,
+   "text": "@u unclear\n  kind gibberish\n"
+  },
+  {
+   "id": "fv1_002767_0",
+   "condition": "free",
+   "ms": 71.38036999999895,
+   "completion_tokens": 10,
+   "gen_tps": 173.7377949199069,
+   "prompt_ms": 9.546,
+   "predicted_ms": 57.558,
+   "text": "@u unclear\n  kind gibberish\n"
+  },
+  {
+   "id": "fv1_002767_0",
+   "condition": "free",
+   "ms": 91.0906959999993,
+   "completion_tokens": 10,
+   "gen_tps": 133.0601165606621,
+   "prompt_ms": 11.848,
+   "predicted_ms": 75.154,
+   "text": "@u unclear\n  kind gibberish\n"
+  },
+  {
+   "id": "fv1_002767_0",
+   "condition": "gbnf",
+   "ms": 81.18096500000684,
+   "completion_tokens": 10,
+   "gen_tps": 149.30052703086042,
+   "prompt_ms": 9.533,
+   "predicted_ms": 66.979,
+   "text": "@u unclear\n  kind gibberish\n"
+  },
+  {
+   "id": "fv1_026794_0_0",
+   "condition": "free",
+   "ms": 293.1476759999932,
+   "completion_tokens": 37,
+   "gen_tps": 133.77491105776184,
+   "prompt_ms": 11.321,
+   "predicted_ms": 276.584,
+   "text": "@q query\n  select ?x\n  where match\n    relation \"have for sale\"\n    role subject ?x\n    role object \"a mobile phone\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_026794_0_0",
+   "condition": "gbnf",
+   "ms": 295.42348100000527,
+   "completion_tokens": 37,
+   "gen_tps": 131.44152273227846,
+   "prompt_ms": 8.576,
+   "predicted_ms": 281.494,
+   "text": "@q query\n  select ?x\n  where match\n    relation \"have for sale\"\n    role subject ?x\n    role object \"a mobile phone\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_026794_0_0",
+   "condition": "gbnf",
+   "ms": 271.686189,
+   "completion_tokens": 37,
+   "gen_tps": 143.5805894565281,
+   "prompt_ms": 8.709,
+   "predicted_ms": 257.695,
+   "text": "@q query\n  select ?x\n  where match\n    relation \"have for sale\"\n    role subject ?x\n    role object \"a mobile phone\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_026794_0_0",
+   "condition": "free",
+   "ms": 300.3444160000072,
+   "completion_tokens": 37,
+   "gen_tps": 129.863748359154,
+   "prompt_ms": 11.274,
+   "predicted_ms": 284.914,
+   "text": "@q query\n  select ?x\n  where match\n    relation \"have for sale\"\n    role subject ?x\n    role object \"a mobile phone\"\n    polarity affirmed\n  end\n"
+  },
+  {
+   "id": "fv1_030584_0_0",
+   "condition": "gbnf",
+   "ms": 513.7251810000162,
+   "completion_tokens": 64,
+   "gen_tps": 128.647870676728,
+   "prompt_ms": 8.813,
+   "predicted_ms": 497.482,
+   "text": "@q query\n  select ?c\n  where all\n    match\n      relation \"coach\"\n      role subject ?p\n      role object \"Craiova United\"\n      polarity affirmed\n    end\n    match\n      relation \"work for\"\n      role subject ?p\n      role object ?c\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_030584_0_0",
+   "condition": "free",
+   "ms": 589.6692029999977,
+   "completion_tokens": 64,
+   "gen_tps": 111.37272099219172,
+   "prompt_ms": 9.757,
+   "predicted_ms": 574.647,
+   "text": "@q query\n  select ?c\n  where all\n    match\n      relation \"coach\"\n      role subject ?p\n      role object \"Craiova United\"\n      polarity affirmed\n    end\n    match\n      relation \"work for\"\n      role subject ?p\n      role object ?c\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_030584_0_0",
+   "condition": "free",
+   "ms": 483.9473270000017,
+   "completion_tokens": 64,
+   "gen_tps": 136.38639971870305,
+   "prompt_ms": 10.576,
+   "predicted_ms": 469.255,
+   "text": "@q query\n  select ?c\n  where all\n    match\n      relation \"coach\"\n      role subject ?p\n      role object \"Craiova United\"\n      polarity affirmed\n    end\n    match\n      relation \"work for\"\n      role subject ?p\n      role object ?c\n      polarity affirmed\n    end\n  end\n"
+  },
+  {
+   "id": "fv1_030584_0_0",
+   "condition": "gbnf",
+   "ms": 486.9917890000215,
+   "completion_tokens": 64,
+   "gen_tps": 136.55926138509497,
+   "prompt_ms": 13.16,
+   "predicted_ms": 468.661,
+   "text": "@q query\n  select ?c\n  where all\n    match\n      relation \"coach\"\n      role subject ?p\n      role object \"Craiova United\"\n      polarity affirmed\n    end\n    match\n      relation \"work for\"\n      role subject ?p\n      role object ?c\n      polarity affirmed\n    end\n  end\n"
+  }
+ ]
+}

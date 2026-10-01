@@ -1,5 +1,5 @@
 /**
- * Adapter stubs for strategies that do not exist in reasoning/ yet. Each stub documents the feature coverage the
+ * Adapter stubs for strategies that do not exist in reasoning/ yet (none today: `neural-assist` was removed on 2026-10-01, there is no evidence for it). Each stub documents the feature coverage the
  * strategy is expected to reach (`supports`) and how it would consume the standardized circuits (`lowering`); run()
  * is never called because the harness reports `planned` (the harness also prints the DECLARED coverage per case:
  * "exp" = every required feature is declared, "n/e" = a required feature is declared unsupported).
@@ -28,9 +28,5 @@ const HORN = ['facts', 'select', 'open_world', 'classical_negation', 'rules', 'r
 const NAF = ['naf', 'closed_world', 'closed_derived', 'compute_in_rules', 'compare_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity'];
 const MODES = ['overrides', 'method', 'htn_choice', 'on_failure', 'norms_hard', 'norms_soft', 'temporal_norms', 'procedures', 'procedure_render', 'amendment', 'check_plan', 'blocked_info', 'abduce_waive', 'binding_advisory', 'norm_conflict', 'conform_asof', 'conform_deviation'];
 
-export const plannedAdapters = [
-  planned('neural-assist', 'Neural or LLM proposers with mandatory symbolic verification (advanced_research.md R45)',
-    'Not an engine: an advisory ranker or hypothesis proposer in front of an exact engine. The exact checker decides; the model never emits a verified label.',
-    'proposals typed as hypothesis or join order; verified by the same engine and budget as any other proposer.',
-    ['abduce', 'budget'], {zipBasis: 'sop_reasoner_e10 neural-rankers.json (ties the heuristic)'})
-];
+/** No strategy is planned: every strategy of the proposal exists, was pruned (2026-10-01) or is deferred without evidence. */
+export const plannedAdapters = [];

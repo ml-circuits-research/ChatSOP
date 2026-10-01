@@ -72,7 +72,9 @@ export function* join(leaves, i, env, prem, ctx) {
         if (!e2) continue;
         const t = l.which === 'start_of' ? (f.valid?.fromText ?? 'beginning') : (f.valid?.toText ?? 'open');
         const e3 = l.out in e2 ? (e2[l.out] === t ? e2 : null) : {...e2, [l.out]: t};
-        if (e3) yield* join(leaves, i + 1, e3, [...prem, ev.get(false, f.p, f.args)], ctx);
+        // the premise is THE stored fact whose validity was read (several stored facts may share one tuple), not the first of the tuple
+        const node = {neg: false, p: f.p, args: f.args, kind: 'fact', ref: f.claim, factId: f.id, premises: [], status: f.status, speaker: f.speaker};
+        if (e3) yield* join(leaves, i + 1, e3, [...prem, node], ctx);
       }
       return;
     }

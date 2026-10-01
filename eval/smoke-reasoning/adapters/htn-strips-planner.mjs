@@ -5,7 +5,7 @@
  * is reported `not_expressible`, never weakened.
  */
 import {htnStripsPlanner, NotExpressibleError} from '../../../reasoning/strategies/htn-strips-planner/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 export const htnPlanner = {
   id: 'htn-strips-planner', status: 'available', origin: 'reasoning/strategies/htn-strips-planner/ (product strategy)',

@@ -16,7 +16,7 @@ const IMPORTS = {
   'js-oracle': async () => (await import('../../../reasoning/strategies/js-reference/index.mjs')).ask,
   'datalog-souffle': async () => (await import('../../../reasoning/strategies/datalog-souffle/index.mjs')).ask,
   'datalog-e10': async () => (await import('../../../reasoning/strategies/datalog-e10/index.mjs')).ask,
-  'datalog-soplab': async () => (await import('../../../reasoning/strategies/datalog-soplab/index.mjs')).ask,
+  'datalog-soplab': async () => (await import('../../reference-engines/datalog-soplab/index.mjs')).ask,
   'sql-sqlite': async () => (await import('../../../reasoning/strategies/sql-sqlite/index.mjs')).ask
 };
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** DeepSeek cost of the SymbolicProofingLLM iteration-2 work (data build, decomposition top-up, evaluation judging), from the omp session files and the item counts.
  *
- *   node tools/eval/symbolic-proofing-cost.mjs [--since 2026-09-30T23:54:00Z] [--out eval/reports/current/symbolic-proofing-it2/deepseek-cost.json]
+ *   node tools/eval/symbolic-proofing-cost.mjs [--since 2026-09-30T23:54:00Z] [--out eval/reports/history/symbolic-proofing-it2/deepseek-cost.json]
  *
  * Metered: the agent turns of the omp sessions that name one of the task folders (usage.cost.total in the session files). NOT metered: the judge requests
  * issued from the eval kernel with completion(); their cost is estimated from the item sizes and the price implied by the metered turns of the earlier

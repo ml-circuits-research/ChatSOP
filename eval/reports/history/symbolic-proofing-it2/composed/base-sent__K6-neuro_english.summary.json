@@ -1,0 +1,165 @@
+{
+ "label": "base-sent K6 neuro_english",
+ "generated_at": "2026-10-01T00:30:10.341Z",
+ "stages": [
+  {
+   "stage": 16,
+   "cases": 16,
+   "errors": 0,
+   "changed": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "output_sentence_count_matches": {
+    "all": {
+     "k": 1,
+     "n": 16,
+     "p": 6.3,
+     "lo": 1.1,
+     "hi": 28.3
+    },
+    "by": {
+     "coordination": {
+      "k": 1,
+      "n": 11,
+      "p": 9.1,
+      "lo": 1.6,
+      "hi": 37.7
+     },
+     "multiple_questions": {
+      "k": 0,
+      "n": 4,
+      "p": 0,
+      "lo": 0,
+      "hi": 49
+     },
+     "subordinate_clause": {
+      "k": 0,
+      "n": 1,
+      "p": 0,
+      "lo": 0,
+      "hi": 79.3
+     }
+    }
+   },
+   "output_at_least_expected_sentences": {
+    "k": 3,
+    "n": 16,
+    "p": 18.8,
+    "lo": 6.6,
+    "hi": 43
+   },
+   "every_sentence_within_contract": {
+    "all": {
+     "k": 6,
+     "n": 16,
+     "p": 37.5,
+     "lo": 18.5,
+     "hi": 61.4
+    },
+    "by": {
+     "coordination": {
+      "k": 5,
+      "n": 11,
+      "p": 45.5,
+      "lo": 21.3,
+      "hi": 72
+     },
+     "multiple_questions": {
+      "k": 1,
+      "n": 4,
+      "p": 25,
+      "lo": 4.6,
+      "hi": 69.9
+     },
+     "subordinate_clause": {
+      "k": 0,
+      "n": 1,
+      "p": 0,
+      "lo": 0,
+      "hi": 79.3
+     }
+    }
+   },
+   "every_sentence_handled_by_symbolic_lm": {
+    "all": {
+     "k": 5,
+     "n": 16,
+     "p": 31.3,
+     "lo": 14.2,
+     "hi": 55.6
+    },
+    "by": {
+     "coordination": {
+      "k": 4,
+      "n": 11,
+      "p": 36.4,
+      "lo": 15.2,
+      "hi": 64.6
+     },
+     "multiple_questions": {
+      "k": 1,
+      "n": 4,
+      "p": 25,
+      "lo": 4.6,
+      "hi": 69.9
+     },
+     "subordinate_clause": {
+      "k": 0,
+      "n": 1,
+      "p": 0,
+      "lo": 0,
+      "hi": 79.3
+     }
+    }
+   },
+   "exact_target": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "preserved": {
+    "names": {
+     "k": 13,
+     "n": 33,
+     "p": 39.4,
+     "lo": 24.7,
+     "hi": 56.3
+    },
+    "numbers": {
+     "k": 0,
+     "n": 1,
+     "p": 0,
+     "lo": 0,
+     "hi": 79.3
+    },
+    "negations": {
+     "k": 1,
+     "n": 5,
+     "p": 20,
+     "lo": 3.6,
+     "hi": 62.4
+    },
+    "connectives": {
+     "k": 3,
+     "n": 14,
+     "p": 21.4,
+     "lo": 7.6,
+     "hi": 47.6
+    }
+   },
+   "sop_equals_gold": {
+    "k": 0,
+    "n": 1,
+    "p": 0,
+    "lo": 0,
+    "hi": 79.3
+   }
+  }
+ ]
+}

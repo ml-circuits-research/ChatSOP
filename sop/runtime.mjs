@@ -1,4 +1,4 @@
-import {ReasoningRegistry} from '../reasoning/registry.mjs';
+import {ReasoningRegistry,STRATEGY_OF_BACKEND} from '../reasoning/registry.mjs';
 import {DECLARATIONS,OPERATIONS,LIBRARY_TYPES,lowerDeclaration} from '../reasoning/lower.mjs';
 import {queryFor,asFact,flat} from '../reasoning/common.mjs';
 import {parse,canonical,one,many,words,unquote,parseAtom,dependencies,validateGraph,replaceReferences,scalar} from './parser.mjs';
@@ -13,6 +13,8 @@ import {assert,digest} from '../lib/util.mjs';
 import {parseCondition} from './conditions.mjs';
 import {conditionAtoms} from '../lib/conditions.mjs';
 import {runDeclarative} from './declarative.mjs';
+/** The list an operation's `output ?x one|many` ports read from its (native) packet. */
+const OPERATION_RESULTS={abduce:o=>o.explanations,diagnose:o=>o.explanations,associate:o=>o.candidates,induce:o=>o.patterns,analogize:o=>o.mappings,plan:o=>(o.plan?[o.plan]:[])};
 const MODEL_ONLY=new Set(['stated','assumed','unclear','unparsed']);
 const flatten=xs=>xs.flatMap(x=>Array.isArray(x)?flatten(x):[x]);
 // DS004: a `source assumption` fact is consumed only through `assume`; it is never evidence, stored or reinforced.
@@ -45,7 +47,7 @@ export class Runtime{
   // Wires whose values reach an `assume` field, directly or through (nested) packs.
   const assumeConsumed=()=>{const seen=new Set(),todo=[...defs.values()].filter(w=>['solve','reason'].includes(w.type)).flatMap(w=>many(w,'assume').flatMap(words));while(todo.length){const id=todo.pop().replace(/^[$~]/,'');if(seen.has(id))continue;seen.add(id);const d=defs.get(id);if(d?.type==='pack')todo.push(...many(d,'items').flatMap(words));}return seen;};
   const conditionalValues=new Set();
-  const chooseReasoning=w=>{const name=one(w,'reasoning',w.fields.backend&&!['auto','js'].includes(one(w,'backend'))?'advanced':this.policy.reasoningStrategy);if(this.policy.allowedReasoningStrategies)assert(this.policy.allowedReasoningStrategies.includes(name),'Reasoning strategy forbidden by host');return name;};
+  const chooseReasoning=w=>{const name=one(w,'reasoning',(w.fields.backend&&STRATEGY_OF_BACKEND[one(w,'backend')])||this.policy.reasoningStrategy);if(this.policy.allowedReasoningStrategies)assert(this.policy.allowedReasoningStrategies.includes(name),'Reasoning strategy forbidden by host');return name;};
   const val=ref=>{assert(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(ref),'Expected $wire value reference: '+ref);assert(Object.hasOwn(values,ref.slice(1)),'Unresolved '+ref);return values[ref.slice(1)];};
   const dataInputs=(w,key)=>flatten(many(w,key).flatMap(s=>words(s).map(readObject)));
   const deref=ref=>{assert(/^~[A-Za-z][A-Za-z0-9_]*$/.test(ref),'Expected ~wire definition handle');const w=defs.get(ref.slice(1));assert(w,'Unknown handle');return w;};
@@ -164,8 +166,8 @@ export class Runtime{
         request.memory=linkKnowledge({repo:this.repo,session:this.session,query:retrievalQuery,rules:[...this.rules(retrievalQuery),...items.filter(x=>x.kind==='rule')],schema:this.schema,localFacts:facts,strategy:this.policy.retrievalStrategy,registry:this.strategies,limits});
        }
        output=this.reasoningStrategies.run(chooseReasoning(w),{...request,mode:w.type,...(w.fields.mode?{operationMode:one(w,'mode')}:{}),limits});
-       const specs=outputSpecs(w),field={abduce:'explanations',diagnose:'explanations',associate:'candidates',induce:'patterns',analogize:'mappings',plan:'plans'}[w.type];
-       if(field){const collection=output[field]??[];output.outputProjection??={};for(const spec of specs){if(spec.mode==='status')continue;
+       const specs=outputSpecs(w),collect=OPERATION_RESULTS[w.type];
+       if(collect){const collection=collect(output)??[];output.outputProjection??={};for(const spec of specs){if(spec.mode==='status')continue;
         output.outputProjection[spec.variable]=!output.complete?{status:'incomplete'}:spec.mode==='many'||spec.mode==='rows'?{status:'bound',value:collection}:spec.mode==='one'?(collection.length===1?{status:'bound',value:collection[0]}:{status:collection.length?'ambiguous':'no_answer',candidates:collection.length}):{status:'unsupported_projection'};
        }}
        if(specs.length){const additions=specs.map(spec=>({id:spec.name,type:'binding',fields:{result:['$'+w.id],variable:[spec.variable],mode:[spec.mode],owner:[w.id]},line:0}));expansions.push({wire:w,additions,target:w.id,retain:true});}

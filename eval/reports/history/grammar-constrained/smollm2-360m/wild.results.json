@@ -1,0 +1,575 @@
+{
+ "format": "chatsop-grammar-constrained-cell-v1",
+ "model": "smollm2-360m",
+ "cell": "wild",
+ "comparison": "gbnf - free",
+ "suite": "eval/suites/formalizer-wild-v1/test.jsonl",
+ "cell_rows": 796,
+ "stages": [
+  100,
+  300,
+  796
+ ],
+ "stage_results": [
+  {
+   "stage": 1,
+   "rows": 100,
+   "primary": "wild_accepted_match",
+   "summary": {
+    "free": {
+     "rows": 100,
+     "parse_validity": 0.95,
+     "compile_validity": 0.95,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "wire_f1": 0.0741,
+     "wild_accepted_match": 0.13,
+     "wild_decision_match": 0.9,
+     "wild_proposition_f1": 0.6133,
+     "counts": {
+      "parse": 95,
+      "compile": 95,
+      "exec": null,
+      "accepted_match": 13
+     }
+    },
+    "gbnf": {
+     "rows": 100,
+     "parse_validity": 1,
+     "compile_validity": 0.98,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "wire_f1": 0.0737,
+     "wild_accepted_match": 0.13,
+     "wild_decision_match": 0.95,
+     "wild_proposition_f1": 0.6333,
+     "counts": {
+      "parse": 100,
+      "compile": 98,
+      "exec": null,
+      "accepted_match": 13
+     }
+    }
+   },
+   "primary_delta": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "decision": {
+    "stop": true,
+    "reason": "futility"
+   }
+  }
+ ],
+ "final_rows": 100,
+ "stopped": {
+  "stop": true,
+  "reason": "futility"
+ },
+ "identical_outputs": 0.94,
+ "metrics": {
+  "all": {
+   "free": {
+    "rows": 100,
+    "parse_validity": 0.95,
+    "compile_validity": 0.95,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0741,
+    "wild_accepted_match": 0.13,
+    "wild_decision_match": 0.9,
+    "wild_proposition_f1": 0.6133,
+    "counts": {
+     "parse": 95,
+     "compile": 95,
+     "exec": null,
+     "accepted_match": 13
+    }
+   },
+   "gbnf": {
+    "rows": 100,
+    "parse_validity": 1,
+    "compile_validity": 0.98,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0737,
+    "wild_accepted_match": 0.13,
+    "wild_decision_match": 0.95,
+    "wild_proposition_f1": 0.6333,
+    "counts": {
+     "parse": 100,
+     "compile": 98,
+     "exec": null,
+     "accepted_match": 13
+    }
+   }
+  },
+  "language:en": {
+   "free": {
+    "rows": 43,
+    "parse_validity": 0.9535,
+    "compile_validity": 0.9535,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.1242,
+    "wild_accepted_match": 0.1628,
+    "wild_decision_match": 0.9302,
+    "wild_proposition_f1": 0.6589,
+    "counts": {
+     "parse": 41,
+     "compile": 41,
+     "exec": null,
+     "accepted_match": 7
+    }
+   },
+   "gbnf": {
+    "rows": 43,
+    "parse_validity": 1,
+    "compile_validity": 0.9535,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.1242,
+    "wild_accepted_match": 0.1628,
+    "wild_decision_match": 0.9767,
+    "wild_proposition_f1": 0.7054,
+    "counts": {
+     "parse": 43,
+     "compile": 41,
+     "exec": null,
+     "accepted_match": 7
+    }
+   }
+  },
+  "language:mixed": {
+   "free": {
+    "rows": 20,
+    "parse_validity": 0.95,
+    "compile_validity": 0.95,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0235,
+    "wild_accepted_match": 0.05,
+    "wild_decision_match": 0.85,
+    "wild_proposition_f1": 0.45,
+    "counts": {
+     "parse": 19,
+     "compile": 19,
+     "exec": null,
+     "accepted_match": 1
+    }
+   },
+   "gbnf": {
+    "rows": 20,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.023,
+    "wild_accepted_match": 0.05,
+    "wild_decision_match": 0.9,
+    "wild_proposition_f1": 0.45,
+    "counts": {
+     "parse": 20,
+     "compile": 20,
+     "exec": null,
+     "accepted_match": 1
+    }
+   }
+  },
+  "language:ro": {
+   "free": {
+    "rows": 37,
+    "parse_validity": 0.9459,
+    "compile_validity": 0.9459,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0503,
+    "wild_accepted_match": 0.1351,
+    "wild_decision_match": 0.8919,
+    "wild_proposition_f1": 0.6486,
+    "counts": {
+     "parse": 35,
+     "compile": 35,
+     "exec": null,
+     "accepted_match": 5
+    }
+   },
+   "gbnf": {
+    "rows": 37,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "wire_f1": 0.0503,
+    "wild_accepted_match": 0.1351,
+    "wild_decision_match": 0.9459,
+    "wild_proposition_f1": 0.6486,
+    "counts": {
+     "parse": 37,
+     "compile": 37,
+     "exec": null,
+     "accepted_match": 5
+    }
+   }
+  }
+ },
+ "deltas": {
+  "all": {
+   "parse_validity": {
+    "delta": 0.05,
+    "ci95": [
+     0.01,
+     0.1
+    ],
+    "clusters": 100
+   },
+   "compile_validity": {
+    "delta": 0.03,
+    "ci95": [
+     0,
+     0.07
+    ],
+    "clusters": 100
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "wire_f1": {
+    "delta": -0.0004,
+    "ci95": [
+     -0.0014,
+     0
+    ],
+    "clusters": 100
+   },
+   "wild_decision_match": {
+    "delta": 0.05,
+    "ci95": [
+     0.01,
+     0.1
+    ],
+    "clusters": 100
+   },
+   "wild_proposition_f1": {
+    "delta": 0.02,
+    "ci95": [
+     0,
+     0.05
+    ],
+    "clusters": 100
+   }
+  },
+  "language:en": {
+   "parse_validity": {
+    "delta": 0.0465,
+    "ci95": [
+     0,
+     0.1163
+    ],
+    "clusters": 43
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 43
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 43
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 43
+   },
+   "wild_decision_match": {
+    "delta": 0.0465,
+    "ci95": [
+     0,
+     0.1163
+    ],
+    "clusters": 43
+   },
+   "wild_proposition_f1": {
+    "delta": 0.0465,
+    "ci95": [
+     0,
+     0.1163
+    ],
+    "clusters": 43
+   }
+  },
+  "language:mixed": {
+   "parse_validity": {
+    "delta": 0.05,
+    "ci95": [
+     0,
+     0.15
+    ],
+    "clusters": 20
+   },
+   "compile_validity": {
+    "delta": 0.05,
+    "ci95": [
+     0,
+     0.15
+    ],
+    "clusters": 20
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   },
+   "wire_f1": {
+    "delta": -0.0005,
+    "ci95": [
+     -0.0037,
+     0
+    ],
+    "clusters": 20
+   },
+   "wild_decision_match": {
+    "delta": 0.05,
+    "ci95": [
+     0,
+     0.15
+    ],
+    "clusters": 20
+   },
+   "wild_proposition_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 20
+   }
+  },
+  "language:ro": {
+   "parse_validity": {
+    "delta": 0.0541,
+    "ci95": [
+     0,
+     0.1351
+    ],
+    "clusters": 37
+   },
+   "compile_validity": {
+    "delta": 0.0541,
+    "ci95": [
+     0,
+     0.1351
+    ],
+    "clusters": 37
+   },
+   "wild_accepted_match": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "wild_decision_match": {
+    "delta": 0.0541,
+    "ci95": [
+     0,
+     0.1351
+    ],
+    "clusters": 37
+   },
+   "wild_proposition_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   }
+  }
+ },
+ "speed": {
+  "free": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 (server -np 8, one request at a time, cache_prompt false)"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 213.0275,
+    "p50": 195.4384,
+    "p95": 400.3396
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 70.66,
+    "p50": 65,
+    "p95": 137
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 359.314,
+    "p50": 358.3342,
+    "p95": 372.3424
+   }
+  },
+  "gbnf": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 (server -np 8, one request at a time, cache_prompt false)"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 215.7418,
+    "p50": 200.7268,
+    "p95": 405.0936
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 70.73,
+    "p50": 65,
+    "p95": 137
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 357.8151,
+    "p50": 357.7855,
+    "p95": 372.5366
+   }
+  }
+ },
+ "example_counts": {
+  "helped": 0,
+  "hurt": 0,
+  "repaired_parse": 5,
+  "forced_wrong": 5,
+  "changed_valid": 1
+ },
+ "examples": {
+  "helped": [],
+  "hurt": [],
+  "repaired_parse": [
+   {
+    "id": "wild_wf_049",
+    "language": "en",
+    "question": "was Fenella's access revoked before she left on the 30th or after",
+    "gold": "@s1 stated\n  relation \"leave\"\n  role subject \"Fenella\"\n  polarity affirmed\n  valid on \"the 30th\"\n  certainty asserted\n@q query\n  select ?t\n  where match\n    relation \"be revoked\"\n    role subject \"Fenella's access\"\n    role time ?t\n    polarity affirmed\n  end\n@q2 query\n  select ?t\n  where match\n    relation \"leave\"\n    role subject \"Fenella\"\n    role time ?t\n    polarity affirmed\n  end",
+    "free": "@q query\n  mode exists\n  where all\n    match\n      relation \"be allowed to leave\"\n      role subject \"Fenella\"\n      role source \"the 30th\"\n      polarity affirmed\n    end\n    match\n      relation \"be revoked\"\n      role subject \"Fenella\"\n      role time ?t1\n      polarity affirmed\n    end\n  end\n  order ?t1 before \"the 30th\"\n",
+    "gbnf": "@q query\n  mode exists\n  where all\n    match\n      relation \"be allowed to leave\"\n      role subject \"Fenella\"\n      role source \"the 30th\"\n      polarity affirmed\n    end\n    match\n      relation \"be revoked\"\n      role subject \"Fenella\"\n      role time ?t1\n      polarity affirmed\n    end\n  end\n  order ?t1 before ?t2\n"
+   },
+   {
+    "id": "wild_wi_015",
+    "language": "mixed",
+    "question": "Am un call cu clientul din Hamburg mâine la 10 și trebuie să știu dacă factura de servicii de consultanță se emite cu taxare inversă sau cu TVA 21%. Clientul are cod VIES valid.",
+    "gold": "@s1 stated\n  relation \"have\"\n  role subject \"the client\"\n  role object \"a valid VIES code\"\n  polarity affirmed\n  certainty asserted\n@q query\n  select ?v\n  where match\n    relation \"be issued with\"\n    role subject \"the invoice for consulting services\"\n    role instrument ?v\n    polarity affirmed\n  end\n  compare any\n    ?v equal \"reverse charge\"\n    ?v equal \"21% VAT\"\n  end",
+    "free": "@q query\n  where match\n    relation \"sell\"\n    role subject \"the consulting service\"\n    role object \"the billing service\"\n    polarity affirmed\n  end\n  except ?x\n  where match\n    relation \"be down\"\n    role subject \"the billing service\"\n    polarity affirmed\n  end\n",
+    "gbnf": "@q query\n  where match\n    relation \"sell\"\n    role subject \"the consulting service\"\n    role object \"the billing service\"\n    polarity affirmed\n  end\n  except ?x \"Hamburg\"\n\n@q2 query\n  where match\n    relation \"be down\"\n    role subject \"the billing service\"\n    polarity affirmed\n  end\n\n@q3 query\n  where match\n    relation \"have valid code\"\n    role subject \"the VIES account\"\n    polarity affirmed\n  end\n"
+   },
+   {
+    "id": "wild_wk_047",
+    "language": "ro",
+    "question": "Merită să iau Dacia Jogger pe GPL sau pe benzină dacă fac 60 de km pe zi?",
+    "gold": "@s1 stated\n  relation \"drive\"\n  role subject \"I\"\n  role object \"60 km per day\"\n  polarity affirmed\n  certainty supposed\n@q query\n  select ?v\n  where match\n    relation \"be worth buying\"\n    role subject \"I\"\n    role object \"Dacia Jogger\"\n    role instrument ?v\n    polarity affirmed\n  end\n  compare any\n    ?v equal \"LPG\"\n    ?v equal \"petrol\"\n  end",
+    "free": "@q query\n  where match\n    relation \"cost\"\n    role subject \"the Dacia Jogger\"\n    role object \"the garage sale\"\n    polarity affirmed\n  end\n  except ?x where match\n    relation \"cost\"\n    role subject \"the Dacia Jogger\"\n    role object ?x\n    polarity affirmed\n  end\n",
+    "gbnf": "@q query\n  where match\n    relation \"cost\"\n    role subject \"the Dacia Jogger\"\n    role object \"the garage sale\"\n    polarity affirmed\n  end\n  except ?x 60\n"
+   },
+   {
+    "id": "wild_we_051",
+    "language": "en",
+    "question": "Heparin half-life?",
+    "gold": "@q query\n  select ?v\n  where match\n    relation \"have half-life\"\n    role subject \"Heparin\"\n    role object ?v\n    polarity affirmed\n  end",
+    "free": "@q query\n  select ?t\n  measure half_life\n  where match\n    relation \"be broken\"\n    role subject \"Heparin\"\n    role time ?t\n    polarity affirmed\n  end\n",
+    "gbnf": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"be broken down into\"\n    role subject \"heparin\"\n    role object ?t\n    polarity affirmed\n  end\n"
+   },
+   {
+    "id": "wild_wg_053",
+    "language": "ro",
+    "question": "podul care o fost facut de firma aia din Deva anul trecut peste Somes la Ciceu-Mihaiesti iar s-o stricat. cum se cheama firma care l-o construit?",
+    "gold": "@s1 stated\n  relation \"break\"\n  role subject \"the bridge over Somes at Ciceu-Mihaiesti\"\n  polarity affirmed\n  certainty asserted\n@s2 stated\n  relation \"be made by\"\n  role subject \"the bridge over Somes at Ciceu-Mihaiesti\"\n  role object \"that company from Deva\"\n  polarity affirmed\n  valid on \"last year\"\n  certainty asserted\n@q query\n  select ?n\n  where all\n    match\n      relation \"build\"\n      role subject ?c\n      role object \"the bridge over Somes at Ciceu-Mihaiesti\"\n      polarity affirmed\n    end\n    match\n      relation \"be called\"\n      role subject ?c\n      role object ?n\n      polarity affirmed\n    end\n  end",
+    "free": "@q query\n  mode exists\n  where all\n    match\n      relation \"be based in\"\n      role subject ?m\n      role location \"Deva\"\n      polarity affirmed\n    end\n    match\n      relation \"be down\"\n      role subject ?m\n      polarity affirmed\n    end\n  end\n  except ?m \"Somes\"\n  end\n  except ?m \"Ciceu-Mihaiesti\"\n",
+    "gbnf": "@q query\n  mode exists\n  where all\n    match\n      relation \"be based in\"\n      role subject ?m\n      role location \"Deva\"\n      polarity affirmed\n    end\n    match\n      relation \"be down\"\n      role subject ?m\n      polarity affirmed\n    end\n  end\n  except ?m \"Somes\"\n  except ?m \"Ciceu-Mihaiesti\"\n"
+   }
+  ],
+  "forced_wrong": [
+   {
+    "id": "wild_wf_049",
+    "language": "en",
+    "question": "was Fenella's access revoked before she left on the 30th or after",
+    "gold": "@s1 stated\n  relation \"leave\"\n  role subject \"Fenella\"\n  polarity affirmed\n  valid on \"the 30th\"\n  certainty asserted\n@q query\n  select ?t\n  where match\n    relation \"be revoked\"\n    role subject \"Fenella's access\"\n    role time ?t\n    polarity affirmed\n  end\n@q2 query\n  select ?t\n  where match\n    relation \"leave\"\n    role subject \"Fenella\"\n    role time ?t\n    polarity affirmed\n  end",
+    "free": "@q query\n  mode exists\n  where all\n    match\n      relation \"be allowed to leave\"\n      role subject \"Fenella\"\n      role source \"the 30th\"\n      polarity affirmed\n    end\n    match\n      relation \"be revoked\"\n      role subject \"Fenella\"\n      role time ?t1\n      polarity affirmed\n    end\n  end\n  order ?t1 before \"the 30th\"\n",
+    "gbnf": "@q query\n  mode exists\n  where all\n    match\n      relation \"be allowed to leave\"\n      role subject \"Fenella\"\n      role source \"the 30th\"\n      polarity affirmed\n    end\n    match\n      relation \"be revoked\"\n      role subject \"Fenella\"\n      role time ?t1\n      polarity affirmed\n    end\n  end\n  order ?t1 before ?t2\n"
+   },
+   {
+    "id": "wild_wi_015",
+    "language": "mixed",
+    "question": "Am un call cu clientul din Hamburg mâine la 10 și trebuie să știu dacă factura de servicii de consultanță se emite cu taxare inversă sau cu TVA 21%. Clientul are cod VIES valid.",
+    "gold": "@s1 stated\n  relation \"have\"\n  role subject \"the client\"\n  role object \"a valid VIES code\"\n  polarity affirmed\n  certainty asserted\n@q query\n  select ?v\n  where match\n    relation \"be issued with\"\n    role subject \"the invoice for consulting services\"\n    role instrument ?v\n    polarity affirmed\n  end\n  compare any\n    ?v equal \"reverse charge\"\n    ?v equal \"21% VAT\"\n  end",
+    "free": "@q query\n  where match\n    relation \"sell\"\n    role subject \"the consulting service\"\n    role object \"the billing service\"\n    polarity affirmed\n  end\n  except ?x\n  where match\n    relation \"be down\"\n    role subject \"the billing service\"\n    polarity affirmed\n  end\n",
+    "gbnf": "@q query\n  where match\n    relation \"sell\"\n    role subject \"the consulting service\"\n    role object \"the billing service\"\n    polarity affirmed\n  end\n  except ?x \"Hamburg\"\n\n@q2 query\n  where match\n    relation \"be down\"\n    role subject \"the billing service\"\n    polarity affirmed\n  end\n\n@q3 query\n  where match\n    relation \"have valid code\"\n    role subject \"the VIES account\"\n    polarity affirmed\n  end\n"
+   },
+   {
+    "id": "wild_wk_047",
+    "language": "ro",
+    "question": "Merită să iau Dacia Jogger pe GPL sau pe benzină dacă fac 60 de km pe zi?",
+    "gold": "@s1 stated\n  relation \"drive\"\n  role subject \"I\"\n  role object \"60 km per day\"\n  polarity affirmed\n  certainty supposed\n@q query\n  select ?v\n  where match\n    relation \"be worth buying\"\n    role subject \"I\"\n    role object \"Dacia Jogger\"\n    role instrument ?v\n    polarity affirmed\n  end\n  compare any\n    ?v equal \"LPG\"\n    ?v equal \"petrol\"\n  end",
+    "free": "@q query\n  where match\n    relation \"cost\"\n    role subject \"the Dacia Jogger\"\n    role object \"the garage sale\"\n    polarity affirmed\n  end\n  except ?x where match\n    relation \"cost\"\n    role subject \"the Dacia Jogger\"\n    role object ?x\n    polarity affirmed\n  end\n",
+    "gbnf": "@q query\n  where match\n    relation \"cost\"\n    role subject \"the Dacia Jogger\"\n    role object \"the garage sale\"\n    polarity affirmed\n  end\n  except ?x 60\n"
+   },
+   {
+    "id": "wild_we_051",
+    "language": "en",
+    "question": "Heparin half-life?",
+    "gold": "@q query\n  select ?v\n  where match\n    relation \"have half-life\"\n    role subject \"Heparin\"\n    role object ?v\n    polarity affirmed\n  end",
+    "free": "@q query\n  select ?t\n  measure half_life\n  where match\n    relation \"be broken\"\n    role subject \"Heparin\"\n    role time ?t\n    polarity affirmed\n  end\n",
+    "gbnf": "@q query\n  select ?t\n  measure duration\n  where match\n    relation \"be broken down into\"\n    role subject \"heparin\"\n    role object ?t\n    polarity affirmed\n  end\n"
+   },
+   {
+    "id": "wild_wg_053",
+    "language": "ro",
+    "question": "podul care o fost facut de firma aia din Deva anul trecut peste Somes la Ciceu-Mihaiesti iar s-o stricat. cum se cheama firma care l-o construit?",
+    "gold": "@s1 stated\n  relation \"break\"\n  role subject \"the bridge over Somes at Ciceu-Mihaiesti\"\n  polarity affirmed\n  certainty asserted\n@s2 stated\n  relation \"be made by\"\n  role subject \"the bridge over Somes at Ciceu-Mihaiesti\"\n  role object \"that company from Deva\"\n  polarity affirmed\n  valid on \"last year\"\n  certainty asserted\n@q query\n  select ?n\n  where all\n    match\n      relation \"build\"\n      role subject ?c\n      role object \"the bridge over Somes at Ciceu-Mihaiesti\"\n      polarity affirmed\n    end\n    match\n      relation \"be called\"\n      role subject ?c\n      role object ?n\n      polarity affirmed\n    end\n  end",
+    "free": "@q query\n  mode exists\n  where all\n    match\n      relation \"be based in\"\n      role subject ?m\n      role location \"Deva\"\n      polarity affirmed\n    end\n    match\n      relation \"be down\"\n      role subject ?m\n      polarity affirmed\n    end\n  end\n  except ?m \"Somes\"\n  end\n  except ?m \"Ciceu-Mihaiesti\"\n",
+    "gbnf": "@q query\n  mode exists\n  where all\n    match\n      relation \"be based in\"\n      role subject ?m\n      role location \"Deva\"\n      polarity affirmed\n    end\n    match\n      relation \"be down\"\n      role subject ?m\n      polarity affirmed\n    end\n  end\n  except ?m \"Somes\"\n  except ?m \"Ciceu-Mihaiesti\"\n"
+   }
+  ],
+  "changed_valid": [
+   {
+    "id": "wild_wk_037",
+    "language": "en",
+    "question": "No one on the Tartu team except Kaarel speaks Russian?",
+    "gold": "@a1 assumed\n  relation \"speak\"\n  role subject \"Kaarel\"\n  role object \"Russian\"\n  polarity affirmed\n  basis implicature\n@q query\n  mode every\n  where match\n    relation \"be on\"\n    role subject ?m\n    role object \"the Tartu team\"\n    polarity affirmed\n  end\n  scope match\n    relation \"speak\"\n    role subject ?m\n    role object \"Russian\"\n    polarity negated\n  end\n  except ?m \"Kaarel\"",
+    "free": "@q query\n  mode every\n  where match\n    relation \"be on the Tartu team\"\n    role subject ?m\n    role object \"Kaarel\"\n    polarity affirmed\n  end\n  scope match\n    relation \" speak\"\n    role subject ?m\n    role object \"Russian\"\n    polarity negated\n  end\n",
+    "gbnf": "@q query\n  mode every\n  where match\n    relation \"be on the Tartu team\"\n    role subject ?m\n    role object \"Kaarel\"\n    polarity affirmed\n  end\n  scope match\n    relation \"speak Russian\"\n    role subject ?m\n    polarity negated\n  end\n"
+   }
+  ]
+ }
+}

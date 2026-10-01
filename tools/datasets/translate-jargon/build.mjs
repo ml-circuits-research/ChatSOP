@@ -98,7 +98,7 @@ function assemble() {
     const m = msgs.get(id); if (!m) continue;
     if (copied.has(id)) { bump('opus_8gram'); continue; }
     if (!target || /\n/.test(target) || target.length > 1400) { bump('target_shape'); continue; }
-    if (blocked(target, bl)) { bump('blocklist_target'); continue; }
+    if (blocked(target, bl) || blocked(m.message, bl)) { bump('blocklist_target'); continue; }
     if (!m.clean && !m.terms.every(t => hasTok(target, t))) { bump('term_not_kept'); continue; }
     const quoted = [...m.message.matchAll(/["“„]([^"”“„]{2,60})["”]/g)].map(x => x[1]);
     if (quoted.some(q => !target.toLowerCase().includes(q.toLowerCase()))) { bump('quote_not_kept'); continue; }

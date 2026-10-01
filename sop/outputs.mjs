@@ -39,7 +39,7 @@ export function selectOutput(result, {variable,mode}) {
     const item=result.outputProjection?.[variable];
     return item ? {...base,...item} : {...base,status:'unsupported_projection'};
   }
-  if(result.outputProjection?.[variable]) return {...base,...result.outputProjection[variable],epistemic:result.epistemic??'candidate'};
+  if(result.outputProjection?.[variable]) return {...base,...result.outputProjection[variable]};
   assert(result.query,'A relational output needs a query result');
   if (mode==='rows') return {...base,status:'bound',value:result.answers.map(r=>({...r.binding}))};
   assert(result.query.select.includes(variable),'Output '+variable+' is not selected by the query');

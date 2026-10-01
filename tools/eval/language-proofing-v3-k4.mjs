@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /** Paired case-level bootstrap of the composed K4 (per sentence, every sentence sent) results of two arms of the same run folder.
- *   node tools/eval/language-proofing-v3-k4.mjs --a lp-it2 --b lp-it3 [--dir eval/reports/current/language-proofing-it3/composed]
+ *   node tools/eval/language-proofing-v3-k4.mjs --a lp-it2 --b lp-it3 [--dir eval/reports/history/language-proofing-it3/composed]
  * Rates are sums over cases: clean sentences changed = (broken) / clean components; bad sentences fixed = repaired / change components;
  * bad sentences wrongly rewritten = wrong_rewrite / change components. Cases are resampled (2,000 resamples, seed 5).
  */
@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {ROOT} from '../../lib/dataset-paths.mjs';
 const arg = n => { const i = process.argv.indexOf(n); return i > 0 ? process.argv[i + 1] : undefined; };
-const dir = path.resolve(ROOT, arg('--dir') ?? 'eval/reports/current/language-proofing-it3/composed'), a = arg('--a'), b = arg('--b');
+const dir = path.resolve(ROOT, arg('--dir') ?? 'eval/reports/history/language-proofing-it3/composed'), a = arg('--a'), b = arg('--b');
 const load = n => new Map(fs.readFileSync(path.join(dir, 'runs', `${n}__K4__sentence.jsonl`), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).map(r => [r.id, r]));
 const A = load(a), B = load(b), ids = [...A.keys()].filter(id => B.has(id));
 function rng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }

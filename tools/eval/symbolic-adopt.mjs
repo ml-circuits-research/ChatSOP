@@ -6,7 +6,7 @@
  *   node tools/eval/symbolic-adopt.mjs run --system A|B --stage 100|300|full [--device cuda]
  *   node tools/eval/symbolic-adopt.mjs compare --stage 100|300|full
  *
- * The rules of both systems are the frozen copies under eval/reports/current/baseline-ud-rules/ (hash-checked by
+ * The rules of both systems are the frozen copies under eval/reports/history/baseline-ud-rules/ (hash-checked by
  * tools/research/proofing-oracle.mjs loadFrozenRules): live edits of lib/ud-to-sop cannot change a score. Parses come from
  * the one configurable worker (lib/ud-to-sop/stanza.mjs) with the English pipeline forced (the messages are classified
  * clean English), batches of 64 on the GPU, cached per package in eval/reports/current/symbolic-accurate/sealed/.

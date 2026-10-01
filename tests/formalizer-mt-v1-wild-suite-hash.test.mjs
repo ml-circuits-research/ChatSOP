@@ -1,7 +1,7 @@
 /** Housekeeping deviation D1 of status/preregistrations/formalizer-mt-v1.json: that preregistration and
  * status/training/qualification-formalizer-v1.json both froze the wild suite's hash from before the Q-SYM-3
  * re-adjudication (eval-ud-rules-v14-v1 deviation D2). This test proves the deviation's "how_to_pin_or_rebuild"
- * option (b) is correct: replaying eval/reports/current/ud-rules-v14/gold-readjudication.jsonl's "before" values
+ * option (b) is correct: replaying eval/reports/history/ud-rules-v14/gold-readjudication.jsonl's "before" values
  * over the current sealed suite reconstructs the previously frozen file byte for byte (same sha256), without ever
  * writing that reconstruction back to eval/suites/ (the sealed suite is never modified). */
 import test from 'node:test';
@@ -20,7 +20,7 @@ test('the pre-Q-SYM-3 wild suite hash is reconstructible byte for byte from gold
   assert.equal(sha256(current), '548d76beceb18f1b9a5e9de3fb65856c9965242e779933a2d666198fe6dff897', 'the suite must still be the current (post-adjudication) one this test starts from');
 
   const readjudications = new Map(
-    readJsonlLines(ROOT + 'eval/reports/current/ud-rules-v14/gold-readjudication.jsonl').filter(l => l.trim()).map(l => JSON.parse(l)).map(r => [r.id, r]),
+    readJsonlLines(ROOT + 'eval/reports/history/ud-rules-v14/gold-readjudication.jsonl').filter(l => l.trim()).map(l => JSON.parse(l)).map(r => [r.id, r]),
   );
   assert.equal(readjudications.size, 10);
 

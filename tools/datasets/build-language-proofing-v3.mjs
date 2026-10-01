@@ -24,7 +24,7 @@ import {normalizeSpacing, hasSpacingDefect, perturb} from './language-proofing/s
 import {TRAINED_TEN, HELD_OUT_V3, anyMatch, matchesAny} from './language-proofing/vocab-it3.mjs';
 
 const SRC = path.join(ROOT, 'datasets/bad_english/proofing-v3'), OUT = path.join(ROOT, 'datasets/bad_english/proofing-it3');
-const EVID = path.join(ROOT, 'eval/reports/current/language-proofing-it3/data');
+const EVID = path.join(ROOT, 'eval/reports/history/language-proofing-it3/data');
 const sha = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const readJsonl = file => fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l));
 const body = rows => rows.map(r => JSON.stringify(r)).join('\n') + '\n';
@@ -38,7 +38,7 @@ export function build(o = {}) {
   const devHeld = readJsonl(path.join(SRC, 'dev-heldout.jsonl')), reserve = readJsonl(path.join(SRC, 'reserve-heldout.jsonl')), mashEval = readJsonl(path.join(SRC, 'mash-eval.jsonl'));
   const audit0 = new Map(readJsonl(path.join(SRC, 'audit.jsonl')).map(a => [a.id, a]));
   // sealed hashes: union of the iteration-2 scan and a fresh scan of eval/suites (the suites changed since)
-  const s2 = JSON.parse(fs.readFileSync(path.join(ROOT, 'eval/reports/current/language-proofing-it2/sealed-hashes.json'), 'utf8')), s3 = JSON.parse(fs.readFileSync(path.join(EVID, 'sealed-hashes.json'), 'utf8'));
+  const s2 = JSON.parse(fs.readFileSync(path.join(ROOT, 'eval/reports/history/language-proofing-it2/sealed-hashes.json'), 'utf8')), s3 = JSON.parse(fs.readFileSync(path.join(EVID, 'sealed-hashes.json'), 'utf8'));
   const sealed = {hashes: new Set([...s2.hashes, ...s3.hashes]), signatures: new Set([...s2.signatures, ...s3.signatures])};
   fs.writeFileSync(path.join(EVID, 'sealed-hashes-union.json'), JSON.stringify({generated_at: new Date().toISOString(), note: 'union of language-proofing-it2/sealed-hashes.json and the fresh scan data/sealed-hashes.json', files: s3.files, hashes: [...sealed.hashes].sort(), signatures: [...sealed.signatures].sort()}) + '\n');
   const stats = {train_v3: train0.length};

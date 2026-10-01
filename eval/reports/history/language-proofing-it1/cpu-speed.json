@@ -1,0 +1,16 @@
+{
+ "rows": 30,
+ "ms_p50": 112.0,
+ "ms_mean": 116.16666666666667,
+ "ms_max": 184,
+ "out_tokens_mean": 13.166666666666666,
+ "tokens_per_s_overall": 113.3428981348637,
+ "all600": {
+  "ms_p50": 101,
+  "tokens_per_s": 123.70663180937682
+ },
+ "threads": 4,
+ "quant": "Q8_0",
+ "server": "llama-server -ngl 0 -t 4 -c 4096",
+ "model": "models/gemma/language-proofing-gemma270m-it1/proofreader/gguf/ep3-q8_0.gguf"
+}

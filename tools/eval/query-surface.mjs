@@ -117,7 +117,9 @@ export function tableRows(results, {byPrimary = false} = {}) {
 
 function table(o) {
   const dir = path.resolve(ROOT, o.out ?? OUT);
-  const read = tag => fs.readFileSync(path.join(dir, `results-${tag}.jsonl`), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).filter(r => !o.set || String(o.set).split(',').includes(r.set));
+  // the forms are recomputed from the message, so a classifier change applies to results recorded earlier
+  const messages = new Map(fs.readFileSync(path.join(dir, 'items.jsonl'), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).map(r => [r.id + '|' + r.set, r.message]));
+  const read = tag => fs.readFileSync(path.join(dir, `results-${tag}.jsonl`), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).filter(r => !o.set || String(o.set).split(',').includes(r.set)).map(r => { const forms = messageForms(messages.get(r.id + '|' + r.set) ?? '').forms; return {...r, forms, primary: primaryForm(forms)}; });
   const a = tableRows(read(o.tag ?? 'before'), {byPrimary: Boolean(o.primary)});
   const b = o.vs ? tableRows(read(o.vs), {byPrimary: Boolean(o.primary)}) : null;
   const lines = [`| form | n | emits query | no query / unparsed | query-form = gold | content ok (gold) | = gold after frames |${b ? ' after: no query/unparsed | after: form | after: content | after: strict |' : ''}`, `| --- | ---: | ---: | ---: | ---: | ---: | ---: |${b ? ' ---: | ---: | ---: | ---: |' : ''}`];

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Applies the analysis-compare metric to the scored outputs of a proofing evaluation (DS016 "Analysis comparison", recipe for the proofing evaluations).
- *   node tools/eval/analysis-compare-proofing.mjs --report eval/reports/current/language-proofing-it1 --scores lp-it1__test600,identity__test600,... [--out eval/reports/current/analysis-compare/proofing-it1] [--ref target|input] [--judged lp-it1__test]
+ *   node tools/eval/analysis-compare-proofing.mjs --report eval/reports/history/language-proofing-it1 --scores lp-it1__test600,identity__test600,... [--out eval/reports/current/analysis-compare/proofing-it1] [--ref target|input] [--judged lp-it1__test]
  * Each scores file (`<report>/scores/<name>.json`, records {id, input, target, output, chrf, clean_gate, kind}) gives pairs (output, reference): the reference is the target
  * (or the input with `--ref input`, for English inputs). Identical strings are equivalent without a parse; outputs that are not clean English (clean_gate false) are skipped
  * and counted. `--judged <name>` adds the records of that scores file whose (input, output) pair has a two-vote verdict in datasets_sources/language_proofing_meaning_judge
@@ -14,7 +14,7 @@ import {comparePairs} from './analysis-compare.mjs';
 import {wilson} from './analysis-compare-validate.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) => (a.startsWith('--') ? [...acc, [a.slice(2), all[i + 1]]] : acc), []));
-const report = path.resolve(ROOT, args.report ?? 'eval/reports/current/language-proofing-it1');
+const report = path.resolve(ROOT, args.report ?? 'eval/reports/history/language-proofing-it1');
 const OUT = path.resolve(ROOT, args.out ?? 'eval/reports/current/analysis-compare/proofing-it1');
 const rd = f => fs.readFileSync(f, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l));
 const pct = w => (w.p === null ? 'n/a' : `${(w.p * 100).toFixed(1)}% [${(w.lo * 100).toFixed(1)}, ${(w.hi * 100).toFixed(1)}] (${w.k}/${w.n})`);

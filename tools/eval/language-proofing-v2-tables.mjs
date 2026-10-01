@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /** Markdown tables of the LanguageProofingLLM iteration-2 report from the score files in $LP_WORK (run after the evaluations).
- *   node tools/eval/language-proofing-v2-tables.mjs --arms identity,base-gemma270m,lp-it1,lp-it2 > eval/reports/current/language-proofing-it2/tables.md
+ *   node tools/eval/language-proofing-v2-tables.mjs --arms identity,base-gemma270m,lp-it1,lp-it2 > eval/reports/history/language-proofing-it2/tables.md
  */
 import fs from 'node:fs';
 import path from 'node:path';

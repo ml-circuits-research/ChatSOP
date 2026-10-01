@@ -36,7 +36,7 @@ export const primarySource = row => row.lineage?.inspired_by?.[0] ?? 'authored';
 /**
  * Banned message patterns: phrasing that presupposes a knowledge base, vocabulary or record the model cannot
  * see (the model's input is the user's message only), quoted vocabulary conditions, pipeline stages, and ids.
- * Found in the old corpora by the no-context sweep (eval/reports/current/no-context-sweep.json).
+ * Found in the old corpora by the no-context sweep (eval/reports/history/no-context-sweep.json).
  */
 export const BANNED_PATTERNS = Object.freeze([
   ['vocabulary_reference', /\b(din vocabular|in the vocabulary|from the vocabulary|the shortlist|the context|knowledge base|the database)\b/i],

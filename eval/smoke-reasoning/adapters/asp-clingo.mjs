@@ -6,7 +6,7 @@
  */
 import {aspClingo} from '../../../reasoning/strategies/asp-clingo/index.mjs';
 import {NotExpressibleError} from '../../../reasoning/strategies/js-reference/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 export const aspClingoAdapter = {
   id: 'asp-clingo', status: 'available', origin: 'reasoning/strategies/asp-clingo/ (clingo 5.8.2 subprocess, private binary under tools/.solvers/clingo)',

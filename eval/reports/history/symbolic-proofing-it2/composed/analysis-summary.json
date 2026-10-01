@@ -1,0 +1,5605 @@
+{
+ "generated_at": "2026-10-01T02:52:29.295Z",
+ "summaries": [
+  {
+   "run": "base-sent K6-neuro_english whole",
+   "name": "base-sent",
+   "kind": "K6",
+   "mode": "whole",
+   "cases": 16,
+   "input_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct": {
+    "k": 7,
+    "n": 16,
+    "p": 43.8,
+    "lo": 23.1,
+    "hi": 66.8
+   },
+   "expected_analysis_correct": {
+    "k": 9,
+    "n": 16,
+    "p": 56.3,
+    "lo": 33.2,
+    "hi": 76.9
+   },
+   "sentences_correct_in": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_out": {
+    "k": 18,
+    "n": 39,
+    "p": 46.2,
+    "lo": 31.6,
+    "hi": 61.4
+   },
+   "sentences_correct_expected": {
+    "k": 35,
+    "n": 45,
+    "p": 77.8,
+    "lo": 63.7,
+    "hi": 87.5
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_meaning_kept": {
+    "k": 1,
+    "n": 16,
+    "p": 6.3,
+    "lo": 1.1,
+    "hi": 28.3
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "output_analysis_correct_local": {
+    "k": 8,
+    "n": 16,
+    "p": 50,
+    "lo": 28,
+    "hi": 72
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "sentences_correct_out_local": {
+    "k": 19,
+    "n": 39,
+    "p": 48.7,
+    "lo": 33.9,
+    "hi": 63.8
+   },
+   "judge_needed": {
+    "k": 8,
+    "n": 16,
+    "p": 50,
+    "lo": 28,
+    "hi": 72
+   },
+   "pronouns_kept": {
+    "k": 11,
+    "n": 16,
+    "p": 68.8,
+    "lo": 44.4,
+    "hi": 85.8
+   },
+   "runaway": {
+    "k": 2,
+    "n": 16,
+    "p": 12.5,
+    "lo": 3.5,
+    "hi": 36
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 12,
+    "p": 0,
+    "lo": 0,
+    "hi": 24.3
+   },
+   "worse_than_input": {
+    "k": 2,
+    "n": 4,
+    "p": 50,
+    "lo": 15,
+    "hi": 85
+   },
+   "text_unchanged": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "same_analysis_as_input": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "sentence_count_equals_expected": {
+    "k": 1,
+    "n": 16,
+    "p": 6.3,
+    "lo": 1.1,
+    "hi": 28.3
+   },
+   "output_one_clause_sentences": {
+    "k": 23,
+    "n": 39,
+    "p": 59,
+    "lo": 43.4,
+    "hi": 72.9
+   },
+   "expected_one_clause_sentences": {
+    "k": 25,
+    "n": 45,
+    "p": 55.6,
+    "lo": 41.2,
+    "hi": 69.1
+   },
+   "output_explicit_subject_sentences": {
+    "k": 34,
+    "n": 39,
+    "p": 87.2,
+    "lo": 73.3,
+    "hi": 94.4
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 45,
+    "n": 45,
+    "p": 100,
+    "lo": 92.1,
+    "hi": 100
+   }
+  },
+  {
+   "run": "base K2 paragraph",
+   "name": "base",
+   "kind": "K2",
+   "mode": "paragraph",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 35,
+    "n": 306,
+    "p": 11.4,
+    "lo": 8.3,
+    "hi": 15.5
+   },
+   "output_analysis_correct": {
+    "k": 140,
+    "n": 306,
+    "p": 45.8,
+    "lo": 40.3,
+    "hi": 51.4
+   },
+   "expected_analysis_correct": {
+    "k": 170,
+    "n": 306,
+    "p": 55.6,
+    "lo": 50,
+    "hi": 61
+   },
+   "sentences_correct_in": {
+    "k": 1128,
+    "n": 1607,
+    "p": 70.2,
+    "lo": 67.9,
+    "hi": 72.4
+   },
+   "sentences_correct_out": {
+    "k": 587,
+    "n": 1018,
+    "p": 57.7,
+    "lo": 54.6,
+    "hi": 60.7
+   },
+   "sentences_correct_expected": {
+    "k": 1857,
+    "n": 2109,
+    "p": 88.1,
+    "lo": 86.6,
+    "hi": 89.4
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 12,
+    "n": 306,
+    "p": 3.9,
+    "lo": 2.3,
+    "hi": 6.7
+   },
+   "output_meaning_kept": {
+    "k": 2,
+    "n": 306,
+    "p": 0.7,
+    "lo": 0.2,
+    "hi": 2.4
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "output_analysis_correct_local": {
+    "k": 153,
+    "n": 306,
+    "p": 50,
+    "lo": 44.4,
+    "hi": 55.6
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "sentences_correct_out_local": {
+    "k": 635,
+    "n": 1018,
+    "p": 62.4,
+    "lo": 59.4,
+    "hi": 65.3
+   },
+   "judge_needed": {
+    "k": 32,
+    "n": 306,
+    "p": 10.5,
+    "lo": 7.5,
+    "hi": 14.4
+   },
+   "pronouns_kept": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 2,
+    "n": 306,
+    "p": 0.7,
+    "lo": 0.2,
+    "hi": 2.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 271,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "worse_than_input": {
+    "k": 16,
+    "n": 35,
+    "p": 45.7,
+    "lo": 30.5,
+    "hi": 61.8
+   },
+   "text_unchanged": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "same_analysis_as_input": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "sentence_count_equals_expected": {
+    "k": 6,
+    "n": 306,
+    "p": 2,
+    "lo": 0.9,
+    "hi": 4.2
+   },
+   "output_one_clause_sentences": {
+    "k": 564,
+    "n": 1018,
+    "p": 55.4,
+    "lo": 52.3,
+    "hi": 58.4
+   },
+   "expected_one_clause_sentences": {
+    "k": 1340,
+    "n": 2109,
+    "p": 63.5,
+    "lo": 61.5,
+    "hi": 65.6
+   },
+   "output_explicit_subject_sentences": {
+    "k": 832,
+    "n": 1018,
+    "p": 81.7,
+    "lo": 79.2,
+    "hi": 84
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 2006,
+    "n": 2109,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 96
+   }
+  },
+  {
+   "run": "base K2 sentence",
+   "name": "base",
+   "kind": "K2",
+   "mode": "sentence",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 35,
+    "n": 306,
+    "p": 11.4,
+    "lo": 8.3,
+    "hi": 15.5
+   },
+   "output_analysis_correct": {
+    "k": 58,
+    "n": 306,
+    "p": 19,
+    "lo": 15,
+    "hi": 23.7
+   },
+   "expected_analysis_correct": {
+    "k": 170,
+    "n": 306,
+    "p": 55.6,
+    "lo": 50,
+    "hi": 61
+   },
+   "sentences_correct_in": {
+    "k": 1128,
+    "n": 1607,
+    "p": 70.2,
+    "lo": 67.9,
+    "hi": 72.4
+   },
+   "sentences_correct_out": {
+    "k": 1464,
+    "n": 2212,
+    "p": 66.2,
+    "lo": 64.2,
+    "hi": 68.1
+   },
+   "sentences_correct_expected": {
+    "k": 1857,
+    "n": 2109,
+    "p": 88.1,
+    "lo": 86.6,
+    "hi": 89.4
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 1,
+    "n": 306,
+    "p": 0.3,
+    "lo": 0.1,
+    "hi": 1.8
+   },
+   "output_meaning_kept": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "output_analysis_correct_local": {
+    "k": 75,
+    "n": 306,
+    "p": 24.5,
+    "lo": 20,
+    "hi": 29.6
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "sentences_correct_out_local": {
+    "k": 1625,
+    "n": 2212,
+    "p": 73.5,
+    "lo": 71.6,
+    "hi": 75.3
+   },
+   "judge_needed": {
+    "k": 48,
+    "n": 306,
+    "p": 15.7,
+    "lo": 12,
+    "hi": 20.2
+   },
+   "pronouns_kept": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 14,
+    "n": 306,
+    "p": 4.6,
+    "lo": 2.7,
+    "hi": 7.5
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 271,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "worse_than_input": {
+    "k": 33,
+    "n": 35,
+    "p": 94.3,
+    "lo": 81.4,
+    "hi": 98.4
+   },
+   "text_unchanged": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "same_analysis_as_input": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "sentence_count_equals_expected": {
+    "k": 52,
+    "n": 306,
+    "p": 17,
+    "lo": 13.2,
+    "hi": 21.6
+   },
+   "output_one_clause_sentences": {
+    "k": 1445,
+    "n": 2212,
+    "p": 65.3,
+    "lo": 63.3,
+    "hi": 67.3
+   },
+   "expected_one_clause_sentences": {
+    "k": 1340,
+    "n": 2109,
+    "p": 63.5,
+    "lo": 61.5,
+    "hi": 65.6
+   },
+   "output_explicit_subject_sentences": {
+    "k": 2107,
+    "n": 2212,
+    "p": 95.3,
+    "lo": 94.3,
+    "hi": 96.1
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 2006,
+    "n": 2109,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 96
+   }
+  },
+  {
+   "run": "base K3 paragraph",
+   "name": "base",
+   "kind": "K3",
+   "mode": "paragraph",
+   "cases": 265,
+   "input_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "output_analysis_correct": {
+    "k": 35,
+    "n": 265,
+    "p": 13.2,
+    "lo": 9.7,
+    "hi": 17.8
+   },
+   "expected_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "sentences_correct_in": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "sentences_correct_out": {
+    "k": 2535,
+    "n": 4680,
+    "p": 54.2,
+    "lo": 52.7,
+    "hi": 55.6
+   },
+   "sentences_correct_expected": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 18,
+    "n": 265,
+    "p": 6.8,
+    "lo": 4.3,
+    "hi": 10.5
+   },
+   "output_meaning_kept": {
+    "k": 2,
+    "n": 265,
+    "p": 0.8,
+    "lo": 0.2,
+    "hi": 2.7
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "output_analysis_correct_local": {
+    "k": 35,
+    "n": 265,
+    "p": 13.2,
+    "lo": 9.7,
+    "hi": 17.8
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "sentences_correct_out_local": {
+    "k": 2686,
+    "n": 4680,
+    "p": 57.4,
+    "lo": 56,
+    "hi": 58.8
+   },
+   "judge_needed": {
+    "k": 26,
+    "n": 265,
+    "p": 9.8,
+    "lo": 6.8,
+    "hi": 14
+   },
+   "pronouns_kept": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 49,
+    "p": 0,
+    "lo": 0,
+    "hi": 7.3
+   },
+   "worse_than_input": {
+    "k": 184,
+    "n": 216,
+    "p": 85.2,
+    "lo": 79.8,
+    "hi": 89.3
+   },
+   "text_unchanged": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "same_analysis_as_input": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "sentence_count_equals_expected": {
+    "k": 15,
+    "n": 265,
+    "p": 5.7,
+    "lo": 3.5,
+    "hi": 9.1
+   },
+   "output_one_clause_sentences": {
+    "k": 2654,
+    "n": 4680,
+    "p": 56.7,
+    "lo": 55.3,
+    "hi": 58.1
+   },
+   "expected_one_clause_sentences": {
+    "k": 3001,
+    "n": 5804,
+    "p": 51.7,
+    "lo": 50.4,
+    "hi": 53
+   },
+   "output_explicit_subject_sentences": {
+    "k": 3752,
+    "n": 4680,
+    "p": 80.2,
+    "lo": 79,
+    "hi": 81.3
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5353,
+    "n": 5804,
+    "p": 92.2,
+    "lo": 91.5,
+    "hi": 92.9
+   }
+  },
+  {
+   "run": "base K3 sentence",
+   "name": "base",
+   "kind": "K3",
+   "mode": "sentence",
+   "cases": 265,
+   "input_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "output_analysis_correct": {
+    "k": 14,
+    "n": 265,
+    "p": 5.3,
+    "lo": 3.2,
+    "hi": 8.7
+   },
+   "expected_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "sentences_correct_in": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "sentences_correct_out": {
+    "k": 5212,
+    "n": 7671,
+    "p": 67.9,
+    "lo": 66.9,
+    "hi": 69
+   },
+   "sentences_correct_expected": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "output_meaning_kept": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "output_analysis_correct_local": {
+    "k": 15,
+    "n": 265,
+    "p": 5.7,
+    "lo": 3.5,
+    "hi": 9.1
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "sentences_correct_out_local": {
+    "k": 5476,
+    "n": 7671,
+    "p": 71.4,
+    "lo": 70.4,
+    "hi": 72.4
+   },
+   "judge_needed": {
+    "k": 3,
+    "n": 265,
+    "p": 1.1,
+    "lo": 0.4,
+    "hi": 3.3
+   },
+   "pronouns_kept": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 1,
+    "n": 265,
+    "p": 0.4,
+    "lo": 0.1,
+    "hi": 2.1
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 49,
+    "p": 0,
+    "lo": 0,
+    "hi": 7.3
+   },
+   "worse_than_input": {
+    "k": 202,
+    "n": 216,
+    "p": 93.5,
+    "lo": 89.4,
+    "hi": 96.1
+   },
+   "text_unchanged": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "same_analysis_as_input": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "sentence_count_equals_expected": {
+    "k": 25,
+    "n": 265,
+    "p": 9.4,
+    "lo": 6.5,
+    "hi": 13.6
+   },
+   "output_one_clause_sentences": {
+    "k": 5141,
+    "n": 7671,
+    "p": 67,
+    "lo": 66,
+    "hi": 68.1
+   },
+   "expected_one_clause_sentences": {
+    "k": 3001,
+    "n": 5804,
+    "p": 51.7,
+    "lo": 50.4,
+    "hi": 53
+   },
+   "output_explicit_subject_sentences": {
+    "k": 7124,
+    "n": 7671,
+    "p": 92.9,
+    "lo": 92.3,
+    "hi": 93.4
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5353,
+    "n": 5804,
+    "p": 92.2,
+    "lo": 91.5,
+    "hi": 92.9
+   }
+  },
+  {
+   "run": "base K5 paragraph",
+   "name": "base",
+   "kind": "K5",
+   "mode": "paragraph",
+   "cases": 102,
+   "input_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "output_analysis_correct": {
+    "k": 70,
+    "n": 102,
+    "p": 68.6,
+    "lo": 59.1,
+    "hi": 76.8
+   },
+   "expected_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "sentences_correct_in": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "sentences_correct_out": {
+    "k": 111,
+    "n": 161,
+    "p": 68.9,
+    "lo": 61.4,
+    "hi": 75.6
+   },
+   "sentences_correct_expected": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "output_meaning_kept": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "output_analysis_correct_local": {
+    "k": 72,
+    "n": 102,
+    "p": 70.6,
+    "lo": 61.1,
+    "hi": 78.6
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "sentences_correct_out_local": {
+    "k": 116,
+    "n": 161,
+    "p": 72,
+    "lo": 64.7,
+    "hi": 78.4
+   },
+   "judge_needed": {
+    "k": 14,
+    "n": 102,
+    "p": 13.7,
+    "lo": 8.4,
+    "hi": 21.7
+   },
+   "pronouns_kept": {
+    "k": 15,
+    "n": 102,
+    "p": 14.7,
+    "lo": 9.1,
+    "hi": 22.9
+   },
+   "runaway": {
+    "k": 2,
+    "n": 102,
+    "p": 2,
+    "lo": 0.5,
+    "hi": 6.9
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 10,
+    "p": 0,
+    "lo": 0,
+    "hi": 27.8
+   },
+   "worse_than_input": {
+    "k": 29,
+    "n": 92,
+    "p": 31.5,
+    "lo": 22.9,
+    "hi": 41.6
+   },
+   "text_unchanged": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "same_analysis_as_input": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "sentence_count_equals_expected": {
+    "k": 9,
+    "n": 102,
+    "p": 8.8,
+    "lo": 4.7,
+    "hi": 15.9
+   },
+   "output_one_clause_sentences": {
+    "k": 103,
+    "n": 161,
+    "p": 64,
+    "lo": 56.3,
+    "hi": 71
+   },
+   "expected_one_clause_sentences": {
+    "k": 178,
+    "n": 305,
+    "p": 58.4,
+    "lo": 52.8,
+    "hi": 63.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 149,
+    "n": 161,
+    "p": 92.5,
+    "lo": 87.4,
+    "hi": 95.7
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 300,
+    "n": 305,
+    "p": 98.4,
+    "lo": 96.2,
+    "hi": 99.3
+   }
+  },
+  {
+   "run": "base K5 sentence",
+   "name": "base",
+   "kind": "K5",
+   "mode": "sentence",
+   "cases": 102,
+   "input_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "output_analysis_correct": {
+    "k": 30,
+    "n": 102,
+    "p": 29.4,
+    "lo": 21.4,
+    "hi": 38.9
+   },
+   "expected_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "sentences_correct_in": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "sentences_correct_out": {
+    "k": 295,
+    "n": 449,
+    "p": 65.7,
+    "lo": 61.2,
+    "hi": 69.9
+   },
+   "sentences_correct_expected": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 3,
+    "n": 102,
+    "p": 2.9,
+    "lo": 1,
+    "hi": 8.3
+   },
+   "output_meaning_kept": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "output_analysis_correct_local": {
+    "k": 36,
+    "n": 102,
+    "p": 35.3,
+    "lo": 26.7,
+    "hi": 44.9
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "sentences_correct_out_local": {
+    "k": 322,
+    "n": 449,
+    "p": 71.7,
+    "lo": 67.4,
+    "hi": 75.7
+   },
+   "judge_needed": {
+    "k": 40,
+    "n": 102,
+    "p": 39.2,
+    "lo": 30.3,
+    "hi": 48.9
+   },
+   "pronouns_kept": {
+    "k": 72,
+    "n": 102,
+    "p": 70.6,
+    "lo": 61.1,
+    "hi": 78.6
+   },
+   "runaway": {
+    "k": 9,
+    "n": 102,
+    "p": 8.8,
+    "lo": 4.7,
+    "hi": 15.9
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 10,
+    "p": 0,
+    "lo": 0,
+    "hi": 27.8
+   },
+   "worse_than_input": {
+    "k": 63,
+    "n": 92,
+    "p": 68.5,
+    "lo": 58.4,
+    "hi": 77.1
+   },
+   "text_unchanged": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "same_analysis_as_input": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "sentence_count_equals_expected": {
+    "k": 56,
+    "n": 102,
+    "p": 54.9,
+    "lo": 45.2,
+    "hi": 64.2
+   },
+   "output_one_clause_sentences": {
+    "k": 308,
+    "n": 449,
+    "p": 68.6,
+    "lo": 64.2,
+    "hi": 72.7
+   },
+   "expected_one_clause_sentences": {
+    "k": 178,
+    "n": 305,
+    "p": 58.4,
+    "lo": 52.8,
+    "hi": 63.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 402,
+    "n": 449,
+    "p": 89.5,
+    "lo": 86.4,
+    "hi": 92
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 300,
+    "n": 305,
+    "p": 98.4,
+    "lo": 96.2,
+    "hi": 99.3
+   }
+  },
+  {
+   "run": "base K6-neuro_english whole",
+   "name": "base",
+   "kind": "K6",
+   "mode": "whole",
+   "cases": 16,
+   "input_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct": {
+    "k": 7,
+    "n": 16,
+    "p": 43.8,
+    "lo": 23.1,
+    "hi": 66.8
+   },
+   "expected_analysis_correct": {
+    "k": 9,
+    "n": 16,
+    "p": 56.3,
+    "lo": 33.2,
+    "hi": 76.9
+   },
+   "sentences_correct_in": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_out": {
+    "k": 18,
+    "n": 39,
+    "p": 46.2,
+    "lo": 31.6,
+    "hi": 61.4
+   },
+   "sentences_correct_expected": {
+    "k": 35,
+    "n": 45,
+    "p": 77.8,
+    "lo": 63.7,
+    "hi": 87.5
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_meaning_kept": {
+    "k": 1,
+    "n": 16,
+    "p": 6.3,
+    "lo": 1.1,
+    "hi": 28.3
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "output_analysis_correct_local": {
+    "k": 8,
+    "n": 16,
+    "p": 50,
+    "lo": 28,
+    "hi": 72
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "sentences_correct_out_local": {
+    "k": 19,
+    "n": 39,
+    "p": 48.7,
+    "lo": 33.9,
+    "hi": 63.8
+   },
+   "judge_needed": {
+    "k": 8,
+    "n": 16,
+    "p": 50,
+    "lo": 28,
+    "hi": 72
+   },
+   "pronouns_kept": {
+    "k": 11,
+    "n": 16,
+    "p": 68.8,
+    "lo": 44.4,
+    "hi": 85.8
+   },
+   "runaway": {
+    "k": 2,
+    "n": 16,
+    "p": 12.5,
+    "lo": 3.5,
+    "hi": 36
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 12,
+    "p": 0,
+    "lo": 0,
+    "hi": 24.3
+   },
+   "worse_than_input": {
+    "k": 2,
+    "n": 4,
+    "p": 50,
+    "lo": 15,
+    "hi": 85
+   },
+   "text_unchanged": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "same_analysis_as_input": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "sentence_count_equals_expected": {
+    "k": 1,
+    "n": 16,
+    "p": 6.3,
+    "lo": 1.1,
+    "hi": 28.3
+   },
+   "output_one_clause_sentences": {
+    "k": 23,
+    "n": 39,
+    "p": 59,
+    "lo": 43.4,
+    "hi": 72.9
+   },
+   "expected_one_clause_sentences": {
+    "k": 25,
+    "n": 45,
+    "p": 55.6,
+    "lo": 41.2,
+    "hi": 69.1
+   },
+   "output_explicit_subject_sentences": {
+    "k": 34,
+    "n": 39,
+    "p": 87.2,
+    "lo": 73.3,
+    "hi": 94.4
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 45,
+    "n": 45,
+    "p": 100,
+    "lo": 92.1,
+    "hi": 100
+   }
+  },
+  {
+   "run": "identity-sent K6-neuro_english whole",
+   "name": "identity-sent",
+   "kind": "K6",
+   "mode": "whole",
+   "cases": 16,
+   "input_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "expected_analysis_correct": {
+    "k": 9,
+    "n": 16,
+    "p": 56.3,
+    "lo": 33.2,
+    "hi": 76.9
+   },
+   "sentences_correct_in": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_out": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_expected": {
+    "k": 35,
+    "n": 45,
+    "p": 77.8,
+    "lo": 63.7,
+    "hi": 87.5
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "output_meaning_kept": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct_local": {
+    "k": 6,
+    "n": 16,
+    "p": 37.5,
+    "lo": 18.5,
+    "hi": 61.4
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 6,
+    "n": 16,
+    "p": 37.5,
+    "lo": 18.5,
+    "hi": 61.4
+   },
+   "sentences_correct_out_local": {
+    "k": 6,
+    "n": 16,
+    "p": 37.5,
+    "lo": 18.5,
+    "hi": 61.4
+   },
+   "judge_needed": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "pronouns_kept": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 12,
+    "p": 0,
+    "lo": 0,
+    "hi": 24.3
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 4,
+    "p": 0,
+    "lo": 0,
+    "hi": 49
+   },
+   "text_unchanged": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "output_one_clause_sentences": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "expected_one_clause_sentences": {
+    "k": 25,
+    "n": 45,
+    "p": 55.6,
+    "lo": 41.2,
+    "hi": 69.1
+   },
+   "output_explicit_subject_sentences": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 45,
+    "n": 45,
+    "p": 100,
+    "lo": 92.1,
+    "hi": 100
+   }
+  },
+  {
+   "run": "identity K2 paragraph",
+   "name": "identity",
+   "kind": "K2",
+   "mode": "paragraph",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 35,
+    "n": 306,
+    "p": 11.4,
+    "lo": 8.3,
+    "hi": 15.5
+   },
+   "output_analysis_correct": {
+    "k": 35,
+    "n": 306,
+    "p": 11.4,
+    "lo": 8.3,
+    "hi": 15.5
+   },
+   "expected_analysis_correct": {
+    "k": 170,
+    "n": 306,
+    "p": 55.6,
+    "lo": 50,
+    "hi": 61
+   },
+   "sentences_correct_in": {
+    "k": 1128,
+    "n": 1607,
+    "p": 70.2,
+    "lo": 67.9,
+    "hi": 72.4
+   },
+   "sentences_correct_out": {
+    "k": 1128,
+    "n": 1607,
+    "p": 70.2,
+    "lo": 67.9,
+    "hi": 72.4
+   },
+   "sentences_correct_expected": {
+    "k": 1857,
+    "n": 2109,
+    "p": 88.1,
+    "lo": 86.6,
+    "hi": 89.4
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "output_meaning_kept": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 35,
+    "n": 306,
+    "p": 11.4,
+    "lo": 8.3,
+    "hi": 15.5
+   },
+   "output_analysis_correct_local": {
+    "k": 66,
+    "n": 306,
+    "p": 21.6,
+    "lo": 17.3,
+    "hi": 26.5
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 66,
+    "n": 306,
+    "p": 21.6,
+    "lo": 17.3,
+    "hi": 26.5
+   },
+   "sentences_correct_out_local": {
+    "k": 1221,
+    "n": 1607,
+    "p": 76,
+    "lo": 73.8,
+    "hi": 78
+   },
+   "judge_needed": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "pronouns_kept": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 271,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 35,
+    "p": 0,
+    "lo": 0,
+    "hi": 9.9
+   },
+   "text_unchanged": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 120,
+    "n": 306,
+    "p": 39.2,
+    "lo": 33.9,
+    "hi": 44.8
+   },
+   "output_one_clause_sentences": {
+    "k": 806,
+    "n": 1607,
+    "p": 50.2,
+    "lo": 47.7,
+    "hi": 52.6
+   },
+   "expected_one_clause_sentences": {
+    "k": 1340,
+    "n": 2109,
+    "p": 63.5,
+    "lo": 61.5,
+    "hi": 65.6
+   },
+   "output_explicit_subject_sentences": {
+    "k": 1405,
+    "n": 1607,
+    "p": 87.4,
+    "lo": 85.7,
+    "hi": 89
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 2006,
+    "n": 2109,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 96
+   }
+  },
+  {
+   "run": "identity K2 sentence",
+   "name": "identity",
+   "kind": "K2",
+   "mode": "sentence",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 35,
+    "n": 306,
+    "p": 11.4,
+    "lo": 8.3,
+    "hi": 15.5
+   },
+   "output_analysis_correct": {
+    "k": 35,
+    "n": 306,
+    "p": 11.4,
+    "lo": 8.3,
+    "hi": 15.5
+   },
+   "expected_analysis_correct": {
+    "k": 170,
+    "n": 306,
+    "p": 55.6,
+    "lo": 50,
+    "hi": 61
+   },
+   "sentences_correct_in": {
+    "k": 1128,
+    "n": 1607,
+    "p": 70.2,
+    "lo": 67.9,
+    "hi": 72.4
+   },
+   "sentences_correct_out": {
+    "k": 1128,
+    "n": 1607,
+    "p": 70.2,
+    "lo": 67.9,
+    "hi": 72.4
+   },
+   "sentences_correct_expected": {
+    "k": 1857,
+    "n": 2109,
+    "p": 88.1,
+    "lo": 86.6,
+    "hi": 89.4
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "output_meaning_kept": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 35,
+    "n": 306,
+    "p": 11.4,
+    "lo": 8.3,
+    "hi": 15.5
+   },
+   "output_analysis_correct_local": {
+    "k": 66,
+    "n": 306,
+    "p": 21.6,
+    "lo": 17.3,
+    "hi": 26.5
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 66,
+    "n": 306,
+    "p": 21.6,
+    "lo": 17.3,
+    "hi": 26.5
+   },
+   "sentences_correct_out_local": {
+    "k": 1221,
+    "n": 1607,
+    "p": 76,
+    "lo": 73.8,
+    "hi": 78
+   },
+   "judge_needed": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "pronouns_kept": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 271,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 35,
+    "p": 0,
+    "lo": 0,
+    "hi": 9.9
+   },
+   "text_unchanged": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 120,
+    "n": 306,
+    "p": 39.2,
+    "lo": 33.9,
+    "hi": 44.8
+   },
+   "output_one_clause_sentences": {
+    "k": 806,
+    "n": 1607,
+    "p": 50.2,
+    "lo": 47.7,
+    "hi": 52.6
+   },
+   "expected_one_clause_sentences": {
+    "k": 1340,
+    "n": 2109,
+    "p": 63.5,
+    "lo": 61.5,
+    "hi": 65.6
+   },
+   "output_explicit_subject_sentences": {
+    "k": 1405,
+    "n": 1607,
+    "p": 87.4,
+    "lo": 85.7,
+    "hi": 89
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 2006,
+    "n": 2109,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 96
+   }
+  },
+  {
+   "run": "identity K3 paragraph",
+   "name": "identity",
+   "kind": "K3",
+   "mode": "paragraph",
+   "cases": 265,
+   "input_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "output_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "expected_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "sentences_correct_in": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "sentences_correct_out": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "sentences_correct_expected": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "output_meaning_kept": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "output_analysis_correct_local": {
+    "k": 229,
+    "n": 265,
+    "p": 86.4,
+    "lo": 81.8,
+    "hi": 90
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 229,
+    "n": 265,
+    "p": 86.4,
+    "lo": 81.8,
+    "hi": 90
+   },
+   "sentences_correct_out_local": {
+    "k": 5764,
+    "n": 5804,
+    "p": 99.3,
+    "lo": 99.1,
+    "hi": 99.5
+   },
+   "judge_needed": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "pronouns_kept": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 49,
+    "p": 0,
+    "lo": 0,
+    "hi": 7.3
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 216,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.7
+   },
+   "text_unchanged": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "output_one_clause_sentences": {
+    "k": 3001,
+    "n": 5804,
+    "p": 51.7,
+    "lo": 50.4,
+    "hi": 53
+   },
+   "expected_one_clause_sentences": {
+    "k": 3001,
+    "n": 5804,
+    "p": 51.7,
+    "lo": 50.4,
+    "hi": 53
+   },
+   "output_explicit_subject_sentences": {
+    "k": 5353,
+    "n": 5804,
+    "p": 92.2,
+    "lo": 91.5,
+    "hi": 92.9
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5353,
+    "n": 5804,
+    "p": 92.2,
+    "lo": 91.5,
+    "hi": 92.9
+   }
+  },
+  {
+   "run": "identity K3 sentence",
+   "name": "identity",
+   "kind": "K3",
+   "mode": "sentence",
+   "cases": 265,
+   "input_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "output_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "expected_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "sentences_correct_in": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "sentences_correct_out": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "sentences_correct_expected": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "output_meaning_kept": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "output_analysis_correct_local": {
+    "k": 229,
+    "n": 265,
+    "p": 86.4,
+    "lo": 81.8,
+    "hi": 90
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 229,
+    "n": 265,
+    "p": 86.4,
+    "lo": 81.8,
+    "hi": 90
+   },
+   "sentences_correct_out_local": {
+    "k": 5764,
+    "n": 5804,
+    "p": 99.3,
+    "lo": 99.1,
+    "hi": 99.5
+   },
+   "judge_needed": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "pronouns_kept": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 49,
+    "p": 0,
+    "lo": 0,
+    "hi": 7.3
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 216,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.7
+   },
+   "text_unchanged": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "output_one_clause_sentences": {
+    "k": 3001,
+    "n": 5804,
+    "p": 51.7,
+    "lo": 50.4,
+    "hi": 53
+   },
+   "expected_one_clause_sentences": {
+    "k": 3001,
+    "n": 5804,
+    "p": 51.7,
+    "lo": 50.4,
+    "hi": 53
+   },
+   "output_explicit_subject_sentences": {
+    "k": 5353,
+    "n": 5804,
+    "p": 92.2,
+    "lo": 91.5,
+    "hi": 92.9
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5353,
+    "n": 5804,
+    "p": 92.2,
+    "lo": 91.5,
+    "hi": 92.9
+   }
+  },
+  {
+   "run": "identity K5 paragraph",
+   "name": "identity",
+   "kind": "K5",
+   "mode": "paragraph",
+   "cases": 102,
+   "input_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "output_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "expected_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "sentences_correct_in": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "sentences_correct_out": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "sentences_correct_expected": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "output_meaning_kept": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "output_analysis_correct_local": {
+    "k": 96,
+    "n": 102,
+    "p": 94.1,
+    "lo": 87.8,
+    "hi": 97.3
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 96,
+    "n": 102,
+    "p": 94.1,
+    "lo": 87.8,
+    "hi": 97.3
+   },
+   "sentences_correct_out_local": {
+    "k": 299,
+    "n": 305,
+    "p": 98,
+    "lo": 95.8,
+    "hi": 99.1
+   },
+   "judge_needed": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "pronouns_kept": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 10,
+    "p": 0,
+    "lo": 0,
+    "hi": 27.8
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 92,
+    "p": 0,
+    "lo": 0,
+    "hi": 4
+   },
+   "text_unchanged": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "output_one_clause_sentences": {
+    "k": 178,
+    "n": 305,
+    "p": 58.4,
+    "lo": 52.8,
+    "hi": 63.8
+   },
+   "expected_one_clause_sentences": {
+    "k": 178,
+    "n": 305,
+    "p": 58.4,
+    "lo": 52.8,
+    "hi": 63.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 300,
+    "n": 305,
+    "p": 98.4,
+    "lo": 96.2,
+    "hi": 99.3
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 300,
+    "n": 305,
+    "p": 98.4,
+    "lo": 96.2,
+    "hi": 99.3
+   }
+  },
+  {
+   "run": "identity K5 sentence",
+   "name": "identity",
+   "kind": "K5",
+   "mode": "sentence",
+   "cases": 102,
+   "input_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "output_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "expected_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "sentences_correct_in": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "sentences_correct_out": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "sentences_correct_expected": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "output_meaning_kept": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "output_analysis_correct_local": {
+    "k": 96,
+    "n": 102,
+    "p": 94.1,
+    "lo": 87.8,
+    "hi": 97.3
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 96,
+    "n": 102,
+    "p": 94.1,
+    "lo": 87.8,
+    "hi": 97.3
+   },
+   "sentences_correct_out_local": {
+    "k": 299,
+    "n": 305,
+    "p": 98,
+    "lo": 95.8,
+    "hi": 99.1
+   },
+   "judge_needed": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "pronouns_kept": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 10,
+    "p": 0,
+    "lo": 0,
+    "hi": 27.8
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 92,
+    "p": 0,
+    "lo": 0,
+    "hi": 4
+   },
+   "text_unchanged": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "output_one_clause_sentences": {
+    "k": 178,
+    "n": 305,
+    "p": 58.4,
+    "lo": 52.8,
+    "hi": 63.8
+   },
+   "expected_one_clause_sentences": {
+    "k": 178,
+    "n": 305,
+    "p": 58.4,
+    "lo": 52.8,
+    "hi": 63.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 300,
+    "n": 305,
+    "p": 98.4,
+    "lo": 96.2,
+    "hi": 99.3
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 300,
+    "n": 305,
+    "p": 98.4,
+    "lo": 96.2,
+    "hi": 99.3
+   }
+  },
+  {
+   "run": "identity K6-neuro_english whole",
+   "name": "identity",
+   "kind": "K6",
+   "mode": "whole",
+   "cases": 16,
+   "input_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "expected_analysis_correct": {
+    "k": 9,
+    "n": 16,
+    "p": 56.3,
+    "lo": 33.2,
+    "hi": 76.9
+   },
+   "sentences_correct_in": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_out": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_expected": {
+    "k": 35,
+    "n": 45,
+    "p": 77.8,
+    "lo": 63.7,
+    "hi": 87.5
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "output_meaning_kept": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct_local": {
+    "k": 6,
+    "n": 16,
+    "p": 37.5,
+    "lo": 18.5,
+    "hi": 61.4
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 6,
+    "n": 16,
+    "p": 37.5,
+    "lo": 18.5,
+    "hi": 61.4
+   },
+   "sentences_correct_out_local": {
+    "k": 6,
+    "n": 16,
+    "p": 37.5,
+    "lo": 18.5,
+    "hi": 61.4
+   },
+   "judge_needed": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "pronouns_kept": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 12,
+    "p": 0,
+    "lo": 0,
+    "hi": 24.3
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 4,
+    "p": 0,
+    "lo": 0,
+    "hi": 49
+   },
+   "text_unchanged": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "same_analysis_as_input": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "sentence_count_equals_expected": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "output_one_clause_sentences": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "expected_one_clause_sentences": {
+    "k": 25,
+    "n": 45,
+    "p": 55.6,
+    "lo": 41.2,
+    "hi": 69.1
+   },
+   "output_explicit_subject_sentences": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 45,
+    "n": 45,
+    "p": 100,
+    "lo": 92.1,
+    "hi": 100
+   }
+  },
+  {
+   "run": "it1-sent K6-neuro_english whole",
+   "name": "it1-sent",
+   "kind": "K6",
+   "mode": "whole",
+   "cases": 16,
+   "input_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct": {
+    "k": 3,
+    "n": 16,
+    "p": 18.8,
+    "lo": 6.6,
+    "hi": 43
+   },
+   "expected_analysis_correct": {
+    "k": 9,
+    "n": 16,
+    "p": 56.3,
+    "lo": 33.2,
+    "hi": 76.9
+   },
+   "sentences_correct_in": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_out": {
+    "k": 3,
+    "n": 16,
+    "p": 18.8,
+    "lo": 6.6,
+    "hi": 43
+   },
+   "sentences_correct_expected": {
+    "k": 35,
+    "n": 45,
+    "p": 77.8,
+    "lo": 63.7,
+    "hi": 87.5
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 15,
+    "n": 16,
+    "p": 93.8,
+    "lo": 71.7,
+    "hi": 98.9
+   },
+   "output_meaning_kept": {
+    "k": 15,
+    "n": 16,
+    "p": 93.8,
+    "lo": 71.7,
+    "hi": 98.9
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 3,
+    "n": 16,
+    "p": 18.8,
+    "lo": 6.6,
+    "hi": 43
+   },
+   "output_analysis_correct_local": {
+    "k": 5,
+    "n": 16,
+    "p": 31.3,
+    "lo": 14.2,
+    "hi": 55.6
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 5,
+    "n": 16,
+    "p": 31.3,
+    "lo": 14.2,
+    "hi": 55.6
+   },
+   "sentences_correct_out_local": {
+    "k": 5,
+    "n": 16,
+    "p": 31.3,
+    "lo": 14.2,
+    "hi": 55.6
+   },
+   "judge_needed": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "pronouns_kept": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 12,
+    "p": 0,
+    "lo": 0,
+    "hi": 24.3
+   },
+   "worse_than_input": {
+    "k": 1,
+    "n": 4,
+    "p": 25,
+    "lo": 4.6,
+    "hi": 69.9
+   },
+   "text_unchanged": {
+    "k": 14,
+    "n": 16,
+    "p": 87.5,
+    "lo": 64,
+    "hi": 96.5
+   },
+   "same_analysis_as_input": {
+    "k": 15,
+    "n": 16,
+    "p": 93.8,
+    "lo": 71.7,
+    "hi": 98.9
+   },
+   "sentence_count_equals_expected": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "output_one_clause_sentences": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "expected_one_clause_sentences": {
+    "k": 25,
+    "n": 45,
+    "p": 55.6,
+    "lo": 41.2,
+    "hi": 69.1
+   },
+   "output_explicit_subject_sentences": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 45,
+    "n": 45,
+    "p": 100,
+    "lo": 92.1,
+    "hi": 100
+   }
+  },
+  {
+   "run": "it1 K2 paragraph",
+   "name": "it1",
+   "kind": "K2",
+   "mode": "paragraph",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 35,
+    "n": 306,
+    "p": 11.4,
+    "lo": 8.3,
+    "hi": 15.5
+   },
+   "output_analysis_correct": {
+    "k": 66,
+    "n": 306,
+    "p": 21.6,
+    "lo": 17.3,
+    "hi": 26.5
+   },
+   "expected_analysis_correct": {
+    "k": 170,
+    "n": 306,
+    "p": 55.6,
+    "lo": 50,
+    "hi": 61
+   },
+   "sentences_correct_in": {
+    "k": 1128,
+    "n": 1607,
+    "p": 70.2,
+    "lo": 67.9,
+    "hi": 72.4
+   },
+   "sentences_correct_out": {
+    "k": 1488,
+    "n": 1914,
+    "p": 77.7,
+    "lo": 75.8,
+    "hi": 79.5
+   },
+   "sentences_correct_expected": {
+    "k": 1857,
+    "n": 2109,
+    "p": 88.1,
+    "lo": 86.6,
+    "hi": 89.4
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 269,
+    "n": 306,
+    "p": 87.9,
+    "lo": 83.8,
+    "hi": 91.1
+   },
+   "output_meaning_kept": {
+    "k": 228,
+    "n": 306,
+    "p": 74.5,
+    "lo": 69.3,
+    "hi": 79.1
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 50,
+    "n": 306,
+    "p": 16.3,
+    "lo": 12.6,
+    "hi": 20.9
+   },
+   "output_analysis_correct_local": {
+    "k": 98,
+    "n": 306,
+    "p": 32,
+    "lo": 27,
+    "hi": 37.4
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 56,
+    "n": 306,
+    "p": 18.3,
+    "lo": 14.4,
+    "hi": 23
+   },
+   "sentences_correct_out_local": {
+    "k": 1565,
+    "n": 1914,
+    "p": 81.8,
+    "lo": 80,
+    "hi": 83.4
+   },
+   "judge_needed": {
+    "k": 105,
+    "n": 306,
+    "p": 34.3,
+    "lo": 29.2,
+    "hi": 39.8
+   },
+   "pronouns_kept": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "fixed_of_failing_inputs": {
+    "k": 19,
+    "n": 271,
+    "p": 7,
+    "lo": 4.5,
+    "hi": 10.7
+   },
+   "worse_than_input": {
+    "k": 3,
+    "n": 35,
+    "p": 8.6,
+    "lo": 3,
+    "hi": 22.4
+   },
+   "text_unchanged": {
+    "k": 138,
+    "n": 306,
+    "p": 45.1,
+    "lo": 39.6,
+    "hi": 50.7
+   },
+   "same_analysis_as_input": {
+    "k": 142,
+    "n": 306,
+    "p": 46.4,
+    "lo": 40.9,
+    "hi": 52
+   },
+   "sentence_count_equals_expected": {
+    "k": 151,
+    "n": 306,
+    "p": 49.3,
+    "lo": 43.8,
+    "hi": 54.9
+   },
+   "output_one_clause_sentences": {
+    "k": 1119,
+    "n": 1914,
+    "p": 58.5,
+    "lo": 56.2,
+    "hi": 60.7
+   },
+   "expected_one_clause_sentences": {
+    "k": 1340,
+    "n": 2109,
+    "p": 63.5,
+    "lo": 61.5,
+    "hi": 65.6
+   },
+   "output_explicit_subject_sentences": {
+    "k": 1690,
+    "n": 1914,
+    "p": 88.3,
+    "lo": 86.8,
+    "hi": 89.7
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 2006,
+    "n": 2109,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 96
+   }
+  },
+  {
+   "run": "it1 K2 sentence",
+   "name": "it1",
+   "kind": "K2",
+   "mode": "sentence",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 35,
+    "n": 306,
+    "p": 11.4,
+    "lo": 8.3,
+    "hi": 15.5
+   },
+   "output_analysis_correct": {
+    "k": 70,
+    "n": 306,
+    "p": 22.9,
+    "lo": 18.5,
+    "hi": 27.9
+   },
+   "expected_analysis_correct": {
+    "k": 170,
+    "n": 306,
+    "p": 55.6,
+    "lo": 50,
+    "hi": 61
+   },
+   "sentences_correct_in": {
+    "k": 1128,
+    "n": 1607,
+    "p": 70.2,
+    "lo": 67.9,
+    "hi": 72.4
+   },
+   "sentences_correct_out": {
+    "k": 1221,
+    "n": 1622,
+    "p": 75.3,
+    "lo": 73.1,
+    "hi": 77.3
+   },
+   "sentences_correct_expected": {
+    "k": 1857,
+    "n": 2109,
+    "p": 88.1,
+    "lo": 86.6,
+    "hi": 89.4
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 216,
+    "n": 306,
+    "p": 70.6,
+    "lo": 65.3,
+    "hi": 75.4
+   },
+   "output_meaning_kept": {
+    "k": 167,
+    "n": 306,
+    "p": 54.6,
+    "lo": 49,
+    "hi": 60.1
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 39,
+    "n": 306,
+    "p": 12.7,
+    "lo": 9.5,
+    "hi": 16.9
+   },
+   "output_analysis_correct_local": {
+    "k": 96,
+    "n": 306,
+    "p": 31.4,
+    "lo": 26.4,
+    "hi": 36.8
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 45,
+    "n": 306,
+    "p": 14.7,
+    "lo": 11.2,
+    "hi": 19.1
+   },
+   "sentences_correct_out_local": {
+    "k": 1290,
+    "n": 1622,
+    "p": 79.5,
+    "lo": 77.5,
+    "hi": 81.4
+   },
+   "judge_needed": {
+    "k": 82,
+    "n": 306,
+    "p": 26.8,
+    "lo": 22.1,
+    "hi": 32
+   },
+   "pronouns_kept": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "fixed_of_failing_inputs": {
+    "k": 19,
+    "n": 271,
+    "p": 7,
+    "lo": 4.5,
+    "hi": 10.7
+   },
+   "worse_than_input": {
+    "k": 14,
+    "n": 35,
+    "p": 40,
+    "lo": 25.6,
+    "hi": 56.4
+   },
+   "text_unchanged": {
+    "k": 101,
+    "n": 306,
+    "p": 33,
+    "lo": 28,
+    "hi": 38.5
+   },
+   "same_analysis_as_input": {
+    "k": 118,
+    "n": 306,
+    "p": 38.6,
+    "lo": 33.3,
+    "hi": 44.1
+   },
+   "sentence_count_equals_expected": {
+    "k": 118,
+    "n": 306,
+    "p": 38.6,
+    "lo": 33.3,
+    "hi": 44.1
+   },
+   "output_one_clause_sentences": {
+    "k": 826,
+    "n": 1622,
+    "p": 50.9,
+    "lo": 48.5,
+    "hi": 53.4
+   },
+   "expected_one_clause_sentences": {
+    "k": 1340,
+    "n": 2109,
+    "p": 63.5,
+    "lo": 61.5,
+    "hi": 65.6
+   },
+   "output_explicit_subject_sentences": {
+    "k": 1417,
+    "n": 1622,
+    "p": 87.4,
+    "lo": 85.7,
+    "hi": 88.9
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 2006,
+    "n": 2109,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 96
+   }
+  },
+  {
+   "run": "it1 K3 paragraph",
+   "name": "it1",
+   "kind": "K3",
+   "mode": "paragraph",
+   "cases": 265,
+   "input_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "output_analysis_correct": {
+    "k": 186,
+    "n": 265,
+    "p": 70.2,
+    "lo": 64.4,
+    "hi": 75.4
+   },
+   "expected_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "sentences_correct_in": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "sentences_correct_out": {
+    "k": 5930,
+    "n": 6043,
+    "p": 98.1,
+    "lo": 97.8,
+    "hi": 98.4
+   },
+   "sentences_correct_expected": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 222,
+    "n": 265,
+    "p": 83.8,
+    "lo": 78.9,
+    "hi": 87.7
+   },
+   "output_meaning_kept": {
+    "k": 170,
+    "n": 265,
+    "p": 64.2,
+    "lo": 58.2,
+    "hi": 69.7
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 130,
+    "n": 265,
+    "p": 49.1,
+    "lo": 43.1,
+    "hi": 55
+   },
+   "output_analysis_correct_local": {
+    "k": 201,
+    "n": 265,
+    "p": 75.8,
+    "lo": 70.4,
+    "hi": 80.6
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 117,
+    "n": 265,
+    "p": 44.2,
+    "lo": 38.3,
+    "hi": 50.2
+   },
+   "sentences_correct_out_local": {
+    "k": 5959,
+    "n": 6043,
+    "p": 98.6,
+    "lo": 98.3,
+    "hi": 98.9
+   },
+   "judge_needed": {
+    "k": 90,
+    "n": 265,
+    "p": 34,
+    "lo": 28.5,
+    "hi": 39.9
+   },
+   "pronouns_kept": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 49,
+    "p": 0,
+    "lo": 0,
+    "hi": 7.3
+   },
+   "worse_than_input": {
+    "k": 35,
+    "n": 216,
+    "p": 16.2,
+    "lo": 11.9,
+    "hi": 21.7
+   },
+   "text_unchanged": {
+    "k": 82,
+    "n": 265,
+    "p": 30.9,
+    "lo": 25.7,
+    "hi": 36.7
+   },
+   "same_analysis_as_input": {
+    "k": 110,
+    "n": 265,
+    "p": 41.5,
+    "lo": 35.7,
+    "hi": 47.5
+   },
+   "sentence_count_equals_expected": {
+    "k": 176,
+    "n": 265,
+    "p": 66.4,
+    "lo": 60.5,
+    "hi": 71.8
+   },
+   "output_one_clause_sentences": {
+    "k": 3346,
+    "n": 6043,
+    "p": 55.4,
+    "lo": 54.1,
+    "hi": 56.6
+   },
+   "expected_one_clause_sentences": {
+    "k": 3001,
+    "n": 5804,
+    "p": 51.7,
+    "lo": 50.4,
+    "hi": 53
+   },
+   "output_explicit_subject_sentences": {
+    "k": 5564,
+    "n": 6043,
+    "p": 92.1,
+    "lo": 91.4,
+    "hi": 92.7
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5353,
+    "n": 5804,
+    "p": 92.2,
+    "lo": 91.5,
+    "hi": 92.9
+   }
+  },
+  {
+   "run": "it1 K3 sentence",
+   "name": "it1",
+   "kind": "K3",
+   "mode": "sentence",
+   "cases": 265,
+   "input_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "output_analysis_correct": {
+    "k": 101,
+    "n": 265,
+    "p": 38.1,
+    "lo": 32.5,
+    "hi": 44.1
+   },
+   "expected_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "sentences_correct_in": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "sentences_correct_out": {
+    "k": 5625,
+    "n": 5885,
+    "p": 95.6,
+    "lo": 95,
+    "hi": 96.1
+   },
+   "sentences_correct_expected": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 100,
+    "n": 265,
+    "p": 37.7,
+    "lo": 32.1,
+    "hi": 43.7
+   },
+   "output_meaning_kept": {
+    "k": 71,
+    "n": 265,
+    "p": 26.8,
+    "lo": 21.8,
+    "hi": 32.4
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 55,
+    "n": 265,
+    "p": 20.8,
+    "lo": 16.3,
+    "hi": 26
+   },
+   "output_analysis_correct_local": {
+    "k": 110,
+    "n": 265,
+    "p": 41.5,
+    "lo": 35.7,
+    "hi": 47.5
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 50,
+    "n": 265,
+    "p": 18.9,
+    "lo": 14.6,
+    "hi": 24
+   },
+   "sentences_correct_out_local": {
+    "k": 5654,
+    "n": 5885,
+    "p": 96.1,
+    "lo": 95.5,
+    "hi": 96.5
+   },
+   "judge_needed": {
+    "k": 83,
+    "n": 265,
+    "p": 31.3,
+    "lo": 26,
+    "hi": 37.1
+   },
+   "pronouns_kept": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 49,
+    "p": 0,
+    "lo": 0,
+    "hi": 7.3
+   },
+   "worse_than_input": {
+    "k": 116,
+    "n": 216,
+    "p": 53.7,
+    "lo": 47,
+    "hi": 60.2
+   },
+   "text_unchanged": {
+    "k": 36,
+    "n": 265,
+    "p": 13.6,
+    "lo": 10,
+    "hi": 18.2
+   },
+   "same_analysis_as_input": {
+    "k": 36,
+    "n": 265,
+    "p": 13.6,
+    "lo": 10,
+    "hi": 18.2
+   },
+   "sentence_count_equals_expected": {
+    "k": 207,
+    "n": 265,
+    "p": 78.1,
+    "lo": 72.8,
+    "hi": 82.7
+   },
+   "output_one_clause_sentences": {
+    "k": 3239,
+    "n": 5885,
+    "p": 55,
+    "lo": 53.8,
+    "hi": 56.3
+   },
+   "expected_one_clause_sentences": {
+    "k": 3001,
+    "n": 5804,
+    "p": 51.7,
+    "lo": 50.4,
+    "hi": 53
+   },
+   "output_explicit_subject_sentences": {
+    "k": 5428,
+    "n": 5885,
+    "p": 92.2,
+    "lo": 91.5,
+    "hi": 92.9
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5353,
+    "n": 5804,
+    "p": 92.2,
+    "lo": 91.5,
+    "hi": 92.9
+   }
+  },
+  {
+   "run": "it1 K5 paragraph",
+   "name": "it1",
+   "kind": "K5",
+   "mode": "paragraph",
+   "cases": 102,
+   "input_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "output_analysis_correct": {
+    "k": 89,
+    "n": 102,
+    "p": 87.3,
+    "lo": 79.4,
+    "hi": 92.4
+   },
+   "expected_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "sentences_correct_in": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "sentences_correct_out": {
+    "k": 293,
+    "n": 306,
+    "p": 95.8,
+    "lo": 92.9,
+    "hi": 97.5
+   },
+   "sentences_correct_expected": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 100,
+    "n": 102,
+    "p": 98,
+    "lo": 93.1,
+    "hi": 99.5
+   },
+   "output_meaning_kept": {
+    "k": 94,
+    "n": 102,
+    "p": 92.2,
+    "lo": 85.3,
+    "hi": 96
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 84,
+    "n": 102,
+    "p": 82.4,
+    "lo": 73.8,
+    "hi": 88.5
+   },
+   "output_analysis_correct_local": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 82,
+    "n": 102,
+    "p": 80.4,
+    "lo": 71.6,
+    "hi": 86.9
+   },
+   "sentences_correct_out_local": {
+    "k": 296,
+    "n": 306,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "judge_needed": {
+    "k": 13,
+    "n": 102,
+    "p": 12.7,
+    "lo": 7.6,
+    "hi": 20.6
+   },
+   "pronouns_kept": {
+    "k": 98,
+    "n": 102,
+    "p": 96.1,
+    "lo": 90.3,
+    "hi": 98.5
+   },
+   "runaway": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "fixed_of_failing_inputs": {
+    "k": 1,
+    "n": 10,
+    "p": 10,
+    "lo": 1.8,
+    "hi": 40.4
+   },
+   "worse_than_input": {
+    "k": 4,
+    "n": 92,
+    "p": 4.3,
+    "lo": 1.7,
+    "hi": 10.7
+   },
+   "text_unchanged": {
+    "k": 85,
+    "n": 102,
+    "p": 83.3,
+    "lo": 74.9,
+    "hi": 89.3
+   },
+   "same_analysis_as_input": {
+    "k": 85,
+    "n": 102,
+    "p": 83.3,
+    "lo": 74.9,
+    "hi": 89.3
+   },
+   "sentence_count_equals_expected": {
+    "k": 100,
+    "n": 102,
+    "p": 98,
+    "lo": 93.1,
+    "hi": 99.5
+   },
+   "output_one_clause_sentences": {
+    "k": 183,
+    "n": 306,
+    "p": 59.8,
+    "lo": 54.2,
+    "hi": 65.1
+   },
+   "expected_one_clause_sentences": {
+    "k": 178,
+    "n": 305,
+    "p": 58.4,
+    "lo": 52.8,
+    "hi": 63.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 301,
+    "n": 306,
+    "p": 98.4,
+    "lo": 96.2,
+    "hi": 99.3
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 300,
+    "n": 305,
+    "p": 98.4,
+    "lo": 96.2,
+    "hi": 99.3
+   }
+  },
+  {
+   "run": "it1 K5 sentence",
+   "name": "it1",
+   "kind": "K5",
+   "mode": "sentence",
+   "cases": 102,
+   "input_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "output_analysis_correct": {
+    "k": 83,
+    "n": 102,
+    "p": 81.4,
+    "lo": 72.7,
+    "hi": 87.7
+   },
+   "expected_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "sentences_correct_in": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "sentences_correct_out": {
+    "k": 288,
+    "n": 308,
+    "p": 93.5,
+    "lo": 90.2,
+    "hi": 95.8
+   },
+   "sentences_correct_expected": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 87,
+    "n": 102,
+    "p": 85.3,
+    "lo": 77.1,
+    "hi": 90.9
+   },
+   "output_meaning_kept": {
+    "k": 79,
+    "n": 102,
+    "p": 77.5,
+    "lo": 68.4,
+    "hi": 84.5
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 69,
+    "n": 102,
+    "p": 67.6,
+    "lo": 58.1,
+    "hi": 75.9
+   },
+   "output_analysis_correct_local": {
+    "k": 87,
+    "n": 102,
+    "p": 85.3,
+    "lo": 77.1,
+    "hi": 90.9
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 67,
+    "n": 102,
+    "p": 65.7,
+    "lo": 56.1,
+    "hi": 74.2
+   },
+   "sentences_correct_out_local": {
+    "k": 293,
+    "n": 308,
+    "p": 95.1,
+    "lo": 92.1,
+    "hi": 97
+   },
+   "judge_needed": {
+    "k": 24,
+    "n": 102,
+    "p": 23.5,
+    "lo": 16.4,
+    "hi": 32.6
+   },
+   "pronouns_kept": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 10,
+    "p": 0,
+    "lo": 0,
+    "hi": 27.8
+   },
+   "worse_than_input": {
+    "k": 11,
+    "n": 92,
+    "p": 12,
+    "lo": 6.8,
+    "hi": 20.2
+   },
+   "text_unchanged": {
+    "k": 61,
+    "n": 102,
+    "p": 59.8,
+    "lo": 50.1,
+    "hi": 68.8
+   },
+   "same_analysis_as_input": {
+    "k": 62,
+    "n": 102,
+    "p": 60.8,
+    "lo": 51.1,
+    "hi": 69.7
+   },
+   "sentence_count_equals_expected": {
+    "k": 99,
+    "n": 102,
+    "p": 97.1,
+    "lo": 91.7,
+    "hi": 99
+   },
+   "output_one_clause_sentences": {
+    "k": 195,
+    "n": 308,
+    "p": 63.3,
+    "lo": 57.8,
+    "hi": 68.5
+   },
+   "expected_one_clause_sentences": {
+    "k": 178,
+    "n": 305,
+    "p": 58.4,
+    "lo": 52.8,
+    "hi": 63.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 304,
+    "n": 308,
+    "p": 98.7,
+    "lo": 96.7,
+    "hi": 99.5
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 300,
+    "n": 305,
+    "p": 98.4,
+    "lo": 96.2,
+    "hi": 99.3
+   }
+  },
+  {
+   "run": "it1 K6-neuro_english whole",
+   "name": "it1",
+   "kind": "K6",
+   "mode": "whole",
+   "cases": 16,
+   "input_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct": {
+    "k": 3,
+    "n": 16,
+    "p": 18.8,
+    "lo": 6.6,
+    "hi": 43
+   },
+   "expected_analysis_correct": {
+    "k": 9,
+    "n": 16,
+    "p": 56.3,
+    "lo": 33.2,
+    "hi": 76.9
+   },
+   "sentences_correct_in": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_out": {
+    "k": 3,
+    "n": 16,
+    "p": 18.8,
+    "lo": 6.6,
+    "hi": 43
+   },
+   "sentences_correct_expected": {
+    "k": 35,
+    "n": 45,
+    "p": 77.8,
+    "lo": 63.7,
+    "hi": 87.5
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 15,
+    "n": 16,
+    "p": 93.8,
+    "lo": 71.7,
+    "hi": 98.9
+   },
+   "output_meaning_kept": {
+    "k": 15,
+    "n": 16,
+    "p": 93.8,
+    "lo": 71.7,
+    "hi": 98.9
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 3,
+    "n": 16,
+    "p": 18.8,
+    "lo": 6.6,
+    "hi": 43
+   },
+   "output_analysis_correct_local": {
+    "k": 5,
+    "n": 16,
+    "p": 31.3,
+    "lo": 14.2,
+    "hi": 55.6
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 5,
+    "n": 16,
+    "p": 31.3,
+    "lo": 14.2,
+    "hi": 55.6
+   },
+   "sentences_correct_out_local": {
+    "k": 5,
+    "n": 16,
+    "p": 31.3,
+    "lo": 14.2,
+    "hi": 55.6
+   },
+   "judge_needed": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "pronouns_kept": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 12,
+    "p": 0,
+    "lo": 0,
+    "hi": 24.3
+   },
+   "worse_than_input": {
+    "k": 1,
+    "n": 4,
+    "p": 25,
+    "lo": 4.6,
+    "hi": 69.9
+   },
+   "text_unchanged": {
+    "k": 14,
+    "n": 16,
+    "p": 87.5,
+    "lo": 64,
+    "hi": 96.5
+   },
+   "same_analysis_as_input": {
+    "k": 15,
+    "n": 16,
+    "p": 93.8,
+    "lo": 71.7,
+    "hi": 98.9
+   },
+   "sentence_count_equals_expected": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "output_one_clause_sentences": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "expected_one_clause_sentences": {
+    "k": 25,
+    "n": 45,
+    "p": 55.6,
+    "lo": 41.2,
+    "hi": 69.1
+   },
+   "output_explicit_subject_sentences": {
+    "k": 16,
+    "n": 16,
+    "p": 100,
+    "lo": 80.6,
+    "hi": 100
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 45,
+    "n": 45,
+    "p": 100,
+    "lo": 92.1,
+    "hi": 100
+   }
+  },
+  {
+   "run": "it2-sent K6-neuro_english whole",
+   "name": "it2-sent",
+   "kind": "K6",
+   "mode": "whole",
+   "cases": 16,
+   "input_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct": {
+    "k": 8,
+    "n": 16,
+    "p": 50,
+    "lo": 28,
+    "hi": 72
+   },
+   "expected_analysis_correct": {
+    "k": 9,
+    "n": 16,
+    "p": 56.3,
+    "lo": 33.2,
+    "hi": 76.9
+   },
+   "sentences_correct_in": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_out": {
+    "k": 27,
+    "n": 35,
+    "p": 77.1,
+    "lo": 61,
+    "hi": 87.9
+   },
+   "sentences_correct_expected": {
+    "k": 35,
+    "n": 45,
+    "p": 77.8,
+    "lo": 63.7,
+    "hi": 87.5
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 11,
+    "n": 16,
+    "p": 68.8,
+    "lo": 44.4,
+    "hi": 85.8
+   },
+   "output_meaning_kept": {
+    "k": 11,
+    "n": 16,
+    "p": 68.8,
+    "lo": 44.4,
+    "hi": 85.8
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 6,
+    "n": 16,
+    "p": 37.5,
+    "lo": 18.5,
+    "hi": 61.4
+   },
+   "output_analysis_correct_local": {
+    "k": 11,
+    "n": 16,
+    "p": 68.8,
+    "lo": 44.4,
+    "hi": 85.8
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 3,
+    "n": 16,
+    "p": 18.8,
+    "lo": 6.6,
+    "hi": 43
+   },
+   "sentences_correct_out_local": {
+    "k": 30,
+    "n": 35,
+    "p": 85.7,
+    "lo": 70.6,
+    "hi": 93.7
+   },
+   "judge_needed": {
+    "k": 8,
+    "n": 16,
+    "p": 50,
+    "lo": 28,
+    "hi": 72
+   },
+   "pronouns_kept": {
+    "k": 15,
+    "n": 16,
+    "p": 93.8,
+    "lo": 71.7,
+    "hi": 98.9
+   },
+   "runaway": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 2,
+    "n": 12,
+    "p": 16.7,
+    "lo": 4.7,
+    "hi": 44.8
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 4,
+    "p": 0,
+    "lo": 0,
+    "hi": 49
+   },
+   "text_unchanged": {
+    "k": 6,
+    "n": 16,
+    "p": 37.5,
+    "lo": 18.5,
+    "hi": 61.4
+   },
+   "same_analysis_as_input": {
+    "k": 6,
+    "n": 16,
+    "p": 37.5,
+    "lo": 18.5,
+    "hi": 61.4
+   },
+   "sentence_count_equals_expected": {
+    "k": 5,
+    "n": 16,
+    "p": 31.3,
+    "lo": 14.2,
+    "hi": 55.6
+   },
+   "output_one_clause_sentences": {
+    "k": 16,
+    "n": 35,
+    "p": 45.7,
+    "lo": 30.5,
+    "hi": 61.8
+   },
+   "expected_one_clause_sentences": {
+    "k": 25,
+    "n": 45,
+    "p": 55.6,
+    "lo": 41.2,
+    "hi": 69.1
+   },
+   "output_explicit_subject_sentences": {
+    "k": 34,
+    "n": 35,
+    "p": 97.1,
+    "lo": 85.5,
+    "hi": 99.5
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 45,
+    "n": 45,
+    "p": 100,
+    "lo": 92.1,
+    "hi": 100
+   }
+  },
+  {
+   "run": "it2 K2 paragraph",
+   "name": "it2",
+   "kind": "K2",
+   "mode": "paragraph",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 35,
+    "n": 306,
+    "p": 11.4,
+    "lo": 8.3,
+    "hi": 15.5
+   },
+   "output_analysis_correct": {
+    "k": 62,
+    "n": 306,
+    "p": 20.3,
+    "lo": 16.1,
+    "hi": 25.1
+   },
+   "expected_analysis_correct": {
+    "k": 170,
+    "n": 306,
+    "p": 55.6,
+    "lo": 50,
+    "hi": 61
+   },
+   "sentences_correct_in": {
+    "k": 1128,
+    "n": 1607,
+    "p": 70.2,
+    "lo": 67.9,
+    "hi": 72.4
+   },
+   "sentences_correct_out": {
+    "k": 1268,
+    "n": 1710,
+    "p": 74.2,
+    "lo": 72,
+    "hi": 76.2
+   },
+   "sentences_correct_expected": {
+    "k": 1857,
+    "n": 2109,
+    "p": 88.1,
+    "lo": 86.6,
+    "hi": 89.4
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 203,
+    "n": 306,
+    "p": 66.3,
+    "lo": 60.9,
+    "hi": 71.4
+   },
+   "output_meaning_kept": {
+    "k": 171,
+    "n": 306,
+    "p": 55.9,
+    "lo": 50.3,
+    "hi": 61.3
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 33,
+    "n": 306,
+    "p": 10.8,
+    "lo": 7.8,
+    "hi": 14.8
+   },
+   "output_analysis_correct_local": {
+    "k": 96,
+    "n": 306,
+    "p": 31.4,
+    "lo": 26.4,
+    "hi": 36.8
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 47,
+    "n": 306,
+    "p": 15.4,
+    "lo": 11.8,
+    "hi": 19.8
+   },
+   "sentences_correct_out_local": {
+    "k": 1381,
+    "n": 1710,
+    "p": 80.8,
+    "lo": 78.8,
+    "hi": 82.6
+   },
+   "judge_needed": {
+    "k": 59,
+    "n": 306,
+    "p": 19.3,
+    "lo": 15.3,
+    "hi": 24.1
+   },
+   "pronouns_kept": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 1,
+    "n": 306,
+    "p": 0.3,
+    "lo": 0.1,
+    "hi": 1.8
+   },
+   "fixed_of_failing_inputs": {
+    "k": 9,
+    "n": 271,
+    "p": 3.3,
+    "lo": 1.8,
+    "hi": 6.2
+   },
+   "worse_than_input": {
+    "k": 6,
+    "n": 35,
+    "p": 17.1,
+    "lo": 8.1,
+    "hi": 32.7
+   },
+   "text_unchanged": {
+    "k": 131,
+    "n": 306,
+    "p": 42.8,
+    "lo": 37.4,
+    "hi": 48.4
+   },
+   "same_analysis_as_input": {
+    "k": 132,
+    "n": 306,
+    "p": 43.1,
+    "lo": 37.7,
+    "hi": 48.7
+   },
+   "sentence_count_equals_expected": {
+    "k": 111,
+    "n": 306,
+    "p": 36.3,
+    "lo": 31.1,
+    "hi": 41.8
+   },
+   "output_one_clause_sentences": {
+    "k": 998,
+    "n": 1710,
+    "p": 58.4,
+    "lo": 56,
+    "hi": 60.7
+   },
+   "expected_one_clause_sentences": {
+    "k": 1340,
+    "n": 2109,
+    "p": 63.5,
+    "lo": 61.5,
+    "hi": 65.6
+   },
+   "output_explicit_subject_sentences": {
+    "k": 1499,
+    "n": 1710,
+    "p": 87.7,
+    "lo": 86,
+    "hi": 89.1
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 2006,
+    "n": 2109,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 96
+   }
+  },
+  {
+   "run": "it2 K2 sentence",
+   "name": "it2",
+   "kind": "K2",
+   "mode": "sentence",
+   "cases": 306,
+   "input_analysis_correct": {
+    "k": 35,
+    "n": 306,
+    "p": 11.4,
+    "lo": 8.3,
+    "hi": 15.5
+   },
+   "output_analysis_correct": {
+    "k": 83,
+    "n": 306,
+    "p": 27.1,
+    "lo": 22.4,
+    "hi": 32.4
+   },
+   "expected_analysis_correct": {
+    "k": 170,
+    "n": 306,
+    "p": 55.6,
+    "lo": 50,
+    "hi": 61
+   },
+   "sentences_correct_in": {
+    "k": 1128,
+    "n": 1607,
+    "p": 70.2,
+    "lo": 67.9,
+    "hi": 72.4
+   },
+   "sentences_correct_out": {
+    "k": 1452,
+    "n": 1770,
+    "p": 82,
+    "lo": 80.2,
+    "hi": 83.8
+   },
+   "sentences_correct_expected": {
+    "k": 1857,
+    "n": 2109,
+    "p": 88.1,
+    "lo": 86.6,
+    "hi": 89.4
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 265,
+    "n": 306,
+    "p": 86.6,
+    "lo": 82.3,
+    "hi": 90
+   },
+   "output_meaning_kept": {
+    "k": 243,
+    "n": 306,
+    "p": 79.4,
+    "lo": 74.5,
+    "hi": 83.6
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 75,
+    "n": 306,
+    "p": 24.5,
+    "lo": 20,
+    "hi": 29.6
+   },
+   "output_analysis_correct_local": {
+    "k": 149,
+    "n": 306,
+    "p": 48.7,
+    "lo": 43.1,
+    "hi": 54.3
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 95,
+    "n": 306,
+    "p": 31,
+    "lo": 26.1,
+    "hi": 36.4
+   },
+   "sentences_correct_out_local": {
+    "k": 1578,
+    "n": 1770,
+    "p": 89.2,
+    "lo": 87.6,
+    "hi": 90.5
+   },
+   "judge_needed": {
+    "k": 101,
+    "n": 306,
+    "p": 33,
+    "lo": 28,
+    "hi": 38.5
+   },
+   "pronouns_kept": {
+    "k": 306,
+    "n": 306,
+    "p": 100,
+    "lo": 98.8,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 306,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.2
+   },
+   "fixed_of_failing_inputs": {
+    "k": 44,
+    "n": 271,
+    "p": 16.2,
+    "lo": 12.3,
+    "hi": 21.1
+   },
+   "worse_than_input": {
+    "k": 3,
+    "n": 35,
+    "p": 8.6,
+    "lo": 3,
+    "hi": 22.4
+   },
+   "text_unchanged": {
+    "k": 68,
+    "n": 306,
+    "p": 22.2,
+    "lo": 17.9,
+    "hi": 27.2
+   },
+   "same_analysis_as_input": {
+    "k": 68,
+    "n": 306,
+    "p": 22.2,
+    "lo": 17.9,
+    "hi": 27.2
+   },
+   "sentence_count_equals_expected": {
+    "k": 140,
+    "n": 306,
+    "p": 45.8,
+    "lo": 40.3,
+    "hi": 51.4
+   },
+   "output_one_clause_sentences": {
+    "k": 1033,
+    "n": 1770,
+    "p": 58.4,
+    "lo": 56,
+    "hi": 60.6
+   },
+   "expected_one_clause_sentences": {
+    "k": 1340,
+    "n": 2109,
+    "p": 63.5,
+    "lo": 61.5,
+    "hi": 65.6
+   },
+   "output_explicit_subject_sentences": {
+    "k": 1620,
+    "n": 1770,
+    "p": 91.5,
+    "lo": 90.1,
+    "hi": 92.7
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 2006,
+    "n": 2109,
+    "p": 95.1,
+    "lo": 94.1,
+    "hi": 96
+   }
+  },
+  {
+   "run": "it2 K3 paragraph",
+   "name": "it2",
+   "kind": "K3",
+   "mode": "paragraph",
+   "cases": 265,
+   "input_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "output_analysis_correct": {
+    "k": 185,
+    "n": 265,
+    "p": 69.8,
+    "lo": 64,
+    "hi": 75
+   },
+   "expected_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "sentences_correct_in": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "sentences_correct_out": {
+    "k": 8148,
+    "n": 8362,
+    "p": 97.4,
+    "lo": 97.1,
+    "hi": 97.8
+   },
+   "sentences_correct_expected": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 115,
+    "n": 265,
+    "p": 43.4,
+    "lo": 37.6,
+    "hi": 49.4
+   },
+   "output_meaning_kept": {
+    "k": 106,
+    "n": 265,
+    "p": 40,
+    "lo": 34.3,
+    "hi": 46
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 91,
+    "n": 265,
+    "p": 34.3,
+    "lo": 28.9,
+    "hi": 40.2
+   },
+   "output_analysis_correct_local": {
+    "k": 205,
+    "n": 265,
+    "p": 77.4,
+    "lo": 71.9,
+    "hi": 82
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 95,
+    "n": 265,
+    "p": 35.8,
+    "lo": 30.3,
+    "hi": 41.8
+   },
+   "sentences_correct_out_local": {
+    "k": 8203,
+    "n": 8362,
+    "p": 98.1,
+    "lo": 97.8,
+    "hi": 98.4
+   },
+   "judge_needed": {
+    "k": 12,
+    "n": 265,
+    "p": 4.5,
+    "lo": 2.6,
+    "hi": 7.7
+   },
+   "pronouns_kept": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 0,
+    "n": 49,
+    "p": 0,
+    "lo": 0,
+    "hi": 7.3
+   },
+   "worse_than_input": {
+    "k": 38,
+    "n": 216,
+    "p": 17.6,
+    "lo": 13.1,
+    "hi": 23.2
+   },
+   "text_unchanged": {
+    "k": 91,
+    "n": 265,
+    "p": 34.3,
+    "lo": 28.9,
+    "hi": 40.2
+   },
+   "same_analysis_as_input": {
+    "k": 91,
+    "n": 265,
+    "p": 34.3,
+    "lo": 28.9,
+    "hi": 40.2
+   },
+   "sentence_count_equals_expected": {
+    "k": 132,
+    "n": 265,
+    "p": 49.8,
+    "lo": 43.8,
+    "hi": 55.8
+   },
+   "output_one_clause_sentences": {
+    "k": 4321,
+    "n": 8362,
+    "p": 51.7,
+    "lo": 50.6,
+    "hi": 52.7
+   },
+   "expected_one_clause_sentences": {
+    "k": 3001,
+    "n": 5804,
+    "p": 51.7,
+    "lo": 50.4,
+    "hi": 53
+   },
+   "output_explicit_subject_sentences": {
+    "k": 7564,
+    "n": 8362,
+    "p": 90.5,
+    "lo": 89.8,
+    "hi": 91.1
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5353,
+    "n": 5804,
+    "p": 92.2,
+    "lo": 91.5,
+    "hi": 92.9
+   }
+  },
+  {
+   "run": "it2 K3 sentence",
+   "name": "it2",
+   "kind": "K3",
+   "mode": "sentence",
+   "cases": 265,
+   "input_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "output_analysis_correct": {
+    "k": 158,
+    "n": 265,
+    "p": 59.6,
+    "lo": 53.6,
+    "hi": 65.4
+   },
+   "expected_analysis_correct": {
+    "k": 216,
+    "n": 265,
+    "p": 81.5,
+    "lo": 76.4,
+    "hi": 85.7
+   },
+   "sentences_correct_in": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "sentences_correct_out": {
+    "k": 5795,
+    "n": 5940,
+    "p": 97.6,
+    "lo": 97.1,
+    "hi": 97.9
+   },
+   "sentences_correct_expected": {
+    "k": 5747,
+    "n": 5804,
+    "p": 99,
+    "lo": 98.7,
+    "hi": 99.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 224,
+    "n": 265,
+    "p": 84.5,
+    "lo": 79.7,
+    "hi": 88.4
+   },
+   "output_meaning_kept": {
+    "k": 155,
+    "n": 265,
+    "p": 58.5,
+    "lo": 52.5,
+    "hi": 64.3
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 108,
+    "n": 265,
+    "p": 40.8,
+    "lo": 35,
+    "hi": 46.8
+   },
+   "output_analysis_correct_local": {
+    "k": 181,
+    "n": 265,
+    "p": 68.3,
+    "lo": 62.5,
+    "hi": 73.6
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 96,
+    "n": 265,
+    "p": 36.2,
+    "lo": 30.7,
+    "hi": 42.2
+   },
+   "sentences_correct_out_local": {
+    "k": 5835,
+    "n": 5940,
+    "p": 98.2,
+    "lo": 97.9,
+    "hi": 98.5
+   },
+   "judge_needed": {
+    "k": 145,
+    "n": 265,
+    "p": 54.7,
+    "lo": 48.7,
+    "hi": 60.6
+   },
+   "pronouns_kept": {
+    "k": 265,
+    "n": 265,
+    "p": 100,
+    "lo": 98.6,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 265,
+    "p": 0,
+    "lo": 0,
+    "hi": 1.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 2,
+    "n": 49,
+    "p": 4.1,
+    "lo": 1.1,
+    "hi": 13.7
+   },
+   "worse_than_input": {
+    "k": 60,
+    "n": 216,
+    "p": 27.8,
+    "lo": 22.2,
+    "hi": 34.1
+   },
+   "text_unchanged": {
+    "k": 31,
+    "n": 265,
+    "p": 11.7,
+    "lo": 8.4,
+    "hi": 16.1
+   },
+   "same_analysis_as_input": {
+    "k": 31,
+    "n": 265,
+    "p": 11.7,
+    "lo": 8.4,
+    "hi": 16.1
+   },
+   "sentence_count_equals_expected": {
+    "k": 186,
+    "n": 265,
+    "p": 70.2,
+    "lo": 64.4,
+    "hi": 75.4
+   },
+   "output_one_clause_sentences": {
+    "k": 3347,
+    "n": 5940,
+    "p": 56.3,
+    "lo": 55.1,
+    "hi": 57.6
+   },
+   "expected_one_clause_sentences": {
+    "k": 3001,
+    "n": 5804,
+    "p": 51.7,
+    "lo": 50.4,
+    "hi": 53
+   },
+   "output_explicit_subject_sentences": {
+    "k": 5482,
+    "n": 5940,
+    "p": 92.3,
+    "lo": 91.6,
+    "hi": 92.9
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 5353,
+    "n": 5804,
+    "p": 92.2,
+    "lo": 91.5,
+    "hi": 92.9
+   }
+  },
+  {
+   "run": "it2 K5 paragraph",
+   "name": "it2",
+   "kind": "K5",
+   "mode": "paragraph",
+   "cases": 102,
+   "input_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "output_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "expected_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "sentences_correct_in": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "sentences_correct_out": {
+    "k": 285,
+    "n": 295,
+    "p": 96.6,
+    "lo": 93.9,
+    "hi": 98.1
+   },
+   "sentences_correct_expected": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 91,
+    "n": 102,
+    "p": 89.2,
+    "lo": 81.7,
+    "hi": 93.9
+   },
+   "output_meaning_kept": {
+    "k": 87,
+    "n": 102,
+    "p": 85.3,
+    "lo": 77.1,
+    "hi": 90.9
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 78,
+    "n": 102,
+    "p": 76.5,
+    "lo": 67.4,
+    "hi": 83.6
+   },
+   "output_analysis_correct_local": {
+    "k": 96,
+    "n": 102,
+    "p": 94.1,
+    "lo": 87.8,
+    "hi": 97.3
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 80,
+    "n": 102,
+    "p": 78.4,
+    "lo": 69.5,
+    "hi": 85.3
+   },
+   "sentences_correct_out_local": {
+    "k": 289,
+    "n": 295,
+    "p": 98,
+    "lo": 95.6,
+    "hi": 99.1
+   },
+   "judge_needed": {
+    "k": 8,
+    "n": 102,
+    "p": 7.8,
+    "lo": 4,
+    "hi": 14.7
+   },
+   "pronouns_kept": {
+    "k": 98,
+    "n": 102,
+    "p": 96.1,
+    "lo": 90.3,
+    "hi": 98.5
+   },
+   "runaway": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "fixed_of_failing_inputs": {
+    "k": 1,
+    "n": 10,
+    "p": 10,
+    "lo": 1.8,
+    "hi": 40.4
+   },
+   "worse_than_input": {
+    "k": 2,
+    "n": 92,
+    "p": 2.2,
+    "lo": 0.6,
+    "hi": 7.6
+   },
+   "text_unchanged": {
+    "k": 80,
+    "n": 102,
+    "p": 78.4,
+    "lo": 69.5,
+    "hi": 85.3
+   },
+   "same_analysis_as_input": {
+    "k": 80,
+    "n": 102,
+    "p": 78.4,
+    "lo": 69.5,
+    "hi": 85.3
+   },
+   "sentence_count_equals_expected": {
+    "k": 90,
+    "n": 102,
+    "p": 88.2,
+    "lo": 80.6,
+    "hi": 93.1
+   },
+   "output_one_clause_sentences": {
+    "k": 178,
+    "n": 295,
+    "p": 60.3,
+    "lo": 54.7,
+    "hi": 65.8
+   },
+   "expected_one_clause_sentences": {
+    "k": 178,
+    "n": 305,
+    "p": 58.4,
+    "lo": 52.8,
+    "hi": 63.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 289,
+    "n": 295,
+    "p": 98,
+    "lo": 95.6,
+    "hi": 99.1
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 300,
+    "n": 305,
+    "p": 98.4,
+    "lo": 96.2,
+    "hi": 99.3
+   }
+  },
+  {
+   "run": "it2 K5 sentence",
+   "name": "it2",
+   "kind": "K5",
+   "mode": "sentence",
+   "cases": 102,
+   "input_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "output_analysis_correct": {
+    "k": 91,
+    "n": 102,
+    "p": 89.2,
+    "lo": 81.7,
+    "hi": 93.9
+   },
+   "expected_analysis_correct": {
+    "k": 92,
+    "n": 102,
+    "p": 90.2,
+    "lo": 82.9,
+    "hi": 94.6
+   },
+   "sentences_correct_in": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "sentences_correct_out": {
+    "k": 298,
+    "n": 310,
+    "p": 96.1,
+    "lo": 93.4,
+    "hi": 97.8
+   },
+   "sentences_correct_expected": {
+    "k": 295,
+    "n": 305,
+    "p": 96.7,
+    "lo": 94.1,
+    "hi": 98.2
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 99,
+    "n": 102,
+    "p": 97.1,
+    "lo": 91.7,
+    "hi": 99
+   },
+   "output_meaning_kept": {
+    "k": 97,
+    "n": 102,
+    "p": 95.1,
+    "lo": 89,
+    "hi": 97.9
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 87,
+    "n": 102,
+    "p": 85.3,
+    "lo": 77.1,
+    "hi": 90.9
+   },
+   "output_analysis_correct_local": {
+    "k": 96,
+    "n": 102,
+    "p": 94.1,
+    "lo": 87.8,
+    "hi": 97.3
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 86,
+    "n": 102,
+    "p": 84.3,
+    "lo": 76,
+    "hi": 90.1
+   },
+   "sentences_correct_out_local": {
+    "k": 303,
+    "n": 310,
+    "p": 97.7,
+    "lo": 95.4,
+    "hi": 98.9
+   },
+   "judge_needed": {
+    "k": 10,
+    "n": 102,
+    "p": 9.8,
+    "lo": 5.4,
+    "hi": 17.1
+   },
+   "pronouns_kept": {
+    "k": 102,
+    "n": 102,
+    "p": 100,
+    "lo": 96.4,
+    "hi": 100
+   },
+   "runaway": {
+    "k": 0,
+    "n": 102,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.6
+   },
+   "fixed_of_failing_inputs": {
+    "k": 2,
+    "n": 10,
+    "p": 20,
+    "lo": 5.7,
+    "hi": 51
+   },
+   "worse_than_input": {
+    "k": 3,
+    "n": 92,
+    "p": 3.3,
+    "lo": 1.1,
+    "hi": 9.2
+   },
+   "text_unchanged": {
+    "k": 68,
+    "n": 102,
+    "p": 66.7,
+    "lo": 57.1,
+    "hi": 75.1
+   },
+   "same_analysis_as_input": {
+    "k": 68,
+    "n": 102,
+    "p": 66.7,
+    "lo": 57.1,
+    "hi": 75.1
+   },
+   "sentence_count_equals_expected": {
+    "k": 99,
+    "n": 102,
+    "p": 97.1,
+    "lo": 91.7,
+    "hi": 99
+   },
+   "output_one_clause_sentences": {
+    "k": 202,
+    "n": 310,
+    "p": 65.2,
+    "lo": 59.7,
+    "hi": 70.3
+   },
+   "expected_one_clause_sentences": {
+    "k": 178,
+    "n": 305,
+    "p": 58.4,
+    "lo": 52.8,
+    "hi": 63.8
+   },
+   "output_explicit_subject_sentences": {
+    "k": 305,
+    "n": 310,
+    "p": 98.4,
+    "lo": 96.3,
+    "hi": 99.3
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 300,
+    "n": 305,
+    "p": 98.4,
+    "lo": 96.2,
+    "hi": 99.3
+   }
+  },
+  {
+   "run": "it2 K6-neuro_english whole",
+   "name": "it2",
+   "kind": "K6",
+   "mode": "whole",
+   "cases": 16,
+   "input_analysis_correct": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "output_analysis_correct": {
+    "k": 8,
+    "n": 16,
+    "p": 50,
+    "lo": 28,
+    "hi": 72
+   },
+   "expected_analysis_correct": {
+    "k": 9,
+    "n": 16,
+    "p": 56.3,
+    "lo": 33.2,
+    "hi": 76.9
+   },
+   "sentences_correct_in": {
+    "k": 4,
+    "n": 16,
+    "p": 25,
+    "lo": 10.2,
+    "hi": 49.5
+   },
+   "sentences_correct_out": {
+    "k": 27,
+    "n": 35,
+    "p": 77.1,
+    "lo": 61,
+    "hi": 87.9
+   },
+   "sentences_correct_expected": {
+    "k": 35,
+    "n": 45,
+    "p": 77.8,
+    "lo": 63.7,
+    "hi": 87.5
+   },
+   "output_meaning_ok_mechanical": {
+    "k": 11,
+    "n": 16,
+    "p": 68.8,
+    "lo": 44.4,
+    "hi": 85.8
+   },
+   "output_meaning_kept": {
+    "k": 11,
+    "n": 16,
+    "p": 68.8,
+    "lo": 44.4,
+    "hi": 85.8
+   },
+   "output_analysis_correct_and_meaning_ok": {
+    "k": 6,
+    "n": 16,
+    "p": 37.5,
+    "lo": 18.5,
+    "hi": 61.4
+   },
+   "output_analysis_correct_local": {
+    "k": 11,
+    "n": 16,
+    "p": 68.8,
+    "lo": 44.4,
+    "hi": 85.8
+   },
+   "output_analysis_correct_and_meaning_local": {
+    "k": 3,
+    "n": 16,
+    "p": 18.8,
+    "lo": 6.6,
+    "hi": 43
+   },
+   "sentences_correct_out_local": {
+    "k": 30,
+    "n": 35,
+    "p": 85.7,
+    "lo": 70.6,
+    "hi": 93.7
+   },
+   "judge_needed": {
+    "k": 8,
+    "n": 16,
+    "p": 50,
+    "lo": 28,
+    "hi": 72
+   },
+   "pronouns_kept": {
+    "k": 15,
+    "n": 16,
+    "p": 93.8,
+    "lo": 71.7,
+    "hi": 98.9
+   },
+   "runaway": {
+    "k": 0,
+    "n": 16,
+    "p": 0,
+    "lo": 0,
+    "hi": 19.4
+   },
+   "fixed_of_failing_inputs": {
+    "k": 2,
+    "n": 12,
+    "p": 16.7,
+    "lo": 4.7,
+    "hi": 44.8
+   },
+   "worse_than_input": {
+    "k": 0,
+    "n": 4,
+    "p": 0,
+    "lo": 0,
+    "hi": 49
+   },
+   "text_unchanged": {
+    "k": 6,
+    "n": 16,
+    "p": 37.5,
+    "lo": 18.5,
+    "hi": 61.4
+   },
+   "same_analysis_as_input": {
+    "k": 6,
+    "n": 16,
+    "p": 37.5,
+    "lo": 18.5,
+    "hi": 61.4
+   },
+   "sentence_count_equals_expected": {
+    "k": 5,
+    "n": 16,
+    "p": 31.3,
+    "lo": 14.2,
+    "hi": 55.6
+   },
+   "output_one_clause_sentences": {
+    "k": 16,
+    "n": 35,
+    "p": 45.7,
+    "lo": 30.5,
+    "hi": 61.8
+   },
+   "expected_one_clause_sentences": {
+    "k": 25,
+    "n": 45,
+    "p": 55.6,
+    "lo": 41.2,
+    "hi": 69.1
+   },
+   "output_explicit_subject_sentences": {
+    "k": 34,
+    "n": 35,
+    "p": 97.1,
+    "lo": 85.5,
+    "hi": 99.5
+   },
+   "expected_explicit_subject_sentences": {
+    "k": 45,
+    "n": 45,
+    "p": 100,
+    "lo": 92.1,
+    "hi": 100
+   }
+  }
+ ]
+}

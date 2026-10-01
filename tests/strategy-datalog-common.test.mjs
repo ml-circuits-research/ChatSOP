@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {datalogSouffle} from '../reasoning/strategies/datalog-souffle/index.mjs';
 import {datalogE10} from '../reasoning/strategies/datalog-e10/index.mjs';
-import {datalogSoplab} from '../reasoning/strategies/datalog-soplab/index.mjs';
+import {datalogSoplab} from '../eval/reference-engines/datalog-soplab/index.mjs';
 import {ProgramError, NotExpressibleError} from '../reasoning/strategies/datalog-common/front.mjs';
 
 /** The contract the three Datalog strategies share (proposal 5.1 to 5.3): handles, packet fields, honest refusals. */

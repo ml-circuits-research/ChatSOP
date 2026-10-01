@@ -1,0 +1,310 @@
+{
+  "format": "chatsop-translate-comparison-v1",
+  "suite": "eval/reports/current/translate-then-formalize/work/formalizer-v1.romixed-sample400.stage100.jsonl",
+  "direct": "eval/reports/current/translate-then-formalize/smollm2-360m/v1-T0/evaluation.json",
+  "translated": "eval/reports/current/translate-then-formalize/smollm2-360m/v1-T4-stage100/evaluation.json",
+  "rows": 100,
+  "interval": "paired cluster bootstrap by semantic_case_id (row id when absent), 10,000 resamples, seed 7; exact McNemar on rows",
+  "metrics": {
+    "tolerant_execution_equivalence": {
+      "all": {
+        "rows": 100,
+        "clusters": 99,
+        "direct": 0.68,
+        "translated": 0.43,
+        "delta": -0.25,
+        "ci95": [
+          -0.37373737373737376,
+          -0.12
+        ],
+        "helped": 10,
+        "hurt": 35,
+        "mcnemar_p": 0.0002470877846008087
+      },
+      "detector:missed": {
+        "rows": 14,
+        "clusters": 14,
+        "direct": 0.8571428571428571,
+        "translated": 0.5,
+        "delta": -0.35714285714285715,
+        "ci95": [
+          -0.6428571428571429,
+          -0.14285714285714285
+        ],
+        "helped": 0,
+        "hurt": 5,
+        "mcnemar_p": 0.0625
+      },
+      "detector:routed": {
+        "rows": 86,
+        "clusters": 85,
+        "direct": 0.6511627906976745,
+        "translated": 0.4186046511627907,
+        "delta": -0.23255813953488372,
+        "ci95": [
+          -0.3764705882352941,
+          -0.09090909090909091
+        ],
+        "helped": 10,
+        "hurt": 30,
+        "mcnemar_p": 0.0022214337732293695
+      },
+      "language:mixed": {
+        "rows": 30,
+        "clusters": 30,
+        "direct": 0.7333333333333333,
+        "translated": 0.43333333333333335,
+        "delta": -0.3,
+        "ci95": [
+          -0.5,
+          -0.1
+        ],
+        "helped": 2,
+        "hurt": 11,
+        "mcnemar_p": 0.02246093750000001
+      },
+      "language:ro": {
+        "rows": 70,
+        "clusters": 69,
+        "direct": 0.6571428571428571,
+        "translated": 0.42857142857142855,
+        "delta": -0.22857142857142856,
+        "ci95": [
+          -0.38028169014084506,
+          -0.07042253521126761
+        ],
+        "helped": 8,
+        "hurt": 24,
+        "mcnemar_p": 0.007000366691499956
+      },
+      "length:long": {
+        "rows": 8,
+        "clusters": 8,
+        "direct": 0,
+        "translated": 0,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "length:short": {
+        "rows": 92,
+        "clusters": 91,
+        "direct": 0.7391304347826086,
+        "translated": 0.4673913043478261,
+        "delta": -0.2717391304347826,
+        "ci95": [
+          -0.4065934065934066,
+          -0.1368421052631579
+        ],
+        "helped": 10,
+        "hurt": 35,
+        "mcnemar_p": 0.0002470877846008087
+      }
+    },
+    "canonical_match": {
+      "all": {
+        "rows": 100,
+        "clusters": 99,
+        "direct": 0.6,
+        "translated": 0.26,
+        "delta": -0.34,
+        "ci95": [
+          -0.46,
+          -0.2222222222222222
+        ],
+        "helped": 7,
+        "hurt": 41,
+        "mcnemar_p": 6.240408438884519e-7
+      },
+      "detector:missed": {
+        "rows": 14,
+        "clusters": 14,
+        "direct": 0.7142857142857143,
+        "translated": 0.42857142857142855,
+        "delta": -0.2857142857142857,
+        "ci95": [
+          -0.5,
+          -0.07142857142857142
+        ],
+        "helped": 0,
+        "hurt": 4,
+        "mcnemar_p": 0.125
+      },
+      "detector:routed": {
+        "rows": 86,
+        "clusters": 85,
+        "direct": 0.5813953488372093,
+        "translated": 0.23255813953488372,
+        "delta": -0.3488372093023256,
+        "ci95": [
+          -0.4823529411764706,
+          -0.2159090909090909
+        ],
+        "helped": 7,
+        "hurt": 37,
+        "mcnemar_p": 0.0000052995817441115
+      },
+      "language:mixed": {
+        "rows": 30,
+        "clusters": 30,
+        "direct": 0.6666666666666666,
+        "translated": 0.3333333333333333,
+        "delta": -0.3333333333333333,
+        "ci95": [
+          -0.5333333333333333,
+          -0.13333333333333333
+        ],
+        "helped": 1,
+        "hurt": 11,
+        "mcnemar_p": 0.006347656250000002
+      },
+      "language:ro": {
+        "rows": 70,
+        "clusters": 69,
+        "direct": 0.5714285714285714,
+        "translated": 0.22857142857142856,
+        "delta": -0.34285714285714286,
+        "ci95": [
+          -0.4861111111111111,
+          -0.19444444444444445
+        ],
+        "helped": 6,
+        "hurt": 30,
+        "mcnemar_p": 0.00006960169412195674
+      },
+      "length:long": {
+        "rows": 8,
+        "clusters": 8,
+        "direct": 0,
+        "translated": 0,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "length:short": {
+        "rows": 92,
+        "clusters": 91,
+        "direct": 0.6521739130434783,
+        "translated": 0.2826086956521739,
+        "delta": -0.3695652173913043,
+        "ci95": [
+          -0.4945054945054945,
+          -0.24175824175824176
+        ],
+        "helped": 7,
+        "hurt": 41,
+        "mcnemar_p": 6.240408438884519e-7
+      }
+    },
+    "parse": {
+      "all": {
+        "rows": 100,
+        "clusters": 99,
+        "direct": 1,
+        "translated": 1,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "detector:missed": {
+        "rows": 14,
+        "clusters": 14,
+        "direct": 1,
+        "translated": 1,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "detector:routed": {
+        "rows": 86,
+        "clusters": 85,
+        "direct": 1,
+        "translated": 1,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "language:mixed": {
+        "rows": 30,
+        "clusters": 30,
+        "direct": 1,
+        "translated": 1,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "language:ro": {
+        "rows": 70,
+        "clusters": 69,
+        "direct": 1,
+        "translated": 1,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "length:long": {
+        "rows": 8,
+        "clusters": 8,
+        "direct": 1,
+        "translated": 1,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      },
+      "length:short": {
+        "rows": 92,
+        "clusters": 91,
+        "direct": 1,
+        "translated": 1,
+        "delta": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "helped": 0,
+        "hurt": 0,
+        "mcnemar_p": 1
+      }
+    }
+  }
+}

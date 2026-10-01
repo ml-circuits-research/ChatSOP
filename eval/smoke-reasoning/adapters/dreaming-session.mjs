@@ -10,7 +10,7 @@
 import {jsReference, NotExpressibleError} from '../../../reasoning/strategies/js-reference/index.mjs';
 import {dreamingSession} from '../../../reasoning/strategies/dreaming-session/index.mjs';
 import {parse, wiresText, tokens} from '../../../sop/knowledge/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 /** The old schema of a case: drop `new_*` wires, and put back in force the wires they supersede. */
 export function oldSchema(knowledge) {

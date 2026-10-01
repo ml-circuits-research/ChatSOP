@@ -1,0 +1,2 @@
+- baseline-formalizer-dev-formalization.json (103M) was deleted on 2026-10-01: a per-row dump of an archived FormalizerLLM-era run, over the 50 MB repository limit; the summary files beside it remain.
+- baseline-formalizer-test-formalization.json (100M) was deleted on 2026-10-01: a per-row dump of an archived FormalizerLLM-era run, over the 50 MB repository limit; the summary files beside it remain.

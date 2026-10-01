@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Experiment eval-grammar-constrained-v1: grammar-constrained decoding of the fine-tuned small formalizers.
  *
- * Two conditions of the same checkpoint, server and request (lib/formalizer-endpoint.mjs `predictMessage`, the
+ * Two conditions of the same checkpoint, server and request (lib/llama-chat.mjs `predictMessage`, the
  * message as the only input, greedy): `free` (no grammar) and `gbnf` (llama.cpp GBNF of the SOP model surface,
  * tools/sop-gbnf.mjs). Rows are taken in a stratified order (language x question type, mulberry32 seed 42) so every
  * prefix is a stratified sample; the evaluation runs in stages (100, 300, then the full cell) and stops early by
@@ -24,7 +24,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {predictMessage} from '../../lib/formalizer-endpoint.mjs';
+import {predictMessage} from '../../lib/llama-chat.mjs';
 import {readJsonlShardedSync} from '../../lib/jsonl-shards.mjs';
 import {evaluate} from '../../eval/run.mjs';
 import {referenceFreeRecord} from '../../eval/reference-free.mjs';
@@ -33,7 +33,7 @@ import {scoreAgainstAccepted} from '../eval/wild-suite.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const at = file => path.join(root, file);
-export const REPORT_DIR = 'eval/reports/current/grammar-constrained';
+export const REPORT_DIR = 'eval/reports/history/grammar-constrained';
 export const GRAMMAR = `${REPORT_DIR}/sop-model.gbnf`;
 export const CONDITIONS = ['free', 'gbnf'];
 /** Grammar per condition. `gbnf-lax` is EXPLORATORY (added after stage 1): strings may start with blanks, as the parser allows. */
@@ -41,7 +41,7 @@ export const GRAMMARS = {gbnf: GRAMMAR, 'gbnf-lax': `${REPORT_DIR}/sop-model-par
 const SUITES = {
   wild: 'eval/suites/formalizer-wild-v1/test.jsonl',
   ood: 'eval/suites/formalizer-ood-v1/test.jsonl',
-  test500: 'eval/reports/current/formalizer-size-v1/sample500/formalizer-v1-sample500.suite.jsonl',
+  test500: 'eval/reports/history/formalizer-size-v1/sample500/formalizer-v1-sample500.suite.jsonl',
 };
 /** Rows per cell and model; the stages are the cumulative prefixes 100, 300 and the whole cell. */
 export const CELL_ROWS = {'smollm2-135m': {wild: 796, ood: 500, test500: 500}, 'smollm2-360m': {wild: 796, ood: 1578, test500: 500}};
@@ -88,7 +88,7 @@ async function predict({model, cell, stage, url, parallel = 1, conditions = COND
         const row = todo[next++];
         let record;
         try {
-          const r = await predictMessage(url, row.question, {maxTokens: MAX_TOKENS, grammar, cachePrompt: false});
+          const r = await predictMessage(url, row.question, {maxTokens: MAX_TOKENS, ...(grammar ? {extra: {grammar}} : {}), cachePrompt: false});
           record = {id: row.id, sop: r.text, finish: r.finish, ms: r.ms, completion_tokens: r.usage?.completion_tokens ?? null, prompt_tokens: r.usage?.prompt_tokens ?? null,
             gen_tps: r.timings?.predicted_per_second ?? null, raw: !!r.raw};
         } catch (error) { record = {id: row.id, sop: '', error: error.message, ms: null}; }
@@ -244,7 +244,7 @@ async function cpu({model, url, rows: count = 40, reps = 2, device}) {
     const order = [];
     for (let r = 0; r < reps; r++) order.push(...((index + r) % 2 ? ['gbnf', 'free'] : ['free', 'gbnf']));
     for (const condition of order) {
-      const r = await predictMessage(url, row.question, {maxTokens: MAX_TOKENS, grammar: condition === 'gbnf' ? grammar : null});
+      const r = await predictMessage(url, row.question, {maxTokens: MAX_TOKENS, ...(condition === 'gbnf' ? {extra: {grammar}} : {})});
       records.push({id: row.id, condition, ms: r.ms, completion_tokens: r.usage?.completion_tokens ?? null, gen_tps: r.timings?.predicted_per_second ?? null, prompt_ms: r.timings?.prompt_ms ?? null, predicted_ms: r.timings?.predicted_ms ?? null, text: r.text});
     }
   }
@@ -282,7 +282,7 @@ function summary() {
       const r = read(`${REPORT_DIR}/${model}/${cell}${b === 'gbnf' ? '' : '.' + b}.results.json`);
       if (!r) continue;
       // Control: the GPU free outputs against the formalizer-size-v1 CPU free outputs of the same rows.
-      const cpuFree = new Map(readJsonl(at(`eval/reports/current/formalizer-size-v1/${model}/${BASELINE[model][cell]}.predictions.jsonl`)).map(x => [x.id, x.sop]));
+      const cpuFree = new Map(readJsonl(at(`eval/reports/history/formalizer-size-v1/${model}/${BASELINE[model][cell]}.predictions.jsonl`)).map(x => [x.id, x.sop]));
       const gpuFree = readJsonl(workFile(model, cell, 'free')).slice(0, r.final_rows);
       const same = gpuFree.filter(x => cpuFree.has(x.id) && cpuFree.get(x.id) === x.sop).length;
       out.cells[`${model}/${cell}/${b}`] = {model, cell, condition: b, exploratory: b !== 'gbnf', rows: r.final_rows, stopped: r.stopped, primary: PRIMARY[cell], stage_results: r.stage_results.map(({summary: _s, ...rest}) => rest),

@@ -1,8 +1,8 @@
 {
   "root": "state",
-  "ontology": "config/ontology.sop",
   "promptProfile": "formal",
   "memory": {
+    "engine": "sqlite",
     "power": 12,
     "arity": 3,
     "verification": "receipt",

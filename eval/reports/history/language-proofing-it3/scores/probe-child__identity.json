@@ -1,0 +1,62 @@
+{
+ "name": "identity",
+ "tag": "probe",
+ "total": {
+  "n": 252,
+  "child_units": 229,
+  "child_kept": 24,
+  "parent_flip": 0,
+  "parent_units": 4,
+  "parent_kept": 1
+ },
+ "by": {
+  "sealed-child/ro": {
+   "n": 184,
+   "child_kept": 0,
+   "child_units": 182,
+   "parent_flip": 0,
+   "parent_units": 0,
+   "parent_kept": 0
+  },
+  "sealed-child/mixed": {
+   "n": 8,
+   "child_kept": 2,
+   "child_units": 8,
+   "parent_flip": 0,
+   "parent_units": 0,
+   "parent_kept": 0
+  },
+  "sealed-child/noisy_en": {
+   "n": 22,
+   "child_kept": 15,
+   "child_units": 15,
+   "parent_flip": 0,
+   "parent_units": 0,
+   "parent_kept": 0
+  },
+  "hand/ro": {
+   "n": 18,
+   "child_kept": 0,
+   "child_units": 12,
+   "parent_flip": 0,
+   "parent_units": 2,
+   "parent_kept": 0
+  },
+  "hand/mixed": {
+   "n": 9,
+   "child_kept": 1,
+   "child_units": 6,
+   "parent_flip": 0,
+   "parent_units": 1,
+   "parent_kept": 0
+  },
+  "hand/noisy_en": {
+   "n": 11,
+   "child_kept": 6,
+   "child_units": 6,
+   "parent_flip": 0,
+   "parent_units": 1,
+   "parent_kept": 1
+  }
+ }
+}

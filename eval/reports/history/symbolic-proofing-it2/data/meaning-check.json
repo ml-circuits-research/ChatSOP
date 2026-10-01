@@ -1,0 +1,10 @@
+{
+ "generated_at": "2026-10-01T00:15:46.187Z",
+ "repair_rows": 4448,
+ "bad": [],
+ "by_basis": {
+  "two_vote_unit": 657,
+  "two_vote": 3333,
+  "gold_sop": 458
+ }
+}

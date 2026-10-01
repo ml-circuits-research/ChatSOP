@@ -47,7 +47,7 @@ function arm(name, suiteById, predictionFiles, evaluationFiles = []) {
   return {name, rows, predictions, exec};
 }
 
-const S = 'eval/reports/current/formalizer-size-v1/smollm2-135m', H = 'eval/reports/current/haiku-baseline', G = 'eval/reports/current/formalizer-size-v1/gemma';
+const S = 'eval/reports/history/formalizer-size-v1/smollm2-135m', H = 'eval/reports/history/haiku-baseline', G = 'eval/reports/history/formalizer-size-v1/gemma';
 const arms = [
   arm('smollm2-135m q8_0 (llama.cpp), formalizer-v1 test', testById, [`${S}/formalizer-v1-q8_0.predictions.jsonl`], [`${S}/formalizer-v1-q8_0/evaluation.json`]),
   arm('smollm2-135m (HF, training-time selection), formalizer-v1 dev', devById, ['models/smollm2-135m/fv1-size-a4/formalizer/semantic/step-00004467.predictions.jsonl'], ['models/smollm2-135m/fv1-size-a4/formalizer/semantic/step-00004467.json']),
@@ -297,7 +297,7 @@ report.hand_review_notes = [
   'Borderline: first-person chit-chat that states a fact ("We had a power cut this morning", "Am avut o saptamana foarte aglomerata") is omitted, as DS022 prescribes for chit-chat; DS021 C4 formalizes facts about the user as "the user" but exempts chit-chat. Consistent in the data and rarely emitted by the models (21 SmolLM2 extra statements of this origin), so not a cause.',
   'The golds are large: median 27 wires (23 statements and 4 queries), up to 79, from a median 19 composed parts; DS022 describes "two to six question cases" but not how many statement cases a message carries.',
 ];
-report.gemma_note = 'eval/reports/current/formalizer-size-v1/gemma/ held only quantize and server logs when this diagnosis ran (its earlier short-row predictions were no longer present); rerun this script once its predictions exist.';
+report.gemma_note = 'eval/reports/history/formalizer-size-v1/gemma/ held only quantize and server logs when this diagnosis ran (its earlier short-row predictions were no longer present); rerun this script once its predictions exist.';
 fs.mkdirSync(path.dirname(at(outFile)), {recursive: true});
 fs.writeFileSync(at(outFile), JSON.stringify(report, null, 2) + '\n');
 fs.writeFileSync(at(path.join(path.dirname(outFile), 'hand-review-sample.json')), JSON.stringify(reviewSample, null, 2) + '\n');

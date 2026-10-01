@@ -29,7 +29,7 @@ import {stages} from './ud-baseline-eval.mjs';
 import {wilson, pairedDelta} from './symbolic-lm-eval.mjs';
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
-const OUT = path.join(ROOT, 'eval/reports/current/proofreader-e2e');
+const OUT = path.join(ROOT, 'eval/reports/history/proofreader-e2e');
 const sha = text => createHash('sha256').update(text).digest('hex');
 const readJsonl = file => (fs.existsSync(file) ? fs.readFileSync(file, 'utf8').split('\n').filter(l => l.trim()).map(l => JSON.parse(l)) : []);
 const writeJsonl = (file, rows) => { fs.mkdirSync(path.dirname(file), {recursive: true}); fs.writeFileSync(file, rows.map(r => JSON.stringify(r)).join('\n') + (rows.length ? '\n' : '')); };

@@ -28,7 +28,7 @@ import {corpusDir} from '../../lib/dataset-paths.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 // Must equal training/cli.mjs `contractFiles` and `qualificationChecks`.
-const CONTRACT_FILES = ['sop/parser.mjs', 'sop/runtime.mjs', 'server/agent.mjs', 'server/prompts/formalizer.txt', 'config/ontology.sop', 'tools/datasets/schema.mjs', 'tools/research/prepare-experiment.mjs'];
+const CONTRACT_FILES = ['sop/parser.mjs', 'sop/runtime.mjs', 'server/agent.mjs', 'server/prompts/formalizer.txt', 'config/knowledge/demo/0001-vocabulary.sop', 'tools/datasets/schema.mjs', 'tools/research/prepare-experiment.mjs'];
 const CHECKS = ['syntax_execution', 'semantic_review', 'leakage', 'coverage', 'source_rights', 'independent_reference_suite'];
 
 const rel = file => path.relative(root, file).split(path.sep).join('/');

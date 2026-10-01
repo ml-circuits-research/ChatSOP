@@ -1,0 +1,9 @@
+{
+ "suite": "formalizer-v1",
+ "group": "en",
+ "stage": "100",
+ "rows": 100,
+ "snapshot": "/tmp/claude-1000/-home-salboaie-work-ChatSOP/da5fd83f-83ea-4f0e-88a9-e8184cff07c0/scratchpad/frozen-symbolic-lm-v1.4",
+ "seconds": 106.435,
+ "started_at": "2026-09-29T23:27:21.338Z"
+}

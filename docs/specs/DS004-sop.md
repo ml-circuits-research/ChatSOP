@@ -131,7 +131,7 @@ Some names exist on both surfaces with different fields (`fact`, `rule`, `predic
 `*` required, `+` repeatable. The governance fields (`version supersedes approval approved_by approved_at retired_at scope quote`) are listed once where a wire carries them.
 
 <!-- grammar:begin -->
-- `@id predicate`: args* closed key transitive inverse unit description
+- `@id predicate`: args* closed key transitive inverse unit description reading+ describe_rank
 - `@id fact`: holds* valid status speaker source quote
 - `@id rule`: when*+ then* mode valid source + governance
 - `@id default`: when*+ then* except+ priority overrides+ source + governance
@@ -150,6 +150,8 @@ Some names exist on both surfaces with different fields (`fact`, `rule`, `predic
 - `@id policy`: effort partial procedures+ scope+ objective binding
 - `@id stated`: relation* role+ polarity valid certainty speaker
 - `@id query`: where+ select mode scope+ at during overlaps asof trace via+ compare+ order+ rank filter+ measure quantifier except+ limit policy observe horizon
+- `@id test`: of* call* expect* kind timeout source
+- `@id code`: of* language* entry* body* produced_by + governance
 - `@id pack`: items*+
 - governance = version supersedes approval approved_by approved_at retired_at scope quote
 <!-- grammar:end -->
@@ -176,6 +178,8 @@ The same table with the status and the purpose of each wire is printed by `node 
 | `hypothesis` | author or host | a candidate assumption for abduction or what-if | [hypothesis](wire_typs/hypothesis.html) |
 | `policy` | host | budgets, effort, partial answers, procedures in force, objective | [policy](wire_typs/policy.html) |
 | `query` | model, host or author (tests) | the question: modes, time words, link keywords | [query](wire_typs/query.html) |
+| `test` | host or turn | one executable check of a program: `call`, `expect`, `kind`; a `sealed` test never leaves `eval/suites/` | [test](wire_typs/test.html) |
+| `code` | host or turn | a program for a task: language, entry, body, producer; it runs only in the `code-sandbox` strategy | [code](wire_typs/code.html) |
 
 ### Declaring relations: `predicate`
 
@@ -496,13 +500,22 @@ The governed wires are `rule`, `default`, `integrity`, `action`, `method` and `n
 - `conform`: compliance of a performed `trace $t` with the procedures and norms in force: `compliant` or `non_compliant` with a `compliance` object (hard violations by id, soft violations with costs, `deviations`, total cost). A trace is judged against the versions in force at its own time (a step with `at` at that date, other steps at `asof`); leaving a strict method is non-compliance and listed in `deviations`, under `binding advisory` it is only reported. Conformance is purely relational (a trace is a closed finite record) and lowers to core rules, so it runs on every engine with negation as failure.
 - `procedure`: renders the approved method of a task as of `asof`, without planning: the steps as written, the version, the norms in force.
 
-What-if needs no mode: the user's "if ..." clause is a `stated` with `certainty supposed`, linked by an `if $id` keyword on the query, and `if` may also name a proposed wire or an amendment. The validator checks the mode against the fields: `mode every` needs `scope` and no other mode takes one, `mode conform` needs `trace` and takes no `where` requirement, `via` is only for `plan`, `why_not` and `abduce`, one of `at`, `during`, `overlaps` at most, and a selected variable must occur in `where` (`select_unbound`).
+In model output (DS021) `overlaps "2025"` is a JSON-quoted temporal expression like `at` and `during`; the host runs it as its overlapping valid-time window (the current host's `during` selects overlapping valid time), the knowledge language's `during` being throughout. What-if needs no mode: the user's "if ..." clause is a `stated` with `certainty supposed`, linked by an `if $id` keyword on the query, and `if` may also name a proposed wire or an amendment. The validator checks the mode against the fields: `mode every` needs `scope` and no other mode takes one, `mode conform` needs `trace` and takes no `where` requirement, `via` is only for `plan`, `why_not` and `abduce`, one of `at`, `during`, `overlaps` at most, and a selected variable must occur in `where` (`select_unbound`).
 
 **The model surface.** The five new modes are question forms, so the small model may emit them as `mode` words of a `query` (they are in `sop/enums.mjs:REASONING_QUERY_MODES` and in `ENUMS.query.mode`). The model writes only the question in strings: `via` and `trace` name wires by identifier and are never model output, the host supplies them. A model `query` with one of these modes is understood and reported `not_computable` until the host routes it to a strategy that declares the capability, never answered as a plain `select`. The grammar the model decodes under (`tools/sop-gbnf.mjs`) lists the five older modes.
 
 ### Policy
 
 A `policy` is host-set: the budget keys (`maxNodes maxDepth maxHypotheses maxCandidates maxPlans maxRounds maxFacts maxJoins maxAssignments maxFanout timeoutMs`; they only tighten the host's ceilings), `effort quick|normal|deep`, `partial allow|forbid`, `procedures $p ...`, `scope` tags, `objective cost|violations|lexicographic` (what the engine minimises: plan cost plus soft-violation costs, the number of violations, or violations first) and `binding strict|advisory` for wires that state none (a policy can only tighten). The model never sets a budget; the host maps the message to `effort`.
+
+### Programming wires: `test` and `code`
+
+`test` and `code` are the wires of the programming path (`experiments/proposal/programming-kb-plan.md`, milestone P0). Both are **host or turn wires**: they are never knowledge approved from a source, never on the small-model surface (the model-origin compiler rejects them; `tests/model-input-boundary.test.mjs` stays green), and never evidence, because a test is not a claim about the world. A coding agent writes them as a proposal (`task.sop` with the task facts and the `test` wires, `candidate.sop` with one `code` wire); the host validates them with `sop/knowledge/` and the `code-sandbox` strategy (DS006) runs them.
+
+- `test`: `of` (the task symbol), `call` and `expect` (JavaScript expressions, each a JSON-quoted string; `expect` is evaluated in a clean context apart from the program), optional `kind example|property|generated|sealed`, `timeout` (milliseconds) and `source`. Results are compared structurally. A test of `kind sealed` belongs to `eval/suites/**` only: the validator reports `sealed_test_in_knowledge` for it in every other file (`validateProgram(files, {allowSealed: true})` is the evaluation harness's switch), and `eval/leakage.mjs` (`auditSealedTests`) fails when a sealed test, or a read of a suite folder, appears in the host loop, the sandbox or any knowledge file.
+- `code`: `of`, `language` (`javascript`), `entry` (a JavaScript identifier), `body` (the whole program as one JSON string; the validator checks that it defines the entry, `code_entry_not_defined`), optional `produced_by renderer|llm-agent|user|dream` and the governance fields, which the host writes when the owner accepts a verified program into a library. A program is opaque to every engine; its only consumer is `code-sandbox`.
+
+A `verified` answer means that the program passed the given tests (`guarantee bounded`, never `exact`). Examples that the sandbox runs live on the help pages `docs/wire_typs/test.html` and `code.html` (`data-run="sandbox"`, executed by `tests/wire-help.test.mjs`).
 
 ### Modes of work
 

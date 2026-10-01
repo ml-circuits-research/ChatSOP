@@ -112,7 +112,7 @@ test('lexicon: roles from the closed inventory, subject/object by position, stri
   assert.equal(legacy.predicates.p.namedRoles, false);
   assert.deepEqual(legacy.predicates.q.roles, [], 'an unnamed predicate of arity three cannot be linked');
   assert.equal(linkRelation('q', ['subject', 'object', 'recipient'], legacy).status, 'role_mismatch');
-  assert.deepEqual(ONTOLOGY_SPEC.predicate.many, ['role', 'label', 'alias']);
+  assert.deepEqual(ONTOLOGY_SPEC.predicate.many, ['role', 'label', 'alias', 'reading']);
   assert.throws(() => new Lexicon('@p predicate\n  role employee person'), /role employee is not one of subject/);
   assert.throws(() => new Lexicon('@p predicate\n  role subject person\n  role subject place'), /repeats a role name/);
   assert.throws(() => new Lexicon('@p predicate\n  role subject person\n  args place'), /args disagree with its role types/);

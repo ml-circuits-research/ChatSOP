@@ -8,7 +8,7 @@ import {Repository} from '../memory/repository.mjs';
 import {Lexicon} from '../sop/lexicon.mjs';
 import {createServer} from '../server/http.mjs';
 import {loadRegistry, findLlamaServer, FormalizerManager} from '../server/formalizers.mjs';
-import {messageRequest} from '../lib/formalizer-endpoint.mjs';
+import {messageRequest} from '../lib/llama-chat.mjs';
 import {TRANSLATE_PROMPT, ChatHistory} from '../server/chat-modes.mjs';
 import {answerLanguage} from '../server/language.mjs';
 import {close, listen, repoPath, repoUrl, tempDir} from './helpers.mjs';
@@ -53,19 +53,17 @@ function setup(t, {models = ['m-a', 'm-b', 'm-c'], bases = [], ...options} = {})
   return {dir, registry, manager, entries, bin};
 }
 
-test('the shipped registry lists the three trained models, the four base models, the SymbolicLM service and the configured endpoint', () => {
+test('the shipped registry lists the base models, the proofing and translator models and the SymbolicLM service as the only formalizer (FormalizerLLM entries and the configured endpoint were removed)', () => {
   const registry = loadRegistry(repoPath('config/formalizers.json'));
   assert.deepEqual(registry.models.map(m => [m.id, m.kind, m.capabilities.join('+')]), [
-    ['smollm2-135m', 'gguf', 'formalize'], ['gemma-3-270m', 'gguf', 'formalize'], ['smollm2-360m', 'gguf', 'formalize'],
     ['smollm2-135m-base', 'gguf', 'chat+translate'], ['smollm2-360m-base', 'gguf', 'chat+translate'], ['language-proofing-llm', 'gguf', 'proofread'], ['symbolic-proofing-llm', 'gguf', 'proofread-symbolic'], ['translator-llm', 'gguf', 'translate-clean'], ['gemma-3-270m-base', 'gguf', 'chat+translate'],
-    ['symbolic-lm', 'service', 'formalize'], ['configured-endpoint', 'runtime-endpoint', 'formalize']]);
-  assert.equal(registry.default, 'smollm2-360m');
-  assert.deepEqual(registry.defaults, {chat: 'smollm2-360m-base', formalize: 'smollm2-360m', translate: 'gemma-3-270m-base', proofread: 'language-proofing-llm', 'proofread-symbolic': 'symbolic-proofing-llm', 'translate-clean': 'translator-llm'});
+    ['symbolic-lm', 'service', 'formalize']]);
+  assert.equal(registry.default, 'symbolic-lm');
+  assert.deepEqual(registry.defaults, {chat: 'smollm2-360m-base', formalize: 'symbolic-lm', translate: 'gemma-3-270m-base', proofread: 'language-proofing-llm', 'proofread-symbolic': 'symbolic-proofing-llm', 'translate-clean': 'translator-llm'});
   assert.equal(registry.models.find(m => m.id === 'symbolic-lm').rewriteMode, 'gated', 'the chat default of the SymbolicProofingLLM rewrite follows the registry (gated since Q-PROOF-1)');
-  assert.match(registry.models[0].label, /fastest/);
-  assert.match(registry.models[2].label, /best English OOD/);
-  // Formalize offers only fine-tuned checkpoints; the base models never formalize.
-  for (const m of registry.models.filter(m => m.kind === 'gguf' && m.capabilities.includes('formalize'))) assert.match(m.gguf, /models\/.+\/fv1-size-a4\/formalizer\/merged-best\/gguf\/q8_0\.gguf$/);
+  // SymbolicLM is the only formalizer; the base models never formalize and no runtime-endpoint entry exists.
+  assert.deepEqual(registry.models.filter(m => m.capabilities.includes('formalize')).map(m => m.id), ['symbolic-lm']);
+  assert.equal(registry.models.some(m => m.kind === 'runtime-endpoint'), false);
   for (const m of registry.models.filter(m => m.capabilities.includes('chat'))) assert.match(m.gguf, /models\/.+\/chat-base\/q8_0\.gguf$/);
 });
 
@@ -82,7 +80,7 @@ test('registry loading refuses duplicates, an unknown default and entries with b
   assert.deepEqual(load({models: [{id: 'a', label: 'A', gguf: 'x.gguf'}]}).models[0].capabilities, ['formalize'], 'formalize is the default capability');
   assert.throws(() => load({models: [{id: 'a', label: 'A', gguf: 'a', capabilities: ['sing']}]}), /capabilities/);
   assert.throws(() => load({models: [{id: 'a', label: 'A', gguf: 'a', capabilities: []}]}), /capabilities/);
-  assert.throws(() => load({models: [{id: 'a', label: 'A', endpoint: 'runtime', capabilities: ['chat']}]}), /only capability is formalize/);
+  assert.throws(() => load({models: [{id: 'a', label: 'A', endpoint: 'runtime'}]}), /runtime endpoint entry was removed/);
   // A local service script (the symbolic baseline) is a managed formalizer like a GGUF model.
   const service = load({models: [{id: 's', label: 'S', service: 'tools/serve.mjs'}]}).models[0];
   assert.deepEqual([service.kind, service.service], ['service', path.join(dir, 'tools/serve.mjs')]);
@@ -104,7 +102,7 @@ test('llama-server is found through LLAMA_SERVER_BIN first', t => {
 test('the manager starts a CPU server on demand, reuses it and sends the harness request', async t => {
   const {manager, entries} = setup(t);
   assert.equal(manager.status('m-a').state, 'stopped');
-  assert.deepEqual(manager.status('missing'), {state: 'error', error: 'GGUF file not found: ' + path.relative(repoPath(), path.join(manager.registry.models.at(-1).gguf))});
+  assert.deepEqual(manager.status('missing'), {state: 'error', mode: 'on_demand', error: 'GGUF file not found: ' + path.relative(repoPath(), path.join(manager.registry.models.at(-1).gguf))});
   const first = await manager.formalize('m-a', 'Does Ana like Alpha Lab?');
   assert.equal(first.sop, query);
   assert.equal(manager.status('m-a').state, 'ready');
@@ -126,8 +124,9 @@ test('the manager starts a CPU server on demand, reuses it and sends the harness
   assert.equal(manager.status('missing').state, 'error');
 });
 
-test('at most three models run; the least recently used idle one is stopped, idle servers stop and stopAll ends all', async t => {
-  const {manager} = setup(t, {idleMs: 60000, models: ['m-a', 'm-b', 'm-c', 'm-d']});
+test('at most maxRunning models run; the least recently used idle one is stopped, idle servers stop and stopAll ends all', async t => {
+  assert.equal(setup(t).manager.maxRunning, 5, 'the default fits the four models of a chat turn plus one (tests/model-lifecycle.test.mjs covers the rest)');
+  const {manager} = setup(t, {idleMs: 60000, maxRunning: 3, turnWindowMs: 0, models: ['m-a', 'm-b', 'm-c', 'm-d']});
   assert.equal(manager.maxRunning, 3);
   await manager.ensure('m-a');
   await manager.ensure('m-b');

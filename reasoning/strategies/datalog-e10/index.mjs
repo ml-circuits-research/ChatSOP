@@ -45,7 +45,7 @@ export const capabilities = {
   isolation: false
 };
 
-const REASONS = {maxWork: 'probes', maxDerived: 'facts', maxMs: 'time'};
+const REASONS = {maxWork: 'probes', maxDerived: 'facts', maxMs: 'wall'};
 const strip = v => v.replace(/^\?/, '');
 const rowKey = row => JSON.stringify(Object.entries(row).sort(([a], [b]) => (a < b ? -1 : 1)));
 

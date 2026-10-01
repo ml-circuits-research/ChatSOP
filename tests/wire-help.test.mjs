@@ -36,6 +36,7 @@
 //                              (a mode of work): it is validated only, and the oracle must say so.
 //   <pre data-sop="knowledge-invalid" data-error="code" [data-role="query"]>
 //                              the validator must report the problem code (error or warning).
+//   data-run="sandbox" data-status=".."   (on a knowledge example with code and test wires) the code-sandbox strategy must give the declared status
 //   data-run="vrc" data-status=".."   a numeric-action plan query (extension E2): the
 //                              vrc-compressed-planning strategy must give the declared status.
 // A page documents the keywords of a knowledge wire in a table whose first column holds the grammar fields:
@@ -56,6 +57,7 @@ import {helpPages, pageExamples, tableFields, attr, decode} from '../tools/wire-
 import {GRAMMAR, validateProgram} from '../sop/knowledge/index.mjs';
 import {vrcCompressedPlanning} from '../reasoning/strategies/vrc-compressed-planning/index.mjs';
 import {ask, NotExpressibleError} from '../reasoning/strategies/js-reference/index.mjs';
+import {codeSandbox} from '../reasoning/strategies/code-sandbox/index.mjs';
 
 const HELP = new URL('../docs/wire_typs/', import.meta.url);
 const INDEX = new URL('../docs/wire_types.html', import.meta.url);
@@ -240,7 +242,7 @@ function knowledgeExamples(page) {
 const rowText = row => Object.entries(row).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `${k}=${v}`).join(',');
 const errorsOf = problems => problems.filter(p => p.severity !== 'warning');
 
-test('knowledge examples validate with sop/knowledge and execute on the js-reference oracle', () => {
+test('knowledge examples validate with sop/knowledge and execute on the js-reference oracle', async () => {
   let checked = 0;
   for (const page of pages) {
     let knowledge = '';
@@ -253,6 +255,8 @@ test('knowledge examples validate with sop/knowledge and execute on the js-refer
         const warnings = r.problems.filter(p => p.severity === 'warning').map(p => p.code).sort().join(',');
         assert.equal(warnings, (attrs['data-warnings'] ?? '').split(',').filter(Boolean).sort().join(','), `${label} declares exactly its warnings`);
         knowledge = source;
+        // programming wires (code, test): `data-run="sandbox"` runs the example in the code-sandbox strategy, which must give the declared status
+        if (attrs['data-run'] === 'sandbox') assert.equal((await codeSandbox.ask({code: source, tests: source}, {wallMs: 8000})).status, attrs['data-status'], `${label} status on code-sandbox`);
       } else if (kind === 'knowledge-query') {
         const files = [...(knowledge ? [{name: 'knowledge', text: knowledge, role: 'knowledge'}] : []), {name: label, text: source, role: 'query'}];
         const r = validateProgram(files);

@@ -2,26 +2,27 @@
  * HTTP routes of the product layer (DS031, docs/api.html): base memories, sessions, the omp model list and the authoring path.
  *
  *   GET  /v1/memories                       list the base memories
- *   POST /v1/memories                       (admin) create an empty one, or import one: {name, strategy, circuits?, description?}
+ *   POST /v1/memories                       create an empty one, or import one: {name, strategy, circuits?, description?}
  *   GET  /v1/memories/{id}                  the manifest, the circuit names, the provenance and (?facts=1) the stored facts
- *   DELETE /v1/memories/{id}                (admin)
- *   POST /v1/memories/{id}/fork             (admin) {name, strategy?, description?}
- *   POST /v1/memories/{id}/knowledge        (admin) {circuits: [{name, text}], reason?, source?}, validated, recorded with provenance
+ *   DELETE /v1/memories/{id}
+ *   POST /v1/memories/{id}/fork             {name, strategy?, description?}
+ *   POST /v1/memories/{id}/knowledge        {circuits: [{name, text}], reason?, source?}, validated, recorded with provenance
  *
  *   POST /v1/sessions                       start a session on a base memory: {base, name?, settings?}
- *   GET  /v1/sessions                       the caller's sessions (all of them for an administrator)
+ *   GET  /v1/sessions                       the caller's sessions (all of them for the signed-in browser session)
  *   GET  /v1/sessions/{id}                  the session, its circuits, drafts and provenance (?transcript=1 adds the turns)
  *   DELETE /v1/sessions/{id}
- *   POST /v1/sessions/{id}/settings         {authoring?, omp_model?}
+ *   POST /v1/sessions/{id}/settings         {authoring?, omp_model?, scope_note?}: authoring auto|always|off, scope_note ask|mark
  *   GET  /v1/sessions/{id}/drafts           the draft circuits with their text and validation
  *   POST /v1/sessions/{id}/drafts/{d}/accept   the user accepts a draft into the session layer
  *   POST /v1/sessions/{id}/drafts/{d}/reject
- *   POST /v1/sessions/{id}/commit           (admin) commit the accepted session circuits to a new fork: {name, strategy?, description?}
+ *   POST /v1/sessions/{id}/commit           commit the accepted session circuits to a new fork: {name, strategy?, description?}
  *   GET  /v1/sessions/{id}/theory           the base circuits followed by the accepted session circuits
  *   POST /v1/sessions/{id}/query            {query}: run a query circuit over that theory with the exact oracle
  *
- * Every route needs the server's authentication (bearer token or administrator session) before it is reached. Routes marked
- * admin need the administrator session. A session is visible to the user who started it and to an administrator. A bad request
+ * Every route needs the server's authentication (bearer token or administrator session) before it is reached; every
+ * authenticated caller may create, fork, extend and delete base memories and commit sessions (owner decision of 2026-10-01: no
+ * administrator role, provenance records the acting user). A session is visible to the user who started it and to a signed-in browser session. A bad request
  * answers 4xx with the standard `{error: {message, type, code}}`; a circuit that fails the knowledge validator answers 422 with
  * `problems` and `warnings` and writes nothing.
  */
@@ -32,18 +33,18 @@ const bad = (message, code = 'invalid_request', status = 400) => Object.assign(n
 /** Listed by GET /v1/capabilities next to the capability endpoints; the routes themselves are matched in this file. */
 export const PRODUCT_ENDPOINTS = Object.freeze([
   {method: 'GET', path: '/v1/memories', capability: 'memories.list'},
-  {method: 'POST', path: '/v1/memories', capability: 'memories.create', admin: true, body: ['name', 'strategy', 'exact', 'description', 'circuits', 'reason', 'source', 'id']},
+  {method: 'POST', path: '/v1/memories', capability: 'memories.create', body: ['name', 'strategy', 'exact', 'description', 'circuits', 'reason', 'source', 'id']},
   {method: 'GET', path: '/v1/memories/{id}', capability: 'memories.get'},
-  {method: 'POST', path: '/v1/memories/{id}/fork', capability: 'memories.fork', admin: true, body: ['name', 'strategy', 'exact', 'description', 'id']},
-  {method: 'POST', path: '/v1/memories/{id}/knowledge', capability: 'memories.knowledge', admin: true, body: ['circuits', 'reason', 'source']},
+  {method: 'POST', path: '/v1/memories/{id}/fork', capability: 'memories.fork', body: ['name', 'strategy', 'exact', 'description', 'id']},
+  {method: 'POST', path: '/v1/memories/{id}/knowledge', capability: 'memories.knowledge', body: ['circuits', 'reason', 'source']},
   {method: 'POST', path: '/v1/sessions', capability: 'sessions.create', body: ['base', 'name', 'settings']},
   {method: 'GET', path: '/v1/sessions', capability: 'sessions.list'},
   {method: 'GET', path: '/v1/sessions/{id}', capability: 'sessions.get'},
-  {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['authoring', 'omp_model']},
+  {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['authoring', 'omp_model', 'scope_note']},
   {method: 'GET', path: '/v1/sessions/{id}/drafts', capability: 'sessions.drafts'},
   {method: 'POST', path: '/v1/sessions/{id}/drafts/{draft}/accept', capability: 'sessions.accept', body: []},
   {method: 'POST', path: '/v1/sessions/{id}/drafts/{draft}/reject', capability: 'sessions.reject', body: []},
-  {method: 'POST', path: '/v1/sessions/{id}/commit', capability: 'sessions.commit', admin: true, body: ['name', 'strategy', 'description', 'id']},
+  {method: 'POST', path: '/v1/sessions/{id}/commit', capability: 'sessions.commit', body: ['name', 'strategy', 'description', 'id']},
   {method: 'GET', path: '/v1/sessions/{id}/theory', capability: 'sessions.theory'},
   {method: 'POST', path: '/v1/sessions/{id}/query', capability: 'sessions.query', body: ['query']},
 ]);
@@ -60,11 +61,11 @@ const memoryStrategies = () => STRATEGIES.map(id => ({id, note: STRATEGY_NOTES[i
 const ID = '([a-z0-9][a-z0-9_-]{0,63})';
 const ROUTES = [
   ['GET', /^\/v1\/memories$/, 'memoriesList'],
-  ['POST', /^\/v1\/memories$/, 'memoriesCreate', true],
+  ['POST', /^\/v1\/memories$/, 'memoriesCreate'],
   ['GET', new RegExp(`^/v1/memories/${ID}$`), 'memoriesGet'],
-  ['DELETE', new RegExp(`^/v1/memories/${ID}$`), 'memoriesDelete', true],
-  ['POST', new RegExp(`^/v1/memories/${ID}/fork$`), 'memoriesFork', true],
-  ['POST', new RegExp(`^/v1/memories/${ID}/knowledge$`), 'memoriesKnowledge', true],
+  ['DELETE', new RegExp(`^/v1/memories/${ID}$`), 'memoriesDelete'],
+  ['POST', new RegExp(`^/v1/memories/${ID}/fork$`), 'memoriesFork'],
+  ['POST', new RegExp(`^/v1/memories/${ID}/knowledge$`), 'memoriesKnowledge'],
   ['POST', /^\/v1\/sessions$/, 'sessionsCreate'],
   ['GET', /^\/v1\/sessions$/, 'sessionsList'],
   ['GET', new RegExp(`^/v1/sessions/${ID}$`), 'sessionsGet'],
@@ -72,7 +73,7 @@ const ROUTES = [
   ['POST', new RegExp(`^/v1/sessions/${ID}/settings$`), 'sessionsSettings'],
   ['GET', new RegExp(`^/v1/sessions/${ID}/drafts$`), 'sessionsDrafts'],
   ['POST', new RegExp(`^/v1/sessions/${ID}/drafts/${ID}/(accept|reject)$`), 'sessionsDraftAction'],
-  ['POST', new RegExp(`^/v1/sessions/${ID}/commit$`), 'sessionsCommit', true],
+  ['POST', new RegExp(`^/v1/sessions/${ID}/commit$`), 'sessionsCommit'],
   ['GET', new RegExp(`^/v1/sessions/${ID}/theory$`), 'sessionsTheory'],
   ['POST', new RegExp(`^/v1/sessions/${ID}/query$`), 'sessionsQuery'],
 ];
@@ -137,7 +138,7 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
     },
     async sessionsSettings({req, res, match, user, admin}) {
       sessions.visible(match[1], {user, admin});
-      const body = onlyKeys(await readBody(req, maxBytes), ['authoring', 'omp_model']);
+      const body = onlyKeys(await readBody(req, maxBytes), ['authoring', 'omp_model', 'scope_note']);
       json(res, 200, {object: 'session', ...sessions.describe(sessions.updateSettings(match[1], body).id)});
     },
     sessionsDrafts({res, match, user, admin}) {
@@ -176,14 +177,13 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
 
   /** True when the request was a product route (answered). `admin`: the administrator session; `user`: the authenticated user. */
   async function handle(req, res, url, {admin = false, user = null} = {}) {
-    for (const [method, pattern, action, adminOnly] of routes) {
+    for (const [method, pattern, action] of routes) {
       const match = pattern.exec(url);
       if (!match) continue;
       if (req.method !== method) continue;
       try {
-        if (adminOnly && !admin) throw bad('This endpoint needs the administrator session (sign in on /login)', 'forbidden', 403);
         const who = typeof user === 'string' && user ? user : 'admin';
-        await actions[action]({req, res, match, user: who, admin, approvedBy: admin ? who : null});
+        await actions[action]({req, res, match, user: who, admin, approvedBy: who});
       } catch (e) { sendError(res, e, json); }
       return true;
     }

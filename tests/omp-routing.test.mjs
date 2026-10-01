@@ -23,36 +23,61 @@ test('route: attached files always go to the coding agent, whatever the setting 
   assert.match(fallback.fallback.reason, /could not be started/);
 });
 
-test('route: the settings always and off', () => {
+test('route: the default never starts the coding agent; only attached files and the setting always do', () => {
   assert.equal(decideRoute({authoring: 'always', omp: up}).reason.trigger, 'setting_always');
   assert.equal(decideRoute({authoring: 'always', omp: down}).fallback.reason.length > 0, true);
-  const off = decideRoute({authoring: 'off', omp: up, understanding: understood([{status: 'failed'}])});
-  assert.equal(off.path, 'symbolic');
-  assert.equal(off.reason.trigger, 'setting_off');
+  for (const input of [{}, {authoring: 'off'}, {scope: SCOPE}, {understanding: understood([{status: 'failed'}, {status: 'failed'}])}]) {
+    assert.equal(decideRoute({omp: up, ...input}).path, 'symbolic', JSON.stringify(input).slice(0, 80));
+  }
+  assert.equal(decideRoute({omp: up, scopeNote: 'none', scope: SCOPE}).suggestion, null, 'none shows nothing');
+  assert.equal(decideRoute({omp: up, scopeNote: 'none', understanding: understood([{status: 'failed'}])}).suggestion, null);
+  assert.equal(decideRoute({omp: up, scope: SCOPE}).settings.authoring, 'off');
 });
 
-test('route: the scope detector and detected SymbolicLM failures', () => {
-  const scope = {label: 'needs_knowledge_authoring', wires: [{wire: 'norm'}, {wire: 'rule'}]};
-  const s = decideRoute({omp: up, scope});
-  assert.equal(s.path, 'authoring');
-  assert.equal(s.reason.trigger, 'scope_needs_knowledge_authoring');
-  assert.match(s.reason.text, /norm, rule/);
-  assert.equal(decideRoute({omp: up, scope: {label: 'surface_ok', wires: []}}).reason.trigger, 'default');
+const SCOPE = {label: 'needs_knowledge_authoring', wires: [{wire: 'norm', score: 0.7, cues: ['c2'], targets: ['norm']}], sentences: [{text: 'Every researcher must wear goggles.', label: 'needs_knowledge_authoring',
+  wires: [{wire: 'norm', score: 0.7, cues: ['c2'], targets: ['norm']}, {wire: 'rule', score: 0.55, cues: ['c1'], targets: ['predicate', 'rule']}], cues: [{id: 'c1', wire: 'rule', type: 'universal_determiner', text: 'Every researcher'}, {id: 'c2', wire: 'norm', type: 'modal_strong', text: 'must'}]}]};
+
+test('route: a scope detection only suggests; the user is asked (ask) or the sentence is marked (mark); nothing is sent by itself', () => {
+  const s = decideRoute({omp: up, scope: SCOPE});
+  assert.equal(s.path, 'symbolic', 'SymbolicLM still answers');
+  assert.equal(s.ask, true, 'the default setting is ask');
+  assert.equal(s.suggestion.trigger, 'scope_needs_knowledge_authoring');
+  assert.equal(s.suggestion.mode, 'ask');
+  assert.match(s.suggestion.text, /norm, rule/);
+  const [sentence] = s.suggestion.scope.sentences;
+  assert.deepEqual(sentence.wires.map(w => [w.wire, w.confidence]), [['norm', 'reliable'], ['rule', 'may_need']]);
+  assert.deepEqual(sentence.cues.map(c => c.text), ['Every researcher', 'must'], 'the cues are quoted');
+  const mark = decideRoute({omp: up, scope: SCOPE, scopeNote: 'mark'});
+  assert.equal(mark.ask, false);
+  assert.equal(mark.suggestion.mode, 'mark');
+  const noOmp = decideRoute({omp: down, scope: SCOPE});
+  assert.equal(noOmp.ask, false, 'no question when omp cannot run');
+  assert.match(noOmp.suggestion.unavailable, /could not be started/);
+  assert.equal(decideRoute({omp: up, scope: {label: 'surface_ok', wires: [], sentences: []}}).reason.trigger, 'default');
+});
+
+test('route: a wire type the user declined is not suggested again', () => {
+  const one = decideRoute({omp: up, scope: SCOPE, declined: ['norm']});
+  assert.deepEqual(one.suggestion.scope.sentences[0].wires.map(w => w.wire), ['rule'], 'the sentence still has another undeclined type');
+  assert.equal(decideRoute({omp: up, scope: SCOPE, declined: ['norm', 'rule']}).suggestion, null);
+});
+
+test('route: detected SymbolicLM failures suggest the coding agent', () => {
   const failed = decideRoute({omp: up, understanding: understood([{status: 'failed'}, {status: 'certified'}])});
-  assert.equal(failed.reason.trigger, 'symbolic_failure');
-  assert.match(failed.reason.text, /1 sentence\(s\) failed/);
+  assert.equal(failed.path, 'symbolic');
+  assert.equal(failed.suggestion.trigger, 'symbolic_failure');
+  assert.match(failed.suggestion.text, /1 sentence\(s\) failed/);
   assert.equal(failed.signals.failed_sentences, 1);
-  assert.equal(decideRoute({omp: up, understanding: understood([{status: 'uncertain'}, {status: 'certified'}])}).path, 'authoring', 'half the sentences uncertain reaches the 0.5 ratio');
-  assert.equal(decideRoute({omp: up, understanding: understood([{status: 'uncertain'}, {status: 'certified'}, {status: 'certified'}])}).path, 'symbolic', 'a third does not');
-  assert.equal(decideRoute({omp: up, understanding: understood([{status: 'certified'}], {clarify_items: [{kind: 'not_represented', text: 'x'}, {kind: 'not_represented', text: 'y'}], clarify: 'I did not understand'}), detector: {minNotRepresented: 3, clarifyTriggers: false}}).path, 'symbolic');
-  assert.equal(decideRoute({omp: up, understanding: understood([{status: 'certified'}], {clarify: 'Could you rephrase it?'})}).reason.text.includes('clarification'), true);
-  assert.equal(decideRoute({omp: up, understanding: understood([{status: 'certified'}], {clarify: 'x'}), detector: {clarifyTriggers: false}}).path, 'symbolic');
-  assert.equal(decideRoute({omp: up, understanding: {status: 'unavailable', interpretation: {sentences: []}}}).reason.trigger, 'symbolic_failure');
-  assert.equal(decideRoute({omp: up}).path, 'symbolic');
+  assert.equal(decideRoute({omp: up, understanding: understood([{status: 'uncertain'}, {status: 'certified'}])}).suggestion?.trigger, 'symbolic_failure', 'half the sentences uncertain reaches the 0.5 ratio');
+  assert.equal(decideRoute({omp: up, understanding: understood([{status: 'uncertain'}, {status: 'certified'}, {status: 'certified'}])}).suggestion, null, 'a third does not');
+  assert.equal(decideRoute({omp: up, understanding: understood([{status: 'certified'}], {clarify_items: [{kind: 'not_represented', text: 'x'}, {kind: 'not_represented', text: 'y'}], clarify: 'I did not understand'}), detector: {minNotRepresented: 3, clarifyTriggers: false}}).suggestion, null);
+  assert.match(decideRoute({omp: up, understanding: understood([{status: 'certified'}], {clarify: 'Could you rephrase it?'})}).suggestion.text, /clarification/);
+  assert.equal(decideRoute({omp: up, understanding: understood([{status: 'certified'}], {clarify: 'x'}), detector: {clarifyTriggers: false}}).suggestion, null);
+  assert.equal(decideRoute({omp: up, understanding: {status: 'unavailable', interpretation: {sentences: []}}}).suggestion.trigger, 'symbolic_failure');
+  assert.equal(decideRoute({omp: up}).suggestion, null);
   const noOmp = decideRoute({omp: down, understanding: understood([{status: 'failed'}])});
   assert.equal(noOmp.path, 'symbolic');
-  assert.equal(noOmp.reason.trigger, 'symbolic_failure');
-  assert.ok(noOmp.fallback);
+  assert.equal(noOmp.suggestion.mode, 'mark');
   assert.equal(symbolicSignals(null), null);
   assert.equal(symbolicFailure(null), null);
 });
@@ -69,17 +94,36 @@ test('POST /v1/route: the decision with the session settings and the omp state',
   assert.equal(plain.body.path, 'symbolic');
   assert.equal(plain.body.scope_source, 'request');
   const rule = await post({session: sid, message: 'Every researcher must wear goggles.', analysis: RULE});
-  assert.equal(rule.body.path, 'authoring');
-  assert.equal(rule.body.reason.trigger, 'scope_needs_knowledge_authoring');
+  assert.equal(rule.body.path, 'symbolic', 'a detection does not send anything');
+  assert.equal(rule.body.ask, true);
+  assert.equal(rule.body.suggestion.trigger, 'scope_needs_knowledge_authoring');
+  assert.ok(rule.body.suggestion.scope.sentences[0].cues.length > 0);
   assert.equal(rule.body.omp.model, 'deepseek/deepseek-flash');
   assert.equal(rule.body.omp.cost_class, 'paid_api');
+  assert.equal(rule.body.scope.label, 'needs_knowledge_authoring');
+  // The user's answer is logged; after a no the same wire types are not suggested again in this session.
+  const wires = rule.body.suggestion.scope.wires;
+  const no = await s.user(`/v1/sessions/${sid}/scope-answer`, 'POST', {message: 'Every researcher must wear goggles.', wires, answer: 'no'});
+  assert.equal(no.status, 200);
+  assert.deepEqual(no.body.declined.sort(), [...wires].sort());
+  const again = await post({session: sid, message: 'Every researcher must wear goggles.', analysis: RULE});
+  assert.equal(again.body.suggestion, null);
+  assert.equal((await s.user(`/v1/sessions/${sid}/scope-answer`, 'POST', {answer: 'maybe'})).status, 400);
+  const log = s.server.sessions.scopeLog(sid);
+  assert.ok(log.some(e => e.kind === 'verdict' && e.scope.label === 'needs_knowledge_authoring'));
+  assert.ok(log.some(e => e.kind === 'answer' && e.answer === 'no'));
+  await s.user(`/v1/sessions/${sid}/scope-answer`, 'POST', {message: 'x', wires: ['norm'], answer: 'yes'});
+  assert.equal((await s.user(`/v1/sessions/${sid}`)).body.scope_declined.length, wires.length, 'a yes does not mute anything');
   assert.equal((await post({session: sid, message: 'See the attached manual.', files: 1})).body.reason.trigger, 'attached_files');
   const failed = await post({session: sid, message: 'Hmm.', understanding: understood([{status: 'failed'}])});
-  assert.equal(failed.body.reason.trigger, 'symbolic_failure');
+  assert.equal(failed.body.suggestion.trigger, 'symbolic_failure');
+  await s.user(`/v1/sessions/${sid}/settings`, 'POST', {scope_note: 'mark'});
+  assert.equal((await post({session: sid, message: 'Hmm.', understanding: understood([{status: 'failed'}])})).body.ask, false, 'mark only: the page does not ask');
+  assert.equal((await s.user(`/v1/sessions/${sid}/settings`, 'POST', {scope_note: 'sometimes'})).status, 400);
   await s.user(`/v1/sessions/${sid}/settings`, 'POST', {authoring: 'always'});
   assert.equal((await post({session: sid, message: 'Anything'})).body.reason.trigger, 'setting_always');
-  await s.user(`/v1/sessions/${sid}/settings`, 'POST', {authoring: 'off'});
-  assert.equal((await post({session: sid, message: 'Every researcher must wear goggles.', analysis: RULE})).body.path, 'symbolic');
+  await s.user(`/v1/sessions/${sid}/settings`, 'POST', {authoring: 'off', scope_note: 'none'});
+  assert.equal((await post({session: sid, message: 'Every researcher must wear goggles.', analysis: RULE})).body.suggestion, null, 'scope_note none silences the suggestions');
   assert.equal((await post({session: 'nope', message: 'x'})).status, 404);
 });
 
@@ -89,8 +133,11 @@ test('POST /v1/route: without omp the answer is the symbolic path with the reaso
   assert.equal(r.status, 200);
   assert.equal(r.body.path, 'symbolic');
   assert.equal(r.body.omp.available, false);
-  assert.equal(r.body.fallback.from, 'authoring');
-  assert.equal(r.body.reason.trigger, 'scope_needs_knowledge_authoring');
+  assert.equal(r.body.ask, false);
+  assert.equal(r.body.suggestion.mode, 'mark');
+  assert.match(r.body.suggestion.unavailable, /omp could not be started/);
+  const wanted = await s.user('/v1/route', 'POST', {message: 'x', files: 1});
+  assert.equal(wanted.body.fallback.from, 'authoring', 'a file or the Always setting falls back with the reason');
   const off = await productServer(t, {config: {omp: {bin: STUB, enabled: false}}});
   const r2 = await off.user('/v1/route', 'POST', {message: 'x', files: 1});
   assert.match(r2.body.fallback.reason, /disabled/);

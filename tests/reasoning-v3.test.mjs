@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {Runtime} from '../sop/runtime.mjs';
 import {ReasoningRegistry} from '../reasoning/registry.mjs';
-import {closure} from '../reasoning/reasoner.mjs';
+import {closure} from '../reasoning/bridge/index.mjs';
 import {Repository} from '../memory/repository.mjs';
 import {publishKnowledge} from '../sop/ingest.mjs';
 import {createBank} from '../memory/banks/factory.mjs';
@@ -38,8 +38,10 @@ test('v3: hypotheses are explicit, minimal, sorted by cost and never facts', asy
   const x = await run(abduction + '@a abduce\n  query $q\n  data $data\n  candidates $possible\n  output ?causes many\n@c cnl\n  result $a');
   assert.equal(x.values.a.status, 'hypotheses');
   assert.equal(x.values.causes.length, 2);
-  assert.equal(x.values.causes[0].members[0], 'd');
-  assert.equal(x.values.causes[0].kind, 'hypothesis');
+  assert.equal(x.values.causes[0].hypotheses[0], 'd');
+  assert.deepEqual(x.values.causes[0].atoms, ['disk_full s1']);
+  assert.equal(x.values.a.guarantee, 'exact');
+  assert.deepEqual(x.values.a.hypotheses, [['disk_full s1'], ['network_down s1']]);
 });
 
 test('v3: hypotheses are not silently asserted as facts', () => withTempDir('hyp-', async root => {
@@ -58,7 +60,8 @@ test('v3: patterns cannot serve as deductive rules', async () => {
 test('v3: explicit opposing evidence rejects an abductive assumption', async () => {
   const x = await run(abduction.replace('items $r1 $r2', 'items $r1 $r2 $op') + f('op', 'not disk_full s1') + '@a abduce\n  query $q\n  data $data\n  candidates $possible');
   assert.equal(x.result.explanations.length, 1);
-  assert.equal(x.result.explanations[0].members[0], 'n');
+  assert.equal(x.result.explanations[0].hypotheses[0], 'n');
+  assert.deepEqual(x.result.rejected, [{id: 'd', reason: 'contradicts_an_observed_fact'}]);
 });
 
 test('v3: abduction cannot explain observation with itself', async () => {
@@ -67,15 +70,18 @@ test('v3: abduction cannot explain observation with itself', async () => {
 });
 
 test('v3: budget exhaustion reports incomplete, not exhaustive absence', async () => {
-  const x = await run(abduction + '@budget policy\n  maxNodes 1\n@a abduce\n  query $q\n  data $data\n  candidates $possible\n  policy $budget\n  output ?causes many');
+  const x = await run(abduction + '@budget policy\n  maxCandidates 1\n@a abduce\n  query $q\n  data $data\n  candidates $possible\n  policy $budget\n  output ?causes many');
   assert.equal(x.result.complete, false);
+  assert.equal(x.result.status, 'budget_exhausted');
+  assert.equal(x.result.reason, 'candidates');
   assert.equal(x.outputs.causes.status, 'incomplete');
 });
 
 test('v3: diagnostic test is recommended but never executed', async () => {
   const x = await run(abduction + '@test query\n  where network_down s1\n@a diagnose\n  query $q\n  data $data\n  candidates $possible\n  tests $test');
-  assert.ok(x.result.nextTest);
-  assert.equal(x.result.executedTests, false);
+  assert.ok(x.result.next_test);
+  assert.equal(x.result.next_test.separated_pairs, 1);
+  assert.equal(x.result.executed_tests, false);
 });
 
 const planning = f('f', 'at robot room_a')
@@ -85,15 +91,17 @@ const planning = f('f', 'at robot room_a')
 
 test('v3: minimum cost plan with explicit add/remove effects', async () => {
   const x = await run(planning + '@p plan\n  data $data\n  actions $move\n  goal $g\n  output ?steps one\n@a cnl\n  result $p');
-  assert.equal(x.values.p.plans[0].cost, 2);
-  assert.equal(x.values.p.plans[0].steps.length, 2);
-  assert.equal(x.values.steps.kind, 'plan');
-  assert.equal(x.values.p.execution, false);
+  assert.equal(x.values.p.status, 'plan_found');
+  assert.equal(x.values.p.plan.cost, 2);
+  assert.equal(x.values.p.plan.steps, 2);
+  assert.deepEqual(x.values.p.plan.sequence.map(step => [step.action, step.adds, step.removes]), [['move', ['at robot room_b'], ['at robot room_a']], ['move', ['at robot room_c'], ['at robot room_b']]]);
+  assert.deepEqual(x.values.p.used.map(u => u.id), ['move']);
+  assert.equal(x.values.steps.cost, 2);
 });
 
 test('v3: zero-cost loop is bounded and does not prevent plan discovery', async () => {
   const x = await run(planning + '@stay action\n  requires at ?r ?p\n  adds at ?r ?p\n  cost 0\n@as pack\n  items $move $stay\n@p plan\n  data $data\n  actions $as\n  goal $g');
-  assert.equal(x.result.plans[0].cost, 2);
+  assert.equal(x.result.plan.cost, 2);
 });
 
 test('v3: model cannot define actions or policy grants', async () => {
@@ -107,21 +115,22 @@ test('v3: action cannot introduce an unbound variable', async () => {
 
 test('v3: what-if does not change the observed fact or live memory', async () => {
   const x = await run(f('on', 'switch_on s') + r('r', ['switch_on ?x'], 'light_on ?x', 'causal') + '@data pack\n  items $on $r\n' + h('off', 'not switch_on s') + q('light_on s') + '@sim simulate\n  query $q\n  data $data\n  intervention $off\n  mode counterfactual');
-  assert.equal(x.result.factualStatus, 'supported');
+  assert.equal(x.result.whatif.factual_status, 'supported');
   assert.equal(x.result.status, 'unknown');
-  assert.equal(x.result.sourceMemoryModified, false);
+  assert.equal(x.result.whatif.source_memory_modified, false);
   assert.equal(x.values.on.atom.neg, false);
 });
 
 test('v3: causal intervention cuts incoming rule and recomputes downstream observations', async () => {
   const x = await run(f('a', 'battery s') + f('measured', 'light_on s') + r('r1', ['battery ?x'], 'switch_on ?x', 'causal') + r('r2', ['switch_on ?x'], 'light_on ?x', 'causal') + '@data pack\n  items $a $measured $r1 $r2\n' + h('off', 'not switch_on s') + q('light_on s') + '@sim simulate\n  query $q\n  data $data\n  intervention $off\n  mode counterfactual');
   assert.equal(x.result.status, 'unknown');
-  assert.equal(x.result.factualStatus, 'supported');
+  assert.equal(x.result.whatif.factual_status, 'supported');
 });
 
 test('v3: a correlation is not silently treated as a causal law', async () => {
   const x = await run(f('a', 'rain s') + r('r', ['rain ?x'], 'wet ?x') + '@data pack\n  items $a $r\n' + h('h', 'not rain s') + q('wet s') + '@sim simulate\n  query $q\n  data $data\n  intervention $h\n  mode counterfactual');
-  assert.equal(x.result.status, 'unsupported');
+  assert.equal(x.result.status, 'not_expressible');
+  assert.equal(x.result.reason, 'causal_model_required');
 });
 
 test('v3: conflicting intervention fails without explosion', async () => {
@@ -155,8 +164,10 @@ for (const mode of ['lexical', 'relational', 'recall-memory']) {
   test('v3: ' + mode + ' association produces scores, not proofs', async () => {
     const x = await run('@cue trace\n  text "roată ruptă"\n  feature broken wheel\n@hit trace\n  text "roată ruptă"\n  feature broken wheel\n@other trace\n  text "carte nouă"\n  feature new book\n@cs pack\n  items $hit $other\n@a associate\n  cue $cue\n  data $cs\n  mode ' + mode);
     assert.equal(x.result.candidates[0].id, 'hit');
-    assert.equal(x.result.epistemic, 'candidate');
-    assert.equal(x.result.proof.length, 0);
+    assert.equal(x.result.status, 'approximate');
+    assert.equal(x.result.guarantee, 'approximate');
+    assert.deepEqual(x.result.used, []);
+    assert.equal(x.result.proof, undefined);
   });
 }
 
@@ -261,13 +272,13 @@ test('v3: approved action/hypothesis/trace definitions can be persisted and used
 test('v3: automatic backward abduction proposes a two-hop missing condition', async () => {
   const x = await run(r('disk_process', ['disk_full ?x'], 'process_crashed ?x') + r('process_outage', ['process_crashed ?x'], 'outage ?x') + '@kb pack\n  items $disk_process $process_outage\n' + q('outage server') + '@a abduce\n  query $q\n  data $kb');
   assert.equal(x.result.explanations.length, 1);
-  assert.equal(x.result.explanations[0].assumptions[0].p, 'disk_full');
-  assert.equal(x.result.epistemic, 'hypothetical');
+  assert.deepEqual(x.result.explanations[0].atoms, ['disk_full server']);
+  assert.equal(x.result.generator.semantics.startsWith('ground missing leaves'), true);
 });
 
 test('v3: automatic abduction binds hidden variables over a finite known domain', async () => {
   const x = await run(f('known', 'connected a b') + r('rule', ['connected ?x ?y', 'blocked ?y'], 'unavailable ?x') + '@kb pack\n  items $known $rule\n' + q('unavailable a') + '@a abduce\n  query $q\n  data $kb');
-  assert.ok(x.result.explanations.some(e => e.assumptions.length === 1 && e.assumptions[0].p === 'blocked' && e.assumptions[0].a[0] === 'b'));
+  assert.ok(x.result.explanations.some(e => e.atoms.length === 1 && e.atoms[0] === 'blocked b'));
 });
 
 test('v3: model cannot certify a trace as closed-world ground truth', async () => {
@@ -278,7 +289,7 @@ test('v3: model cannot certify a trace as closed-world ground truth', async () =
 test('v3: induction generator truncation cannot masquerade as exhaustive', async () => {
   const x = await run('@t trace\n  feature p a\n  feature q a\n  feature r a\n@i induce\n  data $t', {policy: {maxCandidates: 1}});
   assert.equal(x.result.complete, false);
-  assert.equal(x.result.generatorTruncated, true);
+  assert.equal(x.result.generator_truncated, true);
 });
 
 test('v3: approved procedures compose new operation and transitive action handle', () => withTempDir('procedure3-', async root => {
@@ -288,7 +299,7 @@ test('v3: approved procedures compose new operation and transitive action handle
   const session = repo.session('b', 'u', 's');
   const x = await run('@answer expand\n  using ~plan_route\n  with robot r1\n  with destination b', {repo, session});
   assert.equal(x.result.packet.status, 'plan_found');
-  assert.equal(x.result.packet.plans[0].cost, 1);
+  assert.equal(x.result.packet.plan.cost, 1);
   const d = await run('@answer expand\n  using ~diagnose_outage\n  with device server', {repo, session});
   assert.equal(d.result.packet.explanations.length, 2);
 }));

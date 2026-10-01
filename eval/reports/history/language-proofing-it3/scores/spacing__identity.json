@@ -1,0 +1,77 @@
+{
+ "name": "identity",
+ "spacing_exact": {
+  "k": 37,
+  "n": 240,
+  "pct": 15.4,
+  "ci95": {
+   "k": 37,
+   "n": 240,
+   "p": 15.4,
+   "lo": 11.4,
+   "hi": 20.5
+  }
+ },
+ "spacing_returned_unchanged": {
+  "k": 240,
+  "n": 240,
+  "pct": 100,
+  "ci95": {
+   "k": 240,
+   "n": 240,
+   "p": 100,
+   "lo": 98.4,
+   "hi": 100
+  }
+ },
+ "identity_defect_free_untouched": {
+  "k": 678,
+  "n": 678,
+  "pct": 100,
+  "ci95": {
+   "k": 678,
+   "n": 678,
+   "p": 100,
+   "lo": 99.4,
+   "hi": 100
+  }
+ },
+ "identity_defect_units_untouched": {
+  "k": 6,
+  "n": 6,
+  "pct": 100,
+  "ci95": {
+   "k": 6,
+   "n": 6,
+   "p": 100,
+   "lo": 61,
+   "hi": 100
+  }
+ },
+ "examples_wrong": [
+  [
+   "i work at Delta Print; does my brother also work at Delta Print ?",
+   "i work at Delta Print; does my brother also work at Delta Print ?"
+  ],
+  [
+   "The search index relies on the booking app; the payments gateway doesn't rely on the login service .",
+   "The search index relies on the booking app; the payments gateway doesn't rely on the login service ."
+  ],
+  [
+   "Background: Rafael has a job at Brightfield Foods and Mr Sánchez works at Carpathia Energy .",
+   "Background: Rafael has a job at Brightfield Foods and Mr Sánchez works at Carpathia Energy ."
+  ],
+  [
+   "How often did Bogdan attend the local film festival ?",
+   "How often did Bogdan attend the local film festival ?"
+  ],
+  [
+   "I was wondering whether Elif is examined by Dr Novak .",
+   "I was wondering whether Elif is examined by Dr Novak ."
+  ],
+  [
+   "Honestly , does Bekele invite Nadia ?",
+   "Honestly , does Bekele invite Nadia ?"
+  ]
+ ]
+}

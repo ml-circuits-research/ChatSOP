@@ -5,16 +5,17 @@ import {ROOT} from '../../../lib/dataset-paths.mjs';
 import {fold} from '../../../sop/dictionary.mjs';
 import {loadSpellfix} from '../../../lib/languages-util/spellfix.mjs';
 
-const MANUAL = ['sop', 'sops', 'wire', 'wires', 'fire', 'firele', 'firul', 'symboliclm', 'symbolic', 'gate', 'smoke', 'sigilat', 'sigilate', 'chatsop', 'bad_english', 'symbolic_english', 'neuro_english', 'neuro', 'proofing', 'proofreader', 'languageproofingllm', 'symbolicproofingllm', 'languagesutil', 'translatorservice', 'texttocleanenglish', 'languagetool', 'formalizer', 'formalizare', 'recallmemory', 'holomemory', 'datasets', 'dataset', 'omp', 'deepseek', 'grok', 'glm', 'qwen', 'gemma', 'opus-mt', 'jsonl', 'stanza', 'ds0', 'preregistration', 'journal', 'wiktionary', 'spellfix', 'unparsed', 'stated', 'assumed', 'claude', 'anthropic', 'llm', 'llms', 'gguf', 'lora', 'wire_types', 'knowledge', 'reasoner', 'solver', 'clingo', 'souffle', 'agenti', 'agent'];
+// Only the ChatSOP project's OWN vocabulary (owner, 2026-10-01: common words such as review, docs, test, gate, smoke, agent, dataset are NOT jargon and must not be blocked)
+const MANUAL = ['sop', 'sops', 'chatsop', 'symboliclm', 'languageproofingllm', 'symbolicproofingllm', 'languagesutil', 'translatorservice', 'texttocleanenglish', 'recallmemory', 'holomemory', 'wire', 'wires', 'wire_types', 'circuit', 'circuits', 'circuite', 'circuitul', 'circuitele', 'firele', 'firul', 'bad_english', 'symbolic_english', 'neuro_english', 'sigilat', 'sigilate'];
 export function loadBlocklist() {
   const words = new Set(MANUAL.map(fold));
   const dir = path.join(ROOT, 'eval/reports/current/translate-compare');
   const sf = loadSpellfix(), common = new Set([...sf.dict.ro, ...sf.dict.en].map(fold));
   // words found in the owner's messages (discovered or detected spans) block a training row only when they are NOT ordinary Romanian or English words:
   // the blocklist targets the project's own vocabulary, not common words such as "fara" or "review"
-  const addRare = w => { const f = fold(w).replace(/^[^a-z0-9_]+|[^a-z0-9_]+$/g, ''); if (f.length >= 3 && !common.has(f) && !common.has(f.replace(/-?(ul|le|ii|lor|uri|ului|urile|a)$/, ''))) words.add(f); };
-  const add = w => { const f = fold(w).replace(/^[^a-z0-9_]+|[^a-z0-9_]+$/g, ''); if (f.length >= 3) words.add(f); };
-  if (fs.existsSync(path.join(dir, 'jargon-listed.txt'))) for (const l of fs.readFileSync(path.join(dir, 'jargon-listed.txt'), 'utf8').split('\n')) if (l && !l.startsWith('#')) add(l);
+    // From the owner's messages only identifier-like tokens (file names, paths, snake_case) are added: ordinary words, typos and words written without diacritics are not jargon.
+  const addRare = w => { const f = fold(w).replace(/^[^a-z0-9_]+|[^a-z0-9_]+$/g, ''); if (f.length >= 3 && /[._/]/.test(f)) words.add(f); };
+  if (fs.existsSync(path.join(dir, 'jargon-listed.txt'))) for (const l of fs.readFileSync(path.join(dir, 'jargon-listed.txt'), 'utf8').split('\n')) if (l && !l.startsWith('#')) addRare(l);
   for (const f of ['jargon-discovered.jsonl', 'jargon-spans.jsonl']) { const p = path.join(dir, f); if (fs.existsSync(p)) for (const l of fs.readFileSync(p, 'utf8').split('\n')) { if (!l) continue; const r = JSON.parse(l); if (r.word) addRare(r.word); for (const s of r.spans ?? []) addRare(s.text); } }
   return words;
 }

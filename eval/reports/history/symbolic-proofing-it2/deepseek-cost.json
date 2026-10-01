@@ -1,0 +1,69 @@
+{
+ "generated_at": "2026-10-01T02:56:58.835Z",
+ "since": "2026-09-30T23:54:00.000Z",
+ "price_per_m": {
+  "input": 0.15,
+  "output": 0.6,
+  "cache_read": 0.003
+ },
+ "metered_agent_turns": {
+  "symbolic_proofing_parse_judge": {
+   "sessions": 6,
+   "turns": 89,
+   "cost_usd": 0.061
+  },
+  "symbolic_proofing_it2_meaning_judge": {
+   "sessions": 4,
+   "turns": 33,
+   "cost_usd": 0.015
+  },
+  "symbolic_proofing_it2_eval_meaning_judge": {
+   "sessions": 4,
+   "turns": 48,
+   "cost_usd": 0.0263
+  },
+  "decomp_backgen": {
+   "sessions": 1,
+   "turns": 201,
+   "cost_usd": 0.2042
+  }
+ },
+ "estimated_kernel_judge_calls": {
+  "symbolic_proofing_parse_judge": {
+   "a": {
+    "calls": 6857,
+    "estimated_usd": 0.696
+   },
+   "c": {
+    "calls": 6857,
+    "estimated_usd": 0.503
+   }
+  },
+  "symbolic_proofing_it2_meaning_judge": {
+   "m1": {
+    "calls": 2521,
+    "estimated_usd": 0.161
+   },
+   "m2": {
+    "calls": 2521,
+    "estimated_usd": 0.355
+   }
+  },
+  "symbolic_proofing_it2_eval_meaning_judge": {
+   "m1": {
+    "calls": 1976,
+    "estimated_usd": 0.166
+   },
+   "m2": {
+    "calls": 1976,
+    "estimated_usd": 0.318
+   }
+  }
+ },
+ "totals": {
+  "metered_usd": 0.306,
+  "estimated_kernel_usd": 2.199,
+  "sum_usd": 2.505
+ },
+ "note": "Kernel completion() calls are not in the session files; the estimate uses item sizes and the metered price. DeepSeek-V4.1-Flash through omp for all of it."
+}

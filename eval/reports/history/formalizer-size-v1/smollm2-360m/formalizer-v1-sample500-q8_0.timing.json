@@ -1,0 +1,55 @@
+{
+  "format": "chatsop-endpoint-timing-v1",
+  "label": "smollm2-360m/fv1-size-a4 q8_0 bulk",
+  "suite": "/home/salboaie/work/ChatSOP/eval/reports/current/formalizer-size-v1/sample500/formalizer-v1-sample500.suite.jsonl",
+  "url": "http://127.0.0.1:18763",
+  "rows": 500,
+  "sample": null,
+  "message_chars": {
+    "min": 0,
+    "max": null
+  },
+  "parallel": 4,
+  "max_tokens": 6144,
+  "wall_seconds": 464.140946874,
+  "messages_per_second": 1.0772589735241236,
+  "errors": [],
+  "truncated": [],
+  "raw_completion_fallback": [],
+  "latency_ms": {
+    "count": 500,
+    "mean": 3473.5898036260014,
+    "p50": 1271.921491000001,
+    "p95": 14694.275790999993,
+    "max": 105172.16600399997
+  },
+  "prompt_tokens": {
+    "count": 500,
+    "mean": 67.62,
+    "p50": 32,
+    "p95": 272,
+    "max": 1691
+  },
+  "completion_tokens": {
+    "count": 500,
+    "mean": 119.894,
+    "p50": 49,
+    "p95": 564,
+    "max": 2556
+  },
+  "server_prompt_tokens_per_second": {
+    "count": 500,
+    "mean": 404.7526578703774,
+    "p50": 411.39722687795216,
+    "p95": 582.7955330436496,
+    "max": 653.2721677022239
+  },
+  "server_generation_tokens_per_second": {
+    "count": 500,
+    "mean": 47.292600354588046,
+    "p50": 46.903388893277516,
+    "p95": 70.89083191657161,
+    "max": 88.99322208378831
+  },
+  "aggregate_completion_tokens_per_second": 129.15688737170126
+}

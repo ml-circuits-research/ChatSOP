@@ -1,0 +1,56 @@
+{
+ "format": "chatsop-dataset-qualification-v1",
+ "status": "qualified",
+ "corpus": "bad_english/translate-jargon-v1",
+ "role": "translator",
+ "grade": "experiment-grade: LLM-authored source messages (Grok, GLM) and DeepSeek flash targets; mechanical checks (term retention, quote retention, blocklist, natural overlap, OPUS 8-gram), a sample read by the agent, no human semantic review",
+ "dataset_manifest_sha256": "088a89ad5e17617e150c1fb08581d7772e6f4d2280f0a780f2e33244f6eed818",
+ "dataset_files": {
+  "train.jsonl": "b493ca05dfb7f156be915b8b8c91d2f53f6459d66092a35d93699ecccf1ea5b6",
+  "dev.jsonl": "1211315f6fcafb53f63484aed078c9c40c4016ab06b0d53df094d8604ae81cf4"
+ },
+ "sealed_suites": {},
+ "contract_files": {},
+ "checks": {
+  "leakage": true,
+  "split_integrity": true,
+  "source_rights": true,
+  "token_budget": true,
+  "meaning_preservation": true,
+  "project_jargon_excluded": true
+ },
+ "evidence": {
+  "leakage": {
+   "path": "eval/reports/current/translate-distill/data-checks.json",
+   "sha256": "d88ec702e26aabbff681b178723eda18865ba354f2a5fa62ba8ad22bb039a731"
+  },
+  "split_integrity": {
+   "path": "eval/reports/current/translate-distill/data-checks.json",
+   "sha256": "d88ec702e26aabbff681b178723eda18865ba354f2a5fa62ba8ad22bb039a731"
+  },
+  "source_rights": {
+   "path": "docs/specs/DS014-source-rights.md",
+   "sha256": "36270758038f05f055157631cfb6b18e72ed3363c6a1a597bc069a1a0cc6b156"
+  },
+  "token_budget": {
+   "path": "eval/reports/current/translate-distill/data-checks.json",
+   "sha256": "d88ec702e26aabbff681b178723eda18865ba354f2a5fa62ba8ad22bb039a731"
+  },
+  "meaning_preservation": {
+   "path": "eval/reports/current/translate-distill/no-copy.json",
+   "sha256": "5acb695ba0978d93be9e2e09f0f3162e7d3a56ced18a7732d81b13f1a7486088"
+  },
+  "project_jargon_excluded": {
+   "path": "eval/reports/current/translate-distill/data-checks.json",
+   "sha256": "d88ec702e26aabbff681b178723eda18865ba354f2a5fa62ba8ad22bb039a731"
+  }
+ },
+ "reviewer": {
+  "kind": "agent",
+  "id": "mt-distill-agent-b (automated re-qualification after reassembly with the narrower blocklist; no human review)",
+  "reviewed_at": "2026-10-01T14:41:08.952Z"
+ },
+ "blockers": [],
+ "note": "meaning_preservation evidence is mechanical (every listed term and quoted span kept verbatim in the target, length ratio, no Romanian left); it is not a judge-based meaning check. Max source 356 and max target 294 Marian pieces; training uses max_length 400.",
+ "requalified_note": "2026-10-01: dataset reassembled with the narrower blocklist (owner decision); one further source row dropped (tj05431, \"circuit\" = race track, the assembly step checked only targets); train 4,923, dev 431; verify.mjs and nocopy.mjs re-run, ok."
+}

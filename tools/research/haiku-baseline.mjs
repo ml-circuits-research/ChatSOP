@@ -21,7 +21,7 @@ import {sampleRows} from './predict-endpoint.mjs';
 import {sliceFields} from '../../eval/slices.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const outDir = path.join(root, 'eval/reports/current/haiku-baseline');
+const outDir = path.join(root, 'eval/reports/history/haiku-baseline');
 // Conditions: `thinking` (the Claude Code default, extended thinking on; cache/) and `nothink` (MAX_THINKING_TOKENS=0;
 // cache-nothink/). The prompt and every other flag are identical.
 const argvCondition = process.argv.indexOf('--condition');
@@ -219,7 +219,7 @@ async function predict(argv) {
 
 
 // ---------------------------------------------------------------- comparison with the fine-tuned models on the same rows
-const SMOL = 'eval/reports/current/formalizer-size-v1/smollm2-135m';
+const SMOL = 'eval/reports/history/formalizer-size-v1/smollm2-135m';
 const readJson = file => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
 const exists = file => fs.existsSync(path.join(root, file));
 /** Wilson 95% interval. */
@@ -310,7 +310,7 @@ const CONDITIONS = {
 };
 
 function compare() {
-  const D = 'eval/reports/current/haiku-baseline';
+  const D = 'eval/reports/history/haiku-baseline';
   const report = {format: 'chatsop-haiku-reference-baseline-v1', label: 'REFERENCE BASELINE (prompted, not fine-tuned, not a preregistered arm)', model: MODEL,
     prompt: readJson(`${D}/prompt.json`), generated: new Date().toISOString(), conditions: {}, speed: {note: 'Haiku timings are wall-clock per headless `claude -p` call: process start, network, Claude Code overhead and hidden thinking are included, so they are not directly comparable with local CPU inference of the small models. Several suites and conditions ran concurrently, so per-suite wall time is shared.', smollm2_135m: smallModelSpeed()}};
   const pct = x => x?.value === null || x?.value === undefined ? 'n/a' : `${(x.value * 100).toFixed(1)}%`;
@@ -357,7 +357,7 @@ function compare() {
       console.log(JSON.stringify(data.paired_exec_tolerant ?? data.paired_accepted_match));
     }
   }
-  const gemma = ['eval/reports/current/formalizer-size-v1/gemma-3-270m', 'eval/reports/current/formalizer-size-v1/gemma3-270m'].find(exists);
+  const gemma = ['eval/reports/history/formalizer-size-v1/gemma-3-270m', 'eval/reports/history/formalizer-size-v1/gemma3-270m'].find(exists);
   report.gemma_270m = gemma ? `predictions directory found: ${gemma} (not yet compared)` : 'no Gemma 270M predictions existed when this report was generated';
   fs.writeFileSync(path.join(root, D, 'comparison.json'), JSON.stringify(report, null, 2) + '\n');
   console.log('\n' + JSON.stringify(report.speed, null, 1));

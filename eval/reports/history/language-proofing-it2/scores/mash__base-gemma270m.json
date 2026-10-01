@@ -1,0 +1,34 @@
+{
+ "name": "base-gemma270m",
+ "unchanged": {
+  "k": 0,
+  "n": 150,
+  "pct": 0
+ },
+ "examples_changed": [
+  [
+   "bvcxzmnbv oiuyt",
+   "This looks like a string of characters. It's not a recognizable word or phrase."
+  ],
+  [
+   "89012345 ljskmqxbkcl yyyyy!",
+   "This is a string of characters. It appears to be a random string of characters."
+  ],
+  [
+   "lkjhgfdsalkjh!",
+   "Okay! I'm ready. What would you like to talk about?"
+  ],
+  [
+   "eeeeeeeee",
+   "Okay! Is there anything specific you'd like to talk about or do?"
+  ],
+  [
+   "ffffffffff",
+   "I am Gemma, an open-weights AI assistant. I am a large language model created by the Gemma team at Google DeepMind. I am designed to provide text-based responses based on the data I was trained on."
+  ],
+  [
+   "gqdtrlk ghjklasdfgh Xvpkfzm",
+   "This looks like a random string of characters. It's not a recognizable word or phrase."
+  ]
+ ]
+}

@@ -11,6 +11,7 @@
  * knowledge), an attached file going to the coding agent (route note, progress, draft circuit, accept), and a detected SymbolicLM
  * failure routed to the coding agent. Results: PNG files and run.json (overflow checks, console errors, what each step saw).
  */
+import {demoLexicon} from '../../lib/knowledge-seeds.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -64,7 +65,7 @@ const AUTHORED = `@works_in predicate
 `;
 const FAMILY = fs.readFileSync(path.join(ROOT, 'eval/smoke-reasoning/cases/03-rules-chaining/knowledge.sop'), 'utf8');
 
-async function startStack() {
+async function startStack({port = PORT, ompBin = path.join(ROOT, 'tests/fixtures/omp/stub-omp.mjs')} = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'product-ui-'));
   const good = path.join(dir, 'good.sop');
   fs.writeFileSync(good, AUTHORED);
@@ -77,7 +78,7 @@ async function startStack() {
   });
   await new Promise(resolve => mock.listen(0, '127.0.0.1', resolve));
   const registryFile = path.join(dir, 'formalizers.json');
-  fs.writeFileSync(registryFile, JSON.stringify({default: 'symbolic-lm', models: [{id: 'symbolic-lm', label: 'SymbolicLM (stub)', service: path.join(ROOT, 'tests/fixtures/capability-api/stub-symbolic-service.mjs'), rewrite: {mode: 'off'}}]}));
+  fs.writeFileSync(registryFile, JSON.stringify({default: 'symbolic-lm', models: [{id: 'symbolic-lm', label: 'SymbolicLM (stub)', service: path.join(ROOT, 'tests/fixtures/omp/stub-symbolic-scope.mjs'), rewrite: {mode: 'off'}}]}));
   const registry = loadRegistry(registryFile, {root: dir});
   const manager = new FormalizerManager({registry, bin: '/bin/true', startTimeoutMs: 15000, logDir: null});
   const runtime = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8'));
@@ -88,9 +89,9 @@ async function startStack() {
   repo.init('demo');
   const auth = new Auth({file: path.join(dir, 'state/auth.json')});
   const formalizer = {url: `http://127.0.0.1:${mock.address().port}/v1/chat/completions`, model: 'mock'};
-  const server = createServer({config: {promptProfile: 'formal', formalizer, memory: runtime.memory, policy: {allowWrite: true}, omp: {bin: path.join(ROOT, 'tests/fixtures/omp/stub-omp.mjs'), defaultModel: 'xai-oauth/grok-4.20-0309-non-reasoning'}},
-    repo, lexicon: Lexicon.load(path.join(ROOT, 'config/ontology.sop')), auth, chatData, formalizers: {registry, manager}});
-  await new Promise(resolve => server.listen(PORT, '127.0.0.1', resolve));
+  const server = createServer({config: {promptProfile: 'formal', formalizer, memory: runtime.memory, policy: {allowWrite: true}, omp: {bin: ompBin, defaultModel: 'xai-oauth/grok-4.20-0309-non-reasoning'}},
+    repo, lexicon: demoLexicon(), auth, chatData, formalizers: {registry, manager}});
+  await new Promise(resolve => server.listen(port, '127.0.0.1', resolve));
   return {dir, close: async () => { await manager.stopAll(); server.closeAllConnections?.(); server.close(); mock.close(); fs.rmSync(dir, {recursive: true, force: true}); }};
 }
 
@@ -117,8 +118,8 @@ async function launch() {
   return {send, evaluate, close, errors};
 }
 
-async function signIn() {
-  const response = await fetch(`${BASE}/admin/setup`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({password: PASSWORD})});
+async function signIn(base = BASE) {
+  const response = await fetch(`${base}/admin/setup`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({password: PASSWORD})});
   if (!response.ok) throw Error('could not set the password: HTTP ' + response.status);
   return /chatsop_session=([^;]+)/.exec(response.headers.get('set-cookie') ?? '')[1];
 }
@@ -148,8 +149,8 @@ const setValue = (browser, selector, value) => browser.evaluate(`(()=>{const e=d
 const sendMessage = (browser, text) => browser.evaluate(`(()=>{const i=document.getElementById('input');i.value=${JSON.stringify(text)};document.getElementById('send').click();})()`);
 const overflow = browser => browser.evaluate('document.documentElement.scrollWidth>innerWidth+1');
 
-async function fresh(browser, cookie) {
-  await browser.send('Page.navigate', {url: BASE + '/chat'});
+async function fresh(browser, cookie, base = BASE) {
+  await browser.send('Page.navigate', {url: base + '/chat'});
   await sleep(1000);
   await browser.evaluate(`localStorage.clear();localStorage.setItem('chatsop.mode','"formalize"');localStorage.setItem('chatsop.model.formalize','"symbolic-lm"');localStorage.setItem('chatsop.cleanBeforeFormalize','false');localStorage.setItem('chatsop.emotion','false');`);
   await browser.send('Page.reload');
@@ -218,25 +219,60 @@ async function main() {
         await shot(browser, path.join(OUT, `06-draft-accepted-${tag}.png`));
         note('accepted', {tag, session: await browser.evaluate(`document.getElementById('session-info').textContent`), message: await browser.evaluate(`(document.querySelector('.agent-msg .msgline.ok')||{}).textContent`)});
 
-        // A detected SymbolicLM failure goes to the coding agent without files (the stub marks "UNSURE" sentences uncertain).
-        await sendMessage(browser, 'The lab rules UNSURE somehow apply to everyone.');
-        await until(browser, `document.querySelectorAll('.route-note').length>=2`, 30000);
-        await shot(browser, path.join(OUT, `07-auto-routed-failure-${tag}.png`), '#log');
-        note('auto-route', {tag, overflow: await overflow(browser), routes: await browser.evaluate(`[...document.querySelectorAll('.route-note')].map(n=>n.textContent)`)});
+        // A rule sentence: the scope note quotes the cue and the wire types and asks; "Yes" sends it to the coding agent.
+        await sendMessage(browser, 'Every researcher must wear goggles.');
+        await until(browser, `document.querySelector('.route-note.scope .scope-ask button')`, 30000);
+        await sleep(300);
+        await shot(browser, path.join(OUT, `07-scope-note-ask-${tag}.png`), '#log');
+        note('scope-note', {tag, overflow: await overflow(browser), note: await browser.evaluate(`document.querySelector('.route-note.scope').textContent`)});
+        await click(browser, '.route-note.scope .scope-ask button.primary');
+        await until(browser, `document.querySelectorAll('.agent-msg').length>=2&&document.querySelectorAll('.agent-msg')[1].querySelector('.status').textContent.length>0`, 20000);
         await until(browser, `document.querySelectorAll('.agent-msg fieldset').length>=2`, 60000);
+        await sleep(300);
+        await shot(browser, path.join(OUT, `08-scope-yes-draft-${tag}.png`), '#log');
+        // A detected SymbolicLM failure (the stub marks "UNSURE" sentences uncertain): the note asks; "No" sends nothing.
+        await sendMessage(browser, 'The lab rules UNSURE somehow apply to everyone.');
+        await until(browser, `[...document.querySelectorAll('.route-note.scope .scope-ask button')].some(b=>!b.disabled)`, 30000);
+        await browser.evaluate(`[...document.querySelectorAll('.route-note.scope .scope-ask button')].filter(b=>!b.disabled).find(b=>b.textContent==='No').click()`);
+        await sleep(600);
+        await shot(browser, path.join(OUT, `09-failure-suggestion-declined-${tag}.png`), '#log');
+        note('failure-suggestion', {tag, overflow: await overflow(browser), notes: await browser.evaluate(`[...document.querySelectorAll('.route-note.scope')].map(n=>n.textContent).slice(-1)`)});
+        // Mark only: the same kind of sentence is marked and nothing is asked.
+        await setValue(browser, '#scope-select', 'mark');
+        await sleep(500);
+        await sendMessage(browser, 'Every researcher must wear goggles.');
+        await until(browser, `document.querySelectorAll('.route-note.scope').length>=3`, 30000);
+        await sleep(300);
+        await shot(browser, path.join(OUT, `10-scope-note-mark-only-${tag}.png`), '#log');
+        note('scope-mark-only', {tag, overflow: await overflow(browser), asked: await browser.evaluate(`document.querySelectorAll('.route-note.scope')[2].querySelectorAll('.scope-ask').length`)});
+        await setValue(browser, '#scope-select', 'ask');
 
         // A plain question stays with SymbolicLM and shows the path and why.
         await sendMessage(browser, 'Does Ana like Alpha Lab?');
-        await until(browser, `document.querySelectorAll('.route-note').length>=3&&document.querySelector('#log .msg.assistant:not(.muted):not(.agent-msg):last-child')`, 30000);
+        await until(browser, `document.querySelectorAll('.route-note').length>=6&&document.querySelector('#log .msg.assistant:not(.muted):not(.agent-msg):last-child')`, 30000);
         await sleep(500);
-        await shot(browser, path.join(OUT, `08-symbolic-path-${tag}.png`), '#log');
+        await shot(browser, path.join(OUT, `11-symbolic-path-${tag}.png`), '#log');
         note('symbolic-path', {tag, overflow: await overflow(browser), routes: await browser.evaluate(`[...document.querySelectorAll('.route-note')].map(n=>n.textContent).slice(-1)`)});
       }
     }
-    // omp unavailable: the same flow falls back to SymbolicLM and says so.
-    await browser.send('Emulation.setEmulatedMedia', {features: [{name: 'prefers-color-scheme', value: 'light'}]});
-    await browser.send('Emulation.setDeviceMetricsOverride', {width: 1280, height: 900, deviceScaleFactor: 1, mobile: false});
-    stack.server_omp_down = true;
+    // omp unavailable: an attached file falls back to SymbolicLM and the page says so.
+    const down = await startStack({port: PORT + 1, ompBin: '/nonexistent/omp'});
+    try {
+      const downBase = `http://127.0.0.1:${PORT + 1}`;
+      const downCookie = await signIn(downBase);
+      await browser.send('Network.setCookie', {name: 'chatsop_session', value: downCookie, url: downBase});
+      for (const width of [1280, 390]) {
+        await browser.send('Emulation.setDeviceMetricsOverride', {width, height: 900, deviceScaleFactor: 1, mobile: width < 600});
+        await fresh(browser, downCookie, downBase);
+        await browser.evaluate(`document.getElementById('settings').open=true`);
+        await browser.evaluate(`(()=>{PROD.files.push({name:'lab-safety-manual.txt',text:${JSON.stringify(MANUAL)}});renderChips();})()`);
+        await sendMessage(browser, 'Compile the attached manual into circuits.');
+        await until(browser, `document.querySelector('.route-note.fallback')&&document.querySelector('#log .msg.assistant:not(.muted)')`, 30000);
+        await sleep(500);
+        await shot(browser, path.join(OUT, `12-omp-unavailable-fallback-${width}.png`));
+        note('omp-unavailable', {width, overflow: await overflow(browser), route: await browser.evaluate(`(document.querySelector('.route-note')||{}).textContent`), ompNote: await browser.evaluate(`document.getElementById('omp-note').textContent`)});
+      }
+    } finally { await down.close(); }
   } finally {
     fs.writeFileSync(path.join(OUT, 'run.json'), JSON.stringify({base: BASE, errors: browser.errors, report}, null, 1) + '\n');
     browser.close();

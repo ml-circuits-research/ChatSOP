@@ -1,0 +1,400 @@
+{
+ "format": "chatsop-grammar-constrained-cell-v1",
+ "model": "smollm2-360m",
+ "cell": "test500",
+ "comparison": "gbnf-lax - free",
+ "suite": "eval/reports/current/formalizer-size-v1/sample500/formalizer-v1-sample500.suite.jsonl",
+ "cell_rows": 500,
+ "stages": [
+  100,
+  300,
+  500
+ ],
+ "stage_results": [
+  {
+   "stage": 1,
+   "rows": 100,
+   "primary": "execution_equivalence_tolerant",
+   "summary": {
+    "free": {
+     "rows": 100,
+     "parse_validity": 1,
+     "compile_validity": 0.99,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "execution_equivalence_tolerant": 0.83,
+     "wire_f1": 0.774,
+     "counts": {
+      "parse": 100,
+      "compile": 99,
+      "exec": 83,
+      "accepted_match": null
+     }
+    },
+    "gbnf-lax": {
+     "rows": 100,
+     "parse_validity": 1,
+     "compile_validity": 0.99,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "execution_equivalence_tolerant": 0.83,
+     "wire_f1": 0.774,
+     "counts": {
+      "parse": 100,
+      "compile": 99,
+      "exec": 83,
+      "accepted_match": null
+     }
+    }
+   },
+   "primary_delta": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "decision": {
+    "stop": true,
+    "reason": "futility"
+   }
+  }
+ ],
+ "final_rows": 100,
+ "stopped": {
+  "stop": true,
+  "reason": "futility"
+ },
+ "identical_outputs": 1,
+ "metrics": {
+  "all": {
+   "free": {
+    "rows": 100,
+    "parse_validity": 1,
+    "compile_validity": 0.99,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.83,
+    "wire_f1": 0.774,
+    "counts": {
+     "parse": 100,
+     "compile": 99,
+     "exec": 83,
+     "accepted_match": null
+    }
+   },
+   "gbnf-lax": {
+    "rows": 100,
+    "parse_validity": 1,
+    "compile_validity": 0.99,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.83,
+    "wire_f1": 0.774,
+    "counts": {
+     "parse": 100,
+     "compile": 99,
+     "exec": 83,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:en": {
+   "free": {
+    "rows": 48,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.8958,
+    "wire_f1": 0.8862,
+    "counts": {
+     "parse": 48,
+     "compile": 48,
+     "exec": 43,
+     "accepted_match": null
+    }
+   },
+   "gbnf-lax": {
+    "rows": 48,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.8958,
+    "wire_f1": 0.8862,
+    "counts": {
+     "parse": 48,
+     "compile": 48,
+     "exec": 43,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:mixed": {
+   "free": {
+    "rows": 15,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.8,
+    "wire_f1": 0.8444,
+    "counts": {
+     "parse": 15,
+     "compile": 15,
+     "exec": 12,
+     "accepted_match": null
+    }
+   },
+   "gbnf-lax": {
+    "rows": 15,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.8,
+    "wire_f1": 0.8444,
+    "counts": {
+     "parse": 15,
+     "compile": 15,
+     "exec": 12,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:ro": {
+   "free": {
+    "rows": 37,
+    "parse_validity": 1,
+    "compile_validity": 0.973,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.7568,
+    "wire_f1": 0.6689,
+    "counts": {
+     "parse": 37,
+     "compile": 36,
+     "exec": 28,
+     "accepted_match": null
+    }
+   },
+   "gbnf-lax": {
+    "rows": 37,
+    "parse_validity": 1,
+    "compile_validity": 0.973,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.7568,
+    "wire_f1": 0.6689,
+    "counts": {
+     "parse": 37,
+     "compile": 36,
+     "exec": 28,
+     "accepted_match": null
+    }
+   }
+  }
+ },
+ "deltas": {
+  "all": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   }
+  },
+  "language:en": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 48
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 48
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 48
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 48
+   }
+  },
+  "language:mixed": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 15
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 15
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 15
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 15
+   }
+  },
+  "language:ro": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "wire_f1": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   }
+  }
+ },
+ "speed": {
+  "free": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 (server -np 8, one request at a time)"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 353.4813,
+    "p50": 154.7535,
+    "p95": 1716.4458
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 110.81,
+    "p50": 50,
+    "p95": 570
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 348.9174,
+    "p50": 349.8619,
+    "p95": 360.7772
+   }
+  },
+  "gbnf-lax": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 (server -np 8, one request at a time)"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 344.1876,
+    "p50": 151.9486,
+    "p95": 1653.319
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 110.81,
+    "p50": 50,
+    "p95": 570
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 359.6178,
+    "p50": 360.6032,
+    "p95": 367.566
+   }
+  }
+ },
+ "example_counts": {
+  "helped": 0,
+  "hurt": 0,
+  "repaired_parse": 0,
+  "forced_wrong": 0,
+  "changed_valid": 0
+ },
+ "examples": {
+  "helped": [],
+  "hurt": [],
+  "repaired_parse": [],
+  "forced_wrong": [],
+  "changed_valid": []
+ }
+}

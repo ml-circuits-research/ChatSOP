@@ -1,0 +1,17 @@
+== test identity -> ep3
+  repair n 57 delta 0.123 CI95 [0.035, 0.228]
+  identity n 38 delta -0.105 CI95 [-0.211, -0.026]
+== test base -> ep3
+  repair n 57 delta 0.228 CI95 [0.105, 0.351]
+  identity n 38 delta 0.895 CI95 [0.789, 0.974]
+== dev identity -> ep3
+  repair n 56 delta 0.143 CI95 [0.018, 0.268]
+  identity n 46 delta -0.065 CI95 [-0.152, 0]
+== dev base -> ep3
+  repair n 56 delta 0.286 CI95 [0.161, 0.411]
+  identity n 46 delta 0.935 CI95 [0.848, 1]
+== sym300 identity -> ep3
+  identity n 300 delta -0.213 CI95 [-0.26, -0.167]
+== composed K2 sentence-level analysis-correct rate, paired bootstrap over cases (10000, seed 7)
+sentence ft vs identity (0.003, [-0.031, 0.037]) | ft vs base (-0.048, [-0.081, -0.016])
+paragraph ft vs identity (0.099, [0.065, 0.132]) | ft vs base (0.069, [0.025, 0.111])

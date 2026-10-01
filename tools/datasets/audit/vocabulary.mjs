@@ -2,7 +2,8 @@
  * field keywords and enumerated values), model-forbidden types in model targets and cardinality misuse.
  *
  * The vocabulary is never listed here. It is read at run time from the contract:
- *   - wire types and their `one`/`many`/`required` fields: `SPEC` (and `ONTOLOGY_SPEC`) exported by sop/parser.mjs;
+ *   - wire types and their `one`/`many`/`required` fields: `SPEC` exported by sop/parser.mjs and the lexicon wires (`predicate`, `lexeme`, `entity`)
+ *     of the knowledge grammar (`GRAMMAR` of sop/knowledge/grammar.mjs; they are the vocabulary of `ontology_sop`);
  *   - the `sop/contracts/wires.json` snapshot: compared with SPEC to find types whose migration is in flight;
  *   - model-authorable types: the exported `MODEL_TYPES` set of sop/declarative.mjs (the one model language, DS021);
  *   - enumerated field values, in this order: explicit registries (`values`/`enums` on a SPEC or wires.json entry,
@@ -74,6 +75,8 @@ export async function loadContract(root = REPO_ROOT) {
       sources[relative + '#import-error'] = error.message;
     }
   }
+  const grammar = path.join(dir, 'knowledge', 'grammar.mjs');
+  modules['sop/knowledge/grammar.mjs'] = await import(pathToFileURL(grammar).href);
   const wiresFile = path.join(dir, 'contracts', 'wires.json');
   const wiresJson = fs.existsSync(wiresFile) ? JSON.parse(fs.readFileSync(wiresFile, 'utf8')) : null;
   return {modules, sources, wiresJson};
@@ -137,10 +140,16 @@ export function buildVocabulary({modules, sources = {}, wiresJson = null, pendin
   const types = new Map();
   const addType = (type, spec, ontology) => types.set(type, {
     one: new Set(spec.one ?? []), many: new Set(spec.many ?? []), required: new Set(spec.required ?? []), ontology,
-    source: ontology ? 'ONTOLOGY_SPEC' : 'SPEC',
+    source: ontology ? 'GRAMMAR' : 'SPEC',
   });
   for (const [type, spec] of Object.entries(parser.SPEC)) addType(type, spec, false);
-  for (const [type, spec] of Object.entries(isRecord(parser.ONTOLOGY_SPEC) ? parser.ONTOLOGY_SPEC : {})) if (!types.has(type)) addType(type, spec, true);
+  // The lexicon wires: the knowledge grammar's `predicate`, `lexeme` and `entity` (cardinality from the field table).
+  const grammar = modules['sop/knowledge/grammar.mjs']?.GRAMMAR;
+  for (const type of ['predicate', 'lexeme', 'entity']) {
+    const fields = Object.entries(grammar?.[type]?.fields ?? {});
+    if (!fields.length || types.has(type)) continue;
+    addType(type, {one: fields.filter(([, f]) => f.card === 'one').map(([k]) => k), many: fields.filter(([, f]) => f.card === 'many').map(([k]) => k), required: fields.filter(([, f]) => f.required).map(([k]) => k)}, true);
+  }
 
   // Enumerated values.
   const enums = new Map();
@@ -536,7 +545,7 @@ export const VOCABULARY_ROW_CHECKS = [
   },
   {
     id: 'vocabulary.contract', severity: 'error', threshold: 0, target: false,
-    description: 'A target, setup or ontology program uses a wire type, field or enumerated value outside the contract (sop/parser.mjs SPEC), a model-forbidden type, or a field against its cardinality.',
+    description: 'A target, setup or ontology program uses a wire type, field or enumerated value outside the contract (sop/parser.mjs SPEC and the lexicon wires of sop/knowledge/grammar.mjs), a model-forbidden type, or a field against its cardinality.',
     run: context => rowFindings(context).filter(finding => !NON_FAILING.has(finding.class)).map(describe),
   },
 ];

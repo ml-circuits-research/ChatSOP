@@ -1,0 +1,108 @@
+{
+ "format": "chatsop-grammar-ceiling-v1",
+ "grammar": "eval/reports/current/grammar-constrained/sop-model-parser-strings.gbnf",
+ "source": "eval/reports/current/formalizer-size-v1 (CPU Q8_0 free predictions)",
+ "cells": {
+  "smollm2-135m/wild": {
+   "rows": 796,
+   "parse_valid": 730,
+   "grammar_rejected": 61,
+   "grammar_rejected_share": 0.0766,
+   "rejected_but_parse_valid": 7,
+   "parse_valid_rejected_at": [
+    [
+     "var",
+     7
+    ]
+   ],
+   "rejected_ids_sample": [
+    "wild_we_075",
+    "wild_wd_028",
+    "wild_wg_072",
+    "wild_wg_019",
+    "wild_wi_078",
+    "wild_wi_012",
+    "wild_wd_034",
+    "wild_wk_007",
+    "wild_wj_090",
+    "wild_wf_087"
+   ]
+  },
+  "smollm2-135m/ood": {
+   "rows": 1578,
+   "parse_valid": 1569,
+   "grammar_rejected": 4,
+   "grammar_rejected_share": 0.0025,
+   "rejected_but_parse_valid": 0,
+   "parse_valid_rejected_at": [],
+   "rejected_ids_sample": [
+    "ood1_000291_0_1",
+    "ood1_000438_0_0",
+    "ood1_000526_0_0",
+    "ood2_000242_0_0"
+   ]
+  },
+  "smollm2-135m/test": {
+   "rows": 5033,
+   "parse_valid": 5022,
+   "grammar_rejected": 6,
+   "grammar_rejected_share": 0.0012,
+   "rejected_but_parse_valid": 0,
+   "parse_valid_rejected_at": [],
+   "rejected_ids_sample": [
+    "fv1_008471_0_0",
+    "fv1_027155_0_0",
+    "fv1_004138_0_0",
+    "fv1_005951_0_0",
+    "fv1_009202_0_0",
+    "fv1_019517_0_0"
+   ]
+  },
+  "smollm2-360m/wild": {
+   "rows": 796,
+   "parse_valid": 751,
+   "grammar_rejected": 43,
+   "grammar_rejected_share": 0.054,
+   "rejected_but_parse_valid": 0,
+   "parse_valid_rejected_at": [],
+   "rejected_ids_sample": [
+    "wild_wj_031",
+    "wild_wh_047",
+    "wild_wd_068",
+    "wild_wd_011",
+    "wild_wd_047",
+    "wild_we_051",
+    "wild_wk_084",
+    "wild_wf_087",
+    "wild_wh_074",
+    "wild_wi_100"
+   ]
+  },
+  "smollm2-360m/ood": {
+   "rows": 1578,
+   "parse_valid": 1568,
+   "grammar_rejected": 7,
+   "grammar_rejected_share": 0.0044,
+   "rejected_but_parse_valid": 0,
+   "parse_valid_rejected_at": [],
+   "rejected_ids_sample": [
+    "ood1_000042_0_1",
+    "ood1_000150_0_0",
+    "ood1_000494_0_0",
+    "ood2_000063_0_0",
+    "ood2_000203_0_0",
+    "ood2_000244_0_0",
+    "ood2_000317_0_0"
+   ]
+  },
+  "smollm2-360m/test500": {
+   "rows": 500,
+   "parse_valid": 500,
+   "grammar_rejected": 0,
+   "grammar_rejected_share": 0,
+   "rejected_but_parse_valid": 0,
+   "parse_valid_rejected_at": [],
+   "rejected_ids_sample": []
+  }
+ }
+}

@@ -43,7 +43,7 @@ export const PROBES = [
   {form: 'conform', mode: 'conform', message: 'Did Ana comply with the approval process?'},
   {form: 'conform', mode: 'conform', message: 'Was the procedure followed?'},
   // what-if
-  {form: 'what_if', mode: 'select', message: 'What if Ana leaves the lab, who runs it?'},
+  {form: 'what_if', mode: null, message: 'What if Ana leaves the lab, who runs it?'},
   {form: 'what_if', mode: null, message: 'If the router is reset, does the alarm stop?'},
   {form: 'what_if', mode: null, message: 'What would happen if Ana left the lab?'},
   // temporal overlaps and ranges

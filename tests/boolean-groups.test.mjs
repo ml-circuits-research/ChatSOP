@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {parse,canonical,parseAtom} from '../sop/parser.mjs';
 import {lowerQuery,lowerConstraint} from '../sop/lower.mjs';
-import {solveConstraint} from '../reasoning/backends/constraints.mjs';
-import {evaluate} from '../reasoning/reasoner.mjs';
+import {solveConstraint} from '../reasoning/bridge/solve.mjs';
+import {evaluate,reason} from '../reasoning/bridge/index.mjs';
 import {interval} from '../lib/time.mjs';
 
 const query=body=>lowerQuery(parse('@q query\n'+body).wires[0]);
@@ -61,13 +61,15 @@ test('explicit opposite evidence refutes conjunction but missing evidence does n
  assert.equal(evaluate(q,[fact('q a','q')]).status,'unknown');
 });
 
-test('nested joins require simultaneous validity and honor a shared probe budget',()=>{
+test('nested joins require simultaneous validity; the probe ceiling stops the closure that feeds them',()=>{
  const q=query('  where all\n    p a\n    any\n      q a\n      r a\n    end\n  end\n  during 2026-01-01 2026-03-01');
  const facts=[fact('p a','p','2026-01-01 2026-02-01'),fact('q a','q','2026-02-01 2026-03-01')];
  assert.equal(evaluate(q,facts).status,'unknown');
- const cut=evaluate(q,[fact('p a','p'),fact('q a','q')],{maxJoins:1});
+ // the oracle counts the probes of the closure, not of the reading of its result: a rule join over the ceiling is incomplete
+ const rule={id:'both',kind:'rule',if:[parseAtom('p ?x'),parseAtom('q ?x')],then:parseAtom('pq ?x'),valid:interval('timeless')};
+ const cut=reason(query('  where pq a'),{facts:[fact('p a','p'),fact('q a','q')],rules:[rule],complete:true},{maxJoins:1});
  assert.equal(cut.complete,false);
- assert.deepEqual(cut.answers,[]);
+ assert.notEqual(cut.status,'refuted');
 });
 
 test('empty, unclosed and excessive groups are rejected rather than weakened',()=>{

@@ -12,7 +12,7 @@
  * rate, and a D1-tolerant proposition F1 (unparsed wires and link lines ignored; relation phrases and values
  * compared by sop/dictionary.mjs sameMeaning in either language). Paired cluster bootstrap intervals (10,000
  * resamples, seed 7) of baseline minus comparator follow the preregistration
- * (status/preregistrations/baseline-ud-rules-v1.json). Output: eval/reports/current/baseline-ud-rules/<set>/.
+ * (status/preregistrations/baseline-ud-rules-v1.json). Output: eval/reports/history/baseline-ud-rules/<set>/.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -29,7 +29,7 @@ import {defaultDictionary} from '../../sop/dictionary.mjs';
 import {bootstrap, mcnemar} from './spellfix-eval.mjs';
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
-const OUT = path.join(ROOT, 'eval/reports/current/baseline-ud-rules');
+const OUT = path.join(ROOT, 'eval/reports/history/baseline-ud-rules');
 const CUR = 'eval/reports/current';
 export const SETS = {
   wild: {suite: 'eval/suites/formalizer-wild-v1/test.jsonl', kind: 'wild', strata: row => row.language + '|' + (row.gaps?.[0] ?? '-'),

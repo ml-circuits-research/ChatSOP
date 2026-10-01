@@ -1,0 +1,14 @@
+{
+ "generated_at": "2026-10-01T00:06:06.727Z",
+ "pairs": {
+  "train": 19810,
+  "dev": 3641
+ },
+ "ids_in_two_splits": 0,
+ "exact_matches": {
+  "train_dev_vs_sealed_texts": 0
+ },
+ "train_prompts_also_in_dev": 0,
+ "row_split_kept": true,
+ "note": "exact matches after case, diacritic, punctuation and spacing folding; the sealed hashes cover the messages and targets of eval/suites/bad_english (test, test-composed components, proofing-test) and the identity messages of the sealed proofing test"
+}

@@ -1,0 +1,21 @@
+{
+ "generated_at": "2026-09-30T21:17:54.446Z",
+ "repair_pairs": 22824,
+ "mechanical_failures": 0,
+ "pairs_by_target_source": {
+  "llm:deepseek-flash": 16433,
+  "identity:symbolic_english": 1269,
+  "noise-inverse": 3311,
+  "proofing.repair": 1126,
+  "identity:in-row": 1267,
+  "proofing.translate": 1404,
+  "clean-sibling": 2,
+  "new_cases.clean": 548
+ },
+ "llm_targets": "llm:deepseek-flash targets are review_status pending; meaning checked mechanically only (names, numbers, quoted spans, negation, question marks, length ratio), not by the DeepSeek meaning judge",
+ "meaning_judge_calibration": {
+  "file": "eval/reports/current/neuro-oracle/meaning-calibration.json",
+  "trusted": false,
+  "precision_main": 0.5301204819277109
+ }
+}

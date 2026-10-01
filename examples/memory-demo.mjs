@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /** Identical existing SOP circuits over four independently populated backends. */
+import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import assert from 'node:assert/strict';
 import {Repository} from '../memory/repository.mjs';import {Runtime} from '../sop/runtime.mjs';
 import {Lexicon} from '../sop/lexicon.mjs';import {publishKnowledge} from '../sop/ingest.mjs';import {saveJSON} from '../lib/util.mjs';
-const schema=Lexicon.load(new URL('../config/ontology.sop',import.meta.url)).predicates,fixture=fs.readFileSync(new URL('../tests/fixtures/bootstrap.sop',import.meta.url),'utf8'),runs=[];
+const schema=demoLexicon().predicates,fixture=fs.readFileSync(new URL('../tests/fixtures/bootstrap.sop',import.meta.url),'utf8'),runs=[];
 const names=['auto-link','auto-mixed','auto-cascade','auto-ambiguous','auto-rows','auto-template'];
 const strategies={'recall-memory':'recall-memory','holo-memory':'holo-memory',sqlite:'sqlite',scan:'scan'};
 for(const [engine,strategy] of Object.entries(strategies))for(const sharded of [false,true]){

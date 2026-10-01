@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {parse} from '../sop/parser.mjs';
 import {lowerConstraint} from '../sop/lower.mjs';
-import {solveConstraint} from '../reasoning/backends/constraints.mjs';
+import {solveConstraint} from '../reasoning/bridge/solve.mjs';
 import {solverSkip, withEnv} from './helpers.mjs';
 
 const prob = s => lowerConstraint(parse('@c constraint\n' + s).wires[0]);

@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 /** High-level dataset verification entry point. All implementation lives in tools/datasets/.
  *
- *   node check-datasets.mjs [--audit-strict] [--no-audit]
+ *   node check-datasets.mjs [--audit-strict] [--no-audit] [--archive]
+ *
+ * The current chain checks the three datasets (verify-three-datasets.mjs, content-word overlap, corpus audit). `--archive` adds the
+ * legacy corpora and legacy sealed suites (FormalizerLLM-era, kept as provenance) with verify-corpus.mjs; without it they are not verified.
  *
  * Child processes run with the repository root as working directory, so the repo-relative artifact paths below
  * resolve the same way from any invoking directory.
  *
- * Part 1 verifies every model-language corpus and suite manifest with tools/datasets/verify-corpus.mjs (fail-closed). Part 2 runs the corpus audit
+ * Part 1 verifies the three datasets and, with `--archive`, every legacy model-language corpus and suite manifest with tools/datasets/verify-corpus.mjs (fail-closed). Part 2 runs the corpus audit
  * (`tools/datasets/audit-corpus.mjs`, procedure in `skills/corpus-audit/SKILL.md`) on every corpus with
  * train/dev splits and refreshes `eval/reports/current/corpus-audit/<corpus>.json`. The audit runs in report
  * mode (`--fail-on none`) while the known-defective corpora are regenerated: its findings, including invariant
@@ -50,10 +53,11 @@ const manifests = (dir, flag) => fs.existsSync(path.join(root, dir)) ? fs.readdi
   .filter(entry => flag !== '--corpus' || !NOT_VERIFIABLE_HERE[entry.name])
   .filter(entry => { try { return JSON.parse(fs.readFileSync(path.join(root, dir, entry.name, 'manifest.json'), 'utf8')).format === 'chatsop-corpus-manifest-v2'; } catch { return false; } })
   .map(entry => [`${flag === '--corpus' ? 'corpus' : 'suite'} ${entry.name} (manifest, rows, targets, execution sample)`, ['verify-corpus.mjs', flag, entry.name]]) : [];
-const checks = [...manifests('datasets', '--corpus'), ...manifests('datasets_archive', '--corpus'), ...manifests('eval/suites', '--suite')];
+const archive = flags.has('--archive');
+const checks = archive ? [...manifests('datasets', '--corpus'), ...manifests('datasets_archive', '--corpus'), ...manifests('eval/suites', '--suite')] : [];
 if (fs.existsSync(path.join(root, 'tools/datasets/verify-three-datasets.mjs'))) checks.push(['the three datasets (manifests, hashes, schema, splits, sealed boundary)', ['verify-three-datasets.mjs']]);
 let ok = true;
-for (const [name, reason] of Object.entries(NOT_VERIFIABLE_HERE)) if (fs.existsSync(path.join(root, 'datasets_archive', name, 'manifest.json'))) console.log(`SKIP  corpus ${name}: ${reason}`);
+for (const [name, reason] of Object.entries(NOT_VERIFIABLE_HERE)) if (archive && fs.existsSync(path.join(root, 'datasets_archive', name, 'manifest.json'))) console.log(`SKIP  corpus ${name}: ${reason}`);
 for (const [label, args] of checks) {
   const passed = run(...[args[0], args.slice(1)]);
   console.log(`${passed ? 'PASS' : 'FAIL'}  ${label}`);

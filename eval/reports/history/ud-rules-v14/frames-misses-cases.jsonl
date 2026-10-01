@@ -1,0 +1,146 @@
+{"id":"fv1_022119_0_0","source":"test","categories":["E_structure_equal"]}
+{"id":"fv1_011682_0_0","source":"test","categories":["C_boundary","R_value_span","C_role","R_time","R_preposition"]}
+{"id":"fv1_008202_0_0","source":"test","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_018315_0_0","source":"test","categories":["C_boundary","R_value_span"],"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_032815_0_0","source":"test","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_000357_0_0","source":"test","categories":["R_unclear_false"]}
+{"id":"fv1_007597_0_0","source":"test","categories":["R_constraint","R_extra"]}
+{"id":"fv1_005717_0_0","source":"test","categories":["R_constraint"]}
+{"id":"fv1_013469_0_0","source":"test","categories":["R_constraint","R_extra","R_query_form"]}
+{"id":"fv1_023991_0_0","source":"test","categories":["R_missing","R_extra"]}
+{"id":"fv1_028343_0_0","source":"test","categories":["R_value_span","C_wording"]}
+{"id":"fv1_016893_0_0","source":"test","categories":["R_missing","R_extra","C_boundary"],"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_030516_0_0","source":"test","categories":["R_missing","R_extra","C_boundary"],"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_007828_0_0","source":"test","categories":["R_unclear"]}
+{"id":"fv1_004187_0_0","source":"test","categories":["R_unclear"]}
+{"id":"fv1_029104_0_0","source":"test","categories":["C_boundary","R_value_span"]}
+{"id":"fv1_022282_0_0","source":"test","categories":["C_boundary"],"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_001075_0_0","source":"test","categories":["R_query_form","C_wording"]}
+{"id":"fv1_002240_0_0","source":"test","categories":["C_boundary"],"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_001353_0_0","source":"test","categories":["C_boundary","C_wording"]}
+{"id":"fv1_016336_0_0","source":"test","categories":["R_missing","R_query_form"]}
+{"id":"fv1_025521_0_0","source":"test","categories":["R_missing","R_query_form","R_extra"]}
+{"id":"fv1_030584_0_0","source":"test","categories":["R_missing","R_query_form","C_wording"]}
+{"id":"fv1_009710_0_0","source":"test","categories":["R_missing","C_role","R_query_form"]}
+{"id":"fv1_031002_0_0","source":"test","categories":["R_value_span","C_role"]}
+{"id":"fv1_005880_0_0","source":"test","categories":["R_value_span","C_role"]}
+{"id":"fv1_004503_0_0","source":"test","categories":["C_boundary"],"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_007490_0_0","source":"test","categories":["R_value_span"]}
+{"id":"fv1_011051_0_0","source":"test","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_024733_0_0","source":"test","categories":["R_missing","R_extra","R_time","R_query_form"]}
+{"id":"fv1_015081_0_0","source":"test","categories":["R_missing","R_extra","R_time","R_query_form"]}
+{"id":"fv1_023549_0_0","source":"test","categories":["C_boundary"],"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_009857_0_0","source":"test","categories":["C_boundary"],"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_015742_0_0","source":"test","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_031519_0_0","source":"test","categories":["C_boundary"]}
+{"id":"fv1_005835_0_0","source":"test","categories":["C_boundary"],"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_012661_0_0","source":"test","categories":["R_value_span"]}
+{"id":"fv1_014856_0_0","source":"test","categories":["R_value_span"]}
+{"id":"fv1_025473_0_0","source":"test","categories":["C_wording"]}
+{"id":"fv1_025254_0_0","source":"test","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_024613_0_0","source":"test","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_032010_0_0","source":"test","categories":["R_extra","R_query_form"]}
+{"id":"fv1_021374_0_0","source":"test","categories":["C_wording"]}
+{"id":"fv1_013533_0_0","source":"test","categories":["C_wording","C_boundary"]}
+{"id":"fv1_024646_0_0","source":"test","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"fv1_001351_0_0","source":"test","categories":["C_wording","R_extra"]}
+{"id":"fv1_009290_0_0","source":"test","categories":["R_extra","C_wording"],"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood1_000093_0_0","source":"ood","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood2_000065_0_0","source":"ood","categories":["C_boundary","C_role","R_value_span"]}
+{"id":"ood1_000225_0_0","source":"ood","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood2_000459_0_0","source":"ood","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood1_000726_0_0","source":"ood","categories":["R_extra","R_statement_query","C_role","R_query_form","R_time"]}
+{"id":"ood1_000611_0_0","source":"ood","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood1_000153_0_0","source":"ood","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood2_000068_0_0","source":"ood","categories":["C_boundary","C_role","R_value_span"]}
+{"id":"ood1_000528_0_0","source":"ood","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood2_000315_0_0","source":"ood","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood2_000019_0_0","source":"ood","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood1_000472_0_0","source":"ood","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood1_000307_0_0","source":"ood","categories":["R_preposition","R_query_form"]}
+{"id":"ood2_000042_0_0","source":"ood","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood1_000367_0_0","source":"ood","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood1_000010_0_0","source":"ood","categories":["R_statement_query","C_wording","R_value_span"]}
+{"id":"ood1_000507_0_0","source":"ood","categories":["R_value_span"]}
+{"id":"ood1_000578_0_0","source":"ood","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood2_000301_0_0","source":"ood","categories":["C_boundary","R_value_span"]}
+{"id":"ood1_000589_0_0","source":"ood","categories":["C_role"],"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"ood1_000443_0_0","source":"ood","categories":["R_value_span","R_query_form","C_relational_noun"]}
+{"id":"ood2_000026_0_0","source":"ood","categories":["C_boundary","C_role","R_value_span"]}
+{"id":"ood2_000135_0_0","source":"ood","categories":["C_boundary","R_value_span","R_query_form","C_relational_noun"]}
+{"id":"wild_wf_081","source":"wild","categories":["R_missing","R_extra","C_role","R_value_span","C_wording"]}
+{"id":"wild_we_091","source":"wild","categories":["R_missing","R_extra","R_query_form","R_time"]}
+{"id":"wild_wd_027","source":"wild","categories":["R_missing","R_extra","R_query_form"]}
+{"id":"wild_wd_097","source":"wild","categories":["R_extra","R_query_form","R_value_span","C_wording"]}
+{"id":"wild_wk_060","source":"wild","categories":["R_missing","R_extra","R_statement_query","R_query_form","R_value_span","C_wording"]}
+{"id":"wild_we_025","source":"wild","categories":["R_missing","R_extra"]}
+{"id":"wild_wf_048","source":"wild","categories":["R_missing","R_extra","R_time"]}
+{"id":"wild_wf_046","source":"wild","categories":["R_missing","R_extra","R_time","C_wording"]}
+{"id":"wild_wk_021","source":"wild","categories":["R_missing","C_assumed","R_preposition","R_value_span","R_time","C_wording","R_statement_query"]}
+{"id":"wild_wd_032","source":"wild","categories":["R_value_span","R_preposition"]}
+{"id":"wild_wd_055","source":"wild","categories":["R_missing","R_value_span","R_time","R_query_form","C_boundary"]}
+{"id":"wild_we_066","source":"wild","categories":["R_missing","R_extra","C_wording","R_query_form"]}
+{"id":"wild_wd_028","source":"wild","categories":["R_missing","C_wording","R_preposition","R_value_span"]}
+{"id":"wild_we_071","source":"wild","categories":["R_missing","R_extra","R_query_form"]}
+{"id":"wild_wj_076","source":"wild","categories":["R_missing","R_query_form","C_wording"]}
+{"id":"wild_wf_008","source":"wild","categories":["R_missing","R_statement_query","R_query_form","R_value_span"]}
+{"id":"wild_wf_089","source":"wild","categories":["R_extra","R_time"]}
+{"id":"wild_we_032","source":"wild","categories":["R_constraint","R_extra","R_remark","R_query_form"]}
+{"id":"wild_we_005","source":"wild","categories":["R_constraint","R_missing","R_extra","C_boundary","R_value_span"]}
+{"id":"wild_we_097","source":"wild","categories":["R_constraint","R_extra","R_query_form"]}
+{"id":"wild_wd_012","source":"wild","categories":["R_extra","P_typo_relation","C_role","R_value_span","R_query_form"]}
+{"id":"wild_wk_081","source":"wild","categories":["P_typo_relation","R_query_form"]}
+{"id":"wild_wk_041","source":"wild","categories":["R_missing","R_extra","R_statement_query","R_query_form","R_value_span","C_wording"]}
+{"id":"wild_wk_037","source":"wild","categories":["R_missing","R_statement_query","R_query_form","R_polarity","C_role","R_value_span","C_wording"]}
+{"id":"wild_we_033","source":"wild","categories":["R_unclear"]}
+{"id":"wild_wf_025","source":"wild","categories":["R_unclear"]}
+{"id":"wild_wd_084","source":"wild","categories":["R_unclear"]}
+{"id":"wild_wh_045","source":"wild","categories":["R_unclear"]}
+{"id":"wild_we_038","source":"wild","categories":["R_unclear"]}
+{"id":"wild_wj_042","source":"wild","categories":["R_unclear"],"list: synonyms":1,"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"wild_wf_030","source":"wild","categories":["R_unclear"]}
+{"id":"wild_wd_003","source":"wild","categories":["R_unclear"],"list: synonyms":1,"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"wild_wf_002","source":"wild","categories":["R_unclear"],"list: synonyms":1,"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"wild_wk_069","source":"wild","categories":["R_unclear"],"list: synonyms":1,"list: synonyms + roles":1,"list: + boundary":1,"list: + boundary + time":1,"list + WordNet":1,"list + WordNet + generic single-oblique":1}
+{"id":"wild_we_037","source":"wild","categories":["R_unclear"]}
+{"id":"wild_we_095","source":"wild","categories":["R_extra","R_preposition","R_missing","R_time","P_typo_relation","R_value_span","C_role","R_query_form","C_wording"]}
+{"id":"wild_we_060","source":"wild","categories":["R_missing","R_extra","R_value_span","C_role","R_statement_query","R_polarity","R_certainty","C_wording","R_preposition","R_query_form"]}
+{"id":"wild_we_017","source":"wild","categories":["C_boundary","R_query_form"]}
+{"id":"wild_we_100","source":"wild","categories":["R_missing","R_extra","R_value_span","C_wording"]}
+{"id":"wild_we_030","source":"wild","categories":["R_missing","R_remark","R_query_form"]}
+{"id":"wild_wk_054","source":"wild","categories":["R_missing","R_extra","C_role","R_preposition","R_query_form"]}
+{"id":"wild_wd_007","source":"wild","categories":["R_missing","R_extra","R_query_form"]}
+{"id":"wild_wk_049","source":"wild","categories":["R_unclear_false"]}
+{"id":"wild_we_082","source":"wild","categories":["R_extra","R_preposition","R_value_span","R_query_form"]}
+{"id":"wild_wj_053","source":"wild","categories":["R_preposition","R_missing","R_query_form"]}
+{"id":"wild_we_040","source":"wild","categories":["C_boundary","R_query_form"]}
+{"id":"wild_we_044","source":"wild","categories":["C_role","C_wording","R_query_form"]}
+{"id":"wild_wf_052","source":"wild","categories":["R_value_span","C_wording"]}
+{"id":"wild_wh_012","source":"wild","categories":["R_preposition","R_time"]}
+{"id":"wild_wf_064","source":"wild","categories":["R_extra","R_query_form","R_value_span","C_wording"]}
+{"id":"wild_we_016","source":"wild","categories":["R_missing","R_statement_query","R_value_span","R_query_form","C_wording"]}
+{"id":"wild_wf_062","source":"wild","categories":["R_missing"]}
+{"id":"wild_wf_099","source":"wild","categories":["R_missing"]}
+{"id":"wild_wk_029","source":"wild","categories":["R_preposition","R_missing"]}
+{"id":"wild_wf_006","source":"wild","categories":["R_missing","R_query_form","R_extra"]}
+{"id":"wild_we_046","source":"wild","categories":["C_boundary","R_query_form"]}
+{"id":"wild_wk_011","source":"wild","categories":["R_argument","R_value_span","R_query_form","C_wording"]}
+{"id":"wild_we_001","source":"wild","categories":["C_boundary","R_query_form"]}
+{"id":"wild_wd_067","source":"wild","categories":["R_missing","R_extra","R_remark","R_value_span","R_time","C_wording","C_boundary","R_polarity"]}
+{"id":"wild_wf_021","source":"wild","categories":["R_extra","C_wording","C_role","R_statement_query","R_preposition","R_missing"]}
+{"id":"wild_wd_074","source":"wild","categories":["R_missing","R_value_span"]}
+{"id":"wild_wd_065","source":"wild","categories":["R_missing","C_boundary","R_value_span"]}
+{"id":"wild_wi_039","source":"wild","categories":["R_missing","C_boundary","R_value_span","R_extra","R_time","R_statement_query","C_wording"]}
+{"id":"wild_wf_032","source":"wild","categories":["C_boundary","R_value_span","R_extra","C_wording"]}
+{"id":"wild_wk_001","source":"wild","categories":["R_statement_query","R_value_span","R_missing","C_wording","R_polarity","R_certainty","R_time"]}
+{"id":"wild_wd_060","source":"wild","categories":["R_extra","R_statement_query","R_preposition","R_missing","R_value_span","R_query_form"]}
+{"id":"wild_wd_041","source":"wild","categories":["C_assumed","R_preposition","R_value_span"]}
+{"id":"wild_wd_018","source":"wild","categories":["C_boundary"]}
+{"id":"wild_wj_061","source":"wild","categories":["R_missing","R_statement_query","C_role","R_time"],"list + WordNet + generic single-oblique":1}
+{"id":"wild_wf_009","source":"wild","categories":["R_value_span","R_missing","C_wording","R_time"]}
+{"id":"wild_we_011","source":"wild","categories":["R_extra","C_role","R_polarity","R_query_form"]}
+{"id":"wild_we_009","source":"wild","categories":["C_wording"]}
+{"id":"wild_wk_036","source":"wild","categories":["R_missing","R_value_span"]}
+{"id":"wild_wd_030","source":"wild","categories":["R_missing","R_statement_query","R_preposition","R_query_form"]}
+{"id":"wild_wk_015","source":"wild","categories":["R_missing","R_statement_query","R_value_span","R_query_form","C_wording"]}
+{"id":"wild_wf_038","source":"wild","categories":["R_remark","R_preposition","R_query_form"]}

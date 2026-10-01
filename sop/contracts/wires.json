@@ -24,38 +24,120 @@
     "time",
     "topic"
   ],
-  "ontology": {
-    "entity": {
-      "one": [
-        "kind",
-        "domain"
-      ],
-      "many": [
-        "label",
-        "alias"
-      ]
-    },
+  "lexicon": {
     "predicate": {
-      "one": [
-        "args",
-        "description",
-        "domain"
-      ],
-      "many": [
-        "role",
-        "label",
-        "alias"
-      ]
+      "args": {
+        "card": "one",
+        "required": false
+      },
+      "role": {
+        "card": "many",
+        "required": false
+      },
+      "label": {
+        "card": "many",
+        "required": false
+      },
+      "domain": {
+        "card": "one",
+        "required": false
+      },
+      "closed": {
+        "card": "one",
+        "required": false
+      },
+      "key": {
+        "card": "one",
+        "required": false
+      },
+      "transitive": {
+        "card": "one",
+        "required": false
+      },
+      "inverse": {
+        "card": "one",
+        "required": false
+      },
+      "unit": {
+        "card": "one",
+        "required": false
+      },
+      "description": {
+        "card": "one",
+        "required": false
+      },
+      "reading": {
+        "card": "many",
+        "required": false
+      },
+      "describe_rank": {
+        "card": "one",
+        "required": false
+      }
     },
-    "concept": {
-      "one": [
-        "domain"
-      ],
-      "many": [
-        "is_a",
-        "label",
-        "alias"
-      ]
+    "lexeme": {
+      "of": {
+        "card": "one",
+        "required": true
+      },
+      "language": {
+        "card": "one",
+        "required": true
+      },
+      "pos": {
+        "card": "one",
+        "required": false
+      },
+      "form": {
+        "card": "many",
+        "required": true
+      },
+      "frame": {
+        "card": "one",
+        "required": true
+      },
+      "restrict": {
+        "card": "many",
+        "required": false
+      },
+      "weight": {
+        "card": "one",
+        "required": false
+      },
+      "source": {
+        "card": "one",
+        "required": false
+      },
+      "quote": {
+        "card": "one",
+        "required": false
+      }
+    },
+    "entity": {
+      "kind": {
+        "card": "one",
+        "required": false
+      },
+      "label": {
+        "card": "many",
+        "required": false
+      },
+      "alias": {
+        "card": "many",
+        "required": false
+      },
+      "domain": {
+        "card": "one",
+        "required": false
+      },
+      "notability": {
+        "card": "one",
+        "required": false
+      },
+      "source": {
+        "card": "one",
+        "required": false
+      }
     }
   },
   "memoryEngines": [
@@ -67,24 +149,28 @@
   ],
   "reasoning": {
     "reference": {
+      "engine": "js-reference oracle (reasoning/strategies/js-reference) through reasoning/bridge",
       "deduce": "finite-function-free-Horn",
       "temporal": "bitemporal-view-and-interval-join",
       "classify": "deductive-rules",
-      "abduce": "ground-candidates-subset-minimal",
-      "diagnose": "abduction-and-test-partition",
+      "abduce": "oracle-all-inclusion-minimal-explanations",
+      "diagnose": "oracle-abduction-and-test-partition",
       "associate": "lexical-relational-recall-memory-score",
       "induce": "bounded-candidate-pattern-evaluation",
       "analogize": "injective-entity-mapping",
-      "plan": "deterministic-uniform-cost-search",
-      "simulate": "whatif-and-causal-Horn-intervention",
+      "plan": "oracle-uniform-cost-search",
+      "simulate": "oracle-whatif-and-causal-Horn-intervention",
       "constraint": "finite-linear-integers",
       "optimize": "finite-linear-integers"
     },
-    "advanced": {
-      "deduce": "SWI-when-available-or-audited-JS",
-      "constraint": "Z3-when-available-or-finite-JS",
-      "optimize": "Z3-plus-optimality-check-or-finite-JS",
-      "other": "reference-controllers-no-semantic-change"
+    "prolog-tabling": {
+      "deduce": "swi-prolog-tabling-checked-against-the-oracle",
+      "other": "unsupported-explicit-backend-named-no-fallback"
+    },
+    "z3-smt-bounded": {
+      "constraint": "z3-integer-constraints",
+      "optimize": "z3-plus-optimality-check",
+      "other": "unsupported-explicit-backend-named-no-fallback"
     }
   },
   "wires": {
@@ -231,6 +317,26 @@
       "authoredByModel": true,
       "effects": "no-world-write",
       "note": "Model language: a verbatim span of the message the model could not formalize (span), optionally near the wire it belongs to (near $id) and the slot it probably fills (hint subject, object, time, location, value, relation, reference or other). A role whose value lies in the span holds a placeholder ?variable paired by near and hint. The host repairs spans symbolically (dates, numbers, money, names, the dictionary, the conversation) before linking and asks one question per unresolved span (DS021)."
+    },
+    "pragmatic": {
+      "one": [
+        "kind",
+        "score",
+        "span",
+        "near",
+        "source",
+        "basis"
+      ],
+      "required": [
+        "kind",
+        "score",
+        "source",
+        "basis"
+      ],
+      "role": "operation",
+      "declaration": false,
+      "authoredByModel": false,
+      "effects": "no-world-write"
     },
     "rule": {
       "one": [
@@ -521,27 +627,6 @@
       "authoredByModel": false,
       "effects": "no-world-write",
       "note": "The host requests a next-turn answer for a blocking identity or scalar dependency; unknown evidence alone does not require clarification."
-    },
-    "pragmatic": {
-      "one": [
-        "kind",
-        "score",
-        "span",
-        "near",
-        "source",
-        "basis"
-      ],
-      "required": [
-        "kind",
-        "score",
-        "source",
-        "basis"
-      ],
-      "role": "host-advisory-pragmatic-signal",
-      "declaration": false,
-      "authoredByModel": false,
-      "effects": "no-world-write",
-      "note": "The host's EmotionDetectionSystem reports the pragmatic or emotional role of a message or of a leftover span (greeting, thanks, urgency, hedge, frustration, irony_possible, ...) as an advisory signal for the reasoner. Never a fact about the world, never stored, never authored by the model (DS029)."
     },
     "pattern": {
       "one": [

@@ -3,6 +3,7 @@
  *
  *   node tools/symbolic-regression.mjs [--split train,dev,test] [--limit N] [--jobs N] [--report file]
  *   node tools/symbolic-regression.mjs --update            # explicit re-baseline of rows that changed but did not fail
+ *   node tools/symbolic-regression.mjs --update --accept-gold <row id>,<row id> --reason "<why the gold was wrong>"   # also re-baselines the named failing rows and replaces their gold (a bad gold; the reason is stored on the row)
  *   node tools/symbolic-regression.mjs --replay tests/fixtures/symbolic-english/sample.json   # recorded parses, no Stanza
  *   node tools/symbolic-regression.mjs record-fixture [--n 12]                                # re-records that fixture
  *   node tools/symbolic-regression.mjs record-parses [--device auto] [--out file]            # Stanza parses of every row, once
@@ -120,7 +121,7 @@ function runChildren(jobs, argv) {
   })));
 }
 
-function rewriteBaseline(rows, updates, splits) {
+function rewriteBaseline(rows, updates, splits, accepted = new Map()) {
   return (async () => {
     const {writeSplit, updateManifest} = await import('./datasets/three-datasets/write.mjs');
     const {codeHashes} = await import('./datasets/three-datasets/hashes.mjs');
@@ -128,7 +129,10 @@ function rewriteBaseline(rows, updates, splits) {
     for (const split of splits) {
       const part = rows.filter(r => r.split === split).map(row => {
         const now = updates.get(row.id);
-        return now ? {...row, analysis: now.analysis, sop: now.sop, sop_valid: now.sop_valid, outcome: now.outcome, unparsed: now.unparsed, symbolic_lm: {...row.symbolic_lm, stanza: parser}} : row;
+        if (!now) return row;
+        const next = {...row, analysis: now.analysis, sop: now.sop, sop_valid: now.sop_valid, outcome: now.outcome, unparsed: now.unparsed, symbolic_lm: {...row.symbolic_lm, stanza: parser}};
+        if (accepted.has(row.id)) Object.assign(next, {gold_sop: now.sop, gold_corrected: {previous_gold_sop: row.gold_sop ?? null, reason: accepted.get(row.id), at: new Date().toISOString()}});
+        return next;
       });
       // the sealed test lives only under eval/suites (AGENTS.md rule 9): never write datasets/<name>/test.jsonl
       const written = await writeSplit(DATASET, split, part, split === 'test' ? {base: path.join(ROOT, splitFile('test'))} : undefined);
@@ -198,7 +202,7 @@ async function main() {
   let rows = fixture?.rows ?? readRows(splits);
   if (o.limit) rows = rows.slice(0, Number(o.limit));
   if (jobs > 1 && !o.shard && !fixture) {
-    const passthrough = process.argv.slice(2).filter((x, i, a) => !['--jobs', '--update', '--report'].includes(x) && !['--jobs', '--report'].includes(a[i - 1]));
+    const passthrough = process.argv.slice(2).filter((x, i, a) => !['--jobs', '--update', '--report', '--accept-gold', '--reason'].includes(x) && !['--jobs', '--report', '--accept-gold', '--reason'].includes(a[i - 1]));
     const partials = await runChildren(jobs, passthrough);
     const merged = {classes: {}, now: {}};
     for (const file of partials) { const part = JSON.parse(fs.readFileSync(file, 'utf8')); Object.assign(merged.classes, part.classes); Object.assign(merged.now, part.now); fs.unlinkSync(file); }
@@ -230,9 +234,13 @@ async function finish(rows, classes, results, o, splits) {
   fs.writeFileSync(file, JSON.stringify(report, null, 1) + '\n');
   console.log(JSON.stringify({rows: rows.length, counts, failing, report: path.relative(ROOT, file)}, null, 1));
   if (o.update) {
-    const updates = new Map(rows.filter(r => ['analysis_changed_sop_same', 'sop_changed_equivalent', 'sop_changed'].includes(classes.get(r.id))).map(r => [r.id, results.get(r.id)]));
-    if (updates.size) { await rewriteBaseline(rows, updates, splits); console.log(`re-baselined ${updates.size} rows`); }
-    if (counts.now_failing) { console.log(`${counts.now_failing} rows now fail and were NOT re-baselined: rebuild the datasets (node tools/datasets/build-three-datasets.mjs)`); process.exitCode = 1; }
+    const accepted = new Map(String(o['accept-gold'] ?? '').split(',').filter(Boolean).map(id => [id, o.reason]));
+    if (accepted.size && (typeof o.reason !== 'string' || !o.reason)) throw Error('--accept-gold needs --reason "<why the gold was wrong>"');
+    const wrong = [...accepted.keys()].filter(id => classes.get(id) !== 'now_failing' || !results.get(id)?.sop_valid);
+    if (wrong.length) throw Error(`--accept-gold names rows that do not fail with a valid SOP: ${wrong.join(', ')}`);
+    const updates = new Map(rows.filter(r => ['analysis_changed_sop_same', 'sop_changed_equivalent', 'sop_changed'].includes(classes.get(r.id)) || accepted.has(r.id)).map(r => [r.id, results.get(r.id)]));
+    if (updates.size) { await rewriteBaseline(rows, updates, splits, accepted); console.log(`re-baselined ${updates.size} rows (${accepted.size} with a corrected gold)`); }
+    if (counts.now_failing > accepted.size) { console.log(`${counts.now_failing} rows now fail and were NOT re-baselined: rebuild the datasets (node tools/datasets/build-three-datasets.mjs)`); process.exitCode = 1; }
     return;
   }
   if (failing) process.exitCode = 1;

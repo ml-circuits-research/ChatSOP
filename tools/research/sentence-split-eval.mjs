@@ -2,7 +2,7 @@
 /** Experiment eval-sentence-split-v1: formalize a message whole (S0), sentence by sentence (S1) or each sentence
  * together with the previous one (S2), and merge the per-sentence circuits on the host (lib/sentence-split.mjs).
  *
- * Inference only (llama.cpp `llama-server` on CPU, the request of lib/formalizer-endpoint.mjs: the text is the
+ * Inference only (llama.cpp `llama-server` on CPU, the request of lib/llama-chat.mjs: the text is the
  * only user turn, greedy decoding). Every model input is an exact substring of the user's message.
  *
  *   node tools/research/sentence-split-eval.mjs predict --set <dev-pilot|long|short|wild> --url <endpoint> --model <label> [--parallel 4]
@@ -29,7 +29,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {readJsonlShardedSync} from '../../lib/jsonl-shards.mjs';
-import {predictMessage} from '../../lib/formalizer-endpoint.mjs';
+import {predictMessage} from '../../lib/llama-chat.mjs';
 import {splitSentences, mergePrograms} from '../../lib/sentence-split.mjs';
 import {sampleRows} from './predict-endpoint.mjs';
 import {rowWireComparison} from '../../eval/metrics.mjs';

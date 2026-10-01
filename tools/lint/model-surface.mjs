@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Model-surface phrase lint (guard G3 of eval/reports/current/no-context-sweep.md).
+/** Model-surface phrase lint (guard G3 of eval/reports/history/no-context-sweep.md).
  *
  * The small formalizer sees the user's message only (DS021). This lint keeps the
  * documents that describe or teach the model surface from reintroducing the

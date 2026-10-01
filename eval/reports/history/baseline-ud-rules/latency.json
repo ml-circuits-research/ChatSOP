@@ -1,0 +1,21 @@
+{
+ "method": "sequential single-message parse+convert (masking, Stanza EN/RO, rules), after a warm-up; wild-suite sample seed 11; CPU run hides the GPU (CUDA_VISIBLE_DEVICES empty); torch default CPU threads",
+ "cuda": {
+  "messages": 60,
+  "model_load_seconds": 4.908873558,
+  "p50_ms": 38.12645599999996,
+  "p90_ms": 85.84316999999919,
+  "max_ms": 701.2889719999994,
+  "mean_ms": 54.87826005000008,
+  "mean_chars": 103.46666666666667
+ },
+ "cpu": {
+  "messages": 60,
+  "model_load_seconds": 4.434596791,
+  "p50_ms": 217.28013400000054,
+  "p90_ms": 499.1978409999974,
+  "max_ms": 1463.9719779999978,
+  "mean_ms": 270.7266594333333,
+  "mean_chars": 103.46666666666667
+ }
+}

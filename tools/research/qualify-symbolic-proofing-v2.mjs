@@ -7,7 +7,7 @@
  *   node tools/research/qualify-neuro-proofing.mjs --authorize gemma --run symbolic-proofing-gemma270m-it2 --decision-ts 2026-09-30T17:32:38.274Z \
  *        --scope status/training/owner-approval-symbolic-proofing-it2.json --qualification status/training/qualification-symbolic-proofing-it2.json
  *
- * Checks (recomputed here, evidence files under eval/reports/current/symbolic-proofing-it2/data/):
+ * Checks (recomputed here, evidence files under eval/reports/history/symbolic-proofing-it2/data/):
  *   oracle_grounding      an identity pair has a prompt that passes the analysis gate and equals its target; a repair pair has a prompt that does NOT pass the
  *                         gate (SymbolicLM does not handle it as it is) and a target whose sentences all pass the gate or whose source row is in the current
  *                         symbolic_english train/dev of the same split

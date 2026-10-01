@@ -4,7 +4,7 @@
  * WORLDS of one base: the fact wires of the query circuit are the hypothetical additions of the world.
  */
 import {worldsSopr as strategy, NotExpressibleError} from '../../../reasoning/strategies/worlds-sopr/index.mjs';
-import {NotExpressible} from './product.mjs';
+import {NotExpressible} from './common.mjs';
 
 const handles = new Map();
 

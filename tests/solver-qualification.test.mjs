@@ -54,16 +54,15 @@ test('an unavailable solver is recorded as skipped for every cell, never as a re
   }
 });
 
-test('SWI computes a separate closure while the JS layer constructs the proof', {skip: solverSkip('prolog')}, t => {
+test('prolog-tabling answers the relational core while the oracle constructs the proof', {skip: solverSkip('prolog')}, t => {
   const current = qualification(t);
   assert.equal(current.binaries.swi.available, true, 'the probed SWI binary must be the one qualification uses');
   for (const cell of current.swi) {
     assert.equal(cell.result.backend, 'prolog');
-    assert.equal(cell.result.proofBackend, 'js-derivation-checked-against-prolog-closure');
-    assert.ok(cell.costMs.nativeClosure >= 0);
-    assert.ok(cell.costMs.jsVerification >= 0);
+    assert.equal(cell.result.proofBackend, 'js-reference-derivation-checked-against-prolog-tabling');
+    assert.ok(cell.costMs.oracle >= 0);
     assert.ok(cell.costMs.composedAdapter >= 0);
-    if (cell.nativeClosure.complete && cell.jsClosure.complete) assert.equal(cell.result.backendAgreement, true);
+    if (cell.result.complete) assert.equal(cell.result.backendAgreement, true);
     assert.equal(cell.result.status, row(current.reference, cell.cell).result.status);
   }
   assert.deepEqual(row(current.swi, 'variables-output').result.answers.map(a => a['?who']).sort(), ['bogdan', 'carina']);
@@ -96,15 +95,16 @@ test('Z3 keeps satisfiability, entailment, optimality, unsat and resource limits
   if (!timeout.result.complete) assert.equal(timeout.interpretation, 'undecided-within-bound');
 });
 
-test('advanced is explicit routing, and an unavailable direct Z3 request cannot fall back', t => {
+test('an explicit backend runs its own strategy and an unavailable one is unsupported, never substituted', t => {
   const current = qualification(t);
   assert.equal(row(current.routing, 'reference-constraint').result.route.backend, 'js');
-  assert.equal(row(current.routing, 'advanced-constraint').result.route.backend, current.binaries.z3.available ? 'z3' : 'js');
-  assert.equal(row(current.routing, 'advanced-horn').result.route.backend, current.binaries.swi.available ? 'prolog' : 'js');
+  if (current.binaries.z3.available) assert.equal(row(current.routing, 'z3-strategy-constraint').result.route.backend, 'z3');
+  if (current.binaries.swi.available) assert.equal(row(current.routing, 'prolog-strategy-horn').result.route.backend, 'prolog');
   assert.equal(row(current.routing, 'reference-horn').result.route.backend, 'js');
-  const fallback = row(current.routing, 'advanced-auto-unavailable').result;
-  assert.equal(fallback.route.backend, 'js');
-  assert.match(fallback.route.fallback, /Z3 unavailable/);
+  const unavailable = row(current.routing, 'z3-strategy-unavailable').result;
+  assert.equal(unavailable.status, 'unsupported');
+  assert.equal(unavailable.route.backend, 'z3');
+  assert.equal(unavailable.route.fallback, null);
   const missing = row(current.routing, 'explicit-z3-unavailable').result;
   assert.equal(missing.status, 'unsupported');
   assert.equal(missing.backend, 'z3');

@@ -1,4 +1,4 @@
-// No-context guard G1 (eval/reports/current/no-context-sweep.md): the small model's prompt is the user's message
+// No-context guard G1 (eval/reports/history/no-context-sweep.md): the small model's prompt is the user's message
 // and nothing else, in the prompt builders, the training projection, the audit browser and the projected corpora.
 import test from 'node:test';
 import assert from 'node:assert/strict';

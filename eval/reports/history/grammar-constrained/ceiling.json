@@ -1,0 +1,225 @@
+{
+ "format": "chatsop-grammar-ceiling-v1",
+ "grammar": "eval/reports/current/grammar-constrained/sop-model.gbnf",
+ "source": "eval/reports/current/formalizer-size-v1 (CPU Q8_0 free predictions)",
+ "cells": {
+  "smollm2-135m/wild": {
+   "rows": 796,
+   "parse_valid": 730,
+   "grammar_rejected": 74,
+   "grammar_rejected_share": 0.093,
+   "rejected_but_parse_valid": 20,
+   "parse_valid_rejected_at": [
+    [
+     "var",
+     7
+    ],
+    [
+     "relation",
+     5
+    ],
+    [
+     "role object",
+     4
+    ],
+    [
+     "during",
+     1
+    ],
+    [
+     "role subject",
+     1
+    ],
+    [
+     "except",
+     1
+    ],
+    [
+     "valid",
+     1
+    ]
+   ],
+   "rejected_ids_sample": [
+    "wild_we_075",
+    "wild_we_020",
+    "wild_wd_028",
+    "wild_we_098",
+    "wild_wg_072",
+    "wild_wk_017",
+    "wild_wg_019",
+    "wild_wi_078",
+    "wild_wi_012",
+    "wild_wd_034"
+   ]
+  },
+  "smollm2-135m/ood": {
+   "rows": 1578,
+   "parse_valid": 1569,
+   "grammar_rejected": 160,
+   "grammar_rejected_share": 0.1014,
+   "rejected_but_parse_valid": 156,
+   "parse_valid_rejected_at": [
+    [
+     "relation",
+     140
+    ],
+    [
+     "role object",
+     15
+    ],
+    [
+     "role subject",
+     1
+    ]
+   ],
+   "rejected_ids_sample": [
+    "ood1_000006_0_0",
+    "ood1_000012_0_0",
+    "ood1_000016_0_0",
+    "ood1_000022_0_1",
+    "ood1_000024_0_0",
+    "ood1_000029_0_0",
+    "ood1_000036_0_1",
+    "ood1_000041_0_0",
+    "ood1_000064_0_0",
+    "ood1_000072_0_0"
+   ]
+  },
+  "smollm2-135m/test": {
+   "rows": 5033,
+   "parse_valid": 5022,
+   "grammar_rejected": 28,
+   "grammar_rejected_share": 0.0056,
+   "rejected_but_parse_valid": 21,
+   "parse_valid_rejected_at": [
+    [
+     "role subject",
+     11
+    ],
+    [
+     "relation",
+     5
+    ],
+    [
+     "role object",
+     4
+    ],
+    [
+     "role topic",
+     1
+    ]
+   ],
+   "rejected_ids_sample": [
+    "fv1_005112_0_0",
+    "fv1_008471_0_0",
+    "fv1_017429_0_0",
+    "fv1_027155_0_0",
+    "fv1_000022_0_0",
+    "fv1_002359_0_0",
+    "fv1_002842_0_0",
+    "fv1_004138_0_0",
+    "fv1_005951_0_0",
+    "fv1_007037_0_0"
+   ]
+  },
+  "smollm2-360m/wild": {
+   "rows": 796,
+   "parse_valid": 751,
+   "grammar_rejected": 48,
+   "grammar_rejected_share": 0.0603,
+   "rejected_but_parse_valid": 5,
+   "parse_valid_rejected_at": [
+    [
+     "relation",
+     3
+    ],
+    [
+     "at",
+     1
+    ],
+    [
+     "role object",
+     1
+    ]
+   ],
+   "rejected_ids_sample": [
+    "wild_wj_031",
+    "wild_wh_047",
+    "wild_wd_068",
+    "wild_wd_011",
+    "wild_wd_047",
+    "wild_wj_078",
+    "wild_we_051",
+    "wild_wk_084",
+    "wild_wf_087",
+    "wild_wh_074"
+   ]
+  },
+  "smollm2-360m/ood": {
+   "rows": 1578,
+   "parse_valid": 1568,
+   "grammar_rejected": 173,
+   "grammar_rejected_share": 0.1096,
+   "rejected_but_parse_valid": 166,
+   "parse_valid_rejected_at": [
+    [
+     "relation",
+     160
+    ],
+    [
+     "role subject",
+     3
+    ],
+    [
+     "role object",
+     3
+    ]
+   ],
+   "rejected_ids_sample": [
+    "ood1_000006_0_0",
+    "ood1_000012_0_0",
+    "ood1_000016_0_0",
+    "ood1_000022_0_1",
+    "ood1_000024_0_0",
+    "ood1_000029_0_0",
+    "ood1_000041_0_0",
+    "ood1_000042_0_1",
+    "ood1_000045_0_0",
+    "ood1_000052_0_0"
+   ]
+  },
+  "smollm2-360m/test500": {
+   "rows": 500,
+   "parse_valid": 500,
+   "grammar_rejected": 14,
+   "grammar_rejected_share": 0.028,
+   "rejected_but_parse_valid": 14,
+   "parse_valid_rejected_at": [
+    [
+     "relation",
+     10
+    ],
+    [
+     "role subject",
+     2
+    ],
+    [
+     "role object",
+     2
+    ]
+   ],
+   "rejected_ids_sample": [
+    "fv1_001896_0_0",
+    "fv1_006279_0_1",
+    "fv1_008641_0_0",
+    "fv1_009080_0_1",
+    "fv1_012641_0_0",
+    "fv1_013730_0_0",
+    "fv1_014764_0_0",
+    "fv1_015105_0_0",
+    "fv1_019268_0_0",
+    "fv1_022198_0_1"
+   ]
+  }
+ }
+}

@@ -30,7 +30,7 @@ const rel = file => path.relative(root, file).split(path.sep).join('/');
 const sha = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const readJson = file => JSON.parse(fs.readFileSync(file, 'utf8'));
 const readJsonl = file => fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map(line => JSON.parse(line));
-const WORK = path.join(root, 'eval/reports/current/language-proofing-it1');
+const WORK = path.join(root, 'eval/reports/history/language-proofing-it1');
 const DATA = path.join(root, 'datasets/bad_english/proofing');
 
 export function qualify({reviewerId = 'language-proofing-training-agent (automated qualification)'} = {}) {

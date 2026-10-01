@@ -1,0 +1,57 @@
+{
+ "label": "ro-v14-baseline",
+ "total": 400,
+ "failures": 279,
+ "categories": {
+  "ro_claim_tail": {
+   "n": 0,
+   "failing": 0,
+   "ids": []
+  },
+  "ro_de_weekday": {
+   "n": 2,
+   "failing": 2,
+   "ids": [
+    "fv1_019770_0_0",
+    "fv1_015409_0_0"
+   ]
+  },
+  "verb_as_noun_after_name": {
+   "n": 21,
+   "failing": 10,
+   "ids": [
+    "fv1_004238_0_0",
+    "fv1_002324_0_0",
+    "fv1_009107_0_0",
+    "fv1_005462_0_0",
+    "fv1_020142_0_0",
+    "fv1_019770_0_0",
+    "fv1_021203_0_0",
+    "fv1_020730_0_0",
+    "fv1_010385_0_0",
+    "fv1_026764_0_0"
+   ]
+  },
+  "tr_since": {
+   "n": 0,
+   "failing": 0,
+   "ids": []
+  },
+  "be_held_at_in": {
+   "n": 0,
+   "failing": 0,
+   "ids": []
+  },
+  "context_intrebare": {
+   "n": 0,
+   "failing": 0,
+   "ids": []
+  },
+  "ro_impersonal_reflexive": {
+   "n": 0,
+   "failing": 0,
+   "ids": []
+  }
+ },
+ "uncategorized_failures": 268
+}

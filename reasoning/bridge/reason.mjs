@@ -10,14 +10,14 @@
  * holds in some part, its validity is the intersection of the validities of the facts it used, and a claim and its negation are
  * `both` when they hold in the same part and `mixed_temporal` when they hold only in different parts.
  */
-import {atomKey} from '../../lib/types.mjs';
+import {atomKey, variable} from '../../lib/types.mjs';
 import {conditionAtoms} from '../../lib/conditions.mjs';
 import {stable, digest} from '../../lib/util.mjs';
 import {intersect, contains, formatTime} from '../../lib/time.mjs';
-import {variable} from '../../lib/types.mjs';
 import {ask} from '../strategies/js-reference/index.mjs';
-import {quantifiedStatus} from '../strategies/js-reference/forms.mjs';
-import {Lowering, factWire, ruleWire, queryWire, lowerForms, oppositeConditions} from './lower.mjs';
+import {quantifiedStatus, numericValue} from '../strategies/js-reference/forms.mjs';
+import {evaluateExpression} from '../../sop/expression.mjs';
+import {Lowering, factWire, ruleWire, queryWire, conditionField, lowerForms, oppositeConditions} from './lower.mjs';
 
 const WHOLE = {from: -Infinity, until: Infinity};
 const MAX_PARTS = 512;
@@ -68,6 +68,11 @@ export class Program {
     this.ruleWires = rules.map(r => ruleWire(this.lowering, r));
     this.byId = new Map(this.facts.map(f => [f.id, f]));
     this.cache = new WeakMap();
+    // the position of a fact in the closure, as a sortable key: stored facts as given, then derived facts by round (derivation depth),
+    // rule and premises, which is the order a bottom-up closure appends them
+    this.position = new Map(this.facts.map((f, i) => [f.id, [0, i]]));
+    this.ruleIndex = new Map(rules.map((r, i) => [r.id, i]));
+    this.depth = new Map();
   }
 
   /** The typed fact of an evidence node: a stored fact as given, a derived fact rebuilt with its rule, premises and validity. */
@@ -83,6 +88,11 @@ export class Program {
       const key = stable([atomKey(atom), valid.from === -Infinity ? 'beginning' : valid.from, valid.until === Infinity ? 'open' : valid.until]);
       f = {atom, valid, id: 'd_' + digest(key).slice(0, 32), kind: 'derived', rule: node.ruleId, from: prem.map(x => x.id)};
       this.byId.set(f.id, f);
+      if (!this.position.has(f.id)) {
+        const depth = 1 + Math.max(0, ...prem.map(x => this.depth.get(x.id) ?? 0));
+        this.depth.set(f.id, depth);
+        this.position.set(f.id, [1, depth, this.ruleIndex.get(node.ruleId) ?? 0, ...prem.flatMap(x => this.position.get(x.id) ?? [])]);
+      }
     }
     this.cache.set(node, f);
     return f;
@@ -122,9 +132,10 @@ function askAt(prog, t, {where, scope = [], forms, mode = 'select'}, limits) {
   return {packet, part: packet.detail?.parts?.[0] ?? null};
 }
 
-const newAcc = () => ({exhausted: false, truncated: false, notComputable: false, filtered: 0, compared: false, rounds: 0, derived: 0});
+const newAcc = () => ({exhausted: false, truncated: false, notComputable: false, filtered: 0, compared: false, rounds: 0, derived: 0, filteredEvidence: []});
 function noteBudget(acc, packet) {
-  if (packet.status === 'budget_exhausted') acc.exhausted = true;
+  // a partial positive answer (`complete: false`) and a bare stop (`budget_exhausted`) both leave the question incomplete
+  if (packet.budget?.exhausted || packet.status === 'budget_exhausted') acc.exhausted = true;
   acc.rounds = Math.max(acc.rounds, packet.budget?.used?.maxRounds ?? 0);
   acc.derived = Math.max(acc.derived, packet.budget?.used?.maxFacts ?? 0);
 }
@@ -133,13 +144,16 @@ function noteBudget(acc, packet) {
 function collect(prog, q, instants, {where, scope = [], forms, mode = 'select', opposite = false}, limits, acc) {
   const during = q.during ?? WHOLE;
   const rows = [], opposing = [], memberLists = [];
-  const seen = new Set(), seenOpp = new Set();
+  const seen = new Map(), seenOpp = new Map();
   for (const t of instants) {
     const {packet, part} = askAt(prog, t, {where, scope, forms, mode}, limits);
     noteBudget(acc, packet);
     if (!part) continue;
     const out = part.outcome;
-    if (out.state) { acc.filtered += out.state.filtered; acc.compared ||= out.state.compared; acc.notComputable ||= out.state.notComputable; }
+    if (out.state) {
+      acc.filtered += out.state.filtered; acc.compared ||= out.state.compared; acc.notComputable ||= out.state.notComputable;
+      if (out.state.compared) for (const m of out.state.afterFilters ?? []) acc.filteredEvidence.push(...prog.evidence(m.prem).map(f => f.id));
+    }
     if (out.status === 'not_computable') acc.notComputable = true;
     if (out.memberList) memberLists.push(out.memberList);
     const add = (list, target, keys, withBoth) => {
@@ -149,16 +163,25 @@ function collect(prog, q, instants, {where, scope = [], forms, mode = 'select', 
         if (!valid) continue;
         const binding = prog.lowering.binding(m.env);
         const key = stable([binding, valid]);
-        if (keys.has(key)) continue;
-        keys.add(key);
-        target.push({binding, valid, evidence: evidence.map(f => f.id), facts: evidence, ...(withBoth ? {both: m.both} : {})});
+        const row = {binding, valid, evidence: evidence.map(f => f.id), facts: evidence, ...(withBoth ? {both: m.both} : {})};
+        // the same answer through a clean derivation and through a contradicted one is reported clean
+        if (keys.has(key)) { const at = keys.get(key); if (withBoth && target[at].both && !m.both) target[at] = row; continue; }
+        keys.set(key, target.length);
+        target.push(row);
       }
     };
     add(out.matches ?? [], rows, seen, true);
     if (opposite) {
-      const opp = part.reread(oppositeConditions(where).map(c => queryWire(prog.lowering, {where: [c]}).fields[1]), 'select', []);
+      const opp = part.reread(oppositeConditions(where).map(c => conditionField(prog.lowering, 'where', c)), 'select', []);
       add(opp.matches ?? [], opposing, seenOpp, false);
     }
+  }
+  // rows found part by part come in chronological order; the runtime lists them in the order of the facts they used
+  if (instants.length > 1) {
+    const at = r => r.evidence.flatMap(id => prog.position.get(id) ?? [Infinity]);
+    const cmp = (a, b) => { for (let i = 0; i < Math.min(a.length, b.length); i++) if (a[i] !== b[i]) return a[i] - b[i]; return a.length - b.length; };
+    rows.sort((x, y) => cmp(at(x), at(y)));
+    opposing.sort((x, y) => cmp(at(x), at(y)));
   }
   return {rows, opposing, memberLists};
 }
@@ -228,8 +251,6 @@ function evaluateOrder(prog, q, instants, limits, complete, acc) {
 }
 
 /** `filter` expressions and `compare` lines of a query over already joined rows with a combined binding (the order question). */
-import {evaluateExpression} from '../../sop/expression.mjs';
-import {numericValue} from '../strategies/js-reference/forms.mjs';
 function applyFiltersAndCompares(rows, q, state) {
   const COMPARE = {above: (a, b) => a > b, below: (a, b) => a < b, at_least: (a, b) => a >= b, at_most: (a, b) => a <= b};
   const test = (node, row) => {
@@ -316,7 +337,7 @@ export function evaluate(q, facts, {rules = [], complete = true, limits = {}} = 
   const all = [...unique.values()], truncated = all.length > q.limit;
   const answers = all.slice(0, q.limit);
   const ids = answers.flatMap(a => a.evidence);
-  if (comparedAway) ids.push(...rows.flatMap(r => r.evidence), ...opposing.flatMap(r => r.evidence));
+  if (comparedAway) ids.push(...acc.filteredEvidence, ...opposing.flatMap(r => r.evidence));
   else ids.push(...opposing.flatMap(r => r.evidence));
   const usedFacts = traceProof(prog, ids);
   const depth = depthOf(prog, usedFacts);

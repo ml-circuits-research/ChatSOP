@@ -73,7 +73,7 @@ const redirect = (res, location, headers = {}) => {
  * request was answered. `auth` may be null for bearer-only embedded servers,
  * in which case only the home page is served.
  */
-export async function handleWeb(req, res, pathname, {auth, readiness, formalizer}) {
+export async function handleWeb(req, res, pathname, {auth, readiness}) {
   if (req.method === 'GET' && pathname === '/assets/sop-code.mjs') {
     res.writeHead(200, {'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache'});
     res.end(sopCodeModule);
@@ -90,7 +90,7 @@ export async function handleWeb(req, res, pathname, {auth, readiness, formalizer
   const session = auth ? auth.session(readCookie(req.headers.cookie, 'chatsop_session')) : null;
   if (req.method === 'GET' && pathname === '/') {
     const state = await readiness();
-    sendHtml(res, 200, homePage({signedIn: Boolean(session), configured: Boolean(auth?.configured), passwordStore: Boolean(auth), ready: state.ready, formalizer, formalizers: state.formalizers ?? null}));
+    sendHtml(res, 200, homePage({signedIn: Boolean(session), configured: Boolean(auth?.configured), passwordStore: Boolean(auth), ready: state.ready, formalizers: state.formalizers ?? null}));
     return true;
   }
   if (!auth) return false;

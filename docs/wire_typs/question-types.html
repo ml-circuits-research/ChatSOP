@@ -490,4 +490,169 @@
     role object &quot;Acme&quot;
     polarity affirmed
   end</code></pre><p>A universal question states what must hold for each member.</p></section>
-<h2>Sources</h2><p>Question types: <code>tests/data/formalizer-corpus.test.mjs</code> (<code>QUESTION_TYPES</code>) and the generator under <code>tools/datasets/diversity/</code>; forms and validation: <code>sop/parser.mjs</code> (<code>SPEC.query</code>); semantics: <code>reasoning/reasoner.mjs</code> (<code>evaluate</code>); host linking and time: <code>sop/linking.mjs</code>.</p><section id="reasoning-question-forms"><h2>Reasoning question forms (not corpus types)</h2><p>Five further question forms are modes of a <code>query</code>: <code>why_not</code> ("why can't I ...?"), <code>plan</code> ("how do I ...?"), <code>abduce</code> ("what could explain ...?"), <code>conform</code> ("was the procedure followed?") and <code>procedure</code> ("what is the procedure for ...?"). The model writes the question as the <code>mode</code> word with a <code>match</code> block in strings; it never writes <code>via</code>, <code>trace</code> or an identifier, because the host supplies them. A form that no strategy computes is answered <code>not_computable</code> with the formalization shown. They are not among the eighteen corpus labels above. See <a href="query-modes.html">Query modes</a>.</p></section></main><script type="module" src="help-page.mjs"></script></body></html>
+<h2>Sources</h2><p>Question types: <code>tests/data/formalizer-corpus.test.mjs</code> (<code>QUESTION_TYPES</code>) and the generator under <code>tools/datasets/diversity/</code>; forms and validation: <code>sop/parser.mjs</code> (<code>SPEC.query</code>); semantics: <code>reasoning/bridge/reason.mjs</code> (<code>evaluate</code>) and <code>reasoning/strategies/js-reference/forms.mjs</code> (<code>quantifiedStatus</code>, <code>numericValue</code>); host linking and time: <code>sop/linking.mjs</code>.</p><section id="reasoning-question-forms"><h2>Reasoning question forms (not corpus types)</h2><p>Five further question forms are modes of a <code>query</code>: <code>why_not</code> ("why can't I ...?"), <code>plan</code> ("how do I ...?"), <code>abduce</code> ("what could explain ...?"), <code>conform</code> ("was the procedure followed?") and <code>procedure</code> ("what is the procedure for ...?"). The model writes the question as the <code>mode</code> word with a <code>match</code> block in strings; it never writes <code>via</code>, <code>trace</code> or an identifier, because the host supplies them. A form that no strategy computes is answered <code>not_computable</code> with the formalization shown. They are not among the eighteen corpus labels above. See <a href="query-modes.html">Query modes</a>.</p><h3 id="rules-v27">What SymbolicLM writes for these forms (rules v2.7)</h3><p>The rules read the UD analysis (<code>lib/ud-to-sop/reasoning-forms.mjs</code>), never a lexicon of the knowledge. Every example below is the program SymbolicLM produces for the message; <code>tests/ud-to-sop-v27.test.mjs</code> checks it on recorded parses and the wire-help test executes it.</p><p class="example-message"><span class="lang">EN</span> “Why can't I hard-reset the router?”</p><pre data-sop="current"><code>@q query
+  mode why_not
+  where match
+    relation "hard-reset"
+    role subject "the user"
+    role object "the router"
+    polarity affirmed
+  end</code></pre><p>A modal negative "why" asks what blocks the claim; the claim is written affirmed and the modal is the mode. <code>hard-reset</code> stays one word.</p><p class="example-message"><span class="lang">EN</span> “What is stopping Ana from joining the project?”</p><pre data-sop="current"><code>@q query
+  mode why_not
+  where match
+    relation "join"
+    role subject "Ana"
+    role object "the project"
+    polarity affirmed
+  end</code></pre><p>The blocked clause is the claim.</p><p class="example-message"><span class="lang">EN</span> “How do I reset the router?”</p><pre data-sop="current"><code>@q query
+  mode plan
+  where match
+    relation "reset"
+    role subject "the user"
+    role object "the router"
+    polarity affirmed
+  end</code></pre><p>The asker is first person (<code>"the user"</code>); the goal is the claim.</p><p class="example-message"><span class="lang">EN</span> “What are the steps to reset the router?”</p><pre data-sop="current"><code>@q query
+  mode plan
+  where match
+    relation "reset"
+    role object "the router"
+    polarity affirmed
+  end</code></pre><p>A step or way noun with a to-clause is a plan question; there is no asker.</p><p class="example-message"><span class="lang">EN</span> “What could explain the outage?”</p><pre data-sop="current"><code>@q query
+  mode abduce
+  where match
+    relation "occur"
+    role subject "the outage"
+    polarity affirmed
+  end</code></pre><p>A modal "could" or "might" with explain, cause or account for asks for hypotheses; the observation is the claim, and a noun observation is the subject of <code>occur</code>.</p><p class="example-message"><span class="lang">EN</span> “What is the procedure for resetting the router?”</p><pre data-sop="current"><code>@q query
+  mode procedure
+  where match
+    relation "reset"
+    role object "the router"
+    polarity affirmed
+  end</code></pre><p>The task is the claim.</p><p class="example-message"><span class="lang">EN</span> “Did we follow the reset procedure?”</p><pre data-sop="current"><code>@q query
+  mode conform
+  where match
+    relation "follow"
+    role subject "we"
+    role object "the reset procedure"
+    polarity affirmed
+  end</code></pre><p>Following, observing or violating a procedure, or being compliant; the match stays literal and the performed trace is the host's.</p><p class="example-message"><span class="lang">EN</span> “Which teams have only certified players?”</p><pre data-sop="current"><code>@q query
+  mode every
+  select ?g
+  where match
+    relation "be a player of"
+    role subject ?m
+    role object ?g
+    polarity affirmed
+  end
+  scope match
+    relation "be certified"
+    role subject ?m
+    polarity affirmed
+  end</code></pre><p>A grouped universal: the groups are selected, the members are the restriction, the property is the scope.</p><p class="example-message"><span class="lang">EN</span> “Both at once: does Liam grow lavender, and is he the chef at the Bistrița Arena?”</p><pre data-sop="current"><code>@q query
+  where all
+    match
+      relation "grow"
+      role subject "Liam"
+      role object "lavender"
+      polarity affirmed
+    end
+    match
+      relation "be the chef at"
+      role object "the Bistrița Arena"
+      role subject "Liam"
+      polarity affirmed
+    end
+  end</code></pre><p>"Both at once" or "both … and" makes the yes/no clauses of the sentence one conjunction.</p><p class="example-message"><span class="lang">EN</span> “Does the cottage cost more than 30000 lei?”</p><pre data-sop="current"><code>@q query
+  mode exists
+  where match
+    relation "cost"
+    role subject "the cottage"
+    role object ?price
+    polarity affirmed
+  end
+  compare ?price above 30000</code></pre><p>A measured amount (cost, price, weigh) is a value variable; the unit is consumed.</p><p class="example-message"><span class="lang">EN</span> “Did Ana work at Alpha Lab at any point in 2025?”</p><pre data-sop="current"><code>@q query
+  where match
+    relation "work at"
+    role subject "Ana"
+    role object "Alpha Lab"
+    polarity affirmed
+  end
+  overlaps "2025"</code></pre><p>"At any point in" asks about some instant of the period (<code>overlaps</code>).</p><p class="example-message"><span class="lang">EN</span> “What is the reason that Rafael does not qualify for the bonus?”</p><pre data-sop="current"><code>@q query
+  mode explain
+  where match
+    relation "qualify for"
+    role subject "Rafael"
+    role object "the bonus"
+    polarity negated
+  end</code></pre><p>The reason clause is explained; a negated clause stays negated.</p><p class="example-message"><span class="lang">EN</span> “Who is a parent of a parent of Ana?”</p><pre data-sop="current"><code>@q query
+  select ?x
+  where all
+    match
+      relation "be a parent of"
+      role object ?m
+      role subject ?x
+      polarity affirmed
+    end
+    match
+      relation "be a parent of"
+      role subject ?m
+      role object "Ana"
+      polarity affirmed
+    end
+  end</code></pre><p>A repeated relational noun chains through a variable.</p><p class="example-message"><span class="lang">EN</span> “Is Javier García still playing for Olimpia Sighișoara?”</p><pre data-sop="current"><code>@a1 assumed
+  relation "play for"
+  role subject "Javier García"
+  role object "Olimpia Sighișoara"
+  polarity affirmed
+  basis implicature
+
+@q query
+  where match
+    relation "play for"
+    role subject "Javier García"
+    role object "Olimpia Sighișoara"
+    polarity affirmed
+  end</code></pre><p>"Still" and "again" presuppose the proposition: an <code>assumed</code> wire with <code>basis implicature</code>.</p><p class="example-message"><span class="lang">EN</span> “Who is Ada Lovelace?”</p><pre data-sop="current"><code>@q query
+  select ?x
+  where match
+    relation "be"
+    role object ?x
+    role subject "Ada Lovelace"
+    polarity affirmed
+  end</code></pre><p>The copula, identity: the bare relation "be" with the asked object; the host binds it to the description predicate of the lexicon (DS021 "The copula").</p><p class="example-message"><span class="lang">EN</span> “Is Paris a city?”</p><pre data-sop="current"><code>@q query
+  where match
+    relation "be a"
+    role object "city"
+    role subject "Paris"
+    polarity affirmed
+  end</code></pre><p>The copula, class membership: "be a" with the class noun as the object; the host reports the lexicon's class and occupation predicates as readings.</p><p class="example-message"><span class="lang">EN</span> “Where is Ana?”</p><pre data-sop="current"><code>@q query
+  select ?place
+  where match
+    relation "be"
+    role subject "Ana"
+    role location ?place
+    polarity affirmed
+  end</code></pre><p>The copula, location: "be" with a location variable.</p><p class="example-message"><span class="lang">EN</span> “Who is the CEO of Acme?”</p><pre data-sop="current"><code>@q query
+  select ?x
+  where match
+    relation "be the CEO of"
+    role object "Acme"
+    role subject ?x
+    polarity affirmed
+  end</code></pre><p>The copula, a role relation: an ordinary relation phrase.</p><p class="example-message"><span class="lang">EN</span> “Does any employee of Alpha Lab speak German?”</p><pre data-sop="current"><code>@q query
+  mode exists
+  where all
+    match
+      relation "be an employee of"
+      role subject ?x
+      role object "Alpha Lab"
+      polarity affirmed
+    end
+    match
+      relation "speak"
+      role subject ?x
+      role object "German"
+      polarity affirmed
+    end
+  end</code></pre><p>"Any" on a subject noun is an existential variable restricted to the noun's class.</p></section></main><script type="module" src="help-page.mjs"></script></body></html>

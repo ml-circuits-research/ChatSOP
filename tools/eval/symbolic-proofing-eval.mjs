@@ -18,7 +18,7 @@
  * gold comparison (eval/run.mjs execution equivalence) and the frame-normalized one (sop/frames.mjs) are reported separately
  * (tools/datasets/neuro-oracle/classify.mjs goldMatches). Identity pairs and sym300: the output is broken when its SOP no
  * longer matches (gold, else the SOP of the input). No training happens here.
- * Outputs: eval/reports/current/symbolic-proofing-it1/.
+ * Outputs: eval/reports/history/symbolic-proofing-it1/.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -38,7 +38,7 @@ import {loadCases} from './composed-score.mjs';
 import {sentencesOf, pronounCount, lostFillers, asksQuestion} from '../datasets/symbolic-proofing-v2/units.mjs';
 import {appendMeaningItems, meaningItemId, meaningVotes} from '../datasets/neuro-oracle/judge.mjs';
 
-const WORK = path.join(ROOT, process.env.SYMPROOF_WORK ?? 'eval/reports/current/symbolic-proofing-it1');
+const WORK = path.join(ROOT, process.env.SYMPROOF_WORK ?? 'eval/reports/history/symbolic-proofing-it1');
 const TEST_FILE = 'eval/suites/neuro_english/proofing-test.jsonl';
 const DEV_FILE = process.env.SYMPROOF_DEV ?? 'datasets/neuro_english/proofing/proofreader/dev.jsonl';
 const MEANING_EVAL_DIR = path.join(ROOT, process.env.SYMPROOF_MEANING_DIR ?? 'datasets_sources/symbolic_proofing_it2_eval_meaning_judge');

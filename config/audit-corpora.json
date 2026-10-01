@@ -122,7 +122,7 @@
     {
       "id": "bad_english",
       "label": "bad_english",
-      "purpose": "Messages that are not clean English: Romanian, mixed Romanian/English, spelling and grammar problems, garbled text. Where an acceptable clean-English rewrite is known, the row carries it as the target. Material to evaluate, and only after the owner's approval fine-tune, LanguageProofingLLM (the model behind textToCleanEnglish; currently Qwen3-1.7B plus LanguageTool). Review the kind (ro, mixed, noisy_en), the noise categories and whether the clean target is really clean English that parses."
+      "purpose": "Messages that are not clean English: Romanian, mixed Romanian/English, spelling and grammar problems, garbled text. Where an acceptable clean-English rewrite is known, the row carries it as the target. Material to evaluate, and only with the owner's explicit approval per run fine-tune, the models behind textToCleanEnglish: LanguageProofingLLM (currently the fine-tuned Gemma 3 270M, run language-proofing-gemma270m-prod1, F16, for English) and the translator-llm (Qwen3-4B Q4_K_M, for Romanian and mixed text; it falls back to LanguageProofingLLM). Review the kind (ro, mixed, noisy_en), the noise categories and whether the clean target is really clean English that parses."
     },
     {
       "id": "symbolic_english",

@@ -1,0 +1,513 @@
+{
+  "smollm2-360m|T1|ood": {
+    "helped": 3,
+    "hurt": 134,
+    "helped_examples": [
+      {
+        "id": "ood2_000023_0_0",
+        "message": "Carpathia Energy comercializează uniforme școlare. În plus, Orion Robotics comercializează mobilier de grădină.",
+        "translation": "Here's the text translated into English:\n\nCarpathia Energy comercializează uniforme școle. În plus, Orion Robotics comercializează mobilier de grădină.",
+        "gold": "@s1 stated\n  relation \"sell\"\n  role subject \"Carpathia Energy\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"sell\"\n  role subject \"Orion Robotics\"\n  role object \"garden furniture\"\n  polarity affirmed\n  certainty asserted\n",
+        "direct_sop": "@s1 stated\n  relation \"sell\"\n  role subject \"Carpathia Energy\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"sell\"\n  role subject \"Orion Robotics\"\n  role object \"mobility services\"\n  polarity affirmed\n  certainty asserted\n",
+        "translated_sop": "@s1 stated\n  relation \"sell\"\n  role subject \"Carpathia Energy\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"sell\"\n  role subject \"Orion Robotics\"\n  role object \"garden furniture\"\n  polarity affirmed\n  certainty asserted\n"
+      },
+      {
+        "id": "ood2_000095_0_0",
+        "message": "Poți să verifici dacă Tipografia Delta comercializează becuri LED?",
+        "translation": "Yes, I can verify if Tipografia Delta comercializează becuri LED.",
+        "gold": "@q query\n  where match\n    relation \"sell\"\n    role subject \"Tipografia Delta\"\n    role object \"LED bulbs\"\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  where match\n    relation \"sell\"\n    role subject \"Tipografia Delta\"\n    role object \"LEDs\"\n    polarity affirmed\n  end\n",
+        "translated_sop": "@q query\n  where match\n    relation \"sell\"\n    role subject \"Tipografia Delta\"\n    role object \"LED bulbs\"\n    polarity affirmed\n  end\n"
+      },
+      {
+        "id": "ood2_000439_0_0",
+        "message": "Oare de ce materie dă lecții Nils?",
+        "translation": "Oare de ce ce materie dă lecții Nils?",
+        "gold": "@q query\n  select ?x\n  where match\n    relation \"give lessons in\"\n    role subject \"Nils\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  mode explain\n  where match\n    relation \"teach\"\n    role subject \"Nils\"\n    role object \"mathematics\"\n    polarity affirmed\n  end\n",
+        "translated_sop": "@q query\n  select ?x\n  where match\n    relation \"give classes in\"\n    role subject \"Nils\"\n    role object ?x\n    polarity affirmed\n  end\n"
+      }
+    ],
+    "hurt_examples": [
+      {
+        "id": "ood1_000058_0_0",
+        "message": "I promised my colegă an answer. Fact-check: Hiroshi Sato is not a member of the opera chorus.",
+        "translation": "Here's the translation:\n\nHiroshi Sato is not a member of the opera chorus.",
+        "gold": "@q query\n  where match\n    relation \"be a member of\"\n    role subject \"Hiroshi Sato\"\n    role object \"the opera chorus\"\n    polarity negated\n  end\n",
+        "direct_sop": "@q query\n  where match\n    relation \"be a member of\"\n    role subject \"Hiroshi Sato\"\n    role object \"the opera chorus\"\n    polarity negated\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"be a member of\"\n  role subject \"Hiroshi Sato\"\n  role object \"the opera chorus\"\n  polarity negated\n  certainty asserted\n"
+      },
+      {
+        "id": "ood1_000141_0_0",
+        "message": "Wehave an echipă meeting sion. Remind me,wich choir does Sophie Taylor sking in ?",
+        "translation": "We have an equipation meeting on the subject of the choir.",
+        "gold": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject \"Sophie Taylor\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject \"Sophie Taylor\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "ood1_000194_0_0",
+        "message": "Until what date did Ms Ciobanu lease terenul de lângă râu?",
+        "translation": "Ms. Ciobanu leased terenul de lângă râu.",
+        "gold": "@q query\n  select ?t\n  measure end\n  where match\n    relation \"lease\"\n    role subject \"Ms Ciobanu\"\n    role object \"the plot of land by the river\"\n    role time ?t\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  select ?t\n  measure end\n  where match\n    relation \" lease\"\n    role subject \"Ms Ciobanu\"\n    role object \"the plot of land by the river\"\n    role time ?t\n    polarity affirmed\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \" lease \"\n  role subject \"Ms. Ciobanu\"\n  role object \"the plot of land by the river\"\n  polarity affirmed\n  certainty asserted\n"
+      },
+      {
+        "id": "ood1_000202_0_0",
+        "message": "Ai idee which chor Daniel Wright sings in ?",
+        "translation": "Daniel Wright sings in **\"The Sound of Silence\"**.",
+        "gold": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject \"Daniel Wright\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject \"Daniel Wright\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"sing in\"\n  role subject \"Daniel Wright\"\n  role object \"**\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"sing in\"\n    role subject \"Daniel Wright\"\n    role object \"**\"\n    polarity affirmed\n  end\n"
+      },
+      {
+        "id": "ood1_000202_0_1",
+        "message": "Ai idee which choir Daniel sings in?",
+        "translation": "Here are the translations of the text:\n\n*   **English:** Daniel sings in the choir.\n*   **Proper Names:** Daniel is a singer.\n*   **Dates:** Daniel is a singer.\n*   **Quoted Text:** Daniel is a singer.",
+        "gold": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject \"Daniel\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject \"Daniel\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"sing in\"\n  role subject \"Daniel\"\n  role object \"the choir\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"be a singer\"\n    role subject \"Daniel\"\n    polarity affirmed\n  end\n"
+      },
+      {
+        "id": "ood1_000217_0_0",
+        "message": "Iam filling in a formular. Remind me, what does Megan lease?",
+        "translation": "Megan leases.",
+        "gold": "@q query\n  select ?x\n  where match\n    relation \"lease\"\n    role subject \"Megan\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  select ?x\n  where match\n    relation \" lease\"\n    role subject \"Megan\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"mean\"\n  role subject \" leases\"\n  role object \"Megan\"\n  polarity affirmed\n  certainty asserted\n"
+      }
+    ]
+  },
+  "smollm2-360m|T1|v1": {
+    "helped": 1,
+    "hurt": 242,
+    "helped_examples": [
+      {
+        "id": "fv1_009458_1_0",
+        "message": "Poți să verifici daca Diego e copilul lui Otilia?",
+        "translation": "Yes, I can verify if Diego is a child of Otilia.",
+        "gold": "@q query\n  where match\n    relation \"be a child of\"\n    role subject \"Diego\"\n    role object \"Otilia\"\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  where match\n    relation \"be the doctor of\"\n    role subject \"Diego\"\n    role object \"Otilia\"\n    polarity affirmed\n  end\n",
+        "translated_sop": "@q query\n  where match\n    relation \"be a child of\"\n    role subject \"Diego\"\n    role object \"Otilia\"\n    polarity affirmed\n  end\n"
+      }
+    ],
+    "hurt_examples": [
+      {
+        "id": "fv1_000047_0_0",
+        "message": "Câte echipe antrenează Sophie?",
+        "translation": "Sophie is an athlete.",
+        "gold": "@q query\n  mode count\n  select ?x\n  where match\n    relation \"coach\"\n    role subject \"Sophie\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  mode count\n  select ?x\n  where match\n    relation \"coach\"\n    role subject \"Sophie\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"be an athlete\"\n  role subject \"Sophie\"\n  polarity affirmed\n  certainty asserted\n"
+      },
+      {
+        "id": "fv1_000209_0_0",
+        "message": "Există cineva care lucrează la Sistemele Nordwind și nu e certificat?",
+        "translation": "The text is already in English.",
+        "gold": "@q query\n  mode exists\n  where all\n    match\n      relation \"work at\"\n      role subject ?m\n      role object \"Sistemele Nordwind\"\n      polarity affirmed\n    end\n    match\n      relation \"be certified\"\n      role subject ?m\n      polarity negated\n    end\n  end\n",
+        "direct_sop": "@q query\n  mode exists\n  where all\n    match\n      relation \"work at\"\n      role subject ?m\n      role object \"Sistemele Nordwind\"\n      polarity affirmed\n    end\n    match\n      relation \"be certified\"\n      role subject ?m\n      polarity negated\n    end\n  end\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "fv1_000240_0_0",
+        "message": "Verifică dacă Jonas face alergie la lactoză și a împrumutat Drumul Sării.",
+        "translation": "Yes, Jonas does make an allergic reaction to lactoză and has recently taken Drumul Sării.",
+        "gold": "@q query\n  where all\n    match\n      relation \"be allergic to\"\n      role subject \"Jonas\"\n      role object \"lactose\"\n      polarity affirmed\n    end\n    match\n      relation \"borrow\"\n      role subject \"Jonas\"\n      role object \"The Salt Road\"\n      polarity affirmed\n    end\n  end\n",
+        "direct_sop": "@q query\n  where all\n    match\n      relation \"have an allergy to\"\n      role subject \"Jonas\"\n      role object \"lactose\"\n      polarity affirmed\n    end\n    match\n      relation \"borrow\"\n      role subject \"Jonas\"\n      role object \"The Salt Road\"\n      polarity affirmed\n    end\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"make an allergic reaction to\"\n  role subject \"Jonas\"\n  role object \"lactose\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"take part in\"\n  role subject \"Jonas\"\n  role object \"the Salt Road\"\n  polarity affirmed\n  certainty asserted\n"
+      },
+      {
+        "id": "fv1_000334_0_0",
+        "message": "Poți să verifici dacă Iulia predă pian?",
+        "translation": "Iulia predă pian",
+        "gold": "@q query\n  where match\n    relation \"teach\"\n    role subject \"Iulia\"\n    role object \"piano\"\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  where match\n    relation \"teach\"\n    role subject \"Iulia\"\n    role object \"piano\"\n    polarity affirmed\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"teach\"\n  role subject \"Iulia\"\n  role object \"piano\"\n  polarity affirmed\n  certainty asserted\n"
+      },
+      {
+        "id": "fv1_000362_0_0",
+        "message": "Am un workshop mâine. O cutie are între 3 și 8 borcane. Are orice cutie peste 1?",
+        "translation": "The text is already in English.",
+        "gold": "@c constraint\n  var ?x int 3 8\n  claim ?x above 1\n  task prove\n",
+        "direct_sop": "@c constraint\n  var ?x int 3 8\n  claim ?x above 1\n  task prove\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "fv1_000479_0_0",
+        "message": "Here's what I know: Carmen gets the flu shot and Aurel Nistor is vaccinated against the flu; Amira Khalil gets the flu shot. Se poate confirma că Georgiana Nistor nu este vaccinată?",
+        "translation": "Okay, I understand.",
+        "gold": "@s1 stated\n  relation \"get the flu shot\"\n  role subject \"Carmen\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be vaccinated against the flu\"\n  role subject \"Aurel Nistor\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"get the flu shot\"\n  role subject \"Amira Khalil\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be vaccinated\"\n  role subject \"Georgiana Nistor\"\n  polarity negated\n  basis closure\n\n@q query\n  where match\n    relation \"be vaccinated\"\n    role subject \"Georgiana Nistor\"\n    polarity negated\n  end\n",
+        "direct_sop": "@s1 stated\n  relation \"get the flu shot\"\n  role subject \"Carmen\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be vaccinated against the flu\"\n  role subject \"Aurel Nistor\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"get the flu shot\"\n  role subject \"Amira Khalil\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be vaccinated\"\n  role subject \"Georgiana Nistor\"\n  polarity negated\n  basis closure\n\n@q query\n  where match\n    relation \"be vaccinated\"\n    role subject \"Georgiana Nistor\"\n    polarity negated\n  end\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      }
+    ]
+  },
+  "smollm2-360m|T1|wild": {
+    "helped": 24,
+    "hurt": 8,
+    "helped_examples": [
+      {
+        "id": "wild_wg_023",
+        "message": "si anul trecut?",
+        "translation": "Please provide the text you would like me to translate. I'm ready when you are!",
+        "gold": "@u unclear\n  kind no_request\n  language ro",
+        "direct_sop": "@u unclear\n  kind gibberish\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "wild_we_081",
+        "message": "Am un meeting cu clientul at 3, can you remind me what we agreed on the retainer last time?",
+        "translation": "Okay, I understand. Please provide the text you want me to translate.",
+        "gold": "@q query\n  select ?x\n  where match\n    relation \"agree on\"\n    role subject \"we\"\n    role topic \"the retainer\"\n    role object ?x\n    role time \"last time\"\n    polarity affirmed\n  end",
+        "direct_sop": "@q query\n  select ?t\n  where match\n    relation \"mean\"\n    role subject \"we\"\n    role object \"the retainer\"\n    role time ?t\n    polarity affirmed\n  end\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "wild_wj_035",
+        "message": "Sorin met the vendor with the contract în Iași ieri, can you update CRM-ul?",
+        "translation": "Okay, I understand. Please provide the text you would like me to translate.",
+        "gold": "@u unclear\n  kind no_request",
+        "direct_sop": "@s1 stated\n  relation \"meet the vendor\"\n  role subject \"Sorin\"\n  role object \"the contract în Iași\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  select ?x\n  where match\n    relation \"updating\"\n    role subject \"Sorin\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "wild_wg_081",
+        "message": "dar duminica?",
+        "translation": "Okay, I understand. Please provide the text you would like me to translate.",
+        "gold": "@u unclear\n  kind no_request\n  language ro",
+        "direct_sop": "@u unclear\n  kind gibberish\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "wild_wj_100",
+        "message": "k si la el? idk daca a platit",
+        "translation": "I am an AI assistant and I cannot provide translations.",
+        "gold": "@q query\n  where match\n    relation \"pay\"\n    role subject \"he\"\n    polarity affirmed\n  end",
+        "direct_sop": "@u unclear\n  kind ambiguous\n  reading \"Do you know if the tennis coach is available?\"\n  reading \"Do you know if the doctor is available?\"\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "wild_wg_057",
+        "message": "da-mi te rog o reteta de sarmale in foi de varza cum se fac la noi in Oltenia, cu afumatura",
+        "translation": "Okay, I understand. Please provide the text you would like me to translate. I will do my best to provide a clear and accurate English translation.",
+        "gold": "@u unclear\n  kind no_request\n  language ro",
+        "direct_sop": "@q query\n  select ?how\n  where match\n    relation \"travel to\"\n    role subject \"the salami\"\n    role destination \"Oltenia\"\n    role time ?how\n    polarity affirmed\n  end\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      }
+    ],
+    "hurt_examples": [
+      {
+        "id": "wild_wj_036",
+        "message": "all the Orange invoices nu sunt plătite?",
+        "translation": "All the Orange invoices are being paid.",
+        "gold": "@u unclear\n  kind ambiguous\n  reading \"none of the Orange invoices are paid\"\n  reading \"not all of the Orange invoices are paid\"",
+        "direct_sop": "@u unclear\n  kind ambiguous\n  reading \"no invoice is due\"\n  reading \"not all invoices are due\"\n",
+        "translated_sop": "@s1 stated\n  relation \"be issued by\"\n  role subject \"the Orange invoice\"\n  role object \"being paid\"\n  polarity affirmed\n  certainty asserted\n"
+      },
+      {
+        "id": "wild_wf_088",
+        "message": "translate to English pls: 'Va rugam sa nu lasati paleti in fata usii de evacuare'",
+        "translation": "We will evacuate the shelters in the night if the fire is not extinguished.",
+        "gold": "@u unclear\n  kind no_request",
+        "direct_sop": "@u unclear\n  kind no_request\n",
+        "translated_sop": "@s1 stated\n  relation \"be extinguished\"\n  role subject \"the fire\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"evacuate the shelters\"\n    role subject \"the fire\"\n    polarity affirmed\n  end\n"
+      },
+      {
+        "id": "wild_wj_032",
+        "message": "help me write un mail către HR că vreau concediu între 22 decembrie și 6 ianuarie, polite but firm",
+        "translation": "Subject: Request for Extension of Work - [Your Name]\n\nDear HR Department,\n\nI am writing to request an extension for my current work schedule, from December 22nd to January 6th.\n\nI would appreciate it if you could grant me this extension.\n\nThank you for your consideration.\n\nSincerely,\n\n[Your Name]",
+        "gold": "@u unclear\n  kind no_request",
+        "direct_sop": "@u unclear\n  kind no_request\n",
+        "translated_sop": "@s1 stated\n  relation \"request for extension\"\n  role subject \"Your Name\"\n  role topic \"the work schedule\"\n  polarity affirmed\n  valid from \"December 22nd\"\n  valid until \"January 6th\"\n  certainty asserted\n\n@q query\n  where match\n    relation \"be granted\"\n    role subject \"Your Name\"\n    role object \"the work schedule\"\n    polarity affirmed\n  end\n  at \"December 22nd\"\n"
+      },
+      {
+        "id": "wild_wg_015",
+        "message": "jjjkl ii bnmm ..",
+        "translation": "The text is already in English.",
+        "gold": "@u unclear\n  kind gibberish\n  language ro",
+        "direct_sop": "@u unclear\n  kind gibberish\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "wild_wj_098",
+        "message": "ce înseamnă ASAP?",
+        "translation": "ASAP",
+        "gold": "@q query\n  select ?m\n  where match\n    relation \"mean\"\n    role subject \"ASAP\"\n    role object ?m\n    polarity affirmed\n  end",
+        "direct_sop": "@q query\n  select ?m\n  where match\n    relation \"mean\"\n    role subject \"ASAP\"\n    role object ?m\n    polarity affirmed\n  end\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "wild_wi_098",
+        "message": "Traduceți, vă rog, în engleză: «Subsemnatul declar pe propria răspundere că datele de mai sus sunt reale și complete.»",
+        "translation": "The document states that the data presented above are real and complete.",
+        "gold": "@u unclear\n  kind no_request\n  language ro",
+        "direct_sop": "@u unclear\n  kind no_request\n",
+        "translated_sop": "@s1 stated\n  relation \"present\"\n  role subject \"The document\"\n  role object \"the data above\"\n  polarity affirmed\n  certainty asserted\n"
+      }
+    ]
+  },
+  "smollm2-360m|T2|ood": {
+    "helped": 7,
+    "hurt": 127,
+    "helped_examples": [
+      {
+        "id": "ood1_000046_0_0",
+        "message": "Mersi anticipat. \"Tudor cooks at the Botanical Garden in Botoșani\" — does that hold?",
+        "translation": "\"Tudor cooks at the Botanical Garden in Botoșani\" — does that hold?",
+        "gold": "@q query\n  where match\n    relation \"cook at\"\n    role subject \"Tudor\"\n    role object \"the Botanical Garden in Botoșani\"\n    polarity affirmed\n  end\n",
+        "direct_sop": "@s1 stated\n  relation \"cook at\"\n  role subject \"Tudor\"\n  role object \"the Botanical Garden in Botoșani\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"hold\"\n    role subject \"Tudor\"\n    role object \"the Botanical Garden in Botoșani\"\n    polarity affirmed\n  end\n",
+        "translated_sop": "@q query\n  where match\n    relation \"cook at\"\n    role subject \"Tudor\"\n    role object \"the Botanical Garden in Botoșani\"\n    polarity affirmed\n  end\n"
+      },
+      {
+        "id": "ood1_000120_0_0",
+        "message": "Any iddea who plants lavandă?",
+        "translation": "Any idea who plants lavender?",
+        "gold": "@q query\n  select ?x\n  where match\n    relation \"plant\"\n    role subject ?x\n    role object \"lavender\"\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  select ?x\n  where match\n    relation \"plant\"\n    role subject ?x\n    role object \"lavandae\"\n    polarity affirmed\n  end\n",
+        "translated_sop": "@q query\n  select ?x\n  where match\n    relation \"plant\"\n    role subject ?x\n    role object \"lavender\"\n    polarity affirmed\n  end\n"
+      },
+      {
+        "id": "ood1_000335_0_0",
+        "message": "„Ion Stoica nu cântă în Madrigal choir” — se confirmă?",
+        "translation": "\"Ion Stoica does not sing in Madrigal choir\" — confirmed?",
+        "gold": "@q query\n  where match\n    relation \"sing in\"\n    role subject \"Ion Stoica\"\n    role object \"the Madrigal choir\"\n    polarity negated\n  end\n",
+        "direct_sop": "@q query\n  where match\n    relation \"sing\"\n    role subject \"Ion Stoica\"\n    role object \"Madrigal choir\"\n    polarity negated\n  end\n",
+        "translated_sop": "@q query\n  where match\n    relation \"sing in\"\n    role subject \"Ion Stoica\"\n    role object \"Madrigal choir\"\n    polarity negated\n  end\n"
+      },
+      {
+        "id": "ood1_000636_0_0",
+        "message": "Do you know if Zoltán Nagy is a member of corul Madrigal and he cooks at the Botanical Garden in Izmir?",
+        "translation": "No, I don't know if Zoltán Nagy is a member of Corul Madrigal and he cooks at the Botanical Garden in Izmir.",
+        "gold": "@q query\n  where all\n    match\n      relation \"be a member of\"\n      role subject \"Zoltán Nagy\"\n      role object \"the Madrigal choir\"\n      polarity affirmed\n    end\n    match\n      relation \"cook at\"\n      role subject \"Zoltán Nagy\"\n      role object \"the Botanical Garden in Izmir\"\n      polarity affirmed\n    end\n  end\n",
+        "direct_sop": "@q query\n  where all\n    match\n      relation \"be a member of\"\n      role subject \"Zoltán Nagy\"\n      role object \"Madrigal\"\n      polarity affirmed\n    end\n    match\n      relation \"cook at\"\n      role subject \"Zoltán Nagy\"\n      role object \"the Botanical Garden in Izmir\"\n      polarity affirmed\n    end\n  end\n",
+        "translated_sop": "@q query\n  where all\n    match\n      relation \"be a member of\"\n      role subject \"Zoltán Nagy\"\n      role object \"Corul Madrigal\"\n      polarity affirmed\n    end\n    match\n      relation \"cook at\"\n      role subject \"Zoltán Nagy\"\n      role object \"the Botanical Garden in Izmir\"\n      polarity affirmed\n    end\n  end\n"
+      },
+      {
+        "id": "ood1_000646_0_0",
+        "message": "Not counting Lukas, please find out who sings in corul Madrigal.",
+        "translation": "Not counting Lukas, please find out who sings in Corul Madrigal.",
+        "gold": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject ?x\n    role object \"the Madrigal choir\"\n    polarity affirmed\n  end\n  except ?x \"Lukas\"\n",
+        "direct_sop": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject ?x\n    role object \"Madrigal\"\n    polarity affirmed\n  end\n  except ?x \"Lukas\"\n",
+        "translated_sop": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject ?x\n    role object \"Corul Madrigal\"\n    polarity affirmed\n  end\n  except ?x \"Lukas\"\n"
+      },
+      {
+        "id": "ood1_000650_0_0",
+        "message": "Do you know if Karim sings in corul Madrigal? One more thing: Do you know if he is the chef at the Buzău Philharmonic?",
+        "translation": "No, I don't know if Karim sings in Corul Madrigal or if he is the chef at the Buzău Philharmonic.",
+        "gold": "@q query\n  where match\n    relation \"sing in\"\n    role subject \"Karim\"\n    role object \"the Madrigal choir\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"be the chef at\"\n    role subject \"Karim\"\n    role object \"the Buzău Philharmonic\"\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  where match\n    relation \"sing in\"\n    role subject \"Karim\"\n    role object \"Madrigal\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"be the chef at\"\n    role subject \"Karim\"\n    role object \"the Buzău Philharmonic\"\n    polarity affirmed\n  end\n",
+        "translated_sop": "@q query\n  where match\n    relation \"sing in\"\n    role subject \"Karim\"\n    role object \"Corul Madrigal\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"be the chef at\"\n    role subject \"Karim\"\n    role object \"the Buzău Philharmonic\"\n    polarity affirmed\n  end\n"
+      }
+    ],
+    "hurt_examples": [
+      {
+        "id": "ood1_000058_0_0",
+        "message": "I promised my colegă an answer. Fact-check: Hiroshi Sato is not a member of the opera chorus.",
+        "translation": "I'm sorry for the confusion, but as a language model, I don't have the ability to translate text. I'm here to assist with language translation, not to provide answers to questions. If you need help with that, I recommend using a translation tool or asking a human for assistance.",
+        "gold": "@q query\n  where match\n    relation \"be a member of\"\n    role subject \"Hiroshi Sato\"\n    role object \"the opera chorus\"\n    polarity negated\n  end\n",
+        "direct_sop": "@q query\n  where match\n    relation \"be a member of\"\n    role subject \"Hiroshi Sato\"\n    role object \"the opera chorus\"\n    polarity negated\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"mean\"\n  role subject \"I\"\n  role object \"a\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  select ?x\n  where match\n    relation \"translate\"\n    role subject \"I\"\n    role object ?x\n    polarity affirmed\n  end\n"
+      },
+      {
+        "id": "ood1_000141_0_0",
+        "message": "Wehave an echipă meeting sion. Remind me,wich choir does Sophie Taylor sking in ?",
+        "translation": "We have an Echipă meeting scheduled. Can you remind me, who is Sophie Taylor singing in?",
+        "gold": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject \"Sophie Taylor\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject \"Sophie Taylor\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "translated_sop": "@q query\n  select ?x\n  where match\n    relation \"be singing in\"\n    role subject \"Sophie Taylor\"\n    role object ?x\n    polarity affirmed\n  end\n"
+      },
+      {
+        "id": "ood1_000141_0_1",
+        "message": "Adică, any idea which choir Sophie is a member of?",
+        "translation": "Sophie is a member of the choir \"Sophie's Choir\".",
+        "gold": "@q query\n  select ?x\n  where match\n    relation \"be a member of\"\n    role subject \"Sophie\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  select ?x\n  where match\n    relation \"be a member of\"\n    role subject \"Sophie\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"be a member of\"\n  role subject \"Sophie\"\n  role object \"the choir \"Sophie's Choir\"\n  polarity affirmed\n  certainty asserted\n"
+      },
+      {
+        "id": "ood1_000194_0_0",
+        "message": "Until what date did Ms Ciobanu lease terenul de lângă râu?",
+        "translation": "Until the date of the lease of the 100-meter track.",
+        "gold": "@q query\n  select ?t\n  measure end\n  where match\n    relation \"lease\"\n    role subject \"Ms Ciobanu\"\n    role object \"the plot of land by the river\"\n    role time ?t\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  select ?t\n  measure end\n  where match\n    relation \" lease\"\n    role subject \"Ms Ciobanu\"\n    role object \"the plot of land by the river\"\n    role time ?t\n    polarity affirmed\n  end\n",
+        "translated_sop": "@q query\n  select ?t\n  measure end\n  where match\n    relation \"be down\"\n    role subject \"the 100-meter track\"\n    role time ?t\n    polarity affirmed\n  end\n"
+      },
+      {
+        "id": "ood1_000202_0_0",
+        "message": "Ai idee which chor Daniel Wright sings in ?",
+        "translation": "Daniel Wright sings in \"The Chorus of the Angels\".",
+        "gold": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject \"Daniel Wright\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject \"Daniel Wright\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"sing in\"\n  role subject \"Daniel Wright\"\n  role object \"The Chorus of the Angels\"\n  polarity affirmed\n  certainty asserted\n"
+      },
+      {
+        "id": "ood1_000202_0_1",
+        "message": "Ai idee which choir Daniel sings in?",
+        "translation": "Daniel's choir",
+        "gold": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject \"Daniel\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  select ?x\n  where match\n    relation \"sing in\"\n    role subject \"Daniel\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "translated_sop": "@q query\n  select ?x\n  where match\n    relation \"be the coach of\"\n    role subject \"Daniel\"\n    role object ?x\n    polarity affirmed\n  end\n"
+      }
+    ]
+  },
+  "smollm2-360m|T2|v1": {
+    "helped": 0,
+    "hurt": 229,
+    "helped_examples": [],
+    "hurt_examples": [
+      {
+        "id": "fv1_000047_0_0",
+        "message": "Câte echipe antrenează Sophie?",
+        "translation": "Sophie is coming.",
+        "gold": "@q query\n  mode count\n  select ?x\n  where match\n    relation \"coach\"\n    role subject \"Sophie\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  mode count\n  select ?x\n  where match\n    relation \"coach\"\n    role subject \"Sophie\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"be coming\"\n  role subject \"Sophie\"\n  polarity affirmed\n  certainty asserted\n"
+      },
+      {
+        "id": "fv1_000240_0_0",
+        "message": "Verifică dacă Jonas face alergie la lactoză și a împrumutat Drumul Sării.",
+        "translation": "Jonas has allergy to lactozine and has been treated with Drumul Sârii.",
+        "gold": "@q query\n  where all\n    match\n      relation \"be allergic to\"\n      role subject \"Jonas\"\n      role object \"lactose\"\n      polarity affirmed\n    end\n    match\n      relation \"borrow\"\n      role subject \"Jonas\"\n      role object \"The Salt Road\"\n      polarity affirmed\n    end\n  end\n",
+        "direct_sop": "@q query\n  where all\n    match\n      relation \"have an allergy to\"\n      role subject \"Jonas\"\n      role object \"lactose\"\n      polarity affirmed\n    end\n    match\n      relation \"borrow\"\n      role subject \"Jonas\"\n      role object \"The Salt Road\"\n      polarity affirmed\n    end\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"have an allergy to\"\n  role subject \"Jonas\"\n  role object \"lactose\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be treated by\"\n  role subject \"Jonas\"\n  role object \"Drumul Sârii\"\n  polarity affirmed\n  certainty asserted\n"
+      },
+      {
+        "id": "fv1_000334_0_0",
+        "message": "Poți să verifici dacă Iulia predă pian?",
+        "translation": "Iulia predă.",
+        "gold": "@q query\n  where match\n    relation \"teach\"\n    role subject \"Iulia\"\n    role object \"piano\"\n    polarity affirmed\n  end\n",
+        "direct_sop": "@q query\n  where match\n    relation \"teach\"\n    role subject \"Iulia\"\n    role object \"piano\"\n    polarity affirmed\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"teach\"\n  role subject \"Iulia\"\n  role object \"the chess tournament\"\n  polarity affirmed\n  certainty asserted\n"
+      },
+      {
+        "id": "fv1_000362_0_0",
+        "message": "Am un workshop mâine. O cutie are între 3 și 8 borcane. Are orice cutie peste 1?",
+        "translation": "I am at a workshop. There are three and eight people. Are there any more?",
+        "gold": "@c constraint\n  var ?x int 3 8\n  claim ?x above 1\n  task prove\n",
+        "direct_sop": "@c constraint\n  var ?x int 3 8\n  claim ?x above 1\n  task prove\n",
+        "translated_sop": "@q query\n  mode count\n  select ?x\n  where match\n    relation \"be here\"\n    role subject ?x\n    role location \"three and eight people\"\n    polarity affirmed\n  end\n"
+      },
+      {
+        "id": "fv1_000479_0_0",
+        "message": "Here's what I know: Carmen gets the flu shot and Aurel Nistor is vaccinated against the flu; Amira Khalil gets the flu shot. Se poate confirma că Georgiana Nistor nu este vaccinată?",
+        "translation": "Carmen gets the flu shot and Aurel Nistor is vaccinated against the flu. Amira Khalil gets the flu shot. Can we confirm that Georgiana Nistor is not vaccinated?",
+        "gold": "@s1 stated\n  relation \"get the flu shot\"\n  role subject \"Carmen\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be vaccinated against the flu\"\n  role subject \"Aurel Nistor\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"get the flu shot\"\n  role subject \"Amira Khalil\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be vaccinated\"\n  role subject \"Georgiana Nistor\"\n  polarity negated\n  basis closure\n\n@q query\n  where match\n    relation \"be vaccinated\"\n    role subject \"Georgiana Nistor\"\n    polarity negated\n  end\n",
+        "direct_sop": "@s1 stated\n  relation \"get the flu shot\"\n  role subject \"Carmen\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be vaccinated against the flu\"\n  role subject \"Aurel Nistor\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"get the flu shot\"\n  role subject \"Amira Khalil\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be vaccinated\"\n  role subject \"Georgiana Nistor\"\n  polarity negated\n  basis closure\n\n@q query\n  where match\n    relation \"be vaccinated\"\n    role subject \"Georgiana Nistor\"\n    polarity negated\n  end\n",
+        "translated_sop": "@s1 stated\n  relation \"get the flu shot\"\n  role subject \"Carmen\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be vaccinated against the flu\"\n  role subject \"Aurel Nistor\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"get the flu shot\"\n  role subject \"Can we confirm that Georgiana Nistor is vaccinated?\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be vaccinated\"\n  role subject \"Georgiana Nistor\"\n  polarity negated\n  basis closure\n\n@q query\n  where match\n    relation \"be vaccinated\"\n    role subject \"Georgiana Nistor\"\n    polarity negat"
+      },
+      {
+        "id": "fv1_000519_0_0",
+        "message": "Câți oameni lucrează la Piatra Neamț Logistic, fără Lucian?",
+        "translation": "Lucian",
+        "gold": "@q query\n  mode count\n  select ?x\n  where match\n    relation \"work at\"\n    role subject ?x\n    role object \"Piatra Neamț Logistic\"\n    polarity affirmed\n  end\n  except ?x \"Lucian\"\n",
+        "direct_sop": "@q query\n  mode count\n  select ?x\n  where match\n    relation \"work at\"\n    role subject ?x\n    role object \"Piatra Neamț Logistic\"\n    polarity affirmed\n  end\n  except ?x \"Lucian\"\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      }
+    ]
+  },
+  "smollm2-360m|T2|wild": {
+    "helped": 16,
+    "hurt": 18,
+    "helped_examples": [
+      {
+        "id": "wild_wg_023",
+        "message": "si anul trecut?",
+        "translation": "I don't understand the translation. Could you please provide the Romanian text you would like me to translate?",
+        "gold": "@u unclear\n  kind no_request\n  language ro",
+        "direct_sop": "@u unclear\n  kind gibberish\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "wild_wj_035",
+        "message": "Sorin met the vendor with the contract în Iași ieri, can you update CRM-ul?",
+        "translation": "I can update the CRM-ul.",
+        "gold": "@u unclear\n  kind no_request",
+        "direct_sop": "@s1 stated\n  relation \"meet the vendor\"\n  role subject \"Sorin\"\n  role object \"the contract în Iași\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  select ?x\n  where match\n    relation \"updating\"\n    role subject \"Sorin\"\n    role object ?x\n    polarity affirmed\n  end\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "wild_wg_081",
+        "message": "dar duminica?",
+        "translation": "Dear, I am here to assist you.",
+        "gold": "@u unclear\n  kind no_request\n  language ro",
+        "direct_sop": "@u unclear\n  kind gibberish\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "wild_wi_055",
+        "message": "Dar pentru 2024?",
+        "translation": "2024",
+        "gold": "@u unclear\n  kind no_request\n  language ro",
+        "direct_sop": "@q query\n  select ?t\n  measure end\n  where match\n    relation \"be old\"\n    role subject \"the chess club\"\n    role object ?t\n    polarity affirmed\n  end\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "wild_wg_030",
+        "message": "scrie-mi te rog o urare frumoasa pentru Gheorghe ca implineste 80 de ani duminica, sa o citesc io la masa ca nu ma pricep la vorbe",
+        "translation": "I will translate the text to English as follows:\n\nI will translate the text to English as follows:\n\n\"I will translate the text to English as follows: I will translate the text to English as follows: I will translate the text to English as follows: I will translate the text to English as follows: I will translate the text to English as follows: I will translate the text to English as follows: I will translate the text to English as follows: I will translate the text to English as follows: I will translate the text to English as follows: I will translate the text to English as follows: I will translate the",
+        "gold": "@u unclear\n  kind no_request\n  language ro",
+        "direct_sop": "@q query\n  mode exists\n  where all\n    match\n      relation \"be old\"\n      role subject \"Gheorghe\"\n      role object ?age\n      polarity affirmed\n    end\n    match\n      relation \"want to go to work\"\n      role subject \"Gheorghe\"\n      role object \"beautiful bread\"\n      polarity affirmed\n    end\n  end\n  compare ?age above 80\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      },
+      {
+        "id": "wild_wh_004",
+        "message": "și la Iași?",
+        "translation": "And how are you?",
+        "gold": "@u unclear\n  kind no_request\n  language ro",
+        "direct_sop": "@q query\n  fragment follow_up\n  where match\n    role location \"Iași\"\n    polarity affirmed\n  end\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      }
+    ],
+    "hurt_examples": [
+      {
+        "id": "wild_wj_045",
+        "message": "curs euro azi",
+        "translation": "The European Union is a global organization that aims to promote peace, security, and prosperity.",
+        "gold": "@q query\n  select ?v\n  where match\n    relation \"have exchange rate\"\n    role subject \"the euro\"\n    role object ?v\n    polarity affirmed\n  end\n  at \"today\"",
+        "direct_sop": "@u unclear\n  kind no_request\n",
+        "translated_sop": "@s1 stated\n  relation \"be a global organization\"\n  role subject \"The European Union\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"refer to\"\n  role subject \"it\"\n  role object \"The European Union\"\n  polarity affirmed\n  basis disambiguation\n\n@q query\n  where match\n    relation \"aim to\"\n    role subject \"The European Union\"\n    role object \"promote\"\n    polarity affirmed\n  end\n"
+      },
+      {
+        "id": "wild_wj_036",
+        "message": "all the Orange invoices nu sunt plătite?",
+        "translation": "All the Orange invoices are not printed.",
+        "gold": "@u unclear\n  kind ambiguous\n  reading \"none of the Orange invoices are paid\"\n  reading \"not all of the Orange invoices are paid\"",
+        "direct_sop": "@u unclear\n  kind ambiguous\n  reading \"no invoice is due\"\n  reading \"not all invoices are due\"\n",
+        "translated_sop": "@s1 stated\n  relation \"be an invoice\"\n  role subject \"the Orange invoice\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"be printed\"\n  role subject \"the Orange invoice\"\n  polarity negated\n  certainty asserted\n"
+      },
+      {
+        "id": "wild_wh_027",
+        "message": "ok si next week?",
+        "translation": "I'm sorry, but as a text-based AI, I don't have the ability to translate text. I can help with translations, but I'm not equipped to handle the nuances of language.",
+        "gold": "@u unclear\n  kind no_request",
+        "direct_sop": "@u unclear\n  kind no_request\n",
+        "translated_sop": "@s1 stated\n  relation \"mean\"\n  role subject \"I\"\n  role object \"a translation\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  select ?x\n  where match\n    relation \"translate\"\n    role subject ?x\n    role object \"a translation\"\n    polarity affirmed\n  end\n"
+      },
+      {
+        "id": "wild_wf_088",
+        "message": "translate to English pls: 'Va rugam sa nu lasati paleti in fata usii de evacuare'",
+        "translation": "He should not be allowed to leave the hospital without being treated",
+        "gold": "@u unclear\n  kind no_request",
+        "direct_sop": "@u unclear\n  kind no_request\n",
+        "translated_sop": "@u unclear\n  kind ambiguous\n  reading \"be allowed to leave the hospital\"\n  reading \"be treated\"\n"
+      },
+      {
+        "id": "wild_wh_086",
+        "message": "help me write un mesaj pt proprietar ca intarziem cu chiria o saptamana, dar sa nu sune disperat 😅",
+        "translation": "I'm sorry, but as an AI, I don't have the ability to translate text. I can help you with translations, but I'm not equipped to assist with writing. Could you please provide the text in Romanian?",
+        "gold": "@u unclear\n  kind no_request",
+        "direct_sop": "@u unclear\n  kind no_request\n",
+        "translated_sop": "@q query\n  select ?x\n  where match\n    relation \"translate\"\n    role subject ?x\n    role object \"the weather forecast\"\n    polarity affirmed\n  end\n"
+      },
+      {
+        "id": "wild_wj_040",
+        "message": "ffgt6 yy ăîîș",
+        "translation": "The translation is: \"Ffgt 6 yy ăîîș\"",
+        "gold": "@u unclear\n  kind gibberish\n  language ro",
+        "direct_sop": "@u unclear\n  kind gibberish\n",
+        "translated_sop": "@u unclear\n  kind no_request\n"
+      }
+    ]
+  }
+}

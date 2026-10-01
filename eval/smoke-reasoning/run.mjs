@@ -3,7 +3,8 @@
  * Smoke harness for the proposed reasoning wires.
  *
  *   node eval/smoke-reasoning/run.mjs                 run every available adapter on every case
- *   node eval/smoke-reasoning/run.mjs --adapter reference-js,advanced-prolog --case 05
+ *   node eval/smoke-reasoning/run.mjs --adapter js-oracle,prolog-tabling --case 05
+ *   node eval/smoke-reasoning/run.mjs --with-reference-engines   add the reference engines (datalog-soplab); --with-frozen adds the frozen strategies (golog-swi)
  *   node eval/smoke-reasoning/run.mjs --validate-only validate circuits and invalid fixtures, run nothing
  *   node eval/smoke-reasoning/run.mjs --list          list adapters and cases
  *   node eval/smoke-reasoning/run.mjs --markdown      print the result table as Markdown
@@ -24,8 +25,8 @@ import {runConditional} from './lib/conditional.mjs';
 import {applyClosedPolicy} from './lib/closed.mjs';
 import {parse} from './validator.mjs';
 import {compare} from './lib/compare.mjs';
-import {adapters} from './adapters/index.mjs';
-import {NotExpressible} from './adapters/product.mjs';
+import {adapters as defaultAdapters, referenceEngineAdapters, frozenAdapters} from './adapters/index.mjs';
+import {NotExpressible} from './adapters/common.mjs';
 import {runWithRetrieval} from './lib/widen.mjs';
 import {hostUsed, replayUsed} from './lib/used.mjs';
 
@@ -34,6 +35,9 @@ const repo = path.resolve(here, '../..');
 const args = process.argv.slice(2);
 const opt = name => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
 const flag = name => args.includes(name);
+// the default columns, plus the opt-in pools (an adapter named with --adapter always runs)
+const adapters = [...defaultAdapters, ...(flag('--with-reference-engines') ? referenceEngineAdapters : []), ...(flag('--with-frozen') ? frozenAdapters : [])];
+const pool = [...defaultAdapters, ...referenceEngineAdapters, ...frozenAdapters];
 
 export function loadCases(filter = null) {
   const root = path.join(here, 'cases');
@@ -91,7 +95,7 @@ async function runOne(adapter, c) {
     // deletion, verified by a replay (used_incomplete when the replay fails). Only cases that state used_support pay for the extra runs.
     if (c.expected.used_support && !c.memory) {
       if (!got.used && !adapter.raw) Object.assign(got, await hostUsed(c2 => adapter.run(c2, ctx), c, got));
-      const oracle = adapters.find(a => a.id === 'js-oracle' && a.status !== 'planned') ?? adapters.find(a => a.id === 'js-reference' && a.status !== 'planned') ?? adapter;
+      const oracle = defaultAdapters.find(a => a.id === 'js-oracle');
       const canReplay = (await oracle.available()).ok && c.expected.requires.every(f => f === 'retrieval' || oracle.supports.has(f));
       got.used_replay = canReplay ? await replayUsed(c2 => oracle.run(c2, ctx), c, got) : {ok: true, skipped: true};
     }
@@ -136,7 +140,7 @@ function authoringSelfTest() {
 
 async function solverProbes() {
   const {spawnSync} = await import('node:child_process');
-  const {solverEnv} = await import('./adapters/product.mjs');
+  const {solverEnv} = await import('./adapters/common.mjs');
   const z3 = solverEnv().Z3_BIN;
   if (!z3 || !fs.existsSync(z3)) return 'skipped (no Z3 binary)';
   const dir = path.join(here, 'probes'), bad = [];
@@ -251,7 +255,7 @@ async function main() {
   if (v.problems.length) return 1;
   if (flag('--validate-only')) return 0;
   const wanted = opt('--adapter')?.split(',');
-  const chosen = adapters.filter(a => !wanted || wanted.includes(a.id));
+  const chosen = (wanted ? pool : adapters).filter(a => !wanted || wanted.includes(a.id));
   const live = chosen.filter(a => a.status !== 'planned');
   const results = {};
   for (const a of chosen) {

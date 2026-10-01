@@ -1,0 +1,275 @@
+{
+ "suite": "formalizer-v1",
+ "mixed": false,
+ "rows_total": 2868,
+ "rows_scored": 300,
+ "model": "/home/salboaie/work/ChatSOP/models/gemma/proofreader-gemma270m-v1/proofreader/merged-best",
+ "stages": [
+  {
+   "stage": 1,
+   "rows": 100,
+   "summary": {
+    "no_rewrite": {
+     "rows": 100,
+     "strict": 0.38,
+     "tolerant": 0.43
+    },
+    "always_on": {
+     "rows": 100,
+     "strict": 0.43,
+     "tolerant": 0.49
+    },
+    "gate_no_spacy": {
+     "rows": 100,
+     "strict": 0.43,
+     "tolerant": 0.48
+    }
+   },
+   "delta_always_on_pp": {
+    "delta": 5,
+    "ci95": [
+     1,
+     10
+    ]
+   },
+   "delta_gate_no_spacy_pp": {
+    "delta": 5,
+    "ci95": [
+     1,
+     10
+    ]
+   },
+   "break_rate_always_on": 0,
+   "decision": {
+    "stop": false,
+    "reason": "continue"
+   }
+  },
+  {
+   "stage": 2,
+   "rows": 300,
+   "summary": {
+    "no_rewrite": {
+     "rows": 300,
+     "strict": 0.37,
+     "tolerant": 0.4033
+    },
+    "always_on": {
+     "rows": 300,
+     "strict": 0.4367,
+     "tolerant": 0.4733
+    },
+    "gate_no_spacy": {
+     "rows": 300,
+     "strict": 0.4233,
+     "tolerant": 0.4567
+    }
+   },
+   "delta_always_on_pp": {
+    "delta": 6.67,
+    "ci95": [
+     4,
+     9.67
+    ]
+   },
+   "delta_gate_no_spacy_pp": {
+    "delta": 5.33,
+    "ci95": [
+     3,
+     8.03
+    ]
+   },
+   "break_rate_always_on": 0,
+   "decision": {
+    "stop": true,
+    "reason": "decisive-positive"
+   }
+  }
+ ],
+ "gained_rows": [
+  "fv1_011927_0_0",
+  "fv1_016647_0_1",
+  "fv1_022932_0_0",
+  "fv1_025824_0_1",
+  "fv1_028521_0_0",
+  "fv1_014526_0_0",
+  "fv1_006974_0_0",
+  "fv1_011391_0_0",
+  "fv1_001863_0_0",
+  "fv1_032584_0_0",
+  "fv1_031000_0_0",
+  "fv1_031083_0_0",
+  "fv1_006372_0_0",
+  "fv1_020518_0_0",
+  "fv1_013839_0_0",
+  "fv1_010432_0_0",
+  "fv1_017703_0_0",
+  "fv1_013161_0_0",
+  "fv1_003715_0_0",
+  "fv1_011679_0_0"
+ ],
+ "lost_rows": [],
+ "changed_rows": 69,
+ "examples": [
+  {
+   "id": "fv1_001863_0_0",
+   "before": "Here's wjhat I know: Otilia Diaconu manages Sophie. Any chance she has borrowed Soups of Transylvania?",
+   "after": "Here's what I know: Otilia Diaconu manages Sophie. Any chance she has borrowed Soups of Transylvania?",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": true
+  },
+  {
+   "id": "fv1_023553_0_0",
+   "before": "I am new to all of this, so apologies if it is obvious. Emeka does not own the vineyard near Sibiu. The payroll database relies on the reporting dashboard. Katalin owns the bakery on the corner.\n\nThe regional chess tournament takes place at the Old Mill Hall. Also, the Tuesday board meeting takes place at the Reșița Philharmonic. Minh doesn't attend the spring book fair. Kaveh Farahani attends the product launch. I will try to keep the rest short.\n\nThéo Bernard is a child of Natalia. Also, Yan is a child of Andreea. My manager wants a summary by the end of the day. Mr Papadopoulos wants to learn piano. Also, Tatiana wants to learn physics.\n\nIldikó Tóth attends the wedding reception. Tisa Textiles published Soups of Transylvania. Atelier Müller carries phone cases.\n\nMaria intends to attend the harvest festival. Zofia looks after the login service. Also, Mr Șerban does not look after the billing service. A passport requires a land title extract. Also, a driving licence requires an ID card.\n\nHere is what I would like to check:\nSo how many companies is Atelier Clarke a supplier of?\nSince Ștefan is certified; Iulia Ionescu is certified, is it true that Aditya Sharma is not certified?\nDo you know until when Atelier Gheorghiu employed Mr Crăciun?\n\nThat is all the background I have for now.",
+   "after": "I am new to all of this, so apologies if it is obvious. Emeka does not own the vineyard near Sibiu. The payroll database relies on the reporting dashboard. Katalin owns the bakery on the corner.\n\nThe regional chess tournament takes place at the Old Mill Hall. Also, the Tuesday board meeting takes place at the Reșița Philharmonic. Minh doesn's attend the spring book fair. Kaveh Farahani attends the product launch. I will try to keep the rest short.\n\nThéo Bernard is a child of Natalia. Also, Yan is a child of Andreea. My manager wants a summary by the end of the day. Mr Papadopoulos wants to learn piano. Also, Tatiana wants to learn physics.\n\nIldikó Tóth attends the wedding reception. Tisa Textiles published Soups of Transylvania. Atelier Müller carries phone cases.\n\nMaria intends to attend the harvest festival. Zofia looks after the login service. Also, Mr Șerban does not look after the billing service. A passport requires a land title extract. Also, a driving licence requires an ID card.\n\nHere is what I would like to check:\nSo how many companies is Atelier Clarke a supplier of?\nSince Ștefan is certified; Iulia Ionescu is certified, is it true that Aditya Sharma is not certified?\nDo you know until when Atelier Gheorghiu employed Mr Crăciun?\n\nThat is all the background I have for now.",
+   "gate_no_spacy": false,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "fv1_029468_0_0",
+   "before": "Did Paweł bkorrow Soups of Transylvania again ?!",
+   "after": "Did Paweł borrow Soups of Transylvania again?!",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "fv1_000790_0_0",
+   "before": "Thanks for your patience with all my questions. Florică treats Minh. Also, Julien treats Chen. Botond reports to Arjun.\n\nGrace is allergic to lactose. Nils Lindqvist looks after the payroll database. Also, Amira Saleh looks after the mail server. Andreea Ionescu is based in Călărași. Also, Xiaoling Zhao lives in Busan.\n\nAttila flies to Bălți. Also, Mr Martínez flies to Brașov. The reporting dashboard relies on the inventory API. Also, the VPN gateway depends on the login service. Lukas wrote The Clockmaker's Daughter. Also, Emma wrote Winter in Maramureș. Sophie looks after the booking app.\n\nThe search index relies on the billing service. Krzysztof is on the Orhei Wolves. Also, Mr Tóth is on the Galați Falcons.\n\nSo, my questions: Explain to me why Min-jun stays home. Here's what I know: Lucian checked out The Salt Road; Alexandru checked out The Salt Road. Is it true that Corina doesn't borrow The Salt Road?\n\nThat is all the background I have for now.",
+   "after": "Thanks for your patience with all my questions. Florică treats Minh. Also, Julien treats Chen. Botond reports to Arjun.\n\nGrace is allergic to lactose. Nils Lindqvist looks after the payroll database. Also, Amira Saleh looks after the mail server. Andreea Ionescu is based in Călărași. Also, Xiaoling Zhao lives in Busan.\n\nAttila flies to Bălți. Mr Martínez flies to Brașov. The reporting dashboard relies on the inventory API. Also, the VPN gateway depends on the login service. Lukas wrote The Clockmaker's Daughter. Also, Emma wrote Winter in Maramureș. Sophie looks after the booking app.\n\nThe search index relies on the billing service. Krzysztof is on the Orhei Wolves. Also, Mr Tóth is on the Galați Falcons.\n\nSo, my questions: Explain to me why Min-jun stays home. Here's what I know: Lucian checked out The Salt Road; Alexandru checked out The Salt Road. Is it true that Corina doesn't borrow The Salt Road?\n\nThat is all the background I have for now.",
+   "gate_no_spacy": false,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "fv1_013839_0_0",
+   "before": "We have run out of supplies at the office. Do u know wich company carries school uniforms ?",
+   "after": "We have run out of supplies at the office. Do u know which company carries school uniforms?",
+   "gate_no_spacy": false,
+   "no_rewrite_strict": false,
+   "always_on_strict": true
+  },
+  {
+   "id": "fv1_006372_0_0",
+   "before": "I wofrk at Carpathia Energy. Does my sister work at Carpathia Energy too ",
+   "after": "I work at Carpathia Energy. Does my sister work at Carpathia Energy too",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": true
+  },
+  {
+   "id": "fv1_019015_0_0",
+   "before": "How many people wodk at Brightfield Foods, not counting Mehmet?",
+   "after": "How many people work at Brightfield Foods, not counting Mehmet?",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "fv1_029021_0_0",
+   "before": "Hai, is it the cade that Ms Trần fies to Reșița ?",
+   "after": "Hai, is it the correct date that Ms Trần gives to Reșița?",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "fv1_008709_0_0",
+   "before": "Let me give you some background first. Csaba rep orts to Sigrid. Also, Xiaoling reports to Valentina Romero. Brightfield Foods is a suppliwr of Atelier Șerban. Also, Stoica & Partners is a supplier of Atelier Florea. The weather here has been awful all week.\n\nThe search index relies on the payroll database. Tamás plays for Plovdiv United. Also, Mehmet plays for Montreal United. The town hall debate takes pladce at the Community Centre on Elm Street. Teodora reports to Javier. Also, Ildikó does not report to Fatima Nasser. Atelier Dobre is not a supplier of Vaslui Logistics.\n\nJames Brown is not allergic to dust mites. Also, Nils isn't allergic to gluten.\n\nThings I still have to do today:\n- water the plants\n- answer my emails\n- finish the slides\n- call the plumber\n- book the train tickets\n\nSo, my questions: Not counting Tariq, please find out who writes The Salt Road. Do you know until when Lars taught piano? Not counting Tunde, please find out who is the spouse of Karim.",
+   "after": "Let me give you some background first. Csaba reports to Sigrid. Also, Xiaoling reports to Valentina Romero. Brightfield Foods is a supplier of Atelier Șerban. Also, Stoica & Partners is a supplier of Atelier Florea. The weather here has been awful all week.\n\nThe search index relies on the payroll database. Tamás plays for Plovdiv United. Also, Mehmet plays for Montreal United. The town hall debate takes place at the Community Centre on Elm Street. Teodora reports to Javier. Also, Ildikó does not report to Fatima Nasser. Atelier Dobre is not a supplier of Vaslui Logistics.\n\nJames Brown is not allergic to dust mites. Also, Nils isn't allergic to gluten.\n\nThings I still have to do today:\n- water the plants\n- answer my emails\n- finish the slides\n- call the plumber\n- book the train tickets\n\nSo, my questions: Not counting Tariq, please find out who writes The Salt Road. Do you know until when Lars taught piano? Not counting Tunde, please find out who is the spouse of Karim.",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "fv1_009957_0_0",
+   "before": "I need to schedule a migra tion. Can you tell me who looks after the inventory API?",
+   "after": "I need to schedule a migration. Can you tell me who looks after the inventory API?",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": true,
+   "always_on_strict": true
+  },
+  {
+   "id": "fv1_025092_0_0",
+   "before": "I am new to all of this, so apologies if it is obvious. Chloé checked out The Last Ferry. Also, Florică checked out Soups of Transylvania. Élodie is not based in Arad. Also, Megan does not live in Valencia. Otilia is the spouse of Jack. Ghiță intends to attend the Tuesday board meeting.\n\nAtelier Pătrașcu employs Ms Brown. Also, Vertex Analytics does not employ Théo. I only have a few minutes before my next call. Tudor goes to Constanța Arts High School. The harvest festival does not take place at the Reșița Arena. Also, the photography workshop takes place at the Community Centre on Elm Street. A medical certificate isn't required for a work permit.\n\nTeodora doesn't have an allergy to bee stings. Florin looks after the login service. Also, Mr Turner looks after the reporting dashboard. Silviu wants to learn physics. Also, Samuel plans to study computer science. I have been meaning to ask about this for a while.\n\nMathieu borrowed The Glass Orchard. Also, Alexandru borrowed A Short History of Bridges. The regional chess tournament does not take place at the Iași Philharmonic. Also, the spring book fair takes place at the Glasgow Philharmonic. Let me give you some background first.\n\nA few questions, then:\nSince Luminița has an allergy to lactose, and Tunde is allergic to lactose, is it true that Bohdan Shevchenko doesn't have an allergy to lactose?\nSo how many documents does a passport require?\nSo where did the town hall debate take place?\nSince Natalia has an allergy to strawberries and Lars is allergic to strawberries, is it the case that Veaceslav Rotaru doesn't have an allergy to strawberries?\nI believe Nikos is married to Chen. Any chance he is married to Chen?\nAny idea where Răzvan lives?",
+   "after": "I am new to all of this, so apologies if it is obvious. Chloé checked out The Last Ferry. Also, Florică checked out Soups of Transylvania. Élodie is not based in Arad. Also, Megan does not live in Valencia. Otilia is the spouse of Jack. Ghiță intends to attend the Tuesday board meeting.\n\nAtelier Pătrașcu employs Ms Brown. Also, Vertex Analytics does not employ Théo. I only have a few minutes before my next call. Tudor goes to Constanța Arts High School. The harvest festival does not take place at the Reșița Arena. Also, the photography workshop takes place at the Community Centre on Elm Street. A medical certificate isn't required for a work permit.\n\nTeodora doesn't have an allergy to bee stings. Florin looks after the login service. Also, Mr Turner looks after the reporting dashboard. Silviu wants to learn physics. Also, Samuel plans to study computer science. I have been meaning to ask about this for a while.\n\nMathieu borrowed The Glass Orchard. Also, Alexandru borrowed A Short History of Bridges. The regional chess tournament does not take place at the Iași Philharmonic. Also, the spring book fair takes place at the Glasgow Philharmonic. Let me give you some background first.\n\nA few questions, then:\nSince Luminița has an allergy to lactose, and Tunde is allergic to lactose, is it true that Bohdan Shevchenko doesn't have an allergy to lactose?\nSo how many documents does a passport require?\nSo where did the town hall debate take place?\nSince Natalia has an allergy to strawberries and Lars is allergic to strawberries, is it the case that Veaceslav Rotaru doesn't have an allergy to strawberries?\nI believe Nikos is married to Chen. Any chance he is",
+   "gate_no_spacy": false,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "fv1_024265_0_0",
+   "before": "Here's what I know: Florin goes to Alba Iulia Arts High School; he isn't vaccinated against the flu. Is it the case that he gets the flu shot?",
+   "after": "Florin goes to Alba Iulia Arts High School; he isn't vaccinated against the flu. Is it the case that he gets the flu shot?",
+   "gate_no_spacy": false,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "fv1_022932_0_0",
+   "before": "i am thnking of changing jobs soon. i work at Brightfield Foods; does my brother also wok at Brightfield Foods?",
+   "after": "i am thinking of changing jobs soon. I work at Brightfield Foods; does my brother also work at Brightfield Foods?",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": true
+  },
+  {
+   "id": "fv1_011170_0_0",
+   "before": "Any chance Bohdan has an allergy to shellfish? And is it true tuat he lives in Piatra Neamț?",
+   "after": "Any chance Bohdan has an allergy to shellfish? And is it true that he lives in Piatra Neamț?",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "fv1_028192_0_0",
+   "before": "I have a quick întrebare. Did Anna-Lena start working at Greenline Transport before Matei did?",
+   "after": "I have a quick question. Did Anna-Lena start working at Greenline Transport before Matei did?",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": true,
+   "always_on_strict": true
+  },
+  {
+   "id": "fv1_011927_0_0",
+   "before": "Thomas Taylor livees in Focșani.",
+   "after": "Thomas Taylor lives in Focșani.",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": true
+  },
+  {
+   "id": "fv1_031083_0_0",
+   "before": "So wghere did Grace Clarke fly ?",
+   "after": "So where did Grace Clarke fly?",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": true
+  },
+  {
+   "id": "fv1_021554_0_0",
+   "before": "Honestly, I keep losing track of who does what. A land title extract is required for a passport. Also, a residence certificate requires a birth certificate. I am new to all of this, so apologies if it is obvious.\n\nTisa Textiles carries phone cases. A medical certificate is required for a building permit. Hao Zhang attends the product launch. Also, Nour does not attend the wedding reception. Florică Stoian flies to Nairobi. Nordwind Systems published A Short History of Bridges. My coffee went cold while I was typing this.\n\nNikos is on Rapid Reșița. Also, Csaba plays for the Brașov Wolves. Mr Hughes is not on the Bălți Falcons. Also, Ngozi plays for CS Alba Iulia. Ms Watanabe is allergic to latex. Also, Marius does not have an allergy to shellfish.\n\nA few questions, then: Please find out which document is issued by the Buzău Tax Office. Explain to me why the search index is out of service. Here's what I know: Petronela flies to Valencia, and Sigrid Andersen flies to Valencia. Could you check if Paula does not fly to Valencia? So where did Thomas fly? Could you check if Noah looks after the analytics pipeline?\n\nCheers, and have a nice evening.",
+   "after": "Honestly, I keep losing track of who does what. A land title extract is required for a passport. Also, a residence certificate requires a birth certificate. I am new to all of this, so apologies if it is obvious.\n\nTisa Textiles carries phone cases. A medical certificate is required for a building permit. Hao Zhang attends the product launch. Also, Nour does not attend the wedding reception. Florică Stoian flies to Nairobi. Nordwind Systems published A Short History of Bridges. My coffee went cold while I was typing this.\n\nNikos is on Rapid Reșița. Also, Csaba plays for the Brașov Wolves. Mr Hughes is not on the Bălți Falcons. Also, Ngozi plays for CS Alba Iulia. Ms Watanabe is allergic to latex. Also, Marius does not have an allergy to shellfish.\n\nA few questions, then: Please find out which document is issued by the Buzău Tax Office. Explain to me why the search index is out of service. Here is what I know: Petronela flies to Valencia, and Sigrid Andersen flies to Valencia. Could you check if Paula does not fly to Valencia? So where did Thomas fly? Could you check if Noah looks after the analytics pipeline?\n\nCheers, and have a nice evening.",
+   "gate_no_spacy": false,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  },
+  {
+   "id": "fv1_006974_0_0",
+   "before": "Do you knowif Ms Reddy trakns Piatra Neamț United?",
+   "after": "Do you know if Ms Reddy trains Piatra Neamț United?",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": true
+  },
+  {
+   "id": "fv1_004036_0_0",
+   "before": "Here's what I know: the Community Centre on Elm Street is closed. Any idea what it is closded for ?",
+   "after": "Here's what I know: the Community Centre on Elm Street is closed. Any idea what it is closed for?",
+   "gate_no_spacy": true,
+   "no_rewrite_strict": false,
+   "always_on_strict": false
+  }
+ ]
+}

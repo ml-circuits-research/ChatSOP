@@ -1,0 +1,465 @@
+{
+ "format": "chatsop-grammar-constrained-cell-v1",
+ "model": "smollm2-135m",
+ "cell": "ood",
+ "comparison": "gbnf - free",
+ "suite": "eval/suites/formalizer-ood-v1/test.jsonl",
+ "cell_rows": 500,
+ "stages": [
+  100,
+  300,
+  500
+ ],
+ "stage_results": [
+  {
+   "stage": 1,
+   "rows": 100,
+   "primary": "execution_equivalence_tolerant",
+   "summary": {
+    "free": {
+     "rows": 100,
+     "parse_validity": 1,
+     "compile_validity": 0.96,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "execution_equivalence_tolerant": 0.27,
+     "wire_f1": 0.272,
+     "counts": {
+      "parse": 100,
+      "compile": 96,
+      "exec": 27,
+      "accepted_match": null
+     }
+    },
+    "gbnf": {
+     "rows": 100,
+     "parse_validity": 1,
+     "compile_validity": 0.95,
+     "empty_or_error": 0,
+     "truncated": 0,
+     "execution_equivalence_tolerant": 0.27,
+     "wire_f1": 0.257,
+     "counts": {
+      "parse": 100,
+      "compile": 95,
+      "exec": 27,
+      "accepted_match": null
+     }
+    }
+   },
+   "primary_delta": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "decision": {
+    "stop": true,
+    "reason": "futility"
+   }
+  }
+ ],
+ "final_rows": 100,
+ "stopped": {
+  "stop": true,
+  "reason": "futility"
+ },
+ "identical_outputs": 0.86,
+ "metrics": {
+  "all": {
+   "free": {
+    "rows": 100,
+    "parse_validity": 1,
+    "compile_validity": 0.96,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.27,
+    "wire_f1": 0.272,
+    "counts": {
+     "parse": 100,
+     "compile": 96,
+     "exec": 27,
+     "accepted_match": null
+    }
+   },
+   "gbnf": {
+    "rows": 100,
+    "parse_validity": 1,
+    "compile_validity": 0.95,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.27,
+    "wire_f1": 0.257,
+    "counts": {
+     "parse": 100,
+     "compile": 95,
+     "exec": 27,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:ro": {
+   "free": {
+    "rows": 37,
+    "parse_validity": 1,
+    "compile_validity": 0.973,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.0811,
+    "wire_f1": 0.0085,
+    "counts": {
+     "parse": 37,
+     "compile": 36,
+     "exec": 3,
+     "accepted_match": null
+    }
+   },
+   "gbnf": {
+    "rows": 37,
+    "parse_validity": 1,
+    "compile_validity": 0.973,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.0811,
+    "wire_f1": 0.0088,
+    "counts": {
+     "parse": 37,
+     "compile": 36,
+     "exec": 3,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:en": {
+   "free": {
+    "rows": 50,
+    "parse_validity": 1,
+    "compile_validity": 0.94,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.46,
+    "wire_f1": 0.419,
+    "counts": {
+     "parse": 50,
+     "compile": 47,
+     "exec": 23,
+     "accepted_match": null
+    }
+   },
+   "gbnf": {
+    "rows": 50,
+    "parse_validity": 1,
+    "compile_validity": 0.94,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.46,
+    "wire_f1": 0.3922,
+    "counts": {
+     "parse": 50,
+     "compile": 47,
+     "exec": 23,
+     "accepted_match": null
+    }
+   }
+  },
+  "language:mixed": {
+   "free": {
+    "rows": 13,
+    "parse_validity": 1,
+    "compile_validity": 1,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.0769,
+    "wire_f1": 0.2308,
+    "counts": {
+     "parse": 13,
+     "compile": 13,
+     "exec": 1,
+     "accepted_match": null
+    }
+   },
+   "gbnf": {
+    "rows": 13,
+    "parse_validity": 1,
+    "compile_validity": 0.9231,
+    "empty_or_error": 0,
+    "truncated": 0,
+    "execution_equivalence_tolerant": 0.0769,
+    "wire_f1": 0.2249,
+    "counts": {
+     "parse": 13,
+     "compile": 12,
+     "exec": 1,
+     "accepted_match": null
+    }
+   }
+  }
+ },
+ "deltas": {
+  "all": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "compile_validity": {
+    "delta": -0.01,
+    "ci95": [
+     -0.06,
+     0.03
+    ],
+    "clusters": 100
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 100
+   },
+   "wire_f1": {
+    "delta": -0.015,
+    "ci95": [
+     -0.0282,
+     -0.0018
+    ],
+    "clusters": 100
+   }
+  },
+  "language:ro": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     -0.0811,
+     0.0811
+    ],
+    "clusters": 37
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 37
+   },
+   "wire_f1": {
+    "delta": 0.0002,
+    "ci95": [
+     0,
+     0.0011
+    ],
+    "clusters": 37
+   }
+  },
+  "language:en": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 50
+   },
+   "compile_validity": {
+    "delta": 0,
+    "ci95": [
+     -0.06,
+     0.06
+    ],
+    "clusters": 50
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 50
+   },
+   "wire_f1": {
+    "delta": -0.0268,
+    "ci95": [
+     -0.049,
+     -0.0025
+    ],
+    "clusters": 50
+   }
+  },
+  "language:mixed": {
+   "parse_validity": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 13
+   },
+   "compile_validity": {
+    "delta": -0.0769,
+    "ci95": [
+     -0.2308,
+     0
+    ],
+    "clusters": 13
+   },
+   "execution_equivalence_tolerant": {
+    "delta": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "clusters": 13
+   },
+   "wire_f1": {
+    "delta": -0.0059,
+    "ci95": [
+     -0.0189,
+     0
+    ],
+    "clusters": 13
+   }
+  }
+ },
+ "speed": {
+  "free": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 (server -np 8, one request at a time, cache_prompt false)"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 292.0432,
+    "p50": 79.7024,
+    "p95": 1964.1978
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 165.5,
+    "p50": 44,
+    "p95": 1105
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 640.6181,
+    "p50": 644.7453,
+    "p95": 658.5711
+   }
+  },
+  "gbnf": {
+   "device": [
+    "gpu:GB10 llama.cpp 99d4026b -ngl 99 (server -np 8, one request at a time, cache_prompt false)"
+   ],
+   "latency_ms": {
+    "count": 100,
+    "mean": 300.0998,
+    "p50": 81.6002,
+    "p95": 1985.9035
+   },
+   "completion_tokens": {
+    "count": 100,
+    "mean": 167.11,
+    "p50": 44,
+    "p95": 1084
+   },
+   "gen_tokens_per_second": {
+    "count": 100,
+    "mean": 628.9142,
+    "p50": 636.7139,
+    "p95": 646.2565
+   }
+  }
+ },
+ "example_counts": {
+  "helped": 0,
+  "hurt": 0,
+  "repaired_parse": 0,
+  "forced_wrong": 0,
+  "changed_valid": 14
+ },
+ "examples": {
+  "helped": [],
+  "hurt": [],
+  "repaired_parse": [],
+  "forced_wrong": [],
+  "changed_valid": [
+   {
+    "id": "ood1_000012_0_0",
+    "language": "ro",
+    "question": "Voiam de mult să te întreb asta. Zoltán nu e membru în corul de tineret. În plus, Thiago cântă în ansamblul folcloric. Tudor Stoica nu cultivă ardei. În plus, Petronela plantează dovleci. Bogdan-Ionuț Stan închiriază barca veche cu pânze. Zeynep Şahin este membră în corul operei.\n\nEmeka se ocupă de mașina de pompieri. Alexandru închiriază garajul din spatele blocului. Bogdan e membru în corul gospel. Min-jun Lee gătește la Grădina Botanică din Izmir. În plus, Diana e bucătăreasă la Centrul Comunitar de pe strada Ulmilor. Am încercat să mă lămuresc singur, dar m-am încurcat. Lucian închiriază terenul de lângă râu. În plus, Quang închiriază apartamentul de pe strada Mihai Viteazu.\n\nErik Johansson se ocupă de rulota albă. În plus, Jonas repară duba de livrări. Ghiță nu închiriază cabana de vacanță din Bran. Aici a plouat toată săptămâna. Ovidiu Rusu se ocupă de tractorul roșu.\n\nAurelia plantează floarea-soarelui. Petru nu gătește la Sala Moara Veche. În plus, Chloé este bucătăreasă la Grădina Botanică din Botoșani. Hao Wang gătește la Arena Recife.\n\nBohdan cultivă căpșuni. Daria Tănase este bucătăreasă la Filarmonica din Piatra Neamț. În plus, Valentina Navarro este bucătăreasă la Grădina Botanică din Bistrița. Încerc să fiu scurt cu restul.\n\nAdaeze Balogun este bucătăreasă la Filarmonica din Constanța.\n\nCe mai am de făcut azi:\n- să termin prezentarea\n- să sun instalatorul\n- să iau bilete de tren\n- să plătesc factura la telefon\n- cumpărături\n- să răspund la mailuri\n\nUite ce aș vrea să verific: Fără să-l pun la socoteală pe James, oare cine închiriază via de lângă Sibiu? Din curiozitate, ce vehicul repară Otilia?\n\nMersi anticipat!",
+    "gold": "@s1 stated\n  relation \"be a member of\"\n  role subject \"Zoltán\"\n  role object \"the youth choir\"\n  polarity negated\n  certainty asserted\n\n@s2 stated\n  relation \"sing in\"\n  role subject \"Thiago\"\n  role object \"the folk ensemble\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"grow\"\n  role subject \"Tudor Stoica\"\n  role object \"peppers\"\n  polarity negated\n  certainty asserted\n\n@s4 stated\n  relation \"plant\"\n  role subject \"Petronela\"\n  role object \"pumpkins\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"rent\"\n  role subject \"Bogdan-Ionuț Stan\"\n  role object \"the old sailing boat\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"be a member of\"\n  role subject \"Zeynep Şahin\"\n  role object \"the opera chorus\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"work on\"\n  role subject \"Emeka\"\n  role object \"the fire engine\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"rent\"\n  role subject \"Alexandru\"\n  role object \"the garage behind the block\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"be a member of\"\n  role subject \"Bogdan\"\n  role object \"the gospel choir\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"cook at\"\n  role subject \"Min-jun Lee\"\n  role object \"Grădina Botanică din Izmir\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"be the chef at\"\n  role subject \"Diana\"\n  role object \"Centrul Comunitar de pe strada Ulmilor\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"rent\"\n  role subject \"Lucian\"\n  role object \"the plot of land by the river\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"rent\"\n  role subject \"Quang\"\n  role object \"the flat on Mihai Viteazu Street\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"work on\"\n  role subject \"Erik Johansson\"\n  role object \"the white camper van\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"repair\"\n  role subject \"Jonas\"\n  role object \"the delivery van\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"rent\"\n  role subject \"Ghiță\"\n  role object \"the holiday cottage in Bran\"\n  polarity negated\n  certainty asserted\n\n@s17 stated\n  relation \"work on\"\n  role subject \"Ovidiu Rusu\"\n  role object \"the red tractor\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"plant\"\n  role subject \"Aurelia\"\n  role object \"sunflowers\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"cook at\"\n  role subject \"Petru\"\n  role object \"Sala Moara Veche\"\n  polarity negated\n  certainty asserted\n\n@s20 stated\n  relation \"be the chef at\"\n  role subject \"Chloé\"\n  role object \"Grădina Botanică din Botoșani\"\n  polarity affirmed\n  certainty asserted\n\n@s21 stated\n  relation \"cook at\"\n  role subject \"Hao Wang\"\n  role object \"Arena Recife\"\n  polarity affirmed\n  certainty asserted\n\n@s22 stated\n  relation \"grow\"\n  role subject \"Bohdan\"\n  role object \"strawberries\"\n  polarity affirmed\n  certainty asserted\n\n@s23 stated\n  relation \"be the chef at\"\n  role subject \"Daria Tănase\"\n  role object \"Filarmonica din Piatra Neamț\"\n  polarity affirmed\n  certainty asserted\n\n@s24 stated\n  relation \"be the chef at\"\n  role subject \"Valentina Navarro\"\n  role object \"Grădina Botanică din Bistrița\"\n  polarity affirmed\n  certainty asserted\n\n@s25 stated\n  relation \"be the chef at\"\n  role subject \"Adaeze Balogun\"\n  role object \"Filarmonica din Constanța\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  select ?x\n  where match\n    relation \"rent\"\n    role subject ?x\n    role object \"the vineyard near Sibiu\"\n    polarity affirmed\n  end\n  except ?x \"James\"\n\n@q2 query\n  select ?x\n  where match\n    relation \"repair\"\n    role subject \"Otilia\"\n    role object ?x\n    polarity affirmed\n  end\n",
+    "free": "@s1 stated\n  relation \"be married to\"\n  role subject \"Zoltán\"\n  role object \"the wedding reception\"\n  polarity negated\n  certainty asserted\n\n@s2 stated\n  relation \"cultivate\"\n  role subject \"Thiago\"\n  role object \"the blue van\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"buy from\"\n  role subject \"Tudor Stoica\"\n  role source \"Brighton\"\n  polarity negated\n  certainty asserted\n\n@s4 stated\n  relation \"live in\"\n  role subject \"Bogdan-Ionuț Stan\"\n  role location \"Corfu\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"be membranced\"\n  role subject \"Zeynep Şahin\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"be the coach of\"\n  role subject \"Emeka\"\n  role object \"the parents' evening\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"maintain\"\n  role subject \"Alexandru\"\n  role object \"the garage behind the block\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"be in\"\n  role subject \"Bogdan\"\n  role location \"Grădina Botanică din Izmir\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"be based in\"\n  role subject \"Diana\"\n  role location \"Centrul Comunitar de pe strada Ulmilor\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"buy from\"\n  role subject \"Lucian\"\n  role source \"Lyon\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"maintain\"\n  role subject \"Quang\"\n  role object \"the plot of land by the river\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"be the coach of\"\n  role subject \"Erik Johansson\"\n  role object \"the parents' evening\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"be married to\"\n  role subject \"Jonas\"\n  role object \"the owner of the holiday cottage in Bran\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"be the owner of\"\n  role subject \"Ovidiu Rusu\"\n  role object \"the tractorrow\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \" plant\"\n  role subject \"Aurelia\"\n  role object \"the flat on the corner\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"give classes in\"\n  role subject \"Petru\"\n  role object \"Spanish\"\n  polarity negated\n  certainty asserted\n\n@s17 stated\n  relation \"host\"\n  role subject \"Ovidiu Rusu\"\n  role object \"the town hall debate\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"be married to\"\n  role subject \"Aurelia\"\n  role object \"Filarmonica din Piatra Neamț\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"be based in\"\n  role subject \"Valentina Navarro\"\n  role location \"Grădina Botanică din Bistrița\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"be based in\"\n  role subject \"Adaeze Balogun\"\n  role location \"Filarmonica din Constanța\"\n  polarity affirmed\n  certainty asserted\n\n@s21 stated\n  relation \"be married to\"\n  role subject \"Călin\"\n  role object \"Filarmonica din Piatra Neamț\"\n  polarity affirmed\n  certainty asserted\n\n@s22 stated\n  relation \"be based in\"\n  role subject \"Valentina Navarro\"\n  role location \"Grădina Botanică din Bistrița\"\n  polarity affirmed\n  certainty asserted\n\n@s23 stated\n  relation \"be married to\"\n  role subject \"Bohdan\"\n  role object \"Filarmonica din Constanța\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  select ?x\n  where match\n    relation \"plan to go to\"\n    role subject ?x\n    role object \"the town hall debate\"\n    polarity affirmed\n  end\n\n@q2 query\n  select ?x\n  where match\n    relation \"carry\"\n    role subject \"Otilia\"\n    role object ?x\n    polarity affirmed\n  end\n",
+    "gbnf": "@s1 stated\n  relation \"be married to\"\n  role subject \"Zoltán\"\n  role object \"the wedding reception\"\n  polarity negated\n  certainty asserted\n\n@s2 stated\n  relation \"cultivate\"\n  role subject \"Thiago\"\n  role object \"the blue van\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"buy from\"\n  role subject \"Tudor Stoica\"\n  role source \"Brighton\"\n  polarity negated\n  certainty asserted\n\n@s4 stated\n  relation \"live in\"\n  role subject \"Bogdan-Ionuț Stan\"\n  role location \"Corfu\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"be membranced\"\n  role subject \"Zeynep Şahin\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"be the coach of\"\n  role subject \"Emeka\"\n  role object \"the parents' evening\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"maintain\"\n  role subject \"Alexandru\"\n  role object \"the garage behind the block\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"be in\"\n  role subject \"Bogdan\"\n  role location \"Grădina Botanică din Izmir\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"be based in\"\n  role subject \"Diana\"\n  role location \"Centrul Comunitar de pe strada Ulmilor\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"buy from\"\n  role subject \"Lucian\"\n  role source \"Lyon\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"maintain\"\n  role subject \"Quang\"\n  role object \"the plot of land by the river\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"be the coach of\"\n  role subject \"Erik Johansson\"\n  role object \"the parents' evening\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"be married to\"\n  role subject \"Jonas\"\n  role object \"the owner of the holiday cottage in Bran\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"be the owner of\"\n  role subject \"Ovidiu Rusu\"\n  role object \"the tractorrow\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"give classes in\"\n  role subject \"Aurelia\"\n  role object \"Spanish\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"host\"\n  role subject \"Petru\"\n  role object \"the holiday cottage in Bran\"\n  polarity negated\n  certainty asserted\n\n@s17 stated\n  relation \"be on\"\n  role subject \"Ovidiu Rusu\"\n  role object \"Grădina Botanică din Bistrița\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"buy from\"\n  role subject \"Adaeze Balogun\"\n  role source \"Filarmonica din Constanța\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  select ?x\n  where match\n    relation \"travel to\"\n    role subject ?x\n    role destination \"Sibiu\"\n    polarity affirmed\n  end\n\n@q2 query\n  select ?x\n  where match\n    relation \"commute by\"\n    role subject \"Otilia\"\n    role instrument ?x\n    polarity affirmed\n  end\n"
+   },
+   {
+    "id": "ood1_000475_0_0",
+    "language": "en",
+    "question": "Giorgos grows lavender. Also, Thiago plants roses.",
+    "gold": "@s1 stated\n  relation \"grow\"\n  role subject \"Giorgos\"\n  role object \"lavender\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"plant\"\n  role subject \"Thiago\"\n  role object \"roses\"\n  polarity affirmed\n  certainty asserted\n",
+    "free": "@s1 stated\n  relation \"grow\"\n  role subject \"Giorgos\"\n  role object \"lavender\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \" plant\"\n  role subject \"Thiago\"\n  role object \"roses\"\n  polarity affirmed\n  certainty asserted\n",
+    "gbnf": "@s1 stated\n  relation \"grow\"\n  role subject \"Giorgos\"\n  role object \"lavender\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"plant\"\n  role subject \"Thiago\"\n  role object \"roses\"\n  polarity affirmed\n  certainty asserted\n"
+   },
+   {
+    "id": "ood1_000272_0_0",
+    "language": "en",
+    "question": "The weather here has been awful all week. Meera does not cook at the Buzău Arena. Alejandro cooks at the Community Centre on Elm Street. It has been a hectic week on my side. Karim is the chef at the Old Mill Hall. Also, Priya isn't the chef at the Valencia Arena. The weather here has been awful all week.\n\nThảo sings in the Madrigal choir. Ngozi Adeyemi rents the vineyard near Sibiu. The hospital ambulance is repaired by Silviu.\n\nAiko doesn't sing in the gospel choir. Also, Nadiya sings in the chamber choir. The weather here has been awful all week. Zsófia sings in the opera chorus. This is mostly for my own notes, to be honest. Radu Nistor is a member of the church choir. Also, Horia is a member of the university choir. The warehouse forklift is repaired by Ms Iordache.\n\nManon leases the flat on Mihai Viteazu Street. Emma is the chef at the Alexandria Philharmonic. Also, Ananya is the chef at the Pune Philharmonic. Rémi grows sunflowers. Also, Ana plants basil.\n\nRaluca leases the bakery on the corner. Also, Mr Pătrașcu leases the plot of land by the river. Otieno does not cook at the Cahul Arena. Burak Yılmaz rents the red Dacia. Also, Nicolae Mureșan leases the holiday cottage in Bran.\n\nElif is the chef at the Orhei Philharmonic. Megan Walker is not the chef at the Lagos Philharmonic. Also, Kaveh cooks at the Hanoi Arena. My manager wants a summary by the end of the day. Iancu is the chef at the Novi Sad Arena. Mr Weber is the chef at the Botanical Garden in Ploiești. Youssef is not the chef at the Botanical Garden in Leeds.\n\nMateo cooks at the Botoșani Arena. Kostas is the chef at the Lyon Arena. Also, Kenji is the chef at the Plovdiv Philharmonic. Felix is the chef at the Botanical Garden in Piatra Neamț. Vlad cooks at the Botanical Garden in Valencia. Also, Mr Florea is not the chef at the Botanical Garden in Baia Mare.\n\nViorica is the chef at the Bistrița Arena. Also, Mr Mazur cooks at the Tulcea Arena. Corina cooks at the Piatra Neamț Philharmonic. Also, Paweł is not the chef at the Botanical Garden in Focșani. Layla is the chef at the Târgu Mureș Arena. Also, Ion cooks at the Botanical Garden in Szeged. Parisa cooks at the Botanical Garden in Târgu Mureș. We had a power cut this morning, which did not help.\n\nWanjiru is the chef at the Sibiu Philharmonic.\n\nThings I still have to do today:\n- answer my emails\n- call the plumber\n- return the library books\n- pay the phone bill\n\nA few questions, then:\nAny chance Ms Park doesn't grow apple trees?\nAccording to Sophie, the vintage Beetle is repaired by Giorgos Nikolaidis. Do you know if the vintage Beetle is repaired by Florin?\nRemind me, what does Veaceslav grow?\nIs it the case that Ștefan doesn't cook at the Botanical Garden in Brașov?\nNot counting Thiago Souza, please find out who grows tomatoes.",
+    "gold": "@s1 stated\n  relation \"cook at\"\n  role subject \"Meera\"\n  role object \"the Buzău Arena\"\n  polarity negated\n  certainty asserted\n\n@s2 stated\n  relation \"cook at\"\n  role subject \"Alejandro\"\n  role object \"the Community Centre on Elm Street\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be the chef at\"\n  role subject \"Karim\"\n  role object \"the Old Mill Hall\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"be the chef at\"\n  role subject \"Priya\"\n  role object \"the Valencia Arena\"\n  polarity negated\n  certainty asserted\n\n@s5 stated\n  relation \"sing in\"\n  role subject \"Thảo\"\n  role object \"the Madrigal choir\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"rent\"\n  role subject \"Ngozi Adeyemi\"\n  role object \"the vineyard near Sibiu\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"be repaired by\"\n  role subject \"The hospital ambulance\"\n  role object \"Silviu\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"sing in\"\n  role subject \"Aiko\"\n  role object \"the gospel choir\"\n  polarity negated\n  certainty asserted\n\n@s9 stated\n  relation \"sing in\"\n  role subject \"Nadiya\"\n  role object \"the chamber choir\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"sing in\"\n  role subject \"Zsófia\"\n  role object \"the opera chorus\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"be a member of\"\n  role subject \"Radu Nistor\"\n  role object \"the church choir\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"be a member of\"\n  role subject \"Horia\"\n  role object \"the university choir\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"be repaired by\"\n  role subject \"The warehouse forklift\"\n  role object \"Ms Iordache\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"lease\"\n  role subject \"Manon\"\n  role object \"the flat on Mihai Viteazu Street\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be the chef at\"\n  role subject \"Emma\"\n  role object \"the Alexandria Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"be the chef at\"\n  role subject \"Ananya\"\n  role object \"the Pune Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"grow\"\n  role subject \"Rémi\"\n  role object \"sunflowers\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"plant\"\n  role subject \"Ana\"\n  role object \"basil\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"lease\"\n  role subject \"Raluca\"\n  role object \"the bakery on the corner\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"lease\"\n  role subject \"Mr Pătrașcu\"\n  role object \"the plot of land by the river\"\n  polarity affirmed\n  certainty asserted\n\n@s21 stated\n  relation \"cook at\"\n  role subject \"Otieno\"\n  role object \"the Cahul Arena\"\n  polarity negated\n  certainty asserted\n\n@s22 stated\n  relation \"rent\"\n  role subject \"Burak Yılmaz\"\n  role object \"the red Dacia\"\n  polarity affirmed\n  certainty asserted\n\n@s23 stated\n  relation \"lease\"\n  role subject \"Nicolae Mureșan\"\n  role object \"the holiday cottage in Bran\"\n  polarity affirmed\n  certainty asserted\n\n@s24 stated\n  relation \"be the chef at\"\n  role subject \"Elif\"\n  role object \"the Orhei Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s25 stated\n  relation \"be the chef at\"\n  role subject \"Megan Walker\"\n  role object \"the Lagos Philharmonic\"\n  polarity negated\n  certainty asserted\n\n@s26 stated\n  relation \"cook at\"\n  role subject \"Kaveh\"\n  role object \"the Hanoi Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s27 stated\n  relation \"be the chef at\"\n  role subject \"Iancu\"\n  role object \"the Novi Sad Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s28 stated\n  relation \"be the chef at\"\n  role subject \"Mr Weber\"\n  role object \"the Botanical Garden in Ploiești\"\n  polarity affirmed\n  certainty asserted\n\n@s29 stated\n  relation \"be the chef at\"\n  role subject \"Youssef\"\n  role object \"the Botanical Garden in Leeds\"\n  polarity negated\n  certainty asserted\n\n@s30 stated\n  relation \"cook at\"\n  role subject \"Mateo\"\n  role object \"the Botoșani Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s31 stated\n  relation \"be the chef at\"\n  role subject \"Kostas\"\n  role object \"the Lyon Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s32 stated\n  relation \"be the chef at\"\n  role subject \"Kenji\"\n  role object \"the Plovdiv Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s33 stated\n  relation \"be the chef at\"\n  role subject \"Felix\"\n  role object \"the Botanical Garden in Piatra Neamț\"\n  polarity affirmed\n  certainty asserted\n\n@s34 stated\n  relation \"cook at\"\n  role subject \"Vlad\"\n  role object \"the Botanical Garden in Valencia\"\n  polarity affirmed\n  certainty asserted\n\n@s35 stated\n  relation \"be the chef at\"\n  role subject \"Mr Florea\"\n  role object \"the Botanical Garden in Baia Mare\"\n  polarity negated\n  certainty asserted\n\n@s36 stated\n  relation \"be the chef at\"\n  role subject \"Viorica\"\n  role object \"the Bistrița Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s37 stated\n  relation \"cook at\"\n  role subject \"Mr Mazur\"\n  role object \"the Tulcea Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s38 stated\n  relation \"cook at\"\n  role subject \"Corina\"\n  role object \"the Piatra Neamț Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s39 stated\n  relation \"be the chef at\"\n  role subject \"Paweł\"\n  role object \"the Botanical Garden in Focșani\"\n  polarity negated\n  certainty asserted\n\n@s40 stated\n  relation \"be the chef at\"\n  role subject \"Layla\"\n  role object \"the Târgu Mureș Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s41 stated\n  relation \"cook at\"\n  role subject \"Ion\"\n  role object \"the Botanical Garden in Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s42 stated\n  relation \"cook at\"\n  role subject \"Parisa\"\n  role object \"the Botanical Garden in Târgu Mureș\"\n  polarity affirmed\n  certainty asserted\n\n@s43 stated\n  relation \"be the chef at\"\n  role subject \"Wanjiru\"\n  role object \"the Sibiu Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s44 stated\n  relation \"be repaired by\"\n  role subject \"the vintage Beetle\"\n  role object \"Giorgos Nikolaidis\"\n  polarity affirmed\n  certainty asserted\n  speaker \"Sophie\"\n\n@q query\n  where match\n    relation \"grow\"\n    role subject \"Ms Park\"\n    role object \"apple trees\"\n    polarity negated\n  end\n\n@q2 query\n  where match\n    relation \"be repaired by\"\n    role subject \"the vintage Beetle\"\n    role object \"Florin\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?x\n  where match\n    relation \"grow\"\n    role subject \"Veaceslav\"\n    role object ?x\n    polarity affirmed\n  end\n\n@q4 query\n  where match\n    relation \"cook at\"\n    role subject \"Ștefan\"\n    role object \"the Botanical Garden in Brașov\"\n    polarity negated\n  end\n\n@q5 query\n  select ?x\n  where match\n    relation \"grow\"\n    role subject ?x\n    role object \"tomatoes\"\n    polarity affirmed\n  end\n  except ?x \"Thiago Souza\"\n",
+    "free": "@s1 stated\n  relation \"cook at\"\n  role subject \"Meera\"\n  role object \"the Buzău Arena\"\n  polarity negated\n  certainty asserted\n\n@s2 stated\n  relation \"buy from\"\n  role subject \"Alejandro\"\n  role source \"the Community Centre on Elm Street\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be the chef at\"\n  role subject \"Karim\"\n  role object \"the Old Mill Hall\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"be the chef at\"\n  role subject \"Priya\"\n  role object \"the Valencia Arena\"\n  polarity negated\n  certainty asserted\n\n@s5 stated\n  relation \"sing in\"\n  role subject \"Thảo\"\n  role object \"the Madrigal choir\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"rent\"\n  role subject \"Ngozi Adeyemi\"\n  role object \"the vineyard\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"be repaired by\"\n  role subject \"The hospital ambulance\"\n  role object \"Sylviu\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"sing in\"\n  role subject \"Aiko\"\n  role object \"the gospel choir\"\n  polarity negated\n  certainty asserted\n\n@s9 stated\n  relation \"sing in\"\n  role subject \"Nadiya\"\n  role object \"the chamber choir\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"sing in\"\n  role subject \"Zsófia\"\n  role object \"the opera chorus\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"be a member of\"\n  role subject \"Radu Nistor\"\n  role object \"the church choir\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"be a member of\"\n  role subject \"Horia\"\n  role object \"the university choir\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"be the boss of\"\n  role subject \"The warehouse forklift\"\n  role object \"the warehouse forklift\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"be the chef at\"\n  role subject \"Manon\"\n  role object \"the Madrigal choir\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be the chef at\"\n  role subject \"Ngozi Adeyemi\"\n  role object \"the vineyard\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"be the chef at\"\n  role subject \"Ngozi Adeyemi\"\n  role object \"the Pune Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"be the chef at\"\n  role subject \"Ananya\"\n  role object \"the Pune Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"grow\"\n  role subject \"Rémi\"\n  role object \"sunflowers\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \" plant\"\n  role subject \"Anca\"\n  role object \"Basil\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"be a member of\"\n  role subject \"Raluca\"\n  role object \"the bakery on the corner\"\n  polarity affirmed\n  certainty asserted\n\n@s21 stated\n  relation \"sell\"\n  role subject \"Mr Pătrașcu\"\n  role object \"the plot of land by the river\"\n  polarity affirmed\n  certainty asserted\n\n@s22 stated\n  relation \"cook at\"\n  role subject \"Otieno\"\n  role object \"the Cahul Arena\"\n  polarity negated\n  certainty asserted\n\n@s23 stated\n  relation \"rent\"\n  role subject \"Burak Yılmaz\"\n  role object \"the red Dacia\"\n  polarity affirmed\n  certainty asserted\n\n@s24 stated\n  relation \" lease\"\n  role subject \"Nicolae Mureșan\"\n  role object \"the holiday cottage in Bran\"\n  polarity affirmed\n  certainty asserted\n\n@s25 stated\n  relation \"be the chef at\"\n  role subject \"Elif\"\n  role object \"the Orhei Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s26 stated\n  relation \"be the chef at\"\n  role subject \"Megan Walker\"\n  role object \"the Lagos Philharmonic\"\n  polarity negated\n  certainty asserted\n\n@s27 stated\n  relation \"plan to cook at\"\n  role subject \"Kaveh\"\n  role object \"the Hanoi Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s28 stated\n  relation \"be the chef at\"\n  role subject \"My manager\"\n  role object \"the Botoșani Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s29 stated\n  relation \"be the chef at\"\n  role subject \"Kostas\"\n  role object \"the Lyon Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s30 stated\n  relation \"be the chef at\"\n  role subject \"Kenji\"\n  role object \"the Plovdiv Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s31 stated\n  relation \"be the chef at\"\n  role subject \"Felix\"\n  role object \"the Botanical Garden in Piatra Neamț\"\n  polarity affirmed\n  certainty asserted\n\n@s32 stated\n  relation \"be the chef at\"\n  role subject \"Vlad\"\n  role object \"the Botanical Garden in Valencia\"\n  polarity affirmed\n  certainty asserted\n\n@s33 stated\n  relation \"be the chef at\"\n  role subject \"Mr Florea\"\n  role object \"the Botanical Garden in Baia Mare\"\n  polarity negated\n  certainty asserted\n\n@s34 stated\n  relation \"be the chef at\"\n  role subject \"Viorica\"\n  role object \"the Bistrița Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s35 stated\n  relation \"buy from\"\n  role subject \"Kostas\"\n  role source \"the Lyon Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s36 stated\n  relation \"be the chef at\"\n  role subject \"Felix\"\n  role object \"the Botanical Garden in Piatra Neamț\"\n  polarity affirmed\n  certainty asserted\n\n@s37 stated\n  relation \"be the chef at\"\n  role subject \"Ion\"\n  role object \"the Botanical Garden in Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s38 stated\n  relation \"be the chef at\"\n  role subject \"Mr Weber\"\n  role object \"the Botanical Garden in Ploiești\"\n  polarity affirmed\n  certainty asserted\n\n@s39 stated\n  relation \"be the chef at\"\n  role subject \"Youssef\"\n  role object \"the Botanical Garden in Leeds\"\n  polarity negated\n  certainty asserted\n\n@s40 stated\n  relation \"be the chef at\"\n  role subject \"Wanjiru\"\n  role object \"the Sibiu Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s41 stated\n  relation \"buy from\"\n  role subject \"Amara\"\n  role source \"the Sibiu Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s42 stated\n  relation \"be the chef at\"\n  role subject \"Kostas\"\n  role object \"the Lyon Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s43 stated\n  relation \"be the chef at\"\n  role subject \"Corina\"\n  role object \"the Piatra Neamț Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s44 stated\n  relation \"be the chef at\"\n  role subject \"Paweł\"\n  role object \"the Plovdiv Philharmonic\"\n  polarity negated\n  certainty asserted\n\n@s45 stated\n  relation \"be the chef at\"\n  role subject \"Layla\"\n  role object \"the Târgu Mureș Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s46 stated\n  relation \"be the boss of\"\n  role subject \"Ion\"\n  role object \"the Botanical Garden in Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s47 stated\n  relation \"be the chef at\"\n  role subject \"Parisa\"\n  role object \"the Botanical Garden in Târgu Mureș\"\n  polarity affirmed\n  certainty asserted\n\n@s48 stated\n  relation \"raise\"\n  role subject \"Wanjiru\"\n  role object \"the Sibiu Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"grow\"\n    role subject \"the vintage Beetle\"\n    role object \"the Beetle\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"be repaired by\"\n    role subject \"the vintage Beetle\"\n    role object \"Giorgos Nikolaidis\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?how\n  where match\n    relation \"get to work\"\n    role subject \"the vintage Beetle\"\n    role instrument ?how\n    polarity affirmed\n  end\n\n@q4 query\n  where match\n    relation \"be repaired by\"\n    role subject \"the vintage Beetle\"\n    role object \"Florin\"\n    polarity affirmed\n  end\n\n@q5 query\n  select ?x\n  where match\n    relation \"grow\"\n    role subject ?x\n    role object \"the tomatoes\"\n    polarity affirmed\n  end\n",
+    "gbnf": "@s1 stated\n  relation \"cook at\"\n  role subject \"Meera\"\n  role object \"the Buzău Arena\"\n  polarity negated\n  certainty asserted\n\n@s2 stated\n  relation \"buy from\"\n  role subject \"Alejandro\"\n  role source \"the Community Centre on Elm Street\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be the chef at\"\n  role subject \"Karim\"\n  role object \"the Old Mill Hall\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"be the chef at\"\n  role subject \"Priya\"\n  role object \"the Valencia Arena\"\n  polarity negated\n  certainty asserted\n\n@s5 stated\n  relation \"sing in\"\n  role subject \"Thảo\"\n  role object \"the Madrigal choir\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"rent\"\n  role subject \"Ngozi Adeyemi\"\n  role object \"the vineyard\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"be repaired by\"\n  role subject \"The hospital ambulance\"\n  role object \"Sylviu\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"sing in\"\n  role subject \"Aiko\"\n  role object \"the gospel choir\"\n  polarity negated\n  certainty asserted\n\n@s9 stated\n  relation \"sing in\"\n  role subject \"Nadiya\"\n  role object \"the chamber choir\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"sing in\"\n  role subject \"Zsófia\"\n  role object \"the opera chorus\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"be a member of\"\n  role subject \"Radu Nistor\"\n  role object \"the church choir\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"be a member of\"\n  role subject \"Horia\"\n  role object \"the university choir\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"be the boss of\"\n  role subject \"The warehouse forklift\"\n  role object \"the warehouse forklift\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"be the chef at\"\n  role subject \"Manon\"\n  role object \"the Madrigal choir\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be the chef at\"\n  role subject \"Ngozi Adeyemi\"\n  role object \"the vineyard\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"be the chef at\"\n  role subject \"Ngozi Adeyemi\"\n  role object \"the Pune Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"be the chef at\"\n  role subject \"Ananya\"\n  role object \"the Pune Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"grow\"\n  role subject \"Rémi\"\n  role object \"sunflowers\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"plant\"\n  role subject \"Anca\"\n  role object \"Basil\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"be a member of\"\n  role subject \"Raluca\"\n  role object \"the bakery on the corner\"\n  polarity affirmed\n  certainty asserted\n\n@s21 stated\n  relation \"sell\"\n  role subject \"Mr Pătrașcu\"\n  role object \"the plot of land by the river\"\n  polarity affirmed\n  certainty asserted\n\n@s22 stated\n  relation \"cook at\"\n  role subject \"Otieno\"\n  role object \"the Cahul Arena\"\n  polarity negated\n  certainty asserted\n\n@s23 stated\n  relation \"rent\"\n  role subject \"Burak Yılmaz\"\n  role object \"the red Dacia\"\n  polarity affirmed\n  certainty asserted\n\n@s24 stated\n  relation \"live by\"\n  role subject \"Nicolae Mureșan\"\n  role object \"the holiday cottage in Bran\"\n  polarity affirmed\n  certainty asserted\n\n@s25 stated\n  relation \"be the chef at\"\n  role subject \"Elif\"\n  role object \"the Orhei Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s26 stated\n  relation \"be the chef at\"\n  role subject \"Megan Walker\"\n  role object \"the Lagos Philharmonic\"\n  polarity negated\n  certainty asserted\n\n@s27 stated\n  relation \"plan to cook at\"\n  role subject \"Kaveh\"\n  role object \"the Hanoi Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s28 stated\n  relation \"be the chef at\"\n  role subject \"My manager\"\n  role object \"the Botoșani Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s29 stated\n  relation \"be the chef at\"\n  role subject \"Kostas\"\n  role object \"the Lyon Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s30 stated\n  relation \"be the chef at\"\n  role subject \"Kenji\"\n  role object \"the Plovdiv Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s31 stated\n  relation \"be the chef at\"\n  role subject \"Felix\"\n  role object \"the Botanical Garden in Piatra Neamț\"\n  polarity affirmed\n  certainty asserted\n\n@s32 stated\n  relation \"be the chef at\"\n  role subject \"Vlad\"\n  role object \"the Botanical Garden in Valencia\"\n  polarity affirmed\n  certainty asserted\n\n@s33 stated\n  relation \"be the chef at\"\n  role subject \"Mr Florea\"\n  role object \"the Botanical Garden in Baia Mare\"\n  polarity negated\n  certainty asserted\n\n@s34 stated\n  relation \"be the chef at\"\n  role subject \"Viorica\"\n  role object \"the Bistrița Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s35 stated\n  relation \"buy from\"\n  role subject \"Kostas\"\n  role source \"the Lyon Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s36 stated\n  relation \"be the chef at\"\n  role subject \"Corina\"\n  role object \"the Piatra Neamț Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s37 stated\n  relation \"be the chef at\"\n  role subject \"Paweł\"\n  role object \"the Botanical Garden in Focșani\"\n  polarity negated\n  certainty asserted\n\n@s38 stated\n  relation \"be the chef at\"\n  role subject \"Layla\"\n  role object \"the Târgu Mureș Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s39 stated\n  relation \"be the chef at\"\n  role subject \"Ion\"\n  role object \"the Botanical Garden in Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s40 stated\n  relation \"be the chef at\"\n  role subject \"Parisa\"\n  role object \"the Botanical Garden in Târgu Mureș\"\n  polarity affirmed\n  certainty asserted\n\n@s41 stated\n  relation \"be the chef at\"\n  role subject \"Wanjiru\"\n  role object \"the Sibiu Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s42 stated\n  relation \"have the flu\"\n  role subject \"Ms Park\"\n  polarity negated\n  certainty asserted\n\n@q query\n  where match\n    relation \"grow\"\n    role subject \"the vintage Beetle\"\n    role object \"the Beetle\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"be repaired by\"\n    role subject \"the vintage Beetle\"\n    role object \"Giorgos Nikolaidis\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?how\n  where match\n    relation \"give classes in\"\n    role subject \"the vintage Beetle\"\n    role object \"Spanish\"\n    role time ?how\n    polarity affirmed\n  end\n\n@q4 query\n  where match\n    relation \"be the boss of\"\n    role subject \"Ștefan\"\n    role object \"the Botanical Garden in Brașov\"\n    polarity negated\n  end\n\n@q5 query\n  select ?x\n  where match\n    relation \"grow\"\n    role subject ?x\n    role object \"tomatoes\"\n    polarity affirmed\n  end\n"
+   },
+   {
+    "id": "ood1_000395_0_0",
+    "language": "mixed",
+    "question": "My coffee went cold while I was typing this. Ananya închiriază via de lângă Sibiu. Joaquín grows lavender.\n\nEmma leases the garage behind the block. Also, Mr Lăutaru leases the old sailing boat. Răzvan Dobre se ocupă de mașina de pompieri. În plus, Maria Țurcanu nu se ocupă de autobuzul școlii. The yellow taxi is repaired by Nikos. Cristina is the chef at the Old Mill Hall. Also, Min-jun cooks at the Timișoara Arena. Alejandro Martínez nu este bucătar la Arena Sibiu. În plus, Tunde este bucătar la Filarmonica din Iași.\n\nThe warehouse forklift is repaired by Corina Mureșan. Anyway, back to what I actually wanted to ask. Botond is a member of the gospel choir. Thảo Phạm rents the recording studio.\n\nThe old Volvo is repaired by Grace. Also, the hospital ambulance is repaired by Rachel. I am writing this on my phone, so bear with me. Bianca is not the chef at the Community Centre on Elm Street.\n\nAiko Tanaka grows roses. The weather here has been awful all week. Iancu este bucătar la Filarmonica din Busan. Am încercat să mă lămuresc singur, dar m-am încurcat.\n\nTariq Khalil nu cântă în corul bisericii. Iulia cooks at the Botanical Garden in Cluj-Napoca. Thomas sings in the folk ensemble. Teodora does not cook at the Orhei Philharmonic.\n\nAndreea cooks at the Pitești Philharmonic. Théo cooks at the Oradea Arena. Also, Camille does not cook at the Botanical Garden in Buzău. Ovidiu is the chef at the Lviv Arena. Also, Diana cooks at the Bălți Arena. Anna-Lena isn't the chef at the Botanical Garden in Bacău. My manager wants a summary by the end of the day.\n\nTatiana Enache cooks at the Călărași Philharmonic. Oksana gătește la Arena Szeged. Pablo Navarro does not cook at the Botanical Garden in Osaka. Elif Demir is the chef at the Târgu Mureș Philharmonic.\n\nYoussef is the chef at the Bistrița Arena. My coffee went cold while I was typing this. Enikő Nagy cooks at the Botanical Garden in Piatra Neamț. Also, Irina Crăciun cooks at the Botanical Garden in Constanța. Alina is the chef at the Botanical Garden in Baia Mare. Also, Anca Gheorghiu is the chef at the Botanical Garden in Călărași.\n\nI believe Mihai rents the holiday cottage in Bran. Would you say that he rents the holiday cottage in Bran? Since Nour Haddad grows grapevines, is it true that she plants grapevines? How many people is the white camper van repaired by, if you know? Confirmă sau infirmă: Diego Romero nu repară Beetle-ul de epocă.\n\nTalk soon!",
+    "gold": "@s1 stated\n  relation \"rent\"\n  role subject \"Ananya\"\n  role object \"the vineyard near Sibiu\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"grow\"\n  role subject \"Joaquín\"\n  role object \"lavender\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"lease\"\n  role subject \"Emma\"\n  role object \"the garage behind the block\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"lease\"\n  role subject \"Mr Lăutaru\"\n  role object \"the old sailing boat\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"work on\"\n  role subject \"Răzvan Dobre\"\n  role object \"the fire engine\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"work on\"\n  role subject \"Maria Țurcanu\"\n  role object \"the school bus\"\n  polarity negated\n  certainty asserted\n\n@s7 stated\n  relation \"be repaired by\"\n  role subject \"The yellow taxi\"\n  role object \"Nikos\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"be the chef at\"\n  role subject \"Cristina\"\n  role object \"the Old Mill Hall\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"cook at\"\n  role subject \"Min-jun\"\n  role object \"the Timișoara Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"be the chef at\"\n  role subject \"Alejandro Martínez\"\n  role object \"Arena Sibiu\"\n  polarity negated\n  certainty asserted\n\n@s11 stated\n  relation \"be the chef at\"\n  role subject \"Tunde\"\n  role object \"Filarmonica din Iași\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"be repaired by\"\n  role subject \"The warehouse forklift\"\n  role object \"Corina Mureșan\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"be a member of\"\n  role subject \"Botond\"\n  role object \"the gospel choir\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"rent\"\n  role subject \"Thảo Phạm\"\n  role object \"the recording studio\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be repaired by\"\n  role subject \"The old Volvo\"\n  role object \"Grace\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"be repaired by\"\n  role subject \"the hospital ambulance\"\n  role object \"Rachel\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"be the chef at\"\n  role subject \"Bianca\"\n  role object \"the Community Centre on Elm Street\"\n  polarity negated\n  certainty asserted\n\n@s18 stated\n  relation \"grow\"\n  role subject \"Aiko Tanaka\"\n  role object \"roses\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"be the chef at\"\n  role subject \"Iancu\"\n  role object \"Filarmonica din Busan\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"sing in\"\n  role subject \"Tariq Khalil\"\n  role object \"the church choir\"\n  polarity negated\n  certainty asserted\n\n@s21 stated\n  relation \"cook at\"\n  role subject \"Iulia\"\n  role object \"the Botanical Garden in Cluj-Napoca\"\n  polarity affirmed\n  certainty asserted\n\n@s22 stated\n  relation \"sing in\"\n  role subject \"Thomas\"\n  role object \"the folk ensemble\"\n  polarity affirmed\n  certainty asserted\n\n@s23 stated\n  relation \"cook at\"\n  role subject \"Teodora\"\n  role object \"the Orhei Philharmonic\"\n  polarity negated\n  certainty asserted\n\n@s24 stated\n  relation \"cook at\"\n  role subject \"Andreea\"\n  role object \"the Pitești Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s25 stated\n  relation \"cook at\"\n  role subject \"Théo\"\n  role object \"the Oradea Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s26 stated\n  relation \"cook at\"\n  role subject \"Camille\"\n  role object \"the Botanical Garden in Buzău\"\n  polarity negated\n  certainty asserted\n\n@s27 stated\n  relation \"be the chef at\"\n  role subject \"Ovidiu\"\n  role object \"the Lviv Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s28 stated\n  relation \"cook at\"\n  role subject \"Diana\"\n  role object \"the Bălți Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s29 stated\n  relation \"be the chef at\"\n  role subject \"Anna-Lena\"\n  role object \"the Botanical Garden in Bacău\"\n  polarity negated\n  certainty asserted\n\n@s30 stated\n  relation \"cook at\"\n  role subject \"Tatiana Enache\"\n  role object \"the Călărași Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s31 stated\n  relation \"cook at\"\n  role subject \"Oksana\"\n  role object \"Arena Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s32 stated\n  relation \"cook at\"\n  role subject \"Pablo Navarro\"\n  role object \"the Botanical Garden in Osaka\"\n  polarity negated\n  certainty asserted\n\n@s33 stated\n  relation \"be the chef at\"\n  role subject \"Elif Demir\"\n  role object \"the Târgu Mureș Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s34 stated\n  relation \"be the chef at\"\n  role subject \"Youssef\"\n  role object \"the Bistrița Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s35 stated\n  relation \"cook at\"\n  role subject \"Enikő Nagy\"\n  role object \"the Botanical Garden in Piatra Neamț\"\n  polarity affirmed\n  certainty asserted\n\n@s36 stated\n  relation \"cook at\"\n  role subject \"Irina Crăciun\"\n  role object \"the Botanical Garden in Constanța\"\n  polarity affirmed\n  certainty asserted\n\n@s37 stated\n  relation \"be the chef at\"\n  role subject \"Alina\"\n  role object \"the Botanical Garden in Baia Mare\"\n  polarity affirmed\n  certainty asserted\n\n@s38 stated\n  relation \"be the chef at\"\n  role subject \"Anca Gheorghiu\"\n  role object \"the Botanical Garden in Călărași\"\n  polarity affirmed\n  certainty asserted\n\n@s39 stated\n  relation \"rent\"\n  role subject \"Mihai\"\n  role object \"the holiday cottage in Bran\"\n  polarity affirmed\n  certainty hedged\n\n@s40 stated\n  relation \"grow\"\n  role subject \"Nour Haddad\"\n  role object \"grapevines\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"rent\"\n    role subject \"Mihai\"\n    role object \"the holiday cottage in Bran\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"plant\"\n    role subject \"Nour Haddad\"\n    role object \"grapevines\"\n    polarity affirmed\n  end\n\n@q3 query\n  mode count\n  select ?x\n  where match\n    relation \"be repaired by\"\n    role subject \"the white camper van\"\n    role object ?x\n    polarity affirmed\n  end\n\n@q4 query\n  where match\n    relation \"repair\"\n    role subject \"Diego Romero\"\n    role object \"the vintage Beetle\"\n    polarity negated\n  end\n",
+    "free": "@s1 stated\n  relation \"live in\"\n  role subject \"Ananya\"\n  role location \"Sibiu\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"grow\"\n  role subject \"Joaquín\"\n  role object \"lavender\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be the owner of\"\n  role subject \"Emma\"\n  role object \"the garage behind the block\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \" lease\"\n  role subject \"Mr Lăutaru\"\n  role object \"the old sailing boat\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"be the coach of\"\n  role subject \"Răzvan Dobre\"\n  role object \"the town hall debate\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"be the owner of\"\n  role subject \"Maria Țurcanu\"\n  role object \"the blue van\"\n  polarity negated\n  certainty asserted\n\n@s7 stated\n  relation \"be repaired by\"\n  role subject \"The yellow taxi\"\n  role object \"Nikos\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"be the chef at\"\n  role subject \"Cristina\"\n  role object \"the Old Mill Hall\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"travel to\"\n  role subject \"Min-jun\"\n  role destination \"Arena Sibiu\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"be based in\"\n  role subject \"Tunde\"\n  role location \"Arena Sibiu\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"be based in\"\n  role subject \"Tunde\"\n  role location \"Filarmonica din Iași\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"be repaired by\"\n  role subject \"The warehouse forklift\"\n  role object \"Corina Mureșan\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"be a member of\"\n  role subject \"Botond\"\n  role object \"the gospel choir\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"rent\"\n  role subject \"Thảo Phạm\"\n  role object \"the recording studio\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be repaired by\"\n  role subject \"The old Volvo\"\n  role object \"Grace\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"be repaired by\"\n  role subject \"the hospital ambulance\"\n  role object \"Rachel\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"be the chef at\"\n  role subject \"Bianca\"\n  role object \"the Community Centre on Elm Street\"\n  polarity negated\n  certainty asserted\n\n@s18 stated\n  relation \"live in\"\n  role subject \"Aiko Tanaka\"\n  role location \"Filarmonica din Busan\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"live in\"\n  role subject \"Tariq Khalil\"\n  role location \"Coruláș\"\n  polarity negated\n  certainty asserted\n\n@s20 stated\n  relation \"buy from\"\n  role subject \"Aiko Tanaka\"\n  role source \"Filarmonica din Busan\"\n  polarity affirmed\n  certainty asserted\n\n@s21 stated\n  relation \"cook at\"\n  role subject \"Tariq Khalil\"\n  role object \"the Botanical Garden in Cluj-Napoca\"\n  polarity negated\n  certainty asserted\n\n@s22 stated\n  relation \"sing at\"\n  role subject \"Thomas\"\n  role object \"the folk ensemble\"\n  polarity affirmed\n  certainty asserted\n\n@s23 stated\n  relation \"be the chef at\"\n  role subject \"Teodora\"\n  role object \"the Orhei Philharmonic\"\n  polarity negated\n  certainty asserted\n\n@s24 stated\n  relation \"be the chef at\"\n  role subject \"Andreea\"\n  role object \"the Pitești Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s25 stated\n  relation \"coach\"\n  role subject \"Théo\"\n  role object \"the Botanical Garden in Cluj-Napoca\"\n  polarity affirmed\n  certainty asserted\n\n@s26 stated\n  relation \"go to work by\"\n  role subject \"Ovidiu\"\n  role instrument \"the Pitești Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s27 stated\n  relation \"be the chef at\"\n  role subject \"Ovidiu\"\n  role object \"the Botanical Garden in Buzău\"\n  polarity negated\n  certainty asserted\n\n@s28 stated\n  relation \"be the chef at\"\n  role subject \"Dorothy\"\n  role object \"the Botanical Garden in Bălți\"\n  polarity affirmed\n  certainty asserted\n\n@s29 stated\n  relation \"be the chef at\"\n  role subject \"Anna-Lena\"\n  role object \"the Botanical Garden in Bacău\"\n  polarity negated\n  certainty asserted\n\n@s30 stated\n  relation \"be the boss of\"\n  role subject \"Tatiana Enache\"\n  role object \"the Călărași Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s31 stated\n  relation \"raise\"\n  role subject \"Enikő Nagy\"\n  role object \"the Botanical Garden in Piatra Neamț\"\n  polarity affirmed\n  certainty asserted\n\n@s32 stated\n  relation \"raise\"\n  role subject \"Irina Crăciun\"\n  role object \"the Botanical Garden in Constanța\"\n  polarity affirmed\n  certainty asserted\n\n@s33 stated\n  relation \"be the chef at\"\n  role subject \"Alina\"\n  role object \"the Botanical Garden in Baia Mare\"\n  polarity affirmed\n  certainty asserted\n\n@s34 stated\n  relation \"be the chef at\"\n  role subject \"Anca Gheorghiu\"\n  role object \"the Botanical Garden in Călărași\"\n  polarity affirmed\n  certainty asserted\n\n@s35 stated\n  relation \"sell\"\n  role subject \"Mihai\"\n  role object \"the holiday cottage in Bran\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"rely on\"\n  role subject \"the holiday cottage in Bran\"\n  role object \"the holiday cottage in Bran\"\n  polarity negated\n  basis world\n\n@q query\n  where match\n    relation \"rely on\"\n    role subject \"the holiday cottage in Bran\"\n    role object \"the holiday cottage in Bran\"\n    polarity negated\n  end\n\n@q2 query\n  where match\n    relation \"plant\"\n    role subject \"Nour Haddad\"\n    role object \"grapevines\"\n    polarity affirmed\n  end\n\n@q3 query\n  mode count\n  select ?x\n  where match\n    relation \"be repaired by\"\n    role subject ?x\n    role object \"the white camper van\"\n    polarity affirmed\n  end\n\n@q4 query\n  where match\n    relation \"be repaired by\"\n    role subject \"the white camper van\"\n    role object \"the Beetle-ul\"\n    polarity affirmed\n  end\n\n@q5 query\n  where match\n    relation \"be the boss of\"\n    role subject \"Dorothy\"\n    role object \"the Botanical Garden in Bălți\"\n    polarity affirmed\n  end\n",
+    "gbnf": "@s1 stated\n  relation \"live in\"\n  role subject \"Ananya\"\n  role location \"Sibiu\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"grow\"\n  role subject \"Joaquín\"\n  role object \"lavender\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"be the owner of\"\n  role subject \"Emma\"\n  role object \"the garage behind the block\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"live in\"\n  role subject \"Mr Lăutaru\"\n  role location \"the old sailing boat\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"be the coach of\"\n  role subject \"Răzvan Dobre\"\n  role object \"the town hall debate\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"be the owner of\"\n  role subject \"Maria Țurcanu\"\n  role object \"the blue van\"\n  polarity negated\n  certainty asserted\n\n@s7 stated\n  relation \"be repaired by\"\n  role subject \"The yellow taxi\"\n  role object \"Nikos\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"be the chef at\"\n  role subject \"Cristina\"\n  role object \"the Old Mill Hall\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"plan to go to\"\n  role subject \"Min-jun\"\n  role object \"the Timișoara Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s10 stated\n  relation \"be based in\"\n  role subject \"Alejandro Martínez\"\n  role location \"Arena Sibiu\"\n  polarity negated\n  certainty asserted\n\n@s11 stated\n  relation \"be based in\"\n  role subject \"Tunde\"\n  role location \"Arena Sibiu\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"be based in\"\n  role subject \"Tunde\"\n  role location \"Filarmonica din Iași\"\n  polarity affirmed\n  certainty asserted\n\n@s13 stated\n  relation \"be repaired by\"\n  role subject \"The warehouse forklift\"\n  role object \"Corina Mureșan\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"be a member of\"\n  role subject \"Botond\"\n  role object \"the gospel choir\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"rent\"\n  role subject \"Thảo Phạm\"\n  role object \"the recording studio\"\n  polarity affirmed\n  certainty asserted\n\n@s16 stated\n  relation \"be repaired by\"\n  role subject \"The old Volvo\"\n  role object \"Grace\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"be repaired by\"\n  role subject \"the hospital ambulance\"\n  role object \"Rachel\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"be the chef at\"\n  role subject \"Bianca\"\n  role object \"the Community Centre on Elm Street\"\n  polarity negated\n  certainty asserted\n\n@s19 stated\n  relation \"live in\"\n  role subject \"Aiko Tanaka\"\n  role location \"Filarmonica din Busan\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"live in\"\n  role subject \"Tariq Khalil\"\n  role location \"Corulá\"\n  polarity negated\n  certainty asserted\n\n@s21 stated\n  relation \"buy from\"\n  role subject \"Aiko Tanaka\"\n  role source \"Filarmonica din Busan\"\n  polarity affirmed\n  certainty asserted\n\n@s22 stated\n  relation \"cook at\"\n  role subject \"Tariq Khalil\"\n  role object \"the bakery on the corner\"\n  polarity negated\n  certainty asserted\n\n@s23 stated\n  relation \"carry\"\n  role subject \"Iulia\"\n  role object \"the Botanical Garden in Cluj-Napoca\"\n  polarity affirmed\n  certainty asserted\n\n@s24 stated\n  relation \"sing at\"\n  role subject \"Thomas\"\n  role object \"the folk ensemble\"\n  polarity affirmed\n  certainty asserted\n\n@s25 stated\n  relation \"host\"\n  role subject \"Teodora\"\n  role object \"the Orhei Philharmonic\"\n  polarity negated\n  certainty asserted\n\n@s26 stated\n  relation \"be the chef at\"\n  role subject \"Andreea\"\n  role object \"the Pitești Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s27 stated\n  relation \"cook at\"\n  role subject \"Théo\"\n  role object \"the Oradea Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s28 stated\n  relation \"live at\"\n  role subject \"Ovidiu\"\n  role location \"the Lviv Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s29 stated\n  relation \"plan to cook at\"\n  role subject \"Diana\"\n  role object \"the Bălți Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s30 stated\n  relation \"be the chef at\"\n  role subject \"Anna-Lena\"\n  role object \"the Botanical Garden in Bacău\"\n  polarity negated\n  certainty asserted\n\n@s31 stated\n  relation \"be the boss of\"\n  role subject \"Tatiana Enache\"\n  role object \"the Călărași Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s32 stated\n  relation \"raise\"\n  role subject \"Enikő Nagy\"\n  role object \"the Botanical Garden in Piatra Neamț\"\n  polarity affirmed\n  certainty asserted\n\n@s33 stated\n  relation \"raise\"\n  role subject \"Irina Crăciun\"\n  role object \"the Botanical Garden in Constanța\"\n  polarity affirmed\n  certainty asserted\n\n@s34 stated\n  relation \"be the chef at\"\n  role subject \"Alina\"\n  role object \"the Botanical Garden in Baia Mare\"\n  polarity affirmed\n  certainty asserted\n\n@s35 stated\n  relation \"be the chef at\"\n  role subject \"Anca Gheorghiu\"\n  role object \"the Botanical Garden in Călărași\"\n  polarity affirmed\n  certainty asserted\n\n@s36 stated\n  relation \"rely on\"\n  role subject \"the holiday cottage in Bran\"\n  role object \"the holiday cottage in Bran\"\n  polarity affirmed\n  certainty asserted\n\n@s37 stated\n  relation \"sell\"\n  role subject \"Nour Haddad\"\n  role object \"the grapevines\"\n  polarity affirmed\n  certainty asserted\n\n@s38 stated\n  relation \"be the chef at\"\n  role subject \"Irina Crăciun\"\n  role object \"the Botanical Garden in Constanța\"\n  polarity affirmed\n  certainty asserted\n\n@s39 stated\n  relation \"be the chef at\"\n  role subject \"Oksana\"\n  role object \"the Botanical Garden in Elmwood\"\n  polarity affirmed\n  certainty asserted\n\n@s40 stated\n  relation \"raise\"\n  role subject \"Ianah\"\n  role object \"the red Dacia\"\n  polarity affirmed\n  certainty asserted\n\n@s41 stated\n  relation \"raise\"\n  role subject \"Ianah\"\n  role object \"the blue van\"\n  polarity affirmed\n  certainty asserted\n\n@s42 stated\n  relation \"be the boss of\"\n  role subject \"Dorothy\"\n  role object \"the Pitești Philharmonic\"\n  polarity affirmed\n  certainty asserted\n\n@s43 stated\n  relation \"be the chef at\"\n  role subject \"Youssef\"\n  role object \"the Bistrița Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s44 stated\n  relation \"buy from\"\n  role subject \"Enikő Nagy\"\n  role source \"the Botanical Garden in Piatra Neamț\"\n  polarity affirmed\n  certainty asserted\n\n@s45 stated\n  relation \"be the boss of\"\n  role subject \"Irina Crăciun\"\n  role object \"the Oradea Arena\"\n  polarity affirmed\n  certainty asserted\n\n@s46 stated\n  relation \"be the chef at\"\n  role subject \"Alina\"\n  role object \"the Botanical Garden in Baia Mare\"\n  polarity affirmed\n  certainty asserted\n\n@s47 stated\n  relation \"be the boss of\"\n  role subject \"Anca Gheorghiu\"\n  role object \"the Bălți Arena\"\n  polarity affirmed\n  certainty asserted\n\n@a1 assumed\n  relation \"be the boss of\"\n  role subject \"Irina Crăciun\"\n  role object \"the Oradea Arena\"\n  polarity negated\n  basis world\n\n@a2 assumed\n  relation \"raise\"\n  role subject \"Dorothy\"\n  role object \"the red Dacia\"\n  polarity negated\n  basis world\n\n@q query\n  where match\n    relation \"rent\"\n    role subject \"Nour Haddad\"\n    role object \"the holiday cottage in Bran\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"plan to plant\"\n    role subject \"Irina Crăciun\"\n    role object \"the grapevines\"\n    polarity affirmed\n  end\n\n@q3 query\n  mode count\n  select ?x\n  where match\n    relation \"be repaired by\"\n    role subject \"the white camper van\"\n    role object ?x\n    polarity affirmed\n  end\n\n@q4 query\n  where match\n    relation \"be the boss of\"\n    role subject \"Dorothy\"\n    role object \"the Pitești Philharmonic\"\n    polarity affirmed\n  end\n\n@q5 query\n  where match\n    relation \"be the boss of\"\n    role subject \"Ianah\"\n    role object \"the Bălți Arena\"\n    polarity affirmed\n  end\n"
+   },
+   {
+    "id": "ood1_000597_0_0",
+    "language": "mixed",
+    "question": "Remind me, who plants ardei?",
+    "gold": "@q query\n  select ?x\n  where match\n    relation \"plant\"\n    role subject ?x\n    role object \"peppers\"\n    polarity affirmed\n  end\n",
+    "free": "@q query\n  select ?x\n  where match\n    relation \" plant\"\n    role subject ?x\n    role object \"evergreen trees\"\n    polarity affirmed\n  end\n",
+    "gbnf": "@q query\n  select ?x\n  where match\n    relation \"plant\"\n    role subject ?x\n    role object \"evergreen trees\"\n    polarity affirmed\n  end\n"
+   },
+   {
+    "id": "ood1_000097_0_0",
+    "language": "ro",
+    "question": "Chiar Mihai plantează lavandă? Și oare închiriază studioul de înregistrări?",
+    "gold": "@q query\n  where match\n    relation \"plant\"\n    role subject \"Mihai\"\n    role object \"lavender\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"rent\"\n    role subject \"Mihai\"\n    role object \"the recording studio\"\n    polarity affirmed\n  end\n",
+    "free": "@q query\n  select ?t\n  where match\n    relation \" plant\"\n    role subject \"Chiar Mihai\"\n    role object \"herbal tea\"\n    role time ?t\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"maintain\"\n    role subject \"Chiar Mihai\"\n    role object \"the recording studio\"\n    role time ?t\n    polarity affirmed\n  end\n",
+    "gbnf": "@q query\n  select ?t\n  where match\n    relation \"give classes in\"\n    role subject \"Chiar Mihai\"\n    role object \"garden\"\n    role time ?t\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"maintain\"\n    role subject \"Chiar Mihai\"\n    role object \"the recording studio\"\n    role time ?t\n    polarity affirmed\n  end\n"
+   },
+   {
+    "id": "ood1_000187_0_0",
+    "language": "mixed",
+    "question": "Verifică dacă Csaba plantează dovleci și repară school bus.",
+    "gold": "@q query\n  where all\n    match\n      relation \"plant\"\n      role subject \"Csaba\"\n      role object \"pumpkins\"\n      polarity affirmed\n    end\n    match\n      relation \"repair\"\n      role subject \"Csaba\"\n      role object \"the school bus\"\n      polarity affirmed\n    end\n  end\n",
+    "free": "@q query\n  where all\n    match\n      relation \" plant\"\n      role subject \"Csaba\"\n      role object \"herbal tea\"\n      polarity affirmed\n    end\n    match\n      relation \"rely on\"\n      role subject \"herbal tea\"\n      role object \"the school hall\"\n      polarity affirmed\n    end\n  end\n",
+    "gbnf": "@q query\n  where all\n    match\n      relation \"sell\"\n      role subject \"Csaba\"\n      role object \"herbal tea\"\n      polarity affirmed\n    end\n    match\n      relation \"rely on\"\n      role subject \"Csaba\"\n      role object \"the school hall\"\n      polarity affirmed\n    end\n  end\n"
+   },
+   {
+    "id": "ood2_000317_0_0",
+    "language": "en",
+    "question": "My coffee went cold while I was typing this. Eleni resides in Osaka. Atelier Stan stocks school uniforms. Also, Atelier Bennett stocks LED bulbs. I only have a few minutes before my next call. Mr Romero goes to Târgu Mureș Arts High School.\n\nArjun takes care of the VPN gateway. Also, João looks after the mail server. Ms Liu resides in Szeged. Also, Amira Saleh resides in Sighișoara. Hughes & Partners does not stock printer ink. Also, Atelier Becker stocks phone cases. I only have a few minutes before my next call. Sofía resides in Brașov. Also, Tunde does not reside in Orhei.\n\nOrion Robotics stocks garden furniture. Also, Atelier Schmidt stocks second-hand laptops. Mr Mocanu isn't the trainer of the Bălți Falcons. Also, Mr Bernard trains Izmir United. Carpathia Energy employs Petru Vlădescu. Also, Ms Mansour is not on the payroll of Brightfield Foods. Alejandro goes to Focșani Music Academy. Also, Emma Taylor doesn't attend classes at Sibiu Arts High School.\n\nThings I still have to do today:\n- buy groceries\n- return the library books\n- finish the slides\n- answer my emails\n- book the train tickets\n\nNow, what I need to know: Could you check if Delta Print employs Chloé? Is it true that Ethan resides in Reșița? So who trains the Bistrița Wolves?\n\nThanks in advance!",
+    "gold": "@s1 stated\n  relation \"reside in\"\n  role subject \"Eleni\"\n  role location \"Osaka\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"stock\"\n  role subject \"Atelier Stan\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"stock\"\n  role subject \"Atelier Bennett\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"go to\"\n  role subject \"Mr Romero\"\n  role object \"Târgu Mureș Arts High School\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"take care of\"\n  role subject \"Arjun\"\n  role object \"the VPN gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"look after\"\n  role subject \"João\"\n  role object \"the mail server\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"reside in\"\n  role subject \"Ms Liu\"\n  role location \"Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"reside in\"\n  role subject \"Amira Saleh\"\n  role location \"Sighișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"stock\"\n  role subject \"Hughes & Partners\"\n  role object \"printer ink\"\n  polarity negated\n  certainty asserted\n\n@s10 stated\n  relation \"stock\"\n  role subject \"Atelier Becker\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"reside in\"\n  role subject \"Sofía\"\n  role location \"Brașov\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"reside in\"\n  role subject \"Tunde\"\n  role location \"Orhei\"\n  polarity negated\n  certainty asserted\n\n@s13 stated\n  relation \"stock\"\n  role subject \"Orion Robotics\"\n  role object \"garden furniture\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"stock\"\n  role subject \"Atelier Schmidt\"\n  role object \"second-hand laptops\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be the trainer of\"\n  role subject \"Mr Mocanu\"\n  role object \"the Bălți Falcons\"\n  polarity negated\n  certainty asserted\n\n@s16 stated\n  relation \"train\"\n  role subject \"Mr Bernard\"\n  role object \"Izmir United\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"employ\"\n  role subject \"Carpathia Energy\"\n  role object \"Petru Vlădescu\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"be on the payroll of\"\n  role subject \"Ms Mansour\"\n  role object \"Brightfield Foods\"\n  polarity negated\n  certainty asserted\n\n@s19 stated\n  relation \"go to\"\n  role subject \"Alejandro\"\n  role object \"Focșani Music Academy\"\n  polarity affirmed\n  certainty asserted\n\n@s20 stated\n  relation \"attend classes at\"\n  role subject \"Emma Taylor\"\n  role object \"Sibiu Arts High School\"\n  polarity negated\n  certainty asserted\n\n@q query\n  where match\n    relation \"employ\"\n    role subject \"Delta Print\"\n    role object \"Chloé\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"reside in\"\n    role subject \"Ethan\"\n    role location \"Reșița\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?x\n  where match\n    relation \"train\"\n    role subject ?x\n    role object \"the Bistrița Wolves\"\n    polarity affirmed\n  end\n",
+    "free": "@s1 stated\n  relation \"live in\"\n  role subject \"Eleni\"\n  role location \"Osaka\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"sell\"\n  role subject \"Atelier Stan\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"sell\"\n  role subject \"Atelier Bennett\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"go to\"\n  role subject \"Mr Romero\"\n  role object \"Târgu Mureș Arts High School\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"take care of\"\n  role subject \"Arjun\"\n  role object \"the VPN gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"look after\"\n  role subject \"João\"\n  role object \"the mail server\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"live in\"\n  role subject \"Ms Liu\"\n  role location \"Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"live in\"\n  role subject \"Amira Saleh\"\n  role location \"Sighișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"sell\"\n  role subject \"Hughes & Partners\"\n  role object \"printer ink\"\n  polarity negated\n  certainty asserted\n\n@s10 stated\n  relation \"stock\"\n  role subject \"Atelier Becker\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"live in\"\n  role subject \"Sofía\"\n  role location \"Brașov\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"be on\"\n  role subject \"Tunde\"\n  role object \"Orhei\"\n  polarity negated\n  certainty asserted\n\n@s13 stated\n  relation \"sell\"\n  role subject \"Orion Robotics\"\n  role object \"garden furniture\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"sell\"\n  role subject \"Atelier Schmidt\"\n  role object \"second-hand laptops\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be the trainer of\"\n  role subject \"Mr Mocanu\"\n  role object \"the Bălți Falcons\"\n  polarity negated\n  certainty asserted\n\n@s16 stated\n  relation \"train\"\n  role subject \"Mr Bernard\"\n  role object \"Izmir United\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"be employed by\"\n  role subject \"Carpathia Energy\"\n  role object \"Brightfield Foods\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"go to\"\n  role subject \"Aléandro\"\n  role object \"Focșani Music Academy\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"attend\"\n  role subject \"Emma Taylor\"\n  role object \" classes at Sibiu Arts High School\"\n  polarity negated\n  certainty asserted\n\n@q query\n  where match\n    relation \"employ\"\n    role subject \"Delta Print\"\n    role object \"Chloé\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"be in\"\n    role subject \"Ethan\"\n    role location \"Reșița\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?x\n  where match\n    relation \"train\"\n    role subject ?x\n    role object \"the Bistrița Wolves\"\n    polarity affirmed\n  end\n",
+    "gbnf": "@s1 stated\n  relation \"live in\"\n  role subject \"Eleni\"\n  role location \"Osaka\"\n  polarity affirmed\n  certainty asserted\n\n@s2 stated\n  relation \"sell\"\n  role subject \"Atelier Stan\"\n  role object \"school uniforms\"\n  polarity affirmed\n  certainty asserted\n\n@s3 stated\n  relation \"sell\"\n  role subject \"Atelier Bennett\"\n  role object \"LED bulbs\"\n  polarity affirmed\n  certainty asserted\n\n@s4 stated\n  relation \"go to\"\n  role subject \"Mr Romero\"\n  role object \"Târgu Mureș Arts High School\"\n  polarity affirmed\n  certainty asserted\n\n@s5 stated\n  relation \"take care of\"\n  role subject \"Arjun\"\n  role object \"the VPN gateway\"\n  polarity affirmed\n  certainty asserted\n\n@s6 stated\n  relation \"look after\"\n  role subject \"João\"\n  role object \"the mail server\"\n  polarity affirmed\n  certainty asserted\n\n@s7 stated\n  relation \"live in\"\n  role subject \"Ms Liu\"\n  role location \"Szeged\"\n  polarity affirmed\n  certainty asserted\n\n@s8 stated\n  relation \"live in\"\n  role subject \"Amira Saleh\"\n  role location \"Sighișoara\"\n  polarity affirmed\n  certainty asserted\n\n@s9 stated\n  relation \"sell\"\n  role subject \"Hughes & Partners\"\n  role object \"printer ink\"\n  polarity negated\n  certainty asserted\n\n@s10 stated\n  relation \"stock\"\n  role subject \"Atelier Becker\"\n  role object \"phone cases\"\n  polarity affirmed\n  certainty asserted\n\n@s11 stated\n  relation \"live in\"\n  role subject \"Sofía\"\n  role location \"Brașov\"\n  polarity affirmed\n  certainty asserted\n\n@s12 stated\n  relation \"be on\"\n  role subject \"Tunde\"\n  role object \"Orhei\"\n  polarity negated\n  certainty asserted\n\n@s13 stated\n  relation \"sell\"\n  role subject \"Orion Robotics\"\n  role object \"garden furniture\"\n  polarity affirmed\n  certainty asserted\n\n@s14 stated\n  relation \"sell\"\n  role subject \"Atelier Schmidt\"\n  role object \"second-hand laptops\"\n  polarity affirmed\n  certainty asserted\n\n@s15 stated\n  relation \"be the trainer of\"\n  role subject \"Mr Mocanu\"\n  role object \"the Bălți Falcons\"\n  polarity negated\n  certainty asserted\n\n@s16 stated\n  relation \"train\"\n  role subject \"Mr Bernard\"\n  role object \"Izmir United\"\n  polarity affirmed\n  certainty asserted\n\n@s17 stated\n  relation \"be employed by\"\n  role subject \"Carpathia Energy\"\n  role object \"Brightfield Foods\"\n  polarity affirmed\n  certainty asserted\n\n@s18 stated\n  relation \"go to\"\n  role subject \"Aléandro\"\n  role object \"Focșani Music Academy\"\n  polarity affirmed\n  certainty asserted\n\n@s19 stated\n  relation \"attend\"\n  role subject \"Emma Taylor\"\n  role object \"classes at\"\n  polarity negated\n  certainty asserted\n\n@s20 stated\n  relation \"go to\"\n  role subject \"Oliver Taylor\"\n  role object \"Sibiu Arts High School\"\n  polarity negated\n  certainty asserted\n\n@s21 stated\n  relation \"sell\"\n  role subject \"Orion Robotics\"\n  role object \"herbal tea\"\n  polarity affirmed\n  certainty asserted\n\n@s22 stated\n  relation \"sell\"\n  role subject \"Atelier Schmidt\"\n  role object \"second-hand laptops\"\n  polarity affirmed\n  certainty asserted\n\n@s23 stated\n  relation \"be the trainer of\"\n  role subject \"Mr Mocanu\"\n  role object \"the Bălți Falcons\"\n  polarity negated\n  certainty asserted\n\n@s24 stated\n  relation \"train\"\n  role subject \"Mr Bernard\"\n  role object \"Izmir United\"\n  polarity affirmed\n  certainty asserted\n\n@s25 stated\n  relation \"be on\"\n  role subject \"Carpathia Energy\"\n  role object \"the payroll database\"\n  polarity affirmed\n  certainty asserted\n\n@q query\n  where match\n    relation \"be employed by\"\n    role subject \"Delta Print\"\n    role object \"Chloé\"\n    polarity affirmed\n  end\n\n@q2 query\n  where match\n    relation \"live in\"\n    role subject \"Ethan\"\n    role location \"Reșița\"\n    polarity affirmed\n  end\n\n@q3 query\n  select ?x\n  where match\n    relation \"train\"\n    role subject ?x\n    role object \"the Bistrița Wolves\"\n    polarity affirmed\n  end\n"
+   }
+  ]
+ }
+}

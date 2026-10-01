@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 export const STATUS_DECISIONS = Object.freeze({
   supported: 'ENTAILED', refuted: 'CONTRADICTED', both: 'CONFLICT', unknown: 'UNKNOWN',
   possible: 'POSSIBLE', entailed: 'ENTAILED', impossible: 'CONTRADICTED',
-  hypotheses: 'PLAUSIBLE', candidates: 'PLAUSIBLE', patterns: 'PLAUSIBLE',
+  hypotheses: 'PLAUSIBLE', approximate: 'PLAUSIBLE', budget_exhausted: 'UNKNOWN', not_expressible: 'UNSUPPORTED',
   clarify: 'AMBIGUOUS', unsupported: 'UNSUPPORTED', blocked: 'BLOCKED',
   inconsistent: 'CONFLICT', optimal: 'ENTAILED', feasible_bound: 'POSSIBLE',
   plan_found: 'POSSIBLE', no_plan: 'UNKNOWN',
@@ -24,7 +24,7 @@ export function epistemicResult(packet) {
     runtime_status: packet.status,
     complete: packet.complete ?? null,
     hypothetical: packet.hypothetical === true,
-    epistemic: packet.epistemic ?? null,
+    guarantee: packet.guarantee ?? null,
   };
 }
 
