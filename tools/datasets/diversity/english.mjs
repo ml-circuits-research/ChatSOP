@@ -1,4 +1,4 @@
-/** Canonical English targets (DS021, owner decision Q-DATA-6 of 2026-09-28).
+/** Canonical English targets (DS014, owner decision Q-DATA-6 of 2026-09-28).
  *
  * The reasoner's knowledge is English. The formalizer accepts English, Romanian and mixed messages, but its SOP
  * output is always canonical English, written as if the message had been English:

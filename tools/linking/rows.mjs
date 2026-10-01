@@ -2,7 +2,7 @@
  * Dataset rows against their verification worlds (linking suite, differential run). The rows of `symbolic_english` and
  * `neuro_english` carry the message, the grammatical analysis and the SOP of SymbolicLM; the verification world a row
  * was generated with (its entity declarations, the shared predicate blocks and the facts) lives on the legacy source row
- * named by `source.corpus` and `source.id` (DS008 "Three datasets"). A row whose source has no world (new cases,
+ * named by `source.corpus` and `source.id` (DSx008 "Three datasets"). A row whose source has no world (new cases,
  * composed and form-variant rows, wild rows) is linked against the whole shared predicate vocabulary without entities, so
  * that relation and role linking is still exercised.
  *
@@ -21,12 +21,14 @@ import {Lexicon} from '../../sop/lexicon.mjs';
 import {Runtime} from '../../sop/runtime.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-export const SHARED_WORLD_DIR = 'datasets_archive/formalizer-v1/world';
+/** The legacy corpora that carry the verification worlds moved with the frozen small-model branch. */
+const FROZEN = 'probably_obsolete/tinyLLMExperiments';
+export const SHARED_WORLD_DIR = `${FROZEN}/datasets_archive/formalizer-v1/world`;
 const LEGACY_FILES = [
-  'datasets_archive/formalizer-v1/train.jsonl', 'datasets_archive/formalizer-v1/dev.jsonl',
-  'datasets_archive/legacy-resplit/formalizer-ood-v1/train.jsonl', 'datasets_archive/legacy-resplit/formalizer-ood-v1/dev.jsonl',
-  'eval/suites/formalizer-v1/test.jsonl', 'eval/suites/formalizer-ood-v1/test.jsonl',
-  'datasets_archive/clean-english/train.jsonl', 'datasets_archive/clean-english/dev.jsonl', 'eval/suites/clean-english/test.jsonl',
+  `${FROZEN}/datasets_archive/formalizer-v1/train.jsonl`, `${FROZEN}/datasets_archive/formalizer-v1/dev.jsonl`,
+  `${FROZEN}/datasets_archive/legacy-resplit/formalizer-ood-v1/train.jsonl`, `${FROZEN}/datasets_archive/legacy-resplit/formalizer-ood-v1/dev.jsonl`,
+  `${FROZEN}/eval/suites/formalizer-v1/test.jsonl`, `${FROZEN}/eval/suites/formalizer-ood-v1/test.jsonl`,
+  `${FROZEN}/datasets_archive/clean-english/train.jsonl`, `${FROZEN}/datasets_archive/clean-english/dev.jsonl`, `${FROZEN}/eval/suites/clean-english/test.jsonl`,
 ];
 const DEFAULT_NOW = '2026-09-28T12:00:00Z';
 

@@ -4,7 +4,7 @@ const nil={nil:true};
 const fields=a=>[a.p+'/'+a.a.length,...Array.from({length:4},(_,i)=>i<a.a.length?a.a[i]:nil),a.neg?'negative':'positive'];
 function combinations(n,k,start=0,prefix=[],out=[]){if(!k){out.push(prefix);return out;}for(let i=start;i<=n-k;i++)combinations(n,k-1,i+1,[...prefix,i],out);return out;}
 function hash(values,seed){let h=seed>>>0;for(const c of Buffer.from(stable(values))){h=Math.imul(h^c,16777619)>>>0;}h^=h>>>16;h=Math.imul(h,0x85ebca6b);h^=h>>>13;return h>>>0;}
-/** RecallMemory (DS023): multi-view associative bank inspired by the column-voting idea of
+/** RecallMemory (DS016): multi-view associative bank inspired by the column-voting idea of
  * "A Thousand Brains". Each view (column) hashes a different subset of the six tuple fields;
  * a candidate survives only when every fully known view supports it. Cells are 4-bit
  * saturating counters. The file keeps its historical name `weaver.mjs`.
@@ -83,5 +83,5 @@ export class RecallMemory {
  static from(state){return new RecallMemory(state.config,state);}
  stats(){return {banksBytes:this.banks.length*this.cells/2,metadataBytes:Buffer.byteLength(JSON.stringify({domains:this.domains,receipts:this.receipts})),views:this.views.length,writes:this.writes,receipts:Object.keys(this.receipts).length,occupancy:this.occupancy(),maintenance:{...this.maintenance}};}
 }
-/** Legacy export name of RecallMemory, kept for existing imports (DS023). */
+/** Legacy export name of RecallMemory, kept for existing imports (DS016). */
 export const Weaver=RecallMemory;

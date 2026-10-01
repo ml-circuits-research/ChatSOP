@@ -7,11 +7,11 @@ import { foldDiacritics } from './text.mjs';
 
 /**
  * Formatting-noise weights from the measured rates of real user text (inventory `noise_rates.qqp`, mined by
- * mine-sources.mjs; statistics only, DS014): each formatting operation gets a weight proportional to its measured
+ * mine-sources.mjs; statistics only, DS011): each formatting operation gets a weight proportional to its measured
  * rate, rescaled to the same total as the authored menu and floored so a rare operation still occurs. Without the
  * inventory the authored weights apply.
  */
-const INVENTORY = new URL('../../../datasets_archive/diversity/inventory.json', import.meta.url);
+const INVENTORY = new URL('./inventory/inventory.json', import.meta.url);
 const MEASURED = (() => { try { return JSON.parse(fs.readFileSync(INVENTORY, 'utf8')).noise_rates?.qqp ?? null; } catch { return null; } })();
 const FORMAT_SOURCE = { space_before_punctuation: 'space_before_punctuation', chat_spelling: 'chat_spelling', no_space_after_comma: 'no_space_after_comma',
   drop_question_mark: 'no_terminal_punctuation', lowercase_i: 'lowercase_i', missing_apostrophe: 'missing_apostrophe', lowercase_start: 'lowercase_start', repeated_punctuation: 'repeated_punctuation' };
@@ -121,7 +121,7 @@ const CUE_WORD_EXACT = new RegExp(`^(?:${foldDiacritics(CUE_WORDS.source)})$`, '
 /**
  * Does the last sentence still read as a question without its "?": a wh-word, an inverted auxiliary, an embedded
  * "whether/if/dacă", a question particle or a request verb? A bare declarative loses its question mark only never:
- * without the mark it would be a statement, and the label would no longer match (DS022 noise policy).
+ * without the mark it would be a statement, and the label would no longer match (DS015 noise policy).
  */
 const QUESTION_START = /^(who|whom|whose|what|which|when|where|why|how|do|does|did|is|are|was|were|has|have|had|can|could|would|will|should|cine|ce|care|când|cand|unde|cum|câți|cati|câte|cate|cât|cat|de ce|de când|de cand|de câte|de cate|din ce|până când|pana cand|în ce|in ce|pentru ce|la ce|cu ce|oare)\b/i;
 const QUESTION_ANYWHERE = /\b(whether|if|tell me|check|confirm|do you know|can you|could you|any idea|i wonder|i need to know|dacă|daca|verifică|verifica|spune-mi|zi-mi|confirmă|confirma|poți|poti|știi|stii|ai idee|mă întreb|ma intreb|am nevoie să știu)\b/i;
@@ -159,7 +159,7 @@ function applyTable(text, table, spans, random) {
 
 /**
  * Apply noise operations to a message. Returns {text, ops, level}. `surfaces` are entity surfaces protected from
- * character and word errors (the host never resolves a misspelled identity, DS021; diacritics and case in names
+ * character and word errors (the host never resolves a misspelled identity, DS014; diacritics and case in names
  * may still change, which accent-folded resolution tolerates). `language` selects the RO operations and the
  * keyboard layout (EN QWERTY; RO standard or programmer). `level` is light, medium or heavy (NOISE_LEVELS).
  */

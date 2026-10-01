@@ -25,7 +25,7 @@ condition_line = indentation, (atom | boolean_expression), newline
    Nested indentation is advisory; end closes the nearest group. Groups are
    nonempty, with at most 32 nested groups. Repeated fields remain implicit ALL. *)
 model_wire_type = "stated" | "assumed" | "unclear" | "query" | "constraint" ;   (* the model language *)
-(* Model-language propositions are context-free strings (DS021). *)
+(* Model-language propositions are context-free strings (DS014). *)
 proposition_line = "  relation ", quoted_string, newline
                  | "  role ", role_name, space, (quoted_string | safe_integer), newline
                  | "  polarity ", ("affirmed" | "negated"), newline

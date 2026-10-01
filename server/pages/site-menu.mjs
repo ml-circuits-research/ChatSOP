@@ -16,8 +16,6 @@ import fs from 'node:fs';
 export const SITE_MENU = Object.freeze([
   {key: 'home', label: 'Home', href: '/'},
   {key: 'chat', label: 'Chat', href: '/chat'},
-  {key: 'audit', label: 'Audit', href: '/audit'},
-  {key: 'eval', label: 'Eval', href: '/eval'},
   {key: 'experiments', label: 'Experiments', items: [
     {key: 'experiments-index', label: 'Index: tasks & experiments', href: '/experiments'},
     {key: 'experiments-topics', label: 'Topics', href: '/experiments/topics'},
@@ -31,12 +29,11 @@ export const SITE_MENU = Object.freeze([
     {key: 'runtime', label: 'Runtime', doc: 'runtime.html'},
     {key: 'architecture', label: 'Architecture', doc: 'architecture.html'},
     {key: 'input-language', label: 'Input language', doc: 'input-language.html'},
-    {key: 'api', label: 'Capability APIs', doc: 'api.html'},
-    {key: 'training', label: 'Training', doc: 'training.html'},
+    {key: 'api', label: 'API', doc: 'api.html'},
     {key: 'wiki', label: 'Wiki', doc: 'wiki.html'},
     {key: 'specs', label: 'Specifications', doc: 'specsLoader.html?spec=matrix.md'},
     {key: 'wire', label: 'Wire help', doc: 'wire_types.html'},
-    {key: 'model-guide', label: 'How the model writes', doc: 'wire_types.html#model-guide'},
+    {key: 'model-guide', label: 'How circuits are written', doc: 'wire_types.html#model-guide'},
     {key: 'questions', label: 'Question types', doc: 'wire_types.html#question-types'},
   ]},
 ]);

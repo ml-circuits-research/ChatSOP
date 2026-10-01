@@ -1,4 +1,4 @@
-# The query language (DS021 model surface), as the coding agent writes it
+# The query language (DS014 model surface), as the coding agent writes it
 
 A wire is `@id type` followed by keyword lines (two spaces of indent), one keyword per line. Values are quoted strings, integers or `?variables`. A match block is `match` ... `end`; nested groups are `all`/`any` ... `end`.
 

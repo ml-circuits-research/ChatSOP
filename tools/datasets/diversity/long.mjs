@@ -1,9 +1,9 @@
-/** Material for LONG messages (DS022 "Long messages"): multi-sentence and multi-paragraph messages of 500 to about
+/** Material for LONG messages (DS015 "Long messages"): multi-sentence and multi-paragraph messages of 500 to about
  * 6,000 characters that compose several independently realized parts (statements, hedges, reported speech,
  * questions) with chit-chat, digressions and lists that produce nothing in the target.
  *
  * Chit-chat here is only about the user's own situation, plans or feelings, greetings, apologies and sign-offs:
- * remarks the model does not formalize (DS022 "Stated versus assumed"). It never asserts a relation between named
+ * remarks the model does not formalize (DS015 "Stated versus assumed"). It never asserts a relation between named
  * entities, so it cannot hide a missing `stated`. Every string is original project text.
  */
 

@@ -1,7 +1,7 @@
 /**
  * Host frame and synonym normalization of formalizer output (owner answer to Q-SYM-2, 2026-09-29): a large,
  * reviewable list of relation frames plays the host's role after the model or the rules and normalizes what they
- * produced, without changing the model language (DS021) or any gold. Each frame names a canonical relation, the
+ * produced, without changing the model language (DS014) or any gold. Each frame names a canonical relation, the
  * role names it declares and its surfaces (synonyms and paraphrases, English and Romanian). Normalizing one
  * proposition:
  *
@@ -14,14 +14,14 @@
  *                  or split before its last noun ("borrow soups of" + "Transylvania") that names a frame is moved
  *                  across the relation/object boundary;
  *   4. `time`      a quoted `role time` on a relation without a time role becomes the statement's `valid on` or the
- *                  query's `at` (DS021 "Time of a clause");
+ *                  query's `at` (DS014 "Time of a clause");
  *   5. `generic`   (ablation only, not in the default levels) an unknown relation's single non-subject role is
  *                  named `object`.
  *
  * Every change is reported (`changes`: [{kind, from, to}]). Strict scoring never uses this module (owner answer to
  * Q-SYM-1); evaluations report a host-normalized score beside the strict one. The data are TSV files listed in
  * config/dictionary/manifest.json under `frames` (columns `id  relation  roles  surfaces  source  note`), built by
- * `node tools/frames.mjs build` from sources whose rights are recorded in DS014.
+ * `node tools/frames.mjs build` from sources whose rights are recorded in DS011.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -52,7 +52,7 @@ export function parseFrames(text, file = 'frames.tsv') {
     if (!/^[a-z][a-z0-9_:.-]*$/.test(id ?? '')) throw Error(`${file}:${index + 1}: invalid id ${JSON.stringify(id)}`);
     if (!relation?.trim()) throw Error(`${file}:${index + 1}: a frame needs a relation`);
     const roleList = list(roles);
-    if (!roleList.length || roleList.some(r => !ROLES.has(r))) throw Error(`${file}:${index + 1}: roles must come from the DS021 inventory`);
+    if (!roleList.length || roleList.some(r => !ROLES.has(r))) throw Error(`${file}:${index + 1}: roles must come from the DS014 inventory`);
     out.push({id, relation: relation.trim(), roles: roleList, surfaces: list(surfaces), source: source.trim(), note: note.trim()});
   });
   return out;
@@ -147,7 +147,7 @@ export function normalizeProposition(p, frames, {levels = NORMALIZATION_LEVELS} 
   let relation = p.relation, roles = p.roles.map((r, orig) => ({...r, orig}));
   if (!relation) return {relation, roles, changes};
   let frame = frames.lookup(relation);
-  // 5. Time (DS021 "Proposition form"): a quoted `role time` on a relation that declares no time role is the
+  // 5. Time (DS014 "Proposition form"): a quoted `role time` on a relation that declares no time role is the
   // clause's validity (statement) or the query's period; the caller moves it (`movedTime`).
   let movedTime = null;
   if (levels.includes('time')) {

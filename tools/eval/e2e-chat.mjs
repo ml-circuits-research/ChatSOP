@@ -6,7 +6,7 @@
  *
  *   node tools/eval/e2e-chat.mjs --base http://127.0.0.1:19778 --in eval/reports/current/e2e-chat/turns.jsonl --out FILE.jsonl [--password P] [--memory world-v1]
  *
- * The server must be started on a private port with its own data root (CHATSOP_PORT, CHATSOP_CHAT_DATA, CHATSOP_CONFIG, CHATSOP_SERVER_MODELS).
+ * The server must be started on a private port with its own data root (CHATSOP_PORT, CHATSOP_CHAT_DATA, CHATSOP_CONFIG).
  */
 import fs from 'node:fs';
 
@@ -39,14 +39,13 @@ for (const turn of turns) {
     session = id;
   }
   const started = Date.now();
-  const body = {model: 'symbolic-lm', session_id: session, messages: [{role: 'user', content: turn.sent ?? turn.message}], parser: turn.parser === 'default' || turn.parser === 'coding_agent' ? 'local' : turn.parser ?? 'local', ...(turn.id === 'r04d' ? {language: 'ro'} : {})};
+  const body = {model: 'chatsop-local', session_id: session, messages: [{role: 'user', content: turn.sent ?? turn.message}]};
   let res;
   try { res = await call('/v1/chat/completions', {method: 'POST', body, timeoutMs: 45000}); } catch (error) { res = {status: 0, json: null, text: String(error.message)}; }
   const sop = res.json?.chatSop;
   const row = {id: turn.id, message: turn.message, sent: body.messages[0].content, http: res.status, ms: Date.now() - started,
     answer: res.json?.choices?.[0]?.message?.content ?? res.json?.error?.message ?? res.text.slice(0, 300), status: sop?.status ?? null, complete: sop?.completeness ?? null,
-    route: sop?.route ?? null, has_retrieval: Boolean(sop?.retrieval), answer_translation: sop?.answer_translation ? {status: sop.answer_translation.status, code: sop.answer_translation.code ?? null, ms: sop.answer_translation.ms ?? null} : null,
-    input_translation: sop?.input_translation ? {english: sop.input_translation.english, masked: sop.input_translation.masked} : null,
+    route: sop?.route ?? null, has_retrieval: Boolean(sop?.retrieval), parse: sop?.parse ? {model: sop.parse.model ?? null, rounds: sop.parse.rounds ?? null, ms: sop.parse.ms ?? null, cost_usd: sop.parse.cost_usd ?? null} : null,
     linking: (sop?.linking ?? []).filter(l => l.kind === 'entity').map(l => ({surface: l.surface, symbol: l.symbol, via: l.via}))};
   out.push(row);
   console.log(`${row.id}\t${row.http}\t${row.ms} ms\t${row.status}\t${String(row.answer).split('\n').slice(0, 3).join(' | ').slice(0, 200)}`);

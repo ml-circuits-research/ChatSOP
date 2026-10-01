@@ -1,5 +1,5 @@
 /**
- * The relation lexicon (DS021 "KnowledgeLinker: the copula and the relation lexicon"): reviewed language data the
+ * The relation lexicon (DS014 "KnowledgeLinker: the copula and the relation lexicon"): reviewed language data the
  * KnowledgeLinker reads next to the predicates of the chosen base memory. It holds the words of the copula (verb forms,
  * articles, locative phrases), the occupation nouns and attribute adjectives used to classify "be a X" / "be X", and
  * `relations`, extra relation phrases a base memory maps to its own predicates. It names no predicate of its own:

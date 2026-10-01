@@ -12,7 +12,7 @@ import path from 'node:path';
 const LEGACY_GENERATORS = ['tools/generate-data.mjs', 'tools/build-data.mjs', 'tools/teacher-generate.mjs'];
 const VALIDATORS = ['tools/datasets/validate.mjs', 'tools/datasets/verify-three-datasets.mjs', 'tools/datasets/verify-view-corpora.mjs'];
 export const SEALED_AUDITORS = ['tools/datasets/audit-corpus.mjs', 'tools/datasets/audit/', 'tools/datasets/llm-diversify/sealed-guard.mjs'];
-/** Independently written, eval-only sealed suites (DS016): no generator produces them, no generator or training
+/** Independently written, eval-only sealed suites (DS012): no generator produces them, no generator or training
  * source may name them, and they never have a `datasets/<name>/` training counterpart. */
 // Empty since the owner decision of 2026-09-30 (AGENTS.md rule 9): the legacy wild suite is archive and provenance, its rows are re-split across train, dev and test by
 // tools/eval/legacy-resplit.mjs; generators and training code still never read an `eval/suites/**` test file (the `forbidden` path check below).
@@ -72,7 +72,7 @@ export function auditTrainingSelection(root) {
 export function auditSourceBoundary(root, {independentSuites = INDEPENDENT_SUITES} = {}) {
   const files = generatorSources(root);
   const violations = [];
-  if (!files.some(file => /^tools\/datasets\/build-[^/]+\.mjs$/.test(file))) violations.push('no tools/datasets/build-*.mjs generator found; the boundary audit would inspect nothing current');
+  if (!files.some(file => /^tools\/datasets\/(?:build-[^/]+\.mjs|diversity\/generate\.mjs)$/.test(file))) violations.push('no tools/datasets generator (build-*.mjs or diversity/generate.mjs) found; the boundary audit would inspect nothing current');
   for (const name of files) {
     const source = fs.readFileSync(path.join(root, name), 'utf8');
     for (const match of source.matchAll(imported)) if (forbidden.test(match[1]) || /(?:^|\/)eval\/suites\//.test(match[1])) violations.push(`${name}: forbidden sealed-answer import ${match[1]}`);
@@ -105,7 +105,7 @@ export function auditSourceBoundary(root, {independentSuites = INDEPENDENT_SUITE
 /**
  * Sealed tests of the programming path (programming plan P0, DS004 "Programming wires"): a `test` wire of `kind sealed` lives in `eval/suites/**` only.
  * The audit fails when (1) a `.sop` file outside `eval/suites/` and outside an `invalid/` fixture folder holds a wire with `kind sealed`, or (2) a source of
- * the host loop, the sandbox or the proposer (`lib/programming/`, `reasoning/strategies/code-sandbox/`, `reasoning/strategies/llm-agent/`) names `eval/suites`
+ * the host loop, the sandbox or the proposer (`lib/programming/` (paused), `reasoning/strategies/code-sandbox/`, `reasoning/strategies/llm-agent/`) names `eval/suites`
  * or a `test.jsonl`, so the proposer and the repair loop can never read a hidden test. The validator refuses the same wire (`sealed_test_in_knowledge`).
  */
 export function auditSealedTests(root) {

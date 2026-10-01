@@ -1,11 +1,11 @@
 /**
- * Interpretation severity (DS016 "Graded severity"): the SOP Lang that SymbolicLM produced for a message against the gold SOP, as S0-S4 or NONE.
+ * Interpretation severity (DS012 "Graded severity"): the SOP Lang that SymbolicLM produced for a message against the gold SOP, as S0-S4 or NONE.
  * Pure and deterministic (no model): both programs are reduced to propositions (stated/assumed wires and the match blocks of queries) and query shapes
- * (tools/research/symbolic-layers-diff.mjs `programShape`), propositions are aligned by shared literals and relation words, and every difference gets a
+ * (`programShape` of ./program-shape.mjs), propositions are aligned by shared literals and relation words, and every difference gets a
  * severity from the scale of tools/eval/severity/scale.mjs; the result is the worst one. Order of roles, wire ids and the active/passive form of a relation
  * ("be repaired by" with swapped roles) are not differences. `sopSeverity(pred, gold, {message})` returns {severity, findings}.
  */
-import {programShape} from '../../research/symbolic-layers-diff.mjs';
+import {programShape} from './program-shape.mjs';
 import {parse} from '../../../sop/parser.mjs';
 import {LINK_WORDS} from '../../../sop/enums.mjs';
 import {worst} from './scale.mjs';

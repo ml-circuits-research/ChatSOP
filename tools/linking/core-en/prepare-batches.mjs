@@ -49,7 +49,7 @@ for (const [area, charter] of Object.entries(AREAS)) {
   writeFileSync(join(dir, 'input/mined-phrases.tsv'), phraseTsv);
   writeFileSync(join(dir, 'input/wikidata-properties.json'), JSON.stringify(wdCompact));
   copyFileSync(join(SRC, 'classes.json'), join(dir, 'input/classes.json'));
-  copyFileSync(join(ROOT, 'datasets_archive/formalizer-v1/world/predicates.sop'), join(dir, 'input/archive-world-predicates.sop'));
+  copyFileSync(join(ROOT, 'probably_obsolete/tinyLLMExperiments/datasets_archive/formalizer-v1/world/predicates.sop'), join(dir, 'input/archive-world-predicates.sop'));
   if (area === 'upper') {
     copyFileSync(join(ROOT, 'config/relation-lexicon.json'), join(dir, 'input/relation-lexicon.json'));
     writeFileSync(join(dir, 'input/common-nouns.tsv'), 'count\tnoun\n' + mined.commonNouns.map(n => n.count + '\t' + n.noun).join('\n') + '\n');

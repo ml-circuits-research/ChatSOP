@@ -4,7 +4,7 @@
  "name": "Open-vocabulary linking of the scored joint KnowledgeLinker (M3) on world-v1 + core-en: relation and entity accuracy, wrong-link, abstain and clarification rates",
  "registered_at": "2026-10-01T17:00:00Z",
  "registered_by": "linker-m3-agent (linking proposal section 6, milestone M3; orchestrator decision 2026-10-01: KnowledgeLinker is a scored joint linker, SymbolicLM stays knowledge-blind)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "kind": "evaluation-only (no training; SymbolicLM on the auto-device parse lock; judge labels by omp on subscriptions)",
  "frozen_before_results": "Written after the scorer and the question sets existed and before any arm was scored on parts 2 and 3. Part 1 (mechanical labels) numbers of the exact linker were recorded by linker-m0-agent (eval/reports/current/linking/baseline-current.json) before this change.",
  "hypotheses": [

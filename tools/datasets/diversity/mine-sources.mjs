@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /** Mine the cached public sources for a diversity inventory: structure, label types, phenomena and statistics.
  *
- *   node tools/datasets/diversity/mine-sources.mjs [--limit N] [--out datasets_archive/diversity/inventory.json]
+ *   node tools/datasets/diversity/mine-sources.mjs [--limit N] [--out tools/datasets/diversity/inventory/inventory.json]
  *
  * Only counts, rates and masked structural skeletons (closed-class words kept, every content word replaced by X)
- * leave this module; no source sentence, name, answer or row id is written (DS014, owner decision 2026-09-28).
+ * leave this module; no source sentence, name, answer or row id is written (DS011, owner decision 2026-09-28).
  * Every classifier is a documented lexical heuristic, not a semantic annotation. The authored resources of the
  * generator (names, noise and code-switching models, unclear generators, family templates) are summarized from
  * their modules so the inventory is one JSON file.
@@ -366,7 +366,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const args = process.argv.slice(2);
   const value = name => { const i = args.indexOf(`--${name}`); return i < 0 ? undefined : args[i + 1]; };
   const limit = value('limit') ? Number(value('limit')) : Infinity;
-  const out = path.resolve(value('out') ?? path.join(root, 'datasets_archive/diversity/inventory.json'));
+  const out = path.resolve(value('out') ?? path.join(root, 'tools/datasets/diversity/inventory/inventory.json'));
   const inventory = await buildInventory({ limit });
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, JSON.stringify(inventory, null, 2) + '\n');

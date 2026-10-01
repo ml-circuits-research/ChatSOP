@@ -1,4 +1,4 @@
-/** Relation-phrase convention of the generated corpora (DS022 "Relation phrases").
+/** Relation-phrase convention of the generated corpora (DS015 "Relation phrases").
  *
  * A relation phrase is the message's own predicate words with the role fillers removed, lemmatized: an English
  * verb in its base form ("coached" → "coach", "flew" → "fly"), a copula as "be" ("is married to" → "be married

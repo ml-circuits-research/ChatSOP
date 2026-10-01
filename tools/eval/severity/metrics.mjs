@@ -1,4 +1,4 @@
-/** Metrics of the graded severity evaluation (DS016 "Graded severity"): Wilson intervals, confusion matrices, S4 recall and false-S4 rate, severity distributions. */
+/** Metrics of the graded severity evaluation (DS012 "Graded severity"): Wilson intervals, confusion matrices, S4 recall and false-S4 rate, severity distributions. */
 import {SEVERITIES, isGoodEnough} from './scale.mjs';
 
 export function wilson(k, n, z = 1.96) {

@@ -175,7 +175,7 @@
   args subject:entity object:integer
   role subject entity
   role object integer
-  description "preț numeric în lei; valori de atribut pentru compare și rank (DS021 Q-LANG-1)"
+  description "preț numeric în lei; valori de atribut pentru compare și rank (DS014 Q-LANG-1)"
 
 @lx_costs_en lexeme
   of costs
@@ -189,7 +189,7 @@
   args subject:entity object:integer
   role subject person
   role object integer
-  description "vârsta în ani; valoare de atribut pentru compare și rank (DS021 Q-LANG-1)"
+  description "vârsta în ani; valoare de atribut pentru compare și rank (DS014 Q-LANG-1)"
 
 @lx_age_en lexeme
   of age

@@ -49,7 +49,7 @@
    "sha256": "75d3687e1bb28880cbdf03391303302757a6b1b68dc53d0dbb54ef1d4abe6933"
   },
   "source_rights": {
-   "path": "docs/specs/DS014-source-rights.md",
+   "path": "docs/specs/DS011-source-rights.md",
    "sha256": "a451fbb4bd12e6a5a7c7aea651b604882d8c9c367fe7ae1f88403d1b73c51d11"
   },
   "token_budget": {

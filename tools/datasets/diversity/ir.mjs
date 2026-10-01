@@ -19,7 +19,7 @@
  *   }
  * Role values are JSON-quoted strings exactly as mentioned in the message, or ?variables. Closed roles:
  * subject, object, recipient, location, source, destination, instrument, time, topic. Printers (printers.mjs)
- * turn a surface IR into target text; the exact grammar is owned by the language profile (DS021).
+ * turn a surface IR into target text; the exact grammar is owned by the language profile (DS014).
  */
 import { PREDICATES, CLOSED_ROLES } from './domains.mjs';
 

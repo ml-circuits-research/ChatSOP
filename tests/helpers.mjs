@@ -243,6 +243,29 @@ export const cookieOf = response => (response.headers.get('set-cookie') ?? '').s
  * and no model registry (so the chat answers 503 model_unavailable and the readiness check reports not ready). The audit ledger always lives in
  * the test's temporary directory, never in eval/reports/current/audit.
  */
+export const STUB_QUERY = '@q query\n  where match\n    relation "likes"\n    role subject "Ana"\n    role object "Alpha Lab"\n    polarity affirmed\n  end';
+const STUB_BAD = '@x stated\n  relation "likes"\n  role subject "Nobody"\n  role object "Alpha Lab"\n  polarity affirmed\n  certainty asserted';
+
+/**
+ * A request parser stub (the interface of server/query-parser.mjs): it answers every message with the same question, "Does Ana like Alpha Lab?"
+ * (a message that contains BADSOP gets a `stated` wire the admission refuses). `calls` records the messages.
+ */
+export function stubQueryParser({sop = STUB_QUERY, available = true, calls = []} = {}) {
+  return {
+    calls,
+    settings: {models: ['stub/model'], backend: {kind: 'stub'}},
+    availability: async () => (available ? {available: true, models: ['stub/model'], skipped: []} : {available: false, reason: 'the stub coding agent is switched off', models: [], skipped: []}),
+    parse: async ({message}) => {
+      calls.push(message);
+      if (!available) throw Object.assign(new Error('the stub coding agent is switched off'), {code: 'parse_unavailable', status: 503, parse: {parser: 'coding_agent', model: null, failed: 'switched off'}});
+      return {sop: message.includes('BADSOP') ? STUB_BAD : sop, parse: {parser: 'coding_agent', model: 'stub/model', backend: 'stub', rounds: 1, cost_usd: 0, ms: 1, cache: 'miss', tried: []}};
+    },
+    stats: () => ({requests: calls.length, cache_hits: 0, cache_size: 0, running: 0}),
+    clearCache: () => {},
+  };
+}
+
+
 export async function adminServer(t, {apiKey = null, password = null} = {}) {
   const [{createServer}, {Auth}] = await Promise.all([import('../server/http.mjs'), import('../server/auth.mjs')]);
   const root = tempDir(t, 'chatsop-admin-');
@@ -250,7 +273,7 @@ export async function adminServer(t, {apiKey = null, password = null} = {}) {
   repo.init('demo');
   const auth = new Auth({file: path.join(root, 'state/auth.json'), apiKey});
   const ledger = path.join(root, 'ledger');
-  const server = await withEnv('CHATSOP_AUDIT_LEDGER', ledger, () => createServer({config: {}, repo, lexicon: lex, auth}));
+  const server = await withEnv('CHATSOP_AUDIT_LEDGER', ledger, () => createServer({config: {}, repo, lexicon: lex, auth, queryParser: stubQueryParser({available: false})}));
   const base = await listen(t, server);
   const call = httpClient(base);
   let session = null;

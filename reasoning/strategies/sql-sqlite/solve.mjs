@@ -2,7 +2,7 @@
  * One solve of a query circuit, independent of where the facts live. A BACKEND says how a session is opened and filled:
  *
  *   memory   a fresh in-memory database per part of the time partition, the facts of the view loaded into tables (index.mjs);
- *   bank     a read-only SQLite memory bank (DS025): base relations are TEMP views over the bank's own `atoms` table, so joins and
+ *   bank     a read-only SQLite memory bank (DS018): base relations are TEMP views over the bank's own `atoms` table, so joins and
  *            constants use the bank's indexes; only derived relations are written, to TEMP tables (bank.mjs).
  *
  * backend = {id, codec, temp, kinds(program), open(budget), setup(session, {rels, program, view, kinds, instant, asof}), refFor?(session, neg, p, args)}

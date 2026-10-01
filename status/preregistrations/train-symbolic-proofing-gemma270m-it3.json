@@ -4,7 +4,7 @@
  "name": "SymbolicProofingLLM iteration 3: Gemma 3 270M IT + LoRA (fast recipe) on datasets/neuro_english/proofing-it3-mix = proofing-it3 + the decomposition top-up (role proofreader)",
  "registered_at": "2026-10-01T08:52:28Z",
  "registered_by": "sp-it3-agent (owner decision in status/journal.jsonl, actor orchestrator: 2026-10-01T08:47:38.988Z; earlier decisions listed in status/training/owner-approval-symbolic-proofing-it3.json)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_request": "'da, aprob, vei ce iese, ... facem ce putem, daca nu dureaza foarte mult merita it3' (owner, 2026-10-01): one run symbolic-proofing-gemma270m-it3, Gemma 3 270M LoRA, on the decomposition data, fast recipe, queued after the gloss run. When the judges disagree on S3/S4 the case is excusable ambiguity, reported separately, not counted as a model failure.",
  "frozen_before_results": "Written after the dataset qualification and the authorization receipt and before any optimizer step of this run and before any prediction of any checkpoint of this run on any split. The it2 numbers used as baselines are the already published ones (eval/reports/current/decomposition/summary.md, eval/reports/current/symbolic-proofing-it2/summary.md).",
  "iteration": 3,
@@ -93,7 +93,7 @@
    "id": "D1",
    "at": "2026-10-01T09:22:00Z",
    "before": "first optimizer step",
-   "what": "The first launch was refused by the host (Qualification evidence changed: source_rights): DS014 was edited by another agent after the qualification was written. The source_rights evidence now points to a frozen statement file (mix-source-rights.json) instead of the live DS014; the receipt was re-transcribed with the new qualification hash. Data and recipe unchanged; no step was taken."
+   "what": "The first launch was refused by the host (Qualification evidence changed: source_rights): DS011 was edited by another agent after the qualification was written. The source_rights evidence now points to a frozen statement file (mix-source-rights.json) instead of the live DS011; the receipt was re-transcribed with the new qualification hash. Data and recipe unchanged; no step was taken."
   },
   {
    "id": "D2",

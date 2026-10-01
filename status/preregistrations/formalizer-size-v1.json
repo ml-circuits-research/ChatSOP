@@ -3,9 +3,9 @@
   "id": "formalizer-size-v1",
   "registered_at": "2026-09-28T18:40:00Z",
   "registered_by": "training-agent (for the owner, under the owner's approval logged in status/journal.jsonl at 2026-09-28T18:13:13.644Z)",
-  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
   "frozen_before_results": "Written before any optimizer step and before any fine-tuned prediction on any split. Only the fields marked PENDING_DATA_FINAL may be filled in afterwards, once, when the orchestrator declares the data final and before the first optimizer step. Any other later change is a recorded deviation.",
-  "question": "How small can the ChatSOP formalizer (user message -> model-language SOP, DS021) be while staying accurate, and how fast does it run on this machine's CPU?",
+  "question": "How small can the ChatSOP formalizer (user message -> model-language SOP, DS014) be while staying accurate, and how fast does it run on this machine's CPU?",
   "hypotheses": {
     "H1": "Full fine-tuning of a base of at most 270M parameters on formalizer-v1 train reaches tolerant execution equivalence >= 90% on the formalizer-v1 sealed test separately in English and in Romanian (Q8_0 GGUF, CPU, greedy).",
     "H2": "Accuracy grows with size within one family: SmolLM2-360M > SmolLM2-135M on formalizer-v1 test tolerant execution equivalence (if the 360M arm runs). The gap between SmolLM2-135M and Gemma 3 270M is below 5 points in-distribution and larger on formalizer-ood-v1.",
@@ -69,7 +69,7 @@
   ],
   "base_choice": {
     "instruct_over_base": "Instruct checkpoints of SmolLM2 and Gemma 3 are used because the pipeline formats every row with the tokenizer chat template (training/python/common.py chat_ids/encode_row) and needs a trained end-of-turn stop token (<|im_end|> for SmolLM2, <end_of_turn> for Gemma). The base SmolLM2/Gemma checkpoints would have to learn the turn tokens from scratch. The fine-tune replaces the chat behaviour entirely, so no instruction-following ability is assumed.",
-    "smollm2_template": "SmolLM2 Instruct's shipped template injects the system prompt 'You are a helpful AI assistant named SmolLM, trained by Hugging Face' when no system message is present. The recipe field chat_template removes that injection so the model input is exactly the user's message (DS021); the override is saved with every checkpoint tokenizer and travels to the GGUF export.",
+    "smollm2_template": "SmolLM2 Instruct's shipped template injects the system prompt 'You are a helpful AI assistant named SmolLM, trained by Hugging Face' when no system message is present. The recipe field chat_template removes that injection so the model input is exactly the user's message (DS014); the override is saved with every checkpoint tokenizer and travels to the GGUF export.",
     "gemma_source": "google/gemma-3-270m-it is gated on Hugging Face and no HF token is configured on this host. The pinned mirror is byte-identical to the upstream revision (all nine model, tokenizer and config files by git blob id, weights also by LFS sha256). The Gemma Terms of Use and Prohibited Use Policy apply unchanged."
   },
   "data": {
@@ -89,7 +89,7 @@
       "eval/suites/formalizer-wild-v1/test.jsonl": "077e7164a3020c1e6c3c28c8f3b5b8f2c08e2e3f59ee0e6830f9991509884163"
     },
     "identical_across_arms": true,
-    "review": "Experiment-grade. Semantic review is satisfied by the independent automated corpus auditor (owner decision 2026-09-28); no human review. No result of this study is a DS010 promotion.",
+    "review": "Experiment-grade. Semantic review is satisfied by the independent automated corpus auditor (owner decision 2026-09-28); no human review. No result of this study is a DS007 promotion.",
     "rows": {
       "train": 23817,
       "dev": 5131,
@@ -170,7 +170,7 @@
   "success_criteria": {
     "adequate": "An arm is adequate when, with Q8_0 CPU predictions: formalizer-v1 test parse_rate >= 99%; formalizer-v1 test tolerant execution equivalence >= 90% in English and >= 90% in Romanian, each over its own language rows; formalizer-ood-v1 tolerant execution equivalence >= 70%.",
     "speed_target": "Reported against, not gated: Q8_0 or Q4_K_M at 10 threads, single-stream generation >= 100 tokens/s and p50 end-to-end latency <= 1 s on the 300-message sample. Speed cannot be improved by escalating to a larger model, so it does not drive escalation.",
-    "not_a_promotion": "Passing 'adequate' is not a DS010 promotion: no independent human review, one seed, synthetic suites.",
+    "not_a_promotion": "Passing 'adequate' is not a DS007 promotion: no independent human review, one seed, synthetic suites.",
     "wild": "Reported against, not gated: formalizer-wild-v1 accepted_match and decision_match per language."
   },
   "escalation_rule": [

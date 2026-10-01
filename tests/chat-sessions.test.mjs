@@ -1,4 +1,4 @@
-// Sessions (DS031): the library (clone of a base memory, drafts, accept, reject, commit), the /v1/sessions API and the chat running
+// Sessions (DS022): the library (clone of a base memory, drafts, accept, reject, commit), the /v1/sessions API and the chat running
 // in a session with its own repository.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -41,9 +41,9 @@ test('session: starting clones the base memory into its own folder', t => {
   const snap = fs.readdirSync(path.join(sessions.dir(s.id), 'repo/snapshots'))[0];
   assert.ok(fs.statSync(path.join(sessions.dir(s.id), 'repo/snapshots', snap)).nlink >= 2, 'the clone shares the immutable files');
   assert.throws(() => sessions.create({base: 'missing', user: 'alice'}), e => e.status === 404);
-  assert.throws(() => sessions.create({base: base.id, user: 'alice', settings: {authoring: 'auto'}}), /authoring must be one of off, always/);
-  assert.equal(sessions.create({base: base.id, user: 'alice'}).settings.authoring, 'off', 'the default never starts the coding agent');
-  assert.equal(sessions.create({base: base.id, user: 'alice'}).settings.scope_note, 'ask');
+  assert.throws(() => sessions.create({base: base.id, user: 'alice', settings: {authoring: 'auto'}}), /Unknown session setting "authoring"/);
+  assert.equal(sessions.create({base: base.id, user: 'alice'}).settings.omp_model, null, 'the default model is the configured subscription chain');
+  assert.throws(() => sessions.create({base: base.id, user: 'alice', settings: {omp_model: 'not a model'}}), /omp_model must be a model selector/);
   assert.throws(() => sessions.create({base: base.id, user: 'alice', settings: {bogus: 1}}), /Unknown session setting/);
   assert.equal(memories.circuits(base.id).length, 1);
 });
@@ -128,15 +128,14 @@ test('sessions API: create on a base memory, drafts, accept, theory, query, comm
   await s.admin('/v1/memories', 'POST', {name: 'Family', id: 'family', strategy: 'sqlite', circuits: [{name: 'family', text: FAMILY}]});
   assert.equal((await s.user('/v1/sessions', 'POST', {})).status, 400);
   assert.equal((await s.user('/v1/sessions', 'POST', {base: 'nope'})).status, 404);
-  const created = await s.user('/v1/sessions', 'POST', {base: 'family', name: 'Test chat', settings: {scope_note: 'mark'}});
+  const created = await s.user('/v1/sessions', 'POST', {base: 'family', name: 'Test chat', settings: {omp_model: 'zai/glm-5'}});
   assert.equal(created.status, 201);
   const id = created.body.id;
-  assert.equal(created.body.settings.authoring, 'off', 'the coding agent is off by default');
-  assert.equal(created.body.settings.scope_note, 'mark');
+  assert.equal(created.body.settings.omp_model, 'zai/glm-5');
   assert.equal(created.body.base.strategy, 'sqlite');
   assert.equal((await s.user('/v1/sessions')).body.data.length, 1);
-  const settings = await s.user(`/v1/sessions/${id}/settings`, 'POST', {authoring: 'always', omp_model: 'xai-oauth/grok-4.20-0309-non-reasoning'});
-  assert.equal(settings.body.settings.authoring, 'always');
+  const settings = await s.user(`/v1/sessions/${id}/settings`, 'POST', {omp_model: 'xai-oauth/grok-4.20-0309-non-reasoning'});
+  assert.equal(settings.body.settings.omp_model, 'xai-oauth/grok-4.20-0309-non-reasoning');
   assert.equal((await s.user(`/v1/sessions/${id}/settings`, 'POST', {authoring: 'auto'})).status, 400);
   const theory = await s.user(`/v1/sessions/${id}/theory`);
   assert.match(theory.body.theory, /@r_grand rule/);

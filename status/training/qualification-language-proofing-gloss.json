@@ -49,7 +49,7 @@
    "sha256": "11f6b2de768b02eea664d66805a1acb60341dfd8ff13c29d14a99303b732293e"
   },
   "source_rights": {
-   "path": "docs/specs/DS014-source-rights.md",
+   "path": "docs/specs/DS011-source-rights.md",
    "sha256": "9460ef0841a5a4e228880131912639627116e9d3e65c9fe454258a386e98c6ce"
   },
   "token_budget": {
@@ -59,7 +59,7 @@
  },
  "reviewer": {
   "kind": "principal_integrator",
-  "id": "gloss-train-agent (automated re-qualification, DS014 changed)",
+  "id": "gloss-train-agent (automated re-qualification, DS011 changed)",
   "reviewed_at": "2026-10-01T08:38:01.346Z"
  },
  "blockers": [],

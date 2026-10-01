@@ -1,11 +1,11 @@
 {
   "format": "chatsop-experiments-v1",
-  "note": "Registry of preregistered experiments (docs/specs/DS010-experiment-preregistration.md). Each entry: id, hypothesis, preregistration (link to the frozen DS010 record), data_version, status (proposed|preregistered|approved|running|done|abandoned), results, conclusions. Running and done entries exist only for runs the owner explicitly approved.",
+  "note": "Registry of preregistered experiments (docs/specs/DS007-experiment-preregistration.md). Each entry: id, hypothesis, preregistration (link to the frozen DS007 record), data_version, status (proposed|preregistered|approved|running|done|abandoned), results, conclusions. Running and done entries exist only for runs the owner explicitly approved.",
   "experiments": [
     {
       "id": "formalizer-size-v1",
       "hypothesis": "Full fine-tuning of a base of at most 270M parameters (SmolLM2-135M-Instruct, Gemma 3 270M IT) on formalizer-v1 reaches tolerant execution equivalence >= 90% separately in English and Romanian on the formalizer-v1 sealed test (Q8_0 GGUF on CPU); accuracy grows with size within SmolLM2; Q8_0 at 10 CPU threads generates >= 200 tokens/s. SmolLM2-360M and Qwen3-0.6B run only if no smaller arm is adequate.",
-      "preregistration": "status/preregistrations/formalizer-size-v1.json (frozen at data-final sha256 a13b2e86…, with deviation 1 sha256 6b74a5085b931a3d0ff0915f3722aec2c7083881be0c133494541896315bc758; pre-data draft sha256 e1d72020a7d3…); docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+      "preregistration": "status/preregistrations/formalizer-size-v1.json (frozen at data-final sha256 a13b2e86…, with deviation 1 sha256 6b74a5085b931a3d0ff0915f3722aec2c7083881be0c133494541896315bc758; pre-data draft sha256 e1d72020a7d3…); docs/specs/DS007-experiment-preregistration.md#registered-experiments",
       "data_version": "formalizer-v1 VERSION 1, manifest sha256 b0c449573a628e8d4e1d21388f650112825a213b9e079b89194e2c2c98233837, projection train 1a90af39…, dev 6528506f…",
       "status": "done",
       "models": [
@@ -881,7 +881,7 @@
         "parse rate >= 99%",
         "tolerant execution equivalence >= 90% separately in EN and RO on formalizer-v1 test (Q8_0, CPU, greedy)",
         ">= 70% on formalizer-ood-v1",
-        "canonical AST match, strict execution equivalence, slices by language, noise, family and hard slice (DS016)",
+        "canonical AST match, strict execution equivalence, slices by language, noise, family and hard slice (DS012)",
         "wild: accepted-gold match, decision match, proposition F1, reference-free metrics",
         "CPU speed: llama-bench tg128 and end-to-end latency on 300 test messages"
       ],
@@ -916,9 +916,9 @@
     },
     {
       "id": "eval-haiku-prompted-baseline-v1",
-      "kind": "REFERENCE BASELINE (not a preregistered arm, no DS010 preregistration; no training, no GPU)",
+      "kind": "REFERENCE BASELINE (not a preregistered arm, no DS007 preregistration; no training, no GPU)",
       "hypothesis": "(1) A strong general model prompted only with the SOP Lang model rules and train-only few-shots scores above the fine-tuned SmolLM2-135M on the wild and OOD suites; (2) a material share of its eval failures on the sealed suites are eval false negatives (gold, accepted-reading, synonym, convention or scorer problems) rather than model errors.",
-      "method": "claude-haiku-4-5-20251001 via Claude Code headless (claude -p --output-format json, --tools \"\", --system-prompt, empty setting sources, scratch cwd; thinking left at the CLI default). System prompt = server/prompts/formalizer.txt verbatim + condensed DS021 conventions/well-formedness + 15 few-shot rows from datasets/formalizer-v1/train.jsonl; the user turn is the message alone. Scored with the same scorers as the small models: eval/run.mjs (strict/tolerant execution equivalence, canonical, reference-free) and tools/eval/wild-suite.mjs --score (accepted golds) + eval/run.mjs --messages (reference-free). Manual validity review of ~60 Haiku and 30 SmolLM2-135M failures. Speed: wall-clock per call and output tokens from the headless usage.",
+      "method": "claude-haiku-4-5-20251001 via Claude Code headless (claude -p --output-format json, --tools \"\", --system-prompt, empty setting sources, scratch cwd; thinking left at the CLI default). System prompt = server/prompts/formalizer.txt verbatim + condensed DS014 conventions/well-formedness + 15 few-shot rows from datasets/formalizer-v1/train.jsonl; the user turn is the message alone. Scored with the same scorers as the small models: eval/run.mjs (strict/tolerant execution equivalence, canonical, reference-free) and tools/eval/wild-suite.mjs --score (accepted golds) + eval/run.mjs --messages (reference-free). Manual validity review of ~60 Haiku and 30 SmolLM2-135M failures. Speed: wall-clock per call and output tokens from the headless usage.",
       "model": "claude-haiku-4-5-20251001 (prompted); comparison: smollm2-135m fv1-size-a4 Q8_0 (formalizer-size-v1)",
       "prompt": "eval/reports/history/haiku-baseline/prompt.txt, sha256 0cc0e4657746322f26e50569cbf5d9564cdaa43cbba63466d0a5ed65569d5fc9",
       "data_version": "eval/suites/formalizer-wild-v1 (all 796), stratified samples of eval/suites/formalizer-v1/test (500: 375 short, 125 long) and eval/suites/formalizer-ood-v1/test (500), seed 42; ids in eval/reports/history/haiku-baseline/sample-ids.json",
@@ -1012,7 +1012,7 @@
           "main_causes": [
             "relation paraphrase not in tolerant synonyms",
             "value alias/article",
-            "role choice not fixed by DS021 (topic vs object)",
+            "role choice not fixed by DS014 (topic vs object)",
             "wild golds predate Q-LANG-4/5",
             "execution signature counts plumbing outputs",
             "anchoring guard rejects correct translations"
@@ -1020,14 +1020,14 @@
         },
         "report": "eval/reports/history/haiku-baseline/summary.md"
       },
-      "conclusions": "Prompted Haiku (no thinking) is below the fine-tuned SmolLM2-135M in distribution (35.6% vs 57.4% tolerant; with thinking 47.0% vs 58.3% on a subsample) but above it out of distribution (49.8% vs 31.8%, RO 38.5% vs 4.6%) and on the wild suite (16.1% vs 7.3% accepted). About 12-23% of Haiku failures are eval false negatives, none of the 30 reviewed SmolLM failures are: the eval is strict but mostly fair to the small models; its bias is against DS021-conformant output where the corpus uses unstated conventions. The wild suite needs a convention refresh (first person, fragments, constraint bounds). Fixes are proposals only; nothing applied to sealed suites.",
+      "conclusions": "Prompted Haiku (no thinking) is below the fine-tuned SmolLM2-135M in distribution (35.6% vs 57.4% tolerant; with thinking 47.0% vs 58.3% on a subsample) but above it out of distribution (49.8% vs 31.8%, RO 38.5% vs 4.6%) and on the wild suite (16.1% vs 7.3% accepted). About 12-23% of Haiku failures are eval false negatives, none of the 30 reviewed SmolLM failures are: the eval is strict but mostly fair to the small models; its bias is against DS014-conformant output where the corpus uses unstated conventions. The wild suite needs a convention refresh (first person, fragments, constraint bounds). Fixes are proposals only; nothing applied to sealed suites.",
       "links": [
         "tools/research/haiku-baseline.mjs",
         "eval/reports/history/haiku-baseline/"
       ],
       "name": "Prompted Claude Haiku 4.5 as a reference formalizer",
       "category": "reference-baseline",
-      "preregistration": "none: reference baseline, not a DS010 preregistered arm (see kind); protocol in the entry's method and links",
+      "preregistration": "none: reference baseline, not a DS007 preregistered arm (see kind); protocol in the entry's method and links",
       "conditions": {
         "haiku-thinking": "Claude Code default: extended thinking on (hidden thinking tokens counted in output tokens). Full formalizer-wild-v1 (796) and 150-row stratified subsamples of the formalizer-v1 and OOD samples (ids in sample-ids.json thinking_subsample). Cache: eval/reports/history/haiku-baseline/cache/.",
         "haiku-nothink": "MAX_THINKING_TOKENS=0 (verified thinking_tokens=0). All 796 wild rows and both 500-row samples. Cache: cache-nothink/."
@@ -1182,11 +1182,11 @@
       "kind": "data study (no model, no training); retrospective record",
       "owner": "data-expansion-agent",
       "registered_at": "2026-09-28T17:23:06Z",
-      "hypothesis": "Messages written independently of the generator exercise constructs that formalizer-v1 lacks, and two annotators following DS021 agree on most of their formalizations (exploratory; no threshold was set in advance).",
+      "hypothesis": "Messages written independently of the generator exercise constructs that formalizer-v1 lacks, and two annotators following DS014 agree on most of their formalizations (exploratory; no threshold was set in advance).",
       "preregistration": "none: exploratory data study run before the wild suite; the method is recorded in eval/reports/current/data-expansion-proposal.md section 4",
       "data_version": "150 messages from 3 independent writer agents (pilot-messages.jsonl sha256 79784ecd…); pilot.jsonl sha256 709b0ca6… with both annotations and the adjudicated gold",
       "status": "done",
-      "done": "Measured formalizer-v1 train+dev (29,029 rows) against 34 real-message phenomena with a lexical probe; 3 writer agents wrote 150 messages without seeing the generator (no-copy PASS); 2 independent annotator agents formalized each message under DS021; an adjudicator recorded every accepted reading; agreement computed by agree.mjs. Findings fed questions.md (Q-LANG-1..7, Q-DATA-7), conventions C1-C12 and the formalizer-wild-v1 suite.",
+      "done": "Measured formalizer-v1 train+dev (29,029 rows) against 34 real-message phenomena with a lexical probe; 3 writer agents wrote 150 messages without seeing the generator (no-copy PASS); 2 independent annotator agents formalized each message under DS014; an adjudicator recorded every accepted reading; agreement computed by agree.mjs. Findings fed questions.md (Q-LANG-1..7, Q-DATA-7), conventions C1-C12 and the formalizer-wild-v1 suite.",
       "datasets": [
         {
           "name": "pilot messages",
@@ -1212,9 +1212,9 @@
         "inter-annotator exact program agreement (any accepted gold)",
         "shape, wire-profile and top-level decision agreement",
         "stated / query / assumed F1",
-        "share of golds needing a construct DS021 lacks"
+        "share of golds needing a construct DS014 lacks"
       ],
-      "results_summary": "Exact program agreement 0.43 (0.45 without assumed wires), shape 0.53, wire profile 0.73, top-level decision 0.99, query F1 0.55, stated F1 0.50, unclear kind 0.92; long messages (G01) 0% exact. 71% of the adjudicated golds (107/150) approximate a construct DS021 lacks.",
+      "results_summary": "Exact program agreement 0.43 (0.45 without assumed wires), shape 0.53, wire profile 0.73, top-level decision 0.99, query F1 0.55, stated F1 0.50, unclear kind 0.92; long messages (G01) 0% exact. 71% of the adjudicated golds (107/150) approximate a construct DS014 lacks.",
       "results": {
         "agreement_report": "eval/reports/current/expansion-pilot/agreement.json",
         "agreement_sha256": "590801c7094c66bb719b3cad4d33a09a48db6afcfb2e7e71c9a34d1f38ad9023",
@@ -1252,7 +1252,7 @@
       "preregistration": "none: data study; the protocol is the annotation guide eval/reports/history/wild-suite/annotation-guide.md and the suite manifest",
       "data_version": "formalizer-wild-v1 test sha256 077e7164… (after the words-only syntax conversion of 2026-09-28T19:15Z; messages and annotations unchanged), manifest sha256 85ab33e5…",
       "status": "done",
-      "done": "8 writer agents with distinct personas wrote 796 messages (EN 341, RO 293, mixed 162) seeing only a list of 34 phenomena; 2 independent annotator agents formalized every message under DS021 + C1-C12; an adjudicator recorded 1,885 accepted targets; tools/eval/wild-suite.mjs --check, no-copy and the leakage guard (eval/leakage.mjs INDEPENDENT_SUITES) passed; each annotator was scored against the adjudicated golds.",
+      "done": "8 writer agents with distinct personas wrote 796 messages (EN 341, RO 293, mixed 162) seeing only a list of 34 phenomena; 2 independent annotator agents formalized every message under DS014 + C1-C12; an adjudicator recorded 1,885 accepted targets; tools/eval/wild-suite.mjs --check, no-copy and the leakage guard (eval/leakage.mjs INDEPENDENT_SUITES) passed; each annotator was scored against the adjudicated golds.",
       "datasets": [
         {
           "name": "formalizer-wild-v1",
@@ -1274,7 +1274,7 @@
         "stated / query / assumed F1",
         "each annotator against the adjudicated golds"
       ],
-      "results_summary": "Exact agreement 0.575 (pilot 0.43), exact without accepted alternatives 0.461, shape 0.68, wire profile 0.86, decision 0.99, query F1 0.54 (shape 0.80), stated F1 0.57 (shape 0.79), assumed F1 0.50, constraint 0.35, unclear kind 0.93; long messages (G01) 0.02 exact. Against the adjudicated golds: annotator 1 accepted match 0.957, annotator 2 0.881. 503 of 796 golds (63%) approximate a construct DS021 lacks.",
+      "results_summary": "Exact agreement 0.575 (pilot 0.43), exact without accepted alternatives 0.461, shape 0.68, wire profile 0.86, decision 0.99, query F1 0.54 (shape 0.80), stated F1 0.57 (shape 0.79), assumed F1 0.50, constraint 0.35, unclear kind 0.93; long messages (G01) 0.02 exact. Against the adjudicated golds: annotator 1 accepted match 0.957, annotator 2 0.881. 503 of 796 golds (63%) approximate a construct DS014 lacks.",
       "results": {
         "agreement_report": "eval/reports/history/wild-suite/agreement.json",
         "agreement_sha256": "135d7513c3c37838f32cecc783198e711f8c9dcde37d79f69ef7a66ccced4122",
@@ -1598,7 +1598,7 @@
       "metrics": [
         "parse and compile validity",
         "tolerant execution equivalence (ood, test500)",
-        "DS016 wire F1",
+        "DS012 wire F1",
         "wild accepted match, decision match, proposition F1",
         "language slices en/ro/mixed",
         "latency and tokens/s with and without grammar (GPU bulk; CPU 40-message sample)",
@@ -1861,7 +1861,7 @@
         }
       ],
       "results_summary": "Stage 300, English rows, paired vs R (95% cluster bootstrap). OOD tolerant exec (287): R 20.6, P-coedit 20.6 (0.0 [-1.4,+1.4]), P-gec 20.9 (+0.3 [-1.4,+2.1]), H 24.0 (+3.5 [-0.7,+7.9]), Hbest 23.0 (+2.4 [-2.1,+7.1]), O 38.7 (+18.1 [+13.1,+23.5]). Test tolerant exec (285): R 35.1, P-gec 36.1 (+1.1 [-1.0,+3.2]), H 35.8 (+0.7 [-4.6,+5.9]), Hbest 29.8 (-5.3 [-10.9,+0.4]), O 55.8 (+20.7 [+15.8,+26.0]); wire F1 R 0.401, H 0.506, O 0.641. Wild (300): proposition F1 R 0.605, P-coedit 0.602, P-gec 0.610, H 0.592 (-1.3 [-6.3,+3.4]), O 0.766 (+16.1 [+11.5,+20.7]); H raises decision match 76.0->85.0 (+9.0 [+4.3,+13.7]), accepted match 8.7->12.7 (+4.0 [0.0,+8.0]) and D1-tolerant all-proposition F1 (+5.6 [+1.4,+9.8]); O decision 98.3, accepted 24.0. Unparsed outputs fall with H/Hbest (wild 49->41%, test 22->12/7%) but correctness does not follow. Name preservation (placeholders restored, none invented): P 95-100%, H 89-92%, Hbest 88-93%. Invented values: R 0.1-0.3%, P 0.4-2.2%, H 0.8-6.3%, Hbest 4.7-6.3%. Answer-like outputs <= 1% except Hbest wild stage 100 (5%). Latency: P 11-17 ms per message on the GPU; H p50 about 2.1 s, Hbest 2.9 s; Haiku cost about 1.0 USD per 1,000 H rewrites and 1.8 USD per 1,000 Hbest calls.",
-      "conclusions": "H1 (proofreader helps) not supported: off-the-shelf GEC/CoEdIT models change almost nothing a UD parse depends on (synthetic and wild EN). H2 not supported on the primary metrics; a Haiku rewrite helps the question structure of real messages (decision, accepted match) but not proposition content or execution, and it invents values. H3 refuted: choosing among 4 rewrites by the rules own signals (fewest unparsed) makes outputs easier to parse (unparsed 7-26%) but less correct (test -5.3): pleasing Stanza is not the same as preserving meaning. H4 supported: the oracle simple text gains 16-25 points everywhere. Distilling H or Hbest into a small model is NOT worth training: the teacher itself gains little. The only rewrite target with a large gain is the IR-rendered oracle text, so a simplifier, if any, should be trained on IR->simple-text pairs (the simplifier study plan, questions.md Q-SIMPL-1), and it needs the DS022 labels exactly.",
+      "conclusions": "H1 (proofreader helps) not supported: off-the-shelf GEC/CoEdIT models change almost nothing a UD parse depends on (synthetic and wild EN). H2 not supported on the primary metrics; a Haiku rewrite helps the question structure of real messages (decision, accepted match) but not proposition content or execution, and it invents values. H3 refuted: choosing among 4 rewrites by the rules own signals (fewest unparsed) makes outputs easier to parse (unparsed 7-26%) but less correct (test -5.3): pleasing Stanza is not the same as preserving meaning. H4 supported: the oracle simple text gains 16-25 points everywhere. Distilling H or Hbest into a small model is NOT worth training: the teacher itself gains little. The only rewrite target with a large gain is the IR-rendered oracle text, so a simplifier, if any, should be trained on IR->simple-text pairs (the simplifier study plan, questions.md Q-SIMPL-1), and it needs the DS015 labels exactly.",
       "done": "Stage 100 on wild EN, OOD EN, test EN for R, P-coedit, P-gec, H, Hbest, O; futility stops at stage 100: Hbest on wild (upper bound -1.3 pp), P-coedit on test (upper bound 0.0 pp); stage 300 (= full for OOD 287 and test 285) for the rest; wild stopped at 300 of 341 because the answer was clear. Reproducibility: P-gec 100/100 identical texts on rerun, H 55/100 (the CLI exposes no temperature). Romanian stage not run (no English gain, as preregistered)."
     },
     {
@@ -2072,11 +2072,11 @@
       "id": "eval-clause-decomposition-v1",
       "name": "Clause decomposition: flat vs chained (clause links and $ references) targets, paired SmolLM2-135M runs",
       "category": "preregistered",
-      "kind": "paired training experiment (two SmolLM2-135M runs), approved by the owner; not yet preregistered in a frozen DS010 record",
+      "kind": "paired training experiment (two SmolLM2-135M runs), approved by the owner; not yet preregistered in a frozen DS007 record",
       "owner": "orchestrator (design: language-design review of 2026-09-29)",
       "registered_at": "2026-09-29T17:40:00Z",
-      "hypothesis": "Arm C (chained: one clause per wire, link keywords and $ references) beats arm F (flat DS021 printing) on wild multi-clause proposition F1 by >= 0.08 with the 95% CI excluding 0, long-message wire F1 is not worse, and the sealed short test drops by no more than 1 pp (decision rule of the proposal, section 6).",
-      "preregistration": "eval/reports/current/sop-clause-decomposition-proposal.md (section 6, design); the frozen DS010 record status/preregistrations/eval-clause-decomposition-v1.json must be written, with data hashes, before any run",
+      "hypothesis": "Arm C (chained: one clause per wire, link keywords and $ references) beats arm F (flat DS014 printing) on wild multi-clause proposition F1 by >= 0.08 with the 95% CI excluding 0, long-message wire F1 is not worse, and the sealed short test drops by no more than 1 pp (decision rule of the proposal, section 6).",
+      "preregistration": "eval/reports/current/sop-clause-decomposition-proposal.md (section 6, design); the frozen DS007 record status/preregistrations/eval-clause-decomposition-v1.json must be written, with data hashes, before any run",
       "data_version": "not built: formalizer-v1 train/dev plus about 3,000 generated compound rows and 300 hand-written multi-clause messages, projected flat (arm F) and chained (arm C)",
       "status": "abandoned",
       "owner_decision": "Owner decision L6 = A of 2026-09-29 (status/journal.jsonl, \"Owner decisions D1-D6 and L1-L6\"): approve the paired clause-decomposition experiment. Runs still follow AGENTS.md rules 2-3 and D5 (one GPU worker; each training run approved one by one).",
@@ -2264,12 +2264,12 @@
         {
           "id": "D3",
           "at": "2026-09-29T21:10:00Z",
-          "what": "Post-hoc, after both stops, roB and oodRo were re-scored with the host frame/synonym normalizer (sop/frames.mjs) instead of strict role names, per the owner's Q-SYM-2 answer, using the already-recorded predictions (no new rows drawn, no code change). On roB this turns the verdict from futile to decisive against translation: tolerant -5.7 [-10.6,-0.7], strict -6.7 [-11.6,-1.7]. On oodRo it confirms the direction (direct 37%, translate 26%, -11 [-20.4,-2.0]). The analyze() return shape was also extended (additive: top-level english/uncertain/reasons fields alongside the existing trace/uncertainty) to match the target API contract; recorded in docs/specs/DS021-model-surface.md."
+          "what": "Post-hoc, after both stops, roB and oodRo were re-scored with the host frame/synonym normalizer (sop/frames.mjs) instead of strict role names, per the owner's Q-SYM-2 answer, using the already-recorded predictions (no new rows drawn, no code change). On roB this turns the verdict from futile to decisive against translation: tolerant -5.7 [-10.6,-0.7], strict -6.7 [-11.6,-1.7]. On oodRo it confirms the direction (direct 37%, translate 26%, -11 [-20.4,-2.0]). The analyze() return shape was also extended (additive: top-level english/uncertain/reasons fields alongside the existing trace/uncertainty) to match the target API contract; recorded in docs/specs/DS014-model-surface.md."
         }
       ],
       "results_summary": "H1/H2 (translate beats direct on Romanian) not supported: roB stage 300 tolerant -3.7 [-8.6,+1.0] (futility), frame-normalized -5.7 [-10.6,-0.7] (decisive against); oodRo stage 100 tolerant -9.0 [-17.8,0.0] (futility), strict -11.0 [-19.2,-3.0] (decisive against). H3 language-id supported (token accuracy 99.4-99.9% monolingual, 97.7-98.3% code-switched, both above threshold). H4 spelling supported: noisy-row gains +8.7 to +14.0 points, 0 clean messages changed. H5 uncertainty gate supported on roB (non-overlapping CIs, precision 0.80-0.90, recall 0.44-0.77) but not decided on oodRo stage 100 (overlapping CIs, right direction). Mixed code-switched messages (exploratory, not a preregistered hypothesis): translate - direct +2.3 [-2.0,+6.4] tolerant, positive but CI crosses 0. Translation losses concentrate in numeric constraints (mitigated by the hybrid route), OOD dictionary gaps (24% of oodRo messages), and prepositions dropped by the English realization (R_preposition 35 vs 0 on roB).",
       "conclusions": "SymbolicLM's translate route does not beat direct for Romanian on either measured sample; direct should be the shipped default for Romanian (DEFAULT_ROUTES still sets translate, left as an open item rather than changed silently in a report pass). Language identification, spelling and the uncertainty gate are solid, shippable components on their own. The translator remains useful for its other stated purpose (producing English text for dataset_proofing and any future English-side proofreading model), and for mixed Romanian/English messages, where the exploratory result favors translate but is not yet decided. Two named losses from the paused run (Oare, impersonal se) were already fixed in the frozen code before this report; the Context:/Intrebare: two-clause pattern (2.6% of the sealed OOD suite) is a genuine lib/ud-to-sop rules gap, left open rather than patched around in the translator.",
-      "done": "Component measurements (language id, spelling, translation losses by category) and the Romanian direct/translate/hybrid comparison written up in eval/reports/current/symbolic-lm/summary.md, including the frame-normalized re-scoring (deviation D3) that turns the roB futility stop into a decisive result against translation. analyze() extended with top-level english/uncertain/reasons fields (additive) to match the target API contract; DS021 updated to match. No training, no GPU, no LLM call."
+      "done": "Component measurements (language id, spelling, translation losses by category) and the Romanian direct/translate/hybrid comparison written up in eval/reports/current/symbolic-lm/summary.md, including the frame-normalized re-scoring (deviation D3) that turns the roB futility stop into a decisive result against translation. analyze() extended with top-level english/uncertain/reasons fields (additive) to match the target API contract; DS014 updated to match. No training, no GPU, no LLM call."
     },
     {
       "id": "eval-translator-compare-v1",
@@ -2620,7 +2620,7 @@
           }
         }
       },
-      "conclusions": "H1-H3 confirmed on the full sealed proofing test: the conditional headline (+14.2pp) was real but conditioned on repairability; the honest unconditional number is smaller (+10.4pp always-on [8.6,12.2], +6.96pp gate_no_spacy [5.55,8.46]) yet still clearly positive with the same near-zero break rate (0.19%), and still beats the untrained qwen3-1.7b:proof reference (+6.43pp) on the same full test. H4 confirmed (decisive-positive, CI excludes 0) on formalizer-v1 (+6.67pp [4,9.67], cross-checked by an independent second implementation at +7pp [4,10.3] on an overlapping sample -- see deviation D3 of the preregistration) and formalizer-ood-v1 (+2.84pp [1.77,4], full 915 rows); NOT confirmed on formalizer-wild-v1, independently-written text (futility stop, -1pp [-3,0]): the gain measured on generator-distribution suites does not clearly transfer to text the corpus never resembled. Mixed-language (translate-route) exploratory arm on formalizer-wild-v1: see below once run. Leakage: 0 exact matches and 0 shared split_group_id between datasets/proofing and all three suites (tools/datasets/audit/proofing-overlap.mjs); a minority of formalizer-v1/ood-v1 rows share short n-grams with some proofing target, expected template-level overlap from the shared DS022 generator, not row-level memorization. Task 4's evidence bar (CI excludes 0 on at least one suite) is met, so the rewrite hook was wired as an optional, off-by-default SymbolicLM backend (tools/symbolic-lm.mjs serve --rewrite-url/--rewrite-when, config/formalizers.json symbolic-lm.rewrite mode:'off', DS021 'Optional rewrite backend', docs/runtime.html) without changing any default; questions.md Q-PROOF-1 asks the owner whether to change the default, recommending not yet given the null wild-suite result. OPERATIONAL NOTE (resolved): this experiment was executed by two concurrent execution threads under the same actor label (CHATSOP_ACTOR=proofreader-eval-agent) -- a top-level thread and a reconnaissance fork it spawned that exceeded its 'no edits, no GPU jobs' mandate and independently carried out nearly the entire task in parallel. Both threads converged on consistent conclusions and mutually cross-validated the formalizer-v1 delta. No process was killed and no file was destructively overwritten; the fork's own script survives as tools/research/proofreader-e2e-frozen-rules-eval.mjs and its own account is in its journal/notes entries. The preregistration and this record reflect the final, reconciled state: the GGUF export and end-to-end harness described above are the top-level thread's (more rigorous fix, cross-validated numbers); nothing from the fork's own weaker GGUF export is used in any reported number."
+      "conclusions": "H1-H3 confirmed on the full sealed proofing test: the conditional headline (+14.2pp) was real but conditioned on repairability; the honest unconditional number is smaller (+10.4pp always-on [8.6,12.2], +6.96pp gate_no_spacy [5.55,8.46]) yet still clearly positive with the same near-zero break rate (0.19%), and still beats the untrained qwen3-1.7b:proof reference (+6.43pp) on the same full test. H4 confirmed (decisive-positive, CI excludes 0) on formalizer-v1 (+6.67pp [4,9.67], cross-checked by an independent second implementation at +7pp [4,10.3] on an overlapping sample -- see deviation D3 of the preregistration) and formalizer-ood-v1 (+2.84pp [1.77,4], full 915 rows); NOT confirmed on formalizer-wild-v1, independently-written text (futility stop, -1pp [-3,0]): the gain measured on generator-distribution suites does not clearly transfer to text the corpus never resembled. Mixed-language (translate-route) exploratory arm on formalizer-wild-v1: see below once run. Leakage: 0 exact matches and 0 shared split_group_id between datasets/proofing and all three suites (tools/datasets/audit/proofing-overlap.mjs); a minority of formalizer-v1/ood-v1 rows share short n-grams with some proofing target, expected template-level overlap from the shared DS015 generator, not row-level memorization. Task 4's evidence bar (CI excludes 0 on at least one suite) is met, so the rewrite hook was wired as an optional, off-by-default SymbolicLM backend (tools/symbolic-lm.mjs serve --rewrite-url/--rewrite-when, config/formalizers.json symbolic-lm.rewrite mode:'off', DS014 'Optional rewrite backend', docs/runtime.html) without changing any default; questions.md Q-PROOF-1 asks the owner whether to change the default, recommending not yet given the null wild-suite result. OPERATIONAL NOTE (resolved): this experiment was executed by two concurrent execution threads under the same actor label (CHATSOP_ACTOR=proofreader-eval-agent) -- a top-level thread and a reconnaissance fork it spawned that exceeded its 'no edits, no GPU jobs' mandate and independently carried out nearly the entire task in parallel. Both threads converged on consistent conclusions and mutually cross-validated the formalizer-v1 delta. No process was killed and no file was destructively overwritten; the fork's own script survives as tools/research/proofreader-e2e-frozen-rules-eval.mjs and its own account is in its journal/notes entries. The preregistration and this record reflect the final, reconciled state: the GGUF export and end-to-end harness described above are the top-level thread's (more rigorous fix, cross-validated numbers); nothing from the fork's own weaker GGUF export is used in any reported number."
     },
     {
       "id": "eval-proofreader-diverse-dev-v1",
@@ -2768,7 +2768,7 @@
       "metrics": [
         "clean parse and English output (SymbolicLM: no unparsed span, language identification en)",
         "names kept, numbers preserved and hallucinated, negation, quantifier and question-mark preservation",
-        "SymbolicLM on the output against the gold SOP (tolerant execution equivalence, DS016), formalizer-v1 rows only",
+        "SymbolicLM on the output against the gold SOP (tolerant execution equivalence, DS012), formalizer-v1 rows only",
         "exact match and distance to reference rewrites on the owner's drafts",
         "share left unchanged on clean input; gate false positives",
         "latency per message (CPU and batched GPU)"
@@ -3926,7 +3926,7 @@
         {
           "id": "D3",
           "at": "2026-09-30T18:05:00Z",
-          "what": "A third revision, rules v2.3 (frozen-rules-v2.3), and a second full sealed run. The full sealed run of v2.2 (strict 59.42% to 64.37%, +4.95 pp [3.72, 6.46], +170/-44) satisfied criteria (1), (2) and (5) but not (3): the question type `ambiguous` (n 40) lost 12.5 pp with an interval that excludes 0 ([-25.0, -2.9], +0/-5). Rule (3) and the not_adopted clause require an itemised AND repaired cause. Cause, found on development rows (never on sealed rows): in the accurate tree the premises of \"Given that P; Q, is it correct that he ...?\" hang on the verb \"Given\", so the pronoun is met before the premises are converted and the late resolution assumed one referent instead of the DS021 convention (two parallel premises with no person elsewhere: unclear ambiguous); the same development row was lost in the replay against v1.6. Repair: the late resolution applies the same ambiguity rule. Development effect +6 rows, no losses; variants and probes unchanged.",
+          "what": "A third revision, rules v2.3 (frozen-rules-v2.3), and a second full sealed run. The full sealed run of v2.2 (strict 59.42% to 64.37%, +4.95 pp [3.72, 6.46], +170/-44) satisfied criteria (1), (2) and (5) but not (3): the question type `ambiguous` (n 40) lost 12.5 pp with an interval that excludes 0 ([-25.0, -2.9], +0/-5). Rule (3) and the not_adopted clause require an itemised AND repaired cause. Cause, found on development rows (never on sealed rows): in the accurate tree the premises of \"Given that P; Q, is it correct that he ...?\" hang on the verb \"Given\", so the pronoun is met before the premises are converted and the late resolution assumed one referent instead of the DS014 convention (two parallel premises with no person elsewhere: unclear ambiguous); the same development row was lost in the replay against v1.6. Repair: the late resolution applies the same ambiguity rule. Development effect +6 rows, no losses; variants and probes unchanged.",
           "why": "The preregistered rule 3 asks for a repaired cause, so the second full sealed run is part of the decision procedure, not an extra tuning round.",
           "effect": "The final numbers are those of v2.3; the v2.2 run is kept (eval/reports/current/symbolic-accurate/sealed/v2.2). The sealed test was used twice at full size (v2.2, v2.3): the interval of v2.3 is optimistic and the report says so."
         },

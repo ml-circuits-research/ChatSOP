@@ -1,4 +1,4 @@
-/** Oracle "simple text" renderer: surface IR → short simple sentences (DS022 "Simple-text rendering").
+/** Oracle "simple text" renderer: surface IR → short simple sentences (DS015 "Simple-text rendering").
  *
  * The simple text is what a dedicated simplifier model would write in front of the symbolic UD → SOP path: the
  * message's content, normalized, one short clause per line. It is rendered deterministically from the surface IR,

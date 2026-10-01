@@ -1,4 +1,4 @@
-// Words-only model constructs (DS021 "Words, not operators", owner decisions Q-LANG-1 to Q-LANG-7): parsing and
+// Words-only model constructs (DS014 "Words, not operators", owner decisions Q-LANG-1 to Q-LANG-7): parsing and
 // admission, host lowering and the reasoner's semantics for compare, except, rank, quantifier, order, fragment,
 // "the user", advice and word arithmetic.
 import test from 'node:test';

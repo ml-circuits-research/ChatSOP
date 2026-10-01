@@ -4,7 +4,7 @@
   "name": "LanguageProofingLLM production build 1: Gemma 3 270M IT + LoRA on datasets/bad_english/proofing-prod1 (role proofreader): all vocabulary in training, proper-noun phrase protection, typo'd child words",
   "registered_at": "2026-10-01T06:38:53.650Z",
   "registered_by": "production-proofing-agent (owner decision in status/journal.jsonl at 2026-10-01T06:26:17.334Z, scope status/training/owner-approval-language-proofing-prod1.json)",
-  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
   "owner_request": "Owner 2026-10-01: 'I approve the training; let's make everything production-like, so we can focus on reasoning after we finish this stage of cheap NL understanding.' Production build of LanguageProofingLLM: the it3 recipe on the it3 data with ALL vocabulary back in training (the eight probe words and every reserve pair), institution and place names kept as written, typo'd child-word pairs, Q8 export reviewed, gates against it3. The probe models it2 and it3 stay on disk as research artifacts for generalization measurements.",
   "frozen_before_results": "Written before any optimizer step of this run and before any prediction of any checkpoint of this run on any file. Outputs of the baseline arms (no rewrite, untrained base, iteration 2, iteration 3) on files that iteration 3 already decoded (dev2300, devbg, heldout, mash, spacing, probe, test, test600, testclean) are reused with their scores recomputed; baseline outputs on the new files (vocab8, vocab8id, names, typochild, vocabfresh) are decoded with identical greedy settings.",
   "iteration": "prod1",
@@ -291,7 +291,7 @@
     {
       "id": "D1",
       "at": "2026-10-01T06:44:00.000Z",
-      "what": "Attempt A1 (job langproof-prod1-train-a1) was refused by the container guard (CUDA free 37.7 GiB below the 48 GiB floor; the GPU was idle, unified memory shows cache as used) and attempt A2 by the host authorization check ('Qualification evidence changed: source_rights', because docs/specs/DS014-source-rights.md was edited by another agent after the qualification record was written). Neither reached an optimizer step. The qualification record and the receipt were rewritten (same data, same checks, new evidence hash) and attempt A3 (job langproof-prod1-train-a3) was started with TRAIN_MIN_CUDA_FREE_GIB=24 TRAIN_CUDA_FREE_CHECK=host as in iterations 2 and 3.",
+      "what": "Attempt A1 (job langproof-prod1-train-a1) was refused by the container guard (CUDA free 37.7 GiB below the 48 GiB floor; the GPU was idle, unified memory shows cache as used) and attempt A2 by the host authorization check ('Qualification evidence changed: source_rights', because docs/specs/DS011-source-rights.md was edited by another agent after the qualification record was written). Neither reached an optimizer step. The qualification record and the receipt were rewritten (same data, same checks, new evidence hash) and attempt A3 (job langproof-prod1-train-a3) was started with TRAIN_MIN_CUDA_FREE_GIB=24 TRAIN_CUDA_FREE_CHECK=host as in iterations 2 and 3.",
       "why": "infrastructure floors and an evidence file changed by another agent",
       "effect": "none on data, recipe or selection; the qualification and authorization hashes of this file are those of A3"
     },

@@ -4,7 +4,7 @@
  "name": "SymbolicLM rewrite pipeline: local routing gate and acceptance check around SymbolicProofingLLM (no retraining)",
  "registered_at": "2026-10-01T03:05:17Z",
  "registered_by": "symbolic-pipeline-agent",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_request": "Iteration 2 repairs well (37.6% good repairs with judges) but changes 15-20% of working sentences; the boundary is parser behaviour, not surface form. Test whether SymbolicLM itself, with LOCAL deterministic checks, can decide which sentences go to the model and whether to accept its output.",
  "frozen_before_results": "Written before any gated arm was computed or scored. The raw model outputs per sentence unit (GGUF Q8_0 through llama-server, greedy) are shared by all arms; the arms are deterministic post-processing of those outputs.",
  "hypotheses": {
@@ -30,7 +30,7 @@
   "metrics": "tools/eval/symbolic-proofing-eval.mjs score summaries and tools/eval/composed-score.mjs rewrite summaries, each arm reported (a) local only and (b) with the DeepSeek judges applied to the residue (items without a cached verdict) only",
   "stats": "Wilson 95% on rates, paired bootstrap 95% (10,000 resamples, seed 7) on differences"
  },
- "decision_rule": "If the best arm has a break rate of at most 1% and repairs clearly above no rewrite, implement it as an optional rewrite pipeline in lib/symbolic-lm (gate g1 or g2 plus acceptance), off by default, configurable, with tests and DS021 text; do NOT turn it on by default.",
+ "decision_rule": "If the best arm has a break rate of at most 1% and repairs clearly above no rewrite, implement it as an optional rewrite pipeline in lib/symbolic-lm (gate g1 or g2 plus acceptance), off by default, configurable, with tests and DS014 text; do NOT turn it on by default.",
  "early_stopping": "Evaluation only, no training; staged by arm. An arm is dropped from the judge residue when its local-only break rate or repair gain is already decisive against it.",
  "non_goals": "no training, no change to any default, no change to the rules lib/ud-to-sop, no tuning on sealed files",
  "deviations": [],

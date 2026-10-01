@@ -1,6 +1,6 @@
 /**
  * Writes eval/reports/current/world-kb/summary.md from chat-results.json (eval/world-kb/chat.mjs) and the reviewed failure attribution
- * eval/world-kb/attribution.json ({id: {layer, note}}; layers: SymbolicLM, KnowledgeLinker, core-en, world-v1, engine).
+ * eval/world-kb/attribution.json ({id: {layer, note}}; layers: circuit author, KnowledgeLinker, core-en, world-v1, engine).
  *   node eval/world-kb/report.mjs
  * Outcomes: correct (an expected value is in the answer), wrong (the chat answered "supported" and no expected value is there),
  * honest-unknown (the chat asked for a clarification or said that the memory does not decide the question).

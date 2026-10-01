@@ -255,7 +255,7 @@ function implicatureAssumption(k) {
   const earlier = canonical(relation, bindings);
   const canon = emptyCanon();
   // "Still" presupposes that the state held before now; the assumption is that earlier state, not the asked present one.
-  // The presupposition is stated without a time: the message names none (DS021 presupposition convention).
+  // The presupposition is stated without a time: the message names none (DS014 presupposition convention).
   canon.assumed.push({ ...earlier, basis: 'implicature' });
   canon.query = { ask: 'whether', where: [where(earlier)] };
   const custom = Object.fromEntries(['en', 'ro'].map(language => [language, STILL[relation][language].map(([text, rel, orole]) => [text, t => [P(rel, [['subject', t.S], [orole, t.O]])]])]));

@@ -1,5 +1,5 @@
 /**
- * Layer 2 of the severity cascade (DS016 "Graded severity"): maps the verdict of the local analysis comparison (lib/languages-util/analysis-compare.mjs,
+ * Layer 2 of the severity cascade (DS012 "Graded severity"): maps the verdict of the local analysis comparison (lib/languages-util/analysis-compare.mjs,
  * `{verdict, reasons, failedChecks}`) to a severity. `equivalent` is S0 and decided; `different` is decided S4 only for the checks that are catastrophic by
  * construction (polarity flip, subject/object role swap, a name, number or strong quantifier replaced or invented, an if/unless/although/before/after
  * connective present in one text only); every other result is a hint and the pair stays in the residue for the judge.

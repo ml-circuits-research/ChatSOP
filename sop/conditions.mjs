@@ -2,7 +2,7 @@ import {assert} from '../lib/util.mjs';
 import {parseExpression} from './expression.mjs';
 import {COMPARATOR_WORDS,ARITHMETIC_WORDS} from './enums.mjs';
 
-/** Structural words of condition fields (DS004 Boolean groups, DS021 match blocks): the group openers, the
+/** Structural words of condition fields (DS004 Boolean groups, DS014 match blocks): the group openers, the
  * match-block opener and the closer of both. They are grammar, not wire fields; the SOP highlighter
  * (server/pages/sop-code.mjs) reads them from here. */
 export const GROUP_OPENERS=Object.freeze(['all','any']);
@@ -42,7 +42,7 @@ export function parseCondition(source,parseLeaf){
 
 const WORD_TERM=/^(?:[?$][A-Za-z][A-Za-z0-9_]*|-?\d+(?:\.\d+)?|"(?:\\.|[^"\\])*")$/;
 const tokensOf=text=>text.match(/"(?:\\.|[^"\\])*"|\S+/g)??[];
-/** Is a condition leaf written in words (`?x at_least 5`, `?a times 19`)? DS021 "Words, not operators". */
+/** Is a condition leaf written in words (`?x at_least 5`, `?a times 19`)? DS014 "Words, not operators". */
 export const isWordForm=text=>tokensOf(String(text)).some(token=>Object.hasOwn(COMPARATOR_WORDS,token)||Object.hasOwn(ARITHMETIC_WORDS,token));
 /** One words-only leaf as the equivalent expression text: terms joined by arithmetic and comparator words. */
 export function wordsToExpression(text,{comparator=true}={}){

@@ -63,7 +63,6 @@ function client() {
     const spec = /^docs\/specs\/(DS\d+[^/]*\.md)$/.exec(target);
     if (spec) return '<a href="/docs/specsLoader.html?spec=' + encodeURIComponent(spec[1]) + '">' + esc(target) + '</a>';
     if (/^docs\/.+\.html$/.test(target)) return '<a href="/' + esc(target) + '">' + esc(target) + '</a>';
-    if (/^eval\/(suites|reports|predictions|registry)\//.test(target)) return '<a href="/eval">' + esc(target) + '</a>';
     return '<code>' + esc(target) + '</code>';
   };
 
@@ -109,20 +108,13 @@ function client() {
   }
 
   function renderPipeline() {
-    const rows = data.pipeline.map(entry => {
-      const a = entry.audit;
-      const verdict = a ? '<span class="gate ' + (a.verdict === 'pass' ? 'open' : 'closed') + '">' + esc(a.verdict) + '</span>' + (a.failed_checks.length ? '<div class="meta">' + esc(a.failed_checks.join(', ')) + '</div>' : '') : '<span class="muted">no audit</span>';
-      const form = entry.form === 'current' ? '<span class="gate open">current</span>' : entry.form === 'legacy' ? '<span class="gate closed">legacy</span>' : esc(entry.form);
-      return '<tr><td><code>' + esc(entry.corpus) + '</code></td><td class="num">' + (entry.splits.train ?? '—').toLocaleString() + '</td><td class="num">' + (entry.splits.dev ?? '—').toLocaleString() + '</td><td class="num">' + (entry.splits.test ?? '—').toLocaleString() + '</td><td>' + form + '</td><td>' + verdict + '</td>' +
-        '<td class="num">' + (a ? pct(a.faithfulness_error_rate) : '—') + '</td><td class="num">' + (a ? pct(a.template_top_share) : '—') + '</td><td class="num">' + (a ? pct(a.test_template_overlap) : '—') + '</td></tr>';
-    }).join('');
-    $('pipeline').innerHTML = '<div class="tablewrap"><table class="t"><thead><tr><th>corpus</th><th class="num">train</th><th class="num">dev</th><th class="num">sealed test</th><th>target form</th><th>corpus audit</th><th class="num">faithfulness errors</th><th class="num">top template share</th><th class="num">test template overlap</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
-      '<p class="meta">Target form is sampled from the first rows of each corpus: <b>legacy</b> = identifiers/premise/CONTEXT (stale; none should remain), <b>current</b> = message-only string targets. Audit metrics come from <code>eval/reports/current/corpus-audit/</code>; top template share and test template overlap are from the development splits and the sealed test against train+dev.</p>';
-    const v = data.vocabulary;
-    $('vocab').innerHTML = v ? 'Vocabulary check: <b class="' + (v.verdict === 'pass' ? 'ok' : 'bad') + '">' + esc(v.verdict) + '</b> · ' + esc(v.totals?.findings ?? '?') + ' findings, ' + esc(v.totals?.failing ?? '?') + ' failing (undocumented wire types or fields) · scope ' + esc(v.scope) + ' · <code>' + esc(v.file) + '</code> (' + esc(v.mtime.slice(0, 16).replace('T', ' ')) + ')' : 'No vocabulary report.';
+    const rows = data.pipeline.map(entry => '<tr><td><code>' + esc(entry.corpus) + '</code></td><td class="num">' + (entry.splits.test ?? '—').toLocaleString() + '</td><td>' + (entry.test_file ? '<code>' + esc(entry.test_file) + '</code>' : '<span class="muted">no sealed test</span>') + '</td></tr>').join('');
+    $('pipeline').innerHTML = '<div class="tablewrap"><table class="t"><thead><tr><th>suite</th><th class="num">sealed test rows</th><th>file</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<p class="meta">The sealed suites of the product under <code>eval/suites/</code>. The suites of the frozen small-model branch are in <code>probably_obsolete/tinyLLMExperiments/</code>.</p>';
+    $('vocab').textContent = '';
   }
 
-  /** One registry entry (DS010 "Experiments"): identity, what was done, data, models, results, deviations, reports. */
+  /** One registry entry (DS007 "Experiments"): identity, what was done, data, models, results, deviations, reports. */
   function experimentCard(x) {
     const list = (items, fn) => Array.isArray(items) && items.length ? '<ul>' + items.map(item => '<li>' + fn(item) + '</li>').join('') + '</ul>' : '';
     const short = hash => (typeof hash === 'string' && /^[0-9a-f]{64}$/.test(hash) ? '<code title="' + esc(hash) + '">' + esc(hash.slice(0, 12)) + '…</code>' : esc(hash ?? ''));
@@ -149,7 +141,7 @@ function client() {
   function renderExperiments() {
     $('experiments').innerHTML = data.experimentsError ? '<p class="bad">' + esc(data.experimentsError) + '</p>' : data.experiments.length
       ? data.experiments.map(experimentCard).join('')
-      : '<p class="muted">No experiments registered. There are no valid training runs; an experiment is preregistered here (DS010) before any holdout is touched.</p>';
+      : '<p class="muted">No experiments registered. There are no valid training runs; an experiment is preregistered here (DS007) before any holdout is touched.</p>';
   }
 
   function renderQuestions() {
@@ -190,28 +182,20 @@ function client() {
   refresh();
 }
 
-const explanations = `<section class="card explain" id="explain"><h2>What fine-tuning will do, and what it will not</h2>
-<p><b>What the small model learns.</b> One mapping: the user's message → SOP. Its input is the message only — no context, no list of identifiers, no knowledge, no clock. It writes quoted strings: <code>stated</code> for what the message surely says, <code>assumed</code> for what it adds, <code>unclear</code> only for gibberish, a message with no request, or a visible ambiguity with no preferable reading (listing the readings), and <code>query</code>/<code>constraint</code> for the problem. It never reasons, never refuses and never links strings to knowledge: the host links, retrieves, solves and renders the answer.</p>
-<p><b>What fine-tuning will do.</b> Supervised fine-tuning of a small base model (Qwen3-0.6B class) on train pairs (message → target SOP), with the best checkpoint selected only on dev predictions scored by <code>eval/run.mjs</code> (execution equivalence first), then one evaluation of that checkpoint on the sealed test, reported with its template leakage. New knowledge never needs retraining: it goes into reviewed memory, not into the weights.</p>
-<p><b>Data flow.</b></p>
-<div class="flow"><span>sources (QQP, PAWS, ProofWriter, AmbigNQ, QA2D, SQuAD) — inspiration only</span><i>→</i><span>diversity inventory</span><i>→</i><span>generator (IR → string targets, worlds)</span><i>→</i><span>execution check + no-copy</span><i>→</i><span>corpus audit (faithfulness, diversity, leakage) + human audit</span><i>→</i><span>qualification</span><i>→</i><span class="future">owner approval</span><i>→</i><span class="future">training (future)</span><i>→</i><span class="future">dev selection → sealed test</span></div>
-<p class="meta">Dashed steps have not happened. Journal entries, the corpus audit (<a href="/audit">/audit</a>) and the evaluation browser (<a href="/eval">/eval</a>, with <a href="/eval/guide">how evaluation works</a>) show each step's evidence.</p></section>`;
-
 /** The `/experiments/timeline` page shell; data arrives from `/experiments/api/status`. */
 export function projectPage({signedIn = true} = {}) {
   const body = `<main class="wrap status">
 <nav class="meta"><a href="/experiments">Experiments</a> › Timeline &amp; live status</nav>
 <h1>Timeline &amp; live status <span id="stamp" class="muted"></span></h1>
-<div class="banner"><b class="big">Training: only with the owner's explicit approval per run</b> <span id="rule" class="muted"></span><div class="meta">Current phase: the product chain (textToCleanEnglish, SymbolicLM, linking, reasoning) and its evaluation. An approval covers the run it names and is spent when that run ends; no check below supplies it.</div></div>
+<div class="banner"><b class="big">Training: only with the owner's explicit approval per run</b> <span id="rule" class="muted"></span><div class="meta">Current phase: the product chain (the coding agent writes circuits; the validator, the KnowledgeLinker, the StrategyRouter and the oracle answer) and its evaluation. An approval covers the run it names and is spent when that run ends; no check below supplies it.</div></div>
 <section class="card"><h2>Gates</h2><div id="gates" class="muted">loading…</div></section>
 <div class="cols">
 <section class="card"><h2>Journal — newest first</h2><div class="filters" id="filters"></div><ol class="timeline" id="timeline"></ol><p class="meta">Agents append with <code>node tools/journal.mjs add --area … --title … --detail …</code>; the file is <code>status/journal.jsonl</code> (append-only).</p></section>
 <div>
 <section class="card"><h2>Open questions for the owner</h2><div id="questions" class="muted">loading…</div></section>
-<section class="card"><h2>Experiments</h2><div id="experiments" class="muted">loading…</div><p class="meta"><code>status/experiments.json</code> · one page per experiment and task on <a href="/experiments">/experiments</a> · preregistration rules: <a href="/docs/specsLoader.html?spec=DS010-experiment-preregistration.md">DS010</a></p></section>
+<section class="card"><h2>Experiments</h2><div id="experiments" class="muted">loading…</div><p class="meta"><code>status/experiments.json</code> · one page per experiment and task on <a href="/experiments">/experiments</a> · preregistration rules: <a href="/docs/specsLoader.html?spec=DS007-experiment-preregistration.md">DS007</a></p></section>
 </div></div>
-<section class="card"><h2>Data pipeline (computed live)</h2><div id="pipeline" class="muted">loading…</div><p id="vocab" class="meta"></p></section>
-${explanations}
+<section class="card"><h2>Evaluation suites (computed live)</h2><div id="pipeline" class="muted">loading…</div><p id="vocab" class="meta"></p></section>
 </main>`;
   return layout({title: 'Timeline & live status · ChatSOP', active: 'experiments-timeline', signedIn, body, style, script: `(${client})();`, next: '/experiments/timeline'});
 }

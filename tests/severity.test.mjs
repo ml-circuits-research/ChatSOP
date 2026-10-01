@@ -1,4 +1,4 @@
-// Graded severity (DS016 "Graded severity (S0-S4, NONE)"): scale helpers, mechanical layer, analysis mapping, SOP comparer, simplifications and metrics.
+// Graded severity (DS012 "Graded severity (S0-S4, NONE)"): scale helpers, mechanical layer, analysis mapping, SOP comparer, simplifications and metrics.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SEVERITIES, worst, rank, isGoodEnough} from '../tools/eval/severity/scale.mjs';

@@ -4,7 +4,7 @@
  "name": "Which small base models reach 30-40 generated tokens/s on an ordinary laptop CPU, for the SymbolicProofingLLM and LanguageProofingLLM roles?",
  "registered_at": "2026-09-30T10:20:00Z",
  "registered_by": "parse-judge-agent (owner question relayed by the orchestrator)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_context": "Target: 30-40 tokens/s on an ordinary laptop, not on the DGX Spark. Two roles: SymbolicProofingLLM (English to limited English for SymbolicLM, fine-tuned, currently Gemma3-270M) and LanguageProofingLLM (Romanian, mixed or noisy English to acceptable English, ideally a decent translator).",
  "kind": "measurement only (CPU inference speed; no training, no GPU, no quality evaluation beyond citing existing reports)",
  "frozen_before_results": "Written before any llama-bench run of this study. GGUF files were converted/quantized first (f16 from the Hugging Face weights of models/proofing with convert_hf_to_gguf.py in the isolated export venv, Q8_0 and Q4_K_M with llama-quantize); no speed was measured yet.",

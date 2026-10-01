@@ -19,7 +19,7 @@
   form "be an"
   form "be a kind of"
   frame subject object
-  source "core-min: the copula reading of is_a (DS021 The copula)"
+  source "core-min: the copula reading of is_a (DS014 The copula)"
 
 @class entity
   kind class

@@ -4,7 +4,7 @@
  "name": "UD -> SOP rules v1.5 against v1.4 on a fresh held-out sample, focused on Romanian and the known v1.4 gaps",
  "registered_at": "2026-09-29T22:00:00Z",
  "registered_by": "symbolic-rules-agent",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "task": "TODO.md 'Symbolic formalizer v1.5 (after ud-rules-v1.4, eval-ud-rules-v14-v1)'; eval/reports/current/ud-rules-v14/results.json open_issues and lost_rows.",
  "kind": "evaluation-only (CPU inference; no training, no LLM calls)",
  "coordination": {
@@ -23,7 +23,7 @@
   "known_v14_gaps_targeted": [
    "Romanian claim tails (\"„P\" — se confirmă?\", \"— așa este?\"): eval-ud-rules-v14-v1 lost rows fv1_011603_0_0, fv1_001307_0_0, fv1_009151_0_0, fv1_010812_0_0, ood1_000268_0_0 (text already disclosed in that experiment's results.json; used only for a direct-output mechanism sanity check, never scored against the sealed harness during development).",
    "\"de\" + weekday kept as a noun modifier when nested inside a compound NP (\"ședința de consiliu de marți\"): eval-ud-rules-v14-v1 lost row ood2_000100_0_0.",
-   "\"be held at/in\" for where-questions (a named venue after \"held\" was mis-classed as `object` instead of `location` by the DS021 C3 facility convention, which the event-location sense of \"held\" overrides)."
+   "\"be held at/in\" for where-questions (a named venue after \"held\" was mis-classed as `object` instead of `location` by the DS014 C3 facility convention, which the event-location sense of \"held\" overrides)."
   ],
   "known_v14_gaps_not_reached_in_v1.5": [
    "TR-VERB (pre-tagged re-parse of a verb read as a noun after a name, e.g. \"Kavya lectures in physics\"): needs a second Stanza call, deferred pending translator-agent (shared parsing infrastructure) and further scratch validation.",
@@ -38,7 +38,7 @@
    "index.mjs claimScope(): the quote-boundary lookup also matches the Romanian opening quote „ (U+201E), not only the Western “ (U+201C) or a straight \\\"; without this a Romanian claim quote's scope silently fell back to the coarser sentence-boundary heuristic.",
    "index.mjs claimCheck(): factored the marker-vs-content test into isClaimMarker(relation, roles), extended with the Romanian reflexive-impersonal relation \"se confirma\"/\"confirma\" and a bare copula \"fi\" with no role but an inherited subject; applied to both the existing query-probe path and (new) to a same-shaped `stated` wire, since the Romanian tail sometimes parses as `stated` rather than `query` before this step runs.",
    "analyze.mjs R11a (date-inside-NP): a bare weekday/month-name modifier now moves to a clause time only when it modifies the argument's own head or is an explicit NER/numeric date; a bare weekday nested inside a compound chain (\"NP1 de NP2 de <weekday>\") stays in the value.",
-   "analyze.mjs prepRole(): a new HOLD_VENUE lemma set (\"held\"/\"hold\", RO \"ținut\"/\"ține\"/\"desfășurat\"/\"desfășura\") forces role `location` for an \"at\"/\"in\"/RO \"la\" complement of an event-location sense of \"hold\", ahead of the general facility/organization -> `object` convention (DS021 C3), which otherwise does not distinguish an event's venue from an institution one works at."
+   "analyze.mjs prepRole(): a new HOLD_VENUE lemma set (\"held\"/\"hold\", RO \"ținut\"/\"ține\"/\"desfășurat\"/\"desfășura\") forces role `location` for an \"at\"/\"in\"/RO \"la\" complement of an event-location sense of \"hold\", ahead of the general facility/organization -> `object` convention (DS014 C3), which otherwise does not distinguish an event's venue from an institution one works at."
   ],
   "validation_before_freeze": "Each change was checked (i) structurally, via tools/research/ud-rules-v15-draft against constructed and (for the claim-tail fix only) the already-disclosed lost-row text, output inspected directly (not scored by eval/run.mjs or any harness) and (ii) for regressions, via a full paired dev run: RO dev.jsonl (2,198 rows) and an EN dev sample, ud-rules-v1.4 vs the draft, same parses, zero SOP differences outside the targeted patterns required before porting."
  },

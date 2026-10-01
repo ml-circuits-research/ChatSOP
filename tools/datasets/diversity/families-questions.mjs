@@ -1,4 +1,4 @@
-/** Question-form families of the model language (DS021 question forms, DS022 quotas): time questions (when, since
+/** Question-form families of the model language (DS014 question forms, DS015 quotas): time questions (when, since
  * when, until when, how long, how many times), where, how (means), why (mode explain), universal questions (mode
  * every), conjunctions, interpretation assumptions (an ambiguous word, an ambiguous referent, a presupposition) and
  * the hand-authored query-v2 phenomena re-expressed through the IR (knowledge cutoff, conflicting reports, stated
@@ -396,7 +396,7 @@ const HOMONYMS = [
     ro: { alias: 'clubul', senses: [['clubul sportiv de pe {street}', 'clubul sportiv'], ['clubul de noapte de pe {street}', 'clubul de noapte']], questions: ['E deschis clubul?', 'Clubul e deschis?', 'Știi dacă e deschis clubul?'] } },
   { predicate: 'available', en: { alias: 'the hall', senses: [['the sports hall on {street}', 'the sports hall'], ['the concert hall on {street}', 'the concert hall']], questions: ['Is the hall free?', 'Is the hall available?'] },
     ro: { alias: 'sala', senses: [['sala de sport de pe {street}', 'sala de sport'], ['sala de conferințe de pe {street}', 'sala de conferințe']], questions: ['E liberă sala?', 'Sala e disponibilă?'] } },
-  // No "bank": DS021 formalizes "Is the bank open?" as a query and the host asks which bank.
+  // No "bank": DS014 formalizes "Is the bank open?" as a query and the host asks which bank.
 ];
 const STREETS = ['Elm Street', 'Mill Lane', 'Victoriei Avenue', 'Kogălniceanu Street', 'Park Road', 'Unirii Square', 'Station Road', 'Lipscani Street'];
 const STREETS_RO = { 'Elm Street': 'strada Ulmilor', 'Mill Lane': 'aleea Morii', 'Victoriei Avenue': 'Calea Victoriei', 'Kogălniceanu Street': 'strada Kogălniceanu', 'Park Road': 'șoseaua Parcului', 'Unirii Square': 'Piața Unirii', 'Station Road': 'strada Gării', 'Lipscani Street': 'strada Lipscani' };

@@ -4,7 +4,7 @@
  "name": "Can a local quantized model of 4B or more replace DeepSeek flash (or Haiku) as the parse judge and the meaning judge?",
  "registered_at": "2026-10-01T02:35:00Z",
  "registered_by": "local-judge-agent (owner question of 2026-10-01: stop paying for API judging if a local model is competitive)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_context": "The parse judge (conditions a and c, eval-parse-judge-haiku-v1 re-run with DeepSeek flash) and the meaning judge (prompts m1 and m2 and the two-vote rule, eval-meaning-judge-calibration-v1) gate the SymbolicProofingLLM and LanguageProofingLLM pair sources. Every judged item costs API money and time. This experiment replays the identical calibration items through local GGUF models served by llama.cpp and scores them with the identical report code, so the numbers compare directly with DeepSeek flash and Haiku.",
  "kind": "evaluation (local llama-server inference; no training, no fine-tuning)",
  "deviations": [],
@@ -17,11 +17,11 @@
  },
  "hypotheses": {
   "H1": "Parse judge: at least one local model reaches, with condition c, weighted good-enough precision >= 94% and weighted good-enough recall >= 80% and binary kappa >= 0.40 against the reference (DeepSeek flash: 94.6% / 91.8% / 0.50).",
-  "H2": "Meaning judge: at least one local model reaches two-vote (m1 AND m2) raw precision of yes >= 97% on calibration set v2 with recall >= 70% (DeepSeek flash: 98.8% raw, 100% adjudicated, recall 82%); the DS008 rule is 97%.",
+  "H2": "Meaning judge: at least one local model reaches two-vote (m1 AND m2) raw precision of yes >= 97% on calibration set v2 with recall >= 70% (DeepSeek flash: 98.8% raw, 100% adjudicated, recall 82%); the archived spec 008 rule is 97%.",
   "H3": "Reproducibility: the model agrees with itself on at least 95% of the 100 repeated items (m1 vs m1r; DeepSeek flash 95%).",
   "H4": "Throughput with parallel slots is at least 30 items per minute for the winning model on the parse set, and the electricity cost per 1,000 items is below the DeepSeek API cost per 1,000 items."
  },
- "decision_rule": "A local model replaces DeepSeek flash for a task when H1 (parse) or H2 (meaning) holds with the Wilson 95% lower bound of the precision at or above the task's rule (meaning 95% for the point-rule check of DS008 at 97%, parse good precision lower bound >= 90%). Model size, quantization and the thinking mode that meet the rule are reported. A model that fails is not tuned or prompted differently in this experiment (a prompt change needs a new preregistration id). Recall is reported, not decided on, except for the floors of H1 and H2.",
+ "decision_rule": "A local model replaces DeepSeek flash for a task when H1 (parse) or H2 (meaning) holds with the Wilson 95% lower bound of the precision at or above the task's rule (meaning 95% for the point-rule check of archived spec 008 at 97%, parse good precision lower bound >= 90%). Model size, quantization and the thinking mode that meet the rule are reported. A model that fails is not tuned or prompted differently in this experiment (a prompt change needs a new preregistration id). Recall is reported, not decided on, except for the floors of H1 and H2.",
  "stop_rules": [
   "Stage 1 per model and mode: a stratified subsample (every 6th sentence of the parse set for conditions a and c, every 6th pair of the meaning set for m1 and m2). Stop that model and mode (futility) when at stage 1 the parse weighted good precision is below 88% or kappa below 0.20, or the meaning m1 raw precision is below 90% on at least 100 judged pairs with at least 10 judged positives; then continue the model only if the other task is promising.",
   "Broken condition: stop an arm when more than 20% of the first 100 answers are unusable (no verdict after 3 tries).",

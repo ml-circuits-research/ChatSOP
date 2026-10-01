@@ -1,4 +1,4 @@
-// Base memories (DS031): the library over every memory strategy and the /v1/memories API.
+// Base memories (DS022): the library over every memory strategy and the /v1/memories API.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

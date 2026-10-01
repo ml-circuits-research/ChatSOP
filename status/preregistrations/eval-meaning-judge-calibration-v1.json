@@ -4,7 +4,7 @@
  "name": "Is the DeepSeek flash meaning judge precise enough to be the meaning check of the rewrite pipelines? A clean calibration with mechanical and hand-written negatives",
  "registered_at": "2026-09-30T20:09:04Z",
  "registered_by": "meaning-judge-agent (owner direction of 2026-09-30 night: evaluate layer by layer; proofing output must keep the meaning)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_context": "The first calibration (eval-neuro-meaning-judge-v1) used gold-SOP mismatches as negatives; most of them keep the meaning, so its 53% precision says little. This experiment replaces them with negatives that certainly (mechanical perturbation) or subtly (hand-written) change the meaning. The judge is wanted as the meaning check for SymbolicProofingLLM and LanguageProofingLLM pair sources (back-generated paraphrases, LLM rewrites).",
  "kind": "evaluation and dataset gating (LLM judge calls through omp; no training, no GPU)",
  "deviations": [

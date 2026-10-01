@@ -1,11 +1,11 @@
 {
   "format": "chatsop-preregistration-v1",
   "id": "emotion-detection-v1",
-  "name": "EmotionDetectionSystem: precision and recall of the symbolic and neural pragmatic strategies against two LLM judges (DS029)",
+  "name": "EmotionDetectionSystem: precision and recall of the symbolic and neural pragmatic strategies against two LLM judges (archived spec 029)",
   "registered_at": "2026-10-01T07:20:00.000Z",
   "registered_by": "emotion-agent",
   "status": "run; registered AFTER the judge labels were collected (see deviations), never a sealed test",
-  "spec": "docs/specs/DS029-emotion-detection.md#evaluation-experiment-emotion-detection-v1",
+  "spec": "probably_obsolete/paused/specs/DS029-emotion-detection.md#evaluation-experiment-emotion-detection-v1",
   "owner_request": "Owner decision 2026-10-01 (translated): add a separate EmotionDetectionSystem that can be enabled or disabled, emits SOP Lang circuits to help the reasoner regulate itself, and has strategies of its own so other models can be plugged in later; classify the leftover spans of SymbolicLM by pragmatic role. Choose the best compromise between speed and quality; keep, per kind, only strategies with useful precision (at least 85%).",
   "hypothesis": "Per kind, the symbolic lexicon strategy reaches precision of at least 85% on both-judge positives for most kinds at about 0.2 ms per message; pretrained English emotion, irony and toxicity classifiers at their default threshold do not reach 85% precision for most kinds and cost 35 to 70 ms each on 4 CPU threads; irony is weak.",
   "data": "300 messages: 30 each from datasets/bad_english, neuro_english, symbolic_english (train+dev, fixed seed 20261001, at most 200 characters), 29 from datasets_sources/new_cases, 181 written for the study (eval/reports/current/emotion-detection/eval-set.jsonl, built by tools/emotion-detection/build-eval-set.mjs). A development set, not a sealed test.",

@@ -1,7 +1,7 @@
 /**
- * The scored joint KnowledgeLinker (linking proposal sections 3.4 and 3.5; DS021 "KnowledgeLinker: scoring and ambiguity").
+ * The scored joint KnowledgeLinker (linking proposal sections 3.4 and 3.5; DS014 "KnowledgeLinker: scoring and ambiguity").
  *
- * SymbolicLM is knowledge-blind and writes strings. The KnowledgeLinker joins them to the symbols of ONE base memory: every
+ * The circuit author writes entity and relation strings as the message has them. The KnowledgeLinker joins them to the symbols of ONE base memory: every
  * relation phrase and every entity string becomes a set of scored candidates, the constraints the memory declares prune or support
  * the candidates of a proposition together (a relation's role classes against the entities the message names, a lexeme's
  * `restrict`), and the outcome is either one binding with the alternatives it did not take, or an explicit ambiguity that the

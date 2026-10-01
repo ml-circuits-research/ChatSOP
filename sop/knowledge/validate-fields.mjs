@@ -36,7 +36,7 @@ export function checkValue(spec, f, wire, ctx) {
     }
     case 'langcode':
       if (!LANGUAGE_CODE.test(v)) push('bad_language', f.key + ' needs a language code of two or three lowercase letters, got "' + v + '"');
-      else if (v !== CORE_LANGUAGE) push('non_english_knowledge', f.key + ' ' + v + ': the knowledge is English only (a message in another language is translated at the edges, DS021 "English-only core")');
+      else if (v !== CORE_LANGUAGE) push('non_english_knowledge', f.key + ' ' + v + ': the knowledge is English only (a message in another language is translated at the edges, DS014 "English-only core")');
       break;
     case 'phrase': {
       let text = null;
@@ -49,7 +49,7 @@ export function checkValue(spec, f, wire, ctx) {
       let text = null;
       try { text = rest.length === 1 && rest[0].startsWith('"') ? JSON.parse(rest[0]) : null; } catch { text = null; }
       if (!LANGUAGE_CODE.test(lang ?? '') || typeof text !== 'string' || !text.trim() || /[\r\n]/.test(text)) push('bad_value', f.key + ' needs LANGUAGE "surface" (a two or three letter language code and one JSON-quoted nonempty surface)');
-      else if (lang !== CORE_LANGUAGE) push('non_english_knowledge', f.key + ' ' + lang + ': the knowledge is English only (a message in another language is translated at the edges, DS021 "English-only core")');
+      else if (lang !== CORE_LANGUAGE) push('non_english_knowledge', f.key + ' ' + lang + ': the knowledge is English only (a message in another language is translated at the edges, DS014 "English-only core")');
       else (ctx.surfaces ??= []).push({wire: wire.id, key: f.key, language: lang, surface: text, line: f.line});
       break;
     }

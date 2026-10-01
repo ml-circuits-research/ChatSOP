@@ -33,3 +33,10 @@ As of 2026-09-28 everything still valid in this folder has a current specificati
 ## Retired skills
 
 `skills/data-quality/` and `skills/wire-discovery/` moved to `probably_obsolete/skills/` on 2026-09-28. Both were imported from a sibling project and scan `training-data/**/solution.sop` circuits, `teacher/` generators and `wires/` sources that ChatSOP does not have; their `last-report.md` files describe that external corpus, not ChatSOP data.
+
+## Frozen and paused work (2026-10-01)
+
+- `tinyLLMExperiments/` holds the frozen small-model research branch (Stanza, SymbolicLM, rules, the proofing and formalizer models, datasets, suites, training, audit); see its `README.md` for the path map, best results and how to resume.
+- `paused/` holds paused work (EmotionDetectionSystem, programming P0, unified-ft tooling); see its `README.md`.
+
+Both keep original repository-relative paths below their folder; the state before the move is commit `97188d6`.

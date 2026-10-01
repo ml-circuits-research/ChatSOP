@@ -4,7 +4,7 @@
   "name": "Symbolic spelling correction before the small formalizer",
   "registered_at": "2026-09-29T04:00:30Z",
   "registered_by": "eval agent (owner request of 2026-09-29: CPU-only evaluation experiment; no training, no GPU)",
-  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
   "frozen_before_results": "Written after the corrector was developed and tuned on the formalizer-v1 development split only, and before the corrector or any spellfixed prediction touched any sealed suite (formalizer-v1 test, formalizer-ood-v1, formalizer-wild-v1). Any later change to the corrector, the conditions, the metrics or the decision rule is a recorded deviation.",
   "kind": "evaluation-only (inference on CPU with an existing checkpoint; no optimizer step, no training data change)",
   "question": "Does a deterministic, dictionary-based spelling correction of the user's message, applied by the host before the small formalizer, improve formalization of noisy messages without hurting clean ones?",
@@ -55,14 +55,14 @@
     "4. Score both conditions with the same scorer (tools/metrics/run.mjs for formalizer-v1 and OOD; tools/eval/wild-suite.mjs --score for wild) and compare paired (spellfix-eval.mjs compare)."
   ],
   "metrics": {
-    "primary": "Tolerant execution equivalence (DS016, execution_equivalent_tolerant) on formalizer-v1 test noisy rows, paired delta spellfixed minus raw.",
+    "primary": "Tolerant execution equivalence (DS012, execution_equivalent_tolerant) on formalizer-v1 test noisy rows, paired delta spellfixed minus raw.",
     "secondary": ["the same delta on clean rows (H2), per noise level (none, light, medium, heavy), per language slice (en, ro, mixed), and per noise level x language", "canonical AST match and parse rate deltas", "formalizer-ood-v1 the same slices", "formalizer-wild-v1 accepted-gold match, decision match and proposition F1 (per-row, paired)", "rows changed by the corrector versus unchanged"],
     "corrector": ["precision on verifiable changes (exact undo of a recorded word-level noise operation; changes with only a character-level diacritic record are reported separately as unverifiable)", "recall of recorded word-level operations (all, non-word, real-word)", "damage: share of clean messages changed and changes per 1,000 tokens", "synthetic diacritic restoration on clean Romanian rows (diacritics stripped from lower-case words)", "latency per message (ms, p50/p95/p99) on this CPU, one thread, after loading"],
     "uncertainty": "95% paired cluster bootstrap (clusters = semantic_case_id, 10,000 resamples, seed 7) and exact McNemar test on rows; the wild suite clusters by row."
   },
   "decision_rule": "Recommend adoption as a host pre-step only if all hold: (a) the primary delta is positive and its 95% interval excludes 0; (b) H2 holds (clean-row lower bound >= -0.5 points); (c) the formalizer-ood-v1 noisy-row delta and the wild accepted-match delta are not significantly negative (interval upper bound >= 0); (d) H3 holds. If (a) fails but (b)-(d) hold, the conclusion is 'no measurable benefit' and the recommendation is not to adopt. Any significantly negative primary or clean delta means 'harmful, do not adopt'.",
   "limitations_declared": [
-    "The model was fine-tuned on noisy messages whose gold role values keep typos (DS022 target policy), so correction can move a role value away from the gold string; tolerant execution equivalence links strings to knowledge and is the primary endpoint for that reason, while canonical match is reported as secondary.",
+    "The model was fine-tuned on noisy messages whose gold role values keep typos (DS015 target policy), so correction can move a role value away from the gold string; tolerant execution equivalence links strings to knowledge and is the primary endpoint for that reason, while canonical match is reported as secondary.",
     "Real-word errors (dictation homophones, autocorrect, SMS forms) are out of scope for a dictionary corrector by construction.",
     "The formalizer-v1 noise is synthetic; formalizer-wild-v1 has real user text but no noise labels and no execution worlds.",
     "Single model and seed; experiment-grade, no human review."

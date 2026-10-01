@@ -1,5 +1,5 @@
 /** The shared SOP highlighter (server/pages/sop-code.mjs) renders the structural grammar words as syntax
- * keywords linked to docs/wire_typs/syntax.html, never as "undocumented" fields (DS012 "SOP code"). */
+ * keywords linked to docs/wire_typs/syntax.html, never as "undocumented" fields (DS009 "SOP code"). */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

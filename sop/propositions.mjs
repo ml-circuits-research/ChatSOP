@@ -1,5 +1,5 @@
 /**
- * Context-free propositions of the model language (DS021). `stated`
+ * Context-free propositions of the model language (DS014). `stated`
  * and `assumed` wires, and query `match` blocks, carry strings as the model
  * understood them: a relation phrase, closed-inventory roles with values as
  * written in the message, polarity and optional temporal expressions. The host
@@ -85,8 +85,8 @@ function linkPropositionCore(p, lexicon, {exact = true, fresh = null, relations 
     const retry = linkRelation(p.relation, without.map(role => role.name), lexicon, {exact, relations, values: valuesOf(without), headVerb: true});
     if (retry.status === 'bound') { link = retry; roles = without; span = timeVariable.value; }
   }
-  // Single-oblique relabeling (DS021 "KnowledgeLinker: scoring and ambiguity"): the memory names the roles of its predicates ("died_in" takes a
-  // `location`, "death_year" a `time`), SymbolicLM names them by the preposition it saw. When the phrase reaches predicates whose roles do not fit
+  // Single-oblique relabeling (DS014 "KnowledgeLinker: scoring and ambiguity"): the memory names the roles of its predicates ("died_in" takes a
+  // `location`, "death_year" a `time`), the circuit author names them by the preposition it saw. When the phrase reaches predicates whose roles do not fit
   // only by ONE used role name that is not declared and ONE declared role that is not used (neither the subject), that role is renamed, and the
   // rename counts only when exactly one renaming links. It is reported as `relabeled`.
   let relabeled = null;
@@ -159,7 +159,7 @@ export function propositionKey(p) {
   return stable({relation: fold(p.relation), roles: p.roles.map(r => [r.name, value(r.value)]).sort((a, b) => a[0].localeCompare(b[0])), polarity: p.polarity, valid: Object.entries(p.valid ?? {}).map(([k, v]) => [k, fold(v)]).sort()});
 }
 
-/** The phrases of the host-rendered sentences, in English: the core renders English only (DS021 "English-only core"). */
+/** The phrases of the host-rendered sentences, in English: the core renders English only (DS014 "English-only core"). */
 const PHRASES = {asserted: 'You stated', hedged: 'You stated tentatively', supposed: 'You supposed', speaker: 'According to', assumed: 'The model assumed', not: 'not', basis: 'basis'};
 /**
  * Host-rendered sentence for an authored proposition. It repeats the model's
@@ -185,7 +185,7 @@ export function explainProposition(p) {
   return lead + ': ' + body + '.';
 }
 /**
- * The host sentence of a proposition with its clause links (DS021 "Clauses and links"): "You stated: fail (…), because:
+ * The host sentence of a proposition with its clause links (DS014 "Clauses and links"): "You stated: fail (…), because:
  * be idempotent (…) [not checked]." `links` are [{keyword, status, target}] with the target proposition.
  */
 export function explainWithLinks(p, links = []) {

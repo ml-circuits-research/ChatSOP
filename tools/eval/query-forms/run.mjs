@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 /**
  * Runs the query-forms dev set (experiment eval-query-forms-v1) through the product chain and scores it against the oracle gold:
- *   question -> SymbolicLM service (message only) -> Agent (admission, KnowledgeLinker, circuit rules, reference route) over world-v1.
- *   node tools/eval/query-forms/run.mjs --dev dev.jsonl --out records.jsonl [--slm URL] [--only form] [--limit N]
+ *   question -> coding agent (message and memory vocabulary only) -> Agent (admission, KnowledgeLinker, circuit rules, reference route) over world-v1.
+ *   node tools/eval/query-forms/run.mjs --dev dev.jsonl --out records.jsonl [--model provider/model] [--only form] [--limit N]
  * Each record keeps the SOP, the packet status, the answer, the linked relations and the layer that failed. The summary (per form: correct,
  * wrong, unknown, clarification, incomplete; Wilson 95%) is printed and written next to the records as `<out>.summary.json`.
  * The slice budget is the dev one (QF_LIMITS, default maxLookups 300000 ... retrievalMs 60000). The private chat data root is
- * QF_CHAT_ROOT (default datasets_sources/query-forms/chat_data). A different parser (the coding agent) plugs in as `--formalizer module.mjs`
+ * QF_CHAT_ROOT (default datasets_sources/query-forms/chat_data). A different circuit author plugs in as `--formalizer module.mjs`
  * exporting `default({row})` -> SOP text; the gold is the same.
  */
 import fs from 'node:fs';
-import {openSession, slmClient} from '../query-forms-probe.mjs';
+import {openSession, agentClient} from '../query-forms-probe.mjs';
 import {answerOfPacket} from '../kbqa/run.mjs';
 
 const args = process.argv.slice(2);
@@ -19,7 +19,7 @@ const rows = fs.readFileSync(opt('--dev'), 'utf8').split('\n').filter(Boolean).m
 process.env.QF_LIMITS ??= JSON.stringify({maxLookups: 300000, maxProbes: 600000, maxFacts: 60000, retrievalMs: 60000});
 const custom = opt('--formalizer') ? (await import(new URL(opt('--formalizer'), `file://${process.cwd()}/`))).default : null;
 const s = openSession({base: 'world-v1', id: 'qf-run'});
-const slm = slmClient(opt('--slm', process.env.QF_SLM_URL ?? 'http://127.0.0.1:19421'));
+const agent = agentClient({config: s.config, lexicon: s.lexicon, model: opt('--model', null)});
 
 const norm = v => (typeof v === 'number' ? v : /^-?\d+$/.test(String(v)) ? Number(v) : String(v).toLowerCase());
 function judge(gold, answer) {
@@ -31,7 +31,7 @@ function judge(gold, answer) {
 }
 const layerOf = rec => {
   if (rec.error) return rec.error_layer ?? 'chain';
-  if (rec.status === 'clarify') return /unparsed|partly/.test(rec.clarification ?? '') ? 'symbolic_lm' : 'linker';
+  if (rec.status === 'clarify') return /unparsed|partly/.test(rec.clarification ?? '') ? 'author' : 'linker';
   if (rec.status === 'incomplete') return 'slice';
   if (rec.status === 'budget_exhausted') return 'engine';
   return rec.verdict === 'correct' ? null : (rec.status === 'unknown' ? 'knowledge_or_link' : 'wrong_answer');
@@ -41,9 +41,9 @@ const records = [];
 for (const row of rows) {
   const rec = {id: row.id, form: row.form, question: row.question, gold: row.gold};
   try {
-    const formalizer = custom ? {id: 'custom', formalize: async () => custom({row})} : slm;
+    const formalizer = custom ? {id: 'custom', formalize: async () => custom({row})} : agent;
     const entry = s.store.get('qf', 'c' + row.id, 'main');
-    const res = await entry.agent.turn(row.question, {language: 'en', answerLanguage: 'en', languageSource: 'api', formalizer});
+    const res = await entry.agent.turn(row.question, {formalizer});
     const p = res.packet ?? {};
     const answer = answerOfPacket(p);
     Object.assign(rec, {sop: res.sop, status: p.status, answer, linked: (p.linking ?? []).filter(l => l.kind === 'relation').map(l => `${l.surface}->${l.symbol}`), clarification: p.status === 'clarify' ? String(res.text).slice(0, 200) : null, reason: p.reason ?? null});

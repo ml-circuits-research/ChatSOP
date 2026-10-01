@@ -1,4 +1,4 @@
-// The diversity generator (DS022): a small build covers every family, prints model-language targets that the host
+// The diversity generator (DS015): a small build covers every family, prints model-language targets that the host
 // links and executes as written, and the noise model never corrupts the words a label depends on.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -24,7 +24,7 @@ test('a small build covers every family, executes as written and links every str
   }
 });
 
-test('question forms print the DS021 query fields', async () => {
+test('question forms print the DS014 query fields', async () => {
   const {rows} = await built;
   const target = type => rows.find(row => row.question_type === type)?.sop_target ?? '';
   assert.match(target('universal'), /mode every[\s\S]*scope (match|all)/);
@@ -67,7 +67,7 @@ test('noise follows the typing-error taxonomy and never touches cue words or nam
   for (const op of ['diacritic_drop', 'diacritic_cedilla', 'diacritic_wrong']) assert.ok(ro.has(op), op);
 });
 
-// Expansion families (DS022 "Expansion families"): Q-LANG-1..7 constructs, conventions C5/C6/C9/C11, first person.
+// Expansion families (DS015 "Expansion families"): Q-LANG-1..7 constructs, conventions C5/C6/C9/C11, first person.
 import {EXPANSION_WEIGHTS} from '../tools/datasets/diversity/families-expansion.mjs';
 const expansion = generate({seed: 'unit-expansion', rows: 260, familyWeights: EXPANSION_WEIGHTS});
 

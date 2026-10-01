@@ -4,7 +4,7 @@
  "name": "Analysis comparison: a deterministic meaning pre-judge from grammatical analyses",
  "registered_at": "2026-10-01T00:45:00Z",
  "registered_by": "analysis-compare-agent (owner request of 2026-09-30 relayed by the orchestrator; evaluation only: CPU Stanza parsing, no training, no GPU)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "kind": "evaluation-only",
  "frozen_before_results": "Written after the feature extractor (lib/languages-util/analysis-features.mjs), the comparer (lib/languages-util/analysis-compare.mjs) and all parses existed, and before any verdict of the metric was scored against a label. Thresholds (minTripleF1 and the synonym policy) are tuned on the tune half of the calibration set only; every number is reported on the test half and on the two other sets. Later changes are recorded deviations.",
  "question": "Can two English texts be judged for meaning equivalence by comparing their SymbolicLM grammatical analyses (dependency triples plus core checks) cheaply enough and reliably enough to replace most LLM meaning-judge calls of the proofing evaluations?",

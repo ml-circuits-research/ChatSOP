@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-/** New HoloMemory kernel and known-handle measurements of this implementation (DS024).
- * They are not a reproduction of the historical five-seed table; DS024 lists that as a required experiment. */
+/** New HoloMemory kernel and known-handle measurements of this implementation (DS017).
+ * They are not a reproduction of the historical five-seed table; DS017 lists that as a required experiment. */
 import {HoloKernel,mix} from '../memory/banks/holo-kernel.mjs';
 import {HoloWireMemory} from './holo-wire.mjs';
 import {cliArgs,saveJSON} from '../lib/util.mjs';

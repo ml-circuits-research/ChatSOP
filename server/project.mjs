@@ -5,9 +5,8 @@
  *
  * Everything on the page is computed on request from files, so it stays near
  * real time: the append-only journal and the experiment registry
- * (lib/journal.mjs, `status/`), the training rule in AGENTS.md, qualification
- * and preflight records, the corpora on disk, the machine corpus audits, the
- * vocabulary check, the sealed-test leakage audit and `questions.md`.
+ * (lib/journal.mjs, `status/`), the sealed evaluation suites on disk, the guards
+ * of the evaluation boundary, the benchmark plan and `questions.md`.
  * Nothing here opens a gate: training stays prohibited until the owner's new
  * explicit approval, whatever the computed checks say.
  */
@@ -16,11 +15,8 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {recentEvents, readExperiments, journalFile, experimentsFile, statusDir, JOURNAL_AREAS} from '../lib/journal.mjs';
 import {jsonlExists, shardPaths} from '../lib/jsonl-shards.mjs';
-import {targetForm} from './eval-browser.mjs';
 import {loadHistory, entries, topicSummaries, readReport, listReports} from './history.mjs';
-import {corpusDir, corpusNames} from '../lib/dataset-paths.mjs';
 
-const THREE_DATASETS = ['bad_english', 'symbolic_english', 'neuro_english'];
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = file => {
   try {
@@ -30,209 +26,55 @@ const readJson = file => {
   }
 };
 
-/** Rows of a JSONL file (newline count) and a sample of its first rows, cached by size and mtime. */
-const fileCache = new Map();
-function jsonlStats(file) {
-  // A split may be stored as shards (lib/jsonl-shards.mjs); rows are counted across every part.
+/** Rows of a JSONL file (shards included): the newline count. */
+function jsonlRows(file) {
   const parts = shardPaths(file);
   if (!parts.length) return null;
-  const stamp = parts.map(part => { const stat = fs.statSync(part); return `${part}:${stat.size}:${stat.mtimeMs}`; }).join('|');
-  const hit = fileCache.get(file);
-  if (hit?.stamp === stamp) return hit.value;
-  const buffer = Buffer.alloc(4 << 20);
-  let rows = 0, head = '';
+  let rows = 0;
   for (const part of parts) {
-    const fd = fs.openSync(part, 'r');
-    let position = 0, last = 0x0a;
-    try {
-      for (;;) {
-        const read = fs.readSync(fd, buffer, 0, buffer.length, position);
-        if (!read) break;
-        if (position === 0 && !head) head = buffer.toString('utf8', 0, Math.min(read, 256 * 1024));
-        for (let i = 0; i < read; i++) if (buffer[i] === 0x0a) rows++;
-        last = buffer[read - 1];
-        position += read;
-      }
-    } finally {
-      fs.closeSync(fd);
-    }
-    if (position && last !== 0x0a) rows++;
+    const text = fs.readFileSync(part, 'utf8');
+    rows += text.split('\n').filter(Boolean).length;
   }
-  const sample = head.split('\n').slice(0, -1).slice(0, 40).flatMap(line => {
-    try {
-      return [JSON.parse(line)];
-    } catch {
-      return [];
-    }
-  });
-  const value = {rows, sample};
-  fileCache.set(file, {stamp, value});
-  return value;
+  return rows;
 }
 
-/** Directory of a corpus (or of a nested projection `<corpus>/<sub>`) under datasets/ or datasets_archive/. */
-const corpusPath = (root, name) => path.join(root, corpusDir(name.split('/')[0], root), ...name.split('/').slice(1));
-
-/** Corpus directories under datasets/ and datasets_archive/ (one or two levels deep) that hold train or dev splits. */
-function corpora(root) {
-  const found = [];
-  const visit = (relative, depth) => {
-    const dir = corpusPath(root, relative);
-    const entries = fs.readdirSync(dir, {withFileTypes: true});
-    const corpus = entries.some(entry => entry.isFile() && /^(train|dev)\.jsonl$/.test(entry.name));
-    if (corpus) found.push(relative);
-    // formalizer/, system/ and verbalizer/ under a corpus are its training projections, not separate corpora.
-    if (depth < 2 && !corpus) for (const entry of entries) if (entry.isDirectory()) visit(path.posix.join(relative, entry.name), depth + 1);
-  };
-  for (const name of corpusNames(root)) visit(name, 1);
-  // A sealed-only suite (such as the out-of-distribution suite) has a test split under eval/suites/ and no train/dev.
-  const suites = path.join(root, 'eval/suites');
-  if (fs.existsSync(suites)) for (const entry of fs.readdirSync(suites, {withFileTypes: true}))
-    if (entry.isDirectory() && !found.includes(entry.name) && jsonlExists(path.join(suites, entry.name, 'test.jsonl'))) found.push(entry.name);
-  return found.sort();
-}
-
-/** Machine corpus-audit reports indexed by the directory of their train split. */
-function auditReports(root) {
-  const dir = path.join(root, 'eval/reports/current/corpus-audit');
-  const byCorpus = new Map();
-  if (!fs.existsSync(dir)) return byCorpus;
-  for (const name of fs.readdirSync(dir).filter(file => file.endsWith('.json'))) {
-    const report = readJson(path.join(dir, name));
-    if (!report) continue;
-    const trainDir = report.files?.train?.file ? path.posix.dirname(report.files.train.file).replace(/^datasets(?:_archive)?\//, '') : null;
-    byCorpus.set(trainDir ?? report.corpus ?? name.slice(0, -5), {file: `eval/reports/current/corpus-audit/${name}`, report});
-  }
-  return byCorpus;
-}
-
-/** Live data pipeline status per corpus. */
+/** The sealed evaluation suites under eval/suites/ with their row counts (the product keeps the KBQA suites and the linking suite). */
 export function dataPipeline(root = projectRoot) {
-  const audits = auditReports(root);
-  return corpora(root).map(name => {
-    const splits = {};
-    let sample = [];
-    for (const split of ['train', 'dev']) {
-      const stats = jsonlStats(path.join(corpusPath(root, name), split + '.jsonl'));
-      if (stats) {
-        splits[split] = stats.rows;
-        if (!sample.length) sample = stats.sample;
-      }
-    }
-    const sealed = [path.join(root, 'eval/suites', name, 'test.jsonl'), path.join(corpusPath(root, name), 'test.jsonl')].find(file => jsonlExists(file));
-    if (sealed) splits.test = jsonlStats(sealed).rows;
-    const forms = {};
-    if (!sample.length && sealed) sample = jsonlStats(sealed).sample;
-    for (const row of sample) forms[targetForm(row)] = (forms[targetForm(row)] ?? 0) + 1;
-    delete forms.undetermined;
-    const form = forms.current && !forms.legacy ? 'current' : forms.legacy && !forms.current ? 'legacy' : Object.keys(forms).length ? 'mixed' : 'unknown';
-    const audit = audits.get(name);
-    const report = audit?.report;
-    const leak = report?.leakage?.test_vs_development;
-    return {
-      corpus: name, splits, rows: Object.values(splits).reduce((a, b) => a + b, 0),
-      form, form_sample: forms, test_file: sealed ? path.relative(root, sealed) : null,
-      audit: report ? {
-        file: audit.file, verdict: report.verdict?.status ?? null, failed_checks: report.verdict?.failed_checks ?? [], invariant_failures: report.verdict?.invariant_failures ?? null,
-        faithfulness_error_rate: report.faithfulness?.error_rate ?? null,
-        template_top_share: report.diversity?.development?.templates?.top_share ?? null,
-        template_distinct_ratio: report.diversity?.development?.templates?.distinct_ratio ?? null,
-        test_template_overlap: leak?.template_overlap ?? null, test_exact_overlap: leak?.exact_input_overlap ?? null,
-      } : null,
-    };
-  });
-}
-
-/** The vocabulary hallucination check, summarised. */
-function vocabulary(root) {
-  const file = path.join(root, 'eval/reports/current/vocabulary.json');
-  const report = readJson(file);
-  if (!report) return null;
-  return {file: 'eval/reports/current/vocabulary.json', verdict: report.verdict ?? null, totals: report.totals ?? null, scope: report.scope ?? null, scanned: report.scanned ?? null, mtime: fs.statSync(file).mtime.toISOString()};
+  const base = path.join(root, 'eval/suites');
+  if (!fs.existsSync(base)) return [];
+  return fs.readdirSync(base, {withFileTypes: true}).filter(entry => entry.isDirectory()).map(entry => {
+    const test = path.join(base, entry.name, 'test.jsonl');
+    const rows = jsonlExists(test) ? jsonlRows(test) : null;
+    return {corpus: entry.name, splits: rows === null ? {} : {test: rows}, rows: rows ?? 0, test_file: rows === null ? null : path.relative(root, test)};
+  }).sort((a, b) => a.corpus.localeCompare(b.corpus));
 }
 
 /** The AGENTS.md training rule (explicit owner approval per run), quoted live. */
 function trainingRule(root) {
   const text = fs.existsSync(path.join(root, 'AGENTS.md')) ? fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8') : '';
-  const line = text.split('\n').find(entry => /Training happens only with the owner's explicit approval/.test(entry));
+  const line = text.split('\n').find(entry => /(?:Training happens only with|Training only with) the owner's explicit approval/.test(entry));
   return line ? line.replace(/^\d+\.\s*/, '').replace(/\*\*/g, '') : null;
-}
-
-/** Records under training/ or models/ whose name says qualification (none exist yet). */
-function qualificationRecords(root) {
-  const out = [];
-  const walk = (relative, depth) => {
-    const dir = path.join(root, relative);
-    let entries;
-    try {
-      entries = fs.readdirSync(dir, {withFileTypes: true});
-    } catch {
-      return;
-    }
-    for (const entry of entries) {
-      const next = path.posix.join(relative, entry.name);
-      if (entry.isDirectory() && depth < 4 && !['bases', 'node_modules'].includes(entry.name)) walk(next, depth + 1);
-      else if (entry.isFile() && /qualif/i.test(entry.name) && entry.name.endsWith('.json')) out.push(next);
-    }
-  };
-  walk('training', 0);
-  walk('models', 0);
-  return out;
-}
-
-/** Infrastructure preflight evidence from rootless Podman runs (models/.container-runs/*preflight*). */
-function preflight(root) {
-  const dir = path.join(root, 'models/.container-runs');
-  if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir).filter(name => /preflight/.test(name)).map(name => {
-    const result = readJson(path.join(dir, name, 'result.json'));
-    return {run: name, exitCode: result?.exitCode ?? null, oomKilled: result?.oomKilled ?? null, at: result?.at ?? null};
-  });
-}
-
-/** Registry model states: every registry entry with a `gguf` path and whether the file is on disk. */
-function registryModels(root) {
-  const registry = readJson(path.join(root, 'config/formalizers.json'));
-  return (registry?.models ?? []).map(model => ({id: model.id, kind: model.gguf ? 'gguf' : model.service ? 'service' : 'other', present: model.gguf ? fs.existsSync(path.join(root, model.gguf)) : true}));
 }
 
 /** Gates in order. `open` is a computed observation; training needs the owner's explicit approval per run and no gate supplies it. */
 export function gates(root = projectRoot, {pipeline = dataPipeline(root), experiments = []} = {}) {
   const rule = trainingRule(root);
-  const vocab = vocabulary(root);
-  const guards = ['tests/model-input-boundary.test.mjs', 'tests/no-context-lint.test.mjs', 'tools/lint/model-surface.mjs', 'eval/leakage.mjs', 'tests/eval-registry.test.mjs'].map(file => ({file, exists: fs.existsSync(path.join(root, file))}));
-  const flights = preflight(root);
-  const records = qualificationRecords(root);
-  const three = pipeline.filter(entry => THREE_DATASETS.includes(entry.corpus));
-  const audited = three.filter(entry => entry.audit);
-  const passing = audited.filter(entry => entry.audit.verdict === 'pass');
-  const regression = readJson(path.join(root, 'eval/reports/current/symbolic-regression/report.json'));
-  const verification = readJson(path.join(root, 'eval/reports/current/three-datasets/verification.json'));
-  const smoke = readJson(path.join(root, 'eval/reports/current/chat-smoke/summary.json'));
-  const models = registryModels(root);
+  const guards = ['eval/leakage.mjs', 'tests/query-author.test.mjs', 'tests/strategy-router.test.mjs'].map(file => ({file, exists: fs.existsSync(path.join(root, file))}));
   const prereg = experiments.filter(entry => ['preregistered', 'approved', 'running', 'done'].includes(entry.status));
+  const benchmarkPlan = 'experiments/proposal/symbolic-vs-llm-benchmark.md';
+  const smoke = readJson(path.join(root, 'eval/reports/current/chat-smoke/summary.json'));
   return [
     {id: 'owner-approval', title: 'Owner approval for training (per run)', open: false, prohibited: false, perRun: true,
-      evidence: rule ?? 'AGENTS.md Direction 3', source: 'AGENTS.md', note: 'Needed for every run and spent when the run ends. Never inferred from any check below.'},
-    {id: 'three-datasets', title: 'Three datasets verified (bad_english, symbolic_english, neuro_english)', open: verification?.verdict === 'pass',
-      evidence: verification ? `verdict ${verification.verdict}, ${verification.failures} failures (${verification.generated})` : `no verification report; ${three.length} of ${THREE_DATASETS.length} datasets found (${three.map(entry => entry.corpus + ' ' + entry.rows + ' rows').join(', ')}); run node tools/datasets/verify-three-datasets.mjs`, source: 'eval/reports/current/three-datasets/verification.json'},
-    {id: 'corpus-audit', title: 'Machine corpus audit passes on the three datasets', open: audited.length === THREE_DATASETS.length && passing.length === audited.length,
-      evidence: `${passing.length} of ${audited.length} audited datasets pass; ${THREE_DATASETS.length - audited.length} have no audit report`, source: 'eval/reports/current/corpus-audit/'},
-    {id: 'symbolic-regression', title: 'Symbolic regression: no symbolic_english row changed its SOP or fails', open: regression ? regression.failing === false && (regression.changed_total ?? 0) === 0 : false,
-      evidence: regression ? `${regression.rows} rows, failing ${regression.failing}, changed ${regression.changed_total ?? '?'} (${regression.generated_at})` : 'no report', source: 'eval/reports/current/symbolic-regression/report.json'},
-    {id: 'vocabulary', title: 'Vocabulary check: no undocumented (hallucinated) wires', open: vocab?.verdict === 'pass',
-      evidence: vocab ? `verdict ${vocab.verdict}; ${vocab.totals?.failing ?? '?'} failing of ${vocab.totals?.findings ?? '?'} findings` : 'no report', source: 'eval/reports/current/vocabulary.json'},
-    {id: 'boundary-guards', title: 'Model-boundary and sealed-test guards in place', open: guards.every(guard => guard.exists),
-      evidence: `guards: ${guards.map(guard => `${guard.file} ${guard.exists ? 'present' : 'MISSING'}`).join('; ')} (run by npm test)`, source: 'tests/, tools/lint/, eval/leakage.mjs'},
-    {id: 'registry-models', title: 'Registry model states: every GGUF of the registry is on disk', open: models.length > 0 && models.every(model => model.present),
-      evidence: models.length ? models.map(model => `${model.id} (${model.kind}) ${model.present ? 'present' : 'MISSING'}`).join('; ') : 'no registry', source: 'config/formalizers.json'},
-    {id: 'chat-smoke', title: 'Chat smoke through /v1/chat/completions and /v1/understand (English and Romanian)', open: smoke?.ok === true,
+      evidence: rule ?? "Training only with the owner's explicit approval per run (AGENTS.md)", source: 'AGENTS.md', note: 'Needed for every run and spent when the run ends. Never inferred from any check below.'},
+    {id: 'suites', title: 'Sealed evaluation suites on disk (KBQA, linking)', open: pipeline.length > 0 && pipeline.every(entry => entry.rows > 0),
+      evidence: pipeline.length ? pipeline.map(entry => `${entry.corpus} ${entry.rows} rows`).join('; ') : 'no suite under eval/suites/', source: 'eval/suites/'},
+    {id: 'boundary-guards', title: 'Evaluation-boundary guards in place (leakage audit, circuit author and router tests)', open: guards.every(guard => guard.exists),
+      evidence: `guards: ${guards.map(guard => `${guard.file} ${guard.exists ? 'present' : 'MISSING'}`).join('; ')} (run by npm test)`, source: 'tests/, eval/leakage.mjs'},
+    {id: 'chat-smoke', title: 'Chat smoke through /v1/chat/completions with the coding agent', open: smoke?.ok === true,
       evidence: smoke ? `ok ${smoke.ok}${smoke.generated ? ' (' + smoke.generated + ')' : ''}` : 'no smoke record', source: 'eval/reports/current/chat-smoke/summary.json'},
-    {id: 'preflight', title: 'CUDA infrastructure preflight (no optimizer)', open: flights.some(run => run.exitCode === 0 && run.oomKilled === false),
-      evidence: flights.length ? flights.map(run => `${run.run}: exit ${run.exitCode}, OOM ${run.oomKilled}`).join('; ') : 'no preflight record', source: 'models/.container-runs/'},
-    {id: 'qualification', title: 'Dataset / run qualification record', open: records.length > 0,
-      evidence: records.length ? records.join(', ') : 'no qualification record under training/ or models/', source: 'training/, models/'},
-    {id: 'preregistration', title: 'Preregistered experiment (DS010)', open: prereg.length > 0,
+    {id: 'benchmark-plan', title: 'Benchmark plan: symbolic reasoning against small LLMs', open: fs.existsSync(path.join(root, benchmarkPlan)),
+      evidence: fs.existsSync(path.join(root, benchmarkPlan)) ? `${benchmarkPlan} present (the benchmark itself is not built yet)` : 'no plan', source: benchmarkPlan},
+    {id: 'preregistration', title: 'Preregistered experiment (DS007)', open: prereg.length > 0,
       evidence: `${prereg.length} preregistered of ${experiments.length} registered`, source: 'status/experiments.json'},
   ];
 }
@@ -259,10 +101,10 @@ export function projectStatus({root = projectRoot, dir = statusDir(), area = nul
   }
   return {
     generated: new Date().toISOString(),
-    phase: {name: 'Product chain: textToCleanEnglish, SymbolicLM, linking, reasoning', training: 'owner approval per run', rule: trainingRule(root)},
+    phase: {name: 'Product chain: coding agent circuits, validator, KnowledgeLinker, StrategyRouter, oracle', training: 'owner approval per run', rule: trainingRule(root)},
     gates: gates(root, {pipeline, experiments: registry.experiments}),
     journal, journalError, areas: JOURNAL_AREAS, journalFile: path.relative(root, journalFile(dir)) || journalFile(dir),
-    pipeline, vocabulary: vocabulary(root),
+    pipeline,
     experiments: registry.experiments, experimentsNote: registry.note ?? null, experimentsError,
     questions: questions(root),
   };

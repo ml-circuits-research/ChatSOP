@@ -4,9 +4,9 @@ Self-contained companion of `SKILL.md`. The full language manual is the section 
 
 ## 0. Your job
 
-Read a source (a manual, a regulation, an article) and write **knowledge wires**: predicates, facts, rules, defaults, aggregates, actions, methods, norms. A host stores them, a different system turns users' questions into queries, and exact engines answer. Your wires must be **checkable, one idea each, and faithful to the source** (keep the sentence in `source` or `quote`). Write what the source says, never what you know; if the source is silent, write nothing.
+Read a source (a manual, a regulation, an article) and write **knowledge wires**: predicates, facts, rules, defaults, aggregates, actions, methods, norms. The runtime stores them, a different system turns users' questions into queries, and exact engines answer. Your wires must be **checkable, one idea each, and faithful to the source** (keep the sentence in `source` or `quote`). Write what the source says, never what you know; if the source is silent, write nothing.
 
-The loop is mandatory: (1) declare the vocabulary, (2) write the wires, (3) run `node eval/smoke-reasoning/validator.mjs --authoring knowledge.sop query.sop`, fix every error and warning, (4) write at least one test query per rule and per procedure, including a case that must be blocked or refuted, (5) report what you could not express. You never write `approval`, `approved_by` or `approved_at` (the host writes them when it accepts your wires); an amendment is composed by the host. The flag `--authoring` is the validator's mode for you: it ignores those three fields with the warning `governance_ignored` (remove them) and leaves the check `approval_incomplete` to ingestion, where the host has written them; without the flag the validator checks wires as they stand in memory, which is not your situation. `version` and `supersedes` are yours.
+The loop is mandatory: (1) declare the vocabulary, (2) write the wires, (3) run `node eval/smoke-reasoning/validator.mjs --authoring knowledge.sop query.sop`, fix every error and warning, (4) write at least one test query per rule and per procedure, including a case that must be blocked or refuted, (5) report what you could not express. You never write `approval`, `approved_by` or `approved_at` (the runtime writes them when it accepts your wires); an amendment is composed by the runtime. The flag `--authoring` is the validator's mode for you: it ignores those three fields with the warning `governance_ignored` (remove them) and leaves the check `approval_incomplete` to ingestion, where the runtime has written them; without the flag the validator checks wires as they stand in memory, which is not your situation. `version` and `supersedes` are yours.
 
 ## 1. Format
 
@@ -142,7 +142,7 @@ Prefer one general rule to many similar facts.
   then open_node ?x
 ```
 
-Wrong: `when not blocked ?x` where the source only lists blocked nodes (it would never fire). Right: `closed true` plus `absent`. Counts, sums and `every` over a predicate also need `closed`; otherwise the host returns a lower bound or `unknown`.
+Wrong: `when not blocked ?x` where the source only lists blocked nodes (it would never fire). Right: `closed true` plus `absent`. Counts, sums and `every` over a predicate also need `closed`; otherwise the runtime returns a lower bound or `unknown`.
 
 ### 3.4 Defaults and exceptions
 
@@ -171,7 +171,7 @@ Wrong: `when not blocked ?x` where the source only lists blocked nodes (it would
   except penguin ?x
 ```
 
-`penguin` is **not** declared `closed`: an exception predicate needs *retrieval* completeness (the host looks up `penguin` for each candidate bird before it accepts a default conclusion), not a closed world. A strict fact `not flies tweety` beats the default (the answer is `refuted`). Two defaults of equal strength with contrary heads give `both`; resolve it with `overrides $other_default` (preferred to a global `priority` number, which does not compose across chapters). A default needs a contrary or an exception; without one, write a rule.
+`penguin` is **not** declared `closed`: an exception predicate needs *retrieval* completeness (the runtime looks up `penguin` for each candidate bird before it accepts a default conclusion), not a closed world. A strict fact `not flies tweety` beats the default (the answer is `refuted`). Two defaults of equal strength with contrary heads give `both`; resolve it with `overrides $other_default` (preferred to a global `priority` number, which does not compose across chapters). A default needs a contrary or an exception; without one, write a rule.
 
 ### 3.5 Aggregates
 
@@ -276,7 +276,7 @@ An `action` is a primitive step with preconditions and effects. A `method` is th
 
 Steps: `~action term...` (arity must match `params`), a sub-task atom, `achieve atom`, `optional STEP`, `choose ... end` (two or more branches), `any_order ... end`, `if ATOM ... else ... end`, `until ATOM max N ... end` (`max` is mandatory), `pick ?x where ATOM`. `binding strict` (the manual says "always do it this way") forbids leaving the method; `advisory` ("recommended") lets the engine fall back. Use `on_failure $other_method` for the manual's fallback. Unbounded loops cannot be expressed: say so in your report.
 
-**No `jsEval`.** The runtime has a `jsEval {expr}` wire for host computation; it is trusted and host-only and is not in the grammar above. Do not write it unless the host marks the source as trusted code; arithmetic from a source goes in `compute`, `compare` and `aggregate`, and what they cannot express goes in your report as "not expressed".
+**No `jsEval`.** The runtime has a `jsEval {expr}` wire for runtime computation; it is trusted and runtime-only and is not in the grammar above. Do not write it unless the runtime marks the source as trusted code; arithmetic from a source goes in `compute`, `compare` and `aggregate`, and what they cannot express goes in your report as "not expressed".
 
 ### 3.8 Norms, severity, binding, versions
 
@@ -293,9 +293,9 @@ A `norm` has exactly one of `forbid`, `oblige`, `permit` over `~action term...` 
 
 An obligation is triggered per instance: tie its variable to the thing it concerns with a `when` atom (`when incident ?i`); the engine creates instances only for bindings that come from the goal or from an executed action. **`severity`** says what a violation does (`hard`: the plan is invalid; `soft`: it costs `cost N`). **`binding`** says whether the engine may relax the norm when it would otherwise block (`strict`: never; `advisory`: may, and says so); `binding` on a soft norm is vacuous (a warning).
 
-A `permit` must name the prohibition it excepts with `overrides $norm`; under `binding strict`, two norms of equal strength in conflict give `blocked` with both ids, never a silent pick (under `binding advisory` the engine reports a violation instead). **`binding` defaults to `strict`** for norms and methods: it is the fail-safe choice, and a host policy may only tighten it; write `binding advisory` only when the source says "recommended" or "should". `message` is the reason returned when the norm blocks.
+A `permit` must name the prohibition it excepts with `overrides $norm`; under `binding strict`, two norms of equal strength in conflict give `blocked` with both ids, never a silent pick (under `binding advisory` the engine reports a violation instead). **`binding` defaults to `strict`** for norms and methods: it is the fail-safe choice, and the runtime policy may only tighten it; write `binding advisory` only when the source says "recommended" or "should". `message` is the reason returned when the norm blocks.
 
-**Standing obligations.** A variable of an `oblige` pattern must be bound by a `when` atom, or the validator reports the error `unsafe_variable`. Such an obligation is created only for the thing the goal or an executed action concerns. If the source states a duty that holds for every binding of the `when` whatever the goal ("every incident must be logged within 3 steps"), say so with the marker line `standing`; the validator then warns `obligation_unscoped` once, so that you confirm the intent, and the host applies the duty to every binding and says so in the answer. `standing` exists only on `oblige`.
+**Standing obligations.** A variable of an `oblige` pattern must be bound by a `when` atom, or the validator reports the error `unsafe_variable`. Such an obligation is created only for the thing the goal or an executed action concerns. If the source states a duty that holds for every binding of the `when` whatever the goal ("every incident must be logged within 3 steps"), say so with the marker line `standing`; the validator then warns `obligation_unscoped` once, so that you confirm the intent, and the runtime applies the duty to every binding and says so in the answer. `standing` exists only on `oblige`.
 
 ```sop knowledge
 @router predicate
@@ -338,7 +338,7 @@ A `permit` must name the prohibition it excepts with `overrides $norm`; under `b
   overrides $no_hard_reset_in_hours
 ```
 
-**Governance.** When the source revises a rule, write the new wire with `version N+1` and `supersedes $old`; never edit or delete the old one. `approval`, `approved_by`, `approved_at` are written by the host after review, and a wire you submit is *proposed* until then. A procedure is a named bundle: `@reset_procedure procedure` with `members $reset_router $no_hard_reset_in_hours ...` (it has no version of its own; its members do). An `action` is governed like a method, because its preconditions come from the manual too.
+**Governance.** When the source revises a rule, write the new wire with `version N+1` and `supersedes $old`; never edit or delete the old one. `approval`, `approved_by`, `approved_at` are written by the runtime after review, and a wire you submit is *proposed* until then. A procedure is a named bundle: `@reset_procedure procedure` with `members $reset_router $no_hard_reset_in_hours ...` (it has no version of its own; its members do). An `action` is governed like a method, because its preconditions come from the manual too.
 
 ### 3.9 Test queries you write
 

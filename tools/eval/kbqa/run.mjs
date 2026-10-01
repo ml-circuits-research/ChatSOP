@@ -1,7 +1,7 @@
 /**
  * Runs the product chain on every question of a suite stage (tools/eval/kbqa.mjs `run`), in process:
- *   question -> SymbolicLM service (private port, KBQA_SLM_URL, default http://127.0.0.1:19411; message only) -> Agent (server/agent.mjs:
- *   admission, KnowledgeLinker over the lexicon of the session's base memory, reference route) -> packet.
+ *   question -> coding agent (server/query-parser.mjs: omp and the subscription chain; the message and the memory vocabulary only) -> Agent
+ *   (server/agent.mjs: admission, KnowledgeLinker over the lexicon of the session's base memory, StrategyRouter, oracle) -> packet.
  * Every question gets its own conversation (no carried context); the session is the clone of the stage's base memory, and reads do not
  * reinforce (policy.reinforce false), so the questions of a stage cannot influence each other. Nothing of the gold reaches the chain.
  * One record per question is appended to eval/reports/current/kbqa/<suite>/stage-<n>.jsonl; a rerun resumes unless --force.
@@ -18,23 +18,7 @@ import {ompSettings, createOmpModels} from '../../../lib/omp/index.mjs';
 
 export const reportDir = suite => path.join(ROOT, 'eval', 'reports', 'current', 'kbqa', suite);
 export const stageFile = (suite, stage, tag = '') => path.join(reportDir(suite), `stage-${stage}${tag}.jsonl`);
-const SLM_URL = process.env.KBQA_SLM_URL ?? 'http://127.0.0.1:19411';
-const TIMEOUT_MS = Number(process.env.KBQA_TURN_TIMEOUT_MS ?? 60000);
-
-/** The message-only SymbolicLM client; keeps the last service report (route, language, uncertainty, analysis) for the record. */
-function symbolicLm() {
-  const client = {id: 'symbolic-lm', last: null, async formalize(text) {
-    const res = await fetch(`${SLM_URL}/v1/chat/completions`, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({messages: [{role: 'user', content: text}]}), signal: AbortSignal.timeout(TIMEOUT_MS)});
-    if (!res.ok) throw Object.assign(new Error(`SymbolicLM HTTP ${res.status}`), {layer: 'symbolic_lm_service'});
-    const body = await res.json();
-    client.last = {route: body.symbolic_lm?.route ?? null, language: body.symbolic_lm?.language ?? null, uncertainty: body.symbolic_lm?.uncertainty ?? null, ms: body.timings?.total_ms ?? null};
-    return body.choices[0].message.content;
-  }};
-  return client;
-}
-
-const healthNow = async () => { try { const r = await fetch(`${SLM_URL}/health`, {signal: AbortSignal.timeout(8000)}); return r.ok; } catch { return false; } };
-async function waitHealthy(ms) { const end = Date.now() + ms; while (Date.now() < end) { if (await healthNow()) return true; await new Promise(r => setTimeout(r, 5000)); } return false; }
+const TIMEOUT_MS = Number(process.env.KBQA_TURN_TIMEOUT_MS ?? 180000);
 
 const bindingValue = v => (typeof v === 'string' ? v : v == null ? null : String(v));
 
@@ -65,10 +49,10 @@ function conclude(packet) {
 }
 
 /**
- * `parser`: `local` (default: SymbolicLM only, as always) or `coding_agent` (codingAgentQuery, DS031; eval-query-parsers-v1). Measurement mode: a failed coding agent is
- * an error of the record (`parser_failed`), never a silent local answer.
+ * Measurement mode (eval-query-parsers-v1): a failed coding agent is an error of the record (`parser_failed`), never a substitute answer.
+ * `model` runs one model of the subscription chain instead of the configured chain (a model comparison).
  */
-export async function runSuite(suite, {stage = '100', limit = null, only = null, force = false, tag = '', variant = '', parser = 'local', log = console.error} = {}) {
+export async function runSuite(suite, {stage = '100', limit = null, only = null, force = false, tag = '', variant = '', model = null, log = console.error} = {}) {
   const rows = readSuite(suite, stage).filter(r => !only || r.id === only || r.type === only).slice(0, limit ? Number(limit) : undefined);
   const {config, sessions} = openData();
   const base = memoryId(suite, stage, variant);
@@ -82,50 +66,31 @@ export async function runSuite(suite, {stage = '100', limit = null, only = null,
   fs.mkdirSync(path.dirname(out), {recursive: true});
   const done = new Set(!force && fs.existsSync(out) ? fs.readFileSync(out, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l).id) : []);
   if (force) fs.rmSync(out, {force: true});
-  const slm = symbolicLm();
-  let lm = slm;
-  if (parser === 'coding_agent') {
-    const omp = ompSettings(config);
-    const queryParser = createQueryParser({settings: queryParserSettings({queryParser: {...(config.queryParser ?? {}), fallbackToLocal: false, fallbackOnLocalAbstain: false, cacheEntries: 0}}), ompConfig: omp, ompModels: createOmpModels(omp)});
-    const lexicon = sessions.lexicon(sid);
-    lm = {id: 'coding_agent', last: null, parse: null, async formalize(text) {
-      lm.parse = null;
-      try { const r = await queryParser.parse({parser: 'coding_agent', message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, local: () => slm.formalize(text)}); lm.parse = r.parse; lm.last = {route: 'coding_agent', ms: r.parse.ms}; return r.sop; }
-      catch (error) { lm.parse = error.parse ?? null; throw Object.assign(error, {layer: 'parser_failed'}); }
-    }};
-  }
-  let n = 0, stalled = 0;
+  const omp = ompSettings(config);
+  const queryParser = createQueryParser({settings: queryParserSettings({queryParser: {...(config.queryParser ?? {}), ...(model ? {models: [model], backend: {...(config.queryParser?.backend ?? {}), model}} : {}), cacheEntries: 0}}), ompConfig: omp, ompModels: createOmpModels(omp)});
+  const lexicon = sessions.lexicon(sid);
+  const lm = {id: 'coding_agent', last: null, parse: null, async formalize(text) {
+    lm.parse = null;
+    try { const r = await queryParser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); lm.parse = r.parse; lm.last = {route: 'coding_agent', ms: r.parse.ms}; return r.sop; }
+    catch (error) { lm.parse = error.parse ?? null; throw Object.assign(error, {layer: 'parser_failed'}); }
+  }};
+  let n = 0;
   for (const row of rows) {
     if (done.has(row.id)) continue;
     const t0 = performance.now();
     const rec = {id: row.id, type: row.type, question: row.question, stage};
-    // A message that hangs SymbolicLM (an infinite loop in the service) shows as a timeout with an unhealthy service: wait for the keeper's
-    // restart and retry once; a second hang is the result `symbolic_lm_hang` (a real SymbolicLM failure). A timeout with a healthy
-    // service is not recorded (a resume redoes it).
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      for (const key of Object.keys(rec)) if (!['id', 'type', 'question', 'stage'].includes(key)) delete rec[key];
-      lm.last = null;
-      try {
-        const entry = store.get('kbqa', `c${rows.indexOf(row)}-${attempt}`, BASE_NAME);
-        const res = await Promise.race([
-          entry.agent.turn(row.question, {language: 'en', answerLanguage: 'en', languageSource: 'api', formalizer: lm}),
-          new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error('turn time limit'), {layer: 'timeout'})), TIMEOUT_MS + 30000)),
-        ]);
-        Object.assign(rec, {sop: res.sop, exec_sop: res.executionSop?.slice(0, 4000), text: res.text, ...conclude(res.packet), formalization_ms: res.formalization?.ms, lm: lm.last, ...(parser === 'local' ? {} : {parse: lm.parse})});
-      } catch (error) {
-        Object.assign(rec, {error: String(error.message).slice(0, 400), error_layer: error.layer ?? (error.modelSop !== undefined ? 'sop_admission' : 'chain'), sop: error.modelSop ?? null, lm: lm.last, ...(parser === 'local' ? {} : {parse: lm.parse})});
-      }
-      if (!(rec.error_layer === 'timeout' || /SymbolicLM|timeout|aborted|fetch failed|ECONNREFUSED|terminated/i.test(rec.error ?? ''))) break;
-      const healthy = await waitHealthy(attempt === 1 ? 240000 : 5000);
-      if (healthy && attempt === 1 && (await healthNow())) { /* slow but alive: retry once */ }
-      if (attempt === 2) { rec.error_layer = 'symbolic_lm_hang'; rec.error = 'SymbolicLM did not answer twice (the service stopped answering health checks); ' + rec.error; }
+    lm.last = null;
+    try {
+      const entry = store.get('kbqa', `c${rows.indexOf(row)}`, BASE_NAME);
+      const res = await Promise.race([
+        entry.agent.turn(row.question, {formalizer: lm}),
+        new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error('turn time limit'), {layer: 'timeout'})), TIMEOUT_MS + 30000)),
+      ]);
+      Object.assign(rec, {sop: res.sop, exec_sop: res.executionSop?.slice(0, 4000), text: res.text, ...conclude(res.packet), formalization_ms: res.formalization?.ms, lm: lm.last, parse: lm.parse});
+    } catch (error) {
+      Object.assign(rec, {error: String(error.message).slice(0, 400), error_layer: error.layer ?? (error.modelSop !== undefined ? 'sop_admission' : 'chain'), sop: error.modelSop ?? null, lm: lm.last, parse: lm.parse});
     }
     rec.ms = Math.round(performance.now() - t0);
-    if (rec.error_layer === 'timeout' || (rec.error_layer !== 'symbolic_lm_hang' && /SymbolicLM|timeout|aborted|fetch failed|ECONNREFUSED|terminated/i.test(rec.error ?? ''))) {
-      if (++stalled >= 3) throw new Error('SymbolicLM service unresponsive (3 consecutive timeouts); the run stopped and can be resumed');
-      continue;
-    }
-    stalled = 0;
     fs.appendFileSync(out, JSON.stringify(rec) + '\n');
     if (++n % 10 === 0) log(`[kbqa ${suite}/${stage}] ${n + done.size}/${rows.length}`);
   }

@@ -1,4 +1,4 @@
-// lib/cache/lru.mjs (DS012 "Capability APIs and caches"): correctness, eviction, TTL, in-flight de-duplication under concurrency,
+// lib/cache/lru.mjs (DS009 "Capability APIs and caches"): correctness, eviction, TTL, in-flight de-duplication under concurrency,
 // a multi-user parallel run with mixed keys, and failures.
 import test from 'node:test';
 import assert from 'node:assert/strict';

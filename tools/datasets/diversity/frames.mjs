@@ -120,7 +120,7 @@ export const MONTHS = {
 };
 
 /**
- * Question-word frames of the DS021 question forms. Slots: {Q} the English auxiliary-inverted core ("did Ana
+ * Question-word frames of the DS014 question forms. Slots: {Q} the English auxiliary-inverted core ("did Ana
  * work at Acme"), {S} the declarative clause ("Ana worked at Acme"), {T} and {V} the subject and the rest of a
  * declarative clause for topicalized Romanian ("Ana de când lucrează la Acme?"), {B} an English "start to" core
  * ("did Ana start to work at Acme"), {I} a Romanian clause with the verb group before the subject ("a lucrat Ana

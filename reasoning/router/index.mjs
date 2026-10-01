@@ -1,5 +1,5 @@
 /**
- * StrategyRouter v1 (DS006 "Routing rules", DS013): chooses the engine of a wire-level question when the caller names none.
+ * StrategyRouter v1 (DS006 "Routing rules", DS010): chooses the engine of a wire-level question when the caller names none.
  *
  *   explicit request   a strategy id (`sql-sqlite`, `datalog-souffle`, `asp-clingo`, `datalog-e10`, `prolog-tabling`, or the oracle's
  *                      `reference`/`js-reference`/`js-oracle`) runs exactly that engine. Never substituted (AGENTS.md rule 8): an engine
@@ -30,7 +30,7 @@ import {ENGINES, ORACLE, ORACLE_IDS, eligibility} from './engines.mjs';
 export {circuitFeatures};
 
 /**
- * Defaults, from the measured table `eval/reports/current/router/timing.json` (tools/eval/router-timing.mjs, DS013): the oracle is
+ * Defaults, from the measured table `eval/reports/current/router/timing.json` (tools/eval/router-timing.mjs, DS010): the oracle is
  * faster or equal below these sizes and exhausts its budget above them (recursion: a transitive closure grows quadratically).
  */
 export const ROUTER_DEFAULTS = Object.freeze({

@@ -51,7 +51,7 @@ Verbatim transcription of the reviewer's report; line numbers refer to the propo
 12. Effort: three levels; host owns floors and ceilings; effort scales retrieval and strategy budgets together.
 13. Routing default: stay on `js-reference`; route automatically only when it declares a needed feature unsupported and exactly one capable strategy exists.
 14. Solvers: private clingo and Soufflé under `tools/.solvers/`, owner permitting; clingo first.
-15. Grammar location: move to `sop/` as the single source; regenerate DS004/DS006/DS013/DS021 and wire help from it.
+15. Grammar location: move to `sop/` as the single source; regenerate DS004/DS006/DS010/DS014 and wire help from it.
 16. FactSource: accept; `closed` and `count` implemented by the SQLite bank, scan and exact sidecar; RecallMemory/HoloMemory return `declared: false` and estimates only.
 17. Embedding index: FTS5 + dictionary now; an embedding proposer later, lexicon side only, behind a flag.
 18. Closed and retention: closedness declared by a host review step; the coding agent may propose it with the source sentence asserting exhaustiveness. Never automatic.

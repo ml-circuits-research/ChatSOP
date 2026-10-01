@@ -1,4 +1,4 @@
-/** Project history data for the `/experiments` pages (DS012): the task and
+/** Project history data for the `/experiments` pages (DS009): the task and
  * experiment index, one page per task or experiment, the topic note stacks,
  * the read-only report viewer and the owner's open questions.
  *
@@ -27,7 +27,7 @@ const HIDDEN_DIR = /^(cache|registry-test-complete-)/;
 export const RENDER_LIMIT = 2 * 1024 * 1024;
 const PREVIEW_BYTES = 96 * 1024;
 /** Repository Markdown the server serves read-only as text (a subset of server/http.mjs REPO_MARKDOWN whose relative links resolve on the site). */
-const SERVED_MARKDOWN = /^(?:skills\/(?:README\.md|[A-Za-z0-9-]+\/SKILL\.md)|eval\/README\.md|datasets\/SOURCES\.md)$/;
+const SERVED_MARKDOWN = /^(?:skills\/(?:README\.md|[A-Za-z0-9-]+\/SKILL\.md)|eval\/README\.md)$/;
 
 /** The current file of a specification, following docs/specs/aliases.json for former ids (renamed or merged). */
 function currentSpec(root, name) {

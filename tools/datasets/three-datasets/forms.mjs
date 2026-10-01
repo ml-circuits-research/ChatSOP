@@ -1,4 +1,4 @@
-/** Form and content-word signatures of dataset rows (DS008 "Content-word overlap").
+/** Form and content-word signatures of dataset rows (DSx008 "Content-word overlap").
  *
  * The form signature is the analysis skeleton of the symbolic-forms inventory
  * (eval/reports/current/three-datasets/symbolic-forms-inventory.md, archived generator `probably_obsolete/legacy/tools/symbolic-gate/symbolic-gate.mjs inventory`): question type,

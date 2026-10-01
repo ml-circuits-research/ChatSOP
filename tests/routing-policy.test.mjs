@@ -17,14 +17,9 @@ const horn=(backend='prolog',registry=new ReasoningRegistry({availability:()=>fa
  registry.run('prolog-tabling',{mode:'deduce',backend,query,memory:{facts:[observed],rules:[],complete:true,probes:0}});
 const fact='@f fact\n  holds likes ana book\n  valid timeless\n@s remember\n  input $f';
 
-// AGENTS.md: the two .agents/skills/training-* entries point to the local skill
-// folders (one physical source), other entries are pointers to an external
-// catalog, and no skill introduces a second project policy file.
-test('ported skills resolve by pointer to one physical source and add no project policy',()=>{
- for(const name of ['training-rules','training-runbook']){
-  const local=path.join(root,'skills',name,'SKILL.md'),ported=path.join(root,'.agents/skills',name,'SKILL.md');
-  assert.equal(fs.realpathSync(ported),fs.realpathSync(local));
- }
+// AGENTS.md: the entries of .agents/skills are pointers to an external catalog (the training skills moved to the frozen branch), and no skill
+// introduces a second project policy file.
+test('ported skills resolve by pointer to an external catalog and add no project policy',()=>{
  for(const entry of fs.readdirSync(path.join(root,'.agents/skills'),{withFileTypes:true})){
   const skill=path.join(root,'.agents/skills',entry.name);
   assert.ok(fs.lstatSync(skill).isSymbolicLink(),entry.name+' must resolve by pointer, not duplicate local rules');
@@ -32,7 +27,7 @@ test('ported skills resolve by pointer to one physical source and add no project
   const target=fs.realpathSync(skill);
   assert.ok(fs.statSync(path.join(target,'SKILL.md')).isFile(),entry.name);
   assert.equal(fs.existsSync(path.join(target,'AGENTS.md')),false,entry.name+' must not introduce project guidance');
-  if(!['training-rules','training-runbook'].includes(entry.name))assert.notEqual(target,path.join(root,'skills',entry.name));
+  assert.notEqual(target,path.join(root,'skills',entry.name));
  }
  for(const entry of fs.readdirSync(path.join(root,'skills'),{withFileTypes:true})){
   if(entry.isDirectory())assert.equal(fs.existsSync(path.join(root,'skills',entry.name,'AGENTS.md')),false,entry.name);

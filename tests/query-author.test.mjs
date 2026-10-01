@@ -1,4 +1,4 @@
-// The query author library (lib/query-author, DS031 "codingAgentQuery"): retrieval, vocabulary, context, validator, backends and the
+// The query author library (lib/query-author, DS022 "codingAgentQuery"): retrieval, vocabulary, context, validator, backends and the
 // repair loop, against stubs. No test calls a model.
 import test from 'node:test';
 import assert from 'node:assert/strict';

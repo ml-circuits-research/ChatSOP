@@ -15,10 +15,10 @@ const FRAMES = new Frames([
 ]);
 const p = (relation, ...roles) => ({relation, roles: roles.map(([name, value]) => ({name, value}))});
 
-test('frames TSV round-trips and rejects roles outside the DS021 inventory', () => {
+test('frames TSV round-trips and rejects roles outside the DS014 inventory', () => {
   const text = formatFrames([{id: 'x:a', relation: 'work at', roles: ['subject', 'object'], surfaces: ['work for'], source: 'world', note: 'n'}]);
   assert.deepEqual(parseFrames(text)[0].surfaces, ['work for']);
-  assert.throws(() => parseFrames('id\trelation\troles\tsurfaces\tsource\tnote\nx:a\twork at\tsubject|employer\t\t\t\n'), /DS021 inventory/);
+  assert.throws(() => parseFrames('id\trelation\troles\tsurfaces\tsource\tnote\nx:a\twork at\tsubject|employer\t\t\t\n'), /DS014 inventory/);
 });
 
 test('a synonym becomes the canonical relation and a single undeclared role is relabeled', () => {

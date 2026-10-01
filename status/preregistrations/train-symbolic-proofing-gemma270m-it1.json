@@ -4,7 +4,7 @@
  "name": "SymbolicProofingLLM iteration 1 (pilot): Gemma 3 270M IT + LoRA on datasets/neuro_english/proofing (role proofreader)",
  "registered_at": "2026-09-30T20:10:00Z",
  "registered_by": "symbolic-proofing-training-agent (owner decisions in status/journal.jsonl, actor orchestrator: 2026-09-30T17:32:38.274Z, 17:40:03.714Z, 17:41:07.339Z, 17:46:38.134Z)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_request": "Iteration 1 (of at most 1-2 approved) of SymbolicProofingLLM: fine-tune google/gemma-3-270m-it with LoRA on the oracle-verified neuro_english pairs (correct English -> the limited English SymbolicLM understands). No larger model in this iteration (Gemma 3 1B LoRA is the owner's fallback only if 270M clearly cannot learn). LanguageProofingLLM is a separate, later run.",
  "frozen_before_results": "Written before any optimizer step of this run and before any prediction of any checkpoint of this run on any split. Untrained-base and no-rewrite baselines are scored after this file is frozen.",
  "iteration": 1,

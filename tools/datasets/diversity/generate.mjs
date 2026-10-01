@@ -32,7 +32,7 @@ import { rowRights } from '../rights.mjs';
 import { relationWordProblems } from './relation-words.mjs';
 import { CHITCHAT, QUESTION_LEADS, SIGNOFFS, lengthTarget, listDigression } from './long.mjs';
 
-/** Family weights of the main corpus (DS022 mix rules): operator families (joins, temporal, filters, count,
+/** Family weights of the main corpus (DS015 mix rules): operator families (joins, temporal, filters, count,
  * constraints, conjunctions, anchors, time questions, universal questions) together at least 25% of rows, each
  * formerly blocked family at least 1.5%, and quotas per question type (quotas.mjs QUESTION_TYPE_MINIMA). */
 export const DEFAULT_FAMILY_WEIGHTS = {
@@ -41,9 +41,9 @@ export const DEFAULT_FAMILY_WEIGHTS = {
   // unclear and time questions rise with the expansion families so their quota floors keep holding.
   causal: 0.6, intention: 0.6, general_quantification: 1.3, unclear: 2.1,
   time_question: 2.8, where_question: 0.9, how_question: 0.7, why_question: 1, conjunction: 0.8, interpretation: 0.8, anchor: 0.9, ambiguity_visible: 0.9,
-  // Long multi-paragraph messages composed of independently realized parts (DS022 "Long messages"): about 7% of rows.
+  // Long multi-paragraph messages composed of independently realized parts (DS015 "Long messages"): about 7% of rows.
   long_message: 2.3,
-  // Expansion families (families-expansion.mjs, DS022 "Expansion families"): about 15% of rows together.
+  // Expansion families (families-expansion.mjs, DS015 "Expansion families"): about 15% of rows together.
   ...EXPANSION_WEIGHTS,
 };
 /** The out-of-distribution suite: generic families over the held-out domains only (families.mjs usePredicatePool). */
@@ -278,7 +278,7 @@ function realizeCase(spec, { language, questionLanguage, random, choose, switchV
 }
 
 /**
- * Accepted alternative readings of a genuinely ambiguous phrasing (owner decision Q-DATA-5, DS021/DS022): the
+ * Accepted alternative readings of a genuinely ambiguous phrasing (owner decision Q-DATA-5, DS014/DS015): the
  * primary target formalizes one plausible reading and each alternative another; evaluation accepts any of them.
  * The table is explicit. "Pentru ce e închisă sala?" asks what the hall is closed for (`select ?x … role topic
  * ?x`) or why it is closed (`mode explain` over "be closed").
@@ -422,7 +422,7 @@ async function caseRows({ family, group, split, language, mode, random, choose, 
       const realized = realizeCase(s, { language: clauseLanguage ?? language, questionLanguage: clauseLanguage ? language : null, random, choose, switchValues });
       let text = realized.text;
       if (seenTexts.has(text)) continue;
-      // DS022 relation-phrase convention: every content word of a stated or asked relation phrase is in the message.
+      // DS015 relation-phrase convention: every content word of a stated or asked relation phrase is in the message.
       const relationProblems = relationWordProblems(realized.surface, realized.text);
       if (relationProblems.length) throw Error(`${group}: ${relationProblems.join('; ')} in ${JSON.stringify(realized.text)}`);
       let code_switch = clauseLanguage ? { kind: 'clause_switch', matrix: language, embedded: clauseLanguage, inserted: [] }
@@ -482,7 +482,7 @@ async function caseRows({ family, group, split, language, mode, random, choose, 
       const idOfSurface = new Map([...realized.mentions.all].flatMap(([id, texts]) => [...texts].map(text => [text, id])));
       row.verification.link_problems = linkCheck(row, surface, idOfSurface, s.ambiguousMention);
       // Data QA: execute the model target itself, exactly as printed: the host normalizes the time expressions and
-      // resolves quoted filter literals (DS021), so no value is substituted. The ISO values stay recorded for review.
+      // resolves quoted filter literals (DS014), so no value is substituted. The ISO values stay recorded for review.
       const timeMap = Object.assign({}, ...[...surface.stated, ...surface.assumed, ...(surface.query?.props ?? [])].map(p => p.timeIso ?? {}));
       const executable = printed.target;
       row.verification.time_normalization = timeMap;
@@ -518,11 +518,11 @@ function linkCheck(row, surface, idOfSurface, ambiguousMention) {
   const full = rowWorld(row, { shared: SHARED }).ontology;
   if (!full.trim()) return [];
   try { lexicon = new Lexicon(full); } catch (error) { return [`lexicon: ${error.message}`]; }
-  // Interpretation assumptions ("mean", "refer to") are reported, never linked (DS021 report policy).
+  // Interpretation assumptions ("mean", "refer to") are reported, never linked (DS014 report policy).
   const props = [...surface.stated.map(p => [p, true]), ...surface.assumed.filter(p => !p.meta).map(p => [p, true]), ...(surface.query?.props ?? []).map(p => [p, false]), ...(surface.query?.scope ?? []).map(p => [p, false]), ...(surface.moreQueries ?? []).flatMap(q => [...q.props, ...(q.scope ?? [])]).map(p => [p, false])];
   for (const [p, exact] of props) {
     if (p.link && typeof linking.linkRelation === 'function') {
-      // A query's `role time ?t` is the host span when the predicate declares no time role (DS021).
+      // A query's `role time ?t` is the host span when the predicate declares no time role (DS014).
       const roles = p.roles.filter(([role, value]) => exact || !(role === 'time' && value.startsWith('?'))).map(([role]) => role);
       const linked = linking.linkRelation(p.relation, roles, lexicon, { exact });
       if (linked.status !== 'bound' || linked.id !== p.link.predicate) problems.push(`relation ${JSON.stringify(p.relation)} [${p.roles.map(([r]) => r)}] -> ${linked.status}${linked.id ? ' ' + linked.id : ''}, want ${p.link.predicate}`);
@@ -542,7 +542,7 @@ function linkCheck(row, surface, idOfSurface, ambiguousMention) {
 }
 const stripBindings = p => { const { bindings, ...rest } = p; return rest; };
 
-// ---------------------------------------------------------------- long messages (DS022 "Long messages")
+// ---------------------------------------------------------------- long messages (DS015 "Long messages")
 /** Folded relation phrases each predicate declares in the shared world (both orientations). */
 const PHRASES_OF = (() => {
   const out = new Map();

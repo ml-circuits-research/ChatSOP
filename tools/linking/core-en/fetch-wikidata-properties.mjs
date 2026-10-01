@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Fetch English and Romanian labels, aliases and descriptions of a curated list of Wikidata properties (CC0, DS014) into
+ * Fetch English and Romanian labels, aliases and descriptions of a curated list of Wikidata properties (CC0, DS011) into
  * the local source cache datasets_sources/core-en/wikidata-properties.json. Polite: one request per 50 ids with a project
  * User-Agent and a pause. The cache is input to the core-en authoring batches; nothing here is model input.
  */

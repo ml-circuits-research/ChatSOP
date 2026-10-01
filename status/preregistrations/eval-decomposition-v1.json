@@ -4,7 +4,7 @@
  "name": "Decomposition of tangled sentences: a ~300-case sealed evaluation set, catastrophic and silent failures first, detectability as a dimension, baselines for SymbolicProofingLLM iteration 2",
  "registered_at": "2026-10-01T07:20:00Z",
  "registered_by": "decomp-agent",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_request": "Replace the 16-case K6 by a larger decomposition set (about 300 cases) and prepare targeted data for iteration 3. Owner nuances (binding): the analysis must never fail completely; we hunt CATASTROPHIC defects and meaning changes (silent meaning changes, role or negation flips, invented content, a dropped question or request the user would not notice in the I-understood summary); losing some indications or facts is tolerable when the failure is detectable and intelligible, because the interface can show what was understood and ask for clarification.",
  "frozen_before_results": "Written after the suite was built (candidates, generated and certified expected decompositions, two-vote meaning judge) and before any arm was run or graded. The suite is sealed by construction: tangled rows of the sealed neuro_english test, plus DeepSeek tangled paraphrases of groups of sealed symbolic_english TEST sentences for the rare types. No training data is read.",
  "hypotheses": {
@@ -37,7 +37,7 @@
   "report": "tools/eval/decomposition-score.mjs; eval/reports/current/decomposition/summary.md",
   "stats": "Wilson 95% on rates; paired comparisons between arms on the same cases (exact paired counts)"
  },
- "decision_rule": "No lib/ change from this experiment. If H4 holds the partial-acceptance rule is proposed to the pipeline owner (DS021, section Partial acceptance of a decomposition); if H1 and H2 hold the report recommends it2-gated over it2-always for tangled messages.",
+ "decision_rule": "No lib/ change from this experiment. If H4 holds the partial-acceptance rule is proposed to the pipeline owner (DS014, section Partial acceptance of a decomposition); if H1 and H2 hold the report recommends it2-gated over it2-always for tangled messages.",
  "early_stopping": "Evaluation only, no training. The arms are deterministic post-processing of one cached set of greedy model outputs per unit; no staged sampling needed at 300 cases.",
  "non_goals": "no training, no lib/ change, no tuning on the suite; the training data prepared for iteration 3 (datasets/neuro_english/proofing-it3-decomp) is prepared, not trained",
  "deviations": [

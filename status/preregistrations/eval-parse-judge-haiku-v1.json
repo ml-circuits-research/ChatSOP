@@ -4,7 +4,7 @@
  "name": "Is Claude Haiku a reliable judge of a Stanza UD parse on clean English, and which hybrid is safe for gating entries into symbolic_english?",
  "registered_at": "2026-09-30T09:20:00Z",
  "registered_by": "parse-judge-agent (owner question relayed by the orchestrator)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_context": "Priority: make SymbolicLM's grammatical analysis correct on CLEAN English. Need to know whether a cheap teacher LLM can reliably judge a Stanza analysis (rubric v0 gave kappa 0.20 and a DEEP precision of 28% for Haiku without thinking).",
  "kind": "evaluation-only (LLM inference through headless `claude -p`; no training, no GPU)",
  "frozen_before_results": "Written before any judge call of this experiment. The stronger-judge (Claude fable-5-1) verdicts of eval-symbolic-layers-en-v1 (513 sentences: 433 adjudications + 80 blind calibration) are the reference; their distribution on the clean subset was read (152 CORRECT, 106 MINOR, 71 DEEP, 1 FAIL, 2 INPUT_TYPO of 332) before registration, no judge output was.",

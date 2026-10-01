@@ -155,32 +155,18 @@ test('model assumptions are reported, never used by the primary answer; an ambig
   assert.equal(asked.packet.status, 'clarify', 'the host never lets an assumption choose an ambiguous identity');
 });
 
-// A scripted TranslatorService (the output edge): marks the text so the test sees what was translated.
-const translated = (english, language) => ({text: `[${language}] ${english}`, backend: 'scripted-translator', placeholders: 0, ms: 1});
-
-test('unclear is the only wire; the reply is English and another answer language is its translation (output edge)', async t => {
+test('unclear is the only wire; the reply is English', async t => {
   const {agent, m} = await agentWith(t, ['@u unclear\n  kind gibberish', '@u unclear\n  kind no_request', '@u unclear\n  kind gibberish\n' + worksAsk('Maria')]);
   const english = await agent.turn('asdf qwer zxcv', turn);
   assert.equal(english.packet.status, 'unclear');
   assert.equal(english.unclear, 'gibberish');
   assert.equal(english.cnl, 'I did not understand the message. Could you rephrase?');
   assert.equal(english.executionSop, '');
-  const romanian = await agent.turn('Thanks! Answer in Romanian.', {rewrite: false, translateAnswer: translated});
-  assert.deepEqual([romanian.answerLanguage, romanian.languageSource], ['ro', 'prompt']);
-  assert.equal(romanian.englishText, 'I did not find a statement or a question in the message. What would you like to know?');
-  assert.equal(romanian.cnl, '[ro] ' + romanian.englishText);
-  assert.deepEqual([romanian.answerTranslation.status, romanian.answerTranslation.backend, romanian.answerTranslation.original], ['ok', 'scripted-translator', romanian.englishText]);
-  assert.equal(romanian.packet.answer_translation.language, 'ro');
+  const none = await agent.turn('Thanks!', turn);
+  assert.equal(none.englishText, 'I did not find a statement or a question in the message. What would you like to know?');
+  assert.equal(none.answerLanguage, 'en');
   await assert.rejects(() => agent.turn('asdf', turn), /unclear_not_alone/);
   assert.equal(m.requests.length, 3);
-});
-
-test('a translator that cannot run leaves the English answer and reports it; the conversation keeps the English text', async t => {
-  const {agent} = await agentWith(t, ['@u unclear\n  kind gibberish']);
-  const broken = await agent.turn('asdf qwer. Answer in Romanian.', {rewrite: false, translateAnswer: async () => { throw Object.assign(new Error('no translator model'), {code: 'backend_unavailable'}); }});
-  assert.equal(broken.cnl, 'I did not understand the message. Could you rephrase?');
-  assert.deepEqual([broken.answerTranslation.status, broken.answerTranslation.code], ['backend_unavailable', 'backend_unavailable']);
-  assert.equal(agent.recent.at(-1).response, 'I did not understand the message. Could you rephrase?');
 });
 
 test('an understood question without an engine is answered as not computable, not refused', async t => {

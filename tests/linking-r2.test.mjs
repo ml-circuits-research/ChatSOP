@@ -1,4 +1,4 @@
-// Linking R2 (eval-linking-v2; DS021 "KnowledgeLinker: scoring and ambiguity"): single-oblique role relabeling, the frame tier before the
+// Linking R2 (eval-linking-v2; DS014 "KnowledgeLinker: scoring and ambiguity"): single-oblique role relabeling, the frame tier before the
 // dictionary tiers, a leading article that is not part of an entity name, and the circuit rules of the memory in the chat turn.
 import test from 'node:test';
 import assert from 'node:assert/strict';

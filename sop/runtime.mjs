@@ -26,7 +26,7 @@ const isAssumptionFact=x=>x?.kind==='fact'&&x.source==='assumption';
 const EVIDENCE_OPERANDS=['observation','tests','cue','holdout','candidates','source','target'];
 const evidence=items=>{assert(!items.some(isAssumptionFact),'assumption_fact_not_evidence: a source assumption fact may only be consumed through assume');return items;};
 // jsEval and value expressions are always available to trusted and host circuits; the model surface cannot author them.
-// modelAssumptions: 'report' lists model `assumed` wires only; 'branch' also runs a separate hypothetical solve (DS021).
+// modelAssumptions: 'report' lists model `assumed` wires only; 'branch' also runs a separate hypothetical solve (DS014).
 export const DEFAULT_POLICY={allowWrite:true,allowPin:true,allowRules:false,modelAssumptions:'report',maxModelAssumptions:8,maxWires:2048,maxEpochs:16,maxGoals:256,maxRules:1024,retrievalStrategy:'hybrid',closedWorld:'view',reasoningStrategy:'reference',maxNodes:5000,maxDepth:8,maxHypotheses:64,maxCandidates:512,maxPlans:1,timeoutMs:3000,maxProbes:50000,maxShards:256,maxFacts:10000,maxRounds:32,maxJoins:30000,maxAssignments:100000,maxExprOps:10000,maxExprBytes:65536};
 export class Runtime{
  constructor({repo=null,session=null,schema=null,lexicon=null,closed=null,now=Date.now(),policy={},handlers={},strategies=new StrategyRegistry(),reasoningStrategies=new ReasoningRegistry(),factGuard=null,circuitRules=null}={}){this.circuitRules=circuitRules;this.repo=repo;this.session=session;this.schema=schema;this.lexicon=lexicon;this.closed=closed;this.now=now;this.policy={...DEFAULT_POLICY,...policy};this.handlers=handlers;this.strategies=strategies;this.reasoningStrategies=reasoningStrategies;this.factGuard=factGuard;}

@@ -1,5 +1,5 @@
 /**
- * Graded severity scale (DS016 "Graded severity (S0-S4, NONE)", owner direction 2026-10-01): the shades of grey between
+ * Graded severity scale (DS012 "Graded severity (S0-S4, NONE)", owner direction 2026-10-01): the shades of grey between
  * pass and fail for a rewrite (input text -> output text) and for an interpretation (message -> SymbolicLM analysis/SOP
  * against gold). Pure data and small helpers; the graders live in this folder, the tools in tools/eval/severity-*.mjs.
  */

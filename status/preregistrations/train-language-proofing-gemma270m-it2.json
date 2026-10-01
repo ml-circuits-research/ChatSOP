@@ -4,7 +4,7 @@
  "name": "LanguageProofingLLM iteration 2: Gemma 3 270M IT + LoRA on datasets/bad_english/proofing-v2 (role proofreader), sentence level, vocabulary-covering data",
  "registered_at": "2026-10-01T00:20:00Z",
  "registered_by": "language-proofing-it2-agent (owner decisions in status/journal.jsonl, actor orchestrator: 2026-09-30T17:32:38.274Z, 17:41:07.339Z, 17:46:38.134Z, 19:58:29.661Z, 22:48:59.650Z, 22:54:36.651Z)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_request": "Iteration 2 of LanguageProofingLLM: same base, same recipe, new data: the iteration-1 projection plus DeepSeek back-generated pairs with a systematic vocabulary list (family, work roles, verbs, places), rule-written family-relation pairs, 22% identity pairs (clean English to itself, with lead-ins and tags), keyboard-mash identity pairs, and a held-out vocabulary dev. Comparisons only on our synthetic data: iteration 2 against iteration 1, the untrained gemma-3-270m-it and no rewrite. No Gemma 3 1B in this run.",
  "frozen_before_results": "Written before any optimizer step of this run and before any prediction of any checkpoint of this run on any sealed file. Outputs of the baselines (no rewrite, untrained base, iteration 1) on the sealed proofing test and the judged sample are iteration-1 outputs of identical greedy decoding and are reused; their scores are recomputed here.",
  "iteration": 2,

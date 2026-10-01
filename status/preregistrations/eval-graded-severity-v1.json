@@ -4,7 +4,7 @@
  "name": "Graded severity (S0-S4, NONE): a cascade grader, its calibration, the current systems in shades of grey, and a never-NONE fallback cascade",
  "registered_at": "2026-10-01T04:00:00Z",
  "registered_by": "severity-eval-agent (owner direction of 2026-10-01; evaluation only: no training, CPU llama-server and CPU Stanza, LLM judges through omp)",
- "spec": "docs/specs/DS016-evaluation-metrics.md#graded-severity-s0s4-none",
+ "spec": "docs/specs/DS012-evaluation-metrics.md#graded-severity-s0s4-none",
  "kind": "evaluation-only",
  "frozen_before_results": "The scale, the judge prompt (severity-judge-v1) and the gold severities of the calibration set were written before any judge verdict was read. The mechanical layer (severity-mechanical-v1) was tuned on the calibration set (zero false S4 there is therefore not a held-out number; held-out evidence is the manual reading of examples). The SOP comparer (severity-sop-v1) was tuned by reading its S4 findings on the sealed tests (deviation D1). The cascade design and acceptance rule were fixed before the first cascade run.",
  "question": "Can a rewrite or an interpretation be graded on S0-S4/NONE reliably enough to find catastrophic cases (S4 recall at least 95%), and how large are the S4 and NONE rates of the current SymbolicLM, SymbolicProofingLLM it2 and LanguageProofingLLM it1/it2? Does a fallback cascade remove NONE without catastrophic readings?",

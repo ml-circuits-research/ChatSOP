@@ -12,7 +12,7 @@ const unescape = s => s.replaceAll('&quot;', '"').replaceAll('&lt;', '<').replac
 test('the product examples of docs/api.html match the live handlers', async t => {
   const html = fs.readFileSync(repoPath('docs/api.html'), 'utf8');
   const examples = [...html.matchAll(/<pre class="api-example product-example" data-endpoint="(\S+) (\S+)" data-request="([^"]*)" data-as="(admin|user)" data-status="(\d+)" data-response-keys="([^"]*)">/g)];
-  assert.ok(examples.length >= 17, 'every product endpoint has an executable example');
+  assert.ok(examples.length >= 16, 'every product endpoint has an executable example');
   const saved = {STUB_OMP_MODE: process.env.STUB_OMP_MODE, STUB_OMP_GOOD: process.env.STUB_OMP_GOOD};
   process.env.STUB_OMP_MODE = 'good';
   process.env.STUB_OMP_GOOD = repoPath('tests/fixtures/omp/doc-authored.sop');
@@ -30,8 +30,8 @@ test('the product examples of docs/api.html match the live handlers', async t =>
     if (route === '/v1/author') Object.assign(ctx, {draft: res.body.draft.id, request: res.body.request_id});
   }
   for (const wanted of ['GET /v1/memories', 'POST /v1/memories', 'GET /v1/memories/{id}', 'POST /v1/memories/{id}/fork', 'POST /v1/memories/{id}/knowledge', 'POST /v1/sessions', 'GET /v1/sessions/{id}',
-    'POST /v1/sessions/{id}/settings', 'GET /v1/sessions/{id}/theory', 'POST /v1/sessions/{id}/query', 'POST /v1/sessions/{id}/commit', 'POST /v1/sessions/{id}/scope-answer', 'GET /v1/omp/models',
-    'POST /v1/route', 'POST /v1/author', 'GET /v1/sessions/{id}/drafts', 'GET /v1/sessions/{id}/requests/{request}', 'POST /v1/sessions/{id}/drafts/{draft}/accept']) {
+    'POST /v1/sessions/{id}/settings', 'GET /v1/sessions/{id}/theory', 'POST /v1/sessions/{id}/query', 'POST /v1/sessions/{id}/commit', 'GET /v1/omp/models',
+    'POST /v1/author', 'GET /v1/sessions/{id}/drafts', 'GET /v1/sessions/{id}/requests/{request}', 'POST /v1/sessions/{id}/drafts/{draft}/accept']) {
     assert.ok(documented.has(wanted), wanted + ' has an example');
   }
 });
@@ -40,7 +40,7 @@ test('docs/api.html lists every product endpoint of the server in its table', as
   const html = fs.readFileSync(repoPath('docs/api.html'), 'utf8');
   const s = await productServer(t);
   const caps = await s.user('/v1/capabilities');
-  for (const e of caps.body.endpoints.filter(x => /^\/v1\/(memories|sessions|omp|author|route)/.test(x.path))) {
+  for (const e of caps.body.endpoints.filter(x => /^\/v1\/(memories|sessions|omp|author)/.test(x.path))) {
     const short = e.path.replace(/\{[a-z]+\}/g, m => m).replace('/v1/sessions/{id}/', '').replace('/v1/memories/{id}/', '');
     assert.ok(html.includes(e.path.split('{')[0].replace(/\/$/, '')) || html.includes(short), `${e.method} ${e.path} appears on the page`);
   }

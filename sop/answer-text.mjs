@@ -1,5 +1,5 @@
 /**
- * The English answer of a query result packet, written from the packet by fixed templates (no model, DS021 "Answer rendering"):
+ * The English answer of a query result packet, written from the packet by fixed templates (no model, DS014 "Answer rendering"):
  *   wh-question   the answer values with readable labels ("Answer: Paris."; several values as a list; a count with "at least" when incomplete),
  *   yes/no        "Yes." / "No." / "I don't know." with the reason,
  *   evidence      a short justification: each supporting fact as a sentence with its source, the rule that derived it, and an origin label

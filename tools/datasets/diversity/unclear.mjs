@@ -1,4 +1,4 @@
-/** Generators of messages the model marks `unclear`, one per kind of sop/unclear.mjs (DS021): `gibberish`
+/** Generators of messages the model marks `unclear`, one per kind of sop/unclear.mjs (DS014): `gibberish`
  * (unintelligible text) and `no_request` (no statement or question: greetings, thanks, acknowledgements,
  * unrelated requests such as "write a poem"). Each method composes original material in EN, RO or both;
  * noise (typos, missing diacritics) is added by the builder like for any other row.

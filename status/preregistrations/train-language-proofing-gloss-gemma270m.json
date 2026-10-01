@@ -5,7 +5,7 @@
  "registered_at": "2026-10-01T06:12:22.000Z",
  "registered_by": "gloss-agent",
  "status": "trained and evaluated 2026-10-01 (run langproof-gloss-train-a3); report eval/reports/current/language-proofing-gloss/summary.md",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "frozen_before_results": "Written before any optimizer step and before any prediction of any model of this run on any file. The pre-training measurements of the gloss itself (experiment eval-gloss-v1, eval/reports/current/gloss/summary.md) were made before this record and are quoted below as reference points; they used the frozen gloss code (lib/translator-service/backends/gloss.mjs sha256 ab6ffb49a2f779d880e4cae7bdeeeedf7b71aa3ee388c2e3a0d8b41ae9270187) and the dev sets, never a sealed file.",
  "owner_request": "Owner idea 2026-10-01 (translated): use the dictionaries intelligently; recognise the grammatical forms of the words, translate word by word between Romanian and English in the grammatically correct forms; is that enough for LanguageProofingLLM to rephrase it into decent, useful English, so that SymbolicProofingLLM can then produce a variant SymbolicLM can analyse? Reason: Gemma 3 270M does not generalize to unseen Romanian words (held-out vocabulary 45.8% against 42.1% for no rewrite, iteration 2); if the gloss puts the English words in, the model only has to fix word order and grammar (post-editing), which does not depend on vocabulary.",
  "authorization": {
@@ -13,7 +13,7 @@
   "scope_file": "status/training/owner-approval-language-proofing-gloss.json",
   "receipt": "status/training/authorization-gemma-language-proofing-gloss-gemma270m.json",
   "receipt_sha256": "202139d12a5af3bfacd6411804ef80cb0075bd0a2ec7f7648cabee04e20ae913",
-  "qualification": "status/training/qualification-language-proofing-gloss.json (re-qualified 2026-10-01 after DS014 changed; same data)"
+  "qualification": "status/training/qualification-language-proofing-gloss.json (re-qualified 2026-10-01 after DS011 changed; same data)"
  },
  "questions": [
   "Q1 (owner question): is a morphology-aware word-by-word gloss enough for the 270M post-editor to produce decent English, so that vocabulary no longer limits it? Measured on the eight NEW held-out words of iteration 3 (nephew, landlord, contractor, postpone, reject, bakery, warehouse, pharmacy: removed from this run's train, prompt and target), against iteration 3 (message-only prompt) and the gloss alone.",

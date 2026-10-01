@@ -4,7 +4,7 @@
  "name": "Composed evaluation: known forms in long and mixed paragraphs (SymbolicLM, SymbolicProofingLLM and LanguageProofingLLM baselines)",
  "registered_at": "2026-09-30T18:50:00Z",
  "registered_by": "composed-eval-agent (owner request of 2026-09-30 relayed by the orchestrator: evaluation is an engineering check; no training, CPU inference only)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "kind": "evaluation-only (Stanza and llama.cpp inference on CPU with existing artifacts; no optimizer step, no training data change)",
  "frozen_before_results": "Written after the builders (tools/eval/composed-suites.mjs, tools/eval/composed/*), the scorer (tools/eval/composed-score.mjs) and the comparison rules were built and exercised on fixtures and after a 400-case pilot run of SymbolicLM on K1 that was used only to debug the scorer (deviation D1 below), and before any rewriter prediction on a composed suite. The composed suites are rebuilt from the sealed test files after the rebuild of the three datasets by accurate-agent (rules v2); numbers measured on the earlier suites are a pilot and are reported as such. Later changes are recorded deviations.",
  "question": "Does the system still make no mistakes on forms it handles alone when many of them are put in one paragraph, and when handled forms are mixed with forms it does not handle? Does a small rewriter leave clean sentences untouched and repair the bad ones at lengths beyond its training length?",

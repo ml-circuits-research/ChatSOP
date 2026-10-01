@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "note": "Language data of the KnowledgeLinker (DS021): the words of the copula and the nouns and adjectives it classifies. It names no predicate: which predicates carry a copula reading is declared by the base memory (`reading` on a predicate wire). A base memory may ship its own file of the same shape; `relations` maps extra relation phrases to predicates of that memory.",
+  "note": "Language data of the KnowledgeLinker (DS014): the words of the copula and the nouns and adjectives it classifies. It names no predicate: which predicates carry a copula reading is declared by the base memory (`reading` on a predicate wire). A base memory may ship its own file of the same shape; `relations` maps extra relation phrases to predicates of that memory.",
   "copula": {
     "verbs": ["be", "is", "are", "was", "were", "been", "fi", "este", "e", "sunt", "era", "a fi"],
     "indefinite": ["a", "an", "un", "o", "niste"],

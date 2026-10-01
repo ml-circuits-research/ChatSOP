@@ -4,7 +4,7 @@
  "name": "TranslatorService mode `gloss`: a morphology-aware word-by-word Romanian to English gloss as the input of LanguageProofingLLM (measurement of the gloss itself, no training)",
  "registered_at": "2026-10-01T05:51:00.000Z",
  "registered_by": "gloss-agent",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "frozen_before_results": "NOT frozen before the first measurements: the gloss was developed iteratively on the dev2300 sample and its read sub-samples (seeds 3, 5, 11, 21, 22) and the dev held-out words, so those numbers are development numbers. This record was written after the code was frozen (lib/translator-service/backends/gloss.mjs sha256 ab6ffb49a2f779d880e4cae7bdeeeedf7b71aa3ee388c2e3a0d8b41ae9270187, symbolic.mjs b8fd5bd6...) and before the final runs reported in the summary; the final runs used only the frozen code. The two read samples reported as accuracy (seed 99, 50 Romanian sentences; seed 98, 30 mixed sentences, both from the full dev split) and the niche probe of eval-translator-compare-v1 were read after the freeze. The romglish probe (30 sentences) was written by the author of the rules and is a demonstration, not an independent test.",
  "owner_request": "Owner idea 2026-10-01 (translated): use the dictionaries intelligently; recognise the grammatical forms, do a word-by-word translation Romanian-English in the grammatically correct forms; would that be enough for LanguageProofingLLM to rephrase it into decent, useful English? Follow-up of the same day: the gloss must also work on romgleza.",
  "questions": [

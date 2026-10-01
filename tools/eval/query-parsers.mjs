@@ -1,20 +1,19 @@
 #!/usr/bin/env node
 /**
- * Request parser comparison (experiment eval-query-parsers-v1, DS010): localQuery (SymbolicLM + KnowledgeLinker) against codingAgentQuery
- * (lib/query-author, omp) on the same questions over the same base memory, through the same shared path (Agent turn: admission, linking,
- * slice retrieval, StrategyRouter, oracle verification, completeness guard, rendering). In process, no server, no port; a failed coding
- * agent is NOT replaced by a local answer here (`fallbackToLocal: false`) and local does not retry with the agent.
+ * Evaluation of the coding agent as the circuit author (experiment eval-query-parsers-v1, DS007): lib/query-author with omp on the same questions over the
+ * same base memory, through the shared path (Agent turn: admission, linking, slice retrieval, StrategyRouter, oracle verification, completeness guard,
+ * rendering). In process, no server, no port; a failed coding agent is an error of the record (`parser_failed`), never replaced by another answer.
  *
- *   node tools/eval/query-parsers.mjs run    --suite world30|forms --parser local|coding_agent [--limit N] [--only q01,q02] [--concurrency 3] [--rows file] [--base world-v1] [--model provider/model] [--tag t] [--force]
+ *   node tools/eval/query-parsers.mjs run    --suite world30|forms [--model provider/model] [--limit N] [--only q01,q02] [--concurrency 3] [--rows file] [--base world-v1] [--tag t] [--force]
  *   node tools/eval/query-parsers.mjs recall --rows file [--k 24]   # recall of the gold predicates (the ids of the row's kb_query) in the retrieved candidates, no model
  *   node tools/eval/query-parsers.mjs report [--suites world30,forms]
  *
- * Suites: `world30` = eval/world-kb/questions.json (30 questions; the six Romanian ones are asked in their English form, the input edge is
- * not under test); `forms` = a JSONL of {id, form, question, gold} (the dev set of tools/eval/query-forms, --rows). Outcomes per question:
- * `correct`, `wrong` (a definite answer that differs from the gold: the dangerous class), `honest_unknown` (unknown, clarify, incomplete,
- * unclear, not computable...: no answer given), `parser_failed`, `error`. Latency is the parser time and the whole turn, cost the omp cost.
- * Outputs: eval/reports/current/query-parsers/<suite>-<parser><tag>.jsonl, report.json, report.md. The sealed suites of kbqa.mjs are run through
- * `node tools/eval/kbqa.mjs run --parser ...`, once.
+ * Suites: `world30` = eval/world-kb/questions.json (30 questions; the six Romanian ones are asked in their English form: the coding agent reads any
+ * language, but the gold of this suite was written for the English form); `forms` = a JSONL of {id, form, question, gold} (the dev set of
+ * tools/eval/query-forms, --rows). Outcomes per question: `correct`, `wrong` (a definite answer that differs from the gold: the dangerous class),
+ * `honest_unknown` (unknown, clarify, incomplete, unclear, not computable...: no answer given), `parser_failed`, `error`. Latency is the parser time
+ * and the whole turn, cost the omp cost. Outputs: eval/reports/current/query-parsers/<suite>-<model><tag>.jsonl, report.json, report.md. The sealed
+ * suites of kbqa.mjs are run through `node tools/eval/kbqa.mjs run --suite ... [--model ...]`, once.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -45,11 +44,11 @@ export function judgeGold(gold, packet) {
   const values = (packet.answers ?? []).flatMap(a => Object.values(a.binding ?? {})).map(v => (typeof v === 'number' ? v : String(v).toLowerCase()));
   return Array.isArray(gold) && sameSet(values, gold.map(v => (typeof v === 'number' ? v : String(v).toLowerCase())));
 }
-export const outcomeOf = (pass, packet, error) => error ? (error.code === 'parser_failed' ? 'parser_failed' : 'error') : pass ? 'correct' : DEFINITE.has(packet?.status) ? 'wrong' : 'honest_unknown';
+export const outcomeOf = (pass, packet, error) => error ? ((error.code === 'parse_failed' || error.code === 'parse_unavailable') ? 'parser_failed' : 'error') : pass ? 'correct' : DEFINITE.has(packet?.status) ? 'wrong' : 'honest_unknown';
 
 async function run(args) {
   const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : d; };
-  const suite = opt('--suite', 'world30'), parser = opt('--parser', 'coding_agent'), tag = opt('--tag', '') ? '-' + opt('--tag') : '';
+  const suite = opt('--suite', 'world30'), model = opt('--model', null), parser = (model ?? 'coding_agent').replace(/[^A-Za-z0-9._-]+/g, '_'), tag = opt('--tag', '') ? '-' + opt('--tag') : '';
   const out = path.join(OUT, `${suite}-${parser}${tag}.jsonl`);
   fs.mkdirSync(OUT, {recursive: true});
   const done = new Set(!args.includes('--force') && fs.existsSync(out) ? fs.readFileSync(out, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l).id) : []);
@@ -66,28 +65,22 @@ async function run(args) {
   const base = opt('--base', 'world-v1');
   const session = openSession({base, id: `qp-${parser}-${Date.now().toString(36)}`});
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8'));
-  const settings = queryParserSettings({queryParser: {...(config.queryParser ?? {}), fallbackToLocal: false, fallbackOnLocalAbstain: false, ...(opt('--model', null) ? {backend: {...(config.queryParser?.backend ?? {}), model: opt('--model')}} : {}), cacheEntries: 0}});
+  const settings = queryParserSettings({queryParser: {...(config.queryParser ?? {}), ...(model ? {models: [model], backend: {...(config.queryParser?.backend ?? {}), model}} : {}), cacheEntries: 0}});
   const omp = ompSettings(config);
   const queryParser = createQueryParser({settings, ompConfig: omp, ompModels: createOmpModels(omp)});
-  const slm = process.env.KBQA_SLM_URL ?? 'http://127.0.0.1:19411';
-  const local = async text => {
-    const res = await fetch(`${slm}/v1/chat/completions`, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({messages: [{role: 'user', content: text}]}), signal: AbortSignal.timeout(60000)});
-    if (!res.ok) throw new Error(`SymbolicLM HTTP ${res.status}`);
-    return (await res.json()).choices[0].message.content;
-  };
   const lexicon = session.sessions.lexicon(session.id);
   const asOne = async row => {
     const started = Date.now();
     let parse = null, result = null, error = null;
     const entry = session.store.get('qp', 'c-' + row.id, BASE_NAME);
-    const formalizer = {id: parser, formalize: async text => { const r = await queryParser.parse({parser, message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, local: () => local(text)}); parse = r.parse; return r.sop; }};
-    try { result = await entry.agent.turn(row.question, {language: 'en', answerLanguage: 'en', languageSource: 'api', formalizer}); } catch (e) { error = e; parse = parse ?? e.parse ?? null; }
+    const formalizer = {id: parser, formalize: async text => { const r = await queryParser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); parse = r.parse; return r.sop; }};
+    try { result = await entry.agent.turn(row.question, {formalizer}); } catch (e) { error = e; parse = parse ?? e.parse ?? null; }
     const packet = result?.packet ?? null;
     const pass = !error && (suite === 'world30' ? judgeWorld(row, packet, result.text ?? '', labels) : judgeGold(row.gold, packet));
     return {id: row.id, form: row.form ?? row.kind ?? null, question: row.question, parser, outcome: outcomeOf(pass, packet, error), status: packet?.status ?? null, text: (result?.text ?? '').slice(0, 300),
       model_sop: result?.sop ?? null, parse, error: error ? String(error.message).slice(0, 300) : null, parse_ms: parse?.ms ?? null, total_ms: Date.now() - started, cost_usd: parse?.cost_usd ?? 0, gold: row.gold ?? row.expect ?? null};
   };
-  const concurrency = Number(opt('--concurrency', parser === 'coding_agent' ? 3 : 1));
+  const concurrency = Number(opt('--concurrency', 3));
   const queue = [...rows];
   const workers = Array.from({length: concurrency}, async () => {
     for (let row; (row = queue.shift());) {
@@ -139,8 +132,6 @@ function report(args) {
   const table = [];
   const files = fs.existsSync(OUT) ? fs.readdirSync(OUT).filter(f => f.endsWith('.jsonl')).sort() : [];
   for (const suite of suites) for (const name of files.filter(f => f.startsWith(suite + '-'))) {
-    const [parser, ...tagParts] = name.slice(suite.length + 1, -'.jsonl'.length).split('-');
-    if (!['local', 'coding_agent'].includes(parser.replace(/^coding$/, 'coding_agent')) && !name.includes('coding_agent')) continue;
     const label = name.slice(suite.length + 1, -'.jsonl'.length);
     const file = path.join(OUT, name);
     const rows = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l));
@@ -150,7 +141,7 @@ function report(args) {
       accuracy_pct: pct(count('correct'), n), wrong_pct: pct(count('wrong'), n), unknown_pct: pct(count('honest_unknown'), n), parse_ms_median: quantile(rows.map(r => r.parse_ms ?? 0), 0.5), parse_ms_p90: quantile(rows.map(r => r.parse_ms ?? 0), 0.9),
       total_ms_median: quantile(rows.map(r => r.total_ms), 0.5), cost_usd_total: Math.round(cost * 1e5) / 1e5, cost_usd_per_question: n ? Math.round((cost / n) * 1e5) / 1e5 : null});
   }
-  const md = ['# Request parsers (eval-query-parsers-v1)', '', '| suite | parser | n | correct | wrong | honest unknown | parser failed | error | median parse ms | p90 parse ms | median turn ms | USD/question |', '|---|---|---|---|---|---|---|---|---|---|---|---|',
+  const md = ['# Circuit author: the coding agent (eval-query-parsers-v1)', '', '| suite | model | n | correct | wrong | honest unknown | parser failed | error | median parse ms | p90 parse ms | median turn ms | USD/question |', '|---|---|---|---|---|---|---|---|---|---|---|---|',
     ...table.map(r => `| ${r.suite} | ${r.parser} | ${r.n} | ${r.correct} (${r.accuracy_pct}%) | ${r.wrong} (${r.wrong_pct}%) | ${r.honest_unknown} (${r.unknown_pct}%) | ${r.parser_failed} | ${r.error} | ${r.parse_ms_median} | ${r.parse_ms_p90} | ${r.total_ms_median} | ${r.cost_usd_per_question} |`), ''].join('\n');
   fs.mkdirSync(OUT, {recursive: true});
   fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify({generated_at: new Date().toISOString(), table}, null, 1) + '\n');
@@ -163,5 +154,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (command === 'run') { await run(rest); process.exit(0); }
   else if (command === 'recall') { await recall(rest); process.exit(0); }
   else if (command === 'report') report(rest);
-  else { console.error('usage: node tools/eval/query-parsers.mjs run|report [--suite world30|forms] [--parser local|coding_agent]'); process.exit(2); }
+  else { console.error('usage: node tools/eval/query-parsers.mjs run|report [--suite world30|forms] [--model provider/model]'); process.exit(2); }
 }

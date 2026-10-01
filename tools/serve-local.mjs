@@ -2,17 +2,17 @@
 /** Convenience launcher for the local server: documentation site, admin page and
  * the OpenAI-compatible chat API on one port.
  *
- *   npm start                       # 0.0.0.0:9999 (all interfaces) — docs, admin, corpus audit and chat
+ *   npm start                       # 0.0.0.0:9999 (all interfaces) — docs, admin, experiments and chat
  *   CHATSOP_PORT=9000 npm start
  *   CHATSOP_HOST=127.0.0.1 npm start # loopback only
  *
- * Open the home URL in a browser: it links to the chat, the corpus audit, the
+ * Open the home URL in a browser: it links to the chat, the experiments, the
  * admin page and the documentation. On the first run the sign-in page asks for
  * the administrator password; the chat API stays blocked until it is set.
  * `CHATSOP_API_KEY` keeps working as an environment-provided bearer token for
  * scripts and SDKs, and `CHATSOP_CONFIG` selects another runtime configuration.
- * The chat's formalizer models come from config/formalizers.json; the server
- * runs the selected one in a CPU llama-server on demand (DS012 "Formalizer models").
+ * The chat's circuit author is the omp coding agent; its subscription chain is `queryParser.models` of the runtime
+ * configuration (DS009 "Request parser").
  */
 import os from 'node:os';
 import {startServer} from '../server/http.mjs';
@@ -29,12 +29,10 @@ const shown = host === '0.0.0.0'
   : [host];
 
 console.log(`\nChatSOP server on ${host}:${address.port}`);
-console.log('\nOpen the home page in a browser, sign in, then use Chat, Corpus audit, Admin and Docs:');
+console.log('\nOpen the home page in a browser, sign in, then use Chat, Experiments, Admin and Docs:');
 for (const base of shown) console.log(`  home          : http://${base}:${address.port}/`);
 const [first] = shown;
 console.log(`\n  chat          : http://${first}:${address.port}/chat`);
-console.log(`  corpus audit  : http://${first}:${address.port}/audit`);
-console.log(`  evaluation    : http://${first}:${address.port}/eval`);
 console.log(`  experiments   : http://${first}:${address.port}/experiments`);
 console.log(`  admin         : http://${first}:${address.port}/admin`);
 console.log(`  documentation : http://${first}:${address.port}/docs/`);
@@ -47,12 +45,6 @@ if (server.auth?.configured) {
 } else {
   console.log('  authentication: open the home URL in a browser and choose the administrator password');
 }
-if (server.formalizers) {
-  const {registry, manager} = server.formalizers;
-  console.log(`\nFormalizer models (${registry.file}): ${registry.models.map(m => m.id + (m.id === registry.default ? ' (default)' : '')).join(', ')}`);
-  console.log(`  choose one in the chat; a selected model starts a CPU llama-server on demand (${manager.bin ?? 'llama-server NOT FOUND: set LLAMA_SERVER_BIN'})`);
-} else {
-  console.log('\nChat answers 503 until a formalizer endpoint is configured and ready; documentation, admin and audit work immediately. The home page shows the formalizer state.');
-}
+console.log(`\nCircuit author: the omp coding agent, model chain ${(server.queryParser?.settings.models ?? []).join(' -> ') || '(none configured)'}; without a usable model the chat answers parse_unavailable (503). The home page shows the state.`);
 if (host !== '127.0.0.1' && host !== '::1' && host !== 'localhost') console.log('Remote binding: the documentation path is unauthenticated, so expose this only on a trusted network.');
 console.log('Stop with Ctrl+C.\n');

@@ -1,45 +1,38 @@
 /**
- * The request parsers of a chat turn (DS031 "Request parsers"): two ways to turn the user's English message into the model-surface SOP that
- * the shared symbolic path (admission, KnowledgeLinker, slice retrieval, StrategyRouter, oracle verification, completeness guard,
- * rendering) executes.
+ * The request parser of a chat turn (DS009 "Request parser", DS014 "The circuit author"): the coding agent (omp, or any chat-completion
+ * endpoint) turns the user's message into the model-surface SOP that the shared symbolic path (admission, KnowledgeLinker, slice
+ * retrieval, StrategyRouter, oracle verification, completeness guard, rendering) executes.
  *
- *   localQuery        SymbolicLM (Stanza analysis + the UD-to-SOP rules) and the KnowledgeLinker, the path of the product so far;
- *   codingAgentQuery  a coding agent (lib/query-author: omp with the fence of lib/omp, or any chat-completion endpoint) that reads the message
- *                     and the vocabulary of the session's memory and writes `query.sop`; it never answers and never adds a fact.
+ * The coding agent reads the message and the vocabulary of the session's memory (lib/query-author) and writes circuits: a query, or a
+ * labelled `unclear` verdict. It never answers and never adds a fact. There is no other parser and no fallback: when no model of the
+ * subscription chain can run, the turn fails with the honest code `parse_unavailable` (503); a coding agent that ran but delivered no
+ * valid circuit fails with `parse_failed` (422). Both errors carry the `parse` record for the trace.
  *
- * `parser` is `coding_agent` (the default) or `local`: a request field, else the session setting, else `queryParser.default` of
- * config/runtime.json. Whatever produced the circuit, the answer is executed and checked symbolically, and the packet carries
- * `parse: {parser, model, rounds, cost_usd, ms, fallback, ...}`. A failing coding agent (omp missing, timeout, invalid output, a
- * message that is not a query) falls back to localQuery and says so; a localQuery that abstains (`unclear`) or fails is retried with
- * the coding agent when the default is local. Identical requests are cached per memory version, model and guide version.
+ * `queryParser.models` is the subscription chain (a list of model ids tried in order; a model omp cannot use is skipped, a run that does
+ * not deliver moves on to the next one); without it the chain is `[backend.model]`. Whatever produced the circuit, the answer is executed
+ * and checked symbolically, and the packet carries `parse: {parser: 'coding_agent', model, tried, rounds, cost_usd, ms, cache, ...}`.
+ * Identical requests are cached per memory version, model and guide version.
  */
 import {createHash} from 'node:crypto';
-import {parse as parseSop} from '../sop/parser.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {authorQuery, backendFrom} from '../lib/query-author/index.mjs';
 
-export const PARSERS = Object.freeze(['coding_agent', 'local']);
 export const DEFAULT_QUERY_PARSER = Object.freeze({
-  default: 'coding_agent', mode: 'id', candidates: 24, indexMax: 300, backend: {kind: 'omp', model: 'openai-codex/gpt-6-luna'}, timeoutSeconds: 120, maxFixRounds: 2, maxConcurrent: 4, cacheEntries: 500, fallbackOnLocalAbstain: true, fallbackToLocal: true, keepFolders: false,
+  mode: 'id', candidates: 24, indexMax: 300, backend: {kind: 'omp', model: 'openai-codex/gpt-6-luna'}, models: [], timeoutSeconds: 120, maxFixRounds: 2, maxConcurrent: 4, cacheEntries: 500, keepFolders: false,
 });
 
+/** The settings of the request parser: the defaults, `config.queryParser`, and the model chain (`models`, else the backend's model). */
 export function queryParserSettings(config = {}) {
   const merged = {...DEFAULT_QUERY_PARSER, ...(config.queryParser ?? {})};
   merged.backend = {...DEFAULT_QUERY_PARSER.backend, ...(config.queryParser?.backend ?? {})};
-  if (!PARSERS.includes(merged.default)) throw Error(`queryParser.default must be one of ${PARSERS.join(', ')}`);
+  const chain = Array.isArray(merged.models) && merged.models.length ? merged.models : [merged.backend.model].filter(Boolean);
+  merged.models = [...new Set(chain)];
   return merged;
 }
 
-const bad = (message, code = 'invalid_parameter', status = 400) => Object.assign(new Error(message), {status, code});
-export function checkParser(value, where = 'parser') {
-  if (value !== undefined && value !== null && !PARSERS.includes(value)) throw bad(`${where} must be one of ${PARSERS.join(', ')}`);
-  return value ?? null;
-}
-
 const normalize = text => String(text).normalize('NFKC').replace(/\s+/g, ' ').trim().toLowerCase();
-const abstains = sop => { try { const wires = parseSop(sop).wires; return wires.length === 1 && wires[0].type === 'unclear'; } catch { return false; } };
 
 class Lru {
   constructor(max) { this.max = max; this.map = new Map(); }
@@ -52,99 +45,83 @@ class Lru {
  * `ompModels`: the OmpModels of lib/omp (availability and the model list), `ompConfig`: ompSettings(config), `chatData`: for the request folders,
  * `backendFactory(settings)` builds the backend (tests inject a stub or a stub omp runner).
  */
-export function createQueryParser({settings = DEFAULT_QUERY_PARSER, ompConfig = {}, ompModels = null, chatData = null, runner = undefined, fetchImpl = undefined, backendFactory = null, now = Date.now} = {}) {
+export function createQueryParser({settings = queryParserSettings(), ompConfig = {}, ompModels = null, chatData = null, runner = undefined, fetchImpl = undefined, backendFactory = null, now = Date.now} = {}) {
   const cache = new Lru(settings.cacheEntries);
   let running = 0;
-  const stats = {requests: 0, cache_hits: 0, coding_agent: 0, local: 0, fallbacks: 0};
+  const stats = {requests: 0, cache_hits: 0, coding_agent: 0, failures: 0, model_switches: 0};
 
-  const backend = () => (backendFactory ?? (s => backendFrom(s, {
+  const backendFor = model => (backendFactory ?? (s => backendFrom(s, {
     timeoutMs: settings.timeoutSeconds * 1000, ...(s.kind === 'omp' ? {bin: ompConfig.bin ?? 'omp', thinking: ompConfig.thinking ?? null, ...(runner ? {runner} : {})} : {...(fetchImpl ? {fetchImpl} : {})}),
-  })))({...settings.backend});
+  })))({...settings.backend, ...(model ? {model} : {})});
 
-  /** Whether the coding agent can run now; `reason` otherwise. */
-  async function availability() {
-    if (settings.backend.kind !== 'omp') return {available: true};
-    if (ompConfig.enabled === false) return {available: false, reason: 'the coding agent (omp) is disabled by the omp.enabled setting'};
-    if (!ompModels) return {available: true};
+  /** Which models of the chain can run now, and why not for the others. */
+  async function availability(preferredModel = null) {
+    const chain = preferredModel ? [...new Set([preferredModel, ...settings.models])] : settings.models.length ? settings.models : [null];
+    if (settings.backend.kind !== 'omp') return {available: true, models: chain, skipped: []};
+    if (ompConfig.enabled === false) return {available: false, reason: 'the coding agent (omp) is disabled by the omp.enabled setting', models: [], skipped: []};
+    if (!ompModels) return {available: true, models: chain, skipped: []};
     const listing = await ompModels.list();
-    if (!listing.available) return {available: false, reason: `the coding agent (omp) is not available: ${listing.reason ?? 'no models'}`};
-    if (settings.backend.model && !listing.models.some(m => m.id === settings.backend.model)) return {available: false, reason: `omp cannot use the model ${settings.backend.model}`};
-    return {available: true};
+    if (!listing.available) return {available: false, reason: `the coding agent (omp) is not available: ${listing.reason ?? 'no models'}`, models: [], skipped: []};
+    const usable = chain.filter(model => !model || listing.models.some(m => m.id === model));
+    const skipped = chain.filter(model => model && !usable.includes(model)).map(model => ({model, reason: `omp cannot use the model ${model}`}));
+    if (!usable.length) return {available: false, reason: `omp cannot use any model of the chain (${chain.join(', ')})`, models: [], skipped};
+    return {available: true, models: usable, skipped};
   }
 
-  async function runAgent({message, lexicon, memoryKey, onProgress}) {
-    const started = now();
-    const key = createHash('sha256').update([memoryKey ?? '', settings.backend.kind, settings.backend.model ?? '', settings.backend.endpoint ?? '', normalize(message)].join('\0')).digest('hex');
-    const hit = cache.get(key);
-    if (hit) { stats.cache_hits++; return {...hit, cache: 'hit', ms: now() - started, cost_usd: 0}; }
-    const free = await availability();
-    if (!free.available) return {ok: false, reason: free.reason, status: 'unavailable', cache: 'miss', ms: now() - started};
-    if (running >= settings.maxConcurrent) return {ok: false, reason: 'the coding agent is busy', status: 'busy', cache: 'miss', ms: now() - started};
-    running++;
-    let result;
+  async function runModel({model, message, lexicon, onProgress}) {
+    const folder = settings.backend.kind !== 'omp' ? null : chatData ? chatData.tmpFolder('qp') : fs.mkdtempSync(path.join(os.tmpdir(), 'chatsop-qp-'));
     try {
-      const folder = settings.backend.kind !== 'omp' ? null : chatData ? chatData.tmpFolder('qp') : fs.mkdtempSync(path.join(os.tmpdir(), 'chatsop-qp-'));
-      result = await authorQuery({message, lexicon, backend: backend(), folder, maxFixRounds: settings.maxFixRounds, mode: settings.mode, k: settings.candidates, indexMax: settings.indexMax, onProgress});
-      if (folder && !settings.keepFolders) { try { fs.rmSync(folder, {recursive: true, force: true}); } catch { /* the cleanup policy removes it */ } }
-    } finally { running--; }
-    const out = {ok: result.ok, status: result.status, sop: result.sop, reason: result.reason ?? (result.ok ? null : `the coding agent's query was invalid: ${(result.validation?.problems ?? []).map(p => p.code).join(', ') || 'no output'}`),
-      unclear: result.unclear, rounds: result.rounds, cost_usd: result.usage.cost_usd, usage: result.usage, model: result.model, backend: result.backend, unlinked: result.unlinked, context_version: result.context_version, mode: result.mode, retrieval: {predicates: result.retrieval?.predicates?.length ?? 0, entity_mentions: result.retrieval?.entities?.length ?? 0}, closest: result.closest, cache: 'miss', ms: now() - started};
-    if (result.ok) cache.set(key, out);
-    if (result.ok && result.unclear === 'relation_not_in_memory') logGap({message, memory: memoryKey, closest: result.closest, model: result.model});
-    return out;
+      return await authorQuery({message, lexicon, backend: backendFor(model), folder, maxFixRounds: settings.maxFixRounds, mode: settings.mode, k: settings.candidates, indexMax: settings.indexMax, onProgress});
+    } finally { if (folder && !settings.keepFolders) { try { fs.rmSync(folder, {recursive: true, force: true}); } catch { /* the cleanup policy removes it */ } } }
   }
 
-  const record = (parser, extra) => ({parser, ...extra});
   /** A gap of the memory (a clear question no predicate expresses): material for core-en growth through the approved authoring path. Gitignored (chat_data/). */
   function logGap(entry) {
     if (!chatData?.root) return;
     try { fs.appendFileSync(path.join(chatData.root, 'query-gaps.jsonl'), JSON.stringify({ts: new Date(now()).toISOString(), ...entry}) + '\n'); } catch { /* a log never fails a turn */ }
   }
 
+  const fail = (code, status, message, parse) => Object.assign(new Error(message), {code, status, parse});
+  const recordOf = (r, extra = {}) => ({parser: 'coding_agent', model: r.model ?? null, backend: r.backend ?? settings.backend.kind, rounds: r.rounds ?? 0, cost_usd: r.usage?.cost_usd ?? r.cost_usd ?? 0, ms: r.ms ?? r.duration_ms ?? 0, cache: r.cache ?? 'miss',
+    ...(r.unlinked?.length ? {unlinked: r.unlinked} : {}), ...(r.context_version ? {guide: r.context_version} : {}), ...(r.mode ? {mode: r.mode, retrieval: {predicates: r.retrieval?.predicates?.length ?? 0, entity_mentions: r.retrieval?.entities?.length ?? 0}} : {}), ...(r.closest ? {closest: r.closest} : {}), ...extra});
+
   /**
-   * Parses one message. `local: async () => sop` is the localQuery path (it sets its own side effects, for example the understanding of the
-   * turn). Returns {sop, parse}; throws only when no parser produced anything (the local error is rethrown).
+   * Parses one message. Returns `{sop, parse}`; throws `parse_unavailable` (no model of the chain can run or all delivered nothing) or
+   * `parse_failed` (the models ran, no valid circuit came back), each with `error.parse`.
    */
-  async function parse({parser, message, lexicon, memoryKey, local, onProgress}) {
+  async function parse({message, lexicon, memoryKey, onProgress, preferredModel = null}) {
     stats.requests++;
-    const choice = checkParser(parser) ?? settings.default;
-    const model = settings.backend.model ?? null;
-    const agentFields = r => ({model: r.model ?? model, backend: r.backend ?? settings.backend.kind, rounds: r.rounds ?? 0, cost_usd: r.cost_usd ?? 0, ms: r.ms ?? 0, cache: r.cache ?? 'miss', ...(r.unlinked?.length ? {unlinked: r.unlinked} : {}), ...(r.context_version ? {guide: r.context_version} : {}), ...(r.mode ? {mode: r.mode, retrieval: r.retrieval} : {}), ...(r.closest ? {closest: r.closest} : {})});
-    const viaLocal = async (fallback, requested) => {
-      const t = now();
-      const sop = await local();
-      stats.local++;
-      return {sop, parse: record('local', {requested, model: 'symbolic-lm', rounds: 0, cost_usd: 0, ms: now() - t, fallback})};
-    };
-    if (choice === 'coding_agent') {
-      const r = await runAgent({message, lexicon, memoryKey, onProgress});
-      if (r.ok && r.unclear !== 'no_request') {
+    const started = now();
+    const free = await availability(preferredModel);
+    if (!free.available) { stats.failures++; throw fail('parse_unavailable', 503, free.reason, {parser: 'coding_agent', model: null, ms: now() - started, failed: free.reason}); }
+    const tried = [...free.skipped];
+    let last = null;
+    // A model the session prefers is first in the chain when omp can use it (availability puts it there), then the configured models.
+    for (const model of free.models) {
+      const key = createHash('sha256').update([memoryKey ?? '', settings.backend.kind, model ?? '', settings.backend.endpoint ?? '', normalize(message)].join('\0')).digest('hex');
+      const hit = cache.get(key);
+      if (hit) { stats.cache_hits++; stats.coding_agent++; return {sop: hit.sop, parse: recordOf({...hit.result, cache: 'hit', ms: now() - started, cost_usd: 0, usage: {cost_usd: 0}}, {tried: tried.map(t => t.model)})}; }
+      if (running >= settings.maxConcurrent) { stats.failures++; throw fail('parse_unavailable', 503, 'the coding agent is busy', {parser: 'coding_agent', model, ms: now() - started, failed: 'the coding agent is busy', status: 'busy'}); }
+      running++;
+      let result;
+      try { result = await runModel({model, message, lexicon, onProgress}); } finally { running--; }
+      last = result;
+      if (result.ok) {
+        cache.set(key, {sop: result.sop, result: {...result, usage: {cost_usd: 0}}});
+        if (result.unclear === 'relation_not_in_memory') logGap({message, memory: memoryKey, closest: result.closest, model: result.model});
         stats.coding_agent++;
-        return {sop: r.sop, parse: record('coding_agent', {requested: choice, ...agentFields(r), fallback: null})};
+        return {sop: result.sop, parse: recordOf({...result, ms: now() - started}, {tried: tried.map(t => t.model), ...(result.unclear ? {unclear: result.unclear} : {})})};
       }
-      stats.fallbacks++;
-      const reason = r.ok ? 'not_a_query: the coding agent found no request in the message' : r.reason;
-      // Measurement mode (`fallbackToLocal: false`): a failed coding agent is an error that carries its record, never a silent local answer.
-      if (settings.fallbackToLocal === false) throw Object.assign(new Error(`codingAgentQuery failed: ${reason}`), {code: 'parser_failed', parse: record('coding_agent', {requested: choice, ...agentFields(r), fallback: null, failed: reason})});
-      const out = await viaLocal({to: 'local', from: 'coding_agent', reason, status: r.status ?? 'invalid'}, choice);
-      out.parse.agent = {...agentFields(r), status: r.status};
-      return out;
+      tried.push({model, reason: result.reason ?? `invalid circuit: ${(result.validation?.problems ?? []).map(p => p.code).join(', ') || 'no output'}`, status: result.status});
+      // A model that ran but wrote an invalid circuit after every repair round is a final answer about this message; a run that delivered nothing moves on to the next model.
+      if (result.status !== 'failed') break;
+      stats.model_switches++;
     }
-    // localQuery is the choice. A local failure or an abstention is retried with the coding agent (the verified LLM proposal).
-    let sop = null, failure = null;
-    const t0 = now();
-    try { sop = await local(); stats.local++; } catch (error) { failure = error; }
-    const localMs = now() - t0;
-    if (sop !== null && !abstains(sop)) return {sop, parse: record('local', {requested: choice, model: 'symbolic-lm', rounds: 0, cost_usd: 0, ms: localMs, fallback: null})};
-    if (settings.fallbackOnLocalAbstain) {
-      const r = await runAgent({message, lexicon, memoryKey, onProgress});
-      if (r.ok && r.unclear !== 'no_request') {
-        stats.coding_agent++; stats.fallbacks++;
-        return {sop: r.sop, parse: record('coding_agent', {requested: choice, ...agentFields(r), fallback: {to: 'coding_agent', from: 'local', reason: failure ? `localQuery failed: ${String(failure.message).slice(0, 200)}` : 'localQuery abstained (unclear)'}})};
-      }
-    }
-    if (failure) throw failure;
-    return {sop, parse: record('local', {requested: choice, model: 'symbolic-lm', rounds: 0, cost_usd: 0, ms: localMs, fallback: null, abstained: true})};
+    stats.failures++;
+    const reason = last?.reason ?? `the coding agent's circuit was invalid: ${(last?.validation?.problems ?? []).map(p => p.code).join(', ') || 'no output'}`;
+    const record = recordOf({...(last ?? {}), ms: now() - started}, {failed: reason, tried: tried.map(t => ({model: t.model, reason: t.reason}))});
+    if (last && last.status === 'failed') throw fail('parse_unavailable', 503, reason, record);
+    throw fail('parse_failed', 422, reason, record);
   }
 
   return {parse, availability, stats: () => ({...stats, cache_size: cache.size, running}), settings, clearCache: () => cache.map.clear()};

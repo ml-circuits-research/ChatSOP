@@ -21,3 +21,7 @@ Archived on 2026-09-28 during the documentation consolidation, when the design s
 | `docs-consolidation-plan-2026-09-28.md` | The survey and plan this consolidation executed | `docs/specs/aliases.json`, `CHANGES.md` |
 
 The older archive index for the `.docx` originals and the former `docs/legacy/` tree is `../README.md`; its links name the specification ids of its time.
+
+## Frozen and paused specifications (2026-10-01)
+
+Specifications of the frozen small-model branch are in `../tinyLLMExperiments/specs/` (training, data and evaluation, query curriculum, independent corpus, research and grounded corpora, corpus audit tool, capability APIs; ids as before the 2026-10-01 renumbering), and the paused EmotionDetectionSystem spec is `../paused/specs/DS029-emotion-detection.md`. See `../tinyLLMExperiments/README.md` and `../paused/README.md`.

@@ -16,17 +16,14 @@ import {sendHtml} from './pages/layout.mjs';
 import {homePage} from './pages/home.mjs';
 import {loginPage, safeNext} from './pages/login.mjs';
 import {sopCodeModule} from './pages/sop-code.mjs';
-import {evalPage, evalGuidePage} from './pages/eval.mjs';
 import {projectPage} from './pages/project.mjs';
 import {indexPage, entryPageHtml, topicsPageHtml, topicPageHtml, reportsPageHtml, reportPageHtml, questionsPageHtml, notFoundHtml} from './pages/history.mjs';
 import {BASE, loadHistory, entryPage, topicPage, listReports, readReport, questions} from './history.mjs';
-import {createEvalRouter} from './eval-browser.mjs';
-import {evaluationGuide} from './eval-guide.mjs';
 import {createProjectRouter, gates as computeGates, dataPipeline} from './project.mjs';
 import {readExperiments} from '../lib/journal.mjs';
 
 /** Pages that a browser should reach through the login page when signed out. */
-export const PROTECTED_PAGES = new Set(['/chat', '/audit', '/eval', '/eval/guide', '/experiments', '/admin']);
+export const PROTECTED_PAGES = new Set(['/chat', '/experiments', '/admin']);
 /** True for a signed-in browser page: the fixed pages and every `/experiments/…` page except its API. */
 export const isProtectedPage = pathname => PROTECTED_PAGES.has(pathname) || (pathname.startsWith(BASE + '/') && !pathname.startsWith(BASE + '/api/'));
 
@@ -90,7 +87,7 @@ export async function handleWeb(req, res, pathname, {auth, readiness}) {
   const session = auth ? auth.session(readCookie(req.headers.cookie, 'chatsop_session')) : null;
   if (req.method === 'GET' && pathname === '/') {
     const state = await readiness();
-    sendHtml(res, 200, homePage({signedIn: Boolean(session), configured: Boolean(auth?.configured), passwordStore: Boolean(auth), ready: state.ready, formalizers: state.formalizers ?? null}));
+    sendHtml(res, 200, homePage({signedIn: Boolean(session), configured: Boolean(auth?.configured), passwordStore: Boolean(auth), ready: state.ready, codingAgent: state.coding_agent ?? null}));
     return true;
   }
   if (!auth) return false;
@@ -155,16 +152,12 @@ export async function handleWeb(req, res, pathname, {auth, readiness}) {
 
 /**
  * Pages and APIs for an authenticated user (session cookie or bearer token);
- * server/http.mjs calls `handle` only after authentication, like the audit.
+ * server/http.mjs calls `handle` only after authentication.
  * `send(status, body)` answers JSON. Returns true when the request was handled.
  */
 export function createSignedInRoutes({root} = {}) {
-  const evaluation = createEvalRouter(root ? {root} : {});
   const project = createProjectRouter(root ? {root} : {});
   const handle = async (req, res, pathname, query, send, {signedIn = true} = {}) => {
-    if (req.method === 'GET' && pathname === '/eval') return sendHtml(res, 200, evalPage({signedIn})), true;
-    if (req.method === 'GET' && pathname === '/eval/guide') return sendHtml(res, 200, evalGuidePage({guide: evaluationGuide(root), signedIn})), true;
-    if (pathname.startsWith('/eval/api/')) return evaluation.handle(req, res, pathname, query, send);
     if (pathname.startsWith(BASE + '/api/') || pathname.startsWith('/project/api/')) return project.handle(req, res, pathname, query, send);
     if (req.method === 'GET' && (pathname === BASE || pathname.startsWith(BASE + '/'))) return experimentsPage(res, pathname, query, {root, signedIn}), true;
     return false;

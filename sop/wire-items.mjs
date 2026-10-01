@@ -1,5 +1,5 @@
 /**
- * Order- and id-free items of a program's wires (DS016 "Keys"): the canonical comparison key of a wire. The
+ * Order- and id-free items of a program's wires (DS012 "Keys"): the canonical comparison key of a wire. The
  * evaluation (wire F1, proposition matching) and the product (sentence merging in `lib/sentence-split.mjs`) share
  * it, so it lives with the language modules and imports nothing from `eval/` or `tools/`.
  */

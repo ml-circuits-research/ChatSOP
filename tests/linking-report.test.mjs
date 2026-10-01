@@ -1,4 +1,4 @@
-// The `linking` report of the result packet (DS021 "Result packet"): what the KnowledgeLinker bound from the lexicon of the base memory.
+// The `linking` report of the result packet (DS014 "Result packet"): what the KnowledgeLinker bound from the lexicon of the base memory.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Runtime} from '../sop/runtime.mjs';

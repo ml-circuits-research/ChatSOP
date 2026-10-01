@@ -1,4 +1,4 @@
-/** The `/experiments` pages (DS012): the index of every major task and
+/** The `/experiments` pages (DS009): the index of every major task and
  * experiment, one page per task or experiment with the owner's side and the
  * agents' side kept apart, the topic note stacks, the read-only report viewer
  * and the open owner questions. Pages are rendered on the server from the data
@@ -125,13 +125,13 @@ ${status.trainingDecisions.length ? `<div class="meta">Latest owner decisions ab
 <p class="muted">A living, accumulating record: every major task and experiment has its own page, and the topic notes behind them are append-only (corrections supersede, nothing is deleted). Newest first everywhere. Agents add notes with <code>node tools/notes.mjs add</code> and journal events with <code>node tools/journal.mjs add</code>.</p>
 ${errorsBlock(history.errors)}${header}
 <section class="card"><h2>Tasks and experiments — newest first</h2><div class="tablewrap"><table class="t"><thead><tr><th>started</th><th>kind</th><th>status</th><th>task or experiment</th></tr></thead><tbody>${rows || '<tr><td colspan="4" class="muted">No tasks recorded.</td></tr>'}</tbody></table></div>
-<p class="meta">Task records: <code>status/tasks.json</code>; experiment records: <code>status/experiments.json</code> (DS010).</p></section>
+<p class="meta">Task records: <code>status/tasks.json</code>; experiment records: <code>status/experiments.json</code> (DS007).</p></section>
 <section class="card" id="topics"><h2>Topics</h2><div class="tablewrap"><table class="t"><thead><tr><th>topic</th><th class="num">notes</th><th>latest entry</th></tr></thead><tbody>${topicRows}</tbody></table></div></section>
 <section class="card"><h2>More</h2><ul class="plain"><li><a href="${BASE}/topics">All topics with their scope</a></li><li><a href="${BASE}/reports">Reports</a> (eval/reports/current and history, read-only)</li><li><a href="${BASE}/timeline">Timeline &amp; live status</a> (journal, gates, data pipeline)</li><li><a href="${BASE}/questions">Open owner questions</a></li></ul></section>`;
   return page({title: 'Experiments', active: 'experiments-index', signedIn, body, next: BASE});
 }
 
-/** Field table of one experiment record (DS010 "Experiments"). */
+/** Field table of one experiment record (DS007 "Experiments"). */
 function experimentBlock(entry, root) {
   const short = hash => (typeof hash === 'string' && /^[0-9a-f]{64}$/.test(hash) ? `<code title="${esc(hash)}">${esc(hash.slice(0, 12))}…</code>` : esc(hash ?? ''));
   const text = value => (value === null || value === undefined ? '' : typeof value === 'object' ? JSON.stringify(value) : String(value));

@@ -9,7 +9,7 @@
  *   quantifier `all none not_all most half at_least N`: the universal question `mode every` over the KNOWN members of its restriction;
  *   limit     the number of answers returned (the count of `mode count` is never cut).
  *
- * Number reading (DS021 Q-LANG-2): a value is a number when it is a finite number or a string that starts with one ("2380 lei",
+ * Number reading (DS014 Q-LANG-2): a value is a number when it is a finite number or a string that starts with one ("2380 lei",
  * "80"). An ordering over a value that is not a number is `not_computable` (reason `value_not_numeric`), never false.
  * These forms are an oracle capability of the host question language, ported from the retired `reference` reasoner; the strict
  * closed-domain `every` of the proposal is the same mode WITHOUT a `quantifier` line.

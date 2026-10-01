@@ -1,7 +1,7 @@
 /**
  * A reference in-memory wire store with the two indexes the proposal needs (predicate and predicate-plus-constant for
  * facts, head predicate for rules), a seeded generator of distractor wires, and a symbol-driven relevance slice.
- * It is a model of the retrieval contract, not a memory engine: the product memory strategies (DS023 to DS028) would
+ * It is a model of the retrieval contract, not a memory engine: the product memory strategies (DS016 to DS021) would
  * answer the same calls. Probes are counted so retrieval cost can be compared, in this store's own unit.
  */
 import {parse, tokens, parseCondition, leaves} from '../validator.mjs';

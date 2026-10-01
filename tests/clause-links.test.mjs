@@ -1,4 +1,4 @@
-// DS021 "Clauses and links", "Content words" and "Honest partial formalization": clause link keyword lines,
+// DS014 "Clauses and links", "Content words" and "Honest partial formalization": clause link keyword lines,
 // `$id` role values and query chaining, the host plan of links, content words in the message's language translated
 // by the host dictionary, and `unparsed` spans with symbolic repair (owner decisions D1 and L1-L4 of 2026-09-29).
 import test from 'node:test';
@@ -150,7 +150,7 @@ test('a constraint may use the scalar answer of a query ($q)', () => {
 });
 
 // A small inline dictionary keeps these tests independent of the data files (config/dictionary). English only: the core's
-// dictionary view carries synonym sets and never translates (DS021 "English-only core").
+// dictionary view carries synonym sets and never translates (DS014 "English-only core").
 const DICT = Dictionary.fromEntries([
   {id: 'rel:works_at', pos: 'relation', en: ['work at', 'toil at'], ro: [], forms: []},
   {id: 'noun:lab', pos: 'noun', en: ['Alpha Lab', 'Alfa Laboratory'], ro: [], forms: []},

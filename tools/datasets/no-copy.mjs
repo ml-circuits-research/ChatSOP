@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** No-copy check: proves that corpus text is not copied from the cached public sources (DS014, owner decision
+/** No-copy check: proves that corpus text is not copied from the cached public sources (DS011, owner decision
  * of 2026-09-28).
  *
  *   node tools/datasets/no-copy.mjs --corpus formalizer-v1 [--out <report.json>]

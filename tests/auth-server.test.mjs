@@ -116,7 +116,7 @@ const page = (base, route, {cookie, accept = 'text/html', method = 'GET', form, 
 
 test('signed-out browser page loads redirect to /login while API calls keep JSON 401/403', async t => {
   const {base, call} = await adminServer(t, {password: PASSWORD});
-  for (const route of ['/chat', '/audit', '/admin']) {
+  for (const route of ['/chat', '/experiments', '/admin']) {
     const response = await page(base, route);
     assert.equal(response.status, 303, route);
     assert.equal(response.headers.get('location'), '/login?next=' + encodeURIComponent(route), route);
@@ -125,8 +125,8 @@ test('signed-out browser page loads redirect to /login while API calls keep JSON
   assert.equal(withQuery.headers.get('location'), '/login?next=' + encodeURIComponent('/chat?x=1'));
   // API clients (no HTML Accept, or API paths) are never redirected.
   assert.equal((await call('/chat')).status, 401);
-  assert.equal((await call('/audit')).status, 401);
-  for (const route of ['/audit/api/corpora', '/v1/models', '/readyz']) {
+  assert.equal((await call('/experiments')).status, 401);
+  for (const route of ['/experiments/api/status', '/v1/models', '/readyz']) {
     const response = await page(base, route);
     assert.equal(response.status, 401, route);
     assert.equal((await response.json()).error.code, 'unauthorized', route);
@@ -165,9 +165,9 @@ test('home page reports sign-in state, password setup and formalizer readiness',
   const first = await (await page(fresh.base, '/')).text();
   assert.match(first, /No administrator password yet/);
   assert.match(first, /Administrator password: <span class="bad">not set/);
-  assert.match(first, /Formalizer: <b class="bad">not ready/);
+  assert.match(first, /Coding agent \(omp\): <b class="bad">not available/);
   assert.match(first, /HTTP 503/);
-  for (const link of ['href="/chat"', 'href="/audit"', 'href="/admin"', 'href="/docs/"']) assert.ok(first.includes(link), link);
+  for (const link of ['href="/chat"', 'href="/experiments"', 'href="/admin"', 'href="/docs/"']) assert.ok(first.includes(link), link);
   
   const {base, session} = await adminServer(t, {password: PASSWORD});
   const signedOut = await (await page(base, '/')).text();
@@ -175,7 +175,7 @@ test('home page reports sign-in state, password setup and formalizer readiness',
   assert.match(signedOut, /Administrator password: <span class="ok">set/);
   const signedIn = await (await page(base, '/', {cookie: session})).text();
   assert.match(signedIn, /Signed in/);
-  assert.match(signedIn, /config\/formalizers\.json/, 'the signed-in home page names the model registry');
+  assert.match(signedIn, /parse_unavailable/, 'the signed-in home page says what happens without a coding agent');
   assert.match(signedIn, /action="\/logout"/);
 });
 

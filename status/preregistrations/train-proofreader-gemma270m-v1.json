@@ -4,7 +4,7 @@
  "name": "Fine-tuning Gemma 3 270M IT as a small proofreader in front of Stanza + frozen UD rules (datasets/proofing, role proofreader)",
  "registered_at": "2026-09-30T00:20:00Z",
  "registered_by": "proofreader-training-agent (owner approval of 2026-09-29 night, status/journal.jsonl 2026-09-29T21:37:26.749Z and 2026-09-29T21:39:19.620Z)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_request": "Once datasets/proofing is finished and qualified, train ONE small model to see whether it helps SymbolicLM; base model Gemma3-270M (Qwen3-0.6B judged too slow for CPU). Scoped to this experiment only: fine-tuning google/gemma-3-270m-it on datasets/proofing. No other training.",
  "frozen_before_results": "Written before any optimizer step of this run and before any prediction of the fine-tuned checkpoint on any split. The zero-shot reference numbers for gemma3-270m:proof and qwen3-1.7b:proof already exist (eval/reports/current/proofing/report.md, pilot stage s300 and the full formalizer-v1 pool respectively) and are read but not altered by this preregistration; qwen3-0.6b:proof and the fine-tuned model are scored fresh, after this file is frozen.",
  "question": "Does fine-tuning Gemma 3 270M IT on datasets/proofing turn it from a zero-shot-harmful rewriter (report.md s300: net -3.0) into a net-positive proofreader on the sealed proofing test, without breaking rows that already parse, and how does it compare to much larger untrained references?",
@@ -45,7 +45,7 @@
  "budget": {
   "epochs": 3, "steps_per_epoch": "ceil(ceil(6095/2)/8) = 381", "total_optimizer_steps": 1143, "seed": 42,
   "checkpoint_cadence": "latest and (dev-loss-gated) best at each epoch end (training/python/train.py: for role != formalizer, best is written only when dev loss improves over the previous best)",
-  "selection": "best is the epoch with the lowest development loss (dev loss is diagnostic-only for a non-formalizer role, DS007; no SOP execution-equivalence selection applies to a text-target role). The sealed test is never used for selection.",
+  "selection": "best is the epoch with the lowest development loss (dev loss is diagnostic-only for a non-formalizer role, archived spec 007; no SOP execution-equivalence selection applies to a text-target role). The sealed test is never used for selection.",
   "attempts": "one run per this preregistration; at most one --resume of the same identity for a staged early-stopping check or an infrastructure interruption",
   "abort_conditions": "non-finite loss, OOM or cgroup OOM kill, controller resource floors, wall-time cap of 120 minutes",
   "gpu_policy": "one GPU-intensive worker on the machine (checked via nvidia-smi and models/.training.lock before the run; free at registration time)",

@@ -18,7 +18,7 @@ export const QUOTAS = Object.freeze({
   noise_share: [0.12, 0.35],
   unclear_share: [0.05, 0.12],
   max_near_duplicate_share: 0.05,        // MinHash word 3-shingles, Jaccard >= 0.8, outside the split group
-  // Full-regeneration mix (DS022): no single inspiration source above 25% of rows, the operator families at
+  // Full-regeneration mix (DS015): no single inspiration source above 25% of rows, the operator families at
   // least 25% together, each formerly blocked family at least 1.5%, and a floor for every question type.
   max_source_share: 0.25,
   min_operator_share: 0.25,

@@ -3,7 +3,7 @@
   "id": "formalizer-mt-v1",
   "registered_at": "2026-09-29T12:00:00Z",
   "registered_by": "mt-training-agent (for the owner, under the owner's decision logged in status/journal.jsonl at 2026-09-29T11:45:36.367Z)",
-  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
   "frozen_before_results": "Written before any optimizer step and before any fine-tuned prediction on any split. Any later change is a recorded deviation.",
   "question": "Does treating NL -> SOP Lang as machine translation into a new target language, starting from a small pretrained Romance -> English translation model, generalize better (above all on Romanian and out-of-distribution text) than the decoder-only chat models of formalizer-size-v1 fine-tuned on the same data?",
   "owner_idea": "Owner decision 2026-09-29 11:45Z ('SOP Lang as translation'): NL -> SOP is translation into a new language; fine-tune a small translation model (Opus-MT) directly to SOP Lang and compare it with the current models. 'Yes, it must be tried on a small model and compared, to see if it's better.'",
@@ -34,7 +34,7 @@
   "line_encoding": {
     "code": "training/python/seq2seq_text.py (sha256 6f097b3404619bdc4dbbc2485629cd9507ab98ac0cc53a58bb999666f4d291bc)",
     "target": "every line break followed by 2*K spaces of indentation becomes the added token <nK> (K = 0..7); decoding is exact for every canonical SOP program",
-    "source": "a line break in the message becomes <n0>; nothing else is added: the encoder input is the user's message only (DS021)",
+    "source": "a line break in the message becomes <n0>; nothing else is added: the encoder input is the user's message only (DS014)",
     "added_tokens": "<n0>..<n7>, added to the shared vocabulary; their embeddings are initialized from the mean and covariance of the existing embeddings (transformers resize_token_embeddings default)"
   },
   "data": {
@@ -88,7 +88,7 @@
     "staging": "Owner rule of 2026-09-29: each suite is predicted and scored on nested deterministic samples of 100, then 300 rows (mulberry32 seed 42, as predict-endpoint.mjs), then in full. After a stage, the suite stops when (a) the condition is broken (parse below 50% or more than half empty/capped), (b) the paired 95% interval of the tolerant difference against both SmolLM2-135M and SmolLM2-360M excludes 0 with the same sign (decisive), or (c) further rows cannot change the conclusion. A stop is recorded with its reason and numbers.",
     "suites": {
       "formalizer-ood-v1": "headline; full suite (1,578) unless a stage rule stops it; slices en/ro/mixed",
-      "formalizer-v1 test": "the same stratified 500-row sample as formalizer-size-v1 (eval/reports/current/formalizer-size-v1/sample500/formalizer-v1-sample500.suite.jsonl), with its short (<= 300 characters) and long slices; the long slice is also scored by wire F1 (DS016, eval/metrics.mjs rowWireComparison)",
+      "formalizer-v1 test": "the same stratified 500-row sample as formalizer-size-v1 (eval/reports/current/formalizer-size-v1/sample500/formalizer-v1-sample500.suite.jsonl), with its short (<= 300 characters) and long slices; the long slice is also scored by wire F1 (DS012, eval/metrics.mjs rowWireComparison)",
       "formalizer-wild-v1": "full 796 rows: accepted match, decision match, proposition F1 (tools/eval/wild-suite.mjs scoreAgainstAccepted)"
     },
     "metrics": {
@@ -102,7 +102,7 @@
   "success_criteria": {
     "better": "The translation arm is better if H1 holds (OOD tolerant difference against SmolLM2-135M with a 95% interval above 0). It is better than the best decoder-only arm if the OOD difference against SmolLM2-360M (47.5%) is also above 0.",
     "adequacy_gate": "The formalizer-size-v1 gate is reported for continuity (parse >= 99%, EN and RO >= 90% on the sealed sample, OOD >= 70%), not required.",
-    "not_a_promotion": "No result of this experiment is a DS010 promotion."
+    "not_a_promotion": "No result of this experiment is a DS007 promotion."
   },
   "known_limitations": ["one seed", "family, size, tokenizer and recipe change together", "different decoding devices and precisions across arms", "shared machine: CPU timings affected by other load", "no human semantic review"],
   "status": "REGISTERED, NOT STARTED: blocked at the training gate on 2026-09-29 (the qualification record no longer matches the current contract files, and no chatsop-training-authorization-v1 receipt exists for opus-mt/fmt-a1). No optimizer step has run.",

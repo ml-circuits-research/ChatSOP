@@ -4,7 +4,7 @@
   "name": "Clean-English formalization: the live SymbolicLM rules on valid, clean English only, versus the full English suites",
   "registered_at": "2026-09-30T08:00:00Z",
   "registered_by": "clean-english-agent (owner decision of 2026-09-30, journaled: formalization evaluation focuses on valid, clean English)",
-  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
   "owner_requests": {
     "decision_2026_09_30": "Formalization focuses only on VALID, CLEAN ENGLISH. Romanian, mixed Romanian/English (romgleza) and badly written English (typos, garbled, confusing input) leave the formalization evaluation; they will be handled by a separate textToCleanEnglish service in the chat UI under user control (a different agent's task, text-to-clean-english-v1). The fine-tuned Gemma3-270M proofreader stays only as a simplifier of valid English for SymbolicLM. Goal: focus on justified problems -- formalizing valid English text."
   },
@@ -14,7 +14,7 @@
     "symbolic_lm": "lib/symbolic-lm/ direct route (route: 'direct', language: 'auto'), CPU; live lib/ud-to-sop verified identical to frozen-rules-v1.4",
     "clean_english_filter": "tools/datasets/clean-english.mjs classifyPartition: gate (a) no generator noise/typo/code-switch tag, (b) lib/languages-util spellfix.fix() proposes no correction, (c) every non-name non-numeric non-quoted word token is labelled `en` by LanguagesUtil identify(), (d) eval/reference-free.mjs gibberishVerdict() is not `gibberish`; grammar check (e) not implemented locally (dependencies.md follow-up)",
     "corpus": "datasets/clean-english/{train,dev}.jsonl and the sealed eval/suites/clean-english/test.jsonl (clean_en rows of formalizer-v1 train/dev and of the three sealed suites formalizer-v1, formalizer-ood-v1, formalizer-wild-v1), built by tools/datasets/build-clean-english.mjs",
-    "input": "the row's message (question) only (DS021 model boundary)"
+    "input": "the row's message (question) only (DS014 model boundary)"
   },
   "sets": {
     "definition": "eval/reports/current/clean-english/sets.json, written by `node tools/research/clean-english-eval.mjs sets`",

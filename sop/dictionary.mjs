@@ -1,5 +1,5 @@
 /**
- * The host's bilingual and synonym dictionary (DS021 "Content words: host normalization and translation",
+ * The host's bilingual and synonym dictionary (DS014 "Content words: host normalization and translation",
  * owner decision D1 of 2026-09-29 and its refinement). The small model may write content words (relation
  * phrases, common-noun values) either in the message's language, normalized to a lemma, or in English; the
  * knowledge and the reasoner are English-only. This module maps Romanian lemmas and inflected forms, English
@@ -98,7 +98,7 @@ export function compileEntries(entries) {
     entry.ro.forEach(surface => add(ro, surface, index, 'l'));
     for (const form of entry.forms) form.startsWith('def:') ? add(ro, form.slice(4), index, 'd') : add(ro, form, index, 'f');
     // A Romanian relation form with an inflected copula ("e antrenorul de la", "este căsătorită cu") also answers to
-    // the lemma form a formalizer writes ("fi antrenorul de la", DS021 "Input languages and content words").
+    // the lemma form a formalizer writes ("fi antrenorul de la", DS014 "Input languages and content words").
     if (entry.pos === 'relation') for (const form of [...entry.ro, ...entry.forms]) {
       const lemma = String(form).replace(/^(?:e|este|era|a fost|sunt|erau|au fost)\s+/u, 'fi ');
       if (lemma !== form && !form.startsWith('def:')) add(ro, lemma, index, 'f');
@@ -227,7 +227,7 @@ export class Dictionary {
   candidates(text, kind = 'relation', {limit = 16} = {}) {
     const allowed = kind === 'relation' ? RELATION_POS : VALUE_POS;
     const tokens = tokenize(text);
-    // First person (DS021 Q-LANG-5): "eu" is the user; "<noun> meu/mea/mei/mele" is "the user's <noun>".
+    // First person (DS014 Q-LANG-5): "eu" is the user; "<noun> meu/mea/mei/mele" is "the user's <noun>".
     if (kind === 'value') {
       const folded = tokens.map(fold);
       if (folded.length === 1 && FIRST_PERSON_RO.has(folded[0])) return {status: 'translated', candidates: ['the user'], untranslated: [], sources: ['manual']};
@@ -338,7 +338,7 @@ class EnglishDictionary extends Dictionary {
 
 let loadedEnglish = null;
 /**
- * The dictionary the product linking path uses (owner decision of 2026-10-01, DS021 "English-only core"): the English
+ * The dictionary the product linking path uses (owner decision of 2026-10-01, DS014 "English-only core"): the English
  * surfaces and synonym sets of config/dictionary only. The core never receives a Romanian content word (the input edge
  * translates first), so no Romanian surface, form or first-person word is compiled into this view: `candidates` of a
  * string returns the string unchanged and `synonyms` lists English synonyms. The full dictionary (`defaultDictionary`)

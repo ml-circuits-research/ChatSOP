@@ -1,4 +1,4 @@
-// Fork and session-clone isolation (DS031, DS025, DS028): a child never shares a mutable file with its parent, for every memory strategy.
+// Fork and session-clone isolation (DS022, DS018, DS021): a child never shares a mutable file with its parent, for every memory strategy.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

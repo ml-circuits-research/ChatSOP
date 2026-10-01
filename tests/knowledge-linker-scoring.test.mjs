@@ -1,4 +1,4 @@
-// The scored joint KnowledgeLinker (sop/knowledge-linker.mjs; DS021 "KnowledgeLinker: scoring and ambiguity"): candidates are scored,
+// The scored joint KnowledgeLinker (sop/knowledge-linker.mjs; DS014 "KnowledgeLinker: scoring and ambiguity"): candidates are scored,
 // constraints of the memory prune or support them, the decision is made in named stages, and a tie is an explicit ambiguity.
 import test from 'node:test';
 import assert from 'node:assert/strict';

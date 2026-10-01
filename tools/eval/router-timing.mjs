@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Measurement of the StrategyRouter v1 (reasoning/router, DS006 "Routing rules", DS013; preregistration status/preregistrations/router-v1.json).
+ * Measurement of the StrategyRouter v1 (reasoning/router, DS006 "Routing rules", DS010; preregistration status/preregistrations/router-v1.json).
  *
  *   node tools/eval/router-timing.mjs [--quick] [--limit-s 60] [--only ring,negation] [--out eval/reports/current/router/timing.json]
  *

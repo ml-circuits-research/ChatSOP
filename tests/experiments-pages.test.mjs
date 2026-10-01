@@ -156,9 +156,9 @@ test('reports: only eval/reports/{current,history} are served, traversal is refu
   assert.equal(repoLink('eval/reports/current/a.md', root), '/experiments/report?path=' + encodeURIComponent('eval/reports/current/a.md'));
   assert.equal(repoLink('eval/reports/current/sub', root), '/experiments/reports?dir=' + encodeURIComponent('eval/reports/current/sub'));
   assert.equal(repoLink('eval/reports/current/missing.json', root), null);
-  assert.equal(repoLink('docs/specs/DS010-experiment-preregistration.md', repoPath()), '/docs/specsLoader.html?spec=DS010-experiment-preregistration.md');
+  assert.equal(repoLink('docs/specs/DS007-experiment-preregistration.md', repoPath()), '/docs/specsLoader.html?spec=DS007-experiment-preregistration.md');
   const former = 'docs/specs/DS0' + '42-diversity-generator.md'; // a former id, built so the spec-ref check does not flag this test
-  assert.equal(repoLink(former, repoPath()), '/docs/specsLoader.html?spec=DS022-diversity-generator.md', 'former ids follow docs/specs/aliases.json');
+  assert.equal(repoLink(former, repoPath()), '/docs/specsLoader.html?spec=DS015-diversity-generator.md', 'former ids follow docs/specs/aliases.json');
   assert.equal(repoLink('javascript:alert(1)', root), null);
   assert.equal(repoLink('questions.md', root), '/experiments/questions');
 

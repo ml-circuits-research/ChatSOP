@@ -10,13 +10,13 @@ export const POLARITIES = Object.freeze(['affirmed', 'negated']);
 export const CERTAINTIES = Object.freeze(['asserted', 'hedged', 'supposed']);
 export const BASES = Object.freeze(['closure', 'default', 'disambiguation', 'implicature', 'world']);
 /**
- * The closed, context-free role inventory of model-language propositions (DS021).
+ * The closed, context-free role inventory of model-language propositions (DS014).
  * The model names arguments with these words only; each lexicon predicate maps
  * its argument positions to them with `role NAME TYPE` lines.
  */
 export const ROLE_NAMES = Object.freeze(['subject', 'object', 'recipient', 'location', 'source', 'destination', 'instrument', 'time', 'topic']);
 /**
- * Copula readings (DS021 "KnowledgeLinker: the copula"): the only readings of "be" the linker code knows. A base
+ * Copula readings (DS014 "KnowledgeLinker: the copula"): the only readings of "be" the linker code knows. A base
  * memory declares which of its predicates carry one (`reading NAME` on a predicate wire); the linker never names a
  * predicate itself. `class` = membership in a kind, `occupation` = what someone does for a living, `attribute` = a
  * property, `identity` = the same thing, `location` = where something is, `describe` = a predicate whose facts about a
@@ -28,7 +28,7 @@ export const VALIDITY_FORMS = Object.freeze(['on', 'from', 'until']);
 /** Output port modes: `output ?name MODE` on solve and reasoning operations (default one). */
 export const OUTPUT_MODES = Object.freeze(['one', 'many', 'rows', 'count', 'status']);
 /**
- * Query modes (DS021, DS004): `select` lists bindings, `exists` asks whether a binding exists, `count`
+ * Query modes (DS014, DS004): `select` lists bindings, `exists` asks whether a binding exists, `count`
  * counts distinct selected bindings, `explain` asks why a proposition holds (the answer is its derivation),
  * `every` asks whether the `scope` holds for every binding of the `where` restriction (a universal question).
  */
@@ -38,14 +38,14 @@ export const QUERY_MODES = Object.freeze(['select', 'exists', 'count', 'explain'
  * derivable, `plan` asks how a goal is reached, `abduce` asks for the minimal explanations of an observation, `conform`
  * asks whether a performed trace complies with the procedures and norms in force, `procedure` asks for the approved
  * procedure of a task. They are question forms, never operations; the model language lists them in `QUERY_MODES` only
- * where DS021 says so.
+ * where DS014 says so.
  */
 export const REASONING_QUERY_MODES = Object.freeze(['why_not', 'plan', 'abduce', 'conform', 'procedure']);
 /** Part of a time variable's interval that a question asks for: since when, until when, how long. */
 export const TIME_MEASURES = Object.freeze(['start', 'end', 'duration']);
 
 /**
- * Words-only model forms (DS021 "Words, not operators"). Comparators of `compare` lines and constraint
+ * Words-only model forms (DS014 "Words, not operators"). Comparators of `compare` lines and constraint
  * expressions, arithmetic words of constraint expressions, the directions of `rank`, the quantifier words of
  * `mode every`, the ordering words of `order` and the kinds of `fragment`. The host lowers the words to its
  * internal operators; a model-authored wire never spells an operator symbol.
@@ -60,7 +60,7 @@ export const ORDER_WORDS = Object.freeze(['before', 'after', 'same_time']);
 export const FRAGMENT_KINDS = Object.freeze(['follow_up']);
 
 /**
- * Clause links (DS021 "Clauses and links", owner decisions L1, L2 and L4 of 2026-09-29). One finite clause of the
+ * Clause links (DS014 "Clauses and links", owner decisions L1, L2 and L4 of 2026-09-29). One finite clause of the
  * message is one short wire; a subordinate or result clause is related to its main clause by one keyword line
  * `KEYWORD $id` on a `stated`, `assumed` or `query` wire. The keywords are the English conjunctions themselves
  * (the owner's L2 choice over an abstract `clause TYPE`); each maps to one semantic type of the PDTB-3-derived
@@ -85,12 +85,12 @@ export const LINK_KEYWORDS = Object.freeze({
 });
 /** The link keyword lines, in table order; each takes exactly one `$id`. */
 export const LINK_WORDS = Object.freeze(Object.keys(LINK_KEYWORDS));
-/** The semantic types the host distinguishes (DS021): conditions scope a query, timed temporal links bound its period. */
+/** The semantic types the host distinguishes (DS014): conditions scope a query, timed temporal links bound its period. */
 export const LINK_TYPES = Object.freeze([...new Set(Object.values(LINK_KEYWORDS).map(link => link.type))]);
 /** At most this many link lines per wire (`link_too_many`). */
 export const MAX_LINKS = 3;
 /**
- * `unparsed` (DS021 "Honest partial formalization", owner decision of 2026-09-29): a verbatim span of the message the
+ * `unparsed` (DS014 "Honest partial formalization", owner decision of 2026-09-29): a verbatim span of the message the
  * model could not formalize. `hint` names the slot the span probably fills: a role name (`subject`, `object`,
  * `time`, `location`), a `value`, the `relation` of the `near` wire, a `reference` to something said earlier, or
  * `other`.
@@ -104,7 +104,7 @@ export const MAX_SPAN = 200;
 export const LINK_STATUSES = Object.freeze(['applied', 'not_checked']);
 
 /**
- * `pragmatic` (DS029, owner decision of 2026-10-01): an advisory signal about the pragmatic or emotional role of a
+ * `pragmatic` (DSx029, owner decision of 2026-10-01): an advisory signal about the pragmatic or emotional role of a
  * message or of a span of it, emitted by the host's EmotionDetectionSystem, never by the model. The closed kinds and
  * the closed bases (how the signal was found) are listed here; a signal is the system's subjective perception, never a
  * fact about the world.

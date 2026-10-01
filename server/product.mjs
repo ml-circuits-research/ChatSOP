@@ -1,5 +1,5 @@
 /**
- * HTTP routes of the product layer (DS031, docs/api.html): base memories, sessions, the omp model list and the authoring path.
+ * HTTP routes of the product layer (DS022, docs/api.html): base memories, sessions, the omp model list and the authoring path.
  *
  *   GET  /v1/memories                       list the base memories
  *   POST /v1/memories                       create an empty one, or import one: {name, strategy, circuits?, description?}
@@ -12,7 +12,7 @@
  *   GET  /v1/sessions                       the caller's sessions (all of them for the signed-in browser session)
  *   GET  /v1/sessions/{id}                  the session, its circuits, drafts and provenance (?transcript=1 adds the turns)
  *   DELETE /v1/sessions/{id}
- *   POST /v1/sessions/{id}/settings         {authoring?, omp_model?, scope_note?}: authoring auto|always|off, scope_note ask|mark
+ *   POST /v1/sessions/{id}/settings         {omp_model?}: the model the coding agent tries first
  *   GET  /v1/sessions/{id}/drafts           the draft circuits with their text and validation
  *   POST /v1/sessions/{id}/drafts/{d}/accept   the user accepts a draft into the session layer
  *   POST /v1/sessions/{id}/drafts/{d}/reject
@@ -29,7 +29,6 @@
 import {STRATEGIES} from '../lib/chat-data/memories.mjs';
 import {CORE_SEED} from '../lib/knowledge-seeds.mjs';
 import {askMemory, TheoryCache} from '../reasoning/slice/index.mjs';
-import {checkParser} from './query-parser.mjs';
 
 const bad = (message, code = 'invalid_request', status = 400) => Object.assign(new Error(message), {status, code});
 
@@ -43,17 +42,17 @@ export const PRODUCT_ENDPOINTS = Object.freeze([
   {method: 'POST', path: '/v1/sessions', capability: 'sessions.create', body: ['base', 'name', 'settings']},
   {method: 'GET', path: '/v1/sessions', capability: 'sessions.list'},
   {method: 'GET', path: '/v1/sessions/{id}', capability: 'sessions.get'},
-  {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['authoring', 'omp_model', 'scope_note', 'parser']},
+  {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['omp_model']},
   {method: 'GET', path: '/v1/sessions/{id}/drafts', capability: 'sessions.drafts'},
   {method: 'POST', path: '/v1/sessions/{id}/drafts/{draft}/accept', capability: 'sessions.accept', body: []},
   {method: 'POST', path: '/v1/sessions/{id}/drafts/{draft}/reject', capability: 'sessions.reject', body: []},
   {method: 'POST', path: '/v1/sessions/{id}/commit', capability: 'sessions.commit', body: ['name', 'strategy', 'description', 'id']},
   {method: 'GET', path: '/v1/sessions/{id}/theory', capability: 'sessions.theory'},
-  {method: 'POST', path: '/v1/sessions/{id}/query', capability: 'sessions.query', body: ['query', 'message', 'parser', 'reasoning', 'verify']},
+  {method: 'POST', path: '/v1/sessions/{id}/query', capability: 'sessions.query', body: ['query', 'message', 'reasoning', 'verify']},
 ]);
 
 const STRATEGY_NOTES = {
-  sqlite: 'SQLite (DS025): exact indexed tuples',
+  sqlite: 'SQLite (DS018): exact indexed tuples',
 };
 const memoryStrategies = () => STRATEGIES.map(id => ({id, note: STRATEGY_NOTES[id] ?? ''}));
 
@@ -141,7 +140,7 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
     },
     async sessionsSettings({req, res, match, user, admin}) {
       sessions.visible(match[1], {user, admin});
-      const body = onlyKeys(await readBody(req, maxBytes), ['authoring', 'omp_model', 'scope_note', 'parser']);
+      const body = onlyKeys(await readBody(req, maxBytes), ['omp_model']);
       json(res, 200, {object: 'session', ...sessions.describe(sessions.updateSettings(match[1], body).id)});
     },
     sessionsDrafts({res, match, user, admin}) {
@@ -168,24 +167,22 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
     },
     async sessionsQuery({req, res, match, user, admin}) {
       sessions.visible(match[1], {user, admin});
-      const body = onlyKeys(await readBody(req, maxBytes), ['query', 'message', 'parser', 'reasoning', 'verify']);
-      // `message`: a natural-language request instead of a query circuit. The request parser (`parser`: coding_agent | local, else the session setting, else
-      // the server default) writes the query, and the shared chat path links, retrieves, routes, verifies and renders it (DS031 "Request parsers").
+      const body = onlyKeys(await readBody(req, maxBytes), ['query', 'message', 'reasoning', 'verify']);
+      // `message`: a natural-language request instead of a query circuit. The request parser (the coding agent, server/query-parser.mjs) writes the query,
+      // and the shared chat path links, retrieves, routes, verifies and renders it (DS009 "Request parser").
       if (body.message !== undefined) {
         if (body.query !== undefined) throw bad('Give either query (a circuit) or message (a request), not both', 'invalid_parameter');
         if (typeof body.message !== 'string' || !body.message.trim()) throw bad('message must be a non-empty string', 'invalid_parameter');
         if (!parsing?.queryParser || !runtimes) throw bad('Requests in natural language need the server with chat sessions', 'not_available', 501);
-        checkParser(body.parser);
         const rt = runtimes.open(match[1], {user, admin});
         const lexicon = rt.lexicon;
         let parseRecord = null;
         const formalizer = {id: 'query-parser', formalize: async text => {
-          const done = await parsing.queryParser.parse({parser: body.parser ?? rt.info?.settings?.parser ?? null, message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, local: () => parsing.localFormalize(text)});
+          const done = await parsing.queryParser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, preferredModel: rt.info?.settings?.omp_model ?? null});
           parseRecord = done.parse;
           return done.sop;
         }};
-        const english = parsing.toEnglish ? (await parsing.toEnglish(body.message)).text : body.message;
-        const turn = await rt.entry(user).agent.turn(english, {language: 'en', formalizer, translateAnswer: null}).catch(e => { e.parse = parseRecord; throw e; });
+        const turn = await rt.entry(user).agent.turn(body.message, {formalizer}).catch(e => { e.parse = e.parse ?? parseRecord; throw e; });
         rt.save(rt.entry(user), user);
         if (turn.packet) turn.packet.parse = parseRecord;
         return json(res, 200, {object: 'session.query', session: match[1], parse: parseRecord, model_sop: turn.sop, circuit: turn.executionSop, text: turn.text, answer: turn.packet});

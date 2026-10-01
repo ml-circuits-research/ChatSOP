@@ -67,7 +67,7 @@ try {
     if (author.status === 'validated' && !author.unclear) {
       const entry = s.store.get('qf', 'c' + Math.random().toString(36).slice(2), BASE_NAME);
       const t0 = Date.now();
-      try { packet = (await entry.agent.turn(row.question, {language: 'en', answerLanguage: 'en', languageSource: 'api', formalizer: {id: 'fixed', formalize: async () => author.sop}})).packet ?? null; }
+      try { packet = (await entry.agent.turn(row.question, {formalizer: {id: 'fixed', formalize: async () => author.sop}})).packet ?? null; }
       catch (error) { execError = String(error.message).slice(0, 200); }
       execMs = Date.now() - t0;
     }

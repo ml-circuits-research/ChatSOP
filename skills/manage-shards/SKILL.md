@@ -3,7 +3,7 @@ name: manage-shards
 description: Maintain local ChatSOP memory generations, retention, copy-on-write snapshots, migration and safe garbage collection.
 ---
 
-This skill covers **memory** shards (repository generations and banks, [DS028](../../docs/specs/DS028-memory-retention-and-generations.md)), not the 50 MB JSONL file shards written by `lib/jsonl-shards.mjs` and checked by `node tools/shard-large-files.mjs --check`.
+This skill covers **memory** shards (repository generations and banks, [DS021](../../docs/specs/DS021-memory-retention-and-generations.md)), not the 50 MB JSONL file shards written by `lib/jsonl-shards.mjs` and checked by `node tools/shard-large-files.mjs --check`.
 
 Read `probably_obsolete/legacy/requirements/18-sharduri.md`, `probably_obsolete/legacy/requirements/03-memorie.md`, `probably_obsolete/legacy/requirements/05-timp.md` and `probably_obsolete/legacy/requirements/17-algoritmi.md` before modifying storage.
 

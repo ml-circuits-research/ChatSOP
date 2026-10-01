@@ -9,7 +9,7 @@
  *   time            a point-in-time view of the stored facts per instant of the partition, combined as the oracle does;
  *   budget          `tick()` inside every join statement (probe ceiling and statement timeout), fact and round caps; a cut gives
  *                   `budget_exhausted` with a reason, a partial positive answer only where the proposal allows one;
- *   bank mode       `askBank` runs the same rules directly against a SQLite memory bank file (DS025), read-only: see bank.mjs.
+ *   bank mode       `askBank` runs the same rules directly against a SQLite memory bank file (DS018), read-only: see bank.mjs.
  *
  * The strategy takes the same problem as the oracle, `{theory | handle, query}`, and returns the packet of section 5.3. Per-row
  * `conditional` is the host's job (the smoke harness and `options.conditional` apply the oracle's own two-run rule around any strategy).
@@ -41,7 +41,7 @@ export const capabilities = {
   budgetKeys: HONOURED,
   determinism: 'deterministic',
   isolation: false,
-  bank: 'askBank (opt-in, read-only, DS025 memory bank file)'
+  bank: 'askBank (opt-in, read-only, DS018 memory bank file)'
 };
 
 export async function available() {

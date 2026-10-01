@@ -47,7 +47,7 @@ export function lexiconChecks({files, allWires, ctxs, problems, linking = false}
     }
     const seen = new Set();
     for (const l of fAll(w, 'label')) { const lang = l.value.trim().split(/\s+/)[0]; if (seen.has(lang)) add('label_duplicate_language', w, l.line, `${w.id} has two labels in ${lang}; a label is one display form per language (more forms are lexemes)`); seen.add(lang); }
-    // copula readings (DS021): the roles a reading needs
+    // copula readings (DS014): the roles a reading needs
     const names = namesOf(w.id) ?? [];
     const readings = fAll(w, 'reading').map(x => x.value.trim());
     if (new Set(readings).size !== readings.length) add('repeated_reading', w, f1(w, 'reading').line, `${w.id} repeats a reading`);

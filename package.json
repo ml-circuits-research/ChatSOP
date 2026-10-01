@@ -9,11 +9,8 @@
   "scripts": {
     "start": "node tools/serve-local.mjs",
     "test": "node --test --test-timeout=120000 tests/*.test.mjs",
-    "test:data": "node --max-old-space-size=8192 --test --test-timeout=900000 tests/data/*.test.mjs",
-    "test:all": "node --max-old-space-size=8192 --test --test-timeout=900000 tests/*.test.mjs tests/data/*.test.mjs",
     "demo": "node examples/demo.mjs",
     "verify": "node tools/verify.mjs",
-    "datasets:check": "node check-datasets.mjs",
     "shards": "node examples/shards-demo.mjs",
     "memory": "node examples/memory-demo.mjs",
     "bench:memory": "node tools/bench-memory.mjs",

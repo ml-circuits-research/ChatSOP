@@ -5,7 +5,7 @@ summary: Node module conventions, dependency rules, test organization, and sourc
 
 ## Introduction
 
-Changed executable project code uses Node.js ECMAScript `.mjs` modules, except Python kept for ML operations that cannot reasonably be performed by the Node runtime. The repository roots `sop/`, `memory/`, `reasoning/`, `training/`, `eval/`, `tests/`, `tools/`, and `server/` correspond to separate responsibilities.
+Changed executable project code uses Node.js ECMAScript `.mjs` modules, except Python kept for ML operations that cannot reasonably be performed by the Node runtime. The repository roots `sop/`, `memory/`, `reasoning/`, `eval/`, `tests/`, `tools/`, and `server/` correspond to separate responsibilities.
 
 ## Core Content
 
@@ -15,7 +15,7 @@ Use explicit exports, relative imports with `.mjs` suffixes, `node:` prefixes fo
 
 ### Dependencies and checks
 
-Record every necessary runtime, system tool, Python ML package, development dependency, and vendored source in root `dependencies.md` with its scope, evidence, alternatives, version, source, licensing obligations, check, and removal opportunity. Keep locally owned skill dependencies inside their skill folder. Check an indispensable external prerequisite before its affected command changes durable state; optional [reasoning backends](wiki.html#definition-reasoning-strategy) are probed when requested and skipped or reported according to their route contract. Do not silently download, install, or claim an unverified machine-specific environment. Keep unavoidable Python inside `training/python/`; Node owns orchestration in `training/*.mjs`.
+Record every necessary runtime, system tool, Python ML package, development dependency, and vendored source in root `dependencies.md` with its scope, evidence, alternatives, version, source, licensing obligations, check, and removal opportunity. Keep locally owned skill dependencies inside their skill folder. Check an indispensable external prerequisite before its affected command changes durable state; optional [reasoning backends](wiki.html#definition-reasoning-strategy) are probed when requested and skipped or reported according to their route contract. Do not silently download, install, or claim an unverified machine-specific environment. Keep unavoidable Python inside an owning skill folder; the Python of the frozen tiny-model branch lives under `probably_obsolete/tinyLLMExperiments/`.
 
 ### Testing and file maintenance
 

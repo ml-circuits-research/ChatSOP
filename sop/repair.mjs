@@ -1,5 +1,5 @@
 /**
- * Symbolic repair of `unparsed` spans (DS021 "Honest partial formalization", owner decision of 2026-09-29).
+ * Symbolic repair of `unparsed` spans (DS014 "Honest partial formalization", owner decision of 2026-09-29).
  *
  * The small model marks the parts of a message it could not formalize as `unparsed` wires (a verbatim span, an
  * optional `near $id` and `hint`). Before linking, the host tries deterministic repairs, in this order:
@@ -82,7 +82,7 @@ export function repairSpan(span, {hint = null, lexicon = null, dictionary = null
   return null;
 }
 
-// English only: the output edge translates the final answer (DS021 "English-only core").
+// English only: the output edge translates the final answer (DS014 "English-only core").
 const QUESTIONS = {subject: s => `Who or what do you mean by "${s}"?`, object: s => `Who or what do you mean by "${s}"?`, time: s => `Which date or period do you mean by "${s}"?`, location: s => `Which place do you mean by "${s}"?`,
   value: s => `Which value do you mean by "${s}"?`, relation: s => `What do you mean by "${s}"?`, reference: s => `What does "${s}" refer to?`, other: s => `What do you mean by "${s}"?`};
 /** The one targeted clarification question of an unresolved span, in English. */

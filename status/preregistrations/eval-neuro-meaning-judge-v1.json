@@ -4,7 +4,7 @@
  "name": "Can DeepSeek flash tell a meaning-preserving rewrite from a meaning-changing one? Calibration of the meaning check of the neuro oracle",
  "registered_at": "2026-09-30T18:40:00Z",
  "registered_by": "neuro-oracle-agent (owner task relayed by the orchestrator)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_context": "SymbolicProofingLLM is trained on rewrites of neuro_english messages into limited English. A rewrite of a row without a gold SOP is verified by SymbolicLM (valid SOP, no unparsed span), by the calibrated parse gate (identical default and accurate trees, DeepSeek conditions a and c good) and by a meaning check. The meaning check is used only if it is precise enough.",
  "kind": "evaluation and dataset gating (LLM judge calls through omp; no training, no GPU)",
  "frozen_before_results": "Written before the first meaning-judge call. The prompt is datasets_sources/neuro_oracle_meaning_judge/SYSTEM_m.txt; the sample is drawn by sha1 ranking with seed neuro-meaning-calibration-v1 from the candidates of the DeepSeek rewrite run (datasets_sources/neuro_english_targets/) classified by tools/datasets/neuro-targets-oracle.mjs.",

@@ -1,5 +1,5 @@
 /**
- * Clauses, links, wire references and unparsed spans of the model language (DS021 "Clauses and links" and
+ * Clauses, links, wire references and unparsed spans of the model language (DS014 "Clauses and links" and
  * "Honest partial formalization"; owner decisions L1–L4 of 2026-09-29).
  *
  * One finite clause of the message is one short wire. A subordinate or result clause is related to its main

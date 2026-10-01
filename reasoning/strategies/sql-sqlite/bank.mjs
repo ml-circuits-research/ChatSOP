@@ -1,5 +1,5 @@
 /**
- * Bank mode: run the rules where the data lives. `askBank` opens a SQLite memory bank file of DS025 (`memory/banks/sqlite.mjs`, the
+ * Bank mode: run the rules where the data lives. `askBank` opens a SQLite memory bank file of DS018 (`memory/banks/sqlite.mjs`, the
  * table `atoms(id, p, n, neg, v0..v3, ...)` and, in the single-file memory, `claims` and `changes`) READ-ONLY and answers a query over
  * it without copying the facts:
  *
@@ -11,7 +11,7 @@
  *   time               with the single-file memory, a tuple is present at `asof` when it has a claim known by then that no retraction known
  *                      by then cancels and, with `at`, whose validity (shortened by `end` events) contains the instant; a plain bank is timeless.
  *
- * It is opt-in (a different entry point, never chosen by the router), exact for the retained records of the bank (DS025: absence is only as
+ * It is opt-in (a different entry point, never chosen by the router), exact for the retained records of the bank (DS018: absence is only as
  * good as the retention policy, so a predicate is `closed` only relative to a complete retained view) and limited to what the bank holds:
  * arity 1 to 4, a point in time (no interval), no start_of/end_of. `used` names bank tuples by their `atoms.id`.
  */
@@ -57,7 +57,7 @@ export function bankBackend(file) {
       const session = new Session({budget, codec: jsonCodec, path: file, readOnly: true});
       session.db.function('tms', {deterministic: true}, text => instantMs(text));
       const have = new Set(session.all(`SELECT name FROM sqlite_master WHERE type = 'table'`).map(r => r.name));
-      if (!have.has('atoms')) { session.close(); throw new ProgramError('not_a_bank', `${file} has no atoms table (a DS025 SQLite memory bank is expected)`); }
+      if (!have.has('atoms')) { session.close(); throw new ProgramError('not_a_bank', `${file} has no atoms table (a DS018 SQLite memory bank is expected)`); }
       session.bank = {claims: have.has('claims') && have.has('changes')};
       return session;
     },

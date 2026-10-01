@@ -4,12 +4,12 @@
   "name": "Grammar-constrained decoding (llama.cpp GBNF of the SOP model surface) for the fine-tuned small formalizers",
   "registered_at": "2026-09-29T12:01:00Z",
   "registered_by": "grammar-constrained-eval-agent (owner approval of idea 1, 'grammar-constrained decoding experiment on existing models', journal decision 2026-09-29T11:45:36Z, relayed by the orchestrator)",
-  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
   "frozen_before_results": "Written after the grammar generator (tools/sop-gbnf.mjs) was built and checked for gold coverage, and after a 3-message ad-hoc smoke test (made-up messages, not suite rows), before any prediction of this experiment on a sealed suite. Gold-coverage check (acceptance only, llama.cpp test-gbnf-validator): 23,817/23,817 formalizer-v1 train targets, 5,131/5,131 dev, 5,033/5,033 sealed test, 1,578/1,578 OOD, and 1,772/1,885 wild accepted golds verbatim (88 more differ only in role order, 25 in field order such as `during` after `compare`, `unit EUR` upper case, or `task optimize` without `objective`). One grammar change followed that check: `unit` values may use upper-case letters (seen in a wild gold). No model output on a sealed suite had been seen. Any later change is a recorded deviation.",
   "kind": "evaluation-only (inference with existing checkpoints; no optimizer step, no training data change)",
   "question": "Does constraining the fine-tuned small formalizers' greedy decoding to the SOP model-surface grammar remove invalid outputs and improve accuracy, and at what speed cost?",
   "owner_idea": "Idea 1 (owner approval 2026-09-29): grammar-constrained decoding on the existing models. Expected: parse validity about 100%, some accuracy gain, small speed cost.",
-  "changed_factor": "Decoding constraint only: `free` (no grammar, the formalizer-size-v1 request) versus `gbnf` (the same request plus llama-server `grammar` = eval/reports/current/grammar-constrained/sop-model.gbnf). Weights, quantization, runtime, prompt (message only, DS021), greedy decoding (temperature 0, top_k 1), max_tokens 6144 and scoring are identical.",
+  "changed_factor": "Decoding constraint only: `free` (no grammar, the formalizer-size-v1 request) versus `gbnf` (the same request plus llama-server `grammar` = eval/reports/current/grammar-constrained/sop-model.gbnf). Weights, quantization, runtime, prompt (message only, DS014), greedy decoding (temperature 0, top_k 1), max_tokens 6144 and scoring are identical.",
   "grammar": {
     "generator": "tools/sop-gbnf.mjs (derived from SPEC, MODEL_TYPES, ROLE_NAMES and the sop/enums.mjs, sop/conditions.mjs and sop/unclear.mjs exports; test tests/sop-gbnf.test.mjs)",
     "file": "eval/reports/current/grammar-constrained/sop-model.gbnf",
@@ -70,7 +70,7 @@
     "H4": "Speed cost is small: CPU mean latency per message with the grammar <= 1.25x without."
   },
   "metrics": {
-    "per_condition": "parse validity and compile validity (eval/reference-free.mjs referenceFreeRecord), empty/error and truncated shares, tolerant execution equivalence (eval/run.mjs evaluate; ood and test500), DS016 micro wire F1 (eval/metrics.mjs rowWireComparison), wild accepted match, decision match and proposition F1 (tools/eval/wild-suite.mjs scoreAgainstAccepted), share of identical outputs",
+    "per_condition": "parse validity and compile validity (eval/reference-free.mjs referenceFreeRecord), empty/error and truncated shares, tolerant execution equivalence (eval/run.mjs evaluate; ood and test500), DS012 micro wire F1 (eval/metrics.mjs rowWireComparison), wild accepted match, decision match and proposition F1 (tools/eval/wild-suite.mjs scoreAgainstAccepted), share of identical outputs",
     "slices": "language en / ro / mixed",
     "speed": "bulk GPU latency and generation tokens/s per condition (8 parallel slots); CPU sample latency and tokens/s (1 slot)",
     "uncertainty": "paired cluster bootstrap of gbnf - free (clusters: split_group_id on ood/test500, row on wild; 2,000 resamples, mulberry32 seed 42)",

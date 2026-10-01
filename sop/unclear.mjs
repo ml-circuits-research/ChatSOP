@@ -1,11 +1,11 @@
 /**
- * The single table of `unclear` kinds (DS021). The small model has no context
+ * The single table of `unclear` kinds (DS014). The small model has no context
  * and does not reason, so it reports only what it can recognise from the text
  * itself: unintelligible text, a message with neither a statement nor a
  * question, or a visible ambiguity it prefers not to resolve (`ambiguous`, with
  * `reading "…"` lines paraphrasing each candidate reading). The host renders the
  * reply from this table, never the model; for `ambiguous` it lists the readings.
- * Renaming or adding a kind is a change to this table only (plus DS021 and the
+ * Renaming or adding a kind is a change to this table only (plus DS014 and the
  * wire help page).
  */
 export const UNCLEAR_KINDS = Object.freeze({
@@ -18,7 +18,7 @@ export const UNCLEAR_KINDS = Object.freeze({
   ambiguous: {
     en: 'Your message can be read in more than one way. Which do you mean?',
   },
-  // Written only by a request parser that knows the memory's vocabulary (codingAgentQuery, DS031): the question is clear, but no relation of the memory expresses it.
+  // Written only by a request parser that knows the memory's vocabulary (codingAgentQuery, DS022): the question is clear, but no relation of the memory expresses it.
   relation_not_in_memory: {
     en: 'The memory of this chat has no relation that expresses this question. Could you ask it in other words, or add the knowledge first?',
   },
@@ -26,7 +26,7 @@ export const UNCLEAR_KINDS = Object.freeze({
 /** Kinds that carry `reading` lines; every other kind takes none. */
 export const READING_KINDS = Object.freeze(['ambiguous']);
 
-/** The one language of the reply table: the core renders English and the output edge translates (DS021 "English-only core"). */
+/** The one language of the reply table: the core renders English and the output edge translates (DS014 "English-only core"). */
 export const REPLY_LANGUAGES = Object.freeze(['en']);
 
 export function unclearReply(kind, readings = []) {

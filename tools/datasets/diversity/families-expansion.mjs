@@ -1,4 +1,4 @@
-/** Expansion families (DS022 "Expansion families"; owner decisions Q-LANG-1..7 and conventions C1–C12 of DS021).
+/** Expansion families (DS015 "Expansion families"; owner decisions Q-LANG-1..7 and conventions C1–C12 of DS014).
  *
  * Each family authors whole messages (EN and RO) together with their targets, through the custom path of
  * generate.mjs: a variant is `[template, values => shape, extra]`, where the shape may state propositions, ask one

@@ -4,7 +4,7 @@
   "name": "Which model can write the query circuits: gpt-6-luna against quantized and larger Qwen3 models, same prompt and loop, no fine-tuning",
   "registered_at": "2026-10-01T19:15:00Z",
   "registered_by": "query-model-calibration-agent (owner question of 2026-10-01: 'instead of Luna, can a decent quantized Qwen 4B, or a bigger model, write our query circuits?')",
-  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
   "kind": "evaluation-only: no training and no fine-tuning; every model is used as published, prompted by lib/query-author; local models run on this machine's GPU through llama.cpp (one GPU worker at a time) and, for the 4B, on CPU; larger models run through OpenRouter (paid, total cap 5 USD)",
   "frozen_before_results": "Written before any model was run on any dev row. The prompt, the validate-and-repair loop and the scoring are fixed by lib/query-author (coding-agent-query-agent) and tools/eval/query-model-calibration/ and are identical for every model; a change after the first stage is a recorded deviation and restarts the affected stage for all models.",
   "system_under_test": {

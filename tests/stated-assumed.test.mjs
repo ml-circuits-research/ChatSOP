@@ -1,4 +1,4 @@
-// DS021: the context-free model language (stated, assumed, unclear,
+// DS014: the context-free model language (stated, assumed, unclear,
 // query with match blocks, constraint): parser shape, host linking, compiler
 // admission and host semantics.
 import test from 'node:test';
@@ -12,8 +12,6 @@ import {Lexicon} from '../sop/lexicon.mjs';
 import {GRAMMAR} from '../sop/knowledge/grammar.mjs';
 import {validateProgram} from '../sop/knowledge/index.mjs';
 import {UNCLEAR_KINDS, unclearReply} from '../sop/unclear.mjs';
-import {requestedLanguage, answerLanguage} from '../server/language.mjs';
-import {compareProgramPropositions, propositionMetrics, withoutBasis} from '../eval/propositions.mjs';
 import {context, lex, schema} from './helpers.mjs';
 
 const NOW = Date.parse('2026-09-26T12:00:00Z');
@@ -70,7 +68,7 @@ test('parser: strings as written, a closed role inventory, explicit polarity, qu
   ];
   for (const [source, error] of rejects) assert.throws(() => parse(source), error, source);
   // A ?variable in a statement is only a placeholder paired with an unparsed span, and a $id names a wire of the
-  // output; both parse and are rejected at admission when they are not (DS021 "Honest partial formalization").
+  // output; both parse and are rejected at admission when they are not (DS014 "Honest partial formalization").
   assert.throws(() => compile(prop('s', 'stated', {roles: [['subject', '?who'], ['object', '"Alpha Lab"']]})), /proposition_not_ground: .*unknowns belong in a query/);
   assert.throws(() => compile(prop('s', 'stated', {roles: [['subject', '$who'], ['object', '"Alpha Lab"']]})), /reference_unknown/);
   assert.doesNotThrow(() => parse(prop('s', 'stated', {valid: ['from "2025"', 'until "2026"'], extra: ['certainty supposed', 'speaker "Ana"']})));
@@ -272,31 +270,4 @@ test('no model refusal: an understood problem without an engine is stated as suc
   assert.match(out.result.text, /^I understood the question as: @c constraint; var \?x int; .* I cannot compute this kind of answer yet\.$/);
   const trusted = await runtime().run('@c constraint\n  var ?x int\n  require ?x >= 3\n  claim ?x >= 1\n@r solve\n  constraint $c');
   assert.equal(trusted.result.status, 'unsupported', 'trusted circuits keep AGENTS rule 8');
-});
-
-test('answer language: English by default, an explicit selection or a deterministic in-message request', () => {
-  assert.equal(requestedLanguage('Cine lucrează la Alfa? Răspunde în română, te rog.'), 'ro');
-  assert.equal(requestedLanguage('Who works at Alpha Lab? Please answer in Romanian.'), 'ro');
-  assert.equal(requestedLanguage('Cine lucrează la Alfa? Raspunde in limba engleza.'), 'en');
-  assert.equal(requestedLanguage('Who works at Alpha Lab? Reply in English.'), 'en');
-  assert.equal(requestedLanguage('Cine lucrează la Alfa?'), null, 'writing Romanian is not a request');
-  assert.equal(requestedLanguage('Is Romanian spoken in Moldova?'), null);
-  assert.deepEqual(answerLanguage('Who?', undefined), {language: 'en', source: 'default'});
-  assert.deepEqual(answerLanguage('Answer in Romanian: who?', undefined), {language: 'ro', source: 'prompt'});
-  assert.deepEqual(answerLanguage('Answer in Romanian: who?', 'en'), {language: 'en', source: 'request'});
-  assert.throws(() => answerLanguage('x', 'de'), /en or ro/);
-});
-
-test('metrics: stated/assumed separation and basis accuracy are reported apart from canonical match', () => {
-  const ana = [['subject', '"Ana"'], ['object', '"Alpha Lab"']];
-  const gold = parse(prop('s1', 'stated') + prop('a1', 'assumed', {polarity: 'negated', extra: ['basis world']}) + prop('a2', 'assumed', {roles: ana, extra: ['basis closure']}) + question);
-  const predicted = parse(prop('x1', 'assumed', {roles: [['subject', '"maria"'], ['object', '"ALPHA LAB"']]}) + prop('x2', 'assumed', {polarity: 'negated', extra: ['basis default']}) + prop('x3', 'assumed', {roles: ana, extra: []}) + question);
-  const comparison = compareProgramPropositions(gold, predicted);
-  assert.deepEqual([comparison.matched, comparison.separation_correct, comparison.stated_as_assumed, comparison.assumed_as_stated], [3, 2, 1, 0]);
-  const metrics = propositionMetrics([comparison]);
-  assert.equal(metrics.separation_accuracy.value, 2 / 3);
-  assert.deepEqual([metrics.basis.labelled, metrics.basis.coverage.value, metrics.basis.accuracy.value], [2, 0.5, 0]);
-  assert.deepEqual(metrics.basis.confusion, {world: {default: 1}, closure: {unspecified: 1}});
-  assert.equal(propositionKey(propositionOf(gold.wires[0])), propositionKey(propositionOf(predicted.wires[0])), 'identity folds case and ignores certainty');
-  assert.equal(canonical(withoutBasis(parse(prop('a', 'assumed', {extra: ['basis world']})))), canonical(parse(prop('a', 'assumed', {extra: []}))));
 });

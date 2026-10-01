@@ -1,5 +1,5 @@
 /**
- * Host linking of context-free model-language propositions (DS021). The small
+ * Host linking of context-free model-language propositions (DS014). The small
  * model writes strings: a relation phrase, role values as written in the
  * message and temporal expressions. After the model, the host links them to the
  * reviewed lexicon deterministically. It never guesses: an unknown or ambiguous
@@ -33,9 +33,9 @@ export function linkRelation(text, used, lexicon, {exact = true, relations = def
   // The relation lexicon (reviewed phrase -> predicate entries) adds only predicates the memory in use declares.
   const listed = (relations?.predicatesFor(phrase => phraseKey(phrase) === key) ?? []).map(id => lexicon?.predicates?.[id]).filter(Boolean);
   let named = [...new Map([...declared, ...listed].map(predicate => [predicate.id, predicate])).values()], via = 'lexicon';
-  // A phrase that is exactly a predicate id of the memory names that predicate (a producer that knows the vocabulary, such as the coding agent, writes ids; DS031): an alias of another predicate that happens to read the same cannot make it ambiguous.
+  // A phrase that is exactly a predicate id of the memory names that predicate (a producer that knows the vocabulary, such as the coding agent, writes ids; DS022): an alias of another predicate that happens to read the same cannot make it ambiguous.
   if (typeof text === 'string' && /^[a-z][a-z0-9_]*$/.test(text) && Object.hasOwn(lexicon?.predicates ?? {}, text)) named = [lexicon.predicates[text]];
-  // A query may fall back to the head verb alone ("work for" for "work at"); a stated proposition never does (DS021 "KnowledgeLinker: scoring and ambiguity").
+  // A query may fall back to the head verb alone ("work for" for "work at"); a stated proposition never does (DS014 "KnowledgeLinker: scoring and ambiguity").
   if (!named.length && headVerb && mode.headVerb && !exact && lexicon?.predicatesByKey) { named = headVerbPredicates(lexicon, text); via = 'headVerb'; }
   if (!named.length) return {status: 'unknown', text};
   const fits = named.filter(predicate => {
@@ -55,7 +55,7 @@ export function linkRelation(text, used, lexicon, {exact = true, relations = def
 }
 
 const MONTHS = {january: 1, february: 2, march: 3, april: 4, may: 5, june: 6, july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
-  // Abbreviations, written with or without a final dot. English only (DS021 "English-only core").
+  // Abbreviations, written with or without a final dot. English only (DS014 "English-only core").
   jan: 1, feb: 2, mar: 3, apr: 4, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12};
 const RELATIVE = {today: 0, yesterday: -1, tomorrow: 1};
 const utc = (y, m = 1, d = 1) => Date.UTC(y, m - 1, d);
@@ -106,7 +106,7 @@ export function linkValidity(valid, now) {
   return {interval, issues, text: interval.from === -Infinity && interval.until === Infinity ? 'timeless' : formatTime(interval.from) + ' ' + formatTime(interval.until)};
 }
 
-/** The clarification question for unlinked strings, in English (the output edge translates it, DS021 "English-only core"). */
+/** The clarification question for unlinked strings, in English (the output edge translates it, DS014 "English-only core"). */
 export function linkQuestion(issues) {
   return issues.map(issue => {
     if (issue.kind === 'entity') {
@@ -162,7 +162,7 @@ export function mentionedIn(value, message) {
 }
 
 /**
- * Cross-lingual anchoring (DS021 "Input languages and content words"): a `stated` value written in
+ * Cross-lingual anchoring (DS014 "Input languages and content words"): a `stated` value written in
  * English for a common noun of a non-English message ("the gym" for "sala de sport") is anchored when the host
  * lexicon knows an entity with that surface and another surface of the same entity (any language) is mentioned
  * in the message. The host's own reviewed labels decide; no dictionary or model is involved.
@@ -179,7 +179,7 @@ export function mentionedThroughLexicon(value, message, lexicon) {
 const FIRST_PERSON = /(?<![\p{L}])(?:i|i'm|i've|i'd|me|my|mine|myself|we|our|us)(?![\p{L}])/iu;
 const FUNCTION_TOKENS = new Set(['the', 'a', 'an', 'of', 'in', 'on', 'at', 'to', 'for', 'from', 'by', 'with', 's']);
 /**
- * Anchoring through the English dictionary view (DS021 "Content words", "English-only core"): the message is English, and a
+ * Anchoring through the English dictionary view (DS014 "Content words", "English-only core"): the message is English, and a
  * content word may be written as an English synonym of a word of the message. A value is anchored when a surface of a
  * dictionary entry it belongs to is mentioned in the message; a multiword value is anchored
  * when each of its content words is (directly or through the dictionary). "the user" is anchored by a first-person

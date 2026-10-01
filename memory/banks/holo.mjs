@@ -1,15 +1,15 @@
-/** HoloMemory SOP fact adapter over the signed-counter kernel (DS024).
+/** HoloMemory SOP fact adapter over the signed-counter kernel (DS017).
  * For argument i: key = predicate + polarity + all OTHER arguments; value = arg i.
  * Candidate dictionaries and SHA-256 receipts are explicit, separately measured.
  * This adapter is not the still-experimental, fully bounded cue/content-plane
- * architecture that DS024 lists as future work. No exact atom bodies are read during recall.
+ * architecture that DS017 lists as future work. No exact atom bodies are read during recall.
  */
 import {HoloKernel} from './holo-kernel.mjs';
 import {atom,atomKey} from '../../lib/types.mjs';
 import {assert,digest,stable,variable} from '../../lib/util.mjs';
 import {groups,checkBudget} from './common.mjs';
 // Frozen hash-domain tag of the field keys: changing it would re-address every stored trace,
-// so it keeps its historical spelling (DS024, "Persisted identifiers").
+// so it keeps its historical spelling (DS017, "Persisted identifiers").
 const FIELD_TAG='h7-field-v1';
 const keyFor=(a,i)=>stable([FIELD_TAG,a.p,a.neg,i,a.a.map((v,j)=>j===i?null:v)]);
 /** Snapshot format written by this adapter, followed by the legacy format it still reads. */

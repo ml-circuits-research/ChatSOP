@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 /** Offline verification of the current chain. Does not install packages, download weights or train.
  *
- *   node tools/verify.mjs [--group core|archive] [--collect] [--archive]
+ *   node tools/verify.mjs [--group core] [--collect]
  *
- * The default jobs check what runs now: the unit tests, the symbolic regression (recorded parses, rules only), the three datasets,
- * the reasoning smoke suite, the spec references, the model-surface lint and the demos. `--archive` adds the legacy FormalizerLLM
- * jobs (formalizer-v1 and formalizer-ood-v1 corpus verification, the per-engine data pass, the formalizer training dry run).
+ * The jobs check the kept product: the unit tests, the reasoning smoke suite, the spec references, the file-size limit, the solver
+ * availability, the contracts export and the demos. The verification chain of the frozen small-model branch (datasets, corpus audit,
+ * symbolic regression, training dry runs) moved with it to probably_obsolete/tinyLLMExperiments/. The next validation procedure is the
+ * symbolic-vs-LLM benchmark (experiments/proposal/symbolic-vs-llm-benchmark.md).
  */
 import fs from 'node:fs';
 import crypto from 'node:crypto';
@@ -19,7 +20,7 @@ process.chdir(root);
 const reportDir='eval/reports/current';
 fs.mkdirSync(reportDir,{recursive:true});
 const group=process.argv.includes('--group')?process.argv[process.argv.indexOf('--group')+1]:'all';
-const sources=['package.json','lib','sop','memory','reasoning','server','eval','tests','tools','training','config','datasets','datasets_archive','skills/material-to-sop','skills/semantic-sop-review','examples'];
+const sources=['package.json','lib','sop','memory','reasoning','server','eval','tests','tools','config','skills/material-to-sop','examples'];
 function fingerprints(location){
  const stat=fs.statSync(location);
  if(stat.isFile())return [[location,crypto.createHash('sha256').update(fs.readFileSync(location)).digest('hex')]];
@@ -39,28 +40,15 @@ const jobs=[
  ['forgetting-demo',process.execPath,['examples/forgetting-demo.mjs']],
  ['shards-demo',process.execPath,['examples/shards-demo.mjs']],
  ['shards-benchmark',process.execPath,['tools/bench-shards.mjs']],
- ['symbolic-regression',process.execPath,['tools/symbolic-regression.mjs','--replay','eval/reports/current/symbolic-regression/parses.json','--report','eval/reports/current/symbolic-regression/report-verify.json']],
- ['three-datasets',process.execPath,['tools/datasets/verify-three-datasets.mjs']],
  ['smoke-reasoning',process.execPath,['eval/smoke-reasoning/run.mjs']],
- ['research-preparation',process.execPath,['tools/research/prepare-experiment.mjs']],
  ['solver-availability',process.execPath,['tools/check-solvers.mjs']],
  ['reasoning-matrix',process.execPath,['examples/reasoning-demo.mjs']],
  ['contracts',process.execPath,['tools/capabilities.mjs']],
  ['spec-refs',process.execPath,['tools/check-spec-refs.mjs']],
- ['model-surface-lint',process.execPath,['tools/lint/model-surface.mjs']],
  ['file-size-limit',process.execPath,['tools/shard-large-files.mjs','--check']],
  ['memory-demo',process.execPath,['examples/memory-demo.mjs']]
 ];
-const archive=process.argv.includes('--archive');
-// Archive (FormalizerLLM era, owner decision 2026-10-01): the legacy corpora verified on their own and once per memory engine, and the formalizer training dry run.
-const archiveJobs=[
- ['corpus-formalizer',process.execPath,['tools/datasets/verify-corpus.mjs','--corpus','formalizer-v1','--sample','400']],
- ['corpus-formalizer-ood',process.execPath,['tools/datasets/verify-corpus.mjs','--suite','formalizer-ood-v1','--sample','200']]
-];
-for(const engine of ['holo-memory','recall-memory','sqlite','scan','hybrid'])archiveJobs.push(['data-'+engine,process.execPath,['tools/datasets/verify-corpus.mjs','--corpus','formalizer-v1','--sample','200','--engine',engine]]);
-archiveJobs.push(['formalizer-dry-run',process.execPath,['training/cli.mjs','train','--dry-run','--role','formalizer','--model','gemma','--run','verify','--data','datasets_archive/formalizer-v1']]);
 const groups={core:jobs};
-if(archive||group==='archive')groups.archive=archiveJobs;
 const report=file=>path.join(reportDir,file);
 const metadata={sourceFingerprint,node:process.version,platform:process.platform,arch:process.arch,neuralModelTested:false,trainingExecuted:false};
 if(process.argv.includes('--collect')){

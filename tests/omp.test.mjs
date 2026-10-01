@@ -1,4 +1,4 @@
-// omp integration (DS031): model discovery and cost classes, the fenced run, the authoring loop and the /v1/author API, all against
+// omp integration (DS022): model discovery and cost classes, the fenced run, the authoring loop and the /v1/author API, all against
 // a stub of the omp CLI (tests/fixtures/omp/stub-omp.mjs). No test calls a real model.
 import test from 'node:test';
 import assert from 'node:assert/strict';

@@ -10,16 +10,11 @@ import {Runtime} from '../sop/runtime.mjs';
 import {parse} from '../sop/parser.mjs';
 import {SessionStore} from './session-store.mjs';
 import {Auth,sessionCookie,readCookie} from './auth.mjs';
-import {createAuditRouter} from './audit.mjs';
 import {handleWeb,createSignedInRoutes} from './web.mjs';
 import {sendHtml} from './pages/layout.mjs';
 import {adminPage} from './pages/admin.mjs';
 import {chatPage} from './pages/chat.mjs';
-import {answerLanguage,LANGUAGE_CHOICES} from './language.mjs';
-import {loadRegistry,ModelManager,isManaged} from './formalizers.mjs';
-import {createServerModels} from './server-models.mjs';
-import {loadTextToCleanEnglishConfig} from '../lib/text-to-clean-english/index.mjs';
-import {createCapabilities,REWRITE_MODES} from './capabilities.mjs';
+import {createCapabilities} from './capabilities.mjs';
 import {createApiRouter} from './api.mjs';
 import {createProductRouter,PRODUCT_ENDPOINTS} from './product.mjs';
 import {BaseMemories,ensureDefaultBase} from '../lib/chat-data/memories.mjs';
@@ -29,7 +24,7 @@ import {Sessions} from '../lib/chat-data/sessions.mjs';
 import {SessionRuntimes} from './session-runtime.mjs';
 import {createAuthoring,AUTHORING_ENDPOINTS} from './authoring.mjs';
 import {ompSettings,createOmpModels} from '../lib/omp/index.mjs';
-import {createQueryParser,queryParserSettings,checkParser} from './query-parser.mjs';
+import {createQueryParser,queryParserSettings} from './query-parser.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const json=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data));};
@@ -46,8 +41,8 @@ const credentials=(tokens)=>{const entries=Object.entries(tokens);
 const authenticate=(header,users)=>{if(typeof header!=='string'||!header.startsWith('Bearer '))return null;const supplied=Buffer.from(header.slice(7));let user=null;for(const [name,key] of users){const expected=Buffer.from(key);if(supplied.length===expected.length&&timingSafeEqual(supplied,expected))user=name;}return user;};
 async function readBody(req,maxBytes){let length=0,chunks=[];for await(const chunk of req){length+=chunk.length;if(length>maxBytes){req.resume();const e=new Error('Request body exceeds configured limit');e.status=413;throw e;}chunks.push(chunk);}try{return JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{const e=new Error('Expected a JSON request body');e.status=400;throw e;}}
 const invalid=(message,code='invalid_request')=>Object.assign(new Error(message),{status:400,code});
-/** Validates a chat completion request; `models` is the set of accepted `model` values (façade id and registry ids). */
-function checkBody(body,models,maxContextBytes){if(!body||typeof body!=='object'||Array.isArray(body))throw invalid('Expected a chat completion object');if(typeof body.model!=='string'||!models.has(body.model))throw invalid('Unknown model '+JSON.stringify(String(body.model).slice(0,80))+'; GET /v1/models lists the available models: '+[...models].join(', '),'unknown_model');if(body.tools!==undefined||body.tool_choice!==undefined||body.functions!==undefined||body.function_call!==undefined)throw invalid('Tools and function calling are not implemented');if(![undefined,false,true].includes(body.stream))throw invalid('stream must be a boolean');if(!Array.isArray(body.messages)||body.messages.length!==1||body.messages[0]?.role!=='user'||typeof body.messages[0].content!=='string'||!body.messages[0].content.trim()||Object.keys(body.messages[0]).some(k=>!['role','content'].includes(k)))throw invalid('Supply exactly one new user text message; conversation history is server-managed');if(Buffer.byteLength(body.messages[0].content)>maxContextBytes) {const e=new Error('Message exceeds context limit');e.status=413;throw e;}const allowed=new Set(['model','messages','stream','user','conversation_id','session_id','chatSop','language','mode','cleaning','understanding','parser']);if(Object.keys(body).some(k=>!allowed.has(k)))throw invalid('Unsupported chat completion parameter');if(body.parser!==undefined)checkParser(body.parser);if(body.mode!==undefined&&body.mode!=='formalize')throw invalid('mode '+JSON.stringify(String(body.mode).slice(0,40))+' is not available: the only mode is formalize (the Chat and Translate base-model modes were removed)','unsupported_mode');if(body.language!==undefined&&!LANGUAGE_CHOICES.includes(body.language))throw invalid('language must be en, ro or auto');if(body.chatSop!==undefined&&(typeof body.chatSop!=='object'||!body.chatSop||Array.isArray(body.chatSop)||Object.keys(body.chatSop).some(k=>k!=='trustedSop')||typeof body.chatSop.trustedSop!=='string'))throw invalid('Invalid chatSop trusted circuit');if(body.cleaning!==undefined&&(typeof body.cleaning!=='object'||!body.cleaning||Array.isArray(body.cleaning)||typeof body.cleaning.original!=='string'||Object.keys(body.cleaning).some(k=>!['original','backend','changed'].includes(k))))throw invalid('Invalid cleaning trace object; expected {original, backend?, changed?}');if(body.understanding!==undefined){const u=body.understanding;if(typeof u!=='object'||!u||Array.isArray(u)||Object.keys(u).some(k=>!['interpret','rewrite','emotion'].includes(k))||(u.interpret!==undefined&&typeof u.interpret!=='boolean')||(u.emotion!==undefined&&typeof u.emotion!=='boolean')||(u.rewrite!==undefined&&!REWRITE_MODES.includes(u.rewrite)))throw invalid('Invalid understanding object; expected {interpret?: boolean, rewrite?: off|gated|always, emotion?: boolean}');}return body.messages[0].content;}
+/** Validates a chat completion request; `models` is the set of accepted `model` values (the façade id). */
+function checkBody(body,models,maxContextBytes){if(!body||typeof body!=='object'||Array.isArray(body))throw invalid('Expected a chat completion object');if(typeof body.model!=='string'||!models.has(body.model))throw invalid('Unknown model '+JSON.stringify(String(body.model).slice(0,80))+'; GET /v1/models lists the available models: '+[...models].join(', '),'unknown_model');if(body.tools!==undefined||body.tool_choice!==undefined||body.functions!==undefined||body.function_call!==undefined)throw invalid('Tools and function calling are not implemented');if(![undefined,false,true].includes(body.stream))throw invalid('stream must be a boolean');if(!Array.isArray(body.messages)||body.messages.length!==1||body.messages[0]?.role!=='user'||typeof body.messages[0].content!=='string'||!body.messages[0].content.trim()||Object.keys(body.messages[0]).some(k=>!['role','content'].includes(k)))throw invalid('Supply exactly one new user text message; conversation history is server-managed');if(Buffer.byteLength(body.messages[0].content)>maxContextBytes) {const e=new Error('Message exceeds context limit');e.status=413;throw e;}const allowed=new Set(['model','messages','stream','user','conversation_id','session_id','chatSop']);if(Object.keys(body).some(k=>!allowed.has(k)))throw invalid('Unsupported chat completion parameter');if(body.chatSop!==undefined&&(typeof body.chatSop!=='object'||!body.chatSop||Array.isArray(body.chatSop)||Object.keys(body.chatSop).some(k=>k!=='trustedSop')||typeof body.chatSop.trustedSop!=='string'))throw invalid('Invalid chatSop trusted circuit');return body.messages[0].content;}
 function checkedTrusted(source){const wires=parse(source).wires;if(!wires.length||!wires.some(w=>w.type==='remember')||wires.some(w=>!['fact','event','remember'].includes(w.type)))throw Error('Trusted circuit requires an explicit remember of facts or events');return source;}
 const docsRoot=path.join(root,'docs');
 const mimeTypes={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg','.ico':'image/x-icon','.txt':'text/plain; charset=utf-8','.md':'text/markdown; charset=utf-8','.woff2':'font/woff2','.map':'application/json'};
@@ -64,7 +59,7 @@ function serveDocs(res,url){
  res.end(body);
 }
 /** Repository Markdown served read-only at its repository path (GET, signed-in): skills, READMEs and the root notes. */
-export const REPO_MARKDOWN=/^\/(?:skills\/(?:README\.md|[A-Za-z0-9-]+\/SKILL\.md)|eval\/README\.md|datasets\/SOURCES\.md|(?:README|AGENTS|TODO|CHANGES|questions|dependencies)\.md)$/;
+export const REPO_MARKDOWN=/^\/(?:skills\/(?:README\.md|[A-Za-z0-9-]+\/SKILL\.md)|eval\/README\.md|(?:README|AGENTS|TODO|CHANGES|questions|dependencies)\.md)$/;
 function serveRepoMarkdown(res,url){
  const file=path.join(root,url.slice(1));
  const stat=fs.statSync(file,{throwIfNoEntry:false});
@@ -126,72 +121,42 @@ async function adminRoutes(req,res,url,auth,readiness){
  return error(res,404,'not_found','Endpoint not found');
 }
 
-function trace(result,formalizer,system,cleaning,understanding,inputTranslation=null){const packet=result.packet??{};return {mode:'formalize',parse:result.parse??packet.parse??null,latency_ms:result.formalization?.ms??null,formalizer_label:formalizer.label??null,formalization_ms:result.formalization?.ms??null,circuit:result.executionSop,model_sop:result.sop,provenance:packet.proof??[],backend:packet.route?.backend??packet.backend??null,fallback:packet.route?.fallback??packet.fallback??null,completeness:packet.complete??packet.completeness??null,retrieval:packet.retrieval??null,route:packet.route??null,reasoning_strategy:packet.reasoningStrategy??null,cnl:result.cnl,status:packet.status??null,pendingSop:packet.pendingSop??null,required:packet.required??null,reinforcement:packet.reinforcement??null,answer_language:result.answerLanguage??null,language_source:result.languageSource??null,user_statements:result.userStatements??[],carried_statements:result.carriedStatements??[],model_assumptions:result.modelAssumptions??[],assumption_policy:result.assumptionPolicy??null,assumption_branch:result.assumptionBranch??null,unclear:result.unclear??null,understood_as:packet.understood_as??null,linking:packet.linking??[],system_circuit:system?.source??null,system_receipt:system?.receipt??null,formalizer_model:result.formalization?.model??formalizer.id??formalizer.model,cleaning:cleaning?{original:cleaning.original,backend:cleaning.backend??null,changed:cleaning.changed??null}:null,understanding:understanding??null,input_translation:inputTranslation,answer_translation:result.answerTranslation??null,english_text:result.englishText??null};}
-function completion(result,model,formalizer,system,cleaning,understanding,inputTranslation=null){const id='chatcmpl-'+randomUUID(),created=Math.floor(Date.now()/1000);return {id,object:'chat.completion',created,model,choices:[{index:0,message:{role:'assistant',content:result.text},finish_reason:'stop'}],usage:null,chatSop:trace(result,formalizer,system,cleaning,understanding,inputTranslation)};}
+function trace(result,formalizer,system,parse=null){const packet=result.packet??{};return {mode:'formalize',parse:parse??packet.parse??null,latency_ms:result.formalization?.ms??null,formalizer_label:formalizer.label??null,formalization_ms:result.formalization?.ms??null,circuit:result.executionSop,model_sop:result.sop,provenance:packet.proof??[],backend:packet.route?.backend??packet.backend??null,fallback:packet.route?.fallback??packet.fallback??null,completeness:packet.complete??packet.completeness??null,retrieval:packet.retrieval??null,route:packet.route??null,reasoning_strategy:packet.reasoningStrategy??null,cnl:result.cnl,status:packet.status??null,pendingSop:packet.pendingSop??null,required:packet.required??null,reinforcement:packet.reinforcement??null,user_statements:result.userStatements??[],carried_statements:result.carriedStatements??[],model_assumptions:result.modelAssumptions??[],assumption_policy:result.assumptionPolicy??null,assumption_branch:result.assumptionBranch??null,unclear:result.unclear??null,understood_as:packet.understood_as??null,linking:packet.linking??[],system_circuit:system?.source??null,system_receipt:system?.receipt??null,formalizer_model:result.formalization?.model??formalizer.id??formalizer.model};}
+function completion(result,model,formalizer,system,parse=null){const id='chatcmpl-'+randomUUID(),created=Math.floor(Date.now()/1000);return {id,object:'chat.completion',created,model,choices:[{index:0,message:{role:'assistant',content:result.text},finish_reason:'stop'}],usage:null,chatSop:trace(result,formalizer,system,parse)};}
 function sse(res,data){res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache, no-transform','Connection':'keep-alive'});const base={id:data.id,created:data.created,model:data.model,object:'chat.completion.chunk'};res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:data.choices[0].message.content},finish_reason:null}],chatSop:data.chatSop})+'\n\n');res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}]})+'\n\n');res.end('data: [DONE]\n\n');}
 /**
- * `formalizers`, when given, is `{registry, manager}` (server/formalizers.mjs): the chat then accepts every
- * registry id as `model`, the façade id selects the registry default, and readiness reports each model's state.
- */
-/** The HTTP server. With `chatData` (what `startServer` always passes) chats run in sessions on base memories (DS031). Without it the server runs in
+ * The HTTP server. With `chatData` (what `startServer` always passes) chats run in sessions on base memories (DS022). Without it the server runs in
  * single-repository mode: one repository and one lexicon, conversations kept by `SessionStore`; embedders and the tests that do not exercise the
- * product layer use it. */
-export function createServer({config,repo,lexicon,authTokens,auth=null,base='demo',limits={},sessionRoot,formalizers=null,chatData=null,serverModelsFile}={}){
+ * product layer use it. The request parser (server/query-parser.mjs, the coding agent) is created from `config.queryParser` unless `queryParser` is injected (tests).
+ */
+export function createServer({config,repo,lexicon,authTokens,auth=null,base='demo',limits={},sessionRoot,chatData=null,queryParser:injected=null}={}){
  if(!config||!repo||!lexicon)throw Error('Server requires config, repository and lexicon');
  const model=config.model??'chatsop-local';
  const users=auth?null:credentials(authTokens??(process.env.CHATSOP_API_KEY?{local:process.env.CHATSOP_API_KEY}:{}));
  const maxRequestBytes=positive(limits.maxRequestBytes??65536,'maxRequestBytes'),maxContextBytes=positive(limits.maxContextBytes??4800,'maxContextBytes'),maxConcurrent=positive(limits.maxConcurrent??4,'maxConcurrent'),timeoutMs=positive(limits.timeoutMs??30000,'timeoutMs');
  const sessions=new SessionStore({repo,lexicon,config:{...config,contextMaxBytes:Math.min(config.contextMaxBytes??maxContextBytes,maxContextBytes)},root:sessionRoot??path.join(repo.root,'http-conversations')});
  const pages=createSignedInRoutes();
- const audit=createAuditRouter({ledgerDir:process.env.CHATSOP_AUDIT_LEDGER?path.resolve(process.env.CHATSOP_AUDIT_LEDGER):path.join(root,'eval/reports/current/audit')});
  let active=0;const busy=new Set();
- const registry=formalizers?.registry??null,manager=formalizers?.manager??null;
- const accepted=new Set([model,...(registry?registry.models.map(m=>m.id):[])]);
- /** The formalizer a request's `model` selects (the façade id selects the registry default: SymbolicLM), or null without a registry. */
- const selectModel=id=>{
-  if(!registry)return null;
-  const chosen=registry.models.find(m=>m.id===(id===model?registry.defaults.formalize??registry.default:id));
-  if(!chosen||!chosen.capabilities.includes('formalize')){const offered=registry.models.filter(m=>m.capabilities.includes('formalize')).map(m=>m.id);throw invalid('Model '+JSON.stringify(id)+' is not a formalizer'+(offered.length?'; formalizers: '+offered.join(', '):''),'unsupported_mode');}
-  return chosen;
- };
- const capabilities=createCapabilities({registry,manager,timeoutMs,cache:limits.cache});
- const serverModels=registry&&manager?createServerModels({registry,manager,...(serverModelsFile?{file:serverModelsFile}:{}),warm:capabilities.warmState}):null;
- const api=createApiRouter({capabilities,serverModels,json,error,readBody,limits:{maxRequestBytes,maxContextBytes,maxConcurrent:limits.maxConcurrentApi??16},extraEndpoints:chatData?[...PRODUCT_ENDPOINTS,...AUTHORING_ENDPOINTS]:[]});
- // The product layer (DS031): base memories, sessions, omp. Present when a chat data root is configured (startServer always does).
+ const accepted=new Set([model]);
+ // The coding agent (omp) and its subscription chain: the one circuit author of the product (DS009 "Request parser").
+ const omp=ompSettings(config),ompModels=createOmpModels(omp);
+ const queryParser=injected??createQueryParser({settings:queryParserSettings(config),ompConfig:omp,ompModels,chatData});
+ const capabilities=createCapabilities({queryParser});
+ const api=createApiRouter({capabilities,json,extraEndpoints:chatData?[...PRODUCT_ENDPOINTS,...AUTHORING_ENDPOINTS]:[]});
+ // The product layer (DS022): base memories, sessions, omp. Present when a chat data root is configured (startServer always does).
  const memories=chatData?new BaseMemories({chatData,memory:config.memory}):null;
  if(memories)ensureDefaultBase(memories,config);
  const sessionStore=chatData?new Sessions({chatData,memories,memory:config.memory}):null;
  const runtimes=chatData?new SessionRuntimes({sessions:sessionStore,memories,config:{...config,contextMaxBytes:Math.min(config.contextMaxBytes??maxContextBytes,maxContextBytes)},defaultBase:config.chatData?.defaultBase??'default'}):null;
- const omp=chatData?ompSettings(config):null,ompModels=chatData?createOmpModels(omp):null;
- // The request parsers (DS031 "Request parsers"): codingAgentQuery (default) and localQuery (SymbolicLM + KnowledgeLinker).
- const queryParser=chatData?createQueryParser({settings:queryParserSettings(config),ompConfig:omp,ompModels,chatData}):null;
- const authoring=chatData?createAuthoring({sessions:sessionStore,runtimes,chatData,models:ompModels,settings:omp,readBody,json,maxBytes:limits.maxProductBytes??8_000_000,capabilities}):null;
- const product=chatData?createProductRouter({memories,sessions:sessionStore,runtimes,readBody,json,limits,extra:authoring,parsing:queryParser?{queryParser,localFormalize:async message=>(await capabilities.symbolicFormalize(message)).sop,toEnglish:text=>capabilities.toEnglish(text)}:null}):null;
- const rewriteDefault=capabilities.rewriteDefault,emotionDefault=capabilities.emotionDefault;
- /** Defaults the chat page shows in its settings: the cleaning step's `sendAll`, the rewrite default and whether a SymbolicProofingLLM is registered. */
- const chatSettings=()=>{const cleaning=loadTextToCleanEnglishConfig();return {emotionEnabled:emotionDefault(),cleaningEnabled:cleaning.enabled!==false,sendAll:cleaning.llm?.sendAll===true,rewrite:rewriteDefault(),rewriteAvailable:Boolean(registry?.defaults?.['proofread-symbolic'])};};
- /** Per-model state: stopped, starting, ready or error (with the reason). */
- async function modelStates(){
-  return registry.models.map(m=>{
-   const state=manager.status(m.id);
-   const defaults=Object.entries(registry.defaults).filter(([,id])=>id===m.id).map(([mode])=>mode);
-   return {id:m.id,label:m.label,note:m.note,kind:m.kind,capabilities:m.capabilities,default:m.id===registry.default,default_for:defaults,...state};
-  });
- }
- /** Without a registry nothing can formalize. With one: ready while the SymbolicLM service is not in error. */
+ const authoring=chatData?createAuthoring({sessions:sessionStore,runtimes,chatData,models:ompModels,settings:omp,readBody,json,maxBytes:limits.maxProductBytes??8_000_000}):null;
+ const product=chatData?createProductRouter({memories,sessions:sessionStore,runtimes,readBody,json,limits,extra:authoring,parsing:{queryParser}}):null;
+ /** Whether the coding agent can run now, with the model chain; the chat answers 503 `parse_unavailable` when it cannot. */
  async function readiness(){
-  if(!registry)return {ready:false,model_available:false};
-  const models=await modelStates(),usable=models.some(m=>m.capabilities.includes('formalize')&&m.state!=='error');
-  return {ready:usable,model_available:usable,default_model:registry.default,default_models:registry.defaults,formalizers:models};
- }
- /** The caches inside running services (SymbolicLM: Stanza parse, sentence units, rewrite calls), read from their /health; never starts a service. */
- async function cacheServices(){
-  const out={};
-  for(const [id,entry] of manager?.entries??[])if(entry.model.kind==='service'&&entry.state==='ready')try{const r=await fetch(manager.url(entry)+'/health',{signal:AbortSignal.timeout(1000)});const h=await r.json();if(h.caches)out[id]=h.caches;}catch{}
-  return out;
+  const free=await queryParser.availability();
+  return {ready:free.available===true,model_available:free.available===true,default_model:model,coding_agent:{available:free.available===true,...(free.reason?{reason:free.reason}:{}),models:queryParser.settings.models,backend:queryParser.settings.backend.kind,...(free.skipped?.length?{skipped:free.skipped}:{})}};
  }
  const server=http.createServer(async(req,res)=>{
-  const url=req.url?.split('?')[0];if((url==='/healthz'||url==='/health')&&req.method==='GET')return json(res,200,{status:'ok',warm:capabilities.warmState()});
+  const url=req.url?.split('?')[0];if((url==='/healthz'||url==='/health')&&req.method==='GET')return json(res,200,{status:'ok'});
   // The documentation site is served statically and needs no authentication:
   // it is the same public HTML that lives under docs/ in the repository.
   if(req.method==='GET'&&url==='/docs'){res.writeHead(302,{Location:'/docs/'});return res.end();}
@@ -208,48 +173,26 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    if(auth&&!auth.usable)return error(res,403,'setup_required','Open /login in a browser and set the administrator password to enable this API');
    return error(res,401,'unauthorized','Bearer authentication required');
   }
-  // Repository Markdown that the documentation links to (skills, the eval README, dataset sources, root notes),
+  // Repository Markdown that the documentation links to (skills, the eval README, root notes),
   // served read-only as plain text to signed-in users so the server carries all documentation.
   if(req.method==='GET'&&REPO_MARKDOWN.test(url??''))return serveRepoMarkdown(res,url);
-  if(url==='/audit'||url?.startsWith('/audit/')){
-   if(!user)return error(res,401,'unauthorized','Sign in on /login first');
-   try{
-    const parsed=new URL(req.url,'http://localhost');
-    const handled=await audit.handle(req,res,url,Object.fromEntries(parsed.searchParams),(status,body,type)=>json(res,status,body));
-    if(handled)return;
-   }catch(e){if(res.destroyed)return;return error(res,e.status??400,e.code??'invalid_request',e.message);}
-  }
   try{const parsed=new URL(req.url,'http://localhost');if(await pages.handle(req,res,url,Object.fromEntries(parsed.searchParams),(status,body)=>json(res,status,body),{signedIn:Boolean(sessionUser)}))return;}catch(e){if(res.destroyed)return;return error(res,e.status??400,e.code??'invalid_request',e.message);}
-  if(url==='/chat'&&req.method==='GET'){const state=await readiness();return sendHtml(res,200,chatPage({model,ready:state.ready,models:state.formalizers??null,defaultModel:state.default_model??null,defaultModels:state.default_models??null,settings:chatSettings()}));}
+  if(url==='/chat'&&req.method==='GET'){const state=await readiness();return sendHtml(res,200,chatPage({model,ready:state.ready,codingAgent:state.coding_agent}));}
   if(url==='/readyz'&&req.method==='GET'){const state=await readiness();return json(res,state.ready?200:503,state);}
   if(url==='/v1/models'&&req.method==='GET'){
    const state=await readiness();
-   if(!registry)return json(res,200,{object:'list',data:state.ready?[{id:model,object:'model',created:0,owned_by:'chatsop'}]:[]});
-   return json(res,200,{object:'list',default:registry.default,defaults:registry.defaults,data:state.formalizers.map(({id,...chatsop})=>({id,object:'model',created:0,owned_by:'chatsop',chatsop}))});
+   return json(res,200,{object:'list',default:model,data:[{id:model,object:'model',created:0,owned_by:'chatsop',chatsop:{coding_agent:state.coding_agent,ready:state.ready}}]});
   }
-  // The independent capability APIs (DS030, docs/api.html): proofread (alias /v1/text-to-clean-english), understand, symbolic rewrite and analyze, emotion detect, capabilities, cache stats.
   if(product&&url?.startsWith('/v1/')&&await product.handle(req,res,url,{admin:Boolean(sessionUser)||(!auth&&Boolean(legacy)),user}))return;
-  if(url?.startsWith('/v1/')&&await api.handle(req,res,url,{admin:Boolean(sessionUser)||(!auth&&Boolean(legacy)),cacheServices}))return;
- const start=/^\/v1\/models\/([^/]+)\/start$/.exec(url??'');
-  if(start&&req.method==='POST'){
-   // Starts a registry model ahead of the first message (the chat page calls it when a model is selected).
-   const selected=registry?.models.find(m=>m.id===decodeURIComponent(start[1]));
-   if(!selected)return error(res,404,'unknown_model','Unknown model; GET /v1/models lists the available models');
-   if(isManaged(selected))manager.ensure(selected.id).catch(()=>{});
-   const state=(await modelStates()).find(m=>m.id===selected.id);
-   return json(res,isManaged(selected)&&state.state!=='error'?202:200,state);
-  }
+  if(url?.startsWith('/v1/')&&await api.handle(req,res,url))return;
   if(['/v1/responses','/v1/embeddings'].includes(url)||url?.startsWith('/v1/tools'))return error(res,501,'not_implemented','This API surface is not implemented');
   if(url!=='/v1/chat/completions'||req.method!=='POST')return error(res,404,'not_found','Endpoint not found');
   if(active>=maxConcurrent)return error(res,429,'concurrency_limit','Server concurrency limit reached');
-  let key,understanding=null,inputTranslation=null;try{
+  let key,parseRecord=null;try{
    const body=await readBody(req,maxRequestBytes),text=checkBody(body,accepted,maxContextBytes);
-   if(!registry)return error(res,503,'model_unavailable','No formalizer: the model registry (config/formalizers.json) with the SymbolicLM service is not loaded');
-   const chosenModel=selectModel(body.model);
-   if(!queryParser||body.parser==='local'){const state=manager.status(chosenModel.id);if(state.state==='error'&&manager.missing(manager.entries.get(chosenModel.id)))return error(res,503,'model_unavailable','Formalizer '+chosenModel.id+' cannot start: '+state.error);}
    if(body.user!==undefined&&body.user!==user)throw Error('Authenticated user mismatch');
    const conversation=body.conversation_id??'default';if(typeof conversation!=='string'||! /^[A-Za-z0-9_-]{1,80}$/.test(conversation))throw Error('Invalid conversation_id');
-   // Session mode (DS031): the turn runs in the session's own repository (a clone of its base memory). A request without session_id
+   // Session mode (DS022): the turn runs in the session's own repository (a clone of its base memory). A request without session_id
    // uses one automatic session per user and conversation on the default base memory.
    const isAdmin=Boolean(sessionUser)||(!auth&&Boolean(legacy));
    let rt=null,sessionId=null;
@@ -263,32 +206,26 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    busy.add(key);active++;
    const work=(async()=>{
     if(body.chatSop){const source=checkedTrusted(body.chatSop.trustedSop),stored=await new Runtime({repo:rt?rt.repo:repo,session:entry.agent.session,schema:(rt?.lexicon??lexicon).predicates,lexicon:rt?.lexicon??lexicon,policy:{...config.policy,allowRules:false,allowPin:false}}).run(source);system={source,receipt:stored.result};}
-    const chosen=answerLanguage(text,body.language);
-    let parseRecord=null;
-    const managed={id:chosenModel.id,pragmatic:()=>understanding?.emotion??null,formalize:async message=>{
-     // SymbolicLM: the same cached call as POST /v1/understand (same message and rewrite setting), so the analysis the page already asked for is reused.
-     const call=await capabilities.symbolicFormalize(message,body.understanding);
-     const symbolic=call.symbolic,wantEmotion=typeof body.understanding?.emotion==='boolean'?body.understanding.emotion:capabilities.emotionDefault();
-     let emotion=null;
-     if(wantEmotion)try{const r=await capabilities.emotionFor(message,{leftoverSpans:symbolic?.interpretation?.available?symbolic.interpretation.not_represented:[]});emotion={signals:r.signals,emoji:capabilities.emojiOf(r.signals),leftovers:r.leftovers,sop:r.sop,trace:r.trace};}catch{}
-     understanding={requested:{...call.requested,emotion:wantEmotion},cache:call.status,...(symbolic?{message:message,analysed_text:symbolic.analysed_text??null,route:symbolic.route??null,language:symbolic.language??null,english:symbolic.english??null,uncertainty:symbolic.uncertainty?{uncertain:symbolic.uncertainty.uncertain,kinds:symbolic.uncertainty.kinds}:null,rewrite:symbolic.rewrite??null,interpretation:symbolic.interpretation??null,emotion}:{emotion})};
-     return call.sop;}};
-    const localFormalize=managed.formalize;
-    if(queryParser)managed.formalize=async message=>{
-     const lex=rt?.lexicon??lexicon,done=await queryParser.parse({parser:body.parser??rt?.info?.settings?.parser??null,message,lexicon:lex,memoryKey:lex.circuitsSha256??null,local:()=>localFormalize(message)});
-     parseRecord=done.parse;if(done.parse.parser==='coding_agent')managed.id='coding-agent:'+(done.parse.model??'omp');
-     return done.sop;};
-    // The input edge (DS021 "English-only core"): the core receives English only; a Romanian or mixed message is translated first or the request fails with backend_unavailable.
-    const input=await capabilities.toEnglish(text);inputTranslation=capabilities.inputOf(input);
-    const result=await entry.agent.turn(input.text,{language:'en',answerLanguage:chosen.language,languageSource:chosen.source,formalizer:managed,translateAnswer:(english,language)=>capabilities.translateTo(english,language)}).catch(e=>{e.parse=parseRecord;throw e;});if(parseRecord){result.parse=parseRecord;if(result.packet)result.packet.parse=parseRecord;}if(rt){rt.save(entry,user);sessionStore.appendTranscript(sessionId,{role:'user',text});sessionStore.appendTranscript(sessionId,{role:'assistant',text:result.text,status:result.packet?.status??null});}else sessions.save(entry,user,conversation,base);return result;
+    // The circuit author: the coding agent reads the message and the vocabulary of the session's memory and writes the circuit (server/query-parser.mjs).
+    const author={id:'coding-agent',label:'coding agent (omp)',formalize:async message=>{
+     const lex=rt?.lexicon??lexicon,done=await queryParser.parse({message,lexicon:lex,memoryKey:lex.circuitsSha256??null,preferredModel:rt?.info?.settings?.omp_model??null});
+     parseRecord=done.parse;author.id='coding-agent:'+(done.parse.model??'omp');
+     return done.sop;}};
+    const result=await entry.agent.turn(text,{formalizer:author}).catch(e=>{e.parse=e.parse??parseRecord;throw e;});
+    if(parseRecord&&result.packet)result.packet.parse=parseRecord;
+    if(rt){rt.save(entry,user);sessionStore.appendTranscript(sessionId,{role:'user',text});sessionStore.appendTranscript(sessionId,{role:'assistant',text:result.text,status:result.packet?.status??null});}else sessions.save(entry,user,conversation,base);
+    return {result,author,system,rt,sessionId};
    })();work.finally(()=>{active--;busy.delete(key);}).catch(()=>{});
-   const result=await Promise.race([work,new Promise((_,reject)=>{const timer=setTimeout(()=>{const e=new Error('Request time limit reached');e.status=504;reject(e);},timeoutMs);timer.unref();work.finally(()=>clearTimeout(timer)).catch(()=>{});})]);
-   if(res.destroyed)return;const data=completion(result,body.model,{id:chosenModel.id,label:chosenModel.label},system,body.cleaning,understanding,inputTranslation);if(rt)data.chatSop.session={id:sessionId,base:rt.info.base};if(body.stream)sse(res,data);else json(res,200,data);
+   const done=await Promise.race([work,new Promise((_,reject)=>{const timer=setTimeout(()=>{const e=new Error('Request time limit reached');e.status=504;reject(e);},timeoutMs);timer.unref();work.finally(()=>clearTimeout(timer)).catch(()=>{});})]);
+   if(res.destroyed)return;const data=completion(done.result,body.model,{id:done.author.id,label:done.author.label},done.system,parseRecord);if(done.rt)data.chatSop.session={id:done.sessionId,base:done.rt.info.base};if(body.stream)sse(res,data);else json(res,200,data);
   }catch(e){if(res.destroyed)return;
-   // The model answered but its SOP was not admitted or could not be executed: 422 with what it wrote, so the chat can show it.
-   if(e.modelSop!==undefined)return json(res,422,{error:{message:'The formalizer output was not admitted or could not be executed',type:'invalid_request_error',code:'model_output_rejected'},chatSop:{status:'rejected',parse:e.parse??null,rejection:String(e.message).slice(0,500),model_sop:e.modelSop,formalizer_model:e.formalization?.model??null,formalization_ms:e.formalization?.ms??null,understanding}});
-   const status=e.status??(e.name==='TimeoutError'||e.message==='Request time limit reached'?504:400);error(res,status,(e.status&&e.code)||(status===413?'request_limit':status===504?'time_limit':status===400?'invalid_request':'internal_error'),status===400&&!e.status?'Invalid SOP or request; no model detail exposed':status===504?'Request time limit reached':e.status?e.message:'Server request failed');}
- });server.auth=auth;server.capabilities=capabilities;server.serverModels=serverModels;server.sessions=sessionStore;server.memories=memories;server.authoring=authoring;server.ompModels=ompModels;server.ompSettings=omp;server.queryParser=queryParser;
+   // No model of the subscription chain could run (503), or the models ran and no valid circuit came back (422): the parse record says which models were tried and why they failed.
+   if(e.code==='parse_unavailable')return json(res,503,{error:{message:'The coding agent cannot produce a circuit: '+e.message,type:'invalid_request_error',code:'parse_unavailable'},chatSop:{status:'parse_unavailable',parse:e.parse??parseRecord,reason:String(e.message).slice(0,500)}});
+   if(e.code==='parse_failed')return json(res,422,{error:{message:'The coding agent wrote no valid circuit: '+e.message,type:'invalid_request_error',code:'parse_failed'},chatSop:{status:'rejected',parse:e.parse??parseRecord,rejection:String(e.message).slice(0,500)}});
+   // The circuit was written but not admitted or could not be executed: 422 with what the author wrote, so the chat can show it.
+   if(e.modelSop!==undefined)return json(res,422,{error:{message:'The circuit was not admitted or could not be executed',type:'invalid_request_error',code:'model_output_rejected'},chatSop:{status:'rejected',parse:e.parse??parseRecord,rejection:String(e.message).slice(0,500),model_sop:e.modelSop,formalizer_model:e.formalization?.model??null,formalization_ms:e.formalization?.ms??null}});
+   const status=e.status??(e.name==='TimeoutError'||e.message==='Request time limit reached'?504:400);error(res,status,(e.status&&e.code)||(status===413?'request_limit':status===504?'time_limit':status===400?'invalid_request':'internal_error'),status===400&&!e.status?'Invalid SOP or request; no detail exposed':status===504?'Request time limit reached':e.status?e.message:'Server request failed');}
+ });server.auth=auth;server.capabilities=capabilities;server.sessions=sessionStore;server.memories=memories;server.authoring=authoring;server.ompModels=ompModels;server.ompSettings=omp;server.queryParser=queryParser;
  server.on('close',()=>capabilities.close());
  return server;
 }
@@ -296,27 +233,17 @@ export async function startServer({configPath=path.join(root,'config/runtime.jso
  if(!Number.isInteger(port)||port<0||port>65535)throw Error('Invalid port');
  const config=JSON.parse(fs.readFileSync(configPath,'utf8'));
  const project=path.resolve(root),lexicon=demoLexicon();  // the lexicon of the code paths without sessions; every chat session uses its own base memory's lexicon
- // Chat data (DS031): every chat lives under one gitignored root. The runtime repository is the default base memory's own repository;
+ // Chat data (DS022): every chat lives under one gitignored root. The runtime repository is the default base memory's own repository;
  // it is only a placeholder for the code paths without sessions, which session mode never uses for a chat.
  const chatData=ChatData.open(config,process.env,project),bases=new BaseMemories({chatData,memory:config.memory});
  const repo=bases.repository(ensureDefaultBase(bases,config));
  const stopCleanup=chatData.scheduleCleanup(report=>{if(report.error)console.error('chat data cleanup failed: '+report.error);else if(report.tmp.length||report.sessions.length)console.log('chat data cleanup removed '+report.tmp.length+' tmp folders and '+report.sessions.length+' abandoned sessions');});
  const auth=new Auth({file:path.resolve(project,config.auth?.file??'state/auth.json'),apiKey:process.env.CHATSOP_API_KEY??null});
- // The formalizer registry (DS012 "Formalizer models"): `config.formalizers` names its file, false disables it.
- const registryFile=config.formalizers===false?null:path.resolve(project,config.formalizers??'config/formalizers.json');
- const formalizers=registryFile&&fs.existsSync(registryFile)?(registry=>({registry,manager:new ModelManager({registry,logDir:path.resolve(project,config.root??'state','formalizer-logs')})}))(loadRegistry(registryFile)):null;
- const server=createServer({config,repo,lexicon,auth,base:'main',limits:config.server?.limits,formalizers,chatData,...(process.env.CHATSOP_SERVER_MODELS?{serverModelsFile:path.resolve(process.env.CHATSOP_SERVER_MODELS)}:{})});
+ const server=createServer({config,repo,lexicon,auth,base:'main',limits:config.server?.limits,chatData});
  server.on('close',stopCleanup);
- if(formalizers){
-  server.formalizers=formalizers;
-  server.on('close',()=>formalizers.manager.stopAll());
-  // Ctrl+C or a service stop ends the llama-server children before the process exits.
-  const stop=signal=>{formalizers.manager.stopAll().finally(()=>process.exit(signal==='SIGINT'?130:143));};
-  process.once('SIGINT',stop);process.once('SIGTERM',stop);
- }
  await new Promise((resolve,reject)=>server.once('error',reject).listen(port,host,resolve));
- // Warmup (DS012 "Model lifecycle"): the kept-open models start and are probed in the background; the server is usable at once. CHATSOP_WARMUP=0 or the `warmup` setting turns it off.
- if(formalizers&&server.serverModels&&server.serverModels.settings().warmup&&process.env.CHATSOP_WARMUP!=='0')setImmediate(()=>{(async()=>server.ompModels?.list?.())().catch(()=>{});try{const ids=server.serverModels.settings().warmMemories??[];if(server.memories&&ids.length)setImmediate(()=>{for(const r of warmMemories({memories:server.memories,ids}))console.log('warmup: base memory '+r.id+(r.skipped?' skipped ('+r.skipped+')':' warm in '+r.ms+' ms ('+r.facts+' facts, '+r.layers+' layers)'));});}catch(e){console.error('warmup of base memories failed: '+e.message);}return server.capabilities.warmup().then(state=>console.log('warmup: '+state.state+' in '+state.ms+' ms ('+Object.entries(state.models).filter(([,m])=>m.mode==='keep_open').map(([id,m])=>id+' '+(m.warm?'warm':m.state)).join(', ')+')')).catch(e=>console.error('warmup failed: '+e.message));});
+ // Warmup (DS009 "Warm memories"): the base memories named by `server.warmMemories` are decoded in the background; the server is usable at once. CHATSOP_WARMUP=0 or `server.warmup: false` turns it off.
+ if(config.server?.warmup!==false&&process.env.CHATSOP_WARMUP!=='0')setImmediate(()=>{(async()=>server.ompModels?.list?.())().catch(()=>{});try{const ids=config.server?.warmMemories??['default','world-v1'];if(server.memories&&ids.length)for(const r of warmMemories({memories:server.memories,ids}))console.log('warmup: base memory '+r.id+(r.skipped?' skipped ('+r.skipped+')':' warm in '+r.ms+' ms ('+r.facts+' facts, '+r.layers+' layers)'));}catch(e){console.error('warmup of base memories failed: '+e.message);}});
  return server;
 }
-if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){startServer({configPath:process.env.CHATSOP_CONFIG??path.join(root,'config/runtime.json')}).then(server=>console.log('ChatSOP listening on '+JSON.stringify(server.address())+'\n  home (sign in, chat, audit, admin): http://127.0.0.1:'+server.address().port+'/\n  documentation: http://127.0.0.1:'+server.address().port+'/docs/')).catch(e=>{console.error(e.message);console.error('\nHint: `npm start` generates a token, serves the documentation and prints the access URLs.');process.exitCode=1;});}
+if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){startServer({configPath:process.env.CHATSOP_CONFIG??path.join(root,'config/runtime.json')}).then(server=>console.log('ChatSOP listening on '+JSON.stringify(server.address())+'\n  home (sign in, chat, admin): http://127.0.0.1:'+server.address().port+'/\n  documentation: http://127.0.0.1:'+server.address().port+'/docs/')).catch(e=>{console.error(e.message);console.error('\nHint: `npm start` generates a token, serves the documentation and prints the access URLs.');process.exitCode=1;});}

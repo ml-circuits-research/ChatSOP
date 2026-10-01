@@ -115,7 +115,7 @@ Entry ids: `Z` = E10 zip (including its history), `S` = soplab, `V` = VRC, `R` =
 - **kind:** other (comparison method and an extra engine; the engine is a candidate separate strategy: relational lowering to SQL).
 - **evidence:** wall times from `RESULTS.md` (recomputed here): on the 12 families where SQLite runs, SQLite beats the best E10 mode on 9 (for example nonlinear recursion 0.55 against 8.71 ms, temporal 1.03 against 5.87, deep recursion 1.41 against 3.25) and loses on 3 (selective join 51.28 against 4.51, existential 2.26 against 1.42, or-evidence 13.96 against 11.61). SQLite is not applicable to mutual recursion and rule-heavy families. The `verified` mode is worse than `greedy_semi` in probes on dense cycles (14,612 against 6,964), mutual recursion (3,593 against 963) and nonlinear recursion (16,785 against 14,355); the `learned` mode has the same probes as `indexed_semi` on 10 of the 13 families where it runs (it improves on deep recursion, selective join and existential; it is not applicable to rule-heavy). Not validated: SQL generated from a SOP program.
 - **wires needed:** P0 to P2 core (`fact rule absent count`); stratified negation and recursion lower to `WITH RECURSIVE` with the usual limits (linear recursion only; mutual recursion needs a different encoding). Lacks nothing at wire level.
-- **role for ChatSOP:** a possible separate strategy `sql-sqlite` (built-in `node:sqlite`, Node 22.13+ is ChatSOP's floor, and DS025 already uses SQLite for memory). Also the strongest cheap independent control for the Datalog strategies. Needs the generic Datalog-to-SQL compiler to exist first.
+- **role for ChatSOP:** a possible separate strategy `sql-sqlite` (built-in `node:sqlite`, Node 22.13+ is ChatSOP's floor, and DS018 already uses SQLite for memory). Also the strongest cheap independent control for the Datalog strategies. Needs the generic Datalog-to-SQL compiler to exist first.
 - **smoke:** `03`, `04`, `05b`, `07a`, `07b`, `08a-c` would run unchanged; mutual-recursion case needed (new `N05` covers dense recursion).
 
 ## Z10. E08 adaptive policy selection (per-family choice of optimisations)
@@ -491,7 +491,7 @@ Entry ids: `Z` = E10 zip (including its history), `S` = soplab, `V` = VRC, `R` =
 - **kind:** other (evaluation method).
 - **evidence:** the template status is `PLANNED`; `check-roadmap.mjs` is a consistency check of the cards. No executed experiment.
 - **wires needed:** none.
-- **role for ChatSOP:** adopt as the preregistration skeleton for the comparison of section 11 (matches DS010).
+- **role for ChatSOP:** adopt as the preregistration skeleton for the comparison of section 11 (matches DS007).
 - **smoke:** none.
 
 ---

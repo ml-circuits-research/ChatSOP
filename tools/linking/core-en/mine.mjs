@@ -61,7 +61,7 @@ export function headOf(phrase) {
 }
 
 function archiveWorld(root) {
-  const file = join(root, 'datasets_archive/formalizer-v1/world/predicates.sop');
+  const file = join(root, 'probably_obsolete/tinyLLMExperiments/datasets_archive/formalizer-v1/world/predicates.sop');
   const out = [];
   let cur = null;
   for (const raw of readFileSync(file, 'utf8').split('\n')) {

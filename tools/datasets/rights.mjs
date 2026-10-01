@@ -2,15 +2,15 @@
  *
  * One record per upstream source: where it lives, its licence as known, what ChatSOP takes from it (structure,
  * label types, phenomena, statistics) and what it never takes (text). Builders stamp `rightsFor()` into row
- * provenance and manifests; `tools/datasets/no-copy.mjs` enforces the no-copy guarantee; `datasets/SOURCES.md`
- * is the human-readable form. The release decision is the owner's decision of 2026-09-28 recorded in DS014.
+ * provenance and manifests; `tools/datasets/no-copy.mjs` enforces the no-copy guarantee; `probably_obsolete/tinyLLMExperiments/datasets/SOURCES.md`
+ * is the human-readable form. The release decision is the owner's decision of 2026-09-28 recorded in DS011.
  */
 
 export const OWNER_DECISION = Object.freeze({
   date: '2026-09-28',
   decision: 'owner-released-inspired-by',
   summary: 'Corpora inspired by QQP, PAWS, ProofWriter, AmbigNQ, QA2D and SQuAD are released from quarantine: their texts are original work that borrows structure, label types, phenomena and statistics, never source text, and serves a different purpose (NL-to-SOP formalization).',
-  spec: 'docs/specs/DS014-source-rights.md',
+  spec: 'docs/specs/DS011-source-rights.md',
 });
 
 /** What every inspired-by corpus never takes from a source. */

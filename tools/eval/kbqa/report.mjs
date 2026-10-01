@@ -62,16 +62,16 @@ export function score(row, rec) {
 
 const NO_QUERY = /@\w+\s+(unparsed|unclear)\b/;
 function attribute(row, rec, slice) {
-  if (rec.error) return rec.error_layer === 'parser_failed' ? 'parser.failed' : rec.error_layer === 'sop_admission' ? 'symbolic_lm.admission' : rec.error_layer === 'timeout' ? 'symbolic_lm.timeout' : /SymbolicLM/.test(rec.error) ? 'symbolic_lm.service' : 'chain.error';
+  if (rec.error) return rec.error_layer === 'parser_failed' ? 'parser.failed' : rec.error_layer === 'sop_admission' ? 'author.admission' : rec.error_layer === 'timeout' ? 'author.timeout' : /SymbolicLM/.test(rec.error) ? 'author.service' : 'chain.error';
   const sop = rec.sop ?? '';
-  if (NO_QUERY.test(sop)) return /@\w+\s+unclear/.test(sop) ? 'symbolic_lm.unclear' : (/@\w+\s+query\b/.test(sop) ? 'symbolic_lm.partly_unparsed' : 'symbolic_lm.unparsed');
-  if (!/@\w+\s+query\b/.test(sop)) return 'symbolic_lm.no_query';
+  if (NO_QUERY.test(sop)) return /@\w+\s+unclear/.test(sop) ? 'author.unclear' : (/@\w+\s+query\b/.test(sop) ? 'author.partly_unparsed' : 'author.unparsed');
+  if (!/@\w+\s+query\b/.test(sop)) return 'author.no_query';
   if (rec.status === 'clarify' || rec.required?.length) {
     const r = rec.required?.[0];
     return `linker.${r ? `${r.kind}_${r.status}` : rec.reason ?? 'clarify'}`;
   }
   if (rec.status === 'incomplete') return `retrieval.incomplete_${rec.reason_detail ?? 'unknown'}`;
-  if (rec.unresolved_spans?.length && rec.status !== 'supported') return 'symbolic_lm.partly_unparsed';
+  if (rec.unresolved_spans?.length && rec.status !== 'supported') return 'author.partly_unparsed';
   // memory slice: no gold answer entity among the items
   const goldEntities = (row.gold.answers ?? []).filter(a => a.kind === 'entity').map(a => a.qid);
   if (goldEntities.length && slice && !goldEntities.some(q => slice.items.has(q))) return 'memory_slice.answer_not_in_slice';
@@ -150,11 +150,11 @@ function backlog(suite, stage, tag, per) {
   for (const rec of recs) {
     for (const r of rec.required ?? []) { const k = `${r.kind ?? 'entity'} ${r.status}: ${r.text ?? ''}`.trim(); asked.set(k, (asked.get(k) ?? 0) + 1); }
     const p = layerOf.get(rec.id);
-    if (p?.layer?.startsWith('symbolic_lm') && spans.length < 6) spans.push(`${rec.question} -> ${(rec.unresolved_spans ?? []).map(x => x.span).join(' / ') || p.layer}`);
+    if (p?.layer?.startsWith('author') && spans.length < 6) spans.push(`${rec.question} -> ${(rec.unresolved_spans ?? []).map(x => x.span).join(' / ') || p.layer}`);
     if (p?.outcome === 'wrong' && wrong.length < 6) wrong.push(`${rec.question} -> ${(rec.where ?? []).map(w => w.p).join(', ') || '?'} -> ${JSON.stringify(rec.answer?.values ?? rec.answer?.value ?? null).slice(0, 80)}`);
   }
   const top = [...asked].sort((a, b) => b[1] - a[1]).slice(0, 12);
-  return {top_clarifications: top, symbolic_lm_examples: spans, wrong_examples: wrong};
+  return {top_clarifications: top, author_examples: spans, wrong_examples: wrong};
 }
 
 const RUNS = {'': 'mechanical lexicon, first run (linker before the M0 completion; superseded by the m0 runs)', '-lex': 'authored lexicon, first run (linker before the M0 completion; superseded by the m0 runs)',
@@ -164,7 +164,7 @@ export async function writeReport({suites}) {
   const dir = path.join(ROOT, 'eval', 'reports', 'current', 'kbqa');
   fs.mkdirSync(dir, {recursive: true});
   const result = {generated_at: new Date().toISOString(), suites: {}};
-  let md = `# KBQA end-to-end evaluation (experiment eval-kbqa-v1)\n\nGenerated ${result.generated_at}. Chain: SymbolicLM -> KnowledgeLinker -> reference route over a Wikidata-slice base memory (the slice is gold-guided: it measures the chain given the knowledge). Numbers are observations of this run, not product claims. Preregistration: status/preregistrations/eval-kbqa-v1.json.\n\n`;
+  let md = `# KBQA end-to-end evaluation (experiment eval-kbqa-v1)\n\nGenerated ${result.generated_at}. Chain: coding agent -> KnowledgeLinker -> reference route over a Wikidata-slice base memory (the slice is gold-guided: it measures the chain given the knowledge). Numbers are observations of this run, not product claims. Preregistration: status/preregistrations/eval-kbqa-v1.json.\n\n`;
   for (const suite of suites) {
     const runs = {};
     const scored = {};
@@ -208,7 +208,7 @@ export async function writeReport({suites}) {
       const b = backlog(suite, stage, name === 'mechanical' ? '' : name, scored[`${stage}${name === 'mechanical' ? '' : name}`].per);
       run.backlog = b;
       md += `Backlog evidence (stage ${stage}): most frequent clarification targets: ${b.top_clarifications.map(([k, v]) => `${k} (${v})`).join('; ') || 'none'}.\n\n`;
-      if (b.symbolic_lm_examples.length) md += `SymbolicLM examples: ${b.symbolic_lm_examples.join(' | ')}\n\n`;
+      if (b.author_examples.length) md += `Circuit author examples: ${b.author_examples.join(' | ')}\n\n`;
       if (b.wrong_examples.length) md += `Wrong answers (question -> linked predicates -> answer): ${b.wrong_examples.join(' | ')}\n\n`;
     }
     if (Object.keys(baselines).length) {

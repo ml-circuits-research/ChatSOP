@@ -7,7 +7,7 @@ export {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,OUTPUT_MODE
 import {parseExpression,expressionRefs,evaluateExpression} from './expression.mjs';
 import {conditionField,parseCondition,parseBooleanCondition,formatCondition,BLOCK_OPENERS,BLOCK_CLOSER} from './conditions.mjs';
 export {GROUP_OPENERS,MATCH_OPENER,BLOCK_OPENERS,BLOCK_CLOSER,SYNTAX_WORDS,CONDITION_FIELDS} from './conditions.mjs';
-/** The atom negation prefix (`[not ]predicate term…`) and the keyword lines of a query `match` block (DS021). */
+/** The atom negation prefix (`[not ]predicate term…`) and the keyword lines of a query `match` block (DS014). */
 export const ATOM_NEGATION='not';
 export const MATCH_KEYWORDS=Object.freeze(['relation','role','polarity']);
 export const SPEC={
@@ -107,7 +107,7 @@ export function refsIn(text){let quoted=false,esc=false;const values=new Set(),h
 export function dependencies(w){if(['template','procedure'].includes(w.type))return {values:[],handles:[]};const result={values:new Set(),handles:new Set()};for(const [key,vs]of Object.entries(w.fields)){if(['quote','text'].includes(key)||(key==='source'&&w.type!=='analogize'))continue;for(const text of vs){const r=refsIn(text);r.values.forEach(x=>result.values.add(x));r.handles.forEach(x=>result.handles.add(x));}}return {values:[...result.values],handles:[...result.handles]};}
 const SYMBOL=/^[a-z][a-z0-9_]*$/;
 /**
- * Model-language propositions are context-free strings (DS021): a quoted relation
+ * Model-language propositions are context-free strings (DS014): a quoted relation
  * phrase, roles from the closed inventory with quoted values, an explicit
  * polarity and optional quoted validity. `pairs` is [[keyword, value], …].
  * With `variables` (query `match` blocks) a value may also be a ?variable.
@@ -127,7 +127,7 @@ export function parseProposition(pairs,{where='proposition',variables=false,vali
    // `near` and `hint` at admission, sop/clauses.mjs); anywhere else it is a query unknown.
    if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(token)){assert(variables||placeholders,'proposition_not_ground: '+where+' role '+name+' cannot take a ?variable; put unknowns in a query');v=token;}
    else if(/^-?\d+$/.test(token))v=parseTerm(token);
-   // A `$id` value names another wire of the same model output (DS021 "Clauses and links", owner decision L1):
+   // A `$id` value names another wire of the same model output (DS014 "Clauses and links", owner decision L1):
    // the proposition of a stated/assumed wire used as an argument, or the answers of an earlier query.
    else if(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(token)){assert(references,'proposition_not_ground: '+where+' role '+name+' cannot take a $reference');v={ref:token.slice(1)};}
    else {assert(!/^~/.test(token),'proposition_not_ground: '+where+' role '+name+' cannot take a ~handle');assert(!/^\$/.test(token),'reference_form: '+where+' role '+name+' takes $id, a wire name of this output');assert(token.startsWith('"'),where+' role '+name+' value must be a JSON-quoted string as written in the message'+(variables?', a ?variable':'')+' or an integer');v=text('role '+name,token);assert(!/^[?$~]/.test(v),'proposition_not_ground: '+where+' role '+name+' cannot hide a sigil in quotes');}
@@ -140,7 +140,7 @@ export function parseProposition(pairs,{where='proposition',variables=false,vali
   throw Error('Unsupported field '+key+' in '+where);
  }
  // A follow-up fragment (`fragment follow_up`) carries only what the message says: the relation, the polarity
- // and all but one role may be missing; the host completes it from the conversation (DS021 Q-LANG-4).
+ // and all but one role may be missing; the host completes it from the conversation (DS014 Q-LANG-4).
  if(partial){assert(out.relation!==undefined||out.roles.length>=1,where+' needs a relation or a role');assert(out.roles.length<=4,where+' binds at most 4 roles');}
  else {assert(out.relation!==undefined,where+' needs relation');assert(out.roles.length>=1&&out.roles.length<=4,where+' binds 1..4 roles');assert(out.polarity!==undefined,where+' needs polarity');}
  assert(!(out.valid.on&&(out.valid.from||out.valid.until)),'time_form: '+where+' valid on excludes valid from/until');
@@ -241,7 +241,7 @@ function validateShape(w){
 const VARIABLE=/^\?[A-Za-z][A-Za-z0-9_]*$/;
 const OPERAND=/^(?:\?[A-Za-z][A-Za-z0-9_]*|-?\d+|"(?:\\.|[^"\\])*")$/;
 /**
- * The words-only query fields (DS021 "Words, not operators"): `compare ?v above 80`, `except ?x "Ana"`,
+ * The words-only query fields (DS014 "Words, not operators"): `compare ?v above 80`, `except ?x "Ana"`,
  * `rank highest ?v`, `quantifier most` (mode every), `order ?t1 before ?t2` (the host appends `leaves I J`).
  */
 function validateWordFields(w,mode){

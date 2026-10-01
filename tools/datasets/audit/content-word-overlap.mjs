@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Content-word overlap of the sealed test rows with train and dev (DS008 "Content-word overlap").
+/** Content-word overlap of the sealed test rows with train and dev (DSx008 "Content-word overlap").
  *
  *   node tools/datasets/audit/content-word-overlap.mjs [--dataset NAME] [--out file] [--no-write] [--min-words 2] [--largely 0.8]
  *
@@ -120,7 +120,7 @@ export function overlapOf(testRows, poolRows, {otherPools = [], minWords = 2, la
 export function run({root = ROOT, datasets = THREE_DATASETS, minWords = 2, largely = 0.8, loadRows = load} = {}) {
   // Composed paragraphs (tools/datasets/composed-train.mjs) are working data made of train/dev sentences: their paragraph skeleton is not a form and they cannot duplicate a sealed sentence.
   const pools = Object.fromEntries(datasets.map(d => [d, ['train', 'dev'].flatMap(s => loadRows(d, s, root)).filter(r => r.source?.corpus !== 'composed')]));
-  const report = {generated_at: new Date().toISOString(), method: 'content words = lemmas of PROPN/NOUN/VERB of the stored analysis (light tokenizer without analysis); form = analysis skeleton of the forms inventory; see DS008 "Content-word overlap"', min_words: minWords, largely_contained_threshold: largely, datasets: {}, failures: []};
+  const report = {generated_at: new Date().toISOString(), method: 'content words = lemmas of PROPN/NOUN/VERB of the stored analysis (light tokenizer without analysis); form = analysis skeleton of the forms inventory; see DSx008 "Content-word overlap"', min_words: minWords, largely_contained_threshold: largely, datasets: {}, failures: []};
   for (const d of datasets) {
     const test = loadRows(d, 'test', root);
     const others = datasets.filter(o => o !== d).map(o => ({dataset: o, rows: pools[o]}));

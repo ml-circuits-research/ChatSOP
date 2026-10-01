@@ -53,7 +53,7 @@ test('a damaged journal is refused, not repaired', t => {
 test('experiment registry validates entries and rejects duplicates', t => {
   const file = path.join(tempDir(t), 'experiments.json');
   assert.deepEqual(readExperiments({file}).experiments, [], 'a missing registry is empty');
-  const entry = {id: 'exp-1', hypothesis: 'h', preregistration: 'docs/specs/DS010-experiment-preregistration.md', data_version: 'v1', status: 'proposed', results: null, conclusions: null};
+  const entry = {id: 'exp-1', hypothesis: 'h', preregistration: 'docs/specs/DS007-experiment-preregistration.md', data_version: 'v1', status: 'proposed', results: null, conclusions: null};
   assert.equal(validateExperiment(entry), entry);
   assert.throws(() => validateExperiment({...entry, status: 'won'}), /status must be one of/);
   fs.writeFileSync(file, JSON.stringify({format: 'chatsop-experiments-v1', experiments: [entry, entry]}));

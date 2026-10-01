@@ -4,7 +4,7 @@
  "name": "Does rewriting a message help the symbolic path (Stanza + UD rules)? Proofreaders, Haiku rewrites and the oracle simple text, English rows",
  "registered_at": "2026-09-29T13:35:00Z",
  "registered_by": "ud-baseline-agent (owner requests of 2026-09-29, relayed by the orchestrator)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_requests": {
   "first": "\"A small off-the-shelf English proofreading/GEC model in front of the symbolic path makes messy real messages easier for Stanza + rules, and so improves the SOP.\" Pipeline: message -> EN proofreader -> symbolic sentence split (lib/sentence-split.mjs) -> Stanza + rules -> SOP. No training. English first; a Romanian stage (name masking + Opus-MT roa-en + unmask + EN pipeline) only if English shows a clear gain.",
   "revision": "Owner revision (deviation from the first request, recorded here before any sealed row): the question becomes whether rewriting or simplifying helps Stanza and whether a small model could be steered to produce text Stanza parses well. Do NOT stop for name or meaning changes; measure them. Protect names, quoted spans and numbers symbolically with placeholders before any rewriter and restore them afterwards. Stop a condition only for futility (no gain at the 100-row stage, CI upper bound under +1 pp) or broken output (the rewriter answers or executes instructions on more than 20% of rows). Add Haiku rewrites (H) and best-of-several Haiku rewrites chosen by the symbolic path's own signals (Hbest). State whether distilling H or Hbest into a small model looks worth training; do not train."
@@ -16,9 +16,9 @@
   "R": "the raw message",
   "P-coedit": "jbochi/coedit-small @6ce9822b (flan-t5-small fine-tuned on CoEdIT, Apache-2.0, 77M), prompt 'Fix grammatical errors in this sentence: ', per sentence (lib/sentence-split.mjs), greedy, GPU; an empty output keeps its input sentence",
   "P-gec": "Unbabel/gec-t5_small @c958d53b (t5-small GEC, Apache-2.0, 60M), prefix 'gec: ', per sentence, greedy, GPU; same guard",
-  "H": "Claude Haiku 4.5 (claude-haiku-4-5-20251001) without extended thinking (MAX_THINKING_TOKENS=0), claude -p, no tools, empty settings, system prompt tools/research/rewrite-symbolic-eval.mjs REWRITE_SYSTEM (sha256 0d7bcc34...): rewrite into parser-friendly simple English lines with the DS022 labels, never answer; the model never sees a gold target",
+  "H": "Claude Haiku 4.5 (claude-haiku-4-5-20251001) without extended thinking (MAX_THINKING_TOKENS=0), claude -p, no tools, empty settings, system prompt tools/research/rewrite-symbolic-eval.mjs REWRITE_SYSTEM (sha256 0d7bcc34...): rewrite into parser-friendly simple English lines with the DS015 labels, never answer; the model never sees a gold target",
   "Hbest": "the same model asked for 4 rewrites (REWRITE_BEST_SYSTEM, sha256 32b7f6fd...); the symbolic path picks the variant whose SOP is admitted, formalizes something (not only unclear) and has the fewest unparsed spans, then characters, then the model's order. No gold is used.",
-  "O": "the oracle simple text (DS022 'Simple-text rendering'): wild from eval/reports/current/simplifier/oracle/wild.jsonl (rendered from the gold SOP; an upper bound), OOD and test rendered from each row's surface IR with tools/datasets/diversity/simple-text.mjs",
+  "O": "the oracle simple text (DS015 'Simple-text rendering'): wild from eval/reports/current/simplifier/oracle/wild.jsonl (rendered from the gold SOP; an upper bound), OOD and test rendered from each row's surface IR with tools/datasets/diversity/simple-text.mjs",
   "protection": "before every rewriter (P, H, Hbest), names (capitalized-word runs, sentence-initial common words excluded), double-quoted spans and numbers are replaced by Ent1/Num1/Quote1 placeholders and restored afterwards (lib/ud-to-sop/protect.mjs); preservation = every value restored and no placeholder invented (a repeated subject is allowed)"
  },
  "sets": {

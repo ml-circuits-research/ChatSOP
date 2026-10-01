@@ -1,6 +1,6 @@
 /** Bank choice is independent of SOP syntax, temporal semantics and reasoner.
  * Canonical `memory.engine` names are listed in MEMORY_ENGINES. The legacy identifiers
- * `weaver` (RecallMemory, DS023) and `holo` (HoloMemory, DS024) stay accepted so that
+ * `weaver` (RecallMemory, DS016) and `holo` (HoloMemory, DS017) stay accepted so that
  * existing configurations and persisted snapshots keep loading.
  */
 import {HybridBank} from './hybrid.mjs';

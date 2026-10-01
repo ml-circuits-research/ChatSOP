@@ -58,7 +58,7 @@ function englishForms(c, types) {
   }
   return c.onlyForms ? { ...c.forms } : { ...f, ...(c.forms ?? {}) };
 }
-/** "Where" questions ask for a location, or a destination for motion verbs (DS021 question forms). */
+/** "Where" questions ask for a location, or a destination for motion verbs (DS014 question forms). */
 const WHERE_ROLES = new Set(['location', 'destination']);
 
 /** Romanian forms. Gender slots: {g:S:m:f} agrees with the subject filler. */
@@ -115,7 +115,7 @@ function romanianForms(c, types) {
  */
 function predicate(spec) {
   const noCount = spec.noCount;
-  // Held-out constructions (DS022 "Out-of-distribution suite") are appended after the in-distribution ones, so
+  // Held-out constructions (DS015 "Out-of-distribution suite") are appended after the in-distribution ones, so
   // the ids of existing constructions never shift; they are flagged `oodOnly` and never reach formalizer-v1.
   for (const language of ['en', 'ro']) spec[language] = [...spec[language], ...(spec.heldout?.[language] ?? []).map(c => ({ ...c, oodOnly: true }))];
   const roleType = Object.fromEntries(spec.roles);
@@ -138,7 +138,7 @@ const V = (base, s3, past) => [base, s3, past];
  * Held-out constructions of in-distribution predicates: direct constructions that never occur in formalizer-v1
  * (train, dev or test) and appear only in the construction axis of the out-of-distribution suite, so it tests
  * whether a formalizer copies an unseen relation phrase of a known relation instead of recalling the phrases it
- * was trained on. The list is the single source; DS022 documents it.
+ * was trained on. The list is the single source; DS015 documents it.
  */
 export const HELDOUT_CONSTRUCTIONS = {
   works_at: { en: [{ rel: 'be on the payroll of', S: 'employee', O: 'employer', cop: 'on the payroll of' }],
@@ -247,7 +247,7 @@ export const PREDICATES = {
   travelled_to: predicate({ heldout: HELDOUT_CONSTRUCTIONS.travelled_to, domain: 'travel', roles: [['traveller', 'person'], ['destination', 'city']], gloss: 'travelled to',
     en: [{ rel: 'travel to', S: 'traveller', O: 'destination', verb: V('travel', 'travels', 'travelled'), prep: 'to', Orole: 'destination', where: true }, { rel: 'visit', S: 'traveller', O: 'destination', verb: V('visit', 'visits', 'visited') }, { rel: 'fly to', S: 'traveller', O: 'destination', verb: V('fly', 'flies', 'flew'), prep: 'to', Orole: 'destination' }],
     ro: [{ rel: 'călători la', S: 'traveller', O: 'destination', v: { p3: 'călătorește', p3pl: 'călătoresc', past: 'a călătorit' }, prep: 'la', Orole: 'destination', where: true }, { rel: 'vizita', S: 'traveller', O: 'destination', v: { p3: 'vizitează', past: 'a vizitat' } }] }),
-  // Means and manner: "how" questions ask for the instrument role (DS021). The bare verbs are sense aliases, so
+  // Means and manner: "how" questions ask for the instrument role (DS014). The bare verbs are sense aliases, so
   // "How does Ana commute?" (relation "commute", role instrument ?how) links to the same predicate.
   commutes_by: predicate({ noCount: true, domain: 'travel', roles: [['commuter', 'person'], ['means', 'transport']], gloss: 'commutes by', senseAliases: { en: ['commute', 'get to work', 'go to work'], ro: ['face naveta', 'merge la serviciu', 'ajunge la serviciu'] },
     en: [{ rel: 'commute by', S: 'commuter', O: 'means', verb: V('commute', 'commutes', 'commuted'), prep: 'by', Orole: 'instrument' }, { rel: 'go to work by', S: 'commuter', O: 'means', verb: V('go', 'goes', 'went'), obj0: 'to work', prep: 'by', Orole: 'instrument' },
@@ -256,7 +256,7 @@ export const PREDICATES = {
   pays_with: predicate({ noCount: true, domain: 'commerce', roles: [['payer', 'person'], ['method', 'payment']], gloss: 'pays with', senseAliases: { en: ['pay', 'settle the bill'], ro: ['plăti', 'achita'] },
     en: [{ rel: 'pay with', S: 'payer', O: 'method', verb: V('pay', 'pays', 'paid'), prep: 'with', Orole: 'instrument' }, { rel: 'settle the bill with', S: 'payer', O: 'method', verb: V('settle', 'settles', 'settled'), obj0: 'the bill', prep: 'with', Orole: 'instrument' }],
     ro: [{ rel: 'plăti cu', S: 'payer', O: 'method', v: { p3: 'plătește', p3pl: 'plătesc', past: 'a plătit' }, prep: 'cu', Orole: 'instrument' }, { rel: 'achita cu', S: 'payer', O: 'method', v: { p3: 'achită', p3pl: 'achită', past: 'a achitat' }, prep: 'cu', Orole: 'instrument' }] }),
-  // Out-of-distribution domains: these predicates appear only in the OOD suite (DS022 corpus split), so it measures
+  // Out-of-distribution domains: these predicates appear only in the OOD suite (DS015 corpus split), so it measures
   // whether a formalizer copies unseen relation phrases instead of recalling the training lexicon.
   cooks_at: predicate({ ood: true, domain: 'food', roles: [['chef', 'person'], ['kitchen', 'venue']], gloss: 'cooks at',
     en: [{ rel: 'cook at', S: 'chef', O: 'kitchen', verb: V('cook', 'cooks', 'cooked'), prep: 'at' }, { rel: 'be the chef at', S: 'chef', O: 'kitchen', cop: 'the chef at' }],
@@ -337,7 +337,7 @@ export const PREDICATES = {
     en: [{ rel: 'be postponed', S: 'event', cop: 'postponed', forms: { s: ['{S} was postponed', '{S} got postponed'], q: ['was {S} postponed'], n: ['{S} was not postponed'] } }],
     ro: [{ rel: 'fi amânat', S: 'event', cop: { m: 'amânat', f: 'amânată', pl: 'amânate' }, forms: { s: ['{S} a fost {g:S:amânat:amânată}'], q: ['{S} a fost {g:S:amânat:amânată}'], n: ['{S} nu a fost {g:S:amânat:amânată}'] } }] }),
   resigned: predicate({ domain: 'work', roles: [['person', 'person']], gloss: 'resigned',
-    // "handed in her notice" is its own relation phrase: the model never rewrites it into "resign" (DS022 relation phrases).
+    // "handed in her notice" is its own relation phrase: the model never rewrites it into "resign" (DS015 relation phrases).
     en: [{ rel: 'resign', S: 'person', verb: V('resign', 'resigns', 'resigned'), forms: { s: ['{S} resigned'], q: ['did {S} resign'], n: ['{S} did not resign'] } },
       { rel: 'hand in notice', S: 'person', verb: V('hand', 'hands', 'handed'), onlyForms: true, forms: { s: ['{S} handed in {g:S:his:her} notice'], sp: ['{S} handed in {g:S:his:her} notice'], q: ['did {S} hand in {g:S:his:her} notice'], qp: ['did {S} hand in {g:S:his:her} notice'], n: ['{S} did not hand in {g:S:his:her} notice'], np: ['{S} did not hand in {g:S:his:her} notice'] } }],
     ro: [{ rel: 'demisiona', S: 'person', v: { p3: 'a demisionat', past: 'a demisionat' }, forms: { s: ['{S} a demisionat'], q: ['{S} a demisionat'], n: ['{S} nu a demisionat'] } },
@@ -348,7 +348,7 @@ export const PREDICATES = {
   plans_to_attend: predicate({ domain: 'intention', roles: [['person', 'person'], ['event', 'event']], gloss: 'intends to attend',
     en: [{ rel: 'plan to go to', S: 'person', O: 'event', verb: V('plan', 'plans', 'planned'), obj0: 'to go', prep: 'to', Orole: 'object' }, { rel: 'intend to attend', S: 'person', O: 'event', verb: V('intend', 'intends', 'intended'), obj0: 'to attend', Orole: 'object' }],
     ro: [{ rel: 'vrea să meargă la', S: 'person', O: 'event', v: { p3: 'vrea', p3pl: 'vor', past: 'a vrut' }, obj0: 'să meargă', prep: 'la', Orole: 'object' }, { rel: 'plănui să participe la', S: 'person', O: 'event', v: { p3: 'plănuiește', p3pl: 'plănuiesc', past: 'a plănuit' }, obj0: 'să participe', prep: 'la', Orole: 'object' }] }),
-  // Authored-only predicates of the expansion families (families-expansion.mjs, DS022 "Expansion families"): their
+  // Authored-only predicates of the expansion families (families-expansion.mjs, DS015 "Expansion families"): their
   // messages are authored per family, so the constructions carry no generated forms (`onlyForms` with none) and
   // the generic families never draw them (`authored`). Value roles take integers or strings as written (C11).
   costs: predicate({ authored: true, domain: 'values', roles: [['item', 'asset'], ['price', 'integer']], gloss: 'costs',

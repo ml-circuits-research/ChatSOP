@@ -4,7 +4,7 @@
  "name": "Interpretation CNL: a deterministic controlled-English rendering of SymbolicLM's grammatical analysis, checked by a round trip",
  "registered_at": "2026-10-01T03:40:00Z",
  "registered_by": "analysis-cnl-agent (owner question relayed by the orchestrator; evaluation only: CPU Stanza parsing, no training, no GPU, not wired into the chat UI)",
- "spec": "docs/specs/DS021-model-surface.md#interpretation-cnl",
+ "spec": "docs/specs/DS014-model-surface.md#interpretation-cnl",
  "kind": "evaluation-only",
  "frozen_before_results": "Written after the realizer (lib/languages-util/analysis-cnl.mjs) existed and was debugged on a pilot of 40 symbolic_english and 30 neuro_english test rows (the pilot rows are part of the sample, so the numbers are not confirmatory); before the full 300 + 200 run was read. Later rule changes are recorded deviations.",
  "question": "From SymbolicLM's analysis, can a short, simpler English text (a CNL from a small fixed template set) be regenerated deterministically such that it is checkably equivalent to the analysis, makes a wrong analysis visible, lists what was not understood, and is itself a certified form for the analysis gate?",

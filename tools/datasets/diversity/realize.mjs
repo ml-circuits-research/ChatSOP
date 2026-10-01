@@ -281,7 +281,7 @@ export function assembleMessage({ clauses, question, certainty = 'asserted', spe
   return { text: tidy(capitalize(text)), ids: [...joined.ids, frame.id], discourse: frame.id, shape: frame.shape };
 }
 
-// ---------------------------------------------------------------- question words (DS021 question forms)
+// ---------------------------------------------------------------- question words (DS014 question forms)
 // "When did Ana start to work at Acme?": the English present question core with "start to" (a start measure).
 const startRewrite = text => /^does \{S\} /.test(text) ? text.replace(/^does \{S\} /, 'did {S} start to ') : /^is \{S\} /.test(text) ? text.replace(/^is \{S\} /, 'did {S} start to be ') : null;
 const startClause = text => /^\{S\} (is|was) /.test(text) ? text.replace(/^\{S\} (is|was) /, '{S} be ') : null;

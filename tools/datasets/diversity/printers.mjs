@@ -1,7 +1,7 @@
 /** Target printers: surface IR → target text. The registry is pluggable (`registerPrinter`), so a change of
  * the SOP surface is a new printer, not a generator change.
  *
- * `strings` follows the grammar of sop/parser.mjs (DS021): `stated`/`assumed` with a quoted `relation`
+ * `strings` follows the grammar of sop/parser.mjs (DS014): `stated`/`assumed` with a quoted `relation`
  * phrase, closed-role `role NAME "value"` lines, `polarity`, optional `valid on|from|until "text"`, then
  * `certainty`/`speaker` (stated) or `basis` (assumed); `unclear` with `kind`, alone; a `query` whose `where`
  * holds one `match … end` block or an `all` group of them, with `select`, `mode`, `measure`, `filter`, a

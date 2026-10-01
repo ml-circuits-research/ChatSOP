@@ -4,7 +4,7 @@
  "name": "Which symbolic_english analyses are trustworthy? A two-parser agreement gate with a two-condition Haiku judge, audited by the stronger model",
  "registered_at": "2026-09-30T11:40:00Z",
  "registered_by": "symbolic-judge-agent (owner request relayed by the orchestrator)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_context": "symbolic_english must contain only correct English whose SymbolicLM grammatical analysis is correct: it is the regression suite and the inventory of forms SymbolicProofingLLM rewrites into.",
  "kind": "evaluation and dataset gating (Stanza inference on GPU; LLM judge calls; no training)",
  "frozen_before_results": "Written after the accurate parses were started (parsing is deterministic and involves no judge) and before any judge call of this study. Evidence used to choose the gate comes from eval-parse-judge-haiku-v1 (agreement of Haiku conditions b and c: about 99.7% weighted precision, about 45% of sentences kept) and eval-stanza-accurate-v1 (identical default/accurate trees: default analysis DEEP-wrong in about 1% of sentences, different trees: about 55%).",

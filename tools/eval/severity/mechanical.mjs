@@ -1,11 +1,11 @@
 /**
- * Mechanical layer of the severity cascade (DS016 "Graded severity", layer 1): text-only checks of a rewrite against its original, no parser, no model.
+ * Mechanical layer of the severity cascade (DS012 "Graded severity", layer 1): text-only checks of a rewrite against its original, no parser, no model.
  * `mechanicalChecks(original, rewrite)` returns {exact, flags}: `exact` is true when both texts are the same after normalising case, spacing and punctuation;
  * each flag is {kind, severity, certain, detail}. A `certain` S4 flag decides the pair (names, numbers, quantifiers replaced; a condition, supposition or
  * reported claim lost; a cause invented; an invented sentence); the other flags are hints for the analysis layer and the judge. Spelling noise in the original
  * (typos in names) makes name checks conservative: a name only counts when it is capitalised mid-sentence in the text that has it.
  */
-import {rawNumbers, fold} from '../../../lib/languages-util/analysis-features.mjs';
+import {rawNumbers, fold} from './text-features.mjs';
 
 export const MECHANICAL_VERSION = 'severity-mechanical-v1';
 const set = s => new Set(s.split(/\s+/));

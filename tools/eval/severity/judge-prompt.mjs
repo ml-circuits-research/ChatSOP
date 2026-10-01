@@ -1,4 +1,4 @@
-/** System prompt of the LLM severity judge (DS016 "Graded severity"): ORIGINAL and REWRITE in, one severity out. Versioned: any change bumps the version and needs a new calibration. */
+/** System prompt of the LLM severity judge (DS012 "Graded severity"): ORIGINAL and REWRITE in, one severity out. Versioned: any change bumps the version and needs a new calibration. */
 export const JUDGE_PROMPT_VERSION = 'severity-judge-v1';
 export const JUDGE_SYSTEM = `You grade how much a REWRITE of an ORIGINAL message changes its meaning, on a severity scale. The ORIGINAL may contain typos, hesitations or chatty lead-ins; the REWRITE is meant to say the same thing in clean, plain English so that a program can read it. Judge the meaning a reader would take away, ignoring spelling, punctuation, capitalisation and word order that do not change the meaning. Do not reward or punish style.
 

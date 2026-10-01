@@ -4,7 +4,7 @@
  "name": "Symbolic formalizer baseline: Stanza Universal Dependencies parse + deterministic JavaScript rules (UD → SOP Lang)",
  "registered_at": "2026-09-29T13:03:00Z",
  "registered_by": "ud-baseline-agent (owner idea of 2026-09-29, relayed by the orchestrator)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_idea": "\"Is there any reasonably mature NLP system we could compare on our suite? We bring it in, wrap it, and treat it like an LLM: parse the text, then translate the parse into SOP Lang with code we write ourselves.\" English at least, Romanian if possible.",
  "frozen_before_results": "Written after the rules were developed on two stratified samples of the formalizer-v1 DEVELOPMENT split only (224 tuning rows, seed 7; 224 disjoint check rows, seed 99; <=300 characters, 4 rows per language x question_type) and before any parse or conversion of a sealed row (formalizer-v1 test, formalizer-ood-v1, formalizer-wild-v1). The rule files are frozen by SHA-256 below (copy under eval/reports/current/baseline-ud-rules/frozen-rules/). Any later rule change is a recorded deviation and a new run label.",
  "kind": "evaluation-only (inference with a pretrained third-party parser and hand-written rules; no training, no optimizer step, no training-data change)",
@@ -49,7 +49,7 @@
  "metrics": {
   "parse_validity": "share of outputs the repository parser and model admission accept (eval/run.mjs syntax; wild parsed)",
   "tolerant_execution_equivalence": "eval/run.mjs execution_equivalence_tolerant: the row's verification world plus the evaluation-only relation synonyms (eval/relation-synonyms.json via eval/synonyms.mjs) and the world's own Romanian labels and aliases; no other lexicon",
-  "wire_f1": "eval/run.mjs wire_match f1 (DS016 'Wire F1'); string-level, so Romanian lemmas count as misses against English golds",
+  "wire_f1": "eval/run.mjs wire_match f1 (DS012 'Wire F1'); string-level, so Romanian lemmas count as misses against English golds",
   "wild_accepted_match_and_decision_match": "tools/eval/wild-suite.mjs --score (strict string level over all accepted golds)",
   "proposition_f1": "wild-suite proposition F1 (strict), plus a D1-tolerant proposition F1 computed by tools/eval/ud-baseline-eval.mjs for every system alike: `unparsed` wires and link lines are ignored, relation phrases and values compare by sop/dictionary.mjs sameMeaning (either language), variables by position",
   "honesty_invention_rate": "share of quoted role values in stated wires, query match blocks and except literals that are not anchored in the message: strict (sop/linking.mjs mentionedIn) and dictionary-tolerant (mentionedThroughDictionary; 'the user' anchored by a first-person word)",

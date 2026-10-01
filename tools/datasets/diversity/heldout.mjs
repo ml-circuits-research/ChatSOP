@@ -1,4 +1,4 @@
-/** Resource partitions of the generated corpora (DS022 "Split grouping and leakage" and "Out-of-distribution
+/** Resource partitions of the generated corpora (DS015 "Split grouping and leakage" and "Out-of-distribution
  * suite").
  *
  * Every realization resource falls in one of three roles:

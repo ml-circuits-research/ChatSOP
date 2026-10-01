@@ -48,7 +48,7 @@
    "sha256": "679a4354c4090f3543f0c4490a30cb41a877bf2228372e43cb53db7da3601947"
   },
   "source_rights": {
-   "path": "docs/specs/DS014-source-rights.md",
+   "path": "docs/specs/DS011-source-rights.md",
    "sha256": "9460ef0841a5a4e228880131912639627116e9d3e65c9fe454258a386e98c6ce"
   },
   "token_budget": {

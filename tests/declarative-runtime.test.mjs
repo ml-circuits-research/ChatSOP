@@ -5,7 +5,7 @@ import {Lexicon} from '../sop/lexicon.mjs';
 import {parse} from '../sop/parser.mjs';
 import {context as repositoryContext} from './helpers.mjs';
 
-// A host lexicon: the context-free model writes strings, the host links them (DS021).
+// A host lexicon: the context-free model writes strings, the host links them (DS014).
 const lexicon=new Lexicon('@temperature predicate\n  role subject entity\n  role object integer\n  label en "temperature of"\n@room_a entity\n  kind entity\n  label en "room A"');
 const schema=lexicon.predicates;
 const question='@q query\n  where match\n    relation "temperature of"\n    role subject "room A"\n    role object ?degrees\n    polarity affirmed\n  end\n  select ?degrees';

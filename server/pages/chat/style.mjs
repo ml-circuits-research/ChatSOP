@@ -1,4 +1,4 @@
-/** Stylesheet of the chat page (DS012 "The chat page"): the shell with three vertical tabs, the conversation, the settings cards and the
+/** Stylesheet of the chat page (DS009 "The chat page"): the shell with three vertical tabs, the conversation, the settings cards and the
  * base memory table. Colours come from the shared tokens of server/pages/layout.mjs (light and dark); spacing follows an 8 px grid. */
 export const CHAT_STYLE = `
 html,body{height:100%}
@@ -42,33 +42,7 @@ body{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
 .msg details{margin-top:4px;white-space:normal}.msg summary{cursor:pointer;color:var(--accent);font-size:13px}
 .msg dl{display:grid;grid-template-columns:max-content 1fr;gap:2px 8px;margin:4px 0;font-size:13px}.msg dt{color:var(--muted)}.msg dd{margin:0;overflow-wrap:anywhere}
 .msg mark{background:rgba(232,170,40,.38);color:inherit;border-radius:3px;padding:0 1px}
-.msg .emo{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
-.msg .emo-btn{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:0 8px;font-size:18px;line-height:1.5;cursor:pointer;min-width:34px;min-height:32px}
-.msg .emo-btn:focus-visible{outline:2px solid var(--accent)}
-.msg .emo-note,.msg .pending{font-size:12px;color:var(--muted);white-space:normal}
 .msg .pending{margin-top:4px}
-.understood{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:4px 8px;margin-top:8px;background:var(--panel);font-size:14px;max-width:100%}
-.understood>summary{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;list-style-position:inside}
-.understood[open]>summary{white-space:normal}
-.understood .us{border-top:1px solid var(--line);padding:8px 0}.understood .us:first-of-type{border-top:0}
-.understood .cnl{font-weight:600;overflow-wrap:anywhere;margin-right:8px}
-.understood .orig{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
-.understood .badge{display:inline-block;font-size:11px;line-height:1.5;padding:0 8px;border-radius:9px;border:1px solid var(--line);margin-right:4px;white-space:nowrap;color:var(--muted)}
-.understood .badge.ok{border-color:var(--ok);color:var(--ok)}.understood .badge.warn{border-color:var(--bad);color:var(--bad)}
-.understood .rw{font-size:13px;margin-top:4px;overflow-wrap:anywhere}
-.understood .nr{font-size:13px;color:var(--bad);overflow-wrap:anywhere}
-.understood .raw{font-size:13px;font-family:ui-monospace,Menlo,monospace;overflow-wrap:anywhere}
-.understood .note{font-size:12px;color:var(--muted)}
-.understood .clarify{border-left:3px solid var(--bad);padding:2px 8px;margin:8px 0;font-size:14px}
-.understood .left{font-size:13px;margin:8px 0}.understood .left li{overflow-wrap:anywhere}
-.understood .err{font-size:12px;color:var(--bad)}
-.review{flex:none;border:1px solid var(--accent);background:var(--panel);border-radius:12px;padding:8px 16px;margin:0 24px 8px}
-.review[hidden]{display:none}
-.review-title{margin:0 0 8px;font-size:13px;color:var(--muted)}
-.diff{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.5}
-.diff .ins{background:rgba(92,195,141,.28);border-radius:3px}
-.diff .del{background:rgba(240,138,128,.28);border-radius:3px;text-decoration:line-through}
-.review-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .composer-wrap{flex:none;padding:8px 24px 16px;background:var(--bg)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px}
 .chips:empty{display:none}
@@ -90,10 +64,6 @@ body{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
 .composer-hint{font-size:12px;color:var(--muted);margin:4px 8px 0}
 
 /* notes, cards of the coding agent */
-.route-note{font-size:13px;margin:8px 0 0;padding:4px 8px;border-left:3px solid var(--accent);background:var(--soft);border-radius:4px;overflow-wrap:anywhere;white-space:normal}
-.route-note.agent{border-left-color:var(--ok)}.route-note.fallback{border-left-color:var(--bad)}
-.route-note.scope.ask{border-left-color:var(--bad)}.route-note .scope-sentence{margin:4px 0;overflow-wrap:anywhere}
-.route-note .scope-ask{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.route-note .scope-ask button{padding:4px 12px;font-size:13px}
 .agent-msg{border-color:var(--ok);max-width:100%;align-self:stretch;white-space:normal}
 .agent-msg .head{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;font-weight:600}
 .agent-msg .status{font-size:13px;color:var(--muted);margin:4px 0}

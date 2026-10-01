@@ -1,4 +1,4 @@
-// DS021 question forms of the model language: universal questions (mode every with a scope),
+// DS014 question forms of the model language: universal questions (mode every with a scope),
 // time variables (role time ?t, measure start|end|duration, how many times), where/how roles and
 // "why" questions (mode explain). Parser shape, model admission, host lowering and host semantics.
 import test from 'node:test';

@@ -1,5 +1,5 @@
 /**
- * Symbolic simplifications of the fallback cascade (DS016 "Graded severity", DS021 "Never NONE"): cheap, deterministic rewrites of a message that
+ * Symbolic simplifications of the fallback cascade (DS012 "Graded severity", DS014 "Never NONE"): cheap, deterministic rewrites of a message that
  * SymbolicLM could not interpret. Each returns candidate texts; none invents content: they only drop a known lead-in or a trailing tag, cut a
  * coordinated question at its second auxiliary, or keep a subset of the sentences. The caller checks every candidate (certified, no catastrophic flag).
  */

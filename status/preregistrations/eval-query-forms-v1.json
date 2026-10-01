@@ -4,7 +4,7 @@
   "name": "Query forms end to end: counts, superlatives, ordinals, comparatives, multi-hop and age, from the question through SymbolicLM rules v2.9, the KnowledgeLinker and the reference route",
   "registered_at": "2026-10-01T19:10:00Z",
   "registered_by": "query-surface-agent (owner priority of 2026-10-01: KBQA is the yardstick; these forms were 0% or clarifications)",
-  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
   "kind": "evaluation-only (CPU SymbolicLM parse; no training; omp openai-codex/gpt-6-luna writes the dev questions)",
   "frozen_before_results": "Written after the design (topic note of the model-language topic, 2026-10-01) and the first hand probes of single questions on world-v1 (tools/eval/query-forms-probe.mjs), and before any dev row existed and before any sealed KBQA row was read for this experiment. The sealed KBQA suites (eval/suites/kbqa-*) are never used for tuning: they are measured once, at the end, with tag `qf`.",
   "system_under_test": {

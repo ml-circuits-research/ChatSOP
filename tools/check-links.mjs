@@ -28,7 +28,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-export const START_PAGES = ['/', '/chat', '/audit', '/eval', '/eval/guide', '/experiments', '/experiments/topics', '/experiments/reports', '/experiments/timeline', '/experiments/questions', '/admin', '/docs/', '/docs/wire_types.html', '/docs/specsLoader.html?spec=matrix.md'];
+export const START_PAGES = ['/', '/chat', '/experiments', '/experiments/topics', '/experiments/reports', '/experiments/timeline', '/experiments/questions', '/admin', '/docs/', '/docs/wire_types.html', '/docs/specsLoader.html?spec=matrix.md'];
 const SKIP = new Set(['/logout', '/login']);
 const ATTR = /\s(?:href|src)\s*=\s*("([^"]*)"|'([^']*)')/gi;
 
@@ -168,8 +168,9 @@ export async function scratchServer({password = 'link-checker-password'} = {}) {
   process.env.CHATSOP_AUDIT_LEDGER = path.join(dir, 'ledger');
   let server;
   try {
-    // No model registry: the chat page renders and the API answers 503.
-    server = createServer({config: {}, repo, lexicon: demoLexicon(), auth});
+    // No coding agent: the chat page renders and the API answers 503 parse_unavailable (the crawl never starts omp).
+    const offline = {settings: {models: [], backend: {kind: 'none'}}, availability: async () => ({available: false, reason: 'scratch server', models: [], skipped: []}), parse: async () => { throw Object.assign(new Error('scratch server'), {code: 'parse_unavailable', status: 503}); }, stats: () => ({}), clearCache: () => {}};
+    server = createServer({config: {}, repo, lexicon: demoLexicon(), auth, queryParser: offline});
   } finally {
     if (previous === undefined) delete process.env.CHATSOP_AUDIT_LEDGER; else process.env.CHATSOP_AUDIT_LEDGER = previous;
   }

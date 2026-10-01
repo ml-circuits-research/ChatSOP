@@ -1,7 +1,7 @@
 /**
- * The copula in the KnowledgeLinker (DS021 "KnowledgeLinker: the copula and the relation lexicon").
+ * The copula in the KnowledgeLinker (DS014 "KnowledgeLinker: the copula and the relation lexicon").
  *
- * SymbolicLM and the small model write the verb "be" as the relation string `be` (also `be a` / `be an`, and
+ * A circuit author may write the verb "be" as the relation string `be` (also `be a` / `be an`, and
  * `be in` / `be located in`; also `be` with a `location` role, "Where is Paris?"), with the roles as written in the message. This module reads it as one of five closed
  * readings (class, occupation, attribute, identity, location) or as a description question ("Who is Ana?"). It names
  * no predicate: a base memory declares which of its predicates carry a reading (`reading NAME` on a predicate wire,
@@ -65,7 +65,7 @@ function atomOf(predicate, values, fresh) {
 }
 const candidatesOf = predicates => predicates.map(predicate => ({id: predicate.id, roles: predicateRoleNames(predicate)}));
 
-// Clarification questions and the readings they offer, in English: the core renders English only and the output edge translates (DS021 "English-only core").
+// Clarification questions and the readings they offer, in English: the core renders English only and the output edge translates (DS014 "English-only core").
 const QUESTIONS = {
   describeNone: S => `I have no relation that says who or what ${S} is. Do you mean what ${S} does, or who ${S} is related to?`,
   noReading: (S, O) => `The knowledge in use declares no meaning for "be" between ${S} and ${O}. How else would you phrase it?`,

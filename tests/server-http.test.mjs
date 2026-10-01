@@ -6,17 +6,17 @@ import path from 'node:path';
 import {Repository} from '../memory/repository.mjs';
 import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import {createServer} from '../server/http.mjs';
-import {loadRegistry, ModelManager} from '../server/formalizers.mjs';
 import {close, listen, repoPath, repoUrl, tempDir, withEnv} from './helpers.mjs';
+import {stubQueryParser} from './product-helpers.mjs';
 
 const tokens = {alice: 'alice-secret-token-123456', bob: 'bob-secret-token-123456'};
-// The default mock reply: a context-free model-language question (DS021).
+// The default mock reply: a context-free model-language question (DS014).
 const likes = (subject, object) => `@q query\n  where match\n    relation "likes"\n    role subject "${subject}"\n    role object "${object}"\n    polarity affirmed\n  end`;
 const query = likes('Ana', 'Alpha Lab');
 
 /**
- * One ChatSOP server whose only formalizer is a SymbolicLM stub service that forwards each message to an in-test mock. `replies` maps
- * the user message to the SOP the mock returns (default: `query`); `calls` records what the service received.
+ * One ChatSOP server whose request parser is a stub of the coding agent (server/query-parser.mjs interface). `replies` maps the user message
+ * to the SOP the stub returns (default: `query`); `calls` records what the parser received (`{messages: [{role, content}]}`).
  */
 async function fixture(t, {replies = {}, lexicon, limits = {}, config = {}, memory, onCall = () => {}} = {}) {
   const root = tempDir(t, 'chatsop-http-');
@@ -24,32 +24,19 @@ async function fixture(t, {replies = {}, lexicon, limits = {}, config = {}, memo
   repo.init('base');
   const lex = lexicon ?? demoLexicon();
   const calls = [];
-  const mock = http.createServer(async (req, res) => {
-    let raw = '';
-    for await (const part of req) raw += part;
-    const body = JSON.parse(raw);
-    calls.push(body);
-    await onCall(body);
-    const answer = replies[body.messages[0].content] ?? query;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({choices: [{message: {content: answer}, finish_reason: 'stop'}]}));
-  });
-  const endpoint = await listen(t, mock);
-  // The registry holds the one SymbolicLM stub; its wrapper script points the stub at this fixture's mock.
-  const wrapper = path.join(root, 'symbolic-service.mjs');
-  fs.writeFileSync(wrapper, `process.env.STUB_CALLBACK_URL = ${JSON.stringify(endpoint + '/v1/chat/completions')};\nawait import(${JSON.stringify(repoUrl('tests/fixtures/server-http/proxy-symbolic-service.mjs'))});\n`);
-  const registryFile = path.join(root, 'formalizers.json');
-  fs.writeFileSync(registryFile, JSON.stringify({default: 'symbolic-lm', models: [{id: 'symbolic-lm', label: 'SymbolicLM (stub)', service: wrapper, capabilities: ['formalize'], rewrite: {mode: 'off'}}]}));
-  const managers = [];
-  const formalizers = () => { const registry = loadRegistry(registryFile, {root}), manager = new ModelManager({registry, logDir: null}); managers.push(manager); return {registry, manager}; };
-  t.after(() => Promise.all(managers.map(manager => manager.stopAll())));
-  const options = {repo, lexicon: lex, base: 'base', authTokens: tokens, limits, config: {policy: {allowWrite: true}, ...config}};
-  let server = createServer({...options, formalizers: formalizers()});
+  const parser = stubQueryParser();
+  parser.parse = async ({message}) => {
+    calls.push({messages: [{role: 'user', content: message}]});
+    await onCall({message});
+    return {sop: replies[message] ?? query, parse: {parser: 'coding_agent', model: 'stub/model', backend: 'stub', rounds: 1, cost_usd: 0, ms: 1, cache: 'miss', tried: []}};
+  };
+  const endpoint = 'http://stub.invalid';
+  const options = {repo, lexicon: lex, base: 'base', authTokens: tokens, limits, config: {policy: {allowWrite: true}, ...config}, queryParser: parser};
+  let server = createServer(options);
   let url = await listen(t, server);
   async function restart() {
     await close(server);
-    await managers.at(-1).stopAll();
-    server = createServer({...options, formalizers: formalizers(), repo: new Repository(root, memory ? {memory} : undefined), sessionRoot: path.join(root, 'http-conversations')});
+    server = createServer({...options, repo: new Repository(root, memory ? {memory} : undefined), sessionRoot: path.join(root, 'http-conversations')});
     url = await listen(t, server);
   }
   async function request(method, route, body, token = tokens.alice) {
@@ -71,8 +58,8 @@ test('authenticated model discovery, readiness and streaming expose one verified
   const f = await fixture(t);
   assert.equal((await f.request('GET', '/healthz')).status, 200);
   const ready = (await f.request('GET', '/readyz')).body;
-  assert.deepEqual([ready.ready, ready.model_available, ready.default_model], [true, true, 'symbolic-lm']);
-  assert.equal((await f.request('GET', '/v1/models')).body.data[0].id, 'symbolic-lm', 'the registry models are listed');
+  assert.deepEqual([ready.ready, ready.model_available, ready.default_model], [true, true, 'chatsop-local']);
+  assert.equal((await f.request('GET', '/v1/models')).body.data[0].id, 'chatsop-local', 'the façade model is listed with the coding agent state');
   const reply = await f.chat('Ana likes Alpha Lab?', {stream: true});
   assert.equal(reply.status, 200);
   assert.match(reply.headers.get('content-type'), /text\/event-stream/);
@@ -80,12 +67,12 @@ test('authenticated model discovery, readiness and streaming expose one verified
   const event = JSON.parse(reply.raw.split('\n')[0].slice(6));
   assert.equal(event.chatSop.status, 'unknown');
   assert.equal(event.chatSop.prompt_profile, undefined, 'there are no prompt profiles');
-  assert.equal(event.chatSop.formalizer_model, 'symbolic-lm');
+  assert.equal(event.chatSop.formalizer_model, 'coding-agent:stub/model');
   assert.equal(event.chatSop.backend, 'js');
   assert.equal(event.chatSop.completeness, true);
   assert.equal(event.chatSop.fallback, null);
   assert.match(event.chatSop.circuit, /@\w+ solve/);
-  assert.equal(f.calls[0].messages[0].content, 'Ana likes Alpha Lab?', 'the formalizer receives the message and nothing else');
+  assert.equal(f.calls[0].messages[0].content, 'Ana likes Alpha Lab?', 'the circuit author receives the message and nothing else');
 });
 
 test('an explicit external backend is never substituted: the HTTP trace names it and reports no fallback', async t => {
@@ -148,24 +135,15 @@ test('user suppositions stay conditional and caller-owned; a restart never turns
   }
 });
 
-test('answer language: English by default, the API language field, an in-message request, and the model-language trace', async t => {
+test('answers are English, the language field is gone, and the model-language trace holds statements and assumptions', async t => {
   const unclear = '@u unclear\n  kind gibberish';
   const stated = '@s stated\n  relation "likes"\n  role subject "Ana"\n  role object "Alpha Lab"\n  polarity affirmed\n  certainty asserted\n@a assumed\n  relation "likes"\n  role subject "Ana"\n  role object "Beta Lab"\n  polarity negated\n  basis closure\n' + query;
-  const f = await fixture(t, {replies: {'asdf qwer': unclear, 'asdf qwer, answer in Romanian': unclear, 'Ana likes Alpha Lab. Does she like Beta Lab too?': stated}});
+  const f = await fixture(t, {replies: {'asdf qwer': unclear, 'Ana likes Alpha Lab. Does she like Beta Lab too?': stated}});
   const english = await f.chat('asdf qwer');
   assert.equal(english.status, 200);
   assert.equal(english.body.choices[0].message.content, 'I did not understand the message. Could you rephrase?');
-  assert.deepEqual([english.body.chatSop.status, english.body.chatSop.unclear, english.body.chatSop.answer_language, english.body.chatSop.language_source], ['unclear', 'gibberish', 'en', 'default']);
-  const selected = await f.chat('asdf qwer', {language: 'ro'});
-  // The core answers in English; with no translator model in this fixture the English answer stays and the trace says so (output edge).
-  assert.equal(selected.body.choices[0].message.content, 'I did not understand the message. Could you rephrase?');
-  assert.equal(selected.body.chatSop.language_source, 'request');
-  assert.equal(selected.body.chatSop.answer_translation.status, 'backend_unavailable');
-  assert.equal(selected.body.chatSop.answer_translation.language, 'ro');
-  assert.equal(selected.body.chatSop.english_text, 'I did not understand the message. Could you rephrase?');
-  const requested = await f.chat('asdf qwer, answer in Romanian');
-  assert.deepEqual([requested.body.chatSop.answer_language, requested.body.chatSop.language_source], ['ro', 'prompt']);
-  assert.equal((await f.chat('asdf qwer', {language: 'de'})).status, 400);
+  assert.deepEqual([english.body.chatSop.status, english.body.chatSop.unclear], ['unclear', 'gibberish']);
+  assert.equal((await f.chat('asdf qwer', {language: 'ro'})).status, 400, 'the language field is gone: answers are English');
   const answer = await f.chat('Ana likes Alpha Lab. Does she like Beta Lab too?');
   assert.equal(answer.body.chatSop.status, 'supported');
   assert.deepEqual(answer.body.chatSop.user_statements.map(s => [s.atom, s.treatment]), [['likes ana lab_alpha', 'evidence']]);
@@ -197,14 +175,18 @@ test('fail closed, bearer security, request limits, unsupported surfaces and mod
   assert.equal((await f.chat('x', {tools: []})).status, 400);
   const injected = await fixture(t, {replies: {'Record this': '@f fact\n  holds likes ana lab_alpha\n  valid timeless\n@s remember\n  input $f'}});
   const refused = await injected.chat('Record this');
-  assert.equal(refused.status, 422, 'model output with host plumbing is refused, and shown as the rejected model SOP');
+  assert.equal(refused.status, 422, 'a circuit with runtime plumbing is refused, and shown as the rejected SOP');
   assert.equal(refused.body.error.code, 'model_output_rejected');
   assert.match(refused.body.chatSop.rejection, /declarative/);
   assert.equal(Object.keys(injected.repo.session('base', 'alice', 'c1').live.claims).length, 0);
-  const offline = createServer({config: {}, repo: f.repo, lexicon: f.lex, base: 'base', authTokens: tokens});
-  const response = await readyz(await listen(t, offline));
+  const offline = createServer({config: {}, repo: f.repo, lexicon: f.lex, base: 'base', authTokens: tokens, queryParser: stubQueryParser({available: false})});
+  const offlineUrl = await listen(t, offline);
+  const response = await readyz(offlineUrl);
   assert.equal(response.status, 503);
   assert.equal((await response.json()).model_available, false);
+  const down = await fetch(offlineUrl + '/v1/chat/completions', {method: 'POST', headers: {Authorization: 'Bearer ' + tokens.alice, 'Content-Type': 'application/json'}, body: JSON.stringify({model: 'chatsop-local', messages: [{role: 'user', content: 'hi'}]})});
+  assert.equal(down.status, 503);
+  assert.equal((await down.json()).error.code, 'parse_unavailable');
 });
 
 test('same-session serialization, global concurrency and time limits refuse overload', async t => {
@@ -217,7 +199,7 @@ test('same-session serialization, global concurrency and time limits refuse over
   const first = f.chat('Ana likes Alpha Lab?');
   await arrived;
   assert.equal((await f.chat('Ana likes Alpha Lab?')).status, 409);
-  // Different messages: an identical message would share the SymbolicLM call cache and reach the service once.
+  // Different messages: the request parser may cache an identical message and reach the coding agent once.
   const other = f.chat('Does Ana like Alpha Lab?', {conversation_id: 'other'});
   await arrivedOther;
   assert.equal((await f.chat('Is Ana fond of Alpha Lab?', {conversation_id: 'third'})).status, 429);
@@ -230,19 +212,15 @@ test('same-session serialization, global concurrency and time limits refuse over
   assert.doesNotMatch(response.raw, /Ana|token|127\\.0\\.0\\.1/);
 });
 
-test('the formalizer receives the message alone and the server has no prompt profile or runtime endpoint', async t => {
+test('the circuit author receives the message alone; there is no prompt profile and no chat mode', async t => {
   const f = await fixture(t);
   const answer = await f.chat('Ana likes Alpha Lab?');
   assert.equal(answer.status, 200);
   assert.equal(answer.body.chatSop.prompt_profile, undefined);
-  assert.equal(f.calls[0].messages[0].content, 'Ana likes Alpha Lab?', 'the context-free formalizer receives the message alone');
+  assert.equal(f.calls[0].messages[0].content, 'Ana likes Alpha Lab?', 'the author receives the message alone');
   assert.deepEqual(Object.keys(f.calls[0].messages[0]).sort(), ['content', 'role']);
-  // The removed base-model modes are a clear error, not a silent fallback.
-  const removed = await f.chat('Ana likes Alpha Lab?', {mode: 'chat'});
-  assert.equal(removed.status, 400);
-  assert.equal(removed.body.error.code, 'unsupported_mode');
-  assert.match(removed.body.error.message, /the only mode is formalize/);
-  assert.equal((await f.chat('Ana likes Alpha Lab?', {mode: 'formalize'})).status, 200);
+  assert.equal((await f.chat('Ana likes Alpha Lab?', {mode: 'chat'})).status, 400, 'the mode field is not accepted');
+  assert.equal((await f.chat('Ana likes Alpha Lab?', {parser: 'local'})).status, 400, 'there is no parser choice');
 });
 
 test('documentation site is served statically without authentication and cannot be escaped', async t => {
@@ -259,8 +237,8 @@ test('documentation site is served statically without authentication and cannot 
   const home = await fetch(f.url + '/', {redirect: 'manual'});
   assert.equal(home.status, 200);
   const homeText = await home.text();
-  for (const link of ['href="/chat"', 'href="/audit"', 'href="/admin"', 'href="/docs/"']) assert.ok(homeText.includes(link), link);
-  assert.match(homeText, /SymbolicLM \(stub\) \(default formalizer\)/, "the home page lists the registry models");
+  for (const link of ['href="/chat"', 'href="/experiments"', 'href="/admin"', 'href="/docs/"']) assert.ok(homeText.includes(link), link);
+  assert.match(homeText, /Coding agent \(omp\): <b class="ok">ready/, "the home page reports the coding agent");
   assert.match(homeText, /bearer tokens only/);
   assert.ok(!homeText.includes(f.endpoint), 'the mock endpoint is not disclosed to anonymous visitors');
   // Without a password store there is no browser login: /chat stays a 401 API answer.

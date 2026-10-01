@@ -1,4 +1,4 @@
-/** The product layer of the chat page (DS031, DS012 "The chat page"): sessions, base memories and the coding agent.
+/** The product layer of the chat page (DS022, DS009 "The chat page"): sessions, base memories and the coding agent.
  *
  * - The *session header* of the Chat tab shows the session of the current conversation (its base memory, strategy, circuits and drafts)
  *   with *New session* (opens the start dialog where the base memory is chosen from `GET /v1/memories`), *Drafts* and *Commit*. Every
@@ -6,9 +6,9 @@
  * - The *Base Memory* tab lists the memories (name, strategy, size, created, parent) with View (manifest, counts, sample wires), Fork
  *   (name and strategy), Add knowledge (paste or upload a circuit; validation problems are shown, nothing is written on failure) and
  *   Start session; creating an empty memory is there too. Every signed-in user may use them (no admin role yet).
- * - Settings, *Coding agent*: "Always use coding agent" (off by default), the scope note (ask or mark only) and the omp model picker
- *   (`GET /v1/omp/models`, subscription models first, with the cost class, filterable). The coding agent starts only on attached files,
- *   an explicit "Send to knowledge authoring" on a scope note, or the Always setting; `POST /v1/route` explains the path for each message.
+ * - Settings, *Coding agent*: the omp model picker (`GET /v1/omp/models`, subscription models first, with the cost class, filterable); the
+ *   chosen model is tried first, before the configured subscription chain. A message is always written into circuits by the coding agent
+ *   (`POST /v1/chat/completions`); attached files go to knowledge authoring (`POST /v1/author`).
  * - Authoring progress (`POST /v1/author` with `wait: false`, polled) and the draft circuits (validation, report, cost) are shown as a
  *   card in the conversation with Accept and Reject. Nothing is knowledge until the user accepts a draft.
  * All dynamic text is inserted with textContent; the page never builds markup from server data.
@@ -18,9 +18,6 @@ export const sessionHeadHtml = `<header class="chat-head"><div class="info" id="
 
 const srow = (title, help, control) => `<div class="srow"><div class="what"><b>${title}</b><span>${help}</span></div><div class="ctl">${control}</div></div>`;
 export const settingsCodingAgentHtml = [
-  srow('<label class="plain" for="parser-select">Request parser</label>', 'Who turns your message into a query. Coding agent (default): an omp coding agent writes the query circuit from the memory\'s vocabulary. SymbolicLM: the local path (Stanza and the UD rules). Either way the circuit is linked, retrieved, reasoned over and verified symbolically; a failing coding agent falls back to SymbolicLM and the trace says so.', '<select id="parser-select"><option value="">Server default (coding agent)</option><option value="coding_agent">Coding agent</option><option value="local">SymbolicLM (local)</option></select>'),
-  srow('<label class="plain" for="authoring-always">Always use coding agent</label>', 'Off (default): the coding agent runs only when you attach files or answer yes to a scope note. On: every message goes to the coding agent when omp is configured, skipping SymbolicLM. A detection never starts it by itself.', '<input type="checkbox" id="authoring-always">'),
-  srow('<label class="plain" for="scope-select">Scope note</label>', 'When a sentence states knowledge SymbolicLM cannot write (a rule, a norm, a procedure, a definition), or SymbolicLM fails on a message. Ask me: a note with Yes and No. Mark only: the note without buttons.', '<select id="scope-select"><option value="ask">Ask me</option><option value="mark">Mark only</option><option value="none">No note</option></select>'),
   srow('<label class="plain" for="omp-model">Coding agent model</label>', 'Models omp can use. Subscription models cost nothing per token; paid models show their price per million tokens.', '<input type="search" id="omp-filter" placeholder="Filter models" aria-label="Filter models"><select id="omp-model"><option value="">omp default</option></select><button id="omp-refresh" type="button" title="Read the model list from omp again">Refresh</button>'),
   '<p id="omp-note" class="hint-note"></p>',
 ].join('');
@@ -61,7 +58,7 @@ export const attachHtml = `<input type="file" id="attach-file" multiple hidden>`
 export const chipsHtml = `<div id="chips" class="chips" aria-label="Attached files"></div>`;
 
 export const productScript = String.raw`
-// ---- product layer (DS031): sessions, base memories, the coding agent ----
+// ---- product layer (DS022): sessions, base memories, the coding agent ----
 const PROD={session:null,memories:[],strategies:[],omp:null,files:[]};
 async function jcall(method,path,body){
  try{const r=await fetch(path,{method,credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});let j=null;try{j=await r.json();}catch{}
@@ -86,7 +83,6 @@ function renderSessionBar(){
  if((s.committed_to||[]).length)info.append(el('span','pill ok','committed'));
  info.title='session '+s.id;
  $('strategy-info').textContent=s.base.strategy+' (base memory '+s.base.name+')';
- $('authoring-always').checked=Boolean(s.settings&&s.settings.authoring==='always');$('scope-select').value=(s.settings&&s.settings.scope_note)||'ask';$('parser-select').value=(s.settings&&s.settings.parser)||'';
  const model=(s.settings&&s.settings.omp_model)||'';if([...$('omp-model').options].some(o=>o.value===model))$('omp-model').value=model;
  $('commit-open').disabled=!accepted;
  $('drafts-open').textContent=drafts?'Drafts ('+drafts+')':'Drafts';
@@ -97,7 +93,7 @@ async function refreshSession(){
  if(r.ok)PROD.session=r.body;renderSessionBar();
 }
 async function startSession(baseId,name){
- const r=await jcall('POST','/v1/sessions',{base:baseId,...(name?{name}:{}),settings:{authoring:store.get('chatsop.authoring','off')==='always'?'always':'off',omp_model:store.get('chatsop.ompModel',null),scope_note:store.get('chatsop.scopeNote','ask'),parser:store.get('chatsop.parser',null)}});
+ const r=await jcall('POST','/v1/sessions',{base:baseId,...(name?{name}:{}),settings:{omp_model:store.get('chatsop.ompModel',null)}});
  if(!r.ok)return r;
  PROD.session=r.body;bindSession(r.body.id);store.set('chatsop.lastBase',baseId);renderSessionBar();return r;
 }
@@ -270,17 +266,14 @@ async function loadOmpModels(refresh){
  const r=await jcall('GET','/v1/omp/models'+(refresh?'?refresh=1':''));
  if(!r.ok){PROD.omp=null;ompNote('The model list is not available: '+errText(r));return;}
  PROD.omp=r.body;
- if(!r.body.available){renderOmpOptions();ompNote('The coding agent (omp) is not available: '+(r.body.reason||'no models')+'. SymbolicLM answers instead.');return;}
+ if(!r.body.available){renderOmpOptions();ompNote('The coding agent (omp) is not available: '+(r.body.reason||'no models')+'. Chat answers return parse_unavailable until omp can run a model.');return;}
  renderOmpOptions();
  ompNote((r.body.omp_version||'omp')+' \u00b7 '+r.body.models.length+' models'+(r.body.cached?' (cached)':'')+'. Type in the filter to search the whole catalogue.');
 }
 async function saveSetting(patch){
- if('authoring' in patch)store.set('chatsop.authoring',patch.authoring);if('scope_note' in patch)store.set('chatsop.scopeNote',patch.scope_note);if('omp_model' in patch)store.set('chatsop.ompModel',patch.omp_model);if('parser' in patch)store.set('chatsop.parser',patch.parser);
+ if('omp_model' in patch)store.set('chatsop.ompModel',patch.omp_model);
  if(!PROD.session)return;const r=await jcall('POST','/v1/sessions/'+PROD.session.id+'/settings',patch);if(r.ok){PROD.session=r.body;renderSessionBar();}
 }
-$('authoring-always').onchange=e=>saveSetting({authoring:e.target.checked?'always':'off'});
-$('scope-select').onchange=e=>saveSetting({scope_note:e.target.value});
-$('parser-select').onchange=e=>saveSetting({parser:e.target.value||null});
 $('omp-model').onchange=e=>saveSetting({omp_model:e.target.value||null});
 $('omp-filter').oninput=()=>renderOmpOptions();
 $('omp-refresh').onclick=()=>loadOmpModels(true);
@@ -303,110 +296,46 @@ $('attach-file').onchange=async e=>{
  e.target.value='';renderChips();
 };
 
-// ---- routing and the coding agent
-function routeNote(route){
- const agent=route.path==='authoring';const n=el('div','route-note'+(agent?' agent':route.fallback?' fallback':''));
- n.append(el('b','','Path: '+(agent?'coding agent (omp)':'SymbolicLM')),document.createTextNode(' — '+route.reason.text+'.'));
- if(route.fallback)n.append(document.createTextNode(' The coding agent could not be used ('+route.fallback.reason+'), so SymbolicLM answers.'));
- if(agent&&route.omp&&route.omp.model)n.append(el('span','pill',route.omp.model+' · '+route.omp.cost_class));
- n.title='trigger: '+route.reason.trigger;return n;
-}
-function showRoute(userDiv,route){
- if(!userDiv)return;userDiv.classList.add('wide');
- // The path note sits under the message (the "I understood" panel is collapsed, so it must not hide a scope question).
- let slot=userDiv.querySelector('.route-slot');
- if(!slot){slot=el('div','route-slot');userDiv.append(slot);}slot.textContent='';slot.append(routeNote(route));
- return slot;
-}
-/** The scope note: where the sentence needs knowledge authoring, the cue quoted and the suggested wire types; with the setting Ask, nothing is sent without the user's yes. */
-function scopeNote(userDiv,route,text,run){
- const sg=route.suggestion;if(!sg)return;const slot=userDiv.querySelector('.route-slot')||showRoute(userDiv,route);
- const box=el('div','route-note scope'+(sg.mode==='ask'?' ask':''));
- box.append(el('b','','Scope: '),document.createTextNode(sg.text+'.'));
- const sentences=(sg.scope&&sg.scope.sentences)||[];
- for(const s of sentences){
-  const p=el('div','scope-sentence');p.append(document.createTextNode('\u201c'+s.text+'\u201d \u2192 '));
-  s.wires.forEach((w,i)=>{p.append(el('span','pill '+(w.confidence==='reliable'?'ok':''),w.wire+(w.confidence==='reliable'?'':' (may need)')));});
-  if(s.cues.length)p.append(document.createTextNode(' cue: '+s.cues.map(c=>'\u201c'+c.text+'\u201d ('+c.type+')').join(', ')));
-  box.append(p);
- }
- if(sg.unavailable)box.append(el('div','meta','The coding agent is not available ('+sg.unavailable+'), so nothing can be sent; SymbolicLM answers.'));
- if(sg.mode==='ask'){
-  const q=el('div','scope-ask');q.append(document.createTextNode('Send it to the coding agent'+(route.omp&&route.omp.model?' ('+route.omp.model+', '+route.omp.cost_class+')':'')+' to write circuits? '));
-  const yes=el('button','primary','Send to knowledge authoring');yes.type='button';const no=el('button','','No');no.type='button';
-  const answer=async a=>{yes.disabled=true;no.disabled=true;
-   await jcall('POST','/v1/sessions/'+PROD.session.id+'/scope-answer',{message:text,wires:(sg.scope&&sg.scope.wires)||[],cues:sentences.flatMap(s=>s.cues),answer:a,trigger:sg.trigger});
-   q.textContent=a==='yes'?'Sent to the coding agent. The circuits will come back as proposed drafts.':'Not sent.'+(sg.trigger==='scope_needs_knowledge_authoring'?' These wire types will not be suggested again in this session.':'');
-   if(a==='yes')run();};
-  yes.onclick=()=>answer('yes');no.onclick=()=>answer('no');q.append(yes,no);box.append(q);
- }
- slot.append(box);
-}
-function agentBlock(route,model){
+// ---- knowledge authoring by the coding agent
+function agentBlock(model){
  const div=el('div','msg assistant agent-msg');div.append(el('div','head','Coding agent (omp)'));
  if(model)div.firstChild.append(el('span','pill',model));
  div.append(el('div','status','starting…'));return div;
 }
-async function runAuthoring(text,files,route,userDiv){
+async function runAuthoring(text,files){
  const model=PROD.session.settings&&PROD.session.settings.omp_model||null;
- const block=agentBlock(route,model);$('log').append(block);const status=block.querySelector('.status');
+ const block=agentBlock(model);$('log').append(block);const status=block.querySelector('.status');
  const started=await jcall('POST','/v1/author',{session:PROD.session.id,instructions:text,files,...(model?{model}:{}),wait:false});
- if(!started.ok){
-  block.remove();const why=started.error?started.error.message:'HTTP '+started.status;
-  showRoute(userDiv,{path:'symbolic',reason:route.reason,fallback:{from:'authoring',to:'symbolic',reason:why},omp:route.omp});return 'fallback';
- }
+ if(!started.ok){status.textContent='The coding agent could not start: '+(started.error?started.error.message:'HTTP '+started.status);block.classList.add('error');return 'failed';}
  const t0=Date.now();let st=null;
  for(;;){
   await new Promise(r=>setTimeout(r,1500));
-  const r=await jcall('GET',started.body.status_url);if(!r.ok){status.textContent='The status of the request could not be read: '+errText(r);return 'done';}
+  const r=await jcall('GET',started.body.status_url);if(!r.ok){status.textContent='The status of the request could not be read: '+errText(r);return 'failed';}
   st=r.body;const secs=Math.round((Date.now()-t0)/1000);
   status.textContent=(st.status==='running'?({queued:'queued',writing:'the agent is writing circuits',fixing:'the agent is repairing circuits after validation (round '+st.round+')',validating:'validating the circuits'}[st.phase]||st.phase)+' · '+secs+' s':'finished');
   if(st.status!=='running')break;
  }
- if(!st.result||st.result.status==='failed'){
-  status.textContent='The coding agent failed: '+(st.error||(st.result&&st.result.reason)||'no result')+'. SymbolicLM answers this message instead.';block.classList.add('error');
-  showRoute(userDiv,{path:'symbolic',reason:route.reason,fallback:{from:'authoring',to:'symbolic',reason:st.error||(st.result&&st.result.reason)||'the run failed'},omp:route.omp});return 'fallback';
- }
+ if(!st.result||st.result.status==='failed'){status.textContent='The coding agent failed: '+(st.error||(st.result&&st.result.reason)||'no result');block.classList.add('error');return 'failed';}
  renderAuthoringResult(block,st.result);await refreshSession();return 'done';
 }
 function renderAuthoringResult(block,res){
  const status=block.querySelector('.status');
  status.textContent=({validated:'Validated',invalid:'Written but not valid after the repair rounds',failed:'The agent failed'}[res.status]||res.status)+' · '+res.rounds+' round'+(res.rounds===1?'':'s')+' · '+(res.duration_ms/1000).toFixed(1)+' s · '+res.usage.turns+' turns · cost '+res.usage.cost_usd.toFixed(4)+' USD ('+res.cost_class+(res.cost_class==='subscription'?', nominal list price':'')+')'+(res.reason?' · '+res.reason:'');
  if(res.draft){block.append(draftCard(res.draft,()=>{}));}
- else if(res.status!=='validated')block.append(el('p','note','No circuit was produced. SymbolicLM can still answer this message.'));
+ else if(res.status!=='validated')block.append(el('p','note','No circuit was produced.'));
  block.append(el('p','note','Drafts are not knowledge. Accepting one adds it to this session only; committing the session to a base memory is a separate step.'));
 }
+/** Attached files go to knowledge authoring (the coding agent writes draft circuits); a message without files is a chat turn. */
 async function productEarly(text){
- // Attached files and the Always setting go to the coding agent without waiting for SymbolicLM.
- if(!PROD.session)return false;
- const always=PROD.session.settings&&PROD.session.settings.authoring==='always';
- if(!PROD.files.length&&!always)return false;
+ if(!PROD.session||!PROD.files.length)return false;
  const files=PROD.files.splice(0);renderChips();
  const user={id:uid(),role:'user',text,time:Date.now(),attached:files.map(f=>f.name)};remember(user);const userDiv=add(user);
- if(files.length)userDiv.append(el('div','meta','attached: '+files.map(f=>f.name).join(', ')));
- setBusy(true,files.length?'Routing to the coding agent\u2026':'Routing\u2026');
+ userDiv.append(el('div','meta','attached: '+files.map(f=>f.name).join(', ')));
+ setBusy(true,'Coding agent working\u2026');
  input.value='';fit();
- const r=await api('/v1/route',{session:PROD.session.id,message:text,files:files.length});
- if(!r.ok){add({role:'assistant error',text:'The routing decision failed: '+(r.body&&r.body.error?r.body.error.message:'HTTP '+r.status),time:Date.now()});return true;}
- showRoute(userDiv,r.body);
- if(r.body.path==='authoring'){stage('Coding agent working\u2026');const outcome=await runAuthoring(text,files,r.body,userDiv);if(outcome==='done')return true;}
- // Fallback: SymbolicLM answers the text alone (attached files cannot be read by it).
- await proceedSend(text,null,{user,userDiv});return true;
+ await runAuthoring(text,files);
+ return true;
 }
-async function productAfterAnalysis(text,user,calls,userDiv){
- if(!PROD.session)return null;
- await Promise.allSettled(calls);
- let understanding=user.understood||null;
- stage('Checking the scope\u2026');
- if(!understanding){const r=await api('/v1/understand',{message:text,rewrite:rewriteMode,emotion:false});if(r.ok)understanding=r.body;}
- const r=await api('/v1/route',{session:PROD.session.id,message:text,...(understanding?{understanding}:{})});
- if(!r.ok)return null;
- showRoute(userDiv,r.body);
- // A detection only suggests: SymbolicLM answers now, and the note asks (or just marks).
- if(r.body.suggestion)scopeNote(userDiv,r.body,text,()=>runAuthoring(hintedText(text,r.body.suggestion),[],r.body,userDiv));
- return r.body;
-}
-const hintedText=(text,sg)=>text+(sg&&sg.scope&&sg.scope.wires.length?'\n\nScope detector (a hint, not a requirement): suggested wire types '+sg.scope.wires.join(', ')+'.':'');
 ensureSession().then(()=>loadOmpModels(false));
 initTabs();
 `;

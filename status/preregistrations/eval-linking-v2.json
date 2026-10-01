@@ -4,7 +4,7 @@
  "name": "Linking R2: dev/sealed split of linking-v1 parts 2 and 3, single-oblique role relabeling, frame tier, article stripping and circuit rules in the chat turn",
  "registered_at": "2026-10-01T18:00:00Z",
  "registered_by": "linker-r2-agent (follow-up of eval-linking-v1; targets of linking proposal section 6.2)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "kind": "evaluation-only (no training; SymbolicLM programs cached from eval-linking-v1; no new judge labels)",
  "frozen_before_results": "Written after the dev half had been read once for diagnosis (the M3 numbers of eval-linking-v1 are on the full, partially seen set) and before the sealed test half was read at all. The sealed half is measured once, at the end.",
  "hypotheses": [

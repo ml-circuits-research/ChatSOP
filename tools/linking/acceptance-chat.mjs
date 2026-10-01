@@ -2,7 +2,7 @@
 /**
  * Acceptance check of the per-session lexicon (linking proposal M0): real questions through the HTTP chat of a PRIVATE server
  * (loopback, a port of its own, never 9999, its own API key) against a named base memory, one session per question. The server,
- * SymbolicLM, the KnowledgeLinker, the memory slice and the engine are the product's own; nothing is stubbed.
+ * the coding agent (omp), the KnowledgeLinker, the memory slice and the engine are the product's own; nothing is stubbed.
  *
  *   node tools/linking/acceptance-chat.mjs [--base world-v1] [--port 19131] [--chat-data ROOT] [--out DIR] [--questions FILE]
  *
@@ -54,7 +54,7 @@ for (const q of questions) {
   const sid = session.json?.id ?? session.json?.session?.id;
   const t0 = Date.now();
   let res;
-  try { res = await call('POST', '/v1/chat/completions', {model: 'chatsop-local', session_id: sid, messages: [{role: 'user', content: q.q}], ...(q.lang === 'ro' ? {language: 'ro'} : {})}); }
+  try { res = await call('POST', '/v1/chat/completions', {model: 'chatsop-local', session_id: sid, messages: [{role: 'user', content: q.q}]}); }
   catch (error) { res = {status: 0, json: null, text: String(error)}; }
   const c = res.json?.chatSop ?? {};
   const answer = res.json?.choices?.[0]?.message?.content ?? '';

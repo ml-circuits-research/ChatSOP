@@ -1,5 +1,5 @@
 /**
- * Warming of base memories at server start (DS012 "Model lifecycle", setting `warmMemories` of config/server-models.json).
+ * Warming of base memories at server start (DS009 "Warm memories", setting `server.warmMemories` of config/runtime.json).
  *
  * The first question over a base memory decodes its snapshot chain and builds the SQL view of each layer lazily (about 4 s for a
  * large memory, measured by the slice-path task). Doing that once at start moves the cost out of the first turn: the decoded

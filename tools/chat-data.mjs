@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Maintenance of the chat data root (DS031).
+ * Maintenance of the chat data root (DS022).
  *
  *   node tools/chat-data.mjs status                     the root, counts and TTLs
  *   node tools/chat-data.mjs cleanup [--dry-run]        remove expired tmp folders and abandoned sessions

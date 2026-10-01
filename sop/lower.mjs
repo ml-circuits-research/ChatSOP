@@ -19,7 +19,7 @@ export function lowerQuery(w,values={},schema=null,{now=Date.now(),related=null}
  const measure=one(w,'measure');if(measure!==undefined){assert(ENUMS.query.measure.includes(measure),'Invalid time measure');assert(span!==undefined&&selected.length===1&&selected[0]===span,'measure needs the selected span variable');}
  const bound=definitelyBound(where);if(span)bound.add(span);if(w.fields.order){const [a,,b]=words(one(w,'order'));bound.add(a);bound.add(b);}assert(selected.every(v=>bound.has(v)),'Unbound selected variable: every alternative must bind selected variables');
  const filters=many(w,'filter').map(parseBooleanCondition);const varsIn=n=>{if(!n||typeof n!=='object')return [];return [...(n.type==='var'?[n.value]:[]),...Object.values(n).flatMap(v=>Array.isArray(v)?v.flatMap(varsIn):varsIn(v))];};for(const f of filters)assert(varsIn(f).every(v=>bound.has(v)),'Unbound filter variable');
- // Words-only fields (DS021): `except ?x "v"` is the filter ?x != "v"; `compare`, `rank`, `quantifier` and
+ // Words-only fields (DS014): `except ?x "v"` is the filter ?x != "v"; `compare`, `rank`, `quantifier` and
  // `order` are evaluated by the reasoner with numeric coercion (a value it cannot read as a number is not computable).
  for(const line of many(w,'except')){const [name,value]=words(line);assert(bound.has(name),'Unbound except variable');filters.push(parseBooleanCondition(name+' != '+value));}
  const term=token=>variable(token)?token:/^-?\d+$/.test(token)?Number(token):scalar(token,values);
@@ -46,7 +46,7 @@ function numericAST(n,vars,values,type){
 export function lowerConstraint(w,values={}){
  const vars={};for(const l of many(w,'var')){const p=words(l);assert((p.length===2||p.length===4)&&/^\?[a-z][a-z0-9_]*$/.test(p[0])&&p[1]==='int','var ?name int [min max]');const name=p[0].slice(1);assert(!Object.hasOwn(vars,name),'Duplicate constraint variable');vars[name]={sort:'Int'};if(p.length===4){const min=Number(scalar(p[2],values)),max=Number(scalar(p[3],values));assert(Number.isSafeInteger(min)&&Number.isSafeInteger(max)&&min<=max,'Invalid finite domain');Object.assign(vars[name],{min,max});}}
  const selected=words(one(w,'select',''));assert(selected.every(v=>variable(v)&&Object.hasOwn(vars,v.slice(1)))&&new Set(selected).size===selected.length,'select needs distinct declared constraint variables');
- // Arithmetic (DS021 Q-LANG-7): `require ?v equal 2380 times 19` fixes ?v to the computed value, so the model never
+ // Arithmetic (DS014 Q-LANG-7): `require ?v equal 2380 times 19` fixes ?v to the computed value, so the model never
  // chooses a domain for a computed number; an integer result is required (a fraction is not computable).
  const ground=n=>n.type==='literal'?Number.isSafeInteger(n.value):n.type==='binary'&&['+','-','*'].includes(n.op)&&ground(n.left)&&ground(n.right)||n.type==='unary'&&n.op==='-'&&ground(n.arg);
  for(const text of many(w,'require')){const ast=parseBooleanCondition(text);if(ast.type==='binary'&&['==','==='].includes(ast.op)&&ast.left.type==='var'&&Object.hasOwn(vars,ast.left.value.slice(1))&&ground(ast.right)){const value=evaluateExpression(ast.right).value;assert(Number.isSafeInteger(value),'Integer arithmetic expected');const v=vars[ast.left.value.slice(1)];assert(v.min===undefined||(value>=v.min&&value<=v.max),'Computed value outside the declared domain');Object.assign(v,{min:value,max:value});}}

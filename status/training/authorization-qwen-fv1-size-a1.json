@@ -4,7 +4,7 @@
   "approved": true,
   "approved_by": "user",
   "approved_at": "2026-09-28T18:13:13.644Z",
-  "instruction": "Owner authorizes first fine-tuning experiment: Explicit owner approval (2026-09-28): download SmolLM2 (smallest) and Gemma 3 270M; fine-tune on formalizer-v1 once the data rebuild is final, in order SmolLM2 -> Gemma 3 270M; Qwen3-0.6B only if the smaller models are not good enough. Goal: scientific comparison of how small the formalizer can be, with CPU speed measured. Semantic review for this experiment is satisfied by the independent automated auditor (experiment-grade, no human review). Preregistration (DS010, status/experiments.json) and dry-run precede any optimizer step; single GPU worker per machine.",
+  "instruction": "Owner authorizes first fine-tuning experiment: Explicit owner approval (2026-09-28): download SmolLM2 (smallest) and Gemma 3 270M; fine-tune on formalizer-v1 once the data rebuild is final, in order SmolLM2 -> Gemma 3 270M; Qwen3-0.6B only if the smaller models are not good enough. Goal: scientific comparison of how small the formalizer can be, with CPU speed measured. Semantic review for this experiment is satisfied by the independent automated auditor (experiment-grade, no human review). Preregistration (DS007, status/experiments.json) and dry-run precede any optimizer step; single GPU worker per machine.",
   "journal_event": {
     "file": "status/journal.jsonl",
     "ts": "2026-09-28T18:13:13.644Z",

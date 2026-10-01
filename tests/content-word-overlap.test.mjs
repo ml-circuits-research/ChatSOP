@@ -1,4 +1,4 @@
-/** Content-word overlap of the sealed tests with train/dev (DS008 "Content-word overlap"): signatures, duplicates, form coverage. */
+/** Content-word overlap of the sealed tests with train/dev (DSx008 "Content-word overlap"): signatures, duplicates, form coverage. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {overlapOf} from '../tools/datasets/audit/content-word-overlap.mjs';

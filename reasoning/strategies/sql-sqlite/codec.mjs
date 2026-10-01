@@ -3,7 +3,7 @@
  *
  *   native  integers are INTEGER, text and symbols are TEXT (SQLite keeps `1` and `'1'` apart, so the SOP rule "an integer never equals
  *           a string" holds without any conversion). Used for the strategy's own in-memory database.
- *   json    every value is its JSON text (`5`, `"ann"`), the encoding of the SQLite memory bank (`atoms.v0..v3`, DS025). Used when the
+ *   json    every value is its JSON text (`5`, `"ann"`), the encoding of the SQLite memory bank (`atoms.v0..v3`, DS018). Used when the
  *           rules run directly against a bank, so that joins and constants hit the bank's own indexes on the stored text.
  *
  * `lit` gives a SQL literal in the STORED form (what a column compares to); `natLit` and `native(expr)` give the NATIVE value

@@ -95,7 +95,7 @@ export class Lexicon {
     const labels = {}, aliases = [];
     for (const key of ['label', 'alias']) for (const value of fieldsOf(w, key)) { const {language, surface} = langText(value); aliases.push({language, surface}); if (key === 'label') labels[language] ??= surface; }
     const entityType = field(w, 'kind') ?? ROOT_CLASS;
-    // Name parts (owner decision 2026-10-01, DS021 "KnowledgeLinker: scoring and ambiguity"): a person is also found by the last word of the English label
+    // Name parts (owner decision 2026-10-01, DS014 "KnowledgeLinker: scoring and ambiguity"): a person is also found by the last word of the English label
     // ("Einstein" for "Albert Einstein"), as an alias flagged `derived: 'name_part'`; the linker ranks the claimants by notability and asks when several are notable.
     if (entityType === 'person' && labels.en) {
       const words = labels.en.trim().split(/\s+/), surname = words.at(-1)?.replace(/[.,]+$/, '');

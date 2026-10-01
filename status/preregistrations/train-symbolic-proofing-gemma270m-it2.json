@@ -4,7 +4,7 @@
  "name": "SymbolicProofingLLM iteration 2: Gemma 3 270M IT + LoRA on sentence units of datasets/neuro_english/proofing-it2 (role proofreader)",
  "registered_at": "2026-10-01T00:16:52Z",
  "registered_by": "symbolic-proofing-it2-agent (owner decisions in status/journal.jsonl, actor orchestrator: 2026-09-30T17:32:38.274Z, 17:41:07.339Z, 17:46:38.134Z, 19:58:29.661Z, 20:21:53.090Z, 22:48:59.650Z, 22:54:36.651Z)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_request": "Iteration 2 of SymbolicProofingLLM (the owner approved 1-2 overnight iterations of Gemma 3 270M and 'iterate until morning so both proofing LLMs are very good'): the same model and recipe as iteration 1, trained from the base on sentence units built on the analysis-layer split. Evaluation layer by layer: natural language and grammatical analysis first, SOP secondary. Comparisons only on our synthetic data against no rewrite, the untrained gemma-3-270m-it and iteration 1. Gemma 3 1B only on clear evidence that 270M cannot learn more, and it is NOT trained in this run.",
  "frozen_before_results": "Written after the dataset qualification and the authorization receipt and before any optimizer step of this run and before any prediction of any checkpoint of this run on any split. Baselines (no rewrite, untrained base, iteration 1) are scored after this file is frozen on the same sets.",
  "iteration": 2,

@@ -56,7 +56,7 @@ One row per Wikidata property read. Facts carry `source "Wikidata <item> <proper
 
 ## Copula readings
 
-The base memory imports core-min and core-en, which declare the predicates that carry a reading of "be" (`reading NAME`, `describe_rank N`): `is_a` (class, describe 1), `description` (describe 2), `has_occupation` (occupation) and `located_in` (location). world-v1 declares none of them again; its facts use their argument order. Nothing in the KnowledgeLinker names a predicate (DS021).
+The base memory imports core-min and core-en, which declare the predicates that carry a reading of "be" (`reading NAME`, `describe_rank N`): `is_a` (class, describe 1), `description` (describe 2), `has_occupation` (occupation) and `located_in` (location). world-v1 declares none of them again; its facts use their argument order. Nothing in the KnowledgeLinker names a predicate (DS014).
 
 ## Entity classes
 

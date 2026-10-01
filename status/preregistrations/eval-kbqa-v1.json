@@ -4,7 +4,7 @@
   "name": "KBQA end-to-end: public benchmark questions answered from Wikidata slices through SymbolicLM, KnowledgeLinker and the reference route",
   "registered_at": "2026-10-01T16:07:00Z",
   "registered_by": "kbqa-eval-agent (owner direction of 2026-10-01: KBQA is the project's yardstick from now on)",
-  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
   "kind": "evaluation-only (CPU/auto-device SymbolicLM parse; no training; omp LLM baselines on subscriptions)",
   "frozen_before_results": "Written before the first chain answer was scored. Harness, scorer and attribution rules (tools/eval/kbqa/) were written first and checked on 3 hand-made questions only. Later changes to the scorer or to the mechanical Wikidata-to-circuits mapping (tools/eval/kbqa/memory.mjs) are recorded as deviations with the stage at which they happened; a rerun after a component change (linker M0, world-v1) is a new tagged run, never a replacement of the old numbers.",
   "system_under_test": {

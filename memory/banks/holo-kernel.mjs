@@ -1,4 +1,4 @@
-/** HoloMemory banked signed-counter key -> value kernel (DS024).
+/** HoloMemory banked signed-counter key -> value kernel (DS017).
  * Fixed arrays; no key list or exact value table. Codewords and key masks are
  * regenerated from seeded hashes. Scores are signal diagnostics, NOT probabilities.
  */

@@ -19,7 +19,7 @@ import {REASONING_QUERY_MODES} from './enums.mjs';
 
 /**
  * The neural author describes problems; only this host compiler emits operations.
- * The model language (DS021) has exactly these authored wire types.
+ * The model language (DS014) has exactly these authored wire types.
  */
 export const MODEL_TYPES=Object.freeze(new Set(['stated','assumed','unclear','query','constraint','unparsed']));
 const listTypes=types=>{const t=[...types];return t.slice(0,-1).join(', ')+' or '+t.at(-1);};
@@ -33,7 +33,7 @@ function checkFilter(ast){
 }
 
 /** Admission of one model-authored wire; shared by the compiler, the agent and the evaluator. */
-/** Operator symbols a model-authored expression must not spell (DS021 "Words, not operators"); quoted text is ignored. */
+/** Operator symbols a model-authored expression must not spell (DS014 "Words, not operators"); quoted text is ignored. */
 const OPERATOR=/[<>=!+*\/%&|()]|\s-\s/;
 const unquoted=text=>String(text).replace(/"(?:\\.|[^"\\])*"/g,'""');
 export function checkModelWire(w){
@@ -61,7 +61,7 @@ export function checkModelWire(w){
 export function checkModelProgram(program){
  for(const w of program.wires)checkModelWire(w);
  if(program.wires.some(w=>w.type==='unclear'))assert(program.wires.length===1,'unclear_not_alone: unclear must be the only wire of the model output');
- // Links, `$id` role references and unparsed spans are checked across wires (DS021 "Clauses and links").
+ // Links, `$id` role references and unparsed spans are checked across wires (DS014 "Clauses and links").
  checkModelLinks(program);
  return program;
 }
@@ -81,7 +81,7 @@ function rewriteMatches(text,edit){
  visit(tree);return lines.join('\n');
 }
 /**
- * Complete an elliptical follow-up (`fragment follow_up`, DS021 Q-LANG-4) from the previous query of the
+ * Complete an elliptical follow-up (`fragment follow_up`, DS014 Q-LANG-4) from the previous query of the
  * caller-owned conversation context: every role the fragment gives replaces the same role of the previous query
  * (or is added to its first match), a given relation or polarity replaces the first match's, and a quoted
  * `role time` becomes the query period (`during`). Returns the completed query wire, or null without context.
@@ -106,10 +106,10 @@ export function completeFragment(fragment,previousText){
  if(time){delete fields.at;fields.during=[JSON.stringify(time.value)];}
  return {id:fragment.id,type:'query',fields,line:fragment.line};
 }
-/** Advice and modal-of-recommendation relations the host does not compute (DS021 Q-LANG-6): answered not_computable. */
+/** Advice and modal-of-recommendation relations the host does not compute (DS014 Q-LANG-6): answered not_computable. */
 export const ADVICE_MODALS=Object.freeze(['should','ought to','had better','be worth','be a good idea to','be advisable to']);
 const isAdvice=relation=>{const t=' '+String(relation).toLowerCase().replace(/\s+/g,' ')+' ';return ADVICE_MODALS.some(m=>t.startsWith(' '+m+' ')||t.includes(' '+m+' '));};
-/** A reference to the user (DS021 Q-LANG-5): "the user" is linked to the caller identity when the caller supplies one. */
+/** A reference to the user (DS014 Q-LANG-5): "the user" is linked to the caller identity when the caller supplies one. */
 const USER_SURFACES=new Set(['the user','user']);
 
 /** Toggle the negation prefix of a linked atom text (`unless` scopes the negation of its clause). */
@@ -117,9 +117,9 @@ const toggleNegation=text=>text.startsWith('not ')?text.slice(4):'not '+text;
 const REFERENCE_VALUE=value=>value&&typeof value==='object'&&value.ref;
 
 export function compileDeclarative(source,{language='en',inputText='',context={},lexicon=null,schema=null,maxWires=2048,modelAssumptions='report',maxModelAssumptions=8,now=Date.now(),dictionary,frames}={}){
- // The bilingual and synonym dictionary (DS021 "Content words"); null disables it (the strict evaluation link).
+ // The bilingual and synonym dictionary (DS014 "Content words"); null disables it (the strict evaluation link).
  const dict=dictionary===undefined?englishDictionary():dictionary;
- // Host frame normalization (DS021 "Host frame normalization"): runs before the dictionary tiers when a relation does not link directly. Off with the strict link (dictionary null) or `frames:false`.
+ // Host frame normalization (DS014 "Host frame normalization"): runs before the dictionary tiers when a relation does not link directly. Off with the strict link (dictionary null) or `frames:false`.
  const frameList=frames===false||dict===null?null:frames??loadFrames();
  let authored=checkModelProgram(parse(source,{maxWires}));
  // An elliptical follow-up is completed from the previous query of the conversation, or clarified (Q-LANG-4).
@@ -148,7 +148,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
  if(unclear)return {...empty,unclear:{id:unclear.id,kind:one(unclear,'kind'),language:one(unclear,'language',null),readings:many(unclear,'reading').map(unquote)},authoredSop:canonical(authored),executionSop:''};
  const authoredById=new Map(authored.wires.map(w=>[w.id,w]));
 
- // 1. Unparsed spans (DS021 "Honest partial formalization"): symbolic repair before linking. A resolved span fills the
+ // 1. Unparsed spans (DS014 "Honest partial formalization"): symbolic repair before linking. A resolved span fills the
  // placeholder it is paired with; an unresolved one becomes one clarification question and holds back its wire.
  const pairs=pairPlaceholders(authored),fills=new Map(),periodFills=new Map(),held=new Set(),relationSpans=new Map();
  for(const u of authored.wires.filter(w=>w.type==='unparsed')){
@@ -191,7 +191,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
  // carries its own condition (`if`/`unless`: conditional, never evidence) and a statement held by an unresolved span.
  const conditionalCarriers=new Set(work.filter(w=>(w.type==='stated'||w.type==='assumed')&&linksOf(w).some(l=>l.keyword==='if'||l.keyword==='unless')).map(w=>w.id));
  const reportOnly=new Set([...expanded.eventStatements,...conditionalCarriers,...[...held].filter(id=>['stated','assumed'].includes(workById.get(id)?.type))]);
- // Host linking (DS021): strings become predicates, atoms, entity lookups and intervals; failures become one host clarification.
+ // Host linking (DS014): strings become predicates, atoms, entity lookups and intervals; failures become one host clarification.
  // A relation phrase that does not link is retried with its English synonyms; the lexicon decides.
  const issues=[],links=new Map();
  const anonymous=new Set(work.flatMap(w=>Object.values(w.fields).flat().flatMap(text=>String(text).match(/\?[A-Za-z][A-Za-z0-9_]*/g)??[])));
@@ -284,7 +284,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
    score:score??(SCORES.lexicon-(match==='exact'?0:15)),...(by?{decided_by:by}:{}),...(alternatives?.length?{scored_alternatives:alternatives.map(({id,score:s})=>({id,score:s}))}:{})};
   if(!linking.some(x=>x.wire===wire&&x.kind==='entity'&&x.surface===entry.surface&&x.symbol===entry.symbol))linking.push(entry);
  };
- // Entities the user introduced (owner decision 2026-10-01, DS021 "Conversation entities"): a name in a user statement that no label or id of the memory
+ // Entities the user introduced (owner decision 2026-10-01, DS014 "Conversation entities"): a name in a user statement that no label or id of the memory
  // carries (it matches nothing, or only an alias or a name part such as "Maria" or "Einstein") names a conversation entity `local_<name>`, never a memory
  // namesake. The same name in a later question refers to it while the conversation carries a statement about it. A memory entity with that exact label wins.
  const foldKey=value=>String(value).normalize('NFD').replace(/\p{M}/gu,'').toLowerCase().replace(/\s+/g,' ').trim();
@@ -401,7 +401,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
    if(w.fields.except)fields.except=many(w,'except').map(text=>literal(text));
    if(w.fields.compare)fields.compare=many(w,'compare').map(text=>literal(text,{valueAllowed:true}));
    for(const key of ['at','during','asof'])if(w.fields[key]){const value=temporal(w,key);if(value)fields[key]=[value];}
-   // `overlaps` (some instant of the period) is the host's `during`: the host window selects overlapping valid time (DS021 "Question forms").
+   // `overlaps` (some instant of the period) is the host's `during`: the host window selects overlapping valid time (DS014 "Question forms").
    if(w.fields.overlaps){const value=temporal(w,'overlaps');delete fields.overlaps;if(value)fields.during=[value];}
    // A timed before/after/when link bounds the query period (L4): until, from or during the linked clause's time.
    const period=plan.periods.get(w.id);
@@ -439,7 +439,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
  return {...empty,...report,authoredSop:canonical(authored),executionSop:program.wires.length?canonical(program):'',carriedIds,problemIds,renderIds,statements,assumptions,links,evidenceIds,suppositionIds,assumptionFactIds};
 }
 
-// Host phrases of the answer, English only: the output edge translates the final answer (lib/translator-service/answer.mjs, DS021 "English-only core").
+// Host phrases of the answer, English only: the output edge translates the final answer (lib/translator-service/answer.mjs, DS014 "English-only core").
 const TEXT={context:n=>'Noted '+n+' statement(s) for this conversation; they are not stored in the repository.',conditionalOnly:'Suppositions, hedged claims and reported claims apply only to a question in the same message.',understood:(reading)=>'I understood the question as: '+reading+'. I cannot compute this kind of answer yet.',branch:'Only under the model\'s assumptions: ',condition:'Condition: ',notChecked:'Not checked: '};
 
 function unclearResult(plan,context){
@@ -455,7 +455,7 @@ function linksFor(plan,id){
  const byId=new Map([...plan.statements,...plan.assumptions].map(p=>[p.id,p]));
  return (plan.clauseLinks??[]).filter(l=>l.from===id).map(l=>({...l,target:byId.get(l.to)??null}));
 }
-/** Packet fields of the clause links, the content-word translation and the unparsed-span repair (DS021). */
+/** Packet fields of the clause links, the content-word translation and the unparsed-span repair (DS014). */
 function languageReports(plan){
  return {clause_links:(plan.clauseLinks??[]).map(l=>({...l})),translations:plan.translations??[],frame_changes:plan.frameChanges??[],copula_readings:plan.readings??[],linking:plan.linking??[],repairs:plan.repairs??[],unresolved_spans:plan.unresolvedSpans??[]};
 }
@@ -533,7 +533,7 @@ export async function runDeclarative(source,{runtime,language='en',languageSourc
  const reports={user_statements:userStatements,carried_statements:carriedBefore.map(s=>({atom:emitAtom(s.atom),valid:{from:formatTime(s.valid.from),until:formatTime(s.valid.until)},certainty:'asserted',speaker:'user'})),model_assumptions:modelAssumptions,assumption_policy:plan.modelAssumptions,...(assumptionBranch.length?{assumption_branch:assumptionBranch}:{}),...languageReports(plan)};
  const rendered=plan.renderIds.map(name=>result.values[name]).filter(value=>value?.kind==='cnl').map((value,index)=>{
   const problem=plan.problemIds[index];
-  // No model-level refusal: an understood question without an engine is reported as such (DS021).
+  // No model-level refusal: an understood question without an engine is reported as such (DS014).
   if(value.packet?.status!=='unsupported')return value;
   return {...value,text:m.understood(problem.reading),packet:{...value.packet,status:'not_computable',engine_status:'unsupported',understood_as:problem.reading}};
  });

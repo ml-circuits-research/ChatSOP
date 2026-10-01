@@ -1,4 +1,4 @@
-// KnowledgeLinker, the copula and the relation lexicon (DS021 "KnowledgeLinker: the copula and the relation lexicon").
+// KnowledgeLinker, the copula and the relation lexicon (DS014 "KnowledgeLinker: the copula and the relation lexicon").
 // SymbolicLM writes "be" for "Who is Ana?", "Ana is a doctor.", "Paris is the capital of France."; the linker reads it with
 // the readings (`reading NAME` on predicate wires) the base memory declares and never names a predicate itself. The hand-made
 // knowledge base below declares them; the same sentences against a memory without the declarations get a precise question.

@@ -1,5 +1,5 @@
 /**
- * The authored property lexicon of the KBQA memories (tag `lex`): the authoring path of the product (DS031: a coding agent writes lexemes
+ * The authored property lexicon of the KBQA memories (tag `lex`): the authoring path of the product (DS022: a coding agent writes lexemes
  * for a vocabulary) applied to Wikidata properties. For every property of a slice an LLM (omp, Grok and GLM in parallel, skills/omp-run)
  * proposes the English relation phrases in the model-language convention of SymbolicLM (the lemma with its particles: "direct", "be born in",
  * "be directed by", "be the director of") for the two orientations of the property's predicates:

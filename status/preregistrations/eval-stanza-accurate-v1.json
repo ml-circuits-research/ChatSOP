@@ -4,7 +4,7 @@
  "name": "How much does the transformer-based Stanza English package (default_accurate) improve the SymbolicLM analysis of clean English over the default charlm package, and what do the cheap extensibility levers add?",
  "registered_at": "2026-09-30T09:45:00Z",
  "registered_by": "parse-judge-agent (owner question relayed by the orchestrator)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_context": "Priority: make SymbolicLM's grammatical analysis correct on CLEAN English. How far can Stanza itself be improved?",
  "kind": "evaluation-only (Stanza inference on GPU and CPU; LLM judge on a small sample; no training)",
  "frozen_before_results": "Written before any accurate-package parse of an evaluation row. Earlier, only two sentences were parsed to check that the worker starts.",

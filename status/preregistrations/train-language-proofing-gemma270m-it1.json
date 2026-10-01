@@ -4,7 +4,7 @@
  "name": "LanguageProofingLLM iteration 1: Gemma 3 270M IT + LoRA on datasets/bad_english/proofing (role proofreader), sentence level",
  "registered_at": "2026-09-30T21:40:00Z",
  "registered_by": "language-proofing-training-agent (owner decisions in status/journal.jsonl, actor orchestrator: 2026-09-30T17:32:38.274Z, 17:40:03.714Z, 17:41:07.339Z, 17:46:38.134Z, 19:58:29.661Z)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_request": "Iteration 1 (of at most 1-2 approved) of LanguageProofingLLM: fine-tune google/gemma-3-270m-it with LoRA on sentence pairs (Romanian, mixed Romanian/English and badly written English -> acceptable clean simple English) built from the merged bad_english targets. Judged on natural language and grammatical analysis only (owner 2026-09-30 19:58), not on SOP translation. No larger model in this iteration: Gemma 3 1B (LoRA) is the fallback only if 270M clearly cannot learn, as a new preregistered run.",
  "frozen_before_results": "Written before any optimizer step of this run and before any prediction of any checkpoint of this run on the sealed test. Untrained-base, no-rewrite and shipped-backend baselines on the sealed test are scored after this file is frozen (their dev-sample outputs, scored while building the tooling, are tooling checks only).",
  "iteration": 1,

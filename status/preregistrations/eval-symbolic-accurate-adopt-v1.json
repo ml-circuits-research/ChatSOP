@@ -4,7 +4,7 @@
  "name": "Does SymbolicLM with the Stanza default_accurate package and rules adapted to it (v2.0) beat v1.6 with the default package on clean English, so that accurate becomes the default package?",
  "registered_at": "2026-09-30T14:30:00Z",
  "registered_by": "accurate-agent (owner decision of 2026-09-30, relayed by the orchestrator)",
- "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
  "owner_context": "Evidence of eval-stanza-accurate-v1: the accurate parser removes about 6 of 7 judged DEEP parses, yet strict gold match on the sealed clean-English test moved by only +0.35 pp under rules frozen for default-parser tree shapes (the since_when question type fell from 94.7% to 28.9%). The owner decided to switch SymbolicLM to the accurate package and adapt the UD-to-SOP rules to it BEFORE any fine-tuning; this preregistration fixes how adoption of the default is decided.",
  "kind": "evaluation-only (Stanza inference on GPU and CPU, deterministic rules; no training; an LLM judge only for the no-gold rows of the dataset rebuild, 25 USD cap)",
  "frozen_before_results": "Written before any v2.0 rule edit and before any accurate-parse of a development row for this study. Only a three-message smoke test of the configurable worker was run.",
@@ -48,7 +48,7 @@
   "eval/reports/current/symbolic-accurate/summary.md",
   "eval/reports/current/baseline-ud-rules/frozen-rules-v2.0 (files and SHA256SUMS)",
   "the rebuilt datasets/{bad_english,symbolic_english,neuro_english} and their sealed suites, verified",
-  "dependencies.md and DS014 entries for the accurate models"
+  "dependencies.md and DS011 entries for the accurate models"
  ],
  "deviations": [
   {
@@ -68,7 +68,7 @@
   {
    "id": "D3",
    "at": "2026-09-30T18:05:00Z",
-   "what": "A third revision, rules v2.3 (frozen-rules-v2.3), and a second full sealed run. The full sealed run of v2.2 (strict 59.42% to 64.37%, +4.95 pp [3.72, 6.46], +170/-44) satisfied criteria (1), (2) and (5) but not (3): the question type `ambiguous` (n 40) lost 12.5 pp with an interval that excludes 0 ([-25.0, -2.9], +0/-5). Rule (3) and the not_adopted clause require an itemised AND repaired cause. Cause, found on development rows (never on sealed rows): in the accurate tree the premises of \"Given that P; Q, is it correct that he ...?\" hang on the verb \"Given\", so the pronoun is met before the premises are converted and the late resolution assumed one referent instead of the DS021 convention (two parallel premises with no person elsewhere: unclear ambiguous); the same development row was lost in the replay against v1.6. Repair: the late resolution applies the same ambiguity rule. Development effect +6 rows, no losses; variants and probes unchanged.",
+   "what": "A third revision, rules v2.3 (frozen-rules-v2.3), and a second full sealed run. The full sealed run of v2.2 (strict 59.42% to 64.37%, +4.95 pp [3.72, 6.46], +170/-44) satisfied criteria (1), (2) and (5) but not (3): the question type `ambiguous` (n 40) lost 12.5 pp with an interval that excludes 0 ([-25.0, -2.9], +0/-5). Rule (3) and the not_adopted clause require an itemised AND repaired cause. Cause, found on development rows (never on sealed rows): in the accurate tree the premises of \"Given that P; Q, is it correct that he ...?\" hang on the verb \"Given\", so the pronoun is met before the premises are converted and the late resolution assumed one referent instead of the DS014 convention (two parallel premises with no person elsewhere: unclear ambiguous); the same development row was lost in the replay against v1.6. Repair: the late resolution applies the same ambiguity rule. Development effect +6 rows, no losses; variants and probes unchanged.",
    "why": "The preregistered rule 3 asks for a repaired cause, so the second full sealed run is part of the decision procedure, not an extra tuning round.",
    "effect": "The final numbers are those of v2.3; the v2.2 run is kept (eval/reports/current/symbolic-accurate/sealed/v2.2). The sealed test was used twice at full size (v2.2, v2.3): the interval of v2.3 is optimistic and the report says so."
   },

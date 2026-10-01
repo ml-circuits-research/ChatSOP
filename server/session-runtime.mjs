@@ -1,5 +1,5 @@
 /**
- * The chat agents of the sessions (DS031 "Sessions"). Each session has its own repository (the clone of its base memory), its own
+ * The chat agents of the sessions (DS022 "Sessions"). Each session has its own repository (the clone of its base memory), its own
  * `SessionStore` (the conversation context under `agent/`) and one Agent per user. Every session links against the lexicon of its own
  * base memory (`Sessions.lexicon`), never a global one. A circuit accepted into the session after the
  * agent opened is made visible by `refresh`, which moves the agent's repository session onto the new base head.
@@ -35,7 +35,7 @@ export class SessionRuntimes {
     const info = this.sessions.visible(id, {user, admin});
     if (!this.runtimes.has(id)) {
       const repo = this.sessions.repository(id);
-      // The lexicon is the session's own: the layered circuits of its base memory plus what the user accepted (DS031 "Lexicon of a memory").
+      // The lexicon is the session's own: the layered circuits of its base memory plus what the user accepted (DS022 "Lexicon of a memory").
       const store = new SessionStore({repo, lexicon: this.sessions.lexicon(id), config: this.config, root: path.join(this.sessions.dir(id), 'agent'),
         // The chat turn plans with the rules of the memory's circuits too (world-v1 `located_in` transitivity, container rules), like POST /v1/sessions/{id}/query.
         circuitRules: () => this.theories.get([...this.sessions.baseCircuits(id), ...this.sessions.circuits(id)]).chatRules()});

@@ -4,7 +4,7 @@
   "name": "Request parsers: localQuery (SymbolicLM + KnowledgeLinker) against codingAgentQuery (omp coding agent writing query wires from the memory vocabulary), same shared symbolic path",
   "registered_at": "2026-10-01T19:30:00Z",
   "registered_by": "coding-agent-query-agent (owner decision of 2026-10-01: codingAgentQuery is the default parser; localQuery stays)",
-  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
   "kind": "evaluation-only (no training); codingAgentQuery uses the subscription model openai-codex/gpt-6-luna through omp (nominal list-price cost reported); localQuery uses the private SymbolicLM service",
   "frozen_before_results": "Written before the first full comparison run. The harness (tools/eval/query-parsers.mjs), the prompt (skills/coding-agent-query, lib/query-author) and the validator were fixed at the commit that registers this file; a change of prompt, retrieval or validator after the first scored run is recorded as a deviation with the tag of the rerun. Prompt development used 5 questions of the world30 set for smoke only.",
   "system_under_test": {

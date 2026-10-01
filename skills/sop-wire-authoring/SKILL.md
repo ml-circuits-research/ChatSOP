@@ -5,13 +5,13 @@ description: Compile a long text (a book, manual, regulation or article) into ch
 
 # Authoring knowledge wires from a source
 
-A coding agent, an omp agent or a subagent reads a source and writes **knowledge wires**: predicates, facts, rules, defaults, aggregates, actions, methods, norms. A host stores them, a different system turns users' questions into queries, and exact engines answer. The wires must be **checkable, one idea each, and faithful to the source**. Write what the source says, never what you know; if the source is silent, write nothing.
+A coding agent, an omp agent or a subagent reads a source and writes **knowledge wires**: predicates, facts, rules, defaults, aggregates, actions, methods, norms. The runtime stores them, a different system turns users' questions into queries, and exact engines answer. The wires must be **checkable, one idea each, and faithful to the source**. Write what the source says, never what you know; if the source is silent, write nothing.
 
 The language is documented in `docs/specs/DS004-sop.md` (section "Knowledge wires", the user manual) and in the wire help pages (`docs/wire_types.html`, one page per wire). The compact pattern guide, with one executed example per pattern, is `authoring-guide.md` in this folder: read it before you write. The grammar, parser and validator are the single source `sop/knowledge/`; the command is `node eval/smoke-reasoning/validator.mjs`. This skill grants no approval: what you write is a proposal, and compiling a text does not establish that it is true (AGENTS.md rules 4 and 5).
 
 ## Inputs and outputs
 
-**Inputs.** (1) The source passage or file, UTF-8, with its coordinates (title, chapter, page or paragraph) and its rights record: only text recorded as cleared or permissive-attribution in `docs/specs/DS014-source-rights.md` may be ingested or exported (AGENTS.md rule 10); text of unverified rights stays in the local cache `datasets_sources/`. (2) The purpose: an evaluation (questions will be asked of the wires) or memory (the wires will be ingested). (3) The vocabulary of the passages compiled before this one, if any (the `predicate` wires already declared). (4) The task folder given by the caller, if any.
+**Inputs.** (1) The source passage or file, UTF-8, with its coordinates (title, chapter, page or paragraph) and its rights record: only text recorded as cleared or permissive-attribution in `docs/specs/DS011-source-rights.md` may be ingested or exported (AGENTS.md rule 10); text of unverified rights stays in the local cache `datasets_sources/`. (2) The purpose: an evaluation (questions will be asked of the wires) or memory (the wires will be ingested). (3) The vocabulary of the passages compiled before this one, if any (the `predicate` wires already declared). (4) The task folder given by the caller, if any.
 
 **Outputs**, written to the task folder (or the paths the caller names), never to `datasets/`, `config/` or memory:
 
@@ -40,7 +40,7 @@ The language is documented in `docs/specs/DS004-sop.md` (section "Knowledge wire
 
 ## Closedness is proposed with a source sentence
 
-`closed true` on a predicate says the list is exhaustive, and it is what makes `absent`, a count, a sum and `every` meaningful. Declare it **only** when the source says the list is complete ("the table lists the salary of every employee", "these are all the exits"), and quote that sentence in the predicate's `description`. Without such a sentence, leave the predicate open: the answers are then lower bounds or `unknown`, which is the honest result. Never write `absent` over a predicate that is not closed, and never write `not p a` for "the source does not list `p a`": `not` is explicit evidence that the source says it is false. The host accepts closedness only after review, over an archive or pinned view; your declaration is a proposal.
+`closed true` on a predicate says the list is exhaustive, and it is what makes `absent`, a count, a sum and `every` meaningful. Declare it **only** when the source says the list is complete ("the table lists the salary of every employee", "these are all the exits"), and quote that sentence in the predicate's `description`. Without such a sentence, leave the predicate open: the answers are then lower bounds or `unknown`, which is the honest result. Never write `absent` over a predicate that is not closed, and never write `not p a` for "the source does not list `p a`": `not` is explicit evidence that the source says it is false. The runtime accepts closedness only after review, over an archive or pinned view; your declaration is a proposal.
 
 ## Reification, symbols and strings
 
@@ -51,7 +51,7 @@ The language is documented in `docs/specs/DS004-sop.md` (section "Knowledge wire
 
 ## No jsEval, no approval, no model-surface wires
 
-Never write `jsEval`: it is a trusted, host-only wire, opaque to every engine, and an expression from a source is code, not knowledge. What `compute`, `compare`, the aggregates and `constraint` cannot express goes in the report. Never write `approval`, `approved_by` or `approved_at`, and never write an `amendment` (the host composes it). The programming wires `test` and `code` are host or turn wires: write them only under the programming task `programming/TASK.md` (an instruction to a small JavaScript function), never in knowledge compiled from a source, and never a `test` of `kind sealed`. Never write the model-surface wires `stated`, `assumed`, `unclear`, `unparsed`: they are what the small model emits from a user's message, and the model-origin compiler rejects every knowledge wire. A `query` wire is allowed only in `queries.sop`, as a test.
+Never write `jsEval`: it is a trusted, runtime-only wire, opaque to every engine, and an expression from a source is code, not knowledge. What `compute`, `compare`, the aggregates and `constraint` cannot express goes in the report. Never write `approval`, `approved_by` or `approved_at`, and never write an `amendment` (the runtime composes it). The programming wires `test` and `code` are runtime or turn wires: write them only under the programming task `programming/TASK.md` (an instruction to a small JavaScript function), never in knowledge compiled from a source, and never a `test` of `kind sealed`. Never write the model-surface wires `stated`, `assumed`, `unclear`, `unparsed`: they are what the small model emits from a user's message, and the model-origin compiler rejects every knowledge wire. A `query` wire is allowed only in `queries.sop`, as a test.
 
 ## The differential check
 
@@ -87,4 +87,4 @@ The script validates both files, compares the wires on meaning (ids, `source`, `
 
 ## Records
 
-Log the job with `node tools/journal.mjs add --area data --state started|done|blocked …` (actor from `CHATSOP_ACTOR`), and record the results, the disagreements of the differential check and the sentences left out as a topic note (`node tools/notes.mjs add --topic … --kind result …`). The output is unapproved proposals: ingestion into memory needs the independent host approval of `skills/material-to-sop/SKILL.md`, and no skill grants it.
+Log the job with `node tools/journal.mjs add --area data --state started|done|blocked …` (actor from `CHATSOP_ACTOR`), and record the results, the disagreements of the differential check and the sentences left out as a topic note (`node tools/notes.mjs add --topic … --kind result …`). The output is unapproved proposals: ingestion into memory needs the independent runtime approval of `skills/material-to-sop/SKILL.md`, and no skill grants it.
