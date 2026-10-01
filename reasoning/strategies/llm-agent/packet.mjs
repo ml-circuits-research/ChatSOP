@@ -3,7 +3,7 @@
  * documented shape is an ERROR packet (`status: 'error'`, `reason: 'malformed_output'`); the parser never repairs, trims prose or guesses.
  * The only tolerance: one surrounding ```json fence with nothing else outside it.
  */
-export const STATUSES = ['supported', 'refuted', 'both', 'unknown', 'entailed', 'inconsistent', 'optimal', 'hypotheses', 'plan_found', 'blocked', 'no_plan', 'compliant', 'non_compliant', 'procedure_found', 'budget_exhausted'];
+export const STATUSES = ['supported', 'refuted', 'both', 'unknown', 'entailed', 'possible', 'impossible', 'inconsistent', 'optimal', 'hypotheses', 'plan_found', 'blocked', 'no_plan', 'compliant', 'non_compliant', 'procedure_found', 'budget_exhausted'];
 
 const isStr = x => typeof x === 'string';
 const isInt = x => Number.isSafeInteger(x);
@@ -22,6 +22,7 @@ const FIELDS = {
   bound: v => v === 'at_least',
   reason: isStr,
   witness: v => isObj(v) && Object.values(v).every(scalar),
+  counterexample: v => isObj(v) && Object.values(v).every(scalar),
   objective: isInt,
   explain: v => isObj(v) && (v.depth === undefined || isInt(v.depth)) && (v.uses === undefined || isStrList(v.uses)),
   hypotheses: atomLists,

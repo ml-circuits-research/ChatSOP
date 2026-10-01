@@ -27,6 +27,32 @@ export const SLICE_DEFAULTS = Object.freeze({
   probeAt: 48, probeFactor: 12
 });
 
+const RECURSIVE_DEFAULTS = Object.freeze({maxFacts: 100000, maxProbes: 500000, maxLookups: 200000, retrievalMs: 60000});
+
+/** A cycle in the rule dependency graph, including mutually recursive rules, needs the larger bounded retrieval class. */
+function retrievalClass(rules) {
+  const heads = new Set(rules.map(r => `${r.then.p}/${r.then.a.length}`));
+  const edges = new Map([...heads].map(head => [head, new Set()]));
+  for (const rule of rules) {
+    const from = `${rule.then.p}/${rule.then.a.length}`;
+    for (const atom of rule.if) {
+      const to = `${atom.p}/${atom.a.length}`;
+      if (heads.has(to)) edges.get(from).add(to);
+    }
+  }
+  const visited = new Set(), active = new Set();
+  const cyclic = node => {
+    if (active.has(node)) return true;
+    if (visited.has(node)) return false;
+    visited.add(node);
+    active.add(node);
+    for (const next of edges.get(node)) if (cyclic(next)) return true;
+    active.delete(node);
+    return false;
+  };
+  return [...heads].some(cyclic) ? 'recursive' : 'ordinary';
+}
+
 const placeholder = i => '?k' + i;
 
 /** The pattern of a keyed lookup (value `value` at position `i` of a predicate of arity `n`) or of a scan (`i` null). */
@@ -51,8 +77,10 @@ export class SliceRetrieval {
     this.rulesComplete = rulesComplete;
     this.strategy = strategy;
     this.demand = new Demand({conjunctions, rules});
-    this.max = {facts: limits.maxFacts ?? SLICE_DEFAULTS.maxFacts, probes: limits.maxProbes ?? SLICE_DEFAULTS.maxProbes, lookups: limits.maxLookups ?? SLICE_DEFAULTS.maxLookups, ms: limits.retrievalMs ?? SLICE_DEFAULTS.retrievalMs};
-    this.probed = new Set();
+    this.class = retrievalClass(rules);
+    const defaults = this.class === 'recursive' ? RECURSIVE_DEFAULTS : SLICE_DEFAULTS;
+    this.max = {facts: limits.maxFacts ?? defaults.maxFacts, probes: limits.maxProbes ?? defaults.maxProbes, lookups: limits.maxLookups ?? defaults.maxLookups, ms: limits.retrievalMs ?? defaults.retrievalMs};
+    this.probed = new Map();
     this.cap = Math.min(SLICE_DEFAULTS.firstCap, this.max.facts);
     this.budget = Math.min(SLICE_DEFAULTS.firstLookups, this.max.lookups);
     this.facts = new Map();
@@ -98,18 +126,24 @@ export class SliceRetrieval {
       this.lookups++;
       this.probes += r.probes ?? r.rows.length;
       if (!r.complete || r.rows.length >= cap || r.exact === false) return false;
-      got.push(...r.rows);
+      for (const row of r.rows) got.push(row);
     }
-    this.scans.set(`${p}/${n}`, {cap, truncated: false, capped: false, complete: true, rows: this.admit(got).rows, exact: true, probed: true});
+    // A speculative scan is atomic: overflow must leave room for the keyed reads that can still find decisive evidence.
+    const unseen = new Set();
+    for (const row of got) if (!this.facts.has(row.id)) unseen.add(row.id);
+    if (unseen.size > this.max.facts - this.facts.size) return false;
+    const admitted = this.admit(got);
+    this.scans.set(`${p}/${n}`, {cap, truncated: false, capped: false, complete: true, rows: admitted.rows, exact: true, probed: true});
     return true;
   }
 
   /** One keyed or unkeyed lookup of both polarities; returns whether it was truncated. */
   pull(p, n, i, value, cap) {
-    let truncated = false, capped = false, exact = true, complete = true, rows = 0;
+    let truncated = false, capped = false, exact = true, complete = true, rows = 0, lookupStopped = false;
     for (const neg of [false, true]) {
       const left = this.max.probes - this.probes;
       if (left <= 0) { this.stoppedBy ??= 'probe_budget'; truncated = true; complete = false; break; }
+      if (this.lookups >= this.budget) { this.stoppedBy ??= 'lookup_budget'; lookupStopped = true; truncated = true; complete = false; break; }
       const r = this.source.lookup(lookupPattern(p, n, i, value, neg), {cap, probes: left});
       this.lookups++;
       this.probes += r.probes ?? r.rows.length;
@@ -120,7 +154,7 @@ export class SliceRetrieval {
       if (added.overflow) { truncated = true; complete = false; }
     }
     if (!exact) this.inexact.add(p);
-    return {truncated, capped, complete, rows, exact};
+    return {truncated, capped, complete, rows, exact, lookupStopped};
   }
 
   /** Runs the demand to its fixpoint, or until a budget stops it (then `stoppedBy` says which). */
@@ -133,12 +167,21 @@ export class SliceRetrieval {
       let todo = this.demand.obligations().filter(o => !this.satisfied(o));
       if (todo.length >= SLICE_DEFAULTS.probeAt) {
         const groups = new Map();
-        for (const o of todo) { const k = `${o.p}/${o.n}`; groups.set(k, [...(groups.get(k) ?? []), o]); }
+        for (const o of todo) {
+          const k = `${o.p}/${o.n}`;
+          let group = groups.get(k);
+          if (!group) groups.set(k, group = []);
+          group.push(o);
+        }
         for (const [k, list] of groups) {
-          if (list.length < SLICE_DEFAULTS.probeAt || this.probed.has(k) || !this.known(list[0].p)) continue;
-          this.probed.add(k);
-          const cap = Math.min(this.max.facts - this.facts.size, list.length * SLICE_DEFAULTS.probeFactor);
-          if (cap > list.length) this.probe(list[0].p, list[0].n, cap);
+          if (list.length < SLICE_DEFAULTS.probeAt || !this.known(list[0].p)) continue;
+          // Already admitted facts do not consume the remaining distinct-fact budget; a complete relation may fit even when it filled it.
+          const cap = Math.min(this.max.facts + 1, list.length * SLICE_DEFAULTS.probeFactor);
+          const previous = this.probed.get(k) ?? 0;
+          // A clipped final cap must still be tried even when it falls short of geometric growth.
+          if (cap <= list.length || cap <= previous || (cap < previous * SLICE_DEFAULTS.growth && cap < this.max.facts + 1) || this.lookups + 2 > this.budget || performance.now() > deadline) continue;
+          this.probed.set(k, cap);
+          this.probe(list[0].p, list[0].n, cap);
         }
         todo = todo.filter(o => !this.satisfied(o));
       }
@@ -181,7 +224,9 @@ export class SliceRetrieval {
   /** The lookups that did not return everything (stopped at a cap, or the source said so), as {predicate, position, value}. */
   truncatedLookups() {
     const out = [];
-    for (const d of this.done.values()) if (d.truncated && d.o) out.push({predicate: d.o.p, position: d.o.i, value: d.o.value, cap: d.cap});
+    for (const d of this.done.values()) if (d.truncated && d.o && this.scans.get(`${d.o.p}/${d.o.n}`)?.complete !== true) {
+      out.push({predicate: d.o.p, position: d.o.i, value: d.o.value, cap: d.cap});
+    }
     for (const [k, s] of this.scans) if (s.truncated) out.push({predicate: k.split('/')[0], position: null, value: null, cap: s.cap});
     return out;
   }
@@ -219,7 +264,13 @@ export class SliceRetrieval {
       for (const [k, s] of [...this.scans]) if (s.capped) this.scans.delete(k);
       raised = true;
     }
-    if (this.stoppedBy === 'lookup_budget' && this.budget < this.max.lookups) { this.budget = Math.min(this.budget * g, this.max.lookups); raised = true; }
+    if (this.stoppedBy === 'lookup_budget' && this.budget < this.max.lookups) {
+      this.budget = Math.min(this.budget * g, this.max.lookups);
+      // A lookup interrupted between polarities must be retried after its allowance grows.
+      for (const [k, d] of this.done) if (d.lookupStopped) this.done.delete(k);
+      for (const [k, s] of this.scans) if (s.lookupStopped) this.scans.delete(k);
+      raised = true;
+    }
     if (!raised) return false;
     this.expand();
     return true;
@@ -246,13 +297,13 @@ export class SliceRetrieval {
   report({complete = this.complete(), reasons = this.why()} = {}) {
     const keyed = this.done.size > 0;
     return {
-      complete, settled: complete && this.exact(), reasons,
+      complete, settled: complete && this.exact(), reasons, class: this.class,
       truncated: this.truncatedLookups().length > 0,
       keyed, exact: this.exact(), inexact_predicates: [...this.inexact],
       steps: this.steps, lookups: this.lookups, scans: [...this.scans.keys()], probes: this.probes,
       facts: this.facts.size, local_facts: this.local.size, rules: this.rules.length,
       predicates: this.demand.predicates(),
-      bound: {facts: this.max.facts, probes: this.max.probes, lookups: this.budget, cap: this.cap, ms: this.max.ms},
+      bound: {facts: this.max.facts, probes: this.max.probes, lookups: this.max.lookups, cap: this.cap, ms: this.max.ms},
     };
   }
 }

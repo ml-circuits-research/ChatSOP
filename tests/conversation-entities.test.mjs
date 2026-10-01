@@ -72,8 +72,8 @@ test('a name the user introduces takes precedence over a memory namesake that on
   assert.deepEqual(link.shadowed, ['mary_the_jewess']);
   assert.equal(answer.packet.status, 'supported');
   assert.deepEqual(answer.packet.answers.map(a => a.binding['?x']), ['alpha_lab']);
-  assert.match(answer.text, /^Answer: Alpha Lab\.$/m);
-  assert.match(answer.text, /Maria works at Alpha Lab \(stated in this conversation\)/);
+  assert.ok(answer.packet.origins.some(x => x.origin === 'conversation' && x.kind === 'statement'));
+  assert.ok(answer.packet.proof.some(x => x.evidence?.local === true && x.atom.a[0] === 'local_maria'));
   assert.doesNotMatch(JSON.stringify(answer.packet.proof), /mary_the_jewess/);
 });
 

@@ -285,6 +285,7 @@ function usedOfIter(roots) {
 /** Build the support fields of a single-instant answer: used, used_incomplete, and for `explain` the proof and the explanation. */
 export function supportOf({session, program, qp, kinds, outcome, facts, maxNodes, refFor}) {
   if (!outcome || !['supported', 'refuted', 'both'].includes(outcome.status)) return {fields: {used: []}};
+  if (qp.forms && (qp.forms.rank || qp.forms.compares.length || qp.forms.filters.length)) return {fields: {used: [], used_incomplete: true}};
   const prover = new Prover({session, program, kinds, facts, maxNodes, refFor});
   let truncated = false;
   let roots = [];

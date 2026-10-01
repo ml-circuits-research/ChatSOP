@@ -44,7 +44,10 @@ node tools/datasets/audit/content-word-overlap.mjs      # lexical duplicates bet
 
 Measured values live in reports under `eval/reports/current/`; they are observations, not properties recorded here.
 
+## Benchmark worlds
+
+`tools/datasets/diversity/build-benchmark.mjs` writes oracle-verified development worlds in the smoke case layout under `eval/smoke-reasoning/bench/cases/`, with deterministic English `source.md`, independent construction expectations and a manifest. F1 uses actual world-v1 multi-hop graph joins and the query-forms gold procedure; F2–F9 cover aggregate/rank, open/closed completeness, reachability, finite constraints, intervals, defaults/exceptions, contradiction and configurable scale. The builder refuses sealed generation; `sealed-generator-config.json` records the separate seed and future `eval/suites/symbolic-vs-llm-v1/` boundary. The source audit discovers the generator modules automatically through `eval/leakage.mjs`; lexical overlap is audited independently, never by importing sealed auditors into generators.
+
 ## Open items
 
-1. The benchmark corpus builder (families F1 to F9 at several sizes, plus the slice-to-English renderer) is planned in the benchmark document and not yet built.
-2. AmbigNQ answer-type ambiguity is not generated.
+1. AmbigNQ answer-type ambiguity is not generated.

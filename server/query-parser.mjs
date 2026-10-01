@@ -18,6 +18,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {authorQuery, backendFrom} from '../lib/query-author/index.mjs';
+import {authorExecution} from '../lib/query-author/execution-context.mjs';
+import {buildContext} from '../lib/query-author/context.mjs';
 
 export const DEFAULT_QUERY_PARSER = Object.freeze({
   mode: 'id', candidates: 24, indexMax: 300, backend: {kind: 'omp', model: 'openai-codex/gpt-6-luna'}, models: [], timeoutSeconds: 120, maxFixRounds: 2, maxConcurrent: 4, cacheEntries: 500, keepFolders: false,
@@ -71,7 +73,7 @@ export function createQueryParser({settings = queryParserSettings(), ompConfig =
   async function runModel({model, message, lexicon, onProgress}) {
     const folder = settings.backend.kind !== 'omp' ? null : chatData ? chatData.tmpFolder('qp') : fs.mkdtempSync(path.join(os.tmpdir(), 'chatsop-qp-'));
     try {
-      return await authorQuery({message, lexicon, backend: backendFor(model), folder, maxFixRounds: settings.maxFixRounds, mode: settings.mode, k: settings.candidates, indexMax: settings.indexMax, onProgress});
+      return await authorQuery({message, lexicon, ...authorExecution.getStore(), backend: backendFor(model), folder, maxFixRounds: settings.maxFixRounds, mode: settings.mode, k: settings.candidates, indexMax: settings.indexMax, onProgress});
     } finally { if (folder && !settings.keepFolders) { try { fs.rmSync(folder, {recursive: true, force: true}); } catch { /* the cleanup policy removes it */ } } }
   }
 
@@ -83,7 +85,7 @@ export function createQueryParser({settings = queryParserSettings(), ompConfig =
 
   const fail = (code, status, message, parse) => Object.assign(new Error(message), {code, status, parse});
   const recordOf = (r, extra = {}) => ({parser: 'coding_agent', model: r.model ?? null, backend: r.backend ?? settings.backend.kind, rounds: r.rounds ?? 0, cost_usd: r.usage?.cost_usd ?? r.cost_usd ?? 0, ms: r.ms ?? r.duration_ms ?? 0, cache: r.cache ?? 'miss',
-    ...(r.unlinked?.length ? {unlinked: r.unlinked} : {}), ...(r.context_version ? {guide: r.context_version} : {}), ...(r.mode ? {mode: r.mode, retrieval: {predicates: r.retrieval?.predicates?.length ?? 0, entity_mentions: r.retrieval?.entities?.length ?? 0}} : {}), ...(r.closest ? {closest: r.closest} : {}), ...extra});
+    ...(r.unlinked?.length ? {unlinked: r.unlinked} : {}), ...(r.context_version ? {guide: r.context_version} : {}), ...(r.mode ? {mode: r.mode, retrieval: {predicates: r.retrieval?.predicates?.length ?? 0, entity_mentions: r.retrieval?.entities?.length ?? 0}} : {}), ...(r.closest ? {closest: r.closest} : {}), ...(r.self_check ? {self_check: r.self_check} : {}), ...extra});
 
   /**
    * Parses one message. Returns `{sop, parse}`; throws `parse_unavailable` (no model of the chain can run or all delivered nothing) or
@@ -98,16 +100,16 @@ export function createQueryParser({settings = queryParserSettings(), ompConfig =
     let last = null;
     // A model the session prefers is first in the chain when omp can use it (availability puts it there), then the configured models.
     for (const model of free.models) {
-      const key = createHash('sha256').update([memoryKey ?? '', settings.backend.kind, model ?? '', settings.backend.endpoint ?? '', normalize(message)].join('\0')).digest('hex');
+      const key = createHash('sha256').update([memoryKey ?? '', authorExecution.getStore()?.key ?? '', settings.runTag ?? '', buildContext({message, lexicon, mode: settings.mode, vocabulary: null}).version, String(authorExecution.getStore()?.selfCheck ?? false), settings.backend.kind, model ?? '', settings.backend.endpoint ?? '', normalize(message)].join('\0')).digest('hex');
       const hit = cache.get(key);
-      if (hit) { stats.cache_hits++; stats.coding_agent++; return {sop: hit.sop, parse: recordOf({...hit.result, cache: 'hit', ms: now() - started, cost_usd: 0, usage: {cost_usd: 0}}, {tried: tried.map(t => t.model)})}; }
+      if (hit && (!hit.fragment || hit.contextKey === authorExecution.getStore()?.contextKey)) { stats.cache_hits++; stats.coding_agent++; return {sop: hit.sop, parse: recordOf({...hit.result, cache: 'hit', ms: now() - started, cost_usd: 0, usage: {cost_usd: 0}}, {tried: tried.map(t => t.model)})}; }
       if (running >= settings.maxConcurrent) { stats.failures++; throw fail('parse_unavailable', 503, 'the coding agent is busy', {parser: 'coding_agent', model, ms: now() - started, failed: 'the coding agent is busy', status: 'busy'}); }
       running++;
       let result;
       try { result = await runModel({model, message, lexicon, onProgress}); } finally { running--; }
       last = result;
       if (result.ok) {
-        cache.set(key, {sop: result.sop, result: {...result, usage: {cost_usd: 0}}});
+        cache.set(key, {sop: result.sop, result: {...result, usage: {cost_usd: 0}}, fragment: result.program?.wires.some(w => w.fields.fragment), contextKey: authorExecution.getStore()?.contextKey});
         if (result.unclear === 'relation_not_in_memory') logGap({message, memory: memoryKey, closest: result.closest, model: result.model});
         stats.coding_agent++;
         return {sop: result.sop, parse: recordOf({...result, ms: now() - started}, {tried: tried.map(t => t.model), ...(result.unclear ? {unclear: result.unclear} : {})})};

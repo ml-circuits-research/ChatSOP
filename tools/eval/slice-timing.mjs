@@ -6,10 +6,10 @@
  *
  * For each size a base memory of that many facts is built the way a base memory is built (published in pieces of 1,000 facts, so its
  * history is a chain of snapshots), then reopened cold (decoded snapshots forgotten) and asked a fixed set of questions through the
- * runtime: a keyed lookup, a two-hop join, a recursive ancestor, a select over a hub, a settled count over the hub, a universal
- * question, and a question that needs a scan of the whole relation (the honest answer is `incomplete`). Per question: median
- * wall-clock milliseconds over the repeats, and the slice report (steps, lookups, probes, facts, status, completeness). CPU only,
- * no model, no GPU. The memory is synthetic: it measures the retrieval path, not the world.
+ * runtime: a keyed lookup, a two-hop join, a recursive ancestor, a wide recursive descendant count, a select over a hub, a settled
+ * count over the hub, a universal question, and a scan of the whole relation. The wide count shows the typed path's inherited
+ * 10k-fact limit alongside the knowledge-wire path's recursive-class limit. Per question: median wall-clock milliseconds over repeats
+ * and the effective slice class/bounds, steps, probes, status and completeness. CPU only, no model or GPU.
  */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -66,6 +66,7 @@ const QUESTIONS = n => {
     {id: 'keyed_lookup', text: 'the parent of one node', program: ask(`parent ${leaf} ?x`)},
     {id: 'two_hop_join', text: 'the grandparent of one node (a rule with a join)', program: ask(`grandparent ${leaf} ?x`)},
     {id: 'recursive_ancestor', text: 'all ancestors of a deep node (a recursive rule)', program: ask(`ancestor ${leaf} ?x`)},
+    {id: 'recursive_descendants_count', text: 'all descendants of the root (recursive demand grows beyond 10k at 25k input facts)', program: ask('ancestor ?x n0', {mode: 'count', select: ''})},
     {id: 'hub_select', text: 'the members of the hub (a select that needs the cap widened)', program: ask('member ?x club')},
     {id: 'hub_count', text: 'a count over the hub (needs a settled slice)', program: ask('member ?x club', {mode: 'count'})},
     {id: 'hub_every', text: 'does every member of the hub live somewhere (a universal question)', program: ask('member ?x club', {mode: 'every', select: '', extra: '  scope lives_in ?x ?c\n'})},
@@ -94,7 +95,7 @@ async function measure(root, n) {
     rows.push({
       id: q.id, text: q.text, first_ms: Math.round(times[0]), median_ms: Math.round(median(times)),
       status: packet.status, answers: packet.answers?.length ?? null, count: packet.count ?? null, at_least: packet.at_least ?? null,
-      complete: rep.complete, steps: rep.steps, lookups: rep.lookups, scans: rep.scans, probes: rep.probes, facts: rep.facts, rules: rep.rules,
+      complete: rep.complete, class: rep.class, bound: rep.bound, steps: rep.steps, lookups: rep.lookups, scans: rep.scans, probes: rep.probes, facts: rep.facts, rules: rep.rules,
       reasons: rep.reasons.slice(0, 3),
     });
   }
@@ -113,6 +114,7 @@ async function measure(root, n) {
     wireRows.push({
       id: q.id, oracle_ms: oracle.median_ms, router_ms: router.median_ms, oracle_first_ms: oracle.first_ms, router_first_ms: router.first_ms,
       status: oracle.packet.status, router_status: router.packet.status, slice_facts: oracle.packet.retrieval?.facts ?? null, complete: oracle.packet.retrieval?.complete ?? null,
+      class: router.packet.retrieval?.class ?? null, bound: router.packet.retrieval?.bound ?? null, reasons: router.packet.retrieval?.reasons ?? null,
       chosen: router.packet.route?.chosen ?? null, rule: router.packet.route?.rule ?? null, verification: router.packet.route?.verification?.outcome ?? null,
       agree: samePacket(oracle.packet, router.packet),
     });

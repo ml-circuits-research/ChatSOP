@@ -11,6 +11,8 @@
 import {isVarTerm} from '../js-reference/values.mjs';
 import {compileLeaves} from './compile.mjs';
 import {tbl} from './schema.mjs';
+import {evaluateCandidates} from '../js-reference/query.mjs';
+import {hasRowForms} from '../js-reference/forms.mjs';
 
 const stripVar = v => v.replace(/^\?/, '');
 
@@ -62,6 +64,7 @@ export class Answerer {
   evaluate({needRows = false} = {}) {
     const {qp} = this;
     if (qp.mode === 'every') return this.every();
+    if (hasRowForms(qp.forms)) return this.forms();
     if (qp.mode === 'count' && !needRows) return this.count();
     if (qp.mode === 'exists' && !needRows) return this.exists();
     return this.select();
@@ -87,6 +90,29 @@ export class Answerer {
       both: r.conflict === 1 || r.conflict === 1n, prem: []
     })).sort((a, b) => (JSON.stringify(Object.entries(a.row).sort()) < JSON.stringify(Object.entries(b.row).sort()) ? -1 : 1));
     return this.finish(rows);
+  }
+  /** SQL computes closure and joins; the oracle decides value forms before projection, preserving hidden ranking variables and ties. */
+  forms() {
+    const {qp, codec} = this;
+    const candidates = [];
+    for (const alt of qp.alts) {
+      const body = compileLeaves(alt.leaves, this.ctx);
+      const vars = [...alt.bound].sort();
+      const bindings = vars.map((v, i) => `${body.bind.get(v).expr} AS b${i}`);
+      const sql = `SELECT ${[...bindings, `${conflictedSql(alt, body, codec)} AS conflict`].join(', ')} ${body.fromSql()} ${body.whereSql()}`;
+      for (const r of this.session.iterate(sql)) {
+        candidates.push({
+          env: Object.fromEntries(vars.map((v, i) => [v, codec.decode(r[`b${i}`])])),
+          both: Boolean(r.conflict), prem: []
+        });
+      }
+      this.session.budget.checkTime();
+    }
+    const outcome = evaluateCandidates(qp, candidates, {refuted: () => this.refutedNoRows(), refutationRoots: () => []});
+    this.session.budget.checkTime();
+    // A positive row alone cannot prove a ranking or a comparison-driven refutation; never advertise unverified support.
+    outcome.supportIncomplete = true;
+    return outcome;
   }
 
   /** The outcome of the oracle's `evaluatePart` for a list of rows. */

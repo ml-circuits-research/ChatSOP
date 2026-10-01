@@ -1,8 +1,10 @@
-import {Runtime} from '../sop/runtime.mjs';import {parse} from '../sop/parser.mjs';import {MODEL_TYPES,checkModelWire} from '../sop/declarative.mjs';import {checkModelLinks} from '../sop/clauses.mjs';import {englishDictionary} from '../sop/dictionary.mjs';import {unquote,one} from '../sop/parser.mjs';import {assert} from '../lib/util.mjs';
-import {propositionOf} from '../sop/propositions.mjs';
-import {mentionedIn,mentionedThroughLexicon,mentionedThroughDictionary} from '../sop/linking.mjs';
-const verbatim=text=>String(text).normalize('NFC').toLocaleLowerCase('ro').replace(/\s+/g,' ').trim();
-const listTypes=types=>{const t=[...types];return t.slice(0,-1).join(', ')+' or '+t.at(-1);};
+import {assert, digest} from '../lib/util.mjs';
+import {admitCircuits} from '../lib/query-author/session.mjs';
+import {AuthorRuntime, memoryCircuits} from '../lib/query-author/runtime.mjs';
+import {authorExecution} from '../lib/query-author/execution-context.mjs';
+import {Sessions} from '../lib/chat-data/sessions.mjs';
+import path from 'node:path';
+import fs from 'node:fs';
 /**
  * One chat turn of a conversation (DS009, DS014). The circuit author (the coding agent through server/query-parser.mjs, or a test stub) is
  * the only component that reads the user's words: it gets the message and the vocabulary of the memory and writes circuits. The runtime
@@ -21,13 +23,27 @@ export class Agent{
  async turn(text,{now=Date.now(),formalizer}={}){
   assert(typeof formalizer?.formalize==='function','A turn needs a circuit author: {id, formalize}');
   const started=performance.now();
-  const sop=await formalizer.formalize(text);
+  const circuits=memoryCircuits(this);
+  let preview=null;
+  const execute=async source=>{
+   const program=admitCircuits(source,text,this.lexicon,{circuits,policy:this.config?.policy});
+   const context=structuredClone(this.context);
+   const result=await new AuthorRuntime({repo:this.repo,session:this.session,lexicon:program.lexicon,schema:program.lexicon?.predicates,now,policy:this.config?.policy,circuits,definitions:program.definitionSop}).run(program.modelSop,{origin:'model',inputText:text,language:'en',languageSource:'default',context});
+   preview={sop:source,result,context,program};
+   return result.result?.packet??result.result;
+  };
+  const sop=await authorExecution.run({execute,circuits,key:digest([circuits.map(c=>c.text),this.context.statements,this.context.user]),contextKey:digest(this.context.lastQuery??''),selfCheck:this.config?.queryParser?.selfCheck!==false},()=>formalizer.formalize(text));
   const formalization={model:formalizer.id??null,ms:Math.round(performance.now()-started)};
-  let program,result;
-  // Output that is not admitted or cannot be executed keeps its SOP and timing, so the caller can show what the author wrote.
+  let result;
   try{
-   program=this.validateVocabulary(sop,text);assert(MODEL_TYPES.has(program.wires.at(-1)?.type),'Model SOP must end in a model-language declaration');
-   result=await new Runtime({repo:this.repo,session:this.session,schema:this.lexicon.predicates,lexicon:this.lexicon,now,policy:this.config.policy,circuitRules:this.circuitRules}).run(sop,{origin:'model',inputText:text,language:'en',languageSource:'default',context:this.context});
+   if(preview?.sop!==sop)await execute(sop);
+   result=preview.result;
+   this.context=preview.context;
+   if(preview.program.definitionSop){
+    const folder=this.repo?.root?path.dirname(this.repo.root):null;
+    const draft=folder&&fs.existsSync(path.join(folder,'session.json'))?new Sessions({chatData:{sessionsDir:path.dirname(folder)}}).addDraft(path.basename(folder),{name:'coding-agent-definition',text:preview.program.definitionSop,model:formalizer.id,extra:{origin:'coding_agent'}}):null;
+    if(result.result?.packet)result.result.packet.session_circuits={origin:'coding_agent',scope:'turn',status:'proposed',text:preview.program.definitionSop,...(draft?{draft_id:draft.id}:{})};
+   }
   }catch(error){throw Object.assign(error,{modelSop:sop,formalization});}
   let output=result.result;
   if(output?.status==='clarify')output={kind:'cnl',text:output.text,language:'en',packet:output};
@@ -35,38 +51,24 @@ export class Agent{
   this.context={...this.context,statements:result.contextStatements??this.context.statements};
   this.last=output;this.recent.push({user:text.slice(0,400),response:output.text.slice(0,500)});this.recent=this.recent.slice(-3);
   const packet=output.packet??{};
+  const branches=(result.problemResults??[]).flatMap(p=>p.branch?[p.branch]:[]);
+  const conflicts=branches.flatMap(p=>p.session_conflicts??[]);
+  if(conflicts.length)packet.session_conflicts=[...(packet.session_conflicts??[]),...conflicts];
+  if(this.config?.policy?.reinforce!==false&&this.repo&&this.session&&!packet.hypothetical&&packet.proof?.length){
+   const used=packet.proof.filter(f=>f.kind==='observed'&&f.source!=='assumption'&&f.evidence?.metadataVerified&&!f.evidence?.local);
+   if(used.length){const promoted=this.repo.reinforce(this.session,used,{usedAt:now});if(promoted.some(x=>x.reinforced))packet.reinforcement={facts:promoted.filter(x=>x.reinforced).length,strength:this.session.live.retention().useStrength};}
+  }
   return {sop,executionSop:result.executionSop,cnl:output.text,text:output.text,englishText:output.text,packet:output.packet,trace:result.trace,outputs:result.outputs,blocked:result.blocked,generated:result.generated,
    userStatements:packet.user_statements??[],carriedStatements:packet.carried_statements??[],modelAssumptions:packet.model_assumptions??[],assumptionPolicy:packet.assumption_policy??null,assumptionBranch:packet.assumption_branch??null,
    unclear:packet.status==='unclear'?packet.unclear_kind:null,answerLanguage:'en',formalization};
  }
  /**
-  * Admission of model output: model declarations only, `unclear` alone, links and
-  * `$id` references that name wires of this output, every value of a `stated` wire
-  * (and a non-user speaker) mentioned in this message, and every `unparsed` span a
-  * verbatim part of it (DS014 anchoring). The model had no context, so there is no shortlist.
+  * Admission of proposition circuits and turn-local session definitions against
+  * accepted memory. Links and value references name wires of this output.
+  * Stated values are anchored to the message; unparsed spans are verbatim.
+  * Proposed definitions do not modify the accepted theory or base memory.
   */
  validateVocabulary(sop,text=''){
-  const program=parse(sop);
-  if(program.wires.some(w=>w.type==='unclear'))assert(program.wires.length===1,'unclear_not_alone: unclear must be the only wire of the model output');
-  const dictionary=this.config?.policy?.dictionary===false?null:englishDictionary();
-  for(const wire of program.wires){
-   assert(MODEL_TYPES.has(wire.type),'Model output must be declarative: '+listTypes(MODEL_TYPES));
-   checkModelWire(wire);
-   if(wire.type==='stated'){
-    const p=propositionOf(wire);
-    // A value is written as in the message (normalized), or as the English (or Romanian) surface of a dictionary
-    // entry or a lexicon entity the message names. A `$id` (another clause) and a placeholder ?variable (paired with
-    // an unparsed span) are structural and are anchored through the wires they name.
-    for(const {name,value} of p.roles){
-     if(value&&typeof value==='object'||typeof value==='string'&&value.startsWith('?'))continue;
-     assert(mentionedIn(value,text)||mentionedThroughLexicon(value,text,this.lexicon)||mentionedThroughDictionary(value,text,dictionary),'stated_value_not_in_message: '+JSON.stringify(value)+' (role '+name+' of @'+wire.id+') is not mentioned in this message; use assumed, a query variable or an unparsed span');
-    }
-    if(p.speaker!=='user')assert(mentionedIn(p.speaker,text),'stated_value_not_in_message: speaker '+JSON.stringify(p.speaker)+' of @'+wire.id+' is not mentioned in this message');
-   }
-   // An unparsed span is copied verbatim from the message (case and spacing aside); it is never a paraphrase.
-   if(wire.type==='unparsed'){const span=unquote(one(wire,'span'));assert(verbatim(text).includes(verbatim(span)),'unparsed_span_not_in_message: '+JSON.stringify(span)+' of @'+wire.id+' is not a verbatim part of this message');}
-  }
-  checkModelLinks(program);
-  return program;
+  return admitCircuits(sop,text,this.lexicon,{circuits:this.repo?memoryCircuits(this):undefined,policy:this.config?.policy});
  }
 }

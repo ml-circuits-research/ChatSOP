@@ -98,6 +98,36 @@ test('linear recursion is one recursive CTE, nonlinear and mutual recursion are 
   same(mutual, sel('q ?x', '?x'), {recursion: 'loop'});
 });
 
+test('value forms run after recursive SQL joins before projection, preserving numeric strings, exclusions and ties', () => {
+  const k = chain(5) + LEFT + facts(['value n1 8', 'value n2 "10 units"', 'value n3 10', 'value n4 2', 'value n5 1']);
+  const q = '@q query\n  where path n0 ?x\n  where value ?x ?v\n  select ?x\n';
+  const best = same(k, q + '  rank highest ?v\n');
+  assert.deepEqual(best.rows, [{x: 'n2'}, {x: 'n3'}]);
+  assert.equal(best.sensitivity.monotone, false);
+  assert.equal(best.used_incomplete, true);
+  assert.deepEqual(same(k, q + '  except ?x n2\n  rank highest ?v\n').rows, [{x: 'n3'}]);
+  assert.deepEqual(same(k, q + '  compare ?v above 8\n  rank highest ?v position 2\n').rows, []);
+  assert.deepEqual(same(k, q + '  rank highest ?v top 2\n  limit 1\n').rows, [{x: 'n1'}]);
+  const count = same(k, q.replace('select ?x', 'mode count\n  select ?x') + '  compare ?v above 8\n');
+  assert.equal(count.count, 2);
+  assert.equal(count.bound, 'at_least');
+});
+
+test('a numeric comparison over known rows refutes exists; nonnumeric values remain not_computable', () => {
+  const q = '@q query\n  mode exists\n  where value a ?v\n  compare ?v above 10\n';
+  assert.equal(same(facts(['value a 5']), q).status, 'refuted');
+  assert.equal(same(facts(['value a unknown']), q).status, 'not_computable');
+});
+
+test('a recursive ranking cut cannot expose a partial winner as a complete answer', () => {
+  const k = chain(12) + LEFT + facts(['value n1 1', 'value n12 99']);
+  const query = '@q query\n  where path n0 ?x\n  where value ?x ?v\n  select ?x\n  rank highest ?v\n';
+  const cut = run(k, query, {maxRounds: 2});
+  assert.equal(cut.status, 'budget_exhausted');
+  assert.equal(cut.complete, false);
+  assert.equal(cut.rows, undefined);
+});
+
 test('a tightened maxRounds runs the stratum as a counted loop: a partial positive answer is a subset of the truth, a count is budget_exhausted', () => {
   const k = chain(12) + LEFT;
   const full = new Set(rowsOf(run(k, sel('path n0 ?t', '?t'))));

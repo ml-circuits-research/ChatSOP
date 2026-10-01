@@ -302,6 +302,60 @@ test('retrieval: a fact budget is a hard bound, never raised', () => {
   assert.ok(r.why().includes('truncated:member[1="club"]') || r.why().some(x => x.startsWith('truncated:member')));
 });
 
+test('recursive demand over 10k facts reaches a complete count; an explicit smaller fact cap never becomes a closed-world count', () => {
+  const size = 11001;
+  const facts = Array.from({length: size}, (_, i) => typed('parent', 'edge' + i, 'n' + i, 'root'));
+  const rules = [
+    {id: 'base', if: [atom('parent', '?x', '?y')], then: atom('ancestor', '?x', '?y')},
+    {id: 'step', if: [atom('parent', '?x', '?y'), atom('ancestor', '?y', '?z')], then: atom('ancestor', '?x', '?z')},
+  ];
+  const conjunctions = [[atom('ancestor', '?x', 'root')]];
+  const solve = memory => {
+    const edges = new Map();
+    for (const f of memory.facts) {
+      const [child, parent] = f.atom.a;
+      if (!edges.has(parent)) edges.set(parent, []);
+      edges.get(parent).push(child);
+    }
+    const reached = new Set(), queue = ['root'];
+    for (let at = 0; at < queue.length; at++) for (const child of edges.get(queue[at]) ?? []) {
+      if (!reached.has(child)) { reached.add(child); queue.push(child); }
+    }
+    return {status: 'supported', count: reached.size, complete: true};
+  };
+  const answer = limits => {
+    const retrieval = new SliceRetrieval({source: new ArraySource(facts), conjunctions, rules, limits});
+    retrieval.expand();
+    const widen = () => retrieval.widen() ? Object.defineProperty(retrieval.result(), 'widen', {value: widen}) : null;
+    return answerOverSlice({memory: Object.defineProperty(retrieval.result(), 'widen', {value: widen}), query: {mode: 'count', where: conjunctions[0], scope: []}, solve});
+  };
+  const full = answer({});
+  assert.equal(full.count, size);
+  assert.equal(full.status, 'supported');
+  assert.equal(full.retrieval.complete, true);
+  assert.equal(full.retrieval.class, 'recursive');
+  assert.equal(full.retrieval.bound.facts, 100000);
+  assert.ok(full.retrieval.lookups < 3000, 'a complete scan discharges the many downstream recursive keys');
+
+  const clipped = answer({maxFacts: 12000, maxLookups: 3000});
+  assert.equal(clipped.count, size, 'the final clipped scan cap remains reachable');
+  assert.equal(clipped.retrieval.complete, true);
+
+  const oneLookup = answer({maxLookups: 1});
+  assert.equal(oneLookup.status, 'incomplete');
+  assert.equal(oneLookup.count, undefined);
+  assert.equal(oneLookup.retrieval.lookups, 1, 'both polarities together must not exceed the hard lookup bound');
+
+  const capped = answer({maxFacts: 500});
+  assert.equal(capped.status, 'incomplete');
+  assert.equal(capped.reason, 'partial_retrieval');
+  assert.equal(capped.count, undefined);
+  assert.ok(capped.at_least > 0 && capped.at_least <= 500);
+  assert.equal(capped.retrieval.complete, false);
+  assert.equal(capped.retrieval.class, 'recursive');
+  assert.equal(capped.retrieval.bound.facts, 500);
+});
+
 test('retrieval: a join over many values reads the small relation once instead of looking it up value by value', () => {
   const members = Array.from({length: 120}, (_, i) => typed('member', 'm' + i, 'm' + i, 'club'));
   const lives = Array.from({length: 120}, (_, i) => typed('lives_in', 'l' + i, 'm' + i, 'city' + (i % 7)));

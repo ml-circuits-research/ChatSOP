@@ -15,8 +15,8 @@ const TIME_WORDS = ['at', 'during', 'overlaps', 'asof'];
 /** Query modes of the relational readers; every other mode is a mode of work (plan, abduce, why_not, conform, procedure). */
 const READ_MODES = ['select', 'exists', 'count', 'every', 'explain'];
 const MODES_OF_WORK = ['plan', 'abduce', 'why_not', 'conform', 'procedure'];
-/** Query fields that only the oracle's host forms evaluate (the wire engines say `not_expressible`). */
-const HOST_FORMS = ['compare', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure'];
+/** Value forms are evaluated by the oracle after an eligible engine computes the relational core; interval forms need the typed runtime. */
+const HOST_FORMS = ['compare', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure', 'limit'];
 
 /**
  * @param handle      {wires}: the knowledge wires (the slice) the engine would read
@@ -58,7 +58,7 @@ export function circuitFeatures(handle, queryWires) {
     const queryAlts = conditionAlts(query.fields.filter(x => ['where', 'scope'].includes(x.key)), query.id);
     f.naf = sp.rules.some(r => absent(r.alts)) || sp.aggregates.some(a => absent(a.alts)) || queryAlts.some(alt => alt.some(l => l.kind === 'atom' && l.mode === 'absent'));
     // monotone: a positive answer over a partial slice stays valid (the oracle's `sensitivity`, guard rule R-P1)
-    f.monotone = !sp.edges.some(e => e.strict && sp.slice.has(e.to)) && !f.naf && !f.count && !f.every;
+    f.monotone = !sp.edges.some(e => e.strict && sp.slice.has(e.to)) && !f.naf && !f.count && !f.every && !f1(query, 'rank');
   } catch (e) {
     if (e instanceof ProgramError || e instanceof NotExpressibleError) return {...finish(f), invalid: e.message};
     throw e;

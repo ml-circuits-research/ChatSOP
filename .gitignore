@@ -16,3 +16,6 @@ datasets_sources/
 
 # Chat data root (DS031): base memories, sessions and temporary request folders
 chat_data/
+
+# Benchmark dev cases: regenerable with node tools/datasets/diversity/build-benchmark.mjs (deterministic seeds); only manifest.jsonl is tracked
+eval/smoke-reasoning/bench/cases/

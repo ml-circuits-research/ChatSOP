@@ -3,6 +3,52 @@
   "note": "Registry of preregistered experiments (docs/specs/DS007-experiment-preregistration.md). Each entry: id, hypothesis, preregistration (link to the frozen DS007 record), data_version, status (proposed|preregistered|approved|running|done|abandoned), results, conclusions. Running and done entries exist only for runs the owner explicitly approved.",
   "experiments": [
     {
+      "id": "query-author-session-v2-dev",
+      "name": "Query author session circuits and shape-only self-check: dev diagnostic",
+      "category": "reference-baseline",
+      "owner": "omp-t1-author",
+      "registered_at": "2026-10-01",
+      "hypothesis": "The phase-2 author reduces wrong circuits without losing correct answers on paired unsealed query-forms dev rows.",
+      "preregistration": "none: explicitly requested T1 development diagnostic, not a confirmatory benchmark",
+      "data_version": "dev-part2.jsonl: 44 rows, sha256 1fd21934b0197c8b180ec8496ff2ad5c22a918af437374f8d948d1e2045841cd",
+      "status": "done",
+      "approval": "User-requested TASK T1 explicitly authorizes before/after dev measurement with gpt-6-luna; no training or sealed evaluation.",
+      "results": {
+        "model": "openai-codex/gpt-6-luna",
+        "before": {"correct": 44, "wrong": 0, "unknown": 0},
+        "after": {"correct": 41, "wrong": 1, "unknown": 2},
+        "correct_delta_pp": -6.82,
+        "correct_delta_ci95": [-13.64, 0],
+        "wrong_delta_pp": 2.27,
+        "wrong_delta_ci95": [0, 6.82],
+        "bootstrap": "paired, stratified by form; 10000 draws, seed 20261001"
+      },
+      "conclusions": "Target not met. Guarded pre-self-check baseline was already perfect, so wrong-rate reduction is impossible on this cohort; stop for futility. This is not a causal self-check estimate. Final quantity-versus-count guide clarification was not model-measured.",
+      "deviations": [
+        {"id": "dev-only-cohort", "what": "All 44 available dev-part2 rows rather than a 100-row first stage.", "why": "T1 requests the existing unsealed dev diagnostic.", "effect": "No sealed or wider-form claim."}
+      ],
+      "reports": ["eval/reports/current/omp-tasks/t1-author.md", "eval/reports/current/omp-tasks/t1-paired.json"]
+    },
+    {
+      "id": "eval-symbolic-vs-llm-v1",
+      "name": "Symbolic versus small LLM reasoning",
+      "category": "preregistered",
+      "owner": "omp-t3-bench",
+      "registered_at": "2026-10-01",
+      "hypothesis": "H1: B exceeds A by at least 10pp on F2–F4, F7 depth>=3 and F9; H2: B wrong<=A wrong+2pp; H3: Qwen3-4B B within10pp of C on F1/F10; H4: A degrades with size/depth while B stays flat.",
+      "preregistration": "status/preregistrations/eval-symbolic-vs-llm-v1.json",
+      "data_version": "symbolic-vs-llm-v1 M0 development; sealed generation deferred to M1",
+      "status": "proposed",
+      "phase": "planned",
+      "done": "Preregistration is DRAFT, not frozen. Dev-only sanity pilot is separately identified; no sealed result.",
+      "results": {},
+      "conclusions": "No benchmark conclusion before preregistration freeze and sealed staged measurement.",
+      "deviations": [
+        {"id": "registry-planned-status", "at": "2026-10-01", "what": "Planned study uses status proposed and phase planned.", "why": "DS007 and the registry validator admit proposed, not planned.", "effect": "No change to measurement or authorization."}
+      ],
+      "reports": ["eval/reports/current/omp-tasks/t3-bench.md", "eval/reports/current/symbolic-vs-llm/pilot/summary.md"]
+    },
+    {
       "id": "formalizer-size-v1",
       "hypothesis": "Full fine-tuning of a base of at most 270M parameters (SmolLM2-135M-Instruct, Gemma 3 270M IT) on formalizer-v1 reaches tolerant execution equivalence >= 90% separately in English and Romanian on the formalizer-v1 sealed test (Q8_0 GGUF on CPU); accuracy grows with size within SmolLM2; Q8_0 at 10 CPU threads generates >= 200 tokens/s. SmolLM2-360M and Qwen3-0.6B run only if no smaller arm is adequate.",
       "preregistration": "status/preregistrations/formalizer-size-v1.json (frozen at data-final sha256 a13b2e86…, with deviation 1 sha256 6b74a5085b931a3d0ff0915f3722aec2c7083881be0c133494541896315bc758; pre-data draft sha256 e1d72020a7d3…); docs/specs/DS007-experiment-preregistration.md#registered-experiments",

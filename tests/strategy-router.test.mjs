@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {parse} from '../sop/knowledge/index.mjs';
-import {routedAsk, circuitFeatures, decide, samePacket, ROUTER_DEFAULTS} from '../reasoning/router/index.mjs';
+import {routedAsk, verifyPacket, circuitFeatures, decide, samePacket, ROUTER_DEFAULTS} from '../reasoning/router/index.mjs';
 import {ENGINES} from '../reasoning/router/engines.mjs';
 import {ReasoningRegistry} from '../reasoning/registry.mjs';
 import {smokeArm} from '../tools/eval/router-smoke.mjs';
@@ -48,12 +48,11 @@ test('features: recursion, nonlinear recursion, negation, aggregates, time and m
   assert.equal(fb.budgeted, true);
 });
 
-test('R1: a proof, a mode of work, a host query form or a caller budget stays on the oracle, whatever the size', () => {
+test('R1: a proof, a mode of work or a caller budget stays on the oracle, whatever the size', () => {
   const ring = ringText(40, 10);
   const q = ring.query.replace('select ?y\n', 'select ?y\n');
   for (const [text, rule] of [
     [ring.query.replace('@q query\n', '@q query\n  mode explain\n'), 'proof_or_mode_of_work'],
-    [ring.query + '  order ?y\n', 'proof_or_mode_of_work'],
     [ring.query + '@pol policy\n  maxJoins 100000\n', 'caller_budget'],
   ]) {
     const packet = routedAsk({handle: handleOf(ring.knowledge), query: text, config: FORCE, verify: 'never'});
@@ -173,6 +172,42 @@ test('rule 8: an explicit engine that cannot express the circuit is unsupported/
   assert.equal(p.route.backend, 'datalog-souffle'); assert.equal(p.route.fallback, null);
   const unknown = routedAsk({handle: handleOf(FACTS), query: '@q query\n  where likes ?x tea\n  select ?x\n', requested: 'quantum-engine'});
   assert.equal(unknown.status, 'unsupported'); assert.equal(unknown.code, 'unknown_strategy'); assert.equal(unknown.route.backend, 'quantum-engine');
+});
+
+test('verification limits do not change engine routing; offline replay settles a previously unverified answer', () => {
+  const ring = ringText(40, 10), handle = handleOf(ring.knowledge);
+  const online = routedAsk({handle, query: ring.query, verify: 'always', verifyBudget: {maxJoins: 1}});
+  assert.equal(online.route.chosen, 'sql-sqlite');
+  assert.equal(online.complete, true);
+  assert.equal(online.route.verification.outcome, 'unverified');
+  const replay = verifyPacket({handle, query: ring.query, packet: online, verifyBudget: {maxJoins: 20_000_000, timeoutMs: 10000}});
+  assert.equal(replay.route.verification.outcome, 'agreed');
+  assert.deepEqual(replay.rows, online.rows);
+  assert.equal(replay.route.verification.budget.limit.maxJoins, 20_000_000);
+  const deferred = routedAsk({handle, query: ring.query, verify: 'offline'});
+  assert.equal(deferred.route.verification.outcome, 'deferred');
+  assert.equal(deferred.route.verification.checked, false);
+});
+
+test('offline discrepancy preserves explicit backend and detects incorrect count bounds', () => {
+  const handle = handleOf(FACTS), query = '@q query\n  mode count\n  where likes ?x tea\n  select ?x\n';
+  const packet = routedAsk({handle, query, requested: 'sql-sqlite', verify: 'offline'});
+  const corrupt = {...packet, bound: undefined};
+  const verified = verifyPacket({handle, query, packet: corrupt});
+  assert.equal(verified.status, 'unsupported');
+  assert.equal(verified.code, 'verification_discrepancy');
+  assert.equal(verified.route.backend, 'sql-sqlite');
+  assert.equal(verified.route.fallback, null);
+  assert.equal(verified.route.verification.outcome, 'discrepancy');
+});
+
+test('unsupported interval forms are never dropped from an explicit engine request', () => {
+  for (const form of ['measure start', 'order ?x before ?y']) {
+    const p = routedAsk({handle: handleOf(FACTS), query: '@q query\n  where likes ?x ?y\n  select ?x\n  ' + form + '\n', requested: 'sql-sqlite'});
+    assert.equal(p.status, 'unsupported');
+    assert.equal(p.route.backend, 'sql-sqlite');
+    assert.equal(p.route.fallback, null);
+  }
 });
 
 test('typed path: reasoning auto reports the route; an explicit backend is honoured through its own strategy, never the oracle', () => {

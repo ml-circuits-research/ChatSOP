@@ -1,0 +1,53 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-symbolic-vs-llm-v1",
+  "status": "DRAFT",
+  "frozen": false,
+  "registered_at": "2026-10-01",
+  "owner": "omp-t3-bench",
+  "plan": "experiments/proposal/symbolic-vs-llm-benchmark.md",
+  "question": "Does checked symbolic execution improve a small model's reasoning on lexically disjoint variants of supported forms?",
+  "changed_factor": "Direct answering versus circuit authoring and checked symbolic execution, with the same question and gold-retrieved evidence condition.",
+  "system_under_test": {
+    "arms": {"A": "small LLM, gold slice rendered as English, direct JSON answer", "A'": "same model and evidence, step-by-step explanation then ANSWER_JSON", "B": "small LLM completion backend, authorQuery maxFixRounds 2, KnowledgeLinker, askMemory/StrategyRouter, deterministic answer", "C": "subscription model through omp, same symbolic path as B", "D": "subscription model through omp alone, same English evidence as A"},
+    "small_models": ["Qwen3-0.6B Q8_0", "Qwen3-1.7B Q8_0", "Qwen3-4B-Instruct-2507 Q4_K_M", "Qwen3-4B-Instruct-2507 Q8_0", "Nemotron-3-Nano Q8_0"],
+    "subscription_chain": ["openai-codex/gpt-6-luna", "xai-oauth/grok-4.20-0309-reasoning", "zai/glm-5.3"],
+    "unavailable_policy": "Record unavailable; never substitute a requested model, memory or solver.",
+    "settings": {"temperature": 0, "thinking": "off for local model internal thinking; A' explicitly requests a visible derivation", "maxFixRounds": 2, "wall_ms_per_question": 180000, "output_tokens_per_question": 4096, "max_evidence_chars": 90000, "capped_evidence_facts": 450},
+    "memory": {"engine": "sqlite", "base": "world-v1 for F1", "synthetic": "isolated oracle-verified generated worlds"},
+    "prompt_hashes": "Unresolved until M1 freeze; each dev run records prompt_sha256 and author context_version.",
+    "model_hashes": "Unresolved until M1 freeze; endpoint manifests are provenance, not weight attestation.",
+    "runtime_versions": "Unresolved until M1 freeze; record Node, llama.cpp, SOP, StrategyRouter and oracle revisions.",
+    "retrieval_parity": "A receives exactly the independently reconstructed final gold slice; membership counts and gold oracle replay fail closed. Above the character ceiling, A receives a deterministic keyed sample and an explicit partial-list warning. evidence_does_not_fit is a separate condition.",
+    "A_parity_ablation": "At M2, a separate preregistered condition may give A the author's candidate vocabulary and one-hop view; it is not pooled with gold-slice A."
+  },
+  "data": {
+    "families": ["F1 real world-v1 multi-hop 2–4", "F2 count/aggregate/superlative", "F3 closed/open completeness", "F4 closure/cuts/blocked/distractors", "F5 finite constraints", "F6 time boundaries/gaps", "F7 defaults/exceptions/priority depths 1–10", "F8 both/integrity", "F9 scale 1000/10000/100000/1000000", "F10 public sealed KBQA realism at M2"],
+    "dev_count_per_family": 100,
+    "sealed_count_per_family": 600,
+    "dev_seed": 20261001,
+    "sealed_seed": 20261003,
+    "heldout_preview_seed": 20261002,
+    "sample_seed": 20261001,
+    "sealed_path": "eval/suites/symbolic-vs-llm-v1/<family>/",
+    "sealing": "M1 only, after preregistration freeze. M0 creates dev sets and generator configuration, never sealed instances.",
+    "leakage": "eval/leakage.mjs audits generators; generation never reads sealed cases or gold.",
+    "lexical_check": "tools/datasets/audit/content-word-overlap.mjs and query-forms overlap audit; independently generated dev/heldout lexical preview, no sealed reads by generators",
+    "gold": "Independent construction or graph traversal plus reference-oracle agreement; F1 additionally uses tools/eval/query-forms/gold.mjs two-source agreement on actual world-v1.",
+    "rights": "Synthetic structure and statistics only, no copied text; world-v1 approved provenance; public probes follow DS011 asset rights.",
+    "manifest_hashes": "Unresolved until M1 freeze. M0 pilot hashes its actual dev manifest."
+  },
+  "hypotheses": {
+    "H1": {"direction": "B minus A >= 10 percentage points", "slices": ["F2", "F3", "F4", "F7 depth >=3", "F9"], "falsification": "A target slice fails the practical-margin decision rule."},
+    "H2": {"direction": "B wrong rate <= A wrong rate + 2 percentage points", "falsification": "B's dangerous definite-error rate exceeds the ceiling."},
+    "H3": {"direction": "Qwen3-4B B accuracy within 10 percentage points of C", "slices": ["F1", "F10"], "falsification": "C minus B exceeds 10 percentage points."},
+    "H4": {"direction": "A accuracy decreases monotonically with fact count/depth; B stays flat", "analysis": "Report adjacent size/depth contrasts and paired intervals where the instance groups can be paired; flat means no >10 pp degradation from the smallest/shallowest stratum.", "falsification": "An A adjacent contrast increases beyond uncertainty, or B degrades by >10 pp."}
+  },
+  "metrics": ["accuracy with numerator/denominator/Wilson95", "wrong_rate", "wrong_among_answered", "honest_unknown_rate on answerable", "invalid_or_failed_rate", "verified_correct", "proof_validity", "latency p50/p95 parse/retrieval/engine/verify", "cost per100", "local tokens/s", "size/depth curves", "failure_layer authoring/linking/retrieval/engine/rendering", "observed route/backend/fallback"],
+  "decision_rule": {"paired_bootstrap_iterations": 10000, "seed": 20261001, "confidence": 0.95, "lower_bound_gt": 0, "point_gain_gte": 0.1, "B_wrong_minus_A_wrong_lte": 0.02, "condition": "Evidence fits only; capped-evidence rows reported separately, never a reasoning win."},
+  "stopping_rules": {"stages": [100, 300, 600], "sampling": "nested deterministic size/depth/form-stratified prefixes per family and arm", "decisive": "B-A paired95 lower bound >0.10", "futility": "B-A paired95 upper bound <0", "broken": ">20 empty/unparsable/parser_failed rows among an arm's first100; drop arm and record stage/counts/reason", "record": "journal, evaluation topic notes, experiment record and task page"},
+  "budgets": {"paid_usd_total": 10, "paid_policy": "Subscriptions first; no paid M0 pilot. Paid execution only after subscriptions fail and explicitly recorded authorization.", "wall_ms_per_question": 180000, "output_tokens_per_question": 4096, "GPU_workers": 1, "GPU_hours_max": 48, "CPU_hours_max": 48, "RAM_GiB_max": 96, "disk_GiB_max": 20, "file_MiB_max": 50, "oracle_timeout_ms": 120000, "verification_timeout_ms": 120000, "retrieval_limits": {"maxLookups": 2000000, "maxProbes": 5000000, "maxFacts": 400000, "maxGoals": 200000, "retrievalMs": 120000}, "max_attempts_per_row": 1, "repair_rounds": 2, "monitor": "invoking benchmark operator; check training lock and nvidia-smi; stop only servers this run started"},
+  "pilot": {"scope": "20 dev instances per family, A and B, Qwen3-4B-Instruct Q4_K_M", "purpose": "End-to-end sanity only, not a result or superiority claim", "sealed_access": false},
+  "deviations": [{"id": "omp-provider-output-cap", "scope": "draft C/D transport", "detail": "The installed omp CLI exposes no provider output-token ceiling. C/D use a shared wall deadline and reject over-budget responses using reported usage, but cannot stop token generation at exactly 4096. Local A/A'/B have provider-enforced token ceilings. Freeze requires an actual subscription output cap or an explicit revised budget contract; M0's required pilot uses A/B only."}, {"id": "world-v1-gold-slice-bounds", "scope": "M0 dev preflight", "detail": "The initial 60000-fact retrieval ceiling yielded a correct but incomplete F1 answer. Full-KB-scale retrieval bounds retain the completeness guard; row019 requires 136162 retrieved facts. Boolean-group lowering in independent slice reconstruction was corrected to all/any. Dense evidence is capped and separately scored; these rows cannot establish a same-evidence reasoning win."}],
+  "freeze_requirements": ["Pin model/file and runtime hashes", "Pin prompt/context and memory hashes", "Audit full dev-to-sealed lexical disjointness", "Freeze exact H4 flatness and multiplicity policy", "Enforce subscription provider output cap or revise budget contract explicitly", "Seal 600 cases per family only after owner M1 approval"]
+}

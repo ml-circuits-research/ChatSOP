@@ -76,11 +76,7 @@ function conflicted(alt, env, ev) {
  * to the select variables and deduplicated. Returns {rows: Map(projected key -> {row, both, prem, env}), matches, state}:
  * `matches` are the join rows that survived the forms (the distinct answers are a projection of them).
  */
-function collectRows(qp, ev, ctx) {
-  const candidates = [];
-  for (const alt of qp.alts) {
-    for (const {env, prem} of join(alt.leaves, 0, {}, [], ctx)) candidates.push({env, prem, both: conflicted(alt, env, ev)});
-  }
+function collectRows(qp, candidates) {
   const state = {notComputable: false, filtered: candidates.length, compared: false};
   const matches = applyRowForms(candidates, qp.forms, state);
   const rows = new Map();
@@ -128,11 +124,24 @@ function refutationRoots(qp, ev) {
 export function evaluatePart(qp, ev, ctx) {
   const {mode} = qp;
   if (mode === 'every') return qp.forms?.quantifier ? evaluateQuantified(qp, ev, ctx) : evaluateEvery(qp, ev, ctx);
-  const {rows, matches, state, candidates} = collectRows(qp, ev, ctx);
+  const candidates = [];
+  for (const alt of qp.alts) {
+    for (const {env, prem} of join(alt.leaves, 0, {}, [], ctx)) candidates.push({env, prem, both: conflicted(alt, env, ev)});
+  }
+  return evaluateCandidates(qp, candidates, {
+    refuted: () => qp.alts.every(alt => altRefuted(alt, {}, ev, qp.closed)),
+    refutationRoots: () => refutationRoots(qp, ev)
+  });
+}
+
+/** The oracle's row decision over complete join bindings, also used after an engine computes the relational core. */
+export function evaluateCandidates(qp, candidates, {refuted, refutationRoots}) {
+  const {mode} = qp;
+  const {rows, matches, state} = collectRows(qp, candidates);
   const list = [...rows.values()].sort((a, b) => (rowKey(a.row) < rowKey(b.row) ? -1 : 1));
   if (!list.length && state.notComputable) return {status: 'not_computable', reason: 'value_not_numeric', rows: [], roots: [], supportIncomplete: false, matches, state};
   const comparedAway = !list.length && state.filtered > 0 && state.compared && !state.notComputable && mode === 'exists';
-  const refuted = comparedAway || (!list.length && qp.alts.every(alt => altRefuted(alt, {}, ev, qp.closed)));
+  const isRefuted = comparedAway || (!list.length && refuted());
   if (mode === 'count') {
     const exact = qp.domainClosed;
     const status = list.length || exact ? 'supported' : 'unknown';
@@ -144,9 +153,9 @@ export function evaluatePart(qp, ev, ctx) {
     const all = mode === 'select' ? list.flatMap(r => r.prem) : first.prem;
     return {status, rows: list, roots: all, supportIncomplete: false, matches, state};
   }
-  const refRoots = refuted ? refutationRoots(qp, ev) : [];
+  const refRoots = isRefuted ? refutationRoots() : [];
   const roots = comparedAway ? [...refRoots, ...candidates.flatMap(c => c.prem)] : refRoots;
-  return {status: refuted ? 'refuted' : 'unknown', rows: [], roots, supportIncomplete: refuted && !roots.length, matches, state};
+  return {status: isRefuted ? 'refuted' : 'unknown', rows: [], roots, supportIncomplete: isRefuted && !roots.length, matches, state};
 }
 
 /**

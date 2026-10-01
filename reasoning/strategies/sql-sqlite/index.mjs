@@ -26,7 +26,8 @@ export {ProgramError, NotExpressibleError, prepare, update, assumptionIds, sensi
 
 const FEATURES = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'count', 'explain', 'used',
   'temporal', 'interval', 'throughout', 'snapshot_derived', 'time_vars', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules',
-  'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'versions', 'zero_arity', 'budget', 'budget_probes', 'retrieval'];
+  'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'versions', 'zero_arity', 'budget', 'budget_probes', 'retrieval',
+  'query_compare', 'query_rank', 'query_except', 'query_filter', 'query_limit'];
 const NOT_EXPRESSIBLE = ['constraint', 'optimize', 'plan', 'abduce', 'abduce_waive', 'why_not', 'blocked_info', 'method', 'htn_choice', 'on_failure', 'norms_hard', 'norms_soft',
   'temporal_norms', 'procedures', 'procedure_render', 'amendment', 'check_plan'];
 

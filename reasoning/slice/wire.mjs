@@ -208,13 +208,13 @@ function timeWindow(w) {
  * @param query    the query circuit text (a `query` wire, optional `policy` and supposed `fact` wires)
  * @returns the oracle's packet with `retrieval` (R-P5): slice size, predicates, bounds, whether it is complete and why not
  */
-export function askMemory({theory, repo, session, query, registry = new StrategyRegistry(), strategy = 'hybrid', limits = {}, budget = {}, reasoning = 'auto', verify = 'auto'}) {
+export function askMemory({theory, repo, session, query, registry = new StrategyRegistry(), strategy = 'hybrid', limits = {}, budget = {}, reasoning = 'auto', verify = 'auto', verifyBudget = {}}) {
   const {wires: qWires, errors} = parse(query);
   if (errors.length) throw new ProgramError(errors[0].code, `query: ${errors[0].message} (line ${errors[0].line})`);
   const qw = qWires.find(w => w.type === 'query');
   const mode = qw ? (value(qw, 'mode') ?? 'select') : 'select';
   const sliced = Boolean(qw) && SLICED_MODES.includes(mode);
-  const lim = {maxProbes: 50000, maxShards: 256, maxFacts: 10000, maxGoals: 256, maxRules: 1024, ...limits};
+  const lim = {maxShards: 256, maxGoals: 256, maxRules: 1024, ...limits};
 
   let conjunctions, closure;
   if (sliced) {
@@ -246,7 +246,7 @@ export function askMemory({theory, repo, session, query, registry = new Strategy
   // strategy id exactly that engine (AGENTS.md rule 8). The oracle stays the product route and the verifier.
   const solve = memory => routedAsk({
     handle: {kind: 'js-reference-handle', knowledge: '', wires: [...unique, ...memory.facts.map(f => factWire(lowering, f.id, f, f.kind === 'assumed' ? 'supposed' : 'observed'))]},
-    query, queryWires: qWires, requested: reasoning, verify, budget,
+    query, queryWires: qWires, requested: reasoning, verify, verifyBudget, budget,
   });
 
   const answer = answerOverSlice({memory: first, query: {mode}, solve, decide: judgeWire});

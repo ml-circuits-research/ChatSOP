@@ -212,7 +212,7 @@ function solveOnce(handle, qWires, excluded, budgetArg, opts = {}) {
   const q = queryWire ? readQuery(queryWire, excluded) : null;
   if (q && opts.forms) q.forms = opts.forms;
   const policy = readPolicy(live, q);
-  const budget = new Budget(mergeLimits(budgetArg, policy.limits), {effort: policy.effort});
+  const budget = new Budget(mergeLimits(budgetArg, policy.limits), {effort: policy.effort, verification: opts.verification});
   if (constraintWire && !queryWire) return constraintPacket(constraintWire, budget);
   if (!q) throw new ProgramError('no_query', 'the query circuit holds neither a query nor a constraint');
   if (policy.procedures) throw new NotExpressibleError(['procedures'], 'policy procedures selects modes of work, which are not expressible');
@@ -292,14 +292,14 @@ function whyNotPacket({q, qp, sliced, parts, exhausted, budget, notes, started})
  * Answer a problem. Throws ProgramError for an invalid circuit and NotExpressibleError for a circuit that needs a feature
  * declared unsupported; budget exhaustion is a packet (`budget_exhausted` with a `reason`), never an exception.
  */
-export function ask(problem, budgetArg = {}) {
+function runAsk(problem, budgetArg, verification = false) {
   const t0 = performance.now();
   const handle = problem.handle ?? prepare(problem.theory ?? '');
   const qWires = problem.queryWires ?? readWires(problem.query, 'query');
   // `conditional: false` skips the per-row verification runs (a host that reports assumptions itself, like the runtime bridge);
   // `forms` replaces the form fields of the query wire with already structured ones; `detail` returns the raw evaluation of each part
   const ids = problem.conditional === false ? [] : assumptionIdsOf(handle, qWires);
-  const opts = {forms: problem.forms ?? null, detail: Boolean(problem.detail)};
+  const opts = {forms: problem.forms ?? null, detail: Boolean(problem.detail), verification};
   const packet = withConditional(ids, excluded => solveOnce(handle, qWires, excluded, budgetArg, opts));
   const requested = problem.requested ?? null;
   return {
@@ -307,6 +307,15 @@ export function ask(problem, budgetArg = {}) {
     route: {requested, chosen: 'js-reference', reason: requested ? 'explicit request' : 'direct call to the oracle', fallback: null},
     timings: {...(packet.timings ?? {}), total: Math.round(performance.now() - t0)}
   };
+}
+
+export function ask(problem, budgetArg = {}) {
+  return runAsk(problem, budgetArg);
+}
+
+/** Offline/report verifier over the original problem, not over engine-produced facts. Never changes ordinary execution ceilings. */
+export function verifyAnswer(problem, budgetArg = {}) {
+  return runAsk(problem, budgetArg, true);
 }
 
 export const jsReference = {...capabilities, capabilities, prepare, ask, update};

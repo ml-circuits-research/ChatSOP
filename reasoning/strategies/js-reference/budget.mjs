@@ -9,6 +9,11 @@ export const CEILINGS = {
   maxCandidates: 4096, maxAssignments: 2_000_000, maxFanout: 100_000, maxPlans: 1, timeoutMs: 30_000
 };
 
+/** Trusted report replay only; ordinary asks and policy wires retain CEILINGS. */
+export const VERIFY_CEILINGS = Object.freeze({
+  ...CEILINGS, maxRounds: 10_000, maxJoins: 200_000_000, maxFacts: 2_000_000, maxFanout: 2_000_000, timeoutMs: 120_000
+});
+
 const REASONS = {
   maxRounds: 'rounds', maxJoins: 'probes', maxFacts: 'facts', maxNodes: 'nodes', maxDepth: 'horizon', maxHypotheses: 'hypotheses',
   maxCandidates: 'candidates', maxAssignments: 'domain', maxFanout: 'fanout', timeoutMs: 'wall'
@@ -27,10 +32,11 @@ const EFFORT = {quick: 0.1, normal: 1, deep: 1};
 const SCALED = ['maxRounds', 'maxJoins', 'maxFacts', 'maxNodes', 'maxCandidates', 'maxAssignments', 'maxFanout', 'timeoutMs'];
 
 export class Budget {
-  /** `requested` may hold any of the CEILINGS keys; `effort` quick|normal|deep scales the default ceilings. */
-  constructor(requested = {}, {effort = 'normal'} = {}) {
+  /** Requested limits tighten the selected profile; only trusted verification replay selects VERIFY_CEILINGS. */
+  constructor(requested = {}, {effort = 'normal', verification = false} = {}) {
+    const ceilings = verification ? VERIFY_CEILINGS : CEILINGS;
     this.limits = {};
-    for (const [k, ceiling] of Object.entries(CEILINGS)) {
+    for (const [k, ceiling] of Object.entries(ceilings)) {
       const base = SCALED.includes(k) ? Math.max(1, Math.floor(ceiling * (EFFORT[effort] ?? 1))) : ceiling;
       const asked = Number(requested[k]);
       this.limits[k] = Number.isSafeInteger(asked) && asked > 0 ? Math.min(asked, ceiling) : base;

@@ -1,9 +1,9 @@
-/** Answer cache of the llm-agent strategy: one JSON file per (model, presentation, prompt version, prompt text). Reruns of a smoke are free. */
+/** Answer cache of the llm-agent strategy: one JSON file per selected backend settings, model, presentation and prompt. */
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const cacheKey = ({model, presentation, prompt, version}) => crypto.createHash('sha256').update([model, presentation, version, prompt].join('\u0000')).digest('hex');
+export const cacheKey = ({model, presentation, prompt, version, settings = ''}) => crypto.createHash('sha256').update([model, presentation, version, prompt, ...(settings ? [settings] : [])].join('\u0000')).digest('hex');
 export const caseHash = text => crypto.createHash('sha256').update(text).digest('hex').slice(0, 16);
 
 export function readCache(dir, key) {

@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-export const PROMPT_VERSION = 'v4';
+export const PROMPT_VERSION = 'v5';
 export const ANSWER_MARKER = 'ANSWER_JSON:';
 export const SYSTEM_PROMPT = 'You are a careful logician and planner. You answer exactly one question about the given knowledge.';
 
@@ -45,11 +45,11 @@ const CONVENTIONS = `Reasoning conventions (the engine's documented semantics; f
 
 const ANSWER_SHAPE = `Answer shape (one JSON object; include a field only when it applies to the question's mode, omit all others):
 {
-  "status": one of "supported" "refuted" "both" "unknown" (select/exists/count/every/explain), "entailed" "inconsistent" "optimal" (constraint tasks prove/check/optimize), "hypotheses" (abduce), "plan_found" "blocked" "no_plan" (mode plan: the status of a found cheapest plan is plan_found, never optimal), "compliant" "non_compliant" (conform), "procedure_found" (procedure), "budget_exhausted",
+  "status": one of "supported" "refuted" "both" "unknown" (select/exists/count/every/explain), "entailed" "possible" "impossible" "inconsistent" "optimal" (constraint tasks prove/possible/optimize), "hypotheses" (abduce), "plan_found" "blocked" "no_plan" (mode plan: the status of a found cheapest plan is plan_found, never optimal), "compliant" "non_compliant" (conform), "procedure_found" (procedure), "budget_exhausted",
   "complete": true, or false only for budget_exhausted,
   "rows": [ {"<variable without ?>": "<symbol or integer as written>"}, ... ]   // select: one object per distinct answer
   "count": integer, "bound": "at_least" (only for a lower bound), "reason": short code such as "open_domain" or the budget limit,
-  "witness": {"x": 6, "y": 4}, "objective": integer     // constraints: the witness gives a value for every selected variable (the proof witness, or the optimal assignment)
+  "witness": {"x": 6, "y": 4}, "counterexample": {"x": 1}, "objective": integer     // constraints: assignments for selected variables
   "explain": {"depth": 0 for a stored fact, 1 when one rule is applied directly to stored facts, 2 when a rule uses a conclusion of such a rule, and so on, "uses": ["parent ann bob", ...]}   // base facts used, as atom text
   "hypotheses": [["rained grass"], ["waive some_norm_id"]]   // abduce: every inclusion-minimal explanation, atoms as text
   "missing": [["parent bob cy"]], "blockers": ["suspended ann", "not escort_authorized cy vault"]   // why_not: minimal atoms to add, and the atoms that block

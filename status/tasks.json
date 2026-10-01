@@ -8,6 +8,25 @@
   },
   "tasks": [
     {
+      "id": "query-author-session-v2",
+      "kind": "task",
+      "title": "Query author phase 2: session circuits, self-check and shared execution",
+      "status": "blocked",
+      "started_at": "2026-10-01T20:38:39Z",
+      "updated_at": "2026-10-01T21:43:04Z",
+      "summary": "Owned implementation delivered; wrong-rate/no-correct-loss and repository-green acceptance gates remain open.",
+      "topics": ["model-language"],
+      "experiments": ["query-author-session-v2-dev"],
+      "owner": "TASK T1 requests validated coding-agent session circuits, chat/harness askMemory parity, one shape-only revision and English origin-aware answers. No sealed evaluation, training, installations or port 9999.",
+      "agents": "omp-t1-author: definitions validated against accepted circuits; proposed drafts require acceptance; assumptions stay conditional and contrary memory defeats them. Query solves use askMemory/routedAsk. Strong mention, quantifier and comparison omissions reject output. Previews neither reinforce nor persist. Final affected-path and architecture tests: 84/84 passed; updated wire-help examples 10/10. Actual Agent smoke and Chromium surfaces exercised; closedness origins and noun-safe justification verified. Spec refs zero violations; smoke reasoning completed. Last full npm: 1203 tests, 1201 passed, 1 failed, 1 cancelled in unowned paths. Dev before 44/0/0 versus after 41/1/2; target not demonstrated. Report written under 600 words.",
+      "follow_ups": [
+        "Resolve unowned repository failures without weakening counterexample/completeness guards.",
+        "Qualify the final numeric-quantity guide clarification on a suitably preregistered development cohort; current zero-wrong baseline cannot demonstrate a decrease.",
+        "Do not claim readiness for a sealed benchmark from this diagnostic."
+      ],
+      "links": ["eval/reports/current/omp-tasks/t1-author.md", "eval/reports/current/omp-tasks/t1-paired.json", "docs/specs/DS014-model-surface.md", "docs/specs/DS022-sessions-and-base-memories.md"]
+    },
+    {
       "id": "sop-clause-decomposition-proposal",
       "kind": "task",
       "title": "Clause decomposition: short wires chained with $ (language proposal)",

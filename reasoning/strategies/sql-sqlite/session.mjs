@@ -45,6 +45,20 @@ export class Session {
   run(sql, ...params) { return this.guard(() => this.prepare(sql).run(...params)); }
   all(sql, ...params) { return this.guard(() => this.prepare(sql).all(...params)); }
   get(sql, ...params) { return this.guard(() => this.prepare(sql).get(...params)); }
+
+  /** Stream join bindings into the oracle form pass without allocating a second result array. */
+  *iterate(sql, ...params) {
+    const iterator = this.guard(() => this.prepare(sql).iterate(...params));
+    try {
+      for (;;) {
+        const item = this.guard(() => iterator.next());
+        if (item.done) return;
+        yield item.value;
+      }
+    } finally {
+      iterator.return?.();
+    }
+  }
   exec(sql) { return this.guard(() => this.db.exec(sql)); }
 
   close() {

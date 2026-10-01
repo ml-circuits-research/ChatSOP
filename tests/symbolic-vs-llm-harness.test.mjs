@@ -1,0 +1,123 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {score, equivalent, failureLayer} from '../tools/eval/symbolic-vs-llm/score.mjs';
+import {paired, stopDecision, summarize, report} from '../tools/eval/symbolic-vs-llm/report.mjs';
+import {stageRows, evidenceFor, alignProjection} from '../tools/eval/symbolic-vs-llm/run.mjs';
+import {createWorld, execute, goldSlice, oracleOverSlice, linkCircuit, withDefinitions} from '../tools/eval/symbolic-vs-llm/world.mjs';
+
+const knowledge = '@member predicate\n  args subject:entity object:entity\n  closed true\n\n@alice entity\n  label en "Alice"\n\n@club entity\n  label en "Club"\n\n@f fact\n  holds member alice club\n';
+
+test('benchmark scoring preserves conflict, unknown gold and complete lower bounds', () => {
+  assert.equal(score({status: 'both'}, {status: 'supported'}).outcome, 'wrong');
+  assert.equal(score({status: 'unknown'}, {status: 'unknown'}).outcome, 'correct');
+  assert.equal(score({status: 'supported', count: 4}, {status: 'budget_exhausted', complete: false, count: 3}).outcome, 'unknown');
+  assert.equal(score({status: 'supported', count: 4, bound: 'at_least'}, {status: 'supported', count: 4}).outcome, 'wrong');
+  assert.equal(score({status: 'supported', rows: [{a: 'alice', b: 'club'}]}, {status: 'supported', rows: [{a: 'club', b: 'alice'}]}).outcome, 'wrong');
+});
+
+test('alpha-renamed single-column circuit answers are not false wrong answers', () => {
+  const answer = alignProjection({status: 'supported', rows: [{who: 'alice'}]}, '@q query\n  select ?who\n', '@q query\n  select ?person\n');
+  assert.equal(score({status: 'supported', rows: [{person: 'alice'}]}, answer).outcome, 'correct');
+});
+
+test('staged samples are nested, deterministic and keep depth strata visible', () => {
+  const rows = Array.from({length: 600}, (_, i) => ({id: String(i), facts: 1000 * (1 + i % 3), depth: 1 + i % 10}));
+  const hundred = stageRows(rows, 100), three = stageRows(rows, 300), full = stageRows(rows, 600);
+  assert.deepEqual(three.slice(0, 100), hundred);
+  assert.deepEqual(full.slice(0, 300), three);
+  assert.deepEqual(stageRows([...rows].reverse(), 100), hundred);
+  assert.equal(new Set(hundred.map(r => r.depth)).size, 10);
+});
+
+test('paired stopping excludes capped evidence and drops an arm only after first100', () => {
+  const rows = Array.from({length: 100}, (_, i) => [
+    {id: String(i), arm: 'A', outcome: 'wrong', evidence_does_not_fit: false},
+    {id: String(i), arm: 'B', outcome: 'correct', evidence_does_not_fit: false}
+  ]).flat();
+  assert.equal(paired(rows).lo, 1);
+  assert.equal(stopDecision(rows, 100).reason, 'decisive');
+  assert.equal(paired(rows.map(r => ({...r, evidence_does_not_fit: true}))), null);
+  const broken = rows.map(r => ({...r, outcome: r.arm === 'B' && +r.id < 21 ? 'invalid' : r.outcome}));
+  assert.deepEqual(stopDecision(broken, 100).dropped_arms, ['B']);
+  assert.equal(stopDecision(broken.slice(0, 40), 20).stop, false);
+});
+
+test('real compiler, SQLite slice and oracle preserve exact gold evidence membership', () => {
+  const world = createWorld(knowledge);
+  try {
+    const query = '@q query\n  where member ?person club\n  select ?person\n';
+    const gold = execute(world, query), slice = goldSlice(world, query, gold);
+    assert.deepEqual(gold.rows, [{person: 'alice'}]);
+    assert.equal(slice.facts.length, 1);
+    assert.equal(equivalent(gold, oracleOverSlice(slice, query)), true);
+    const linked = linkCircuit('@q query\n  where match\n    relation "member"\n    role subject ?person\n    role object "Club"\n    polarity affirmed\n  end\n  select ?person\n', 'Who is a member of Club?', world.lexicon);
+    assert.ok(linked.query);
+    assert.deepEqual(execute(world, linked.query).rows, [{person: 'alice'}]);
+    assert.throws(() => goldSlice(world, query, {...gold, retrieval: {...gold.retrieval, facts: 2}}), /membership differs/);
+  } finally { world.dispose(); }
+});
+
+test('capped English evidence explicitly removes complete-list declarations', () => {
+  const world = createWorld(knowledge);
+  try {
+    const query = '@q query\n  where member ?person club\n  select ?person\n';
+    const gold = execute(world, query), slice = goldSlice(world, query, gold);
+    const capped = evidenceFor(slice, 'Which members belong to Club?', {maxChars: 1000, sampleFacts: 0});
+    assert.equal(capped.evidence_does_not_fit, false);
+    const many = {...slice, facts: Array.from({length: 200}, (_, i) => ({...slice.facts[0], id: 'extra' + i}))};
+    const partial = evidenceFor(many, 'Which members belong to Club?', {maxChars: 1000, sampleFacts: 0});
+    assert.equal(partial.evidence_does_not_fit, true);
+    assert.match(partial.source, /partial keyed sample/);
+    assert.doesNotMatch(partial.source, /The list of member is complete/);
+  } finally { world.dispose(); }
+});
+
+test('first failing layer and dangerous-error denominators remain separate', () => {
+  assert.equal(failureLayer({outcome: 'wrong', author: {status: 'validated'}, oracleEquivalent: false, packet: {status: 'supported'}}), 'authoring');
+  assert.equal(failureLayer({outcome: 'invalid', author: {status: 'invalid', validation: {problems: [{code: 'entity_id_not_listed'}]}}}), 'linking');
+  const cell = summarize([
+    {outcome: 'wrong', gold_answerable: true, packet: {status: 'supported'}},
+    {outcome: 'unknown', gold_answerable: true, packet: {status: 'unknown'}},
+    {outcome: 'correct', gold_answerable: false, packet: {status: 'unknown'}},
+    {outcome: 'unknown', gold_answerable: false, packet: {status: 'clarify'}}
+  ]);
+  assert.equal(cell.wrong_among_answered.denominator, 1);
+  assert.equal(cell.unknown_rate.numerator, 1);
+  assert.equal(cell.unknown_rate.denominator, 2);
+});
+
+test('turn-local suppositions answer conditionally without altering an empty base', () => {
+  const world = createWorld(knowledge.slice(0, knowledge.indexOf('@f fact')));
+  try {
+    const sop = '@s stated\n  relation "member"\n  role subject "Alice"\n  role object "Club"\n  polarity affirmed\n  certainty supposed\n\n@q query\n  where match\n    relation "member"\n    role subject "Alice"\n    role object "Club"\n    polarity affirmed\n  end\n  if $s\n';
+    const linked = linkCircuit(sop, 'Suppose Alice is a member of Club. Is Alice a member?', world.lexicon);
+    const packet = execute(withDefinitions(world, null, linked.context), linked.query);
+    assert.equal(packet.status, 'supported');
+    assert.deepEqual(packet.conditional, ['s']);
+    assert.equal(execute(world, linked.query).status, 'refuted');
+  } finally { world.dispose(); }
+});
+
+test('gold evidence preserves all/any joins rather than dropping Boolean groups', () => {
+  const world = createWorld(knowledge + '\n@other entity\n  label en "Other"\n\n@bob entity\n  label en "Bob"\n\n@g fact\n  holds member alice other\n\n@h fact\n  holds member bob club\n');
+  try {
+    for (const op of ['all', 'any']) {
+      const query = `@q query\n  where ${op}\n    member ?person club\n    member ?person other\n  end\n  select ?person\n`;
+      const gold = execute(world, query), slice = goldSlice(world, query, gold);
+      const expected = op === 'all' ? [{person: 'alice'}] : [{person: 'alice'}, {person: 'bob'}];
+      assert.deepEqual(gold.rows, expected);
+      assert.deepEqual(oracleOverSlice(slice, query).rows, expected);
+    }
+  } finally { world.dispose(); }
+});
+
+test('H3 retains symbolic B/C pairs when only English evidence exceeds its cap', () => {
+  const records = [
+    {id: 'dense', family: 'f1', arm: 'B', outcome: 'correct', evidence_does_not_fit: true},
+    {id: 'dense', family: 'f1', arm: 'C', outcome: 'wrong', evidence_does_not_fit: true}
+  ];
+  const comparisons = report(records).summary.comparisons.f1;
+  assert.equal(comparisons.fits, null);
+  assert.equal(comparisons.B_minus_C.n, 1);
+  assert.equal(comparisons.B_minus_C.mean, 1);
+});

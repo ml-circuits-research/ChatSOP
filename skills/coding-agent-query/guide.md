@@ -13,12 +13,12 @@ A wire is `@id type` followed by keyword lines (two spaces of indent), one keywo
   end
 ```
 
-* `relation "id"`: the id of one predicate of `input/candidates.md` (for example "works_at", "capital_of", "writes"); never a phrase of the request.
+* `relation "id"`: first choose an existing predicate id from `input/candidates.md` / `input/vocabulary.md` (for example "works_at", "capital_of", "writes"). A new session predicate id is permitted only with a grounded definition over existing predicates, as shown below; never substitute a made-up id for a missing definition.
 * `role NAME VALUE`: NAME is one of `subject object recipient location source destination instrument time topic`, and only a role the predicate declares. A value is a quoted string (a proper name exactly as written in the request, or a listed entity id; another content word of the request, lower case, singular), an integer or a `?variable`.
 * `polarity affirmed` always; `negated` only for an explicit "not"/"no" in the question.
 * The same `?variable` in two blocks is a join. Keywords are English, always.
 
-## Question forms (each word has exactly one form)
+## Question forms (preserve the user's form and all restrictions)
 
 Yes/no: no `select`.
 ```
@@ -41,7 +41,7 @@ Who/what/which/where: select the variable of the asked role ("Where does Ana liv
     polarity affirmed
   end
 ```
-How many: `mode count`.
+Count matching people, objects or events: `mode count`. A quantity is different: when the question asks for the value of a numeric attribute (a length, duration, amount or age), match that attribute and `select` its value. Do not count the rows of a numeric measure to answer how many units it has.
 ```
 @q query
   mode count
@@ -57,6 +57,24 @@ Every/all/nobody: `mode every`, `where` is the restriction, `scope` what holds f
 ```
 @q query
   mode every
+  where match
+    relation "works_at"
+    role subject ?m
+    role object "Acme"
+    polarity affirmed
+  end
+  scope match
+    relation "is_certified"
+    role subject ?m
+    polarity affirmed
+  end
+```
+
+Most/half/none/not all/at least N: use `mode every`, a restriction in `where`, the property in `scope`, and `quantifier most|half|none|not_all|at_least N` (`all` is the default for "every"). Do not replace "most" with "every" or omit the numeric bound. "At least 3 tickets" as an attribute threshold instead uses `compare ?tickets at_least 3`.
+```
+@q query
+  mode every
+  quantifier most
   where match
     relation "works_at"
     role subject ?m
@@ -190,7 +208,7 @@ Several hops ("the city where the director of Seven Samurai was born"): one matc
     end
   end
 ```
-Every name the request mentions must be used in the query (as a value, an id from the hints, or an option of `compare any`); a name left out silently widens the question and the answer is wrong.
+Every strong name the request mentions must be used in the question (as a role value, listed entity id, or an option of `compare any` / `where any`); repeating it in an unused assumption or definition does not restrict the question. An explicit comparison needs `compare`, and a comparative choice needs its named options and a `rank` of the value. `where any` over option matches is also valid.
 
 Chaining: a block may use `$q` (the answers of an earlier query that selects exactly one variable) as a role value, at most one per query:
 ```
@@ -228,6 +246,68 @@ Numeric problem over numbers of the message:
 ```
 `kind` is `gibberish`, `no_request` (no question and nothing to ask: a statement, "ok", "write a poem"), `ambiguous` with 2 to 4 `reading "..."` lines, or `relation_not_in_memory` (the question is clear, but no predicate of the memory expresses it).
 
-## Not for you
+## Session definitions and assumptions (only when needed)
 
-`stated` facts of the world, `assumed`, `fact`, `rule`, `jsEval`, `filter`, `span`, a predicate id that is not in the memory, an entity id that is not listed.
+Prefer an existing predicate and its declared roles. When no predicate expresses the request but it has one clear definition using existing predicates, declare a **session** predicate (including its `args` role types) and a safe rule or default; the query can then use that new id. In the following example, `works_at` exists with roles `subject:person object:organization`; "Who works with Ana?" can define coworkers by sharing an employer:
+```sop
+@coworker predicate
+  args subject:entity object:entity
+@coworker_at_work rule
+  when works_at ?a ?organization
+  when works_at ?b ?organization
+  then coworker ?a ?b
+@q query
+  select ?colleague
+  where match
+    relation "coworker"
+    role subject "Ana"
+    role object ?colleague
+    polarity affirmed
+  end
+```
+
+When the wording explicitly says "usually" and gives an exception, a `default` uses existing predicates for its body, head and exception (these illustrative ids must be present in the memory before writing this circuit):
+```sop
+@typically_certified default
+  when works_at ?person "Acme"
+  then is_certified ?person
+  except on_leave ?person
+@q query
+  where match
+    relation "is_certified"
+    role subject "Ana"
+    polarity affirmed
+  end
+```
+
+A `predicate` may declare `closed true` only when the user establishes that its extension is complete for this session (for example, a complete list of booked rooms already supplied as session evidence). If the memory has no `booked_room` predicate, and the list is explicitly exhaustive, the declaration and question can be:
+```sop
+@booked_room predicate
+  args subject:entity
+  closed true
+@q query
+  where match
+    relation "booked_room"
+    role subject "Room A"
+    polarity affirmed
+  end
+```
+The declaration itself adds no booked-room facts; completeness must come from actual supplied evidence. If `booked_room` already exists in the memory, use it instead of redeclaring it. Do not claim closedness just because the question mentions a list. If more than one definition is plausible, write a short `unclear kind ambiguous` with 2–4 `reading` alternatives; never choose a meaning silently.
+
+If no definition over existing predicates suffices but a background premise is necessary, write a **labelled assumption**, not a `fact` or an asserted `stated` wire. For example, with `works_at` already in the memory:
+```sop
+@a assumed
+  relation "works_at"
+  role subject "Ana"
+  role object "Acme"
+  polarity affirmed
+  basis world
+@q query
+  where match
+    relation "works_at"
+    role subject "Ana"
+    role object "Acme"
+    polarity affirmed
+  end
+```
+The assumption is optional and its origin is reported; any answer that relies on it must remain conditional, not a memory fact. Use it only when genuinely needed by the request, never to make up an answer. A user-given "if" premise instead uses `stated certainty supposed` linked by `if $id`. Do not write `fact`, asserted `stated`, `remember`, unrelated knowledge or a guessed definition.

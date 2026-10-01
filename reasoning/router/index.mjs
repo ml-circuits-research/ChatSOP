@@ -26,6 +26,8 @@ import {digest} from '../../lib/util.mjs';
 import {ProgramError, NotExpressibleError} from '../strategies/js-reference/values.mjs';
 import {circuitFeatures, sensitivityFor} from './features.mjs';
 import {ENGINES, ORACLE, ORACLE_IDS, eligibility} from './engines.mjs';
+import {verifyAnswer} from '../strategies/js-reference/index.mjs';
+import {CEILINGS} from '../strategies/js-reference/budget.mjs';
 
 export {circuitFeatures};
 
@@ -57,8 +59,8 @@ export function decide(features, {config = ROUTER_DEFAULTS} = {}) {
   const order = features.recursion && !features.nonlinear ? config.engine_order.linear_recursion : config.engine_order.default;
   const candidates = order.map(consider);
   if (features.invalid) return oracle('oracle', 'the circuit does not compile; the oracle reports the error: ' + features.invalid);
-  if (features.mode_of_work || features.proof || features.constraint || features.host_forms.length) {
-    return oracle('proof_or_mode_of_work', 'the question needs ' + (features.proof ? 'a proof' : features.host_forms.length ? 'the query forms ' + features.host_forms.join(', ') : 'a mode of work or a constraint') + ', which only the oracle provides');
+  if (features.mode_of_work || features.proof || features.constraint) {
+    return oracle('proof_or_mode_of_work', 'the question needs ' + (features.proof ? 'a proof' : 'a mode of work or a constraint') + ', which only the oracle provides');
   }
   if (features.budgeted) return oracle('caller_budget', 'the question sets its own budget (a policy wire or a budget argument); the budget keys and the partial answers under them are defined by the oracle');
   const klass = features.nonlinear ? 'nonlinear' : features.recursion ? 'recursion' : 'other';
@@ -73,7 +75,7 @@ export function decide(features, {config = ROUTER_DEFAULTS} = {}) {
 export function samePacket(a, b) {
   const key = r => JSON.stringify(Object.entries(r).sort(([x], [y]) => (x < y ? -1 : 1)));
   const rows = p => (p.rows ? p.rows.map(key).sort() : null);
-  return a.status === b.status && (a.complete !== false) === (b.complete !== false) && JSON.stringify(rows(a)) === JSON.stringify(rows(b)) && (a.count ?? null) === (b.count ?? null);
+  return a.status === b.status && (a.complete !== false) === (b.complete !== false) && JSON.stringify(rows(a)) === JSON.stringify(rows(b)) && (a.count ?? null) === (b.count ?? null) && (a.bound ?? null) === (b.bound ?? null) && Boolean(a.truncated) === Boolean(b.truncated);
 }
 
 /** The oracle's answer; a circuit even the oracle declares not expressible is reported `unsupported`, with the missing features. */
@@ -91,9 +93,10 @@ const sampled = (seed, rate) => rate >= 1 || (rate > 0 && parseInt(digest(seed).
  * @param handle      {wires}
  * @param query       the query circuit text
  * @param requested   'auto' (default) or an engine id (rule 8)
- * @param verify      'auto' (default: the policy above), 'always' or 'never'
+ * @param verify      'auto' (default: the policy above), 'always', 'never', or 'offline' (defer replay for the report pass)
+ * @param verifyBudget independent trusted oracle-replay limits; never changes execution routing
  */
-export function routedAsk({handle, query, queryWires = null, requested = 'auto', budget = {}, verify = 'auto', config = ROUTER_DEFAULTS}) {
+export function routedAsk({handle, query, queryWires = null, requested = 'auto', budget = {}, verifyBudget = {}, verify = 'auto', config = ROUTER_DEFAULTS}) {
   const cfg = merge(ROUTER_DEFAULTS, config === ROUTER_DEFAULTS ? {} : config);
   if (!queryWires) {
     const parsed = parse(query ?? '');
@@ -109,7 +112,10 @@ export function routedAsk({handle, query, queryWires = null, requested = 'auto',
     if (!ENGINES[id].available()) return unsupported(requested, 'backend_unavailable', `${id} is not available in this installation`);
     try {
       const packet = run(id);
-      return {...packet, route: {requested, chosen: id, backend: id, fallback: null, reason: 'explicit request'}};
+      const result = {...packet, route: {requested, chosen: id, backend: id, fallback: null, reason: 'explicit request'}};
+      if (id === ORACLE || verify === 'auto' || verify === 'never') return result;
+      if (verify === 'offline') return deferVerification(result);
+      return verifyPacket({handle, query, queryWires, packet: result, verifyBudget: {...CEILINGS, ...cfg.verify.budget, ...verifyBudget}, policy: 'always'});
     } catch (e) {
       if (e instanceof NotExpressibleError) return unsupported(requested, 'explicit_backend_not_available_for_query', e.message, {features: e.features});
       throw e;
@@ -130,15 +136,30 @@ export function routedAsk({handle, query, queryWires = null, requested = 'auto',
     return oracleAnswer(run, {...route, chosen: ORACLE, rule: 'oracle', reason: `${decision.chosen} declared the circuit not expressible (${e.features.join(', ')}); the question named no engine, so the oracle answers`});
   }
   packet = {...packet, sensitivity: packet.sensitivity ?? sensitivityFor(features)};
+  if (verify === 'offline') return deferVerification({...packet, route});
   const mode = verify === 'auto' ? (features.facts <= cfg.verify.always_facts ? 'always' : sampled(digest(String(handle.wires.length) + '\0' + query), cfg.verify.sample) ? 'sample' : 'skipped') : verify === 'always' ? 'always' : 'skipped';
   if (mode === 'skipped') return {...packet, route: {...route, verification: {checked: false, policy: verify === 'never' ? 'never' : 'not in the sample'}}};
+  return verifyPacket({handle, query, queryWires, packet: {...packet, route}, verifyBudget: {...CEILINGS, ...cfg.verify.budget, ...verifyBudget}, policy: mode});
+}
+
+const deferVerification = packet => ({...packet, route: {...packet.route, verification: {checked: false, outcome: 'deferred', policy: 'offline'}}});
+const brief = p => ({status: p.status, complete: p.complete !== false, rows: p.rows?.length ?? null, count: p.count ?? null, bound: p.bound ?? null});
+
+/** Replay a saved engine answer over the ORIGINAL problem without rerunning the engine; reports actual oracle limits and unresolved budgets. */
+export function verifyPacket({handle, query, queryWires = null, packet, verifyBudget = {}, policy = 'offline'}) {
+  const route = packet.route ?? {requested: packet.strategy, chosen: packet.strategy, fallback: null};
   const t0 = performance.now();
-  const check = ENGINES[ORACLE].ask(problem, {...cfg.verify.budget, ...budget});
+  const check = verifyAnswer({handle, query, ...(queryWires ? {queryWires} : {})}, verifyBudget);
   const ms = Math.round(performance.now() - t0);
-  if (check.complete === false) return {...packet, route: {...route, verification: {checked: false, outcome: 'unverified', reason: 'oracle_budget_' + (check.budget?.reason ?? check.reason ?? 'exhausted'), oracle_status: check.status, policy: mode, ms}}};
-  if (samePacket(packet, check)) return {...packet, route: {...route, verification: {checked: true, outcome: 'agreed', policy: mode, ms}}};
-  const brief = p => ({status: p.status, complete: p.complete !== false, rows: p.rows?.length ?? null, count: p.count ?? null});
-  return {...check, route: {...route, chosen: ORACLE, rule: 'discrepancy', reason: `${decision.chosen} disagreed with the oracle; the oracle's answer is returned`, verification: {checked: true, outcome: 'discrepancy', policy: mode, ms, engine: decision.chosen, engine_answer: brief(packet), oracle_answer: brief(check)}}};
+  const verification = {checked: check.complete !== false, policy, ms, budget: check.budget};
+  if (check.complete === false) return {...packet, route: {...route, verification: {...verification, outcome: 'unverified', reason: 'oracle_budget_' + (check.budget?.reason ?? check.reason ?? 'exhausted'), oracle_status: check.status}}};
+  if (samePacket(packet, check)) return {...packet, route: {...route, verification: {...verification, outcome: 'agreed'}}};
+  const discrepancy = {...verification, outcome: 'discrepancy', engine: route.chosen, engine_answer: brief(packet), oracle_answer: brief(check)};
+  if (route.requested !== 'auto') {
+    const result = unsupported(route.requested, 'verification_discrepancy', `${route.chosen} disagreed with the oracle; the explicitly requested engine is not substituted`);
+    return {...result, route: {...result.route, verification: discrepancy}};
+  }
+  return {...check, route: {...route, chosen: ORACLE, rule: 'discrepancy', reason: `${route.chosen} disagreed with the oracle; the oracle's answer is returned`, verification: discrepancy}};
 }
 
 const summary = f => ({mode: f.mode, facts: f.facts, rules: f.rules, aggregates: f.aggregates, defaults: f.defaults, integrity: f.integrity, recursion: f.recursion, nonlinear: f.nonlinear, negation: f.naf, aggregate: f.aggregate, count: f.count, every: f.every, temporal: f.temporal, monotone: f.monotone, required: f.required});

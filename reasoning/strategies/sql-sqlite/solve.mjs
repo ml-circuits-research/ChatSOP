@@ -23,10 +23,10 @@ import {supportOf} from './provenance.mjs';
 /** Predicates a partial retrieval must have complete for the answer to be valid (same judgement as the oracle, on the desugared program). */
 export function sensitivityOf({program: sp}, qp) {
   const strict = sp.edges.filter(e => e.strict && sp.slice.has(e.to));
-  const over = [...new Set([...strict.map(e => e.from), ...(qp && ['count', 'every'].includes(qp.mode) ? qp.alts.flatMap(a => a.leaves.filter(l => l.kind === 'atom').map(l => l.p)) : [])])];
+  const over = [...new Set([...strict.map(e => e.from), ...(qp && (['count', 'every'].includes(qp.mode) || qp.forms?.rank) ? qp.alts.flatMap(a => a.leaves.filter(l => l.kind === 'atom').map(l => l.p)) : [])])];
   const defaults = [...sp.slice].filter(p => /^x_.+_blocked$/.test(p)).map(p => p.slice(2, -8));
   const absentInQuery = qp ? qp.alts.some(a => a.leaves.some(l => l.kind === 'atom' && l.mode === 'absent')) : false;
-  const monotone = !strict.length && !absentInQuery && !(qp && ['count', 'every'].includes(qp.mode));
+  const monotone = !strict.length && !absentInQuery && !(qp && (['count', 'every'].includes(qp.mode) || qp.forms?.rank));
   return {monotone, over, defaults, aggregates: sp.aggregates.map(a => a.id)};
 }
 
@@ -47,6 +47,10 @@ function packetOf({qp, sliced, outcome, exhausted, policy, budget, notes, viewSi
   if (outcome.reason) packet.reason = outcome.reason;
   // `mode every` with `select` answers the groups where the universal holds (the oracle's grouped every)
   if (qp.mode === 'select' || (qp.mode === 'every' && qp.select.length)) packet.rows = outcome.rows.map(r => r.row);
+  if (qp.mode === 'select' && qp.forms && packet.rows.length > qp.forms.limit) {
+    packet.rows = packet.rows.slice(0, qp.forms.limit);
+    packet.truncated = true;
+  }
   if (qp.mode === 'count') { packet.count = outcome.count; if (outcome.bound) packet.bound = outcome.bound; }
   Object.assign(packet, support ?? {});
   return baseInfo(packet);
@@ -67,7 +71,7 @@ export function solveOnce(backend, handle, qWires, excluded, budgetArg, options 
   const seeds = conditionAlts(q.wire.fields.filter(f => ['where', 'scope'].includes(f.key)), q.wire.id).flatMap(alt => alt.filter(l => l.kind === 'atom' || l.kind === 'timeof').map(l => l.p));
   const sliced = sliceProgram(program, seeds);
   const sp = sliced.program;
-  const qp = planQuery(q.wire, program.closed, {mode: q.mode, select: q.select});
+  const qp = planQuery(q.wire, program.closed, {mode: q.mode, select: q.select, forms: q.forms});
   if (backend.id === 'bank' && [...sp.rules.flatMap(r => r.alts), ...sp.aggregates.flatMap(a => a.alts), ...qp.alts, ...qp.scopeAlts].some(a => a.leaves.some(l => l.kind === 'timeof'))) {
     throw new NotExpressibleError(['time_vars'], 'start_of and end_of need stored validity text, which the bank mode does not read');
   }

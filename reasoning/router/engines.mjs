@@ -44,7 +44,8 @@ export function eligibility(id, features) {
   const reasons = [];
   if (missing.length) reasons.push('lacks ' + missing.join(', '));
   if (refused.length) reasons.push('declares not expressible: ' + refused.join(', '));
-  if (features.host_forms.length) reasons.push('query forms run by the oracle only: ' + features.host_forms.join(', '));
+  const forms = features.host_forms.filter(k => !c.features.includes('query_' + k));
+  if (forms.length) reasons.push('query forms not expressed: ' + forms.join(', '));
   if (features.wires > c.limits.max_wires) reasons.push(`above its limit of ${c.limits.max_wires} wires`);
   return {id, eligible: reasons.length === 0, why: reasons.join('; ')};
 }

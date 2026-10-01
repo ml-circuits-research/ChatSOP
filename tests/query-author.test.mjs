@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {authorQuery, buildContext, candidatePredicates, completionBackend, entityHints, extractSop, guideTexts, ompBackend, predicateRecall, renderCandidates, renderVocabulary, unclearKind, validateQuery, backendFrom, stem} from '../lib/query-author/index.mjs';
 import {lex, repoPath, tempDir} from './helpers.mjs';
+import {Lexicon} from '../sop/lexicon.mjs';
 
 const STUB = repoPath('tests/fixtures/omp/stub-omp.mjs');
 const Q = (relation, subject, object) => `@q query\n  where match\n    relation "${relation}"\n    role subject "${subject}"\n    role object "${object}"\n    polarity affirmed\n  end\n`;
@@ -60,10 +61,17 @@ test('context: retrieval in the prompt, the full list only as a file, the reques
 
 test('the guide examples pass the validator (the authoring guide is executable)', () => {
   const guide = guideTexts()['guide.md'];
-  const blocks = [...guide.matchAll(/```\n([\s\S]*?)```/g)].map(m => m[1]);
-  assert.ok(blocks.length >= 10);
-  for (const sop of blocks) {
-    const r = validateQuery({sop, message: 'Does Maria work at Acme? Ana Cluj France 80', lexicon: null});
+  const examples = [...guide.matchAll(/^```(sop)?\n([\s\S]*?)^```[ \t]*$/gm)].map(m => ({session: Boolean(m[1]), sop: m[2]}));
+  assert.ok(examples.length >= 10);
+  const exampleLexicon = Lexicon.fromCircuits([{name: 'guide-memory.sop', text: `@works_at predicate
+  args subject:entity object:entity
+@is_certified predicate
+  args subject:entity
+@on_leave predicate
+  args subject:entity
+`}]);
+  for (const {session, sop} of examples) {
+    const r = validateQuery({sop, message: 'Does Maria work at Acme? Ana Cluj France 80', lexicon: session ? exampleLexicon : null});
     assert.deepEqual(r.problems, [], sop);
   }
 });
@@ -84,7 +92,10 @@ test('validator, id mode: only queries; predicate ids of the memory, declared ro
   assert.equal(clash.problems[0].code, 'class_mismatch');
   const asserted = validateQuery({sop: '@s stated\n  relation "works_at"\n  role subject "Ana"\n  role object "Acme"\n  polarity affirmed\n  certainty asserted\n', message: 'Ana works at Acme', lexicon: lex});
   assert.ok(asserted.problems.some(x => x.code === 'fact_not_allowed'));
-  assert.ok(validateQuery({sop: '@a assumed\n  relation "works_at"\n  role subject "Ana"\n  role object "Acme"\n  polarity affirmed\n', message: 'x', lexicon: lex}).problems.some(x => x.code === 'wire_not_allowed'));
+  const assumption = '@a assumed\n  relation "works_at"\n  role subject "Ana"\n  role object "Acme"\n  polarity affirmed\n  basis world\n';
+  assert.equal(validateQuery({sop: assumption, message: 'x', lexicon: lex}).problems[0].code, 'no_query');
+  assert.equal(validateQuery({sop: assumption + Q('works_at', 'Ana', 'Acme'), message: 'Does Ana work at Acme?', lexicon: lex}).ok, true);
+  assert.equal(validateQuery({sop: '@f fact\n  holds works_at ana lab_alpha\n', message: 'x', lexicon: lex}).ok, false, 'raw facts are never authored');
   assert.equal(validateQuery({sop: '', message: 'x', lexicon: lex}).problems[0].code, 'missing_output');
   assert.equal(validateQuery({sop: '@q query\n  where bogus\n', message: 'x', lexicon: lex}).ok, false);
   const gap = validateQuery({sop: '@u unclear\n  kind relation_not_in_memory\n', message: 'Who is the godfather of Ana?', lexicon: lex});

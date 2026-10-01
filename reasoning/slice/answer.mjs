@@ -20,6 +20,7 @@ export function retrievalReport(memory, trail, verdict) {
     facts: slice.facts,
     rules: slice.rules,
     predicates: slice.predicates,
+    class: slice.class,
     bound: slice.bound,
     exact: slice.exact,
     lookups: slice.lookups,

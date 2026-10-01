@@ -73,7 +73,7 @@ Notes are append-only: a note is never edited or deleted, a correction is a new 
 
 The registry `status/experiments.json` and the frozen records under `status/preregistrations/` keep every earlier experiment, including those of the frozen tiny-model branch (formalizer fine-tuning, UD rules, spelling and translation preprocessing, textToCleanEnglish, SymbolicLM adoption and composed-paragraph evaluations). Those records are historical evidence: their code, data and reports are in `probably_obsolete/tinyLLMExperiments/` and `eval/reports/history/`, and none of them is a current claim.
 
-**Planned: `eval-symbolic-vs-llm-v1`.** The benchmark plan `experiments/proposal/symbolic-vs-llm-benchmark.md` specifies its preregistration, `status/preregistrations/eval-symbolic-vs-llm-v1.json`, as a document to be written and frozen before the sealed sets are used (system under test, data and seeds, hypotheses, stopping rules per [DS012](specsLoader.html?spec=DS012-evaluation-metrics.md)). Until that file exists, the benchmark has no frozen record and no result.
+**Planned: `eval-symbolic-vs-llm-v1`.** The prospective record `status/preregistrations/eval-symbolic-vs-llm-v1.json` is a DRAFT until `frozen: true` is recorded before sealing or measurement. It specifies arms A/A'/B/C/D, hypotheses H1–H4, dev/sealed seeds, paired practical-margin and dangerous-error rules, staged stops and resource ceilings. Unresolved model, prompt, memory and runtime hashes are explicit freeze prerequisites, not backfilled after holdout inspection. The registry uses `status: proposed` for the planned study; a dev-only sanity pilot is not a sealed result.
 
 ### Pre-run record and controlled hypotheses
 

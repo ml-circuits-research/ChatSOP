@@ -11,13 +11,14 @@ import {parse, tokens, selectInForce, supposedWireIds, desugar} from '../../../s
 import {compileProgram} from '../js-reference/program.mjs';
 import {ProgramError, NotExpressibleError} from '../js-reference/values.mjs';
 import {CEILINGS} from './budget.mjs';
+import {readForms} from '../js-reference/forms.mjs';
 
 export {ProgramError, NotExpressibleError};
 
 export const READ_MODES = ['select', 'exists', 'count', 'explain', 'every'];
 const MODE_FEATURE = {why_not: 'why_not', plan: 'plan', abduce: 'abduce', conform: 'check_plan', procedure: 'procedure_render'};
 const LINKS_OTHER_THAN_IF = ['because', 'so', 'unless', 'although', 'so_that', 'before', 'after', 'when', 'while'];
-const NOT_RUN = ['compare', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure', ...LINKS_OTHER_THAN_IF, 'limit', 'via', 'trace'];
+const NOT_RUN = ['order', 'quantifier', 'measure', ...LINKS_OTHER_THAN_IF, 'via', 'trace'];
 
 export const f1 = (w, k) => w.fields.find(f => f.key === k);
 
@@ -35,6 +36,7 @@ export function readQuery(wire, excluded) {
     asof: one('asof'), policy: one('policy')?.replace(/^\$/, '') ?? null,
     ifs: wire.fields.filter(f => f.key === 'if').map(f => f.value.trim().slice(1)).filter(id => !excluded.has(id))
   };
+  q.forms = ['compare', 'rank', 'filter', 'except', 'limit'].some(k => f1(wire, k)) ? readForms(wire) : null;
   if (MODE_FEATURE[q.mode]) throw new NotExpressibleError([MODE_FEATURE[q.mode]], `mode ${q.mode} is not run by sql-sqlite`);
   if (!READ_MODES.includes(q.mode)) throw new ProgramError('bad_enum', `mode must be one of ${[...READ_MODES, ...Object.keys(MODE_FEATURE)].join(', ')}`, wire.id);
   const other = NOT_RUN.find(k => f1(wire, k));
