@@ -10,12 +10,12 @@
   },
   "seed": "kbqa-v1",
   "population": 5622,
-  "sampled": 650,
+  "sampled": 725,
   "dropped_no_gold": 10,
   "dropped_error": 0,
   "built_at": "2026-10-01T15:21:31.575Z",
   "gold_source": "gold SPARQL executed on query.wikidata.org at build time (answers capped at 2000)",
   "types": {
-    "simple": 650
+    "simple": 725
   }
 }
