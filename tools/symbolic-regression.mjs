@@ -7,7 +7,7 @@
  *   node tools/symbolic-regression.mjs --replay tests/fixtures/symbolic-english/sample.json   # recorded parses, no Stanza
  *   node tools/symbolic-regression.mjs record-fixture [--n 12]                                # re-records that fixture
  *   node tools/symbolic-regression.mjs record-parses [--device auto] [--out file]            # Stanza parses of every row, once
- *   node tools/symbolic-regression.mjs --replay eval/reports/current/symbolic-regression/parses.json   # rules only, seconds
+ *   node tools/symbolic-regression.mjs --replay eval/reports/current/symbolic-regression/parses.json   # rules only, seconds (with --update: re-baselines from the full parse cache of the current Stanza model)
  *
  * `--device auto|cuda|cpu` (default auto: the GPU only when it is free, lib/ud-to-sop/device.mjs). A rule change is checked fastest by replaying the recorded
  * parses of all rows (`record-parses` once per Stanza model, then `--replay <cache>`): the parser is not re-run, so any
@@ -197,7 +197,8 @@ async function main() {
   const splits = String(o.split ?? 'train,dev,test').split(',');
   const jobs = Number(o.jobs ?? 1);
   const fixture = o.replay ? JSON.parse(fs.readFileSync(path.resolve(ROOT, o.replay), 'utf8')) : null;
-  if (fixture && o.update) throw Error('--update cannot be combined with --replay');
+  // a re-baseline from recorded parses is exact only for the full parse cache of the Stanza model in use (same parses as a live run)
+  if (fixture && o.update && (fixture.rows || fixture.stanza !== stanzaModelId())) throw Error('--update with --replay needs the full parse cache (record-parses) recorded with the current Stanza model');
   if (o.update && (o.limit || o.shard)) throw Error('--update needs the full run (no --limit or --shard)');
   let rows = fixture?.rows ?? readRows(splits);
   if (o.limit) rows = rows.slice(0, Number(o.limit));

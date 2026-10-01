@@ -15,14 +15,14 @@
  },
  "split_policy": "by split_group_id (source split groups; new cases by writer); rows of sealed suites only in the sealed test, exact-text overlap with a sealed row or across splits is dropped from train/dev",
  "sha256": {
-  "datasets/symbolic_english/train.jsonl": "bbb695ac6d8b28d6dfd78badb44e32d6ddc04ea9fad28e2be55ea03ba7daa470",
-  "datasets/symbolic_english/dev.jsonl": "03d5dd34ea65cfe715d3854bab739344f7bb2f26ad1fcf1ec48438f14986abac",
-  "eval/suites/symbolic_english/test.jsonl": "6448c13f58dc2a6fa3ded8f1271c19de2f6b2108afa2cb8ad150aa2a043085bc"
+  "datasets/symbolic_english/train.jsonl": "02495fdde536300868a4920292116ec75cecbd30742cef6c7f7ae4d06543118e",
+  "datasets/symbolic_english/dev.jsonl": "dae86bc025633388aff6696a927062e7dadb6d7f6c70642a9941de3b43c97bb0",
+  "eval/suites/symbolic_english/test.jsonl": "ffc3468c3924d586af23934fd07fc2dd9cfe17ce52d7975881fbc7f724483e83"
  },
  "bytes": {
-  "datasets/symbolic_english/train.jsonl": 17330645,
-  "datasets/symbolic_english/dev.jsonl": 2419294,
-  "eval/suites/symbolic_english/test.jsonl": 4818782
+  "datasets/symbolic_english/train.jsonl": 17379408,
+  "datasets/symbolic_english/dev.jsonl": 2427358,
+  "eval/suites/symbolic_english/test.jsonl": 4832916
  },
  "counts": {
   "train": {
@@ -92,23 +92,26 @@
   "stanza": "stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_electra-large,lemma=combined_nocharlm,depparse=combined_electra-large",
   "call": "analyze(text, {route: 'direct', language: 'auto'}), no spelling correction, no rewrite",
   "code_sha256": {
-   "lib/symbolic-lm/index.mjs": "4453cd85540388e7d25c373a041539238d24bfbd13ae42898f0564d961b729ae",
+   "lib/symbolic-lm/index.mjs": "af94973afe3df2fef9bc40836bcb3ddb0b2f7d64793e8d267c14c8d15ecbb2ad",
    "lib/symbolic-lm/uncertainty.mjs": "569fb335f05cfb20a270d52b75bc060835cf10e977e8e2d46c94522f1b593de2",
    "lib/languages-util/langid.mjs": "55b9340c918e726fb2cb85238b9ac3f91698ca5954802701d3da769bc87c8a55",
    "lib/languages-util/spellfix.mjs": "440b65c9b2c6113898c68b3c0963857d0eae9a7297e959327472d2dc7ac8a0fc",
    "sop/dictionary.mjs": "2f8262691607e098f33e1cb85ea08c5c6796a60be6a5162a842aba5e8a9af333",
    "training/python/ud_parse_worker.py": "ce5af380c99a7efb9e0c8112f877dd49cf429ab9a6c5d8cefc8444ff28927eb0",
-   "lib/ud-to-sop/analyze.mjs": "a8863315aa6bef8eb44c40f830deaaf7fc3df31fe30ac8857548e909f352ac78",
-   "lib/ud-to-sop/emit.mjs": "62bf950f4f9f4d77da82168cff92f98f85356a4535528889394d5f1e297a03cf",
-   "lib/ud-to-sop/index.mjs": "689598552f1be578fe431d5743c17f6d7042cf4ee830c1acaa7569a86d1d3b07",
-   "lib/ud-to-sop/labels.mjs": "7079726685ee5be352cdf48dc533490d4f583c116107a550049e0d660909fd02",
-   "lib/ud-to-sop/lexicon.mjs": "dc56e72a4c84fd0c85db3c021a850c840c6a212f0ac07b07bfa2dc034c3fc4bf",
+   "lib/ud-to-sop/analyze.mjs": "62b4d4b7e849328d3e7f3f3a70f64882ac2b9c979a722c82fc17a44c9eb3bc94",
+   "lib/ud-to-sop/emit.mjs": "6bc754420ffa763790f36d5ac27ff0b2342ae65392c518db8417db3bcb97d516",
+   "lib/ud-to-sop/index.mjs": "3853b77baf18d623bf2f72d36be30df8758ee5c149c538da7607599bf5afe49e",
+   "lib/ud-to-sop/labels.mjs": "e241e615c1b218cdbb48481af820114072069f27d0dfae54db01e6188670d6d1",
+   "lib/ud-to-sop/lexicon.mjs": "57a84299185e07b0e9de4144d01965f544b9985e6ec08e872ddc1ffea7056221",
    "lib/ud-to-sop/numeric.mjs": "f78bd2ffc8c62d437511795b3698d61bba00773c480d57479d7fc3ecfc98f181",
    "lib/ud-to-sop/protect.mjs": "1fd7583b7ab737d2f08eddbf8d3376fa23a8f85ddf7fc4451c7d28648c35e0c3",
    "lib/ud-to-sop/repair.mjs": "2b0ed2d460771ee1fb45106fd1250f3555f4a78e659f0f88d4b60f6d5c2ee5e3",
-   "lib/ud-to-sop/stanza.mjs": "94c0d3ee717ef5d421bd01f8e473913b3e2b5cacaa9a6940305267d0ba758f8c",
+   "lib/ud-to-sop/stanza.mjs": "ee022052f9808b746280b8dfb86fd11e82819efa285a7acdaa65054b5388582e",
    "lib/ud-to-sop/tree.mjs": "aa0cb4823aa54f650dd0425c28c5559e504f6dd0e31d0780ca91dd0578c48405",
-   "config/symbolic-lm.json": "50cd0a2f89837ab3d6250ed653c0704087f68d5cd987d4be871ddbf117152da4"
+   "config/symbolic-lm.json": "50cd0a2f89837ab3d6250ed653c0704087f68d5cd987d4be871ddbf117152da4",
+   "lib/ud-to-sop/device.mjs": "bb6614cac58d3a0f6da0cfdb124766a9c527cc9c1419106be76aa20da923c20f",
+   "lib/ud-to-sop/filenames.mjs": "991b0ece1aec296134f051695ad58da4ae3f4fbaf01ac636ca031df63926f756",
+   "lib/ud-to-sop/reasoning-forms.mjs": "b1c9c3187add7eeaad683d80fec2b67a0b078286a516abf753d184bb7dbc0f05"
   }
  },
  "sources": {
@@ -127,5 +130,5 @@
   "rule": "symbolic_english: every sentence has identical default/accurate trees and DeepSeek conditions a and c good; neuro_english otherwise; no analysis or an unparsed span: the SOP rules decide",
   "decision": "status/journal.jsonl 2026-09-30 night, incident: symbolic/neuro split used SOP match instead of the grammatical analysis"
  },
- "baseline_updated_at": "2026-09-30T23:02:00.907Z"
+ "baseline_updated_at": "2026-10-01T15:46:35.040Z"
 }

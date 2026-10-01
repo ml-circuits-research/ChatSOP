@@ -7,8 +7,8 @@
  "purpose": "Correct English whose SymbolicLM grammatical analysis is correct (every sentence: identical default and accurate Stanza trees and the DeepSeek parse judge, conditions a and c, good enough). Each row stores the message, SymbolicLM grammatical analysis (compact UD parse) and, for the later layer, the SOP Lang output with its gold comparison (sop_layer). A regression suite: whenever SymbolicLM, the Stanza model or the engine changes, every row must still be analysed the same or better (node tools/symbolic-regression.mjs). Also the inventory of forms SymbolicProofingLLM should rewrite into.",
  "path": "eval/suites/symbolic_english/test.jsonl",
  "rows": 1605,
- "sha256": "6448c13f58dc2a6fa3ded8f1271c19de2f6b2108afa2cb8ad150aa2a043085bc",
- "bytes": 4818782,
+ "sha256": "ffc3468c3924d586af23934fd07fc2dd9cfe17ce52d7975881fbc7f724483e83",
+ "bytes": 4832916,
  "counts": {
   "rows": 1605,
   "by_source": {
@@ -29,5 +29,5 @@
  },
  "sources": "eval/suites/{formalizer-v1,formalizer-ood-v1,formalizer-wild-v1,proofing} and the owner-sealed writers of datasets_sources/new_cases (rule 9: only here, never in train/dev)",
  "built_at": "2026-09-30T21:38:54.681Z",
- "baseline_updated_at": "2026-09-30T23:02:00.907Z"
+ "baseline_updated_at": "2026-10-01T15:46:35.040Z"
 }
