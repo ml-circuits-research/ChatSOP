@@ -1,0 +1,73 @@
+{
+  "format": "chatsop-owner-approval-scope-v1",
+  "journal_event": {
+    "file": "status/journal.jsonl",
+    "ts": "2026-10-01T08:35:47.088Z",
+    "area": "training",
+    "state": "decision",
+    "actor": "orchestrator",
+    "title": "Owner approves the gloss LanguageProofingLLM run with the fast recipe"
+  },
+  "further_decisions": [
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-10-01T06:26:17.334Z",
+      "actor": "orchestrator",
+      "title": "Owner approves production trainings: LanguageProofingLLM all-vocabulary build and gloss post-edit variant"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T17:41:07.339Z",
+      "actor": "orchestrator",
+      "title": "Owner allows parallel GPU training runs when faster than serial"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T17:46:38.134Z",
+      "actor": "orchestrator",
+      "title": "Owner: the fallback base is Gemma 3 1B (LoRA), not Qwen"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T19:58:29.661Z",
+      "actor": "orchestrator",
+      "title": "Owner: evaluate layer by layer; for now NL and grammatical analysis, not SOP translation"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T22:48:59.650Z",
+      "actor": "orchestrator",
+      "title": "Owner: remove Qwen3-1.7B from the chat; compare proofing LLMs only on our synthetic data and against their untrained base"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T22:54:36.651Z",
+      "actor": "orchestrator",
+      "title": "Night loop: LanguageProofingLLM iteration-2 data via DeepSeek back-generation with vocabulary coverage (owner 2026-10-01: iterate until morning so both proofing LLMs are very good)"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-10-01T03:35:42.309Z",
+      "actor": "language-proofing-it3-agent",
+      "title": "Owner decision of 2026-10-01 (transcribed from the orchestrator brief): one more LanguageProofingLLM iteration is allowed under conditions"
+    }
+  ],
+  "approved_models": [
+    "gemma"
+  ],
+  "role": "proofreader",
+  "experiment": "train-language-proofing-gloss-gemma270m",
+  "order": "Gemma 3 270M IT only (LoRA), from the BASE (no warm start from prod1), recipe config/train-gemma-fast.json (micro-batch 16 x accumulation 1, effective batch 16). RESEARCH run: LanguageProofingLLM gloss post-edit variant (datasets/bad_english/proofing-gloss), 8 words held out. Interim greedy check after each epoch, full-dev decode at the end. The chat is NOT switched. No other training.",
+  "corpus": "bad_english/proofing-gloss",
+  "conditions": [
+    "the dataset qualification record status/training/qualification-language-proofing-gloss.json is status 'qualified'",
+    "preregistration status/preregistrations/train-language-proofing-gloss-gemma270m.json is frozen before any optimizer step (deviations appended)",
+    "one GPU training job at a time (models/.training.lock)",
+    "judging follows the routing rule: Grok for meaning, GLM for parse, DeepSeek only as a fallback"
+  ],
+  "receipts": "LP_RECIPE=config/train-gemma-fast.json LP_QUAL=status/training/qualification-language-proofing-gloss.json LP_SCOPE=status/training/owner-approval-language-proofing-gloss.json CHATSOP_ACTOR=gloss-train-agent node tools/research/qualify-language-proofing-v2.mjs --authorize gemma --run language-proofing-gloss-gemma270m --decision-ts 2026-10-01T08:35:47.088Z",
+  "scope_written_by": "production-proofing-agent, from the orchestrator brief that quotes the owner (journal event 2026-10-01T06:26:17.334Z)",
+  "owner_quote": "aprob gloss cu retea rapida, daca esti sugur, fa ce e mai rapid (owner, chat, 2026-10-01)",
+  "recipe": "config/train-gemma-fast.json: identical to config/train-gemma.json except batch_size 16 and gradient_accumulation 1 (effective batch 16 unchanged); fallback 8 x 2 on out-of-memory, recorded as a deviation",
+  "scope_updated_by": "gloss-train-agent"
+}

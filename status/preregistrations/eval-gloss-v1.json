@@ -1,0 +1,46 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-gloss-v1",
+ "name": "TranslatorService mode `gloss`: a morphology-aware word-by-word Romanian to English gloss as the input of LanguageProofingLLM (measurement of the gloss itself, no training)",
+ "registered_at": "2026-10-01T05:51:00.000Z",
+ "registered_by": "gloss-agent",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "frozen_before_results": "NOT frozen before the first measurements: the gloss was developed iteratively on the dev2300 sample and its read sub-samples (seeds 3, 5, 11, 21, 22) and the dev held-out words, so those numbers are development numbers. This record was written after the code was frozen (lib/translator-service/backends/gloss.mjs sha256 ab6ffb49a2f779d880e4cae7bdeeeedf7b71aa3ee388c2e3a0d8b41ae9270187, symbolic.mjs b8fd5bd6...) and before the final runs reported in the summary; the final runs used only the frozen code. The two read samples reported as accuracy (seed 99, 50 Romanian sentences; seed 98, 30 mixed sentences, both from the full dev split) and the niche probe of eval-translator-compare-v1 were read after the freeze. The romglish probe (30 sentences) was written by the author of the rules and is a demonstration, not an independent test.",
+ "owner_request": "Owner idea 2026-10-01 (translated): use the dictionaries intelligently; recognise the grammatical forms, do a word-by-word translation Romanian-English in the grammatically correct forms; would that be enough for LanguageProofingLLM to rephrase it into decent, useful English? Follow-up of the same day: the gloss must also work on romgleza.",
+ "questions": [
+  "Q1: how much of the Romanian content vocabulary does the gloss translate (coverage) and how often is the chosen English word right (read samples)?",
+  "Q2: do the words held out from iteration 2 (and the eight words held out from iteration 3) appear in the gloss, and does feeding the gloss to the existing iteration-2 model (no retraining) raise vocabulary accuracy?",
+  "Q3: how often does the gloss alone pass the clean-English gate and the analysis gate?",
+  "Q4: does the gloss handle mixed text (English frame, Romanian frame, English stems with Romanian enclitics, Romanian-inflected English verbs)?",
+  "Q5: end-to-end chain latency and agreement with the message-only chain."
+ ],
+ "hypotheses": {
+  "H1": "Held-out words: the target word is present in the gloss alone in more outputs than in the unrewritten message, with a paired bootstrap 95% interval above 0 (ten words, 574 pairs; eight words, 830 pairs).",
+  "H2": "The untrained iteration-2 model keeps the glossed words (it raises its own rate on the ten held-out words), but it is not a post-editor of the gloss: on the chain proxy the gloss chain is not better than the message-only chain.",
+  "H3": "The gloss alone passes the clean-English gate in at least 95% of the repair units of the dev sample.",
+  "non_claim": "Not a claim about translation quality in general: coverage is that of the host dictionary on the vocabulary of this synthetic corpus (whose generator vocabulary is part of the dictionary); out-of-domain accuracy is the niche probe."
+ },
+ "arms": [
+  {
+   "name": "no rewrite"
+  },
+  {
+   "name": "gloss alone, one sense"
+  },
+  {
+   "name": "gloss alone, two senses (a/b)"
+  },
+  {
+   "name": "iteration-2 GGUF Q8_0 on the message"
+  },
+  {
+   "name": "iteration-2 GGUF Q8_0 on the gloss"
+  }
+ ],
+ "data": {
+  "files": "eval/reports/current/language-proofing-it2/inputs-*.jsonl equivalents through tools/eval/language-proofing-eval.mjs loadSplit (dev2300, dev2 full, heldout, probe, mash), datasets/bad_english/proofing-it3/dev-heldout-v3.jsonl, eval/reports/current/translator-compare/niche-probe.jsonl, eval/reports/current/gloss/probe-romglish.jsonl",
+  "sealed": "none read"
+ },
+ "evaluation": "tools/eval/gloss-eval.mjs (gloss, via, coverage, sample), tools/eval/language-proofing-eval.mjs score, tools/eval/language-proofing-v3-metrics.mjs words and paired, tools/eval/gloss-pipeline.mjs; parse judge GLM through an omp task folder (datasets_sources/gloss_parse_judge)",
+ "deviations": []
+}

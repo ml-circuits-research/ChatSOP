@@ -1,0 +1,52 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ChatSOP Documentation</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="help.css"></head><body><div data-include="../partials/header.html" data-link-base="../"></div><main class="wire-help"><p><a href="../wire_types.html#pragmatic" target="_top">Wire index</a> · <a href="unparsed.html">unparsed</a> · <a href="stated.html">stated</a> · <a href="clarify.html">clarify</a> · <a href="small-model.html">model/host roles</a></p><h1><code>pragmatic</code></h1>
+<p>A <code>pragmatic</code> wire is <strong>one advisory signal about the pragmatic or emotional role</strong> of a message or of a span of it: a greeting, thanks, urgency, a hedge, frustration, a possible irony. It is emitted by the host's <strong>EmotionDetectionSystem</strong> after the model, never authored by the small formalizer (the model language is unchanged: <code>stated</code>, <code>assumed</code>, <code>unclear</code>, <code>query</code>, <code>constraint</code>, <code>unparsed</code>). A signal is the system's <strong>subjective perception</strong>: useful symbolic input for the reasoner, not 100% verifiable, never a fact about the world, never evidence, never stored and never carried to a later turn. The normative contract is <a href="../specsLoader.html?spec=DS029-emotion-detection.md" target="_top">DS029</a>.</p>
+<p>The reasoner may use the signals only to regulate itself: urgency asks for a shorter answer and a faster strategy; frustration, anger or confusion re-check the previous interpretation or offer a clarification; a hedge makes the hedged statement a supposition (consistent with <code>certainty hedged</code>); a greeting or thanks without content gets a short courtesy reply and no computation; a possible irony forbids acting on the literal meaning without confirmation. The runtime reports the wire as <code>{status: "pragmatic", advisory: true, kind, score, span, source, basis, near}</code> and changes nothing else.</p>
+<h2>Every accepted keyword</h2><table><thead><tr><th>Keyword</th><th>Cardinality / default</th><th>Accepted value and concrete effect</th></tr></thead><tbody><tr><td id="field-kind"><code>kind</code></td><td>Exactly once; required</td><td>One kind of the closed set: <code>greeting</code>, <code>closing</code>, <code>thanks</code>, <code>apology</code>, <code>politeness</code>, <code>urgency</code>, <code>frustration</code>, <code>anger</code>, <code>confusion</code>, <code>curiosity</code>, <code>joy</code>, <code>sadness</code>, <code>fear</code>, <code>disappointment</code>, <code>hedge</code>, <code>emphasis</code>, <code>profanity</code>, <code>offensive</code>, <code>irony_possible</code>, <code>confirmation_request</code> (a tag question such as "right?"), <code>topic_shift</code> (a discourse marker such as "by the way") or <code>unclassified</code> (a pragmatic span that no strategy could name; the host does not emit it by default).</td></tr><tr><td id="field-score"><code>score</code></td><td>Exactly once; required</td><td>The strategy's confidence as a decimal from 0 to 1 with at most three digits (<code>0.82</code>, <code>1</code>); <code>pragmatic_score_form</code> otherwise. It is the strategy's own estimate, not a calibrated probability; the host drops signals under <code>minScore</code> (default 0.5) and, per kind, the strategies whose measured precision is too low (<code>config/emotion-detection.json</code>).</td></tr><tr><td id="field-span"><code>span</code></td><td>At most once; optional</td><td>One nonempty JSON-quoted <strong>verbatim</strong> part of the message, at most 200 characters (<code>pragmatic_span_form</code>), that carries the signal. Without <code>span</code> the signal describes the whole message (a classifier reading the whole text). A leftover span of SymbolicLM that a strategy classifies appears here, and the matching <a href="unparsed.html"><code>unparsed</code></a> wire is dropped; a span that stays unclassified remains <code>unparsed</code>.</td></tr><tr><td id="field-near"><code>near</code></td><td>At most once; optional</td><td><code>near $id</code>: the wire the signal modifies (for example the hedged <code>stated</code>); one <code>$id</code> naming a wire of the same program (<code>link_form</code>; an unknown name fails the graph check). Without <code>near</code> the signal concerns the message as a whole.</td></tr><tr><td id="field-source"><code>source</code></td><td>Exactly once; required</td><td>The id of the strategy or model that produced the signal, lowercase letters, digits and underscore (<code>symbolic</code>, <code>go_emotions</code>, <code>toxic_bert</code>, <code>llm</code>).</td></tr><tr><td id="field-basis"><code>basis</code></td><td>Exactly once; required</td><td>How the signal was found, from a closed set: <code>lexicon</code> (a word or phrase list), <code>pattern</code> (punctuation, case, emoji or a syntactic pattern such as a tag question), <code>classifier</code> (a neural classifier) or <code>llm</code> (a language model). Descriptive only; the reasoner never uses <code>basis</code> for trust.</td></tr></tbody></table>
+<h2>Courtesy before a question</h2><p class="example-message"><span class="lang">EN</span> “Hi! Could you please tell me where Ana works? Thanks a lot!!!”</p><pre data-sop="current"><code>@p1 pragmatic
+  kind greeting
+  score 0.9
+  span "Hi"
+  source symbolic
+  basis lexicon
+
+@p2 pragmatic
+  kind politeness
+  score 0.85
+  span "Could you please"
+  source symbolic
+  basis lexicon
+
+@p3 pragmatic
+  kind thanks
+  score 0.95
+  span "Thanks a lot"
+  source symbolic
+  basis lexicon</code></pre><p>The greeting, the polite frame and the thanks are classified instead of staying <code>unparsed</code>; the question itself is formalized by SymbolicLM as usual. The three signals ask for no computation of their own.</p>
+<h2>A hedge attached to a statement, in Romanian</h2><p class="example-message"><span class="lang">RO</span> “Cred că Ana lucrează la Alpha.”</p><pre data-sop="current"><code>@s1 stated
+  relation "lucra la"
+  role subject "Ana"
+  role object "Alpha"
+  polarity affirmed
+  certainty hedged
+
+@p1 pragmatic
+  kind hedge
+  score 0.8
+  span "Cred că"
+  near $s1
+  source symbolic
+  basis lexicon</code></pre><p>The hedge is consistent with <code>certainty hedged</code> on the statement: the reasoner treats the statement as a supposition, never as evidence.</p>
+<h2>A whole-message signal from a classifier</h2><pre data-sop="current"><code>@p1 pragmatic
+  kind frustration
+  score 0.82
+  source go_emotions
+  basis classifier</code></pre><p>Without <code>span</code> the signal describes the whole message ("ugh, again?!"): the reasoner re-checks its previous interpretation.</p>
+<h2>An unknown kind is rejected</h2><p>The kinds are a closed set; a free label such as <code>annoyed</code> is not a kind.</p><pre data-sop="invalid" data-check="parse" data-error="pragmatic kind must be one of"><code>@p1 pragmatic
+  kind annoyed
+  score 0.8
+  source symbolic
+  basis lexicon</code></pre><h2>The model may not author it</h2><p>The small model writes only <code>stated</code>, <code>assumed</code>, <code>unclear</code>, <code>query</code>, <code>constraint</code> and <code>unparsed</code>; the declarative compiler rejects a <code>pragmatic</code> wire in model output.</p><pre data-sop="invalid" data-check="compile" data-error="belongs to symbolic execution"><code>@p1 pragmatic
+  kind thanks
+  score 0.9
+  source symbolic
+  basis lexicon</code></pre><p><strong>Implementation sources:</strong> <code>sop/parser.mjs</code> (<code>SPEC.pragmatic</code>), <code>sop/enums.mjs</code> (<code>PRAGMATIC_KINDS</code>, <code>PRAGMATIC_BASES</code>), <code>sop/runtime.mjs</code> (<code>case 'pragmatic'</code>), <code>lib/emotion-detection/</code>.</p></main><script type="module" src="help-page.mjs"></script></body></html>

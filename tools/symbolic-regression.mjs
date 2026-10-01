@@ -27,6 +27,7 @@ import {fileURLToPath} from 'node:url';
 import {readJsonlShardedSync, jsonlExists} from '../lib/jsonl-shards.mjs';
 import {SymbolicLM, createSymbolicLM, stanzaModelId} from '../lib/symbolic-lm/index.mjs';
 import {classifyRow, currentOf, emptyCounts, FAILING_CLASSES} from '../lib/symbolic-lm/regression.mjs';
+import {hasGoldMatch} from './datasets/three-datasets/rows.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const DATASET = 'symbolic_english';
@@ -98,7 +99,7 @@ async function goldStillMatches(changed) {
 export async function compareRows(rows, results, {rescoreGold = true} = {}) {
   let classes = new Map(rows.map(row => [row.id, classifyRow(row, results.get(row.id))]));
   if (rescoreGold) {
-    const changed = rows.filter(row => row.analysis_verified === 'gold_sop_match' && ['sop_changed', 'now_failing'].includes(classes.get(row.id)) && results.get(row.id).sop_valid && results.get(row.id).sop !== row.sop)
+    const changed = rows.filter(row => hasGoldMatch(row) && ['sop_changed', 'now_failing'].includes(classes.get(row.id)) && results.get(row.id).sop_valid && results.get(row.id).sop !== row.sop)
       .map(row => ({row, now: results.get(row.id)}));
     if (changed.length) {
       const still = await goldStillMatches(changed);
@@ -128,7 +129,8 @@ function rewriteBaseline(rows, updates, splits) {
         const now = updates.get(row.id);
         return now ? {...row, analysis: now.analysis, sop: now.sop, sop_valid: now.sop_valid, outcome: now.outcome, unparsed: now.unparsed, symbolic_lm: {...row.symbolic_lm, stanza: parser}} : row;
       });
-      const written = await writeSplit(DATASET, split, part);
+      // the sealed test lives only under eval/suites (AGENTS.md rule 9): never write datasets/<name>/test.jsonl
+      const written = await writeSplit(DATASET, split, part, split === 'test' ? {base: path.join(ROOT, splitFile('test'))} : undefined);
       const patch = {sha256: {[written.path]: written.sha256}, bytes: {[written.path]: written.bytes}, baseline_updated_at: new Date().toISOString(), symbolic_lm: {stanza: parser, code_sha256: codeHashes()}};
       updateManifest(DATASET, patch);
       if (split === 'test') {
@@ -144,7 +146,8 @@ function rewriteBaseline(rows, updates, splits) {
 
 async function recordFixture(o) {
   const n = Number(o.n ?? 12);
-  const all = readRows(['train']).filter(r => r.analysis_verified === 'gold_sop_match');
+  const {maskMessage} = await import('../lib/ud-to-sop/index.mjs');
+  const all = readRows(['train']).filter(r => r.analysis_verified === 'analysis_gate' && hasGoldMatch(r) && maskMessage(r.message) === r.message); // rows whose analysis passed the gate and whose SOP matches the gold
   const step = Math.max(1, Math.floor(all.length / n));
   const rows = Array.from({length: n}, (_, i) => all[i * step]).filter(Boolean);
   const lm = await createSymbolicLM({device: 'cpu'});
@@ -154,7 +157,7 @@ async function recordFixture(o) {
   try { for (const row of rows) await lm.analyze(row.message, {route: 'direct', language: 'en'}); } finally { await lm.stop(); }
   const file = path.join(ROOT, 'tests/fixtures/symbolic-english/sample.json');
   fs.mkdirSync(path.dirname(file), {recursive: true});
-  fs.writeFileSync(file, JSON.stringify({note: 'Recorded by `node tools/symbolic-regression.mjs record-fixture`: symbolic_english train rows verified against their gold SOP and the Stanza parses of their messages, so the regression runner can be tested without Python.', stanza: stanzaModelId(), rows, parses}, null, 1) + '\n');
+  fs.writeFileSync(file, JSON.stringify({note: 'Recorded by `node tools/symbolic-regression.mjs record-fixture`: symbolic_english train rows whose analysis passed the gate and whose SOP matches the gold SOP, and the Stanza parses of their messages, so the regression runner can be tested without Python.', stanza: stanzaModelId(), rows, parses}, null, 1) + '\n');
   console.log(`recorded ${rows.length} rows, ${Object.keys(parses).length} parses -> tests/fixtures/symbolic-english/sample.json`);
 }
 
@@ -163,11 +166,19 @@ async function recordParses(o) {
   const rows = readRows(String(o.split ?? 'train,dev,test').split(','));
   const lm = await createSymbolicLM({device: o.device ?? 'cpu', threads: Number(o.threads ?? 4)});
   const parses = {};
-  const request = lm.worker.request.bind(lm.worker);
+  const request = lm.worker.request.bind(lm.worker), parseMany = lm.worker.parseMany.bind(lm.worker);
   lm.worker.request = async payload => { const answer = await request(payload); parses[`${payload.language ?? 'auto'}|${payload.text}`] = answer.parse; return answer; };
+  lm.worker.parseMany = async (texts, languages = []) => { const answer = await parseMany(texts, languages); texts.forEach((text, i) => { parses[`${languages[i] ?? 'auto'}|${text}`] = answer.parses[i]; }); return answer; };
   let done = 0;
-  try { for (const row of rows) { try { await lm.analyze(row.message, {route: 'direct', language: 'auto'}); } catch { /* the replay reports the crash */ } if (++done % 200 === 0) process.stderr.write(`\r${done}/${rows.length}`); } }
-  finally { await lm.stop(); }
+  // Batches of 64 messages (`analyzeMany`): one GPU pass per batch instead of one request per message; same parses.
+  try {
+    for (let i = 0; i < rows.length; i += 64) {
+      const chunk = rows.slice(i, i + 64).map(r => r.message);
+      try { await lm.analyzeMany(chunk, {route: 'direct', language: 'auto'}); } catch { for (const m of chunk) { try { await lm.analyze(m, {route: 'direct', language: 'auto'}); } catch { /* the replay reports the crash */ } } }
+      done += chunk.length;
+      process.stderr.write(`\r${done}/${rows.length}`);
+    }
+  } finally { await lm.stop(); }
   const file = path.resolve(ROOT, o.out ?? path.join(REPORT_DIR, 'parses.json'));
   fs.mkdirSync(path.dirname(file), {recursive: true});
   fs.writeFileSync(file, JSON.stringify({note: 'Stanza parses of every symbolic_english row, recorded by `node tools/symbolic-regression.mjs record-parses`; replay with --replay.', stanza: stanzaModelId(), device: o.device ?? 'cpu', recorded_at: new Date().toISOString(), parses}) + '\n');

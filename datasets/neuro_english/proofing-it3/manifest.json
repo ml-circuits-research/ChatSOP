@@ -1,0 +1,252 @@
+{
+ "format": "chatsop-proofing-pairs-v1",
+ "dataset": "neuro_english",
+ "model": "SymbolicProofingLLM",
+ "role": "proofreader",
+ "prompt_profile": "message-only",
+ "iteration": 3,
+ "unit": "one sentence (host splitter lib/sentence-split.mjs) in, one or several simple sentences out",
+ "prompt": "row.prompt verbatim: one clean-English sentence and nothing else (DS021 message-only input, no instruction wrapper, no system role); training/python/common.py chat_ids()",
+ "target": "row.target verbatim: the verified limited-English rewrite (repair, one or several sentences) or the identical sentence (identity)",
+ "created": "2026-10-01T02:55:43.474Z",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "policy": {
+  "identity_share_min": 0.5,
+  "identity_over_repair": 1.25,
+  "filler_identity_cap": 1200,
+  "max_total_tokens": 400,
+  "max_target_sentences": 8,
+  "max_prompt_chars": 400,
+  "origin_priority": [
+   "proofing",
+   "decomp",
+   "backgen"
+  ],
+  "seed": "symbolic-proofing-it2-v1",
+  "rules": "v3",
+  "version": "it3"
+ },
+ "sources": {
+  "datasets/neuro_english/proofing": "rebuilt analysis-layer pairs, cut into sentence units",
+  "datasets/neuro_english/proofing-backgen": "back-generated pairs re-checked against the new symbolic_english split",
+  "datasets/symbolic_english": "identity sentences",
+  "datasets_sources/decomp_backgen": "tangled sentence -> original short sentences (DeepSeek omp task)"
+ },
+ "files": {
+  "train.jsonl": {
+   "rows": 11241,
+   "sha256": "6fb0d9f9de1a6abdb875e40b34c32ab7d42035b956821a4a391186b376e8fd73"
+  },
+  "dev.jsonl": {
+   "rows": 1445,
+   "sha256": "564213d5df228b157ca392fd63c8f1f7675cb6239f95264c979e21cf30db9103"
+  },
+  "audit.jsonl": {
+   "rows": 12686,
+   "sha256": "6dd32f60b44cf85e25806cc030e380c5db9956c102743d4627a08ae86da2faac"
+  },
+  "proofreader/train.jsonl": {
+   "rows": 11241,
+   "sha256": "6fb0d9f9de1a6abdb875e40b34c32ab7d42035b956821a4a391186b376e8fd73"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 1445,
+   "sha256": "564213d5df228b157ca392fd63c8f1f7675cb6239f95264c979e21cf30db9103"
+  }
+ },
+ "sealed_test": {
+  "path": "eval/suites/neuro_english/proofing-test.jsonl",
+  "rows": 1234,
+  "sha256": "158d1875fed658548e75dfd668724b2fdee5af5d36456ec53703cb5b102b94ea"
+ },
+ "summary": {
+  "train": {
+   "pairs": 11241,
+   "by_kind": {
+    "repair": 4996,
+    "identity": 6245
+   },
+   "identity_share": 55.6,
+   "by_origin": {
+    "repair:proofing": 1710,
+    "repair:decomp": 617,
+    "identity:backgen_identity": 2750,
+    "repair:backgen": 2669,
+    "identity:symbolic": 3495
+   },
+   "repair_by_paraphrase_kind": {
+    "composed": 25,
+    "coordination": 751,
+    "relative_clause": 331,
+    "apposition": 24,
+    "complement": 7,
+    "fronting": 1024,
+    "deepseek-flash": 1672,
+    "reorder": 212,
+    "nominalization": 138,
+    "casual": 234,
+    "embedded_question": 293,
+    "passive": 121,
+    "lead_in": 151,
+    "dataset_target": 13
+   },
+   "repair_by_target_sentences": {
+    "1": 3549,
+    "2": 1106,
+    "3": 219,
+    "4": 95,
+    "5": 26,
+    "6": 1
+   },
+   "decomposition_pairs": 1400,
+   "decomposition_with_short_target_sentences": 384,
+   "repair_with_two_or_more_target_sentences": 1447,
+   "filler_or_tag_units": 2661,
+   "filler_or_tag_identity": 2004,
+   "tokens_total": {
+    "n": 11241,
+    "min": 17,
+    "p50": 38,
+    "p90": 58,
+    "p99": 85,
+    "max": 120
+   }
+  },
+  "dev": {
+   "pairs": 1445,
+   "by_kind": {
+    "repair": 642,
+    "identity": 803
+   },
+   "identity_share": 55.6,
+   "by_origin": {
+    "repair:proofing": 260,
+    "repair:decomp": 64,
+    "identity:backgen_identity": 401,
+    "repair:backgen": 318,
+    "identity:symbolic": 402
+   },
+   "repair_by_paraphrase_kind": {
+    "composed": 1,
+    "coordination": 74,
+    "relative_clause": 40,
+    "apposition": 3,
+    "complement": 1,
+    "fronting": 130,
+    "deepseek-flash": 256,
+    "nominalization": 19,
+    "casual": 20,
+    "lead_in": 22,
+    "embedded_question": 32,
+    "passive": 21,
+    "reorder": 20,
+    "dataset_target": 3
+   },
+   "repair_by_target_sentences": {
+    "1": 450,
+    "2": 153,
+    "3": 16,
+    "4": 12,
+    "5": 10,
+    "6": 1
+   },
+   "decomposition_pairs": 188,
+   "decomposition_with_short_target_sentences": 91,
+   "repair_with_two_or_more_target_sentences": 192,
+   "filler_or_tag_units": 327,
+   "filler_or_tag_identity": 250,
+   "tokens_total": {
+    "n": 1445,
+    "min": 19,
+    "p50": 37,
+    "p90": 59,
+    "p99": 87,
+    "max": 99
+   }
+  }
+ },
+ "selection": {
+  "train": {
+   "repair": 4996,
+   "identity": 6245,
+   "identity_share": 55.6,
+   "identity_quota": 6245,
+   "identity_by_origin": {
+    "backgen_identity": 2750,
+    "symbolic": 3495
+   },
+   "identity_filler_or_tag": 2004,
+   "identity_available": 8765
+  },
+  "dev": {
+   "repair": 642,
+   "identity": 803,
+   "identity_share": 55.6,
+   "identity_quota": 803,
+   "identity_by_origin": {
+    "backgen_identity": 401,
+    "symbolic": 402
+   },
+   "identity_filler_or_tag": 250,
+   "identity_available": 1223
+  }
+ },
+ "dropped": {
+  "gates": {
+   "target_gate_fail:proofing": 83,
+   "meaning_no": 140,
+   "sealed_overlap": 1582,
+   "repair_prompt_already_passes:proofing": 330,
+   "identity_gate_fail:backgen_identity": 12,
+   "target_gate_fail:backgen": 3247,
+   "repair_prompt_already_passes:backgen": 29,
+   "identity_gate_fail:symbolic": 74,
+   "repair_prompt_already_passes:decomp": 265
+  },
+  "composition": {
+   "duplicate_prompt": 10
+  },
+  "token_budget": 0
+ },
+ "recovered_vs_v2": {
+  "candidates": {
+   "pronoun_dropped": 860,
+   "filler_dropped": 543,
+   "question_mark": 497,
+   "name_lost": 199,
+   "content_added": 131,
+   "statement_to_question": 101,
+   "numbers": 37,
+   "negation": 32,
+   "name_added": 11
+  },
+  "kept_after_gates": {
+   "pronoun_dropped": 349,
+   "question_mark": 277,
+   "filler_dropped": 269,
+   "name_lost": 107,
+   "statement_to_question": 47,
+   "content_added": 47,
+   "negation": 29,
+   "numbers": 13,
+   "name_added": 8
+  },
+  "in_final_set": {
+   "pronoun_dropped": 349,
+   "question_mark": 277,
+   "filler_dropped": 269,
+   "name_lost": 105,
+   "statement_to_question": 47,
+   "content_added": 47,
+   "negation": 29,
+   "numbers": 13,
+   "name_added": 8
+  },
+  "totals": {
+   "candidates": 2259,
+   "kept_after_gates": 1062,
+   "in_final_set": 1060
+  }
+ }
+}

@@ -1,0 +1,65 @@
+{
+ "format": "chatsop-proofing-pairs-v1",
+ "dataset": "neuro_english",
+ "model": "SymbolicProofingLLM",
+ "role": "proofreader",
+ "prompt_profile": "message-only",
+ "iteration": 3,
+ "variant": "mix",
+ "status": "qualified; training authorized by the owner decision of 2026-10-01T08:47:38.988Z (receipt status/training/authorization-gemma-symbolic-proofing-gemma270m-it3.json)",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "created": "2026-10-01T08:50:24.874Z",
+ "purpose": "training set of SymbolicProofingLLM iteration 3: neuro_english/proofing-it3 (pair rules v3, the it2 mix) plus the decomposition top-up neuro_english/proofing-it3-decomp, concatenated per split without changes; so the new decomposition rows do not make the model forget the repairs and identity pairs of it2",
+ "components": {
+  "neuro_english/proofing-it3": {
+   "train": 11241,
+   "dev": 1445,
+   "manifest_sha256": "2b81dd533d48b9e2378bee817dc8b6b824926c706f901193ee912fe5772a7edb"
+  },
+  "neuro_english/proofing-it3-decomp": {
+   "train": 3246,
+   "dev": 326,
+   "manifest_sha256": "8910ad89fe9c78ecd6f66a061c87188f5ece39e997ea9a6b0de6fb1d275627f6"
+  }
+ },
+ "dropped_duplicate_prompts": {
+  "decomp/train": 3,
+  "decomp/dev": 2
+ },
+ "dropped_sealed_overlap": [
+  "proofing-diverse-dev::fv1_031108_0_0_lp1",
+  "sym::formalizer-v1::fv1_012491_0_0@s0"
+ ],
+ "summary": {
+  "train": 14482,
+  "dev": 1769,
+  "by_split_kind": {
+   "train/repair+decomp": 3865,
+   "train/repair": 4373,
+   "train/identity": 6243,
+   "train/identity+decomp": 1,
+   "dev/repair": 578,
+   "dev/repair+decomp": 388,
+   "dev/identity": 803
+  }
+ },
+ "files": {
+  "train.jsonl": {
+   "rows": 14482,
+   "sha256": "2ec460dd95ceeeddffe05b4c8ed4c6dd641441a6007316c0c0b60909847a11e0"
+  },
+  "proofreader/train.jsonl": {
+   "rows": 14482,
+   "sha256": "2ec460dd95ceeeddffe05b4c8ed4c6dd641441a6007316c0c0b60909847a11e0"
+  },
+  "dev.jsonl": {
+   "rows": 1769,
+   "sha256": "bae11a584b5ccc990a4b13f6cb3b41054260a69ce4b8684b9ae9ca0fec847cc4"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 1769,
+   "sha256": "bae11a584b5ccc990a4b13f6cb3b41054260a69ce4b8684b9ae9ca0fec847cc4"
+  }
+ }
+}

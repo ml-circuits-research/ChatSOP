@@ -72,7 +72,7 @@ if (fs.existsSync(path.join(root, 'tools/datasets/audit/content-word-overlap.mjs
 if (!flags.has('--no-audit')) {
   const corpora = ['datasets', 'datasets_archive'].filter(dir => fs.existsSync(path.join(root, dir))).flatMap(dir => fs.readdirSync(path.join(root, dir), {withFileTypes: true})
     .filter(entry => entry.isDirectory() && ['train.jsonl', 'dev.jsonl'].some(file => jsonlExists(path.join(root, dir, entry.name, file))))
-    .filter(entry => { try { return JSON.parse(fs.readFileSync(path.join(root, dir, entry.name, 'manifest.json'), 'utf8')).format !== 'chatsop-dataset-manifest-v3'; } catch { return true; } })
+    .filter(entry => { try { return !['chatsop-dataset-manifest-v3', 'chatsop-legacy-resplit-v1'].includes(JSON.parse(fs.readFileSync(path.join(root, dir, entry.name, 'manifest.json'), 'utf8')).format); } catch { return true; } }) // the re-split parts of the legacy suites (tools/eval/legacy-resplit.mjs) are verified through the three datasets
     .map(entry => entry.name)).sort();
   for (const corpus of corpora) {
     const script = path.join(root, 'tools/datasets/audit-corpus.mjs');

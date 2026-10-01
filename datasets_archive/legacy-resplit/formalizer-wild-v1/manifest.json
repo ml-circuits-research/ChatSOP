@@ -1,0 +1,23 @@
+{
+ "format": "chatsop-legacy-resplit-v1",
+ "corpus": "formalizer-wild-v1",
+ "wild": true,
+ "note": "Train and dev parts of a legacy suite, split by split group (DS008 \"Form coverage and form variants\"); the test part stays in the legacy suite file and is read by tools/eval/three-datasets-suites.mjs.",
+ "source": "eval/suites/formalizer-wild-v1/test.jsonl",
+ "seed": "legacy-resplit-v1",
+ "proportions": {
+  "train": 70,
+  "dev": 15,
+  "test": 15
+ },
+ "counts": {
+  "train": 556,
+  "dev": 128,
+  "test": 112
+ },
+ "sha256": {
+  "datasets_archive/legacy-resplit/formalizer-wild-v1/train.jsonl": "a014e5bdf7d85c9a67c904e20d67a4b0c2359feaf9f7093329f36ac6bf7283fc",
+  "datasets_archive/legacy-resplit/formalizer-wild-v1/dev.jsonl": "4b5cea36070bdcb1638b71e8ad9cda6070e39674aa728e2c4b0538d17b2e4025"
+ },
+ "source_sha256": "548d76beceb18f1b9a5e9de3fb65856c9965242e779933a2d666198fe6dff897"
+}

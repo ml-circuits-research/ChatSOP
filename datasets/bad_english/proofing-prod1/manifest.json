@@ -1,0 +1,276 @@
+{
+ "format": "chatsop-proofing-pairs-v1",
+ "dataset": "bad_english",
+ "model": "LanguageProofingLLM",
+ "role": "proofreader",
+ "iteration": "prod1",
+ "prompt_profile": "message-only",
+ "prompt": "row.prompt verbatim: one sentence of a Romanian, mixed or badly written English message (or clean English, or keyboard mash) and nothing else (DS021 message-only input); training/python/common.py chat_ids()",
+ "target": "row.target verbatim: the clean English sentence (repair) or the identical sentence (identity; also for unintelligible keyboard-mash input)",
+ "created": "2026-10-01T06:37:13.076Z",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "backgen_parts": [
+  "000",
+  "001",
+  "002",
+  "003",
+  "004",
+  "005",
+  "006",
+  "007",
+  "008",
+  "009",
+  "010",
+  "011",
+  "012",
+  "013",
+  "014",
+  "015",
+  "016",
+  "017",
+  "018",
+  "019",
+  "020",
+  "021",
+  "022",
+  "023",
+  "024",
+  "025"
+ ],
+ "seed": 20261001,
+ "held_out_vocabulary": [],
+ "trained_vocabulary": [
+  "cousin",
+  "niece",
+  "uncle",
+  "tenant",
+  "supervisor",
+  "tutor",
+  "owe",
+  "adopt",
+  "audit",
+  "boatyard",
+  "nephew",
+  "landlord",
+  "contractor",
+  "postpone",
+  "reject",
+  "bakery",
+  "warehouse",
+  "pharmacy"
+ ],
+ "source_sha256": {
+  "datasets/bad_english/proofing-it3/manifest.json": "1603fb53afaa758777da47b2698d225871f2dd173f878be9b20fa334a301b1fd",
+  "datasets/bad_english/proofing-it3/train.jsonl": "9b0a26e6deacdc1b6e56ff54dda453b48a769b60b0e3db3fed9f8b1a3ab4d352",
+  "datasets/bad_english/proofing-it3/audit.jsonl": "0e8658eeb7dbad19a1a066656c8027a178c6a13e0c0be82e50297dfe1c50b125",
+  "datasets/bad_english/proofing-v3/train.jsonl": "fbb968984826939b47fb34f4f859d4ec6234a114381e8cd14067ca3e1e860041",
+  "datasets/bad_english/proofing-v3/reserve-heldout.jsonl": "dcb2965b2663ca4f42b608bb069ddd08abeeeb46929a7b1df8b4570a3c1d1f28",
+  "datasets/bad_english/proofing-v3/audit.jsonl": "fa62883579f46af23b0776b745c96ec19c0d23abfd1428309c24b3f36ba4b4d9"
+ },
+ "sealed_hashes_sha256": "38a4da4954f2892b75e31fdca0bdb1461842928eea5d7e527828ecc04aa2ac62",
+ "files": {
+  "proofreader/train.jsonl": {
+   "rows": 66587,
+   "sha256": "9e40340ae9ec446d6d8d5f81b98f8daaf702d701a61f79c19b1b81963c8a64d4"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 5173,
+   "sha256": "64f3e613560741761c3b9ce30d158bb806b4dd0285bdf1182d683568a5e70dc7"
+  },
+  "dev-backgen.jsonl": {
+   "rows": 1488,
+   "sha256": "6bfceeefa72138d3881086a1f242c607cad209c1dd3b144c8d63461b7db5ffee"
+  },
+  "dev-heldout.jsonl": {
+   "rows": 574,
+   "sha256": "299ab93ffb46cca469248e0fff11cf809ef8850755c99d2648bb4599f7ea40e9"
+  },
+  "dev-vocab8.jsonl": {
+   "rows": 120,
+   "sha256": "0512bc254a577134462ee27cb705f1113fc02818dff37ef8846a2d4336570be7"
+  },
+  "dev-vocab8-identity.jsonl": {
+   "rows": 100,
+   "sha256": "361746bfae29c52624903c4640f2a42487b05f973537048f1860581c68cd59f7"
+  },
+  "dev-spacing.jsonl": {
+   "rows": 240,
+   "sha256": "ae7de79f73a61fde6c6bb81a5f2f1b4c154f4708371b8493a68d59bbf6b5d819"
+  },
+  "mash-eval.jsonl": {
+   "rows": 150,
+   "sha256": "8e43f809dfe2201f632a68d9a7585cdbb5880c5c9bfbdfb893d0955d4da376e4"
+  },
+  "dev-names.jsonl": {
+   "rows": 140,
+   "sha256": "48701071e22470274245f9a5a816f38f7129a29620049340ed250dfeb664722e"
+  },
+  "dev-typochild.jsonl": {
+   "rows": 24,
+   "sha256": "68a1a2570edeed14104e1824682cd6a301e968babb370b499a41307a433d69e2"
+  }
+ },
+ "summary": {
+  "train_it3": 62939,
+  "vocabulary": {
+   "removed_pairs_of_it3": 1772,
+   "reserve_pairs_with_the_words": 57,
+   "skipped": {
+    "source_row_or_text_in_dev_vocab8": 535,
+    "spacing_target_defect": 1,
+    "duplicate_prompt": 17
+   },
+   "added": 1276,
+   "dev_vocab8": 120,
+   "dev_vocab8_identity": 100,
+   "added_by_word": {
+    "bakery": 268,
+    "contractor": 237,
+    "landlord": 132,
+    "nephew": 171,
+    "pharmacy": 76,
+    "postpone": 228,
+    "reject": 53,
+    "warehouse": 111
+   }
+  },
+  "names": {
+   "repair_pairs_with_name": 1055,
+   "kept_verbatim": 918,
+   "repaired_connector": 59,
+   "dropped_translated": 78,
+   "dev_source_rows": 62,
+   "dev_names_pairs": 140,
+   "swap_pairs": 1454,
+   "place_pool": {
+    "venue": 51,
+    "shop": 60,
+    "school": 76,
+    "office": 30,
+    "team": 35,
+    "garden": 6,
+    "clinic": 8
+   }
+  },
+  "typo_child": {
+   "train_pairs": 1276,
+   "dev_pairs": 24,
+   "ops_train": {
+    "drop": 272,
+    "dup": 254,
+    "insert": 237,
+    "sub": 267,
+    "swap": 246
+   },
+   "by_kind_train": {
+    "mixed": 459,
+    "noisy_en": 377,
+    "ro": 440
+   }
+  },
+  "dropped_sealed": 2,
+  "dropped_prompt_in_dev": 0,
+  "dropped_duplicate_id": 0,
+  "dropped_orphan_derived": 0,
+  "train": {
+   "pairs": 66587,
+   "by_pair": {
+    "identity": 12488,
+    "repair": 54099
+   },
+   "by_kind": {
+    "clean": 12190,
+    "mash": 298,
+    "mixed": 14609,
+    "noisy_en": 13713,
+    "ro": 25777
+   },
+   "by_target_source": {
+    "clean-sibling": 2,
+    "identity:gate-clean-noisy+typo_child": 4,
+    "identity:gate-clean-noisy": 1741,
+    "identity:in-row": 967,
+    "identity:keyboard-mash": 298,
+    "identity:lead-in:natural": 686,
+    "identity:lead-in:synthetic+typo_child": 10,
+    "identity:lead-in:synthetic": 1087,
+    "identity:new.en+typo_child": 80,
+    "identity:new.en": 5413,
+    "identity:symbolic_english+typo_child": 6,
+    "identity:symbolic_english": 2296,
+    "llm:deepseek-flash+name_repair": 57,
+    "llm:deepseek-flash+name_swap": 1282,
+    "llm:deepseek-flash": 11819,
+    "llm:deepseek-flash:backgen-new+name_swap": 4,
+    "llm:deepseek-flash:backgen-new+typo_child": 489,
+    "llm:deepseek-flash:backgen-new": 16551,
+    "llm:deepseek-flash:backgen-same+typo_child": 70,
+    "llm:deepseek-flash:backgen-same": 15257,
+    "new_cases.clean+typo_child": 5,
+    "new_cases.clean": 471,
+    "noise-inverse": 1947,
+    "proofing.repair": 981,
+    "proofing.translate+name_swap": 166,
+    "proofing.translate": 1143,
+    "spacing:natural": 863,
+    "spacing:perturb+typo_child": 9,
+    "spacing:perturb": 1800,
+    "template:family-relations+typo_child": 603,
+    "template:family-relations": 480
+   }
+  },
+  "dev": {
+   "pairs": 5173,
+   "by_pair": {
+    "identity": 1185,
+    "repair": 3988
+   },
+   "by_kind": {
+    "clean": 1125,
+    "mash": 60,
+    "mixed": 661,
+    "noisy_en": 666,
+    "ro": 2661
+   },
+   "by_target_source": {
+    "identity:gate-clean-noisy": 187,
+    "identity:in-row": 180,
+    "identity:keyboard-mash": 60,
+    "identity:lead-in:natural": 79,
+    "identity:lead-in:synthetic": 120,
+    "identity:new.en": 163,
+    "identity:symbolic_english": 396,
+    "llm:deepseek-flash": 2462,
+    "llm:deepseek-flash:backgen-new": 414,
+    "llm:deepseek-flash:backgen-same": 455,
+    "new_cases.clean": 69,
+    "noise-inverse": 233,
+    "proofing.repair": 109,
+    "proofing.translate": 246
+   }
+  },
+  "vocabulary_in_train_targets": {
+   "cousin": 150,
+   "niece": 74,
+   "uncle": 118,
+   "tenant": 196,
+   "supervisor": 139,
+   "tutor": 209,
+   "owe": 65,
+   "adopt": 73,
+   "audit": 97,
+   "boatyard": 257,
+   "nephew": 171,
+   "landlord": 132,
+   "contractor": 237,
+   "postpone": 228,
+   "reject": 53,
+   "bakery": 276,
+   "warehouse": 123,
+   "pharmacy": 101
+  },
+  "identity_share_train": 18.8
+ },
+ "note": "Built from the qualified datasets/bad_english/proofing-it3 and proofing-v3 by tools/datasets/build-language-proofing-prod1.mjs. Targets of llm:deepseek-flash pairs are DeepSeek-written, review pending; spacing pairs by tools/datasets/language-proofing/spacing.mjs; name_repair, name_swap and typo_child pairs by tools/datasets/language-proofing/names-typos.mjs. proofreader/{train,dev}.jsonl are byte-identical to ../{train,dev}.jsonl."
+}

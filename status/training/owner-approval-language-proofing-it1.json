@@ -1,0 +1,23 @@
+{
+ "format": "chatsop-owner-approval-scope-v1",
+ "experiment": "train-language-proofing-gemma270m-it1",
+ "journal_event": {"file": "status/journal.jsonl", "ts": "2026-09-30T17:32:38.274Z", "area": "training", "state": "decision", "actor": "orchestrator", "title": "Owner approves 1-2 overnight fine-tuning iterations of Gemma 3 270M; more examples via omp/DeepSeek"},
+ "further_decisions": [
+  {"file": "status/journal.jsonl", "ts": "2026-09-30T17:40:03.714Z", "actor": "orchestrator", "title": "Owner: SymbolicProofingLLM first, LanguageProofingLLM second"},
+  {"file": "status/journal.jsonl", "ts": "2026-09-30T17:41:07.339Z", "actor": "orchestrator", "title": "Owner allows parallel GPU training runs when faster than serial"},
+  {"file": "status/journal.jsonl", "ts": "2026-09-30T17:46:38.134Z", "actor": "orchestrator", "title": "Owner: the fallback base is Gemma 3 1B (LoRA), not Qwen"},
+  {"file": "status/journal.jsonl", "ts": "2026-09-30T19:58:29.661Z", "actor": "orchestrator", "title": "Owner: evaluate layer by layer; for now NL and grammatical analysis, not SOP translation"}
+ ],
+ "approved_models": ["gemma"],
+ "order": "Gemma 3 270M IT only (LoRA). No larger model in this iteration: the Gemma 3 1B fallback applies only if 270M clearly cannot learn the task, and needs its own run and record. This is iteration 1 of LanguageProofingLLM; the owner approved at most 1-2 iterations of Gemma 3 270M per proofing model.",
+ "role": "proofreader",
+ "corpus": "bad_english/proofing",
+ "conditions": [
+  "the dataset qualification record status/training/qualification-language-proofing.json is status 'qualified'",
+  "preregistration status/preregistrations/train-language-proofing-gemma270m-it1.json is frozen before any optimizer step",
+  "the bad_english merge of the DeepSeek targets is recorded done and verified in status/journal.jsonl (meaning-judge-agent) and tools/datasets/verify-three-datasets.mjs passes before the projection is built",
+  "parallel GPU jobs only when they do not slow the run; check nvidia-smi, free RAM and models/.training.lock first",
+  "experiment-grade data: DeepSeek-written targets with mechanical checks, no human semantic review"
+ ],
+ "receipts": "tools/research/qualify-language-proofing.mjs --authorize gemma --run RUN --decision-ts 2026-09-30T17:32:38.274Z transcribes the journal decision into one chatsop-training-authorization-v1 receipt bound to the recipe, dataset and qualification hashes"
+}

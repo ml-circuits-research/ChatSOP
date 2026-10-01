@@ -1,0 +1,45 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-analysis-cnl-v1",
+ "name": "Interpretation CNL: a deterministic controlled-English rendering of SymbolicLM's grammatical analysis, checked by a round trip",
+ "registered_at": "2026-10-01T03:40:00Z",
+ "registered_by": "analysis-cnl-agent (owner question relayed by the orchestrator; evaluation only: CPU Stanza parsing, no training, no GPU, not wired into the chat UI)",
+ "spec": "docs/specs/DS021-model-surface.md#interpretation-cnl",
+ "kind": "evaluation-only",
+ "frozen_before_results": "Written after the realizer (lib/languages-util/analysis-cnl.mjs) existed and was debugged on a pilot of 40 symbolic_english and 30 neuro_english test rows (the pilot rows are part of the sample, so the numbers are not confirmatory); before the full 300 + 200 run was read. Later rule changes are recorded deviations.",
+ "question": "From SymbolicLM's analysis, can a short, simpler English text (a CNL from a small fixed template set) be regenerated deterministically such that it is checkably equivalent to the analysis, makes a wrong analysis visible, lists what was not understood, and is itself a certified form for the analysis gate?",
+ "hypotheses": {
+  "H1": "On 300 certified symbolic_english test rows the round trip (parse the CNL with SymbolicLM, extract the same structures, require multiset equality with the source structures) passes on at least 90% of rows that have a CNL.",
+  "H2": "The CNL is shorter than the message: words(CNL)/words(message) is at most 1.0 on both sets.",
+  "H3": "At least 80% of the CNL texts of symbolic_english rows are certified (identical Stanza default and accurate trees on every sentence), so the CNL is a candidate canonical target form for SymbolicProofingLLM.",
+  "H4": "On neuro_english rows (uncertified analyses) the CNL makes the misinterpretation visible: in a hand reading of the examples, wrong analyses show as a changed sentence, a changed role or a `not represented` span, never as a silent plausible sentence."
+ },
+ "decision_rule": "If H1 and H3 hold, the CNL is recommended as an `I understood: ...` display, an analysis-layer comparison key and a candidate target form (the orchestrator decides the wiring). If only H1 holds, it is recommended as a display and a comparison key but not as a target form. Otherwise it is reported with the failure categories and nothing is integrated.",
+ "data": "Sealed sample, stratified by `source.family` with proportional allocation and largest-remainder rounding, seed 7 (symbolic_english) and 8 (neuro_english): 300 rows of eval/suites/symbolic_english/test.jsonl (analysis gate passed) and 200 rows of eval/suites/neuro_english/test.jsonl (analysis gate failed). The analysis used is the row's stored `analysis` (accurate Stanza package); the CNL is parsed with the accurate package for the round trip and with both packages for certification.",
+ "endpoints": "Round-trip pass rate (rows with a CNL), share of rows with `not represented` spans, share of rows verified (round trip and no span), words and characters of CNL against the message, share of CNL texts certified and share of CNL sentences with identical trees, independent cross-check by analysis-compare-v1 (message analysis against CNL analysis: equivalent / different / uncertain), 40 outputs read by hand and 20 shown.",
+ "analysis": "Round-trip failures are categorised (parser ambiguity on the CNL, realizer bug, normalization missing). Forty outputs are read for faithfulness to the analysis and for readability as `I understood: ...`.",
+ "stopping_rules": {
+  "stages": "Pilot 40 + 30 rows for debugging; one full 300 + 200 run for the reported numbers.",
+  "futility": "If the round trip passes on fewer than 50% of the symbolic_english pilot rows after the obvious realizer bugs are fixed, stop and report.",
+  "no_training": "Nothing here trains or uses the GPU."
+ },
+ "deviations_allowed": "Any template, normalization or extraction rule changed after a full-run number was seen is a recorded deviation.",
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-10-01T05:50:00Z",
+   "what": "After the first full run (round trip 94.1% symbolic / 84.0% neuro; not represented 10.3% / 26.5%) I read failures and changed the realizer and the keys: passive agent read from `obl` with `by`; wh marks; main-verb `be` and `there are`; hedge adverbs inside the verb group of questions; links written first; wrapper verbs need an addressee `me/us`; inversion means question; `According to X` as `X says that`; bare third-person past; relative-clause wh words; key normalizations (participle complement vs agentless passive, `Who is X` vs `X is who`, flat connective chains, commas, hyphens, final period); lead-in labels as framing; masked spans from message offsets.",
+   "why": "Reading failures is part of the preregistered analysis; most were implementation gaps.",
+   "effect": "Final numbers are exploratory, not confirmatory."
+  },
+  {
+   "id": "D2",
+   "at": "2026-10-01T06:10:00Z",
+   "what": "A conjunct coordinated with a request wrapper (`do you know if A and B`) is no longer split off as a statement; its words stay `not represented`.",
+   "why": "Reading 40 outputs showed a silent change from a question to a statement plus a question.",
+   "effect": "Slightly more `not represented` spans on neuro_english, fewer silent errors."
+  }
+ ],
+ "results": "symbolic_english 300 rows: round trip 286/290 = 98.6% (10 empty CNL), not-represented spans 9.3%, verified 89.0%, words ratio 0.84, CNL texts certified 91.4% (sentences 93.4%), analysis-compare equivalent/uncertain/different 191/72/27. neuro_english 200 rows: round trip 168/194 = 86.6% (6 empty), not-represented 27.0%, verified 64.0%, words ratio 0.84, CNL texts certified 44.3% (sentences 78.4%), compare 87/49/58. 40 outputs read: 32 faithful, 5 faithful with a visible not-represented list, 3 withheld by the round trip, 0 silently unfaithful; one silently odd case outside the 40 (stranded preposition without a question mark). Report: eval/reports/current/analysis-cnl/summary.md.",
+ "decision": "H1 (>=90% round trip on symbolic_english) met 98.6%; H2 (words ratio <=1.0) met 0.84; H3 (>=80% of symbolic_english CNL texts certified) met 91.4%; H4 (wrong analyses visible) supported by the hand reading (a changed role, a changed sentence or a not-represented span, plus withheld round-trip failures), with one silent odd case. Per the decision rule the CNL is recommended as an `I understood: ...` display (only when the round trip passes), an analysis-layer comparison key and a candidate target form built from a corrected analysis. Not wired into the chat UI; the orchestrator decides."
+}

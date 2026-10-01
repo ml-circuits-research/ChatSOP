@@ -1,9 +1,9 @@
 {
   "format": "chatsop-text-to-clean-english-v1",
-  "description": "Config for lib/text-to-clean-english/ (owner decision 2026-09-30): a host step that runs BEFORE the small formalizer -- AGENTS.md 'Model boundary' still holds, the formalizer's own input stays exactly the user's message, added only after this step has replaced it with a cleaned English version (or left it unchanged). `enabled: false` turns the whole step off: textToCleanEnglish then returns the message unchanged with backend 'none', without ever calling a model. `backends.english`/`backends.nonEnglish` choose which lib/text-to-clean-english/backends/<id>.mjs handles a message the cheap gate (lib/text-to-clean-english/gate.mjs) found something to check in, by whether it found a non-English signal. Defaults confirmed by the preregistered survey text-to-clean-english-v1 (eval/reports/current/text-to-clean-english/summary.md): LanguageTool 5.9 for English, `llm.model` (a translate-capable registry model in config/formalizers.json, Qwen3-1.7B Q8_0) for Romanian and mixed text; to change either, edit `backends.english` / `backends.nonEnglish` / `llm.model`. LanguageTool is started by the operator: `node tools/languagetool-server.mjs --port 18123`, and `languagetool.url` names that port; an unreachable backend leaves the message unchanged.",
+  "description": "Config for lib/text-to-clean-english/ (owner decision 2026-09-30, updated 2026-10-01): a host step that runs BEFORE the small formalizer -- AGENTS.md 'Model boundary' still holds, the formalizer's own input stays exactly the user's message, added only after this step has replaced it with a cleaned English version (or left it unchanged). The message is split into sentences (lib/sentence-split.mjs); each sentence is gated (lib/text-to-clean-english/gate.mjs, LanguagesUtil only) and only sentences the gate flags go to a backend. `enabled: false` turns the whole step off (backend 'none', no model call). `backends.english`/`backends.nonEnglish` choose which lib/text-to-clean-english/backends/<id>.mjs handles a flagged sentence by whether it has a non-English signal: `llm` is LanguageProofingLLM, the fine-tuned Gemma 3 270M of run language-proofing-gemma270m-prod1 (registry model `llm.model` in config/formalizers.json, capability `proofread`, started on demand, message-only prompt, one sentence per request; report eval/reports/current/language-proofing-prod1/summary.md); `languagetool` is an OPTIONAL backend, off by default (set `backends.english` to `languagetool` and start it with `node tools/languagetool-server.mjs --port 18123`; `languagetool.url` names that port); `none` disables cleaning for that class. `llm.sendAll: true` (default since 2026-10-01: the gate recalls only about 28% of the sentences that need cleaning, so, per the owner rule 'if uncertainty cannot be detected, always', every sentence goes to the model) sends EVERY sentence, clean ones too (the model changes about 0.2% of clean sentences; each clean-sentence call costs about 110 ms on 4 CPU threads); `false` sends only gated sentences. An unreachable backend leaves the message unchanged.",
   "enabled": true,
   "backends": {
-    "english": "languagetool",
+    "english": "llm",
     "nonEnglish": "llm"
   },
   "languagetool": {
@@ -11,6 +11,7 @@
     "language": "en-US"
   },
   "llm": {
-    "model": "qwen3-1.7b-base"
+    "model": "language-proofing-llm",
+    "sendAll": true
   }
 }

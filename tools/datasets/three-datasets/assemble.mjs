@@ -3,12 +3,12 @@
 import {textKey} from './analysis.mjs';
 import {strictScores, failureOf, RULES_VERSION} from './score.mjs';
 import {repairTargets, noisyEnglishTargets, translatedTargets} from './targets.mjs';
+import {loadLlmTargets, applyLlmTargets} from './llm-targets.mjs';
 import {noiseCategories} from './noise.mjs';
 import {classifyMessage} from './sources.mjs';
 import {normalText} from './inputs.mjs';
 import {rowRights, AUTHORED_LICENCE, SOURCES} from '../rights.mjs';
-import {compareAnalyses} from './accurate.mjs';
-import {decideNoGold} from './gate.mjs';
+import {GATE_NAME, verdictRecord, judgeSummary} from './analysis-gate.mjs';
 
 export {RULES_VERSION};
 
@@ -87,18 +87,34 @@ function badRow(r, {targets: candidates}) {
   };
 }
 
+/** Policy for a message with an `unparsed` span (SymbolicLM could not formalize a span; the analysed sentences exist): `sop_rules` (the default, the owner's brief: such rows follow the README SOP rules, a strict gold
+ * match or a handled message) or `gate` (the analysis gate decides like for every other row). Either way the gate result is recorded on the row (`analysis_verdict`). Open owner question Q-DATA-3. */
+export const UNPARSED_POLICY = 'sop_rules';
+
+/** A message the gate cannot judge (no analysed sentence: a greeting answered before parsing, gibberish, a crash) or that follows the SOP rules by policy (an unparsed span; `unparsedPolicy`). DS008 "Three datasets". */
+export const specialKind = record => (!record.analysis?.sentences?.length ? 'no_analysis' : record.unparsed.length ? 'unparsed_span' : null);
+
+/** SOP-layer record of a row (the later layer): match / mismatch / no_gold, whether SymbolicLM handled the message, and the SOP failure kind and evidence. */
+function sopLayerOf(record, score, sopFailure) {
+  const status = score ? (score.ok ? 'match' : 'mismatch') : 'no_gold';
+  const handled = passes(record);
+  if (status === 'mismatch') return {status, handled, failure_kind: sopFailure.failure_kind, failure: sopFailure.failure};
+  if (status === 'no_gold' && !handled) return {status, handled, failure_kind: 'unknown', failure: {reason: NOT_HANDLED.has(record.outcome) ? record.outcome : record.unparsed.length ? 'unparsed_span' : 'invalid_sop', unparsed: record.unparsed}};
+  return {status, handled, failure_kind: null, failure: null};
+}
+
 /**
  * Build the rows of the three datasets for `records` (one side of the split boundary).
- * `context`: {cache, parser, proofing (index), regularization (Map), gold scoring is done here}. Returns
- * {bad, symbolic, neuro, skipped: {reason: count}}.
+ * `context`: {cache, parser, proofing (index), regularization (Map), gate (an AnalysisGate), gold scoring is done here}. Returns
+ * {bad, symbolic, neuro, skipped: {reason: count}, gateStats}.
+ *
+ * Membership of a clean-English row is decided on the ANALYSIS layer, gold or not: every sentence passes the gate of
+ * analysis-gate.mjs (identical default/accurate trees and DeepSeek parse judge a and c good). A row without an analysed sentence or
+ * with an unparsed span is decided by the SOP rules (gold match, or a handled message). The SOP-layer result of every row is kept
+ * as `sop_layer`; it never decides the dataset (owner direction 2026-09-30 night).
  */
-export async function assemble(records, {cache, parser, proofing, regularization = new Map(), agreement = new Map(), wildScore = null, gate = null}) {
-  // gate: {defaults: Map (analyses of the default package, the cache before the adoption), stores: {old, acc} (judge verdicts), mode}.
-  // The analysis of a row is the current (accurate-package) one; `cmpOf` compares its trees with the default package's.
-  // The work list holds the sentence judgements that still have to run (written by the callers).
-  const gateWork = {nogold: {}, gold: {}, held_out: []};
-  const cmpOf = (r, record) => (gate ? compareAnalyses(gate.defaults.get(textKey(r.message))?.analysis, record.analysis) : null);
-  const differing = (cmp, all = false) => (cmp?.sentences ?? []).map((c, i) => (all || c !== 'identical' ? i : -1)).filter(i => i >= 0);
+export async function assemble(records, {cache, parser, proofing, regularization = new Map(), agreement = new Map(), wildScore = null, gate, llmTargets = loadLlmTargets(), unparsedPolicy = UNPARSED_POLICY}) {
+  if (!gate) throw Error('assemble needs an AnalysisGate (tools/datasets/three-datasets/analysis-gate.mjs)');
   const skipped = {};
   const skip = reason => { skipped[reason] = (skipped[reason] ?? 0) + 1; };
   const analysisOf = r => cache.get(textKey(r.message));
@@ -111,7 +127,7 @@ export async function assemble(records, {cache, parser, proofing, regularization
   const cleanFormalizer = records.filter(r => r.kind === 'formalizer' && r.partition === 'clean_en' && analysisOf(r));
   for (const r of records) if (r.kind === 'formalizer' && r.partition === 'clean_en' && !analysisOf(r)) skip('missing_analysis');
   const scores = await strictScores(cleanFormalizer, r => analysisOf(r).sop, {wildScore});
-  // Re-verification of the rewrite candidates of every gold-verified miss under the current engine (one batch).
+  // Re-verification of the rewrite candidates of every gold-verified miss under the current engine (one batch): the SOP-layer evidence of a row's targets.
   const targetOk = new Map();
   {
     const pairs = [];
@@ -120,6 +136,7 @@ export async function assemble(records, {cache, parser, proofing, regularization
   }
 
   const bad = [], symbolic = [], neuro = [];
+  const gateStats = {decided: {}, pending_texts: [], failure_kinds: {}, sentence_verdicts_from: {}, sentence_trees: {}};
   for (const r of records) {
     if (r.kind === 'formalizer' && r.partition !== 'clean_en') {
       let targets = [];
@@ -139,61 +156,64 @@ export async function assemble(records, {cache, parser, proofing, regularization
     }
     const record = analysisOf(r);
     if (!record) { skip('missing_analysis'); continue; }
-    if (r.kind === 'new_case') {
-      const base = {...commonOf('symbolic_english', r), ...analysisFields(record, record.parser)};
-      const cmp = cmpOf(r, record);
-      const verification = extra => ({sop_gold_match: null, judge: null, stanza_spacy_agree: agreeOf(r), stanza_default_accurate: cmp?.row ?? null, ...extra});
-      const decision = passes(record) ? (gate ? decideNoGold({k: textKey(r.message), sentences: record.analysis?.sentences?.length ?? 0, cmp, stores: gate.stores}) : {state: 'pending', judge: [], missing: []}) : {state: 'failed'};
-      if (decision.state === 'accept') {
-        symbolic.push({...base, gold_sop: null, analysis_verified: decision.route, verification: verification({judge: decision.judge?.length ? {mode: gate?.mode ?? null, sentences: decision.judge} : null}), reference_clean: r.row.clean ?? []});
-      } else {
-        // A row still without a verdict (the judge budget ended) is not in symbolic_english: it goes to neuro_english flagged `pending_judge`.
-        const pending = decision.state === 'pending';
-        if (pending) gateWork.nogold[textKey(r.message)] = decision.missing;
-        const targets = [];
-        for (const text of r.row.clean ?? []) {
-          if (text === r.message) continue;
-          const target = cache.get(textKey(text));
-          targets.push({text, source: 'new_cases.clean', check: {symbolic_ok: passes(target), sop_valid: target?.valid ?? null, unparsed: target?.unparsed?.length ?? null, reviewed: 'pending'}});
-        }
-        const verified = targets.filter(t => t.check.symbolic_ok);
-        const rejected = decision.state === 'reject';
-        const flags = [...(verified.length ? [] : ['no_target']), ...(rejected && decision.failure_kind === 'unknown' ? ['analysis_unconfirmed'] : []), ...(pending ? ['pending_judge'] : [])];
-        const judged = rejected || pending ? {mode: gate.mode, sentences: decision.judge} : null;
-        neuro.push({...commonOf('neuro_english', r), ...analysisFields(record, record.parser), gold_sop: null, failure_kind: rejected ? decision.failure_kind : 'unknown',
-          failure: rejected ? {reason: 'analysis_rejected_by_gate', gate_mode: gate.mode, judge: decision.judge, unparsed: record.unparsed} : pending ? {reason: 'analysis_pending_judge', gate_mode: gate.mode, judge: decision.judge, unparsed: record.unparsed} : {reason: NOT_HANDLED.has(record.outcome) ? record.outcome : record.unparsed.length ? 'unparsed_span' : 'invalid_sop', unparsed: record.unparsed},
-          analysis_verified: rejected ? 'analysis_rejected_by_gate' : pending ? 'analysis_pending_judge' : 'analysis_failed_no_gold', rewrite_target: true, target: verified[0]?.text ?? null, target_source: verified[0]?.source ?? null, targets: verified, unverified_references: targets.filter(t => !t.check.symbolic_ok), ...(flags.length ? {flags} : {}),
-          verification: verification({judge: judged})});
-      }
+    const isNew = r.kind === 'new_case';
+    const score = isNew ? null : scores.get(keyOf(r));
+    const gold = isNew ? null : r.row.sop_target;
+    const kind = specialKind(record);
+    // The gate runs on every row that has an analysed sentence; it decides unless the row follows the SOP rules (no analysis, or an unparsed span under the `sop_rules` policy).
+    const decision = kind === 'no_analysis' ? null : gate.decide(r.message, record.analysis);
+    const special = kind === 'unparsed_span' && unparsedPolicy === 'gate' ? null : kind;
+    const sopOk = score ? score.ok : passes(record);
+    const toSymbolic = special ? sopOk : decision.state === 'pass';
+    gateStats.decided[special ? special : decision.state] = (gateStats.decided[special ? special : decision.state] ?? 0) + 1;
+    if (special === 'unparsed_span') gateStats.unparsed_gate_would_say = {...gateStats.unparsed_gate_would_say, [decision.state]: (gateStats.unparsed_gate_would_say?.[decision.state] ?? 0) + 1};
+    if (decision?.state === 'pending' && !special) gateStats.pending_texts.push(r.message);
+    for (const x of decision?.sentences ?? []) { gateStats.sentence_trees[x.tree ?? 'unknown'] = (gateStats.sentence_trees[x.tree ?? 'unknown'] ?? 0) + 1; if (x.from) gateStats.sentence_verdicts_from[x.from] = (gateStats.sentence_verdicts_from[x.from] ?? 0) + 1; }
+    if (decision?.state === 'fail') gateStats.failure_kinds[decision.failure_kind] = (gateStats.failure_kinds[decision.failure_kind] ?? 0) + 1;
+
+    // SOP layer: the failure kind of a gold miss as before (the recorded proofing layer of a still-verified rewrite, the structural diff, host frame normalization).
+    const candidates = isNew ? [] : goldMissCandidates(proofing, regularization, r);
+    const checked = candidates.map((t, i) => ({t, ok: targetOk.get(`target::${keyOf(r)}#${i}`) === true}));
+    let sopFailure = null;
+    if (score && !score.ok) {
+      const layer = checked.filter(c => c.ok).map(c => c.t.layer).find(l => l && l !== 'input') ?? null;
+      sopFailure = failureOf(r, score, layer);
+      const reg = regularization.get(r.message) ?? null;
+      if (reg) sopFailure.failure.regularization = {verdict: reg.verdict, error_type: reg.error_type};
+      sopFailure.failure.unparsed = record.unparsed;
+      sopFailure.failure.unverified_targets = candidates.length - checked.filter(c => c.ok).length;
+    }
+    const sop_layer = sopLayerOf(record, score, sopFailure);
+    const cmpClass = decision?.worst_tree ?? 'not_measured';
+    const verification = {sop_gold_match: score ? score.ok : null, judge: decision ? judgeSummary(decision) : null, stanza_spacy_agree: agreeOf(r), stanza_default_accurate: cmpClass};
+    const analysis_verdict = decision ? {...verdictRecord(decision, {unparsed: record.unparsed}), placed_by: special ? 'sop_rule' : 'analysis_gate', ...(special ? {reason: special, sop_rule: sopOk ? 'passed' : 'failed'} : {})} : {state: 'not_applicable', gate: GATE_NAME, placed_by: 'sop_rule', reason: kind, sop_rule: sopOk ? 'passed' : 'failed', unparsed: record.unparsed};
+    const goldFields = {gold_sop: gold, ...(r.wild ? {gold_sop_accepted: r.row.sop_targets_accepted ?? [r.row.sop_target]} : {})};
+
+    if (toSymbolic) {
+      symbolic.push({...commonOf('symbolic_english', r), ...analysisFields(record, record.parser), ...goldFields, analysis_verified: special ? 'sop_rule' : 'analysis_gate', analysis_verdict, sop_layer, verification, ...(isNew ? {reference_clean: r.row.clean ?? []} : {})});
       continue;
     }
-    const score = scores.get(keyOf(r));
-    const gold = r.wild ? (r.row.sop_targets_accepted ?? [r.row.sop_target]) : [r.row.sop_target];
-    const common = {...commonOf('symbolic_english', r), ...analysisFields(record, record.parser), gold_sop: r.row.sop_target, ...(r.wild ? {gold_sop_accepted: gold} : {})};
-    const cmp = cmpOf(r, record);
-    const stanzaClass = cmp?.row ?? null;
-    if (score.ok) {
-      // A gold-matching row is never removed. Its analysis is the current (accurate-package) tree; the class of the
-      // comparison with the default package's tree is recorded (`stanza_default_accurate`).
-      const flags = {};
-      const verification = {sop_gold_match: true, judge: null, stanza_spacy_agree: agreeOf(r), stanza_default_accurate: stanzaClass};
-      symbolic.push({...common, ...flags, analysis_verified: 'gold_sop_match', verification});
+    // neuro_english: the analysis layer failed (or the SOP rules failed a message the gate cannot judge). failure_kind describes that failure; the SOP failure stays in sop_layer.
+    const pending = !special && decision.state === 'pending';
+    const failure_kind = special ? special : pending ? 'pending_judge' : decision.failure_kind;
+    let targets = [], unverifiedReferences = [];
+    if (isNew) {
+      const all = [];
+      for (const text of r.row.clean ?? []) {
+        if (text === r.message) continue;
+        const target = cache.get(textKey(text));
+        all.push({text, source: 'new_cases.clean', check: {symbolic_ok: passes(target), sop_valid: target?.valid ?? null, unparsed: target?.unparsed?.length ?? null, reviewed: 'pending'}});
+      }
+      targets = all.filter(t => t.check.symbolic_ok);
+      unverifiedReferences = all.filter(t => !t.check.symbolic_ok);
     } else {
-      const reg = regularization.get(r.message) ?? null;
-      // A rewrite target is verified when the CURRENT engine analyses it to the row's gold SOP (strict): recorded oracle
-      // checks of older rules do not count. The recorded proofing layer of a still-verified repair tells where it acts.
-      const candidates = goldMissCandidates(proofing, regularization, r);
-      const checked = candidates.map((t, i) => ({t, ok: targetOk.get(`target::${keyOf(r)}#${i}`) === true}));
-      const targets = checked.filter(c => c.ok).map(c => { const {layer: _layer, ...rest} = c.t; return {...rest, check: {...c.t.check, oracle: `${RULES_VERSION} strict gold match (Stanza accurate package)`}}; });
-      const layer = checked.filter(c => c.ok).map(c => c.t.layer).find(l => l && l !== 'input') ?? null;
-      let {failure_kind, failure} = failureOf(r, score, layer);
-      if (reg) failure.regularization = {verdict: reg.verdict, error_type: reg.error_type};
-      failure.unparsed = record.unparsed;
-      failure.unverified_targets = candidates.length - targets.length;
-      const rewriteTarget = failure_kind !== 'gold_convention';
-      neuro.push({...common, dataset: 'neuro_english', failure_kind, failure, rewrite_target: rewriteTarget, target: targets[0]?.text ?? null, target_source: targets[0]?.source ?? null, targets,
-        ...(targets.length ? {} : {flags: [rewriteTarget ? 'no_target' : 'gold_convention_not_a_rewrite_target']}), analysis_verified: 'gold_sop_mismatch', verification: {sop_gold_match: false, judge: null, stanza_spacy_agree: agreeOf(r), stanza_default_accurate: stanzaClass}});
+      targets = checked.filter(c => c.ok).map(c => { const {layer: _layer, ...rest} = c.t; return {...rest, check: {...c.t.check, oracle: `${RULES_VERSION} strict gold match (Stanza accurate package)`}}; });
     }
+    const flags = [...(targets.length ? [] : ['no_target']), ...(pending ? ['pending_judge'] : [])];
+    const failure = {layer: 'analysis', reasons: special ? [] : decision?.reasons ?? [], categories: special ? [special] : pending ? ['pending_judge'] : [...new Set(decision.reasons.map(x => x.kind))], classes: [], frame_recoverable: Boolean(sop_layer.failure?.frame_recoverable), proofing_layer: sop_layer.failure?.proofing_layer ?? null, also_gold_convention: Boolean(sop_layer.failure?.also_gold_convention), unparsed: record.unparsed, ...(sop_layer.failure?.regularization ? {regularization: sop_layer.failure.regularization} : {}), unverified_targets: sop_layer.failure?.unverified_targets ?? unverifiedReferences.length};
+    neuro.push({...commonOf('neuro_english', r), ...analysisFields(record, record.parser), ...goldFields, failure_kind, failure, rewrite_target: true,
+      target: targets[0]?.text ?? null, target_source: targets[0]?.source ?? null, targets, ...(unverifiedReferences.length ? {unverified_references: unverifiedReferences} : {}), ...(flags.length ? {flags} : {}),
+      analysis_verified: special ? 'sop_rule_failed' : pending ? 'analysis_pending_judge' : 'analysis_gate_failed', analysis_verdict, sop_layer, verification});
   }
   // A target that differs from the message only in casing, punctuation or spacing: a formatting fix that a rule can make.
   for (const row of neuro) {
@@ -201,5 +221,7 @@ export async function assemble(records, {cache, parser, proofing, regularization
     row.failure.formatting_only = formatting;
     if (formatting) row.flags = [...(row.flags ?? []), 'formatting_only'];
   }
-  return {bad, symbolic, neuro, skipped, gateWork};
+  // DeepSeek flash targets for the bad_english rows that had none (llm-targets.mjs); rows with a target keep it.
+  applyLlmTargets(bad, llmTargets);
+  return {bad, symbolic, neuro, skipped, gateStats};
 }

@@ -1,0 +1,186 @@
+{
+ "label": "no-rewrite K6 neuro_english",
+ "generated_at": "2026-09-30T16:56:20.595Z",
+ "stages": [
+  {
+   "stage": 30,
+   "cases": 30,
+   "errors": 0,
+   "changed": {
+    "k": 0,
+    "n": 30,
+    "p": 0,
+    "lo": 0,
+    "hi": 11.4
+   },
+   "output_sentence_count_matches": {
+    "all": {
+     "k": 0,
+     "n": 30,
+     "p": 0,
+     "lo": 0,
+     "hi": 11.4
+    },
+    "by": {
+     "coordination": {
+      "k": 0,
+      "n": 17,
+      "p": 0,
+      "lo": 0,
+      "hi": 18.4
+     },
+     "multiple_questions": {
+      "k": 0,
+      "n": 9,
+      "p": 0,
+      "lo": 0,
+      "hi": 29.9
+     },
+     "relative_clause": {
+      "k": 0,
+      "n": 1,
+      "p": 0,
+      "lo": 0,
+      "hi": 79.3
+     },
+     "subordinate_clause": {
+      "k": 0,
+      "n": 3,
+      "p": 0,
+      "lo": 0,
+      "hi": 56.2
+     }
+    }
+   },
+   "output_at_least_expected_sentences": {
+    "k": 0,
+    "n": 30,
+    "p": 0,
+    "lo": 0,
+    "hi": 11.4
+   },
+   "every_sentence_within_contract": {
+    "all": {
+     "k": 2,
+     "n": 30,
+     "p": 6.7,
+     "lo": 1.8,
+     "hi": 21.3
+    },
+    "by": {
+     "coordination": {
+      "k": 0,
+      "n": 17,
+      "p": 0,
+      "lo": 0,
+      "hi": 18.4
+     },
+     "multiple_questions": {
+      "k": 0,
+      "n": 9,
+      "p": 0,
+      "lo": 0,
+      "hi": 29.9
+     },
+     "relative_clause": {
+      "k": 1,
+      "n": 1,
+      "p": 100,
+      "lo": 20.7,
+      "hi": 100
+     },
+     "subordinate_clause": {
+      "k": 1,
+      "n": 3,
+      "p": 33.3,
+      "lo": 6.1,
+      "hi": 79.2
+     }
+    }
+   },
+   "every_sentence_handled_by_symbolic_lm": {
+    "all": {
+     "k": 8,
+     "n": 30,
+     "p": 26.7,
+     "lo": 14.2,
+     "hi": 44.4
+    },
+    "by": {
+     "coordination": {
+      "k": 6,
+      "n": 17,
+      "p": 35.3,
+      "lo": 17.3,
+      "hi": 58.7
+     },
+     "multiple_questions": {
+      "k": 0,
+      "n": 9,
+      "p": 0,
+      "lo": 0,
+      "hi": 29.9
+     },
+     "relative_clause": {
+      "k": 1,
+      "n": 1,
+      "p": 100,
+      "lo": 20.7,
+      "hi": 100
+     },
+     "subordinate_clause": {
+      "k": 1,
+      "n": 3,
+      "p": 33.3,
+      "lo": 6.1,
+      "hi": 79.2
+     }
+    }
+   },
+   "exact_target": {
+    "k": 0,
+    "n": 30,
+    "p": 0,
+    "lo": 0,
+    "hi": 11.4
+   },
+   "preserved": {
+    "names": {
+     "k": 58,
+     "n": 58,
+     "p": 100,
+     "lo": 93.8,
+     "hi": 100
+    },
+    "numbers": {
+     "k": 2,
+     "n": 2,
+     "p": 100,
+     "lo": 34.2,
+     "hi": 100
+    },
+    "negations": {
+     "k": 7,
+     "n": 7,
+     "p": 100,
+     "lo": 64.6,
+     "hi": 100
+    },
+    "connectives": {
+     "k": 18,
+     "n": 18,
+     "p": 100,
+     "lo": 82.4,
+     "hi": 100
+    }
+   },
+   "sop_equals_gold": {
+    "k": 1,
+    "n": 5,
+    "p": 20,
+    "lo": 3.6,
+    "hi": 62.4
+   }
+  }
+ ]
+}

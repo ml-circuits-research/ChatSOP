@@ -1,0 +1,266 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "train-language-proofing-gemma270m-it1",
+ "name": "LanguageProofingLLM iteration 1: Gemma 3 270M IT + LoRA on datasets/bad_english/proofing (role proofreader), sentence level",
+ "registered_at": "2026-09-30T21:40:00Z",
+ "registered_by": "language-proofing-training-agent (owner decisions in status/journal.jsonl, actor orchestrator: 2026-09-30T17:32:38.274Z, 17:40:03.714Z, 17:41:07.339Z, 17:46:38.134Z, 19:58:29.661Z)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_request": "Iteration 1 (of at most 1-2 approved) of LanguageProofingLLM: fine-tune google/gemma-3-270m-it with LoRA on sentence pairs (Romanian, mixed Romanian/English and badly written English -> acceptable clean simple English) built from the merged bad_english targets. Judged on natural language and grammatical analysis only (owner 2026-09-30 19:58), not on SOP translation. No larger model in this iteration: Gemma 3 1B (LoRA) is the fallback only if 270M clearly cannot learn, as a new preregistered run.",
+ "frozen_before_results": "Written before any optimizer step of this run and before any prediction of any checkpoint of this run on the sealed test. Untrained-base, no-rewrite and shipped-backend baselines on the sealed test are scored after this file is frozen (their dev-sample outputs, scored while building the tooling, are tooling checks only).",
+ "iteration": 1,
+ "questions": [
+  "Q1: Does Gemma 3 270M learn to turn a Romanian, mixed or badly written English sentence into acceptable clean English (clean-English gate, content preserved, agreement with the reference), compared with no rewrite, the untrained base with the same prompt and the shipped textToCleanEnglish backend (LanguageTool + Qwen3-1.7B)?",
+  "Q2: Is Romanian to English the weak point (per-kind numbers ro, mixed, noisy_en)?",
+  "Q3: Does it leave already clean sentences untouched?",
+  "Q4: Are its outputs grammatically analysable by SymbolicLM's Stanza analysis, at the calibrated gate (default and accurate trees identical AND DeepSeek judge conditions a and c good)?"
+ ],
+ "hypotheses": {
+  "H1": "Clean English. On the sealed repair units (sentences of bad_english test rows, with or without a reference) the fine-tuned model's clean-English-gate rate (tools/datasets/clean-english.mjs) is at least 80% overall and at least 70% for the ro kind (point estimates), and the paired cluster-free bootstrap 95% interval of its difference to the untrained base and to no rewrite lies above 0 for every kind.",
+  "H2": "Content preservation. The mechanical content-preservation rate (names, numbers, quoted spans, question marks, length ratio of tools/eval/bad-english-targets.mjs, plus negation parity) is at least 85% on repair units overall (point estimate). Meaning judge (two-vote m1 AND m2 of eval-meaning-judge-calibration-v1, calibrated on English originals only; its use on Romanian and mixed originals is uncalibrated and is labelled so): reported with coverage, threshold 80% on the judged sample, not a selection criterion.",
+  "H3": "Agreement with the reference (secondary proxy). Mean chrF against the reference target, on units that have a reference, is at least 0.80 overall; per-kind and the gap to the shipped backend are reported.",
+  "H4": "Analysis correctness. The share of output sentences passing the calibrated analysis gate (Stanza default = accurate trees AND DeepSeek judge a and c good, tools/eval/analysis-layer.mjs) on the judged sample is within 10 percentage points of the share of the reference targets passing it (the ceiling), and above the share for no rewrite (paired bootstrap 95% interval above 0).",
+  "H5": "Identity. At least 95% of the clean sentences (identity units) are returned unchanged (point estimate; the Wilson lower bound is reported).",
+  "H6": "Versus the shipped backend (non-inferiority, not superiority). On the stratified 300-unit sample of the sealed test (or the full test when the shipped backend is fast enough), the fine-tuned model's composite `good` rate (clean-English gate AND content preserved AND analysis gate) is not lower than the shipped backend's by more than 5 percentage points (paired bootstrap 95% lower bound of the difference above -5 pp). Per-kind differences and CPU latency are reported.",
+  "H7": "Composed K4 (eval/suites/bad_english/test-composed.jsonl, per-sentence mode, clean-English gate, tools/eval/composed-score.mjs rewrite): at most 2% of the clean sentences sent through the pipeline are changed; exact-case rate and bad sentences fixed are reported against identity and the untrained base. K6 units of the file are not scored here.",
+  "H8": "Romanian capacity (the owner's question). 270M 'learns Romanian to English' at this stage when the ro clean-English rate and the ro mechanical content-preserved rate are both at least 70% on the sealed test; partial (40-70%): more and more varied data, same model; below 40% on both with the dev curve plateaued: 270M clearly cannot learn it at this data size and the owner's fallback (Gemma 3 1B LoRA) is indicated.",
+  "non_claim": "No claim about SymbolicProofingLLM; no claim about the final LanguageProofingLLM; the targets are DeepSeek-written and unreviewed (pending), so agreement with the reference is a proxy and reference-free metrics are primary."
+ },
+ "arms": [
+  {
+   "order": 1,
+   "name": "no_rewrite",
+   "kind": "baseline, no compute",
+   "note": "identity rewriter"
+  },
+  {
+   "order": 2,
+   "name": "gemma-3-270m-it (untrained), same prompt",
+   "kind": "baseline",
+   "prompt": "message-only chat turn, exactly the training prompt (training/python/common.py chat_ids: user turn = the raw sentence, no system role, no instruction); greedy",
+   "model_dir": "models/gemma/bases/99073d6b6edb0e298d163f964ec2b9d970b3408d",
+   "extra": "a second untrained reading with an instruction prefix (rewrite in clean simple English) is reported as an additional, fairer baseline"
+  },
+  {
+   "order": 3,
+   "name": "shipped textToCleanEnglish (LanguageTool 5.9 for English, Qwen3-1.7B Q8_0 for Romanian and mixed, cheap gate, masking)",
+   "kind": "baseline",
+   "config": "config/text-to-clean-english.json",
+   "runtime": "own LanguageTool and llama-server ports, stopped after the run; one sentence per call"
+  },
+  {
+   "order": 4,
+   "name": "language-proofing-gemma270m-it1 (fine-tuned, this run)",
+   "kind": "training arm",
+   "model_id": "daniel-dona/gemma-3-270m-it",
+   "revision": "99073d6b6edb0e298d163f964ec2b9d970b3408d",
+   "upstream": "google/gemma-3-270m-it ac82b4e820549b854eebf28ce6dedaf9fdfa17b3 (byte-identical mirror, config/train-gemma.json)",
+   "recipe": "config/train-gemma.json",
+   "recipe_sha256": "ecc7fe047b1bd075721a51541d38f23610336973d8b2009802db271002d5b6c2",
+   "role": "proofreader",
+   "run": "language-proofing-gemma270m-it1"
+  }
+ ],
+ "changed_factor": "Fine-tuned on the bad_english proofing sentence pairs (arm 4) versus not (arms 1-3). Single training arm, LoRA, recipe of the earlier proofreader runs.",
+ "data": {
+  "training_input": "datasets/bad_english/proofing/proofreader/{train,dev}.jsonl ({id, prompt, target, kind repair|identity, language_kind, target_source}): train 21414 pairs, dev 3946, prompt_profile message-only (one sentence)",
+  "projection": "tools/datasets/build-language-proofing.mjs: one sentence-level pair per sentence of a bad_english row whose host-split sentence counts of message and target agree (multi-sentence rows with different counts skipped), mechanical meaning checks (names, numbers, quotes, negation parity, question marks, length ratio), sentence-level exact-match leakage against the sealed hashes, train prompts deduplicated, dev prompts that occur in train dropped from dev; identity share 10% (half clean sentences inside bad rows, half clean symbolic_english sentences).",
+  "mix": {
+   "train": {
+    "pairs": 21414,
+    "by_pair": {
+     "identity": 2141,
+     "repair": 19273
+    },
+    "by_kind": {
+     "clean": 2141,
+     "mixed": 1933,
+     "noisy_en": 5425,
+     "ro": 11915
+    },
+    "by_row_kind": {
+     "clean": 1071,
+     "mixed": 5803,
+     "noisy_en": 5264,
+     "ro": 9276
+    },
+    "by_target_source": {
+     "clean-sibling": 2,
+     "identity:in-row": 1070,
+     "identity:symbolic_english": 1071,
+     "llm:deepseek-flash": 13663,
+     "new_cases.clean": 476,
+     "noise-inverse": 2961,
+     "proofing.repair": 1014,
+     "proofing.translate": 1157
+    },
+    "by_review_status": {
+     "n/a": 1071,
+     "not_reviewed": 5710,
+     "pending": 14157,
+     "reviewed-by:pending": 476
+    },
+    "sentences_in_row": {
+     "1": 10558,
+     "2": 4960,
+     "3": 712,
+     "4": 64,
+     "5": 39,
+     "6+": 5081
+    }
+   },
+   "dev": {
+    "pairs": 3946,
+    "by_pair": {
+     "identity": 395,
+     "repair": 3551
+    },
+    "by_kind": {
+     "clean": 395,
+     "mixed": 359,
+     "noisy_en": 689,
+     "ro": 2503
+    },
+    "by_row_kind": {
+     "clean": 198,
+     "mixed": 1078,
+     "noisy_en": 697,
+     "ro": 1973
+    },
+    "by_target_source": {
+     "identity:in-row": 197,
+     "identity:symbolic_english": 198,
+     "llm:deepseek-flash": 2770,
+     "new_cases.clean": 72,
+     "noise-inverse": 350,
+     "proofing.repair": 112,
+     "proofing.translate": 247
+    },
+    "by_review_status": {
+     "n/a": 198,
+     "not_reviewed": 807,
+     "pending": 2869,
+     "reviewed-by:pending": 72
+    },
+    "sentences_in_row": {
+     "1": 2008,
+     "2": 817,
+     "3": 126,
+     "4": 23,
+     "5": 5,
+     "6+": 967
+    }
+   }
+  },
+  "tokens": {
+   "tokenizer": "Gemma 3, chat template of training/python/common.py chat_ids",
+   "train": {
+    "n": 21414,
+    "min": 14,
+    "p50": 38,
+    "p90": 55,
+    "p99": 84,
+    "max": 161
+   },
+   "dev": {
+    "n": 3946,
+    "min": 15,
+    "p50": 38,
+    "p90": 58,
+    "p99": 82,
+    "max": 306
+   }
+  },
+  "dataset_manifest_sha256": "919d5fa86f62b5ed84c5338b5c96dd3a69e75bc43c956a307df96049d45f5800",
+  "bad_english_manifest_sha256": "953604bddaf60e8a2d9f11e50de5437cd10bb199d6e8171acea43de28cba6569",
+  "projection_sha256": {
+   "proofreader/train.jsonl": "324a34eb400fc05d2eb4328c09e88cdc1b6a3339782ecf7c1eb842bf5e08250b",
+   "proofreader/dev.jsonl": "5b3debae2f76e68cdef7be79fbef77a929b8af686e07cc577c8f6852a0db28ef"
+  },
+  "source_sha256": {
+   "datasets/bad_english/manifest.json": "953604bddaf60e8a2d9f11e50de5437cd10bb199d6e8171acea43de28cba6569",
+   "datasets/bad_english/train.jsonl": "e63af1dc8e9f472901ea5598c20bc52037a3159e338f99764396089aee86d7e9",
+   "datasets/bad_english/dev.jsonl": "e9d5f5f74581c8556451ad3488ec00f9e122f7ae8316a92883610d549dca9943"
+  },
+  "merge_event": "status/journal.jsonl 2026-09-30T21:10:25.500Z meaning-judge-agent done: 12,805 DeepSeek targets merged into train/dev (review pending), 1,517 held by the clean-English gate, 760 llm_unfixable; 100-row read: 3% meaning errors. Not merged into the sealed test (owner question Q-DATA-2): the sealed units of rows without a reference are scored reference-free.",
+  "verification": "node tools/datasets/verify-three-datasets.mjs --dataset bad_english: 0 failures (train 17,977, dev 3,391, sealed test 4,245). The run without --dataset reports 43,256 failures, all from the retired analysis_verified gold_sop_match fields of the datasets another agent (dataset-resplit-agent) is re-splitting at this moment (symbolic_english and neuro_english); it is not used as a gate for this bad_english run and the discrepancy is recorded here (deviation D1).",
+  "sealed_test": "eval/suites/bad_english/proofing-test.jsonl, 12224 sentence units (4359 with a reference, 7865 without), sha256 743fb9f5be3cfca9fbbaf4eddc8af2c5c49db478f6e1eee0d45c88cd2554ee25, written by tools/eval/language-proofing-test.mjs from eval/suites/bad_english/test.jsonl (sha256 380c8a09066dcebc60ebd9cd9ca2261643c980e799746ef8004859202224ae61); never read by training or dev selection",
+  "sealed_units": {
+   "by_pair": {
+    "identity": 3012,
+    "repair": 9212
+   },
+   "by_kind": {
+    "clean": 3012,
+    "mixed": 472,
+    "noisy_en": 1678,
+    "ro": 7062
+   },
+   "by_target_source": {
+    "identity:in-row": 3012,
+    "new_cases.clean": 157,
+    "noise-inverse": 1073,
+    "none": 7865,
+    "proofing.repair": 117
+   }
+  },
+  "composed_suite": "eval/suites/bad_english/test-composed.jsonl sha256 b66952c018448d440a5133ec824d0e640d55020a1a946aac9ec8f60d7cbf155e",
+  "qualification": "status/training/qualification-language-proofing.json (experiment-grade: sentence pairs reproduced from source rows, mechanical meaning checks, sentence-level leakage checks; DeepSeek targets unreviewed)",
+  "authorization": "status/training/authorization-gemma-language-proofing-gemma270m-it1.json (transcription of the owner decision 2026-09-30T17:32:38.274Z; scope status/training/owner-approval-language-proofing-it1.json)",
+  "identity_source": "symbolic_english messages are copied at build time into datasets/bad_english/proofing/identity-source.jsonl because symbolic_english is being re-split; the identity messages are clean English whichever split they end up in"
+ },
+ "recipe_policy": {
+  "mode": "LoRA adapter rank 16, alpha 32, dropout 0.05, lr 2e-4, batch 2 x accumulation 8, max_length 8192, sdpa, bf16, seed 42 (config/train-gemma.json, unchanged from train-proofreader-gemma270m-v1 and train-symbolic-proofing-gemma270m-it1)",
+  "epochs_attempt_a": 3,
+  "steps": "ceil(ceil(21414/2)/8) per epoch",
+  "conditional_attempt_b": "Only if the attempt-A dev evidence says the model is under-trained (dev loss and the dev100 selection score both still improving at epoch 3, no stop rule tripped): ONE further run `language-proofing-gemma270m-it1b` with a recipe copy differing only in epochs (6) and its own qualification-bound receipt. The checkpoint reported is the best over attempts A and B chosen on dev only. No other recipe change is allowed in iteration 1.",
+  "snapshots": "training/python/train.py writes one adapter snapshot per epoch (epoch-N, role proofreader) so each epoch can be decoded on dev; `best` (lowest dev loss) is also kept."
+ },
+ "early_stopping": {
+  "after_each_epoch": "dev loss and a greedy decode (same message-only prompt, HF bf16, batch) of a stratified sample of about 100 dev units (tools/eval/language-proofing-eval.mjs --split dev --sample 100, seed 7, strata pair x kind), scored by the mechanical layer (clean-English gate, content preservation incl. negation, chrF, identity untouched, empty or capped share).",
+  "stop_rules": "Stop and keep the previous epoch if: more than 20% of dev100 outputs empty or length-capped; or identity collapse (identity units changed in more than 50% of cases after epoch 2); or every repair output equals its input after epoch 1; or non-finite loss, OOM, resource floor, wall-time cap 120 minutes. Stop (plateau) when dev loss has not improved for 2 consecutive epochs. A run that trips none of these completes its epoch budget.",
+  "sealed_evaluation_stages": "Sealed units: mechanical metrics on the full set (cheap); parse-judge and meaning-judge layers on the stratified judged sample (600 units, seed 7, strata pair x kind), scored in one stage (the judge cost is the limit, not compute); composed K4 in stratified stages 100 then 300 then full (tools/eval/composed-score.mjs); the shipped-backend baseline on the 300-unit stratified sample. A suite stops early when the interval is decisive versus the baseline, when the condition is broken (more than 20% unparsable or empty outputs on the first 100), or on futility; every stop is recorded with stage, numbers and reason."
+ },
+ "evaluation": {
+  "checkpoint": "epoch snapshot selected on dev only: highest dev100 repair composite (clean-English gate AND content preserved incl. negation) among epochs whose identity-unchanged rate on dev100 is at least 90%, ties by chrF then lowest dev loss. The sealed data never selects anything.",
+  "decoding": "greedy, message-only prompt; HF bf16 (selection and sealed test) and llama.cpp Q8_0 (deployment form, composed K4 through llama-server, CPU speed). HF vs llama.cpp greedy agreement is checked on 50 rows before the GGUF numbers are trusted.",
+  "metrics": "(a) clean-English rate, (b) content preservation, (c) chrF and token F1 against the reference where it exists, (d) analysis correctness (calibrated gate, judged sample), (e) identity left untouched, (f) meaning judge two-vote on the judged sample (uncalibrated for Romanian input), composite good = (a) and (b) and (d). Wilson 95% intervals on rates, bootstrap 95% intervals on means and on paired differences (2,000 resamples).",
+  "cpu_speed": "GGUF Q8_0, llama.cpp CPU, 4 threads, 30 messages of the sealed test; ms per message and tokens per second.",
+  "gguf": "Q8_0 through ~/proofreader-export-venv (the llama.cpp converter copy that handles Gemma 3), 50-row HF vs llama.cpp greedy agreement."
+ },
+ "decision_rule_iteration_2": {
+  "continue_270m": "If H1, H2 and H5 hold and H8 is 'learns' or 'partial': iteration 2 stays on Gemma 3 270M with more and more varied data (DeepSeek through omp), targeted at the weak kind and error categories.",
+  "escalate": "If H8 says below 40% on both ro measures with the dev curve plateaued, or H1 fails for every kind: 270M clearly cannot learn this data; the owner's fallback is Gemma 3 1B with LoRA, as a new preregistered run.",
+  "note": "These thresholds are practical bars fixed before results; the decision to start iteration 2 is the owner's and the orchestrator's."
+ },
+ "non_goals": "no change to SymbolicLM or lib/ud-to-sop rules; no tuning on any sealed file; no fine-tuning of any model other than gemma-3-270m-it; no SOP-layer metric; no LanguageProofingLLM deployment change",
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-09-30T21:40:00Z",
+   "what": "verify-three-datasets.mjs without --dataset fails (43,256) on the retired analysis_verified fields of symbolic_english and neuro_english while dataset-resplit-agent re-splits them; the bad_english-only run passes with 0 failures. The bad_english-only run is used for this experiment's data gate.",
+   "why": "the failing datasets are not inputs of this run (identity sentences are snapshotted)",
+   "effect": "none on the bad_english data; the snapshot keeps the identity messages independent of the re-split"
+  },
+  {
+   "id": "D2",
+   "at": "2026-09-30T21:55:00Z",
+   "what": "Attempt A2 (default CUDA free floor 48 GiB) stopped itself at step ~1,250 of epoch 1 because the CUDA driver free memory fell to 47.9 GiB (other agents were using the GPU); no checkpoint was written. Attempt A3 of the same recipe uses the bounded documented override TRAIN_MIN_CUDA_FREE_GIB=24 with TRAIN_CUDA_FREE_CHECK=host; the host RAM floors (48 GiB start, 16 GiB stop) and disk floors are unchanged. Attempt A (job langproof-it1-train-a) failed before any step because proofreader/manifest.json was missing; it was added and the qualification and receipt regenerated.",
+   "why": "parallel GPU use by the other agents (owner allows parallel runs); the same override was used by the symbolic-proofing run",
+   "effect": "none on the recipe, data or seeds; the run restarts from scratch"
+  },
+  {
+   "id": "D3",
+   "at": "2026-10-01T00:20:00Z",
+   "what": "The sealed bad_english test was changed by an owner-approved merge while the run was training (journal 2026-09-30T21:18:47Z decision Q-DATA-2; executed by dataset-resplit-agent at 21:38Z with `tools/eval/three-datasets-suites.mjs merge-llm-targets`: 2,512 llm:deepseek-flash targets, rows with a target 1,271 -> 3,783; eval/suites/bad_english/test.jsonl sha256 380c8a09... -> 9204379d...). The sealed units were therefore rebuilt from the merged file (tools/eval/language-proofing-test.mjs build) after the tuned model had been scored once, mechanically only, on the pre-merge units. All arms are re-run on the rebuilt units and only the rebuilt units are reported; the pre-merge outputs are kept as caches only. The units have more references (the ro kind now has references, so chrF is computed for ro) and the reference-free metrics cover all units as before.",
+   "why": "owner decision to complete sealed rows that are incomplete",
+   "effect": "sealed hash of the units changes (final value recorded in the report); thresholds and hypotheses unchanged; the training data were built against the pre-merge sealed hashes, a post-hoc check against the merged test is in eval/reports/current/language-proofing-it1/leakage-post-merge.json (no sealed message sentence is a train or dev prompt; 7 train pairs have a prompt equal to a merged sealed reference sentence, 94 train targets equal a sealed sentence)"
+  },
+  {
+   "id": "D4",
+   "at": "2026-10-01T00:20:00Z",
+   "what": "Additional sealed identity set eval/suites/bad_english/proofing-test-clean.jsonl (900 single-sentence clean English messages of the sealed symbolic_english test) for hypothesis H5. The identity units inside the bad_english test rows (sentences the clean-English gate accepts) turned out not to be clean in fact (spacing before punctuation, missing space after a comma), so `left untouched` on them measures a different thing; both are reported and H5 is judged on the 900 truly clean sentences.",
+   "why": "H5 needs clean sentences; the in-row identity units are only gate-clean",
+   "effect": "H5 reading changes from in-row identity units to the clean set; the in-row result is reported separately"
+  }
+ ]
+}

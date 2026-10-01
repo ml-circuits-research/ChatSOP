@@ -1,0 +1,7 @@
+# neuro_english/proofing-it3: SymbolicProofingLLM sentence-unit pairs with the corrected pair rules (not trained)
+
+Same builder and gates as `proofing-it2` (`tools/datasets/build-symbolic-proofing-v2.mjs`, `SYMPROOF_VERSION=it3`), pair rules v3: the rules that protect the meaning stay (a pronoun replaced by a name, an invented or lost name, a changed number, a lost negation, a statement turned into a question), the detector artifacts and the over-strict rules found by reading 20 rejected pairs per category are corrected, and a content-free lead-in or a question frame may be dropped by a repair (labels, "True or false", "Fact-check", "Hypothetically", "Also", "Plus" and hedges stay protected). 1,060 pairs are recovered against `proofing-it2`; the audit with the reading sample is `eval/reports/current/symbolic-proofing-it3/data/audit-rejected.md`.
+
+Because lead-ins and frames may now be dropped by repairs, the identity pairs of the same lead-ins and frames are what keeps the model from dropping them on working sentences (iteration 2 showed that 32% of its identity breaks are lead-in or frame removals); iteration 3 needs more of them (`eval/reports/current/symbolic-proofing-it2/summary.md`, "What iteration 3 needs").
+
+Files as in `proofing-it2`. Qualified by `status/training/qualification-symbolic-proofing-it3.json`; there is NO authorization receipt and NO training run: training needs the orchestrator's decision and the owner's approval (AGENTS.md rule 3).

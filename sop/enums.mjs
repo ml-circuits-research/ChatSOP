@@ -85,6 +85,15 @@ export const MAX_SPAN = 200;
 /** Status of a link in the packet (`clause_links[].status`): applied by the host, or recorded and reported only. */
 export const LINK_STATUSES = Object.freeze(['applied', 'not_checked']);
 
+/**
+ * `pragmatic` (DS029, owner decision of 2026-10-01): an advisory signal about the pragmatic or emotional role of a
+ * message or of a span of it, emitted by the host's EmotionDetectionSystem, never by the model. The closed kinds and
+ * the closed bases (how the signal was found) are listed here; a signal is the system's subjective perception, never a
+ * fact about the world.
+ */
+export const PRAGMATIC_KINDS = Object.freeze(['greeting', 'closing', 'thanks', 'apology', 'politeness', 'urgency', 'frustration', 'anger', 'confusion', 'curiosity', 'joy', 'sadness', 'fear', 'disappointment', 'hedge', 'emphasis', 'profanity', 'offensive', 'irony_possible', 'confirmation_request', 'topic_shift', 'unclassified']);
+export const PRAGMATIC_BASES = Object.freeze(['lexicon', 'pattern', 'classifier', 'llm']);
+
 export const ENUMS = Object.freeze({
   query: {mode: [...QUERY_MODES], measure: [...TIME_MEASURES], fragment: [...FRAGMENT_KINDS]},
   constraint: {task: ['prove', 'possible', 'optimize'], direction: ['min', 'max']},
@@ -95,6 +104,7 @@ export const ENUMS = Object.freeze({
   assumed: {polarity: [...POLARITIES], basis: [...BASES]},
   unclear: {kind: Object.keys(UNCLEAR_KINDS), language: [...REPLY_LANGUAGES], readingKinds: [...READING_KINDS]},
   unparsed: {hint: [...UNPARSED_HINTS]},
+  pragmatic: {kind: [...PRAGMATIC_KINDS], basis: [...PRAGMATIC_BASES]},
 });
 
 /** Is `value` one of the closed values of `type.field`? */

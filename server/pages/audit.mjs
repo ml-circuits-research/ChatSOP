@@ -78,7 +78,7 @@ table.deps td,table.deps th{padding:2px 6px;white-space:nowrap}
 function client() {
   const PAGE_SIZE = 50;
   const VERDICT_LABEL = {unreviewed: 'unreviewed', approve: 'ok', needs_fix: 'needs fix', reject: 'reject'};
-  const FILTER_KEYS = ['split', 'family', 'language', 'input_mode', 'review', 'theme', 'status', 'verdict', 'kind', 'layer', 'pipeline', 'question_type', 'category', 'domain', 'author', 'source', 'verification', 'judge', 'agreement', 'outcome', 'failure_kind', 'blame', 'target_state', 'flag', 'target_source', 'noise'];
+  const FILTER_KEYS = ['split', 'family', 'language', 'input_mode', 'review', 'theme', 'status', 'verdict', 'kind', 'layer', 'pipeline', 'question_type', 'category', 'domain', 'author', 'source', 'verification', 'sop_layer', 'judge', 'agreement', 'outcome', 'failure_kind', 'blame', 'target_state', 'flag', 'target_source', 'noise'];
   const TABS = window.CHATSOP_AUDIT.tabs;
   const TAB_IDS = TABS.map(tab => tab.id);
   const openGroups = new Set(['split', 'family', 'language', 'verdict']);
@@ -411,7 +411,8 @@ function client() {
       '<details class="fold"><summary>Arc list (' + sentence.arcs.length + ')</summary><pre>' + esc(sentence.arcs.join('\n')) + '</pre></details></div>').join('');
   }
 
-  const verifyStatus = c => '<span class="badge ' + (c.verification.analysis_verified === 'gold_sop_match' ? 'good' : 'warning') + '">' + esc(c.verification.analysis_verified) + '</span>';
+  const sopLayerText = layer => (layer ? '<span class="badge">' + esc(layer.status) + '</span>' + (layer.failure_kind ? ' <span class="muted">SOP failure kind ' + esc(layer.failure_kind) + '</span>' : '') : '<span class="badge">none</span>');
+  const verifyStatus = c => '<span class="badge ' + (['analysis_gate', 'sop_rule', 'gold_sop_match'].includes(c.verification.analysis_verified) ? 'good' : 'warning') + '">' + esc(c.verification.analysis_verified) + '</span>';
 
   function lmInfo(c) {
     return c.symbolic_lm ? inline({version: c.symbolic_lm.version, rules: c.symbolic_lm.rules, stanza: c.symbolic_lm.stanza}) : '';
@@ -421,10 +422,11 @@ function client() {
     const fields = '<section>' + kv([['dataset', esc(c.corpus)], ['split', esc(c.splits.join(', '))], ['source corpus', esc(c.source?.corpus)], ['source id', '<code>' + esc(c.source?.id) + '</code>'], ['file', esc(c.file)], ['SymbolicLM', lmInfo(c)], ['review status', esc(c.review_status)]]) + '</section>';
     const verification = '<section><h3>Verification status</h3>' + kv([
       ['analysis verified', verifyStatus(c)],
+      ['analysis judge (DeepSeek a and c, identical trees)', judgeText(c.verification.judge)],
+      ['SOP layer (later layer)', sopLayerText(c.verification.sop_layer)],
       ['SOP matches the gold', yesNo(c.verification.sop_gold_match)],
-      ['judge verdict', judgeText(c.verification.judge)],
       ['Stanza and spaCy agree on the core arcs', yesNo(c.verification.stanza_spacy_agree)],
-    ]) + '<p class="muted" style="margin:6px 0 0">gold_sop_match: the SOP built from this analysis equals the gold SOP strictly. pending_judge: no gold; SymbolicLM produced a valid SOP with no unparsed span and the analysis awaits the parse judge. Stanza-spaCy agreement is a weak second opinion, not a verdict.</p></section>';
+    ]) + '<p class="muted" style="margin:6px 0 0">analysis_gate: every sentence has identical default and accurate Stanza trees and the DeepSeek parse judge (conditions a and c) says good enough. sop_rule: no analysed sentence or an unparsed span, so the SOP rules decided. The SOP layer (match, mismatch, no gold) is information for the later layer and never decides the dataset. Stanza-spaCy agreement is a weak second opinion, not a verdict.</p></section>';
     const message = '<section class="model"><h3>Message</h3><div class="message">' + esc(c.message) + '</div></section>';
     const analysis = '<section><h3>SymbolicLM grammatical analysis</h3>' + analysisHtml(c.sentences) + '</section>';
     const sop = '<section><h3>SOP Lang produced from the analysis</h3>' + (c.sop ? codeBlock(c.sop, 'sop') : '<p class="muted">No SOP stored (SOP generation is a later stage).</p>') + kv([['valid', yesNo(c.sop_valid)], ['outcome', esc(c.outcome)], ['unparsed', esc((c.unparsed ?? []).join(' | '))]]) +
@@ -433,11 +435,11 @@ function client() {
     $('detail').innerHTML = commonHead(c) + fields + message + verification + analysis + sop + rerun + verdictSection(c) + rawSection(c);
   }
 
-  const failureNotes = {parser: 'Stanza analysed the sentence wrongly.', rules: 'The parse is usable but the UD-to-SOP rules miss or mis-build.', gold_convention: 'Only a gold convention differs (boundary, role name, wording); not a rewrite target.', unknown: 'No layer information.'};
+  const failureNotes = {trees_differ: 'The default and accurate Stanza trees of a sentence differ.', judge_ac: 'The DeepSeek parse judge says not good enough on both conditions a and c.', judge_a: 'The DeepSeek parse judge says not good enough on condition a (reading and arcs).', judge_c: 'The DeepSeek parse judge says not good enough on condition c (six checks on the tree).', no_analysis: 'No analysed sentence; the SOP rules decided.', unparsed_span: 'SymbolicLM left an unparsed span; the SOP rules decided.', pending_judge: 'No judge verdict yet.', parser: 'Stanza analysed the sentence wrongly.', rules: 'The parse is usable but the UD-to-SOP rules miss or mis-build.', gold_convention: 'Only a gold convention differs (boundary, role name, wording); not a rewrite target.', unknown: 'No layer information.'};
 
   function renderNeuroEnglish(c) {
     const f = c.failure ?? {};
-    const fields = '<section>' + kv([['dataset', esc(c.corpus)], ['split', esc(c.splits.join(', '))], ['source corpus', esc(c.source?.corpus)], ['file', esc(c.file)], ['SymbolicLM', lmInfo(c)], ['analysis verified', verifyStatus(c)], ['review status', esc(c.review_status)]]) + '</section>';
+    const fields = '<section>' + kv([['dataset', esc(c.corpus)], ['split', esc(c.splits.join(', '))], ['source corpus', esc(c.source?.corpus)], ['file', esc(c.file)], ['SymbolicLM', lmInfo(c)], ['analysis verified', verifyStatus(c)], ['SOP layer (later layer)', sopLayerText(c.verification?.sop_layer)], ['review status', esc(c.review_status)]]) + '</section>';
     const failure = '<section><h3>Failure: ' + esc(c.failure_kind) + '</h3><p class="why">' + esc(failureNotes[c.failure_kind] ?? '') + '</p>' + kv([
       ['failure_kind', '<span class="badge">' + esc(c.failure_kind) + '</span>'],
       ['blame categories', chips(f.categories)],

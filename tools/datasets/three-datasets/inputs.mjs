@@ -2,17 +2,29 @@
  * Haiku-diversified paraphrases (their split groups all lie in formalizer-v1 train) and the new cases. Sealed suites
  * are never opened here (AGENTS.md rule 9); `tools/eval/three-datasets-suites.mjs` supplies their records.
  */
+import fs from 'node:fs';
 import path from 'node:path';
 import {readJsonlShardedSync} from '../../../lib/jsonl-shards.mjs';
-import {ROOT, archived} from '../../../lib/dataset-paths.mjs';
+import {ROOT, ARCHIVE_DIR, archived} from '../../../lib/dataset-paths.mjs';
 import {formalizerRecord, newCaseRecord, newCaseSplits, readNewCases, writerOf} from './sources.mjs';
 
+/** The legacy suites re-split across train, dev and test (tools/eval/legacy-resplit.mjs writes `datasets_archive/legacy-resplit/<corpus>/manifest.json` of format chatsop-legacy-resplit-v1; `wild: true` marks rows without a verification world). */
+function legacySplitCorpora() {
+  const dir = path.join(ROOT, ARCHIVE_DIR, 'legacy-resplit');
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).map(name => { try { return {name, manifest: JSON.parse(fs.readFileSync(path.join(dir, name, 'manifest.json'), 'utf8'))}; } catch { return null; } }).filter(x => x?.manifest?.format === 'chatsop-legacy-resplit-v1').sort((a, b) => a.name.localeCompare(b.name)).map(x => ({corpus: x.name, wild: Boolean(x.manifest.wild)}));
+}
 const read = relative => readJsonlShardedSync(path.join(ROOT, relative));
 
 /** formalizer-v1 train and dev, plus the diversified paraphrases in the split of their group. */
 export function trainDevFormalizerRecords({excludeGroups = new Set()} = {}) {
   const out = [];
   for (const split of ['train', 'dev']) for (const row of read(archived(`formalizer-v1/${split}.jsonl`))) if (!excludeGroups.has(row.split_group_id)) out.push(formalizerRecord(row, {corpus: 'formalizer-v1', split}));
+  // Owner decision 2026-09-30 (DS008 "Form coverage and form variants"): the legacy out-of-distribution and wild suites are learning material. Their train and dev
+  // parts were split by group and written to datasets_archive/ by tools/eval/legacy-resplit.mjs; the test part is sealed by tools/eval/three-datasets-suites.mjs.
+  for (const {corpus, wild} of legacySplitCorpora()) for (const split of ['train', 'dev']) {
+    for (const row of read(archived(`legacy-resplit/${corpus}/${split}.jsonl`))) if (!excludeGroups.has(row.split_group_id)) out.push(formalizerRecord(row, {corpus, split, wild}));
+  }
   const groups = new Map(out.map(r => [r.splitGroupId, r.split]));
   for (const row of read(archived('proofing-diverse-dev/diverse-dev.jsonl'))) {
     const split = groups.get(row.split_group_id);

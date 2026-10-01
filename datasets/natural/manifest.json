@@ -1,0 +1,40 @@
+{
+ "format": "chatsop-natural-collection-v1",
+ "dataset": "natural",
+ "role": "realism evaluation set (read as a whole) and seeds for synthetic training data",
+ "sealed": false,
+ "training_authorized": false,
+ "purpose": "Realistic owner input: the project owner's own chat messages to Claude Code in this repository (mostly Romanian with typos and English technical words; instructions to an AI assistant about software). Two roles. (a) The realism evaluation set, read as a whole and reported separately: a check of the input pipeline (textToCleanEnglish, SymbolicLM, the interpretation, the SymbolicProofingLLM rewrite), with no claim of form coverage. (b) Seeds for synthetic training data: a derived row reuses the FORM of a message with different content words (names, nouns, verbs, numbers), never the message or its words; tools/datasets/audit/natural-overlap.mjs fails closed.",
+ "path": "datasets/natural/messages.jsonl",
+ "collector": "tools/eval/collect-natural.mjs (idempotent: a row is identified by session + ts; the collection grows over time)",
+ "rights": {
+  "holder": "owner (the author of the messages)",
+  "status": "cleared",
+  "record": "docs/specs/DS014-source-rights.md \"Owner chat messages\""
+ },
+ "scrubbed": "pasted_content blocks, e-mail addresses, secret-looking tokens and absolute home paths are replaced by placeholders ([pasted content], [email], [token], [path]); the wording is otherwise verbatim, typos included; mostly-pasted messages are dropped",
+ "rows": 226,
+ "sha256": "6d9e6892c46f5b4afc1276611df1d8b742522b2d00394ebd2e00ddd9d8a1af7c",
+ "bytes": 90950,
+ "words": {
+  "median": 25,
+  "p90": 100,
+  "max": 335,
+  "total": 9894
+ },
+ "first_ts": "2026-09-28T11:08:45.634Z",
+ "last_ts": "2026-10-01T08:57:54.362Z",
+ "sessions": 1,
+ "last_run": {
+  "transcripts": 3,
+  "entries": 235,
+  "already": 225,
+  "added": 1,
+  "dropped": {
+   "only_pasted": 1,
+   "mostly_pasted": 2,
+   "too_short": 6
+  },
+  "at": "2026-10-01T09:03:05.852Z"
+ }
+}

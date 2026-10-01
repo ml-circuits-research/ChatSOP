@@ -13,6 +13,11 @@
  * Rows carry `composed: true`, their components and `source.corpus: composed`. Without `--apply` nothing in datasets/ is touched; with
  * it the rows replace the previous composed rows of datasets/<dataset>/{train,dev}.jsonl and the manifests are updated. Run it after
  * every rebuild of the three datasets (tools/datasets/build-three-datasets.mjs), so a rebuild keeps them.
+ *
+ * Membership is re-derived on the analysis layer like that of every clean-English row (DS008 "Three datasets"): the paragraph goes to symbolic_english when
+ * every sentence of it passes the analysis gate (identical default/accurate trees, DeepSeek conditions a and c good), else to neuro_english; its SOP comparison
+ * stays as `sop_layer`. The gate needs parses and judge verdicts of the paragraphs: the first run records them and appends the missing items to
+ * datasets_sources/resplit_parse_judge/ and refuses to `--apply` while a verdict is missing (run the judge task, then run again).
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -26,6 +31,8 @@ import {compareParagraph} from '../eval/composed/sop-canon.mjs';
 import {openLm, handled} from '../eval/composed/lm.mjs';
 import {rulesVersion} from '../eval/composed/rules-version.mjs';
 import {classifyRow} from './three-datasets/decomposition.mjs';
+import {AnalysisGate} from './three-datasets/analysis-gate.mjs';
+import {decideAdditions, placeRow} from './three-datasets/place.mjs';
 
 export const SIZES = {train: {identity: [[2, 12], [3, 12], [4, 12], [6, 12], [8, 12]], mixed: [[2, 1, 10], [3, 1, 10], [4, 2, 10], [6, 3, 10], [8, 2, 10], [5, 1, 10]], decomposition: [[2, 1, 12], [3, 1, 12], [4, 1, 12], [4, 2, 12], [6, 2, 12]]},
   dev: {identity: [[2, 3], [4, 3], [6, 3]], mixed: [[3, 1, 3], [4, 2, 3], [6, 3, 3]], decomposition: [[2, 1, 3], [3, 1, 3], [4, 2, 3]]}};
@@ -104,6 +111,12 @@ export async function build({split, seed = 'composed-train-v1', root = ROOT, lm}
   return {rows: out, report};
 }
 
+/** A candidate row of `build` in its dataset by the analysis gate (place.mjs). */
+export function placeComposed(row, decision) {
+  const {dataset: _dataset, gold_sop, analysis_verified: _av, verification, target, target_source, targets, rewrite_target: _rt, failure_kind: _fk, failure: _f, flags: _flags, ...base} = row;
+  return placeRow(base, decision, {gold_sop, sopMatch: verification.sop_gold_match, target: target ?? null, targetSource: target_source ?? null, targets: targets ?? [], verification: {composed_from_verified_components: true}, failureExtra: {composed: true}});
+}
+
 const parseArgs = argv => { const o = {}; for (let i = 0; i < argv.length; i++) if (argv[i].startsWith('--')) o[argv[i].slice(2)] = argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[++i] : true; return o; };
 
 /** Replace the composed rows of datasets/<dataset>/<split>.jsonl and refresh the manifest. */
@@ -124,12 +137,22 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const o = parseArgs(process.argv.slice(2));
   const lm = await openLm();
   try {
-    const all = [], reports = [];
-    for (const split of ['train', 'dev']) { const {rows, report} = await build({split, lm, seed: o.seed ?? 'composed-train-v1'}); all.push(...rows); reports.push(report); console.log(JSON.stringify(report)); }
+    const candidates = [], reports = [];
+    for (const split of ['train', 'dev']) { const {rows, report} = await build({split, lm, seed: o.seed ?? 'composed-train-v1'}); candidates.push(...rows); reports.push(report); console.log(JSON.stringify(report)); }
+    // Analysis-layer membership: record the parses and judge items the gate lacks, then place every paragraph.
+    const gate = new AnalysisGate();
+    const {decisions, summary} = await decideAdditions(gate, candidates, {record: !o.dry, log: m => process.stderr.write(m + '\n')});
+    console.log(JSON.stringify({gate: summary}));
+    const pending = candidates.filter(r => decisions.get(r.message).state === 'pending').length;
+    const all = candidates.map(r => placeComposed(r, decisions.get(r.message)));
+    const placed = {};
+    for (const r of all) placed[`${r.composed_kind}:${r.dataset}`] = (placed[`${r.composed_kind}:${r.dataset}`] ?? 0) + 1;
+    console.log(JSON.stringify({placed, pending}));
     if (o.out) fs.writeFileSync(path.resolve(ROOT, o.out), all.map(r => JSON.stringify(r)).join('\n') + '\n');
-    if (o.apply) await apply(all);
+    if (o.apply && pending) { console.error(`${pending} paragraphs have no analysis verdict yet: run the judge task on datasets_sources/resplit_parse_judge/ and run again; nothing applied`); process.exitCode = 2; }
+    else if (o.apply) await apply(all);
     fs.mkdirSync(path.join(ROOT, 'eval/reports/current/composed-eval'), {recursive: true});
-    fs.writeFileSync(path.join(ROOT, 'eval/reports/current/composed-eval/composed-train-report.json'), JSON.stringify({generated_at: new Date().toISOString(), applied: Boolean(o.apply), reports}, null, 1) + '\n');
+    fs.writeFileSync(path.join(ROOT, 'eval/reports/current/composed-eval/composed-train-report.json'), JSON.stringify({generated_at: new Date().toISOString(), applied: Boolean(o.apply) && !pending, pending, placed, gate: summary, reports}, null, 1) + '\n');
   } finally { await lm.close(); }
-  process.exit(0);
+  process.exit(process.exitCode ?? 0);
 }

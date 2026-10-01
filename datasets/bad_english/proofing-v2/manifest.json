@@ -1,0 +1,312 @@
+{
+ "format": "chatsop-proofing-pairs-v1",
+ "dataset": "bad_english",
+ "model": "LanguageProofingLLM",
+ "role": "proofreader",
+ "iteration": 2,
+ "prompt_profile": "message-only",
+ "prompt": "row.prompt verbatim: one sentence of a Romanian, mixed or badly written English message (or clean English, or keyboard mash) and nothing else (DS021 message-only input); training/python/common.py chat_ids()",
+ "target": "row.target verbatim: the clean English sentence (repair) or the identical sentence (identity; also for unintelligible keyboard-mash input)",
+ "created": "2026-10-01T01:45:51.156Z",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "backgen_parts": [
+  "000",
+  "001",
+  "002",
+  "003",
+  "004",
+  "005",
+  "006",
+  "007",
+  "008",
+  "009"
+ ],
+ "identity_share_target": 0.22,
+ "seed": 20261001,
+ "held_out_vocabulary": [
+  "cousin",
+  "niece",
+  "uncle",
+  "tenant",
+  "supervisor",
+  "tutor",
+  "owe",
+  "adopt",
+  "audit",
+  "boatyard"
+ ],
+ "source_sha256": {
+  "datasets/bad_english/proofing-it2-projection/proofreader/train.jsonl": "be848e27ab136f28640ddf390620bb4c8e31d360c95dd7e8767d620a27afc91b",
+  "datasets/bad_english/proofing-it2-projection/proofreader/dev.jsonl": "9fa28f1d3df6d03a7db495ad07115ec125f78b162e53744127b80957d723a266",
+  "datasets/bad_english/proofing-it2-projection/manifest.json": "92654ada812133532d124ae784193c1d2570a6da41a341aa3b543e0231f72ded",
+  "datasets/bad_english/manifest.json": "0216049796aee1e4aef0cfafc80fdc5e812546aef610fee3c42cf821bf3f1d59",
+  "datasets/bad_english/train.jsonl": "134f0a641e9eb400060e36316bdffb601cba63edfb84226baba14d1df2a76359",
+  "datasets/bad_english/dev.jsonl": "560f04b5c3167862b07ac4398762e2a9a85df00052f41e3a35dbb53b1af863bf",
+  "eval/reports/current/language-proofing-it2/candidates.jsonl": "ee156ae55fee32584696def00f682d236f6b3f18c18fb1fe05deae17cb84ef01",
+  "datasets_sources/language_proofing_it2_backgen_judge/output/verdicts.jsonl": "c260e78abfe3076fe9a1cbf8e1a627521968ec7ab76b7bb67ee30dbaa3270b48",
+  "datasets_sources/language_proofing_it2_backgen_judge/used/output (parts, snapshot of datasets_sources/language_backgen/output)": {
+   "part-000": "ecf62e633c363e981ed067b1caadce253511ce9ef3bb6e4a376b02219bd125bf",
+   "part-001": "7a4c490e69d392a752f8b8ae6f77ac072c7f9c4b77ef005e8d48f0bc5ac492f7",
+   "part-002": "aae1cce2178d521c1ecc68095fe73709d3a037bb4fd5c5621b6301a3501b0ed7",
+   "part-003": "cc5688e4bd09da6c22c7372b60a6100a88e1c7861952d85cbd2e4f397ddb2673",
+   "part-004": "2f178dc6bab2fe96bb5bd3dfff31b20de793c80c818495fc4b5f0fc29d4e1bcc",
+   "part-005": "3c2de7c05ceaae352dbb67a207c51e1068b0d695d710a94850de539c2cbcc783",
+   "part-006": "ecc56a7340d9b6409ff5b3965f3212b19d5c01ad90131c850fcdf5f5baad09fc",
+   "part-007": "9113ef3d94851299da48661dc1fc40c64ea7a43222e1f7cf437f551407656c66",
+   "part-008": "eb7874db637230d064e8dcf6cf18fcacbd18d191292a3527891f92d6ee25e25b",
+   "part-009": "e39a1a014190dcab5e955385837232deb4866f326f95bfe33feb8708a7948e7c"
+  }
+ },
+ "sealed_hashes_sha256": "8d37b187d30fd165042f87852c40ed7febff572a067c3b46ec1f6af02b588c11",
+ "files": {
+  "proofreader/train.jsonl": {
+   "rows": 36915,
+   "sha256": "a2bdc9156ba4b2bfdd4300614975b07e4a3f979245421d37052ea1a9e02bd533"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 5173,
+   "sha256": "64f3e613560741761c3b9ce30d158bb806b4dd0285bdf1182d683568a5e70dc7"
+  },
+  "dev-backgen.jsonl": {
+   "rows": 1488,
+   "sha256": "6bfceeefa72138d3881086a1f242c607cad209c1dd3b144c8d63461b7db5ffee"
+  },
+  "dev-heldout.jsonl": {
+   "rows": 574,
+   "sha256": "299ab93ffb46cca469248e0fff11cf809ef8850755c99d2648bb4599f7ea40e9"
+  },
+  "mash-eval.jsonl": {
+   "rows": 150,
+   "sha256": "8e43f809dfe2201f632a68d9a7585cdbb5880c5c9bfbdfb893d0955d4da376e4"
+  },
+  "reserve-heldout.jsonl": {
+   "rows": 322,
+   "sha256": "fe9f28d6a42bec2dc7920e5d2f88662f65d4ce74490c5476bf7780ca57bec366"
+  }
+ },
+ "summary": {
+  "parts": [
+   "000",
+   "001",
+   "002",
+   "003",
+   "004",
+   "005",
+   "006",
+   "007",
+   "008",
+   "009"
+  ],
+  "filters": {
+   "judge_dropped_mixed": 160,
+   "judge_dropped_ro": 115,
+   "judge_dropped_noisy_en": 41,
+   "harmonized_target": 986,
+   "noisy_gate_clean_to_identity": 757,
+   "family_term_misaligned": 20,
+   "harmonize_dropped": 2,
+   "it1_train_harmonized_target": 352,
+   "it1_train_noisy_gate_clean_to_identity": 1111,
+   "it1_train_dropped_held_out_vocabulary": 5,
+   "it1_dev_harmonized_target": 66,
+   "it1_dev_noisy_gate_clean_to_identity": 146,
+   "it1_dev_dropped_held_out_vocabulary": 6,
+   "train_duplicate_prompt": 709,
+   "template_dropped": 9,
+   "dev_prompt_also_in_train_or_dev": 144
+  },
+  "judge_votes": {
+   "new/ro": {
+    "yy": 2105,
+    "yn": 151,
+    "ny": 76,
+    "nn": 54
+   },
+   "new/mixed": {
+    "yy": 2053,
+    "yn": 141,
+    "ny": 124,
+    "nn": 76
+   },
+   "new/noisy_en": {
+    "yy": 1411,
+    "yn": 9,
+    "ny": 6,
+    "nn": 11
+   },
+   "same/ro": {
+    "yy": 1924,
+    "yn": 115,
+    "ny": 73,
+    "nn": 38
+   },
+   "same/mixed": {
+    "yy": 1927,
+    "yn": 101,
+    "ny": 69,
+    "nn": 71
+   },
+   "same/noisy_en": {
+    "yy": 1283,
+    "yn": 4,
+    "ny": 4,
+    "nn": 6
+   }
+  },
+  "backgen_pairs": {
+   "train": 11748,
+   "dev": 927,
+   "heldout_all": 896
+  },
+  "identity_pools": {
+   "train": {
+    "identity:lead-in:natural": 972,
+    "identity:new.en": 2481,
+    "identity:symbolic_english": 5201
+   },
+   "dev": {
+    "identity:lead-in:natural": 101,
+    "identity:new.en": 194,
+    "identity:symbolic_english": 734
+   }
+  },
+  "identity_synthetic": {
+   "train": 1100,
+   "dev": 120
+  },
+  "identity_train": {
+   "existing_it1": 3722,
+   "added": 4195,
+   "wanted": 4195
+  },
+  "template_pairs": 489,
+  "oversampled_copies": 441,
+  "train": {
+   "pairs": 36915,
+   "by_pair": {
+    "identity": 8215,
+    "repair": 28700
+   },
+   "by_kind": {
+    "clean": 7917,
+    "mash": 298,
+    "mixed": 6414,
+    "noisy_en": 6289,
+    "ro": 15997
+   },
+   "by_target_source": {
+    "clean-sibling": 2,
+    "identity:gate-clean-noisy": 1743,
+    "identity:in-row": 990,
+    "identity:keyboard-mash": 298,
+    "identity:lead-in:natural": 771,
+    "identity:lead-in:synthetic": 1099,
+    "identity:new.en": 2106,
+    "identity:symbolic_english": 1208,
+    "llm:deepseek-flash": 12193,
+    "llm:deepseek-flash:backgen-new": 5877,
+    "llm:deepseek-flash:backgen-same": 5565,
+    "new_cases.clean": 472,
+    "noise-inverse": 1960,
+    "proofing.repair": 989,
+    "proofing.translate": 1153,
+    "template:family-relations": 489
+   }
+  },
+  "dev": {
+   "pairs": 5173,
+   "by_pair": {
+    "identity": 1185,
+    "repair": 3988
+   },
+   "by_kind": {
+    "clean": 1125,
+    "mash": 60,
+    "mixed": 661,
+    "noisy_en": 666,
+    "ro": 2661
+   },
+   "by_target_source": {
+    "identity:gate-clean-noisy": 187,
+    "identity:in-row": 180,
+    "identity:keyboard-mash": 60,
+    "identity:lead-in:natural": 79,
+    "identity:lead-in:synthetic": 120,
+    "identity:new.en": 163,
+    "identity:symbolic_english": 396,
+    "llm:deepseek-flash": 2462,
+    "llm:deepseek-flash:backgen-new": 414,
+    "llm:deepseek-flash:backgen-same": 455,
+    "new_cases.clean": 69,
+    "noise-inverse": 233,
+    "proofing.repair": 109,
+    "proofing.translate": 246
+   }
+  },
+  "dev_backgen": {
+   "pairs": 1488,
+   "by_pair": {
+    "identity": 619,
+    "repair": 869
+   },
+   "by_kind": {
+    "clean": 619,
+    "mixed": 348,
+    "noisy_en": 156,
+    "ro": 365
+   },
+   "by_target_source": {
+    "identity:gate-clean-noisy": 41,
+    "identity:lead-in:natural": 79,
+    "identity:lead-in:synthetic": 120,
+    "identity:new.en": 163,
+    "identity:symbolic_english": 216,
+    "llm:deepseek-flash:backgen-new": 414,
+    "llm:deepseek-flash:backgen-same": 455
+   }
+  },
+  "dev_heldout": {
+   "pairs": 574,
+   "by_pair": {
+    "repair": 574
+   },
+   "by_kind": {
+    "mixed": 200,
+    "noisy_en": 174,
+    "ro": 200
+   },
+   "by_target_source": {
+    "llm:deepseek-flash:backgen-new": 574
+   }
+  },
+  "mash_eval": {
+   "pairs": 150,
+   "by_pair": {
+    "identity": 150
+   },
+   "by_kind": {
+    "mash": 150
+   },
+   "by_target_source": {
+    "identity:keyboard-mash": 150
+   }
+  },
+  "reserve_heldout": 322,
+  "held_out_vocabulary": [
+   "cousin",
+   "niece",
+   "uncle",
+   "tenant",
+   "supervisor",
+   "tutor",
+   "owe",
+   "adopt",
+   "audit",
+   "boatyard"
+  ],
+  "identity_share_train": 22.3,
+  "identity_share_dev": 22.9
+ },
+ "note": "Targets of llm:deepseek-flash pairs are DeepSeek-written, review pending; the back-generated pairs passed the mechanical checks and the two-vote meaning judge (noisy_en: both votes; ro and mixed: dropped only when both vote no). proofreader/{train,dev}.jsonl are byte-identical to ../{train,dev}.jsonl."
+}

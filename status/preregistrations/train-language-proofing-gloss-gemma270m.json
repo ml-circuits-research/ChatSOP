@@ -1,0 +1,170 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "train-language-proofing-gloss-gemma270m",
+ "name": "LanguageProofingLLM post-editor variant \"language-proofing-gloss\": Gemma 3 270M IT + LoRA on gloss prompts (datasets/bad_english/proofing-gloss, role proofreader)",
+ "registered_at": "2026-10-01T06:12:22.000Z",
+ "registered_by": "gloss-agent",
+ "status": "trained and evaluated 2026-10-01 (run langproof-gloss-train-a3); report eval/reports/current/language-proofing-gloss/summary.md",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "frozen_before_results": "Written before any optimizer step and before any prediction of any model of this run on any file. The pre-training measurements of the gloss itself (experiment eval-gloss-v1, eval/reports/current/gloss/summary.md) were made before this record and are quoted below as reference points; they used the frozen gloss code (lib/translator-service/backends/gloss.mjs sha256 ab6ffb49a2f779d880e4cae7bdeeeedf7b71aa3ee388c2e3a0d8b41ae9270187) and the dev sets, never a sealed file.",
+ "owner_request": "Owner idea 2026-10-01 (translated): use the dictionaries intelligently; recognise the grammatical forms of the words, translate word by word between Romanian and English in the grammatically correct forms; is that enough for LanguageProofingLLM to rephrase it into decent, useful English, so that SymbolicProofingLLM can then produce a variant SymbolicLM can analyse? Reason: Gemma 3 270M does not generalize to unseen Romanian words (held-out vocabulary 45.8% against 42.1% for no rewrite, iteration 2); if the gloss puts the English words in, the model only has to fix word order and grammar (post-editing), which does not depend on vocabulary.",
+ "authorization": {
+  "status": "AUTHORIZED. Owner 2026-10-01 (chat, verbatim): 'aprob gloss cu retea rapida, daca esti sugur, fa ce e mai rapid'. Journal decision event 2026-10-01T08:35:47.088Z (actor orchestrator). Scope: this one run, LoRA from the base (no warm start), config/train-gemma-fast.json, nothing else.",
+  "scope_file": "status/training/owner-approval-language-proofing-gloss.json",
+  "receipt": "status/training/authorization-gemma-language-proofing-gloss-gemma270m.json",
+  "receipt_sha256": "202139d12a5af3bfacd6411804ef80cb0075bd0a2ec7f7648cabee04e20ae913",
+  "qualification": "status/training/qualification-language-proofing-gloss.json (re-qualified 2026-10-01 after DS014 changed; same data)"
+ },
+ "questions": [
+  "Q1 (owner question): is a morphology-aware word-by-word gloss enough for the 270M post-editor to produce decent English, so that vocabulary no longer limits it? Measured on the eight NEW held-out words of iteration 3 (nephew, landlord, contractor, postpone, reject, bakery, warehouse, pharmacy: removed from this run's train, prompt and target), against iteration 3 (message-only prompt) and the gloss alone.",
+  "Q2: does the post-editor keep the iteration-2/3 gains (child probe, clean sentences untouched, keyboard mash) although its prompt for Romanian and mixed input is now the gloss?",
+  "Q3: is the end-to-end chain message -> gloss -> LanguageProofingLLM -> SymbolicProofingLLM -> SymbolicLM better than the message-only chain, and what does the gloss cost in latency?",
+  "Q4: romglish (Romanian grammar with English words, enclitic articles, Romanian-inflected English verbs, English frames with Romanian insertions): does the post-editor keep the glossed English and fix only order and grammar?"
+ ],
+ "prompt_decision": {
+  "chosen": "the gloss ALONE (senses 2, spelling on, unknown lemmas in square brackets)",
+  "why": [
+   "It is the owner's design and keeps the model input a pure post-editing task: the Romanian original is never in the prompt, so the model cannot fall back on memorized Romanian vocabulary, which is exactly the failure being removed (a prompt of the form original + gloss would let it copy or map the unseen Romanian word again).",
+   "The gloss loses no English-side information: dictionary lemma senses are in the gloss (two senses written as a/b leave the choice to the model; in the dev data the target uses only the second sense for 19.7% of the multi-sense words, 7.5% of all glossed words), names, numbers, quotes and English words are copied, and an unknown lemma is carried as [word] so the model sees the original surface where the gloss could not translate.",
+   "A second arm would need a second GPU run (about 2-3 hours each); one run answers the question and keeps the comparison with iteration 3 a single-factor one (same data pairs, same recipe, same base; only the prompt changes).",
+   "Reserve: an `original + gloss` arm is registered as a follow-up, to be run only if this run shows a systematic loss that the original would repair (names or numbers mangled by the gloss, wrong senses chosen when the original word is the cue); it needs its own approval."
+  ]
+ },
+ "hypotheses": {
+  "H1": "Unseen vocabulary (the owner question). On datasets/bad_english/proofing-gloss/dev-heldout-v3.jsonl (830 repair pairs, gloss prompts of the eight new words) the target-word rate of the gloss-trained model minus iteration 3 on datasets/bad_english/proofing-it3/dev-heldout-v3.jsonl (message-only prompts of the same 830 pairs) has a paired bootstrap 95% interval above 0 and a point estimate of at least +25 percentage points, and the gloss-trained rate is at least 75%. Reference points measured before training (eval-gloss-v1, same words and units): no rewrite 34.1%; the gloss alone 68.4% (one sense) and 86.5% (two senses); iteration 2, which had seen these words, 92.7%. Failure of H1 (below +25 pp or below 75%) would mean the post-editor does not keep or use the glossed words.",
+  "H2": "Trained vocabulary is not lost. On dev-heldout.jsonl (574 pairs, the ten words cousin, niece, uncle, tenant, supervisor, tutor, owe, adopt, audit, boatyard; trained in it3 and in this run) the target-word rate of the gloss-trained model is at least that of iteration 3 minus 3 percentage points (point estimate; paired interval reported).",
+  "H3": "Composite, non-inferiority. On the judged sample (the 600-unit stratified sample of iterations 1-3, seed 7; 472 repair units; gloss prompts for the same units) the composite good rate (clean AND content AND analysis) of the gloss-trained model minus iteration 3 has a paired bootstrap lower 95% bound above -3 percentage points; per kind (ro, mixed, noisy_en) reported, the expected gain is on ro and mixed.",
+  "H4": "Identity. On the 900 clean sentences (eval/suites/bad_english/proofing-test-clean.jsonl; the gloss returns English input unchanged) the gloss-trained model leaves at least as many untouched as iteration 3 minus 1 percentage point (point estimate; paired interval reported).",
+  "H5": "Child probe. On eval/suites/bad_english/proofing-probe-child.jsonl (gloss prompts) at most 1% of the outputs contain \"parent\" without a parent word in the input.",
+  "H6": "Keyboard mash. On mash-eval.jsonl (150 strings; the gloss leaves 145 of them unchanged and changes five, for instance a repeated letter run into a bracketed unknown word with a clitic) at least 90% of the model outputs equal the input and the rate is not lower than iteration 3 beyond the paired interval.",
+  "H7": "Chain, end to end (CPU, llama.cpp Q8_0 -t 4 for both models, Stanza CPU worker): on 100 ro and mixed dev units the share of final SOPs equal to the SOP SymbolicLM produces from the reference English (a proxy, not a SOP gold) is higher for the gloss chain than for the message-only chain with iteration 3, and the gloss stage adds at most 150 ms at the median (measured before training: median 54 ms, p95 82 ms; chain median 0.68 s without and 0.74 s with the gloss, iteration-2 models).",
+  "H8": "Romglish probe. On eval/reports/current/gloss/probe-romglish.jsonl (30 hand-written sentences, never in train; categories: English noun with enclitic article, English verb with Romanian inflection, English frame with Romanian insertion, Romanian frame with English tokens) the mean token F1 of the output against the hand-written target is at least 0.85 and not lower than iteration 3 (the gloss alone: reported).",
+  "non_claim": "Not a claim about SymbolicProofingLLM or real user text. The targets are the DeepSeek-written targets of iteration 3 (review pending); the judges are unreviewed and correlated; the meaning judge is calibrated on English originals only. The held-out words are covered by the host dictionary (Wiktionary RO-EN) because the gloss can only supply words the dictionary knows: a Romanian word that is not in the dictionary reaches the model as [word] and is exactly as hard as before (coverage of Romanian content words 98.0% on the dev data of this domain, 77% correct on a 40-message niche probe, see the report). A target word of a probe is one of several valid translations, so the word-kept rate undercounts correct paraphrases equally for every arm."
+ },
+ "arms": [
+  {
+   "order": 1,
+   "name": "no_rewrite",
+   "kind": "baseline, no compute"
+  },
+  {
+   "order": 2,
+   "name": "gloss alone (no model)",
+   "kind": "baseline, host code only; lib/translator-service/backends/gloss.mjs"
+  },
+  {
+   "order": 3,
+   "name": "language-proofing-gemma270m-it2 on the gloss (untrained use of the gloss)",
+   "kind": "baseline",
+   "model_dir": "models/gemma/language-proofing-gemma270m-it2/proofreader/gguf/ep3-q8_0.gguf"
+  },
+  {
+   "order": 4,
+   "name": "language-proofing-gemma270m-it2 and it3, message-only prompt",
+   "kind": "previous iterations (it3 is the main comparator; its run is not finished at the time of this record)",
+   "model_dir": "models/gemma/language-proofing-gemma270m-it3/proofreader"
+  },
+  {
+   "order": 5,
+   "name": "language-proofing-gloss-gemma270m (this run)",
+   "kind": "training arm",
+   "model_id": "daniel-dona/gemma-3-270m-it",
+   "revision": "99073d6b6edb0e298d163f964ec2b9d970b3408d",
+   "recipe": "config/train-gemma-fast.json",
+   "recipe_sha256": "9ceb2791bc7294ab192b5ce92d45de3e10430a6783fa80f42dba6f07de429b23",
+   "role": "proofreader",
+   "run": "language-proofing-gloss-gemma270m"
+  }
+ ],
+ "changed_factor": "The PROMPT only. The pairs, targets, ids, splits and the base are those of the qualified datasets/bad_english/proofing-it3; the prompt of every pair is replaced by the gloss of the original prompt (English input is returned unchanged). Rows removed relative to it3: 85 whose gloss or target contains one of the eight new held-out words (the gloss can introduce an English word the original prompt lacked), 37 where the gloss lost a name, number, quote or negation the target keeps, 5 whose gloss equals a sealed text and 262 whose gloss equals a dev prompt (62,550 train rows from 62,939). Same recipe, trained from the BASE, seed 42, 3 epochs.",
+ "recipe_policy": {
+  "mode": "LoRA adapter rank 16, alpha 32, dropout 0.05, lr 2e-4, warmup 0.05, max_length 8192, sdpa, bf16, seed 42, 3 epochs; micro-batch 16 x gradient accumulation 1 (effective batch 16, same as the prod1 recipe 2 x 8) in config/train-gemma-fast.json; fallback 8 x 2 on out-of-memory",
+  "snapshots": "one adapter snapshot per epoch (epoch-N, role proofreader), merged with training/python/merge.py for decoding"
+ },
+ "data": {
+  "dataset": "datasets/bad_english/proofing-gloss",
+  "builder": "tools/datasets/build-language-proofing-gloss.mjs (gloss then assemble, from datasets/bad_english/proofing-it3)",
+  "training_input": "datasets/bad_english/proofing-gloss/proofreader/{train,dev}.jsonl ({id, prompt = gloss, target, kind, language_kind, target_source, source_prompt (audit only, never a model input), gloss_mode}); prompt_profile message-only",
+  "gloss": {
+   "version": "translator-gloss-v1",
+   "code_sha256": "ab6ffb49a2f779d880e4cae7bdeeeedf7b71aa3ee388c2e3a0d8b41ae9270187",
+   "symbolic_backend_sha256": "b8fd5bd6b02c837e78a0cf9387aabfd3623f9a04e456c53e26f7f2bceb3bcb81",
+   "senses": 2,
+   "spell": true,
+   "mark": "[word] for an unknown lemma"
+  },
+  "dataset_manifest_sha256": "eb0605d1487ca7fce4e8586211d08c4759abba32c873c2ab9c632af477b26a40",
+  "dataset_version_sha256": "7b2d60a4ba801b4302fa5c22a1595bcea3f3d7b76a0d99ebe6839a15fef05e69",
+  "train_sha256": "362cecfd92807dc0d26ab374ffc95f49f8690f5d18c41593d796facaa292744e",
+  "dev_sha256": "dceb21c44cb8bf7b329464740a500b98e5f8231428487d14f5ececa99e508416",
+  "rows": {
+   "train": 62550,
+   "dev": 5173,
+   "dev-heldout": 574,
+   "dev-heldout-v3": 830,
+   "dev-heldout-v3-identity": 306,
+   "dev-spacing": 240,
+   "dev-backgen": 1488,
+   "mash-eval": 150
+  },
+  "train_composition": {
+   "gloss_changed_the_prompt": 42799,
+   "gloss_left_the_prompt_unchanged": 19751,
+   "prompts_with_an_unknown_lemma_in_brackets": 2621,
+   "identity_pairs_whose_prompt_the_gloss_changed": 30
+  },
+  "qualification": {
+   "path": "status/training/qualification-language-proofing-gloss.json",
+   "sha256": "6ce11b9bcb14a05910adeaeb99f7b825c51c726994f26cb116dcd13f2c039d7d",
+   "tool": "tools/research/qualify-language-proofing-gloss.mjs (recomputes the gloss of 500 seeded rows, sealed-text and dev-prompt leakage, held-out words, token budget)"
+  },
+  "authorization": "none (see authorization above)"
+ },
+ "selection": {
+  "rule": "as iteration 3, on dev only: among epochs whose identity-untouched rate on the dev identity units without a spacing defect is at least 95% and whose mash-unchanged rate is at least 90%, the highest mean of the mechanical composite (clean-English gate AND content preserved) on devbg, heldout and heldout-v3 and a spacing exact-match rate of at least 80% on dev-spacing; ties by chrF on devbg, then lowest dev loss.",
+  "dev_decode_per_epoch": "merge the epoch adapter, greedy HF bf16 decode of dev2300, devbg, heldout, heldout3, heldout3id, spacing and mash with tools/eval/language-proofing-eval.mjs generate on the gloss dev files, scores with `score`, held-out words with tools/eval/language-proofing-v3-metrics.mjs."
+ },
+ "early_stopping": {
+  "stop_rules": "Stop training and keep the previous epoch if: more than 20% of dev outputs empty or length-capped; identity collapse (defect-free identity units changed in more than 10% after epoch 2); every repair output equals its input after epoch 1 (the model learns nothing from the gloss); non-finite loss, OOM, host available RAM below the 16 GiB floor, wall-time cap 240 minutes. Plateau stop when dev loss has not improved for 2 consecutive epochs.",
+  "evaluation_stages": "Stage 1: mechanical layer on every dev and sealed unit, no judge. Stage 2: composed K4 sendAll in stages of 100 and 300 sentences, then full, paired interval after each stage. Stage 3: LLM judges only on units whose output text differs from every earlier verdict. Stage rule: (a) a catastrophic class (child probe above 1%, mash or clean900 worse beyond the interval) decides `keep iteration 3` and skips the judge stage; (b) H1 decisive with the other gates in the preregistered direction decides `adopt as an input stage` and the judge stage only reports the composite; (c) condition broken: more than 20% unparsable or empty outputs on the first 100 units."
+ },
+ "judging": {
+  "routing": "owner routing 2026-10-01: mechanical checks and the local analysis gate first; meaning judge Grok (omp --model xai-oauth/grok-4.20-0309-non-reasoning, two votes m1 and m2); parse judge GLM (omp --model zai/glm-5.3-flash) or DeepSeek when time matters; every judge as an omp task folder under datasets_sources/, fenced and detached; the cost is reported",
+  "folders": "datasets_sources/gloss_parse_judge (parse), a meaning folder to be created for the run"
+ },
+ "chat_switch_rule": "No chat switch is made by this experiment: config/formalizers.json and config/text-to-clean-english.json stay unchanged. The result is a recommendation to the owner: if H1, H3, H4, H6 hold the gloss stage is recommended as the first step of textToCleanEnglish for Romanian and mixed input with the gloss-trained model (the gloss runs on the CPU in about 50 ms; English input passes through it unchanged).",
+ "evaluation": {
+  "decoding": "greedy, prompt = gloss; HF bf16 (selection, sealed test) and llama.cpp Q8_0 (deployment form, chain, CPU speed)",
+  "metrics": "as iteration 3 (tools/eval/language-proofing-eval.mjs, language-proofing-v2-*.mjs, language-proofing-v3-metrics.mjs): clean-English rate, content preserved, chrF and token F1, analysis gate, identity untouched, meaning judge, composite, vocabulary probes (trained, unseen), mash unchanged, spacing; plus the chain measurement tools/eval/gloss-pipeline.mjs and the romglish probe; Wilson and paired bootstrap 95% intervals (2,000 resamples)."
+ },
+ "non_goals": "no change to SymbolicLM, lib/ud-to-sop rules or the host dictionary; no tuning on any sealed file; no training of any model other than gemma-3-270m-it; no Gemma 3 1B; no SOP-layer metric; no change of the chat configuration",
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-10-01T08:50:00Z",
+   "text": "Recipe changed from config/train-gemma.json to config/train-gemma-fast.json by the owner's approval: only micro-batch 2->16 and gradient_accumulation 8->1 (effective batch 16 unchanged; lr, warmup, epochs, seed unchanged), to cut wall time (prod1: 0.5 s/step at micro-batch 2, 104 min for 12,486 steps). Optimizer steps per epoch stay 62,550/16 = 3,910 (11,730 in total); with one sample order seed the shuffle is not identical to a 2 x 8 run, so a small difference from prod1 beyond the prompt is possible and reported. The comparison with prod1 and it3 is therefore prompt plus batching, not prompt alone (single-factor claim of changed_factor relaxed).",
+   "recipe_sha256": "9ceb2791bc7294ab192b5ce92d45de3e10430a6783fa80f42dba6f07de429b23"
+  },
+  {
+   "id": "D2",
+   "at": "2026-10-01T08:50:00Z",
+   "text": "Interim check: the trainer decodes nothing for role proofreader (it writes epoch-N adapter snapshots); after each epoch the snapshot is merged and decoded greedily on a stratified dev sample (about 100 rows each of devbg, heldout3, heldout3id, spacing, mash and dev2300), the full-dev decode and the selection rule run only on the final epochs. Stop rules above apply at each check."
+  },
+  {
+   "id": "D3",
+   "at": "2026-10-01T09:55:00Z",
+   "text": "Attempts A1 (projection manifest proofreader/manifest.json missing; tools/datasets/build-language-proofing-gloss.mjs now writes it, train and dev hashes unchanged) and A2 (stale identity.json of A1 in the run folder, removed) were refused before any optimizer step; A3 trained. H3 (judged composite) and H7 (chain latency) were not run: stop rule (a) of the evaluation stages (clean900 and names worse beyond the interval) decided; both stay open. Epoch 3 is reported next to the dev-selected epoch 2 because the two differ on sealed names."
+  }
+ ],
+ "results": {
+  "summary": "eval/reports/current/language-proofing-gloss/summary.md",
+  "training_seconds": 2192,
+  "steps": 11730,
+  "dev_loss": [
+   0.1328,
+   0.1194,
+   0.1288
+  ],
+  "selected_epoch": 2
+ }
+}

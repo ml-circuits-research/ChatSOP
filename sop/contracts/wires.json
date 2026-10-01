@@ -521,6 +521,27 @@
       "effects": "no-world-write",
       "note": "The host requests a next-turn answer for a blocking identity or scalar dependency; unknown evidence alone does not require clarification."
     },
+    "pragmatic": {
+      "one": [
+        "kind",
+        "score",
+        "span",
+        "near",
+        "source",
+        "basis"
+      ],
+      "required": [
+        "kind",
+        "score",
+        "source",
+        "basis"
+      ],
+      "role": "host-advisory-pragmatic-signal",
+      "declaration": false,
+      "authoredByModel": false,
+      "effects": "no-world-write",
+      "note": "The host's EmotionDetectionSystem reports the pragmatic or emotional role of a message or of a leftover span (greeting, thanks, urgency, hedge, frustration, irony_possible, ...) as an advisory signal for the reasoner. Never a fact about the world, never stored, never authored by the model (DS029)."
+    },
     "pattern": {
       "one": [
         "then",

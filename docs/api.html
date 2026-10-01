@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Capability APIs: proofread, understand, rewrite, analyze, emotion</title><link rel="stylesheet" href="styles.css">
+<style>
+.api-example,.api-response{overflow-x:auto;white-space:pre;border:1px solid currentColor;border-radius:6px;padding:.5rem .75rem;background:rgba(127,127,127,.08);font-size:.9em}
+.api-response{border-style:dashed}
+.note{border-left:4px solid currentColor;padding:.1rem .8rem;opacity:.9}
+.ep{font-family:ui-monospace,Menlo,monospace;font-weight:600}
+</style></head><body>
+<div data-include="partials/header.html"></div><main class="page"><article class="page__panel"><p class="breadcrumb"><a href="index.html">Overview</a> / Capability APIs</p><h1>Capability APIs</h1>
+<p>Every capability of the server has its own endpoint under <code>/v1</code>, usable alone by other projects and used one by one by the <a href="/chat">chat page</a>. Normative contract: <a href="specsLoader.html?spec=DS030-capability-apis.md">DS030</a> (with <a href="specsLoader.html?spec=DS012-local-server.md">DS012</a> for the server, <a href="specsLoader.html?spec=DS021-model-surface.md">DS021</a> for the components and <a href="specsLoader.html?spec=DS029-emotion-detection.md">DS029</a> for tone). The commands below use <code>$TOKEN</code>, a bearer token minted on <a href="/admin">/admin</a> or the <code>CHATSOP_API_KEY</code> value, and the default address <code>http://127.0.0.1:9999</code>. Every JSON example under "request" is executed against the live handlers by <code>tests/capability-api.test.mjs</code>.</p>
+
+<section id="endpoints"><h2>1. Endpoints</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Endpoint</th><th scope="col">Capability</th><th scope="col">Component</th></tr></thead><tbody>
+<tr><td class="ep">POST /v1/language/proofread</td><td>Clean English proposal for bad, mixed or Romanian input, sentence by sentence (alias <code>POST /v1/text-to-clean-english</code>)</td><td>LanguageProofingLLM through textToCleanEnglish</td></tr>
+<tr><td class="ep">POST /v1/understand</td><td>What was understood: interpretation CNL per sentence, certification, not-represented spans, leftovers with their pragmatic kind, rewrite trace, a <code>clarify</code> message</td><td>SymbolicLM (+ SymbolicProofingLLM, EmotionDetectionSystem)</td></tr>
+<tr><td class="ep">POST /v1/symbolic/rewrite</td><td>Rewrite correct English into the limited English SymbolicLM understands, with the trace</td><td>SymbolicProofingLLM</td></tr>
+<tr><td class="ep">POST /v1/symbolic/analyze</td><td>The raw grammatical analysis and the generated SOP</td><td>SymbolicLM</td></tr>
+<tr><td class="ep">POST /v1/emotion/detect</td><td>Pragmatic and emotional signals with emoticon suggestions</td><td>EmotionDetectionSystem</td></tr>
+<tr><td class="ep">GET /v1/capabilities</td><td>This list, the component versions and the limits</td><td>server</td></tr>
+<tr><td class="ep">GET /v1/cache/stats</td><td>Per-cache statistics (administrator session or, on a token-only server, any token); <code>POST /v1/cache/clear</code> empties the caches</td><td>server</td></tr>
+</tbody></table></div></section>
+
+<section id="conventions"><h2>2. Conventions</h2>
+<ul>
+<li><b>Authentication.</b> Exactly as the other APIs: <code>Authorization: Bearer &lt;token&gt;</code>, or the administrator session cookie of <a href="/login">/login</a> (the chat page uses it). Without either: 401 <code>unauthorized</code>; before the administrator password is set: 403 <code>setup_required</code>.</li>
+<li><b>Request.</b> A JSON object with a non-empty string <code>message</code> and only the parameters listed for the endpoint (an unknown parameter is 400 <code>unsupported_parameter</code>). A message is limited to <code>maxContextBytes</code> (default 4800 bytes, 413 <code>request_limit</code>), a body to <code>maxRequestBytes</code> (default 65536), and at most <code>maxConcurrentApi</code> (default 16) capability requests run at once (429 <code>concurrency_limit</code>).</li>
+<li><b>Answer.</b> HTTP 200 with <code>object</code> (the result type), <code>status</code> (<code>ok</code>, <code>partial</code> or <code>unavailable</code>), <code>errors</code> (a list of <code>{component, code, message, span?}</code>), <code>timings</code> (<code>total_ms</code> of this request and <code>compute_ms</code>, the time of the computation that produced the result, so a hit shows the cost it saved), <code>cache</code> (<code>hit</code> when every expensive component came from a cache, else <code>miss</code>), <code>cache_detail</code> (each component: <code>hit</code>, <code>miss</code> or <code>shared</code>, a request that joined a computation already in flight) and <code>versions</code> (the API version and, for each component used, its version: SymbolicLM and interpretation versions, the model id, run, file and stamp of each language model, the tone configuration signature).</li>
+<li><b>Errors.</b> Only an invalid request, a limit or authentication is an HTTP error, always <code>{"error": {"message", "type": "invalid_request_error", "code"}}</code>: 400 <code>invalid_request</code>, <code>invalid_message</code>, <code>invalid_parameter</code>, <code>unsupported_parameter</code>; 401 <code>unauthorized</code>; 403 <code>forbidden</code>; 404 <code>not_found</code>; 413 <code>request_limit</code>; 429 <code>concurrency_limit</code>.</li>
+<li><b>Never a total failure.</b> Analysis returns what was understood and marks the rest. A model that cannot start, a sentence the parser fails on or a span the interpretation does not represent never turns the answer into an error: the answer is 200 with <code>status: "partial"</code> (or <code>"unavailable"</code> when nothing could be done), the failure is in <code>errors</code> and, where the message was not fully understood, <code>clarify</code> holds a follow-up for the user, for example <em>I did not understand: &ldquo;xyz&rdquo;. Could you rephrase it?</em>, with <code>clarify_items</code> (<code>not_represented</code>, <code>uncertain</code> or <code>failed</code>, each with its text). Degraded answers are never cached.</li>
+</ul></section>
+
+<section id="proofread"><h2>3. POST /v1/language/proofread</h2>
+<p>Parameters: <code>message</code>; <code>sendAll</code> (boolean, default from <code>config/text-to-clean-english.json</code>: every sentence goes to LanguageProofingLLM instead of only the sentences the cheap gate flags). The message is split into sentences and each is cleaned alone. The result is a <em>proposal</em>: <code>original</code>, <code>clean</code>, <code>changed</code>, <code>spans</code> (a word-level diff of <code>equal</code>, <code>delete</code> and <code>insert</code> parts), <code>reasons</code> (what the gate found), <code>backend</code>, <code>confidence</code>. A sentence whose model failed stays as written and is listed in <code>errors</code> with its <code>span</code>; <code>sentence_cache</code> counts the sentences served from the per-sentence cache.</p>
+<pre class="api-example" data-endpoint="POST /v1/language/proofread" data-request="{&quot;message&quot;: &quot;Who manages the team.&quot;, &quot;sendAll&quot;: true}" data-response-keys="object,original,clean,changed,reasons,spans,backend,confidence,status,errors,timings,cache,cache_detail,versions"><code>curl -s -X POST http://127.0.0.1:9999/v1/language/proofread -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; -d &#x27;{&quot;message&quot;: &quot;Who manages the team.&quot;, &quot;sendAll&quot;: true}&#x27;</code></pre>
+<p>Abridged response:</p>
+<pre class="api-response"><code>{
+  &quot;object&quot;: &quot;language.proofread&quot;, &quot;status&quot;: &quot;ok&quot;, &quot;errors&quot;: [],
+  &quot;original&quot;: &quot;cine manages the team&quot;, &quot;clean&quot;: &quot;Who manages the team?&quot;, &quot;changed&quot;: true,
+  &quot;spans&quot;: [{&quot;type&quot;:&quot;delete&quot;,&quot;text&quot;:&quot;cine&quot;},{&quot;type&quot;:&quot;insert&quot;,&quot;text&quot;:&quot;Who&quot;},{&quot;type&quot;:&quot;equal&quot;,&quot;text&quot;:&quot; manages the team&quot;}],
+  &quot;backend&quot;: &quot;llm&quot;, &quot;confidence&quot;: 0.8,
+  &quot;timings&quot;: {&quot;total_ms&quot;: 131.2, &quot;compute_ms&quot;: 131.2}, &quot;cache&quot;: &quot;miss&quot;,
+  &quot;cache_detail&quot;: {&quot;proofread&quot;: &quot;miss&quot;, &quot;llm_sentences&quot;: {&quot;hit&quot;: 0, &quot;miss&quot;: 1, &quot;shared&quot;: 0}},
+  &quot;versions&quot;: {&quot;api&quot;: &quot;capability-api-v1&quot;, &quot;text_to_clean_english&quot;: &quot;text-to-clean-english-v1&quot;,
+    &quot;language_proofing_llm&quot;: {&quot;id&quot;: &quot;language-proofing-llm&quot;, &quot;run&quot;: &quot;language-proofing-gemma270m-it3&quot;, &quot;file&quot;: &quot;models/gemma/.../ep2-q8_0.gguf&quot;, &quot;stamp&quot;: &quot;...&quot;}}
+}</code></pre></section>
+
+<section id="understand"><h2>4. POST /v1/understand</h2>
+<p>Parameters: <code>message</code>; <code>rewrite</code> (<code>off</code>, <code>gated</code>, <code>always</code>; default the registry setting of SymbolicLM; the SymbolicProofingLLM rewrite of DS021, <em>gated</em> sends only sentences whose Stanza trees are not certified and keeps a rewrite only when it is certified and keeps names, numbers, negation and quantifiers); <code>accept</code> (<code>off</code>, <code>certified</code>, <code>certified_compare</code>, the acceptance check; default of the chosen rewrite mode); <code>emotion</code> (boolean, default from <code>config/emotion-detection.json</code>); <code>interpret</code> (boolean, default true).</p>
+<p>The result: <code>interpretation.sentences</code>, one row per sentence with <code>status</code> (<code>verified</code>: the CNL restates the sentence and a round trip through SymbolicLM gives the same structures; <code>uncertain</code>: no CNL is shown, only a raw analysis <code>summary</code>; <code>failed</code>: the sentence could not be analysed; <code>empty</code>: nothing to restate), <code>cnl</code> and <code>cnl_sentences</code>, <code>certified</code> (identical default and accurate Stanza trees), <code>not_represented</code> spans and the rewrite trace of that sentence; <code>certified</code> for the whole message; <code>rewrite</code> (the unit trace); <code>emotion</code> (<code>signals</code>, <code>emoji</code>, <code>leftovers</code>, the host-generated <code>pragmatic</code> circuit <code>sop</code>); <code>leftovers</code> (<code>classified</code>: not-represented spans explained as a pragmatic kind such as a greeting or politeness, with <code>kinds</code>; <code>remaining</code>: spans that stay unclassified); <code>clarify</code> and <code>clarify_items</code>. If the whole message cannot be analysed, the sentences are analysed one by one so that one failing sentence is marked <code>failed</code> while the others keep their interpretation.</p>
+<pre class="api-example" data-endpoint="POST /v1/understand" data-request="{&quot;message&quot;: &quot;Thanks a lot! Does Ana like Alpha Lab?&quot;, &quot;rewrite&quot;: &quot;off&quot;, &quot;emotion&quot;: true}" data-response-keys="object,status,message,analysed_text,language,interpretation,certified,rewrite,requested,emotion,leftovers,clarify,clarify_items,errors,timings,cache,cache_detail,versions"><code>curl -s -X POST http://127.0.0.1:9999/v1/understand -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; -d &#x27;{&quot;message&quot;: &quot;Thanks a lot! Does Ana like Alpha Lab?&quot;, &quot;rewrite&quot;: &quot;off&quot;, &quot;emotion&quot;: true}&#x27;</code></pre>
+<p>Abridged response:</p>
+<pre class="api-response"><code>{
+  &quot;object&quot;: &quot;symbolic.understanding&quot;, &quot;status&quot;: &quot;ok&quot;, &quot;language&quot;: &quot;en&quot;, &quot;certified&quot;: true,
+  &quot;interpretation&quot;: {&quot;available&quot;: true, &quot;sentences&quot;: [
+    {&quot;index&quot;: 0, &quot;text&quot;: &quot;Does Ana like Alpha Lab?&quot;, &quot;status&quot;: &quot;verified&quot;, &quot;cnl&quot;: &quot;Does Ana like Alpha Lab?&quot;, &quot;certified&quot;: true, &quot;not_represented&quot;: []}],
+    &quot;not_represented&quot;: []},
+  &quot;emotion&quot;: {&quot;signals&quot;: [{&quot;kind&quot;: &quot;thanks&quot;, &quot;score&quot;: 0.9, &quot;span&quot;: &quot;Thanks a lot&quot;, &quot;emoji&quot;: &quot;...&quot;}], &quot;emoji&quot;: [{&quot;kind&quot;: &quot;thanks&quot;, &quot;emoji&quot;: &quot;...&quot;, &quot;span&quot;: &quot;Thanks a lot&quot;, &quot;score&quot;: 0.9}]},
+  &quot;leftovers&quot;: {&quot;classified&quot;: [{&quot;span&quot;: &quot;Thanks a lot!&quot;, &quot;kinds&quot;: [&quot;thanks&quot;]}], &quot;remaining&quot;: []},
+  &quot;clarify&quot;: null, &quot;clarify_items&quot;: [], &quot;errors&quot;: [],
+  &quot;timings&quot;: {&quot;total_ms&quot;: 412.6, &quot;compute_ms&quot;: 405.9}, &quot;cache&quot;: &quot;miss&quot;, &quot;cache_detail&quot;: {&quot;symbolic_lm&quot;: &quot;miss&quot;, &quot;emotion&quot;: &quot;miss&quot;}
+}</code></pre>
+<p class="note">The chat's formalize request (<code>POST /v1/chat/completions</code> with <code>understanding</code>) calls the same cached analysis, so asking <code>/v1/understand</code> first makes the answer's analysis free.</p></section>
+
+<section id="rewrite"><h2>5. POST /v1/symbolic/rewrite</h2>
+<p>Parameters: <code>message</code>; <code>mode</code> (<code>gated</code>, default, or <code>always</code>); <code>accept</code> (default <code>certified</code> for gated and <code>off</code> for always). <code>always</code> with <code>accept: off</code> calls SymbolicProofingLLM alone, sentence by sentence, without any Stanza analysis; every other combination runs SymbolicLM's gated pipeline. The result has <code>input</code>, <code>output</code>, <code>applied</code> and <code>units</code> (<code>text</code>, <code>sent</code>, <code>accepted</code>, <code>reasons</code>, <code>output</code>, <code>certified</code>). The rewrite model is started on demand; if it cannot start the answer is <code>status: "unavailable"</code> with the input unchanged.</p>
+<pre class="api-example" data-endpoint="POST /v1/symbolic/rewrite" data-request="{&quot;message&quot;: &quot;Whom does Ana like?&quot;, &quot;mode&quot;: &quot;always&quot;}" data-response-keys="object,input,mode,accept,status,output,applied,units,errors,timings,cache,cache_detail,versions"><code>curl -s -X POST http://127.0.0.1:9999/v1/symbolic/rewrite -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; -d &#x27;{&quot;message&quot;: &quot;Whom does Ana like?&quot;, &quot;mode&quot;: &quot;always&quot;}&#x27;</code></pre>
+<p>Abridged response:</p>
+<pre class="api-response"><code>{
+  &quot;object&quot;: &quot;symbolic.rewrite&quot;, &quot;status&quot;: &quot;ok&quot;, &quot;mode&quot;: &quot;always&quot;, &quot;accept&quot;: &quot;off&quot;,
+  &quot;input&quot;: &quot;Whom does Ana like?&quot;, &quot;output&quot;: &quot;Who does Ana like?&quot;, &quot;applied&quot;: true,
+  &quot;units&quot;: [{&quot;text&quot;: &quot;Whom does Ana like?&quot;, &quot;sent&quot;: true, &quot;accepted&quot;: true, &quot;output&quot;: &quot;Who does Ana like?&quot;, &quot;reasons&quot;: []}],
+  &quot;errors&quot;: [], &quot;cache&quot;: &quot;miss&quot;
+}</code></pre></section>
+
+<section id="analyze"><h2>6. POST /v1/symbolic/analyze</h2>
+<p>Parameters: <code>message</code>; <code>rewrite</code> and <code>accept</code> as above (default <code>off</code>). The raw SymbolicLM result without the interpretation: <code>sop</code> (the SOP text), <code>analysis</code> (the compact grammatical analysis of the sentences, columns id, form, lemma, upos, head, deprel), <code>analysed_text</code>, <code>language</code>, <code>route</code>, <code>english</code>, <code>uncertainty</code> and the rewrite trace when a rewrite was requested.</p>
+<pre class="api-example" data-endpoint="POST /v1/symbolic/analyze" data-request="{&quot;message&quot;: &quot;Does Ana like Alpha Lab?&quot;}" data-response-keys="object,status,message,sop,analysis,analysed_text,language,route,uncertainty,errors,timings,cache,cache_detail,versions"><code>curl -s -X POST http://127.0.0.1:9999/v1/symbolic/analyze -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; -d &#x27;{&quot;message&quot;: &quot;Does Ana like Alpha Lab?&quot;}&#x27;</code></pre>
+<p>Abridged response:</p>
+<pre class="api-response"><code>{
+  &quot;object&quot;: &quot;symbolic.analysis&quot;, &quot;status&quot;: &quot;ok&quot;, &quot;language&quot;: &quot;en&quot;, &quot;route&quot;: &quot;direct&quot;,
+  &quot;sop&quot;: &quot;@q query\n  where match\n    relation \&quot;likes\&quot; ...&quot;,
+  &quot;analysis&quot;: {&quot;columns&quot;: [&quot;id&quot;,&quot;form&quot;,&quot;lemma&quot;,&quot;upos&quot;,&quot;head&quot;,&quot;deprel&quot;], &quot;language&quot;: &quot;en&quot;, &quot;sentences&quot;: [&quot;...&quot;]},
+  &quot;uncertainty&quot;: {&quot;uncertain&quot;: false, &quot;kinds&quot;: [], &quot;reasons&quot;: []}, &quot;errors&quot;: []
+}</code></pre></section>
+
+<section id="emotion"><h2>7. POST /v1/emotion/detect</h2>
+<p>Parameters: <code>message</code>; <code>hasContent</code> (boolean, default true: whether the message also states or asks something, for the <code>advice</code>). The EmotionDetectionSystem of DS029 (symbolic lexicons and patterns on; neural classifiers off): <code>signals</code> (<code>kind</code>, <code>score</code>, <code>span</code>, <code>source</code>, <code>basis</code>, <code>emoji</code>), <code>emoji</code> (one suggestion per kind, strongest first, with the span for a tooltip), <code>leftovers</code>, <code>sop</code> (the host-generated advisory <code>pragmatic</code> wires) and <code>advice</code> (how a reasoner may adapt). Signals are the system's subjective perception: advisory, never facts.</p>
+<pre class="api-example" data-endpoint="POST /v1/emotion/detect" data-request="{&quot;message&quot;: &quot;Thank you so much!&quot;}" data-response-keys="object,status,message,signals,emoji,leftovers,sop,advice,trace,timings,cache,cache_detail,versions"><code>curl -s -X POST http://127.0.0.1:9999/v1/emotion/detect -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; -d &#x27;{&quot;message&quot;: &quot;Thank you so much!&quot;}&#x27;</code></pre>
+<p>Abridged response:</p>
+<pre class="api-response"><code>{
+  &quot;object&quot;: &quot;emotion.detection&quot;, &quot;status&quot;: &quot;ok&quot;, &quot;message&quot;: &quot;Thank you so much!&quot;,
+  &quot;signals&quot;: [{&quot;kind&quot;: &quot;thanks&quot;, &quot;score&quot;: 0.9, &quot;span&quot;: &quot;Thank you so much&quot;, &quot;source&quot;: &quot;symbolic&quot;, &quot;basis&quot;: &quot;lexicon&quot;, &quot;emoji&quot;: &quot;...&quot;}],
+  &quot;emoji&quot;: [{&quot;kind&quot;: &quot;thanks&quot;, &quot;emoji&quot;: &quot;...&quot;, &quot;label&quot;: &quot;thanks&quot;, &quot;score&quot;: 0.9, &quot;span&quot;: &quot;Thank you so much&quot;}],
+  &quot;sop&quot;: &quot;@p1 pragmatic\n  kind thanks\n  score 0.9\n  span \&quot;Thank you so much\&quot;\n  source symbolic\n  basis lexicon&quot;,
+  &quot;cache&quot;: &quot;miss&quot;
+}</code></pre></section>
+
+<section id="meta"><h2>8. GET /v1/capabilities and the cache endpoints</h2>
+<pre class="api-example" data-endpoint="GET /v1/capabilities" data-request="" data-response-keys="object,endpoints,versions,limits"><code>curl -s -X GET http://127.0.0.1:9999/v1/capabilities -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
+<p>Abridged response:</p>
+<pre class="api-response"><code>{&quot;object&quot;: &quot;capabilities&quot;, &quot;endpoints&quot;: [{&quot;method&quot;: &quot;POST&quot;, &quot;path&quot;: &quot;/v1/understand&quot;, &quot;capability&quot;: &quot;symbolic.understanding&quot;, &quot;body&quot;: [&quot;message&quot;, &quot;rewrite&quot;, &quot;accept&quot;, &quot;emotion&quot;, &quot;interpret&quot;]}, &quot;...&quot;],
+ &quot;versions&quot;: {&quot;api&quot;: &quot;capability-api-v1&quot;, &quot;symbolic_lm&quot;: {&quot;version&quot;: &quot;symbolic-lm-v2.0&quot;, &quot;service&quot;: &quot;symbolic-lm&quot;}, &quot;...&quot;: &quot;...&quot;},
+ &quot;limits&quot;: {&quot;max_message_bytes&quot;: 4800, &quot;max_request_bytes&quot;: 65536, &quot;max_concurrent&quot;: 16}}</code></pre>
+<pre class="api-example" data-endpoint="GET /v1/cache/stats" data-request="" data-response-keys="object,caches,services"><code>curl -s -X GET http://127.0.0.1:9999/v1/cache/stats -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
+<p>Abridged response:</p>
+<pre class="api-response"><code>{&quot;object&quot;: &quot;cache.stats&quot;, &quot;caches&quot;: {&quot;emotion&quot;: {&quot;entries&quot;: 1, &quot;bytes&quot;: 612, &quot;maxEntries&quot;: 500, &quot;maxBytes&quot;: 4000000, &quot;ttlMs&quot;: 900000, &quot;hits&quot;: 1, &quot;misses&quot;: 1, &quot;shared&quot;: 0, &quot;evictions&quot;: 0, &quot;expired&quot;: 0, &quot;failures&quot;: 0, &quot;hitRate&quot;: 0.5}, &quot;...&quot;: &quot;...&quot;},
+ &quot;services&quot;: {&quot;symbolic-lm&quot;: {&quot;stanza_parse&quot;: {&quot;entries&quot;: 3}, &quot;stanza_unit&quot;: {&quot;entries&quot;: 3}, &quot;symbolic_proofing_llm&quot;: {&quot;entries&quot;: 0}}}}</code></pre></section>
+
+<section id="caches"><h2>9. Cache behaviour</h2>
+<ul>
+<li><b>What is cached.</b> Each LanguageProofingLLM call (per sentence), each SymbolicProofingLLM call (per sentence), the whole SymbolicLM analysis with its interpretation, the Stanza parse and the certification inside the SymbolicLM service (per sentence), the tone detection, and the proofread answer. Named caches: <code>proofread</code>, <code>proofread-llm</code>, <code>symbolic-lm</code>, <code>symbolic-proofing-llm</code>, <code>emotion</code>.</li>
+<li><b>Key.</b> A SHA-256 of the capability, the model or run version (registry file path, size and modification time of the model file, SymbolicLM version), the exact input and the options. A different option is a different entry; switching or replacing a model file never serves a result of the old one.</li>
+<li><b>Bounds.</b> Each cache holds tens to hundreds of recent entries (default 200 to 600), at most a few megabytes, evicts the least recently used entry and expires an entry after 15 minutes (30 minutes inside the SymbolicLM service).</li>
+<li><b>Parallel use.</b> Concurrent identical requests share one computation (<code>shared</code> in <code>cache_detail</code>); the other keys proceed independently. This holds for all users of one server process.</li>
+<li><b>Failures.</b> A failed or degraded computation is not stored.</li>
+<li><b>Reuse by the chat.</b> The chat page calls proofread, emotion detect and understand while the user reads the proposal, then sends the final formalize request, which calls the same cached analysis and tone detection instead of recomputing them.</li>
+</ul></section>
+</article></main></body></html>

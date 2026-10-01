@@ -1,7 +1,7 @@
 /** Model registry and the on-demand CPU `llama-server` processes behind it (DS012 "Formalizer models", "Chat modes").
  *
  * `config/formalizers.json` lists the models the chat can use. Each entry has `capabilities`, a subset of
- * `chat`, `translate` and `formalize` (default `["formalize"]`): fine-tuned formalizers have `formalize` only,
+ * `chat`, `translate`, `formalize` and `proofread` (default `["formalize"]`): fine-tuned formalizers have `formalize` only,
  * the unmodified base instruct models `chat` and `translate` only, since a base model cannot write SOP Lang.
  * A `gguf` entry is run by this module: the
  * server starts one CPU `llama-server` for it when it is first selected, on a free loopback port, with the flags of
@@ -29,6 +29,12 @@ const ID = /^[a-z0-9][a-z0-9._-]{0,63}$/;
 /** What a registry model can do; the chat page's MODE selector offers the models of the chosen mode. */
 export const MODES = Object.freeze(['chat', 'formalize', 'translate']);
 
+/**
+ * Registry capabilities: the chat modes plus `proofread`, the textToCleanEnglish step's LanguageProofingLLM, and
+ * `proofread-symbolic`, SymbolicProofingLLM, the optional rewrite of SymbolicLM's pipeline (neither is a chat mode).
+ */
+export const CAPABILITIES = Object.freeze([...MODES, 'proofread', 'proofread-symbolic']);
+
 /** The four states a model reports on /readyz, /v1/models, the home page and the chat. */
 export const STATES = Object.freeze(['stopped', 'starting', 'ready', 'error']);
 
@@ -51,10 +57,12 @@ export function loadRegistry(file = path.join(ROOT, 'config/formalizers.json'), 
     seen.add(entry.id);
     if (typeof entry.label !== 'string' || !entry.label.trim()) throw Error(`${where}: label is required`);
     const capabilities = entry.capabilities ?? ['formalize'];
-    if (!Array.isArray(capabilities) || !capabilities.length || capabilities.some(mode => !MODES.includes(mode)) || new Set(capabilities).size !== capabilities.length) {
-      throw Error(`${where}: capabilities must be a non-empty list of distinct ${MODES.join(', ')}`);
+    if (!Array.isArray(capabilities) || !capabilities.length || capabilities.some(mode => !CAPABILITIES.includes(mode)) || new Set(capabilities).size !== capabilities.length) {
+      throw Error(`${where}: capabilities must be a non-empty list of distinct ${CAPABILITIES.join(', ')}`);
     }
-    const base = {id: entry.id, label: entry.label, note: typeof entry.note === 'string' ? entry.note : '', capabilities: MODES.filter(mode => capabilities.includes(mode))};
+    const base = {id: entry.id, label: entry.label, note: typeof entry.note === 'string' ? entry.note : '', capabilities: CAPABILITIES.filter(mode => capabilities.includes(mode))};
+    // `rewrite.mode` of the SymbolicLM entry (off, gated or always): the default of the chat's SymbolicProofingLLM setting.
+    if (typeof entry.rewrite?.mode === 'string') base.rewriteMode = entry.rewrite.mode;
     if (typeof entry.gguf === 'string' && entry.gguf && entry.endpoint === undefined && entry.service === undefined) return {...base, kind: 'gguf', gguf: path.resolve(root, entry.gguf)};
     if (typeof entry.service === 'string' && entry.service && entry.gguf === undefined && entry.endpoint === undefined) {
       if (base.capabilities.join() !== 'formalize') throw Error(`${where}: a service is a formalizer; its only capability is formalize`);
@@ -72,7 +80,7 @@ export function loadRegistry(file = path.join(ROOT, 'config/formalizers.json'), 
   if (!seen.has(fallback)) throw Error(`${file}: default ${fallback} is not a listed model`);
   if (formalizers.length && !offers(fallback, 'formalize')) throw Error(`${file}: default ${fallback} is not a formalize model`);
   const defaults = {};
-  for (const mode of MODES) {
+  for (const mode of CAPABILITIES) {
     const chosen = data.defaults?.[mode] ?? (mode === 'formalize' && offers(fallback, mode) ? fallback : models.find(model => model.capabilities.includes(mode))?.id);
     if (chosen === undefined) continue;
     if (!offers(chosen, mode)) throw Error(`${file}: defaults.${mode} ${chosen} is not a listed ${mode} model`);
@@ -247,12 +255,22 @@ export class FormalizerManager {
     }
   }
 
-  /** Formalizes one message with the model (starting it if needed): `{sop, ms, raw}`. */
-  async formalize(id, message, {timeoutMs} = {}) {
+  /** Runs `work(url)` on LanguageProofingLLM-style model `id` (starting it if needed): the textToCleanEnglish backend. */
+  proofread(id, work) { return this.use(id, 'proofread', work); }
+
+  /** Runs `work(url)` on SymbolicProofingLLM-style model `id` (starting it if needed): the optional rewrite of SymbolicLM. */
+  proofreadSymbolic(id, work) { return this.use(id, 'proofread-symbolic', work); }
+
+  /**
+   * Formalizes one message with the model (starting it if needed): `{sop, ms, raw, symbolic}`. `extra` holds host options
+   * for a service formalizer (SymbolicLM's `symbolic_lm`); `symbolic` is that service's own report (analysis, rewrite trace,
+   * interpretation) or null.
+   */
+  async formalize(id, message, {timeoutMs, extra = null} = {}) {
     return this.use(id, 'formalize', async url => {
-      const result = await predictMessage(url, message, {maxTokens: this.maxTokens, ...(timeoutMs ? {timeoutMs} : {})});
+      const result = await predictMessage(url, message, {maxTokens: this.maxTokens, ...(timeoutMs ? {timeoutMs} : {}), ...(extra ? {extra} : {})});
       if (result.finish === 'length') throw Error('Model output was truncated; no command executed');
-      return {sop: result.text.trim(), ms: result.ms, raw: result.raw === true};
+      return {sop: result.text.trim(), ms: result.ms, raw: result.raw === true, symbolic: result.symbolic_lm ?? null};
     });
   }
 

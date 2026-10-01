@@ -12,18 +12,22 @@ export const DATASET_INFO = Object.freeze({
   },
   symbolic_english: {
     model: 'SymbolicLM (regression suite); seed forms for SymbolicProofingLLM',
-    purpose: 'Correct English that SymbolicLM analyses correctly. Each row stores the message, SymbolicLM grammatical analysis (compact UD parse) and the SOP Lang output. A regression suite: whenever SymbolicLM, the Stanza model or the engine changes, every row must still be analysed the same or better (node tools/symbolic-regression.mjs). Also the inventory of forms SymbolicProofingLLM should rewrite into.',
+    purpose: 'Correct English whose SymbolicLM grammatical analysis is correct (every sentence: identical default and accurate Stanza trees and the DeepSeek parse judge, conditions a and c, good enough). Each row stores the message, SymbolicLM grammatical analysis (compact UD parse) and, for the later layer, the SOP Lang output with its gold comparison (sop_layer). A regression suite: whenever SymbolicLM, the Stanza model or the engine changes, every row must still be analysed the same or better (node tools/symbolic-regression.mjs). Also the inventory of forms SymbolicProofingLLM should rewrite into.',
   },
   neuro_english: {
     model: 'SymbolicProofingLLM',
-    purpose: 'Grammatically correct English that SymbolicLM does not analyse correctly, with a meaning-preserving rewrite that SymbolicLM does handle where one is known. Fine-tuning and evaluation material for SymbolicProofingLLM. Rows nobody can rewrite yet are kept and flagged no_target; rows failing only by gold convention are flagged and are not rewriting targets.',
+    purpose: 'Grammatically correct English whose SymbolicLM grammatical analysis is not correct (trees differ between the Stanza packages, or the DeepSeek parse judge says not good enough on condition a or c), with a meaning-preserving rewrite that SymbolicLM does handle where one is known. Fine-tuning and evaluation material for SymbolicProofingLLM. Rows nobody can rewrite yet are kept and flagged no_target. The SOP-layer result of every row is kept as sop_layer for the later layer.',
   },
 });
 
 const rel = file => path.relative(ROOT, file).split(path.sep).join('/');
 
 /** Write one split file (`datasets/<dataset>/<split>.jsonl`, or `base` for a sealed test). Returns {path, rows, bytes, sha256}. */
-export async function writeSplit(dataset, split, rows, {base = path.join(ROOT, 'datasets', dataset, `${split}.jsonl`)} = {}) {
+export async function writeSplit(dataset, split, rows, options = {}) {
+  // AGENTS.md rule 9: a sealed test is kept only in the sealed suites folder, never beside the train and dev files of a dataset.
+  if (split === 'test' && !options.base) throw Error(`writeSplit(${dataset}, ${split}): pass {base} in the sealed suites folder (AGENTS.md rule 9)`);
+  const {base = path.join(ROOT, 'datasets', dataset, `${split}.jsonl`)} = options;
+  if (path.relative(path.join(ROOT, 'datasets'), base).split(path.sep)[1]?.startsWith('test.')) throw Error(`refusing to write a sealed test beside the dataset files: ${path.relative(ROOT, base)}`);
   const result = writeJsonlShardedSync(base, rows);
   return {path: rel(base), rows: result.rows, bytes: jsonlBytes(base), sha256: await hashJsonlSharded(base)};
 }
@@ -33,8 +37,8 @@ export function summarise(dataset, rows) {
   const by = (key, get) => { const out = {}; for (const r of rows) { const v = get(r) ?? 'none'; out[v] = (out[v] ?? 0) + 1; } return Object.fromEntries(Object.entries(out).sort()); };
   const base = {rows: rows.length, by_source: by('s', r => r.source.corpus)};
   if (dataset === 'bad_english') return {...base, by_language_kind: by('k', r => r.language_kind), with_target: rows.filter(r => r.target).length, by_target_source: by('t', r => r.target_source)};
-  if (dataset === 'symbolic_english') return {...base, by_analysis_verified: by('v', r => r.analysis_verified)};
-  return {...base, by_failure_kind: by('f', r => r.failure_kind), with_target: rows.filter(r => r.target).length, by_target_source: by('t', r => r.target_source), rewrite_targets: rows.filter(r => r.rewrite_target).length};
+  if (dataset === 'symbolic_english') return {...base, by_analysis_verified: by('v', r => r.analysis_verified), by_sop_layer: by('l', r => r.sop_layer?.status)};
+  return {...base, by_failure_kind: by('f', r => r.failure_kind), by_sop_layer: by('l', r => r.sop_layer?.status), by_sop_failure_kind: by('k', r => r.sop_layer?.failure_kind), with_target: rows.filter(r => r.target).length, by_target_source: by('t', r => r.target_source), rewrite_targets: rows.filter(r => r.rewrite_target).length};
 }
 
 const deepMerge = (a, b) => { for (const [k, v] of Object.entries(b)) a[k] = v && typeof v === 'object' && !Array.isArray(v) && a[k] && typeof a[k] === 'object' ? deepMerge(a[k], v) : v; return a; };

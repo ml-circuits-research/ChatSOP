@@ -1,0 +1,50 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-analysis-compare-v1",
+ "name": "Analysis comparison: a deterministic meaning pre-judge from grammatical analyses",
+ "registered_at": "2026-10-01T00:45:00Z",
+ "registered_by": "analysis-compare-agent (owner request of 2026-09-30 relayed by the orchestrator; evaluation only: CPU Stanza parsing, no training, no GPU)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "kind": "evaluation-only",
+ "frozen_before_results": "Written after the feature extractor (lib/languages-util/analysis-features.mjs), the comparer (lib/languages-util/analysis-compare.mjs) and all parses existed, and before any verdict of the metric was scored against a label. Thresholds (minTripleF1 and the synonym policy) are tuned on the tune half of the calibration set only; every number is reported on the test half and on the two other sets. Later changes are recorded deviations.",
+ "question": "Can two English texts be judged for meaning equivalence by comparing their SymbolicLM grammatical analyses (dependency triples plus core checks) cheaply enough and reliably enough to replace most LLM meaning-judge calls of the proofing evaluations?",
+ "hypotheses": {
+  "H1": "`different` catches at least 90% of the mechanical meaning changes (flip_negation, replace_name and swap_names, change_number_date, change_quantifier, change_question_type, and role swaps of change_relation) with a false-alarm rate (`different` on a positive) of at most 10%.",
+  "H2": "OR a confident `equivalent` reaches at least 98% precision (label same among the `equivalent` verdicts, Wilson lower bound reported) on at least 50% of the items it could skip, so the LLM judge is called only on the rest."
+ },
+ "decision_rule": "The metric is worth integrating when H1 holds on the test half of the calibration set (point estimates, Wilson 95% interval reported) or H2 holds on the positives plus the agreed (both-vote) items of the bad_english judged pairs. Otherwise it is reported as not worth it with the numbers and nothing is integrated.",
+ "data": {
+  "calibration": "datasets_sources/meaning_judge_calibration_v2 and eval/reports/current/meaning-judge/v2/labels.jsonl: 300 positives, 297 mechanical negatives (11 types), 105 hand-written hard negatives; `adjudication.json` lists the negatives the LLM judges called yes (real = judge error, noise = the perturbation did not change the meaning: noise items are removed from the negatives). Split by the parity of the item number: odd = tune, even = test. Two views: A as labelled (message vs candidate, the message is the noisy input) and B for mechanical negatives (the clean text the perturbation started from vs the perturbed candidate, which isolates the metric from typos in the input).",
+  "backgen": "datasets_sources/backgen_meaning_judge: 14,479 ORIGINAL/REWRITE pairs with two LLM judge votes (m1, m2) and no human label; 350 pairs with both votes yes and 350 with both votes no, drawn with a fixed seed. Agreement with the two-vote verdict is reported; it is agreement, not accuracy.",
+  "bad_english": "datasets_sources/language_proofing_meaning_judge: 1,826 pairs with two LLM votes; the 945 whose original is English by a word-list test are used (original as written, rewrite from the rewriter). The rest have a Romanian original and cannot be parsed as English."
+ },
+ "endpoints": "Precision and recall of `equivalent` and `different` per negative type with Wilson 95% intervals; the `uncertain` rate; agreement with the two-vote judge (both yes, both no) and the skip rate; time per pair.",
+ "analysis": "The first 50 disagreements are read by hand and categorised (synonym, paraphrase structure, parser error, real meaning change missed, label noise).",
+ "stopping_rules": {
+  "stages": "The calibration tune half is scored first; the test half and the other sets are scored once after the thresholds are frozen.",
+  "futility": "If `different` catches under 50% of the mechanical changes on the tune half after the checks are debugged, stop and report not worth it.",
+  "no_training": "Nothing here trains or uses the GPU."
+ },
+ "deviations_allowed": "Any check, threshold or normalisation changed after a test-half number was seen is a recorded deviation.",
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-10-01T00:55:00Z",
+   "what": "After the first full run (frozen rules, files eval/reports/current/analysis-compare/validation/) I read 81 disagreements and fixed the causes that were bugs or missing handling rather than meaning: titles with a period (Mr.), a name the other text only has in lower case, `one` as a number only when it is a numeral modifier, `any idea`, `after` as a verb particle, wh-word of a cleft or relative clause, a question split in two by the sentence splitter, polite requests (`could you give me`), `true or false:` and `check this:` lead-ins (raw text), inverted yes/no questions without a question mark, name swaps between sentences or between coordinated clauses, answer words (`Yes,`), fragments without a predicate, and the raw-text numbers of lead-ins SymbolicLM masks before parsing. Rules and numbers of the first run are kept in validation/; the final rules are in validation-d1/.",
+   "why": "The disagreement reading is part of the preregistered analysis; most disagreements were implementation gaps.",
+   "effect": "Calibration all, view C: mechanical recall of `different` 96.2% -> 98.7% [95.5, 99.7], false alarm 13.4% -> 11.6% [8.1, 16.5]; bad_english judged pairs: equivalent precision 96.6% -> 98.6% [95.1, 99.6]. The test half was seen before the change, so the final numbers are not confirmatory."
+  },
+  {
+   "id": "D2",
+   "at": "2026-10-01T00:40:00Z",
+   "what": "Owner addition relayed by the orchestrator: seven small semantic-similarity models (three NLI cross-encoders, two paraphrase/STS cross-encoders, two embedding cosines) and three combinations with the symbolic core checks were evaluated on the same sets. Thresholds (t.hi = smallest score with equivalent precision >= 98% on at least 8 tune items; t.lo = largest score with false alarm <= 10%) were tuned on the tune half of the calibration set (clean view C) only and applied unchanged elsewhere.",
+   "why": "Owner question whether a small specialised model can replace the LLM meaning judge.",
+   "effect": "Adds tools/eval/semsim-evaluate.mjs and training/python/semsim_score.py; inference only on CPU (4 threads), isolated venv ~/semsim-venv."
+  }
+ ],
+ "results": {
+  "symbolic_final_rules": "Calibration all (clean view C): mechanical recall of different 98.7% [95.5, 99.7] (154/156: flip_negation 27/27, replace_name 27/27, change_number_date 27/27, change_quantifier 26/26, change_question_type 26/26, swap_names 21/23); false alarm on positives 11.6% [8.1, 16.5] (26/224), view A 16.3% [12.6, 20.9]; equivalent on 23.2% of positives with precision 89.7% [79.2, 95.2] over all labelled items; uncertain 65.2% of positives. bad_english judged pairs (1,120 decisive): equivalent precision vs the two-vote judge 98.6% [95.1, 99.6] (143/145), 13.0% of all pairs and 33.6% of judge-yes pairs skippable (typo-free inputs: 44.6%); different recall of judge-no 83.4% [80.5, 86.0], precision 90.5%; agreement on decisive verdicts 92.0%. backgen judged (700): equivalent precision 48.4% (the two judges reject dropped politeness tails that the metric ignores).",
+  "small_models": "No model reaches a threshold with equivalent precision >= 98% on the tune half except nli-base (t.hi 0.9973; test C precision 92.6% [76.6, 97.9], 8.9% of items); bidirectional NLI is the best standalone (nli-moritz: error 8.7% on bad_english, 13.5% on calibration test C; nli-small 65 ms, nli-base 125 ms per pair at 4 threads), cosine models are weak (MiniLM and bge catch under 21% of the mechanical changes). Best cascade: symbolic equivalent, else nli-base above t.hi: bad_english equivalent precision 98.1% [95.1, 99.2], 18.4% of all pairs skippable."
+ },
+ "decision": "Preregistered rule not met: H1 needs false alarm <= 10% (11.6% [8.1, 16.5] clean view, 16.3% view A; the recall part, 98.7%, is met) and H2 needs >= 50% of items skipped at >= 98% precision (13% to 18% of all judged pairs, 34% to 48% of judge-yes pairs). The metric is kept as tooling and an optional cost filter; it does not replace the LLM meaning judge."
+}

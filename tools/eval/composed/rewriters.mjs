@@ -6,11 +6,11 @@ import path from 'node:path';
 import {spawn} from 'node:child_process';
 
 /** Message-only chat completion, greedy; `maxTokens` scales with the input length. */
-export function endpointRewriter(url, {model = 'proofreader', maxNew = 4096} = {}) {
+export function endpointRewriter(url, {model = 'proofreader', maxNew = 4096, noCache = false} = {}) {
   const base = url.replace(/\/$/, '');
   return async text => {
     const res = await fetch(`${base}/v1/chat/completions`, {method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({model, messages: [{role: 'user', content: text}], temperature: 0, top_k: 1, seed: 0, max_tokens: Math.min(maxNew, Math.max(96, Math.ceil(text.length / 2) + 96))})});
+      body: JSON.stringify({model, messages: [{role: 'user', content: text}], temperature: 0, top_k: 1, seed: 0, ...(noCache ? {cache_prompt: false} : {}), max_tokens: Math.min(maxNew, Math.max(96, Math.ceil(text.length / 2) + 96))})});
     if (!res.ok) throw Error(`rewriter endpoint ${res.status}`);
     const data = await res.json();
     return String(data.choices?.[0]?.message?.content ?? '').trim();
@@ -32,7 +32,7 @@ export const identityRewriter = Object.assign(async text => text, {identity: tru
 
 /** `--endpoint URL`, `--command CMD` or `identity`. */
 export function rewriterFromArgs(o) {
-  if (o.endpoint) return {name: o.name ?? o.endpoint, fn: endpointRewriter(o.endpoint, {model: o.model ?? 'proofreader'})};
+  if (o.endpoint) return {name: o.name ?? o.endpoint, fn: endpointRewriter(o.endpoint, {model: o.model ?? 'proofreader', noCache: Boolean(o['no-cache'])})};
   if (o.command) return {name: o.name ?? o.command, fn: commandRewriter(o.command)};
   return {name: 'identity (no rewrite)', fn: identityRewriter};
 }

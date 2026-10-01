@@ -1,0 +1,66 @@
+{
+ "format": "chatsop-training-authorization-v1",
+ "authorization": "explicit-user-approval",
+ "approved": true,
+ "approved_by": "user",
+ "approved_at": "2026-10-01T08:47:38.988Z",
+ "instruction": "Owner approves SymbolicProofingLLM it3 training on the decomposition data: Owner 2026-10-01 (chat, verbatim): 'da, aprob, vei ce iese, pe moment daca LLM-urile judecator nu se oun de acird inseamna probabil ca exista ambiguitate scuzabile si orobabil si oamenii ar vedea problematice cazurile alea, e ok, facem ce putem, daca nu dureaza foarte mult merita it3'. Scope: one run symbolic-proofing-gemma270m-it3, Gemma 3 270M LoRA, data datasets/neuro_english/proofing-it3-decomp (3,246 train / 326 dev, plus the it2 data mix if the builder's design requires it), fast recipe (micro-batch 16 x accumulation 1), queued after the gloss run (one training at a time). Judge disagreement on S3/S4 is read as excusable ambiguity.",
+ "journal_event": {
+  "file": "status/journal.jsonl",
+  "ts": "2026-10-01T08:47:38.988Z",
+  "actor": "orchestrator"
+ },
+ "further_decisions": [
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T17:40:03.714Z",
+   "actor": "orchestrator",
+   "title": "Owner: SymbolicProofingLLM first, LanguageProofingLLM second"
+  },
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T17:41:07.339Z",
+   "actor": "orchestrator",
+   "title": "Owner allows parallel GPU training runs when faster than serial"
+  },
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T17:46:38.134Z",
+   "actor": "orchestrator",
+   "title": "Owner: the fallback base is Gemma 3 1B (LoRA), not Qwen"
+  },
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T19:58:29.661Z",
+   "actor": "orchestrator",
+   "title": "Owner: evaluate layer by layer; for now NL and grammatical analysis, not SOP translation"
+  },
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T20:21:53.090Z",
+   "actor": "orchestrator",
+   "title": "Incident: symbolic/neuro split used SOP match instead of the grammatical analysis (dataset membership is decided by the analysis layer)"
+  },
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T22:48:59.650Z",
+   "actor": "orchestrator",
+   "title": "Owner: remove Qwen3-1.7B from the chat; compare proofing LLMs only on our synthetic data and against their untrained base"
+  },
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T22:54:36.651Z",
+   "actor": "orchestrator",
+   "title": "Night loop (owner 2026-10-01: iterate until morning so both proofing LLMs are very good)"
+  }
+ ],
+ "model": "gemma",
+ "run": "symbolic-proofing-gemma270m-it3",
+ "role": "proofreader",
+ "qualification_sha256": "5000cb1e3eaa9909c05b87deb474959c0e88695c85d6535c5e9eefca7c988176",
+ "recipe_sha256": "9ceb2791bc7294ab192b5ce92d45de3e10430a6783fa80f42dba6f07de429b23",
+ "dataset_manifest_sha256": "0e392674b5d8c06cf9b6264c10394713e1e7ffc289f97b18a069158f05a8cbcd",
+ "dataset_version_sha256": "99a8fcd5dbd50be0573e8cd521a1e31a2091e09dbd5bea5b9942a1414376fd2c",
+ "transcribed_by": "sp-it3-agent",
+ "transcribed_at": "2026-10-01T09:20:59.431Z"
+}

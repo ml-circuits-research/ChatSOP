@@ -1,0 +1,156 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "train-symbolic-proofing-gemma270m-it1",
+ "name": "SymbolicProofingLLM iteration 1 (pilot): Gemma 3 270M IT + LoRA on datasets/neuro_english/proofing (role proofreader)",
+ "registered_at": "2026-09-30T20:10:00Z",
+ "registered_by": "symbolic-proofing-training-agent (owner decisions in status/journal.jsonl, actor orchestrator: 2026-09-30T17:32:38.274Z, 17:40:03.714Z, 17:41:07.339Z, 17:46:38.134Z)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_request": "Iteration 1 (of at most 1-2 approved) of SymbolicProofingLLM: fine-tune google/gemma-3-270m-it with LoRA on the oracle-verified neuro_english pairs (correct English -> the limited English SymbolicLM understands). No larger model in this iteration (Gemma 3 1B LoRA is the owner's fallback only if 270M clearly cannot learn). LanguageProofingLLM is a separate, later run.",
+ "frozen_before_results": "Written before any optimizer step of this run and before any prediction of any checkpoint of this run on any split. Untrained-base and no-rewrite baselines are scored after this file is frozen.",
+ "iteration": 1,
+ "pilot": true,
+ "pilot_note": "The pair set is small (895 train pairs). A much larger set in the reverse direction (complex paraphrase -> simple form SymbolicLM already understands, DeepSeek, datasets_sources/symbolic_backgen) is being produced for iteration 2. Iteration 1 answers three questions and nothing about final quality.",
+ "questions": [
+  "Q1: Does Gemma 3 270M learn the transformation at all (repair rate on the sealed pairs, relative to no rewrite and to the untrained base with the same prompt)?",
+  "Q2: Does it keep working sentences untouched (break rate on sealed identity pairs, on 300 random symbolic_english dev messages, and on clean sentences inside composed paragraphs)?",
+  "Q3: How does it behave on decomposition (one long or coordinated sentence -> several simple sentences) and on long input, including inputs longer than the longest training pair?"
+ ],
+ "hypotheses": {
+  "H1": "Learning. On the 57 sealed repair pairs the fine-tuned model's accepted repair rate (output's SOP matches the gold: strict OR frame-normalized, reported separately) is at least 30% and its Wilson 95% interval lies above the untrained base's interval with the same prompt. (30% is a practical bar for a pilot with 471 repair pairs; it is not a product target.)",
+  "H2": "Break rate. On the 300-message symbolic_english dev sample the share of messages whose SymbolicLM SOP changes after the rewrite is <= 1% (point estimate; the Wilson upper bound is reported). On the 38 sealed identity pairs the break rate is <= 5% (point estimate; with n=38 the interval is wide and is reported as such).",
+  "H3": "Decomposition. In the intended per-sentence mode (composed K2 paragraphs, gate symbolic) the fine-tuned model fixes more bad sentences than the untrained base and changes at most 2% of the clean sentences it is sent; K6 decomposition cases are reported by type, with no threshold.",
+  "H4": "Length. Output quality on inputs longer than the longest training prompt (1,362 tokens as a pair, 3,007 characters as a prompt) degrades (dropped sentences, truncation, repetition); this is reported descriptively, no threshold, because the owner decided both proofing LLMs work sentence by sentence.",
+  "non_claim": "No claim that 270M is sufficient for the final SymbolicProofingLLM; no claim about LanguageProofingLLM; results on 57+38 sealed pairs carry wide intervals."
+ },
+ "arms": [
+  {
+   "order": 1,
+   "name": "no_rewrite",
+   "kind": "baseline, no compute",
+   "note": "identity rewriter; repair rate is 0 by construction on the pairs whose input does not already match"
+  },
+  {
+   "order": 2,
+   "name": "gemma-3-270m-it (untrained)",
+   "kind": "baseline, same prompt",
+   "prompt": "message-only chat turn, exactly the training prompt (training/python/common.py chat_ids: user turn = the raw message, no system role, no instruction); greedy",
+   "model_dir": "models/gemma/bases/99073d6b6edb0e298d163f964ec2b9d970b3408d"
+  },
+  {
+   "order": 3,
+   "name": "symbolic-proofing-gemma270m-it1 (fine-tuned, this run)",
+   "kind": "training arm",
+   "model_id": "daniel-dona/gemma-3-270m-it",
+   "revision": "99073d6b6edb0e298d163f964ec2b9d970b3408d",
+   "upstream": "google/gemma-3-270m-it ac82b4e820549b854eebf28ce6dedaf9fdfa17b3 (byte-identical mirror, config/train-gemma.json)",
+   "recipe": "config/train-gemma.json",
+   "recipe_sha256": "ecc7fe047b1bd075721a51541d38f23610336973d8b2009802db271002d5b6c2",
+   "role": "proofreader",
+   "run": "symbolic-proofing-gemma270m-it1"
+  }
+ ],
+ "changed_factor": "Fine-tuned on the neuro_english proofing pairs (arm 3) versus not (arms 1, 2). Single arm, LoRA, recipe of the earlier proofreader run.",
+ "data": {
+  "training_input": "datasets/neuro_english/proofing/proofreader/{train,dev}.jsonl ({prompt,target,...}): train 895 pairs (471 repair, 424 identity), dev 102 (56 repair, 46 identity), prompt_profile message-only",
+  "dataset_manifest_sha256": "f2955e0b82a34bef24248a376af07c0db4f620949ff1c208ff60d1d0fc38fe40",
+  "dataset_version": {
+   "dataset": "neuro_english/proofing",
+   "version": "2026-09-30-65a44625",
+   "rules": "ud-rules-v2.5"
+  },
+  "dataset_version_sha256": "80412d3bbdef377eb8fedd00a88aaee90437a2f06ee7e3b087d7311838d960db",
+  "projection_sha256": {
+   "proofreader/train.jsonl": "65a4462582de696621546afd46cb6f2401ec6202b133a9b559df76ac69212494",
+   "proofreader/dev.jsonl": "4e9537709c9547783827fe510bb783e90cce5882f7e26b7d15d4f4bae17cf238"
+  },
+  "qualification": "status/training/qualification-neuro-proofing.json (status qualified, experiment-grade: automated oracle grounding, no human semantic review)",
+  "authorization": "status/training/authorization-gemma-symbolic-proofing-gemma270m-it1.json (transcription of the owner decision 2026-09-30T17:32:38.274Z; scope status/training/owner-approval-symbolic-proofing-it1.json)",
+  "sealed_pair_test": "eval/suites/neuro_english/proofing-test.jsonl, 95 pairs (57 repair, 38 identity), sha256 0145eb48358afed0d0026e34859aaf6d8b16d53a92a64a617f216c775bbd475c; never read by training or dev selection",
+  "composed_suites": {
+   "eval/suites/neuro_english/test-composed.jsonl": "37b73c7effec7b63a31e90b780b8c17f88fef55231be07a65f24e70df036c092 (K2 mixed paragraphs 306, K6 decomposition 16)",
+   "eval/suites/symbolic_english/test-composed.jsonl": "6155b5c60c57a59173f41c298062a5af01d10a349cffdd0d242fa0d187a3a558 (K3 long identity 289, K1/K5 scored only as K3/K5 rewrite)",
+   "eval/suites/bad_english/test-composed.jsonl": "b66952c018448d440a5133ec824d0e640d55020a1a946aac9ec8f60d7cbf155e (not used in this run: LanguageProofingLLM material)"
+  },
+  "rebuild_note": "Another agent (composed-eval-agent) may rebuild data or suites. The hashes above are what this run trains and evaluates on; if a suite changes before scoring, the hash actually scored is recorded in the report and the change is a deviation.",
+  "engine": "SymbolicLM FINAL engine: config/symbolic-lm.json (Stanza accurate package), frozen rules ud-rules-v2.5 (code hash recorded by tools/eval/composed/rules-version.mjs at scoring time; config sha256 50cd0a2f89837ab3d6250ed653c0704087f68d5cd987d4be871ddbf117152da4)"
+ },
+ "recipe_policy": {
+  "mode": "LoRA adapter rank 16, alpha 32, dropout 0.05, lr 2e-4, batch 2 x accumulation 8, max_length 8192, sdpa, bf16, seed 42 (config/train-gemma.json, unchanged from train-proofreader-gemma270m-v1)",
+  "epochs_attempt_a": 3,
+  "steps": "ceil(ceil(895/2)/8) = 56 per epoch, 168 total",
+  "conditional_attempt_b": "Only if the attempt-A dev evidence says the model is under-trained (dev loss and dev accepted-repair rate both still improving at epoch 3, no early-stop rule tripped): ONE further run `symbolic-proofing-gemma270m-it1b` with a recipe copy differing only in epochs (8) and its own qualification-bound receipt. The checkpoint reported is the best over attempts A and B chosen on dev only. No other recipe change is allowed in iteration 1.",
+  "snapshots": "training/python/train.py writes one adapter snapshot per epoch (epoch-N, role proofreader only) so each epoch can be decoded on dev; `best` (lowest dev loss) is also kept."
+ },
+ "early_stopping": {
+  "after_each_epoch": "dev loss and a greedy decode (same message-only prompt, HF bf16, batch) of the full 102-row dev split, scored by the oracle (tools/eval/symbolic-proofing-eval.mjs, split dev): accepted repair rate on dev repair pairs (SOP equals the SOP of the verified target), identity break rate on dev identity pairs, share of empty or length-capped outputs.",
+  "stop_rules": "Stop and keep the previous epoch if: dev identity break rate > 20%; or no dev repair pair changed (identity collapse: every output equals its input) after epoch 1; or > 20% of dev outputs empty or capped; or non-finite loss, OOM, resource floor, wall-time cap 60 minutes. Stop (plateau) when dev loss has not improved for 2 consecutive epochs. A run that trips none of these completes its epoch budget.",
+  "sealed_evaluation_stages": "Sealed pair test (95) is scored in one stage. Composed suites run in stratified stages 100 then 300 then full (tools/eval/composed-score.mjs); stop a suite early when the interval is decisive versus the baseline, when the condition is broken (> 20% unparsable or empty outputs on the first 100), or on futility; every stop is recorded with stage, numbers and reason."
+ },
+ "evaluation": {
+  "checkpoint": "best epoch selected on dev only: highest dev accepted-repair rate among epochs with dev identity break <= 10%, ties by lowest dev loss. The sealed data never selects anything.",
+  "decoding": "greedy, message-only prompt; HF bf16 (selection, sealed pair test) and llama.cpp Q8_0 (composed suites through llama-server on the GPU with prompt cache off, deployment form). HF and llama.cpp greedy agreement is checked on 50 rows before the GGUF numbers are trusted.",
+  "sealed_pair_test": "95 pairs. Oracle: SymbolicLM on the output (recorded Stanza accurate parse, rules v2.5), strict gold comparison (eval/run.mjs execution equivalence against the source row's gold, tools/datasets/neuro-oracle/classify.mjs goldMatches) and frame-normalized comparison (sop/frames.mjs), reported separately; a row without gold uses the canonical SOP of the pair's verified input/target. Metrics: repair rate (repair pairs, strict and normalized), identity break rate (identity pairs whose output no longer matches the gold, or for gold-less identity pairs whose SOP changes), exact-text-equals-target share, unchanged-output share, meaning preservation (names, numbers, negation, quantifiers, question mark, non-empty: tools/research/proofing.mjs checks() plus a proper-name and number bag comparison), share of outputs SymbolicLM parses with no unparsed span and a valid SOP. Wilson 95% intervals on rates; paired cluster bootstrap 95% (10,000 resamples, seed 7, tools/research/proofing.mjs bootstrap) on differences to the baselines.",
+  "composed": "tools/eval/composed-score.mjs rewrite on K2 (neuro mixed paragraphs), K3 (long identity), K5 (reference) and decompose on K6, both --mode sentence (intended design, gate symbolic, host splitter) and --mode paragraph, rewriters: fine-tuned, untrained base, identity. Reported: clean sentences changed, bad sentences fixed / untouched / wrongly rewritten, dropped components, exact cases, end-to-end SOP exact, by number of sentences. Inputs longer than the training maximum come from the longest composed paragraphs (n_sentences at or above the training p99) and are reported as their own stratum.",
+  "symbolic_english_break": "300 random messages (seed 20260930) of datasets/symbolic_english/dev.jsonl: break = the SymbolicLM SOP of the output differs (canonical compare, tools/eval/composed/sop-canon.mjs) from the SOP of the message; also the share of outputs whose text differs.",
+  "cpu_speed": "GGUF Q8_0, llama.cpp CPU, 4 threads, 30 messages of the sealed pair test prompts; ms per message and tokens per second.",
+  "gguf": "Q8_0 through ~/proofreader-export-venv (the llama.cpp converter copy that handles Gemma 3), 50-row HF vs llama.cpp greedy agreement."
+ },
+ "decision_rule_iteration_2": {
+  "continue_270m": "If H1 holds (accepted repair >= 30% with the interval above the untrained base) and the break criteria of H2 hold: iteration 2 stays on Gemma 3 270M and adds the large reverse-direction set (complex paraphrase -> simple form), with identity pairs kept at roughly half of the rows, long and decomposition cases in proportion to the targets, and sentence-level rows.",
+  "more_data_same_model": "If accepted repair is 10-30% or the dev curve is still improving at the last epoch, but the break criteria hold: 270M is not excluded; iteration 2 is data-driven (size and diversity), same model.",
+  "escalate": "If accepted repair < 10% on the sealed pairs AND dev accepted repair < 15% with dev loss plateaued (the model cannot fit the dev-like pairs), or identity break cannot be held under 10% on symbolic_english: 270M clearly cannot learn this data; the owner's fallback is Gemma 3 1B with LoRA, as a new preregistered run.",
+  "note": "These thresholds are practical pilot bars fixed before results; the decision to start iteration 2, and its data, is the owner's and orchestrator's."
+ },
+ "non_goals": "no rule changes to lib/ud-to-sop; no tuning on any sealed file; no fine-tuning of any model other than gemma-3-270m-it; no change to SymbolicLM's default behaviour; no LanguageProofingLLM training",
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-09-30T19:55:00Z",
+   "before": "dry run, no optimizer step",
+   "what": "training/cli.mjs refused datasets/neuro_english/proofing/VERSION (it requires format/counter/label; the neuro pipeline wrote only dataset/version/rules). The VERSION writer (tools/datasets/neuro-oracle/build.mjs versionRecord) now emits the conforming record, the file was rewritten with that content, the qualification record was regenerated by tools/research/qualify-neuro-proofing.mjs (all checks recomputed, still qualified) and the authorization receipt re-transcribed against the new hashes. Data rows and the dataset manifest (f2955e0b...) are unchanged; no gate was weakened."
+  },
+  {
+   "id": "D2",
+   "at": "2026-09-30T19:47:00Z",
+   "before": "training attempt A",
+   "what": "podman.mjs was started directly with the bounded override TRAIN_MIN_CUDA_FREE_GIB=24 and TRAIN_CUDA_FREE_CHECK=host (the override the earlier run needed because the GB10 driver-reported free memory excludes reclaimable page cache); the default 48 GiB floor was not tried first. Host MemAvailable was about 105 GiB and only a 1 GiB llama-server of another agent was on the GPU. No qualification or authorization gate was touched."
+  },
+  {
+   "id": "D3",
+   "at": "2026-09-30T20:30:00Z",
+   "before": "dev decode and checkpoint selection (SOP-based)",
+   "what": "Owner direction relayed by the coordinator (2026-09-30): test one layer at a time; the PRIMARY metrics are the grammatical analysis (calibrated gate: Stanza default and accurate trees identical AND the DeepSeek judge conditions a and c good), meaning (mechanical checks; the DeepSeek meaning judge is uncalibrated and was not run), identity break measured on the analysis, and decomposition quality; the SOP gold match is SECONDARY and must not select the checkpoint or state the verdict. Dev selection was therefore redone on the analysis layer: highest share of dev repair outputs with correct analysis and meaning ok among the epochs whose dev identity analysis-change rate is at most 10% (epoch 1 excluded at 17.4%; epoch 2 32.1% vs epoch 3 33.9%): epoch 3. The SOP-based rule of this file selects epoch 3 as well. H1 to H3 were stated on the SOP layer; they are reported on both layers and the verdict uses the analysis layer. Judge folder datasets_sources/symbolic_proofing_parse_judge/ (DeepSeek through omp, 9,166 items, 0 unresolved)."
+  },
+  {
+   "id": "D4",
+   "at": "2026-09-30T21:10:00Z",
+   "before": "evaluation",
+   "what": "Journal incident 2026-09-30 ('symbolic/neuro split used SOP match instead of the grammatical analysis'): the training pairs, the dev pairs and the 95 sealed pairs come from the SOP-proxy split; about 3,700 neuro rows probably have a correct analysis and fail only in the SOP layer. This run is a PILOT on the old split, no data was rebuilt, iteration 2 is built on the new split. Results are broken down by the source row's failure_kind (parser/unknown versus rules/gold_convention; 54 of 57 sealed repair pairs are rules)."
+  },
+  {
+   "id": "D5",
+   "at": "2026-09-30T22:00:00Z",
+   "before": "H4 inputs longer than the training maximum",
+   "what": "The composed suites contain no input longer than the longest training prompt (longest composed prompt about 700 tokens). A synthetic stress set was built from sealed composed paragraphs (split 'long' of tools/eval/symbolic-proofing-eval.mjs: 8 identity and 8 mixed inputs of 8,600 to 10,900 characters, seed 20260930) and scored whole-input through HF bf16 greedy."
+  },
+  {
+   "id": "D6",
+   "at": "2026-09-30T22:10:00Z",
+   "before": "GGUF verification",
+   "what": "HF greedy and llama.cpp Q8_0 greedy agree on 43/50 dev rows (GPU and CPU); HF bf16 versus HF fp32 also differ on 6/50, so the divergence on long greedy decodes is of the size of precision noise. The earlier run's 50/50 was not reproduced. Sealed-pair and dev numbers are HF bf16; composed-suite numbers are GGUF Q8_0."
+  },
+  {
+   "id": "D7",
+   "at": "2026-09-30T22:20:00Z",
+   "before": "symbolic_english break sample",
+   "what": "datasets/symbolic_english/dev.jsonl was rebuilt by another agent after the sample was drawn; the 300-message sample is frozen in eval/reports/current/symbolic-proofing-it1/inputs-sym300.jsonl (sha256 d6b9b6ba...) and that file is the evaluated set."
+  },
+  {
+   "id": "D8",
+   "at": "2026-09-30T19:55:00Z",
+   "before": "training code",
+   "what": "training/python/train.py writes one adapter snapshot per epoch (epoch-N, role proofreader only) so that every epoch can be decoded on dev; tools/research/qualify-neuro-proofing.mjs gained --authorize; tools/eval/composed/rewriters.mjs gained an optional --no-cache flag (cache_prompt false) for llama-server endpoints. (Deviation D1 above covers the VERSION record.) Attempt B (more epochs) was not run: dev loss plateaued."
+  }
+ ],
+ "results_pointer": "eval/reports/current/symbolic-proofing-it1/summary.md"
+}

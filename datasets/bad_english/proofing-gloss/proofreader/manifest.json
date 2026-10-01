@@ -1,0 +1,18 @@
+{
+ "format": "chatsop-proofreader-projection-v1",
+ "corpus": "bad_english/proofing-gloss",
+ "prompt_profile": "message-only",
+ "created": "2026-10-01T05:59:37.966Z",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "files": {
+  "proofreader/train.jsonl": {
+   "rows": 62550,
+   "sha256": "362cecfd92807dc0d26ab374ffc95f49f8690f5d18c41593d796facaa292744e"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 5173,
+   "sha256": "dceb21c44cb8bf7b329464740a500b98e5f8231428487d14f5ececa99e508416"
+  }
+ }
+}

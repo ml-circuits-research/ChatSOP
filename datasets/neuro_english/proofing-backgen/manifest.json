@@ -1,0 +1,231 @@
+{
+ "format": "chatsop-proofing-pairs-v1",
+ "dataset": "neuro_english",
+ "source": "symbolic_backgen",
+ "model": "SymbolicProofingLLM",
+ "role": "proofreader",
+ "prompt_profile": "message-only",
+ "prompt": "row.prompt verbatim: the complex paraphrase (message only)",
+ "target": "row.target verbatim: the original symbolic_english message (repair) or the paraphrase itself (identity: SymbolicLM analyses it correctly as it is)",
+ "created": "2026-09-30T21:04:18.768Z",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "meaning_judge_usable": true,
+ "two_vote": true,
+ "pair_direction": "(complex paraphrase written by DeepSeek flash) -> (original symbolic_english message that SymbolicLM analyses correctly)",
+ "splits": "split of the source symbolic_english row",
+ "rejected": {
+  "mechanical:name": 348,
+  "meaning_judge_no": 3838,
+  "sealed_text_match": 424,
+  "mechanical:question_mark": 396,
+  "mechanical:negation_lost": 12,
+  "mechanical:protected": 29,
+  "mechanical:equals_original": 133,
+  "meaning_pending": 9,
+  "mechanical:negation_added": 27,
+  "mechanical:target_sealed_text": 55,
+  "mechanical:duplicate_paraphrase": 9,
+  "mechanical:already_in_proofing": 1,
+  "mechanical:length_ratio": 2,
+  "mechanical:not_english": 5
+ },
+ "summary": {
+  "train": {
+   "pairs": 8978,
+   "by_kind": {
+    "identity": 2945,
+    "repair": 6033
+   },
+   "by_paraphrase_kind": {
+    "fronting": 2918,
+    "passive": 648,
+    "embedded_question": 1091,
+    "casual": 867,
+    "relative_clause": 757,
+    "nominalization": 352,
+    "reorder": 824,
+    "coordination": 962,
+    "lead_in": 559
+   },
+   "by_verification": {
+    "IDENTITY_MEANING_TWO_VOTE": 2945,
+    "MEANING_TWO_VOTE": 6033
+   },
+   "by_parse_gate": {
+    "passed": 2945,
+    "trees_differ": 4957,
+    "judge_failed": 1076
+   },
+   "by_kind_and_paraphrase_kind": {
+    "identity:fronting": 818,
+    "identity:passive": 385,
+    "identity:embedded_question": 341,
+    "identity:casual": 332,
+    "identity:relative_clause": 201,
+    "identity:nominalization": 68,
+    "identity:reorder": 288,
+    "identity:coordination": 282,
+    "identity:lead_in": 230,
+    "repair:fronting": 2100,
+    "repair:coordination": 680,
+    "repair:reorder": 536,
+    "repair:embedded_question": 750,
+    "repair:relative_clause": 556,
+    "repair:nominalization": 284,
+    "repair:casual": 535,
+    "repair:lead_in": 329,
+    "repair:passive": 263
+   }
+  },
+  "dev": {
+   "pairs": 1182,
+   "by_kind": {
+    "identity": 430,
+    "repair": 752
+   },
+   "by_paraphrase_kind": {
+    "reorder": 128,
+    "lead_in": 82,
+    "fronting": 388,
+    "passive": 112,
+    "coordination": 115,
+    "casual": 89,
+    "relative_clause": 93,
+    "embedded_question": 129,
+    "nominalization": 46
+   },
+   "by_verification": {
+    "IDENTITY_MEANING_TWO_VOTE": 430,
+    "MEANING_TWO_VOTE": 752
+   },
+   "by_parse_gate": {
+    "passed": 430,
+    "judge_failed": 132,
+    "trees_differ": 620
+   },
+   "by_kind_and_paraphrase_kind": {
+    "identity:reorder": 49,
+    "identity:lead_in": 42,
+    "identity:fronting": 121,
+    "identity:passive": 70,
+    "identity:coordination": 36,
+    "identity:casual": 33,
+    "identity:relative_clause": 19,
+    "identity:embedded_question": 49,
+    "repair:fronting": 267,
+    "repair:lead_in": 40,
+    "repair:coordination": 79,
+    "repair:relative_clause": 74,
+    "identity:nominalization": 11,
+    "repair:nominalization": 35,
+    "repair:casual": 56,
+    "repair:embedded_question": 80,
+    "repair:passive": 42,
+    "repair:reorder": 79
+   }
+  },
+  "all": {
+   "pairs": 10160,
+   "by_kind": {
+    "identity": 3375,
+    "repair": 6785
+   },
+   "by_paraphrase_kind": {
+    "fronting": 3306,
+    "passive": 760,
+    "embedded_question": 1220,
+    "casual": 956,
+    "relative_clause": 850,
+    "nominalization": 398,
+    "reorder": 952,
+    "lead_in": 641,
+    "coordination": 1077
+   },
+   "by_verification": {
+    "IDENTITY_MEANING_TWO_VOTE": 3375,
+    "MEANING_TWO_VOTE": 6785
+   },
+   "by_parse_gate": {
+    "passed": 3375,
+    "judge_failed": 1208,
+    "trees_differ": 5577
+   },
+   "by_kind_and_paraphrase_kind": {
+    "identity:fronting": 939,
+    "identity:passive": 455,
+    "identity:embedded_question": 390,
+    "identity:casual": 365,
+    "identity:relative_clause": 220,
+    "identity:nominalization": 79,
+    "identity:reorder": 337,
+    "identity:lead_in": 272,
+    "identity:coordination": 318,
+    "repair:fronting": 2367,
+    "repair:coordination": 759,
+    "repair:lead_in": 369,
+    "repair:reorder": 615,
+    "repair:embedded_question": 830,
+    "repair:relative_clause": 630,
+    "repair:nominalization": 319,
+    "repair:casual": 591,
+    "repair:passive": 305
+   }
+  }
+ },
+ "inputs": {
+  "backgen_parts": [
+   "part-000.jsonl",
+   "part-001.jsonl",
+   "part-002.jsonl",
+   "part-003.jsonl",
+   "part-004.jsonl",
+   "part-005.jsonl",
+   "part-006.jsonl",
+   "part-007.jsonl",
+   "part-008.jsonl",
+   "part-009.jsonl",
+   "part-010.jsonl",
+   "part-011.jsonl",
+   "part-012.jsonl",
+   "part-013.jsonl",
+   "part-014.jsonl",
+   "part-015.jsonl",
+   "part-016.jsonl",
+   "part-017.jsonl",
+   "part-018.jsonl",
+   "part-019.jsonl",
+   "part-020.jsonl",
+   "part-021.jsonl",
+   "part-022.jsonl",
+   "part-023.jsonl",
+   "part-024.jsonl",
+   "part-025.jsonl",
+   "part-026.jsonl"
+  ],
+  "meaning_judge": "datasets_sources/backgen_meaning_judge",
+  "parse_judge": "datasets_sources/backgen_parse_judge (plus the verdicts of datasets_sources/neuro_oracle_parse_judge for identical sentence keys)"
+ },
+ "files": {
+  "train.jsonl": {
+   "rows": 8978,
+   "sha256": "f156ba7157d0ae13a82d51d6d2a21731076c1a842bb96341804db336d29516c4"
+  },
+  "dev.jsonl": {
+   "rows": 1182,
+   "sha256": "f98ff939f22050898c7472d7325e41110b3466b1d200940d9f5584cc3a8e9c3c"
+  },
+  "audit.jsonl": {
+   "rows": 10160,
+   "sha256": "d40066b51844bf07f1a1153428f926a7ca03834e32b62c4b433c202955e1fc59"
+  },
+  "proofreader/train.jsonl": {
+   "rows": 8978,
+   "sha256": "f156ba7157d0ae13a82d51d6d2a21731076c1a842bb96341804db336d29516c4"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 1182,
+   "sha256": "f98ff939f22050898c7472d7325e41110b3466b1d200940d9f5584cc3a8e9c3c"
+  }
+ }
+}

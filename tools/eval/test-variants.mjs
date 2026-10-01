@@ -19,8 +19,11 @@ import {loadRows} from './composed/components.mjs';
 import {loadSealedRows} from './composed/sealed.mjs';
 import {openLm} from './composed/lm.mjs';
 import {signatureOf} from '../datasets/three-datasets/forms.mjs';
+import {hasGoldMatch} from '../datasets/three-datasets/rows.mjs';
 import {skeletonOf, textHash, lexicalHash} from '../datasets/three-datasets/variants.mjs';
 import {build} from '../datasets/form-variants.mjs';
+import {AnalysisGate, verdictRecord, judgeSummary} from '../datasets/three-datasets/analysis-gate.mjs';
+import {decideAdditions} from '../datasets/three-datasets/place.mjs';
 
 export const OUT = 'eval/suites/symbolic_english/test-variants.jsonl';
 
@@ -29,7 +32,7 @@ export function trainSideCatalog({templatesPerForm = 3, root = ROOT} = {}) {
   const train = loadRows('symbolic_english', ['train', 'dev'], root), test = loadSealedRows('symbolic_english', root);
   const testForms = new Set(test.map(r => signatureOf(r).form).filter(Boolean));
   const byForm = new Map();
-  for (const r of train) { const f = signatureOf(r).form; if (f && !testForms.has(f) && r.analysis_verified === 'gold_sop_match') (byForm.get(f) ?? byForm.set(f, []).get(f)).push(r); }
+  for (const r of train) { const f = signatureOf(r).form; if (f && !testForms.has(f) && hasGoldMatch(r)) (byForm.get(f) ?? byForm.set(f, []).get(f)).push(r); }
   const forms = [];
   for (const [form, rows] of [...byForm].sort((a, b) => a[0].localeCompare(b[0]))) {
     const templates = rows.sort((a, b) => a.id.localeCompare(b.id)).map(skeletonOf).filter(Boolean).slice(0, templatesPerForm);
@@ -50,7 +53,18 @@ async function main() {
   const catalog = trainSideCatalog({templatesPerForm: Number(get('templates-per-form', 3))});
   const lm = await openLm();
   try {
-    const {rows, stats} = await build({catalog, lm, perTemplate: Number(get('per-template', 2)), seed: 'test-variants-v1', splitOf: () => 'test-variants', idPrefix: 'tv'});
+    const built = await build({catalog, lm, perTemplate: Number(get('per-template', 2)), seed: 'test-variants-v1', splitOf: () => 'test-variants', idPrefix: 'tv'});
+    const {stats} = built;
+    // Analysis-layer membership (DS008 "Three datasets"): a sealed variant is a symbolic_english case only when every sentence passes the analysis gate; the others are left out
+    // (a view-only sealed file has no neuro side). The first run records the parses and judge items; a missing verdict stops the write.
+    const gate = new AnalysisGate();
+    const {decisions, summary} = await decideAdditions(gate, built.rows, {record: !a.includes('--check'), log: m => process.stderr.write(m + '\n')});
+    const pending = built.rows.filter(r => decisions.get(r.message).state === 'pending').length;
+    if (pending && !a.includes('--check')) { console.error(`${pending} test variants have no analysis verdict yet: run the judge task on datasets_sources/resplit_parse_judge/ and run again; nothing written`); process.exitCode = 2; return; }
+    const gateRejected = built.rows.filter(r => decisions.get(r.message).state === 'fail').length;
+    stats.rejected = {...stats.rejected, ...(gateRejected ? {analysis_gate_failed: gateRejected} : {})};
+    const rows = built.rows.filter(r => decisions.get(r.message).state === 'pass').map(r => { const d = decisions.get(r.message); return {...r, analysis_verified: 'analysis_gate', analysis_verdict: verdictRecord(d, {}), sop_layer: {status: 'match', handled: true, failure_kind: null, failure: null}, verification: {...r.verification, judge: judgeSummary(d), stanza_default_accurate: d.worst_tree ?? 'not_measured'}}; });
+    void summary;
     const sealedRows = rows.map(r => ({...r, source: {...r.source, corpus: 'test-variant', suite: 'test-variant', split: 'test-variants'}, rights: {...r.rights, inherited_from: 'slot substitution of delexicalized train/dev form templates'}, quality_flags: {...r.quality_flags, sealed_test_variant: true}})).sort((x, y) => x.id.localeCompare(y.id));
     const text = sealedRows.map(r => JSON.stringify(r)).join('\n') + '\n';
     const manifest = {format: 'chatsop-test-variants-manifest-v1', dataset: 'symbolic_english', split: 'test-variants', sealed: true, view_only: true, path: OUT, rows: sealedRows.length, sha256: createHash('sha256').update(text).digest('hex'), bytes: Buffer.byteLength(text), forms_with_a_variant: new Set(sealedRows.map(r => r.source.form_id)).size, train_only_forms: catalog.train_only_forms, forms_without_gold_template: catalog.forms_without_gold_template, neuro_forms_only_in_train: catalog.neuro_sparse.forms, rejected: stats.rejected, attempts: stats.attempts, seed: 'test-variants-v1', built_at: new Date().toISOString(),

@@ -2,6 +2,9 @@ import {Runtime} from '../sop/runtime.mjs';import {complete,formalize,verbalize,
 import {propositionOf} from '../sop/propositions.mjs';
 import {mentionedIn,mentionedThroughLexicon,mentionedThroughDictionary} from '../sop/linking.mjs';
 import {answerLanguage} from './language.mjs';
+import {adviceFor,signalsToSop} from '../lib/emotion-detection/index.mjs';
+import {courtesyReply} from '../lib/emotion-detection/courtesy.mjs';
+const CONTENT_TYPES=new Set(['stated','assumed','query','constraint']);
 const verbatim=text=>String(text).normalize('NFC').toLocaleLowerCase('ro').replace(/\s+/g,' ').trim();
 const listTypes=types=>{const t=[...types];return t.slice(0,-1).join(', ')+' or '+t.at(-1);};
 /**
@@ -21,7 +24,7 @@ export class Agent{
   * `formalizer`, when given, is `{id, promptProfile, formalize: async text => sop}`
   * (a registry model, server/formalizers.mjs) and replaces the configured endpoint for this turn.
   */
- async turn(text,{language='auto',answerLanguage:selected,languageSource,now=Date.now(),rewrite=true,formalizer=null}={}){
+ async turn(text,{language='auto',answerLanguage:selected,languageSource,now=Date.now(),rewrite=true,formalizer=null,pragmatic=null}={}){
   const chosen=languageSource?{language:selected??language,source:languageSource}:answerLanguage(text,selected??(['en','ro'].includes(language)?language:undefined));
   const replyLanguage=chosen.language;
   assert(this.config.promptProfile===undefined||['formal','bare'].includes(this.config.promptProfile),'Unsupported formalizer prompt profile');
@@ -29,12 +32,27 @@ export class Agent{
   // The prompt is the message only (plus the fixed instructions in the formal prompt).
   const started=performance.now();
   const sop=formalizer?await formalizer.formalize(text):promptProfile==='bare'?await complete(this.config.formalizer,barePrompt(text)):await formalize(text,this.config.formalizer);
+  // A service formalizer (SymbolicLM) reports the EmotionDetectionSystem's signals with its analysis (DS029).
+  pragmatic=pragmatic??formalizer?.pragmatic?.()??null;
   const formalization={model:formalizer?.id??this.config.formalizer?.model??null,ms:Math.round(performance.now()-started)};
   let program;
   // Model output that is not admitted or cannot be executed keeps its SOP and timing, so the caller can show what the model wrote.
-  let result;
+  let result,signals=[],pragmaticSop='',advice=null;
   try{
    program=this.validateVocabulary(sop,text);assert(MODEL_TYPES.has(program.wires.at(-1)?.type),'Model SOP must end in a model-language declaration');
+   // Advisory pragmatic signals (DS029): host-emitted circuit lines for the reasoner, never facts about the world and never model output.
+   if(pragmatic){
+    signals=(pragmatic.signals??[]).filter(x=>!x.experimental);
+    pragmaticSop=signals.length?signalsToSop(signals,{taken:new Set(program.wires.map(w=>w.id))}):'';
+    if(pragmaticSop)parse(pragmaticSop);
+    advice=adviceFor(signals,{hasContent:program.wires.some(w=>CONTENT_TYPES.has(w.type))});
+    // Greeting, thanks, apology or closing without any content: a short courtesy reply and no computation.
+    if(advice.courtesyOnly){
+     const reply=courtesyReply(signals,replyLanguage),packet={kind:'courtesy',status:'courtesy',complete:true,language:replyLanguage,pragmatic:signals.map(({kind,score,span,source,basis})=>({kind,score,span:span??null,source,basis}))};
+     this.last={kind:'cnl',text:reply,language:replyLanguage,packet};this.recent.push({user:text.slice(0,400),response:reply});this.recent=this.recent.slice(-3);
+     return {sop,executionSop:pragmaticSop,cnl:reply,text:reply,packet,trace:[],outputs:{},blocked:[],generated:[],userStatements:[],carriedStatements:[],modelAssumptions:[],assumptionPolicy:null,assumptionBranch:null,unclear:null,answerLanguage:replyLanguage,languageSource:chosen.source,promptProfile,formalization,neuralFormalization:true,verbalizationCertified:true,pragmatic:{signals,sop:pragmaticSop,advice}};
+    }
+   }
    result=await new Runtime({repo:this.repo,session:this.session,schema:this.lexicon.predicates,lexicon:this.lexicon,now,policy:this.config.policy}).run(sop,{origin:'model',inputText:text,language:replyLanguage,languageSource:chosen.source,context:this.context});
   }catch(error){throw Object.assign(error,{modelSop:sop,formalization,promptProfile});}
   let output=result.result;
@@ -44,9 +62,9 @@ export class Agent{
   this.last=output;this.recent.push({user:text.slice(0,400),response:output.text.slice(0,500)});this.recent=this.recent.slice(-3);
   const nl=rewrite&&this.config.verbalizer?await verbalize(output,this.config.verbalizer):{text:output.text};
   const packet=output.packet??{};
-  return {sop,executionSop:result.executionSop,cnl:output.text,text:nl.text,packet:output.packet,trace:result.trace,outputs:result.outputs,blocked:result.blocked,generated:result.generated,
+  return {sop,executionSop:pragmaticSop?result.executionSop+'\n\n'+pragmaticSop:result.executionSop,cnl:output.text,text:nl.text,packet:output.packet,trace:result.trace,outputs:result.outputs,blocked:result.blocked,generated:result.generated,
    userStatements:packet.user_statements??[],carriedStatements:packet.carried_statements??[],modelAssumptions:packet.model_assumptions??[],assumptionPolicy:packet.assumption_policy??null,assumptionBranch:packet.assumption_branch??null,
-   unclear:packet.status==='unclear'?packet.unclear_kind:null,answerLanguage:replyLanguage,languageSource:chosen.source,promptProfile,formalization,neuralFormalization:true,verbalizationCertified:!rewrite};
+   unclear:packet.status==='unclear'?packet.unclear_kind:null,answerLanguage:replyLanguage,languageSource:chosen.source,promptProfile,formalization,neuralFormalization:true,verbalizationCertified:!rewrite,...(pragmatic?{pragmatic:{signals,sop:pragmaticSop,advice}}:{})};
  }
  /**
   * Admission of model output: model declarations only, `unclear` alone, links and

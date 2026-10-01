@@ -108,14 +108,14 @@ function compare(o) {
   const A = load('A'), B = load('B');
   const byId = new Map(A.records.map(r => [r.id, r]));
   const joined = B.records.map(b => ({b, a: byId.get(b.id)})).filter(x => x.a);
-  const table = (key, filter = () => true) => pairedBootstrap(joined.filter(x => filter(x.b)).map(({a, b}) => ({group: b.group, a: +a[key], b: +b[key]})));
-  const result = {stage, A: A.summary, B: B.summary, strict: table('strict'), frame_normalized: table('frame'), per_suite: {}, per_question_type: {}};
-  for (const suite of [...new Set(joined.map(x => x.b.suite))]) result.per_suite[suite] = {strict: table('strict', b => b.suite === suite), frame_normalized: table('frame', b => b.suite === suite)};
-  for (const qt of [...new Set(joined.map(x => x.b.qt))]) { const n = joined.filter(x => x.b.qt === qt).length; result.per_question_type[qt] = {n, strict: pairedBootstrap(joined.filter(x => x.b.qt === qt).map(({a, b}) => ({group: b.group, a: +a.strict, b: +b.strict})), {resamples: 2000})}; }
+  const table = (key, filter = () => true) => pairedBootstrap(joined.filter(x => filter(x.b)).map(({a, b}) => ({group: b.group ?? b.id, a: +a[key], b: +b[key]})));
+  const result = {stage, A: A.summary, B: B.summary, strict: table('strict'), frame_normalized: table('frame'), per_source: {}, per_question_type: {}};
+  for (const suite of [...new Set(joined.map(x => x.b.suite))]) result.per_source[suite] = {strict: table('strict', b => b.suite === suite), frame_normalized: table('frame', b => b.suite === suite)};
+  for (const qt of [...new Set(joined.map(x => x.b.qt))]) { const n = joined.filter(x => x.b.qt === qt).length; result.per_question_type[qt] = {n, strict: pairedBootstrap(joined.filter(x => x.b.qt === qt).map(({a, b}) => ({group: b.group ?? b.id, a: +a.strict, b: +b.strict})), {resamples: 2000})}; }
   fs.writeFileSync(path.join(OUT, `compare-${stage}.json`), JSON.stringify(result, null, 1) + '\n');
   const f = x => `${x.a.toFixed(4)} -> ${x.b.toFixed(4)} ${x.delta_pp >= 0 ? '+' : ''}${x.delta_pp.toFixed(2)} pp [${x.ci95_pp.map(v => v.toFixed(2)).join(', ')}] (+${x.gained}/-${x.lost}, n ${x.n})`;
   console.log(`stage ${stage}\n strict: ${f(result.strict)}\n frame-normalized: ${f(result.frame_normalized)}`);
-  for (const [s, v] of Object.entries(result.per_suite)) console.log(` ${s}: strict ${f(v.strict)}`);
+  for (const [s, v] of Object.entries(result.per_source)) console.log(` source ${s}: strict ${f(v.strict)}`);
   for (const [q, v] of Object.entries(result.per_question_type).sort((a, b) => a[1].strict.delta_pp - b[1].strict.delta_pp)) console.log(`  ${q.padEnd(16)} n ${String(v.n).padStart(4)} ${v.strict.delta_pp >= 0 ? '+' : ''}${v.strict.delta_pp.toFixed(1)} pp (${(100 * v.strict.a).toFixed(1)} -> ${(100 * v.strict.b).toFixed(1)}; +${v.strict.gained}/-${v.strict.lost})`);
 }
 

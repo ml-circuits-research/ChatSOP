@@ -1,0 +1,60 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-graded-severity-v1",
+ "name": "Graded severity (S0-S4, NONE): a cascade grader, its calibration, the current systems in shades of grey, and a never-NONE fallback cascade",
+ "registered_at": "2026-10-01T04:00:00Z",
+ "registered_by": "severity-eval-agent (owner direction of 2026-10-01; evaluation only: no training, CPU llama-server and CPU Stanza, LLM judges through omp)",
+ "spec": "docs/specs/DS016-evaluation-metrics.md#graded-severity-s0s4-none",
+ "kind": "evaluation-only",
+ "frozen_before_results": "The scale, the judge prompt (severity-judge-v1) and the gold severities of the calibration set were written before any judge verdict was read. The mechanical layer (severity-mechanical-v1) was tuned on the calibration set (zero false S4 there is therefore not a held-out number; held-out evidence is the manual reading of examples). The SOP comparer (severity-sop-v1) was tuned by reading its S4 findings on the sealed tests (deviation D1). The cascade design and acceptance rule were fixed before the first cascade run.",
+ "question": "Can a rewrite or an interpretation be graded on S0-S4/NONE reliably enough to find catastrophic cases (S4 recall at least 95%), and how large are the S4 and NONE rates of the current SymbolicLM, SymbolicProofingLLM it2 and LanguageProofingLLM it1/it2? Does a fallback cascade remove NONE without catastrophic readings?",
+ "hypotheses": {
+  "H1": "The cascade grader (local layers plus an LLM judge on the residue) reaches S4 recall of at least 95% on the calibration set with a hard false-S4 rate (gold S0-S2 called S4) of at most 5%.",
+  "H2": "Each single LLM judge alone misses more S4 than the cascade (judge recall below 95%), so the local layers add value.",
+  "H3": "The fallback cascade rescues at least half of the rows without a certified interpretation, and the catastrophic share of the rescued interpretations stays at most 5%."
+ },
+ "decision_rule": "The grader is adopted for reporting when H1 holds; the S4 rate of a system is reported as an interval [lower, upper] (both judges must say S4, either judge says S4). The fallback cascade is implemented in lib/ only if H3 holds on the sealed sample; otherwise it stays a prototype with the numbers recorded.",
+ "data": {
+  "calibration": "eval/reports/current/meaning-judge/v2/labels.jsonl (702 items) with eval/severity/calibration-hand.json (hand severities) and the TYPE_MAP of lib/severity/scale.mjs",
+  "rewrites": "SymbolicProofingLLM pair test (1,234 sealed pairs, arms it2, it1, untrained base; 500 sealed working sentences, it2 and it1), LanguageProofingLLM test600 (599 rows, it1 and it2; reference = verified English target, judge only where there is none)",
+  "interpretation": "eval/suites/symbolic_english/test.jsonl and eval/suites/neuro_english/test.jsonl: stored SymbolicLM SOP (ud-rules-v2.5) against gold SOP",
+  "fallback": "neuro_english sealed test rows with gold SOP and no certified interpretation (SymbolicLM not handled without doubt); sample of 300"
+ },
+ "endpoints": "Confusion matrices; S4 recall, S4 precision, false-S4 rate split by gold S3 and S0-S2; per set S0-S4/NONE distributions with Wilson 95% intervals, share good enough (S0+S1+S2); per cascade step rows reaching, rescued, severity of rescued.",
+ "stopping_rules": {
+  "stages": "Calibration first (full 702 items, both judges); the application sets are graded once after the calibration. The fallback cascade runs on a fixed random sample of 300 rows.",
+  "futility": "If the calibrated S4 recall of the best arm is under 85% the grader is not used for the application sets.",
+  "no_training": "Nothing here trains."
+ },
+ "deviations_allowed": "Any rule or prompt changed after a result was read is a recorded deviation.",
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-10-01T04:10:00Z",
+   "what": "After reading S4 findings of the SOP comparer on the sealed tests I changed it: an unresolved pronoun is S3 not S4, an invented `because`/`if` link whose word is in the message is S2, absorbed roles of a boundary convention (`qualify for the bonus`) are no difference, the message tokens ignore the question mark, alignment became a global best-first assignment.",
+   "why": "Reading showed that these were convention differences or alignment artefacts rather than catastrophes.",
+   "effect": "S4 of symbolic_english 51 -> 10 of 1,235, neuro_english 103 -> 80 of 1,309 before the later boundary fixes; the final numbers are not confirmatory."
+  },
+  {
+   "id": "D2",
+   "at": "2026-10-01T04:50:00Z",
+   "what": "LanguageProofingLLM rows without a verified English target (215 of 599) were first compared with their Romanian or mixed source by the English-only layers (false S4); they are judged by the LLM judges only.",
+   "why": "The mechanical and analysis layers are English-only.",
+   "effect": "LP it2 S4 upper 15.5% -> 7.8%."
+  },
+  {
+   "id": "D3",
+   "at": "2026-10-01T05:50:00Z",
+   "what": "The fallback cascade's analysis check first started a Stanza worker per candidate (too slow, 2 rows per minute); it now reuses the SymbolicLM parses (first 9 rows discarded, results-v0-discarded.jsonl).",
+   "why": "Speed.",
+   "effect": "None on the decisions."
+  }
+ ],
+ "results": {
+  "calibration": "702 items, 247 gold S4. Cascade local+Grok S4 recall 96.8% [93.7, 98.4], local+GLM 95.5% [92.2, 97.5], either judge S4 98.4% [95.9, 99.4], both 93.9% [90.2, 96.3]; judges alone 91.5% (Grok) and 93.1% (GLM). Hard false S4 (gold S0-S2): 0.9% Grok cascade, 2.1% GLM, 2.4% upper, 0.6% lower; gold S3 called S4: 17% to 46%.",
+  "interpretation": "symbolic_english: 96.1% good enough, S4 0.8%, NONE 0.7% (1,235 graded); neuro_english: 85.3% good enough, S4 6.1%, NONE 1.2% (1,309 graded).",
+  "rewrites": "SymbolicProofingLLM it2 1,234 pairs: 94.3% good enough, S4 1.7% to 2.7%; it1 96.8%, 1.4% to 1.9%; base 3.0%, S4 86.5% to 95.5%. LanguageProofingLLM test600: it2 88.5%, S4 5.0% to 7.8%; it1 87.5%, 6.7% to 9.5%.",
+  "fallback": "258 short neuro_english rows without a certified interpretation: full cascade rescues 61.2% with 10.1% S4 of the rescued; s1 greedy 26.0% rescued, 0 S4 of 67; s2 sampling 25% S4; s3 LanguageProofingLLM 1 of 143; s4 simplifications mostly S3. Policy D (s1, else uncertain SOP, else clarification): 87.2% good enough, S4 1.9%, NONE or clarification 3.5%."
+ },
+ "decision": "H1 holds (S4 recall 95.5% to 98.4% with the local layers, hard false S4 at most 2.4%); H2 holds (each judge alone 91.5% and 93.1%); H3 fails (rescued 61% but S4 share 10.1% > 5%). The grader is adopted for reporting; the cascade is not implemented in lib/ (prototype only); policy D is proposed to the pipeline owner."
+}

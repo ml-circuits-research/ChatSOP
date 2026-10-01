@@ -1,0 +1,3 @@
+# neuro_english/proofing-it3-mix: SymbolicProofingLLM iteration 3 training set
+
+`neuro_english/proofing-it3` plus `neuro_english/proofing-it3-decomp`, concatenated per split (duplicate prompts dropped: {"decomp/train":3,"decomp/dev":2}). Train 14482, dev 1769. Built and qualified by `tools/research/build-it3-mix.mjs`; evidence under `eval/reports/current/symbolic-proofing-it3/data/mix-*.json`. The decomposition rows alone would let the model forget the it2 skills (identity, repairs), so the run trains on the mix from the base, like it2. Qualification is not an authorization; the receipt is `status/training/authorization-gemma-symbolic-proofing-gemma270m-it3.json`.

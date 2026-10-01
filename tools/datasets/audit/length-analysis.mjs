@@ -54,7 +54,7 @@ export function sources() {
   out.push(['formalizer-v1/train', 'archive', 'datasets_archive/formalizer-v1/train.jsonl'], ['formalizer-v1/dev', 'archive', 'datasets_archive/formalizer-v1/dev.jsonl'],
     ['clean-english/train', 'archive', 'datasets_archive/clean-english/train.jsonl'], ['clean-english/dev', 'archive', 'datasets_archive/clean-english/dev.jsonl'],
     ['proofing/train (input)', 'archive', 'datasets_archive/proofing/train.jsonl'], ['proofreader/train (prompt)', 'archive', 'datasets_archive/proofing/proofreader/train.jsonl'],
-    ['formalizer-v1/test', 'archive', 'eval/suites/formalizer-v1/test.jsonl'], ['formalizer-ood-v1/test', 'archive', 'eval/suites/formalizer-ood-v1/test.jsonl'], ['formalizer-wild-v1/test', 'archive', 'eval/suites/formalizer-wild-v1/test.jsonl'], ['clean-english/test', 'archive', 'eval/suites/clean-english/test.jsonl']);
+);
   return out;
 }
 
@@ -62,7 +62,7 @@ export function analyse() {
   const table = [];
   for (const [label, group, rel] of sources()) {
     const rows = read(rel);
-    if (rows) table.push({label, group, path: rel, ...lengthStats(rows.map(messageOf))});
+    if (rows) table.push({label, group, path: rel, ...lengthStats(rows.map(messageOf)), composed_rows: rows.filter(r => r.source?.corpus === 'composed').length});
   }
   return {generated_at: new Date().toISOString(), method: 'words = whitespace tokens; sentences = lib/sentence-split.mjs splitSentences', table};
 }
@@ -94,7 +94,8 @@ export function findings(report, dir, layers = null) {
   const sym = ['symbolic_english/train', 'symbolic_english/dev', 'symbolic_english/test'].map(row).filter(Boolean);
   const total = sym.reduce((a, t) => a + t.rows, 0), three = sym.reduce((a, t) => a + (t.sentences.by_count['3'] + t.sentences.by_count['4'] + t.sentences.by_count['5'] + t.sentences.by_count['6-8'] + t.sentences.by_count['9+']), 0);
   const maxWords = Math.max(...sym.map(t => t.words.max));
-  L.push(`* **symbolic_english covers short inputs only.** ${three} of ${total} rows (${(100 * three / total).toFixed(1)}%) have three or more sentences; the longest has ${maxWords} words and the 99th percentile is ${Math.max(...sym.map(t => t.words.p99))} words. The regression suite therefore says nothing by itself about long or many-sentence inputs.`);
+  const composedRows = sym.reduce((a, t) => a + (t.composed_rows ?? 0), 0);
+  L.push(`* **symbolic_english covers short inputs, apart from the composed paragraphs added on purpose.** ${three} of ${total} rows (${(100 * three / total).toFixed(1)}%) have three or more sentences, and ${composedRows} of the train and dev rows are composed paragraphs (\`source.corpus: composed\`, tools/datasets/composed-train.mjs); the longest row has ${maxWords} words and the 99th percentile is ${Math.max(...sym.map(t => t.words.p99))} words. The natural regression suite therefore says little by itself about long or many-sentence inputs.`);
   const neuro = ['neuro_english/train', 'neuro_english/dev', 'neuro_english/test'].map(row).filter(Boolean), bad = ['bad_english/train', 'bad_english/dev', 'bad_english/test'].map(row).filter(Boolean);
   const longShare = ts => (ts.reduce((a, t) => a + t.rows * t.share_over_30_words_pct, 0) / ts.reduce((a, t) => a + t.rows, 0)).toFixed(1);
   L.push(`* **neuro_english and bad_english do contain long messages** (${longShare(neuro)}% and ${longShare(bad)}% of their rows have more than 30 words; the long tail is the templated \`long_message\` family of formalizer-v1 and the long new cases), but only a small part of them has a verified target (see \`decomposition-coverage.json\`), and the proofreader's own training set (\`proofreader/train.jsonl\`) is short: median ${row('proofreader/train (prompt)')?.words.p50} words, 99th percentile ${row('proofreader/train (prompt)')?.words.p99}, ${row('proofreader/train (prompt)')?.sentences.share_multi_pct}% multi-sentence.`);

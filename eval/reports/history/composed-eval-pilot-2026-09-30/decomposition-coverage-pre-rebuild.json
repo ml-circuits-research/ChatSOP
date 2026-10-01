@@ -1,0 +1,1916 @@
+{
+ "generated_at": "2026-09-30T16:48:55.195Z",
+ "definition": "candidate: message with more than one finite clause or several questions; decomposition case: a candidate whose verified target has more sentences than the message",
+ "coverage": {
+  "neuro_english": {
+   "train": {
+    "rows": 5999,
+    "candidates": 3325,
+    "candidates_with_target": 275,
+    "decomposition_cases": 79,
+    "by_type": {
+     "subordinate_clause": 808,
+     "coordination": 854,
+     "relative_clause": 281,
+     "list": 548,
+     "other": 612,
+     "multiple_questions": 222
+    },
+    "by_type_with_target": {
+     "relative_clause": 31,
+     "other": 83,
+     "coordination": 76,
+     "subordinate_clause": 44,
+     "multiple_questions": 17,
+     "list": 24
+    },
+    "by_type_decomposition": {
+     "coordination": 57,
+     "other": 3,
+     "list": 3,
+     "relative_clause": 6,
+     "subordinate_clause": 5,
+     "multiple_questions": 5
+    },
+    "by_family_decomposition": {
+     "anchor": 3,
+     "offered_answer": 1,
+     "closure_assumption": 5,
+     "ambiguity_visible": 4,
+     "long_message": 1,
+     "coordination": 1,
+     "how_question": 2,
+     "definition": 3,
+     "unclear": 1,
+     "contrast": 1,
+     "stranded_preposition": 4,
+     "multi_question": 15,
+     "long_coordination": 23,
+     "subordinate": 5,
+     "names_titles": 4,
+     "numbers_time": 2,
+     "lists": 4
+    },
+    "unpunctuated_candidates": 953,
+    "unpunctuated_decomposition": 52,
+    "approximate": false
+   },
+   "dev": {
+    "rows": 893,
+    "candidates": 526,
+    "candidates_with_target": 46,
+    "decomposition_cases": 23,
+    "by_type": {
+     "coordination": 160,
+     "other": 64,
+     "list": 95,
+     "subordinate_clause": 126,
+     "relative_clause": 32,
+     "multiple_questions": 49
+    },
+    "by_type_with_target": {
+     "other": 10,
+     "coordination": 23,
+     "relative_clause": 2,
+     "multiple_questions": 4,
+     "list": 5,
+     "subordinate_clause": 2
+    },
+    "by_type_decomposition": {
+     "coordination": 19,
+     "multiple_questions": 4
+    },
+    "by_family_decomposition": {
+     "definition": 1,
+     "conjunction": 1,
+     "multi_question": 5,
+     "long_coordination": 14,
+     "quantifiers_negation": 2
+    },
+    "unpunctuated_candidates": 175,
+    "unpunctuated_decomposition": 18,
+    "approximate": false
+   },
+   "test": {
+    "rows": 2082,
+    "candidates": 1202,
+    "candidates_with_target": 60,
+    "decomposition_cases": 30,
+    "by_type": {
+     "other": 133,
+     "list": 210,
+     "subordinate_clause": 274,
+     "coordination": 342,
+     "multiple_questions": 116,
+     "relative_clause": 127
+    },
+    "by_type_with_target": {
+     "coordination": 22,
+     "relative_clause": 6,
+     "subordinate_clause": 10,
+     "other": 3,
+     "multiple_questions": 12,
+     "list": 7
+    },
+    "by_type_decomposition": {
+     "relative_clause": 1,
+     "subordinate_clause": 3,
+     "coordination": 17,
+     "multiple_questions": 9
+    },
+    "by_family_decomposition": {
+     "definition": 1,
+     "anchor": 1,
+     "ambiguity_visible": 1,
+     "closure_assumption": 1,
+     "wild": 1,
+     "multi_question": 9,
+     "long_coordination": 7,
+     "subordinate": 4,
+     "names_titles": 2,
+     "stranded_preposition": 3
+    },
+    "unpunctuated_candidates": 362,
+    "unpunctuated_decomposition": 21,
+    "approximate": false
+   }
+  },
+  "bad_english": {
+   "train": {
+    "rows": 17169,
+    "candidates": 3565,
+    "candidates_with_target": 1670,
+    "decomposition_cases": 84,
+    "by_type": {
+     "subordinate_clause": 619,
+     "multiple_questions": 315,
+     "list": 966,
+     "relative_clause": 741,
+     "coordination": 924
+    },
+    "by_type_with_target": {
+     "subordinate_clause": 385,
+     "list": 132,
+     "coordination": 584,
+     "relative_clause": 460,
+     "multiple_questions": 109
+    },
+    "by_type_decomposition": {
+     "coordination": 78,
+     "subordinate_clause": 5,
+     "multiple_questions": 1
+    },
+    "by_family_decomposition": {
+     "ambiguity_visible": 2,
+     "temporal": 1,
+     "attached": 1,
+     "anchor": 1,
+     "closure_assumption": 1,
+     "statement_only": 1,
+     "abduction": 2,
+     "how_question": 1,
+     "interpretation": 1,
+     "casual_register": 41,
+     "typos": 28,
+     "multi_question": 2,
+     "long_coordination": 1,
+     "subordinate": 1
+    },
+    "unpunctuated_candidates": 509,
+    "unpunctuated_decomposition": 77,
+    "approximate": true
+   },
+   "dev": {
+    "rows": 3215,
+    "candidates": 614,
+    "candidates_with_target": 241,
+    "decomposition_cases": 13,
+    "by_type": {
+     "relative_clause": 109,
+     "subordinate_clause": 106,
+     "coordination": 152,
+     "list": 182,
+     "multiple_questions": 65
+    },
+    "by_type_with_target": {
+     "relative_clause": 58,
+     "subordinate_clause": 54,
+     "coordination": 95,
+     "list": 18,
+     "multiple_questions": 16
+    },
+    "by_type_decomposition": {
+     "coordination": 13
+    },
+    "by_family_decomposition": {
+     "definition": 2,
+     "casual_register": 9,
+     "typos": 2
+    },
+    "unpunctuated_candidates": 96,
+    "unpunctuated_decomposition": 11,
+    "approximate": true
+   },
+   "test": {
+    "rows": 5511,
+    "candidates": 1357,
+    "candidates_with_target": 636,
+    "decomposition_cases": 22,
+    "by_type": {
+     "multiple_questions": 242,
+     "subordinate_clause": 341,
+     "list": 300,
+     "relative_clause": 215,
+     "coordination": 259
+    },
+    "by_type_with_target": {
+     "subordinate_clause": 220,
+     "list": 58,
+     "relative_clause": 132,
+     "multiple_questions": 65,
+     "coordination": 161
+    },
+    "by_type_decomposition": {
+     "multiple_questions": 2,
+     "coordination": 19,
+     "subordinate_clause": 1
+    },
+    "by_family_decomposition": {
+     "typos": 9,
+     "casual_register": 13
+    },
+    "unpunctuated_candidates": 193,
+    "unpunctuated_decomposition": 18,
+    "approximate": true
+   }
+  }
+ },
+ "contract": {
+  "neuro_english": {
+   "train": {
+    "all_targets_checked": 589,
+    "decomposition_targets": {
+     "rows": 79,
+     "sentences": 257,
+     "single_clause": 195,
+     "linked_by_connective": 22,
+     "complement_clause": 21,
+     "coordinated_clause": 15,
+     "relative_clause": 1,
+     "other_subordination": 9,
+     "elided_subject": 3,
+     "sentences_ok": 229,
+     "root_without_subject": 1,
+     "rows_all_sentences_ok": 54,
+     "examples": [
+      {
+       "row": "formalizer-v1::fv1_012804_0_0",
+       "sentence": "Do you have any idea how Ms Martin commutes?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000543",
+       "sentence": "I sent the draft statement for review, but the director wants the payment held.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000743",
+       "sentence": "It has the correct load, but the driver forgot the transit receipt.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001145",
+       "sentence": "The kids need time to change, and the spare jerseys are still in the car of Kamal Singh.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001148",
+       "sentence": "I asked reception, but they haven't found the technician's note.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001150",
+       "sentence": "I asked to move it to Thursday but got a confirmation for both days.",
+       "verdict": {
+        "clauses": 1,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 1,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001150",
+       "sentence": "I cannot cancel either one in the app, and coach Elif Kaya is only free Thursday.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001165",
+       "sentence": "The coach has not picked another player yet, and I need the name before the roster closes at 7:00 tonight.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 1,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001184",
+       "sentence": "The desk told me Peace Adewale would lead the session called \"Steady Climb,\" but the printed board says coach Omar Haddad.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001534",
+       "sentence": "Nikos wants to know: Does the new rate include roadside cover?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001547",
+       "sentence": "Now the payment is €24 too high, and I need a credit.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001743",
+       "sentence": "I sent a message to the airline, but each one gave a different date for the new rule.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      }
+     ]
+    },
+    "all_neuro_targets": {
+     "rows": 589,
+     "sentences": 982,
+     "single_clause": 760,
+     "linked_by_connective": 66,
+     "complement_clause": 80,
+     "coordinated_clause": 31,
+     "relative_clause": 38,
+     "other_subordination": 24,
+     "elided_subject": 10,
+     "sentences_ok": 876,
+     "root_without_subject": 32,
+     "rows_all_sentences_ok": 486,
+     "examples": [
+      {
+       "row": "formalizer-v1::fv1_000996_0_0",
+       "sentence": "Who coaches the team that Parisa plays for?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_001440_0_0",
+       "sentence": "Who is the coach of the team that Hugo plays for?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_001733_0_0",
+       "sentence": "I am not 100% sure, but The Glass Orchard was written by Réka.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_002478_0_0",
+       "sentence": "Who coaches the team that Medeea plays for?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_002734_0_0",
+       "sentence": "Who is the coach of the team that Javier plays for?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_003928_0_0",
+       "sentence": "Who coaches the team for which Attila Kovács plays?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_004316_0_0",
+       "sentence": "Who coaches the team that Floarea Lazăr plays for?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_005176_0_0",
+       "sentence": "Does anyone work at Vertex Analytics and not live in Iași?",
+       "verdict": {
+        "clauses": 1,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 1,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_005182_0_0",
+       "sentence": "Who coaches the team that Carmen plays for?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_005324_0_0",
+       "sentence": "Given that Taras Bondarenko checked out Winter in Maramureș; Pablo has borrowed Winter in Maramureș and Ilinca checked out Winter in Maramureș, does Tatiana not borrow Winter in Maramureș?",
+       "verdict": {
+        "clauses": 4,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_005561_0_0",
+       "sentence": "So Réka studies at Focșani Technical College, and Chloe is enrolled at Oradea Arts High School.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_005618_0_0",
+       "sentence": "Which people work at which companies that are based in Porto?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      }
+     ]
+    }
+   },
+   "dev": {
+    "all_targets_checked": 85,
+    "decomposition_targets": {
+     "rows": 23,
+     "sentences": 77,
+     "single_clause": 63,
+     "linked_by_connective": 2,
+     "complement_clause": 6,
+     "coordinated_clause": 6,
+     "relative_clause": 0,
+     "other_subordination": 2,
+     "elided_subject": 0,
+     "sentences_ok": 69,
+     "root_without_subject": 1,
+     "rows_all_sentences_ok": 17,
+     "examples": [
+      {
+       "row": "new_cases::nc-000949",
+       "sentence": "The mint was early to arrive, but the parsley was late to come.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001339",
+       "sentence": "Gita found matching cups, but the shop had no napkins.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001339",
+       "sentence": "She is checking another shop, and then I can collect everything after work.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001345",
+       "sentence": "Then the tape fell off the wall, but Renata found string.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001345",
+       "sentence": "The banner is on the mantelpiece, and the cards are beside it.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001346",
+       "sentence": "Should we save their cake, or should we cut it before they leave?",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 1,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001352",
+       "sentence": "The photographer can take the group picture when the ceremony ends.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-004349",
+       "sentence": "The signal has no sound, so could the council inspect that crossing this week?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      }
+     ]
+    },
+    "all_neuro_targets": {
+     "rows": 85,
+     "sentences": 164,
+     "single_clause": 129,
+     "linked_by_connective": 8,
+     "complement_clause": 14,
+     "coordinated_clause": 10,
+     "relative_clause": 2,
+     "other_subordination": 5,
+     "elided_subject": 0,
+     "sentences_ok": 146,
+     "root_without_subject": 2,
+     "rows_all_sentences_ok": 70,
+     "examples": [
+      {
+       "row": "formalizer-v1::fv1_002525_0_0",
+       "sentence": "Who coaches the team that Ana plays for?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_007859_0_0",
+       "sentence": "Who is the coach of the team that Małgorzata plays for?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_008432_0_0",
+       "sentence": "Okay, Ilinca has an allergy to bee stings, Floarea has an allergy to bee stings, and Mr Clarke is allergic to bee stings.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_023464_0_0",
+       "sentence": "Given that Dorin is allergic to strawberries, Mr Navarro has an allergy to strawberries, and Larisa Mocanu has an allergy to strawberries, can you confirm whether Oana does not have an allergy to strawberries?",
+       "verdict": {
+        "clauses": 5,
+        "single": false,
+        "linked": 0,
+        "complement": 2,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_023906_0_0",
+       "sentence": "Łukasz has borrowed The Last Ferry, and Lena Schmidt checked out The Last Ferry, and Oksana has borrowed The Last Ferry.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 2,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000308",
+       "sentence": "In which room is the music rehearsal after the hall closes?",
+       "verdict": {
+        "clauses": 1,
+        "single": true,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000395",
+       "sentence": "The 20-minute break is now a break of 15 minutes, and my daughter says the lunch bell still rings at 12:40.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000949",
+       "sentence": "The mint was early to arrive, but the parsley was late to come.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001339",
+       "sentence": "Gita found matching cups, but the shop had no napkins.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001339",
+       "sentence": "She is checking another shop, and then I can collect everything after work.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001345",
+       "sentence": "Then the tape fell off the wall, but Renata found string.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001345",
+       "sentence": "The banner is on the mantelpiece, and the cards are beside it.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      }
+     ]
+    }
+   },
+   "test": {
+    "all_targets_checked": 111,
+    "decomposition_targets": {
+     "rows": 30,
+     "sentences": 81,
+     "single_clause": 52,
+     "linked_by_connective": 10,
+     "complement_clause": 11,
+     "coordinated_clause": 6,
+     "relative_clause": 5,
+     "other_subordination": 3,
+     "elided_subject": 2,
+     "sentences_ok": 67,
+     "root_without_subject": 0,
+     "rows_all_sentences_ok": 18,
+     "examples": [
+      {
+       "row": "formalizer-wild-v1::wild_wk_052",
+       "sentence": "Remind me what the dentist said.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-wild-v1::wild_wk_052",
+       "sentence": "Is it the upper left molar or the lower one that needs a crown?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-wild-v1::wild_wk_052",
+       "sentence": "She said something about four hundred and fifty euro, but I don't remember if that's with the Allianz insurance or without.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002532",
+       "sentence": "Who was the original one who put them there?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002533",
+       "sentence": "After I received a second notice for reference Q-82, I checked the portal and found that the first notice was still open.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 1,
+        "complement": 1,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 1,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002547",
+       "sentence": "I handed it to the clerk at window 2 and kept the receipt, but the online record still says nothing was delivered.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 1,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002564",
+       "sentence": "After the snowplow has passed the school and before the morning buses arrive, will the crew clear the pedestrian island by the gate?",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 1,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002744",
+       "sentence": "Now the guinea pigs are back inside.",
+       "verdict": {
+        "clauses": 1,
+        "single": true,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002746",
+       "sentence": "I bought a new leash after work, but I have not tried it on him yet.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002766",
+       "sentence": "Later, my sister cannot bring him back, and the kennel cannot keep him in overnight care.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002952",
+       "sentence": "We can order it on the side, but the set menu remains unchanged.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002956",
+       "sentence": "Can the kitchen label the two plates with clear labels when they are brought to the table?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      }
+     ]
+    },
+    "all_neuro_targets": {
+     "rows": 111,
+     "sentences": 186,
+     "single_clause": 123,
+     "linked_by_connective": 16,
+     "complement_clause": 23,
+     "coordinated_clause": 13,
+     "relative_clause": 15,
+     "other_subordination": 7,
+     "elided_subject": 3,
+     "sentences_ok": 151,
+     "root_without_subject": 3,
+     "rows_all_sentences_ok": 78,
+     "examples": [
+      {
+       "row": "formalizer-ood-v1::ood2_000454_0_0",
+       "sentence": "Does Bohdan lecture in physics and does he show up at the parents' evening?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_003080_0_0",
+       "sentence": "Who coaches the team that Emeka Okafor plays for?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_003811_0_0",
+       "sentence": "Where does the person who manages Oliver live?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_006099_0_0",
+       "sentence": "Who coaches the team that Vasile Manole plays for?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_007646_0_0",
+       "sentence": "Who coaches the team that Mr Kovács plays for?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_008347_0_0",
+       "sentence": "Are all of the people who are enrolled at Sârbu Primary School trained?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_018691_0_0",
+       "sentence": "Who coaches the team that Astrid plays for?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_019320_0_0",
+       "sentence": "Who coaches the team that Iurie Rotaru plays for?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-v1::fv1_029438_0_0",
+       "sentence": "Are Shirin, Lucía, and Natalia trained, and Tamás is not trained?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-wild-v1::wild_wd_009",
+       "sentence": "Do most of the flats in Ferndale Court have gas central heating, or do only a few of them have gas central heating?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 1,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-wild-v1::wild_wd_064",
+       "sentence": "Is aftercare@petsathome.co.uk the right address for grooming complaints, or is there a separate one?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "formalizer-wild-v1::wild_we_022",
+       "sentence": "3 boxes of enoxaparin 40 mg should be transferred from the cardiology stock room to Ward 12 and I need to know who signs for them.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      }
+     ]
+    }
+   }
+  },
+  "bad_english": {
+   "train": {
+    "all_targets_checked": 84,
+    "decomposition_targets": {
+     "rows": 84,
+     "sentences": 189,
+     "single_clause": 67,
+     "linked_by_connective": 42,
+     "complement_clause": 48,
+     "coordinated_clause": 44,
+     "relative_clause": 4,
+     "other_subordination": 13,
+     "elided_subject": 11,
+     "sentences_ok": 118,
+     "root_without_subject": 2,
+     "rows_all_sentences_ok": 23,
+     "examples": [
+      {
+       "row": "new_cases::nc-000102",
+       "sentence": "We still haven't had the evening delivery, so the prescription for Omar stays on the pending shelf.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000104",
+       "sentence": "I set the stock list next to the register as you asked, but the allergy labels are still in the delivery box.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 1,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000493",
+       "sentence": "Can you look at the old bonus sheet for Irina when you have a moment?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000493",
+       "sentence": "She says the amount on the draft payslip isn't the one her manager approved.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000494",
+       "sentence": "Tell Riko at reception that the guest list is still waiting for a signature.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000495",
+       "sentence": "The checklist on my desk still shows a blank line for that item, and payroll needs it before the next batch.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000496",
+       "sentence": "The copier keeps running out of paper before the afternoon shift gets here, and we've already used the spare ream from the supply cupboard.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 1,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000675",
+       "sentence": "Viktor said the destination on his route card is wrong, and he's already past the west junction.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000680",
+       "sentence": "The last two pallets were placed by the fire exit, and the yellow marking is hidden under loose wrap.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000684",
+       "sentence": "Fatima couldn't find the spare scanner, and the receipt printer jammed while she was closing the morning count.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 1,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000694",
+       "sentence": "The fragile stickers ran out during the afternoon repack, and half the lamps are sitting in tote 14 and are loose.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000698",
+       "sentence": "The tall crates won't fit under the mezzanine, and the short rack is already full of spare pumps.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      }
+     ]
+    }
+   },
+   "dev": {
+    "all_targets_checked": 13,
+    "decomposition_targets": {
+     "rows": 13,
+     "sentences": 32,
+     "single_clause": 15,
+     "linked_by_connective": 6,
+     "complement_clause": 10,
+     "coordinated_clause": 7,
+     "relative_clause": 0,
+     "other_subordination": 0,
+     "elided_subject": 1,
+     "sentences_ok": 23,
+     "root_without_subject": 0,
+     "rows_all_sentences_ok": 5,
+     "examples": [
+      {
+       "row": "new_cases::nc-000288",
+       "sentence": "I picked up one kid early, and the other says her art class got moved to Friday.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000289",
+       "sentence": "My phone says the parent meeting starts at six, but my daughter brought home a sheet saying five thirty.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000298",
+       "sentence": "I tried to enrol in the evening tutorial because I collect my kids from school in the afternoon, but the portal shows no button for it.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 1,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000299",
+       "sentence": "Farah told me the scholarship interview got pushed back a day, and the schedule still lists the old time.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-000892",
+       "sentence": "I did this because the lock on the display cabinet kept sticking and I wasn't sure if you could open it without the old key.",
+       "verdict": {
+        "clauses": 4,
+        "single": false,
+        "linked": 1,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001296",
+       "sentence": "The venue called and said the tables are already set up outside.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 1,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-001299",
+       "sentence": "Selma is bringing extra blankets, and then Nneka will collect the folding chairs.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-004304",
+       "sentence": "The parking desk told Yusuf to use the portal, but he says the benefit form isn't listed there.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      }
+     ]
+    }
+   },
+   "test": {
+    "all_targets_checked": 22,
+    "decomposition_targets": {
+     "rows": 22,
+     "sentences": 45,
+     "single_clause": 12,
+     "linked_by_connective": 13,
+     "complement_clause": 14,
+     "coordinated_clause": 15,
+     "relative_clause": 4,
+     "other_subordination": 2,
+     "elided_subject": 3,
+     "sentences_ok": 22,
+     "root_without_subject": 0,
+     "rows_all_sentences_ok": 3,
+     "examples": [
+      {
+       "row": "new_cases::nc-002481",
+       "sentence": "When the renewal letter reached Can Şahin, it said his permit had expired already, although the earlier receipt showed a later date.",
+       "verdict": {
+        "clauses": 4,
+        "single": false,
+        "linked": 1,
+        "complement": 1,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 1,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002481",
+       "sentence": "Can the registry explain which date they are using?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002482",
+       "sentence": "The lane behind the market was cleaned on Tuesday, but the piles of broken glass near the loading bay are still there.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002484",
+       "sentence": "Is the footpath officially open, or should walkers use the other side?",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002501",
+       "sentence": "The office said my file would move to the review desk after I paid, but it is still marked unpaid online.",
+       "verdict": {
+        "clauses": 4,
+        "single": false,
+        "linked": 1,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002502",
+       "sentence": "Three of them are out, and people are taking the longer route past the car park after dark even though that gate closes early.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 1,
+        "complement": 0,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002503",
+       "sentence": "I got a letter for a tax bill I already paid in April.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 1,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002504",
+       "sentence": "The glass collection truck drove past our street yesterday, and the calendar still says our pickup is due next week.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002504",
+       "sentence": "Should we leave the crates out or bring them in until then?",
+       "verdict": {
+        "clauses": 1,
+        "single": false,
+        "linked": 0,
+        "complement": 0,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 1,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002682",
+       "sentence": "I don’t know if the clinic moved Archie’s appointment or simply changed the room number.",
+       "verdict": {
+        "clauses": 2,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 0,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 1,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002682",
+       "sentence": "The reminder lists Thursday, but the paper card still says the appointment is on Friday morning.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      },
+      {
+       "row": "new_cases::nc-002701",
+       "sentence": "I heard the music shop might close early on Sunday, but I haven’t checked.",
+       "verdict": {
+        "clauses": 3,
+        "single": false,
+        "linked": 0,
+        "complement": 1,
+        "coordinated": 1,
+        "relative": 0,
+        "other": 0,
+        "elided_subject": 0,
+        "ok": false
+       }
+      }
+     ]
+    }
+   }
+  }
+ }
+}

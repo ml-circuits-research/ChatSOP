@@ -90,7 +90,7 @@ async function main() {
       const {name, fn: raw} = rewriterFromArgs(o);
       const fn = raw.identity ? raw : cachedRewriter(raw, path.join(outDir, 'cache', `rewriter-${String(o.name ?? name).replace(/[^A-Za-z0-9._-]+/g, '_')}.jsonl`));
       const slug = String(o.name ?? name).replace(/[^A-Za-z0-9._-]+/g, '_');
-      await runStaged({cases: loadCases('K6', suiteRoot, dataset), recordsFile: path.join(outDir, 'runs', `${slug}__K6-${dataset}.jsonl`), summaryFile: path.join(outDir, `${slug}__K6-${dataset}.summary.json`), stages, one: row => scoreDecomposition(row, {rewriter: fn, lm}), summarizeFn: summarizeDecomposition, label: `${slug} K6 ${dataset}`, maxStage});
+      await runStaged({cases: loadCases('K6', suiteRoot, dataset), recordsFile: path.join(outDir, 'runs', `${slug}__K6-${dataset}.jsonl`), summaryFile: path.join(outDir, `${slug}__K6-${dataset}.summary.json`), stages, one: row => scoreDecomposition(row, {rewriter: fn, lm, mode: o.mode === 'sentence' ? 'sentence' : 'whole'}), summarizeFn: summarizeDecomposition, label: `${slug} K6 ${dataset}`, maxStage});
     } else { console.error('usage: composed-score.mjs symbolic|rewrite|decompose ...'); process.exitCode = 2; }
   } finally { await lm.close(); }
 }

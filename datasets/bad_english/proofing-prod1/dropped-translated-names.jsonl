@@ -1,0 +1,78 @@
+{"id":"formalizer-v1::fv1_022991_0_0#32","prompt":"Și Arena Bălți găzduiește festivalul recoltei.","target":"And the Bălți Arena hosts the harvest festival."}
+{"id":"formalizer-v1::fv1_022370_0_0#1","prompt":"Sistemele Nordwind cumpără de la Brightfield Foods.","target":"Nordwind Systems buys from Brightfield Foods."}
+{"id":"formalizer-v1::fv1_022980_0_0","prompt":"Orion Robotics vinde mâncare pentru bebeluși; Sistemele Nordwind nu are de vânzare laptopuri second-hand.","target":"Orion Robotics sells baby food; Nordwind Systems does not have second-hand laptops for sale."}
+{"id":"formalizer-v1::fv1_018545_0_0#19","prompt":"Arena Târgu Mureș nu are sediul în Cluj-Napoca; Liceul de Arte din Slatina nu are sediul în Sibiu.","target":"Arena Târgu Mureș is not headquartered in Cluj-Napoca; the Art High School in Slatina is not headquartered in Sibiu."}
+{"id":"formalizer-v1::fv1_025314_0_0#6","prompt":"Primăria Novi Sad nu eliberează cazierul judiciar.","target":"The Novi Sad Town Hall does not issue the criminal record certificate."}
+{"id":"formalizer-v1::fv1_016860_0_0#40","prompt":"Atelierul Munteanu are de vânzare laptopuri second-hand.","target":"Atelier Munteanu sells second-hand laptops."}
+{"id":"formalizer-v1::fv1_014447_0_0#15","prompt":"Sistemele Nordwind aprovizionează Tipografia Delta.","target":"Nordwind Systems supplies Tipografia Delta."}
+{"id":"formalizer-v1::fv1_027728_0_0#9","prompt":"Primăria Arad eliberează cartea de identitate.","target":"The Arad City Hall issues the identity card."}
+{"id":"formalizer-v1::fv1_016842_0_0#27","prompt":"Grădina Botanică din Porto găzduiește dezbaterea de la primărie.","target":"The Botanical Garden in Porto hosts the town hall debate."}
+{"id":"formalizer-v1::fv1_030984_0_0#14","prompt":"Filarmonica din Vaslui găzduiește festivalul recoltei; Arena Târgu Mureș găzduiește turneul regional de șah.","target":"The Vaslui Philharmonic hosts the harvest festival; Arena Târgu Mureș hosts the regional chess tournament."}
+{"id":"formalizer-ood-v1::ood1_000395_0_0#11","prompt":"Alejandro Martínez nu este bucătar la Arena Sibiu.","target":"Alejandro Martínez is not a cook at the Sibiu Arena."}
+{"id":"formalizer-v1::fv1_020839_0_0#4","prompt":"Sistemele Nordwind aprovizionează Orion Robotics și Greenline Transport cumpără de la Brightfield Foods.","target":"Nordwind Systems supplies Orion Robotics and Greenline Transport buys from Brightfield Foods."}
+{"id":"formalizer-v1::fv1_014447_0_0#27","prompt":"Grădina Botanică din Ploiești găzduiește târgul de carte de primăvară.","target":"The Botanical Garden in Ploiești is hosting the spring book fair."}
+{"id":"formalizer-v1::fv1_016842_0_0#2","prompt":"Primăria Ploiești are sediul în Recife.","target":"The Ploiești Town Hall is headquartered in Recife."}
+{"id":"formalizer-v1::fv1_020070_0_0#29","prompt":"Filarmonica din Porto găzduiește crosul caritabil, iar seara de jazz are loc la Arena Brașov.","target":"The Philharmonic in Porto is hosting the charity cross-country race, and the jazz evening takes place at Arena Brașov."}
+{"id":"formalizer-v1::fv1_024084_0_0#7","prompt":"Tisa Textile cumpără de la Tipografia Delta; Sistemele Nordwind cumpără de la Carpathia Energy.","target":"Tisa Textile buys from Tipografia Delta; Nordwind Systems buys from Carpathia Energy."}
+{"id":"formalizer-v1::fv1_020839_0_0#14","prompt":"Primăria Constanța eliberează certificatul de rezidență.","target":"The Constanța City Hall issues the residence certificate."}
+{"id":"formalizer-v1::fv1_023760_0_0#17","prompt":"Grădina Botanică din Iași găzduiește sesiunea de code review.","target":"The Botanical Garden of Iași is hosting the code review session."}
+{"id":"formalizer-v1::fv1_022046_0_0#7","prompt":"Filarmonica din Suceava găzduiește petrecerea de nuntă; dezbaterea de la primarie are loc la Sala Moara Veche.","target":"The Philharmonic in Suceava is hosting the wedding party; the debate at the town hall takes place at Sala Moara Veche."}
+{"id":"formalizer-v1::fv1_027036_0_0#5","prompt":"Grădina Botanică din Zalău găzduiește crosul caritabil.","target":"The Botanical Garden in Zalău hosts the charity cross-country race."}
+{"id":"formalizer-v1::fv1_030984_0_0#31","prompt":"Filarmonica din Zalău găzduiește sesiunea de code review.","target":"The Zalău Philharmonic hosts the code review session."}
+{"id":"formalizer-v1::fv1_011096_0_0#7","prompt":"Sistemele Nordwind nu a publicat Însemnări din trenul de noapte.","target":"Nordwind Systems did not publish \"Însemnări din trenul de noapte\"."}
+{"id":"formalizer-v1::fv1_018765_0_0#3","prompt":"Primăria Târgu Mureș eliberează permisul de conducere.","target":"the Târgu Mureș City hall issues driver's licenses."}
+{"id":"formalizer-v1::fv1_019203_0_0#2","prompt":"Primăria Constanța eliberează cartea de identitate.","target":"The Constanța City Hall issues identity cards."}
+{"id":"formalizer-v1::fv1_025330_0_0#13","prompt":"Primăria Chișinău eliberează certificatul de atestare fiscală.","target":"The Chișinău Town Hall issues the tax attestation certificate."}
+{"id":"formalizer-v1::fv1_024315_0_0#30","prompt":"Primăria Bacău elibereqză certificatul de atestare fiscală.","target":"Bacău City Hall issues the tax attestation certificate."}
+{"id":"formalizer-v1::fv1_024084_0_0#28","prompt":"Filarmonica din Buzău nu se află în Vaslui.","target":"The Buzău Philharmonic is not in Vaslui."}
+{"id":"formalizer-ood-v1::ood1_000395_0_0#37","prompt":"Oksana gătește la Arena Szeged.","target":"Oksana cooks at the Szeged Arena."}
+{"id":"formalizer-v1::fv1_026480_0_0","prompt":"Adevarat sau fqls: Gradina Botanică din Alba Iulia nu gazduiește seara de jazz? !","target":"True or false: the Botanical Garden in Alba Iulia does not host the jazz evening?"}
+{"id":"formalizer-v1::fv1_019803_0_0#1","prompt":"Grădina Botanică din Lagos e închisă.","target":"The Botanical Garden in Lagos is closed."}
+{"id":"formalizer-v1::fv1_026016_0_0#6","prompt":"Primăria Pitești se află în Călărași.","target":"Pitești City Hall is in Călărași."}
+{"id":"formalizer-v1::fv1_022122_0_0#11","prompt":"Grădina Botanică din Pune găzduiește sesiunea de code review.","target":"The Botanical Garden in Pune hosts the code review session."}
+{"id":"formalizer-v1::fv1_020070_0_0#9","prompt":"Grădina Botanica din Glasgow se află în Bergen.","target":"The Botanical Garden in Glasgow is located in Bergen."}
+{"id":"formalizer-v1::fv1_018576_0_0#10","prompt":"Sala Moara Veche se află în Constanța.","target":"The Moara Veche Hall is in Constanța."}
+{"id":"formalizer-v1::fv1_026914_0_0","prompt":"Aurelia e în lotul de la Șoimii din Plovdiv.","target":"Aurelia is in the Șoimii squad from Plovdiv."}
+{"id":"formalizer-v1::fv1_022226_0_0#9","prompt":"Primăria Pitești eliberează permisul de muncă.","target":"The Pitești Town Hall issues the work permit."}
+{"id":"formalizer-v1::fv1_016096_0_0#51","prompt":"Atelierul Smith cumpără de la Mureșan & Asociații.","target":"Atelier Smith buys from Mureșan & Asociații."}
+{"id":"formalizer-v1::fv1_017459_0_0#6","prompt":"Tipografia Delta a publicat Ultimul bac și Sistemele Nordwind a publicat Scrisori către un tânăr inginer.","target":"Delta Print published \"Ultimul bac\", and Sistemele Nordwind published \"Scrisori către un tânăr inginer\"."}
+{"id":"formalizer-v1::fv1_030881_0_0#29","prompt":"Filarmonica din Cluj-Napoca găzduiește ședința cu părintii.","target":"The Cluj-Napoca Philharmonic is hosting the parents' meeting."}
+{"id":"formalizer-v1::fv1_020839_0_0#24","prompt":"Filarmonica din Pune se află în Bacău.","target":"The Philharmonic in Pune is located in Bacău."}
+{"id":"formalizer-v1::fv1_023729_0_1","prompt":"Filarmonica din Suceava găzduidește festivalul recoltei, așa e?","target":"The Philharmonic of Suceava is hosting the harvest festival, right?"}
+{"id":"formalizer-v1::fv1_026944_0_0#25","prompt":"Grădina Botanică din Leipzig găz duiește lansarea produsului.","target":"The Botanical Garden in Leipzig is hosting the product launch."}
+{"id":"formalizer-v1::fv1_027728_0_0#32","prompt":"Primăria Nairobi eliberează adeverința medicală.","target":"The Nairobi City Hall issues the medical certificate."}
+{"id":"formalizer-v1::fv1_013861_0_0#19","prompt":"Grădina Botanică din Lviv găzduiește atelierul de fotografie.","target":"The Botanical Garden in Lviv hosts the photography workshop."}
+{"id":"formalizer-v1::fv1_016842_0_0#50","prompt":"Atelierul Crăciun vinde mâncare pentru bebeluși.","target":"Atelier Crăciun sells baby food."}
+{"id":"formalizer-v1::fv1_018736_0_0#30","prompt":"Primăria Cahul nu eliberează extrasul de carte funciară.","target":"The Cahul City Hall does not issue the land register extract."}
+{"id":"formalizer-ood-v1::ood1_000057_0_1::new:ro#1","prompt":"Ajută-mă cu asta: tatăl meu este antrenor la Arena Oradea?","target":"Help me with this one: is my father the coach at the Oradea Arena?"}
+{"id":"formalizer-v1::fv1_001613_0_0::same:ro#1","prompt":"Primăria din Lagos eliberează un permis de conducere?","target":"Does the Lagos Town Hall issue a driving licence?"}
+{"id":"formalizer-v1::fv1_001613_0_0::new:ro#1","prompt":"Primăria din Cluj eliberează o autorizație de construcție?","target":"Does the Cluj City Council issue a building permit?"}
+{"id":"formalizer-v1::fv1_002042_0_0::new:ro#1","prompt":"Arena din Cluj găzduiește târgul de meșteșuguri de iarnă și șantierul naval din Sinaia găzduiește cursa de vâslit.","target":"The Cluj Arena hosts the winter craft fair and the Sinaia shipyard hosts the rowing race."}
+{"id":"formalizer-v1::fv1_006592_0_0::same:ro#1","prompt":"Context: Filarmonica din Cluj-Napoca este închisă.","target":"Background: The Cluj-Napoca Philharmonic is closed."}
+{"id":"formalizer-v1::fv1_006592_0_0::new:ro#1","prompt":"Context: Biblioteca din Brașov este închisă.","target":"Background: The Brașov Library is closed."}
+{"id":"formalizer-v1::fv1_010932_0_0::same:ro#1","prompt":"Mă întreb dacă Arena Sibiu găzduiește dezbaterea primăriei.","target":"I wonder if the Sibiu Arena hosts the town hall debate."}
+{"id":"formalizer-v1::fv1_013644_0_1::new:ro#1","prompt":"Doar verific: Sala de Sport de pe King Street nu găzduiește clinica de coaching?","target":"Just checking: does the Sports Hall on King Street not host the coaching clinic?"}
+{"id":"formalizer-v1::fv1_013644_0_1::new:mixed#1","prompt":"Just checking: Sala de Sport de pe King Street nu gazduieste the coaching clinic?","target":"Just checking: does the Sports Hall on King Street not host the coaching clinic?"}
+{"id":"formalizer-v1::fv1_015272_0_0::same:ro#1","prompt":"Filarmonica din Porto este inchisa.","target":"The Porto Philharmonic is closed."}
+{"id":"formalizer-v1::fv1_015272_0_0::new:ro#1","prompt":"Piața Bristol este închisă.","target":"The Bristol Market is closed."}
+{"id":"formalizer-v1::fv1_017583_0_0::same:ro#1","prompt":"Grădina Botanică din Novi Sad este închisă.","target":"The Botanical Garden in Novi Sad is closed."}
+{"id":"formalizer-v1::fv1_018289_0_0::same:ro#1","prompt":"Primăria Ploiești nu eliberează un certificat medical.","target":"The Ploiești Town Hall does not issue a medical certificate."}
+{"id":"formalizer-v1::fv1_020254_0_1::same:ro#1","prompt":"Primăria Plovdiv emite permis de conducere, nu?","target":"The Plovdiv Town Hall issues a driving licence, right?"}
+{"id":"formalizer-v1::fv1_020583_0_0::same:ro#1","prompt":"Arena Thessaloniki găzduiește recepția nunții și nu găzduiește recepția nunții.","target":"The Thessaloniki Arena hosts the wedding reception and it does not host the wedding reception."}
+{"id":"formalizer-v1::fv1_020583_0_0::same:ro#2","prompt":"Mă întreb dacă este ținută la Arena Thessaloniki.","target":"I wonder if it is held at the Thessaloniki Arena."}
+{"id":"formalizer-v1::fv1_020583_0_0::new:ro#1","prompt":"Arena Brașov rezervă întâlnirea familiei și nu rezervă întâlnirea familiei.","target":"The Brașov Arena books the family reunion and it does not book the family reunion."}
+{"id":"formalizer-v1::fv1_020583_0_0::new:ro#2","prompt":"Mă întreb dacă este ținută la Arena Brașov.","target":"I wonder if it is held at the Brașov Arena."}
+{"id":"formalizer-v1::fv1_022824_0_0::same:ro#1","prompt":"Adevărat sau fals: Filarmonica din Sighișoara nu găzduiește sesiunea de code review.","target":"True or false: the Sighișoara Philharmonic doesn't host the code review session."}
+{"id":"formalizer-v1::fv1_022824_0_0::same:mixed#1","prompt":"True or false: Filarmonica din Sighișoara nu găzduiește code review session.","target":"True or false: the Sighișoara Philharmonic doesn't host the code review session."}
+{"id":"formalizer-v1::fv1_022824_0_0::new:ro#1","prompt":"Adevarat sau fals: Teatrul din Brașov nu gazduieste atelierul de formare.","target":"True or false: the Brașov Theatre doesn't host the training workshop."}
+{"id":"formalizer-v1::fv1_022824_0_0::new:mixed#1","prompt":"True or false: Teatrul din Brașov nu hostează training workshop-ul.","target":"True or false: the Brașov Theatre doesn't host the training workshop."}
+{"id":"formalizer-v1::fv1_025076_0_0::same:ro#1","prompt":"Grădina Botanică din Cluj-Napoca este închisă.","target":"The Botanical Garden in Cluj-Napoca is closed."}
+{"id":"formalizer-v1::fv1_028407_0_0::same:ro#1","prompt":"Arena Debrecen găzduiește turneul regional de șah; Arena Leeds găzduiește atelierul de fotografie.","target":"The Debrecen Arena hosts the regional chess tournament; the Leeds Arena hosts the photography workshop."}
+{"id":"formalizer-v1::fv1_030053_0_0::same:ro#1","prompt":"Filarmonica din Slatina este în Sibiu.","target":"The Slatina Philharmonic is in Sibiu."}
+{"id":"formalizer-v1::fv1_030053_0_0::same:mixed#1","prompt":"Filarmonica Slatina is in Sibiu.","target":"The Slatina Philharmonic is in Sibiu."}
+{"id":"formalizer-v1::fv1_030607_0_1::new:ro#1","prompt":"Știi ce concert are loc la Opera din Szeged?","target":"Do you know which concert is held at the Szeged Opera House?"}
+{"id":"formalizer-v1::fv1_031776_0_0::same:ro#1","prompt":"Grădina Botanică din Suceava este închisă.","target":"The Botanical Garden in Suceava is closed."}
+{"id":"formalizer-v1::fv1_022719_0_0::same:ro#1","prompt":"Filarmonica din Debrecen gazduieste atelierul de fotografie.","target":"The Debrecen Philharmonic hosts the photography workshop."}
+{"id":"formalizer-v1::fv1_022719_0_0::new:ro#1","prompt":"Filarmonica din Sibiu gazduieste atelierul de teatru.","target":"The Sibiu Philharmonic hosts the drama workshop."}
+{"id":"formalizer-wild-v1::wild_wd_053::new:ro#1","prompt":"Pensiunea de la Dublin Airport are lift?","target":"does the guest house at Dublin Airport have a lift?"}
+{"id":"formalizer-ood-v1::ood1_000057_0_1::new:ro#1~dup1","prompt":"Ajută-mă cu asta: tatăl meu este antrenor la Arena Oradea?","target":"Help me with this one: is my father the coach at the Oradea Arena?"}

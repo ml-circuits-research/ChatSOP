@@ -1,0 +1,19 @@
+{
+ "format": "chatsop-proofreader-projection-v1",
+ "corpus": "bad_english/proofing",
+ "prompt_profile": "message-only",
+ "created": "2026-10-01T00:06:06.727Z",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "note": "Byte-identical copies of ../train.jsonl and ../dev.jsonl in the layout training/cli.mjs expects for the role proofreader.",
+ "files": {
+  "proofreader/train.jsonl": {
+   "rows": 19810,
+   "sha256": "be848e27ab136f28640ddf390620bb4c8e31d360c95dd7e8767d620a27afc91b"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 3641,
+   "sha256": "9fa28f1d3df6d03a7db495ad07115ec125f78b162e53744127b80957d723a266"
+  }
+ }
+}

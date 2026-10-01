@@ -1,0 +1,274 @@
+{
+ "label": "gemma3-270m-proofreader-v1 K3 sentence",
+ "generated_at": "2026-09-30T17:13:42.437Z",
+ "stages": [
+  {
+   "stage": 100,
+   "cases": 100,
+   "errors": 0,
+   "clean_sentences_changed": {
+    "k": 0,
+    "n": 2212,
+    "p": 0,
+    "lo": 0,
+    "hi": 0.2
+   },
+   "clean_sentences_kept": {
+    "k": 2212,
+    "n": 2212,
+    "p": 100,
+    "lo": 99.8,
+    "hi": 100
+   },
+   "bad_sentences_fixed": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_untouched": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "bad_sentences_wrong_rewrite": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "dropped_components": {
+    "k": 0,
+    "n": 2212,
+    "p": 0,
+    "lo": 0,
+    "hi": 0.2
+   },
+   "cases_with_added_text": {
+    "k": 0,
+    "n": 100,
+    "p": 0,
+    "lo": 0,
+    "hi": 3.7
+   },
+   "cases_order_preserved": {
+    "k": 100,
+    "n": 100,
+    "p": 100,
+    "lo": 96.3,
+    "hi": 100
+   },
+   "cases_exact": {
+    "all": {
+     "k": 100,
+     "n": 100,
+     "p": 100,
+     "lo": 96.3,
+     "hi": 100
+    },
+    "by": {
+     "n12": {
+      "k": 17,
+      "n": 17,
+      "p": 100,
+      "lo": 81.6,
+      "hi": 100
+     },
+     "n16": {
+      "k": 17,
+      "n": 17,
+      "p": 100,
+      "lo": 81.6,
+      "hi": 100
+     },
+     "n24": {
+      "k": 17,
+      "n": 17,
+      "p": 100,
+      "lo": 81.6,
+      "hi": 100
+     },
+     "n32": {
+      "k": 17,
+      "n": 17,
+      "p": 100,
+      "lo": 81.6,
+      "hi": 100
+     },
+     "n48": {
+      "k": 16,
+      "n": 16,
+      "p": 100,
+      "lo": 80.6,
+      "hi": 100
+     },
+     "single": {
+      "k": 16,
+      "n": 16,
+      "p": 100,
+      "lo": 80.6,
+      "hi": 100
+     }
+    }
+   },
+   "cases_e2e_sop_exact": {
+    "all": {
+     "k": 28,
+     "n": 100,
+     "p": 28,
+     "lo": 20.1,
+     "hi": 37.5
+    },
+    "by": {
+     "n12": {
+      "k": 9,
+      "n": 17,
+      "p": 52.9,
+      "lo": 31,
+      "hi": 73.8
+     },
+     "n16": {
+      "k": 5,
+      "n": 17,
+      "p": 29.4,
+      "lo": 13.3,
+      "hi": 53.1
+     },
+     "n24": {
+      "k": 1,
+      "n": 17,
+      "p": 5.9,
+      "lo": 1,
+      "hi": 27
+     },
+     "n32": {
+      "k": 1,
+      "n": 17,
+      "p": 5.9,
+      "lo": 1,
+      "hi": 27
+     },
+     "n48": {
+      "k": 0,
+      "n": 16,
+      "p": 0,
+      "lo": 0,
+      "hi": 19.4
+     },
+     "single": {
+      "k": 12,
+      "n": 16,
+      "p": 75,
+      "lo": 50.5,
+      "hi": 89.8
+     }
+    }
+   },
+   "splitter_agrees": {
+    "k": 100,
+    "n": 100,
+    "p": 100,
+    "lo": 96.3,
+    "hi": 100
+   },
+   "splitter_agrees_when_all_components_punctuated": {
+    "k": 100,
+    "n": 100,
+    "p": 100,
+    "lo": 96.3,
+    "hi": 100
+   },
+   "splitter_agrees_with_an_unpunctuated_component": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   },
+   "gate": {
+    "recall_of_sentences_that_need_a_rewrite": {
+     "k": 0,
+     "n": 0,
+     "p": null,
+     "lo": null,
+     "hi": null
+    },
+    "clean_sentences_sent_to_the_rewriter": {
+     "k": 0,
+     "n": 2212,
+     "p": 0,
+     "lo": 0,
+     "hi": 0.2
+    }
+   },
+   "sentence_mode": {
+    "rewriter_calls": 0,
+    "sentences": 2212,
+    "share_sent": {
+     "k": 0,
+     "n": 2212,
+     "p": 0,
+     "lo": 0,
+     "hi": 0.2
+    }
+   },
+   "clean_changed_by_stratum": {
+    "all": {
+     "k": 100,
+     "n": 100,
+     "p": 100,
+     "lo": 96.3,
+     "hi": 100
+    },
+    "by": {
+     "n12": {
+      "k": 17,
+      "n": 17,
+      "p": 100,
+      "lo": 81.6,
+      "hi": 100
+     },
+     "n16": {
+      "k": 17,
+      "n": 17,
+      "p": 100,
+      "lo": 81.6,
+      "hi": 100
+     },
+     "n24": {
+      "k": 17,
+      "n": 17,
+      "p": 100,
+      "lo": 81.6,
+      "hi": 100
+     },
+     "n32": {
+      "k": 17,
+      "n": 17,
+      "p": 100,
+      "lo": 81.6,
+      "hi": 100
+     },
+     "n48": {
+      "k": 16,
+      "n": 16,
+      "p": 100,
+      "lo": 80.6,
+      "hi": 100
+     },
+     "single": {
+      "k": 16,
+      "n": 16,
+      "p": 100,
+      "lo": 80.6,
+      "hi": 100
+     }
+    }
+   }
+  }
+ ]
+}

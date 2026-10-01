@@ -1,0 +1,1269 @@
+{"id":"formalizer-v1::fv1_026327_0_0","split":"train","message":"Does Mathieu Moreau live in Călărași?"}
+{"id":"formalizer-v1::fv1_019165_0_0","split":"train","message":"How about Emre?"}
+{"id":"formalizer-v1::fv1_004830_0_0","split":"train","message":"Does Mykola work at Tisa Textiles or at Greenline Transport?"}
+{"id":"formalizer-v1::fv1_005665_0_0","split":"train","message":"Given that the Botanical Garden in Chișinău is based in Oradea, can you confirm that the Passport Office in Deva is in Oradea?"}
+{"id":"formalizer-ood-v1::ood2_000051_0_0","split":"train","message":"Since Veaceslav attends the Tuesday board meeting, is it true that Mr Kovalenko attends the Tuesday board meeting?"}
+{"id":"formalizer-v1::fv1_004314_0_0","split":"train","message":"Should Pablo accept the offer from Szabó & Partners?"}
+{"id":"formalizer-v1::fv1_005459_0_0","split":"train","message":"Ms Rusu isn't married to Rémi."}
+{"id":"formalizer-v1::fv1_014182_0_0","split":"train","message":"So was Doina the spouse of Ovidiu on December 1, 2020?"}
+{"id":"formalizer-v1::fv1_014395_0_0","split":"train","message":"Should Floarea accept the offer from Delta Print?"}
+{"id":"formalizer-v1::fv1_025457_0_0","split":"train","message":"Check this: the Passport Office in Alba Iulia is based in Recife."}
+{"id":"formalizer-v1::fv1_011279_0_1","split":"train","message":"Besides Katrin, can you tell me who works for Blue Harbor Media?"}
+{"id":"formalizer-v1::fv1_014065_0_0","split":"train","message":"Out of curiosity, how many systems does the booking app rely on?"}
+{"id":"formalizer-v1::fv1_030988_0_1","split":"train","message":"Other than Adaeze, tell me who is allergic to latex."}
+{"id":"formalizer-v1::fv1_032118_0_0","split":"train","message":"Did Mr Ciobanu start working at Brightfield Foods after Zeynep Kaya did?"}
+{"id":"new_cases::nc-005101","split":"train","message":"Did Anca unlock the old watchtower?"}
+{"id":"formalizer-v1::fv1_023948_0_0","split":"train","message":"Out of curiosity, where did Lin travel?"}
+{"id":"formalizer-v1::fv1_030408_0_0","split":"train","message":"For how long did Ionuț study at Chișinău Music Academy?"}
+{"id":"new_cases::nc-004412","split":"train","message":"Can Bo join the lobby?"}
+{"id":"formalizer-v1::fv1_015189_0_0","split":"train","message":"Besides Hassan, I'm trying to find out who is employed by Vertex Analytics."}
+{"id":"formalizer-v1::fv1_025969_0_0","split":"train","message":"I was wondering whether Ionuț wants to move to Glasgow."}
+{"id":"formalizer-ood-v1::ood2_000097_0_0","split":"train","message":"Do you know if Aiko resides in Reșița and she goes on a trip to Brașov?"}
+{"id":"formalizer-wild-v1::wild_wk_039","split":"train","message":"When does the Christmas market in Sibiu open this year?"}
+{"id":"formalizer-v1::fv1_021195_0_0","split":"train","message":"Is there anyone at Nordwind Systems who works there but does not live in Focșani?"}
+{"id":"formalizer-ood-v1::ood2_000456_0_0","split":"train","message":"What does Atelier Schmidt stock, if you know?"}
+{"id":"formalizer-v1::fv1_001451_0_1","split":"train","message":"Does Laura work at Orion Robotics and is she the coach of Olimpia Vaslui?"}
+{"id":"proofing-diverse-dev::fv1_029218_0_0_lp2","split":"train","message":"can u verify that Mr Hughes intends to attend the charity run"}
+{"id":"formalizer-v1::fv1_019531_0_0","split":"train","message":"Tell me until when Iurie lived in Iași."}
+{"id":"formalizer-v1::fv1_000802_0_0","split":"train","message":"Does Smaranda live in Slatina or in Focșani?"}
+{"id":"proofing-diverse-dev::fv1_029704_0_0_lp0","split":"train","message":"For how many years was Ayşe Çelik based in Glasgow?"}
+{"id":"formalizer-v1::fv1_031321_0_0","split":"train","message":"Does Jürgen still live in Călărași?"}
+{"id":"formalizer-v1::fv1_015211_0_0","split":"train","message":"Tell me whether Ștefania Barbu maintained the billing service as of February 2, 2019."}
+{"id":"formalizer-v1::fv1_031594_0_0","split":"train","message":"Delta Print supplies Nordwind Systems."}
+{"id":"formalizer-v1::fv1_008946_0_0","split":"train","message":"Tell me until when Daniel Taylor was the spouse of Shirin."}
+{"id":"formalizer-v1::fv1_017161_0_0","split":"train","message":"Honestly, should Ioana accept the offer from Brightfield Foods or not?"}
+{"id":"formalizer-v1::fv1_012060_0_0","split":"train","message":"When did Rubina give classes in drawing?"}
+{"id":"formalizer-v1::fv1_016691_0_0","split":"train","message":"Do you know how Haruka pays?"}
+{"id":"formalizer-v1::fv1_000033_0_0","split":"train","message":"Is there anyone at Brightfield Foods who works there but does not live in Tulcea?"}
+{"id":"formalizer-v1::fv1_016987_0_1","split":"train","message":"I wonder who is the author of The Quiet Harbour."}
+{"id":"formalizer-v1::fv1_010157_0_0","split":"train","message":"Given that Traian is absent from work, is it possible that he took part in the charity run?"}
+{"id":"formalizer-v1::fv1_017882_0_0","split":"train","message":"Can you explain why Takumi stays home?"}
+{"id":"formalizer-v1::fv1_010298_0_1","split":"train","message":"Other than Daniel, I need to know who is allergic to ibuprofen."}
+{"id":"new_cases::nc-005062","split":"train","message":"is the west entrance open today and can Omar meet us there?"}
+{"id":"proofing-diverse-dev::fv1_016792_0_0_lp2","split":"train","message":"So Rubina manages Constantin?"}
+{"id":"formalizer-v1::fv1_016800_0_1","split":"train","message":"Is it correct that Tisa Textiles isn't based in Montreal?"}
+{"id":"formalizer-v1::fv1_016106_0_0","split":"train","message":"Apart from Laura, how many people work at Atelier Anghel?"}
+{"id":"formalizer-v1::fv1_018407_0_0","split":"train","message":"Vlad was enrolled at Bennett Primary School as of 3 January 2022, right?"}
+{"id":"new_cases::nc-002360","split":"train","message":"before the bees return please leave the open flowers on the thyme"}
+{"id":"formalizer-v1::fv1_024293_0_0","split":"train","message":"Besides Hannah, can you tell me who is responsible for the billing service?"}
+{"id":"formalizer-v1::fv1_031297_0_0","split":"train","message":"I was wondering whether Quang Trần was on Olimpia Pune on 1 January 2019."}
+{"id":"formalizer-ood-v1::ood1_000566_0_1","split":"train","message":"Is Petronela not a member of the Madrigal choir, do you know?"}
+{"id":"new_cases::nc-003235","split":"train","message":"Keep the silk scarf separate."}
+{"id":"formalizer-v1::fv1_031642_0_0","split":"train","message":"Since when does Marius Ciobanu teach history?"}
+{"id":"formalizer-v1::fv1_027557_0_0","split":"train","message":"Are all the players of Focșani United certified?"}
+{"id":"formalizer-v1::fv1_025327_0_0","split":"train","message":"Ms Park checked out The Last Ferry, right?"}
+{"id":"formalizer-v1::fv1_028118_0_0","split":"train","message":"Can you count how many times Julien took part in the regional chess tournament?"}
+{"id":"formalizer-wild-v1::wild_wd_088","split":"train","message":"tracking pls"}
+{"id":"new_cases::nc-001954","split":"train","message":"since the card expired Anton cannot enter"}
+{"id":"formalizer-ood-v1::ood2_000030_0_0","split":"train","message":"Both at once: is Ghiță the trainer of Bălți United, and does he look after the payroll database?"}
+{"id":"formalizer-v1::fv1_029310_0_0","split":"train","message":"Tell me whether Dragoș Rusu is the author of Letters to a Young Engineer."}
+{"id":"formalizer-v1::fv1_009625_0_0","split":"train","message":"Who coaches the team Jessica plays for?"}
+{"id":"formalizer-v1::fv1_015367_0_0","split":"train","message":"With what was known as of 14 October 2025, I wonder if Elena coached Botoșani United on September 11, 2024."}
+{"id":"formalizer-v1::fv1_021366_0_0","split":"train","message":"When did George play for Olimpia Pitești?"}
+{"id":"formalizer-v1::fv1_020000_0_0","split":"train","message":"Did Andrei Bălan start living in Suceava before Ingrid did?"}
+{"id":"formalizer-v1::fv1_016163_0_0","split":"train","message":"Did Esmeralda attend the spring book fair again?"}
+{"id":"formalizer-v1::fv1_012674_0_0","split":"train","message":"I'd like to know who Larissa is married to."}
+{"id":"formalizer-v1::fv1_006628_0_0","split":"train","message":"Hannah plays for Olimpia Iași, correct?"}
+{"id":"formalizer-v1::fv1_015932_0_0","split":"train","message":"I wonder where Tatiana lives."}
+{"id":"formalizer-v1::fv1_023277_0_0","split":"train","message":"Just checking: does Ms Kovács work for Ionescu & Partners?"}
+{"id":"formalizer-v1::fv1_015688_0","split":"train","message":"Nice, this is fun!"}
+{"id":"new_cases::nc-001820","split":"train","message":"Please tell Aditya Rao whether the spare headset has been returned."}
+{"id":"formalizer-v1::fv1_012763_0_0","split":"train","message":"I wonder why Ms Martínez doesn't stay home."}
+{"id":"formalizer-v1::fv1_031045_0_0","split":"train","message":"Is none of the players of Lyon United certified?"}
+{"id":"formalizer-v1::fv1_012622_0_0","split":"train","message":"Quick one: what does a grace period mean, and what does a deductible mean?"}
+{"id":"formalizer-v1::fv1_004321_0","split":"train","message":"Random question: order me a taxi to the airport for tomorrow at six."}
+{"id":"formalizer-v1::fv1_024380_0_0","split":"train","message":"What about Daniel Turner?"}
+{"id":"new_cases::nc-000609","split":"train","message":"Did Andreea submit the customs form before the ferry arrived?"}
+{"id":"formalizer-v1::fv1_030719_0_0","split":"train","message":"Jack is a parent of Sofía?"}
+{"id":"formalizer-v1::fv1_022022_0_0","split":"train","message":"Could you check who raises Larissa?"}
+{"id":"formalizer-v1::fv1_020043_0_0","split":"train","message":"Was Otieno enrolled at Popa Primary School on 20 February 2018?"}
+{"id":"formalizer-v1::fv1_031248_0_0","split":"train","message":"Any idea how Liviu commutes?"}
+{"id":"new_cases::nc-001562","split":"train","message":"did the insurer while the garage waited approve the second estimate"}
+{"id":"formalizer-v1::fv1_010278_0_0","split":"train","message":"So was Mateo based in Târgu Mureș on 1 October 2019?"}
+{"id":"formalizer-v1::fv1_012915_0_0","split":"train","message":"True or false: Carpathia Energy sells herbal tea."}
+{"id":"formalizer-v1::fv1_018501_0_1","split":"train","message":"I need to know which system relies on the billing service."}
+{"id":"formalizer-v1::fv1_016689_0_1","split":"train","message":"How often did Floarea travel to Zalău?"}
+{"id":"formalizer-v1::fv1_019867_0_0","split":"train","message":"Carpathia Energy published The Quiet Harbour, and Orion Robotics did not publish Notes from the Night Train."}
+{"id":"formalizer-v1::fv1_003108_0_0","split":"train","message":"Any idea how Takumi commutes?"}
+{"id":"new_cases::nc-004032","split":"train","message":"Who picked up Gelu?"}
+{"id":"formalizer-v1::fv1_011952_0_1","split":"train","message":"Honestly, was Ingrid married to Victor as of August 14, 2022?"}
+{"id":"new_cases::nc-002013","split":"train","message":"Ștefan has not signed the lease."}
+{"id":"formalizer-v1::fv1_006678_0_0","split":"train","message":"I wonder where the Passport Office in Vaslui is based."}
+{"id":"formalizer-v1::fv1_029630_0_0","split":"train","message":"Quick question: did Daniel live in Călărași on March 13, 2017?"}
+{"id":"form-variant::fv-form-3875f4d129-008","split":"train","message":"Please find out who trains the Bălți Nursing."}
+{"id":"formalizer-v1::fv1_010757_0_0","split":"train","message":"How does Olena get to work, do you know?"}
+{"id":"formalizer-v1::fv1_006742_0_0","split":"train","message":"Dariush Tehrani has a job at the Riverside Medical Centre in Arad, right?"}
+{"id":"formalizer-v1::fv1_015433_0_0","split":"train","message":"Can you count how many times Oksana checked out Letters to a Young Engineer?"}
+{"id":"formalizer-v1::fv1_023766_1_0","split":"train","message":"Tell me whether Ruxandra raises Cosmin."}
+{"id":"formalizer-ood-v1::ood1_000269_0_1","split":"train","message":"Any idea since when Nils Nilsen sings in the Madrigal choir?"}
+{"id":"formalizer-v1::fv1_019133_0_0","split":"train","message":"Did Katalin start living in Lyon before Layla Mansour did?"}
+{"id":"formalizer-v1::fv1_010635_0_2","split":"train","message":"I'm trying to find out which book Olena borrows."}
+{"id":"formalizer-v1::fv1_015394_0_0","split":"train","message":"Given that Ms Cebotari maintained the payments gateway from May 1, 2018 until October 1, 2021, did she maintain the payments gateway on 1 May 2018?"}
+{"id":"formalizer-v1::fv1_027122_0_0","split":"train","message":"Is it true that Ioana goes to the regional chess tournament and she maintains the search index?"}
+{"id":"formalizer-v1::fv1_020660_0_0","split":"train","message":"Who does Rubina work for, Debrecen Logistics, right?"}
+{"id":"formalizer-v1::fv1_030349_0_0","split":"train","message":"Any idea how long Xiaoling was married to Krzysztof?"}
+{"id":"formalizer-v1::fv1_014858_0_0","split":"train","message":"Did Ms Voicu borrow A Short History of Bridges again?"}
+{"id":"formalizer-v1::fv1_019099_0_0","split":"train","message":"How often did Kaveh resign?"}
+{"id":"formalizer-v1::fv1_003433_0_0","split":"train","message":"Hypothetically, if Kamau has an allergy to bee stings, does he have an allergy to bee stings?"}
+{"id":"new_cases::nc-004798","split":"train","message":"the first export took 3 hours and the second took 2"}
+{"id":"formalizer-v1::fv1_019934_0_0","split":"train","message":"Ok and Mr Stoica?"}
+{"id":"formalizer-v1::fv1_000627_0_2","split":"train","message":"Can you tell me which company buys from Nordwind Systems?"}
+{"id":"formalizer-v1::fv1_019229_0_0","split":"train","message":"Are all the people playing for CS Baia Mare certified?"}
+{"id":"new_cases::nc-003421","split":"train","message":"Is the guard station empty?"}
+{"id":"formalizer-v1::fv1_016742_0_0","split":"train","message":"Is anyone who reports to Youssef based in Slatina?"}
+{"id":"formalizer-v1::fv1_023365_0_0","split":"train","message":"Given that Aurel Diaconu gives classes in geography, he is certified?"}
+{"id":"formalizer-v1::fv1_020274_0_0","split":"train","message":"Just checking: did Iurie take part in the spring book fair?"}
+{"id":"formalizer-v1::fv1_009959_0_1","split":"train","message":"Does Samuel go to the regional chess tournament and does he coach the Deva Falcons?"}
+{"id":"formalizer-v1::fv1_006381_0_0","split":"train","message":"Honestly, is Mathieu a parent of Oana?"}
+{"id":"formalizer-v1::fv1_001964_0_0","split":"train","message":"Can you check whether George visits Hanoi and he maintains the booking app?"}
+{"id":"formalizer-v1::fv1_026001_0_0","split":"train","message":"Did Valentina start working at Greenline Transport before Tatiana did?"}
+{"id":"proofing-diverse-dev::fv1_029704_0_0_lp2","split":"train","message":"Ayşe Çelik was based in Glasgow for how many years?"}
+{"id":"formalizer-v1::fv1_014119_0_0","split":"train","message":"Fekete & Partners published The Glass Orchard, right?"}
+{"id":"formalizer-v1::fv1_027593_0_0","split":"train","message":"With what was known as of 9 October 2025, so was Larissa the coach of the Tampere Wolves as of March 13, 2024?"}
+{"id":"new_cases::nc-005371","split":"train","message":"Grant desk tasks: file the budget, ask Dinu for signatures, and call Zora."}
+{"id":"formalizer-v1::fv1_019051_0_0","split":"train","message":"Does Rafael visit Iași and did he check out The Glass Orchard?"}
+{"id":"proofing-diverse-dev::fv1_015770_0_0_lp1","split":"train","message":"do you know how many ppl are studying at the Călărași Language School?"}
+{"id":"formalizer-v1::fv1_019443_0_0","split":"train","message":"Could you check who coaches CS Călărași?"}
+{"id":"formalizer-v1::fv1_027277_0_0","split":"train","message":"Quick question: does Ms Martin plan to relocate to Nairobi?"}
+{"id":"formalizer-ood-v1::ood1_000344_0_0","split":"train","message":"Could you check if Arjun doesn't cook at the Buzău Philharmonic?"}
+{"id":"formalizer-v1::fv1_029812_0_0","split":"train","message":"Has Aurelia visited Târgu Mureș again?"}
+{"id":"formalizer-v1::fv1_020307_0_1","split":"train","message":"Up to what date did Larissa Souza coach the Bacău Wolves?"}
+{"id":"formalizer-v1::fv1_009776_0_0","split":"train","message":"Given that Kamau manages Rahul, does the recording studio belong to Kamau?"}
+{"id":"formalizer-ood-v1::ood1_000442_0_1","split":"train","message":"Is it true that Nils is the chef at the Old Mill Hall?"}
+{"id":"formalizer-wild-v1::wild_wd_038","split":"train","message":"cheers, sorted 👍"}
+{"id":"formalizer-v1::fv1_016393_0_0","split":"train","message":"Ok and Achieng Odhiambo?"}
+{"id":"formalizer-v1::fv1_000760_0_0","split":"train","message":"Where did Felix travel?"}
+{"id":"new_cases::nc-004022","split":"train","message":"Does Alba want tea?"}
+{"id":"new_cases::nc-003008","split":"train","message":"Where is Bogdan delivering today?"}
+{"id":"formalizer-v1::fv1_007804_0_0","split":"train","message":"I need to know if Mathieu took part in the junior chess tournament."}
+{"id":"formalizer-v1::fv1_032062_0_0","split":"train","message":"How does Dorin get to work?"}
+{"id":"formalizer-v1::fv1_004108_0_0","split":"train","message":"For how long did Georgiana have a job at Brightfield Foods?"}
+{"id":"formalizer-v1::fv1_011821_0_0","split":"train","message":"Tell me which team Beatriz Souza coaches."}
+{"id":"formalizer-v1::fv1_022378_0_0","split":"train","message":"Quick one: how many companies publish Winter in Maramureș?"}
+{"id":"formalizer-ood-v1::ood1_000347_0_0","split":"train","message":"Would you say that Paweł is a member of the Madrigal choir?"}
+{"id":"formalizer-v1::fv1_023021_0_0","split":"train","message":"Out of curiosity, how many people plan to go to the photography workshop?"}
+{"id":"formalizer-v1::fv1_020049_0_0","split":"train","message":"Could you check who is based in Porto?"}
+{"id":"formalizer-v1::fv1_001224_0_0","split":"train","message":"Is anyone who studies at the Oradea Language School not trained?"}
+{"id":"formalizer-v1::fv1_014735_0_1","split":"train","message":"Out of curiosity, how many people manage Ayşe?"}
+{"id":"formalizer-v1::fv1_010813_1_0","split":"train","message":"Can you confirm that Łukasz is married to Larisa?"}
+{"id":"formalizer-v1::fv1_015831_0_0","split":"train","message":"True or false: Greenline Transport doesn't carry printer ink."}
+{"id":"formalizer-v1::fv1_018518_0_0","split":"train","message":"Is anyone who reports to Cristina based in Hanoi?"}
+{"id":"formalizer-v1::fv1_002490_0_1","split":"train","message":"Can you check whether Toma Dobre lives in Alba Iulia and he is the owner of the old sailing boat?"}
+{"id":"formalizer-ood-v1::ood1_000685_0_0","split":"train","message":"In what period did Teodora Ardeleanu sing in the Madrigal choir?"}
+{"id":"formalizer-v1::fv1_008189_0_0","split":"train","message":"Is it true that not all players of Rapid Iași are certified?"}
+{"id":"formalizer-v1::fv1_000932_0_0","split":"train","message":"Until when did the blue van belong to Esmeralda Stoian?"}
+{"id":"formalizer-v1::fv1_021540_0_0","split":"train","message":"Why is the Community Centre on Elm Street closed?"}
+{"id":"formalizer-v1::fv1_005643_0_0","split":"train","message":"Is Samuel Hughes allowed to sign a work permit?"}
+{"id":"formalizer-v1::fv1_003886_0_1","split":"train","message":"Quick one: how many people plan to go to the regional chess tournament?"}
+{"id":"new_cases::nc-003931","split":"train","message":"will Kofi draw the map and can he use the chalk"}
+{"id":"formalizer-v1::fv1_007930_0_0","split":"train","message":"Tell me whether Burak is employed by the Riverside Medical Centre in Târgu Mureș."}
+{"id":"formalizer-v1::fv1_032484_0_0","split":"train","message":"Is it true that George is responsible for the booking app and the flat on Mihai Viteazu Street belongs to George?"}
+{"id":"new_cases::nc-000515","split":"train","message":"What was Hugo's temporary payroll record replaced with last week?"}
+{"id":"formalizer-v1::fv1_031915_0_0","split":"train","message":"Does Hyun-woo manage anyone who lives in Ploiești?"}
+{"id":"formalizer-v1::fv1_012441_0_0","split":"train","message":"Do you know who Rohan is married to?"}
+{"id":"formalizer-v1::fv1_002727_0_1","split":"train","message":"So does the blue van not belong to Radu?"}
+{"id":"formalizer-v1::fv1_011117_0_1","split":"train","message":"Do you know how long Taras lived in Călărași?"}
+{"id":"formalizer-v1::fv1_026259_0_0","split":"train","message":"With what was known as of July 13, 2025, honestly, was Wei the coach of Târgu Mureș United on the 19th of May 2024?"}
+{"id":"proofing-diverse-dev::fv1_016792_0_0_lp1","split":"train","message":"Rubina manages Constantin, right?"}
+{"id":"formalizer-v1::fv1_003605_0_0","split":"train","message":"Apart from Priya, how many people work at Delta Print?"}
+{"id":"formalizer-v1::fv1_008161_0_1","split":"train","message":"I need to know if Layla worked for Ionescu & Partners on June 22, 2022."}
+{"id":"formalizer-v1::fv1_012878_0_0","split":"train","message":"Quick one: how many people does the garage behind the block belong to?"}
+{"id":"formalizer-v1::fv1_006055_0_0","split":"train","message":"Given that the inventory API is down, is it correct that the search index brought down the inventory API?"}
+{"id":"formalizer-v1::fv1_015219_0_0","split":"train","message":"So is Dorin based in Cluj-Napoca?"}
+{"id":"formalizer-v1::fv1_014299_0_0","split":"train","message":"Honestly, should Layla accept the offer from Greenline Transport or not?"}
+{"id":"new_cases::nc-003625","split":"train","message":"Basil paid the deposit."}
+{"id":"formalizer-v1::fv1_008619_0_0","split":"train","message":"Is Tamás allowed to sign a building permit on their own?"}
+{"id":"formalizer-v1::fv1_026945_0_1","split":"train","message":"Just checking: does the plot of land by the river belong to Carmen?"}
+{"id":"formalizer-v1::fv1_008495_0_0","split":"train","message":"Tell me which document a work permit requires."}
+{"id":"new_cases::nc-002346","split":"train","message":"please rinse the seed trays and dry the bench and put the empty pots under cover"}
+{"id":"new_cases::nc-003380","split":"train","message":"did olive fold the duvet"}
+{"id":"proofing-diverse-dev::fv1_029336_0_0_lp1","split":"train","message":"do you know what company supplies Wagner & Partners"}
+{"id":"formalizer-v1::fv1_026633_0_0","split":"train","message":"Which property that Ms Szabó owns costs the most?"}
+{"id":"formalizer-v1::fv1_023391_0_1","split":"train","message":"Do you know which book is written by Anca?"}
+{"id":"formalizer-v1::fv1_004577_0_0","split":"train","message":"How does Levente Farkas pay, any idea?"}
+{"id":"formalizer-ood-v1::ood2_000307_0_0","split":"train","message":"Any idea who attends classes at Müller Primary School?"}
+{"id":"proofing-diverse-dev::fv1_019794_0_0_lp0","split":"train","message":"For how many years was Ms Lăutaru based in Bergen?"}
+{"id":"formalizer-v1::fv1_003124_0","split":"train","message":"Okay, got it!"}
+{"id":"formalizer-v1::fv1_031203_0_1","split":"train","message":"Tell me which town Valentina Navarro travels to."}
+{"id":"formalizer-v1::fv1_031244_0_0","split":"train","message":"Did Horia start working at Nordwind Systems after Krzysztof did?"}
+{"id":"formalizer-v1::fv1_001060_0_0","split":"train","message":"What about in Constanța?"}
+{"id":"formalizer-v1::fv1_027523_0_0","split":"train","message":"Honestly, does the Passport Office in Arad issue an ID card?"}
+{"id":"formalizer-v1::fv1_031534_0_0","split":"train","message":"Quick one: how many people intend to attend the spring book fair?"}
+{"id":"new_cases::nc-000418","split":"train","message":"Omar booked a courier pickup."}
+{"id":"formalizer-v1::fv1_018253_0_0","split":"train","message":"Tell me which company sells herbal tea."}
+{"id":"formalizer-ood-v1::ood2_000431_0_1","split":"train","message":"Not counting Bohdan Bondarenko, please find out who goes on a trip to Chengdu."}
+{"id":"formalizer-v1::fv1_019357_0_0","split":"train","message":"For how long was Mr Girard enrolled at Pune Technical College?"}
+{"id":"formalizer-v1::fv1_010365_0","split":"train","message":"vribla pofmifnappof bezpofulttru"}
+{"id":"new_cases::nc-005118","split":"train","message":"Can we photograph the old chapel?"}
+{"id":"formalizer-v1::fv1_016110_0_0","split":"train","message":"How many books does Atelier Clarke publish?"}
+{"id":"formalizer-v1::fv1_014587_0_0","split":"train","message":"Does Emeka work at Orion Robotics or at Delta Print?"}
+{"id":"formalizer-v1::fv1_013877_0_1","split":"train","message":"Out of curiosity, how many people have a job at Delta Print?"}
+{"id":"formalizer-v1::fv1_007588_0_0","split":"train","message":"How does Aditya pay, any idea?"}
+{"id":"new_cases::nc-003035","split":"train","message":"Imran parked near Brașov."}
+{"id":"formalizer-v1::fv1_028223_0_0","split":"train","message":"Is there anyone at Orion Robotics who works there but does not live in Cluj-Napoca?"}
+{"id":"proofing-diverse-dev::fv1_004118_0_2_lp0","split":"train","message":"Which system is Roxana responsible for?"}
+{"id":"formalizer-v1::fv1_004972_0","split":"train","message":"ostkenap napratru gamjia"}
+{"id":"new_cases::nc-003006","split":"train","message":"Tariq took the customs pouch."}
+{"id":"formalizer-v1::fv1_018011_0_2","split":"train","message":"Quick one: how many people does Hannah raise?"}
+{"id":"formalizer-v1::fv1_026372_1_0","split":"train","message":"Orion Robotics supplies Tisa Textiles, correct?"}
+{"id":"new_cases::nc-004829","split":"train","message":"Aurel asked whether the banner could use the older mountain logo."}
+{"id":"formalizer-v1::fv1_015697_0_0","split":"train","message":"Just checking: did Zeynep live in Călărași in 2021?"}
+{"id":"formalizer-v1::fv1_014194_0_0","split":"train","message":"Did Mr Turner start working at Greenline Transport after Oluwaseun did?"}
+{"id":"formalizer-ood-v1::ood2_000436_0_0","split":"train","message":"Fact-check: Nordwind Systems employs Hao."}
+{"id":"formalizer-ood-v1::ood2_000061_0_0","split":"train","message":"Fact-check: Tudor Moldovan trains Olimpia Piatra Neamț."}
+{"id":"new_cases::nc-003441","split":"train","message":"Because the alarm sounded twice, I checked the roof hatch and the fuel shed; neither door was open, and Musa recorded both checks in the shift log."}
+{"id":"new_cases::nc-004624","split":"train","message":"Will Farid deliver the 4K version after he fixes the opening shot?"}
+{"id":"new_cases::nc-003354","split":"train","message":"the mirror still looks cloudy because Alex used the wrong cloth"}
+{"id":"new_cases::nc-004124","split":"train","message":"does Tudor need the lift and who will bring it"}
+{"id":"formalizer-v1::fv1_021856_0_1","split":"train","message":"I wonder which system relies on the search index."}
+{"id":"formalizer-v1::fv1_030362_0_0","split":"train","message":"How does Toma get to work?"}
+{"id":"formalizer-v1::fv1_023800_0_0","split":"train","message":"I'd like to know what is based in Suceava."}
+{"id":"formalizer-v1::fv1_018230_0_1","split":"train","message":"Quick one: how many systems rely on the search index?"}
+{"id":"formalizer-v1::fv1_010488_0_0","split":"train","message":"Until when was Kenji married to Dragoș?"}
+{"id":"formalizer-v1::fv1_017878_0_0","split":"train","message":"How does Gheorghe pay, any idea?"}
+{"id":"formalizer-v1::fv1_009085_0_1","split":"train","message":"Is it correct that Haruka has borrowed Notes from the Night Train?"}
+{"id":"formalizer-v1::fv1_004574_0_0","split":"train","message":"I'd like to know which book Vertex Analytics publishes."}
+{"id":"formalizer-v1::fv1_010080_0_0","split":"train","message":"Did Cristina start working at Brightfield Foods after Wei Liu did?"}
+{"id":"proofing-diverse-dev::fv1_016426_0_0_lp1","split":"train","message":"Who else intends to attend the code review session besides Anna-Lena Schmidt?"}
+{"id":"new_cases::nc-003363","split":"train","message":"before the van leaves check the blue bag"}
+{"id":"formalizer-v1::fv1_000827_0_0","split":"train","message":"Does Cătălin manage anyone who lives in Baia Mare?"}
+{"id":"formalizer-v1::fv1_021225_0_0","split":"train","message":"Does Sorin Popa still work at Blue Harbor Media?"}
+{"id":"formalizer-v1::fv1_031870_0_0","split":"train","message":"Yuki is on the Glasgow Falcons, correct?"}
+{"id":"formalizer-v1::fv1_021087_0","split":"train","message":"Thank you, talk later!"}
+{"id":"proofing-diverse-dev::fv1_015770_0_0_lp0","split":"train","message":"how many students study at the Călărași Language School?"}
+{"id":"formalizer-v1::fv1_003285_0_0","split":"train","message":"Do you know who made The Last Ferry?"}
+{"id":"formalizer-wild-v1::wild_we_013","split":"train","message":"The limitation period for a simple breach of contract claim is six years, right?"}
+{"id":"formalizer-v1::fv1_004118_0_0","split":"train","message":"Do you know which system Roxana maintains?"}
+{"id":"new_cases::nc-000648","split":"train","message":"Check the carton weight."}
+{"id":"formalizer-v1::fv1_024259_0_0","split":"train","message":"Does Parisa manage anyone who lives in Călărași?"}
+{"id":"formalizer-v1::fv1_000796_0_0","split":"train","message":"Quick one: where did Anna-Lena travel?"}
+{"id":"new_cases::nc-005171","split":"train","message":"Please collect the abbey gate keys and hand one to Noura and lock the visitor hut after the school group leaves and record the number of remaining headsets."}
+{"id":"new_cases::nc-004813","split":"train","message":"Keep this border blue."}
+{"id":"formalizer-ood-v1::ood1_000533_0_0","split":"train","message":"From what date on does Vasile plant tomatoes?"}
+{"id":"formalizer-v1::fv1_017016_0_0","split":"train","message":"Can you check whether Alina is the boss of Erik?"}
+{"id":"formalizer-v1::fv1_005943_0_0","split":"train","message":"Who does Cosmin work for, Brightfield Foods, right?"}
+{"id":"new_cases::nc-001780","split":"train","message":"the room at Rose Hill Inn is booked under Marco Silva"}
+{"id":"formalizer-v1::fv1_011488_0_1","split":"train","message":"Besides Oliver Hughes, I'd like to know who is married to Quang."}
+{"id":"formalizer-v1::fv1_024083_0_0","split":"train","message":"Is Mr Turner trained?"}
+{"id":"formalizer-v1::fv1_032655_0_0","split":"train","message":"Any idea when Oksana was the boss of Mr Stoica?"}
+{"id":"formalizer-v1::fv1_011768_0_0","split":"train","message":"Apart from Vasile Moldovan, how many people work at Szabó & Partners?"}
+{"id":"formalizer-v1::fv1_028402_0_0","split":"train","message":"Does Adaeze still work at Blue Harbor Media?"}
+{"id":"formalizer-v1::fv1_015004_0_0","split":"train","message":"Tell me until when Ioana worked under Costin Rădulescu."}
+{"id":"new_cases::nc-003009","split":"train","message":"Pavel found the keypad cover."}
+{"id":"formalizer-v1::fv1_002501_0_0","split":"train","message":"Linh is the spouse of Raluca?"}
+{"id":"formalizer-ood-v1::ood1_000332_0_1","split":"train","message":"Help me with this one: does Chen plant peppers?"}
+{"id":"new_cases::nc-001401","split":"train","message":"Is the invoice due Friday?"}
+{"id":"new_cases::nc-003960","split":"train","message":"if the garden is wet will Rina wear boots"}
+{"id":"formalizer-v1::fv1_015543_0_0","split":"train","message":"Besides Jun Zhang, I wonder who is enrolled at Călărași Music Academy."}
+{"id":"formalizer-v1::fv1_002521_0_0","split":"train","message":"Out of curiosity, how many subjects does Agnieszka give classes in?"}
+{"id":"formalizer-v1::fv1_001997_0_0","split":"train","message":"Apart from Ioana, how many people work at Gheorghiu & Partners?"}
+{"id":"formalizer-wild-v1::wild_wk_017","split":"train","message":"Istanbul isn't the capital of Turkey, right?"}
+{"id":"formalizer-v1::fv1_018673_0_1","split":"train","message":"I'm trying to find out what Greenline Transport carries."}
+{"id":"formalizer-v1::fv1_027052_0_1","split":"train","message":"Other than Ms Dobre, could you check who is on Rapid Oradea?"}
+{"id":"formalizer-v1::fv1_004309_0_0","split":"train","message":"How does Yuki Suzuki pay, any idea?"}
+{"id":"formalizer-v1::fv1_023218_0_0","split":"train","message":"Given that Alina visits Cluj-Napoca, is it correct that she travels to Cluj-Napoca?"}
+{"id":"formalizer-v1::fv1_017511_0_1","split":"train","message":"Since when does Ms Reddy play for CS Oradea?"}
+{"id":"formalizer-v1::fv1_026569_0_0","split":"train","message":"Do you know why Dragoș is absent from work?"}
+{"id":"formalizer-v1::fv1_021884_0_0","split":"train","message":"Rachel visits Sibiu, right?"}
+{"id":"proofing-diverse-dev::fv1_017287_0_1_lp0","split":"train","message":"Quick question—does the booking app depend on the billing service?"}
+{"id":"form-variant::fv-form-67753ba22d-014","split":"train","message":"How come Beatriz stays home?"}
+{"id":"formalizer-ood-v1::ood1_000384_0_0","split":"train","message":"\"Tatiana leases the vineyard near Sibiu\" — does that hold?"}
+{"id":"new_cases::nc-004141","split":"train","message":"The nurse brought a fresh dressing for Toma and checked the written care plan and put the used packaging in the bin and asked me to note the time"}
+{"id":"formalizer-v1::fv1_008015_0_0","split":"train","message":"So does Ms Florea not plan to go to the spring book fair?"}
+{"id":"formalizer-ood-v1::ood1_000738_0_0","split":"train","message":"So how many people sing in the Madrigal choir?"}
+{"id":"formalizer-v1::fv1_029661_0_0","split":"train","message":"True or false: Schmidt & Partners sells winter tyres."}
+{"id":"formalizer-v1::fv1_001332_0_0","split":"train","message":"Besides Esmeralda, can you tell me who borrows Letters to a Young Engineer?"}
+{"id":"formalizer-v1::fv1_013979_0_0","split":"train","message":"Did Ruxandra start working at Hoffmann & Partners after Vikram Gupta did?"}
+{"id":"formalizer-v1::fv1_007997_1_0","split":"train","message":"I wonder if Ms Constantinescu is treated by Łukasz."}
+{"id":"formalizer-v1::fv1_004136_0_0","split":"train","message":"I need to know if Carmen Vlădescu is treated by George Bennett."}
+{"id":"formalizer-ood-v1::ood1_000366_0_0","split":"train","message":"Help me with this one: does Mr Turner lease the bakery on the corner?"}
+{"id":"formalizer-v1::fv1_022484_1_0","split":"train","message":"So is Vasile married to Enikő?"}
+{"id":"formalizer-v1::fv1_014237_0_0","split":"train","message":"Are all the players of CS Târgu Mureș certified?"}
+{"id":"formalizer-v1::fv1_022507_0_1","split":"train","message":"Since when does Ms Balogun play for Hanoi United?"}
+{"id":"formalizer-v1::fv1_008271_0_0","split":"train","message":"Quick question: did Omar maintain the backup cluster as of July 3, 2021?"}
+{"id":"new_cases::nc-004848","split":"train","message":"Before we cut the menus, does Daria need to check the revised prices, or can the shop use the copy she approved when proof arrived?"}
+{"id":"formalizer-v1::fv1_003992_0","split":"train","message":"Good evening"}
+{"id":"formalizer-v1::fv1_018100_0_0","split":"train","message":"The Oradea Town Hall doesn't issue an ID card, and the Deva Town Hall does not issue a medical certificate."}
+{"id":"new_cases::nc-001003","split":"train","message":"Where did the referee go?"}
+{"id":"formalizer-v1::fv1_015738_0_0","split":"train","message":"Based on what we knew on September 10, 2025, quick question: was Hyun-woo Kim enrolled at Oradea Arts High School on 21 September 2024?"}
+{"id":"formalizer-v1::fv1_018784_0_1","split":"train","message":"Ji-woo Choi lived in Lyon at some point in 2023, right?"}
+{"id":"formalizer-v1::fv1_011952_0_0","split":"train","message":"I was wondering whether Ingrid was the spouse of Victor as of August 14, 2022."}
+{"id":"formalizer-v1::fv1_022945_0_1","split":"train","message":"When was Réka the spouse of Irina?"}
+{"id":"formalizer-v1::fv1_006968_0_0","split":"train","message":"How does Daniel pay?"}
+{"id":"formalizer-v1::fv1_028840_0_0","split":"train","message":"Given that Tatiana manages Raluca, she has an allergy to dust mites?"}
+{"id":"formalizer-v1::fv1_030634_0_0","split":"train","message":"Is there somebody at Blue Harbor Media who works there and lives in Tampere?"}
+{"id":"formalizer-v1::fv1_015963_0_0","split":"train","message":"Can you tell me who maintains the billing service?"}
+{"id":"formalizer-v1::fv1_005277_0_0","split":"train","message":"Does Joaquín García still live in Sighișoara?"}
+{"id":"formalizer-v1::fv1_029037_0_1","split":"train","message":"How many people borrow A Short History of Bridges?"}
+{"id":"formalizer-v1::fv1_009816_0_0","split":"train","message":"Are at least 2 players of the Focșani Falcons certified?"}
+{"id":"formalizer-v1::fv1_006471_0_0","split":"train","message":"Is there anyone at Tisa Textiles who works there but does not live in Alba Iulia?"}
+{"id":"formalizer-v1::fv1_029299_0_0","split":"train","message":"Emil doesn't intend to attend the spring book fair and Tatiana plans to go to the harvest festival."}
+{"id":"formalizer-ood-v1::ood1_000724_0_0","split":"train","message":"Any idea since when Ștefan grows lavender?"}
+{"id":"formalizer-v1::fv1_012597_0_0","split":"train","message":"True or false: Carmen is enrolled at Plovdiv Music Academy."}
+{"id":"formalizer-v1::fv1_031579_0_0","split":"train","message":"How many years did Andreea Nistor teach mathematics?"}
+{"id":"formalizer-ood-v1::ood1_000491_0_0","split":"train","message":"Please find out who the school bus is repaired by."}
+{"id":"formalizer-v1::fv1_011717_0_0","split":"train","message":"Hypothetically, if Oana lives in Slatina, can you check whether she lives in Slatina?"}
+{"id":"formalizer-v1::fv1_017783_0_0","split":"train","message":"True or false: Irina is treated by Viorel."}
+{"id":"formalizer-v1::fv1_005476_0_1","split":"train","message":"Tell me which office issues a residence certificate."}
+{"id":"new_cases::nc-003933","split":"train","message":"when does the trip leave and does Arman need boots"}
+{"id":"formalizer-v1::fv1_013381_0_0","split":"train","message":"I need to know when Priya Patel was the owner of the red Dacia."}
+{"id":"formalizer-v1::fv1_001665_0_1","split":"train","message":"I need to know if Simona was on Ploiești United during 2021."}
+{"id":"formalizer-v1::fv1_013336_0_0","split":"train","message":"Apart from Mr Kaczmarek, how many people work at Tisa Textiles?"}
+{"id":"new_cases::nc-004593","split":"train","message":"Did Doru score 21 points?"}
+{"id":"formalizer-v1::fv1_003425_0_1","split":"train","message":"Can you confirm that Omar doesn't live in Slatina?"}
+{"id":"formalizer-v1::fv1_006956_0_0","split":"train","message":"Is anyone who attended the spring book fair not trained?"}
+{"id":"formalizer-v1::fv1_022822_0_0","split":"train","message":"Since when is Lucía married to Tamás?"}
+{"id":"formalizer-v1::fv1_018937_0_1","split":"train","message":"Do you know how long Elif taught chemistry?"}
+{"id":"formalizer-ood-v1::ood2_000234_0_0","split":"train","message":"Remind me, how many people reside in Alexandria?"}
+{"id":"formalizer-v1::fv1_030988_0_0","split":"train","message":"Apart from Adaeze Balogun, can you tell me who has an allergy to latex?"}
+{"id":"formalizer-v1::fv1_000507_0_0","split":"train","message":"Is Marius enrolled at Saint Andrew High School?"}
+{"id":"new_cases::nc-004603","split":"train","message":"The lens cap is missing."}
+{"id":"formalizer-v1::fv1_001409_0_0","split":"train","message":"Who is a parent of one of the parents of Mr Patel?"}
+{"id":"formalizer-ood-v1::ood1_000563_0_0","split":"train","message":"How many times did Arjun Patel lease the vineyard near Sibiu?"}
+{"id":"formalizer-v1::fv1_008379_0_0","split":"train","message":"Did Mr Barbu borrow The Glass Orchard again?"}
+{"id":"formalizer-wild-v1::wild_wk_020","split":"train","message":"hahaha thanks man ur the best"}
+{"id":"formalizer-v1::fv1_022147_0_0","split":"train","message":"I wonder why Łukasz doesn't stay home."}
+{"id":"formalizer-v1::fv1_000099_0_0","split":"train","message":"I need to know if Simona Lazăr is trained."}
+{"id":"formalizer-v1::fv1_023911_0_0","split":"train","message":"Did Erik attend the photography workshop again?"}
+{"id":"proofing-diverse-dev::fv1_021663_0_1_lp2","split":"train","message":"quick question: where did Levente travel?"}
+{"id":"formalizer-ood-v1::ood2_000164_0_0","split":"train","message":"Any idea which system Ms Dubois looks after?"}
+{"id":"formalizer-v1::fv1_011024_0_0","split":"train","message":"Did Daniel start working at Recife Logistics after Mircea did?"}
+{"id":"new_cases::nc-001542","split":"train","message":"the insurer waived the fee but kept the excess and sent a revised schedule"}
+{"id":"formalizer-v1::fv1_004605_0_0","split":"train","message":"Does Cristina Voicu have an allergy to peanuts and is she based in Lviv?"}
+{"id":"new_cases::nc-003389","split":"train","message":"no towels were missing"}
+{"id":"formalizer-v1::fv1_014885_0_0","split":"train","message":"Are at least 4 players of the Oradea Wolves certified?"}
+{"id":"formalizer-v1::fv1_029822_0_1","split":"train","message":"Tell me who borrows Notes from the Night Train."}
+{"id":"formalizer-v1::fv1_008504_0_0","split":"train","message":"Is there anyone at Greenline Transport who works there but does not live in Iași?"}
+{"id":"formalizer-v1::fv1_012688_0_0","split":"train","message":"Does Oana manage anyone who lives in Iași?"}
+{"id":"formalizer-v1::fv1_007444_0_0","split":"train","message":"Does Noah manage anyone who lives in Sighișoara?"}
+{"id":"formalizer-v1::fv1_006989_0_0","split":"train","message":"Is it true that not all players of the Bacău Wolves are certified?"}
+{"id":"formalizer-v1::fv1_013849_0_0","split":"train","message":"What does the plot of land by the river cost these days?"}
+{"id":"formalizer-v1::fv1_006786_0_0","split":"train","message":"What does due diligence mean?"}
+{"id":"formalizer-v1::fv1_017856_0_1","split":"train","message":"Tell me until when Camille worked under Aurelia."}
+{"id":"new_cases::nc-000429","split":"train","message":"Confirm Bálint's final working day."}
+{"id":"formalizer-v1::fv1_000058_0_0","split":"train","message":"Out of curiosity, how many people coach Olimpia Oradea?"}
+{"id":"new_cases::nc-003731","split":"train","message":"Which editor changed the quotation in the French version and did Petru receive the updated page before he sent the final manuscript to the client?"}
+{"id":"formalizer-v1::fv1_005573_0_1","split":"train","message":"I'm trying to find out who published The Quiet Harbour."}
+{"id":"formalizer-v1::fv1_027064_0_1","split":"train","message":"I'd like to know where Novi Sad Arts High School is based."}
+{"id":"formalizer-v1::fv1_016596_0_0","split":"train","message":"Out of curiosity, who maintained the billing service at some point in 2021?"}
+{"id":"new_cases::nc-004415","split":"train","message":"Who edits Efe’s clips?"}
+{"id":"formalizer-v1::fv1_024141_0_0","split":"train","message":"True or false: a residence certificate is not issued by the Montreal Tax Office."}
+{"id":"formalizer-v1::fv1_010971_0_0","split":"train","message":"Does Traian visit Pitești and was Notes from the Night Train written by Traian?"}
+{"id":"formalizer-v1::fv1_007774_0_1","split":"train","message":"Is it true that Liviu Iordache maintains the inventory API and he takes part in the regional chess tournament?"}
+{"id":"new_cases::nc-002205","split":"train","message":"Check the north fence."}
+{"id":"formalizer-v1::fv1_017287_0_0","split":"train","message":"The booking app depends on the billing service, right?"}
+{"id":"new_cases::nc-003616","split":"train","message":"The client approved the draft."}
+{"id":"new_cases::nc-000622","split":"train","message":"Ask Ren Ito to relabel the red totes."}
+{"id":"formalizer-v1::fv1_030258_0_0","split":"train","message":"Is every employee of Blue Harbor Media trained?"}
+{"id":"formalizer-v1::fv1_001393_0_0","split":"train","message":"How many events does Carmen take part in?"}
+{"id":"formalizer-v1::fv1_019127_0_0","split":"train","message":"Where does Taras live, Zalău, right?"}
+{"id":"formalizer-v1::fv1_031531_0_0","split":"train","message":"What about Can?"}
+{"id":"formalizer-v1::fv1_007550_0_1","split":"train","message":"Besides Achieng, could you check who intends to attend the spring book fair?"}
+{"id":"formalizer-v1::fv1_017329_0_0","split":"train","message":"So does Seo-yeon manage Aurel?"}
+{"id":"formalizer-v1::fv1_001451_0_0","split":"train","message":"Does Laura work for Orion Robotics and is she the coach of Olimpia Vaslui?"}
+{"id":"formalizer-v1::fv1_024542_0_1","split":"train","message":"Just checking: does Rohan Reddy go to the harvest festival?"}
+{"id":"formalizer-v1::fv1_016157_0_0","split":"train","message":"Do you know how many times Layla was sick?"}
+{"id":"formalizer-v1::fv1_009253_0_0","split":"train","message":"What about in Ploiești?"}
+{"id":"formalizer-v1::fv1_013070_0_0","split":"train","message":"Honestly, does Viorica Dobre live in Leeds?"}
+{"id":"formalizer-wild-v1::wild_we_039","split":"train","message":"When does the term end for Professor Adeyemi?"}
+{"id":"formalizer-v1::fv1_017336_0_0","split":"train","message":"Is it true that Ovidiu is enrolled at Bacău Music Academy and he borrowed The Glass Orchard?"}
+{"id":"formalizer-v1::fv1_031715_0_0","split":"train","message":"Out of curiosity, how many people are treated by Raluca?"}
+{"id":"formalizer-v1::fv1_022483_0_1","split":"train","message":"Until when did Manon Martin maintain the booking app?"}
+{"id":"formalizer-v1::fv1_015345_0_0","split":"train","message":"Out of curiosity, where did Hiroshi travel?"}
+{"id":"new_cases::nc-002235","split":"train","message":"Nneka will check the irrigation filter after she finishes feeding the calves."}
+{"id":"formalizer-v1::fv1_013310_0_0","split":"train","message":"How old is Emil Popescu?"}
+{"id":"formalizer-v1::fv1_005327_0_0","split":"train","message":"Is it true that Oana is on CS Glasgow and she teaches history?"}
+{"id":"new_cases::nc-000534","split":"train","message":"Have the window repairs finished and is the conference room available?"}
+{"id":"new_cases::nc-001751","split":"train","message":"Salma Idris booked two seats and paid for baggage but received one receipt"}
+{"id":"proofing-diverse-dev::fv1_009964_0_0_lp1","split":"train","message":"So Gheorghe Enache played for Oradea United in 2022, yeah?"}
+{"id":"formalizer-v1::fv1_018689_0_0","split":"train","message":"Who managed Haruka Tanaka at some point in 2021?"}
+{"id":"new_cases::nc-000439","split":"train","message":"Marta can review the bonus worksheet after the department leads finish their comments."}
+{"id":"formalizer-v1::fv1_013578_0_0","split":"train","message":"Esmeralda Stoian is based in Slatina?"}
+{"id":"new_cases::nc-003390","split":"train","message":"most aprons arent dry"}
+{"id":"formalizer-v1::fv1_025383_0_0","split":"train","message":"Would you say Bianca is older than Radu?"}
+{"id":"formalizer-v1::fv1_004118_0_2","split":"train","message":"Quick one: which system is Roxana responsible for?"}
+{"id":"formalizer-v1::fv1_023569_0_1","split":"train","message":"I need to know where Plovdiv Children's Clinic is based."}
+{"id":"formalizer-v1::fv1_003509_0_0","split":"train","message":"Did Kaveh start living in Slatina after Attila did?"}
+{"id":"formalizer-v1::fv1_021867_0_0","split":"train","message":"Who has the bakery on the corner?"}
+{"id":"new_cases::nc-004606","split":"train","message":"Please export the final cut."}
+{"id":"formalizer-v1::fv1_018540_0_0","split":"train","message":"Ok and Paula?"}
+{"id":"formalizer-v1::fv1_005403_0_0","split":"train","message":"Honestly, was Anca based in Chișinău on December 5, 2020?"}
+{"id":"formalizer-v1::fv1_000155_0_1","split":"train","message":"Just checking: does Jack take part in the spring book fair?"}
+{"id":"formalizer-v1::fv1_018939_0","split":"train","message":"ostbla zorpofvri trurabla!!"}
+{"id":"formalizer-v1::fv1_031687_0_0","split":"train","message":"Did Omar start working at Delta Print after Dariush did?"}
+{"id":"formalizer-v1::fv1_023981_0_0","split":"train","message":"Do you know why the backup cluster is not out of service?"}
+{"id":"form-variant::fv-form-740b3c5f34-008","split":"train","message":"Please find out where the Kraków Tax Babatunde is located."}
+{"id":"formalizer-v1::fv1_026031_0_0","split":"train","message":"How old is Harry?"}
+{"id":"formalizer-v1::fv1_001364_0_0","split":"train","message":"Do you know who has Winter in Maramureș?"}
+{"id":"new_cases::nc-001020","split":"train","message":"Does Andreea run the beginners' strength session on Thursday evenings?"}
+{"id":"formalizer-v1::fv1_008230_0_0","split":"train","message":"What does a power of attorney mean?"}
+{"id":"new_cases::nc-003557","split":"train","message":"the guard checked the stairwell after the alarm stopped near the loading yard"}
+{"id":"formalizer-v1::fv1_000821_0_0","split":"train","message":"True or false: Mădălina Ciobanu doesn't plan to go to the photography workshop."}
+{"id":"formalizer-v1::fv1_016954_0_0","split":"train","message":"What were the dates when Noah coached Sibiu United?"}
+{"id":"formalizer-v1::fv1_008049_0_0","split":"train","message":"Hypothetically, if the Baia Mare Arena hosts the photography workshop, is it correct that it hosts the photography workshop?"}
+{"id":"formalizer-v1::fv1_026262_0_0","split":"train","message":"Do you know how long Diana maintained the payments gateway?"}
+{"id":"formalizer-v1::fv1_002810_0_0","split":"train","message":"Quick one: how many people visit Oradea?"}
+{"id":"formalizer-v1::fv1_009820_0_0","split":"train","message":"I'd like to know where Burak Yılmaz lives."}
+{"id":"formalizer-v1::fv1_019072_0_0","split":"train","message":"I was wondering whether Ananya is treated by Yuki."}
+{"id":"formalizer-v1::fv1_010439_0_0","split":"train","message":"Who managed Astrid at some point in 2021?"}
+{"id":"formalizer-v1::fv1_017931_0_0","split":"train","message":"Do you know how long Youssef taught biology?"}
+{"id":"formalizer-v1::fv1_016749_0_0","split":"train","message":"Do you know how many times the town hall debate was postponed?"}
+{"id":"formalizer-v1::fv1_002482_0_0","split":"train","message":"Are all the players of Porto United certified?"}
+{"id":"formalizer-v1::fv1_018676_0_0","split":"train","message":"Is it true that Horia Ionescu teaches geography and The Clockmaker's Daughter was written by Horia Ionescu?"}
+{"id":"formalizer-v1::fv1_020080_0","split":"train","message":"Nice, no worries!"}
+{"id":"formalizer-v1::fv1_025954_0_1","split":"train","message":"Bennett & Partners published The Glass Orchard, right?"}
+{"id":"formalizer-v1::fv1_020532_0_0","split":"train","message":"Sofía is on the Debrecen Wolves, right?"}
+{"id":"formalizer-v1::fv1_017474_0_0","split":"train","message":"I'd like to know where Nordwind Systems is based."}
+{"id":"formalizer-v1::fv1_009052_0_0","split":"train","message":"I need to know where Chloé lives."}
+{"id":"formalizer-v1::fv1_001320_0_1","split":"train","message":"Is it true that Maria Pătrașcu works at Carpathia Energy and she is the coach of Rapid Tulcea?"}
+{"id":"formalizer-v1::fv1_006847_0_1","split":"train","message":"Does Maria visit Arad and does she take part in the regional chess tournament?"}
+{"id":"formalizer-v1::fv1_027015_0_0","split":"train","message":"Does Jonas go to the spring book fair and does he have a job at Orion Robotics?"}
+{"id":"formalizer-v1::fv1_020083_0_0","split":"train","message":"How many subjects does Mr Voicu teach?"}
+{"id":"formalizer-v1::fv1_009488_0_0","split":"train","message":"What about Jürgen?"}
+{"id":"formalizer-v1::fv1_023396_0_0","split":"train","message":"Does Nicolae live in Călărași or in Plovdiv?"}
+{"id":"formalizer-v1::fv1_011207_0_0","split":"train","message":"Does Esmeralda Lăutaru still work at Greenline Transport?"}
+{"id":"formalizer-v1::fv1_010165_0_1","split":"train","message":"Out of curiosity, who teaches drawing?"}
+{"id":"new_cases::nc-004821","split":"train","message":"Can you enlarge the headline?"}
+{"id":"formalizer-v1::fv1_005255_0_0","split":"train","message":"Quick one: how many companies sell winter tyres?"}
+{"id":"formalizer-v1::fv1_028329_0_0","split":"train","message":"Astrid teaches biology, right?"}
+{"id":"new_cases::nc-001601","split":"train","message":"Is the ferry still running?"}
+{"id":"formalizer-v1::fv1_018248_0_0","split":"train","message":"Until when did the flat on Mihai Viteazu Street belong to Lena?"}
+{"id":"formalizer-v1::fv1_017737_0_0","split":"train","message":"Can you explain why Viorel isn't absent from work?"}
+{"id":"formalizer-v1::fv1_004508_0_0","split":"train","message":"How many people who work at Orion Robotics are over 45 years old?"}
+{"id":"new_cases::nc-002312","split":"train","message":"what did the worm burrow through"}
+{"id":"formalizer-v1::fv1_032405_0_0","split":"train","message":"Just checking: does Attila Kovács work at Tisa Textiles?"}
+{"id":"formalizer-v1::fv1_028064_0_1","split":"train","message":"Honestly, was Katrin employed by Blue Harbor Media on March 24, 2021?"}
+{"id":"formalizer-v1::fv1_014760_0_1","split":"train","message":"I was wondering whether Ana had a job at Atelier Ungureanu as of the 18th of February 2021."}
+{"id":"formalizer-v1::fv1_026635_0_0","split":"train","message":"I wonder who plans to go to the harvest festival."}
+{"id":"formalizer-v1::fv1_012949_0_0","split":"train","message":"How many years was Mr Girard on Olimpia Deva?"}
+{"id":"formalizer-v1::fv1_001956_0_0","split":"train","message":"Do you know why the Oradea Philharmonic is closed?"}
+{"id":"formalizer-v1::fv1_028090_0_0","split":"train","message":"Did Réka start living in Vaslui after Ms Bennett did?"}
+{"id":"formalizer-v1::fv1_018405_0_0","split":"train","message":"Which property that Hiroshi owns costs the most?"}
+{"id":"formalizer-ood-v1::ood2_000262_0_1","split":"train","message":"Help me with this one: does Florin Pătrașcu go to Brașov Arts High School?"}
+{"id":"formalizer-v1::fv1_006007_0_0","split":"train","message":"Does Anna-Lena live in Iași or Alba Iulia, do you know?"}
+{"id":"formalizer-v1::fv1_023452_0","split":"train","message":"Okay, got it, this is fun."}
+{"id":"formalizer-v1::fv1_003043_0_0","split":"train","message":"Kaveh coached Rapid Alba Iulia on February 1, 2022, correct?"}
+{"id":"formalizer-v1::fv1_025055_0_0","split":"train","message":"How many people are allergic to gluten?"}
+{"id":"formalizer-v1::fv1_000694_0_0","split":"train","message":"How many people who work at Atelier Ionescu are over 65 years old?"}
+{"id":"new_cases::nc-003758","split":"train","message":"is the invoice due after Vera submits the final draft"}
+{"id":"formalizer-wild-v1::wild_we_077","split":"train","message":"I wonder whether the external examiner for the MSc in Applied Biostatistics at the Faculty of Medicine in Craiova has been appointed yet."}
+{"id":"formalizer-v1::fv1_007874_0_0","split":"train","message":"Does Viorica live in Debrecen or Montreal, do you know?"}
+{"id":"formalizer-v1::fv1_000627_0_1","split":"train","message":"I wonder which company Nordwind Systems supplies."}
+{"id":"formalizer-v1::fv1_011642_0_1","split":"train","message":"When did Larissa start to work at Nistor & Partners?"}
+{"id":"formalizer-v1::fv1_012618_0_0","split":"train","message":"Why is the payments gateway not out of service?"}
+{"id":"formalizer-v1::fv1_013423_0_0","split":"train","message":"Is anyone who studies at Baia Mare Music Academy not trained?"}
+{"id":"formalizer-v1::fv1_019167_0_0","split":"train","message":"Is there anyone at Orion Robotics who works there but does not live in Focșani?"}
+{"id":"formalizer-v1::fv1_004344_0_0","split":"train","message":"Are all the people who went to the photography workshop trained?"}
+{"id":"formalizer-v1::fv1_026940_0_0","split":"train","message":"Tell me whether Zeynep is treated by Aditya Reddy."}
+{"id":"formalizer-v1::fv1_005776_0_0","split":"train","message":"I wonder if Ayşe is the author of Winter in Maramureș."}
+{"id":"formalizer-v1::fv1_011329_0_0","split":"train","message":"Is no student at Ciobanu Primary School trained?"}
+{"id":"formalizer-v1::fv1_027744_0_0","split":"train","message":"Can you check whether Mădălina doesn't work at Atelier Schmidt?"}
+{"id":"formalizer-v1::fv1_004725_0_0","split":"train","message":"Can you count how many times Achieng visited Suceava?"}
+{"id":"new_cases::nc-000158","split":"train","message":"while Kofi checks the invoice leave the delivery beside the locked cupboard"}
+{"id":"new_cases::nc-000001","split":"train","message":"Is Nadira's appointment confirmed?"}
+{"id":"formalizer-v1::fv1_029430_0_0","split":"train","message":"Can you count how many times Ms Kariuki borrowed The Last Ferry?"}
+{"id":"formalizer-v1::fv1_006484_0_1","split":"train","message":"Can you check whether Georgiana maintains the billing service and she studies at Constantinescu Primary School?"}
+{"id":"formalizer-v1::fv1_006699_0_1","split":"train","message":"Quick question: does Javier play for CS Szeged?"}
+{"id":"formalizer-v1::fv1_021330_0_0","split":"train","message":"When was Elena the boss of Ionuț?"}
+{"id":"formalizer-v1::fv1_009034_0_0","split":"train","message":"Which coach trains the team that Elena is on?"}
+{"id":"formalizer-v1::fv1_016017_0","split":"train","message":"Great, thanks, talk later"}
+{"id":"formalizer-v1::fv1_011279_0_0","split":"train","message":"Besides Katrin Becker, I'm trying to find out who is employed by Blue Harbor Media."}
+{"id":"new_cases::nc-000450","split":"train","message":"Before you hand out desk keys, check the seating chart that Gabriela sent this morning."}
+{"id":"formalizer-v1::fv1_025769_0_1","split":"train","message":"Remind me when Ngozi Eze played for Olimpia Porto."}
+{"id":"formalizer-v1::fv1_022690_0_0","split":"train","message":"Are all those who attended the harvest festival certified?"}
+{"id":"new_cases::nc-003719","split":"train","message":"Who did Yusuf send the subtitles to?"}
+{"id":"formalizer-v1::fv1_002015_0_1","split":"train","message":"I need to know if Levente Fekete worked for Orion Robotics on 20 November 2017."}
+{"id":"formalizer-v1::fv1_014097_0_0","split":"train","message":"Daria takes part in the harvest festival."}
+{"id":"formalizer-v1::fv1_011970_0_0","split":"train","message":"Besides Ji-woo, tell me who is married to Ms Voicu."}
+{"id":"formalizer-v1::fv1_032202_0_1","split":"train","message":"How many schools does Emeka study at?"}
+{"id":"formalizer-v1::fv1_019588_0_1","split":"train","message":"I was wondering whether Samuel Clarke was enrolled at the Sighișoara Language School on 27 October 2023."}
+{"id":"formalizer-v1::fv1_028324_0","split":"train","message":"Great, thanks, I'm a bit tired today."}
+{"id":"formalizer-v1::fv1_010698_0_1","split":"train","message":"Do you know since when Levente studies at Mureșan Primary School?"}
+{"id":"formalizer-v1::fv1_015156_0_0","split":"train","message":"What does a notarized statement mean?"}
+{"id":"new_cases::nc-000032","split":"train","message":"Please set aside the returned stock for the afternoon audit."}
+{"id":"formalizer-v1::fv1_021968_0_0","split":"train","message":"Did Mr Farkas borrow The Glass Orchard again?"}
+{"id":"formalizer-v1::fv1_004104_0_0","split":"train","message":"Is Layla enrolled at Lagos Technical College?"}
+{"id":"formalizer-v1::fv1_006798_0","split":"train","message":"Hello, I was just testing."}
+{"id":"formalizer-v1::fv1_012755_0_0","split":"train","message":"How many systems depend on the backup cluster?"}
+{"id":"formalizer-ood-v1::ood1_000240_0_0","split":"train","message":"Not counting Daniel, please find out who rents the vineyard near Sibiu."}
+{"id":"formalizer-v1::fv1_014575_0_0","split":"train","message":"Did Paweł borrow A Short History of Bridges again?"}
+{"id":"formalizer-v1::fv1_029296_0_0","split":"train","message":"Given that Ms Popescu commutes by train, how does Olivia Turner commute?"}
+{"id":"formalizer-v1::fv1_001818_0_1","split":"train","message":"I'm trying to find out who coaches the Pitești Falcons."}
+{"id":"formalizer-v1::fv1_016280_0_0","split":"train","message":"Can you count how many times the charity run was postponed?"}
+{"id":"formalizer-v1::fv1_002933_0_0","split":"train","message":"Given that Laura is the doctor of Sofía, she has borrowed Winter in Maramureș?"}
+{"id":"formalizer-v1::fv1_023899_0_0","split":"train","message":"Out of curiosity, how many events does Javier take part in?"}
+{"id":"formalizer-v1::fv1_031134_0_0","split":"train","message":"Can you check whether Lucía has borrowed The Clockmaker's Daughter and she is the owner of the flat on Mihai Viteazu Street?"}
+{"id":"formalizer-v1::fv1_030089_0_1","split":"train","message":"I wonder who published The Last Ferry."}
+{"id":"new_cases::nc-004191","split":"train","message":"No one said every meal was delivered before noon."}
+{"id":"new_cases::nc-004554","split":"train","message":"Stream early if Kira agrees."}
+{"id":"new_cases::nc-000002","split":"train","message":"Did Emre Yılmaz collect his refill?"}
+{"id":"formalizer-v1::fv1_021416_0_1","split":"train","message":"So did Łukasz maintain the backup cluster as of the 6th of April 2020?"}
+{"id":"formalizer-v1::fv1_027134_0_0","split":"train","message":"Are all the players of CS Deva certified?"}
+{"id":"formalizer-v1::fv1_011306_0_0","split":"train","message":"I need to know who Ms Kaczmarek is a parent of."}
+{"id":"formalizer-v1::fv1_024608_0_1","split":"train","message":"Does the bakery on the corner belong to Vasile Rusu and does he study at Ciobanu Primary School?"}
+{"id":"formalizer-v1::fv1_030172_0_0","split":"train","message":"Can you check whether Pablo takes part in the charity run and he teaches chemistry?"}
+{"id":"formalizer-v1::fv1_026372_0_0","split":"train","message":"Just checking: does Orion Robotics buy from Tisa Textiles?"}
+{"id":"formalizer-v1::fv1_015265_0_0","split":"train","message":"Can you count how many times Larisa Stoica borrowed A Short History of Bridges?"}
+{"id":"formalizer-v1::fv1_028080_0_0","split":"train","message":"Mathieu visits Iași, and Linh does not travel to Suceava."}
+{"id":"new_cases::nc-004777","split":"train","message":"are the prints for green hour ready?"}
+{"id":"new_cases::nc-003762","split":"train","message":"after the editor confirms the title will Lale send the glossary to Jin"}
+{"id":"formalizer-v1::fv1_011492_0_0","split":"train","message":"Can you check whether Ms Hughes is the author of Notes from the Night Train and she is responsible for the billing service?"}
+{"id":"formalizer-v1::fv1_003842_0_0","split":"train","message":"Up to what date was Agnieszka the boss of Octavian?"}
+{"id":"formalizer-v1::fv1_011904_0_0","split":"train","message":"Brightfield Foods carries olive oil, correct?"}
+{"id":"new_cases::nc-002004","split":"train","message":"Are the tiles dry yet?"}
+{"id":"formalizer-v1::fv1_009789_0_0","split":"train","message":"Toma Ardeleanu is the spouse of Pablo."}
+{"id":"new_cases::nc-000781","split":"train","message":"Anke Weber said River Bend Freight changed the pickup slot to Friday"}
+{"id":"formalizer-v1::fv1_000029_0_0","split":"train","message":"Given that Dimitra travels to Glasgow and Hyun-woo travels to Glasgow, and Ms Pătrașcu visits Glasgow, Ms Zhang does not travel to Glasgow?"}
+{"id":"formalizer-v1::fv1_027816_0_0","split":"train","message":"Which people are employed by a firm based in Leipzig?"}
+{"id":"formalizer-v1::fv1_003358_0_0","split":"train","message":"How does Léa Girard go to work?"}
+{"id":"formalizer-v1::fv1_030038_0_0","split":"train","message":"How many people work at Brightfield Foods, not counting Horia?"}
+{"id":"formalizer-v1::fv1_001832_0_1","split":"train","message":"Tell me whether Réka Kovács works for Tisa Textiles."}
+{"id":"formalizer-v1::fv1_009244_0_0","split":"train","message":"Who does Ayşe Kaya work for, Carpathia Energy, right?"}
+{"id":"formalizer-v1::fv1_008426_0_1","split":"train","message":"Constantin Mureșan worked under Larissa on August 1, 2024, right?"}
+{"id":"formalizer-v1::fv1_022371_0_0","split":"train","message":"I wonder if Sofía had a job at Suceava Logistics on 25 September 2019."}
+{"id":"formalizer-v1::fv1_019827_0_0","split":"train","message":"Tell me until when Andreea studied at Bacău Music Academy."}
+{"id":"new_cases::nc-000198","split":"train","message":"did we order more than 20 packs after the count at 6 pm"}
+{"id":"new_cases::nc-003030","split":"train","message":"Dumitru reported a failed scan."}
+{"id":"new_cases::nc-003606","split":"train","message":"Radu booked the remote session after the client approved the rate."}
+{"id":"formalizer-v1::fv1_029536_0_0","split":"train","message":"Tell me whether Nairobi Logistics doesn't carry baby food."}
+{"id":"formalizer-v1::fv1_016779_0_0","split":"train","message":"Quick question: does Hyun-woo Kim study at the Focșani Language School?"}
+{"id":"formalizer-v1::fv1_022164_0_1","split":"train","message":"I'm trying to find out where Orion Robotics is based."}
+{"id":"formalizer-ood-v1::ood1_000572_0_1","split":"train","message":"Both at once: does Mr Constantinescu lease the vineyard near Sibiu, and does he sing in the Madrigal choir?"}
+{"id":"formalizer-v1::fv1_020424_0_0","split":"train","message":"Who did Viorica send 350 lei to?"}
+{"id":"formalizer-v1::fv1_001234_0_0","split":"train","message":"Does Olivia live in Glasgow or Thessaloniki, do you know?"}
+{"id":"formalizer-v1::fv1_003452_0_0","split":"train","message":"How many years was Hugo married to Zofia?"}
+{"id":"formalizer-v1::fv1_030335_0_0","split":"train","message":"Which coach trains the team that Pablo is on?"}
+{"id":"formalizer-v1::fv1_024161_0_0","split":"train","message":"Does Aurel live in Târgu Mureș or in Sighișoara?"}
+{"id":"formalizer-v1::fv1_010305_0_0","split":"train","message":"Who is a parent of one of the parents of Eleni?"}
+{"id":"new_cases::nc-005237","split":"train","message":"Are the volunteers still waiting for Elif's training notes?"}
+{"id":"formalizer-v1::fv1_015038_0_0","split":"train","message":"How often did Georgiana borrow The Glass Orchard?"}
+{"id":"formalizer-v1::fv1_016994_0_0","split":"train","message":"Apart from Hassan Saleh, I need to know who is the coach of Olimpia Tulcea."}
+{"id":"formalizer-v1::fv1_016984_0","split":"train","message":"gamjia ostmifmif ultkesni ?"}
+{"id":"new_cases::nc-004147","split":"train","message":"The wheelchair brake squeaked near the ramp and Leila stopped at once and Kofi found a loose strap and we left the chair in the hallway until the repair visit"}
+{"id":"formalizer-v1::fv1_001480_0_0","split":"train","message":"With what was known as of 23 September 2023, Carmen was enrolled at Suceava Arts High School as of 2024-10-16, right?"}
+{"id":"formalizer-v1::fv1_019567_0_0","split":"train","message":"Remind me when Jonas studied at Rădulescu Primary School."}
+{"id":"formalizer-v1::fv1_028326_0_0","split":"train","message":"Does Agnieszka work at Atelier Popescu and does she visit Botoșani?"}
+{"id":"formalizer-v1::fv1_005061_0_0","split":"train","message":"I need to know who the blue van belongs to."}
+{"id":"formalizer-v1::fv1_026512_0_0","split":"train","message":"Out of curiosity, where did Ayşe travel?"}
+{"id":"formalizer-v1::fv1_003915_0_0","split":"train","message":"Is every player of the Călărași Wolves certified?"}
+{"id":"formalizer-v1::fv1_002661_0_2","split":"train","message":"Quick one: how many things is Attila allergic to?"}
+{"id":"formalizer-v1::fv1_011900_0_1","split":"train","message":"Just checking: did Alina Munteanu coach the Suceava Wolves as of 22 June 2018?"}
+{"id":"formalizer-v1::fv1_003498_0_0","split":"train","message":"Given that Anca goes to the photography workshop; Carmen goes to the photography workshop and Floarea takes part in the photography workshop, can you check whether Elif doesn't go to the photography workshop?"}
+{"id":"formalizer-v1::fv1_029383_0_1","split":"train","message":"Out of curiosity, how many people maintain the booking app?"}
+{"id":"new_cases::nc-003978","split":"train","message":"who left a copy of the book red boat in Mara's cubby"}
+{"id":"formalizer-v1::fv1_032764_0_0","split":"train","message":"Besides Smaranda, could you check who is on Olimpia Alba Iulia?"}
+{"id":"formalizer-v1::fv1_008464_0_1","split":"train","message":"Any idea when Vasile was employed by Nordwind Systems?"}
+{"id":"formalizer-v1::fv1_003637_0_1","split":"train","message":"I need to know if Wei was the spouse of Cosmin on 1 December 2025."}
+{"id":"formalizer-v1::fv1_028040_0_0","split":"train","message":"True or false: Nordwind Systems doesn't sell printer ink."}
+{"id":"formalizer-v1::fv1_013590_0_0","split":"train","message":"Hassan Haddad is on the Sighișoara Wolves, and Simona plays for CS Tulcea."}
+{"id":"new_cases::nc-001976","split":"train","message":"who manages the Green Room printer"}
+{"id":"formalizer-v1::fv1_022713_0_0","split":"train","message":"Just checking: does Léa have a job at the Riverside Medical Centre in Suceava?"}
+{"id":"new_cases::nc-002040","split":"train","message":"The meter reading on the bill differs from the number I photographed."}
+{"id":"formalizer-v1::fv1_016396_0_0","split":"train","message":"Can you check whether Paula checked out A Short History of Bridges?"}
+{"id":"formalizer-v1::fv1_002241_0_0","split":"train","message":"So did Mr Santos take part in the junior chess tournament?"}
+{"id":"formalizer-v1::fv1_011140_0_0","split":"train","message":"Who studies at Porto Music Academy?"}
+{"id":"formalizer-v1::fv1_004040_0_0","split":"train","message":"Does Medeea manage anyone who lives in Nairobi?"}
+{"id":"form-variant::fv-form-16966c20ad-002","split":"train","message":"How often was the version kettle closed?"}
+{"id":"formalizer-v1::fv1_007656_0","split":"train","message":"Order me a taxi to the airport for tomorrow at six."}
+{"id":"formalizer-ood-v1::ood2_000378_0_0","split":"train","message":"How long was Karim the trainer of Olimpia Craiova?"}
+{"id":"formalizer-v1::fv1_025843_1_0","split":"train","message":"Quick question: does Delta Print supply Dumitrescu & Partners?"}
+{"id":"formalizer-v1::fv1_030561_0_0","split":"train","message":"So was Dimitra based in Pitești on July 1, 2020?"}
+{"id":"new_cases::nc-004815","split":"train","message":"Tomas sent the cover."}
+{"id":"formalizer-v1::fv1_031900_0_0","split":"train","message":"Apart from Rafael, I'd like to know who raises Viorica."}
+{"id":"formalizer-v1::fv1_017517_0","split":"train","message":"Thank you, have a nice day!"}
+{"id":"formalizer-v1::fv1_006765_0_0","split":"train","message":"Check this: Dariush plays for Slatina United."}
+{"id":"formalizer-v1::fv1_001200_0_0","split":"train","message":"I wonder if Tatiana Mocanu works for Riverside Medical Centre."}
+{"id":"formalizer-v1::fv1_014203_0_0","split":"train","message":"Is nobody who plays for the Tulcea Wolves certified?"}
+{"id":"formalizer-v1::fv1_006852_0_0","split":"train","message":"How many companies publish Notes from the Night Train?"}
+{"id":"formalizer-v1::fv1_006183_0_0","split":"train","message":"Do you know how many times Radu Popescu checked out Notes from the Night Train?"}
+{"id":"formalizer-ood-v1::ood2_000258_0_0","split":"train","message":"Mr Wang trains Rapid Piatra Neamț."}
+{"id":"new_cases::nc-004419","split":"train","message":"Did Riya change the overlay?"}
+{"id":"formalizer-v1::fv1_017856_0_0","split":"train","message":"Tell me until when Aurelia managed Camille."}
+{"id":"formalizer-v1::fv1_003113_0_0","split":"train","message":"I was wondering whether the billing service does not rely on the search index."}
+{"id":"formalizer-v1::fv1_023826_0_0","split":"train","message":"Who has A Short History of Bridges?"}
+{"id":"formalizer-v1::fv1_014533_0_0","split":"train","message":"Since when is Mădălina the coach of the Bacău Wolves?"}
+{"id":"new_cases::nc-004746","split":"train","message":"The subtitles came from Amira and the editor aligned them with the dialogue and then the reviewer found two lines missing after the train scene and asked for another export."}
+{"id":"new_cases::nc-000009","split":"train","message":"Who covers triage tonight?"}
+{"id":"new_cases::nc-003032","split":"train","message":"Luca entered the wrong code."}
+{"id":"formalizer-v1::fv1_028068_0","split":"train","message":"Nice, talk later"}
+{"id":"new_cases::nc-004556","split":"train","message":"Mina will check the replay after the chat settles down"}
+{"id":"new_cases::nc-002019","split":"train","message":"Please leave the copper pipe beside the tool shed until Jürgen Schmidt checks its diameter."}
+{"id":"formalizer-ood-v1::ood1_000541_0_0","split":"train","message":"Do you know if Rémi Moreau leases the plot of land by the river and he sings in the folk ensemble?"}
+{"id":"formalizer-v1::fv1_003589_0_0","split":"train","message":"Is nobody who attended the wedding reception trained?"}
+{"id":"formalizer-v1::fv1_016070_0_1","split":"train","message":"Just checking: was Iurie responsible for the search index on March 2, 2023?"}
+{"id":"new_cases::nc-001128","split":"train","message":"what time does climbing finish and where should beginners return the harnesses"}
+{"id":"new_cases::nc-001557","split":"train","message":"before I send the final invoice does Andreea need a separate VAT receipt"}
+{"id":"new_cases::nc-004613","split":"train","message":"Keep the raw files."}
+{"id":"formalizer-v1::fv1_001882_0_1","split":"train","message":"I'd like to know who borrows Notes from the Night Train."}
+{"id":"formalizer-v1::fv1_018660_0_0","split":"train","message":"Just checking: does the inventory API not depend on the billing service?"}
+{"id":"form-variant::fv-form-ed908062f1-001","split":"train","message":"Not counting Lin, please find out who intends to attend the statistics' step."}
+{"id":"formalizer-v1::fv1_011915_0_0","split":"train","message":"Besides Ilinca, can you tell me who is the author of Winter in Maramureș?"}
+{"id":"formalizer-v1::fv1_001473_0_0","split":"train","message":"Quick one: who coached CS Bergen during 2019?"}
+{"id":"formalizer-v1::fv1_009648_0_0","split":"train","message":"Given that Chloe goes to the regional chess tournament and Mathieu takes part in the regional chess tournament, does Taras not take part in the regional chess tournament?"}
+{"id":"new_cases::nc-002223","split":"train","message":"Should we move the cattle to the upper field if the stream rises tonight?"}
+{"id":"formalizer-v1::fv1_014760_0_0","split":"train","message":"Honestly, was Ana Manole employed by Atelier Ungureanu as of February 18, 2021?"}
+{"id":"new_cases::nc-003154","split":"train","message":"the locker rebooted when the lights went out"}
+{"id":"formalizer-v1::fv1_005719_0_1","split":"train","message":"Besides Chloe, do you know who is the author of The Glass Orchard?"}
+{"id":"form-variant::fv-form-5fdad31a4e-003","split":"train","message":"Do you know until when Greenline jia employed Ionuț?"}
+{"id":"formalizer-v1::fv1_009020_0_0","split":"train","message":"Same question for Pune?"}
+{"id":"formalizer-v1::fv1_014497_0_0","split":"train","message":"Is Ms Watanabe allowed to sign an ID card?"}
+{"id":"formalizer-v1::fv1_011433_0_0","split":"train","message":"Ok and Javier?"}
+{"id":"formalizer-v1::fv1_021303_0_2","split":"train","message":"Out of curiosity, how many people does the old sailing boat belong to?"}
+{"id":"formalizer-v1::fv1_026417_0_2","split":"train","message":"How many people maintain the payments gateway?"}
+{"id":"formalizer-v1::fv1_032825_0_1","split":"train","message":"Tell me when Xiaoling maintained the search index."}
+{"id":"formalizer-v1::fv1_030238_0_0","split":"train","message":"How many years was Anca the boss of Roxana?"}
+{"id":"new_cases::nc-003550","split":"train","message":"I found the service lock scratched and I photographed the plate and checked the frame and found no open gap but Anya asked me not to close the incident log yet"}
+{"id":"formalizer-v1::fv1_012869_0_1","split":"train","message":"Can you check whether Kaveh plans to go to the photography workshop and he checked out Notes from the Night Train?"}
+{"id":"formalizer-v1::fv1_028700_0_0","split":"train","message":"I was wondering whether Maria was the spouse of Kenji on September 1, 2021."}
+{"id":"formalizer-v1::fv1_032182_0_1","split":"train","message":"I wonder which system the booking app relies on."}
+{"id":"new_cases::nc-001569","split":"train","message":"today: ask Aisha about VAT; send the water bill; file March's receipts"}
+{"id":"new_cases::nc-004779","split":"train","message":"does Mara Ionescu own the photographs for blue door?"}
+{"id":"formalizer-v1::fv1_001603_0_0","split":"train","message":"When was Zofia the coach of Pune United?"}
+{"id":"formalizer-v1::fv1_027756_0","split":"train","message":"dexkerapof gampof radexra ?"}
+{"id":"formalizer-v1::fv1_019185_1_0","split":"train","message":"An ID card requires a residence certificate?"}
+{"id":"formalizer-v1::fv1_031670_0_0","split":"train","message":"Has Carmen visited Pitești again?"}
+{"id":"formalizer-v1::fv1_024225_0_1","split":"train","message":"Any idea how long Priya gave classes in mathematics?"}
+{"id":"formalizer-v1::fv1_028456_1_0","split":"train","message":"A medical certificate requires a residence certificate?"}
+{"id":"formalizer-v1::fv1_002727_0_0","split":"train","message":"Honestly, is Radu not the owner of the blue van?"}
+{"id":"new_cases::nc-003774","split":"train","message":"equipment plan: unpack Zara's receivers; count the batteries; return the borrowed monitor"}
+{"id":"new_cases::nc-000015","split":"train","message":"Does Priya need an interpreter?"}
+{"id":"formalizer-v1::fv1_012594_0_0","split":"train","message":"How many people who work at Orion Robotics are over 40 years old?"}
+{"id":"formalizer-v1::fv1_008372_0_0","split":"train","message":"How old is Ms Sato?"}
+{"id":"formalizer-v1::fv1_003609_1_0","split":"train","message":"I was wondering whether Toma is married to Kaveh."}
+{"id":"formalizer-v1::fv1_012352_0_1","split":"train","message":"I was wondering whether Rohan Reddy was the spouse of Julien in 2021."}
+{"id":"new_cases::nc-003021","split":"train","message":"Ana delivered the blue crate."}
+{"id":"new_cases::nc-000731","split":"train","message":"is the southern road flooded and can Selin take the inland detour"}
+{"id":"formalizer-ood-v1::ood2_000248_0_1","split":"train","message":"Is it true that Yan is on the payroll of Greenline Transport?"}
+{"id":"formalizer-v1::fv1_003547_0_0","split":"train","message":"So is Ingrid Nilsen not the spouse of Achieng?"}
+{"id":"formalizer-v1::fv1_025124_1_0","split":"train","message":"Can you check whether Gheorghe Florea raises Katalin?"}
+{"id":"formalizer-v1::fv1_013370_0_0","split":"train","message":"Apart from Georgiana, I wonder who has a job at Blue Harbor Media."}
+{"id":"formalizer-v1::fv1_032838_0_0","split":"train","message":"So is Mateo on Rapid Sighișoara?"}
+{"id":"formalizer-v1::fv1_017786_0_0","split":"train","message":"Do you know since when Corina Enache is on Rapid Suceava?"}
+{"id":"formalizer-v1::fv1_026481_0_0","split":"train","message":"Tell me whether Mykola is the doctor of Léa."}
+{"id":"formalizer-v1::fv1_017227_0_0","split":"train","message":"Astrid managed Hyun-woo Lee as of 1 July 2019?"}
+{"id":"new_cases::nc-004658","split":"train","message":"Before Niko signs off."}
+{"id":"formalizer-v1::fv1_026091_0_0","split":"train","message":"Given that Emeka Adeyemi raises Zofia, is it correct that Zofia raises Emeka Adeyemi?"}
+{"id":"formalizer-v1::fv1_020700_0_0","split":"train","message":"Do you know why Levente is ill?"}
+{"id":"new_cases::nc-000421","split":"train","message":"Please file Priya's resignation letter."}
+{"id":"new_cases::nc-005385","split":"train","message":"Not all the afternoon volunteers signed in before the briefing."}
+{"id":"new_cases::nc-004641","split":"train","message":"Which photographer will cover the rehearsal while Kofi edits the campaign portraits?"}
+{"id":"formalizer-v1::fv1_003537_0_0","split":"train","message":"I'd like to know who goes to the regional chess tournament."}
+{"id":"formalizer-v1::fv1_014467_0_1","split":"train","message":"Just checking: is Jessica the doctor of Sofía?"}
+{"id":"form-variant::fv-form-5fdad31a4e-006","split":"train","message":"Do you know until when Greenline Balogun employed Achieng Voicu?"}
+{"id":"formalizer-v1::fv1_014481_0_0","split":"train","message":"Is it true that not all players of Olimpia Ploiești are certified?"}
+{"id":"formalizer-ood-v1::ood2_000035_0_0","split":"train","message":"So how many products does Tisa Textiles stock?"}
+{"id":"formalizer-v1::fv1_002772_0_0","split":"train","message":"Tell me until when Harry was the coach of Rapid Tampere."}
+{"id":"formalizer-v1::fv1_004021_0_0","split":"train","message":"Tell me whether Levente is allergic to ibuprofen."}
+{"id":"form-variant::fv-form-ed908062f1-002","split":"train","message":"Not counting Achieng, please find out who intends to attend the stings' airline."}
+{"id":"formalizer-v1::fv1_017799_0_0","split":"train","message":"Honestly, does Cristina take part in the spring book fair?"}
+{"id":"new_cases::nc-004420","split":"train","message":"Can Arin save the replay?"}
+{"id":"formalizer-v1::fv1_008952_0_1","split":"train","message":"Did Elena maintain the backup cluster on 1 February 2018?"}
+{"id":"new_cases::nc-000613","split":"train","message":"Could you send Nneka the revised route sheet for Thursday?"}
+{"id":"formalizer-v1::fv1_031845_0_0","split":"train","message":"I wonder if Esmeralda Stoian played for CS Alba Iulia on 20 September 2020."}
+{"id":"formalizer-v1::fv1_031474_0_0","split":"train","message":"Where does Carmen live, Debrecen, right?"}
+{"id":"formalizer-v1::fv1_008451_0_0","split":"train","message":"When did Harry work at Târgu Mureș Logistics?"}
+{"id":"formalizer-v1::fv1_002649_0_0","split":"train","message":"Besides Ngozi, I need to know who is enrolled at Călărași Music Academy."}
+{"id":"form-variant::fv-form-a294c32603-010","split":"train","message":"Please find out where Florică is based."}
+{"id":"formalizer-v1::fv1_010482_0_0","split":"train","message":"Could you check who coaches the Suceava Wolves?"}
+{"id":"form-variant::fv-form-67753ba22d-008","split":"train","message":"How come the selections' penalty was postponed?"}
+{"id":"formalizer-v1::fv1_013668_0_0","split":"train","message":"Just checking: did Octavian go to the spring book fair?"}
+{"id":"formalizer-v1::fv1_012822_0_0","split":"train","message":"Honestly, did Burak coach Lviv United as of 25 September 2021?"}
+{"id":"formalizer-v1::fv1_004683_0_0","split":"train","message":"Is it true that not all players of Vaslui United are certified?"}
+{"id":"formalizer-v1::fv1_001609_0_0","split":"train","message":"I don't work at Moldovan & Partners, but does my sister work at Moldovan & Partners?"}
+{"id":"formalizer-v1::fv1_024316_0_1","split":"train","message":"Do you know how many times Parisa Tehrani visited Alba Iulia?"}
+{"id":"formalizer-v1::fv1_021465_0_0","split":"train","message":"Just checking: is Alina a parent of Ovidiu?"}
+{"id":"formalizer-v1::fv1_018025_0_0","split":"train","message":"Do you know which company Tisa Textiles buys from?"}
+{"id":"formalizer-v1::fv1_001709_0_0","split":"train","message":"Did Taras start living in Pune before Maria did?"}
+{"id":"formalizer-v1::fv1_015793_0_0","split":"train","message":"Given that Beatriz Souza is a parent of Alina, is it correct that she plays for CS Chișinău?"}
+{"id":"formalizer-v1::fv1_001991_0_0","split":"train","message":"I need to know if Beatriz works for Vertex Analytics."}
+{"id":"new_cases::nc-005389","split":"train","message":"No volunteer said that the desk was closed."}
+{"id":"new_cases::nc-003818","split":"train","message":"Ravi left at 10:00."}
+{"id":"formalizer-v1::fv1_023026_0_0","split":"train","message":"Who is a parent of one of the parents of Mr Țurcanu?"}
+{"id":"new_cases::nc-004977","split":"train","message":"Mădălina put the new emblem on the River Lantern Studio sleeve."}
+{"id":"formalizer-v1::fv1_030706_0_0","split":"train","message":"Do you know where Tulcea Children's Clinic is based?"}
+{"id":"formalizer-v1::fv1_000886_0_0","split":"train","message":"Why is Zofia absent from work?"}
+{"id":"formalizer-v1::fv1_031936_0_0","split":"train","message":"Do you know which book is written by Ayşe?"}
+{"id":"formalizer-ood-v1::ood2_000210_0_0","split":"train","message":"Any idea since when Alexandru is the trainer of the Tampere Wolves?"}
+{"id":"formalizer-v1::fv1_028888_0_0","split":"train","message":"Given that Wei is the boss of Andrei, can you check whether Andrei manages Wei?"}
+{"id":"new_cases::nc-001614","split":"train","message":"Will the minibar charge appear separately?"}
+{"id":"formalizer-v1::fv1_004237_0_0","split":"train","message":"Mr Schmidt studied at Alba Iulia Arts High School in 2023, right?"}
+{"id":"formalizer-v1::fv1_003403_0_0","split":"train","message":"Is it correct that Gábor raises Kenji?"}
+{"id":"formalizer-v1::fv1_015240_0_1","split":"train","message":"I wonder if Tamás is enrolled at Alba Iulia Technical College."}
+{"id":"formalizer-v1::fv1_014813_0_0","split":"train","message":"Did Mykola start working at Blue Harbor Media after Ms Bălan did?"}
+{"id":"proofing-diverse-dev::fv1_031531_0_0_lp1","split":"train","message":"How about Can?"}
+{"id":"new_cases::nc-005220","split":"train","message":"Kamil recorded the food donations in the shared register yesterday."}
+{"id":"formalizer-v1::fv1_021045_0_0","split":"train","message":"Do you know since when Constantin is on the Glasgow Wolves?"}
+{"id":"formalizer-v1::fv1_006364_0_0","split":"train","message":"Can you check whether Dragoș is on the Slatina Falcons?"}
+{"id":"form-variant::fv-form-a294c32603-011","split":"train","message":"Please find out where Costin is based."}
+{"id":"new_cases::nc-002002","split":"train","message":"Check the scaffold anchors."}
+{"id":"formalizer-v1::fv1_008816_0_0","split":"train","message":"Tell me which office issues a building permit."}
+{"id":"new_cases::nc-004832","split":"train","message":"Do the numbered tickets need a fresh set of crop marks?"}
+{"id":"formalizer-v1::fv1_008968_0_0","split":"train","message":"Can you explain why Wanjiru Kariuki resigned?"}
+{"id":"formalizer-v1::fv1_020157_1_0","split":"train","message":"I wonder if Jack is the spouse of Beatriz."}
+{"id":"new_cases::nc-004005","split":"train","message":"When does Iulian visit?"}
+{"id":"formalizer-v1::fv1_007761_0_1","split":"train","message":"So did Réka study at the Bacău Language School on February 1, 2021?"}
+{"id":"formalizer-v1::fv1_030340_0_0","split":"train","message":"Given that Ingrid is a parent of Linh, is Linh a parent of Ingrid?"}
+{"id":"formalizer-v1::fv1_002549_0_0","split":"train","message":"Can you confirm that Ionuț Căpraru is enrolled at Bergen Arts High School?"}
+{"id":"formalizer-v1::fv1_020720_0_0","split":"train","message":"What is 20% of 6100 lei?"}
+{"id":"formalizer-v1::fv1_030598_0_0","split":"train","message":"Just checking: is Lena enrolled at the Călărași Language School?"}
+{"id":"form-variant::fv-form-67753ba22d-012","split":"train","message":"How come Rahul stays home?"}
+{"id":"formalizer-v1::fv1_020899_0_0","split":"train","message":"When did Enikő study at Plovdiv Arts High School?"}
+{"id":"formalizer-v1::fv1_023471_0_0","split":"train","message":"Which people are employed by a firm based in Hanoi?"}
+{"id":"formalizer-v1::fv1_024356_0_0","split":"train","message":"Did Kaveh Farahani start working at Carpathia Energy before Bianca Diaconu did?"}
+{"id":"formalizer-v1::fv1_009198_0_0","split":"train","message":"True or false: Zofia Mazur maintains the payments gateway."}
+{"id":"formalizer-v1::fv1_018623_0_0","split":"train","message":"Can you check whether Jessica was the coach of the Glasgow Falcons on November 1, 2023?"}
+{"id":"formalizer-v1::fv1_030266_0_0","split":"train","message":"True or false: Réka maintains the inventory API."}
+{"id":"form-variant::fv-form-740b3c5f34-002","split":"train","message":"Please find out where Ion lives."}
+{"id":"formalizer-v1::fv1_027782_0_1","split":"train","message":"How many people study at Porto Arts High School?"}
+{"id":"formalizer-ood-v1::ood2_000259_0_0","split":"train","message":"When exactly did Arjun fly to Craiova?"}
+{"id":"formalizer-v1::fv1_030437_0_0","split":"train","message":"Do you know since when Costin works under Toma?"}
+{"id":"formalizer-v1::fv1_017970_0_0","split":"train","message":"Can you confirm that Diana is enrolled at Saint Andrew High School in Constanța?"}
+{"id":"formalizer-v1::fv1_003644_0","split":"train","message":"Random question: give me a recipe with lentils."}
+{"id":"formalizer-v1::fv1_027265_0_0","split":"train","message":"Out of curiosity, how many systems does Brândușa Manole maintain?"}
+{"id":"formalizer-v1::fv1_004715_1_0","split":"train","message":"Does an ID card require a residence certificate?"}
+{"id":"formalizer-v1::fv1_032158_0_0","split":"train","message":"Chioma is not a parent of Daniel; Achieng is a parent of Sânziana."}
+{"id":"formalizer-v1::fv1_024469_0_0","split":"train","message":"Check this: Daria does not work under Andrei."}
+{"id":"formalizer-v1::fv1_029760_0_0","split":"train","message":"Thảo took part in the chess tournament, correct?"}
+{"id":"formalizer-v1::fv1_013644_0_1","split":"train","message":"Just checking: does the Community Centre on Elm Street not host the photography workshop?"}
+{"id":"new_cases::nc-001543","split":"train","message":"I checked the total and compared the tax and noticed a €6 difference"}
+{"id":"proofing-diverse-dev::fv1_031514_0_0_lp0","split":"train","message":"I'm wondering who maintained the search index in 2021?"}
+{"id":"formalizer-v1::fv1_008683_0_0","split":"train","message":"I'm trying to find out who Horia is treated by."}
+{"id":"new_cases::nc-001035","split":"train","message":"There are three teams ahead of us in the group standings."}
+{"id":"formalizer-v1::fv1_022262_0_0","split":"train","message":"What do a power of attorney and a grace period mean?"}
+{"id":"new_cases::nc-001153","split":"train","message":"if it rains, we train?"}
+{"id":"formalizer-v1::fv1_015472_0_0","split":"train","message":"Are all the players of Glasgow United certified?"}
+{"id":"formalizer-v1::fv1_025193_0_0","split":"train","message":"Any idea when Mr Oprea lived in Tulcea?"}
+{"id":"formalizer-v1::fv1_026646_0_0","split":"train","message":"Check this: Carmen is based in Lyon."}
+{"id":"formalizer-v1::fv1_018147_0_2","split":"train","message":"Out of curiosity, how many offices issue a fire safety approval?"}
+{"id":"new_cases::nc-004634","split":"train","message":"The documentary trailer has no subtitles in the second language."}
+{"id":"formalizer-v1::fv1_031675_0_0","split":"train","message":"Is everyone who works at Atelier Iordache trained?"}
+{"id":"new_cases::nc-005094","split":"train","message":"not all visitors got audio guides, though every visitor received a printed map."}
+{"id":"formalizer-v1::fv1_031104_0_0","split":"train","message":"Did Aditya go to the book fair?"}
+{"id":"formalizer-v1::fv1_022844_0_0","split":"train","message":"So has Manon borrowed A Short History of Bridges?"}
+{"id":"formalizer-v1::fv1_005812_0_0","split":"train","message":"Until when was Laura Taylor enrolled at Deva Music Academy?"}
+{"id":"new_cases::nc-001649","split":"train","message":"Please keep the original train receipt for my claim."}
+{"id":"formalizer-v1::fv1_017779_0_0","split":"train","message":"Quick one: how many people are treated by Beatriz?"}
+{"id":"new_cases::nc-005361","split":"train","message":"The grant sheet can wait while Amina reviews the revised budget."}
+{"id":"formalizer-ood-v1::ood1_000157_0_0","split":"train","message":"Is Emma Hughes a member of the Madrigal choir or not?"}
+{"id":"formalizer-v1::fv1_006562_0_0","split":"train","message":"Given that Mădălina is the spouse of Mircea, can you check whether Jürgen is the spouse of Mircea?"}
+{"id":"formalizer-v1::fv1_022548_0_0","split":"train","message":"Honestly, is Rahul not married to Agnieszka?"}
+{"id":"formalizer-v1::fv1_011807_0_1","split":"train","message":"Can you check whether Diana Pătrașcu is the coach of Olimpia Cluj-Napoca and the recording studio belongs to Diana Pătrașcu?"}
+{"id":"formalizer-v1::fv1_023155_0_0","split":"train","message":"What does Eleni pay with?"}
+{"id":"formalizer-v1::fv1_008487_0_0","split":"train","message":"I wonder if Anna-Lena was responsible for the backup cluster as of 1 June 2019."}
+{"id":"formalizer-v1::fv1_014848_0_0","split":"train","message":"Honestly, does Delta Print not supply Orion Robotics?"}
+{"id":"formalizer-v1::fv1_023214_0_0","split":"train","message":"Quick question: did Mircea take part in the junior chess tournament?"}
+{"id":"formalizer-v1::fv1_023569_0_0","split":"train","message":"I'd like to know where Plovdiv Children's Clinic is based."}
+{"id":"formalizer-v1::fv1_004945_0","split":"train","message":"dexultlu dexult bezgamquo"}
+{"id":"formalizer-v1::fv1_028424_0_0","split":"train","message":"Did Sofía Sánchez start living in Pune after Kenji Suzuki did?"}
+{"id":"formalizer-v1::fv1_022723_0_0","split":"train","message":"Is it true that not all players of CS Oradea are certified?"}
+{"id":"form-variant::fv-form-740b3c5f34-011","split":"train","message":"Please find out where the Kraków Tax Anke is located."}
+{"id":"proofing-diverse-dev::fv1_016342_0_0_lp0","split":"train","message":"Who raises Ms Nowak, other than Krzysztof Wójcik?"}
+{"id":"formalizer-v1::fv1_010143_0_0","split":"train","message":"Do you know why Joaquín does not stay home?"}
+{"id":"proofing-diverse-dev::fv1_031444_0_0_lp0","split":"train","message":"Does Katalin study at Saint Andrew High School?"}
+{"id":"formalizer-ood-v1::ood2_000406_0_0","split":"train","message":"\"Chinedu attends classes at Baia Mare Music Academy\" — does that hold?"}
+{"id":"formalizer-v1::fv1_013680_0_0","split":"train","message":"Any idea when Iurie was enrolled at Constanța Music Academy?"}
+{"id":"new_cases::nc-001776","split":"train","message":"is Blue Room available"}
+{"id":"formalizer-v1::fv1_012799_0_0","split":"train","message":"Should Seo-yeon accept the offer from Orion Robotics?"}
+{"id":"formalizer-v1::fv1_011020_0_0","split":"train","message":"How many people work at Carpathia Energy, not counting Smaranda?"}
+{"id":"formalizer-v1::fv1_013696_0_0","split":"train","message":"Is it true that Parisa coaches Olimpia Tampere and she maintains the backup cluster?"}
+{"id":"formalizer-v1::fv1_014439_0_0","split":"train","message":"Can you confirm that Elena is trained?"}
+{"id":"formalizer-v1::fv1_008161_0_0","split":"train","message":"Layla Nasser worked for Ionescu & Partners on 22 June 2022, right?"}
+{"id":"formalizer-v1::fv1_031363_0_0","split":"train","message":"How many people work at Greenline Transport, not counting Marius Bălan?"}
+{"id":"new_cases::nc-004444","split":"train","message":"Who manages the chat when Emina takes a break?"}
+{"id":"new_cases::nc-003022","split":"train","message":"The QR reader works again."}
+{"id":"formalizer-v1::fv1_003180_0_0","split":"train","message":"How many systems is Tamás responsible for?"}
+{"id":"formalizer-v1::fv1_025760_0_1","split":"train","message":"I wonder who has an allergy to dust mites."}
+{"id":"formalizer-v1::fv1_000355_0_0","split":"train","message":"Which people are employed by a firm based in Alba Iulia?"}
+{"id":"formalizer-v1::fv1_014719_1_0","split":"train","message":"Can you check whether Hyun-woo is treated by Achieng Kariuki?"}
+{"id":"formalizer-v1::fv1_008409_0_0","split":"train","message":"Is Shirin allowed to sign a medical certificate on their own?"}
+{"id":"new_cases::nc-005003","split":"train","message":"Please reserve 18 lockers for our group."}
+{"id":"formalizer-v1::fv1_002351_0_0","split":"train","message":"Quick one: how many towns does Chloé live in?"}
+{"id":"formalizer-v1::fv1_007723_0_0","split":"train","message":"I wonder if Marius has a job at the Riverside Medical Centre in Chișinău."}
+{"id":"new_cases::nc-001508","split":"train","message":"whom is coverage shared with"}
+{"id":"formalizer-v1::fv1_007503_0_0","split":"train","message":"Quick one: what does a power of attorney mean, and what does force majeure mean?"}
+{"id":"formalizer-v1::fv1_015840_0_0","split":"train","message":"Quick question: is Ioana certified?"}
+{"id":"new_cases::nc-005105","split":"train","message":"Hadi repaired the castle handrail yesterday."}
+{"id":"formalizer-v1::fv1_031257_0_1","split":"train","message":"How many people are treated by Emil?"}
+{"id":"new_cases::nc-002308","split":"train","message":"who is Aiko pruning with"}
+{"id":"formalizer-v1::fv1_023988_0_0","split":"train","message":"Is it correct that Carmen gives classes in drawing?"}
+{"id":"formalizer-v1::fv1_015714_0_0","split":"train","message":"Is there anyone who studies at Tulcea Technical College and is not trained?"}
+{"id":"formalizer-v1::fv1_025124_0_0","split":"train","message":"Katalin raises Gheorghe, correct?"}
+{"id":"new_cases::nc-003023","split":"train","message":"Mihai returned the customs form."}
+{"id":"formalizer-ood-v1::ood1_000049_0_0","split":"train","message":"Both at once: is the school bus repaired by Lucian, and does he cook at the Bistrița Arena?"}
+{"id":"formalizer-ood-v1::ood2_000193_0_0","split":"train","message":"How long did Blue Harbor Media stock phone cases?"}
+{"id":"new_cases::nc-003425","split":"train","message":"The south camera lost power."}
+{"id":"formalizer-v1::fv1_030998_0_0","split":"train","message":"Is there anyone at Sibiu Logistics who works there but does not live in Lyon?"}
+{"id":"formalizer-v1::fv1_004741_0_0","split":"train","message":"Does Mr Yılmaz manage anyone who lives in Zalău?"}
+{"id":"formalizer-v1::fv1_006944_0_0","split":"train","message":"Chioma has a job at Delta Print."}
+{"id":"new_cases::nc-004620","split":"train","message":"The audio track is silent."}
+{"id":"new_cases::nc-003013","split":"train","message":"Olena confirmed the new address."}
+{"id":"formalizer-v1::fv1_007521_0_1","split":"train","message":"Can you check whether Eleni is allergic to strawberries and she studies at the Târgu Mureș Language School?"}
+{"id":"formalizer-ood-v1::ood2_000323_0_0","split":"train","message":"Who goes on a trip to Reșița, if you know?"}
+{"id":"formalizer-v1::fv1_007273_0_0","split":"train","message":"Do you know how many times the billing service was out of service?"}
+{"id":"new_cases::nc-004171","split":"train","message":"Tonight: - call Leila - check the porch lamp - bring the laundry downstairs"}
+{"id":"formalizer-v1::fv1_011240_0_0","split":"train","message":"Out of curiosity, which town is Ionuț based in?"}
+{"id":"formalizer-v1::fv1_017670_0_0","split":"train","message":"Just checking: is Ovidiu Sârbu the boss of Olivia?"}
+{"id":"formalizer-v1::fv1_022676_0_1","split":"train","message":"Mykola isn't allergic to cat hair?"}
+{"id":"new_cases::nc-000611","split":"train","message":"The spare van is unavailable."}
+{"id":"formalizer-ood-v1::ood2_000206_0_0","split":"train","message":"How long did Otilia take care of the mail server?"}
+{"id":"new_cases::nc-005004","split":"train","message":"Did Nadir collect the audio guides?"}
+{"id":"new_cases::nc-003820","split":"train","message":"Please give Yusuf his water bottle."}
+{"id":"new_cases::nc-004710","split":"train","message":"which camera did Dima record the interview with?"}
+{"id":"formalizer-v1::fv1_027166_0_0","split":"train","message":"Does Vaslui Logistics not supply Brightfield Foods?"}
+{"id":"proofing-diverse-dev::fv1_008700_0_0_lp0","split":"train","message":"Did Priya work at Tisa Textiles on 24 November 2017?"}
+{"id":"formalizer-v1::fv1_014263_0_0","split":"train","message":"I need to know which team Astrid Johansson plays for."}
+{"id":"formalizer-v1::fv1_010889_0_0","split":"train","message":"Did Tănase & Partners publish Letters to a Young Engineer?"}
+{"id":"new_cases::nc-005238","split":"train","message":"Mihai put the auction proceeds in the sealed envelope."}
+{"id":"new_cases::nc-001612","split":"train","message":"Send room service to 412."}
+{"id":"new_cases::nc-004711","split":"train","message":"who did Iulia borrow the light meter from?"}
+{"id":"formalizer-v1::fv1_006457_0_1","split":"train","message":"Out of curiosity, how many people borrow The Quiet Harbour?"}
+{"id":"formalizer-v1::fv1_004369_0_1","split":"train","message":"Out of curiosity, where did Quang travel?"}
+{"id":"formalizer-v1::fv1_006091_0_1","split":"train","message":"I need to know if Hiroshi studies at Tănase Primary School."}
+{"id":"formalizer-v1::fv1_005326_0_0","split":"train","message":"Do you know who made The Quiet Harbour?"}
+{"id":"formalizer-v1::fv1_028604_0_0","split":"train","message":"What about in Arad?"}
+{"id":"new_cases::nc-002353","split":"train","message":"if the pasture dries by noon should we let the cows out"}
+{"id":"formalizer-v1::fv1_018075_0_1","split":"train","message":"Out of curiosity, where did João travel?"}
+{"id":"formalizer-v1::fv1_005677_0_0","split":"train","message":"Is it correct that Smaranda works for Vertex Analytics?"}
+{"id":"new_cases::nc-003420","split":"train","message":"Who gave Radu the gate code?"}
+{"id":"formalizer-v1::fv1_030838_0_0","split":"train","message":"Since what date does Olena Shevchenko work for Delta Print?"}
+{"id":"formalizer-ood-v1::ood1_000197_1_0","split":"train","message":"Since Ioana doesn't sing in the Madrigal choir, is it the case that she sings in the Madrigal choir?"}
+{"id":"formalizer-v1::fv1_014896_0_0","split":"train","message":"Is there anyone who works at Szeged Logistics and lives in Lyon?"}
+{"id":"formalizer-v1::fv1_032490_0_0","split":"train","message":"So does Thảo study at the Sibiu Language School?"}
+{"id":"formalizer-ood-v1::ood1_000612_0_0","split":"train","message":"\"Lucian Pătrașcu plants lavender\" — does that hold?"}
+{"id":"formalizer-v1::fv1_006744_0_0","split":"train","message":"Does Vlad manage anyone who lives in Leipzig?"}
+{"id":"formalizer-v1::fv1_003836_0_0","split":"train","message":"Is anyone who plays for Bergen United not trained?"}
+{"id":"formalizer-v1::fv1_004635_0_0","split":"train","message":"Quick one: what does force majeure mean, and what does due diligence mean?"}
+{"id":"proofing-diverse-dev::fv1_008700_0_1_lp0","split":"train","message":"Did Priya work for Tisa Textiles on 24 November 2017?"}
+{"id":"new_cases::nc-005170","split":"train","message":"The masons finished the western arch and the conservation team has not inspected it yet and the site manager wants the safety barrier to stay in place and the guides need to change their route."}
+{"id":"formalizer-v1::fv1_021536_0_0","split":"train","message":"Honestly, does Paula study at Slatina Technical College?"}
+{"id":"formalizer-v1::fv1_008220_0_0","split":"train","message":"Could you check who is a parent of Mei?"}
+{"id":"formalizer-v1::fv1_017308_0_0","split":"train","message":"Any idea how long Ovidiu was employed by Delta Print?"}
+{"id":"new_cases::nc-005328","split":"train","message":"Can Daria brief the late volunteers, and who holds the spare keys?"}
+{"id":"form-variant::fv-form-73ad0197e8-001","split":"train","message":"Fact-check: Cătălin does not intend to attend the carrots' budget."}
+{"id":"formalizer-v1::fv1_016362_0_0","split":"train","message":"Out of curiosity, who was the coach of Plovdiv United during 2020?"}
+{"id":"new_cases::nc-004188","split":"train","message":"None of Irena's daughters requested an earlier meeting today."}
+{"id":"formalizer-v1::fv1_026463_0_0","split":"train","message":"Do you know since when Viorel is enrolled at Târgu Mureș Music Academy?"}
+{"id":"formalizer-v1::fv1_025238_0_1","split":"train","message":"Since when does Adaeze coach the Botoșani Wolves?"}
+{"id":"formalizer-v1::fv1_030336_0_0","split":"train","message":"So is Floarea Barbu enrolled at the Sibiu Language School?"}
+{"id":"formalizer-v1::fv1_003612_0_0","split":"train","message":"I wonder who is the boss of Paweł."}
+{"id":"new_cases::nc-004608","split":"train","message":"The boom mic stopped working."}
+{"id":"new_cases::nc-001015","split":"train","message":"Did Zoltán sign the roster?"}
+{"id":"new_cases::nc-004189","split":"train","message":"I don't think the nurse didn't see the note from Asha."}
+{"id":"formalizer-ood-v1::ood2_000448_0_1","split":"train","message":"Could you check if Mirela goes on a trip to Reșița?"}
+{"id":"formalizer-v1::fv1_005324_0_0","split":"train","message":"Given that Taras Bondarenko checked out Winter in Maramureș; Pablo has borrowed Winter in Maramureș and Ilinca checked out Winter in Maramureș, Tatiana doesn't borrow Winter in Maramureș?"}
+{"id":"formalizer-v1::fv1_028862_0_0","split":"train","message":"Can you check whether Horia Bălan is on Rapid Botoșani and he checked out The Quiet Harbour?"}
+{"id":"new_cases::nc-004130","split":"train","message":"which cup belongs to Sima and did Doru wash it"}
+{"id":"formalizer-v1::fv1_011722_0_1","split":"train","message":"Is it true that Ovidiu coaches CS Tulcea and he studies at the Recife Language School?"}
+{"id":"formalizer-v1::fv1_028526_0_0","split":"train","message":"Should Wanjiru Kariuki accept the offer from Brightfield Foods?"}
+{"id":"formalizer-v1::fv1_023411_0_0","split":"train","message":"Any idea how long Lucía was enrolled at the Pitești Language School?"}
+{"id":"formalizer-ood-v1::ood1_000330_0_0","split":"train","message":"Any idea which vehicle is repaired by Pablo Martínez?"}
+{"id":"formalizer-v1::fv1_018452_0_0","split":"train","message":"Is Medeea Mocanu older than Daria?"}
+{"id":"formalizer-v1::fv1_030572_0_0","split":"train","message":"Tell me when Cristina lived in Târgu Mureș."}
+{"id":"formalizer-v1::fv1_027936_0_0","split":"train","message":"How does Joaquín Romero pay, any idea?"}
+{"id":"formalizer-v1::fv1_009741_0_0","split":"train","message":"Same question for Târgu Mureș?"}
+{"id":"formalizer-v1::fv1_022628_0_1","split":"train","message":"Noah played for CS Zalău in 2023?"}
+{"id":"new_cases::nc-000427","split":"train","message":"This deduction applies to Fatima only."}
+{"id":"formalizer-v1::fv1_017887_0_1","split":"train","message":"Tell me until when Zeynep played for Olimpia Zalău."}
+{"id":"formalizer-v1::fv1_019058_0_0","split":"train","message":"When was Wanjiru the coach of the Pune Falcons?"}
+{"id":"formalizer-v1::fv1_018466_0_0","split":"train","message":"Given that the town hall debate was postponed, is it correct that it was postponed because of the search index?"}
+{"id":"formalizer-v1::fv1_002286_0_0","split":"train","message":"Which property that Viorel Bălan owns costs the most?"}
+{"id":"formalizer-v1::fv1_000604_0_0","split":"train","message":"Hypothetically, if Ploiești Logistics carries second-hand laptops, it sells second-hand laptops?"}
+{"id":"formalizer-ood-v1::ood1_000357_0_1","split":"train","message":"Remind me, how many people cook at the Botanical Garden in Bălți?"}
+{"id":"proofing-diverse-dev::fv1_008700_0_1_lp2","split":"train","message":"Can you check whether Priya worked for Tisa Textiles on 24 November 2017?"}
+{"id":"formalizer-v1::fv1_027753_0_0","split":"train","message":"Did Mr Ungureanu start living in Ploiești before Jun did?"}
+{"id":"formalizer-v1::fv1_023362_0_0","split":"train","message":"Is there anyone who works at Carpathia Energy and lives in Arad?"}
+{"id":"formalizer-v1::fv1_002658_0_0","split":"train","message":"I need to know if Constantin Tănase was enrolled at Sibiu Technical College as of 16 July 2018."}
+{"id":"new_cases::nc-005107","split":"train","message":"Will Lucia inspect the stained glass?"}
+{"id":"formalizer-ood-v1::ood1_000075_0_1","split":"train","message":"Who rents the holiday cottage in Bran, if you know?"}
+{"id":"formalizer-v1::fv1_000091_0_0","split":"train","message":"So is Kenji Tanaka enrolled at the Sighișoara Language School?"}
+{"id":"formalizer-v1::fv1_003458_0_0","split":"train","message":"Has Viorel visited Sighișoara again?"}
+{"id":"formalizer-v1::fv1_019767_0_0","split":"train","message":"Do you know who has the holiday cottage in Bran?"}
+{"id":"formalizer-v1::fv1_021020_0_0","split":"train","message":"Tell me which office a building permit is issued by."}
+{"id":"formalizer-v1::fv1_017311_0_1","split":"train","message":"How many towns does Andreea travel to?"}
+{"id":"new_cases::nc-003811","split":"train","message":"Noah brought 3 nappies."}
+{"id":"formalizer-v1::fv1_009584_0_0","split":"train","message":"Which coach trains the team that Floarea is on?"}
+{"id":"formalizer-v1::fv1_016805_0_0","split":"train","message":"Jun is responsible for the payments gateway, correct?"}
+{"id":"formalizer-v1::fv1_008411_0_0","split":"train","message":"Which company does the person who coaches the Bacău Falcons work for?"}
+{"id":"new_cases::nc-005113","split":"train","message":"The gardens need two more benches near the orchard."}
+{"id":"formalizer-v1::fv1_007140_0_1","split":"train","message":"Could you check where Georgiana is based?"}
+{"id":"formalizer-v1::fv1_009588_0_1","split":"train","message":"I wonder which company supplies Nordwind Systems."}
+{"id":"formalizer-v1::fv1_024542_0_0","split":"train","message":"I wonder if Rohan Reddy goes to the harvest festival."}
+{"id":"new_cases::nc-005008","split":"train","message":"When does the print workshop begin?"}
+{"id":"form-variant::fv-form-a294c32603-001","split":"train","message":"Please find out where Doina is based."}
+{"id":"formalizer-v1::fv1_017987_0_0","split":"train","message":"Hugo is certified, right?"}
+{"id":"formalizer-v1::fv1_004832_0_0","split":"train","message":"Tell me whether Radu was the spouse of Ms Neagu as of November 5, 2021."}
+{"id":"formalizer-v1::fv1_032677_0_0","split":"train","message":"Did Ion start working at Atelier Gheorghiu after Elif did?"}
+{"id":"new_cases::nc-005016","split":"train","message":"Amara will meet visitors at reception."}
+{"id":"formalizer-v1::fv1_029228_0_0","split":"train","message":"The search index doesn't depend on the booking app."}
+{"id":"formalizer-v1::fv1_013102_0_1","split":"train","message":"Is Larissa Santos based in Sibiu and did she check out A Short History of Bridges?"}
+{"id":"formalizer-v1::fv1_030292_0_0","split":"train","message":"Quick question: is Costin not employed by Vertex Analytics?"}
+{"id":"formalizer-v1::fv1_028664_0_0","split":"train","message":"Is it correct that Nicolae Dobre plans to relocate to Lagos?"}
+{"id":"formalizer-v1::fv1_013030_0_0","split":"train","message":"I'd like to know who is the coach of Leeds United."}
+{"id":"formalizer-v1::fv1_006807_0_1","split":"train","message":"Tell me which company carries sourdough bread."}
+{"id":"formalizer-v1::fv1_013760_0_0","split":"train","message":"Tell me when Mr Anghel coached CS Baia Mare."}
+{"id":"formalizer-v1::fv1_002453_0_0","split":"train","message":"Kamau went to the spring book fair?"}
+{"id":"new_cases::nc-003125","split":"train","message":"when did adela call did she confirm delivery"}
+{"id":"formalizer-v1::fv1_019974_0_1","split":"train","message":"Do you know how long Kamau taught mathematics?"}
+{"id":"formalizer-v1::fv1_016781_0_0","split":"train","message":"How many people work for Orion Robotics?"}
+{"id":"new_cases::nc-004816","split":"train","message":"Who selected the typeface?"}
+{"id":"formalizer-v1::fv1_019289_0_0","split":"train","message":"Is there somebody at Carpathia Energy who works there and lives in Oradea?"}
+{"id":"formalizer-v1::fv1_008666_0_0","split":"train","message":"What does the flat on Mihai Viteazu Street cost these days?"}
+{"id":"formalizer-ood-v1::ood1_000386_0_1","split":"train","message":"Please find out who leases the vineyard near Sibiu."}
+{"id":"formalizer-v1::fv1_020372_0_0","split":"train","message":"Are all employees of Greenline Transport trained?"}
+{"id":"formalizer-v1::fv1_028636_0_0","split":"train","message":"Do you know how Mei pays?"}
+{"id":"new_cases::nc-001650","split":"train","message":"Does the rooftop bar close at 11 tonight?"}
+{"id":"formalizer-ood-v1::ood1_000354_0_0","split":"train","message":"Any idea which venue Tudor Vlădescu is the chef at?"}
+{"id":"new_cases::nc-003626","split":"train","message":"The court requests another copy."}
+{"id":"formalizer-v1::fv1_020895_0_0","split":"train","message":"Which people are employed by a firm based in Chișinău?"}
+{"id":"new_cases::nc-003426","split":"train","message":"The turnstile stopped for Leyla."}
+{"id":"formalizer-v1::fv1_030540_0_0","split":"train","message":"Given that Roxana is the doctor of Doinița, can you confirm that she goes to the spring book fair?"}
+{"id":"formalizer-v1::fv1_010121_0_0","split":"train","message":"Is Hassan based in Constanța?"}
+{"id":"new_cases::nc-004402","split":"train","message":"Is Sora live tonight?"}
+{"id":"formalizer-v1::fv1_022847_0_0","split":"train","message":"Is there anyone who works at Tisa Textiles and lives in Bergen?"}
+{"id":"new_cases::nc-001412","split":"train","message":"Did Emre Yılmaz report the damage?"}
+{"id":"formalizer-v1::fv1_023727_0_0","split":"train","message":"Tell me which system depends on the payments gateway."}
+{"id":"formalizer-v1::fv1_014798_0_0","split":"train","message":"Why is the payments gateway out of service?"}
+{"id":"formalizer-v1::fv1_010670_0_1","split":"train","message":"Quick one: how many companies does Rémi Lefèvre work for?"}
+{"id":"formalizer-v1::fv1_013179_0_0","split":"train","message":"Out of curiosity, how many companies does Nordwind Systems buy from?"}
+{"id":"new_cases::nc-005123","split":"train","message":"Are the orchard paths wheelchair accessible in winter?"}
+{"id":"formalizer-v1::fv1_013862_0_0","split":"train","message":"Apart from Małgorzata, how many people work at Tisa Textiles?"}
+{"id":"formalizer-v1::fv1_003192_0_0","split":"train","message":"Is Ovidiu based in Pune and is he responsible for the booking app?"}
+{"id":"formalizer-v1::fv1_013635_0_0","split":"train","message":"Apart from Andreea Manole, I wonder who plans to go to the photography workshop."}
+{"id":"formalizer-v1::fv1_001492_0_0","split":"train","message":"Which property that Ovidiu owns costs the least?"}
+{"id":"formalizer-v1::fv1_003844_0_0","split":"train","message":"Does Rafael still live in Suceava?"}
+{"id":"formalizer-v1::fv1_026146_0_0","split":"train","message":"I need to know if Doina Crăciun was on the Oradea Falcons as of 1 October 2020."}
+{"id":"form-variant::fv-form-0eca177c09-006","split":"train","message":"Is it the case that the beta waiting doesn't appear on the VPN gateway?"}
+{"id":"formalizer-v1::fv1_015167_0_0","split":"train","message":"Is Georgiana allowed to sign a work permit?"}
+{"id":"formalizer-v1::fv1_004637_0_1","split":"train","message":"Any idea when Kaveh worked at Delta Print?"}
+{"id":"formalizer-v1::fv1_004703_0_1","split":"train","message":"Out of curiosity, how many systems is Ms Iordache responsible for?"}
+{"id":"formalizer-v1::fv1_028844_0_0","split":"train","message":"Tisa Textiles published Letters to a Young Engineer."}
+{"id":"formalizer-v1::fv1_029704_0_0","split":"train","message":"How many years was Ayşe Çelik based in Glasgow?"}
+{"id":"formalizer-v1::fv1_010966_0_0","split":"train","message":"Any idea how long Ayşe coached Tulcea United?"}
+{"id":"formalizer-v1::fv1_026253_0_0","split":"train","message":"What is 25% of 2500 lei?"}
+{"id":"new_cases::nc-001602","split":"train","message":"Does this room have a kettle?"}
+{"id":"new_cases::nc-003424","split":"train","message":"Kofi collected the visitor badges."}
+{"id":"formalizer-v1::fv1_023024_0_0","split":"train","message":"What do a notarized statement and force majeure mean?"}
+{"id":"formalizer-v1::fv1_000964_0_0","split":"train","message":"Who is a parent of one of the parents of Bogdan Moldovan?"}
+{"id":"formalizer-v1::fv1_003882_0_0","split":"train","message":"Tell me whether Emil worked at Brightfield Foods as of 2020-11-04."}
+{"id":"new_cases::nc-000629","split":"train","message":"Please hold the refrigerated load until the temperature log arrives."}
+{"id":"formalizer-v1::fv1_023422_0_0","split":"train","message":"Given that the code review session got postponed, was it postponed because of the payments gateway?"}
+{"id":"new_cases::nc-003558","split":"train","message":"before the contractor enters should Ruxandra check the badge list"}
+{"id":"formalizer-v1::fv1_004333_0_0","split":"train","message":"Daria is not the owner of the recording studio."}
+{"id":"formalizer-v1::fv1_030907_1_0","split":"train","message":"Just checking: is Javier Romero a parent of Samuel?"}
+{"id":"new_cases::nc-003839","split":"train","message":"Did Lucian wash his hands?"}
+{"id":"formalizer-v1::fv1_029996_0_0","split":"train","message":"Quick question: was Mr Diaconu the coach of CS Montreal in 2021?"}
+{"id":"formalizer-v1::fv1_007799_0_0","split":"train","message":"Apart from Kamau, how many people work at Nordwind Systems?"}
+{"id":"new_cases::nc-001836","split":"train","message":"Radu Munteanu owns the API for the export service."}
+{"id":"new_cases::nc-005009","split":"train","message":"Our pupils need a quiet lunch area."}
+{"id":"new_cases::nc-001640","split":"train","message":"Does checkout start before the breakfast buffet closes?"}
+{"id":"formalizer-v1::fv1_010886_0_0","split":"train","message":"Given that Agnieszka raises Carmen, can you confirm that Léa is a parent of Carmen?"}
+{"id":"formalizer-v1::fv1_024665_0_0","split":"train","message":"Medeea lives in Zalău, right?"}
+{"id":"new_cases::nc-004770","split":"train","message":"for review: sync the footage / lower the music / ask Ilan about the titles"}
+{"id":"new_cases::nc-000153","split":"train","message":"if Inez calls, page me"}
+{"id":"formalizer-v1::fv1_015725_0_0","split":"train","message":"True or false: Małgorzata doesn't manage Parisa."}
+{"id":"formalizer-v1::fv1_023710_0_0","split":"train","message":"Is Larisa allowed to sign a medical certificate?"}
+{"id":"new_cases::nc-002180","split":"train","message":"can Jürgen Schmidt read the drawing called under the old roof before the carpenters cut the rafters"}
+{"id":"formalizer-v1::fv1_030802_0_0","split":"train","message":"Apart from Viorica, how many people work at Recife Logistics?"}
+{"id":"formalizer-v1::fv1_027085_0_0","split":"train","message":"Is Floarea allowed to sign a building permit on their own?"}
+{"id":"formalizer-v1::fv1_023783_0_0","split":"train","message":"All the players of the Tulcea Falcons are not certified?"}
+{"id":"new_cases::nc-003562","split":"train","message":"while Mei audits the scan log should I hold new visitor badges"}
+{"id":"formalizer-ood-v1::ood1_000215_0_0","split":"train","message":"Does Răzvan rent the vineyard near Sibiu, do you know?"}
+{"id":"formalizer-v1::fv1_013139_0_1","split":"train","message":"I wonder if Ananya Nair was the spouse of Vlad during 2021."}
+{"id":"formalizer-ood-v1::ood1_000533_0_1","split":"train","message":"Any idea since when Vasile Dobre grows tomatoes?"}
+{"id":"formalizer-v1::fv1_020211_0_0","split":"train","message":"What does Mr Crăciun pay with?"}
+{"id":"formalizer-v1::fv1_013208_0_0","split":"train","message":"Besides Mei, tell me who is married to Marius."}
+{"id":"new_cases::nc-001013","split":"train","message":"Keep the bibs for Saturday."}
+{"id":"formalizer-v1::fv1_021072_0_0","split":"train","message":"Is there anyone who works at Orion Robotics and lives in Tampere?"}
+{"id":"formalizer-v1::fv1_001385_0_0","split":"train","message":"Is there anyone who attended the harvest festival and is not trained?"}
+{"id":"formalizer-v1::fv1_030150_0_1","split":"train","message":"Can you count how many times Hannah stayed home?"}
+{"id":"form-variant::fv-form-d0a5c90daf-003","split":"train","message":"Explain to me why the waiting kebab was postponed."}
+{"id":"formalizer-ood-v1::ood1_000564_0_0","split":"train","message":"Fact-check: Élodie leases the vineyard near Sibiu."}
+{"id":"formalizer-v1::fv1_013693_0_0","split":"train","message":"Are all the students at Călărași Arts High School not vaccinated?"}
+{"id":"new_cases::nc-003951","split":"train","message":"Nadia wanted the garden book and Elif already had it and Nadia chose the pond book instead and then Elif offered to swap but Nadia wanted to finish her page"}
+{"id":"formalizer-v1::fv1_020105_0_0","split":"train","message":"Are all those enrolled at the Lviv Language School certified?"}
+{"id":"new_cases::nc-005221","split":"train","message":"Could Priya bring the volunteer badges to the training room?"}
+{"id":"formalizer-v1::fv1_023639_0_0","split":"train","message":"Quick question: did Oliver go to the junior chess tournament?"}
+{"id":"formalizer-v1::fv1_007841_0_0","split":"train","message":"Are all those enrolled at Leipzig Music Academy certified?"}
+{"id":"formalizer-v1::fv1_002443_0_1","split":"train","message":"Yuki was enrolled at Pitești Arts High School on June 1, 2024, correct?"}
+{"id":"new_cases::nc-003213","split":"train","message":"Our cleaner, Leila, will collect the spare key from the front desk."}
+{"id":"formalizer-v1::fv1_026056_0_0","split":"train","message":"Tell me who is responsible for the billing service."}
+{"id":"new_cases::nc-000182","split":"train","message":"why did Jürgen Schmidt's parcel go to Green Gate Pharmacy instead"}
+{"id":"formalizer-v1::fv1_003621_0_1","split":"train","message":"I wonder if Brightfield Foods doesn't sell baby food."}
+{"id":"new_cases::nc-002224","split":"train","message":"Please leave the old compost by the fig tree until the new beds are ready."}
+{"id":"formalizer-v1::fv1_008754_0_1","split":"train","message":"Quick question: does Mr Martin not work at Atelier Weber?"}
+{"id":"formalizer-v1::fv1_032689_1_0","split":"train","message":"I was wondering whether Marius Munteanu is the doctor of Beatriz."}
+{"id":"formalizer-v1::fv1_023680_0_0","split":"train","message":"Is it true that Octavian plans to go to the spring book fair and he is based in Recife?"}
+{"id":"formalizer-v1::fv1_001584_0_2","split":"train","message":"Quick one: how many people are responsible for the backup cluster?"}
+{"id":"new_cases::nc-000527","split":"train","message":"Can we close Zina's file and has her final payslip been checked?"}
+{"id":"new_cases::nc-003779","split":"train","message":"Mirela proofread Long Way Home, but Sorina kept the original title on the cover."}
+{"id":"formalizer-v1::fv1_022903_0_0","split":"train","message":"Quick one: how many things is Adaeze allergic to?"}
+{"id":"formalizer-ood-v1::ood1_000746_0_1","split":"train","message":"So how many venues does Ethan cook at?"}
+{"id":"formalizer-v1::fv1_027571_0_0","split":"train","message":"Is there anyone who works at Greenline Transport and lives in Vaslui?"}
+{"id":"proofing-diverse-dev::fv1_029218_0_0_lp1","split":"train","message":"I need you to confirm whether Mr Hughes intends to attend the charity run."}
+{"id":"formalizer-v1::fv1_019552_0_0","split":"train","message":"Is there anyone who works at Vlădescu & Partners and lives in Sighișoara?"}
+{"id":"formalizer-v1::fv1_000041_0_0","split":"train","message":"Can you confirm that Jun is responsible for the search index?"}
+{"id":"formalizer-v1::fv1_029742_0_0","split":"train","message":"Ok and Burak?"}
+{"id":"new_cases::nc-003450","split":"train","message":"Which officer replaced the battery in the gate sensor after the morning alarm stopped?"}
+{"id":"formalizer-v1::fv1_001147_0_0","split":"train","message":"Given that Carmen is the boss of Ms Johansson, is it correct that she is the coach of Rapid Szeged?"}
+{"id":"formalizer-v1::fv1_032235_0_0","split":"train","message":"Did Aurel start working at Vertex Analytics after Bogdan Ungureanu did?"}
+{"id":"formalizer-v1::fv1_005517_0_0","split":"train","message":"What about in Tampere?"}
+{"id":"formalizer-v1::fv1_028960_0_0","split":"train","message":"Why exactly is the inventory API down?"}
+{"id":"formalizer-v1::fv1_013392_0_0","split":"train","message":"Who coaches the team Aditya plays for?"}
+{"id":"new_cases::nc-001402","split":"train","message":"Did the claim reach Noura?"}
+{"id":"formalizer-v1::fv1_021723_0_0","split":"train","message":"Can you confirm that Simona was the coach of Nairobi United on December 1, 2019?"}
+{"id":"new_cases::nc-000632","split":"train","message":"Place the labels beside the printer before the morning crew arrives."}
+{"id":"formalizer-v1::fv1_028599_0_0","split":"train","message":"Quick question: was Jack the boss of Bianca as of 2020-02-23?"}
+{"id":"new_cases::nc-003738","split":"train","message":"Idris joined the call and his receiver hissed but he stayed until the technician arrived."}
+{"id":"formalizer-ood-v1::ood2_000103_0_0","split":"train","message":"Remind me, who is the trainer of CS Valencia?"}
+{"id":"formalizer-v1::fv1_006383_0_0","split":"train","message":"Can you tell me who is employed by Delta Print?"}
+{"id":"formalizer-v1::fv1_001109_0_0","split":"train","message":"Can you check whether Liviu Ciobanu intends to attend the town hall debate and he gives classes in geography?"}
+{"id":"formalizer-v1::fv1_025645_0_0","split":"train","message":"Tell me until when Medeea gave classes in mathematics."}
+{"id":"formalizer-v1::fv1_004429_0_0","split":"train","message":"Could you check who Lin Zhang is treated by?"}
+{"id":"formalizer-v1::fv1_018558_0_1","split":"train","message":"Just checking: does Blue Harbor Media supply Zalău Logistics?"}
+{"id":"formalizer-v1::fv1_005359_0_2","split":"train","message":"How many events does Krzysztof intend to attend?"}
+{"id":"formalizer-v1::fv1_026077_0_0","split":"train","message":"Could you check where Mr Wilson lives?"}
+{"id":"formalizer-v1::fv1_000490_0_0","split":"train","message":"How about Tariq?"}
+{"id":"formalizer-v1::fv1_008584_0_0","split":"train","message":"I need to know who is the spouse of Gheorghe."}
+{"id":"formalizer-v1::fv1_024865_0_0","split":"train","message":"Tariq is based in Sighișoara?"}
+{"id":"formalizer-v1::fv1_007200_0_0","split":"train","message":"Owen has an allergy to pollen, right?"}
+{"id":"formalizer-ood-v1::ood2_000088_0_0","split":"train","message":"Does Matei reside in Brașov or not?"}
+{"id":"formalizer-v1::fv1_019648_0_0","split":"train","message":"Is no employee of Carpathia Energy certified?"}
+{"id":"formalizer-v1::fv1_027079_0_0","split":"train","message":"Carmen Mocanu studies at Vaslui Music Academy, correct?"}
+{"id":"formalizer-v1::fv1_009425_0_1","split":"train","message":"Is it true that Thảo maintains the inventory API and she is employed by Nordwind Systems?"}
+{"id":"new_cases::nc-004762","split":"train","message":"if the voiceover arrives late will the edit review move?"}
+{"id":"form-variant::fv-form-3875f4d129-017","split":"train","message":"Please find out who looks after the VPN pickup."}
+{"id":"formalizer-v1::fv1_014444_0_0","split":"train","message":"Are all the students at Balogh Primary School not vaccinated?"}
+{"id":"formalizer-v1::fv1_021333_0_0","split":"train","message":"Did Oluwaseun Balogun go to the photography workshop again?"}
+{"id":"formalizer-v1::fv1_029391_0_0","split":"train","message":"True or false: the red Dacia belongs to Cătălin."}
+{"id":"formalizer-v1::fv1_004165_0_0","split":"train","message":"I need to know where Brândușa is based."}
+{"id":"formalizer-v1::fv1_029437_0_0","split":"train","message":"I wonder if Ms Walker does not work under Bianca."}
+{"id":"formalizer-v1::fv1_019524_0_0","split":"train","message":"Quick question: was Mădălina employed by Vertex Analytics at some point in 2023?"}
+{"id":"formalizer-v1::fv1_007083_0_0","split":"train","message":"Would you say Dragoș is older than Cristina?"}
+{"id":"formalizer-v1::fv1_002351_0_1","split":"train","message":"Quick one: how many towns does Chloé Girard live in?"}
+{"id":"formalizer-v1::fv1_028244_0_1","split":"train","message":"Quick one: how many books does Nordwind Systems publish?"}
+{"id":"formalizer-v1::fv1_000348_0_1","split":"train","message":"I was wondering whether Alina was employed by Nordwind Systems as of 24 January 2022."}
+{"id":"formalizer-v1::fv1_018660_0_1","split":"train","message":"I need to know if the inventory API doesn't depend on the billing service."}
+{"id":"formalizer-v1::fv1_002042_0_0","split":"train","message":"The Lyon Arena hosts the spring book fair and the Slatina Philharmonic hosts the charity run."}
+{"id":"formalizer-v1::fv1_010447_0_0","split":"train","message":"Given that Ngozi is the boss of Brândușa, is it correct that she is responsible for the search index?"}
+{"id":"formalizer-v1::fv1_012575_0_0","split":"train","message":"Out of curiosity, why is Tamás ill?"}
+{"id":"formalizer-v1::fv1_029750_0_0","split":"train","message":"Bianca checked out Notes from the Night Train."}
+{"id":"formalizer-v1::fv1_016537_0_1","split":"train","message":"Tell me which system Thảo Trần is responsible for."}
+{"id":"formalizer-v1::fv1_028281_0_0","split":"train","message":"Why is Małgorzata ill?"}
+{"id":"formalizer-v1::fv1_026486_0_0","split":"train","message":"Who has the old sailing boat?"}
+{"id":"formalizer-v1::fv1_006357_0_0","split":"train","message":"The Ploiești Tax Office issues a tax clearance certificate, right?"}
+{"id":"formalizer-v1::fv1_016365_0_0","split":"train","message":"Which coach trains the team that Beatriz is on?"}
+{"id":"formalizer-ood-v1::ood2_000030_0_1","split":"train","message":"Do you know if Ghiță trains Bălți United and he takes care of the payroll database?"}
+{"id":"formalizer-v1::fv1_026077_0_1","split":"train","message":"Tell me where Oliver lives."}
+{"id":"form-variant::fv-form-a294c32603-003","split":"train","message":"Please find out where Małgorzata is based."}
+{"id":"proofing-diverse-dev::fv1_005476_0_2_lp1","split":"train","message":"do you know what office issues a residence certificate"}
+{"id":"formalizer-v1::fv1_016321_0_1","split":"train","message":"Did Tatiana coach the Baia Mare Falcons on September 24, 2017?"}
+{"id":"formalizer-v1::fv1_025913_0_0","split":"train","message":"Is there anyone at Greenline Transport who works there but does not live in Debrecen?"}
+{"id":"formalizer-ood-v1::ood1_000083_0_0","split":"train","message":"Does Adaeze lease the vineyard near Sibiu or not?"}
+{"id":"formalizer-v1::fv1_018184_0_0","split":"train","message":"How often did Samuel stay home?"}
+{"id":"formalizer-v1::fv1_028326_0_1","split":"train","message":"Is it true that Agnieszka works at Atelier Popescu and she visits Botoșani?"}
+{"id":"formalizer-v1::fv1_030810_0_0","split":"train","message":"Aditya doesn't maintain the search index, and Achieng is responsible for the backup cluster."}
+{"id":"new_cases::nc-001815","split":"train","message":"Yesterday, Jürgen Schmidt reported a duplicate charge for the antivirus licence."}
+{"id":"formalizer-v1::fv1_020939_0_0","split":"train","message":"Hypothetically, if Emil studied at Arad Music Academy, can you check whether he is certified?"}
+{"id":"formalizer-v1::fv1_022093_0_0","split":"train","message":"Does Floarea manage Kenji Sato?"}
+{"id":"formalizer-v1::fv1_009874_0_0","split":"train","message":"Until when did the blue van belong to Ms Moldovan?"}
+{"id":"formalizer-v1::fv1_009517_0_0","split":"train","message":"Can you check whether Elif goes to the spring book fair and she is the owner of the plot of land by the river?"}
+{"id":"formalizer-v1::fv1_006737_0_0","split":"train","message":"For how long did Oana work at Atelier Popescu?"}
+{"id":"formalizer-ood-v1::ood2_000470_0_1","split":"train","message":"How much time did Beatriz look after the login service?"}
+{"id":"form-variant::fv-form-a294c32603-005","split":"dev","message":"Please find out where Arjun is based."}
+{"id":"formalizer-v1::fv1_019929_0_0","split":"dev","message":"Besides Ms Crăciun, I wonder who manages Ayşe."}
+{"id":"formalizer-ood-v1::ood2_000254_0_0","split":"dev","message":"Not counting Otilia, please find out who Nordwind Systems employs."}
+{"id":"new_cases::nc-000826","split":"dev","message":"Are the pears ripe yet?"}
+{"id":"formalizer-v1::fv1_031115_0_0","split":"dev","message":"Besides Mr Dumitrescu, can you tell me who plays for CS Slatina?"}
+{"id":"formalizer-v1::fv1_017425_0_0","split":"dev","message":"Out of curiosity, how many people is Ms Dumitrescu treated by?"}
+{"id":"formalizer-v1::fv1_025941_0_0","split":"dev","message":"How old is Brândușa?"}
+{"id":"formalizer-v1::fv1_006423_0_0","split":"dev","message":"Quick question: is Ms Tehrani enrolled at Saint Andrew High School?"}
+{"id":"formalizer-v1::fv1_018325_0_0","split":"dev","message":"Tell me which book is written by Floarea Dumitrescu."}
+{"id":"formalizer-v1::fv1_025751_0_0","split":"dev","message":"How often did Larisa resign?"}
+{"id":"formalizer-v1::fv1_031836_0_1","split":"dev","message":"Given that Cristina Toma is the coach of the Slatina Wolves, can you confirm that she is the coach of the Slatina Wolves?"}
+{"id":"formalizer-v1::fv1_019782_0_0","split":"dev","message":"Did Julien start working at Nordwind Systems after Liviu did?"}
+{"id":"formalizer-v1::fv1_030552_0_0","split":"dev","message":"Tell me until when Ms Lefèvre studied at Pitești Arts High School."}
+{"id":"formalizer-v1::fv1_005242_0_0","split":"dev","message":"Does Vlad have a job at Orion Robotics and is he the coach of CS Tampere?"}
+{"id":"formalizer-v1::fv1_007167_0_0","split":"dev","message":"Honestly, should Carmen accept the offer from Greenline Transport or not?"}
+{"id":"formalizer-v1::fv1_023785_0_1","split":"dev","message":"Does Simona not work for Brightfield Foods?"}
+{"id":"formalizer-v1::fv1_006666_0_0","split":"dev","message":"Who does Emeka work for, Tampere Logistics, right?"}
+{"id":"formalizer-v1::fv1_014676_0_0","split":"dev","message":"Did Kenji Watanabe fly to Sighișoara again?"}
+{"id":"new_cases::nc-004225","split":"dev","message":"The platform edge has no contrast."}
+{"id":"formalizer-v1::fv1_012985_0_0","split":"dev","message":"Hypothetically, if Radu maintains the billing service, does he maintain the billing service?"}
+{"id":"new_cases::nc-000804","split":"dev","message":"Did Ștefan approve the refund?"}
+{"id":"formalizer-v1::fv1_020126_0_0","split":"dev","message":"Did Hannah take part in the spring book fair?"}
+{"id":"formalizer-v1::fv1_022245_0_0","split":"dev","message":"Does Wanjiru work at Atelier Popa or at Vertex Analytics?"}
+{"id":"new_cases::nc-000833","split":"dev","message":"Fresh figs arrived this morning."}
+{"id":"formalizer-v1::fv1_029005_0_0","split":"dev","message":"How does Aurelia get to work, do you know?"}
+{"id":"formalizer-v1::fv1_026805_0_0","split":"dev","message":"Which people are employed by a firm based in Szeged?"}
+{"id":"formalizer-v1::fv1_008311_0_0","split":"dev","message":"Is Layla allowed to sign a medical certificate?"}
+{"id":"formalizer-ood-v1::ood1_000674_0_0","split":"dev","message":"Could you check if Nour grows strawberries?"}
+{"id":"formalizer-v1::fv1_029792_0_0","split":"dev","message":"For how long did Seo-yeon live in Leeds?"}
+{"id":"formalizer-v1::fv1_031691_0_0","split":"dev","message":"For how long did Octavian live in Pitești?"}
+{"id":"formalizer-v1::fv1_026798_0_0","split":"dev","message":"Can you count how many times Parisa was ill?"}
+{"id":"formalizer-v1::fv1_032386_0","split":"dev","message":"lura kerajia jiagam!!"}
+{"id":"new_cases::nc-000941","split":"dev","message":"the delivery driver rang and the stockroom was locked and nobody had the spare key"}
+{"id":"formalizer-v1::fv1_012235_0_1","split":"dev","message":"Tell me whether Rémi was on Rapid Arad at some point in 2021."}
+{"id":"new_cases::nc-000818","split":"dev","message":"Why did Zoltán move the blue shelf labels when the reduced jackets were still hanging beside the full-price coats on the same crowded rail near the entrance?"}
+{"id":"formalizer-v1::fv1_016613_0_1","split":"dev","message":"I need to know who the recording studio belongs to."}
+{"id":"formalizer-v1::fv1_018536_0_0","split":"dev","message":"Other than Ngozi, I need to know who is the coach of CS Hanoi."}
+{"id":"formalizer-v1::fv1_011108_0_0","split":"dev","message":"Can you confirm that the payments gateway depends on the inventory API?"}
+{"id":"formalizer-ood-v1::ood1_000201_0_0","split":"dev","message":"How many times did Mr Nguyễn rent the garage behind the block?"}
+{"id":"formalizer-v1::fv1_008786_0_1","split":"dev","message":"Tell me when Carmen Popescu was responsible for the backup cluster."}
+{"id":"formalizer-v1::fv1_009230_0_0","split":"dev","message":"Given that Kaveh manages Vasile Moldovan, can you confirm that he is the coach of Rapid Deva?"}
+{"id":"formalizer-ood-v1::ood1_000437_0_2","split":"dev","message":"Who grows peppers, if you know?"}
+{"id":"formalizer-v1::fv1_020164_0_0","split":"dev","message":"Does Zofia manage anyone who lives in Sibiu?"}
+{"id":"formalizer-v1::fv1_027314_0_0","split":"dev","message":"Rachel doesn't play for the Slatina Falcons."}
+{"id":"formalizer-v1::fv1_020572_0_0","split":"dev","message":"I need to know where Javier Sánchez is based."}
+{"id":"new_cases::nc-001206","split":"dev","message":"Are we inviting Katalin?"}
+{"id":"formalizer-v1::fv1_002495_0_0","split":"dev","message":"Is Costin allowed to sign a residence certificate?"}
+{"id":"formalizer-v1::fv1_029377_0_1","split":"dev","message":"Can you check whether Aurelia gives classes in drawing and she plans to go to the spring book fair?"}
+{"id":"new_cases::nc-000827","split":"dev","message":"Mihai Popescu ordered more onions."}
+{"id":"new_cases::nc-000203","split":"dev","message":"Please call Mihai after class."}
+{"id":"formalizer-v1::fv1_019115_0_0","split":"dev","message":"I need to know who checked out The Quiet Harbour."}
+{"id":"formalizer-v1::fv1_001299_0_1","split":"dev","message":"Up to what date was Cosmin the owner of the recording studio?"}
+{"id":"formalizer-ood-v1::ood2_000445_0_0","split":"dev","message":"Any chance Parisa takes care of the inventory API?"}
+{"id":"formalizer-v1::fv1_011320_0_0","split":"dev","message":"Is it correct that the booking app doesn't depend on the backup cluster?"}
+{"id":"formalizer-v1::fv1_001404_0_0","split":"dev","message":"Besides Mr Mureșan, I need to know who intends to attend the photography workshop."}
+{"id":"formalizer-v1::fv1_030178_0_0","split":"dev","message":"Which coach trains the team that Liam is on?"}
+{"id":"formalizer-v1::fv1_030859_0_0","split":"dev","message":"Can you tell me where Sânziana is based?"}
+{"id":"formalizer-v1::fv1_022201_0_0","split":"dev","message":"Apart from Dorin, do you know who is responsible for the inventory API?"}
+{"id":"formalizer-v1::fv1_010456_0_0","split":"dev","message":"Are exactly half of the players of the Constanța Wolves certified?"}
+{"id":"new_cases::nc-000225","split":"dev","message":"Can my daughter collect her drawing after the exhibition closes on Wednesday?"}
+{"id":"new_cases::nc-000837","split":"dev","message":"Daria checked the citrus display before the shop opened this morning."}
+{"id":"formalizer-v1::fv1_025197_0_0","split":"dev","message":"Has Łukasz visited Baia Mare again?"}
+{"id":"formalizer-v1::fv1_022227_0_0","split":"dev","message":"Can you confirm that Bogdan Neagu studies at Baia Mare Technical College?"}
+{"id":"formalizer-v1::fv1_025409_0_0","split":"dev","message":"Since what date is Noah Walker responsible for the search index?"}
+{"id":"formalizer-v1::fv1_032332_0_1","split":"dev","message":"I need to know where George is based."}
+{"id":"formalizer-v1::fv1_001835_0_0","split":"dev","message":"All the players of the Deva Falcons are not certified?"}
+{"id":"formalizer-v1::fv1_019104_0_1","split":"dev","message":"Did Sofía work at Orion Robotics on 19 April 2023?"}
+{"id":"formalizer-v1::fv1_012707_0_0","split":"dev","message":"I'd like to know which subject Ms Toma teaches."}
+{"id":"formalizer-v1::fv1_013319_0_0","split":"dev","message":"I need to know who is the boss of Taras."}
+{"id":"new_cases::nc-004211","split":"dev","message":"Can Mira bring her assistance dog into the council office?"}
+{"id":"formalizer-v1::fv1_001323_0_0","split":"dev","message":"Remind me when Oliver managed Ms Trần."}
+{"id":"formalizer-v1::fv1_009825_0","split":"dev","message":"quoke quomifostjia lutrugamlu ?"}
+{"id":"formalizer-v1::fv1_013493_0_0","split":"dev","message":"Check this: Enikő is responsible for the booking app."}
+{"id":"formalizer-v1::fv1_015117_0_2","split":"dev","message":"Do you know who is the spouse of Daria?"}
+{"id":"formalizer-v1::fv1_012173_0_0","split":"dev","message":"Who does Victor work for, Delta Print, right?"}
+{"id":"formalizer-v1::fv1_003733_0_0","split":"dev","message":"Is it true that not all players of the Baia Mare Falcons are certified?"}
+{"id":"formalizer-v1::fv1_030483_0_0","split":"dev","message":"Tamás is on the Bacău Falcons, correct?"}
+{"id":"new_cases::nc-000211","split":"dev","message":"Has Ren received the permission slip?"}
+{"id":"formalizer-v1::fv1_016611_0_0","split":"dev","message":"Tell me when Vlad was based in Vaslui."}
+{"id":"new_cases::nc-004227","split":"dev","message":"The benefits desk opens at 09:00."}
+{"id":"new_cases::nc-000813","split":"dev","message":"No boxes arrived today despite the note from the supplier."}
+{"id":"new_cases::nc-001257","split":"dev","message":"Something for Aunt Ioana."}
+{"id":"formalizer-v1::fv1_001890_0_0","split":"dev","message":"Honestly, is Haruka based in Botoșani?"}
+{"id":"formalizer-v1::fv1_011779_0_0","split":"dev","message":"Can you count how many times Tatiana visited Alba Iulia?"}
+{"id":"form-variant::fv-form-b3c1f0963f-003","split":"dev","message":"Do you know if Mircea intends to attend the items' appointment and he teaches physical education?"}
+{"id":"formalizer-v1::fv1_028782_0_1","split":"dev","message":"Quick one: how many people does the flat on Mihai Viteazu Street belong to?"}
+{"id":"formalizer-v1::fv1_017520_0_0","split":"dev","message":"Shirin goes to the regional chess tournament."}
+{"id":"formalizer-v1::fv1_017772_0_1","split":"dev","message":"Given that Elif intends to attend the charity run, can you confirm that Ms Walker intends to attend the charity run?"}
+{"id":"new_cases::nc-000983","split":"dev","message":"Asha said the new label on the \"Morning Field\" jam belongs to the plum batch"}
+{"id":"new_cases::nc-004361","split":"dev","message":"The toilet is hard to reach because the corridor narrows beside the lift."}
+{"id":"formalizer-v1::fv1_027587_0","split":"dev","message":"Thank you, this is fun"}
+{"id":"new_cases::nc-001386","split":"dev","message":"please don't remove any seats until the entire guest list is checked"}
+{"id":"formalizer-v1::fv1_017922_0_0","split":"dev","message":"I need to know if Valentina Martínez took part in the spring book fair."}
+{"id":"formalizer-v1::fv1_015744_0_0","split":"dev","message":"Tell me whether Tisa Textiles supplies Vertex Analytics."}
+{"id":"formalizer-v1::fv1_004669_0","split":"dev","message":"Recommend a good film for tonight."}
+{"id":"formalizer-v1::fv1_000170_0_0","split":"dev","message":"Do you know how Wanjiru Mwangi pays?"}
+{"id":"formalizer-v1::fv1_013537_0_0","split":"dev","message":"Can you count how many times Iurie was absent from work?"}
+{"id":"new_cases::nc-000829","split":"dev","message":"Who weighed the spinach?"}
+{"id":"new_cases::nc-001226","split":"dev","message":"Did Oksana pack the rings?"}
+{"id":"formalizer-v1::fv1_005806_0_1","split":"dev","message":"Tell me which subject Elena teaches."}
+{"id":"new_cases::nc-000219","split":"dev","message":"Does the parent meeting for class 4B include the music teacher, or should I contact her separately about the instrument rental before I pay for another month?"}
+{"id":"new_cases::nc-000206","split":"dev","message":"The choir meets on Thursday."}
+{"id":"new_cases::nc-000345","split":"dev","message":"i tried the dorm key in the west door and it flashed red and Marius tried his and it worked and the housing desk is shut and can someone let me into my room tonight"}
+{"id":"new_cases::nc-000808","split":"dev","message":"Put the boots on display."}
+{"id":"new_cases::nc-001384","split":"dev","message":"Did Zoltán leave the wedding invitation proofs at The Olive House"}
+{"id":"formalizer-v1::fv1_024788_0_0","split":"dev","message":"How does Yuki pay, any idea?"}
+{"id":"formalizer-v1::fv1_031347_0_0","split":"dev","message":"How old is Paweł?"}
+{"id":"new_cases::nc-000230","split":"dev","message":"Is the dorm kitchen open?"}
+{"id":"new_cases::nc-004325","split":"dev","message":"Who ordered the ramp and who checked its width?"}
+{"id":"formalizer-v1::fv1_012418_0_0","split":"dev","message":"Is there somebody at Delta Print who works there and lives in Zalău?"}
+{"id":"formalizer-v1::fv1_029886_0_1","split":"dev","message":"Do you know when Viorica managed Otieno?"}
+{"id":"new_cases::nc-000935","split":"dev","message":"can I sell the soft tomatoes at a lower price and should the firm ones stay in the main display"}
+{"id":"formalizer-v1::fv1_000831_0_0","split":"dev","message":"Can you confirm that Ms Balogh is allergic to strawberries?"}
+{"id":"new_cases::nc-000243","split":"dev","message":"The dorm office told Sorin the room swap was approved, but my housing page still lists the old room, and I do not know where to collect the new key."}
+{"id":"formalizer-v1::fv1_011868_0_0","split":"dev","message":"Can takes part in the town hall debate."}
+{"id":"formalizer-v1::fv1_031016_0_0","split":"dev","message":"How many people who work at Tisa Textiles are over 60 years old?"}
+{"id":"formalizer-v1::fv1_005919_0_0","split":"dev","message":"Samuel is on the Cluj-Napoca Wolves, correct?"}
+{"id":"formalizer-v1::fv1_001102_0_0","split":"dev","message":"I was wondering whether Daniel is not the doctor of Kostas."}
+{"id":"new_cases::nc-004216","split":"dev","message":"Please mark the step clearly."}
+{"id":"new_cases::nc-001204","split":"dev","message":"When does Leila collect her dress?"}
+{"id":"formalizer-v1::fv1_010908_0","split":"dev","message":"Please, recommend a good film for tonight."}
+{"id":"formalizer-v1::fv1_005853_0_0","split":"dev","message":"Out of curiosity, who is the coach of Olimpia Novi Sad?"}
+{"id":"formalizer-v1::fv1_018309_0_1","split":"dev","message":"Joaquín was married to Alina on September 1, 2024?"}
+{"id":"formalizer-v1::fv1_012457_0_1","split":"dev","message":"Apart from Rahul, I need to know who is enrolled at Tóth Primary School."}
+{"id":"formalizer-v1::fv1_029884_0_0","split":"dev","message":"Who is a parent of one of the parents of Cosmin?"}
+{"id":"formalizer-ood-v1::ood1_000716_0_1","split":"dev","message":"Any idea what Ildikó grows?"}
+{"id":"formalizer-v1::fv1_012152_0_0","split":"dev","message":"Tell me whether Carmen plays for CS Chengdu."}
+{"id":"formalizer-v1::fv1_029972_0_0","split":"dev","message":"Hypothetically, if the backup cluster depends on the inventory API, does it rely on the inventory API?"}
+{"id":"formalizer-v1::fv1_024139_0","split":"dev","message":"Hey, recommend a good film for tonight."}
+{"id":"formalizer-v1::fv1_001143_0_0","split":"dev","message":"Ingrid Nilsen raises Kenji Suzuki, correct?"}
+{"id":"formalizer-v1::fv1_007794_0_0","split":"dev","message":"Are all the players of Rapid Nairobi certified?"}
+{"id":"new_cases::nc-000209","split":"dev","message":"Send home the reading log."}
+{"id":"formalizer-v1::fv1_021635_0_0","split":"dev","message":"Anca is enrolled at Slatina Arts High School."}
+{"id":"formalizer-v1::fv1_005242_0_1","split":"dev","message":"Is Vlad Constantinescu employed by Orion Robotics and is he the coach of CS Tampere?"}
+{"id":"form-variant::fv-form-725f0bf4bc-005","split":"dev","message":"Please find out which company employs Maria."}
+{"id":"new_cases::nc-000822","split":"dev","message":"Please keep the returned headphones behind the counter until Jürgen Schmidt checks whether the seal was broken before the customer brought them back to the shop yesterday."}
+{"id":"formalizer-v1::fv1_031331_0_0","split":"dev","message":"Does Octavian live in Baia Mare or Leeds, do you know?"}
+{"id":"formalizer-v1::fv1_029789_0_0","split":"dev","message":"Can you confirm that Ms Oprea is enrolled at Popescu Primary School?"}
+{"id":"formalizer-v1::fv1_023498_0_1","split":"dev","message":"I'd like to know what Dorin is allergic to."}
+{"id":"new_cases::nc-004248","split":"dev","message":"Can you tell Pavel whether the accessible toilet beside the library is open today, and can you tell me whether the toilet near the courtyard has a working lock?"}
+{"id":"formalizer-v1::fv1_000449_0_0","split":"dev","message":"Can you confirm that Mr Szabó teaches drawing?"}
+{"id":"new_cases::nc-001203","split":"dev","message":"Dorin reserved the community hall."}
+{"id":"formalizer-v1::fv1_009241_0_0","split":"dev","message":"I need to know who is the coach of Recife United."}
+{"id":"formalizer-v1::fv1_027950_0_0","split":"dev","message":"Are all the students at Ploiești Music Academy certified?"}
+{"id":"new_cases::nc-000201","split":"dev","message":"Is Ștefan absent today?"}
+{"id":"formalizer-v1::fv1_030255_0_0","split":"dev","message":"Dariush was married to Valentina on 2020-08-08, right?"}
+{"id":"new_cases::nc-004210","split":"dev","message":"The tactile strip ends here beside the library doors."}
+{"id":"new_cases::nc-000995","split":"dev","message":"before 4 pm tomorrow can I hold these two coats for Marcela"}
+{"id":"formalizer-v1::fv1_016895_0_0","split":"dev","message":"Quick one: how many companies publish A Short History of Bridges?"}
+{"id":"formalizer-v1::fv1_029315_0_0","split":"dev","message":"I was wondering whether Diana studies at the Botoșani Language School."}
+{"id":"formalizer-ood-v1::ood1_000455_0_0","split":"dev","message":"Any idea which choir Mehmet sings in?"}
+{"id":"formalizer-v1::fv1_006922_0_0","split":"dev","message":"I wonder why Hassan Nasser stays home."}
+{"id":"formalizer-v1::fv1_030295_0_0","split":"dev","message":"Are all the players of Novi Sad United certified?"}
+{"id":"formalizer-v1::fv1_010413_0_0","split":"dev","message":"Do you know when the old sailing boat belonged to Medeea?"}
+{"id":"formalizer-v1::fv1_011209_0","split":"dev","message":"Please, make up a name for my new cat."}
+{"id":"formalizer-v1::fv1_023738_0_0","split":"dev","message":"Do you know where Levente is based?"}
+{"id":"new_cases::nc-001391","split":"dev","message":"not even one cousin said they couldn't come to the birthday picnic right"}
+{"id":"new_cases::nc-001354","split":"dev","message":"since the florist arrives after the guests where should we keep the empty vases"}
+{"id":"formalizer-v1::fv1_014926_1_0","split":"dev","message":"Ionuț Constantinescu raises Mr Căpraru, correct?"}
+{"id":"new_cases::nc-000938","split":"dev","message":"Mateo cleaned the counter and Jisoo folded the blankets and I checked the tags"}
+{"id":"new_cases::nc-000386","split":"dev","message":"only a few parents came to the meeting and none of them had received the new timetable"}
+{"id":"formalizer-v1::fv1_031930_0","split":"dev","message":"Good morning, this is fun"}
+{"id":"formalizer-v1::fv1_018022_0_0","split":"dev","message":"Is it true that Viorel lives in Leipzig and he is responsible for the search index?"}
+{"id":"new_cases::nc-000228","split":"dev","message":"Has Emre Yılmaz enrolled yet?"}
+{"id":"formalizer-ood-v1::ood1_000308_0_0","split":"dev","message":"Do you know until when Ms Nistor was a member of the gospel choir?"}
+{"id":"formalizer-ood-v1::ood2_000354_0_0","split":"dev","message":"Does Felix Schmidt not show up at the product launch, do you know?"}
+{"id":"formalizer-v1::fv1_016959_0_0","split":"dev","message":"Can you check whether Omar travels to Hanoi and he is allergic to shellfish?"}
+{"id":"formalizer-v1::fv1_003213_0_0","split":"dev","message":"Constanța Logistics published The Quiet Harbour, and Blue Harbor Media published The Last Ferry."}
+{"id":"formalizer-v1::fv1_030826_0_0","split":"dev","message":"Do you know since when Gheorghe Dobre maintains the billing service?"}
+{"id":"formalizer-v1::fv1_007826_0_1","split":"dev","message":"How many towns does Thảo Phạm travel to?"}
+{"id":"new_cases::nc-000830","split":"dev","message":"Save the last pumpkin."}
+{"id":"formalizer-v1::fv1_020856_0_0","split":"dev","message":"So does Laura not intend to attend the regional chess tournament?"}
+{"id":"new_cases::nc-000238","split":"dev","message":"Who marks the lab reports?"}
+{"id":"formalizer-v1::fv1_005066_0_0","split":"dev","message":"Is everyone who attended the charity run certified?"}
+{"id":"new_cases::nc-000204","split":"dev","message":"Did Andreea submit the poster?"}
+{"id":"formalizer-v1::fv1_022057_0_1","split":"dev","message":"Remind me when Erik taught history."}
+{"id":"new_cases::nc-001357","split":"dev","message":"Mina will keep the birthday gift hidden until Grandma has opened all the cards"}
+{"id":"formalizer-v1::fv1_004013_0_0","split":"dev","message":"Tell me whether Aurelia is the boss of Mr Brown."}
+{"id":"formalizer-v1::fv1_031995_0_0","split":"dev","message":"Until when did Kaveh live in Baia Mare?"}
+{"id":"new_cases::nc-000241","split":"dev","message":"I registered for the introductory linguistics module last week, but its seminar overlaps with the school pickup, and the portal does not show another group with spaces left."}
+{"id":"new_cases::nc-000954","split":"dev","message":"because Oana is late the fitting room is still locked"}
+{"id":"formalizer-v1::fv1_005901_0_0","split":"dev","message":"Honestly, does Atelier Becker carry second-hand laptops?"}
+{"id":"formalizer-v1::fv1_007859_0_0","split":"dev","message":"Who coaches the team Małgorzata plays for?"}
+{"id":"formalizer-v1::fv1_027075_0_0","split":"dev","message":"Can you check whether Ioana Toma studies at the Hanoi Language School?"}
+{"id":"new_cases::nc-001360","split":"dev","message":"before Leila leaves for the ceremony should I give her the spare hairpins"}
+{"id":"new_cases::nc-000324","split":"dev","message":"what happened to the reading log and did anyone find the folder"}
+{"id":"formalizer-v1::fv1_023785_0_0","split":"dev","message":"Honestly, does Simona Țurcanu not work for Brightfield Foods?"}
+{"id":"formalizer-v1::fv1_021089_0_0","split":"dev","message":"Is Ilinca allowed to sign a residence certificate on their own?"}
+{"id":"formalizer-v1::fv1_016486_0_0","split":"dev","message":"Which doctors treat someone who is allergic to shellfish?"}
+{"id":"formalizer-v1::fv1_014918_0","split":"dev","message":"napnap blaluzor trumifultmif ?"}
+{"id":"formalizer-v1::fv1_010499_0_0","split":"dev","message":"Can you check whether Constantin is certified?"}
+{"id":"formalizer-v1::fv1_028072_0_0","split":"dev","message":"True or false: Jack isn't allergic to strawberries."}
+{"id":"formalizer-v1::fv1_013361_0_0","split":"dev","message":"How old is Radu?"}
+{"id":"formalizer-v1::fv1_007279_0_0","split":"dev","message":"Hypothetically, if Costin Oprea raises Cristina, can you check whether Chioma is a parent of Cristina?"}
+{"id":"new_cases::nc-001210","split":"dev","message":"Jürgen Schmidt ordered the flowers."}
+{"id":"formalizer-v1::fv1_015120_0_0","split":"dev","message":"I was wondering whether Dorin was on CS Plovdiv on the 17th of January 2020."}
+{"id":"formalizer-v1::fv1_001631_0_0","split":"dev","message":"Is it true that not all players of Baia Mare United are certified?"}
+{"id":"new_cases::nc-004246","split":"dev","message":"Tudor has the parking permit, while Violeta holds the appointment letter; both documents need to reach the benefits desk before the hearing on Monday."}

@@ -5,7 +5,7 @@
  *
  * The two legacy suites (eval/suites/formalizer-ood-v1, eval/suites/formalizer-wild-v1) stay where they are as archive and provenance and are no longer reported as suites.
  * Their rows are split by split group with the rule of tools/datasets/three-datasets/legacy-split.mjs (70% train, 15% dev, 15% test, fixed seed). This tool
- * writes the train and dev parts into datasets_archive/<suite>/{train,dev}.jsonl (legacy corpora that the builders read like formalizer-v1; generators never read
+ * writes the train and dev parts into datasets_archive/legacy-resplit/<suite>/{train,dev}.jsonl (a folder one level below the legacy corpora, so the corpus audit does not mistake it for a corpus whose test overlaps its train; the builders read them; generators never read
  * eval/suites, AGENTS.md rule 9) and a manifest with the counts and sha256; the test part is read back from the legacy files by tools/eval/three-datasets-suites.mjs
  * through `legacyTestRows()`. The re-split is deterministic, so running it twice gives the same files.
  */
@@ -18,6 +18,7 @@ import {readJsonlShardedSync, writeJsonlShardedSync, hashJsonlSharded} from '../
 import {legacySplitOf, LEGACY_PROPORTIONS, LEGACY_SPLIT_SEED} from '../datasets/three-datasets/legacy-split.mjs';
 
 export const LEGACY = Object.freeze({'formalizer-ood-v1': 'eval/suites/formalizer-ood-v1/test.jsonl', 'formalizer-wild-v1': 'eval/suites/formalizer-wild-v1/test.jsonl'});
+export const WILD = Object.freeze({'formalizer-ood-v1': false, 'formalizer-wild-v1': true});
 
 /** `{corpus: {train: rows, dev: rows, test: rows}}` of the legacy suites. */
 export function legacySplit(root = ROOT) {
@@ -39,13 +40,13 @@ async function main() {
     const counts = Object.fromEntries(Object.entries(split).map(([k, v]) => [k, v.length]));
     console.log(`${corpus}: ${JSON.stringify(counts)}`);
     if (dry) continue;
-    const dir = path.join(ROOT, 'datasets_archive', corpus);
+    const dir = path.join(ROOT, 'datasets_archive', 'legacy-resplit', corpus);
     fs.mkdirSync(dir, {recursive: true});
-    const manifest = {format: 'chatsop-legacy-resplit-v1', corpus, note: 'Train and dev parts of a legacy suite, split by split group (DS008 "Form coverage and form variants"); the test part stays in the legacy suite file and is read by tools/eval/three-datasets-suites.mjs.', source: LEGACY[corpus], seed: LEGACY_SPLIT_SEED, proportions: LEGACY_PROPORTIONS, counts, sha256: {}, source_sha256: createHash('sha256').update(fs.readFileSync(path.join(ROOT, LEGACY[corpus]))).digest('hex')};
+    const manifest = {format: 'chatsop-legacy-resplit-v1', corpus, wild: WILD[corpus], note: 'Train and dev parts of a legacy suite, split by split group (DS008 "Form coverage and form variants"); the test part stays in the legacy suite file and is read by tools/eval/three-datasets-suites.mjs.', source: LEGACY[corpus], seed: LEGACY_SPLIT_SEED, proportions: LEGACY_PROPORTIONS, counts, sha256: {}, source_sha256: createHash('sha256').update(fs.readFileSync(path.join(ROOT, LEGACY[corpus]))).digest('hex')};
     for (const s of ['train', 'dev']) {
       const file = path.join(dir, `${s}.jsonl`);
       writeJsonlShardedSync(file, split[s].map(row => ({...row, split: s})));
-      manifest.sha256[`datasets_archive/${corpus}/${s}.jsonl`] = await hashJsonlSharded(file);
+      manifest.sha256[`datasets_archive/legacy-resplit/${corpus}/${s}.jsonl`] = await hashJsonlSharded(file);
     }
     fs.writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify(manifest, null, 1) + '\n');
   }

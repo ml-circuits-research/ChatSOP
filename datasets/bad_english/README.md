@@ -27,6 +27,7 @@ and, for the new cases (`datasets_sources/new_cases`, LLM-written), messages tha
 3. `clean-sibling`: a clean-English row of the same semantic case with the same gold SOP (different wording, same meaning).
 4. `proofing.translate`: for Romanian and mixed rows, the SymbolicLM English rendering of the same semantic case that passed the strict oracle and the clean-English gate.
 5. `new_cases.clean`: the LLM-written clean reference of a new case (`review_status: reviewed-by:pending`).
+6. `llm:deepseek-flash`: a clean-English target written by DeepSeek flash (omp task `datasets_sources/bad_english_targets/`) for a row that had none, checked mechanically by `tools/eval/bad-english-targets.mjs validate` and by the clean-English gate; `review_status: pending` and `targets[].check.review: pending`. A target that fails the gate (most often a Romanian proper name kept in the text) is held in `unverified_references` with the flag `llm_target_failed_clean_gate`; a row DeepSeek found unfixable (keyboard mash, nothing recoverable) keeps `no_target` plus `llm_unfixable` and its reason; a `mixed` row that is already clean English (or differs only by casing) gets its message as target (`check.message_is_target`, owner direction 2026-09-30). Merge: `node tools/datasets/merge-llm-targets.mjs` (train, dev; idempotent) and the dataset builder (`three-datasets/llm-targets.mjs`, applied by `assemble`). A row that already has a target keeps it.
 
 Rows with no target are kept and carry `flags: ["no_target"]`. Row fields: `id`, `dataset`, `split`, `split_group_id`, `message`, `language`, `language_kind`, `noise_categories`, `noise` (`level`, `ops`, `code_switch`), `gate_reasons` (why the classifier said not clean), `target`, `target_source`, `targets`, `flags`, `source` (corpus, id, semantic case, family, question type, author), `rights`, `quality_flags`, `review_status`.
 
@@ -44,39 +45,40 @@ A clean target is acceptable English; where the sentence is tangled, the contrac
 
 ## Counts at the last build
 
-Rebuilt 2026-09-30T13:19:11.426Z (train, dev) and 2026-09-30T13:20:14.317Z (sealed test); SymbolicLM `symbolic-lm-v1.1`, rules `ud-rules-v1.4`, stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_charlm,lemma=combined_nocharlm,depparse=combined_charlm.
+Rebuilt 2026-09-30T19:06:22.826Z (train, dev) and 2026-09-30T19:07:19.962Z (sealed test); SymbolicLM `symbolic-lm-v2.0`, rules `ud-rules-v2.5`, stanza-1.10.1/en:tokenize=combined,mwt=combined,pos=combined_electra-large,lemma=combined_nocharlm,depparse=combined_electra-large.
 
 | split | rows | with target |
 | --- | --- | --- |
-| train | 17,169 | 5,393 |
-| dev | 3,215 | 829 |
-| test | 5,511 | 1,444 |
+| train | 17,919 | 15,986 |
+| dev | 3,383 | 3,037 |
+| test | 4,245 | 3,783 |
 
 Rows by source corpus:
 
 | source | train | dev | test |
 | --- | --- | --- | --- |
-| formalizer-v1 | 15,850 | 3,034 | 3,730 |
+| formalizer-ood-v1 | 701 | 160 | 173 |
+| formalizer-v1 | 15,566 | 2,973 | 3,730 |
+| formalizer-wild-v1 | 334 | 69 | 74 |
 | new_cases | 933 | 181 | 268 |
-| proofing-diverse-dev | 386 | 0 | 0 |
-| formalizer-ood-v1 | 0 | 0 | 1,035 |
-| formalizer-wild-v1 | 0 | 0 | 478 |
+| proofing-diverse-dev | 385 | 0 | 0 |
 
 `language_kind`:
 
 | language_kind | train | dev | test |
 | --- | --- | --- | --- |
-| mixed | 4,527 | 859 | 1,317 |
-| noisy_en | 4,543 | 610 | 1,672 |
-| ro | 8,099 | 1,746 | 2,522 |
+| mixed | 4,831 | 933 | 928 |
+| noisy_en | 4,617 | 631 | 1,465 |
+| ro | 8,471 | 1,819 | 1,852 |
 
 `target_source`:
 
 | target_source | train | dev | test |
 | --- | --- | --- | --- |
-| clean-sibling | 4 | 1 | 3 |
+| clean-sibling | 4 | 2 | 2 |
+| llm:deepseek-flash | 10,553 | 2,190 | 2,512 |
 | new_cases.clean | 898 | 171 | 262 |
-| noise-inverse | 2,267 | 271 | 1,068 |
-| none | 11,776 | 2,386 | 4,067 |
-| proofing.repair | 1,013 | 111 | 111 |
-| proofing.translate | 1,211 | 275 | 0 |
+| noise-inverse | 2,328 | 289 | 896 |
+| none | 1,933 | 346 | 462 |
+| proofing.repair | 996 | 110 | 111 |
+| proofing.translate | 1,207 | 275 | 0 |

@@ -1,0 +1,153 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "train-symbolic-proofing-gemma270m-it2",
+ "name": "SymbolicProofingLLM iteration 2: Gemma 3 270M IT + LoRA on sentence units of datasets/neuro_english/proofing-it2 (role proofreader)",
+ "registered_at": "2026-10-01T00:16:52Z",
+ "registered_by": "symbolic-proofing-it2-agent (owner decisions in status/journal.jsonl, actor orchestrator: 2026-09-30T17:32:38.274Z, 17:41:07.339Z, 17:46:38.134Z, 19:58:29.661Z, 20:21:53.090Z, 22:48:59.650Z, 22:54:36.651Z)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_request": "Iteration 2 of SymbolicProofingLLM (the owner approved 1-2 overnight iterations of Gemma 3 270M and 'iterate until morning so both proofing LLMs are very good'): the same model and recipe as iteration 1, trained from the base on sentence units built on the analysis-layer split. Evaluation layer by layer: natural language and grammatical analysis first, SOP secondary. Comparisons only on our synthetic data against no rewrite, the untrained gemma-3-270m-it and iteration 1. Gemma 3 1B only on clear evidence that 270M cannot learn more, and it is NOT trained in this run.",
+ "frozen_before_results": "Written after the dataset qualification and the authorization receipt and before any optimizer step of this run and before any prediction of any checkpoint of this run on any split. Baselines (no rewrite, untrained base, iteration 1) are scored after this file is frozen on the same sets.",
+ "iteration": 2,
+ "questions": [
+  "Q1: Does a model trained on sentence units, with at least half identity pairs and no pronoun-to-name targets, repair more sentences than iteration 1 (analysis correct AND meaning kept) on the sealed pairs, sent sentence by sentence?",
+  "Q2: Does it leave working sentences alone (analysis and text unchanged) on the sealed identity pairs and on 500 random working sentences of the sealed symbolic_english test?",
+  "Q3: In the chat's design (every sentence goes to the model, the host splits and joins) does it improve mixed paragraphs (K2), leave long clean paragraphs alone (K3), keep pronouns (K5) and decompose tangled input (K6)?",
+  "Q4: Is there evidence of a capacity limit of 270M (the model cannot fit the training pairs), or do remaining errors come from missing data categories?"
+ ],
+ "hypotheses": {
+  "H1": "Repair. On the sealed repair pairs (1,234 pairs, every input cut by the host splitter and every sentence sent to the model, outputs joined), the share of repair pairs whose output analysis passes the gate AND whose meaning is kept (unchanged, equal to the verified target, or hard mechanical checks plus the two-vote DeepSeek meaning judge) is higher for iteration 2 than for iteration 1, than for the untrained base and than for no rewrite, each with the paired bootstrap 95% interval of the difference above 0.",
+  "H2": "Identity. The share of sealed identity pairs, and of 500 random working sentences of the sealed symbolic_english test (seed 20260930), whose analysis OR text changed is at most 1% (point estimate; the Wilson upper bound is reported).",
+  "H3": "Per-sentence composed K2 (all sentences sent): at most 1% of the clean sentences are changed and the share of bad sentences fixed (analysis correct and meaning kept) exceeds no rewrite with the paired bootstrap interval above 0.",
+  "H4": "Decomposition. On K6 (16 cases) and on the sealed decomposition pairs, the output reaches the expected sentence count for more cases than iteration 1 (K6 0/16), reported with one-clause-per-sentence and explicit-subject measures; no threshold, 16 cases carry wide intervals.",
+  "H5": "Pronouns and fillers. At most 1% of the sealed repair outputs replace a pronoun by something else (pronoun count of the output below the input) and, on K5, at least 99% of the cases keep every pronoun; at most 2% of the repair outputs drop a lead-in or a tag.",
+  "H6": "Stability. At most 1% of the outputs of any evaluated set hit the generation cap or repeat a sentence (runaway); no empty output.",
+  "non_claim": "No claim about LanguageProofingLLM, about a larger model, about the SOP layer (secondary column only), or about inputs longer than a sentence (the host splits)."
+ },
+ "arms": [
+  {
+   "order": 1,
+   "name": "no_rewrite",
+   "kind": "baseline, no compute",
+   "note": "identity rewriter"
+  },
+  {
+   "order": 2,
+   "name": "gemma-3-270m-it (untrained)",
+   "kind": "baseline, same prompt",
+   "prompt": "message-only chat turn, exactly the training prompt (training/python/common.py chat_ids: user turn = the raw sentence, no system role, no instruction); greedy",
+   "model_dir": "models/gemma/bases/99073d6b6edb0e298d163f964ec2b9d970b3408d"
+  },
+  {
+   "order": 3,
+   "name": "symbolic-proofing-gemma270m-it1",
+   "kind": "previous iteration (pilot on the old split), epoch 3, merged HF bf16 and GGUF Q8_0",
+   "model_dir": "models/gemma/symbolic-proofing-gemma270m-it1/proofreader/merged-epoch-3"
+  },
+  {
+   "order": 4,
+   "name": "symbolic-proofing-gemma270m-it2 (fine-tuned, this run)",
+   "kind": "training arm",
+   "model_id": "daniel-dona/gemma-3-270m-it",
+   "revision": "99073d6b6edb0e298d163f964ec2b9d970b3408d",
+   "upstream": "google/gemma-3-270m-it ac82b4e820549b854eebf28ce6dedaf9fdfa17b3 (byte-identical mirror, config/train-gemma.json)",
+   "recipe": "config/train-gemma.json",
+   "recipe_sha256": "ecc7fe047b1bd075721a51541d38f23610336973d8b2009802db271002d5b6c2",
+   "role": "proofreader",
+   "run": "symbolic-proofing-gemma270m-it2"
+  }
+ ],
+ "changed_factor": "The training data (sentence units on the analysis-layer split, at least half identity, no pronoun-to-name or fact-adding targets, no filler dropped, the decomposition top-up) and the evaluation unit (one sentence, every sentence sent). Same base, same LoRA recipe as iteration 1, trained from the base (not continued from iteration 1).",
+ "data": {
+  "training_input": "datasets/neuro_english/proofing-it2/proofreader/{train,dev}.jsonl ({id,prompt,target,kind,...}): train 8890 pairs (3951 repair, 4939 identity = 55.6%), dev 1119 pairs (497 repair, 622 identity), prompt_profile message-only",
+  "dataset_manifest_sha256": "5e85391c3aa4bf7cad87ca460450817c1d4149c5febc52a7d39ae5472820bccc",
+  "dataset_version": {
+   "format": "chatsop-dataset-version-v1",
+   "corpus": "neuro_english/proofing-it2",
+   "counter": 1,
+   "label": "neuro_english/proofing-it2 2026-10-01-7ebfca69 (sentence units, analysis-layer gate)",
+   "dataset": "neuro_english/proofing-it2",
+   "version": "2026-10-01-7ebfca69",
+   "rules": "ud-rules-v2.5"
+  },
+  "dataset_version_sha256": "d64278497a13dad4b5eb903c5b310e99ca1f76265b99cb03c5ff2044a853e982",
+  "projection_sha256": {
+   "proofreader/train.jsonl": "7ebfca69c1a61a50515992607e2e10c6f824302e2aa630e43a719d162d7512dc",
+   "proofreader/dev.jsonl": "cf2b73f4f3e67f8fb26cfb4da21d8fca80a100d44912b3d4a5e6a71cf1485545"
+  },
+  "builder": "tools/datasets/build-symbolic-proofing-v2.mjs (collect, collect-decomp, parse, meaning-items, build, compose), units in tools/datasets/symbolic-proofing-v2/units.mjs, sealed-overlap auditor tools/datasets/audit/symbolic-proofing-overlap.mjs, decomposition top-up datasets_sources/decomp_backgen/ (DeepSeek omp task)",
+  "qualification": "status/training/qualification-symbolic-proofing-it2.json (status qualified, experiment-grade, sha256 32ff7f10b0252e5218317f170ef218068df5279e29344133eb9a046bff2091e1)",
+  "sealed_pair_test": "eval/suites/neuro_english/proofing-test.jsonl, 1234 pairs, sha256 158d1875fed658548e75dfd668724b2fdee5af5d36456ec53703cb5b102b94ea; never read by training or dev selection",
+  "sealed_identity_sample": "sym500: 500 random sentences (one per message, seed 20260930, length 8..400 characters) of eval/suites/symbolic_english/test.jsonl, frozen in eval/reports/current/symbolic-proofing-it2/inputs-sym500.jsonl when first generated",
+  "composed_suites": "eval/suites/neuro_english/test-composed.jsonl (K2 mixed 306, K6 decomposition 16) and eval/suites/symbolic_english/test-composed.jsonl (K3 long identity 265, K5 pronoun references 102, K1 not used); hashes of the files actually scored are recorded in the report",
+  "composition_rules": {
+   "unit": "one sentence as cut by the host splitter (lib/sentence-split.mjs); a paragraph-level pair of the source sets is cut by sentence alignment (identical sentences are anchors; one prompt sentence with one or more target sentences is a unit; k prompt sentences with exactly k target sentences are taken one to one; every other gap is dropped); a unit cut out of a longer pair needs its own two-vote meaning verdict",
+   "repair_keep": "the unit prompt does NOT pass the analysis gate alone (SymbolicLM does not handle it); the target sentences all pass the gate or the source row is in the current symbolic_english train/dev of the same split (back-generated pairs: target = original message); the two-vote meaning judge says yes (inherited from the source pair when it was a whole pair, otherwise voted for the unit); mechanical filters hold",
+   "mechanical_filters": "names, numbers, negation and question mark of the prompt are kept; a statement never becomes a question; no pronoun (he, she, him, his, her, they, them, their and reflexives) is dropped or replaced (this removes every pronoun-to-name target); no name and no content stem (two or more, one for a cut unit) that the prompt does not have is added (this removes targets that add a fact); every lead-in, tag and question frame of the prompt is kept",
+   "fillers": "NO filler may be dropped. Lead-ins ('Quick question:', 'Also,', 'Honestly,', 'Just checking,', ...), tags (', right?', ', correct?', 'do you know', 'any idea', 'if you know') and question frames ('Any chance', 'Would you say', ...) stay in the target; SymbolicLM handles them. The list is LEAD_INS, TAGS and FRAMES in tools/datasets/symbolic-proofing-v2/units.mjs. A repair pair that drops one is removed; the same sentences appear as identity pairs.",
+   "identity": "at least 50% of the rows: backgen identity (complex paraphrases that pass the gate alone), up to 1,200 lead-in or tag sentences of symbolic_english train, then single sentences of symbolic_english train round-robin over the forms until identity is 1.25 times the repair count; every identity prompt passes the gate alone; a prompt that is also a repair prompt stays a repair, a prompt in train and dev stays in train",
+   "leakage": "no sentence of a prompt or target equals a sealed sentence after folding, and none shares its light content-word signature (at least two words) with a sealed sentence (auditor tools/datasets/audit/symbolic-proofing-overlap.mjs over every eval/suites test, variant, composed and proofing-pair file; the builder reads back only the per-unit flags); 1469 candidate units were flagged and removed",
+   "decomposition": "decomposition pair = the prompt has more than one finite clause (Stanza analysis of the unit) and the target has two or more sentences; counts are in the manifest summary"
+  }
+ },
+ "recipe_policy": {
+  "mode": "LoRA adapter rank 16, alpha 32, dropout 0.05, lr 2e-4, batch 2 x accumulation 8, max_length 8192, sdpa, bf16, seed 42, 3 epochs (config/train-gemma.json, unchanged from iteration 1 and from train-proofreader-gemma270m-v1)",
+  "steps": "ceil(ceil(8890/2)/8) = 556 per epoch, 1668 total",
+  "snapshots": "one adapter snapshot per epoch (epoch-N) so each epoch can be decoded on dev; no second attempt unless an early-stopping rule trips",
+  "resources": "Podman job through training/container/podman.mjs under the single-GPU-worker lock; nvidia-smi, free RAM and models/.training.lock are checked first; the bounded documented override TRAIN_MIN_CUDA_FREE_GIB=24 TRAIN_CUDA_FREE_CHECK=host is used only when the default floor stops the job because other agents hold GPU memory (the driver-reported free memory of the GB10 excludes reclaimable page cache); host RAM floors unchanged; no other process is killed; LanguageProofingLLM iteration 2 may train in parallel (owner allows it when it does not make both slower)"
+ },
+ "early_stopping": {
+  "after_each_epoch": "dev loss and a greedy decode (message-only prompt, HF bf16, every dev unit) scored on the analysis layer: repair share with output analysis correct AND meaning kept, identity share whose analysis or text changed, share of runaway outputs (cap hit or repeated sentence).",
+  "stop_rules": "Stop and keep the previous epoch if: dev identity change > 10% after epoch 1 and rising; or no dev repair output changed (identity collapse); or > 5% of dev outputs runaway or empty; or non-finite loss, OOM, resource floor, wall-time cap 90 minutes. Stop (plateau) when dev loss has not improved for 2 consecutive epochs. A run that trips none of these completes its 3 epochs.",
+  "sealed_evaluation_stages": "The sealed pair test and sym500 are scored in one stage (1,234 + 500 sentences); composed suites run in stratified stages 100 then 300 then full (tools/eval/composed-score.mjs) with a paired bootstrap after each stage; stop a suite early when the interval is decisive versus the baseline, when the condition is broken (> 20% unparsable or empty outputs on the first 100), or on futility; every stop is recorded with stage, numbers and reason."
+ },
+ "evaluation": {
+  "layer_order": "1 natural language and grammatical analysis (PRIMARY): output analysis passes the gate (Stanza default and accurate trees identical AND DeepSeek parse judge a and c good on every sentence), meaning kept; identity = analysis and text unchanged. 2 SOP translation (SECONDARY column, never used for selection or verdict).",
+  "meaning": "meaning kept = unchanged, or equal to the verified target, or (hard mechanical checks: names, numbers, negation, non-empty) AND the two-vote DeepSeek meaning judge (m1 and m2, calibrated in eval-meaning-judge-calibration-v1: adjudicated precision about 99-100%, recall 82%, so some good rewrites are counted as lost). The mechanical-only variant of iteration 1 is reported next to it.",
+  "checkpoint": "best epoch selected on dev only: among epochs with dev identity change <= 1% (if none, the lowest identity change), the highest dev repair share good (analysis correct and meaning kept); ties by lowest dev loss. The sealed data never selects anything.",
+  "decoding": "greedy, message-only prompt, one sentence per call (every sentence of an input is sent: the chat's sendAll). HF bf16 for selection and the sealed pair test; llama.cpp Q8_0 through llama-server (GPU, prompt cache off) for the composed suites, the deployment form; HF vs llama.cpp greedy agreement is checked on 50 dev rows.",
+  "composed": "tools/eval/composed-score.mjs rewrite on K2, K3, K5 and decompose on K6, per-sentence mode with --gate all (every sentence sent) and whole-paragraph mode for comparison; arms it2, it1, untrained base, no rewrite; analysis layer through tools/eval/symbolic-proofing-eval.mjs composed-score; paired bootstrap of it2 minus it1.",
+  "capacity_check": "Train-fit: 400 random training repair pairs and 400 identity pairs are decoded with the final model. Evidence of a capacity limit (the model cannot fit its own training pairs) = exact reproduction of the training repair targets below 70% after epoch 3 with training loss still above the iteration-1 level while dev loss has plateaued. High train-fit with low dev quality is a data gap, not capacity.",
+  "error_categories": "sealed repair outputs are classified: good, unchanged, changed but analysis still wrong, meaning lost (judge or mechanical), pronoun dropped, filler dropped, statement turned into a question, runaway; identity breaks by cause (lead-in removal, question normalisation, reordering, hallucination, case/punctuation only).",
+  "cpu_speed": "GGUF Q8_0, llama.cpp CPU, 4 threads, 30 prompts of the sealed pair test (sentences): ms per message and tokens per second.",
+  "gguf": "Q8_0 through ~/proofreader-export-venv and the llama.cpp converter copy of ~/llama-cpp-venv (the <image_soft_token> entry at id 262144 is removed from copies of the tokenizer files, as in iteration 1)."
+ },
+ "decision_rule_iteration_3": {
+  "more_data_same_model": "If H1 holds but a category (decomposition, embedded questions, fronting, fillers) stays below its target while train-fit is high: iteration 3 on 270M with new DeepSeek examples of exactly those categories, counts stated in the report.",
+  "escalate": "Only with clear evidence of a capacity limit (see capacity_check) AND no category gap that more data could fill: the owner's fallback Gemma 3 1B LoRA as a new preregistered run. 1B is not trained here.",
+  "ship": "If iteration 2 beats iteration 1 on H1 and H2 holds (identity change <= 1%), the SymbolicLM optional rewrite metadata (config/formalizers.json symbolic-lm.rewrite) points at the iteration-2 GGUF; the rewrite stays OFF by default."
+ },
+ "non_goals": "no rule changes to lib/ud-to-sop; no tuning on any sealed file; no fine-tuning of any model other than gemma-3-270m-it; no change to SymbolicLM's default behaviour; no LanguageProofingLLM training; no 1B run",
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-10-01T03:01:01Z",
+   "before": "evaluation",
+   "what": "Coordinator direction of 2026-10-01 (local first): the analysis metrics are reported twice, (a) local only (default and accurate Stanza trees identical, no LLM) and (b) with the DeepSeek parse judge on those; the meaning rule gained the local analysis comparison (lib/languages-util/analysis-compare.mjs, `equivalent`) before the two-vote judge; the stored scores were recomputed with `tools/eval/symbolic-proofing-eval.mjs remeaning` (no model call). Every number in the report uses the final rule; the mechanical-only variant of iteration 1 is a table row."
+  },
+  {
+   "id": "D2",
+   "at": "2026-10-01T03:01:01Z",
+   "before": "evaluation",
+   "what": "The HF generation for the sealed pairs, sym500, dev and train-fit used the host sentence splitter on every input and joined the outputs (`generate --units true`, max 400 new tokens per sentence), identical for all arms; the untrained base and iteration 1 were decoded the same way."
+  },
+  {
+   "id": "D3",
+   "at": "2026-10-01T03:01:01Z",
+   "before": "evaluation",
+   "what": "CPU speed was measured while other processes used the machine (one Stanza parse worker on the GPU and Node scorers); HF vs llama.cpp greedy agreement on 50 dev rows is 46/50."
+  },
+  {
+   "id": "D4",
+   "at": "2026-10-01T03:01:01Z",
+   "before": "after the evaluation",
+   "what": "The rejected candidate units of the pair rules were audited (20 per category) on the coordinator's direction and the rules corrected (v3); the set `datasets/neuro_english/proofing-it3` was built and qualified (status/training/qualification-symbolic-proofing-it3.json). It is NOT trained: no authorization receipt exists for it. The frozen it2 data, qualification and receipt were not touched."
+  },
+  {
+   "id": "D5",
+   "at": "2026-10-01T03:01:01Z",
+   "before": "decomposition top-up",
+   "what": "The decomposition count of the it2 pair set (1,189 train pairs) was above the preregistered threshold of about 800; the DeepSeek top-up (datasets_sources/decomp_backgen, 458 train pairs after the gates) was created nevertheless because iteration 1 failed K6; it is part of the frozen it2 set."
+  }
+ ],
+ "results_pointer": "eval/reports/current/symbolic-proofing-it2/summary.md"
+}

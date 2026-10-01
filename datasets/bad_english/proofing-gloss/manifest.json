@@ -1,0 +1,114 @@
+{
+ "format": "chatsop-proofing-pairs-v1",
+ "dataset": "bad_english",
+ "model": "LanguageProofingLLM",
+ "role": "proofreader",
+ "variant": "gloss",
+ "iteration": 3,
+ "prompt_profile": "message-only",
+ "prompt": "row.prompt: the TranslatorService gloss (lib/translator-service/backends/gloss.mjs, version translator-gloss-v1, spelling on, two dictionary senses) of the sentence of the source pair; the gloss alone, never the original (DS021 message-only input: the message is still the only input, preprocessed by host code, nothing else enters the prompt)",
+ "target": "row.target verbatim from datasets/bad_english/proofing-it3 (clean English; identity pairs and keyboard mash keep prompt = target)",
+ "created": "2026-10-01T05:59:37.966Z",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "gloss": {
+  "version": "translator-gloss-v1",
+  "senses": 2,
+  "spell": true,
+  "mark": [
+   "[",
+   "]"
+  ]
+ },
+ "held_out_vocabulary": [
+  "nephew",
+  "landlord",
+  "contractor",
+  "postpone",
+  "reject",
+  "bakery",
+  "warehouse",
+  "pharmacy"
+ ],
+ "trained_vocabulary": [
+  "cousin",
+  "niece",
+  "uncle",
+  "tenant",
+  "supervisor",
+  "tutor",
+  "owe",
+  "adopt",
+  "audit",
+  "boatyard"
+ ],
+ "source": {
+  "dataset": "bad_english/proofing-it3",
+  "manifest_sha256": "1603fb53afaa758777da47b2698d225871f2dd173f878be9b20fa334a301b1fd",
+  "train_sha256": "9b0a26e6deacdc1b6e56ff54dda453b48a769b60b0e3db3fed9f8b1a3ab4d352",
+  "dev_sha256": "64f3e613560741761c3b9ce30d158bb806b4dd0285bdf1182d683568a5e70dc7",
+  "sealed_hashes_sha256": "38a4da4954f2892b75e31fdca0bdb1461842928eea5d7e527828ecc04aa2ac62"
+ },
+ "files": {
+  "proofreader/train.jsonl": {
+   "rows": 62550,
+   "source_rows": 62939,
+   "sha256": "362cecfd92807dc0d26ab374ffc95f49f8690f5d18c41593d796facaa292744e"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 5173,
+   "source_rows": 5173,
+   "sha256": "dceb21c44cb8bf7b329464740a500b98e5f8231428487d14f5ececa99e508416"
+  },
+  "dev-heldout.jsonl": {
+   "rows": 574,
+   "source_rows": 574,
+   "sha256": "bdf8afe5a01cb4758c365e4b28199f8d60044b15f585e5356e78f932b3f5d2cf"
+  },
+  "dev-heldout-v3.jsonl": {
+   "rows": 830,
+   "source_rows": 830,
+   "sha256": "5691d8ffeb8f90bb0f396b4f55e43bde73ba702b7b2677611512d28cce560296"
+  },
+  "dev-heldout-v3-identity.jsonl": {
+   "rows": 306,
+   "source_rows": 306,
+   "sha256": "141301a199bd0cf26b9b02d50ba5f4529cf8dfd7cb088a5be399b383650ac8d0"
+  },
+  "dev-spacing.jsonl": {
+   "rows": 240,
+   "source_rows": 240,
+   "sha256": "e47443d9a1981d79b748318bbf17c531427f612501c502f910c259dc3a486242"
+  },
+  "dev-backgen.jsonl": {
+   "rows": 1488,
+   "source_rows": 1488,
+   "sha256": "72bef951c9120ed7a62712dcf5aaa70ece2d28f2a7470e63638c02446905fbed"
+  },
+  "mash-eval.jsonl": {
+   "rows": 150,
+   "source_rows": 150,
+   "sha256": "2799c1bcd9a51bc68921433d8532356f0c5610116738667e20a64fece760a74c"
+  }
+ },
+ "summary": {
+  "dropped_sealed_text": 5,
+  "dropped_prompt_in_dev": 262,
+  "removed_new_heldout": {
+   "nephew": 33,
+   "warehouse": 39,
+   "reject": 8,
+   "postpone": 5
+  },
+  "dropped_mechanical": {
+   "negation differs": 31,
+   "lost item": 6
+  },
+  "dropped_mechanical_rows": 37,
+  "unchanged": 19751,
+  "glossed": 42799,
+  "bracketed": 2621,
+  "identity_changed_by_gloss": 30
+ },
+ "note": "Built from the qualified datasets/bad_english/proofing-it3 by tools/datasets/build-language-proofing-gloss.mjs. Targets are the it3 targets (DeepSeek-written, review pending); prompts are deterministic host code output. source_prompt is kept for audit only and is never a model input."
+}

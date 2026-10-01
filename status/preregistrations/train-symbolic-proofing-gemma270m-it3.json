@@ -1,0 +1,105 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "train-symbolic-proofing-gemma270m-it3",
+ "name": "SymbolicProofingLLM iteration 3: Gemma 3 270M IT + LoRA (fast recipe) on datasets/neuro_english/proofing-it3-mix = proofing-it3 + the decomposition top-up (role proofreader)",
+ "registered_at": "2026-10-01T08:52:28Z",
+ "registered_by": "sp-it3-agent (owner decision in status/journal.jsonl, actor orchestrator: 2026-10-01T08:47:38.988Z; earlier decisions listed in status/training/owner-approval-symbolic-proofing-it3.json)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_request": "'da, aprob, vei ce iese, ... facem ce putem, daca nu dureaza foarte mult merita it3' (owner, 2026-10-01): one run symbolic-proofing-gemma270m-it3, Gemma 3 270M LoRA, on the decomposition data, fast recipe, queued after the gloss run. When the judges disagree on S3/S4 the case is excusable ambiguity, reported separately, not counted as a model failure.",
+ "frozen_before_results": "Written after the dataset qualification and the authorization receipt and before any optimizer step of this run and before any prediction of any checkpoint of this run on any split. The it2 numbers used as baselines are the already published ones (eval/reports/current/decomposition/summary.md, eval/reports/current/symbolic-proofing-it2/summary.md).",
+ "iteration": 3,
+ "design_decision": {
+  "question": "Train on the decomposition data alone warm-started from it2, or on the it2 data mix plus the decomposition data from the base?",
+  "choice": "the mix from the base",
+  "reason": "The README of proofing-it3-decomp states that it is a targeted top-up that the orchestrator may merge with proofing-it3, and proofing-it3 is the it2 mix with the corrected pair rules v3 (it carries the identity pairs, lead-in/frame identity pairs and repairs that keep the model from dropping lead-ins; the decomposition rows are 22% of the mix). Decomposition-only rows (3,246, every target 3 to 5 sentences) would teach the model to split everything and would make the it2 repairs and identity behaviour forget. A warm start from it2 would also confound the comparison with it2 (which was trained from the base, like it1). Same recipe as it2 apart from the micro-batch, trained from the base."
+ },
+ "questions": [
+  "Q1: Does iteration 3 split tangled sentences correctly more often than iteration 2 on the sealed decomposition set (275 cases): sentence count equal to the expected count and every output sentence certified?",
+  "Q2: Does the rise come without more silent meaning changes (S3 or S4 of what the user is told with no marker)?",
+  "Q3: Is there a regression on the general neuro_english repair task used for iteration 2 (sealed pairs 1,234, 500 working sentences of symbolic_english)?"
+ ],
+ "hypotheses": {
+  "H1": "Decomposition, gated + certified (the deployment form: gate trees, acceptance certified): the share of the 275 cases whose output sentence count equals the expected count is higher for it3 than the it2 value 32.0% (88/275), paired exact sign test on the same cases p < 0.05 (one-sided in the preregistered direction), and the share of cases with every output sentence certified is at least the it2 value 65.5% (180/275).",
+  "H2": "Decomposition, always (every unit sent, every output accepted): the sentence count equals the expected in more cases than it2-always (44.0%, 121/275).",
+  "H3": "No rise in silent meaning changes: the silent meaning change rate (S3 or S4 upper estimate with no marker) of it3-gated is at most that of it2-gated + 1 point (4.7% -> at most 5.8%, 16/275) and of it3-always at most that of it2-always + 1 point (8.0% -> at most 9.1%, 25/275). The catastrophic S4 rate (upper) of the gated arm stays at most the no-rewrite value 15.3%.",
+  "H4": "No regression on the it2 repair task (sealed pairs, every sentence sent, HF bf16 greedy, the it2 evaluation and scoring unchanged): repair 'analysis correct AND meaning kept' (local only) at least the it2 value 41.1% minus 2 points; identity change on the 500 sym500 sentences at most the it2 value 15.4% plus 2 points; pronoun dropped or replaced at most 1%.",
+  "H5": "Stability: at most 1% of the outputs of any evaluated set hit the generation cap or repeat a sentence; no empty output.",
+  "non_claim": "No claim about LanguageProofingLLM, a larger model, the SOP layer, or forms of tangled sentences outside the training forms; no claim that a failed arm is a model failure when the two judges disagree on S3/S4 (see excusable_ambiguity)."
+ },
+ "arms": [
+  {
+   "order": 1,
+   "name": "none",
+   "kind": "baseline already measured (it2 summary)"
+  },
+  {
+   "order": 2,
+   "name": "it2-always / it2-gated",
+   "kind": "previous iteration already measured with the same pipeline (GGUF Q8_0, llama-server, cached raw outputs)"
+  },
+  {
+   "order": 3,
+   "name": "it3-always / it3-gated (this run)",
+   "kind": "training arm",
+   "model_id": "daniel-dona/gemma-3-270m-it",
+   "revision": "99073d6b6edb0e298d163f964ec2b9d970b3408d",
+   "recipe": "config/train-gemma-fast.json",
+   "role": "proofreader",
+   "run": "symbolic-proofing-gemma270m-it3"
+  }
+ ],
+ "changed_factor": "The training data (it3 pair rules v3 plus the 3,246 decomposition pairs of proofing-it3-decomp, 2 sealed-overlap rows removed) and the micro-batch (16 x 1 instead of 2 x 8, same effective batch 16; owner-approved fast recipe). Same base, same LoRA, trained from the base.",
+ "data": {
+  "training_input": "datasets/neuro_english/proofing-it3-mix/proofreader/{train,dev}.jsonl",
+  "train_rows": 14482,
+  "dev_rows": 1769,
+  "dataset_manifest_sha256": "0e392674b5d8c06cf9b6264c10394713e1e7ffc289f97b18a069158f05a8cbcd",
+  "dataset_version_sha256": "99a8fcd5dbd50be0573e8cd521a1e31a2091e09dbd5bea5b9942a1414376fd2c",
+  "projection_sha256": {
+   "proofreader/train.jsonl": "2ec460dd95ceeeddffe05b4c8ed4c6dd641441a6007316c0c0b60909847a11e0",
+   "proofreader/dev.jsonl": "bae11a584b5ccc990a4b13f6cb3b41054260a69ce4b8684b9ae9ca0fec847cc4"
+  },
+  "qualification": "status/training/qualification-symbolic-proofing-it3-mix.json",
+  "qualification_sha256": "5000cb1e3eaa9909c05b87deb474959c0e88695c85d6535c5e9eefca7c988176",
+  "builder": "tools/research/build-it3-mix.mjs (concatenation per split; 5 duplicate decomp prompts and 2 sealed-overlap rows dropped)",
+  "components": [
+   "datasets/neuro_english/proofing-it3 (11,241/1,445)",
+   "datasets/neuro_english/proofing-it3-decomp (3,246/326)"
+  ],
+  "sealed_decomposition_set": "eval/suites/decomposition/test.jsonl (275 cases), never read by training; the leakage check of the qualification includes it"
+ },
+ "recipe_policy": {
+  "mode": "LoRA adapter rank 16, alpha 32, dropout 0.05, lr 2e-4, micro-batch 16 x accumulation 1, max_length 8192, sdpa, bf16, seed 42, 3 epochs (config/train-gemma-fast.json, recipe sha256 9ceb2791bc7294ab192b5ce92d45de3e10430a6783fa80f42dba6f07de429b23)",
+  "steps": "ceil(14482/16) = 906 per epoch, 2718 total",
+  "snapshots": "one adapter snapshot per epoch (epoch-N)",
+  "resources": "Podman job through training/container/podman.mjs under the single-GPU-worker lock, TRAIN_MIN_CUDA_FREE_GIB=24 TRAIN_CUDA_FREE_CHECK=host, wall cap 90 minutes; started only after the gloss LanguageProofingLLM job has exited and models/.training.lock is free; no other process is killed; inference jobs of other agents may run in parallel"
+ },
+ "early_stopping": {
+  "after_each_epoch": "dev loss (training log) and an interim greedy decode of a stratified dev sample (150 repair incl. decomposition rows, 100 identity; HF bf16 on the GPU, inference only) scored locally: repair share with the output equal to the target or analysis correct, identity share changed, share of runaway outputs, sentence-count match on decomposition rows.",
+  "stop_rules": "Stop and keep the previous epoch if: dev identity change > 25% after epoch 1 and rising (it2: 14.8%); or no dev repair output changed (identity collapse); or > 5% of dev outputs runaway or empty; or non-finite loss, OOM, resource floor, wall-time cap. Stop (plateau) when the dev loss has not improved for 2 consecutive epochs. Stop for futility after epoch 2 when the interim decomposition sentence-count match on the dev decomposition rows is below the it2 level on the same rows and the dev loss has stopped decreasing.",
+  "sealed_evaluation_stages": "The sealed decomposition set is scored in two stages of the arms (first 100 cases of the preregistered order of the suite, then all 275) with exact paired sign tests; stop early when the decision is clear (all three H1 conditions decided one way by a margin that cannot flip with the remaining cases) or when the condition is broken (more than 20% unparsable or empty outputs on the first 100). The other sealed sets are scored in one stage."
+ },
+ "evaluation": {
+  "decomposition": "tools/eval/decomposition-score.mjs, arms it3-always and it3-gated added (same code path as it2-always and it2-gated, GGUF Q8_0 and, to measure the quantization, F16 through llama-server on its own port, message-only prompt, one unit per request); grading by the cascade of lib/severity (local layers, then Grok and GLM on the residue); upper = worse of the judges, lower = milder.",
+  "excusable_ambiguity": "Owner rule: a case whose upper and lower grades disagree on S3+ (judges disagree on S3/S4) is reported separately as excusable ambiguity and not counted as a model failure; the tables report firm failures (both judges S3+) next to the upper estimate.",
+  "regression": "the it2 evaluation unchanged: tools/eval/symbolic-proofing-eval.mjs generate in unit mode on the sealed pair test (1,234) and sym500, scored on the analysis layer, local first; compared with the published it2 numbers.",
+  "gguf": "merged HF bf16, GGUF F16 and Q8_0 (~/proofreader-export-venv, llama.cpp converter copy of ~/llama-cpp-venv, the <image_soft_token> entry at id 262144 removed from copies of the tokenizer files); F16 against Q8_0 on the decomposition arms decides which is recommended.",
+  "cpu_speed": "GGUF llama.cpp CPU, 4 threads, 30 prompts of the sealed pair test: ms per message, tokens per second."
+ },
+ "decision_rule": "This run recommends, never switches: the symbolic-proofing-llm entry of config/formalizers.json is NOT edited by this run. The recommendation is 'switch' only if H1 and H3 and H4 hold; 'keep it2' if H3 or H4 fails; 'inconclusive' otherwise.",
+ "non_goals": "no rule changes to lib/ud-to-sop; no tuning on any sealed file; no fine-tuning of any other model; no change of config/formalizers.json; no second training run",
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-10-01T09:22:00Z",
+   "before": "first optimizer step",
+   "what": "The first launch was refused by the host (Qualification evidence changed: source_rights): DS014 was edited by another agent after the qualification was written. The source_rights evidence now points to a frozen statement file (mix-source-rights.json) instead of the live DS014; the receipt was re-transcribed with the new qualification hash. Data and recipe unchanged; no step was taken."
+  },
+  {
+   "id": "D2",
+   "at": "2026-10-01T09:25:00Z",
+   "before": "first optimizer step",
+   "what": "TRAIN_MIN_CUDA_FREE_GIB=10 instead of the instructed 24 (the allowed range of training/container/podman.mjs is 8..48): the container guard of training/container/inside.mjs refused the 24 GiB floor because the driver-reported free memory of the GB10 was 17.0 GiB and later 13.9 GiB (unified memory shared with other agents' llama-server and parse workers, 71 GiB page cache, host MemAvailable 84 GiB). TRAIN_CUDA_FREE_CHECK=host stays; the 270M LoRA run with micro-batch 16 and sequences of at most 174 tokens needs a few GiB. No process was killed."
+  }
+ ]
+}

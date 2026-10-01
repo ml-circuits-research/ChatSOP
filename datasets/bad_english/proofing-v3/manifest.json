@@ -1,0 +1,359 @@
+{
+ "format": "chatsop-proofing-pairs-v1",
+ "dataset": "bad_english",
+ "model": "LanguageProofingLLM",
+ "role": "proofreader",
+ "iteration": 2,
+ "prompt_profile": "message-only",
+ "prompt": "row.prompt verbatim: one sentence of a Romanian, mixed or badly written English message (or clean English, or keyboard mash) and nothing else (DS021 message-only input); training/python/common.py chat_ids()",
+ "target": "row.target verbatim: the clean English sentence (repair) or the identical sentence (identity; also for unintelligible keyboard-mash input)",
+ "created": "2026-10-01T02:49:53.163Z",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "backgen_parts": [
+  "000",
+  "001",
+  "002",
+  "003",
+  "004",
+  "005",
+  "006",
+  "007",
+  "008",
+  "009",
+  "010",
+  "011",
+  "012",
+  "013",
+  "014",
+  "015",
+  "016",
+  "017",
+  "018",
+  "019",
+  "020",
+  "021",
+  "022",
+  "023",
+  "024",
+  "025"
+ ],
+ "identity_share_target": 0.22,
+ "seed": 20261001,
+ "held_out_vocabulary": [
+  "cousin",
+  "niece",
+  "uncle",
+  "tenant",
+  "supervisor",
+  "tutor",
+  "owe",
+  "adopt",
+  "audit",
+  "boatyard"
+ ],
+ "source_sha256": {
+  "datasets/bad_english/proofing-it2-projection/proofreader/train.jsonl": "be848e27ab136f28640ddf390620bb4c8e31d360c95dd7e8767d620a27afc91b",
+  "datasets/bad_english/proofing-it2-projection/proofreader/dev.jsonl": "9fa28f1d3df6d03a7db495ad07115ec125f78b162e53744127b80957d723a266",
+  "datasets/bad_english/proofing-it2-projection/manifest.json": "92654ada812133532d124ae784193c1d2570a6da41a341aa3b543e0231f72ded",
+  "datasets/bad_english/manifest.json": "0216049796aee1e4aef0cfafc80fdc5e812546aef610fee3c42cf821bf3f1d59",
+  "datasets/bad_english/train.jsonl": "134f0a641e9eb400060e36316bdffb601cba63edfb84226baba14d1df2a76359",
+  "datasets/bad_english/dev.jsonl": "560f04b5c3167862b07ac4398762e2a9a85df00052f41e3a35dbb53b1af863bf",
+  "eval/reports/current/language-proofing-it2/candidates-v3.jsonl": "7e19e3cc9cad01f9bef3606933f43a313a94c974e7c0de2f463e07e24d8dfe44",
+  "datasets_sources/language_proofing_it2_backgen_judge/output/verdicts.jsonl": "47de15f1cd51c4492acdb7c756001fe37a41437d933267d1f5254bb7d97755f2",
+  "datasets_sources/language_proofing_it2_backgen_judge/used/output (parts, snapshot of datasets_sources/language_backgen/output)": {
+   "part-000": "ecf62e633c363e981ed067b1caadce253511ce9ef3bb6e4a376b02219bd125bf",
+   "part-001": "7a4c490e69d392a752f8b8ae6f77ac072c7f9c4b77ef005e8d48f0bc5ac492f7",
+   "part-002": "aae1cce2178d521c1ecc68095fe73709d3a037bb4fd5c5621b6301a3501b0ed7",
+   "part-003": "cc5688e4bd09da6c22c7372b60a6100a88e1c7861952d85cbd2e4f397ddb2673",
+   "part-004": "2f178dc6bab2fe96bb5bd3dfff31b20de793c80c818495fc4b5f0fc29d4e1bcc",
+   "part-005": "3c2de7c05ceaae352dbb67a207c51e1068b0d695d710a94850de539c2cbcc783",
+   "part-006": "ecc56a7340d9b6409ff5b3965f3212b19d5c01ad90131c850fcdf5f5baad09fc",
+   "part-007": "9113ef3d94851299da48661dc1fc40c64ea7a43222e1f7cf437f551407656c66",
+   "part-008": "eb7874db637230d064e8dcf6cf18fcacbd18d191292a3527891f92d6ee25e25b",
+   "part-009": "e39a1a014190dcab5e955385837232deb4866f326f95bfe33feb8708a7948e7c",
+   "part-010": "8bef474e9196e3f409d154b373131dcf24ae35c737db175241550dc6ad6ad447",
+   "part-011": "c72496a93aef7cdfb7518e8744e0fb8488a4a56ebb07d400a90c066f79ae5e69",
+   "part-012": "b28c9e957d640cebdc3e80dfbcfb05d39c52d3668ba0f45d53277a903ab60586",
+   "part-013": "913a1e7763ed365b81e36f3bbac4bc134880753185f53995affd9a1348399152",
+   "part-014": "721e9e9e7b7635ae7d00a3cf943ba8c37c4eeb1fa7b5f2d2a2e08b4f8a5e9042",
+   "part-015": "989b95945e9a3705ee787d068d5e5ca0f9a04163d205ad7422089548fa318a66",
+   "part-016": "eb720095bae6c0c10dc27f102fe36366a9cef7208a935cecccd5a7d76c0b6f45",
+   "part-017": "11bcf8e95da775a1a9424991e1835f499745cfef231654e26108605cb6a7e19c",
+   "part-018": "2493a23e7d542e5bd48c06ee15c2184c45fd7194c79f808fe6e3bb53398cdb94",
+   "part-019": "76fccfe3eba16c84e35b6bda7c10eefea45254ec64db99127b210f2170599100",
+   "part-020": "fbd74782d052f31570c61045467d8da343df5bf0f585db9fffc38c3b97ac74e8",
+   "part-021": "2e0250d9d47c6d4523df734d7ed70885a23b6efbffeb75ccc4e434f4c418dedf",
+   "part-022": "908ab5cee465025f5eb087edd2d7a55693448526d270df6e5127996e0d955fbb",
+   "part-023": "844a86ae46dc6b85312d649f6916c5743a4e3564621b64b79ac688d4160889c1",
+   "part-024": "1898e3908b3083bb2693c85044697bf4bdb6764f0f826b34fcb0ac3838e2f806",
+   "part-025": "0e5bb46712dfa0bc8658e640aa7431b7bf6ee2f00a757ae3da10ff6fc14899e7"
+  }
+ },
+ "sealed_hashes_sha256": "8d37b187d30fd165042f87852c40ed7febff572a067c3b46ec1f6af02b588c11",
+ "files": {
+  "proofreader/train.jsonl": {
+   "rows": 61693,
+   "sha256": "fbb968984826939b47fb34f4f859d4ec6234a114381e8cd14067ca3e1e860041"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 5173,
+   "sha256": "64f3e613560741761c3b9ce30d158bb806b4dd0285bdf1182d683568a5e70dc7"
+  },
+  "dev-backgen.jsonl": {
+   "rows": 1488,
+   "sha256": "6bfceeefa72138d3881086a1f242c607cad209c1dd3b144c8d63461b7db5ffee"
+  },
+  "dev-heldout.jsonl": {
+   "rows": 574,
+   "sha256": "299ab93ffb46cca469248e0fff11cf809ef8850755c99d2648bb4599f7ea40e9"
+  },
+  "mash-eval.jsonl": {
+   "rows": 150,
+   "sha256": "8e43f809dfe2201f632a68d9a7585cdbb5880c5c9bfbdfb893d0955d4da376e4"
+  },
+  "reserve-heldout.jsonl": {
+   "rows": 1564,
+   "sha256": "dcb2965b2663ca4f42b608bb069ddd08abeeeb46929a7b1df8b4570a3c1d1f28"
+  }
+ },
+ "summary": {
+  "parts": [
+   "000",
+   "001",
+   "002",
+   "003",
+   "004",
+   "005",
+   "006",
+   "007",
+   "008",
+   "009",
+   "010",
+   "011",
+   "012",
+   "013",
+   "014",
+   "015",
+   "016",
+   "017",
+   "018",
+   "019",
+   "020",
+   "021",
+   "022",
+   "023",
+   "024",
+   "025"
+  ],
+  "filters": {
+   "judge_dropped_mixed": 509,
+   "judge_dropped_ro": 338,
+   "judge_dropped_noisy_en": 167,
+   "harmonized_target": 3142,
+   "noisy_gate_clean_to_identity": 1786,
+   "family_term_misaligned": 39,
+   "harmonize_dropped": 4,
+   "it1_train_harmonized_target": 352,
+   "it1_train_noisy_gate_clean_to_identity": 1111,
+   "it1_train_dropped_held_out_vocabulary": 5,
+   "it1_dev_harmonized_target": 66,
+   "it1_dev_noisy_gate_clean_to_identity": 146,
+   "it1_dev_dropped_held_out_vocabulary": 6,
+   "train_prompt_in_frozen_dev": 1193,
+   "train_duplicate_prompt": 1908,
+   "template_dropped": 9
+  },
+  "judge_votes": {
+   "new/ro": {
+    "yy": 5261,
+    "yn": 470,
+    "ny": 200,
+    "nn": 159
+   },
+   "new/mixed": {
+    "yy": 5147,
+    "yn": 385,
+    "ny": 315,
+    "nn": 250
+   },
+   "new/noisy_en": {
+    "yy": 3864,
+    "yn": 41,
+    "ny": 21,
+    "nn": 32
+   },
+   "same/ro": {
+    "yy": 4984,
+    "yn": 359,
+    "ny": 196,
+    "nn": 134
+   },
+   "same/mixed": {
+    "yy": 4935,
+    "yn": 314,
+    "ny": 232,
+    "nn": 223
+   },
+   "same/noisy_en": {
+    "yy": 3712,
+    "yn": 28,
+    "ny": 12,
+    "nn": 27
+   }
+  },
+  "backgen_pairs": {
+   "train": 32368,
+   "dev": 0,
+   "heldout_all": 2138
+  },
+  "identity_pools": {
+   "train": {
+    "identity:lead-in:natural": 972,
+    "identity:new.en": 6577,
+    "identity:symbolic_english": 5201
+   },
+   "dev": {
+    "identity:lead-in:natural": 101,
+    "identity:symbolic_english": 734
+   }
+  },
+  "identity_synthetic": {
+   "train": 1100,
+   "dev": 120
+  },
+  "identity_train": {
+   "existing_it1": 4601,
+   "added": 8585,
+   "wanted": 8585
+  },
+  "template_pairs": 489,
+  "oversampled_copies": 1269,
+  "train": {
+   "pairs": 61693,
+   "by_pair": {
+    "identity": 13484,
+    "repair": 48209
+   },
+   "by_kind": {
+    "clean": 13186,
+    "mash": 298,
+    "mixed": 13792,
+    "noisy_en": 10530,
+    "ro": 23887
+   },
+   "by_target_source": {
+    "clean-sibling": 2,
+    "identity:gate-clean-noisy": 2622,
+    "identity:in-row": 990,
+    "identity:keyboard-mash": 298,
+    "identity:lead-in:natural": 686,
+    "identity:lead-in:synthetic": 1100,
+    "identity:new.en": 5486,
+    "identity:symbolic_english": 2302,
+    "llm:deepseek-flash": 12193,
+    "llm:deepseek-flash:backgen-new": 15664,
+    "llm:deepseek-flash:backgen-same": 15287,
+    "new_cases.clean": 472,
+    "noise-inverse": 1960,
+    "proofing.repair": 989,
+    "proofing.translate": 1153,
+    "template:family-relations": 489
+   }
+  },
+  "dev": {
+   "pairs": 5173,
+   "by_pair": {
+    "identity": 1185,
+    "repair": 3988
+   },
+   "by_kind": {
+    "clean": 1125,
+    "mash": 60,
+    "mixed": 661,
+    "noisy_en": 666,
+    "ro": 2661
+   },
+   "by_target_source": {
+    "identity:gate-clean-noisy": 187,
+    "identity:in-row": 180,
+    "identity:keyboard-mash": 60,
+    "identity:lead-in:natural": 79,
+    "identity:lead-in:synthetic": 120,
+    "identity:new.en": 163,
+    "identity:symbolic_english": 396,
+    "llm:deepseek-flash": 2462,
+    "llm:deepseek-flash:backgen-new": 414,
+    "llm:deepseek-flash:backgen-same": 455,
+    "new_cases.clean": 69,
+    "noise-inverse": 233,
+    "proofing.repair": 109,
+    "proofing.translate": 246
+   }
+  },
+  "dev_backgen": {
+   "pairs": 1488,
+   "by_pair": {
+    "identity": 619,
+    "repair": 869
+   },
+   "by_kind": {
+    "clean": 619,
+    "mixed": 348,
+    "noisy_en": 156,
+    "ro": 365
+   },
+   "by_target_source": {
+    "identity:gate-clean-noisy": 41,
+    "identity:lead-in:natural": 79,
+    "identity:lead-in:synthetic": 120,
+    "identity:new.en": 163,
+    "identity:symbolic_english": 216,
+    "llm:deepseek-flash:backgen-new": 414,
+    "llm:deepseek-flash:backgen-same": 455
+   }
+  },
+  "dev_heldout": {
+   "pairs": 574,
+   "by_pair": {
+    "repair": 574
+   },
+   "by_kind": {
+    "mixed": 200,
+    "noisy_en": 174,
+    "ro": 200
+   },
+   "by_target_source": {
+    "llm:deepseek-flash:backgen-new": 574
+   }
+  },
+  "mash_eval": {
+   "pairs": 150,
+   "by_pair": {
+    "identity": 150
+   },
+   "by_kind": {
+    "mash": 150
+   },
+   "by_target_source": {
+    "identity:keyboard-mash": 150
+   }
+  },
+  "reserve_heldout": 1564,
+  "held_out_vocabulary": [
+   "cousin",
+   "niece",
+   "uncle",
+   "tenant",
+   "supervisor",
+   "tutor",
+   "owe",
+   "adopt",
+   "audit",
+   "boatyard"
+  ],
+  "identity_share_train": 21.9,
+  "identity_share_dev": 22.9
+ },
+ "note": "Targets of llm:deepseek-flash pairs are DeepSeek-written, review pending; the back-generated pairs passed the mechanical checks and the two-vote meaning judge (noisy_en: both votes; ro and mixed: dropped only when both vote no). proofreader/{train,dev}.jsonl are byte-identical to ../{train,dev}.jsonl."
+}

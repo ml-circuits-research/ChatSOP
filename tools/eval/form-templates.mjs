@@ -16,6 +16,7 @@ import {ROOT} from '../../lib/dataset-paths.mjs';
 import {loadRows} from './composed/components.mjs';
 import {loadSealedRows} from './composed/sealed.mjs';
 import {signatureOf} from '../datasets/three-datasets/forms.mjs';
+import {hasGoldMatch} from '../datasets/three-datasets/rows.mjs';
 import {skeletonOf, textHash, lexicalHash} from '../datasets/three-datasets/variants.mjs';
 export {textHash, lexicalHash};
 
@@ -29,7 +30,7 @@ export function catalog({minCoverage = 5, templatesPerForm = 6, root = ROOT} = {
   let withoutTemplate = 0;
   for (const [form, rows] of [...byForm].sort((a, b) => a[0].localeCompare(b[0]))) {
     if ((coverage.get(form) ?? 0) >= minCoverage) continue;
-    const templates = rows.filter(r => r.analysis_verified === 'gold_sop_match').sort((a, b) => a.id.localeCompare(b.id)).map(skeletonOf).filter(Boolean).slice(0, templatesPerForm);
+    const templates = rows.filter(hasGoldMatch).sort((a, b) => a.id.localeCompare(b.id)).map(skeletonOf).filter(Boolean).slice(0, templatesPerForm);
     if (!templates.length) { withoutTemplate++; continue; }
     forms.push({form, coverage_before: coverage.get(form) ?? 0, test_rows: rows.length, templates});
   }

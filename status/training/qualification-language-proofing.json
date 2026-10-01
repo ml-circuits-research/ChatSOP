@@ -1,0 +1,66 @@
+{
+ "format": "chatsop-dataset-qualification-v1",
+ "status": "qualified",
+ "corpus": "bad_english/proofing",
+ "role": "proofreader",
+ "grade": "experiment-grade: sentence pairs reproduced from their source rows, mechanical meaning checks (names, numbers, quotes, negation, question marks, length ratio) and sentence-level leakage checks against the sealed hashes; DeepSeek-written targets are unreviewed (pending), no human semantic review",
+ "dataset_manifest_sha256": "919d5fa86f62b5ed84c5338b5c96dd3a69e75bc43c956a307df96049d45f5800",
+ "dataset_version_sha256": "fa10e5bd75bb131442d6707fb7b3a0c78ade826ffc5a2c6dcd4889eb315dda9d",
+ "dataset_version": {
+  "format": "chatsop-dataset-version-v1",
+  "corpus": "bad_english/proofing",
+  "counter": 1,
+  "label": "bad_english/proofing 2026-09-30-324a34eb (sentence pairs, 21414 train / 3946 dev)",
+  "dataset": "bad_english/proofing",
+  "version": "2026-09-30-324a34eb"
+ },
+ "dataset_files": {
+  "proofreader/train.jsonl": "324a34eb400fc05d2eb4328c09e88cdc1b6a3339782ecf7c1eb842bf5e08250b",
+  "proofreader/dev.jsonl": "5b3debae2f76e68cdef7be79fbef77a929b8af686e07cc577c8f6852a0db28ef"
+ },
+ "sealed_suites": {
+  "bad_english/proofing-test": "743fb9f5be3cfca9fbbaf4eddc8af2c5c49db478f6e1eee0d45c88cd2554ee25"
+ },
+ "contract_files": {},
+ "checks": {
+  "oracle_grounding": true,
+  "meaning_preservation": true,
+  "leakage": true,
+  "split_integrity": true,
+  "source_rights": true,
+  "token_budget": true
+ },
+ "evidence": {
+  "oracle_grounding": {
+   "path": "eval/reports/current/language-proofing-it1/grounding.json",
+   "sha256": "d2760367820c2ae156c82faf438602c0d812a8db0113a6c23cb67d97126fc6ea"
+  },
+  "meaning_preservation": {
+   "path": "eval/reports/current/language-proofing-it1/meaning.json",
+   "sha256": "cac88077aa22e0552f0bc59a415781489a69f767487189202e339189dee4953f"
+  },
+  "leakage": {
+   "path": "eval/reports/current/language-proofing-it1/integrity.json",
+   "sha256": "ee355aa3f57a01b10fae45a4441462e54bb0d3f798025558cdd98fd6f96b0a33"
+  },
+  "split_integrity": {
+   "path": "eval/reports/current/language-proofing-it1/integrity.json",
+   "sha256": "ee355aa3f57a01b10fae45a4441462e54bb0d3f798025558cdd98fd6f96b0a33"
+  },
+  "source_rights": {
+   "path": "docs/specs/DS014-source-rights.md",
+   "sha256": "17240c77ed40292a1bb27bf25b0e318c4591b7b851e4a4e48ce1aba9be84032d"
+  },
+  "token_budget": {
+   "path": "eval/reports/current/language-proofing-it1/token-audit.json",
+   "sha256": "7d475501998011a9efa207d60da107dc93bc66f79c47e4f072ce09b7d8fffe7f"
+  }
+ },
+ "reviewer": {
+  "kind": "principal_integrator",
+  "id": "language-proofing-training-agent (automated qualification)",
+  "reviewed_at": "2026-09-30T21:17:54.483Z"
+ },
+ "blockers": [],
+ "note": "Data qualification only; not a chatsop-training-authorization-v1 receipt (AGENTS.md rule 3)."
+}

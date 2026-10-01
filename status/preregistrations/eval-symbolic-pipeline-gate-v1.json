@@ -1,0 +1,38 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-symbolic-pipeline-gate-v1",
+ "name": "SymbolicLM rewrite pipeline: local routing gate and acceptance check around SymbolicProofingLLM (no retraining)",
+ "registered_at": "2026-10-01T03:05:17Z",
+ "registered_by": "symbolic-pipeline-agent",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_request": "Iteration 2 repairs well (37.6% good repairs with judges) but changes 15-20% of working sentences; the boundary is parser behaviour, not surface form. Test whether SymbolicLM itself, with LOCAL deterministic checks, can decide which sentences go to the model and whether to accept its output.",
+ "frozen_before_results": "Written before any gated arm was computed or scored. The raw model outputs per sentence unit (GGUF Q8_0 through llama-server, greedy) are shared by all arms; the arms are deterministic post-processing of those outputs.",
+ "hypotheses": {
+  "H1": "Break rate of working sentences (500 working symbolic_english test sentences and 495 sealed identity pairs: analysis or text changed) is at most 1% (point estimate, Wilson upper bound reported) for the best gated arm with the acceptance check.",
+  "H2": "The best arm keeps repairs clearly above no rewrite on the 739 sealed repair pairs (analysis correct AND meaning kept; paired bootstrap 95% interval of the difference above 0), local only and with judges.",
+  "H3": "K3 (clean paragraphs untouched) and K2 clean sentences changed fall to at most 1%; K5 pronouns kept at 99% or more."
+ },
+ "arms": [
+  "no rewrite (identity)",
+  "it2 with gate g1|g2|g3 x acceptance none|a|am (9 arms)",
+  "it1 with the best it2 gate and acceptance"
+ ],
+ "definitions": {
+  "certified": "every sentence of the text has identical Stanza default and accurate trees (head and deprel, class `identical` of lib/symbolic-lm/uncertainty.mjs compareSentence over tokens: tools/datasets/neuro-oracle/classify.mjs treeAgreement)",
+  "g1": "send a sentence unit only when it is not certified (trees differ)",
+  "g2": "g1 OR SymbolicLM does not handle the unit alone (invalid, unparsed span, any uncertainty reason): the existing `symbolic` gate of tools/eval/composed/score-rewrite.mjs",
+  "g3": "send every unit (the chat setting, reference)",
+  "acceptance a": "every sentence of the model output is certified AND the mechanical meaning checks hold (names, numbers, negation, quantifiers, question kind, non-empty), per unit; otherwise the original unit is kept",
+  "acceptance am": "a AND the local analysis comparison (analysis-compare-v1) of unit and output is not `different`"
+ },
+ "evaluation": {
+  "sets": "sealed proofing pairs (739 repair, 495 identity; every input cut by the host splitter), 500 working symbolic_english test sentences (sym500), composed K2, K3, K5 (sentence mode) and K6 (sentence mode)",
+  "metrics": "tools/eval/symbolic-proofing-eval.mjs score summaries and tools/eval/composed-score.mjs rewrite summaries, each arm reported (a) local only and (b) with the DeepSeek judges applied to the residue (items without a cached verdict) only",
+  "stats": "Wilson 95% on rates, paired bootstrap 95% (10,000 resamples, seed 7) on differences"
+ },
+ "decision_rule": "If the best arm has a break rate of at most 1% and repairs clearly above no rewrite, implement it as an optional rewrite pipeline in lib/symbolic-lm (gate g1 or g2 plus acceptance), off by default, configurable, with tests and DS021 text; do NOT turn it on by default.",
+ "early_stopping": "Evaluation only, no training; staged by arm. An arm is dropped from the judge residue when its local-only break rate or repair gain is already decisive against it.",
+ "non_goals": "no training, no change to any default, no change to the rules lib/ud-to-sop, no tuning on sealed files",
+ "deviations": [],
+ "results_pointer": "eval/reports/current/symbolic-pipeline-gate/summary.md"
+}

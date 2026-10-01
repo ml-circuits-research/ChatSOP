@@ -28,11 +28,15 @@ const numbers = text => [...new Set(String(text).match(/\d+(?:[.,:]\d+)*/g) ?? [
 const negations = text => [...new Set(wordsOf(text).filter(w => NEGATIONS.has(w)))];
 const connectives = text => [...new Set(wordsOf(text).filter(w => CONNECTIVES.has(w)))];
 
-export async function scoreDecomposition(row, {rewriter, lm}) {
+export async function scoreDecomposition(row, {rewriter, lm, mode = 'whole'}) {
   const t0 = Date.now();
   const c = row.components[0];
   let output;
-  try { output = await rewriter(row.message); } catch (error) { return {id: row.id, kind: row.kind, error: String(error.message ?? error).slice(0, 200)}; }
+  try {
+    // mode `sentence`: the host splitter cuts the message and EVERY sentence goes to the rewriter (the chat's sendAll), the outputs are joined; `whole`: the message as one input
+    if (mode === 'sentence') { const parts = []; for (const u of splitSentences(row.message)) parts.push(await rewriter(u.text)); output = parts.join(' '); }
+    else output = await rewriter(row.message);
+  } catch (error) { return {id: row.id, kind: row.kind, error: String(error.message ?? error).slice(0, 200)}; }
   const units = splitSentences(output).map(u => u.text);
   let allOk = true, allHandled = true, subjectMissing = 0, multiClause = 0;
   const per = [];

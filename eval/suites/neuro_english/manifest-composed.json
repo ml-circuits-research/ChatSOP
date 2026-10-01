@@ -7,15 +7,15 @@
  "composer": "composed-v1",
  "seed": "composed-v1",
  "path": "eval/suites/neuro_english/test-composed.jsonl",
- "rows": 336,
- "sha256": "4603a5460a5dadeb0240f2efd5396c9d3fa31b507e5d7f961fb461eb00809fda",
- "bytes": 2017685,
+ "rows": 322,
+ "sha256": "6c60296c32a35ab947be7e0a81189d74aa0706a4059cc1c0d8e1cadd38cab7a0",
+ "bytes": 1923049,
  "source_test_file": "eval/suites/neuro_english/test.jsonl",
- "source_test_sha256": "93121a681f9a5257dfc3d34a0d2319376a5f7470f55bff40a0ddf1d5b2973158",
+ "source_test_sha256": "c9846f665769943ded795ad053d5489a4acecee01bafe4cff989780122f3f3ae",
  "counts": {
   "by_kind": {
    "K2": 306,
-   "K6": 30
+   "K6": 16
   },
   "by_stratum": {
    "K2:n2m1": 34,
@@ -27,27 +27,29 @@
    "K2:n6m3": 34,
    "K2:n8m2": 34,
    "K2:n8m4": 34,
-   "K6:relative_clause": 1,
-   "K6:subordinate_clause": 3,
-   "K6:coordination": 17,
-   "K6:multiple_questions": 9
+   "K6:coordination": 11,
+   "K6:multiple_questions": 4,
+   "K6:subordinate_clause": 1
   },
   "by_sentences": {
-   "2": 36,
-   "3": 38,
-   "4": 55,
-   "5": 45,
-   "6": 42,
-   "7": 25,
-   "8": 37,
+   "2": 22,
+   "3": 32,
+   "4": 38,
+   "5": 46,
+   "6": 32,
+   "7": 30,
+   "8": 30,
    "9": 24,
-   "10": 18,
-   "11": 12,
-   "12": 2,
-   "13": 2
+   "10": 26,
+   "11": 16,
+   "12": 11,
+   "13": 5,
+   "14": 5,
+   "15": 3,
+   "16": 2
   },
   "by_components": {
-   "1": 30,
+   "1": 16,
    "2": 34,
    "3": 34,
    "4": 68,
@@ -55,25 +57,26 @@
    "6": 68,
    "8": 68
   },
-  "symbolic_components_pool": 1104,
-  "neuro_components_pool": 61,
-  "bad_components_pool": 1092,
+  "symbolic_components_pool": 677,
+  "neuro_components_pool": 19,
+  "bad_components_pool": 2935,
   "component_rejections": {
    "symbolic": {
-    "needs_context": 270,
-    "not_one_sentence": 405,
-    "not_a_clean_conversion": 251,
-    "quotes_newlines_or_no_terminal_punctuation": 94,
-    "not_one_request_or_statement": 18,
-    "splitter_sees_several_sentences": 8
+    "not_one_sentence": 328,
+    "quotes_newlines_or_no_terminal_punctuation": 71,
+    "needs_context": 170,
+    "not_a_clean_conversion": 112,
+    "sop_layer_mismatch": 222,
+    "not_one_request_or_statement": 22,
+    "splitter_sees_several_sentences": 3
    },
    "neuro": {
-    "no_verified_target": 1973,
-    "needs_context": 37,
-    "quotes_or_newlines": 11
+    "no_verified_target": 1831,
+    "needs_context": 18,
+    "quotes_or_newlines": 3
    }
   }
  },
  "purpose": "K2: paragraphs mixing symbolic sentences (must stay unchanged) with neuro sentences that have a verified rewrite target (must be replaced). Evaluates SymbolicProofingLLM on longer inputs.",
- "built_at": "2026-09-30T16:36:12.598Z"
+ "built_at": "2026-09-30T22:50:17.500Z"
 }

@@ -1,0 +1,67 @@
+{
+ "format": "chatsop-dataset-qualification-v1",
+ "status": "qualified",
+ "corpus": "bad_english/proofing-gloss",
+ "role": "proofreader",
+ "grade": "experiment-grade: the pairs and targets are those of the qualified bad_english/proofing-it3 (DeepSeek-written targets, mechanical checks, two-vote meaning judge for back-generated pairs); the prompts are deterministic gloss output recomputed on a seeded sample; no human semantic review",
+ "dataset_manifest_sha256": "eb0605d1487ca7fce4e8586211d08c4759abba32c873c2ab9c632af477b26a40",
+ "dataset_version_sha256": "7b2d60a4ba801b4302fa5c22a1595bcea3f3d7b76a0d99ebe6839a15fef05e69",
+ "dataset_version": {
+  "format": "chatsop-dataset-version-v1",
+  "corpus": "bad_english/proofing-gloss",
+  "counter": 1,
+  "dataset": "bad_english/proofing-gloss",
+  "version": "2026-10-01-362cecfd",
+  "label": "bad_english/proofing-gloss (gloss prompts, 62550 train / 5173 dev)",
+  "files_sha256": "d52f311e14964b330a11c434ce4cc025b84d8c745a57eefca36367fae8e48370"
+ },
+ "dataset_files": {
+  "proofreader/train.jsonl": "362cecfd92807dc0d26ab374ffc95f49f8690f5d18c41593d796facaa292744e",
+  "proofreader/dev.jsonl": "dceb21c44cb8bf7b329464740a500b98e5f8231428487d14f5ececa99e508416"
+ },
+ "sealed_suites": {
+  "bad_english/proofing-test": "dc806bd35f7463ab40f54207d56cb6bbdb44bf9a71e9719de1203ce5bff1c178"
+ },
+ "contract_files": {},
+ "checks": {
+  "oracle_grounding": true,
+  "meaning_preservation": true,
+  "leakage": true,
+  "split_integrity": true,
+  "source_rights": true,
+  "token_budget": true
+ },
+ "evidence": {
+  "oracle_grounding": {
+   "path": "eval/reports/current/gloss/data/grounding-gloss.json",
+   "sha256": "d7640b5b58c44f186f02824963c8b055b15419ee4050f3d6340ea237e8a64035"
+  },
+  "meaning_preservation": {
+   "path": "eval/reports/current/gloss/data/meaning-gloss.json",
+   "sha256": "9ac251da542d4f9686b9d6eb3e0eb0658efbf53a1d4765a7f9e127fe4c85ebe1"
+  },
+  "leakage": {
+   "path": "eval/reports/current/gloss/data/integrity-gloss.json",
+   "sha256": "11f6b2de768b02eea664d66805a1acb60341dfd8ff13c29d14a99303b732293e"
+  },
+  "split_integrity": {
+   "path": "eval/reports/current/gloss/data/integrity-gloss.json",
+   "sha256": "11f6b2de768b02eea664d66805a1acb60341dfd8ff13c29d14a99303b732293e"
+  },
+  "source_rights": {
+   "path": "docs/specs/DS014-source-rights.md",
+   "sha256": "9460ef0841a5a4e228880131912639627116e9d3e65c9fe454258a386e98c6ce"
+  },
+  "token_budget": {
+   "path": "eval/reports/current/gloss/data/token-audit-gloss.json",
+   "sha256": "7f03c3254c91841ae6da208a83ed019a66303eb479f0d3191bc20d372946c6e1"
+  }
+ },
+ "reviewer": {
+  "kind": "principal_integrator",
+  "id": "gloss-train-agent (automated re-qualification, DS014 changed)",
+  "reviewed_at": "2026-10-01T08:38:01.346Z"
+ },
+ "blockers": [],
+ "note": "Data qualification only; not a chatsop-training-authorization-v1 receipt (AGENTS.md rule 3). No authorization receipt exists for this corpus."
+}

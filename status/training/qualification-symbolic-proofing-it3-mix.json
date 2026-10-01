@@ -1,0 +1,67 @@
+{
+ "format": "chatsop-dataset-qualification-v1",
+ "status": "qualified",
+ "corpus": "neuro_english/proofing-it3-mix",
+ "role": "proofreader",
+ "grade": "experiment-grade: components qualified (it3: analysis-layer gate, two-vote meaning judge, mechanical filters, sealed-overlap audit; decomp: certification of every target sentence, Grok m1 AND m2, mechanical checks, sealed overlap incl. the decomposition set), leakage, split integrity and token budget recomputed on the union; no human semantic review",
+ "dataset_manifest_sha256": "0e392674b5d8c06cf9b6264c10394713e1e7ffc289f97b18a069158f05a8cbcd",
+ "dataset_version_sha256": "99a8fcd5dbd50be0573e8cd521a1e31a2091e09dbd5bea5b9942a1414376fd2c",
+ "dataset_version": {
+  "format": "chatsop-dataset-version-v1",
+  "corpus": "neuro_english/proofing-it3-mix",
+  "counter": 1,
+  "label": "neuro_english/proofing-it3-mix 2026-10-01-2ec460dd (it3 + decomposition top-up)",
+  "dataset": "neuro_english/proofing-it3-mix",
+  "version": "2026-10-01-2ec460dd",
+  "rules": "ud-rules-v2.5"
+ },
+ "dataset_files": {
+  "proofreader/train.jsonl": "2ec460dd95ceeeddffe05b4c8ed4c6dd641441a6007316c0c0b60909847a11e0",
+  "proofreader/dev.jsonl": "bae11a584b5ccc990a4b13f6cb3b41054260a69ce4b8684b9ae9ca0fec847cc4"
+ },
+ "sealed_suites": {
+  "neuro_english/proofing-test": "158d1875fed658548e75dfd668724b2fdee5af5d36456ec53703cb5b102b94ea"
+ },
+ "contract_files": {},
+ "checks": {
+  "oracle_grounding": true,
+  "meaning_preservation": true,
+  "leakage": true,
+  "split_integrity": true,
+  "source_rights": true,
+  "token_budget": true
+ },
+ "evidence": {
+  "oracle_grounding": {
+   "path": "eval/reports/current/symbolic-proofing-it3/data/mix-grounding.json",
+   "sha256": "31496305507317927adfb9c642c852e36ded4a5fae88d0a40e2af7d73312fbaa"
+  },
+  "meaning_preservation": {
+   "path": "eval/reports/current/symbolic-proofing-it3/data/mix-meaning.json",
+   "sha256": "2d2cfb46ff9151d6fb9122f69c48f1de98c3d854c1fd7abf7fa5d5a46ff41b9e"
+  },
+  "leakage": {
+   "path": "eval/reports/current/symbolic-proofing-it3/data/mix-leakage.json",
+   "sha256": "35157c8fa687a4e61eb59090c53280be9c9cca1b55d1067050acaf0fe8c00e25"
+  },
+  "split_integrity": {
+   "path": "eval/reports/current/symbolic-proofing-it3/data/mix-split-integrity.json",
+   "sha256": "23d3d3134fbe901e99feb750bc3fcbe0a4e9a5cb331f02570656894a1385fd6c"
+  },
+  "source_rights": {
+   "path": "eval/reports/current/symbolic-proofing-it3/data/mix-source-rights.json",
+   "sha256": "3c07c35ed1c94ee906037ededfdafd3a976e17c327983f83b6ddb1ef8ea15651"
+  },
+  "token_budget": {
+   "path": "eval/reports/current/symbolic-proofing-it3/data/mix-token-audit.json",
+   "sha256": "80ae9e0692b7d17c062eb68d984046d75493af2b01bf08cb2aa569c4f2b3a74a"
+  }
+ },
+ "reviewer": {
+  "kind": "principal_integrator",
+  "id": "sp-it3-agent (automated qualification)",
+  "reviewed_at": "2026-10-01T08:50:24.874Z"
+ },
+ "blockers": [],
+ "note": "Data qualification only; not a chatsop-training-authorization-v1 receipt (AGENTS.md rule 3)."
+}

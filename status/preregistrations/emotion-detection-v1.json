@@ -1,0 +1,22 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "emotion-detection-v1",
+  "name": "EmotionDetectionSystem: precision and recall of the symbolic and neural pragmatic strategies against two LLM judges (DS029)",
+  "registered_at": "2026-10-01T07:20:00.000Z",
+  "registered_by": "emotion-agent",
+  "status": "run; registered AFTER the judge labels were collected (see deviations), never a sealed test",
+  "spec": "docs/specs/DS029-emotion-detection.md#evaluation-experiment-emotion-detection-v1",
+  "owner_request": "Owner decision 2026-10-01 (translated): add a separate EmotionDetectionSystem that can be enabled or disabled, emits SOP Lang circuits to help the reasoner regulate itself, and has strategies of its own so other models can be plugged in later; classify the leftover spans of SymbolicLM by pragmatic role. Choose the best compromise between speed and quality; keep, per kind, only strategies with useful precision (at least 85%).",
+  "hypothesis": "Per kind, the symbolic lexicon strategy reaches precision of at least 85% on both-judge positives for most kinds at about 0.2 ms per message; pretrained English emotion, irony and toxicity classifiers at their default threshold do not reach 85% precision for most kinds and cost 35 to 70 ms each on 4 CPU threads; irony is weak.",
+  "data": "300 messages: 30 each from datasets/bad_english, neuro_english, symbolic_english (train+dev, fixed seed 20261001, at most 200 characters), 29 from datasets_sources/new_cases, 181 written for the study (eval/reports/current/emotion-detection/eval-set.jsonl, built by tools/emotion-detection/build-eval-set.mjs). A development set, not a sealed test.",
+  "references": "Grok (xai-oauth/grok-4.20-0309-non-reasoning, one omp session) and GLM (zai/glm-5.3-flash, three parallel omp sessions of 100 messages) list the kinds each message expresses (datasets_sources/emotion_grok, emotion_glm_1..3). A kind is positive when both judges list it, negative when neither does, and disputed otherwise (excluded from that kind's precision and recall). 60 labels (every fifth message from the third) were read by the agent.",
+  "metrics": ["per-kind precision, recall, F1 over both-judge positives and neither-judge negatives", "micro precision and recall of the symbolic strategy on the dev and test halves, on handwritten and dataset messages", "neural precision and recall per model label at the default threshold 0.5 and at a threshold tuned on the odd half (English messages only)", "latency: symbolic ms per message, neural ms per message on 4 CPU threads (all four models, and each alone)", "leftover-span classification rate on the spans SymbolicLM does not represent (tools/emotion-detection/leftover-study.mjs)"],
+  "decision_rule": "A (strategy, kind) pair is `on` at precision at least 0.85 over at least three predictions, `experimental` from 0.6, `off` below (config/emotion-detection.json kindPolicy). Neural strategies are enabled by default only if a kind reaches `on` with a recall gain over the symbolic strategy. Irony stays a soft signal whatever the numbers.",
+  "stopping_rules": "No staged stopping: the set is 300 messages and the judge calls cost little. The condition is broken, and the experiment stops, if more than 20% of judge answers are unusable (none were).",
+  "deviations": [
+    "The preregistration was written after the judge labels were collected; the design (kinds, set, judges, decision rule) was fixed before the first label was read, and the evaluation tool computes everything from the stored labels, but this is a post-hoc registration.",
+    "The symbolic lexicon was first drafted before any label was seen, then corrected after reading the false negatives and false positives of the odd-numbered half (the dev half). The even-numbered half was scored without being read and is the less biased number. The handwritten messages share an author with the lexicon.",
+    "Neural classifiers read the message as written: Romanian and mixed messages are NOT first processed by LanguageProofingLLM, so the neural numbers are reported on English messages only and are not a measure of the chat pipeline for Romanian."
+  ],
+  "authorization": {"status": "no training; inference of existing public models only, on CPU"}
+}

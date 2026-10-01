@@ -1,0 +1,64 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-meaning-judge-calibration-v1",
+ "name": "Is the DeepSeek flash meaning judge precise enough to be the meaning check of the rewrite pipelines? A clean calibration with mechanical and hand-written negatives",
+ "registered_at": "2026-09-30T20:09:04Z",
+ "registered_by": "meaning-judge-agent (owner direction of 2026-09-30 night: evaluate layer by layer; proofing output must keep the meaning)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_context": "The first calibration (eval-neuro-meaning-judge-v1) used gold-SOP mismatches as negatives; most of them keep the meaning, so its 53% precision says little. This experiment replaces them with negatives that certainly (mechanical perturbation) or subtly (hand-written) change the meaning. The judge is wanted as the meaning check for SymbolicProofingLLM and LanguageProofingLLM pair sources (back-generated paraphrases, LLM rewrites).",
+ "kind": "evaluation and dataset gating (LLM judge calls through omp; no training, no GPU)",
+ "deviations": [
+  "D1 (honesty): the first judge run (set v1, 1504 verdicts) was started before this record was written; its labels, prompts and judge input were fixed in files before the run, but the decision rules below were written after its raw result was seen. Run v1 is therefore EXPLORATORY. It exposed accidents of the mechanical perturbations (a perturbation that does not change the meaning, or produces garbled text) and two defective hand-written negatives. The perturbations were tightened and the two hand-written pairs replaced; set v2 was drawn with seed meaning-judge-calibration-v2 and is the CONFIRMATORY run: this record, the prompts (SYSTEM_m1.txt, SYSTEM_m2.txt, byte-identical to run 1) and the judge input (sha256 below) are frozen before any v2 judge call."
+ ],
+ "frozen_before_results": "v2 judge input datasets_sources/meaning_judge_calibration_v2/input/items.jsonl sha256 b36d7a495f30080db68833d01a4266c7645c379fd2e63d546c892c084015cea5; labels eval/reports/current/meaning-judge/v2/labels.jsonl sha256 321f382b746df8ccdadf6eef52fee235898964b4d9adf43499bf55cc67c4ccc8; SYSTEM_m1.txt sha256 a624fa22aeefe4833741d20f704dd222a8154e3df9ad4afc4dfd344f5674a682; SYSTEM_m2.txt sha256 129ff2e2b007248a0111d93219197a5a47dbdb0f622c41643ec76c58ebe13152.",
+ "systems": {
+  "judge": "DeepSeek-V4.1-Flash through omp (completion() of the eval kernel, model default), one request per item, provider-default temperature",
+  "m1": "SYSTEM_m1.txt: seven-point checklist (names and roles, numbers and dates, negation, quantifiers and modality, kind of message, relations and connectives, added or dropped content) with an allowed-differences list; answer = checks + preserves yes/no + reason",
+  "m2": "SYSTEM_m2.txt: differently worded, proposition-comparison method (list the propositions of both texts, compare); answer = proposition lists + preserves yes/no + reason",
+  "m1r": "m1 again on a fixed random 100 items (reproducibility)",
+  "two_vote": "yes only when m1 AND m2 both say yes"
+ },
+ "definitions": {
+  "positive": "300 pairs (message, candidate) with the same meaning: 150 strict gold-matching rewrite pairs of datasets/neuro_english/proofing (VERIFIED_GOLD; train/dev pairs, the sealed proofing test is never read) and 150 repair pairs of datasets_archive/proofing whose target matched the gold SOP strictly (target_oracle.strict), English inputs, at most 260 characters and 5 sentence marks",
+  "negative_mechanical": "297 pairs (message, perturbed candidate): one deterministic perturbation of a positive candidate of another pair (tools/datasets/meaning-judge/perturb.mjs), 27 per type: swap_names, replace_name, flip_negation, change_quantifier, change_number_date, change_question_type, drop_fact, add_fact, change_relation, change_preposition, change_connective. The type 'resolve ambiguity' was not built (no reliable mechanical form).",
+  "negative_hard": "105 hand-written pairs (tools/datasets/meaning-judge/hard-negatives.mjs), subtle meaning changes: negation scope, only/also, modality, tense, hedges and reported speech, roles, comparison and bounds, connectives, lists, question structure, pronouns, attachment, added or dropped specifics, quantifiers",
+  "yes": "answer.preserves equal to yes",
+  "precision_yes_raw": "yes on positives / (yes on positives + yes on negatives), labels as built",
+  "adjudication": "Every negative that a condition calls yes is read by the calibration agent and classified real (the perturbed text really has a different meaning and is grammatical enough to be read) or noise (the perturbation did not change the meaning, or produced garbled text with no clear different meaning); noise items are removed from the negatives of that analysis. Only judge-yes negatives need adjudication: a negative the judge rejects cannot lower the precision whatever its label. The adjudicator is an LLM agent, not a human; the adjudication list is kept in eval/reports/current/meaning-judge/v2/adjudication.json.",
+  "precision_yes_adjudicated": "yes on positives / (yes on positives + yes on real negatives)",
+  "prevalence_note": "precision depends on the share of bad pairs in the judged stream; the calibration set has 57% negatives. The report also gives the false-yes rate on real negatives and the precision at a stream with 10% bad pairs."
+ },
+ "hypotheses": {
+  "H1": "precision_yes_adjudicated of m1 is at least 97% (point estimate; the Wilson lower bound is reported).",
+  "H2": "If H1 fails for m1: the two-vote rule m1 AND m2 has precision_yes_adjudicated of at least 97%.",
+  "H3": "The yes rate of m1 on hard negatives is at most 10%.",
+  "H4": "Reproducibility: m1 and m1r agree on at least 95% of the 100 repeated items."
+ },
+ "decision_rule": "The judge is usable as the meaning check when H1 holds (m1 alone) or, failing that, when H2 holds (the pair of prompts, both must say yes). When neither holds, pairs stay unverified. The recall of yes on positives is reported, not decided on: a low recall only loses pairs.",
+ "stop_rules": [
+  "Stop and report if more than 20% of the first 100 verdicts are unusable.",
+  "The v2 prompts are frozen; a prompt change needs a new preregistration id."
+ ],
+ "measurements": [
+  "precision and recall of yes per condition with Wilson 95% intervals",
+  "yes rate per negative type",
+  "reproducibility m1 vs m1r",
+  "agreement m1 vs m2",
+  "adjudication of judge-yes negatives"
+ ],
+ "honesty": "DeepSeek flash is a fallible judge; the labels are constructed, not human-annotated; the adjudication is by an LLM agent. Mechanical perturbations are easier than real model errors; the hand-written negatives are harder but few (105). The positives are pairs that SymbolicLM maps to the gold SOP, so they keep the meaning as far as the gold does. Run v1 is exploratory (D1).",
+ "deliverables": [
+  "eval/reports/current/meaning-judge/v2/calibration.json",
+  "eval/reports/current/meaning-judge/calibration.json (run v1, exploratory)",
+  "tools/datasets/meaning-judge/"
+ ],
+ "records": [
+  "status/experiments.json",
+  "status/tasks.json",
+  "status/notes",
+  "status/journal.jsonl"
+ ],
+ "rigor": [
+  "No training; no GPU work; port 9999 untouched."
+ ]
+}

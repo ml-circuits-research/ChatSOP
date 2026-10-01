@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 /** Build the three datasets of the owner decision of 2026-09-30 (DS008 "Three datasets"):
  *   datasets/bad_english      messages that are not clean English (Romanian, mixed, spelling/grammar) with a clean target
- *   datasets/symbolic_english clean English that SymbolicLM analyses correctly (the regression suite)
- *   datasets/neuro_english    clean English that SymbolicLM does not analyse correctly (SymbolicProofingLLM material)
+ *   datasets/symbolic_english clean English whose SymbolicLM analysis is correct: every sentence has identical default/accurate trees and DeepSeek conditions a and c good (the regression suite)
+ *   datasets/neuro_english    clean English whose SymbolicLM analysis is not correct (SymbolicProofingLLM material); the SOP result of every row is kept as sop_layer
  *
  *   node tools/datasets/build-three-datasets.mjs collect                         # classification counts, no writes
  *   node tools/datasets/build-three-datasets.mjs analyze [--shard 0/4] [--threads 3] [--targets]
- *   node tools/datasets/build-three-datasets.mjs assemble                        # writes train/dev of the three datasets
+ *   node tools/datasets/build-three-datasets.mjs gate-stage [--dry]              # analysis gate: record missing parses, append the judge items still missing (datasets_sources/resplit_parse_judge)
+ *   node tools/datasets/build-three-datasets.mjs assemble [--datasets a,b]       # writes train/dev of the three datasets (or only the named ones)
+ *   node tools/datasets/build-three-datasets.mjs resplit-report                  # eval/reports/current/three-datasets/resplit-summary.md
  *
  * Train and dev only: the sealed tests come from `node tools/eval/three-datasets-suites.mjs` (a generator may not
  * open a sealed file, AGENTS.md rule 9). Sources: datasets_archive/{formalizer-v1,proofing,proofing-diverse-dev}
@@ -51,15 +53,16 @@ const sealedHashes = () => new Set(sealedFile().hashes);
 /** Split groups sealed by another sealed suite (the sealed proofing test uses formalizer-v1 dev messages): not train or dev here. */
 const sealedGroups = () => new Set(sealedFile().groups ?? []);
 
-async function assembleCommand(records, newCases) {
-  const gateModule = await import('./three-datasets/gate.mjs');
+async function assembleCommand(records, newCases, o = {}) {
+  const {AnalysisGate, GATE_NAME, GATE_JUDGE} = await import('./three-datasets/analysis-gate.mjs');
   const cache = loadCache();
   const parser = [...cache.values()].find(r => r.parser)?.parser ?? null;
   const proofing = proofingIndex(trainDevProofingRows());
   const sealed = sealedHashes();
   const side = records.filter(r => r.split !== 'test');
-  const built = await assemble(side, {cache, parser, proofing, agreement: (await import('./three-datasets/spacy-agree.mjs')).loadAgreement(), gate: gateModule.loadGate()});
-  gateModule.writeWorklist('train-dev', built.gateWork);
+  const {scoreAgainstAccepted} = await import('../eval/wild-suite.mjs'); // accepted golds of the wild rows that were re-split into train and dev
+  const gate = new AnalysisGate({cache});
+  const built = await assemble(side, {cache, parser, proofing, wildScore: scoreAgainstAccepted, agreement: (await import('./three-datasets/spacy-agree.mjs')).loadAgreement(), gate, ...(o['unparsed-policy'] ? {unparsedPolicy: o['unparsed-policy']} : {})});
   const dropped = {sealed_overlap: 0, dev_overlap: 0};
   const devTexts = new Set(side.filter(r => r.split === 'dev').map(r => textKey(normalText(r.message))));
   const keep = row => {
@@ -69,8 +72,12 @@ async function assembleCommand(records, newCases) {
     return true;
   };
   const rowsByDataset = {bad_english: built.bad, symbolic_english: built.symbolic, neuro_english: built.neuro};
-  const report = {generated_at: new Date().toISOString(), skipped: built.skipped, dropped, datasets: {}};
+  // `--datasets a,b` limits the datasets that are written (the analysis-layer re-split leaves bad_english to the agent that merges its targets).
+  const only = o.datasets ? new Set(String(o.datasets).split(',')) : null;
+  const report = {generated_at: new Date().toISOString(), skipped: built.skipped, dropped, gate: {name: GATE_NAME, judge: GATE_JUDGE, decided: built.gateStats.decided, unparsed_gate_would_say: built.gateStats.unparsed_gate_would_say, failure_kinds: built.gateStats.failure_kinds, sentence_trees: built.gateStats.sentence_trees, sentence_verdicts_from: built.gateStats.sentence_verdicts_from}, written: [], datasets: {}};
+  if (built.gateStats.pending_texts.length) console.error(`WARNING: ${built.gateStats.pending_texts.length} rows have no analysis verdict yet (pending_judge): run \`gate-stage\`, the judge task, then assemble again`);
   for (const [dataset, all] of Object.entries(rowsByDataset)) {
+    if (only && !only.has(dataset)) continue;
     const rows = all.filter(keep);
     const patch = {splits_written: {}, counts: {}, sha256: {}, bytes: {}};
     for (const split of ['train', 'dev']) {
@@ -80,10 +87,15 @@ async function assembleCommand(records, newCases) {
       patch.counts[split] = summarise(dataset, part);
     }
     updateManifest(dataset, {...patch, symbolic_lm: {version: 'symbolic-lm-v2.0', rules: RULES_VERSION, stanza: parser, call: "analyze(text, {route: 'direct', language: 'auto'}), no spelling correction, no rewrite", code_sha256: codeHashes()},
+      ...(dataset === 'bad_english' ? {} : {analysis_gate: {name: GATE_NAME, judge: GATE_JUDGE, rule: 'symbolic_english: every sentence has identical default/accurate trees and DeepSeek conditions a and c good; neuro_english otherwise; no analysis or an unparsed span: the SOP rules decide', decision: 'status/journal.jsonl 2026-09-30 night, incident: symbolic/neuro split used SOP match instead of the grammatical analysis'}}),
       sources: {new_cases: {path: 'datasets_sources/new_cases/cases.jsonl', sha256: newCases.sha256, rows: newCases.records.length, note: 'read-only; LLM-written references marked reviewed-by:pending'}}, train_dev_built_at: new Date().toISOString()});
     report.datasets[dataset] = patch.counts;
+    report.written.push(dataset);
   }
+  const {movement} = await import('./three-datasets/resplit-report.mjs');
+  const moved = movement('train-dev', [...built.symbolic, ...built.neuro].filter(keep));
   fs.mkdirSync(WORK, {recursive: true});
+  if (moved) { fs.mkdirSync(path.join(WORK, 'resplit'), {recursive: true}); fs.writeFileSync(path.join(WORK, 'resplit/movement-train-dev.json'), JSON.stringify(moved, null, 1) + '\n'); report.movement = moved; }
   fs.writeFileSync(path.join(WORK, 'assemble-train-dev.json'), JSON.stringify(report, null, 1) + '\n');
   console.log(JSON.stringify(report, null, 1));
 }
@@ -104,7 +116,8 @@ async function main() {
       // Phase 2: the clean references of the new cases whose message fails, and the rewrite candidates of the gold-verified
       // misses (their targets are re-verified under the current engine, the recorded oracle of older rules does not count).
       const cache = loadCache();
-      texts = [...targetTexts(newCases.records, cache), ...await goldMissTargetTexts(formalizer, cache, {proofing: proofingIndex(trainDevProofingRows())})];
+      const {scoreAgainstAccepted} = await import('../eval/wild-suite.mjs'); // accepted golds of the wild rows re-split into train and dev
+      texts = [...targetTexts(newCases.records, cache), ...await goldMissTargetTexts(formalizer, cache, {proofing: proofingIndex(trainDevProofingRows()), wildScore: scoreAgainstAccepted})];
     }
     const result = await analyseTexts(texts, {shard: [index, count], threads: Number(o.threads ?? 3), onProgress: (done, todo) => process.stderr.write(`\r${o.targets ? 'targets' : 'messages'} shard ${index}/${count}: ${done}/${todo}`)});
     console.error(`\nshard ${index}/${count}: analysed ${result.done} of ${result.todo}`);
@@ -122,7 +135,30 @@ async function main() {
     console.error(`\naccurate parses added: ${result.done} of ${result.todo}`);
     return;
   }
-  if (o.command === 'assemble') return assembleCommand(records, newCases);
+  if (o.command === 'resplit-report') {
+    const {writeResplitSummary} = await import('./three-datasets/resplit-summary.mjs');
+    console.log(writeResplitSummary());
+    return;
+  }
+  if (o.command === 'gate-stage') {
+    // Records the parses the analysis gate lacks (GPU, one worker) and appends the judge items still missing to datasets_sources/resplit_parse_judge/ (train/dev side).
+    const {AnalysisGate, stage} = await import('./three-datasets/analysis-gate.mjs');
+    const {specialKind} = await import('./three-datasets/assemble.mjs');
+    const cache = loadCache();
+    const gate = new AnalysisGate({cache});
+    const entries = messageTexts(records.filter(r => r.split !== 'test')).map(text => ({text, record: cache.get(textKey(text))})).filter(e => e.record && specialKind(e.record) !== 'no_analysis').map(e => ({text: e.text, analysis: e.record.analysis}));
+    console.log(JSON.stringify(await stage(gate, entries, {record: !o.dry, log: m => process.stderr.write(m + '\n')})));
+    return;
+  }
+  if (o.command === 'snapshot-before') {
+    // Frozen labels of the current (SOP-proxy) train/dev rows of symbolic_english and neuro_english, written once (DS008 "Three datasets", analysis-layer re-split).
+    const {readJsonlShardedSync, jsonlExists} = await import('../../lib/jsonl-shards.mjs');
+    const {writeSnapshot} = await import('./three-datasets/resplit-report.mjs');
+    const rows = ['symbolic_english', 'neuro_english'].flatMap(dataset => ['train', 'dev'].flatMap(split => { const file = path.join(ROOT, 'datasets', dataset, `${split}.jsonl`); return jsonlExists(file) ? readJsonlShardedSync(file) : []; }));
+    console.log(JSON.stringify(writeSnapshot('train-dev', rows, {force: Boolean(o.force)})));
+    return;
+  }
+  if (o.command === 'assemble') return assembleCommand(records, newCases, o);
   if (o.command === 'report') {
     const {reuseAnalysis, updateReadmes, coverage} = await import('./three-datasets/report.mjs');
     fs.mkdirSync(WORK, {recursive: true});

@@ -2,7 +2,7 @@
  * and the model language; sop/declarative.mjs decides which wire types the model may author. */
 import {outputRegistry,outputSpecs} from './outputs.mjs';
 import {assert,stable} from '../lib/util.mjs';
-import {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,COMPARATOR_WORDS,RANK_WORDS,QUANTIFIER_WORDS,ORDER_WORDS,LINK_WORDS,MAX_LINKS,UNPARSED_HINTS,MAX_SPAN} from './enums.mjs';
+import {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,COMPARATOR_WORDS,RANK_WORDS,QUANTIFIER_WORDS,ORDER_WORDS,LINK_WORDS,MAX_LINKS,UNPARSED_HINTS,MAX_SPAN,PRAGMATIC_KINDS,PRAGMATIC_BASES} from './enums.mjs';
 export {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,OUTPUT_MODES,QUERY_MODES,TIME_MEASURES,COMPARATOR_WORDS,ARITHMETIC_WORDS,RANK_WORDS,QUANTIFIER_WORDS,ORDER_WORDS,FRAGMENT_KINDS,LINK_KEYWORDS,LINK_WORDS,LINK_TYPES,MAX_LINKS,LINK_STATUSES,UNPARSED_HINTS,GENERIC_HINTS,MAX_SPAN} from './enums.mjs';
 import {parseExpression,expressionRefs,evaluateExpression} from './expression.mjs';
 import {conditionField,parseCondition,parseBooleanCondition,formatCondition,BLOCK_OPENERS,BLOCK_CLOSER} from './conditions.mjs';
@@ -18,6 +18,7 @@ export const SPEC={
  assumed:{one:['relation','polarity','basis'],many:['role','valid',...LINK_WORDS],required:['relation','role','polarity']},
  unclear:{one:['kind','language'],many:['reading'],required:['kind']},
  unparsed:{one:['span','near','hint'],required:['span']},
+ pragmatic:{one:['kind','score','span','near','source','basis'],required:['kind','score','source','basis']},
  rule:{one:['then','valid','mode','source'],many:['when'],required:['then','when']},
  query:{one:['mode','select','scope','measure','span','at','during','asof','limit','rank','quantifier','order','fragment'],many:['where','filter','compare','except',...LINK_WORDS],required:['where']},
  constraint:{one:['claim','task','unit','objective','direction','select'],many:['var','require'],required:[]},
@@ -193,6 +194,14 @@ function validateShape(w){
   assert(typeof v==='string'&&v.trim()&&v.length<=MAX_SPAN,'unparsed_span_form: @'+w.id+' span takes one nonempty JSON-quoted verbatim part of the message (at most '+MAX_SPAN+' characters)');
   if(w.fields.near)linkTarget(one(w,'near'),'@'+w.id+' near');
   if(w.fields.hint)assert(UNPARSED_HINTS.includes(one(w,'hint')),'@'+w.id+' unparsed hint must be one of '+UNPARSED_HINTS.join(', '));
+ }
+ if(w.type==='pragmatic'){
+  assert(PRAGMATIC_KINDS.includes(one(w,'kind')),'@'+w.id+' pragmatic kind must be one of '+PRAGMATIC_KINDS.join(', '));
+  assert(PRAGMATIC_BASES.includes(one(w,'basis')),'@'+w.id+' pragmatic basis must be one of '+PRAGMATIC_BASES.join(', '));
+  assert(/^(0(\.\d{1,3})?|1(\.0{1,3})?)$/.test(one(w,'score')),'pragmatic_score_form: @'+w.id+' score takes a decimal from 0 to 1 with at most three digits');
+  assert(/^[a-z][a-z0-9_]*$/.test(one(w,'source')),'@'+w.id+' pragmatic source takes one strategy id (lowercase letters, digits, underscore)');
+  if(w.fields.span){const span=one(w,'span'),v=/^"/.test(span)?parseTerm(span):null;assert(typeof v==='string'&&v.trim()&&v.length<=MAX_SPAN,'pragmatic_span_form: @'+w.id+' span takes one nonempty JSON-quoted verbatim part of the message (at most '+MAX_SPAN+' characters)');}
+  if(w.fields.near)linkTarget(one(w,'near'),'@'+w.id+' near');
  }
  if(w.type==='unclear'){
   assert(ENUMS.unclear.kind.includes(one(w,'kind')),'@'+w.id+' unclear kind must be one of '+ENUMS.unclear.kind.join(', '));

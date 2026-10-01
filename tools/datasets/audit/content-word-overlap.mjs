@@ -10,8 +10,8 @@
  *   (b) the content-word signature (lemmas of proper names, nouns and verbs; a light tokenizer for bad_english): the share
  *       of test rows whose set is identical to, or largely contained in (>= --largely of the test row's words), the set of
  *       a train/dev row of the same form (report only),
- *   (c) the form signature: how many test rows share a form with train/dev, and the test forms with no train/dev
- *       counterpart (information).
+ *   (c) the form signature: how many test rows share a form with train/dev, the test forms with no train/dev
+ *       counterpart and the train/dev forms with no test counterpart (test variants count as test rows; information).
  * A "lexical duplicate" is identical content-word signature (at least --min-words words) AND identical form (all
  * sentences); it fails closed like (a). Exit code 1 on (a) or a lexical duplicate. The report is
  * eval/reports/current/three-datasets/content-word-overlap.json. Reads the sealed test only as a validator does.
@@ -34,7 +34,7 @@ const bump = (map, key, by = 1) => map.set(key, (map.get(key) ?? 0) + by);
  * Overlap of `testRows` with `poolRows` (same dataset). `otherPools` are the train/dev rows of the other datasets, only
  * used for exact-duplicate detection. Rows are plain dataset rows.
  */
-export function overlapOf(testRows, poolRows, {otherPools = [], minWords = 2, largely = 0.8} = {}) {
+export function overlapOf(testRows, poolRows, {otherPools = [], minWords = 2, largely = 0.8, extraTestRows = []} = {}) {
   const pool = poolRows.map(row => ({id: row.id, message: row.message, sig: signatureOf(row), norm: normalText(row.message), targets: (row.targets ?? []).map(t => normalText(t.text))}));
   const byNorm = new Map(), byForm = new Map(), byKey = new Map();
   for (const p of pool) {
@@ -52,7 +52,7 @@ export function overlapOf(testRows, poolRows, {otherPools = [], minWords = 2, la
     exact_duplicates: {same_dataset: 0, other_dataset: 0, normalized_only: 0, examples: []},
     target_text_also_in_pool_targets: 0,
     content_words: {rows_with_signature: 0, rows_with_enough_words: 0, identical_any_form: 0, identical_same_form: 0, largely_contained_same_form: 0, no_same_form_row: 0, unique_words: 0, examples: []},
-    forms: {test_forms: 0, pool_forms: byForm.size, test_rows_sharing_a_form: 0, test_forms_with_pool_counterpart: 0, test_forms_without_pool_counterpart: 0, rows_of_forms_without_counterpart: 0, uncovered: []},
+    forms: {test_forms: 0, pool_forms: byForm.size, pool_forms_without_test_counterpart: 0, pool_forms_without_test_counterpart_examples: [], test_rows_sharing_a_form: 0, test_forms_with_pool_counterpart: 0, test_forms_without_pool_counterpart: 0, rows_of_forms_without_counterpart: 0, uncovered: []},
     lexical_duplicates: {count: 0, examples: []},
   };
   const testForms = new Map();
@@ -102,6 +102,10 @@ export function overlapOf(testRows, poolRows, {otherPools = [], minWords = 2, la
       if (out.forms.uncovered.length < 40) out.forms.uncovered.push({form, rows: n, example: testRows.find(r => signatureOf(r).form === form)?.message.slice(0, 120)});
     }
   }
+  const testFormsAll = new Set([...testForms.keys(), ...extraTestRows.map(r => signatureOf(r).form)]);
+  const poolOnly = [...byForm].filter(([form]) => !testFormsAll.has(form));
+  out.forms.pool_forms_without_test_counterpart = poolOnly.length;
+  out.forms.pool_forms_without_test_counterpart_examples = poolOnly.sort((a, b) => b[1].length - a[1].length).slice(0, 20).map(([form, rows]) => ({form, rows: rows.length, example: rows[0].message.slice(0, 120)}));
   const c = out.content_words, f = out.forms;
   out.shares = {
     exact_duplicate_pct: pct(out.exact_duplicates.same_dataset + out.exact_duplicates.other_dataset, out.test_rows),
@@ -114,12 +118,16 @@ export function overlapOf(testRows, poolRows, {otherPools = [], minWords = 2, la
 }
 
 export function run({root = ROOT, datasets = THREE_DATASETS, minWords = 2, largely = 0.8, loadRows = load} = {}) {
-  const pools = Object.fromEntries(datasets.map(d => [d, ['train', 'dev'].flatMap(s => loadRows(d, s, root))]));
+  // Composed paragraphs (tools/datasets/composed-train.mjs) are working data made of train/dev sentences: their paragraph skeleton is not a form and they cannot duplicate a sealed sentence.
+  const pools = Object.fromEntries(datasets.map(d => [d, ['train', 'dev'].flatMap(s => loadRows(d, s, root)).filter(r => r.source?.corpus !== 'composed')]));
   const report = {generated_at: new Date().toISOString(), method: 'content words = lemmas of PROPN/NOUN/VERB of the stored analysis (light tokenizer without analysis); form = analysis skeleton of the forms inventory; see DS008 "Content-word overlap"', min_words: minWords, largely_contained_threshold: largely, datasets: {}, failures: []};
   for (const d of datasets) {
     const test = loadRows(d, 'test', root);
     const others = datasets.filter(o => o !== d).map(o => ({dataset: o, rows: pools[o]}));
-    const result = overlapOf(test, pools[d], {otherPools: others, minWords, largely});
+    // The sealed test variants of symbolic_english (tools/eval/test-variants.mjs) are test rows of forms only the training side has.
+    const variantsFile = path.join(root, 'eval/suites', d, 'test-variants.jsonl');
+    const extraTestRows = jsonlExists(variantsFile) ? readJsonlShardedSync(variantsFile) : [];
+    const result = overlapOf(test, pools[d], {otherPools: others, minWords, largely, extraTestRows});
     report.datasets[d] = result;
     const dup = result.exact_duplicates.same_dataset + result.exact_duplicates.other_dataset;
     if (dup) report.failures.push(`${d}: ${dup} sealed test row(s) duplicate a train/dev message (normalized)`);
@@ -134,7 +142,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const report = run({datasets: o.dataset ? [o.dataset] : THREE_DATASETS, minWords: Number(o['min-words'] ?? 2), largely: Number(o.largely ?? 0.8)});
   const outFile = path.resolve(ROOT, o.out ?? 'eval/reports/current/three-datasets/content-word-overlap.json');
   if (!o['no-write']) { fs.mkdirSync(path.dirname(outFile), {recursive: true}); fs.writeFileSync(outFile, JSON.stringify(report, null, 1) + '\n'); }
-  for (const [d, r] of Object.entries(report.datasets)) console.log(`${d}: ${r.test_rows} test rows; exact duplicates ${r.exact_duplicates.same_dataset + r.exact_duplicates.other_dataset}; identical words + form ${r.content_words.identical_same_form}/${r.content_words.rows_with_enough_words} (${r.shares.identical_words_same_form_pct}%), largely contained ${r.shares.largely_contained_same_form_pct}%; forms shared ${r.shares.form_shared_pct}% (${r.forms.test_forms_with_pool_counterpart}/${r.forms.test_forms} test forms covered); lexical duplicates ${r.lexical_duplicates.count}`);
+  for (const [d, r] of Object.entries(report.datasets)) console.log(`${d}: ${r.test_rows} test rows; exact duplicates ${r.exact_duplicates.same_dataset + r.exact_duplicates.other_dataset}; identical words + form ${r.content_words.identical_same_form}/${r.content_words.rows_with_enough_words} (${r.shares.identical_words_same_form_pct}%), largely contained ${r.shares.largely_contained_same_form_pct}%; forms shared ${r.shares.form_shared_pct}% (${r.forms.test_forms_with_pool_counterpart}/${r.forms.test_forms} test forms covered, ${r.forms.pool_forms_without_test_counterpart} train/dev forms without a test row); lexical duplicates ${r.lexical_duplicates.count}`);
   for (const f of report.failures) console.error(`FAIL ${f}`);
   if (report.failures.length) process.exitCode = 1;
 }

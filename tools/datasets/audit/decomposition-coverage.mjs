@@ -20,6 +20,8 @@ import {loadSealedRows} from '../../eval/composed/sealed.mjs';
 import {classifyRow, contractOfSentence} from '../three-datasets/decomposition.mjs';
 
 const SPLITS = ['train', 'dev', 'test'];
+/** Generated or production working data is not a natural decomposition case (the composed paragraphs would be counted twice). */
+const WORKING_DATA = new Set(['composed', 'form-variant', 'production']);
 const bump = (o, k, n = 1) => { o[k] = (o[k] ?? 0) + n; };
 
 export function coverage(rowsBy) {
@@ -73,7 +75,7 @@ const pct = (k, n) => (n ? `${(100 * k / n).toFixed(1)}%` : 'n/a');
 
 /** Markdown of the coverage report (decomposition-coverage.md): counts by type and, when present, the contract check of the targets. */
 export function render(report) {
-  const L = ['# Decomposition coverage and target style', '', `Generated ${report.generated_at} by \`node tools/datasets/audit/decomposition-coverage.mjs${report.contract ? ' --check-targets' : ''}\`. ${report.definition}. Candidates are an upper bound (a message with several clauses whose rewrite, if any, is not a decomposition). \`bad_english\` has no stored analysis, so its message shapes come from surface cues and are approximate. The contract is DS021 "Limited English for SymbolicLM".`, '',
+  const L = ['# Decomposition coverage and target style', '', `Generated ${report.generated_at} by \`node tools/datasets/audit/decomposition-coverage.mjs${report.contract ? ' --check-targets' : ''}\`. ${report.definition}. Rows of source.corpus composed, form-variant and production are left out. Candidates are an upper bound (a message with several clauses whose rewrite, if any, is not a decomposition). \`bad_english\` has no stored analysis, so its message shapes come from surface cues and are approximate. The contract is DS021 "Limited English for SymbolicLM".`, '',
     '## Counts', '', `| dataset/split | rows | candidates | candidates with a verified target | decomposition cases | ${TYPES.join(' | ')} | unpunctuated run-ons among them |`, `| --- | --- | --- | --- | --- | ${TYPES.map(() => '---').join(' | ')} | --- |`];
   for (const [d, splits] of Object.entries(report.coverage)) for (const [sp, c] of Object.entries(splits)) L.push(`| ${d}/${sp} | ${c.rows} | ${c.candidates} | ${c.candidates_with_target} | ${c.decomposition_cases} | ${TYPES.map(t => c.by_type_decomposition[t] ?? 0).join(' | ')} | ${c.unpunctuated_decomposition} |`);
   L.push('', 'Candidates without a verified target are the pool a teacher-generation pass would work on (an LLM writing the decomposed target, checked by the same gates); no LLM is used here.', '');
@@ -94,7 +96,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const o = parseArgs(process.argv.slice(2));
   const outDir = path.resolve(ROOT, o['out-dir'] ?? 'eval/reports/current/composed-eval');
   const rowsBy = {};
-  for (const d of ['neuro_english', 'bad_english']) { rowsBy[d] = {}; for (const s of SPLITS) rowsBy[d][s] = s === 'test' ? loadSealedRows(d) : loadRows(d, [s]); }
+  for (const d of ['neuro_english', 'bad_english']) { rowsBy[d] = {}; for (const s of SPLITS) rowsBy[d][s] = (s === 'test' ? loadSealedRows(d) : loadRows(d, [s])).filter(r => !WORKING_DATA.has(r.source?.corpus)); }
   const report = {generated_at: new Date().toISOString(), definition: 'candidate: message with more than one finite clause or several questions; decomposition case: a candidate whose verified target has more sentences than the message', coverage: coverage(rowsBy)};
   if (o['check-targets']) {
     const {openLm} = await import('../../eval/composed/lm.mjs');

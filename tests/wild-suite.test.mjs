@@ -10,16 +10,23 @@ import {SUITE, questionType, scoreAgainstAccepted, targetProblems} from '../tool
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const suiteFile = path.join(root, 'eval/suites', SUITE, 'test.jsonl');
 
-test('the independent suite is registered and no generator may name it or have a training split for it', () => {
-  assert.ok(INDEPENDENT_SUITES.includes(SUITE));
+test('the wild suite is learning material since 2026-09-30 (no independent suite is registered); the mechanism for an independent suite and the sealed-read guard stay', () => {
+  assert.ok(!INDEPENDENT_SUITES.includes(SUITE), 'the owner decision of 2026-09-30 re-splits the legacy wild suite across train, dev and test');
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wild-boundary-'));
   fs.mkdirSync(path.join(dir, 'tools/datasets'), {recursive: true});
   fs.writeFileSync(path.join(dir, 'tools/datasets/build-clean.mjs'), 'export const x = 1;\n');
   assert.deepEqual(auditSourceBoundary(dir).violations, []);
-  fs.writeFileSync(path.join(dir, 'tools/datasets/build-leaky.mjs'), `const inspiration = '${SUITE}';\n`);
-  fs.mkdirSync(path.join(dir, 'datasets', SUITE), {recursive: true});
-  const violations = auditSourceBoundary(dir).violations.join('\n');
-  assert.match(violations, /build-leaky\.mjs: generator\/training source names the independent sealed suite/);
+  // A generator may name the legacy suite's archive parts, but never read an eval/suites test file.
+  fs.writeFileSync(path.join(dir, 'tools/datasets/build-legacy.mjs'), `const archive = '${SUITE}';\n`);
+  assert.deepEqual(auditSourceBoundary(dir).violations, [], 'naming the archive corpus is allowed');
+  fs.writeFileSync(path.join(dir, 'tools/datasets/build-leaky.mjs'), `import answers from '../../eval/suites/${SUITE}/test.jsonl';\n`);
+  assert.match(auditSourceBoundary(dir).violations.join('\n'), /forbidden sealed-answer import/);
+  fs.rmSync(path.join(dir, 'tools/datasets/build-leaky.mjs'));
+  // The mechanism for a genuinely independent suite still works when one is registered.
+  fs.writeFileSync(path.join(dir, 'tools/datasets/build-naming.mjs'), "const inspiration = 'independent-fixture-v1';\n");
+  fs.mkdirSync(path.join(dir, 'datasets', 'independent-fixture-v1'), {recursive: true});
+  const violations = auditSourceBoundary(dir, {independentSuites: ['independent-fixture-v1']}).violations.join('\n');
+  assert.match(violations, /build-naming\.mjs: generator\/training source names the independent sealed suite/);
   assert.match(violations, /must have no training or dev split/);
 });
 

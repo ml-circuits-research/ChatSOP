@@ -12,7 +12,8 @@ import {ROOT} from '../../../lib/dataset-paths.mjs';
 import {rulesVersion} from './rules-version.mjs';
 
 export async function openLm({cacheDir = path.join(ROOT, 'eval/reports/current/composed-eval/cache'), useCache = true} = {}) {
-  const lm = await createSymbolicLM();
+  // CHATSOP_UD_DEVICE=cuda runs the Stanza worker on the GPU (the default is the host default, CPU); one GPU worker at a time (AGENTS.md rule 2).
+  const lm = await createSymbolicLM(process.env.CHATSOP_UD_DEVICE ? {device: process.env.CHATSOP_UD_DEVICE} : {});
   const id = `${stanzaModelId()}|${rulesVersion()}`;
   const file = path.join(cacheDir, `lm-${createHash('sha1').update(id).digest('hex').slice(0, 10)}.jsonl`);
   const cache = new Map();

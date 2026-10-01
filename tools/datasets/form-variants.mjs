@@ -12,6 +12,10 @@
  * identical form) of a sealed row (by hash) or of a train/dev row. Rows are tagged `source.corpus: form-variant` with the form id (a hash of the form); no text or
  * id of an evaluation row is kept. Forms only `neuro_english` has cannot be varied mechanically (SymbolicLM fails on them: no expected SOP or verified rewrite);
  * their number is reported for a teacher-generation pass. Without `--apply` nothing in datasets/ is touched.
+ *
+ * Membership is re-derived on the analysis layer (DS008 "Three datasets"): a variant goes to symbolic_english when every sentence of it passes the analysis gate
+ * (identical default/accurate trees and DeepSeek conditions a and c good), else to neuro_english; the exact SOP match stays as `sop_layer`. The first run records
+ * the parses and appends the judge items to datasets_sources/resplit_parse_judge/ and refuses `--apply` while a verdict is missing.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -28,6 +32,8 @@ import {GIVEN_NAMES, SURNAMES, PLACES} from './diversity/names.mjs';
 import {mainForm, fullForm, analysisWords} from './three-datasets/forms.mjs';
 import {lexiconsOf, lexicalize, sha16} from './three-datasets/variants.mjs';
 import {normalText} from './three-datasets/inputs.mjs';
+import {AnalysisGate} from './three-datasets/analysis-gate.mjs';
+import {decideAdditions, placeRow} from './three-datasets/place.mjs';
 
 export const CATALOG_PATH = 'eval/reports/current/three-datasets/form-templates.json';
 export const NAMES = {given: GIVEN_NAMES.filter(g => g.gender !== 'x').map(g => g.name), surnames: Object.values(SURNAMES).flat(), places: Object.values(PLACES).flatMap(v => (Array.isArray(v) ? v : String(v).split(';')))};
@@ -84,17 +90,24 @@ export async function build({catalog, lm, perTemplate = 3, seed = 'form-variants
   return {rows, stats};
 }
 
+/** A variant row of `build` in its dataset by the analysis gate (place.mjs). */
+export function placeVariant(row, decision) {
+  const {dataset: _dataset, gold_sop, analysis_verified: _av, verification, ...base} = row;
+  const {sop_gold_match, judge: _j, stanza_spacy_agree: _s, stanza_default_accurate: _d, ...extra} = verification;
+  return placeRow(base, decision, {gold_sop, sopMatch: sop_gold_match, verification: extra, failureExtra: {form_variant: true}});
+}
+
 const parseArgs = argv => { const o = {}; for (let i = 0; i < argv.length; i++) if (argv[i].startsWith('--')) o[argv[i].slice(2)] = argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[++i] : true; return o; };
 
-/** Replace the form-variant rows of datasets/symbolic_english/{train,dev}.jsonl and refresh the manifest. */
+/** Replace the form-variant rows of datasets/{symbolic_english,neuro_english}/{train,dev}.jsonl and refresh the manifests. */
 export async function apply(rows) {
   const {writeSplit, summarise, updateManifest} = await import('./three-datasets/write.mjs');
-  for (const split of ['train', 'dev']) {
-    const kept = readJsonlShardedSync(path.join(ROOT, 'datasets/symbolic_english', `${split}.jsonl`)).filter(r => r.source?.corpus !== 'form-variant');
-    const added = rows.filter(r => r.split === split);
+  for (const dataset of ['symbolic_english', 'neuro_english']) for (const split of ['train', 'dev']) {
+    const kept = readJsonlShardedSync(path.join(ROOT, 'datasets', dataset, `${split}.jsonl`)).filter(r => r.source?.corpus !== 'form-variant');
+    const added = rows.filter(r => r.dataset === dataset && r.split === split);
     const all = [...kept, ...added];
-    const written = await writeSplit('symbolic_english', split, all);
-    updateManifest('symbolic_english', {sha256: {[written.path]: written.sha256}, bytes: {[written.path]: written.bytes}, counts: {[split]: summarise('symbolic_english', all)}});
+    const written = await writeSplit(dataset, split, all);
+    updateManifest(dataset, {sha256: {[written.path]: written.sha256}, bytes: {[written.path]: written.bytes}, counts: {[split]: summarise(dataset, all)}});
     console.log(`${written.path}: ${kept.length} kept + ${added.length} form variants`);
   }
 }
@@ -106,12 +119,20 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const catalog = JSON.parse(fs.readFileSync(catalogFile, 'utf8'));
   const lm = await openLm();
   try {
-    const {rows, stats} = await build({catalog, lm, perTemplate: Number(o['per-template'] ?? 3)});
+    const built = await build({catalog, lm, perTemplate: Number(o['per-template'] ?? 3)});
+    const {stats} = built;
     console.log(JSON.stringify(stats));
+    const gate = new AnalysisGate();
+    const {decisions, summary} = await decideAdditions(gate, built.rows, {record: !o.dry, log: m => process.stderr.write(m + '\n')});
+    const pending = built.rows.filter(r => decisions.get(r.message).state === 'pending').length;
+    const rows = built.rows.map(r => placeVariant(r, decisions.get(r.message)));
+    const placed = rows.reduce((a, r) => { a[r.dataset] = (a[r.dataset] ?? 0) + 1; return a; }, {});
+    console.log(JSON.stringify({gate: summary, placed, pending}));
     if (o.out) fs.writeFileSync(path.resolve(ROOT, o.out), rows.map(r => JSON.stringify(r)).join('\n') + '\n');
-    if (o.apply) await apply(rows);
+    if (o.apply && pending) { console.error(`${pending} variants have no analysis verdict yet: run the judge task on datasets_sources/resplit_parse_judge/ and run again; nothing applied`); process.exitCode = 2; }
+    else if (o.apply) await apply(rows);
     fs.mkdirSync(path.join(ROOT, 'eval/reports/current/composed-eval'), {recursive: true});
-    fs.writeFileSync(path.join(ROOT, 'eval/reports/current/composed-eval/form-variants-report.json'), JSON.stringify({generated_at: new Date().toISOString(), applied: Boolean(o.apply), catalog: path.relative(ROOT, catalogFile), stats, by_split: rows.reduce((a, r) => { a[r.split] = (a[r.split] ?? 0) + 1; return a; }, {})}, null, 1) + '\n');
+    fs.writeFileSync(path.join(ROOT, 'eval/reports/current/composed-eval/form-variants-report.json'), JSON.stringify({generated_at: new Date().toISOString(), applied: Boolean(o.apply) && !pending, pending, placed, gate: summary, catalog: path.relative(ROOT, catalogFile), stats, by_split: rows.reduce((a, r) => { a[r.split] = (a[r.split] ?? 0) + 1; return a; }, {})}, null, 1) + '\n');
   } finally { await lm.close(); }
   process.exit(0);
 }

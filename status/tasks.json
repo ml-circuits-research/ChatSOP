@@ -2,9 +2,9 @@
  "format": "chatsop-tasks-v1",
  "note": "Task records for the /experiments pages (DS010 \"Tasks and topic notes\", lib/tasks.mjs). One record per major piece of work; the owner side and the agents side are kept apart. Re-read before writing; change only your own records.",
  "phase": {
-  "name": "After the first fine-tuning study: last arms under evaluation; data-improvement plan awaiting owner decisions D1–D6",
+  "name": "After the first fine-tuning study: last arms under evaluation; data-improvement plan awaiting owner decisions D1\u2013D6",
   "since": "2026-09-29T07:53:50Z",
-  "detail": "formalizer-size-v1: SmolLM2-135M evaluated (not adequate), Gemma 3 270M sealed evaluation valid after the tokenizer fix, exploratory SmolLM2-360M trained and under a short evaluation; Qwen3-0.6B not started. The Fable data-improvement plan proposes formalizer-v2 and the E0–E8 series; no further training run is authorized until the owner answers (questions.md D5)."
+  "detail": "formalizer-size-v1: SmolLM2-135M evaluated (not adequate), Gemma 3 270M sealed evaluation valid after the tokenizer fix, exploratory SmolLM2-360M trained and under a short evaluation; Qwen3-0.6B not started. The Fable data-improvement plan proposes formalizer-v2 and the E0\u2013E8 series; no further training run is authorized until the owner answers (questions.md D5)."
  },
  "tasks": [
   {
@@ -14,7 +14,7 @@
    "status": "open",
    "started_at": "2026-09-29T11:45:00Z",
    "updated_at": "2026-09-29T12:05:45Z",
-   "summary": "An independent language-design review of the owner's idea that a compound sentence should become short clause wires chained with $ references. It diagnoses how the flat DS021 golds lose clause structure on real messages, recommends a linguistic basis, proposes a minimal extension (clause TYPE $id lines and $id role values), estimates teachability and output length, describes data generation and migration, and asks for a paired validation experiment. PROPOSED, not normative; awaiting owner decisions L1–L6.",
+   "summary": "An independent language-design review of the owner's idea that a compound sentence should become short clause wires chained with $ references. It diagnoses how the flat DS021 golds lose clause structure on real messages, recommends a linguistic basis, proposes a minimal extension (clause TYPE $id lines and $id role values), estimates teachability and output length, describes data generation and migration, and asks for a paired validation experiment. PROPOSED, not normative; awaiting owner decisions L1\u2013L6.",
    "topics": [
     "model-language",
     "data-improvement-plan",
@@ -33,11 +33,11 @@
     "decision L1",
     "decision L6"
    ],
-   "owner": "**Owner's view (translated):** the NL→SOP step is a translation; a compact intermediate form is too simple because messages have queries and compound sentences; the language may be badly designed for natural language; the model should turn a compound sentence into short sentences chained with `$`, following grammatical analysis, and the examples should be built that way, especially for long sentences with subordinate clauses and many conditions.\n\n**Constraints kept:** the model sees only the message, never reasons or refuses; quoted strings, closed roles, one keyword per line, canonical English; the host links; no parentheses or operator symbols.\n\n**Decisions requested (questions.md, Romanian):** L1 allow `$` in stated/assumed (revisits DS021 `proposition_not_ground`); L2 the seven-type `clause` inventory; L3 `$q` query chaining; L4 host behaviour for links without an engine; L5 migration and evaluation; L6 approval of `eval-clause-decomposition-v1`.",
-   "agents": "**Done (read-only, 2026-09-29):** `eval/reports/current/sop-clause-decomposition-proposal.md`.\n\n- Diagnosis over 30 real rows: SmolLM2-135M proposition F1 0.41 on the 289 wild rows with a subordinating connective vs 0.63 on the other 387; worst wild gaps G10 0.09, G09 0.22, G30 0.24, G21 0.27, G23 0.28, G27 0.29. In distribution the compound families are memorized templates (conditional 97.5%, ordering 93%, causal 89%). Three lossy moves in the golds: clause-as-string, dropped link, global supposition.\n- Theory: traditional clause analysis (Quirk et al.; GALR), dependency grammar (UD advcl/acl:relcl/ccomp/mark), neo-Davidsonian and MRS flat semantics, DRT/SDRT and PDTB-3 relations, Split-and-Rephrase, ClausIE/DisSim/Graphene, QDMR/Break, AMR. Recommended basis: one clause = one wire, closed relation set from the connective, propositions as referable values, `$` back-references.\n- Language: `clause TYPE $id` (cause, condition, concession, purpose, before, after, during) on stated/assumed/query/match; `$id` role value = event of a statement or answers of an earlier query. 16 before/after examples EN/RO with host executability (condition and `$q` executable now; timed before/after lowered to periods; cause/concession/purpose reported as not_checked; event arguments not_computable unless the lexicon declares them).\n- Teachability: locality, lexical clause types, +5–8% tokens on real messages; sentence-split pilot A (S1 91%→47% dev) as evidence that cut links are the failure.\n- Data: clause layer in the IR, compound family, negative connective rows, execution verification where an engine exists, formalizer-v2 regeneration with sealed v1 frozen, wild companion targets.\n- Experiment: eval-clause-decomposition-v1, flat vs chained arms, two SmolLM2-135M runs, decision rule +0.08 wild multi-clause proposition F1.\n\nNo code, spec, dataset or training change was made.",
+   "owner": "**Owner's view (translated):** the NL\u2192SOP step is a translation; a compact intermediate form is too simple because messages have queries and compound sentences; the language may be badly designed for natural language; the model should turn a compound sentence into short sentences chained with `$`, following grammatical analysis, and the examples should be built that way, especially for long sentences with subordinate clauses and many conditions.\n\n**Constraints kept:** the model sees only the message, never reasons or refuses; quoted strings, closed roles, one keyword per line, canonical English; the host links; no parentheses or operator symbols.\n\n**Decisions requested (questions.md, Romanian):** L1 allow `$` in stated/assumed (revisits DS021 `proposition_not_ground`); L2 the seven-type `clause` inventory; L3 `$q` query chaining; L4 host behaviour for links without an engine; L5 migration and evaluation; L6 approval of `eval-clause-decomposition-v1`.",
+   "agents": "**Done (read-only, 2026-09-29):** `eval/reports/current/sop-clause-decomposition-proposal.md`.\n\n- Diagnosis over 30 real rows: SmolLM2-135M proposition F1 0.41 on the 289 wild rows with a subordinating connective vs 0.63 on the other 387; worst wild gaps G10 0.09, G09 0.22, G30 0.24, G21 0.27, G23 0.28, G27 0.29. In distribution the compound families are memorized templates (conditional 97.5%, ordering 93%, causal 89%). Three lossy moves in the golds: clause-as-string, dropped link, global supposition.\n- Theory: traditional clause analysis (Quirk et al.; GALR), dependency grammar (UD advcl/acl:relcl/ccomp/mark), neo-Davidsonian and MRS flat semantics, DRT/SDRT and PDTB-3 relations, Split-and-Rephrase, ClausIE/DisSim/Graphene, QDMR/Break, AMR. Recommended basis: one clause = one wire, closed relation set from the connective, propositions as referable values, `$` back-references.\n- Language: `clause TYPE $id` (cause, condition, concession, purpose, before, after, during) on stated/assumed/query/match; `$id` role value = event of a statement or answers of an earlier query. 16 before/after examples EN/RO with host executability (condition and `$q` executable now; timed before/after lowered to periods; cause/concession/purpose reported as not_checked; event arguments not_computable unless the lexicon declares them).\n- Teachability: locality, lexical clause types, +5\u20138% tokens on real messages; sentence-split pilot A (S1 91%\u219247% dev) as evidence that cut links are the failure.\n- Data: clause layer in the IR, compound family, negative connective rows, execution verification where an engine exists, formalizer-v2 regeneration with sealed v1 frozen, wild companion targets.\n- Experiment: eval-clause-decomposition-v1, flat vs chained arms, two SmolLM2-135M runs, decision rule +0.08 wild multi-clause proposition F1.\n\nNo code, spec, dataset or training change was made.",
    "follow_ups": [
-    "Owner answers L1–L6 in questions.md.",
-    "If L1–L3 are accepted: DS021/DS004/DS022 amendments, parser and admission, host lowering, packet fields, wire help pages, Wire F1 keys, audit checks.",
+    "Owner answers L1\u2013L6 in questions.md.",
+    "If L1\u2013L3 are accepted: DS021/DS004/DS022 amendments, parser and admission, host lowering, packet fields, wire help pages, Wire F1 keys, audit checks.",
     "Preregister eval-clause-decomposition-v1 (DS010) and build the 3.3k compound rows before any run."
    ],
    "links": [
@@ -69,7 +69,7 @@
     "sentence split",
     "eval-sentence-split"
    ],
-   "owner": "**Idea (2026-09-29, relayed by the orchestrator):** the fine-tuned small models do well on short messages (about 75–80%) and fail almost completely on long ones (0% whole-program, wire F1 0.59). Give the small model the message **sentence by sentence, so as not to confuse it**, then collect the circuits. The owner expects that **speed should barely change**.\n\n**Constraints:** CPU only, no training, no GPU, at most 8 threads, never touch port 9999 or other agents' servers. Record the experiment permanently: experiments registry, this task page (owner and agents sides), topic notes and journal events.\n\n**Later instructions (2026-09-29):** use the GPU for bulk evaluation and measure CPU latency on a sample only; stop experiments early when the answer is clear (staged evaluation, 100 then more). **Stop decision:** the experiment was stopped as superseded: the owner chose one SOP Lang with clause decomposition (compound sentences split into linked clause wires inside the model output), and the targets used here are being retired.",
+   "owner": "**Idea (2026-09-29, relayed by the orchestrator):** the fine-tuned small models do well on short messages (about 75\u201380%) and fail almost completely on long ones (0% whole-program, wire F1 0.59). Give the small model the message **sentence by sentence, so as not to confuse it**, then collect the circuits. The owner expects that **speed should barely change**.\n\n**Constraints:** CPU only, no training, no GPU, at most 8 threads, never touch port 9999 or other agents' servers. Record the experiment permanently: experiments registry, this task page (owner and agents sides), topic notes and journal events.\n\n**Later instructions (2026-09-29):** use the GPU for bulk evaluation and measure CPU latency on a sample only; stop experiments early when the answer is clear (staged evaluation, 100 then more). **Stop decision:** the experiment was stopped as superseded: the owner chose one SOP Lang with clause decomposition (compound sentences split into linked clause wires inside the model output), and the targets used here are being retired.",
    "agents": "**Built:** `lib/sentence-split.mjs` (deterministic EN/RO sentence segmentation: abbreviations, initials, decimals, dates, times, quotes, lists, lead-ins; and a circuit merge: renumbered ids, duplicates and chit-chat `unclear` dropped), `tests/sentence-split.test.mjs`, `tools/research/sentence-split-{eval,score}.mjs`. Preregistered before sealed predictions.\n\n**Dev pilots:** A (earlier segmenter) showed invented queries for bare lead-ins and invented referents for pronoun questions; two dev-only segmenter fixes. B: exec S0 89.2%, S1 42.5%, S2 72.5%.\n\n**Incidents:** my first server was stopped by another agent (57 wild rows and all queued calls errored; quarantined and re-run); the GPU server start was refused by the permission guard, so everything ran on CPU.\n\n**Interim results (stopped early):**\nSTOPPED EARLY (superseded by the clause-decomposition language change); interim, experiment-grade, SmolLM2-360M Q8_0 on CPU.\n- Long sealed rows (79/303, stratified stage): wire F1 S0 0.8033, S1 0.8202, S2 0.7413; S1-S0 1.7 pp [-0.2, 3.5], S2-S0 -6.2 pp [-8.0, -4.4]; query-part S1-S0 -19.0 pp [-29.1, -7.6]; tolerant exec S0 0.0759, S1 0.038, S2 0.\n- Short multi-sentence (100/400): tolerant exec S0 0.7, S1 0.37, S2 0.67; S1-S0 -33.0 pp [-44.0, -22.2], S2-S0 -3.0 pp [-8.0, 1.0].\n- Wild (796, full): accepted match 9.3% in every condition (delta 0); proposition F1 S1-S0 0.0 pp [-1.3, 1.2], S2-S0 -0.7 pp [-1.4, -0.0].\n- Latency (sum of calls, total ratio to S0): long S1 0.9583x, S2 1.8741x; short S1 1.1154x, S2 1.5064x; wild S1 1.3805x.\n- Dev pilot (120 rows): exec S0 89.2%, S1 42.5%, S2 72.5%.\n\n**Conclusion:** Stopped early: superseded by the owner's clause-decomposition language change; no preregistered decision on H1. Interim evidence: naive sentence splitting does not help. S1 (each sentence alone) cuts cross-sentence references: the model invents referents for pronouns and ellipses, so query-part correctness falls (long -19 pp, short -35 pp) and short-message execution falls by 33 pp; its small long-row wire F1 gain (+1.7 pp, CI includes 0) comes from statements only. S2 (with the previous sentence) repairs short messages only partly (-3 pp) and duplicates queries on long messages (wire F1 -6 pp) at about 1.5-1.9x the model time. Wild: no change. Speed: S1 costs about the same total model time as the whole message (0.96-1.4x), S2 about 1.5-1.9x. Recommendation at stop: do not split sentences before the formalizer. lib/sentence-split.mjs (deterministic EN/RO segmenter + circuit merge, tests/sentence-split.test.mjs) is kept: it may still be useful to the host.",
    "links": [
     "status/preregistrations/eval-sentence-split-v1.json",
@@ -89,7 +89,7 @@
    "status": "open",
    "started_at": "2026-09-29T07:53:50Z",
    "updated_at": "2026-09-29T08:10:00Z",
-   "summary": "An independent review of why the fine-tuned formalizer fails on unseen phrasings, Romanian and real messages, with ranked data ideas, an E0–E8 experiment sequence and owner decisions D1–D6. Proposal only; the owner has not answered yet.",
+   "summary": "An independent review of why the fine-tuned formalizer fails on unseen phrasings, Romanian and real messages, with ranked data ideas, an E0\u2013E8 experiment sequence and owner decisions D1\u2013D6. Proposal only; the owner has not answered yet.",
    "topics": [
     "data-improvement-plan",
     "long-messages",
@@ -101,10 +101,10 @@
     "data-improvement-plan",
     "data improvement plan"
    ],
-   "owner": "**Asked:** after the first fine-tuning night, the owner wanted to know how to improve the training data so that a small model handles real messages; the plan was produced as an independent review (journal, 2026-09-29 07:53Z).\n\n**Decisions requested (questions.md, open):**\n- **D1** keep canonical English targets for Romanian (owner decision Q-DATA-6 of 2026-09-28), or let the model write Romanian lemmas that the host links, or decide by an A/B experiment.\n- **D2** allow LLM-written paraphrases and verifier-filtered distilled rows in training.\n- **D3** freeze the v1 sealed suites during the program.\n- **D4** cap long messages and add a medium-length family.\n- **D5** approve the E0–E8 training series (whole series or per experiment).\n- **D6** align the wild suite with DS021 and commission wild-v2.\n\nNo answer is recorded yet: every **Răspuns** line is empty. The questions are in Romanian, the owner's language for questions.md.",
-   "agents": "**Analysed** (read-only, CPU only): the corpora, the sealed, OOD and wild suites and last night's predictions.\n\n**Diagnosis:** the corpus is a closed lookup table (648 frames, 201 constructions, 135 relation phrases, 250 target skeletons, 6,515 values; H(skeleton | masked template) = 0.001 bits). Sealed accuracy is 96% when frame and names were seen, 67% when neither was; 77.1% of short test rows use an unseen frame, which dev never shows. Romanian needs open-vocabulary translation from 104 RO→EN pairs. Training length is bimodal (short ≤20 words, long median 271 words) while real messages sit in between.\n\n**Proposed:** 12 ranked ideas (open names, open relations, Romanian policy, mid-length family, frame-disjoint dev, verified paraphrases, realistic noise, distillation, contrast pairs, repetition budget, auxiliary tasks, error-type family weights), evaluation rules (freeze, leakage, fidelity metrics, thresholds) and E0–E8 with decision rules (~11 runs ≈ 28 h GPU).\n\nDetails are in the topic notes; nothing has been run.",
+   "owner": "**Asked:** after the first fine-tuning night, the owner wanted to know how to improve the training data so that a small model handles real messages; the plan was produced as an independent review (journal, 2026-09-29 07:53Z).\n\n**Decisions requested (questions.md, open):**\n- **D1** keep canonical English targets for Romanian (owner decision Q-DATA-6 of 2026-09-28), or let the model write Romanian lemmas that the host links, or decide by an A/B experiment.\n- **D2** allow LLM-written paraphrases and verifier-filtered distilled rows in training.\n- **D3** freeze the v1 sealed suites during the program.\n- **D4** cap long messages and add a medium-length family.\n- **D5** approve the E0\u2013E8 training series (whole series or per experiment).\n- **D6** align the wild suite with DS021 and commission wild-v2.\n\nNo answer is recorded yet: every **R\u0103spuns** line is empty. The questions are in Romanian, the owner's language for questions.md.",
+   "agents": "**Analysed** (read-only, CPU only): the corpora, the sealed, OOD and wild suites and last night's predictions.\n\n**Diagnosis:** the corpus is a closed lookup table (648 frames, 201 constructions, 135 relation phrases, 250 target skeletons, 6,515 values; H(skeleton | masked template) = 0.001 bits). Sealed accuracy is 96% when frame and names were seen, 67% when neither was; 77.1% of short test rows use an unseen frame, which dev never shows. Romanian needs open-vocabulary translation from 104 RO\u2192EN pairs. Training length is bimodal (short \u226420 words, long median 271 words) while real messages sit in between.\n\n**Proposed:** 12 ranked ideas (open names, open relations, Romanian policy, mid-length family, frame-disjoint dev, verified paraphrases, realistic noise, distillation, contrast pairs, repetition budget, auxiliary tasks, error-type family weights), evaluation rules (freeze, leakage, fidelity metrics, thresholds) and E0\u2013E8 with decision rules (~11 runs \u2248 28 h GPU).\n\nDetails are in the topic notes; nothing has been run.",
    "follow_ups": [
-    "Owner answers D1–D6 in questions.md.",
+    "Owner answers D1\u2013D6 in questions.md.",
     "E0 (CPU only): frame-disjoint dev, novelty report and the two fidelity metrics can start without training approval.",
     "Record each decision as a note and remove the answered question from questions.md once implemented."
    ],
@@ -132,7 +132,7 @@
     "long rows"
    ],
    "owner": "**Asked:** the morning report showed 0% on long messages; the orchestrator launched a diagnosis of whether the cause was truncation, genuine errors, metric strictness, gold consistency or harness limits (journal #116). No owner decision is recorded for this task; the follow-up decision is **D4** in questions.md (cap long messages and add a medium family), open.",
-   "agents": "**Tried:** CPU only, existing predictions only (SmolLM2-135M Q8_0, the Haiku no-thinking sample; Gemma predictions were not present yet).\n\n**Obtained:** no truncation (0/303 `finish=length`, max 2,762 of 6,144 completion tokens, 4,647 of 8,192 context). A new partial-credit metric (`formalizer.wire_match`, DS016 \"Wire F1\"): short vs long wire F1 0.785 vs 0.589 for SmolLM2-135M, 0.412 vs 0.618 for Haiku. With ~22 parts per row, independent parts at the short-row rate would give at best 2.8% exact. Real errors: statement recall 0.78 → 0.55 after the 10th statement; 1,322 extra statements with values absent from the message; 131 questions turned into statements; Romanian 0.46 vs English 0.69. 15 golds reviewed by hand: consistent.\n\n**Conclusion:** the 0% is mostly an arithmetic effect of whole-program scoring plus real length-dependent errors; the training long family is also unlike real messages (Fable §1.6).",
+   "agents": "**Tried:** CPU only, existing predictions only (SmolLM2-135M Q8_0, the Haiku no-thinking sample; Gemma predictions were not present yet).\n\n**Obtained:** no truncation (0/303 `finish=length`, max 2,762 of 6,144 completion tokens, 4,647 of 8,192 context). A new partial-credit metric (`formalizer.wire_match`, DS016 \"Wire F1\"): short vs long wire F1 0.785 vs 0.589 for SmolLM2-135M, 0.412 vs 0.618 for Haiku. With ~22 parts per row, independent parts at the short-row rate would give at best 2.8% exact. Real errors: statement recall 0.78 \u2192 0.55 after the 10th statement; 1,322 extra statements with values absent from the message; 131 questions turned into statements; Romanian 0.46 vs English 0.69. 15 golds reviewed by hand: consistent.\n\n**Conclusion:** the 0% is mostly an arithmetic effect of whole-program scoring plus real length-dependent errors; the training long family is also unlike real messages (Fable \u00a71.6).",
    "follow_ups": [
     "Rerun the diagnosis on Gemma predictions once they exist.",
     "Owner decision D4 (long cap and medium family).",
@@ -164,7 +164,7 @@
     "spelling correction"
    ],
    "owner": "**Asked:** no owner request or decision about spelling correction is recorded in the journal. The experiment ran under the overnight autonomy the owner granted on 2026-09-28 (journal #70), inference-only on the CPU.\n\n**Decision still open:** the recommendation (optional pre-step, off by default; spellfix-v2 before any default) and \"training the model on more noise is the stronger fix; that decision belongs to the owner\" await the owner.",
-   "agents": "**Tried:** `lib/spellfix.mjs` (Hunspell en_US + ro, frequency lists, keyboard-aware edits, diacritic restoration), tuned on dev only; preregistered before any sealed contact; raw vs spellfixed messages for SmolLM2-135M Q8_0.\n\n**Obtained:** noisy formalizer-v1 rows 68.57% → 71.62% (+3.05, CI [+1.93, +4.17]); heavy noise +7.27; clean rows unchanged; OOD noisy +7.38. Wild (real text): accepted match −0.13, Romanian parse −2.05. Real-text hand audit: diacritic restorations ~98% right, other edits 3 of 27 right (jargon, brands, British spelling). 15 hurt rows (≈9 model instability after a right correction, ≈6 wrong corrections).\n\n**Conclusion:** the preregistered rule says adopt; the recommendation is an optional host pre-step, off by default. Gemma arm not run (no GGUF then).",
+   "agents": "**Tried:** `lib/spellfix.mjs` (Hunspell en_US + ro, frequency lists, keyboard-aware edits, diacritic restoration), tuned on dev only; preregistered before any sealed contact; raw vs spellfixed messages for SmolLM2-135M Q8_0.\n\n**Obtained:** noisy formalizer-v1 rows 68.57% \u2192 71.62% (+3.05, CI [+1.93, +4.17]); heavy noise +7.27; clean rows unchanged; OOD noisy +7.38. Wild (real text): accepted match \u22120.13, Romanian parse \u22122.05. Real-text hand audit: diacritic restorations ~98% right, other edits 3 of 27 right (jargon, brands, British spelling). 15 hurt rows (\u22489 model instability after a right correction, \u22486 wrong corrections).\n\n**Conclusion:** the preregistered rule says adopt; the recommendation is an optional host pre-step, off by default. Gemma arm not run (no GGUF then).",
    "follow_ups": [
     "Preregister spellfix-v2 (no splits of listed words, allowlist, stricter real-traffic edits, diacritics evaluated separately).",
     "Owner decision on training with more realistic noise (Fable idea 7)."
@@ -194,7 +194,7 @@
     "haiku"
    ],
    "owner": "**Asked:** how a strong general model that is only prompted with the SOP Lang rules scores against the fine-tuned small models, and how much of each \"failure\" is the evaluation's fault (summary.md, \"two owner questions\").\n\n**Decision (journal #108, owner-via-orchestrator):** the formalization problems are meant to be solvable by a small model, so a baseline that needs extended thinking is not a fair reference: **no-thinking is the headline condition**; thinking is kept as a secondary reference.",
-   "agents": "**Tried:** `claude-haiku-4-5-20251001` through headless Claude Code with no tools; system prompt = the product prompt + DS021 C1–C12 + 15 train-only few-shots; message-only user turn. A first prompt version was discarded after 108 calls. The harness added a date to the system prompt (a DS021 violation for the product model; no reviewed row depended on it).\n\n**Obtained (no thinking):** formalizer-v1 sample tolerant 35.6% vs SmolLM2-135M 57.4%; OOD 49.8% vs 31.8% (RO 38.5% vs 4.6%); wild accepted 16.1% vs 7.3%, decision 58.3% vs 81.4% (176 real queries answered `no_request`). Thinking: wild 19.4%, decision 86.2%, at 50 s p50 and $23.26 for the wild suite (no thinking: 2.7 s, $1.34).\n\n**Validity review:** 7/60 Haiku failures are evaluation false negatives (14/60 counting partial), 0/30 SmolLM. 16 fix proposals (golds, synonyms, DS021 clarifications, scorer bugs), none applied to a sealed suite.",
+   "agents": "**Tried:** `claude-haiku-4-5-20251001` through headless Claude Code with no tools; system prompt = the product prompt + DS021 C1\u2013C12 + 15 train-only few-shots; message-only user turn. A first prompt version was discarded after 108 calls. The harness added a date to the system prompt (a DS021 violation for the product model; no reviewed row depended on it).\n\n**Obtained (no thinking):** formalizer-v1 sample tolerant 35.6% vs SmolLM2-135M 57.4%; OOD 49.8% vs 31.8% (RO 38.5% vs 4.6%); wild accepted 16.1% vs 7.3%, decision 58.3% vs 81.4% (176 real queries answered `no_request`). Thinking: wild 19.4%, decision 86.2%, at 50 s p50 and $23.26 for the wild suite (no thinking: 2.7 s, $1.34).\n\n**Validity review:** 7/60 Haiku failures are evaluation false negatives (14/60 counting partial), 0/30 SmolLM. 16 fix proposals (golds, synonyms, DS021 clarifications, scorer bugs), none applied to a sealed suite.",
    "follow_ups": [
     "Wild-suite convention refresh (owner decision D6).",
     "The 191 translated-title rows of the sealed test (alias in the verification world or keep titles as written).",
@@ -237,12 +237,12 @@
     "exploratory smollm2-360m",
     "smollm2-360m"
    ],
-   "owner": "**Asked (journal #68, 2026-09-28 18:13Z, owner-via-orchestrator):** \"download SmolLM2 (smallest) and Gemma 3 270M; fine-tune on formalizer-v1 once the data rebuild is final, SmolLM2 → Gemma 3 270M; Qwen3-0.6B only if the smaller models are not good enough\". **Why:** a scientific comparison of how small the formalizer can be, with CPU speed measured. Semantic review satisfied by the independent automated auditor (experiment-grade).\n\n**Decisions and corrections along the way:**\n- 18:15Z overnight autonomy: install what training needs, monitor resources, finish unattended (#70).\n- 18:53Z the data changes fundamentally first (Q-LANG expansion); training waits for data-final (#75).\n- 20:02Z GPU reserved for the night; other users' GPU processes stopped (#85).\n- 20:22Z GPU shared with the owner's small inference models; single-worker rule suspended for that combination; pause below ~15 GB RAM (#86).\n- 2026-09-29 04:31Z an EXPLORATORY SmolLM2-360M arm for the size curve, outside the preregistered rule (#110).\n- 04:31Z (Haiku baseline) no-thinking is the fair reference (#108).\n\nAGENTS.md direction 3 still states that training needs new explicit approval; further runs (the Fable E0–E8 series) wait for D5.",
-   "agents": "**Phase A (18:17–19:08Z):** bases downloaded and verified, token audits, trainer fixes, preregistration, dry run; base CPU speed tg128 @10 threads: 135M 319, Gemma 239, 360M 167 tok/s.\n\n**Attempts on SmolLM2-135M (each stopped before any score or checkpoint unless noted):**\n1. **a1** stopped at step 1000: the first full-dev selection pass ran >30 min → deviation 1 (epoch-end selection).\n2. **a2** stopped itself at ~step 700 by the 48 GiB CUDA-free floor on shared unified memory → floor made configurable, 16 GiB; relaunched as container **a2b**.\n3. **a2b** finished epoch 1 (dev loss 0.0306) but selection ran >66 min → deviation 2 (capped decoding).\n4. **a3** epoch 1 (dev loss 0.0308); selection still ~45 min a pass → deviation 3 (one selection after epoch 3).\n5. **a4** trained: 4,467 steps, 2.3 h; dev strict 92.3%.\n\n**Gemma 3 270M:** two failed starts (driver free-memory figure excludes page cache on unified memory) → host-memory guard (`TRAIN_CUDA_FREE_CHECK=host`); trained, dev 97.7%. First sealed numbers **invalid**: the GGUF export tokenized the turn markers as text (parse 93.8%); fixed by taking tokenizer files from the pinned base; rerun valid.\n\n**Sealed results (Q8_0, CPU):** SmolLM2-135M test 74.1% (EN 80.4, RO 65.8, mixed 72.0), short 78.8%, long 0/303, OOD 33.3% (RO 8.4), wild accepted 7.3%; **not adequate** (EN, RO and OOD gates fail). Gemma short 78.9%, OOD 28.0% (RO 13.1), wild accepted 9.9%. SmolLM2-360M (exploratory): dev 96.3%; short evaluation running. Qwen3-0.6B not started: data, not size, is the bottleneck.\n\n**Observations:** dev overstates the sealed test (97.7% vs 78.8% on short rows) because the test holds out question frames.",
+   "owner": "**Asked (journal #68, 2026-09-28 18:13Z, owner-via-orchestrator):** \"download SmolLM2 (smallest) and Gemma 3 270M; fine-tune on formalizer-v1 once the data rebuild is final, SmolLM2 \u2192 Gemma 3 270M; Qwen3-0.6B only if the smaller models are not good enough\". **Why:** a scientific comparison of how small the formalizer can be, with CPU speed measured. Semantic review satisfied by the independent automated auditor (experiment-grade).\n\n**Decisions and corrections along the way:**\n- 18:15Z overnight autonomy: install what training needs, monitor resources, finish unattended (#70).\n- 18:53Z the data changes fundamentally first (Q-LANG expansion); training waits for data-final (#75).\n- 20:02Z GPU reserved for the night; other users' GPU processes stopped (#85).\n- 20:22Z GPU shared with the owner's small inference models; single-worker rule suspended for that combination; pause below ~15 GB RAM (#86).\n- 2026-09-29 04:31Z an EXPLORATORY SmolLM2-360M arm for the size curve, outside the preregistered rule (#110).\n- 04:31Z (Haiku baseline) no-thinking is the fair reference (#108).\n\nAGENTS.md direction 3 still states that training needs new explicit approval; further runs (the Fable E0\u2013E8 series) wait for D5.",
+   "agents": "**Phase A (18:17\u201319:08Z):** bases downloaded and verified, token audits, trainer fixes, preregistration, dry run; base CPU speed tg128 @10 threads: 135M 319, Gemma 239, 360M 167 tok/s.\n\n**Attempts on SmolLM2-135M (each stopped before any score or checkpoint unless noted):**\n1. **a1** stopped at step 1000: the first full-dev selection pass ran >30 min \u2192 deviation 1 (epoch-end selection).\n2. **a2** stopped itself at ~step 700 by the 48 GiB CUDA-free floor on shared unified memory \u2192 floor made configurable, 16 GiB; relaunched as container **a2b**.\n3. **a2b** finished epoch 1 (dev loss 0.0306) but selection ran >66 min \u2192 deviation 2 (capped decoding).\n4. **a3** epoch 1 (dev loss 0.0308); selection still ~45 min a pass \u2192 deviation 3 (one selection after epoch 3).\n5. **a4** trained: 4,467 steps, 2.3 h; dev strict 92.3%.\n\n**Gemma 3 270M:** two failed starts (driver free-memory figure excludes page cache on unified memory) \u2192 host-memory guard (`TRAIN_CUDA_FREE_CHECK=host`); trained, dev 97.7%. First sealed numbers **invalid**: the GGUF export tokenized the turn markers as text (parse 93.8%); fixed by taking tokenizer files from the pinned base; rerun valid.\n\n**Sealed results (Q8_0, CPU):** SmolLM2-135M test 74.1% (EN 80.4, RO 65.8, mixed 72.0), short 78.8%, long 0/303, OOD 33.3% (RO 8.4), wild accepted 7.3%; **not adequate** (EN, RO and OOD gates fail). Gemma short 78.9%, OOD 28.0% (RO 13.1), wild accepted 9.9%. SmolLM2-360M (exploratory): dev 96.3%; short evaluation running. Qwen3-0.6B not started: data, not size, is the bottleneck.\n\n**Observations:** dev overstates the sealed test (97.7% vs 78.8% on short rows) because the test holds out question frames.",
    "follow_ups": [
     "Finish the Gemma and SmolLM2-360M sealed evaluations, Q4_K_M and CPU latency benchmarks, and update the summary.",
     "Close the registry entry (status done) with the final conclusions.",
-    "Next data iteration per the Fable plan once the owner answers D1–D6."
+    "Next data iteration per the Fable plan once the owner answers D1\u2013D6."
    ],
    "links": [
     "status/preregistrations/formalizer-size-v1.json",
@@ -258,7 +258,7 @@
    "status": "done",
    "started_at": "2026-09-28T17:23:06Z",
    "updated_at": "2026-09-28T19:15:55Z",
-   "summary": "A gap analysis and a 150-message independent pilot showed that 71% of real messages need a construct the language lacked; they led to conventions C1–C12, the Q-LANG decisions and a 796-message sealed wild suite with double annotation (agreement 0.575).",
+   "summary": "A gap analysis and a 150-message independent pilot showed that 71% of real messages need a construct the language lacked; they led to conventions C1\u2013C12, the Q-LANG decisions and a 796-message sealed wild suite with double annotation (agreement 0.575).",
    "topics": [
     "evaluation",
     "data-generation",
@@ -319,7 +319,7 @@
    "agents": "**Done:** `eval/reference-free.mjs` (parse, compile and contract validity, stated-value anchoring, polarity and question-form agreement, and more), an unlabeled mode, `sop_targets_accepted`, tolerant equivalence with evaluation-only relation synonyms, slices (question type, language, noise, family, hard), the OOD holdout of constructions and frames with zero overlap, the noise fix, and the data-final rebuild (19:53Z). Paused once for a session restart before any rebuild.\n\n**Found later:** the dev split overstates the sealed test (97.7% vs 78.8% on short rows) because the test holds out question frames; the wild scorer crashed on one unreadable match block (fixed); the Haiku review estimated 0/30 SmolLM false negatives.",
    "follow_ups": [
     "Frame-disjoint dev split (Fable idea 5, E0).",
-    "Name-copy and relation-word fidelity metrics (Fable §3).",
+    "Name-copy and relation-word fidelity metrics (Fable \u00a73).",
     "Scorer fixes proposed by the Haiku review."
    ],
    "links": [
@@ -359,10 +359,10 @@
     "built three times",
     "noise generator"
    ],
-   "owner": "**Asked / decided (journal):**\n- 10:36Z sources (QQP, PAWS, ProofWriter, AmbigNQ, QA2D, SQuAD) are inspiration only, never copied text (#12).\n- 10:37Z real diversity is required; templated variety does not count (#13).\n- 13:43Z one language: existing corpora must be regenerated, not evaluated under a separate profile (#21).\n- 14:17Z Q-DATA-1..4: every question type must be formalizable; `assumed` optional (#28).\n- 18:53Z the data expansion (C1–C12 and new families) is implemented before any training (#75).\n- 20:02Z about 20% in-sentence code-switching accepted (target was 30–40%) (#85).",
-   "agents": "**Plan (orchestrator, #18):** inventory from the sources → IR generator → execution check → quotas and grouped splits → pilot audit → full regeneration.\n\n**What happened:** a 300-row pilot signed off after 4 auditor rounds; 23/27 `assumed` wires were circular (→ Q-DATA-4); legacy corpora, suites and builders deleted; **build 1** (15:39Z, 33,984 rows) refused by the independent auditor in round 1 (~7% label defects), signed off in round 2; **build 2** (16:51Z, 33,980) after a label review (defects ~4% → 0/150); **build 3 = data final** (19:53Z, 33,981 rows: 23,817/5,131/5,033; OOD 1,578 with 0 frame/construction overlap; manifest b0c44957…), **qualified 6/6** after failing closed at 19:08Z.\n\n**Measured afterwards (Fable review):** the corpus is a closed lookup table; see data-improvement-plan-fable.",
+   "owner": "**Asked / decided (journal):**\n- 10:36Z sources (QQP, PAWS, ProofWriter, AmbigNQ, QA2D, SQuAD) are inspiration only, never copied text (#12).\n- 10:37Z real diversity is required; templated variety does not count (#13).\n- 13:43Z one language: existing corpora must be regenerated, not evaluated under a separate profile (#21).\n- 14:17Z Q-DATA-1..4: every question type must be formalizable; `assumed` optional (#28).\n- 18:53Z the data expansion (C1\u2013C12 and new families) is implemented before any training (#75).\n- 20:02Z about 20% in-sentence code-switching accepted (target was 30\u201340%) (#85).",
+   "agents": "**Plan (orchestrator, #18):** inventory from the sources \u2192 IR generator \u2192 execution check \u2192 quotas and grouped splits \u2192 pilot audit \u2192 full regeneration.\n\n**What happened:** a 300-row pilot signed off after 4 auditor rounds; 23/27 `assumed` wires were circular (\u2192 Q-DATA-4); legacy corpora, suites and builders deleted; **build 1** (15:39Z, 33,984 rows) refused by the independent auditor in round 1 (~7% label defects), signed off in round 2; **build 2** (16:51Z, 33,980) after a label review (defects ~4% \u2192 0/150); **build 3 = data final** (19:53Z, 33,981 rows: 23,817/5,131/5,033; OOD 1,578 with 0 frame/construction overlap; manifest b0c44957\u2026), **qualified 6/6** after failing closed at 19:08Z.\n\n**Measured afterwards (Fable review):** the corpus is a closed lookup table; see data-improvement-plan-fable.",
    "follow_ups": [
-    "formalizer-v2 per the Fable plan once the owner decides D1–D4."
+    "formalizer-v2 per the Fable plan once the owner decides D1\u2013D4."
    ],
    "links": [
     "docs/specs/DS022-diversity-generator.md",
@@ -406,8 +406,8 @@
     "wire fixes",
     "english-target"
    ],
-   "owner": "**The owner's decisions, in order (journal):**\n- 10:30Z stated / assumed / unclear, one keyword per line (#6).\n- 10:31Z no model context; quoted strings with a closed role set; the host links (#7).\n- 10:32Z `unclear` = gibberish | no_request (#8) — extended at 14:40Z by Q-ARCH-1: `unclear kind ambiguous` with readings (#33).\n- 10:33Z no model-level refusal (#9). 10:34Z `allowJsEval` removed (#10). 10:35Z answers in English by default, Romanian on request (#11).\n- 13:43Z ONE language: no profiles, no `premise` (#21).\n- 14:17Z Q-DATA-1..4: universal mode, time as an unknown, the causal convention, optional `assumed` (#28).\n- 17:52Z Q-DATA-6: the reasoner's knowledge is English, so targets are canonical English for EN, RO and mixed input; Q-DATA-5: ambiguous phrasings keep every plausible reading (#62–#64).\n- 18:53Z Q-LANG-1..7 and Q-DATA-7: \"every construct as close to natural language as possible … the small LLM does not think or decide\" (#75, #76).\n\n**Challenged since:** the Fable review's D1 asks whether to keep English targets for Romanian, given the size-study evidence (open).",
-   "agents": "**Done:** wire-help examples executed by tests; the no-context sweep (435 findings) and guards G1–G4; profiles, `premise` and the CONTEXT input path removed (514 tests pass); question forms (every/scope, time variables, measure, explain, unclear ambiguous); English canonical targets in DS021, the prompt and the wire help (one open gap: the anchoring guard rejected translated nouns); the words-only constructs for Q-LANG-1..7 and conventions C1–C12 with `operator_not_words` admission.\n\n**Evidence of cost:** Romanian relation phrases are copyable from the message in 4.7% of training rows (English 91.5%); Romanian OOD 8.4% (SmolLM2-135M) and 13.1% (Gemma).",
+   "owner": "**The owner's decisions, in order (journal):**\n- 10:30Z stated / assumed / unclear, one keyword per line (#6).\n- 10:31Z no model context; quoted strings with a closed role set; the host links (#7).\n- 10:32Z `unclear` = gibberish | no_request (#8) \u2014 extended at 14:40Z by Q-ARCH-1: `unclear kind ambiguous` with readings (#33).\n- 10:33Z no model-level refusal (#9). 10:34Z `allowJsEval` removed (#10). 10:35Z answers in English by default, Romanian on request (#11).\n- 13:43Z ONE language: no profiles, no `premise` (#21).\n- 14:17Z Q-DATA-1..4: universal mode, time as an unknown, the causal convention, optional `assumed` (#28).\n- 17:52Z Q-DATA-6: the reasoner's knowledge is English, so targets are canonical English for EN, RO and mixed input; Q-DATA-5: ambiguous phrasings keep every plausible reading (#62\u2013#64).\n- 18:53Z Q-LANG-1..7 and Q-DATA-7: \"every construct as close to natural language as possible \u2026 the small LLM does not think or decide\" (#75, #76).\n\n**Challenged since:** the Fable review's D1 asks whether to keep English targets for Romanian, given the size-study evidence (open).",
+   "agents": "**Done:** wire-help examples executed by tests; the no-context sweep (435 findings) and guards G1\u2013G4; profiles, `premise` and the CONTEXT input path removed (514 tests pass); question forms (every/scope, time variables, measure, explain, unclear ambiguous); English canonical targets in DS021, the prompt and the wire help (one open gap: the anchoring guard rejected translated nouns); the words-only constructs for Q-LANG-1..7 and conventions C1\u2013C12 with `operator_not_words` admission.\n\n**Evidence of cost:** Romanian relation phrases are copyable from the message in 4.7% of training rows (English 91.5%); Romanian OOD 8.4% (SmolLM2-135M) and 13.1% (Gemma).",
    "follow_ups": [
     "Owner decision D1 (Romanian target policy).",
     "DS021 clarifications proposed by the Haiku review (topic role for study subjects, \"remind me + question\", measure)."
@@ -441,7 +441,7 @@
     "no-copy"
    ],
    "owner": "**Owner rules this task enforces:** real diversity required (#13), sources as inspiration only with a no-copy proof (#12), and the review's verdict that no corpus was fit for training. For the size study the owner accepted the independent automated auditor as the semantic review (experiment-grade, #68).",
-   "agents": "**Built:** `tools/datasets/audit-corpus.mjs` (fails closed; most legacy corpora failed faithfulness or leakage), the vocabulary check (0 hallucinated wires), the visual audit at `/audit`.\n\n**Rounds that failed before passing:** diversity pilot OBJECTIONS in round 1, sign-off after 4 rounds; build 1 NO SIGN-OFF (~7% label defects) then SIGN-OFF (~0.2%); a manual label review of 265 rows found systematic defects (defect rate ~4% → 0/150 after fixes); the qualification generator failed closed at 19:08Z (VERSION missing, 68 faithfulness.entity rows, 333 invalid test references, operator syntax in OOD/wild) and reported qualified 6/6 at data-final.",
+   "agents": "**Built:** `tools/datasets/audit-corpus.mjs` (fails closed; most legacy corpora failed faithfulness or leakage), the vocabulary check (0 hallucinated wires), the visual audit at `/audit`.\n\n**Rounds that failed before passing:** diversity pilot OBJECTIONS in round 1, sign-off after 4 rounds; build 1 NO SIGN-OFF (~7% label defects) then SIGN-OFF (~0.2%); a manual label review of 265 rows found systematic defects (defect rate ~4% \u2192 0/150 after fixes); the qualification generator failed closed at 19:08Z (VERSION missing, 68 faithfulness.entity rows, 333 invalid test references, operator syntax in OOD/wild) and reported qualified 6/6 at data-final.",
    "follow_ups": [
     "A human reviewer named by the owner (TODO.md); every audit so far is by agents."
    ],
@@ -501,7 +501,7 @@
     "three-pane",
     "project history"
    ],
-   "owner": "**Asked (2026-09-29, relayed by the orchestrator):** \"Put the experiments, the observations and the suggestions from the Fable review into separate pages … a documented history of the project's evolution and of the current status … topic-oriented parts that document what I suggested, what you analysed, and what happened in each subject … living documentation … an index to all the status material, which keeps accumulating. Entries are not replaced at each project phase.\"\n\n**Clarifications that followed:** newest first everywhere, like a stack; document everything tried, run and obtained, including failed and restarted attempts; rename `/project` to `/experiments` (old paths redirect); every major task gets its own page with an **Owner** side and an **Agents / analysis** side.",
+   "owner": "**Asked (2026-09-29, relayed by the orchestrator):** \"Put the experiments, the observations and the suggestions from the Fable review into separate pages \u2026 a documented history of the project's evolution and of the current status \u2026 topic-oriented parts that document what I suggested, what you analysed, and what happened in each subject \u2026 living documentation \u2026 an index to all the status material, which keeps accumulating. Entries are not replaced at each project phase.\"\n\n**Clarifications that followed:** newest first everywhere, like a stack; document everything tried, run and obtained, including failed and restarted attempts; rename `/project` to `/experiments` (old paths redirect); every major task gets its own page with an **Owner** side and an **Agents / analysis** side.",
    "agents": "**Earlier work:** 0.0.0.0 binding and one login page, the three-pane audit and the vocabulary check (11:00Z); `/eval` with its guide, the first status page (`/project`), the journal and one site menu (13:58Z); the link checker (0 broken links, 15:55Z); one consistent experiment record per study (04:06Z).\n\n**The /experiments history (2026-09-29):** append-only topic notes (`lib/notes.mjs`, `tools/notes.mjs`, `status/topics.json`, `status/notes/`), task records (`lib/tasks.mjs`, `status/tasks.json`), server-rendered pages (`server/history.mjs`, `server/pages/history.mjs`, a small safe Markdown renderer `server/markdown.mjs`), a read-only report viewer restricted to `eval/reports/{current,history}`, the Experiments dropdown, DS010/DS012/AGENTS.md/skills updates, tests, and the seeded history of 2026-09-28/29.",
    "follow_ups": [
     "Keep the task records and notes current as work continues; the pages only show what agents record."
@@ -517,7 +517,7 @@
   {
    "id": "docs-consolidation",
    "kind": "task",
-   "title": "Documentation and specification consolidation (DS000–DS028)",
+   "title": "Documentation and specification consolidation (DS000\u2013DS028)",
    "status": "done",
    "started_at": "2026-09-28T07:30:00Z",
    "updated_at": "2026-09-28T16:02:47Z",
@@ -539,8 +539,8 @@
     "chatsop naming",
     "final docs"
    ],
-   "owner": "**Decisions (journal):** 13:43Z move obsolete documents to `probably_obsolete/` and renumber the DS set without gaps (#22); 14:59Z Q-ARCH-2 (one DS per memory strategy), Q-ARCH-3 (names ChatSOP, RecallMemory, HoloMemory) and the S4 teacher arm out of the first experiment (#36–#38, recorded by claude-docs-agent).",
-   "agents": "**Done:** documentation fixes after the review (audit command, retired Markdown layer, English skills, glossary); 43 specs → 23 (DS000–DS022) via `docs/specs/aliases.json` and `tools/check-spec-refs.mjs`; DS023–DS028 mined from the archive; renames with legacy aliases; skills review; a final review with the \"How the model writes\" and \"Question types\" pages, the G3 lint and converted research examples (`npm test` 543/545 at that moment, 2 failures from the in-progress corpus rebuild).",
+   "owner": "**Decisions (journal):** 13:43Z move obsolete documents to `probably_obsolete/` and renumber the DS set without gaps (#22); 14:59Z Q-ARCH-2 (one DS per memory strategy), Q-ARCH-3 (names ChatSOP, RecallMemory, HoloMemory) and the S4 teacher arm out of the first experiment (#36\u2013#38, recorded by claude-docs-agent).",
+   "agents": "**Done:** documentation fixes after the review (audit command, retired Markdown layer, English skills, glossary); 43 specs \u2192 23 (DS000\u2013DS022) via `docs/specs/aliases.json` and `tools/check-spec-refs.mjs`; DS023\u2013DS028 mined from the archive; renames with legacy aliases; skills review; a final review with the \"How the model writes\" and \"Question types\" pages, the G3 lint and converted research examples (`npm test` 543/545 at that moment, 2 failures from the in-progress corpus rebuild).",
    "follow_ups": [
     "Naming an independent reviewer (owner, TODO.md)."
    ],
@@ -589,7 +589,7 @@
     "principal-data-review",
     "principal review"
    ],
-   "owner": "No owner request text is recorded for the review itself. The owner's decisions that followed the same morning (10:30–10:37Z: stated/assumed/unclear, no model context, no refusal, English answers, sources as inspiration, real diversity) redefined the language and the data the review had found unfit.",
+   "owner": "No owner request text is recorded for the review itself. The owner's decisions that followed the same morning (10:30\u201310:37Z: stated/assumed/unclear, no model context, no refusal, English answers, sources as inspiration, real diversity) redefined the language and the data the review had found unfit.",
    "agents": "Tests C+ (solvers not executed, data checks mixed into the unit run, polluted audit ledger); documentation C+ (stale commands, retired Markdown layer, mixed-language skills); data NOT fit for training (unstated negative premises in ~64% of the mix, ~70% from one templated corpus, targets predictable from CONTEXT). No corpus qualified.",
    "links": [
     "eval/reports/current/principal-data-review.json",
@@ -650,7 +650,7 @@
     "sop-gbnf",
     "GBNF"
    ],
-   "owner": "The owner approved idea 1, a grammar-constrained decoding experiment on the existing models (journal decision 2026-09-29T11:45Z, \"SOP Lang as translation\"). Later the same day: bulk evaluation must run on the GPU, with CPU speed only on a small sample (30–50 messages, GPU hidden), and every device recorded; and experiments run in stages on stratified samples with early stopping (efficacy, futility, broken condition), each stop recorded. Finally (2026-09-29): wrap up quickly; the language is changing (clause links, $id, unparsed), so the grammar must keep generating from the live contract; the question is only whether grammar-constrained decoding helps a small fine-tuned model.",
+   "owner": "The owner approved idea 1, a grammar-constrained decoding experiment on the existing models (journal decision 2026-09-29T11:45Z, \"SOP Lang as translation\"). Later the same day: bulk evaluation must run on the GPU, with CPU speed only on a small sample (30\u201350 messages, GPU hidden), and every device recorded; and experiments run in stages on stratified samples with early stopping (efficacy, futility, broken condition), each stop recorded. Finally (2026-09-29): wrap up quickly; the language is changing (clause links, $id, unparsed), so the grammar must keep generating from the live contract; the question is only whether grammar-constrained decoding helps a small fine-tuned model.",
    "agents": "Built `tools/sop-gbnf.mjs` (GBNF of the five model wires from SPEC and the enum exports; canonical order; `--strings parser` for parser-faithful strings) and `tests/sop-gbnf.test.mjs` (llama.cpp test-gbnf-validator: train-sample golds accepted, invalid programs rejected). All 23,817 train, 5,131 dev, 5,033 test and 1,578 OOD golds are accepted. Optional `grammar`/`cachePrompt` in `lib/formalizer-endpoint.mjs`; harness `tools/research/grammar-constrained-eval.mjs`; ceiling `tools/research/grammar-ceiling.mjs`.\n\nResult (100 stratified rows per cell, GPU, sequential, no prompt cache, A/A 100/100 identical): primary metric identical with and without grammar in all six cells (delta 0, [0,0]) -> futility stop. Wild parse 94->99% (135M), 95->100% (360M); all 10 repaired outputs still wrong; wild decision match +4/+5 pp. CPU: median latency x1.19 (135M), x1.00 (360M). The ceiling explains it: greedy constrained decoding changes only grammar-rejected outputs (5-8% wild, <1% elsewhere). Validity issues found and fixed: parallel-slot and prompt-cache nondeterminism (D1, D3); a scorer flip under load.\n\nConclusion: no accuracy gain; a parser-faithful grammar is a cheap validity guard; invest in data.",
    "follow_ups": [
     "Regenerate the grammar for the new language (clause links, $id, unparsed); make field and role order parser-faithful before using it as an always-on guard."
@@ -686,7 +686,7 @@
     "translation pre-step"
    ],
    "owner": "Owner question: would the small fine-tuned models do better if a Romanian or mixed message were first translated into English by an original (base, not fine-tuned) model? Corrections the same day: translators are the original bases of our fine-tuned models (not Qwen); then stop base-LLM translators (they cannot translate) and use Opus-MT only; use the GPU for bulk (refused by the local permission system, so CPU); stage with early stopping; finally decision D1 (the small model normalizes content words, the host translates them with dictionaries) settled the question and stopped the run.",
-   "agents": "Preregistered `status/preregistrations/eval-translate-then-formalize-v1.json` (prompts and detector chosen on dev only; 6 deviations). Built `tools/research/translate-eval.mjs` (select, stage, detect, translate, merge, compare, names) and `training/python/translate_marian.py`. Converted the Gemma and SmolLM2 bases to Q8_0 GGUF (models/*/translator-base/). SmolLM2-360M: T1 Gemma OOD -16.7 [-19.9, -13.5], v1 -60.3, wild decision match 83% -> 42%; T2 SmolLM2 base OOD -15.3, v1 -57.3; T4 Opus-MT OOD stage-300 0.0 [-5.6, +5.7], v1 stage-100 -25.0, wild +2.7 [+0.7, +5.0]; name fidelity 0.30/0.55/0.68. Opus-MT fixes lexical failures (lavandă -> lavender, ardei -> peppers) but changes names (Galați -> Galatii) and code-switched English (leases -> reads). Incident: a stop signal also reached another agent's llama-server (PID 1390852, port 18851), since restarted.",
+   "agents": "Preregistered `status/preregistrations/eval-translate-then-formalize-v1.json` (prompts and detector chosen on dev only; 6 deviations). Built `tools/research/translate-eval.mjs` (select, stage, detect, translate, merge, compare, names) and `training/python/translate_marian.py`. Converted the Gemma and SmolLM2 bases to Q8_0 GGUF (models/*/translator-base/). SmolLM2-360M: T1 Gemma OOD -16.7 [-19.9, -13.5], v1 -60.3, wild decision match 83% -> 42%; T2 SmolLM2 base OOD -15.3, v1 -57.3; T4 Opus-MT OOD stage-300 0.0 [-5.6, +5.7], v1 stage-100 -25.0, wild +2.7 [+0.7, +5.0]; name fidelity 0.30/0.55/0.68. Opus-MT fixes lexical failures (lavand\u0103 -> lavender, ardei -> peppers) but changes names (Gala\u021bi -> Galatii) and code-switched English (leases -> reads). Incident: a stop signal also reached another agent's llama-server (PID 1390852, port 18851), since restarted.",
    "follow_ups": [
     "Host-side lexical translation of normalized content words (decision D1), never names, quotes or English spans"
    ],
@@ -733,11 +733,11 @@
   {
    "id": "simplifier-symbolic-nlp",
    "kind": "task",
-   "title": "Neural simplifier in front of the symbolic UD → SOP path: oracle upper bound, model survey, data plan",
+   "title": "Neural simplifier in front of the symbolic UD \u2192 SOP path: oracle upper bound, model survey, data plan",
    "status": "open",
    "started_at": "2026-09-29T12:39:15Z",
    "updated_at": "2026-09-29T13:04:21Z",
-   "summary": "Deterministic IR → simple-sentences renderer (DS022 \"Simple-text rendering\") and oracle samples of the test (500), OOD (500) and wild (796) suites. The UD → SOP baseline on raw vs oracle text shows how much a perfect simplifier would help: test +12 pp and OOD +23 pp execution equivalence (stage 100, decisive), wild proposition F1 +19 pp. The ceiling is still the converter, at about 1/3. No existing small model is usable as a simplifier. Training plan and approval question Q-SIMPL-1; nothing trained.",
+   "summary": "Deterministic IR \u2192 simple-sentences renderer (DS022 \"Simple-text rendering\") and oracle samples of the test (500), OOD (500) and wild (796) suites. The UD \u2192 SOP baseline on raw vs oracle text shows how much a perfect simplifier would help: test +12 pp and OOD +23 pp execution equivalence (stage 100, decisive), wild proposition F1 +19 pp. The ceiling is still the converter, at about 1/3. No existing small model is usable as a simplifier. Training plan and approval question Q-SIMPL-1; nothing trained.",
    "topics": [
     "baselines",
     "data-improvement-plan",
@@ -752,9 +752,9 @@
     "Q-SIMPL-1"
    ],
    "owner": "Owner idea (2026-09-29): \"If our symbolic NLP experiment works, what we would need next is a small model that normalizes the language, simplifies it and rephrases it more simply, so that the symbolic NLP can cope. So we put a finer neural layer in front and see whether it helps. It must be a small model made only for this, not a model that tends to answer questions. Maybe a small model can be fine-tuned to produce the version split into simple sentences, or something like that. We should get as much as possible into the symbolic part, and leave in the neural part a layer that can be trained on the various subtleties and nuances.\"",
-   "agents": "Built tools/datasets/diversity/simple-text.mjs (renderer, tests in tests/data/simple-text.test.mjs), tools/research/simplifier-oracle.mjs (moved out of tools/datasets after it broke the sealed-suite leakage boundary; tests/eval-registry and tests/audit-corpus pass again) and tools/research/simplifier-oracle-eval.mjs (paired bootstrap). Parsed on the GPU with tools/eval/ud-baseline.mjs (under 2 s per 100 texts). Results: test 0.20 → 0.32, OOD 0.12 → 0.35 (execution equivalence, tolerant, stage 100); wild accepted-match 0.035 → 0.067, proposition F1 0.48 → 0.67, decision match 0.72 → 0.82. The stopping rule was written after the first look (a deviation). Surveyed 30 Hub-verified models and tried 4 on CPU with a 50-message probe: CoEdIT-base translates and follows instructions; T5 split-and-rephrase drops hedges and letters; mT5 Romanian diacritics works only behind a host fold-equality guard; byT5 text-correction is inert. Licences are recorded in DS014 and dependencies.md.",
+   "agents": "Built tools/datasets/diversity/simple-text.mjs (renderer, tests in tests/data/simple-text.test.mjs), tools/research/simplifier-oracle.mjs (moved out of tools/datasets after it broke the sealed-suite leakage boundary; tests/eval-registry and tests/audit-corpus pass again) and tools/research/simplifier-oracle-eval.mjs (paired bootstrap). Parsed on the GPU with tools/eval/ud-baseline.mjs (under 2 s per 100 texts). Results: test 0.20 \u2192 0.32, OOD 0.12 \u2192 0.35 (execution equivalence, tolerant, stage 100); wild accepted-match 0.035 \u2192 0.067, proposition F1 0.48 \u2192 0.67, decision match 0.72 \u2192 0.82. The stopping rule was written after the first look (a deviation). Surveyed 30 Hub-verified models and tried 4 on CPU with a 50-message probe: CoEdIT-base translates and follows instructions; T5 split-and-rephrase drops hedges and letters; mT5 Romanian diacritics works only behind a host fold-equality guard; byT5 text-correction is inert. Licences are recorded in DS014 and dependencies.md.",
    "follow_ups": [
-    "ud-baseline agent: read the oracle line labels (Assumption:, Options:, Count:, Except:, Condition:, Group:/Check, And:/Și:, Maybe:, Suppose:, X says:, Reading:) and attach prepositional arguments, then re-measure with symbolic/run-stage.sh",
+    "ud-baseline agent: read the oracle line labels (Assumption:, Options:, Count:, Except:, Condition:, Group:/Check, And:/\u0218i:, Maybe:, Suppose:, X says:, Reading:) and attach prepositional arguments, then re-measure with symbolic/run-stage.sh",
     "Owner decision Q-SIMPL-1 (train mT5-small / byT5-small simplifier, or converter first)",
     "Optional host step: mT5 Romanian diacritics restoration behind a fold-equality guard"
    ],
@@ -807,7 +807,7 @@
   {
    "id": "baseline-ud-rules-v1",
    "kind": "experiment",
-   "title": "Symbolic formalizer baseline: Stanza UD parse + deterministic rules (UD → SOP Lang)",
+   "title": "Symbolic formalizer baseline: Stanza UD parse + deterministic rules (UD \u2192 SOP Lang)",
    "status": "done",
    "started_at": "2026-09-29T12:32:00Z",
    "updated_at": "2026-09-29T14:11:00Z",
@@ -832,10 +832,10 @@
     "ud-baseline"
    ],
    "owner": "**Owner's idea (quoted):** \"Is there any reasonably mature NLP system we could compare on our suite? We bring it in, wrap it, and treat it like an LLM: parse the text, then translate the parse into SOP Lang with code we write ourselves.\" English at least, Romanian if possible.\n\n**Constraints relayed with it:** no training; the formalizer contract (message only, no context); one current SOP Lang (link lines with `$`, `$q` chaining, `unparsed` wires; no older form emitted); content words may stay in the message's language (decision D1); install packages and models in a dedicated venv and record them in dependencies.md and DS014; register it in config/formalizers.json with capability formalize and the label \"Stanza + rules (symbolic baseline)\"; staged evaluation with early stopping; compare with SmolLM2-135M/360M and Haiku no-thinking on the same rows.\n\n**Later requests (coordinator):** raise the rules' ceiling on the oracle simple text (DS022 line labels, prepositional roles), then test whether rewriting before the symbolic path helps (see task eval-rewrite-symbolic-v1).",
-   "agents": "**Built:** Stanza 1.10.1 worker (`training/python/ud_parse_worker.py`; EN default + NER, RO RRT without MWT/NER, per-sentence language detection), converter `lib/ud-to-sop/` (clauses → wires, relation lemmas with particles/prepositions, roles from nsubj/obj/iobj/obl + NER, links `because/if/after/…/so $id`, relative clauses as shared variables or repeated-noun statements, every/count/explain/measure/compare/rank/except/order/alternatives/fragments, verbatim values, `unparsed` spans with near and hint), endpoint `tools/eval/ud-baseline.mjs serve`, registry `service` kind in `server/formalizers.mjs`, tests `tests/ud-to-sop.test.mjs`.\n\n**Development (dev only):** tolerant exec 12% → 40% on a 224-row tuning sample over six rounds; 35% on a disjoint 224-row check sample; frozen by SHA-256 before any sealed row.\n\n**Preregistered results (frozen v1, current harness):** OOD 500 tolerant exec 20.8% vs SmolLM2-135M 32.6 / 360M 47.6 / Haiku 49.8; Romanian OOD 21.6 vs 8.0 / 16.9 / 39.0; test sample500 28.8 vs 77.8 / 80.6; wild accepted 5.0 vs 7.3 / 9.5 / 16.1, decision 73.0, proposition F1 0.476 (English rows 0.604, not decisively below the models); invented values 0.6% vs 40 / 26 / 18%; parse validity 100%; latency p50 38 ms GPU / 217 ms CPU. H1 refuted and H2 supported at stage 100; H3, H4 supported; H5 partly.\n\n**Exploratory:** v1.1 label layer lifts oracle simple text to 0.44–0.46 exec (from 0.32–0.35); gold-free fallback to the rules when a model value is not anchored in the message adds 1–2 points on OOD/test. Error analysis: gold conventions that need a lexicon (property predicates, per-predicate roles), parser errors on noisy/code-switched text, no rules for arithmetic, ambiguity and long multi-statement messages.\n\n**Conclusion:** not a competitive formalizer; a strong honest component for host repair of unparsed spans, invention cross-checks and a Romanian safety net.",
+   "agents": "**Built:** Stanza 1.10.1 worker (`training/python/ud_parse_worker.py`; EN default + NER, RO RRT without MWT/NER, per-sentence language detection), converter `lib/ud-to-sop/` (clauses \u2192 wires, relation lemmas with particles/prepositions, roles from nsubj/obj/iobj/obl + NER, links `because/if/after/\u2026/so $id`, relative clauses as shared variables or repeated-noun statements, every/count/explain/measure/compare/rank/except/order/alternatives/fragments, verbatim values, `unparsed` spans with near and hint), endpoint `tools/eval/ud-baseline.mjs serve`, registry `service` kind in `server/formalizers.mjs`, tests `tests/ud-to-sop.test.mjs`.\n\n**Development (dev only):** tolerant exec 12% \u2192 40% on a 224-row tuning sample over six rounds; 35% on a disjoint 224-row check sample; frozen by SHA-256 before any sealed row.\n\n**Preregistered results (frozen v1, current harness):** OOD 500 tolerant exec 20.8% vs SmolLM2-135M 32.6 / 360M 47.6 / Haiku 49.8; Romanian OOD 21.6 vs 8.0 / 16.9 / 39.0; test sample500 28.8 vs 77.8 / 80.6; wild accepted 5.0 vs 7.3 / 9.5 / 16.1, decision 73.0, proposition F1 0.476 (English rows 0.604, not decisively below the models); invented values 0.6% vs 40 / 26 / 18%; parse validity 100%; latency p50 38 ms GPU / 217 ms CPU. H1 refuted and H2 supported at stage 100; H3, H4 supported; H5 partly.\n\n**Exploratory:** v1.1 label layer lifts oracle simple text to 0.44\u20130.46 exec (from 0.32\u20130.35); gold-free fallback to the rules when a model value is not anchored in the message adds 1\u20132 points on OOD/test. Error analysis: gold conventions that need a lexicon (property predicates, per-predicate roles), parser errors on noisy/code-switched text, no rules for arithmetic, ambiguity and long multi-statement messages.\n\n**Conclusion:** not a competitive formalizer; a strong honest component for host repair of unparsed spans, invention cross-checks and a Romanian safety net.",
    "follow_ups": [
     "Owner: decide whether the host repair step (DS021 'Honest partial formalization') uses the rules' spans, role classes, dates and numbers.",
-    "Owner: decide whether to preregister the gold-free fallback (model output → rules when a value is not anchored) as a host policy experiment.",
+    "Owner: decide whether to preregister the gold-free fallback (model output \u2192 rules when a value is not anchored) as a host policy experiment.",
     "Convert the suites to the current SOP Lang (follow-up step) and re-score string metrics, which now count Romanian lemmas and unparsed wires as misses.",
     "Fix the oracle renderer issues seen on dev (doubled prepositions, 'Ce' for how, 'When' for how many times)."
    ],
@@ -875,9 +875,9 @@
     "rewriter"
    ],
    "owner": "**Owner request (first):** \"A small off-the-shelf English proofreading/GEC model in front of the symbolic path makes messy real messages easier for Stanza + rules, and so improves the SOP.\" English first; Romanian (name masking + Opus-MT) only after an English gain.\n\n**Owner revision (before any sealed row):** the question is whether rewriting or simplifying helps Stanza and whether a small model can be steered to produce text Stanza parses well; do not stop for name or meaning changes, measure them; protect names symbolically; stop only for futility or broken output; add Haiku no-thinking rewrites (H) and best-of-several chosen by the symbolic path (Hbest); say whether distilling H or Hbest looks worth training; do not train.",
-   "agents": "**Built:** `lib/ud-to-sop/protect.mjs` (names, quotes, numbers → placeholders and back), `training/python/proofread.py` (coedit-small, gec-t5-small, greedy GPU), `tools/research/rewrite-symbolic-eval.mjs`. Dev pilot fixed placeholder bugs and the Hbest guard before preregistration.\n\n**Results (English, stage 300):** OOD tolerant exec R 20.6, P-coedit 20.6, P-gec 20.9, H 24.0 (+3.5 [-0.7,+7.9]), Hbest 23.0, O 38.7 (+18.1); test R 35.1, P-gec 36.1, H 35.8, Hbest 29.8 (-5.3), O 55.8 (+20.7); wild proposition F1 R 0.605, P 0.602–0.610, H 0.592, O 0.766, with H raising wild decision +9.0 [+4.3,+13.7] and accepted +4.0. Futility stops at 100: Hbest on wild, P-coedit on test; wild stopped at 300/341. Names kept 95–100% (P), 88–93% (H/Hbest). Reproducibility P 100/100, H 55/100. Cost about 1 USD per 1,000 H rewrites.\n\n**Conclusion:** no rewriter helps enough; distilling H/Hbest not worth training; a simplifier, if any, should target the IR-rendered oracle text with exact DS022 labels. Romanian stage not run.",
+   "agents": "**Built:** `lib/ud-to-sop/protect.mjs` (names, quotes, numbers \u2192 placeholders and back), `training/python/proofread.py` (coedit-small, gec-t5-small, greedy GPU), `tools/research/rewrite-symbolic-eval.mjs`. Dev pilot fixed placeholder bugs and the Hbest guard before preregistration.\n\n**Results (English, stage 300):** OOD tolerant exec R 20.6, P-coedit 20.6, P-gec 20.9, H 24.0 (+3.5 [-0.7,+7.9]), Hbest 23.0, O 38.7 (+18.1); test R 35.1, P-gec 36.1, H 35.8, Hbest 29.8 (-5.3), O 55.8 (+20.7); wild proposition F1 R 0.605, P 0.602\u20130.610, H 0.592, O 0.766, with H raising wild decision +9.0 [+4.3,+13.7] and accepted +4.0. Futility stops at 100: Hbest on wild, P-coedit on test; wild stopped at 300/341. Names kept 95\u2013100% (P), 88\u201393% (H/Hbest). Reproducibility P 100/100, H 55/100. Cost about 1 USD per 1,000 H rewrites.\n\n**Conclusion:** no rewriter helps enough; distilling H/Hbest not worth training; a simplifier, if any, should target the IR-rendered oracle text with exact DS022 labels. Romanian stage not run.",
    "follow_ups": [
-    "Owner: Q-SIMPL-1 (train a simplifier on IR → simple-text pairs) is the only rewrite path with a measured large gain (oracle +16–25 points)."
+    "Owner: Q-SIMPL-1 (train a simplifier on IR \u2192 simple-text pairs) is the only rewrite path with a measured large gain (oracle +16\u201325 points)."
    ],
    "links": [
     "eval/reports/current/rewrite-symbolic/summary.md",
@@ -890,7 +890,7 @@
   {
    "id": "eval-symbolic-layers-en-v1",
    "kind": "experiment",
-   "title": "Layered blame of Stanza → rules → SOP Lang (English)",
+   "title": "Layered blame of Stanza \u2192 rules \u2192 SOP Lang (English)",
    "status": "done",
    "started_at": "2026-09-29T14:25:00Z",
    "updated_at": "2026-09-29T15:24:35Z",
@@ -912,8 +912,8 @@
     "Layer 2",
     "Layer 3"
    ],
-   "owner": "**Owner intent (translated):** \"Let's focus on English now and make Stanza → SOP Lang come out perfect. We have never properly understood this symbolic translation, and we keep running to LLMs without addressing the elephant in the room. The real check is whether Stanza's analysis is correct: verify that first, then the translation into SOP Lang. If we jump straight to the SOP translation, we don't know who is to blame. And along the way, extract the cases on which we might eventually fine-tune a language-regularization model. The only LLM use here is to validate what Stanza returns. Success or failure is about whether it fails completely, or whether what it extracts is deeply wrong. And even when it is wrong, things may still be saved by rewriting into a form that gets a correct analysis.\"\n\n**Owner clarification:** the real and fatal parser errors (DEEP and FAIL) are fine-tuning material in their own right; a future regularization model turns input Stanza cannot process into input it can. Record every DEEP/FAIL sentence with its error, trigger, all rewrite attempts and status saved / partially_saved / unsaved, and characterize which input patterns Stanza cannot process and which rewrite strategies fix each.",
-   "agents": "**Built:** tools/research/symbolic-layers*.mjs (sample, parse, judge, convert, rewrite, spaCy, gold consistency, diff classifier, report), training/python/spacy_parse.py (~/spacy-venv), ud-rules-v1.3.\n\n**Results:** blame (v1.3, 400 msgs): correct 32.5%, parser 22.5%, rules 15.3%, rules+convention 13.0%, convention 10.0%, typo 3.3%, language 1.5%. Layer 1: DEEP 10.1%, FAIL 0.4%, INPUT_TYPO 4.1% (wild 19%). Haiku judge unusable alone (kappa 0.20, DEEP precision 28%): the stronger judge adjudicated 513 sentences and all 458 rewritten sentences. Layer 2 match 30.0% → 46.5%. Layer 3: 59% of DEEP/FAIL parses repairable by a rewrite, 18% of records saved end to end. Half B +9.0 [+5.5,+13.0], no loss, wild +0.",
+   "owner": "**Owner intent (translated):** \"Let's focus on English now and make Stanza \u2192 SOP Lang come out perfect. We have never properly understood this symbolic translation, and we keep running to LLMs without addressing the elephant in the room. The real check is whether Stanza's analysis is correct: verify that first, then the translation into SOP Lang. If we jump straight to the SOP translation, we don't know who is to blame. And along the way, extract the cases on which we might eventually fine-tune a language-regularization model. The only LLM use here is to validate what Stanza returns. Success or failure is about whether it fails completely, or whether what it extracts is deeply wrong. And even when it is wrong, things may still be saved by rewriting into a form that gets a correct analysis.\"\n\n**Owner clarification:** the real and fatal parser errors (DEEP and FAIL) are fine-tuning material in their own right; a future regularization model turns input Stanza cannot process into input it can. Record every DEEP/FAIL sentence with its error, trigger, all rewrite attempts and status saved / partially_saved / unsaved, and characterize which input patterns Stanza cannot process and which rewrite strategies fix each.",
+   "agents": "**Built:** tools/research/symbolic-layers*.mjs (sample, parse, judge, convert, rewrite, spaCy, gold consistency, diff classifier, report), training/python/spacy_parse.py (~/spacy-venv), ud-rules-v1.3.\n\n**Results:** blame (v1.3, 400 msgs): correct 32.5%, parser 22.5%, rules 15.3%, rules+convention 13.0%, convention 10.0%, typo 3.3%, language 1.5%. Layer 1: DEEP 10.1%, FAIL 0.4%, INPUT_TYPO 4.1% (wild 19%). Haiku judge unusable alone (kappa 0.20, DEEP precision 28%): the stronger judge adjudicated 513 sentences and all 458 rewritten sentences. Layer 2 match 30.0% \u2192 46.5%. Layer 3: 59% of DEEP/FAIL parses repairable by a rewrite, 18% of records saved end to end. Half B +9.0 [+5.5,+13.0], no loss, wild +0.",
    "follow_ups": [
     "Owner: Q-SYM-1 relation/object boundary, Q-SYM-2 role names, Q-SYM-3 language gaps (questions.md).",
     "Rules v1.4 from proposals.md needs a fresh held-out sample (half B is consumed).",
@@ -1186,7 +1186,7 @@
     "lib/text-to-clean-english"
    ],
    "owner": "Owner decision 2026-09-30 (status/journal.jsonl 2026-09-30T05:37:05.719Z, relayed by the orchestrator): formalization handles only clean English; textToCleanEnglish runs in the chat UI before formalization (spelling/grammar correction, translation, simplification), the UI shows the proposal for accept/edit/reject, and a setting can turn it off. Requested a small preregistered survey of EuroLLM-1.7B-Instruct, Qwen3-1.7B, Gemma 3 1B-it (4B if it fits), Opus-MT ro-en, LanguageTool (if it runs locally) and Claude Haiku as a reference ceiling, then a recommended default (possibly a combination), the service, the chat UI wiring and docs.",
-   "agents": "clean-english-ui-agent (this session) preregistered status/preregistrations/text-to-clean-english-v1.json and ran a stage-1 survey (40 rows per bucket: ro/mixed/noisy_en, seed 20260930, datasets/formalizer-v1 dev split) of the symbolic backend (LanguagesUtil+TranslatorService, no LLM), Opus-MT ro-en, Gemma-3-1b-it and Qwen3-1.7B (new combined 'clean' prompt, zero-shot, GPU). Lightweight heuristic scoring (English-output rate, automatic meaning checks, latency) found the symbolic backend has the best or tied-best meaning preservation on every bucket and is well inside a 2s UI budget, while the two LLM candidates are more fluent but hallucinate more (status/experiments.json text-to-clean-english-v1). Partway through, discovered a second live agent instance (same actor id in the journal, plus a related actor clean-english-agent) already building the real deliverable -- lib/text-to-clean-english/ (index/diff/gate.mjs, backends/{languagetool,llm,spellfix,symbolic,passthrough}.mjs), config/text-to-clean-english.json (LanguageTool actually running on 127.0.0.1:8081, backends.english=languagetool, backends.nonEnglish=llm), tests/text-to-clean-english.test.mjs, and a larger, still-running evaluation tools/research/text-to-clean-english-eval.mjs. This session also briefly, accidentally reused the filename of an unrelated in-flight script (tools/research/clean-english-eval.mjs, experiment eval-clean-english-v1, actor clean-english-agent); found no lasting damage and moved its own output files to eval/reports/current/text-to-clean-english-ui-survey/. To respect AGENTS.md's single-GPU-worker and no-file-clobbering rules on this shared, non-isolated working tree, this session did not build a second copy of the service/config/tests, did not wire the chat UI, and did not write the requested docs updates (DS012, DS021, docs/runtime.html, docs/wiki.html, dependencies.md, DS014) -- those are left to whichever of the two agent instances the owner keeps. Follow-ups: reconcile the two instances (recommend keeping the more complete lib/text-to-clean-english/ + LanguageTool + larger eval already in progress); once kept, still need the chat UI wiring, the docs updates, and reconciling this session's meaning-preservation finding (symbolic > LLM) against the other instance's own numbers before fixing config/text-to-clean-english.json's default backends.\n\n**Follow-up session (clean-english-ui-agent, continuing):** re-read the current, then-current server/http.mjs and server/pages/chat.mjs (already fully wired for the review UI by another pass of this same actor) and DS012/DS021/docs/runtime.html/docs/wiki.html/dependencies.md/DS014 (already updated by another pass), and rewrote lib/text-to-clean-english/index.mjs + a new gate.mjs to match that documented contract exactly (previously the module only existed as an early, incompatible draft using a different factory API): textToCleanEnglish(message, options) returns {original, clean, changed, reasons, spans, backend, confidence}, throws {code:'backend_unavailable'} on a broken/unconfigured backend (caught by server/http.mjs and degraded to backend:'none'), and config/text-to-clean-english.json chooses languagetool/llm/none per message class. Ran a real end-to-end smoke test (own port 18099, own state dir, a genuinely running LanguageTool 6.6 server on 8123 started with a session-private Eclipse Temurin 17 JRE since the host system Java is 8): a noisy-English message was corrected with the offending proper name (Jürgen Schmidt) left untouched by protect.mjs masking, and a Romanian message with no llm endpoint configured degraded cleanly to backend:'none' rather than erroring. npm test: 700 tests, 695 pass; the 5 failures (tests/eval-registry.test.mjs, tests/audit-corpus.test.mjs, tests/solver-qualification.test.mjs) are unrelated to this work and reproduce in isolation, most likely from the shared working tree being edited concurrently by the other running clean-english-agent/clean-english-ui-agent processes (training/python/proofread_llm.py GPU generation, tools/datasets/check-new-cases-sop.mjs, tools/research/text-to-clean-english-eval.mjs symbolic-all, tools/research/clean-english-eval.mjs stage-300 were all still running at the end of this session -- their outputs were not consumed here beyond what had already landed). config/text-to-clean-english.json backends were left at backends.english=languagetool, backends.nonEnglish=llm (the owner's own stated working hypothesis), given the collected evidence is a real tradeoff rather than a one-sided win: the shipped symbolic backend (lib/symbolic-lm) has the best/tied-best automatic meaning-preservation on every bucket in the sibling stage-1 survey (status/experiments.json text-to-clean-english-v1 results.stage1_n40) and is far faster, but reaches full English on only 65% of Romanian rows zero-shot, versus 80-100% for the LLM candidates at a real, measured hallucination cost (worst: gemma3-1b on mixed text, 55% meaning-preserved). This is exactly why the owner's mandatory user-review step (accept/edit/reject) matters and is not a formality.\n\n**Resumed after the 2026-09-30 host reboot (one agent, no duplicates):** finished the scored survey (preregistration amendments A1 to A4; the earlier heuristic-only stage-1 results are kept in the experiment record as superseded), including an independent check on the owner's writer drafts, the untouched-message baseline, paired bootstrap intervals and latency. Fixed on the way: an empty backend answer was shown as an empty proposal, Romanian sentence openers were masked as names (`protect()` `isCommon` hook), a reasoning model's think block leaked into the text, the llm backend called a 270M model that returns nothing on Romanian (now `llm.model` = registry entry `qwen3-1.7b-base`). Started LanguageTool 5.9 on port 18123 (`tools/languagetool-server.mjs`), checked the whole flow in a headless browser on a private port at 1280 and 390 px.",
+   "agents": "clean-english-ui-agent (this session) preregistered status/preregistrations/text-to-clean-english-v1.json and ran a stage-1 survey (40 rows per bucket: ro/mixed/noisy_en, seed 20260930, datasets/formalizer-v1 dev split) of the symbolic backend (LanguagesUtil+TranslatorService, no LLM), Opus-MT ro-en, Gemma-3-1b-it and Qwen3-1.7B (new combined 'clean' prompt, zero-shot, GPU). Lightweight heuristic scoring (English-output rate, automatic meaning checks, latency) found the symbolic backend has the best or tied-best meaning preservation on every bucket and is well inside a 2s UI budget, while the two LLM candidates are more fluent but hallucinate more (status/experiments.json text-to-clean-english-v1). Partway through, discovered a second live agent instance (same actor id in the journal, plus a related actor clean-english-agent) already building the real deliverable -- lib/text-to-clean-english/ (index/diff/gate.mjs, backends/{languagetool,llm,spellfix,symbolic,passthrough}.mjs), config/text-to-clean-english.json (LanguageTool actually running on 127.0.0.1:8081, backends.english=languagetool, backends.nonEnglish=llm), tests/text-to-clean-english.test.mjs, and a larger, still-running evaluation tools/research/text-to-clean-english-eval.mjs. This session also briefly, accidentally reused the filename of an unrelated in-flight script (tools/research/clean-english-eval.mjs, experiment eval-clean-english-v1, actor clean-english-agent); found no lasting damage and moved its own output files to eval/reports/current/text-to-clean-english-ui-survey/. To respect AGENTS.md's single-GPU-worker and no-file-clobbering rules on this shared, non-isolated working tree, this session did not build a second copy of the service/config/tests, did not wire the chat UI, and did not write the requested docs updates (DS012, DS021, docs/runtime.html, docs/wiki.html, dependencies.md, DS014) -- those are left to whichever of the two agent instances the owner keeps. Follow-ups: reconcile the two instances (recommend keeping the more complete lib/text-to-clean-english/ + LanguageTool + larger eval already in progress); once kept, still need the chat UI wiring, the docs updates, and reconciling this session's meaning-preservation finding (symbolic > LLM) against the other instance's own numbers before fixing config/text-to-clean-english.json's default backends.\n\n**Follow-up session (clean-english-ui-agent, continuing):** re-read the current, then-current server/http.mjs and server/pages/chat.mjs (already fully wired for the review UI by another pass of this same actor) and DS012/DS021/docs/runtime.html/docs/wiki.html/dependencies.md/DS014 (already updated by another pass), and rewrote lib/text-to-clean-english/index.mjs + a new gate.mjs to match that documented contract exactly (previously the module only existed as an early, incompatible draft using a different factory API): textToCleanEnglish(message, options) returns {original, clean, changed, reasons, spans, backend, confidence}, throws {code:'backend_unavailable'} on a broken/unconfigured backend (caught by server/http.mjs and degraded to backend:'none'), and config/text-to-clean-english.json chooses languagetool/llm/none per message class. Ran a real end-to-end smoke test (own port 18099, own state dir, a genuinely running LanguageTool 6.6 server on 8123 started with a session-private Eclipse Temurin 17 JRE since the host system Java is 8): a noisy-English message was corrected with the offending proper name (J\u00fcrgen Schmidt) left untouched by protect.mjs masking, and a Romanian message with no llm endpoint configured degraded cleanly to backend:'none' rather than erroring. npm test: 700 tests, 695 pass; the 5 failures (tests/eval-registry.test.mjs, tests/audit-corpus.test.mjs, tests/solver-qualification.test.mjs) are unrelated to this work and reproduce in isolation, most likely from the shared working tree being edited concurrently by the other running clean-english-agent/clean-english-ui-agent processes (training/python/proofread_llm.py GPU generation, tools/datasets/check-new-cases-sop.mjs, tools/research/text-to-clean-english-eval.mjs symbolic-all, tools/research/clean-english-eval.mjs stage-300 were all still running at the end of this session -- their outputs were not consumed here beyond what had already landed). config/text-to-clean-english.json backends were left at backends.english=languagetool, backends.nonEnglish=llm (the owner's own stated working hypothesis), given the collected evidence is a real tradeoff rather than a one-sided win: the shipped symbolic backend (lib/symbolic-lm) has the best/tied-best automatic meaning-preservation on every bucket in the sibling stage-1 survey (status/experiments.json text-to-clean-english-v1 results.stage1_n40) and is far faster, but reaches full English on only 65% of Romanian rows zero-shot, versus 80-100% for the LLM candidates at a real, measured hallucination cost (worst: gemma3-1b on mixed text, 55% meaning-preserved). This is exactly why the owner's mandatory user-review step (accept/edit/reject) matters and is not a formality.\n\n**Resumed after the 2026-09-30 host reboot (one agent, no duplicates):** finished the scored survey (preregistration amendments A1 to A4; the earlier heuristic-only stage-1 results are kept in the experiment record as superseded), including an independent check on the owner's writer drafts, the untouched-message baseline, paired bootstrap intervals and latency. Fixed on the way: an empty backend answer was shown as an empty proposal, Romanian sentence openers were masked as names (`protect()` `isCommon` hook), a reasoning model's think block leaked into the text, the llm backend called a 270M model that returns nothing on Romanian (now `llm.model` = registry entry `qwen3-1.7b-base`). Started LanguageTool 5.9 on port 18123 (`tools/languagetool-server.mjs`), checked the whole flow in a headless browser on a private port at 1280 and 390 px.",
    "follow_ups": [
     "Owner: confirm or change the Romanian/mixed model and whether a symbolic fallback is wanted (questions.md Q-CLEAN-1, Q-CLEAN-2).",
     "A person rates a sample of Romanian and mixed proposals; an English gold SOP for Romanian rows would replace the automatic score that penalises translation.",
@@ -1324,8 +1324,8 @@
    "title": "Three datasets: bad_english, symbolic_english, neuro_english; legacy corpora archived",
    "status": "done",
    "started_at": "2026-09-30T09:19:00Z",
-   "updated_at": "2026-09-30T11:10:00Z",
-   "summary": "The first level of datasets/ now holds only bad_english (not clean English, target for LanguageProofingLLM), symbolic_english (correct English SymbolicLM analyses correctly; regression suite with the UD analysis and SOP) and neuro_english (correct English SymbolicLM fails on; SymbolicProofingLLM material), built from formalizer-v1 and its sealed suites, proofing, the LLM-written new cases and the symbolic-layers candidates, with manifests, READMEs, DS008 rules, a regression runner and the legacy corpora moved unchanged to datasets_archive/. Coverage of clean English on the sealed suites: 59.6% (1,516 of 2,543).",
+   "updated_at": "2026-09-30T23:46:46Z",
+   "summary": "The first level of datasets/ now holds only bad_english (not clean English, target for LanguageProofingLLM), symbolic_english (correct English SymbolicLM analyses correctly; regression suite with the UD analysis and SOP) and neuro_english (correct English SymbolicLM fails on; SymbolicProofingLLM material), built from formalizer-v1 and its sealed suites, proofing, the LLM-written new cases and the symbolic-layers candidates, with manifests, READMEs, DS008 rules, a regression runner and the legacy corpora moved unchanged to datasets_archive/. Coverage of clean English on the sealed suites: 59.6% (1,516 of 2,543). [Incident 2026-09-30 night] Membership of symbolic_english and neuro_english was later moved from the SOP-proxy to the analysis layer (task symbolic-neuro-resplit); the coverage 59.6% here and the row counts are computed on the SOP-proxy split.",
    "topics": [
     "three-datasets",
     "clean-english",
@@ -1395,8 +1395,8 @@
    "title": "symbolic_english gate: two-parser agreement plus judge, audit and forms inventory",
    "status": "done",
    "started_at": "2026-09-30T11:27:00Z",
-   "updated_at": "2026-09-30T13:50:00Z",
-   "summary": "Every symbolic_english message was parsed with the Stanza accurate package and compared with the default tree (identical / noncore_diff / core_diff, recorded in verification.stanza_default_accurate). Rows without a gold SOP pass a gate (identical trees AND Haiku condition c, after the first gate was audited at 92.7%); 2,131 of 3,156 moved to neuro_english as unconfirmed, 1,025 stay. Gold rows are kept; 228 judged core_diff rows carry analysis_suspect. A stronger-judge audit estimates the share of correct analyses, and the forms inventory lists the top 40 analysis skeletons.",
+   "updated_at": "2026-09-30T23:46:46Z",
+   "summary": "Every symbolic_english message was parsed with the Stanza accurate package and compared with the default tree (identical / noncore_diff / core_diff, recorded in verification.stanza_default_accurate). Rows without a gold SOP pass a gate (identical trees AND Haiku condition c, after the first gate was audited at 92.7%); 2,131 of 3,156 moved to neuro_english as unconfirmed, 1,025 stay. Gold rows are kept; 228 judged core_diff rows carry analysis_suspect. A stronger-judge audit estimates the share of correct analyses, and the forms inventory lists the top 40 analysis skeletons. [Incident 2026-09-30 night] The Haiku gate of this task is superseded for membership by the DeepSeek analysis gate (task symbolic-neuro-resplit); its numbers are computed on the SOP-proxy split.",
    "topics": [
     "three-datasets",
     "data-quality-and-audit"
@@ -1417,10 +1417,10 @@
    "id": "composed-eval",
    "kind": "task",
    "title": "Composed evaluation, content-word overlap, length analysis and production regression loop",
-   "status": "running",
+   "status": "done",
    "started_at": "2026-09-30T16:17:00Z",
-   "updated_at": "2026-09-30T16:40:25.506Z",
-   "summary": "Content-word overlap check of the sealed tests against train/dev (fail closed on exact and lexical duplicates), length analysis, composed suites K1 to K6 (all symbolic, mixed, identity long, bad mixed, reference across sentences, decomposition) with a scorer and a Gemma 3 270M baseline, the decomposition coverage and the target-style contract, long composed and form-variant working-data cases, and the add-case tool for production regression cases. No training.",
+   "updated_at": "2026-09-30T23:46:46Z",
+   "summary": "Content-word overlap check of the sealed tests against train/dev (fail closed on exact and lexical duplicates), length analysis, composed suites K1 to K6 (all symbolic, mixed, identity long, bad mixed, reference across sentences, decomposition) with a scorer and a Gemma 3 270M baseline, the decomposition coverage and the target-style contract, long composed and form-variant working-data cases, and the add-case tool for production regression cases. No training. [Incident 2026-09-30 night] The composed suites and the working-data additions were rebuilt on the analysis split (task symbolic-neuro-resplit); the numbers above are computed on the SOP-proxy split.",
    "topics": [
     "three-datasets",
     "evaluation"
@@ -1436,6 +1436,415 @@
    ],
    "owner": "Owner request of 2026-09-30 relayed by the orchestrator: does the system cope with long, several-sentence texts and with handled forms mixed with unhandled ones; proofing LLMs work per sentence and decompose; production cases become regression cases.",
    "agents": "composed-eval-agent. Code: tools/datasets/audit/{content-word-overlap,form-signature,length-analysis,decomposition,decomposition-coverage}.mjs, tools/eval/composed-*.mjs, tools/eval/composed/*, tools/datasets/{composed-train,form-variants,add-case}.mjs. Reports: eval/reports/current/composed-eval/ and eval/reports/current/three-datasets/content-word-overlap.json."
+  },
+  {
+   "id": "symbolic-accurate-adoption",
+   "kind": "experiment",
+   "title": "SymbolicLM on the Stanza accurate package: configuration, rules v2.5, sealed comparison, rebuild of the three datasets",
+   "status": "done",
+   "started_at": "2026-09-30T14:20:00Z",
+   "updated_at": "2026-09-30T19:20:00Z",
+   "summary": "Owner decision of 2026-09-30: switch SymbolicLM to the Stanza default_accurate package and adapt the UD-to-SOP rules to it before any fine-tuning. The package is a configuration (config/symbolic-lm.json, one worker, model id per package, batched GPU parsing, optional parsers_disagree reason). Rules v1.6 were frozen as the baseline; rules v2.0 to v2.5 (21 tree repairs and rule changes for the accurate tree shapes) were developed on recorded parses and frozen after each revision. Preregistered staged comparison on the sealed clean-English test: strict 59.42% to 67.05% (+7.63 pp [6.52, 8.74]); adopted. The three datasets were rebuilt with the new engine: symbolic_english 10,234 rows against 8,152 (coverage of clean English 59.8% against 47.6%), the no-gold gate re-derived with 15.26 USD of Haiku calls.",
+   "topics": [
+    "parse-quality",
+    "three-datasets",
+    "symbolic-lm"
+   ],
+   "experiments": [
+    "eval-symbolic-accurate-adopt-v1",
+    "eval-stanza-accurate-v1"
+   ],
+   "match": [
+    "accurate package",
+    "rules v2.5",
+    "stanza package",
+    "parsers_disagree",
+    "symbolic-accurate"
+   ],
+   "owner": "Owner decision 2026-09-30 (relayed by the orchestrator): switch to Stanza's transformer package and adapt the rules before any fine-tuning; later the release of the legacy ood and wild sources as learning material and the order to report per dataset and form family.",
+   "agents": "accurate-agent, one session, alone, no training, one GPU worker. Code: lib/ud-to-sop/{repair,analyze,lexicon,index,tree,stanza}.mjs, lib/symbolic-lm/{index,uncertainty}.mjs, training/python/ud_parse_worker.py, config/symbolic-lm.json, tools/research/rules-v2-dev.mjs, rules-v2-variants.mjs, tools/eval/symbolic-adopt.mjs, symbolic-latency.mjs, the gate and assembler of tools/datasets/three-datasets. Evidence: eval/reports/current/symbolic-accurate/summary.md."
+  },
+  {
+   "id": "neuro-oracle",
+   "kind": "task",
+   "title": "Neuro oracle: verified SymbolicProofingLLM pairs from the DeepSeek rewrite candidates",
+   "status": "done",
+   "started_at": "2026-09-30T18:17:00Z",
+   "updated_at": "2026-09-30T23:46:46Z",
+   "summary": "Every DeepSeek rewrite candidate of a neuro_english row is run through SymbolicLM (accurate package, frozen rules v2.5, parses recorded on the GPU and the rules replayed) and classified VERIFIED_GOLD (strict gold match), VERIFIED_FORM (no gold: valid SOP, identical default/accurate trees, DeepSeek parse judge a and c good, meaning check) or REJECTED with a reason. The DeepSeek meaning check is calibrated first (eval-neuro-meaning-judge-v1) and used only at 95% precision; it is not (52.6% against the preregistered negatives), so only VERIFIED_GOLD pairs enter the SymbolicProofingLLM set, with stratified identity pairs from symbolic_english. Optional unverified tiers are sized, not used. No training. Result: 8,333 candidates judged; VERIFIED_GOLD 442 (380 rows), VERIFIED_GOLD_NORMALIZED 889 (617 rows), VERIFIED_FORM 0; pair set train 895 / dev 102 / sealed test 95 (471 / 56 / 57 repairs); qualification record written; engine-gaps backlog exported. [Incident 2026-09-30 night] The pair set was rebuilt on the analysis split (task symbolic-neuro-resplit): train 4,172 (2455 repair, 1717 identity); dev 626 (369 repair, 257 identity); test 1,234 (739 repair, 495 identity) (before: train 895 (471 repair, 424 identity); dev 102 (56 repair, 46 identity); test 95 (57 repair, 38 identity)); its numbers above are computed on the SOP-proxy split.",
+   "topics": [
+    "three-datasets",
+    "symbolic-lm"
+   ],
+   "experiments": [
+    "eval-neuro-meaning-judge-v1"
+   ],
+   "match": [
+    "neuro oracle",
+    "neuro_english_targets",
+    "SymbolicProofingLLM pairs",
+    "proofing pairs",
+    "meaning judge"
+   ],
+   "owner": "Owner task 2026-09-30 relayed by the orchestrator: turn the DeepSeek rewrite candidates for neuro_english into verified training and evaluation pairs for SymbolicProofingLLM; use the calibrated parse gate; calibrate a meaning check and require it only at 95% precision; one best candidate per row; identity pairs from symbolic_english; sealed test pairs to eval/suites/neuro_english/proofing-test.jsonl; qualification record for the training gate; no training.",
+   "agents": "neuro-oracle-agent, alone, no sub-agents, no training, GPU only for Stanza parses. Code: tools/datasets/neuro-targets-oracle.mjs and tools/datasets/neuro-oracle/ (train/dev side, never opens a sealed file), tools/eval/neuro-oracle-test.mjs (sealed side), tools/research/qualify-neuro-proofing.mjs, training/python/pair_token_lengths.py, tests/neuro-oracle.test.mjs. DeepSeek task folders: datasets_sources/neuro_oracle_parse_judge/, datasets_sources/neuro_oracle_meaning_judge/. Outputs: datasets/neuro_english/proofing/, eval/suites/neuro_english/proofing-test.jsonl, eval/reports/current/neuro-oracle/summary.md, status/training/qualification-neuro-proofing.json."
+  },
+  {
+   "id": "train-symbolic-proofing-gemma270m-it1",
+   "kind": "experiment",
+   "title": "SymbolicProofingLLM iteration 1: fine-tune Gemma 3 270M on neuro_english/proofing (pilot)",
+   "status": "done",
+   "started_at": "2026-09-30T20:10:00Z",
+   "updated_at": "2026-09-30T23:46:46Z",
+   "summary": "PILOT on the old SOP-proxy split: Gemma 3 270M + LoRA, 895 pairs, 114 s. Learns the surface transformation (sealed repair analysis-correct and meaning-ok 24.6% vs 1.8% untrained base), over-edits working messages (23.7% changed on 300 symbolic_english messages), does not decompose tangled sentences (K6 0/16) and collapses on long input. Verdict and iteration-2 data in eval/reports/current/symbolic-proofing-it1/summary.md. [Incident 2026-09-30 night] Pilot on the SOP-proxy split; the pair set was rebuilt (train 4,172 / dev 626 / sealed 1,234 pairs at the last build of the resplit task); iteration 2 must use it.",
+   "topics": [
+    "training-experiments",
+    "symbolic-lm"
+   ],
+   "experiments": [
+    "train-symbolic-proofing-gemma270m-it1"
+   ],
+   "match": [
+    "symbolic-proofing",
+    "neuro_english/proofing",
+    "symbolic-proofing-gemma270m-it1"
+   ],
+   "owner": "Owner (journal 2026-09-30T17:32:38.274Z, 17:40:03.714Z, 17:41:07.339Z, 17:46:38.134Z): 1-2 overnight iterations of Gemma 3 270M; SymbolicProofingLLM first; no larger model unless 270M clearly cannot learn; fallback Gemma 3 1B LoRA.",
+   "agents": "Preregistration, authorization receipt (qualify-neuro-proofing.mjs --authorize), VERSION record fix, training job symproof-it1-train-a, per-epoch dev decode, analysis-layer evaluation (tools/eval/analysis-layer.mjs, symbolic-proofing-eval.mjs) with a DeepSeek judge folder (datasets_sources/symbolic_proofing_parse_judge/), sealed pairs, sym300 break check, composed K2/K3/K6, long-input stress set, GGUF Q8_0 export, agreement and CPU speed. Deviations D1-D8 are in the preregistration."
+  },
+  {
+   "id": "meaning-judge-calibration",
+   "kind": "experiment",
+   "title": "Meaning-preservation judge (DeepSeek flash): clean calibration with mechanical and hand-written negatives",
+   "status": "done",
+   "started_at": "2026-09-30T19:59:46Z",
+   "updated_at": "2026-09-30T21:09:45Z",
+   "summary": "Calibration of the DeepSeek flash meaning judge on 300 positives (strict gold-matching rewrite pairs) and 402 negatives (297 mechanical one-change perturbations of 11 types, 105 hand-written hard negatives). Confirmatory run v2: m1 precision of yes raw 95.8%, adjudicated 97.5% (Wilson 95.0-98.8), recall 92.0%; two-vote m1 AND m2 raw 98.8%, adjudicated 100%, recall 82.0%; reproducibility 95/100. Usable as the meaning check; two votes where meaning matters.",
+   "topics": [
+    "evaluation",
+    "proofing"
+   ],
+   "experiments": [
+    "eval-meaning-judge-calibration-v1"
+   ],
+   "match": [
+    "meaning-judge",
+    "eval-meaning-judge-calibration-v1"
+   ],
+   "owner": "Owner (journal 2026-09-30 night): evaluate layer by layer; the proofing LLMs must keep the meaning; the first calibration's 53% precision said little because its negatives were gold-SOP mismatches.",
+   "agents": "meaning-judge-agent: tools/datasets/meaning-judge/, folders datasets_sources/meaning_judge_calibration{,_v2}, reports under eval/reports/current/meaning-judge/."
+  },
+  {
+   "id": "symbolic-backgen-filter",
+   "kind": "task",
+   "title": "Back-generated pairs (complex paraphrase -> symbolic_english original) filtered into datasets/neuro_english/proofing-backgen",
+   "status": "done",
+   "started_at": "2026-09-30T20:00:00Z",
+   "updated_at": "2026-09-30T21:09:45Z",
+   "summary": "15,448 DeepSeek paraphrases of 7,855 symbolic_english train/dev messages; mechanical checks, two-vote meaning judge, calibrated parse gate on the paraphrase (identity example when SymbolicLM already analyses it correctly, else repair pair), sealed-text check. Kept 10160 pairs: 6785 repair, 3375 identity; all verification MEANING_TWO_VOTE.",
+   "topics": [
+    "proofing",
+    "data-generation"
+   ],
+   "experiments": [],
+   "match": [
+    "proofing-backgen",
+    "symbolic_backgen",
+    "backgen"
+   ],
+   "owner": "Owner (journal 2026-09-30): reverse-direction data generation for SymbolicProofingLLM iteration 2.",
+   "agents": "meaning-judge-agent: tools/datasets/backgen-proofing.mjs, tools/eval/backgen-sealed-check.mjs, folders datasets_sources/backgen_meaning_judge and backgen_parse_judge."
+  },
+  {
+   "id": "bad-english-llm-targets-merge",
+   "kind": "task",
+   "title": "Merge the DeepSeek clean-English targets into bad_english",
+   "status": "done",
+   "started_at": "2026-09-30T20:00:00Z",
+   "updated_at": "2026-09-30T21:09:45Z",
+   "summary": "Targets of datasets_sources/bad_english_targets merged through the dataset builder (train, dev; target_source llm:deepseek-flash, review pending): 12,805 targets, 31 mixed rows already clean English with the message as target, 1,517 targets held as unverified references (clean-English gate), 760 unfixable rows flagged. 100-row read: 3% meaning errors. The sealed test merge was not run (permission denied; left to the owner).",
+   "topics": [
+    "three-datasets",
+    "clean-english"
+   ],
+   "experiments": [],
+   "match": [
+    "bad_english_targets",
+    "llm-targets",
+    "llm:deepseek-flash"
+   ],
+   "owner": "Owner (journal 2026-09-30): DeepSeek writes the bad_english targets; merge them pending review.",
+   "agents": "meaning-judge-agent: tools/datasets/three-datasets/llm-targets.mjs, tools/datasets/merge-llm-targets.mjs."
+  },
+  {
+   "id": "train-language-proofing-gemma270m-it1",
+   "kind": "experiment",
+   "title": "LanguageProofingLLM iteration 1: fine-tune Gemma 3 270M on bad_english/proofing",
+   "status": "done",
+   "started_at": "2026-09-30T21:40:00Z",
+   "updated_at": "2026-10-01T00:45:00Z",
+   "summary": "Done: 270M learns sentence-level Romanian, mixed and badly written English to clean English; composite 65.9% vs 58.5% for the shipped backend on the judged sample; clean sentences untouched 94.8% (bar 95%); main error a vocabulary hole (child of -> parent of). Report eval/reports/current/language-proofing-it1/summary.md.",
+   "topics": [
+    "training-experiments",
+    "symbolic-lm"
+   ],
+   "experiments": [
+    "train-language-proofing-gemma270m-it1"
+   ],
+   "match": [
+    "language-proofing",
+    "bad_english/proofing",
+    "language-proofing-gemma270m-it1"
+   ],
+   "owner": "Owner (journal 2026-09-30T17:32:38.274Z, 17:40:03.714Z, 17:41:07.339Z, 17:46:38.134Z, 19:58:29.661Z): 1-2 overnight iterations of Gemma 3 270M; SymbolicProofingLLM first, LanguageProofingLLM second; no larger model unless 270M clearly cannot learn; fallback Gemma 3 1B LoRA; NL and analysis layers first. Open owner question: Q-DATA-2 (merge of DeepSeek targets into the sealed bad_english test).",
+   "agents": "Preregistration, qualification and authorization receipt, training, dev-selected evaluation on the sealed sentence units (reference-free metrics on all, reference metrics where a reference exists) and composed K4, GGUF export, report eval/reports/current/language-proofing-it1/summary.md."
+  },
+  {
+   "id": "chat-language-proofing-llm-backend",
+   "kind": "task",
+   "title": "LanguageProofingLLM as the backend of textToCleanEnglish; Qwen3-1.7B removed from the chat",
+   "status": "done",
+   "started_at": "2026-10-01T01:00:00Z",
+   "updated_at": "2026-10-01T01:30:00Z",
+   "summary": "Done: registry entry language-proofing-llm (capability proofread, GGUF ep3-q8_0), backends english/nonEnglish = llm, per-sentence cleaning with llm.sendAll (default false), LanguageTool optional and off, qwen3-1.7b-base entry removed (GGUF kept), docs updated, browser check at desktop and phone width.",
+   "topics": [
+    "server-and-ui"
+   ],
+   "experiments": [],
+   "match": [
+    "text-to-clean-english",
+    "language-proofing-llm",
+    "textToCleanEnglish"
+   ],
+   "owner": "Owner (journal 2026-10-01): remove Qwen3-1.7B from the chat; textToCleanEnglish is the UI step, LanguageProofingLLM (fine-tuned Gemma 3 270M, run language-proofing-gemma270m-it1) is the model behind it.",
+   "agents": "lib/text-to-clean-english/ (per-sentence routing, sendAll, lazy endpoint, bare-sentence llm backend), server/formalizers.mjs (proofread capability), server/http.mjs, config/formalizers.json, config/text-to-clean-english.json, tests, DS012, DS021, DS008, runtime/wiki/training pages, dependencies.md, AGENTS.md, README.md. Known limit: the gate's spelling signal is weak, so typos in well-formed English sentences pass unflagged unless llm.sendAll is true."
+  },
+  {
+   "id": "symbolic-neuro-resplit",
+   "kind": "task",
+   "title": "Re-split symbolic_english / neuro_english on the analysis layer (incident fix)",
+   "status": "done",
+   "started_at": "2026-09-30T20:29:26Z",
+   "updated_at": "2026-09-30T23:46:46Z",
+   "summary": "Membership of the two datasets moved from the SOP match (a proxy) to the grammatical analysis: a clean-English row is in symbolic_english when every sentence has identical default and accurate Stanza trees and the DeepSeek parse judge (conditions a and c) says good enough, else in neuro_english; rows without analysis or with an unparsed span follow the SOP rules (owner question Q-DATA-3). Rows never change split. symbolic_english 7,124 / 950 / 2,113 -> 5,659 / 788 / 1,605, neuro_english 4,872 / 764 / 1,363 -> 6,317 / 924 / 1,871 (train / dev / test); analysis-layer coverage of clean English 46.9% against 59.3% on the SOP-proxy split. Of the 6,999 old neuro rows 2,252 (32.2%) had a correct analysis; of the 3,716 rows that failed only the SOP layer (rules 1,898, gold_convention 1,818) 1,521 have a correct analysis, the others fail the analysis gate (mostly different trees). 49,244 parse-judge items (DeepSeek flash, five omp runs, 19.5% of the sentence verdicts reused from earlier folders), about 12 USD estimated kernel cost. SOP information stays per row as sop_layer; neuro failure_kind is the analysis failure (trees_differ, judge_a/c/ac, no_analysis, unparsed_span). Composed paragraphs, form variants and test variants re-derived by the same gate; composed suites rebuilt; regression baseline re-recorded (8,051 of 8,052 rows same, one analysis_changed_sop_same); sealed bad_english test merged with the DeepSeek targets (owner decision); SymbolicProofingLLM pairs rebuilt on the analysis layer with the two-vote meaning judge: train 4,172 (2455 repair, 1717 identity); dev 626 (369 repair, 257 identity); test 1,234 (739 repair, 495 identity).",
+   "topics": [
+    "three-datasets",
+    "parse-quality"
+   ],
+   "experiments": [],
+   "match": [
+    "resplit",
+    "analysis gate",
+    "analysis layer",
+    "sop_layer",
+    "resplit_parse_judge",
+    "Q-DATA-3"
+   ],
+   "owner": "Owner 2026-09-30 night via the orchestrator: symbolic_english is correct English whose analysis SymbolicLM gets right (the analysis itself correct); evaluate layer by layer, SOP Lang is a later layer; re-split on identical default/accurate trees AND the DeepSeek parse judge conditions a and c; rebuild the SymbolicProofingLLM pairs; bad tests may be fixed (merge the DeepSeek targets into the sealed bad_english test). Open: Q-DATA-3 (rows with an unparsed span).",
+   "agents": "dataset-resplit-agent: tools/datasets/three-datasets/{analysis-gate,place,rows,resplit-report,resplit-summary}.mjs, assemble.mjs, build-three-datasets.mjs (gate-stage, --datasets, --unparsed-policy, resplit-report), tools/eval/three-datasets-suites.mjs (gate-stage, merge-llm-targets), neuro-oracle modules, composed-train/form-variants/test-variants, folders datasets_sources/resplit_parse_judge, resplit_meaning_judge, resplit_neuro_targets, report eval/reports/current/three-datasets/resplit-summary.md. Found and fixed on the way: tools/symbolic-regression.mjs --update wrote the sealed split to a stray datasets/symbolic_english/test.jsonl (removed; writeSplit now refuses it)."
+  },
+  {
+   "id": "train-language-proofing-gemma270m-it2",
+   "kind": "experiment",
+   "title": "LanguageProofingLLM iteration 2: vocabulary-covering data, identity 22%, held-out vocabulary dev",
+   "status": "done",
+   "started_at": "2026-10-01T00:20:00Z",
+   "updated_at": "2026-10-01T03:30:00Z",
+   "summary": "Done: iteration 2 (vocabulary-covering data, 22% identity, mash policy, held-out vocabulary dev) closes the child-to-parent error (204/229 -> 1/229) and raises clean-sentence identity to 98.1% (it1 94.8%); the judged composite is unchanged (66.3% vs 66.1%) and unseen vocabulary is not generalized. Chat registry unchanged by the preregistered rule. proofing-v3 prepared and unused. Report eval/reports/current/language-proofing-it2/summary.md.",
+   "topics": [
+    "training-experiments",
+    "symbolic-lm"
+   ],
+   "experiments": [
+    "train-language-proofing-gemma270m-it2"
+   ],
+   "match": [
+    "language-proofing-it2",
+    "bad_english/proofing-v2",
+    "language-proofing-gemma270m-it2"
+   ],
+   "owner": "Owner (journal 2026-09-30T17:32:38.274Z, 22:48:59.650Z, 22:54:36.651Z): overnight iterations of Gemma 3 270M, iterate until morning, compare only on synthetic data; fallback Gemma 3 1B only with clear evidence of a plateau.",
+   "agents": "Data build, qualification, preregistration, receipt, training, dev-selected evaluation, sealed evaluation, GGUF export, report eval/reports/current/language-proofing-it2/summary.md."
+  },
+  {
+   "id": "train-symbolic-proofing-gemma270m-it2",
+   "kind": "experiment",
+   "title": "SymbolicProofingLLM iteration 2: fine-tune Gemma 3 270M on sentence units of the analysis-layer split",
+   "status": "done",
+   "started_at": "2026-10-01T00:17:23Z",
+   "updated_at": "2026-10-01T03:01:01Z",
+   "summary": "Trained and evaluated: repair analysis-correct and meaning kept 37.6% (it1 9.3%) on 739 sealed repair pairs, identity break 15 to 20% (bound 1% not met), decomposition learned in part (sealed 32.8% sentence count, K6 5/16), pronouns kept, no capacity limit seen. Local-first evaluation (a) local only and (b) with judges, DeepSeek cost about USD 2.5. Rejected-pair audit: pair rules v3 and the untrained set proofing-it3 (+1,060 pairs). Iteration 3 needs and the verdict in eval/reports/current/symbolic-proofing-it2/summary.md.",
+   "topics": [
+    "training-experiments",
+    "symbolic-lm"
+   ],
+   "experiments": [
+    "train-symbolic-proofing-gemma270m-it2"
+   ],
+   "match": [
+    "symbolic-proofing-gemma270m-it2",
+    "neuro_english/proofing-it2"
+   ],
+   "owner": "Owner (journal 2026-09-30T17:32:38.274Z and the decisions listed in status/training/owner-approval-symbolic-proofing-it2.json): 1-2 overnight iterations of Gemma 3 270M; iterate until morning; layer-by-layer evaluation; compare only on synthetic data against no rewrite and the untrained base; 1B only on clear evidence, not in this run.",
+   "agents": "symbolic-proofing-it2-agent: builder (tools/datasets/build-symbolic-proofing-v2.mjs), auditor (tools/datasets/audit/symbolic-proofing-overlap.mjs), qualification (tools/research/qualify-symbolic-proofing-v2.mjs), DeepSeek omp folders datasets_sources/decomp_backgen, symbolic_proofing_parse_judge, symbolic_proofing_it2_meaning_judge, evaluation tools tools/eval/symbolic-proofing-eval.mjs and composed-score.mjs."
+  },
+  {
+   "id": "eval-symbolic-pipeline-gate-v1",
+   "kind": "experiment",
+   "title": "SymbolicLM rewrite pipeline: local routing gate and acceptance check around SymbolicProofingLLM",
+   "status": "done",
+   "started_at": "2026-10-01T03:05:17Z",
+   "updated_at": "2026-10-01T05:45:00Z",
+   "summary": "Gate g1 + acceptance: break rate 0%, repairs 41.7% local / 26.3% with judges against 25.0% / 5.4% no rewrite; implemented off by default in lib/symbolic-lm/rewrite-gate.mjs (DS021). Report eval/reports/current/symbolic-pipeline-gate/summary.md.",
+   "topics": [
+    "symbolic-lm",
+    "evaluation"
+   ],
+   "experiments": [
+    "eval-symbolic-pipeline-gate-v1"
+   ],
+   "match": [
+    "symbolic-pipeline-gate"
+   ],
+   "owner": "Orchestrator request of 2026-10-01 (hypothesis: SymbolicLM decides routing and acceptance locally).",
+   "agents": "symbolic-pipeline-agent"
+  },
+  {
+   "id": "train-language-proofing-gemma270m-it3",
+   "kind": "experiment",
+   "title": "LanguageProofingLLM iteration 3: trained vocabulary, held-out probe v3, spacing repair",
+   "status": "done",
+   "started_at": "2026-10-01T03:41:23.429Z",
+   "updated_at": "2026-10-01T06:20:13.563Z",
+   "summary": "Done: iteration 3 learns and uses vocabulary that is in the data (ten trained words 94.1% vs 45.6% for it2) and does not generalize to unseen words (52.0%; Romanian input 26.4%); spacing repair 99.6%; composite unchanged (67.2% vs 67.2%); clean900 98.2%, mash 98.7%, child flip 0.4%. Chat switched to iteration 3 by the preregistered rule. Report eval/reports/current/language-proofing-it3/summary.md.",
+   "topics": [
+    "training-experiments"
+   ],
+   "experiments": [
+    "train-language-proofing-gemma270m-it3"
+   ],
+   "match": [
+    "language-proofing-it3",
+    "bad_english/proofing-it3",
+    "language-proofing-gemma270m-it3"
+   ],
+   "owner": "Owner (journal 2026-09-30T17:32:38.274Z and the 2026-10-01 decision transcribed at 03:35:42Z): one more iteration if it does not interfere, judging is cheap and the data exist; parallel when the GPU allows; no 1B.",
+   "agents": "Data build (tools/datasets/build-language-proofing-v3.mjs), qualification, receipt, preregistration, training, dev-selected evaluation, sealed evaluation, GGUF export, report eval/reports/current/language-proofing-it3/summary.md."
+  },
+  {
+   "id": "emotion-detection-system",
+   "kind": "task",
+   "title": "EmotionDetectionSystem: component, pragmatic wire, strategies, evaluation, chat integration",
+   "status": "done",
+   "started_at": "2026-10-01T06:21:05Z",
+   "updated_at": "2026-10-01T07:40:00Z",
+   "summary": "Component lib/emotion-detection/ with symbolic, neural and LLM strategies, the advisory pragmatic wire (DS029, docs/wire_typs/pragmatic.html), advice for the reasoner, a courtesy short-circuit in the agent, the chat toggle and signals panel, and the evaluation emotion-detection-v1 (report eval/reports/current/emotion-detection/summary.md).",
+   "topics": [
+    "emotion-detection",
+    "model-language"
+   ],
+   "experiments": [
+    "emotion-detection-v1"
+   ],
+   "match": [
+    "emotion-detection",
+    "pragmatic",
+    "EmotionDetectionSystem"
+   ],
+   "owner": "Owner decision 2026-10-01: separate switchable component with strategies; leftover spans classified by pragmatic role.",
+   "agents": "Component, wire, docs, tests, judge labelling (Grok, GLM), evaluation, chat integration."
+  },
+  {
+   "id": "decomposition-eval-and-it3-data",
+   "kind": "task",
+   "title": "Decomposition: a 275-case sealed evaluation set, detectability scoring, and prepared (not trained) iteration-3 data",
+   "status": "done",
+   "started_at": "2026-10-01T07:00:00Z",
+   "updated_at": "2026-10-01T09:00:00Z",
+   "summary": "eval/suites/decomposition (275 cases, certified and two-vote judged expected decompositions), tools/eval/decomposition-score.mjs with the graded severity and a detectability dimension (silent meaning change), baselines none, it2 always, it2 gated, it2 partial (report eval/reports/current/decomposition/summary.md), DS016/DS021/DS008 text, and datasets/neuro_english/proofing-it3-decomp (3,246 train, 326 dev; prepared, not trained).",
+   "topics": [
+    "evaluation",
+    "data-generation",
+    "proofing"
+   ],
+   "experiments": [
+    "eval-decomposition-v1"
+   ],
+   "match": [
+    "decomposition",
+    "proofing-it3-decomp",
+    "detectability"
+   ],
+   "owner": "Owner nuances 2026-10-01: the analysis never fails completely; hunt catastrophic and silent failures; detectable losses are tolerable. Orchestrator decision: judge deviation D1 (Grok two votes alone) for the training data.",
+   "agents": "Selection, generation (DeepSeek), certification (SymbolicLM), judging (Grok, GLM), scoring tool, baselines, data builders, qualification, docs. No training."
+  },
+  {
+   "id": "symbolic-proofing-it3-train",
+   "kind": "task",
+   "title": "SymbolicProofingLLM iteration 3: one Gemma 3 270M LoRA run on proofing-it3 + decomposition data, evaluation on the sealed decomposition set",
+   "status": "running",
+   "started_at": "2026-10-01T08:50:00Z",
+   "updated_at": "2026-10-01T09:00:00Z",
+   "summary": "Data mix datasets/neuro_english/proofing-it3-mix, qualification and receipt, preregistration, queued behind the gloss run; then evaluation arms it3-always and it3-gated against it2 on eval/suites/decomposition, regression on the it2 repair task, GGUF F16 vs Q8_0, CPU speed, recommendation (no switch).",
+   "topics": [
+    "training-experiments",
+    "proofing",
+    "evaluation"
+   ],
+   "experiments": [
+    "train-symbolic-proofing-gemma270m-it3"
+   ],
+   "match": [
+    "symbolic-proofing-gemma270m-it3",
+    "proofing-it3-mix",
+    "symbolic-proofing-it3"
+   ],
+   "owner": "Owner approval 2026-10-01 (journal 08:47:38Z): one run, judge disagreement on S3/S4 is excusable ambiguity, do not switch config/formalizers.json.",
+   "agents": "sp-it3-agent: data mix, qualification, receipt, preregistration, training launch, evaluation, report. config/formalizers.json is not edited."
+  },
+  {
+   "id": "train-language-proofing-gemma270m-prod1",
+   "kind": "experiment",
+   "title": "LanguageProofingLLM production build 1: names, all eighteen words, typo'd child words (sealed evaluation, F16 export, runtime guard)",
+   "status": "done",
+   "started_at": "2026-10-01T08:31:50.786Z",
+   "updated_at": "2026-10-01T09:15:00.000Z",
+   "summary": "Done: prod1 epoch 3 keeps names on 99.2% of the sealed units that have one (it3 65.6%, 9 names lost against 380), reads the eighteen-word fresh probe at 88.2% (it3 69.6%), the eight formerly unseen words at 88.3% on dev (it3 46.7%), mash 100%, clean900 98.3%, composite unchanged (+1.5 pp, n.s.); F16 GGUF 97.0% HF agreement at 90 tokens/s; the runtime name guard ends with zero lost names. The preregistered switch rule is not fully met (child relation word 98.3% < 99%, eight words 88.3% < 90%), so the chat switch is an owner decision; recommendation: epoch 3, F16. Report eval/reports/current/language-proofing-prod1/summary.md.",
+   "topics": [
+    "training-experiments"
+   ],
+   "experiments": [
+    "train-language-proofing-gemma270m-prod1"
+   ],
+   "match": [
+    "language-proofing-prod1",
+    "bad_english/proofing-prod1",
+    "language-proofing-gemma270m-prod1"
+   ],
+   "owner": "Owner (2026-10-01): production build of LanguageProofingLLM, names must not be translated, chat switch decided by the owner after the recommendation.",
+   "agents": "Data build, qualification and training (earlier agent); sealed evaluation, meaning judge, quantization review, runtime-guard measurement and report (prod1-eval-agent): tools/eval/language-proofing-prod1-{metrics,compare,rejudge,guard}.mjs."
+  },
+  {
+   "id": "language-proofing-gloss-train",
+   "kind": "experiment",
+   "title": "LanguageProofingLLM gloss post-editor: fast-recipe training and evaluation against it3 and prod1",
+   "status": "done",
+   "started_at": "2026-10-01T08:38:14Z",
+   "updated_at": "2026-10-01T10:00:00Z",
+   "summary": "One Gemma 3 270M LoRA run on gloss prompts with micro-batch 16 x 1: 36.5 min against 104 min for prod1 (0.173 vs 0.50 s per step). Unseen words +19.8 pp over it3 (71.8%), below the preregistered +25 pp and 75%; clean900 93.2% (-5 pp) and names kept 68.4% against prod1's 99.2%. Recommendation: prod1 alone.",
+   "topics": [
+    "training-experiments"
+   ],
+   "experiments": [
+    "train-language-proofing-gloss-gemma270m"
+   ],
+   "match": [
+    "language-proofing-gloss",
+    "proofing-gloss",
+    "gloss-train"
+   ],
+   "owner": "Owner approval 2026-10-01 (journal 08:35:47Z): 'aprob gloss cu retea rapida, daca esti sugur, fa ce e mai rapid'; one run, no warm start, the chat is not switched.",
+   "agents": "gloss-train-agent: re-qualification, receipt with config/train-gemma-fast.json, preregistration deviations, launch (A3), per-epoch interim checks, selection, sealed and probe evaluation, report. config/formalizers.json not edited."
   }
  ]
 }

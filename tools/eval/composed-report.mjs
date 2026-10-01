@@ -20,14 +20,16 @@ const last = summary => summary?.stages?.at(-1) ?? null;
 const strata = (...rates) => [...new Set(rates.flatMap(r => Object.keys(r?.by ?? {})))].sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
 
 function symbolicSection(dir) {
-  const L = ['## 1. SymbolicLM alone on composed paragraphs (K1, K3, K5)', '', 'Each paragraph is analysed as one message; each component alone is the control. `paragraph = concatenation` compares the SOP with the concatenated stored SOPs (ids renumbered, statements before queries). The **composition effect** restricts to cases whose components all pass alone, so a loss there is a cross-sentence effect. `sentences as alone` means every sentence keeps its tokens, heads and labels and no sentence is cut or merged. `handled` is a valid conversion with nothing unparsed and no uncertainty flag on the paragraph.', ''];
+  const L = ['## 1. SymbolicLM alone on composed paragraphs (K1, K3, K5)', '', 'Each paragraph is analysed as one message; each component alone is the control. `paragraph = concatenation` compares the SOP with the concatenated stored SOPs (ids renumbered, statements before queries). The **composition effect** restricts to cases whose components all pass alone, so a loss there is a cross-sentence effect. `sentences as alone` means every sentence keeps its tokens, heads and labels and no sentence is cut or merged (not reported for K5, whose last sentence has a pronoun). For K5 the component alone is the named twin of the reference sentence, so the composition effect there is the loss from resolving the pronoun in context. `handled` is a valid conversion with nothing unparsed and no uncertainty flag on the paragraph.', ''];
   for (const kind of ['K1', 'K3', 'K5']) {
     const s = last(readJson(path.join(dir, `symbolic-lm__${kind}.summary.json`)));
     if (!s) continue;
     const ids = [...new Set(readJsonl(path.join(dir, 'runs', `symbolic-lm__${kind}.jsonl`)).map(r => r.lm_id).filter(Boolean))];
     L.push(`### ${kind} (${s.cases} cases${ids.length ? `; SymbolicLM code hash ${ids.join(', ')}` : ''})`, '', '| sentences | paragraph = concatenation | composition effect (components all pass alone) | sentences as alone | sentence split as alone | components alone pass | paragraph handled |', '| --- | --- | --- | --- | --- | --- | --- |');
-    for (const st of strata(s.sop_exact)) L.push(`| ${st} | ${w(s.sop_exact.by[st])} | ${w(s.composition_effect.by?.[st])} | ${w(s.analysis_equal.by[st])} | ${w(s.sentence_split_ok.by[st])} | ${w(s.components_alone_ok.by[st])} | ${w(s.handled.by[st])} |`);
-    L.push(`| all | ${w(s.sop_exact.all)} | ${w(s.composition_effect.all)} | ${w(s.analysis_equal.all)} | ${w(s.sentence_split_ok.all)} | ${w(s.components_alone_ok.all)} | ${w(s.handled.all)} |`, '', `Per component: right in the paragraph ${w(s.components)}; right alone ${w(s.components_alone)}. Causes of a loss: ${JSON.stringify(s.causes_of_loss ?? {})}.`, '');
+    // K5: the reference sentence has a pronoun and is analysed alone in its named form, so "sentences as alone" differs by construction and is not reported.
+    const same = (rate, st) => (kind === 'K5' ? 'n/a (pronoun)' : w(st ? rate.by[st] : rate.all));
+    for (const st of strata(s.sop_exact)) L.push(`| ${st} | ${w(s.sop_exact.by[st])} | ${w(s.composition_effect.by?.[st])} | ${same(s.analysis_equal, st)} | ${w(s.sentence_split_ok.by[st])} | ${w(s.components_alone_ok.by[st])} | ${w(s.handled.by[st])} |`);
+    L.push(`| all | ${w(s.sop_exact.all)} | ${w(s.composition_effect.all)} | ${same(s.analysis_equal)} | ${w(s.sentence_split_ok.all)} | ${w(s.components_alone_ok.all)} | ${w(s.handled.all)} |`, '', `Per component: right in the paragraph ${w(s.components)}; right alone ${w(s.components_alone)}. Causes of a loss: ${JSON.stringify(s.causes_of_loss ?? {})}.`, '');
   }
   return L;
 }

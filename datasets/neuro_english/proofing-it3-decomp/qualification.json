@@ -1,0 +1,69 @@
+{
+ "format": "chatsop-dataset-qualification-v1",
+ "dataset": "neuro_english/proofing-it3-decomp",
+ "status": "prepared, not trained",
+ "qualified": true,
+ "training_authorized": false,
+ "note": "A qualification record is not a training authorization (AGENTS.md rule 3); no training, optimizer step or training smoke run was done.",
+ "created": "2026-10-01T08:34:00.420Z",
+ "manifest_sha256": "8910ad89fe9c78ecd6f66a061c87188f5ece39e997ea9a6b0de6fb1d275627f6",
+ "train_sha256": "407d0b4efbd415aaf4c22f8c061b36daa109221a5bebdd5eb3d23fc974871854",
+ "dev_sha256": "387cc43a6e68b11b52a7929f16b5c5bf0c77739f46bc7b6a77db8b54a0e729e4",
+ "checks": {
+  "files_integrity": {
+   "ok": true,
+   "rows": 3572,
+   "bad": []
+  },
+  "pair_grounding": {
+   "ok": true,
+   "ungrounded": [],
+   "count": 0
+  },
+  "certification": {
+   "ok": true,
+   "partial_rows": 107,
+   "failed": [],
+   "count": 0
+  },
+  "mechanical": {
+   "ok": true,
+   "failed": [],
+   "count": 0
+  },
+  "meaning_votes": {
+   "ok": true,
+   "judge": "Grok m1 AND m2 (xai-oauth/grok-4.20-0309-non-reasoning)",
+   "failed": [],
+   "count": 0
+  },
+  "leakage": {
+   "ok": true,
+   "flagged": [],
+   "count": 0,
+   "sealed_files": 16,
+   "includes_decomposition_suite": true
+  },
+  "split_integrity": {
+   "ok": true,
+   "duplicate_ids": 0,
+   "split_mismatch": 0,
+   "duplicate_prompts": 0
+  },
+  "size_budget": {
+   "ok": true,
+   "too_long_or_short": [],
+   "count": 0,
+   "tokens": {
+    "max_total_tokens": 163,
+    "over_400": 0
+   },
+   "tokenizer": "Gemma 3 GGUF via llama-server /tokenize"
+  },
+  "status": {
+   "ok": true,
+   "status": "prepared, not trained",
+   "training_authorized": false
+  }
+ }
+}

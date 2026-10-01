@@ -1,0 +1,22 @@
+{
+ "format": "chatsop-owner-approval-scope-v1",
+ "experiment": "train-symbolic-proofing-gemma270m-it1",
+ "journal_event": {"file": "status/journal.jsonl", "ts": "2026-09-30T17:32:38.274Z", "area": "training", "state": "decision", "actor": "orchestrator", "title": "Owner approves 1-2 overnight fine-tuning iterations of Gemma 3 270M; more examples via omp/DeepSeek"},
+ "further_decisions": [
+  {"file": "status/journal.jsonl", "ts": "2026-09-30T17:40:03.714Z", "actor": "orchestrator", "title": "Owner: SymbolicProofingLLM first, LanguageProofingLLM second"},
+  {"file": "status/journal.jsonl", "ts": "2026-09-30T17:41:07.339Z", "actor": "orchestrator", "title": "Owner allows parallel GPU training runs when faster than serial"},
+  {"file": "status/journal.jsonl", "ts": "2026-09-30T17:46:38.134Z", "actor": "orchestrator", "title": "Owner: the fallback base is Gemma 3 1B (LoRA), not Qwen"}
+ ],
+ "approved_models": ["gemma"],
+ "order": "Gemma 3 270M IT only (LoRA). No larger model in this iteration: the Gemma 3 1B fallback applies only if 270M clearly cannot learn the task, and needs its own run and record.",
+ "role": "proofreader",
+ "corpus": "neuro_english/proofing",
+ "conditions": [
+  "the dataset qualification record status/training/qualification-neuro-proofing.json is status 'qualified'",
+  "preregistration status/preregistrations/train-symbolic-proofing-gemma270m-it1.json is frozen before any optimizer step",
+  "iteration 1 of SymbolicProofingLLM (a pilot); the owner approved at most 1-2 iterations of Gemma 3 270M in total",
+  "parallel GPU jobs only when they do not slow the run; check nvidia-smi and models/.training.lock first",
+  "experiment-grade data: automated oracle grounding and leakage checks, no human semantic review"
+ ],
+ "receipts": "tools/research/qualify-neuro-proofing.mjs --authorize gemma --run RUN --decision-ts 2026-09-30T17:32:38.274Z transcribes the journal decision into one chatsop-training-authorization-v1 receipt bound to the recipe, dataset and qualification hashes"
+}

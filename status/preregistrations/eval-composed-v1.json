@@ -17,7 +17,11 @@
  },
  "changed_factor": "The number and mix of sentences in the message, and the mode in which a rewriter is applied (whole paragraph, or the host splits, gates and rewrites only the sentences that need it). Components, models, decoding and scoring are otherwise fixed.",
  "suites": {
-  "files": ["eval/suites/symbolic_english/test-composed.jsonl (K1 all symbolic, K3 identity long, K5 reference across sentences)", "eval/suites/neuro_english/test-composed.jsonl (K2 mixed, K6 decomposition)", "eval/suites/bad_english/test-composed.jsonl (K4 bad mixed, K6 decomposition)"],
+  "files": [
+   "eval/suites/symbolic_english/test-composed.jsonl (K1 all symbolic, K3 identity long, K5 reference across sentences)",
+   "eval/suites/neuro_english/test-composed.jsonl (K2 mixed, K6 decomposition)",
+   "eval/suites/bad_english/test-composed.jsonl (K4 bad mixed, K6 decomposition)"
+  ],
   "manifests": "eval/suites/<dataset>/manifest-composed.json holds the sha256 of each file, of the source test file and the seed",
   "selection": "Deterministic composition (seeded, tools/eval/composed/compose.mjs) of self-contained single-sentence components taken from the sealed test rows only: no pronoun or ellipsis that needs another sentence, one request or statement, a verified analysis; symbolic components need a valid converted SOP with nothing unparsed; neuro components need a verified rewrite target; bad components need a clean target. K1 has 100 cases per sentence count (2, 3, 5, 8), sentences of different forms; K2 and K4 have 34 cases per mix (n of m changed: 2/1, 3/1, 4/1, 4/2, 5/1, 6/2, 6/3, 8/2, 8/4) at first, middle, last or spread positions; K3 has the longest natural sentences and 12 to 48 sentence paragraphs; K5 has 2, 3 and 4 sentence paragraphs whose last sentence refers to an earlier subject by pronoun (the name substituted mechanically, the expected SOP has the name); K6 keeps every test row of a decomposition type with a verified multi-sentence target."
  },
@@ -47,6 +51,20 @@
    "what": "A 400-case run of SymbolicLM on K1 was made before the scorer compared blocks in the statements-first order. It showed a large apparent loss with the sentence count that was in part an ordering convention of the SOP emitter (asserted statements are emitted before queries) and not a defect. The scorer now applies the same stable partition to the expected concatenation. Numbers of that first run are discarded; the corrected scorer is the frozen one.",
    "why": "Scorer bug found by inspecting three failures; no rewriter prediction existed yet.",
    "effect": "Every reported K1/K3/K5 number uses the corrected comparison; the pilot informed the scorer, so the SymbolicLM numbers on the pre-rebuild suites are not confirmatory."
+  },
+  {
+   "id": "D2",
+   "at": "2026-09-30T19:50:00Z",
+   "what": "The suites were rebuilt from the sealed test files after accurate-agent's rebuild of the three datasets (Stanza accurate, rules v2.5) and after the re-split of the legacy OOD and wild suites (owner decision 2026-09-30), and every SymbolicLM and rewriter number was measured again. The numbers on the earlier suites (live rules of the afternoon) are archived as a pilot in eval/reports/history/composed-eval-pilot-2026-09-30/. Two scoring details were added before the final run: K5 compares the reference sentence with its named twin alone (the pronoun cannot be resolved alone), and the causes of a composition loss are classified (tools/eval/composed/diagnose.mjs).",
+   "why": "The preregistered suites depend on the sealed test files, which the rebuild changed; the final numbers must match the data that the models are trained and evaluated on.",
+   "effect": "The confirmatory numbers are those of eval/reports/current/composed-eval/ (rules v2.5, suite hashes in eval/suites/<dataset>/manifest-composed.json); the pilot informed the scorer and is not confirmatory."
+  },
+  {
+   "id": "D3",
+   "at": "2026-09-30T19:50:00Z",
+   "what": "K3 rewriter runs (whole paragraph and per sentence) stop after stage 100 of 289 cases, as the stopping rules allow for the highest cost; the SymbolicLM runs on K1, K3 and K5 and the other rewriter kinds run to the full suite.",
+   "why": "Whole-paragraph cases of up to 48 sentences cost seconds per call on the CPU.",
+   "effect": "K3 rewriter intervals are wider; the stage-100 stratified sample holds every length stratum."
   }
  ]
 }

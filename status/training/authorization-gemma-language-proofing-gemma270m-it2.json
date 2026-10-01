@@ -1,0 +1,54 @@
+{
+ "format": "chatsop-training-authorization-v1",
+ "authorization": "explicit-user-approval",
+ "approved": true,
+ "approved_by": "user",
+ "approved_at": "2026-09-30T17:32:38.274Z",
+ "instruction": "Owner approves 1-2 overnight fine-tuning iterations of Gemma 3 270M; more examples via omp/DeepSeek: Owner 2026-09-30 evening, before leaving for the night: 1-2 training iterations of the small Gemma (Gemma 3 270M) are approved. No move to a larger model unless there is clear evidence that 270M cannot learn more. If it can still learn, generate more examples with omp + DeepSeek flash. Scope: the proofing LLMs (LanguageProofingLLM on bad_english first, then SymbolicProofingLLM on neuro_english if its targets are ready), with the usual gates: preregistration, dry run, staged early stopping, evaluation on the sealed tests and the composed per-sentence suites.",
+ "journal_event": {
+  "file": "status/journal.jsonl",
+  "ts": "2026-09-30T17:32:38.274Z",
+  "actor": "orchestrator"
+ },
+ "further_decisions": [
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T17:41:07.339Z",
+   "actor": "orchestrator",
+   "title": "Owner allows parallel GPU training runs when faster than serial"
+  },
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T17:46:38.134Z",
+   "actor": "orchestrator",
+   "title": "Owner: the fallback base is Gemma 3 1B (LoRA), not Qwen"
+  },
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T19:58:29.661Z",
+   "actor": "orchestrator",
+   "title": "Owner: evaluate layer by layer; for now NL and grammatical analysis, not SOP translation"
+  },
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T22:48:59.650Z",
+   "actor": "orchestrator",
+   "title": "Owner: remove Qwen3-1.7B from the chat; compare proofing LLMs only on our synthetic data and against their untrained base"
+  },
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T22:54:36.651Z",
+   "actor": "orchestrator",
+   "title": "Night loop: LanguageProofingLLM iteration-2 data via DeepSeek back-generation with vocabulary coverage (owner 2026-10-01: iterate until morning so both proofing LLMs are very good)"
+  }
+ ],
+ "model": "gemma",
+ "run": "language-proofing-gemma270m-it2",
+ "role": "proofreader",
+ "qualification_sha256": "d65bed200ba9e6e12c733cd050683e4a0ed2e0cb1bb702c7373474ff8a69b11a",
+ "recipe_sha256": "ecc7fe047b1bd075721a51541d38f23610336973d8b2009802db271002d5b6c2",
+ "dataset_manifest_sha256": "7aab29b68ea83b9309f13c9f0b5fd73ab6920bc66930a57799b13ace5341de27",
+ "dataset_version_sha256": "c0027bd97efcc2519a4a246aedabbe54778c70c7bd0aaada0f59b2bbd1b88c1b",
+ "transcribed_by": "language-proofing-it2-agent",
+ "transcribed_at": "2026-10-01T01:46:03.678Z"
+}

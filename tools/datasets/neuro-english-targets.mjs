@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {cleanEnglishGate} from './clean-english.mjs';
-import {protectedItems, fold} from './bad-english-targets.mjs';
+import {protectedItems, fold} from '../eval/bad-english-targets.mjs';
 import {loadSpellfix} from '../../lib/languages-util/spellfix.mjs';
 import {defaultDictionary} from '../../sop/dictionary.mjs';
 

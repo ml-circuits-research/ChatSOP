@@ -3,11 +3,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import {archived, corpusDir, corpusNames, resolveDatasetPath, THREE_DATASETS, LEGACY_CORPORA, ARCHIVE_DIR} from '../lib/dataset-paths.mjs';
+import {archived, corpusDir, corpusNames, resolveDatasetPath, THREE_DATASETS, NATURAL_COLLECTION, LEGACY_CORPORA, ARCHIVE_DIR} from '../lib/dataset-paths.mjs';
 import {repoPath, tempDir} from './helpers.mjs';
 
-test('the first level of datasets/ holds only the three datasets (plus SOURCES.md)', () => {
-  assert.deepEqual(fs.readdirSync(repoPath('datasets')).sort(), [...THREE_DATASETS, 'SOURCES.md'].sort());
+test('the first level of datasets/ holds only the three datasets, the owner-message collection natural and SOURCES.md', () => {
+  assert.deepEqual(fs.readdirSync(repoPath('datasets')).sort(), [...THREE_DATASETS, NATURAL_COLLECTION, 'SOURCES.md'].sort());
 });
 
 test('legacy corpora live in datasets_archive/ and old stored paths resolve to them', () => {

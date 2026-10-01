@@ -14,7 +14,9 @@ const VALIDATORS = ['tools/datasets/validate.mjs', 'tools/datasets/verify-three-
 export const SEALED_AUDITORS = ['tools/datasets/audit-corpus.mjs', 'tools/datasets/audit/', 'tools/datasets/llm-diversify/sealed-guard.mjs'];
 /** Independently written, eval-only sealed suites (DS016): no generator produces them, no generator or training
  * source may name them, and they never have a `datasets/<name>/` training counterpart. */
-export const INDEPENDENT_SUITES = ['formalizer-wild-v1'];
+// Empty since the owner decision of 2026-09-30 (AGENTS.md rule 9): the legacy wild suite is archive and provenance, its rows are re-split across train, dev and test by
+// tools/eval/legacy-resplit.mjs; generators and training code still never read an `eval/suites/**` test file (the `forbidden` path check below).
+export const INDEPENDENT_SUITES = [];
 const isAuditor = file => SEALED_AUDITORS.some(entry => entry.endsWith('/') ? file.startsWith(entry) : file === entry);
 const forbidden = /(?:eval\/suites\/[^\s'"`)]*\/test\.jsonl|datasets\/[^\s'"`)]*\/test\.jsonl|(?:eval\/suites|datasets)[^\s'"`)]*\/test\.jsonl)/;
 const io = /\b(?:readFileSync|readFile|createReadStream|openSync|open|read_text|open\s*\()\s*\(/g;
@@ -66,7 +68,8 @@ export function auditTrainingSelection(root) {
   return { files, observed_splits, violations };
 }
 
-export function auditSourceBoundary(root) {
+/** `independentSuites` names eval-only suites no generator or training source may name (default: `INDEPENDENT_SUITES`, currently none). */
+export function auditSourceBoundary(root, {independentSuites = INDEPENDENT_SUITES} = {}) {
   const files = generatorSources(root);
   const violations = [];
   if (!files.some(file => /^tools\/datasets\/build-[^/]+\.mjs$/.test(file))) violations.push('no tools/datasets/build-*.mjs generator found; the boundary audit would inspect nothing current');
@@ -87,7 +90,7 @@ export function auditSourceBoundary(root) {
     }
   }
   const training = auditTrainingSelection(root);
-  for (const suite of INDEPENDENT_SUITES) {
+  for (const suite of independentSuites) {
     if (fs.existsSync(path.join(root, 'datasets', suite))) violations.push(`datasets/${suite}: an independent eval-only suite must have no training or dev split`);
     for (const name of [...files, ...training.files]) if (fs.readFileSync(path.join(root, name), 'utf8').includes(suite)) violations.push(`${name}: generator/training source names the independent sealed suite ${suite}`);
   }

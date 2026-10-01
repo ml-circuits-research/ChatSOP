@@ -1,0 +1,19 @@
+{
+ "format": "chatsop-proofreader-projection-v1",
+ "corpus": "neuro_english/proofing-it2",
+ "prompt_profile": "message-only",
+ "created": "2026-10-01T00:15:36.307Z",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "note": "Byte-identical copies of ../train.jsonl and ../dev.jsonl in the layout training/cli.mjs expects for the role proofreader.",
+ "files": {
+  "proofreader/train.jsonl": {
+   "rows": 8890,
+   "sha256": "7ebfca69c1a61a50515992607e2e10c6f824302e2aa630e43a719d162d7512dc"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 1119,
+   "sha256": "cf2b73f4f3e67f8fb26cfb4da21d8fca80a100d44912b3d4a5e6a71cf1485545"
+  }
+ }
+}

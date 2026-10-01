@@ -4,34 +4,46 @@
  "split": "test",
  "sealed": true,
  "model": "SymbolicProofingLLM",
- "purpose": "Grammatically correct English that SymbolicLM does not analyse correctly, with a meaning-preserving rewrite that SymbolicLM does handle where one is known. Fine-tuning and evaluation material for SymbolicProofingLLM. Rows nobody can rewrite yet are kept and flagged no_target; rows failing only by gold convention are flagged and are not rewriting targets.",
+ "purpose": "Grammatically correct English whose SymbolicLM grammatical analysis is not correct (trees differ between the Stanza packages, or the DeepSeek parse judge says not good enough on condition a or c), with a meaning-preserving rewrite that SymbolicLM does handle where one is known. Fine-tuning and evaluation material for SymbolicProofingLLM. Rows nobody can rewrite yet are kept and flagged no_target. The SOP-layer result of every row is kept as sop_layer for the later layer.",
  "path": "eval/suites/neuro_english/test.jsonl",
- "rows": 1785,
- "sha256": "1b7a139e09fcbeadc4c09f9afadbcb6597b2bade8eb649247e0fa9934fada22e",
- "bytes": 9809893,
+ "rows": 1871,
+ "sha256": "c9846f665769943ded795ad053d5489a4acecee01bafe4cff989780122f3f3ae",
+ "bytes": 11144259,
  "counts": {
-  "rows": 1785,
+  "rows": 1871,
   "by_source": {
-   "formalizer-ood-v1": 83,
-   "formalizer-v1": 727,
-   "formalizer-wild-v1": 262,
-   "new_cases": 713
+   "formalizer-ood-v1": 32,
+   "formalizer-v1": 1245,
+   "formalizer-wild-v1": 32,
+   "new_cases": 562
   },
   "by_failure_kind": {
-   "gold_convention": 455,
-   "parser": 1,
-   "rules": 598,
-   "unknown": 731
+   "judge_a": 111,
+   "judge_ac": 40,
+   "judge_c": 51,
+   "trees_differ": 1417,
+   "unparsed_span": 252
   },
-  "with_target": 42,
+  "by_sop_layer": {
+   "match": 862,
+   "mismatch": 447,
+   "no_gold": 562
+  },
+  "by_sop_failure_kind": {
+   "gold_convention": 175,
+   "none": 1251,
+   "parser": 1,
+   "rules": 268,
+   "unknown": 176
+  },
+  "with_target": 40,
   "by_target_source": {
    "new_cases.clean": 34,
-   "none": 1743,
-   "proofing.repair": 7,
-   "regularization": 1
+   "none": 1831,
+   "proofing.repair": 6
   },
-  "rewrite_targets": 1330
+  "rewrite_targets": 1871
  },
  "sources": "eval/suites/{formalizer-v1,formalizer-ood-v1,formalizer-wild-v1,proofing} and the owner-sealed writers of datasets_sources/new_cases (rule 9: only here, never in train/dev)",
- "built_at": "2026-09-30T17:46:41.294Z"
+ "built_at": "2026-09-30T21:38:54.763Z"
 }

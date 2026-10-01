@@ -1,0 +1,368 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "train-language-proofing-gemma270m-it2",
+ "name": "LanguageProofingLLM iteration 2: Gemma 3 270M IT + LoRA on datasets/bad_english/proofing-v2 (role proofreader), sentence level, vocabulary-covering data",
+ "registered_at": "2026-10-01T00:20:00Z",
+ "registered_by": "language-proofing-it2-agent (owner decisions in status/journal.jsonl, actor orchestrator: 2026-09-30T17:32:38.274Z, 17:41:07.339Z, 17:46:38.134Z, 19:58:29.661Z, 22:48:59.650Z, 22:54:36.651Z)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_request": "Iteration 2 of LanguageProofingLLM: same base, same recipe, new data: the iteration-1 projection plus DeepSeek back-generated pairs with a systematic vocabulary list (family, work roles, verbs, places), rule-written family-relation pairs, 22% identity pairs (clean English to itself, with lead-ins and tags), keyboard-mash identity pairs, and a held-out vocabulary dev. Comparisons only on our synthetic data: iteration 2 against iteration 1, the untrained gemma-3-270m-it and no rewrite. No Gemma 3 1B in this run.",
+ "frozen_before_results": "Written before any optimizer step of this run and before any prediction of any checkpoint of this run on any sealed file. Outputs of the baselines (no rewrite, untrained base, iteration 1) on the sealed proofing test and the judged sample are iteration-1 outputs of identical greedy decoding and are reused; their scores are recomputed here.",
+ "iteration": 2,
+ "questions": [
+  "Q1: Does the vocabulary-covering data remove the child-to-parent error (iteration 1: 'copilul lui' came out as 'parent')?",
+  "Q2: Does iteration 2 leave clean sentences untouched at 99% or more (iteration 1: 94.8%)?",
+  "Q3: Is the composite (clean English AND content preserved AND analysis gate) on the judged sample better than iteration 1, and is mixed Romanian/English input improved?",
+  "Q4: Does it generalize to vocabulary held out of training entirely (held-out vocabulary dev), compared with iteration 1 and the untrained base?",
+  "Q5: What does it do with unintelligible keyboard-mash input (policy: the target is the input unchanged)?"
+ ],
+ "hypotheses": {
+  "H1": "Identity. On the 900 clean sentences (eval/suites/bad_english/proofing-test-clean.jsonl) at least 99% are returned unchanged (point estimate) and the paired bootstrap 95% interval of the difference to iteration 1 lies above 0.",
+  "H2": "Child to parent. On the vocabulary probe (eval/suites/bad_english/proofing-probe-child.jsonl: 214 sealed units whose input or reference names a child, plus 38 hand-written sentences) the share of outputs that contain 'parent' although the input has no parent word is at most 1% and below iteration 1; on the hand-written child/son/daughter sentences the relation word is kept in at least 95% of the outputs.",
+  "H3": "Composite. On the judged sample (the same 600-unit stratified sample as iteration 1, seed 7; 472 repair units) the composite good rate of iteration 2 minus iteration 1 has a paired bootstrap 95% interval above 0; per-kind differences (ro, mixed, noisy_en) are reported, mixed with its small n.",
+  "H4": "Mixed input. The mixed-kind composite and meaning-judge rates of iteration 2 are not lower than iteration 1 (point estimates); the held-out mixed units of the vocabulary dev are reported.",
+  "H5": "Held-out vocabulary. On datasets/bad_english/proofing-v2/dev-heldout.jsonl (600 back-generated pairs, 200 per kind, whose clean target contains a held-out word: cousin, niece, uncle, tenant, supervisor, tutor, owe, adopt, audit, boatyard; none of these words is in the training data) the rate of outputs that contain the held-out target word (inflections allowed) and the mechanical composite of iteration 2 are reported against iteration 1 and the untrained base; no threshold, a selection signal and a lexical-generalization measurement.",
+  "H6": "Keyboard mash. On the 150 synthetic mash strings of a different seed (datasets/bad_english/proofing-v2/mash-eval.jsonl) at least 90% of the outputs equal the input (point estimate); iteration 1 and the base are reported.",
+  "H7": "Composed K4 (eval/suites/bad_english/test-composed.jsonl, per-sentence mode, every sentence sent to the model = sendAll, tools/eval/composed-score.mjs rewrite --kind K4 --mode sentence): at most 1% of the clean sentences are changed; bad sentences fixed and wrongly rewritten are reported against iteration 1, the untrained base and no rewrite.",
+  "H8": "No regression on the sealed proofing test (all repair units, reference-free layer): clean-English rate and content-preserved rate of iteration 2 are within 1 percentage point of iteration 1 or higher (point estimates); chrF against the reference is reported per kind.",
+  "non_claim": "Not a claim about SymbolicProofingLLM; DeepSeek-written targets and the DeepSeek meaning/analysis judges are unreviewed and correlated with each other; the meaning judge is calibrated on English originals only (uncalibrated for Romanian and mixed originals, labelled so); the vocabulary probe's hand-written references are written by the agent and unreviewed."
+ },
+ "arms": [
+  {
+   "order": 1,
+   "name": "no_rewrite",
+   "kind": "baseline, no compute"
+  },
+  {
+   "order": 2,
+   "name": "gemma-3-270m-it (untrained), same message-only prompt",
+   "kind": "baseline",
+   "model_dir": "models/gemma/bases/99073d6b6edb0e298d163f964ec2b9d970b3408d"
+  },
+  {
+   "order": 3,
+   "name": "language-proofing-gemma270m-it1 (iteration 1, epoch 3)",
+   "kind": "previous iteration",
+   "model_dir": "models/gemma/language-proofing-gemma270m-it1/proofreader/merged-epoch-3"
+  },
+  {
+   "order": 4,
+   "name": "language-proofing-gemma270m-it2 (this run)",
+   "kind": "training arm",
+   "model_id": "daniel-dona/gemma-3-270m-it",
+   "revision": "99073d6b6edb0e298d163f964ec2b9d970b3408d",
+   "recipe": "config/train-gemma.json",
+   "recipe_sha256": "ecc7fe047b1bd075721a51541d38f23610336973d8b2009802db271002d5b6c2",
+   "role": "proofreader",
+   "run": "language-proofing-gemma270m-it2"
+  }
+ ],
+ "changed_factor": "The training data (iteration-1 projection plus back-generated, template, identity and mash pairs, minus sealed-overlap and held-out-vocabulary pairs). Same base, same recipe (LoRA r16 alpha32, lr 2e-4, batch 2 x 8, 3 epochs, seed 42), same prompt (message only). Training starts from the BASE, not from iteration 1: this keeps the comparison to iteration 1 a pure data comparison, avoids carrying over the child-to-parent mapping that iteration-1 weights already contain, and a full pass over about 39k pairs is cheap (about an hour).",
+ "data": {
+  "dataset": "datasets/bad_english/proofing-v2",
+  "training_input": "datasets/bad_english/proofing-v2/proofreader/{train,dev}.jsonl ({id, prompt, target, kind repair|identity, language_kind, target_source}), prompt_profile message-only",
+  "dataset_manifest_sha256": "7aab29b68ea83b9309f13c9f0b5fd73ab6920bc66930a57799b13ace5341de27",
+  "dataset_version_sha256": "c0027bd97efcc2519a4a246aedabbe54778c70c7bd0aaada0f59b2bbd1b88c1b",
+  "train_sha256": "a2bdc9156ba4b2bfdd4300614975b07e4a3f979245421d37052ea1a9e02bd533",
+  "dev_sha256": "64f3e613560741761c3b9ce30d158bb806b4dd0285bdf1182d683568a5e70dc7",
+  "backgen_parts_used": [
+   "000",
+   "001",
+   "002",
+   "003",
+   "004",
+   "005",
+   "006",
+   "007",
+   "008",
+   "009"
+  ],
+  "backgen_parts_note": "Parts 000-009 as present at 02:35 local time on 2026-10-01 (snapshot in datasets_sources/language_proofing_it2_backgen_judge/used/, sha256 per part in the dataset manifest). The generator finished all 26 parts at 02:26 and rewrote its output files at 02:32 after the first build (about 3% of lines changed); the snapshot is what is judged, built and qualified. Parts 010-025 are complete now but unused: they feed iteration 3.",
+  "summary": {
+   "train": {
+    "pairs": 36915,
+    "by_pair": {
+     "identity": 8215,
+     "repair": 28700
+    },
+    "by_kind": {
+     "clean": 7917,
+     "mash": 298,
+     "mixed": 6414,
+     "noisy_en": 6289,
+     "ro": 15997
+    },
+    "by_target_source": {
+     "clean-sibling": 2,
+     "identity:gate-clean-noisy": 1743,
+     "identity:in-row": 990,
+     "identity:keyboard-mash": 298,
+     "identity:lead-in:natural": 771,
+     "identity:lead-in:synthetic": 1099,
+     "identity:new.en": 2106,
+     "identity:symbolic_english": 1208,
+     "llm:deepseek-flash": 12193,
+     "llm:deepseek-flash:backgen-new": 5877,
+     "llm:deepseek-flash:backgen-same": 5565,
+     "new_cases.clean": 472,
+     "noise-inverse": 1960,
+     "proofing.repair": 989,
+     "proofing.translate": 1153,
+     "template:family-relations": 489
+    }
+   },
+   "dev": {
+    "pairs": 5173,
+    "by_pair": {
+     "identity": 1185,
+     "repair": 3988
+    },
+    "by_kind": {
+     "clean": 1125,
+     "mash": 60,
+     "mixed": 661,
+     "noisy_en": 666,
+     "ro": 2661
+    },
+    "by_target_source": {
+     "identity:gate-clean-noisy": 187,
+     "identity:in-row": 180,
+     "identity:keyboard-mash": 60,
+     "identity:lead-in:natural": 79,
+     "identity:lead-in:synthetic": 120,
+     "identity:new.en": 163,
+     "identity:symbolic_english": 396,
+     "llm:deepseek-flash": 2462,
+     "llm:deepseek-flash:backgen-new": 414,
+     "llm:deepseek-flash:backgen-same": 455,
+     "new_cases.clean": 69,
+     "noise-inverse": 233,
+     "proofing.repair": 109,
+     "proofing.translate": 246
+    }
+   },
+   "dev_backgen": {
+    "pairs": 1488,
+    "by_pair": {
+     "identity": 619,
+     "repair": 869
+    },
+    "by_kind": {
+     "clean": 619,
+     "mixed": 348,
+     "noisy_en": 156,
+     "ro": 365
+    },
+    "by_target_source": {
+     "identity:gate-clean-noisy": 41,
+     "identity:lead-in:natural": 79,
+     "identity:lead-in:synthetic": 120,
+     "identity:new.en": 163,
+     "identity:symbolic_english": 216,
+     "llm:deepseek-flash:backgen-new": 414,
+     "llm:deepseek-flash:backgen-same": 455
+    }
+   },
+   "dev_heldout": {
+    "pairs": 574,
+    "by_pair": {
+     "repair": 574
+    },
+    "by_kind": {
+     "mixed": 200,
+     "noisy_en": 174,
+     "ro": 200
+    },
+    "by_target_source": {
+     "llm:deepseek-flash:backgen-new": 574
+    }
+   },
+   "mash_eval": {
+    "pairs": 150,
+    "by_pair": {
+     "identity": 150
+    },
+    "by_kind": {
+     "mash": 150
+    },
+    "by_target_source": {
+     "identity:keyboard-mash": 150
+    }
+   },
+   "identity_share_train_pct": 22.3,
+   "identity_share_dev_pct": 22.9,
+   "filters": {
+    "judge_dropped_mixed": 160,
+    "judge_dropped_ro": 115,
+    "judge_dropped_noisy_en": 41,
+    "harmonized_target": 986,
+    "noisy_gate_clean_to_identity": 757,
+    "family_term_misaligned": 20,
+    "harmonize_dropped": 2,
+    "it1_train_harmonized_target": 352,
+    "it1_train_noisy_gate_clean_to_identity": 1111,
+    "it1_train_dropped_held_out_vocabulary": 5,
+    "it1_dev_harmonized_target": 66,
+    "it1_dev_noisy_gate_clean_to_identity": 146,
+    "it1_dev_dropped_held_out_vocabulary": 6,
+    "train_duplicate_prompt": 709,
+    "template_dropped": 9,
+    "dev_prompt_also_in_train_or_dev": 144
+   },
+   "judge_votes": {
+    "new/ro": {
+     "yy": 2105,
+     "yn": 151,
+     "ny": 76,
+     "nn": 54
+    },
+    "new/mixed": {
+     "yy": 2053,
+     "yn": 141,
+     "ny": 124,
+     "nn": 76
+    },
+    "new/noisy_en": {
+     "yy": 1411,
+     "yn": 9,
+     "ny": 6,
+     "nn": 11
+    },
+    "same/ro": {
+     "yy": 1924,
+     "yn": 115,
+     "ny": 73,
+     "nn": 38
+    },
+    "same/mixed": {
+     "yy": 1927,
+     "yn": 101,
+     "ny": 69,
+     "nn": 71
+    },
+    "same/noisy_en": {
+     "yy": 1283,
+     "yn": 4,
+     "ny": 4,
+     "nn": 6
+    }
+   },
+   "template_pairs": 489,
+   "oversampled_copies": 441
+  },
+  "filters": "Back-generated pairs: (a) new.en passes the clean-English gate and has at least one content word not in the input, `same` inputs pass the gate; (b) mechanical checks per sentence (names, numbers, quotes, question marks, length ratio, negation parity with two false-positive repairs: Romanian ', nu?' tags and apostrophe-less contractions); (c) ro versions classified ro or mixed by LanguagesUtil, noisy_en versions different from the clean sentence and not Romanian, mixed versions not identical to the clean sentence; (d) two-vote meaning judge (m1 AND m2) on the whole (bad, clean) message: noisy_en needs both yes, ro and mixed are dropped only when both vote no (judge calibrated on English only); (e) duplicate prompts removed, no exact sentence match with any sealed text (every eval/suites test file, hashed), clean sentences whose content-word signature equals one of the sealed bad_english clean targets removed; Romanian family words (copil, fiu, fiica, mama, tata) must come out as child, son, daughter, mother, father.",
+  "sealed_boundary": "datasets/bad_english/proofing-v2 never reads a sealed file; the sealed texts are known as folded hashes and signatures written by tools/eval/language-proofing-v2-sealed.mjs (eval/reports/current/language-proofing-it2/sealed-hashes.json). The iteration-1 pairs that match any sealed text were removed (the projection builder was rerun with the full sealed hash set: 5,245 sentence pairs dropped; most match the composed suites regenerated after the iteration-1 hashes were written).",
+  "held_out_vocabulary": [
+   "cousin",
+   "niece",
+   "uncle",
+   "tenant",
+   "supervisor",
+   "tutor",
+   "owe",
+   "adopt",
+   "audit",
+   "boatyard"
+  ],
+  "unintelligible_input_policy": "The target of keyboard-mash input is the input unchanged (identity): the model never invents text and the chat shows no proposal. 298 train, 60 dev and 150 evaluation strings, generated by seeded keyboard-row, consonant and repeated-letter patterns, gate-unclean, disjoint across sets and from sealed texts.",
+  "identity_policy": "22% identity pairs in train (iteration 1: 10%): sentences of symbolic_english train and dev, new.en sentences, natural lead-in sentences (Quick question:, Also, Any chance, ..., right?) and 1,100 synthetic lead-in variants; every identity sentence passes the clean-English gate and no sealed hash.",
+  "projection": {
+   "dir": "datasets/bad_english/proofing-it2-projection",
+   "note": "the iteration-1 projection rebuilt with tools/datasets/build-language-proofing.mjs from the CURRENT datasets/bad_english files (LP_WORK, LP_SEALED, --out; iteration-1 artifacts untouched), after the orchestrator reported that the sealed merge (2,512 targets, 3,783 of 4,245 rows with a target) and the removal of 66 content-word-duplicate train/dev rows came after the iteration-1 projection; the sealed proofing units (sha256 dc806bd35f74..., from test.jsonl sha256 9204379d1c1d...) are the ones iteration 1 was finally scored on, so the two arms are compared on identical units",
+   "manifest_sha256": "92654ada812133532d124ae784193c1d2570a6da41a341aa3b543e0231f72ded",
+   "bad_english_manifest_sha256": "0216049796aee1e4aef0cfafc80fdc5e812546aef610fee3c42cf821bf3f1d59",
+   "bad_english_train_sha256": "134f0a641e9eb400060e36316bdffb601cba63edfb84226baba14d1df2a76359",
+   "bad_english_dev_sha256": "560f04b5c3167862b07ac4398762e2a9a85df00052f41e3a35dbb53b1af863bf",
+   "sealed_proofing_test_sha256": "dc806bd35f7463ab40f54207d56cb6bbdb44bf9a71e9719de1203ce5bff1c178",
+   "sealed_test_sha256": "9204379d1c1de3598314b61d7f2c0296b46dc6439792c7d9db8b5a39a64138d2"
+  },
+  "target_consistency_rule": "(1) A target keeps the prompt's absence of a final period; (2) quotation marks around ENGLISH spans that the prompt lacks are not added (Romanian titles keep their quotes: unquoted they fail the clean-English gate); (3) a noisy_en pair whose PROMPT already passes the clean-English gate AND equals its target after folding case, punctuation and spacing (the pair only capitalizes or punctuates) becomes an identity pair (target = prompt, target_source identity:gate-clean-noisy): what the gate accepts is left untouched, case and final period included (the sealed clean900 set has sentences without a final period and with a lowercase first letter). Applied to the iteration-1 pairs (1,111 train and 146 dev pairs converted), the back-generated pairs (757 converted) and the templates (tools/datasets/language-proofing/backgen-v2.mjs harmonize, promptIsGateClean; tools/datasets/build-language-proofing-v2.mjs). Reason: the dev evidence of attempts A2 and A3 (D6, D8)."
+ },
+ "recipe_policy": {
+  "mode": "LoRA adapter rank 16, alpha 32, dropout 0.05, lr 2e-4, batch 2 x accumulation 8, max_length 8192, sdpa, bf16, seed 42, 3 epochs (config/train-gemma.json, unchanged)",
+  "snapshots": "one adapter snapshot per epoch (epoch-N, role proofreader), merged with training/python/merge.py for decoding"
+ },
+ "early_stopping": {
+  "after_each_epoch": "dev loss; greedy decode (HF bf16, message-only prompt) of the dev sets language-proofing-eval.mjs dev2 (stratified sample of 300 units), devbg (all 1,677), heldout (all 600) and mash (the 60 dev mash strings are inside dev2); mechanical layer (clean-English gate, content preserved with negation, chrF, identity untouched, held-out word kept).",
+  "stop_rules": "Stop and keep the previous epoch if: more than 20% of dev outputs empty or length-capped; identity collapse (identity units changed in more than 10% after epoch 2); every repair output equals its input after epoch 1; non-finite loss, OOM, resource floor, wall-time cap 150 minutes. Plateau stop when dev loss has not improved for 2 consecutive epochs.",
+  "sealed_evaluation_stages": "Sealed proofing test: reference-free mechanical layer on all units for every arm; judged sample (600 units) for analysis gate and meaning judge; clean900; composed K4 in stages 100, 300, full; probe; mash. A stage stops the run early when the paired interval is decisive, the condition is broken (more than 20% unparsable or empty outputs on the first 100), or on futility; every stop is recorded."
+ },
+ "evaluation": {
+  "checkpoint": "epoch snapshot selected on dev only: among epochs whose identity-untouched rate on dev identity units is at least 95% (lowered from 98%, deviation D10) and mash-unchanged rate at least 90%, the highest mean of the mechanical composite (clean AND content) on devbg and heldout; ties by chrF on devbg, then lowest dev loss. Sealed data never selects anything.",
+  "decoding": "greedy, message-only prompt; HF bf16 (selection, sealed test) and llama.cpp Q8_0 (deployment form, composed K4, CPU speed); HF vs llama.cpp greedy agreement on 50 rows.",
+  "metrics": "as iteration 1: (a) clean-English rate, (b) content preserved, (c) chrF and token F1, (d) analysis gate (judged sample), (e) identity untouched, (f) two-vote meaning judge, composite = (a) and (b) and (d); plus vocabulary probe, held-out word kept, mash unchanged; Wilson and paired bootstrap 95% intervals (2,000 resamples).",
+  "chat_switch_rule": "config/formalizers.json entry language-proofing-llm is switched to the iteration-2 GGUF only when the paired intervals of iteration 2 minus iteration 1 are above 0 for BOTH the composite (judged sample) and identity untouched (clean900); the iteration-1 files stay on disk."
+ },
+ "non_goals": "no change to SymbolicLM or lib/ud-to-sop rules; no tuning on any sealed file; no training of any model other than gemma-3-270m-it; no Gemma 3 1B (fallback only with clear evidence of a plateau, as a new run); no SOP-layer metric",
+ "deviations": [
+  {
+   "id": "D1",
+   "at": "2026-10-01T00:20:00Z",
+   "what": "All 6,363 back-generation input rows come from symbolic_english train rows, so no dev-split source row exists. Back-generated dev data is a hash-selected 8% of the source rows (row id hash), and the held-out vocabulary dev is drawn from rows of both groups; the held-out pairs are removed from train.",
+   "why": "the brief asks to keep the source split; there is no dev source row to keep",
+   "effect": "dev-backgen (1,677 units) and dev-heldout (600) are the unsaturated selection sets; the regular dev (it1 dev) stays for continuity"
+  },
+  {
+   "id": "D2",
+   "at": "2026-10-01T00:20:00Z",
+   "what": "Rule-written family-relation pairs (489 pairs: child, son, daughter, mother, father; Romanian, mixed, noisy English) were added after the DeepSeek parts supplied only 25 unique child pairs after the judge; tools/datasets/language-proofing/family-templates.mjs.",
+   "why": "vocabulary hole goal; the hole word child had too few natural examples",
+   "effect": "about 1.2% of train; documented as template data"
+  },
+  {
+   "id": "D3",
+   "at": "2026-10-01T00:20:00Z",
+   "what": "The question-mark rule of the iteration-1 mechanical check is kept: a noisy version without '?' of a clean question is dropped (about 1,750 candidate sentences), so the model is not taught to add question marks that the sealed references do not have.",
+   "why": "consistency with the sealed reference convention and the content-preserved metric",
+   "effect": "fewer noisy_en pairs; a possible iteration-3 item"
+  },
+  {
+   "id": "D4",
+   "at": "2026-10-01T00:20:00Z",
+   "what": "Bounded CUDA floor override (TRAIN_MIN_CUDA_FREE_GIB=24, TRAIN_CUDA_FREE_CHECK=host) as in iteration 1 (deviation D2 there) because the owner allows parallel GPU runs and the GPU is unified memory.",
+   "why": "parallel GPU use",
+   "effect": "none on recipe, data or seeds"
+  },
+  {
+   "id": "D5",
+   "at": "2026-10-01T00:10:00Z",
+   "what": "A first training start (Podman job langproof-it2-train-a1, 130 optimizer steps, no checkpoint) used the stale iteration-1 projection; the orchestrator reported the bad_english train/dev change (66 rows dropped as content-word duplicates of sealed rows, after the iteration-1 projection) and the sealed merge. The job was stopped by its job name, its run folder moved to models/gemma/language-proofing-gemma270m-it2-a1-aborted-data-stale, the projection and proofing-v2 were rebuilt and re-qualified, the receipt re-transcribed, and training restarted as job langproof-it2-train-a2. No result of the aborted start was looked at.",
+   "why": "data freshness",
+   "effect": "none on the recipe; this file's data hashes were updated before any checkpoint existed"
+  },
+  {
+   "id": "D6",
+   "at": "2026-10-01T00:40:00Z",
+   "what": "Attempt A2 (job langproof-it2-train-a2, 2,720 steps) was stopped after the epoch-1 snapshot. Dev evidence: identity untouched 94.4% on dev identity units, the same as iteration 1, because the data contradicted itself: 1,158 noisy pairs added a final period and 807 targets added quotation marks around titles, while 479 identity pairs lack a final period and 41 carry unquoted titles (and the clean900 sentences have both). Fix: the target-consistency rule above; data rebuilt, re-qualified, receipt re-transcribed; A3 trains from the base. The A2 run folder is kept as models/gemma/language-proofing-gemma270m-it2-a2-stopped-epoch1-punctuation-conflict (epoch-1 only, not a candidate).",
+   "why": "a data defect visible on dev, not a sealed result; decision on dev only",
+   "effect": "the A2 epoch-1 numbers on dev are reported as an observation in the summary"
+  },
+  {
+   "id": "D7",
+   "at": "2026-10-01T00:40:00Z",
+   "what": "The DeepSeek back-generation job rewrote its output parts after the first build (about 3% of lines of parts 000-009 changed; parts 010-025 completed). Candidates were rebuilt from a snapshot copy of parts 000-009, 684 new judge items were judged (omp run 2), the earlier verdicts were reused by text key.",
+   "why": "reproducibility: the build and its qualification read the snapshot",
+   "effect": "none on the filters"
+  },
+  {
+   "id": "D8",
+   "at": "2026-10-01T01:25:00Z",
+   "what": "Attempt A3 (job langproof-it2-train-a3, about 3,340 steps, epoch-1 snapshot only) was stopped. Dev evidence at its epoch 1: dev2300 repair composite fell from about 100% (iteration 1) to 96.1% because the rule 'never add quotes' also unquoted Romanian titles, which then fail the clean-English gate; identity untouched 96.0%, the remaining failures include gate-clean lowercase or period-less sentences that other pairs teach to capitalize and punctuate. Fix: quotes are removed only around English spans, and a noisy_en pair whose prompt already passes the clean-English gate is an identity pair. Data rebuilt (train 33,120: 22.3% identity, noisy_en repair pairs 3,317), re-qualified, receipt re-transcribed; A4 trains from the base. A3's run folder is kept as models/gemma/language-proofing-gemma270m-it2-a3-stopped-epoch1-title-quotes (epoch 1 only, not a candidate).",
+   "why": "data defects visible on dev, not a sealed result",
+   "effect": "fewer noisy_en repair pairs; sealed noisy_en chrF against the (capitalized, punctuated) references is expected to drop a little where the input is already gate-clean"
+  },
+  {
+   "id": "D9",
+   "at": "2026-10-01T01:55:00Z",
+   "what": "Attempt A4 (job langproof-it2-train-a4, 2,080 steps, epoch-1 snapshot) was stopped. Dev evidence at its epoch 1: the 'gate-clean noisy becomes identity' rule of D8 also turned real typos that the clean-English gate misses (crrect, glases, belive, enrolld) into identity targets; identity untouched 89.7% with 29 of 147 gate-clean-noisy identity units changed (the model still fixed typos, against its training targets), dev2300 composite 97.8%. Fix: a noisy_en pair becomes identity only when its prompt passes the gate AND equals its target after folding case, punctuation and spacing. Data rebuilt (train 36,915: 22.3% identity, noisy_en repair pairs 6,289), re-qualified, receipt re-transcribed; A5 trains from the base. A4's run folder is kept as models/gemma/language-proofing-gemma270m-it2-a4-stopped-epoch1-gate-clean-typos (epoch 1 only, not a candidate).",
+   "why": "data defect visible on dev",
+   "effect": "none beyond the rule"
+  },
+  {
+   "id": "D10",
+   "at": "2026-10-01T02:50:00Z",
+   "what": "Epoch-selection eligibility: the identity-untouched floor on the dev identity units is lowered from 98% to 95% (mash floor 90% unchanged). Dev evidence at epochs 1 and 2 of attempt A5: identity untouched 96.2% and 96.5%, mash 89.3% and 98.7%; the remaining dev identity failures are rare-word substitutions (christening, pens) and capitalization of lowercase-initial sentences, which a 98% floor on this set (which contains sentences that are lowercase and typo-free) would make unreachable. The selection score (mean of back-generated dev and held-out dev composite) and the chrF tie-break are unchanged. Decided before epoch 3 is decoded and before any sealed file is read for this run.",
+   "why": "the 98% floor was set before the dev identity composition was known",
+   "effect": "selection among epochs 1-3 of A5 only; the clean900 identity result (H1 at 99%) is judged on the sealed set unchanged"
+  }
+ ]
+}

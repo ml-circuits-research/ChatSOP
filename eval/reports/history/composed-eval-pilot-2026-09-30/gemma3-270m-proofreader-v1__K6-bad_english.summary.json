@@ -1,0 +1,165 @@
+{
+ "label": "gemma3-270m-proofreader-v1 K6 bad_english",
+ "generated_at": "2026-09-30T16:56:05.831Z",
+ "stages": [
+  {
+   "stage": 22,
+   "cases": 22,
+   "errors": 0,
+   "changed": {
+    "k": 9,
+    "n": 22,
+    "p": 40.9,
+    "lo": 23.3,
+    "hi": 61.3
+   },
+   "output_sentence_count_matches": {
+    "all": {
+     "k": 1,
+     "n": 22,
+     "p": 4.5,
+     "lo": 0.8,
+     "hi": 21.8
+    },
+    "by": {
+     "coordination": {
+      "k": 0,
+      "n": 19,
+      "p": 0,
+      "lo": 0,
+      "hi": 16.8
+     },
+     "multiple_questions": {
+      "k": 1,
+      "n": 2,
+      "p": 50,
+      "lo": 9.5,
+      "hi": 90.5
+     },
+     "subordinate_clause": {
+      "k": 0,
+      "n": 1,
+      "p": 0,
+      "lo": 0,
+      "hi": 79.3
+     }
+    }
+   },
+   "output_at_least_expected_sentences": {
+    "k": 1,
+    "n": 22,
+    "p": 4.5,
+    "lo": 0.8,
+    "hi": 21.8
+   },
+   "every_sentence_within_contract": {
+    "all": {
+     "k": 0,
+     "n": 22,
+     "p": 0,
+     "lo": 0,
+     "hi": 14.9
+    },
+    "by": {
+     "coordination": {
+      "k": 0,
+      "n": 19,
+      "p": 0,
+      "lo": 0,
+      "hi": 16.8
+     },
+     "multiple_questions": {
+      "k": 0,
+      "n": 2,
+      "p": 0,
+      "lo": 0,
+      "hi": 65.8
+     },
+     "subordinate_clause": {
+      "k": 0,
+      "n": 1,
+      "p": 0,
+      "lo": 0,
+      "hi": 79.3
+     }
+    }
+   },
+   "every_sentence_handled_by_symbolic_lm": {
+    "all": {
+     "k": 9,
+     "n": 22,
+     "p": 40.9,
+     "lo": 23.3,
+     "hi": 61.3
+    },
+    "by": {
+     "coordination": {
+      "k": 8,
+      "n": 19,
+      "p": 42.1,
+      "lo": 23.1,
+      "hi": 63.7
+     },
+     "multiple_questions": {
+      "k": 1,
+      "n": 2,
+      "p": 50,
+      "lo": 9.5,
+      "hi": 90.5
+     },
+     "subordinate_clause": {
+      "k": 0,
+      "n": 1,
+      "p": 0,
+      "lo": 0,
+      "hi": 79.3
+     }
+    }
+   },
+   "exact_target": {
+    "k": 1,
+    "n": 22,
+    "p": 4.5,
+    "lo": 0.8,
+    "hi": 21.8
+   },
+   "preserved": {
+    "names": {
+     "k": 22,
+     "n": 24,
+     "p": 91.7,
+     "lo": 74.2,
+     "hi": 97.7
+    },
+    "numbers": {
+     "k": 2,
+     "n": 2,
+     "p": 100,
+     "lo": 34.2,
+     "hi": 100
+    },
+    "negations": {
+     "k": 4,
+     "n": 4,
+     "p": 100,
+     "lo": 51,
+     "hi": 100
+    },
+    "connectives": {
+     "k": 21,
+     "n": 21,
+     "p": 100,
+     "lo": 84.5,
+     "hi": 100
+    }
+   },
+   "sop_equals_gold": {
+    "k": 0,
+    "n": 0,
+    "p": null,
+    "lo": null,
+    "hi": null
+   }
+  }
+ ]
+}

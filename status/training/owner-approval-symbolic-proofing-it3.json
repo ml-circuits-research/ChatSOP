@@ -1,0 +1,71 @@
+{
+  "format": "chatsop-owner-approval-scope-v1",
+  "journal_event": {
+    "file": "status/journal.jsonl",
+    "ts": "2026-10-01T08:47:38.988Z",
+    "area": "training",
+    "state": "decision",
+    "actor": "orchestrator",
+    "title": "Owner approves SymbolicProofingLLM it3 training on the decomposition data"
+  },
+  "further_decisions": [
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T17:40:03.714Z",
+      "actor": "orchestrator",
+      "title": "Owner: SymbolicProofingLLM first, LanguageProofingLLM second"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T17:41:07.339Z",
+      "actor": "orchestrator",
+      "title": "Owner allows parallel GPU training runs when faster than serial"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T17:46:38.134Z",
+      "actor": "orchestrator",
+      "title": "Owner: the fallback base is Gemma 3 1B (LoRA), not Qwen"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T19:58:29.661Z",
+      "actor": "orchestrator",
+      "title": "Owner: evaluate layer by layer; for now NL and grammatical analysis, not SOP translation"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T20:21:53.090Z",
+      "actor": "orchestrator",
+      "title": "Incident: symbolic/neuro split used SOP match instead of the grammatical analysis (dataset membership is decided by the analysis layer)"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T22:48:59.650Z",
+      "actor": "orchestrator",
+      "title": "Owner: remove Qwen3-1.7B from the chat; compare proofing LLMs only on our synthetic data and against their untrained base"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T22:54:36.651Z",
+      "actor": "orchestrator",
+      "title": "Night loop (owner 2026-10-01: iterate until morning so both proofing LLMs are very good)"
+    }
+  ],
+  "approved_models": [
+    "gemma"
+  ],
+  "role": "proofreader",
+  "experiment": "train-symbolic-proofing-gemma270m-it3",
+  "order": "ONE run symbolic-proofing-gemma270m-it3: Gemma 3 270M IT only (LoRA), from the BASE, recipe config/train-gemma-fast.json (micro-batch 16 x accumulation 1, effective batch 16, the it2 recipe otherwise unchanged), on datasets/neuro_english/proofing-it3-mix (proofing-it3 plus the decomposition top-up proofing-it3-decomp). One GPU training job at a time: queued behind the gloss LanguageProofingLLM run. Evaluation by inference only. The chat and config/formalizers.json are NOT switched by this run. No other training.",
+  "corpus": "neuro_english/proofing-it3-mix",
+  "conditions": [
+    "the dataset qualification record status/training/qualification-symbolic-proofing-it3-mix.json is status 'qualified'",
+    "preregistration status/preregistrations/train-symbolic-proofing-gemma270m-it3.json is frozen before any optimizer step",
+    "one GPU training job at a time (models/.training.lock)",
+    "owner rule: when the judges disagree on S3/S4 the case is excusable ambiguity, reported separately, not counted as a model failure"
+  ],
+  "owner_quote": "da, aprob, vei ce iese, ... facem ce putem, daca nu dureaza foarte mult merita it3 (owner, chat, 2026-10-01; verbatim in the journal event above)",
+  "receipts": "CHATSOP_ACTOR=sp-it3-agent node tools/research/qualify-neuro-proofing.mjs --authorize gemma --run symbolic-proofing-gemma270m-it3 --decision-ts 2026-10-01T08:47:38.988Z --scope status/training/owner-approval-symbolic-proofing-it3.json --qualification status/training/qualification-symbolic-proofing-it3-mix.json --recipe config/train-gemma-fast.json",
+  "scope_written_by": "sp-it3-agent, from the orchestrator brief that cites the journal event above"
+}

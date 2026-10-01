@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /** Clean-English targets for bad_english rows that have none (owner task 2026-09-30, done by an external LLM agent).
  *
- *   node tools/datasets/bad-english-targets.mjs export   [--dir datasets_sources/bad_english_targets] [--chunk 500]
- *   node tools/datasets/bad-english-targets.mjs validate [--dir datasets_sources/bad_english_targets] [--file part-000.jsonl]
+ *   node tools/eval/bad-english-targets.mjs export   [--dir datasets_sources/bad_english_targets] [--chunk 500]
+ *   node tools/eval/bad-english-targets.mjs validate [--dir datasets_sources/bad_english_targets] [--file part-000.jsonl]
  *
  * `export` writes the rows of datasets/bad_english/{train,dev}.jsonl and eval/suites/bad_english/test.jsonl that have
  * no target as `<dir>/input/part-NNN.jsonl` lines `{id, kind, message}` (no split, no gold SOP: the translator sees
@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {readJsonlShardedSync} from '../../lib/jsonl-shards.mjs';
-import {cleanEnglishGate} from './clean-english.mjs';
+import {cleanEnglishGate} from '../datasets/clean-english.mjs';
 import {loadSpellfix} from '../../lib/languages-util/spellfix.mjs';
 import {defaultDictionary} from '../../sop/dictionary.mjs';
 

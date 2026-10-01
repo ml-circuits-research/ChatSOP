@@ -322,6 +322,8 @@ def main():
             if state['best_dev_loss'] is None or val<state['best_dev_loss']:
                 state['best_dev_loss']=val
                 if a.role!='formalizer':checkpoint('best')
+            # a text-target role keeps one adapter snapshot per epoch so that an external development decode (scored by the oracle) can select among epochs
+            if a.role=='proofreader':checkpoint(f'epoch-{epoch+1}')
             # `select_final_only` scores the development split once, after the last epoch, so `best` is the final
             # checkpoint and its development score is still computed and recorded.
             if not cfg.get('select_final_only') or epoch==epochs-1 or state['step']>=total:semantic_select()

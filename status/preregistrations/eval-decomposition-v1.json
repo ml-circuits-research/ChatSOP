@@ -1,0 +1,50 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-decomposition-v1",
+ "name": "Decomposition of tangled sentences: a ~300-case sealed evaluation set, catastrophic and silent failures first, detectability as a dimension, baselines for SymbolicProofingLLM iteration 2",
+ "registered_at": "2026-10-01T07:20:00Z",
+ "registered_by": "decomp-agent",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_request": "Replace the 16-case K6 by a larger decomposition set (about 300 cases) and prepare targeted data for iteration 3. Owner nuances (binding): the analysis must never fail completely; we hunt CATASTROPHIC defects and meaning changes (silent meaning changes, role or negation flips, invented content, a dropped question or request the user would not notice in the I-understood summary); losing some indications or facts is tolerable when the failure is detectable and intelligible, because the interface can show what was understood and ask for clarification.",
+ "frozen_before_results": "Written after the suite was built (candidates, generated and certified expected decompositions, two-vote meaning judge) and before any arm was run or graded. The suite is sealed by construction: tangled rows of the sealed neuro_english test, plus DeepSeek tangled paraphrases of groups of sealed symbolic_english TEST sentences for the rare types. No training data is read.",
+ "hypotheses": {
+  "H1": "Sending every sentence to the iteration-2 model (it2-always) has a higher catastrophic rate (S4, upper estimate) than no rewrite on the tangled set, with the paired difference above 0.",
+  "H2": "The gated and certified pipeline (it2-gated: gate trees, acceptance certified) lowers the silent meaning change rate (S3 or S4 with no marker in the interpretation) against it2-always, and its catastrophic rate (upper) is at most that of no rewrite.",
+  "H3": "The gate and the acceptance check suppress most decomposition: it2-gated reaches the expected sentence count in at most 25% of the cases (K6 gave 2 of 16), against at least 35% for it2-always.",
+  "H4": "The partial-acceptance rule (it2-partial: certified output sentences are kept and the original unit follows, marked not represented) raises the share of cases that reach the expected sentence count by at least 10 points over it2-gated while its silent meaning change rate is at most 1 point above it2-gated.",
+  "H5": "Detectability: in the no-rewrite arm at least half of the failures S3 or worse are marked by the interpretation (a not-represented span or an uncertain sentence); the rest are the silent failures this evaluation exists to find."
+ },
+ "arms": [
+  "none: the message as it is",
+  "it2-always: every host-split unit sent to SymbolicProofingLLM it2 (GGUF Q8_0, llama-server on CPU, greedy, message-only prompt), every output accepted",
+  "it2-gated: a unit is sent only when its default and accurate Stanza trees differ; the output is accepted only when certified AND the mechanical meaning checks hold",
+  "it2-partial: gate trees; an output with some certified sentences keeps those and the original unit follows, marked not represented (host-side proposal, no change in lib/)"
+ ],
+ "definitions": {
+  "tangled": "more than one finite clause counted from the stored analysis (conj verbs, advcl, acl:relcl, ccomp or parataxis verbs), several questions, a run-on or a list; typed coordination, subordinate, relative, completive, multi_question, run_on, list (tools/eval/decomposition/tangle.mjs)",
+  "summary_S": "what the chat shows as I understood (lib/symbolic-lm/interpretation.mjs): the CNL of every verified sentence and the original wording of a sentence shown as uncertain",
+  "severity": "graded severity of lib/severity (S0 to S4, NONE) of the summary against the message: local mechanical and analysis layers, then the judges Grok (xai-oauth/grok-4.20-0309-non-reasoning) and GLM (zai/glm-5.3-flash); upper = the worse verdict, lower = the milder",
+  "catastrophic": "S4",
+  "failure": "S3 or S4 (S3 includes a dropped or changed question)",
+  "marker": "the interpretation marks a not-represented span, a sentence shown as uncertain or empty, or a partial-acceptance leftover",
+  "detectable_failure": "a failure while a marker is present",
+  "silent_meaning_change": "a failure with no marker (the primary quantity)",
+  "acceptable": "good enough (S0 to S2) or a detectable failure",
+  "expected_set": "expected decomposition = short sentences, explicit subject, connectives kept; certified by SymbolicLM (identical default and accurate trees on every sentence) and accepted when both meaning votes (Grok, GLM; severity prompt) are S0 or S1"
+ },
+ "evaluation": {
+  "set": "eval/suites/decomposition/test.jsonl (about 300 cases, stratified by type)",
+  "report": "tools/eval/decomposition-score.mjs; eval/reports/current/decomposition/summary.md",
+  "stats": "Wilson 95% on rates; paired comparisons between arms on the same cases (exact paired counts)"
+ },
+ "decision_rule": "No lib/ change from this experiment. If H4 holds the partial-acceptance rule is proposed to the pipeline owner (DS021, section Partial acceptance of a decomposition); if H1 and H2 hold the report recommends it2-gated over it2-always for tangled messages.",
+ "early_stopping": "Evaluation only, no training. The arms are deterministic post-processing of one cached set of greedy model outputs per unit; no staged sampling needed at 300 cases.",
+ "non_goals": "no training, no lib/ change, no tuning on the suite; the training data prepared for iteration 3 (datasets/neuro_english/proofing-it3-decomp) is prepared, not trained",
+ "deviations": [
+  "D1 (2026-10-01, owner decision relayed by the orchestrator): the iteration-3 decomposition TRAINING data is accepted on Grok's two meaning votes (m1 AND m2 of iteration 2) alone; GLM verdicts are reported as agreement only. The evaluation set keeps the two-judge rule (Grok first, GLM second, both S0 or S1).",
+  "D2: the set has 275 cases, not about 300: the supply of verified cases ended (the judges refuse many generated decompositions); three selection rounds were run (the first filter kept ASCII-only text, round 3 relaxed it to Latin script because names carry diacritics).",
+  "D3: tangled paraphrases of sealed symbolic_english test groups whose own trees already agree are kept when the stratum is short (flagged message_certified); 102 of the 275 cases are certified tangled sentences, which are the cases where a silent failure is possible.",
+  "D4: the arms ran on the GGUF Q8_0 through llama-server on CPU (the GPU was held by a training job), greedy, one run."
+ ],
+ "results_pointer": "eval/reports/current/decomposition/summary.md"
+}

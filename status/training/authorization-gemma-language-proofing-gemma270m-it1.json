@@ -1,0 +1,48 @@
+{
+ "format": "chatsop-training-authorization-v1",
+ "authorization": "explicit-user-approval",
+ "approved": true,
+ "approved_by": "user",
+ "approved_at": "2026-09-30T17:32:38.274Z",
+ "instruction": "Owner approves 1-2 overnight fine-tuning iterations of Gemma 3 270M; more examples via omp/DeepSeek: Owner 2026-09-30 evening, before leaving for the night: 1-2 training iterations of the small Gemma (Gemma 3 270M) are approved. No move to a larger model unless there is clear evidence that 270M cannot learn more. If it can still learn, generate more examples with omp + DeepSeek flash. Scope: the proofing LLMs (LanguageProofingLLM on bad_english first, then SymbolicProofingLLM on neuro_english if its targets are ready), with the usual gates: preregistration, dry run, staged early stopping, evaluation on the sealed tests and the composed per-sentence suites.",
+ "journal_event": {
+  "file": "status/journal.jsonl",
+  "ts": "2026-09-30T17:32:38.274Z",
+  "actor": "orchestrator"
+ },
+ "further_decisions": [
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T17:40:03.714Z",
+   "actor": "orchestrator",
+   "title": "Owner: SymbolicProofingLLM first, LanguageProofingLLM second"
+  },
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T17:41:07.339Z",
+   "actor": "orchestrator",
+   "title": "Owner allows parallel GPU training runs when faster than serial"
+  },
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T17:46:38.134Z",
+   "actor": "orchestrator",
+   "title": "Owner: the fallback base is Gemma 3 1B (LoRA), not Qwen"
+  },
+  {
+   "file": "status/journal.jsonl",
+   "ts": "2026-09-30T19:58:29.661Z",
+   "actor": "orchestrator",
+   "title": "Owner: evaluate layer by layer; for now NL and grammatical analysis, not SOP translation"
+  }
+ ],
+ "model": "gemma",
+ "run": "language-proofing-gemma270m-it1",
+ "role": "proofreader",
+ "qualification_sha256": "1efc595218b0b749638b8c8f36320cf504dff814e7c238e22eb02b3cb692ea64",
+ "recipe_sha256": "ecc7fe047b1bd075721a51541d38f23610336973d8b2009802db271002d5b6c2",
+ "dataset_manifest_sha256": "919d5fa86f62b5ed84c5338b5c96dd3a69e75bc43c956a307df96049d45f5800",
+ "dataset_version_sha256": "fa10e5bd75bb131442d6707fb7b3a0c78ade826ffc5a2c6dcd4889eb315dda9d",
+ "transcribed_by": "language-proofing-training-agent",
+ "transcribed_at": "2026-09-30T21:17:54.682Z"
+}

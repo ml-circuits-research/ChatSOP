@@ -1,0 +1,1656 @@
+{
+ "note": "Recorded SymbolicLM analyses (compact CoNLL-U-like, Stanza default_accurate) of the texts of tests/analysis-compare.test.mjs; regenerate with tools/eval/analysis-compare-parses.mjs.",
+ "analyses": {
+  "Laura manages Jack.": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Laura manages Jack.",
+     "start": 0,
+     "end": 19,
+     "tokens": [
+      [
+       1,
+       "Laura",
+       "Laura",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "manages",
+       "manage",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "Jack",
+       "Jack",
+       "PROPN",
+       2,
+       "obj"
+      ],
+      [
+       4,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Jack is managed by Laura.": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Jack is managed by Laura.",
+     "start": 0,
+     "end": 25,
+     "tokens": [
+      [
+       1,
+       "Jack",
+       "Jack",
+       "PROPN",
+       3,
+       "nsubj:pass"
+      ],
+      [
+       2,
+       "is",
+       "be",
+       "AUX",
+       3,
+       "aux:pass"
+      ],
+      [
+       3,
+       "managed",
+       "manage",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       4,
+       "by",
+       "by",
+       "ADP",
+       5,
+       "case"
+      ],
+      [
+       5,
+       "Laura",
+       "Laura",
+       "PROPN",
+       3,
+       "obl:agent"
+      ],
+      [
+       6,
+       ".",
+       ".",
+       "PUNCT",
+       3,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Jack manages Laura.": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Jack manages Laura.",
+     "start": 0,
+     "end": 19,
+     "tokens": [
+      [
+       1,
+       "Jack",
+       "Jack",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "manages",
+       "manage",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "Laura",
+       "Laura",
+       "PROPN",
+       2,
+       "obj"
+      ],
+      [
+       4,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Mia does not teach Spanish.": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Mia does not teach Spanish.",
+     "start": 0,
+     "end": 27,
+     "tokens": [
+      [
+       1,
+       "Mia",
+       "Mia",
+       "PROPN",
+       4,
+       "nsubj"
+      ],
+      [
+       2,
+       "does",
+       "do",
+       "AUX",
+       4,
+       "aux"
+      ],
+      [
+       3,
+       "not",
+       "not",
+       "PART",
+       4,
+       "advmod"
+      ],
+      [
+       4,
+       "teach",
+       "teach",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       5,
+       "Spanish",
+       "Spanish",
+       "PROPN",
+       4,
+       "obj"
+      ],
+      [
+       6,
+       ".",
+       ".",
+       "PUNCT",
+       4,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Mia teaches Spanish.": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Mia teaches Spanish.",
+     "start": 0,
+     "end": 20,
+     "tokens": [
+      [
+       1,
+       "Mia",
+       "Mia",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "teaches",
+       "teach",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "Spanish",
+       "Spanish",
+       "PROPN",
+       2,
+       "obj"
+      ],
+      [
+       4,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Are all students certified?": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Are all students certified?",
+     "start": 0,
+     "end": 27,
+     "tokens": [
+      [
+       1,
+       "Are",
+       "be",
+       "AUX",
+       4,
+       "aux:pass"
+      ],
+      [
+       2,
+       "all",
+       "all",
+       "DET",
+       3,
+       "det"
+      ],
+      [
+       3,
+       "students",
+       "student",
+       "NOUN",
+       4,
+       "nsubj"
+      ],
+      [
+       4,
+       "certified",
+       "certify",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       5,
+       "?",
+       "?",
+       "PUNCT",
+       4,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Are some students certified?": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Are some students certified?",
+     "start": 0,
+     "end": 28,
+     "tokens": [
+      [
+       1,
+       "Are",
+       "be",
+       "AUX",
+       4,
+       "aux:pass"
+      ],
+      [
+       2,
+       "some",
+       "some",
+       "DET",
+       3,
+       "det"
+      ],
+      [
+       3,
+       "students",
+       "student",
+       "NOUN",
+       4,
+       "nsubj"
+      ],
+      [
+       4,
+       "certified",
+       "certify",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       5,
+       "?",
+       "?",
+       "PUNCT",
+       4,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Where did Tatiana travel?": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Where did Tatiana travel?",
+     "start": 0,
+     "end": 25,
+     "tokens": [
+      [
+       1,
+       "Where",
+       "where",
+       "ADV",
+       4,
+       "advmod"
+      ],
+      [
+       2,
+       "did",
+       "do",
+       "AUX",
+       4,
+       "aux"
+      ],
+      [
+       3,
+       "Tatiana",
+       "Tatiana",
+       "PROPN",
+       4,
+       "nsubj"
+      ],
+      [
+       4,
+       "travel",
+       "travel",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       5,
+       "?",
+       "?",
+       "PUNCT",
+       4,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "When did Tatiana travel?": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "When did Tatiana travel?",
+     "start": 0,
+     "end": 24,
+     "tokens": [
+      [
+       1,
+       "When",
+       "when",
+       "ADV",
+       4,
+       "advmod"
+      ],
+      [
+       2,
+       "did",
+       "do",
+       "AUX",
+       4,
+       "aux"
+      ],
+      [
+       3,
+       "Tatiana",
+       "Tatiana",
+       "PROPN",
+       4,
+       "nsubj"
+      ],
+      [
+       4,
+       "travel",
+       "travel",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       5,
+       "?",
+       "?",
+       "PUNCT",
+       4,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Ana bought 3 apples.": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Ana bought 3 apples.",
+     "start": 0,
+     "end": 20,
+     "tokens": [
+      [
+       1,
+       "Ana",
+       "Ana",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "bought",
+       "buy",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "3",
+       "3",
+       "NUM",
+       4,
+       "nummod"
+      ],
+      [
+       4,
+       "apples",
+       "apple",
+       "NOUN",
+       2,
+       "obj"
+      ],
+      [
+       5,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Ana bought 5 apples.": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Ana bought 5 apples.",
+     "start": 0,
+     "end": 20,
+     "tokens": [
+      [
+       1,
+       "Ana",
+       "Ana",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "bought",
+       "buy",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "5",
+       "5",
+       "NUM",
+       4,
+       "nummod"
+      ],
+      [
+       4,
+       "apples",
+       "apple",
+       "NOUN",
+       2,
+       "obj"
+      ],
+      [
+       5,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Olena lives in Cluj.": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Olena lives in Cluj.",
+     "start": 0,
+     "end": 20,
+     "tokens": [
+      [
+       1,
+       "Olena",
+       "Olena",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "lives",
+       "live",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "in",
+       "in",
+       "ADP",
+       4,
+       "case"
+      ],
+      [
+       4,
+       "Cluj",
+       "Cluj",
+       "PROPN",
+       2,
+       "obl"
+      ],
+      [
+       5,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Mara lives in Cluj.": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Mara lives in Cluj.",
+     "start": 0,
+     "end": 19,
+     "tokens": [
+      [
+       1,
+       "Mara",
+       "Mara",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "lives",
+       "live",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "in",
+       "in",
+       "ADP",
+       4,
+       "case"
+      ],
+      [
+       4,
+       "Cluj",
+       "Cluj",
+       "PROPN",
+       2,
+       "obl"
+      ],
+      [
+       5,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Do you know who manages Takumi?": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Do you know who manages Takumi?",
+     "start": 0,
+     "end": 31,
+     "tokens": [
+      [
+       1,
+       "Do",
+       "do",
+       "AUX",
+       3,
+       "aux"
+      ],
+      [
+       2,
+       "you",
+       "you",
+       "PRON",
+       3,
+       "nsubj"
+      ],
+      [
+       3,
+       "know",
+       "know",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       4,
+       "who",
+       "who",
+       "PRON",
+       5,
+       "nsubj"
+      ],
+      [
+       5,
+       "manages",
+       "manage",
+       "VERB",
+       3,
+       "ccomp"
+      ],
+      [
+       6,
+       "Takumi",
+       "Takumi",
+       "PROPN",
+       5,
+       "obj"
+      ],
+      [
+       7,
+       "?",
+       "?",
+       "PUNCT",
+       3,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Who manages Takumi?": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Who manages Takumi?",
+     "start": 0,
+     "end": 19,
+     "tokens": [
+      [
+       1,
+       "Who",
+       "who",
+       "PRON",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "manages",
+       "manage",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "Takumi",
+       "Takumi",
+       "PROPN",
+       2,
+       "obj"
+      ],
+      [
+       4,
+       "?",
+       "?",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Tom repairs the car.": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Tom repairs the car.",
+     "start": 0,
+     "end": 20,
+     "tokens": [
+      [
+       1,
+       "Tom",
+       "Tom",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "repairs",
+       "repair",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "the",
+       "the",
+       "DET",
+       4,
+       "det"
+      ],
+      [
+       4,
+       "car",
+       "car",
+       "NOUN",
+       2,
+       "obj"
+      ],
+      [
+       5,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Tom fixes the car.": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Tom fixes the car.",
+     "start": 0,
+     "end": 18,
+     "tokens": [
+      [
+       1,
+       "Tom",
+       "Tom",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "fixes",
+       "fix",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "the",
+       "the",
+       "DET",
+       4,
+       "det"
+      ],
+      [
+       4,
+       "car",
+       "car",
+       "NOUN",
+       2,
+       "obj"
+      ],
+      [
+       5,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Tom repairs the car. The garage is open.": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Tom repairs the car.",
+     "start": 0,
+     "end": 20,
+     "tokens": [
+      [
+       1,
+       "Tom",
+       "Tom",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "repairs",
+       "repair",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "the",
+       "the",
+       "DET",
+       4,
+       "det"
+      ],
+      [
+       4,
+       "car",
+       "car",
+       "NOUN",
+       2,
+       "obj"
+      ],
+      [
+       5,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    },
+    {
+     "text": "The garage is open.",
+     "start": 21,
+     "end": 40,
+     "tokens": [
+      [
+       1,
+       "The",
+       "the",
+       "DET",
+       2,
+       "det"
+      ],
+      [
+       2,
+       "garage",
+       "garage",
+       "NOUN",
+       4,
+       "nsubj"
+      ],
+      [
+       3,
+       "is",
+       "be",
+       "AUX",
+       4,
+       "cop"
+      ],
+      [
+       4,
+       "open",
+       "open",
+       "ADJ",
+       0,
+       "root"
+      ],
+      [
+       5,
+       ".",
+       ".",
+       "PUNCT",
+       4,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "As of 3 October 2025, was Julien enrolled at the academy?": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "was Julien enrolled at the academy?",
+     "start": 22,
+     "end": 57,
+     "tokens": [
+      [
+       1,
+       "was",
+       "be",
+       "AUX",
+       3,
+       "aux:pass"
+      ],
+      [
+       2,
+       "Julien",
+       "Julien",
+       "PROPN",
+       3,
+       "nsubj:pass"
+      ],
+      [
+       3,
+       "enrolled",
+       "enroll",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       4,
+       "at",
+       "at",
+       "ADP",
+       6,
+       "case"
+      ],
+      [
+       5,
+       "the",
+       "the",
+       "DET",
+       6,
+       "det"
+      ],
+      [
+       6,
+       "academy",
+       "academy",
+       "NOUN",
+       3,
+       "obl"
+      ],
+      [
+       7,
+       "?",
+       "?",
+       "PUNCT",
+       3,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "As of 3 October 2027, was Julien enrolled at the academy?": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "was Julien enrolled at the academy?",
+     "start": 22,
+     "end": 57,
+     "tokens": [
+      [
+       1,
+       "was",
+       "be",
+       "AUX",
+       3,
+       "aux:pass"
+      ],
+      [
+       2,
+       "Julien",
+       "Julien",
+       "PROPN",
+       3,
+       "nsubj:pass"
+      ],
+      [
+       3,
+       "enrolled",
+       "enroll",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       4,
+       "at",
+       "at",
+       "ADP",
+       6,
+       "case"
+      ],
+      [
+       5,
+       "the",
+       "the",
+       "DET",
+       6,
+       "det"
+      ],
+      [
+       6,
+       "academy",
+       "academy",
+       "NOUN",
+       3,
+       "obl"
+      ],
+      [
+       7,
+       "?",
+       "?",
+       "PUNCT",
+       3,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Olena works at Greenline Transport. Chloe works at Greenline Transport. Does Hassan work at Greenline Transport?": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Olena works at Greenline Transport.",
+     "start": 0,
+     "end": 35,
+     "tokens": [
+      [
+       1,
+       "Olena",
+       "Olena",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "works",
+       "work",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "at",
+       "at",
+       "ADP",
+       5,
+       "case"
+      ],
+      [
+       4,
+       "Greenline",
+       "Greenline",
+       "PROPN",
+       5,
+       "compound"
+      ],
+      [
+       5,
+       "Transport",
+       "Transport",
+       "PROPN",
+       2,
+       "obl"
+      ],
+      [
+       6,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    },
+    {
+     "text": "Chloe works at Greenline Transport.",
+     "start": 36,
+     "end": 71,
+     "tokens": [
+      [
+       1,
+       "Chloe",
+       "Chloe",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "works",
+       "work",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "at",
+       "at",
+       "ADP",
+       5,
+       "case"
+      ],
+      [
+       4,
+       "Greenline",
+       "Greenline",
+       "PROPN",
+       5,
+       "compound"
+      ],
+      [
+       5,
+       "Transport",
+       "Transport",
+       "PROPN",
+       2,
+       "obl"
+      ],
+      [
+       6,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    },
+    {
+     "text": "Does Hassan work at Greenline Transport?",
+     "start": 72,
+     "end": 112,
+     "tokens": [
+      [
+       1,
+       "Does",
+       "do",
+       "AUX",
+       3,
+       "aux"
+      ],
+      [
+       2,
+       "Hassan",
+       "Hassan",
+       "PROPN",
+       3,
+       "nsubj"
+      ],
+      [
+       3,
+       "work",
+       "work",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       4,
+       "at",
+       "at",
+       "ADP",
+       6,
+       "case"
+      ],
+      [
+       5,
+       "Greenline",
+       "Greenline",
+       "PROPN",
+       6,
+       "compound"
+      ],
+      [
+       6,
+       "Transport",
+       "Transport",
+       "PROPN",
+       3,
+       "obl"
+      ],
+      [
+       7,
+       "?",
+       "?",
+       "PUNCT",
+       3,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  },
+  "Hassan works at Greenline Transport. Chloe works at Greenline Transport. Does Olena work at Greenline Transport?": {
+   "columns": [
+    "id",
+    "form",
+    "lemma",
+    "upos",
+    "head",
+    "deprel"
+   ],
+   "language": "en",
+   "sentences": [
+    {
+     "text": "Hassan works at Greenline Transport.",
+     "start": 0,
+     "end": 36,
+     "tokens": [
+      [
+       1,
+       "Hassan",
+       "Hassan",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "works",
+       "work",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "at",
+       "at",
+       "ADP",
+       5,
+       "case"
+      ],
+      [
+       4,
+       "Greenline",
+       "Greenline",
+       "PROPN",
+       5,
+       "compound"
+      ],
+      [
+       5,
+       "Transport",
+       "Transport",
+       "PROPN",
+       2,
+       "obl"
+      ],
+      [
+       6,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    },
+    {
+     "text": "Chloe works at Greenline Transport.",
+     "start": 37,
+     "end": 72,
+     "tokens": [
+      [
+       1,
+       "Chloe",
+       "Chloe",
+       "PROPN",
+       2,
+       "nsubj"
+      ],
+      [
+       2,
+       "works",
+       "work",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       3,
+       "at",
+       "at",
+       "ADP",
+       5,
+       "case"
+      ],
+      [
+       4,
+       "Greenline",
+       "Greenline",
+       "PROPN",
+       5,
+       "compound"
+      ],
+      [
+       5,
+       "Transport",
+       "Transport",
+       "PROPN",
+       2,
+       "obl"
+      ],
+      [
+       6,
+       ".",
+       ".",
+       "PUNCT",
+       2,
+       "punct"
+      ]
+     ]
+    },
+    {
+     "text": "Does Olena work at Greenline Transport?",
+     "start": 73,
+     "end": 112,
+     "tokens": [
+      [
+       1,
+       "Does",
+       "do",
+       "AUX",
+       3,
+       "aux"
+      ],
+      [
+       2,
+       "Olena",
+       "Olena",
+       "PROPN",
+       3,
+       "nsubj"
+      ],
+      [
+       3,
+       "work",
+       "work",
+       "VERB",
+       0,
+       "root"
+      ],
+      [
+       4,
+       "at",
+       "at",
+       "ADP",
+       6,
+       "case"
+      ],
+      [
+       5,
+       "Greenline",
+       "Greenline",
+       "PROPN",
+       6,
+       "compound"
+      ],
+      [
+       6,
+       "Transport",
+       "Transport",
+       "PROPN",
+       3,
+       "obl"
+      ],
+      [
+       7,
+       "?",
+       "?",
+       "PUNCT",
+       3,
+       "punct"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+}

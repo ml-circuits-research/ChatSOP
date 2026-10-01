@@ -44,6 +44,10 @@ Acknowledgements: Quora Inc.; Google LLC (PAWS); the Allen Institute for AI (Pro
 
 The no-copy check applies to the derived rows through `node tools/datasets/no-copy.mjs --files ... --name three-<dataset>` (it reads `message`); the exact-text and 8-gram overlap of train and dev with the sealed sets is `node tools/datasets/audit/three-datasets-overlap.mjs`.
 
+## natural (owner chat messages, 2026-10-01)
+
+`datasets/natural/messages.jsonl` is not inspired by an external source: it holds the project owner's own chat messages to Claude Code in this repository (`tools/eval/collect-natural.mjs`), cleared as owner-authored text (DS014 "Owner chat messages"). Pasted blocks, e-mail addresses, tokens and home paths are replaced by placeholders and mostly-pasted messages are dropped. Role: realism evaluation set and seeds for synthetic rows that change the content words (`tools/datasets/audit/natural-overlap.mjs`).
+
 ## proofing (dataset_proofing): derived from formalizer-v1, not from an external source
 
 `datasets_archive/proofing` (experiment `proofing-candidates-v1`, `tools/research/proofing.mjs` and `tools/research/proofing-ro.mjs`) is not inspired by an external corpus: its only source is ChatSOP's own `datasets_archive/formalizer-v1` train and dev messages (own rights, `datasets_archive/formalizer-v1/manifest.json`), read but never modified. Every row pairs a formalizer-v1 message with the text SymbolicLM (Stanza + frozen `lib/ud-to-sop` rules) should be given to parse it correctly:

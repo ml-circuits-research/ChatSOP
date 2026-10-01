@@ -1,0 +1,67 @@
+{
+ "format": "chatsop-dataset-qualification-v1",
+ "status": "qualified",
+ "corpus": "neuro_english/proofing-it2",
+ "role": "proofreader",
+ "grade": "experiment-grade: analysis-layer gate (Stanza default and accurate trees identical, DeepSeek judge conditions a and c), two-vote DeepSeek meaning judge, mechanical filters and sealed-overlap audit, no human semantic review",
+ "dataset_manifest_sha256": "5e85391c3aa4bf7cad87ca460450817c1d4149c5febc52a7d39ae5472820bccc",
+ "dataset_version_sha256": "d64278497a13dad4b5eb903c5b310e99ca1f76265b99cb03c5ff2044a853e982",
+ "dataset_version": {
+  "format": "chatsop-dataset-version-v1",
+  "corpus": "neuro_english/proofing-it2",
+  "counter": 1,
+  "label": "neuro_english/proofing-it2 2026-10-01-7ebfca69 (sentence units, analysis-layer gate)",
+  "dataset": "neuro_english/proofing-it2",
+  "version": "2026-10-01-7ebfca69",
+  "rules": "ud-rules-v2.5"
+ },
+ "dataset_files": {
+  "proofreader/train.jsonl": "7ebfca69c1a61a50515992607e2e10c6f824302e2aa630e43a719d162d7512dc",
+  "proofreader/dev.jsonl": "cf2b73f4f3e67f8fb26cfb4da21d8fca80a100d44912b3d4a5e6a71cf1485545"
+ },
+ "sealed_suites": {
+  "neuro_english/proofing-test": "158d1875fed658548e75dfd668724b2fdee5af5d36456ec53703cb5b102b94ea"
+ },
+ "contract_files": {},
+ "checks": {
+  "oracle_grounding": true,
+  "meaning_preservation": true,
+  "leakage": true,
+  "split_integrity": true,
+  "source_rights": true,
+  "token_budget": true
+ },
+ "evidence": {
+  "oracle_grounding": {
+   "path": "eval/reports/current/symbolic-proofing-it2/data/grounding.json",
+   "sha256": "a25619296c4ee0fb281d3de188193d01efb317ca416fd86237f1d0ae9602f9a4"
+  },
+  "meaning_preservation": {
+   "path": "eval/reports/current/symbolic-proofing-it2/data/meaning-check.json",
+   "sha256": "1990e3f928d27f91259d46cfe632328916884af55153b01944640cfac2850a40"
+  },
+  "leakage": {
+   "path": "eval/reports/current/symbolic-proofing-it2/data/leakage-final.json",
+   "sha256": "e0785fe6590b71c1343257e0d050a1e7ac4da6f6ec8f900d9ab908049626108b"
+  },
+  "split_integrity": {
+   "path": "eval/reports/current/symbolic-proofing-it2/data/split-integrity.json",
+   "sha256": "75d3687e1bb28880cbdf03391303302757a6b1b68dc53d0dbb54ef1d4abe6933"
+  },
+  "source_rights": {
+   "path": "docs/specs/DS014-source-rights.md",
+   "sha256": "a451fbb4bd12e6a5a7c7aea651b604882d8c9c367fe7ae1f88403d1b73c51d11"
+  },
+  "token_budget": {
+   "path": "eval/reports/current/symbolic-proofing-it2/data/token-audit.json",
+   "sha256": "0bffaa40e936dc05268f069b1ade33c738672677d3e4072e007007ae61ac5ba0"
+  }
+ },
+ "reviewer": {
+  "kind": "principal_integrator",
+  "id": "symbolic-proofing-it2-agent (automated qualification)",
+  "reviewed_at": "2026-10-01T00:15:46.189Z"
+ },
+ "blockers": [],
+ "note": "Data qualification only; not a chatsop-training-authorization-v1 receipt (AGENTS.md rule 3)."
+}

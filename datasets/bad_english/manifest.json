@@ -15,78 +15,85 @@
  },
  "split_policy": "by split_group_id (source split groups; new cases by writer); rows of sealed suites only in the sealed test, exact-text overlap with a sealed row or across splits is dropped from train/dev",
  "sha256": {
-  "datasets/bad_english/train.jsonl": "76b118252d768aee96c67f400e8b84b75992b85f9f1c31d5bc2c7b5228c7a66b",
-  "datasets/bad_english/dev.jsonl": "afd114f23165ea8ee3cb43cc04cfb694c3901c46d9b13a4e2624f4d018b147ad",
-  "eval/suites/bad_english/test.jsonl": "898c3daf328271a2b9e0819c2ba4cc82207ebdabb9e342c1b84a93240fe5c3e9"
+  "datasets/bad_english/train.jsonl": "134f0a641e9eb400060e36316bdffb601cba63edfb84226baba14d1df2a76359",
+  "datasets/bad_english/dev.jsonl": "560f04b5c3167862b07ac4398762e2a9a85df00052f41e3a35dbb53b1af863bf",
+  "eval/suites/bad_english/test.jsonl": "9204379d1c1de3598314b61d7f2c0296b46dc6439792c7d9db8b5a39a64138d2"
  },
  "bytes": {
-  "datasets/bad_english/train.jsonl": 21696528,
-  "datasets/bad_english/dev.jsonl": 3918453,
-  "eval/suites/bad_english/test.jsonl": 6877209
+  "datasets/bad_english/train.jsonl": 28521056,
+  "datasets/bad_english/dev.jsonl": 5295134,
+  "eval/suites/bad_english/test.jsonl": 6722826
  },
  "counts": {
   "train": {
-   "rows": 17169,
+   "rows": 17919,
    "by_source": {
-    "formalizer-v1": 15850,
+    "formalizer-ood-v1": 701,
+    "formalizer-v1": 15566,
+    "formalizer-wild-v1": 334,
     "new_cases": 933,
-    "proofing-diverse-dev": 386
+    "proofing-diverse-dev": 385
    },
    "by_language_kind": {
-    "mixed": 4527,
-    "noisy_en": 4543,
-    "ro": 8099
+    "mixed": 4831,
+    "noisy_en": 4617,
+    "ro": 8471
    },
-   "with_target": 5393,
+   "with_target": 15986,
    "by_target_source": {
     "clean-sibling": 4,
+    "llm:deepseek-flash": 10553,
     "new_cases.clean": 898,
-    "noise-inverse": 2267,
-    "none": 11776,
-    "proofing.repair": 1013,
-    "proofing.translate": 1211
+    "noise-inverse": 2328,
+    "none": 1933,
+    "proofing.repair": 996,
+    "proofing.translate": 1207
    }
   },
   "dev": {
-   "rows": 3215,
+   "rows": 3383,
    "by_source": {
-    "formalizer-v1": 3034,
+    "formalizer-ood-v1": 160,
+    "formalizer-v1": 2973,
+    "formalizer-wild-v1": 69,
     "new_cases": 181
    },
    "by_language_kind": {
-    "mixed": 859,
-    "noisy_en": 610,
-    "ro": 1746
+    "mixed": 933,
+    "noisy_en": 631,
+    "ro": 1819
    },
-   "with_target": 829,
+   "with_target": 3037,
    "by_target_source": {
-    "clean-sibling": 1,
+    "clean-sibling": 2,
+    "llm:deepseek-flash": 2190,
     "new_cases.clean": 171,
-    "noise-inverse": 271,
-    "none": 2386,
-    "proofing.repair": 111,
+    "noise-inverse": 289,
+    "none": 346,
+    "proofing.repair": 110,
     "proofing.translate": 275
    }
   },
   "test": {
-   "rows": 5511,
+   "rows": 4245,
    "by_source": {
-    "formalizer-ood-v1": 1035,
+    "formalizer-ood-v1": 173,
     "formalizer-v1": 3730,
-    "formalizer-wild-v1": 478,
+    "formalizer-wild-v1": 74,
     "new_cases": 268
    },
    "by_language_kind": {
-    "mixed": 1317,
-    "noisy_en": 1672,
-    "ro": 2522
+    "mixed": 928,
+    "noisy_en": 1465,
+    "ro": 1852
    },
-   "with_target": 1444,
+   "with_target": 3783,
    "by_target_source": {
-    "clean-sibling": 3,
+    "clean-sibling": 2,
+    "llm:deepseek-flash": 2512,
     "new_cases.clean": 262,
-    "noise-inverse": 1068,
-    "none": 4067,
+    "noise-inverse": 896,
+    "none": 462,
     "proofing.repair": 111
    }
   }
@@ -125,6 +132,20 @@
    "note": "read-only; LLM-written references marked reviewed-by:pending"
   }
  },
- "train_dev_built_at": "2026-09-30T17:45:16.604Z",
- "test_built_at": "2026-09-30T17:46:41.211Z"
+ "train_dev_built_at": "2026-09-30T19:06:22.826Z",
+ "test_built_at": "2026-09-30T19:07:19.962Z",
+ "llm_targets": {
+  "source": "datasets_sources/bad_english_targets",
+  "target_source": "llm:deepseek-flash",
+  "review_status": "pending",
+  "merged_at": "2026-09-30T20:13:50.457Z"
+ },
+ "llm_targets_test": {
+  "source": "datasets_sources/bad_english_targets",
+  "target_source": "llm:deepseek-flash",
+  "review_status": "pending",
+  "merged_at": "2026-09-30T21:38:17.552Z",
+  "rows_merged": 2512,
+  "reason": "sealed bad_english rows without a clean-English target were incomplete (owner decision 2026-09-30 night: no point in sealing nonsense)"
+ }
 }

@@ -32,15 +32,17 @@ export const DATASET_FACETS = {
   symbolic_english: [
     {key: 'split', label: 'Split'},
     {key: 'source', label: 'Source corpus'},
-    {key: 'verification', label: 'Verification status'},
-    {key: 'judge', label: 'Judge verdict'},
+    {key: 'verification', label: 'Analysis verification'},
+    {key: 'sop_layer', label: 'SOP layer (later layer)'},
+    {key: 'judge', label: 'Analysis judge verdict'},
     {key: 'agreement', label: 'Stanza-spaCy agreement'},
     {key: 'outcome', label: 'Outcome'},
     {key: 'verdict', label: 'Reviewer verdict'},
   ],
   neuro_english: [
     {key: 'split', label: 'Split'},
-    {key: 'failure_kind', label: 'Failure kind'},
+    {key: 'failure_kind', label: 'Analysis failure kind'},
+    {key: 'sop_layer', label: 'SOP layer (later layer)'},
     {key: 'blame', label: 'Blame categories'},
     {key: 'target_state', label: 'Rewrite target'},
     {key: 'flag', label: 'Flags'},
@@ -61,8 +63,8 @@ export const DATASET_FACETS = {
 
 /** The indexed facet fields of one row, per dataset (arrays are multi-valued facets). */
 const FACET_FIELDS = {
-  symbolic_english: row => ({source: label(row.source?.corpus), verification: label(row.analysis_verified), judge: judgeLabel(row.verification?.judge), agreement: agreementLabel(row.verification?.stanza_spacy_agree), outcome: label(row.outcome)}),
-  neuro_english: row => ({failure_kind: label(row.failure_kind), blame: listOf(row.failure?.categories), target_state: targetState(row), flag: listOf(row.flags), target_source: label(row.target_source), source: label(row.source?.corpus)}),
+  symbolic_english: row => ({source: label(row.source?.corpus), verification: label(row.analysis_verified), sop_layer: label(row.sop_layer?.status), judge: judgeLabel(row.verification?.judge), agreement: agreementLabel(row.verification?.stanza_spacy_agree), outcome: label(row.outcome)}),
+  neuro_english: row => ({failure_kind: label(row.failure_kind), sop_layer: label(row.sop_layer?.status), blame: listOf(row.failure?.categories), target_state: targetState(row), flag: listOf(row.flags), target_source: label(row.target_source), source: label(row.source?.corpus)}),
   bad_english: row => ({kind: label(row.language_kind), noise: listOf(row.noise_categories), target_state: targetState(row), target_source: label(row.target_source), source: label(row.source?.corpus)}),
 };
 
@@ -226,7 +228,7 @@ export function datasetCaseDetail(type, item, context) {
   if (type === 'symbolic_english') {
     return {
       ...common(type, item, context, row, row.sop ?? null),
-      verification: {analysis_verified: row.analysis_verified ?? null, sop_gold_match: row.verification?.sop_gold_match ?? null, judge: row.verification?.judge ?? null, stanza_spacy_agree: row.verification?.stanza_spacy_agree ?? null},
+      verification: {analysis_verified: row.analysis_verified ?? null, analysis_verdict: row.analysis_verdict ?? null, sop_layer: row.sop_layer ?? null, sop_gold_match: row.verification?.sop_gold_match ?? null, judge: row.verification?.judge ?? null, stanza_spacy_agree: row.verification?.stanza_spacy_agree ?? null},
       symbolic_lm: row.symbolic_lm ?? null,
       sentences: sentencesView(row.analysis),
       sop: row.sop ?? '',
@@ -246,7 +248,7 @@ export function datasetCaseDetail(type, item, context) {
       failure: row.failure ?? null,
       rewrite_target: row.rewrite_target ?? null,
       flags: row.flags ?? [],
-      verification: {analysis_verified: row.analysis_verified ?? null, sop_gold_match: row.verification?.sop_gold_match ?? null, judge: row.verification?.judge ?? null, stanza_spacy_agree: row.verification?.stanza_spacy_agree ?? null},
+      verification: {analysis_verified: row.analysis_verified ?? null, analysis_verdict: row.analysis_verdict ?? null, sop_layer: row.sop_layer ?? null, sop_gold_match: row.verification?.sop_gold_match ?? null, judge: row.verification?.judge ?? null, stanza_spacy_agree: row.verification?.stanza_spacy_agree ?? null},
       symbolic_lm: row.symbolic_lm ?? null,
       sentences: sentencesView(row.analysis),
       sop: row.sop ?? '',

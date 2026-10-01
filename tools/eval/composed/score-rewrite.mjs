@@ -32,6 +32,8 @@ export async function splitterAgrees(row, splitter, lm) {
 export const GATES = {
   symbolic: lm => async unit => !handled(await lm.run(unit)),
   'clean-english': () => async unit => classifyMessage(unit).partition !== 'clean_en',
+  // every sentence goes to the rewriter (the chat sends all sentences since the owner rule "if uncertainty cannot be detected, always")
+  all: () => async () => true,
 };
 
 /** Rewrite `message` in the given mode; returns {output, sent, units, calls}. */

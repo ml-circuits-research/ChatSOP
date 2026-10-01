@@ -1,0 +1,65 @@
+{
+  "format": "chatsop-owner-approval-scope-v1",
+  "journal_event": {
+    "file": "status/journal.jsonl",
+    "ts": "2026-10-01T06:26:17.334Z",
+    "area": "training",
+    "state": "decision",
+    "actor": "orchestrator",
+    "title": "Owner approves production trainings: LanguageProofingLLM all-vocabulary build and gloss post-edit variant"
+  },
+  "further_decisions": [
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T17:41:07.339Z",
+      "actor": "orchestrator",
+      "title": "Owner allows parallel GPU training runs when faster than serial"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T17:46:38.134Z",
+      "actor": "orchestrator",
+      "title": "Owner: the fallback base is Gemma 3 1B (LoRA), not Qwen"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T19:58:29.661Z",
+      "actor": "orchestrator",
+      "title": "Owner: evaluate layer by layer; for now NL and grammatical analysis, not SOP translation"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T22:48:59.650Z",
+      "actor": "orchestrator",
+      "title": "Owner: remove Qwen3-1.7B from the chat; compare proofing LLMs only on our synthetic data and against their untrained base"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-09-30T22:54:36.651Z",
+      "actor": "orchestrator",
+      "title": "Night loop: LanguageProofingLLM iteration-2 data via DeepSeek back-generation with vocabulary coverage (owner 2026-10-01: iterate until morning so both proofing LLMs are very good)"
+    },
+    {
+      "file": "status/journal.jsonl",
+      "ts": "2026-10-01T03:35:42.309Z",
+      "actor": "language-proofing-it3-agent",
+      "title": "Owner decision of 2026-10-01 (transcribed from the orchestrator brief): one more LanguageProofingLLM iteration is allowed under conditions"
+    }
+  ],
+  "approved_models": [
+    "gemma"
+  ],
+  "role": "proofreader",
+  "experiment": "train-language-proofing-gemma270m-prod1",
+  "order": "Gemma 3 270M IT only (LoRA), from the BASE, same recipe as iterations 2 and 3 (config/train-gemma.json unchanged). Production build 1 of LanguageProofingLLM: ALL vocabulary in training (the eight it3 probe words and every reserve pair return; only a small dev slice stays out), proper-noun phrase protection, typo'd child-word pairs. Owner 2026-10-01: 'I approve the training; let's make everything production-like, so we can focus on reasoning after we finish this stage of cheap NL understanding.' No Gemma 3 1B. Comparisons only on our synthetic data against it3, it2 (probe models kept on disk as research artifacts), the untrained base and no rewrite. Runs ONE AFTER THE OTHER with the gloss post-edit run (single GPU training lock).",
+  "corpus": "bad_english/proofing-prod1",
+  "conditions": [
+    "the dataset qualification record status/training/qualification-language-proofing-prod1.json is status 'qualified'",
+    "preregistration status/preregistrations/train-language-proofing-gemma270m-prod1.json is frozen before any optimizer step",
+    "one GPU training job at a time (models/.training.lock); a local-judge llama-server may share the GPU, and if it slows the step rate by more than 20% the journal says so and the orchestrator pauses it; free RAM not below about 16 GB; no other process is killed",
+    "experiment-grade data: DeepSeek-written targets with mechanical checks and the two-vote meaning judge, no human semantic review; spacing, name_swap and typo_child pairs are deterministic derivations",
+    "judging follows the routing rule: Grok for meaning, GLM for parse (three parallel omp sessions), DeepSeek only as a fallback"
+  ],
+  "receipts": "LP_QUAL=status/training/qualification-language-proofing-prod1.json LP_SCOPE=status/training/owner-approval-language-proofing-prod1.json node tools/research/qualify-language-proofing-v2.mjs --authorize gemma --run language-proofing-gemma270m-prod1 --decision-ts 2026-10-01T06:26:17.334Z",
+  "scope_written_by": "production-proofing-agent, from the orchestrator brief that quotes the owner (journal event 2026-10-01T06:26:17.334Z)"
+}

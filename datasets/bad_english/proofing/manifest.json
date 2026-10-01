@@ -1,0 +1,161 @@
+{
+ "format": "chatsop-proofing-pairs-v1",
+ "dataset": "bad_english",
+ "model": "LanguageProofingLLM",
+ "role": "proofreader",
+ "prompt_profile": "message-only",
+ "prompt": "row.prompt verbatim: one sentence of a Romanian, mixed or badly written English message and nothing else (DS021 message-only input, no instruction wrapper, no system role); training/python/common.py chat_ids()",
+ "target": "row.target verbatim: the clean English sentence (repair) or the identical sentence (identity, clean English from symbolic_english)",
+ "created": "2026-09-30T21:13:47.686Z",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "identity_ratio": 0.1,
+ "identity_seed": 20260930,
+ "source_sha256": {
+  "datasets/bad_english/manifest.json": "953604bddaf60e8a2d9f11e50de5437cd10bb199d6e8171acea43de28cba6569",
+  "datasets/bad_english/train.jsonl": "e63af1dc8e9f472901ea5598c20bc52037a3159e338f99764396089aee86d7e9",
+  "datasets/bad_english/dev.jsonl": "e9d5f5f74581c8556451ad3488ec00f9e122f7ae8316a92883610d549dca9943"
+ },
+ "symbolic_english_at_build": {
+  "manifest_sha256": "e3a968949adc4f7cf018dd9410e4317bcb843dbb7e3654b504f08d2e53cc44a0",
+  "identity_source": "identity-source.jsonl (the clean messages copied at build time; symbolic_english is being re-split by another agent)",
+  "identity_source_sha256": "a7062ce427f8c88c1bb004719c0ce7a5f0cc68fc4d3138c06d1c4484c77251f3"
+ },
+ "sealed_hashes_sha256": "87085429e2969f261683a8e1b4a9930b366196d23f86dd5cb0df4b2e48a971a2",
+ "files": {
+  "proofreader/train.jsonl": {
+   "rows": 21414,
+   "sha256": "324a34eb400fc05d2eb4328c09e88cdc1b6a3339782ecf7c1eb842bf5e08250b"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 3946,
+   "sha256": "5b3debae2f76e68cdef7be79fbef77a929b8af686e07cc577c8f6852a0db28ef"
+  }
+ },
+ "summary": {
+  "skipped": {
+   "train": {
+    "no_target": 1933,
+    "sentence_count_differs": 253
+   },
+   "dev": {
+    "no_target": 346,
+    "sentence_count_differs": 56
+   }
+  },
+  "dropped_by_problem": {
+   "lost": 1375,
+   "question marks differ": 1023,
+   "line break in target": 111,
+   "length ratio 2.57": 11,
+   "negation differs": 524,
+   "length ratio 0.31": 1
+  },
+  "sealed_leaks_dropped": 3129,
+  "dev_prompt_dupes_dropped_from_dev": 402,
+  "duplicates_dropped": 1708,
+  "inrow_clean_pool": {
+   "train": 5800,
+   "dev": 726
+  },
+  "identity_train": {
+   "wanted": 2141,
+   "from_bad_english_rows": 1070,
+   "from_symbolic_english": 1071,
+   "symbolic_pool": 5689
+  },
+  "identity_dev": {
+   "wanted": 395,
+   "from_bad_english_rows": 197,
+   "from_symbolic_english": 198,
+   "symbolic_pool": 761
+  },
+  "over_token_budget_dropped": 0,
+  "train": {
+   "pairs": 21414,
+   "by_pair": {
+    "identity": 2141,
+    "repair": 19273
+   },
+   "by_kind": {
+    "clean": 2141,
+    "mixed": 1933,
+    "noisy_en": 5425,
+    "ro": 11915
+   },
+   "by_row_kind": {
+    "clean": 1071,
+    "mixed": 5803,
+    "noisy_en": 5264,
+    "ro": 9276
+   },
+   "by_target_source": {
+    "clean-sibling": 2,
+    "identity:in-row": 1070,
+    "identity:symbolic_english": 1071,
+    "llm:deepseek-flash": 13663,
+    "new_cases.clean": 476,
+    "noise-inverse": 2961,
+    "proofing.repair": 1014,
+    "proofing.translate": 1157
+   },
+   "by_review_status": {
+    "n/a": 1071,
+    "not_reviewed": 5710,
+    "pending": 14157,
+    "reviewed-by:pending": 476
+   },
+   "sentences_in_row": {
+    "1": 10558,
+    "2": 4960,
+    "3": 712,
+    "4": 64,
+    "5": 39,
+    "6+": 5081
+   }
+  },
+  "dev": {
+   "pairs": 3946,
+   "by_pair": {
+    "identity": 395,
+    "repair": 3551
+   },
+   "by_kind": {
+    "clean": 395,
+    "mixed": 359,
+    "noisy_en": 689,
+    "ro": 2503
+   },
+   "by_row_kind": {
+    "clean": 198,
+    "mixed": 1078,
+    "noisy_en": 697,
+    "ro": 1973
+   },
+   "by_target_source": {
+    "identity:in-row": 197,
+    "identity:symbolic_english": 198,
+    "llm:deepseek-flash": 2770,
+    "new_cases.clean": 72,
+    "noise-inverse": 350,
+    "proofing.repair": 112,
+    "proofing.translate": 247
+   },
+   "by_review_status": {
+    "n/a": 198,
+    "not_reviewed": 807,
+    "pending": 2869,
+    "reviewed-by:pending": 72
+   },
+   "sentences_in_row": {
+    "1": 2008,
+    "2": 817,
+    "3": 126,
+    "4": 23,
+    "5": 5,
+    "6+": 967
+   }
+  }
+ },
+ "note": "Byte-identical copies of ../train.jsonl and ../dev.jsonl are in proofreader/ (the layout training/cli.mjs expects). Targets of rows of target_source llm:deepseek-flash are DeepSeek-written with review_status pending; mechanical checks only (names, numbers, quotes, negation, question marks, length ratio)."
+}

@@ -1,0 +1,18 @@
+{
+ "format": "chatsop-proofreader-projection-v1",
+ "corpus": "bad_english/proofing-it3",
+ "prompt_profile": "message-only",
+ "created": "2026-10-01T03:38:02.104Z",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "files": {
+  "proofreader/train.jsonl": {
+   "rows": 62939,
+   "sha256": "9b0a26e6deacdc1b6e56ff54dda453b48a769b60b0e3db3fed9f8b1a3ab4d352"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 5173,
+   "sha256": "64f3e613560741761c3b9ce30d158bb806b4dd0285bdf1182d683568a5e70dc7"
+  }
+ }
+}

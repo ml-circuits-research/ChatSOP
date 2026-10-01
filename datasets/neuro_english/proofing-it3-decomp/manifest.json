@@ -1,0 +1,88 @@
+{
+ "format": "chatsop-proofing-pairs-v1",
+ "dataset": "neuro_english",
+ "model": "SymbolicProofingLLM",
+ "role": "proofreader",
+ "prompt_profile": "message-only",
+ "iteration": 3,
+ "variant": "decomp",
+ "status": "prepared, not trained",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "created": "2026-10-01T08:33:34.298Z",
+ "purpose": "targeted top-up of decomposition (tangled single sentence -> 3 to 5 short certified sentences) for SymbolicProofingLLM iteration 3; to be merged with neuro_english/proofing-it3 by the orchestrator, never trained on its own authority",
+ "direction": "reverse generation: a certified multi-sentence group of symbolic_english train/dev sentences is tangled by DeepSeek into one sentence; the pair is (tangled -> the group), so every target sentence is certified by construction",
+ "gates": [
+  "mechanical checks (names, numbers, negation, quantifiers, question, pronouns, connectives)",
+  "per-sentence certification of the targets (identical default and accurate Stanza trees; partial pairs: the single neuro_english sentence is not certified)",
+  "two-vote meaning judge (Grok m1 and m2, as in iteration 2; deviation D1: GLM is not required, its verdicts are reported as agreement only)",
+  "naturalness of the tangled opening",
+  "sealed overlap (evaluation-side checker, content-word signature)",
+  "dedup"
+ ],
+ "summary": {
+  "train": 3246,
+  "dev": 326,
+  "by_style": {
+   "train/participle": 553,
+   "train/subordinate": 839,
+   "train/list_coordination": 1023,
+   "train/partial": 96,
+   "train/multi_question": 277,
+   "train/relative": 458,
+   "dev/subordinate": 66,
+   "dev/list_coordination": 138,
+   "dev/multi_question": 43,
+   "dev/relative": 24,
+   "dev/participle": 44,
+   "dev/partial": 11
+  },
+  "train_by_category": {
+   "subordinate": 1850,
+   "list": 1300,
+   "partial": 96
+  },
+  "partial_acceptance_train": 96
+ },
+ "meaning_judge": {
+  "gate": "Grok (xai-oauth/grok-4.20-0309-non-reasoning), the two votes m1 AND m2 of iteration 2 (checklist prompts, `preserves` yes)",
+  "deviation": "D1 of eval-decomposition-v1, owner decision relayed by the orchestrator 2026-10-01: a row is accepted on Grok alone (calibration on meaning v2: Grok raw precision 99.0%, recall 76.5%; GLM 97.0% and 89.4%); GLM severity verdicts (at most S1) are reported as agreement only",
+  "agreement_with_glm_severity": {
+   "both_accept": 3874,
+   "grok_only": 110,
+   "glm_only": 2366,
+   "both_reject": 1158
+  }
+ },
+ "dropped": {
+  "unnatural_opening": 77,
+  "meaning_vote": 4599,
+  "sealed_exact_sentence": 1576,
+  "sealed_content_words": 554,
+  "duplicate_tangled": 270,
+  "list_cap": 816
+ },
+ "files": {
+  "train.jsonl": {
+   "rows": 3246,
+   "sha256": "407d0b4efbd415aaf4c22f8c061b36daa109221a5bebdd5eb3d23fc974871854"
+  },
+  "proofreader/train.jsonl": {
+   "rows": 3246,
+   "sha256": "407d0b4efbd415aaf4c22f8c061b36daa109221a5bebdd5eb3d23fc974871854"
+  },
+  "dev.jsonl": {
+   "rows": 326,
+   "sha256": "387cc43a6e68b11b52a7929f16b5c5bf0c77739f46bc7b6a77db8b54a0e729e4"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 326,
+   "sha256": "387cc43a6e68b11b52a7929f16b5c5bf0c77739f46bc7b6a77db8b54a0e729e4"
+  },
+  "audit.jsonl": {
+   "rows": 3572,
+   "sha256": "fdbb0bbe26a1df1eb7e6464cf77385bcd448435eb64398579feebcee83430dda"
+  }
+ },
+ "sealed_overlap_checker": "tools/eval/decomposition/overlap-check.mjs"
+}

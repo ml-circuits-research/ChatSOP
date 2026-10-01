@@ -80,7 +80,10 @@ async function execute(source, {model = false} = {}) {
     if (model || (program.wires.every(w => MODEL_TYPES.has(w.type)) && !program.wires.some(atomQuery))) compileDeclarative(source, {lexicon: LEXICON});
     stage = 'runtime';
     const modelOnly = program.wires.some(w => MODEL_ONLY.has(w.type) || modelQuery(w));
-    const result = await withRuntime(runtime => modelOnly ? runtime.run(source, {origin: 'model'}) : runtime.run(source));
+    // Host-emitted advisory wires (pragmatic, DS029) join a model program after its compilation: the model-origin run
+    // executes the model part, and the whole program has already passed parse and the graph check above.
+    const modelPart = source.split(/\n\s*\n/).filter(block => !/^@\w+ pragmatic\b/.test(block.trim())).join('\n\n');
+    const result = await withRuntime(runtime => modelOnly ? runtime.run(modelPart, {origin: 'model'}) : runtime.run(source));
     return {values: result.values};
   } catch (error) {
     return {stage, error};

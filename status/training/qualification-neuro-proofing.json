@@ -1,0 +1,67 @@
+{
+ "format": "chatsop-dataset-qualification-v1",
+ "status": "qualified",
+ "corpus": "neuro_english/proofing",
+ "role": "proofreader",
+ "grade": "experiment-grade: automated oracle grounding (SymbolicLM under the frozen rules, strict gold match, calibrated parse gate) and leakage checks, no human semantic review",
+ "dataset_manifest_sha256": "f2955e0b82a34bef24248a376af07c0db4f620949ff1c208ff60d1d0fc38fe40",
+ "dataset_version_sha256": "868ca513188cfcc082c2dc03caff924122a070431d1b1a703b814e2c87b24405",
+ "dataset_version": {
+  "format": "chatsop-dataset-version-v1",
+  "corpus": "neuro_english/proofing",
+  "counter": 1,
+  "label": "neuro_english/proofing 2026-09-30-65a44625 (rules ud-rules-v2.5, oracle-verified pairs)",
+  "dataset": "neuro_english/proofing",
+  "version": "2026-09-30-65a44625",
+  "rules": "ud-rules-v2.5"
+ },
+ "dataset_files": {
+  "proofreader/train.jsonl": "65a4462582de696621546afd46cb6f2401ec6202b133a9b559df76ac69212494",
+  "proofreader/dev.jsonl": "4e9537709c9547783827fe510bb783e90cce5882f7e26b7d15d4f4bae17cf238"
+ },
+ "sealed_suites": {
+  "neuro_english/proofing-test": "0145eb48358afed0d0026e34859aaf6d8b16d53a92a64a617f216c775bbd475c"
+ },
+ "contract_files": {},
+ "checks": {
+  "oracle_grounding": true,
+  "meaning_preservation": true,
+  "leakage": true,
+  "split_integrity": true,
+  "source_rights": true,
+  "token_budget": true
+ },
+ "evidence": {
+  "oracle_grounding": {
+   "path": "eval/reports/current/neuro-oracle/verdicts.jsonl",
+   "sha256": "daf4c252f1c679ce859ec0bf979bcd5d2e19fe7950a0d1bf2af516c31d7841a1"
+  },
+  "meaning_preservation": {
+   "path": "eval/reports/current/neuro-oracle/meaning-calibration.json",
+   "sha256": "dd0f9b51c5dfaca3842f8bd2b4b336eded9db9ddb762f95b9f55a3aca3fba035"
+  },
+  "leakage": {
+   "path": "eval/reports/current/neuro-oracle/integrity.json",
+   "sha256": "fa1bb38a2294d4a56f04764c1009ca3399a4de24541b675c3b1d9102c967f727"
+  },
+  "split_integrity": {
+   "path": "eval/reports/current/neuro-oracle/integrity.json",
+   "sha256": "fa1bb38a2294d4a56f04764c1009ca3399a4de24541b675c3b1d9102c967f727"
+  },
+  "source_rights": {
+   "path": "docs/specs/DS014-source-rights.md",
+   "sha256": "17240c77ed40292a1bb27bf25b0e318c4591b7b851e4a4e48ce1aba9be84032d"
+  },
+  "token_budget": {
+   "path": "eval/reports/current/neuro-oracle/token-audit.json",
+   "sha256": "8a5824f3bc57e0ce4117723b24c1f09842a051a79e2526670591f769863efee9"
+  }
+ },
+ "reviewer": {
+  "kind": "principal_integrator",
+  "id": "neuro-oracle-agent (automated qualification)",
+  "reviewed_at": "2026-09-30T19:47:43.382Z"
+ },
+ "blockers": [],
+ "note": "Data qualification only; not a chatsop-training-authorization-v1 receipt (AGENTS.md rule 3). Train pairs carry the verification level of each candidate in audit.jsonl."
+}

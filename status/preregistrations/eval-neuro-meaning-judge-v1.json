@@ -1,0 +1,39 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-neuro-meaning-judge-v1",
+ "name": "Can DeepSeek flash tell a meaning-preserving rewrite from a meaning-changing one? Calibration of the meaning check of the neuro oracle",
+ "registered_at": "2026-09-30T18:40:00Z",
+ "registered_by": "neuro-oracle-agent (owner task relayed by the orchestrator)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_context": "SymbolicProofingLLM is trained on rewrites of neuro_english messages into limited English. A rewrite of a row without a gold SOP is verified by SymbolicLM (valid SOP, no unparsed span), by the calibrated parse gate (identical default and accurate trees, DeepSeek conditions a and c good) and by a meaning check. The meaning check is used only if it is precise enough.",
+ "kind": "evaluation and dataset gating (LLM judge calls through omp; no training, no GPU)",
+ "frozen_before_results": "Written before the first meaning-judge call. The prompt is datasets_sources/neuro_oracle_meaning_judge/SYSTEM_m.txt; the sample is drawn by sha1 ranking with seed neuro-meaning-calibration-v1 from the candidates of the DeepSeek rewrite run (datasets_sources/neuro_english_targets/) classified by tools/datasets/neuro-targets-oracle.mjs.",
+ "systems": {
+  "judge": "DeepSeek-V4.1-Flash through omp (completion() of the eval kernel, model default), one request per item, temperature at the provider default",
+  "oracle_labels": "VERIFIED_GOLD: the candidate's SymbolicLM SOP matches the gold SOP of the row strictly (tools/datasets/three-datasets/score.mjs strictScores); mismatch: valid SOP, no unparsed span, gold does not match"
+ },
+ "definitions": {
+  "positive": "a DeepSeek candidate of a gold row that is VERIFIED_GOLD (100 sampled)",
+  "negative_main": "a DeepSeek candidate of a gold row that is converted but does not match the gold strictly (100 sampled). Some of these preserve the meaning and differ only by a gold convention, so precision measured against them is a lower bound.",
+  "negative_floor": "a VERIFIED_GOLD candidate paired with the message of another sampled row (50): the meaning is certainly different",
+  "precision_main": "yes on positives / (yes on positives + yes on negative_main)",
+  "trusted": "precision_main at least 0.95"
+ },
+ "hypotheses": {
+  "H1": "precision_main of the meaning check is at least 95%.",
+  "H2": "The judge says no on at least 90% of the floor negatives."
+ },
+ "decision_rule": "When precision_main is at least 0.95 a candidate of a no-gold row must also get `preserves: yes` to become VERIFIED_FORM. Otherwise the result is reported and only VERIFIED_GOLD candidates enter the SymbolicProofingLLM training set (rows with a no-gold candidate that passes the parse gate are listed as form_gate_passed_meaning_not_trusted, not used).",
+ "stop_rules": [
+  "Stop and report if more than 20% of the first 100 calibration verdicts are unusable.",
+  "The calibration is run once on the frozen sample; a prompt change needs a new preregistration id."
+ ],
+ "honesty": "DeepSeek flash is a fallible judge and the labels are a proxy (gold equivalence), not a human review. Precision against negative_main is conservative; the floor check only shows that obviously different texts are rejected.",
+ "deliverables": [
+  "eval/reports/current/neuro-oracle/meaning-calibration.json",
+  "eval/reports/current/neuro-oracle/summary.md",
+  "tools/datasets/neuro-oracle/calibrate.mjs"
+ ],
+ "records": ["status/experiments.json", "status/tasks.json", "status/notes", "status/journal.jsonl"],
+ "rigor": ["No training; no GPU work for this experiment; port 9999 untouched."]
+}

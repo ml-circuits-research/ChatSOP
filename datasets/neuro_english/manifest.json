@@ -15,79 +15,127 @@
  },
  "split_policy": "by split_group_id (source split groups; new cases by writer); rows of sealed suites only in the sealed test, exact-text overlap with a sealed row or across splits is dropped from train/dev",
  "sha256": {
-  "datasets/neuro_english/train.jsonl": "2e425514de736e209850a256c6815c3108c2fbb51fffcd68abfd7f57aa91e2d1",
-  "datasets/neuro_english/dev.jsonl": "84555d87e28c544390788d76bdd361287063989ef721d17250198214d7c8ff1d",
-  "eval/suites/neuro_english/test.jsonl": "1b7a139e09fcbeadc4c09f9afadbcb6597b2bade8eb649247e0fa9934fada22e"
+  "datasets/neuro_english/train.jsonl": "f55b7ab18471db62df90c560fcc8c01cd8f0ce25460580c77ef43effbabb1cf6",
+  "datasets/neuro_english/dev.jsonl": "9ce3acdf43a419ed54bb87bbf2653cc99f8b2dd97f4adeee5e2a4f2e00ba5b8d",
+  "eval/suites/neuro_english/test.jsonl": "c9846f665769943ded795ad053d5489a4acecee01bafe4cff989780122f3f3ae"
  },
  "bytes": {
-  "datasets/neuro_english/train.jsonl": 26396652,
-  "datasets/neuro_english/dev.jsonl": 4012684,
-  "eval/suites/neuro_english/test.jsonl": 9809893
+  "datasets/neuro_english/train.jsonl": 39573524,
+  "datasets/neuro_english/dev.jsonl": 5712092,
+  "eval/suites/neuro_english/test.jsonl": 11144259
  },
  "counts": {
   "train": {
-   "rows": 4908,
+   "rows": 6317,
    "by_source": {
-    "formalizer-v1": 2353,
-    "new_cases": 2407,
-    "proofing-diverse-dev": 148
+    "composed": 119,
+    "form-variant": 19,
+    "formalizer-ood-v1": 210,
+    "formalizer-v1": 3703,
+    "formalizer-wild-v1": 175,
+    "new_cases": 1938,
+    "proofing-diverse-dev": 153
    },
    "by_failure_kind": {
-    "gold_convention": 1211,
-    "parser": 83,
-    "rules": 1193,
-    "unknown": 2421
+    "judge_a": 322,
+    "judge_ac": 171,
+    "judge_c": 221,
+    "trees_differ": 4696,
+    "unparsed_span": 907
    },
-   "with_target": 216,
+   "by_sop_layer": {
+    "match": 2635,
+    "mismatch": 1660,
+    "no_gold": 2022
+   },
+   "by_sop_failure_kind": {
+    "gold_convention": 470,
+    "none": 4069,
+    "parser": 71,
+    "rules": 1070,
+    "unknown": 637
+   },
+   "with_target": 317,
    "by_target_source": {
-    "new_cases.clean": 122,
-    "none": 4692,
-    "proofing.repair": 94
+    "composed": 117,
+    "new_cases.clean": 121,
+    "none": 6000,
+    "proofing.repair": 79
    },
-   "rewrite_targets": 3697
+   "rewrite_targets": 6317
   },
   "dev": {
-   "rows": 779,
+   "rows": 924,
    "by_source": {
-    "formalizer-v1": 302,
-    "new_cases": 477
+    "composed": 16,
+    "form-variant": 1,
+    "formalizer-ood-v1": 32,
+    "formalizer-v1": 436,
+    "formalizer-wild-v1": 50,
+    "new_cases": 389
    },
    "by_failure_kind": {
-    "gold_convention": 153,
-    "parser": 12,
-    "rules": 135,
-    "unknown": 479
+    "judge_a": 54,
+    "judge_ac": 20,
+    "judge_c": 48,
+    "trees_differ": 649,
+    "unparsed_span": 153
    },
-   "with_target": 34,
+   "by_sop_layer": {
+    "match": 295,
+    "mismatch": 226,
+    "no_gold": 403
+   },
+   "by_sop_failure_kind": {
+    "gold_convention": 65,
+    "none": 594,
+    "parser": 11,
+    "rules": 147,
+    "unknown": 107
+   },
+   "with_target": 46,
    "by_target_source": {
+    "composed": 16,
     "new_cases.clean": 20,
-    "none": 745,
-    "proofing.repair": 14
+    "none": 878,
+    "proofing.repair": 10
    },
-   "rewrite_targets": 626
+   "rewrite_targets": 924
   },
   "test": {
-   "rows": 1785,
+   "rows": 1871,
    "by_source": {
-    "formalizer-ood-v1": 83,
-    "formalizer-v1": 727,
-    "formalizer-wild-v1": 262,
-    "new_cases": 713
+    "formalizer-ood-v1": 32,
+    "formalizer-v1": 1245,
+    "formalizer-wild-v1": 32,
+    "new_cases": 562
    },
    "by_failure_kind": {
-    "gold_convention": 455,
-    "parser": 1,
-    "rules": 598,
-    "unknown": 731
+    "judge_a": 111,
+    "judge_ac": 40,
+    "judge_c": 51,
+    "trees_differ": 1417,
+    "unparsed_span": 252
    },
-   "with_target": 42,
+   "by_sop_layer": {
+    "match": 862,
+    "mismatch": 447,
+    "no_gold": 562
+   },
+   "by_sop_failure_kind": {
+    "gold_convention": 175,
+    "none": 1251,
+    "parser": 1,
+    "rules": 268,
+    "unknown": 176
+   },
+   "with_target": 40,
    "by_target_source": {
     "new_cases.clean": 34,
-    "none": 1743,
-    "proofing.repair": 7,
-    "regularization": 1
+    "none": 1831,
+    "proofing.repair": 6
    },
-   "rewrite_targets": 1330
+   "rewrite_targets": 1871
   }
  },
  "splits_written": {},
@@ -124,6 +172,12 @@
    "note": "read-only; LLM-written references marked reviewed-by:pending"
   }
  },
- "train_dev_built_at": "2026-09-30T17:45:17.119Z",
- "test_built_at": "2026-09-30T17:46:41.294Z"
+ "train_dev_built_at": "2026-09-30T21:42:20.537Z",
+ "test_built_at": "2026-09-30T21:38:54.764Z",
+ "analysis_gate": {
+  "name": "identical_trees_and_deepseek_ac",
+  "judge": "DeepSeek-V4.1-Flash parse judge, conditions a and c (calibrated: datasets_sources/parse_judge_deepseek)",
+  "rule": "symbolic_english: every sentence has identical default/accurate trees and DeepSeek conditions a and c good; neuro_english otherwise; no analysis or an unparsed span: the SOP rules decide",
+  "decision": "status/journal.jsonl 2026-09-30 night, incident: symbolic/neuro split used SOP match instead of the grammatical analysis"
+ }
 }

@@ -14,6 +14,7 @@ import {splitSentences} from '../../../lib/sentence-split.mjs';
 import {mainForm, nameEntities, PERSON} from '../../datasets/three-datasets/forms.mjs';
 export {nameEntities, PERSON};
 import {sopBlocks} from './sop-canon.mjs';
+import {hasGoldMatch} from '../../datasets/three-datasets/rows.mjs';
 
 export const splitPath = (dataset, split) => `datasets/${dataset}/${split}.jsonl`;
 /** Rows of the train and dev files of a dataset. Sealed test rows are read only by the auditor side (tools/eval/composed/sealed.mjs). */
@@ -69,6 +70,8 @@ export function symbolicComponent(row) {
   const reason = why => ({component: null, reason: why});
   const sentences = row.analysis?.sentences ?? [];
   if (sentences.length !== 1) return reason('not_one_sentence');
+  // The composed suites score the SOP as well (the later layer): a component's expected SOP is verified, never SymbolicLM's own wrong output (a row whose SOP misses its gold is a symbolic_english row on the analysis layer only).
+  if (row.sop_layer?.status === 'mismatch') return reason('sop_layer_mismatch');
   if (splitSentences(row.message).length !== 1) return reason('splitter_sees_several_sentences');
   if (!cleanText(row.message) || !TERMINAL.test(row.message)) return reason('quotes_newlines_or_no_terminal_punctuation');
   if (row.outcome !== 'converted' || !row.sop_valid || (row.unparsed ?? []).length || row.uncertain) return reason('not_a_clean_conversion');
@@ -78,7 +81,7 @@ export function symbolicComponent(row) {
   if (wordCount(row.message) > 40) return reason('too_long');
   return {component: {
     role: 'symbolic', source_id: row.id, source_dataset: row.dataset, source_split: row.split, text: row.message, expected_text: row.message,
-    expected_sop: row.sop, expected_sop_source: row.analysis_verified === 'gold_sop_match' ? 'gold' : 'verified_analysis', must_change: false,
+    expected_sop: row.sop, expected_sop_source: hasGoldMatch(row) ? 'gold' : 'verified_analysis', must_change: false,
     form: mainForm(row.analysis), sentences: 1, punctuated: true, analysis: row.analysis, family: row.source?.family ?? null,
   }};
 }

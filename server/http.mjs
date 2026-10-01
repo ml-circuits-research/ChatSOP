@@ -18,8 +18,9 @@ import {chatPage} from './pages/chat.mjs';
 import {answerLanguage,LANGUAGE_CHOICES} from './language.mjs';
 import {loadRegistry,FormalizerManager,MODES,isManaged} from './formalizers.mjs';
 import {TRANSLATE_PROMPT,chatSystemPrompt,ChatHistory} from './chat-modes.mjs';
-import {textToCleanEnglish,loadTextToCleanEnglishConfig} from '../lib/text-to-clean-english/index.mjs';
-import {gate as gateCleaning} from '../lib/text-to-clean-english/gate.mjs';
+import {loadTextToCleanEnglishConfig} from '../lib/text-to-clean-english/index.mjs';
+import {createCapabilities,REWRITE_MODES} from './capabilities.mjs';
+import {createApiRouter} from './api.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const json=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data));};
@@ -37,7 +38,7 @@ const authenticate=(header,users)=>{if(typeof header!=='string'||!header.startsW
 async function readBody(req,maxBytes){let length=0,chunks=[];for await(const chunk of req){length+=chunk.length;if(length>maxBytes){req.resume();const e=new Error('Request body exceeds configured limit');e.status=413;throw e;}chunks.push(chunk);}try{return JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{const e=new Error('Expected a JSON request body');e.status=400;throw e;}}
 const invalid=(message,code='invalid_request')=>Object.assign(new Error(message),{status:400,code});
 /** Validates a chat completion request; `models` is the set of accepted `model` values (façade id and registry ids). */
-function checkBody(body,models,maxContextBytes){if(!body||typeof body!=='object'||Array.isArray(body))throw invalid('Expected a chat completion object');if(typeof body.model!=='string'||!models.has(body.model))throw invalid('Unknown model '+JSON.stringify(String(body.model).slice(0,80))+'; GET /v1/models lists the available models: '+[...models].join(', '),'unknown_model');if(body.tools!==undefined||body.tool_choice!==undefined||body.functions!==undefined||body.function_call!==undefined)throw invalid('Tools and function calling are not implemented');if(![undefined,false,true].includes(body.stream))throw invalid('stream must be a boolean');if(!Array.isArray(body.messages)||body.messages.length!==1||body.messages[0]?.role!=='user'||typeof body.messages[0].content!=='string'||!body.messages[0].content.trim()||Object.keys(body.messages[0]).some(k=>!['role','content'].includes(k)))throw invalid('Supply exactly one new user text message; conversation history is server-managed');if(Buffer.byteLength(body.messages[0].content)>maxContextBytes) {const e=new Error('Message exceeds context limit');e.status=413;throw e;}const allowed=new Set(['model','messages','stream','user','conversation_id','chatSop','language','mode','cleaning']);if(Object.keys(body).some(k=>!allowed.has(k)))throw invalid('Unsupported chat completion parameter');if(body.mode!==undefined&&!MODES.includes(body.mode))throw invalid('mode must be chat, formalize or translate','unsupported_mode');if(body.chatSop!==undefined&&(body.mode??'formalize')!=='formalize')throw invalid('A chatSop trusted circuit needs mode formalize','unsupported_mode');if(body.language!==undefined&&!LANGUAGE_CHOICES.includes(body.language))throw invalid('language must be en, ro or auto');if(body.chatSop!==undefined&&(typeof body.chatSop!=='object'||!body.chatSop||Array.isArray(body.chatSop)||Object.keys(body.chatSop).some(k=>k!=='trustedSop')||typeof body.chatSop.trustedSop!=='string'))throw invalid('Invalid chatSop trusted circuit');if(body.cleaning!==undefined&&(typeof body.cleaning!=='object'||!body.cleaning||Array.isArray(body.cleaning)||typeof body.cleaning.original!=='string'||Object.keys(body.cleaning).some(k=>!['original','backend','changed'].includes(k))))throw invalid('Invalid cleaning trace object; expected {original, backend?, changed?}');return body.messages[0].content;}
+function checkBody(body,models,maxContextBytes){if(!body||typeof body!=='object'||Array.isArray(body))throw invalid('Expected a chat completion object');if(typeof body.model!=='string'||!models.has(body.model))throw invalid('Unknown model '+JSON.stringify(String(body.model).slice(0,80))+'; GET /v1/models lists the available models: '+[...models].join(', '),'unknown_model');if(body.tools!==undefined||body.tool_choice!==undefined||body.functions!==undefined||body.function_call!==undefined)throw invalid('Tools and function calling are not implemented');if(![undefined,false,true].includes(body.stream))throw invalid('stream must be a boolean');if(!Array.isArray(body.messages)||body.messages.length!==1||body.messages[0]?.role!=='user'||typeof body.messages[0].content!=='string'||!body.messages[0].content.trim()||Object.keys(body.messages[0]).some(k=>!['role','content'].includes(k)))throw invalid('Supply exactly one new user text message; conversation history is server-managed');if(Buffer.byteLength(body.messages[0].content)>maxContextBytes) {const e=new Error('Message exceeds context limit');e.status=413;throw e;}const allowed=new Set(['model','messages','stream','user','conversation_id','chatSop','language','mode','cleaning','understanding']);if(Object.keys(body).some(k=>!allowed.has(k)))throw invalid('Unsupported chat completion parameter');if(body.mode!==undefined&&!MODES.includes(body.mode))throw invalid('mode must be chat, formalize or translate','unsupported_mode');if(body.chatSop!==undefined&&(body.mode??'formalize')!=='formalize')throw invalid('A chatSop trusted circuit needs mode formalize','unsupported_mode');if(body.language!==undefined&&!LANGUAGE_CHOICES.includes(body.language))throw invalid('language must be en, ro or auto');if(body.chatSop!==undefined&&(typeof body.chatSop!=='object'||!body.chatSop||Array.isArray(body.chatSop)||Object.keys(body.chatSop).some(k=>k!=='trustedSop')||typeof body.chatSop.trustedSop!=='string'))throw invalid('Invalid chatSop trusted circuit');if(body.cleaning!==undefined&&(typeof body.cleaning!=='object'||!body.cleaning||Array.isArray(body.cleaning)||typeof body.cleaning.original!=='string'||Object.keys(body.cleaning).some(k=>!['original','backend','changed'].includes(k))))throw invalid('Invalid cleaning trace object; expected {original, backend?, changed?}');if(body.understanding!==undefined){const u=body.understanding;if(typeof u!=='object'||!u||Array.isArray(u)||Object.keys(u).some(k=>!['interpret','rewrite','emotion'].includes(k))||(u.interpret!==undefined&&typeof u.interpret!=='boolean')||(u.emotion!==undefined&&typeof u.emotion!=='boolean')||(u.rewrite!==undefined&&!REWRITE_MODES.includes(u.rewrite)))throw invalid('Invalid understanding object; expected {interpret?: boolean, rewrite?: off|gated|always, emotion?: boolean}');if((body.mode??'formalize')!=='formalize')throw invalid('understanding needs mode formalize','unsupported_mode');}return body.messages[0].content;}
 function checkedTrusted(source){const wires=parse(source).wires;if(!wires.length||!wires.some(w=>w.type==='remember')||wires.some(w=>!['fact','event','remember'].includes(w.type)))throw Error('Trusted circuit requires an explicit remember of facts or events');return source;}
 const docsRoot=path.join(root,'docs');
 const mimeTypes={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg','.ico':'image/x-icon','.txt':'text/plain; charset=utf-8','.md':'text/markdown; charset=utf-8','.woff2':'font/woff2','.map':'application/json'};
@@ -116,8 +117,8 @@ async function adminRoutes(req,res,url,auth,readiness){
  return error(res,404,'not_found','Endpoint not found');
 }
 
-function trace(result,formalizer,system,cleaning){const packet=result.packet??{};return {mode:'formalize',latency_ms:result.formalization?.ms??null,prompt_profile:result.promptProfile,formalizer_label:formalizer.label??null,formalization_ms:result.formalization?.ms??null,circuit:result.executionSop,model_sop:result.sop,provenance:packet.proof??[],backend:packet.route?.backend??packet.backend??null,fallback:packet.route?.fallback??packet.fallback??null,completeness:packet.complete??packet.completeness??null,cnl:result.cnl,status:packet.status??null,pendingSop:packet.pendingSop??null,required:packet.required??null,reinforcement:packet.reinforcement??null,answer_language:result.answerLanguage??null,language_source:result.languageSource??null,user_statements:result.userStatements??[],carried_statements:result.carriedStatements??[],model_assumptions:result.modelAssumptions??[],assumption_policy:result.assumptionPolicy??null,assumption_branch:result.assumptionBranch??null,unclear:result.unclear??null,understood_as:packet.understood_as??null,system_circuit:system?.source??null,system_receipt:system?.receipt??null,formalizer_model:formalizer.id??formalizer.model,cleaning:cleaning?{original:cleaning.original,backend:cleaning.backend??null,changed:cleaning.changed??null}:null};}
-function completion(result,model,formalizer,system,cleaning){const id='chatcmpl-'+randomUUID(),created=Math.floor(Date.now()/1000);return {id,object:'chat.completion',created,model,choices:[{index:0,message:{role:'assistant',content:result.text},finish_reason:'stop'}],usage:null,chatSop:trace(result,formalizer,system,cleaning)};}
+function trace(result,formalizer,system,cleaning,understanding){const packet=result.packet??{};return {mode:'formalize',latency_ms:result.formalization?.ms??null,prompt_profile:result.promptProfile,formalizer_label:formalizer.label??null,formalization_ms:result.formalization?.ms??null,circuit:result.executionSop,model_sop:result.sop,provenance:packet.proof??[],backend:packet.route?.backend??packet.backend??null,fallback:packet.route?.fallback??packet.fallback??null,completeness:packet.complete??packet.completeness??null,cnl:result.cnl,status:packet.status??null,pendingSop:packet.pendingSop??null,required:packet.required??null,reinforcement:packet.reinforcement??null,answer_language:result.answerLanguage??null,language_source:result.languageSource??null,user_statements:result.userStatements??[],carried_statements:result.carriedStatements??[],model_assumptions:result.modelAssumptions??[],assumption_policy:result.assumptionPolicy??null,assumption_branch:result.assumptionBranch??null,unclear:result.unclear??null,understood_as:packet.understood_as??null,system_circuit:system?.source??null,system_receipt:system?.receipt??null,formalizer_model:formalizer.id??formalizer.model,cleaning:cleaning?{original:cleaning.original,backend:cleaning.backend??null,changed:cleaning.changed??null}:null,understanding:understanding??null};}
+function completion(result,model,formalizer,system,cleaning,understanding){const id='chatcmpl-'+randomUUID(),created=Math.floor(Date.now()/1000);return {id,object:'chat.completion',created,model,choices:[{index:0,message:{role:'assistant',content:result.text},finish_reason:'stop'}],usage:null,chatSop:trace(result,formalizer,system,cleaning,understanding)};}
 /** A Chat or Translate reply of a base model: the text as generated and a trace of mode, model and latency. */
 function plainCompletion(reply,model,chosen,mode,extra){const id='chatcmpl-'+randomUUID(),created=Math.floor(Date.now()/1000);return {id,object:'chat.completion',created,model,choices:[{index:0,message:{role:'assistant',content:reply.text},finish_reason:reply.finish==='length'?'length':'stop'}],usage:reply.usage??null,chatSop:{mode,status:'answered',formalizer_model:chosen.id,formalizer_label:chosen.label,model_label:chosen.label,latency_ms:Math.round(reply.ms),finish:reply.finish??null,usage:reply.usage??null,...extra}};}
 function sse(res,data){res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache, no-transform','Connection':'keep-alive'});const base={id:data.id,created:data.created,model:data.model,object:'chat.completion.chunk'};res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:data.choices[0].message.content},finish_reason:null}],chatSop:data.chatSop})+'\n\n');res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}]})+'\n\n');res.end('data: [DONE]\n\n');}
@@ -166,6 +167,11 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
  };
  // Chat-mode history per user and conversation (in memory, bounded; server-managed like the formalize context).
  const chatHistory=new ChatHistory();
+ const capabilities=createCapabilities({registry,manager,timeoutMs,cache:limits.cache});
+ const api=createApiRouter({capabilities,json,error,readBody,limits:{maxRequestBytes,maxContextBytes,maxConcurrent:limits.maxConcurrentApi??16}});
+ const rewriteDefault=capabilities.rewriteDefault,emotionDefault=capabilities.emotionDefault;
+ /** Defaults the chat page shows in its settings: the cleaning step's `sendAll`, the rewrite default and whether a SymbolicProofingLLM is registered. */
+ const chatSettings=()=>{const cleaning=loadTextToCleanEnglishConfig();return {emotionEnabled:emotionDefault(),cleaningEnabled:cleaning.enabled!==false,sendAll:cleaning.llm?.sendAll===true,rewrite:rewriteDefault(),rewriteAvailable:Boolean(registry?.defaults?.['proofread-symbolic'])};};
  /** Per-model state: stopped, starting, ready or error (with the reason). */
  async function modelStates(){
   const endpoint=registry.models.some(m=>m.kind==='runtime-endpoint')?await endpointCheck():null;
@@ -200,6 +206,12 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    return body.stream?sse(res,data):json(res,200,data);
   }finally{active--;busy.delete(key);}
  }
+ /** The caches inside running services (SymbolicLM: Stanza parse, sentence units, rewrite calls), read from their /health; never starts a service. */
+ async function cacheServices(){
+  const out={};
+  for(const [id,entry] of manager?.entries??[])if(entry.model.kind==='service'&&entry.state==='ready')try{const r=await fetch(manager.url(entry)+'/health',{signal:AbortSignal.timeout(1000)});const h=await r.json();if(h.caches)out[id]=h.caches;}catch{}
+  return out;
+ }
  const server=http.createServer(async(req,res)=>{
   const url=req.url?.split('?')[0];if(url==='/healthz'&&req.method==='GET')return json(res,200,{status:'ok'});
   // The documentation site is served statically and needs no authentication:
@@ -230,36 +242,15 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    }catch(e){if(res.destroyed)return;return error(res,e.status??400,e.code??'invalid_request',e.message);}
   }
   try{const parsed=new URL(req.url,'http://localhost');if(await pages.handle(req,res,url,Object.fromEntries(parsed.searchParams),(status,body)=>json(res,status,body),{signedIn:Boolean(sessionUser)}))return;}catch(e){if(res.destroyed)return;return error(res,e.status??400,e.code??'invalid_request',e.message);}
-  if(url==='/chat'&&req.method==='GET'){const state=await readiness();return sendHtml(res,200,chatPage({model,ready:state.ready,models:state.formalizers??null,defaultModel:state.default_model??null,defaultModels:state.default_models??null}));}
+  if(url==='/chat'&&req.method==='GET'){const state=await readiness();return sendHtml(res,200,chatPage({model,ready:state.ready,models:state.formalizers??null,defaultModel:state.default_model??null,defaultModels:state.default_models??null,settings:chatSettings()}));}
   if(url==='/readyz'&&req.method==='GET'){const state=await readiness();return json(res,state.ready?200:503,state);}
   if(url==='/v1/models'&&req.method==='GET'){
    const state=await readiness();
    if(!registry)return json(res,200,{object:'list',data:state.ready?[{id:model,object:'model',created:0,owned_by:'chatsop'}]:[]});
    return json(res,200,{object:'list',default:registry.default,defaults:registry.defaults,data:state.formalizers.map(({id,...chatsop})=>({id,object:'model',created:0,owned_by:'chatsop',chatsop}))});
   }
-  if(url==='/v1/text-to-clean-english'&&req.method==='POST'){
-  // Host step BEFORE formalization (owner decision 2026-09-30, DS021/DS012 "textToCleanEnglish"): the UI calls this
-  // to propose a cleaned/translated/simplified English message and shows the user a diff before anything reaches
-  // the formalizer, whose own input (DS021 "Model boundary") is unaffected by this endpoint. Never fails the chat:
-  // an unavailable cleaning backend (no LanguageTool server, no translate-capable model) degrades to "no change"
-  // (`backend: 'none'`) rather than blocking the message. `decide()` only needs LanguagesUtil (cheap once the
-  // dictionary is loaded, done at most once per process); the chosen backend's endpoint is resolved afterward and
-  // only when actually needed, so an all-English server never starts a model or expects LanguageTool to be running.
-  try{
-   const body=await readBody(req,maxRequestBytes);
-   if(typeof body?.message!=='string'||!body.message.trim())throw invalid('Provide a non-empty message string');
-   if(Buffer.byteLength(body.message)>maxContextBytes){const e=new Error('Message exceeds context limit');e.status=413;throw e;}
-   // The gate (LanguagesUtil only, no backend) decides whether an `llm` endpoint is even worth starting; an
-   // all-English server that never sees non-English text never pays for ensure()-ing a model.
-   const decision=gateCleaning(body.message);
-   let endpoint=null;
-   if(decision.needed&&decision.language!=='en'&&registry&&manager){const wanted=loadTextToCleanEnglishConfig().llm?.model;const id=(wanted&&registry.models.some(m=>m.id===wanted&&m.capabilities.includes('translate'))?wanted:null)??registry.defaults?.translate??registry.models.find(m=>m.capabilities.includes('translate'))?.id;if(id){try{endpoint=await manager.ensure(id);}catch{endpoint=null;}}}
-   let outcome;
-   try{outcome=await textToCleanEnglish(body.message,{backendOptions:{endpoint}});}
-   catch(e){if(e.code!=='backend_unavailable')throw e;outcome={original:body.message,clean:body.message,changed:false,reasons:decision.reasons,spans:[],backend:'none',confidence:0};}
-   return json(res,200,outcome);
-  }catch(e){if(res.destroyed)return;return error(res,e.status??400,e.code??'invalid_request',e.message);}
- }
+  // The independent capability APIs (DS030, docs/api.html): proofread (alias /v1/text-to-clean-english), understand, symbolic rewrite and analyze, emotion detect, capabilities, cache stats.
+  if(url?.startsWith('/v1/')&&await api.handle(req,res,url,{admin:Boolean(sessionUser)||(!auth&&Boolean(legacy)),cacheServices}))return;
  const start=/^\/v1\/models\/([^/]+)\/start$/.exec(url??'');
   if(start&&req.method==='POST'){
    // Starts a registry model ahead of the first message (the chat page calls it when a model is selected).
@@ -272,7 +263,7 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
   if(['/v1/responses','/v1/embeddings'].includes(url)||url?.startsWith('/v1/tools'))return error(res,501,'not_implemented','This API surface is not implemented');
   if(url!=='/v1/chat/completions'||req.method!=='POST')return error(res,404,'not_found','Endpoint not found');
   if(active>=maxConcurrent)return error(res,429,'concurrency_limit','Server concurrency limit reached');
-  let key;try{
+  let key,understanding=null;try{
    const body=await readBody(req,maxRequestBytes),text=checkBody(body,accepted,maxContextBytes);
    const mode=body.mode??'formalize';
    if(mode!=='formalize'&&!registry)throw invalid('Mode '+mode+' needs the model registry (config/formalizers.json) with a '+mode+' model','unsupported_mode');
@@ -288,16 +279,25 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    const work=(async()=>{
     if(body.chatSop){const source=checkedTrusted(body.chatSop.trustedSop),stored=await new Runtime({repo,session:entry.agent.session,schema:lexicon.predicates,lexicon,policy:{...config.policy,allowRules:false,allowPin:false}}).run(source);system={source,receipt:stored.result};}
     const chosen=answerLanguage(text,body.language);
-    const managed=isManaged(chosenModel)?{id:chosenModel.id,promptProfile:'bare',formalize:async message=>(await manager.formalize(chosenModel.id,message,{timeoutMs})).sop}:null;
+    const managed=isManaged(chosenModel)?{id:chosenModel.id,promptProfile:'bare',pragmatic:()=>understanding?.emotion??null,formalize:async message=>{
+     if(chosenModel.kind!=='service'||chosenModel.id!==capabilities.symbolicId()){const reply=await manager.formalize(chosenModel.id,message,{timeoutMs});return reply.sop;}
+     // SymbolicLM: the same cached call as POST /v1/understand (same message and rewrite setting), so the analysis the page already asked for is reused.
+     const call=await capabilities.symbolicFormalize(message,body.understanding);
+     const symbolic=call.symbolic,wantEmotion=typeof body.understanding?.emotion==='boolean'?body.understanding.emotion:capabilities.emotionDefault();
+     let emotion=null;
+     if(wantEmotion)try{const r=await capabilities.emotionFor(message,{leftoverSpans:symbolic?.interpretation?.available?symbolic.interpretation.not_represented:[]});emotion={signals:r.signals,emoji:capabilities.emojiOf(r.signals),leftovers:r.leftovers,sop:r.sop,trace:r.trace};}catch{}
+     understanding={requested:{...call.requested,emotion:wantEmotion},cache:call.status,...(symbolic?{message:message,analysed_text:symbolic.analysed_text??null,route:symbolic.route??null,language:symbolic.language??null,english:symbolic.english??null,uncertainty:symbolic.uncertainty?{uncertain:symbolic.uncertainty.uncertain,kinds:symbolic.uncertainty.kinds}:null,rewrite:symbolic.rewrite??null,interpretation:symbolic.interpretation??null,emotion}:{emotion})};
+     return call.sop;}}:null;
     const result=await entry.agent.turn(text,{language:chosen.language,answerLanguage:chosen.language,languageSource:chosen.source,rewrite:false,formalizer:managed});sessions.save(entry,user,conversation,base);return result;
    })();work.finally(()=>{active--;busy.delete(key);}).catch(()=>{});
    const result=await Promise.race([work,new Promise((_,reject)=>{const timer=setTimeout(()=>{const e=new Error('Request time limit reached');e.status=504;reject(e);},timeoutMs);timer.unref();work.finally(()=>clearTimeout(timer)).catch(()=>{});})]);
-   if(res.destroyed)return;const data=completion(result,body.model,chosenModel?{id:isManaged(chosenModel)?chosenModel.id:formalizer.model,label:chosenModel.label}:formalizer,system,body.cleaning);if(body.stream)sse(res,data);else json(res,200,data);
+   if(res.destroyed)return;const data=completion(result,body.model,chosenModel?{id:isManaged(chosenModel)?chosenModel.id:formalizer.model,label:chosenModel.label}:formalizer,system,body.cleaning,understanding);if(body.stream)sse(res,data);else json(res,200,data);
   }catch(e){if(res.destroyed)return;
    // The model answered but its SOP was not admitted or could not be executed: 422 with what it wrote, so the chat can show it.
-   if(e.modelSop!==undefined)return json(res,422,{error:{message:'The formalizer output was not admitted or could not be executed',type:'invalid_request_error',code:'model_output_rejected'},chatSop:{status:'rejected',rejection:String(e.message).slice(0,500),model_sop:e.modelSop,prompt_profile:e.promptProfile??null,formalizer_model:e.formalization?.model??null,formalization_ms:e.formalization?.ms??null}});
+   if(e.modelSop!==undefined)return json(res,422,{error:{message:'The formalizer output was not admitted or could not be executed',type:'invalid_request_error',code:'model_output_rejected'},chatSop:{status:'rejected',rejection:String(e.message).slice(0,500),model_sop:e.modelSop,prompt_profile:e.promptProfile??null,formalizer_model:e.formalization?.model??null,formalization_ms:e.formalization?.ms??null,understanding}});
    const status=e.status??(e.name==='TimeoutError'||e.message==='Request time limit reached'?504:400);error(res,status,(e.status&&e.code)||(status===413?'request_limit':status===504?'time_limit':status===400?'invalid_request':'internal_error'),status===400&&!e.status?'Invalid SOP or request; no model detail exposed':status===504?'Request time limit reached':e.status?e.message:'Server request failed');}
- });server.auth=auth;
+ });server.auth=auth;server.capabilities=capabilities;
+ server.on('close',()=>capabilities.close());
  return server;
 }
 export async function startServer({configPath=path.join(root,'config/runtime.json'),host=process.env.CHATSOP_HOST??'0.0.0.0',port=Number(process.env.CHATSOP_PORT??9999)}={}){

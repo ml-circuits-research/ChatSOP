@@ -1,0 +1,260 @@
+{
+ "format": "chatsop-proofing-pairs-v1",
+ "dataset": "neuro_english",
+ "model": "SymbolicProofingLLM",
+ "role": "proofreader",
+ "prompt_profile": "message-only",
+ "prompt": "row.prompt verbatim: the clean-English message and nothing else (DS021 message-only input, no instruction wrapper, no system role); training/python/common.py chat_ids()",
+ "target": "row.target verbatim: the verified limited-English rewrite (repair) or the identical message (identity)",
+ "created": "2026-09-30T23:43:20.093Z",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "identity_ratio": 0.67,
+ "include_extra": [],
+ "files": {
+  "train.jsonl": {
+   "rows": 4172,
+   "sha256": "159f4d46c3db43704e4bda6d62bf1ecee4117ae961c2a8775a8d0aecc217aa15"
+  },
+  "dev.jsonl": {
+   "rows": 626,
+   "sha256": "7d2efb54ec423ec995669343ffd4ce4ae656ae12395224bc31d5558639743f6b"
+  },
+  "audit.jsonl": {
+   "rows": 4798,
+   "sha256": "de5346b61c40bf0d9d0b19a3ba5f50c82f5a18ec224ef8ef043cc72eb84a7cb6"
+  },
+  "proofreader/train.jsonl": {
+   "rows": 4172,
+   "sha256": "159f4d46c3db43704e4bda6d62bf1ecee4117ae961c2a8775a8d0aecc217aa15"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 626,
+   "sha256": "7d2efb54ec423ec995669343ffd4ce4ae656ae12395224bc31d5558639743f6b"
+  }
+ },
+ "sealed_test": {
+  "path": "eval/suites/neuro_english/proofing-test.jsonl",
+  "rows": 1234,
+  "sha256": "158d1875fed658548e75dfd668724b2fdee5af5d36456ec53703cb5b102b94ea"
+ },
+ "summary": {
+  "train": {
+   "pairs": 4172,
+   "by_kind": {
+    "repair": 2455,
+    "identity": 1717
+   },
+   "by_verification": {
+    "VERIFIED_COMPOSED": 117,
+    "IDENTITY_COMPOSED": 148,
+    "VERIFIED_FORM": 1369,
+    "analysis_gate": 1530,
+    "sop_rule": 39,
+    "VERIFIED_GOLD": 802,
+    "VERIFIED_GOLD_NORMALIZED": 167
+   },
+   "by_source": {
+    "composed": 178,
+    "form-variant": 87,
+    "deepseek-flash": 2295,
+    "symbolic_english": 1569,
+    "dataset_target": 43
+   },
+   "by_failure_kind": {
+    "judge_ac": 100,
+    "trees_differ": 1712,
+    "judge_c": 149,
+    "judge_a": 178,
+    "unparsed_span": 316
+   },
+   "by_target_sentences": {
+    "1": 1389,
+    "2": 644,
+    "3": 201,
+    "4": 101,
+    "5": 47,
+    "6": 18,
+    "7": 14,
+    "8": 13,
+    "9": 9,
+    "10": 8,
+    "11": 6,
+    "12": 2,
+    "18": 1,
+    "19": 1,
+    "21": 1
+   },
+   "by_decomposition_type": {
+    "coordination": 367,
+    "subordinate_clause": 34,
+    "multiple_questions": 134,
+    "not_a_decomposition": 1866,
+    "other": 23,
+    "relative_clause": 25,
+    "list": 6
+   },
+   "tokens_total": {
+    "n": 4172,
+    "min": 13,
+    "p50": 39,
+    "p90": 75,
+    "p99": 200,
+    "max": 1235
+   }
+  },
+  "dev": {
+   "pairs": 626,
+   "by_kind": {
+    "repair": 369,
+    "identity": 257
+   },
+   "by_verification": {
+    "VERIFIED_COMPOSED": 16,
+    "IDENTITY_COMPOSED": 20,
+    "analysis_gate": 234,
+    "VERIFIED_FORM": 252,
+    "VERIFIED_GOLD": 79,
+    "VERIFIED_GOLD_NORMALIZED": 22,
+    "sop_rule": 3
+   },
+   "by_source": {
+    "composed": 27,
+    "form-variant": 9,
+    "symbolic_english": 237,
+    "deepseek-flash": 346,
+    "dataset_target": 7
+   },
+   "by_failure_kind": {
+    "trees_differ": 240,
+    "judge_a": 31,
+    "judge_ac": 13,
+    "judge_c": 31,
+    "unparsed_span": 54
+   },
+   "by_target_sentences": {
+    "1": 189,
+    "2": 110,
+    "3": 26,
+    "4": 22,
+    "5": 13,
+    "6": 2,
+    "7": 4,
+    "9": 1,
+    "19": 1,
+    "38": 1
+   },
+   "by_decomposition_type": {
+    "coordination": 74,
+    "multiple_questions": 26,
+    "subordinate_clause": 6,
+    "not_a_decomposition": 256,
+    "relative_clause": 4,
+    "list": 3
+   },
+   "tokens_total": {
+    "n": 626,
+    "min": 19,
+    "p50": 39,
+    "p90": 77,
+    "p99": 167,
+    "max": 781
+   }
+  },
+  "test": {
+   "pairs": 1234,
+   "by_kind": {
+    "repair": 739,
+    "identity": 495
+   },
+   "by_verification": {
+    "VERIFIED_GOLD": 280,
+    "analysis_gate": 493,
+    "VERIFIED_GOLD_NORMALIZED": 66,
+    "VERIFIED_FORM": 393,
+    "sop_rule": 2
+   },
+   "by_source": {
+    "deepseek-flash": 731,
+    "symbolic_english": 495,
+    "dataset_target": 8
+   },
+   "by_failure_kind": {
+    "trees_differ": 514,
+    "judge_ac": 26,
+    "judge_a": 75,
+    "judge_c": 36,
+    "unparsed_span": 88
+   },
+   "by_target_sentences": {
+    "1": 485,
+    "2": 173,
+    "3": 43,
+    "4": 29,
+    "5": 7,
+    "13": 1,
+    "15": 1
+   },
+   "by_decomposition_type": {
+    "not_a_decomposition": 605,
+    "coordination": 84,
+    "subordinate_clause": 12,
+    "other": 1,
+    "relative_clause": 14,
+    "multiple_questions": 23
+   },
+   "tokens_total": {
+    "n": 1234,
+    "min": 15,
+    "p50": 37,
+    "p90": 72,
+    "p99": 94,
+    "max": 371
+   }
+  }
+ },
+ "dropped": {
+  "leaks_against_sealed_texts": 20,
+  "duplicate_prompts": 2
+ },
+ "composed_hook": {
+  "composed_neuro_rows": 133,
+  "composed_symbolic_rows": 168,
+  "rows_excluded_not_a_rewrite_target": 0
+ },
+ "verdicts_sha256": "aeb69f894628657ba6e5ee520ad07afc580b47f91f1564178de504edeed95caa",
+ "source_manifests_sha256": {
+  "datasets/neuro_english/manifest.json": "1e9b803bb0c904db7ec612ade82602bee966bf3e184ff7f959fbcda877d8ebfa",
+  "datasets/symbolic_english/manifest.json": "3fbc96c963bbacb391788f96cc79150ab12fedfa1883382e4f74aba688478968",
+  "eval/suites/neuro_english/manifest.json": "7b38ea8d1f3c6be6a04248ee2a39a46814e181812417256860a81958b7ec5eb2",
+  "eval/suites/symbolic_english/manifest.json": "287f57de7c6e28e8e04496779c0d2623a964203d57b0f288a0bd91af917a911e"
+ },
+ "rules_version": "ud-rules-v2.5",
+ "code_sha256": {
+  "lib/symbolic-lm/index.mjs": "4453cd85540388e7d25c373a041539238d24bfbd13ae42898f0564d961b729ae",
+  "lib/symbolic-lm/uncertainty.mjs": "569fb335f05cfb20a270d52b75bc060835cf10e977e8e2d46c94522f1b593de2",
+  "lib/languages-util/langid.mjs": "55b9340c918e726fb2cb85238b9ac3f91698ca5954802701d3da769bc87c8a55",
+  "lib/languages-util/spellfix.mjs": "440b65c9b2c6113898c68b3c0963857d0eae9a7297e959327472d2dc7ac8a0fc",
+  "sop/dictionary.mjs": "2f8262691607e098f33e1cb85ea08c5c6796a60be6a5162a842aba5e8a9af333",
+  "training/python/ud_parse_worker.py": "ce5af380c99a7efb9e0c8112f877dd49cf429ab9a6c5d8cefc8444ff28927eb0",
+  "config/symbolic-lm.json": "50cd0a2f89837ab3d6250ed653c0704087f68d5cd987d4be871ddbf117152da4",
+  "lib/ud-to-sop/analyze.mjs": "a8863315aa6bef8eb44c40f830deaaf7fc3df31fe30ac8857548e909f352ac78",
+  "lib/ud-to-sop/emit.mjs": "62bf950f4f9f4d77da82168cff92f98f85356a4535528889394d5f1e297a03cf",
+  "lib/ud-to-sop/index.mjs": "689598552f1be578fe431d5743c17f6d7042cf4ee830c1acaa7569a86d1d3b07",
+  "lib/ud-to-sop/labels.mjs": "7079726685ee5be352cdf48dc533490d4f583c116107a550049e0d660909fd02",
+  "lib/ud-to-sop/lexicon.mjs": "dc56e72a4c84fd0c85db3c021a850c840c6a212f0ac07b07bfa2dc034c3fc4bf",
+  "lib/ud-to-sop/numeric.mjs": "f78bd2ffc8c62d437511795b3698d61bba00773c480d57479d7fc3ecfc98f181",
+  "lib/ud-to-sop/protect.mjs": "1fd7583b7ab737d2f08eddbf8d3376fa23a8f85ddf7fc4451c7d28648c35e0c3",
+  "lib/ud-to-sop/repair.mjs": "2b0ed2d460771ee1fb45106fd1250f3555f4a78e659f0f88d4b60f6d5c2ee5e3",
+  "lib/ud-to-sop/stanza.mjs": "94c0d3ee717ef5d421bd01f8e473913b3e2b5cacaa9a6940305267d0ba758f8c",
+  "lib/ud-to-sop/tree.mjs": "aa0cb4823aa54f650dd0425c28c5559e504f6dd0e31d0780ca91dd0578c48405"
+ },
+ "sealed_hashes_sha256": "a7f8a39db582a260068d03217276e2420fb8f9f39da88e90d1b4fb5b4c2280bc",
+ "meaning_judge": {
+  "trusted": true,
+  "rule": "two_vote_m1_and_m2",
+  "experiment": "eval-meaning-judge-calibration-v1",
+  "precision_raw": 0.988,
+  "precision_adjudicated": 1
+ }
+}

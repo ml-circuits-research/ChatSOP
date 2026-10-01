@@ -101,6 +101,11 @@
    "id": "laptop-cpu",
    "title": "Laptop-CPU deployment: base-model speed",
    "scope": "Generation speed of the candidate base models for SymbolicProofingLLM and LanguageProofingLLM and of Opus-MT on a laptop-class CPU (llama.cpp -ngl 0, 4 and 8 threads, Q4_K_M and Q8_0), the conservative laptop correction, and the model recommendation per role."
+  },
+  {
+   "id": "emotion-detection",
+   "title": "EmotionDetectionSystem and pragmatic signals",
+   "scope": "The separate, switchable component that classifies the pragmatic or emotional role of a message and of the spans SymbolicLM cannot formalize, its strategies (symbolic lexicons, optional neural classifiers, an LLM slot), the host-emitted advisory pragmatic wire, how the reasoner uses it, and its evaluation (DS029)."
   }
  ]
 }

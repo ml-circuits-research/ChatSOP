@@ -1,0 +1,52 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-local-judge-v1",
+ "name": "Can a local quantized model of 4B or more replace DeepSeek flash (or Haiku) as the parse judge and the meaning judge?",
+ "registered_at": "2026-10-01T02:35:00Z",
+ "registered_by": "local-judge-agent (owner question of 2026-10-01: stop paying for API judging if a local model is competitive)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "owner_context": "The parse judge (conditions a and c, eval-parse-judge-haiku-v1 re-run with DeepSeek flash) and the meaning judge (prompts m1 and m2 and the two-vote rule, eval-meaning-judge-calibration-v1) gate the SymbolicProofingLLM and LanguageProofingLLM pair sources. Every judged item costs API money and time. This experiment replays the identical calibration items through local GGUF models served by llama.cpp and scores them with the identical report code, so the numbers compare directly with DeepSeek flash and Haiku.",
+ "kind": "evaluation (local llama-server inference; no training, no fine-tuning)",
+ "deviations": [],
+ "frozen_before_results": "Inputs and prompts are the existing frozen ones: datasets_sources/parse_judge_deepseek/{input/items.jsonl,SYSTEM_a.txt,SYSTEM_c.txt} (736 items = 368 sentences x conditions a, c; reference eval/reports/current/parse-judge/{reference,extension}.jsonl, scoring tools/research/parse-judge-report.mjs) and datasets_sources/meaning_judge_calibration_v2/{input/items.jsonl,SYSTEM_m1.txt,SYSTEM_m2.txt,SYSTEM_m1r.txt} (1504 items; labels and adjudication eval/reports/current/meaning-judge/v2/, scoring tools/datasets/meaning-judge/score-calibration.mjs). No prompt is changed for any local model. Both scorers were re-run on the stored DeepSeek verdicts before the first local call and reproduced the published numbers (parse kappa 0.42 a, 0.50 c; meaning m1 95.8% raw, two-vote 98.8% raw).",
+ "systems": {
+  "reference_judges": "DeepSeek flash (parse a/c, meaning m1/m2/m1r, provider-default temperature) and Haiku (parse a/b/c; numbers from eval/reports/current/parse-judge/summary.md)",
+  "local_judges": "GGUF models run with ~/llama-cpp-venv/llama.cpp/build/bin/llama-server (CUDA build), -ngl 99, flash attention, parallel slots, prompt cache off (--no-cache-prompt, --cache-ram 0), temperature 0, seed 7. Candidate set (as available): Qwen3-4B-Instruct-2507 Q8_0; Qwen3.5-4B Q8_0; Qwen3-8B Q8_0 (thinking off and on); Qwen3.5-9B Q8_0 (off and on); Gemma 3 12B-it Q4_K_M; one larger reference (Qwen3.6-27B UD-Q8_K_XL cached locally, or a 30B-A3B MoE). Licences and sha256 are recorded in dependencies.md.",
+  "client": "tools/research/local-judge.mjs (one request per item, system prompt = the condition's SYSTEM file, user = the item's text, first balanced JSON object of the reply, up to 3 tries without a verdict)",
+  "scorers": "tools/research/local-judge-score.mjs (parse: parse-judge-report.mjs with PARSE_JUDGE_OUT; meaning: score-calibration.mjs --tag v2 --folder --out)"
+ },
+ "hypotheses": {
+  "H1": "Parse judge: at least one local model reaches, with condition c, weighted good-enough precision >= 94% and weighted good-enough recall >= 80% and binary kappa >= 0.40 against the reference (DeepSeek flash: 94.6% / 91.8% / 0.50).",
+  "H2": "Meaning judge: at least one local model reaches two-vote (m1 AND m2) raw precision of yes >= 97% on calibration set v2 with recall >= 70% (DeepSeek flash: 98.8% raw, 100% adjudicated, recall 82%); the DS008 rule is 97%.",
+  "H3": "Reproducibility: the model agrees with itself on at least 95% of the 100 repeated items (m1 vs m1r; DeepSeek flash 95%).",
+  "H4": "Throughput with parallel slots is at least 30 items per minute for the winning model on the parse set, and the electricity cost per 1,000 items is below the DeepSeek API cost per 1,000 items."
+ },
+ "decision_rule": "A local model replaces DeepSeek flash for a task when H1 (parse) or H2 (meaning) holds with the Wilson 95% lower bound of the precision at or above the task's rule (meaning 95% for the point-rule check of DS008 at 97%, parse good precision lower bound >= 90%). Model size, quantization and the thinking mode that meet the rule are reported. A model that fails is not tuned or prompted differently in this experiment (a prompt change needs a new preregistration id). Recall is reported, not decided on, except for the floors of H1 and H2.",
+ "stop_rules": [
+  "Stage 1 per model and mode: a stratified subsample (every 6th sentence of the parse set for conditions a and c, every 6th pair of the meaning set for m1 and m2). Stop that model and mode (futility) when at stage 1 the parse weighted good precision is below 88% or kappa below 0.20, or the meaning m1 raw precision is below 90% on at least 100 judged pairs with at least 10 judged positives; then continue the model only if the other task is promising.",
+  "Broken condition: stop an arm when more than 20% of the first 100 answers are unusable (no verdict after 3 tries).",
+  "Stage 2: the full sets. Stage 3 (only for the best configuration per task): reproducibility on the 100 m1r items, throughput and energy measurement.",
+  "GPU sharing: no run starts while models/.training.lock exists or a training container is running, unless the owner's 45 minute fallback applies (one llama-server, -np 4, training step rate monitored; pause when the training job slows by more than 20%). Every llama-server uses a port in 18300-18320 and is stopped by the agent that started it; port 9999 is untouched."
+ ],
+ "measurements": [
+  "parse: binary and four-class kappa, weighted good-enough precision and recall, the identical-trees (Stanza-spaCy agree) AND judge gate, unusable rate",
+  "meaning: precision and recall of yes raw and adjudicated (the DeepSeek-era adjudication list; extra false yes are counted as real, which is conservative), per negative type, two-vote rule, m1 vs m1r reproducibility, m1/m2 agreement",
+  "throughput (items per minute at the chosen slot count, tokens per item), GPU watts sampled with nvidia-smi during a run, electricity cost per 1,000 items at an assumed price, DeepSeek cost per 1,000 items estimated from the omp session files"
+ ],
+ "honesty": "The reference labels are an LLM-built gold (parse) and constructed pairs (meaning); neither is human-annotated. DeepSeek flash and Haiku are fallible comparisons, not oracles. The meaning negatives were adjudicated only for DeepSeek's false yes; a local model's additional false yes are unadjudicated and counted as real. Greedy decoding with parallel slots is not bit-exact across runs. Local numbers are not comparable across quantizations. Estimated costs depend on an assumed electricity price and on the DeepSeek list price.",
+ "deliverables": [
+  "eval/reports/current/local-judge/summary.md",
+  "eval/reports/current/local-judge/<model-mode>/ (verdicts, metrics.json, calibration.json, stats)",
+  "tools/research/local-judge.mjs",
+  "tools/research/local-judge-score.mjs"
+ ],
+ "records": [
+  "status/experiments.json",
+  "status/journal.jsonl",
+  "status/notes",
+  "dependencies.md"
+ ],
+ "rigor": [
+  "No training; no fine-tuning; port 9999 untouched; no process killed that this agent did not start."
+ ]
+}

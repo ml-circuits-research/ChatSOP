@@ -20,7 +20,8 @@ test('a fixed sample replays to the stored analysis and SOP: every row is `same`
   assert.equal(counts.same, fixture.rows.length);
   assert.equal(failing, false);
   for (const row of fixture.rows) {
-    assert.equal(row.analysis_verified, 'gold_sop_match');
+    assert.equal(row.analysis_verified, 'analysis_gate', 'membership is the analysis gate');
+    assert.equal(row.sop_layer.status, 'match', 'the fixture rows also match their gold SOP (SOP layer)');
     assert.ok(row.analysis.sentences.length > 0 && row.sop_valid);
   }
 });

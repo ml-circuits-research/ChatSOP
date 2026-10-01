@@ -1,0 +1,18 @@
+{
+ "format": "chatsop-proofreader-projection-v1",
+ "corpus": "neuro_english/proofing-it3-decomp",
+ "prompt_profile": "message-only",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "note": "Byte-identical copies of ../train.jsonl and ../dev.jsonl in the layout training/cli.mjs expects for the role proofreader.",
+ "files": {
+  "proofreader/train.jsonl": {
+   "rows": 3246,
+   "sha256": "407d0b4efbd415aaf4c22f8c061b36daa109221a5bebdd5eb3d23fc974871854"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 326,
+   "sha256": "387cc43a6e68b11b52a7929f16b5c5bf0c77739f46bc7b6a77db8b54a0e729e4"
+  }
+ }
+}
