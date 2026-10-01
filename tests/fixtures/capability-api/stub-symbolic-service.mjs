@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // Stand-in for tools/symbolic-lm.mjs in the capability API tests: like the chat-understanding stub, plus triggers in the message:
 // "BOOM" makes the service fail (HTTP 500), "NOREP" reports the word "xyz" as not represented, "UNSURE" marks the sentence uncertain,
-// "SLOW" answers after 60 ms. Every request is logged ({service: true, body}) so a test can count the real calls.
+// "SLOW" answers after 60 ms, "BADSOP" answers a model SOP whose value is not in the message (the host refuses it). Every request is logged ({service: true, body}) so a test can count the real calls.
 import http from 'node:http';
 import fs from 'node:fs';
 const args = process.argv.slice(2), arg = name => args[args.indexOf(name) + 1];
 const log = process.env.STUB_LOG;
+const bad = '@x stated\n  relation "likes"\n  role subject "Nobody"\n  role object "Alpha Lab"\n  polarity affirmed\n  certainty asserted';
 const sop = '@q query\n  where match\n    relation "likes"\n    role subject "Ana"\n    role object "Alpha Lab"\n    polarity affirmed\n  end';
 http.createServer((req, res) => {
   if (req.url === '/health') { res.end('{"status":"ok","caches":{"stub":{"entries":0}}}'); return; }
@@ -21,7 +22,7 @@ http.createServer((req, res) => {
     const nr = message.includes('NOREP') ? ['xyz'] : [];
     const status = message.includes('UNSURE') ? 'uncertain' : 'verified';
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({choices: [{message: {content: sop}, finish_reason: 'stop'}],
+    res.end(JSON.stringify({choices: [{message: {content: message.includes('BADSOP') ? bad : sop}, finish_reason: 'stop'}],
       symbolic_lm: {route: 'direct', language: 'en', uncertainty: {uncertain: false, kinds: [], reasons: []}, english: null, analysed_text: message, analysis: {language: 'en', sentences: []},
         rewrite: asked.rewrite_url ? {input: message, output: message, applied: false, gate: asked.rewrite_when, acceptance: asked.rewrite_accept, units: []} : null,
         ...(asked.interpret ? {interpretation: {version: 'stub', available: true, text: message, sentences: [{index: 0, text: message, start: 0, end: message.length, status, cnl: status === 'verified' ? message : null, cnl_sentences: [message], certified: true, not_represented: nr, rewrite: null, summary: 'root: stub'}], not_represented: nr, certified: true}} : {}),

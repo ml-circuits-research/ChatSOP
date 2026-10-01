@@ -7,7 +7,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import {hasSpan} from '../../../lib/languages-util/jargon.mjs';
+import {hasSpan} from './jargon.mjs';
 import {T, readJsonl, readArm, sentences} from './lib.mjs';
 
 const lim = process.argv.includes('--messages') ? Number(process.argv[process.argv.indexOf('--messages') + 1]) : Infinity;

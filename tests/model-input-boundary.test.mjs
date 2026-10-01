@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {barePrompt, formalPrompt} from '../server/llm.mjs';
+import {barePrompt, formalPrompt} from '../eval/llm.mjs';
 import {project, assertMessageOnly, PROMPT_PROFILE, FORBIDDEN_PROMPT} from '../tools/research/prepare-experiment.mjs';
 import {promptOf} from '../server/audit.mjs';
 import {readJsonlShardedSync} from '../lib/jsonl-shards.mjs';

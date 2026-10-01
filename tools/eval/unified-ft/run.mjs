@@ -13,7 +13,7 @@
  * Arms: chain = first layer (natural: Qwen3-4B Q4_K_M arm of translate-compare; decomp/neuro: LanguageProofingLLM prod1 through textToCleanEnglish) -> the gated, certified
  * SymbolicProofingLLM it3 rewrite (the chat's pipeline); u2 = unified model, two outputs (faithful, limited); u1 = unified model, limited only. The unified arms' final text is the limited English.
  * Verdicts: natural pairs use the translate-compare study prompt (SYSTEM_V2: project terms kept are not errors, a correct pronoun is not an error) and its tc_* verdicts; the English sets
- * use the default severity prompt, the local cascade of lib/severity and the decomp_eval_grade verdicts. A pair is judged once.
+ * use the default severity prompt, the local cascade of tools/eval/severity and the decomp_eval_grade verdicts. A pair is judged once.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -29,8 +29,8 @@ import {localGrade, readJsonl, writeJsonl} from '../severity-local.mjs';
 import {folder} from '../severity-calibration.mjs';
 import {loadVerdicts} from '../severity-judge.mjs';
 import {pairId} from '../severity-apply.mjs';
-import {rank} from '../../../lib/severity/scale.mjs';
-import {wilson} from '../../../lib/severity/metrics.mjs';
+import {rank} from '../severity/scale.mjs';
+import {wilson} from '../severity/metrics.mjs';
 import {markers} from '../decomposition/metrics.mjs';
 import {SYSTEM_V2} from '../translate-compare/judge.mjs';
 import {sentences as tcSentences, readArm} from '../translate-compare/lib.mjs';

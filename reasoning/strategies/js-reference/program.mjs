@@ -187,7 +187,7 @@ export function compileProgram(wires, {origin = new Map()} = {}) {
 
   for (const w of wires) {
     switch (w.type) {
-      case 'predicate': case 'pack': case 'policy': case 'query': case 'constraint': case 'stated': break;
+      case 'predicate': case 'lexeme': case 'entity': case 'pack': case 'policy': case 'query': case 'constraint': case 'stated': break;
       case 'fact': {
         const a = readAtom(f1(w, 'holds'), w.id, {allowNeg: true, ground: true});
         checkArity(predicates, a, w.id);

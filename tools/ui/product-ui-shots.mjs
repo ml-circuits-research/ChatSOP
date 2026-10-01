@@ -22,7 +22,7 @@ import {Repository} from '../../memory/repository.mjs';
 import {Lexicon} from '../../sop/lexicon.mjs';
 import {createServer} from '../../server/http.mjs';
 import {Auth} from '../../server/auth.mjs';
-import {loadRegistry, FormalizerManager} from '../../server/formalizers.mjs';
+import {loadRegistry, ModelManager} from '../../server/formalizers.mjs';
 import {ChatData} from '../../lib/chat-data/index.mjs';
 import {BaseMemories} from '../../lib/chat-data/memories.mjs';
 
@@ -80,7 +80,7 @@ async function startStack({port = PORT, ompBin = path.join(ROOT, 'tests/fixtures
   const registryFile = path.join(dir, 'formalizers.json');
   fs.writeFileSync(registryFile, JSON.stringify({default: 'symbolic-lm', models: [{id: 'symbolic-lm', label: 'SymbolicLM (stub)', service: path.join(ROOT, 'tests/fixtures/omp/stub-symbolic-scope.mjs'), rewrite: {mode: 'off'}}]}));
   const registry = loadRegistry(registryFile, {root: dir});
-  const manager = new FormalizerManager({registry, bin: '/bin/true', startTimeoutMs: 15000, logDir: null});
+  const manager = new ModelManager({registry, bin: '/bin/true', startTimeoutMs: 15000, logDir: null});
   const runtime = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8'));
   const chatData = ChatData.open({chatData: {root: path.join(dir, 'chat_data')}}, {});
   const memories = new BaseMemories({chatData, memory: runtime.memory});
@@ -89,7 +89,7 @@ async function startStack({port = PORT, ompBin = path.join(ROOT, 'tests/fixtures
   repo.init('demo');
   const auth = new Auth({file: path.join(dir, 'state/auth.json')});
   const formalizer = {url: `http://127.0.0.1:${mock.address().port}/v1/chat/completions`, model: 'mock'};
-  const server = createServer({config: {promptProfile: 'formal', formalizer, memory: runtime.memory, policy: {allowWrite: true}, omp: {bin: ompBin, defaultModel: 'xai-oauth/grok-4.20-0309-non-reasoning'}},
+  const server = createServer({config: {memory: runtime.memory, policy: {allowWrite: true}, omp: {bin: ompBin, defaultModel: 'xai-oauth/grok-4.20-0309-non-reasoning'}},
     repo, lexicon: demoLexicon(), auth, chatData, formalizers: {registry, manager}});
   await new Promise(resolve => server.listen(port, '127.0.0.1', resolve));
   return {dir, close: async () => { await manager.stopAll(); server.closeAllConnections?.(); server.close(); mock.close(); fs.rmSync(dir, {recursive: true, force: true}); }};

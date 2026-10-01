@@ -3,13 +3,13 @@
  * Calibration set of the severity grader (DS016 "Graded severity"): the 702 items of the meaning-judge calibration v2 with a gold severity.
  *   node tools/eval/severity-calibration.mjs build          # eval/reports/current/severity/calibration-set.jsonl
  *   node tools/eval/severity-calibration.mjs folder <name>  # datasets_sources/<name>/ omp task folder (items for the LLM severity judge)
- * Gold severity: `eval/severity/calibration-hand.json` (hand-assigned: the 105 hard negatives and the case-by-case typed negatives), else the TYPE_MAP default of lib/severity/scale.mjs; positives are S0.
+ * Gold severity: `eval/severity/calibration-hand.json` (hand-assigned: the 105 hard negatives and the case-by-case typed negatives), else the TYPE_MAP default of tools/eval/severity/scale.mjs; positives are S0.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import {ROOT} from '../../lib/dataset-paths.mjs';
-import {TYPE_MAP} from '../../lib/severity/scale.mjs';
-import {JUDGE_SYSTEM, JUDGE_PROMPT_VERSION} from '../../lib/severity/judge-prompt.mjs';
+import {TYPE_MAP} from './severity/scale.mjs';
+import {JUDGE_SYSTEM, JUDGE_PROMPT_VERSION} from './severity/judge-prompt.mjs';
 
 export const SEV_DIR = path.join(ROOT, 'eval/reports/current/severity');
 export const CAL_FILE = path.join(SEV_DIR, 'calibration-set.jsonl');

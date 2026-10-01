@@ -68,7 +68,7 @@ test('executable decision rows preserve proof class and do not invent a new hard
 
 test('DEFAULT proposal with explicit exception and absent support is never promoted to a hard rule', async () => {
   // The user's own default ("Normally ...") is a hedged user statement: conditional, never a hard rule.
-  const lexicon = new Lexicon('@likes predicate\n  role subject person\n  role object entity\n  alias en "likes"\n@ana entity\n  kind person\n  label en "Ana"\n@book entity\n  kind entity\n  label en "this book"');
+  const lexicon = new Lexicon('@likes predicate\n  role subject person\n  role object entity\n  label en "likes"\n@ana entity\n  kind person\n  label en "Ana"\n@book entity\n  kind entity\n  label en "this book"');
   const question = '@q query\n  where match\n    relation "likes"\n    role subject "Ana"\n    role object "this book"\n    polarity affirmed\n  end';
   const statement = '@p stated\n  relation "likes"\n  role subject "Ana"\n  role object "this book"\n  polarity affirmed\n  certainty hedged\n' + question;
   const model = new Runtime({lexicon, schema:lexicon.predicates, now:Date.parse('2026-09-26')});

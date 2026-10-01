@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {units, loadJudges, measure, sevOf} from './judge.mjs';
 import {pairId} from '../severity-apply.mjs';
-import {rank} from '../../../lib/severity/scale.mjs';
+import {rank} from '../severity/scale.mjs';
 import {T} from './lib.mjs';
 
 const {g, z} = loadJudges();

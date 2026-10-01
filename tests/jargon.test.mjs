@@ -1,8 +1,8 @@
-// LanguagesUtil jargon detector and protector (lib/languages-util/jargon.mjs, proposal of the translate-compare study 2026-10-01).
+// LanguagesUtil jargon detector and protector (tools/eval/translate-compare/jargon.mjs, proposal of the translate-compare study 2026-10-01).
 // Uses a tiny stub of the spellfix word lists, so the test does not load the 1 GB dictionaries.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {detectJargon, protectJargon, restoreJargon, discoverJargon, hasSpan} from '../lib/languages-util/jargon.mjs';
+import {detectJargon, protectJargon, restoreJargon, discoverJargon, hasSpan} from '../tools/eval/translate-compare/jargon.mjs';
 
 const en = new Set(['review', 'gate', 'tests', 'the', 'and', 'wires', 'model', 'train']);
 const ro = new Set(['fa', 'un', 'si', 'pune', 'inainte', 'de', 'antrenare', 'nu', 'trece', 'pe', 'fire', 'teste', 'complet', 'calitatea', 'cind', 'ai']);

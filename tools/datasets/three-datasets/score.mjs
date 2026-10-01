@@ -2,13 +2,13 @@
  *
  * "Strict" is the measure of eval-clean-english-v1: rows with a verification world are scored by `eval/run.mjs`
  * `evaluate()` (strict execution equivalence with the gold SOP), rows without a world by the `wildScore` function the
- * caller supplies (`scoreAgainstAccepted` against every accepted gold). Rules version: ud-rules-v2.8 (Stanza accurate package).
+ * caller supplies (`scoreAgainstAccepted` against every accepted gold). Rules version: ud-rules-v2.9 (Stanza accurate package).
  */
 import {evaluate} from '../../../eval/run.mjs';
 import {loadFrames, normalizeProgram} from '../../../sop/frames.mjs';
 import {diffCategories, classesOf} from '../../research/symbolic-layers-diff.mjs';
 
-export const RULES_VERSION = 'ud-rules-v2.8';
+export const RULES_VERSION = 'ud-rules-v2.9';
 const keyOf = r => `${r.corpus}::${r.sourceId}`;
 const rowOf = r => ({...r.row, id: keyOf(r)});
 

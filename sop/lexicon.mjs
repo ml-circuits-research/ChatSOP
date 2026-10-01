@@ -14,7 +14,7 @@ import {normalize, fold, tokens, phraseKey} from './text-keys.mjs';
 export {normalize};
 
 /** Version of the compiled format: part of every cache key and of the serialized form. */
-export const LEXICON_FORMAT = 2;
+export const LEXICON_FORMAT = 4;
 
 const spans = (s, a) => { const out = []; let at = s.indexOf(a); while (at >= 0) { const end = at + a.length, left = at === 0 || !/[\p{L}\p{N}_]/u.test(s[at - 1]), right = end === s.length || !/[\p{L}\p{N}_]/u.test(s[end]); if (left && right) out.push([at, end]); at = s.indexOf(a, at + 1); } return out; };
 const field = (w, key) => w.fields.find(f => f.key === key)?.value.trim();
@@ -28,7 +28,7 @@ export class Lexicon {
     const parts = circuits ?? (source.trim() ? [{name: provenance, text: source}] : []);
     this.entities = {}; this.predicates = {}; this.classes = {}; this.lexemes = [];
     this.entries = []; this.index = new Map(); this.exact = new Map(); this.folded = new Map();
-    this.predicatesByKey = new Map(); this.formsByKey = new Map(); this.isA = new Map();
+    this.predicatesByKey = new Map(); this.formsByKey = new Map(); this.isA = new Map(); this.factCounts = new Map();
     this.version = digest(parts.map(c => c.name + '\0' + c.text).join('\0'));
     this.provenance = provenance;
     this.compile(parts);
@@ -48,7 +48,7 @@ export class Lexicon {
     for (const w of wires) if (w.type === 'entity') this.addEntity(w);
     for (const w of wires) if (w.type === 'lexeme') this.addLexeme(w);
     for (const w of wires) if (w.type === 'fact') this.addFact(w);
-    for (const p of Object.values(this.predicates)) this.indexPredicate(p);
+    for (const p of Object.values(this.predicates)) { p.factCount = this.factCounts.get(p.id) ?? 0; this.indexPredicate(p); }
     for (const e of Object.values(this.entities)) this.indexEntity(e);
   }
 
@@ -99,6 +99,10 @@ export class Lexicon {
 
   addFact(w) {
     const [p, a, b] = wireTokens(field(w, 'holds') ?? '');
+    // The facts of the memory per predicate: the KnowledgeLinker's evidence that a predicate can answer something (`predicate.factCount`).
+    if (p) this.factCounts.set(p, (this.factCounts.get(p) ?? 0) + 1);
+    // The memory's description of an entity (world-v1: the Wikidata description) tells namesakes apart in a clarification.
+    if (p === 'description' && a && b && this.entities[a] && !this.entities[a].description) { try { const text = JSON.parse(b); if (typeof text === 'string' && text.trim()) this.entities[a].description = text.trim().slice(0, 160); } catch { /* not a quoted text */ } }
     if (p !== 'is_a' || !a || !b || !/^[a-z]/.test(a) || !/^[a-z]/.test(b)) return;
     (this.isA.get(a) ?? this.isA.set(a, new Set()).get(a)).add(b);
   }
@@ -134,10 +138,15 @@ export class Lexicon {
 
   isClass(id) { return Boolean(this.classes[id]); }
 
+  /** Entries with the surface; a `type` admits an entity of that class or of any subclass (`classesOf`). */
   matching(surface, {language, kind, type, domain}) {
-    const matches = (index, key) => [...new Map((index.get(key) ?? []).map(i => this.entries[i]).filter(e => (language === 'auto' || e.language === language || e.language === 'und') && e.kind === kind && (!type || e.type === type) && (!domain || e.domain === domain)).map(e => [e.id, e])).values()];
+    const matches = (index, key) => [...new Map((index.get(key) ?? []).map(i => this.entries[i]).filter(e => (language === 'auto' || e.language === language || e.language === 'und') && e.kind === kind && (!type || e.type === type || (e.kind === 'entity' && this.classesOf(e.id).has(type))) && (!domain || e.domain === domain)).map(e => [e.id, e])).values()];
     const exact = matches(this.exact, normalize(surface));
-    return {found: exact.length ? exact : matches(this.folded, fold(surface)), match: exact.length ? 'exact' : 'accent-folded'};
+    const result = {found: exact.length ? exact : matches(this.folded, fold(surface)), match: exact.length ? 'exact' : 'accent-folded'};
+    // A leading English article is not part of a name unless the memory's own label carries it ("the United Kingdom" for the label "United Kingdom"): tried only after the whole surface found nothing.
+    const bare = result.found.length || kind !== 'entity' ? null : String(surface).replace(/^(?:the|an?)\s+(?=\S)/i, '');
+    if (bare && bare !== surface) { const retry = this.matching(bare, {language, kind, type, domain}); if (retry.found.length) return {found: retry.found, match: retry.match === 'exact' ? 'article-stripped' : 'article-stripped, accent-folded'}; }
+    return result;
   }
 
   resolve(surface, {language, kind, type, domain} = {}) {

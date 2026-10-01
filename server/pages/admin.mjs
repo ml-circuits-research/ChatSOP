@@ -15,8 +15,8 @@ async function render(){
  if(!s.authenticated){show('<div class="card"><p>You are not signed in. <a class="button primary" href="/login?next=%2Fadmin">Sign in</a></p></div>');return;}
  const tokens=(s.tokens??[]).map(t=>'<li><code>'+esc(t.id)+'</code> '+esc(t.label)+' <span class="muted">created '+esc(t.created)+'</span> <button data-revoke="'+esc(t.id)+'">revoke</button></li>').join('')||'<li class="muted">none yet</li>';
  show('<div class="grid"><a class="tile" href="/chat"><b>Chat</b><span>Open the chat</span></a><a class="tile" href="/audit"><b>Corpus audit</b><span>Review corpus cases</span></a></div>'+
-  '<section class="card"><h2>Status</h2><ul class="plain"><li>Formalizer ready: <b class="'+(s.ready?'ok':'bad')+'">'+(s.ready?'yes':'no')+'</b> <span class="muted">(chat answers return 503 until a formalizer endpoint is ready; see the home page)</span></li>'+
-  '<li>Prompt profile: <code>'+esc(s.prompt_profile??'n/a')+'</code></li></ul></section>'+
+  '<section class="card"><h2>Status</h2><ul class="plain"><li>Formalizer ready: <b class="'+(s.ready?'ok':'bad')+'">'+(s.ready?'yes':'no')+'</b> <span class="muted">(chat answers return 503 until the SymbolicLM service can start; see the home page)</span></li>'+
+  '</ul></section>'+
   '<section class="card"><h2>API tokens</h2><p class="muted">For curl, SDKs and scripts: send <code>Authorization: Bearer &lt;token&gt;</code>. A token is shown once.</p><p><input id="label" placeholder="label, e.g. laptop" maxlength="40"> <button class="primary" id="mint">Create token</button></p><div id="fresh"></div><ul class="plain">'+tokens+'</ul></section>');
  $('mint').onclick=mint;
  $('app').querySelectorAll('[data-revoke]').forEach(button=>{button.onclick=()=>revoke(button.dataset.revoke)});

@@ -75,6 +75,9 @@ export function questionType(sop) {
 export function targetProblems(sop, message, language) {
   const problems = [];
   let program;
+  // The sealed wild suite is archived and predates the English-only core (2026-10-01): its `unclear` targets may carry a `language ro` line, a
+  // field that has no effect any more (the current parser accepts `en` only). The line is dropped before the target is checked.
+  sop = sop.replace(/^(\s+)language (?!en\b)[a-z]{2,3}[ \t]*$/gm, (line, space, offset) => (/@\w+ unclear/.test(sop.slice(Math.max(0, sop.lastIndexOf('\n@', offset)), offset)) ? '' : line));
   try { program = checkModelProgram(parse(sop)); compileDeclarative(sop, {inputText: message}); } catch (error) { return [error.message.split('\n')[0]]; }
   for (const wire of program.wires) if (wire.type === 'stated' && language === 'en') {
     const proposition = propositionOf(wire);

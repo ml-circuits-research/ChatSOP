@@ -5,8 +5,8 @@ import path from 'node:path';
 import {SEV_DIR, loadCalibration} from './severity-calibration.mjs';
 import {loadVerdicts} from './severity-judge.mjs';
 import {readJsonl} from './severity-local.mjs';
-import {confusion, summaryMetrics, matrixMarkdown, fmt, wilson} from '../../lib/severity/metrics.mjs';
-import {isGoodEnough, rank} from '../../lib/severity/scale.mjs';
+import {confusion, summaryMetrics, matrixMarkdown, fmt, wilson} from './severity/metrics.mjs';
+import {isGoodEnough, rank} from './severity/scale.mjs';
 
 const cal = loadCalibration();
 const local = new Map(readJsonl(path.join(SEV_DIR, 'calibration-local.jsonl')).map(r => [r.id, r.local]));

@@ -240,8 +240,7 @@ export const cookieOf = response => (response.headers.get('set-cookie') ?? '').s
 
 /**
  * A full ChatSOP server with the administrator auth store, the corpus audit
- * and a formalizer URL that points at a closed port (so chat reaches the
- * model-readiness check and stops there). The audit ledger always lives in
+ * and no model registry (so the chat answers 503 model_unavailable and the readiness check reports not ready). The audit ledger always lives in
  * the test's temporary directory, never in eval/reports/current/audit.
  */
 export async function adminServer(t, {apiKey = null, password = null} = {}) {
@@ -251,8 +250,7 @@ export async function adminServer(t, {apiKey = null, password = null} = {}) {
   repo.init('demo');
   const auth = new Auth({file: path.join(root, 'state/auth.json'), apiKey});
   const ledger = path.join(root, 'ledger');
-  const formalizer = {url: `http://127.0.0.1:${await closedPort()}/v1/chat/completions`, model: 'mock'};
-  const server = await withEnv('CHATSOP_AUDIT_LEDGER', ledger, () => createServer({config: {promptProfile: 'formal', formalizer}, repo, lexicon: lex, auth}));
+  const server = await withEnv('CHATSOP_AUDIT_LEDGER', ledger, () => createServer({config: {}, repo, lexicon: lex, auth}));
   const base = await listen(t, server);
   const call = httpClient(base);
   let session = null;

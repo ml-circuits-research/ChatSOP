@@ -20,7 +20,6 @@ import {assert} from '../lib/util.mjs';
 
 const host = process.env.CHATSOP_HOST ?? '0.0.0.0';
 const port = Number(process.env.CHATSOP_PORT ?? 9999);
-if (!process.env.CHATSOP_PROMPT_PROFILE) process.env.CHATSOP_PROMPT_PROFILE = 'formal';
 
 const server = await startServer({host, port, ...(process.env.CHATSOP_CONFIG ? {configPath: process.env.CHATSOP_CONFIG} : {})});
 const address = server.address();
@@ -48,7 +47,6 @@ if (server.auth?.configured) {
 } else {
   console.log('  authentication: open the home URL in a browser and choose the administrator password');
 }
-console.log(`  prompt profile: ${process.env.CHATSOP_PROMPT_PROFILE}`);
 if (server.formalizers) {
   const {registry, manager} = server.formalizers;
   console.log(`\nFormalizer models (${registry.file}): ${registry.models.map(m => m.id + (m.id === registry.default ? ' (default)' : '')).join(', ')}`);

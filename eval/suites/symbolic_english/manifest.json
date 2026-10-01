@@ -6,23 +6,23 @@
  "model": "SymbolicLM (regression suite); seed forms for SymbolicProofingLLM",
  "purpose": "Correct English whose SymbolicLM grammatical analysis is correct (every sentence: identical default and accurate Stanza trees and the DeepSeek parse judge, conditions a and c, good enough). Each row stores the message, SymbolicLM grammatical analysis (compact UD parse) and, for the later layer, the SOP Lang output with its gold comparison (sop_layer). A regression suite: whenever SymbolicLM, the Stanza model or the engine changes, every row must still be analysed the same or better (node tools/symbolic-regression.mjs). Also the inventory of forms SymbolicProofingLLM should rewrite into.",
  "path": "eval/suites/symbolic_english/test.jsonl",
- "rows": 1605,
- "sha256": "ffc3468c3924d586af23934fd07fc2dd9cfe17ce52d7975881fbc7f724483e83",
- "bytes": 4832916,
+ "rows": 1604,
+ "sha256": "cbc012bef851b0d1608e9ef793877cd8379212beeb0984db60bdb61646c17763",
+ "bytes": 4830434,
  "counts": {
-  "rows": 1605,
+  "rows": 1604,
   "by_source": {
    "formalizer-ood-v1": 35,
-   "formalizer-v1": 1194,
+   "formalizer-v1": 1193,
    "formalizer-wild-v1": 6,
    "new_cases": 370
   },
   "by_analysis_verified": {
-   "analysis_gate": 1593,
+   "analysis_gate": 1592,
    "sop_rule": 12
   },
   "by_sop_layer": {
-   "match": 912,
+   "match": 911,
    "mismatch": 323,
    "no_gold": 370
   }

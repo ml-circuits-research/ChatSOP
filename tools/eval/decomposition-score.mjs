@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Decomposition scoring (experiment eval-decomposition-v1, DS016 "Decomposition and detectability"): runs arms over the sealed decomposition suite
- * (eval/suites/decomposition/test.jsonl) and grades what the user would be told, with the graded severity grader (lib/severity) as primary.
+ * (eval/suites/decomposition/test.jsonl) and grades what the user would be told, with the graded severity grader (tools/eval/severity) as primary.
  *
  *   node tools/eval/decomposition-score.mjs arms   --endpoint URL [--arms none,it2-always,it2-gated,it2-partial] [--suite F]   run the arms (CPU Stanza), write arms/<arm>.jsonl
  *   node tools/eval/decomposition-score.mjs pairs                                                     severity pairs (message vs summary, message vs rewrite), local layers, omp residue folders
@@ -27,8 +27,8 @@ import {endpointRewriter, cachedRewriter} from './composed/rewriters.mjs';
 import {localGrade, readJsonl, writeJsonl} from './severity-local.mjs';
 import {folderFromPairs, loadVerdicts} from './severity-judge.mjs';
 import {pairId} from './severity-apply.mjs';
-import {rank, SEVERITIES} from '../../lib/severity/scale.mjs';
-import {fmt} from '../../lib/severity/metrics.mjs';
+import {rank, SEVERITIES} from './severity/scale.mjs';
+import {fmt} from './severity/metrics.mjs';
 import {markers, understoodText, maxSeverity, failureStats, shapeStats, paired} from './decomposition/metrics.mjs';
 import {TANGLE_TYPES} from './decomposition/tangle.mjs';
 

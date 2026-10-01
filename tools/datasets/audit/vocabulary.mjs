@@ -526,7 +526,8 @@ export function modelTargetIdFindings(row) {
     if (key === 'span') continue;
     for (const quoted of rest.match(/"(?:\\.|[^"\\])*"/g) ?? []) {
       const value = JSON.parse(quoted);
-      if (ID_LIKE.some(pattern => pattern.test(value))) findings.push(`line ${index + 1}: ${key} value ${quoted} looks like an identifier`);
+      // An identifier-looking token the user typed (a PO number, a ticket) is part of the message, not a context identifier.
+      if (ID_LIKE.some(pattern => { const token = value.match(pattern)?.[0]; return token !== undefined && !verbatimIn(token, row.question ?? ''); })) findings.push(`line ${index + 1}: ${key} value ${quoted} looks like an identifier`);
       if (wire === 'stated' && key === 'role' && !anchoredValue(value, row.question ?? '', row)) findings.push(`line ${index + 1}: stated value ${quoted} is not in the message`);
     }
     if (key === 'role' && !/^\S+\s+("(?:\\.|[^"\\])*"|-?\d+|\?[A-Za-z][A-Za-z0-9_]*|\$[A-Za-z][A-Za-z0-9_]*)\s*$/.test(rest)) findings.push(`line ${index + 1}: role value is not a JSON string, integer, ?variable or $id`);

@@ -7,8 +7,8 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import {mechanicalSeverity, mechanicalChecks, MECHANICAL_VERSION} from '../../lib/severity/mechanical.mjs';
-import {severityFromComparison} from '../../lib/severity/analysis-map.mjs';
+import {mechanicalSeverity, mechanicalChecks, MECHANICAL_VERSION} from './severity/mechanical.mjs';
+import {severityFromComparison} from './severity/analysis-map.mjs';
 import {comparePairs} from './analysis-compare.mjs';
 
 export const readJsonl = f => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)) : []);

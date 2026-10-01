@@ -5,7 +5,7 @@ import path from 'node:path';
 import {adminServer, readJsonl, repoUrl} from '../helpers.mjs';
 import {corpusSkip, splitFiles} from './corpus.mjs';
 import {SOP_CONTRACT, renderSopHtml, sopCodeScript} from '../../server/pages/sop-code.mjs';
-import {barePrompt} from '../../server/llm.mjs';
+import {barePrompt} from '../../eval/llm.mjs';
 import {readJsonlShardedSync} from '../../lib/jsonl-shards.mjs';
 
 // The audit loads every corpus under datasets/ and eval/suites/; these tests

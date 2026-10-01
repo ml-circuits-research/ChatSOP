@@ -70,10 +70,11 @@ test('copulaForm and nounPhrase: be, be a, be in; articles are language data', (
 test('predicate wires declare readings: validated by the lexicon and by the knowledge grammar', () => {
   assert.deepEqual(declaredPredicates(LEXICON, 'describe').map(p => p.id), ['instance_of', 'occupation']);
   assert.deepEqual(declaredPredicates(LEXICON, 'location').map(p => p.id), ['located_in']);
-  assert.throws(() => new Lexicon(predicate('p', ['subject entity', 'object entity'], 'reading wizard')), /reading wizard is not one of class, occupation, attribute, identity, location, describe/);
-  assert.throws(() => new Lexicon(predicate('p', ['subject entity', 'object entity'], 'reading class', 'reading class')), /repeats a reading/);
-  assert.throws(() => new Lexicon(predicate('p', ['subject entity', 'object entity'], 'describe_rank 2')), /describe_rank .* needs reading describe/);
-  assert.throws(() => new Lexicon(predicate('p', ['object entity', 'subject entity'], 'reading class')), /reading class needs roles subject object/);
+  const codes = text => validateProgram([{name: 'k', text, role: 'knowledge'}]).problems.map(p => p.code);
+  assert.ok(codes(predicate('p', ['subject entity', 'object entity'], 'reading wizard')).includes('bad_enum'));
+  assert.ok(codes(predicate('p', ['subject entity', 'object entity'], 'reading class', 'reading class')).includes('repeated_reading'));
+  assert.ok(codes(predicate('p', ['subject entity', 'object entity'], 'describe_rank 2')).includes('describe_rank_needs_describe'));
+  assert.ok(codes(predicate('p', ['object entity', 'subject entity'], 'reading class')).includes('reading_roles_mismatch'));
   const ok = validateProgram([{name: 'k', text: '@p predicate\n  args subject:entity object:entity\n  reading class\n  reading describe\n  describe_rank 2\n', role: 'knowledge'}]);
   assert.equal(ok.ok, true);
   const bad = validateProgram([{name: 'k', text: '@p predicate\n  args subject:entity object:entity\n  reading wizard\n', role: 'knowledge'}]);
@@ -155,6 +156,11 @@ test('"be in" / "be located in" / "Where is Paris?": the location reading, with 
   assert.deepEqual(rows(await run(question('be located in', [['subject', 'Paris'], ['location', '?place']], {select: '?place'}))), ['france']);
   assert.deepEqual(rows(await run(question('be in', [['subject', '?c'], ['location', 'France']], {select: '?c'}))), ['lyon', 'paris']);
   assert.equal(status(await run(question('be in', [['subject', 'Lyon'], ['location', 'Paris']]))), 'unknown');
+  // SymbolicLM writes "Where is Paris?" as the bare copula with a location role.
+  const where = await run(question('be', [['subject', 'Paris'], ['location', '?place']], {select: '?place'}));
+  assert.deepEqual(rows(where), ['france']);
+  assert.equal(where.result.packet.linking.find(e => e.kind === 'relation').symbol, 'located_in');
+  assert.equal(status(await run(question('be', [['subject', 'Paris'], ['location', 'France']]))), 'supported');
 }));
 
 test('Romanian copula forms: "Cine este Ana?" and "Ana este un medic"', async () => withKnowledge(async run => {
@@ -179,10 +185,9 @@ test('a memory with no declared readings gets a precise question, never "unknown
   }, bare, fact(0, 'works_at ana acme'));
 });
 
-test('the question is rendered in Romanian on request', async () => {
+test('the question is rendered in English; another language is the translation at the output edge', async () => {
   const bare = new Lexicon(predicate('works_at', ['subject entity', 'object entity']));
-  const issue = {kind: 'relation', status: 'copula_unclear', text: 'be', question: {en: 'EN', ro: 'RO'}, candidates: []};
-  assert.equal(linkQuestion([issue], 'ro'), 'RO');
+  const issue = {kind: 'relation', status: 'copula_unclear', text: 'be', question: 'EN', candidates: []};
   assert.equal(linkQuestion([issue]), 'EN');
   assert.equal(linkRelation('be', ['subject', 'object'], bare).status, 'unknown');
 });

@@ -22,20 +22,7 @@
   span "Thanks a lot"
   source symbolic
   basis lexicon</code></pre><p>The greeting, the polite frame and the thanks are classified instead of staying <code>unparsed</code>; the question itself is formalized by SymbolicLM as usual. The three signals ask for no computation of their own.</p>
-<h2>A hedge attached to a statement, in Romanian</h2><p class="example-message"><span class="lang">RO</span> “Cred că Ana lucrează la Alpha.”</p><pre data-sop="current"><code>@s1 stated
-  relation "lucra la"
-  role subject "Ana"
-  role object "Alpha"
-  polarity affirmed
-  certainty hedged
-
-@p1 pragmatic
-  kind hedge
-  score 0.8
-  span "Cred că"
-  near $s1
-  source symbolic
-  basis lexicon</code></pre><p>The hedge is consistent with <code>certainty hedged</code> on the statement: the reasoner treats the statement as a supposition, never as evidence.</p>
+<h2>A hedge attached to a statement</h2><p>The hedge is consistent with <code>certainty hedged</code> on the statement: the reasoner treats the statement as a supposition, never as evidence.</p>
 <h2>A whole-message signal from a classifier</h2><pre data-sop="current"><code>@p1 pragmatic
   kind frustration
   score 0.82

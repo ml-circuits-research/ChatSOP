@@ -168,8 +168,8 @@ export async function scratchServer({password = 'link-checker-password'} = {}) {
   process.env.CHATSOP_AUDIT_LEDGER = path.join(dir, 'ledger');
   let server;
   try {
-    // An unreachable formalizer: the chat page renders and the API answers 503.
-    server = createServer({config: {promptProfile: 'formal', formalizer: {url: 'http://127.0.0.1:9/v1/chat/completions', model: 'unavailable'}}, repo, lexicon: demoLexicon(), auth});
+    // No model registry: the chat page renders and the API answers 503.
+    server = createServer({config: {}, repo, lexicon: demoLexicon(), auth});
   } finally {
     if (previous === undefined) delete process.env.CHATSOP_AUDIT_LEDGER; else process.env.CHATSOP_AUDIT_LEDGER = previous;
   }

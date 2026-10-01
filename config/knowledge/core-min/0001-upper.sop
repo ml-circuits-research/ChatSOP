@@ -26,50 +26,42 @@
   label en "class"
   alias en "category"
   alias en "type"
-  label ro "clasă"
 
 @entity entity
   kind class
   label en "entity"
   alias en "thing"
-  label ro "entitate"
 
 @person entity
   kind class
   label en "person"
   alias en "human"
   alias en "individual"
-  label ro "persoană"
 
 @organization entity
   kind class
   label en "organization"
   alias en "organisation"
   alias en "institution"
-  label ro "organizație"
 
 @place entity
   kind class
   label en "place"
   alias en "location"
-  label ro "loc"
 
 @occupation entity
   kind class
   label en "occupation"
   alias en "profession"
   alias en "job"
-  label ro "ocupație"
 
 @property entity
   kind class
   label en "property"
   alias en "attribute"
   alias en "quality"
-  label ro "proprietate"
 
 @unit entity
   kind class
   label en "unit"
   alias en "unit of measure"
-  label ro "unitate de măsură"

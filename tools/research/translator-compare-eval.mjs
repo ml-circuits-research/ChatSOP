@@ -17,7 +17,7 @@
  * restore -> English Stanza + rules), `matrix` (mixed set only: lib/languages-util/frame.mjs detects the frame
  * language from function words; a `ro` frame is parsed directly, an `en` frame gets its Romanian content words
  * glossed in place before parsing). `apertium` is not run: no Romanian-English Apertium pair exists (recorded in
- * lib/translator-service/backends/apertium.mjs and dependencies.md).
+ * tools/research/translator-backends/apertium.mjs and dependencies.md).
  *
  * Scoring (eval/run.mjs `evaluate`, DS016): strict (execution_equivalent, no dictionary) and the host-normalized
  * score (execution_equivalent_tolerant, dictionary on -- the "frame-normalized" reading of Q-PIPE-1's decision
@@ -33,8 +33,8 @@ import {createSymbolicLM} from '../../lib/symbolic-lm/index.mjs';
 import {detectFrame} from '../../lib/languages-util/frame.mjs';
 import {defaultDictionary, fold} from '../../sop/dictionary.mjs';
 import {evaluate} from '../../eval/run.mjs';
-import {translateBatch as opusMtTranslateBatch, missing as opusMtMissing} from '../../lib/translator-service/backends/opus-mt.mjs';
-import {missing as apertiumMissing} from '../../lib/translator-service/backends/apertium.mjs';
+import {translateBatch as opusMtTranslateBatch, missing as opusMtMissing} from './translator-backends/opus-mt.mjs';
+import {missing as apertiumMissing} from './translator-backends/apertium.mjs';
 import {pairedDelta, wilson} from './symbolic-lm-eval.mjs';
 import {stages as stratifiedStages} from './ud-baseline-eval.mjs';
 

@@ -157,7 +157,7 @@ test('the docs header and the server layout render the same menu from one source
     assert.match(header, /action="\/logout"/);
   }
   const labels = entries(docs).map(([, text]) => text);
-  assert.deepEqual(labels, ['Home', 'Chat', 'Audit', 'Eval', 'Experiments', 'Index: tasks &amp; experiments', 'Topics', 'Reports', 'Timeline &amp; live status', 'Open questions', 'Admin', 'Docs', 'Overview', 'Runtime', 'Input language', 'Capability APIs', 'Training', 'Wiki', 'Specifications', 'Wire help', 'How the model writes', 'Question types']);
+  assert.deepEqual(labels, ['Home', 'Chat', 'Audit', 'Eval', 'Experiments', 'Index: tasks &amp; experiments', 'Topics', 'Reports', 'Timeline &amp; live status', 'Open questions', 'Admin', 'Docs', 'Overview', 'Runtime', 'Architecture', 'Input language', 'Capability APIs', 'Training', 'Wiki', 'Specifications', 'Wire help', 'How the model writes', 'Question types']);
   assert.equal(SITE_MENU.length, 7);
   assert.match(renderSiteHeader({account: 'signin', next: '/eval'}), /\/login\?next=%2Feval/);
   const asset = await call('/assets/sop-code.mjs');

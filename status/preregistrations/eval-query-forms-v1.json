@@ -1,0 +1,34 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-query-forms-v1",
+  "name": "Query forms end to end: counts, superlatives, ordinals, comparatives, multi-hop and age, from the question through SymbolicLM rules v2.9, the KnowledgeLinker and the reference route",
+  "registered_at": "2026-10-01T19:10:00Z",
+  "registered_by": "query-surface-agent (owner priority of 2026-10-01: KBQA is the yardstick; these forms were 0% or clarifications)",
+  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "kind": "evaluation-only (CPU SymbolicLM parse; no training; omp openai-codex/gpt-6-luna writes the dev questions)",
+  "frozen_before_results": "Written after the design (topic note of the model-language topic, 2026-10-01) and the first hand probes of single questions on world-v1 (tools/eval/query-forms-probe.mjs), and before any dev row existed and before any sealed KBQA row was read for this experiment. The sealed KBQA suites (eval/suites/kbqa-*) are never used for tuning: they are measured once, at the end, with tag `qf`.",
+  "system_under_test": {
+    "chain": "question (message only) -> SymbolicLM service (rules v2.9, lib/ud-to-sop/measure-forms.mjs) -> Agent (admission, KnowledgeLinker, reference route over the slice of the base memory; chat-turn circuit rules including computations) -> result packet",
+    "dev_memory": "the base memory world-v1 (Wikidata subset, CC0) rebuilt on the current core-en (config/knowledge/core-en/0200-measures.sop adds the measure lexemes and the derived lived_years rule), loaded in a private chat data root (datasets_sources/query-forms/chat_data). Slice budget for the dev run: maxLookups 300000, maxProbes 600000, maxFacts 60000, retrievalMs 60000 (the product defaults make a transitive located_in question incomplete)."
+  },
+  "data": {
+    "dev": "eval-query-forms-v1 dev set: questions of seven forms (count, superlative, ordinal, comparative_yesno, comparative_choice, multihop, age) over world-v1 entities, written by openai-codex/gpt-6-luna with a knowledge query and the answer it believes; the gold is the oracle's answer to that knowledge query on world-v1 (tools/eval/query-forms/gold.mjs) and a row is kept only when the oracle answer is definite and equals the model's own expectation (two independent sources agree); the LLM never decides the gold.",
+    "hygiene": "same forms, different words (AGENTS.md direction 9): the dev questions share no content-word multiset and no entity-question pair with the KBQA test rows (tools/eval/query-forms/overlap.mjs, run before measuring); rows with a lexical duplicate are dropped. The dev rows are used for diagnosis and rule work; no sealed row is.",
+    "sealed": "eval/suites/kbqa-mintaka, kbqa-lcquad2, kbqa-qald10, kbqa-simplequestions via `node tools/eval/kbqa.mjs run --suite S --stage N --tag qf` and `report`, stages and stopping per eval-kbqa-v1 (100, 300; futility when the Wilson upper bound at 300 is below 3%)."
+  },
+  "hypotheses": {
+    "H1": "On the dev set the chain answers correctly more than half of the count, superlative, comparative and age questions whose slice completes, with a wrong-answer rate below 10% on every form (failures are honest clarifications or `incomplete`).",
+    "H2": "Ordinals and multi-hop questions are answered less often than the single-measure forms because of linking (entity namesakes, relation phrases of the inner noun phrase), not because of the language rules: the failure layer with most dev failures is the KnowledgeLinker.",
+    "H3": "On the sealed KBQA suites the change is small: the type-level accuracy of count, superlative, comparative, ordinal and multihop questions stays below 25% at stage 300, because their mechanical Wikidata lexicon has no gradable-adjective lexemes; the dev-set gain does not transfer by itself."
+  },
+  "metrics": {
+    "primary": "dev: accuracy per form = correct / n (correct, wrong, unknown exclusive; wrong = a definite answer different from the gold); sealed: accuracy per type of the existing KBQA scorer",
+    "secondary": ["wrong rate", "clarification rate", "incomplete rate", "failure attribution by layer (symbolic_lm, linker, slice, engine)", "rules replay: symbolic_english rows changed (must be explained row by row)"],
+    "intervals": "Wilson 95% for proportions"
+  },
+  "stopping_rules": {
+    "dev": "the whole dev set is run (a few hundred rows, minutes); rule changes are made on the first half of each form (odd ids) and the second half is the check; futility: if after the rules work a form stays below 10% correct, it is reported as not reached, not tuned further on the check half",
+    "sealed": "stage 100 then 300; stop when more than 20% of the first 100 questions end in an error or an empty SOP (broken) or when the 95% Wilson upper bound at 300 is below 3% (futility), as in eval-kbqa-v1; every stop is recorded in the journal, a topic note and the experiment record"
+  },
+  "deviations": []
+}

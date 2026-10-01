@@ -10,10 +10,13 @@ import {createLayer,knowledgeConfig} from './factory.mjs';
 import {atomKey} from '../lib/types.mjs';
 import {digest,loadJSON,saveJSON,checkName,assert} from '../lib/util.mjs';
 const ID=/^[a-f0-9]{64}$/;
+/** Decoded snapshots shared by every repository of the process, by snapshot id (least recently used first); read-only. */
+const SHARED=new Map();
+const SHARED_SNAPSHOTS=Number(process.env.CHATSOP_SHARED_SNAPSHOTS)||512;
 export class Repository{
  constructor(root,{memory={},maxCachedSnapshots=16}={}){
   this.root=path.resolve(root);this.memory=memory;this.maxCachedSnapshots=maxCachedSnapshots;
-  fs.mkdirSync(this.root,{recursive:true});this.cache=new Map();this.writing=false;this.reload();
+  fs.mkdirSync(this.root,{recursive:true});this.cache=new Map();this.chains=new Map();this.maxCachedChains=8;this.writing=false;this.reload();
  }
  reload(){this.meta=loadJSON(path.join(this.root,'index.json'),{version:1,bases:{},users:{},pins:{}});}
  lock(fn){
@@ -40,11 +43,23 @@ export class Repository{
   const data={version:2,layer:this.encodeLayer(layer),library,parents},id=digest(data);
   const file=path.join(this.root,'snapshots',id+'.json');if(!fs.existsSync(file))saveJSON(file,data);return id;
  }
+ /** Forgets the decoded snapshots shared by the repositories of this process (a cold start for a measurement or a test). */
+ static clearShared(){SHARED.clear();}
  read(id){
   assert(ID.test(id),'Invalid snapshot ID');
   if(!this.cache.has(id)){
-   const d=loadJSON(path.join(this.root,'snapshots',id+'.json'),null);assert(d&&digest(d)===id,'Snapshot checksum mismatch or missing snapshot');
-   this.cache.set(id,{...d,layer:this.loadLayer(d.layer)});
+   const file=path.join(this.root,'snapshots',id+'.json');
+   // A snapshot id is the digest of its content, so a decoded snapshot is the same whichever repository holds the file (a session clones
+   // its base memory by hard links): decoded snapshots are shared by every repository of the process, and a base memory is decoded once.
+   // The file must still exist here; its content was verified when it was first decoded.
+   let item=fs.existsSync(file)?SHARED.get(id):null;
+   if(item){SHARED.delete(id);SHARED.set(id,item);}
+   else{
+    const d=loadJSON(file,null);assert(d&&digest(d)===id,'Snapshot checksum mismatch or missing snapshot');
+    item={...d,layer:this.loadLayer(d.layer)};item.layer.frozen=true;SHARED.set(id,item);
+    while(SHARED.size>SHARED_SNAPSHOTS)SHARED.delete(SHARED.keys().next().value);
+   }
+   this.cache.set(id,item);
    while(this.cache.size>Math.max(1,this.maxCachedSnapshots))this.cache.delete(this.cache.keys().next().value);
   }
   return this.cache.get(id);
@@ -90,10 +105,20 @@ export class Repository{
    try{saveJSON(path.join(this.root,'maintenance.json'),this.lastGc);}catch(e){this.lastGc.reportWarning=e.message;}
   }
  }
+ /** The layers a session reads: its own live layer, then the snapshots reachable from its user head and its base head. Snapshots are content
+  * addressed and never change, so the walked chain is cached by its two heads (a base memory published circuit by circuit is a chain of
+  * hundreds of snapshots, and walking it through the bounded snapshot cache costs seconds per call). */
  visible(s){
-  const result=[{layer:s.live,library:s.library}],seen=new Set();
-  const walk=id=>{if(!id||seen.has(id))return;seen.add(id);const item=this.read(id);result.push(item);item.parents.forEach(walk);};
-  if(!s.ownsUserHistory)walk(s.userHead);walk(s.baseHead);return result;
+  const heads=[s.ownsUserHistory?null:s.userHead,s.baseHead],key=heads.join('|');
+  let chain=this.chains.get(key);
+  if(!chain){
+   chain=[];const seen=new Set();
+   const walk=id=>{if(!id||seen.has(id))return;seen.add(id);const item=this.read(id);chain.push(item);item.parents.forEach(walk);};
+   heads.forEach(walk);
+   this.chains.set(key,chain);
+   while(this.chains.size>this.maxCachedChains)this.chains.delete(this.chains.keys().next().value);
+  }
+  return [{layer:s.live,library:s.library},...chain];
  }
  library(s,{asof=Infinity}={}){const map=new Map();for(const item of this.visible(s))for(const x of item.library)if((x.knownAt??0)<=asof&&!map.has(x.id))map.set(x.id,x);return [...map.values()];}
  recall(s,pattern,q,options){return recallLayers(this.visible(s).map(x=>x.layer),pattern,q,options);}

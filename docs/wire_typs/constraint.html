@@ -42,7 +42,7 @@
 @choice solve
   constraint $slots
   output ?slot one</code></pre><p>The feasible objective candidates are 3–6, so a complete search has optimum 6 and a unique slot projection.</p>
-<h3>Arithmetic: a computed value ("Cât e 19% din 2380 de lei?")</h3><pre data-sop="current"><code>@vat constraint
+<h3>Arithmetic: a computed value ("What is 19% of 2380 lei?")</h3><pre data-sop="current"><code>@vat constraint
   var ?vat_hundredths int
   require ?vat_hundredths equal 2380 times 19
   select ?vat_hundredths

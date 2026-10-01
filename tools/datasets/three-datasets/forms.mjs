@@ -1,7 +1,7 @@
 /** Form and content-word signatures of dataset rows (DS008 "Content-word overlap").
  *
  * The form signature is the analysis skeleton of the symbolic-forms inventory
- * (eval/reports/current/three-datasets/symbolic-forms-inventory.md, `node tools/eval/symbolic-gate.mjs inventory`): question type,
+ * (eval/reports/current/three-datasets/symbolic-forms-inventory.md, archived generator `probably_obsolete/legacy/tools/symbolic-gate/symbolic-gate.mjs inventory`): question type,
  * root part of speech, dependents of the root and subordinate clauses. It ignores every content word. The content-word
  * signature is the set of lemmas of proper names, nouns and verbs of the stored analysis (a light tokenizer plus a
  * stop-word list where a row has no analysis, as in bad_english), so a different name, noun or verb gives a different

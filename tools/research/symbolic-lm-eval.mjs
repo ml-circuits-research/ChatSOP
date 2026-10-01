@@ -102,7 +102,7 @@ async function runCommand(args) {
   // The code of this process is loaded once at start; its hashes are the run's identity (the rules may change on disk
   // while a run is in progress, but not inside this process).
   const manifest = {set: args.set, stage: args.stage ?? 'full', arms, spell, values, started_at: new Date().toISOString(), code_sha256: codeHashes()};
-  const lm = await createSymbolicLM({device: 'cpu', secondParser: args.second === 'on'});
+  const lm = await createSymbolicLM({device: 'cpu'});
   for (const arm of arms) {
     const options = ARMS[arm];
     if (!options) throw Error('unknown arm ' + arm);

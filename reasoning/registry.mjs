@@ -15,8 +15,11 @@ import {OPERATION_LIMITS} from './bridge/packet.mjs';
 import {solveHorn,solveConstraint,optimize} from './bridge/solve.mjs';
 import {assignmentsOf} from './strategies/js-reference/constraint-ast.mjs';
 import {assert} from '../lib/util.mjs';
+import {routeTyped} from './router/typed.mjs';
 const simple={abduce,diagnose,associate,induce,analogize,plan,simulate};
 export const ROUTE_IDS=['reference','js-reference','js-oracle'];
+/** `auto`: the StrategyRouter (reasoning/router) asks for the choice; on the typed path every answer carries a proof and a validity, which only the oracle produces. */
+export const AUTO='auto';
 /** The external strategies, each pinned to one backend; `STRATEGY_OF_BACKEND` is the inverse, used by the runtime to route `backend` lines. */
 export const EXTERNAL_STRATEGIES={'prolog-tabling':'prolog','z3-smt-bounded':'z3'};
 export const STRATEGY_OF_BACKEND=Object.fromEntries(Object.entries(EXTERNAL_STRATEGIES).map(([id,backend])=>[backend,id]));
@@ -28,10 +31,17 @@ export const CAPABILITIES={
 const allowedKinds={deduce:['fact','observed','rule'],temporal:['fact','observed','rule'],classify:['fact','observed','rule'],constraint:[],abduce:['fact','observed','rule','hypothesis'],diagnose:['fact','observed','rule','hypothesis'],associate:['trace'],induce:['trace','pattern'],analogize:['trace','fact','hypothesis'],plan:['fact','observed','rule','action','goal'],simulate:['fact','observed','rule','hypothesis']};
 export function solverAvailable(name){const cmd=name==='prolog'?(process.env.SWIPL_BIN??'swipl'):(process.env.Z3_BIN??'z3');const r=spawnSync(cmd,['--version'],{encoding:'utf8',timeout:2000,maxBuffer:65536});return !r.error&&r.status===0;}
 export class ReasoningRegistry {
- constructor({availability=solverAvailable}={}){this.availability=availability;this.cache=new Map();this.strategies=new Map([...ROUTE_IDS.map(id=>[id,(r)=>this.builtin(r,'reference',null)]),...Object.entries(EXTERNAL_STRATEGIES).map(([id,backend])=>[id,(r)=>this.builtin(r,id,backend)])]);}
+ constructor({availability=solverAvailable}={}){this.availability=availability;this.cache=new Map();this.strategies=new Map([[AUTO,(r)=>this.auto(r)],...ROUTE_IDS.map(id=>[id,(r)=>this.builtin(r,'reference',null)]),...Object.entries(EXTERNAL_STRATEGIES).map(([id,backend])=>[id,(r)=>this.builtin(r,id,backend)])]);}
  register(name,handler){assert(/^[a-z][a-z0-9-]*$/.test(name)&&typeof handler==='function','Invalid reasoning strategy');assert(!this.strategies.has(name),'Reasoning strategy already registered');this.strategies.set(name,handler);return this;}
  available(name){if(!this.cache.has(name))this.cache.set(name,this.availability(name));return this.cache.get(name);}
- run(name,request){const fn=this.strategies.get(name);assert(fn,'Unknown reasoning strategy '+name);const out=fn(request);assert(out&&typeof out.status==='string'&&typeof out.complete==='boolean','Invalid reasoning result');return {...out,reasoningStrategy:ROUTE_IDS.includes(name)?'reference':name};}
+ run(name,request){const fn=this.strategies.get(name);assert(fn,'Unknown reasoning strategy '+name);const out=fn(request);assert(out&&typeof out.status==='string'&&typeof out.complete==='boolean','Invalid reasoning result');return {...out,reasoningStrategy:name===AUTO?(out.reasoningStrategy??'reference'):ROUTE_IDS.includes(name)?'reference':name};}
+ /** `reasoning auto` on the typed path. An explicit backend is honoured through the strategy of that backend (rule 8); otherwise the router decides and reports `route`. */
+ auto(request){
+  const requested=request.backend??'auto';
+  if(!['auto','js'].includes(requested)){const id=STRATEGY_OF_BACKEND[requested];if(!id)return this.builtin({...request,backend:requested},'reference',null);return {...this.builtin(request,id,requested),reasoningStrategy:id};}
+  const out=this.builtin(request,'reference',null),decision=routeTyped(request);
+  return {...out,route:{...out.route,...decision}};
+ }
  /** `strategy`: the id reported in the result; `pinned`: the one external backend this strategy runs (null for the JS oracle). */
  builtin(request,strategy,pinned){
   const mode=request.mode??'deduce',limits={...OPERATION_LIMITS,...request.limits},items=flat(request.data);

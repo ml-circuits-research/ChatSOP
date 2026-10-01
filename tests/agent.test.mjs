@@ -1,35 +1,28 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import http from 'node:http';
 import {Agent} from '../server/agent.mjs';
 import {context, lex} from './helpers.mjs';
 import {Lexicon} from '../sop/lexicon.mjs';
-import {complete} from '../server/llm.mjs';
 
-/** Serves the scripted formalizer replies in order and records every request. */
-async function mock(t, responses) {
+/** A scripted formalizer (the injection point of Agent.turn): answers the replies in order and records every message it receives. */
+function mock(t, responses) {
   let i = 0;
   const requests = [];
-  const server = http.createServer((req, res) => {
-    let s = '';
-    req.on('data', x => s += x);
-    req.on('end', () => {
-      requests.push(JSON.parse(s));
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({choices: [{message: {content: responses[i]?.text ?? responses[i]}, finish_reason: responses[i++]?.finish ?? 'stop'}]}));
-    });
-  });
-  await new Promise(r => server.listen(0, '127.0.0.1', r));
-  t.after(() => new Promise(r => server.close(r)));
-  return {config: {url: `http://127.0.0.1:${server.address().port}/v1/chat/completions`, model: 'mock'}, requests};
+  return {formalizer: {id: 'scripted', formalize: async text => { requests.push(text); return responses[i++].trim(); }}, requests};
+}
+
+/** The Agent with the scripted formalizer injected into every turn. */
+class ScriptedAgent extends Agent {
+  constructor(options, m) { super(options); this.m = m; }
+  turn(text, options = {}) { return super.turn(text, {formalizer: this.m.formalizer, ...options}); }
 }
 
 /** An agent over a fresh repository context that is disposed after the test. */
 async function agentWith(t, replies, options = {}, config = {}, lexicon = lex) {
   const c = context(options);
   t.after(c.dispose);
-  const m = await mock(t, replies);
-  const agent = new Agent({repo: c.repo, session: c.session, lexicon, config: {formalizer: m.config, ...config}});
+  const m = mock(t, replies);
+  const agent = new ScriptedAgent({repo: c.repo, session: c.session, lexicon, config}, m);
   return {c, m, agent};
 }
 const turn = {language: 'en', rewrite: false};
@@ -50,23 +43,8 @@ test('the model sees only the message; the host exposes a separate execution cir
   assert.match(first.executionSop, /@\w+ solve/);
   assert.doesNotMatch(first.sop, /\b(?:solve|remember|cnl)\b/);
   assert.equal((await agent.turn('Why?', turn)).packet.status, 'supported', 'the mock repeats the question; no context was sent');
-  const prompt = m.requests[0].messages[0].content;
-  assert.match(prompt, /declarative SOP Lang, the model language/);
-  assert.ok(prompt.endsWith('\n\nMESSAGE\nIs Ana the grandmother of Carina?'), 'instructions plus the message only');
-  for (const leak of ['CONTEXT', '"entities"', 'lab_alpha', 'previous_query_sop']) assert.ok(!prompt.includes(leak), `prompt must not contain ${leak}`);
-  assert.ok(!m.requests[1].messages[0].content.includes('previous_query_sop'));
-  assert.equal(m.requests[0].response_format, undefined);
-});
-
-test('a bare (fine-tuned) prompt is exactly the message', async t => {
-  const {m, agent} = await agentWith(t, [worksAsk('Maria')], {}, {promptProfile: 'bare'});
-  await agent.turn('Does Maria work at Alpha Lab?', turn);
-  assert.equal(m.requests[0].messages[0].content, 'Does Maria work at Alpha Lab?');
-});
-
-test('truncated LLM output is never executed', async t => {
-  const m = await mock(t, [{text: '@f fact', finish: 'length'}]);
-  await assert.rejects(() => complete(m.config, 'x'), /truncated/);
+  assert.equal(m.requests[0], 'Is Ana the grandmother of Carina?', 'the formalizer receives the message and nothing else');
+  assert.equal(m.requests[1], 'Why?', 'no context is sent');
 });
 
 test('model-authored operations and documentary provenance never run', async t => {
@@ -105,7 +83,7 @@ test('a stated user assertion is evidence for the turn, carried in the conversat
   const second = await agent.turn('Does Carina still work at Alpha Lab?', turn);
   assert.equal(second.packet.status, 'supported', 'the earlier statement is re-supplied by the host');
   assert.deepEqual(second.carriedStatements.map(s => s.atom), ['works_at carina lab_alpha']);
-  assert.ok(!m.requests[1].messages[0].content.includes('works_at'), 'carried statements stay with the host, not in the prompt');
+  assert.ok(!m.requests[1].includes('works_at'), 'carried statements stay with the host, not in the prompt');
   assert.equal(Object.keys(c.session.live.claims).length, 0);
 });
 
@@ -119,13 +97,13 @@ test('entity strings are linked by the host with type checks; an ill-typed or un
   assert.equal(Object.keys(c.session.live.claims).length, 0);
 });
 
-test('EN and RO entity strings resolve through reviewed aliases with one model call per turn', async t => {
-  const {m, agent} = await agentWith(t, [ask('work at', {subject: 'Maria', object: 'Alpha Lab'}), ask('lucrează la', {subject: 'Maria', object: 'Alfa'})]);
-  const english = await agent.turn('Does Maria work at Alpha Lab?', turn);
-  const romanian = await agent.turn('Maria lucrează la Alfa?', {language: 'ro', rewrite: false});
-  assert.equal(english.packet.status, 'supported');
-  assert.equal(romanian.packet.status, 'supported');
-  assert.match(english.executionSop, /@\w+ resolve/);
+test('English entity strings resolve through reviewed labels with one model call per turn', async t => {
+  const {m, agent} = await agentWith(t, [ask('work at', {subject: 'Maria', object: 'Alpha Lab'}), ask('work at', {subject: 'Maria', object: 'Alpha Lab'})]);
+  const first = await agent.turn('Does Maria work at Alpha Lab?', turn);
+  const second = await agent.turn('Maria works at Alpha Lab?', turn);
+  assert.equal(first.packet.status, 'supported');
+  assert.equal(second.packet.status, 'supported');
+  assert.match(first.executionSop, /@\w+ resolve/);
   assert.equal(m.requests.length, 2);
 });
 
@@ -134,8 +112,9 @@ test('ambiguous and unknown entity strings request clarification before downstre
   const {c, m, agent} = await agentWith(t, [ask('has', {subject: 'bank'}), ask('has', {subject: 'mystery'})], {bootstrap: false}, {}, bank);
   const ambiguous = await agent.turn('Does bank have it?', turn);
   assert.equal(ambiguous.packet.status, 'clarify');
-  assert.equal(ambiguous.packet.reason, 'unresolved_dependency');
+  assert.equal(ambiguous.packet.reason, 'unresolved_link');
   assert.deepEqual(ambiguous.packet.required[0].candidates.map(x => x.id), ['person1', 'person2']);
+  assert.match(ambiguous.answer ?? ambiguous.text ?? JSON.stringify(ambiguous.packet), /bank/);
   assert.match(ambiguous.packet.pendingSop, /@q query/);
   const unknown = await agent.turn('Does mystery have it?', turn);
   assert.equal(unknown.packet.status, 'clarify');
@@ -176,18 +155,32 @@ test('model assumptions are reported, never used by the primary answer; an ambig
   assert.equal(asked.packet.status, 'clarify', 'the host never lets an assumption choose an ambiguous identity');
 });
 
-test('unclear is the only wire and gets a host reply in the requested language', async t => {
+// A scripted TranslatorService (the output edge): marks the text so the test sees what was translated.
+const translated = (english, language) => ({text: `[${language}] ${english}`, backend: 'scripted-translator', placeholders: 0, ms: 1});
+
+test('unclear is the only wire; the reply is English and another answer language is its translation (output edge)', async t => {
   const {agent, m} = await agentWith(t, ['@u unclear\n  kind gibberish', '@u unclear\n  kind no_request', '@u unclear\n  kind gibberish\n' + worksAsk('Maria')]);
   const english = await agent.turn('asdf qwer zxcv', turn);
   assert.equal(english.packet.status, 'unclear');
   assert.equal(english.unclear, 'gibberish');
   assert.equal(english.cnl, 'I did not understand the message. Could you rephrase?');
   assert.equal(english.executionSop, '');
-  const romanian = await agent.turn('Mulțumesc! Răspunde în română.', {rewrite: false});
+  const romanian = await agent.turn('Thanks! Answer in Romanian.', {rewrite: false, translateAnswer: translated});
   assert.deepEqual([romanian.answerLanguage, romanian.languageSource], ['ro', 'prompt']);
-  assert.equal(romanian.cnl, 'Nu am găsit o afirmație sau o întrebare în mesaj. Ce doriți să aflați?');
+  assert.equal(romanian.englishText, 'I did not find a statement or a question in the message. What would you like to know?');
+  assert.equal(romanian.cnl, '[ro] ' + romanian.englishText);
+  assert.deepEqual([romanian.answerTranslation.status, romanian.answerTranslation.backend, romanian.answerTranslation.original], ['ok', 'scripted-translator', romanian.englishText]);
+  assert.equal(romanian.packet.answer_translation.language, 'ro');
   await assert.rejects(() => agent.turn('asdf', turn), /unclear_not_alone/);
   assert.equal(m.requests.length, 3);
+});
+
+test('a translator that cannot run leaves the English answer and reports it; the conversation keeps the English text', async t => {
+  const {agent} = await agentWith(t, ['@u unclear\n  kind gibberish']);
+  const broken = await agent.turn('asdf qwer. Answer in Romanian.', {rewrite: false, translateAnswer: async () => { throw Object.assign(new Error('no translator model'), {code: 'backend_unavailable'}); }});
+  assert.equal(broken.cnl, 'I did not understand the message. Could you rephrase?');
+  assert.deepEqual([broken.answerTranslation.status, broken.answerTranslation.code], ['backend_unavailable', 'backend_unavailable']);
+  assert.equal(agent.recent.at(-1).response, 'I did not understand the message. Could you rephrase?');
 });
 
 test('an understood question without an engine is answered as not computable, not refused', async t => {
@@ -205,8 +198,8 @@ test('proof-use reinforcement is reported in the agent packet and suppressed by 
   t.after(c.dispose);
   await c.run('@f fact\n  holds likes ana lab_alpha\n  valid timeless\n  source user\n@s remember\n  input $f');
   const question = ask('likes', {subject: 'Ana', object: 'Alpha Lab'});
-  const m = await mock(t, [question, question]);
-  const reading = policy => new Agent({repo: c.repo, session: c.session, lexicon: lex, config: {formalizer: m.config, policy}});
+  const m = mock(t, [question, question]);
+  const reading = policy => new ScriptedAgent({repo: c.repo, session: c.session, lexicon: lex, config: {policy}}, m);
   const promoted = await reading({}).turn('Ana likes Alpha Lab?', turn);
   assert.equal(promoted.packet.status, 'supported');
   assert.deepEqual(promoted.packet.reinforcement, {facts: 1, strength: 2});

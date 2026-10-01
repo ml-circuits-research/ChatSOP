@@ -1,7 +1,7 @@
 /** textToCleanEnglish (lib/text-to-clean-english/): the host UI step ahead of formalization (DS012, DS021
  * "textToCleanEnglish", owner decision 2026-09-30). Stub LanguagesUtil resources stand in for the git-ignored
  * vendor word lists (same pattern as tests/symbolic-lm.test.mjs), and a fake `fetch` stands in for an external
- * LanguageTool/llm server, so this suite needs no network, no Java and no Python. */
+ * llm server, so this suite needs no network and no Python. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {textToCleanEnglish, diffWords, loadTextToCleanEnglishConfig, TEXT_TO_CLEAN_ENGLISH_VERSION} from '../lib/text-to-clean-english/index.mjs';
@@ -101,40 +101,6 @@ test('textToCleanEnglish: backends.<class> = "none" skips cleaning for that clas
   assert.deepEqual(result.reasons, ['spelling']);
 });
 
-test('textToCleanEnglish: languagetool backend calls the configured server and reports the full shape', async (t) => {
-  const calls = [];
-  t.mock.method(global, 'fetch', async (url, init) => {
-    calls.push(String(url));
-    return {ok: true, json: async () => ({matches: [
-      {offset: 4, length: 4, replacements: [{value: 'works'}], rule: {id: 'TYPO'}, message: 'Spelling'},
-    ]})};
-  });
-  const result = await textToCleanEnglish('Who wrks at the team?', {
-    config: {enabled: true, backends: {english: 'languagetool', nonEnglish: 'llm'}, languagetool: {url: 'http://localhost:8123', language: 'en-US'}},
-    gateResources: gateResources({wrks: 'works'}),
-  });
-  assert.equal(calls.length, 1);
-  assert.ok(calls[0].startsWith('http://localhost:8123/v2/check'));
-  assert.equal(result.backend, 'languagetool');
-  assert.equal(result.changed, true);
-  assert.equal(result.clean, 'Who works at the team?');
-  assert.ok(result.spans.some(s => s.type === 'delete' && s.text === 'wrks'));
-  assert.ok(result.spans.some(s => s.type === 'insert' && s.text === 'works'));
-});
-
-test('textToCleanEnglish: languagetool masks names before calling the server and restores them after', async (t) => {
-  t.mock.method(global, 'fetch', async (url, init) => {
-    const body = String(init.body);
-    assert.ok(!body.includes('Ungureanu'), 'the raw name must never reach the server');
-    return {ok: true, json: async () => ({matches: []})};
-  });
-  const result = await textToCleanEnglish('Who wrks with Ungureanu?', {
-    config: {enabled: true, backends: {english: 'languagetool', nonEnglish: 'llm'}, languagetool: {url: 'http://localhost:8123'}},
-    gateResources: gateResources({wrks: 'works'}),
-  });
-  assert.match(result.clean, /Ungureanu/);
-});
-
 test('textToCleanEnglish: llm backend sends the bare sentence (no system prompt, no masking) to backendOptions.endpoint', async (t) => {
   const requests = [];
   t.mock.method(global, 'fetch', async (url, init) => {
@@ -142,7 +108,7 @@ test('textToCleanEnglish: llm backend sends the bare sentence (no system prompt,
     return {ok: true, json: async () => ({choices: [{message: {content: 'Who lives in Cluj?'}, finish_reason: 'stop'}], usage: null})};
   });
   const result = await textToCleanEnglish('Cine locuiește în Cluj?', {
-    config: {enabled: true, backends: {english: 'languagetool', nonEnglish: 'llm'}},
+    config: {enabled: true, backends: {english: 'none', nonEnglish: 'llm'}},
     backendOptions: {endpoint: 'http://localhost:9000'},
     gateResources: gateResources(),
   });
@@ -213,11 +179,12 @@ test('textToCleanEnglish: llm backend throws backend_unavailable with no endpoin
   );
 });
 
-test('textToCleanEnglish: an unreachable languagetool server throws backend_unavailable, not a raw network error', async (t) => {
+test('textToCleanEnglish: an unreachable llm server throws backend_unavailable, not a raw network error', async (t) => {
   t.mock.method(global, 'fetch', async () => { throw Error('ECONNREFUSED'); });
   await assert.rejects(
     () => textToCleanEnglish('Who wrks at the team?', {
-      config: {enabled: true, backends: {english: 'languagetool', nonEnglish: 'llm'}, languagetool: {url: 'http://localhost:8123'}},
+      config: {enabled: true, backends: {english: 'llm', nonEnglish: 'llm'}},
+      backendOptions: {endpoint: 'http://localhost:8123'},
       gateResources: gateResources({wrks: 'works'}),
     }),
     error => error.code === 'backend_unavailable',
@@ -238,7 +205,7 @@ test('textToCleanEnglish: a backend that returns no text is a failed backend, ne
   t.mock.method(global, 'fetch', async () => ({ok: true, json: async () => ({choices: [{message: {content: ''}, finish_reason: 'stop'}], usage: null})}));
   await assert.rejects(
     () => textToCleanEnglish('Cine locuiește în Cluj?', {
-      config: {enabled: true, backends: {english: 'languagetool', nonEnglish: 'llm'}},
+      config: {enabled: true, backends: {english: 'none', nonEnglish: 'llm'}},
       backendOptions: {endpoint: 'http://localhost:9000'},
       gateResources: gateResources(),
     }),
@@ -261,7 +228,7 @@ test('llm backend with a systemPrompt (generic chat models): masks names, drops 
   assert.equal(request.messages[0].content, 'Rewrite in English.');
 });
 
-test('the shipped config names a registry model for the llm backend and a local LanguageTool port', () => {
+test('the shipped config names a registry model for the llm backend and has no LanguageTool entry', () => {
   const config = loadTextToCleanEnglishConfig();
   assert.equal(config.enabled, true);
   assert.equal(config.llm.model, 'language-proofing-llm');
@@ -269,7 +236,7 @@ test('the shipped config names a registry model for the llm backend and a local 
   assert.deepEqual(config.backends, {english: 'llm', nonEnglish: 'translator-llm'}); // owner decision 2026-10-01
   assert.equal(config.translator.model, 'translator-llm');
   assert.equal(config.translator.fallback, 'llm');
-  assert.match(config.languagetool.url, /^http:\/\/127\.0\.0\.1:\d+$/);
+  assert.equal(config.languagetool, undefined, 'the LanguageTool backend was removed');
 });
 
 test('VERSION is exported for trace/provenance fields', () => {

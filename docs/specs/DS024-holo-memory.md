@@ -38,7 +38,7 @@ Many values per key interfere: a key such as "everyone at organization X" superp
 
 ### Known-handle wire plane (experimental)
 
-`memory/banks/holo-wire.mjs` stores a whole canonical SOP wire in a separate kernel: the SHA-256 of the canonical text is the handle, and the two length bytes and every content byte are written as associations keyed by handle and position (alphabet 0–255, `maxBytes` up to 65,535, default 4,096). Recall reads the length and each byte, then requires the hash to match the handle and the text to parse; an ambiguous byte, an over-budget length, a checksum mismatch or invalid SOP returns `uncertain` with a reason. There is no wire dictionary or length table, but the caller must already know the handle; discovering handles from partial cues is not provided (`stats().handleDiscovery: false`). A reconstructed wire is never executed automatically.
+`tools/holo-wire.mjs` stores a whole canonical SOP wire in a separate kernel: the SHA-256 of the canonical text is the handle, and the two length bytes and every content byte are written as associations keyed by handle and position (alphabet 0–255, `maxBytes` up to 65,535, default 4,096). Recall reads the length and each byte, then requires the hash to match the handle and the text to parse; an ambiguous byte, an over-budget length, a checksum mismatch or invalid SOP returns `uncertain` with a reason. There is no wire dictionary or length table, but the caller must already know the handle; discovering handles from partial cues is not provided (`stats().handleDiscovery: false`). A reconstructed wire is never executed automatically.
 
 ### Planned two-plane architecture (not implemented)
 

@@ -5,10 +5,10 @@
  *   s1 SymbolicProofingLLM greedy rewrite (every sentence unit sent, outputs joined);
  *   s2 k sampled SymbolicProofingLLM rewrites (temperature 0.7), first accepted wins;
  *   s3 LanguageProofingLLM greedy rewrite as an alternative paraphraser;
- *   s4 symbolic simplifications (lib/severity/simplify.mjs: drop lead-ins and tags, split a coordinated question, keep the certified sentences);
+ *   s4 symbolic simplifications (tools/eval/severity/simplify.mjs: drop lead-ins and tags, split a coordinated question, keep the certified sentences);
  *   s5 a clarification question to the user (not an interpretation: reported as CLARIFY, never as a rescue).
  * A candidate is accepted when SymbolicLM handles it without doubt (valid converted SOP, no unparsed span, not uncertain) AND the local severity layers find
- * nothing catastrophic (mechanical certain S4, analysis-comparison S4 flags: names, numbers, polarity, roles, quantifiers, conditions; lib/severity/).
+ * nothing catastrophic (mechanical certain S4, analysis-comparison S4 flags: names, numbers, polarity, roles, quantifiers, conditions; tools/eval/severity/).
  *
  *   node tools/eval/fallback-cascade.mjs select [--n 300] [--seed 7]        # sealed neuro_english rows with gold SOP and no certified interpretation
  *   node tools/eval/fallback-cascade.mjs servers start|stop                 # own llama-servers on ports 18410 (SymbolicProofingLLM it2) and 18411 (LanguageProofingLLM it2), CPU
@@ -25,13 +25,13 @@ import {splitSentences} from '../../lib/sentence-split.mjs';
 import {openLm, handled} from './composed/lm.mjs';
 import {SEV_DIR} from './severity-calibration.mjs';
 import {localGrade, readJsonl, writeJsonl} from './severity-local.mjs';
-import {mechanicalSeverity} from '../../lib/severity/mechanical.mjs';
-import {severityFromComparison} from '../../lib/severity/analysis-map.mjs';
+import {mechanicalSeverity} from './severity/mechanical.mjs';
+import {severityFromComparison} from './severity/analysis-map.mjs';
 import {compareAnalyses} from '../../lib/languages-util/analysis-compare.mjs';
-import {sopSeverity} from '../../lib/severity/sop-compare.mjs';
-import {simplifications} from '../../lib/severity/simplify.mjs';
-import {distributionStats, fmt, wilson} from '../../lib/severity/metrics.mjs';
-import {SEVERITIES, rank, isGoodEnough} from '../../lib/severity/scale.mjs';
+import {sopSeverity} from './severity/sop-compare.mjs';
+import {simplifications} from './severity/simplify.mjs';
+import {distributionStats, fmt, wilson} from './severity/metrics.mjs';
+import {SEVERITIES, rank, isGoodEnough} from './severity/scale.mjs';
 
 export const DIR = path.join(SEV_DIR, 'fallback');
 const ROWS = path.join(DIR, 'rows.jsonl'), RESULTS = path.join(DIR, 'results.jsonl'), GEN = path.join(DIR, 'gen-cache.jsonl'), PIDS = path.join(DIR, 'servers.json');
@@ -179,7 +179,7 @@ function report() {
   // reference: the uncertain SOP SymbolicLM already produced, as is (not a cascade step)
   const refSev = baseline.map(r => (r.sop?.trim() ? sopSeverity(r.sop, r.gold_sop, {message: r.message, outcome: r.outcome}).severity : 'NONE'));
   const order = ['s1_sp_greedy', 's2_sp_sampled', 's3_lp_greedy', 's4_symbolic', 's5_clarify'];
-  const md = ['# Never-NONE fallback cascade (neuro_english sealed test, rows with gold SOP and no certified interpretation)', '', `Rows: ${n} (sample of the ${readJsonl(path.join(DIR, 'baseline-all.jsonl')).filter(r => r.none).length} rows without a certified interpretation among ${readJsonl(path.join(DIR, 'baseline-all.jsonl')).length} neuro_english rows with gold SOP). Interpretation severity is the SOP of the accepted rewrite against the gold SOP of the original message (lib/severity/sop-compare.mjs).`, ''];
+  const md = ['# Never-NONE fallback cascade (neuro_english sealed test, rows with gold SOP and no certified interpretation)', '', `Rows: ${n} (sample of the ${readJsonl(path.join(DIR, 'baseline-all.jsonl')).filter(r => r.none).length} rows without a certified interpretation among ${readJsonl(path.join(DIR, 'baseline-all.jsonl')).length} neuro_english rows with gold SOP). Interpretation severity is the SOP of the accepted rewrite against the gold SOP of the original message (tools/eval/severity/sop-compare.mjs).`, ''];
   const summary = {n, steps: {}, baseline_uncertain_sop: distributionStats(refSev.filter(s => s))};
   let remaining = n;
   md.push('| step | tried (rows reaching it) | rescued | rescued of reaching | NONE left | rescued S0 | S1 | S2 | S3 | S4 | S4 share of rescued | good enough (S0-S2) of rescued |', '| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |');

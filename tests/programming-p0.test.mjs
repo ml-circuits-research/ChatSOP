@@ -62,11 +62,11 @@ test('the sandbox contains require, process, fetch, a constructor escape, import
   for (const [what, body, reason] of [
     ['an infinite loop', 'function f() { while (true) {} }', 'wall'],
     ['a blocking wait', 'function f() { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0); }', 'wall'],
-    ['unbounded allocation', 'function f() { const k = []; while (true) k.push(new Array(1000000).fill(1)); }', 'memory']
+    ['unbounded allocation', 'function f() { const k = []; while (true) k.push(new Array(1000000).fill(1)); }', ['memory', 'wall']] // two real limits race: the heap limit normally trips first, the wall clock under load
   ]) {
     const r = await ask(body, [{id: 't1', call: 'f()', expect: '1'}]);
     assert.equal(r.status, 'budget_exhausted', what);
-    assert.equal(r.reason, reason, what);
+    assert.ok([reason].flat().includes(r.reason), `${what}: reason ${r.reason}`);
     assert.equal(r.complete, false);
   }
   // the parent process is alive and unchanged

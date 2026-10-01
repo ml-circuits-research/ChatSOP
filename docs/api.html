@@ -16,7 +16,7 @@
 <tr><td class="ep">POST /v1/symbolic/rewrite</td><td>Rewrite correct English into the limited English SymbolicLM understands, with the trace</td><td>SymbolicProofingLLM</td></tr>
 <tr><td class="ep">POST /v1/symbolic/analyze</td><td>The raw grammatical analysis and the generated SOP</td><td>SymbolicLM</td></tr>
 <tr><td class="ep">POST /v1/emotion/detect</td><td>Pragmatic and emotional signals with emoticon suggestions</td><td>EmotionDetectionSystem</td></tr>
-<tr><td class="ep">GET, POST /v1/memories, GET, DELETE /v1/memories/{id}, POST /v1/memories/{id}/fork, POST /v1/memories/{id}/knowledge</td><td>Base memories: list, create or import, view, delete, fork with a chosen memory strategy, add validated knowledge with provenance (any authenticated user may write; section 10)</td><td>chat data root, memory strategies DS023 to DS028, knowledge validator</td></tr>
+<tr><td class="ep">GET, POST /v1/memories, GET, DELETE /v1/memories/{id}, POST /v1/memories/{id}/fork, POST /v1/memories/{id}/knowledge</td><td>Base memories: list, create or import, view, delete, fork, add validated knowledge with provenance (any authenticated user may write; section 10)</td><td>chat data root, memory strategies DS023 to DS028, knowledge validator</td></tr>
 <tr><td class="ep">POST /v1/sessions, GET /v1/sessions, GET, DELETE /v1/sessions/{id}, POST .../settings, .../drafts, .../drafts/{d}/accept, .../drafts/{d}/reject, .../commit, .../theory, .../query, .../scope-answer</td><td>Sessions on a cloned base memory: settings, draft circuits, acceptance, commit to a fork, the theory and a query over it, the answer to a scope suggestion (section 11)</td><td>chat data root, exact oracle</td></tr>
 <tr><td class="ep">GET /v1/omp/models, POST /v1/author, GET /v1/sessions/{id}/requests/{request}</td><td>The models omp can use with their cost class, the authoring path that turns attached files and instructions into proposed circuits, the status of a request (section 12)</td><td>omp coding agent, skill sop-wire-authoring</td></tr>
 <tr><td class="ep">POST /v1/route</td><td>Which path a message takes (SymbolicLM or the coding agent) and why, with the suggestion of the scope detector (section 13)</td><td>scope detector, SymbolicLM signals</td></tr>
@@ -124,7 +124,7 @@
 </ul></section>
 <section id="memories"><h2>10. Base memories</h2>
 <p class="note">Sections 10 to 14 are the product endpoints (sessions, base memories, the coding agent). Their examples are executed against a live test server by <code>tests/product-api-docs.test.mjs</code>, with the repository's stub of the omp CLI (no model is called), so the model list and the costs below are those of the stub.</p>
-<p>A base memory is a named, forkable knowledge store of one memory strategy (<code>recall-memory</code>, <code>holo-memory</code>, <code>sqlite</code>, <code>scan</code>, <code>hybrid</code>), kept under <code>chat_data/base_memories/&lt;id&gt;/</code> (<a href="specsLoader.html?spec=DS031-sessions-and-base-memories.md">DS031</a>). Reading needs any token; creating, importing, forking, adding knowledge and deleting need the <b>administrator session</b> (the cookie of <a href="/login">/login</a>), because adding knowledge is an approval recorded with the approver in the memory's provenance. Circuits are checked by the knowledge validator (<code>sop/knowledge/</code>) together with the circuits already stored; a failing circuit answers 422 <code>validation_failed</code> with <code>problems</code> and <code>warnings</code> and nothing is written. A circuit may not contain <code>jsEval</code>, model-surface wires, <code>query</code> wires or governance fields.</p>
+<p>A base memory is a named, forkable knowledge store of the one memory strategy the product offers (<code>sqlite</code>; the associative and scan engines of <code>memory/</code> are research engines), kept under <code>chat_data/base_memories/&lt;id&gt;/</code> (<a href="specsLoader.html?spec=DS031-sessions-and-base-memories.md">DS031</a>). Reading needs any token; creating, importing, forking, adding knowledge and deleting need the <b>administrator session</b> (the cookie of <a href="/login">/login</a>), because adding knowledge is an approval recorded with the approver in the memory's provenance. Circuits are checked by the knowledge validator (<code>sop/knowledge/</code>) together with the circuits already stored; a failing circuit answers 422 <code>validation_failed</code> with <code>problems</code> and <code>warnings</code> and nothing is written. A circuit may not contain <code>jsEval</code>, model-surface wires, <code>query</code> wires or governance fields.</p>
 <h3>List</h3>
 <pre class="api-example product-example" data-endpoint="GET /v1/memories" data-request="{}" data-as="user" data-status="200" data-response-keys="object,data,strategies"><code>curl -s -X GET http://127.0.0.1:9999/v1/memories -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
 <p>Abridged response (HTTP 200):</p>
@@ -135,8 +135,7 @@
    &quot;id&quot;: &quot;default&quot;,
    &quot;name&quot;: &quot;Default (empty)&quot;,
    &quot;parent&quot;: null,
-   &quot;strategy&quot;: &quot;recall-memory&quot;,
-   &quot;exact&quot;: false,
+   &quot;strategy&quot;: &quot;sqlite&quot;,
    &quot;created_at&quot;: &quot;2026-10-01T14:12:27.009Z&quot;,
    &quot;description&quot;: &quot;Empty base memory used by chats that name none.&quot;,
    &quot;circuits&quot;: 0,
@@ -145,19 +144,14 @@
  ],
  &quot;strategies&quot;: [
   {
-   &quot;id&quot;: &quot;recall-memory&quot;,
-   &quot;note&quot;: &quot;RecallMemory (DS023): associative candidates, bounded memory&quot;
-  },
-  {
-   &quot;id&quot;: &quot;holo-memory&quot;,
-   &quot;note&quot;: &quot;HoloMemory (DS024): superposed codes, known-handle plane&quot;
-  },
-  &quot;...&quot;
+   &quot;id&quot;: &quot;sqlite&quot;,
+   &quot;note&quot;: &quot;SQLite (DS025): exact indexed tuples&quot;
+  }
  ]
 }</code></pre>
 <h3>Create or import</h3>
-<p>Without <code>circuits</code> an empty memory is created; with them it is imported all or nothing. <code>id</code> is optional (lowercase letters, digits, <code>_</code>, <code>-</code>).</p>
-<pre class="api-example product-example" data-endpoint="POST /v1/memories" data-request="{&quot;name&quot;:&quot;Family&quot;,&quot;id&quot;:&quot;family&quot;,&quot;strategy&quot;:&quot;sqlite&quot;,&quot;description&quot;:&quot;Parent facts&quot;,&quot;circuits&quot;:[{&quot;name&quot;:&quot;family&quot;,&quot;text&quot;:&quot;@parent predicate\n  args subject:entity object:entity\n\n@f1 fact\n  holds parent ann bob\n  source \&quot;family register\&quot;\n&quot;}],&quot;reason&quot;:&quot;import of the family register&quot;,&quot;source&quot;:&quot;family register&quot;}" data-as="user" data-status="201" data-response-keys="object,id,name,parent,strategy,exact,created_at,description"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories -b cookies.txt -H &quot;Content-Type: application/json&quot; -d '{&quot;name&quot;:&quot;Family&quot;,&quot;id&quot;:&quot;family&quot;,&quot;strategy&quot;:&quot;sqlite&quot;,&quot;description&quot;:&quot;Parent facts&quot;,&quot;circuits&quot;:[{&quot;name&quot;:&quot;family&quot;,&quot;text&quot;:&quot;@parent predicate\n  args subject:entity object:entity\n\n@f1 fact\n  holds parent ann bob\n  source \&quot;family register\&quot;\n&quot;}],&quot;reason&quot;:&quot;import of the family register&quot;,&quot;source&quot;:&quot;family register&quot;}'</code></pre>
+<p>Without <code>circuits</code> an empty memory is created; with them it is imported all or nothing. <code>id</code> is optional (lowercase letters, digits, <code>_</code>, <code>-</code>). <code>imports</code> (optional array of base memory ids, default <code>["core-min"]</code>, <code>[]</code> for none) names the memories whose circuits are the lower layers of the new one: their classes, predicates and lexemes are its vocabulary, snapshotted at creation (a later change of the imported memory does not reach it). Chats link words against the vocabulary of their session's memory.</p>
+<pre class="api-example product-example" data-endpoint="POST /v1/memories" data-request="{&quot;name&quot;:&quot;Family&quot;,&quot;id&quot;:&quot;family&quot;,&quot;strategy&quot;:&quot;sqlite&quot;,&quot;description&quot;:&quot;Parent facts&quot;,&quot;circuits&quot;:[{&quot;name&quot;:&quot;family&quot;,&quot;text&quot;:&quot;@parent predicate\n  args subject:entity object:entity\n\n@f1 fact\n  holds parent ann bob\n  source \&quot;family register\&quot;\n&quot;}],&quot;reason&quot;:&quot;import of the family register&quot;,&quot;source&quot;:&quot;family register&quot;}" data-as="user" data-status="201" data-response-keys="object,id,name,parent,strategy,created_at,description"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories -b cookies.txt -H &quot;Content-Type: application/json&quot; -d '{&quot;name&quot;:&quot;Family&quot;,&quot;id&quot;:&quot;family&quot;,&quot;strategy&quot;:&quot;sqlite&quot;,&quot;description&quot;:&quot;Parent facts&quot;,&quot;circuits&quot;:[{&quot;name&quot;:&quot;family&quot;,&quot;text&quot;:&quot;@parent predicate\n  args subject:entity object:entity\n\n@f1 fact\n  holds parent ann bob\n  source \&quot;family register\&quot;\n&quot;}],&quot;reason&quot;:&quot;import of the family register&quot;,&quot;source&quot;:&quot;family register&quot;}'</code></pre>
 <p>Abridged response (HTTP 201):</p>
 <pre class="api-response"><code>{
  &quot;object&quot;: &quot;memory&quot;,
@@ -165,14 +159,13 @@
  &quot;name&quot;: &quot;Family&quot;,
  &quot;parent&quot;: null,
  &quot;strategy&quot;: &quot;sqlite&quot;,
- &quot;exact&quot;: false,
  &quot;created_at&quot;: &quot;2026-10-01T14:12:27.155Z&quot;,
  &quot;description&quot;: &quot;Parent facts&quot;,
  &quot;circuits&quot;: 1,
  &quot;facts&quot;: 1
 }</code></pre>
 <h3>View one</h3>
-<pre class="api-example product-example" data-endpoint="GET /v1/memories/family" data-request="{}" data-as="user" data-status="200" data-response-keys="object,id,name,parent,strategy,exact,created_at,description"><code>curl -s -X GET http://127.0.0.1:9999/v1/memories/family -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
+<pre class="api-example product-example" data-endpoint="GET /v1/memories/family" data-request="{}" data-as="user" data-status="200" data-response-keys="object,id,name,parent,strategy,created_at,description"><code>curl -s -X GET http://127.0.0.1:9999/v1/memories/family -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
 <p>Abridged response (HTTP 200):</p>
 <pre class="api-response"><code>{
  &quot;object&quot;: &quot;memory&quot;,
@@ -208,14 +201,14 @@
 }</code></pre>
 <p><code>?facts=1</code> adds <code>stored_facts</code>, what the memory strategy would retrieve.</p>
 <h3>Fork</h3>
-<p>The same strategy clones the repository by hard links (copy-on-write, <code>method: clone</code>); another strategy replays the circuits into the new engine (<code>method: replay</code>).</p>
-<pre class="api-example product-example" data-endpoint="POST /v1/memories/family/fork" data-request="{&quot;name&quot;:&quot;Family (scan)&quot;,&quot;id&quot;:&quot;family-scan&quot;,&quot;strategy&quot;:&quot;scan&quot;}" data-as="user" data-status="201" data-response-keys="object,memory,method,rebuilt"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories/family/fork -b cookies.txt -H &quot;Content-Type: application/json&quot; -d '{&quot;name&quot;:&quot;Family (scan)&quot;,&quot;id&quot;:&quot;family-scan&quot;,&quot;strategy&quot;:&quot;scan&quot;}'</code></pre>
+<p>The same strategy clones the repository by hard links (copy-on-write, <code>method: clone</code>). A fork of another strategy would replay the circuits into a rebuilt repository (<code>method: replay</code>); SQLite is the only strategy the product offers, so a fork is a clone.</p>
+<pre class="api-example product-example" data-endpoint="POST /v1/memories/family/fork" data-request="{&quot;name&quot;:&quot;Family (copy)&quot;,&quot;id&quot;:&quot;family-copy&quot;}" data-as="user" data-status="201" data-response-keys="object,memory,method,rebuilt"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories/family/fork -b cookies.txt -H &quot;Content-Type: application/json&quot; -d '{&quot;name&quot;:&quot;Family (copy)&quot;,&quot;id&quot;:&quot;family-copy&quot;}'</code></pre>
 <p>Abridged response (HTTP 201):</p>
 <pre class="api-response"><code>{
  &quot;object&quot;: &quot;memory.fork&quot;,
  &quot;memory&quot;: {
-  &quot;id&quot;: &quot;family-scan&quot;,
-  &quot;name&quot;: &quot;Family (scan)&quot;,
+  &quot;id&quot;: &quot;family-copy&quot;,
+  &quot;name&quot;: &quot;Family (copy)&quot;,
   &quot;parent&quot;: {
    &quot;id&quot;: &quot;family&quot;,
    &quot;name&quot;: &quot;Family&quot;,
@@ -223,27 +216,23 @@
    &quot;circuits&quot;: 1,
    &quot;forked_at&quot;: &quot;2026-10-01T14:12:27.174Z&quot;
   },
-  &quot;strategy&quot;: &quot;scan&quot;,
-  &quot;exact&quot;: false,
+  &quot;strategy&quot;: &quot;sqlite&quot;,
   &quot;created_at&quot;: &quot;2026-10-01T14:12:27.174Z&quot;,
   &quot;description&quot;: &quot;&quot;,
   &quot;circuits&quot;: 1,
   &quot;facts&quot;: 1
  },
- &quot;method&quot;: &quot;replay&quot;,
- &quot;rebuilt&quot;: {
-  &quot;facts_ingested&quot;: 1,
-  &quot;facts_skipped&quot;: 0
- }
+ &quot;method&quot;: &quot;clone&quot;,
+ &quot;rebuilt&quot;: null
 }</code></pre>
 <h3>Add knowledge</h3>
-<pre class="api-example product-example" data-endpoint="POST /v1/memories/family-scan/knowledge" data-request="{&quot;circuits&quot;:[{&quot;name&quot;:&quot;more&quot;,&quot;text&quot;:&quot;@f3 fact\n  holds parent cy di\n  source \&quot;family register\&quot;\n&quot;}],&quot;reason&quot;:&quot;one more row&quot;}" data-as="user" data-status="200" data-response-keys="object,memory,added,warnings"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories/family-scan/knowledge -b cookies.txt -H &quot;Content-Type: application/json&quot; -d '{&quot;circuits&quot;:[{&quot;name&quot;:&quot;more&quot;,&quot;text&quot;:&quot;@f3 fact\n  holds parent cy di\n  source \&quot;family register\&quot;\n&quot;}],&quot;reason&quot;:&quot;one more row&quot;}'</code></pre>
+<pre class="api-example product-example" data-endpoint="POST /v1/memories/family-copy/knowledge" data-request="{&quot;circuits&quot;:[{&quot;name&quot;:&quot;more&quot;,&quot;text&quot;:&quot;@f3 fact\n  holds parent cy di\n  source \&quot;family register\&quot;\n&quot;}],&quot;reason&quot;:&quot;one more row&quot;}" data-as="user" data-status="200" data-response-keys="object,memory,added,warnings"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories/family-copy/knowledge -b cookies.txt -H &quot;Content-Type: application/json&quot; -d '{&quot;circuits&quot;:[{&quot;name&quot;:&quot;more&quot;,&quot;text&quot;:&quot;@f3 fact\n  holds parent cy di\n  source \&quot;family register\&quot;\n&quot;}],&quot;reason&quot;:&quot;one more row&quot;}'</code></pre>
 <p>Abridged response (HTTP 200):</p>
 <pre class="api-response"><code>{
  &quot;object&quot;: &quot;memory.knowledge&quot;,
  &quot;memory&quot;: {
-  &quot;id&quot;: &quot;family-scan&quot;,
-  &quot;name&quot;: &quot;Family (scan)&quot;,
+  &quot;id&quot;: &quot;family-copy&quot;,
+  &quot;name&quot;: &quot;Family (copy)&quot;,
   &quot;parent&quot;: {
    &quot;id&quot;: &quot;family&quot;,
    &quot;name&quot;: &quot;Family&quot;,
@@ -251,8 +240,7 @@
    &quot;circuits&quot;: 1,
    &quot;forked_at&quot;: &quot;2026-10-01T14:12:27.174Z&quot;
   },
-  &quot;strategy&quot;: &quot;scan&quot;,
-  &quot;exact&quot;: false,
+  &quot;strategy&quot;: &quot;sqlite&quot;,
   &quot;created_at&quot;: &quot;2026-10-01T14:12:27.174Z&quot;,
   &quot;description&quot;: &quot;&quot;,
   &quot;circuits&quot;: 2,
@@ -296,7 +284,6 @@
   &quot;id&quot;: &quot;family&quot;,
   &quot;name&quot;: &quot;Family&quot;,
   &quot;strategy&quot;: &quot;sqlite&quot;,
-  &quot;exact&quot;: false,
   &quot;circuits&quot;: 1
  },
  &quot;settings&quot;: {
@@ -560,7 +547,6 @@
   &quot;id&quot;: &quot;family&quot;,
   &quot;name&quot;: &quot;Family&quot;,
   &quot;strategy&quot;: &quot;sqlite&quot;,
-  &quot;exact&quot;: false,
   &quot;circuits&quot;: 1
  },
  &quot;session_circuits&quot;: [
@@ -650,6 +636,7 @@
   }
  }
 }</code></pre>
+<p>Optional body parameters: <code>reasoning</code> (<code>auto</code>, the default, or one strategy id: <code>reference</code>, <code>sql-sqlite</code>, <code>datalog-souffle</code>, <code>asp-clingo</code>, <code>datalog-e10</code>, <code>prolog-tabling</code>) and <code>verify</code> (<code>auto</code>, <code>always</code>, <code>never</code>). With <code>auto</code> the StrategyRouter (<a href="specsLoader.html?spec=DS006-reasoning.md">DS006</a> "Routing rules") chooses the engine from the features of the circuit and the size of the retrieved slice; the answer carries <code>route</code> with <code>requested</code>, <code>chosen</code>, <code>rule</code> (<code>small</code>, <code>scale</code>, <code>proof_or_mode_of_work</code>, <code>caller_budget</code>, <code>oracle</code>, <code>discrepancy</code>), <code>reason</code>, <code>features</code>, <code>alternatives</code> and <code>verification</code> (a routed answer is re-checked by the oracle; on a disagreement the oracle's answer is returned with <code>outcome: discrepancy</code>). A named strategy runs exactly that engine and never another: an engine that is not installed or cannot express the circuit answers <code>status: unsupported</code> with the engine in <code>route.backend</code> and <code>route.fallback: null</code>.</p>
 <h3>Commit to a fork</h3>
 <p>Creates a new base memory: a fork of the session's base memory plus the circuits accepted in the session, validated again, with provenance. The original base memory does not change. Asserted statements are turn-local evidence and are not committed.</p>
 <pre class="api-example product-example" data-endpoint="POST /v1/sessions/demo-session/commit" data-request="{&quot;name&quot;:&quot;Family plus register&quot;,&quot;id&quot;:&quot;family-register&quot;}" data-as="user" data-status="201" data-response-keys="object,memory,added,fork_method"><code>curl -s -X POST http://127.0.0.1:9999/v1/sessions/demo-session/commit -b cookies.txt -H &quot;Content-Type: application/json&quot; -d '{&quot;name&quot;:&quot;Family plus register&quot;,&quot;id&quot;:&quot;family-register&quot;}'</code></pre>
@@ -667,7 +654,6 @@
    &quot;forked_at&quot;: &quot;2026-10-01T14:12:27.373Z&quot;
   },
   &quot;strategy&quot;: &quot;sqlite&quot;,
-  &quot;exact&quot;: false,
   &quot;created_at&quot;: &quot;2026-10-01T14:12:27.373Z&quot;,
   &quot;description&quot;: &quot;Committed from session demo-session&quot;,
   &quot;circuits&quot;: 2,
@@ -732,7 +718,6 @@
   &quot;id&quot;: &quot;family&quot;,
   &quot;name&quot;: &quot;Family&quot;,
   &quot;strategy&quot;: &quot;sqlite&quot;,
-  &quot;exact&quot;: false,
   &quot;circuits&quot;: 1
  },
  &quot;circuits&quot;: [
@@ -787,12 +772,12 @@
 <pre class="api-example" data-endpoint="GET /v1/server/models" data-request="" data-response-keys="object,settings,modes,models,running,memory,warm"><code>curl -s -X GET http://127.0.0.1:9999/v1/server/models -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
 <p>Abridged response (<code>memory_mb</code> is the resident memory of a running model, measured; <code>start_ms</code> the measured start time, <code>start_estimate_ms</code> what a start would cost):</p>
 <pre class="api-response"><code>{&quot;object&quot;: &quot;server.models&quot;,
- &quot;settings&quot;: {&quot;maxRunning&quot;: 6, &quot;idleMinutes&quot;: 60, &quot;memoryBudgetMb&quot;: null, &quot;memoryBudgetEffectiveMb&quot;: 61250, &quot;turnWindowSeconds&quot;: 30, &quot;warmup&quot;: true},
+ &quot;settings&quot;: {&quot;maxRunning&quot;: 6, &quot;idleMinutes&quot;: 60, &quot;memoryBudgetMb&quot;: null, &quot;memoryBudgetEffectiveMb&quot;: 61250, &quot;turnWindowSeconds&quot;: 30, &quot;warmup&quot;: true, &quot;warmMemories&quot;: [&quot;default&quot;]},
  &quot;modes&quot;: [&quot;keep_open&quot;, &quot;on_demand&quot;, &quot;off&quot;],
  &quot;models&quot;: [{&quot;id&quot;: &quot;translator-llm&quot;, &quot;mode&quot;: &quot;keep_open&quot;, &quot;state&quot;: &quot;ready&quot;, &quot;warm&quot;: true, &quot;memory_mb&quot;: 3784, &quot;start_ms&quot;: 13163, &quot;start_estimate_ms&quot;: 13163, &quot;idle_s&quot;: 29, &quot;...&quot;: &quot;...&quot;}, &quot;...&quot;],
  &quot;running&quot;: 4, &quot;memory&quot;: {&quot;estimated_mb&quot;: 11078, &quot;budget_mb&quot;: 61250, &quot;total_mb&quot;: 122501},
  &quot;warm&quot;: {&quot;state&quot;: &quot;warm&quot;, &quot;ready&quot;: true, &quot;...&quot;: &quot;...&quot;}}</code></pre>
-<p>Change it with a partial object (not run by the page tests, because it writes the configuration): <code>models</code> (model id to mode), <code>maxRunning</code> (1 to 32, at least the number kept open), <code>idleMinutes</code>, <code>memoryBudgetMb</code> (<code>null</code>: half of the RAM), <code>turnWindowSeconds</code>, <code>warmup</code>. An unknown model, an invalid mode or a <code>maxRunning</code> below the number kept open is a 400 and changes nothing.</p>
+<p>Change it with a partial object (not run by the page tests, because it writes the configuration): <code>models</code> (model id to mode), <code>maxRunning</code> (1 to 32, at least the number kept open), <code>idleMinutes</code>, <code>memoryBudgetMb</code> (<code>null</code>: half of the RAM), <code>turnWindowSeconds</code>, <code>warmup</code>, <code>warmMemories</code> (base memory ids decoded in the background at server start, so the first question over them is not slowed; default <code>["default"]</code>). An unknown model, an invalid mode or a <code>maxRunning</code> below the number kept open is a 400 and changes nothing.</p>
 <pre class="api-request"><code>curl -s -X POST http://127.0.0.1:9999/v1/server/models -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; \
   -d &#39;{&quot;models&quot;: {&quot;smollm2-360m-base&quot;: &quot;keep_open&quot;, &quot;gemma-3-270m-base&quot;: &quot;off&quot;}, &quot;maxRunning&quot;: 7}&#39;</code></pre>
 <p>Limits that protect a turn: a model held by a running turn, a busy model and a kept-open model are never evicted; the memory budget compares the measured or estimated memory of the running models plus the one to start; with no model to evict the start fails with a retryable 503 <code>formalizer_capacity</code>.</p></section>

@@ -73,7 +73,7 @@ export function factWire(lowering, id, f, status = 'observed') {
 }
 
 /** A `rule` wire for one typed rule `{id, if: [atoms], then}`. */
-export const ruleWire = (lowering, r) => ({id: r.id, type: 'rule', line: 0, fields: [...r.if.map(a => field('when', lowering.atom(a))), field('then', lowering.atom(r.then))]});
+export const ruleWire = (lowering, r) => ({id: r.id, type: 'rule', line: 0, fields: [...r.if.map(a => field('when', lowering.atom(a))), ...(r.extra ?? []).map(text => field('when', text)), field('then', lowering.atom(r.then))]});
 
 /** A condition tree (typed atoms in `all`/`any` groups) as a condition field: a bare atom, or the group opener with its block. */
 export function conditionField(lowering, key, condition) {
@@ -118,7 +118,7 @@ export function lowerForms(lowering, q, {quantifier = q.quantifier ?? null} = {}
   };
   return {
     compares: (q.compares ?? []).map(cmp), filters: (q.filters ?? []).map(ast),
-    rank: q.rank ? {direction: q.rank.direction, variable: lowering.variable(q.rank.variable)} : null,
+    rank: q.rank ? {direction: q.rank.direction, variable: lowering.variable(q.rank.variable), ...(q.rank.cut ? {cut: q.rank.cut, n: q.rank.n} : {})} : null,
     quantifier, limit: Infinity
   };
 }

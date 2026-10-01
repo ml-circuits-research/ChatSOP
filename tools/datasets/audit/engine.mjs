@@ -12,7 +12,7 @@ import {CORPUS_CHECKS, auditConfig} from './options.mjs';
 import {Invariants} from './invariants.mjs';
 import {NearDuplicateIndex, distribution, maskTemplate, minhash, targetSkeleton} from './diversity.mjs';
 import {SplitLeakage, entityHeads} from './leakage.mjs';
-import {analyzeTarget, messageOf, questionOf, streamJsonl, targetOf, vocabularyOf} from './rows.mjs';
+import {adaptRow, analyzeTarget, messageOf, questionOf, streamJsonl, targetOf, vocabularyOf} from './rows.mjs';
 import {fnv1a} from './text.mjs';
 import {jsonlExists} from '../../../lib/jsonl-shards.mjs';
 import {pendingFindings} from './vocabulary.mjs';
@@ -27,6 +27,15 @@ export function corpusFiles(root, corpus) {
     dev: path.join(root, corpusDir(corpus, root), 'dev.jsonl'),
     test: path.join(root, 'eval', 'suites', corpus, 'test.jsonl'),
   };
+}
+
+/** The `audit_profile` the corpus manifest declares (see `adaptRow`), or null for the default profile. */
+function auditProfileOf(root, corpus) {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(root, corpusDir(corpus, root), 'manifest.json'), 'utf8')).audit_profile ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export const defaultReportPath = (root, corpus) => path.join(root, 'eval', 'reports', 'current', 'corpus-audit', `${corpus}.json`);
@@ -63,6 +72,7 @@ export async function auditCorpus({root, corpus, files = corpusFiles(root, corpu
   const config = options.groundedTypes instanceof Set ? options : auditConfig(options);
   const lexicon = typeof config.lexicon === 'string' ? JSON.parse(fs.readFileSync(config.lexicon, 'utf8')) : config.lexicon;
   const present = SPLITS.filter(split => files[split] && jsonlExists(files[split]));
+  const profile = auditProfileOf(root, corpus);
   if (!present.length) throw Error(`${corpus}: no split files found`);
 
   const invariants = new Invariants();
@@ -88,7 +98,8 @@ export async function auditCorpus({root, corpus, files = corpusFiles(root, corpu
 
   for (const split of present) {
     fileRows[split] = 0;
-    for await (const {row, error} of streamJsonl(files[split])) {
+    for await (const {row: stored, error} of streamJsonl(files[split])) {
+      const row = stored && adaptRow(stored, profile);
       if (!row) {
         invariants.fail('json', error);
         continue;

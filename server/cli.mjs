@@ -1,7 +1,8 @@
 #!/usr/bin/env node
+import {answerLanguage} from './language.mjs';
 import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import fs from 'node:fs';import path from 'node:path';import {fileURLToPath} from 'node:url';import readline from 'node:readline/promises';import {stdin,stdout} from 'node:process';
-import {cliArgs,loadJSON} from '../lib/util.mjs';import {Repository} from '../memory/repository.mjs';import {Lexicon} from '../sop/lexicon.mjs';import {Runtime} from '../sop/runtime.mjs';import {Agent} from './agent.mjs';import {loadRegistry,FormalizerManager} from './formalizers.mjs';import {createCapabilities} from './capabilities.mjs';import {publishKnowledge} from '../sop/ingest.mjs';import {parse,validateGraph,canonical} from '../sop/parser.mjs';import {lowerConstraint,lowerFact,lowerRule} from '../sop/lower.mjs';import {compileSMT} from '../reasoning/bridge/export.mjs';import {compileProlog} from '../reasoning/bridge/export.mjs';import {instant,contains} from '../lib/time.mjs';
+import {cliArgs,loadJSON} from '../lib/util.mjs';import {Repository} from '../memory/repository.mjs';import {Lexicon} from '../sop/lexicon.mjs';import {Runtime} from '../sop/runtime.mjs';import {Agent} from './agent.mjs';import {loadRegistry,ModelManager} from './formalizers.mjs';import {createCapabilities} from './capabilities.mjs';import {publishKnowledge} from '../sop/ingest.mjs';import {parse,validateGraph,canonical} from '../sop/parser.mjs';import {lowerConstraint,lowerFact,lowerRule} from '../sop/lower.mjs';import {compileSMT} from '../reasoning/bridge/export.mjs';import {compileProlog} from '../reasoning/bridge/export.mjs';import {instant,contains} from '../lib/time.mjs';
 const args=cliArgs(),cmd=args._[0]??'help',projectRoot=fileURLToPath(new URL('../',import.meta.url)),resource=file=>path.resolve(projectRoot,file),input=file=>path.isAbsolute(file)||fs.existsSync(file)?file:resource(file),config=loadJSON(args.config?input(args.config):resource('config/runtime.json'),null);
 try{
  if(cmd==='help'){console.log(`ChatSOP\n  node server/cli.mjs init [--base demo]\n  node server/cli.mjs run --file examples/query.sop [--base demo --user alice --session s1]\n  node server/cli.mjs chat                             # the product chain: SymbolicLM service, host circuit, CNL answer\n  node server/cli.mjs fork --from demo --to copy\n  node server/cli.mjs commit|discard|stats|maintain [--base demo --user alice --session s1]
@@ -28,7 +29,7 @@ try{
   // The product chain (server/http.mjs): the SymbolicLM service of the model registry formalizes, the host circuit answers; no other model is involved.
   const registryFile=config.formalizers===false?null:resource(config.formalizers??'config/formalizers.json');
   if(!registryFile||!fs.existsSync(registryFile))throw Error('chat needs the model registry (config/formalizers.json) with the SymbolicLM service');
-  const registry=loadRegistry(registryFile),manager=new FormalizerManager({registry,logDir:path.resolve(args.root??config.root??'state','formalizer-logs')}),caps=createCapabilities({registry,manager,timeoutMs:120000});
+  const registry=loadRegistry(registryFile),manager=new ModelManager({registry,logDir:path.resolve(args.root??config.root??'state','formalizer-logs')}),caps=createCapabilities({registry,manager,timeoutMs:120000});
   let emotion=null;
   const formalizer={id:caps.symbolicId(),pragmatic:()=>emotion,formalize:async message=>{
    const call=await caps.symbolicFormalize(message,{interpret:false});
@@ -37,7 +38,7 @@ try{
   const agent=new Agent({repo,session,lexicon:lex,config}),rl=readline.createInterface({input:stdin,output:stdout});
   console.log('Commands: :commit :discard :sop :circuit :cnl :proof :quit. Your stated claims remain caller-owned conversation context; only explicit trusted writes enter the session.');
   let last;
-  try{while(true){const text=await rl.question('> ');if(text===':quit')break;if(text===':commit'){console.log(repo.commit(session));continue;}if(text===':discard'){repo.discard(session);continue;}if(text===':sop'){console.log(last?.sop??'No previous turn');continue;}if(text===':circuit'){console.log(last?.executionSop??'No previous turn');continue;}if(text===':cnl'){console.log(last?.cnl??'No previous turn');continue;}if(text===':proof'){console.log(JSON.stringify(last?.packet??null,null,2));continue;}try{last=await agent.turn(text,{formalizer});console.log(last.text);}catch(e){console.log('No completed answer: '+e.message);}}}
+  try{while(true){const text=await rl.question('> ');if(text===':quit')break;if(text===':commit'){console.log(repo.commit(session));continue;}if(text===':discard'){repo.discard(session);continue;}if(text===':sop'){console.log(last?.sop??'No previous turn');continue;}if(text===':circuit'){console.log(last?.executionSop??'No previous turn');continue;}if(text===':cnl'){console.log(last?.cnl??'No previous turn');continue;}if(text===':proof'){console.log(JSON.stringify(last?.packet??null,null,2));continue;}try{const input=await caps.toEnglish(text);last=await agent.turn(input.text,{formalizer,answerLanguage:answerLanguage(text).language,languageSource:'prompt',translateAnswer:(english,language)=>caps.translateTo(english,language)});console.log(last.text);}catch(e){console.log('No completed answer: '+e.message);}}}
   finally{rl.close();caps.close();await manager.stopAll();}
   process.exit(0);}
  throw Error('Unknown command: '+cmd);

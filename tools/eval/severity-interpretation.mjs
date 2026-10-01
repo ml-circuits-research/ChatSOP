@@ -3,7 +3,7 @@
  * Graded severity of the SymbolicLM final interpretation (DS016 "Graded severity", Task B): message -> SOP against the gold SOP of the sealed tests.
  *   node tools/eval/severity-interpretation.mjs [--sets symbolic_english,neuro_english]
  * SOP under test: the `sop` stored in each sealed row (SymbolicLM ud-rules-v2.5 with the Stanza accurate package; the row's `sop_layer` is the strict execution-equivalence verdict of the same SOP).
- * Row grade: strict `match` is S0 (the existing oracle); a mismatch is graded by lib/severity/sop-compare.mjs; a row SymbolicLM did not handle is NONE;
+ * Row grade: strict `match` is S0 (the existing oracle); a mismatch is graded by tools/eval/severity/sop-compare.mjs; a row SymbolicLM did not handle is NONE;
  * a handled row without gold SOP cannot be graded against gold (reported as `no_gold`, never counted as good or bad).
  * Output: eval/reports/current/severity/interpretation/<set>.graded.jsonl and interpretation.md / summary.json.
  */
@@ -12,9 +12,9 @@ import path from 'node:path';
 import {ROOT} from '../../lib/dataset-paths.mjs';
 import {SEV_DIR} from './severity-calibration.mjs';
 import {readJsonlShardedSync} from '../../lib/jsonl-shards.mjs';
-import {sopSeverity, SOP_COMPARE_VERSION} from '../../lib/severity/sop-compare.mjs';
-import {distributionStats, fmt, wilson} from '../../lib/severity/metrics.mjs';
-import {SEVERITIES, isGoodEnough} from '../../lib/severity/scale.mjs';
+import {sopSeverity, SOP_COMPARE_VERSION} from './severity/sop-compare.mjs';
+import {distributionStats, fmt, wilson} from './severity/metrics.mjs';
+import {SEVERITIES, isGoodEnough} from './severity/scale.mjs';
 
 export const OUT = path.join(SEV_DIR, 'interpretation');
 export function gradeRow(row) {
@@ -33,7 +33,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const sets = (process.argv[process.argv.indexOf('--sets') + 1]?.startsWith('--') || process.argv.indexOf('--sets') < 0 ? 'symbolic_english,neuro_english' : process.argv[process.argv.indexOf('--sets') + 1]).split(',');
   fs.mkdirSync(OUT, {recursive: true});
   const summary = {generated_at: new Date().toISOString(), compare_version: SOP_COMPARE_VERSION, sets: {}};
-  const md = ['# Graded severity of the SymbolicLM interpretation (sealed tests, message -> SOP against gold)', '', `SOP under test: the stored SymbolicLM output of each sealed row (ud-rules-v2.5, Stanza accurate). Strict match with the gold SOP is S0; a mismatch is graded by lib/severity/sop-compare.mjs (${SOP_COMPARE_VERSION}); not handled is NONE; handled rows without gold SOP are not graded.`, ''];
+  const md = ['# Graded severity of the SymbolicLM interpretation (sealed tests, message -> SOP against gold)', '', `SOP under test: the stored SymbolicLM output of each sealed row (ud-rules-v2.5, Stanza accurate). Strict match with the gold SOP is S0; a mismatch is graded by tools/eval/severity/sop-compare.mjs (${SOP_COMPARE_VERSION}); not handled is NONE; handled rows without gold SOP are not graded.`, ''];
   for (const set of sets) {
     const rows = readJsonlShardedSync(path.join(ROOT, `eval/suites/${set}/test.jsonl`));
     const graded = rows.map(r => ({id: r.id, message: r.message, ...gradeRow(r), strict: r.sop_layer?.status ?? null, failure_kind: r.failure_kind ?? null, uncertain: r.uncertain, sop: r.sop, gold_sop: r.gold_sop ?? null}));

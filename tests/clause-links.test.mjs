@@ -149,41 +149,38 @@ test('a constraint may use the scalar answer of a query ($q)', () => {
   assert.match(wires[1].fields.require[0], /\$minutes times 2/);
 });
 
-// A small inline dictionary keeps these tests independent of the data files (config/dictionary).
+// A small inline dictionary keeps these tests independent of the data files (config/dictionary). English only: the core's
+// dictionary view carries synonym sets and never translates (DS021 "English-only core").
 const DICT = Dictionary.fromEntries([
-  {id: 'rel:works_at', pos: 'relation', en: ['work at', 'be employed by'], ro: ['lucra la', 'munci la'], forms: ['lucrează la']},
-  {id: 'rel:located_in', pos: 'relation', en: ['be located in', 'be in'], ro: ['se afla în', 'fi în'], forms: []},
-  {id: 'noun:lab', pos: 'noun', en: ['Alpha Lab'], ro: ['laboratorul alfa'], forms: ['def:laboratorul alfa']},
-  {id: 'prep:la', pos: 'prep', en: ['at'], ro: ['la'], forms: []},
+  {id: 'rel:works_at', pos: 'relation', en: ['work at', 'toil at'], ro: [], forms: []},
+  {id: 'noun:lab', pos: 'noun', en: ['Alpha Lab', 'Alfa Laboratory'], ro: [], forms: []},
 ]);
 
-test('content words: Romanian (normalized) or English both link; the host translates, never guesses', async () => {
-  const ro = query('q', 'lucra la', '"Maria"', '"Alpha Lab"');
-  const plan = compile(ro, {dictionary: DICT});
-  assert.deepEqual(plan.translations, [{wire: 'q', field: 'relation', from: 'lucra la', to: 'work at', source: 'dictionary', predicate: 'works_at'}]);
+test('content words: English synonyms link through the dictionary; Romanian is not translated by the core', async () => {
+  const synonym = query('q', 'toil at', '"Maria"', '"Alpha Lab"');
+  const plan = compile(synonym, {dictionary: DICT, frames: false});
+  assert.deepEqual(plan.translations, [{wire: 'q', field: 'relation', from: 'toil at', to: 'work at', source: 'synonym', predicate: 'works_at'}]);
   assert.equal(compile(query('q', 'work at', '"Maria"', '"Alpha Lab"'), {dictionary: DICT}).translations.length, 0, 'English links directly');
-  // Strict (no dictionary): the Romanian lemma does not link and the host asks.
-  assert.equal(compile(ro, {dictionary: null}).issues[0].status, 'unknown');
-  // An unknown Romanian word is reported untranslated and asked about, never guessed.
-  const unknown = compile(query('q', 'zgrâbțui la', '"Maria"', '"Alpha Lab"'), {dictionary: DICT});
-  assert.equal(unknown.issues[0].status, 'unknown');
-  assert.deepEqual(unknown.untranslated, [{wire: 'q', field: 'relation', text: 'zgrâbțui la', tokens: ['zgrâbțui']}]);
+  // Strict (no dictionary): the synonym does not link and the host asks.
+  assert.equal(compile(synonym, {dictionary: null}).issues[0].status, 'unknown');
+  // Romanian never reaches the core (the edges translate); if it did, it is asked about, never translated or guessed.
+  const romanian = compile(query('q', 'lucra la', '"Maria"', '"Alpha Lab"'), {dictionary: DICT});
+  assert.equal(romanian.issues[0].status, 'unknown');
+  assert.equal(romanian.untranslated, undefined);
   const result = await run(query('q', 'lucra la', '"Maria"', '"Alpha Lab"'));
-  assert.equal(result.packet.status, 'supported');
-  assert.equal(result.packet.translations[0].to, 'work at');
-  const strict = await run(query('q', 'lucra la', '"Maria"', '"Alpha Lab"'), {policy: {dictionary: false}});
-  assert.equal(strict.packet.status, 'clarify');
+  assert.equal(result.packet.status, 'clarify');
+  assert.equal(result.packet.translations.length, 0);
 });
 
-test('anchoring: a normalized Romanian value, an English translation and a verbatim span are all anchored', () => {
-  assert.ok(mentionedThroughDictionary('Alpha Lab', 'Maria lucrează la Laboratorul Alfa', DICT));
-  assert.ok(!mentionedThroughDictionary('Beta Lab', 'Maria lucrează la Laboratorul Alfa', DICT));
+test('anchoring: a stated value is anchored by the message words or an English synonym of them', () => {
+  assert.ok(mentionedThroughDictionary('Alpha Lab', 'Maria works at the Alfa Laboratory', DICT));
+  assert.ok(!mentionedThroughDictionary('Beta Lab', 'Maria works at the Alfa Laboratory', DICT));
   const agent = new Agent({lexicon: lex, config: {}});
-  const message = 'Maria lucrează la Laboratorul Alfa, dar firma aia e ciudată?';
-  assert.doesNotThrow(() => agent.validateVocabulary(stated('s1', 'lucra la', '"Maria"', '"Laboratorul Alfa"'), message));
-  assert.doesNotThrow(() => agent.validateVocabulary(wire('u1', 'unparsed', 'span "firma aia"') + query('q', 'lucra la', '"Maria"', '"Laboratorul Alfa"'), message));
-  assert.throws(() => agent.validateVocabulary(wire('u1', 'unparsed', 'span "the company over there"') + query('q', 'lucra la', '"Maria"', '"Laboratorul Alfa"'), message), /unparsed_span_not_in_message/);
-  assert.throws(() => agent.validateVocabulary(stated('s1', 'lucra la', '"Maria"', '"Laboratorul Beta"'), message), /stated_value_not_in_message/);
+  const message = 'Maria works at Alpha Lab, but that company is odd?';
+  assert.doesNotThrow(() => agent.validateVocabulary(stated('s1', 'work at', '"Maria"', '"Alpha Lab"'), message));
+  assert.doesNotThrow(() => agent.validateVocabulary(wire('u1', 'unparsed', 'span "that company"') + query('q', 'work at', '"Maria"', '"Alpha Lab"'), message));
+  assert.throws(() => agent.validateVocabulary(wire('u1', 'unparsed', 'span "the company over there"') + query('q', 'work at', '"Maria"', '"Alpha Lab"'), message), /unparsed_span_not_in_message/);
+  assert.throws(() => agent.validateVocabulary(stated('s1', 'work at', '"Maria"', '"Beta Lab"'), message), /stated_value_not_in_message/);
 });
 
 test('unparsed: placeholders pair by near and hint; spans are repaired or asked about one by one', async () => {
@@ -199,10 +196,10 @@ test('unparsed: placeholders pair by near and hint; spans are repaired or asked 
   const repaired = await run(s1 + u1 + query('q', 'works at', '"Ana"', '"Beta Lab"'));
   assert.equal(repaired.packet.status, 'supported');
   assert.deepEqual(repaired.packet.repairs, [{unparsed: 'u1', span: 'Beta Lab', hint: 'object', near: 's1', wire: 's1', role: 'object', method: 'lexicon_entity', value: 'Beta Lab', filled: true}]);
-  // An unresolved span holds back only what needs it and asks one targeted question, in the answer language.
-  const partial = await run(stated('s1', 'works at', '"Ana"', '?x') + wire('u1', 'unparsed', 'span "firma aia de lângă gară"', 'near $s1', 'hint object') + query('q', 'works at', '"Maria"', '"Alpha Lab"'), {language: 'ro'});
+  // An unresolved span holds back only what needs it and asks one targeted question, in English (the output edge translates it).
+  const partial = await run(stated('s1', 'works at', '"Ana"', '?x') + wire('u1', 'unparsed', 'span "that firm near the station"', 'near $s1', 'hint object') + query('q', 'works at', '"Maria"', '"Alpha Lab"'));
   assert.equal(partial.packet.status, 'supported');
-  assert.match(partial.text, /La cine sau la ce vă referiți prin „firma aia de lângă gară”\?/);
+  assert.match(partial.text, /Who or what do you mean by "that firm near the station"\?/);
   assert.equal(partial.packet.next, 'answer_clarification');
   assert.equal(partial.packet.unresolved_spans[0].blocking, true);
   assert.equal(partial.packet.user_statements.find(s => s.id === 's1').treatment, 'incomplete');
@@ -213,28 +210,27 @@ test('unparsed: placeholders pair by near and hint; spans are repaired or asked 
 
 test('a repaired time in a query placeholder becomes the query period', async () => {
   const q = '@q query\n  where match\n    relation "works at"\n    role subject "Maria"\n    role object "Alpha Lab"\n    role time ?t\n    polarity affirmed\n  end\n';
-  const inside = await run(q + wire('u1', 'unparsed', 'span "3 martie 2025"', 'near $q', 'hint time'));
+  const inside = await run(q + wire('u1', 'unparsed', 'span "3 March 2025"', 'near $q', 'hint time'));
   assert.equal(inside.packet.status, 'supported');
-  const before = await run(q + wire('u1', 'unparsed', 'span "3 martie 2020"', 'near $q', 'hint time'));
+  const before = await run(q + wire('u1', 'unparsed', 'span "3 March 2020"', 'near $q', 'hint time'));
   assert.equal(before.packet.status, 'unknown', 'Maria works at Alpha Lab only from 2024');
 });
 
-test('symbolic repair: dates, numbers, money, names, the conversation and the dictionary', () => {
-  assert.deepEqual(repairSpan('3 martie 2025', {hint: 'time', now: NOW}), {value: '3 martie 2025', method: 'time'});
+test('symbolic repair: dates, numbers, money, names, the conversation and English synonyms', () => {
+  assert.deepEqual(repairSpan('3 March 2025', {hint: 'time', now: NOW}), {value: '3 March 2025', method: 'time'});
+  assert.equal(repairSpan('3 martie 2025', {hint: 'time', now: NOW}), null, 'Romanian dates are not read by the core');
   assert.equal(repairSpan('next blue moon', {hint: 'time', now: NOW}), null);
   assert.equal(parseQuantity('12'), 12);
-  assert.equal(parseQuantity('doisprezece'), 12);
+  assert.equal(parseQuantity('twelve'), 12);
   assert.equal(parseQuantity('1.140 euro'), '1140 EUR');
   assert.equal(parseQuantity('2380 lei'), '2380 RON');
   assert.equal(parseQuantity('12,5 km'), '12.5 km');
   assert.equal(parseQuantity('blah'), null);
   assert.deepEqual(repairSpan('Mihai Viteazu', {}), {value: 'Mihai Viteazu', method: 'proper_name'});
-  assert.deepEqual(repairSpan('Laboratorul Alfa', {lexicon: lex}), {value: 'Laboratorul Alfa', method: 'lexicon_entity'});
+  assert.deepEqual(repairSpan('Alpha Lab', {lexicon: lex}), {value: 'Alpha Lab', method: 'lexicon_entity'});
   const lastQuery = query('q', 'works at', '"Maria"', '?x');
-  assert.deepEqual(repairSpan('aia', {hint: 'reference', context: {lastQuery: query('q', 'works at', '"Maria"', '"Alpha Lab"')}}), null, 'two referents: ask');
-  assert.deepEqual(repairSpan('el', {hint: 'reference', context: {lastQuery}}), {value: 'Maria', method: 'conversation'});
-  assert.deepEqual(repairSpan('laboratorul alfa', {dictionary: DICT}), {value: 'Alpha Lab', method: 'dictionary'});
-  // In a Romanian string, a word known in neither language is untranslated, never passed through as English.
-  assert.deepEqual(DICT.candidates('zgrabtui la', 'relation').untranslated, ['zgrabtui']);
-  assert.equal(spanQuestion('aia', 'reference', 'ro'), 'La ce se referă „aia”?');
+  assert.deepEqual(repairSpan('that one', {hint: 'reference', context: {lastQuery: query('q', 'works at', '"Maria"', '"Alpha Lab"')}}), null, 'two referents: ask');
+  assert.deepEqual(repairSpan('him', {hint: 'reference', context: {lastQuery}}), {value: 'Maria', method: 'conversation'});
+  assert.deepEqual(repairSpan('alfa laboratory', {dictionary: DICT}), {value: 'Alpha Lab', method: 'dictionary'});
+  assert.equal(spanQuestion('that one', 'reference'), 'What does "that one" refer to?');
 });

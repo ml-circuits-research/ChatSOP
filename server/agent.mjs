@@ -1,4 +1,4 @@
-import {Runtime} from '../sop/runtime.mjs';import {parse} from '../sop/parser.mjs';import {MODEL_TYPES,checkModelWire} from '../sop/declarative.mjs';import {checkModelLinks} from '../sop/clauses.mjs';import {defaultDictionary} from '../sop/dictionary.mjs';import {unquote,one} from '../sop/parser.mjs';import {assert} from '../lib/util.mjs';
+import {Runtime} from '../sop/runtime.mjs';import {parse} from '../sop/parser.mjs';import {MODEL_TYPES,checkModelWire} from '../sop/declarative.mjs';import {checkModelLinks} from '../sop/clauses.mjs';import {englishDictionary} from '../sop/dictionary.mjs';import {unquote,one} from '../sop/parser.mjs';import {assert} from '../lib/util.mjs';
 import {propositionOf} from '../sop/propositions.mjs';
 import {mentionedIn,mentionedThroughLexicon,mentionedThroughDictionary} from '../sop/linking.mjs';
 import {answerLanguage} from './language.mjs';
@@ -8,23 +8,37 @@ const CONTENT_TYPES=new Set(['stated','assumed','query','constraint']);
 const verbatim=text=>String(text).normalize('NFC').toLocaleLowerCase('ro').replace(/\s+/g,' ').trim();
 const listTypes=types=>{const t=[...types];return t.slice(0,-1).join(', ')+' or '+t.at(-1);};
 /**
+ * The output edge of a turn (DS021 "English-only core"): English stays as it is; another answer language is the translation of the
+ * English text by `translate(text, language)`. A missing or failing translator keeps the English text and says so (never silent).
+ */
+async function localize(english,language,translate){
+ if(!language||language==='en')return {text:english,translation:null};
+ const base={language,original:english};
+ if(typeof translate!=='function')return {text:english,translation:{...base,status:'backend_unavailable',backend:null,message:'no translator is configured'}};
+ try{const r=await translate(english,language);return {text:r.text,translation:{...base,status:'ok',backend:r.backend??null,placeholders:r.placeholders??null,ms:r.ms??null}};}
+ catch(error){return {text:english,translation:{...base,status:'backend_unavailable',backend:null,code:error.code??'backend_unavailable',message:String(error.message).slice(0,300)}};}
+}
+/**
  * The model handles language; all state changes and inference go through SOP.
  * The formalizer (SymbolicLM, the one formalizer of the product) gets ONLY the user's message and writes context-free string
  * propositions in the model language (DS021); the host links them to the lexicon.
  */
 export class Agent{
- constructor({repo,session,lexicon,config}){Object.assign(this,{repo,session,lexicon,config});this.recent=[];this.last=null;
+ constructor({repo,session,lexicon,config,circuitRules=null}){Object.assign(this,{repo,session,lexicon,config,circuitRules});this.recent=[];this.last=null;
   // Caller-owned conversation context: carried statements, the last query (for follow-ups) and, when the host
   // configures it, the caller's own entity for "the user" (DS021 Q-LANG-4, Q-LANG-5).
   this.context={statements:[],...(config?.user?{user:config.user}:{})};}
  /**
   * `language` is the lexical hint for alias matching ('auto', 'en', 'ro', ...).
   * The answer language is `answerLanguage` when the caller selected one, an
-  * explicit request in the message, a concrete en/ro turn language, or English.
+  * explicit request in the message, a concrete en/ro turn language, or English. The core renders English only (DS021
+  * "English-only core"): for another answer language the final English text is translated by `translateAnswer(text, language)`
+  * (TranslatorService, lib/translator-service/answer.mjs); the packet records the step (`answer_translation`), the memory of the
+  * conversation keeps the English text, and a translator that cannot run leaves the English answer with the failure reported.
   * `formalizer` is required: `{id, formalize: async text => sop, pragmatic?: () => signals}`, the SymbolicLM service of the model
   * registry (server/formalizers.mjs); the server builds it per turn, and tests inject their own.
   */
- async turn(text,{language='auto',answerLanguage:selected,languageSource,now=Date.now(),formalizer,pragmatic=null}={}){
+ async turn(text,{language='auto',answerLanguage:selected,languageSource,now=Date.now(),formalizer,pragmatic=null,translateAnswer=null}={}){
   assert(typeof formalizer?.formalize==='function','A turn needs a formalizer: {id, formalize}');
   const chosen=languageSource?{language:selected??language,source:languageSource}:answerLanguage(text,selected??(['en','ro'].includes(language)?language:undefined));
   const replyLanguage=chosen.language;
@@ -47,20 +61,22 @@ export class Agent{
     advice=adviceFor(signals,{hasContent:program.wires.some(w=>CONTENT_TYPES.has(w.type))});
     // Greeting, thanks, apology or closing without any content: a short courtesy reply and no computation.
     if(advice.courtesyOnly){
-     const reply=courtesyReply(signals,replyLanguage),packet={kind:'courtesy',status:'courtesy',complete:true,language:replyLanguage,pragmatic:signals.map(({kind,score,span,source,basis})=>({kind,score,span:span??null,source,basis}))};
-     this.last={kind:'cnl',text:reply,language:replyLanguage,packet};this.recent.push({user:text.slice(0,400),response:reply});this.recent=this.recent.slice(-3);
-     return {sop,executionSop:pragmaticSop,cnl:reply,text:reply,packet,trace:[],outputs:{},blocked:[],generated:[],userStatements:[],carriedStatements:[],modelAssumptions:[],assumptionPolicy:null,assumptionBranch:null,unclear:null,answerLanguage:replyLanguage,languageSource:chosen.source,formalization,pragmatic:{signals,sop:pragmaticSop,advice}};
+     const reply=courtesyReply(signals),packet={kind:'courtesy',status:'courtesy',complete:true,language:'en',pragmatic:signals.map(({kind,score,span,source,basis})=>({kind,score,span:span??null,source,basis}))};
+     this.last={kind:'cnl',text:reply,language:'en',packet};this.recent.push({user:text.slice(0,400),response:reply});this.recent=this.recent.slice(-3);
+     const localized=await localize(reply,replyLanguage,translateAnswer);if(localized.translation)packet.answer_translation=localized.translation;
+     return {sop,executionSop:pragmaticSop,cnl:localized.text,text:localized.text,englishText:reply,answerTranslation:localized.translation,packet,trace:[],outputs:{},blocked:[],generated:[],userStatements:[],carriedStatements:[],modelAssumptions:[],assumptionPolicy:null,assumptionBranch:null,unclear:null,answerLanguage:replyLanguage,languageSource:chosen.source,formalization,pragmatic:{signals,sop:pragmaticSop,advice}};
     }
    }
-   result=await new Runtime({repo:this.repo,session:this.session,schema:this.lexicon.predicates,lexicon:this.lexicon,now,policy:this.config.policy}).run(sop,{origin:'model',inputText:text,language:replyLanguage,languageSource:chosen.source,context:this.context});
+   result=await new Runtime({repo:this.repo,session:this.session,schema:this.lexicon.predicates,lexicon:this.lexicon,now,policy:this.config.policy,circuitRules:this.circuitRules}).run(sop,{origin:'model',inputText:text,language:'en',languageSource:chosen.source,context:this.context});
   }catch(error){throw Object.assign(error,{modelSop:sop,formalization});}
   let output=result.result;
-  if(output?.status==='clarify')output={kind:'cnl',text:output.text,language:replyLanguage,packet:output};
+  if(output?.status==='clarify')output={kind:'cnl',text:output.text,language:'en',packet:output};
   assert(output?.kind==='cnl','The host must produce a conversational result');
   this.context={...this.context,statements:result.contextStatements??this.context.statements};
   this.last=output;this.recent.push({user:text.slice(0,400),response:output.text.slice(0,500)});this.recent=this.recent.slice(-3);
   const packet=output.packet??{};
-  return {sop,executionSop:pragmaticSop?result.executionSop+'\n\n'+pragmaticSop:result.executionSop,cnl:output.text,text:output.text,packet:output.packet,trace:result.trace,outputs:result.outputs,blocked:result.blocked,generated:result.generated,
+  const localized=await localize(output.text,replyLanguage,translateAnswer);if(localized.translation&&output.packet)output.packet.answer_translation=localized.translation;
+  return {sop,executionSop:pragmaticSop?result.executionSop+'\n\n'+pragmaticSop:result.executionSop,cnl:localized.text,text:localized.text,englishText:output.text,answerTranslation:localized.translation,packet:output.packet,trace:result.trace,outputs:result.outputs,blocked:result.blocked,generated:result.generated,
    userStatements:packet.user_statements??[],carriedStatements:packet.carried_statements??[],modelAssumptions:packet.model_assumptions??[],assumptionPolicy:packet.assumption_policy??null,assumptionBranch:packet.assumption_branch??null,
    unclear:packet.status==='unclear'?packet.unclear_kind:null,answerLanguage:replyLanguage,languageSource:chosen.source,formalization,...(pragmatic?{pragmatic:{signals,sop:pragmaticSop,advice}}:{})};
  }
@@ -73,7 +89,7 @@ export class Agent{
  validateVocabulary(sop,text=''){
   const program=parse(sop);
   if(program.wires.some(w=>w.type==='unclear'))assert(program.wires.length===1,'unclear_not_alone: unclear must be the only wire of the model output');
-  const dictionary=this.config?.policy?.dictionary===false?null:defaultDictionary();
+  const dictionary=this.config?.policy?.dictionary===false?null:englishDictionary();
   for(const wire of program.wires){
    assert(MODEL_TYPES.has(wire.type),'Model output must be declarative: '+listTypes(MODEL_TYPES));
    checkModelWire(wire);

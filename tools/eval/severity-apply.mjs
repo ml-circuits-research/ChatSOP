@@ -16,8 +16,8 @@ import {ROOT} from '../../lib/dataset-paths.mjs';
 import {SEV_DIR} from './severity-calibration.mjs';
 import {readJsonl, writeJsonl, localGrade} from './severity-local.mjs';
 import {folderFromPairs, loadVerdicts} from './severity-judge.mjs';
-import {distributionStats, fmt} from '../../lib/severity/metrics.mjs';
-import {SEVERITIES, rank} from '../../lib/severity/scale.mjs';
+import {distributionStats, fmt} from './severity/metrics.mjs';
+import {SEVERITIES, rank} from './severity/scale.mjs';
 
 export const APPLY = path.join(SEV_DIR, 'apply');
 const R = 'eval/reports/current';

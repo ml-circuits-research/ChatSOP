@@ -330,3 +330,24 @@ export function defaultDictionary() {
   if (!loaded) loaded = Dictionary.load();
   return loaded;
 }
+
+/** The English view: content strings are never translated (the core receives English only), synonyms still apply. */
+class EnglishDictionary extends Dictionary {
+  candidates(text) { return {status: 'unchanged', candidates: [text], untranslated: [], sources: []}; }
+}
+
+let loadedEnglish = null;
+/**
+ * The dictionary the product linking path uses (owner decision of 2026-10-01, DS021 "English-only core"): the English
+ * surfaces and synonym sets of config/dictionary only. The core never receives a Romanian content word (the input edge
+ * translates first), so no Romanian surface, form or first-person word is compiled into this view: `candidates` of a
+ * string returns the string unchanged and `synonyms` lists English synonyms. The full dictionary (`defaultDictionary`)
+ * stays for the edges and for evaluation: language identification, the gloss translator backend and tolerant scoring.
+ */
+export function englishDictionary() {
+  if (!loadedEnglish) {
+    const entries = defaultDictionary().entries.filter(e => e.en.length).map(e => ({...e, ro: [], forms: []}));
+    loadedEnglish = new EnglishDictionary({format: 'chatsop-dictionary-v1', digest: 'english', ...compileEntries(entries.map(e => ({note: '', ...e})))});
+  }
+  return loadedEnglish;
+}

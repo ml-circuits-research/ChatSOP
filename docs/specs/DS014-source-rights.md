@@ -40,6 +40,17 @@ Applies to: any tool that imports or converts source text, `datasets/knowledge/s
 | `inspired-by-released` | Applies to a derived corpus, never to source text: the corpus copies no source text, takes only structure, label types, phenomena and statistics, passes the no-copy check, and was released by the owner's decision of 2026-09-28. |
 | `llm-authored` | Applies to messages an LLM wrote for this project under its provider's terms (owner decision D2 of 2026-09-29, section "LLM-authored text"): original, not copied, verified by the no-copy check and the sealed-suite guard, stamped with its provenance. |
 
+## KBQA benchmarks (2026-10-01)
+
+The questions and gold answers of the four KBQA benchmarks are public evaluation material, used only by the sealed suites `eval/suites/kbqa-<name>/test.jsonl` (`tools/eval/kbqa.mjs`, experiment eval-kbqa-v1). The raw sources stay in the local source cache `datasets_sources/kbqa/` (gitignored); the sealed suites hold the sampled questions with their attribution (`license` and `source` on every row, `citation` in `meta.json`). The knowledge slices are Wikidata statements (CC0), fetched from query.wikidata.org with a descriptive User-Agent and a polite request gap, and live in the gitignored cache and a private chat data root.
+
+| Asset | Version / source | Evidence inspected | Status | Consequences in this repository |
+| --- | --- | --- | --- | --- |
+| Mintaka (Amazon Science) test | github.com/amazon-science/mintaka, `data/mintaka_test.json` | `LICENSE.md` of the repository: Creative Commons Attribution 4.0 International | `cleared` | Sealed suite `kbqa-mintaka`: 1,000 sampled questions with gold answers, attribution on every row (Sen, Aji, Saffari, COLING 2022). |
+| LC-QuAD 2.0 test | github.com/AskNowQA/LC-QuAD2.0, `dataset/test.json`; figshare 7982858 | The figshare record (`datasets_sources/kbqa/lcquad2/figshare-record.json`) states `CC BY 4.0`; the repository has no LICENSE file and the Hugging Face card states CC-BY-3.0 | `permissive-attribution` (licence as recorded by the publisher's record; the card disagrees on the version) | Sealed suite `kbqa-lcquad2`: questions and the gold SPARQL with answers computed on Wikidata; attribution on every row (Dubey et al., ISWC 2019). |
+| SimpleQuestions-Wikidata (answerable test) | github.com/askplatypus/wikidata-simplequestions | `LICENSE.txt`: SimpleQuestions, Facebook, Creative Commons Attribution 3.0 Unported | `cleared` | Sealed suite `kbqa-simplequestions`: 1,000 sampled questions with gold answers computed on Wikidata; attribution on every row (Bordes et al. 2015; Diefenbach et al. 2017). |
+| QALD-10 test (Wikidata) | github.com/KGQA/QALD-10, `data/qald_10/qald_10.json` | `LICENSE`: MIT, Copyright (c) 2022 Longquan Jiang (the licence of the repository that distributes the benchmark; the questions come from the QALD challenge, Usbeck et al. 2023) | `permissive-attribution` | Sealed suite `kbqa-qald10`: all 393 English questions with gold answers, attribution on every row. |
+
 ## Verified rows
 
 | Asset | Version / source | Evidence inspected | Status | Consequences in this repository |

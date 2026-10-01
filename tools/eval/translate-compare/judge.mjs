@@ -4,7 +4,7 @@
  *   node tools/eval/translate-compare/judge.mjs pairs  --stage s1 --messages 60 [--arms a,b,...] [--glm-sessions 3]
  *   node tools/eval/translate-compare/judge.mjs report --messages 60|all [--arms a,b,...] [--out FILE.json]
  * Every arm is judged the same way as the `natural` suite (tools/eval/natural-score.mjs): per original SENTENCE against its own translation, and per MESSAGE
- * against the arm's sentences joined, by Grok `grok-4.20-0309-non-reasoning` and GLM `glm-5.3-flash`, with the severity prompt of lib/severity/judge-prompt.mjs
+ * against the arm's sentences joined, by Grok `grok-4.20-0309-non-reasoning` and GLM `glm-5.3-flash`, with the severity prompt of tools/eval/severity/judge-prompt.mjs
  * PLUS three study rules (owner decisions of 2026-10-01): a project term kept verbatim or quoted is not a meaning change; a correct pronoun resolution is
  * not an error; a misspelled word is read as the intended word. Upper = the worse judge, lower = the milder; where the judges disagree on S3 or S4 the case is
  * "excusable ambiguity" and is reported apart. Verdicts live in datasets_sources/tc_<stage>_<judge>[N]/ and are shared by pair id (a pair is judged once).
@@ -12,12 +12,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {ROOT} from '../../../lib/dataset-paths.mjs';
-import {JUDGE_SYSTEM} from '../../../lib/severity/judge-prompt.mjs';
+import {JUDGE_SYSTEM} from '../severity/judge-prompt.mjs';
 import {folder} from '../severity-calibration.mjs';
 import {loadVerdicts} from '../severity-judge.mjs';
 import {pairId} from '../severity-apply.mjs';
-import {rank} from '../../../lib/severity/scale.mjs';
-import {wilson} from '../../../lib/severity/metrics.mjs';
+import {rank} from '../severity/scale.mjs';
+import {wilson} from '../severity/metrics.mjs';
 import {T, sentences, readArm, armNames, readJsonl, writeJsonl, wordCount} from './lib.mjs';
 
 export const SYSTEM_V2 = JUDGE_SYSTEM.replace(/\n\nAnswer with one JSON object[\s\S]*$/, '') + `

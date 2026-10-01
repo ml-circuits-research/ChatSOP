@@ -3,12 +3,12 @@
  * LanguageProofingLLM (prod1) over the text of another arm: the "translator, then prod1" chains and "prod1 on quoted input" of the translate-compare study.
  *   node tools/eval/translate-compare/chain.mjs --endpoint URL --from ARM|in:FILE --to ARM [--spans FILE]
  * `--from ARM` reads arms/ARM.jsonl `out`; `--from raw:NAME` reads arms/NAME.raw.jsonl (a translator's output with its quotes still in place); `--from in:FILE` reads {id, text} (for example in-jargon.jsonl). With `--spans FILE` the quote-restoration of
- * lib/languages-util/jargon.mjs is applied to the cleaned text. One sentence per model call (the chat's `sendAll`), CPU endpoint, results cached in arms/.
+ * tools/eval/translate-compare/jargon.mjs is applied to the cleaned text. One sentence per model call (the chat's `sendAll`), CPU endpoint, results cached in arms/.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import {textToCleanEnglish} from '../../../lib/text-to-clean-english/index.mjs';
-import {restoreJargon} from '../../../lib/languages-util/jargon.mjs';
+import {restoreJargon} from './jargon.mjs';
 import {T, readJsonl, writeJsonl, readArm, armFile, items} from './lib.mjs';
 
 const a = process.argv.slice(2), val = k => (a.includes(k) ? a[a.indexOf(k) + 1] : null);

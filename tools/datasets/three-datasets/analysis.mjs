@@ -58,13 +58,13 @@ class ShardWriter {
 
 /**
  * Analyse `texts` that are not cached yet, restricted to the ones whose key falls in shard `index` of `count`.
- * Results are appended to the shard's files as they arrive, so a killed run resumes where it stopped.
+ * Results are appended to the shard's files as they arrive, so a killed run resumes where it stopped. `force` analyses the texts again even when cached: the new record is appended after the old one and wins on load (a refresh of rows whose tree changed under a new rules version or Stanza run).
  */
-export async function analyseTexts(texts, {shard = [0, 1], threads = 3, dir = ANALYSIS_DIR, device = process.env.CHATSOP_UD_DEVICE ?? 'auto', batch = 64, onProgress = null} = {}) {
+export async function analyseTexts(texts, {shard = [0, 1], threads = 3, dir = ANALYSIS_DIR, device = process.env.CHATSOP_UD_DEVICE ?? 'auto', batch = 64, onProgress = null, force = false} = {}) {
   const {createSymbolicLM} = await import('../../../lib/symbolic-lm/index.mjs');
   const [index, count] = shard;
   const cache = loadCache(dir);
-  const mine = [...new Set(texts)].filter(t => parseInt(textKey(t).slice(0, 8), 16) % count === index && !cache.has(textKey(t)));
+  const mine = [...new Set(texts)].filter(t => parseInt(textKey(t).slice(0, 8), 16) % count === index && (force || !cache.has(textKey(t))));
   if (!mine.length) return {done: 0, todo: 0};
   const writer = new ShardWriter(dir, `${index}of${count}`);
   const lm = await createSymbolicLM({device, threads});

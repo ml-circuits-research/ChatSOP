@@ -6,9 +6,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {Repository} from '../memory/repository.mjs';
-import {Lexicon} from '../sop/lexicon.mjs';
+import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import {createServer} from '../server/http.mjs';
-import {loadRegistry, FormalizerManager} from '../server/formalizers.mjs';
+import {loadRegistry, ModelManager} from '../server/formalizers.mjs';
 import {listen, repoPath, repoUrl, tempDir} from './helpers.mjs';
 
 const token = 'alice-secret-token-123456';
@@ -24,16 +24,16 @@ async function setup(t, {rewriteMode = 'off', withProofing = true, withRewrite =
   for (const name of ['language-proofing', 'symbolic-proofing', 'translator']) fs.writeFileSync(path.join(dir, name + '.gguf'), 'fake');
   const file = path.join(dir, 'formalizers.json');
   fs.writeFileSync(file, JSON.stringify({default: 'symbolic-lm', models: [
-    {id: 'symbolic-lm', label: 'SymbolicLM', service: repoPath('tests/fixtures/capability-api/stub-symbolic-service.mjs'), rewrite: {mode: rewriteMode}},
+    {id: 'symbolic-lm', label: 'SymbolicLM', service: repoPath('tests/fixtures/capability-api/stub-symbolic-service.mjs'), capabilities: ['formalize'], rewrite: {mode: rewriteMode}},
     ...(withProofing ? [{id: 'language-proofing-llm', label: 'LanguageProofingLLM', gguf: 'language-proofing.gguf', capabilities: ['proofread']}] : []),
     ...(withTranslator ? [{id: 'translator-llm', label: 'TranslatorLLM', gguf: 'translator.gguf', capabilities: ['translate-clean']}] : []),
     ...(withRewrite ? [{id: 'symbolic-proofing-llm', label: 'SymbolicProofingLLM', gguf: 'symbolic-proofing.gguf', capabilities: ['proofread-symbolic']}] : [])]}));
   const registry = loadRegistry(file, {root: dir});
-  const manager = new FormalizerManager({registry, bin, startTimeoutMs: 15000, logDir: null});
+  const manager = new ModelManager({registry, bin, startTimeoutMs: 15000, logDir: null});
   t.after(() => manager.stopAll());
   const repo = new Repository(path.join(dir, 'state'));
   repo.init('base');
-  const server = createServer({repo, lexicon: Lexicon.load(repoUrl('config/ontology.sop')), base: 'base', authTokens: {alice: token}, config: {promptProfile: 'formal', policy: {allowWrite: true}}, formalizers: {registry, manager}, limits: {maxConcurrentApi: 80}});
+  const server = createServer({repo, lexicon: demoLexicon(), base: 'base', authTokens: {alice: token}, config: {promptProfile: 'formal', policy: {allowWrite: true}}, formalizers: {registry, manager}, limits: {maxConcurrentApi: 80}});
   const url = await listen(t, server);
   const request = async (method, route, body, headers = {Authorization: 'Bearer ' + token}) => {
     const response = await fetch(url + route, {method, headers: {...headers, ...(body ? {'Content-Type': 'application/json'} : {})}, body: body ? JSON.stringify(body) : undefined});

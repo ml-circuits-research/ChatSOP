@@ -97,6 +97,14 @@ function renderSelect(){const select=$('conversation');select.textContent='';for
 function field(list,label,value){if(value===undefined||value===null||value==='')return;const dt=document.createElement('dt');dt.textContent=label;const dd=document.createElement('dd');dd.textContent=typeof value==='string'?value:JSON.stringify(value);list.append(dt,dd);}
 function block(parent,label,text){if(!text)return;const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent=label;const pre=document.createElement('pre');pre.textContent=typeof text==='string'?text:JSON.stringify(text,null,2);details.append(summary,pre);parent.append(details);}
 function sopBlock(parent,label,text){if(!text)return;const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent=label;const pre=document.createElement('pre');const code=document.createElement('code');if(typeof text==='string'&&window.ChatSopCode)code.innerHTML=window.ChatSopCode.render(text);else code.textContent=typeof text==='string'?text:JSON.stringify(text,null,2);pre.append(code);details.append(summary,pre);parent.append(details);}
+/** One line of the linking report of the packet: the surface, the symbol it was bound to, what matched and the alternatives not taken. */
+function linkingLine(e){
+ let how;
+ if(e.via==='copula_reading')how='copula reading '+(e.reading||'');
+ else if(e.via==='lexicon')how=e.form?e.form.kind+' \u201c'+e.form.text+'\u201d'+(e.form.language?' ('+e.form.language+')':''):'memory vocabulary';
+ else how=e.via+(e.form?' \u201c'+(e.form.text||e.form)+'\u201d':'');
+ return '\u201c'+e.surface+'\u201d \u2192 '+e.symbol+' ('+e.kind+(e.class?' of '+e.class:'')+'; '+how+(e.match&&e.match!=='exact'?'; '+e.match:'')+')'+(e.score!=null?'; score '+e.score+(e.decided_by?' by '+e.decided_by:''):'')+((e.scored_alternatives||[]).length?'; alternatives: '+e.scored_alternatives.map(a=>a.id+' ('+a.score+')').join(', '):(e.alternatives||[]).length?'; alternatives: '+e.alternatives.join(', '):'');
+}
 function traceView(c){
  const details=document.createElement('details');const summary=document.createElement('summary');
  const timing=typeof c.formalization_ms==='number'?' · '+(c.formalization_ms/1000).toFixed(2)+' s':'';
@@ -108,6 +116,7 @@ function traceView(c){
  field(list,'answer language',c.answer_language?c.answer_language+' ('+(c.language_source??'default')+')':null);
  if(c.unclear)field(list,'unclear',c.unclear);
  if(c.understood_as)field(list,'understood as',c.understood_as);
+ if((c.linking||[]).length){const dt=document.createElement('dt');dt.textContent='linked to the base memory';const dd=document.createElement('dd');const ul=document.createElement('ul');for(const e of c.linking){const li=document.createElement('li');li.textContent=linkingLine(e);ul.append(li);}dd.append(ul);list.append(dt,dd);}
  field(list,'user statements',(c.user_statements??[]).length?c.user_statements.map(s=>s.statement).join(' '):'none');
  if((c.carried_statements??[]).length)field(list,'earlier statements',c.carried_statements.map(s=>s.atom).join('; '));
  field(list,'model assumptions',(c.model_assumptions??[]).length?c.model_assumptions.map(a=>a.statement+' ['+a.treatment+']').join(' '):'none');

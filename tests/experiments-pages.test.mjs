@@ -73,7 +73,7 @@ test('/experiments renders the index, task, experiment, topic, reports and quest
   assert.equal(index.status, 200);
   assert.match(index.text, /Experiments &amp; project history/);
   assert.match(index.text, /Fixture phase/);
-  assert.match(index.text, /prohibits training/, 'the AGENTS.md training rule is quoted');
+  assert.match(index.text, /explicit approval per run/, 'the AGENTS.md training rule is quoted');
   // Newest first: the size study (2026-09-28 18:13) before the orphan study (09-27) and the older task (09-28 05:00).
   const order = ['Fixture size study task', 'Fixture older task', 'Fixture orphan study'].map(title => index.text.indexOf(title));
   assert.ok(order.every(position => position > 0) && order[0] < order[1] && order[1] < order[2], String(order));

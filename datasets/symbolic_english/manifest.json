@@ -15,33 +15,33 @@
  },
  "split_policy": "by split_group_id (source split groups; new cases by writer); rows of sealed suites only in the sealed test, exact-text overlap with a sealed row or across splits is dropped from train/dev",
  "sha256": {
-  "datasets/symbolic_english/train.jsonl": "02495fdde536300868a4920292116ec75cecbd30742cef6c7f7ae4d06543118e",
+  "datasets/symbolic_english/train.jsonl": "016090df0cc7462d7faafb5bb4746862a39681e911db1bd520a0bc23e6225a7c",
   "datasets/symbolic_english/dev.jsonl": "dae86bc025633388aff6696a927062e7dadb6d7f6c70642a9941de3b43c97bb0",
-  "eval/suites/symbolic_english/test.jsonl": "ffc3468c3924d586af23934fd07fc2dd9cfe17ce52d7975881fbc7f724483e83"
+  "eval/suites/symbolic_english/test.jsonl": "cbc012bef851b0d1608e9ef793877cd8379212beeb0984db60bdb61646c17763"
  },
  "bytes": {
-  "datasets/symbolic_english/train.jsonl": 17379408,
+  "datasets/symbolic_english/train.jsonl": 17372300,
   "datasets/symbolic_english/dev.jsonl": 2427358,
-  "eval/suites/symbolic_english/test.jsonl": 4832916
+  "eval/suites/symbolic_english/test.jsonl": 4830434
  },
  "counts": {
   "train": {
-   "rows": 5659,
+   "rows": 5657,
    "by_source": {
     "composed": 61,
     "form-variant": 87,
-    "formalizer-ood-v1": 195,
-    "formalizer-v1": 4014,
+    "formalizer-ood-v1": 194,
+    "formalizer-v1": 4013,
     "formalizer-wild-v1": 46,
     "new_cases": 1128,
     "proofing-diverse-dev": 128
    },
    "by_analysis_verified": {
-    "analysis_gate": 5553,
+    "analysis_gate": 5551,
     "sop_rule": 106
    },
    "by_sop_layer": {
-    "match": 3445,
+    "match": 3443,
     "mismatch": 1083,
     "no_gold": 1131
    }
@@ -67,19 +67,19 @@
    }
   },
   "test": {
-   "rows": 1605,
+   "rows": 1604,
    "by_source": {
     "formalizer-ood-v1": 35,
-    "formalizer-v1": 1194,
+    "formalizer-v1": 1193,
     "formalizer-wild-v1": 6,
     "new_cases": 370
    },
    "by_analysis_verified": {
-    "analysis_gate": 1593,
+    "analysis_gate": 1592,
     "sop_rule": 12
    },
    "by_sop_layer": {
-    "match": 912,
+    "match": 911,
     "mismatch": 323,
     "no_gold": 370
    }

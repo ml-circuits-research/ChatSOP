@@ -24,6 +24,8 @@ import {parseCondition} from '../sop/conditions.mjs';
 import {propositionOf} from '../sop/propositions.mjs';
 import {phraseKey} from '../sop/linking.mjs';
 import {formatFrames, Frames, normalizeProgram, loadFrames} from '../sop/frames.mjs';
+import {defaultDictionary} from '../sop/dictionary.mjs';
+const dictionary = defaultDictionary(); // the full dictionary: tools identify Romanian archive relations, the product linking does not use it
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'config', 'dictionary');
@@ -52,7 +54,8 @@ export function worldPredicates(text) {
     const label = /^\s+(?:label|alias)\s+(en|ro)\s+("(?:\\.|[^"\\])*")/.exec(line);
     if (label) current[label[1]].push(JSON.parse(label[2]));
   }
-  return out.filter(p => p.roles.length && (p.en.length || p.ro.length));
+  // English only (owner decision 2026-10-01): the Romanian labels of the archived world are not frame surfaces.
+  return out.filter(p => p.roles.length && p.en.length);
 }
 
 /** Propositions of a gold program: [{relation, roles: [names]}]. */
@@ -94,13 +97,13 @@ The name of Princeton University or Princeton may not be used in advertising or 
 
 function buildCommand(args) {
   // 1. World frames.
-  const world = worldPredicates(fs.readFileSync(WORLD, 'utf8')).map(p => ({id: 'world:' + p.id.toLowerCase(), relation: p.en[0] ?? p.ro[0], roles: p.roles, surfaces: [...p.en.slice(1), ...p.ro], english: p.en, source: 'world', note: 'predicate ' + p.id}));
+  const world = worldPredicates(fs.readFileSync(WORLD, 'utf8')).map(p => ({id: 'world:' + p.id.toLowerCase(), relation: p.en[0], roles: p.roles, surfaces: p.en.slice(1), english: p.en, source: 'world', note: 'predicate ' + p.id}));
   const known = new Set(world.flatMap(f => [f.relation, ...f.surfaces].map(phraseKey)));
   // 2. Train frames: gold relations the world does not name.
   const counts = new Map();
   for (const row of readJsonlShardedSync(TRAIN)) for (const p of goldPropositions(row.sop_target ?? '')) {
     const key = phraseKey(p.relation);
-    if (!key || known.has(key)) continue;
+    if (!key || known.has(key) || dictionary.isRomanian(p.relation)) continue; // a Romanian gold relation of the archived corpora is not an English frame
     const roles = [...new Set(p.roles.filter(r => r !== 'time'))].sort().join('|');
     if (!counts.has(key)) counts.set(key, {relation: p.relation, sets: new Map(), n: 0});
     const c = counts.get(key);

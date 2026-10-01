@@ -8,6 +8,7 @@ import {conditionAtoms} from '../lib/conditions.mjs';
 import {contains,intersect} from '../lib/time.mjs';
 import {StrategyRegistry} from '../memory/strategies.mjs';
 import {emitAtom} from '../sop/parser.mjs';
+import {SliceRetrieval,RepositorySource,alternatives,equalityDomains,bindDomains} from './slice/index.mjs';
 const normalized = atom => { const ids=new Map();return {...atom,a:atom.a.map(x=>{if(!variable(x))return x;if(!ids.has(x))ids.set(x,'?v'+ids.size);return ids.get(x);})}; };
 const key = a => stable(normalized(a));
 /** Unification here is variable-variable as well as variable-constant. Rule
@@ -38,22 +39,27 @@ export function planGoals(query,rules,{maxGoals=256,maxRules=1024}={}) {
   }
   return {goals:agenda,rules:[...selected.values()],steps,complete};
 }
+/**
+ * Retrieves the slice of the memory a question needs and joins it with the rules that can reach the question (DS005, DS006
+ * "Completeness under partial retrieval"). The rules come from `planGoals`; the facts come from demand-driven keyed lookups
+ * (`reasoning/slice/`), not from one all-variable pattern per goal, so a question over a memory of any size asks for the facts that can
+ * join with its constants. The result carries `slice` (size, predicates, bounds, whether it is complete and why not) and a non-enumerable
+ * `widen()` that continues the retrieval with larger bounds; `complete` is true only when the slice is proven complete for the question.
+ */
 export function linkKnowledge({repo=null,session=null,query,rules=[],schema=null,localFacts=[],
   strategy='hybrid',registry=new StrategyRegistry(),limits={}}) {
   limits={maxGoals:256,maxRules:1024,maxProbes:50000,maxShards:256,maxFacts:10000,...limits};
-  const plan=planGoals(query,rules,limits),facts=new Map(),retrievals=[];let probes=0,shardsVisited=0,complete=plan.complete;
-  for(const f of localFacts){let valid=f.valid;if(query.at!==undefined&&!contains(valid,query.at))continue;if(query.during){valid=intersect(valid,query.during);if(!valid)continue;}facts.set(f.id,{...f,valid});}
-  if(repo&&session)for(const pattern of plan.goals){
-    if(probes>=limits.maxProbes||shardsVisited>=limits.maxShards){complete=false;break;}
-    if(schema&&!schema[pattern.p]){complete=false;retrievals.push({pattern:emitAtom(pattern),status:'unknown_predicate'});continue;}
-    const r=registry.retrieve(strategy,{repo,session,pattern,query,limits:{...limits,maxProbes:limits.maxProbes-probes,maxShards:limits.maxShards-shardsVisited}});
-    probes+=r.probes;shardsVisited+=r.shardsVisited??0;complete&&=r.complete;
-    for(const f of r.rows){assert(f.kind!=='hypothesis'&&f.evidence?.metadataVerified!==false,'Unverified retrieval cannot become logical evidence');if(facts.size>=limits.maxFacts&&!facts.has(f.id)){complete=false;break;}facts.set(f.id,f);}
-    retrievals.push({pattern:emitAtom(pattern),strategy,selected:r.selected??strategy,coverage:r.coverage??'provider-defined',rows:r.rows.length,complete:r.complete,probes:r.probes,shardsVisited:r.shardsVisited??0,shardsRouted:r.shardsRouted??null});
-  }
-  const coverage=repo?'retained-visible-memory':'local-declarations';
-  return {kind:'retrieval',query,facts:[...facts.values()].slice(0,limits.maxFacts),rules:plan.rules,
-    complete:complete&&facts.size<=limits.maxFacts,probes,shardsVisited,needed:[...new Set(plan.goals.map(a=>a.p))],
-    linkPlan:{strategy,coverage,goals:plan.goals.map(emitAtom),steps:plan.steps,retrievals,
-      note:'Completeness refers to this retrieval view and budgets, never to all facts in the world.'}};
+  const plan=planGoals(query,rules,limits),local=[];
+  for(const f of localFacts){let valid=f.valid;if(query.at!==undefined&&!contains(valid,query.at))continue;if(query.during){valid=intersect(valid,query.during);if(!valid)continue;}local.push({...f,valid});}
+  const all=[...query.where,...(query.scope??[])];
+  const conjunctions=bindDomains(alternatives(all)??conditionAtoms(all).map(atom=>[atom]),equalityDomains(query.compares));
+  const hasMemory=Boolean(repo&&session);
+  const source=hasMemory?new RepositorySource({repo,session,registry,strategy,query,limits}):null;
+  const retrieval=new SliceRetrieval({source,conjunctions,rules:plan.rules,localFacts:local,schema,rulesComplete:plan.complete,limits,strategy});
+  if(hasMemory)retrieval.expand();else retrieval.fixpoint=true;
+  const describe={query,strategy,goals:plan.goals.map(emitAtom),steps:plan.steps};
+  const result=retrieval.result(describe);
+  if(!hasMemory)result.linkPlan.coverage='local-declarations';
+  Object.defineProperty(result,'widen',{enumerable:false,value:()=>retrieval.widen()?Object.defineProperty(retrieval.result(describe),'widen',{enumerable:false,value:result.widen}):null});
+  return result;
 }

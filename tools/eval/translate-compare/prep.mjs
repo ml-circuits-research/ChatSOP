@@ -12,7 +12,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {loadSpellfix} from '../../../lib/languages-util/spellfix.mjs';
 import {defaultDictionary} from '../../../sop/dictionary.mjs';
-import {protectJargon, restoreJargon, discoverJargon} from '../../../lib/languages-util/jargon.mjs';
+import {protectJargon, restoreJargon, discoverJargon} from './jargon.mjs';
 import {T, readJsonl, writeJsonl, sentences, armFile, chunkText} from './lib.mjs';
 
 const [cmd, ...rest] = process.argv.slice(2);

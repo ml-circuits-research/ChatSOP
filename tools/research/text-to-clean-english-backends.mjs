@@ -7,7 +7,7 @@
  *        SymbolicLM `toEnglish` with the spelling corrector (LanguagesUtil + TranslatorService `symbolic` backend)
  *   node tools/research/text-to-clean-english-backends.mjs opus-mt  --sample <sample.jsonl> --out <raw.jsonl>
  *        TranslatorService `opus-mt` (Helsinki-NLP OPUS-MT ROMANCE-en, CPU) on the Romanian and mixed rows only
- *   node tools/research/text-to-clean-english-backends.mjs backend --name languagetool|llm --url <endpoint> --sample <sample.jsonl> --out <raw.jsonl> [--kinds noisyEn,control]
+ *   node tools/research/text-to-clean-english-backends.mjs backend --name llm --url <endpoint> --sample <sample.jsonl> --out <raw.jsonl> [--kinds noisyEn,control]
  *        the production backend of lib/text-to-clean-english/backends/ (masked names/numbers/quotes), per-row latency
  *   node tools/research/text-to-clean-english-backends.mjs gate --n 300 --out <gate.json>
  *        how often the cheap gate would call a backend on already-clean English (datasets_archive/clean-english/dev.jsonl)
@@ -43,7 +43,7 @@ async function symbolic() {
 }
 
 async function opusMt() {
-  const {translateBatch} = await import('../../lib/translator-service/backends/opus-mt.mjs');
+  const {translateBatch} = await import('./translator-backends/opus-mt.mjs');
   const rows = sample().filter(row => row.kind === 'ro' || row.kind === 'mixed');
   const started = performance.now();
   const {results} = translateBatch(rows.map(row => ({id: row.id, text: row.text})), {threads: Number(args.threads ?? 4)});
@@ -55,9 +55,8 @@ async function opusMt() {
 async function backend() {
   const name = String(args.name);
   const kinds = args.kinds ? String(args.kinds).split(',') : null;
-  const impl = name === 'languagetool'
-    ? (await import('../../lib/text-to-clean-english/backends/languagetool.mjs')).createLanguageToolBackend({url: args.url, language: 'en-US'})
-    : (await import('../../lib/text-to-clean-english/backends/llm.mjs')).createLlmBackend({url: args.url, timeoutMs: Number(args.timeout ?? 120000), maxTokens: Number(args['max-tokens'] ?? 512)});
+  if (name !== 'llm') throw Error(`backend ${name}: only llm remains (the LanguageTool backend was removed, hygiene H19; its survey results stay in the history reports)`);
+  const impl = (await import('../../lib/text-to-clean-english/backends/llm.mjs')).createLlmBackend({url: args.url, timeoutMs: Number(args.timeout ?? 120000), maxTokens: Number(args['max-tokens'] ?? 512)});
   const out = [];
   for (const row of sample().filter(item => !kinds || kinds.includes(item.kind))) {
     const started = performance.now();

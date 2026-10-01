@@ -4,8 +4,8 @@
  *   @q query                 -> `query` links to /docs/wire_typs/query.html
  *     where parent ?x ?y     -> `where` links to /docs/wire_typs/query.html#field-where
  *
- * The known types and fields come from the parser contract (`SPEC` and, when
- * the parser exports it, `ONTOLOGY_SPEC` in sop/parser.mjs), never from a list
+ * The known types and fields come from the parser contract (`SPEC` and, for
+ * the lexicon wires, the knowledge grammar `sop/knowledge/grammar.mjs`), never from a list
  * kept here. A type or field that the
  * contract does not know is not linked; it is marked "undocumented", which is
  * a visible hallucination signal in model-authored or generated SOP.

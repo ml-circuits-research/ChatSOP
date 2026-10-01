@@ -23,6 +23,8 @@ import {SYMBOLIC_LM_VERSION} from '../lib/symbolic-lm/index.mjs';
 import {INTERPRETATION_VERSION} from '../lib/symbolic-lm/interpretation.mjs';
 import {createDefaultEmotionDetectionSystem, loadConfig as loadEmotionConfig, signalsToSop, adviceFor} from '../lib/emotion-detection/index.mjs';
 import {chatMessages} from '../lib/llama-chat.mjs';
+import {translateAnswer, TARGET_LANGUAGES} from '../lib/translator-service/answer.mjs';
+import {protect, restore} from '../lib/ud-to-sop/protect.mjs';
 import {detectAnalysis} from '../lib/symbolic-lm/scope-detect.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
@@ -132,12 +134,59 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
       versions: versions(['text_to_clean_english', 'language_proofing_llm', 'translator_llm'])};
   }
 
+  // ---- the edges of the English-only core (owner decision 2026-10-01, DS021 "English-only core") ----
+  /**
+   * The input edge: SymbolicLM and everything behind it receives English only. A message the cleaning gate identifies as English passes as it
+   * is; a Romanian or mixed message is translated by textToCleanEnglish (translator-llm, LanguageProofingLLM as its fallback) with its names,
+   * numbers and quoted values masked by placeholders and restored afterwards. When the translation cannot run the call fails with
+   * `backend_unavailable`: Romanian is never passed on to the core. Returns `{text, original, translated, language, backend, masked, fallback}`.
+   */
+  const englishOutputs = new Set(); // texts this edge produced: translated once, they pass the gate unexamined (a chat turn calls the edge before the agent and again inside the SymbolicLM call)
+  const remember = text => { englishOutputs.add(text); if (englishOutputs.size > 500) englishOutputs.delete(englishOutputs.values().next().value); };
+  async function toEnglish(message) {
+    const original = String(message ?? '');
+    if (englishOutputs.has(original)) return {text: original, original, translated: false, language: 'en', backend: null, masked: false, fallback: null};
+    let language = 'en';
+    try { language = gateCleaning(original).language; } catch (error) { throw failure('backend_unavailable', 'The language of the message could not be identified: ' + String(error.message).slice(0, 160)); }
+    if (language === 'en') return {text: original, original, translated: false, language, backend: null, masked: false, fallback: null};
+    const unavailable = reason => failure('backend_unavailable', `The message is not English (${language}); the translation to English is unavailable, so it is not sent to SymbolicLM: ${reason}`);
+    const masked = protect(original);
+    const attempts = masked.slots.length ? [{input: masked.text, slots: masked.slots}, {input: original, slots: null}] : [{input: original, slots: null}];
+    let lastReason = 'no translator backend answered';
+    for (const attempt of attempts) {
+      const outcome = await proofread(attempt.input);
+      if (outcome.errors?.length) { lastReason = outcome.errors[0].message; continue; }
+      if (!outcome.changed || !outcome.backend) { lastReason = 'no backend translated the message (check config/text-to-clean-english.json backends.nonEnglish)'; continue; }
+      if (attempt.slots) {
+        const restored = restore(outcome.clean, attempt.slots);
+        if (!restored.preserved) { lastReason = 'the translation lost a protected name, number or quotation'; continue; }
+        remember(restored.text);
+        return {text: restored.text, original, translated: true, language, backend: outcome.backend, masked: true, fallback: outcome.fallback ?? null};
+      }
+      remember(outcome.clean);
+      return {text: outcome.clean, original, translated: true, language, backend: outcome.backend, masked: false, fallback: outcome.fallback ?? null};
+    }
+    throw unavailable(lastReason);
+  }
+
+  /** The record of the input edge in a response: null when the message was English already. */
+  const inputOf = input => input?.translated ? {original: input.original, english: input.text, language: input.language, backend: input.backend, masked: input.masked, fallback: input.fallback} : null;
+
+  /** The output edge: the final English answer translated into `language` with names, numbers, quotations and identifiers preserved (TranslatorService). */
+  function translateTo(english, language) {
+    const trId = translatorId();
+    return translateAnswer(english, language, {url: trId ? async () => { const release = manager?.hold([trId]) ?? (() => {}); try { return await manager.ensure(trId); } finally { release(); } } : null});
+  }
+
   // ---- the SymbolicLM service call (analysis + interpretation), shared by analyze, understand, rewrite and the chat's formalize ----
   /**
    * One cached SymbolicLM service call. `asked`: `{interpret (default true), rewrite (off|gated|always, default from the registry), accept}`.
    * Returns `{sop, ms, symbolic, requested, status}`; throws when the service cannot run (the callers degrade, never fail totally).
    */
-  async function symbolicCall(message, asked = {}) {
+  async function symbolicCall(original, asked = {}) {
+    // The input edge: SymbolicLM receives English only (a Romanian or mixed message is translated first, or the call fails).
+    const input = await toEnglish(original);
+    const message = input.text;
     const id = symbolicId();
     if (!id) throw failure('symbolic_lm_unavailable', 'No SymbolicLM service is registered on this server');
     const interpret = asked.interpret !== false;
@@ -151,7 +200,7 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
     if (!interpret) {
       const richer = keyFor(true);
       const stored = store.symbolic.get(richer);
-      if (stored) return {...stored, requested: {...stored.requested, interpret}, status: 'hit'};
+      if (stored) return {...stored, requested: {...stored.requested, interpret}, status: 'hit', input};
     }
     const {value, status} = await store.symbolic.getOrCompute(keyFor(interpret), async () => {
       const options = {interpret, emotion: false};
@@ -170,7 +219,7 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
         return {sop: reply.sop, ms: round(reply.ms ?? 0), symbolic: reply.symbolic ?? null, requested: outRequested};
       } finally { release(); }
     }, {cacheable: v => !v.requested.rewrite_error});
-    return {...value, status};
+    return {...value, status, input};
   }
 
   /** The chat's formalize request: the same cached call as `understand` (same message and rewrite setting), so the earlier call is reused. */
@@ -254,8 +303,11 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
     const asked = {interpret, rewrite, accept};
     const detail = {}, errors = [];
     let call = null, interpretation = null, symbolic = null, requested = {interpret, rewrite: rewrite ?? rewriteDefault()};
-    try {
-      call = await symbolicCall(message, asked);
+    // The input edge first: everything below (SymbolicLM, the tone signals) works on the English text, or does not run at all.
+    let edge = null;
+    try { edge = await toEnglish(message); } catch (error) { errors.push(errorOf('text-to-clean-english', error)); }
+    if (edge) try {
+      call = await symbolicCall(edge.text, asked);
       symbolic = call.symbolic;
       requested = call.requested;
       interpretation = symbolic?.interpretation ?? null;
@@ -264,7 +316,7 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
       errors.push(errorOf('symbolic-lm', error));
       detail.symbolic_lm = 'miss';
       try {
-        const part = await understandBySentence(message, asked);
+        const part = await understandBySentence(edge.text, asked);
         if (part?.interpretation) { interpretation = part.interpretation; errors.push(...part.errors); }
         else if (part) errors.push(...part.errors);
       } catch (inner) { errors.push(errorOf('symbolic-lm', inner)); }
@@ -272,9 +324,9 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
     if (interpretation && !interpretation.available && !interpretation.reason) interpretation = null;
     // The pragmatic signals (DS029): the whole message, and the classification of the spans the interpretation does not represent.
     let pragmatic = null;
-    if (typeof wantEmotion === 'boolean' ? wantEmotion : emotionDefault()) {
+    if (edge && (typeof wantEmotion === 'boolean' ? wantEmotion : emotionDefault())) {
       try {
-        const result = await emotionFor(message, {leftoverSpans: interpretation?.available ? interpretation.not_represented : []});
+        const result = await emotionFor(edge.text, {leftoverSpans: interpretation?.available ? interpretation.not_represented : []});
         pragmatic = {signals: result.signals, emoji: emojiOf(result.signals), leftovers: result.leftovers, sop: result.sop, trace: result.trace};
         detail.emotion = result.cache;
       } catch (error) { errors.push(errorOf('emotion', error)); }
@@ -285,7 +337,7 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
     const {clarify, clarify_items} = clarification(interpretation?.available ? interpretation : null, remaining);
     const answered = interpretation?.available === true;
     const status = !answered ? (symbolic || pragmatic ? 'partial' : 'unavailable') : errors.length || clarify_items.some(i => i.kind === 'failed') ? 'partial' : 'ok';
-    return {object: 'symbolic.understanding', status, message, analysed_text: symbolic?.analysed_text ?? (answered ? interpretation.text : null), language: symbolic?.language ?? interpretation?.language ?? null,
+    return {object: 'symbolic.understanding', status, message, input_translation: inputOf(edge), analysed_text: symbolic?.analysed_text ?? (answered ? interpretation.text : null), language: symbolic?.language ?? interpretation?.language ?? null,
       route: symbolic?.route ?? null, english: symbolic?.english ?? null, uncertainty: symbolic?.uncertainty ?? null,
       interpretation: interpretation ?? {version: INTERPRETATION_VERSION, available: false, reason: errors[0]?.message ?? 'no interpretation was made', sentences: [], not_represented: []},
       certified: interpretation?.certified ?? null, rewrite: interpretation?.rewrite ?? symbolic?.rewrite ?? null, requested,
@@ -300,7 +352,7 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
     try {
       const call = await symbolicCall(message, {interpret, rewrite, accept});
       const s = call.symbolic ?? {};
-      return {object: 'symbolic.analysis', status: 'ok', message, sop: call.sop, analysis: s.analysis ?? null, analysed_text: s.analysed_text ?? message, language: s.language ?? null, route: s.route ?? null,
+      return {object: 'symbolic.analysis', status: 'ok', message, input_translation: inputOf(call.input), sop: call.sop, analysis: s.analysis ?? null, analysed_text: s.analysed_text ?? message, language: s.language ?? null, route: s.route ?? null,
         english: s.english ?? null, uncertainty: s.uncertainty ?? null, rewrite: s.rewrite ?? null, requested: call.requested, errors: [],
         timings: {total_ms: round(performance.now() - started), compute_ms: call.ms}, ...cacheReport({symbolic_lm: call.status}), versions: versions(['symbolic_lm'])};
     } catch (error) {
@@ -375,7 +427,7 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
       await understand('Hello there.', {emotion: true});
       const analysed = await analyze('Hello there.', {rewrite: rewriteDefault(), interpret: true});
       if (analysed.analysis?.sentences?.length) detectAnalysis(analysed.analysis);
-      await understand('Bună ziua, ce faci?', {emotion: true});
+      await understand('Good morning, how are you?', {emotion: true});
     }
     else if (id === translatorId()) await proofread('Bună ziua, mă duc la piață mâine.');
     else if (id === proofreadId()) await proofread('i dont no what happen tomorow', {sendAll: true});
@@ -410,5 +462,5 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
   }
 
   return {proofread, understand, analyze, warmup, warmState, rewrite, detectEmotion, symbolicCall, symbolicFormalize, emotionFor, emojiOf, versions, cacheStats: () => caches.stats(), clearCaches: () => caches.clear(),
-    rewriteDefault, emotionDefault, symbolicId, rewriteId, close: () => system.close?.()};
+    toEnglish, translateTo, inputOf, answerLanguages: Object.keys(TARGET_LANGUAGES), rewriteDefault, emotionDefault, symbolicId, rewriteId, close: () => system.close?.()};
 }

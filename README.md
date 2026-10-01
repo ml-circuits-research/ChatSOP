@@ -36,7 +36,7 @@ Memory and reasoning are chosen by the runtime configuration under `config/`, in
 
 ## Local conversation
 
-`node server/cli.mjs chat --config config/runtime.json` runs the same chain as the chat page: the message goes to the SymbolicLM service (started as `config/formalizers.json` says), the host links and executes, and the answer is the deterministic controlled-language rendering; no LLM verbalizer is called. A formalization passes validation, policy guards and symbolic execution before the answer is returned. Model text and supplied documents cannot publish privileged definitions or choose their own user identity. See [Runtime](docs/runtime.html) for the local execution boundaries.
+`node server/cli.mjs chat --config config/runtime.json` runs the formalization and answering chain of the chat page against one local repository (`state/`, or `--root`) and the seed lexicon (or `--ontology`), without chat sessions, base memories or per-session lexicons: the message goes to the SymbolicLM service (started as `config/formalizers.json` says), the KnowledgeLinker links and the runtime executes, and the answer is the deterministic controlled-language rendering; no LLM verbalizer is called. A formalization passes validation, policy guards and symbolic execution before the answer is returned. Model text and supplied documents cannot publish privileged definitions or choose their own user identity. See [Runtime](docs/runtime.html) for the local execution boundaries.
 
 The model writes one keyword per line and quoted strings, never identifiers: "Who works at Acme?" becomes
 

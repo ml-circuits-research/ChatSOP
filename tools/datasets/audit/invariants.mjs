@@ -10,9 +10,13 @@ export const CONTEXT_TEXT = /din vocabular|from the vocabulary|observațiilor ș
 
 /**
  * `quality_flags` must declare that no source rows were copied. Builders spell this `source_rows_copied: false`
- * or `copied_source_rows: false`; fully synthetic curricula (`synthetic: true`) have no source rows to copy.
+ * or `copied_source_rows: false`; fully synthetic curricula (`synthetic: true`) have no source rows to copy. The list form
+ * of the wild suite declares it with `independent_writers` (the rows were written by independent writers).
  */
-const declaresNoCopiedRows = flags => Boolean(flags) && (flags.source_rows_copied === false || flags.copied_source_rows === false || flags.synthetic === true);
+const declaresNoCopiedRows = flags => Array.isArray(flags) ? flags.includes('independent_writers')
+  : Boolean(flags) && (flags.source_rows_copied === false || flags.copied_source_rows === false || flags.synthetic === true);
+/** A reference row has no verification world (`scoring.executed: false`, the wild suite protocol, DS016): it is scored against accepted golds, not executed. */
+const isReferenceRow = row => row.scoring?.executed === false;
 
 export class Invariants {
   constructor() {
@@ -36,7 +40,7 @@ export class Invariants {
     // 1. Required shape and identifier integrity.
     require(row.id && !this.ids.has(row.id), 'id', `duplicate or missing id: ${row.id}`);
     this.ids.add(row.id);
-    require(row.semantic_case_id, 'semantic_case_id', `${row.id}: missing semantic_case_id`);
+    require(row.semantic_case_id || isReferenceRow(row), 'semantic_case_id', `${row.id}: missing semantic_case_id`);
     require(row.split, 'split', `${row.id}: missing split`);
     require(['en', 'ro'].includes(row.language), 'language', `${row.id}: unexpected language ${row.language}`);
     require(row.question && typeof row.question === 'string', 'question', `${row.id}: missing question`);
@@ -62,10 +66,10 @@ export class Invariants {
         parseError = error.message;
         this.fail('parse', `${row.id}: target does not parse (${error.message})`);
       }
-      require(row.expected && typeof row.expected.status === 'string', 'expected', `${row.id}: target without an executed expectation`);
+      require(isReferenceRow(row) || (row.expected && typeof row.expected.status === 'string'), 'expected', `${row.id}: target without an executed expectation`);
     }
     // 3. Split safety for connected groups.
-    const key = row.split_group_id ?? row.semantic_case_id;
+    const key = row.split_group_id ?? row.semantic_case_id ?? row.id;
     if (!this.groups.has(key)) this.groups.set(key, new Set());
     this.groups.get(key).add(split);
     // 4. Duplicate detection on the natural-language request.

@@ -79,7 +79,7 @@ The filter sorts every row into one of four partitions, in this precedence: **mi
 
 ## Wikidata (base memory world-v1, 2026-10-01)
 
-`tools/world-kb/` builds the base memory `world-v1`, "a small encyclopedia" for chat, mechanically from a subset of **Wikidata** (<https://www.wikidata.org>, structured data **CC0**, evidence in [DS014](../docs/specs/DS014-source-rights.md)). The subset is fetched from the Wikidata Query Service in polite batches (`tools/world-kb/fetch.mjs`, User-Agent `ChatSOP-worldkb/0.1`, one request at a time) into the untracked `datasets_sources/world-kb/raw/`. What was taken: statements and labels (English, Romanian) and English descriptions of about 25,000 selected items (countries, cities, languages, currencies, chemical elements, planets, well-known people, companies, universities, international organizations, notable books, films and paintings) through the 47 mapped properties of `tools/world-kb/MAPPING.md`. What was not taken: Wikipedia article text, other Wikimedia text (CC BY-SA), and any statement outside the mapped properties. Nothing is exported from `datasets_sources/`; the loaded memory is in the gitignored `chat_data/base_memories/world-v1/`.
+`tools/world-kb/` builds the base memory `world-v1`, "a small encyclopedia" for chat, mechanically from a subset of **Wikidata** (<https://www.wikidata.org>, structured data **CC0**, evidence in [DS014](../docs/specs/DS014-source-rights.md)). The subset is fetched from the Wikidata Query Service in polite batches (`tools/world-kb/fetch.mjs`, User-Agent `ChatSOP-worldkb/0.1`, one request at a time) into the untracked `datasets_sources/world-kb/raw/`. What was taken: statements and labels (English, Romanian) and English descriptions of about 28,000 selected items (54,774 entities in the memory, the values of the facts included) (countries, cities, languages, currencies, chemical elements, planets, well-known people, companies, universities, international organizations, notable books, films and paintings) through the 47 mapped properties, plus the English aliases (`skos:altLabel`) and the `mul` labels of items without an English label of `tools/world-kb/MAPPING.md`. What was not taken: Wikipedia article text, other Wikimedia text (CC BY-SA), and any statement outside the mapped properties. Nothing is exported from `datasets_sources/`; the loaded memory is in the gitignored `chat_data/base_memories/world-v1/`.
 
 ## Where the source caches live
 
@@ -100,3 +100,15 @@ Rows and manifests record rights through `tools/datasets/rights.mjs`:
 ## translate-jargon-v1 (2026-10-01)
 
 `datasets/bad_english/translate-jargon-v1/` (jargon-aware Romanian/mixed to English pairs for the translator distillation study) is LLM-authored (Grok and GLM write the source messages, DeepSeek flash the targets). OPUS KDE4 v2, GNOME v1, Ubuntu v14.10, EMEA v3 and JRC-Acquis v3.0 (English-Romanian) were read only to count English tokens kept unchanged in the Romanian side per domain; their licences are copyleft, non-commercial or unverified (DS014 "Jargon term sources for translate-jargon-v1"), so no sentence of them is in the dataset. The owner's project jargon and the evaluation set `datasets/natural` are excluded by a blocklist.
+
+## KBQA benchmarks (evaluation only, 2026-10-01)
+
+Sealed suites `eval/suites/kbqa-<name>/test.jsonl` (experiment eval-kbqa-v1, `tools/eval/kbqa.mjs`); no dataset under `datasets/` and no training code reads them. Rights per asset: `docs/specs/DS014-source-rights.md` ("KBQA benchmarks").
+
+| Source | URL | Licence as known | What we took | What we did not take |
+| --- | --- | --- | --- | --- |
+| **Mintaka** test | https://github.com/amazon-science/mintaka | CC BY 4.0 | A stratified sample of 1,000 questions with question entities, type and gold answers, attribution on every row | The training and dev splits, the other languages |
+| **LC-QuAD 2.0** test | https://github.com/AskNowQA/LC-QuAD2.0 (figshare 7982858) | CC BY 4.0 (figshare record) | A stratified sample of questions (the paraphrase, else the verbalized question), the gold SPARQL and its answers computed on Wikidata | The templates, the DBpedia queries, the train split |
+| **SimpleQuestions-Wikidata** (answerable test) | https://github.com/askplatypus/wikidata-simplequestions | CC BY 3.0 | 1,000 questions with the Wikidata subject and property; gold computed on Wikidata | The train and validation splits |
+| **QALD-10** test | https://github.com/KGQA/QALD-10 | MIT (repository) | The 393 English test questions with their SPARQL and shipped answers | The other languages |
+| **Wikidata** (knowledge slices) | https://query.wikidata.org | CC0 | Statements about the question and answer entities and their neighbourhood, labels, aliases | Nothing is redistributed: the slices stay in the gitignored cache |

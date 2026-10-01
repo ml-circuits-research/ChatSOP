@@ -9,6 +9,7 @@ import {closure} from '../reasoning/bridge/index.mjs';
 import {Repository} from '../memory/repository.mjs';
 import {publishKnowledge} from '../sop/ingest.mjs';
 import {createBank} from '../memory/banks/factory.mjs';
+import {withEnv} from './helpers.mjs';
 
 const run = (s, opts = {}) => new Runtime({now: Date.parse('2026-09-26'), ...opts}).run(s);
 const f = (id, a) => `@${id} fact\n  holds ${a}\n  valid timeless\n`;
@@ -207,11 +208,12 @@ test('v3: reference strategy never invokes an external solver', async () => {
   assert.equal(calls, 0);
 });
 
-test('v3: advanced fallback is explicit and semantically equivalent', async () => {
-  const reasoningStrategies = new ReasoningRegistry({availability: () => false});
-  const x = await run('@c constraint\n  var ?x int 0 2\n  claim ?x <= 2\n@r solve\n  constraint $c\n  reasoning advanced', {reasoningStrategies});
-  assert.equal(x.result.status, 'entailed');
-  assert.match(x.result.route.fallback, /unavailable/);
+test('v3: an explicit z3 backend that is unavailable is unsupported, names z3 and has no fallback (AGENTS.md rule 8)', async () => {
+  const x = await withEnv('Z3_BIN', '/nonexistent/z3', () => run('@c constraint\n  var ?x int 0 2\n  claim ?x <= 2\n@r solve\n  constraint $c\n  backend z3'));
+  assert.equal(x.result.status, 'unsupported');
+  assert.equal(x.result.code, 'backend_unavailable');
+  assert.equal(x.result.route.backend, 'z3');
+  assert.equal(x.result.route.fallback, null);
 });
 
 test('v3: required numeric data cannot be dispatched as a Horn fact', async () => {
@@ -232,7 +234,7 @@ for (const engine of ['recall-memory', 'holo-memory', 'sqlite', 'scan', 'hybrid'
     const repo = new Repository(root, {memory: {engine, power: 8, holoMemory: {rows: 128, banks: 4, dimension: 64, ageStepsPerNovel: 0}}});
     publishKnowledge(repo, 'b', f('a', 'parent ana bogdan') + f('b', 'parent bogdan carina') + r('rule', ['parent ?x ?y', 'parent ?y ?z'], 'grandparent ?x ?z'), {reviewed: true, knownAt: 1});
     const session = repo.session('b', 'u', 's');
-    for (const reasoningStrategy of ['reference', 'advanced']) {
+    for (const reasoningStrategy of ['reference', 'js-reference', 'js-oracle']) {
       const x = await run(q('grandparent ana carina') + '@r solve\n  query $q', {
         repo,
         session,
@@ -240,7 +242,7 @@ for (const engine of ['recall-memory', 'holo-memory', 'sqlite', 'scan', 'hybrid'
         reasoningStrategies: new ReasoningRegistry({availability: () => false}),
       });
       assert.equal(x.result.status, 'supported');
-      assert.equal(x.result.reasoningStrategy, reasoningStrategy);
+      assert.equal(x.result.reasoningStrategy, 'reference', reasoningStrategy + ' is an id of the oracle');
     }
   }));
 }

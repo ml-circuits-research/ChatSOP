@@ -14,7 +14,7 @@ export const roleArgSpecs = roles => (roles ? roles.map(r => ({role: r.role, typ
 const f1 = (w, key) => w.fields.find(x => x.key === key);
 const fAll = (w, key) => w.fields.filter(x => x.key === key);
 
-export function lexiconChecks({files, allWires, ctxs, problems}) {
+export function lexiconChecks({files, allWires, ctxs, problems, linking = false}) {
   const add = (code, w, line, message, severity) => problems.push({code, file: w.file, line, message, wire: w.id, ...(severity ? {severity} : {})});
   const predicates = new Map(allWires.filter(w => w.type === 'predicate').map(w => [w.id, w]));
   const entities = new Map(allWires.filter(w => w.type === 'entity').map(w => [w.id, w]));
@@ -49,7 +49,9 @@ export function lexiconChecks({files, allWires, ctxs, problems}) {
     for (const l of fAll(w, 'label')) { const lang = l.value.trim().split(/\s+/)[0]; if (seen.has(lang)) add('label_duplicate_language', w, l.line, `${w.id} has two labels in ${lang}; a label is one display form per language (more forms are lexemes)`); seen.add(lang); }
     // copula readings (DS021): the roles a reading needs
     const names = namesOf(w.id) ?? [];
-    for (const r of fAll(w, 'reading').map(x => x.value.trim())) {
+    const readings = fAll(w, 'reading').map(x => x.value.trim());
+    if (new Set(readings).size !== readings.length) add('repeated_reading', w, f1(w, 'reading').line, `${w.id} repeats a reading`);
+    for (const r of readings) {
       if (!COPULA_READINGS.includes(r)) continue;
       const ok = r === 'location' ? names.length >= 2 && names[0] === 'subject' : names.length >= 1 && names[0] === 'subject' && (r === 'describe' || (names.length === 2 && names[1] === 'object'));
       if (!ok) add('reading_roles_mismatch', w, f1(w, 'reading').line, `reading ${r} needs ${r === 'location' ? 'subject first and a second role' : r === 'describe' ? 'subject as its first role' : 'the roles subject and object'}`);
@@ -72,7 +74,8 @@ export function lexiconChecks({files, allWires, ctxs, problems}) {
       if (!classes.has(cls) && cls !== ROOT_CLASS) add('restrict_class_unknown', w, x.line, `restrict ${role} ${cls}: ${cls} is not a class declared in this memory or its imports`);
     }
   }
-  for (const w of predicates.values()) if (!lexemesOf.has(w.id) && !fAll(w, 'label').length) add('predicate_without_lexeme', w, w.line, `${w.id} has no label and no lexeme: no phrase can link to it`, 'warning');
+  // Only the circuits of a base memory (validateProgram option linking) are reached through language; an engine test world refers to its predicates by id.
+  if (linking) for (const w of predicates.values()) if (!lexemesOf.has(w.id) && !fAll(w, 'label').length) add('predicate_without_lexeme', w, w.line, `${w.id} has no label and no lexeme: no phrase can link to it`, 'warning');
 
   // A form shared by two predicates with the same frame length must say how they differ (restrict, or distinct weights).
   const shared = new Map();
@@ -124,7 +127,10 @@ export function lexiconChecks({files, allWires, ctxs, problems}) {
             let text; try { text = JSON.parse(form.value.trim()); } catch { continue; }
             const used = frame.length ? frame : predicateRoleNames(predicate);
             const r = linkRelation(text, used, lexicon, {exact: true, relations: null});
-            const ok = (r.status === 'bound' && r.id === of) || (r.status === 'ambiguous' && declared && r.candidates.some(c => c.id === of));
+            // A shared form that declares a restriction or a weight is legal when the scored linker keeps this predicate among the alternatives of the
+            // reading it takes (the winner is decided by the entities of a message, which a lexicon check does not have).
+            const kept = r.status === 'bound' && r.id !== of && declared && ['weight', 'evidence', 'constraint', 'facts'].includes(r.decided_by) && (r.scored_alternatives ?? []).some(c => c.id === of);
+            const ok = (r.status === 'bound' && r.id === of) || kept || (r.status === 'ambiguous' && declared && r.candidates.some(c => c.id === of));
             if (!ok) add('form_does_not_link', w, form.line, `the form ${JSON.stringify(text)} of ${of} does not link back to ${of} (${r.status}${r.candidates ? ': ' + r.candidates.map(c => c.id).join(', ') : ''})`);
           }
         }

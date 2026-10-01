@@ -1,0 +1,29 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "router-v1",
+ "name": "Does the rule-based StrategyRouter v1 answer exactly as the oracle does, and faster at scale?",
+ "registered_at": "2026-10-01T17:50:00Z",
+ "registered_by": "router-agent",
+ "spec": "docs/specs/DS006-reasoning.md#routing-rules",
+ "owner_context": "Owner decision (TODO section 0, 'Next after these'): rule-based routing by circuit features and memory size; the oracle stays the verifier; an explicit request keeps AGENTS.md rule 8.",
+ "kind": "engineering check (CPU only; no model, no GPU, no training)",
+ "frozen_before_results": "The routing rules (reasoning/router/index.mjs, ROUTER_DEFAULTS) were written from the existing speed table eval/reports/current/smoke-reasoning/datalog-speed.json and one pilot run of tools/eval/router-timing.mjs on the ring, selective, dense, negation and aggregate shapes; the thresholds and the engine order were then set from that pilot and the table is re-measured with the final rules. The smoke arm and the slice-timing arm were run only after the rules were fixed.",
+ "method": {
+  "arms": [
+   "smoke: every cell of eval/smoke-reasoning/cases without memory.json (140 cases), oracle alone versus the router with the size thresholds forced to zero and verification off (tools/eval/router-smoke.mjs), so that every circuit an installed engine expresses is routed to it",
+   "scale: the five shapes of eval/smoke-reasoning/bench/datalog-scale.mjs (answer known by construction) at 10^2 to 10^5 facts, oracle alone, each routable engine by name, and the router with its verification policy (tools/eval/router-timing.mjs)",
+   "slice: the seven questions of tools/eval/slice-timing.mjs on a synthetic SQLite base memory of 10^4 and 10^5 facts through the knowledge-wire path (askMemory), oracle alone versus the router"
+  ],
+  "engines": "sql-sqlite (node:sqlite), datalog-souffle (Soufflé 2.5), asp-clingo (clingo 5.8.2), all installed under tools/.solvers or built in; qualified by the shadow gate of DS006 (eval/smoke-reasoning/run.mjs: zero disagreements with the oracle on the cases each declares it expresses)."
+ },
+ "hypotheses": {
+  "H1": "Answer agreement: on the smoke arm the routed answer equals the oracle's on 100% of the cases (status, completeness, rows, count); a disagreement is a defect to explain.",
+  "H2": "Answer correctness at scale: wherever the router completes, its answer equals the answer known by construction (100%), including cells where the oracle exhausts its budget.",
+  "H3": "Latency: at the sizes where the router leaves the oracle, the router is not slower than the oracle alone by more than the cost of its verification, and is faster where the oracle is budget-limited.",
+  "H4": "Rule 8: an explicit engine request is never substituted (tests/strategy-router.test.mjs)."
+ },
+ "stop_rules": ["No early stopping needed: the arms are a few minutes of CPU. A cell that times out is reported as a timeout; no cell is dropped.", "Any disagreement between a routed answer and the oracle or the known answer stops the roll-out of that class and is recorded as a defect."],
+ "honesty": "Synthetic circuits and one machine (Cortex-X925/A725 ARM64, 20 cores); the numbers are indicative ranges, not a benchmark. The router is exercised at wire level; the typed runtime path always answers with the oracle because a typed answer carries its proof and validity. The router covers only the classes in DS006 'Routing rules'; nothing is claimed for circuits outside the smoke suite and the five shapes.",
+ "deliverables": ["eval/reports/current/router/smoke.json", "eval/reports/current/router/timing.json", "eval/reports/current/slice-path/timing.json", "tests/strategy-router.test.mjs"],
+ "deviations": []
+}

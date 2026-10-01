@@ -61,10 +61,10 @@ test('a program is rewritten line by line; a quoted time moves to validity or th
   assert.deepEqual(out.changes.map(c => c.kind).sort(), ['boundary', 'time']);
 });
 
-test('the configured list covers the training world and reads Romanian through the dictionary', () => {
+test('the configured list covers the training world, holds English surfaces only and does not read Romanian', () => {
   const frames = loadFrames();
   assert.ok(frames.frames.filter(f => f.source === 'world').length >= 70);
+  assert.ok(frames.frames.every(f => ![f.relation, ...f.surfaces].some(surface => /[ăâîșț]/i.test(surface))), 'no Romanian surface in the frames');
   const out = normalizeProposition(p('vrea învăța', ['subject', '"Ana"'], ['object', '"chimie"']), frames);
-  assert.equal(out.relation, 'want to learn');
-  assert.equal(out.roles[1].name, 'topic');
+  assert.equal(out.relation, 'vrea învăța', 'a Romanian relation is not normalized by the core');
 });

@@ -6,8 +6,8 @@
  * proposition:
  *
  *   1. `synonym`   the relation phrase is looked up among the surfaces (after folding, article dropping and light
- *                  stemming, `sop/linking.mjs` phraseKey), directly or through the host dictionary's English
- *                  candidates (`sop/dictionary.mjs`); a hit rewrites it to the frame's canonical relation;
+ *                  stemming, `sop/linking.mjs` phraseKey), directly or through the English synonyms of the
+ *                  dictionary view (`sop/dictionary.mjs` `englishDictionary`); a hit rewrites it to the frame's canonical relation;
  *   2. `role`      a role name the frame does not declare is renamed when exactly one declared non-subject role is
  *                  still free (single-oblique relabeling; never on a proposition with two unknown roles);
  *   3. `boundary`  an unknown relation joined with its object value ("get" + "the flu shot" → "get the flu shot")
@@ -28,7 +28,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {phraseKey} from './linking.mjs';
-import {defaultDictionary} from './dictionary.mjs';
+import {englishDictionary} from './dictionary.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const FRAME_COLUMNS = Object.freeze(['id', 'relation', 'roles', 'surfaces', 'source', 'note']);
@@ -101,7 +101,7 @@ export class Frames {
       hash.update(item.path + '\0' + text);
       for (const frame of parseFrames(text, item.file)) if (!sources || sources.includes(frame.source)) frames.push(frame);
     }
-    return new Frames(frames, {digest: hash.digest('hex').slice(0, 16) + (sources ? ':' + sources.join('+') : ''), dictionary: dictionary ? defaultDictionary() : null});
+    return new Frames(frames, {digest: hash.digest('hex').slice(0, 16) + (sources ? ':' + sources.join('+') : ''), dictionary: dictionary ? englishDictionary() : null});
   }
 
   /** The single frame a relation phrase names (directly or through the dictionary), or null. */
@@ -119,9 +119,7 @@ export class Frames {
     const hit = pick(direct);
     if (hit) return hit;
     if (!this.dictionary) return null;
-    const translated = this.dictionary.candidates(relation, 'relation');
-    const english = translated.status === 'translated' ? translated.candidates : [relation];
-    for (const candidate of [...english, ...english.flatMap(e => this.dictionary.synonyms(e, 'relation'))]) {
+    for (const candidate of [relation, ...this.dictionary.synonyms(relation, 'relation')]) {
       const found = pick(this.bySurface.get(phraseKey(candidate)));
       if (found) return found;
     }

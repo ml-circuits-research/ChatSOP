@@ -56,7 +56,7 @@ The detailed spelling examples and accepted-input versus canonical-output distin
 
 ### Reviewed lexical resolution
 
-`resolve` is an executable lookup against the host-supplied, reviewed ontology, not a model-authored alias declaration. For example:
+`resolve` is an executable lookup against the lexicon of the session's base memory (the `entity` and `predicate` wires of its circuits and of its imports, "Lexicon wires"), not a model-authored alias declaration. For example:
 
 ```sop
 @company resolve
@@ -68,9 +68,9 @@ The detailed spelling examples and accepted-input versus canonical-output distin
   where works_at maria $company
 ```
 
-`text`, `language` (explicit two- or three-letter code), and `kind` (`entity`, `predicate`, or `concept`) are required; `type` is optional only for entities, and `domain` is an optional exact host-ontology scope. The host injects a `Lexicon` into `Runtime`; resolution yields a canonical symbolic ID when exactly one alias matches the requested language, kind, and explicit type/domain. Its indexed lookup applies bounded Unicode normalization, case and whitespace normalization, and accent folding only as a second exact-match pass. A folded collision is ambiguous, never settled by a ranking score. No substring, embedding, synonym inference, or negation removal proves identity. Results expose ontology content hash (`version`), host provenance, and match mode in output metadata. Unknown and ambiguous results leave dependent wires blocked; request clarification rather than choosing an arbitrary candidate.
+`text`, `language` (explicit two- or three-letter code), and `kind` (`entity`, which includes the classes, or `predicate`) are required; `type` is optional only for entities, and `domain` is an optional exact lexicon scope. The host injects a `Lexicon` into `Runtime`; resolution yields a canonical symbolic ID when exactly one alias matches the requested language, kind, and explicit type/domain. Its indexed lookup applies bounded Unicode normalization, case and whitespace normalization, and accent folding only as a second exact-match pass. A folded collision is ambiguous, never settled by a ranking score. No substring, embedding, synonym inference, or negation removal proves identity. Results expose ontology content hash (`version`), host provenance, and match mode in output metadata. Unknown and ambiguous results leave dependent wires blocked; request clarification rather than choosing an arbitrary candidate.
 
-An entity `$company` may occupy an atom argument and is checked against the predicate's argument type. A predicate ID cannot occupy a dynamically generated atom head (`where $predicate maria $company` is not SOP syntax): the host must pre-resolve the reviewed predicate, including its arity and argument direction, before emitting a literal canonical predicate head. Concepts are control-plane symbols, not executable predicate declarations. Runtime `resolve` never edits the lexicon, publishes assertions, grants permissions, or widens a model's vocabulary. The formalizer receives the *original* utterance only; lexical lookup happens after it, in host linking, and adds no model call. A model never invents identifiers: it writes the strings of the message, and the host decides identity or asks.
+An entity `$company` may occupy an atom argument and is checked against the predicate's argument type. A predicate ID cannot occupy a dynamically generated atom head (`where $predicate maria $company` is not SOP syntax): the host must pre-resolve the reviewed predicate, including its arity and argument direction, before emitting a literal canonical predicate head. Classes are entities of kind `class`, control-plane symbols, not executable predicate declarations. Runtime `resolve` never edits the lexicon, publishes assertions, grants permissions, or widens a model's vocabulary. The formalizer receives the *original* utterance only; lexical lookup happens after it, in host linking, and adds no model call. A model never invents identifiers: it writes the strings of the message, and the host decides identity or asks.
 
 ### Execution and evidence
 
@@ -131,7 +131,9 @@ Some names exist on both surfaces with different fields (`fact`, `rule`, `predic
 `*` required, `+` repeatable. The governance fields (`version supersedes approval approved_by approved_at retired_at scope quote`) are listed once where a wire carries them.
 
 <!-- grammar:begin -->
-- `@id predicate`: args* closed key transitive inverse unit description reading+ describe_rank
+- `@id predicate`: args role+ label+ domain closed key transitive inverse unit description reading+ describe_rank
+- `@id lexeme`: of* language* pos form*+ frame* restrict+ weight source quote
+- `@id entity`: kind label+ alias+ domain notability source
 - `@id fact`: holds* valid status speaker source quote
 - `@id rule`: when*+ then* mode valid source + governance
 - `@id default`: when*+ then* except+ priority overrides+ source + governance
@@ -150,6 +152,7 @@ Some names exist on both surfaces with different fields (`fact`, `rule`, `predic
 - `@id policy`: effort partial procedures+ scope+ objective binding
 - `@id stated`: relation* role+ polarity valid certainty speaker
 - `@id query`: where+ select mode scope+ at during overlaps asof trace via+ compare+ order+ rank filter+ measure quantifier except+ limit policy observe horizon
+  (`rank highest|lowest ?v` may end with `position N` or `top N`: the N-th best distinct value, or the N best; a ranking is valid only over a complete view of the facts, DS006 "Completeness under partial retrieval".)
 - `@id test`: of* call* expect* kind timeout source
 - `@id code`: of* language* entry* body* produced_by + governance
 - `@id pack`: items*+
@@ -198,6 +201,16 @@ The declaration is what the checker uses: it fixes the arity, which position is 
 @f2 fact
   holds located_in lyon france
 ```
+
+### Lexicon wires: `predicate`, `lexeme`, `entity`
+
+There is one grammar, the knowledge grammar (`sop/knowledge/grammar.mjs`); the separate host ontology grammar (`config/ontology.sop`, `ONTOLOGY_SPEC`, the `concept` wire and the `alias` line of a predicate) is retired. The **lexicon of a base memory** is compiled from its circuits and those of its imports (imports first, then its own; `Lexicon.fromCircuits`, DS031 "Lexicon of a memory"): the three lexicon wires and the `is_a` facts that give class membership. Every other wire is ignored by the lexicon. The lexicon never validates; the knowledge validator is the gate (`sop/knowledge/lexicon-checks.mjs`).
+
+- `predicate` (above) gains `role NAME TYPE` lines (TYPE a value type or a class symbol; `args` and the role lines must agree: `args_disagree_with_roles`) and `label LANG "text"` lines (one display form per language, and the language is `en`: the knowledge is English only and any other tag is `non_english_knowledge`, DS021 "English-only core"; `label_duplicate_language`; a label is also a link form with the natural frame). Its words in a language are lexemes.
+- `lexeme` is one lexicalization of one predicate in English (`language en`; another language is rejected, `non_english_knowledge`): `of` (the predicate), `language`, `pos` (`verb noun adj prep copula`), `form` (repeatable; the relation phrase in the model-language convention, the lemma with its particles and prepositions), `frame` (the roles the surface realizes in surface order, the grammatical subject first; a converse lists the object role first), `restrict ROLE CLASS` (the form applies only to values of that class), `weight`, `source`, `quote`. Two predicates that share a form with the same frame length must declare `restrict` or distinct weights (`ambiguous_form_undeclared`); every form must link back to its own predicate through the relation linker, or, when its lexeme declares a `restrict` or a `weight`, stay among the scored alternatives of the reading the linker takes (`form_does_not_link`; the winner of a shared form is decided by the entities of a message, which the check does not have). The core-en builder (`tools/linking/core-en/build.mjs`) tells two holders of a shared form apart by the role names and the role classes of their predicates ("use": `uses` with an artifact, `uses_currency` with a currency).
+- `entity` is a reviewed identity: `kind` (a class symbol; absent means the root class `entity`; `class` makes the wire itself a class), `label en "text"` (one per language; `en` only), `alias en "text"`, `domain`, `notability` (an integer the memory supplies; it only decides at build time which namesake keeps the plain label, `label_collision` otherwise) and `source`. A class is an entity of kind `class`; a role type, a `kind` and a `restrict` name a class declared in the memory or its imports (`role_class_unknown`, `entity_kind_unknown`, `restrict_class_unknown`).
+
+The minimal shared vocabulary is the seed memory `core-min` (`config/knowledge/core-min/`): the relation `is_a` and the classes `class entity person organization place occupation property unit`; every base memory imports it. `config/knowledge/demo/` is the small demonstration vocabulary (tests, examples and the CLI without chat data, `demoLexicon()` in `lib/knowledge-seeds.mjs`). The warning `predicate_without_lexeme` (no label and no lexeme: no phrase can link to the predicate) is reported only when the validator is asked to check circuits for a base memory (`validateProgram` option `linking`, set by `addKnowledge`), because an engine test world refers to its predicates by id. `tools/convert-ontology.mjs` migrates text in the retired grammar; archived worlds stay as generated and are converted on read (`lib/row-world.mjs`). Help pages: `predicate`, `lexeme` and `entity` in `docs/wire_typs/`.
 
 ### Facts
 

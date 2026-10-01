@@ -11,27 +11,24 @@
 export const UNCLEAR_KINDS = Object.freeze({
   gibberish: {
     en: 'I did not understand the message. Could you rephrase?',
-    ro: 'Nu am înțeles mesajul. Îl puteți reformula?',
   },
   no_request: {
     en: 'I did not find a statement or a question in the message. What would you like to know?',
-    ro: 'Nu am găsit o afirmație sau o întrebare în mesaj. Ce doriți să aflați?',
   },
   ambiguous: {
     en: 'Your message can be read in more than one way. Which do you mean?',
-    ro: 'Mesajul poate fi înțeles în mai multe feluri. La care vă referiți?',
   },
 });
 /** Kinds that carry `reading` lines; every other kind takes none. */
 export const READING_KINDS = Object.freeze(['ambiguous']);
 
-/** Languages with a complete reply table; the host answers only in these. */
-export const REPLY_LANGUAGES = Object.freeze(['en', 'ro']);
+/** The one language of the reply table: the core renders English and the output edge translates (DS021 "English-only core"). */
+export const REPLY_LANGUAGES = Object.freeze(['en']);
 
-export function unclearReply(kind, language = 'en', readings = []) {
+export function unclearReply(kind, readings = []) {
   const entry = UNCLEAR_KINDS[kind];
   if (!entry) throw Error('Unknown unclear kind ' + kind);
-  const text = entry[REPLY_LANGUAGES.includes(language) ? language : 'en'];
+  const text = entry.en;
   // The readings are the model's own paraphrases, listed verbatim as numbered choices.
   return readings.length ? text + '\n' + readings.map((reading, index) => `(${index + 1}) ${reading}`).join('\n') : text;
 }

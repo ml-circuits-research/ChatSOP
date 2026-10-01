@@ -8,7 +8,7 @@
  *   POST /v1/emotion/detect       EmotionDetectionSystem signals and emoticon suggestions
  *   GET  /v1/capabilities         the endpoint list and the component versions
  *   GET  /v1/server/models        what the server keeps open: per model the mode (keep_open, on_demand, off), the live state, memory and start cost
- *   POST /v1/server/models        {models?: {id: mode}, maxRunning?, idleMinutes?, memoryBudgetMb?, turnWindowSeconds?, warmup?}: change it (persisted in config/server-models.json)
+ *   POST /v1/server/models        {models?: {id: mode}, maxRunning?, idleMinutes?, memoryBudgetMb?, turnWindowSeconds?, warmup?, warmMemories?}: change it (persisted in config/server-models.json)
  *   GET  /v1/cache/stats          per-cache statistics; POST /v1/cache/clear empties the caches
  *
  * Authentication is the server's own (bearer token or administrator session), checked before a route is reached. A request is a
@@ -27,7 +27,7 @@ export const API_ENDPOINTS = Object.freeze([
   {method: 'POST', path: '/v1/emotion/detect', capability: 'emotion.detection', body: ['message', 'hasContent']},
   {method: 'GET', path: '/v1/capabilities', capability: 'capabilities'},
   {method: 'GET', path: '/v1/server/models', capability: 'server.models'},
-  {method: 'POST', path: '/v1/server/models', capability: 'server.models.update', body: ['models', 'maxRunning', 'idleMinutes', 'memoryBudgetMb', 'turnWindowSeconds', 'warmup']},
+  {method: 'POST', path: '/v1/server/models', capability: 'server.models.update', body: ['models', 'maxRunning', 'idleMinutes', 'memoryBudgetMb', 'turnWindowSeconds', 'warmup', 'warmMemories']},
   {method: 'GET', path: '/v1/cache/stats', capability: 'cache.stats'},
   {method: 'POST', path: '/v1/cache/clear', capability: 'cache.clear', body: []},
 ]);

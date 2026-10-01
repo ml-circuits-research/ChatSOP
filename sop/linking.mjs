@@ -12,19 +12,10 @@ import {fold, phraseKey} from './text-keys.mjs';
 export {phraseKey};
 import {formatTime} from '../lib/time.mjs';
 import {defaultRelationLexicon} from './relation-lexicon.mjs';
+import {predicateRoleNames, matchedForm, scoreRelation, decide, headVerbPredicates, mode} from './knowledge-linker.mjs';
+export {predicateRoleNames, matchedForm};
 
 const DAY = 86400000;
-
-/**
- * Role names of a lexicon predicate in argument order: its `role NAME TYPE`
- * lines, or `subject`/`object` by position for an unnamed predicate of arity
- * one or two. An unnamed predicate of higher arity cannot be linked.
- */
-export function predicateRoleNames(predicate) {
-  if (!predicate) return null;
-  if (predicate.namedRoles) return predicate.roles.map(role => role.name);
-  return predicate.arity <= 2 ? ['subject', 'object'].slice(0, predicate.arity) : null;
-}
 
 /**
  * Link a relation phrase and the role names used with it to one lexicon
@@ -32,7 +23,7 @@ export function predicateRoleNames(predicate) {
  * to equal the used set; otherwise (query match blocks) the used roles must be
  * declared and missing ones become fresh variables.
  */
-export function linkRelation(text, used, lexicon, {exact = true, relations = defaultRelationLexicon()} = {}) {
+export function linkRelation(text, used, lexicon, {exact = true, relations = defaultRelationLexicon(), values = null, headVerb = false} = {}) {
   const key = phraseKey(text);
   // The lexicon indexes every predicate form by phrase key (id, labels, lexeme forms, description).
   const declared = lexicon?.predicatesFor ? lexicon.predicatesFor(key) : Object.values(lexicon?.predicates ?? {}).filter(predicate => {
@@ -41,35 +32,42 @@ export function linkRelation(text, used, lexicon, {exact = true, relations = def
   });
   // The relation lexicon (reviewed phrase -> predicate entries) adds only predicates the memory in use declares.
   const listed = (relations?.predicatesFor(phrase => phraseKey(phrase) === key) ?? []).map(id => lexicon?.predicates?.[id]).filter(Boolean);
-  const named = [...new Map([...declared, ...listed].map(predicate => [predicate.id, predicate])).values()];
+  let named = [...new Map([...declared, ...listed].map(predicate => [predicate.id, predicate])).values()], via = 'lexicon';
+  // A query may fall back to the head verb alone ("work for" for "work at"); a stated proposition never does (DS021 "KnowledgeLinker: scoring and ambiguity").
+  if (!named.length && headVerb && mode.headVerb && !exact && lexicon?.predicatesByKey) { named = headVerbPredicates(lexicon, text); via = 'headVerb'; }
   if (!named.length) return {status: 'unknown', text};
   const fits = named.filter(predicate => {
     const names = predicateRoleNames(predicate);
     return names && (exact ? names.length === used.length && used.every(name => names.includes(name)) : used.every(name => names.includes(name)));
   });
   const candidates = (list => list.map(predicate => ({id: predicate.id, roles: predicateRoleNames(predicate)})).sort((a, b) => a.id.localeCompare(b.id)));
-  if (fits.length === 1) return {status: 'bound', text, id: fits[0].id, roles: predicateRoleNames(fits[0]), types: fits[0].args};
-  if (fits.length > 1) return {status: 'ambiguous', text, candidates: candidates(fits)};
-  return {status: 'role_mismatch', text, used, candidates: candidates(named)};
+  if (!fits.length) return {status: 'role_mismatch', text, used, candidates: candidates(named)};
+  // Score every fitting predicate, then decide in named stages; an undecided tie is an ambiguity, never a guess.
+  const memo = new Map();
+  const outcome = decide(fits.map(predicate => scoreRelation(lexicon, predicate, text, {used, exact, values, via, memo})));
+  const view = c => ({id: c.id, score: c.score, tier: c.tier, ...(c.weight !== null ? {weight: c.weight} : {}), ...(c.hard.length ? {rejected: c.hard} : {})});
+  if (!outcome.chosen) return {status: 'ambiguous', text, candidates: candidates(outcome.tied.map(c => lexicon.predicates[c.id])), scored: outcome.tied.map(view)};
+  const chosen = lexicon.predicates[outcome.chosen.id];
+  return {status: 'bound', text, id: chosen.id, ...(outcome.chosen.converse ? {converse: true} : {}), roles: predicateRoleNames(chosen), types: chosen.args, score: outcome.chosen.score, tier: outcome.chosen.tier, decided_by: outcome.by, ...(via === 'headVerb' ? {via} : {}),
+    scored_alternatives: outcome.scored.filter(c => c.id !== chosen.id).map(view)};
 }
 
 const MONTHS = {january: 1, february: 2, march: 3, april: 4, may: 5, june: 6, july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
-  ianuarie: 1, februarie: 2, martie: 3, aprilie: 4, mai: 5, iunie: 6, iulie: 7, septembrie: 9, octombrie: 10, noiembrie: 11, decembrie: 12,
-  // Abbreviations (EN and RO), written with or without a final dot.
-  jan: 1, feb: 2, mar: 3, apr: 4, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12, ian: 1, iun: 6, iul: 7, noi: 11};
-const RELATIVE = {today: 0, azi: 0, astazi: 0, yesterday: -1, ieri: -1, tomorrow: 1, maine: 1};
+  // Abbreviations, written with or without a final dot. English only (DS021 "English-only core").
+  jan: 1, feb: 2, mar: 3, apr: 4, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12};
+const RELATIVE = {today: 0, yesterday: -1, tomorrow: 1};
 const utc = (y, m = 1, d = 1) => Date.UTC(y, m - 1, d);
 /**
  * Normalize a temporal expression to a period {from, until} (until exclusive),
  * relative to the host clock `now`. Accepted: ISO dates and UTC timestamps,
- * `YYYY`, `YYYY-MM`, a month name or abbreviation with a year (EN/RO), a day,
+ * `YYYY`, `YYYY-MM`, a month name or abbreviation with a year, a day,
  * month and year ("3 March 2025", "March 3, 2025", "the 3rd of March 2025",
- * "3 martie 2025", "03.03.2025"), a range "A – B", `now`/`acum`,
- * today/yesterday/tomorrow (EN/RO) and last/this/next year, with an optional leading in/on/at/during,
- * în/pe/la/din. Anything else returns null and the host asks.
+ * "03.03.2025"), a range "A – B", `now`,
+ * today/yesterday/tomorrow and last/this/next year, with an optional leading in/on/at/during/since.
+ * Anything else returns null and the host asks.
  */
 export function normalizeTime(text, now = Date.now()) {
-  let t = fold(text).replace(/^(?:in|on|at|during|since|pe|la|din|de la)\s+/, '').replace(/^the\s+/, '').trim();
+  let t = fold(text).replace(/^(?:in|on|at|during|since)\s+/, '').replace(/^the\s+/, '').trim();
   // A range "A – B" (en dash, or a spaced hyphen) is the period from the start of A to the start of B.
   const range = t.match(/^(.+?)\s+[–—-]\s+(.+)$/) ?? t.match(/^(.+?)[–—](.+)$/);
   if (range) { const a = normalizeTime(range[1], now), b = normalizeTime(range[2], now); return a && b && a.from < b.from ? {from: a.from, until: b.from} : null; }
@@ -79,13 +77,13 @@ export function normalizeTime(text, now = Date.now()) {
   if ((m = t.match(/^(\d{4})-(\d{2})$/)) && +m[2] >= 1 && +m[2] <= 12) return {from: utc(+m[1], +m[2]), until: utc(+m[1], +m[2] + 1)};
   if ((m = t.match(/^(\d{4})$/))) return {from: utc(+m[1]), until: utc(+m[1] + 1)};
   if ((m = t.match(/^([a-z]+)\.?\s+(\d{4})$/)) && MONTHS[m[1]]) return {from: utc(+m[2], MONTHS[m[1]]), until: utc(+m[2], MONTHS[m[1]] + 1)};
-  // Day, month and year: "3 March 2025", "the 3rd of March 2025", "March 3, 2025", "3 martie 2025", "3 mar. 2025", "03.03.2025".
+  // Day, month and year: "3 March 2025", "the 3rd of March 2025", "March 3, 2025", "3 mar. 2025", "03.03.2025".
   const day = (y, mo, d) => { const from = utc(y, mo, d); return mo >= 1 && mo <= 12 && new Date(from).getUTCDate() === d ? {from, until: from + DAY} : null; };
   if ((m = t.match(/^(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?([a-z]+)\.?,?\s+(\d{4})$/)) && MONTHS[m[2]]) return day(+m[3], MONTHS[m[2]], +m[1]);
   if ((m = t.match(/^([a-z]+)\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})$/)) && MONTHS[m[1]]) return day(+m[3], MONTHS[m[1]], +m[2]);
   if ((m = t.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/))) return day(+m[3], +m[2], +m[1]);
-  if (t === 'now' || t === 'acum') return {from: now, until: now + 1};
-  // Relative years ("last year" for a follow-up such as "dar anul trecut?"): the calendar year of the host clock, shifted.
+  if (t === 'now') return {from: now, until: now + 1};
+  // Relative years ("last year" for a follow-up such as "but last year?"): the calendar year of the host clock, shifted.
   const YEARS = {'last year': -1, 'this year': 0, 'next year': 1};
   if (Object.hasOwn(YEARS, t)) { const y = new Date(now).getUTCFullYear() + YEARS[t]; return {from: utc(y), until: utc(y + 1)}; }
   if (Object.hasOwn(RELATIVE, t)) { const d = new Date(now); const from = utc(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate() + RELATIVE[t]); return {from, until: from + DAY}; }
@@ -106,19 +104,25 @@ export function linkValidity(valid, now) {
   return {interval, issues, text: interval.from === -Infinity && interval.until === Infinity ? 'timeless' : formatTime(interval.from) + ' ' + formatTime(interval.until)};
 }
 
-/** The host clarification question for unlinked strings. */
-export function linkQuestion(issues, language = 'en') {
-  const ro = language === 'ro';
+/** The clarification question for unlinked strings, in English (the output edge translates it, DS021 "English-only core"). */
+export function linkQuestion(issues) {
   return issues.map(issue => {
-    if (issue.kind === 'entity') return ro ? `La cine sau la ce vă referiți prin ${JSON.stringify(issue.text)}?` : `Which entity do you mean by ${JSON.stringify(issue.text)}?`;
-    // The copula and other readings carry their own precise question (sop/copula-linker.mjs), in both answer languages.
-    if (issue.question) return ro ? issue.question.ro : issue.question.en;
-    if (issue.kind === 'time' && issue.status === 'not_an_interval') return ro ? `Variabila ${issue.text} este un argument al relației, nu o perioadă; ce măsură de timp doriți?` : `The variable ${issue.text} is an argument of the relation, not a period; which time measure do you want?`;
-    if (issue.kind === 'time') return ro ? `La ce dată sau perioadă vă referiți prin ${JSON.stringify(issue.text)}?` : `Which date or period do you mean by ${JSON.stringify(issue.text)}?`;
-    const choices = (issue.candidates ?? []).map(c => c.id + ' (' + c.roles.join(', ') + ')').join(ro ? ' sau ' : ' or ');
-    if (issue.status === 'ambiguous') return ro ? `La ce relație vă referiți prin ${JSON.stringify(issue.text)}: ${choices}?` : `Which relation do you mean by ${JSON.stringify(issue.text)}: ${choices}?`;
-    if (issue.status === 'role_mismatch') return ro ? `Relația ${JSON.stringify(issue.text)} are rolurile ${choices}; ce rol lipsește sau este în plus?` : `The relation ${JSON.stringify(issue.text)} takes the roles ${choices}; which role is missing or extra?`;
-    return ro ? `Nu cunosc relația ${JSON.stringify(issue.text)}. Cum ați formula-o altfel?` : `I do not know the relation ${JSON.stringify(issue.text)}. How else would you phrase it?`;
+    if (issue.kind === 'entity') {
+      // An ambiguous surface names its options (label and class) so the user can pick one.
+      // The memory's own description of each namesake ("capital and largest city of France") when it has one, else the class.
+      const options = (issue.candidates ?? []).filter(c => c.label).slice(0, 5).map(c => c.label + (c.description ? ' (' + c.description + ')' : c.class ? ' (' + c.class + ')' : '')).join(' or ');
+      if (issue.status === 'ambiguous' && options) return `Which entity do you mean by ${JSON.stringify(issue.text)}: ${options}?`;
+      return `Which entity do you mean by ${JSON.stringify(issue.text)}?`;
+    }
+    // The copula and other readings carry their own precise question (sop/copula-linker.mjs).
+    if (issue.question) return issue.question;
+    if (issue.kind === 'time' && issue.status === 'not_an_interval') return `The variable ${issue.text} is an argument of the relation, not a period; which time measure do you want?`;
+    if (issue.kind === 'time') return `Which date or period do you mean by ${JSON.stringify(issue.text)}?`;
+    const choices = (issue.candidates ?? []).map(c => c.id + ' (' + c.roles.join(', ') + ')').join(' or ');
+    if (issue.status === 'ambiguous') return `Which relation do you mean by ${JSON.stringify(issue.text)}: ${choices}?`;
+    if (issue.status === 'type_mismatch') return `The relation ${JSON.stringify(issue.text)} does not fit ${JSON.stringify(issue.value)} in the role ${issue.role}${issue.expected ? ' (it takes ' + issue.expected + ')' : ''}. How else would you phrase it?`;
+    if (issue.status === 'role_mismatch') return `The relation ${JSON.stringify(issue.text)} takes the roles ${choices}; which role is missing or extra?`;
+    return `I do not know the relation ${JSON.stringify(issue.text)}. How else would you phrase it?`;
   }).join(' ');
 }
 
@@ -170,12 +174,12 @@ export function mentionedThroughLexicon(value, message, lexicon) {
   return false;
 }
 
-const FIRST_PERSON = /(?<![\p{L}])(?:i|i'm|i've|i'd|me|my|mine|myself|eu|mie|mi|meu|mea|mei|mele|mă|ma|îmi|imi|noi|nostru|noastră|we|our|us)(?![\p{L}])/iu;
+const FIRST_PERSON = /(?<![\p{L}])(?:i|i'm|i've|i'd|me|my|mine|myself|we|our|us)(?![\p{L}])/iu;
 const FUNCTION_TOKENS = new Set(['the', 'a', 'an', 'of', 'in', 'on', 'at', 'to', 'for', 'from', 'by', 'with', 's']);
 /**
- * Anchoring through the host dictionary (DS021 "Content words"): the model may write a content word in the message's
- * language (normalized) or in English. A value is anchored when a surface of a dictionary entry it belongs to — in
- * either language, as a lemma or an inflected form — is mentioned in the message; a multiword value is anchored
+ * Anchoring through the English dictionary view (DS021 "Content words", "English-only core"): the message is English, and a
+ * content word may be written as an English synonym of a word of the message. A value is anchored when a surface of a
+ * dictionary entry it belongs to is mentioned in the message; a multiword value is anchored
  * when each of its content words is (directly or through the dictionary). "the user" is anchored by a first-person
  * word (Q-LANG-5).
  */

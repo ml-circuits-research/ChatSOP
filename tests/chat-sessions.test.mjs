@@ -7,7 +7,7 @@ import path from 'node:path';
 import {ChatData} from '../lib/chat-data/index.mjs';
 import {BaseMemories} from '../lib/chat-data/memories.mjs';
 import {Sessions} from '../lib/chat-data/sessions.mjs';
-import {FAMILY, FAMILY_QUERY, mockFormalizer, productServer, runtimeConfig} from './product-helpers.mjs';
+import {FAMILY, FAMILY_QUERY, productServer, runtimeConfig} from './product-helpers.mjs';
 import {tempDir} from './helpers.mjs';
 
 const EXTRA = '@f9 fact\n  holds parent di eve\n  source "chat"\n';
@@ -105,9 +105,9 @@ test('session: commit makes a new base memory (a fork plus the session circuits)
   assert.ok(memories.provenance('family-eve').some(p => p.kind === 'commit' && p.approved_by === 'owner' && p.source === `session:${s.id}`));
   assert.equal(memories.facts('family').parent.length, 3, 'the original base memory is untouched');
   assert.equal(sessions.info(s.id).committed_to[0].id, 'family-eve');
-  const other = sessions.commit(s.id, {name: 'Exact copy', strategy: 'scan', approvedBy: 'owner'});
-  assert.equal(other.memory.strategy, 'scan');
-  assert.equal(other.fork_method, 'replay');
+  const other = sessions.commit(s.id, {name: 'Second copy', strategy: 'sqlite', approvedBy: 'owner'});
+  assert.equal(other.memory.strategy, 'sqlite');
+  assert.equal(other.fork_method, 'clone', 'one strategy: the repository is cloned, never replayed');
   assert.equal(memories.facts(other.memory.id).parent.length, 4);
 });
 
@@ -125,7 +125,7 @@ test('session: the transcript is kept and an abandoned session is removed by the
 
 test('sessions API: create on a base memory, drafts, accept, theory, query, commit, delete', async t => {
   const s = await productServer(t);
-  await s.admin('/v1/memories', 'POST', {name: 'Family', id: 'family', strategy: 'hybrid', circuits: [{name: 'family', text: FAMILY}]});
+  await s.admin('/v1/memories', 'POST', {name: 'Family', id: 'family', strategy: 'sqlite', circuits: [{name: 'family', text: FAMILY}]});
   assert.equal((await s.user('/v1/sessions', 'POST', {})).status, 400);
   assert.equal((await s.user('/v1/sessions', 'POST', {base: 'nope'})).status, 404);
   const created = await s.user('/v1/sessions', 'POST', {base: 'family', name: 'Test chat', settings: {scope_note: 'mark'}});
@@ -133,7 +133,7 @@ test('sessions API: create on a base memory, drafts, accept, theory, query, comm
   const id = created.body.id;
   assert.equal(created.body.settings.authoring, 'off', 'the coding agent is off by default');
   assert.equal(created.body.settings.scope_note, 'mark');
-  assert.equal(created.body.base.strategy, 'hybrid');
+  assert.equal(created.body.base.strategy, 'sqlite');
   assert.equal((await s.user('/v1/sessions')).body.data.length, 1);
   const settings = await s.user(`/v1/sessions/${id}/settings`, 'POST', {authoring: 'always', omp_model: 'xai-oauth/grok-4.20-0309-non-reasoning'});
   assert.equal(settings.body.settings.authoring, 'always');
@@ -167,9 +167,7 @@ test('sessions API: create on a base memory, drafts, accept, theory, query, comm
 });
 
 test('chat in a session: its own repository, a transcript, an automatic session without session_id, and isolation', async t => {
-  const likes = '@q query\n  where match\n    relation "likes"\n    role subject "Ana"\n    role object "Alpha Lab"\n    polarity affirmed\n  end';
-  const formalizer = await mockFormalizer(t, likes);
-  const s = await productServer(t, {formalizer});
+  const s = await productServer(t);
   await s.admin('/v1/memories', 'POST', {name: 'Family', id: 'family', circuits: [{name: 'family', text: FAMILY}]});
   const a = (await s.user('/v1/sessions', 'POST', {base: 'family'})).body.id;
   const b = (await s.user('/v1/sessions', 'POST', {base: 'family'})).body.id;

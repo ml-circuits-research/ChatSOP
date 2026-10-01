@@ -3,12 +3,14 @@
 // admission and host semantics.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parse, canonical, SPEC, ONTOLOGY_SPEC, ROLE_NAMES} from '../sop/parser.mjs';
+import {parse, canonical, SPEC, ROLE_NAMES} from '../sop/parser.mjs';
 import {compileDeclarative, MODEL_TYPES} from '../sop/declarative.mjs';
 import {propositionOf, propositionKey, linkProposition} from '../sop/propositions.mjs';
 import {linkRelation, normalizeTime, mentionedIn, phraseKey} from '../sop/linking.mjs';
 import {Runtime} from '../sop/runtime.mjs';
 import {Lexicon} from '../sop/lexicon.mjs';
+import {GRAMMAR} from '../sop/knowledge/grammar.mjs';
+import {validateProgram} from '../sop/knowledge/index.mjs';
 import {UNCLEAR_KINDS, unclearReply} from '../sop/unclear.mjs';
 import {requestedLanguage, answerLanguage} from '../server/language.mjs';
 import {compareProgramPropositions, propositionMetrics, withoutBasis} from '../eval/propositions.mjs';
@@ -64,7 +66,7 @@ test('parser: strings as written, a closed role inventory, explicit polarity, qu
     ['@q query\n  where match\n    relation "works at"\n    role subject ?who\n  end', /needs polarity/],
     ['@q query\n  where match\n    relation "works at"\n    role subject ?who\n    polarity affirmed\n    certainty asserted\n  end', /Unsupported field certainty in @q match/],
     ['@u unclear\n  kind contradictory', /unclear kind must be one of gibberish, no_request/],
-    ['@u unclear\n  kind gibberish\n  language de', /unclear language must be one of en, ro/],
+    ['@u unclear\n  kind gibberish\n  language de', /unclear language must be one of en/],
   ];
   for (const [source, error] of rejects) assert.throws(() => parse(source), error, source);
   // A ?variable in a statement is only a placeholder paired with an unparsed span, and a $id names a wire of the
@@ -80,12 +82,13 @@ test('host linking: relation phrases, role sets, fresh query variables, times an
   assert.equal(phraseKey('is working at'), phraseKey('working at'));
   assert.equal(phraseKey('works at'), phraseKey('work at'));
   assert.equal(phraseKey('Is a parent of'), phraseKey('parent of'));
-  assert.deepEqual(linkRelation('work at', ['subject', 'object'], lex), {status: 'bound', text: 'work at', id: 'works_at', roles: ['subject', 'object'], types: ['person', 'organization']});
-  assert.equal(linkRelation('lucrează la', ['subject', 'object'], lex).id, 'works_at', 'aliases in any language link');
+  assert.deepEqual(linkRelation('work at', ['subject', 'object'], lex), {status: 'bound', text: 'work at', id: 'works_at', roles: ['subject', 'object'], types: ['person', 'organization'], score: 100, tier: 100, decided_by: 'only_candidate', scored_alternatives: []});
+  assert.equal(linkRelation('toil at', ['subject', 'object'], lex).status, 'unknown', 'only reviewed English forms link');
+  assert.equal(linkRelation('lucrează la', ['subject', 'object'], lex).status, 'unknown', 'the core holds English forms only');
   assert.equal(linkRelation('flies to', ['subject', 'object'], lex).status, 'unknown');
   assert.equal(linkRelation('work at', ['subject'], lex).status, 'role_mismatch', 'a statement binds every declared role');
   assert.equal(linkRelation('work at', ['subject'], lex, {exact: false}).status, 'bound', 'a query may leave roles unbound');
-  const twin = new Lexicon('@runs_company predicate\n  role subject person\n  role object organization\n  alias en "runs"\n@runs_route predicate\n  role subject person\n  role location place\n  alias en "runs"\n@runs_team predicate\n  role subject person\n  role object organization\n  alias en "leads"\n  alias en "runs"');
+  const twin = new Lexicon('@runs_company predicate\n  role subject person\n  role object organization\n  label en "runs"\n@runs_route predicate\n  role subject person\n  role location place\n  label en "runs"\n@runs_team predicate\n  role subject person\n  role object organization\n  label en "leads"\n  label en "runs"');
   assert.equal(linkRelation('runs', ['subject', 'location'], twin).id, 'runs_route', 'the role set disambiguates');
   assert.deepEqual(linkRelation('runs', ['subject', 'object'], twin).candidates.map(c => c.id), ['runs_company', 'runs_team']);
   const p = propositionOf(parse('@q stated\n  relation "takes minutes"\n  role subject "the check"\n  role object "5"\n  polarity affirmed\n  certainty asserted').wires[0]);
@@ -94,8 +97,8 @@ test('host linking: relation phrases, role sets, fresh query variables, times an
   assert.equal(linkProposition(pattern, lex).atomText, 'not works_at "Maria" "Alpha Lab"', 'roles are ordered by the predicate');
   assert.deepEqual(normalizeTime('2025', NOW), {from: Date.parse('2025-01-01'), until: Date.parse('2026-01-01')});
   assert.deepEqual(normalizeTime('in March 2026', NOW), {from: Date.parse('2026-03-01'), until: Date.parse('2026-04-01')});
-  assert.deepEqual(normalizeTime('martie 2026', NOW), {from: Date.parse('2026-03-01'), until: Date.parse('2026-04-01')});
-  assert.deepEqual(normalizeTime('ieri', NOW), {from: Date.parse('2026-09-25'), until: Date.parse('2026-09-26')});
+  assert.deepEqual(normalizeTime('March 2026', NOW), {from: Date.parse('2026-03-01'), until: Date.parse('2026-04-01')});
+  assert.deepEqual(normalizeTime('yesterday', NOW), {from: Date.parse('2026-09-25'), until: Date.parse('2026-09-26')});
   assert.deepEqual(normalizeTime('2026-03-03', NOW), {from: Date.parse('2026-03-03'), until: Date.parse('2026-03-04')});
   assert.equal(normalizeTime('last spring', NOW), null);
   assert.equal(normalizeTime('2026-02-30', NOW), null);
@@ -112,14 +115,15 @@ test('lexicon: roles from the closed inventory, subject/object by position, stri
   assert.equal(legacy.predicates.p.namedRoles, false);
   assert.deepEqual(legacy.predicates.q.roles, [], 'an unnamed predicate of arity three cannot be linked');
   assert.equal(linkRelation('q', ['subject', 'object', 'recipient'], legacy).status, 'role_mismatch');
-  assert.deepEqual(ONTOLOGY_SPEC.predicate.many, ['role', 'label', 'alias', 'reading']);
-  assert.throws(() => new Lexicon('@p predicate\n  role employee person'), /role employee is not one of subject/);
-  assert.throws(() => new Lexicon('@p predicate\n  role subject person\n  role subject place'), /repeats a role name/);
-  assert.throws(() => new Lexicon('@p predicate\n  role subject person\n  args place'), /args disagree with its role types/);
-  assert.throws(() => new Lexicon('@p predicate\n  role subject person\n  colour red'), /Unsupported field colour on predicate/);
-  assert.throws(() => new Lexicon('@e entity\n  kind person\n  kind place'), /Duplicate kind/);
-  assert.throws(() => new Lexicon('@c concept\n  is_a thing\n  args x'), /Unsupported field args on concept/);
-  assert.throws(() => new Lexicon('@p predicate\n  label en "p"'), /1\.\.4 argument types/);
+  assert.deepEqual(GRAMMAR.predicate.fields.role.card, 'many');
+  const codes = text => validateProgram([{name: 'k', text, role: 'knowledge'}]).problems.map(p => p.code);
+  assert.ok(codes('@p predicate\n  role employee person').includes('bad_role'), 'a role is one of the closed inventory');
+  assert.ok(codes('@person entity\n  kind class\n  label en "person"\n@place entity\n  kind class\n  label en "place"\n@p predicate\n  role subject person\n  role subject place').includes('duplicate_role'));
+  assert.ok(codes('@person entity\n  kind class\n  label en "person"\n@p predicate\n  role subject person\n  args place').includes('bad_args'));
+  assert.ok(codes('@p predicate\n  role subject entity\n  colour red').includes('unknown_field'), 'the grammar rejects every keyword it does not list');
+  assert.ok(codes('@e entity\n  kind person\n  kind place').includes('repeated_field'));
+  assert.ok(codes('@c concept\n  is_a thing\n  args x').includes('unknown_wire_type'), 'the former concept wire is a class entity now');
+  assert.ok(codes('@p predicate\n  label en "p"').includes('missing_field'));
 });
 
 test('compiler: duplicates, redundant assumptions, assumption budget, unclear alone and constraint task', () => {
@@ -189,11 +193,11 @@ test('unlinked or ambiguous strings stop at a host clarification; nothing is gue
   assert.deepEqual([unknown.result.packet.status, unknown.result.packet.reason, unknown.result.packet.required[0].status], ['clarify', 'unresolved_link', 'unknown']);
   assert.match(unknown.result.text, /I do not know the relation "flies to"/);
   assert.match(unknown.executionSop, /@hostClarify clarify/);
-  const twin = new Lexicon('@runs_company predicate\n  role subject person\n  role object organization\n  alias en "runs"\n@runs_team predicate\n  role subject person\n  role object organization\n  alias en "runs"\n@maria entity\n  kind person\n  label en "Maria"');
+  const twin = new Lexicon('@runs_company predicate\n  role subject person\n  role object organization\n  label en "runs"\n@runs_team predicate\n  role subject person\n  role object organization\n  label en "runs"\n@maria entity\n  kind person\n  label en "Maria"');
   const ambiguous = await new Runtime({lexicon: twin, schema: twin.predicates, now: NOW}).run('@q query\n' + match('"Maria"', '?what', 'affirmed', '"runs"'), {origin: 'model'});
   assert.equal(ambiguous.result.packet.status, 'clarify');
   assert.deepEqual(ambiguous.result.packet.required[0].candidates.map(c => c.id), ['runs_company', 'runs_team']);
-  const homonyms = new Lexicon('@works_at predicate\n  role subject person\n  role object organization\n  alias en "works at"\n@maria_one entity\n  kind person\n  alias en "Maria"\n@maria_two entity\n  kind person\n  alias en "Maria"\n@acme entity\n  kind organization\n  label en "Acme"');
+  const homonyms = new Lexicon('@works_at predicate\n  role subject person\n  role object organization\n  label en "works at"\n@maria_one entity\n  kind person\n  alias en "Maria"\n@maria_two entity\n  kind person\n  alias en "Maria"\n@acme entity\n  kind organization\n  label en "Acme"');
   const identity = await new Runtime({lexicon: homonyms, schema: homonyms.predicates, now: NOW}).run('@q query\n' + match('"Maria"', '"Acme"'), {origin: 'model'});
   assert.equal(identity.result.packet.status, 'clarify');
   assert.deepEqual(identity.result.packet.required[0].candidates.map(c => c.id), ['maria_one', 'maria_two']);
@@ -251,10 +255,12 @@ test('unclear: the kinds a context-free model can recognise, replies from one ta
     assert.equal(out.result.text, UNCLEAR_KINDS[kind].en);
     assert.equal(out.executionSop, '');
   }
-  assert.equal(unclearReply('gibberish', 'ro'), 'Nu am înțeles mesajul. Îl puteți reformula?');
-  assert.equal((await runtime().run('@u unclear\n  kind gibberish', {origin: 'model', language: 'ro', languageSource: 'request'})).result.language, 'ro');
-  assert.equal((await runtime().run('@u unclear\n  kind gibberish\n  language ro', {origin: 'model'})).result.language, 'ro', 'used only when the caller selected nothing');
-  assert.equal((await runtime().run('@u unclear\n  kind gibberish\n  language ro', {origin: 'model', language: 'en', languageSource: 'request'})).result.language, 'en');
+  assert.equal(unclearReply('gibberish'), UNCLEAR_KINDS.gibberish.en);
+  // The reply is English whatever language was selected: another language is the translation at the output edge.
+  assert.equal((await runtime().run('@u unclear\n  kind gibberish', {origin: 'model', language: 'ro', languageSource: 'request'})).result.text, UNCLEAR_KINDS.gibberish.en);
+  assert.equal((await runtime().run('@u unclear\n  kind gibberish', {origin: 'model', language: 'ro', languageSource: 'request'})).result.language, 'en');
+  assert.equal((await runtime().run('@u unclear\n  kind gibberish\n  language en', {origin: 'model'})).result.language, 'en');
+  assert.throws(() => parse('@u unclear\n  kind gibberish\n  language ro'), /unclear language must be one of en/);
   for (const type of ['stated', 'assumed']) await assert.rejects(runtime().run(prop('s', type)), /model-surface declaration/);
   await assert.rejects(runtime().run('@u unclear\n  kind gibberish'), /model-surface declaration/);
 });

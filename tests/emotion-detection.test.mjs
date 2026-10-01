@@ -1,10 +1,9 @@
 // EmotionDetectionSystem (DS029): the component, the symbolic strategy, the pragmatic wire, the reasoner advice and
-// the agent's courtesy short-circuit. The neural strategy is tested through its pure label mapping (no model runs).
+// the agent's courtesy short-circuit. The strategies other than the symbolic one were removed; the generic costly-strategy budget is tested with a fake.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import {createEmotionDetectionSystem, createDefaultEmotionDetectionSystem, createSymbolicStrategy, classifyLeftovers, adviceFor, signalsToSop, loadConfig} from '../lib/emotion-detection/index.mjs';
-import {signalsFromScores} from '../lib/emotion-detection/strategies/neural.mjs';
 import {courtesyReply} from '../lib/emotion-detection/courtesy.mjs';
 import {parse, validateGraph} from '../sop/parser.mjs';
 import {PRAGMATIC_KINDS} from '../sop/enums.mjs';
@@ -100,12 +99,6 @@ test('a costly strategy is skipped when the symbolic signals already cover the m
   assert.deepEqual(open.signals.map(s => [s.kind, s.source]), [['sadness', 'fake']]);
 });
 
-test('neural label mapping applies per-label and per-kind thresholds', () => {
-  const config = {map: {go: {annoyance: 'frustration', gratitude: 'thanks'}}, thresholds: {thanks: 0.9, 'go.annoyance': 0.3}};
-  const out = signalsFromScores({go: {annoyance: 0.35, gratitude: 0.8, other: 0.99}}, config);
-  assert.deepEqual(out.map(s => [s.kind, s.source, s.basis]), [['frustration', 'go', 'classifier']]);
-});
-
 test('signals render as pragmatic wires that parse, pass the graph check and use fresh ids', async () => {
   const {signals} = await system().detect('Hi! Where does Ana work, please? Thanks!');
   const sop = signalsToSop(signals, {taken: new Set(['p1'])});
@@ -132,20 +125,17 @@ test('advice: courtesy only, urgency, frustration, hedge, irony, tag question, t
   assert.equal(adviceFor([sig('profanity')]).courtesyOnly, false);
 });
 
-test('the default configuration: enabled, symbolic on, neural and LLM off', () => {
+test('the default configuration: enabled, symbolic is the only strategy', () => {
   const config = loadConfig();
   assert.equal(config.enabled, true);
   assert.equal(config.strategies.symbolic.enabled, true);
-  assert.equal(config.strategies.neural.enabled, false);
-  assert.equal(config.strategies.llm.enabled, false);
+  assert.deepEqual(Object.keys(config.strategies), ['symbolic'], 'the neural and LLM strategies were removed');
   assert.deepEqual(createDefaultEmotionDetectionSystem(config).strategyIds(), ['symbolic']);
-  assert.equal(config.kindPolicy['toxic_bert.offensive'], 'off', 'strategies below useful precision are off');
 });
 
-test('courtesy replies are deterministic host text in English and Romanian', () => {
-  assert.equal(courtesyReply([{kind: 'thanks'}], 'en'), "You're welcome.");
-  assert.equal(courtesyReply([{kind: 'thanks'}], 'ro'), 'Cu plăcere.');
-  assert.match(courtesyReply([{kind: 'greeting'}, {kind: 'thanks'}], 'en'), /^You're welcome\. Hello!/);
+test('courtesy replies are deterministic host text in English', () => {
+  assert.equal(courtesyReply([{kind: 'thanks'}]), "You're welcome.");
+  assert.match(courtesyReply([{kind: 'greeting'}, {kind: 'thanks'}]), /^You're welcome\. Hello!/);
 });
 
 /** An agent whose formalizer returns a fixed SOP and reports the given pragmatic signals after formalizing. */

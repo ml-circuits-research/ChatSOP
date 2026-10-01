@@ -12,9 +12,24 @@ export class SQLiteBank {
  constructor(config={},state=null,{path=':memory:'}={}){
   this.config={...config,...state?.config,engine:'sqlite'};this.options={fts:true,maxRecords:1000000,...this.config.sqlite};
   assert(Number.isSafeInteger(this.options.maxRecords)&&this.options.maxRecords>0,'Invalid sqlite.maxRecords');
-  let DatabaseSync;try{({DatabaseSync}=require('node:sqlite'));}catch{throw Error('SQLite strategy requires Node >=22.13 with node:sqlite. No npm package is installed automatically.');}
-  this.db=new DatabaseSync(path);this.path=path;this.closed=false;
-  this.db.exec(`PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;
+  try{require('node:sqlite');}catch{throw Error('SQLite strategy requires Node >=22.13 with node:sqlite. No npm package is installed automatically.');}
+  this.path=path;this.closed=false;this._db=null;this.domains={};this.writes=state?.writes??0;this._statements=new Map();
+  if(state&&path===':memory:'){
+   // Lazy rebuild: the stored rows stay as they are until the first read or write needs the database. The predicates and arities the
+   // temporal layer routes by are read from the rows, so a layer that no question touches never builds its SQL database.
+   this.pending=state.records??[];
+   for(const row of this.pending){const a=JSON.parse(row.body);const key=a.p+'/'+a.a.length;if(!this.domains[key])this.domains[key]=Array.from({length:a.a.length},()=>[]);}
+  }else{this.pending=null;this._open(state);}
+ }
+ /** The SQL database: built from the pending rows on first use. */
+ get db(){if(!this._db)this._open(this.pending?{records:this.pending}:null);return this._db;}
+ get put(){this.db;return this._put_stmt;}
+ get getMeta(){this.db;return this._get_meta;}
+ get setMeta(){this.db;return this._set_meta;}
+ _open(state){
+  const {DatabaseSync}=require('node:sqlite');
+  const db=this._db=new DatabaseSync(this.path);this.pending=null;
+  db.exec(`PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;
    CREATE TABLE IF NOT EXISTS atoms (
     id TEXT PRIMARY KEY, p TEXT NOT NULL, n INTEGER NOT NULL, neg INTEGER NOT NULL,
     v0 TEXT, v1 TEXT, v2 TEXT, v3 TEXT, body TEXT NOT NULL, meta TEXT NOT NULL
@@ -24,18 +39,17 @@ export class SQLiteBank {
    CREATE INDEX IF NOT EXISTS atoms_a2 ON atoms(p,n,neg,v2);
    CREATE INDEX IF NOT EXISTS atoms_a3 ON atoms(p,n,neg,v3);`);
   if(this.options.fts){
-   this.db.exec(`CREATE VIRTUAL TABLE IF NOT EXISTS atoms_fts USING fts5(id UNINDEXED, body, tokenize='unicode61 remove_diacritics 2');
+   db.exec(`CREATE VIRTUAL TABLE IF NOT EXISTS atoms_fts USING fts5(id UNINDEXED, body, tokenize='unicode61 remove_diacritics 2');
     CREATE TRIGGER IF NOT EXISTS atoms_ai AFTER INSERT ON atoms BEGIN
      INSERT INTO atoms_fts(rowid,id,body) VALUES(new.rowid,new.id,new.body); END;
     CREATE TRIGGER IF NOT EXISTS atoms_ad AFTER DELETE ON atoms BEGIN
      DELETE FROM atoms_fts WHERE rowid=old.rowid; END;`);
    // A database initially created without FTS may be reopened with it enabled.
-   this.db.exec('INSERT INTO atoms_fts(rowid,id,body) SELECT rowid,id,body FROM atoms WHERE rowid NOT IN (SELECT rowid FROM atoms_fts)');
+   db.exec('INSERT INTO atoms_fts(rowid,id,body) SELECT rowid,id,body FROM atoms WHERE rowid NOT IN (SELECT rowid FROM atoms_fts)');
   }
-  this.domains={};this.writes=state?.writes??0;this._statements=new Map();
-  this.put=this.db.prepare('INSERT INTO atoms(id,p,n,neg,v0,v1,v2,v3,body,meta) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET meta=excluded.meta');
-  this.getMeta=this.db.prepare('SELECT meta FROM atoms WHERE id=?');this.setMeta=this.db.prepare('UPDATE atoms SET meta=? WHERE id=?');
-  if(state){this.db.exec('BEGIN');try{for(const row of state.records??[])this._put(atom(JSON.parse(row.body),{ground:true}),JSON.parse(row.meta),row.id);this.db.exec('COMMIT');}catch(e){this.db.exec('ROLLBACK');this.close();throw e;}}
+  this._put_stmt=db.prepare('INSERT INTO atoms(id,p,n,neg,v0,v1,v2,v3,body,meta) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET meta=excluded.meta');
+  this._get_meta=db.prepare('SELECT meta FROM atoms WHERE id=?');this._set_meta=db.prepare('UPDATE atoms SET meta=? WHERE id=?');
+  if(state){db.exec('BEGIN');try{for(const row of state.records??[])this._put(atom(JSON.parse(row.body),{ground:true}),JSON.parse(row.meta),row.id);db.exec('COMMIT');}catch(e){db.exec('ROLLBACK');this.close();throw e;}}
   this._refreshDomains();
  }
  _refreshDomains(){this.domains={};for(const r of this.db.prepare('SELECT DISTINCT p,n FROM atoms').iterate())this.domains[r.p+'/'+r.n]=Array.from({length:r.n},()=>[]);}
@@ -88,15 +102,15 @@ export class SQLiteBank {
   if(mode==='adaptive'&&before>safeOccupancy)while(this.occupancy()>targetOccupancy&&sweeps<maxSweeps){this.decay(step);sweeps++;}
   return {triggered:sweeps>0,mode,before,after:this.occupancy(),sweeps,at,occupancyMetric:'rows/maxRecords, not bit density'};
  }
- count(){return this.db.prepare('SELECT count(*) n FROM atoms').get().n;}
+ count(){return this.pending?this.pending.length:this.db.prepare('SELECT count(*) n FROM atoms').get().n;}
  occupancy(){return this.count()/this.options.maxRecords;}
  peakOccupancy(){return this.occupancy();}
  bankBytes(){return this.db.prepare('PRAGMA page_count').get().page_count*this.db.prepare('PRAGMA page_size').get().page_size;}
- export(){return {format:'sqlite-fact-bank-v1',config:this.config,records:this.db.prepare('SELECT id,body,meta FROM atoms ORDER BY id').all(),writes:this.writes};}
+ export(){return {format:'sqlite-fact-bank-v1',config:this.config,records:this.pending?this.pending:this.db.prepare('SELECT id,body,meta FROM atoms ORDER BY id').all(),writes:this.writes};}
  static from(s){return new SQLiteBank(s.config,s);}
  stats(){return {engine:'sqlite',banksBytes:this.bankBytes(),metadataBytes:0,metadataIncludedInDatabase:true,
   writes:this.writes,receipts:this.count(),occupancy:this.occupancy(),fts:this.options.fts,
   persistence:this.path===':memory:'?'in-memory SQL / repository snapshots':'native SQLite file',
   sqliteVersion:this.db.prepare('SELECT sqlite_version() version').get().version};}
- close(){if(!this.closed){this.db.close();this.closed=true;}}
+ close(){if(!this.closed){if(this._db)this._db.close();this.closed=true;}}
 }

@@ -1,0 +1,55 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-linking-v1",
+ "name": "Open-vocabulary linking of the scored joint KnowledgeLinker (M3) on world-v1 + core-en: relation and entity accuracy, wrong-link, abstain and clarification rates",
+ "registered_at": "2026-10-01T17:00:00Z",
+ "registered_by": "linker-m3-agent (linking proposal section 6, milestone M3; orchestrator decision 2026-10-01: KnowledgeLinker is a scored joint linker, SymbolicLM stays knowledge-blind)",
+ "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+ "kind": "evaluation-only (no training; SymbolicLM on the auto-device parse lock; judge labels by omp on subscriptions)",
+ "frozen_before_results": "Written after the scorer and the question sets existed and before any arm was scored on parts 2 and 3. Part 1 (mechanical labels) numbers of the exact linker were recorded by linker-m0-agent (eval/reports/current/linking/baseline-current.json) before this change.",
+ "hypotheses": [
+  "H1 (safety): the scored linker's wrong-link rate on part 2 stays at most 1% (wilson upper bound reported) and is not higher than the exact linker's.",
+  "H2 (recall): the scored linker binds more correct relations than the exact linker on parts 2 and 3 (scoring, head-verb tier, subclass and class-decided namesakes), with the paired difference interval excluding zero at the full set or being reported as undecided.",
+  "H3 (ambiguity): on part 3 rows whose gold says a clarification is needed, the linker asks or reports its alternatives in at least 90% (silent guesses at most 10%); on gold-clear rows the unjustified clarification rate is at most 5% on part 2.",
+  "H4 (memory): core-en contributes: relation accuracy with core-en layered under world-v1 exceeds world-v1 alone."
+ ],
+ "system_under_test": {
+  "chain": "question (message only) -> SymbolicLM (lib/symbolic-lm, analyze, language auto) -> compileDeclarative (sop/declarative.mjs: the KnowledgeLinker with sop/knowledge-linker.mjs, sop/linking.mjs, sop/copula-linker.mjs, the host dictionary) over the lexicon of world-v1 with core-en layered under it; no engine run",
+  "arms": {
+   "exact": "the M1 linker: a tie is an ambiguity; no scoring stages, no head-verb tier, no subclass or namesake choice (configureLinker {scored:false, headVerb:false})",
+   "scored-no-head": "scoring, constraints and namesake choice, without the head-verb tier",
+   "scored": "the product linker",
+   "scored@world-only": "the product linker over world-v1 without core-en"
+  }
+ },
+ "data": {
+  "part2": "339 questions (about one in five Romanian) written by an authoring judge (xai-oauth/grok-4.5) from 339 facts of world-v1 sampled per predicate with a fixed seed (tools/linking/judge/seeds.mjs); labelled independently by the main judge (grok-4.5) and further judges who never see the author's intended labels; gold = the main judge's label confirmed by at least one other judge; contested rows are counted and listed, not scored.",
+  "part3": "ambiguous and clear question pairs about 113 seeds, written by the authoring judge and labelled the same way (gold ask, alternatives).",
+  "judges": "Grok 4.5 (main), Grok 4.20 reasoning, DeepSeek V4 Flash; the three GLM sessions asked for were rate-limited by z.ai (HTTP 429, five-hour limit until 2026-10-02 03:10) and are replaced; recorded as a deviation.",
+  "calibration": "A hand-checked sample of 40 rows (agent review of the question, the vocabulary and the candidates) measures judge-versus-hand agreement before the arms are read; the agreement is reported with the results.",
+  "sealed": "eval/suites/linking-v1/part2.jsonl and part3.jsonl are tests; generators and training code never read them (eval/leakage.mjs)."
+ },
+ "metrics": [
+  "relation accuracy (correct / gold-bind rows)",
+  "relation wrong rate",
+  "abstain rate",
+  "entity accuracy and wrong rate per gold entity",
+  "unjustified clarification rate (gold-bind rows that were asked)",
+  "justified clarification or reported alternatives rate and silent guess rate (gold-ask rows)",
+  "abstain on gold-none rows",
+  "wrong-link rate = (wrong relations + wrong entities + hallucinated links on none rows + silent guesses) / labelled mentions",
+  "linking latency per question (compile step)"
+ ],
+ "stages": "Stratified (fixed-seed) samples of 100, then 300, then all rows; Wilson intervals per stage, paired bootstrap of the arm differences at the end.",
+ "stopping_rules": {
+  "broken": "more than 20% of the first 100 rows crash the compile step, or the scored arm's wrong-link rate exceeds 5% on the first 100 rows: stop and fix",
+  "futile": "the upper bound of the scored-minus-exact relation-accuracy gain is under 2 points at 300 rows: stop and report",
+  "decisive": "the paired interval of the gain excludes zero by at least 5 points at 100 or 300 rows: go to the full set once for the report"
+ },
+ "deviations": [
+  "Judges: the three GLM sessions were rate-limited by z.ai (429, until 2026-10-02 03:10) and Grok ran out of credits after 175 of 339 part-2 and 50 of 226 part-3 rows; the judges that labelled everything are Codex GPT-5.5 and DeepSeek V4 Flash, with Grok 4.5 and Grok 4.20 reasoning on the partial rows.",
+  "Gold rule: the (relation, ask) label that at least two judges gave and no other label matches in count (instead of 'main judge confirmed by one other'); contested rows are listed in eval/reports/current/linking/judge/consensus-part*.json.",
+  "Stage 100, first run: wrong-link 12.1% exceeded the 5% broken-condition. Cause analysis (duplicate general and specific predicates in the merged vocabulary, a head-verb tier reaching 'use as' -> uses_currency) led to two linker changes before the stages were rerun: the facts-in-memory evidence stage and head-verb candidates restricted to predicates with facts (and 'as' no longer a particle). The 12.1% run is kept in the journal; the reported stages are the reruns.",
+  "Metrics added after the first read: lenient relation accuracy (any predicate a judge gave), wrong binding to predicates without facts reported apart (relation_wrong_with_facts), author-flagged ambiguity breakdown for part 3."
+ ]
+}

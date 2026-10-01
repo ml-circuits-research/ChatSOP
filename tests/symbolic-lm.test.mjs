@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {identify} from '../lib/languages-util/index.mjs';
-import {treeShape, coreDisagreement, uncertaintyOf} from '../lib/symbolic-lm/uncertainty.mjs';
+import {treeShape, uncertaintyOf} from '../lib/symbolic-lm/uncertainty.mjs';
 import {SymbolicLM, mapValues} from '../lib/symbolic-lm/index.mjs';
 import {joinPieces} from '../lib/translator-service/index.mjs';
 
@@ -46,9 +46,6 @@ test('uncertainty: tree shape, parser disagreement and the collected reasons', (
     {id: 7, text: 'child', upos: 'NOUN', head: 0, deprel: 'root', start: 27},
   ]};
   assert.deepEqual(treeShape(sentence), ['two subjects of "child"']);
-  const spacy = [{i: 0, start: 0, pos: 'ADV', dep: 'advmod', head: 1}, {i: 1, start: 4, pos: 'ADJ', dep: 'amod', head: 2}, {i: 2, start: 9, pos: 'NOUN', dep: 'nsubj', head: 3},
-    {i: 3, start: 16, pos: 'AUX', dep: 'ROOT', head: 3}, {i: 4, start: 19, pos: 'PROPN', dep: 'attr', head: 3}];
-  assert.match(coreDisagreement(sentence, spacy, 0), /stanza .*root:27/);
   const signal = uncertaintyOf({translation: {untranslated: [{word: 'deocamdată'}]}, unparsed: [{span: 'curând'}], rules: {repaired: [], notes: ['dropped @s2: x'], outcome: 'converted'}}, {englishSentences: [sentence]});
   assert.equal(signal.uncertain, true);
   assert.deepEqual(signal.kinds.sort(), ['rule_fallback', 'tree_shape', 'unparsed', 'untranslated']);

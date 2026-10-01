@@ -16,12 +16,13 @@ const help=`Usage: node training/cli.mjs <command> [options]
   download --model NAME [--config FILE]
   train --model NAME --run NAME --role formalizer|verbalizer|shared|proofreader --data DIR --qualification FILE --authorization FILE [--config FILE] [--max-steps N] [--cpu] [--full] [--resume] [--dry-run]
   token-audit --model NAME --role formalizer|verbalizer --data DIR [--out FILE]
-  merge --model NAME --run NAME --role formalizer|verbalizer [--checkpoint best|latest]
+  merge --model NAME --run NAME --role proofreader|formalizer|verbalizer [--checkpoint best|latest]
   predict --model NAME --run NAME --role formalizer --suite FILE --out FILE --timing FILE [--checkpoint best|latest] [--cpu] [--sample N] [--threads N]
     (seq2seq recipes only: greedy predictions from the message alone, training/python/predict_seq2seq.py)
   serve --model NAME --run NAME [--port N] [--cpu]
-  serve-cpu --model NAME --run NAME --role formalizer|verbalizer [--port N]
-  export-gguf --model NAME --run NAME --role formalizer|verbalizer
+  serve-cpu --model NAME --run NAME --role proofreader|formalizer|verbalizer [--port N]
+  export-gguf --model NAME --run NAME --role proofreader|formalizer|verbalizer
+    (proofreader is the role of the LanguageProofingLLM and SymbolicProofingLLM runs; formalizer and verbalizer are archived roles)
   build-llama --ref PINNED_COMMIT (existing checkout only)
   spark-shell (SPARK_IMAGE must name a reviewed, locally available Podman image)
 

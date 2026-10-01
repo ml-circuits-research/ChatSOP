@@ -4,25 +4,24 @@
  * The small model marks the parts of a message it could not formalize as `unparsed` wires (a verbatim span, an
  * optional `near $id` and `hint`). Before linking, the host tries deterministic repairs, in this order:
  *   1. dates and times (`sop/linking.mjs` normalizeTime), for a `time` hint or a span that reads as a date;
- *   2. numbers, money and units ("1.140 euro", "2380 lei", "12 km", number words up to twenty, EN and RO);
- *   3. a reference to the conversation ("aia", "el", "de mai devreme", "that one"): resolved from the caller-owned
+ *   2. numbers, money and units ("1.140 euro", "2380 lei", "12 km", number words up to twenty);
+ *   3. a reference to the conversation ("he", "the earlier one", "that one"): resolved from the caller-owned
  *      conversation context (the previous query's quoted values), only when exactly one candidate exists;
  *   4. a proper name: a span of capitalized words, or a surface the host lexicon knows as one entity;
- *   5. the bilingual dictionary (sop/dictionary.mjs): a Romanian common noun with exactly one English reading,
- *      or one the host lexicon accepts.
+ *   5. the English dictionary view (sop/dictionary.mjs `englishDictionary`): a common noun with exactly one synonym the
+ *      lexicon accepts.
  * A resolved span fills the placeholder it is paired with. An unresolved span becomes one targeted clarification
  * question; nothing is guessed. The repairs and the unresolved spans are reported in the packet.
  */
 import {normalizeTime} from './linking.mjs';
 
-const NUMBER_WORDS = {zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20,
-  unu: 1, una: 1, un: 1, o: 1, doi: 2, doua: 2, trei: 3, patru: 4, cinci: 5, sase: 6, sapte: 7, opt: 8, noua: 9, zece: 10, unsprezece: 11, doisprezece: 12, douasprezece: 12, treisprezece: 13, paisprezece: 14, cincisprezece: 15, saisprezece: 16, saptesprezece: 17, optsprezece: 18, nouasprezece: 19, douazeci: 20};
-const UNITS = {lei: 'RON', ron: 'RON', leu: 'RON', eur: 'EUR', euro: 'EUR', '€': 'EUR', usd: 'USD', '$': 'USD', dolari: 'USD', dollars: 'USD', dollar: 'USD', gbp: 'GBP', '£': 'GBP', lire: 'GBP', '%': '%', procent: '%', procente: '%', percent: '%',
-  km: 'km', kilometri: 'km', kilometers: 'km', kg: 'kg', kilograme: 'kg', ore: 'hours', hours: 'hours', zile: 'days', days: 'days', luni: 'months', months: 'months', ani: 'years', years: 'years', minute: 'minutes', minutes: 'minutes'};
+const NUMBER_WORDS = {zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20,};
+const UNITS = {lei: 'RON', ron: 'RON', leu: 'RON', eur: 'EUR', euro: 'EUR', '€': 'EUR', usd: 'USD', '$': 'USD', dollars: 'USD', dollar: 'USD', gbp: 'GBP', '£': 'GBP', '%': '%', percent: '%',
+  km: 'km', kilometers: 'km', kg: 'kg', hours: 'hours', days: 'days', months: 'months', years: 'years', minute: 'minutes', minutes: 'minutes'};
 const fold = text => String(text).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
 /** References to something said earlier in the conversation (demonstratives, pronouns, "the earlier one"). */
-const REFERENCE = /^(?:aia|asta|acela|aceea|acesta|aceasta|ala|ăla|el|ea|ei|ele|lui|ei|de mai devreme|de mai sus|cel de mai devreme|cea de mai devreme|that|that one|this|this one|it|him|her|them|the one from before|the earlier one|the same one|same)$/i;
-const CONNECTORS = new Set(['de', 'din', 'la', 'of', 'the', 'and', 'și', 'si', '&', 'von', 'van', 'da', 'di', 'du', 'le', 'la']);
+const REFERENCE = /^(?:that|that one|this|this one|it|him|her|them|the one from before|the earlier one|the same one|same)$/i;
+const CONNECTORS = new Set(['of', 'the', 'and', '&', 'von', 'van', 'da', 'di', 'du', 'le', 'la']);
 
 /** A deterministic numeric reading of a span: a safe integer, or "<number> <UNIT>" for an amount with a unit. */
 export function parseQuantity(span) {
@@ -75,24 +74,18 @@ export function repairSpan(span, {hint = null, lexicon = null, dictionary = null
   if (entity?.found.length === 1) return {value: text, method: 'lexicon_entity'};
   if (isName(text)) return {value: text, method: 'proper_name'};
   if (dictionary) {
-    const c = dictionary.candidates(text, 'value');
-    if (c.status === 'translated') {
-      const known = lexicon ? c.candidates.filter(candidate => lexicon.matching(candidate, {language: 'auto', kind: 'entity'}).found.length === 1) : [];
-      if (known.length === 1) return {value: known[0], method: 'dictionary'};
-      if (c.candidates.length === 1) return {value: c.candidates[0], method: 'dictionary'};
-    }
+    const synonyms = dictionary.synonyms(text, 'value');
+    const known = lexicon ? synonyms.filter(candidate => lexicon.matching(candidate, {language: 'auto', kind: 'entity'}).found.length === 1) : [];
+    if (known.length === 1) return {value: known[0], method: 'dictionary'};
+    if (!lexicon && synonyms.length === 1) return {value: synonyms[0], method: 'dictionary'};
   }
   return null;
 }
 
-const QUESTIONS = {
-  en: {subject: s => `Who or what do you mean by "${s}"?`, object: s => `Who or what do you mean by "${s}"?`, time: s => `Which date or period do you mean by "${s}"?`, location: s => `Which place do you mean by "${s}"?`,
-    value: s => `Which value do you mean by "${s}"?`, relation: s => `What do you mean by "${s}"?`, reference: s => `What does "${s}" refer to?`, other: s => `What do you mean by "${s}"?`},
-  ro: {subject: s => `La cine sau la ce vă referiți prin „${s}”?`, object: s => `La cine sau la ce vă referiți prin „${s}”?`, time: s => `La ce dată sau perioadă vă referiți prin „${s}”?`, location: s => `La ce loc vă referiți prin „${s}”?`,
-    value: s => `Ce valoare aveți în vedere prin „${s}”?`, relation: s => `Ce înțelegeți prin „${s}”?`, reference: s => `La ce se referă „${s}”?`, other: s => `Ce înțelegeți prin „${s}”?`},
-};
-/** The one targeted clarification question of an unresolved span, in the answer language. */
-export function spanQuestion(span, hint, language = 'en') {
-  const table = QUESTIONS[language] ?? QUESTIONS.en;
-  return (table[hint] ?? table.other)(span);
+// English only: the output edge translates the final answer (DS021 "English-only core").
+const QUESTIONS = {subject: s => `Who or what do you mean by "${s}"?`, object: s => `Who or what do you mean by "${s}"?`, time: s => `Which date or period do you mean by "${s}"?`, location: s => `Which place do you mean by "${s}"?`,
+  value: s => `Which value do you mean by "${s}"?`, relation: s => `What do you mean by "${s}"?`, reference: s => `What does "${s}" refer to?`, other: s => `What do you mean by "${s}"?`};
+/** The one targeted clarification question of an unresolved span, in English. */
+export function spanQuestion(span, hint) {
+  return (QUESTIONS[hint] ?? QUESTIONS.other)(span);
 }

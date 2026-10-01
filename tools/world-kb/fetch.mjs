@@ -29,7 +29,7 @@ export const SELECT = {
   company: {classes: ['Q4830453', 'Q891723', 'Q6881511', 'Q783794'], min: [25, 35, 45]},
   university: {classes: ['Q3918', 'Q875538', 'Q902104'], min: [20, 30, 45]},
   organization: {classes: ['Q484652', 'Q245065'], min: [30, 45, 60]},
-  literary_work: {classes: ['Q7725634', 'Q8261', 'Q25379', 'Q49084', 'Q1318295'], perClass: true, min: [25, 30, 40, 55]},
+  literary_work: {classes: ['Q7725634', 'Q47461344', 'Q116476516', 'Q179461', 'Q8261', 'Q25379', 'Q49084', 'Q1318295'], perClass: true, min: [25, 30, 40, 55]},
   film: {classes: ['Q11424'], min: [35, 45, 60]},
   painting: {classes: ['Q3305213'], min: [25, 35, 50]},
 };
@@ -140,6 +140,7 @@ async function fetchLabels(selection) {
   const ids = referencedIds(selection);
   for (let i = 0, n = 0; i < ids.length; i += 300, n++) {
     const batch = ids.slice(i, i + 300);
+    // the ?ro label stays in the query only to keep the cache keys of the fetched batches; the build ignores it (English-only core)
     const q = `SELECT ?i ?en ?ro ?d ?s WHERE { VALUES ?i { ${v(batch)} } ?i wikibase:sitelinks ?s. OPTIONAL { ?i rdfs:label ?en FILTER(lang(?en)="en") } OPTIONAL { ?i rdfs:label ?ro FILTER(lang(?ro)="ro") } OPTIONAL { ?i schema:description ?d FILTER(lang(?d)="en") } }`;
     await sparql(`label-${String(n).padStart(4, '0')}-${h(q)}`, q);
     if (n % 10 === 0) log('labels', i, '/', ids.length);
@@ -147,10 +148,39 @@ async function fetchLabels(selection) {
   log('labels done', ids.length);
 }
 
+/**
+ * Wikidata keeps the label of many names (people, places) in the language code `mul` ("multiple languages") and no `en` row, so the
+ * `rdfs:label@en` read above returns nothing for them (Albert Einstein, Marie Curie, ...). For every id without an English label
+ * the `mul` label is read; build.mjs uses it as the English label and, when no Romanian label exists, as the Romanian one.
+ */
+async function fetchMulLabels() {
+  const withEn = new Set(), ids = new Set();
+  for (const f of fs.readdirSync(RAW).filter(f => /^label-\d+-[0-9a-f]+\.json$/.test(f))) for (const r of readRows(f.replace('.json', ''))) { ids.add(qid(r.i)); if (r.en) withEn.add(qid(r.i)); }
+  const missing = [...ids].filter(id => !withEn.has(id));
+  for (let i = 0, n = 0; i < missing.length; i += 300, n++) {
+    const q = `SELECT ?i ?mul WHERE { VALUES ?i { ${v(missing.slice(i, i + 300))} } ?i rdfs:label ?mul FILTER(lang(?mul)="mul") }`;
+    await sparql(`labelmul-${String(n).padStart(4, '0')}-${h(q)}`, q);
+  }
+  log('mul labels for', missing.length, 'ids without an English label');
+}
+
+/** English aliases (skos:altLabel) of the selected items: the short and common names a question uses ("Apple" for Apple Inc.). */
+async function fetchAliases(selection) {
+  const ids = [...new Set(Object.values(selection).flat())];
+  for (let i = 0, n = 0; i < ids.length; i += 300, n++) {
+    const q = `SELECT ?i ?a WHERE { VALUES ?i { ${v(ids.slice(i, i + 300))} } ?i skos:altLabel ?a FILTER(lang(?a)="en") }`;
+    await sparql(`alias-${String(n).padStart(4, '0')}-${h(q)}`, q);
+    if (n % 20 === 0) log('aliases', i, '/', ids.length);
+  }
+  log('aliases done', ids.length);
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   if (stage === 'select' || stage === 'all') await selectEntities();
   const selection = loadSelection();
   if (stage === 'props' || stage === 'all') await fetchProps(selection);
   if (stage === 'labels' || stage === 'all') await fetchLabels(selection);
+  if (stage === 'mul' || stage === 'all') await fetchMulLabels();
+  if (stage === 'alias' || stage === 'all') await fetchAliases(selection);
   log('done');
 }

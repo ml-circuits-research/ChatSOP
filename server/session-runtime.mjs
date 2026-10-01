@@ -9,6 +9,7 @@ import {createHash} from 'node:crypto';
 import {SessionStore} from './session-store.mjs';
 import {BASE_NAME} from '../lib/chat-data/memories.mjs';
 import {assertFolderId} from '../lib/chat-data/index.mjs';
+import {TheoryCache} from '../reasoning/slice/index.mjs';
 
 const CONVERSATION = 'chat';
 
@@ -16,6 +17,7 @@ export class SessionRuntimes {
   constructor({sessions, memories, config, defaultBase = 'default'}) {
     Object.assign(this, {sessions, memories, config, defaultBase});
     this.runtimes = new Map();
+    this.theories = new TheoryCache();
   }
 
   /** The session id of a request without one: one automatic session per user and conversation id on the default base memory. */
@@ -34,7 +36,9 @@ export class SessionRuntimes {
     if (!this.runtimes.has(id)) {
       const repo = this.sessions.repository(id);
       // The lexicon is the session's own: the layered circuits of its base memory plus what the user accepted (DS031 "Lexicon of a memory").
-      const store = new SessionStore({repo, lexicon: this.sessions.lexicon(id), config: this.config, root: path.join(this.sessions.dir(id), 'agent')});
+      const store = new SessionStore({repo, lexicon: this.sessions.lexicon(id), config: this.config, root: path.join(this.sessions.dir(id), 'agent'),
+        // The chat turn plans with the rules of the memory's circuits too (world-v1 `located_in` transitivity, container rules), like POST /v1/sessions/{id}/query.
+        circuitRules: () => this.theories.get([...this.sessions.baseCircuits(id), ...this.sessions.circuits(id)]).chatRules()});
       this.runtimes.set(id, {id, repo, store, users: new Set()});
     }
     const rt = this.runtimes.get(id);

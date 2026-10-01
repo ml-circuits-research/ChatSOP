@@ -1,0 +1,45 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-kbqa-v1",
+  "name": "KBQA end-to-end: public benchmark questions answered from Wikidata slices through SymbolicLM, KnowledgeLinker and the reference route",
+  "registered_at": "2026-10-01T16:07:00Z",
+  "registered_by": "kbqa-eval-agent (owner direction of 2026-10-01: KBQA is the project's yardstick from now on)",
+  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "kind": "evaluation-only (CPU/auto-device SymbolicLM parse; no training; omp LLM baselines on subscriptions)",
+  "frozen_before_results": "Written before the first chain answer was scored. Harness, scorer and attribution rules (tools/eval/kbqa/) were written first and checked on 3 hand-made questions only. Later changes to the scorer or to the mechanical Wikidata-to-circuits mapping (tools/eval/kbqa/memory.mjs) are recorded as deviations with the stage at which they happened; a rerun after a component change (linker M0, world-v1) is a new tagged run, never a replacement of the old numbers.",
+  "system_under_test": {
+    "chain": "question (message only) -> SymbolicLM service (lib/symbolic-lm, auto-device parse lock) -> Agent (server/agent.mjs: admission, KnowledgeLinker sop/linking.mjs + sop/copula-linker.mjs over the lexicon of the session's base memory, reference route) -> result packet",
+    "memory": "one SQLite base memory per suite and stage, `kbqa-<suite>-<stage>`, imports core-min, in a private chat data root (datasets_sources/kbqa/chat_data, gitignored). Built mechanically from the Wikidata slice of the stage's questions (tools/eval/kbqa/slice.mjs, memory.mjs): the question entities, the gold answer entities, their one-hop neighbourhood with distractors, the incoming statements for the annotated properties, a second hop towards the answers, labels and aliases. No per-question authoring; lexicon forms come only from Wikidata property labels and aliases.",
+    "slice_is_gold_guided": "The slice contains the facts about the gold answer entities by construction, so the evaluation measures the chain GIVEN the knowledge; the scorer reports separately when the slice cannot contain the answer. It is not a claim about open retrieval.",
+    "isolation": "every question runs in its own conversation on a fresh clone of the base memory; reads do not reinforce (policy.reinforce false)."
+  },
+  "suites": {
+    "mintaka": "Mintaka test (Amazon Science, CC-BY-4.0), 1000 rows stratified over 9 complexity types, gold from the benchmark",
+    "lcquad2": "LC-QuAD 2.0 test (CC-BY-4.0 per the figshare record), up to 1000 rows stratified by query structure; gold = the benchmark's SPARQL executed on query.wikidata.org at build time (rows whose gold is empty are dropped and counted in meta.json)",
+    "simplequestions": "SimpleQuestions-Wikidata answerable test (CC-BY-3.0), 1000 rows; gold by SPARQL; any gold value is correct (the benchmark asks for one)",
+    "qald10": "QALD-10 test, all 393 English questions (MIT licence of the repository), gold from the benchmark",
+    "sealing": "eval/suites/kbqa-<name>/test.jsonl are sealed test exports (AGENTS.md direction 9): only tools/eval/kbqa/ reads them, no generator or training code does. The questions are public, new test material: no model was trained on them by us."
+  },
+  "hypotheses": {
+    "H1": "The chain's strict accuracy is low on all four suites at this stage (below 25% at the 300-question stage), because the mechanical lexicon lacks verb lemmas and the KnowledgeLinker has no converse frames. This is a baseline to be improved, not a target.",
+    "H2": "The chain's wrong-answer rate (a definite answer that differs from the gold) is below 10% on every suite: failures are overwhelmingly honest unknowns or clarifications.",
+    "H3": "On the simple questions (SimpleQuestions, simple types of the other suites) the grok llm-agent baseline reading the same facts as text is more accurate than the chain; the paired difference has a 95% bootstrap interval above 0.",
+    "H4": "The largest failure layer of the chain is the KnowledgeLinker (relation unknown), not the memory slice or the engine."
+  },
+  "metrics": {
+    "primary": "accuracy = correct / n over the stage (correct, wrong, unknown are exclusive; wrong = a definite answer that differs from the gold; a gold no answered by unknown is unknown)",
+    "secondary": ["wrong rate", "unknown rate", "mean F1 of entity-set answers", "failure attribution by layer (symbolic_lm, linker, memory_slice, engine, with sub-classes)", "per question type", "technical failures (error or empty SOP)", "median latency"],
+    "intervals": "Wilson 95% for proportions; paired bootstrap (4000 resamples) for chain-versus-baseline and rerun-versus-rerun differences over the shared questions"
+  },
+  "stopping_rules": {
+    "stages": "100, then 300, then all, per suite; the interval is computed after each stage",
+    "broken": "stop the suite and report if more than 20% of the first 100 questions end in an error or an empty SOP",
+    "futility": "do not run the full set when the 95% Wilson upper bound of the accuracy at 300 is below 3% (a conclusion different from 'the chain does not answer this suite yet' is excluded)",
+    "decisive": "stages 100 and 300 are always run (cheap, local); the full run continues unless broken or futile",
+    "record": "every stop is recorded with its stage, numbers and reason in the journal, the topic notes (topic kbqa), the experiment record and the report"
+  },
+  "baselines": {
+    "llm-agent": "omp (skills/omp-run, read/write/edit tools only, fenced folders under datasets_sources/kbqa-baseline/) with Grok (xai-oauth/grok-4.20-0309-reasoning) as the main baseline and 2-3 parallel GLM (zai) sessions; each reads the statements of the slice about its questions as text and answers from them only. Reported on the first 100 questions per suite; GLM numbers are added when they finish and never block the main numbers."
+  },
+  "reruns": "After linker-m0-agent logs done (per-session lexicon, KnowledgeLinker) and when world-v1 exists, the stages are rerun with tag `m0`; the report shows both runs and the paired difference."
+}

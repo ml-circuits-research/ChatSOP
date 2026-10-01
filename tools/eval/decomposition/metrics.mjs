@@ -2,7 +2,7 @@
  * Pure metric functions of the decomposition evaluation (DS016 "Decomposition and detectability"). No I/O, no model.
  *
  * Per case and arm the scorer has: the severity of what the user is told (the summary `S` of the interpretation) against what they wrote
- * (`severity`, graded by lib/severity: upper and lower estimates), the severity of the rewritten text itself (`severity_rewrite`),
+ * (`severity`, graded by tools/eval/severity: upper and lower estimates), the severity of the rewritten text itself (`severity_rewrite`),
  * and the interpretation facts: sentences of the analysed text, how many are certified, and whether the interpretation MARKS something
  * (a not-represented span, a sentence shown as uncertain, or a partial-acceptance leftover).
  *   catastrophic           severity S4
@@ -10,8 +10,8 @@
  *   detectable failure     a failure while the interpretation marks something; silent failure: a failure with no marker
  *   acceptable             good enough (S0 to S2), or a failure that is detectable; its complement is the silent failure rate
  */
-import {rank, isGoodEnough} from '../../../lib/severity/scale.mjs';
-import {wilson} from '../../../lib/severity/metrics.mjs';
+import {rank, isGoodEnough} from '../severity/scale.mjs';
+import {wilson} from '../severity/metrics.mjs';
 
 /** What the interpretation marks: not-represented spans, sentences shown as uncertain or empty, partial-acceptance leftovers. */
 export function markers(interp, {leftovers = []} = {}) {

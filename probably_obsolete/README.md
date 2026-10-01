@@ -23,6 +23,7 @@ The whole former `docs/legacy/` tree moved here on 2026-09-27 after consolidatio
 | `legacy/EXAMPLES.md` | Prose example catalog (no one-to-one current equivalent) | Executable current examples live under `examples/` and `tests/fixtures/` |
 | `legacy/SOURCES.md` | Consolidated technical bibliography | DS004 (`node:vm`), DS006 (SWI, Z3, planning), DS007 (model cards, PEFT, llama.cpp), DS023 (Thousand Brains), DS024 (related work), DS025 (SQLite) |
 | `legacy/contracts/wire-fields.md`, `legacy/contracts/wires.json` | Stale snapshots of the generated wire contract (pre-cutover `assert`, old `premise` fields) | Current generated files `sop/contracts/wire-fields.md` and `sop/contracts/wires.json`, produced by `node tools/capabilities.mjs --write` |
+| `legacy/tools/symbolic-gate/` (`symbolic-gate.mjs`, `symbolic-gate-report.mjs`, `gate.mjs`) | The Haiku gate of the SOP-proxy era for `symbolic_english` membership (experiment `eval-symbolic-gate-v1`), retired 2026-10-01 | `tools/datasets/three-datasets/analysis-gate.mjs` (DS008 "Three datasets"); the forms inventory is `symbolic-forms-inventory.md` |
 | `legacy/references/H7.txt`, `legacy/references/RecallSOP-proposal.txt` | Extracted text of the two archived reference documents | `docs/specs/DS023-recall-memory.md` to `DS028-memory-retention-and-generations.md`, DS006 |
 
 Path citations inside archived files still read as they did historically; live documents were rewritten to this archive location. Open owner decisions are in the root `questions.md`.

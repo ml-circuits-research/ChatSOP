@@ -1,5 +1,5 @@
 /**
- * The explicit external backends of the (deprecated) `advanced` route, run through the strategies that supersede the retired SWI
+ * The explicit external backends of the (former `advanced` route, removed), run through the strategies that supersede the retired SWI
  * and Z3 adapters: `backend prolog` is the `prolog-tabling` strategy and `backend z3` is `z3-smt-bounded` (its typed-constraint
  * module `ast.mjs`). A requested backend is never substituted (AGENTS.md rule 8): a missing binary is `unsupported` naming it with
  * `fallback: null`.

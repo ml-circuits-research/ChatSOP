@@ -559,6 +559,12 @@ test('forms: compare, rank, except, filter and limit act on the join rows', () =
   assert.deepEqual(rowsOf(sel('  compare any\n    ?p above 8000\n    ?p below 3000\n  end\n')), ['{"c":"fiat"}', '{"c":"golf"}']);
   assert.deepEqual(rowsOf(sel('  rank highest ?p\n')), ['{"c":"golf"}']);
   assert.deepEqual(rowsOf(sel('  rank lowest ?p\n')), ['{"c":"fiat"}']);
+  // v2.9: the N-th best distinct value (position) and the N best (top); ties are never split; beyond the values no row
+  assert.deepEqual(rowsOf(sel('  rank highest ?p position 2\n')), ['{"c":"dacia"}']);
+  assert.deepEqual(rowsOf(sel('  rank lowest ?p position 2\n')), ['{"c":"dacia"}']);
+  assert.deepEqual(rowsOf(sel('  rank highest ?p top 2\n')), ['{"c":"dacia"}', '{"c":"golf"}']);
+  assert.deepEqual(rowsOf(sel('  rank highest ?p position 4\n')), []);
+  assert.throws(() => sel('  rank highest ?p position 0\n'), /bad_rank/);
   assert.deepEqual(rowsOf(sel('  except ?c "dacia"\n')), ['{"c":"fiat"}', '{"c":"golf"}']);
   // a filter is a typed host expression; it compares numbers with numbers (a mixed comparison is an error, as in the host language)
   assert.deepEqual(rowsOf(run('@a fact\n  holds costs dacia 4000\n@b fact\n  holds costs golf 9000\n', '@q query\n  where costs ?c ?p\n  select ?c\n  filter ?p > 5000\n')), ['{"c":"golf"}']);
@@ -621,4 +627,9 @@ test('every with select groups the members: each group is decided on its own, cl
   assert.deepEqual(o.rows ?? [], []);
   // without select the population is one group, as before
   assert.equal(run(teams, '@q query\n  mode every\n  where player ?p ?t\n  scope cert ?p\n').status, 'refuted');
+});
+
+test('code and test wires are not_expressible outside the sandbox strategy, never unknown_wire_type', () => {
+  const k = '@f1 fact\n  holds bird tweety\n@sum code\n  of "sum_list"\n  language javascript\n  entry "sum"\n  body "function sum(a){return a.length}"\n';
+  assert.throws(() => run(k, '@q query\n  mode exists\n  where bird tweety\n'), e => e instanceof NotExpressibleError && e.features.join() === 'code_sandbox');
 });

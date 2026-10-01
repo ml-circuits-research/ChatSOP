@@ -18,7 +18,7 @@
  *   POST /v1/sessions/{id}/drafts/{d}/reject
  *   POST /v1/sessions/{id}/commit           commit the accepted session circuits to a new fork: {name, strategy?, description?}
  *   GET  /v1/sessions/{id}/theory           the base circuits followed by the accepted session circuits
- *   POST /v1/sessions/{id}/query            {query}: run a query circuit over that theory with the exact oracle
+ *   POST /v1/sessions/{id}/query            {query}: run a query circuit over the session's memory: the oracle gets the slice the query needs (answer.retrieval)
  *
  * Every route needs the server's authentication (bearer token or administrator session) before it is reached; every
  * authenticated caller may create, fork, extend and delete base memories and commit sessions (owner decision of 2026-10-01: no
@@ -27,15 +27,17 @@
  * `problems` and `warnings` and writes nothing.
  */
 import {STRATEGIES} from '../lib/chat-data/memories.mjs';
+import {CORE_SEED} from '../lib/knowledge-seeds.mjs';
+import {askMemory, TheoryCache} from '../reasoning/slice/index.mjs';
 
 const bad = (message, code = 'invalid_request', status = 400) => Object.assign(new Error(message), {status, code});
 
 /** Listed by GET /v1/capabilities next to the capability endpoints; the routes themselves are matched in this file. */
 export const PRODUCT_ENDPOINTS = Object.freeze([
   {method: 'GET', path: '/v1/memories', capability: 'memories.list'},
-  {method: 'POST', path: '/v1/memories', capability: 'memories.create', body: ['name', 'strategy', 'exact', 'description', 'circuits', 'reason', 'source', 'id']},
+  {method: 'POST', path: '/v1/memories', capability: 'memories.create', body: ['name', 'strategy', 'description', 'circuits', 'reason', 'source', 'id', 'imports']},
   {method: 'GET', path: '/v1/memories/{id}', capability: 'memories.get'},
-  {method: 'POST', path: '/v1/memories/{id}/fork', capability: 'memories.fork', body: ['name', 'strategy', 'exact', 'description', 'id']},
+  {method: 'POST', path: '/v1/memories/{id}/fork', capability: 'memories.fork', body: ['name', 'strategy', 'description', 'id']},
   {method: 'POST', path: '/v1/memories/{id}/knowledge', capability: 'memories.knowledge', body: ['circuits', 'reason', 'source']},
   {method: 'POST', path: '/v1/sessions', capability: 'sessions.create', body: ['base', 'name', 'settings']},
   {method: 'GET', path: '/v1/sessions', capability: 'sessions.list'},
@@ -46,15 +48,11 @@ export const PRODUCT_ENDPOINTS = Object.freeze([
   {method: 'POST', path: '/v1/sessions/{id}/drafts/{draft}/reject', capability: 'sessions.reject', body: []},
   {method: 'POST', path: '/v1/sessions/{id}/commit', capability: 'sessions.commit', body: ['name', 'strategy', 'description', 'id']},
   {method: 'GET', path: '/v1/sessions/{id}/theory', capability: 'sessions.theory'},
-  {method: 'POST', path: '/v1/sessions/{id}/query', capability: 'sessions.query', body: ['query']},
+  {method: 'POST', path: '/v1/sessions/{id}/query', capability: 'sessions.query', body: ['query', 'reasoning', 'verify']},
 ]);
 
 const STRATEGY_NOTES = {
-  'recall-memory': 'RecallMemory (DS023): associative candidates, bounded memory',
-  'holo-memory': 'HoloMemory (DS024): superposed codes, known-handle plane',
   sqlite: 'SQLite (DS025): exact indexed tuples',
-  scan: 'Scan (DS026): exact unindexed map',
-  hybrid: 'Hybrid (DS027): exact SQLite evidence plus associative hints',
 };
 const memoryStrategies = () => STRATEGIES.map(id => ({id, note: STRATEGY_NOTES[id] ?? ''}));
 
@@ -93,15 +91,19 @@ const onlyKeys = (body, allowed) => {
 
 export function createProductRouter({memories, sessions, runtimes, readBody, json, limits = {}, extra = {}}) {
   const maxBytes = limits.maxProductBytes ?? 8_000_000;
+  const theories = new TheoryCache();
 
   const actions = {
     memoriesList: ({res}) => json(res, 200, {object: 'list', data: memories.list(), strategies: memoryStrategies()}),
     async memoriesCreate({req, res, approvedBy}) {
-      const body = onlyKeys(await readBody(req, maxBytes), ['name', 'strategy', 'exact', 'description', 'circuits', 'reason', 'source', 'id']);
-      const {name, strategy, exact, description, circuits, reason, source, id} = body;
+      const body = onlyKeys(await readBody(req, maxBytes), ['name', 'strategy', 'description', 'circuits', 'reason', 'source', 'id', 'imports']);
+      const {name, strategy, description, circuits, reason, source, id} = body;
+      // A memory without a vocabulary cannot link a word: it imports the shared core unless the caller says otherwise (`imports: []`).
+      const imports = body.imports ?? [CORE_SEED];
+      if (!Array.isArray(imports) || imports.some(x => typeof x !== 'string')) throw bad('imports must be an array of base memory ids', 'invalid_imports');
       const created = circuits?.length
-        ? memories.importMemory({name, strategy, exact, description, circuits, approvedBy, reason, source, id})
-        : memories.create({name, strategy, exact, description, id});
+        ? memories.importMemory({name, strategy, description, circuits, imports, approvedBy, reason, source, id})
+        : memories.create({name, strategy, description, imports, id});
       json(res, 201, {object: 'memory', ...created});
     },
     memoriesGet({req, res, match}) {
@@ -110,8 +112,8 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
     },
     memoriesDelete({res, match}) { memories.delete(match[1]); json(res, 200, {object: 'memory.deleted', id: match[1], deleted: true}); },
     async memoriesFork({req, res, match}) {
-      const body = onlyKeys(await readBody(req, maxBytes), ['name', 'strategy', 'exact', 'description', 'id']);
-      json(res, 201, {object: 'memory.fork', ...memories.fork(match[1], {name: body.name, strategy: body.strategy, exact: body.exact, description: body.description, newId: body.id})});
+      const body = onlyKeys(await readBody(req, maxBytes), ['name', 'strategy', 'description', 'id']);
+      json(res, 201, {object: 'memory.fork', ...memories.fork(match[1], {name: body.name, strategy: body.strategy, description: body.description, newId: body.id})});
     },
     async memoriesKnowledge({req, res, match, approvedBy}) {
       const body = onlyKeys(await readBody(req, maxBytes), ['circuits', 'reason', 'source']);
@@ -165,10 +167,19 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
     },
     async sessionsQuery({req, res, match, user, admin}) {
       sessions.visible(match[1], {user, admin});
-      const body = onlyKeys(await readBody(req, maxBytes), ['query']);
+      const body = onlyKeys(await readBody(req, maxBytes), ['query', 'reasoning', 'verify']);
       if (typeof body.query !== 'string' || !body.query.trim()) throw bad('Provide query: a query circuit text', 'invalid_parameter');
-      const {ask} = await import('../reasoning/strategies/js-reference/index.mjs');
-      const answer = await ask({theory: {knowledge: sessions.theory(match[1])}, query: body.query}, {});
+      // The query is answered from a slice of the session's memory: the rules that can reach it and the facts they and the query can use,
+      // never the whole theory (reasoning/slice/wire.mjs). Without chat sessions (an embedded server) the whole theory goes to the oracle.
+      if (!runtimes) {
+        const {ask} = await import('../reasoning/strategies/js-reference/index.mjs');
+        return json(res, 200, {object: 'session.query', session: match[1], answer: await ask({theory: {knowledge: sessions.theory(match[1])}, query: body.query}, {})});
+      }
+      const theory = theories.get([...sessions.baseCircuits(match[1]), ...sessions.circuits(match[1])]);
+      const rt = runtimes.open(match[1], {user, admin});
+      // `reasoning`: auto (default; the StrategyRouter chooses and reports `route`) or one strategy id, run exactly (AGENTS.md rule 8); `verify`: auto|always|never
+      for (const [k, allowed] of [['reasoning', null], ['verify', ['auto', 'always', 'never']]]) if (body[k] !== undefined && (typeof body[k] !== 'string' || (allowed && !allowed.includes(body[k])))) throw bad(`${k} must be ${allowed ? allowed.join(', ') : 'a strategy id or auto'}`, 'invalid_parameter');
+      const answer = askMemory({theory, repo: rt.repo, session: rt.entry(user).agent.session, query: body.query, reasoning: body.reasoning ?? 'auto', verify: body.verify ?? 'auto'});
       json(res, 200, {object: 'session.query', session: match[1], answer});
     },
     ...extra.actions,

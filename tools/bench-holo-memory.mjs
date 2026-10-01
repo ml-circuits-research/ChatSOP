@@ -2,7 +2,7 @@
 /** New HoloMemory kernel and known-handle measurements of this implementation (DS024).
  * They are not a reproduction of the historical five-seed table; DS024 lists that as a required experiment. */
 import {HoloKernel,mix} from '../memory/banks/holo-kernel.mjs';
-import {HoloWireMemory} from '../memory/banks/holo-wire.mjs';
+import {HoloWireMemory} from './holo-wire.mjs';
 import {cliArgs,saveJSON} from '../lib/util.mjs';
 const args=cliArgs(),alphabet=Array.from({length:256},(_,i)=>i),count=Number(args.count??3000),samples=Number(args.samples??300),out=args.out??new URL('../eval/reports/current/memory/holo-memory-kernel.json',import.meta.url),runs=[];
 for(const seed of String(args.seeds??'11,29,53').split(',').map(Number))for(const budgetKiB of [16,32,64,128]){

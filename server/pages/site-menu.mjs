@@ -29,6 +29,7 @@ export const SITE_MENU = Object.freeze([
   {key: 'docs', label: 'Docs', items: [
     {key: 'overview', label: 'Overview', doc: 'index.html'},
     {key: 'runtime', label: 'Runtime', doc: 'runtime.html'},
+    {key: 'architecture', label: 'Architecture', doc: 'architecture.html'},
     {key: 'input-language', label: 'Input language', doc: 'input-language.html'},
     {key: 'api', label: 'Capability APIs', doc: 'api.html'},
     {key: 'training', label: 'Training', doc: 'training.html'},

@@ -88,9 +88,10 @@ export function readForms(wire) {
     forms.filters.push({type: 'binary', op: '!=', left: {type: 'var', value: name}, right: {type: 'literal', value: term(value)}});
   }
   if (one('rank')) {
-    const [direction, variable] = tokens(one('rank'));
+    const [direction, variable, cut, n] = tokens(one('rank'));
     if (!['highest', 'lowest'].includes(direction) || !VAR.test(variable ?? '')) throw new ProgramError('bad_rank', 'rank takes highest or lowest and a ?variable');
-    forms.rank = {direction, variable};
+    if (cut !== undefined && (!['position', 'top'].includes(cut) || !/^[1-9]\d{0,2}$/.test(n ?? ''))) throw new ProgramError('bad_rank', 'rank may end with position N or top N');
+    forms.rank = {direction, variable, ...(cut ? {cut, n: Number(n)} : {})};
   }
   if (one('quantifier')) {
     const [word, count] = tokens(one('quantifier'));
@@ -141,8 +142,12 @@ export function applyRowForms(candidates, forms, state) {
   if (forms.rank && rows.length) {
     const valued = rows.map(c => ({c, value: numericValue(c.env[forms.rank.variable])})).filter(x => x.value !== null);
     if (!valued.length) { state.notComputable = true; return []; }
-    const best = forms.rank.direction === 'highest' ? Math.max(...valued.map(x => x.value)) : Math.min(...valued.map(x => x.value));
-    rows = valued.filter(x => x.value === best).map(x => x.c);
+    // The distinct values from the best to the worse; `position N` keeps the rows of the N-th value, `top N` those of the first N values (ties are never split).
+    const distinct = [...new Set(valued.map(x => x.value))].sort((a, b) => (forms.rank.direction === 'highest' ? b - a : a - b));
+    const n = forms.rank.n ?? 1;
+    const keep = forms.rank.cut === 'top' ? new Set(distinct.slice(0, n)) : new Set(distinct.slice(n - 1, n));
+    if (!keep.size) return [];
+    rows = valued.filter(x => keep.has(x.value)).map(x => x.c);
   }
   return rows;
 }

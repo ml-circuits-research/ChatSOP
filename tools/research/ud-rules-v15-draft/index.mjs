@@ -8,6 +8,8 @@
  * Returns {sop, wires, notes, valid, error, repaired, stats}; `stats` counts wires, unparsed spans and the share of
  * message characters covered by formalized values.
  */
+// The relative imports below are written for the scratch layout that loadRules (tools/research/ud-rules-v14.mjs) builds, with
+// this folder copied to lib/ud-to-sop and sop/ symlinked beside it; they do not resolve from this folder itself.
 import {parse} from '../../sop/parser.mjs';
 import {checkModelProgram, compileDeclarative} from '../../sop/declarative.mjs';
 import {Analysis, isGibberish} from './analyze.mjs';

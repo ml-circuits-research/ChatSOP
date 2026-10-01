@@ -23,7 +23,7 @@ Rows the gate cannot judge follow the SOP rules: a message with **no analysed se
 |---|---|
 | `analysis_gate` | every sentence passed the gate above (`analysis_verdict.state: pass`, per sentence the tree class `identical` and the verdicts `a` and `c`, and the folder each verdict came from) |
 | `sop_rule` | no analysed sentence, or an unparsed span: the SOP rules placed the row (`analysis_verdict.state: not_applicable`, `reason`) |
-| `gold_sop_match` | retired name; only production cases of `tools/datasets/add-case.mjs` (`incoming.jsonl`) still carry it |
+| `gold_sop_match` | retired name; no tool writes it any more (production cases of `tools/datasets/add-case.mjs` use `analysis_gate`, `sop_rule` or `analysis_pending_judge`) |
 
 `sop_layer` (information for the later layer; it never decides the dataset): `status` is `match` (the SOP equals the gold strictly under rules `ud-rules-v2.5`, Stanza `accurate` package), `mismatch` (a gold exists and the SOP differs; `failure_kind` `parser`, `rules`, `gold_convention` or `unknown` and `failure` as in the earlier builds) or `no_gold`; `handled` says that SymbolicLM produced a valid SOP with a real outcome and no unparsed span. A row with `sop_layer.status: mismatch` keeps its `gold_sop`; `verification.sop_gold_match` repeats the status as true, false or null.
 

@@ -3,8 +3,8 @@
  * sections 4 to 6). Every other strategy is shadow-checked against it. Correctness and clarity beat speed: naive stratified
  * bottom-up evaluation, nested-loop joins, enumeration for constraints, breadth of constructs over speed.
  *
- * STATUS: implemented beside the existing `reference` and `advanced` routes (which it does not touch), pending the owner's
- * review of the proposal. Nothing routes to it by default; it is called directly (`ask`) and by the smoke harness.
+ * STATUS: the product's reference route. The registry (`reasoning/registry.mjs`) routes `reference`, `js-reference` and `js-oracle` to this
+ * oracle through the runtime bridge (`reasoning/bridge`); the other strategies are shadow-checked against it by the smoke harness.
  *
  * Interface (5.1 to 5.3):
  *   capabilities          the feature declaration; a circuit that needs another feature throws NotExpressibleError, it is never weakened;
@@ -155,7 +155,8 @@ function sensitivityOf({program: sp}, qp) {
   const over = [...new Set([...strict.map(e => e.from), ...(qp && ['count', 'every'].includes(qp.mode) ? qp.alts.flatMap(a => a.leaves.filter(l => l.kind === 'atom').map(l => l.p)) : [])])];
   const defaults = [...slice].filter(p => /^x_.+_blocked$/.test(p)).map(p => p.slice(2, -8));
   const absentInQuery = qp ? qp.alts.some(a => a.leaves.some(l => l.kind === 'atom' && l.mode === 'absent')) : false;
-  const monotone = !strict.length && !absentInQuery && !(qp && ['count', 'every'].includes(qp.mode));
+  // A ranking (superlative, ordinal) names the best of ALL the candidates: a fact missing from a partial slice can change the winner (R-P2).
+  const monotone = !strict.length && !absentInQuery && !(qp && (['count', 'every'].includes(qp.mode) || qp.forms?.rank));
   return {monotone, over, defaults, aggregates: sp.aggregates.map(a => a.id)};
 }
 

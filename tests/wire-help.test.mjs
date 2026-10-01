@@ -11,11 +11,10 @@
 //                              under a trusted Runtime. A program of model
 //                              wire types only, without an atom-condition
 //                              query, also passes the model-origin compiler.
-//   <pre data-sop="ontology">  a valid host ontology declaration; Lexicon loads it.
 //   <pre data-sop="invalid" data-check="STAGE" data-error="TEXT">
 //                              every stage before STAGE succeeds and STAGE
 //                              fails with an error containing TEXT. STAGE is
-//                              parse | graph | lower | compile | runtime | lexicon.
+//                              parse | graph | lower | compile | runtime.
 //                              The compile stage always applies the model-origin
 //                              compiler, so it shows what a model may not author.
 //   data-status="wire=status"  (runtime stage only, instead of data-error) the
@@ -47,11 +46,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {parse, validateGraph, dependencies, SPEC, ONTOLOGY_SPEC} from '../sop/parser.mjs';
+import {parse, validateGraph, dependencies, SPEC} from '../sop/parser.mjs';
 import {lowerFact, lowerRule, lowerQuery, lowerConstraint} from '../sop/lower.mjs';
 import {compileDeclarative, MODEL_TYPES} from '../sop/declarative.mjs';
 import {Runtime} from '../sop/runtime.mjs';
 import {Lexicon} from '../sop/lexicon.mjs';
+import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import {Repository} from '../memory/repository.mjs';
 import {helpPages, pageExamples, tableFields, attr, decode} from '../tools/wire-help-pages.mjs';
 import {GRAMMAR, validateProgram} from '../sop/knowledge/index.mjs';
@@ -62,16 +62,13 @@ import {codeSandbox} from '../reasoning/strategies/code-sandbox/index.mjs';
 const HELP = new URL('../docs/wire_typs/', import.meta.url);
 const INDEX = new URL('../docs/wire_types.html', import.meta.url);
 const WIRES = JSON.parse(fs.readFileSync(new URL('../sop/contracts/wires.json', import.meta.url), 'utf8')).wires;
-const ONTOLOGY_TYPES = Object.keys(ONTOLOGY_SPEC);
-// The strict ontology SPEC lists every field Lexicon accepts; other keywords are rejected.
-const ONTOLOGY_FIELDS = Object.fromEntries(Object.entries(ONTOLOGY_SPEC).map(([type, spec]) => [type, [...(spec.one ?? []), ...(spec.many ?? [])]]));
 const MODEL_ONLY = new Set(['stated', 'assumed', 'unclear', 'unparsed']);
-const LEXICON = Lexicon.load(new URL('../config/ontology.sop', import.meta.url));
+const LEXICON = demoLexicon();
 const TOPIC_PAGES = new Set(['overview', 'syntax', 'small-model', 'model-guide', 'question-types', 'knowledge-guide', 'knowledge-semantics', 'query-modes', 'governance']);
 // Wire types that only the knowledge language has (no host-circuit page); the others share a page with a host form.
-const KNOWLEDGE_ONLY = Object.keys(GRAMMAR).filter(type => !SPEC[type] && !ONTOLOGY_TYPES.includes(type));
+const KNOWLEDGE_ONLY = Object.keys(GRAMMAR).filter(type => !SPEC[type]);
 const KNOWLEDGE_DOCUMENTED = Object.keys(GRAMMAR).filter(type => type !== 'stated' && type !== 'pack');
-const STAGES = ['parse', 'graph', 'lower', 'compile', 'runtime', 'lexicon'];
+const STAGES = ['parse', 'graph', 'lower', 'compile', 'runtime'];
 const NOW = Date.parse('2026-09-26T12:00:00Z');
 const LOWER = {fact: lowerFact, rule: lowerRule, query: (w, v) => lowerQuery(w, v, null, {now: NOW}), constraint: lowerConstraint};
 
@@ -131,7 +128,7 @@ test('help pages and the wire index agree', () => {
   const sidebar = linked.map(m => m[2]);
   assert.equal(new Set(sidebar).size, sidebar.length, 'no duplicate sidebar entries');
   for (const name of names) assert.ok(sidebar.includes(name), `page ${name}.html is in the sidebar`);
-  for (const type of [...Object.keys(SPEC), ...ONTOLOGY_TYPES, ...Object.keys(GRAMMAR)]) assert.ok(names.has(type), `wire ${type} has a help page`);
+  for (const type of [...Object.keys(SPEC), ...Object.keys(GRAMMAR)]) assert.ok(names.has(type), `wire ${type} has a help page`);
 });
 
 test('parser SPEC and the wire contract list the same fields', () => {
@@ -149,7 +146,7 @@ function knowledgeFields(page) {
 
 test('every documented field exists and every field is documented', () => {
   for (const page of pages) {
-    const expected = SPEC[page.name] ? [...(SPEC[page.name].one ?? []), ...(SPEC[page.name].many ?? [])] : ONTOLOGY_FIELDS[page.name];
+    const expected = SPEC[page.name] ? [...(SPEC[page.name].one ?? []), ...(SPEC[page.name].many ?? [])] : null;
     if (!expected) continue;
     const rows = tableFields(page.html);
     assert.deepEqual([...rows].sort(), [...expected].sort(), `${page.name}.html field rows match the parser`);
@@ -172,10 +169,10 @@ test('every knowledge wire page documents exactly the fields of the knowledge gr
 });
 
 test('every keyword of every wire page has a stable field-<keyword> anchor', () => {
-  for (const type of [...Object.keys(SPEC), ...ONTOLOGY_TYPES]) {
+  for (const type of Object.keys(SPEC)) {
     const page = pages.find(p => p.name === type);
     assert.ok(page, `wire ${type} has a help page`);
-    const fields = SPEC[type] ? [...(SPEC[type].one ?? []), ...(SPEC[type].many ?? [])] : ONTOLOGY_FIELDS[type];
+    const fields = [...(SPEC[type].one ?? []), ...(SPEC[type].many ?? [])];
     for (const field of fields) {
       const anchors = page.html.match(new RegExp(`\\bid="field-${field}"`, 'g')) ?? [];
       assert.equal(anchors.length, 1, `${type}.html has exactly one id="field-${field}"`);
@@ -188,7 +185,7 @@ test('every wire page has a valid and an invalid example', () => {
   for (const page of pages) {
     if (TOPIC_PAGES.has(page.name)) continue;
     const kinds = examples(page).map(e => e.kind);
-    assert.ok(kinds.some(k => k === 'current' || k === 'ontology' || k === 'knowledge'), `${page.name}.html has a valid example`);
+    assert.ok(kinds.some(k => k === 'current' || k === 'knowledge'), `${page.name}.html has a valid example`);
     assert.ok(kinds.includes('invalid') || kinds.includes('knowledge-invalid'), `${page.name}.html has an invalid example`);
     if (KNOWLEDGE_DOCUMENTED.includes(page.name)) {
       assert.ok(kinds.includes('knowledge-invalid'), `${page.name}.html has an invalid knowledge example`);
@@ -199,10 +196,6 @@ test('every wire page has a valid and an invalid example', () => {
 
 test('valid help examples execute', async () => {
   for (const page of pages) for (const example of examples(page)) {
-    if (example.kind === 'ontology') {
-      assert.doesNotThrow(() => new Lexicon(example.source), example.label);
-      continue;
-    }
     if (example.kind !== 'current') continue;
     const result = await execute(example.source);
     assert.ok(!result.error, `${example.label} fails at ${result.stage}: ${result.error?.message}`);
@@ -214,10 +207,6 @@ test('invalid help examples fail at the documented stage with the documented rea
     if (example.kind !== 'invalid') continue;
     assert.ok(STAGES.includes(example.check), `${example.label} declares a data-check stage`);
     assert.ok(example.error || example.status, `${example.label} declares data-error or data-status`);
-    if (example.check === 'lexicon') {
-      assert.throws(() => new Lexicon(example.source), error => error.message.includes(example.error), example.label);
-      continue;
-    }
     const result = await execute(example.source, {model: example.check === 'compile'});
     if (example.status) {
       assert.equal(example.check, 'runtime', `${example.label}: data-status needs the runtime stage`);
@@ -255,6 +244,8 @@ test('knowledge examples validate with sop/knowledge and execute on the js-refer
         const warnings = r.problems.filter(p => p.severity === 'warning').map(p => p.code).sort().join(',');
         assert.equal(warnings, (attrs['data-warnings'] ?? '').split(',').filter(Boolean).sort().join(','), `${label} declares exactly its warnings`);
         knowledge = source;
+        // the lexicon wires (predicate, lexeme, entity) also compile into a lexicon of a base memory
+        if (/^@\S+ (predicate|lexeme|entity)$/m.test(source)) assert.doesNotThrow(() => Lexicon.fromCircuits([{name: label, text: source}]), `${label} compiles into a lexicon`);
         // programming wires (code, test): `data-run="sandbox"` runs the example in the code-sandbox strategy, which must give the declared status
         if (attrs['data-run'] === 'sandbox') assert.equal((await codeSandbox.ask({code: source, tests: source}, {wallMs: 8000})).status, attrs['data-status'], `${label} status on code-sandbox`);
       } else if (kind === 'knowledge-query') {

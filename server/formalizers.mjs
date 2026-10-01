@@ -1,5 +1,7 @@
 /** Model registry and the on-demand processes behind it (DS012 "Formalizer models").
  *
+ * `ModelManager` runs every model the registry lists (formalizer, proofing and translator alike); the file and config names
+ * `formalizers.*` are historical and kept so that paths, tests and records stay valid.
  * `config/formalizers.json` lists the models the product uses. Each entry has an explicit `capabilities` list, a subset of
  * `formalize` (SOP Lang; only a `service` entry, the SymbolicLM service, is a formalizer), `proofread` (LanguageProofingLLM),
  * `proofread-symbolic` (SymbolicProofingLLM) and `translate-clean` (the translator LLM). The fine-tuned FormalizerLLM entries
@@ -118,7 +120,7 @@ const failure = (message, status = 503, code = 'model_unavailable') => Object.as
 /** Models this module starts and stops (llama-server GGUF models and local service scripts). */
 export const isManaged = model => model?.kind === 'gguf' || model?.kind === 'service';
 
-export class FormalizerManager {
+export class ModelManager {
   /**
    * `registry` from `loadRegistry`. Options: `bin` (llama-server path; default `findLlamaServer()`), `threads`
    * (at most 8), `maxRunning` (5: the four models of one chat turn plus one), `idleMs` (15 minutes; applies to on-demand models only),
@@ -130,7 +132,7 @@ export class FormalizerManager {
    */
   constructor({registry, bin = findLlamaServer(), threads = Math.min(8, os.availableParallelism()), maxRunning = DEFAULT_MAX_RUNNING, idleMs = 15 * 60 * 1000,
     memoryBudgetMb = defaultBudgetMb(), turnWindowMs = 30000, contextSize = 8192, maxTokens = 6144, startTimeoutMs = 120000, host = '127.0.0.1', logDir = null, sweepMs = 60000, modes = {}} = {}) {
-    if (!registry) throw Error('FormalizerManager requires a registry');
+    if (!registry) throw Error('ModelManager requires a registry');
     Object.assign(this, {registry, bin, threads: Math.max(1, Math.min(8, threads)), maxRunning, idleMs, memoryBudgetMb, turnWindowMs, contextSize, maxTokens, startTimeoutMs, host, logDir});
     this.entries = new Map(registry.models.filter(isManaged).map(model => [model.id, {model, state: 'stopped', error: null, child: null, port: null, lastUsed: 0, order: 0, busy: 0, starting: null, mode: modes[model.id] ?? 'on_demand', startMs: null, startedAt: null, warmed: false, revivedAt: 0}]));
     this.uses = 0; // least-recently-used order, independent of clock resolution

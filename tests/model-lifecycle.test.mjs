@@ -7,9 +7,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {Repository} from '../memory/repository.mjs';
-import {Lexicon} from '../sop/lexicon.mjs';
+import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import {createServer} from '../server/http.mjs';
-import {loadRegistry, FormalizerManager} from '../server/formalizers.mjs';
+import {loadRegistry, ModelManager} from '../server/formalizers.mjs';
 import {DEFAULT_MAX_RUNNING, CHAT_PIPELINE, normalizeSettings, loadServerModelSettings, saveServerModelSettings, modeOf} from '../server/server-models.mjs';
 import {textToCleanEnglish, GREETING} from '../lib/text-to-clean-english/index.mjs';
 import {identify} from '../lib/languages-util/index.mjs';
@@ -26,9 +26,9 @@ function stubManager(t, {ids = ['m-a', 'm-b', 'm-c', 'm-d'], options = {}} = {})
   t.after(() => { delete process.env.STUB_LOG; });
   for (const id of ids) fs.writeFileSync(path.join(dir, id + '.gguf'), 'fake');
   const file = path.join(dir, 'formalizers.json');
-  fs.writeFileSync(file, JSON.stringify({default: ids[0], models: ids.map(id => ({id, label: id, gguf: id + '.gguf'}))}));
+  fs.writeFileSync(file, JSON.stringify({default: ids[0], models: ids.map(id => ({id, label: id, gguf: id + '.gguf', capabilities: ['proofread']}))}));
   const registry = loadRegistry(file, {root: dir});
-  const manager = new FormalizerManager({registry, bin, startTimeoutMs: 15000, ...options});
+  const manager = new ModelManager({registry, bin, startTimeoutMs: 15000, ...options});
   t.after(() => manager.stopAll());
   return {dir, registry, manager};
 }
@@ -84,7 +84,7 @@ test('a model busy with work is not evicted while the work runs', async t => {
   const {manager} = stubManager(t, {options: {maxRunning: 2, turnWindowMs: 0}});
   let unblock;
   const gate = new Promise(resolve => { unblock = resolve; });
-  const working = manager.use('m-a', 'formalize', async () => gate);
+  const working = manager.use('m-a', 'proofread', async () => gate);
   await manager.ensure('m-b');
   await manager.ensure('m-c');
   assert.equal(manager.status('m-a').state, 'ready', 'the busy model stayed');
@@ -159,18 +159,18 @@ async function serverSetup(t, {warm = false} = {}) {
   for (const name of ['language-proofing', 'symbolic-proofing', 'translator', 'extra']) fs.writeFileSync(path.join(dir, name + '.gguf'), 'fake');
   const file = path.join(dir, 'formalizers.json');
   fs.writeFileSync(file, JSON.stringify({default: 'symbolic-lm', models: [
-    {id: 'symbolic-lm', label: 'SymbolicLM', service: repoPath('tests/fixtures/capability-api/stub-symbolic-service.mjs'), memoryMb: 100, startEstimateMs: 1234},
+    {id: 'symbolic-lm', label: 'SymbolicLM', service: repoPath('tests/fixtures/capability-api/stub-symbolic-service.mjs'), capabilities: ['formalize'], memoryMb: 100, startEstimateMs: 1234},
     {id: 'language-proofing-llm', label: 'LanguageProofingLLM', gguf: 'language-proofing.gguf', capabilities: ['proofread']},
     {id: 'translator-llm', label: 'TranslatorLLM', gguf: 'translator.gguf', capabilities: ['translate-clean']},
     {id: 'symbolic-proofing-llm', label: 'SymbolicProofingLLM', gguf: 'symbolic-proofing.gguf', capabilities: ['proofread-symbolic']},
-    {id: 'extra-chat', label: 'Extra chat', gguf: 'extra.gguf', capabilities: ['chat', 'translate']}]}));
+    {id: 'extra-model', label: 'Extra model', gguf: 'extra.gguf', capabilities: ['proofread']}]}));
   const registry = loadRegistry(file, {root: dir});
-  const manager = new FormalizerManager({registry, bin, startTimeoutMs: 15000, logDir: path.join(dir, 'logs')});
+  const manager = new ModelManager({registry, bin, startTimeoutMs: 15000, logDir: path.join(dir, 'logs')});
   t.after(() => manager.stopAll());
   const repo = new Repository(path.join(dir, 'state'));
   repo.init('base');
   const settingsFile = path.join(dir, 'server-models.json');
-  const server = createServer({repo, lexicon: Lexicon.load(repoUrl('config/ontology.sop')), base: 'base', authTokens: {alice: token}, config: {promptProfile: 'formal', policy: {allowWrite: true}}, formalizers: {registry, manager}, serverModelsFile: settingsFile});
+  const server = createServer({repo, lexicon: demoLexicon(), base: 'base', authTokens: {alice: token}, config: {promptProfile: 'formal', policy: {allowWrite: true}}, formalizers: {registry, manager}, serverModelsFile: settingsFile});
   const url = await listen(t, server);
   const request = async (method, route, body, headers = {Authorization: 'Bearer ' + token}) => {
     const response = await fetch(url + route, {method, headers: {...headers, ...(body ? {'Content-Type': 'application/json'} : {})}, body: body ? JSON.stringify(body) : undefined});
@@ -208,7 +208,7 @@ test('the warmup starts the kept-open models in the background, probes them and 
     assert.equal(state.models[id].warm, true, id + ' was probed');
     assert.equal(typeof state.models[id].probe_ms, 'number');
   }
-  assert.equal(manager.status('extra-chat').state, 'stopped', 'an on-demand model is not started by the warmup');
+  assert.equal(manager.status('extra-model').state, 'stopped', 'an on-demand model is not started by the warmup');
   const health = await request('GET', '/health', undefined, {});
   assert.equal(health.body.warm.state, 'warm');
   assert.equal(health.body.warm.ready, true);
@@ -239,29 +239,29 @@ test('GET /v1/server/models lists every model with its mode, state, memory and s
   assert.equal(row('translator-llm').state, 'stopped');
   assert.equal(row('translator-llm').memory_mb, null);
   assert.equal(row('translator-llm').start_estimate_ms, 3000, 'a small model: the default start estimate');
-  assert.equal(row('extra-chat').mode, 'on_demand');
+  assert.equal(row('extra-model').mode, 'on_demand');
   assert.equal(body.running, 1);
   assert.equal(body.warm.state, 'disabled');
 });
 
 test('POST /v1/server/models changes modes and limits at once and persists them', async t => {
   const {request, manager, settingsFile} = await serverSetup(t);
-  const set = await request('POST', '/v1/server/models', {models: {'extra-chat': 'keep_open', 'translator-llm': 'off'}, maxRunning: 7, idleMinutes: 10});
+  const set = await request('POST', '/v1/server/models', {models: {'extra-model': 'keep_open', 'translator-llm': 'off'}, maxRunning: 7, idleMinutes: 10});
   assert.equal(set.status, 200);
   assert.equal(set.body.settings.maxRunning, 7);
   assert.equal(set.body.settings.idleMinutes, 10);
   assert.equal(manager.idleMs, 600000);
   assert.equal(set.body.models.find(m => m.id === 'translator-llm').mode, 'off');
-  assert.equal(set.body.models.find(m => m.id === 'extra-chat').mode, 'keep_open');
-  for (let i = 0; i < 100 && manager.status('extra-chat').state !== 'ready'; i++) await new Promise(resolve => setTimeout(resolve, 50));
-  assert.equal(manager.status('extra-chat').state, 'ready', 'a model put to keep_open starts in the background');
+  assert.equal(set.body.models.find(m => m.id === 'extra-model').mode, 'keep_open');
+  for (let i = 0; i < 100 && manager.status('extra-model').state !== 'ready'; i++) await new Promise(resolve => setTimeout(resolve, 50));
+  assert.equal(manager.status('extra-model').state, 'ready', 'a model put to keep_open starts in the background');
   const saved = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
   assert.equal(saved.format, 'chatsop-server-models-v1');
   assert.equal(saved.maxRunning, 7);
   assert.equal(saved.models['translator-llm'], 'off');
   // A restart reads the file back.
   const again = loadServerModelSettings(settingsFile, new Set(manager.entries.keys()));
-  assert.equal(again.models['extra-chat'], 'keep_open');
+  assert.equal(again.models['extra-model'], 'keep_open');
   assert.equal(again.idleMinutes, 10);
   // An off translator is a refused start for its callers, who degrade (the cleaning step reports it per sentence).
   const cleaned = await request('POST', '/v1/language/proofread', {message: 'Cine locuiește aici.', sendAll: true});
@@ -281,7 +281,7 @@ test('POST /v1/server/models refuses invalid changes and leaves the settings alo
   };
   await bad({maxRunning: 1}, 'invalid_settings', /below the 4 models kept open/);
   await bad({models: {nope: 'off'}}, 'unknown_model', /Unknown managed model/);
-  await bad({models: {'extra-chat': 'maybe'}}, 'invalid_parameter', /one of/);
+  await bad({models: {'extra-model': 'maybe'}}, 'invalid_parameter', /one of/);
   await bad({idleMinutes: 'soon'}, 'invalid_parameter', /idleMinutes/);
   await bad({colour: 'red'}, 'unsupported_parameter', /colour/);
   assert.equal(fs.existsSync(settingsFile), false, 'nothing was written');

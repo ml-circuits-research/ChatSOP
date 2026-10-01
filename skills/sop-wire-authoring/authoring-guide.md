@@ -28,7 +28,9 @@ The loop is mandatory: (1) declare the vocabulary, (2) write the wires, (3) run 
 `*` required, `+` repeatable. Governance fields are written only where stated in section 3.8.
 
 <!-- grammar:begin -->
-- `@id predicate`: args* closed key transitive inverse unit description reading+ describe_rank
+- `@id predicate`: args role+ label+ domain closed key transitive inverse unit description reading+ describe_rank
+- `@id lexeme`: of* language* pos form*+ frame* restrict+ weight source quote
+- `@id entity`: kind label+ alias+ domain notability source
 - `@id fact`: holds* valid status speaker source quote
 - `@id rule`: when*+ then* mode valid source + governance
 - `@id default`: when*+ then* except+ priority overrides+ source + governance

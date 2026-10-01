@@ -10,7 +10,7 @@ import {conditionAtoms,definitelyBound} from '../lib/conditions.mjs';
 export function resolveAtom(text,values={},schema=null,{ground=false}={}){const a=parseAtom(text);a.a=a.a.map(v=>v&&typeof v==='object'&&v.ref?scalar('$'+v.ref,values):v);return atom(a,{ground,schema});}
 export function lowerFact(w,values={},schema=null){return {kind:'fact',atom:resolveAtom(one(w,'holds'),values,schema,{ground:true}),valid:interval(one(w,'valid')),source:unquote(one(w,'source','user')),quote:unquote(one(w,'quote','')),retention:one(w,'retention','normal')};}
 export function lowerRule(w,values={},schema=null){const r=rule({id:w.id,if:many(w,'when').map(x=>resolveAtom(x,values,schema)),then:resolveAtom(one(w,'then'),values,schema)},schema);return {...r,kind:'rule',mode:one(w,'mode','logical'),source:unquote(one(w,'source','approved-library')),valid:interval(one(w,'valid','timeless'))};}
-export function lowerQuery(w,values={},schema=null,{now=Date.now()}={}){
+export function lowerQuery(w,values={},schema=null,{now=Date.now(),related=null}={}){
  const where=many(w,'where').map(s=>parseCondition(s,leaf=>resolveAtom(leaf,values,schema)));const selected=words(one(w,'select',''));assert(selected.every(variable),'select contains only ?variables');
  const kind=one(w,'mode',selected.length?'select':'exists');assert(ENUMS.query.mode.includes(kind),'Invalid query mode');if(kind==='select')assert(selected.length>0,'select mode needs variables');
  // `scope` (mode every) is checked for each binding of the `where` restriction; `span` names the validity interval.
@@ -24,7 +24,7 @@ export function lowerQuery(w,values={},schema=null,{now=Date.now()}={}){
  for(const line of many(w,'except')){const [name,value]=words(line);assert(bound.has(name),'Unbound except variable');filters.push(parseBooleanCondition(name+' != '+value));}
  const term=token=>variable(token)?token:/^-?\d+$/.test(token)?Number(token):scalar(token,values);
  const compares=many(w,'compare').map(text=>parseCondition(text,line=>{const [left,op,right]=words(line);assert(bound.has(left)&&(!variable(right)||bound.has(right)),'Unbound compare variable');return {left,op,right:term(right)};}));
- const rank=w.fields.rank?(([direction,name])=>{assert(bound.has(name),'Unbound rank variable');return {direction,variable:name};})(words(one(w,'rank'))):undefined;
+ const rank=w.fields.rank?(([direction,name,cut,n])=>{assert(bound.has(name),'Unbound rank variable');return {direction,variable:name,...(cut?{cut,n:Number(n)}:{})};})(words(one(w,'rank'))):undefined;
  const quantifier=w.fields.quantifier?(([word,count])=>({word,...(count?{count:Number(count)}:{})}))(words(one(w,'quantifier'))):undefined;
  const order=w.fields.order?(parts=>{assert(parts.length===6,'order needs the host leaves; a model order is compiled by the host (sop/declarative.mjs)');return {left:parts[0],relation:parts[1],right:parts[2],leaves:[Number(parts[4]),Number(parts[5])]};})(words(one(w,'order'))):undefined;
  assert(!w.fields.fragment,'fragment_needs_context: a follow-up fragment is completed by the host from the conversation before execution');
@@ -32,7 +32,7 @@ export function lowerQuery(w,values={},schema=null,{now=Date.now()}={}){
  // A time question without at/during looks at the whole timeline rather than at the present instant.
  const time=w.fields.during?{during:interval(one(w,'during'))}:w.fields.at||(!span&&!w.fields.order)?{at:one(w,'at')?instant(scalar(one(w,'at'),values)):now}:{during:{from:-Infinity,until:Infinity}};
  const asof=one(w,'asof')?instant(scalar(one(w,'asof'),values)):now;
- return {kind:'query',variableTypes:inferVariableTypes(conditionAtoms([...where,...(scope??[])]),schema),mode:kind,where,...(scope?{scope}:{}),...(span?{span}:{}),...(measure?{measure}:{}),select:selected,filters,...(compares.length?{compares}:{}),...(rank?{rank}:{}),...(quantifier?{quantifier}:{}),...(order?{order}:{}),limit,...time,asof,...(measure==="duration"?{now}:{})};
+ return {kind:'query',variableTypes:inferVariableTypes(conditionAtoms([...where,...(scope??[])]),schema,related),mode:kind,where,...(scope?{scope}:{}),...(span?{span}:{}),...(measure?{measure}:{}),select:selected,filters,...(compares.length?{compares}:{}),...(rank?{rank}:{}),...(quantifier?{quantifier}:{}),...(order?{order}:{}),limit,...time,asof,...(measure==="duration"?{now}:{})};
 }
 function numericAST(n,vars,values,type){
  if(n.type==='ref')return numericAST({type:'literal',value:values[n.value]},vars,values,type);

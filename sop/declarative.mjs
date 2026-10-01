@@ -6,11 +6,14 @@ import {formatTime} from '../lib/time.mjs';
 import {assert,stable} from '../lib/util.mjs';
 import {cnl} from './cnl.mjs';
 import {propositionOf,linkProposition,propositionValidity,propositionKey,conditionalStatement,reportProposition,propositionBody,LINK_PHRASES} from './propositions.mjs';
-import {normalizeTime,linkQuestion} from './linking.mjs';
-import {unclearReply,REPLY_LANGUAGES} from './unclear.mjs';
+import {normalizeTime,linkQuestion,matchedForm} from './linking.mjs';
+import {SCORES,chooseEntity,mode as scoredLinker} from './knowledge-linker.mjs';
+import {unclearReply} from './unclear.mjs';
 import {checkModelLinks,pairPlaceholders,planLinks,expandReferences,readingWithReferences,nearOf} from './clauses.mjs';
 import {repairSpan,spanQuestion} from './repair.mjs';
-import {defaultDictionary} from './dictionary.mjs';
+import {englishDictionary} from './dictionary.mjs';
+import {loadFrames,normalizeProposition} from './frames.mjs';
+import {copulaForm} from './copula-linker.mjs';
 import {linksOf,roleReferences,LINK_WORDS} from './parser.mjs';
 import {REASONING_QUERY_MODES} from './enums.mjs';
 
@@ -113,9 +116,11 @@ const USER_SURFACES=new Set(['the user','user']);
 const toggleNegation=text=>text.startsWith('not ')?text.slice(4):'not '+text;
 const REFERENCE_VALUE=value=>value&&typeof value==='object'&&value.ref;
 
-export function compileDeclarative(source,{language='en',inputText='',context={},lexicon=null,schema=null,maxWires=2048,modelAssumptions='report',maxModelAssumptions=8,now=Date.now(),dictionary}={}){
+export function compileDeclarative(source,{language='en',inputText='',context={},lexicon=null,schema=null,maxWires=2048,modelAssumptions='report',maxModelAssumptions=8,now=Date.now(),dictionary,frames}={}){
  // The bilingual and synonym dictionary (DS021 "Content words"); null disables it (the strict evaluation link).
- const dict=dictionary===undefined?defaultDictionary():dictionary;
+ const dict=dictionary===undefined?englishDictionary():dictionary;
+ // Host frame normalization (DS021 "Host frame normalization"): runs before the dictionary tiers when a relation does not link directly. Off with the strict link (dictionary null) or `frames:false`.
+ const frameList=frames===false||dict===null?null:frames??loadFrames();
  let authored=checkModelProgram(parse(source,{maxWires}));
  // An elliptical follow-up is completed from the previous query of the conversation, or clarified (Q-LANG-4).
  const fragment=authored.wires.find(w=>w.type==='query'&&w.fields.fragment);
@@ -125,7 +130,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
    const given=[];for(const text of many(fragment,'where'))parseCondition(text,leaf=>{given.push(parseMatch(leaf,'match',{partial:true}));return leaf;});
    const lang0=/^[a-z]{2,3}$/.test(language)&&language!=='auto'?language:'en';
    return {problemIds:[],renderIds:[],statements:[],assumptions:[],links:new Map(),evidenceIds:[],suppositionIds:[],assumptionFactIds:[],modelAssumptions,language:lang0,inputText,authoredSop:canonical(authored),executionSop:'',
-    clauseLinks:[],translations:[],untranslated:[],repairs:[],unresolvedSpans:[],held:new Set(),reportOnly:new Set(),
+    clauseLinks:[],translations:[],repairs:[],unresolvedSpans:[],held:new Set(),reportOnly:new Set(),
     fragment:{id:fragment.id,values:given.flatMap(p=>p.roles.map(r=>r.value)).filter(v=>typeof v!=='string'||!v.startsWith('?')),relation:given.find(p=>p.relation!==undefined)?.relation??null}};
   }
   authored={wires:authored.wires.map(w=>w===fragment?completed:w)};
@@ -135,9 +140,9 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
  assert(Array.isArray(statementsIn),'Context statements must be an array');
  assert(['report','branch'].includes(modelAssumptions),'Host policy modelAssumptions must be report or branch');
  const lang=/^[a-z]{2,3}$/.test(language)&&language!=='auto'?language:'en';
- const translations=[],untranslated=[],repairs=[],unresolvedSpans=[],readings=[];
+ const translations=[],frameChanges=[],repairs=[],unresolvedSpans=[],readings=[],linking=[];
  const empty={problemIds:[],renderIds:[],statements:[],assumptions:[],links:new Map(),evidenceIds:[],suppositionIds:[],assumptionFactIds:[],modelAssumptions,language:lang,inputText,
-  clauseLinks:[],translations,untranslated,repairs,unresolvedSpans,readings,held:new Set(),reportOnly:new Set()};
+  clauseLinks:[],translations,frameChanges,repairs,unresolvedSpans,readings,linking,held:new Set(),reportOnly:new Set()};
  if(fragment)empty.completedFragment=canonical({wires:[authored.wires.find(w=>w.id===fragment.id)]});
  const unclear=authored.wires.find(w=>w.type==='unclear');
  if(unclear)return {...empty,unclear:{id:unclear.id,kind:one(unclear,'kind'),language:one(unclear,'language',null),readings:many(unclear,'reading').map(unquote)},authoredSop:canonical(authored),executionSop:''};
@@ -156,7 +161,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
    // A repaired time in a query's `role time ?t` placeholder is the query period (like `during "…"`), not an argument.
    if(pair&&repaired.method==='time'&&authoredById.get(pair.wire)?.type==='query')periodFills.set(pair.wire,{variable:pair.variable,text:repaired.value});
    else if(pair){if(!fills.has(pair.wire))fills.set(pair.wire,new Map());fills.get(pair.wire).set(pair.variable,repaired.value);}
-  }else{unresolvedSpans.push({...base,blocking:!!pair,question:spanQuestion(span,hint,lang)});if(pair)held.add(pair.wire);}
+  }else{unresolvedSpans.push({...base,blocking:!!pair,question:spanQuestion(span,hint)});if(pair)held.add(pair.wire);}
  }
  const valueToken=v=>typeof v==='number'?String(v):JSON.stringify(v);
  const fillWire=w=>{const map=fills.get(w.id);if(!map)return w;return {...w,fields:Object.fromEntries(Object.entries(w.fields).map(([k,vs])=>[k,vs.map(text=>String(text).replace(/"(?:\\.|[^"\\])*"|\?[A-Za-z][A-Za-z0-9_]*/g,t=>t.startsWith('?')&&map.has(t)?valueToken(map.get(t)):t))]))};};
@@ -187,23 +192,31 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
  const conditionalCarriers=new Set(work.filter(w=>(w.type==='stated'||w.type==='assumed')&&linksOf(w).some(l=>l.keyword==='if'||l.keyword==='unless')).map(w=>w.id));
  const reportOnly=new Set([...expanded.eventStatements,...conditionalCarriers,...[...held].filter(id=>['stated','assumed'].includes(workById.get(id)?.type))]);
  // Host linking (DS021): strings become predicates, atoms, entity lookups and intervals; failures become one host clarification.
- // A relation phrase that does not link is retried with its dictionary translations and synonyms; the lexicon decides.
+ // A relation phrase that does not link is retried with its English synonyms; the lexicon decides.
  const issues=[],links=new Map();
  const anonymous=new Set(work.flatMap(w=>Object.values(w.fields).flat().flatMap(text=>String(text).match(/\?[A-Za-z][A-Za-z0-9_]*/g)??[])));
  let freshSerial=0;const fresh=()=>{let name;do{name='?host_any'+freshSerial++;}while(anonymous.has(name));anonymous.add(name);return name;};
- const noteUntranslated=item=>{if(!untranslated.some(x=>x.wire===item.wire&&x.field===item.field&&x.text===item.text))untranslated.push(item);};
  const tryLink=(p,options,wire)=>{
   if(!lexicon)return {issue:{kind:'relation',status:'unknown',text:p.relation}};
   const first=linkProposition(p,lexicon,options);
+  if(first.issue&&frameList&&p.relation!==undefined&&first.issue.status!=='copula_unclear'&&!copulaForm(p.relation)&&p.roles.every(r=>typeof r.value==='string'||typeof r.value==='number')){
+   // Frame tier: the reviewed synonym and role frames rewrite the proposition; the rewrite counts only when the lexicon then links it.
+   const term=v=>typeof v==='number'||/^[?$]/.test(v)?String(v):JSON.stringify(v);
+   const normal=normalizeProposition({relation:p.relation,roles:p.roles.map(r=>({name:r.name,value:term(r.value)}))},frameList,{levels:['synonym','role']});
+   if(normal.changes.length){
+    const q={...p,relation:normal.relation,roles:normal.roles.map(r=>({name:r.name,value:/^"/.test(r.value)?JSON.parse(r.value):/^-?\d+(\.\d+)?$/.test(r.value)&&typeof p.roles[r.orig]?.value==='number'?Number(r.value):r.value}))};
+    const l=linkProposition(q,lexicon,options);
+    // Like the head-verb tier, a synonym tier only reaches readings that can answer: when the memory holds facts at all, a predicate without any is not offered.
+    const answers=!lexicon.factCounts?.size||(lexicon.predicates[l.predicate]?.factCount??0)>0;
+    if(!l.issue&&answers){if(!frameChanges.some(c=>c.wire===wire&&c.from===p.relation))frameChanges.push({wire,from:p.relation,to:q.relation,changes:normal.changes,predicate:l.predicate});
+     if(q.relation!==p.relation&&!translations.some(t=>t.wire===wire&&t.from===p.relation))translations.push({wire,field:'relation',from:p.relation,to:q.relation,source:'frame',predicate:l.predicate});return l;}
+   }
+  }
   if(!first.issue||!dict||p.relation===undefined)return first;
-  // Tiers, in order: the dictionary's canonical English translation, its other translations, English synonyms, then
-  // the phrases of an unparsed relation span near this wire. The first tier that links to exactly one predicate wins;
-  // two predicates in one tier are ambiguous (the host asks); the dictionary never picks between them.
-  const c=dict.candidates(p.relation,'relation'),translated=c.status==='translated'?c.candidates:[];
-  if(c.status==='untranslated')noteUntranslated({wire,field:'relation',text:p.relation,tokens:c.untranslated});
-  const tiers=[translated.slice(0,1).map(text=>({text,source:'dictionary'})),translated.slice(1).map(text=>({text,source:'dictionary'})),
-   [p.relation,...translated].flatMap(x=>dict.synonyms(x,'relation')).map(text=>({text,source:'synonym'})),
-   (relationSpans.get(wire)??[]).flatMap(span=>{const d=dict.candidates(span.span,'relation');return (d.status==='translated'?d.candidates:[span.span]).map(text=>({text,source:'unparsed_span'}));})];
+  // Tiers, in order: English synonyms, then the phrases of an unparsed relation span near this wire. The first tier that links to
+  // exactly one predicate wins; two predicates in one tier are ambiguous (the linker asks); the dictionary never picks between them.
+  const tiers=[dict.synonyms(p.relation,'relation').map(text=>({text,source:'synonym'})),
+   (relationSpans.get(wire)??[]).flatMap(span=>[span.span,...dict.synonyms(span.span,'relation')].map(text=>({text,source:'unparsed_span'})))];
   for(const tier of tiers){
    const bound=new Map();
    for(const alt of tier){if(alt.text===p.relation)continue;const l=linkProposition({...p,relation:alt.text},lexicon,options);if(!l.issue&&!bound.has(l.predicate))bound.set(l.predicate,{l,alt});}
@@ -212,7 +225,18 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
   }
   return first;
  };
- const link=(p,options,wire)=>{const linked=tryLink(p,options,wire);if(linked.issue){issues.push(linked.issue);return null;}if(linked.reading&&!readings.some(r=>r.wire===wire&&r.relation===linked.reading.relation))readings.push({wire,...linked.reading,predicate:linked.predicate,alternatives:linked.alternatives?.map(a=>a.predicate)});return linked;};
+ const noteRelation=(p,linked,wire)=>{
+  if(!linked||linked.issue||!linked.predicate)return;
+  const translation=translations.find(t=>t.wire===wire&&t.from===p.relation&&t.predicate===linked.predicate);
+  const frame=frameChanges.find(c=>c.wire===wire&&c.from===p.relation&&c.predicate===linked.predicate);
+  const via=linked.reading?{via:'copula_reading',reading:linked.reading.kind??null}:frame?{via:'frame',form:frame.to}:translation?{via:translation.source,form:translation.to}:{via:'lexicon',form:matchedForm(lexicon,linked.predicate,p.relation)};
+  // Scores of the KnowledgeLinker (sop/knowledge-linker.mjs): a dictionary or synonym tier has its own score; the lexicon path carries the scoring of linkProposition.
+  const tierScore={synonym:SCORES.synonym,unparsed_span:SCORES.span};
+  const scoring=frame?{score:SCORES.listed,decided_by:'frame'}:translation?{score:tierScore[translation.source]??SCORES.otherTranslation,decided_by:'dictionary_tier'}:linked.scoring?{score:linked.scoring.score,decided_by:linked.scoring.decided_by,...(linked.scoring.via?{tier_name:linked.scoring.via}:{})}:{};
+  const entry={wire,kind:'relation',surface:p.relation,symbol:linked.predicate,...via,alternatives:(linked.alternatives??[]).map(a=>a.predicate),...scoring,facts:lexicon?.predicates?.[linked.predicate]?.factCount??0,...(linked.scoring?.alternatives?.length?{scored_alternatives:linked.scoring.alternatives}:{}),...(linked.relabeled?{relabeled:linked.relabeled}:{}),...(linked.converse?{converse:true}:{}),...(linked.boundary?{boundary:linked.boundary}:{})};
+  if(!linking.some(x=>x.wire===wire&&x.kind==='relation'&&x.surface===entry.surface&&x.symbol===entry.symbol))linking.push(entry);
+ };
+ const link=(p,options,wire)=>{const linked=tryLink(p,options,wire);if(linked.issue){issues.push(linked.issue);return null;}noteRelation(p,linked,wire);if(linked.reading&&!readings.some(r=>r.wire===wire&&r.relation===linked.reading.relation))readings.push({wire,...linked.reading,predicate:linked.predicate,alternatives:linked.alternatives?.map(a=>a.predicate)});return linked;};
  const hasPlaceholder=p=>p.roles.some(r=>typeof r.value==='string'&&r.value.startsWith('?')||REFERENCE_VALUE(r.value));
  for(const p of [...statements,...assumptions]){
   const validity=propositionValidity(p,now);
@@ -220,6 +244,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
   if(!quiet)issues.push(...validity.issues);
   // In report mode an assumption is linked only for the report; it never blocks the turn. So is a reported statement.
   const linked=hasPlaceholder(p)?{}:quiet?(lexicon?tryLink(p,{},p.id):{}):link(p,{},p.id);
+  if(quiet&&!hasPlaceholder(p))noteRelation(p,linked,p.id);
   links.set(p.id,{...(linked?.issue?{}:linked??{}),validity:validity.issues.length?null:validity});
  }
  const temporal=(w,key)=>{
@@ -254,25 +279,46 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
  const resolutions=[],resolved=new Map(),execution=[],problemIds=[],renderIds=[];
  // Type-checks canonical entity arguments; with resolve=true a quoted surface becomes a generated resolve wire.
  // A surface the lexicon does not know is retried with its dictionary translations; the lexicon must accept exactly one.
+ const noteEntity=({wire,surface,term,found,match,type,score,by,alternatives})=>{
+  const entry={wire,kind:'entity',surface,symbol:found.id,via:term===surface?'lexicon':'synonym',match,class:found.type??null,...(term===surface?{}:{form:term}),
+   score:score??(SCORES.lexicon-(match==='exact'?0:15)),...(by?{decided_by:by}:{}),...(alternatives?.length?{scored_alternatives:alternatives.map(({id,score:s})=>({id,score:s}))}:{})};
+  if(!linking.some(x=>x.wire===wire&&x.kind==='entity'&&x.surface===entry.surface&&x.symbol===entry.symbol))linking.push(entry);
+ };
  const normalizeAtom=(text,{resolve=true,wire=null}={})=>{
   const a=parseAtom(text);
   if(lexicon)for(let i=0;i<a.a.length;i++){
-   let term=a.a[i];const type=(schema??lexicon.predicates)?.[a.p]?.args?.[i];
+   let term=a.a[i];const original=term;const type=(schema??lexicon.predicates)?.[a.p]?.args?.[i];
    // "the user" is the caller when the caller-owned context names its entity (Q-LANG-5); otherwise it resolves like any surface.
    if(typeof term==='string'&&context.user&&USER_SURFACES.has(term.trim().toLowerCase())){a.a[i]=context.user;continue;}
    if(typeof term!=='string'||variable(term)||!type||['integer','value'].includes(type))continue;
    const known=lexicon.entities[term];
-   if(known){assert(type==='entity'||known.entityType===type,'Entity type does not match '+a.p+' argument');continue;}
+   // An id of the right class (itself or a subclass) is kept. A surface that merely equals an id of another class ("radium" for a role of organizations) is resolved like any surface; an id already resolved by the host must fit.
+   if(known){const fits=type==='entity'||known.entityType===type||(lexicon.isClass?.(type)&&lexicon.classesOf(term).has(type));if(fits||!resolve){assert(fits,'Entity type does not match '+a.p+' argument');continue;}}
    if(!resolve)continue;
    const scope={language:lang,kind:'entity',...(type==='entity'?{}:{type})};
    let local=lexicon.matching(term,scope),any=local.found.length?local:lexicon.matching(term,{...scope,language:'auto'});
    if(!any.found.length&&dict){
-    const c=dict.candidates(term,'value');
-    if(c.status==='translated'){
-     const hits=c.candidates.filter(x=>lexicon.matching(x,{...scope,language:'auto'}).found.length===1);
-     if(hits.length===1){if(!translations.some(t=>t.wire===wire&&t.from===term))translations.push({wire,field:'value',from:term,to:hits[0],source:'dictionary'});term=hits[0];local=lexicon.matching(term,scope);any=local.found.length?local:lexicon.matching(term,{...scope,language:'auto'});}
-    }else if(c.status==='untranslated')noteUntranslated({wire,field:'value',text:term,tokens:c.untranslated});
+    const hits=dict.synonyms(term,'value').filter(x=>lexicon.matching(x,{...scope,language:'auto'}).found.length===1);
+    if(hits.length===1){if(!translations.some(t=>t.wire===wire&&t.from===term))translations.push({wire,field:'value',from:term,to:hits[0],source:'synonym'});term=hits[0];local=lexicon.matching(term,scope);any=local.found.length?local:lexicon.matching(term,{...scope,language:'auto'});}
    }
+   // KnowledgeLinker (sop/knowledge-linker.mjs): a role that declares a class also accepts an entity of a subclass (the exact-kind filter
+   // above would find none), and one surface naming several entities is decided by the class evidence or becomes a question with the options.
+   if(scoredLinker.scored&&!any.found.length&&type!=='entity'&&lexicon.isClass(type)){
+    const loose=lexicon.matching(term,{language:'auto',kind:'entity'});
+    const subclass=loose.found.filter(e=>lexicon.classesOf(e.id).has(type));
+    if(subclass.length)any={found:subclass,match:loose.match};
+   }
+   if(scoredLinker.scored&&any.found.length>1){
+    const chosen=chooseEntity(lexicon,any.found,{type,match:any.match});
+    if(chosen.chosen){
+     const entry=any.found.find(e=>e.id===chosen.chosen.id);
+     noteEntity({wire,surface:original,term,found:entry,match:any.match,type,score:chosen.chosen.score,by:chosen.by,alternatives:chosen.scored.filter(c=>c.id!==chosen.chosen.id)});
+     a.a[i]=chosen.chosen.id;continue;
+    }
+    issues.push({kind:'entity',status:'ambiguous',text:original,candidates:chosen.scored.map(c=>({id:c.id,roles:[],label:c.label,class:c.class,...(c.description?{description:c.description}:{}),score:c.score}))});continue;
+   }
+   if(scoredLinker.scored&&any.found.length===1&&type!=='entity'&&any.found[0].type!==type){noteEntity({wire,surface:original,term,found:any.found[0],match:any.match,type,score:SCORES.lexicon-(any.match==='exact'?0:15),by:'subclass'});a.a[i]=any.found[0].id;continue;}
+   if(any.found.length===1)noteEntity({wire,surface:original,term,found:any.found[0],match:any.match,type});
    const resolutionLanguage=!local.found.length&&any.found.length===1&&any.found[0].language!=='und'?any.found[0].language:lang;
    const key=stable([term,type,resolutionLanguage]);
    if(!resolved.has(key)){
@@ -330,7 +376,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
     const surface=JSON.parse(quoted);if(!lexicon)return quoted;
     if(context.user&&USER_SURFACES.has(surface.trim().toLowerCase()))return JSON.stringify(context.user);
     const found=lexicon.matching(surface,{language:lang,kind:'entity'}),any=found.found.length?found:lexicon.matching(surface,{language:'auto',kind:'entity'});
-    if(any.found.length===1)return JSON.stringify(any.found[0].id);
+    if(any.found.length===1){noteEntity({wire:w.id,surface,term:surface,found:any.found[0],match:any.match});return JSON.stringify(any.found[0].id);}
     if(!any.found.length&&valueAllowed)return quoted;
     issues.push({kind:'entity',status:any.found.length?'ambiguous':'unknown',text:surface,candidates:any.found.map(e=>({id:e.id,roles:[]}))});return quoted;
    });
@@ -350,9 +396,9 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
  for(const [wire,spans] of relationSpans)for(const span of spans){
   const via=translations.find(t=>t.wire===wire&&t.source==='unparsed_span'),ok=via||links.get(wire)?.predicate||linkedQueries.has(wire);
   if(ok)repairs.push({...span,method:via?'dictionary':'near_wire_linked',value:via?.to??null,filled:!!via});
-  else unresolvedSpans.push({...span,blocking:false,question:spanQuestion(span.span,span.hint,lang)});
+  else unresolvedSpans.push({...span,blocking:false,question:spanQuestion(span.span,span.hint)});
  }
- const report={clauseLinks:plan.links,joins:expanded.joins,translations,untranslated,repairs,unresolvedSpans,readings,held,reportOnly};
+ const report={clauseLinks:plan.links,joins:expanded.joins,translations,frameChanges,repairs,unresolvedSpans,readings,linking,held,reportOnly};
  if(issues.length)return {...empty,...report,authoredSop:canonical(authored),executionSop:'',issues,statements,assumptions,links};
  const collect=ids=>{if(!ids.length)return undefined;if(ids.length===1)return '$'+ids[0];const name=id();execution.push(node(name,'pack',{items:ids.map(n=>'$'+n)}));return '$'+name;};
  const evidenceRef=collect([...carriedIds,...evidenceIds]);
@@ -376,18 +422,15 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
  return {...empty,...report,authoredSop:canonical(authored),executionSop:program.wires.length?canonical(program):'',carriedIds,problemIds,renderIds,statements,assumptions,links,evidenceIds,suppositionIds,assumptionFactIds};
 }
 
-const TEXT={
- en:{context:n=>'Noted '+n+' statement(s) for this conversation; they are not stored in the repository.',conditionalOnly:'Suppositions, hedged claims and reported claims apply only to a question in the same message.',understood:(reading)=>'I understood the question as: '+reading+'. I cannot compute this kind of answer yet.',branch:'Only under the model\'s assumptions: ',condition:'Condition: ',notChecked:'Not checked: '},
- ro:{context:n=>'Am reținut '+n+' afirmație/afirmații pentru această conversație; nu sunt înregistrate în depozit.',conditionalOnly:'Presupunerile, afirmațiile cu rezerve și afirmațiile raportate se aplică doar unei întrebări din același mesaj.',understood:(reading)=>'Am înțeles întrebarea astfel: '+reading+'. Încă nu pot calcula acest tip de răspuns.',branch:'Doar în ipotezele modelului: ',condition:'Condiție: ',notChecked:'Neverificat: '}
-};
-const textFor=language=>TEXT[language]??TEXT.en;
+// Host phrases of the answer, English only: the output edge translates the final answer (lib/translator-service/answer.mjs, DS021 "English-only core").
+const TEXT={context:n=>'Noted '+n+' statement(s) for this conversation; they are not stored in the repository.',conditionalOnly:'Suppositions, hedged claims and reported claims apply only to a question in the same message.',understood:(reading)=>'I understood the question as: '+reading+'. I cannot compute this kind of answer yet.',branch:'Only under the model\'s assumptions: ',condition:'Condition: ',notChecked:'Not checked: '};
 
-function unclearResult(plan,context,language){
- const reply=REPLY_LANGUAGES.includes(language)?language:'en';
+function unclearResult(plan,context){
+ const reply='en';
  // An ambiguous message is answered with a host clarification that lists the model's candidate readings.
  const readings=plan.unclear.readings??[];
  const packet={kind:'unclear',status:'unclear',unclear_kind:plan.unclear.kind,language:reply,complete:true,next:readings.length?'choose_reading':'rephrase',...(readings.length?{readings}:{}),user_statements:[],model_assumptions:[],assumption_policy:plan.modelAssumptions};
- return {values:{},result:{kind:'cnl',language:reply,text:unclearReply(plan.unclear.kind,reply,readings),packet},trace:[{wire:plan.unclear.id,type:'unclear',epoch:0,status:'unclear'}],epochs:0,wireCount:0,outputs:{},blocked:{},generated:[],authoredSop:plan.authoredSop,executionSop:'',contextStatements:context.statements??[],problemResults:[]};
+ return {values:{},result:{kind:'cnl',language:reply,text:unclearReply(plan.unclear.kind,readings),packet},trace:[{wire:plan.unclear.id,type:'unclear',epoch:0,status:'unclear'}],epochs:0,wireCount:0,outputs:{},blocked:{},generated:[],authoredSop:plan.authoredSop,executionSop:'',contextStatements:context.statements??[],problemResults:[]};
 }
 
 /** Links of one wire, each with its target proposition (for the host sentence). */
@@ -397,7 +440,7 @@ function linksFor(plan,id){
 }
 /** Packet fields of the clause links, the content-word translation and the unparsed-span repair (DS021). */
 function languageReports(plan){
- return {clause_links:(plan.clauseLinks??[]).map(l=>({...l})),untranslated:plan.untranslated??[],translations:plan.translations??[],copula_readings:plan.readings??[],repairs:plan.repairs??[],unresolved_spans:plan.unresolvedSpans??[]};
+ return {clause_links:(plan.clauseLinks??[]).map(l=>({...l})),translations:plan.translations??[],frame_changes:plan.frameChanges??[],copula_readings:plan.readings??[],linking:plan.linking??[],repairs:plan.repairs??[],unresolved_spans:plan.unresolvedSpans??[]};
 }
 
 /**
@@ -409,11 +452,11 @@ export async function runDeclarative(source,{runtime,language='en',languageSourc
  context.statements??=[];
  const policy=runtime.policy;
  const plan=compileDeclarative(source,{language,inputText,context,lexicon:runtime.lexicon,schema:runtime.schema,maxWires:policy.maxWires,modelAssumptions:policy.modelAssumptions??'report',maxModelAssumptions:policy.maxModelAssumptions??8,now:runtime.now,...(policy.dictionary===false?{dictionary:null}:{})});
- if(plan.unclear)return unclearResult(plan,context,languageSource==='default'&&plan.unclear.language?plan.unclear.language:plan.language);
+ if(plan.unclear)return unclearResult(plan,context);
  // An elliptical follow-up without a previous question in the conversation: ask what it is about (Q-LANG-4).
  if(plan.fragment){
-  const ro=plan.language==='ro',about=plan.fragment.values.map(v=>typeof v==='string'?v:String(v)).join(ro?' și ':' and ');
-  const question=about?(ro?'Ce doriți să aflați despre '+about+'?':'What would you like to know about '+about+'?'):(ro?'La ce întrebare se referă „'+(plan.fragment.relation??'')+'”?':'Which question does "'+(plan.fragment.relation??'')+'" continue?');
+  const about=plan.fragment.values.map(v=>typeof v==='string'?v:String(v)).join(' and ');
+  const question=about?'What would you like to know about '+about+'?':'Which question does "'+(plan.fragment.relation??'')+'" continue?';
   const clarification=canonical({wires:[node('hostClarify','clarify',{text:[JSON.stringify(question)]})]});
   const stopped=await runtime.run(clarification,{origin:'generated'});
   const packet={...stopped.result,reason:'fragment_without_context',fragment:plan.fragment,pendingSop:plan.authoredSop,next:'answer_clarification',complete:false,user_statements:[],model_assumptions:[],assumption_policy:plan.modelAssumptions};
@@ -421,10 +464,10 @@ export async function runDeclarative(source,{runtime,language='en',languageSourc
  }
  // Host linking failed (unknown or ambiguous relation, role set, time expression): ask, run nothing else.
  if(plan.issues?.length){
-  const question=[linkQuestion(plan.issues,plan.language),...plan.unresolvedSpans.map(span=>span.question)].join(' ');
+  const question=[linkQuestion(plan.issues),...plan.unresolvedSpans.map(span=>span.question)].join(' ');
   const clarification=canonical({wires:[node('hostClarify','clarify',{text:[JSON.stringify(question)]})]});
   const stopped=await runtime.run(clarification,{origin:'generated'});
-  const report=p=>reportProposition(p,{predicate:plan.links.get(p.id)?.predicate??null,validity:plan.links.get(p.id)?.validity?.interval??null,language:plan.language,links:linksFor(plan,p.id)});
+  const report=p=>reportProposition(p,{predicate:plan.links.get(p.id)?.predicate??null,validity:plan.links.get(p.id)?.validity?.interval??null,links:linksFor(plan,p.id)});
   const packet={...stopped.result,reason:'unresolved_link',required:plan.issues,pendingSop:plan.authoredSop,next:'answer_clarification',complete:false,user_statements:plan.statements.map(report),model_assumptions:plan.assumptions.map(report),assumption_policy:plan.modelAssumptions,...languageReports(plan)};
   return {...stopped,result:{kind:'cnl',language:plan.language,text:question,packet},authoredSop:plan.authoredSop,executionSop:clarification,contextStatements:context.statements,problemResults:[],generated:[{kind:'clarification',epoch:0,source:clarification}]};
  }
@@ -434,14 +477,14 @@ export async function runDeclarative(source,{runtime,language='en',languageSourc
   const question=plan.unresolvedSpans.map(span=>span.question).join(' ');
   const clarification=canonical({wires:[node('hostClarify','clarify',{text:[JSON.stringify(question)]})]});
   const stopped=await runtime.run(clarification,{origin:'generated'});
-  const report=p=>reportProposition(p,{predicate:plan.links.get(p.id)?.predicate??null,validity:plan.links.get(p.id)?.validity?.interval??null,language:plan.language,links:linksFor(plan,p.id),extra:plan.held.has(p.id)?{treatment:'incomplete'}:{}});
+  const report=p=>reportProposition(p,{predicate:plan.links.get(p.id)?.predicate??null,validity:plan.links.get(p.id)?.validity?.interval??null,links:linksFor(plan,p.id),extra:plan.held.has(p.id)?{treatment:'incomplete'}:{}});
   const packet={...stopped.result,reason:'unresolved_span',required:blockingSpans,pendingSop:plan.authoredSop,next:'answer_clarification',complete:false,user_statements:plan.statements.map(report),model_assumptions:plan.assumptions.map(report),assumption_policy:plan.modelAssumptions,...languageReports(plan)};
   return {...stopped,result:{kind:'cnl',language:plan.language,text:question,packet},authoredSop:plan.authoredSop,executionSop:clarification,contextStatements:context.statements,problemResults:[],generated:[{kind:'clarification',epoch:0,source:clarification}]};
  }
  assert(context.statements.length+plan.evidenceIds.length<=policy.maxFacts,'Conversation statement limit');
  // A turn of reported assumptions or turn-local suppositions only has nothing to execute.
  const result=plan.executionSop?await runtime.run(plan.executionSop,{origin:'generated'}):{values:Object.create(null),result:undefined,trace:[],epochs:0,wireCount:0,outputs:{},blocked:{},generated:[]};
- const m=textFor(plan.language);
+ const m=TEXT;
  const carriedBefore=context.statements;
  const admittedStatements=plan.evidenceIds.flatMap(name=>{const f=result.values[name];return f?.kind==='fact'?[{atom:f.atom,valid:f.valid,origin:'user-statement',text:inputText}]:[];});
  const statementKey=s=>stable([atomKey(s.atom),s.valid.from,s.valid.until]);
@@ -495,7 +538,7 @@ export async function runDeclarative(source,{runtime,language='en',languageSourc
    const problem=plan.problemIds[index],lines=[value.text];
    if(value.packet?.hypothetical)for(const s of userStatements)if(s.conditional&&s.in_circuit&&problem.assume.includes(s.id))lines.push(m.condition+s.statement);
    // Links of this question that no engine checks are reported with the answer (L4).
-   for(const l of linksFor(plan,problem.declaration))if(l.status==='not_checked')lines.push(m.notChecked+(LINK_PHRASES[plan.language]??LINK_PHRASES.en)[l.keyword]+': '+(l.target?propositionBody(l.target,plan.language):'$'+l.to));
+   for(const l of linksFor(plan,problem.declaration))if(l.status==='not_checked')lines.push(m.notChecked+LINK_PHRASES[l.keyword]+': '+(l.target?propositionBody(l.target):'$'+l.to));
    for(const b of assumptionBranch)if(b.problem===problem.declaration&&b.text)lines.push(m.branch+b.text.split('\n').join(' | '));
    return lines.join('\n');
   };
@@ -509,7 +552,7 @@ export async function runDeclarative(source,{runtime,language='en',languageSourc
   const details=unresolved.map(([name,output])=>({name,status:output.status,...(output.surface?{surface:output.surface}:{}),...(output.candidates?{candidates:output.candidates}:{})}));
   const identities=details.filter(item=>item.surface);
   const describeIdentity=item=>{
-   const choices=Array.isArray(item.candidates)?item.candidates.map(candidate=>runtime.lexicon?.entities[candidate.id]?.labels?.[plan.language]??candidate.id):[];
+   const choices=Array.isArray(item.candidates)?item.candidates.map(candidate=>runtime.lexicon?.entities[candidate.id]?.labels?.en??candidate.id):[];
    return JSON.stringify(item.surface)+(choices.length?' ('+choices.join(' or ')+')':'');
   };
   const question=identities.length?'Which entity do you mean by '+identities.map(describeIdentity).join(', ')+'?':

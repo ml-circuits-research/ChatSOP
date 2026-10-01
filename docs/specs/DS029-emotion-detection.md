@@ -23,7 +23,7 @@ The model boundary of AGENTS.md and [DS021](specsLoader.html?spec=DS021-model-su
 
 `setEnabled(false)` (the chat setting) makes `detect` return no signal and no work. Costly strategies (`cost: 'costly'`) run in parallel after the cheap ones, under `latencyBudgetMs`; one that exceeds the budget or fails is reported in the trace and never blocks the turn; they are skipped when the symbolic signals already cover 90% of the message letters.
 
-The library surface for callers (the server's API layer, the agent, tools): `createDefaultEmotionDetectionSystem(config = loadConfig(), {enabled, llmClassify})` (async `detect(message, {analysis, englishText, leftoverSpans})`, `setEnabled`, `strategyIds`, `close`), `loadConfig(path?)` and `CONFIG_PATH`, `adviceFor(signals, {hasContent, minScore})`, `signalsToSop(signals, {taken})`, `classifyLeftovers(leftoverSpans, signals)` and `courtesyReply(signals, language)` (`lib/emotion-detection/courtesy.mjs`). Everything is pure data in and out; the module touches no server code.
+The library surface for callers (the server's API layer, the agent, tools): `createDefaultEmotionDetectionSystem(config = loadConfig(), {enabled})` (async `detect(message, {analysis, englishText, leftoverSpans})`, `setEnabled`, `strategyIds`, `close`), `loadConfig(path?)` and `CONFIG_PATH`, `adviceFor(signals, {hasContent, minScore})`, `signalsToSop(signals, {taken})`, `classifyLeftovers(leftoverSpans, signals)` and `courtesyReply(signals, language)` (`lib/emotion-detection/courtesy.mjs`). Everything is pure data in and out; the module touches no server code.
 
 ### Kinds
 
@@ -34,10 +34,9 @@ A small closed set (`sop/enums.mjs` `PRAGMATIC_KINDS`): `greeting`, `closing`, `
 All strategies sit behind `{id, kinds, detect(message, context)}`.
 
 - **`symbolic`** (`strategies/symbolic.mjs`, lexicon and patterns in `lexicon.mjs`, English and Romanian): deterministic, folded (no diacritics) word-boundary patterns for greetings, closings, thanks, apologies, politeness, urgency, hedges, frustration, anger, confusion, curiosity, joy, sadness, fear, disappointment, profanity, insults, soft irony patterns, discourse markers and tag questions; emoji and emoticons; punctuation intensity (`!!!`, `?!`); stretched words; all-caps words and messages (acronyms excluded). It runs on the whole message and on every leftover span, costs about 0.2 ms per message and is on by default. The lists are original compilations by the project, so no external licence applies ([DS014](specsLoader.html?spec=DS014-source-rights.md)).
-- **`neural`** (`strategies/neural.mjs`, `training/python/emotion_worker.py`): optional local CPU classifiers in a separate virtual environment `~/emotion-venv`, no network, no GPU, reading the English text (`englishText`, after LanguageProofingLLM for Romanian and mixed input). Candidate models and their licences: `SamLowe/roberta-base-go_emotions` (MIT), `unitary/toxic-bert` (Apache-2.0), `cardiffnlp/twitter-roberta-base-irony` and `j-hartmann/emotion-english-distilroberta-base` (no licence declared: experimental, local inference only, nothing redistributed). Their labels map to kinds by `config.map`; each label needs its threshold. Off by default.
-- **`llm`** (`strategies/llm.mjs`): a slot for a later fine-tuned or general LLM, `classify(text, context)` returning signals; off by default and bundled with no model.
+- The optional `neural` strategy (local CPU classifiers in `~/emotion-venv`) and the `llm` slot were removed on 2026-10-01 (hygiene H19): they were off by default, unvalidated, and no product path used them. The classifier evaluation of experiment emotion-detection-v1 and its tools are archived under `probably_obsolete/tools/emotion-detection/`; a later strategy would be a new module behind the same `{id, kinds, detect}` interface.
 
-`kindPolicy` in the config sets, per `strategy.kind`, `on` (the default), `experimental` (the signal is reported to the user but not emitted as a wire and not used by the reasoner) or `off`. The rule applied by `tools/emotion-detection/evaluate.mjs`: `on` at precision 0.85 or more over at least three predictions, `experimental` from 0.6, `off` below.
+`kindPolicy` in the config sets, per `strategy.kind`, `on` (the default), `experimental` (the signal is reported to the user but not emitted as a wire and not used by the reasoner) or `off`. The rule applied by the archived `probably_obsolete/tools/emotion-detection/evaluate.mjs`: `on` at precision 0.85 or more over at least three predictions, `experimental` from 0.6, `off` below.
 
 ### The `pragmatic` wire
 
@@ -73,11 +72,11 @@ A pragmatic signal is advisory: it is never a fact about the world, never eviden
 
 ### Configuration
 
-`config/emotion-detection.json`: `enabled`, `latencyBudgetMs` (400), `minScore` (0.5), `emitUnclassified`, `strategies` (`symbolic` on; `neural` with its Python, worker, threads, models, label map and thresholds, off; `llm` off), `kindPolicy`, `kindEmoji` (one emoji suggestion per kind). The chat setting toggles `enabled` per request.
+`config/emotion-detection.json`: `enabled`, `latencyBudgetMs` (400), `minScore` (0.5), `emitUnclassified`, `strategies` (`symbolic`, the only one), `kindPolicy`, `kindEmoji` (one emoji suggestion per kind). The chat setting toggles `enabled` per request.
 
 ### Rights
 
-Model weights are assets with their own rights ([DS014](specsLoader.html?spec=DS014-source-rights.md) "Model weights"); revisions and sha256 values are in `dependencies.md` and `eval/reports/current/emotion-detection/models-sha256.txt`. A model without a declared licence is used for local evaluation only and is never default.
+The symbolic lexicon is an original compilation (no external licence). The classifier weights of the removed neural strategy were assets with their own rights ([DS014](specsLoader.html?spec=DS014-source-rights.md) "Model weights"); none ships.
 
 ### Evaluation (experiment emotion-detection-v1)
 
@@ -85,4 +84,4 @@ Model weights are assets with their own rights ([DS014](specsLoader.html?spec=DS
 
 ### Status and gaps
 
-The symbolic strategy and the component are implemented and measured. No emotion-specific data is trained on and no training is involved. Neural strategies are optional and off by default. Open: calibration on messages from real users, a larger independent set, Romanian neural classification (the classifiers read English), the LLM strategy, and whether any pragmatic signal improves answers downstream (a preregistered end-to-end comparison is not yet run).
+The symbolic strategy and the component are implemented and measured. No emotion-specific data is trained on and no training is involved. Open: calibration on messages from real users, a larger independent set, and whether any pragmatic signal improves answers downstream (a preregistered end-to-end comparison is not yet run).

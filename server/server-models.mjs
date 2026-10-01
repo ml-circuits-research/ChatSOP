@@ -4,7 +4,7 @@
  * `config/server-models.json` holds the editable lifecycle settings; the API `GET|POST /v1/server/models` and the chat's
  * Settings, "Server models" section read and change them at runtime, and every change is written back to the file.
  *
- *   {"maxRunning": 6, "idleMinutes": 60, "memoryBudgetMb": null, "turnWindowSeconds": 30, "warmup": true,
+ *   {"maxRunning": 6, "idleMinutes": 60, "memoryBudgetMb": null, "turnWindowSeconds": 30, "warmup": true, "warmMemories": ["default"],
  *    "models": {"symbolic-lm": "keep_open", "smollm2-360m-base": "on_demand", "gemma-3-270m-base": "off"}}
  *
  * A model is in exactly one of three modes: `keep_open` (pinned: started at server start in the background, warmed with a probe request,
@@ -29,12 +29,18 @@ export const CHAT_PIPELINE = Object.freeze(['symbolic-lm', 'language-proofing-ll
 /** Room for every pipeline model plus one other model (another model). */
 export const DEFAULT_MAX_RUNNING = CHAT_PIPELINE.length + 1;
 
-export const DEFAULTS = Object.freeze({maxRunning: DEFAULT_MAX_RUNNING, idleMinutes: 60, memoryBudgetMb: null, turnWindowSeconds: 30, warmup: true});
+export const DEFAULTS = Object.freeze({maxRunning: DEFAULT_MAX_RUNNING, idleMinutes: 60, memoryBudgetMb: null, turnWindowSeconds: 30, warmup: true, warmMemories: Object.freeze(['default'])});
 
 const bad = (message, code = 'invalid_parameter') => Object.assign(new Error(message), {status: 400, code});
 const integer = (value, name, min, max) => {
   if (!Number.isInteger(value) || value < min || value > max) throw bad(`${name} must be an integer from ${min} to ${max}`);
   return value;
+};
+
+/** The base memory ids to warm at start (a list of folder ids; the order is the order of warming). */
+const warmList = value => {
+  if (!Array.isArray(value) || value.length > 16 || value.some(id => typeof id !== 'string' || !/^[a-z0-9][a-z0-9._-]{0,63}$/i.test(id))) throw bad('warmMemories must be a list of up to 16 base memory ids');
+  return [...new Set(value)];
 };
 
 /** The mode of model `id` in `settings` (listed mode, else the default by role). */
@@ -45,14 +51,14 @@ export const defaultBudgetMb = () => Math.floor(os.totalmem() / 2 / 1048576);
 
 /**
  * Checks and completes a settings object. `known` is the set of managed model ids (an unknown id is refused). A partial `input`
- * keeps the values of `base`. Returns a new complete object `{maxRunning, idleMinutes, memoryBudgetMb, turnWindowSeconds, warmup, models}`
+ * keeps the values of `base`. Returns a new complete object `{maxRunning, idleMinutes, memoryBudgetMb, turnWindowSeconds, warmup, warmMemories, models}`
  * (`models` lists every managed model with its effective mode).
  */
 export function normalizeSettings(input, known, base = DEFAULTS) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw bad('Expected a settings object');
-  const allowed = ['maxRunning', 'idleMinutes', 'memoryBudgetMb', 'turnWindowSeconds', 'warmup', 'models', 'format', 'description'];
+  const allowed = ['maxRunning', 'idleMinutes', 'memoryBudgetMb', 'turnWindowSeconds', 'warmup', 'warmMemories', 'models', 'format', 'description'];
   const extra = Object.keys(input).filter(key => !allowed.includes(key));
-  if (extra.length) throw bad(`Unsupported setting ${JSON.stringify(extra[0])}; accepted: maxRunning, idleMinutes, memoryBudgetMb, turnWindowSeconds, warmup, models`, 'unsupported_parameter');
+  if (extra.length) throw bad(`Unsupported setting ${JSON.stringify(extra[0])}; accepted: maxRunning, idleMinutes, memoryBudgetMb, turnWindowSeconds, warmup, warmMemories, models`, 'unsupported_parameter');
   const merged = {...DEFAULTS, ...base, ...Object.fromEntries(Object.entries(input).filter(([key]) => !['format', 'description'].includes(key)))};
   const models = {};
   const given = {...(base.models ?? {}), ...(input.models ?? {})};
@@ -75,6 +81,7 @@ export function normalizeSettings(input, known, base = DEFAULTS) {
     memoryBudgetMb: merged.memoryBudgetMb === null ? null : integer(merged.memoryBudgetMb, 'memoryBudgetMb', 512, 4_194_304),
     turnWindowSeconds: integer(merged.turnWindowSeconds, 'turnWindowSeconds', 0, 3600),
     warmup: typeof merged.warmup === 'boolean' ? merged.warmup : (() => { throw bad('warmup must be a boolean'); })(),
+    warmMemories: warmList(merged.warmMemories),
     models,
   };
   if (kept > out.maxRunning) throw bad(`maxRunning ${out.maxRunning} is below the ${kept} models kept open; raise it or put a model on demand`, 'invalid_settings');
@@ -100,7 +107,7 @@ export function saveServerModelSettings(file, settings) {
   return settings;
 }
 
-const DESCRIPTION = 'What the server keeps open and what it does not (DS012 "Model lifecycle"). Edited by the chat page (Settings, Server models) and by POST /v1/server/models; the server also reads it at start. keep_open: started at server start, warmed, never evicted or idled out. on_demand: started when needed, stopped after idleMinutes, evicted least-recently-used. off: never started. maxRunning: how many models may run at once (at least the number kept open; one chat turn needs up to four pipeline models plus one more). memoryBudgetMb: null means half of the RAM; the estimated memory of the running models plus the one to start must fit, else an idle on-demand model is stopped first. turnWindowSeconds: a model used this recently is the last choice for an eviction. warmup: start and probe the kept-open models in the background at server start.';
+const DESCRIPTION = 'What the server keeps open and what it does not (DS012 "Model lifecycle"). Edited by the chat page (Settings, Server models) and by POST /v1/server/models; the server also reads it at start. keep_open: started at server start, warmed, never evicted or idled out. on_demand: started when needed, stopped after idleMinutes, evicted least-recently-used. off: never started. maxRunning: how many models may run at once (at least the number kept open; one chat turn needs up to four pipeline models plus one more). memoryBudgetMb: null means half of the RAM; the estimated memory of the running models plus the one to start must fit, else an idle on-demand model is stopped first. turnWindowSeconds: a model used this recently is the last choice for an eviction. warmup: start and probe the kept-open models in the background at server start. warmMemories: base memory ids whose snapshot chain and SQL view are decoded at start, so the first question over them is not slowed by it.';
 
 /** `/proc` resident memory (MB) of a process and its descendants, or null where /proc is not available. */
 export function residentMb(pid) {

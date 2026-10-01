@@ -38,7 +38,7 @@ import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {parse} from '../../sop/parser.mjs';
 import {checkModelProgram} from '../../sop/declarative.mjs';
-import {mentionedIn, normalizeTime} from '../../sop/linking.mjs';
+import {mentionedIn, normalizeTime as normalizeEnglishTime} from '../../sop/linking.mjs';
 import {defaultDictionary, fold} from '../../sop/dictionary.mjs';
 import {readJsonlShardedSync, writeJsonlShardedSync} from '../../lib/jsonl-shards.mjs';
 
@@ -265,6 +265,13 @@ export function dictionaryValue(value, message, dictionary) {
   return list.length === 1 ? list[0] : null;
 }
 
+/**
+ * Romanian month names and relative days, for this archive tool only: the product time normalizer reads English alone (owner
+ * decision 2026-10-01), so a Romanian expression of the archived corpora is mapped to English words before it is normalized.
+ */
+const RO_TIME = {ianuarie: 'january', februarie: 'february', martie: 'march', aprilie: 'april', mai: 'may', iunie: 'june', iulie: 'july', septembrie: 'september', octombrie: 'october', noiembrie: 'november', decembrie: 'december',
+  ian: 'jan', iun: 'jun', iul: 'jul', noi: 'nov', azi: 'today', astazi: 'today', ieri: 'yesterday', maine: 'tomorrow', acum: 'now'};
+const normalizeTime = (text, now) => normalizeEnglishTime(String(text).split(/(\s+)/).map(w => RO_TIME[fold(w.replace(/\.$/, ''))] ?? w).join(''), now);
 /** Fixed clock for relative times when a row has none (conversion must be deterministic). */
 const DEFAULT_NOW = Date.parse('2026-09-28T12:00:00Z');
 /**

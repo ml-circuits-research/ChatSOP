@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {classify, incomingRow, merge} from '../tools/datasets/add-case.mjs';
+import {classify, incomingRow, merge, resolvePending, pendingFile, incomingFile} from '../tools/datasets/add-case.mjs';
 import {contentLost, chain, classifyOutput, uncoveredForms, harvest} from '../tools/datasets/harvest.mjs';
 import {formId} from '../tools/datasets/form-variants.mjs';
 import {replaceInSop, lexiconsOf, skeletonOf, lexicalize, sha16} from '../tools/datasets/three-datasets/variants.mjs';
@@ -15,46 +15,89 @@ const tok = (id, form, lemma, upos, head, deprel) => [id, form, lemma, upos, hea
 const good = text => ({text, sop: `@q query\n  where match\n    relation "x"\n  end\n`, valid: true, outcome: 'converted', uncertain: false, reasons: [], unparsed: [], sentences: [{text, start: 0, end: text.length, tokens: [tok(1, 'Ana', 'Ana', 'PROPN', 2, 'nsubj'), tok(2, 'works', 'work', 'VERB', 0, 'root')]}]});
 const bad = text => ({...good(text), valid: false, outcome: 'unparsed', uncertain: true, unparsed: [text], sop: ''});
 
-test('add-case classification: noisy text is bad_english, clean English SymbolicLM handles is symbolic_english, the rest neuro_english', async () => {
+/** A fake AnalysisGate: `states` maps a message to the decision it gets; the tree of the sentence is irrelevant here (the gate itself is tested in tests/three-datasets.test.mjs). */
+const decisionOf = state => ({state, sentences: [{sentence: 0, key: 'k', tree: state === 'pending' ? null : 'identical', a: state === 'pass' ? 'CORRECT' : null, c: state === 'pass' ? 'CORRECT' : null, from: null}], reasons: state === 'fail' ? [{sentence: 0, kind: 'judge_ac', a: 'DEEP', c: 'DEEP'}] : [], failure_kind: state === 'fail' ? 'judge_ac' : null, worst_tree: state === 'pending' ? null : 'identical', missing: {default: false, verdicts: [], ner: []}});
+const gateOf = state => ({compute: () => decisionOf(state), reload() {}});
+
+test('add-case classification decides on the analysis layer: pass is symbolic_english, fail neuro_english, a missing verdict pending, never the SOP result', async () => {
+  const message = 'Does Ioana coach the Zalău Falcons?';
   const romanian = await classify('Cine lucrează la Tisa Textile și are peste 65 de ani?', {symbolicRun: async () => { throw Error('not called'); }});
   assert.equal(romanian.dataset, 'bad_english');
-  const handledCase = await classify('Does Ioana coach the Zalău Falcons?', {symbolicRun: async t => good(t)});
-  assert.equal(handledCase.dataset, 'symbolic_english');
-  const missed = await classify('Does Ioana coach the Zalău Falcons?', {symbolicRun: async t => bad(t)});
-  assert.equal(missed.dataset, 'neuro_english');
-  const forced = await classify('Does Ioana coach the Zalău Falcons?', {symbolicRun: async t => good(t), forced: 'neuro_english'});
+  assert.equal((await classify(message, {symbolicRun: async t => good(t), gate: gateOf('pass')})).dataset, 'symbolic_english');
+  // the SOP layer does not decide: a message whose SOP is valid but whose analysis fails the gate is neuro_english, and an unhandled SOP with a passing analysis is symbolic_english
+  assert.equal((await classify(message, {symbolicRun: async t => good(t), gate: gateOf('fail')})).dataset, 'neuro_english');
+  const sopMissPassingAnalysis = {...good(message), valid: false, outcome: 'converted', uncertain: true};
+  assert.equal((await classify(message, {symbolicRun: async t => sopMissPassingAnalysis, gate: gateOf('pass')})).dataset, 'symbolic_english');
+  const waiting = await classify(message, {symbolicRun: async t => good(t), gate: gateOf('pending')});
+  assert.equal(waiting.dataset, 'pending', 'no judge verdict yet: a pending state, not a guess');
+  const prepared = [];
+  await classify(message, {symbolicRun: async t => good(t), gate: gateOf('pass'), prepare: async (text, analysis) => prepared.push([text, analysis.sentences.length])});
+  assert.deepEqual(prepared, [[message, 1]], 'the missing parses and judge items are staged before the decision');
+  // no analysed sentence or an unparsed span: the SOP rules decide, as in the builders
+  const unparsedSpan = await classify(message, {symbolicRun: async t => bad(t), gate: gateOf('pass')});
+  assert.equal(unparsedSpan.dataset, 'neuro_english');
+  assert.equal(unparsedSpan.special, 'unparsed_span');
+  const forced = await classify(message, {symbolicRun: async t => good(t), gate: gateOf('pass'), forced: 'neuro_english'});
   assert.equal(forced.dataset, 'neuro_english');
 });
 
-test('incoming rows carry production provenance, a timestamp, pending review and the dataset fields', async () => {
+test('incoming rows carry production provenance, the analysis verdict, the SOP layer and pending review', async () => {
   const now = new Date('2026-10-01T00:00:00Z');
   const message = 'Does Ioana coach the Zalău Falcons?';
-  const symbolic = incomingRow({message, dataset: 'symbolic_english', verdict: await classify(message, {symbolicRun: async t => good(t)}), sop: good(message).sop, reporter: 'ops', now});
+  const symbolic = incomingRow({message, dataset: 'symbolic_english', verdict: await classify(message, {symbolicRun: async t => good(t), gate: gateOf('pass')}), sop: good(message).sop, reporter: 'ops', now});
   assert.equal(symbolic.source.corpus, 'production');
   assert.equal(symbolic.provenance.added_at, '2026-10-01T00:00:00.000Z');
   assert.equal(symbolic.review_status, 'pending');
-  assert.equal(symbolic.analysis_verified, 'gold_sop_match', 'a matching gold SOP verifies the row');
+  assert.equal(symbolic.analysis_verified, 'analysis_gate', 'the gate verifies the row, not a gold SOP');
+  assert.equal(symbolic.analysis_verdict.state, 'pass');
+  assert.equal(symbolic.sop_layer.status, 'match', 'the SOP result stays as sop_layer');
   assert.equal(symbolic.verification.sop_gold_match, true);
   assert.equal(symbolic.quality_flags.training_approved, false);
-  const neuro = incomingRow({message, dataset: 'neuro_english', verdict: await classify(message, {symbolicRun: async t => bad(t)}), rewrite: 'Does Ioana coach the team?', now});
+  const noGold = incomingRow({message, dataset: 'symbolic_english', verdict: await classify(message, {symbolicRun: async t => good(t), gate: gateOf('pass')}), now});
+  assert.equal(noGold.analysis_verified, 'analysis_gate', 'a production row needs no gold SOP');
+  assert.equal(noGold.sop_layer.status, 'no_gold');
+  const neuro = incomingRow({message, dataset: 'neuro_english', verdict: await classify(message, {symbolicRun: async t => good(t), gate: gateOf('fail')}), rewrite: 'Does Ioana coach the team?', now});
   assert.equal(neuro.rewrite_target, true);
   assert.equal(neuro.targets[0].text, 'Does Ioana coach the team?');
+  assert.equal(neuro.failure_kind, 'judge_ac');
+  assert.equal(neuro.analysis_verified, 'analysis_gate_failed');
+  const pending = incomingRow({message, dataset: 'pending', verdict: await classify(message, {symbolicRun: async t => good(t), gate: gateOf('pending')}), now});
+  assert.equal(pending.dataset, 'pending');
+  assert.equal(pending.analysis_verified, 'analysis_pending_judge');
+  const viaSop = incomingRow({message, dataset: 'neuro_english', verdict: await classify(message, {symbolicRun: async t => bad(t), gate: gateOf('pass')}), now});
+  assert.equal(viaSop.analysis_verified, 'sop_rule_failed');
   const noisy = incomingRow({message: 'Cine lucrează la Tisa?', dataset: 'bad_english', verdict: await classify('Cine lucrează la Tisa?', {symbolicRun: null}), clean: 'Who works at Tisa?', now});
   assert.equal(noisy.target, 'Who works at Tisa?');
   assert.equal(noisy.id, incomingRow({message: 'Cine lucrează la Tisa?', dataset: 'bad_english', verdict: {gate: {partition: 'ro', reasons: []}, symbolic: null}, now}).id, 'the id depends on the message and the dataset only');
 });
 
-test('merge refuses a row that duplicates a sealed test message or lacks its gold, and accepts only reviewed rows (dry run on a temp root)', async () => {
+test('resolve places a pending case once the gate has a verdict and keeps the others waiting', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'add-case-resolve-'));
+  const message = 'Does Ioana coach the Zalău Falcons?';
+  const row = incomingRow({message, dataset: 'pending', verdict: await classify(message, {symbolicRun: async t => good(t), gate: gateOf('pending')}), now: new Date('2026-10-01T00:00:00Z')});
+  fs.mkdirSync(path.dirname(pendingFile(root)), {recursive: true});
+  fs.writeFileSync(pendingFile(root), JSON.stringify(row) + '\n');
+  const still = await resolvePending({root, gate: gateOf('pending')});
+  assert.deepEqual([still.placed.length, still.waiting], [0, 1]);
+  const done = await resolvePending({root, gate: gateOf('pass')});
+  assert.deepEqual(done.placed.map(p => p.dataset), ['symbolic_english']);
+  assert.equal(fs.readFileSync(pendingFile(root), 'utf8'), '');
+  const placed = JSON.parse(fs.readFileSync(incomingFile('symbolic_english', root), 'utf8'));
+  assert.equal(placed.analysis_verified, 'analysis_gate');
+  assert.equal(placed.pending_id, row.id);
+});
+
+test('merge refuses a row that duplicates a sealed test message or whose gate did not pass, and accepts only reviewed rows (dry run on a temp root)', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'add-case-'));
   fs.mkdirSync(path.join(root, 'datasets/symbolic_english'), {recursive: true});
   fs.mkdirSync(path.join(root, 'eval/reports/current/three-datasets'), {recursive: true});
   const {createHash} = await import('node:crypto');
   fs.writeFileSync(path.join(root, 'eval/reports/current/three-datasets/sealed-text-hashes.json'), JSON.stringify({hashes: [createHash('sha1').update('does ana work at tisa').digest('hex').slice(0, 16)]}));
-  const row = (id, message, extra) => ({id, dataset: 'symbolic_english', message, review_status: 'accepted', analysis_verified: 'gold_sop_match', quality_flags: {}, source: {}, ...extra});
-  fs.writeFileSync(path.join(root, 'datasets/symbolic_english/incoming.jsonl'), [row('p1', 'does ana work at tisa'), row('p2', 'Who runs the lab?'), row('p3', 'Who opens the gate?', {review_status: 'pending'}), row('p4', 'Where is the depot?', {analysis_verified: 'pending'})].map(r => JSON.stringify(r)).join('\n') + '\n');
+  const row = (id, message, extra) => ({id, dataset: 'symbolic_english', message, review_status: 'accepted', analysis_verified: 'analysis_gate', quality_flags: {}, source: {}, ...extra});
+  fs.writeFileSync(path.join(root, 'datasets/symbolic_english/incoming.jsonl'), [row('p1', 'does ana work at tisa'), row('p2', 'Who runs the lab?'), row('p3', 'Who opens the gate?', {review_status: 'pending'}), row('p4', 'Where is the depot?', {analysis_verified: 'analysis_pending_judge'}), row('p5', 'Who owns the van?', {analysis_verified: 'gold_sop_match'}), row('p6', 'Hello?', {analysis_verified: 'sop_rule'})].map(r => JSON.stringify(r)).join('\n') + '\n');
   const {merged, refused} = await merge('symbolic_english', 'train', {root, dry: true});
-  assert.deepEqual(merged.map(r => r.id), ['p2']);
-  assert.deepEqual(refused.map(r => r.id).sort(), ['p1', 'p4']);
+  assert.deepEqual(merged.map(r => r.id), ['p2', 'p6']);
+  assert.deepEqual(refused.map(r => r.id).sort(), ['p1', 'p4', 'p5']);
 });
 
 test('harvest: content lost, the chain rewrites only non-clean sentences, output classes a, b and c, uncovered forms', async () => {

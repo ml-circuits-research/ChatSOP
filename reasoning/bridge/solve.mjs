@@ -6,7 +6,7 @@
 import {assert} from '../../lib/util.mjs';
 import {reason} from './reason.mjs';
 import {hornProlog, constraintZ3, optimizeZ3} from './external.mjs';
-import {validateConstraint, enumerateConstraint, optimizeConstraint, assignmentsOf} from '../strategies/js-reference/constraint-ast.mjs';
+import {validateConstraint, enumerateConstraint, optimizeConstraint} from '../strategies/js-reference/constraint-ast.mjs';
 
 /** Horn question over `memory = {facts, rules, complete, probes}`; assumptions are admitted by the shared rule. */
 export function solveHorn(q, memory, {backend = 'auto', assumptions = [], ...limits} = {}) {
@@ -19,7 +19,7 @@ export function solveHorn(q, memory, {backend = 'auto', assumptions = [], ...lim
 /** Integer constraint problem (`task prove|possible`; optimization goes through `optimize`). */
 export function solveConstraint(problem, {backend = 'auto', ...options} = {}) {
   validateConstraint(problem);
-  if (backend === 'auto') backend = assignmentsOf(problem) <= (options.maxAssignments ?? 100000) ? 'js' : 'z3';
+  if (backend === 'auto') backend = 'js';  // never chosen by problem size: Z3 runs only when it is requested (rule 8)
   assert(['js', 'z3'].includes(backend), 'Constraint problem cannot be dispatched to this backend');
   return backend === 'js' ? enumerateConstraint(problem, options) : constraintZ3(problem, options);
 }

@@ -6,6 +6,7 @@
  *
  *   node tools/datasets/build-three-datasets.mjs collect                         # classification counts, no writes
  *   node tools/datasets/build-three-datasets.mjs analyze [--shard 0/4] [--threads 3] [--targets]
+ *   node tools/datasets/build-three-datasets.mjs refresh --texts FILE [--device cpu]  # re-analyse cached texts whose tree changed (one text per line)
  *   node tools/datasets/build-three-datasets.mjs gate-stage [--dry]              # analysis gate: record missing parses, append the judge items still missing (datasets_sources/resplit_parse_judge)
  *   node tools/datasets/build-three-datasets.mjs assemble [--datasets a,b]       # writes train/dev of the three datasets (or only the named ones)
  *   node tools/datasets/build-three-datasets.mjs resplit-report                  # eval/reports/current/three-datasets/resplit-summary.md
@@ -123,10 +124,12 @@ async function main() {
     console.error(`\nshard ${index}/${count}: analysed ${result.done} of ${result.todo}`);
     return;
   }
-  if (o.command === 'spacy') {
-    const {computeAgreement} = await import('./three-datasets/spacy-agree.mjs');
-    const result = await computeAgreement(loadCache(), {onProgress: (done, todo) => process.stderr.write(`\rspaCy ${done}/${todo}`)});
-    console.error(`\nspaCy agreement records added: ${result.added}`);
+  if (o.command === 'refresh') {
+    // Re-analyse specific texts although they are cached (rows whose tree changed, for example under a new rules version): `refresh --texts FILE [--device cpu]`, one text per line.
+    if (typeof o.texts !== 'string') throw Error('usage: build-three-datasets.mjs refresh --texts FILE [--device cpu|cuda]');
+    const texts = fs.readFileSync(o.texts, 'utf8').split('\n').filter(Boolean);
+    const result = await analyseTexts(texts, {force: true, threads: 1, ...(o.device ? {device: o.device} : {})});
+    console.error(`refreshed ${result.done} of ${texts.length} texts`);
     return;
   }
   if (o.command === 'accurate') {

@@ -12,77 +12,67 @@ One row per Wikidata property read. Facts carry `source "Wikidata <item> <proper
 | P6 | `head_of_government_of` | `subject:entity object:entity` | entity | country | current holder, best rank; flipped |
 | P47 | `borders` | `subject:entity object:entity` | entity | country | shares a land border; Wikidata states both directions |
 | P463 | `member_of` | `subject:entity object:entity` | entity | country | membership in a curated list of international organizations (curated values) |
-| P1082 | `population_of` | `subject:integer object:entity` | integer | country, city, language, currency | best-rank value; flipped |
-| P2046 | `area_km2_of` | `subject:integer object:entity` | integer | country | square kilometres, rounded; flipped |
-| P571 | `founded_year` | `subject:entity time:integer` | year | country, company, university, organization, city | inception; year precision |
+| P1082 | `population_of` | `subject:entity object:integer` | integer | country, city, language, currency | best-rank value; core-en orientation (entity, number) |
+| P2046 | `area_of` | `subject:entity object:integer` | integer | country | square kilometres, rounded (core-en: unit km2) |
+| P571 | `founded_year` | `subject:entity time:time` | year | country, company, university, organization, city | inception; year precision |
 | P297 | `iso_country_code` | `subject:entity object:text` | text | country | ISO 3166-1 alpha-2 |
 | P218 | `iso_language_code` | `subject:entity object:text` | text | language | ISO 639-1 |
 | P498 | `iso_currency_code` | `subject:entity object:text` | text | currency | ISO 4217 |
 | P279 | `language_family` | `subject:entity object:entity` | entity | language | subclass of: the family or parent language |
 | P17 | `located_in` | `subject:entity location:entity` | entity | country, city, company, university, organization, literary_work, film, painting | country; merged with P131 and P30 under one predicate (rule r_located_trans) |
 | P131 | `located_in` | `subject:entity location:entity` | entity | city, company, university, organization | located in the administrative territorial entity |
-| P569 | `birth_year` | `subject:entity time:integer` | year | person |  |
-| P569 | `birth_date` | `subject:entity time:text` | date | person | ISO 8601 text, only when the date has day precision |
-| P570 | `death_year` | `subject:entity time:integer` | year | person |  |
-| P570 | `death_date` | `subject:entity time:text` | date | person | ISO 8601 text, only when the date has day precision |
+| P569 | `born_on` | `subject:entity time:time` | year | person | year of birth; the predicate and its lexemes are core-en's |
+| P569 | `birthday` | `subject:entity time:text` | date | person | ISO 8601 text, only when the date has day precision |
+| P570 | `died_on` | `subject:entity time:time` | year | person | year of death; the predicate and its lexemes are core-en's |
+| P570 | `deathday` | `subject:entity time:text` | date | person | ISO 8601 text, only when the date has day precision |
 | P19 | `born_in` | `subject:entity location:entity` | entity | person |  |
 | P20 | `died_in` | `subject:entity location:entity` | entity | person |  |
 | P27 | `citizen_of` | `subject:entity object:entity` | entity | person |  |
-| P106 | `occupation` | `subject:entity object:entity` | entity | person |  |
+| P106 | `has_occupation` | `subject:entity object:entity` | entity | person |  |
 | P21 | `gender` | `subject:entity object:entity` | entity | person |  |
-| P69 | `educated_at` | `subject:entity object:entity` | entity | person |  |
-| P166 | `won` | `subject:entity object:entity` | entity | person | award received; curated list: the Nobel Prizes, Fields Medal, Turing Award (curated values) |
+| P69 | `studies_at` | `subject:entity object:entity` | entity | person | educated at; the predicate and its lexemes are core-en's |
+| P166 | `receives` | `subject:entity object:entity` | entity | person | award received; curated list: the Nobel Prizes, Fields Medal, Turing Award; the predicate and its lexemes are core-en's (curated values) |
 | P159 | `headquartered_in` | `subject:entity location:entity` | entity | company, university, organization |  |
 | P112 | `founded` | `subject:entity object:entity` | entity | company, organization | founded by; flipped |
 | P452 | `industry` | `subject:entity object:entity` | entity | company |  |
-| P749 | `parent_organization` | `subject:entity object:entity` | entity | company, university |  |
-| P50 | `wrote` | `subject:entity object:entity` | entity | literary_work | author; flipped |
+| P749 | `subsidiary_of` | `subject:entity object:entity` | entity | company, university | parent organization; the predicate and its lexemes are core-en's |
+| P50 | `writes` | `subject:entity object:entity` | entity | literary_work | author; flipped; the predicate and its lexemes are core-en's |
 | P57 | `directed` | `subject:entity object:entity` | entity | film | director; flipped |
 | P170 | `painted` | `subject:entity object:entity` | entity | painting | creator of a painting; flipped |
-| P577 | `publication_year` | `subject:entity time:integer` | year | literary_work, film | publication or release year |
-| P571 | `publication_year` | `subject:entity time:integer` | year | painting | inception of the painting |
+| P577 | `publication_year` | `subject:entity time:time` | year | literary_work, film | publication or release year |
+| P571 | `publication_year` | `subject:entity time:time` | year | painting | inception of the painting |
 | P407 | `language_of_work` | `subject:entity object:entity` | entity | literary_work | P407 for literary works, P364 for films (original language) |
 | P364 | `language_of_work` | `subject:entity object:entity` | entity | film |  |
 | P495 | `origin_country` | `subject:entity object:entity` | entity | literary_work, film |  |
 | P1086 | `atomic_number_of` | `subject:integer object:entity` | integer | element | flipped |
 | P246 | `symbol_of` | `subject:text object:entity` | text | element | flipped |
-| P575 | `discovery_year` | `subject:entity time:integer` | year | element |  |
-| P61 | `discovered` | `subject:entity object:entity` | entity | element | discoverer; flipped |
+| P575 | `discovery_year` | `subject:entity time:time` | year | element |  |
+| P61 | `finds` | `subject:entity object:entity` | entity | element | discoverer; flipped; the predicate and its lexemes (find, discover) are core-en's |
 | P397 | `orbits` | `subject:entity object:entity` | entity | planet | parent astronomical body |
-| P575 | `discovery_year` | `subject:entity time:integer` | year | planet |  |
-| P61 | `discovered` | `subject:entity object:entity` | entity | planet |  |
+| P575 | `discovery_year` | `subject:entity time:time` | year | planet |  |
+| P61 | `finds` | `subject:entity object:entity` | entity | planet |  |
 | P31 | `is_a` | `subject:entity object:entity` | derived | all selected | instance of: only the curated classes of CLASSES (country, city, human, ...), plus the selection class |
-| label | `label_en` | `subject:entity object:text` | derived | all selected | English label (rdfs:label@en) |
-| label | `label_ro` | `subject:entity object:text` | derived | all selected | Romanian label (rdfs:label@ro) when present; helps the host dictionary |
-| description | `description_en` | `subject:entity object:text` | derived | all selected | English description (schema:description@en) of selected entities |
-| wikibase:sitelinks | `sitelinks` | `subject:entity object:integer` | derived | all selected | number of Wikipedia editions; a notability measure used to pick the plain symbol on a name collision |
+| description | `description` | `subject:entity object:text` | derived | all selected | English description (schema:description@en) of selected entities; the entity wire uses it to tell namesakes apart |
 
 ## Copula readings
 
-The memory declares which predicates carry a reading of "be" (`reading NAME`, `describe_rank N` on the predicate wire, emitted by `ontology.mjs`); the KnowledgeLinker code names no predicate (DS021).
-
-| Predicate | Readings | Describe rank |
-| --- | --- | --- |
-| `is_a` | class, describe | 1 |
-| `occupation` | occupation, describe | 2 |
-| `description_en` | describe | 3 |
-| `located_in` | location |  |
+The base memory imports core-min and core-en, which declare the predicates that carry a reading of "be" (`reading NAME`, `describe_rank N`): `is_a` (class, describe 1), `description` (describe 2), `has_occupation` (occupation) and `located_in` (location). world-v1 declares none of them again; its facts use their argument order. Nothing in the KnowledgeLinker names a predicate (DS021).
 
 ## Entity classes
 
 | Key | Wikidata class | Note |
 | --- | --- | --- |
-| country | Q3624078 (sovereign state) |  |
-| continent | Q5107 (continent) |  |
-| city | Q515 (city) |  |
-| language | Q34770 (language) |  |
-| currency | Q8142 (currency) |  |
-| element | Q11344 (chemical element) |  |
-| planet | Q634 (planet) |  |
-| person | Q5 (human) |  |
-| company | Q4830453 (business) |  |
-| university | Q3918 (university) |  |
-| organization | Q484652 (international organization) |  |
-| literary_work | Q7725634 (literary work) |  |
-| film | Q11424 (film) |  |
-| painting | Q3305213 (painting) |  |
+| country | Q3624078 (sovereign state) | class entity declared by core-en when present, else by world-v1 |
+| continent | Q5107 (continent) | class entity declared by core-en when present, else by world-v1 |
+| city | Q515 (city) | class entity declared by core-en when present, else by world-v1 |
+| language | Q34770 (language) | class entity declared by core-en when present, else by world-v1 |
+| currency | Q8142 (currency) | class entity declared by core-en when present, else by world-v1 |
+| element | Q11344 (chemical element) | class entity declared by core-en when present, else by world-v1 |
+| planet | Q634 (planet) | class entity declared by core-en when present, else by world-v1 |
+| person | Q5 (human) | core-min class |
+| company | Q4830453 (business) | class entity declared by core-en when present, else by world-v1 |
+| university | Q3918 (university) | class entity declared by core-en when present, else by world-v1 |
+| organization | Q484652 (international organization) | core-min class |
+| literary_work | Q7725634 (literary work) | class entity declared by core-en when present, else by world-v1 |
+| film | Q11424 (film) | class entity declared by core-en when present, else by world-v1 |
+| painting | Q3305213 (painting) | class entity declared by core-en when present, else by world-v1 |

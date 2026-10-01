@@ -5,6 +5,7 @@ import {parse,canonical,one,many,words,unquote,parseAtom,dependencies,validateGr
 import {lowerFact,lowerRule,lowerQuery,lowerConstraint} from './lower.mjs';
 import {evaluateExpression,parseExpression} from './expression.mjs';
 import {linkKnowledge} from '../reasoning/linker.mjs';
+import {answerOverSlice} from '../reasoning/slice/index.mjs';
 import {StrategyRegistry} from '../memory/strategies.mjs';
 import {outputSpecs,outputRegistry,selectOutput} from './outputs.mjs';
 import {cnl} from './cnl.mjs';
@@ -15,6 +16,8 @@ import {conditionAtoms} from '../lib/conditions.mjs';
 import {runDeclarative} from './declarative.mjs';
 /** The list an operation's `output ?x one|many` ports read from its (native) packet. */
 const OPERATION_RESULTS={abduce:o=>o.explanations,diagnose:o=>o.explanations,associate:o=>o.candidates,induce:o=>o.patterns,analogize:o=>o.mappings,plan:o=>(o.plan?[o.plan]:[])};
+/** The reasoning modes whose answers are Horn deductions over a retrieved slice: the completeness guard applies to them. */
+const SLICE_GUARDED=new Set(['deduce','temporal','classify']);
 const MODEL_ONLY=new Set(['stated','assumed','unclear','unparsed']);
 const flatten=xs=>xs.flatMap(x=>Array.isArray(x)?flatten(x):[x]);
 // DS004: a `source assumption` fact is consumed only through `assume`; it is never evidence, stored or reinforced.
@@ -24,11 +27,14 @@ const EVIDENCE_OPERANDS=['observation','tests','cue','holdout','candidates','sou
 const evidence=items=>{assert(!items.some(isAssumptionFact),'assumption_fact_not_evidence: a source assumption fact may only be consumed through assume');return items;};
 // jsEval and value expressions are always available to trusted and host circuits; the model surface cannot author them.
 // modelAssumptions: 'report' lists model `assumed` wires only; 'branch' also runs a separate hypothetical solve (DS021).
-export const DEFAULT_POLICY={allowWrite:true,allowPin:true,allowRules:false,modelAssumptions:'report',maxModelAssumptions:8,maxWires:2048,maxEpochs:16,maxGoals:256,maxRules:1024,retrievalStrategy:'hybrid',reasoningStrategy:'reference',maxNodes:5000,maxDepth:8,maxHypotheses:64,maxCandidates:512,maxPlans:1,timeoutMs:3000,maxProbes:50000,maxShards:256,maxFacts:10000,maxRounds:32,maxJoins:30000,maxAssignments:100000,maxExprOps:10000,maxExprBytes:65536};
+export const DEFAULT_POLICY={allowWrite:true,allowPin:true,allowRules:false,modelAssumptions:'report',maxModelAssumptions:8,maxWires:2048,maxEpochs:16,maxGoals:256,maxRules:1024,retrievalStrategy:'hybrid',closedWorld:'view',reasoningStrategy:'reference',maxNodes:5000,maxDepth:8,maxHypotheses:64,maxCandidates:512,maxPlans:1,timeoutMs:3000,maxProbes:50000,maxShards:256,maxFacts:10000,maxRounds:32,maxJoins:30000,maxAssignments:100000,maxExprOps:10000,maxExprBytes:65536};
 export class Runtime{
- constructor({repo=null,session=null,schema=null,lexicon=null,now=Date.now(),policy={},handlers={},strategies=new StrategyRegistry(),reasoningStrategies=new ReasoningRegistry(),factGuard=null}={}){this.repo=repo;this.session=session;this.schema=schema;this.lexicon=lexicon;this.now=now;this.policy={...DEFAULT_POLICY,...policy};this.handlers=handlers;this.strategies=strategies;this.reasoningStrategies=reasoningStrategies;this.factGuard=factGuard;}
+ constructor({repo=null,session=null,schema=null,lexicon=null,closed=null,now=Date.now(),policy={},handlers={},strategies=new StrategyRegistry(),reasoningStrategies=new ReasoningRegistry(),factGuard=null,circuitRules=null}={}){this.circuitRules=circuitRules;this.repo=repo;this.session=session;this.schema=schema;this.lexicon=lexicon;this.closed=closed;this.now=now;this.policy={...DEFAULT_POLICY,...policy};this.handlers=handlers;this.strategies=strategies;this.reasoningStrategies=reasoningStrategies;this.factGuard=factGuard;}
  library(asof=Infinity){return this.repo&&this.session?this.repo.library(this.session,{asof}):[];}
- rules(q){return this.library(q.asof).filter(x=>x.wireType==='rule').map(x=>{assert(digest(x.sop)===x.hash,'Approved rule checksum mismatch');return lowerRule(parse(x.sop).wires[0],{},this.schema);});}
+ // Rules of the approved library plus the rules of the memory's circuits (`circuitRules`, a function returning typed rules: the chat turn carries them like the session query path).
+ /** Two role classes where one is a subclass of the other (country, place) share a variable of a nested question; null without a lexicon. */
+ classRelation(){const lex=this.lexicon;return lex?.classesOf?(a,b)=>lex.classesOf(a).has(b)?'old':lex.classesOf(b).has(a)?'next':null:null;}
+ rules(q){return [...this.library(q.asof).filter(x=>x.wireType==='rule').map(x=>{assert(digest(x.sop)===x.hash,'Approved rule checksum mismatch');return lowerRule(parse(x.sop).wires[0],{},this.schema);}),...(this.circuitRules?.(q)??[])];}
  async run(source,{origin='trusted',inputText='',language='en',languageSource='default',context={statements:[]}}={}){
   if(origin==='model')return runDeclarative(source,{runtime:this,inputText,language,languageSource,context});
   const program=parse(source,{maxWires:this.policy.maxWires,allowTypes:Object.keys(this.handlers)});const originalIds=program.wires.map(w=>w.id);
@@ -84,7 +90,7 @@ export class Runtime{
      }
      case 'fact':output={...lowerFact(w,values,this.schema),sop:canonical({wires:[w]})};break;
      case 'rule':output=lowerRule(w,values,this.schema);break;
-     case 'query':output=lowerQuery(w,values,this.schema,{now:this.now});break;
+     case 'query':output=lowerQuery(w,values,this.schema,{now:this.now,related:this.classRelation()});break;
      case 'constraint':output=lowerConstraint(w,values);break;
      case 'event':output=materializeEvent(w);break;
      case 'pack':output=dataInputs(w,'items');break;
@@ -131,8 +137,11 @@ export class Runtime{
       if(w.fields.memory){mem=val(one(w,'memory'));assert(mem.kind==='retrieval','reason memory must be a retrieval result');}
       else {const items=evidence(w.fields.data?flatten([val(one(w,'data'))]):[]);const facts=items.filter(x=>x.kind==='fact').map((f,i)=>({...f,id:'local_'+i,knownAt:this.now,evidence:{local:true},kind:'observed'})),rules=items.filter(x=>x.kind==='rule');mem={facts:filterTime(facts,q),rules,complete:true,probes:0};}
       const assumptions=w.fields.assume?flatten([val(one(w,'assume'))]).map((f,i)=>{assert(f.kind==='fact','Assumptions must be fact values');return {...f,id:'assume_'+i,kind:'assumed'};}):[];
-      output=this.reasoningStrategies.run(chooseReasoning(w),{mode:one(w,'mode','deduce'),query:q,memory:mem,data:evidence(w.fields.data?flatten([val(one(w,'data'))]):[]),limits:this.policy,assumptions:filterTime(assumptions,q),backend:one(w,'backend','auto')});
-      if(mem.linkPlan)output.linkPlan=mem.linkPlan;
+      const reasonData=evidence(w.fields.data?flatten([val(one(w,'data'))]):[]),reasonMode=one(w,'mode','deduce');
+      const solve=memory=>this.reasoningStrategies.run(chooseReasoning(w),{mode:reasonMode,query:q,memory,data:reasonData,limits:this.policy,assumptions:filterTime(assumptions,q),backend:one(w,'backend','auto')});
+      // A retrieval that carries a slice report is judged by the completeness guard and widened until its answer is accepted (DS005, DS006).
+      output=mem.slice&&SLICE_GUARDED.has(reasonMode)?answerOverSlice({memory:mem,query:q,solve,policy:this.policy,closed:this.closed}):solve(mem);
+      if(mem.linkPlan&&!output.linkPlan)output.linkPlan=mem.linkPlan;
       // A fact is reinforced only after it appears in the actual proof/refutation,
       // only for metadata-verified observed facts, and only when host policy
       // and the memory retention configuration both allow promotion on use.

@@ -1,72 +1,13 @@
-/** Extra commands of tools/research/stanza-accurate-eval.mjs: spaCy uncertainty signal, pairwise stronger-model judgement, speed. */
+/** Extra commands of tools/research/stanza-accurate-eval.mjs: pairwise stronger-model judgement, speed. */
 import fs from 'node:fs';
 import path from 'node:path';
 import {execSync} from 'node:child_process';
 import {loadFrozenRules} from './proofing-oracle.mjs';
-import {OUT, stageRows, parsesFor, Worker, mulberry, wilson} from './stanza-accurate-eval.mjs';
-import {SpacyWorker} from '../../lib/symbolic-lm/spacy.mjs';
-import {coreDisagreement, treeShape} from '../../lib/symbolic-lm/uncertainty.mjs';
+import {OUT, stageRows, parsesFor, Worker, mulberry} from './stanza-accurate-eval.mjs';
 import {RUBRIC, renderFull, judgeRows, Ledger} from './parse-judge.mjs';
 
 const readJsonl = f => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').split('\n').filter(l => l.trim()).map(l => JSON.parse(l)) : []);
 const writeJson = (f, v) => { fs.mkdirSync(path.dirname(f), {recursive: true}); fs.writeFileSync(f, JSON.stringify(v, null, 1) + '\n'); };
-const pct = x => (x == null ? 'n/a' : (100 * x).toFixed(1) + '%');
-
-/** AUROC of a numeric score for a binary label. */
-function auroc(items) {
-  const pos = items.filter(i => i.y), neg = items.filter(i => !i.y);
-  if (!pos.length || !neg.length) return null;
-  let s = 0;
-  for (const p of pos) for (const n of neg) s += p.x > n.x ? 1 : p.x === n.x ? 0.5 : 0;
-  return s / (pos.length * neg.length);
-}
-
-// ------------------------------------------------------------------ L2: spaCy disagreement as an uncertainty signal
-async function spacyCommand(o) {
-  const rules = await loadFrozenRules('v1.4');
-  const rows = stageRows(o.set, o.stage);
-  const spacy = new SpacyWorker({threads: 4});
-  const out = {set: o.set, stage: o.stage, rows: rows.length, variants: {}};
-  const flagsByVariant = {};
-  for (const variant of ['default', 'accurate']) {
-    const parses = await parsesFor(variant, rows, rules);
-    const runs = new Map(readJsonl(path.join(OUT, 'runs', `${variant}-${o.set}-${o.stage}.jsonl`)).map(r => [r.id, r]));
-    const recs = [];
-    for (let i = 0; i < rows.length; i++) {
-      const sents = parses[i].sentences.filter(s => s.language === 'en');
-      let disagree = 0, shape = 0;
-      const notes = [];
-      for (const s of sents) {
-        const toks = await spacy.parse(s.text);
-        const d = coreDisagreement(s, toks, s.start);
-        if (d) { disagree++; notes.push(d); }
-        if (treeShape(s).length) shape++;
-      }
-      recs.push({id: rows[i].id, sentences: sents.length, disagree, shape, miss: !runs.get(rows[i].id).strict, note: notes[0] ?? null});
-    }
-    flagsByVariant[variant] = new Map(recs.map(r => [r.id, r]));
-    const n = recs.length, misses = recs.filter(r => r.miss).length;
-    const summarize = (label, flag) => {
-      const f = recs.filter(flag), nf = recs.filter(r => !flag(r));
-      const pf = f.filter(r => r.miss).length / (f.length || 1), pn = nf.filter(r => r.miss).length / (nf.length || 1);
-      return {flagged: f.length, flagged_share: f.length / n, p_miss_flagged: pf, p_miss_unflagged: pn, lift: pf / (misses / n), precision: pf, recall: f.filter(r => r.miss).length / (misses || 1), wilson_flagged: f.length ? wilson(f.filter(r => r.miss).length, f.length) : null, label};
-    };
-    out.variants[variant] = {rows: n, strict_miss_rate: misses / n, spacy_disagree: summarize('spaCy core disagreement', r => r.disagree > 0), tree_shape: summarize('tree-shape anomaly', r => r.shape > 0),
-      either: summarize('spaCy disagreement or tree-shape', r => r.disagree > 0 || r.shape > 0), auroc_disagree_count: auroc(recs.map(r => ({x: r.disagree, y: r.miss})))};
-  }
-  await spacy.stop();
-  // agreement between default and accurate Stanza as a signal (core arcs)
-  const diff = readJsonl(path.join(OUT, `diff-${o.set}-${o.stage}.jsonl`));
-  const byMsg = new Map();
-  for (const d of diff) { const m = byMsg.get(d.id) ?? {any: false, core: false}; m.any ||= d.any; m.core ||= d.core; byMsg.set(d.id, m); }
-  const dv = readJsonl(path.join(OUT, 'runs', `default-${o.set}-${o.stage}.jsonl`));
-  const n = dv.length, misses = dv.filter(r => !r.strict).length;
-  const sig = flag => { const f = dv.filter(r => flag(byMsg.get(r.id) ?? {})); const mf = f.filter(r => !r.strict).length; return {flagged: f.length, share: f.length / n, p_miss_flagged: mf / (f.length || 1), lift: mf / (f.length || 1) / (misses / n), recall: mf / (misses || 1)}; };
-  out.default_vs_accurate = {any_arc_differs: sig(m => m.any), core_arcs_differ: sig(m => m.core)};
-  writeJson(path.join(OUT, `spacy-signal-${o.set}-${o.stage}.json`), out);
-  for (const [v, s] of Object.entries(out.variants)) console.log(v, 'miss', pct(s.strict_miss_rate), 'spaCy flagged', pct(s.spacy_disagree.flagged_share), 'P(miss|flag)', pct(s.spacy_disagree.p_miss_flagged), 'P(miss|ok)', pct(s.spacy_disagree.p_miss_unflagged), 'lift', s.spacy_disagree.lift.toFixed(2), 'recall', pct(s.spacy_disagree.recall), 'AUROC', s.auroc_disagree_count?.toFixed(3));
-  console.log('default vs accurate', JSON.stringify(out.default_vs_accurate));
-}
 
 // ------------------------------------------------------------------ pairwise judgement by the stronger model
 const PAIR_SYSTEM = RUBRIC.split('\nAnswer with ONE JSON object')[0].replace('You check whether an automatic dependency parse of ONE English sentence gives the right analysis', 'You compare two automatic dependency parses (PARSE A and PARSE B) of ONE English sentence and decide which gives the right analysis') + `
@@ -175,13 +116,13 @@ async function sampleCommand(o) {
 }
 function treeDiffAny(sa, sb) { return sa.words.some((w, i) => w.head !== sb.words[i]?.head || w.deprel !== sb.words[i]?.deprel); }
 
-export const COMMANDS = {spacy: spacyCommand, pairs: pairsCommand, speed: speedCommand, sample: sampleCommand};
+export const COMMANDS = {pairs: pairsCommand, speed: speedCommand, sample: sampleCommand};
 
 import {fileURLToPath} from 'node:url';
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
   const [command, ...rest] = process.argv.slice(2);
   const o = {};
   for (let i = 0; i < rest.length; i++) if (rest[i].startsWith('--')) o[rest[i].slice(2)] = rest[i + 1] && !rest[i + 1].startsWith('--') ? rest[++i] : true;
-  if (!COMMANDS[command]) { console.log('usage: node tools/research/stanza-accurate-extra.mjs spacy|pairs|speed --set dev --stage full'); process.exit(0); }
+  if (!COMMANDS[command]) { console.log('usage: node tools/research/stanza-accurate-extra.mjs pairs|speed --set dev --stage full'); process.exit(0); }
   await COMMANDS[command](o);
 }

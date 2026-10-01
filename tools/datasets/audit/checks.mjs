@@ -70,12 +70,23 @@ function computeMention(entity, context) {
 function literalMentioned(term, context) {
   const text = literalText(term);
   if (phrasePresent(text, context.normMessage)) return true;
+  // A number literal is mentioned by its digits or its number word ("more than two" -> 2), and a person pronoun by any of its forms
+  // ("our matters" -> object "us"): the model normalizes both (DS021 content words).
+  if (/^\d+$/.test(text) && numberMentioned(text, context.messageTokens)) return true;
+  const person = PRONOUN_PERSON.get(text.toLowerCase());
+  if (person && [...PRONOUN_PERSON].some(([form, same]) => same === person && context.messageTokens.has(form))) return true;
   // Canonical English targets (Q-DATA-6): a translated common noun is anchored through the EN↔RO lexicon.
   if (anchoredValue(text, context.message, context.row)) return true;
   const content = contentTokens(text);
   const words = content.length ? content : tokens(text);
   return words.length > 0 && words.filter(token => tokenPresent(token, context.messageTokens)).length / words.length >= 0.5;
 }
+
+/** Person pronoun forms by person ("I" and "my" are first person singular), for literals the model normalizes ("our" -> "us"). */
+const PRONOUN_PERSON = new Map([
+  ...['i', 'me', 'my', 'mine', 'myself'].map(form => [form, '1s']), ...['we', 'us', 'our', 'ours', 'ourselves'].map(form => [form, '1p']),
+  ...['you', 'your', 'yours', 'yourself'].map(form => [form, '2']),
+]);
 
 const predicateText = (id, context) => {
   const predicate = context.vocabulary.predicates.get(id);

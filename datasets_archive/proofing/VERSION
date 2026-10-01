@@ -1,8 +1,8 @@
 {
  "format": "chatsop-dataset-version-v1",
  "corpus": "proofing",
- "counter": 3,
- "label": "proofing build 3 (v2: +88 train / +3 dev / +98 hard_cases rows from Haiku-diversified formalizer-v1 paraphrases, disjoint from diverse-dev.jsonl and eval/suites/**; rules v1.4 unchanged; v1 rows unchanged)",
+ "counter": 5,
+ "label": "proofing build 5 (train row proofdiv_fv1_027997_0_0_lp0 dropped (its input repeats proofdiv_fv1_027997_0_1_lp0, the corpus audit's duplicate_question invariant); projection regenerated (tools/datasets/audit/fix-archive-defects.mjs))",
  "seed": "chatsop-proofing-v1",
- "manifest_sha256": "fd0c0bb3f8b7b66b4010d44631e20cc62785d023f9ced75906b801a1184dd4f1"
+ "manifest_sha256": "cad24b5a73ea744fb1fcd0d9dc646bac221a7e79c7d4f1615a9e76738cd4dd82"
 }

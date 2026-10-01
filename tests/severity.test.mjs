@@ -1,12 +1,12 @@
 // Graded severity (DS016 "Graded severity (S0-S4, NONE)"): scale helpers, mechanical layer, analysis mapping, SOP comparer, simplifications and metrics.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {SEVERITIES, worst, rank, isGoodEnough} from '../lib/severity/scale.mjs';
-import {mechanicalSeverity} from '../lib/severity/mechanical.mjs';
-import {severityFromComparison} from '../lib/severity/analysis-map.mjs';
-import {sopSeverity} from '../lib/severity/sop-compare.mjs';
-import {stripLeadIns, stripTag, splitCoordinated, simplifications} from '../lib/severity/simplify.mjs';
-import {wilson, summaryMetrics, confusion, distributionStats} from '../lib/severity/metrics.mjs';
+import {SEVERITIES, worst, rank, isGoodEnough} from '../tools/eval/severity/scale.mjs';
+import {mechanicalSeverity} from '../tools/eval/severity/mechanical.mjs';
+import {severityFromComparison} from '../tools/eval/severity/analysis-map.mjs';
+import {sopSeverity} from '../tools/eval/severity/sop-compare.mjs';
+import {stripLeadIns, stripTag, splitCoordinated, simplifications} from '../tools/eval/severity/simplify.mjs';
+import {wilson, summaryMetrics, confusion, distributionStats} from '../tools/eval/severity/metrics.mjs';
 
 test('scale order and helpers', () => {
   assert.deepEqual(SEVERITIES, ['S0', 'S1', 'S2', 'S3', 'S4', 'NONE']);

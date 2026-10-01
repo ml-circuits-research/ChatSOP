@@ -239,7 +239,7 @@ export function validateProgram(files, opts = {}) {
   }
   for (const e of edges) if (e.skip) edges.splice(edges.indexOf(e), 1);
   crossChecks({allWires, ctxs, predicates, problems, headOf, ruleSetComplete: opts.ruleSetComplete ?? null});
-  lexiconChecks({files, allWires, ctxs, problems});
+  lexiconChecks({files, allWires, ctxs, problems, linking: Boolean(opts.linking)});
 
   const cycle = negativeCycle(edges);
   if (cycle) problems.push({code: 'not_stratifiable', file: cycle.file, line: cycle.line, message: 'negation, exception or aggregation through recursion: ' + cycle.path.join(' -> '), wire: cycle.wire});

@@ -42,11 +42,11 @@ const run = (file, args) => {
 // The corpora live in `datasets_archive/` (legacy formalizer corpora, provenance inputs) and, since the owner decision of
 // 2026-09-30, `datasets/` holds only bad_english, symbolic_english and neuro_english (manifest format
 // chatsop-dataset-manifest-v3, verified by tools/datasets/verify-three-datasets.mjs instead).
-// Archived corpora that are not formalizer corpora and that verify-corpus.mjs cannot check (found while restructuring datasets/,
-// 2026-09-30; before that they were already failing this part): each is reported as SKIP with its reason, never silently.
+// Archived corpora that are not formalizer corpora (`clean-english`: a filtered view with wild rows that have no split groups; `proofing`: the
+// input/target schema) cannot be checked by verify-corpus.mjs; each has its own verifier, tools/datasets/verify-view-corpora.mjs (run below with --archive).
 const NOT_VERIFIABLE_HERE = {
-  'clean-english': 'a filtered view of formalizer-v1 and the sealed suites (its sealed test holds wild rows, which have no split groups); its rows are verified in their source corpora',
-  proofing: 'proofing schema (input/target rows, not question/SOP rows); verified by tools/research/qualify-proofing.mjs',
+  'clean-english': 'verified by verify-view-corpora.mjs (clean-English gate, formalizer row schema, wild rows without groups)',
+  proofing: 'verified by verify-view-corpora.mjs (input/target schema, kinds, split groups, training projection)',
 };
 const manifests = (dir, flag) => fs.existsSync(path.join(root, dir)) ? fs.readdirSync(path.join(root, dir), {withFileTypes: true})
   .filter(entry => entry.isDirectory() && fs.existsSync(path.join(root, dir, entry.name, 'manifest.json')))
@@ -57,7 +57,7 @@ const archive = flags.has('--archive');
 const checks = archive ? [...manifests('datasets', '--corpus'), ...manifests('datasets_archive', '--corpus'), ...manifests('eval/suites', '--suite')] : [];
 if (fs.existsSync(path.join(root, 'tools/datasets/verify-three-datasets.mjs'))) checks.push(['the three datasets (manifests, hashes, schema, splits, sealed boundary)', ['verify-three-datasets.mjs']]);
 let ok = true;
-for (const [name, reason] of Object.entries(NOT_VERIFIABLE_HERE)) if (archive && fs.existsSync(path.join(root, 'datasets_archive', name, 'manifest.json'))) console.log(`SKIP  corpus ${name}: ${reason}`);
+for (const name of Object.keys(NOT_VERIFIABLE_HERE)) if (archive && fs.existsSync(path.join(root, 'datasets_archive', name, 'manifest.json'))) checks.push([`corpus ${name} (own verifier: manifest, checksums, rows, split groups)`, ['verify-view-corpora.mjs', '--corpus', name]]);
 for (const [label, args] of checks) {
   const passed = run(...[args[0], args.slice(1)]);
   console.log(`${passed ? 'PASS' : 'FAIL'}  ${label}`);

@@ -5111,6 +5111,176 @@
       "results": {},
       "deviations": [],
       "note": "Not started: authorization receipt not written, GPU lock held by another run."
+    },
+    {
+      "id": "eval-kbqa-v1",
+      "hypothesis": "The chain SymbolicLM -> KnowledgeLinker -> reference route answers a small share of public KBQA questions from Wikidata slices today, with a low wrong rate and failures dominated by the KnowledgeLinker; an LLM reading the same facts as text answers more.",
+      "preregistration": "status/preregistrations/eval-kbqa-v1.json",
+      "data_version": "eval/suites/kbqa-{mintaka,lcquad2,simplequestions,qald10} (seed kbqa-v1)",
+      "status": "running",
+      "results": {
+        "as_of": "2026-10-01",
+        "chain_m0_accuracy": {
+          "mintaka": {
+            "100_mech": "0/100",
+            "300_mech": "1/300",
+            "300_lex": "1/300 (5 wrong)"
+          },
+          "simplequestions": {
+            "100_mech": "12/100",
+            "100_lex": "25/100",
+            "300_mech": "36/300 (17 wrong)",
+            "300_lex": "68/300 (15 wrong)"
+          },
+          "lcquad2": {
+            "100_mech": "0/100",
+            "100_lex": "0/100"
+          },
+          "qald10": {
+            "100_mech": "1/100",
+            "100_lex": "0/100"
+          }
+        },
+        "baselines_stage100_text_over_same_slice": {
+          "mintaka": {
+            "grok": "37",
+            "glm": "48",
+            "codex": "41"
+          },
+          "simplequestions": {
+            "grok": "79",
+            "glm": "95",
+            "codex": "92"
+          },
+          "lcquad2": {
+            "codex": "51",
+            "grok_90_covered": "27"
+          },
+          "qald10": {
+            "codex": "49"
+          }
+        },
+        "stops": [
+          "mintaka: full set not run, futility at 300 (upper Wilson bound 1.9% < 3%)"
+        ],
+        "pending": [
+          "simplequestions all (started)",
+          "qald10 and lcquad2 stage 300 (slices being fetched)",
+          "GLM/Grok baselines for lcquad2/qald10 (provider limits)",
+          "rerun after linker-m3 (tag m3)"
+        ],
+        "report": "eval/reports/current/kbqa/summary.md"
+      },
+      "deviations": [
+        "Mechanical lexicon and the authored lexicon (omp, per property) are two arms added after preregistration; first runs (untagged) predate the M0 completion and are superseded by tag m0.",
+        "Third baseline model openai-codex/gpt-5.5 added because Grok credits (403) and GLM 5-hour limit (429) were exhausted.",
+        "lcquad2 sampled 953 rows (227 gold-empty rows dropped), not 1000."
+      ],
+      "note": "Report: eval/reports/current/kbqa/summary.md"
+    },
+    {
+      "id": "eval-linking-v1",
+      "hypothesis": "The scored joint KnowledgeLinker links open-vocabulary questions on world-v1 + core-en more completely than the exact linker with a wrong-link rate of at most 1%, and asks (or reports alternatives) where the evidence does not separate readings.",
+      "preregistration": "status/preregistrations/eval-linking-v1.json",
+      "data_version": "eval/suites/linking-v1 parts 2 and 3 (judge labels, seed 20261001)",
+      "status": "done",
+      "results": {
+        "rows": 502,
+        "memory": "world-v1 + core-en",
+        "scored": {
+          "relation_accuracy": "188/490 = 38.4% [34.2,42.8]",
+          "exact_M1": "151/490 = 30.8% [26.9,35.0]",
+          "wrong_link_rate": "14.6% (156/1068)",
+          "relation_wrong_with_facts": "11.8%",
+          "unjustified_clarification": "32.2%",
+          "entity_accuracy": "51.1% (wrong 0.35%)"
+        },
+        "world_only_scored": {
+          "relation_accuracy": "33.9%",
+          "wrong_link_rate": "6.0%",
+          "unjustified_clarification": "53.7%"
+        },
+        "targets_met": false,
+        "calibration": "judge vs hand 38/40 with equivalent predicates, 35/40 exact",
+        "judge_agreement": "cdx-dsk relation 0.979 (part 2), 0.792 (part 3)"
+      },
+      "deviations": [
+        "Judges: the three GLM sessions were rate-limited by z.ai (429, until 2026-10-02 03:10) and Grok ran out of credits after 175 of 339 part-2 and 50 of 226 part-3 rows; the judges that labelled everything are Codex GPT-5.5 and DeepSeek V4 Flash, with Grok 4.5 and Grok 4.20 reasoning on the partial rows.",
+        "Gold rule: the (relation, ask) label that at least two judges gave and no other label matches in count (instead of 'main judge confirmed by one other'); contested rows are listed in eval/reports/current/linking/judge/consensus-part*.json.",
+        "Stage 100, first run: wrong-link 12.1% exceeded the 5% broken-condition. Cause analysis (duplicate general and specific predicates in the merged vocabulary, a head-verb tier reaching 'use as' -> uses_currency) led to two linker changes before the stages were rerun: the facts-in-memory evidence stage and head-verb candidates restricted to predicates with facts (and 'as' no longer a particle). The 12.1% run is kept in the journal; the reported stages are the reruns.",
+        "Metrics added after the first read: lenient relation accuracy (any predicate a judge gave), wrong binding to predicates without facts reported apart (relation_wrong_with_facts), author-flagged ambiguity breakdown for part 3."
+      ],
+      "note": "Reports: eval/reports/current/linking/open.json (+ open-100.json, open-300.json); labels eval/suites/linking-v1/part2.jsonl, part3.jsonl, calibration-part2.json"
+    },
+    {
+      "id": "router-v1",
+      "hypothesis": "The rule-based StrategyRouter v1 answers exactly as the oracle does (100% agreement) and faster at scale; an explicit engine request is never substituted.",
+      "preregistration": "status/preregistrations/router-v1.json",
+      "data_version": "eval/smoke-reasoning/cases (140 without memory.json), datalog-scale shapes 10^2 to 10^5, slice-timing synthetic SQLite 10^4 and 10^5",
+      "status": "done",
+      "results": {
+        "H1_smoke_agreement": "140 of 140 cases agree (67 routed to an engine: 47 Soufflé, 20 SQLite; 73 oracle)",
+        "H2_scale_correctness": "router complete and correct on 17 of 17 cells; the oracle alone complete on 8 of 17",
+        "H3_latency": "10^5 facts: negation 866 vs 399 ms, aggregates 1262 vs 414 ms, linear recursion 721 (incomplete) vs 418 ms; at 10^4 the router is slower where it verifies (aggregates 139 vs 207 ms)",
+        "H4_rule8": "tests/strategy-router.test.mjs (engine unavailable, not expressible, unknown id, explicit engine never replaced)",
+        "slice": "13 of 14 question runs stay on the oracle (small slices), 14 of 14 agree; the routed scan count 545 vs 528 ms"
+      },
+      "deviations": [],
+      "note": "Reports: eval/reports/current/router/{smoke,timing}.json, eval/reports/current/slice-path/timing.json",
+      "conclusions": "The router is correct on every measured class and faster or more complete at scale; at the size threshold the verification costs more than it gains, and clingo is never chosen (SQLite and Soufflé are faster on every measured class).  The oracle stays the product route for proofs and modes of work."
+    },
+    {
+      "id": "eval-linking-v2",
+      "hypothesis": "Principled KnowledgeLinker repairs (role relabeling, converse frames, frame tier, boundary shift, article stripping) and a dev/sealed split improve open-vocabulary linking on world-v1 + core-en without raising the wrong-link rate; circuit rules reach the chat turn.",
+      "preregistration": "status/preregistrations/eval-linking-v2.json",
+      "data_version": "eval/suites/linking-v1 parts 2 and 3 split.json (256 dev, 246 sealed test; judge labels of eval-linking-v1)",
+      "status": "done",
+      "results": {
+        "dev_scored": {
+          "relation_accuracy": "93/249 English-and-Romanian 37.4%; 42.3% on 220 English rows",
+          "wrong_link": "12.6%",
+          "unjustified_clarification": "38.6% (31.4% English)",
+          "entity_accuracy": "51.1%"
+        },
+        "sealed_test_scored_once": {
+          "rows": 246,
+          "relation_accuracy": "39.8% [33.9, 46.1] (45.7% on 210 English rows)",
+          "exact": "33.6%",
+          "scored_no_head": "36.9%",
+          "wrong_link": "12.1% (exact 9.9%)",
+          "unjustified_clarification": "34.0% (25.7% English)",
+          "entity_accuracy": "53.9%",
+          "wrong_with_facts": "12.9% of gold-bind rows",
+          "compile_errors": 0
+        },
+        "differential": "788 rows, 0 regressions, 132 improvements",
+        "acceptance_chat": "3 of 3 on world-v1",
+        "world_kb_chat_check": "20 of 30 correct, 0 wrong, 10 honest unknown",
+        "hypotheses": "H1 yes on the direction (sealed scored over exact +6.2 points; dev over the M3 half +1.3 points on all rows, +6.2 on English rows) but far from the section 6.2 targets; H2 partly (unjustified 34.0% sealed against 44.8% exact; not under 5%); H3 not met (wrong-link 12.1% against 1% target; it is dominated by generic verbs bound where the memory has no facts); H4 confirmed in direction on the sealed half."
+      },
+      "deviations": [
+        "The memory changed under the evaluation: worldkb-agent remapped world-v1 onto core-en predicates during the task, and the english-core-agent made the core English-only. Labels judged against the old vocabulary are read through PREDICATE_RENAMES (one-to-one renames) in tools/eval/linking-open.mjs. Romanian rows (about one in eight) score 0 by design after the owner decision (translate at the edges); the report gives the English rows apart (by_language).",
+        "The M3 linker could not be run on the new memory, so H1 to H3 are compared with the M3 numbers of the same half measured before the work (dev 36.1% relation, 14.8% wrong-link, 35.3% unjustified) and with the exact arm on the new memory.",
+        "No new LLM labels were needed (no judge calls)."
+      ],
+      "note": "Reports: eval/reports/current/linking/open-dev.json, open-test.json (sealed half, measured once); M3 numbers of eval-linking-v1 are on the full, partially seen set."
+    },
+    {
+      "id": "eval-query-forms-v1",
+      "hypothesis": "Counts, superlatives, ordinals, comparatives, multi-hop and age questions reach correct answers end to end on world-v1 after rules v2.9 and the measure knowledge; the sealed KBQA gain is small because the mechanical KBQA lexicon has no gradable-adjective lexemes.",
+      "preregistration": "status/preregistrations/eval-query-forms-v1.json",
+      "data_version": "dev: datasets_sources/query-forms/dev.jsonl (omp gpt-6-luna, oracle gold on world-v1); sealed: eval/suites/kbqa-*",
+      "status": "running",
+      "results": {
+        "as_of": "2026-10-01",
+        "pending": [
+          "dev set generation",
+          "rules iterations",
+          "sealed KBQA tag qf"
+        ]
+      },
+      "deviations": [],
+      "note": "Design: topic model-language note of 2026-10-01 (query forms plan)."
     }
   ]
 }

@@ -8,7 +8,7 @@ const query=(select='?who',where='grandmother ?who carina')=>`@q query\n  select
 const solve=(outputs='?who one')=>`@r solve\n  query $q\n  output ${outputs}\n`;
 const answer='@answer cnl\n  result $r\n  language ro';
 const indent=body=>body.split('\n').map(l=>'    '+l).join('\n');
-async function withContext(fn){const c=context();try{return await fn(c);}finally{c.dispose();}}
+async function withContext(fn,options){const c=context(options);try{return await fn(c);}finally{c.dispose();}}
 
 test('deferred output is legal without @who declaration',()=>{
  assert.ok(validateGraph(parse(query()+solve()+'@s jsEval\n  expr $who')));
@@ -82,9 +82,18 @@ test('a status output can be used even when no fact is known',()=>withContext(as
  const r=await c.run(query('?who','works_at ?who missing')+solve('?decision status')+'@s jsEval\n  expr $decision');
  assert.equal(r.result,'unknown');
 }));
+// A count is a closed-world answer: it needs an exact complete view (R-P2, R-P3), so it is asked of the SQLite memory.
 test('count output requires a complete count query',()=>withContext(async c=>{
  const r=await c.run(query('?who','ancestor ?who carina').replace('  select','  mode count\n  select')+solve('?total count')+'@s jsEval\n  expr $total');
  assert.equal(r.result,2);
+},{memory:{engine:'sqlite'}}));
+test('a count over an associative memory is withheld, never given as exact (R-P3)',()=>withContext(async c=>{
+ const r=await c.run(query('?who','ancestor ?who carina').replace('  select','  mode count\n  select')+solve('?total count')+'@s jsEval\n  expr $total');
+ assert.equal(r.values.r.status,'incomplete');
+ assert.equal(r.values.r.reason,'partial_retrieval');
+ assert.equal(r.values.r.at_least,2);
+ assert.deepEqual(r.values.r.retrieval_reasons,['inexact_view']);
+ assert.equal(r.blocked.s.status,'blocked');
 }));
 test('query output used to formulate a second memory query',()=>withContext(async c=>{
  const r=await c.run(query()+solve()+`@q2 query

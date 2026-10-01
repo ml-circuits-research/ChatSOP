@@ -26,6 +26,18 @@ export async function* streamJsonl(file) {
 
 export const targetOf = row => row.sop_target ?? row.target ?? null;
 
+/**
+ * Corpus audit profiles (the `audit_profile` of a corpus manifest). The default profile audits rows of the model language: a user
+ * message (`question`) and an SOP target. `text-repair` is for corpora whose target is text, never SOP (the proofing corpus: `input`
+ * is the message as typed, `target` its repaired text); its rows are read as messages without a target, so the SOP checks do not
+ * apply and the message checks (identifiers, duplicates, leakage between the splits) do.
+ */
+export function adaptRow(row, profile) {
+  if (profile !== 'text-repair') return row;
+  const {target, ...rest} = row;
+  return {...rest, question: row.input, repair_target: target, surfaces_only: true};
+}
+
 /** The user's message: the whole question (legacy-format rows may still split it into attached assertions). */
 export function messageOf(row) {
   if (typeof row.prompt === 'string') {

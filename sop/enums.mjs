@@ -53,6 +53,8 @@ export const TIME_MEASURES = Object.freeze(['start', 'end', 'duration']);
 export const COMPARATOR_WORDS = Object.freeze({above: '>', below: '<', at_least: '>=', at_most: '<=', equal: '==', not_equal: '!='});
 export const ARITHMETIC_WORDS = Object.freeze({plus: '+', minus: '-', times: '*', divided_by: '/'});
 export const RANK_WORDS = Object.freeze(['highest', 'lowest']);
+/** Optional cut after the variable of `rank`: `position 2` (the second best value, "the second largest") or `top 3` (the three best values). */
+export const RANK_CUTS = Object.freeze(['position', 'top']);
 export const QUANTIFIER_WORDS = Object.freeze(['all', 'none', 'not_all', 'most', 'half', 'at_least']);
 export const ORDER_WORDS = Object.freeze(['before', 'after', 'same_time']);
 export const FRAGMENT_KINDS = Object.freeze(['follow_up']);

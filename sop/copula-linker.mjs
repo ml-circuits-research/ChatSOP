@@ -2,7 +2,7 @@
  * The copula in the KnowledgeLinker (DS021 "KnowledgeLinker: the copula and the relation lexicon").
  *
  * SymbolicLM and the small model write the verb "be" as the relation string `be` (also `be a` / `be an`, and
- * `be in` / `be located in`), with the roles as written in the message. This module reads it as one of five closed
+ * `be in` / `be located in`; also `be` with a `location` role, "Where is Paris?"), with the roles as written in the message. This module reads it as one of five closed
  * readings (class, occupation, attribute, identity, location) or as a description question ("Who is Ana?"). It names
  * no predicate: a base memory declares which of its predicates carry a reading (`reading NAME` on a predicate wire,
  * `describe_rank` for the order of the description predicates), and the code looks those up in the lexicon of the
@@ -65,19 +65,18 @@ function atomOf(predicate, values, fresh) {
 }
 const candidatesOf = predicates => predicates.map(predicate => ({id: predicate.id, roles: predicateRoleNames(predicate)}));
 
+// Clarification questions and the readings they offer, in English: the core renders English only and the output edge translates (DS021 "English-only core").
 const QUESTIONS = {
-  describeNone: S => ({en: `I have no relation that says who or what ${S} is. Do you mean what ${S} does, or who ${S} is related to?`,
-    ro: `Nu am o relație care să spună cine sau ce este ${S}. Vă referiți la ce face ${S} sau la cine este în legătură cu ${S}?`}),
-  noReading: (S, O) => ({en: `The knowledge in use declares no meaning for "be" between ${S} and ${O}. How else would you phrase it?`,
-    ro: `Cunoștințele folosite nu declară un sens pentru „a fi” între ${S} și ${O}. Cum ați formula altfel?`}),
-  choose: options => ({en: 'Do you mean: ' + options.map(o => o.en).join(' or ') + '?', ro: 'Vă referiți la: ' + options.map(o => o.ro).join(' sau ') + '?'}),
-  where: S => ({en: `The knowledge in use declares no relation for where ${S} is. Which relation do you mean?`, ro: `Cunoștințele folosite nu declară o relație pentru locul lui ${S}. La ce relație vă referiți?`}),
+  describeNone: S => `I have no relation that says who or what ${S} is. Do you mean what ${S} does, or who ${S} is related to?`,
+  noReading: (S, O) => `The knowledge in use declares no meaning for "be" between ${S} and ${O}. How else would you phrase it?`,
+  choose: options => 'Do you mean: ' + options.join(' or ') + '?',
+  where: S => `The knowledge in use declares no relation for where ${S} is. Which relation do you mean?`,
 };
 const OPTION = {
-  class: (S, O) => ({en: `${S} is a kind of ${O}`, ro: `${S} este un fel de ${O}`}),
-  occupation: (S, O) => ({en: `${S} works as ${O}`, ro: `${S} lucrează ca ${O}`}),
-  attribute: (S, O) => ({en: `${S} has the property ${O}`, ro: `${S} are proprietatea ${O}`}),
-  identity: (S, O) => ({en: `${S} is the same as ${O}`, ro: `${S} este același lucru cu ${O}`}),
+  class: (S, O) => `${S} is a kind of ${O}`,
+  occupation: (S, O) => `${S} works as ${O}`,
+  attribute: (S, O) => `${S} has the property ${O}`,
+  identity: (S, O) => `${S} is the same as ${O}`,
 };
 const issue = (text, question, extra = {}) => ({issue: {kind: 'relation', status: 'copula_unclear', text, question, candidates: [], ...extra}});
 
@@ -94,13 +93,15 @@ export function linkCopula(p, lexicon, {exact = true, fresh = () => '?host_any',
   const trace = {relation: p.relation, form: shape.form, tried: []};
   const result = (list, reading) => ({atomText: list[0].atomText, predicate: list[0].predicate, ...(list.length > 1 ? {alternatives: list} : {}), reading: {...trace, ...reading}});
 
-  if (shape.form === 'locative') {
+  // "Where is Paris?" is the bare copula with a `location` role (the answer's place), the same reading as "be in".
+  const bareWhere = shape.form === 'bare' && shape.article === 'none' && used.has('subject') && used.has('location') && p.roles.length === 2;
+  if (shape.form === 'locative' || bareWhere) {
     const other = ['location', 'object', 'destination'].find(name => used.has(name));
     if (!used.has('subject') || !other || p.roles.some(role => !['subject', other].includes(role.name))) return null;
     const predicates = declaredPredicates(lexicon, 'location');
     trace.tried.push({reading: 'location', predicates: predicates.map(x => x.id)});
     if (!predicates.length) return issue(p.relation, QUESTIONS.where(show(used.get('subject'))));
-    if (exact && predicates.length > 1) return issue(p.relation, QUESTIONS.choose(predicates.map(x => ({en: x.id, ro: x.id}))), {status: 'ambiguous', candidates: candidatesOf(predicates)});
+    if (exact && predicates.length > 1) return issue(p.relation, QUESTIONS.choose(predicates.map(x => x.id)), {status: 'ambiguous', candidates: candidatesOf(predicates)});
     const list = predicates.map(predicate => {
       const names = predicateRoleNames(predicate);
       return {predicate: predicate.id, atomText: atomOf(predicate, new Map([['subject', used.get('subject')], [rename(other, names), used.get(other)]]), fresh)};
@@ -148,7 +149,7 @@ export function linkCopula(p, lexicon, {exact = true, fresh = () => '?host_any',
     const options = ['class', 'occupation', 'attribute', 'identity'].filter(kind => declaredPredicates(lexicon, kind).length).map(kind => OPTION[kind](S, O));
     return issue(p.relation, options.length ? QUESTIONS.choose(options) : QUESTIONS.noReading(S, O));
   }
-  if (exact && fitting[0].predicates.length > 1) return issue(p.relation, QUESTIONS.choose(fitting[0].predicates.map(x => ({en: x.id, ro: x.id}))), {status: 'ambiguous', candidates: candidatesOf(fitting[0].predicates)});
+  if (exact && fitting[0].predicates.length > 1) return issue(p.relation, QUESTIONS.choose(fitting[0].predicates.map(x => x.id)), {status: 'ambiguous', candidates: candidatesOf(fitting[0].predicates)});
   const list = fitting.flatMap(({kind, predicates, named: byName}) => predicates.map(predicate => {
     if (byName) return {predicate: predicate.id, atomText: atomOf(predicate, new Map([['subject', subject]]), fresh)};
     const value = kind === 'identity' ? String(object).trim() : phrase.noun;

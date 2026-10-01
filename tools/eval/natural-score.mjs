@@ -8,7 +8,7 @@
  *
  * Layers per message (what the chat does): textToCleanEnglish (sendAll, one sentence per call) -> SymbolicLM accurate analysis, certified when the default
  * and accurate Stanza trees are identical -> the gated SymbolicProofingLLM rewrite (rewriteWhen trees, accept certified, as `understanding.rewrite = gated`)
- * -> the interpretation "I understood" (lib/symbolic-lm/interpretation.mjs) of the final text. Severity: lib/severity judge prompts, the ORIGINAL owner message
+ * -> the interpretation "I understood" (lib/symbolic-lm/interpretation.mjs) of the final text. Severity: tools/eval/severity judge prompts, the ORIGINAL owner message
  * against the summary (and against the clean English for the proofing step alone). No local layer decides here (the originals are mostly Romanian, the
  * mechanical layers are English-only); every pair goes to the two judges. Where the judges disagree on S3/S4 the case is excusable ambiguity (owner rule).
  */
@@ -24,8 +24,8 @@ import {endpointRewriter, cachedRewriter} from './composed/rewriters.mjs';
 import {readJsonl, writeJsonl} from './severity-local.mjs';
 import {folderFromPairs, loadVerdicts} from './severity-judge.mjs';
 import {pairId} from './severity-apply.mjs';
-import {rank, SEVERITIES} from '../../lib/severity/scale.mjs';
-import {wilson} from '../../lib/severity/metrics.mjs';
+import {rank, SEVERITIES} from './severity/scale.mjs';
+import {wilson} from './severity/metrics.mjs';
 import {markers, understoodText} from './decomposition/metrics.mjs';
 
 /** `NATURAL_WORK` names another report folder (a second arm, for example `eval/reports/current/natural-prod1`); judge verdicts are shared across folders by pair id. */

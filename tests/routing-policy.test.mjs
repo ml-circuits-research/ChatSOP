@@ -10,11 +10,11 @@ import {context,queryProgram,solverSkip,withEnv} from './helpers.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const problem={kind:'constraint',vars:{x:{sort:'Int',min:0,max:2}},constraints:[],claim:{op:'le',a:['x',2]},task:'prove'};
-const numeric=(reasoning='advanced',backend='auto')=>new ReasoningRegistry({availability:()=>false}).run(reasoning,{mode:'constraint',problem,backend});
+const numeric=(reasoning='z3-smt-bounded',backend='auto')=>new ReasoningRegistry({availability:()=>false}).run(reasoning,{mode:'constraint',problem,backend});
 const query={kind:'query',mode:'exists',where:[{p:'likes',a:['ana','book'],neg:false}],filters:[],select:[],limit:100,at:Date.parse('2026-09-26'),asof:Infinity};
 const observed={kind:'observed',id:'f',atom:query.where[0],valid:{from:-Infinity,until:Infinity}};
-const horn=(backend='auto',registry=new ReasoningRegistry({availability:()=>false}))=>
- registry.run('advanced',{mode:'deduce',backend,query,memory:{facts:[observed],rules:[],complete:true,probes:0}});
+const horn=(backend='prolog',registry=new ReasoningRegistry({availability:()=>false}))=>
+ registry.run('prolog-tabling',{mode:'deduce',backend,query,memory:{facts:[observed],rules:[],complete:true,probes:0}});
 const fact='@f fact\n  holds likes ana book\n  valid timeless\n@s remember\n  input $f';
 
 // AGENTS.md: the two .agents/skills/training-* entries point to the local skill
@@ -56,22 +56,20 @@ test('reasoning registry calculates over caller-owned facts without mutating mem
  assert.equal(JSON.stringify(memory),previous);
 });
 
-test('reference rejects external backends; advanced is a route and reports JS fallback',()=>{
+test('reference rejects external backends; an external strategy rejects another backend; neither substitutes JS',()=>{
  const denied=numeric('reference','z3');
  assert.equal(denied.status,'unsupported');assert.equal(denied.code,'reference_backend_mismatch');
  assert.equal(denied.route.backend,'z3');assert.equal(denied.route.fallback,null);
- const fallback=numeric();
- assert.equal(fallback.reasoningStrategy,'advanced');assert.equal(fallback.backend,'js');
- assert.equal(fallback.route.backend,'js');assert.match(fallback.route.fallback,/Z3 unavailable/);
- assert.equal(fallback.status,'entailed');
- const h=horn();assert.equal(h.route.backend,'js');assert.match(h.route.fallback,/Prolog unavailable/);
- assert.equal(h.status,'supported');
+ const mismatch=numeric('z3-smt-bounded','prolog');
+ assert.equal(mismatch.status,'unsupported');assert.equal(mismatch.code,'backend_strategy_mismatch');
+ assert.equal(mismatch.route.backend,'prolog');assert.equal(mismatch.route.fallback,null);
+ assert.throws(()=>numeric('advanced'),/Unknown reasoning strategy advanced/,'the deprecated advanced route was removed');
 });
 
 test('explicit external backends are rejected on JS-only controller modes',()=>{
  for(const mode of ['abduce','diagnose','associate','induce','analogize','plan','simulate']){
   const requested=mode==='abduce'?'z3':'prolog';
-  const result=new ReasoningRegistry({availability:()=>false}).run('advanced',{mode,backend:requested});
+  const result=new ReasoningRegistry({availability:()=>false}).run(requested==='z3'?'z3-smt-bounded':'prolog-tabling',{mode,backend:requested});
   assert.equal(result.status,'unsupported',mode);
   assert.equal(result.code,'explicit_backend_not_available_for_mode',mode);
   assert.equal(result.route.backend,requested,mode+' must retain the explicitly requested backend');
@@ -80,7 +78,7 @@ test('explicit external backends are rejected on JS-only controller modes',()=>{
 });
 
 test('explicit missing Z3 and SWI never route to JS',()=>withEnv('Z3_BIN',path.join(root,'missing-z3-rp'),()=>withEnv('SWIPL_BIN',path.join(root,'missing-swipl-rp'),()=>{
- const n=numeric('advanced','z3');
+ const n=numeric('z3-smt-bounded','z3');
  assert.equal(n.status,'unsupported');assert.equal(n.code,'backend_unavailable');
  assert.equal(n.backend,'z3');assert.equal(n.route.backend,'z3');assert.equal(n.route.fallback,null);
  const h=horn('prolog');
@@ -88,10 +86,10 @@ test('explicit missing Z3 and SWI never route to JS',()=>withEnv('Z3_BIN',path.j
  assert.equal(h.route.backend,'prolog');assert.equal(h.route.fallback,null);
 })));
 
-test('trusted circuit reports advanced when an explicit external backend selects its strategy',()=>withEnv('Z3_BIN',path.join(root,'missing-z3-rp'),async()=>{
+test('trusted circuit reports the external strategy that its explicit backend selects',()=>withEnv('Z3_BIN',path.join(root,'missing-z3-rp'),async()=>{
  const source='@c constraint\n  var ?x int 0 2\n  claim ?x <= 2\n@r solve\n  constraint $c\n  backend z3';
  const x=await new Runtime().run(source);
- assert.equal(x.result.reasoningStrategy,'advanced');
+ assert.equal(x.result.reasoningStrategy,'z3-smt-bounded');
  assert.equal(x.result.status,'unsupported');
  assert.equal(x.result.code,'backend_unavailable');
  assert.equal(x.result.route.backend,'z3');assert.equal(x.result.route.fallback,null);
@@ -103,11 +101,13 @@ test('trusted circuit reports advanced when an explicit external backend selects
 
 test('incompatible explicit Prolog interval query fails rather than selecting JS',async()=>{
  const source='@q query\n  where likes ana book\n  during 2026-09-01 2026-10-01\n@r reason\n  query $q\n  backend prolog';
- await assert.rejects(new Runtime().run(source),/Prolog adapter implements point-in-time queries/);
+ const x=await new Runtime().run(source);
+ assert.equal(x.result.status,'unsupported');assert.equal(x.result.code,'explicit_backend_not_available_for_query');
+ assert.equal(x.result.route.backend,'prolog');assert.equal(x.result.route.fallback,null);
 });
 
 for(const [name,solver,run] of [
- ['Z3','z3',()=>new ReasoningRegistry().run('advanced',{mode:'constraint',backend:'z3',problem})],
+ ['Z3','z3',()=>new ReasoningRegistry().run('z3-smt-bounded',{mode:'constraint',backend:'z3',problem})],
  ['SWI','prolog',()=>horn('prolog',new ReasoningRegistry())]
 ])test(name+' uses the real explicitly configured binary when available',{skip:solverSkip(solver)},()=>{
  const r=run();

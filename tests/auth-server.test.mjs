@@ -168,14 +168,14 @@ test('home page reports sign-in state, password setup and formalizer readiness',
   assert.match(first, /Formalizer: <b class="bad">not ready/);
   assert.match(first, /HTTP 503/);
   for (const link of ['href="/chat"', 'href="/audit"', 'href="/admin"', 'href="/docs/"']) assert.ok(first.includes(link), link);
-  assert.doesNotMatch(first, /127\.0\.0\.1:\d+\/v1\/chat\/completions/, 'the endpoint address is hidden from anonymous visitors');
+  
   const {base, session} = await adminServer(t, {password: PASSWORD});
   const signedOut = await (await page(base, '/')).text();
   assert.match(signedOut, /Not signed in/);
   assert.match(signedOut, /Administrator password: <span class="ok">set/);
   const signedIn = await (await page(base, '/', {cookie: session})).text();
   assert.match(signedIn, /Signed in/);
-  assert.match(signedIn, /config: <code>http:\/\/127\.0\.0\.1:\d+\/v1\/chat\/completions<\/code>/);
+  assert.match(signedIn, /config\/formalizers\.json/, 'the signed-in home page names the model registry');
   assert.match(signedIn, /action="\/logout"/);
 });
 

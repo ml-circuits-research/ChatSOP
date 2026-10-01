@@ -1,6 +1,5 @@
 {
   "root": "state",
-  "promptProfile": "formal",
   "memory": {
     "engine": "sqlite",
     "power": 12,
@@ -32,18 +31,6 @@
       "maxArchiveShards": null,
       "gcEveryWrites": 32
     }
-  },
-  "formalizer": {
-    "url": "http://127.0.0.1:8080/v1/chat/completions",
-    "model": "formalizer",
-    "maxTokens": 1024,
-    "timeoutMs": 120000
-  },
-  "verbalizer": {
-    "url": "http://127.0.0.1:8080/v1/chat/completions",
-    "model": "verbalizer",
-    "maxTokens": 384,
-    "timeoutMs": 120000
   },
   "policy": {
     "allowWrite": true,

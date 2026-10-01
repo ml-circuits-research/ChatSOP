@@ -239,7 +239,16 @@ async function finish(rows, classes, results, o, splits) {
     if (accepted.size && (typeof o.reason !== 'string' || !o.reason)) throw Error('--accept-gold needs --reason "<why the gold was wrong>"');
     const wrong = [...accepted.keys()].filter(id => classes.get(id) !== 'now_failing' || !results.get(id)?.sop_valid);
     if (wrong.length) throw Error(`--accept-gold names rows that do not fail with a valid SOP: ${wrong.join(', ')}`);
-    const updates = new Map(rows.filter(r => ['analysis_changed_sop_same', 'sop_changed_equivalent', 'sop_changed'].includes(classes.get(r.id)) || accepted.has(r.id)).map(r => [r.id, results.get(r.id)]));
+    const candidates = new Map(rows.filter(r => ['analysis_changed_sop_same', 'sop_changed_equivalent', 'sop_changed'].includes(classes.get(r.id)) || accepted.has(r.id)).map(r => [r.id, results.get(r.id)]));
+    // A re-baselined analysis must still pass the analysis gate (identical trees, judge verdicts a and c): a changed tree that has no verdict yet is a rebuild, not a re-baseline.
+    const {AnalysisGate} = await import('./datasets/three-datasets/analysis-gate.mjs');
+    const gate = new AnalysisGate(), regate = [];
+    const updates = new Map([...candidates].filter(([id, now]) => {
+      const row = rows.find(r => r.id === id);
+      if (JSON.stringify(now.analysis) === JSON.stringify(row.analysis) || gate.compute(row.message, now.analysis).state === 'pass') return true;
+      regate.push(id); return false;
+    }));
+    if (regate.length) { console.log(`${regate.length} rows changed their tree and the analysis gate no longer passes; NOT re-baselined, rebuild the datasets (gate-stage, then assemble): ${regate.slice(0, 5).join(', ')}`); process.exitCode = 1; }
     if (updates.size) { await rewriteBaseline(rows, updates, splits, accepted); console.log(`re-baselined ${updates.size} rows (${accepted.size} with a corrected gold)`); }
     if (counts.now_failing > accepted.size) { console.log(`${counts.now_failing} rows now fail and were NOT re-baselined: rebuild the datasets (node tools/datasets/build-three-datasets.mjs)`); process.exitCode = 1; }
     return;

@@ -19,7 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {barePrompt} from '../../server/llm.mjs';
+import {barePrompt} from '../../eval/llm.mjs';
 import {parse} from '../../sop/parser.mjs';
 import {checkModelProgram} from '../../sop/declarative.mjs';
 import {assert} from '../../lib/util.mjs';

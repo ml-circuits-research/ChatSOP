@@ -128,7 +128,7 @@ test('closure keeps the controllers shapes; blocked heads are never derived; eva
   assert.equal(closure(facts, rules, {maxJoins: 1}).complete, false);
 });
 
-test('registry: reference is the oracle under three ids, advanced is deprecated and says so, an external backend is never substituted', () => {
+test('registry: reference is the oracle under three ids, advanced is gone, an external backend is never substituted', () => {
   assert.deepEqual(ROUTE_IDS, ['reference', 'js-reference', 'js-oracle']);
   const q = query('  where likes ana book\n  mode exists\n');
   const request = {query: q, memory: memory([fact('likes ana book', 'f')])};
@@ -140,10 +140,10 @@ test('registry: reference is the oracle under three ids, advanced is deprecated 
     assert.equal(r.route.backend, 'js');
     assert.equal(r.route.deprecated, undefined);
   }
-  const advanced = registry.run('advanced', request);
-  assert.equal(advanced.reasoningStrategy, 'advanced');
-  assert.match(advanced.route.deprecated, /deprecated/);
-  assert.match(advanced.route.fallback, /Prolog unavailable/);
+  assert.throws(() => registry.run('advanced', request), /Unknown reasoning strategy advanced/);
+  const pinned = registry.run('prolog-tabling', {...request, backend: 'prolog'});
+  assert.equal(pinned.reasoningStrategy, 'prolog-tabling');
+  assert.equal(pinned.route.backend, 'prolog');
   const denied = registry.run('js-oracle', {...request, backend: 'prolog'});
   assert.equal(denied.code, 'reference_backend_mismatch');
   assert.equal(denied.route.backend, 'prolog');
@@ -152,7 +152,7 @@ test('registry: reference is the oracle under three ids, advanced is deprecated 
 
 test('an explicit Prolog request runs prolog-tabling and the answer is checked against the oracle', {skip: solverSkip('prolog')}, () => {
   const m = memory([fact('parent ana bogdan', 'a'), fact('parent bogdan carina', 'b')], [rule('gp', ['parent ?x ?y', 'parent ?y ?z'], 'grandparent ?x ?z')]);
-  const r = new ReasoningRegistry().run('advanced', {query: query('  where grandparent ?g carina\n  select ?g\n  mode select\n'), memory: m, backend: 'prolog'});
+  const r = new ReasoningRegistry().run('prolog-tabling', {query: query('  where grandparent ?g carina\n  select ?g\n  mode select\n'), memory: m, backend: 'prolog'});
   assert.equal(r.route.backend, 'prolog');
   assert.equal(r.backendAgreement, true);
   assert.equal(r.backendStrategy, 'prolog-tabling');

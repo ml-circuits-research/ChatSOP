@@ -35,15 +35,16 @@ test('the default strategy is sqlite', t => {
   assert.equal(memories.importMemory({name: 'y', approvedBy: 'admin'}).strategy, 'sqlite');
 });
 
-test('the default base memory is sqlite; an empty one of another strategy is re-created, a filled one is kept', t => {
+test('the default base memory is sqlite; a filled one is kept', t => {
   const {memories} = open(t);
-  memories.create({id: 'default', name: 'Default (empty)', strategy: 'recall-memory'});
+  memories.create({id: 'default', name: 'Default (empty)'});
   assert.equal(ensureDefaultBase(memories, {memory}), 'default');
   assert.equal(memories.manifest('default').strategy, 'sqlite');
-  memories.create({id: 'filled', name: 'Filled', strategy: 'holo-memory'});
+  assert.throws(() => memories.create({id: 'assoc', name: 'Assoc', strategy: 'holo-memory'}), /strategy must be one of sqlite/);
+  memories.create({id: 'filled', name: 'Filled'});
   memories.addKnowledge('filled', {circuits: [{name: 'family', text: FAMILY}], approvedBy: 'admin'});
   assert.equal(ensureDefaultBase(memories, {memory, chatData: {defaultBase: 'filled'}}), 'filled');
-  assert.equal(memories.manifest('filled').strategy, 'holo-memory');
+  assert.equal(memories.manifest('filled').strategy, 'sqlite');
 });
 
 for (const strategy of STRATEGIES) {

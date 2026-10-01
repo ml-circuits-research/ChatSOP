@@ -60,8 +60,6 @@ const evidencePresent = answer => Array.isArray(answer.evidence) && answer.evide
  * diagnostic beside execution equivalence, not a replacement.
  */
 export const WIRE_GROUPS = Object.freeze({ stated: 'statements', assumed: 'statements', query: 'problems', constraint: 'problems', unclear: 'unclear', unparsed: 'unparsed' });
-/** The key of one wire on its own (references to other wires fall back to renamed ids). */
-export const wireKey = wire => wireItems([wire])[0].key;
 const wireBlocks = text => String(text ?? '').split(/\n(?=@)/).map(block => block.trim()).filter(block => block.startsWith('@'));
 const INVALID = Object.freeze({ group: 'invalid', key: null, skeleton: null, slots: [] });
 /** Items of a program's wires; with `lenient`, each `@` block is parsed alone and an unparsable one keeps a null key. */

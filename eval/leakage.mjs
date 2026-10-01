@@ -5,12 +5,12 @@ import path from 'node:path';
 // test answers. Generators are every data-producing module under tools/datasets/ (the current
 // `tools/datasets/build-*.mjs` builders, curriculum sources and converters) plus the legacy root generators
 // that still exist. Two kinds of tools are deliberately allowed to open sealed tests and are therefore not
-// generators: the validator (`tools/datasets/validate.mjs`, which re-executes sealed rows) and the sealed
+// generators: the validators (`tools/datasets/validate.mjs`, which re-executes sealed rows, and the corpus verifiers `verify-three-datasets.mjs` and `verify-view-corpora.mjs`, which compare sealed inputs with training rows) and the sealed
 // auditors below, which measure template-level leakage (and the LLM paraphrase layer's sealed-suite guard,
 // which a pipeline runs as a separate process and reads back only as per-candidate pass/fail verdicts). Their outputs are reports, never training input, and
 // this audit fails if any generator or training source imports them.
 const LEGACY_GENERATORS = ['tools/generate-data.mjs', 'tools/build-data.mjs', 'tools/teacher-generate.mjs'];
-const VALIDATORS = ['tools/datasets/validate.mjs', 'tools/datasets/verify-three-datasets.mjs'];
+const VALIDATORS = ['tools/datasets/validate.mjs', 'tools/datasets/verify-three-datasets.mjs', 'tools/datasets/verify-view-corpora.mjs'];
 export const SEALED_AUDITORS = ['tools/datasets/audit-corpus.mjs', 'tools/datasets/audit/', 'tools/datasets/llm-diversify/sealed-guard.mjs'];
 /** Independently written, eval-only sealed suites (DS016): no generator produces them, no generator or training
  * source may name them, and they never have a `datasets/<name>/` training counterpart. */

@@ -147,7 +147,7 @@ export class ShardedLayer {
   const order=[...(this.pinnedHot?[this.pinnedHot]:[]),...this.pinnedCold.toReversed(),...(this.hot?[this.hot]:[]),...this.cold.toReversed()];
   return [{config:this.config,claims:{},events:this.events,exactAtoms:{},banks:[],control:true},
    ...order.filter(p=>!pkey||Object.hasOwn(p.bank.domains,pkey)).map(p=>({config:{...this.config,exact:p.exactComplete??this.config.exact},
-    shardId:p.id,claims:p.claims,events:[],exactAtoms:p.exactAtoms,sources:p.sources,banks:[p.bank]}))];
+    shardId:p.id,claims:p.claims,events:[],exactAtoms:p.exactAtoms,sources:p.sources,banks:[p.bank],frozen:this.frozen===true}))];
  }
  /** Keep old banks as opaque generations. No resizing and no replay from an
   * unverified source. Old correction records are kept in the control journal. */

@@ -7,97 +7,13 @@
     "symbolic": {
       "enabled": true,
       "status": "stable"
-    },
-    "neural": {
-      "enabled": false,
-      "status": "experimental",
-      "python": "~/emotion-venv/bin/python",
-      "worker": "training/python/emotion_worker.py",
-      "threads": 4,
-      "models": {
-        "go_emotions": {
-          "dir": "models/emotion/roberta-base-go_emotions",
-          "kind": "multi",
-          "licence": "MIT"
-        },
-        "toxic_bert": {
-          "dir": "models/emotion/toxic-bert",
-          "kind": "multi",
-          "licence": "Apache-2.0"
-        },
-        "irony": {
-          "dir": "models/emotion/twitter-roberta-base-irony",
-          "kind": "single",
-          "licence": "undeclared"
-        },
-        "hartmann": {
-          "dir": "models/emotion/emotion-english-distilroberta-base",
-          "kind": "single",
-          "licence": "undeclared"
-        }
-      },
-      "map": {
-        "go_emotions": {
-          "anger": "anger",
-          "annoyance": "frustration",
-          "confusion": "confusion",
-          "curiosity": "curiosity",
-          "disappointment": "disappointment",
-          "fear": "fear",
-          "nervousness": "fear",
-          "gratitude": "thanks",
-          "joy": "joy",
-          "amusement": "joy",
-          "excitement": "joy",
-          "grief": "sadness",
-          "sadness": "sadness",
-          "remorse": "apology"
-        },
-        "toxic_bert": {
-          "obscene": "profanity",
-          "insult": "offensive",
-          "toxic": "offensive"
-        },
-        "irony": {
-          "irony": "irony_possible"
-        },
-        "hartmann": {
-          "anger": "anger",
-          "fear": "fear",
-          "joy": "joy",
-          "sadness": "sadness"
-        }
-      },
-      "thresholds": {}
-    },
-    "llm": {
-      "enabled": false,
-      "status": "off",
-      "note": "Slot for a later fine-tuned or general LLM; see lib/emotion-detection/strategies/llm.mjs."
     }
   },
   "kindPolicy": {
     "symbolic.apology": "experimental",
-    "symbolic.joy": "experimental",
-    "go_emotions.anger": "off",
-    "go_emotions.frustration": "off",
-    "go_emotions.confusion": "off",
-    "go_emotions.curiosity": "off",
-    "go_emotions.disappointment": "off",
-    "go_emotions.fear": "off",
-    "go_emotions.thanks": "on",
-    "go_emotions.joy": "experimental",
-    "go_emotions.sadness": "off",
-    "go_emotions.apology": "on",
-    "toxic_bert.profanity": "off",
-    "toxic_bert.offensive": "off",
-    "irony.irony_possible": "off",
-    "hartmann.anger": "off",
-    "hartmann.fear": "off",
-    "hartmann.joy": "off",
-    "hartmann.sadness": "off"
+    "symbolic.joy": "experimental"
   },
-  "kindPolicyNote": "Per strategy.kind: on (default when absent), experimental (signals are reported but not emitted as wires) or off. Derived by tools/emotion-detection/evaluate.mjs from experiment emotion-detection-v1: on at precision >= 0.85 over >= 3 predictions, experimental at >= 0.6, off below. symbolic.irony_possible stays on as a soft signal (score capped at 0.5).",
+  "kindPolicyNote": "Per strategy.kind: on (default when absent), experimental (signals are reported but not emitted as wires) or off. Derived from experiment emotion-detection-v1 (its evaluator was deleted with the neural strategies; the results stay in the history reports): on at precision >= 0.85 over >= 3 predictions, experimental at >= 0.6, off below. symbolic.irony_possible stays on as a soft signal (score capped at 0.5). The neural and LLM strategies were removed on 2026-10-01 (hygiene H19); their recorded results stay in the history reports.",
   "kindEmoji": {
     "greeting": "👋",
     "closing": "👋",

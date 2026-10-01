@@ -40,7 +40,7 @@
   query $q
   data ~r
   candidates ~h
-  tests $test</code></pre><p>This produces an explanation candidate; with only one explanation there may be no discriminating <code>nextTest</code>.</p><h3>Invalid or unsafe use</h3><pre data-sop="invalid" data-check="runtime" data-error="Diagnostic tests must be ground queries"><code>@q query
+  tests $test</code></pre><p>This produces an explanation candidate; with only one explanation there may be no discriminating <code>next_test</code>.</p><h3>Invalid or unsafe use</h3><pre data-sop="invalid" data-check="runtime" data-error="Diagnostic tests must be ground queries"><code>@q query
   where alarm device1
   mode exists
 @badtest query

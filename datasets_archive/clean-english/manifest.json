@@ -16,17 +16,17 @@
   "test": "eval/suites/clean-english/test.jsonl"
  },
  "sha256": {
-  "datasets/clean-english/train.jsonl": "2242e424a9861b6c7c7fb75da2a1f0cec98d5f73cf94f8d3a6ece47c927e6bbd",
+  "datasets/clean-english/train.jsonl": "5259290c8d2ead0895eb1dfde639b9fa27ca3db76da9c8bca51f73fcca59dca8",
   "datasets/clean-english/dev.jsonl": "126b78419c0d0668763a505b7edc365ac2467fd067e0033811b45535e31b89c3",
   "eval/suites/clean-english/test.jsonl": "a1a236f7d1a890b78334ce0fbdfc948b08b61f2a8d38c06c6ef8d65398a84732"
  },
  "bytes": {
-  "datasets/clean-english/train.jsonl": 52226358,
+  "datasets/clean-english/train.jsonl": 52223965,
   "datasets/clean-english/dev.jsonl": 11282508,
   "eval/suites/clean-english/test.jsonl": 15853949
  },
  "counts": {
-  "train": 7966,
+  "train": 7965,
   "dev": 1717,
   "test": 2543,
   "test_by_suite": {
@@ -97,5 +97,8 @@
   ],
   "text_copied": false,
   "filtered_from": "datasets/formalizer-v1 (train/dev) and eval/suites/{formalizer-v1,formalizer-ood-v1,formalizer-wild-v1}/test.jsonl (test), by tools/datasets/clean-english.mjs classifyPartition"
- }
+ },
+ "repairs": [
+  "2026-10-01 archive-fix-agent: train row fv1_003480_0 (\"Hello.\") dropped because the sealed wild test row wild_we_053 repeats its message (tools/datasets/audit/fix-archive-defects.mjs)"
+ ]
 }

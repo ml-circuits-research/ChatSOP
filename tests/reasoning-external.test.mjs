@@ -13,7 +13,6 @@ const optimization = `@c constraint
   task optimize
 @r solve
   constraint $c
-  reasoning advanced
   backend z3
   output ?x one
   output ?y one`;
@@ -32,7 +31,6 @@ const horn = `@f fact
 @answer reason
   query $q
   data $data
-  reasoning advanced
   backend prolog`;
 
 test('v3 external: actual Z3 optimization plus optimality check', {skip: solverSkip('z3')}, async () => {
@@ -44,7 +42,7 @@ test('v3 external: actual Z3 optimization plus optimality check', {skip: solverS
   assert.equal(r.values.y, 5);
 });
 
-test('v3 external: actual Prolog through advanced strategy', {skip: solverSkip('prolog')}, async () => {
+test('v3 external: actual Prolog through the prolog-tabling strategy (the backend line selects it)', {skip: solverSkip('prolog')}, async () => {
   const r = await new Runtime().run(horn);
   assert.equal(r.result.status, 'supported');
   assert.equal(r.result.backend, 'prolog');

@@ -83,15 +83,19 @@ export class TemporalLayer{
 }
 /** Flatten generational layers without conflating their physical banks. */
 export function flattenLayers(layers,pattern=null){return layers.flatMap(l=>typeof l.readLayers==='function'?l.readLayers(pattern):[l]);}
+const HASH_INDEX=new WeakMap();
+function hashIndex(claims){const m=new Map();for(const c of Object.values(claims)){if(!m.has(c.tupleHash))m.set(c.tupleHash,[]);m.get(c.tupleHash).push(c);}return m;}
 export function recallLayers(input,pattern,q,{maxProbes=50000,limit=10000,maxShards=Infinity,allowUnverified=false}={}){
  assert(Number.isInteger(maxProbes)&&maxProbes>=0,'Invalid maxProbes');
  assert(Number.isInteger(limit)&&limit>=0,'Invalid result limit');
  assert(maxShards===Infinity||(Number.isInteger(maxShards)&&maxShards>=0),'Invalid maxShards');
  const layers=flattenLayers(input,pattern),asof=q.asof??Infinity;
- const events=layers.flatMap(l=>l.events).filter(e=>e.knownAt<=asof),claims=new Map();
- for(const l of [...layers].reverse())for(const c of Object.values(l.claims))if(c.knownAt<=asof)claims.set(c.id,c);
- const byHash=new Map(),byTarget=new Map();
- for(const c of claims.values()){if(!byHash.has(c.tupleHash))byHash.set(c.tupleHash,[]);byHash.get(c.tupleHash).push(c);}
+ const events=layers.flatMap(l=>l.events).filter(e=>e.knownAt<=asof),byTarget=new Map();
+ // The claims behind a stored tuple, oldest layer first and the newest version of a claim winning: found through a per-layer index by tuple
+ // hash, so a recall costs the rows it matches, not the claims of the layers it reads (a frozen snapshot layer is indexed once).
+ const oldestFirst=[...layers].reverse(),local=new Map();
+ const index=l=>{if(l.frozen){let m=HASH_INDEX.get(l.claims);if(!m)HASH_INDEX.set(l.claims,m=hashIndex(l.claims));return m;}if(!local.has(l))local.set(l,hashIndex(l.claims));return local.get(l);};
+ const claimsOf=hash=>{const found=new Map();for(const l of oldestFirst)for(const c of index(l).get(hash)??[])if(c.knownAt<=asof)found.set(c.id,c);return [...found.values()];};
  for(const e of events){if(!byTarget.has(e.target))byTarget.set(e.target,[]);byTarget.get(e.target).push(e);}
  const rows=new Map();let probes=0,complete=true,shardsVisited=0;
  const pkey=pattern.p+'/'+pattern.a.length;
@@ -101,7 +105,7 @@ export function recallLayers(input,pattern,q,{maxProbes=50000,limit=10000,maxSha
   for(const bank of banks){
    if(probes>=maxProbes||rows.size>=limit){complete=false;break outer;}
    const r=bank.recall(pattern,{maxProbes:maxProbes-probes,limit});probes+=r.probes;complete&&=r.complete;
-   for(const hit of r.rows){const metas=byHash.get(hit.id)??[];
+   for(const hit of r.rows){const metas=claimsOf(hit.id);
     for(const c of metas){const changes=byTarget.get(c.id)??[];if(changes.some(e=>e.action==='retract'))continue;
      const span=readInterval(c.valid);for(const e of changes)if(e.action==='end')span.until=Math.min(span.until,e.effective);if(!(span.from<span.until))continue;
      let valid=span;if(q.at!==undefined&&!contains(span,q.at))continue;if(q.during){valid=intersect(span,q.during);if(!valid)continue;}

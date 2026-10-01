@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';import path from 'node:path';import os from 'node:os';
 import {scenarios} from './reasoning/scenarios.mjs';import {Repository} from '../memory/repository.mjs';import {publishKnowledge} from '../sop/ingest.mjs';import {Runtime} from '../sop/runtime.mjs';import {ReasoningRegistry} from '../reasoning/registry.mjs';import {canonical,parse} from '../sop/parser.mjs';import {assert,cliArgs,saveJSON} from '../lib/util.mjs';
-const args=cliArgs(),engines=(args.engines??'recall-memory,holo-memory,sqlite,scan,hybrid').split(','),strategies=(args.reasoning??'reference,advanced').split(','),records=[],root=fs.mkdtempSync(path.join(os.tmpdir(),'reasoning-grid-'));
+const args=cliArgs(),engines=(args.engines??'recall-memory,holo-memory,sqlite,scan,hybrid').split(','),strategies=(args.reasoning??'reference,js-reference').split(','),records=[],root=fs.mkdtempSync(path.join(os.tmpdir(),'reasoning-grid-'));
 try{for(const engine of engines)for(const strategy of strategies)for(const [i,s]of scenarios().entries()){
  const memory={engine,power:10,holoMemory:{rows:256,banks:4,dimension:64,ageStepsPerNovel:0},sharding:{enabled:true,mode:'archive',maxClaimsPerShard:3,gcEveryWrites:0}};
  const repo=new Repository(path.join(root,engine,strategy,s.name),{memory});publishKnowledge(repo,'world',s.setup,{reviewed:true,knownAt:1});const session=repo.session('world','user','demo');

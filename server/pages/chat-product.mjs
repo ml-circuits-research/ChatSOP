@@ -150,7 +150,7 @@ function renderMemoryRows(){
   const tr=document.createElement('tr');if(PROD.session&&PROD.session.base.id===m.id)tr.className='current';
   const cell=(l,text,cls)=>{const td=el('td',cls||'',text);td.dataset.l=l;tr.append(td);return td;};
   cell('Name',m.name,'name').title=m.description||m.id;
-  cell('Strategy',m.strategy+(m.exact?' + exact':''));
+  cell('Strategy',m.strategy);
   cell('Size',m.circuits+' circuit'+(m.circuits===1?'':'s')+' \u00b7 '+m.facts+' fact'+(m.facts===1?'':'s'));
   cell('Created',day(m.created_at));
   cell('Parent',m.parent?m.parent.name:'\u2014');
@@ -180,7 +180,7 @@ async function openView(id){
  const r=await jcall('GET','/v1/memories/'+encodeURIComponent(id)+'?facts=1');box.textContent='';
  if(!r.ok){box.append(el('p','msgline bad',errText(r)));return;}
  const m=r.body;$('view-title').textContent=m.name;const dl=document.createElement('dl');
- field(dl,'id',m.id);field(dl,'strategy',m.strategy+(m.exact?' + exact sidecar':''));field(dl,'created',m.created_at);field(dl,'parent',m.parent?m.parent.name+' ('+m.parent.id+', '+m.parent.strategy+', forked '+m.parent.forked_at+')':'none');
+ field(dl,'id',m.id);field(dl,'strategy',m.strategy);field(dl,'created',m.created_at);field(dl,'parent',m.parent?m.parent.name+' ('+m.parent.id+', '+m.parent.strategy+', forked '+m.parent.forked_at+')':'none');
  field(dl,'circuits',m.circuits+((m.circuit_files||[]).length?' ('+m.circuit_files.join(', ')+')':''));field(dl,'stored facts',m.facts);field(dl,'description',m.description);box.append(dl);
  const facts=Object.entries(m.stored_facts||{}).filter(([,rows])=>rows.length);
  if(facts.length){const d=el('details');d.open=true;d.append(el('summary','','sample wires ('+facts.reduce((n,[,rows])=>n+rows.length,0)+' stored facts)'));d.append(el('pre','',facts.map(([pred,rows])=>rows.slice(0,40).map(x=>pred+' '+x.args.join(' ')).join('\n')).join('\n')));box.append(d);}

@@ -7,7 +7,7 @@ import {SQLiteBank} from '../memory/banks/sqlite.mjs';
 import {Repository} from '../memory/repository.mjs';
 import {Runtime} from '../sop/runtime.mjs';
 import {publishKnowledge} from '../sop/ingest.mjs';
-import {Lexicon} from '../sop/lexicon.mjs';
+import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import {atomKey} from '../lib/types.mjs';
 
 const engines=['recall-memory','holo-memory','sqlite','scan'];
@@ -67,7 +67,7 @@ const fixture=`@g rule
 @b fact
   holds parent bogdan carina
   valid timeless`;
-const schema=Lexicon.load(new URL('../config/ontology.sop',import.meta.url)).predicates;
+const schema=demoLexicon().predicates;
 const instant=Date.parse('2026-09-26T12:00:00Z');
 const fact=(s,o)=>({kind:'fact',atom:a('likes',s,o),valid:{from:-Infinity,until:Infinity},source:'test'});
 const strategy={'recall-memory':'recall-memory','holo-memory':'holo-memory',sqlite:'sqlite',scan:'scan'};
@@ -174,7 +174,7 @@ test('single-file SQLite: temporal claims, rule ingestion, fork and reopen',asyn
 });
 
 test('HoloMemory content plane: complete SOP bytes from handle without an item table',async()=>{
- const {HoloWireMemory}=await import('../memory/banks/holo-wire.mjs');
+ const {HoloWireMemory}=await import('../tools/holo-wire.mjs');
  const m=new HoloWireMemory({kernel:{rows:1024,banks:4,dimension:64}}),wire='@f fact\n  holds parent ana bogdan\n  valid timeless';
  const h=m.remember(wire),r=m.recall(h.handle);assert.equal(r.status,'remembered');assert.ok(r.sop.includes('parent ana bogdan'));
  const fork=m.fork();fork.kernel.eraseFraction(1);assert.notEqual(fork.recall(h.handle).status,'remembered');assert.equal(m.recall(h.handle).status,'remembered');

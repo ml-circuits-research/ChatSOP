@@ -2,8 +2,8 @@
  * and the model language; sop/declarative.mjs decides which wire types the model may author. */
 import {outputRegistry,outputSpecs} from './outputs.mjs';
 import {assert,stable} from '../lib/util.mjs';
-import {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,COMPARATOR_WORDS,RANK_WORDS,QUANTIFIER_WORDS,ORDER_WORDS,LINK_WORDS,MAX_LINKS,UNPARSED_HINTS,MAX_SPAN,PRAGMATIC_KINDS,PRAGMATIC_BASES} from './enums.mjs';
-export {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,OUTPUT_MODES,QUERY_MODES,TIME_MEASURES,COMPARATOR_WORDS,ARITHMETIC_WORDS,RANK_WORDS,QUANTIFIER_WORDS,ORDER_WORDS,FRAGMENT_KINDS,LINK_KEYWORDS,LINK_WORDS,LINK_TYPES,MAX_LINKS,LINK_STATUSES,UNPARSED_HINTS,GENERIC_HINTS,MAX_SPAN} from './enums.mjs';
+import {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,COMPARATOR_WORDS,RANK_WORDS,RANK_CUTS,QUANTIFIER_WORDS,ORDER_WORDS,LINK_WORDS,MAX_LINKS,UNPARSED_HINTS,MAX_SPAN,PRAGMATIC_KINDS,PRAGMATIC_BASES} from './enums.mjs';
+export {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,OUTPUT_MODES,QUERY_MODES,TIME_MEASURES,COMPARATOR_WORDS,ARITHMETIC_WORDS,RANK_WORDS,RANK_CUTS,QUANTIFIER_WORDS,ORDER_WORDS,FRAGMENT_KINDS,LINK_KEYWORDS,LINK_WORDS,LINK_TYPES,MAX_LINKS,LINK_STATUSES,UNPARSED_HINTS,GENERIC_HINTS,MAX_SPAN} from './enums.mjs';
 import {parseExpression,expressionRefs,evaluateExpression} from './expression.mjs';
 import {conditionField,parseCondition,parseBooleanCondition,formatCondition,BLOCK_OPENERS,BLOCK_CLOSER} from './conditions.mjs';
 export {GROUP_OPENERS,MATCH_OPENER,BLOCK_OPENERS,BLOCK_CLOSER,SYNTAX_WORDS,CONDITION_FIELDS} from './conditions.mjs';
@@ -234,7 +234,7 @@ function validateShape(w){
  if(w.type==='constraint'){assert(w.fields.claim||w.fields.select,'@'+w.id+' needs claim (or select for a computation)');many(w,'require').forEach(parseBooleanCondition);if(w.fields.claim)parseBooleanCondition(one(w,'claim'));}
  if(w.type==='value'){const a=parseExpression(one(w,'data'));assert(a.type!=='name','value needs a literal or expression');}
  if(w.type==='event')assert(ENUMS.event.action.includes(one(w,'action')),'Unknown event action');
- if(w.type==='resolve'){assert(ENUMS.resolve.kind.includes(one(w,'kind')),'resolve kind must be entity, predicate or concept');assert(/^[a-z]{2,3}$/.test(one(w,'language')),'resolve needs an explicit language');assert(!w.fields.type||one(w,'kind')==='entity','resolve type is only for entities');for(const key of ['text','type','domain'])if(w.fields[key])assert(typeof unquote(one(w,key))==='string'&&unquote(one(w,key)).length>0,'resolve '+key+' must be nonempty text');}
+ if(w.type==='resolve'){assert(ENUMS.resolve.kind.includes(one(w,'kind')),'resolve kind must be entity or predicate');assert(/^[a-z]{2,3}$/.test(one(w,'language')),'resolve needs an explicit language');assert(!w.fields.type||one(w,'kind')==='entity','resolve type is only for entities');for(const key of ['text','type','domain'])if(w.fields[key])assert(typeof unquote(one(w,key))==='string'&&unquote(one(w,key)).length>0,'resolve '+key+' must be nonempty text');}
  if(w.type==='solve'){outputSpecs(w);assert(!(w.fields.constraint&&(w.fields.data||w.fields.assume)),'Constraint solve cannot consume undeclared fact data');}
  if(w.type==='reason'||w.type==='solve')assert(!!w.fields.query!==!!w.fields.constraint,'reason needs exactly query OR constraint');
 }
@@ -249,7 +249,7 @@ function validateWordFields(w,mode){
  const compareLeaf=line=>{const [left,cmp,right,...rest]=words(line);assert(VARIABLE.test(left??'')&&Object.hasOwn(COMPARATOR_WORDS,cmp??'')&&OPERAND.test(right??'')&&!rest.length,'compare_form: @'+w.id+' compare takes ?variable COMPARATOR value, COMPARATOR one of '+Object.keys(COMPARATOR_WORDS).join(', '));return {left,op:cmp,right};};
  for(const text of many(w,'compare'))parseCondition(text,leaf=>{assert(!isMatch(leaf),'compare_form: @'+w.id+' compare holds comparisons, not match blocks');return compareLeaf(leaf);});
  for(const line of many(w,'except')){const [variableName,value,...rest]=words(line);assert(VARIABLE.test(variableName??'')&&OPERAND.test(value??'')&&!rest.length,'except_form: @'+w.id+' except takes ?variable "value"');}
- if(w.fields.rank){const [direction,variableName,...rest]=words(one(w,'rank'));assert(RANK_WORDS.includes(direction)&&VARIABLE.test(variableName??'')&&!rest.length,'rank_form: @'+w.id+' rank takes highest|lowest ?variable');}
+ if(w.fields.rank){const [direction,variableName,...rest]=words(one(w,'rank'));assert(RANK_WORDS.includes(direction)&&VARIABLE.test(variableName??'')&&(!rest.length||(rest.length===2&&RANK_CUTS.includes(rest[0])&&/^[1-9]\d{0,2}$/.test(rest[1]))),'rank_form: @'+w.id+' rank takes highest|lowest ?variable, optionally followed by position N or top N');}
  if(w.fields.quantifier){
   assert(mode==='every','quantifier_needs_every: @'+w.id+' quantifier belongs to mode every');
   const [word,count,...rest]=words(one(w,'quantifier'));

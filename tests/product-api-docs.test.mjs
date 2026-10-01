@@ -22,7 +22,7 @@ test('the product examples of docs/api.html match the live handlers', async t =>
   const documented = new Set();
   for (const [, method, rawRoute, encoded, who, status, keys] of examples) {
     const route = unescape(rawRoute);
-    documented.add(method + ' ' + route.replace(/\/(family|family-scan|demo-session)(?=\/|$)/g, '/{id}'));
+    documented.add(method + ' ' + route.replace(/\/(family|family-copy|demo-session)(?=\/|$)/g, '/{id}'));
     const body = ['GET', 'DELETE'].includes(method) ? undefined : JSON.parse(unescape(encoded));
     const res = await (who === 'admin' ? s.admin : s.user)(route.replace('{draft}', ctx.draft).replace('{request}', ctx.request), method, body && Object.keys(body).length ? body : method === 'POST' ? {} : undefined);
     assert.equal(res.status, Number(status), `${method} ${route}: ${res.text.slice(0, 300)}`);

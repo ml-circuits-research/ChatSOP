@@ -21,7 +21,7 @@ The language is documented in `docs/specs/DS004-sop.md` (section "Knowledge wire
 
 ## The mandatory loop
 
-1. **Declare the vocabulary.** One `predicate` wire per relation, with `args` roles and types (`args subject:entity object:entity`, `args none`). A predicate without roles cannot be linked to a question.
+1. **Declare the vocabulary** (the words for a base memory: `lexicon.md`). One `predicate` wire per relation, with `args` roles and types (`args subject:entity object:entity`, `args none`). A predicate without roles cannot be linked to a question.
 2. **Write the wires**, one idea each, in the patterns of `authoring-guide.md`.
 3. **Run the validator in authoring mode**: `node eval/smoke-reasoning/validator.mjs --authoring knowledge.sop queries.sop`. Fix every error and every warning, or write the warning you keep in `report.md` with the reason. The authoring mode ignores `approval`, `approved_by` and `approved_at` with the warning `governance_ignored`: remove them, you never write them.
 4. **Fix and repeat** until the output is `OK` with no unexplained warning. Do not hand the files on after a failing run, and never edit the validator, the grammar or `sop/` to make a wire pass.

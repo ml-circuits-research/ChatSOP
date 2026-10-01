@@ -44,6 +44,8 @@ export function readQuery(wire, excluded, {modes, id}) {
   for (const k of ['compare', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure', ...LINKS_OTHER_THAN_IF]) if (f1(wire, k)) other.push(k);
   if (f1(wire, 'limit') && !['abduce', 'why_not'].includes(q.mode)) other.push('limit');
   if (other.length) throw new NotExpressibleError(['query_' + other[0]], `query field "${other[0]}" is linked by the host, not run by ${id}`);
+  // the universal per group of the selected variables (feature every_grouped) is the oracle's; this strategy decides only the whole-domain universal
+  if (q.mode === 'every' && q.select.length) throw new NotExpressibleError(['every_grouped'], `mode every with select (a universal per group) is not expressible by ${id}`);
   if (!modes.includes(q.mode) || q.via || q.trace) {
     const needs = {plan: ['plan'], conform: ['check_plan'], procedure: ['procedure_render', 'method']}[q.mode] ?? ['plan'];
     throw new NotExpressibleError(needs, `mode ${q.mode}${q.via ? ' with via' : ''} is not expressible by ${id}`);
