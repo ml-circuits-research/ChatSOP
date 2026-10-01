@@ -62,5 +62,18 @@
     "maxConcurrent": 2,
     "modelsCacheSeconds": 600,
     "defaultModel": null
+  },
+  "queryParser": {
+    "default": "coding_agent",
+    "backend": {
+      "kind": "omp",
+      "model": "openai-codex/gpt-6-luna"
+    },
+    "timeoutSeconds": 120,
+    "maxFixRounds": 2,
+    "maxConcurrent": 4,
+    "cacheEntries": 500,
+    "fallbackOnLocalAbstain": true,
+    "keepFolders": false
   }
 }

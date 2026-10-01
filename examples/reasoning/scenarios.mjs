@@ -4,7 +4,7 @@ const rule=(id,body,head,mode='logical')=>`@${id} rule\n${body.map(a=>'  when '+
 const hypothesis=(id,a,cost=1)=>`@${id} hypothesis\n  holds ${a}\n  cost ${cost}\n`;
 const trace=(id,atoms,closed=false,text='')=>`@${id} trace\n  text ${JSON.stringify(text)}\n${atoms.map(a=>'  feature '+a+'\n').join('')}  closed ${closed}\n  source synthetic\n`;
 const query=(a,select='')=>`@q query\n${select?'  select '+select+'\n':''}  where ${a}\n  at 2026-09-26\n`;
-const end=id=>`\n@answer cnl\n  result $${id}\n  language ro\n`;
+const end=id=>`\n@answer cnl\n  result $${id}\n  language en\n`;
 export function scenarios(i=0){
  const a='person_a_'+i,b='person_b_'+i,c='person_c_'+i,s='device_'+i,r='robot_'+i,l1='place_a_'+i,l2='place_b_'+i,l3='place_c_'+i;
  const roots=fact('known_a',`parent ${a} ${b}`)+fact('known_b',`parent ${b} ${c}`)+rule('grandparent_rule',['parent ?x ?y','parent ?y ?z'],'grandparent ?x ?z');

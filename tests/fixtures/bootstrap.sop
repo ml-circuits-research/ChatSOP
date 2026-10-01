@@ -70,7 +70,7 @@
       memory $m
     @answer cnl
       result $r
-      language ro
+      language en
 
 @check_arrival template
   description "Recuperează durata rutei și calculează sosirea într-o zi, în minute de la miezul nopții."
@@ -96,4 +96,4 @@
       output ?arrival one
     @answer cnl
       result $feasibility
-      language ro
+      language en

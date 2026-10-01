@@ -26,10 +26,15 @@ if (process.env.STUB_OMP_DELAY_MS) await new Promise(resolve => setTimeout(resol
 const mode = process.env.STUB_OMP_MODE ?? 'good';
 const continued = args.includes('-c');
 const BROKEN = '@r1 rule\n  when parent ?x ?y\n';
+// A query-author task (input/message.txt, lib/query-author): query.sop comes from STUB_OMP_QUERY (the text), or from STUB_OMP_QUERY_FIX on a continued call.
+const isQueryTask = fs.existsSync(path.join(folder, 'input', 'message.txt'));
 if (mode === 'fail') { console.error('stub failure'); process.exit(3); }
 if (mode === 'slow') await new Promise(resolve => setTimeout(resolve, 60_000));
 const good = process.env.STUB_OMP_GOOD ? fs.readFileSync(process.env.STUB_OMP_GOOD, 'utf8') : '@f1 fact\n  holds parent ann bob\n  source "stub"\n';
-if (mode === 'good' || (mode === 'fix' && continued)) {
+if (isQueryTask) {
+  const text = continued && process.env.STUB_OMP_QUERY_FIX ? process.env.STUB_OMP_QUERY_FIX : process.env.STUB_OMP_QUERY;
+  if (mode !== 'none' && text) fs.writeFileSync(path.join(folder, 'query.sop'), text);
+} else if (mode === 'good' || (mode === 'fix' && continued)) {
   fs.writeFileSync(path.join(folder, 'knowledge.sop'), good);
   fs.writeFileSync(path.join(folder, 'queries.sop'), '@q query\n  where parent ?x bob\n  select ?x\n');
   fs.writeFileSync(path.join(folder, 'report.md'), 'Stub report: nothing was left out.\n');

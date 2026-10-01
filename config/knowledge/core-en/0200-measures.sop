@@ -43,3 +43,19 @@
   form "die at the age of"
   frame subject object
   source "authored (query-surface-agent); 'How old was X when she died?' is 'X died at the age of ?age'"
+
+@lx_population_of_en_noun_of lexeme
+  of population_of
+  language en
+  pos noun
+  form "be the population of"
+  frame object subject
+  source "authored (query-surface-agent); 'What is the population of the capital of France?' asks the number (subject) of the place (object)"
+
+@lx_area_of_en_noun_of lexeme
+  of area_of
+  language en
+  pos noun
+  form "be the area of"
+  frame object subject
+  source "authored (query-surface-agent); the number is the subject of the noun phrase, the place its object"

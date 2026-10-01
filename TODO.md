@@ -142,6 +142,14 @@ Reference date: 2026-09-27. Direction: [AGENTS.md](AGENTS.md). Delivered work wi
 - [ ] **Development iterations on the evaluation rows.** The shipped prompt and the Romanian-aware masking were tuned on the same 149 rows they are reported on, so those numbers are optimistic; re-measure on fresh rows.
 - [ ] **Gemma 3 4B-it, GPU latency at batch 1 and a full 100/100/100-row survey were not run**, for time/resource reasons (`status/preregistrations/text-to-clean-english-v1.json`).
 
+## 1i. Follow-up on the English-only core (english-core-agent, 2026-10-01, CHANGES.md)
+
+- Datasets and evaluation items affected, not rebuilt: archived corpora with Romanian gold SOP and Romanian content words (`datasets_archive/formalizer-v1`, `datasets_archive/diversity`, the legacy `proofing` rows) are history; the sealed wild suite keeps `unclear ... language ro` lines (the wild-suite check drops them); `eval/run.mjs` tolerant scoring no longer accepts Romanian relation phrases; `bad_english` stays the translation material (Romanian, mixed and badly written English into acceptable English); the three datasets' English gold is unchanged.
+- Translation quality at the edges is the new weak point: the answer translation EN to RO (translator-llm, Qwen3-4B) and the input translation have no preregistered evaluation yet; measure meaning preservation of answers (names, numbers) on a sample before relying on them.
+- The Romanian UD rules and routes of SymbolicLM (`direct` Romanian, `translate`) remain in `lib/symbolic-lm`, `lib/ud-to-sop` and `lib/translator-service` as research code behind the `englishOnly` option; remove them with their evaluations when the archive is trimmed.
+- `config/dictionary` keeps its Romanian columns and the Wiktionary data (DS014) for LanguagesUtil, the gloss backend and the archived evaluations only; decide later whether to move it to `probably_obsolete/`.
+- `sop/knowledge-linker.mjs` still names a `dictionary` score tier (`SCORES.dictionary`) that no product path produces; prune with the next linker change.
+
 ## 2. Remaining work that is executable without training
 
 - [x] **Wire the frame normalization into the chat runtime.** Done by linker-r2-agent (`PAS_TASK.md` "Linking R2"): a frame tier before the dictionary tiers in `sop/declarative.mjs` (`tryLink`), `frame_changes` in the packet, the strict link (`dictionary: null` or `frames: false`) free of it. It changes no link of the dev half after its guards; widening the frame list is a vocabulary task.

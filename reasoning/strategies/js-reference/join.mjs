@@ -1,6 +1,8 @@
 /**
- * Nested-loop evaluation of an ordered conjunction of leaves over the evidence tables (deliberately naive: one pass per leaf,
- * no indexes beyond the key lookup of a ground atom). Every candidate examined costs one probe of the budget (`maxJoins`).
+ * Nested-loop evaluation of an ordered conjunction of leaves over the evidence tables (deliberately simple: one pass per leaf; the key
+ * lookup of a ground atom, and for an atom with a bound position a hash index on that position, built lazily and extended as the table
+ * grows, so a join of two large relations costs the matching pairs, not their product). Every candidate examined costs one probe of
+ * the budget (`maxJoins`).
  *
  * Leaves: a positive atom (P), `not` (N), `absent` (no P; only over a closed predicate, checked at compile time),
  * `compare`, `compute`, `order`, `start_of`/`end_of` over the stored facts of the time view.
@@ -21,6 +23,34 @@ export function unify(args, values, env) {
     } else if (a !== v) return null;
   }
   return out;
+}
+
+/** Below this many rows a table is scanned, not indexed. */
+const INDEX_AT = 24;
+
+/**
+ * The rows of the table (`neg`, `p`) that can unify with `args` under `env`: all rows, or the bucket of the first bound position when the
+ * table is large. The index is a Map per (table, position) kept in `ctx.joinIndex`; it covers the rows added since the last call.
+ */
+function candidates(ctx, neg, p, args, env) {
+  const list = ctx.ev.list(neg, p);
+  if (list.length < INDEX_AT) return list;
+  for (let k = 0; k < args.length; k++) {
+    const a = args[k];
+    const bound = isVarTerm(a) ? (a.var in env ? env[a.var] : undefined) : a;
+    if (bound === undefined) continue;
+    const indexes = ctx.joinIndex ??= new Map();
+    const key = (neg ? 'n' : 'p') + '|' + p + '|' + k;
+    let index = indexes.get(key);
+    if (!index || index.list !== list) { index = {list, built: 0, map: new Map()}; indexes.set(key, index); }
+    for (; index.built < list.length; index.built++) {
+      const row = list[index.built], value = row.args[k];
+      const bucket = index.map.get(value);
+      if (bucket) bucket.push(row); else index.map.set(value, [row]);
+    }
+    return index.map.get(bound) ?? [];
+  }
+  return list;
 }
 
 /** Generator of {env, prem}; `ctx` = {ev, stored, budget, notes}. */
@@ -44,7 +74,7 @@ export function* join(leaves, i, env, prem, ctx) {
         if (n) yield* join(leaves, i + 1, env, [...prem, n], ctx);
         return;
       }
-      for (const n of ev.list(neg, l.p)) {
+      for (const n of candidates(ctx, neg, l.p, l.args, env)) {
         budget.probe();
         const e2 = unify(l.args, n.args, env);
         if (e2) yield* join(leaves, i + 1, e2, [...prem, n], ctx);

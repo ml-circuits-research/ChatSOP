@@ -18,6 +18,7 @@ export const sessionHeadHtml = `<header class="chat-head"><div class="info" id="
 
 const srow = (title, help, control) => `<div class="srow"><div class="what"><b>${title}</b><span>${help}</span></div><div class="ctl">${control}</div></div>`;
 export const settingsCodingAgentHtml = [
+  srow('<label class="plain" for="parser-select">Request parser</label>', 'Who turns your message into a query. Coding agent (default): an omp coding agent writes the query circuit from the memory\'s vocabulary. SymbolicLM: the local path (Stanza and the UD rules). Either way the circuit is linked, retrieved, reasoned over and verified symbolically; a failing coding agent falls back to SymbolicLM and the trace says so.', '<select id="parser-select"><option value="">Server default (coding agent)</option><option value="coding_agent">Coding agent</option><option value="local">SymbolicLM (local)</option></select>'),
   srow('<label class="plain" for="authoring-always">Always use coding agent</label>', 'Off (default): the coding agent runs only when you attach files or answer yes to a scope note. On: every message goes to the coding agent when omp is configured, skipping SymbolicLM. A detection never starts it by itself.', '<input type="checkbox" id="authoring-always">'),
   srow('<label class="plain" for="scope-select">Scope note</label>', 'When a sentence states knowledge SymbolicLM cannot write (a rule, a norm, a procedure, a definition), or SymbolicLM fails on a message. Ask me: a note with Yes and No. Mark only: the note without buttons.', '<select id="scope-select"><option value="ask">Ask me</option><option value="mark">Mark only</option><option value="none">No note</option></select>'),
   srow('<label class="plain" for="omp-model">Coding agent model</label>', 'Models omp can use. Subscription models cost nothing per token; paid models show their price per million tokens.', '<input type="search" id="omp-filter" placeholder="Filter models" aria-label="Filter models"><select id="omp-model"><option value="">omp default</option></select><button id="omp-refresh" type="button" title="Read the model list from omp again">Refresh</button>'),
@@ -85,7 +86,7 @@ function renderSessionBar(){
  if((s.committed_to||[]).length)info.append(el('span','pill ok','committed'));
  info.title='session '+s.id;
  $('strategy-info').textContent=s.base.strategy+' (base memory '+s.base.name+')';
- $('authoring-always').checked=Boolean(s.settings&&s.settings.authoring==='always');$('scope-select').value=(s.settings&&s.settings.scope_note)||'ask';
+ $('authoring-always').checked=Boolean(s.settings&&s.settings.authoring==='always');$('scope-select').value=(s.settings&&s.settings.scope_note)||'ask';$('parser-select').value=(s.settings&&s.settings.parser)||'';
  const model=(s.settings&&s.settings.omp_model)||'';if([...$('omp-model').options].some(o=>o.value===model))$('omp-model').value=model;
  $('commit-open').disabled=!accepted;
  $('drafts-open').textContent=drafts?'Drafts ('+drafts+')':'Drafts';
@@ -96,7 +97,7 @@ async function refreshSession(){
  if(r.ok)PROD.session=r.body;renderSessionBar();
 }
 async function startSession(baseId,name){
- const r=await jcall('POST','/v1/sessions',{base:baseId,...(name?{name}:{}),settings:{authoring:store.get('chatsop.authoring','off')==='always'?'always':'off',omp_model:store.get('chatsop.ompModel',null),scope_note:store.get('chatsop.scopeNote','ask')}});
+ const r=await jcall('POST','/v1/sessions',{base:baseId,...(name?{name}:{}),settings:{authoring:store.get('chatsop.authoring','off')==='always'?'always':'off',omp_model:store.get('chatsop.ompModel',null),scope_note:store.get('chatsop.scopeNote','ask'),parser:store.get('chatsop.parser',null)}});
  if(!r.ok)return r;
  PROD.session=r.body;bindSession(r.body.id);store.set('chatsop.lastBase',baseId);renderSessionBar();return r;
 }
@@ -274,11 +275,12 @@ async function loadOmpModels(refresh){
  ompNote((r.body.omp_version||'omp')+' \u00b7 '+r.body.models.length+' models'+(r.body.cached?' (cached)':'')+'. Type in the filter to search the whole catalogue.');
 }
 async function saveSetting(patch){
- if('authoring' in patch)store.set('chatsop.authoring',patch.authoring);if('scope_note' in patch)store.set('chatsop.scopeNote',patch.scope_note);if('omp_model' in patch)store.set('chatsop.ompModel',patch.omp_model);
+ if('authoring' in patch)store.set('chatsop.authoring',patch.authoring);if('scope_note' in patch)store.set('chatsop.scopeNote',patch.scope_note);if('omp_model' in patch)store.set('chatsop.ompModel',patch.omp_model);if('parser' in patch)store.set('chatsop.parser',patch.parser);
  if(!PROD.session)return;const r=await jcall('POST','/v1/sessions/'+PROD.session.id+'/settings',patch);if(r.ok){PROD.session=r.body;renderSessionBar();}
 }
 $('authoring-always').onchange=e=>saveSetting({authoring:e.target.checked?'always':'off'});
 $('scope-select').onchange=e=>saveSetting({scope_note:e.target.value});
+$('parser-select').onchange=e=>saveSetting({parser:e.target.value||null});
 $('omp-model').onchange=e=>saveSetting({omp_model:e.target.value||null});
 $('omp-filter').oninput=()=>renderOmpOptions();
 $('omp-refresh').onclick=()=>loadOmpModels(true);

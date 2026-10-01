@@ -76,7 +76,9 @@ The experiment also converted the pinned Gemma 3 270M IT and SmolLM2 bases, unmo
 
 Removal: delete those directories. Nothing in the runtime imports them.
 
-## Dictionary data (host bilingual dictionary)
+## Dictionary data (bilingual dictionary of the edges)
+
+Since the owner decision of 2026-10-01 (English-only core) the product linking path reads only the English synonym view of this data (`englishDictionary()`); the Romanian columns and the Wiktionary data serve language identification (LanguagesUtil), the gloss backend of TranslatorService and the archived evaluations.
 
 `sop/dictionary.mjs` and its maintenance CLI `tools/dictionary.mjs` are plain Node code with no package dependency: the sources are tab-separated text files in `config/dictionary/`, parsed and compiled by about two hundred lines of local code into lookup maps cached under `state/cache/dictionary/` (keyed by the SHA-256 of the sources). A dictionary or NLP package would add an opaque lexicon and inflection model; the host needs only exact lookups over reviewable data, so none is used.
 

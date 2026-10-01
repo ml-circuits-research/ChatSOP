@@ -19,11 +19,13 @@ const theory = s.theories.get([...s.sessions.baseCircuits('qf-gold'), ...s.sessi
 const norm = v => (typeof v === 'number' ? v : String(v).toLowerCase());
 const sameSet = (a, b) => a.length === b.length && a.every(x => b.includes(x));
 
+// the same slice budget as the dev run of the chain (the product defaults make a transitive located_in question incomplete)
+const LIMITS = {maxLookups: 300000, maxProbes: 600000, maxFacts: 60000, retrievalMs: 60000, ...JSON.parse(process.env.QF_LIMITS ?? '{}')};
 const kept = [], rejected = [];
 for (const row of rows) {
   let out;
   try {
-    const packet = askMemory({theory, repo: s.sessions.repository('qf-gold'), session: entry.agent.session, query: row.kb_query, reasoning: 'auto', verify: 'auto'});
+    const packet = askMemory({theory, repo: s.sessions.repository('qf-gold'), session: entry.agent.session, query: row.kb_query, reasoning: 'auto', verify: 'auto', limits: LIMITS, budget: {timeoutMs: 120000}});
     const definite = ['supported', 'refuted'].includes(packet.status) && packet.complete !== false;
     let gold;
     if (packet.kind === 'exists' || (packet.query?.mode === 'exists')) gold = packet.status === 'supported';

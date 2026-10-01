@@ -1,0 +1,48 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-query-model-calibration-v1",
+  "name": "Which model can write the query circuits: gpt-6-luna against quantized and larger Qwen3 models, same prompt and loop, no fine-tuning",
+  "registered_at": "2026-10-01T19:15:00Z",
+  "registered_by": "query-model-calibration-agent (owner question of 2026-10-01: 'instead of Luna, can a decent quantized Qwen 4B, or a bigger model, write our query circuits?')",
+  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "kind": "evaluation-only: no training and no fine-tuning; every model is used as published, prompted by lib/query-author; local models run on this machine's GPU through llama.cpp (one GPU worker at a time) and, for the 4B, on CPU; larger models run through OpenRouter (paid, total cap 5 USD)",
+  "frozen_before_results": "Written before any model was run on any dev row. The prompt, the validate-and-repair loop and the scoring are fixed by lib/query-author (coding-agent-query-agent) and tools/eval/query-model-calibration/ and are identical for every model; a change after the first stage is a recorded deviation and restarts the affected stage for all models.",
+  "system_under_test": {
+    "task": "message (English question) -> query circuit (a SOP query wire over the vocabulary of the base memory world-v1) written by the model through lib/query-author (prompt: message + memory vocabulary + condensed authoring guide; validate-and-repair loop, at most the library's maximum fix rounds)",
+    "models": {
+      "reference": "openai-codex/gpt-6-luna via omp (subscription)",
+      "local_gguf_gpu": ["Qwen3-4B-Instruct-2507 Q4_K_M", "Qwen3-4B-Instruct-2507 Q8_0", "Qwen3-1.7B Q8_0 (models/proofing/gguf)", "NVIDIA Nemotron-3-Nano-Omni Q8_0 (32 GB)"],
+      "local_gguf_cpu": "Qwen3-4B-Instruct-2507 Q4_K_M, 20-question sample, 4 threads (the laptop thread count of cpu-speed-table.json)",
+      "openrouter": ["qwen/qwen3-8b", "qwen/qwen3-14b", "qwen/qwen3-32b", "qwen/qwen3-30b-a3b-instruct-2507", "qwen/qwen3-coder-30b-a3b-instruct"]
+    },
+    "settings": "non-thinking or instruct mode wherever the model offers one (Qwen3 base-hybrid models: enable_thinking false); temperature 0; the settings of every model are written into its row of the report",
+    "memory": "base memory world-v1 (English-only, rebuilt on core-en), loaded in a private chat data root; the product slice path and the oracle answer the executed circuit"
+  },
+  "data": {
+    "dev": "the dev set of query forms with gold circuits and oracle gold answers (tools/eval/query-forms/, experiment eval-query-forms-v1, by query-surface-agent) plus the 30 questions of eval/world-kb/questions.json on world-v1. The sealed KBQA suites (eval/suites/kbqa-*) are never used.",
+    "gold": "the answer set the oracle returns on world-v1 for the gold circuit; the LLM never decides the gold. A produced circuit counts as correct only if its executed answer set (or count, or yes/no) equals the gold answer set."
+  },
+  "hypotheses": {
+    "H1": "A quantized Qwen3-4B-Instruct (Q4_K_M or Q8_0), prompted by lib/query-author with validate-and-repair, reaches an executed-correct rate within 5 percentage points of gpt-6-luna on the one-hop and count forms.",
+    "H2": "The gap to Luna widens on superlative, comparative, multi-hop and measure forms; a 14B to 32B Qwen3 closes it (within 5 pp overall).",
+    "H3": "End to end per question, a local 4B on this GPU is not slower than Luna through omp (agent start-up dominates Luna); on CPU the 4B is slower than Luna but the circuits are short, so rounds and start-up matter more than tokens per second."
+  },
+  "metrics": {
+    "primary": "executed-correct % per model (and per form: one-hop, count, superlative, comparative, multi-hop, measure) = produced circuit executed on world-v1 gives the gold answer / n",
+    "secondary": ["valid-after-repair %", "wrong % (a definite answer different from the gold)", "honest unclear/unknown %", "repair rounds per question", "tokens generated per circuit", "latency per question end to end (wall clock from message in to validated circuit out; p50, p95), split into start-up, prompt processing, generation and repair rounds", "tokens per second on this GPU and on CPU", "cost per 100 questions (OpenRouter invoice; Luna nominal list price, not an invoice)"],
+    "intervals": "Wilson 95% for proportions; paired bootstrap (10000 resamples, seed 20261001) of the difference in executed-correct against gpt-6-luna and against Qwen3-4B Q8_0 on the same questions"
+  },
+  "decision_rule": {
+    "recommendation": "the cheapest model (by cost per 100 questions for a paid model, else by model size and end-to-end latency on the target hardware) whose executed-correct is within 5 percentage points of gpt-6-luna on the full set, with the paired bootstrap lower bound of the difference above -10 pp and a wrong rate not above Luna's wrong rate plus 2 pp. If none qualifies, Luna stays and the best local model is named with its gap.",
+    "practically_small_margin_pp": 5
+  },
+  "stopping_rules": {
+    "stage_1": "the first 50 questions (stratified by form, fixed seed 20261001) for every model",
+    "stage_2": "all questions, only for models that survive stage 1",
+    "drop_after_stage_1": ["valid-after-repair below 50%", "clearly dominated: the paired-bootstrap 95% upper bound of (model - Qwen3-4B Q8_0) executed-correct below 0 while the model is not cheaper or faster, or the upper bound of (model - gpt-6-luna) below -20 pp"],
+    "broken_condition": "more than 20% of the first 50 outputs empty or unparsable for a model: stop that model, record it",
+    "budget": "OpenRouter spend is tracked per call; the run stops at 5 USD in total",
+    "recording": "every stop is recorded in the journal, a topic note, the experiment record and the task page, with stage, numbers and reason"
+  },
+  "deviations": []
+}

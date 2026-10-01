@@ -37,7 +37,7 @@
       tests $test
     @answer cnl
       result $result
-      language ro
+      language en
 
 @move action
   params ?r ?from ?to
@@ -61,4 +61,4 @@
       actions ~move
     @answer cnl
       result $result
-      language ro
+      language en

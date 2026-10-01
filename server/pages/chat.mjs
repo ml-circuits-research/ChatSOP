@@ -108,9 +108,10 @@ function linkingLine(e){
 function traceView(c){
  const details=document.createElement('details');const summary=document.createElement('summary');
  const timing=typeof c.formalization_ms==='number'?' · '+(c.formalization_ms/1000).toFixed(2)+' s':'';
- summary.textContent='trace: formalize · '+(c.status??'no status')+(c.backend!==undefined?' · backend '+(c.backend??'n/a'):'')+' · model '+(c.formalizer_model??'?')+timing;details.append(summary);
+ summary.textContent='trace: '+(c.parse?c.parse.parser:'formalize')+' · '+(c.status??'no status')+(c.backend!==undefined?' · backend '+(c.backend??'n/a'):'')+' · model '+(c.formalizer_model??'?')+timing;details.append(summary);
  const list=document.createElement('dl');
  field(list,'status',c.status);if(c.rejection)field(list,'rejected because',c.rejection);field(list,'backend',c.backend);field(list,'fallback',c.fallback===null?'none':c.fallback);field(list,'complete',c.completeness);
+ if(c.parse)field(list,'parser',c.parse.parser+(c.parse.model?' ('+c.parse.model+')':'')+' \u00b7 '+(c.parse.rounds||0)+' round(s) \u00b7 '+Math.round(c.parse.ms||0)+' ms \u00b7 $'+Number(c.parse.cost_usd||0).toFixed(4)+(c.parse.cache==='hit'?' \u00b7 cache hit':'')+(c.parse.fallback?' \u00b7 fallback '+c.parse.fallback.from+' \u2192 '+c.parse.fallback.to+': '+c.parse.fallback.reason:''));
  field(list,'formalizer',c.formalizer_label?c.formalizer_label+' ('+c.formalizer_model+')':c.formalizer_model);
  if(typeof c.formalization_ms==='number')field(list,'latency (formalization)',Math.round(c.formalization_ms)+' ms');
  field(list,'answer language',c.answer_language?c.answer_language+' ('+(c.language_source??'default')+')':null);

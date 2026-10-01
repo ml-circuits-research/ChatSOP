@@ -5281,6 +5281,25 @@
       },
       "deviations": [],
       "note": "Design: topic model-language note of 2026-10-01 (query forms plan)."
+    },
+    {
+      "id": "eval-query-model-calibration-v1",
+      "hypothesis": "A quantized Qwen3-4B (or a 14-32B Qwen3) writes query circuits through lib/query-author within 5 pp of gpt-6-luna in executed-correct on world-v1.",
+      "preregistration": "status/preregistrations/eval-query-model-calibration-v1.json",
+      "data_version": "query-forms dev set (tools/eval/query-forms) + eval/world-kb/questions.json on world-v1",
+      "status": "registered",
+      "results": {
+        "as_of": "2026-10-01",
+        "pending": [
+          "lib/query-author interface",
+          "query-forms dev set",
+          "world-v1 English rebuild",
+          "stage 50 per model",
+          "stage all"
+        ]
+      },
+      "deviations": [],
+      "note": "No training. Reports in eval/reports/current/query-model-calibration/."
     }
   ]
 }

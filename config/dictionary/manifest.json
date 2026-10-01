@@ -1,6 +1,6 @@
 {
  "format": "chatsop-dictionary-manifest-v1",
- "description": "Host bilingual (Romanian-English) and synonym dictionary (DS021 'Content words: host normalization and translation'). Sources are listed in priority order: a lower priority number wins when two sources give different entries for the same surface. Loaded by sop/dictionary.mjs; maintained with tools/dictionary.mjs. The `frames` list holds the host frame and synonym list of sop/frames.mjs (owner answer to Q-SYM-2): relation frames with their declared roles and surfaces, used only by host normalization after the formalizer, never by strict scoring.",
+ "description": "Bilingual (Romanian-English) and synonym dictionary. Since the English-only core decision of 2026-10-01 the product linking reads only its English synonym sets (`englishDictionary()` in sop/dictionary.mjs); the Romanian columns serve language identification, the gloss translator backend and the archived evaluations (DS021 'Input languages and content words'). Sources are listed in priority order: a lower priority number wins when two sources give different entries for the same surface. Loaded by sop/dictionary.mjs; maintained with tools/dictionary.mjs. The `frames` list holds the host frame and synonym list of sop/frames.mjs (owner answer to Q-SYM-2): relation frames with their declared roles and surfaces, used only by host normalization after the formalizer, never by strict scoring.",
  "files": [
   {
    "path": "manual.tsv",

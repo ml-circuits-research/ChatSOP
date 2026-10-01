@@ -12,7 +12,7 @@ const config={power:9,arity:3,verification:'receipt',retention:{writeStrength:2,
  sharding:{enabled:true,mode:'bounded',maxClaimsPerShard:2,maxColdShards:2,safeOccupancy:.9,gcEveryWrites:0}};
 const schema=demoLexicon().predicates;
 const fixture='@kinship rule\n  when parent ?x ?y\n  when parent ?y ?z\n  then grandparent ?x ?z';
-const query='@q query\n  where grandparent ana carina\n@r solve\n  query $q\n@answer cnl\n  result $r\n  language ro';
+const query='@q query\n  where grandparent ana carina\n@r solve\n  query $q\n@answer cnl\n  result $r\n  language en';
 const fact=(i)=>({kind:'fact',atom:{p:'likes',a:['person_'+i,'org_'+i],neg:false},valid:{from:-Infinity,until:Infinity},source:'demo'});
 const at=Date.parse('2026-09-26T12:00:00Z'),q={at,asof:at};
 try{

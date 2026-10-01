@@ -29,6 +29,7 @@
 import {STRATEGIES} from '../lib/chat-data/memories.mjs';
 import {CORE_SEED} from '../lib/knowledge-seeds.mjs';
 import {askMemory, TheoryCache} from '../reasoning/slice/index.mjs';
+import {checkParser} from './query-parser.mjs';
 
 const bad = (message, code = 'invalid_request', status = 400) => Object.assign(new Error(message), {status, code});
 
@@ -42,13 +43,13 @@ export const PRODUCT_ENDPOINTS = Object.freeze([
   {method: 'POST', path: '/v1/sessions', capability: 'sessions.create', body: ['base', 'name', 'settings']},
   {method: 'GET', path: '/v1/sessions', capability: 'sessions.list'},
   {method: 'GET', path: '/v1/sessions/{id}', capability: 'sessions.get'},
-  {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['authoring', 'omp_model', 'scope_note']},
+  {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['authoring', 'omp_model', 'scope_note', 'parser']},
   {method: 'GET', path: '/v1/sessions/{id}/drafts', capability: 'sessions.drafts'},
   {method: 'POST', path: '/v1/sessions/{id}/drafts/{draft}/accept', capability: 'sessions.accept', body: []},
   {method: 'POST', path: '/v1/sessions/{id}/drafts/{draft}/reject', capability: 'sessions.reject', body: []},
   {method: 'POST', path: '/v1/sessions/{id}/commit', capability: 'sessions.commit', body: ['name', 'strategy', 'description', 'id']},
   {method: 'GET', path: '/v1/sessions/{id}/theory', capability: 'sessions.theory'},
-  {method: 'POST', path: '/v1/sessions/{id}/query', capability: 'sessions.query', body: ['query', 'reasoning', 'verify']},
+  {method: 'POST', path: '/v1/sessions/{id}/query', capability: 'sessions.query', body: ['query', 'message', 'parser', 'reasoning', 'verify']},
 ]);
 
 const STRATEGY_NOTES = {
@@ -89,7 +90,7 @@ const onlyKeys = (body, allowed) => {
   return body;
 };
 
-export function createProductRouter({memories, sessions, runtimes, readBody, json, limits = {}, extra = {}}) {
+export function createProductRouter({memories, sessions, runtimes, readBody, json, limits = {}, extra = {}, parsing = null}) {
   const maxBytes = limits.maxProductBytes ?? 8_000_000;
   const theories = new TheoryCache();
 
@@ -140,7 +141,7 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
     },
     async sessionsSettings({req, res, match, user, admin}) {
       sessions.visible(match[1], {user, admin});
-      const body = onlyKeys(await readBody(req, maxBytes), ['authoring', 'omp_model', 'scope_note']);
+      const body = onlyKeys(await readBody(req, maxBytes), ['authoring', 'omp_model', 'scope_note', 'parser']);
       json(res, 200, {object: 'session', ...sessions.describe(sessions.updateSettings(match[1], body).id)});
     },
     sessionsDrafts({res, match, user, admin}) {
@@ -167,7 +168,28 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
     },
     async sessionsQuery({req, res, match, user, admin}) {
       sessions.visible(match[1], {user, admin});
-      const body = onlyKeys(await readBody(req, maxBytes), ['query', 'reasoning', 'verify']);
+      const body = onlyKeys(await readBody(req, maxBytes), ['query', 'message', 'parser', 'reasoning', 'verify']);
+      // `message`: a natural-language request instead of a query circuit. The request parser (`parser`: coding_agent | local, else the session setting, else
+      // the server default) writes the query, and the shared chat path links, retrieves, routes, verifies and renders it (DS031 "Request parsers").
+      if (body.message !== undefined) {
+        if (body.query !== undefined) throw bad('Give either query (a circuit) or message (a request), not both', 'invalid_parameter');
+        if (typeof body.message !== 'string' || !body.message.trim()) throw bad('message must be a non-empty string', 'invalid_parameter');
+        if (!parsing?.queryParser || !runtimes) throw bad('Requests in natural language need the server with chat sessions', 'not_available', 501);
+        checkParser(body.parser);
+        const rt = runtimes.open(match[1], {user, admin});
+        const lexicon = rt.lexicon;
+        let parseRecord = null;
+        const formalizer = {id: 'query-parser', formalize: async text => {
+          const done = await parsing.queryParser.parse({parser: body.parser ?? rt.info?.settings?.parser ?? null, message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, local: () => parsing.localFormalize(text)});
+          parseRecord = done.parse;
+          return done.sop;
+        }};
+        const english = parsing.toEnglish ? (await parsing.toEnglish(body.message)).text : body.message;
+        const turn = await rt.entry(user).agent.turn(english, {language: 'en', formalizer, translateAnswer: null}).catch(e => { e.parse = parseRecord; throw e; });
+        rt.save(rt.entry(user), user);
+        if (turn.packet) turn.packet.parse = parseRecord;
+        return json(res, 200, {object: 'session.query', session: match[1], parse: parseRecord, model_sop: turn.sop, circuit: turn.executionSop, text: turn.text, answer: turn.packet});
+      }
       if (typeof body.query !== 'string' || !body.query.trim()) throw bad('Provide query: a query circuit text', 'invalid_parameter');
       // The query is answered from a slice of the session's memory: the rules that can reach it and the facts they and the query can use,
       // never the whole theory (reasoning/slice/wire.mjs). Without chat sessions (an embedded server) the whole theory goes to the oracle.
