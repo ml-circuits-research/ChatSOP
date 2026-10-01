@@ -1,0 +1,13 @@
+{
+  "_note": "Defaults of the llm-agent baseline strategy (reasoning/strategies/llm-agent/). A subscription model is the default; DeepSeek is optional and paid (its cost is counted against maxPaidUsd). Environment overrides: CHATSOP_LLM_AGENT_MODEL, CHATSOP_LLM_AGENT_PRESENTATION.",
+  "model": "xai-oauth/grok-4.20-0309-non-reasoning",
+  "fallbackModels": ["zai/glm-5.3-flash"],
+  "presentation": "sop",
+  "reasoning": "cot",
+  "verify": false,
+  "timeoutMs": 180000,
+  "maxChars": 90000,
+  "maxPaidUsd": 5,
+  "thinking": null,
+  "cacheDir": "state/llm-agent/cache"
+}

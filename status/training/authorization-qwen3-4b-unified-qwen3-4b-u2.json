@@ -1,0 +1,23 @@
+{
+ "format": "chatsop-training-authorization-v1",
+ "authorization": "explicit-user-approval",
+ "approved": true,
+ "approved_by": "user",
+ "approved_at": "2026-10-01T13:29:04.491Z",
+ "instruction": "Owner explicitly approves unified-ft training: Qwen3-4B LoRA, 1 epoch, u2 then u1 if promising: Owner 2026-10-01 (chat, verbatim): 'esti cam sensibil, pare ca e bun, inseamna da, e ok, fa cu grija , masoara totul si compara sa fim siguri deci..Aprob antrenarea Qwen3-4B unificat (LoRA, 1 epocă, varianta u2, apoi u1 dacă u2 arată promițător) pentru experimentul unified-ft.'",
+ "journal_event": {
+  "file": "status/journal.jsonl",
+  "ts": "2026-10-01T13:29:04.491Z",
+  "actor": "orchestrator"
+ },
+ "further_decisions": [],
+ "model": "qwen3-4b",
+ "run": "unified-qwen3-4b-u2",
+ "role": "proofreader",
+ "qualification_sha256": "f4081710ddc250ce29af869c4c2855c18b81dd1d89df913838937f61504bd2bc",
+ "recipe_sha256": "2629cf349e9457572fd7055b3cee374d2ba8f9f11226529aeab7a133a8e72373",
+ "dataset_manifest_sha256": "9297dec259d54ff63d18d2a04dfc7b07f33f55a1a0f1a97dafc43d34057677ef",
+ "dataset_version_sha256": "a3636b4112d672a027ce7c5d659862899a3a015848890d7d851bd29d33f0b3d3",
+ "transcribed_by": "unified-ft-agent-b",
+ "transcribed_at": "2026-10-01T13:31:43.612Z"
+}

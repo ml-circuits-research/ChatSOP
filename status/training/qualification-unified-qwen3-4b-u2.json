@@ -1,0 +1,65 @@
+{
+ "format": "chatsop-dataset-qualification-v1",
+ "status": "qualified",
+ "corpus": "neuro_english/unified-ft-u2",
+ "role": "proofreader",
+ "grade": "experiment-grade: chained targets reuse the already qualified certified targets (neuro it3-mix, symbolic_english membership) and SymbolicLM certification for the extra bad_english rows; blocklist, natural-overlap and sealed-leakage guards recomputed; no human semantic review",
+ "dataset_manifest_sha256": "9297dec259d54ff63d18d2a04dfc7b07f33f55a1a0f1a97dafc43d34057677ef",
+ "dataset_version_sha256": "a3636b4112d672a027ce7c5d659862899a3a015848890d7d851bd29d33f0b3d3",
+ "dataset_version": {
+  "format": "chatsop-dataset-version-v1",
+  "corpus": "neuro_english/unified-ft-u2",
+  "counter": 1,
+  "label": "neuro_english/unified-ft-u2 2026-10-01-6907a509",
+  "dataset": "neuro_english/unified-ft-u2",
+  "version": "2026-10-01-6907a509",
+  "rules": "ud-rules-v2.5"
+ },
+ "dataset_files": {
+  "proofreader/train.jsonl": "6907a5097f8395b0e6c75c9f7fdde6b7987db048c0e428c7324b9858599114b9",
+  "proofreader/dev.jsonl": "4f9eb13fab42000efebe73fa477ccf8f41ace42d5c25acd359fbd3b8c1c827b1"
+ },
+ "sealed_suites": {},
+ "contract_files": {},
+ "checks": {
+  "oracle_grounding": true,
+  "meaning_preservation": true,
+  "leakage": true,
+  "split_integrity": true,
+  "source_rights": true,
+  "token_budget": true
+ },
+ "evidence": {
+  "oracle_grounding": {
+   "path": "eval/reports/current/unified-ft/data/unified-grounding.json",
+   "sha256": "d2d8eb074faf05a6b0ce25ceb94438bac930597d8680a106f8919b20d9ffc8fb"
+  },
+  "meaning_preservation": {
+   "path": "eval/reports/current/unified-ft/data/unified-meaning.json",
+   "sha256": "67001a428cd153ddcc747f4e03be6fc7fcf03581ecacb13b6ff6854e7b50d191"
+  },
+  "leakage": {
+   "path": "eval/reports/current/unified-ft/data/unified-leakage.json",
+   "sha256": "b2c6b2c12e34a39cffee00d5ab879b5aad2dfc3d85cc843c18d2d37a08b63b82"
+  },
+  "split_integrity": {
+   "path": "eval/reports/current/unified-ft/data/unified-split-integrity.json",
+   "sha256": "cc2b2a261bfec49d1c5055e6b850577d9a7b62da1761d080bbb4470657521efc"
+  },
+  "source_rights": {
+   "path": "docs/specs/DS014-source-rights.md",
+   "sha256": "8d38a6353b4e52605155a5ce79a64ac76a5eaf6cce79d55d878aa434ae1d0b2e"
+  },
+  "token_budget": {
+   "path": "eval/reports/current/unified-ft/data/unified-token-audit.json",
+   "sha256": "065e793c32fe01e8f22015ba270def7dd13394c38b47238b4a90812655faa3af"
+  }
+ },
+ "reviewer": {
+  "kind": "principal_integrator",
+  "id": "unified-ft-agent (automated qualification)",
+  "reviewed_at": "2026-10-01T13:18:59.719Z"
+ },
+ "blockers": [],
+ "note": "Data qualification only; not a chatsop-training-authorization-v1 receipt (AGENTS.md rule 3)."
+}

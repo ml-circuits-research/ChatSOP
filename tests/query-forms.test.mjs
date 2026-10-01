@@ -12,7 +12,7 @@ import {Runtime} from '../sop/runtime.mjs';
 import {Lexicon} from '../sop/lexicon.mjs';
 import {Repository} from '../memory/repository.mjs';
 import {publishKnowledge} from '../sop/ingest.mjs';
-import {ENUMS, QUERY_MODES, TIME_MEASURES} from '../sop/enums.mjs';
+import {ENUMS, QUERY_MODES, REASONING_QUERY_MODES, TIME_MEASURES} from '../sop/enums.mjs';
 import {UNCLEAR_KINDS} from '../sop/unclear.mjs';
 
 const NOW = Date.parse('2026-09-28T12:00:00Z');
@@ -141,7 +141,7 @@ const workTime = block('where', 'work at', [['subject', '"Ana"'], ['object', '"A
 test('enumerations: query modes and time measures are closed lists', () => {
   assert.deepEqual([...QUERY_MODES], ['select', 'exists', 'count', 'explain', 'every']);
   assert.deepEqual([...TIME_MEASURES], ['start', 'end', 'duration']);
-  assert.deepEqual(ENUMS.query.mode, [...QUERY_MODES]);
+  assert.deepEqual(ENUMS.query.mode, [...QUERY_MODES, ...REASONING_QUERY_MODES]);
   assert.deepEqual(ENUMS.query.measure, [...TIME_MEASURES]);
 });
 

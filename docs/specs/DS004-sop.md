@@ -1,6 +1,6 @@
 ---
 title: DS004-sop
-summary: Typed SOP circuit semantics, output binding, checked effects, and publication.
+summary: Typed SOP circuit semantics, output binding, checked effects, publication, and the knowledge wires (predicate, fact, rule, default, integrity, aggregate, action, method, norm, procedure, amendment) with their semantics, governance and query modes.
 ---
 
 ## Introduction
@@ -44,7 +44,7 @@ Text literals use ASCII double quotes and JSON string escaping. Quotes delimit a
 
 In fields whose consumer reads the entire remainder of one line as text, such as `resolve.text`, `clarify.text`, and `fact.quote`, quoted and unquoted input are accepted by the field grammar. Thus `text "Maria Ionescu"` and `text Maria Ionescu` denote the same text in `resolve`. In token-list positions, a multiword text value must be quoted to remain one argument. Executable atoms have no parentheses or comma separators: write `works_at maria $company`, not `works_at(maria, $company)`. Atom terms are whitespace-separated; JSON double-quoted strings preserve spaces, punctuation, and escapes within one term. `$` references, `?` variables, safe integers, lowercase canonical symbols, and optional leading `not` retain their existing meanings. The old parenthesized form is rejected.
 
-Every atom has exactly one to four terms separated by whitespace. A quoted term is one JSON string token and must not touch an adjacent term without separating whitespace; atom text may not span lines. The leading `not` indicates explicit negation, not a usable predicate identifier. Neither `p(a, b)` nor a zero-term `p` is an atom in this profile; punctuation *inside* a JSON-quoted string remains data.
+In host circuits and on the model surface every atom has exactly one to four terms separated by whitespace (the knowledge language of the section "Knowledge wires" allows zero to six). A quoted term is one JSON string token and must not touch an adjacent term without separating whitespace; atom text may not span lines. The leading `not` indicates explicit negation, not a usable predicate identifier. Neither `p(a, b)` nor, in host circuits, a zero-term `p` is an atom; punctuation *inside* a JSON-quoted string remains data.
 
 Canonical model targets and coding-agent-authored free-text literals use double quotes consistently, including single-word names. This is an authoring convention, not a claim that the generic `canonical()` serializer rewrites every field or that existing datasets have been migrated. Do not quote structural keywords, enum values such as `user`, `entity`, and `en`, canonical entity identifiers, numeric values, or active references such as `$person`, `?country`, and `~procedure` merely to apply the text rule. Follow each field's declared grammar.
 
@@ -91,3 +91,429 @@ A `fact` wire declares `source user` when it records a quoted user assertion, an
 The host selects the user identity and write permissions, reviews executable definitions, and admits factual sources through `publishKnowledge`/ingestion. A document quotation and source hash are required when the ingestion contract calls for them. A generated SOP circuit cannot authorize its own publication or alter the library of approved rules, procedures, policies, and ontology definitions. The stable machine-readable capability catalog belongs at `sop/contracts/`; the retained requirements under `probably_obsolete/legacy/requirements/` are supporting evidence, not an alternate runtime parser.
 
 The `skills/material-to-sop/` workflow accepts UTF-8 TXT or Markdown sources no larger than 2 MB into a private hashed workspace. Its `prepare`, `review`, `curriculum`, `diagnose`, `candidate`, `probe`, `decide`, `freeze`, and `publish` commands separate quoted unapproved fact drafts from approved source claims and scoped rule candidates. Only a host-approved HARD candidate with executed positive, negative and boundary probes, matching decision and freeze hashes, and explicit authorization for a new empty base can be published; DEFAULT and PLAUSIBLE remain non-executable proposals. Probe results establish runtime behavior, not document truth, reviewer identity or permission. Retraction prevents future reuse without erasing earlier published history.
+
+## Knowledge wires
+
+The knowledge language is the part of SOP in which knowledge is written down from a source: a manual, a regulation, an article or an owner's decision. Its wires are checked, one idea each, and carry the sentence they come from. Engines then answer questions from them. This section is the user manual of that language: what each wire is for, how to write it, what the engines do with it and the mistakes the validator looks for. SOP Lang is still being discovered, so the language has no version numbers: every change is documented here and in the [wire help](wire_types.html) pages in the same step, and an old form is replaced rather than kept beside the new one. The grammar tables below are generated from `sop/knowledge/grammar.mjs` (`node eval/smoke-reasoning/validator.mjs --grammar`), so the code, this section and the help pages cannot drift apart.
+
+### Two surfaces, one language
+
+| Surface | Who writes it | Wires | What the words are |
+| --- | --- | --- | --- |
+| **Model surface** ([DS021](specsLoader.html?spec=DS021-model-surface.md)) | the small model or SymbolicLM, from the user's message alone | `stated`, `assumed`, `unclear`, `query`, `constraint`, `unparsed` and the clause links | quoted strings in the message's language; no identifiers, no context |
+| **Authoring surface** (this section) | a coding agent or the owner, from a source text | `predicate`, `fact`, `rule`, `default`, `integrity`, `aggregate`, `constraint`, `action`, `goal`, `hypothesis`, `method`, `norm`, `procedure`, `argument`, `trace` | lowercase symbols (`paris`), integers, quoted text only where text is meant |
+| **Host** | trusted host code | `amendment` (composed from the user's words), `policy`, `pack`, the governance fields `approval`, `approved_by`, `approved_at` | host decisions, never model output |
+
+The surfaces meet in two places only. A `predicate` declaration says which argument position is the subject and which is the object (`args subject:entity object:entity`), and the host linking of [DS021](specsLoader.html?spec=DS021-model-surface.md) uses those roles to place the strings of a model `stated` or `query` into the positions of the predicate its reviewed lexicon maps them to. Entities then become symbols through the reviewed dictionary. The model never sees a predicate name or an identifier. The model-origin compiler (`sop/declarative.mjs`) rejects every knowledge wire, and tests/model-input-boundary.test.mjs and tests/no-context-lint.test.mjs guard this. The two kinds of file are also separated by the validator: a `query` wire in a knowledge file, or a knowledge wire in a query file, is `wrong_file_role` (a supposed or hedged `fact` may sit in a query circuit, because it is a supposition).
+
+Some names exist on both surfaces with different fields (`fact`, `rule`, `predicate`, `action`, `goal`, `hypothesis`, `procedure`, `trace`, `policy`, `constraint`, `query`): the host circuits that `sop/runtime.mjs` executes use the fields of `sop/parser.mjs:SPEC`; a knowledge circuit is parsed and validated by `sop/knowledge/` and executed by a reasoning strategy ([DS006](specsLoader.html?spec=DS006-reasoning.md)). A file declares which it is by the tool that reads it: the knowledge validator never reads a host circuit and the reverse. The help page of each wire states both forms.
+
+### The format of a knowledge wire
+
+```
+@name type            # header at column one: a letter, then letters, digits, underscore
+  keyword value...    # exactly two leading spaces; one keyword per line
+  when all            # a group opens with all or any and closes with end
+    p ?x
+    q ?x
+  end
+```
+
+- **Terms** are a lowercase symbol (`paris`), a safe integer (`120`; money is in cents, time in minutes, there are no floats), a JSON-quoted string (`"Alpha Lab"`), a `?variable`, a `$ref` to another wire, or a `~action` handle. Entities are always lowercase symbols; a string is a text value (an argument of type `text`) or the content of `source`, `quote`, `speaker`, `description` and `message`. A multi-word name becomes a symbol by lowercasing and joining the words with underscores (`Alpha Lab` becomes `alpha_lab`; `Dr. O'Neil` becomes `dr_oneil`); the original wording stays in `source` or `quote`.
+- An **atom** is `[not |absent ]predicate term...` with zero to six terms. There are no parentheses, no commas and no symbol operators: the comparison and arithmetic words are `above below at_least at_most equal not_equal` and `plus minus times divided_by`.
+- **Comments** start with `#` at the start of a line. Wire ids and predicate names share one namespace, so a fact cannot take the id of a predicate; by convention facts are `f1`, rules `r_...`, norms and methods are named by a verb. Ids and predicates starting with `x_` are reserved for wires generated by desugaring (`reserved_prefix`).
+- **Dates** are `2026-01-15` or `2026-01-15T10:00:00Z`; `beginning` and `open` are the open ends of an interval.
+- **Condition leaves** (inside `when`, `never`, `over`, `where`, `except`, `scope`): an atom, `not ATOM`, `absent ATOM`, `compare A WORD B`, `compute ?v A WORD B`, `start_of ?t ATOM`, `end_of ?t ATOM`, `order ?t1 before|after|same_time ?t2`, and the groups `all` and `any` closed by `end`.
+- A relation has at most six terms. An event with more participants, or optional ones, is **reified**: one event fact plus one fact per participant, each with its own role predicate (the authoring skill `skills/sop-wire-authoring/SKILL.md` shows the pattern).
+
+### The wire catalogue
+
+`*` required, `+` repeatable. The governance fields (`version supersedes approval approved_by approved_at retired_at scope quote`) are listed once where a wire carries them.
+
+<!-- grammar:begin -->
+- `@id predicate`: args* closed key transitive inverse unit description
+- `@id fact`: holds* valid status speaker source quote
+- `@id rule`: when*+ then* mode valid source + governance
+- `@id default`: when*+ then* except+ priority overrides+ source + governance
+- `@id integrity`: never*+ witness* message severity source + governance
+- `@id aggregate`: over*+ group count sum min max collect yields*
+- `@id constraint`: var+ require+ claim objective direction task select unit
+- `@id action`: params requires*+ adds+ removes+ cost source next+ guard+ + governance
+- `@id method`: achieves* when+ step*+ prefer+ on_failure triggered_by binding cost source + governance
+- `@id norm`: forbid oblige permit when+ within before after always sometime at_most_once standing severity cost priority overrides+ binding message source + governance
+- `@id procedure`: members*+ description scope source
+- `@id amendment`: of* proposed_by* members+ removes+ reason approval evaluated
+- `@id argument`: for against claim* source cost_delta
+- `@id trace`: step*+
+- `@id goal`: where*+
+- `@id hypothesis`: holds assume+ waive+ cost status source
+- `@id policy`: effort partial procedures+ scope+ objective binding
+- `@id stated`: relation* role+ polarity valid certainty speaker
+- `@id query`: where+ select mode scope+ at during overlaps asof trace via+ compare+ order+ rank filter+ measure quantifier except+ limit policy observe horizon
+- `@id pack`: items*+
+- governance = version supersedes approval approved_by approved_at retired_at scope quote
+<!-- grammar:end -->
+
+The same table with the status and the purpose of each wire is printed by `node eval/smoke-reasoning/validator.mjs --grammar`; `--grammar-compact` prints the lines above, and `tests/knowledge-grammar.test.mjs` fails when the block above differs from the generated one. `pack` is host plumbing and is never written by an author or by the model. The limits `maxWires` and the like belong to the author surface: a retrieved slice reaches an engine as a structured object, not as text.
+
+| Wire | Written by | Purpose | Help page |
+| --- | --- | --- | --- |
+| `predicate` | author | declares a relation: argument roles and types, `closed`, hints | [predicate](wire_typs/predicate.html) |
+| `fact` | author | one ground claim, with validity, status, speaker and source | [fact](wire_typs/fact.html) |
+| `rule` | author | a law of the source: no exceptions | [rule](wire_typs/rule.html) |
+| `default` | author | a normal tendency with exceptions | [default](wire_typs/default.html) |
+| `integrity` | author | a pattern that must never hold in a state; violations are data | [integrity](wire_typs/integrity.html) |
+| `aggregate` | author | a derived relation by grouping: count, sum, min, max, collect | [aggregate](wire_typs/aggregate.html) |
+| `constraint` | author or model | finite integer arithmetic: prove, possible, optimize | [constraint](wire_typs/constraint.html) |
+| `action` | author | a primitive step with preconditions and effects | [action](wire_typs/action.html) |
+| `goal` | author | a desired conjunction for planning | [goal](wire_typs/goal.html) |
+| `method` | author | the manual's own ordered procedure, with the choice points the engine may optimise | [method](wire_typs/method.html) |
+| `norm` | author | forbid, oblige or permit, with one temporal qualifier, severity and binding | [norm](wire_typs/norm.html) |
+| `procedure` | author | a named bundle of wires, a mode of work | [procedure](wire_typs/procedure.html) |
+| `amendment` | host | a proposed change, composed from the user's words | [amendment](wire_typs/amendment.html) |
+| `argument` | author or host | a reason for or against a wire or an amendment | [argument](wire_typs/argument.html) |
+| `trace` | author or host | a performed sequence of actions, the input of `mode conform` | [trace](wire_typs/trace.html) |
+| `hypothesis` | author or host | a candidate assumption for abduction or what-if | [hypothesis](wire_typs/hypothesis.html) |
+| `policy` | host | budgets, effort, partial answers, procedures in force, objective | [policy](wire_typs/policy.html) |
+| `query` | model, host or author (tests) | the question: modes, time words, link keywords | [query](wire_typs/query.html) |
+
+### Declaring relations: `predicate`
+
+Every relation is a `predicate` wire whose id is the relation name. `args` lists the arguments as `role:type` entries (types `entity integer text time value`; roles from the closed inventory `subject object recipient location source destination instrument time topic`; at most one argument per role; give a role to every argument or to none, and `args none` declares arity 0). `closed true` says the retained view holds every fact of the relation (default false). `key N` names an argument position that determines the rest (a lint: two facts with the same key and different remainders and no validity intervals give the warning `key_violation`, nothing is blocked). `transitive true` (arity 2) and `inverse p` are advisory routing hints, and `unit` and `description` document the relation.
+
+The declaration is what the checker uses: it fixes the arity, which position is the subject, and the types, so an orientation slip (`works_at firm person` against `works_at person firm`) is caught as `type_mismatch` when the knowledge is written. Declare a predicate before its first fact; a predicate without roles is accepted with the warning `args_without_roles`, because the host linking then cannot place a model role. Declare `closed true` only when the source says the list is exhaustive, and quote that sentence in `description`.
+
+```sop knowledge
+@located_in predicate
+  args subject:entity location:entity
+  description "Atlas p.12 lists the cities of each country"
+
+@f1 fact
+  holds located_in paris france
+  source "Atlas p.12"
+@f2 fact
+  holds located_in lyon france
+```
+
+### Facts
+
+A `fact` is one ground atom: `holds [not ]predicate term...`, with no variables. `valid START END` bounds the period the fact is true (start inclusive, end exclusive; `timeless` is the default). `status` is `observed` (default), `reported` (with a `speaker`, and ideally the `quote`), `hedged` or `supposed`; every status but `observed` makes the facts an **assumption**, and an answer that rests on it is `conditional`. `speaker` is only meaningful with `status reported` (`speaker_needs_reported`). `source` and `quote` keep the sentence the claim comes from. A negative fact `holds not flies tweety` is explicit evidence, not absence. Prefer one general rule to many similar facts.
+
+```sop knowledge
+@located_in predicate
+  args subject:entity location:entity
+
+@f9 fact
+  holds located_in atlantis atlantic_ocean
+  status reported
+  speaker "Plato"
+  quote "an island in front of the strait you call the Pillars of Hercules"
+```
+
+### Rules
+
+A `rule` is a definite implication and a law of the source: it has no exceptions. `when` lines are a conjunction (or one `all`/`any` group); `then` is one atom, possibly negative (`then not flies ?x`) and possibly with no terms (`then alarm_on`). `mode causal` marks a rule usable by counterfactual simulation. The checks are: every head variable occurs in a positive body atom (`unsafe_head`); a variable under `absent`, `compare` or `compute` is bound (`unsafe_negation`, `unsafe_variable`); `absent` only on a closed predicate (`absent_needs_closed`); and stratification (`not_stratifiable`).
+
+```sop knowledge
+@parent predicate
+  args subject:entity object:entity
+@grandparent predicate
+  args subject:entity object:entity
+
+@f1 fact
+  holds parent ann bob
+@f2 fact
+  holds parent bob cy
+
+@r_grand rule
+  when parent ?x ?y
+  when parent ?y ?z
+  then grandparent ?x ?z
+```
+
+Arithmetic in a body uses `compute ?v A WORD B` over integers (`divided_by` truncates toward zero, a zero divisor makes the body false for that binding and the packet notes `arithmetic_undefined`, a constant zero divisor is `division_by_zero`); `compare A WORD B` orders integers and times (`compare_on_entity` rejects an ordering on a variable declared `entity` or `text`; `equal` and `not_equal` work on any type).
+
+### Semantics shared by all wires
+
+1. **Finite, function-free, set semantics.** Terms are constants, rules construct no new terms, duplicate derivations collapse, and `compute` is forbidden inside a recursive cycle, so evaluation terminates.
+2. **Two evidence derivations, four statuses.** For a ground atom `p a` an engine derives *positive evidence* (`p a` is derivable) and *negative evidence* (`not p a` is derivable) independently, as in Belnap's four-valued logic. The status is `supported` (positive only), `refuted` (negative only), `both` (positive and negative) and `unknown` (neither). **`both` is a reported status, not a state that stops propagation**: a rule body `p a` is satisfied by positive evidence whatever the negative evidence is, and a body `not p a` by negative evidence whatever the positive is. Evidence is therefore monotone (adding a fact never retracts a derived atom, which is what makes answering from a partial retrieved slice safe) and a contradiction stays local and visible: atoms derived from a contradictory atom are reported with their own evidence and nothing unrelated becomes derivable.
+3. **Two negations, never confused.** `not p a` is explicit evidence that `p a` is false: the source says so. `absent p a` means "no record of it" and is allowed only for a predicate declared `closed true`; it is true when positive evidence is not derivable. Absence of evidence is `unknown`, never false. Wrong: `when not blocked ?x` where the source only lists blocked nodes (it never fires). Right: `closed true` on `blocked` and `when absent blocked ?x`. Closedness is a host review step: an author proposes it with the source sentence that asserts exhaustiveness, and the host accepts it only over an archived or pinned view (`retention none`), so that forgetting can never turn a fact into a false `absent`. For a derived predicate, `absent` is valid only when every rule with that head (and, recursively, the rules of its body predicates) is in the retrieved slice (`absent_over_incomplete_rules`).
+4. **Stratification.** Negation as failure, exceptions and aggregates may not occur in a cycle of the predicate dependency graph (`not_stratifiable`). The check is conservative: it reads relation names and ignores polarity. Recursive aggregation is excluded; shortest-path and path-counting questions on cyclic graphs are planning or closure questions.
+5. **Counts, sums and `every` need closed predicates.** Over an open predicate a count is a lower bound (`bound at_least`), an `every` with no counterexample is `unknown` (reason `open_domain`) and a counterexample still refutes. The validator warns `aggregate_needs_closed`, `count_needs_closed` and `every_needs_closed_scope`.
+6. **Epistemic status and `conditional`.** Everything that is not `observed`, and every `proposed` or `rejected` governed wire that a query supposes, is an assumption. The host computes `conditional` per row: the assumption ids the row rests on, verified by a second run on the observed facts plus exactly that set. If the verification fails the row is conditional on all assumptions with `conditional_unknown`; under negation as failure the verification proves sufficiency only and the packet sets `nonmonotone`. Conditional answers are never promoted to evidence and never stored.
+7. **Time is snapshot semantics.** A stored fact holds at an instant `t` when its interval contains `t`; a derived atom holds at `t` when some rule instance has its whole body holding at that same `t`, so its validity is the intersection of its body facts' intervals. Query words: `at T` (one instant), `during S E` means *throughout* (every instant of `[S, E)`), `overlaps S E` means at some instant, `asof D` means as known at `D`. `start_of ?t ATOM` and `end_of ?t ATOM` bind the start or end of a stored fact's validity (base predicates only, `time_leaf_on_derived` otherwise), and `order ?t1 before|after|same_time ?t2` compares them. Under `during`, `select` returns the rows present in every part of the partition at the facts' endpoints, `count` the number of such rows, `every` holds when it holds in every part; under `overlaps` only `select` is specified, and the host answers `not_expressible` for the others.
+8. **Planning state is polarity-explicit.** Without evidence a precondition is unsatisfied (unknown is not true); with a closed fluent predicate the state is a set of atoms and `requires not p` means `p` is absent.
+9. **`used` is one sufficient support set.** The packet lists the ids and versions of the facts, rules, defaults, actions, methods and norms that together suffice to re-derive the answer. It is not "the claims whose deletion changes the answer" (two facts that are each sufficient would give an empty set). Where a strategy does not provide it, the host runs the deletion method and verifies the result by a replay on that set alone; if the replay fails the packet says `used_incomplete` and promotes nothing from the answer (AGENTS rule 7).
+
+### Defaults, exceptions and overrides
+
+"Usually", "normally", "as a rule ... except" are defaults; "always" and "never" are rules. A `default` has `when`, `then`, `except` (repeatable; the default does not apply where an exception group holds), `priority` and `overrides $other_default` (repeatable). It is sugar: the desugared program of `sop/knowledge/desugar.mjs` is its normative meaning, so an engine needs only negation as failure to support it. In order of strength:
+
+1. **Strict knowledge sits below every default.** If the contrary of the head (an explicit `not flies tweety`, or a rule with the contrary head whose body does not depend on a default conclusion) is derivable, the default is blocked and the answer is `refuted`, not `both`.
+2. **`overrides $other`** says that when this default *fires* for some arguments the other is blocked for the same arguments. The two heads must be contrary atoms of one predicate (`overrides_not_contrary`) and the override graph must be acyclic (`overrides_cycle`). `priority` is sugar for a set of `overrides` between contrary heads. Global numbers do not compose across chapters written by different agents, so prefer `overrides`.
+3. **Blocking is by fire, not by applicability.** A default that applies but is itself blocked by its own exception overrides nothing.
+4. Two defaults of equal strength with contrary heads both fire and the answer is `both` (the Nixon diamond); one that overrides the other resolves it.
+
+An `except` predicate needs *retrieval* completeness (the host looks it up for each candidate before it accepts a default conclusion), not a closed world, so it need not be declared `closed`. A default needs a contrary or an exception; without either, write a rule.
+
+```sop knowledge
+@bird predicate
+  args subject:entity
+@penguin predicate
+  args subject:entity
+@flies predicate
+  args subject:entity
+
+@f1 fact
+  holds bird tweety
+@f2 fact
+  holds penguin pingu
+
+@r_penguin_bird rule
+  when penguin ?x
+  then bird ?x
+
+@birds_fly default
+  when bird ?x
+  then flies ?x
+  except penguin ?x
+```
+
+### Integrity constraints
+
+An `integrity` wire names a pattern that must never hold **in a state**: `never` (a group), `witness ?v`, `message`, `severity error|warning`. Each match derives `violation ID WITNESS` (arity 2) and nothing else: violations are data, the rest of the knowledge stays usable and nothing explodes. It is never a hard assertion in any engine. Constraints on what may be *done* (actions, deadlines, trajectories) are norms. Integrity over the whole memory cannot be checked per query slice: it is checked at ingestion through a trigger index from predicate to integrity wire, or offline.
+
+```sop knowledge
+@lives_in predicate
+  args subject:entity location:entity
+@one_home integrity
+  never all
+    lives_in ?p ?a
+    lives_in ?p ?b
+    compare ?a not_equal ?b
+  end
+  witness ?p
+  message "a person has one home"
+  severity error
+```
+
+### Aggregates
+
+An `aggregate` defines a derived relation by grouping: `over` (a group), `group` (variables), exactly one of `count`, `sum`, `min`, `max`, `collect` in the form `?field as ?out` (`count as ?n` or `count ?e as ?n`), and `yields` (the derived atom over the group variables and `?out`). The rows of `over` are the distinct bindings of all variables occurring in it, so two employees with the same salary count twice, because the employee variable is in `over`. An aggregate sits in a lower stratum than its consumers and may not occur in a cycle; the predicates in `over` should be closed.
+
+```sop knowledge
+@salary predicate
+  args subject:entity topic:entity object:integer
+  closed true
+  description "HR handbook 2.1: 'the table lists the salary of every employee'"
+@dept_payroll predicate
+  args subject:entity object:integer
+
+@s1 fact
+  holds salary ann dev 100
+@s2 fact
+  holds salary bob dev 120
+@s3 fact
+  holds salary di ops 80
+
+@payroll aggregate
+  over salary ?p ?d ?s
+  group ?d
+  sum ?s as ?total
+  yields dept_payroll ?d ?total
+```
+
+### Constraints
+
+A `constraint` states a finite or numeric problem in words: `var ?x int [MIN MAX]`, `require ?x plus ?y equal 10`, `claim`, `objective`, `direction min|max`, `task prove|possible|optimize`, `select`, `unit`. Results are `entailed`, `possible`, `impossible`, `inconsistent`, `optimal` and `feasible_bound`. A mixed relational and numeric problem is a two-stage circuit (a query feeds a constraint through `$q`). Every variable of an expression must be declared with `var` (`undeclared_variable`).
+
+### Actions, goals and hypotheses
+
+An `action` is a primitive step: `params ?x ...`, `requires` (atoms, possibly negative; every parameter must occur in a `requires`), `adds`, `removes` (at least one effect), `cost`, and the governance fields: an action's preconditions come from a manual and are amended like a method. A `goal` is a desired conjunction (`where`). A `hypothesis` is a candidate assumption for abduction (`holds` or `assume`, with a `cost`) and `waive $norm` offers the relaxation of a norm as a hypothesis; a hypothesis is never evidence.
+
+A numeric `action` (extension E2, feature `numeric_action`) adds exact-rational arithmetic as in the VRC planner (`sop/knowledge/numeric-action.mjs`): `guard EXPR WORD EXPR` (WORD one of `above below at_least at_most equal`; every guard must hold) and one `next VAR EXPR` per state variable, identity written explicitly. EXPR is a polynomial in the state variables `?v` with exact rational constants (`+ - * ^` with a non-negative integer power, parentheses, division by a nonzero constant); it is data, never JavaScript. The numeric state is held by ground facts of the reserved relation `state` (entity, variable, value; argument type `rational`: an integer, a decimal or `n/d`). An action with `next` or `guard` needs no `adds` or `removes`. A `mode plan` query may state the numeric goal `observe ENTITY EXPR WORD NUMBER` and the bound `horizon N`; with `observe` it needs no `where`. A horizon cut is `budget_exhausted` (reason `horizon`), never `no_plan`; an engine that does not declare `numeric_action` answers `not_expressible`. Problem codes: `bad_next`, `bad_guard`, `bad_observe`, `duplicate_next`, `missing_next`, `unknown_state_variable`. Knowledge wires are not model output; the model surface is unchanged.
+
+### Methods: the manual's own procedure
+
+A `method` keeps the author's structure and order, in the style of hierarchical task networks. Fields: `achieves ATOM` (the task), `when` (a guard), `step` (repeatable, in order), `prefer ~a over ~b`, `on_failure $method|replan|abort`, `triggered_by ATOM`, `binding strict|advisory`, `cost` and the governance fields. The step forms, one keyword per line, blocks closed by `end`:
+
+| Step | Meaning |
+| --- | --- |
+| `~action term...` | a primitive step (an `action` must exist; the term count must match its `params`: `step_arity_mismatch`) |
+| `task_atom` | a sub-task; some approved method must achieve it (`subtask_without_method`) |
+| `achieve atom` | the planner fills the gap between the state and the atom |
+| `optional STEP` | the engine may skip it, and does when it costs more than it helps |
+| `choose` ... `end` | a nondeterministic alternative, one line per branch; at least two (`choose_needs_alternatives`) |
+| `any_order` ... `end` | the enclosed steps in any order |
+| `if ATOM` ... `else` ... `end` | branch on the state reached before the step |
+| `until ATOM max N` ... `end` | bounded iteration; `max` is mandatory (`until_needs_max`) |
+| `pick ?x where ATOM` | the engine chooses a binding |
+
+A plan is a run of the program; its legal executions are all the ways of resolving its choice points (`choose`, `pick`, `any_order`, `optional`, `achieve`, and `if` outcomes fixed by the state). `mode plan` returns the cheapest legal execution that satisfies the norms in force, ties broken by `prefer`. The engine chooses only at those points. Under `binding strict` the engine may not plan from primitives when an approved method exists for the task and may not leave the method except through `on_failure`; under `binding advisory` the method guides the search and the engine may fall back. **Unbounded loops cannot be expressed** (every loop has a `max`, and a cap hit gives `budget_exhausted`, not a plan); an author reports such a source sentence as "not expressed".
+
+```sop knowledge
+@server predicate
+  args subject:entity
+@big_db predicate
+  args subject:entity
+@locked predicate
+  args subject:entity
+@image predicate
+  args subject:entity
+@backup_done predicate
+  args subject:entity
+
+@lock_db action
+  params ?s
+  requires server ?s
+  adds locked ?s
+  cost 1
+@snapshot action
+  params ?s
+  requires locked ?s
+  adds image ?s
+  cost 2
+@dump action
+  params ?s
+  requires locked ?s
+  adds image ?s
+  cost 4
+@unlock_db action
+  params ?s
+  requires image ?s
+  requires locked ?s
+  adds backup_done ?s
+  removes locked ?s
+  cost 1
+
+@do_backup method
+  achieves backup_done ?s
+  when server ?s
+  binding strict
+  step ~lock_db ?s
+  step if big_db ?s
+    ~snapshot ?s
+  else
+    ~dump ?s
+  end
+  step ~unlock_db ?s
+```
+
+### Norms: what may and must be done
+
+A `norm` has exactly one of `forbid PATTERN`, `oblige PATTERN`, `permit PATTERN`, where a pattern is `~action term...` or a state atom; an optional `when` (the pattern's variables count as bound); at most one temporal qualifier; `severity hard|soft` (default hard) and `cost N` (soft only, `cost_needs_soft`); `priority` and `overrides $norm`; `binding strict|advisory`; `message` (the reason returned when the norm blocks); and the governance fields. A norm over a state atom with `always` is a trajectory constraint: `forbid both_open` with `always` says that state never holds at any step. `norm` is to actions and trajectories what `integrity` is to states.
+
+| Modality | Qualifier | Holds when | Violated when |
+| --- | --- | --- | --- |
+| `forbid` | `always` (default) | the pattern does not hold at any step of the run | at the first step where it holds (and the `when` holds) |
+| `forbid` | `before ~b` | the pattern does not occur while `b` has not yet occurred | it occurs at a step with no earlier occurrence of `b` |
+| `forbid` | `after ~b` | the pattern does not occur once `b` has occurred | it occurs at a step after an occurrence of `b` |
+| `forbid` | `at_most_once` | the pattern occurs at most once in the run | at its second occurrence |
+| `oblige` | `sometime` | the pattern occurs at some step after the trigger, by the end of the run | the run ends with the trigger raised and no occurrence |
+| `oblige` | `always` (maintain) | the state atom holds at every step from the trigger | at the first step from the trigger where it does not hold |
+| `oblige` | `within N` | the pattern occurs within N steps (time units in a timestamped trace) of the trigger | N steps pass after the trigger with no occurrence |
+| `oblige` | `before ~b` | the pattern occurs before `b` occurs, if `b` occurs | `b` occurs with no earlier occurrence |
+| `oblige` | `after ~b` | the pattern occurs at some step after `b` has occurred | the run ends after `b` with no later occurrence |
+| `permit` | none | never violated; it blocks the `forbid` it names in `overrides` where its `when` holds | not applicable |
+
+`within` and `sometime` count steps in a plan and time units in a trace whose steps carry `at`; mixing the two in one norm is not allowed.
+
+**Obligation instances.** An obligation is triggered per instance: the first step of the run at which its `when` holds for a binding that is bound by the goal's arguments or by an executed action's parameters. A binding that exists only because some row of memory satisfies the `when` creates no instance, so `oblige ~notify_oncall ?r` with `when router ?r` obliges notifying router r7 when the goal or a step concerns r7, not every router in memory. A variable of an `oblige` pattern that no `when` atom binds is `unsafe_variable`. The marker line `standing` on an `oblige` norm says that the duty holds for every binding of the `when` whatever the goal; the validator warns `obligation_unscoped` once so that the author confirms the intent, and the packet lists the instances in `obligations_triggered`.
+
+**Severity and binding are independent.** `severity` says what a violation does: `hard` makes the plan or trace invalid, `soft` adds `cost` to the objective and the plan is still returned with the violation reported. `binding` says whether the engine may relax the norm when the goal is otherwise blocked: `strict` never relaxes it (the answer is `blocked` with `blocked_by`), `advisory` may, and then lists it in `relaxed`, never silently. **The default is `strict`**, for norms and for methods: an omitted field can never loosen a prohibition, and a policy can only tighten. Write `advisory` only when the source says "recommended" or "should". On a soft norm `binding` is vacuous (`binding_on_soft_norm`).
+
+| severity | binding | effect |
+| --- | --- | --- |
+| hard | strict | a violating plan is invalid; if nothing else is possible the answer is `blocked` with `blocked_by [norm]` |
+| hard | advisory | a relaxable hard constraint: used while any plan satisfies it, relaxed when the goal is otherwise blocked, listed in `relaxed` |
+| soft | either | the violation costs and is reported; `binding` is vacuous |
+
+**Permission and lex specialis.** A `permit` must name the prohibition it excepts with `overrides $norm` (`permit_without_target`); it blocks that `forbid` for the arguments where its `when` holds. `overrides` needs the same subject and opposite force (`overrides_target_mismatch`) and no cycles. Two norms of equal strength in conflict (a `forbid` and an `oblige` of the same action, no override, no priority) give `blocked` with both ids under `binding strict`, and a reported violation of the relaxed one under `advisory`; never a silent pick. A strict hard `forbid` of an action that an approved strict method requires as a mandatory step is the error `strict_forbid_conflicts_method`.
+
+```sop knowledge
+@router predicate
+  args subject:entity
+@business_hours predicate
+  args none
+@emergency predicate
+  args subject:entity
+@notified predicate
+  args subject:entity
+@reset_done predicate
+  args subject:entity
+
+@notify_oncall action
+  params ?r
+  requires router ?r
+  adds notified ?r
+  cost 1
+@hard_reset action
+  params ?r
+  requires router ?r
+  adds reset_done ?r
+  cost 1
+
+@no_hard_reset_in_hours norm
+  forbid ~hard_reset ?r
+  when business_hours
+  severity hard
+  binding strict
+  source "Ops manual 4.3"
+@notify_promptly norm
+  oblige ~notify_oncall ?r
+  when router ?r
+  within 10
+  severity soft
+  cost 50
+@emergency_hard_reset norm
+  permit ~hard_reset ?r
+  when emergency ?r
+  overrides $no_hard_reset_in_hours
+```
+
+### Procedures, arguments, amendments and traces
+
+A `procedure` is a named bundle: `members $id $id ...`, `description`, `scope`, `source`. It has no approval and no version of its own: its members carry both, so the procedure is in force exactly when its members are, and "which version of the reset procedure applied on that date" is answered from the members' history. An `argument` has exactly one of `for $id` and `against $id`, a `claim`, a `source` and an optional `cost_delta`; it is evidence for a negotiation, never evidence of a fact. An `amendment` (`of`, `proposed_by user|agent`, `members` and `removes`, `reason`, `approval proposed|approved|rejected`, `evaluated`) is a proposed change whose members are new wires with `approval proposed`, usually superseding a version (`amendment_member_not_proposed`); it is **composed by the host from the user's words** and SymbolicLM never emits it. A `trace` is a performed sequence of ground steps, `step ~action term...`, each optionally ending `at DATE`; it is the input of `mode conform`.
+
+### Governance
+
+The governed wires are `rule`, `default`, `integrity`, `action`, `method` and `norm`. Their fields: `version N`; `supersedes $id` (same wire type, higher version: `supersedes_type_mismatch`, `version_not_increasing`); `approval proposed|approved|contested|rejected|superseded|retired`; `approved_by` and `approved_at`; `retired_at`; `scope`; `source` and `quote`. The field is `approval`, not `status`, because `fact.status` already means `observed|reported|hedged|supposed`. An approved successor makes its predecessor `superseded` (`superseded_not_marked`).
+
+- **Who writes the fields.** The host does. In memory every governed wire carries `approval approved`, `approved_by` and `approved_at`, written when the host accepts the wire (ingestion is the approval, and a wire loaded from a store older than the governance fields is read as approved at its `known_at`). An author never writes them; a wire an author submits without them is *submitted*, that is `proposed`, until the host approves it. `approved_at` is required for every norm and every strict method, so that an `asof` question about a prohibition is always answerable.
+- **Authoring mode.** `node eval/smoke-reasoning/validator.mjs --authoring FILE...` is the validator's mode for an author: `approval`, `approved_by` and `approved_at` are ignored with the warning `governance_ignored` (remove them) and `approval_incomplete` is left to ingestion. Without the flag the validator checks wires as they stand in memory.
+- **Only approved wires bind**, and so do `contested` wires, flagged: when a user or an agent disputes a binding wire the host marks it `contested`, it keeps binding (otherwise an objection could switch a prohibition off) and the packet lists it in `contested` until the host rules. `proposed` and `rejected` wires are used like supposed facts: they enter a query only when it supposes them (`if $id`), and the answer is `conditional` on them. A proposed successor displaces the version it supersedes for that query, which gives "what would the plan be if this amendment were approved". `superseded` and `retired` wires bind only for an `asof` date inside their period.
+- **`asof`** selects the version known at that date: a governed wire is in force from its `approved_at` until its successor's `approved_at` (or its `retired_at`); facts by their memory `known_at`.
+- **`scope` and `procedures`.** A wire's `scope` is a quoted list of tags (`scope "ops, business_hours"`). The host sets the context scope of a query; a scoped norm or method binds when its tags intersect it, an unscoped wire always binds, and when no context scope can be established scoped norms bind anyway and the packet sets `scope_unknown: true`, because a restriction is never dropped for lack of context. `policy procedures $p ...` does not switch norms on or off: all approved norms whose scope matches bind regardless of procedure; `procedures` selects the methods the planner tries and the set rendered by `mode procedure`.
+- **The negotiation loop (host).** A user objects ("why can't I hard-reset r7?"), the answer is `blocked_by $no_hard_reset_in_hours`; the host asks `abduce` with `waive` hypotheses which norms would have to be relaxed; the user's words become a proposed norm version, an `amendment` and an `argument`; the engine evaluates the amendment as a what-if (`if $amendment`); the host presents the delta (plan cost, violations, blocked steps) and the user accepts or rejects. Acceptance is a host write recorded in the project journal, with provenance; rejection records the amendment and its arguments so that the proposal is not re-litigated blindly. Who may approve is a host policy.
+
+### Query modes
+
+`query` keeps `where`, `select`, `mode`, `scope`, `at`, `during`, `overlaps`, `asof`, `compare`, `order`, `rank`, `filter`, `measure`, `quantifier`, `except`, `limit`, `policy`, the link keywords (`because so if unless although so_that before after when while`) and `$q` chaining. The modes are `select exists count explain every` (existing) and five question forms: 
+
+- `why_not`: the minimal sets of base atoms, in the vocabulary of the slice and respecting the `predicate` types, whose addition would make the claim derivable, plus the blocking atoms (those that satisfy a `not`, an `except` or a norm that blocks it). This is abduction with a restricted hypothesis space, not an unsat core. On a planning goal, with `via ~action term...`, it returns the blocking norm or requirement (`status blocked`).
+- `plan`: a sequence of actions reaching the `where` goal; with `via` the plan must contain the given steps.
+- `abduce`: all inclusion-minimal explanations of the `where` observation (hypotheses are atoms or `waive $norm`); `limit` bounds the list.
+- `conform`: compliance of a performed `trace $t` with the procedures and norms in force: `compliant` or `non_compliant` with a `compliance` object (hard violations by id, soft violations with costs, `deviations`, total cost). A trace is judged against the versions in force at its own time (a step with `at` at that date, other steps at `asof`); leaving a strict method is non-compliance and listed in `deviations`, under `binding advisory` it is only reported. Conformance is purely relational (a trace is a closed finite record) and lowers to core rules, so it runs on every engine with negation as failure.
+- `procedure`: renders the approved method of a task as of `asof`, without planning: the steps as written, the version, the norms in force.
+
+What-if needs no mode: the user's "if ..." clause is a `stated` with `certainty supposed`, linked by an `if $id` keyword on the query, and `if` may also name a proposed wire or an amendment. The validator checks the mode against the fields: `mode every` needs `scope` and no other mode takes one, `mode conform` needs `trace` and takes no `where` requirement, `via` is only for `plan`, `why_not` and `abduce`, one of `at`, `during`, `overlaps` at most, and a selected variable must occur in `where` (`select_unbound`).
+
+**The model surface.** The five new modes are question forms, so the small model may emit them as `mode` words of a `query` (they are in `sop/enums.mjs:REASONING_QUERY_MODES` and in `ENUMS.query.mode`). The model writes only the question in strings: `via` and `trace` name wires by identifier and are never model output, the host supplies them. A model `query` with one of these modes is understood and reported `not_computable` until the host routes it to a strategy that declares the capability, never answered as a plain `select`. The grammar the model decodes under (`tools/sop-gbnf.mjs`) lists the five older modes.
+
+### Policy
+
+A `policy` is host-set: the budget keys (`maxNodes maxDepth maxHypotheses maxCandidates maxPlans maxRounds maxFacts maxJoins maxAssignments maxFanout timeoutMs`; they only tighten the host's ceilings), `effort quick|normal|deep`, `partial allow|forbid`, `procedures $p ...`, `scope` tags, `objective cost|violations|lexicographic` (what the engine minimises: plan cost plus soft-violation costs, the number of violations, or violations first) and `binding strict|advisory` for wires that state none (a policy can only tighten). The model never sets a budget; the host maps the message to `effort`.
+
+### Modes of work
+
+"Modes of work" is the name for what the wires above add up to: the system acts by approved rules and plans, optimises within them, keeps them named, versioned and addressable, and lets an amendment be negotiated with the user. Approved methods and norms help and restrict the engines (the plan is the cheapest legal run); the procedure bundle makes them addressable; governance makes them auditable (`asof`, `used` with versions, `compliance`); and `amendment` with `argument` makes them negotiable. All of it is knowledge-side: written from a source, never by SymbolicLM, approved by the host.
+
+### `jsEval` and the authoring surface
+
+`jsEval {expr}` exists in the host runtime (`sop/runtime.mjs`, evaluated by the sandboxed expression evaluator of `sop/expression.mjs`, bounded by `maxExprOps` and `maxExprBytes`). It is a **trusted, host-only escape hatch**: it is not a knowledge wire and not in the grammar above, and it is opaque to the logic engines, so a rule or aggregate whose truth depends on it is `not_expressible` for Prolog, Z3, Datalog, ASP and SQL strategies unless the host exposes it as a provider that feeds facts back; the oracle may evaluate it in-process. No expression from a source is accepted into memory: an expression is code, its effects cannot be read off the wire and no engine can check it; a reviewed host step may admit one, stored with its source sentence and version like any governed wire. `compute`, `compare`, the aggregates and `constraint` cover the arithmetic of manuals (totals, thresholds, tariffs, durations); what they do not cover (rounding rules, percentages with fractions, date arithmetic, string operations) is reported by the author as "not expressed".
+
+### The validator
+
+`sop/knowledge/` is the single grammar source: `grammar.mjs` (the wire-type table and the closed vocabularies), `lexical.mjs` (the text parser), `validate.mjs`, `validate-fields.mjs` and `cross-checks.mjs` (the checks), `governance.mjs` (which wires are in force) and `desugar.mjs` (`default` and `integrity` rewritten into core rules, with an `origin` map so that `used` names the wire the author wrote). The reasoning strategies, the smoke harness `eval/smoke-reasoning/` and the wire help tests import it. `node eval/smoke-reasoning/validator.mjs [--authoring] FILE...` validates files (a file whose name contains `query` is read as a query circuit); the exit status is 1 when any error remains, and warnings are printed but do not fail. The errors an author meets most are `unknown_field`, `missing_field`, `bad_atom`, `arity_mismatch`, `type_mismatch`, `absent_needs_closed`, `unsafe_head`, `unsafe_negation`, `not_stratifiable`, `unknown_ref`, `duplicate_id`, `reserved_prefix`, `bad_indent` and `unclosed_block`; the warnings are `args_without_roles`, `aggregate_needs_closed`, `count_needs_closed`, `every_needs_closed_scope`, `key_violation`, `permit_without_target`, `binding_on_soft_norm`, `obligation_unscoped` and `governance_ignored`.
+
+**The seven mistakes to avoid.** (1) `not` where `absent` is meant (a rule that never fires): declare `closed true` and use `absent`, only when the source says the list is exhaustive. (2) Arity or argument-order drift: always declare `args` with roles and types. (3) Floats and units: integers only, money in cents, time in minutes. (4) Global `priority` numbers: use `overrides`. (5) Forgetting `closed` before a count, sum, `every` or `absent`. (6) A rule written for "usually" (a conflict becomes `both`), or a default written for an exceptionless law. (7) An event with more than six participants flattened ad hoc: reify it.

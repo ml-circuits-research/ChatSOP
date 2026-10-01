@@ -10,5 +10,27 @@
   feature not overheated motor8
   known 2026-04-12</code></pre><p>The negative feature is explicit evidence in this case. Absence of another feature would not have the same meaning.</p><h3>Invalid or unsafe use</h3><pre data-sop="invalid" data-check="compile" data-error="trace belongs to symbolic execution"><code>@unreviewed trace
   feature alert motor9
-  closed true</code></pre><p>Syntactically valid, but <code>Runtime.run(..., {origin: "model"})</code> rejects it with <code>Model authors stated, assumed, unclear, query or constraint; trace belongs to symbolic execution</code>: a model cannot author any trace, and in particular cannot certify a closed case. A trusted reviewed source is needed.</p></section><section><h2>Implementation references</h2><p><code>sop/parser.mjs</code> (<code>SPEC.trace</code>), <code>sop/runtime.mjs</code> (<code>origin</code> guard), <code>reasoning/lower.mjs</code> (<code>lowerDeclaration</code>), <code>reasoning/learning.mjs</code> (<code>evaluatePattern</code>).</p><p>Related wires: <a href="associate.html"><code>associate</code></a> · <a href="induce.html"><code>induce</code></a> · <a href="analogize.html"><code>analogize</code></a>.</p></section></main>
+  closed true</code></pre><p>Syntactically valid, but <code>Runtime.run(..., {origin: "model"})</code> rejects it with <code>Model authors stated, assumed, unclear, query or constraint; trace belongs to symbolic execution</code>: a model cannot author any trace, and in particular cannot certify a closed case. A trusted reviewed source is needed.</p></section><section><h2>Implementation references</h2><p><code>sop/parser.mjs</code> (<code>SPEC.trace</code>), <code>sop/runtime.mjs</code> (<code>origin</code> guard), <code>reasoning/lower.mjs</code> (<code>lowerDeclaration</code>), <code>reasoning/learning.mjs</code> (<code>evaluatePattern</code>).</p><p>Related wires: <a href="associate.html"><code>associate</code></a> · <a href="induce.html"><code>induce</code></a> · <a href="analogize.html"><code>analogize</code></a>.</p></section><section id="knowledge-language"><h2>Knowledge language: <code>trace</code></h2><p class="note">In the knowledge language a <code>trace</code> is a performed sequence of ground action steps, the input of <code>mode conform</code>. The tables and examples of this section are about the <b>knowledge</b> form, written from a source and checked by <code>sop/knowledge/</code>; the sections above describe the host-circuit form. Anchors of this section's fields start with <code>kfield-</code>. The language manual is the section "Knowledge wires" of <a href="../specsLoader.html?spec=DS004-sop.md" target="_top">DS004</a>.</p><p>Other field names are rejected (<code>unknown_field</code>). The table is generated from <code>sop/knowledge/grammar.mjs</code>.</p><div class="table-wrap"><table data-knowledge="fields"><thead><tr><th>Field</th><th>Cardinality</th><th>Accepted values and behavior</th></tr></thead><tbody><tr><th scope="row" id="kfield-step"><code>step</code></th><td>Repeatable; required</td><td>Repeatable, in order: <code>~action term...</code> with constants only (<code>trace_step_not_ground</code>), optionally ending <code>at DATE</code>. The step is then judged against the versions in force at that date; a step with no <code>at</code> is judged at the query's <code>asof</code>.</td></tr></tbody></table></div><h3>What it is for</h3><p>A trace records what was done. <code>mode conform</code> with <code>trace $t</code> answers <code>compliant</code> or <code>non_compliant</code> with a <code>compliance</code> object: hard violations by id, soft violations with costs, <code>deviations</code> from a strict method and the total cost. A past trace is judged against the versions in force <b>at the time</b>, not today's. Conformance is relational (a trace is a closed, finite record) and lowers to core rules.</p><h3>Examples</h3><pre data-sop="knowledge"><code>@a predicate
+  args subject:entity
+@act action
+  params ?x
+  requires a ?x
+  adds a ?x
+@n1 norm
+  forbid ~act ?x
+  when a ?x
+  approved_at 2026-01-15
+@t trace
+  step ~act r7 at 2026-01-20
+  step ~act r7</code></pre><pre data-sop="knowledge-query" data-run="validate"><code>@q query
+  mode conform
+  trace $t
+  asof 2026-02-01</code></pre><h3>Invalid: a step with a variable</h3><pre data-sop="knowledge-invalid" data-error="trace_step_not_ground"><code>@a predicate
+  args subject:entity
+@act action
+  params ?x
+  requires a ?x
+  adds a ?x
+@t trace
+  step ~act ?x</code></pre></section><!--/knowledge-language--></main>
 <script type="module" src="help-page.mjs"></script></body></html>

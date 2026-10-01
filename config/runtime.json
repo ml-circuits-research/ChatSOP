@@ -60,5 +60,20 @@
     "maxGoals": 256,
     "maxRules": 1024,
     "maxShards": 256
+  },
+  "chatData": {
+    "root": "chat_data",
+    "tmpTtlHours": 24,
+    "sessionTtlDays": 14,
+    "cleanupIntervalMinutes": 60
+  },
+  "omp": {
+    "enabled": true,
+    "bin": "omp",
+    "timeoutSeconds": 600,
+    "maxFixRounds": 3,
+    "maxConcurrent": 2,
+    "modelsCacheSeconds": 600,
+    "defaultModel": null
   }
 }

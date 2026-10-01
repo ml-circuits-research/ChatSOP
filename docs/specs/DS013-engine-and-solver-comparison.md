@@ -1,6 +1,6 @@
 ---
 title: DS013-engine-and-solver-comparison
-summary: Reproducible bank, lifecycle, reasoning-by-memory and solver-qualification comparisons with explicit skipped, unsupported and incomparable cells.
+summary: Reproducible bank, lifecycle, reasoning-by-memory, solver-qualification and strategy comparisons (the smoke-reasoning suite and its shadow gate) with explicit skipped, unsupported and incomparable cells.
 ---
 
 ## Scope and evidence
@@ -93,3 +93,29 @@ The SWI rows separately record `costMs.nativeClosure` (direct `runSWI` process a
 ### Solver provenance and read-side effects
 
 The report records bounded synthetic inputs and actual backend outputs; it supplies no human validation, review, or real-world ground truth. A separate memory policy can promote an admitted, metadata-verified **observed** fact on real proof use, governed jointly by `policy.reinforce` and memory retention configuration; each such promotion is visible on the reason result. Qualification calls these reasoning backends with local supplied fixtures, not a repository write path, and does not itself exercise persistence or imply that mere query reads promote facts. Hypothetical, local, and non-metadata-verified evidence is not eligible for that promotion.
+
+## Strategy comparison on the knowledge wires
+
+The comparison above fixes one corpus and varies the engine. The strategies of [DS006](specsLoader.html?spec=DS006-reasoning.md) "Strategies" are compared the same way, on the knowledge wires of [DS004](specsLoader.html?spec=DS004-sop.md): the same circuits and the same question, only the strategy changes, and every cell is a fresh local observation (`eval/reports/current/smoke-reasoning/report.json`), never a historical number.
+
+### The smoke suite
+
+`eval/smoke-reasoning/` is the harness. A case is a folder `cases/<id>/` with `knowledge.sop` (the knowledge circuits), `query.sop` (the query circuit), `expected.json`, a `README.md` naming the reasoning feature, and optionally `memory.json` (the case then runs behind the retrieval layer). `expected.json` is strategy-neutral: the `status`, the `rows` or `count`, the `requires` list of features the case needs, the validator `warnings` the case declares, and the optional claims `conditional`, `used_support`, `used_incomplete`, `row_conditional`, `relaxed`, `obligations_triggered`, `compliance` and `retrieval`. The expected answer is derived by hand and checked on the oracle `js-reference` wherever the oracle can express the case; a case the oracle declares `not_expressible` (the modes of work) is an acceptance test of the strategy that declares the feature, and its answer is confirmed by that strategy's shadow run. Case ids use numeric ranges per feature family (`01`..`17` the core, `20`..`24` retrieval, `30`..`39` modes of work), so new strategies add cases without colliding.
+
+`invalid/` holds circuits that must be rejected, each with the expected validator code on its first line (`# expect: code`); `validator.mjs` is the command line of `sop/knowledge/` (`--grammar`, `--grammar-compact`, `--authoring`), and the harness validates every case, every invalid fixture and the desugared form of every case before it runs a strategy. A circuit that fails validation never reaches an adapter.
+
+### What a run does
+
+`node eval/smoke-reasoning/run.mjs [--adapter id,id] [--case text] [--verbose] [--markdown] [--widen policy]` runs the self-tests (the comparator, governance, authoring mode, the Z3 lowering), validates everything, then runs one adapter per strategy on every case. An adapter declares the features it supports; a case needing another feature is `not_expressible` for it, a strategy whose binary is absent is `unavailable`, and a strategy not yet implemented is `planned` with its declared coverage shown as `exp` or `n/e`. The results are `pass`, `FAIL`, `n/e`, `plan` and `unav`; the summary per strategy gives pass, fail and not expressible counts and "of the cases it can express" the pass rate. A pass count is a check of agreement with the expected answer, not a measure of quality: a strategy is compared on the cases it declares, and what it cannot express is reported, never weakened.
+
+The host rules that surround every strategy alike are part of the harness, so that all strategies get the same guard: the per-row `conditional` list verified by a second run (`lib/conditional.mjs`), the closed-world policy for counts and `every` over open predicates (`lib/closed.mjs`), `used` as one sufficient support set verified by replay (`lib/used.mjs`), and the retrieval layer with its widening loop (`lib/memory.mjs`, `lib/widen.mjs`).
+
+### The comparison rules
+
+`lib/compare.mjs` compares a normalized result with `expected.json` on status, rows, counts and the declared extra claims, and it fails an incomplete result that reads as `unknown`, `refuted`, `no_plan` or `optimal`, a result with `reason horizon`, `depth` or `domain` that reports anything but `budget_exhausted`, and a `used` that does not re-derive the answer when replayed alone in the oracle (never leaf-set equality: two sufficient sets both pass). The self-test of the comparator checks that each of these guards has teeth. The shadow gate of DS006 is this comparison: a strategy is accepted when it agrees with the oracle on every case it declares.
+
+The retrieval study (cases `20` to `24`) runs the first live strategy that can express the case under four policies (`targeted`, `blind`, `whole`, and `targeted+unsafe` with the completeness guard disabled) and reports steps, retrieved wires, probes and the recall of the needed wires; the unsafe run shows what the guard prevents (a wrong answer) and is expected to be wrong.
+
+### Reading a report
+
+`report.json` holds `adapters` (declarations), `results` (per strategy and case: result, detail, route, retrieval) and `retrievalStudy`. Compare strategies by reading the cells of the cases both declare; a cell outside the declaration is `not_expressible`, not a defect. A disagreement between two strategies that both declare a case and both completed is a defect of one of them and is reported with the minimal case that shows it.

@@ -69,6 +69,12 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
     const wanted = loadTextToCleanEnglishConfig().llm?.model;
     return (wanted && registry.models.some(m => m.id === wanted && m.capabilities.includes('proofread')) ? wanted : null) ?? registry.defaults?.proofread ?? null;
   };
+  /** The translator LLM (registry capability `translate-clean`) that serves Romanian and mixed sentences; null when the registry has none. */
+  const translatorId = () => {
+    if (!registry || !manager) return null;
+    const wanted = loadTextToCleanEnglishConfig().translator?.model;
+    return (wanted && registry.models.some(m => m.id === wanted && m.capabilities.includes('translate-clean')) ? wanted : null) ?? registry.defaults?.['translate-clean'] ?? null;
+  };
   const symbolicId = () => registry && manager ? (modelOf('symbolic-lm') && manager.entries.has('symbolic-lm') ? 'symbolic-lm' : registry.models.find(m => m.kind === 'service')?.id ?? null) : null;
   const rewriteId = () => registry?.defaults?.['proofread-symbolic'] ?? null;
   /** The default of the rewrite setting: `rewrite.mode` of the SymbolicLM registry entry (off unless the owner decides otherwise). */
@@ -85,6 +91,7 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
       api: 'capability-api-v1',
       text_to_clean_english: TEXT_TO_CLEAN_ENGLISH_VERSION,
       language_proofing_llm: versionOf(proofreadId()),
+      translator_llm: versionOf(translatorId()),
       symbolic_lm: {version: SYMBOLIC_LM_VERSION, service: symbolicId()},
       interpretation: INTERPRETATION_VERSION,
       symbolic_proofing_llm: versionOf(rewriteId()),
@@ -99,20 +106,25 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
     const cleaning = loadTextToCleanEnglishConfig();
     const llmId = proofreadId();
     const effectiveSendAll = typeof sendAll === 'boolean' ? sendAll : cleaning.llm?.sendAll === true;
-    const key = cacheKey('proofread', TEXT_TO_CLEAN_ENGLISH_VERSION, llmId ? versionKey(llmId) : 'none', message, {sendAll: effectiveSendAll, backends: cleaning.backends, enabled: cleaning.enabled});
+    const trId = translatorId();
+    const key = cacheKey('proofread', TEXT_TO_CLEAN_ENGLISH_VERSION, llmId ? versionKey(llmId) : 'none', trId ? versionKey(trId) : 'none', message, {sendAll: effectiveSendAll, backends: cleaning.backends, enabled: cleaning.enabled});
     const units = {hit: 0, miss: 0, shared: 0};
     const {value, status} = await store.proofread.getOrCompute(key, async () => {
       const t0 = performance.now();
       const endpoint = llmId ? () => manager.ensure(llmId) : null;
-      const memo = (parts, compute) => store.proofreadLlm.getOrCompute(cacheKey('proofread-llm', llmId ? versionKey(llmId) : 'none', parts), compute).then(r => { units[r.status]++; return r.value; });
-      const outcome = await textToCleanEnglish(message, {backendOptions: {endpoint}, sendAll: effectiveSendAll, partial: true, memo});
+      const translatorEndpoint = trId ? () => manager.ensure(trId) : null;
+      // One cache entry per sentence and backend; a sentence the fallback served is never stored under the translator's key.
+      const memo = (parts, compute) => store.proofreadLlm.getOrCompute(cacheKey('proofread-llm', parts.backend === 'translator-llm' && trId ? versionKey(trId) : llmId ? versionKey(llmId) : 'none', parts), compute, {cacheable: v => !v.fallback}).then(r => { units[r.status]++; return r.value; });
+      const outcome = await textToCleanEnglish(message, {backendOptions: {endpoint, translatorEndpoint}, sendAll: effectiveSendAll, partial: true, memo});
       return {outcome, ms: round(performance.now() - t0)};
-    }, {cacheable: v => !v.outcome.failures});
+    }, {cacheable: v => !v.outcome.failures && !v.outcome.fallback});
     const {outcome} = value;
     const errors = (outcome.failures ?? []).map(f => ({component: 'language-proofing-llm', code: f.code, message: f.message, span: f.text}));
-    return {object: 'language.proofread', ...outcome, status: errors.length ? 'partial' : 'ok', errors, sentence_cache: units,
+    // A translator that could not run is not an error of the request (the fallback answered) but is never silent: `fallback` and `routes` say so.
+    const warnings = (outcome.fallbacks ?? []).map(f => ({component: f.from, code: 'fallback', message: `${f.from} unavailable, ${f.to} answered: ${f.reason}`, span: null}));
+    return {object: 'language.proofread', ...outcome, status: errors.length ? 'partial' : 'ok', errors, warnings, sentence_cache: units,
       timings: {total_ms: round(performance.now() - started), compute_ms: value.ms}, cache: worst([status]), cache_detail: {proofread: status, llm_sentences: units},
-      versions: versions(['text_to_clean_english', 'language_proofing_llm'])};
+      versions: versions(['text_to_clean_english', 'language_proofing_llm', 'translator_llm'])};
   }
 
   // ---- the SymbolicLM service call (analysis + interpretation), shared by analyze, understand, rewrite and the chat's formalize ----

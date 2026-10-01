@@ -20,7 +20,7 @@ export const SPEC={
  unparsed:{one:['span','near','hint'],required:['span']},
  pragmatic:{one:['kind','score','span','near','source','basis'],required:['kind','score','source','basis']},
  rule:{one:['then','valid','mode','source'],many:['when'],required:['then','when']},
- query:{one:['mode','select','scope','measure','span','at','during','asof','limit','rank','quantifier','order','fragment'],many:['where','filter','compare','except',...LINK_WORDS],required:['where']},
+ query:{one:['mode','select','scope','measure','span','at','during','overlaps','asof','limit','rank','quantifier','order','fragment'],many:['where','filter','compare','except',...LINK_WORDS],required:['where']},
  constraint:{one:['claim','task','unit','objective','direction','select'],many:['var','require'],required:[]},
  event:{one:['action','target','effective','replacement','source'],required:['action','target']},
  pack:{many:['items'],required:['items']},
@@ -226,7 +226,7 @@ function validateShape(w){
   if(partial)assert(ENUMS.query.fragment.includes(one(w,'fragment')),'@'+w.id+' fragment must be one of '+ENUMS.query.fragment.join(', '));
   const leaf=leaf=>isMatch(leaf)?parseMatch(leaf,'@'+w.id+' match',{partial}):parseAtom(leaf);
   many(w,'where').forEach(s=>parseCondition(s,leaf));if(w.fields.scope)parseCondition(one(w,'scope'),leaf);
-  many(w,'filter').forEach(parseBooleanCondition);assert(!(w.fields.at&&w.fields.during),'Use at OR during');
+  many(w,'filter').forEach(parseBooleanCondition);assert(['at','during','overlaps'].filter(k=>w.fields[k]).length<2,'Use at OR during OR overlaps');
   const mode=one(w,'mode');if(mode!==undefined)assert(ENUMS.query.mode.includes(mode),'@'+w.id+' query mode must be one of '+ENUMS.query.mode.join(', '));
   // A universal question: `where` is the restriction (the domain), `scope` what must hold for each member.
   assert(!w.fields.scope===(mode!=='every'),mode==='every'?'every_needs_scope: @'+w.id+' mode every needs a scope block':'scope_needs_every: @'+w.id+' scope belongs to mode every');

@@ -178,6 +178,7 @@ def main():
                 if not torch.isfinite(loss):raise RuntimeError('Non-finite dev loss')
                 total_loss+=float(loss)*n;tokens+=n
         model.train();return total_loss/max(tokens,1)
+    gen_eos=model.generation_config.eos_token_id;stop_ids=set(gen_eos if isinstance(gen_eos,(list,tuple)) else [gen_eos])|{tok.eos_token_id}
     def greedy_decode(rows):
         """Greedy predictions {index: sop} for rows, in length-sorted batches with the capped generation budget."""
         prompts=[seq2seq_source_ids(tok,row['prompt'],cfg) if s2s else chat_ids(tok,row['prompt']) for row in rows]
@@ -212,7 +213,10 @@ def main():
                     ids=torch.tensor([[tok.pad_token_id]*(length-len(prompts[i]))+prompts[i] for i in chunk],dtype=torch.long,device=device)
                     mask=torch.tensor([[0]*(length-len(prompts[i]))+[1]*len(prompts[i]) for i in chunk],dtype=torch.long,device=device)
                     generated=model.generate(input_ids=ids,attention_mask=mask,do_sample=False,max_new_tokens=budget,pad_token_id=tok.pad_token_id,use_cache=True)
-                    for row_index,i in enumerate(chunk):decoded[i]=tok.decode(generated[row_index,length:],skip_special_tokens=True)
+                    for row_index,i in enumerate(chunk):
+                        decoded[i]=tok.decode(generated[row_index,length:],skip_special_tokens=True)
+                        # the proofreader text check counts a row without an end-of-turn token as capped (the formalizer paths never did for decoder-only models)
+                        if a.role=='proofreader' and not (set(generated[row_index,length:].tolist())&stop_ids):capped.add(i)
                 print(json.dumps({'selection_rows_done':len(decoded),'of':len(order),'batch':len(chunk),'new_tokens':int(generated.shape[-1]-(0 if s2s else length))}),flush=True)
         model.config.use_cache=False
         model.train()
@@ -293,6 +297,45 @@ def main():
         print(json.dumps({'interim_check':record}),flush=True)
         model.train()
         if reason:raise EarlyStop(*reason)
+    # Interim text check (preregistered for unified-ft, additive: only a recipe with `interim_text_rows` and the role proofreader uses it): at the
+    # fractions of the first epoch listed in `interim_text_points` and at every epoch end, the development loss and a greedy decode of a fixed dev
+    # sample stratified by language_kind. A two-output target ("faithful: ...\nlimited: ...") is compared on its limited line as well as whole.
+    # Stops as 'failing' from 0.6 epochs on when more than 20% of the sample is empty or capped, or fewer than 10% match the limited target.
+    text_rows=None;text_steps=set()
+    if cfg.get('interim_text_rows') and a.role=='proofreader':
+        strata={}
+        for i,row in enumerate(data['dev']):strata.setdefault(str(row.get('language_kind')),[]).append(i)
+        n=min(cfg['interim_text_rows'],len(data['dev']));pick=random.Random(seed);text_rows=[]
+        for k in sorted(strata):
+            members=list(strata[k]);pick.shuffle(members);text_rows+=members[:max(1,round(n*len(strata[k])/len(data['dev'])))]
+        text_rows.sort()
+        text_steps={round(steps_per_epoch*q) for q in cfg.get('interim_text_points',[0.33,0.66])}
+    def limited_line(text):
+        lines=[l for l in str(text).split('\n') if l.strip()]
+        for l in reversed(lines):
+            if l.lower().startswith('limited:'):return l.split(':',1)[1].strip()
+        return str(text).strip()
+    def text_check(label):
+        if text_rows is None:return
+        resource_guard();val=dev_loss();model.eval()
+        rows=[data['dev'][i] for i in text_rows];decoded=greedy_decode(rows);capped=greedy_decode.capped
+        out_rows=[{'id':row['id'],'language_kind':row.get('language_kind'),'kind':row.get('kind'),'prompt':row['prompt'],'target':row['target'],'output':decoded[i]} for i,row in enumerate(rows)]
+        epochs_done=state['step']/steps_per_epoch
+        record={'label':label,'step':state['step'],'epochs_done':round(epochs_done,3),'dev_loss':val,'rows':len(rows),
+            'exact_whole':sum(1 for r in out_rows if r['output'].strip()==r['target'].strip()),'exact_limited':sum(1 for r in out_rows if limited_line(r['output'])==limited_line(r['target'])),
+            'identity_rows':sum(1 for r in out_rows if r['kind']=='identity'),'identity_limited_changed':sum(1 for r in out_rows if r['kind']=='identity' and limited_line(r['output'])!=limited_line(r['target'])),
+            'empty':sum(1 for r in out_rows if not r['output'].strip()),'capped':len(capped),'seconds':round(time.time()-start,1)}
+        reason=None
+        if epochs_done>=0.6 and (record['empty']+record['capped']>0.2*len(rows) or record['exact_limited']<0.1*len(rows)):
+            reason=('failing',f"after {record['epochs_done']} epochs: exact limited {record['exact_limited']}/{len(rows)}, empty {record['empty']}, capped {record['capped']}")
+        record['stop']=reason and {'kind':reason[0],'reason':reason[1]}
+        state['interim_checks'].append(record)
+        folder=out/'interim';folder.mkdir(parents=True,exist_ok=True)
+        (folder/f"text-check-{state['step']:08d}.jsonl").write_text(''.join(json.dumps(r,ensure_ascii=False)+'\n' for r in out_rows),encoding='utf-8')
+        with open(out/'interim-checks.jsonl','a',encoding='utf-8') as f:f.write(json.dumps(record)+'\n')
+        print(json.dumps({'interim_text_check':record}),flush=True)
+        model.train()
+        if reason:raise EarlyStop(*reason)
     start=time.time();model.train();optimizer.zero_grad(set_to_none=True);last_loss=0.
     try:
         for epoch in range(state['epoch'],epochs):
@@ -317,7 +360,9 @@ def main():
                     if step%cfg.get('save_every',100)==0:
                         semantic_select();checkpoint('latest')
                     if epoch==0 and step in check_steps:interim_check(f'epoch 1, {step}/{steps_per_epoch} steps')
+                    if epoch==0 and step in text_steps:text_check(f'epoch 1, {step}/{steps_per_epoch} steps')
             interim_check(f'end of epoch {epoch+1}')
+            text_check(f'end of epoch {epoch+1}')
             val=dev_loss();print(json.dumps({'epoch':epoch,'dev_loss':val,'step':state['step']}),flush=True)
             if state['best_dev_loss'] is None or val<state['best_dev_loss']:
                 state['best_dev_loss']=val

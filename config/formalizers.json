@@ -66,12 +66,21 @@
     },
     {
       "id": "symbolic-proofing-llm",
-      "label": "SymbolicProofingLLM (Gemma 3 270M, iteration 2)",
-      "gguf": "models/gemma/symbolic-proofing-gemma270m-it2/proofreader/gguf/ep3-q8_0.gguf",
+      "label": "SymbolicProofingLLM (Gemma 3 270M, iteration 3)",
+      "gguf": "models/gemma/symbolic-proofing-gemma270m-it3/proofreader/gguf/ep3-f16.gguf",
       "capabilities": [
         "proofread-symbolic"
       ],
-      "note": "SymbolicProofingLLM: Gemma 3 270M-it fine-tuned (LoRA, merged, Q8_0) on neuro_english pairs, run symbolic-proofing-gemma270m-it2, epoch 3 (report eval/reports/current/symbolic-pipeline-gate/summary.md; the frozen role id of the run is `proofreader`). It rewrites correct English into the limited English SymbolicLM understands. The chat calls it only through SymbolicLM's gated pipeline (the chat setting 'SymbolicProofingLLM rewrite': off, gated = rewriteWhen trees + rewriteAccept certified, always), one sentence per request, message-only prompt, greedy, started on demand like language-proofing-llm. Not a chat, translate or formalize model, so no chat mode lists it. The default of the setting is the symbolic-lm entry's rewrite.mode (gated since the owner's answer to Q-PROOF-1, 2026-10-01)."
+      "note": "SymbolicProofingLLM: Gemma 3 270M-it fine-tuned (LoRA, merged, F16 GGUF) on neuro_english/proofing-it3-mix (proofing-it3 plus 3,246 decomposition pairs), run symbolic-proofing-gemma270m-it3, epoch 3 (report eval/reports/current/symbolic-proofing-it3/summary.md; the frozen role id of the run is `proofreader`). Switched from it2 on 2026-10-01 by the owner's auto-switch rule (better overall even with small losses, never with a new catastrophic failure class; an explicit deviation from the preregistration's recommend-only rule). Numbers on the sealed decomposition set (275 cases, gated + certified, the chat default, upper estimate), it3 against it2: sentence count equals the expected 36.7% against 32.0% (paired p = 0.02), every sentence certified 68.4% against 65.5%, catastrophic S4 13.8% against 13.5%, silent meaning change 5.1% against 4.7%; identity change on 500 working sentences 9.2% against 15.4% (sealed identity pairs 14.1% against 19.8%). Losses: with every sentence sent, the sealed repair pairs analysis correct AND meaning kept 37.9% against 41.1% (local only, p = 0.02) and analysis correct 45.7% against 59.5% (local only); in always mode the silent meaning change is 10.5% against 8.0% (not significant); the deciding check, the gated pipeline itself on the 739 sealed repair pairs (gate trees, acceptance certified), is within the 2-point margin: output certified AND meaning kept 44.5% against 46.4% (-1.9 points, bootstrap interval [-4.2, +0.4], meaning by local equivalence or the Grok two-vote; local only 39.0% against 41.7%), no working sentence of the 500 changed by either model. F16 chosen over Q8_0: agreement with the HF bf16 greedy output 113/117 against 107/117, the two arms are otherwise equal; CPU 4 threads p50 233 ms, 117 tokens/s on this host. The it2 GGUF models/gemma/symbolic-proofing-gemma270m-it2/proofreader/gguf/ep3-q8_0.gguf stays on disk for a revert. It rewrites correct English into the limited English SymbolicLM understands. The chat calls it only through SymbolicLM's gated pipeline (the chat setting 'SymbolicProofingLLM rewrite': off, gated = rewriteWhen trees + rewriteAccept certified, always), one sentence per request, message-only prompt, greedy, started on demand like language-proofing-llm. Not a chat, translate or formalize model, so no chat mode lists it. The default of the setting is the symbolic-lm entry's rewrite.mode (gated since the owner's answer to Q-PROOF-1, 2026-10-01)."
+    },
+    {
+      "id": "translator-llm",
+      "label": "TranslatorLLM (Qwen3-4B-Instruct Q4_K_M, textToCleanEnglish)",
+      "gguf": "models/qwen3-4b-instruct/gguf/q4_k_m.gguf",
+      "capabilities": [
+        "translate-clean"
+      ],
+      "note": "The translator of the chat's first layer for Romanian and mixed sentences (owner decision 2026-10-01, journaled): unmodified Qwen/Qwen3-4B-Instruct-2507 (Apache-2.0), Q4_K_M GGUF made from Q8_0 with llama-quantize (models/qwen3-4b-instruct/provenance.json), one sentence per request, greedy, thinking off, the translate prompt of the winning translate-compare arm (lib/text-to-clean-english/backends/translator.mjs). On the owner's 425 natural sentences: 64.9% good enough (S0-S2, worse of Grok and GLM) against 10.6% for LanguageProofingLLM prod1, Q8_0 62.6%, DeepSeek flash 89.9% (eval/reports/current/translate-compare/summary.md). Speed 15-20 tok/s on CPU is accepted for quality (owner, 2026-10-01). If it cannot start, textToCleanEnglish falls back to language-proofing-llm and reports it. Not a chat, translate or formalize model, so no chat mode lists it."
     },
     {
       "id": "gemma-3-270m-base",
@@ -93,12 +102,16 @@
       ],
       "rewrite": {
         "mode": "gated",
-        "modes": ["off", "gated", "always"],
+        "modes": [
+          "off",
+          "gated",
+          "always"
+        ],
         "note": "OPTIONAL SymbolicProofingLLM rewrite of the English text ahead of the rules (SymbolicProofingLLM is the former 'proofreader'; the run id and paths stay frozen) (DS021 'Uncertainty and the rewrite hook'); `mode` defaults to `gated` since the owner's answer to Q-PROOF-1 (2026-10-01: 'we do what the numbers say; good to have a flag to change the behaviour'); `mode` is the default of the chat's 'SymbolicProofingLLM rewrite' setting (server/formalizers.mjs `rewriteMode`; the browser's own choice overrides it per browser, and a chat request's `understanding.rewrite` overrides it per message: `gated` = rewriteWhen trees + rewriteAccept certified, `always` = every sentence, every rewrite kept, the SymbolicProofingLLM being the registry entry `symbolic-proofing-llm`); `tools/symbolic-lm.mjs serve --rewrite-url <endpoint> [--rewrite-when always|uncertain]` is the command-line switch, and it stays off unless that flag is passed explicitly. Evidence: experiment eval-proofreader-e2e-v1 (status/preregistrations/eval-proofreader-e2e-v1.json), a positive end-to-end strict-accuracy gain (CI excludes 0) on formalizer-v1 and formalizer-ood-v1 EN rows, a null/futile effect on the independently-written formalizer-wild-v1 EN rows; RO monolingual (route direct) has no English text and is out of scope. A local routing gate and acceptance check around the backend exist as options (DS021 'Optional rewrite pipeline': rewriteWhen trees|trees_or_uncertain, rewriteAccept certified|certified_compare; CLI --rewrite-when, --rewrite-accept), also off by default.",
         "candidate_backend": {
-          "model": "SymbolicProofingLLM: gemma3-270m (fine-tuned; iteration 2, run symbolic-proofing-gemma270m-it2, the registry entry `symbolic-proofing-llm`; report eval/reports/current/symbolic-pipeline-gate/summary.md; iteration 1 and train-proofreader-gemma270m-v1 are superseded).",
-          "identity": "models/gemma/symbolic-proofing-gemma270m-it2/proofreader/gguf/ep3-q8_0.gguf",
-          "serving": "llama-server GGUF Q8_0 export (--jinja), message-only chat completion, matching training's prompt exactly"
+          "model": "SymbolicProofingLLM: gemma3-270m (fine-tuned; iteration 3, run symbolic-proofing-gemma270m-it3, the registry entry `symbolic-proofing-llm`; report eval/reports/current/symbolic-proofing-it3/summary.md; iteration 2 (symbolic-pipeline-gate report) stays on disk for a revert; iteration 1 and train-proofreader-gemma270m-v1 are superseded).",
+          "identity": "models/gemma/symbolic-proofing-gemma270m-it3/proofreader/gguf/ep3-f16.gguf",
+          "serving": "llama-server GGUF F16 export (--jinja), message-only chat completion, matching training's prompt exactly"
         }
       }
     },

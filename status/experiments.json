@@ -5019,16 +5019,19 @@
    "hypothesis": "Training Gemma 3 270M (LoRA, from the base, fast recipe) on proofing-it3 plus the 3,246-pair decomposition top-up splits tangled sentences correctly more often than it2 (gated + certified: sentence count equal to expected above 32.0%, every sentence certified at least 65.5%) without more silent meaning changes and without regression on the it2 repair task.",
    "preregistration": "status/preregistrations/train-symbolic-proofing-gemma270m-it3.json",
    "data_version": "datasets/neuro_english/proofing-it3-mix (14,482 train / 1,769 dev; see its VERSION)",
-   "status": "approved",
+   "status": "done",
    "owner": "sp-it3-agent",
    "registered_at": "2026-10-01T08:58:00.000Z",
    "metrics": [
     "decomposition: sentence count equal to expected, cases with every sentence certified, silent meaning change, catastrophic S4 (upper/lower), excusable ambiguity",
     "regression: sealed pairs repair good, sym500 identity change"
    ],
-   "results": null,
-   "deviations": [],
-   "queue_note": "approved by the owner 2026-10-01T08:47:38Z; queued behind the gloss run (one GPU training at a time)"
+   "results": "Trained 2,718 steps (734 s, dev loss 0.1045/0.0945/0.0961). Sealed decomposition (275, gated + certified F16): sentence count equals expected 36.7% vs it2 32.0% (p=0.012), every sentence certified 68.4% vs 65.5%, S4 13.8/5.8 vs 13.5/5.1, silent meaning change 5.1% vs 4.7%; always: 54.9% vs 44.0%, silent 10.5% vs 8.0% (n.s.). Regression: sealed repair good local 37.9% vs 41.1% (p=0.02), analysis correct local 45.7% vs 59.5%; identity changed on sym500 9.2% vs 15.4%. GGUF F16 113/117 agreement with HF (Q8_0 107/117), p50 233 ms, 117 tok/s. Chat switched to it3 F16 by the owner's auto-switch rule. Report eval/reports/current/symbolic-proofing-it3/ (tables, scores, interim).",
+   "deviations": [
+    "D3: A1 (job symproof-it3-train-a) was refused before any step: proofreader/manifest.json (projection manifest, prompt_profile message-only) was missing in datasets/",
+    "D4: The decision rule 'recommends, never switches' is replaced for this run by the owner's auto-switch rule of 2026-10-01 (switch when better overall, even with sma",
+    "D5: The judge verdicts of the it2 baselines are reused (same pairs, same prompts) through DECOMP_GRADE_REUSE; new residue pairs of the it3 arms were judged by Grok "
+   ]
   },
   {
    "id": "train-language-proofing-gemma270m-prod1",
@@ -5074,6 +5077,29 @@
     "D1 (see preregistration) infrastructure floors and an evidence file changed by another agent before the first training attempt",
     "D2 epoch choice beyond the dev rule because of the H4 vocabulary gate: epochs 1 and 3 evaluated on sealed data, epoch 2 not"
    ]
+  },
+  {
+   "id": "train-unified-qwen3-4b",
+   "name": "unified-ft: one Qwen3-4B-Instruct-2507 LoRA (u2: faithful then limited English; u1: limited only) against the two-step chain",
+   "category": "preregistered",
+   "kind": "training (LoRA, 1 epoch, u2 then u1 only if u2 is promising) plus staged paired evaluation against the chain (translate or prod1, gated it3, SymbolicLM)",
+   "owner": "unified-ft-agent-b",
+   "registered_at": "2026-10-01T13:45:00Z",
+   "hypothesis": "H1 u2 minus chain in certified-and-meaning-kept (upper), natural sentences, paired 95% interval lower bound >= -3 pp; H2 S4 and firm silent S3+ not worse than +2 pp (interval upper bound); H3 same per message and on decomposition and neuro; H4 format failures <= 2%, empty or capped <= 1%; H5 CPU latency reported; H6 u1 against u2.",
+   "preregistration": "status/preregistrations/train-unified-qwen3-4b.json",
+   "data_version": "neuro_english/unified-ft-u2 2026-10-01-6907a509 and unified-ft-u1 (train 24,550 / dev 2,219)",
+   "status": "running",
+   "metrics": [
+    "certified and meaning kept (upper, lower)",
+    "S4 (upper, firm)",
+    "silent S3+ (upper, firm)",
+    "excusable S3+",
+    "format failures",
+    "CPU ms per call",
+    "training seconds"
+   ],
+   "results": {},
+   "deviations": []
   }
  ]
 }

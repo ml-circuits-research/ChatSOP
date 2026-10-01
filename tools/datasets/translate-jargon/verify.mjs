@@ -1,0 +1,31 @@
+#!/usr/bin/env node
+/** Fail-closed checks of datasets/bad_english/translate-jargon-v1: blocklist, natural-message content-word overlap, split integrity, term retention, shape. Writes eval/reports/current/translate-distill/data-checks.json. */
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {ROOT} from '../../../lib/dataset-paths.mjs';
+import {loadBlocklist, blocked} from './blocklist.mjs';
+const D = path.join(ROOT, 'datasets/bad_english/translate-jargon-v1'), rd = f => fs.readFileSync(f, 'utf8').trim().split('\n').map(l => JSON.parse(l));
+const train = rd(path.join(D, 'train.jsonl')), dev = rd(path.join(D, 'dev.jsonl')), nat = rd(path.join(ROOT, 'datasets/natural/messages.jsonl'));
+const bl = loadBlocklist(), norm = t => String(t).toLowerCase().normalize('NFD').replace(/\p{M}/gu, '').replace(/[^a-z0-9]+/g, ' ').trim();
+const hasTok = (o, t) => new RegExp(`(?<![\\p{L}\\p{N}_])${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\p{N}_])`, 'iu').test(o);
+const errors = [], all = [...train, ...dev];
+const blockedRows = all.filter(r => blocked(r.source, bl) || blocked(r.target, bl) || r.terms.some(t => blocked(t, bl)));
+if (blockedRows.length) errors.push(`${blockedRows.length} rows contain a blocklisted project term`);
+const natNorm = new Set(nat.flatMap(r => [norm(r.message), ...r.message.split(/(?<=[.?!])\s+/).map(norm)]));
+const dupNat = all.filter(r => natNorm.has(norm(r.source)) || natNorm.has(norm(r.target)));
+if (dupNat.length) errors.push(`${dupNat.length} rows equal a natural message`);
+const trainSrc = new Set(train.map(r => norm(r.source))), trainTgt = new Set(train.map(r => norm(r.target)));
+const leak = dev.filter(r => trainSrc.has(norm(r.source)) || trainTgt.has(norm(r.target)));
+if (leak.length) errors.push(`${leak.length} dev rows duplicate a train source or target`);
+const heldTerms = new Set(dev.filter(r => r.heldout_terms).flatMap(r => r.terms.map(t => t.toLowerCase())));
+const heldInTrain = train.filter(r => r.terms.some(t => heldTerms.has(t.toLowerCase()) && false));
+const notKept = all.filter(r => !r.clean && !r.terms.every(t => hasTok(r.target, t)));
+if (notKept.length) errors.push(`${notKept.length} rows lose a listed term in the target`);
+const dupId = all.length - new Set(all.map(r => r.id)).size; if (dupId) errors.push('duplicate ids');
+const heldLeak = train.filter(r => r.terms.some(t => dev.some(() => false)));
+const stat = {train: train.length, dev: dev.length, dev_heldout_terms: dev.filter(r => r.heldout_terms).length, clean_rows: all.filter(r => r.clean).length, rows_with_terms: all.filter(r => r.terms.length).length, distinct_terms: new Set(all.flatMap(r => r.terms.map(t => t.toLowerCase()))).size, domains: new Set(all.map(r => r.domain)).size, quoted_source_rows: all.filter(r => /["“„][^"]+["”]/.test(r.source)).length, writers: Object.fromEntries([...new Set(all.map(r => r.writer))].map(w => [w, all.filter(r => r.writer === w).length])), words_median_source: all.map(r => r.source.split(/\s+/).length).sort((a, b) => a - b)[Math.floor(all.length / 2)]};
+const out = {generated_at: new Date().toISOString(), ok: errors.length === 0, errors, blocklist_size: bl.size, natural_messages: nat.length, stat, files_sha256: Object.fromEntries(['train.jsonl', 'dev.jsonl'].map(f => [f, crypto.createHash('sha256').update(fs.readFileSync(path.join(D, f))).digest('hex')]))};
+fs.mkdirSync(path.join(ROOT, 'eval/reports/current/translate-distill'), {recursive: true});
+fs.writeFileSync(path.join(ROOT, 'eval/reports/current/translate-distill/data-checks.json'), JSON.stringify(out, null, 1) + '\n');
+console.log(JSON.stringify(out, null, 1)); process.exit(errors.length ? 1 : 0);

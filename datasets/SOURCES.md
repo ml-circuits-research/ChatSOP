@@ -92,3 +92,7 @@ Rows and manifests record rights through `tools/datasets/rights.mjs`:
 - `source.license`: `MIT (repository LICENSE); original ChatSOP authored text`: the licence of the authored text itself.
 - `rights.inspired_by[]`: the sources whose structure inspired the row, each with its URL and licence as known.
 - `rights.rights_decision: owner-released-inspired-by`, `rights_decision_date: 2026-09-28`, `text_copied: false`.
+
+## translate-jargon-v1 (2026-10-01)
+
+`datasets/bad_english/translate-jargon-v1/` (jargon-aware Romanian/mixed to English pairs for the translator distillation study) is LLM-authored (Grok and GLM write the source messages, DeepSeek flash the targets). OPUS KDE4 v2, GNOME v1, Ubuntu v14.10, EMEA v3 and JRC-Acquis v3.0 (English-Romanian) were read only to count English tokens kept unchanged in the Romanian side per domain; their licences are copyleft, non-commercial or unverified (DS014 "Jargon term sources for translate-jargon-v1"), so no sentence of them is in the dataset. The owner's project jargon and the evaluation set `datasets/natural` are excluded by a blocklist.

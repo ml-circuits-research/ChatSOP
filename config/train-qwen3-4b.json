@@ -1,0 +1,33 @@
+{
+  "model_id": "Qwen/Qwen3-4B-Instruct-2507",
+  "revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+  "max_length": 512,
+  "epochs": 1,
+  "batch_size": 8,
+  "gradient_accumulation": 2,
+  "rank": 16,
+  "alpha": 32,
+  "dropout": 0.05,
+  "lr": 0.0001,
+  "full_lr": 5e-05,
+  "weight_decay": 0.01,
+  "warmup_fraction": 0.05,
+  "gradient_checkpointing": false,
+  "max_grad_norm": 1.0,
+  "log_every": 20,
+  "save_every": 600,
+  "seed": 42,
+  "attention": "sdpa",
+  "generation_batch_size": 32,
+  "full_precision": "fp32-master-bf16-autocast",
+  "license": "Apache-2.0",
+  "license_source": "https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507/raw/cdbee75f17c01a7cc42f958dc650907174af0554/LICENSE",
+  "max_new_tokens": 400,
+  "generation_token_budget": 16384,
+  "select_final_only": true,
+  "interim_text_rows": 150,
+  "interim_text_points": [
+    0.33,
+    0.66
+  ]
+}

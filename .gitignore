@@ -13,3 +13,6 @@ datasets/generated/
 eval/reports/current/
 tools/.solvers/
 datasets_sources/
+
+# Chat data root (DS031): base memories, sessions and temporary request folders
+chat_data/

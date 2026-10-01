@@ -21,6 +21,26 @@
 //   data-status="wire=status"  (runtime stage only, instead of data-error) the
 //                              run completes but reports that status, such as
 //                              an explicit unsupported route.
+//
+// Knowledge-language examples (DS004 "Knowledge wires", validated by sop/knowledge/, never by the host
+// runtime) use three further kinds:
+//   <pre data-sop="knowledge" [data-warnings="code,code"]>
+//                              knowledge circuits: validateProgram reports no error and exactly the
+//                              declared warnings.
+//   <pre data-sop="knowledge-query" [data-run="validate"] [data-status=".."] [data-rows="a=1,b=2;a=3,b=4"]
+//                              [data-count="N"] [data-conditional="id,id"]>
+//                              a query circuit (or a constraint) validated together with the preceding
+//                              knowledge example of the page and executed by the js-reference oracle,
+//                              which must give the declared status, rows, count and conditional list.
+//                              data-run="validate" marks a question the oracle declares not_expressible
+//                              (a mode of work): it is validated only, and the oracle must say so.
+//   <pre data-sop="knowledge-invalid" data-error="code" [data-role="query"]>
+//                              the validator must report the problem code (error or warning).
+//   data-run="vrc" data-status=".."   a numeric-action plan query (extension E2): the
+//                              vrc-compressed-planning strategy must give the declared status.
+// A page documents the keywords of a knowledge wire in a table whose first column holds the grammar fields:
+// the first table of a page of a knowledge-only wire, or the table marked data-knowledge="fields" of a page
+// whose name the host circuits share. Their anchors are field-KEY and kfield-KEY.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -32,7 +52,10 @@ import {compileDeclarative, MODEL_TYPES} from '../sop/declarative.mjs';
 import {Runtime} from '../sop/runtime.mjs';
 import {Lexicon} from '../sop/lexicon.mjs';
 import {Repository} from '../memory/repository.mjs';
-import {helpPages, pageExamples, tableFields} from '../tools/wire-help-pages.mjs';
+import {helpPages, pageExamples, tableFields, attr, decode} from '../tools/wire-help-pages.mjs';
+import {GRAMMAR, validateProgram} from '../sop/knowledge/index.mjs';
+import {vrcCompressedPlanning} from '../reasoning/strategies/vrc-compressed-planning/index.mjs';
+import {ask, NotExpressibleError} from '../reasoning/strategies/js-reference/index.mjs';
 
 const HELP = new URL('../docs/wire_typs/', import.meta.url);
 const INDEX = new URL('../docs/wire_types.html', import.meta.url);
@@ -42,7 +65,10 @@ const ONTOLOGY_TYPES = Object.keys(ONTOLOGY_SPEC);
 const ONTOLOGY_FIELDS = Object.fromEntries(Object.entries(ONTOLOGY_SPEC).map(([type, spec]) => [type, [...(spec.one ?? []), ...(spec.many ?? [])]]));
 const MODEL_ONLY = new Set(['stated', 'assumed', 'unclear', 'unparsed']);
 const LEXICON = Lexicon.load(new URL('../config/ontology.sop', import.meta.url));
-const TOPIC_PAGES = new Set(['overview', 'syntax', 'small-model', 'model-guide', 'question-types']);
+const TOPIC_PAGES = new Set(['overview', 'syntax', 'small-model', 'model-guide', 'question-types', 'knowledge-guide', 'knowledge-semantics', 'query-modes', 'governance']);
+// Wire types that only the knowledge language has (no host-circuit page); the others share a page with a host form.
+const KNOWLEDGE_ONLY = Object.keys(GRAMMAR).filter(type => !SPEC[type] && !ONTOLOGY_TYPES.includes(type));
+const KNOWLEDGE_DOCUMENTED = Object.keys(GRAMMAR).filter(type => type !== 'stated' && type !== 'pack');
 const STAGES = ['parse', 'graph', 'lower', 'compile', 'runtime', 'lexicon'];
 const NOW = Date.parse('2026-09-26T12:00:00Z');
 const LOWER = {fact: lowerFact, rule: lowerRule, query: (w, v) => lowerQuery(w, v, null, {now: NOW}), constraint: lowerConstraint};
@@ -103,7 +129,7 @@ test('help pages and the wire index agree', () => {
   const sidebar = linked.map(m => m[2]);
   assert.equal(new Set(sidebar).size, sidebar.length, 'no duplicate sidebar entries');
   for (const name of names) assert.ok(sidebar.includes(name), `page ${name}.html is in the sidebar`);
-  for (const type of [...Object.keys(SPEC), ...ONTOLOGY_TYPES]) assert.ok(names.has(type), `wire ${type} has a help page`);
+  for (const type of [...Object.keys(SPEC), ...ONTOLOGY_TYPES, ...Object.keys(GRAMMAR)]) assert.ok(names.has(type), `wire ${type} has a help page`);
 });
 
 test('parser SPEC and the wire contract list the same fields', () => {
@@ -113,12 +139,33 @@ test('parser SPEC and the wire contract list the same fields', () => {
       assert.deepEqual(WIRES[type][key] ?? [], spec[key] ?? [], `${type}.${key}`);
 });
 
+/** First-column keywords of the knowledge field table of a page: the table marked data-knowledge="fields", else the first table. */
+function knowledgeFields(page) {
+  const marked = page.html.match(/<table data-knowledge="fields">([\s\S]*?)<\/table>/)?.[1];
+  return tableFields(marked ?? page.html);
+}
+
 test('every documented field exists and every field is documented', () => {
   for (const page of pages) {
     const expected = SPEC[page.name] ? [...(SPEC[page.name].one ?? []), ...(SPEC[page.name].many ?? [])] : ONTOLOGY_FIELDS[page.name];
     if (!expected) continue;
     const rows = tableFields(page.html);
     assert.deepEqual([...rows].sort(), [...expected].sort(), `${page.name}.html field rows match the parser`);
+  }
+});
+
+test('every knowledge wire page documents exactly the fields of the knowledge grammar', () => {
+  for (const type of KNOWLEDGE_DOCUMENTED) {
+    const page = pages.find(p => p.name === type);
+    assert.ok(page, `${type}.html exists`);
+    const expected = Object.keys(GRAMMAR[type].fields);
+    assert.deepEqual(knowledgeFields(page).sort(), [...expected].sort(), `${type}.html knowledge field rows match sop/knowledge/grammar.mjs`);
+    const prefix = KNOWLEDGE_ONLY.includes(type) ? 'field-' : 'kfield-';
+    for (const field of expected) {
+      const anchors = page.html.match(new RegExp(`\\bid="${prefix}${field}"`, 'g')) ?? [];
+      assert.equal(anchors.length, 1, `${type}.html has exactly one id="${prefix}${field}"`);
+    }
+    if (!KNOWLEDGE_ONLY.includes(type)) assert.ok(page.html.includes('id="knowledge-language"'), `${type}.html has the Knowledge language section`);
   }
 });
 
@@ -139,8 +186,12 @@ test('every wire page has a valid and an invalid example', () => {
   for (const page of pages) {
     if (TOPIC_PAGES.has(page.name)) continue;
     const kinds = examples(page).map(e => e.kind);
-    assert.ok(kinds.some(k => k === 'current' || k === 'ontology'), `${page.name}.html has a valid example`);
-    assert.ok(kinds.includes('invalid'), `${page.name}.html has an invalid example`);
+    assert.ok(kinds.some(k => k === 'current' || k === 'ontology' || k === 'knowledge'), `${page.name}.html has a valid example`);
+    assert.ok(kinds.includes('invalid') || kinds.includes('knowledge-invalid'), `${page.name}.html has an invalid example`);
+    if (KNOWLEDGE_DOCUMENTED.includes(page.name)) {
+      assert.ok(kinds.includes('knowledge-invalid'), `${page.name}.html has an invalid knowledge example`);
+      assert.ok(kinds.some(k => k === 'knowledge' || k === 'knowledge-query'), `${page.name}.html has a valid knowledge example`);
+    }
   }
 });
 
@@ -177,4 +228,62 @@ test('invalid help examples fail at the documented stage with the documented rea
     assert.equal(result.stage, example.check, `${example.label} fails at ${result.stage}: ${result.error.message}`);
     assert.ok(result.error.message.includes(example.error), `${example.label}: "${result.error.message}" includes "${example.error}"`);
   }
+});
+
+/** Knowledge-language examples of a page, in order, with every data-* attribute. */
+function knowledgeExamples(page) {
+  return [...page.html.matchAll(/<pre data-sop="(knowledge(?:-query|-invalid)?)"([^>]*)><code>([\s\S]*?)<\/code><\/pre>/g)].map((m, index) => {
+    const attrs = Object.fromEntries([...m[2].matchAll(/(data-[a-z-]+)="([^"]*)"/g)].map(a => [a[1], decode(a[2])]));
+    return {label: `${page.name}.html knowledge example ${index + 1}`, kind: m[1], source: decode(m[3]), attrs};
+  });
+}
+const rowText = row => Object.entries(row).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `${k}=${v}`).join(',');
+const errorsOf = problems => problems.filter(p => p.severity !== 'warning');
+
+test('knowledge examples validate with sop/knowledge and execute on the js-reference oracle', () => {
+  let checked = 0;
+  for (const page of pages) {
+    let knowledge = '';
+    for (const example of knowledgeExamples(page)) {
+      checked++;
+      const {kind, source, attrs, label} = example;
+      if (kind === 'knowledge') {
+        const r = validateProgram([{name: label, text: source, role: 'knowledge'}]);
+        assert.deepEqual(errorsOf(r.problems).map(p => `${p.code} ${p.message}`), [], `${label} validates`);
+        const warnings = r.problems.filter(p => p.severity === 'warning').map(p => p.code).sort().join(',');
+        assert.equal(warnings, (attrs['data-warnings'] ?? '').split(',').filter(Boolean).sort().join(','), `${label} declares exactly its warnings`);
+        knowledge = source;
+      } else if (kind === 'knowledge-query') {
+        const files = [...(knowledge ? [{name: 'knowledge', text: knowledge, role: 'knowledge'}] : []), {name: label, text: source, role: 'query'}];
+        const r = validateProgram(files);
+        assert.deepEqual(errorsOf(r.problems).map(p => `${p.code} ${p.message}`), [], `${label} validates with the knowledge before it`);
+        if (attrs['data-run'] === 'validate') {
+          assert.throws(() => ask({theory: {knowledge}, query: source}, {}), error => error instanceof NotExpressibleError, `${label}: the oracle declares this question not_expressible`);
+          continue;
+        }
+        if (attrs['data-run'] === 'vrc') {
+          // numeric action (extension E2): executed by the compressed planner
+          const answer = vrcCompressedPlanning.ask({handle: vrcCompressedPlanning.prepare(knowledge, {learning: 'off', query: source}), query: source}, {}, {learning: 'off'});
+          assert.equal(answer.status, attrs['data-status'], `${label} status on vrc-compressed-planning`);
+          continue;
+        }
+        const got = ask({theory: {knowledge}, query: source}, {});
+        assert.equal(got.status, attrs['data-status'], `${label} status`);
+        if (attrs['data-rows'] !== undefined) assert.equal((got.rows ?? []).map(rowText).sort().join(';'), attrs['data-rows'], `${label} rows`);
+        if (attrs['data-count'] !== undefined) assert.equal(String(got.count), attrs['data-count'], `${label} count`);
+        if (attrs['data-conditional'] !== undefined) assert.equal((got.conditional ?? []).join(','), attrs['data-conditional'], `${label} conditional`);
+      } else {
+        assert.ok(attrs['data-error'], `${label} declares data-error`);
+        const r = validateProgram([{name: label, text: source, role: attrs['data-role'] ?? 'knowledge'}]);
+        assert.ok(r.problems.some(p => p.code === attrs['data-error']), `${label} must report ${attrs['data-error']}; got ${r.problems.map(p => p.code).join(', ') || 'nothing'}`);
+      }
+    }
+  }
+  assert.ok(checked > 40, `knowledge examples found (${checked})`);
+});
+
+test('the pages of the knowledge language are linked from the wire index and use only their own anchors', () => {
+  const index = fs.readFileSync(INDEX, 'utf8');
+  for (const name of [...TOPIC_PAGES].filter(n => ['knowledge-guide', 'knowledge-semantics', 'query-modes', 'governance'].includes(n)).concat(KNOWLEDGE_ONLY)) assert.ok(index.includes(`id="${name}"`), `${name} is in the Knowledge language section of the index`);
+  for (const page of pages) for (const [, href] of page.html.matchAll(/<a href="([a-zA-Z0-9_-]+)\.html(?:#[^"]*)?"/g)) assert.ok(pages.some(p => p.name === href), `${page.name}.html links to the existing page ${href}.html`);
 });

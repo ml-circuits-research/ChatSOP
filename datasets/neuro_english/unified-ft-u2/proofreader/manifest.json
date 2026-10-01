@@ -1,0 +1,19 @@
+{
+ "format": "chatsop-proofreader-projection-v1",
+ "corpus": "neuro_english/unified-ft-u2",
+ "prompt_profile": "message-only",
+ "created": "2026-10-01T13:18:59.719Z",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "note": "Byte-identical copies of ../train.jsonl and ../dev.jsonl in the layout training/cli.mjs expects for the role proofreader.",
+ "files": {
+  "proofreader/train.jsonl": {
+   "rows": 24550,
+   "sha256": "6907a5097f8395b0e6c75c9f7fdde6b7987db048c0e428c7324b9858599114b9"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 2219,
+   "sha256": "4f9eb13fab42000efebe73fa477ccf8f41ace42d5c25acd359fbd3b8c1c827b1"
+  }
+ }
+}

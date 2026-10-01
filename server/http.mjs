@@ -21,6 +21,13 @@ import {TRANSLATE_PROMPT,chatSystemPrompt,ChatHistory} from './chat-modes.mjs';
 import {loadTextToCleanEnglishConfig} from '../lib/text-to-clean-english/index.mjs';
 import {createCapabilities,REWRITE_MODES} from './capabilities.mjs';
 import {createApiRouter} from './api.mjs';
+import {createProductRouter,PRODUCT_ENDPOINTS} from './product.mjs';
+import {BaseMemories,ensureDefaultBase} from '../lib/chat-data/memories.mjs';
+import {ChatData} from '../lib/chat-data/index.mjs';
+import {Sessions} from '../lib/chat-data/sessions.mjs';
+import {SessionRuntimes} from './session-runtime.mjs';
+import {createAuthoring,AUTHORING_ENDPOINTS} from './authoring.mjs';
+import {ompSettings,createOmpModels} from '../lib/omp/index.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const json=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data));};
@@ -38,7 +45,7 @@ const authenticate=(header,users)=>{if(typeof header!=='string'||!header.startsW
 async function readBody(req,maxBytes){let length=0,chunks=[];for await(const chunk of req){length+=chunk.length;if(length>maxBytes){req.resume();const e=new Error('Request body exceeds configured limit');e.status=413;throw e;}chunks.push(chunk);}try{return JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{const e=new Error('Expected a JSON request body');e.status=400;throw e;}}
 const invalid=(message,code='invalid_request')=>Object.assign(new Error(message),{status:400,code});
 /** Validates a chat completion request; `models` is the set of accepted `model` values (façade id and registry ids). */
-function checkBody(body,models,maxContextBytes){if(!body||typeof body!=='object'||Array.isArray(body))throw invalid('Expected a chat completion object');if(typeof body.model!=='string'||!models.has(body.model))throw invalid('Unknown model '+JSON.stringify(String(body.model).slice(0,80))+'; GET /v1/models lists the available models: '+[...models].join(', '),'unknown_model');if(body.tools!==undefined||body.tool_choice!==undefined||body.functions!==undefined||body.function_call!==undefined)throw invalid('Tools and function calling are not implemented');if(![undefined,false,true].includes(body.stream))throw invalid('stream must be a boolean');if(!Array.isArray(body.messages)||body.messages.length!==1||body.messages[0]?.role!=='user'||typeof body.messages[0].content!=='string'||!body.messages[0].content.trim()||Object.keys(body.messages[0]).some(k=>!['role','content'].includes(k)))throw invalid('Supply exactly one new user text message; conversation history is server-managed');if(Buffer.byteLength(body.messages[0].content)>maxContextBytes) {const e=new Error('Message exceeds context limit');e.status=413;throw e;}const allowed=new Set(['model','messages','stream','user','conversation_id','chatSop','language','mode','cleaning','understanding']);if(Object.keys(body).some(k=>!allowed.has(k)))throw invalid('Unsupported chat completion parameter');if(body.mode!==undefined&&!MODES.includes(body.mode))throw invalid('mode must be chat, formalize or translate','unsupported_mode');if(body.chatSop!==undefined&&(body.mode??'formalize')!=='formalize')throw invalid('A chatSop trusted circuit needs mode formalize','unsupported_mode');if(body.language!==undefined&&!LANGUAGE_CHOICES.includes(body.language))throw invalid('language must be en, ro or auto');if(body.chatSop!==undefined&&(typeof body.chatSop!=='object'||!body.chatSop||Array.isArray(body.chatSop)||Object.keys(body.chatSop).some(k=>k!=='trustedSop')||typeof body.chatSop.trustedSop!=='string'))throw invalid('Invalid chatSop trusted circuit');if(body.cleaning!==undefined&&(typeof body.cleaning!=='object'||!body.cleaning||Array.isArray(body.cleaning)||typeof body.cleaning.original!=='string'||Object.keys(body.cleaning).some(k=>!['original','backend','changed'].includes(k))))throw invalid('Invalid cleaning trace object; expected {original, backend?, changed?}');if(body.understanding!==undefined){const u=body.understanding;if(typeof u!=='object'||!u||Array.isArray(u)||Object.keys(u).some(k=>!['interpret','rewrite','emotion'].includes(k))||(u.interpret!==undefined&&typeof u.interpret!=='boolean')||(u.emotion!==undefined&&typeof u.emotion!=='boolean')||(u.rewrite!==undefined&&!REWRITE_MODES.includes(u.rewrite)))throw invalid('Invalid understanding object; expected {interpret?: boolean, rewrite?: off|gated|always, emotion?: boolean}');if((body.mode??'formalize')!=='formalize')throw invalid('understanding needs mode formalize','unsupported_mode');}return body.messages[0].content;}
+function checkBody(body,models,maxContextBytes){if(!body||typeof body!=='object'||Array.isArray(body))throw invalid('Expected a chat completion object');if(typeof body.model!=='string'||!models.has(body.model))throw invalid('Unknown model '+JSON.stringify(String(body.model).slice(0,80))+'; GET /v1/models lists the available models: '+[...models].join(', '),'unknown_model');if(body.tools!==undefined||body.tool_choice!==undefined||body.functions!==undefined||body.function_call!==undefined)throw invalid('Tools and function calling are not implemented');if(![undefined,false,true].includes(body.stream))throw invalid('stream must be a boolean');if(!Array.isArray(body.messages)||body.messages.length!==1||body.messages[0]?.role!=='user'||typeof body.messages[0].content!=='string'||!body.messages[0].content.trim()||Object.keys(body.messages[0]).some(k=>!['role','content'].includes(k)))throw invalid('Supply exactly one new user text message; conversation history is server-managed');if(Buffer.byteLength(body.messages[0].content)>maxContextBytes) {const e=new Error('Message exceeds context limit');e.status=413;throw e;}const allowed=new Set(['model','messages','stream','user','conversation_id','session_id','chatSop','language','mode','cleaning','understanding']);if(Object.keys(body).some(k=>!allowed.has(k)))throw invalid('Unsupported chat completion parameter');if(body.mode!==undefined&&!MODES.includes(body.mode))throw invalid('mode must be chat, formalize or translate','unsupported_mode');if(body.chatSop!==undefined&&(body.mode??'formalize')!=='formalize')throw invalid('A chatSop trusted circuit needs mode formalize','unsupported_mode');if(body.language!==undefined&&!LANGUAGE_CHOICES.includes(body.language))throw invalid('language must be en, ro or auto');if(body.chatSop!==undefined&&(typeof body.chatSop!=='object'||!body.chatSop||Array.isArray(body.chatSop)||Object.keys(body.chatSop).some(k=>k!=='trustedSop')||typeof body.chatSop.trustedSop!=='string'))throw invalid('Invalid chatSop trusted circuit');if(body.cleaning!==undefined&&(typeof body.cleaning!=='object'||!body.cleaning||Array.isArray(body.cleaning)||typeof body.cleaning.original!=='string'||Object.keys(body.cleaning).some(k=>!['original','backend','changed'].includes(k))))throw invalid('Invalid cleaning trace object; expected {original, backend?, changed?}');if(body.understanding!==undefined){const u=body.understanding;if(typeof u!=='object'||!u||Array.isArray(u)||Object.keys(u).some(k=>!['interpret','rewrite','emotion'].includes(k))||(u.interpret!==undefined&&typeof u.interpret!=='boolean')||(u.emotion!==undefined&&typeof u.emotion!=='boolean')||(u.rewrite!==undefined&&!REWRITE_MODES.includes(u.rewrite)))throw invalid('Invalid understanding object; expected {interpret?: boolean, rewrite?: off|gated|always, emotion?: boolean}');if((body.mode??'formalize')!=='formalize')throw invalid('understanding needs mode formalize','unsupported_mode');}return body.messages[0].content;}
 function checkedTrusted(source){const wires=parse(source).wires;if(!wires.length||!wires.some(w=>w.type==='remember')||wires.some(w=>!['fact','event','remember'].includes(w.type)))throw Error('Trusted circuit requires an explicit remember of facts or events');return source;}
 const docsRoot=path.join(root,'docs');
 const mimeTypes={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg','.ico':'image/x-icon','.txt':'text/plain; charset=utf-8','.md':'text/markdown; charset=utf-8','.woff2':'font/woff2','.map':'application/json'};
@@ -126,7 +133,7 @@ function sse(res,data){res.writeHead(200,{'Content-Type':'text/event-stream; cha
  * `formalizers`, when given, is `{registry, manager}` (server/formalizers.mjs): the chat then accepts every
  * registry id as `model`, the façade id selects the registry default, and readiness reports each model's state.
  */
-export function createServer({config,repo,lexicon,authTokens,auth=null,base='demo',limits={},sessionRoot,formalizers=null}={}){
+export function createServer({config,repo,lexicon,authTokens,auth=null,base='demo',limits={},sessionRoot,formalizers=null,chatData=null}={}){
  if(!config||!repo||!lexicon)throw Error('Server requires config, repository and lexicon');
  if(!['formal','bare'].includes(config.promptProfile))throw Error('Specify promptProfile: formal or bare explicitly; implicit profile mixing is forbidden');
  const formalizer=config.formalizer,model=config.model??'chatsop-local';
@@ -168,7 +175,15 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
  // Chat-mode history per user and conversation (in memory, bounded; server-managed like the formalize context).
  const chatHistory=new ChatHistory();
  const capabilities=createCapabilities({registry,manager,timeoutMs,cache:limits.cache});
- const api=createApiRouter({capabilities,json,error,readBody,limits:{maxRequestBytes,maxContextBytes,maxConcurrent:limits.maxConcurrentApi??16}});
+ const api=createApiRouter({capabilities,json,error,readBody,limits:{maxRequestBytes,maxContextBytes,maxConcurrent:limits.maxConcurrentApi??16},extraEndpoints:chatData?[...PRODUCT_ENDPOINTS,...AUTHORING_ENDPOINTS]:[]});
+ // The product layer (DS031): base memories, sessions, omp. Present when a chat data root is configured (startServer always does).
+ const memories=chatData?new BaseMemories({chatData,memory:config.memory}):null;
+ if(memories)ensureDefaultBase(memories,config);
+ const sessionStore=chatData?new Sessions({chatData,memories,memory:config.memory}):null;
+ const runtimes=chatData?new SessionRuntimes({sessions:sessionStore,memories,lexicon,config:{...config,contextMaxBytes:Math.min(config.contextMaxBytes??maxContextBytes,maxContextBytes),formalizer:formalizer?{...formalizer,timeoutMs:Math.min(formalizer.timeoutMs??timeoutMs,timeoutMs)}:undefined},defaultBase:config.chatData?.defaultBase??'default'}):null;
+ const omp=chatData?ompSettings(config):null,ompModels=chatData?createOmpModels(omp):null;
+ const authoring=chatData?createAuthoring({sessions:sessionStore,runtimes,chatData,models:ompModels,settings:omp,readBody,json,maxBytes:limits.maxProductBytes??8_000_000,capabilities}):null;
+ const product=chatData?createProductRouter({memories,sessions:sessionStore,runtimes,readBody,json,limits,extra:authoring}):null;
  const rewriteDefault=capabilities.rewriteDefault,emotionDefault=capabilities.emotionDefault;
  /** Defaults the chat page shows in its settings: the cleaning step's `sendAll`, the rewrite default and whether a SymbolicProofingLLM is registered. */
  const chatSettings=()=>{const cleaning=loadTextToCleanEnglishConfig();return {emotionEnabled:emotionDefault(),cleaningEnabled:cleaning.enabled!==false,sendAll:cleaning.llm?.sendAll===true,rewrite:rewriteDefault(),rewriteAvailable:Boolean(registry?.defaults?.['proofread-symbolic'])};};
@@ -250,6 +265,7 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    return json(res,200,{object:'list',default:registry.default,defaults:registry.defaults,data:state.formalizers.map(({id,...chatsop})=>({id,object:'model',created:0,owned_by:'chatsop',chatsop}))});
   }
   // The independent capability APIs (DS030, docs/api.html): proofread (alias /v1/text-to-clean-english), understand, symbolic rewrite and analyze, emotion detect, capabilities, cache stats.
+  if(product&&url?.startsWith('/v1/')&&await product.handle(req,res,url,{admin:Boolean(sessionUser)||(!auth&&Boolean(legacy)),user}))return;
   if(url?.startsWith('/v1/')&&await api.handle(req,res,url,{admin:Boolean(sessionUser)||(!auth&&Boolean(legacy)),cacheServices}))return;
  const start=/^\/v1\/models\/([^/]+)\/start$/.exec(url??'');
   if(start&&req.method==='POST'){
@@ -273,11 +289,20 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    else if(! (await endpointCheck()).ready)return error(res,503,'model_unavailable','Formalizer model endpoint is not ready');
    if(body.user!==undefined&&body.user!==user)throw Error('Authenticated user mismatch');
    const conversation=body.conversation_id??'default';if(typeof conversation!=='string'||! /^[A-Za-z0-9_-]{1,80}$/.test(conversation))throw Error('Invalid conversation_id');
-   key=user+'\0'+conversation;if(busy.has(key))return error(res,409,'conversation_busy','Conversation has an active request');
-   const entry=sessions.get(user,conversation,base);let system=null;
+   // Session mode (DS031): the turn runs in the session's own repository (a clone of its base memory). A request without session_id
+   // uses one automatic session per user and conversation on the default base memory.
+   const isAdmin=Boolean(sessionUser)||(!auth&&Boolean(legacy));
+   let rt=null,sessionId=null;
+   if(runtimes){
+    if(body.session_id!==undefined&&(typeof body.session_id!=='string'||! /^[a-z0-9][a-z0-9_-]{0,63}$/.test(body.session_id)))throw invalid('Invalid session_id','invalid_session');
+    sessionId=body.session_id??runtimes.autoSession(user,conversation);
+    rt=runtimes.open(sessionId,{user,admin:isAdmin});
+   }
+   key=rt?'session\0'+sessionId:user+'\0'+conversation;if(busy.has(key))return error(res,409,'conversation_busy','Conversation has an active request');
+   const entry=rt?rt.entry(user):sessions.get(user,conversation,base);let system=null;
    busy.add(key);active++;
    const work=(async()=>{
-    if(body.chatSop){const source=checkedTrusted(body.chatSop.trustedSop),stored=await new Runtime({repo,session:entry.agent.session,schema:lexicon.predicates,lexicon,policy:{...config.policy,allowRules:false,allowPin:false}}).run(source);system={source,receipt:stored.result};}
+    if(body.chatSop){const source=checkedTrusted(body.chatSop.trustedSop),stored=await new Runtime({repo:rt?rt.repo:repo,session:entry.agent.session,schema:lexicon.predicates,lexicon,policy:{...config.policy,allowRules:false,allowPin:false}}).run(source);system={source,receipt:stored.result};}
     const chosen=answerLanguage(text,body.language);
     const managed=isManaged(chosenModel)?{id:chosenModel.id,promptProfile:'bare',pragmatic:()=>understanding?.emotion??null,formalize:async message=>{
      if(chosenModel.kind!=='service'||chosenModel.id!==capabilities.symbolicId()){const reply=await manager.formalize(chosenModel.id,message,{timeoutMs});return reply.sop;}
@@ -288,15 +313,15 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
      if(wantEmotion)try{const r=await capabilities.emotionFor(message,{leftoverSpans:symbolic?.interpretation?.available?symbolic.interpretation.not_represented:[]});emotion={signals:r.signals,emoji:capabilities.emojiOf(r.signals),leftovers:r.leftovers,sop:r.sop,trace:r.trace};}catch{}
      understanding={requested:{...call.requested,emotion:wantEmotion},cache:call.status,...(symbolic?{message:message,analysed_text:symbolic.analysed_text??null,route:symbolic.route??null,language:symbolic.language??null,english:symbolic.english??null,uncertainty:symbolic.uncertainty?{uncertain:symbolic.uncertainty.uncertain,kinds:symbolic.uncertainty.kinds}:null,rewrite:symbolic.rewrite??null,interpretation:symbolic.interpretation??null,emotion}:{emotion})};
      return call.sop;}}:null;
-    const result=await entry.agent.turn(text,{language:chosen.language,answerLanguage:chosen.language,languageSource:chosen.source,rewrite:false,formalizer:managed});sessions.save(entry,user,conversation,base);return result;
+    const result=await entry.agent.turn(text,{language:chosen.language,answerLanguage:chosen.language,languageSource:chosen.source,rewrite:false,formalizer:managed});if(rt){rt.save(entry,user);sessionStore.appendTranscript(sessionId,{role:'user',text});sessionStore.appendTranscript(sessionId,{role:'assistant',text:result.text,status:result.packet?.status??null});}else sessions.save(entry,user,conversation,base);return result;
    })();work.finally(()=>{active--;busy.delete(key);}).catch(()=>{});
    const result=await Promise.race([work,new Promise((_,reject)=>{const timer=setTimeout(()=>{const e=new Error('Request time limit reached');e.status=504;reject(e);},timeoutMs);timer.unref();work.finally(()=>clearTimeout(timer)).catch(()=>{});})]);
-   if(res.destroyed)return;const data=completion(result,body.model,chosenModel?{id:isManaged(chosenModel)?chosenModel.id:formalizer.model,label:chosenModel.label}:formalizer,system,body.cleaning,understanding);if(body.stream)sse(res,data);else json(res,200,data);
+   if(res.destroyed)return;const data=completion(result,body.model,chosenModel?{id:isManaged(chosenModel)?chosenModel.id:formalizer.model,label:chosenModel.label}:formalizer,system,body.cleaning,understanding);if(rt)data.chatSop.session={id:sessionId,base:rt.info.base};if(body.stream)sse(res,data);else json(res,200,data);
   }catch(e){if(res.destroyed)return;
    // The model answered but its SOP was not admitted or could not be executed: 422 with what it wrote, so the chat can show it.
    if(e.modelSop!==undefined)return json(res,422,{error:{message:'The formalizer output was not admitted or could not be executed',type:'invalid_request_error',code:'model_output_rejected'},chatSop:{status:'rejected',rejection:String(e.message).slice(0,500),model_sop:e.modelSop,prompt_profile:e.promptProfile??null,formalizer_model:e.formalization?.model??null,formalization_ms:e.formalization?.ms??null,understanding}});
    const status=e.status??(e.name==='TimeoutError'||e.message==='Request time limit reached'?504:400);error(res,status,(e.status&&e.code)||(status===413?'request_limit':status===504?'time_limit':status===400?'invalid_request':'internal_error'),status===400&&!e.status?'Invalid SOP or request; no model detail exposed':status===504?'Request time limit reached':e.status?e.message:'Server request failed');}
- });server.auth=auth;server.capabilities=capabilities;
+ });server.auth=auth;server.capabilities=capabilities;server.sessions=sessionStore;server.memories=memories;server.authoring=authoring;server.ompModels=ompModels;server.ompSettings=omp;
  server.on('close',()=>capabilities.close());
  return server;
 }
@@ -306,13 +331,18 @@ export async function startServer({configPath=path.join(root,'config/runtime.jso
  if(selected&&config.promptProfile&&config.promptProfile!==selected)throw Error('Prompt profile mismatch between config and environment');
  config.promptProfile=selected??config.promptProfile;
  if(!config.promptProfile)throw Error('Configure promptProfile explicitly (formal for base models, bare for qualified fine-tuned models)');
- const project=path.resolve(root),repo=new Repository(path.resolve(project,config.root??'state'),{memory:config.memory}),lexicon=Lexicon.load(path.resolve(project,config.ontology??'config/ontology.sop'));
- repo.init(config.base??'demo');
+ const project=path.resolve(root),lexicon=Lexicon.load(path.resolve(project,config.ontology??'config/ontology.sop'));
+ // Chat data (DS031): every chat lives under one gitignored root. The runtime repository is the default base memory's own repository;
+ // it is only a placeholder for the code paths without sessions, which session mode never uses for a chat.
+ const chatData=ChatData.open(config,process.env,project),bases=new BaseMemories({chatData,memory:config.memory});
+ const repo=bases.repository(ensureDefaultBase(bases,config));
+ const stopCleanup=chatData.scheduleCleanup(report=>{if(report.error)console.error('chat data cleanup failed: '+report.error);else if(report.tmp.length||report.sessions.length)console.log('chat data cleanup removed '+report.tmp.length+' tmp folders and '+report.sessions.length+' abandoned sessions');});
  const auth=new Auth({file:path.resolve(project,config.auth?.file??'state/auth.json'),apiKey:process.env.CHATSOP_API_KEY??null});
  // The formalizer registry (DS012 "Formalizer models"): `config.formalizers` names its file, false disables it.
  const registryFile=config.formalizers===false?null:path.resolve(project,config.formalizers??'config/formalizers.json');
- const formalizers=registryFile&&fs.existsSync(registryFile)?(registry=>({registry,manager:new FormalizerManager({registry,logDir:path.join(repo.root,'formalizer-logs')})}))(loadRegistry(registryFile)):null;
- const server=createServer({config,repo,lexicon,auth,base:config.base??'demo',limits:config.server?.limits,formalizers});
+ const formalizers=registryFile&&fs.existsSync(registryFile)?(registry=>({registry,manager:new FormalizerManager({registry,logDir:path.resolve(project,config.root??'state','formalizer-logs')})}))(loadRegistry(registryFile)):null;
+ const server=createServer({config,repo,lexicon,auth,base:'main',limits:config.server?.limits,formalizers,chatData});
+ server.on('close',stopCleanup);
  if(formalizers){
   server.formalizers=formalizers;
   server.on('close',()=>formalizers.manager.stopAll());

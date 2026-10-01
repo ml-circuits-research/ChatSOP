@@ -9,7 +9,7 @@ http.createServer((req, res) => {
   let raw = ''; req.on('data', c => { raw += c; }); req.on('end', () => {
     const body = JSON.parse(raw), message = body.messages.at(-1).content;
     fs.appendFileSync(log, JSON.stringify({alias, message}) + '\n');
-    const content = alias === 'language-proofing-llm' ? message.replace(/\.$/, '') + ' (cleaned).' : alias === 'symbolic-proofing-llm' ? message.replace(/^Whom/, 'Who') : 'unused';
+    const content = alias === 'language-proofing-llm' ? message.replace(/\.$/, '') + ' (cleaned).' : alias === 'translator-llm' ? 'EN: ' + message : alias === 'symbolic-proofing-llm' ? message.replace(/^Whom/, 'Who') : 'unused';
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({choices: [{message: {content}, finish_reason: 'stop'}]}));
   });

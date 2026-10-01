@@ -118,6 +118,7 @@ function scanDocs(vocabulary) {
     const blocks = file.endsWith('.html') ? htmlBlocks(text) : markdownBlocks(text);
     for (const block of blocks) {
       scanned.doc_blocks++;
+      if (block.knowledge) continue; // knowledge-language block: validated by sop/knowledge (tests/wire-help.test.mjs, tests/knowledge-docs.test.mjs)
       for (const finding of checkProgram(block.source, vocabulary, {ontology: block.ontology, complete: false, invalid: block.invalid, proposal})) {
         record('docs', name, `${name}:${block.line + (finding.line ?? 1)}`, finding);
       }

@@ -57,10 +57,10 @@ test('the shipped registry lists the three trained models, the four base models,
   const registry = loadRegistry(repoPath('config/formalizers.json'));
   assert.deepEqual(registry.models.map(m => [m.id, m.kind, m.capabilities.join('+')]), [
     ['smollm2-135m', 'gguf', 'formalize'], ['gemma-3-270m', 'gguf', 'formalize'], ['smollm2-360m', 'gguf', 'formalize'],
-    ['smollm2-135m-base', 'gguf', 'chat+translate'], ['smollm2-360m-base', 'gguf', 'chat+translate'], ['language-proofing-llm', 'gguf', 'proofread'], ['symbolic-proofing-llm', 'gguf', 'proofread-symbolic'], ['gemma-3-270m-base', 'gguf', 'chat+translate'],
+    ['smollm2-135m-base', 'gguf', 'chat+translate'], ['smollm2-360m-base', 'gguf', 'chat+translate'], ['language-proofing-llm', 'gguf', 'proofread'], ['symbolic-proofing-llm', 'gguf', 'proofread-symbolic'], ['translator-llm', 'gguf', 'translate-clean'], ['gemma-3-270m-base', 'gguf', 'chat+translate'],
     ['symbolic-lm', 'service', 'formalize'], ['configured-endpoint', 'runtime-endpoint', 'formalize']]);
   assert.equal(registry.default, 'smollm2-360m');
-  assert.deepEqual(registry.defaults, {chat: 'smollm2-360m-base', formalize: 'smollm2-360m', translate: 'gemma-3-270m-base', proofread: 'language-proofing-llm', 'proofread-symbolic': 'symbolic-proofing-llm'});
+  assert.deepEqual(registry.defaults, {chat: 'smollm2-360m-base', formalize: 'smollm2-360m', translate: 'gemma-3-270m-base', proofread: 'language-proofing-llm', 'proofread-symbolic': 'symbolic-proofing-llm', 'translate-clean': 'translator-llm'});
   assert.equal(registry.models.find(m => m.id === 'symbolic-lm').rewriteMode, 'gated', 'the chat default of the SymbolicProofingLLM rewrite follows the registry (gated since Q-PROOF-1)');
   assert.match(registry.models[0].label, /fastest/);
   assert.match(registry.models[2].label, /best English OOD/);

@@ -17,11 +17,13 @@ These files describe working procedures, not automatically loaded executable plu
 **manage-shards** — Maintain local generations, retention, copy-on-write snapshots, migration and safe garbage collection.
 **material-to-sop** — Prepare source material, inspect quoted claims, design a question curriculum, diagnose observed failures, and gate candidate SOP rules through scoped probes and authorized review.
 **mine-patterns** — Generate and validate candidate patterns from traces.
+**omp-run** — Run the omp coding agent non-interactively on a temporary folder: model discovery with a cost class (`GET /v1/omp/models`), the fence (cwd, read/write/edit tools only, no profile extensions or skills, secrets never in prompts), a timeout, cost read from the session files, and the validate-and-repair loop that turns attached files into draft SOP circuits with `sop-wire-authoring`; the output is unapproved proposals.
 **night-orchestration** — Bounded ownership and observable recovery for long-running work; methodology, not a launcher.
 **procedure-library** — Build approved SOP rules and templates.
 **reasoning-review** — Review epistemic objects and reasoning contracts.
 **review-knowledge** — Review assertions and temporal corrections.
 **semantic-sop-review** — Compare SOP circuits with guarded probes, require an actual LLM review for unresolved differences, and record the principal integrator's final decision; not training approval.
+**sop-wire-authoring** — Compile a long text (a book, manual, regulation, article) into checked knowledge wires (predicate, fact, rule, default, aggregate, action, method, norm) for evaluations and memory: the write-validate-fix loop with `node eval/smoke-reasoning/validator.mjs --authoring`, source and quote rules, closedness only with a source sentence, reification, symbols versus strings, no `jsEval`, a differential check of two independent compilations (`scripts/compare-compilations.mjs`) and how to split long texts; its output is unapproved proposals.
 **spark-training** — Build and run a bounded ChatSOP GPU training job with rootless Podman on DGX Spark (training still requires new explicit user approval).
 **synthetic-sop-data** — Change the model-language corpora through the DS022 generator (`tools/datasets/build-corpora.mjs`), then verify, audit and send them to human review; never hand-patch rows.
 **training-rules** — Experimental design heuristics for training small models on synthetic data.

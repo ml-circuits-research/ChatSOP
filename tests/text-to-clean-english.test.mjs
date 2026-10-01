@@ -80,7 +80,7 @@ test('textToCleanEnglish: enabled:false always passes through, without even runn
   const result = await textToCleanEnglish('Cine locuiește în echipa?', {
     config: {enabled: false, backends: {english: 'llm', nonEnglish: 'llm'}},
   });
-  assert.deepEqual(result, {original: 'Cine locuiește în echipa?', clean: 'Cine locuiește în echipa?', changed: false, reasons: [], spans: [], backend: 'none', confidence: 1});
+  assert.deepEqual(result, {original: 'Cine locuiește în echipa?', clean: 'Cine locuiește în echipa?', changed: false, reasons: [], spans: [], backend: 'none', confidence: 1, fallback: null, routes: []});
 });
 
 test('textToCleanEnglish: clean English passes through unchanged, backend "none", nothing called', async () => {
@@ -88,7 +88,7 @@ test('textToCleanEnglish: clean English passes through unchanged, backend "none"
     config: {enabled: true, backends: {english: 'llm', nonEnglish: 'llm'}},
     gateResources: gateResources(),
   });
-  assert.deepEqual(result, {original: 'Who works at the team?', clean: 'Who works at the team?', changed: false, reasons: [], spans: [], backend: 'none', confidence: 1});
+  assert.deepEqual(result, {original: 'Who works at the team?', clean: 'Who works at the team?', changed: false, reasons: [], spans: [], backend: 'none', confidence: 1, fallback: null, routes: []});
 });
 
 test('textToCleanEnglish: backends.<class> = "none" skips cleaning for that class but still reports why', async () => {
@@ -266,7 +266,9 @@ test('the shipped config names a registry model for the llm backend and a local 
   assert.equal(config.enabled, true);
   assert.equal(config.llm.model, 'language-proofing-llm');
   assert.equal(config.llm.sendAll, true); // owner rule: the gate cannot detect uncertainty reliably, so every sentence goes to the model
-  assert.deepEqual(config.backends, {english: 'llm', nonEnglish: 'llm'});
+  assert.deepEqual(config.backends, {english: 'llm', nonEnglish: 'translator-llm'}); // owner decision 2026-10-01
+  assert.equal(config.translator.model, 'translator-llm');
+  assert.equal(config.translator.fallback, 'llm');
   assert.match(config.languagetool.url, /^http:\/\/127\.0\.0\.1:\d+$/);
 });
 
@@ -307,4 +309,69 @@ test('llm backend name guard: no retry when the name survives, and a masked repl
   t.mock.method(global, 'fetch', async (url, init) => { sent.push(JSON.parse(init.body).messages.at(-1).content); return {ok: true, json: async () => ({choices: [{message: {content: 'Who lives in Cluj?'}, finish_reason: 'stop'}], usage: null})}; });
   await textToCleanEnglish('Cine locuiește în Cluj?', options);
   assert.equal(sent.length, 1);
+});
+
+const okReply = text => ({ok: true, json: async () => ({choices: [{message: {content: text}, finish_reason: 'stop'}], usage: {completion_tokens: 7}})});
+
+test('translator-llm: Romanian goes to the translator with the translate prompt, English to prod1 (llm), per sentence', async (t) => {
+  const calls = [];
+  t.mock.method(global, 'fetch', async (url, init) => {
+    const body = JSON.parse(init.body);
+    calls.push({host: new URL(url).port, system: body.messages.find(m => m.role === 'system')?.content ?? null, user: body.messages.at(-1).content, thinking: body.chat_template_kwargs?.enable_thinking});
+    return okReply(new URL(url).port === '9100' ? 'Who lives in Cluj?' : 'Who works at the team.');
+  });
+  const config = {enabled: true, backends: {english: 'llm', nonEnglish: 'translator-llm'}, llm: {sendAll: true}};
+  const result = await textToCleanEnglish('Who works at the team? Cine locuiește în Cluj?', {config, backendOptions: {endpoint: 'http://127.0.0.1:9000', translatorEndpoint: 'http://127.0.0.1:9100'}, gateResources: gateResources()});
+  assert.deepEqual(calls.map(c => [c.host, c.user]), [['9000', 'Who works at the team?'], ['9100', 'Cine locuiește în Cluj?']]);
+  assert.equal(calls[0].system, null, 'prod1 keeps the bare message-only prompt');
+  assert.match(calls[1].system, /^Translate the user message into English\./);
+  assert.equal(calls[1].thinking, false);
+  assert.equal(result.backend, 'llm+translator-llm');
+  assert.equal(result.fallback, null);
+  assert.deepEqual(result.routes.map(r => [r.language, r.backend]), [['en', 'llm'], ['ro', 'translator-llm']]);
+  assert.equal(result.clean, 'Who works at the team. Who lives in Cluj?');
+});
+
+test('translator-llm: English sentences never reach the translator, and without sendAll clean English reaches nothing', async (t) => {
+  const hosts = [];
+  t.mock.method(global, 'fetch', async url => { hosts.push(new URL(url).port); return okReply('x'); });
+  const config = {enabled: true, backends: {english: 'llm', nonEnglish: 'translator-llm'}};
+  const result = await textToCleanEnglish('Who works at the team?', {config, backendOptions: {endpoint: 'http://127.0.0.1:9000', translatorEndpoint: 'http://127.0.0.1:9100'}, gateResources: gateResources()});
+  assert.deepEqual(hosts, []);
+  assert.equal(result.backend, 'none');
+});
+
+test('translator-llm: an unavailable translator falls back to prod1 and the substitution is reported, never silent', async (t) => {
+  t.mock.method(global, 'fetch', async (url, init) => okReply('Who lives in Cluj (prod1).'));
+  const config = {enabled: true, backends: {english: 'llm', nonEnglish: 'translator-llm'}, translator: {fallback: 'llm'}};
+  for (const translatorEndpoint of [async () => { throw Error('cannot start'); }, null]) {
+    const result = await textToCleanEnglish('Cine locuiește în Cluj?', {config, backendOptions: {endpoint: 'http://127.0.0.1:9000', translatorEndpoint}, gateResources: gateResources()});
+    assert.equal(result.clean, 'Who lives in Cluj (prod1).');
+    assert.equal(result.backend, 'llm');
+    assert.equal(result.fallback.from, 'translator-llm');
+    assert.equal(result.fallback.to, 'llm');
+    assert.equal(result.fallback.sentences, 1);
+    assert.match(result.fallback.reason, /translator|cannot start/);
+    assert.equal(result.routes[0].fallback_from, 'translator-llm');
+  }
+});
+
+test('translator-llm: a translator that fails mid-request (HTTP 500) also falls back; with fallback "none", or both failing, it is backend_unavailable', async (t) => {
+  t.mock.method(global, 'fetch', async url => new URL(url).port === '9100' ? {ok: false, status: 500, text: async () => 'boom'} : okReply('Fallback.'));
+  const options = {backendOptions: {endpoint: 'http://127.0.0.1:9000', translatorEndpoint: 'http://127.0.0.1:9100'}, gateResources: gateResources()};
+  const base = {enabled: true, backends: {english: 'llm', nonEnglish: 'translator-llm'}};
+  const result = await textToCleanEnglish('Cine locuiește în Cluj?', {...options, config: base});
+  assert.equal(result.fallback.to, 'llm');
+  assert.equal(result.clean, 'Fallback.');
+  await assert.rejects(() => textToCleanEnglish('Cine locuiește în Cluj?', {...options, config: {...base, translator: {fallback: 'none'}}}), error => error.code === 'backend_unavailable');
+  t.mock.method(global, 'fetch', async () => ({ok: false, status: 500, text: async () => 'boom'}));
+  await assert.rejects(() => textToCleanEnglish('Cine locuiește în Cluj?', {...options, config: base}), error => error.code === 'backend_unavailable' && /also failed/.test(error.message));
+});
+
+test('translator-llm: with partial the failed sentence stays as written and the others are cleaned', async (t) => {
+  t.mock.method(global, 'fetch', async () => ({ok: false, status: 500, text: async () => 'boom'}));
+  const config = {enabled: true, backends: {english: 'llm', nonEnglish: 'translator-llm'}};
+  const result = await textToCleanEnglish('Cine locuiește în Cluj?', {config, partial: true, backendOptions: {endpoint: 'http://127.0.0.1:9000', translatorEndpoint: 'http://127.0.0.1:9100'}, gateResources: gateResources()});
+  assert.equal(result.changed, false);
+  assert.equal(result.failures.length, 1);
 });

@@ -10,7 +10,7 @@ import {loadCache, analyseTexts, textKey, ANALYSIS_DIR} from '../datasets/three-
 
 export const PARSES_DIR = path.join(ROOT, 'eval/reports/current/analysis-compare/parses');
 
-export async function parseTexts(texts, {device = process.env.CHATSOP_UD_DEVICE_COMPARE ?? 'cpu', threads = 3, dir = PARSES_DIR, batch = 32, onProgress = null, sharedDirs = [ANALYSIS_DIR]} = {}) {
+export async function parseTexts(texts, {device = process.env.CHATSOP_UD_DEVICE_COMPARE ?? 'auto', threads = 3, dir = PARSES_DIR, batch = 32, onProgress = null, sharedDirs = [ANALYSIS_DIR]} = {}) {
   const unique = [...new Set(texts.map(String))];
   const caches = [...sharedDirs.map(d => loadCache(d)), loadCache(dir)];
   const find = text => { for (const c of caches) { const r = c.get(textKey(text)); if (r && r.analysis && r.parser) return r; } return null; };

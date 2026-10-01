@@ -28,6 +28,7 @@
  * the shared server/pages/sop-code.mjs highlighter, linked to the wire help. */
 import {escapeHtml, layout} from './layout.mjs';
 import {SOP_CODE_STYLE, sopCodeScript} from './sop-code.mjs';
+import {PRODUCT_STYLE, productBarHtml, productSettingsHtml, productDialogsHtml, attachHtml, chipsHtml, productScript} from './chat-product.mjs';
 
 const style = `
 .chat{max-width:960px;margin:0 auto;padding:12px 16px 0;display:flex;flex-direction:column;min-height:calc(100dvh - 56px)}
@@ -223,7 +224,7 @@ function interpretationPanel(u){
  if(u.analysed_text&&u.message&&u.analysed_text.trim()!==u.message.trim())details.append(el('p','note','Analysed as (English): '+u.analysed_text));
  for(const s of i.sentences){
   const row=el('div','us');const head=el('div');
-  if(s.status==='verified'){head.append(el('span','badge ok','verified'));head.append(el('span','cnl',s.cnl_sentences.join(' ')));}
+  if(s.status==='verified'){head.append(el('span','badge ok','verified'));head.append(el('span','cnl',s.cnl_sentences.join(' ')));if(s.partial){const b=el('span','badge warn','partial');b.title='part of the sentence is not represented';head.append(b);}}
   else if(s.status==='failed'){head.append(el('span','badge warn','could not be analysed'));head.append(el('span','note',s.error||'the analysis of this sentence failed'));}
   else if(s.status==='uncertain'){head.append(el('span','badge warn','uncertain interpretation'));head.append(el('span','raw','raw analysis: '+s.summary));}
   else{head.append(el('span','badge','no statement'));head.append(el('span','note','framing or fragment, nothing to restate'));}
@@ -305,19 +306,21 @@ function diffView(spans){
 function patchItem(conversation,id,patch){const items=transcript(conversation);const i=items.findIndex(x=>x.id===id);if(i>=0){Object.assign(items[i],patch);saveTranscript(conversation,items);}}
 /** Starts the cached analysis calls of a proposal in the background, so that accepting it finds them done (the final requests hit the server caches). */
 function prefetch(text){if(mode!=='formalize')return;if(emotionOn)api('/v1/emotion/detect',{message:text});if(showUnderstoodOn)api('/v1/understand',{message:text,rewrite:rewriteMode,emotion:emotionOn});}
-async function proceedSend(text,cleaning){
+async function proceedSend(text,cleaning,ctx){
  input.value='';
  const sentMode=mode,conversation=current,formalize=sentMode==='formalize';
- const user={id:uid(),role:'user',text,time:Date.now(),mode:sentMode};remember(user);const userDiv=add(user);
+ const user=ctx&&ctx.user?ctx.user:{id:uid(),role:'user',text,time:Date.now(),mode:sentMode};if(!(ctx&&ctx.user))remember(user);const userDiv=ctx&&ctx.userDiv?ctx.userDiv:add(user);
  const live=()=>conversation===current&&userDiv.isConnected;
  const pending=(cls,label)=>{const slot=userDiv.querySelector('.'+cls);if(slot)slot.append(el('div','pending',label));};
  // Independent capability calls (docs/api.html), started together and shown as each one arrives; the formalize request below reuses their cached work.
  const calls=[];
  if(formalize&&emotionOn){pending('emo-slot','detecting tone\u2026');calls.push(api('/v1/emotion/detect',{message:text}).then(r=>{if(r.ok){user.emotion=r.body;patchItem(conversation,user.id,{emotion:r.body});}if(live())showEmotion(userDiv,r.ok?r.body:null);}));}
  if(formalize&&showUnderstoodOn){pending('understood-slot','analysing what I understood\u2026');calls.push(api('/v1/understand',{message:text,rewrite:rewriteMode,emotion:emotionOn}).then(r=>{if(r.ok){user.understood=r.body;patchItem(conversation,user.id,{understood:r.body});if(live())showUnderstood(userDiv,r.body);}else if(live())setSlot(userDiv,'understood-slot',el('div','pending','The analysis of what I understood is not available ('+(r.status||'no connection')+').'));}));}
+ // Session routing (DS031): after SymbolicLM's analysis the host decides between SymbolicLM and the coding agent and the page shows the path and why.
+ if(formalize&&typeof productAfterAnalysis==='function'){const routed=await productAfterAnalysis(text,user,calls,userDiv);if(routed&&routed.path==='authoring'){sending=false;$('send').disabled=false;input.focus();window.scrollTo(0,document.body.scrollHeight);return;}}
  const waiting=document.createElement('div');waiting.className='msg assistant muted';waiting.textContent=modelInfo()&&modelInfo().state!=='ready'?'starting the model, then thinking\u2026':'thinking\u2026';$('log').append(waiting);window.scrollTo(0,document.body.scrollHeight);
  let status=0,body=null;
- try{const response=await fetch('/v1/chat/completions',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:model??MODEL,mode:sentMode,messages:[{role:'user',content:text}],conversation_id:conversation,language,...(cleaning?{cleaning}:{}),...(formalize?{understanding:{interpret:showUnderstoodOn,rewrite:rewriteMode,emotion:emotionOn}}:{})})});status=response.status;body=await response.json().catch(()=>null);}catch{status=0;}
+ try{const response=await fetch('/v1/chat/completions',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:model??MODEL,mode:sentMode,messages:[{role:'user',content:text}],conversation_id:conversation,...(typeof sessionBody==='function'?sessionBody():{}),language,...(cleaning?{cleaning}:{}),...(formalize?{understanding:{interpret:showUnderstoodOn,rewrite:rewriteMode,emotion:emotionOn}}:{})})});status=response.status;body=await response.json().catch(()=>null);}catch{status=0;}
  await Promise.allSettled(calls);
  waiting.remove();if(models.length)refreshModels();
  const noPanel=Boolean(user.understood);
@@ -333,6 +336,7 @@ function showReview(original,clean){
  el.append(diffView(clean.spans));
  if(!clean.spans||!clean.spans.length){const p=document.createElement('p');p.className='diff';p.textContent=clean.clean;el.append(p);}
  if(clean.reasons&&clean.reasons.length){const reasons=document.createElement('p');reasons.className='meta';reasons.textContent='Why: '+clean.reasons.join(', ');el.append(reasons);}
+ if(clean.fallback){const f=document.createElement('p');f.className='meta';f.textContent='Fallback: '+clean.fallback.from+' could not run, so '+clean.fallback.to+' handled '+clean.fallback.sentences+' sentence'+(clean.fallback.sentences===1?'':'s')+' ('+clean.fallback.reason+'). The translation may be weaker.';el.append(f);}
  if(clean.errors&&clean.errors.length){const w=document.createElement('p');w.className='meta';w.textContent='Part of the check could not run ('+clean.errors.map(e=>e.component+(e.span?' on \u201c'+e.span+'\u201d':'')).join(', ')+'); those sentences are left as you wrote them.';el.append(w);}
  prefetch(clean.clean);
  const actions=document.createElement('div');actions.className='review-actions';
@@ -349,6 +353,7 @@ const input=$('input');
 async function send(){
  const text=input.value.trim();if(!text||sending)return;
  sending=true;$('send').disabled=true;
+ if(typeof productEarly==='function'&&await productEarly(text)){sending=false;$('send').disabled=false;input.focus();return;}
  if(!transcript(current).length)$('log').textContent='';
  if(mode==='formalize'&&cleanBeforeFormalize){
   const checking=document.createElement('div');checking.className='msg assistant muted';checking.textContent='checking the wording…';$('log').append(checking);window.scrollTo(0,document.body.scrollHeight);
@@ -400,6 +405,7 @@ export function chatPage({model, ready, models = null, defaultModel = null, defa
   const modelBar = models ? '<label for="mode" style="margin:0">Mode</label><select id="mode" title="Chat: plain conversation with a base model. Formalize: SOP Lang with a fine-tuned formalizer and the host. Translate: a base model translates the message into English."></select><label for="model" style="margin:0">Model</label><select id="model" title="The models of the chosen mode (config/formalizers.json capabilities)"></select><span id="model-state" class="state" aria-live="polite"></span>' : '';
   const body = `<main class="chat" data-ready="${ready ? 'yes' : 'no'}">
 ${banner}<div class="bar"><label for="conversation" style="margin:0">Conversation</label><select id="conversation"></select><button id="new" type="button">New conversation</button><button id="clear" type="button" title="Clears only this browser's copy of the transcript; the server keeps the conversation context">Clear view</button></div>
+${productBarHtml}
 <div class="bar">${modelBar}<label for="language" style="margin:0">Answer language</label><select id="language" title="English or Română force the answer language; Any infers it from the message (an explicit request such as &quot;answer in Romanian&quot;, otherwise English)"><option value="en">English</option><option value="ro">Română</option><option value="auto">Any</option></select></div>
 <p class="help" style="font-size:13px;color:var(--muted);margin:0 0 8px">${models ? '<b>Mode</b>: <i>Chat</i> talks with an unmodified base instruct model (SmolLM2 or Gemma 3, not fine-tuned; light sampling, earlier turns of this conversation included) to show its general ability; <i>Formalize (SOP Lang)</i> sends the message alone to a fine-tuned formalizer and the host answers from reviewed knowledge; <i>Translate to English</i> asks a base model for an English translation (greedy, fixed prompt). <b>Model</b>: the models of that mode; a stopped model starts when selected (a few seconds on CPU), at most three run at once, and each stops after 15 idle minutes. ' : ''}<b>Answer language</b>: in Formalize, English or Română always answer in that language and Any answers in English unless the message asks for another language ("răspunde în română"); in Chat, English or Română add the instruction "Answer in …" and Any adds none; Translate ignores it. <b>Settings</b> (Formalize only, remembered in this browser): <i>Clean text before formalizing</i>: a host step proposes clean, correct, English wording before the formalizer sees the message; nothing is sent to the formalizer without your review when it changes the text. The trace under each answer shows the mode, the model and the latency, and in Formalize also the model SOP and the execution circuit.</p>
 <details id="settings" class="settings"><summary>Settings (formalize): clean text, rewrite, tone detection, show what I understood</summary><div class="grid">
@@ -408,10 +414,12 @@ ${banner}<div class="bar"><label for="conversation" style="margin:0">Conversatio
 <label title="SymbolicProofingLLM rewrites sentences SymbolicLM does not analyse reliably into the limited English it understands. Off: never. Gated: only sentences whose Stanza trees are not certified, and the rewrite is kept only if it is certified and keeps names, numbers, negation and quantifiers. Always: every sentence, every rewrite kept. Needs the SymbolicLM model."><span>SymbolicProofingLLM rewrite</span><select id="rewrite-select"><option value="off">off</option><option value="gated">gated (trees + certified)</option><option value="always">always</option></select></label>
 <label title="EmotionDetectionSystem: classifies greetings, thanks, politeness, urgency, hedges, frustration and similar tone signals, including the parts SymbolicLM could not represent, and lets the reasoner adjust (a short courtesy reply, a shorter answer, a re-check). Advisory only; needs the SymbolicLM model."><input type="checkbox" id="emotion-toggle">Detect tone and courtesy</label>
 <label title="Shows, under each answer, the sentences SymbolicLM understood restated in short controlled English, the parts it did not represent and whether its analysis is certified. Needs the SymbolicLM model."><input type="checkbox" id="understood-toggle">Show what I understood (CNL)</label>
-</div></details>
+${productSettingsHtml}</div></details>
 <div id="log" aria-live="polite"></div>
 <div id="clean-review" class="review" hidden aria-live="polite"></div>
-<div class="composer"><textarea id="input" rows="2" placeholder="Type a message. Enter sends, Shift+Enter adds a new line." aria-label="Message"></textarea><button id="send" class="primary" type="button">Send</button></div>
+${chipsHtml}
+<div class="composer"><textarea id="input" rows="2" placeholder="Type a message. Enter sends, Shift+Enter adds a new line." aria-label="Message"></textarea>${attachHtml}<button id="send" class="primary" type="button">Send</button></div>
+${productDialogsHtml}
 </main>`;
-  return layout({title: 'ChatSOP chat', active: 'chat', signedIn: true, body, script: sopCodeScript + '\n' + script, style: style + SOP_CODE_STYLE}).replace('<body>', `<body data-model="${escapeHtml(model)}" data-models="${escapeHtml(JSON.stringify(models ?? []))}" data-default-model="${escapeHtml(defaultModel ?? '')}" data-default-models="${escapeHtml(JSON.stringify(defaultModels ?? {}))}" data-settings="${escapeHtml(JSON.stringify(settings ?? {}))}">`);
+  return layout({title: 'ChatSOP chat', active: 'chat', signedIn: true, body, script: sopCodeScript + '\n' + script + '\n' + productScript, style: style + SOP_CODE_STYLE + PRODUCT_STYLE}).replace('<body>', `<body data-model="${escapeHtml(model)}" data-models="${escapeHtml(JSON.stringify(models ?? []))}" data-default-model="${escapeHtml(defaultModel ?? '')}" data-default-models="${escapeHtml(JSON.stringify(defaultModels ?? {}))}" data-settings="${escapeHtml(JSON.stringify(settings ?? {}))}">`);
 }

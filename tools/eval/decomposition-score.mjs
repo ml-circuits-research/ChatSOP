@@ -98,7 +98,7 @@ async function arms(o) {
     const endpoint = o[`endpoint-${model}`] ?? (model === 'it2' ? o.endpoint : null);
     return (rewriters[model] = endpoint ? cachedRewriter(endpointRewriter(endpoint), path.join(WORK, `cache/raw-${model}.jsonl`)) : async () => { throw Error(`--endpoint-${model} URL is needed for the ${model} arms`); });
   };
-  const lm = await createSymbolicLM({device: process.env.CHATSOP_UD_DEVICE ?? 'cpu'});
+  const lm = await createSymbolicLM({device: process.env.CHATSOP_UD_DEVICE ?? 'auto'});
   try { for (const arm of names) { const {model} = armParts(arm); const res = await runArm(arm, rows, {lm, rewrite: model ? rewriterFor(model) : async () => { throw Error('no rewriting arm'); }}); writeJsonl(path.join(WORK, 'arms', `${arm}.jsonl`), res); console.log(JSON.stringify({arm, rows: res.length, changed: res.filter(r => r.changed).length, marked: res.filter(r => r.marked).length})); } }
   finally { await lm.stop(); }
 }
@@ -124,7 +124,7 @@ async function pairs(o) {
   writeJsonl(path.join(WORK, 'grade/pairs.jsonl'), list);
   const have = new Map(readJsonl(path.join(WORK, 'grade/local.jsonl')).map(r => [r.id, r]));
   const todo = list.filter(p => !have.has(p.id));
-  const res = todo.length ? await localGrade(todo, {device: process.env.CHATSOP_UD_DEVICE ?? 'cpu'}) : [];
+  const res = todo.length ? await localGrade(todo, {device: process.env.CHATSOP_UD_DEVICE ?? 'auto'}) : [];
   const local = [...have.values(), ...res];
   writeJsonl(path.join(WORK, 'grade/local.jsonl'), local);
   const byId = new Map(list.map(p => [p.id, p]));

@@ -5,10 +5,10 @@
  *   node tools/symbolic-regression.mjs --update            # explicit re-baseline of rows that changed but did not fail
  *   node tools/symbolic-regression.mjs --replay tests/fixtures/symbolic-english/sample.json   # recorded parses, no Stanza
  *   node tools/symbolic-regression.mjs record-fixture [--n 12]                                # re-records that fixture
- *   node tools/symbolic-regression.mjs record-parses [--device cuda] [--out file]            # Stanza parses of every row, once
+ *   node tools/symbolic-regression.mjs record-parses [--device auto] [--out file]            # Stanza parses of every row, once
  *   node tools/symbolic-regression.mjs --replay eval/reports/current/symbolic-regression/parses.json   # rules only, seconds
  *
- * `--device cuda` runs Stanza on the GPU (default cpu). A rule change is checked fastest by replaying the recorded
+ * `--device auto|cuda|cpu` (default auto: the GPU only when it is free, lib/ud-to-sop/device.mjs). A rule change is checked fastest by replaying the recorded
  * parses of all rows (`record-parses` once per Stanza model, then `--replay <cache>`): the parser is not re-run, so any
  * difference comes from the rules. A parser or model change needs the live run.
  *
@@ -91,7 +91,8 @@ async function goldStillMatches(changed) {
     for (const file of files) for (const source of readJsonlShardedSync(path.join(ROOT, file))) if (need.has(source.id)) records.push({corpus, sourceId: source.id, wild: corpus === 'formalizer-wild-v1', row: source, message: source.question});
   }
   const byKey = new Map(changed.map(({row, now}) => [`${row.source.corpus}::${row.source.id}`, now.sop]));
-  const scores = await strictScores(records, r => byKey.get(`${r.corpus}::${r.sourceId}`));
+  const {scoreAgainstAccepted} = await import('./eval/wild-suite.mjs'); // rows of the wild corpus are scored against their accepted golds
+  const scores = await strictScores(records, r => byKey.get(`${r.corpus}::${r.sourceId}`), {wildScore: scoreAgainstAccepted});
   return new Map(changed.map(({row}) => [row.id, scores.get(`${row.source.corpus}::${row.source.id}`)?.ok ?? null]));
 }
 
@@ -164,7 +165,7 @@ async function recordFixture(o) {
 /** Records the Stanza parses of every row (the live run's options) into a cache that `--replay` reads. */
 async function recordParses(o) {
   const rows = readRows(String(o.split ?? 'train,dev,test').split(','));
-  const lm = await createSymbolicLM({device: o.device ?? 'cpu', threads: Number(o.threads ?? 4)});
+  const lm = await createSymbolicLM({device: o.device ?? 'auto', threads: Number(o.threads ?? 4)});
   const parses = {};
   const request = lm.worker.request.bind(lm.worker), parseMany = lm.worker.parseMany.bind(lm.worker);
   lm.worker.request = async payload => { const answer = await request(payload); parses[`${payload.language ?? 'auto'}|${payload.text}`] = answer.parse; return answer; };
@@ -181,7 +182,7 @@ async function recordParses(o) {
   } finally { await lm.stop(); }
   const file = path.resolve(ROOT, o.out ?? path.join(REPORT_DIR, 'parses.json'));
   fs.mkdirSync(path.dirname(file), {recursive: true});
-  fs.writeFileSync(file, JSON.stringify({note: 'Stanza parses of every symbolic_english row, recorded by `node tools/symbolic-regression.mjs record-parses`; replay with --replay.', stanza: stanzaModelId(), device: o.device ?? 'cpu', recorded_at: new Date().toISOString(), parses}) + '\n');
+  fs.writeFileSync(file, JSON.stringify({note: 'Stanza parses of every symbolic_english row, recorded by `node tools/symbolic-regression.mjs record-parses`; replay with --replay.', stanza: stanzaModelId(), device: o.device ?? 'auto', recorded_at: new Date().toISOString(), parses}) + '\n');
   console.log(`recorded ${Object.keys(parses).length} parses of ${rows.length} rows -> ${path.relative(ROOT, file)}`);
 }
 
@@ -204,7 +205,7 @@ async function main() {
     return finish(rows, new Map(Object.entries(merged.classes)), new Map(Object.entries(merged.now).map(([id, now]) => [id, now])), o, splits);
   }
   if (o.shard) { const [i, n] = String(o.shard).split('/').map(Number); rows = rows.filter((_, index) => index % n === i); }
-  const lm = fixture ? replayLm(fixture.parses, {full: !fixture.rows}) : await createSymbolicLM({device: o.device ?? 'cpu', threads: Number(o.threads ?? 4)});
+  const lm = fixture ? replayLm(fixture.parses, {full: !fixture.rows}) : await createSymbolicLM({device: o.device ?? 'auto', threads: Number(o.threads ?? 4)});
   let results;
   try { results = await runRows(rows, lm, fixture?.rows ? {route: 'direct', language: 'en'} : {route: 'direct', language: 'auto'}, (done, total) => process.stderr.write(`\r${done}/${total}`)); }
   finally { await lm.stop(); }

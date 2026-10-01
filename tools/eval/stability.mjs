@@ -99,7 +99,7 @@ async function run(o) {
     .map(r => ({id: r.id, corpus: 'natural (clean English)', text: r.clean, n: splitSentences(r.clean).length})).filter(g => g.n >= 4 && g.n <= maxS).sort((a, b) => b.n - a.n || a.id.localeCompare(b.id)).slice(0, nNat);
   const dec = readJsonl(path.join(ROOT, 'eval/suites/decomposition/test.jsonl')).filter(r => r.expected.length >= 4)
     .map(r => ({id: r.id, corpus: 'decomposition (expected decomposition)', text: r.expected.join(' '), n: r.expected.length})).filter(g => splitSentences(g.text).length >= 4).sort((a, b) => b.n - a.n || a.id.localeCompare(b.id)).slice(0, nDec);
-  const lm = await createSymbolicLM({device: process.env.CHATSOP_UD_DEVICE ?? 'cpu'});
+  const lm = await createSymbolicLM({device: process.env.CHATSOP_UD_DEVICE ?? 'auto'});
   const records = [], groups = [];
   try {
     for (const g of [...nat, ...dec]) {

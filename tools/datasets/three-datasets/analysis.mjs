@@ -60,7 +60,7 @@ class ShardWriter {
  * Analyse `texts` that are not cached yet, restricted to the ones whose key falls in shard `index` of `count`.
  * Results are appended to the shard's files as they arrive, so a killed run resumes where it stopped.
  */
-export async function analyseTexts(texts, {shard = [0, 1], threads = 3, dir = ANALYSIS_DIR, device = process.env.CHATSOP_UD_DEVICE ?? 'cuda', batch = 64, onProgress = null} = {}) {
+export async function analyseTexts(texts, {shard = [0, 1], threads = 3, dir = ANALYSIS_DIR, device = process.env.CHATSOP_UD_DEVICE ?? 'auto', batch = 64, onProgress = null} = {}) {
   const {createSymbolicLM} = await import('../../../lib/symbolic-lm/index.mjs');
   const [index, count] = shard;
   const cache = loadCache(dir);

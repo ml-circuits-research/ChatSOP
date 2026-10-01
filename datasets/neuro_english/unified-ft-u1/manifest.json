@@ -1,0 +1,97 @@
+{
+ "format": "chatsop-proofing-pairs-v1",
+ "dataset": "neuro_english",
+ "model": "unified first layer (LanguageProofingLLM and SymbolicProofingLLM in one step)",
+ "role": "proofreader",
+ "prompt_profile": "message-only",
+ "iteration": 1,
+ "variant": "u1",
+ "status": "qualified for the unified-ft experiment; training authorization is a separate receipt",
+ "training_authorized": false,
+ "review_status": "not_reviewed",
+ "created": "2026-10-01T13:18:59.719Z",
+ "purpose": "unified-ft one output (the limited English only): raw message (Romanian, mixed, noisy or tangled English) -> limited English that SymbolicLM certifies, chained from bad_english proofing-prod1 (message -> clean English), neuro_english proofing-it3-mix and symbolic_english identity rows. Natural messages are evaluation only; the project jargon is blocklisted.",
+ "summary": {
+  "train": 24550,
+  "dev": 2219,
+  "by_split_chain_language": {
+   "train/neuro/noisy_en": 1355,
+   "train/neuro/ro": 2877,
+   "train/neuro/mixed": 2725,
+   "train/neuro_english/proofing-it3-mix/clean_en": 9751,
+   "train/symbolic/noisy_en": 528,
+   "train/symbolic_english/clean_en": 1137,
+   "train/neuro/clean": 1884,
+   "train/symbolic/mixed": 1389,
+   "train/certified/noisy_en": 189,
+   "train/symbolic/clean": 890,
+   "train/symbolic/ro": 1368,
+   "train/certified/ro": 297,
+   "train/certified/mixed": 160,
+   "dev/neuro/ro": 118,
+   "dev/neuro/mixed": 106,
+   "dev/neuro/noisy_en": 53,
+   "dev/neuro_english/proofing-it3-mix/clean_en": 1232,
+   "dev/symbolic/mixed": 63,
+   "dev/symbolic/ro": 63,
+   "dev/symbolic/clean": 184,
+   "dev/neuro/clean": 254,
+   "dev/symbolic_english/clean_en": 99,
+   "dev/certified/mixed": 4,
+   "dev/symbolic/noisy_en": 18,
+   "dev/certified/noisy_en": 7,
+   "dev/certified/ro": 18
+  },
+  "dropped": {
+   "jargon": 524,
+   "sealed_leak": 559,
+   "natural_overlap": 0,
+   "duplicate_prompt": 2673,
+   "empty_or_long": 4,
+   "moved_to_dev_by_group": 472
+  },
+  "counts": {
+   "train/bad-symbolic/ro": 1431,
+   "train/bad-certified/ro": 315,
+   "train/bad-certified/noisy_en": 196,
+   "train/bad-certified/mixed": 164,
+   "train/bad-neuro/ro": 2994,
+   "train/bad-neuro/mixed": 2830,
+   "train/bad-neuro/clean": 1901,
+   "train/bad-neuro/noisy_en": 1407,
+   "train/bad-symbolic/clean": 899,
+   "train/bad-symbolic/noisy_en": 546,
+   "train/bad-symbolic/mixed": 1451,
+   "train/neuro-repair/clean_en": 8075,
+   "train/neuro-identity/clean_en": 1676,
+   "train/symbolic-identity/clean_en": 1137,
+   "dev/bad-symbolic/clean": 175,
+   "dev/bad-neuro/clean": 237,
+   "dev/bad-symbolic/mixed": 1,
+   "dev/bad-neuro/mixed": 1,
+   "dev/bad-neuro/noisy_en": 1,
+   "dev/bad-neuro/ro": 1,
+   "dev/neuro-repair/clean_en": 949,
+   "dev/neuro-identity/clean_en": 283,
+   "dev/symbolic-identity/clean_en": 99
+  }
+ },
+ "files": {
+  "train.jsonl": {
+   "rows": 24550,
+   "sha256": "aed30b140bbc74fb5971d076985e720fc2b82229998a79c79b4386cf10f3e6f2"
+  },
+  "proofreader/train.jsonl": {
+   "rows": 24550,
+   "sha256": "aed30b140bbc74fb5971d076985e720fc2b82229998a79c79b4386cf10f3e6f2"
+  },
+  "dev.jsonl": {
+   "rows": 2219,
+   "sha256": "51c93562c05ebdf75e949abcae9c5396bb5e284a374ee5a2ec8e4d77b1a3cbad"
+  },
+  "proofreader/dev.jsonl": {
+   "rows": 2219,
+   "sha256": "51c93562c05ebdf75e949abcae9c5396bb5e284a374ee5a2ec8e4d77b1a3cbad"
+  }
+ }
+}

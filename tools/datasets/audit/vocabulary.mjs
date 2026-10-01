@@ -20,6 +20,7 @@ import path from 'node:path';
 import {anchoredValue} from './translation.mjs';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {decode, attr, helpPages, tableFields} from '../../wire-help-pages.mjs';
+import {GRAMMAR} from '../../../sop/knowledge/grammar.mjs';
 
 export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 
@@ -401,7 +402,12 @@ export function checkRow(row, vocabulary, {parse = true} = {}) {
 
 const NON_SOP_LANGUAGES = /^(js|javascript|mjs|ts|json|jsonl|sh|bash|shell|console|python|py|html|css|yaml|yml|prolog|smt|smt2|sql|diff|mermaid)$/i;
 
-/** SOP blocks of an HTML page: `<pre>` contents with the page's data-sop/data-check/data-error markup. */
+/**
+ * SOP blocks of an HTML page: `<pre>` contents with the page's data-sop/data-check/data-error markup. A block of kind
+ * `knowledge`, `knowledge-query` or `knowledge-invalid` is written in the knowledge language (sop/knowledge/, DS004) and is
+ * checked by that validator (tests/wire-help.test.mjs), not against the host-circuit contract; the same holds for a Markdown
+ * fence whose info string contains `knowledge`.
+ */
 export function htmlBlocks(html) {
   const blocks = [];
   for (const m of html.matchAll(/<pre([^>]*)>([\s\S]*?)<\/pre>/g)) {
@@ -417,6 +423,7 @@ export function htmlBlocks(html) {
       source, kind,
       ontology: kind === 'ontology' ? 'only' : 'allow',
       invalid: kind === 'invalid' ? {unknownType: /unknown wire type/i.test(error)} : null,
+      knowledge: /^knowledge/.test(kind ?? ''),
     });
   }
   return blocks;
@@ -433,7 +440,7 @@ export function markdownBlocks(text) {
     const source = body.join('\n');
     if (NON_SOP_LANGUAGES.test(open[3]) || (open[3].toLowerCase() !== 'sop' && !looksLikeSop(dedent(source)))) continue;
     const info = (open[3] + open[4]).toLowerCase();
-    blocks.push({line: start + 1, source, kind: info.trim() || null, ontology: 'allow', invalid: /\binvalid\b/.test(info) ? {unknownType: /unknown[-_ ]type/.test(info)} : null});
+    blocks.push({line: start + 1, source, kind: info.trim() || null, ontology: 'allow', invalid: /\binvalid\b/.test(info) ? {unknownType: /unknown[-_ ]type/.test(info)} : null, knowledge: /\bknowledge/.test(info)});
   }
   return blocks;
 }
@@ -447,7 +454,10 @@ export function checkHelpPages(helpDir, vocabulary) {
   const findings = [];
   const pages = helpPages(helpDir);
   const byName = new Map(pages.map(page => [page.name, page]));
+  // The knowledge language (sop/knowledge/) has its own wire types and fields; its help pages are checked by tests/wire-help.test.mjs.
+  const knowledgeTypes = new Set(Object.keys(GRAMMAR));
   const fieldNames = new Set([...vocabulary.types.values()].flatMap(spec => [...spec.one, ...spec.many]));
+  for (const g of Object.values(GRAMMAR)) for (const key of Object.keys(g.fields)) fieldNames.add(key);
   const add = (construct, type, file, message, extra = {}) => findings.push({construct, class: vocabulary.pending.has(type) ? 'migration_pending' : CONSTRUCTS[construct], file, type, ...extra, message});
   for (const [type, spec] of vocabulary.types) {
     const page = byName.get(type);
@@ -467,7 +477,7 @@ export function checkHelpPages(helpDir, vocabulary) {
   }
   for (const page of pages) {
     if (vocabulary.types.has(page.name)) continue;
-    for (const row of tableFields(page.html)) if (/^[a-z][A-Za-z0-9_]*$/.test(row) && !vocabulary.types.has(row) && !fieldNames.has(row)) add('doc_unknown_keyword', page.name, page.file, `table keyword ${row} is neither a contract type nor a field`, {field: row});
+    for (const row of tableFields(page.html)) if (/^[a-z][A-Za-z0-9_]*$/.test(row) && !vocabulary.types.has(row) && !knowledgeTypes.has(row) && !fieldNames.has(row)) add('doc_unknown_keyword', page.name, page.file, `table keyword ${row} is neither a contract type nor a field`, {field: row});
   }
   return findings;
 }

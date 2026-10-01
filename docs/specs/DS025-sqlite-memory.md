@@ -33,6 +33,10 @@ Writes are transactional (`transaction`, `addMany`); a failed batch rolls back a
 | Bank comparison | Observed | [DS013](specsLoader.html?spec=DS013-engine-and-solver-comparison.md): 48/48 exact sets; 90,112 and 212,992 page bytes at 64 and 256 atoms (rerun 2026-09-28) |
 | Wire-level schema, structural relevance ranking, utility-based eviction | Not implemented | Planned below |
 
+### The exact substrate for completeness-sensitive retrieval
+
+Because the SQLite bank is exact, it is the substrate on which the knowledge wires ([DS004](specsLoader.html?spec=DS004-sop.md)) can be answered under partial retrieval ([DS005](specsLoader.html?spec=DS005-memory.md) "Closedness and completeness for the knowledge wires"): a keyed lookup by predicate and argument values reports whether it is complete, a count over a predicate is exact, and a predicate declared `closed` is certified only when the bank holds the archive of its facts (`retention none`) or a pinned view. The keyed lookups are also what default conclusions need before they are accepted (the strict contrary `not p a` and each exception atom, looked up for each candidate). The bank never decides closedness itself, never infers a negation from a missing row, and an associative hint never substitutes for an exact lookup.
+
 ### Planned extensions (not implemented)
 
 - **Wire-level schema.** Store whole SOP wires with their scope, known and valid times, importance, pin flag, use count and last use, plus side tables for the predicates a wire uses and their role (head, premise, query, effect), the canonical entities and their roles, dependencies between wires, procedures and definitions, and multilingual aliases and ontology links.

@@ -15,6 +15,7 @@
 <tr><td id="field-fragment"><code>fragment</code></td><td>At most once; value <code>follow_up</code></td><td>An elliptical follow-up (Q-LANG-4: "and Priya?", "dar anul trecut?"). Its match blocks carry only what the message gives and may omit <code>relation</code> and <code>polarity</code>. The host completes it from the previous question of the caller-owned conversation (a given role replaces the same role; a quoted <code>role time</code> becomes the period) or, without one, asks what the follow-up is about. The model decides nothing.</td></tr>
 <tr><td id="field-at"><code>at</code></td><td>At most once; default runtime now; exclusive with <code>during</code> (<code>Use at OR during</code>)</td><td>In model output <code>at</code>, <code>during</code> and <code>asof</code> take a JSON-quoted temporal expression as written in the message, in its language (<code>at "June 2025"</code>, <code>at "iunie 2025"</code>), which the host normalizes or asks about. Host form: ISO date/UTC instant (or <code>beginning</code>/<code>open</code> accepted by instant parser); a whole-field <code>$value</code> can supply an instant. Selects valid-time instant. The default is not neutral: a query with neither <code>at</code> nor <code>during</code> is evaluated at the runtime clock, so claims whose validity ended in the past do not match. Write <code>at</code> explicitly when the time matters.</td></tr>
 <tr><td id="field-during"><code>during</code></td><td>At most once; exclusive with <code>at</code></td><td><code>timeless</code> or ISO/UTC <code>START END</code> interval, inclusive/exclusive; selects overlapping valid-time window, not necessarily complete-window support.</td></tr>
+<tr><td id="field-overlaps"><code>overlaps</code></td><td>At most once; exclusive with <code>at</code> and <code>during</code> (<code>Use at OR during OR overlaps</code>)</td><td>Model output only (v2.7): a JSON-quoted temporal expression as written in the message, for "at any point in 2025", "at some time during March": the answer holds at SOME instant of the period. The host runs it as its overlapping <code>during</code> window; the knowledge language's own <code>overlaps</code> is documented below.</td></tr>
 <tr><td id="field-asof"><code>asof</code></td><td>At most once; default runtime now</td><td>ISO/UTC knowledge cutoff or whole-field <code>$value</code> instant; limits repository history visible to retrieval.</td></tr>
 <tr><td id="field-limit"><code>limit</code></td><td>At most once; default <code>100</code></td><td>Safe integer 1–10,000; caps returned answers. Truncation means result is incomplete.</td></tr>
 <tr><td id="field-because"><code>because</code></td><td>Repeatable; optional; at most 3 link lines per wire (<code>link_too_many</code>), no line twice (<code>link_duplicate</code>); a wire-level line, never inside a <code>match</code> block</td><td><code>because $id</code>, exactly one <code>$id</code> naming a wire of this output (<code>link_form</code>); semantic type <code>cause</code>. The main clause holds because of the named clause: "Maria works at Alpha Lab because she is on the Delta Project" puts <code>because $s2</code> on the "works at" wire. Target: a <code>stated</code> or <code>assumed</code> wire. On a query: recorded <code>not_checked</code> (<code>reason: "no_engine"</code>); the query is answered without it and the answer lists the link as not checked. See <a href="syntax.html#link-because">clause links</a>.</td></tr>
@@ -484,4 +485,100 @@
   end</code></pre><p>One query asks for at most one time; two times are two queries, unless <code>order ?t before ?u</code> compares them.</p><h2>Invalid: unbound output variable</h2><pre data-sop="invalid" data-check="lower" data-error="Unbound selected variable"><code>@bad query
   where on_shelf ?book shelf_north
   select ?building
-  mode select</code></pre><p>This atom parses, but lowering cannot select a variable not bound by <code>where</code>. See <a href="syntax.html#boolean-groups">Boolean conditions</a> for supported alternatives.</p><p><strong>Implementation sources:</strong> <code>sop/parser.mjs</code> (<code>SPEC.query</code>), <code>sop/lower.mjs</code> (<code>lowerQuery</code>), <code>reasoning/reasoner.mjs</code> (<code>evaluate</code>, <code>retrieve</code>).</p></main><script type="module" src="help-page.mjs"></script></body></html>
+  mode select</code></pre><p>This atom parses, but lowering cannot select a variable not bound by <code>where</code>. See <a href="syntax.html#boolean-groups">Boolean conditions</a> for supported alternatives.</p><p><strong>Implementation sources:</strong> <code>sop/parser.mjs</code> (<code>SPEC.query</code>), <code>sop/lower.mjs</code> (<code>lowerQuery</code>), <code>reasoning/reasoner.mjs</code> (<code>evaluate</code>, <code>retrieve</code>).</p><section id="knowledge-language"><h2>Knowledge language: <code>query</code></h2><p class="note">In the knowledge language a <code>query</code> is the question put to the knowledge wires: the model or the host writes it, an author writes test queries. Ten modes, the time words, the link keywords and the reasoning modes are described here and on <a href="query-modes.html">Query modes</a>; the field anchors of this section start with <code>kfield-</code>. The sections above describe the host-circuit form.</p><p>Other field names are rejected (<code>unknown_field</code>). The table is generated from <code>sop/knowledge/grammar.mjs</code>.</p><div class="table-wrap"><table data-knowledge="fields"><thead><tr><th>Field</th><th>Cardinality</th><th>Accepted values and behavior</th></tr></thead><tbody><tr><th scope="row" id="kfield-where"><code>where</code></th><td>Repeatable; optional</td><td>The question: atoms of the knowledge language (zero to six terms), or, from the model, <code>match ... end</code> blocks of strings that the host links. Required, except for <code>mode conform</code>.</td></tr>
+<tr><th scope="row" id="kfield-select"><code>select</code></th><td>At most once; optional</td><td>The <code>?variables</code> to return; each must occur in <code>where</code> (<code>select_unbound</code>).</td></tr>
+<tr><th scope="row" id="kfield-mode"><code>mode</code></th><td>At most once; optional</td><td><code>select</code> (default with <code>select</code>), <code>exists</code>, <code>count</code>, <code>explain</code>, <code>every</code>, <code>why_not</code>, <code>plan</code>, <code>abduce</code>, <code>conform</code>, <code>procedure</code>. See Query modes.</td></tr>
+<tr><th scope="row" id="kfield-scope"><code>scope</code></th><td>Repeatable; optional</td><td>Only for <code>mode every</code> (<code>bad_field_for_mode</code>): what must hold for each member of the <code>where</code> restriction.</td></tr>
+<tr><th scope="row" id="kfield-at"><code>at</code></th><td>At most once; optional</td><td>One instant (ISO date or timestamp). At most one of <code>at</code>, <code>during</code>, <code>overlaps</code> (<code>temporal_conflict</code>).</td></tr>
+<tr><th scope="row" id="kfield-during"><code>during</code></th><td>At most once; optional</td><td><code>START END</code>: the answer holds THROUGHOUT the interval (every instant, end exclusive).</td></tr>
+<tr><th scope="row" id="kfield-overlaps"><code>overlaps</code></th><td>At most once; optional</td><td><code>START END</code>: the answer holds at SOME instant of the interval; rows keep their own validity.</td></tr>
+<tr><th scope="row" id="kfield-asof"><code>asof</code></th><td>At most once; optional</td><td>One instant: the knowledge as known at that date (facts by <code>known_at</code>, governed wires by <code>approved_at</code>).</td></tr>
+<tr><th scope="row" id="kfield-trace"><code>trace</code></th><td>At most once; optional</td><td><code>$trace</code>: only for <code>mode conform</code>; the host supplies it (the model never writes identifiers).</td></tr>
+<tr><th scope="row" id="kfield-via"><code>via</code></th><td>Repeatable; optional</td><td><code>~action term...</code>: only for <code>plan</code>, <code>why_not</code> and <code>abduce</code>: steps the plan must contain or the step asked about. The host supplies it.</td></tr>
+<tr><th scope="row" id="kfield-compare"><code>compare</code></th><td>Repeatable; optional</td><td>Words-only comparison of a bound variable and a value (<code>?v above 3</code>).</td></tr>
+<tr><th scope="row" id="kfield-order"><code>order</code></th><td>Repeatable; optional</td><td>Temporal order of two time variables (<code>?t1 before ?t2</code>).</td></tr>
+<tr><th scope="row" id="kfield-rank"><code>rank</code></th><td>At most once; optional</td><td><code>highest ?v</code> or <code>lowest ?v</code>.</td></tr>
+<tr><th scope="row" id="kfield-filter"><code>filter</code></th><td>Repeatable; optional</td><td>Trusted-circuit boolean condition; the model uses words instead.</td></tr>
+<tr><th scope="row" id="kfield-measure"><code>measure</code></th><td>At most once; optional</td><td><code>start</code>, <code>end</code> or <code>duration</code> of the selected time variable.</td></tr>
+<tr><th scope="row" id="kfield-quantifier"><code>quantifier</code></th><td>At most once; optional</td><td><code>all</code>, <code>none</code>, <code>not_all</code>, <code>most</code>, <code>half</code> or <code>at_least N</code> (mode <code>every</code>).</td></tr>
+<tr><th scope="row" id="kfield-except"><code>except</code></th><td>Repeatable; optional</td><td><code>?x "value"</code>: excludes a value.</td></tr>
+<tr><th scope="row" id="kfield-observe"><code>observe</code></th><td>At most once; optional</td><td>Numeric goal of a <code>mode plan</code> query (extension E2): <code>observe ENTITY EXPR WORD NUMBER</code> with WORD in <code>above below at_least at_most equal</code>; the planner looks for a shortest plan of numeric actions after which the expression over the <code>state</code> facts of the entity reaches the threshold. With <code>observe</code> a plan query needs no <code>where</code> (<code>bad_observe</code> for a malformed line).</td></tr>
+<tr><th scope="row" id="kfield-horizon"><code>horizon</code></th><td>At most once; optional</td><td>A positive integer search bound for the numeric plan. A cut is reported as <code>budget_exhausted</code> with reason <code>horizon</code>, never as <code>no_plan</code>.</td></tr>
+<tr><th scope="row" id="kfield-limit"><code>limit</code></th><td>At most once; optional</td><td>A positive integer: bounds the rows (and the list of explanations of <code>abduce</code>).</td></tr>
+<tr><th scope="row" id="kfield-policy"><code>policy</code></th><td>At most once; optional</td><td><code>$policy</code> in force for this query; host-supplied.</td></tr>
+<tr><th scope="row" id="kfield-because"><code>because</code></th><td>Repeatable; optional</td><td>A clause link <code>KEYWORD $id</code> (<code>because so if unless although so_that before after when while</code>): relates this question to a clause of the same message. <code>if $id</code> supposes a <code>supposed</code> fact, a proposed wire or an amendment, and the answer is <code>conditional</code> on it.</td></tr>
+<tr><th scope="row" id="kfield-so"><code>so</code></th><td>Repeatable; optional</td><td>A clause link <code>KEYWORD $id</code> (<code>because so if unless although so_that before after when while</code>): relates this question to a clause of the same message. <code>if $id</code> supposes a <code>supposed</code> fact, a proposed wire or an amendment, and the answer is <code>conditional</code> on it.</td></tr>
+<tr><th scope="row" id="kfield-if"><code>if</code></th><td>Repeatable; optional</td><td>A clause link <code>KEYWORD $id</code> (<code>because so if unless although so_that before after when while</code>): relates this question to a clause of the same message. <code>if $id</code> supposes a <code>supposed</code> fact, a proposed wire or an amendment, and the answer is <code>conditional</code> on it.</td></tr>
+<tr><th scope="row" id="kfield-unless"><code>unless</code></th><td>Repeatable; optional</td><td>A clause link <code>KEYWORD $id</code> (<code>because so if unless although so_that before after when while</code>): relates this question to a clause of the same message. <code>if $id</code> supposes a <code>supposed</code> fact, a proposed wire or an amendment, and the answer is <code>conditional</code> on it.</td></tr>
+<tr><th scope="row" id="kfield-although"><code>although</code></th><td>Repeatable; optional</td><td>A clause link <code>KEYWORD $id</code> (<code>because so if unless although so_that before after when while</code>): relates this question to a clause of the same message. <code>if $id</code> supposes a <code>supposed</code> fact, a proposed wire or an amendment, and the answer is <code>conditional</code> on it.</td></tr>
+<tr><th scope="row" id="kfield-so_that"><code>so_that</code></th><td>Repeatable; optional</td><td>A clause link <code>KEYWORD $id</code> (<code>because so if unless although so_that before after when while</code>): relates this question to a clause of the same message. <code>if $id</code> supposes a <code>supposed</code> fact, a proposed wire or an amendment, and the answer is <code>conditional</code> on it.</td></tr>
+<tr><th scope="row" id="kfield-before"><code>before</code></th><td>Repeatable; optional</td><td>A clause link <code>KEYWORD $id</code> (<code>because so if unless although so_that before after when while</code>): relates this question to a clause of the same message. <code>if $id</code> supposes a <code>supposed</code> fact, a proposed wire or an amendment, and the answer is <code>conditional</code> on it.</td></tr>
+<tr><th scope="row" id="kfield-after"><code>after</code></th><td>Repeatable; optional</td><td>A clause link <code>KEYWORD $id</code> (<code>because so if unless although so_that before after when while</code>): relates this question to a clause of the same message. <code>if $id</code> supposes a <code>supposed</code> fact, a proposed wire or an amendment, and the answer is <code>conditional</code> on it.</td></tr>
+<tr><th scope="row" id="kfield-when"><code>when</code></th><td>Repeatable; optional</td><td>A clause link <code>KEYWORD $id</code> (<code>because so if unless although so_that before after when while</code>): relates this question to a clause of the same message. <code>if $id</code> supposes a <code>supposed</code> fact, a proposed wire or an amendment, and the answer is <code>conditional</code> on it.</td></tr>
+<tr><th scope="row" id="kfield-while"><code>while</code></th><td>Repeatable; optional</td><td>A clause link <code>KEYWORD $id</code> (<code>because so if unless although so_that before after when while</code>): relates this question to a clause of the same message. <code>if $id</code> supposes a <code>supposed</code> fact, a proposed wire or an amendment, and the answer is <code>conditional</code> on it.</td></tr></tbody></table></div><h3>What it is for</h3><p>Pick the mode from the question: "who works at Alpha?" is <code>select</code>; "is Lyon in France?" is <code>exists</code>; "how many?" is <code>count</code> (a lower bound over an open relation); "is everyone certified?" is <code>every</code> with a <code>scope</code>; "why?" is <code>explain</code>; "how do I...?" is <code>plan</code>. What-if needs no mode: the user's "if ..." is a <code>fact</code> or <code>stated</code> with <code>status supposed</code> linked by <code>if $id</code>, and the answer is conditional on it. The five reasoning modes <code>why_not</code>, <code>plan</code>, <code>abduce</code>, <code>conform</code> and <code>procedure</code> are described on <a href="query-modes.html">Query modes</a>.</p><h3>Examples</h3><pre data-sop="knowledge"><code>@located_in predicate
+  args subject:entity location:entity
+@f1 fact
+  holds located_in paris france
+@f2 fact
+  holds located_in lyon france
+@f3 fact
+  holds located_in rome italy</code></pre><pre data-sop="knowledge-query" data-status="supported" data-rows="city=lyon;city=paris"><code>@q query
+  where located_in ?city france
+  select ?city</code></pre><pre data-sop="knowledge-query" data-status="supported" data-count="2"><code>@q query
+  mode count
+  where located_in ?city france
+  select ?city</code></pre><p>The count is a lower bound (<code>located_in</code> is not declared <code>closed</code>).</p><pre data-sop="knowledge-query" data-status="supported"><code>@q query
+  mode exists
+  where located_in lyon france</code></pre><h3>Every, with an explicit counterexample</h3><pre data-sop="knowledge"><code>@member predicate
+  args subject:entity object:entity
+  closed true
+@works predicate
+  args subject:entity object:entity
+
+@m1 fact
+  holds member ann delta
+@m2 fact
+  holds member bob delta
+@w1 fact
+  holds works ann alpha
+@w2 fact
+  holds not works bob alpha</code></pre><pre data-sop="knowledge-query" data-status="refuted"><code>@q query
+  mode every
+  where member ?m delta
+  scope works ?m alpha</code></pre><h3>Explain</h3><pre data-sop="knowledge"><code>@parent predicate
+  args subject:entity object:entity
+@grandparent predicate
+  args subject:entity object:entity
+@f1 fact
+  holds parent ann bob
+@f2 fact
+  holds parent bob cy
+@r_grand rule
+  when parent ?x ?y
+  when parent ?y ?z
+  then grandparent ?x ?z</code></pre><pre data-sop="knowledge-query" data-status="supported"><code>@q query
+  mode explain
+  where grandparent ann cy</code></pre><h3>Time: throughout</h3><pre data-sop="knowledge"><code>@works_at predicate
+  args subject:entity object:entity
+
+@f1 fact
+  holds works_at ann alpha
+  valid 2020-01-01 2023-01-01
+@f2 fact
+  holds works_at ann beta
+  valid 2023-01-01 open</code></pre><pre data-sop="knowledge-query" data-status="supported" data-rows="c=alpha"><code>@q query
+  where works_at ann ?c
+  select ?c
+  during 2021-06-01 2023-01-01</code></pre><p><code>during</code> returns only <code>alpha</code>, because Ann worked at Beta only from 2023; <code>overlaps 2021-06-01 2024-01-01</code> would return both.</p><h3>What-if</h3><pre data-sop="knowledge"><code>@works predicate
+  args subject:entity object:entity
+@f1 fact
+  holds works bob alpha</code></pre><pre data-sop="knowledge-query" data-status="supported" data-rows="x=ann;x=bob" data-conditional="s1"><code>@s1 fact
+  holds works ann alpha
+  status supposed
+
+@q query
+  where works ?x alpha
+  select ?x
+  if $s1</code></pre><h3>Invalid: <code>every</code> without a scope</h3><pre data-sop="knowledge-invalid" data-error="missing_field" data-role="query"><code>@q query
+  mode every
+  where member ?m delta</code></pre><h3>Common mistakes</h3><ol><li><code>every</code> without <code>scope</code>, or <code>scope</code> on another mode.</li><li>Selecting a variable that <code>where</code> does not mention (<code>select_unbound</code>).</li><li>More than one of <code>at</code>, <code>during</code>, <code>overlaps</code>; and reading <code>during</code> as "at some instant": it means throughout.</li><li><code>via</code> or <code>trace</code> outside the modes that take them; the model never writes them.</li><li>Expecting a count over an open relation to be exact: it is a lower bound (<code>bound at_least</code>).</li></ol></section><!--/knowledge-language--></main><script type="module" src="help-page.mjs"></script></body></html>

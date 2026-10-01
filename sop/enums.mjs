@@ -25,6 +25,14 @@ export const OUTPUT_MODES = Object.freeze(['one', 'many', 'rows', 'count', 'stat
  * `every` asks whether the `scope` holds for every binding of the `where` restriction (a universal question).
  */
 export const QUERY_MODES = Object.freeze(['select', 'exists', 'count', 'explain', 'every']);
+/**
+ * The five reasoning modes of the knowledge language (DS004 "Query modes", DS006): `why_not` asks what would make a claim
+ * derivable, `plan` asks how a goal is reached, `abduce` asks for the minimal explanations of an observation, `conform`
+ * asks whether a performed trace complies with the procedures and norms in force, `procedure` asks for the approved
+ * procedure of a task. They are question forms, never operations; the model language lists them in `QUERY_MODES` only
+ * where DS021 says so.
+ */
+export const REASONING_QUERY_MODES = Object.freeze(['why_not', 'plan', 'abduce', 'conform', 'procedure']);
 /** Part of a time variable's interval that a question asks for: since when, until when, how long. */
 export const TIME_MEASURES = Object.freeze(['start', 'end', 'duration']);
 
@@ -95,7 +103,7 @@ export const PRAGMATIC_KINDS = Object.freeze(['greeting', 'closing', 'thanks', '
 export const PRAGMATIC_BASES = Object.freeze(['lexicon', 'pattern', 'classifier', 'llm']);
 
 export const ENUMS = Object.freeze({
-  query: {mode: [...QUERY_MODES], measure: [...TIME_MEASURES], fragment: [...FRAGMENT_KINDS]},
+  query: {mode: [...QUERY_MODES, ...REASONING_QUERY_MODES], measure: [...TIME_MEASURES], fragment: [...FRAGMENT_KINDS]},
   constraint: {task: ['prove', 'possible', 'optimize'], direction: ['min', 'max']},
   rule: {mode: ['logical', 'causal']},
   event: {action: ['end', 'retract', 'correct']},

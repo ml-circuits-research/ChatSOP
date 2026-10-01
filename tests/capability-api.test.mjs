@@ -13,7 +13,7 @@ import {listen, repoPath, repoUrl, tempDir} from './helpers.mjs';
 
 const token = 'alice-secret-token-123456';
 
-async function setup(t, {rewriteMode = 'off', withProofing = true, withRewrite = true} = {}) {
+async function setup(t, {rewriteMode = 'off', withProofing = true, withRewrite = true, withTranslator = true} = {}) {
   const dir = tempDir(t, 'chatsop-capability-api-');
   const log = path.join(dir, 'stub.jsonl');
   process.env.STUB_LOG = log;
@@ -21,11 +21,12 @@ async function setup(t, {rewriteMode = 'off', withProofing = true, withRewrite =
   const bin = path.join(dir, 'llama-server');
   fs.copyFileSync(repoPath('tests/fixtures/capability-api/stub-llama-server.cjs'), bin);
   fs.chmodSync(bin, 0o755);
-  for (const name of ['language-proofing', 'symbolic-proofing']) fs.writeFileSync(path.join(dir, name + '.gguf'), 'fake');
+  for (const name of ['language-proofing', 'symbolic-proofing', 'translator']) fs.writeFileSync(path.join(dir, name + '.gguf'), 'fake');
   const file = path.join(dir, 'formalizers.json');
   fs.writeFileSync(file, JSON.stringify({default: 'symbolic-lm', models: [
     {id: 'symbolic-lm', label: 'SymbolicLM', service: repoPath('tests/fixtures/capability-api/stub-symbolic-service.mjs'), rewrite: {mode: rewriteMode}},
     ...(withProofing ? [{id: 'language-proofing-llm', label: 'LanguageProofingLLM', gguf: 'language-proofing.gguf', capabilities: ['proofread']}] : []),
+    ...(withTranslator ? [{id: 'translator-llm', label: 'TranslatorLLM', gguf: 'translator.gguf', capabilities: ['translate-clean']}] : []),
     ...(withRewrite ? [{id: 'symbolic-proofing-llm', label: 'SymbolicProofingLLM', gguf: 'symbolic-proofing.gguf', capabilities: ['proofread-symbolic']}] : [])]}));
   const registry = loadRegistry(file, {root: dir});
   const manager = new FormalizerManager({registry, bin, startTimeoutMs: 15000, logDir: null});
@@ -74,6 +75,44 @@ test('proofread: the sentence model is called once per distinct sentence and opt
   assert.equal(mixed.body.cache, 'miss');
   assert.equal(mixed.body.sentence_cache.hit, 1);
   assert.equal(llmCalls('language-proofing-llm'), 2, 'only the new sentence reached the model');
+});
+
+test('proofread: Romanian goes to the translator, English to LanguageProofingLLM, each cached per sentence; the trace names both', async t => {
+  const {request, llmCalls} = await setup(t);
+  const message = 'Cine lucreaza la echipa de proiect? Who manages the team.';
+  const first = await request('POST', '/v1/language/proofread', {message, sendAll: true});
+  assert.equal(first.status, 200);
+  shape(first.body);
+  assert.equal(first.body.fallback, null);
+  assert.deepEqual(first.body.routes.map(r => r.backend), ['translator-llm', 'llm']);
+  assert.equal(first.body.backend, 'translator-llm+llm');
+  assert.match(first.body.clean, /^EN: Cine lucreaza la echipa de proiect\? Who manages the team \(cleaned\)\.$/);
+  assert.equal(first.body.versions.translator_llm.id, 'translator-llm');
+  assert.equal(llmCalls('translator-llm'), 1);
+  assert.equal(llmCalls('language-proofing-llm'), 1);
+  const again = await request('POST', '/v1/language/proofread', {message, sendAll: true});
+  assert.equal(again.body.cache, 'hit');
+  assert.equal(llmCalls('translator-llm'), 1);
+  const caps = await request('GET', '/v1/capabilities');
+  assert.equal(caps.body.versions.translator_llm.id, 'translator-llm');
+});
+
+test('proofread: with no translator in the registry the sentence falls back to LanguageProofingLLM, visibly, and the fallback is not cached', async t => {
+  const {request, llmCalls} = await setup(t, {withTranslator: false});
+  const message = 'Cine lucreaza la echipa de proiect?';
+  const first = await request('POST', '/v1/language/proofread', {message});
+  assert.equal(first.status, 200);
+  assert.equal(first.body.fallback.from, 'translator-llm');
+  assert.equal(first.body.fallback.to, 'llm');
+  assert.equal(first.body.backend, 'llm');
+  assert.equal(first.body.status, 'ok');
+  assert.equal(first.body.warnings[0].code, 'fallback');
+  assert.match(first.body.clean, /\(cleaned\)/);
+  assert.equal(first.body.versions.translator_llm, null);
+  const again = await request('POST', '/v1/language/proofread', {message});
+  assert.equal(again.body.cache, 'miss', 'a fallback answer is never served from the cache');
+  assert.equal(again.body.fallback.to, 'llm');
+  assert.equal(llmCalls('language-proofing-llm'), 2);
 });
 
 test('the old endpoint is an alias of proofread', async t => {

@@ -3,7 +3,7 @@
  */
 import {assert} from '../lib/util.mjs';
 import {flattenLayers} from './temporal.mjs';
-import {unify} from '../reasoning/reasoner.mjs';
+import {unify} from '../lib/unify.mjs';
 import {readInterval,contains,intersect} from '../lib/time.mjs';
 import {canonicalEngine} from './banks/factory.mjs';
 

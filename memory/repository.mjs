@@ -73,6 +73,9 @@ export class Repository{
   }
   return {...d,file,live:this.loadLayer(d.layer)};
  });}
+ /** Moves a session onto the current head of its base. The session's own layer is kept, so a circuit published to the base after the session
+  * opened (a session-local overlay in a cloned repository, DS031) becomes visible to it. */
+ rebase(s){return this.lock(()=>{this.check(s);const head=this.meta.bases[s.base];assert(head,'Unknown base');if(head!==s.baseHead){s.baseHead=head;this.save(s);}return head;});}
  check(s){
   assert(s.file===path.join(this.root,'sessions',digest([s.base,s.user,s.name])+'.json'),'Session does not belong to this repository');
   const d=loadJSON(s.file,null);assert(d&&d.revision===s.revision,'Session changed: reopen before writing');

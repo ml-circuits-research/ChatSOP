@@ -84,7 +84,7 @@ Can be authored in model-origin SOP: no; host/trusted runtime only.
 
 ## `query`
 
-Unique fields: `mode`, `select`, `scope`, `measure`, `span`, `at`, `during`, `asof`, `limit`, `rank`, `quantifier`, `order`, `fragment`.
+Unique fields: `mode`, `select`, `scope`, `measure`, `span`, `at`, `during`, `overlaps`, `asof`, `limit`, `rank`, `quantifier`, `order`, `fragment`.
 
 Repeatable fields: `where`, `filter`, `compare`, `except`, `because`, `so`, `if`, `unless`, `although`, `so_that`, `before`, `after`, `when`, `while`.
 

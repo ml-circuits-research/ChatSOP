@@ -1,0 +1,195 @@
+/**
+ * HTTP routes of the product layer (DS031, docs/api.html): base memories, sessions, the omp model list and the authoring path.
+ *
+ *   GET  /v1/memories                       list the base memories
+ *   POST /v1/memories                       (admin) create an empty one, or import one: {name, strategy, circuits?, description?}
+ *   GET  /v1/memories/{id}                  the manifest, the circuit names, the provenance and (?facts=1) the stored facts
+ *   DELETE /v1/memories/{id}                (admin)
+ *   POST /v1/memories/{id}/fork             (admin) {name, strategy?, description?}
+ *   POST /v1/memories/{id}/knowledge        (admin) {circuits: [{name, text}], reason?, source?}, validated, recorded with provenance
+ *
+ *   POST /v1/sessions                       start a session on a base memory: {base, name?, settings?}
+ *   GET  /v1/sessions                       the caller's sessions (all of them for an administrator)
+ *   GET  /v1/sessions/{id}                  the session, its circuits, drafts and provenance (?transcript=1 adds the turns)
+ *   DELETE /v1/sessions/{id}
+ *   POST /v1/sessions/{id}/settings         {authoring?, omp_model?}
+ *   GET  /v1/sessions/{id}/drafts           the draft circuits with their text and validation
+ *   POST /v1/sessions/{id}/drafts/{d}/accept   the user accepts a draft into the session layer
+ *   POST /v1/sessions/{id}/drafts/{d}/reject
+ *   POST /v1/sessions/{id}/commit           (admin) commit the accepted session circuits to a new fork: {name, strategy?, description?}
+ *   GET  /v1/sessions/{id}/theory           the base circuits followed by the accepted session circuits
+ *   POST /v1/sessions/{id}/query            {query}: run a query circuit over that theory with the exact oracle
+ *
+ * Every route needs the server's authentication (bearer token or administrator session) before it is reached. Routes marked
+ * admin need the administrator session. A session is visible to the user who started it and to an administrator. A bad request
+ * answers 4xx with the standard `{error: {message, type, code}}`; a circuit that fails the knowledge validator answers 422 with
+ * `problems` and `warnings` and writes nothing.
+ */
+import {STRATEGIES} from '../lib/chat-data/memories.mjs';
+
+const bad = (message, code = 'invalid_request', status = 400) => Object.assign(new Error(message), {status, code});
+
+/** Listed by GET /v1/capabilities next to the capability endpoints; the routes themselves are matched in this file. */
+export const PRODUCT_ENDPOINTS = Object.freeze([
+  {method: 'GET', path: '/v1/memories', capability: 'memories.list'},
+  {method: 'POST', path: '/v1/memories', capability: 'memories.create', admin: true, body: ['name', 'strategy', 'exact', 'description', 'circuits', 'reason', 'source', 'id']},
+  {method: 'GET', path: '/v1/memories/{id}', capability: 'memories.get'},
+  {method: 'POST', path: '/v1/memories/{id}/fork', capability: 'memories.fork', admin: true, body: ['name', 'strategy', 'exact', 'description', 'id']},
+  {method: 'POST', path: '/v1/memories/{id}/knowledge', capability: 'memories.knowledge', admin: true, body: ['circuits', 'reason', 'source']},
+  {method: 'POST', path: '/v1/sessions', capability: 'sessions.create', body: ['base', 'name', 'settings']},
+  {method: 'GET', path: '/v1/sessions', capability: 'sessions.list'},
+  {method: 'GET', path: '/v1/sessions/{id}', capability: 'sessions.get'},
+  {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['authoring', 'omp_model']},
+  {method: 'GET', path: '/v1/sessions/{id}/drafts', capability: 'sessions.drafts'},
+  {method: 'POST', path: '/v1/sessions/{id}/drafts/{draft}/accept', capability: 'sessions.accept', body: []},
+  {method: 'POST', path: '/v1/sessions/{id}/drafts/{draft}/reject', capability: 'sessions.reject', body: []},
+  {method: 'POST', path: '/v1/sessions/{id}/commit', capability: 'sessions.commit', admin: true, body: ['name', 'strategy', 'description', 'id']},
+  {method: 'GET', path: '/v1/sessions/{id}/theory', capability: 'sessions.theory'},
+  {method: 'POST', path: '/v1/sessions/{id}/query', capability: 'sessions.query', body: ['query']},
+]);
+
+const STRATEGY_NOTES = {
+  'recall-memory': 'RecallMemory (DS023): associative candidates, bounded memory',
+  'holo-memory': 'HoloMemory (DS024): superposed codes, known-handle plane',
+  sqlite: 'SQLite (DS025): exact indexed tuples',
+  scan: 'Scan (DS026): exact unindexed map',
+  hybrid: 'Hybrid (DS027): exact SQLite evidence plus associative hints',
+};
+const memoryStrategies = () => STRATEGIES.map(id => ({id, note: STRATEGY_NOTES[id] ?? ''}));
+
+const ID = '([a-z0-9][a-z0-9_-]{0,63})';
+const ROUTES = [
+  ['GET', /^\/v1\/memories$/, 'memoriesList'],
+  ['POST', /^\/v1\/memories$/, 'memoriesCreate', true],
+  ['GET', new RegExp(`^/v1/memories/${ID}$`), 'memoriesGet'],
+  ['DELETE', new RegExp(`^/v1/memories/${ID}$`), 'memoriesDelete', true],
+  ['POST', new RegExp(`^/v1/memories/${ID}/fork$`), 'memoriesFork', true],
+  ['POST', new RegExp(`^/v1/memories/${ID}/knowledge$`), 'memoriesKnowledge', true],
+  ['POST', /^\/v1\/sessions$/, 'sessionsCreate'],
+  ['GET', /^\/v1\/sessions$/, 'sessionsList'],
+  ['GET', new RegExp(`^/v1/sessions/${ID}$`), 'sessionsGet'],
+  ['DELETE', new RegExp(`^/v1/sessions/${ID}$`), 'sessionsDelete'],
+  ['POST', new RegExp(`^/v1/sessions/${ID}/settings$`), 'sessionsSettings'],
+  ['GET', new RegExp(`^/v1/sessions/${ID}/drafts$`), 'sessionsDrafts'],
+  ['POST', new RegExp(`^/v1/sessions/${ID}/drafts/${ID}/(accept|reject)$`), 'sessionsDraftAction'],
+  ['POST', new RegExp(`^/v1/sessions/${ID}/commit$`), 'sessionsCommit', true],
+  ['GET', new RegExp(`^/v1/sessions/${ID}/theory$`), 'sessionsTheory'],
+  ['POST', new RegExp(`^/v1/sessions/${ID}/query$`), 'sessionsQuery'],
+];
+
+function sendError(res, e, json) {
+  const status = e.status ?? 400;
+  const body = {error: {message: e.message, type: 'invalid_request_error', code: e.code ?? 'invalid_request', ...(e.problems ? {problems: e.problems, warnings: e.warnings ?? []} : {})}};
+  if (!res.destroyed) json(res, status, body);
+}
+
+const onlyKeys = (body, allowed) => {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) throw bad('Expected a JSON object');
+  const extra = Object.keys(body).filter(k => !allowed.includes(k));
+  if (extra.length) throw bad(`Unsupported parameter ${JSON.stringify(extra[0])}; accepted: ${allowed.join(', ') || 'none'}`, 'unsupported_parameter');
+  return body;
+};
+
+export function createProductRouter({memories, sessions, runtimes, readBody, json, limits = {}, extra = {}}) {
+  const maxBytes = limits.maxProductBytes ?? 8_000_000;
+
+  const actions = {
+    memoriesList: ({res}) => json(res, 200, {object: 'list', data: memories.list(), strategies: memoryStrategies()}),
+    async memoriesCreate({req, res, approvedBy}) {
+      const body = onlyKeys(await readBody(req, maxBytes), ['name', 'strategy', 'exact', 'description', 'circuits', 'reason', 'source', 'id']);
+      const {name, strategy, exact, description, circuits, reason, source, id} = body;
+      const created = circuits?.length
+        ? memories.importMemory({name, strategy, exact, description, circuits, approvedBy, reason, source, id})
+        : memories.create({name, strategy, exact, description, id});
+      json(res, 201, {object: 'memory', ...created});
+    },
+    memoriesGet({req, res, match}) {
+      const withFacts = new URL(req.url, 'http://localhost').searchParams.get('facts');
+      json(res, 200, {object: 'memory', ...memories.describe(match[1]), ...(withFacts ? {stored_facts: memories.facts(match[1])} : {})});
+    },
+    memoriesDelete({res, match}) { memories.delete(match[1]); json(res, 200, {object: 'memory.deleted', id: match[1], deleted: true}); },
+    async memoriesFork({req, res, match}) {
+      const body = onlyKeys(await readBody(req, maxBytes), ['name', 'strategy', 'exact', 'description', 'id']);
+      json(res, 201, {object: 'memory.fork', ...memories.fork(match[1], {name: body.name, strategy: body.strategy, exact: body.exact, description: body.description, newId: body.id})});
+    },
+    async memoriesKnowledge({req, res, match, approvedBy}) {
+      const body = onlyKeys(await readBody(req, maxBytes), ['circuits', 'reason', 'source']);
+      json(res, 200, {object: 'memory.knowledge', ...memories.addKnowledge(match[1], {circuits: body.circuits, approvedBy, reason: body.reason ?? '', source: body.source ?? null})});
+    },
+
+    async sessionsCreate({req, res, user, admin}) {
+      const body = onlyKeys(await readBody(req, maxBytes), ['base', 'name', 'settings', 'id']);
+      if (typeof body.base !== 'string') throw bad('Provide base: the id of a base memory (GET /v1/memories)', 'invalid_parameter');
+      const info = sessions.create({base: body.base, user, name: body.name, settings: body.settings, id: body.id});
+      json(res, 201, {object: 'session', ...sessions.describe(info.id), admin});
+    },
+    sessionsList: ({res, user, admin}) => json(res, 200, {object: 'list', data: sessions.list({user, admin})}),
+    sessionsGet({req, res, match, user, admin}) {
+      sessions.visible(match[1], {user, admin});
+      const withTranscript = new URL(req.url, 'http://localhost').searchParams.get('transcript');
+      json(res, 200, {object: 'session', ...sessions.describe(match[1]), ...(withTranscript ? {transcript: sessions.transcript(match[1])} : {})});
+    },
+    sessionsDelete({res, match, user, admin}) {
+      sessions.visible(match[1], {user, admin});
+      runtimes?.close(match[1]);
+      sessions.delete(match[1]);
+      json(res, 200, {object: 'session.deleted', id: match[1], deleted: true});
+    },
+    async sessionsSettings({req, res, match, user, admin}) {
+      sessions.visible(match[1], {user, admin});
+      const body = onlyKeys(await readBody(req, maxBytes), ['authoring', 'omp_model']);
+      json(res, 200, {object: 'session', ...sessions.describe(sessions.updateSettings(match[1], body).id)});
+    },
+    sessionsDrafts({res, match, user, admin}) {
+      sessions.visible(match[1], {user, admin});
+      json(res, 200, {object: 'list', data: sessions.drafts(match[1])});
+    },
+    async sessionsDraftAction({req, res, match, user, admin}) {
+      sessions.visible(match[1], {user, admin});
+      req.resume();
+      const [, id, draft, action] = match;
+      if (action === 'reject') return json(res, 200, {object: 'session.draft', draft: sessions.rejectDraft(id, draft)});
+      const accepted = sessions.acceptDraft(id, draft, {approvedBy: user});
+      runtimes?.refresh(id);
+      json(res, 200, {object: 'session.draft', ...accepted});
+    },
+    async sessionsCommit({req, res, match, approvedBy, user, admin}) {
+      sessions.visible(match[1], {user, admin});
+      const body = onlyKeys(await readBody(req, maxBytes), ['name', 'strategy', 'description', 'id']);
+      json(res, 201, {object: 'session.commit', ...sessions.commit(match[1], {name: body.name, strategy: body.strategy, description: body.description, newId: body.id, approvedBy})});
+    },
+    sessionsTheory({res, match, user, admin}) {
+      sessions.visible(match[1], {user, admin});
+      json(res, 200, {object: 'session.theory', theory: sessions.theory(match[1]), base: sessions.info(match[1]).base, session_circuits: sessions.circuits(match[1]).map(c => c.name)});
+    },
+    async sessionsQuery({req, res, match, user, admin}) {
+      sessions.visible(match[1], {user, admin});
+      const body = onlyKeys(await readBody(req, maxBytes), ['query']);
+      if (typeof body.query !== 'string' || !body.query.trim()) throw bad('Provide query: a query circuit text', 'invalid_parameter');
+      const {ask} = await import('../reasoning/strategies/js-reference/index.mjs');
+      const answer = await ask({theory: {knowledge: sessions.theory(match[1])}, query: body.query}, {});
+      json(res, 200, {object: 'session.query', session: match[1], answer});
+    },
+    ...extra.actions,
+  };
+  const routes = [...ROUTES, ...(extra.routes ?? [])];
+
+  /** True when the request was a product route (answered). `admin`: the administrator session; `user`: the authenticated user. */
+  async function handle(req, res, url, {admin = false, user = null} = {}) {
+    for (const [method, pattern, action, adminOnly] of routes) {
+      const match = pattern.exec(url);
+      if (!match) continue;
+      if (req.method !== method) continue;
+      try {
+        if (adminOnly && !admin) throw bad('This endpoint needs the administrator session (sign in on /login)', 'forbidden', 403);
+        const who = typeof user === 'string' && user ? user : 'admin';
+        await actions[action]({req, res, match, user: who, admin, approvedBy: admin ? who : null});
+      } catch (e) { sendError(res, e, json); }
+      return true;
+    }
+    // A known path with another method answers 405; anything else is not a product route.
+    if (routes.some(([, pattern]) => pattern.test(url))) { sendError(res, bad('Method not allowed for this endpoint', 'method_not_allowed', 405), json); return true; }
+    return false;
+  }
+  return {handle};
+}

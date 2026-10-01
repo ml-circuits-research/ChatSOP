@@ -15,7 +15,7 @@ export const readJsonl = f => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').spl
 export const writeJsonl = (f, rows) => { fs.mkdirSync(path.dirname(path.resolve(f)), {recursive: true}); fs.writeFileSync(f, rows.map(r => JSON.stringify(r)).join('\n') + '\n'); };
 
 /** Layers 1 and 2 for every pair; `device` is for the Stanza parse of the analysis layer (cpu by default). */
-export async function localGrade(pairs, {device = 'cpu', analysis = true, trustAnalysisS4 = false} = {}) {
+export async function localGrade(pairs, {device = 'auto', analysis = true, trustAnalysisS4 = false} = {}) {
   const out = new Map();
   const needAnalysis = [];
   for (const p of pairs) {
@@ -39,7 +39,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) => (a.startsWith('--') ? [...acc, [a.slice(2), all[i + 1]]] : acc), []));
   if (!args.pairs || !args.out) { console.error('usage: --pairs pairs.jsonl --out local.jsonl [--device cpu]'); process.exit(2); }
   const pairs = readJsonl(args.pairs).map(r => ({id: r.id, a: String(r.a), b: String(r.b)}));
-  const res = await localGrade(pairs, {device: args.device ?? 'cpu'});
+  const res = await localGrade(pairs, {device: args.device ?? 'auto'});
   writeJsonl(args.out, res);
   const count = {};
   for (const r of res) { const k = `${r.local.layer}:${r.local.severity ?? '-'}`; count[k] = (count[k] ?? 0) + 1; }

@@ -32,7 +32,7 @@ const bad = (message, code = 'invalid_request', status = 400) => Object.assign(n
 const oneOf = (value, list, name) => { if (value !== undefined && !list.includes(value)) throw bad(`${name} must be one of ${list.join(', ')}`, 'invalid_parameter'); return value; };
 const bool = (value, name) => { if (value !== undefined && typeof value !== 'boolean') throw bad(`${name} must be a boolean`, 'invalid_parameter'); return value; };
 
-export function createApiRouter({capabilities, json, error, readBody, limits}) {
+export function createApiRouter({capabilities, json, error, readBody, limits, extraEndpoints = []}) {
   const {maxRequestBytes, maxContextBytes, maxConcurrent} = limits;
   let active = 0;
   const known = new Map(API_ENDPOINTS.map(e => [e.method + ' ' + e.path, e]));
@@ -61,7 +61,7 @@ export function createApiRouter({capabilities, json, error, readBody, limits}) {
     if (!endpoint) return false;
     try {
       if (endpoint.admin && !admin) throw bad('This endpoint needs the administrator session (sign in on /login)', 'forbidden', 403);
-      if (url === '/v1/capabilities') return json(res, 200, {object: 'capabilities', endpoints: API_ENDPOINTS.map(({admin: a, ...e}) => ({...e, ...(a ? {admin: true} : {})})), versions: capabilities.versions(), limits: {max_message_bytes: maxContextBytes, max_request_bytes: maxRequestBytes, max_concurrent: maxConcurrent}}), true;
+      if (url === '/v1/capabilities') return json(res, 200, {object: 'capabilities', endpoints: [...API_ENDPOINTS, ...extraEndpoints].map(({admin: a, ...e}) => ({...e, ...(a ? {admin: true} : {})})), versions: capabilities.versions(), limits: {max_message_bytes: maxContextBytes, max_request_bytes: maxRequestBytes, max_concurrent: maxConcurrent}}), true;
       if (url === '/v1/cache/stats') return json(res, 200, {object: 'cache.stats', caches: capabilities.cacheStats(), services: cacheServices ? await cacheServices() : {}}), true;
       if (url === '/v1/cache/clear') { req.resume(); capabilities.clearCaches(); return json(res, 200, {object: 'cache.clear', cleared: true, caches: capabilities.cacheStats()}), true; }
       if (active >= maxConcurrent) throw bad('Server concurrency limit reached', 'concurrency_limit', 429);

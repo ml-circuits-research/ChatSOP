@@ -31,9 +31,10 @@ export const MODES = Object.freeze(['chat', 'formalize', 'translate']);
 
 /**
  * Registry capabilities: the chat modes plus `proofread`, the textToCleanEnglish step's LanguageProofingLLM, and
- * `proofread-symbolic`, SymbolicProofingLLM, the optional rewrite of SymbolicLM's pipeline (neither is a chat mode).
+ * `proofread-symbolic`, SymbolicProofingLLM, the optional rewrite of SymbolicLM's pipeline, and `translate-clean`, the translator LLM
+ * (Qwen3-4B-Instruct Q4_K_M) that textToCleanEnglish uses for Romanian and mixed sentences (none is a chat mode).
  */
-export const CAPABILITIES = Object.freeze([...MODES, 'proofread', 'proofread-symbolic']);
+export const CAPABILITIES = Object.freeze([...MODES, 'proofread', 'proofread-symbolic', 'translate-clean']);
 
 /** The four states a model reports on /readyz, /v1/models, the home page and the chat. */
 export const STATES = Object.freeze(['stopped', 'starting', 'ready', 'error']);
@@ -257,6 +258,9 @@ export class FormalizerManager {
 
   /** Runs `work(url)` on LanguageProofingLLM-style model `id` (starting it if needed): the textToCleanEnglish backend. */
   proofread(id, work) { return this.use(id, 'proofread', work); }
+
+  /** Runs `work(url)` on the translator model `id` (starting it if needed): the textToCleanEnglish backend for Romanian and mixed sentences. */
+  translateClean(id, work) { return this.use(id, 'translate-clean', work); }
 
   /** Runs `work(url)` on SymbolicProofingLLM-style model `id` (starting it if needed): the optional rewrite of SymbolicLM. */
   proofreadSymbolic(id, work) { return this.use(id, 'proofread-symbolic', work); }

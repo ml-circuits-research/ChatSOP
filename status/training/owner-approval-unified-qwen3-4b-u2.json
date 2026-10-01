@@ -1,0 +1,28 @@
+{
+  "format": "chatsop-owner-approval-scope-v1",
+  "journal_event": {
+    "file": "status/journal.jsonl",
+    "ts": "2026-10-01T13:29:04.491Z",
+    "area": "training",
+    "state": "decision",
+    "actor": "orchestrator",
+    "title": "Owner explicitly approves unified-ft training: Qwen3-4B LoRA, 1 epoch, u2 then u1 if promising"
+  },
+  "further_decisions": [],
+  "approved_models": [
+    "qwen3-4b"
+  ],
+  "role": "proofreader",
+  "experiment": "train-unified-qwen3-4b",
+  "order": "ONE run unified-qwen3-4b-u2 on Qwen3-4B-Instruct-2507 (revision cdbee75f17c01a7cc42f958dc650907174af0554), LoRA, 1 epoch, recipe config/train-qwen3-4b.json, on datasets/neuro_english/unified-ft-u2 (targets: faithful: then limited:), preceded by a 4-step smoke run of the interim text check (run unified-qwen3-4b-u2-smoke, recipe config/train-qwen3-4b-smoke.json, same data); a second run unified-qwen3-4b-u1 (same recipe, datasets/neuro_english/unified-ft-u1) only if u2 shows promise under the preregistration. Training alone on the GPU, one job at a time. Evaluation by inference only. config/formalizers.json is NOT switched by this run.",
+  "corpus": "neuro_english/unified-ft-u2",
+  "conditions": [
+    "the dataset qualification record status/training/qualification-unified-qwen3-4b-u2.json is status 'qualified'",
+    "preregistration status/preregistrations/train-unified-qwen3-4b.json is frozen before any optimizer step",
+    "one GPU training job at a time (models/.training.lock)",
+    "owner rule: when the judges disagree on S3/S4 the case is excusable ambiguity, reported separately, not counted as a model failure"
+  ],
+  "owner_quote": "Aprob antrenarea Qwen3-4B unificat (LoRA, 1 epocă, varianta u2, apoi u1 dacă u2 arată promițător) pentru experimentul unified-ft.",
+  "owner_message_full": "esti cam sensibil, pare ca e bun, inseamna da, e ok, fa cu grija , masoara totul si compara sa fim siguri deci..Aprob antrenarea Qwen3-4B unificat (LoRA, 1 epocă, varianta u2, apoi u1 dacă u2 arată promițător) pentru experimentul unified-ft. (owner, chat, 2026-10-01; verbatim in the journal event above)",
+  "scope_written_by": "unified-ft-agent-b, from the orchestrator brief that cites the journal event above"
+}

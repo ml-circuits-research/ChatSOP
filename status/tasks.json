@@ -1782,10 +1782,10 @@
    "id": "symbolic-proofing-it3-train",
    "kind": "task",
    "title": "SymbolicProofingLLM iteration 3: one Gemma 3 270M LoRA run on proofing-it3 + decomposition data, evaluation on the sealed decomposition set",
-   "status": "running",
+   "status": "done",
    "started_at": "2026-10-01T08:50:00Z",
-   "updated_at": "2026-10-01T09:00:00Z",
-   "summary": "Data mix datasets/neuro_english/proofing-it3-mix, qualification and receipt, preregistration, queued behind the gloss run; then evaluation arms it3-always and it3-gated against it2 on eval/suites/decomposition, regression on the it2 repair task, GGUF F16 vs Q8_0, CPU speed, recommendation (no switch).",
+   "updated_at": "2026-10-01T13:58:00Z",
+   "summary": "Trained (2,718 steps, 12 min) and evaluated: sealed decomposition gated + certified sentence count equals expected 36.7% (it2 32.0%), every sentence certified 68.4% (65.5%), silent meaning change 5.1% (4.7%), S4 13.8/5.8 (13.5/5.1); identity change on working sentences 9.2% (15.4%); losses: sealed repair good local 37.9% (41.1%), analysis correct local 45.7% (59.5%), always mode silent change 10.5% (8.0%). GGUF F16 (113/117 agreement with HF) shipped: config/formalizers.json symbolic-proofing-llm switched to it3 by the owner's auto-switch rule; it2 GGUF kept on disk.",
    "topics": [
     "training-experiments",
     "proofing",
@@ -1799,8 +1799,8 @@
     "proofing-it3-mix",
     "symbolic-proofing-it3"
    ],
-   "owner": "Owner approval 2026-10-01 (journal 08:47:38Z): one run, judge disagreement on S3/S4 is excusable ambiguity, do not switch config/formalizers.json.",
-   "agents": "sp-it3-agent: data mix, qualification, receipt, preregistration, training launch, evaluation, report. config/formalizers.json is not edited."
+   "owner": "Owner approval 2026-10-01 (journal 08:47:38Z): one run, judge disagreement on S3/S4 is excusable ambiguity. Owner auto-switch rule 2026-10-01: switch when better overall even with small losses, never with a new catastrophic failure class (applied).",
+   "agents": "sp-it3-agent: data mix, qualification, receipt, preregistration. sp-it3-agent-b: training launch, interim checks, GGUF, arms, judges, regression, switch, records. config/formalizers.json edited by sp-it3-agent-b."
   },
   {
    "id": "train-language-proofing-gemma270m-prod1",
@@ -1845,6 +1845,28 @@
    ],
    "owner": "Owner approval 2026-10-01 (journal 08:35:47Z): 'aprob gloss cu retea rapida, daca esti sugur, fa ce e mai rapid'; one run, no warm start, the chat is not switched.",
    "agents": "gloss-train-agent: re-qualification, receipt with config/train-gemma-fast.json, preregistration deviations, launch (A3), per-epoch interim checks, selection, sealed and probe evaluation, report. config/formalizers.json not edited."
+  },
+  {
+   "id": "unified-ft",
+   "kind": "experiment",
+   "title": "unified-ft: one Qwen3-4B model from the raw sentence to limited English, against the two-step chain",
+   "status": "running",
+   "started_at": "2026-10-01T13:30:00Z",
+   "updated_at": "2026-10-01T13:50:00Z",
+   "summary": "Qwen3-4B-Instruct-2507 LoRA, 1 epoch (1,535 steps), on datasets/neuro_english/unified-ft-u2 (24,550 train, 2,219 dev; 0 sealed leaks, natural overlap 0). Evaluation on the 425 natural sentences, the sealed decomposition suite (275) and 300 sealed neuro pairs against the chain, staged, paired bootstrap, two judges.",
+   "topics": [
+    "proofing",
+    "training-experiments"
+   ],
+   "experiments": [
+    "train-unified-qwen3-4b"
+   ],
+   "match": [
+    "unified-ft",
+    "unified-qwen3"
+   ],
+   "owner": "Owner approval 2026-10-01 (journal 13:29:04Z): 'Aprob antrenarea Qwen3-4B unificat (LoRA, 1 epoc\u0103, varianta u2, apoi u1 dac\u0103 u2 arat\u0103 promi\u021b\u0103tor) pentru experimentul unified-ft.' The chat is not switched by this run.",
+   "agents": "unified-ft-agent built data, harness and chain baseline; unified-ft-agent-b: preregistration, receipts, smoke run, training, export, evaluation, report. config/formalizers.json not edited."
   }
  ]
 }

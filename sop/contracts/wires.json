@@ -260,6 +260,7 @@
         "span",
         "at",
         "during",
+        "overlaps",
         "asof",
         "limit",
         "rank",

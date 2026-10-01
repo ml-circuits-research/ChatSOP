@@ -12,6 +12,7 @@ import {checkModelLinks,pairPlaceholders,planLinks,expandReferences,readingWithR
 import {repairSpan,spanQuestion} from './repair.mjs';
 import {defaultDictionary} from './dictionary.mjs';
 import {linksOf,roleReferences,LINK_WORDS} from './parser.mjs';
+import {REASONING_QUERY_MODES} from './enums.mjs';
 
 /**
  * The neural author describes problems; only this host compiler emits operations.
@@ -43,7 +44,7 @@ export function checkModelWire(w){
   const partial=w.fields.fragment!==undefined;
   const leaves=[];for(const text of [...many(w,'where'),...many(w,'scope')])parseCondition(text,leaf=>{leaves.push(leaf);return {a:[]};});
   assert(leaves.every(isMatch),'query_needs_match: @'+w.id+' states each condition as a match block (relation, roles, polarity), not an atom');
-  for(const key of ['at','during','asof'])if(w.fields[key])assert(/^"/.test(one(w,key)),'@'+w.id+' '+key+' takes a JSON-quoted temporal expression');
+  for(const key of ['at','during','overlaps','asof'])if(w.fields[key])assert(/^"/.test(one(w,key)),'@'+w.id+' '+key+' takes a JSON-quoted temporal expression');
   assert(!w.fields.span,'@'+w.id+' span is host plumbing; the model asks for a time with role time ?variable');
   // "When", "since when", "how long", "how many times": at most one time variable, written as `role time ?t`.
   const times=new Set(leaves.flatMap(leaf=>parseMatch(leaf,'match',{partial}).roles.filter(role=>role.name==='time'&&typeof role.value==='string'&&role.value.startsWith('?')).map(role=>role.value)));
@@ -170,7 +171,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
  const workById=new Map(work.map(w=>[w.id,w]));
  // Problems the host understands but does not compute: advice questions (Q-LANG-6), arithmetic with division or decimals
  // (Q-LANG-7) and questions over a proposition used as an argument (`$s`).
- const notComputable=work.filter(w=>!held.has(w.id)&&((w.type==='query'&&(expanded.eventQueries.has(w.id)||[...many(w,'where'),...many(w,'scope')].some(text=>{let advice=false;parseCondition(text,leaf=>{const p=parseMatch(leaf,'match',{partial:true});if(p.relation&&isAdvice(p.relation))advice=true;return leaf;});return advice;})))
+ const notComputable=work.filter(w=>!held.has(w.id)&&((w.type==='query'&&(REASONING_QUERY_MODES.includes(one(w,'mode'))||expanded.eventQueries.has(w.id)||[...many(w,'where'),...many(w,'scope')].some(text=>{let advice=false;parseCondition(text,leaf=>{const p=parseMatch(leaf,'match',{partial:true});if(p.relation&&isAdvice(p.relation))advice=true;return leaf;});return advice;})))
   ||(w.type==='constraint'&&[...many(w,'require'),...many(w,'claim'),...many(w,'objective')].some(text=>/\bdivided_by\b|(?:^|\s)-?\d+\.\d+(?:\s|$)/.test(unquoted(text))))))
   .map(w=>({declaration:w.id,type:w.type,reading:expanded.eventQueries.has(w.id)?readingWithReferences(authoredById.get(w.id),authoredById):canonical({wires:[authoredById.get(w.id)??w]}).trim().split('\n').map(line=>line.trim()).join('; ')}));
  const skipped=new Set([...notComputable.map(item=>item.declaration),...held]);
@@ -224,7 +225,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
  const temporal=(w,key)=>{
   const text=unquote(one(w,key)),period=normalizeTime(text,now);
   if(!period){issues.push({kind:'time',status:'unknown',text});return null;}
-  return key==='during'?formatTime(period.from)+' '+formatTime(period.until):formatTime(period.from);
+  return key==='during'||key==='overlaps'?formatTime(period.from)+' '+formatTime(period.until):formatTime(period.from);
  };
  const used=new Set(authored.wires.map(w=>w.id));
  const requestedRefs=new Set(work.filter(w=>w.type==='constraint'||w.type==='query').flatMap(w=>dependencies(w).values).filter(name=>!used.has(name)));
@@ -337,6 +338,8 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
    if(w.fields.except)fields.except=many(w,'except').map(text=>literal(text));
    if(w.fields.compare)fields.compare=many(w,'compare').map(text=>literal(text,{valueAllowed:true}));
    for(const key of ['at','during','asof'])if(w.fields[key]){const value=temporal(w,key);if(value)fields[key]=[value];}
+   // `overlaps` (some instant of the period) is the host's `during`: the host window selects overlapping valid time (DS021 "Question forms").
+   if(w.fields.overlaps){const value=temporal(w,'overlaps');delete fields.overlaps;if(value)fields.during=[value];}
    // A timed before/after/when link bounds the query period (L4): until, from or during the linked clause's time.
    const period=plan.periods.get(w.id);
    if(period)fields.during=[formatTime(period.from)+' '+formatTime(period.until)];

@@ -100,6 +100,32 @@
    "at": "2026-10-01T09:25:00Z",
    "before": "first optimizer step",
    "what": "TRAIN_MIN_CUDA_FREE_GIB=10 instead of the instructed 24 (the allowed range of training/container/podman.mjs is 8..48): the container guard of training/container/inside.mjs refused the 24 GiB floor because the driver-reported free memory of the GB10 was 17.0 GiB and later 13.9 GiB (unified memory shared with other agents' llama-server and parse workers, 71 GiB page cache, host MemAvailable 84 GiB). TRAIN_CUDA_FREE_CHECK=host stays; the 270M LoRA run with micro-batch 16 and sequences of at most 174 tokens needs a few GiB. No process was killed."
+  },
+  {
+   "id": "D3",
+   "at": "2026-10-01T10:15:00Z",
+   "before": "first optimizer step",
+   "what": "A1 (job symproof-it3-train-a) was refused before any step: proofreader/manifest.json (projection manifest, prompt_profile message-only) was missing in datasets/neuro_english/proofing-it3-mix. The file was written with unchanged train/dev hashes (2ec460dd..., bae11a58...); the dry run with the prepared receipt passed (not stale); the training ran as job symproof-it3-train-a2 with TRAIN_MIN_CUDA_FREE_GIB=24 TRAIN_CUDA_FREE_CHECK=host (D2's lower floor was not needed once the machine was idle). Wall 734 s."
+  },
+  {
+   "id": "D4",
+   "at": "2026-10-01T13:50:00Z",
+   "before": "sealed results",
+   "what": "The decision rule 'recommends, never switches' is replaced for this run by the owner's auto-switch rule of 2026-10-01 (switch when better overall, even with small losses, never with a new catastrophic failure class), given in the launch instruction. Epoch 3 is the evaluated epoch (as it2; dev loss best at epoch 2 by 0.0016, interim metrics best at epoch 3). GGUF F16 is shipped (agreement with HF 113/117 against 107/117 for Q8_0; the two arms are equal within one case per measure)."
+  },
+  {
+   "id": "D5",
+   "at": "2026-10-01T13:50:00Z",
+   "before": "sealed results",
+   "what": "The judge verdicts of the it2 baselines are reused (same pairs, same prompts) through DECOMP_GRADE_REUSE; new residue pairs of the it3 arms were judged by Grok and GLM (omp), folders decomp_it3_grade_* and decomp_it3f16_grade_*, merged verdicts in decomp_all_grade_*. The H4 regression is local only (no parse or meaning judges), as the preregistration states, against the it2 local-only numbers."
   }
- ]
+ ],
+ "results": {
+  "H1": "holds: gated count 36.7% vs 32.0% (p=0.012 one-sided), certified 68.4% vs 65.5%",
+  "H2": "holds: always count 54.9% vs 44.0%",
+  "H3": "holds gated (silent 5.1% <= 5.8%), fails always (10.5% > 9.1%)",
+  "H4": "repair local good 37.9% vs 41.1% (bound 39.1%) fails by 1.2 points; identity 9.2% vs 15.4%, pronoun 0.2% hold",
+  "H5": "holds",
+  "switch": "yes by the owner's auto-switch rule (D4)"
+ }
 }
