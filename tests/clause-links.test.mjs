@@ -133,7 +133,7 @@ test('query chaining: $q is the answers of another query (a join); $s as an argu
   assert.equal(expanded.joins.length, 1);
   assert.equal(expanded.wires[1].fields.where.length, 2, 'q\'s condition is inlined into q2');
   const result = await run(q + q2);
-  assert.match(result.text, /q2:\n[\s\S]*ANSWER \?place = "lab_alpha"/);
+  assert.match(result.text, /q2:\n[\s\S]*Answer: (?:Lab Alpha|Alpha Lab)/);
   const event = await run(stated('s2', 'works at', '"Carina"', '"Beta Lab"') + query('q', 'be fair', '$s2', '"Ana"'));
   assert.equal(event.packet.status, 'not_computable');
   assert.match(event.packet.understood_as, /\[works at\]/);

@@ -20,7 +20,7 @@ const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] :
 const SLM = opt('--slm', process.env.QF_SLM_URL ?? 'http://127.0.0.1:19421');
 
 /** The private chat data root with the world-v1 rebuilt on the current core-en (`QF_CHAT_ROOT`), else the product root. */
-export const defaultRoot = () => process.env.QF_CHAT_ROOT ?? (fs.existsSync(path.join(ROOT, 'datasets_sources/query-forms/chat_data/base_memories/world-v1')) ? path.join(ROOT, 'datasets_sources/query-forms/chat_data') : path.join(ROOT, 'chat_data'));
+export const defaultRoot = () => process.env.QF_CHAT_ROOT ?? ['chat_data2', 'chat_data'].map(d => path.join(ROOT, 'datasets_sources/query-forms', d)).find(d => fs.existsSync(path.join(d, 'base_memories/world-v1'))) ?? path.join(ROOT, 'chat_data');
 
 export function openWorld({root = defaultRoot()} = {}) {
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'runtime.json'), 'utf8'));

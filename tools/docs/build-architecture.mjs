@@ -145,7 +145,7 @@ export function buildArchitecture() {
     rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join('') + `</dl></article>`;
   const cards = [
     card('Server', 'The one Node process: static documentation, browser pages, the OpenAI-style chat facade, the capability and product APIs, and the owner pages. It authenticates every request before any route that needs a user.', [
-      ['Modules', Ps(['server/http.mjs', 'server/auth.mjs', 'server/web.mjs', 'server/api.mjs', 'server/product.mjs', 'server/authoring.mjs', 'server/language.mjs', 'server/pages/'])],
+      ['Modules', Ps(['server/http.mjs', 'server/auth.mjs', 'server/web.mjs', 'server/api.mjs', 'server/product.mjs', 'server/authoring.mjs', 'server/query-parser.mjs', 'server/language.mjs', 'server/pages/'])],
       ['Entry points', `${code('npm start')} runs ${code('tools/serve-local.mjs')}, which calls ${code('startServer')} (${E('server/http.mjs', /export async function startServer/)}); ${code('createServer')} (${E('server/http.mjs', /export function createServer/)}) is what tests build.`],
       ['Configuration', `${code('config/runtime.json')} (root, memory, policy, chatData, omp), ${code('state/auth.json')}, environment ${code('CHATSOP_HOST')}, ${code('CHATSOP_PORT')}, ${code('CHATSOP_CONFIG')}, ${code('CHATSOP_API_KEY')}.`],
       ['Tests', Ps(['tests/server-http.test.mjs', 'tests/auth-server.test.mjs', 'tests/site-links.test.mjs', 'tests/product-api-docs.test.mjs'])],
@@ -213,6 +213,13 @@ export function buildArchitecture() {
       ['Configuration', `${code('config.policy')} from ${code('config/runtime.json')}; answer language from the API ${code('language')} field.`],
       ['Tests', Ps(['tests/agent.test.mjs', 'tests/declarative-runtime.test.mjs', 'tests/stated-assumed.test.mjs'])],
       ['Specifications', 'DS003, DS021, DS012'],
+    ]),
+    card('Request parsers: localQuery and codingAgentQuery', 'The two ways a chat turn turns the English message into model-surface SOP, chosen per turn. codingAgentQuery (the default) lets a coding agent (omp, or any chat-completion endpoint) write query wires from retrieved candidate predicates (by id) and entity hints of the session memory; the component validates and repairs them. localQuery is SymbolicLM. The same symbolic path follows either one, and the packet records who wrote the circuit.', [
+      ['Modules', Ps(['server/query-parser.mjs', 'lib/query-author/', 'skills/coding-agent-query/SKILL.md'])],
+      ['Entry points', `${code('createQueryParser')} (${E('server/query-parser.mjs', /export function createQueryParser/)}); ${code('authorQuery')} (${E('lib/query-author/loop.mjs', /export async function authorQuery/)}); ${code('candidatePredicates')} (${E('lib/query-author/retrieval.mjs', /export function candidatePredicates/)}).`],
+      ['Configuration', `${code('queryParser')} in ${P('config/runtime.json')} (default parser, mode, candidates, backend, rounds, cache, fallback); the session setting ${code('parser')}; the request field ${code('parser')}.`],
+      ['Tests', Ps(['tests/query-author.test.mjs', 'tests/query-parser.test.mjs'])],
+      ['Specifications', 'DS031 "Request parsers", DS021'],
     ]),
     card('DeclarativeCompiler and KnowledgeLinker', 'Turns the model language into an inspectable execution circuit: admits the wires, repairs unparsed spans, translates content words with the reviewed dictionary, and links relation phrases and entity strings to the predicates, lexemes and entities of the session lexicon. It asks one precise question instead of guessing.', [
       ['Modules', Ps(['sop/declarative.mjs', 'sop/clauses.mjs', 'sop/propositions.mjs', 'sop/unclear.mjs', 'sop/repair.mjs', 'sop/linking.mjs', 'sop/copula-linker.mjs', 'sop/lexicon.mjs', 'sop/relation-lexicon.mjs', 'sop/dictionary.mjs'])],

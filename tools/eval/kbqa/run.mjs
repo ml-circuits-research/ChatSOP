@@ -13,6 +13,8 @@ import {BASE_NAME} from '../../../lib/chat-data/memories.mjs';
 import {ROOT} from './benchmarks.mjs';
 import {readSuite} from './suites.mjs';
 import {openData, memoryId} from './memory.mjs';
+import {createQueryParser, queryParserSettings} from '../../../server/query-parser.mjs';
+import {ompSettings, createOmpModels} from '../../../lib/omp/index.mjs';
 
 export const reportDir = suite => path.join(ROOT, 'eval', 'reports', 'current', 'kbqa', suite);
 export const stageFile = (suite, stage, tag = '') => path.join(reportDir(suite), `stage-${stage}${tag}.jsonl`);
@@ -62,7 +64,11 @@ function conclude(packet) {
     linking: packet?.linking ?? null, retrieval: packet?.retrieval ?? null, reason_detail: packet?.reason ?? null};
 }
 
-export async function runSuite(suite, {stage = '100', limit = null, only = null, force = false, tag = '', variant = '', log = console.error} = {}) {
+/**
+ * `parser`: `local` (default: SymbolicLM only, as always) or `coding_agent` (codingAgentQuery, DS031; eval-query-parsers-v1). Measurement mode: a failed coding agent is
+ * an error of the record (`parser_failed`), never a silent local answer.
+ */
+export async function runSuite(suite, {stage = '100', limit = null, only = null, force = false, tag = '', variant = '', parser = 'local', log = console.error} = {}) {
   const rows = readSuite(suite, stage).filter(r => !only || r.id === only || r.type === only).slice(0, limit ? Number(limit) : undefined);
   const {config, sessions} = openData();
   const base = memoryId(suite, stage, variant);
@@ -76,7 +82,18 @@ export async function runSuite(suite, {stage = '100', limit = null, only = null,
   fs.mkdirSync(path.dirname(out), {recursive: true});
   const done = new Set(!force && fs.existsSync(out) ? fs.readFileSync(out, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l).id) : []);
   if (force) fs.rmSync(out, {force: true});
-  const lm = symbolicLm();
+  const slm = symbolicLm();
+  let lm = slm;
+  if (parser === 'coding_agent') {
+    const omp = ompSettings(config);
+    const queryParser = createQueryParser({settings: queryParserSettings({queryParser: {...(config.queryParser ?? {}), fallbackToLocal: false, fallbackOnLocalAbstain: false, cacheEntries: 0}}), ompConfig: omp, ompModels: createOmpModels(omp)});
+    const lexicon = sessions.lexicon(sid);
+    lm = {id: 'coding_agent', last: null, parse: null, async formalize(text) {
+      lm.parse = null;
+      try { const r = await queryParser.parse({parser: 'coding_agent', message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, local: () => slm.formalize(text)}); lm.parse = r.parse; lm.last = {route: 'coding_agent', ms: r.parse.ms}; return r.sop; }
+      catch (error) { lm.parse = error.parse ?? null; throw Object.assign(error, {layer: 'parser_failed'}); }
+    }};
+  }
   let n = 0, stalled = 0;
   for (const row of rows) {
     if (done.has(row.id)) continue;
@@ -94,9 +111,9 @@ export async function runSuite(suite, {stage = '100', limit = null, only = null,
           entry.agent.turn(row.question, {language: 'en', answerLanguage: 'en', languageSource: 'api', formalizer: lm}),
           new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error('turn time limit'), {layer: 'timeout'})), TIMEOUT_MS + 30000)),
         ]);
-        Object.assign(rec, {sop: res.sop, exec_sop: res.executionSop?.slice(0, 4000), text: res.text, ...conclude(res.packet), formalization_ms: res.formalization?.ms, lm: lm.last});
+        Object.assign(rec, {sop: res.sop, exec_sop: res.executionSop?.slice(0, 4000), text: res.text, ...conclude(res.packet), formalization_ms: res.formalization?.ms, lm: lm.last, ...(parser === 'local' ? {} : {parse: lm.parse})});
       } catch (error) {
-        Object.assign(rec, {error: String(error.message).slice(0, 400), error_layer: error.layer ?? (error.modelSop !== undefined ? 'sop_admission' : 'chain'), sop: error.modelSop ?? null, lm: lm.last});
+        Object.assign(rec, {error: String(error.message).slice(0, 400), error_layer: error.layer ?? (error.modelSop !== undefined ? 'sop_admission' : 'chain'), sop: error.modelSop ?? null, lm: lm.last, ...(parser === 'local' ? {} : {parse: lm.parse})});
       }
       if (!(rec.error_layer === 'timeout' || /SymbolicLM|timeout|aborted|fetch failed|ECONNREFUSED|terminated/i.test(rec.error ?? ''))) break;
       const healthy = await waitHealthy(attempt === 1 ? 240000 : 5000);

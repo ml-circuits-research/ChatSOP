@@ -14,13 +14,15 @@ import {normalize, fold, tokens, phraseKey} from './text-keys.mjs';
 export {normalize};
 
 /** Version of the compiled format: part of every cache key and of the serialized form. */
-export const LEXICON_FORMAT = 4;
+export const LEXICON_FORMAT = 5;
 
 const spans = (s, a) => { const out = []; let at = s.indexOf(a); while (at >= 0) { const end = at + a.length, left = at === 0 || !/[\p{L}\p{N}_]/u.test(s[at - 1]), right = end === s.length || !/[\p{L}\p{N}_]/u.test(s[end]); if (left && right) out.push([at, end]); at = s.indexOf(a, at + 1); } return out; };
 const field = (w, key) => w.fields.find(f => f.key === key)?.value.trim();
 const fieldsOf = (w, key) => w.fields.filter(f => f.key === key).map(f => f.value.trim());
 const unquote = s => (s?.startsWith('"') ? JSON.parse(s) : s);
 const langText = value => { const [language, ...rest] = wireTokens(value); return {language, surface: unquote(rest[0] ?? '""')}; };
+
+const preferNamed = list => { const named = list.filter(e => !e.derived); return named.length ? named : list; };
 
 export class Lexicon {
   /** `new Lexicon(text)` compiles one circuit text; `Lexicon.fromCircuits([...])` compiles the layers of a base memory. */
@@ -93,6 +95,12 @@ export class Lexicon {
     const labels = {}, aliases = [];
     for (const key of ['label', 'alias']) for (const value of fieldsOf(w, key)) { const {language, surface} = langText(value); aliases.push({language, surface}); if (key === 'label') labels[language] ??= surface; }
     const entityType = field(w, 'kind') ?? ROOT_CLASS;
+    // Name parts (owner decision 2026-10-01, DS021 "KnowledgeLinker: scoring and ambiguity"): a person is also found by the last word of the English label
+    // ("Einstein" for "Albert Einstein"), as an alias flagged `derived: 'name_part'`; the linker ranks the claimants by notability and asks when several are notable.
+    if (entityType === 'person' && labels.en) {
+      const words = labels.en.trim().split(/\s+/), surname = words.at(-1)?.replace(/[.,]+$/, '');
+      if (words.length >= 2 && surname && surname.length >= 3 && /^\p{Lu}/u.test(surname) && !/^(?:Jr|Sr|II|III|IV)$/i.test(surname) && !aliases.some(a => a.language === 'en' && a.surface === surname)) aliases.push({language: 'en', surface: surname, derived: 'name_part'});
+    }
     this.entities[w.id] = {id: w.id, kind: 'entity', labels, aliases, domain: field(w, 'domain') ?? null, version: this.version, provenance: this.provenance, entityType, notability: field(w, 'notability') === undefined ? null : Number(field(w, 'notability'))};
     if (entityType === CLASS_KIND) this.classes[w.id] = this.entities[w.id];
   }
@@ -140,7 +148,8 @@ export class Lexicon {
 
   /** Entries with the surface; a `type` admits an entity of that class or of any subclass (`classesOf`). */
   matching(surface, {language, kind, type, domain}) {
-    const matches = (index, key) => [...new Map((index.get(key) ?? []).map(i => this.entries[i]).filter(e => (language === 'auto' || e.language === language || e.language === 'und') && e.kind === kind && (!type || e.type === type || (e.kind === 'entity' && this.classesOf(e.id).has(type))) && (!domain || e.domain === domain)).map(e => [e.id, e])).values()];
+    // A name part (`derived: 'name_part'`, the surname of a person) is only a fallback: where an entity carries the surface as a label, id or alias, the name parts are not candidates.
+    const matches = (index, key) => preferNamed([...new Map((index.get(key) ?? []).map(i => this.entries[i]).filter(e => (language === 'auto' || e.language === language || e.language === 'und') && e.kind === kind && (!type || e.type === type || (e.kind === 'entity' && this.classesOf(e.id).has(type))) && (!domain || e.domain === domain)).map(e => [e.id, e])).values()]);
     const exact = matches(this.exact, normalize(surface));
     const result = {found: exact.length ? exact : matches(this.folded, fold(surface)), match: exact.length ? 'exact' : 'accent-folded'};
     // A leading English article is not part of a name unless the memory's own label carries it ("the United Kingdom" for the label "United Kingdom"): tried only after the whole surface found nothing.

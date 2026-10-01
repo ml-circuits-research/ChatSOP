@@ -148,7 +148,7 @@ export class Runtime{
       if(this.policy.reinforce!==false&&this.repo&&this.session&&!output.hypothetical&&output.proof?.length){const used=output.proof.filter(f=>f.kind==='observed'&&f.source!=='assumption'&&f.evidence?.metadataVerified&&!f.evidence?.local);if(used.length){const rr=this.repo.reinforce(this.session,used,{usedAt:this.now});if(rr.some(x=>x.reinforced))output.reinforcement={facts:rr.filter(x=>x.reinforced).length,strength:this.session.live.retention().useStrength};}}
       break;
      }
-     case 'cnl':{const packet=val(one(w,'result'));assert(packets.has(packet),'cnl requires a runtime-produced result, not a fabricated value');output=cnl(packet,one(w,'language','en'));break;}
+     case 'cnl':{const packet=val(one(w,'result'));assert(packets.has(packet),'cnl requires a runtime-produced result, not a fabricated value');output=cnl(packet,one(w,'language','en'),{lexicon:this.lexicon});break;}
      case 'pragmatic':{const span=w.fields.span?unquote(one(w,'span')):null;output={status:'pragmatic',advisory:true,kind:one(w,'kind'),score:Number(one(w,'score')),span,source:one(w,'source'),basis:one(w,'basis'),near:w.fields.near?one(w,'near').slice(1):null};break;}
      case 'clarify':output={status:'clarify',text:unquote(one(w,'text')),complete:false};break;
      case 'jsEval':output=evaluateExpression(parseExpression(one(w,'expr')),{refs:values,maxOps:this.policy.maxExprOps,maxBytes:this.policy.maxExprBytes}).value;break;

@@ -12,10 +12,11 @@ import {askMemory} from '../../../reasoning/slice/index.mjs';
 
 const args = process.argv.slice(2);
 const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : d; };
-const rows = fs.readFileSync(opt('--in'), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l));
-const s = openSession({base: 'world-v1', id: 'qf-gold'});
+const rows = fs.readFileSync(opt('--in'), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).filter(r => !opt('--forms') || opt('--forms').split(',').includes(r.form));
+const SID = 'qf-gold-' + process.pid;
+const s = openSession({base: 'world-v1', id: SID});
 const entry = s.store.get('qf', 'gold', 'main');
-const theory = s.theories.get([...s.sessions.baseCircuits('qf-gold'), ...s.sessions.circuits('qf-gold')]);
+const theory = s.theories.get([...s.sessions.baseCircuits(SID), ...s.sessions.circuits(SID)]);
 const norm = v => (typeof v === 'number' ? v : String(v).toLowerCase());
 const sameSet = (a, b) => a.length === b.length && a.every(x => b.includes(x));
 
@@ -25,15 +26,17 @@ const kept = [], rejected = [];
 for (const row of rows) {
   let out;
   try {
-    const packet = askMemory({theory, repo: s.sessions.repository('qf-gold'), session: entry.agent.session, query: row.kb_query, reasoning: 'auto', verify: 'auto', limits: LIMITS, budget: {timeoutMs: 120000}});
-    const definite = ['supported', 'refuted'].includes(packet.status) && packet.complete !== false;
+    const packet = askMemory({theory, repo: s.sessions.repository(SID), session: entry.agent.session, query: row.kb_query, reasoning: 'auto', verify: 'auto', limits: LIMITS, budget: {timeoutMs: 120000}});
+    const definite = ['supported', 'refuted'].includes(packet.status) && packet.complete !== false && packet.retrieval?.complete !== false;
     let gold;
-    if (packet.kind === 'exists' || (packet.query?.mode === 'exists')) gold = packet.status === 'supported';
-    else if (packet.kind === 'count') gold = packet.count;
-    else gold = (packet.answers ?? []).map(a => Object.values(a.binding ?? a)[0]).map(norm);
+    const mode = /^\s*mode\s+(\w+)/m.exec(row.kb_query)?.[1] ?? 'select';
+    if (mode === 'exists') gold = packet.status === 'supported';
+    else if (mode === 'count') gold = packet.count;
+    else gold = (packet.rows ?? []).map(r => Object.values(r)[0]).map(norm);
     out = {definite, status: packet.status, complete: packet.complete, gold};
   } catch (error) { out = {error: String(error.message).slice(0, 200)}; }
-  const expected = Array.isArray(row.expected) ? row.expected.map(norm) : row.expected;
+  // a single value expected from a select query (an age) is a one-element answer
+  const expected = Array.isArray(row.expected) ? row.expected.map(norm) : Array.isArray(out.gold) ? [norm(row.expected)] : row.expected;
   const agree = out.definite && (Array.isArray(out.gold) ? Array.isArray(expected) && sameSet(out.gold, expected) : out.gold === expected);
   (agree ? kept : rejected).push({...row, oracle: out});
 }

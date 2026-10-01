@@ -18,6 +18,10 @@ export const UNCLEAR_KINDS = Object.freeze({
   ambiguous: {
     en: 'Your message can be read in more than one way. Which do you mean?',
   },
+  // Written only by a request parser that knows the memory's vocabulary (codingAgentQuery, DS031): the question is clear, but no relation of the memory expresses it.
+  relation_not_in_memory: {
+    en: 'The memory of this chat has no relation that expresses this question. Could you ask it in other words, or add the knowledge first?',
+  },
 });
 /** Kinds that carry `reading` lines; every other kind takes none. */
 export const READING_KINDS = Object.freeze(['ambiguous']);

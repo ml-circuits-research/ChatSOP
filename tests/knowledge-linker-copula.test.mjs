@@ -47,7 +47,7 @@ async function withKnowledge(body, lexicon = LEXICON, facts = FACTS) {
     await body(run);
   } finally { c.dispose(); }
 }
-const rows = r => [...r.result.text.matchAll(/ANSWER \?\w+ = "([^"]*)"/g)].map(m => m[1]).sort();
+const rows = r => (r.result.packet.answers ?? []).flatMap(a => Object.values(a.binding)).sort();
 const status = r => r.result.packet.status;
 const reading = r => r.result.packet.copula_readings?.[0];
 

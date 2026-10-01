@@ -1,3 +1,25 @@
+# E2E chat fixes: natural answers, Romanian budget, names, conversation entities (2026-10-01, e2e-fix-agent)
+
+Fixes by principle for the findings of `eval/reports/current/e2e-chat/`. No training, no GPU, no port 9999, no commit.
+
+- **Rendering.** `sop/answer-text.mjs` (used by `cnl`): wh answers with labels, counts with `at least`, Yes/No/I do not know, a short justification with origin labels (stated in this conversation / assumed / definition / memory), derived facts with their rule; deterministic, the packet is unchanged. DS021 "Answer rendering".
+- **Romanian answers.** `lib/translator-service/answer.mjs` translates per line and sentence (two parallel calls, total budget 20 s, Wikidata ids masked); past the budget the English answer is returned with `budget_exhausted` flagged, never a 504.
+- **Romanian names.** `protect(text, {names: false})` on the input edge and in the translator-llm backend: only quotations, URLs, e-mails, identifiers and numbers are masked, the translator sees "Franței", "Parisului", "lui Einstein".
+- **Trace.** `chatSop` carries `retrieval`, `route`, `reasoning_strategy`; the trace panel shows them.
+- **KnowledgeLinker.** Conversation entities `local_<name>` (a user-introduced name beats an alias namesake, never merged; `via: conversation`, `shadowed`); person name parts (`derived: name_part`) in the lexicon build (`LEXICON_FORMAT` 5).
+- **Server.** `warmMemories` default and shipped config: `default`, `world-v1`.
+- **Tests.** `tests/answer-text.test.mjs`, `tests/answer-translation.test.mjs`, `tests/conversation-entities.test.mjs`; `clause-links`, `knowledge-linker-copula`, `english-only-core`, `warm-memories` adapted.
+
+# Request parsers: codingAgentQuery (default) and localQuery (2026-10-01, coding-agent-query-agent)
+
+Owner decision of 2026-10-01 (focus on circuits and sound reasoning on large data; the LLM proposal is verified symbolically). No training, no port 9999, no commit.
+
+- **Parser interface.** `parser` = `coding_agent` (default) or `local`: request field of `POST /v1/chat/completions` and `POST /v1/sessions/{id}/query` (now also `message`, a natural-language request), session setting `parser`, `queryParser.default` in `config/runtime.json`; chat page Settings tab; `parse: {parser, requested, model, backend, rounds, cost_usd, ms, cache, fallback, ...}` in the packet and in `chatSop` (`server/query-parser.mjs`, `server/http.mjs`, `server/product.mjs`).
+- **codingAgentQuery.** `lib/query-author/` (context builder, validate-and-repair loop, backends `omp` and `completion`), skill `skills/coding-agent-query/`. Retrieval instead of a dump: 24 candidate predicates plus a core set and entity hints, predicates written by id; validator codes `unknown_predicate`, `undeclared_role`, `entity_id_not_listed`, `class_mismatch`. The full predicate list is only a file. Default model `openai-codex/gpt-6-luna` through the fenced omp run.
+- **Honesty.** New `unclear` kind `relation_not_in_memory` (reply table, DS021, wire help) with a gitignored gap log; fallback to localQuery with the reason; a failing or abstaining local retried with the coding agent; `sop/linking.mjs` binds a relation equal to a predicate id.
+- **Evaluation.** `eval-query-parsers-v1` (`status/preregistrations/`), harness `tools/eval/query-parsers.mjs`, `tools/eval/kbqa.mjs run --parser`.
+- **Tests.** `tests/query-author.test.mjs`, `tests/query-parser.test.mjs`; the stub omp writes `query.sop` for a query task; `tests/product-helpers.mjs` runs the product server with `queryParser.default: local`.
+
 # English-only core: language at the edges (2026-10-01, english-core-agent)
 
 Owner decision of 2026-10-01 ("traducem mereu în engleză și dacă e nevoie din engleză în altă limbă răspunsul"); it supersedes D1 of 2026-09-29. No training, no GPU, no port 9999, no commit.

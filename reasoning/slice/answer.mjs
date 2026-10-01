@@ -5,7 +5,7 @@
  */
 import {judge} from './guard.mjs';
 
-export const MAX_WIDENING_STEPS = 6;
+export const MAX_WIDENING_STEPS = 10;
 
 /** The packet field R-P5 asks for, plus what the slice was and why it is or is not complete. */
 export function retrievalReport(memory, trail, verdict) {

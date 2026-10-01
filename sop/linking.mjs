@@ -33,6 +33,8 @@ export function linkRelation(text, used, lexicon, {exact = true, relations = def
   // The relation lexicon (reviewed phrase -> predicate entries) adds only predicates the memory in use declares.
   const listed = (relations?.predicatesFor(phrase => phraseKey(phrase) === key) ?? []).map(id => lexicon?.predicates?.[id]).filter(Boolean);
   let named = [...new Map([...declared, ...listed].map(predicate => [predicate.id, predicate])).values()], via = 'lexicon';
+  // A phrase that is exactly a predicate id of the memory names that predicate (a producer that knows the vocabulary, such as the coding agent, writes ids; DS031): an alias of another predicate that happens to read the same cannot make it ambiguous.
+  if (typeof text === 'string' && /^[a-z][a-z0-9_]*$/.test(text) && Object.hasOwn(lexicon?.predicates ?? {}, text)) named = [lexicon.predicates[text]];
   // A query may fall back to the head verb alone ("work for" for "work at"); a stated proposition never does (DS021 "KnowledgeLinker: scoring and ambiguity").
   if (!named.length && headVerb && mode.headVerb && !exact && lexicon?.predicatesByKey) { named = headVerbPredicates(lexicon, text); via = 'headVerb'; }
   if (!named.length) return {status: 'unknown', text};

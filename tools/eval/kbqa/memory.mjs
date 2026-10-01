@@ -70,7 +70,15 @@ function valueText(t) {
 }
 
 /** The slice -> circuits [{name, text}] and a statistics object. */
-export function sliceToCircuits(slice, {authored = null} = {}) {
+/**
+ * The gradable adjectives of the Wikidata quantity properties (variant `qf`, experiment eval-query-forms-v1): "the largest country", "the most
+ * populous city", "which is taller" ask for the highest value of a quantity. This is general knowledge of the property, authored once from the
+ * property ids and labels (never from a benchmark question): the rules of SymbolicLM write the adjective as a relation phrase with a value,
+ * and this lexeme says which property it measures (the same declaration as config/knowledge/core-en/0200-measures.sop for the product).
+ */
+export const GRADABLE = Object.freeze({P1082: ['be populous'], P2046: ['be large', 'be big'], P2048: ['be tall', 'be high'], P2043: ['be long'], P2044: ['be high'], P2067: ['be heavy'], P2049: ['be wide'], P2234: ['be big'], P2073: ['be far'], P1129: []});
+
+export function sliceToCircuits(slice, {authored = null, gradable = false} = {}) {
   const stats = {unlabelled_items_dropped: 0, facts_dropped_unlabelled: 0, forms_dropped_shared: 0, items: 0, labelled: 0, predicates: 0, facts: 0, skipped_unlabelled_item_predicates: 0};
   const classes = new Set(slice.triples.filter(t => t.p === 'P31').map(t => t.o));
   const itemIds = new Set();
@@ -125,6 +133,10 @@ export function sliceToCircuits(slice, {authored = null} = {}) {
         n.variants.push({name, orientation});
         stats.predicates++;
       }
+    }
+    if (gradable && type === 'value' && GRADABLE[pid]?.length) {
+      const forms = claim(new Set(GRADABLE[pid]));
+      if (forms.length) decls.push(`@lx_${n.direct}_gradable lexeme\n  of ${n.direct}\n  language en\n  pos copula\n${forms.map(f => `  form ${quote(f)}\n`).join('')}  frame subject object\n  source "authored: the gradable adjective of a Wikidata quantity property (tools/eval/kbqa/memory.mjs GRADABLE)"\n`);
     }
     stats.predicates += 2;
   }
@@ -194,8 +206,9 @@ export async function buildMemory(suite, {stage = '100', variant = '', log = con
   const t0 = Date.now();
   const slice = await loadSlice(suite, stage, {log});
   let authored = null;
-  if (variant === 'lex') { const {authorLexicon} = await import('./lexicon.mjs'); authored = await authorLexicon(slice, {log}); }
-  const {circuits, stats} = sliceToCircuits(slice, {authored});
+  // `lex`: the authored property phrases; `lexqf`: the same plus the gradable adjectives of the quantity properties (eval-query-forms-v1)
+  if (variant === 'lex' || variant === 'lexqf') { const {authorLexicon} = await import('./lexicon.mjs'); authored = await authorLexicon(slice, {log}); }
+  const {circuits, stats} = sliceToCircuits(slice, {authored, gradable: variant === 'lexqf'});
   const {memories} = openData();
   const id = memoryId(suite, stage, variant);
   if (memories.list().some(m => m.id === id)) memories.delete(id);

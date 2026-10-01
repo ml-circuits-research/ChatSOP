@@ -1,4 +1,4 @@
-// Measure and chain question forms (rules v2.9, lib/ud-to-sop/measure-forms.mjs) and their runtime: superlatives, ordinals, comparative
+// Measure and chain question forms (UD rules, lib/ud-to-sop/measure-forms.mjs) and their runtime: superlatives, ordinals, comparative
 // choices, age at death and nested descriptions, on recorded Stanza parses (tests/fixtures/query-forms/measure-parses.json); the
 // `rank ... position N | top N` fields of the query wire (parser, oracle); the class compatibility of nested queries; the carried
 // computation of a rule in the chat turn. Every program is also checked by the model-surface admission.
@@ -35,6 +35,14 @@ const FORMS = [
   ['Which country has the smallest area in Africa?', SUPERLATIVE('have an area of', 'country', 'Africa', 'lowest')],
   ['Which is bigger, Canada or Brazil?', `@q query | select ?x | rank highest ?v | where match | relation "be big" | role subject ?x | role object ?v | polarity affirmed | end | compare any | ?x equal "Canada" | ?x equal "Brazil" | end`],
   ['Who was born first, Einstein or Newton?', `@q query | select ?x | rank lowest ?v | where match | relation "be born" | role subject ?x | role time ?v | polarity affirmed | end | compare any | ?x equal "Einstein" | ?x equal "Newton" | end`],
+  ['Is Tokyo more populous than Seoul?', `@q query | mode exists | where all | ${block('be populous', 'role object ?a', 'role subject "Tokyo"')} | ${block('be populous', 'role object ?b', 'role subject "Seoul"')} | end | compare ?a above ?b`],
+  ['Is Russia larger in area than Canada?', `@q query | mode exists | where all | ${block('have an area of', 'role object ?a', 'role subject "Russia"')} | ${block('have an area of', 'role object ?b', 'role subject "Canada"')} | end | compare ?a above ?b`],
+  ['Does Japan have more people than Germany?', `@q query | mode exists | where all | ${block('have people', 'role object ?a', 'role subject "Japan"')} | ${block('have people', 'role object ?b', 'role subject "Germany"')} | end | compare ?a above ?b`],
+  ['Does Indonesia exceed Pakistan in population?', `@q query | mode exists | where all | ${block('have a population of', 'role object ?a', 'role subject "Indonesia"')} | ${block('have a population of', 'role object ?b', 'role subject "Pakistan"')} | end | compare ?a above ?b`],
+  ['Which has the greater area, Colombia or Venezuela?', `@q query | select ?x | rank highest ?v | where match | relation "have an area of" | role subject ?x | role object ?v | polarity affirmed | end | compare any | ?x equal "Colombia" | ?x equal "Venezuela" | end`],
+  ['Between Egypt and Turkey, which has more inhabitants?', `@q query | select ?x | rank highest ?v | where match | relation "have inhabitants" | role subject ?x | role object ?v | polarity affirmed | end | compare any | ?x equal "Egypt" | ?x equal "Turkey" | end`],
+  ['Which country has more residents, Italy or Portugal?', `@q query | select ?x | rank highest ?v | where all | ${block('have residents', 'role subject ?x', 'role object ?v')} | ${block('be a', 'role subject ?x', 'role object "country"')} | end | compare any | ?x equal "Italy" | ?x equal "Portugal" | end`],
+  ['How many years did Isaac Newton live?', `@q query | select ?years | where match | relation "live for" | role subject "Isaac Newton" | role object ?years | polarity affirmed | end`],
   ['How old was Marie Curie when she died?', `@q query | select ?age | where match | relation "die at the age of" | role subject "Marie Curie" | role object ?age | polarity affirmed | end`],
   ['At what age did Isaac Newton die?', `@q query | select ?age | where match | relation "die at the age of" | role subject "Isaac Newton" | role object ?age | polarity affirmed | end`],
   ['Where was the director of Inception born?', `@q query | select ?x | where match | relation "be the director of" | role subject ?x | role object "Inception" | polarity affirmed | end | @q2 query | select ?place | where match | relation "be born in" | role subject $q | role location ?place | polarity affirmed | end`],
@@ -42,14 +50,19 @@ const FORMS = [
 ];
 
 for (const [message, expected] of FORMS) {
-  test(`rules v2.9: ${message}`, async () => {
+  test(`UD rules: ${message}`, async () => {
     const out = await run(message);
     assert.equal(compact(out.sop), expected);
     assert.doesNotThrow(() => checkModelProgram(parse(out.sop)));
   });
 }
 
-test('rules v2.9: a question with no variable, or a name that is not a named thing, is not nested or ranked', async () => {
+test('UD rules: a modal comparative keeps the generic path and its words', async () => {
+  const out = await run('would Jessica be older than Otieno Kariuki, in your view?');
+  assert.match(out.sop, /would be old in/);
+});
+
+test('UD rules: a question with no variable, or a name that is not a named thing, is not nested or ranked', async () => {
   // all arguments are given: one fact, the noun phrase stays one value (convention C9)
   const fact = await run("Is Lin the author of The Clockmaker's Daughter?");
   assert.doesNotMatch(fact.sop, /\$q/);

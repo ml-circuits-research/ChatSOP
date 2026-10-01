@@ -66,6 +66,10 @@ Reference date: 2026-09-27. Direction: [AGENTS.md](AGENTS.md). Delivered work wi
 
 **Current verification:** run `node tools/verify.mjs` (with `Z3_BIN`/`SWIPL_BIN` for the optional solvers); the latest observed result, its fingerprint and per-job logs are in `eval/reports/current/verification.json`, and delivered runs are recorded in `PAS_TASK.md`. Earlier figures (359, 394, 455, 468, 481, 487) belong to the historical delivery record. These checks are symbolic: they do not measure a model, human review or training qualification.
 
+
+- [ ] **LanguageProofingLLM typo mangling (secondary, e2e-fix-agent 2026-10-01).** "wher was albert einstien borned" became "Where was Albert's birth?" and "is paris in eruope" became "is Paris in orbit" (2 of 4 bad-English turns of `eval/reports/current/e2e-chat/`); the chat preview lets the user refuse them. Secondary per the owner's focus decision (circuits and sound reasoning) and the freeze of the tiny-model branch; not worked on.
+- [ ] **A user-stated unknown name** ("Alice works at Acme.") still asks "Which entity do you mean": a name the memory does not know at all is an entity question by design (DS021). Revisit only if the owner wants unknown names to become conversation entities.
+
 ## 1. Blocked in this environment — prerequisites, not preferences
 
 - [ ] **External generator qualification (P1.9).** No external generator endpoint or credentials are available, so no paraphrase supplier can be qualified or costed; nothing was invented. Unblocked by documented generator access.

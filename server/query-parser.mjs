@@ -15,11 +15,14 @@
  */
 import {createHash} from 'node:crypto';
 import {parse as parseSop} from '../sop/parser.mjs';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import {authorQuery, backendFrom} from '../lib/query-author/index.mjs';
 
 export const PARSERS = Object.freeze(['coding_agent', 'local']);
 export const DEFAULT_QUERY_PARSER = Object.freeze({
-  default: 'coding_agent', backend: {kind: 'omp', model: 'openai-codex/gpt-6-luna'}, timeoutSeconds: 120, maxFixRounds: 2, maxConcurrent: 4, cacheEntries: 500, fallbackOnLocalAbstain: true, keepFolders: false,
+  default: 'coding_agent', mode: 'id', candidates: 24, indexMax: 300, backend: {kind: 'omp', model: 'openai-codex/gpt-6-luna'}, timeoutSeconds: 120, maxFixRounds: 2, maxConcurrent: 4, cacheEntries: 500, fallbackOnLocalAbstain: true, fallbackToLocal: true, keepFolders: false,
 });
 
 export function queryParserSettings(config = {}) {
@@ -80,17 +83,23 @@ export function createQueryParser({settings = DEFAULT_QUERY_PARSER, ompConfig = 
     running++;
     let result;
     try {
-      const folder = chatData ? chatData.tmpFolder('qp') : null;
-      result = await authorQuery({message, lexicon, backend: backend(), folder, maxFixRounds: settings.maxFixRounds, onProgress});
-      if (folder && !settings.keepFolders) { try { (await import('node:fs')).rmSync(folder, {recursive: true, force: true}); } catch { /* the cleanup policy removes it */ } }
+      const folder = settings.backend.kind !== 'omp' ? null : chatData ? chatData.tmpFolder('qp') : fs.mkdtempSync(path.join(os.tmpdir(), 'chatsop-qp-'));
+      result = await authorQuery({message, lexicon, backend: backend(), folder, maxFixRounds: settings.maxFixRounds, mode: settings.mode, k: settings.candidates, indexMax: settings.indexMax, onProgress});
+      if (folder && !settings.keepFolders) { try { fs.rmSync(folder, {recursive: true, force: true}); } catch { /* the cleanup policy removes it */ } }
     } finally { running--; }
     const out = {ok: result.ok, status: result.status, sop: result.sop, reason: result.reason ?? (result.ok ? null : `the coding agent's query was invalid: ${(result.validation?.problems ?? []).map(p => p.code).join(', ') || 'no output'}`),
-      unclear: result.unclear, rounds: result.rounds, cost_usd: result.usage.cost_usd, usage: result.usage, model: result.model, backend: result.backend, unlinked: result.unlinked, context_version: result.context_version, cache: 'miss', ms: now() - started};
+      unclear: result.unclear, rounds: result.rounds, cost_usd: result.usage.cost_usd, usage: result.usage, model: result.model, backend: result.backend, unlinked: result.unlinked, context_version: result.context_version, mode: result.mode, retrieval: {predicates: result.retrieval?.predicates?.length ?? 0, entity_mentions: result.retrieval?.entities?.length ?? 0}, closest: result.closest, cache: 'miss', ms: now() - started};
     if (result.ok) cache.set(key, out);
+    if (result.ok && result.unclear === 'relation_not_in_memory') logGap({message, memory: memoryKey, closest: result.closest, model: result.model});
     return out;
   }
 
   const record = (parser, extra) => ({parser, ...extra});
+  /** A gap of the memory (a clear question no predicate expresses): material for core-en growth through the approved authoring path. Gitignored (chat_data/). */
+  function logGap(entry) {
+    if (!chatData?.root) return;
+    try { fs.appendFileSync(path.join(chatData.root, 'query-gaps.jsonl'), JSON.stringify({ts: new Date(now()).toISOString(), ...entry}) + '\n'); } catch { /* a log never fails a turn */ }
+  }
 
   /**
    * Parses one message. `local: async () => sop` is the localQuery path (it sets its own side effects, for example the understanding of the
@@ -100,7 +109,7 @@ export function createQueryParser({settings = DEFAULT_QUERY_PARSER, ompConfig = 
     stats.requests++;
     const choice = checkParser(parser) ?? settings.default;
     const model = settings.backend.model ?? null;
-    const agentFields = r => ({model: r.model ?? model, backend: r.backend ?? settings.backend.kind, rounds: r.rounds ?? 0, cost_usd: r.cost_usd ?? 0, ms: r.ms ?? 0, cache: r.cache ?? 'miss', ...(r.unlinked?.length ? {unlinked: r.unlinked} : {}), ...(r.context_version ? {guide: r.context_version} : {})});
+    const agentFields = r => ({model: r.model ?? model, backend: r.backend ?? settings.backend.kind, rounds: r.rounds ?? 0, cost_usd: r.cost_usd ?? 0, ms: r.ms ?? 0, cache: r.cache ?? 'miss', ...(r.unlinked?.length ? {unlinked: r.unlinked} : {}), ...(r.context_version ? {guide: r.context_version} : {}), ...(r.mode ? {mode: r.mode, retrieval: r.retrieval} : {}), ...(r.closest ? {closest: r.closest} : {})});
     const viaLocal = async (fallback, requested) => {
       const t = now();
       const sop = await local();
@@ -115,6 +124,8 @@ export function createQueryParser({settings = DEFAULT_QUERY_PARSER, ompConfig = 
       }
       stats.fallbacks++;
       const reason = r.ok ? 'not_a_query: the coding agent found no request in the message' : r.reason;
+      // Measurement mode (`fallbackToLocal: false`): a failed coding agent is an error that carries its record, never a silent local answer.
+      if (settings.fallbackToLocal === false) throw Object.assign(new Error(`codingAgentQuery failed: ${reason}`), {code: 'parser_failed', parse: record('coding_agent', {requested: choice, ...agentFields(r), fallback: null, failed: reason})});
       const out = await viaLocal({to: 'local', from: 'coding_agent', reason, status: r.status ?? 'invalid'}, choice);
       out.parse.agent = {...agentFields(r), status: r.status};
       return out;

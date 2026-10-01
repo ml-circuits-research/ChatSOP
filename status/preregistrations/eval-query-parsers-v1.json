@@ -1,0 +1,39 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-query-parsers-v1",
+  "name": "Request parsers: localQuery (SymbolicLM + KnowledgeLinker) against codingAgentQuery (omp coding agent writing query wires from the memory vocabulary), same shared symbolic path",
+  "registered_at": "2026-10-01T19:30:00Z",
+  "registered_by": "coding-agent-query-agent (owner decision of 2026-10-01: codingAgentQuery is the default parser; localQuery stays)",
+  "spec": "docs/specs/DS010-experiment-preregistration.md#registered-experiments",
+  "kind": "evaluation-only (no training); codingAgentQuery uses the subscription model openai-codex/gpt-6-luna through omp (nominal list-price cost reported); localQuery uses the private SymbolicLM service",
+  "frozen_before_results": "Written before the first full comparison run. The harness (tools/eval/query-parsers.mjs), the prompt (skills/coding-agent-query, lib/query-author) and the validator were fixed at the commit that registers this file; a change of prompt, retrieval or validator after the first scored run is recorded as a deviation with the tag of the rerun. Prompt development used 5 questions of the world30 set for smoke only.",
+  "system_under_test": {
+    "shared_path": "Agent turn (server/agent.mjs): admission, KnowledgeLinker, slice retrieval, StrategyRouter, oracle verification, completeness guard, rendering. Only the parser differs.",
+    "localQuery": "SymbolicLM service (message only) -> model-surface SOP",
+    "codingAgentQuery": "lib/query-author: retrieval of 24 candidate predicates (+ core set) and entity hints from the session's lexicon, predicate ids in the query, validator + at most 2 repair rounds (omp -c), no fallback to local in the measurement (a failed agent is counted `parser_failed`)",
+    "memory": "base memory world-v1 (English-only core), each question in its own conversation on a fresh session clone, reads do not reinforce"
+  },
+  "suites": {
+    "world30": "eval/world-kb/questions.json, 30 questions; the six Romanian ones are asked in English (the input edge is not under test)",
+    "forms": "the dev set of query forms with gold circuits (tools/eval/query-forms/, query-surface-agent; gold = oracle answer on world-v1 that agrees with the model's own expectation), measured after it is published",
+    "kbqa": "one staged measurement through node tools/eval/kbqa.mjs run --parser, sealed suites measured once, never tuned on"
+  },
+  "hypotheses": {
+    "H1": "On world30 and the forms dev set codingAgentQuery is more accurate than localQuery (paired bootstrap 95% interval of the difference above 0).",
+    "H2": "The wrong-answer rate of codingAgentQuery is not higher than that of localQuery by more than 3 points: wrong answers are caught by the symbolic validation and the oracle, failures are honest unknowns.",
+    "H3": "codingAgentQuery costs under 0.01 USD (nominal) and a median parse time under 30 s per question; localQuery is faster by an order of magnitude.",
+    "H4": "Recall of the gold predicate in the 24 retrieved candidates is at least 90% on the forms dev set."
+  },
+  "metrics": {
+    "primary": "accuracy = correct / n; outcomes are exclusive: correct, wrong (a definite answer that differs from the gold), honest_unknown (unknown, clarify, incomplete, unclear), parser_failed, error",
+    "secondary": ["wrong rate", "honest-unknown rate", "median and p90 parse time", "median turn time", "cost per question", "rounds of repair", "predicate recall of the retrieval", "fallback reasons"],
+    "intervals": "Wilson 95% for proportions; paired bootstrap (4000 resamples) for the difference over shared questions"
+  },
+  "stopping_rules": {
+    "stages": "world30 whole (30), forms in stages 100 then all, kbqa stage 100 then 300",
+    "broken": "stop and report if more than 20% of the first 100 rows of a stage end in parser_failed or error",
+    "futility": "stop a suite when the upper 95% bound of the accuracy difference (coding agent minus local) after a stage is below 0 by more than 3 points",
+    "record": "every stop is recorded with stage, numbers and reason in the journal, the topic notes, the experiment record"
+  },
+  "conditions": "Local SymbolicLM on the private port 19411; omp with openai-codex/gpt-6-luna, three questions in parallel for the coding agent (latency is therefore measured under that load; a serial latency sample is reported separately)."
+}

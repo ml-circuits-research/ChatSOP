@@ -4,7 +4,7 @@
  * `config/server-models.json` holds the editable lifecycle settings; the API `GET|POST /v1/server/models` and the chat's
  * Settings, "Server models" section read and change them at runtime, and every change is written back to the file.
  *
- *   {"maxRunning": 6, "idleMinutes": 60, "memoryBudgetMb": null, "turnWindowSeconds": 30, "warmup": true, "warmMemories": ["default"],
+ *   {"maxRunning": 6, "idleMinutes": 60, "memoryBudgetMb": null, "turnWindowSeconds": 30, "warmup": true, "warmMemories": ["default", "world-v1"],
  *    "models": {"symbolic-lm": "keep_open", "smollm2-360m-base": "on_demand", "gemma-3-270m-base": "off"}}
  *
  * A model is in exactly one of three modes: `keep_open` (pinned: started at server start in the background, warmed with a probe request,
@@ -29,7 +29,7 @@ export const CHAT_PIPELINE = Object.freeze(['symbolic-lm', 'language-proofing-ll
 /** Room for every pipeline model plus one other model (another model). */
 export const DEFAULT_MAX_RUNNING = CHAT_PIPELINE.length + 1;
 
-export const DEFAULTS = Object.freeze({maxRunning: DEFAULT_MAX_RUNNING, idleMinutes: 60, memoryBudgetMb: null, turnWindowSeconds: 30, warmup: true, warmMemories: Object.freeze(['default'])});
+export const DEFAULTS = Object.freeze({maxRunning: DEFAULT_MAX_RUNNING, idleMinutes: 60, memoryBudgetMb: null, turnWindowSeconds: 30, warmup: true, warmMemories: Object.freeze(['default', 'world-v1'])});
 
 const bad = (message, code = 'invalid_parameter') => Object.assign(new Error(message), {status: 400, code});
 const integer = (value, name, min, max) => {

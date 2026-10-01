@@ -152,12 +152,13 @@ Some names exist on both surfaces with different fields (`fact`, `rule`, `predic
 - `@id policy`: effort partial procedures+ scope+ objective binding
 - `@id stated`: relation* role+ polarity valid certainty speaker
 - `@id query`: where+ select mode scope+ at during overlaps asof trace via+ compare+ order+ rank filter+ measure quantifier except+ limit policy observe horizon
-  (`rank highest|lowest ?v` may end with `position N` or `top N`: the N-th best distinct value, or the N best; a ranking is valid only over a complete view of the facts, DS006 "Completeness under partial retrieval".)
 - `@id test`: of* call* expect* kind timeout source
 - `@id code`: of* language* entry* body* produced_by + governance
 - `@id pack`: items*+
 - governance = version supersedes approval approved_by approved_at retired_at scope quote
 <!-- grammar:end -->
+
+(`rank highest|lowest ?v` may end with `position N` or `top N`: the N-th best distinct value, or the N best; a ranking is valid only over a complete view of the facts, DS006 "Completeness under partial retrieval".)
 
 The same table with the status and the purpose of each wire is printed by `node eval/smoke-reasoning/validator.mjs --grammar`; `--grammar-compact` prints the lines above, and `tests/knowledge-grammar.test.mjs` fails when the block above differs from the generated one. `pack` is host plumbing and is never written by an author or by the model. The limits `maxWires` and the like belong to the author surface: a retrieved slice reaches an engine as a structured object, not as text.
 

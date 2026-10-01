@@ -29,7 +29,7 @@ export async function productServer(t, {config = {}, serverOptions = {}} = {}) {
   const registry = loadRegistry(registryFile, {root});
   const manager = new ModelManager({registry, logDir: null});
   t.after(() => manager.stopAll());
-  const server = createServer({config: {memory: runtime.memory, policy: {allowWrite: true}, ...config}, repo, lexicon: lex, auth, chatData, formalizers: {registry, manager}, ...serverOptions});
+  const server = createServer({config: {memory: runtime.memory, policy: {allowWrite: true}, queryParser: {default: 'local'}, ...config}, repo, lexicon: lex, auth, chatData, formalizers: {registry, manager}, ...serverOptions});
   const base = await listen(t, server);
   const call = httpClient(base);
   const setup = await call('/admin/setup', {method: 'POST', body: {password: PASSWORD}});

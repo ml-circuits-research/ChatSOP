@@ -7,7 +7,8 @@
   "turnWindowSeconds": 30,
   "warmup": true,
   "warmMemories": [
-    "default"
+    "default",
+    "world-v1"
   ],
   "models": {
     "symbolic-lm": "keep_open",

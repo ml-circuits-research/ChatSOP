@@ -1,11 +1,14 @@
 import {emitAtom} from './parser.mjs';
 import {emitCondition} from '../lib/conditions.mjs';
 import {formatTime} from '../lib/time.mjs';
+import {renderAnswer} from './answer-text.mjs';
 const messages={
  en:{not_computable:'The question is understood, but the host cannot compute this answer from the values it has.',hypotheses:'Possible explanations; assumptions are not confirmed.',candidates:'Candidates for exploration, not proven facts.',patterns:'Candidate regularities measured on supplied cases.',mappings:'Candidate correspondences between structures; the transfer is not confirmed.',budget_exhausted:'The search was stopped by a limit (see the reason); this is not a negative answer.',not_expressible:'The problem cannot be expressed by the reasoning engine.',plan_found:'A plan was found in the action model; it has not been executed.',no_plan:'No plan was found in the explored finite state space.',optimal:'Optimal solution in the declared model and domains.',feasible_bound:'A feasible solution was found; optimality is unproven.',mixed_temporal:'The claim and its negation are supported in different, non-overlapping intervals.',supported:'The available evidence supports the claim.',refuted:'Explicit evidence supports the negated claim.',both:'Both the claim and its explicit negation have supporting evidence.',unknown:'The available information does not decide the question.',entailed:'The claim holds in every model of the constraints.',possible:'At least one model satisfies the claim.',impossible:'No model of the stated conditions satisfies the claim.',inconsistent:'The stated conditions are inconsistent; no arbitrary conclusion is accepted.',unsupported:'The available backend cannot execute this operation.',stored:'The assertions have been recorded.',incomplete:'Search is incomplete; more answers may exist.',hypothetical:'This result depends on the stated assumptions.'}
 };
 /** The English rendering of a result packet. Other answer languages are produced by translating this text at the output edge (lib/translator-service/answer.mjs, DS021 "English-only core"); `language` is accepted and ignored. */
-export function cnl(packet){
+export function cnl(packet,_language,{lexicon=null}={}){
+ // A query result is written as a natural answer from the packet (sop/answer-text.mjs); the packet keeps the structured form.
+ const natural=renderAnswer(packet,{lexicon});if(natural!==null)return {kind:'cnl',language:'en',text:natural,packet};
  const m=messages.en,lines=[];if(packet.hypothetical)lines.push(m.hypothetical);
  lines.push(packet.status==='clarify'?packet.text:(m[packet.status==='approximate'?(packet.patterns?'patterns':packet.mappings?'mappings':'candidates'):packet.status]??packet.status));
  if(packet.status==='budget_exhausted'&&packet.reason)lines.push('REASON '+packet.reason);

@@ -62,7 +62,7 @@ export function score(row, rec) {
 
 const NO_QUERY = /@\w+\s+(unparsed|unclear)\b/;
 function attribute(row, rec, slice) {
-  if (rec.error) return rec.error_layer === 'sop_admission' ? 'symbolic_lm.admission' : rec.error_layer === 'timeout' ? 'symbolic_lm.timeout' : /SymbolicLM/.test(rec.error) ? 'symbolic_lm.service' : 'chain.error';
+  if (rec.error) return rec.error_layer === 'parser_failed' ? 'parser.failed' : rec.error_layer === 'sop_admission' ? 'symbolic_lm.admission' : rec.error_layer === 'timeout' ? 'symbolic_lm.timeout' : /SymbolicLM/.test(rec.error) ? 'symbolic_lm.service' : 'chain.error';
   const sop = rec.sop ?? '';
   if (NO_QUERY.test(sop)) return /@\w+\s+unclear/.test(sop) ? 'symbolic_lm.unclear' : (/@\w+\s+query\b/.test(sop) ? 'symbolic_lm.partly_unparsed' : 'symbolic_lm.unparsed');
   if (!/@\w+\s+query\b/.test(sop)) return 'symbolic_lm.no_query';

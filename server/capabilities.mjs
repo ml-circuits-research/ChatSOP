@@ -150,7 +150,7 @@ export function createCapabilities({registry = null, manager = null, timeoutMs =
     try { language = gateCleaning(original).language; } catch (error) { throw failure('backend_unavailable', 'The language of the message could not be identified: ' + String(error.message).slice(0, 160)); }
     if (language === 'en') return {text: original, original, translated: false, language, backend: null, masked: false, fallback: null};
     const unavailable = reason => failure('backend_unavailable', `The message is not English (${language}); the translation to English is unavailable, so it is not sent to SymbolicLM: ${reason}`);
-    const masked = protect(original);
+    const masked = protect(original, {names: false}); // the translator sees the names (inflected Romanian names are not English name runs)
     const attempts = masked.slots.length ? [{input: masked.text, slots: masked.slots}, {input: original, slots: null}] : [{input: original, slots: null}];
     let lastReason = 'no translator backend answered';
     for (const attempt of attempts) {

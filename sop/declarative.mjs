@@ -284,7 +284,14 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
    score:score??(SCORES.lexicon-(match==='exact'?0:15)),...(by?{decided_by:by}:{}),...(alternatives?.length?{scored_alternatives:alternatives.map(({id,score:s})=>({id,score:s}))}:{})};
   if(!linking.some(x=>x.wire===wire&&x.kind==='entity'&&x.surface===entry.surface&&x.symbol===entry.symbol))linking.push(entry);
  };
- const normalizeAtom=(text,{resolve=true,wire=null}={})=>{
+ // Entities the user introduced (owner decision 2026-10-01, DS021 "Conversation entities"): a name in a user statement that no label or id of the memory
+ // carries (it matches nothing, or only an alias or a name part such as "Maria" or "Einstein") names a conversation entity `local_<name>`, never a memory
+ // namesake. The same name in a later question refers to it while the conversation carries a statement about it. A memory entity with that exact label wins.
+ const foldKey=value=>String(value).normalize('NFD').replace(/\p{M}/gu,'').toLowerCase().replace(/\s+/g,' ').trim();
+ const localSymbol=surface=>'local_'+foldKey(surface).replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+ const carriedLocals=new Set(statementsIn.flatMap(s=>(s.atom?.a??[]).filter(t=>typeof t==='string'&&/^local_[a-z0-9_]+$/.test(t))));
+ const labelled=(entry,surface)=>{const e=lexicon.entities[entry.id];return entry.id===surface||Boolean(e)&&Object.values(e.labels??{}).some(l=>foldKey(l)===foldKey(surface))||foldKey(entry.id.replace(/_/g,' '))===foldKey(surface);};
+ const normalizeAtom=(text,{resolve=true,wire=null,introduce=false}={})=>{
   const a=parseAtom(text);
   if(lexicon)for(let i=0;i<a.a.length;i++){
    let term=a.a[i];const original=term;const type=(schema??lexicon.predicates)?.[a.p]?.args?.[i];
@@ -307,6 +314,16 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
     const loose=lexicon.matching(term,{language:'auto',kind:'entity'});
     const subclass=loose.found.filter(e=>lexicon.classesOf(e.id).has(type));
     if(subclass.length)any={found:subclass,match:loose.match};
+   }
+   if(resolve){
+    const symbol=localSymbol(original);
+    // The memory's entities of that name regardless of the role's class: a label or id means the memory entity (an ill-typed role is asked about, as before);
+    // only an alias or name part makes the name a namesake. A name the memory does not know at all stays an entity question, unless the conversation introduced it.
+    const named=any.found.length?any.found:lexicon.matching(term,{language:'auto',kind:'entity'}).found;
+    if(symbol!=='local_'&&!named.some(e=>labelled(e,original))&&(carriedLocals.has(symbol)||introduce&&named.length&&named.every(e=>lexicon.entities[e.id]?.notability!=null))){
+     if(!linking.some(x=>x.wire===wire&&x.kind==='entity'&&x.surface===original&&x.symbol===symbol))linking.push({wire,kind:'entity',surface:original,symbol,via:'conversation',match:'local',class:null,score:SCORES.lexicon,...(any.found.length?{shadowed:any.found.map(e=>e.id).slice(0,5)}:{})});
+     a.a[i]=symbol;continue;
+    }
    }
    if(scoredLinker.scored&&any.found.length>1){
     const chosen=chooseEntity(lexicon,any.found,{type,match:any.match});
@@ -340,7 +357,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
  }
  const evidenceIds=[],suppositionIds=[],assumptionFactIds=[],byId=new Map([...statements,...assumptions].map(p=>[p.id,p]));
  // `unless $s` scopes the negation of the clause: the supposition lowered for that query is the negated atom.
- const fact=(w,source)=>{const l=links.get(w.id),atomText=plan.negated.has(w.id)?toggleNegation(l.atomText):l.atomText;return node(w.id,'fact',{holds:[normalizeAtom(atomText,{wire:w.id})],valid:[l.validity.text],source:[source]});};
+ const fact=(w,source)=>{const l=links.get(w.id),atomText=plan.negated.has(w.id)?toggleNegation(l.atomText):l.atomText;return node(w.id,'fact',{holds:[normalizeAtom(atomText,{wire:w.id,introduce:w.type==='stated'})],valid:[l.validity.text],source:[source]});};
  const linkedQueries=new Set();
  for(const w of work){
   if(skipped.has(w.id))continue;

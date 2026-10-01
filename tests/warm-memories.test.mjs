@@ -23,8 +23,8 @@ test('warmMemories decodes the named base memories read-only and skips a missing
   assert.deepEqual(warmMemories({memories: bm, ids: []}), []);
 });
 
-test('the server-models setting warmMemories defaults to the default base memory and is validated', () => {
-  assert.deepEqual([...DEFAULTS.warmMemories], ['default']);
+test('the server-models setting warmMemories defaults to the default and world-v1 base memories and is validated', () => {
+  assert.deepEqual([...DEFAULTS.warmMemories], ['default', 'world-v1']);
   const known = new Set();
   assert.deepEqual(normalizeSettings({warmMemories: ['default', 'world-v1', 'default']}, known).warmMemories, ['default', 'world-v1']);
   assert.deepEqual(normalizeSettings({warmMemories: []}, known).warmMemories, []);

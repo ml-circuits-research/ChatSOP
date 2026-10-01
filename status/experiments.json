@@ -5287,7 +5287,7 @@
       "hypothesis": "A quantized Qwen3-4B (or a 14-32B Qwen3) writes query circuits through lib/query-author within 5 pp of gpt-6-luna in executed-correct on world-v1.",
       "preregistration": "status/preregistrations/eval-query-model-calibration-v1.json",
       "data_version": "query-forms dev set (tools/eval/query-forms) + eval/world-kb/questions.json on world-v1",
-      "status": "registered",
+      "status": "preregistered",
       "results": {
         "as_of": "2026-10-01",
         "pending": [
@@ -5300,6 +5300,18 @@
       },
       "deviations": [],
       "note": "No training. Reports in eval/reports/current/query-model-calibration/."
+    },
+    {
+      "id": "eval-query-parsers-v1",
+      "hypothesis": "codingAgentQuery (omp, predicate ids from retrieved candidates) answers more of the same questions than localQuery through the shared symbolic path, with a wrong rate no higher, at a cost of seconds and fractions of a cent per question.",
+      "preregistration": "status/preregistrations/eval-query-parsers-v1.json",
+      "data_version": "eval/world-kb/questions.json (30) + query-forms dev set + one kbqa stage; base memory world-v1",
+      "status": "running",
+      "results": {
+        "as_of": "2026-10-01",
+        "report": "eval/reports/current/query-parsers/report.md"
+      },
+      "note": "Harness: node tools/eval/query-parsers.mjs run|report; kbqa via node tools/eval/kbqa.mjs run --parser."
     }
   ]
 }

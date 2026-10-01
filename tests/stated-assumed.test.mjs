@@ -248,7 +248,7 @@ test('lifecycle: asserted statements are carried in caller context; assumptions 
 });
 
 test('unclear: the kinds a context-free model can recognise, replies from one table', async () => {
-  assert.deepEqual(Object.keys(UNCLEAR_KINDS), ['gibberish', 'no_request', 'ambiguous']);
+  assert.deepEqual(Object.keys(UNCLEAR_KINDS), ['gibberish', 'no_request', 'ambiguous', 'relation_not_in_memory']);
   for (const kind of ['gibberish', 'no_request']) {
     const out = await runtime().run(`@u unclear\n  kind ${kind}`, {origin: 'model'});
     assert.equal(out.result.packet.status, 'unclear');

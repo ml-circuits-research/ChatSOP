@@ -56,7 +56,7 @@ test('input edge: a Romanian message reaches SymbolicLM only as English, names k
   assert.deepEqual(symbolicInputs(), ['EN: Maria lucrează la Alfa.'], 'the Romanian original never reaches the service; the stub translator prefixes the sentence and the names are restored');
   assert.deepEqual(
     [analyzed.body.input_translation.original, analyzed.body.input_translation.english, analyzed.body.input_translation.backend, analyzed.body.input_translation.masked],
-    ['Maria lucrează la Alfa.', 'EN: Maria lucrează la Alfa.', 'translator-llm', true]);
+    ['Maria lucrează la Alfa.', 'EN: Maria lucrează la Alfa.', 'translator-llm', false], 'the translator sees the names (only numbers, quotations, identifiers and URLs are masked on input), so nothing was masked here');
   const understood = await request('POST', '/v1/understand', {message: 'Cine lucreaza la echipa Delta?'});
   assert.equal(understood.body.input_translation.language !== 'en', true);
   assert.ok(symbolicInputs().every(message => message.startsWith('EN: ')), symbolicInputs().join(' | '));
