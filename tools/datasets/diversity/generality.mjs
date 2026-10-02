@@ -1,6 +1,6 @@
 /**
  * Generality probe (experiment eval-generality-v1, AGENTS.md direction 7 levels b and c).
- * Level b: question forms held out from every development set, the CodingAgent author guide, examples and tests
+ * Level b: question forms held out from every development set, the author guide, examples and tests
  * (checked by tools/eval/generality/heldout-check.mjs). Level c: compositions of two or three known classes.
  * Every case is a small generated memory with its gold answer computed here by construction (plain JavaScript),
  * then checked against the reference oracle and the product path on the memory plus a reviewed gold circuit.
@@ -63,7 +63,7 @@ function memberBase(d, r, groupName, members, others = []) {
   return f;
 }
 const memberPred = (d, closed = true) => pred(d.member, 'subject:entity object:entity', {closed, label: d.memberText.replace(/^is a /, '').replace(/^/, ''), description: `A person (subject) ${d.memberText} (object, a ${d.group}).${closed ? ' The membership list is complete.' : ''}`});
-/** The reviewed model-surface circuit (the CodingAgent's language): replayed without a model to separate language from authoring. */
+/** The reviewed model-surface circuit (the circuit language of the formalizer): replayed without a model to separate language from authoring. */
 const L = s => JSON.stringify(s);
 const M = (rel, roles, polarity = 'affirmed') => ['match', `  relation ${L(rel)}`, ...Object.entries(roles).map(([k, v]) => `  role ${k} ${v}`), `  polarity ${polarity}`, 'end'];
 function S({mode = null, select = null, blocks, tail = [], head = '', link = []}) {

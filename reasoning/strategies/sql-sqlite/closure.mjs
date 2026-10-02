@@ -210,7 +210,7 @@ export class Closure {
     const fi = agg.field ? rv.indexOf(agg.field) : -1;
     const nat = fi >= 0 ? codec.native(`r.v${fi}`) : null;
     const isInt = nat ? `typeof(${nat}) = 'integer' AND abs(${nat}) <= ${SAFE}` : null;
-    const fnExpr = agg.fn === 'count' ? 'COUNT(*)' : `${agg.fn.toUpperCase()}(${nat})`;
+    const fnExpr = agg.fn === 'count' ? (agg.scaleCount ? `(COUNT(*) * ${agg.scaleCount})` : 'COUNT(*)') : `${agg.fn.toUpperCase()}(${nat})`;
     const filter = agg.fn === 'count' ? '' : `WHERE ${isInt}`;
     const groupBy = g.length ? `GROUP BY ${g.map(c => `r.${c}`).join(', ')}` : '';
     const outer = `SELECT ${g.map((c, i) => `r.${c} AS g${i}`).join(', ')}${g.length ? ', ' : ''}${codec.store(fnExpr)} AS o FROM (${inner}) AS r ${filter} ${groupBy} HAVING COUNT(*) > 0`;

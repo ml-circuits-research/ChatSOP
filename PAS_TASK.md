@@ -2,6 +2,23 @@
 
 
 
+
+## Natural chat: conversation layer, self layer, near misses, behaviour layer (2026-10-02, conversation-agent)
+
+Delivered: the `reply` wire and the conversation layer `config/knowledge/conversation-v1` (all chat phrasing as data, chosen by the JS oracle with its derivation in the trace), `lib/near-miss.mjs`, the self layer `config/knowledge/assistant-v1` with generated memory statistics (world-v1 rebuilt), `order random` sampling, the step-by-step kinds `self` and `instruction`, natural phrasing through the proxy, the behaviour layer (instruction wire, standing instructions as user-origin wires, drives, time facts), the "knowledge files · SOP wires" wording. DS004, DS009, DS014, DS022, DS023, README, runtime, api, wiki, wire pages, architecture page.
+
+## Common-sense layer commonsense-v1 (2026-10-02, commonsense-agent)
+
+Delivered `config/knowledge/commonsense-v1` (WordNet classes, ConceptNet CC BY 4.0 typical relations, authored rules for classes, time, family, geography, units), imported by world-v1, the chat's default base; world-v1 reloaded in `chat_data/`. Commands: `node tools/commonsense/build.mjs`, `node tools/commonsense/check.mjs --world`, `node tools/world-kb/load.mjs --with-core-en`, `QF_CHAT_ROOT=… node tools/commonsense/{integrity,gold-check,replay}.mjs`, `node tools/eval/query-parsers.mjs run --suite forms --rows eval/commonsense/questions.jsonl --model "llmapiprovider/Qwen3.8 27b"`. Results: author level 17/32 correct with the layer vs 7/32 without, 0 wrong in both; gold circuits 28/30 vs 13/30; world30 replay unchanged (24/30).
+
+## Document ingestion and procedure library (2026-10-02, ingestion-agent)
+
+Delivered: `lib/ingest/`, `lib/query-author/procedures.mjs`, ingestion and procedure endpoints, `tools/ingest-documents.mjs`, `tools/eval/ingest-v1.mjs`, DS022/DS009/DS011 sections, README/runtime/api docs, `tests/document-ingestion.test.mjs`. Experiment eval-ingest-v1 (stopped): direct reading GLM 5.3 35/36 correct, Qwen3.8 27b 32/36 (4 wrong); pipeline 0/7 on Europa (entity linking gap, fix written); fact precision 60/60 on hand samples, rules 10/12. Sources: `datasets_sources/ingest-v1/` (NASA public domain; synthetic handbook).
+
+## InternalReasoningStepByStep (2026-10-02, ir-agent, eval-internal-reasoning-stepbystep-v1)
+
+Delivered P0-P3: the protocol memory `config/knowledge/formalizer-protocol-v1` (questions as actions, slots, defaults, integrity, goal), the strategy `lib/formalize/internal-reasoning/` planned by the JS oracle per question, lint and replay tools, tests, DS022 section, runtime page. Measured on 89 rows with Qwen3-4B: within 2 rows of method B after generic fixes (43 vs 45), fewer questions, explained traces; planner = greedy in accuracy. Not done: the authoring skill (P4), the GLM arm (z.ai limit), books items.
+
 ## Generality beyond known forms (2026-10-02, generality-agent, eval-generality-v1)
 
 Delivered: level b (10 held-out forms x5, phrasings absent from guide, prompt, dev sets, examples and tests), level c (5 compositions x5, 20 Haiku-written natural questions, the 5 real chat failures), arms CodingAgent zai/glm-5.3, Qwen3.8-27B free SOP, zero-model replay, GLM reading evidence; eight generic defect fixes (engine yes/no refutation, aggregate definitions, closure inference, supposition mentions, wh-answer guard, omp output handling, statements and conversation entities, possessives and sentence-initial names) and two world-kb mapping fixes (rebuild pending).

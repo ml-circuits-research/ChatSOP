@@ -156,18 +156,20 @@ function stratify(rules, aggregates) {
   }
   const recursive = new Set();
   for (const e of edges) if (compOf.get(e.from) === compOf.get(e.to)) recursive.add(compOf.get(e.to));
+  // Arithmetic inside a recursion (path lengths, critical paths: DS004 "Exact arithmetic") is allowed: on a finite acyclic relation,
+  // or with a `compare` bound in the rule, the closure is finite; otherwise the round budget stops it (`budget_exhausted`, never a
+  // wrong answer). The stratum is marked so the router asks for an engine that declares `compute_in_recursion`.
+  const arithmetic = new Set();
   for (const r of rules) {
     if (!r.alts.some(a => a.leaves.some(l => l.kind === 'compute'))) continue;
     const c = compOf.get(r.head.p);
-    if (r.alts.some(a => a.leaves.some(l => l.kind === 'atom' && compOf.get(l.p) === c))) {
-      throw new ProgramError('compute_in_cycle', `rule ${r.id} computes inside a recursive cycle`, r.id);
-    }
+    if (r.alts.some(a => a.leaves.some(l => l.kind === 'atom' && compOf.get(l.p) === c))) arithmetic.add(c);
   }
   const strata = [];
   sccs.forEach((comp, i) => {
     const preds = new Set(comp);
     const rs = rules.filter(r => preds.has(r.head.p)), ag = aggregates.filter(a => preds.has(a.yields.p));
-    if (rs.length || ag.length) strata.push({preds, rules: rs, aggregates: ag, recursive: recursive.has(i)});
+    if (rs.length || ag.length) strata.push({preds, rules: rs, aggregates: ag, recursive: recursive.has(i), ...(arithmetic.has(i) ? {arithmetic: true} : {})});
   });
   return {strata, edges};
 }
@@ -187,7 +189,7 @@ export function compileProgram(wires, {origin = new Map()} = {}) {
 
   for (const w of wires) {
     switch (w.type) {
-      case 'predicate': case 'lexeme': case 'entity': case 'pack': case 'policy': case 'query': case 'constraint': case 'stated': break;
+      case 'predicate': case 'lexeme': case 'entity': case 'reply': case 'pack': case 'policy': case 'query': case 'constraint': case 'stated': break;
       case 'fact': {
         const a = readAtom(f1(w, 'holds'), w.id, {allowNeg: true, ground: true});
         checkArity(predicates, a, w.id);

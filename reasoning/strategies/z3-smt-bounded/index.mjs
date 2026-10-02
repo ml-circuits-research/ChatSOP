@@ -19,7 +19,7 @@ import {NotExpressibleError} from '../js-reference/values.mjs';
 
 export const FEATURES = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'conjunction', 'exists', 'every', 'count',
   'zero_arity', 'naf', 'closed_world', 'closed_derived', 'compute_in_rules', 'compare_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary',
-  'integrity', 'versions', 'whatif', 'epistemic_status', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'used',
+  'integrity', 'versions', 'whatif', 'epistemic_status', 'exact_arithmetic', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'used',
   'constraint', 'optimize', 'plan', 'abduce', 'why_not', 'norms_hard', 'norms_soft', 'temporal_norms', 'blocked_info', 'abduce_waive', 'binding_advisory', 'norm_conflict'];
 
 /** Declared unsupported (a circuit that needs one is `not_expressible`, never weakened). */
@@ -33,6 +33,7 @@ export const capabilities = {
   delivery: 'slice',
   limits: {max_wires: 2000, max_arity: 6, integer_range: [-(2 ** 53), 2 ** 53 - 1]},
   guarantee: 'bounded',
+  exact: {kind: 'rational'},
   provides: [],
   budgetKeys: ['timeoutMs', 'maxDepth', 'maxHypotheses', 'maxCandidates'],
   determinism: 'deterministic',

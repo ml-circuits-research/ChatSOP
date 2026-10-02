@@ -60,7 +60,7 @@
   when age ?p ?a
   when compare ?a at_least 65
   when compute ?d ?a minus 60
-  when compute ?e ?d divided_by 5
+  when compute ?e ?d whole_divided_by 5
   when compute ?f 20 minus ?e
   then fare ?p ?f
 

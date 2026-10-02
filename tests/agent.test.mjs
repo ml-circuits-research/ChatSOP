@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Agent} from '../server/agent.mjs';
-import {context, lex} from './helpers.mjs';
+import {context, lex, assertReply} from './helpers.mjs';
 import {Lexicon} from '../sop/lexicon.mjs';
 
 /** A scripted formalizer (the injection point of Agent.turn): answers the replies in order and records every message it receives. */
@@ -48,7 +48,7 @@ test('the model sees only the message; the host exposes a separate execution cir
 });
 
 test('model-authored operations and documentary provenance never run', async t => {
-  const declarativeOnly = /Model output must be declarative: stated, assumed, unclear, query, constraint, unparsed or pragmatic/;
+  const declarativeOnly = /Model output must be declarative: stated, assumed, unclear, query, constraint, unparsed, pragmatic or instruction/;
   const forbidden = [
     ['@p fact\n  holds works_at maria lab_alpha\n  valid timeless', declarativeOnly],
     [worksAsk('Maria') + '@s remember\n  input $q', declarativeOnly],
@@ -160,10 +160,11 @@ test('unclear is the only wire; the reply is English', async t => {
   const english = await agent.turn('asdf qwer zxcv', turn);
   assert.equal(english.packet.status, 'unclear');
   assert.equal(english.unclear, 'gibberish');
-  assert.equal(english.cnl, 'I did not understand the message. Could you rephrase?');
+  await assertReply(english.cnl, 'gibberish');
   assert.equal(english.executionSop, '');
   const none = await agent.turn('ok then', turn);
-  assert.equal(none.englishText, 'What would you like to know?');
+  assert.match(none.packet.reply.body.situation, /^no_request/);
+  await assertReply(none.englishText, none.packet.reply.body.situation);
   assert.equal(none.answerLanguage, 'en');
   await assert.rejects(() => agent.turn('asdf', turn), /unclear_not_alone/);
   assert.equal(m.requests.length, 3);

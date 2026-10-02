@@ -3,4 +3,4 @@
  * DS004); this module keeps the lexical exports the oracle's modules and the other strategies import.
  */
 export {COMPARATORS, ARITHMETIC, ORDER_WORDS, ROLE_NAMES, LINK_KEYWORDS, MAX_ARITY, STEP_BLOCKS} from '../../../sop/knowledge/grammar.mjs';
-export {ID, VAR, SYMBOL, INTEGER, REF, DATE, tokens, termError, parse, atomFrom, parseCondition, leaves} from '../../../sop/knowledge/lexical.mjs';
+export {ID, VAR, SYMBOL, INTEGER, NUMBER, REF, DATE, tokens, termError, parse, atomFrom, parseCondition, leaves} from '../../../sop/knowledge/lexical.mjs';

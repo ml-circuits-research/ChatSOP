@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * Judge runs of the linking suite parts 2 and 3 (linking proposal 6.1; skills/omp-run/SKILL.md). Every run is a fenced omp folder
- * (TASK.md, input/, empty output/) on a subscription model; the output is validated here and kept only when it is complete.
+ * Judge runs of the linking suite parts 2 and 3 (linking proposal 6.1). Every run is a task folder
+ * (TASK.md, input/, output/) sent as one direct model call through the proxy (no omp); the output is validated here and kept only when it is complete.
  *
- *   node tools/linking/judge/run.mjs author  --seeds FILE [--model xai-oauth/grok-4.5] [--batch 30] [--part 2]
+ *   node tools/linking/judge/run.mjs author  --seeds FILE [--model openference/Qwen3.8 27b] [--batch 30] [--part 2]
  *       an authoring judge writes one natural question per seed (part 2), or ambiguous/clear questions for part 3 (--part 3)
  *   node tools/linking/judge/run.mjs label   --questions FILE --tag NAME --model PROVIDER/ID [--batch 25] [--jobs 2]
  *       a labelling judge, who never sees the author's intended labels, links each question to the vocabulary of world-v1 + core-en
@@ -12,8 +12,8 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
+import {providerChat, parseEntry} from '../../../lib/llm-providers.mjs';
 import {openVocabularyLexicon, vocabularyFor, ROOT} from './memory.mjs';
 
 const args = process.argv.slice(3);
@@ -75,15 +75,15 @@ function validate(kind, result, indices) {
   return null;
 }
 
-function omp(folder, model, maxSeconds = 1500) {
-  return new Promise(resolve => {
-    const child = spawn('omp', ['-p', '--cwd', folder, '--session-dir', path.join(folder, '.omp-session'), '--mode', 'json', '--no-extensions', '--no-skills', '--no-rules', '--no-lsp', '--no-title',
-      '--tools', 'read,write,edit', '--approval-mode', 'yolo', '--max-time', String(maxSeconds), '--model', model, '@TASK.md', 'Read TASK.md and follow it.'],
-    {cwd: folder, stdio: ['ignore', fs.openSync(path.join(folder, 'omp-output.jsonl'), 'w'), 'ignore']});
-    const kill = setTimeout(() => child.kill('SIGKILL'), (maxSeconds + 60) * 1000);
-    child.on('exit', code => { clearTimeout(kill); resolve(code); });
-    child.on('error', () => { clearTimeout(kill); resolve(-1); });
-  });
+/** One direct call through the proxy (no omp): TASK.md and the input files in one message; the JSON array of the reply becomes output/result.json. Returns 0 on success. */
+async function askModel(folder, model, maxSeconds = 1500) {
+  const entry = parseEntry(model);
+  const parts = ['TASK.md', ...fs.readdirSync(path.join(folder, 'input')).map(f => `input/${f}`)].map(f => `=== ${f} ===\n${fs.readFileSync(path.join(folder, f), 'utf8')}`);
+  const r = await providerChat({prompt: `Follow TASK.md. Reply with the content of output/result.json only (a JSON array, no explanation).\n\n${parts.join('\n\n')}`, provider: entry.provider, model: entry.model, timeoutMs: maxSeconds * 1000, maxTokens: 16000});
+  if (!r.ok) return -1;
+  const text = r.text.replace(/^```[a-z]*\n?/im, '').replace(/```\s*$/m, '').trim();
+  fs.writeFileSync(path.join(folder, 'output', 'result.json'), text.slice(Math.max(0, text.indexOf('[')), text.lastIndexOf(']') + 1));
+  return 0;
 }
 
 async function runBatches({name, model, batches, taskOf, kind, inputsOf, jobs}) {
@@ -98,7 +98,7 @@ async function runBatches({name, model, batches, taskOf, kind, inputsOf, jobs}) 
         fs.mkdirSync(path.join(folder, 'input'), {recursive: true}); fs.mkdirSync(path.join(folder, 'output'));
         fs.writeFileSync(path.join(folder, 'TASK.md'), taskOf(batches[b].length));
         for (const [file, data] of Object.entries(inputsOf(batches[b]))) fs.writeFileSync(path.join(folder, 'input', file), JSON.stringify(data, null, 1));
-        const code = await omp(folder, model);
+        const code = await askModel(folder, model);
         let problem = 'no output';
         try { const r = JSON.parse(fs.readFileSync(path.join(folder, 'output/result.json'), 'utf8')); problem = validate(kind, r, indices); if (!problem) { results[b] = r; break; } } catch (e) { problem = String(e.message).slice(0, 80); }
         console.error(`${name} batch ${b} attempt ${attempt}: exit ${code}, ${problem}`);
@@ -112,7 +112,7 @@ async function runBatches({name, model, batches, taskOf, kind, inputsOf, jobs}) 
 
 const cmd = process.argv[2];
 if (cmd === 'author') {
-  const part = Number(opt('--part', 2)), model = opt('--model', 'xai-oauth/grok-4.5'), size = Number(opt('--batch', 30));
+  const part = Number(opt('--part', 2)), model = opt('--model', 'openference/Qwen3.8 27b'), size = Number(opt('--batch', 30));
   const seeds = read(opt('--seeds')).map((s, i) => ({i, ...s}));
   // About one in five questions of part 2 is Romanian (core-en has Romanian lexemes); the language is fixed by index.
   const withLanguage = seeds.map(s => ({...s, language: part === 2 ? (s.i % 5 === 4 ? 'ro' : 'en') : 'en'}));

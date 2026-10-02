@@ -39,7 +39,7 @@ d4 --> d, d, d, d.
 d2 --> d, d.
 d --> [C], { code_type(C, digit) }.
 
-ordinal(V, X) :- integer(V), !, X = V.
+ordinal(V, X) :- rational(V), !, X = V.
 ordinal(beginning, X) :- !, X is -inf.
 ordinal(open, X) :- !, X is inf.
 ordinal(V, X) :- date_text(V), parse_time(V, iso_8601, S), X is S * 1000.
@@ -56,16 +56,26 @@ rt_order(before, A, B) :- ordinal(A, X), ordinal(B, Y), X < Y.
 rt_order(after, A, B) :- ordinal(A, X), ordinal(B, Y), X > Y.
 rt_order(same_time, A, B) :- ordinal(A, X), ordinal(B, Y), X =:= Y.
 
-% compute: integers only, safe range, division truncating toward zero; anything else makes the body false and is noted
+% compute (DS004 "Exact arithmetic"): integers and exact rationals (decimals are read as rationals, 0.1 is 1r10), never floats. Division is
+% rdiv, so 1 divided_by 3 is the rational 1r3 and 0.1 plus 0.2 is exactly 3r10. whole_divided_by and modulo take integers (truncating
+% division, the remainder has the sign of the dividend); power takes an integer exponent 0..64; rounded_to is half away from zero.
+% A zero divisor, a non-number, an unsafe magnitude or an exponent out of range makes the body false and is noted.
 rt_compute(W, A, B, R) :-
-    (   integer(A), integer(B), rt_arith(W, A, B, R0), safe_int(R0)
+    (   rational(A), rational(B), rt_arith(W, A, B, R0), rt_safe(R0)
     ->  R = R0
     ;   note(arithmetic_undefined), fail
     ).
 rt_arith(plus, A, B, R) :- R is A + B.
 rt_arith(minus, A, B, R) :- R is A - B.
 rt_arith(times, A, B, R) :- R is A * B.
-rt_arith(divided_by, A, B, R) :- B =\= 0, R is truncate(A / B).
+rt_arith(divided_by, A, B, R) :- B =\= 0, R is A rdiv B.
+rt_arith(whole_divided_by, A, B, R) :- integer(A), integer(B), B =\= 0, R is truncate(A rdiv B).
+rt_arith(modulo, A, B, R) :- integer(A), integer(B), B =\= 0, R is A rem B.
+rt_arith(power, A, B, R) :- integer(B), B >= 0, B =< 64, R is A ^ B.
+rt_arith(rounded_to, A, B, R) :- B > 0, R is round(A rdiv B) * B.
+rt_arith(rounded_up_to, A, B, R) :- B > 0, R is ceiling(A rdiv B) * B.
+rt_arith(rounded_down_to, A, B, R) :- B > 0, R is floor(A rdiv B) * B.
+rt_safe(R) :- rational(R), R =< 9007199254740991, R >= -9007199254740991.
 safe_int(R) :- integer(R), R =< 9007199254740991, R >= -9007199254740991.
 
 % ------------------------------------------------------------------------------------------------ aggregates
@@ -82,20 +92,21 @@ rt_agg_fn(count, _, Members, N) :- !, length(Members, N).
 rt_agg_fn(collect, F, Members, S) :- !, findall(V, (member(M, Members), nth0(F, M, V)), Vs0), sort(Vs0, Vs1), predsort(rt_order_value, Vs1, Vs), rt_json_list(Vs, S).
 rt_agg_fn(Fn, F, Members, R) :-
     findall(V, (member(M, Members), nth0(F, M, V)), Vs),
-    include(integer, Vs, Ints),
+    include(rational, Vs, Ints),
     (   Ints \== Vs -> note(aggregate_non_integer_ignored) ; true ),
     Ints \== [],
     (   Fn == sum -> sum_list(Ints, R)
     ;   Fn == min -> min_list(Ints, R)
     ;   Fn == max -> max_list(Ints, R)
     ),
-    safe_int(R).
+    rt_safe(R).
 
 % collect orders numbers numerically and anything else by its text (a deliberate copy of the JavaScript rule of the oracle)
-rt_order_value(O, A, B) :- integer(A), integer(B), !, compare(O, A, B).
+rt_order_value(O, A, B) :- rational(A), rational(B), !, compare(O, A, B).
 rt_order_value(O, A, B) :- atom_string(A, SA), atom_string(B, SB), compare(O0, SA, SB), ( O0 == (=) -> compare(O, A, B) ; O = O0 ).
 rt_json_list(Vs, S) :- maplist(rt_json_item, Vs, Is), atomic_list_concat(Is, ',', Body), atomic_list_concat(['[', Body, ']'], S).
 rt_json_item(V, T) :- integer(V), !, T = V.
+rt_json_item(V, T) :- rational(V), !, rt_decimal(V, N), format(atom(T), '~15g', [N]).
 rt_json_item(V, T) :- atom_string(V, S), with_output_to(atom(T), json_write(current_output, S)).
 
 % ------------------------------------------------------------------------------------------------ generic access to the tables
@@ -185,9 +196,21 @@ rt_count_node :-
 % ------------------------------------------------------------------------------------------------ output
 
 rt_val(V, J) :- integer(V), !, J = V.
+rt_val(V, J) :- rational(V), !, rt_decimal(V, J).
 rt_val(V, J) :- atom(V), !, atom_string(V, J).
 rt_val(V, J) :- string(V), !, J = V.
 rt_vals(Vs, Js) :- maplist(rt_val, Vs, Js).
+
+% an exact rational as a JSON number: a terminating decimal is the nearest double of its exact value; a quotient that does not terminate
+% (1r3) is rendered as the oracle does, to 12 significant digits, and said so in the notes
+rt_decimal(V, J) :-
+    rational(V, _, D0),
+    rt_strip(D0, 2, D1), rt_strip(D1, 5, D),
+    X is float(V),
+    (   D =:= 1 -> J = X
+    ;   note(rational_rounded_12_digits), format(atom(A), '~11e', [X]), atom_number(A, J)
+    ).
+rt_strip(D, P, R) :- ( D mod P =:= 0 -> D1 is D // P, rt_strip(D1, P, R) ; R = D ).
 
 rt_lit_json(l(Pol, P, A), _{neg: Neg, p: P, args: Js}) :- ( Pol == neg -> Neg = true ; Neg = false ), rt_vals(A, Js).
 rt_lit_json(absent(P, A), _{absent: _{p: P, args: Js}}) :- rt_vals(A, Js).

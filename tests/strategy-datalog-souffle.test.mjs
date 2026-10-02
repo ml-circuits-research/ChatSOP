@@ -73,7 +73,7 @@ test('aggregates run over the set of distinct bindings: equal salaries both coun
 });
 
 test('arithmetic: integer division truncates toward zero and a zero divisor makes the body false', { skip }, () => {
-  const k = '@f1 fact\n  holds n a -7\n@f2 fact\n  holds n b 0\n@f3 fact\n  holds n c 9\n@r rule\n  when n ?x ?v\n  when compute ?h ?v divided_by 2\n  then half ?x ?h\n@r2 rule\n  when n ?x ?v\n  when compute ?q 100 divided_by ?v\n  then inv ?x ?q\n';
+  const k = '@f1 fact\n  holds n a -7\n@f2 fact\n  holds n b 0\n@f3 fact\n  holds n c 9\n@r rule\n  when n ?x ?v\n  when compute ?h ?v whole_divided_by 2\n  then half ?x ?h\n@r2 rule\n  when n ?x ?v\n  when compute ?q 100 whole_divided_by ?v\n  then inv ?x ?q\n';
   assert.deepEqual(rowsOf(ask(k, sel('half ?x ?h', '?x ?h'))), ['{"x":"a","h":-3}', '{"x":"b","h":0}', '{"x":"c","h":4}']);
   assert.deepEqual(rowsOf(ask(k, sel('inv ?x ?q', '?x ?q'))), ['{"x":"a","q":-14}', '{"x":"c","q":11}']);
 });

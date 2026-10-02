@@ -3,11 +3,11 @@
  * Layout: a left sidebar with three vertical tabs (an icon rail or top bar below 760 px), each a `tabpanel` with arrow-key navigation:
  * *Chat* (session header with the base memory and "New session", the message list that keeps the newest message in view and shows a
  * "new messages" pill when the user has scrolled up, the attach button and a composer that grows to five lines, Enter sends, Shift+Enter
- * adds a line), *Settings* (cards: Formalization, with the strategy selector and the CodingAgent model; Server status) and *Base Memory* (table of base memories with View, Fork, Add knowledge and Start
- * session). Markup is built here, the CSS is `chat/style.mjs`, the product layer (sessions, base memories, the coding agent) is
+ * adds a line), *Settings* (cards: Formalization, with the strategy selector and the LLMDirect model; Server status) and *Base Memory* (table of base memories with View, Fork, Add knowledge and Start
+ * session). Markup is built here, the CSS is `chat/style.mjs`, the product layer (sessions, base memories, knowledge authoring) is
  * `chat-product.mjs`.
  *
- * The message goes to the server as typed, in any language: the request parser (the session's formalization strategy, CodingAgent by
+ * The message goes to the server as typed, in any language: the request parser (the session's formalization strategy, LLMDirect by
  * default) writes the circuit, the runtime validates, links, retrieves, routes, verifies and renders it, and the answer comes back in
  * English with its trace. The trace panel follows the pipeline: formalization (strategy, model, repair rounds), vocabulary (schema
  * neighbourhood, vocabulary dialog), session definitions and assumptions (labelled with their origin), linking, retrieval
@@ -19,7 +19,7 @@
 import {escapeHtml, layout} from './layout.mjs';
 import {SOP_CODE_STYLE, sopCodeScript} from './sop-code.mjs';
 import {CHAT_STYLE} from './chat/style.mjs';
-import {settingsCodingAgentHtml, memoryTabHtml, sessionHeadHtml, productDialogsHtml, attachHtml, chipsHtml, productScript} from './chat-product.mjs';
+import {settingsFormalizerModelHtml, memoryTabHtml, sessionHeadHtml, productDialogsHtml, attachHtml, chipsHtml, productScript} from './chat-product.mjs';
 
 const ICONS = {
   chat: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>',
@@ -37,7 +37,7 @@ let conversations=store.get('chatsop.conversations',['default']);
 let current=store.get('chatsop.current','default');
 if(!conversations.includes(current))conversations.unshift(current);
 let sending=false;
-// While a message is processed (the coding agent writes the circuit, the runtime answers) the composer is blocked and says what is running.
+// While a message is processed (the formalizer writes the circuit, the runtime answers) the composer is blocked and says what is running.
 function setBusy(on,stage){
  sending=on;for(const id of ['input','send','attach']){const e=$(id);if(e)e.disabled=on;}
  $('busy').hidden=!on;if(on)$('busy-text').textContent=stage||'Working\u2026';
@@ -112,12 +112,17 @@ function traceView(c){
   const d=p.vocabulary_dialog;if(d)field(v,'vocabulary dialog',d.rounds?d.rounds+' expansion(s) of at most '+d.max_rounds+': '+d.expansions.map(e=>e.trigger).join(', '):'not needed');}
  // 2b. Pragmatic wires the formalizer wrote (DS023): courtesy and emotion, advisory, never facts.
  if((c.pragmatic||[]).length){const g=section(details,'2b. Courtesy and emotion (pragmatic wires of the formalizer)',true).list;
-  listField(g,'signals',c.pragmatic.map(x=>x.kind+(x.span?' · "'+x.span+'"':'')+' · '+(x.source?x.source+'/':'')+x.basis));
-  const u=c.pragmatic_use;field(g,'tone applied',(u?.applied||[]).join(', ')||(c.status==='courtesy'?'courtesy reply':'none'));}
+  listField(g,'signals',c.pragmatic.map(x=>x.kind+(x.span?' · "'+x.span+'"':'')+' · '+(x.source?x.source+'/':'')+x.basis));}
+ // 2c. The reply chosen by the JS oracle over the conversation layer (DS023 "Conversation layer"): why this reply, what it outranked.
+ if(c.reply){const g=section(details,'2c. Reply (chosen by reasoning over the conversation layer)',true).list;const r=c.reply;
+  for(const part of ['prefix','opening','body','aside','follow_up','closing','suffix'])if(r[part])listField(g,part+': '+r[part].situation+' (priority '+r[part].priority+', '+r[part].variants+' variant'+(r[part].variants===1?'':'s')+(r[part].outranked&&r[part].outranked.length?'; outranked '+r[part].outranked.join(', '):'')+')',r[part].why||[]);
+  if(r.style)field(g,'style',r.style);listField(g,'turn facts',r.facts||[]);field(g,'time',(r.ms??0)+' ms · '+(r.layer||''));
+  if(c.behaviour&&(c.behaviour.instructions||[]).length)listField(g,'your instructions',c.behaviour.instructions.map(i=>i.kind+(i.text?' "'+i.text+'"':'')+' (since turn '+i.since_turn+')'));
+  if(c.near_miss&&c.near_miss.candidates)listField(g,'near names',c.near_miss.candidates.map(x=>x.label+(x.description?' ('+x.description+')':'')+' · distance '+x.distance+' · for "'+x.mention+'"'));}
  // 3. Session definitions and assumptions: labelled with their origin (no manual acceptance).
  const sc=c.session_circuits;
  if(sc||(c.model_assumptions||[]).length||(c.user_statements||[]).length||(c.carried_statements||[]).length){const s=section(details,'3. Session definitions and assumptions',Boolean(sc));
-  if(sc){field(s.list,'definition','defined by the '+(sc.origin==='coding_agent'?'coding agent':sc.origin)+'; '+({added:'added to this session',not_added:'not added: it does not validate with the memory',turn_only:'used for this turn'}[sc.status]||sc.status));sopBlock(s.box,'definition',sc.text);}
+  if(sc){field(s.list,'definition','defined by the '+(sc.origin==='coding_agent'?'formalizer':sc.origin)+'; '+({added:'added to this session',not_added:'not added: it does not validate with the memory',turn_only:'used for this turn'}[sc.status]||sc.status));sopBlock(s.box,'definition',sc.text);}
   field(s.list,'your statements',(c.user_statements||[]).map(x=>x.statement).join(' '));
   if((c.carried_statements||[]).length)field(s.list,'earlier statements',c.carried_statements.map(x=>x.atom).join('; '));
   field(s.list,'assumptions',(c.model_assumptions||[]).map(a=>a.statement+' ['+a.treatment+']').join(' '));
@@ -251,7 +256,7 @@ ${sessionHeadHtml}
 <h2>Settings</h2><p class="lead">Choices are remembered in this browser.</p>
 <section class="card set"><h3>Formalization</h3><p class="help">The request parser writes a circuit from your message; the symbolic runtime validates it, links it to the base memory, retrieves a slice, routes it to an engine, verifies it with the oracle and renders the answer. The parser never answers and never adds a fact.</p>
 ${strategyRow}
-${settingsCodingAgentHtml}
+${settingsFormalizerModelHtml}
 </section>
 <section class="card set"><h3>Server status</h3><p class="help">What this server can run now (<code>GET /v1/status</code>).</p><div class="srow"><div class="what"><b>Status</b><span id="status-when">not read yet</span></div><div class="ctl"><button id="status-refresh" type="button">Refresh</button></div></div><div id="status-box"></div></section>
 </div></section>

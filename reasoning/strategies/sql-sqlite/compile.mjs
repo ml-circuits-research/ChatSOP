@@ -15,13 +15,13 @@
  *
  * Every join statement carries `tick(...)` over its tables, the statement timeout and probe counter of the budget (see session.mjs).
  */
-import {isVarTerm} from '../js-reference/values.mjs';
+import {isVarTerm, NotExpressibleError} from '../js-reference/values.mjs';
 import {DATE} from '../js-reference/wires.mjs';
 import {ProgramError} from '../js-reference/values.mjs';
 import {tbl, storedTbl, quoteId} from './schema.mjs';
 
 const SAFE = '9007199254740991';
-const ARITH = {plus: '+', minus: '-', times: '*', divided_by: '/'};
+const ARITH = {plus: '+', minus: '-', times: '*', whole_divided_by: '/'};
 const ORDER_OPS = {above: '>', below: '<', at_least: '>=', at_most: '<='};
 
 const kindOfLiteral = v => (typeof v === 'number' ? 'int' : DATE.test(v) ? 'any' : 'plain');
@@ -121,13 +121,14 @@ export function compileLeaves(leaves, ctx, {initial = null, tableFor = null} = {
         break;
       }
       case 'compute': {
+        if (!ARITH[l.word]) throw new NotExpressibleError(['exact_arithmetic'], `compute ${l.word} has no lowering in this engine (the fixed-point rewriting of solver-common/fixed-point.mjs expands it before)`);
         const x = term(l.left), y = term(l.right);
         const res = `(${x.nat} ${ARITH[l.word]} ${y.nat})`;
         const defined = [
           ...(x.kind === 'int' ? [] : [`typeof(${x.nat}) = 'integer'`]),
           ...(y.kind === 'int' ? [] : [`typeof(${y.nat}) = 'integer'`]),
-          ...(l.word === 'divided_by' ? [`${y.nat} <> 0`] : []),
-          `typeof(${res}) = 'integer'`, `${res} BETWEEN -${SAFE} AND ${SAFE}`
+          ...(l.word === 'whole_divided_by' ? [`${y.nat} <> 0`] : []),
+          `typeof(${res}) = 'integer'`, ...(l.wide ? [] : [`${res} BETWEEN -${SAFE} AND ${SAFE}`])
         ].join(' AND ');
         b.computeSteps.push({from: [...b.from], where: [...b.where], undef: `NOT (${defined})`});
         b.where.push(defined);

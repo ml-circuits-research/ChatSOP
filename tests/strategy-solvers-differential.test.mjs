@@ -52,7 +52,7 @@ function program(seed, {recursion}) {
       derived.push({name, arity: 1});
     } else if (variant === 'arith') {
       out.push(`@${name} predicate\n  args subject:entity object:integer\n  closed true\n`);
-      rules.push(`@r${k} rule\n  when b2 ?x ?n\n  when compute ?m ?n ${pick(['times', 'plus', 'minus', 'divided_by'])} ${1 + Math.floor(r() * 4)}\n  when compare ?m ${pick(['above', 'at_least', 'below', 'not_equal'])} ${Math.floor(r() * 8)}\n  then ${name} ?x ?m\n`);
+      rules.push(`@r${k} rule\n  when b2 ?x ?n\n  when compute ?m ?n ${pick(['times', 'plus', 'minus', 'whole_divided_by'])} ${1 + Math.floor(r() * 4)}\n  when compare ?m ${pick(['above', 'at_least', 'below', 'not_equal'])} ${Math.floor(r() * 8)}\n  then ${name} ?x ?m\n`);
       derived.push({name, arity: 3});
     } else {
       out.push(`@${name} predicate\n  args subject:entity object:integer\n  closed true\n`);

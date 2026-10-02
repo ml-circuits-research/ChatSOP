@@ -3,11 +3,11 @@
  * grammar of a method (`checkSteps`) and the integer expressions of a constraint.
  */
 import {checkNumericValue} from './numeric-action.mjs';
-import {COMPARATORS, ARITHMETIC, ROLE_NAMES, MAX_ARITY, STEP_BLOCKS, ARG_TYPES, LANGUAGE_CODE} from './grammar.mjs';
+import {COMPARATORS, ARITHMETIC, ROLE_NAMES, MAX_ARITY, STEP_BLOCKS, ARG_TYPES, LANGUAGE_CODE, REPLY_SLOT} from './grammar.mjs';
 
 /** The one language of the knowledge: labels, aliases and lexemes of any other language are rejected (owner decision 2026-10-01). */
 const CORE_LANGUAGE = 'en';
-import {VAR, SYMBOL, INTEGER, REF, DATE, tokens, termError, atomFrom, varsOf, parseCondition} from './lexical.mjs';
+import {VAR, SYMBOL, INTEGER, NUMBER, REF, DATE, tokens, termError, atomFrom, varsOf, parseCondition} from './lexical.mjs';
 
 export function checkValue(spec, f, wire, ctx) {
   const {problems} = ctx;
@@ -38,6 +38,13 @@ export function checkValue(spec, f, wire, ctx) {
       if (!LANGUAGE_CODE.test(v)) push('bad_language', f.key + ' needs a language code of two or three lowercase letters, got "' + v + '"');
       else if (v !== CORE_LANGUAGE) push('non_english_knowledge', f.key + ' ' + v + ': the knowledge is English only (a message in another language is translated at the edges, DS014 "English-only core")');
       break;
+    case 'replytext': {
+      let text = null;
+      try { text = v.startsWith('"') ? JSON.parse(v) : null; } catch { text = null; }
+      if (typeof text !== 'string' || !text.trim()) push('bad_value', f.key + ' needs one JSON-quoted nonempty text');
+      else if (text.replace(REPLY_SLOT, '').includes('{{') || text.replace(REPLY_SLOT, '').includes('}}')) push('bad_reply_slot', f.key + ' has a malformed placeholder; write {{name}} with a lowercase name');
+      break;
+    }
     case 'phrase': {
       let text = null;
       try { text = v.startsWith('"') ? JSON.parse(v) : null; } catch { text = null; }
@@ -229,7 +236,7 @@ function exprError(toks, comparison) {
   for (const side of sides) {
     if (!side.length || side.length % 2 === 0) return 'malformed arithmetic';
     for (let i = 0; i < side.length; i++) {
-      if (i % 2 === 1) { if (!ARITHMETIC.includes(side[i])) return 'expected one of ' + ARITHMETIC.join('|') + ', got ' + side[i]; } else if (!(VAR.test(side[i]) || INTEGER.test(side[i]))) return 'bad operand ' + side[i];
+      if (i % 2 === 1) { if (!ARITHMETIC.includes(side[i])) return 'expected one of ' + ARITHMETIC.join('|') + ', got ' + side[i]; } else if (!(VAR.test(side[i]) || NUMBER.test(side[i]))) return 'bad operand ' + side[i];
     }
   }
   return null;

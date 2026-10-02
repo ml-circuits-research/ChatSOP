@@ -14,7 +14,7 @@ import {normalize, fold, tokens, phraseKey} from './text-keys.mjs';
 export {normalize};
 
 /** Version of the compiled format: part of every cache key and of the serialized form. */
-export const LEXICON_FORMAT = 6;
+export const LEXICON_FORMAT = 7;
 
 const spans = (s, a) => { const out = []; let at = s.indexOf(a); while (at >= 0) { const end = at + a.length, left = at === 0 || !/[\p{L}\p{N}_]/u.test(s[at - 1]), right = end === s.length || !/[\p{L}\p{N}_]/u.test(s[end]); if (left && right) out.push([at, end]); at = s.indexOf(a, at + 1); } return out; };
 const field = (w, key) => w.fields.find(f => f.key === key)?.value.trim();
@@ -22,6 +22,7 @@ const fieldsOf = (w, key) => w.fields.filter(f => f.key === key).map(f => f.valu
 const unquote = s => (s?.startsWith('"') ? JSON.parse(s) : s);
 const langText = value => { const [language, ...rest] = wireTokens(value); return {language, surface: unquote(rest[0] ?? '""')}; };
 
+const UNIT_READINGS = ['unit_amount', 'unit_dimension'];
 const preferNamed = list => { const named = list.filter(e => !e.derived); return named.length ? named : list; };
 
 export class Lexicon {
@@ -30,7 +31,7 @@ export class Lexicon {
     const parts = circuits ?? (source.trim() ? [{name: provenance, text: source}] : []);
     this.entities = {}; this.predicates = {}; this.classes = {}; this.lexemes = [];
     this.entries = []; this.index = new Map(); this.exact = new Map(); this.folded = new Map();
-    this.predicatesByKey = new Map(); this.formsByKey = new Map(); this.isA = new Map(); this.factCounts = new Map();
+    this.predicatesByKey = new Map(); this.formsByKey = new Map(); this.isA = new Map(); this.factCounts = new Map(); this.unitFacts = {};
     this.version = digest(parts.map(c => c.name + '\0' + c.text).join('\0'));
     this.provenance = provenance;
     this.compile(parts);
@@ -112,6 +113,9 @@ export class Lexicon {
     if (p) this.factCounts.set(p, (this.factCounts.get(p) ?? 0) + 1);
     // The memory's description of an entity (world-v1: the Wikidata description) tells namesakes apart in a clarification.
     if (p === 'description' && a && b && this.entities[a] && !this.entities[a].description) { try { const text = JSON.parse(b); if (typeof text === 'string' && text.trim()) this.entities[a].description = text.trim().slice(0, 160); } catch { /* not a quoted text */ } }
+    // The unit facts of the memory (predicates declared `reading unit_amount` / `reading unit_dimension`): a quantity with a unit in a
+    // comparison is lowered with them (sop/quantities.mjs).
+    for (const reading of UNIT_READINGS) if (a && b && this.predicates[p]?.readings?.includes(reading)) (this.unitFacts[reading] ??= {})[a] ??= b;
     if (p !== 'is_a' || !a || !b || !/^[a-z]/.test(a) || !/^[a-z]/.test(b)) return;
     (this.isA.get(a) ?? this.isA.set(a, new Set()).get(a)).add(b);
   }
@@ -199,7 +203,7 @@ export class Lexicon {
 
   /** The compiled lexicon as JSON (the on-disk cache of a base memory's lexicon); `Lexicon.revive` rebuilds the indexes. */
   serialize() {
-    return {format: LEXICON_FORMAT, version: this.version, provenance: this.provenance, entities: this.entities, predicates: this.predicates, isA: [...this.isA].map(([k, v]) => [k, [...v]])};
+    return {format: LEXICON_FORMAT, version: this.version, provenance: this.provenance, entities: this.entities, predicates: this.predicates, isA: [...this.isA].map(([k, v]) => [k, [...v]]), unitFacts: this.unitFacts};
   }
 
   static revive(data) {
@@ -210,6 +214,7 @@ export class Lexicon {
     for (const p of Object.values(lexicon.predicates)) lexicon.lexemes.push(...p.lexemes);
     for (const e of Object.values(lexicon.entities)) if (e.entityType === CLASS_KIND) lexicon.classes[e.id] = e;
     lexicon.isA = new Map(data.isA.map(([k, v]) => [k, new Set(v)]));
+    lexicon.unitFacts = data.unitFacts ?? {};
     for (const p of Object.values(lexicon.predicates)) lexicon.indexPredicate(p);
     for (const e of Object.values(lexicon.entities)) lexicon.indexEntity(e);
     return lexicon;

@@ -15,11 +15,41 @@ async function render(){
  if(!s.authenticated){show('<div class="card"><p>You are not signed in. <a class="button primary" href="/login?next=%2Fadmin">Sign in</a></p></div>');return;}
  const tokens=(s.tokens??[]).map(t=>'<li><code>'+esc(t.id)+'</code> '+esc(t.label)+' <span class="muted">created '+esc(t.created)+'</span> <button data-revoke="'+esc(t.id)+'">revoke</button></li>').join('')||'<li class="muted">none yet</li>';
  show('<div class="grid"><a class="tile" href="/chat"><b>Chat</b><span>Open the chat</span></a><a class="tile" href="/experiments"><b>Experiments</b><span>Tasks, notes and reports</span></a></div>'+
-  '<section class="card"><h2>Status</h2><ul class="plain"><li>Coding agent ready: <b class="'+(s.ready?'ok':'bad')+'">'+(s.ready?'yes':'no')+'</b> <span class="muted">(chat answers return 503 parse_unavailable until omp can run a model of the chain; see the home page)</span></li>'+
+  '<section class="card"><h2>Status</h2><ul class="plain"><li>Formalizer ready: <b class="'+(s.ready?'ok':'bad')+'">'+(s.ready?'yes':'no')+'</b> <span class="muted">(chat answers return 503 parse_unavailable until omp can run a model of the chain; see the home page)</span></li>'+
   '</ul></section>'+
   '<section class="card"><h2>API tokens</h2><p class="muted">For curl, SDKs and scripts: send <code>Authorization: Bearer &lt;token&gt;</code>. A token is shown once.</p><p><input id="label" placeholder="label, e.g. laptop" maxlength="40"> <button class="primary" id="mint">Create token</button></p><div id="fresh"></div><ul class="plain">'+tokens+'</ul></section>');
  $('mint').onclick=mint;
+ composer();
  $('app').querySelectorAll('[data-revoke]').forEach(button=>{button.onclick=()=>revoke(button.dataset.revoke)});
+}
+// The base-memory composer (DS022 "Composing a base memory"): choose layers with checkboxes, build or refresh a memory through POST /v1/memory-composer.
+let layers=[],info={};
+async function composer(){
+ const r=await api('/v1/memory-composer');const box=$('composer');
+ if(r.status!==200){box.innerHTML='<h2>Base memory composer</h2><p class="muted">Not available: '+esc(r.body.error?.message??('HTTP '+r.status))+'</p>';return;}
+ info=r.body;layers=info.layers;
+ const targets=[info.reply_memory,info.default_base,...layers.filter(l=>l.composition).map(l=>l.id)].filter((v,i,a)=>v&&a.indexOf(v)===i);
+ const tag=l=>[l.seed?'seed':'memory',l.role==='conversation'?'conversation':'',l.group?'group '+l.group:'',l.stale?'<span class="bad">stale</span>':''].filter(Boolean).join(' · ');
+ const size=l=>l.counts?.replies!=null?l.counts.replies+' replies':(l.facts?l.facts.toLocaleString()+' facts':'')+(l.circuits?' · '+l.circuits+' circuits':'');
+ box.innerHTML='<h2>Base memory composer</h2><p class="muted">Build or refresh a base memory from prepared layers (DS022). The chat replies come from <code>'+esc(info.reply_memory??'conversation-v1')+'</code>; new sessions fork <code>'+esc(info.default_base??'')+'</code>. A memory with circuits of its own, or a seed, is never replaced.</p>'+
+  '<p>Target <select id="cmp-target">'+targets.map(t=>'<option>'+esc(t)+'</option>').join('')+'<option value="">new memory…</option></select> id <input id="cmp-id" maxlength="64" size="22"> name <input id="cmp-name" maxlength="120" size="26"></p>'+
+  '<ul class="plain">'+layers.map(l=>'<li><label><input type="checkbox" data-layer="'+esc(l.id)+'"> <b>'+esc(l.id)+'</b> '+esc(l.name)+' <span class="muted">('+tag(l)+(size(l)?'; '+esc(size(l)):'')+')</span></label><br><span class="muted">'+esc(String(l.description).slice(0,220))+'</span></li>').join('')+'</ul>'+
+  '<p><button class="primary" id="cmp-build">Build or refresh</button> <span id="cmp-out"></span></p>';
+ $('cmp-target').onchange=pick;$('cmp-build').onclick=build;pick();
+}
+function pick(){
+ const id=$('cmp-target').value,m=layers.find(l=>l.id===id);
+ $('cmp-id').value=id;$('cmp-name').value=m?.name??'';
+ const chosen=new Set(m?.composition?.layers??m?.imports??[]);
+ document.querySelectorAll('[data-layer]').forEach(c=>{c.checked=chosen.has(c.dataset.layer);c.disabled=c.dataset.layer===id});
+}
+async function build(){
+ const chosen=[...document.querySelectorAll('[data-layer]')].filter(c=>c.checked).map(c=>c.dataset.layer);
+ $('cmp-out').textContent='building…';
+ const r=await post('/v1/memory-composer',{id:$('cmp-id').value.trim(),name:$('cmp-name').value.trim()||undefined,layers:chosen});
+ if(r.status!==201){$('cmp-out').innerHTML='<span class="bad">'+esc(r.body.error?.message??('HTTP '+r.status))+'</span>'+(r.body.error?.problems?'<br><span class="muted">'+esc(r.body.error.problems.slice(0,3).map(p=>p.message??p).join('; '))+'</span>':'');return;}
+ $('cmp-out').innerHTML='<span class="ok">'+(r.body.replaced?'refreshed':'built')+'</span> '+esc(r.body.id)+': '+r.body.imports.length+' layers, '+Number(r.body.facts).toLocaleString()+' facts, '+r.body.ms+' ms'+(r.body.reply_layer?'; the chat now replies from it':'');
+ await composer();
 }
 async function mint(){const r=await post('/admin/token',{label:$('label').value.trim()||'minted in admin'});if(r.status!==200){$('fresh').innerHTML='<p class="bad">'+esc(r.body.error?.message??('HTTP '+r.status))+'</p>';return;}await render();$('fresh').innerHTML='<p class="notice">Copy it now, it is shown once: <code>'+esc(r.body.token)+'</code></p>';}
 async function revoke(id){await post('/admin/token/revoke',{id});render()}

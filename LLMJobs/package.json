@@ -1,0 +1,11 @@
+{
+  "name": "llmjobs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deterministic runner for LLM batch jobs against an OpenAI-compatible endpoint: job specs, packing, tier ladders, checks and repair, cache, resume, budgets, stop rules, audit sample, escalation summaries, planning from instructions.",
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "bin": {"llmjobs": "./run.mjs"},
+  "scripts": {"test": "node --test test/*.test.mjs"},
+  "dependencies": {}
+}

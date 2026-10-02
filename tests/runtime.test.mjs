@@ -63,7 +63,7 @@ test('model output cannot install rules', () => withContext({}, async c => {
   const runtime = new Runtime({repo: c.repo, session: c.session, schema});
   await assert.rejects(
     runtime.run('@r rule\n  when parent ?x ?y\n  then likes ?x ?y', {origin: 'model'}),
-    /Model authors stated, assumed, unclear, query, constraint, unparsed or pragmatic; rule belongs to symbolic execution/,
+    /Model authors stated, assumed, unclear, query, constraint, unparsed, pragmatic or instruction; rule belongs to symbolic execution/,
   );
 }));
 

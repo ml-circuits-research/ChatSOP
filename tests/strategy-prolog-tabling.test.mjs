@@ -111,7 +111,7 @@ test('aggregates have set semantics; compute and compare are integer arithmetic'
   yields dept_payroll ?d ?total
 @r_half rule
   when dept_payroll ?d ?t
-  when compute ?h ?t divided_by 3
+  when compute ?h ?t whole_divided_by 3
   when compare ?h above 60
   then big ?d ?h
 `;

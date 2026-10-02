@@ -1,4 +1,4 @@
-/** Server home page: sign-in state, whether the administrator password exists, the state of the coding agent (omp and its model chain) and large links
+/** Server home page: sign-in state, whether the administrator password exists, the state of the formalizer (LLMDirect and its model chain) and large links
  * to the chat, the experiments, the admin page and the documentation. */
 import {escapeHtml, layout} from './layout.mjs';
 
@@ -13,8 +13,8 @@ export function homePage({signedIn, configured, passwordStore = true, ready, cod
   const password = passwordStore ? `<li>Administrator password: ${configured ? '<span class="ok">set</span>' : '<span class="bad">not set</span>'}</li>` : '';
   const chain = codingAgent?.models?.length ? ` Model chain: <code>${codingAgent.models.map(escapeHtml).join('</code>, <code>')}</code>.` : '';
   const model = ready
-    ? `<li>Coding agent (omp): <b class="ok">ready</b>.${chain} Chat answers are available.</li>`
-    : `<li>Coding agent (omp): <b class="bad">not available</b>${codingAgent?.reason ? ' (' + escapeHtml(codingAgent.reason) + ')' : ''}.${chain} Without it the chat answers "parse_unavailable" (HTTP 503); documentation, admin and the experiments pages work regardless.</li>`;
+    ? `<li>Formalizer (${escapeHtml(codingAgent?.strategy ?? 'LLMDirect')}): <b class="ok">ready</b>.${chain} Chat answers are available.</li>`
+    : `<li>Formalizer (${escapeHtml(codingAgent?.strategy ?? 'LLMDirect')}): <b class="bad">not available</b>${codingAgent?.reason ? ' (' + escapeHtml(codingAgent.reason) + ')' : ''}.${chain} Without it the chat answers "parse_unavailable" (HTTP 503); documentation, admin and the experiments pages work regardless.</li>`;
   const tile = (href, title, text) => `<a class="tile" href="${href}"><b>${title}</b><span>${text}</span></a>`;
   const body = `<main class="wrap"><h1>ChatSOP server</h1>
 <section class="card" aria-label="Status"><ul class="plain">${account}${password}${model}</ul></section>

@@ -4,13 +4,13 @@ import path from 'node:path';
 import os from 'node:os';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {authorQuery, completionBackend, ompBackend} from '../../../lib/query-author/index.mjs';
+import {authorQuery, completionBackend} from '../../../lib/query-author/index.mjs';
+import {chainEntry} from '../../../lib/llm-providers.mjs';
 import {constrainedBackend} from '../../../lib/query-author/backends/constrained.mjs';
 import {splitCircuits} from '../../../lib/query-author/session.mjs';
 import {parse as parseRuntime} from '../../../sop/parser.mjs';
 import {parse as parseKnowledge} from '../../../sop/knowledge/lexical.mjs';
 import {runCompletion} from '../../../reasoning/strategies/llm-agent/completion.mjs';
-import {runOmp} from '../../../reasoning/strategies/llm-agent/runner.mjs';
 import {nlPrompt, SYSTEM_PROMPT, ANSWER_MARKER, PROMPT_VERSION} from '../../../reasoning/strategies/llm-agent/prompt.mjs';
 import {parseAnswer} from '../../../reasoning/strategies/llm-agent/packet.mjs';
 import {verifyUsed} from '../../../reasoning/strategies/llm-agent/verify.mjs';
@@ -26,6 +26,8 @@ import {openSession, defaultRoot} from '../query-forms-probe.mjs';
 import {readExperiments} from '../../../lib/journal.mjs';
 import {localStrategy} from '../../../lib/formalize/strategies.mjs';
 const stepStrategies = new Map();
+/** The remote model of the arms C and D (no omp, owner order 2026-10-02): a completion backend on the chain entry `<provider>/<model>` through the proxy. */
+const remoteBackend = (settings, timeoutMs) => { const e = chainEntry(settings.subscriptionModel); return completionBackend({endpoint: e.endpoint, model: e.model, timeoutMs, maxTokens: settings.maxTokens, headers: e.headers, extraBody: e.extraBody, cachePrompt: false}); };
 
 export const VERSION = 'symbolic-vs-llm-m1-v1';
 const sha = value => createHash('sha256').update(value).digest('hex');
@@ -136,11 +138,11 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
           const body = JSON.parse(init.body); body.max_tokens = remaining;
           const response = await fetch(url, {...init, body: JSON.stringify(body), signal: AbortSignal.timeout(Math.max(1, deadline - Date.now()))});
           const copy = await response.clone().json(); remaining -= copy.usage?.completion_tokens ?? 0; return response;
-        }}) : ompBackend({model: settings.subscriptionModel, timeoutMs: settings.wallMs});
+        }}) : remoteBackend(settings, settings.wallMs);
       const bounded = {...backend, async generate(args) {
         if (Date.now() >= deadline || remaining <= 0) return {ok: false, reason: 'shared question budget exhausted', usage: {}, duration_ms: 0};
         // settings.authorBackend: a zero-model replay of a reviewed circuit (generality probe) through the same admission and execution.
-        const response = await (arm === 'C' ? settings.authorBackend ?? ompBackend({model: settings.subscriptionModel, timeoutMs: Math.max(1, deadline - Date.now())}) : backend).generate(args);
+        const response = await (arm === 'C' ? settings.authorBackend ?? remoteBackend(settings, Math.max(1, deadline - Date.now())) : backend).generate(args);
         latency.model_ms += response.duration_ms ?? 0;
         if (arm === 'C') {
           const used = response.usage?.output_tokens ?? 0;
@@ -189,7 +191,7 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
       const projection = /^\s*select\s+([^\n]+)/m.exec(query)?.[1]?.match(/\?[a-z][a-z0-9_]*/g)?.map(v => v.slice(1)) ?? [];
       const schema = projection.length ? `\nFor an answer table, name its columns ${projection.join(', ')}. These are output column names, not facts.\n` : '';
       const prompt = nlPrompt({source: `${evidence.source}\n\nQuestion: ${row.question}${schema}\nInclude a used list of evidence identifiers that suffice for your answer, for example \"used\":[{\"id\":\"f1\",\"version\":1}]. Refer only to identifiers printed in the evidence.`, reasoning});
-      const reply = arm === 'D' ? await runOmp({model: settings.subscriptionModel, prompt, system: SYSTEM_PROMPT, timeoutMs: settings.wallMs})
+      const reply = arm === 'D' ? await (({endpoint, model}) => runCompletion({endpoint, model, prompt, system: SYSTEM_PROMPT, timeoutMs: settings.wallMs, maxTokens: settings.maxTokens}))(chainEntry(settings.subscriptionModel))
         : await runCompletion({endpoint: settings.endpoint, model: settings.model, prompt, system: SYSTEM_PROMPT, timeoutMs: settings.wallMs, maxTokens: settings.maxTokens});
       latency.model_ms = reply.ms; tokensIn = reply.usage?.prompt_tokens ?? reply.usage?.input ?? 0; tokensOut = reply.usage?.completion_tokens ?? reply.usage?.output ?? 0; cost = arm === 'D' ? reply.cost ?? 0 : 0;
       if (!reply.ok || tokensOut > settings.maxTokens) error = tokensOut > settings.maxTokens ? 'subscription output exceeded shared question token budget' : reply.error ?? 'completion failed';
@@ -238,8 +240,8 @@ export async function main(args = process.argv.slice(2)) {
   if (arms.some(a => !['A', "A'", 'B', 'B-grammar', 'B-structured', 'B-stepbystep', 'B-local', 'C', 'D'].includes(a))) throw new Error('unknown arm');
   if (rows.some(r => r.split !== 'dev') && arms.some(a => ['B-grammar', 'B-structured', 'B-stepbystep', 'B-local'].includes(a))) throw new Error('constrained authoring variants are dev-only; the frozen sealed protocol does not include these arms');
   const key = opt(args, '--model', 'qwen3-4b-q4');
-  const settings = {model: key, endpoint: opt(args, '--endpoint', null), subscriptionModel: opt(args, '--subscription-model', 'openai-codex/gpt-6-luna'), wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096))};
-  if (!/^(openai-codex|xai-oauth|zai|zai-coding-plan)\//.test(settings.subscriptionModel)) throw new Error('subscription models first; paid execution requires an explicitly authorized separate run');
+  const settings = {model: key, endpoint: opt(args, '--endpoint', null), subscriptionModel: opt(args, '--subscription-model', 'openference/Qwen3.8 27b'), wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096))};
+  if (/^openrouter\b/.test(settings.subscriptionModel) && !args.includes('--allow-paid')) throw new Error('openrouter is paid per token; pass --allow-paid for an explicitly authorized run');
   const spec = MODELS[key];
   const managed = !settings.endpoint && arms.some(a => ['A', "A'", 'B', 'B-grammar', 'B-structured', 'B-stepbystep', 'B-local'].includes(a));
   if (managed && spec?.kind !== 'local') throw new Error('local model needs explicit existing GGUF specification');
@@ -248,7 +250,7 @@ export async function main(args = process.argv.slice(2)) {
   const modelManifest = gguf ? {file: gguf, sha256: await hashFile(gguf), source: 'managed-local-gguf', identity_verified: true} : {source: 'external-endpoint-or-subscription', identity_verified: false};
   const out = path.resolve(opt(args, '--out', 'eval/reports/current/symbolic-vs-llm/pilot'));
   fs.mkdirSync(out, {recursive: true});
-  const config = {version: VERSION, harness_sha256: sha(fs.readFileSync(new URL(import.meta.url), 'utf8')), world_sha256: sha(fs.readFileSync(new URL('./world.mjs', import.meta.url), 'utf8')), runtime: {node: process.version, arch: process.arch, platform: process.platform}, model_manifest: modelManifest, manifest_sha256: sha(manifestText), settings: {...settings, retrieval_limits: LIMITS, endpoint: settings.endpoint ?? 'managed-private-llama-server', subscription_token_budget: 'post-response usage admission; omp CLI has no provider token-cap flag'}, arms, pilot, prompt_version: PROMPT_VERSION, prompt_sha256: sha(nlPrompt({source: '', reasoning: 'direct'}) + runArm.toString()), renderer_sha256: sha(fs.readFileSync(new URL('../../../reasoning/slice/render-english.mjs', import.meta.url), 'utf8')), stages: pilot ? [pilot] : opt(args, '--stages', '100,300,600').split(',').map(Number)};
+  const config = {version: VERSION, harness_sha256: sha(fs.readFileSync(new URL(import.meta.url), 'utf8')), world_sha256: sha(fs.readFileSync(new URL('./world.mjs', import.meta.url), 'utf8')), runtime: {node: process.version, arch: process.arch, platform: process.platform}, model_manifest: modelManifest, manifest_sha256: sha(manifestText), settings: {...settings, retrieval_limits: LIMITS, endpoint: settings.endpoint ?? 'managed-private-llama-server', subscription_token_budget: 'post-response usage admission of the remote model'}, arms, pilot, prompt_version: PROMPT_VERSION, prompt_sha256: sha(nlPrompt({source: '', reasoning: 'direct'}) + runArm.toString()), renderer_sha256: sha(fs.readFileSync(new URL('../../../reasoning/slice/render-english.mjs', import.meta.url), 'utf8')), stages: pilot ? [pilot] : opt(args, '--stages', '100,300,600').split(',').map(Number)};
   config.runtime_sources = sourceHashes();
   config.runtime_source_sha256 = sha(JSON.stringify(config.runtime_sources));
   const configFile = path.join(out, 'run.json');

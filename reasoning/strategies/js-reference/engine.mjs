@@ -9,7 +9,7 @@
 import {Evidence} from './evidence.mjs';
 import {join} from './join.mjs';
 import {BudgetStop} from './budget.mjs';
-import {argsKey, groundArgs, ProgramError} from './values.mjs';
+import {argsKey, groundArgs, ProgramError, compute} from './values.mjs';
 
 const pendingKey = n => `${n.neg ? 'n' : 'p'}|${n.p}|${argsKey(n.args)}`;
 
@@ -56,10 +56,11 @@ function fireAggregate(agg, ctx, pending) {
     if (agg.fn === 'count') result = members.length;
     else if (agg.fn === 'collect') result = JSON.stringify([...new Set(values)].sort(orderValue));
     else {
-      const nums = values.filter(Number.isSafeInteger);
-      if (nums.length !== values.length) ctx.notes.add('aggregate_non_integer_ignored');
+      const nums = values.filter(Number.isFinite);
+      if (nums.length !== values.length) ctx.notes.add('aggregate_non_number_ignored');
       if (!nums.length) continue;
-      result = agg.fn === 'sum' ? nums.reduce((s, x) => s + x, 0) : agg.fn === 'min' ? Math.min(...nums) : Math.max(...nums);
+      result = agg.fn === 'sum' ? nums.reduce((s, x) => compute('plus', s, x) ?? NaN, 0) : agg.fn === 'min' ? Math.min(...nums) : Math.max(...nums);
+      if (!Number.isFinite(result)) continue;
     }
     const env = {...Object.fromEntries(agg.group.map((v, i) => [v, gv[i]])), [agg.out]: result};
     const args = groundArgs(agg.yields.args, env);

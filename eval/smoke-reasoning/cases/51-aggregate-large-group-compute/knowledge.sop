@@ -12038,7 +12038,7 @@
 @r_avg rule
   when dept_payroll ?d ?t
   when dept_size ?d ?n
-  when compute ?a ?t divided_by ?n
+  when compute ?a ?t whole_divided_by ?n
   then avg_salary ?d ?a
 
 @r_gap rule

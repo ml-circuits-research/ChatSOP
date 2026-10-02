@@ -344,12 +344,23 @@ test('aggregates: count, sum, min, max, collect over the distinct bindings of th
   assert.throws(() => run('@a aggregate\n  over p ?x\n  group ?x\n  count as ?n\n  yields q ?x ?n\n@r rule\n  when q ?x ?n\n  then p ?x\n', '@q query\n  where q ?x ?n\n  select ?x\n'), e => e.code === 'not_stratifiable');
 });
 
-test('compute: integer arithmetic, division truncates toward zero, a zero divisor makes the body false and is noted', () => {
-  const k = '@f1 fact\n  holds amount a 7 2\n@f2 fact\n  holds amount b -7 2\n@f3 fact\n  holds amount c 5 0\n@r rule\n  when amount ?n ?x ?y\n  when compute ?q ?x divided_by ?y\n  then share ?n ?q\n';
+test('compute: whole_divided_by truncates toward zero, a zero divisor makes the body false and is noted', () => {
+  const k = '@f1 fact\n  holds amount a 7 2\n@f2 fact\n  holds amount b -7 2\n@f3 fact\n  holds amount c 5 0\n@r rule\n  when amount ?n ?x ?y\n  when compute ?q ?x whole_divided_by ?y\n  then share ?n ?q\n';
   const r = run(k, '@q query\n  where share ?n ?q\n  select ?n ?q\n');
   assert.deepEqual(rowsOf(r), ['{"n":"a","q":3}', '{"n":"b","q":-3}']);
   assert.ok(r.notes.includes('arithmetic_undefined'));
-  assert.throws(() => run('@r rule\n  when f ?x\n  when compute ?z ?x plus 1\n  then g ?z\n@r2 rule\n  when g ?x\n  then f ?x\n', '@q query\n  where g ?x\n  select ?x\n'), e => e.code === 'compute_in_cycle');
+  // Exact arithmetic (DS004): divided_by is exact, decimals are numbers, rounding words round to a multiple.
+  const exact = run(k.replace('whole_divided_by', 'divided_by'), '@q query\n  where share ?n ?q\n  select ?n ?q\n');
+  assert.deepEqual(rowsOf(exact), ['{"n":"a","q":3.5}', '{"n":"b","q":-3.5}']);
+  const money = '@f1 fact\n  holds loan kara 4000\n@f2 fact\n  holds rate kara 0.11\n@r rule\n  when loan ?p ?c\n  when rate ?p ?r\n  when compute ?y ?c times ?r\n  when compute ?z ?y times 8\n  when compute ?m ?z divided_by 12\n  when compute ?i ?m rounded_to 0.01\n  when compute ?b ?m rounded_up_to 100\n  when compute ?w 100 modulo 7\n  when compute ?g 1.05 power 2\n  then interest ?p ?i ?b ?w\n@r2 rule\n  when rate ?p ?r\n  when compute ?g 1.05 power 2\n  when compute ?s 0.1 plus 0.2\n  then growth ?p ?g ?s\n';
+  assert.deepEqual(rowsOf(run(money, '@q query\n  where interest ?p ?i ?b ?w\n  select ?i ?b ?w\n')), ['{"i":293.33,"b":300,"w":2}']);
+  assert.deepEqual(rowsOf(run(money, '@q query\n  where growth ?p ?g ?s\n  select ?g ?s\n')), ['{"g":1.1025,"s":0.3}']);
+  // Arithmetic inside a recursion (DS004): a bounded recursion closes; an unbounded one is stopped by the round budget, never answered wrongly.
+  const climb = '@f0 fact\n  holds f 0\n@r rule\n  when f ?x\n  when compute ?z ?x plus 1\n  when compare ?z at_most 5\n  then g ?z\n@r2 rule\n  when g ?x\n  then f ?x\n';
+  assert.deepEqual(rowsOf(run(climb, '@q query\n  where g ?x\n  select ?x\n')), [1, 2, 3, 4, 5].map(x => `{"x":${x}}`));
+  const unbounded = run(climb.replace('  when compare ?z at_most 5\n', ''), '@q query\n  where g ?x\n  select ?x\n', {maxRounds: 50});
+  assert.equal(unbounded.complete, false);
+  assert.equal(unbounded.reason, 'rounds', 'the cut is reported; the rows found are sound but the answer is incomplete');
 });
 
 test('governance: only approved wires bind; asof reproduces the version in force; a supposed proposed wire is conditional', () => {

@@ -17,15 +17,26 @@
  *              its stratum), so a ceiling N keeps exactly the atoms of rounds 1..N. This is how a round budget is honoured by a
  *              top-down engine without any rounds.
  */
-import {isVarTerm} from '../js-reference/values.mjs';
+import {isVarTerm, NotExpressibleError} from '../js-reference/values.mjs';
 
 export const q = s => "'" + String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n') + "'";
-export const termText = t => (isVarTerm(t) ? 'V_' + t.var.slice(1) : typeof t === 'number' ? String(t) : q(t));
+/** A number as Prolog text: an integer as is, a decimal as the exact rational literal `1r10` (0.1), never a binary float. */
+export function numberText(n) {
+  if (Number.isInteger(n)) return String(n);
+  const [mantissa, e] = Math.abs(n).toString().split('e');
+  const [whole, frac = ''] = mantissa.split('.');
+  let num = BigInt(whole + frac), den = 1n;
+  const shift = Number(e ?? 0) - frac.length;
+  if (shift >= 0) num *= 10n ** BigInt(shift); else den = 10n ** BigInt(-shift);
+  const g = ((a, b) => { while (b) [a, b] = [b, a % b]; return a; })(num, den);
+  return `${n < 0 ? '-' : ''}${num / g}r${den / g}`;
+}
+export const termText = t => (isVarTerm(t) ? 'V_' + t.var.slice(1) : typeof t === 'number' ? numberText(t) : q(t));
 export const listText = xs => '[' + xs.join(',') + ']';
 const argsText = args => listText(args.map(termText));
 const varName = v => 'V_' + v.slice(1);
 
-const ARITH = {plus: 'plus', minus: 'minus', times: 'times', divided_by: 'divided_by'};
+const ARITH = Object.fromEntries(['plus', 'minus', 'times', 'divided_by', 'whole_divided_by', 'modulo', 'power', 'rounded_to', 'rounded_up_to', 'rounded_down_to'].map(w => [w, w]));
 
 /** Registry of the relations of a program: arity, stratum and which polarities are DERIVED (have a rule or aggregate head). */
 export function registry(program, extraAtoms = []) {
@@ -98,7 +109,7 @@ export function leafGoals(g, leaves, sameStratumAs = null, reg = null) {
         break;
       }
       case 'compare': out.push(`rt_cmp(${l.word},${termText(l.left)},${termText(l.right)})`); break;
-      case 'compute': out.push(`rt_compute(${ARITH[l.word]},${termText(l.left)},${termText(l.right)},T_${l.out.slice(1)}), ${varName(l.out)} = T_${l.out.slice(1)}`); break;
+      case 'compute': if (!ARITH[l.word]) throw new NotExpressibleError(['exact_arithmetic'], `compute ${l.word} is not a compute word`); out.push(`rt_compute(${ARITH[l.word]},${termText(l.left)},${termText(l.right)},T_${l.out.slice(1)}), ${varName(l.out)} = T_${l.out.slice(1)}`); break;
       case 'order': out.push(`rt_order(${l.word},${varName(l.left)},${varName(l.right)})`); break;
       case 'timeof': {
         const a = [...l.args.map(termText), `F_${l.out.slice(1)}`, `E_${l.out.slice(1)}`];

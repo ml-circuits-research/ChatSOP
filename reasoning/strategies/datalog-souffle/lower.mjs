@@ -17,7 +17,7 @@ import {isVarTerm, NotExpressibleError} from '../js-reference/values.mjs';
 import {inferTypes} from './types.mjs';
 
 const OPS = {equal: '=', not_equal: '!=', above: '>', below: '<', at_least: '>=', at_most: '<='};
-const ARITH = {plus: '+', minus: '-', times: '*', divided_by: '/'};
+const ARITH = {plus: '+', minus: '-', times: '*', whole_divided_by: '/'};
 const FLOAT_LIMIT = '2000000000.0';
 
 const SAFE_SYMBOL = /^[A-Za-z0-9_.:/+-]+$/;
@@ -104,8 +104,9 @@ export function lowerProgram({program, facts, wanted = new Set(), extra = null, 
       if (l.kind === 'atom') out.push((l.mode === 'absent' ? '!' : '') + atomText(l.mode === 'not', l.p, l.args, scope));
       else if (l.kind === 'compare') out.push(`${value(l.left, scope)} ${OPS[l.word]} ${value(l.right, scope)}`);
       else if (l.kind === 'compute') {
+        if (!ARITH[l.word]) throw new NotExpressibleError(['exact_arithmetic'], `compute ${l.word} has no lowering in this engine (the fixed-point rewriting of solver-common/fixed-point.mjs expands it before)`);
         const a = value(l.left, scope, true), b = value(l.right, scope, true);
-        if (l.word === 'divided_by') out.push(`${b} != 0`);
+        if (l.word === 'whole_divided_by') out.push(`${b} != 0`);
         else guardSink?.push({prefix: out.slice(), a, b, word: l.word});
         out.push(`${varName(l.out)} = (${a} ${ARITH[l.word]} ${b})`);
       }
@@ -135,7 +136,8 @@ export function lowerProgram({program, facts, wanted = new Set(), extra = null, 
     }
     clauses.push(`${grp}(${a.group.map(varName).join(', ')}) :- ${rows}(${a.rowVars.map(varName).join(', ')}).`);
     const inner = `${rows}(${a.rowVars.map(v => (a.group.includes(v) ? varName(v) : 'A_' + v.slice(1))).join(', ')})`;
-    const expr = a.fn === 'count' ? `count : { ${inner} }` : `${a.fn} A_${a.field.slice(1)} : { ${inner} }`;
+    // a fixed-point program carries every number multiplied by 10^S: a count is the sum of P per distinct row
+    const expr = a.fn === 'count' ? (a.scaleCount ? `sum ${a.scaleCount} : { ${inner} }` : `count : { ${inner} }`) : `${a.fn} A_${a.field.slice(1)} : { ${inner} }`;
     const yields = atomText(false, a.yields.p, a.yields.args, scope);
     const gAtom = `${grp}(${a.group.map(varName).join(', ')})`;
     clauses.push(`${yields} :- ${gAtom}, ${varName(a.out)} = ${expr}.`);

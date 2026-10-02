@@ -7,6 +7,7 @@
  * becomes a host clarification. Entity strings are resolved by the generated
  * `resolve` wires of the declarative compiler (exact and accent-folded aliases).
  */
+import {line} from './replies.mjs';
 import {ROLE_NAMES} from './enums.mjs';
 import {fold, phraseKey} from './text-keys.mjs';
 export {phraseKey};
@@ -118,25 +119,25 @@ export function linkValidity(valid, now) {
   return {interval, issues, text: interval.from === -Infinity && interval.until === Infinity ? 'timeless' : formatTime(interval.from) + ' ' + formatTime(interval.until)};
 }
 
-/** The clarification question for unlinked strings, in English (the output edge translates it, DS014 "English-only core"). */
+/** The clarification question for unlinked strings, in English (the output edge translates it, DS014 "English-only core"); the sentences are `line_ask_*` replies of the conversation layer (DS023). */
 export function linkQuestion(issues) {
   return issues.map(issue => {
     if (issue.kind === 'entity') {
       // An ambiguous surface names its options (label and class) so the user can pick one.
       // The memory's own description of each namesake ("capital and largest city of France") when it has one, else the class.
-      const options = (issue.candidates ?? []).filter(c => c.label).slice(0, 5).map(c => c.label + (c.description ? ' (' + c.description + ')' : c.class ? ' (' + c.class + ')' : '')).join(' or ');
-      if (issue.status === 'ambiguous' && options) return `Which entity do you mean by ${JSON.stringify(issue.text)}: ${options}?`;
-      return `Which entity do you mean by ${JSON.stringify(issue.text)}?`;
+      const options = (issue.candidates ?? []).filter(c => c.label).slice(0, 5).map(c => c.description || c.class ? line('option_described', {label: c.label, description: c.description || c.class}) : c.label).join(line('options_separator'));
+      if (issue.status === 'ambiguous' && options) return line('ask_entity_options', {text: JSON.stringify(issue.text), options});
+      return line('ask_entity', {text: JSON.stringify(issue.text)});
     }
     // The copula and other readings carry their own precise question (sop/copula-linker.mjs).
     if (issue.question) return issue.question;
-    if (issue.kind === 'time' && issue.status === 'not_an_interval') return `The variable ${issue.text} is an argument of the relation, not a period; which time measure do you want?`;
-    if (issue.kind === 'time') return `Which date or period do you mean by ${JSON.stringify(issue.text)}?`;
-    const choices = (issue.candidates ?? []).map(c => c.id + ' (' + c.roles.join(', ') + ')').join(' or ');
-    if (issue.status === 'ambiguous') return `Which relation do you mean by ${JSON.stringify(issue.text)}: ${choices}?`;
-    if (issue.status === 'type_mismatch') return `The relation ${JSON.stringify(issue.text)} does not fit ${JSON.stringify(issue.value)} in the role ${issue.role}${issue.expected ? ' (it takes ' + issue.expected + ')' : ''}. How else would you phrase it?`;
-    if (issue.status === 'role_mismatch') return `The relation ${JSON.stringify(issue.text)} takes the roles ${choices}; which role is missing or extra?`;
-    return `I do not know the relation ${JSON.stringify(issue.text)}. How else would you phrase it?`;
+    if (issue.kind === 'time' && issue.status === 'not_an_interval') return line('ask_time_measure', {text: issue.text});
+    if (issue.kind === 'time') return line('ask_time', {text: JSON.stringify(issue.text)});
+    const choices = (issue.candidates ?? []).map(c => line('option_described', {label: c.id, description: c.roles.join(', ')})).join(line('options_separator'));
+    if (issue.status === 'ambiguous') return line('ask_relation_options', {text: JSON.stringify(issue.text), options: choices});
+    if (issue.status === 'type_mismatch') return line(issue.expected ? 'ask_relation_type_expected' : 'ask_relation_type', {text: JSON.stringify(issue.text), value: JSON.stringify(issue.value), role: issue.role, expected: issue.expected});
+    if (issue.status === 'role_mismatch') return line('ask_relation_roles', {text: JSON.stringify(issue.text), options: choices});
+    return line('ask_relation_unknown', {text: JSON.stringify(issue.text)});
   }).join(' ');
 }
 

@@ -87,7 +87,7 @@ export async function handleWeb(req, res, pathname, {auth, readiness}) {
   const session = auth ? auth.session(readCookie(req.headers.cookie, 'chatsop_session')) : null;
   if (req.method === 'GET' && pathname === '/') {
     const state = await readiness();
-    sendHtml(res, 200, homePage({signedIn: Boolean(session), configured: Boolean(auth?.configured), passwordStore: Boolean(auth), ready: state.ready, codingAgent: state.coding_agent ?? null}));
+    sendHtml(res, 200, homePage({signedIn: Boolean(session), configured: Boolean(auth?.configured), passwordStore: Boolean(auth), ready: state.ready, codingAgent: state.formalizer ?? null}));
     return true;
   }
   if (!auth) return false;

@@ -18,6 +18,7 @@ code{background:var(--line);padding:0 4px;border-radius:3px}
 <h2>Value: subscription or pay-per-token</h2><div id="val"></div>
 <h2>Upstreams</h2><div id="up"></div>
 <h2>Windows</h2><div id="win"></div>
+<h2>Fallbacks</h2><div id="fb"></div>
 <h2>Calls per minute, last hour</h2><svg id="chart" viewBox="0 0 600 80" preserveAspectRatio="none"></svg>
 <h2>By model</h2><div id="mod"></div>
 <h2>Inferred limits</h2><div id="lim"></div>
@@ -35,7 +36,9 @@ async function tick(){
  try{s=await (await fetch('stats'+q)).json()}catch(e){$('meta').textContent='stats unavailable';return}
  $('meta').textContent='updated '+s.now+' · uptime '+s.uptime_s+' s · '+s.records_in_memory+' records · error rate '+f(s.error_rate*100,1)+'% · 429 rate '+f(s.rate429*100,1)+'% · latency p50/p95/p99 '+f(s.latency_ms.p50)+'/'+f(s.latency_ms.p95)+'/'+f(s.latency_ms.p99)+' ms';
  $('up').innerHTML=table(['upstream','queue depth','active','paused ms','limits'],Object.entries(s.upstreams).map(([n,u])=>[esc(n),u.depth,u.active,f(u.paused_ms),'<code>'+esc(JSON.stringify(u.limits))+'</code>']));
- $('win').innerHTML=table(['window','calls','errors','429','in tok','out tok','cached tok','cost USD (est.)','credit USD','plan requests'],Object.entries(s.windows).map(([n,w])=>[n,f(w.calls),f(w.errors),f(w.r429),f(w.in_tokens),f(w.out_tokens),f(w.cached_tokens),f(w.cost_usd,4),f(w.credit_cost_usd,4),f(w.plan_requests)]));
+ $('win').innerHTML=table(['window','calls','errors','429','in tok','out tok','cached tok','cost USD (est.)','credit USD','plan requests','fallbacks'],Object.entries(s.windows).map(([n,w])=>[n,f(w.calls),f(w.errors),f(w.r429),f(w.in_tokens),f(w.out_tokens),f(w.cached_tokens),f(w.cost_usd,4),f(w.credit_cost_usd,4),f(w.plan_requests),f(w.fallbacks)]));
+ const fb=s.fallback||{total:0,last:[]};
+ $('fb').innerHTML=fb.total?'<p>'+f(fb.total)+' total · '+f(fb.hour)+' last hour · '+f(fb.day)+' last day · by kind '+esc(JSON.stringify(fb.by_kind))+'</p>'+table(['time','from','to','kind','status','client','reason'],fb.last.map(x=>[esc(x.ts),esc(x.from),esc(x.to),esc(x.kind),x.status,esc(x.client),esc((x.reason||'').slice(0,80))])):'<span class="mut">no fallback yet</span>';
  const v=s.calls_per_minute_last_hour,mx=Math.max(1,...v);
  $('chart').innerHTML=v.map((n,i)=>'<rect x="'+(i*10+1)+'" y="'+(80-n/mx*76)+'" width="8" height="'+(n/mx*76)+'" fill="var(--acc)"><title>'+n+' calls</title></rect>').join('');
  $('mod').innerHTML=table(['model','billing','quota cost','mult','calls/min','calls/h','calls/day','errors','429','in tok','out tok','cached','cost USD','plan req','p50 ms','p95 ms','ttft p50'],Object.entries(s.by_model).map(([m,x])=>[esc(m),x.billing==='credit'?'<span class="bad">credit (not in plan)</span>':'plan',esc((x.quota_cost_seen||[]).join(', ')||'–'),x.quota_multiplier??'–',x.calls_minute,x.calls_hour,x.calls_day,f(x.errors),f(x.r429),f(x.in_tokens),f(x.out_tokens),f(x.cached_tokens),f(x.cost_usd,4),f(x.plan_requests),f(x.latency_ms.p50),f(x.latency_ms.p95),f(x.ttft_ms.p50)]));

@@ -49,7 +49,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const RUNTIME = path.join(here, 'runtime.pl');
 const ID = 'prolog-tabling';
 
-const SUPPORTED = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'abduce', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars'];
+const SUPPORTED = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'abduce', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars', 'exact_arithmetic'];
 const UNSUPPORTED = ['constraint', 'optimize', 'plan', 'blocked_info', 'method', 'htn_choice', 'on_failure', 'norms_hard', 'norms_soft', 'temporal_norms', 'procedures', 'procedure_render', 'amendment', 'check_plan', 'abduce_waive'];
 const MODES = ['select', 'exists', 'count', 'explain', 'every', 'why_not', 'abduce'];
 const HONOURED = ['timeoutMs', 'maxJoins', 'maxRounds', 'maxHypotheses'];
@@ -61,6 +61,7 @@ export const capabilities = {
   delivery: 'slice',
   limits: {max_wires: Infinity, max_arity: 6, integer_range: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]},
   guarantee: 'exact',
+  exact: {kind: 'rational'},
   provides: ['explain', 'used', 'proof', 'why_not'],
   budgetKeys: HONOURED,
   determinism: 'deterministic',

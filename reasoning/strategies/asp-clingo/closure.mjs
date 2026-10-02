@@ -11,20 +11,28 @@
 import {runClingo, parseAtom, SolverStop} from './clingo.mjs';
 import {closureProgram, sumsInRange} from './lower.mjs';
 import {ProgramError} from '../js-reference/values.mjs';
+import {planFixedPoint, scaleProgram, scaleFacts, fromScaled, inexactError, INEXACT} from '../solver-common/fixed-point.mjs';
 
 export const atomsOf = witness => witness.atoms.map(parseAtom).flatMap(({name, args}) => {
   const m = /^(pos|neg)_(.+)$/.exec(name);
   return m ? [{neg: m[1] === 'neg', p: m[2], args}] : [];
 });
 
-export function aspClosure({program, facts, budget}) {
+export function aspClosure({program: original, facts: stored, budget}) {
+  // exact decimals: the program is run as integers scaled by 10^S and the atoms are divided back (solver-common/fixed-point.mjs)
+  const fx = planFixedPoint(original);
+  const program = fx ? scaleProgram(original, fx, {narrow: true}) : original;
+  const facts = fx ? scaleFacts(stored, fx) : stored;
+  const decode = args => (fx ? args.map(a => (typeof a === 'number' ? fromScaled(a, fx.scale) : a)) : args);
   const {lines, shown} = closureProgram(program, facts);
   try {
     const r = runClingo([...lines, ...shown.lines()].join('\n') + '\n', {timeoutMs: budget.limits.timeoutMs});
     if (r.interrupted) return {atoms: [], exhausted: {reason: 'wall'}};
     if (r.result === 'UNSAT') throw new ProgramError('no_model', 'a stratified program has a model; the lowering produced none');
     if (!sumsInRange(program, r.witnesses.at(-1).atoms)) return {atoms: [], exhausted: {reason: 'numeric_range'}};
-    return {atoms: atomsOf(r.witnesses.at(-1)), exhausted: null};
+    const atoms = atomsOf(r.witnesses.at(-1));
+    if (fx?.flag && atoms.some(a => a.p === INEXACT)) throw inexactError(fx);
+    return {atoms: atoms.filter(a => a.p !== INEXACT).map(a => ({...a, args: decode(a.args)})), exhausted: null, ...(fx ? {notes: [`fixed_point_scale_${fx.scale}`]} : {})};
   } catch (e) {
     if (e instanceof SolverStop) return {atoms: [], exhausted: {reason: e.reason}};
     throw e;

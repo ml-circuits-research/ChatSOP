@@ -13,7 +13,7 @@ const proxyToken = resolveProxyToken(config);
 const { server, upstreams } = createProxy({ config, dataDir, proxyToken });
 
 server.listen(port, host, () => {
-  const keys = Object.values(upstreams).map((u) => `${u.name}: key ${u.key ? 'configured' : 'MISSING'}`).join(', ');
+  const keys = Object.values(upstreams).map((u) => `${u.name}: ${u.noKey ? 'no key needed' + (u.start ? ', started on demand' : '') : 'key ' + (u.key ? 'configured' : 'MISSING')}`).join(', ');
   console.log(`LLMAPIProvider listening on http://${host}:${port} (${keys}; client token ${proxyToken ? 'required' : 'not required'}; data ${dataDir})`);
 });
 for (const s of ['SIGINT', 'SIGTERM']) process.on(s, () => server.close(() => process.exit(0)));

@@ -2,7 +2,7 @@
  * and the model language; sop/declarative.mjs decides which wire types the model may author. */
 import {outputRegistry,outputSpecs} from './outputs.mjs';
 import {assert,stable} from '../lib/util.mjs';
-import {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,COMPARATOR_WORDS,RANK_WORDS,RANK_CUTS,QUANTIFIER_WORDS,ORDER_WORDS,LINK_WORDS,MAX_LINKS,UNPARSED_HINTS,MAX_SPAN,PRAGMATIC_KINDS,PRAGMATIC_BASES} from './enums.mjs';
+import {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,COMPARATOR_WORDS,RANK_WORDS,RANK_CUTS,QUANTIFIER_WORDS,ORDER_WORDS,ORDER_SAMPLING,ORDER_SAMPLING_MODES,LINK_WORDS,MAX_LINKS,UNPARSED_HINTS,MAX_SPAN,PRAGMATIC_KINDS,PRAGMATIC_BASES,INSTRUCTION_ACTIONS,INSTRUCTION_KINDS,INSTRUCTION_TEXT_KINDS} from './enums.mjs';
 export {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,OUTPUT_MODES,QUERY_MODES,TIME_MEASURES,COMPARATOR_WORDS,ARITHMETIC_WORDS,RANK_WORDS,RANK_CUTS,QUANTIFIER_WORDS,ORDER_WORDS,FRAGMENT_KINDS,LINK_KEYWORDS,LINK_WORDS,LINK_TYPES,MAX_LINKS,LINK_STATUSES,UNPARSED_HINTS,GENERIC_HINTS,MAX_SPAN} from './enums.mjs';
 import {parseExpression,expressionRefs,evaluateExpression} from './expression.mjs';
 import {conditionField,parseCondition,parseBooleanCondition,formatCondition,BLOCK_OPENERS,BLOCK_CLOSER} from './conditions.mjs';
@@ -19,8 +19,9 @@ export const SPEC={
  unclear:{one:['kind','language'],many:['reading'],required:['kind']},
  unparsed:{one:['span','near','hint'],required:['span']},
  pragmatic:{one:['kind','score','span','near','source','basis'],required:['kind','basis']},
+ instruction:{one:['do','kind','text','span','source'],required:['do']},
  rule:{one:['then','valid','mode','source'],many:['when'],required:['then','when']},
- query:{one:['mode','select','scope','measure','span','at','during','overlaps','asof','limit','rank','quantifier','order','fragment'],many:['where','filter','compare','except',...LINK_WORDS],required:['where']},
+ query:{one:['mode','select','scope','measure','span','at','during','overlaps','asof','limit','rank','quantifier','order','fragment'],many:['where','filter','compare','except',...LINK_WORDS],required:[]},
  constraint:{one:['claim','task','unit','objective','direction','select'],many:['var','require'],required:[]},
  event:{one:['action','target','effective','replacement','source'],required:['action','target']},
  pack:{many:['items'],required:['items']},
@@ -55,7 +56,7 @@ export const SPEC={
 const specOf=(type)=>SPEC[type];
 export function words(s){return s.match(/"(?:\\.|[^"\\])*"|\S+/g)??[];}
 export function unquote(s){return s?.startsWith('"')?JSON.parse(s):s;}
-export function parseTerm(s){if(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(s))return {ref:s.slice(1)};if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(s))return s;if(s.startsWith('"')){const v=JSON.parse(s);assert(typeof v==='string','String term required');return v;}if(/^-?\d+$/.test(s)){const n=Number(s);assert(Number.isSafeInteger(n),'Safe integer expected');return n;}assert(/^[a-z][a-z0-9_:-]*$/.test(s),'Invalid canonical term '+s);return s;}
+export function parseTerm(s){if(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(s))return {ref:s.slice(1)};if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(s))return s;if(s.startsWith('"')){const v=JSON.parse(s);assert(typeof v==='string','String term required');return v;}if(/^-?\d+$/.test(s)){const n=Number(s);assert(Number.isSafeInteger(n),'Safe integer expected');return n;}if(/^-?\d+\.\d+$/.test(s)){const n=Number(s);assert(Number.isFinite(n),'Finite decimal expected');return n;}assert(/^[a-z][a-z0-9_:-]*$/.test(s),'Invalid canonical term '+s);return s;}
 export function parseAtom(text,{absence=false}={}){
  assert(typeof text==='string'&&!/[\r\n]/.test(text),'An atom occupies one line');
  const head=text.match(absence?/^(not[ \t]+|absent[ \t]+(?=[a-z][a-z0-9_]*[ \t]+\S))?([a-z][a-z0-9_]*)[ \t]+/:/^(not[ \t]+)?([a-z][a-z0-9_]*)[ \t]+/);
@@ -103,6 +104,8 @@ export function parse(source,{maxWires=2048,maxBytes=1048576,allowTypes=null}={}
 }
 export const one=(w,k,defaultValue=undefined)=>w.fields[k]?.[0]??defaultValue;
 export const many=(w,k)=>w.fields[k]??[];
+/** The sampling word of a query's `order` line (`order random`, ORDER_SAMPLING), or null for a temporal order or none. */
+export const sampledOrder=w=>{const p=words(one(w,'order','')??'');return p.length===1&&ORDER_SAMPLING.includes(p[0])?p[0]:null;};
 export function refsIn(text){let quoted=false,esc=false;const values=new Set(),handles=new Set();for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(!esc&&c==='"')quoted=false;if(!esc&&c==='\\')esc=true;else esc=false;continue;}if(c==='"'){quoted=true;continue;}if(c==='$'||c==='~'){const m=text.slice(i+1).match(/^[A-Za-z][A-Za-z0-9_]*/);if(m){(c==='$'?values:handles).add(m[0]);i+=m[0].length;}}}return {values:[...values],handles:[...handles]};}
 export function dependencies(w){if(['template','procedure'].includes(w.type))return {values:[],handles:[]};const result={values:new Set(),handles:new Set()};for(const [key,vs]of Object.entries(w.fields)){if(['quote','text'].includes(key)||(key==='source'&&w.type!=='analogize'))continue;for(const text of vs){const r=refsIn(text);r.values.forEach(x=>result.values.add(x));r.handles.forEach(x=>result.handles.add(x));}}return {values:[...result.values],handles:[...result.handles]};}
 const SYMBOL=/^[a-z][a-z0-9_]*$/;
@@ -126,11 +129,11 @@ export function parseProposition(pairs,{where='proposition',variables=false,vali
    // In a stated/assumed wire a ?variable is only a placeholder for a span the model marked `unparsed` (paired by
    // `near` and `hint` at admission, sop/clauses.mjs); anywhere else it is a query unknown.
    if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(token)){assert(variables||placeholders,'proposition_not_ground: '+where+' role '+name+' cannot take a ?variable; put unknowns in a query');v=token;}
-   else if(/^-?\d+$/.test(token))v=parseTerm(token);
+   else if(/^-?\d+(?:\.\d+)?$/.test(token))v=parseTerm(token);
    // A `$id` value names another wire of the same model output (DS014 "Clauses and links", owner decision L1):
    // the proposition of a stated/assumed wire used as an argument, or the answers of an earlier query.
    else if(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(token)){assert(references,'proposition_not_ground: '+where+' role '+name+' cannot take a $reference');v={ref:token.slice(1)};}
-   else {assert(!/^~/.test(token),'proposition_not_ground: '+where+' role '+name+' cannot take a ~handle');assert(!/^\$/.test(token),'reference_form: '+where+' role '+name+' takes $id, a wire name of this output');assert(token.startsWith('"'),where+' role '+name+' value must be a JSON-quoted string as written in the message'+(variables?', a ?variable':'')+' or an integer');v=text('role '+name,token);assert(!/^[?$~]/.test(v),'proposition_not_ground: '+where+' role '+name+' cannot hide a sigil in quotes');}
+   else {assert(!/^~/.test(token),'proposition_not_ground: '+where+' role '+name+' cannot take a ~handle');assert(!/^\$/.test(token),'reference_form: '+where+' role '+name+' takes $id, a wire name of this output');assert(token.startsWith('"'),where+' role '+name+' value must be a JSON-quoted string as written in the message'+(variables?', a ?variable':'')+' or a number (integer or decimal)');v=text('role '+name,token);assert(!/^[?$~]/.test(v),'proposition_not_ground: '+where+' role '+name+' cannot hide a sigil in quotes');}
    out.roles.push({name,value:v});continue;
   }
   if(key==='valid'&&validity){
@@ -174,8 +177,13 @@ function validateLinks(w){
  // At most one `$id` role value per wire (owner decision L1): one clause is one short proposition.
  assert(roleReferences(w).length<=1,'reference_multiple: @'+w.id+' uses more than one $id role value; split the clause into its own wire');
 }
+/** A compare line between two JSON-quoted operands. */
+const COMPARED_LITERALS=/^\s*"(?:\\.|[^"\\])*"\s+\S+\s+"(?:\\.|[^"\\])*"\s*$/;
 function validateShape(w){
  if(['stated','assumed','query'].includes(w.type))validateLinks(w);
+ // A query needs `where`, except a comparison of written values only ("1 hour" above "3000 seconds"): the runtime lowers quantities
+ // with units onto the memory's unit facts (sop/quantities.mjs), so such a query asks the memory without a match of its own.
+ if(w.type==='query'&&!w.fields.where?.length)assert(w.fields.compare?.length&&w.fields.compare.every(line=>COMPARED_LITERALS.test(line)),'@'+w.id+' needs where');
  if(w.type==='fact')parseAtom(one(w,'holds'));
  if(w.type==='stated'||w.type==='assumed')parseProposition(propositionPairs(w),{where:'@'+w.id+' '+w.type});
  if(w.type==='stated'){
@@ -196,6 +204,18 @@ function validateShape(w){
   if(w.fields.source)assert(/^[a-z][a-z0-9_]*$/.test(one(w,'source')),'@'+w.id+' pragmatic source takes one strategy id (lowercase letters, digits, underscore)');
   if(w.fields.span){const span=one(w,'span'),v=/^"/.test(span)?parseTerm(span):null;assert(typeof v==='string'&&v.trim()&&v.length<=MAX_SPAN,'pragmatic_span_form: @'+w.id+' span takes one nonempty JSON-quoted verbatim part of the message (at most '+MAX_SPAN+' characters)');}
   if(w.fields.near)linkTarget(one(w,'near'),'@'+w.id+' near');
+ }
+ if(w.type==='instruction'){
+  const action=one(w,'do'),kind=w.fields.kind?one(w,'kind'):null;
+  assert(INSTRUCTION_ACTIONS.includes(action),'@'+w.id+' instruction do must be one of '+INSTRUCTION_ACTIONS.join(', '));
+  if(kind!==null)assert(INSTRUCTION_KINDS.includes(kind),'@'+w.id+' instruction kind must be one of '+INSTRUCTION_KINDS.join(', '));
+  if(action==='set')assert(kind!==null,'instruction_kind_required: @'+w.id+' do set names the kind of the instruction');
+  if(action==='list')assert(kind===null&&!w.fields.text,'instruction_list_form: @'+w.id+' do list takes no kind and no text');
+  const text=w.fields.text?parseTerm(one(w,'text')):null;
+  if(w.fields.text)assert(typeof text==='string'&&text.trim()&&text.length<=MAX_SPAN,'instruction_text_form: @'+w.id+' text takes one nonempty JSON-quoted verbatim part of the message (at most '+MAX_SPAN+' characters)');
+  if(action==='set')assert(INSTRUCTION_TEXT_KINDS.includes(kind)===Boolean(w.fields.text),'instruction_text: @'+w.id+' kinds '+INSTRUCTION_TEXT_KINDS.join(' and ')+' take a text, the other kinds none');
+  if(w.fields.span){const span=one(w,'span'),v=/^"/.test(span)?parseTerm(span):null;assert(typeof v==='string'&&v.trim()&&v.length<=MAX_SPAN,'instruction_span_form: @'+w.id+' span takes one nonempty JSON-quoted verbatim part of the message');}
+  if(w.fields.source)assert(/^[a-z][a-z0-9_]*$/.test(one(w,'source')),'@'+w.id+' instruction source takes one strategy id');
  }
  if(w.type==='unclear'){
   assert(ENUMS.unclear.kind.includes(one(w,'kind')),'@'+w.id+' unclear kind must be one of '+ENUMS.unclear.kind.join(', '));
@@ -246,7 +266,8 @@ const OPERAND=/^(?:\?[A-Za-z][A-Za-z0-9_]*|-?\d+|"(?:\\.|[^"\\])*")$/;
  */
 function validateWordFields(w,mode){
  // `compare` is one comparison, or an all/any/end group of them ("BT or UniCredit": compare any … end).
- const compareLeaf=line=>{const [left,cmp,right,...rest]=words(line);assert(VARIABLE.test(left??'')&&Object.hasOwn(COMPARATOR_WORDS,cmp??'')&&OPERAND.test(right??'')&&!rest.length,'compare_form: @'+w.id+' compare takes ?variable COMPARATOR value, COMPARATOR one of '+Object.keys(COMPARATOR_WORDS).join(', '));return {left,op:cmp,right};};
+ // The left side is a variable, or a JSON-quoted quantity with a unit ("1 hour" above "3000 seconds", lowered by sop/quantities.mjs).
+ const compareLeaf=line=>{const [left,cmp,right,...rest]=words(line);assert((VARIABLE.test(left??'')||/^"/.test(left??''))&&OPERAND.test(left??'')&&Object.hasOwn(COMPARATOR_WORDS,cmp??'')&&OPERAND.test(right??'')&&!rest.length,'compare_form: @'+w.id+' compare takes ?variable COMPARATOR value (or two quoted quantities with units), COMPARATOR one of '+Object.keys(COMPARATOR_WORDS).join(', '));return {left,op:cmp,right};};
  for(const text of many(w,'compare'))parseCondition(text,leaf=>{assert(!isMatch(leaf),'compare_form: @'+w.id+' compare holds comparisons, not match blocks');return compareLeaf(leaf);});
  for(const line of many(w,'except')){const [variableName,value,...rest]=words(line);assert(VARIABLE.test(variableName??'')&&OPERAND.test(value??'')&&!rest.length,'except_form: @'+w.id+' except takes ?variable "value"');}
  if(w.fields.rank){const [direction,variableName,...rest]=words(one(w,'rank'));assert(RANK_WORDS.includes(direction)&&VARIABLE.test(variableName??'')&&(!rest.length||(rest.length===2&&RANK_CUTS.includes(rest[0])&&/^[1-9]\d{0,2}$/.test(rest[1]))),'rank_form: @'+w.id+' rank takes highest|lowest ?variable, optionally followed by position N or top N');}
@@ -256,7 +277,9 @@ function validateWordFields(w,mode){
   assert(QUANTIFIER_WORDS.includes(word)&&!rest.length,'quantifier_form: @'+w.id+' quantifier is one of '+QUANTIFIER_WORDS.join(', '));
   assert(word==='at_least'?/^[1-9]\d*$/.test(count??''):count===undefined,'quantifier_form: @'+w.id+' at_least takes a positive integer; the other quantifiers take none');
  }
- if(w.fields.order){
+ // `order random` (one word, ORDER_SAMPLING): a seeded random order of the answers, a random sample with `limit` (mode select only).
+ if(w.fields.order&&words(one(w,'order')).length===1){const [word]=words(one(w,'order'));assert(ORDER_SAMPLING.includes(word),'order_form: @'+w.id+' order takes ?time1 before|after|same_time ?time2, or the single word '+ORDER_SAMPLING.join('|'));assert(ORDER_SAMPLING_MODES.includes(mode??'select'),'order_random_mode: @'+w.id+' order random samples the answers of mode '+ORDER_SAMPLING_MODES.join('|')+', not mode '+mode);}
+ else if(w.fields.order){
   const parts=words(one(w,'order'));
   assert((parts.length===3||(parts.length===6&&parts[3]==='leaves'&&/^\d+$/.test(parts[4])&&/^\d+$/.test(parts[5])))&&VARIABLE.test(parts[0])&&ORDER_WORDS.includes(parts[1])&&VARIABLE.test(parts[2])&&parts[0]!==parts[2],'order_form: @'+w.id+' order takes ?time1 before|after|same_time ?time2');
  }

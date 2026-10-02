@@ -10,8 +10,8 @@
  *   node tools/eval/kbqa.mjs build    --suite <name> [--stage 100|300|all]   # Wikidata slice -> circuits + host lexicon -> base memory kbqa-<name>
  *   node tools/eval/kbqa.mjs run      --suite <name> [--stage 100|300|all] [--variant lex] [--model provider/model] [--tag m0] [--force]   # the chain on every question; per-question records (tag = a rerun on a newer component state)
  *   node tools/eval/kbqa.mjs report   [--suite <name>|all]                   # scores, attribution, summary.md
- *   node tools/eval/kbqa.mjs baseline --suite <name> --stage 100 [--model grok|glm] [--shards 10] [--concurrency 3]  # omp task folders: an LLM answers from the same slice as text
- *   node tools/eval/kbqa.mjs baseline-score --suite <name> --stage 100 --model grok   # scores the answers.jsonl of the shards
+ *   node tools/eval/kbqa.mjs baseline --suite <name> --stage 100 [--model qwen27b|deepseek] [--shards 10] [--concurrency 3]  # task folders, direct proxy calls: an LLM answers from the same slice as text
+ *   node tools/eval/kbqa.mjs baseline-score --suite <name> --stage 100 --model qwen27b   # scores the answers.jsonl of the shards
  *
  * Outputs: eval/reports/current/kbqa/<name>/stage-<n>.jsonl (one record per question), eval/reports/current/kbqa/summary.{md,json}.
  * The gold answers are read only here and by the scorer; no generator or training code reads eval/suites/** (AGENTS.md rule 9).
@@ -43,10 +43,10 @@ if (command === 'suites') {
   console.log(JSON.stringify(await writeReport({suites}), null, 2));
 } else if (command === 'baseline') {
   const {runBaseline} = await import('./kbqa/baseline.mjs');
-  for (const name of suites) console.log(JSON.stringify(await runBaseline(name, {stage, model: opt('--model', 'grok'), shards: Number(opt('--shards', 10)), concurrency: Number(opt('--concurrency', 3))}), null, 2));
+  for (const name of suites) console.log(JSON.stringify(await runBaseline(name, {stage, model: opt('--model', 'qwen27b'), shards: Number(opt('--shards', 10)), concurrency: Number(opt('--concurrency', 3))}), null, 2));
 } else if (command === 'baseline-score') {
   const {scoreBaseline} = await import('./kbqa/baseline.mjs');
-  for (const name of suites) console.log(JSON.stringify(scoreBaseline(name, {stage, model: opt('--model', 'grok')}), null, 2));
+  for (const name of suites) console.log(JSON.stringify(scoreBaseline(name, {stage, model: opt('--model', 'qwen27b')}), null, 2));
 } else {
   console.error('usage: node tools/eval/kbqa.mjs suites|slice|build|run|report|baseline|baseline-score [--suite <name>] [--stage 100|300|all]');
   process.exit(2);

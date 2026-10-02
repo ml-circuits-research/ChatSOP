@@ -26,7 +26,8 @@
  */
 import {runZ3, valuesOf, intOf, SolverStop} from './z3.mjs';
 import {unify} from '../js-reference/join.mjs';
-import {groundArgs, termIn, compareValues, compute, argsKey, isVarTerm, ProgramError, NotExpressibleError, showValue} from '../js-reference/values.mjs';
+import {groundArgs, termIn, compareValues, argsKey, isVarTerm, ProgramError, NotExpressibleError, showValue} from '../js-reference/values.mjs';
+import {exactCompute as compute} from '../solver-common/exact-rational.mjs';
 import {tokens} from '../../../sop/knowledge/index.mjs';
 import {actionModel, isMarkov, orderedGoal, planPacket, blockedPacket, costBoundProves} from '../solver-common/planmodel.mjs';
 

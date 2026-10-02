@@ -11,11 +11,11 @@ export const API_VERSION = 'capability-api-v2';
 export const RENDERER_VERSION = 'answer-text-v1';
 
 export function createCapabilities({queryParser = null} = {}) {
-  const chain = () => queryParser?.settings.models ?? [];
+  const chain = () => queryParser?.settings?.models ?? [];
   return {
     versions: () => ({
       api: API_VERSION,
-      request_parser: {parser: 'coding_agent', backend: queryParser?.settings.backend.kind ?? null, models: chain(), guide_files: SKILL_FILES.length},
+      request_parser: {parser: 'llm_direct', strategy: queryParser?.settings?.strategy ?? null, backend: 'completion', models: chain(), guide_files: SKILL_FILES.length},
       reasoning: {router: 'StrategyRouter v1', oracle: 'js-reference'},
       renderer: RENDERER_VERSION,
     }),

@@ -474,6 +474,7 @@
   role subject unit
   role object dimension
   label en "dimension of"
+  reading unit_dimension
   description "The physical dimension a unit measures (mass, length, duration, volume, area); quantities can be compared only within one dimension."
 
 @base_amount predicate
@@ -481,6 +482,7 @@
   role subject unit
   role object integer
   label en "amount in base units"
+  reading unit_amount
   description "One of the unit equals this whole number of the fine base unit of its dimension: milligrams for mass, micrometres for length, milliseconds for duration, microlitres for volume, square millimetres for area (imperial units rounded to the nearest base unit). Comparing 1 kg with 900 g: 1 x 1000000 mg against 900 x 1000 mg."
 
 @same_dimension predicate

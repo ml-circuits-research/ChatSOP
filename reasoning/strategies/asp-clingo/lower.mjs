@@ -24,7 +24,7 @@ export const rel = (neg, p, args, time = null) => {
 };
 
 const CMP = {equal: '==', not_equal: '!=', above: '>', below: '<', at_least: '>=', at_most: '<='};
-const OPS = {plus: '+', minus: '-', times: '*', divided_by: '/'};
+const OPS = {plus: '+', minus: '-', times: '*', whole_divided_by: '/'};
 const ORDERING = new Set(['above', 'below', 'at_least', 'at_most']);
 
 function ordinal(t) {
@@ -38,7 +38,9 @@ export function lowerLeaf(l, time = null) {
   switch (l.kind) {
     case 'atom': return l.mode === 'absent' ? `not ${rel(false, l.p, l.args, time)}` : rel(l.mode === 'not', l.p, l.args, time);
     case 'compare': return ORDERING.has(l.word) ? `${ordinal(l.left)} ${CMP[l.word]} ${ordinal(l.right)}` : `${term(l.left)} ${CMP[l.word]} ${term(l.right)}`;
-    case 'compute': return `${aspVar(l.out)} = ${term(l.left)} ${OPS[l.word]} ${term(l.right)}`;
+    case 'compute':
+      if (!OPS[l.word]) throw new NotExpressibleError(['exact_arithmetic'], `compute ${l.word} has no lowering in this engine (the fixed-point rewriting of solver-common/fixed-point.mjs expands it before)`);
+      return `${aspVar(l.out)} = ${term(l.left)} ${OPS[l.word]} ${term(l.right)}`;
     default: throw new NotExpressibleError([l.kind === 'timeof' ? 'time_vars' : l.kind], `${l.kind} leaves are not lowered`);
   }
 }
@@ -72,7 +74,7 @@ function overflowWitnesses(leaves, time) {
       plus: [`${A} > 0, ${B} > 0, ${V} < 0`, `${A} < 0, ${B} < 0, ${V} >= 0`],
       minus: [`${A} >= 0, ${B} < 0, ${V} < 0`, `${A} < 0, ${B} > 0, ${V} >= 0`],
       times: [`${A} != 0, ${V} / ${A} != ${B}`],
-      divided_by: []
+      whole_divided_by: []
     }[l.word];
     for (const c of conds) out.push(`ovf_arith :- ${prefix.join(', ')}, ${c}.`);
   });
@@ -100,11 +102,12 @@ export function lowerAggregate(agg, shown, time = null) {
   const keyAtom = `${keyName}(${[...group, ...(time ? [time] : [])].join(',')})`;
   lines.push(`${keyAtom} :- ${rowAtom}.`);
   const tuple = rv.join(',');
-  const weight = agg.fn === 'count' ? '1' : aspVar(agg.field ?? '?_');
+  // a fixed-point program carries every number multiplied by 10^S: a count is the sum of P per distinct row
+  const weight = agg.fn === 'count' ? String(agg.scaleCount ?? 1) : aspVar(agg.field ?? '?_');
   if (agg.fn !== 'count' && !agg.field) throw new NotExpressibleError(['aggregate_field'], `${agg.fn} needs a field`);
-  const fn = {count: '#count', sum: '#sum', min: '#min', max: '#max'}[agg.fn];
+  const fn = {count: agg.scaleCount ? '#sum' : '#count', sum: '#sum', min: '#min', max: '#max'}[agg.fn];
   if (!fn) throw new NotExpressibleError(['collect'], 'collect aggregates are not lowered');
-  const element = agg.fn === 'count' ? `${tuple}` : `${weight},${tuple}`;
+  const element = agg.fn === 'count' && !agg.scaleCount ? `${tuple}` : `${weight},${tuple}`;
   const head = {neg: false, p: agg.yields.p, args: agg.yields.args};
   shown.add(false, head.p, head.args.length, time);
   const env = `${aspVar(agg.out)} = ${fn} { ${element} : ${rowAtom} }`;

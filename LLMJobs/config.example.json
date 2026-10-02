@@ -1,0 +1,15 @@
+{
+  "_note": "Copy to llmjobs.config.json next to (or above) your job folders. Relative paths resolve against this file's folder. Jobs name tiers or roles, never concrete models; while the endpoint does not serve a tier, `fallback` gives its concrete chain.",
+  "endpoint": "http://127.0.0.1:18080",
+  "dataDir": "./state",
+  "templatesDir": "./templates",
+  "roles": {"planner": "good", "decider": "good", "auditor": "medium", "worker": "small", "worker-short": "tiny"},
+  "fallback": {
+    "good": [{"upstream": "openrouter", "model": "deepseek/deepseek-v4.1-flash", "reasoning": "low", "maxTokens": 8000}],
+    "medium": [{"upstream": "openrouter", "model": "deepseek/deepseek-v4-flash", "reasoning": "low", "maxTokens": 32000}],
+    "small": [{"upstream": "openference", "model": "Qwen3.8 27b", "maxTokens": 4000, "extraBody": {"chat_template_kwargs": {"enable_thinking": false}}}],
+    "tiny": [{"upstream": "local", "model": "Qwen3-4B", "maxTokens": 1500}]
+  },
+  "limits": {"maxTaskUsd": 2, "maxTaskCredits": 100, "maxTaskCalls": 2000},
+  "tasks": {"keepDays": 7}
+}

@@ -261,7 +261,7 @@ test('demand makes a bound closure walk one component: a 10,000-edge graph of ri
 
 test('compute: integer division truncates toward zero, a zero divisor or an overflow makes the body false and is noted', () => {
   const k = facts(['v a 7', 'v b -7', 'v c 0', 'v d 9007199254740991', 'w a 2', 'w b 2', 'w c 0', 'w d 1']) +
-    '@r1 rule\n  when v ?x ?n\n  when w ?x ?m\n  when compute ?q ?n divided_by ?m\n  then quo ?x ?q\n' +
+    '@r1 rule\n  when v ?x ?n\n  when w ?x ?m\n  when compute ?q ?n whole_divided_by ?m\n  then quo ?x ?q\n' +
     '@r2 rule\n  when v ?x ?n\n  when compute ?s ?n plus 1\n  then succ ?x ?s\n' +
     '@r3 rule\n  when v ?x ?n\n  when compute ?t ?n times ?n\n  then sq ?x ?t\n';
   const quo = same(k, sel('quo ?x ?q', '?x ?q'));

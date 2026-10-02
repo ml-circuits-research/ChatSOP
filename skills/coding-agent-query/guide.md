@@ -200,6 +200,12 @@ Comparing two named things (yes/no, "Is Russia larger than Canada?"): one match 
     end
   end
 ```
+Comparing amounts with units ("Is an hour longer than 3000 seconds?", "Is 1 kilogram heavier than 900 grams?", "Is a mile longer than a kilometre?"): each side is a quoted quantity, a number and its unit as words ("an hour" is `"1 hour"`, "a mile" is `"1 mile"`), compared directly; no match block, never a unit or an amount as an entity. The runtime converts both through the memory's unit facts; units of different kinds are not compared.
+```
+@q query
+  compare "1 hour" above "3000 seconds"
+```
+A role whose type is text (an activity such as "used for cutting", a typical property) takes the words as written: `role object "cutting"`.
 Several hops ("the city where the director of Seven Samurai was born"): one match block per hop, joined by a shared variable.
 ```
 @q query
@@ -266,6 +272,75 @@ Read the full vocabulary when candidates do not explain the requested relation. 
 
 Temporal questions use `at "DATE"` for one instant, `during "START to END"` for throughout the full end-exclusive interval, and `overlaps "START to END"` for any instant of the interval. Write the dates rather than the words "throughout" or "at any point" inside the date string. Never use `at` for a whole interval.
 
+## Problems that state their own data (problem mode)
+
+A message that describes its own situation (names, objects, quantities, rules of a game, conditions of a puzzle) and asks something about it is a **problem**: model it from its own text, never from the memory. Every fact the problem gives ("Linden is in Lake District", "a fire needs fuel, oxygen and heat") is a `stated` wire and every general statement it gives ("if X is in Y and Y is in Z, X is in Z") is a session rule, even when the memory has a predicate with that meaning (then the statement may use the memory predicate); a query over the memory alone never answers a problem. The memory gives only background knowledge the problem does not state. Do not answer it yourself: the engines compute.
+
+1. **Vocabulary.** Declare a session `predicate` for each quantity, property or relation the problem talks about, named after the problem's own words (`unit_price`, `seat_of`, `is_glorp`), with role-typed args: `subject:entity` for a named thing and `object:value` (or `topic:value`) for a number. At most four arguments. A memory predicate with the same id is reported as `duplicate_id`: use the memory one with its roles, or pick a more specific id.
+2. **Data.** A yes/no attribute of a thing ("water: YES", "shelter: NO", "is certified") is a property predicate (`args subject:entity`) stated `affirmed` or `negated`, never a value "YES". Positions on a grid or a line are numbers (coordinates or ranks), so "east of", "two steps north" become arithmetic. Each fact the problem gives is a `stated` wire (`certainty asserted`, `polarity affirmed`, or `negated` for an explicit "not"). Names exactly as written ("Plan A", "Kara", "Box 3"); numbers exactly as written in the message, as digits (`4000` for "4,000" or "four thousand"; `11` for "11%"; `1.84`). A general statement of the problem ("every glorp is blue", "if it rains the ground is wet") is a session `rule` over the session predicates; a typical but defeasible one is a `default`.
+3. **Computation.** The asked quantity is derived by a session `rule` whose `when` lines join the stated facts on variables and compute: one `compute ?out A WORD B` per line, WORD one of `plus minus times divided_by` (exact: 7 divided_by 2 is 3.5) `whole_divided_by modulo power rounded_to rounded_up_to rounded_down_to` (`rounded_up_to 1` gives a whole number of batches, `rounded_to 0.01` gives cents). Constants of the computation that are not facts of the problem (100 for a percentage, 60 minutes in an hour, 12 months) are numbers in the rule. Rules join on variables and put the names in the query. Each derived quantity has its own predicate. Lengths along a chain (the fewest steps between two places, the earliest finish of a task after its predecessors, a critical path) are a recursive rule that adds along each link (`when link ?a ?b` ... `when path_length ?b ?c ?n` ... `when compute ?m ?n plus 1` ... `then path_length ?a ?c ?m`), bounded by a `compare ?m at_most N` with N the number of things when the links can form a cycle, followed by a session `aggregate` `min` (fewest) or `max` (critical path) over the lengths. A count or total over several stated facts is a session `aggregate`; arithmetic over its result is another rule.
+4. **Question.** Only names the problem itself writes are values; never invent a label ("combined", "total", "result"). A quantity of the whole problem (a deadline, a combined mean, the total) is a predicate with the single argument `object:value`: `then combined_mean ?m`, queried with `role object ?m`. The query selects the derived value, chooses among the options with `rank lowest|highest` over a derived value, or asks yes/no with `compare` between two value variables. A yes/no check the problem defines ("is a card accepted", "is the plan feasible") is a property derived by a pair of rules, one for the yes (`when compare ?price at_least ?minimum` ... `then card_accepted ?item`) and one for the explicit no with the opposite comparison (`when compare ?price below ?minimum` ... `then not card_accepted ?item`), asked as a yes/no query, so the answer is yes or no rather than unknown. A difference between two named things is a predicate over both (`difference ?a ?b ?d`), queried with both names.
+5. **Puzzles.** Orderings, seatings, assignments and "which numbers satisfy ..." are one `constraint` (integer variables, one per unknown, named after the thing: `?ana`, `?box_red`; every condition a `require`; `task possible`; `select` the asked variables). Distinct positions need a `require ?a not_equal ?b` for every pair.
+6. **Several questions** in one problem are several queries (`@q`, `@q2`, ...), one per question; per-thing values ("compute the risk of each site") select both the thing and the value. A problem is never `no_request` and never `ambiguous`: its questions are its readings. Never write a computed number anywhere (not in a `reading`, a value or a comment).
+7. **Not enough data.** If the problem does not give what the question needs, do not invent it: model what is given and query; the engines answer `unknown`.
+
+Arithmetic over the problem's own data (a sketch of the shape, not of any particular problem):
+```
+@unit_price predicate
+  args subject:entity object:value
+@quantity predicate
+  args subject:entity object:value
+@total_price predicate
+  args subject:entity object:value
+@s1 stated
+  certainty asserted
+  relation "unit_price"
+  role subject "Pens"
+  role object 1.5
+  polarity affirmed
+@s2 stated
+  certainty asserted
+  relation "quantity"
+  role subject "Pens"
+  role object 12
+  polarity affirmed
+@total_price_rule rule
+  when unit_price ?item ?p
+  when quantity ?item ?n
+  when compute ?t ?p times ?n
+  then total_price ?item ?t
+@q query
+  select ?t
+  where match
+    relation "total_price"
+    role subject "Pens"
+    role object ?t
+    polarity affirmed
+  end
+```
+A rule the problem states, and a deduction from it:
+```
+@is_glorp predicate
+  args subject:entity
+@is_blue predicate
+  args subject:entity
+@glorps_are_blue rule
+  when is_glorp ?x
+  then is_blue ?x
+@s1 stated
+  certainty asserted
+  relation "is_glorp"
+  role subject "Zed"
+  polarity affirmed
+@q query
+  where match
+    relation "is_blue"
+    role subject "Zed"
+    polarity affirmed
+  end
+```
+An explicit negation in a rule's conclusion (`then not rains ?d`, with `when not ground_wet ?d`) derives a negative answer (modus tollens is written as its own rule).
+
 ## Statements of the user
 
 A message that states something ("My friend Zork lives in Lisbon.") is written as `stated` wires with `certainty asserted`, one finite clause per wire, every value copied from the message (an unknown name stays as written). They are turn-local evidence: a later question of the same conversation can use them; nothing is stored in the memory.
@@ -282,13 +357,43 @@ A message that states something ("My friend Zork lives in Lisbon.") is written a
 
 When the question names the class of its answer ("which countries ...", "which cities ..."), restrict the answer with an `is_a` match of that class, unless the relation's declared argument class already guarantees it; a relation's values may include items of other classes. The message may be in any language: entity strings are names as written, never question or function words ("Care", "Unde", "Cine", "Qui", "Wer").
 
-## unclear (alone in the file, besides pragmatic wires)
+## Questions about the assistant and its memory
+
+"You", "yourself" and "your memory" name the assistant: write the name "ChatSOP" (the entity `chatsop` of the self layer), when the vocabulary has it (`can_do`, `knows_about`, `entity_count`, `relation_fact_count`, `memory_size`, `memory_layer`, `description`). Such messages are requests, never `no_request`: "What do you know?" asks `knows_about` (role subject "ChatSOP", role topic ?x), "What can you do?" asks `can_do`, "Who are you?" asks `description`, "How big is your memory?" asks `memory_size` (select both places), "How many countries do you know?" asks `entity_count` of the class.
+
+A random fact, some facts or examples ("Tell me something interesting", "List some facts you know", "Give me examples of rivers") select every place of one relation with many facts (for examples of a class: the members of that class through `is_a`) and add `order random` with `limit` (1 for one fact, 3 to 5 for some):
+```
+@q query
+  select ?x ?y
+  where match
+    relation "capital_of"
+    role subject ?x
+    role object ?y
+    polarity affirmed
+  end
+  order random
+  limit 3
+```
+`order random` is only for such sampling; it never replaces a requested ranking or order.
+
+## Instructions about how to answer
+
+A message that tells the assistant how to answer from now on is an `instruction` wire (never a `stated` fact): `do set` with `kind prefix` or `suffix` and the verbatim words to start or end every answer with in `text`, or `kind short` / `detailed` for the answer style; `do cancel` (with the kind, or without one for all) when the user withdraws an instruction ("stop doing that", "forget my instructions"); `do list` when the user asks which instructions are active. An instruction may stand alone or next to a query.
+```
+@i instruction
+  do set
+  kind prefix
+  text "I'm here:"
+```
+"From now on always start your answers with «I'm here:»" is the wire above; "stop starting with I'm here" is `do cancel` with `kind prefix`; "what are my instructions?" is `do list`.
+
+## unclear (alone in the file, besides pragmatic and instruction wires)
 
 ```
 @u unclear
   kind relation_not_in_memory
 ```
-`kind` is `gibberish`, `no_request` (nothing to state or ask: "ok", "write a poem"; a statement is written as `stated` wires, below), `ambiguous` with 2 to 4 `reading "..."` lines, or `relation_not_in_memory` (the question is clear, but no predicate of the memory expresses it).
+`kind` is `gibberish`, `no_request` (nothing to state or ask: "ok", "write a poem"; a question about the assistant or its memory is a request, above; a statement is written as `stated` wires, below), `ambiguous` with 2 to 4 `reading "..."` lines, or `relation_not_in_memory` (the question is clear, but no predicate of the memory expresses it).
 
 ## Courtesy and emotion: pragmatic wires
 

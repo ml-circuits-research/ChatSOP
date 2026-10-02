@@ -20,9 +20,10 @@ export const ROLE_NAMES = Object.freeze(['subject', 'object', 'recipient', 'loca
  * memory declares which of its predicates carry one (`reading NAME` on a predicate wire); the linker never names a
  * predicate itself. `class` = membership in a kind, `occupation` = what someone does for a living, `attribute` = a
  * property, `identity` = the same thing, `location` = where something is, `describe` = a predicate whose facts about a
- * subject answer "who/what is X?" (ranked by `describe_rank`).
+ * subject answer "who/what is X?" (ranked by `describe_rank`). Two readings serve comparisons of quantities (sop/quantities.mjs), not
+ * the copula: `unit_amount` = how many base units one of the subject unit is, `unit_dimension` = the dimension the subject unit measures.
  */
-export const COPULA_READINGS = Object.freeze(['class', 'occupation', 'attribute', 'identity', 'location', 'describe']);
+export const COPULA_READINGS = Object.freeze(['class', 'occupation', 'attribute', 'identity', 'location', 'describe', 'unit_amount', 'unit_dimension']);
 /** Validity forms of a proposition: `valid on|from|until "text"`; the host normalizes the text. */
 export const VALIDITY_FORMS = Object.freeze(['on', 'from', 'until']);
 /** Output port modes: `output ?name MODE` on solve and reasoning operations (default one). */
@@ -52,11 +53,28 @@ export const TIME_MEASURES = Object.freeze(['start', 'end', 'duration']);
  */
 export const COMPARATOR_WORDS = Object.freeze({above: '>', below: '<', at_least: '>=', at_most: '<=', equal: '==', not_equal: '!='});
 export const ARITHMETIC_WORDS = Object.freeze({plus: '+', minus: '-', times: '*', divided_by: '/'});
+/**
+ * The words of a rule's `compute ?v A WORD B` leaf (DS004 "Exact arithmetic", owner 2026-10-02: problems state their own numbers):
+ * the four arithmetic words with exact decimal results (`divided_by` is exact: 7 divided_by 2 is 3.5), and `whole_divided_by`
+ * (the integer quotient, truncated toward zero), `modulo` (the remainder of the whole division), `power` (an integer exponent
+ * from 0 to 64), `rounded_to`, `rounded_up_to` and `rounded_down_to` (A to the nearest, next or previous multiple of B: `rounded_to 0.01`
+ * gives cents, `rounded_up_to 1` the whole number of batches). Numbers are integers or decimals.
+ */
+export const COMPUTE_WORDS = Object.freeze([...Object.keys(ARITHMETIC_WORDS), 'whole_divided_by', 'modulo', 'power', 'rounded_to', 'rounded_up_to', 'rounded_down_to']);
+/** The compute words whose results the integer-only engines reproduce (truncating whole division); every other word, and any decimal operand, needs `exact_arithmetic`. */
+export const INTEGER_COMPUTE_WORDS = Object.freeze(['plus', 'minus', 'times', 'whole_divided_by']);
 export const RANK_WORDS = Object.freeze(['highest', 'lowest']);
 /** Optional cut after the variable of `rank`: `position 2` (the second best value, "the second largest") or `top 3` (the three best values). */
 export const RANK_CUTS = Object.freeze(['position', 'top']);
 export const QUANTIFIER_WORDS = Object.freeze(['all', 'none', 'not_all', 'most', 'half', 'at_least']);
 export const ORDER_WORDS = Object.freeze(['before', 'after', 'same_time']);
+/**
+ * The single-word sampling form of `order` (DS004 "Sampling", DS014 "Words, not operators"): `order random` returns the answers of a `mode select` query in
+ * a seeded random order, and with `limit N` a random sample of N of them ("a random fact", "give me some examples"). The answer set is
+ * the one without the line; at most one per query; `ORDER_SAMPLING_MODES` are the modes it applies to (`order_random_mode` otherwise).
+ */
+export const ORDER_SAMPLING = Object.freeze(['random']);
+export const ORDER_SAMPLING_MODES = Object.freeze(['select']);
 export const FRAGMENT_KINDS = Object.freeze(['follow_up']);
 
 /**
@@ -112,6 +130,17 @@ export const LINK_STATUSES = Object.freeze(['applied', 'not_checked']);
 export const PRAGMATIC_KINDS = Object.freeze(['greeting', 'closing', 'thanks', 'apology', 'politeness', 'urgency', 'frustration', 'anger', 'confusion', 'curiosity', 'joy', 'sadness', 'fear', 'disappointment', 'hedge', 'emphasis', 'profanity', 'offensive', 'irony_possible', 'confirmation_request', 'topic_shift', 'unclassified']);
 export const PRAGMATIC_BASES = Object.freeze(['lexicon', 'pattern', 'classifier', 'llm']);
 
+/**
+ * `instruction` (behaviour layer, owner decision of 2026-10-02): what the user asks about how the assistant should answer from now on,
+ * written by the formalizer. `do set` adds an instruction, `do cancel` withdraws the active one of its kind (or all, without a kind),
+ * `do list` asks for the active instructions. The kinds: `prefix` and `suffix` (start or end every answer with the verbatim `text`),
+ * `short` and `detailed` (the answer style). An instruction is never a fact: it becomes behaviour data of the conversation (DS023).
+ */
+export const INSTRUCTION_ACTIONS = Object.freeze(['set', 'cancel', 'list']);
+export const INSTRUCTION_KINDS = Object.freeze(['prefix', 'suffix', 'short', 'detailed']);
+/** Instruction kinds that carry the verbatim `text` they add to every answer. */
+export const INSTRUCTION_TEXT_KINDS = Object.freeze(['prefix', 'suffix']);
+
 export const ENUMS = Object.freeze({
   query: {mode: [...QUERY_MODES, ...REASONING_QUERY_MODES], measure: [...TIME_MEASURES], fragment: [...FRAGMENT_KINDS]},
   constraint: {task: ['prove', 'possible', 'optimize'], direction: ['min', 'max']},
@@ -123,6 +152,7 @@ export const ENUMS = Object.freeze({
   unclear: {kind: Object.keys(UNCLEAR_KINDS), language: [...REPLY_LANGUAGES], readingKinds: [...READING_KINDS]},
   unparsed: {hint: [...UNPARSED_HINTS]},
   pragmatic: {kind: [...PRAGMATIC_KINDS], basis: [...PRAGMATIC_BASES]},
+  instruction: {do: [...INSTRUCTION_ACTIONS], kind: [...INSTRUCTION_KINDS]},
 });
 
 /** Is `value` one of the closed values of `type.field`? */

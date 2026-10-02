@@ -48,6 +48,7 @@
     "maxRules": 1024,
     "maxShards": 256
   },
+  "assistant": "chatsop",
   "chatData": {
     "root": "chat_data",
     "defaultBase": "world-v1",
@@ -55,18 +56,17 @@
     "sessionTtlDays": 14,
     "cleanupIntervalMinutes": 60
   },
-  "omp": {
-    "enabled": true,
-    "bin": "omp",
-    "timeoutSeconds": 600,
-    "maxFixRounds": 3,
-    "maxConcurrent": 2,
-    "modelsCacheSeconds": 600,
-    "defaultModel": null,
-    "proxyProvider": "openference"
+  "conversation": {
+    "_note": "The chat's reply memory (DS022 \"Composing a base memory\", DS023 \"Conversation layer\"): composed from these layers when it is missing; rebuild it with other layers on /admin (base-memory composer).",
+    "memory": "conversation-default",
+    "name": "Conversation (default set)",
+    "layers": ["conversation-v1", "smalltalk-core-v1", "smalltalk-empathy-v1", "smalltalk-self-v1", "smalltalk-playful-v1"]
   },
   "answerLanguage": {
-    "provider": "openference"
+    "providers": [
+      "small"
+    ],
+    "natural": "all"
   },
   "llmProviders": {
     "openference": {
@@ -75,42 +75,48 @@
       "requestsPerMinute": 15,
       "timeoutSeconds": 120,
       "maxTokens": 4000,
-      "thinking": false
-    }
-  },
-  "queryParser": {
-    "strategy": "CodingAgent",
-    "direct": {
-      "source": "remote",
-      "provider": "openference"
+      "thinking": false,
+      "proxyFallback": false
+    },
+    "openrouter": {
+      "baseUrl": "http://127.0.0.1:18080/u/openrouter/v1",
+      "model": "deepseek/deepseek-v4-flash",
+      "timeoutSeconds": 120,
+      "maxTokens": 4000,
+      "thinking": false,
+      "proxyFallback": false
     },
     "local": {
-      "gguf": "~/models/qwen3.8-27b/Qwen3.8-27B-UD-Q4_K_M.gguf",
-      "alias": "qwen3.8-27b",
-      "port": 19601,
-      "endpoint": null,
-      "slots": ["direct", "steps"],
-      "ctxPerSlot": 16384,
+      "baseUrl": "http://127.0.0.1:18080/u/local/v1",
+      "model": "Qwen3-4B",
+      "timeoutSeconds": 120,
       "maxTokens": 1500,
       "thinking": false,
-      "method": "B"
-    },
-    "backend": {
-      "kind": "omp",
-      "model": "llmapiprovider/Qwen3.8 27b",
-      "thinking": "off"
-    },
+      "proxyFallback": false
+    }
+  },
+  "ingest": {
+    "author": "direct",
+    "tier": "small",
+    "reasoning": "off",
+    "concurrency": 3
+  },
+  "queryParser": {
+    "strategy": "LLMDirect",
     "models": [
-      "llmapiprovider/Qwen3.8 27b",
-      "zai/glm-5.3",
-      "openai-codex/gpt-6-luna"
+      "small"
     ],
     "timeoutSeconds": 120,
     "maxFixRounds": 2,
     "selfCheck": false,
     "maxConcurrent": 4,
     "cacheEntries": 500,
-    "keepFolders": false
+    "local": {
+      "tier": "tiny",
+      "maxTokens": 1500,
+      "thinking": false,
+      "method": "B"
+    }
   },
   "server": {
     "warmup": true,

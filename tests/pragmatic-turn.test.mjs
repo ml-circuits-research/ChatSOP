@@ -4,8 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {Agent} from '../server/agent.mjs';
-import {courtesyReply, toneAnswer} from '../sop/pragmatic-text.mjs';
-import {context, lex} from './helpers.mjs';
+import {composeReply} from '../lib/conversation/index.mjs';
+import {context, lex, assertReply} from './helpers.mjs';
 
 const ASK = '@q query\n  where match\n    relation "work at"\n    role subject "Ana"\n    role object "Alpha Lab"\n    polarity affirmed\n  end\n';
 const wire = (id, kind, span = null) => `@${id} pragmatic\n  kind ${kind}\n${span ? `  span ${JSON.stringify(span)}\n` : ''}  basis llm\n`;
@@ -24,7 +24,8 @@ test('the lexicon pre-step is gone: the formalizer reads every message, includin
   const {agent, seen, formalizer} = agentWith(t, wire('p1', 'greeting', 'hello'));
   const hello = await agent.turn('hello', {formalizer});
   assert.deepEqual(seen, ['hello']);
-  assert.equal(hello.text, 'Hello! What would you like to know?');
+  assert.equal(hello.packet.reply.body.situation.startsWith('courtesy_greeting'), true);
+  await assertReply(hello.text, hello.packet.reply.body.situation);
   assert.equal(hello.packet.status, 'courtesy');
   assert.equal(hello.packet.pragmatic[0].kind, 'greeting');
   assert.deepEqual(hello.userStatements, []);
@@ -34,7 +35,8 @@ test('the lexicon pre-step is gone: the formalizer reads every message, includin
 test('thanks written as `unclear no_request` plus its pragmatic wire is a courtesy reply too', async t => {
   const {agent, formalizer} = agentWith(t, `@u unclear\n  kind no_request\n\n${wire('p1', 'thanks')}`);
   const result = await agent.turn('thanks!', {formalizer});
-  assert.equal(result.text, "You're welcome.");
+  assert.equal(result.packet.reply.body.situation, 'courtesy_thanks');
+  await assertReply(result.text, 'courtesy_thanks');
   assert.equal(result.packet.status, 'courtesy');
 });
 
@@ -43,10 +45,12 @@ test('a greeting and frustration next to a question set the tone; the message re
   const {agent, seen, formalizer} = agentWith(t, `${wire('p1', 'greeting', 'Hi')}\n${ASK}\n${wire('p2', 'frustration', 'this is the third time I ask')}`);
   const result = await agent.turn(message, {formalizer});
   assert.deepEqual(seen, [message]);
-  assert.match(result.text, /^Hello! Sorry for the trouble\. /);
+  assert.match(result.text, /^Sorry for the trouble\. /, 'frustration outranks the greeting in the opening (conversation-v1 priorities)');
+  assert.equal(result.packet.reply.opening.situation, 'open_sorry');
+  assert.match(result.packet.reply.body.situation, /^answer_/);
+  assert.deepEqual(result.packet.reply.opening.outranked, ['open_greeting']);
   assert.notEqual(result.packet.status, 'courtesy');
   assert.deepEqual(result.packet.pragmatic.map(s => s.kind), ['greeting', 'frustration']);
-  assert.deepEqual(result.packet.pragmatic_use.applied, ['courtesy:greeting', 'apology']);
   assert.deepEqual(result.userStatements, [], 'a pragmatic signal never becomes a statement');
 });
 
@@ -55,10 +59,21 @@ test('a span that is not in the message is rejected at admission', async t => {
   await assert.rejects(agent.turn('does Ana work at Alpha Lab?', {formalizer}), /pragmatic_span_not_in_message/);
 });
 
-test('the reply and tone templates render the closed kinds only from the packet', () => {
-  assert.equal(courtesyReply([{kind: 'thanks'}, {kind: 'greeting'}]), "Hello! What would you like to know? You're welcome.");
-  assert.match(courtesyReply([{kind: 'confusion'}]), /^Sorry for the confusion\./);
-  assert.equal(courtesyReply([]), 'What would you like to know?');
-  assert.deepEqual(toneAnswer('Yes.\nProof: ...', [{kind: 'urgency'}]), {text: 'Yes.', applied: ['shortened']});
-  assert.deepEqual(toneAnswer('Which one?', [{kind: 'greeting'}], 'clarify'), {text: 'Which one?', applied: []});
+test('the reply is chosen by the oracle over the conversation layer and filled from the packet', async () => {
+  const thanks = composeReply({packet: {status: 'courtesy', pragmatic: [{kind: 'thanks'}, {kind: 'greeting'}]}, seed: 1});
+  assert.equal(thanks.reply.body.situation, 'courtesy_greeting', 'the greeting has the higher priority');
+  assert.ok(thanks.reply.body.why.some(l => /cv_r_courtesy/.test(l)), 'the derivation names the rule');
+  await assertReply(composeReply({packet: {status: 'courtesy', pragmatic: [{kind: 'confusion'}]}}).text, 'courtesy_confusion');
+  await assertReply(composeReply({packet: {status: 'courtesy', pragmatic: []}}).text, 'courtesy_none');
+  const short = composeReply({packet: {status: 'supported', rows: [{x: 1}], pragmatic: [{kind: 'urgency'}]}, answerText: 'Yes.\nProof: ...'});
+  assert.equal(short.text, 'Yes.');
+  assert.equal(short.reply.style, 'short');
+  const clarify = composeReply({packet: {status: 'clarify', pragmatic: [{kind: 'greeting'}]}, answerText: 'Which one?', seed: 2});
+  assert.match(clarify.text, /Which one\?$/);
+  const near = composeReply({packet: {status: 'unknown', rows: []}, answerText: 'I do not know.', near: {candidates: [{label: 'Socrates', description: 'Greek philosopher', distance: 1, mention: 'Socrate', relations: [{label: 'born in'}]}]}});
+  assert.equal(near.reply.body.situation, 'near_candidate_described');
+  assert.match(near.text, /Socrate\b[\s\S]*Socrates \(Greek philosopher\)/);
+  assert.equal(near.reply.closing.situation, 'near_relations');
+  const sameVariant = seed => composeReply({packet: {status: 'courtesy', pragmatic: [{kind: 'greeting'}]}, seed}).text;
+  assert.equal(sameVariant(7), sameVariant(7), 'a fixed seed gives a fixed variant');
 });

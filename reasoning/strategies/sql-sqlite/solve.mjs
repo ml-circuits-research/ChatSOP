@@ -19,6 +19,19 @@ import {Closure} from './closure.mjs';
 import {Answerer} from './answer.mjs';
 import {queryDemand} from './demand.mjs';
 import {supportOf} from './provenance.mjs';
+import {planFixedPoint, scaleProgram, scaleQuery, fromScaled, toScaled, inexactError, INEXACT} from '../solver-common/fixed-point.mjs';
+import {tbl} from './schema.mjs';
+
+/** The codec of a fixed-point run: values leave the database divided by 10^S and enter it multiplied (text and symbols pass through). */
+function fixedCodec(codec, fx) {
+  return {
+    ...codec,
+    decode: value => fromScaled(codec.decode(value), fx.scale)
+  };
+}
+
+/** The provenance replays decoded rows against the tables: a value bound back into a statement is scaled again. */
+const rebinding = (codec, fx) => ({...codec, bind: value => codec.bind(typeof value === 'number' ? toScaled(value, fx.scale) : value)});
 
 /** Predicates a partial retrieval must have complete for the answer to be valid (same judgement as the oracle, on the desugared program). */
 export function sensitivityOf({program: sp}, qp) {
@@ -70,8 +83,12 @@ export function solveOnce(backend, handle, qWires, excluded, budgetArg, options 
   const program = buildProgram(handle, live, q, excluded);
   const seeds = conditionAlts(q.wire.fields.filter(f => ['where', 'scope'].includes(f.key)), q.wire.id).flatMap(alt => alt.filter(l => l.kind === 'atom' || l.kind === 'timeof').map(l => l.p));
   const sliced = sliceProgram(program, seeds);
-  const sp = sliced.program;
-  const qp = planQuery(q.wire, program.closed, {mode: q.mode, select: q.select, forms: q.forms});
+  const planned = planQuery(q.wire, program.closed, {mode: q.mode, select: q.select, forms: q.forms});
+  // exact decimals: integer arithmetic over values scaled by 10^S (solver-common/fixed-point.mjs); the codec divides them back
+  const fx = planFixedPoint(sliced.program, planned.alts.concat(planned.scopeAlts));
+  if (fx && backend.id === 'bank') throw new NotExpressibleError(['exact_arithmetic'], 'the bank mode compares the stored JSON text of numbers; decimals need the in-memory mode');
+  const sp = fx ? scaleProgram(sliced.program, fx) : sliced.program;
+  const qp = fx ? scaleQuery(planned, fx) : planned;
   if (backend.id === 'bank' && [...sp.rules.flatMap(r => r.alts), ...sp.aggregates.flatMap(a => a.alts), ...qp.alts, ...qp.scopeAlts].some(a => a.leaves.some(l => l.kind === 'timeof'))) {
     throw new NotExpressibleError(['time_vars'], 'start_of and end_of need stored validity text, which the bank mode does not read');
   }
@@ -86,11 +103,13 @@ export function solveOnce(backend, handle, qWires, excluded, budgetArg, options 
     viewSize = Math.max(viewSize, view.length);
     const partBudget = i === 0 ? budget : budget.child();
     const session = backend.open(partBudget);
+    if (fx) session.codec = fixedCodec(session.codec, fx);
     try {
       const kinds = backend.kinds(sp);
       backend.setup(session, {rels, program: sp, view, kinds, instant: instants[i], asof: q.asof});
       const closure = new Closure({session, program: sp, rels, kinds, budget: partBudget, notes, temp: backend.temp});
       exhausted = closure.run({recursion: options.recursion ?? 'auto', demand: options.demand === false ? null : queryDemand(sp, qp)});
+      if (fx?.flag && !exhausted && session.get(`SELECT 1 AS x FROM ${tbl(INEXACT, 0, false)} LIMIT 1`)) throw inexactError(fx);
       ran = {strata: closure.strategyOf, statements: closure.stats.statements, rounds: closure.stats.rounds, ...(closure.demanded.length ? {demand: closure.demanded} : {})};
       // the closure is read without the budget it just spent (the oracle's READ_BUDGET); a stop while reading is a budget_exhausted answer
       if (exhausted) session.budget = new SqlBudget({timeoutMs: 5000}, {});
@@ -102,13 +121,15 @@ export function solveOnce(backend, handle, qWires, excluded, budgetArg, options 
       }
       if (outcome) parts.push(outcome);
       if (outcome && !exhausted && options.provenance !== false && instants.length === 1) {
-        support = supportOf({session, program: sp, qp, kinds, outcome, facts: view, maxNodes: options.provenanceNodes, refFor: backend.refFor}).fields;
+        if (fx) session.codec = rebinding(session.codec, fx);
+        support = supportOf({session, program: sp, qp, kinds, outcome, facts: view, maxNodes: options.provenanceNodes, refFor: backend.refFor, fx}).fields;
       }
     } finally {
       session.close();
     }
   }
   const outcome = parts.length ? (parts.length === 1 ? parts[0] : combineParts(qp, parts, how)) : null;
+  if (fx) notes.add(`fixed_point_scale_${fx.scale}`);
   const packet = packetOf({qp, sliced, outcome, exhausted, policy, budget, notes, viewSize, support, ran, backend});
   packet.timings = {ask: Math.round(performance.now() - started)};
   return packet;

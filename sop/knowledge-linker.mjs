@@ -26,6 +26,7 @@ export const SCORES = Object.freeze({
   typeSupport: 10,       // an entity of the message is of the class the role declares
   coherence: 3,          // the predicate's domain is the domain of an entity of the message
   notability: 5,         // the candidate entity is far more notable than the next one (never decides alone)
+  labelForm: 10,         // where the role expects a class: the surface is the class's id or label, not only an alias of it
   missingRole: -2,       // a declared role a query leaves open
 });
 /**
@@ -168,24 +169,36 @@ export function headVerbPredicates(lexicon, text) {
   return lexicon.factCounts?.size ? reached.filter(p => p.factCount > 0) : reached;
 }
 
+/** Does the surface equal the entity's id or one of its labels (not only an alias)? Case and accents folded. */
+function labelledBy(entity, surface) {
+  const key = value => String(value).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/[_\s]+/g, ' ').trim();
+  const want = key(surface);
+  return key(entity.id) === want || Object.values(entity.labels ?? {}).some(label => key(label) === want);
+}
+
 /**
  * Choose among the entities one surface names (same surface, several entities). Class support: when the role declares a class, the
- * entities of that class lead by MARGIN. Notability and coherence order the options but never decide alone: a namesake is not
- * linked silently. Returns {chosen, by, scored}; `chosen` null means the user must say which.
+ * entities of that class lead by MARGIN. Form authority, only where the role expects a class: a class whose id or label is the surface
+ * leads one that carries it only as an alias ("tool": the class tool before the class device with the alias "tool"), as a relation's
+ * label leads a weaker form. Notability and coherence order the options but never decide alone: a namesake is not linked silently.
+ * Returns {chosen, by, scored}; `chosen` null means the user must say which.
  */
-export function chooseEntity(lexicon, found, {type = null, match = 'exact', domainHints = []} = {}) {
+export function chooseEntity(lexicon, found, {type = null, match = 'exact', domainHints = [], surface = null} = {}) {
   const base = match === 'exact' ? 100 : 85;
   const typed = type && type !== 'entity' && lexicon.isClass(type);
   // When the role declares a class and some namesake is of it, the namesakes that are not are removed (a type clash), not just ranked lower.
   const ofClass = typed ? found.filter(e => inClass(lexicon, e.id, type)) : [];
   const ranked = (ofClass.length ? ofClass : [...found]).map(e => lexicon.entities[e.id] ?? e).sort((a, b) => (b.notability ?? 0) - (a.notability ?? 0));
   const second = ranked[1]?.notability ?? 0;
+  const labelled = typed && surface ? ranked.filter(e => labelledBy(e, surface)) : [];
+  const authority = labelled.length > 0 && labelled.length < ranked.length;
   const scored = ranked.map((e, i) => {
     const supported = typed && inClass(lexicon, e.id, type);
-    const score = base + (supported ? SCORES.typeSupport : 0) + (i === 0 && (e.notability ?? 0) >= 4 * Math.max(second, 1) ? SCORES.notability : 0) + (e.domain && domainHints.includes(e.domain) ? SCORES.coherence : 0);
-    return {id: e.id, label: e.labels?.en ?? e.id, class: e.entityType ?? null, ...(e.description ? {description: e.description} : {}), score, supported: Boolean(supported)};
+    const formed = authority && labelled.includes(e);
+    const score = base + (supported ? SCORES.typeSupport : 0) + (formed ? SCORES.labelForm : 0) + (i === 0 && (e.notability ?? 0) >= 4 * Math.max(second, 1) ? SCORES.notability : 0) + (e.domain && domainHints.includes(e.domain) ? SCORES.coherence : 0);
+    return {id: e.id, label: e.labels?.en ?? e.id, class: e.entityType ?? null, ...(e.description ? {description: e.description} : {}), score, supported: Boolean(supported), ...(formed ? {form: 'label'} : {})};
   }).sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
   if (scored.length === 1) return {chosen: scored[0], by: ofClass.length && found.length > 1 ? 'class' : 'only_candidate', scored};
-  if (scored[0].score - scored[1].score >= MARGIN) return {chosen: scored[0], by: scored[0].supported ? 'class' : 'evidence', scored};
+  if (scored[0].score - scored[1].score >= MARGIN) return {chosen: scored[0], by: scored[0].form && !scored[1].form ? 'form_tier' : scored[0].supported ? 'class' : 'evidence', scored};
   return {chosen: null, by: null, scored};
 }

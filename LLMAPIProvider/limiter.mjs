@@ -26,6 +26,16 @@ export class Limiter {
   // Seeds the start times (for example from the logs after a restart) so the rate limits survive restarts.
   seed(times) { this.starts = [...this.starts, ...times].sort((a, b) => a - b); }
 
+  // How long a new job with this meta would wait before it could start now (rate limits, 429 pause, plan gate), and why.
+  // Jobs already queued are not simulated: the estimate is a lower bound when the queue is not empty.
+  estimateWait(meta = null) {
+    const saved = this.gateReason;
+    const wait = this.#wait({ meta });
+    const reason = this.gateReason || (this.pausedUntil > Date.now() ? 'paused after 429' : wait > 0 ? 'queue rate limit' : null);
+    this.gateReason = saved;
+    return { wait, reason };
+  }
+
   schedule(fn, meta = null) {
     return new Promise((resolve, reject) => {
       this.queue.push({ fn, resolve, reject, meta, queuedAt: Date.now() });

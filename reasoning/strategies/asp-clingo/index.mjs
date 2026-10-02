@@ -19,7 +19,7 @@ import {aspAbduce, aspWhyNot} from './abduce.mjs';
 import {aspPlan} from './plan.mjs';
 
 export const FEATURES = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'count',
-  'zero_arity', 'naf', 'closed_world', 'closed_derived', 'compute_in_rules', 'compare_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary',
+  'zero_arity', 'naf', 'closed_world', 'closed_derived', 'compute_in_rules', 'compare_in_rules', 'exact_arithmetic', 'aggregate', 'default', 'overrides', 'strict_contrary',
   'integrity', 'versions', 'whatif', 'epistemic_status', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'used',
   'constraint', 'optimize', 'plan', 'abduce', 'why_not', 'norms_hard', 'norms_soft', 'temporal_norms', 'blocked_info', 'abduce_waive', 'binding_advisory', 'norm_conflict'];
 
@@ -34,6 +34,7 @@ export const capabilities = {
   delivery: 'slice',
   limits: {max_wires: 5000, max_arity: 6, integer_range: [-(2 ** 31), 2 ** 31 - 1]},
   guarantee: 'exact',
+  exact: {kind: 'fixed_point', max_scale: 12},
   provides: [],
   budgetKeys: ['timeoutMs', 'maxDepth', 'maxHypotheses'],
   determinism: 'deterministic',

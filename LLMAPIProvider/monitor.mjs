@@ -26,6 +26,7 @@ function pct(sorted, p) {
 const sum = (a, f) => a.reduce((s, r) => s + (f(r) || 0), 0);
 
 export function priceOf(model, rec) {
+  if (rec.usd != null) return rec.usd; // cost reported by the provider (OpenRouter usage.cost)
   const p = model?.pricing;
   if (!p) return null;
   const pr = Number(p.prompt), co = Number(p.completion), cr = Number(p.cache_read ?? p.prompt);
@@ -106,6 +107,7 @@ export class Monitor {
       cost_usd: sum(a, (r) => priceOf(modelOf(r), r)),
       credit_cost_usd: sum(a.filter((r) => credit.has(r.model)), (r) => priceOf(modelOf(r), r)),
       plan_requests: sum(a, (r) => planRequests(modelOf(r), r)),
+      fallbacks: a.filter((r) => r.fallback_from && r.attempt === 1).length,
     });
     const windows = { minute: summarize(within(60_000)), hour: summarize(within(3600_000)), day: summarize(within(86400_000)), week: summarize(within(7 * 86400_000)), month: summarize(within(30 * 86400_000)) };
 
@@ -170,6 +172,16 @@ export class Monitor {
       note: 'window length is inferred from rises of x-quota-remaining; needs at least two resets',
     };
 
+    // Fallbacks: requests served by the fallback upstream (first attempt there), by reason kind and route.
+    const fbRecs = recs.filter((r) => r.fallback_from && r.attempt === 1);
+    const countBy = (a, f) => a.reduce((o, r) => { const k = f(r); o[k] = (o[k] || 0) + 1; return o; }, {});
+    const fallback = {
+      total: fbRecs.length, hour: fbRecs.filter((r) => now - r.t < 3600_000).length, day: fbRecs.filter((r) => now - r.t < 86400_000).length,
+      by_kind: countBy(fbRecs, (r) => r.fallback_kind || 'unknown'),
+      by_route: countBy(fbRecs, (r) => `${r.fallback_from}/${r.fallback_model} -> ${r.upstream}/${r.model}`),
+      last: fbRecs.slice(-10).reverse().map(({ ts, fallback_from, fallback_model, upstream, model, fallback_kind, fallback_reason, status, client }) => ({ ts, from: `${fallback_from}/${fallback_model}`, to: `${upstream}/${model}`, kind: fallback_kind, reason: fallback_reason, status, client })),
+    };
+
     const upstreams = {};
     for (const [n, l] of Object.entries(limiterInfo)) upstreams[n] = { ...l, paused_ms: Math.max(0, l.pausedUntil - now) };
     return {
@@ -178,8 +190,8 @@ export class Monitor {
       latency_ms: { p50: pct(lat, 50), p95: pct(lat, 95), p99: pct(lat, 99) },
       error_rate: recs.length ? +(recs.filter((r) => r.status >= 400).length / recs.length).toFixed(4) : 0,
       rate429: recs.length ? +(limited.length / recs.length).toFixed(4) : 0,
-      inferred_limits: inferred, quota, token_check,
-      recent: recs.slice(-15).reverse().map(({ ts, upstream, model, status, in_tokens, out_tokens, latency_ms, ttft_ms, attempt, error, stream }) => ({ ts, upstream, model, status, in_tokens, out_tokens, latency_ms, ttft_ms, attempt, stream, error })),
+      inferred_limits: inferred, quota, token_check, fallback,
+      recent: recs.slice(-15).reverse().map(({ ts, upstream, model, status, in_tokens, out_tokens, latency_ms, ttft_ms, attempt, error, stream, fallback_from, fallback_to }) => ({ ts, upstream, model, status, in_tokens, out_tokens, latency_ms, ttft_ms, attempt, stream, error, fallback_from, fallback_to })),
     };
   }
 }

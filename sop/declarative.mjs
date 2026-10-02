@@ -8,21 +8,26 @@ import {cnl} from './cnl.mjs';
 import {propositionOf,linkProposition,propositionValidity,propositionKey,conditionalStatement,reportProposition,propositionBody,LINK_PHRASES} from './propositions.mjs';
 import {normalizeTime,isTimeRange,linkQuestion,matchedForm} from './linking.mjs';
 import {SCORES,chooseEntity,mode as scoredLinker} from './knowledge-linker.mjs';
-import {unclearReply} from './unclear.mjs';
-import {pragmaticOf,courtesyReply} from './pragmatic-text.mjs';
+import {composeReply} from '../lib/conversation/index.mjs';
+import {behaviourOf,applyInstructions,overlayOf} from '../lib/conversation/behaviour.mjs';
+import {line} from './replies.mjs';
+import {pragmaticOf} from './pragmatic-text.mjs';
 import {checkModelLinks,pairPlaceholders,planLinks,expandReferences,readingWithReferences,nearOf} from './clauses.mjs';
 import {repairSpan,spanQuestion} from './repair.mjs';
 import {englishDictionary} from './dictionary.mjs';
 import {loadFrames,normalizeProposition} from './frames.mjs';
 import {copulaForm} from './copula-linker.mjs';
-import {linksOf,roleReferences,LINK_WORDS} from './parser.mjs';
+import {lowerQuantities} from './quantities.mjs';
+import {linksOf,roleReferences,LINK_WORDS,sampledOrder} from './parser.mjs';
 import {REASONING_QUERY_MODES} from './enums.mjs';
 
 /**
  * The neural author describes problems; only this host compiler emits operations.
  * The model language (DS014) has exactly these authored wire types.
  */
-export const MODEL_TYPES=Object.freeze(new Set(['stated','assumed','unclear','query','constraint','unparsed','pragmatic']));
+/** The symbol of a conversation entity a user statement introduces (`local_<name>`, DS014 "Conversation entities"). */
+export const conversationSymbol=surface=>'local_'+String(surface).normalize('NFD').replace(/\p{M}/gu,'').toLowerCase().replace(/\s+/g,' ').trim().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+export const MODEL_TYPES=Object.freeze(new Set(['stated','assumed','unclear','query','constraint','unparsed','pragmatic','instruction']));
 const listTypes=types=>{const t=[...types];return t.slice(0,-1).join(', ')+' or '+t.at(-1);};
 const node=(id,type,fields)=>({id,type,fields,line:0});
 const projectionNames=w=>w.type==='query'?words(one(w,'select','')):many(w,'var').map(line=>words(line)[0]);
@@ -53,7 +58,7 @@ export function checkModelWire(w){
   // "When", "since when", "how long", "how many times": at most one time variable, written as `role time ?t`.
   const times=new Set(leaves.flatMap(leaf=>parseMatch(leaf,'match',{partial}).roles.filter(role=>role.name==='time'&&typeof role.value==='string'&&role.value.startsWith('?')).map(role=>role.value)));
   // Two time variables only for a temporal order ("before or after"): `order ?t1 before ?t2` names both.
-  if(w.fields.order){const [a,,b]=words(one(w,'order'));assert(times.size===2&&times.has(a)&&times.has(b),'order_needs_two_times: @'+w.id+' order compares the two time variables of its match blocks (role time ?t1, role time ?t2)');}
+  if(w.fields.order&&!sampledOrder(w)){const [a,,b]=words(one(w,'order'));assert(times.size===2&&times.has(a)&&times.has(b),'order_needs_two_times: @'+w.id+' order compares the two time variables of its match blocks (role time ?t1, role time ?t2)');}
   else assert(times.size<=1,'time_variable_multiple: @'+w.id+' asks for more than one time; use one query per time, or order ?t1 before ?t2');
   if(w.fields.measure)assert(times.has(one(w,'select')),'measure_needs_time_variable: @'+w.id+' measure applies to the selected role time ?variable');
  }
@@ -62,7 +67,7 @@ export function checkModelWire(w){
 export function checkModelProgram(program){
  for(const w of program.wires)checkModelWire(w);
  // `unclear` stands alone; only the advisory `pragmatic` wires of the same message may accompany it ("Hello!" is a greeting and no request).
- if(program.wires.some(w=>w.type==='unclear'))assert(program.wires.filter(w=>w.type!=='pragmatic').length===1,'unclear_not_alone: unclear must be the only wire of the model output besides pragmatic wires');
+ if(program.wires.some(w=>w.type==='unclear'))assert(program.wires.filter(w=>w.type!=='pragmatic'&&w.type!=='instruction').length===1,'unclear_not_alone: unclear must be the only wire of the model output besides pragmatic and instruction wires');
  // Links, `$id` role references and unparsed spans are checked across wires (DS014 "Clauses and links").
  checkModelLinks(program);
  return program;
@@ -124,17 +129,25 @@ const REFERENCE_VALUE=value=>value&&typeof value==='object'&&value.ref;
  */
 export function compileDeclarative(source,options={}){
  const parsed=checkModelProgram(parse(source,{maxWires:options.maxWires??2048}));
- const signals=parsed.wires.filter(w=>w.type==='pragmatic');
+ // The advisory wires of the reply: `pragmatic` (courtesy and emotion, DS023) and `instruction` (how to answer from now on, the behaviour layer).
+ const advisory=w=>w.type==='pragmatic'||w.type==='instruction';
+ const signals=parsed.wires.filter(advisory);
  if(!signals.length)return compileAuthored(source,options);
- const pragmatic=signals.map(pragmaticOf),pragmaticSop=canonical({wires:signals});
- const rest=parsed.wires.filter(w=>w.type!=='pragmatic');
+ const pragmatic=signals.filter(w=>w.type==='pragmatic').map(pragmaticOf),instructions=signals.filter(w=>w.type==='instruction').map(instructionOf),pragmaticSop=canonical({wires:signals});
+ const rest=parsed.wires.filter(w=>!advisory(w));
  if(!rest.length){
   const language=/^[a-z]{2,3}$/.test(options.language??'en')&&options.language!=='auto'?options.language:'en';
-  return {courtesy:true,pragmatic,pragmaticSop,problemIds:[],renderIds:[],statements:[],assumptions:[],links:new Map(),evidenceIds:[],suppositionIds:[],assumptionFactIds:[],modelAssumptions:options.modelAssumptions??'report',language,inputText:options.inputText??'',
+  return {courtesy:true,pragmatic,instructions,pragmaticSop,problemIds:[],renderIds:[],statements:[],assumptions:[],links:new Map(),evidenceIds:[],suppositionIds:[],assumptionFactIds:[],modelAssumptions:options.modelAssumptions??'report',language,inputText:options.inputText??'',
    clauseLinks:[],translations:[],repairs:[],unresolvedSpans:[],held:new Set(),reportOnly:new Set(),authoredSop:pragmaticSop,executionSop:''};
  }
  // Near references of the pragmatic wires name wires of the rest; the rest is compiled without them.
- return {...compileAuthored(canonical({wires:rest}),options),pragmatic,pragmaticSop};
+ return {...compileAuthored(canonical({wires:rest}),options),pragmatic,instructions,pragmaticSop};
+}
+
+/** The packet form of one `instruction` wire: {id, do, kind, text, span, source}. */
+export function instructionOf(w){
+ const text=w.fields.text?JSON.parse(one(w,'text')):null,span=w.fields.span?JSON.parse(one(w,'span')):null;
+ return {id:w.id,do:one(w,'do'),kind:w.fields.kind?one(w,'kind'):null,text,span,source:w.fields.source?one(w,'source'):null};
 }
 
 function compileAuthored(source,{language='en',inputText='',context={},lexicon=null,schema=null,maxWires=2048,modelAssumptions='report',maxModelAssumptions=8,now=Date.now(),dictionary,frames}={}){
@@ -192,6 +205,16 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
  for(let changed=true;changed;){changed=false;for(const w of work){if(held.has(w.id))continue;const needs=[...roleReferences(w).map(r=>r.target),...(w.type==='query'?linksOf(w).filter(l=>l.keyword==='if'||l.keyword==='unless').map(l=>l.target):[])];if(needs.some(id=>held.has(id))){held.add(w.id);changed=true;}}}
  // 2. Wire references: `$q` becomes a join (query chaining, L3); a proposition argument `$s` has no engine.
  const expanded=expandReferences(work);work=expanded.wires;
+ // Two constraint wires of one output that select the same variable name (two plans, each with its ?units) are independent problems:
+ // the later wire's variables are renamed apart (`?units_c2`), so each projects its own value.
+ {const selectedBy=new Map();work=work.map(w=>{
+  if(w.type!=='constraint')return w;
+  const clash=words(one(w,'select','')).filter(v=>selectedBy.has(v)&&selectedBy.get(v)!==w.id);
+  for(const v of words(one(w,'select','')))if(!selectedBy.has(v))selectedBy.set(v,w.id);
+  if(!clash.length)return w;
+  const rename=text=>clash.reduce((t,v)=>t.replace(new RegExp('\\'+v+'(?![A-Za-z0-9_])','g'),v+'_'+w.id.toLowerCase().replace(/[^a-z0-9_]/g,'')),String(text));
+  return {...w,fields:Object.fromEntries(Object.entries(w.fields).map(([k,vs])=>[k,vs.map(rename)]))};
+ });}
  // 3. Clause links (L4): conditions scope their query, timed temporal links bound the query period, the rest is reported.
  const plan=planLinks(work,{now});
  const workById=new Map(work.map(w=>[w.id,w]));
@@ -311,7 +334,7 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
  // carries (it matches nothing (2026-10-02), or only an alias or a name part such as "Maria" or "Einstein") names a conversation entity `local_<name>`, never a memory
  // namesake. The same name in a later question refers to it while the conversation carries a statement about it. A memory entity with that exact label wins.
  const foldKey=value=>String(value).normalize('NFD').replace(/\p{M}/gu,'').toLowerCase().replace(/\s+/g,' ').trim();
- const localSymbol=surface=>'local_'+foldKey(surface).replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+ const localSymbol=conversationSymbol;
  const carriedLocals=new Set(statementsIn.flatMap(s=>(s.atom?.a??[]).filter(t=>typeof t==='string'&&/^local_[a-z0-9_]+$/.test(t))));
  const labelled=(entry,surface)=>{const e=lexicon.entities[entry.id];return entry.id===surface||Boolean(e)&&Object.values(e.labels??{}).some(l=>foldKey(l)===foldKey(surface))||foldKey(entry.id.replace(/_/g,' '))===foldKey(surface);};
  const normalizeAtom=(text,{resolve=true,wire=null,introduce=false}={})=>{
@@ -320,7 +343,9 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
    let term=a.a[i];const original=term;const type=(schema??lexicon.predicates)?.[a.p]?.args?.[i];
    // "the user" is the caller when the caller-owned context names its entity (Q-LANG-5); otherwise it resolves like any surface.
    if(typeof term==='string'&&context.user&&USER_SURFACES.has(term.trim().toLowerCase())){a.a[i]=context.user;continue;}
-   if(typeof term!=='string'||variable(term)||!type||['integer','value'].includes(type))continue;
+   // A role the memory types as a value (an integer, a free text such as the activity of used_for, a value, a rational) holds the
+   // string as written: it is never resolved as an entity.
+   if(typeof term!=='string'||variable(term)||!type||['integer','value','text','rational'].includes(type))continue;
    const known=lexicon.entities[term];
    // An id of the right class (itself or a subclass) is kept. A surface that merely equals an id of another class ("radium" for a role of organizations) is resolved like any surface; an id already resolved by the host must fit.
    if(known){const fits=type==='entity'||known.entityType===type||(lexicon.isClass?.(type)&&lexicon.classesOf(term).has(type));if(fits||!resolve){assert(fits,'Entity type does not match '+a.p+' argument');continue;}}
@@ -340,6 +365,12 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
    }
    if(resolve){
     const symbol=localSymbol(original);
+    // A predicate this output declares (a problem's own vocabulary, DS014 "Problems that state their own data") ranges over the
+    // conversation's own things: its names are conversation entities in statements, questions and rules alike, never memory namesakes.
+    if(symbol!=='local_'&&(schema??lexicon.predicates)?.[a.p]?.session===true){
+     if(!linking.some(x=>x.wire===wire&&x.kind==='entity'&&x.surface===original&&x.symbol===symbol))linking.push({wire,kind:'entity',surface:original,symbol,via:'conversation',match:'local',class:null,score:SCORES.lexicon});
+     carriedLocals.add(symbol);a.a[i]=symbol;continue;
+    }
     // The memory's entities of that name regardless of the role's class: a label or id means the memory entity (an ill-typed role is asked about, as before);
     // only an alias or name part makes the name a namesake. A proper name (capitalised) the memory does not know at all introduces a conversation entity in a user statement (a common noun stays a question); in a question it stays an entity question, unless the conversation introduced it.
     const named=any.found.length?any.found:lexicon.matching(term,{language:'auto',kind:'entity'}).found;
@@ -351,7 +382,9 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
     }
    }
    if(scoredLinker.scored&&any.found.length>1){
-    const chosen=chooseEntity(lexicon,any.found,{type,match:any.match});
+    // The object of a class-membership predicate (`reading class`, is_a) names a class: its namesakes are decided as for a role typed `class`.
+    const expected=type==='entity'&&a.a.length===2&&i===1&&lexicon.predicates[a.p]?.readings?.includes('class')?'class':type;
+    const chosen=chooseEntity(lexicon,any.found,{type:expected,match:any.match,surface:original});
     if(chosen.chosen){
      const entry=any.found.find(e=>e.id===chosen.chosen.id);
      noteEntity({wire,surface:original,term,found:entry,match:any.match,type,score:chosen.chosen.score,by:chosen.by,alternatives:chosen.scored.filter(c=>c.id!==chosen.chosen.id)});
@@ -421,7 +454,8 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
    fields.where=many(w,'where').map(text=>emitCondition(parseCondition(text,leaf),emitAtom));
    if(w.fields.scope)fields.scope=[emitCondition(parseCondition(one(w,'scope'),leaf),emitAtom)];
    if(!failed)linkedQueries.add(w.id);
-   if(w.fields.order){
+   // `order random` (a seeded random sample with limit) is passed through as written; the StrategyRouter applies it after the route.
+   if(w.fields.order&&!sampledOrder(w)){
     // Temporal order (Q-LANG-3): each time variable is the validity interval of its own match; the host records which.
     const [a,relation,b]=words(one(w,'order'));
     if(spanLeaf.has(a)&&spanLeaf.has(b))fields.order=[a+' '+relation+' '+b+' leaves '+spanLeaf.get(a)+' '+spanLeaf.get(b)];
@@ -442,7 +476,18 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
    });
    if(w.fields.filter)fields.filter=many(w,'filter').map(text=>literal(text));
    if(w.fields.except)fields.except=many(w,'except').map(text=>literal(text));
-   if(w.fields.compare)fields.compare=many(w,'compare').map(text=>literal(text,{valueAllowed:true}));
+   // Quantities with units ("1 hour" above "3000 seconds"): a comparison of two of them is lowered onto the memory's unit facts
+   // (sop/quantities.mjs); the units are reported as linked entities.
+   if(w.fields.compare){
+    const lowered=lowerQuantities(many(w,'compare'),lexicon,{fresh});
+    for(const q of lowered.quantities){const unit=lexicon.entities[q.unit];if(!linking.some(x=>x.wire===w.id&&x.kind==='entity'&&x.surface===q.unit_surface&&x.symbol===q.unit))linking.push({wire:w.id,kind:'entity',surface:q.unit_surface,symbol:q.unit,via:'lexicon',match:q.match,class:unit?.entityType??null,score:SCORES.lexicon,quantity:{amount:q.amount,written:q.surface}});}
+    if(lowered.where.length)fields.where=[...(fields.where??[]),...lowered.where];
+    fields.compare=lowered.compare.map(text=>literal(text,{valueAllowed:true}));
+    // A query without `where` compares written values only; what is not a quantity of the memory's units is asked about.
+    if(!fields.where?.length)for(const line of fields.compare)for(const quoted of line.match(/"(?:\\.|[^"\\])*"/g)??[])issues.push({kind:'entity',status:'unknown',text:JSON.parse(quoted),candidates:[]});
+    // A written value on the left of a comparison is only admitted as a quantity: one that is not is asked about.
+    else for(const line of lowered.compare){const left=/^\s*("(?:\\.|[^"\\])*")/.exec(line)?.[1];if(left)issues.push({kind:'entity',status:'unknown',text:JSON.parse(left),candidates:[]});}
+   }
    for(const key of ['at','during','asof'])if(w.fields[key]){const value=temporal(w,key);if(value)fields[key]=[value];}
    // `overlaps` (some instant of the period) is the host's `during`: the host window selects overlapping valid time (DS014 "Question forms").
    if(w.fields.overlaps){const value=temporal(w,'overlaps');delete fields.overlaps;if(value)fields.during=[value];}
@@ -479,18 +524,22 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
  }
  const program={wires:[...resolutions,...execution]};
  assert(program.wires.length<=maxWires,'Generated circuit exceeds wire budget');validateGraph(program);
- return {...empty,...report,authoredSop:canonical(authored),executionSop:program.wires.length?canonical(program):'',carriedIds,problemIds,renderIds,statements,assumptions,links,evidenceIds,suppositionIds,assumptionFactIds};
+ return {...empty,...report,authoredSop:canonical(authored),executionSop:program.wires.length?canonical(program):'',referencedOutputs:[...requestedRefs],projectedOutputs:[...outputs.keys()],carriedIds,problemIds,renderIds,statements,assumptions,links,evidenceIds,suppositionIds,assumptionFactIds};
 }
 
 // Host phrases of the answer, English only: the output edge translates the final answer (lib/translator-service/answer.mjs, DS014 "English-only core").
-const TEXT={context:n=>'Noted '+n+' statement(s) for this conversation; they are not stored in the repository.',conditionalOnly:'Suppositions, hedged claims and reported claims apply only to a question in the same message.',understood:(reading)=>'I understood the question as: '+reading+'. I cannot compute this kind of answer yet.',branch:'Only under the model\'s assumptions: ',condition:'Condition: ',notChecked:'Not checked: '};
+// The host's sentences are `line` replies of the conversation layer (sop/replies.mjs, DS023 "Conversation layer"); the output edge phrases them in the user's language.
+const TEXT={context:n=>line('noted_statements',{count:n}),get conditionalOnly(){return line('conditional_only');},understood:reading=>line('understood',{reading}),branch:text=>line('assumption_branch',{text}),condition:statement=>line('condition',{statement}),notChecked:(link,target)=>line('not_checked',{link,target})};
+
+/** The seed of the reply variant: the turn's clock when the plan has one (a fixed clock gives a fixed variant). */
+const runtimeSeed=plan=>Number(plan.now??0)||0;
 
 function unclearResult(plan,context){
  const reply='en';
  // An ambiguous message is answered with a host clarification that lists the model's candidate readings.
  const readings=plan.unclear.readings??[];
  const packet={kind:'unclear',status:'unclear',unclear_kind:plan.unclear.kind,language:reply,complete:true,next:readings.length?'choose_reading':'rephrase',...(readings.length?{readings}:{}),user_statements:[],model_assumptions:[],assumption_policy:plan.modelAssumptions};
- return {values:{},result:{kind:'cnl',language:reply,text:unclearReply(plan.unclear.kind,readings),packet},trace:[{wire:plan.unclear.id,type:'unclear',epoch:0,status:'unclear'}],epochs:0,wireCount:0,outputs:{},blocked:{},generated:[],authoredSop:plan.authoredSop,executionSop:'',contextStatements:context.statements??[],problemResults:[]};
+ return {values:{},result:{kind:'cnl',language:reply,text:composeReply({packet,seed:runtimeSeed(plan)}).text,packet},trace:[{wire:plan.unclear.id,type:'unclear',epoch:0,status:'unclear'}],epochs:0,wireCount:0,outputs:{},blocked:{},generated:[],authoredSop:plan.authoredSop,executionSop:'',contextStatements:context.statements??[],problemResults:[]};
 }
 
 /** Links of one wire, each with its target proposition (for the host sentence). */
@@ -513,7 +562,12 @@ export async function runDeclarative(source,{runtime,language='en',languageSourc
  const policy=runtime.policy;
  const plan=compileDeclarative(source,{language,inputText,context,lexicon:runtime.lexicon,schema:runtime.schema,maxWires:policy.maxWires,modelAssumptions:policy.modelAssumptions??'report',maxModelAssumptions:policy.maxModelAssumptions??8,now:runtime.now,...(policy.dictionary===false?{dictionary:null}:{})});
  // "Thanks!" written as `unclear no_request` plus its pragmatic wire is a courtesy message too.
- const out=plan.courtesy||(plan.unclear?.kind==='no_request'&&plan.pragmatic?.length)?courtesyResult(plan,context):await runPlan(plan,{runtime,language,languageSource,inputText,context});
+ // The instructions of the message change the caller-owned behaviour of the conversation (context.behaviour, DS023 "Behaviour layer").
+ if(plan.instructions?.length){const state=behaviourOf(context);plan.instructionOutcome=applyInstructions(state,plan.instructions,{turn:state.turn+1,at:Number(runtime.now??Date.now())});plan.instructionOverlay=overlayOf(state);}
+ const out=plan.courtesy||(plan.unclear?.kind==='no_request'&&(plan.pragmatic?.length||plan.instructions?.length))?courtesyResult(plan,context):await runPlan(plan,{runtime,language,languageSource,inputText,context});
+ if(plan.instructionOutcome&&out.result?.packet)out.result.packet.instruction_outcome=plan.instructionOutcome;
+ // The instructions of the message travel with the packet too: the chat turn applies them to the conversation's behaviour (DS023).
+ if(plan.instructions?.length&&out.result?.packet&&!out.result.packet.instructions)out.result.packet.instructions=plan.instructions;
  // The pragmatic wires of the message travel with whatever the turn produced (DS023): the reply's tone is rendered from them.
  if(plan.pragmatic?.length&&out.result?.packet&&!out.result.packet.pragmatic)out.result.packet.pragmatic=plan.pragmatic;
  if(plan.pragmaticSop)out.pragmaticSop=plan.pragmaticSop;
@@ -522,8 +576,9 @@ export async function runDeclarative(source,{runtime,language='en',languageSourc
 
 /** A message of courtesy or emotion only: a deterministic reply rendered from its pragmatic wires, no computation, no memory change. */
 function courtesyResult(plan,context){
- const packet={kind:'courtesy',status:'courtesy',complete:true,language:'en',pragmatic:plan.pragmatic,user_statements:[],model_assumptions:[],assumption_policy:plan.modelAssumptions};
- return {values:{},result:{kind:'cnl',language:'en',text:courtesyReply(plan.pragmatic),packet},trace:plan.pragmatic.map(p=>({wire:p.id,type:'pragmatic',epoch:0,status:'pragmatic'})),epochs:0,wireCount:0,outputs:{},blocked:{},generated:[],authoredSop:plan.authoredSop,executionSop:'',contextStatements:context.statements??[],problemResults:[]};
+ const instructed=Boolean(plan.instructions?.length);
+ const packet={kind:instructed?'instruction':'courtesy',status:instructed?'instruction':'courtesy',complete:true,language:'en',pragmatic:plan.pragmatic??[],...(instructed?{instructions:plan.instructions}:{}),user_statements:[],model_assumptions:[],assumption_policy:plan.modelAssumptions};
+ return {values:{},result:{kind:'cnl',language:'en',text:composeReply({packet,seed:runtimeSeed(plan),facts:plan.instructionOutcome?.facts??[],slots:plan.instructionOutcome?.slots??{},overlay:plan.instructionOverlay??''}).text,packet},trace:[...(plan.pragmatic??[]).map(p=>({wire:p.id,type:'pragmatic',epoch:0,status:'pragmatic'})),...(plan.instructions??[]).map(p=>({wire:p.id,type:'instruction',epoch:0,status:'instruction'}))],epochs:0,wireCount:0,outputs:{},blocked:{},generated:[],authoredSop:plan.authoredSop,executionSop:'',contextStatements:context.statements??[],problemResults:[]};
 }
 
 async function runPlan(plan,{runtime,language,languageSource,inputText,context}){
@@ -612,10 +667,10 @@ async function runPlan(plan,{runtime,language,languageSource,inputText,context})
  }else if(rendered.length===plan.renderIds.length){
   const decorate=(value,index)=>{
    const problem=plan.problemIds[index],lines=[value.text];
-   if(value.packet?.hypothetical)for(const s of userStatements)if(s.conditional&&s.in_circuit&&problem.assume.includes(s.id))lines.push(m.condition+s.statement);
+   if(value.packet?.hypothetical)for(const s of userStatements)if(s.conditional&&s.in_circuit&&problem.assume.includes(s.id))lines.push(m.condition(s.statement));
    // Links of this question that no engine checks are reported with the answer (L4).
-   for(const l of linksFor(plan,problem.declaration))if(l.status==='not_checked')lines.push(m.notChecked+LINK_PHRASES[l.keyword]+': '+(l.target?propositionBody(l.target):'$'+l.to));
-   for(const b of assumptionBranch)if(b.problem===problem.declaration&&b.text)lines.push(m.branch+b.text.split('\n').join(' | '));
+   for(const l of linksFor(plan,problem.declaration))if(l.status==='not_checked')lines.push(m.notChecked(LINK_PHRASES[l.keyword],l.target?propositionBody(l.target):'$'+l.to));
+   for(const b of assumptionBranch)if(b.problem===problem.declaration&&b.text)lines.push(m.branch(b.text.split('\n').join(' | ')));
    return lines.join('\n');
   };
   const texts=rendered.map(decorate);
@@ -623,7 +678,10 @@ async function runPlan(plan,{runtime,language,languageSource,inputText,context})
   const all=[...texts.map((t,i)=>[plan.problemIds[i].declaration,t]),...notComputable.map(item=>[item.declaration,item.text])];
   result.result=all.length===1?{...last,text:texts[0],packet:{...last.packet,...reports}}:{...last,text:all.map(([declaration,t])=>declaration+':\n'+t).join('\n\n'),packet:{...last.packet,...reports,...(notComputable.length?{not_computable:notComputable.map(item=>item.packet)}:{})}};
  }
- const unresolved=Object.entries(result.outputs).filter(([,output])=>output.status!=='bound');
+ // A projected value no other wire reads and that has no solution at all (an infeasible puzzle) is an answer, not a dependency: the
+ // rendered result says the conditions cannot be met. Several solutions still ask which one is meant.
+ const referenced=new Set(plan.referencedOutputs??[]),projected=new Set(plan.projectedOutputs??[]);
+ const unresolved=Object.entries(result.outputs).filter(([name,output])=>output.status!=='bound'&&(!projected.has(name)||referenced.has(name)||output.status==='ambiguous'));
  if(unresolved.length||result.result?.status==='blocked'||(!plan.problemIds.length&&admittedStatements.length<plan.evidenceIds.length)){
   const details=unresolved.map(([name,output])=>({name,status:output.status,...(output.surface?{surface:output.surface}:{}),...(output.candidates?{candidates:output.candidates}:{})}));
   const identities=details.filter(item=>item.surface);

@@ -1,4 +1,4 @@
-/** The product layer of the chat page (DS022, DS009 "The chat page"): sessions, base memories and the coding agent.
+/** The product layer of the chat page (DS022, DS009 "The chat page"): sessions, base memories and knowledge authoring.
  *
  * - The *session header* of the Chat tab shows the session of the current conversation (its base memory, strategy and circuits)
  *   with *New session* (opens the start dialog where the base memory is chosen from `GET /v1/memories`) and *Commit*. Every
@@ -7,8 +7,8 @@
  *   (name and strategy), Add knowledge (paste or upload a circuit; validation problems are shown, nothing is written on failure) and
  *   Start session; creating an empty memory is there too. Every signed-in user may use them (no admin role yet).
  * - Settings, *Formalization*: the formalization strategy of the session (session setting `formalizer`; strategies the server cannot run
- *   are disabled with the reason, from `GET /v1/status`) and the CodingAgent model picker (`GET /v1/omp/models`, subscription models
- *   first, with the cost class, filterable; the chosen model is tried before the configured chain). *Server status*: strategies, base
+ *   are disabled with the reason, from `GET /v1/status`) and the LLMDirect model (session setting `formalizer_model`: one model of the
+ *   configured chain, from `GET /v1/status`, tried before the rest of the chain). *Server status*: strategies, base
  *   memories with their warm state, and the reasoning engines (`GET /v1/status`). A message goes to `POST /v1/chat/completions`;
  *   attached files go to knowledge authoring (`POST /v1/author`).
  * - Authoring progress (`POST /v1/author` with `wait: false`, polled) and the authored circuits (validation, report, cost) are shown as a
@@ -19,9 +19,9 @@
 export const sessionHeadHtml = `<header class="chat-head"><div class="info" id="session-info" aria-label="Session and base memory">Loading the session…</div><div class="btns"><label for="conversation" class="muted" style="margin:0;font-weight:400;font-size:13px">Chat</label><select id="conversation" title="Earlier conversations in this browser"></select><button id="new" type="button" aria-label="New conversation (new session)" title="Start a new conversation on a base memory of your choice">New session</button><button id="commit-open" type="button" title="Commit the circuits accepted in this session to a new base memory">Commit…</button><button id="clear" type="button" title="Clears only this browser's copy of the transcript; the server keeps the conversation context">Clear view</button></div></header>`;
 
 const srow = (title, help, control) => `<div class="srow"><div class="what"><b>${title}</b><span>${help}</span></div><div class="ctl">${control}</div></div>`;
-export const settingsCodingAgentHtml = [
-  srow('<label class="plain" for="omp-model">CodingAgent model</label>', 'Tried first, before the configured chain. Models omp can use; subscription models cost nothing per token, paid models show their price per million tokens.', '<input type="search" id="omp-filter" placeholder="Filter models" aria-label="Filter models"><select id="omp-model"><option value="">no preference: the configured chain</option></select><button id="omp-refresh" type="button" title="Read the model list from omp again">Refresh</button>'),
-  '<p id="omp-note" class="hint-note"></p>',
+export const settingsFormalizerModelHtml = [
+  srow('<label class="plain" for="formalizer-model">LLMDirect model</label>', 'Tried first, before the rest of the configured chain. The models are proxy tiers or provider models of LLMAPIProvider, called directly.', '<select id="formalizer-model"><option value="">no preference: the configured chain</option></select>'),
+  '<p id="formalizer-model-note" class="hint-note"></p>',
 ].join('');
 
 export const memoryTabHtml = `<h2>Base Memory</h2><p class="lead">Every session is a fork of a base memory. The default is the encyclopedic world-v1, which gives a session common sense and basic knowledge; minimal or empty memories serve specialised tasks. What a chat adds stays in the session until you commit it into a new base memory.</p>
@@ -38,11 +38,11 @@ export const productDialogsHtml = `
 <div id="start-error" class="msgline bad" hidden></div>
 <div class="actions"><button id="start-cancel" type="button">Cancel</button><button id="start-go" type="button" class="primary">Start session</button></div></dialog>
 <dialog id="view-dialog" aria-labelledby="view-title"><h2 id="view-title">Base memory</h2><div id="view-body"></div><div class="actions"><button id="view-close" type="button">Close</button></div></dialog>
-<dialog id="fork-dialog" aria-labelledby="fork-title"><h2 id="fork-title">Fork</h2><p class="msgline">Same strategy: a copy-on-write clone. Another strategy: the circuits are replayed into the new engine.</p>
+<dialog id="fork-dialog" aria-labelledby="fork-title"><h2 id="fork-title">Fork</h2><p class="msgline">Same strategy: a copy-on-write clone. Another strategy: the knowledge files are replayed into the new engine.</p>
 <div class="row"><label for="fork-name">Name</label><input type="text" id="fork-name" maxlength="120" placeholder="name of the fork"></div><div class="row"><label for="fork-strategy">Strategy</label><select id="fork-strategy"></select></div>
 <div id="fork-msg" class="msgline" role="status"></div><div class="actions"><button id="fork-cancel" type="button">Close</button><button id="fork-go" type="button" class="primary">Fork</button></div></dialog>
-<dialog id="know-dialog" aria-labelledby="know-title"><h2 id="know-title">Add knowledge</h2><p class="msgline">Paste SOP circuit text or load a .sop file. It is validated first; nothing is written when a problem is found.</p>
-<div class="row"><label for="know-name">Circuit name</label><input type="text" id="know-name" maxlength="80" value="circuit"><input type="file" id="know-file" accept=".sop,.txt,text/plain" aria-label="Load a circuit file"></div>
+<dialog id="know-dialog" aria-labelledby="know-title"><h2 id="know-title">Add knowledge</h2><p class="msgline">Paste SOP text or load a .sop knowledge file. It is validated first; nothing is written when a problem is found.</p>
+<div class="row"><label for="know-name">File name</label><input type="text" id="know-name" maxlength="80" value="circuit"><input type="file" id="know-file" accept=".sop,.txt,text/plain" aria-label="Load a knowledge file"></div>
 <textarea id="know-text" placeholder="Knowledge wires, for example:&#10;@parent predicate&#10;  args subject:entity object:entity&#10;@f1 fact&#10;  holds parent ann bob&#10;  source &quot;demo&quot;" aria-label="Circuit text"></textarea>
 <div class="row"><label for="know-reason">Reason</label><input type="text" id="know-reason" maxlength="200" placeholder="why it is added"></div>
 <div id="know-msg" class="msgline" role="status"></div><div class="actions"><button id="know-cancel" type="button">Close</button><button id="know-go" type="button" class="primary">Validate and add</button></div></dialog>
@@ -50,7 +50,7 @@ export const productDialogsHtml = `
 <div class="row"><label for="new-name">Name</label><input type="text" id="new-name" maxlength="120"></div><div class="row"><label for="new-kind">Built on</label><select id="new-kind"><option value="encyclopedic">encyclopedic: a fork of world-v1 (common sense and basic knowledge)</option><option value="minimal" selected>minimal: the core vocabulary (core-min)</option><option value="empty">empty: nothing, for a specialised task</option></select></div><div class="row"><label for="new-strategy">Strategy</label><select id="new-strategy"></select></div>
 <div id="new-msg" class="msgline" role="status"></div><div class="actions"><button id="new-cancel" type="button">Close</button><button id="new-go" type="button" class="primary">Create</button></div></dialog>
 <dialog id="commit-dialog" aria-labelledby="commit-title"><h2 id="commit-title">Commit the session to a base memory</h2>
-<p class="msgline">Creates a new base memory: a fork of the session's base memory plus the circuits added in this session, validated again. The original base memory does not change. Recorded with provenance.</p>
+<p class="msgline">Creates a new base memory: a fork of the session's base memory plus the knowledge files added in this session, validated again. The original base memory does not change. Recorded with provenance.</p>
 <div class="row"><label for="commit-name">Name</label><input type="text" id="commit-name" maxlength="120"><label for="commit-strategy">Strategy</label><select id="commit-strategy"></select></div>
 <div id="commit-msg" class="msgline" role="status"></div>
 <div class="actions"><button id="commit-cancel" type="button">Cancel</button><button id="commit-go" type="button" class="primary">Commit</button></div></dialog>`;
@@ -59,8 +59,8 @@ export const attachHtml = `<input type="file" id="attach-file" multiple hidden>`
 export const chipsHtml = `<div id="chips" class="chips" aria-label="Attached files"></div>`;
 
 export const productScript = String.raw`
-// ---- product layer (DS022): sessions, base memories, the coding agent ----
-const PROD={session:null,memories:[],strategies:[],omp:null,files:[]};
+// ---- product layer (DS022): sessions, base memories, knowledge authoring ----
+const PROD={session:null,memories:[],strategies:[],files:[]};
 async function jcall(method,path,body){
  try{const r=await fetch(path,{method,credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});let j=null;try{j=await r.json();}catch{}
   return {ok:r.ok&&Boolean(j)&&!j.error,status:r.status,body:j,error:j&&j.error?j.error:null};}
@@ -79,12 +79,12 @@ function renderSessionBar(){
  info.append(el('b','',s.name||s.id),document.createTextNode(' \u00b7 base memory '),el('b','',s.base.name));
  info.append(el('span','pill accent',s.base.strategy));
  const accepted=(s.circuits||[]).length;
- info.append(el('span','pill',accepted+' session circuit'+(accepted===1?'':'s')));
+ info.append(el('span','pill',s.sop_wires==null?plural(accepted,'knowledge file added','knowledge files added'):sizeText(s)+(accepted?' ('+accepted+' added in this session)':'')));info.lastChild.title=sizeTitle(s);
  if((s.committed_to||[]).length)info.append(el('span','pill ok','committed'));
  info.title='session '+s.id;
  info.append(el('span','pill',strategyName()));
  if($('formalizer'))$('formalizer').value=(s.settings&&s.settings.formalizer)||'';
- const model=(s.settings&&s.settings.omp_model)||'';if([...$('omp-model').options].some(o=>o.value===model))$('omp-model').value=model;
+ const model=(s.settings&&(s.settings.formalizer_model||s.settings.omp_model))||'';if([...$('formalizer-model').options].some(o=>o.value===model))$('formalizer-model').value=model;
  $('commit-open').disabled=!accepted;
  if($('mem-rows')&&!$('panel-memory').hidden)renderMemoryRows();
 }
@@ -93,7 +93,7 @@ async function refreshSession(){
  if(r.ok)PROD.session=r.body;renderSessionBar();
 }
 async function startSession(baseId,name){
- const r=await jcall('POST','/v1/sessions',{...(baseId?{base:baseId}:{}),...(name?{name}:{}),settings:{omp_model:store.get('chatsop.ompModel',null),formalizer:store.get('chatsop.formalizer',null)}});
+ const r=await jcall('POST','/v1/sessions',{...(baseId?{base:baseId}:{}),...(name?{name}:{}),settings:{formalizer_model:store.get('chatsop.formalizerModel',null),formalizer:store.get('chatsop.formalizer',null)}});
  if(!r.ok)return r;
  PROD.session=r.body;bindSession(r.body.id);if(baseId)store.set('chatsop.lastBase',baseId);renderSessionBar();return r;
 }
@@ -109,12 +109,20 @@ async function ensureSession(){
 }
 async function loadMemories(){const r=await jcall('GET','/v1/memories');if(r.ok){PROD.memories=r.body.data;PROD.strategies=r.body.strategies;PROD.defaultBase=r.body.default_base;}return r;}
 function fillStrategies(select,selected){select.textContent='';for(const s of PROD.strategies){const o=document.createElement('option');o.value=s.id;o.textContent=s.id;o.title=s.note;select.append(o);}if(selected)select.value=selected;}
-const memLabel=m=>m.name+(m.id===PROD.defaultBase?' (default)':'')+' · '+m.facts+' fact'+(m.facts===1?'':'s')+' · '+m.circuits+' circuit'+(m.circuits===1?'':'s');
+const WIRE_TYPE_NAMES={fact:'facts',rule:'rules',entity:'entities',predicate:'predicates',lexeme:'lexemes',default:'defaults',integrity:'integrity rules'};
+const nf=n=>Number(n).toLocaleString('en-US');
+const plural=(n,one,many)=>nf(n)+' '+(n===1?one:many);
+// "N knowledge files \u00b7 M SOP wires" (the stored-facts index is a secondary number, see sizeTitle).
+const sizeText=m=>m.sop_wires==null?plural(m.circuits,'knowledge file','knowledge files'):plural(m.knowledge_files,'knowledge file','knowledge files')+' \u00b7 '+plural(m.sop_wires,'SOP wire','SOP wires');
+// Wires by type, larger groups first; types without a plain name are grouped as "other".
+function wireBreakdown(m){const by=m.wires_by_type||{};const named=[];let other=0;for(const [t,n] of Object.entries(by)){if(WIRE_TYPE_NAMES[t])named.push([WIRE_TYPE_NAMES[t],n]);else other+=n;}if(other)named.push(['other',other]);return named.map(([k,n])=>nf(n)+' '+k).join(', ');}
+const sizeTitle=m=>(m.facts==null?'':nf(m.facts)+' facts in the store (an index for fast lookup). ')+(wireBreakdown(m)?'SOP wires: '+wireBreakdown(m)+'.':'');
+const memLabel=m=>m.name+(m.id===PROD.defaultBase?' (default)':'')+' \u00b7 '+sizeText(m);
 
 // ---- new session dialog
 function showStartDetail(){
  const m=PROD.memories.find(x=>x.id===$('start-base').value);const box=$('start-detail');box.textContent='';if(!m)return;
- box.append(document.createTextNode((m.description||'No description.')+' '+m.circuits+' circuit(s), '+m.facts+' stored fact(s), strategy '+m.strategy+(m.parent?', forked from '+m.parent.name:'')+'.'));
+ box.append(document.createTextNode((m.description||'No description.')+' '+sizeText(m)+(wireBreakdown(m)?' ('+wireBreakdown(m)+')':'')+', strategy '+m.strategy+(m.parent?', forked from '+m.parent.name:'')+'.'));
 }
 async function openStart(baseId){
  await loadMemories();const select=$('start-base');select.textContent='';
@@ -149,13 +157,13 @@ function renderMemoryRows(){
   const cell=(l,text,cls)=>{const td=el('td',cls||'',text);td.dataset.l=l;tr.append(td);return td;};
   cell('Name',m.name+(m.id===PROD.defaultBase?' (default)':''),'name').title=m.description||m.id;
   cell('Strategy',m.strategy);
-  cell('Size',m.circuits+' circuit'+(m.circuits===1?'':'s')+' \u00b7 '+m.facts+' fact'+(m.facts===1?'':'s'));
+  cell('Size',sizeText(m)).title=sizeTitle(m);
   cell('Created',day(m.created_at));
   cell('Parent',m.parent?m.parent.name:'\u2014');
   const acts=cell('','','acts');
   acts.append(plainBtn('View','Manifest, counts and sample wires',()=>openView(m.id)),
    plainBtn('Fork','Fork this memory under a new name and strategy',()=>openFork(m)),
-   plainBtn('Add knowledge','Validate and add SOP circuits to this memory',()=>openKnow(m)),
+   plainBtn('Add knowledge','Validate and add SOP knowledge files to this memory',()=>openKnow(m)),
    plainBtn('Start session','Start a new chat session on a copy of this base memory',()=>startFromMemory(m.id),'primary'));
   body.append(tr);
  }
@@ -179,7 +187,7 @@ async function openView(id){
  if(!r.ok){box.append(el('p','msgline bad',errText(r)));return;}
  const m=r.body;$('view-title').textContent=m.name;const dl=document.createElement('dl');
  field(dl,'id',m.id);field(dl,'strategy',m.strategy);field(dl,'created',m.created_at);field(dl,'parent',m.parent?m.parent.name+' ('+m.parent.id+', '+m.parent.strategy+', forked '+m.parent.forked_at+')':'none');
- field(dl,'circuits',m.circuits+((m.circuit_files||[]).length?' ('+m.circuit_files.join(', ')+')':''));field(dl,'stored facts',m.facts);field(dl,'description',m.description);box.append(dl);
+ field(dl,'knowledge',sizeText(m)+((m.circuit_files||[]).length?' (own files: '+m.circuit_files.join(', ')+')':''));field(dl,'SOP wires by type',wireBreakdown(m)||'none');field(dl,'facts in the store (index for fast lookup)',m.facts);field(dl,'description',m.description);box.append(dl);
  const facts=Object.entries(m.stored_facts||{}).filter(([,rows])=>rows.length);
  if(facts.length){const d=el('details');d.open=true;d.append(el('summary','','sample wires ('+facts.reduce((n,[,rows])=>n+rows.length,0)+' stored facts)'));d.append(el('pre','',facts.map(([pred,rows])=>rows.slice(0,40).map(x=>pred+' '+x.args.join(' ')).join('\n')).join('\n')));box.append(d);}
  else box.append(el('p','msgline','No stored fact yet.'));
@@ -192,13 +200,13 @@ $('fork-go').onclick=async()=>{
  const name=$('fork-name').value.trim();if(!memCurrent||!name){setMsg('fork-msg','Name the fork first.','bad');return;}
  const r=await jcall('POST','/v1/memories/'+encodeURIComponent(memCurrent.id)+'/fork',{name,strategy:$('fork-strategy').value});
  if(!r.ok){setMsg('fork-msg',errText(r),'bad');return;}
- setMsg('fork-msg','Forked as "'+r.body.memory.name+'" ('+r.body.memory.strategy+', '+(r.body.method==='clone'?'copy-on-write clone':'circuits replayed into the new engine')+').','ok');
+ setMsg('fork-msg','Forked as "'+r.body.memory.name+'" ('+r.body.memory.strategy+', '+(r.body.method==='clone'?'copy-on-write clone':'knowledge files replayed into the new engine')+').','ok');
  $('fork-name').value='';renderMemories();
 };
 function openKnow(m){memCurrent=m;$('know-title').textContent='Add knowledge to "'+m.name+'"';$('know-text').value='';$('know-reason').value='';setMsg('know-msg','');$('know-dialog').showModal();}
 $('know-file').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('know-text').value=await f.text();$('know-name').value=f.name.replace(/\.[^.]+$/,'').replace(/[^A-Za-z0-9_-]+/g,'-')||'circuit';};
 $('know-go').onclick=async()=>{
- const text=$('know-text').value;if(!memCurrent||!text.trim()){setMsg('know-msg','Paste or load a circuit first.','bad');return;}
+ const text=$('know-text').value;if(!memCurrent||!text.trim()){setMsg('know-msg','Paste or load SOP text first.','bad');return;}
  const r=await jcall('POST','/v1/memories/'+encodeURIComponent(memCurrent.id)+'/knowledge',{circuits:[{name:$('know-name').value.trim()||'circuit',text}],reason:$('know-reason').value.trim()});
  if(!r.ok){const box=setMsg('know-msg','Not added: '+errText(r),'bad');if(r.error&&r.error.problems)box.append(problemList(r.error.problems));return;}
  const a=r.body.added[0];setMsg('know-msg','Added '+a.file+': '+a.ingest.facts_ingested+' of '+a.ingest.facts_in_circuit+' fact(s) in the memory store, provenance recorded ('+a.approved_by+').'+(r.body.warnings.length?' '+r.body.warnings.length+' warning(s).':''),'ok');
@@ -214,7 +222,7 @@ $('new-go').onclick=async()=>{
 
 // ---- authored circuits
 function circuitCard(res){
- const card=el('fieldset');card.append(el('legend','',(res.model?res.model:'coding agent')));
+ const card=el('fieldset');card.append(el('legend','',(res.model?res.model:'authoring model')));
  const ok=Boolean(res.added);card.append(el('span','pill '+(ok?'ok':'warn'),ok?'added to this session':'not added'));
  if(res.not_added)card.append(problemList(res.not_added));
  else if(res.validation&&!res.validation.ok)card.append(problemList(res.validation.problems));
@@ -232,38 +240,25 @@ $('commit-go').onclick=async()=>{
  if(!name){box.className='msgline bad';box.textContent='Name the new base memory first.';return;}
  const r=await jcall('POST','/v1/sessions/'+PROD.session.id+'/commit',{name,strategy:$('commit-strategy').value});
  if(!r.ok){box.className='msgline bad';box.textContent='Not committed: '+errText(r);if(r.error&&r.error.problems)box.append(problemList(r.error.problems));return;}
- box.className='msgline ok';box.textContent='Committed: new base memory "'+r.body.memory.name+'" ('+r.body.memory.strategy+', '+r.body.memory.circuits+' circuits).';await refreshSession();
+ box.className='msgline ok';box.textContent='Committed: new base memory "'+r.body.memory.name+'" ('+r.body.memory.strategy+', '+sizeText(r.body.memory)+').';await refreshSession();
 };
 
-// ---- omp settings and models
-function ompNote(text){$('omp-note').textContent=text||'';}
-const OMP_GROUPS=[['subscription','Subscription (no per-token cost)'],['paid_api','Paid API'],['unknown','Other']];
-function renderOmpOptions(){
- const select=$('omp-model'),r=PROD.omp;if(!r)return;
- const keep=select.value||(PROD.session&&PROD.session.settings&&PROD.session.settings.omp_model)||'';const q=$('omp-filter').value.trim().toLowerCase();select.textContent='';
- const def=document.createElement('option');def.value='';def.textContent='no preference: the configured chain'+(PROD.status&&PROD.status.formalization.strategies[0].models?' ('+PROD.status.formalization.strategies[0].models.map(m=>m.id).join(' \u2192 ')+')':'');select.append(def);
- for(const [cls,label] of OMP_GROUPS){
-  const ms=r.models.filter(m=>m.cost_class===cls&&(m.id===keep||(q?m.id.toLowerCase().includes(q):!(m.provider==='openrouter'&&cls==='paid_api'&&r.models.length>60&&!/latest$/.test(m.id)))));
-  if(!ms.length)continue;const g=document.createElement('optgroup');g.label=label;
-  for(const m of ms){const o=document.createElement('option');o.value=m.id;o.textContent=m.id+(m.price_per_mtok&&cls==='paid_api'?'  ($'+m.price_per_mtok.input+'/$'+m.price_per_mtok.output+' per Mtok)':'');g.append(o);}
-  select.append(g);
- }
+// ---- the LLMDirect model: one model of the configured chain (GET /v1/status)
+function renderModelOptions(){
+ const select=$('formalizer-model'),st=PROD.status;if(!st)return;
+ const direct=st.formalization.strategies.find(x=>x.id==='LLMDirect');const models=(direct&&direct.models)||[];
+ const keep=select.value||(PROD.session&&PROD.session.settings&&(PROD.session.settings.formalizer_model||PROD.session.settings.omp_model))||'';select.textContent='';
+ const def=document.createElement('option');def.value='';def.textContent='no preference: the configured chain'+(models.length?' ('+models.map(m=>m.id).join(' \u2192 ')+')':'');select.append(def);
+ for(const m of models){const o=document.createElement('option');o.value=m.id;o.textContent=m.id+(m.available===false?' \u2014 '+(m.reason||'not reachable'):'');select.append(o);}
  if([...select.options].some(o=>o.value===keep))select.value=keep;
-}
-async function loadOmpModels(refresh){
- const r=await jcall('GET','/v1/omp/models'+(refresh?'?refresh=1':''));
- if(!r.ok){PROD.omp=null;ompNote('The model list is not available: '+errText(r));return;}
- PROD.omp=r.body;
- if(!r.body.available){renderOmpOptions();ompNote('The coding agent (omp) is not available: '+(r.body.reason||'no models')+'. Chat answers return parse_unavailable until omp can run a model.');return;}
- renderOmpOptions();
- ompNote((r.body.omp_version||'omp')+' \u00b7 '+r.body.models.length+' models'+(r.body.cached?' (cached)':'')+'. Type in the filter to search the whole catalogue.');
+ $('formalizer-model-note').textContent=direct&&!direct.available?'LLMDirect cannot run now: '+(direct.reason||'no model of the chain is reachable')+'.':'';
 }
 async function saveSetting(patch){
- if('omp_model' in patch)store.set('chatsop.ompModel',patch.omp_model);
+ if('formalizer_model' in patch)store.set('chatsop.formalizerModel',patch.formalizer_model);
  if('formalizer' in patch)store.set('chatsop.formalizer',patch.formalizer);
  if(!PROD.session)return;const r=await jcall('POST','/v1/sessions/'+PROD.session.id+'/settings',patch);if(r.ok){PROD.session=r.body;renderSessionBar();}
 }
-$('omp-model').onchange=e=>saveSetting({omp_model:e.target.value||null});
+$('formalizer-model').onchange=e=>saveSetting({formalizer_model:e.target.value||null});
 $('formalizer').onchange=e=>saveSetting({formalizer:e.target.value||null});
 
 // ---- server status (GET /v1/status): formalization strategies, base memories, engines
@@ -283,10 +278,8 @@ function renderStatus(){
  box.append(el('h4','','Base memories'),table(['Memory','Facts','Warm'],st.memories.map(m=>[m.name+' ('+m.id+')',String(m.facts??''),m.warm?(m.warm.skipped?'skipped: '+m.warm.skipped:'warm, '+(m.warm.ms/1000).toFixed(1)+' s, '+m.warm.layers+' layers'):'loads on first use'])));
  box.append(el('h4','','Reasoning engines'),el('p','msgline',st.reasoning.router+'; oracle '+st.reasoning.oracle+'; '+st.reasoning.engines.map(e=>e.id+(e.available?'':' (not installed)')).join(', ')));
 }
-async function loadStatus(){const r=await jcall('GET','/v1/status');if(!r.ok){$('status-when').textContent='The status could not be read: '+errText(r);return;}PROD.status=r.body;renderStrategies();renderStatus();renderSessionBar();renderOmpOptions();}
+async function loadStatus(){const r=await jcall('GET','/v1/status');if(!r.ok){$('status-when').textContent='The status could not be read: '+errText(r);return;}PROD.status=r.body;renderStrategies();renderStatus();renderModelOptions();renderSessionBar();}
 $('status-refresh').onclick=()=>loadStatus();
-$('omp-filter').oninput=()=>renderOmpOptions();
-$('omp-refresh').onclick=()=>loadOmpModels(true);
 
 // ---- attachments
 const MAX_FILES=10,MAX_BYTES=2000000;
@@ -306,46 +299,46 @@ $('attach-file').onchange=async e=>{
  e.target.value='';renderChips();
 };
 
-// ---- knowledge authoring by the coding agent
+// ---- knowledge authoring (POST /v1/author: a model of the chain called directly)
 function agentBlock(model){
- const div=el('div','msg assistant agent-msg');div.append(el('div','head','Coding agent (omp)'));
+ const div=el('div','msg assistant agent-msg');div.append(el('div','head','Knowledge authoring'));
  if(model)div.firstChild.append(el('span','pill',model));
  div.append(el('div','status','starting…'));return div;
 }
 async function runAuthoring(text,files){
- const model=PROD.session.settings&&PROD.session.settings.omp_model||null;
+ const model=PROD.session.settings&&(PROD.session.settings.formalizer_model||PROD.session.settings.omp_model)||null;
  const block=agentBlock(model);$('log').append(block);const status=block.querySelector('.status');
  const started=await jcall('POST','/v1/author',{session:PROD.session.id,instructions:text,files,...(model?{model}:{}),wait:false});
- if(!started.ok){status.textContent='The coding agent could not start: '+(started.error?started.error.message:'HTTP '+started.status);block.classList.add('error');return 'failed';}
+ if(!started.ok){status.textContent='Knowledge authoring could not start: '+(started.error?started.error.message:'HTTP '+started.status);block.classList.add('error');return 'failed';}
  const t0=Date.now();let st=null;
  for(;;){
   await new Promise(r=>setTimeout(r,1500));
   const r=await jcall('GET',started.body.status_url);if(!r.ok){status.textContent='The status of the request could not be read: '+errText(r);return 'failed';}
   st=r.body;const secs=Math.round((Date.now()-t0)/1000);
-  status.textContent=(st.status==='running'?({queued:'queued',writing:'the agent is writing circuits',fixing:'the agent is repairing circuits after validation (round '+st.round+')',validating:'validating the circuits'}[st.phase]||st.phase)+' · '+secs+' s':'finished');
+  status.textContent=(st.status==='running'?({queued:'queued',writing:'the model is writing SOP',fixing:'the model is repairing the SOP after validation (round '+st.round+')',validating:'validating the SOP'}[st.phase]||st.phase)+' · '+secs+' s':'finished');
   if(st.status!=='running')break;
  }
- if(!st.result||st.result.status==='failed'){status.textContent='The coding agent failed: '+(st.error||(st.result&&st.result.reason)||'no result');block.classList.add('error');return 'failed';}
+ if(!st.result||st.result.status==='failed'){status.textContent='Knowledge authoring failed: '+(st.error||(st.result&&st.result.reason)||'no result');block.classList.add('error');return 'failed';}
  renderAuthoringResult(block,st.result);await refreshSession();return 'done';
 }
 function renderAuthoringResult(block,res){
  const status=block.querySelector('.status');
  status.textContent=({validated:'Validated',invalid:'Written but not valid after the repair rounds',failed:'The agent failed'}[res.status]||res.status)+' · '+res.rounds+' round'+(res.rounds===1?'':'s')+' · '+(res.duration_ms/1000).toFixed(1)+' s · '+res.usage.turns+' turns · cost '+res.usage.cost_usd.toFixed(4)+' USD ('+res.cost_class+(res.cost_class==='subscription'?', nominal list price':'')+')'+(res.reason?' · '+res.reason:'');
  if((res.circuits||[]).length)block.append(circuitCard(res));
- else block.append(el('p','note','No circuit was produced.'));
- block.append(el('p','note','Validated circuits join this session only; committing the session to a base memory is a separate step.'));
+ else block.append(el('p','note','No SOP was produced.'));
+ block.append(el('p','note','Validated SOP joins this session only; committing the session to a base memory is a separate step.'));
 }
-/** Attached files go to knowledge authoring (the coding agent writes circuits for this session); a message without files is a chat turn. */
+/** Attached files go to knowledge authoring (a model writes circuits for this session); a message without files is a chat turn. */
 async function productEarly(text){
  if(!PROD.session||!PROD.files.length)return false;
  const files=PROD.files.splice(0);renderChips();
  const user={id:uid(),role:'user',text,time:Date.now(),attached:files.map(f=>f.name)};remember(user);const userDiv=add(user);
  userDiv.append(el('div','meta','attached: '+files.map(f=>f.name).join(', ')));
- setBusy(true,'Coding agent working\u2026');
+ setBusy(true,'Authoring knowledge\u2026');
  input.value='';fit();
  await runAuthoring(text,files);
  return true;
 }
-ensureSession().then(()=>Promise.all([loadOmpModels(false),loadStatus()]));
+ensureSession().then(()=>loadStatus());
 initTabs();
 `;

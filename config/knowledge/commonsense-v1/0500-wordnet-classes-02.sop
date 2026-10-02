@@ -26,31 +26,6 @@
 # any associated documentation shall at all times remain with
 # Princeton University and LICENSEE agrees to preserve same.
 
-@stupid entity
-  kind class
-  label en "stupid"
-  alias en "stupids"
-  alias en "stupid person"
-  alias en "stupe"
-  alias en "dullard"
-  alias en "dolt"
-  alias en "pudding head"
-  alias en "pudden-head"
-  alias en "poor fish"
-  alias en "pillock"
-  notability 400
-  source "WordNet 3.0 synset 10667187-n"
-
-@submarine entity
-  kind class
-  label en "submarine"
-  alias en "submarines"
-  alias en "pigboat"
-  alias en "sub"
-  alias en "u-boat"
-  notability 400
-  source "WordNet 3.0 synset 04347754-n"
-
 @substance entity
   kind class
   label en "substance"
@@ -224,6 +199,13 @@
   notability 400
   source "WordNet 3.0 synset 04371225-n"
 
+@swing entity
+  kind class
+  label en "swing"
+  alias en "swings"
+  notability 400
+  source "WordNet 3.0 synset 04371774-n"
+
 @switch entity
   kind class
   label en "switch"
@@ -237,7 +219,6 @@
   kind class
   label en "sword"
   alias en "swords"
-  alias en "steel"
   notability 400
   source "WordNet 3.0 synset 04373894-n"
 
@@ -474,7 +455,6 @@
   kind class
   label en "telephone"
   alias en "telephones"
-  alias en "phone"
   alias en "telephone set"
   notability 400
   source "WordNet 3.0 synset 04401088-n"
@@ -502,7 +482,6 @@
   kind class
   label en "telescope"
   alias en "telescopes"
-  alias en "scope"
   notability 400
   source "WordNet 3.0 synset 04403638-n"
 
@@ -658,7 +637,6 @@
   kind class
   label en "thread"
   alias en "threads"
-  alias en "yarn"
   notability 400
   source "WordNet 3.0 synset 04426788-n"
 
@@ -738,7 +716,6 @@
   kind class
   label en "toaster"
   alias en "toasters"
-  alias en "wassailer"
   notability 400
   source "WordNet 3.0 synset 10713502-n"
 
@@ -770,10 +747,7 @@
   alias en "toilets"
   alias en "commode"
   alias en "crapper"
-  alias en "pot"
   alias en "potty"
-  alias en "stool"
-  alias en "throne"
   notability 400
   source "WordNet 3.0 synset 04446521-n"
 
@@ -820,7 +794,6 @@
   alias en "tongues"
   alias en "lingua"
   alias en "glossa"
-  alias en "clapper"
   notability 400
   source "WordNet 3.0 synset 05301072-n"
 
@@ -880,7 +853,6 @@
   kind class
   label en "top"
   alias en "tops"
-  alias en "cover"
   notability 400
   source "WordNet 3.0 synset 04453910-n"
 
@@ -896,7 +868,6 @@
   label en "torso"
   alias en "torsos"
   alias en "trunk"
-  alias en "body"
   notability 400
   source "WordNet 3.0 synset 05549830-n"
 
@@ -997,7 +968,6 @@
   alias en "piece of land"
   alias en "piece of ground"
   alias en "parcel of land"
-  alias en "parcel"
   notability 400
   source "WordNet 3.0 synset 08673395-n"
 
@@ -1021,7 +991,6 @@
   label en "tramp"
   alias en "tramps"
   alias en "hobo"
-  alias en "bum"
   notability 400
   source "WordNet 3.0 synset 10723300-n"
 
@@ -1078,7 +1047,6 @@
   kind class
   label en "trophy"
   alias en "trophies"
-  alias en "prize"
   notability 400
   source "WordNet 3.0 synset 04487996-n"
 
@@ -1233,8 +1201,6 @@
   kind class
   label en "universe"
   alias en "universes"
-  alias en "existence"
-  alias en "creation"
   alias en "cosmos"
   alias en "macrocosm"
   notability 400
@@ -1256,7 +1222,6 @@
   alias en "pee"
   alias en "piddle"
   alias en "weewee"
-  alias en "water"
   notability 400
   source "WordNet 3.0 synset 14855724-n"
 
@@ -1388,7 +1353,6 @@
   kind class
   label en "vessel"
   alias en "vessels"
-  alias en "watercraft"
   notability 400
   source "WordNet 3.0 synset 04530566-n"
 
@@ -1531,7 +1495,6 @@
   alias en "wallets"
   alias en "billfold"
   alias en "notecase"
-  alias en "pocketbook"
   notability 400
   source "WordNet 3.0 synset 04548362-n"
 
@@ -1554,7 +1517,6 @@
   label en "walrus"
   alias en "walruses"
   alias en "seahorse"
-  alias en "sea horse"
   notability 400
   source "WordNet 3.0 synset 02081571-n"
 
@@ -1562,8 +1524,6 @@
   kind class
   label en "wardrobe"
   alias en "wardrobes"
-  alias en "closet"
-  alias en "press"
   notability 400
   source "WordNet 3.0 synset 04550184-n"
 
@@ -1581,7 +1541,6 @@
   label en "washcloth"
   alias en "washcloths"
   alias en "washrag"
-  alias en "flannel"
   alias en "face cloth"
   notability 400
   source "WordNet 3.0 synset 04554523-n"
@@ -1775,7 +1734,6 @@
   kind class
   label en "wheat"
   alias en "wheats"
-  alias en "wheat berry"
   notability 400
   source "WordNet 3.0 synset 07803545-n"
 
@@ -1821,7 +1779,6 @@
   kind class
   label en "wind instrument"
   alias en "wind instruments"
-  alias en "wind"
   notability 400
   source "WordNet 3.0 synset 04586932-n"
 
@@ -1863,7 +1820,6 @@
   kind class
   label en "winery"
   alias en "wineries"
-  alias en "wine maker"
   notability 400
   source "WordNet 3.0 synset 04592465-n"
 
@@ -1871,7 +1827,6 @@
   kind class
   label en "winner"
   alias en "winners"
-  alias en "victor"
   notability 400
   source "WordNet 3.0 synset 10782940-n"
 
@@ -1955,7 +1910,6 @@
   label en "workbench"
   alias en "workbenches"
   alias en "work bench"
-  alias en "bench"
   notability 400
   source "WordNet 3.0 synset 04600486-n"
 
@@ -1992,7 +1946,6 @@
   label en "world"
   alias en "worlds"
   alias en "human race"
-  alias en "humanity"
   alias en "humankind"
   alias en "human beings"
   alias en "humans"
@@ -2025,7 +1978,6 @@
   kind class
   label en "yard"
   alias en "yards"
-  alias en "grounds"
   alias en "curtilage"
   notability 400
   source "WordNet 3.0 synset 04610879-n"
@@ -2078,7 +2030,6 @@
   kind class
   label en "zucchini"
   alias en "zucchinis"
-  alias en "courgette"
   notability 400
   source "WordNet 3.0 synset 07716358-n"
 

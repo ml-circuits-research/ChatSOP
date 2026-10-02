@@ -1,0 +1,16 @@
+{
+ "format": "chatsop-preregistration-v1",
+ "id": "eval-books-problems-v1",
+ "name": "Problem mode: the system solves the owner's book problems end to end (the problem text is the user message, the engines compute)",
+ "registered_at": "2026-10-02T14:05:00.000Z",
+ "registered_by": "problem-agent",
+ "status": "running; an engineering loop on development samples, never a sealed test",
+ "spec": "docs/specs/DS014-model-surface.md#problems-that-state-their-own-data",
+ "owner_request": "Owner 2026-10-02: 'Focus on this — we must make it solve problems, otherwise it's useless.' Arithmetic over aggregates ('how many more', 'fewest steps') belongs here.",
+ "hypothesis": "With exact decimal arithmetic in session rules, same-turn conversation entities and a problem mode in the formalizers, the system answers a substantial share of the book problems from batch 1's 0/100 (LocalLLMStepByStep B, Qwen3-4B): the 27B formalizer (remote-direct, LocalLLMDirect on the openference Qwen3.8 27b; CodingAgent when omp works with it) on the computational families (math, decompose, adult quantities, world formulas), the 4B step-by-step with problem questions on a smaller share. Qualitative families (critical thinking, analogy, abduction, open text answers) stay honest unknowns.",
+ "data": "datasets_sources/books/eval/items.jsonl (7000 items of 7 books, extracted by tools/eval/books/extract.mjs). Loops use small stratified random samples (tools/eval/books/sample.mjs, 10 to 20 items, a fresh seed each loop, items marked seen); a batch of 100 is measured only when the small samples stop showing new failure classes.",
+ "arms": ["remote-direct: LocalLLMDirect on Qwen3.8 27b through LLMAPIProvider (openference)", "coding-agent: CodingAgent through omp with llmapiprovider/Qwen3.8 27b", "steps: LocalLLMStepByStep method B with Qwen3-4B-Instruct Q4_K_M and the problem questions", "direct: Qwen3-4B answering directly (the batch-1 baseline)"],
+ "metrics": ["per book: correct / wrong / honest unknown / invalid / failed (tools/eval/books/score.mjs: numbers with 0.5% tolerance, yes/no polarity, entity strings; an LLM judge for the rest)", "how much the engine did: proof facts, rules used, aggregates, constraint solving (tools/eval/books/attribution.mjs)", "latency p50"],
+ "stopping": "A loop stops early when its first 5 items show the same infrastructure failure (fix first). A failure class is closed when a generic fix removes it on a fresh sample. The batch of 100 is run when two consecutive small samples show no new failure class.",
+ "deviations": []
+}

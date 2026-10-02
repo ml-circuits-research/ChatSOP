@@ -35,10 +35,12 @@ import {abduce} from './abduce.mjs';
 import {whyNot} from './whynot.mjs';
 import {withConditional} from './conditional.mjs';
 import {ProgramError, NotExpressibleError} from './values.mjs';
+import {ORDER_SAMPLING, ORDER_SAMPLING_MODES} from '../../../sop/enums.mjs';
+import {sampleAnswers} from '../../sample.mjs';
 
 export {ProgramError, NotExpressibleError};
 
-const SUPPORTED = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'every_grouped', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'constraint', 'optimize', 'plan', 'abduce', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars'];
+const SUPPORTED = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'every_grouped', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'constraint', 'optimize', 'plan', 'abduce', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars', 'exact_arithmetic', 'compute_in_recursion'];
 const UNSUPPORTED = ['blocked_info', 'method', 'htn_choice', 'on_failure', 'norms_hard', 'norms_soft', 'temporal_norms', 'procedures', 'procedure_render', 'amendment', 'check_plan', 'abduce_waive'];
 
 export const capabilities = {
@@ -105,7 +107,13 @@ function readQuery(wire, excluded) {
   if (!MODES.includes(q.mode)) throw new ProgramError('bad_enum', `mode must be one of ${MODES.join(', ')}`, wire.id);
   const other = [];
   // compare, rank, filter, except, quantifier and limit are run by the oracle (forms.mjs); order, measure and the clause links are linked by the host
-  for (const k of ['order', 'measure', ...LINKS_OTHER_THAN_IF]) if (f1(wire, k)) other.push(k);
+  // `order random` (DS004 "Sampling") is run here for a direct call (the StrategyRouter applies it itself after any route); a temporal order is the host's
+  const sampling = wire.fields.filter(f => f.key === 'order' && ORDER_SAMPLING.includes(f.value.trim()));
+  if (sampling.length > 1) throw new ProgramError('order_random_repeated', 'a query takes at most one order random line', wire.id);
+  if (sampling.length && !ORDER_SAMPLING_MODES.includes(q.mode)) throw new ProgramError('order_random_mode', `order random samples the answers of mode ${ORDER_SAMPLING_MODES.join('|')}, not mode ${q.mode}`, wire.id);
+  q.sample = sampling.length > 0;
+  if (wire.fields.some(f => f.key === 'order' && !sampling.includes(f))) other.push('order');
+  for (const k of ['measure', ...LINKS_OTHER_THAN_IF]) if (f1(wire, k)) other.push(k);
   if (other.length) throw new NotExpressibleError(['query_' + other[0]], `query field "${other[0]}" is linked by the host, not run by this strategy`);
   if (['conform', 'procedure'].includes(q.mode) || f1(wire, 'via') || f1(wire, 'trace')) throw new NotExpressibleError(['check_plan', 'procedure_render', 'method'], `mode ${q.mode} (modes of work) is not expressible by js-reference`);
   return q;
@@ -184,7 +192,12 @@ function relationalPacket({q, qp, sliced, parts, how, exhausted, policy, budget,
   // a count is a number, not a list: only `select` returns rows (the strategies agree on this, so the shadow check can compare packets)
   if (qp.mode === 'select') {
     packet.rows = outcome.rows.map(r => r.row);
-    if (q.forms && packet.rows.length > q.forms.limit) { packet.rows = packet.rows.slice(0, q.forms.limit); packet.truncated = true; }
+    if (q.sample) {
+      const drawn = sampleAnswers(packet.rows, {limit: q.limit, seed: q.seed});
+      packet.rows = drawn.items;
+      packet.sample = drawn.sample;
+      if (drawn.truncated) packet.truncated = true;
+    } else if (q.forms && packet.rows.length > q.forms.limit) { packet.rows = packet.rows.slice(0, q.forms.limit); packet.truncated = true; }
   }
   if (outcome.quantified) Object.assign(packet, {members: outcome.members, counterexamples: outcome.counterexamples, undecided: outcome.undecided});
   if (qp.mode === 'every' && qp.select.length) packet.rows = outcome.rows.map(r => r.row);
@@ -211,6 +224,7 @@ function solveOnce(handle, qWires, excluded, budgetArg, opts = {}) {
   const constraintWire = live.find(w => w.type === 'constraint');
   const q = queryWire ? readQuery(queryWire, excluded) : null;
   if (q && opts.forms) q.forms = opts.forms;
+  if (q) q.seed = opts.seed;
   const policy = readPolicy(live, q);
   const budget = new Budget(mergeLimits(budgetArg, policy.limits), {effort: policy.effort, verification: opts.verification});
   if (constraintWire && !queryWire) return constraintPacket(constraintWire, budget);
@@ -299,7 +313,7 @@ function runAsk(problem, budgetArg, verification = false) {
   // `conditional: false` skips the per-row verification runs (a host that reports assumptions itself, like the runtime bridge);
   // `forms` replaces the form fields of the query wire with already structured ones; `detail` returns the raw evaluation of each part
   const ids = problem.conditional === false ? [] : assumptionIdsOf(handle, qWires);
-  const opts = {forms: problem.forms ?? null, detail: Boolean(problem.detail), verification};
+  const opts = {forms: problem.forms ?? null, detail: Boolean(problem.detail), verification, seed: problem.seed ?? Date.now()};
   const packet = withConditional(ids, excluded => solveOnce(handle, qWires, excluded, budgetArg, opts));
   const requested = problem.requested ?? null;
   return {

@@ -28,7 +28,7 @@ const cells = t => `${t.correct}/${t.n} (${pct(t.correct, t.n)}) · w${t.wrong} 
 /** The failure class of a non-correct record. */
 export function failureClass(r) {
   const o = r.verdict.outcome, s = r.system ?? {};
-  if (r.arm === 'steps' || r.arm === 'coding-agent') {
+  if (r.arm !== 'direct') {
     if (o === 'invalid') return /could not be read/.test(r.verdict.reason ?? '') ? 'formalizer: the oracle answers could not be read (protocol stopped)' : 'formalizer: no valid circuit';
     if (o === 'failed') return 'infrastructure failure';
     if (o === 'unknown') {

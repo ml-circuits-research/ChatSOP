@@ -5,11 +5,14 @@
  *   evidence      a short justification: each supporting fact as a sentence with its source, the rule that derived it, and an origin label
  *                 (stated in this conversation / assumed / definition / memory),
  *   incomplete    one line saying the search was not exhaustive.
- * The structured packet is never changed; `renderAnswer` returns null for a packet it does not cover (the caller keeps its generic lines).
+ * Every sentence comes from the `line` replies of the conversation layer (sop/replies.mjs, config/knowledge/conversation-v1/0040-answer-lines.sop):
+ * this module chooses the line from the structure of the packet and fills its slots; the English inflection of relation phrases
+ * (conjugate) stays here as grammar, not phrasing. The structured packet is never changed; `renderAnswer` returns null for a packet it does not cover (the caller keeps its generic lines).
  * Labels and relation phrases come from the lexicon when it is given (entity labels; the English lexemes of the predicate), otherwise
  * from the identifier ("computer_scientist" becomes "computer scientist"; entities are capitalized, classes are not).
  */
 import {formatTime} from '../lib/time.mjs';
+import {line, joinList} from './replies.mjs';
 
 const CLASS_RELATIONS = new Set(['is_a', 'has_occupation', 'instance_of', 'subclass_of', 'type_of']);
 const COVERED = new Set(['supported', 'refuted', 'both', 'unknown', 'incomplete', 'mixed_temporal']);
@@ -53,6 +56,8 @@ function conjugate(base, negative) {
     const past = rest[0] === 'born';
     return `${past ? 'was' : 'is'}${negative ? ' not' : ''}${tail ? ' ' + tail : ''}`;
   }
+  // A modal verb ("can do") does not inflect; its negation is "cannot".
+  if (/^(?:can|could|may|might|must|shall|should|will|would)$/.test(first)) return negative ? `${first === 'can' ? 'cannot' : first + ' not'}${tail ? ' ' + tail : ''}` : base;
   // A lexeme may be written as a participle ("located in") or in the third person ("works at"): both are recognised.
   if (/(?:ed|wn)$/.test(first) && first.length > 4) return `${negative ? 'is not' : 'is'} ${base}`;
   if (/[^s]s$/.test(first) && !['has', 'does', 'is'].includes(first)) return negative ? `does not ${first.replace(/ies$/, 'y').replace(/(?:sh|ch|x|z|o)es$/, m => m.slice(0, -2)).replace(/s$/, '')}${tail ? ' ' + tail : ''}` : base;
@@ -73,15 +78,17 @@ function phraseOf(predicate, lexicon) {
   if (/(?:ed|wn|rn)$/.test(words[0]) && words.length > 1) return `be ${label}`;
   return label;
 }
-const originOf = proof => {
-  if (proof.origin === 'conversation') return proof.kind === 'assumption' || proof.kind === 'assumed' ? 'supposed in this conversation' : 'stated in this conversation';
-  if (proof.origin === 'coding_agent') return proof.kind === 'assumption' || proof.kind === 'assumed' ? 'assumption by coding agent' : 'definition by coding agent';
+/** The origin label of a supporting fact (a `line_origin_*` reply). */
+const originOf = proof => line('origin_' + originKey(proof));
+function originKey(proof) {
+  if (proof.origin === 'conversation') return proof.kind === 'assumption' || proof.kind === 'assumed' ? 'supposed' : 'stated';
+  if (proof.origin === 'coding_agent') return proof.kind === 'assumption' || proof.kind === 'assumed' ? 'agent_assumption' : 'agent_definition';
   if (proof.origin === 'memory') return 'memory';
-  if (proof.source === 'user' || /^user\b/.test(String(proof.source ?? ''))) return 'stated in this conversation';
+  if (proof.source === 'user' || /^user\b/.test(String(proof.source ?? ''))) return 'stated';
   if (proof.kind === 'assumed' || proof.assumed) return 'assumed';
   if (/class hierarchy|definition|^core-/i.test(String(proof.source ?? ''))) return 'definition';
   return 'memory';
-};
+}
 
 /** One fact as a sentence without the final stop: "Paris is the capital of France". */
 function factText(atom, label, lexicon) {
@@ -89,7 +96,7 @@ function factText(atom, label, lexicon) {
   const predicate = lexicon?.predicates?.[atom.p];
   if (!others.length && !(predicate?.lexemes ?? []).some(l => l.language === 'en' && !l.converse && l.pos !== 'noun')) {
     const name = predicate?.labels?.en ?? atom.p.split('_').join(' ');
-    return `The "${name}" relation ${atom.neg ? 'does not hold' : 'holds'} for ${label(subject)}`;
+    return line(atom.neg ? 'relation_not_holds' : 'relation_holds', {relation: name, subject: label(subject)});
   }
   const objects = others.map(label);
   let phrase = conjugate(phraseOf(atom.p, lexicon), Boolean(atom.neg));
@@ -111,21 +118,22 @@ function justification(packet, shown, label, lexicon) {
     if (matching.length) roots = matching;
   }
   const during = Boolean(packet.query?.during);
-  const when = p => (during && p.valid ? ` [valid ${formatTime(p.valid.from)} to ${p.valid.until == null ? 'now' : formatTime(p.valid.until)}]` : '');
+  const when = p => (during && p.valid ? line('valid_period', {from: formatTime(p.valid.from), until: p.valid.until == null ? line('valid_now') : formatTime(p.valid.until)}) : '');
   const sourced = p => {
     const tagged = origins.get(p.id) ?? origins.get(p.source?.id);
     const origin = tagged ? originOf(tagged) : originOf(p);
-    return `${factText(p.atom, label, lexicon)} (${origin}${p.source && p.source !== 'user' && typeof p.source === 'string' ? ': ' + p.source : ''})${when(p)}`;
+    const source = p.source && p.source !== 'user' && typeof p.source === 'string' ? p.source : null;
+    return line(source ? 'fact_sourced_source' : 'fact_sourced', {fact: factText(p.atom, label, lexicon), origin, source, valid: when(p)});
   };
   const lines = [];
   for (const root of roots.slice(0, ROOTS)) {
     if (root.kind === 'derived') {
       const parts = (root.from ?? []).map(id => byId.get(id)).filter(Boolean).map(sourced);
       const rule = String(root.rule ?? '').replace(/^r_/, '').split('_').join(' ');
-      lines.push(`${capital(factText(root.atom, label, lexicon))}, because ${parts.length ? parts.join(' and ') : 'the supporting facts hold'}${rule ? `, by the rule "${rule}"` : ''}.`);
-    } else lines.push(capital(sourced(root)) + '.');
+      lines.push(line('derived_because', {fact: capital(factText(root.atom, label, lexicon)), premises: parts.length ? joinPremises(parts) : line('derived_support'), rule: rule ? line('derived_by_rule', {rule}) : ''}));
+    } else lines.push(line('fact_line', {fact: capital(sourced(root))}));
   }
-  if (roots.length > ROOTS) lines.push(`(${roots.length - ROOTS} more supporting facts not shown.)`);
+  if (roots.length > ROOTS) lines.push(line('more_facts', {count: roots.length - ROOTS}));
   return lines;
 }
 
@@ -144,7 +152,13 @@ function mostSpecific(values, packet) {
   return values.filter(v => !implied.has(v));
 }
 
-const list = items => items.length < 3 ? items.join(' and ') : `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`;
+const list = items => joinList(items);
+/** Premises are joined by the conjunction alone ("a and b and c"), as the derivation reads. */
+const joinPremises = parts => parts.reduce((left, right) => line('list_and', {first: left, last: right}));
+
+/** The answer values: one, a list, or the first SHOWN and how many more. */
+const answerLine = (items, shown) => items.length === 1 ? line('answer_one', {items: items[0]})
+  : items.length > SHOWN ? line('answer_many_more', {items: shown.join(line('list_separator')), more: items.length - SHOWN}) : line('answer_many', {items: list(shown)});
 
 /** Wire packets carry a sufficient support set, not the typed runtime's prose-ready fact proof. */
 function wireSources(packet) {
@@ -174,13 +188,28 @@ function wireSources(packet) {
     seen.add(id);
     const entry = byId.get(id) ?? bySource.get(id) ?? {};
     const origin = originOf(entry);
-    labels.push(`${origin} (${id})`);
+    labels.push(line('source_item', {origin, id}));
   }
-  return labels.length ? [`Sources used: ${list(labels)}.`] : [];
+  return labels.length ? [line('sources_used', {items: list(labels)})] : [];
+}
+
+/**
+ * A sample of one relation ("a random fact", "some examples": `order random` over one match whose places are all selected): each answer
+ * row is the fact itself, written as a sentence. Null for any other packet.
+ */
+function sampledFacts(packet, label, lexicon) {
+  const where = packet.query?.where;
+  if (!packet.sample || !Array.isArray(where) || where.length !== 1 || !where[0]?.p || !Array.isArray(packet.rows) || !packet.rows.length) return null;
+  const atom = where[0];
+  if (!atom.a.every(t => typeof t !== 'string' || !t.startsWith('?') || packet.rows.every(r => r[t.slice(1)] !== undefined))) return null;
+  return packet.rows.map(row => line('fact_line', {fact: capital(factText({p: atom.p, a: atom.a.map(t => typeof t === 'string' && t.startsWith('?') ? row[t.slice(1)] : t), neg: Boolean(atom.neg)}, label, lexicon))}));
 }
 
 function wireAnswer(packet, label, lexicon) {
   const lines = [];
+  const sampled = sampledFacts(packet, label, lexicon);
+  // The sources of a sample are the sampled facts themselves (the packet's evidence covers the whole answer set): the line says how it was drawn.
+  if (sampled) return [...sampled, line('sample_note', {count: sampled.length, of: packet.sample.of})].join('\n');
   const mode = packet.kind === 'count' || packet.query?.mode === 'count' || packet.count !== undefined || packet.at_least !== undefined || packet.bound === 'at_least'
     ? 'count' : packet.query?.mode ?? (Array.isArray(packet.rows) ? 'select' : 'exists');
   const incomplete = packet.complete === false || packet.status === 'incomplete';
@@ -188,36 +217,41 @@ function wireAnswer(packet, label, lexicon) {
   if (mode === 'count') {
     const lower = packet.at_least ?? packet.count;
     if (packet.at_least !== undefined || packet.bound === 'at_least' || incomplete) {
-      if (lower !== undefined) lines.push(`At least ${lower}; the exact number cannot be given ${incomplete ? 'because the search was not exhaustive' : 'because the predicate is not closed'}.`);
-      else lines.push("I don't know the number: the search was not exhaustive.");
-    } else if (packet.status === 'unknown') lines.push("The available information does not decide the count, so I don't know.");
-    else if (packet.count !== undefined) lines.push(`${packet.count}.`);
-    else lines.push("The available information does not decide the count, so I don't know.");
+      if (lower !== undefined) lines.push(line(incomplete ? 'count_at_least_incomplete' : 'count_at_least_open', {count: lower}));
+      else lines.push(line('count_unknown_incomplete'));
+    } else if (packet.status === 'unknown') lines.push(line('count_undecided'));
+    else if (packet.count !== undefined) lines.push(line('count', {count: packet.count}));
+    else lines.push(line('count_undecided'));
   } else if (mode === 'select') {
     const rows = packet.rows ?? (packet.answers ?? []).map(a => a.binding).filter(Boolean);
     const seen = new Set();
     const items = rows.map(row => Object.values(row).map(label).join(' / ')).filter(text => text && !seen.has(text) && seen.add(text));
     const shown = items.slice(0, SHOWN);
-    if (items.length) lines.push(`${items.length === 1 ? 'Answer' : 'Answers'}: ${items.length > SHOWN ? `${shown.join(', ')} and ${items.length - SHOWN} more` : list(shown)}.`);
-    else if (incomplete) lines.push("I don't know: the search stopped before it found an answer, so this is not a \"no\".");
-    else if (packet.status === 'unknown') lines.push("The available information does not decide the question, so I don't know.");
-    else lines.push('No matching answers were established.');
-    if (packet.status === 'both' && items.length) lines.push('Some answers have conflicting evidence.');
-    if (incomplete && items.length) lines.push('The search was not exhaustive, so more answers may exist.');
+    if (items.length) lines.push(answerLine(items, shown));
+    else if (incomplete) lines.push(line('stopped'));
+    else if (packet.status === 'unknown') lines.push(line('undecided'));
+    else lines.push(line('no_answers'));
+    if (packet.status === 'both' && items.length) lines.push(line('conflicting'));
+    if (incomplete && items.length) lines.push(line('more_may_exist'));
   } else {
-    if (packet.status === 'unknown') lines.push("The available information does not decide the question, so I don't know.");
-    else if (packet.status === 'incomplete') lines.push("I don't know: the search stopped before it found an answer, so this is not a \"no\".");
-    else if (packet.status === 'refuted') lines.push('No.');
-    else if (packet.status === 'both') lines.push('Both: the claim and its explicit negation each have supporting evidence.');
-    else if (packet.status === 'mixed_temporal') lines.push('It depends on the time: the claim and its negation hold in different intervals.');
-    else lines.push('Yes.');
-    if (incomplete && supported) lines.push('The search was not exhaustive.');
+    if (packet.status === 'unknown') lines.push(line('undecided'));
+    else if (packet.status === 'incomplete') lines.push(line('stopped'));
+    else if (packet.status === 'refuted') lines.push(line('no'));
+    else if (packet.status === 'both') lines.push(line('both'));
+    else if (packet.status === 'mixed_temporal') lines.push(line('mixed_temporal'));
+    else lines.push(line('yes'));
+    if (incomplete && supported) lines.push(line('not_exhaustive'));
   }
   if (supported || packet.status === 'refuted') {
     if (Array.isArray(packet.proof)) lines.push(...justification(packet, [], label, lexicon));
     lines.push(...wireSources(packet));
   }
   return lines.join('\n');
+}
+
+/** One fact as a sentence with its final stop ("Paris is the capital of France."), labels from the lexicon. */
+export function factSentence(atom, {lexicon = null} = {}) {
+  return line('fact_line', {fact: capital(factText(atom, labeller({}, lexicon), lexicon))});
 }
 
 /** The natural English answer for a covered packet, or null. `options.lexicon`: entity labels and relation phrases. */
@@ -228,11 +262,11 @@ export function renderAnswer(packet, {lexicon = null} = {}) {
   if (Array.isArray(packet.rows) || packet.count !== undefined || packet.at_least !== undefined || packet.bound === 'at_least' || (Array.isArray(packet.used) && !Array.isArray(packet.answers))) return wireAnswer(packet, label, lexicon);
   const lines = [];
   const incomplete = packet.complete === false;
-  if (packet.hypothetical) lines.push('This result depends on the stated assumptions.');
+  if (packet.hypothetical) lines.push(line('hypothetical'));
   if (packet.kind === 'count') {
-    if (packet.at_least !== undefined || (incomplete && packet.count !== undefined)) lines.push(`At least ${packet.at_least ?? packet.count}; the exact number cannot be given because the search was not exhaustive.`);
-    else if (packet.count !== undefined && packet.status === 'supported') lines.push(`${packet.count}.`);
-    else lines.push("The available information does not decide the count, so I don't know.");
+    if (packet.at_least !== undefined || (incomplete && packet.count !== undefined)) lines.push(line('count_at_least_incomplete', {count: packet.at_least ?? packet.count}));
+    else if (packet.count !== undefined && packet.status === 'supported') lines.push(line('count', {count: packet.count}));
+    else lines.push(line('count_undecided'));
     if (packet.origins && packet.used) lines.push(...wireSources(packet));
     return lines.join('\n');
   }
@@ -241,20 +275,20 @@ export function renderAnswer(packet, {lexicon = null} = {}) {
   const supported = packet.status === 'supported' || packet.status === 'both' || packet.status === 'mixed_temporal';
   if (!valued.length) {
     if (packet.query?.select?.length && !rows.some(r => Object.keys(r.binding).length === 0)) {
-      if (incomplete || packet.status === 'incomplete') lines.push("I don't know: the search stopped before it found an answer, so this is not a \"no\".");
-      else if (packet.status === 'unknown') lines.push("The available information does not decide the question, so I don't know.");
-      else lines.push('No matching answers were established.');
+      if (incomplete || packet.status === 'incomplete') lines.push(line('stopped'));
+      else if (packet.status === 'unknown') lines.push(line('undecided'));
+      else lines.push(line('no_answers'));
       return lines.join('\n');
     }
-    if (packet.status === 'unknown') lines.push("The available information does not decide the question, so I don't know.");
-    else if (packet.status === 'incomplete') lines.push("I don't know: the search stopped before it found an answer, so this is not a \"no\".");
-    else if (packet.status === 'refuted') lines.push('No.');
-    else if (packet.status === 'both') lines.push('Both: the claim and its explicit negation each have supporting evidence.');
-    else if (packet.status === 'mixed_temporal') lines.push('It depends on the time: the claim and its negation hold in different intervals.');
-    else lines.push('Yes.');
+    if (packet.status === 'unknown') lines.push(line('undecided'));
+    else if (packet.status === 'incomplete') lines.push(line('stopped'));
+    else if (packet.status === 'refuted') lines.push(line('no'));
+    else if (packet.status === 'both') lines.push(line('both'));
+    else if (packet.status === 'mixed_temporal') lines.push(line('mixed_temporal'));
+    else lines.push(line('yes'));
     if (supported || packet.status === 'refuted') lines.push(...justification(packet, [], label, lexicon));
     if ((supported || packet.status === 'refuted') && packet.origins && Array.isArray(packet.used)) lines.push(...wireSources(packet));
-    if (incomplete && packet.status !== 'incomplete' && packet.status !== 'unknown' && packet.status !== 'refuted' && !supported) lines.push('The search was not exhaustive.');
+    if (incomplete && packet.status !== 'incomplete' && packet.status !== 'unknown' && packet.status !== 'refuted' && !supported) lines.push(line('not_exhaustive'));
     return lines.join('\n');
   }
   const single = valued.every(r => Object.keys(r.binding).length === 1);
@@ -270,12 +304,12 @@ export function renderAnswer(packet, {lexicon = null} = {}) {
   const free = items.filter(isFree).map(i => i.text);
   const names = items.filter(i => !isFree(i)).map(i => i.text);
   const shown = names.slice(0, SHOWN);
-  if (names.length) lines.push(`${names.length === 1 ? 'Answer' : 'Answers'}: ${names.length > SHOWN ? `${shown.join(', ')} and ${names.length - SHOWN} more` : list(shown)}.`);
-  for (const text of free.slice(0, 2)) lines.push(`Described as: ${text}`);
-  if (packet.status === 'refuted') lines.push('These are explicitly contradicted by the evidence.');
+  if (names.length) lines.push(answerLine(names, shown));
+  for (const text of free.slice(0, 2)) lines.push(line('described', {text}));
+  if (packet.status === 'refuted') lines.push(line('contradicted'));
   const values = items.filter(i => i.raw !== null).map(i => i.raw);
   lines.push(...justification(packet, values.length ? values : valued.flatMap(r => Object.values(r.binding)), label, lexicon));
   if (packet.origins && Array.isArray(packet.used)) lines.push(...wireSources(packet));
-  if (incomplete) lines.push('The search was not exhaustive, so more answers may exist.');
+  if (incomplete) lines.push(line('more_may_exist'));
   return lines.join('\n');
 }

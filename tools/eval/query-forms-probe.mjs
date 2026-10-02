@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Probe for the query-form work (experiment eval-query-forms-v1): asks questions of the base memory world-v1 through the product
- * Agent, either with the coding agent (omp, the subscription chain of config/runtime.json; `--model provider/model` picks one) or with a given SOP (`--sop file`).
+ * Agent, either with the formalizer LLMDirect (the chain `queryParser.models` of config/runtime.json, called directly through the proxy; `--model provider/model` picks one) or with a given SOP (`--sop file`).
  *   node tools/eval/query-forms-probe.mjs --q "How many countries border Germany?" [--sop file] [--base world-v1]
  * Prints the SOP, the circuit status, the answer and the retrieval/linking summary. Sessions are private to user `qf-probe` and deleted.
  */
@@ -14,7 +14,6 @@ import {BaseMemories, BASE_NAME} from '../../lib/chat-data/memories.mjs';
 import {Sessions} from '../../lib/chat-data/sessions.mjs';
 import {TheoryCache} from '../../reasoning/slice/index.mjs';
 import {createQueryParser, queryParserSettings} from '../../server/query-parser.mjs';
-import {ompSettings, createOmpModels} from '../../lib/omp/index.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const args = process.argv.slice(2);
@@ -34,9 +33,8 @@ export function openWorld({root = defaultRoot()} = {}) {
 
 /** The circuit author of the probe: the coding agent over the vocabulary of the session's memory (no cache, so every call is a measurement). */
 export function agentClient({config, lexicon, model = opt('--model', null)}) {
-  const omp = ompSettings(config);
-  const queryParser = createQueryParser({settings: queryParserSettings({queryParser: {...(config.queryParser ?? {}), ...(model ? {models: [model], backend: {...(config.queryParser?.backend ?? {}), model}} : {}), cacheEntries: 0}}), ompConfig: omp, ompModels: createOmpModels(omp)});
-  return {id: 'coding-agent', last: null, async formalize(text) { const r = await queryParser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); this.last = r.parse; return r.sop; }};
+  const queryParser = createQueryParser({settings: queryParserSettings({...config, queryParser: {...(config.queryParser ?? {}), ...(model ? {models: [model]} : {}), cacheEntries: 0}})});
+  return {id: 'llm-direct', last: null, async formalize(text) { const r = await queryParser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); this.last = r.parse; return r.sop; }};
 }
 
 export function openSession({base = 'world-v1', id = 'qf-probe'} = {}) {

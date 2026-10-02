@@ -21,7 +21,7 @@ const readJsonl = f => fs.readFileSync(f, 'utf8').split('\n').filter(Boolean).ma
 const INSUFFICIENT = /\b(not enough (information|data|facts)|insufficient|cannot be determined|can(?:'|no)t be (determined|decided|known)|no way to (know|tell)|data do(?:es)? not (decide|say|determine)|not (given|stated|specified|determinable)|unknown|undetermined)\b/i;
 const DECLINES = new Set(['unknown', 'unclear', 'not_computable', 'unsupported', 'courtesy', 'clarify']);
 
-const clean = t => String(t ?? '').replace(/\*\*/g, '').replace(/\(memory:[^)]*\)/g, '').replace(/Sources used:[\s\S]*$/, '').trim();
+const clean = t => String(t ?? '').replace(/\*\*/g, '').replace(/\(memory:[^)]*\)/g, '').replace(/^Sources used:.*$/gm, '').trim();
 const words = s => String(s).toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, ' ').split(/\s+/).filter(Boolean);
 const near = (a, b) => Math.abs(a - b) <= Math.max(1e-9, 0.005 * Math.abs(b));
 

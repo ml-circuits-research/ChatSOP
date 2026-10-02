@@ -153,9 +153,10 @@ export class Demand {
   order(owner, seeded, later = []) {
     const bound = new Set();
     if (owner.head) owner.head.terms.forEach((t, k) => { if (t.cls && seeded[k]) bound.add(t.cls); });
-    // seeded constants beyond the key join only after the first atom, which therefore carries the key: they key a later atom (the second
-    // person of a self-join) but never become the first retrieval key (a hub such as "france" in located_in ?y france)
-    const deferred = owner.head ? owner.head.terms.filter((t, k) => t.cls && later[k]).map(t => t.cls) : [];
+    // Positions the caller fixes beyond the key (`later`) are WEAKLY bound: they never make an atom come earlier and key an atom only
+    // when nothing else binds it, so they key a later atom (the second person of a self-join, the other person of a rule over two named
+    // entities) instead of a scan, but never become the first retrieval key (a hub such as "france" in located_in ?y france).
+    const weak = new Set(owner.head ? owner.head.terms.filter((t, k) => t.cls && later[k] && !bound.has(t.cls)).map(t => t.cls) : []);
     const todo = owner.atoms.slice();
     owner.sequence = [];
     while (todo.length) {
@@ -170,12 +171,12 @@ export class Demand {
           Math.max(1, a.estimate ?? Infinity) * margin < Math.max(1, previous.estimate ?? Infinity))))) best = i;
       });
       const [atom] = todo.splice(best, 1);
-      atom.bound = atom.terms.map((t, i) => (t.cls === undefined || bound.has(t.cls) ? i : -1)).filter(i => i >= 0);
-      // key by a bound variable (its values come from an earlier, fully requested atom) before a written constant (possibly a hub)
-      atom.key = atom.bound.find(i => atom.terms[i].cls !== undefined) ?? atom.bound[0] ?? null;
-      for (const t of atom.terms) if (t.cls) bound.add(t.cls);
+      atom.bound = atom.terms.map((t, i) => (t.cls === undefined || bound.has(t.cls) || weak.has(t.cls) ? i : -1)).filter(i => i >= 0);
+      // key by a bound variable (its values come from an earlier, fully requested atom), then by a weakly bound one (the caller's
+      // complete domain), before a written constant (possibly a hub)
+      atom.key = atom.bound.find(i => bound.has(atom.terms[i].cls)) ?? atom.bound.find(i => weak.has(atom.terms[i].cls)) ?? atom.bound[0] ?? null;
+      for (const t of atom.terms) if (t.cls) { bound.add(t.cls); weak.delete(t.cls); }
       owner.sequence.push(atom);
-      for (const cls of deferred.splice(0)) bound.add(cls);
     }
   }
 
@@ -191,10 +192,11 @@ export class Demand {
       // Positions besides the key that the caller fixes with a written constant are seeded too ("is Newton older than Einstein": both
       // persons), in an instance of their own, so a self-join (born_on ?a ?x, born_on ?b ?y) keys both atoms instead of scanning one; callers
       // that leave such a position open use another instance, whose domains stay complete for them.
-      // Only when the key itself is a constant: a call keyed by a bound variable keeps its single key, so a written hub constant next to it
-      // ("inside ?x europe") never becomes the retrieval key of the rule body.
-      const constantKey = call.key !== null && call.terms[call.key].cls === undefined;
-      const fixed = constantKey ? call.terms.map((t, i) => (i !== call.key && t.cls === undefined ? i : -1)).filter(i => i >= 0) : [];
+      // The same holds for a position bound by a variable of the caller ("lived_before ?a ?b" in the body of a rule instance whose head
+      // has both persons): its complete domain flows into the instance as an input. A rule over several named entities therefore keys
+      // every atom on one of them instead of scanning a predicate for the second. The extra positions are only weakly bound in the
+      // instance (`order`), so a hub constant next to a variable key ("inside ?x europe") still never becomes the first retrieval key.
+      const fixed = call.key === null ? [] : call.bound.filter(i => i !== call.key);
       for (const rule of this.heads.get(slot(call.p, call.n)) ?? []) {
         const usable = fixed.filter(i => rule.then.a[i] !== undefined && variable(rule.then.a[i]));
         const id = `rule:${rule.id}@${call.key ?? 'scan'}${usable.length ? '+' + usable.join('+') : ''}`;
@@ -211,7 +213,8 @@ export class Demand {
             if (c.cls) this.connect(c.cls, h.cls);
             else this.add(h.cls, c.value, 'seed');
           } else if (usable.includes(k) && h.cls) {
-            this.add(h.cls, c.value, 'seed');
+            if (c.cls) this.connect(c.cls, h.cls);
+            else this.add(h.cls, c.value, 'seed');
           } else if (c.cls) {
             if (h.cls) this.connect(h.cls, c.cls);
             else this.add(c.cls, h.value, 'seed');

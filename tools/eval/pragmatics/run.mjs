@@ -6,11 +6,11 @@
  *
  * Arms:
  *   stepbystep  LocalLLMStepByStep's first question (Q1 kind and message acts, then the emotion question) on a local llama-server
- *   coding      CodingAgent: the full circuit author through omp (the world-v1 vocabulary), the pragmatic wires of its query.sop
+ *   coding      LLMDirect: the full circuit author on a model behind the proxy (the world-v1 vocabulary), the pragmatic wires of its query.sop
  *   lexicon     the archived lexicon/regex EmotionDetectionSystem (probably_obsolete/paused/), reference only
  *
  *   node tools/eval/pragmatics/run.mjs --arm stepbystep --endpoint http://127.0.0.1:19611/v1 --model qwen3-4b-instruct --limit 50
- *   node tools/eval/pragmatics/run.mjs --arm coding --omp-model 'llmapiprovider/Qwen3.8 27b' --limit 50 --concurrency 4
+ *   node tools/eval/pragmatics/run.mjs --arm coding --model 'openference/Qwen3.8 27b' --limit 50 --concurrency 4
  *   node tools/eval/pragmatics/run.mjs --arm lexicon
  *   node tools/eval/pragmatics/run.mjs --report            (every arm's records → summary.json and summary.md)
  * Records: eval/reports/current/pragmatics/<arm>.jsonl (resumable). The first `--limit` messages are a fixed stratified order
@@ -56,16 +56,16 @@ async function stepByStepArm(rows, args) {
 }
 
 async function codingArm(rows, args) {
-  const {authorQuery, ompBackend} = await import('../../../lib/query-author/index.mjs');
+  const {authorQuery, completionBackend} = await import('../../../lib/query-author/index.mjs');
   const {openSession} = await import('../query-forms-probe.mjs');
   const session = openSession({base: 'world-v1', id: `pragmatics-${process.pid}`});
   process.on('exit', () => session.close());
-  (await import('../../../lib/omp/index.mjs')).ompSettings();   // registers the llmapiprovider overlay for omp
-  const model = opt(args, '--omp-model', 'llmapiprovider/Qwen3.8 27b');
+  const {chainEntry} = await import('../../../lib/llm-providers.mjs');
+  const e = chainEntry(opt(args, '--model', 'openference/Qwen3.8 27b'));
   return async row => {
     const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'pragmatics-'));
     try {
-      const r = await authorQuery({message: row.message, lexicon: session.lexicon, backend: ompBackend({model, timeoutMs: 180_000}), folder, maxFixRounds: 2});
+      const r = await authorQuery({message: row.message, lexicon: session.lexicon, backend: completionBackend({endpoint: e.endpoint, model: e.model, headers: e.headers, extraBody: e.extraBody, timeoutMs: 180_000, cachePrompt: false}), folder, maxFixRounds: 2});
       return {kinds: kindsOfSop(r.sop), status: r.status, ms: r.duration_ms, sop: r.sop, problems: (r.validation?.problems ?? []).map(p => p.code)};
     } finally { fs.rmSync(folder, {recursive: true, force: true}); }
   };

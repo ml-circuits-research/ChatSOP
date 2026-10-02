@@ -116,7 +116,7 @@ test('model origin rejects operation, sourced fact and clarification authoring',
   ['value','@x value\n  data 1 + 2']
  ];
  for(const [type,source] of sources){
-  await assert.rejects(runtime().run(source,{origin:'model'}),new RegExp(`Model authors stated, assumed, unclear, query, constraint, unparsed or pragmatic; ${type} belongs to symbolic execution`),type);
+  await assert.rejects(runtime().run(source,{origin:'model'}),new RegExp(`Model authors stated, assumed, unclear, query, constraint, unparsed, pragmatic or instruction; ${type} belongs to symbolic execution`),type);
  }
 });
 

@@ -14,7 +14,7 @@
  * These forms are an oracle capability of the host question language, ported from the retired `reference` reasoner; the strict
  * closed-domain `every` of the proposal is the same mode WITHOUT a `quantifier` line.
  */
-import {tokens, VAR, INTEGER, COMPARATORS} from './wires.mjs';
+import {tokens, VAR, NUMBER, COMPARATORS} from './wires.mjs';
 import {ProgramError} from './values.mjs';
 import {evaluateExpression} from '../../../sop/expression.mjs';
 import {parseBooleanCondition} from '../../../sop/conditions.mjs';
@@ -51,7 +51,7 @@ export function quantifiedStatus(quantifier, members) {
   }
 }
 
-const term = t => (VAR.test(t) ? t : INTEGER.test(t) ? Number(t) : t.startsWith('"') ? JSON.parse(t) : t);
+const term = t => (VAR.test(t) ? t : NUMBER.test(t) ? Number(t) : t.startsWith('"') ? JSON.parse(t) : t);
 
 /** One compare condition (inline text, or a field with an `all`/`any` block) as a tree of {kind, children} and {left, op, right}. */
 function readCompare(field) {

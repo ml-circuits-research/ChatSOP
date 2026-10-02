@@ -5820,9 +5820,30 @@
       "hypothesis": "Documents ingested by the coding agent into task-type base memories answer reasoning questions through the pipeline with fewer wrong answers than an LLM reading the document; stored procedures are reused by the query author.",
       "preregistration": "status/preregistrations/eval-ingest-v1.json",
       "data_version": "eval/ingest-v1/questions.json (36); datasets_sources/ingest-v1 (handbook sha256 6928f734, europa sha256 d408551f)",
-      "status": "running",
-      "results": {},
-      "note": "Harness: tools/eval/ingest-v1.mjs; ingestion: tools/ingest-documents.mjs"
+      "status": "abandoned",
+      "results": {
+        "as_of": "2026-10-02",
+        "direct_glm53": {
+          "handbook": "17/0/1",
+          "europa": "18/0/0"
+        },
+        "direct_qwen38_27b_proxy": {
+          "handbook": "15/3/0",
+          "europa": "17/1/0"
+        },
+        "pipeline_glm53": {
+          "europa": "0/0/7 (stopped at stage 1: entity linking)"
+        },
+        "ingestion_precision": {
+          "europa_facts": "30/30",
+          "europa_rules": "2/2",
+          "handbook_facts": "30/30 (3 derived)",
+          "handbook_rules": "8/10"
+        },
+        "report_dir": "eval/reports/current/ingest-v1"
+      },
+      "note": "Harness: tools/eval/ingest-v1.mjs; ingestion: tools/ingest-documents.mjs",
+      "conclusions": "Stopped by the coordinator (per-chunk omp ingestion too slow). Deviations: Qwen3.8 27b via the openference proxy replaced the local GGUF arm (GPU in use); GLM quota exhausted mid-run. Pipeline blocked by unlabelled entities (stage added, not run to completion). E-procedures not measured."
     },
     {
       "id": "eval-generality-v1",
@@ -5858,9 +5879,55 @@
       "hypothesis": "Importing the common-sense layer commonsense-v1 into the chat default base world-v1 lets the chat answer common-sense-dependent questions (classes, disjointness, typical relations, lifetimes, geography, units, family) without new wrong answers and without degrading the world-kb question set.",
       "preregistration": "status/preregistrations/eval-commonsense-v1.json",
       "data_version": "eval/commonsense/questions.jsonl (32); eval/world-kb/questions.json (30); config/knowledge/commonsense-v1 (build-stats datasets_sources/commonsense/build-stats.json)",
-      "status": "running",
-      "results": {},
-      "note": "Harness: tools/eval/query-parsers.mjs run --suite forms --rows eval/commonsense/questions.jsonl --model zai/glm-5.3; layer checks: tools/commonsense/check.mjs, tests/commonsense-layer.test.mjs"
+      "status": "done",
+      "results": {
+        "author_level": {
+          "author": "llmapiprovider/Qwen3.8 27b (omp)",
+          "n": 32,
+          "with": {
+            "correct": 17,
+            "wrong": 0,
+            "honest_unknown": 7,
+            "parser_failed": 8,
+            "median_turn_ms": 19525
+          },
+          "without": {
+            "correct": 7,
+            "wrong": 0,
+            "honest_unknown": 16,
+            "parser_failed": 9,
+            "median_turn_ms": 19090
+          }
+        },
+        "knowledge_level_gold_circuits": {
+          "n": 30,
+          "with": {
+            "correct": 28,
+            "wrong": 0,
+            "unknown": 2,
+            "median_ms": 157
+          },
+          "without": {
+            "correct": 13,
+            "wrong": 0,
+            "unknown": 13,
+            "not_expressible": 4,
+            "median_ms": 9
+          }
+        },
+        "world30_replay_recorded_circuits": {
+          "with": "24/30",
+          "without": "24/30",
+          "difference": "q28 count: wrong without, honest incomplete with"
+        },
+        "integrity_sample": "no error-severity violation; 2 warnings (acharya_pingala >125 years, palestine two capitals)"
+      },
+      "note": "Harness: tools/eval/query-parsers.mjs run --suite forms --rows eval/commonsense/questions.jsonl --model zai/glm-5.3; layer checks: tools/commonsense/check.mjs, tests/commonsense-layer.test.mjs",
+      "deviations": [
+        "Author changed from zai/glm-5.3 to llmapiprovider/Qwen3.8 27b (z.ai 5-hour quota exhausted at question 8 of the with arm; coordinator 2026-10-02: new default author since commit 41e0db8). Both arms rerun with the new author; the earlier GLM without arm (6/1/19/6) is kept as an observation only.",
+        "Knowledge-level gold-circuit check and world30 replay of recorded circuits added (no author)."
+      ],
+      "conclusions": "commonsense-v1 is imported by world-v1 (chat default): +10 correct of 32 at the author level and +15 of 30 at the knowledge level, no new wrong answer, world30 unchanged. Remaining unknowns: WordNet sense noise (hammer, gold), parser failures of the author, budget limits on contemporaries."
     },
     {
       "id": "eval-stepbystep-protocol-v1",
@@ -5895,6 +5962,22 @@
       "deviation": "No preregistration file: a small staged engineering check run on the owner's instruction (first 50, then the rest as held out). Stopping: the 50-message stage was used for wording; the 250 held out were run once.",
       "note": "Runner tools/eval/pragmatics/run.mjs; spec DS023 'Evaluation'; records eval/reports/current/pragmatics/ and eval/reports/current/understanding/stepbystep-B/",
       "category": "reference-baseline"
+    },
+    {
+      "id": "eval-internal-reasoning-stepbystep-v1",
+      "hypothesis": "With the questioning protocol as wires of a base memory and the JS oracle planning each question, Qwen3-4B formalizes the protocol rows at least as correctly as LocalLLMStepByStep method B, with no more questions and a better record of why each question was asked.",
+      "preregistration": "status/preregistrations/eval-internal-reasoning-stepbystep-v1.json",
+      "data_version": "the 89 measured rows of eval-stepbystep-protocol-v1 (protocolRows pool measured, per 3); tuning pool for stage 0",
+      "status": "done",
+      "results": {
+        "stage1_IR_minus_B": "-4.5 pp [-9.0, -1.1] (41 vs 45 of 89), questions -0.34",
+        "final_IR_minus_B": "-2.2 pp [-5.6, 0.0] (43 vs 45), wrong 23 vs 25",
+        "IR_vs_greedy": "0.0 pp",
+        "trace": "1.55 vs 0.25",
+        "engine": "<50 ms per decision"
+      },
+      "conclusions": "Undecided by the preregistered non-inferiority rule; IR within 2 rows of B after two generic fixes, fewer questions, explained traces; the planner adds no accuracy over greedy on these rows. GLM arm and books items not run.",
+      "note": "Harness tools/eval/internal-reasoning/{run,summarize,judge-traces}.mjs; report eval/reports/current/internal-reasoning/summary.md"
     }
   ]
 }

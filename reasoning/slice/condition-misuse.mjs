@@ -73,7 +73,8 @@ export function conditionMisuses({theory, atoms, source, localWires = [], lexico
         if (!Number.isSafeInteger(constant)) problem(i, constant, 'type_mismatch');
         continue; // A numeric domain is its declared type, not its observed values.
       }
-      if (type === 'value') continue;
+      // A value-typed position (a value, a free text such as the activity of used_for, a rational) has no class domain.
+      if (type === 'value' || type === 'text' || type === 'rational') continue;
       const classes = informative(lexicon.classesOf(constant));
       if (type && type !== 'entity') {
         const localOccurrence = !classes.size && local.some(a => a.p === atom.p && a.a.length === atom.a.length && a.a[i] === constant);

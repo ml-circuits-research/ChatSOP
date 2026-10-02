@@ -22,7 +22,7 @@ export function attribution(r) {
     turn: r.ok ? 'answered_turn' : 'turn_error', error: r.error ?? null,
     status: p.status ?? null, kind: p.kind ?? null, unclear_kind: p.unclear_kind ?? null, complete: p.complete ?? null, reason: p.reason ?? null,
     // understanding: the parse record of the strategy and what the message was read as
-    understanding: {strategy: parse.strategy ?? null, questions: parse.steps ?? null, parse_ms: parse.ms ?? null, parse_failed: parse.failed ?? null, parse_unclear: parse.unclear ?? null,
+    understanding: {strategy: parse.strategy ?? null, questions: parse.steps ?? null, dialog: parse.dialog ?? null, report: parse.report ?? null, parse_ms: parse.ms ?? null, parse_failed: parse.failed ?? null, parse_unclear: parse.unclear ?? null,
       statements_found: (r.userStatements ?? p.user_statements ?? []).length, assumptions: (p.model_assumptions ?? []).length, clause_links: (p.clause_links ?? []).length,
       linked: (p.linking ?? []).length, unresolved_spans: (p.unresolved_spans ?? []).length, repairs: (p.repairs ?? []).length},
     // formalization: the circuit the strategy wrote

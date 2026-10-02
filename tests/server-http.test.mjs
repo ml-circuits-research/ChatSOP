@@ -6,7 +6,7 @@ import path from 'node:path';
 import {Repository} from '../memory/repository.mjs';
 import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import {createServer} from '../server/http.mjs';
-import {close, listen, repoPath, repoUrl, tempDir, withEnv} from './helpers.mjs';
+import {close, listen, repoPath, repoUrl, tempDir, withEnv, assertReply} from './helpers.mjs';
 import {stubQueryParser} from './product-helpers.mjs';
 
 const tokens = {alice: 'alice-secret-token-123456', bob: 'bob-secret-token-123456'};
@@ -67,7 +67,7 @@ test('authenticated model discovery, readiness and streaming expose one verified
   const event = JSON.parse(reply.raw.split('\n')[0].slice(6));
   assert.equal(event.chatSop.status, 'unknown');
   assert.equal(event.chatSop.prompt_profile, undefined, 'there are no prompt profiles');
-  assert.equal(event.chatSop.formalizer_model, 'coding-agent:stub/model');
+  assert.equal(event.chatSop.formalizer_model, 'formalizer:stub/model');
   assert.equal(event.chatSop.backend, 'js');
   assert.equal(event.chatSop.completeness, true);
   assert.equal(event.chatSop.fallback, null);
@@ -141,7 +141,7 @@ test('answers are English, the language field is gone, and the model-language tr
   const f = await fixture(t, {replies: {'asdf qwer': unclear, 'Ana likes Alpha Lab. Does she like Beta Lab too?': stated}});
   const english = await f.chat('asdf qwer');
   assert.equal(english.status, 200);
-  assert.equal(english.body.choices[0].message.content, 'I did not understand the message. Could you rephrase?');
+  await assertReply(english.body.choices[0].message.content, 'gibberish');
   assert.deepEqual([english.body.chatSop.status, english.body.chatSop.unclear], ['unclear', 'gibberish']);
   assert.equal((await f.chat('asdf qwer', {language: 'ro'})).status, 400, 'the language field is gone: answers are English');
   const answer = await f.chat('Ana likes Alpha Lab. Does she like Beta Lab too?');
@@ -238,7 +238,7 @@ test('documentation site is served statically without authentication and cannot 
   assert.equal(home.status, 200);
   const homeText = await home.text();
   for (const link of ['href="/chat"', 'href="/experiments"', 'href="/admin"', 'href="/docs/"']) assert.ok(homeText.includes(link), link);
-  assert.match(homeText, /Coding agent \(omp\): <b class="ok">ready/, "the home page reports the coding agent");
+  assert.match(homeText, /Formalizer \(LLMDirect\): <b class="ok">ready/, "the home page reports the formalizer");
   assert.match(homeText, /bearer tokens only/);
   assert.ok(!homeText.includes(f.endpoint), 'the mock endpoint is not disclosed to anonymous visitors');
   // Without a password store there is no browser login: /chat stays a 401 API answer.

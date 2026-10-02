@@ -16,7 +16,7 @@ const f = (id, a) => `@${id} fact\n  holds ${a}\n  valid timeless\n`;
 const r = (id, body, head, mode = 'logical') => `@${id} rule\n${body.map(a => '  when ' + a + '\n').join('')}  then ${head}\n  mode ${mode}\n`;
 const h = (id, a, cost = 1) => `@${id} hypothesis\n  holds ${a}\n  cost ${cost}\n`;
 const q = a => `@q query\n  where ${a}\n  at 2026-09-26\n`;
-const modelOnly = type => new RegExp(`Model authors stated, assumed, unclear, query, constraint, unparsed or pragmatic; ${type} belongs to symbolic execution`);
+const modelOnly = type => new RegExp(`Model authors stated, assumed, unclear, query, constraint, unparsed, pragmatic or instruction; ${type} belongs to symbolic execution`);
 
 /** Runs `body` with a throwaway repository directory that is always removed. */
 async function withTempDir(prefix, body) {

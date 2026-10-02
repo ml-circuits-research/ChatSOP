@@ -285,3 +285,12 @@ export async function adminServer(t, {apiKey = null, password = null} = {}) {
   const chat = (credentials = {}) => call('/v1/chat/completions', {method: 'POST', ...credentials, body: {model: 'chatsop-local', messages: [{role: 'user', content: 'Does Ana like Alpha Lab?'}]}});
   return {base, call, chat, auth, root, ledger, session};
 }
+
+/** Asserts that `text` is one of the conversation layer's variants of `situation` ({{slots}} match any text). */
+export async function assertReply(text, situation) {
+  const {variants} = await import('../sop/replies.mjs');
+  const escape = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const options = variants(situation).map(v => new RegExp('^' + v.text.split(/\{\{[a-z_]+\}\}/).map(escape).join('[\\s\\S]+') + '$'));
+  if (!options.length) throw new Error(`no reply for ${situation}`);
+  if (!options.some(re => re.test(text))) throw new Error(`${JSON.stringify(text)} is not a reply of ${situation}: ${variants(situation).map(v => JSON.stringify(v.text)).join(' | ')}`);
+}

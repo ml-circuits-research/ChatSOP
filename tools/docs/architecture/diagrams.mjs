@@ -3,7 +3,7 @@ import { Svg } from './svg.mjs';
 /* ---------------------------------------------------------------- (a) components and trust boundaries */
 export function diagramA() {
   const s = new Svg('dg-a', 1100, 'Components and trust boundaries of the running product',
-    'Callers on the left cross the authentication boundary B1 into the server process; the server hands the message to the coding agent omp across the author boundary B2, runs fenced authoring across B3 and solver binaries only on explicit request (B5); stored knowledge changes only through explicit writers (B4).');
+    'Callers on the left cross the authentication boundary B1 into the server process; the server hands the message to the formalizer model across the author boundary B2, reaches every model only through the proxy LLMAPIProvider (B3, no tools, no shell) and solver binaries only on explicit request (B5); stored knowledge changes only through explicit writers (B4).');
   // Callers
   s.zone(10, 10, 224, 414, 'Callers', 'z-out');
   let y = 40;
@@ -33,7 +33,7 @@ export function diagramA() {
     [['rt', 'Runtime (SOP circuits)', ['sop/runtime.mjs, parser.mjs, lower.mjs,', 'cnl.mjs, answer-text.mjs: runs the', 'generated circuit, renders English']],
      ['slice', 'Slice retrieval', ['reasoning/slice/: keyed lookups,', 'widening, completeness guard', 'behind reasoning/linker.mjs']]],
     [['rs', 'Reasoning', ['reasoning/registry.mjs, bridge/, router/:', 'js-reference oracle; prolog-tabling,', 'z3 and routed engines on request']],
-     ['auth', 'Authoring orchestrator', ['server/authoring.mjs, lib/omp/', '~proposes drafts; the user decides']]],
+     ['auth', 'Authoring orchestrator', ['server/authoring.mjs, lib/ingest/', 'direct-author.mjs; validated at once']]],
     [['mem', 'Memory and chat data', ['memory/ (Repository, SQLite bank),', 'lib/chat-data/ (base memories,', 'sessions), sop/knowledge/ validator']],
      ['own', 'Owner pages', ['server/history.mjs, project.mjs,', 'pages/*: read journal, notes, reports', '~no part of a chat turn']]],
   ];
@@ -56,15 +56,15 @@ export function diagramA() {
   // The author boundary and the frozen branch
   s.boundary(822, 10, 822, 400, null);
   s.zone(834, 10, 256, 392, 'B2 author boundary', 'z-model');
-  const ca = s.node('ca', 844, 40, 236, 'omp coding agent', ['model chain queryParser.models,', 'zai/glm-5.3, then gpt-6-luna;', 'or a local llama-server', '~reads the message and the vocabulary'], 'n-model');
+  const ca = s.node('ca', 844, 40, 236, 'Formalizer (LLMDirect)', ['model chain queryParser.models', '(proxy tiers, shipped small);', 'or the tiny tier step by step', '~reads the message and the vocabulary'], 'n-model');
   s.text(844, ca.b + 22, 'It writes circuits (a query or an unclear', 'blabel');
   s.text(844, ca.b + 36, 'verdict); it never answers and never', 'blabel');
   s.text(844, ca.b + 50, 'adds a fact. The validator admits them.', 'blabel');
   s.arrow([[N('qa').r, N('qa').cy], [834, N('qa').cy]]);
   s.node('frozen', 844, ca.b + 76, 236, 'Frozen branch', ['probably_obsolete/tinyLLMExperiments:', 'SymbolicLM, Stanza, proofing and', 'formalizer models; not in the product'], 'n-out');
   // Fence + solvers
-  s.zone(834, 414, 256, 186, 'B3 fence and B5 solvers', 'z-fence');
-  const om = s.node('omp', 844, 444, 236, 'omp authoring run (fenced)', ['read, write, edit only; temp folder;', 'no shell; wall-clock limit', '~output: draft circuits, unapproved'], 'n-fence');
+  s.zone(834, 414, 256, 186, 'B3 proxy and B5 solvers', 'z-fence');
+  const om = s.node('omp', 844, 444, 236, 'Proxy LLMAPIProvider (B3)', ['127.0.0.1:18080/v1; tiers tiny,', 'small, medium, good; no tools,', '~no shell; the answer is text'], 'n-fence');
   s.node('sol', 844, om.b + 10, 236, 'Solver binaries (B5)', ['swipl, z3: only when a wire names', 'the backend; never a fallback'], 'n-fence');
   s.arrow([[N('auth').r, N('auth').cy], [834, N('auth').cy]]);
   s.arrow([[N('rs').r, N('rs').cy + 20], [530, N('rs').cy + 20], [530, 660], [814, 660], [814, N('sol').cy], [834, N('sol').cy]], { dashed: true });
@@ -80,7 +80,7 @@ export function diagramA() {
 /* ---------------------------------------------------------------- (b) one chat turn */
 export function diagramB() {
   const s = new Svg('dg-b', 1100, 'One chat turn, end to end',
-    'Nine steps from the message to the rendered answer: the request parser asks the coding agent for a circuit, the query author validates and repairs it, the Agent admits it, the KnowledgeLinker binds its strings to the memory, slice retrieval and the StrategyRouter with the oracle compute the answer, and the deterministic English rendering writes it.');
+    'Nine steps from the message to the rendered answer: the request parser asks the formalizer model for a circuit, the query author validates and repairs it, the Agent admits it, the KnowledgeLinker binds its strings to the memory, slice retrieval and the StrategyRouter with the oracle compute the answer, and the deterministic English rendering writes it.');
   const X = 34, W = 700;
   let y = 12;
   const steps = [
@@ -89,11 +89,11 @@ export function diagramB() {
       'server/http.mjs: bearer or session cookie, checkBody, one request per conversation (409 while busy)',
       'server/session-runtime.mjs opens the session: its repository (a clone of the base memory) and its lexicon'], 'n-srv'],
     ['3', 'Request parser (server/query-parser.mjs)', [
-      'availability of the model chain queryParser.models; cache keyed by memory version, model and message',
+      'readiness of the model chain queryParser.models (proxy tiers); cache keyed by memory version, model and message',
       'no model can run: parse_unavailable (503); models ran, no valid circuit: parse_failed (422); no other parser'], 'n-srv'],
     ['4', 'Query author (lib/query-author)', [
       'context.mjs: the prompt is the message plus candidate predicates and entity hints of the memory',
-      'backends/omp.mjs (omp, default) or backends/completion.mjs write the circuit; loop.mjs validates with validate.mjs',
+      'lib/formalize/strategies.mjs (LLMDirect, chat completion through the proxy) writes the circuit; loop.mjs validates it',
       'and sends the validator output back for at most maxFixRounds rounds; an unclear verdict is a valid circuit'], 'n-model'],
     ['5', 'Agent.turn (server/agent.mjs): admission', [
       'validateVocabulary: model types only, unclear alone, stated values found in the message, spans verbatim',
@@ -120,8 +120,8 @@ export function diagramB() {
   }
   for (let i = 0; i < geo.length - 1; i++) s.arrow([[X + 60, geo[i].b], [X + 60, geo[i + 1].y]]);
   const MX = 786, MW2 = 300;
-  s.zone(MX - 12, geo[2].y - 4, MW2 + 24, geo[3].b - geo[2].y + 8, 'Coding agent (B2)', 'z-model');
-  s.node('ca', MX, geo[2].y + 26, MW2, 'CodingAgent or a local model', ['sees the message and the vocabulary;', '~writes query.sop; no knowledge, no answer'], 'n-model');
+  s.zone(MX - 12, geo[2].y - 4, MW2 + 24, geo[3].b - geo[2].y + 8, 'Formalizer (B2)', 'z-model');
+  s.node('ca', MX, geo[2].y + 26, MW2, 'LLMDirect or a tiny-tier model', ['sees the message and the vocabulary;', '~writes query.sop; no knowledge, no answer'], 'n-model');
   s.arrow([[X + W, geo[3].cy], [MX - 12, geo[3].cy]], { start: true });
   s.node('mem', MX - 12, geo[5].y + 4, MW2 + 24, 'Per-session Lexicon', ['sop/lexicon.mjs, LexiconCache', '~compiled from circuits, cached by hash'], 'n-disk');
   s.arrow([[MX - 12, geo[5].y + 34], [X + W, geo[5].y + 34]]);
@@ -196,16 +196,16 @@ export function diagramD() {
 /* ---------------------------------------------------------------- (e) authoring */
 export function diagramE() {
   const s = new Svg('dg-e', 1100, 'The authoring path: from an attachment to a session circuit',
-    'A user act sends files or a request to the coding agent omp, which runs fenced in a request folder; the server validates and repairs the circuits, stores them as proposed drafts, and only the user accepting a draft puts them in the session layer. A commit to a fork of the base memory is a separate explicit act.');
+    'A user act sends files or a request to the direct author, a chain model called through the proxy without tools; the server validates and repairs the circuits and, with a session, stores the valid ones in the session layer at once. A commit to a fork of the base memory is a separate explicit act.');
   const t = s.node('t', 12, 20, 300, '1  A user act', ['attach files and instructions, or', 'call POST /v1/author; nothing is', 'authored without this explicit call'], 'n-out');
-  const a = s.node('a', 12, t.b + 22, 300, '2  POST /v1/author', ['server/authoring.mjs; session or temp folder;', 'wait false answers 202, then poll the request', '~rate: omp.maxConcurrent 2, timeout 600 s'], 'n-srv');
+  const a = s.node('a', 12, t.b + 22, 300, '2  POST /v1/author', ['server/authoring.mjs; session or temp folder;', 'wait false answers 202, then poll the request', '~answer 429 author_busy at the concurrency limit'], 'n-srv');
   s.arrow([[162, t.b], [162, a.y]]);
   const f = s.node('f', 12, a.b + 22, 300, '3  Request folder', ['sessions/<id>/requests/<req>/: input/', '(files, vocabulary), skill/ (sop-wire-', 'authoring), TASK.md (fence, outputs)'], 'n-srv');
   s.arrow([[162, a.b], [162, f.y]]);
-  s.zone(340, 20, 330, 190, 'B3 fence', 'z-fence');
-  const o = s.node('o', 352, 50, 306, '4  omp -p (lib/omp/run.mjs)', ['tools: read, write, edit; no shell, no', 'extensions, skills or rules; credentials', 'never passed; --max-time plus hard kill', '~writes knowledge.sop, queries.sop, report.md'], 'n-fence');
+  s.zone(340, 20, 330, 190, 'B3 proxy', 'z-fence');
+  const o = s.node('o', 352, 50, 306, '4  directAuthor (direct-author.mjs)', ['one chat-completion conversation via the', 'proxy; no tools, no shell, no files; no', 'credentials in the prompt; timeout per call', '~answers knowledge.sop, queries.sop, report.md'], 'n-fence');
   s.arrow([[312, f.cy], [330, f.cy], [330, o.cy], [352, o.cy]]);
-  const v = s.node('v', 340, 236, 330, '5  Validate and repair (server)', ['sop/knowledge validate with the session theory;', 'on problems the same omp session continues', 'with the validator output, up to maxFixRounds (3)'], 'n-srv');
+  const v = s.node('v', 340, 236, 330, '5  Validate and repair (server)', ['sop/knowledge validate with the session theory;', 'on problems the same conversation continues', 'with the validator output as patches, up to 3 rounds'], 'n-srv');
   s.arrow([[505, o.b + 0], [505, v.y]]);
   const d = s.node('d', 700, 236, 390, '6  Session layer (no manual step)', ['Sessions.addCircuit: validated with the base and', 'session circuits, copied to circuits/, facts ingested,', 'provenance kind add; invalid: refused, nothing stored'], 'n-srv');
   s.arrow([[670, v.cy], [700, v.cy]]);

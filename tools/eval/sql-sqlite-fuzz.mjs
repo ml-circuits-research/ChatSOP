@@ -72,8 +72,8 @@ export function genCase(seed) {
     if (chance(0.25) && ents.length >= 2) lines.push(`  when compare ${ents[0]} ${pick(['not_equal', 'equal'])} ${ents[1]}`);
     if (chance(0.25) && ints.length) lines.push(`  when compare ${ints[0]} ${pick(['above', 'below', 'at_least', 'at_most', 'equal', 'not_equal'])} ${Math.floor(R() * 6) - 1}`);
     if (!noCompute && chance(0.3) && ints.length) {
-      const word = pick(['plus', 'minus', 'times', 'divided_by']);
-      const rhs = word === 'divided_by' ? (ints.length > 1 && chance(0.6) ? ints[1] : pick(['2', '-2', '3'])) : (ints.length > 1 && chance(0.4) ? ints[1] : String(Math.floor(R() * 4)));
+      const word = pick(['plus', 'minus', 'times', 'whole_divided_by']);
+      const rhs = word === 'whole_divided_by' ? (ints.length > 1 && chance(0.6) ? ints[1] : pick(['2', '-2', '3'])) : (ints.length > 1 && chance(0.4) ? ints[1] : String(Math.floor(R() * 4)));
       lines.push(`  when compute ?k ${ints[0]} ${word} ${rhs}`);
       bnd.push('?k');
       ints.push('?k');

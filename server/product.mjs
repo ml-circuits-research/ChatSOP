@@ -1,5 +1,5 @@
 /**
- * HTTP routes of the product layer (DS022, docs/api.html): base memories, sessions, the omp model list and the authoring path.
+ * HTTP routes of the product layer (DS022, docs/api.html): base memories, sessions and the authoring path.
  *
  *   GET  /v1/memories                       list the base memories
  *   POST /v1/memories                       create an empty one, or import one: {name, strategy, circuits?, description?}
@@ -7,12 +7,14 @@
  *   DELETE /v1/memories/{id}
  *   POST /v1/memories/{id}/fork             {name, strategy?, description?}
  *   POST /v1/memories/{id}/knowledge        {circuits: [{name, text}], reason?, source?}, validated, recorded with provenance
+ *   GET  /v1/memory-composer                the layers a base memory can be composed from, the chat's reply memory and default base
+ *   POST /v1/memory-composer                {id, layers, name?, description?}: build or refresh a base memory from chosen layers
  *
  *   POST /v1/sessions                       start a session on a base memory: {base, name?, settings?}
  *   GET  /v1/sessions                       the caller's sessions (all of them for the signed-in browser session)
  *   GET  /v1/sessions/{id}                  the session, its circuits and provenance (?transcript=1 adds the turns)
  *   DELETE /v1/sessions/{id}
- *   POST /v1/sessions/{id}/settings         {omp_model?, formalizer?}: the model CodingAgent tries first; the formalization strategy
+ *   POST /v1/sessions/{id}/settings         {formalizer_model?, formalizer?}: the chain model LLMDirect tries first; the formalization strategy
  *   POST /v1/sessions/{id}/commit           commit the accepted session circuits to a new fork: {name, strategy?, description?}
  *   GET  /v1/sessions/{id}/theory           the base circuits followed by the accepted session circuits
  *   POST /v1/sessions/{id}/query            {query}: run a query circuit over the session's memory: the oracle gets the slice the query needs (answer.retrieval)
@@ -30,6 +32,7 @@ export const MEMORY_KINDS = Object.freeze(['encyclopedic', 'minimal', 'empty']);
 import {strategyRequest} from './status.mjs';
 import {CORE_SEED} from '../lib/knowledge-seeds.mjs';
 import {askMemory, TheoryCache} from '../reasoning/slice/index.mjs';
+import {composableLayers, compose} from '../lib/chat-data/composer.mjs';
 
 const bad = (message, code = 'invalid_request', status = 400) => Object.assign(new Error(message), {status, code});
 
@@ -40,10 +43,12 @@ export const PRODUCT_ENDPOINTS = Object.freeze([
   {method: 'GET', path: '/v1/memories/{id}', capability: 'memories.get'},
   {method: 'POST', path: '/v1/memories/{id}/fork', capability: 'memories.fork', body: ['name', 'strategy', 'description', 'id']},
   {method: 'POST', path: '/v1/memories/{id}/knowledge', capability: 'memories.knowledge', body: ['circuits', 'reason', 'source']},
+  {method: 'GET', path: '/v1/memory-composer', capability: 'memories.composer'},
+  {method: 'POST', path: '/v1/memory-composer', capability: 'memories.compose', body: ['id', 'layers', 'name', 'description']},
   {method: 'POST', path: '/v1/sessions', capability: 'sessions.create', body: ['base', 'name', 'settings']},
   {method: 'GET', path: '/v1/sessions', capability: 'sessions.list'},
   {method: 'GET', path: '/v1/sessions/{id}', capability: 'sessions.get'},
-  {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['omp_model', 'formalizer']},
+  {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['formalizer_model', 'formalizer']},
   {method: 'POST', path: '/v1/sessions/{id}/commit', capability: 'sessions.commit', body: ['name', 'strategy', 'description', 'id']},
   {method: 'GET', path: '/v1/sessions/{id}/theory', capability: 'sessions.theory'},
   {method: 'POST', path: '/v1/sessions/{id}/query', capability: 'sessions.query', body: ['query', 'message', 'reasoning', 'verify']},
@@ -62,6 +67,8 @@ const ROUTES = [
   ['DELETE', new RegExp(`^/v1/memories/${ID}$`), 'memoriesDelete'],
   ['POST', new RegExp(`^/v1/memories/${ID}/fork$`), 'memoriesFork'],
   ['POST', new RegExp(`^/v1/memories/${ID}/knowledge$`), 'memoriesKnowledge'],
+  ['GET', /^\/v1\/memory-composer$/, 'composerList'],
+  ['POST', /^\/v1\/memory-composer$/, 'composerBuild'],
   ['POST', /^\/v1\/sessions$/, 'sessionsCreate'],
   ['GET', /^\/v1\/sessions$/, 'sessionsList'],
   ['GET', new RegExp(`^/v1/sessions/${ID}$`), 'sessionsGet'],
@@ -85,12 +92,16 @@ const onlyKeys = (body, allowed) => {
   return body;
 };
 
-export function createProductRouter({memories, sessions, runtimes, readBody, json, limits = {}, extra = {}, parsing = null, defaultBase = runtimes?.defaultBase ?? 'default'}) {
+/**
+ * `composer` (optional): `{replyMemory: () => id, onComposed: manifest => info}`; the server reloads the chat's reply layer when the
+ * reply memory is rebuilt and reports it in the answer.
+ */
+export function createProductRouter({memories, sessions, runtimes, readBody, json, limits = {}, extra = {}, parsing = null, defaultBase = runtimes?.defaultBase ?? 'default', composer = {}}) {
   const maxBytes = limits.maxProductBytes ?? 8_000_000;
   const theories = new TheoryCache();
 
   const actions = {
-    memoriesList: ({res}) => json(res, 200, {object: 'list', data: memories.list(), strategies: memoryStrategies(), default_base: defaultBase, kinds: MEMORY_KINDS}),
+    memoriesList: ({res}) => json(res, 200, {object: 'list', data: memories.list().map(m => memories.withStats(m)), strategies: memoryStrategies(), default_base: defaultBase, kinds: MEMORY_KINDS}),
     async memoriesCreate({req, res, approvedBy}) {
       const body = onlyKeys(await readBody(req, maxBytes), ['name', 'strategy', 'description', 'circuits', 'reason', 'source', 'id', 'imports', 'kind']);
       const {name, strategy, description, circuits, reason, source, id} = body;
@@ -125,6 +136,16 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
       json(res, 200, {object: 'memory.knowledge', ...memories.addKnowledge(match[1], {circuits: body.circuits, approvedBy, reason: body.reason ?? '', source: body.source ?? null})});
     },
 
+    // The base-memory composer (DS022 "Composing a base memory"): every authenticated user may compose, like creating a memory.
+    composerList: ({res}) => json(res, 200, {object: 'memory.composer', layers: composableLayers(memories), reply_memory: composer.replyMemory?.() ?? null, default_base: defaultBase}),
+    async composerBuild({req, res}) {
+      const body = onlyKeys(await readBody(req, maxBytes), ['id', 'layers', 'name', 'description']);
+      // Sessions are clones of their base: a rebuilt memory reaches the sessions started after it.
+      const done = compose(memories, {id: body.id, name: body.name, description: body.description, layers: body.layers});
+      const after = composer.onComposed?.(done.memory) ?? null;
+      json(res, 201, {object: 'memory.composed', ...done.memory, replaced: done.replaced, validated: done.validated, ms: done.ms, ...(after ? {reply_layer: after} : {})});
+    },
+
     async sessionsCreate({req, res, user, admin}) {
       const body = onlyKeys(await readBody(req, maxBytes), ['base', 'name', 'settings', 'id']);
       // A session is a fork of a base memory; without `base` it forks the default (the encyclopedic world-v1 when loaded).
@@ -146,7 +167,7 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
     },
     async sessionsSettings({req, res, match, user, admin}) {
       sessions.visible(match[1], {user, admin});
-      const body = onlyKeys(await readBody(req, maxBytes), ['omp_model', 'formalizer']);
+      const body = onlyKeys(await readBody(req, maxBytes), ['formalizer_model', 'formalizer', 'omp_model']);
       json(res, 200, {object: 'session', ...sessions.describe(sessions.updateSettings(match[1], body).id)});
     },
     async sessionsCommit({req, res, match, approvedBy, user, admin}) {
@@ -161,7 +182,7 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
     async sessionsQuery({req, res, match, user, admin}) {
       sessions.visible(match[1], {user, admin});
       const body = onlyKeys(await readBody(req, maxBytes), ['query', 'message', 'reasoning', 'verify']);
-      // `message`: a natural-language request instead of a query circuit. The request parser (the coding agent, server/query-parser.mjs) writes the query,
+      // `message`: a natural-language request instead of a query circuit. The request parser (the formalizer, server/query-parser.mjs) writes the query,
       // and the shared chat path links, retrieves, routes, verifies and renders it (DS009 "Request parser").
       if (body.message !== undefined) {
         if (body.query !== undefined) throw bad('Give either query (a circuit) or message (a request), not both', 'invalid_parameter');
@@ -171,7 +192,7 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
         const lexicon = rt.lexicon;
         let parseRecord = null;
         const formalizer = {id: 'query-parser', formalize: async text => {
-          const done = await parsing.queryParser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, preferredModel: rt.info?.settings?.omp_model ?? null, ...strategyRequest(parsing.queryParser, rt.info?.settings?.formalizer)});
+          const done = await parsing.queryParser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, preferredModel: rt.info?.settings?.formalizer_model ?? rt.info?.settings?.omp_model ?? null, ...strategyRequest(parsing.queryParser, rt.info?.settings?.formalizer)});
           parseRecord = done.parse;
           return done.sop;
         }};

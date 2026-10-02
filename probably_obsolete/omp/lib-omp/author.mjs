@@ -13,8 +13,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {parse, validateProgram, wireText} from '../../sop/knowledge/index.mjs';
-import {validateCircuits} from '../chat-data/memories.mjs';
+import {parse, validateProgram, wireText} from '../../../sop/knowledge/index.mjs';
+import {validateCircuits} from '../../../lib/chat-data/memories.mjs';
 import {runOmp} from './run.mjs';
 
 const PROJECT = fileURLToPath(new URL('../../', import.meta.url));

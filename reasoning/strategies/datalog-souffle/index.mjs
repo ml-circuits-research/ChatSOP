@@ -19,11 +19,12 @@ import {update as updateHandle} from '../js-reference/index.mjs';
 import {lowerProgram} from './lower.mjs';
 import {pushdownPlan, outcomeFromRows} from './pushdown.mjs';
 import {runSouffle, probeSouffle} from './runner.mjs';
+import {planFixedPoint, scaleProgram, scaleQuery, decodeTables, inexactError, INEXACT} from '../solver-common/fixed-point.mjs';
 
 export {NotExpressibleError};
 
 const FEATURES = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'count',
-  'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides',
+  'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'exact_arithmetic', 'aggregate', 'default', 'overrides',
   'strict_contrary', 'integrity', 'versions', 'zero_arity', 'retrieval'];
 const NOT_EXPRESSIBLE = ['used', 'explain', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'time_vars', 'plan', 'abduce', 'constraint', 'optimize',
   'method', 'htn_choice', 'on_failure', 'norms_hard', 'norms_soft', 'temporal_norms', 'procedures', 'procedure_render', 'amendment', 'check_plan', 'blocked_info', 'abduce_waive'];
@@ -35,6 +36,7 @@ export const capabilities = {
   delivery: 'slice',
   limits: {max_wires: 10_000_000, max_arity: 6, integer_range: [-(2 ** 31), 2 ** 31 - 1]},
   guarantee: 'exact',
+  exact: {kind: 'fixed_point', max_scale: 12},
   provides: [],
   providesNote: 'used: false (no provenance wiring; the host computes used by deletion and replay), proof: false, explain: false',
   budgetKeys: ['timeoutMs', 'maxFacts'],
@@ -57,6 +59,12 @@ function magicSafe(program) {
   return program.rules.every(r => r.alts.every(alt => alt.leaves.every(l => l.kind === 'atom' ? l.mode !== 'absent' : l.kind === 'compare')));
 }
 
+/** The fixed-point plan of a job (null: integer arithmetic is exact), computed once and kept on the job. */
+function fixedPointOf(job) {
+  if (job.fx === undefined) job.fx = planFixedPoint(job.program, job.qp ? job.qp.alts.concat(job.qp.scopeAlts) : []);
+  return job.fx;
+}
+
 /** Options of the engine: `mode` interpret|compile, `pushdown` (default on), `magic` (true: -m '*', 'auto': -m '*' for a pushed-down query over a program without negation as failure, aggregates and arithmetic, or a relation list). */
 export function makeEngine(options = {}) {
   const mode = options.mode ?? 'interpret';
@@ -67,7 +75,8 @@ export function makeEngine(options = {}) {
 
     pushdown(job) {
       if (options.pushdown === false || !['select', 'exists', 'count'].includes(job.qp.mode)) return null;
-      const plan = pushdownPlan(job.qp);
+      const fx = fixedPointOf(job);
+      const plan = pushdownPlan(fx ? scaleQuery(job.qp, fx, {narrow: true}) : job.qp);
       return engine.run(job, {...plan, wanted: new Set()}, tables => outcomeFromRows(job.qp, tables));
     },
 
@@ -77,7 +86,11 @@ export function makeEngine(options = {}) {
     },
 
     run(job, {wanted, extra, extraAtoms, extraConstraints}, build) {
-      const {program, facts, budget} = job;
+      const {facts, budget} = job;
+      // exact decimals: the program is run as integers scaled by 10^S and the tables are divided back (solver-common/fixed-point.mjs)
+      const fx = fixedPointOf(job);
+      const program = fx ? scaleProgram(job.program, fx, {narrow: true}) : job.program;
+      if (fx?.flag) wanted = new Set([...wanted, `p|${INEXACT}`]);
       const probe = probeSouffle();
       if (!probe.ok) throw Object.assign(new Error(`datalog-souffle is unavailable: ${probe.reason}`), {code: 'unavailable'});
       if (facts.length > budget.limits.maxFacts) return {rows: [], status: 'unknown', exhausted: {reason: 'facts'}, tables: new Map()};
@@ -91,7 +104,10 @@ export function makeEngine(options = {}) {
       const timings = {souffle: {lower: lowerMs, ...ran.timings}};
       if (ran.timedOut) return {rows: [], status: 'unknown', exhausted: {reason: 'wall'}, tables: new Map(), timings};
       if (ran.overflow) return {rows: [], status: 'unknown', exhausted: {reason: 'numeric_range'}, tables: new Map(), timings, notes: ['arithmetic_overflow_32bit']};
-      return {...build(ran.tables), timings};
+      if (!fx) return {...build(ran.tables), timings};
+      const decoded = decodeTables(ran.tables, fx);
+      if (decoded.inexact) throw inexactError(fx);
+      return {...build(decoded.tables), timings, notes: [`fixed_point_scale_${fx.scale}`]};
     }
   };
   return engine;

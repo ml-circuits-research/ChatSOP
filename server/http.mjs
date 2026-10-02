@@ -18,13 +18,15 @@ import {createCapabilities} from './capabilities.mjs';
 import {createApiRouter} from './api.mjs';
 import {createProductRouter,PRODUCT_ENDPOINTS} from './product.mjs';
 import {BaseMemories,ensureDefaultBase} from '../lib/chat-data/memories.mjs';
+import {ensureSeedMemories,seedIsCurrent} from '../lib/knowledge-seeds.mjs';
+import {setReplyLayer,CONVERSATION_LAYER} from '../sop/replies.mjs';
+import {conversationCircuits,ensureReplyMemory} from '../lib/chat-data/composer.mjs';
 import {warmMemories} from './warm-memories.mjs';
 import {ChatData} from '../lib/chat-data/index.mjs';
 import {Sessions} from '../lib/chat-data/sessions.mjs';
 import {SessionRuntimes} from './session-runtime.mjs';
 import {createAuthoring,AUTHORING_ENDPOINTS} from './authoring.mjs';
 import {createKnowledgeRouter,KNOWLEDGE_ENDPOINTS} from './review.mjs';
-import {ompSettings,createOmpModels} from '../lib/omp/index.mjs';
 import {createQueryParser,queryParserSettings} from './query-parser.mjs';
 import {serverStatus,strategyRequest} from './status.mjs';
 import {createAnswerFormulator,answerLanguageSettings,looksEnglish} from './answer-language.mjs';
@@ -127,7 +129,7 @@ async function adminRoutes(req,res,url,auth,readiness){
  return error(res,404,'not_found','Endpoint not found');
 }
 
-function trace(result,formalizer,system,parse=null){const packet=result.packet??{};const p=parse??packet.parse??null;return {mode:'formalize',parse:p,english_text:result.englishText??null,answer_language:result.answerLanguage??null,strategy:p?.strategy??null,session_circuits:packet.session_circuits??null,verification:packet.route?.verification??null,latency_ms:result.formalization?.ms??null,formalizer_label:formalizer.label??null,formalization_ms:result.formalization?.ms??null,circuit:result.executionSop,model_sop:result.sop,provenance:packet.proof??[],backend:packet.route?.backend??packet.backend??null,fallback:packet.route?.fallback??packet.fallback??null,completeness:packet.complete??packet.completeness??null,retrieval:packet.retrieval??null,route:packet.route??null,reasoning_strategy:packet.reasoningStrategy??null,cnl:result.cnl,status:packet.status??null,pendingSop:packet.pendingSop??null,required:packet.required??null,reinforcement:packet.reinforcement??null,user_statements:result.userStatements??[],carried_statements:result.carriedStatements??[],model_assumptions:result.modelAssumptions??[],assumption_policy:result.assumptionPolicy??null,assumption_branch:result.assumptionBranch??null,unclear:result.unclear??null,pragmatic:packet.pragmatic??null,pragmatic_use:packet.pragmatic_use??null,understood_as:packet.understood_as??null,linking:packet.linking??[],system_circuit:system?.source??null,system_receipt:system?.receipt??null,formalizer_model:result.formalization?.model??formalizer.id??formalizer.model};}
+function trace(result,formalizer,system,parse=null){const packet=result.packet??{};const p=parse??packet.parse??null;return {mode:'formalize',parse:p,english_text:result.englishText??null,answer_language:result.answerLanguage??null,strategy:p?.strategy??null,session_circuits:packet.session_circuits??null,verification:packet.route?.verification??null,latency_ms:result.formalization?.ms??null,formalizer_label:formalizer.label??null,formalization_ms:result.formalization?.ms??null,circuit:result.executionSop,model_sop:result.sop,provenance:packet.proof??[],backend:packet.route?.backend??packet.backend??null,fallback:packet.route?.fallback??packet.fallback??null,completeness:packet.complete??packet.completeness??null,retrieval:packet.retrieval??null,route:packet.route??null,reasoning_strategy:packet.reasoningStrategy??null,cnl:result.cnl,status:packet.status??null,pendingSop:packet.pendingSop??null,required:packet.required??null,reinforcement:packet.reinforcement??null,user_statements:result.userStatements??[],carried_statements:result.carriedStatements??[],model_assumptions:result.modelAssumptions??[],assumption_policy:result.assumptionPolicy??null,assumption_branch:result.assumptionBranch??null,unclear:result.unclear??null,pragmatic:packet.pragmatic??null,reply:packet.reply??null,near_miss:packet.near_miss??null,behaviour:packet.behaviour??null,instructions:packet.instructions??null,understood_as:packet.understood_as??null,linking:packet.linking??[],system_circuit:system?.source??null,system_receipt:system?.receipt??null,formalizer_model:result.formalization?.model??formalizer.id??formalizer.model};}
 function completion(result,model,formalizer,system,parse=null){const id='chatcmpl-'+randomUUID(),created=Math.floor(Date.now()/1000);return {id,object:'chat.completion',created,model,choices:[{index:0,message:{role:'assistant',content:result.text},finish_reason:'stop'}],usage:null,chatSop:trace(result,formalizer,system,parse)};}
 function sse(res,data){res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache, no-transform','Connection':'keep-alive'});const base={id:data.id,created:data.created,model:data.model,object:'chat.completion.chunk'};res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:data.choices[0].message.content},finish_reason:null}],chatSop:data.chatSop})+'\n\n');res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}]})+'\n\n');res.end('data: [DONE]\n\n');}
 /**
@@ -135,7 +137,7 @@ function sse(res,data){res.writeHead(200,{'Content-Type':'text/event-stream; cha
  * single-repository mode: one repository and one lexicon, conversations kept by `SessionStore`; embedders and the tests that do not exercise the
  * product layer use it. The request parser (server/query-parser.mjs, the coding agent) is created from `config.queryParser` unless `queryParser` is injected (tests).
  */
-export function createServer({config,repo,lexicon,authTokens,auth=null,base='demo',limits={},sessionRoot,chatData=null,queryParser:injected=null,answerFormulator:injectedFormulator}={}){
+export function createServer({config,repo,lexicon,authTokens,auth=null,base='demo',limits={},sessionRoot,chatData=null,queryParser:injected=null,answerFormulator:injectedFormulator,authorChat=null}={}){
  if(!config||!repo||!lexicon)throw Error('Server requires config, repository and lexicon');
  const model=config.model??'chatsop-local';
  const users=auth?null:credentials(authTokens??(process.env.CHATSOP_API_KEY?{local:process.env.CHATSOP_API_KEY}:{}));
@@ -144,27 +146,34 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
  const pages=createSignedInRoutes();
  let active=0;const busy=new Set();
  const accepted=new Set([model]);
- // The coding agent (omp) and its subscription chain: the one circuit author of the product (DS009 "Request parser").
- const omp=ompSettings(config),ompModels=createOmpModels(omp);
- const queryParser=injected??createQueryParser({settings:queryParserSettings(config),ompConfig:omp,ompModels,chatData});
+ // The request parser (DS009 "Request parser"): LLMDirect calls a model of the chain directly through the proxy LLMAPIProvider; no
+ // path runs omp (owner 2026-10-02).
+ const queryParser=injected??createQueryParser({settings:queryParserSettings(config),chatData});
  // Answer formulation in the user's language (server/answer-language.mjs); a server with an injected request parser (tests) has none unless one is injected too.
- const answerFormulator=injectedFormulator!==undefined?injectedFormulator:injected?null:createAnswerFormulator({settings:answerLanguageSettings(config),ompConfig:omp,chatData});
+ const answerFormulator=injectedFormulator!==undefined?injectedFormulator:injected?null:createAnswerFormulator({settings:answerLanguageSettings(config)});
  const capabilities=createCapabilities({queryParser});
  const api=createApiRouter({capabilities,json,extraEndpoints:[STATUS_ENDPOINT,...(chatData?[...PRODUCT_ENDPOINTS,...AUTHORING_ENDPOINTS,...KNOWLEDGE_ENDPOINTS]:[])]});
  const startedAt=Date.now();
- // The product layer (DS022): base memories, sessions, omp. Present when a chat data root is configured (startServer always does).
+ // The product layer (DS022): base memories, sessions, knowledge authoring. Present when a chat data root is configured (startServer always does).
  const memories=chatData?new BaseMemories({chatData,memory:config.memory}):null;
  const defaultBase=memories?ensureDefaultBase(memories,config):null;
+ // The conversation layer (DS023 "Conversation layer"): the reply wires and rules of the stored seed memory conversation-v1 (reviewed in
+ // /review); the shipped copy (config/knowledge/conversation-v1) is the layer of a server without chat data. A stale stored copy is reported.
+ // The reply memory (config conversation.memory, DS022 "Composing a base memory") is conversation-v1 plus the chosen small-talk
+ // collections; it is composed from conversation.layers when missing, and its conversation layers are the reply layer.
+ let replyMemory=null;
+ const loadReplyLayer=id=>{const circuits=conversationCircuits(memories,id);setReplyLayer(circuits,'base memory '+id);return {memory:id,circuits:circuits.length};};
+ if(memories){try{ensureSeedMemories(memories,{strategy:config.memory?.engine});const reply=ensureReplyMemory(memories,config);replyMemory=reply.id;if(replyMemory){loadReplyLayer(replyMemory);for(const l of reply.stale)console.warn('conversation layer: '+l+(replyMemory===l?'':' in '+replyMemory)+' differs from config/knowledge/'+l+'; renew it with node tools/refresh-seed-memories.mjs --only '+l+' --apply'+(replyMemory===l?'':' (then '+replyMemory+' is composed again at the next start, or rebuild it on /admin)'));}}catch(e){console.error('conversation layer: '+e.message);throw e;}}
  const sessionStore=chatData?new Sessions({chatData,memories,memory:config.memory}):null;
  const runtimes=chatData?new SessionRuntimes({sessions:sessionStore,memories,config:{...config,contextMaxBytes:Math.min(config.contextMaxBytes??maxContextBytes,maxContextBytes)},defaultBase}):null;
- const authoring=chatData?createAuthoring({sessions:sessionStore,runtimes,chatData,models:ompModels,settings:omp,readBody,json,maxBytes:limits.maxProductBytes??8_000_000}):null;
- const product=chatData?createProductRouter({memories,sessions:sessionStore,runtimes,readBody,json,limits,extra:authoring,parsing:{queryParser},defaultBase}):null;
+ const authoring=chatData?createAuthoring({sessions:sessionStore,runtimes,chatData,formalizer:queryParser.settings??null,chat:authorChat,readBody,json,maxBytes:limits.maxProductBytes??8_000_000}):null;
+ const product=chatData?createProductRouter({memories,sessions:sessionStore,runtimes,readBody,json,limits,extra:authoring,parsing:{queryParser},defaultBase,composer:{replyMemory:()=>replyMemory,onComposed:m=>m.id===replyMemory?loadReplyLayer(m.id):null}}):null;
  // The knowledge browser (/review, GET /v1/knowledge/*): read only, over a base memory or a chat session (server/review.mjs); without a chat data root the API answers 501.
  const knowledge=createKnowledgeRouter({memories,sessions:sessionStore,json});
  /** Whether the coding agent can run now, with the model chain; the chat answers 503 `parse_unavailable` when it cannot. */
  async function readiness(){
   const free=await queryParser.availability();
-  return {ready:free.available===true,model_available:free.available===true,default_model:model,coding_agent:{available:free.available===true,...(free.reason?{reason:free.reason}:{}),models:queryParser.settings.models,backend:queryParser.settings.backend.kind,...(free.skipped?.length?{skipped:free.skipped}:{})}};
+  return {ready:free.available===true,model_available:free.available===true,default_model:model,formalizer:{strategy:queryParser.defaultStrategy??queryParser.settings?.strategy??'LLMDirect',available:free.available===true,...(free.reason?{reason:free.reason}:{}),models:queryParser.settings?.models??[],...(free.skipped?.length?{skipped:free.skipped}:{})}};
  }
  const server=http.createServer(async(req,res)=>{
   const url=req.url?.split('?')[0];if((url==='/healthz'||url==='/health')&&req.method==='GET')return json(res,200,{status:'ok'});
@@ -188,12 +197,12 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
   // served read-only as plain text to signed-in users so the server carries all documentation.
   if(req.method==='GET'&&REPO_MARKDOWN.test(url??''))return serveRepoMarkdown(res,url);
   try{const parsed=new URL(req.url,'http://localhost');if(await pages.handle(req,res,url,Object.fromEntries(parsed.searchParams),(status,body)=>json(res,status,body),{signedIn:Boolean(sessionUser)}))return;}catch(e){if(res.destroyed)return;return error(res,e.status??400,e.code??'invalid_request',e.message);}
-  if(url==='/chat'&&req.method==='GET'){const state=await readiness();return sendHtml(res,200,chatPage({model,ready:state.ready,codingAgent:state.coding_agent}));}
-  if(url==='/v1/status'&&req.method==='GET')return json(res,200,await serverStatus({queryParser,ompModels,memories,warm:server.warm??null,startedAt,defaultBase}));
+  if(url==='/chat'&&req.method==='GET'){const state=await readiness();return sendHtml(res,200,chatPage({model,ready:state.ready,codingAgent:state.formalizer}));}
+  if(url==='/v1/status'&&req.method==='GET')return json(res,200,await serverStatus({queryParser,memories,warm:server.warm??null,startedAt,defaultBase}));
   if(url==='/readyz'&&req.method==='GET'){const state=await readiness();return json(res,state.ready?200:503,state);}
   if(url==='/v1/models'&&req.method==='GET'){
    const state=await readiness();
-   return json(res,200,{object:'list',default:model,data:[{id:model,object:'model',created:0,owned_by:'chatsop',chatsop:{coding_agent:state.coding_agent,ready:state.ready}}]});
+   return json(res,200,{object:'list',default:model,data:[{id:model,object:'model',created:0,owned_by:'chatsop',chatsop:{formalizer:state.formalizer,ready:state.ready}}]});
   }
   if((url==='/review'||url?.startsWith('/v1/knowledge/'))&&await knowledge.handle(req,res,url,Object.fromEntries(new URL(req.url,'http://localhost').searchParams),{admin:Boolean(sessionUser)||(!auth&&Boolean(legacy)),user}))return;
   if(product&&url?.startsWith('/v1/')&&await product.handle(req,res,url,{admin:Boolean(sessionUser)||(!auth&&Boolean(legacy)),user}))return;
@@ -221,9 +230,9 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    const work=(async()=>{
     if(body.chatSop){const source=checkedTrusted(body.chatSop.trustedSop),stored=await new Runtime({repo:rt?rt.repo:repo,session:entry.agent.session,schema:(rt?.lexicon??lexicon).predicates,lexicon:rt?.lexicon??lexicon,policy:{...config.policy,allowRules:false,allowPin:false}}).run(source);system={source,receipt:stored.result};}
     // The circuit author: the coding agent reads the message and the vocabulary of the session's memory and writes the circuit (server/query-parser.mjs).
-    const author={id:'coding-agent',label:'coding agent (omp)',formalize:async message=>{
-     const lex=rt?.lexicon??lexicon,done=await queryParser.parse({message,lexicon:lex,memoryKey:lex.circuitsSha256??null,preferredModel:rt?.info?.settings?.omp_model??null,messageLanguage:looksEnglish(message)?'en':'other',...strategyRequest(queryParser,rt?.info?.settings?.formalizer??null)});
-     parseRecord=done.parse;author.id='coding-agent:'+(done.parse.model??'omp');
+    const author={id:'formalizer',label:'formalizer (direct model call)',formalize:async message=>{
+     const lex=rt?.lexicon??lexicon,done=await queryParser.parse({message,lexicon:lex,memoryKey:lex.circuitsSha256??null,preferredModel:rt?.info?.settings?.formalizer_model??rt?.info?.settings?.omp_model??null,messageLanguage:looksEnglish(message)?'en':'other',...strategyRequest(queryParser,rt?.info?.settings?.formalizer??null)});
+     parseRecord=done.parse;author.id='formalizer:'+(done.parse.model??done.parse.strategy??'none');
      return done.sop;}};
     const result=await entry.agent.turn(text,{formalizer:author}).catch(e=>{e.parse=e.parse??parseRecord;throw e;});
     if(parseRecord&&result.packet)result.packet.parse=parseRecord;
@@ -241,9 +250,9 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    // The circuit was written but not admitted or could not be executed: 422 with what the author wrote, so the chat can show it.
    if(e.modelSop!==undefined)return json(res,422,{error:{message:'The circuit was not admitted or could not be executed',type:'invalid_request_error',code:'model_output_rejected'},chatSop:{status:'rejected',parse:e.parse??parseRecord,rejection:String(e.message).slice(0,500),model_sop:e.modelSop,formalizer_model:e.formalization?.model??null,formalization_ms:e.formalization?.ms??null}});
    const status=e.status??(e.name==='TimeoutError'||e.message==='Request time limit reached'?504:400);error(res,status,(e.status&&e.code)||(status===413?'request_limit':status===504?'time_limit':status===400?'invalid_request':'internal_error'),status===400&&!e.status?'Invalid SOP or request; no detail exposed':status===504?'Request time limit reached':e.status?e.message:'Server request failed');}
- });server.auth=auth;server.capabilities=capabilities;server.sessions=sessionStore;server.memories=memories;server.authoring=authoring;server.knowledge=knowledge;server.ompModels=ompModels;server.ompSettings=omp;server.queryParser=queryParser;server.defaultBase=defaultBase;
+ });server.auth=auth;server.capabilities=capabilities;server.sessions=sessionStore;server.memories=memories;server.authoring=authoring;server.knowledge=knowledge;server.queryParser=queryParser;server.defaultBase=defaultBase;
  server.on('close',()=>capabilities.close());
- // A managed local model server (LocalLLMDirect, LocalLLMStepByStep) stops with the chat server.
+ // A managed local model server (a step-by-step strategy with an explicit GGUF) stops with the chat server.
  server.on('close',()=>{queryParser.stop?.().catch(()=>{});});
  return server;
 }
@@ -261,7 +270,7 @@ export async function startServer({configPath=path.join(root,'config/runtime.jso
  server.on('close',stopCleanup);
  await new Promise((resolve,reject)=>server.once('error',reject).listen(port,host,resolve));
  // Warmup (DS009 "Warm memories"): the base memories named by `server.warmMemories` are decoded in the background; the server is usable at once. CHATSOP_WARMUP=0 or `server.warmup: false` turns it off.
- if(config.server?.warmup!==false&&process.env.CHATSOP_WARMUP!=='0')setImmediate(()=>{(async()=>server.ompModels?.list?.())().catch(()=>{});try{const ids=[...new Set([server.defaultBase,...(config.server?.warmMemories??['world-v1'])].filter(Boolean))];if(server.memories&&ids.length)server.warm=[];for(const r of warmMemories({memories:server.memories,ids})){server.warm.push(r);console.log('warmup: base memory '+r.id+(r.skipped?' skipped ('+r.skipped+')':' warm in '+r.ms+' ms ('+r.facts+' facts, '+r.layers+' layers)'));}}catch(e){console.error('warmup of base memories failed: '+e.message);}});
+ if(config.server?.warmup!==false&&process.env.CHATSOP_WARMUP!=='0')setImmediate(()=>{try{const ids=[...new Set([server.defaultBase,...(config.server?.warmMemories??['world-v1'])].filter(Boolean))];if(server.memories&&ids.length)server.warm=[];for(const r of warmMemories({memories:server.memories,ids})){server.warm.push(r);console.log('warmup: base memory '+r.id+(r.skipped?' skipped ('+r.skipped+')':' warm in '+r.ms+' ms ('+r.facts+' facts, '+r.layers+' layers)'));}}catch(e){console.error('warmup of base memories failed: '+e.message);}});
  return server;
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){startServer({configPath:process.env.CHATSOP_CONFIG??path.join(root,'config/runtime.json')}).then(server=>console.log('ChatSOP listening on '+JSON.stringify(server.address())+'\n  home (sign in, chat, admin): http://127.0.0.1:'+server.address().port+'/\n  documentation: http://127.0.0.1:'+server.address().port+'/docs/')).catch(e=>{console.error(e.message);console.error('\nHint: `npm start` generates a token, serves the documentation and prints the access URLs.');process.exitCode=1;});}

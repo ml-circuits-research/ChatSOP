@@ -1,25 +1,25 @@
 #!/usr/bin/env node
 /**
- * Evaluation of the coding agent as the circuit author (experiment eval-query-parsers-v1, DS007): lib/query-author with omp on the same questions over the
+ * Evaluation of the formalizer as the circuit author (experiment eval-query-parsers-v1, DS007): lib/query-author with LLMDirect (direct model calls through
+ * the proxy LLMAPIProvider; omp was retired from formalization on 2026-10-02) on the same questions over the
  * same base memory, through the shared path (Agent turn: admission, linking, slice retrieval, StrategyRouter, oracle verification, completeness guard,
- * rendering). In process, no server, no port; a failed coding agent is an error of the record (`parser_failed`), never replaced by another answer.
+ * rendering). In process, no server, no port; a failed formalizer is an error of the record (`parser_failed`), never replaced by another answer.
  *
- *   node tools/eval/query-parsers.mjs run    --suite world30|forms [--model provider/model] [--limit N] [--only q01,q02] [--concurrency 3] [--rows file] [--base world-v1] [--tag t] [--force]
+ *   node tools/eval/query-parsers.mjs run    --suite world30|forms [--model provider/model] [--strategy LLMDirect|LocalLLMStepByStep|InternalReasoningStepByStep] [--limit N] [--only q01,q02] [--concurrency 3] [--rows file] [--base world-v1] [--tag t] [--force]
  *   node tools/eval/query-parsers.mjs recall --rows file [--k 24]   # recall of the gold predicates (the ids of the row's kb_query) in the retrieved candidates, no model
  *   node tools/eval/query-parsers.mjs report [--suites world30,forms]
  *
- * Suites: `world30` = eval/world-kb/questions.json (30 questions; the six Romanian ones are asked in their English form: the coding agent reads any
+ * Suites: `world30` = eval/world-kb/questions.json (30 questions; the six Romanian ones are asked in their English form: the formalizer reads any
  * language, but the gold of this suite was written for the English form); `forms` = a JSONL of {id, form, question, gold} (the dev set of
  * tools/eval/query-forms, --rows). Outcomes per question: `correct`, `wrong` (a definite answer that differs from the gold: the dangerous class),
  * `honest_unknown` (unknown, clarify, incomplete, unclear, not computable...: no answer given), `parser_failed`, `error`. Latency is the parser time
- * and the whole turn, cost the omp cost. Outputs: eval/reports/current/query-parsers/<suite>-<model><tag>.jsonl, report.json, report.md. The sealed
+ * and the whole turn, cost the provider cost (usage.cost; the openference plan is a flat subscription). Outputs: eval/reports/current/query-parsers/<suite>-<model><tag>.jsonl, report.json, report.md. The sealed
  * suites of kbqa.mjs are run through `node tools/eval/kbqa.mjs run --suite ... [--model ...]`, once.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {BASE_NAME} from '../../lib/chat-data/memories.mjs';
-import {ompSettings, createOmpModels} from '../../lib/omp/index.mjs';
 import {createQueryParser, queryParserSettings} from '../../server/query-parser.mjs';
 import {candidatePredicates, predicateRecall} from '../../lib/query-author/retrieval.mjs';
 
@@ -48,7 +48,7 @@ export const outcomeOf = (pass, packet, error) => error ? ((error.code === 'pars
 
 async function run(args) {
   const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : d; };
-  const suite = opt('--suite', 'world30'), model = opt('--model', null), parser = (model ?? 'coding_agent').replace(/[^A-Za-z0-9._-]+/g, '_'), tag = opt('--tag', '') ? '-' + opt('--tag') : '';
+  const suite = opt('--suite', 'world30'), model = opt('--model', null), strategy = opt('--strategy', null), parser = (model ?? strategy ?? 'llm_direct').replace(/[^A-Za-z0-9._-]+/g, '_'), tag = opt('--tag', '') ? '-' + opt('--tag') : '';
   const out = path.join(OUT, `${suite}-${parser}${tag}.jsonl`);
   fs.mkdirSync(OUT, {recursive: true});
   const done = new Set(!args.includes('--force') && fs.existsSync(out) ? fs.readFileSync(out, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l).id) : []);
@@ -65,9 +65,8 @@ async function run(args) {
   const base = opt('--base', 'world-v1');
   const session = openSession({base, id: `qp-${parser.toLowerCase().replace(/[^a-z0-9_-]+/g, '-')}-${Date.now().toString(36)}`});
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8'));
-  const settings = queryParserSettings({queryParser: {...(config.queryParser ?? {}), ...(model ? {models: [model], backend: {...(config.queryParser?.backend ?? {}), model}} : {}), cacheEntries: 0}});
-  const omp = ompSettings(config);
-  const queryParser = createQueryParser({settings, ompConfig: omp, ompModels: createOmpModels(omp)});
+  const settings = queryParserSettings({...config, queryParser: {...(config.queryParser ?? {}), ...(model ? {models: [model]} : {}), ...(strategy ? {strategy} : {}), cacheEntries: 0}});
+  const queryParser = createQueryParser({settings});
   const lexicon = session.sessions.lexicon(session.id);
   const asOne = async row => {
     const started = Date.now();
@@ -141,7 +140,7 @@ function report(args) {
       accuracy_pct: pct(count('correct'), n), wrong_pct: pct(count('wrong'), n), unknown_pct: pct(count('honest_unknown'), n), parse_ms_median: quantile(rows.map(r => r.parse_ms ?? 0), 0.5), parse_ms_p90: quantile(rows.map(r => r.parse_ms ?? 0), 0.9),
       total_ms_median: quantile(rows.map(r => r.total_ms), 0.5), cost_usd_total: Math.round(cost * 1e5) / 1e5, cost_usd_per_question: n ? Math.round((cost / n) * 1e5) / 1e5 : null});
   }
-  const md = ['# Circuit author: the coding agent (eval-query-parsers-v1)', '', '| suite | model | n | correct | wrong | honest unknown | parser failed | error | median parse ms | p90 parse ms | median turn ms | USD/question |', '|---|---|---|---|---|---|---|---|---|---|---|---|',
+  const md = ['# Circuit author: the formalizer (eval-query-parsers-v1)', '', '| suite | model | n | correct | wrong | honest unknown | parser failed | error | median parse ms | p90 parse ms | median turn ms | USD/question |', '|---|---|---|---|---|---|---|---|---|---|---|---|',
     ...table.map(r => `| ${r.suite} | ${r.parser} | ${r.n} | ${r.correct} (${r.accuracy_pct}%) | ${r.wrong} (${r.wrong_pct}%) | ${r.honest_unknown} (${r.unknown_pct}%) | ${r.parser_failed} | ${r.error} | ${r.parse_ms_median} | ${r.parse_ms_p90} | ${r.total_ms_median} | ${r.cost_usd_per_question} |`), ''].join('\n');
   fs.mkdirSync(OUT, {recursive: true});
   fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify({generated_at: new Date().toISOString(), table}, null, 1) + '\n');

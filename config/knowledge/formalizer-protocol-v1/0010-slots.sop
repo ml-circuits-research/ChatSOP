@@ -788,9 +788,9 @@
   when fp_date_count 1
   then fp_date_one
 
+# Readable dates are structure: the period question needs no aspect from the model.
 @fp_need_period rule
   when fp_main_query ?qq
-  when fp_has_aspect date
   when fp_date_many
   when fp_places_done ?qq
   then fp_needed period ?qq

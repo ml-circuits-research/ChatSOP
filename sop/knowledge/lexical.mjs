@@ -4,12 +4,15 @@
  * and the condition leaves (`not`, `absent`, `compare`, `compute`, `order`, `start_of`, `end_of`). Structural problems are
  * collected, never thrown.
  */
-import {COMPARATORS, ARITHMETIC, ORDER_WORDS, ROLE_NAMES, LINK_KEYWORDS, MAX_ARITY, STEP_BLOCKS} from './grammar.mjs';
+import {COMPARATORS, COMPUTE, ORDER_WORDS, ROLE_NAMES, LINK_KEYWORDS, MAX_ARITY, STEP_BLOCKS} from './grammar.mjs';
 
 export const ID = /^[A-Za-z][A-Za-z0-9_]*$/;
 export const VAR = /^\?[a-z][a-z0-9_]*$/;
 export const SYMBOL = /^[a-z][a-z0-9_]*$/;
 export const INTEGER = /^-?\d+$/;
+/** A number term: an integer or a decimal (`0.11`, `-2.5`); decimals are exact (DS004 "Exact arithmetic"). */
+export const NUMBER = /^-?\d+(?:\.\d+)?$/;
+export const DECIMAL = /^-?\d+\.\d+$/;
 export const REF = /^[$~][A-Za-z][A-Za-z0-9_]*$/;
 export const DATE = /^(\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}Z)?|beginning|open)$/;
 
@@ -23,7 +26,7 @@ export function tokens(text) {
 }
 
 export function termError(t) {
-  if (VAR.test(t) || INTEGER.test(t) || SYMBOL.test(t) || REF.test(t)) return null;
+  if (VAR.test(t) || NUMBER.test(t) || SYMBOL.test(t) || REF.test(t)) return null;
   if (t.startsWith('"')) {
     try { JSON.parse(t); return null; } catch { return 'bad JSON string ' + t; }
   }
@@ -107,9 +110,9 @@ export function parseCondition(field, problems, opts = {}) {
       return {kind: 'compare', left: toks[1], word: toks[2], right: toks[3], line};
     }
     if (toks[0] === 'compute') {
-      if (toks.length !== 5 || !VAR.test(toks[1]) || !ARITHMETIC.includes(toks[3])) { problems.push({code: 'bad_compute', line, message: 'compute ?v A WORD B with WORD in ' + ARITHMETIC.join('|')}); return null; }
+      if (toks.length !== 5 || !VAR.test(toks[1]) || !COMPUTE.includes(toks[3])) { problems.push({code: 'bad_compute', line, message: 'compute ?v A WORD B with WORD in ' + COMPUTE.join('|')}); return null; }
       for (const t of [toks[2], toks[4]]) { const e = termError(t); if (e) problems.push({code: 'bad_term', line, message: e}); }
-      if (toks[3] === 'divided_by' && /^-?0+$/.test(toks[4])) problems.push({code: 'division_by_zero', line, message: 'division by the constant zero'});
+      if (['divided_by', 'whole_divided_by', 'modulo', 'rounded_to', 'rounded_up_to', 'rounded_down_to'].includes(toks[3]) && /^-?0+(?:\.0+)?$/.test(toks[4])) problems.push({code: 'division_by_zero', line, message: 'division by the constant zero'});
       return {kind: 'compute', out: toks[1], left: toks[2], word: toks[3], right: toks[4], line};
     }
     if (toks[0] === 'order') {

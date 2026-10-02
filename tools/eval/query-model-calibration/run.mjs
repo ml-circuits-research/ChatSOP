@@ -13,7 +13,7 @@ import {authorQuery} from '../../../lib/query-author/index.mjs';
 import {BASE_NAME} from '../../../lib/chat-data/memories.mjs';
 import {openSession} from '../query-forms-probe.mjs';
 import {MODELS, CPU_VARIANT} from './models.mjs';
-import {timedOmpBackend, ompOneShotBackend, localBackend} from './backends.mjs';
+import {remoteBackend, localBackend} from './backends.mjs';
 import {startServer} from './servers.mjs';
 import {loadRows, stageRows} from './rows.mjs';
 import {classify} from './score.mjs';
@@ -45,8 +45,7 @@ if (spec.kind === 'local') {
   const v = cpu ? CPU_VARIANT[key] : {port: spec.port, threads: null, ngl: 99};
   server = await startServer({gguf: spec.gguf, port: v.port, ctx: spec.ctx, threads: v.threads, ngl: v.ngl, logFile: path.join(out, `llama-server-${runId}.log`), alias: key});
   backend = localBackend({endpoint: server.endpoint, model: key, extraBody: spec.extraBody ?? {}, sink});
-} else if (spec.kind === 'omp-oneshot') backend = ompOneShotBackend({model: spec.model});
-else backend = timedOmpBackend({model: spec.model, timeoutMs: 180_000});
+} else backend = remoteBackend({model: spec.model, timeoutMs: 180_000});
 
 const stop = async () => { if (server) await server.stop(); };
 for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, async () => { await stop(); process.exit(1); });

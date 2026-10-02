@@ -5,6 +5,7 @@
  * ignored with a warning and `approval_incomplete` is left to ingestion.
  */
 import {GRAMMAR, STEP_BLOCKS, HOST_WRITTEN} from './grammar.mjs';
+import {ORDER_SAMPLING, ORDER_SAMPLING_MODES} from '../enums.mjs';
 import {VAR, tokens, atomFrom, varsOf, parse, leaves} from './lexical.mjs';
 import {checkValue} from './validate-fields.mjs';
 import {isNumericAction, checkNumericAction, stateVariables} from './numeric-action.mjs';
@@ -109,6 +110,10 @@ function typeChecks(w, problems, {authoring = false, allowSealed = false} = {}) 
     if (temporal.length > 1) push('temporal_conflict', 'use one of at (instant), during (throughout an interval), overlaps (some instant of an interval)');
     if (mode === 'every' && !f('scope')) push('missing_field', 'mode every needs scope');
     if (mode !== 'every' && f('scope')) push('bad_field_for_mode', 'scope is only for mode every');
+    // `order random` (DS004 "Sampling"): the answers of mode select in a seeded random order, a random sample with limit.
+    const sampling = w.fields.filter(x => x.key === 'order' && ORDER_SAMPLING.includes(x.value.trim()));
+    if (sampling.length > 1) push('order_random_repeated', 'a query takes at most one order random line');
+    if (sampling.length && !ORDER_SAMPLING_MODES.includes(mode)) push('order_random_mode', 'order random samples the answers of mode ' + ORDER_SAMPLING_MODES.join('|') + ', not mode ' + mode);
     const select = f('select') ? tokens(f('select').value) : [];
     for (const s of select) if (!bound.has(s)) push('select_unbound', 'selected variable ' + s + ' does not occur in where');
   }

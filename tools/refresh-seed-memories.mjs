@@ -4,7 +4,8 @@
  * snapshots, so a stale seed is re-created together with every memory built on it; those memories must hold no circuits of
  * their own (an empty default base is re-created by the server; a loaded knowledge memory such as world-v1 is rebuilt by its
  * loader, tools/world-kb/load.mjs). The default is a dry run that lists what would be deleted and re-created.
- *   node tools/refresh-seed-memories.mjs [--apply] [--root <chat data root>]
+ * `--only <id>` renews one seed (and its dependents) only, e.g. the conversation layer, which no memory imports.
+ *   node tools/refresh-seed-memories.mjs [--apply] [--only <seed id>] [--root <chat data root>]
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -20,7 +21,8 @@ const config = JSON.parse(fs.readFileSync(path.join(project, 'config/runtime.jso
 if (opt('--root', null)) config.chatData.root = path.resolve(opt('--root'));
 const memories = new BaseMemories({chatData: ChatData.open(config), memory: config.memory});
 const seeds = seedOrder();
-const stale = seeds.filter(id => memories.list().some(m => m.id === id) && !seedIsCurrent(memories, id));
+const only = opt('--only', null);
+const stale = seeds.filter(id => (!only || id === only) && memories.list().some(m => m.id === id) && !seedIsCurrent(memories, id));
 const dependents = (id, seen = new Set()) => { for (const m of memories.list()) if ((m.imports ?? []).some(l => l.id === id) && !seen.has(m.id)) { seen.add(m.id); dependents(m.id, seen); } return seen; };
 const doomed = new Set(stale.flatMap(id => [id, ...dependents(id)]));
 const blocked = [...doomed].filter(id => !seeds.includes(id) && memories.manifest(id).circuits > 0);

@@ -5,7 +5,7 @@
  *
  * `available()` is probed once per process and only reads (a version call); nothing is installed. Qualification is the shadow gate
  * of DS006 (`eval/smoke-reasoning/run.mjs`, zero disagreements with the oracle on the cases the strategy declares it expresses,
- * observed 2026-10-01: sql-sqlite 78, datalog-souffle 65, asp-clingo 93 cases, all pass); `tests/strategy-router.test.mjs` repeats
+ * observed 2026-10-02: sql-sqlite 81, datalog-souffle 68, asp-clingo 96 cases, all pass); `tests/strategy-router.test.mjs` repeats
  * that gate on the cases of the router's classes.
  */
 import {DatabaseSync} from 'node:sqlite';
@@ -44,6 +44,13 @@ export function eligibility(id, features) {
   const reasons = [];
   if (missing.length) reasons.push('lacks ' + missing.join(', '));
   if (refused.length) reasons.push('declares not expressible: ' + refused.join(', '));
+  // exact decimals: a fixed-point engine needs a scale it can carry; an exact-rational engine carries any
+  if (features.exact_arithmetic && c.exact?.kind === 'fixed_point') {
+    const fp = features.fixed_point;
+    const [lo, hi] = c.limits.integer_range;
+    if (!fp?.ok) reasons.push('no exact fixed-point form: ' + (fp?.reason ?? 'unknown'));
+    else if (fp.max_scaled > Math.min(hi, -lo)) reasons.push(`a scaled value (${fp.max_scaled}) is outside its integer range`);
+  }
   const forms = features.host_forms.filter(k => !c.features.includes('query_' + k));
   if (forms.length) reasons.push('query forms not expressed: ' + forms.join(', '));
   if (features.wires > c.limits.max_wires) reasons.push(`above its limit of ${c.limits.max_wires} wires`);

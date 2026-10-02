@@ -7,6 +7,13 @@ import { DASHBOARD_HTML } from './dashboard.mjs';
 import { resolveUpstream } from './settings.mjs';
 import { planReport, valueReport, limitWait } from './plan.mjs';
 import { planRequests } from './monitor.mjs';
+import { createLocalStarter } from './local.mjs';
+import { createAudit, responseText } from './audit.mjs';
+import { createJobGuard } from './jobs.mjs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const HERE = dirname(fileURLToPath(import.meta.url));
 
 const FORWARD_REQ = ['content-type', 'accept', 'anthropic-version', 'anthropic-beta'];
 const MAX_BODY = 512 * 1024 * 1024;
@@ -18,7 +25,7 @@ export function extractUsage(fmt, obj) {
   const cached = u.prompt_tokens_details?.cached_tokens ?? u.cache_read_input_tokens ?? 0;
   const inT = u.prompt_tokens ?? u.input_tokens;
   const out = u.completion_tokens ?? u.output_tokens;
-  return { in: inT, out, cached, creation: u.cache_creation_input_tokens };
+  return { in: inT, out, cached, creation: u.cache_creation_input_tokens, usd: u.cost ?? null };
 }
 
 function mergeUsage(acc, u) {
@@ -27,20 +34,27 @@ function mergeUsage(acc, u) {
   if (u.in != null) r.in = u.in;
   if (u.out != null) r.out = u.out;
   if (u.cached) r.cached = u.cached;
+  if (u.usd != null) r.usd = u.usd;
   return r;
 }
 
-export function createProxy({ config, env = process.env, dataDir, proxyToken = null, fetchImpl = fetch }) {
+export function createProxy({ config, env = process.env, dataDir, proxyToken = null, fetchImpl = fetch, auditDir = null, starterOptions = {} }) {
   const upstreams = {};
   const limiters = {};
+  const starters = {}; // upstreams started on demand (local llama-server)
   for (const [name, up] of Object.entries(config.upstreams)) {
     upstreams[name] = resolveUpstream(name, up, env);
     limiters[name] = new Limiter(up.limits);
+    if (up.start) starters[name] = createLocalStarter(upstreams[name], { fetchImpl, baseDir: resolve(HERE, config.baseDir || '.'), ...starterOptions });
   }
+  const audit = createAudit(config.audit, { dir: auditDir || join(dataDir, '..', 'llmapiprovider-audit') });
   const secrets = [...Object.values(upstreams).map((u) => u.key), proxyToken].filter(Boolean);
   const monitor = new Monitor({ dataDir, secrets });
   const modelCache = {}; // upstream -> {at, list, byId}
   const allModels = () => Object.assign({}, ...Object.values(modelCache).map((c) => c.byId));
+  // Job budgets and the purpose policy (jobs.mjs): money is the provider-reported USD, plan use is credits of plan upstreams.
+  const guard = createJobGuard({ config: config.jobs, dataDir, records: () => monitor.records,
+    costOf: (r) => ({ usd: r.usd ?? 0, credits: upstreams[r.upstream]?.plan ? planRequests(allModels()[r.model], r) : 0 }) });
 
   // Rebuild what the queue needs from the logs (the monitor has already reloaded the records) and gate on plan limits.
   const since = Date.now() - 3600_000;
@@ -90,11 +104,66 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
     return Buffer.concat(chunks);
   }
 
-  async function forward(req, res, up, path, body) {
+  // Fallback (config.fallback): when the default upstream is unavailable, a request for a mapped model goes to another
+  // upstream and model. Unavailable: unreachable or 5xx after retry.max5xx retries, 429 after retry.max retries or with a
+  // retry-after beyond fallback.maxWaitMs, or a queue/plan-gate wait beyond fallback.maxWaitMs. A client opts out with the
+  // header `x-llmapiprovider-no-fallback: 1` (runs that must stay on one model, e.g. calibrations).
+  const fb = config.fallback || null;
+  const noFallback = (req) => { const v = String(req.headers['x-llmapiprovider-no-fallback'] || '').toLowerCase(); return !!v && v !== '0' && v !== 'false'; };
+  function fallbackFor(up, path, model, req, ctx) {
+    if (ctx.tier) { // a tier request falls back down its own chain
+      const next = ctx.chain?.[0];
+      if (!next || noFallback(req)) return null;
+      return { up: upstreams[next.upstream], model: next.model, rest: ctx.chain.slice(1), maxWaitMs: config.tiers?.maxWaitMs };
+    }
+    if (!fb?.upstream || ctx.fallback || !model) return null;
+    if (up.name !== (fb.from || config.defaultUpstream)) return null;
+    if (noFallback(req)) return null;
+    const target = fb.models?.[model];
+    const fup = upstreams[fb.upstream];
+    if (!target || !fup || !fup.key) return null;
+    if (!Object.values(fup.formats || { openai: '/v1/chat/completions' }).includes(path)) return null;
+    return { up: fup, model: target };
+  }
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // Tiers (config.tiers): a client asks for `model: "<tier>"` (tiny, small, medium, good, best) on the default path and never for
+  // a concrete model. A tier is a chain of {upstream, model} (or the name of another tier); the first entry whose upstream is
+  // configured (with a key, unless it needs none) serves the request and the rest is its fallback chain. A tier with no usable
+  // entry is an error that names the tier; nothing is substituted silently.
+  const TIER_NAMES = ['tiny', 'small', 'medium', 'good', 'best'];
+  const tierDefs = Object.fromEntries(Object.entries(config.tiers || {}).filter(([k]) => !k.startsWith('_') && k !== 'maxWaitMs'));
+  const usable = (e) => upstreams[e.upstream] && (upstreams[e.upstream].key || upstreams[e.upstream].noKey);
+  function tierChain(name, seen = new Set()) {
+    const def = tierDefs[name];
+    if (def == null || seen.has(name)) return null;
+    seen.add(name);
+    if (typeof def === 'string') return tierChain(def, seen);
+    return Array.isArray(def) ? def : null;
+  }
+  function resolveTier(name) {
+    const chain = tierChain(name);
+    if (!chain || !chain.length) return { error: `tier "${name}" is not configured` };
+    const ok = chain.filter(usable);
+    if (!ok.length) return { error: `tier "${name}" has no usable upstream (configured: ${chain.map((e) => `${e.upstream}/${e.model}`).join(', ')})` };
+    return { first: ok[0], rest: ok.slice(1), skipped: chain.slice(0, chain.indexOf(ok[0])) };
+  }
+  const isTier = (m) => typeof m === 'string' && (TIER_NAMES.includes(m) || Object.hasOwn(tierDefs, m));
+  function tierList() {
+    return [...new Set([...TIER_NAMES, ...Object.keys(tierDefs)])].map((id) => {
+      const t = resolveTier(id);
+      return { id, object: 'model', x_tier: t.error ? { error: t.error } : { serves: `${t.first.upstream}/${t.first.model}`, fallback: t.rest.map((e) => `${e.upstream}/${e.model}`) } };
+    });
+  }
+
+  async function forward(req, res, up, path, body, ctx = {}) {
     const limiter = limiters[up.name];
     const retry = up.retry || { max: 3, baseMs: 1000, maxWaitMs: 60000 };
+    const max5xx = retry.max5xx ?? 0;
     const format = path === (up.formats?.anthropic || '/v1/messages') ? 'anthropic' : 'openai';
     const client = (req.headers['x-client-name'] || (req.headers['user-agent'] || 'unknown').split(/[\s/]/)[0]).toString().slice(0, 40);
+    const tag = (h) => (req.headers[h] ? String(req.headers[h]).slice(0, 120) : undefined);
+    const purpose = tag('x-llmapiprovider-purpose'), run = tag('x-llmapiprovider-run');
 
     let parsed = null;
     try { parsed = JSON.parse(body.toString('utf8')); } catch { /* not JSON: forwarded as is */ }
@@ -106,15 +175,40 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
       outBody = Buffer.from(JSON.stringify(parsed));
     }
     const est = parsed ? Math.round(JSON.stringify(parsed.messages ?? '').length / 4) : null;
-    const abort = new AbortController();
-    res.on('close', () => { if (!res.writableEnded) abort.abort(); });
+    const abort = ctx.abort || new AbortController();
+    if (!ctx.abort) res.on('close', () => { if (!res.writableEnded) abort.abort(); });
+    const fbk = fallbackFor(up, path, model, req, ctx);
+    const fbWait = (fbk && 'rest' in fbk ? fbk.maxWaitMs : fb?.maxWaitMs) ?? retry.maxWaitMs;
+    const fallBack = (reason, kind) => forward(req, res, fbk.up, path, Buffer.from(JSON.stringify({ ...parsed, model: fbk.model })),
+      { abort, fallback: { from: up.name, model: ctx.fallback?.model && ctx.tier ? ctx.fallback.model : model, reason, kind }, tier: ctx.tier, chain: fbk.rest });
+    const extraHeaders = {
+      ...(ctx.fallback ? { 'x-llmapiprovider-fallback': `${up.name}/${model}`, 'x-llmapiprovider-fallback-reason': ctx.fallback.kind } : {}),
+      ...(ctx.tier ? { 'x-llmapiprovider-tier': ctx.tier, 'x-llmapiprovider-model': `${up.name}/${model}` } : {}),
+    };
+    const fbFields = {
+      ...(ctx.fallback ? { fallback_from: ctx.fallback.from, fallback_model: ctx.fallback.model, fallback_reason: ctx.fallback.reason, fallback_kind: ctx.fallback.kind } : {}),
+      ...(ctx.tier ? { tier: ctx.tier } : {}),
+      ...(purpose ? { purpose } : {}), ...(run ? { run } : {}), ...(req.untaggedRequest ? { untagged: true } : {}),
+    };
+    const auditing = !!audit && audit.wants({ tier: ctx.tier, upstream: up.name });
+    if (starters[up.name] && !(await starters[up.name].ensure())) {
+      const why = `local server unavailable: ${starters[up.name].status().last_refusal?.reason ?? 'not healthy'}`;
+      monitor.log({ id: randomUUID().slice(0, 8), upstream: up.name, client, endpoint: path, format, model, stream, attempt: 1, status: 503, error: why, ...fbFields, ...(fbk ? { fallback_to: `${fbk.up.name}/${fbk.model}` } : {}) });
+      if (fbk) return fallBack(why, 'unavailable');
+      return sendJson(res, 503, { error: { type: 'local_unavailable', message: why } }, extraHeaders);
+    }
 
+    let n5xx = 0, n429 = 0;
     for (let attempt = 1; ; attempt++) {
       const mEntry = allModels()[model];
       const cost = monitor.creditModels().has(model) ? 0 : mEntry ? planRequests(mEntry, { status: 200, in_tokens: est || 0, format }) : 1;
+      if (fbk) {
+        const w = limiter.estimateWait({ cost });
+        if (w.wait > fbWait) return fallBack(`wait ${w.wait} ms > ${fbWait} ms: ${w.reason}`, 'wait');
+      }
       const outcome = await limiter.schedule(async ({ queueWaitMs }) => {
         const t0 = Date.now();
-        const rec = { id: randomUUID().slice(0, 8), upstream: up.name, client, endpoint: path, format, model, stream, attempt, queue_wait_ms: queueWaitMs, req_bytes: body.length, est_in_tokens: est };
+        const rec = { id: randomUUID().slice(0, 8), upstream: up.name, client, endpoint: path, format, model, stream, attempt, queue_wait_ms: queueWaitMs, req_bytes: body.length, est_in_tokens: est, ...fbFields };
         const headers = {};
         for (const h of FORWARD_REQ) if (req.headers[h]) headers[h] = req.headers[h];
         headers['content-type'] ||= 'application/json';
@@ -125,25 +219,41 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
           r = await fetchImpl(up.baseUrl + path, { method: 'POST', headers, body: outBody, signal: abort.signal });
         } catch (e) {
           Object.assign(rec, { status: 502, latency_ms: Date.now() - t0, error: 'upstream unreachable: ' + (e.cause?.code || e.message) });
+          if (abort.signal.aborted) { monitor.log(rec); return { done: true }; }
+          if (n5xx < max5xx) { rec.will_retry = true; monitor.log(rec); return { retry5xx: true }; }
+          if (fbk) { rec.fallback_to = `${fbk.up.name}/${fbk.model}`; monitor.log(rec); return { fallback: rec.error, kind: 'unreachable' }; }
           monitor.log(rec);
-          if (!res.headersSent) sendJson(res, 502, { error: { type: 'proxy_error', message: rec.error } });
+          if (!res.headersSent) sendJson(res, 502, { error: { type: 'proxy_error', message: rec.error } }, extraHeaders);
           return { done: true };
         }
         rec.rate_headers = pickRateHeaders(r.headers);
         rec.status = r.status;
         const ctype = r.headers.get('content-type') || '';
 
-        if (r.status === 429 && attempt <= retry.max) {
-          const text = await r.text().catch(() => '');
-          Object.assign(rec, { latency_ms: Date.now() - t0, res_bytes: text.length, error: text, will_retry: true });
-          monitor.log(rec);
+        if (r.status === 429) {
           const ra = Number(r.headers.get('retry-after'));
-          const wait = Math.min(retry.maxWaitMs, Number.isFinite(ra) && ra > 0 ? ra * 1000 : retry.baseMs * 2 ** (attempt - 1));
-          limiter.pause(wait);
-          return { retry: true };
+          const want = Number.isFinite(ra) && ra > 0 ? ra * 1000 : retry.baseMs * 2 ** n429;
+          const canRetry = n429 < retry.max;
+          const fbNow = fbk && !abort.signal.aborted && (!canRetry || want > fbWait);
+          if (canRetry || fbNow) {
+            const text = await r.text().catch(() => '');
+            Object.assign(rec, { latency_ms: Date.now() - t0, res_bytes: text.length, error: text, will_retry: !fbNow });
+            if (fbNow) rec.fallback_to = `${fbk.up.name}/${fbk.model}`;
+            monitor.log(rec);
+            limiter.pause(Math.min(retry.maxWaitMs, want));
+            return fbNow ? { fallback: `429 (wait ${Math.round(want)} ms, after ${n429} retries)`, kind: '429' } : { retry: true };
+          }
+        }
+        if (r.status >= 500 && !abort.signal.aborted && (n5xx < max5xx || fbk)) {
+          const text = await r.text().catch(() => '');
+          Object.assign(rec, { latency_ms: Date.now() - t0, res_bytes: text.length, error: text || 'status ' + r.status });
+          if (n5xx < max5xx) { rec.will_retry = true; monitor.log(rec); return { retry5xx: true }; }
+          rec.fallback_to = `${fbk.up.name}/${fbk.model}`;
+          monitor.log(rec);
+          return { fallback: `status ${r.status} after ${n5xx} retries`, kind: '5xx' };
         }
 
-        const out = { 'content-type': ctype || 'application/json', 'cache-control': 'no-store' };
+        const out = { 'content-type': ctype || 'application/json', 'cache-control': 'no-store', ...extraHeaders };
         for (const [k, v] of r.headers) if (RATE_HEADER.test(k)) out[k] = v;
         res.writeHead(r.status, out);
         let usage = null, bytes = 0, ttft = null, errText = '', buf = '', tail = '';
@@ -161,6 +271,7 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
             res.write(chunk);
             const s = Buffer.from(chunk).toString('utf8');
             if (isSse) {
+              if (auditing && tail.length < 16 * 1024 * 1024) tail += s;
               buf += s; let i;
               while ((i = buf.indexOf('\n')) >= 0) { onLine(buf.slice(0, i).replace(/\r$/, '')); buf = buf.slice(i + 1); }
             } else if (bytes <= 16 * 1024 * 1024) tail += s;
@@ -176,16 +287,20 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
         } else if (r.status >= 400) errText = buf;
         Object.assign(rec, {
           latency_ms: Date.now() - t0, ttft_ms: stream ? ttft : null, res_bytes: bytes,
-          in_tokens: usage?.in ?? null, out_tokens: usage?.out ?? null, cached_tokens: usage?.cached ?? 0,
+          in_tokens: usage?.in ?? null, out_tokens: usage?.out ?? null, cached_tokens: usage?.cached ?? 0, usd: usage?.usd ?? null,
         });
         if (r.status >= 400) rec.error = errText || rec.error;
         const num = (h) => { const v = Number(r.headers.get(h)); return r.headers.get(h) != null && Number.isFinite(v) ? v : null; };
         rec.quota_remaining = num('x-quota-remaining'); rec.quota_cost = num('x-quota-cost'); rec.credit_cost = num('x-credit-cost');
         if (r.status >= 400 && /billed from your credit balance|credit balance/i.test(errText)) rec.credit_billed = true;
         monitor.log(rec);
+        if (auditing) { try { audit.record(rec, parsed, responseText(format, isSse, tail)); } catch { /* the audit never breaks a request */ } }
         return { done: true };
       }, { cost });
+      if (outcome.fallback) return fallBack(outcome.fallback, outcome.kind);
+      if (outcome.retry5xx) { n5xx += 1; await sleep(retry.baseMs * 2 ** (n5xx - 1)); continue; }
       if (!outcome.retry) return;
+      n429 += 1;
     }
   }
 
@@ -193,7 +308,7 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
     const url = new URL(req.url, 'http://x');
     try {
       if (req.method === 'GET' && url.pathname === '/health') {
-        return sendJson(res, 200, { ok: true, uptime_s: Math.round(process.uptime()), upstreams: Object.fromEntries(Object.values(upstreams).map((u) => [u.name, { base_url: u.baseUrl, key_configured: !!u.key, queue_depth: limiters[u.name].depth }])) });
+        return sendJson(res, 200, { ok: true, uptime_s: Math.round(process.uptime()), fallback: fb ? { from: fb.from || config.defaultUpstream, upstream: fb.upstream, models: fb.models, maxWaitMs: fb.maxWaitMs ?? null } : null, tiers: tierList(), upstreams: Object.fromEntries(Object.values(upstreams).map((u) => [u.name, { base_url: u.baseUrl, key_configured: !!u.key, on_demand: !!u.start, queue_depth: limiters[u.name].depth }])) });
       }
       if (!authorized(req, url)) return sendJson(res, 401, { error: { type: 'authentication_error', message: 'invalid proxy token' } });
       if (req.method === 'GET' && url.pathname === '/') {
@@ -211,20 +326,53 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
           st.plan[u.name] = planReport({ upstream: u.name, plan: u.plan, records: monitor.records, models, now });
           st.value[u.name] = valueReport({ upstream: u.name, plan: u.plan, compare: config.compare, records: monitor.records, models, creditModels: monitor.creditModels(), now });
         }
+        const day = monitor.records.filter((r) => r.t > now - 86400000);
+        const group = (key) => { const g = {}; for (const r of day) { const k = r[key] || '-'; const e = (g[k] ??= { calls: 0, errors: 0, fallbacks: 0, in_tokens: 0, out_tokens: 0, usd: 0 }); e.calls += 1; if (r.status >= 400) e.errors += 1; if (r.fallback_from) e.fallbacks += 1; e.in_tokens += r.in_tokens || 0; e.out_tokens += r.out_tokens || 0; e.usd += r.usd || 0; } return g; };
+        st.last24h = { by_tier: group('tier'), by_purpose: group('purpose'), by_upstream: group('upstream') };
+        st.tiers = tierList();
+        st.audit = audit ? audit.stats() : null;
+        st.local = Object.fromEntries(Object.entries(starters).map(([n, s]) => [n, s.status()]));
+        st.jobs = guard.stats();
         return sendJson(res, 200, st);
+      }
+      if (url.pathname.startsWith('/jobs')) {
+        if (req.method === 'GET' && url.pathname === '/jobs') return sendJson(res, 200, guard.stats());
+        if (req.method === 'POST' && (url.pathname === '/jobs/register' || url.pathname === '/jobs/finish')) {
+          let b = null;
+          try { b = JSON.parse((await readBody(req)).toString('utf8')); } catch { /* reported below */ }
+          const r = url.pathname === '/jobs/register' ? guard.register(b) : guard.finish(b);
+          return sendJson(res, r.error ? 400 : 200, r.error ? { error: { type: 'invalid_request', message: r.error } } : r);
+        }
       }
       const { up, path } = pickUpstream(url);
       if (req.method === 'GET' && path === '/v1/models') {
         try {
           const list = (await getModels(up)).list;
           const credit = monitor.creditModels();
-          return sendJson(res, 200, { ...list, data: (list.data || []).map((m) => ({ ...m, x_billing: credit.has(m.id) ? 'credit' : 'plan_or_unknown' })) });
+          const tiers = up.name === config.defaultUpstream && !url.pathname.startsWith('/u/') ? tierList() : [];
+          return sendJson(res, 200, { ...list, data: [...(list.data || []).map((m) => ({ ...m, x_billing: credit.has(m.id) ? 'credit' : 'plan_or_unknown' })), ...tiers] });
         }
         catch (e) { return sendJson(res, 502, { error: { type: 'proxy_error', message: 'model list unavailable: ' + redact(e.message, secrets) } }); }
       }
       if (req.method === 'POST' && path.startsWith('/v1/')) {
-        if (!modelCache[up.name]) getModels(up).catch(() => {}); // warm pricing for stats
-        return await forward(req, res, up, path, await readBody(req));
+        const tagOf = (h) => (req.headers[h] ? String(req.headers[h]).slice(0, 120) : null);
+        const refusal = guard.admit({ purpose: tagOf('x-llmapiprovider-purpose'), run: tagOf('x-llmapiprovider-run') });
+        if (refusal?.error) return sendJson(res, refusal.status, { error: refusal.error });
+        if (refusal?.untagged) req.untaggedRequest = true; // logged as `untagged: true`, so the allowance survives a restart
+        const raw = await readBody(req);
+        let model = null;
+        try { model = JSON.parse(raw.toString('utf8')).model; } catch { /* not JSON */ }
+        if (up.name === config.defaultUpstream && !url.pathname.startsWith('/u/') && isTier(model)) {
+          const t = resolveTier(model);
+          if (t.error) return sendJson(res, 400, { error: { type: 'tier_unavailable', message: t.error } });
+          const tup = upstreams[t.first.upstream];
+          if (!Object.values(tup.formats || { openai: '/v1/chat/completions' }).includes(path)) return sendJson(res, 400, { error: { type: 'tier_unavailable', message: `tier "${model}" serves ${t.first.upstream}, which has no endpoint ${path}` } });
+          if (!modelCache[tup.name] && !tup.start) getModels(tup).catch(() => {});
+          const body = Buffer.from(JSON.stringify({ ...JSON.parse(raw.toString('utf8')), model: t.first.model }));
+          return await forward(req, res, tup, path, body, { tier: model, chain: t.rest });
+        }
+        if (!modelCache[up.name] && !up.start) getModels(up).catch(() => {}); // warm pricing for stats
+        return await forward(req, res, up, path, raw);
       }
       return sendJson(res, 404, { error: { type: 'not_found', message: `${req.method} ${url.pathname}` } });
     } catch (e) {
@@ -233,7 +381,9 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
     }
   }
 
+  // Always-on local models (start.startAtBoot): started with the proxy; a server already on the port is reused.
+  for (const [name, st] of Object.entries(starters)) if (config.upstreams[name].start.startAtBoot) st.ensure().catch(() => {});
   const server = http.createServer(handle);
   server.requestTimeout = 0; server.headersTimeout = 30_000; server.keepAliveTimeout = 5_000;
-  return { server, monitor, limiters, upstreams };
+  return { server, monitor, limiters, upstreams, guard };
 }

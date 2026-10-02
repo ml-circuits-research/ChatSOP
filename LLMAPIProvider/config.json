@@ -1,4 +1,6 @@
 {
+  "baseDir": "..",
+  "_baseDir_note": "relative paths of local models (upstreams.*.start) resolve against baseDir, relative to this folder; here the ChatSOP repository root",
   "port": 18080,
   "host": "127.0.0.1",
   "defaultUpstream": "openference",
@@ -25,7 +27,8 @@
       "retry": {
         "max": 4,
         "baseMs": 1000,
-        "maxWaitMs": 60000
+        "maxWaitMs": 60000,
+        "max5xx": 2
       },
       "plan": {
         "priceUsdPerMonth": 15,
@@ -59,7 +62,106 @@
           }
         ]
       }
+    },
+    "openrouter": {
+      "baseUrl": "https://openrouter.ai/api",
+      "envFile": "~/.config/llmapiprovider/openrouter.env",
+      "keyVar": "OPENROUTER_API_KEY",
+      "modelsPath": "/v1/models",
+      "formats": {
+        "openai": "/v1/chat/completions"
+      },
+      "limits": {
+        "maxConcurrent": 8,
+        "maxPerSecond": 5,
+        "maxPerMinute": 120,
+        "maxPerHour": 3000
+      },
+      "retry": {
+        "max": 4,
+        "baseMs": 1000,
+        "maxWaitMs": 60000
+      },
+      "_note": "pay-as-you-go credit; cost per call is OpenRouter's usage.cost (USD). Route: /u/openrouter/v1/..."
+    },
+    "deepseek": {
+      "baseUrl": "https://api.deepseek.com",
+      "envFile": "~/.config/llmapiprovider/deepseek.env",
+      "keyVar": "DEEPSEEK_API_KEY",
+      "modelsPath": "/v1/models",
+      "formats": {
+        "openai": "/v1/chat/completions"
+      },
+      "limits": {
+        "maxConcurrent": 8,
+        "maxPerSecond": 5,
+        "maxPerMinute": 120,
+        "maxPerHour": 3000
+      },
+      "retry": {
+        "max": 4,
+        "baseMs": 1000,
+        "maxWaitMs": 60000
+      },
+      "_note": "official DeepSeek API, paid; key not configured yet. Route: /u/deepseek/v1/..."
+    },
+    "local": {
+      "baseUrl": "http://127.0.0.1:19611",
+      "noKey": true,
+      "modelsPath": "/v1/models",
+      "formats": {
+        "openai": "/v1/chat/completions"
+      },
+      "limits": {
+        "maxConcurrent": 4,
+        "maxPerSecond": 20,
+        "maxPerMinute": 600,
+        "maxPerHour": 20000
+      },
+      "retry": {
+        "max": 0,
+        "max5xx": 0,
+        "baseMs": 500,
+        "maxWaitMs": 5000
+      },
+      "start": {
+        "bin": "~/llama-cpp-venv/llama.cpp/build/bin/llama-server",
+        "gguf": "models/qwen3-4b-instruct/gguf/q4_k_m.gguf",
+        "alias": "Qwen3-4B",
+        "args": [
+          "-ngl",
+          "99",
+          "-fa",
+          "on",
+          "--parallel",
+          "4",
+          "-c",
+          "32768",
+          "--jinja",
+          "--no-webui",
+          "--cache-reuse",
+          "256"
+        ],
+        "requireFreeGpu": false,
+        "locks": [
+          "models/.training.lock",
+          "models/.parse-gpu.lock"
+        ],
+        "startTimeoutMs": 120000,
+        "idleStopMs": 0,
+        "startAtBoot": true
+      },
+      "_note": "local Qwen3-4B, always on (owner 2026-10-02: enough memory, fast enough): started when the proxy starts and restarted on demand; GPU reservation lock files still block a start. Route /u/local/... or tier tiny."
     }
+  },
+  "fallback": {
+    "_note": "owner 2026-10-02: when openference is unavailable (unreachable or 5xx after retry.max5xx retries, 429 after retry.max retries or with retry-after above maxWaitMs, or a queue/plan-gate wait above maxWaitMs) a request for a mapped model goes to this upstream and model. Response header x-llmapiprovider-fallback; opt out per request with x-llmapiprovider-no-fallback: 1.",
+    "from": "openference",
+    "upstream": "openrouter",
+    "models": {
+      "Qwen3.8 27b": "deepseek/deepseek-v4-flash"
+    },
+    "maxWaitMs": 120000
   },
   "compare": {
     "_note": "USD per 1M tokens. DeepSeek official prices from https://api-docs.deepseek.com/quick_start/pricing (read 2026-10-02): deepseek-flash (DeepSeek-V4.1-Flash) cache hit 0.006/0.003, cache miss 0.30/0.15, output 1.20/0.60 at peak/off-peak (off-peak is half; peak 01:00-04:00 and 06:00-10:00 UTC on weekdays). Re-check before deciding.",
@@ -73,5 +175,70 @@
       "outputUsdPerM": 0.6,
       "cachedInputUsdPerM": 0.003
     }
+  },
+  "tiers": {
+    "_note": "owner 2026-10-02: clients and jobs name a tier, never a concrete model. A tier is a chain of {upstream, model}; the first usable entry serves, the rest is its fallback. best is unconfigured (pro models via OpenRouter later): a request for it is an error.",
+    "maxWaitMs": 120000,
+    "tiny": [
+      {
+        "upstream": "local",
+        "model": "Qwen3-4B"
+      },
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4-flash"
+      }
+    ],
+    "small": [
+      {
+        "upstream": "openference",
+        "model": "Qwen3.8 27b"
+      },
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4-flash"
+      }
+    ],
+    "medium": [
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4-flash"
+      }
+    ],
+    "good": [
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4.1-flash"
+      }
+    ]
+  },
+  "audit": {
+    "_note": "request/response pairs of the cheap tiers, for the periodic medium-tier review in batch work; chat traffic is only logged. Dir: ~/.local/share/llmapiprovider-audit/",
+    "enabled": true,
+    "tiers": [
+      "tiny",
+      "small",
+      "medium"
+    ],
+    "upstreams": [
+      "local"
+    ],
+    "maxBytesPerDay": 209715200,
+    "maxDays": 14,
+    "maxCharsPerField": 200000
+  },
+  "jobs": {
+    "_note": "owner 2026-10-02: LLM batch work runs as registered jobs (tools/llm-jobs) with a budget per run; requests carry x-llmapiprovider-purpose. Allowed purposes pass; any other request (no purpose or an unknown one) counts against a small daily allowance and is refused beyond it (403 untagged_limit). A registered run is refused at its budget (402 budget_exceeded) and after it finished (403 run_finished).",
+    "allowedPurposes": [
+      "chat",
+      "formalize",
+      "answer-*",
+      "ingest",
+      "job:*",
+      "review:*",
+      "test:*"
+    ],
+    "untaggedDailyMax": 100,
+    "keepDays": 7
   }
 }

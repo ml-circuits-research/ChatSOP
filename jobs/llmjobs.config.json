@@ -1,0 +1,71 @@
+{
+  "_note": "LLMJobs configuration of ChatSOP (LLMJobs/README.md; found by `node LLMJobs/run.mjs jobs/<job>` as the nearest llmjobs.config.json). Jobs and the runner name only model tiers, never concrete models (owner, 2026-10-02), so a proxy configuration change needs no job change. Proxy tiers (owner, corrected 2026-10-02): tiny = local Qwen3-4B, small = openference Qwen3.8 27b, medium = deepseek-v4-flash, good = deepseek-v4.1-flash, best = not configured (not used). Roles: planner and decider = good, auditor = medium, worker = small, worker-short = tiny. When the proxy serves a tier (GET /health lists it under `tiers`), the runner calls the tier by name through the proxy; until then `fallback` gives the concrete chain of each tier.",
+  "endpoint": "http://127.0.0.1:18080",
+  "dataDir": "../state/llm-jobs",
+  "templatesDir": "./templates",
+  "roles": {
+    "planner": "good",
+    "decider": "good",
+    "auditor": "medium",
+    "worker": "small",
+    "worker-short": "tiny"
+  },
+  "fallback": {
+    "_note": "Concrete chains per tier while the proxy has no tiers. good = deepseek-v4.1-flash with low reasoning (decent at code, still cheap); medium = deepseek-v4-flash with low reasoning (as auditor, calibration-v1: 10/10 planted errors, 0/20 false alarms); small = the openference plan's Qwen3.8 27b, then deepseek-v4-flash when the plan is unavailable; tiny = the local Qwen3-4B. best is not configured.",
+    "good": [
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning": "low",
+        "maxTokens": 8000
+      }
+    ],
+    "medium": [
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4-flash",
+        "reasoning": "low",
+        "maxTokens": 32000
+      }
+    ],
+    "small": [
+      {
+        "upstream": "openference",
+        "model": "Qwen3.8 27b",
+        "maxTokens": 4000,
+        "extraBody": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      },
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4-flash",
+        "reasoning": "off",
+        "maxTokens": 4000
+      }
+    ],
+    "tiny": [
+      {
+        "upstream": "local",
+        "model": "Qwen3-4B",
+        "maxTokens": 1500,
+        "extraBody": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      }
+    ]
+  },
+  "limits": {
+    "_note": "Upper bounds a planned task may request; a plan above them is refused before any work call.",
+    "maxTaskUsd": 2,
+    "maxTaskCredits": 100,
+    "maxTaskCalls": 2000
+  },
+  "tasks": {
+    "keepDays": 7
+  }
+}

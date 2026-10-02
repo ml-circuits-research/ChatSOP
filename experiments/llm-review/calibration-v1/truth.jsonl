@@ -1,0 +1,30 @@
+{"id":"q01","kind":"query-circuits","bad":false,"error":null}
+{"id":"q02","kind":"query-circuits","bad":false,"error":null}
+{"id":"q03","kind":"query-circuits","bad":false,"error":null}
+{"id":"q04","kind":"query-circuits","bad":true,"error":"wrong number (30 instead of 35)"}
+{"id":"q05","kind":"query-circuits","bad":false,"error":null}
+{"id":"q06","kind":"query-circuits","bad":true,"error":"wrong direction"}
+{"id":"q07","kind":"query-circuits","bad":false,"error":null}
+{"id":"k01","kind":"knowledge-wires","bad":true,"error":"dropped condition (full-time)"}
+{"id":"k02","kind":"knowledge-wires","bad":false,"error":null}
+{"id":"q08","kind":"query-circuits","bad":true,"error":"hedge turned certain (\"probably\")"}
+{"id":"k03","kind":"knowledge-wires","bad":false,"error":null}
+{"id":"k04","kind":"knowledge-wires","bad":true,"error":"wrong number (miles value under a _km predicate)"}
+{"id":"k05","kind":"knowledge-wires","bad":true,"error":"reported belief turned certain"}
+{"id":"q09","kind":"query-circuits","bad":true,"error":"dropped condition (in Africa)"}
+{"id":"k06","kind":"knowledge-wires","bad":false,"error":null}
+{"id":"k07","kind":"knowledge-wires","bad":false,"error":null}
+{"id":"k08","kind":"knowledge-wires","bad":false,"error":null}
+{"id":"q10","kind":"query-circuits","bad":false,"error":null}
+{"id":"k09","kind":"knowledge-wires","bad":false,"error":null}
+{"id":"k10","kind":"knowledge-wires","bad":false,"error":null}
+{"id":"k11","kind":"knowledge-wires","bad":false,"error":null}
+{"id":"k12","kind":"knowledge-wires","bad":true,"error":"hedge turned certain (\"likely formed\")"}
+{"id":"q11","kind":"query-circuits","bad":false,"error":null}
+{"id":"k13","kind":"knowledge-wires","bad":true,"error":"wrong relation direction"}
+{"id":"k14","kind":"knowledge-wires","bad":true,"error":"wrong number (250 instead of the 200-credit limit)"}
+{"id":"k15","kind":"knowledge-wires","bad":false,"error":null}
+{"id":"k16","kind":"knowledge-wires","bad":false,"error":null}
+{"id":"k17","kind":"knowledge-wires","bad":false,"error":null}
+{"id":"q12","kind":"query-circuits","bad":false,"error":null}
+{"id":"k18","kind":"knowledge-wires","bad":false,"error":null}

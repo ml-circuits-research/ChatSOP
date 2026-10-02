@@ -1,6 +1,6 @@
 /**
  * Runs the product chain on every question of a suite stage (tools/eval/kbqa.mjs `run`), in process:
- *   question -> coding agent (server/query-parser.mjs: omp and the subscription chain; the message and the memory vocabulary only) -> Agent
+ *   question -> formalizer LLMDirect (server/query-parser.mjs: the chain queryParser.models called directly through the proxy; the message and the memory vocabulary only) -> Agent
  *   (server/agent.mjs: admission, KnowledgeLinker over the lexicon of the session's base memory, StrategyRouter, oracle) -> packet.
  * Every question gets its own conversation (no carried context); the session is the clone of the stage's base memory, and reads do not
  * reinforce (policy.reinforce false), so the questions of a stage cannot influence each other. Nothing of the gold reaches the chain.
@@ -14,7 +14,6 @@ import {ROOT} from './benchmarks.mjs';
 import {readSuite} from './suites.mjs';
 import {openData, memoryId} from './memory.mjs';
 import {createQueryParser, queryParserSettings} from '../../../server/query-parser.mjs';
-import {ompSettings, createOmpModels} from '../../../lib/omp/index.mjs';
 
 export const reportDir = suite => path.join(ROOT, 'eval', 'reports', 'current', 'kbqa', suite);
 export const stageFile = (suite, stage, tag = '') => path.join(reportDir(suite), `stage-${stage}${tag}.jsonl`);
@@ -66,8 +65,7 @@ export async function runSuite(suite, {stage = '100', limit = null, only = null,
   fs.mkdirSync(path.dirname(out), {recursive: true});
   const done = new Set(!force && fs.existsSync(out) ? fs.readFileSync(out, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l).id) : []);
   if (force) fs.rmSync(out, {force: true});
-  const omp = ompSettings(config);
-  const queryParser = createQueryParser({settings: queryParserSettings({queryParser: {...(config.queryParser ?? {}), ...(model ? {models: [model], backend: {...(config.queryParser?.backend ?? {}), model}} : {}), cacheEntries: 0}}), ompConfig: omp, ompModels: createOmpModels(omp)});
+  const queryParser = createQueryParser({settings: queryParserSettings({...config, queryParser: {...(config.queryParser ?? {}), ...(model ? {models: [model]} : {}), cacheEntries: 0}})});
   const lexicon = sessions.lexicon(sid);
   const lm = {id: 'coding_agent', last: null, parse: null, async formalize(text) {
     lm.parse = null;

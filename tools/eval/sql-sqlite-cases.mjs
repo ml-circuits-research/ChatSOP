@@ -47,7 +47,7 @@ function aggregateLarge() {
     '@payroll aggregate\n  over salary ?p ?d ?s\n  group ?d\n  sum ?s as ?t\n  yields dept_payroll ?d ?t\n',
     '@headcount aggregate\n  over salary ?p ?d ?s\n  group ?d\n  count as ?n\n  yields dept_size ?d ?n\n',
     '@best aggregate\n  over salary ?p ?d ?s\n  group ?d\n  max ?s as ?m\n  yields top_salary ?d ?m\n',
-    '@r_avg rule\n  when dept_payroll ?d ?t\n  when dept_size ?d ?n\n  when compute ?a ?t divided_by ?n\n  then avg_salary ?d ?a\n',
+    '@r_avg rule\n  when dept_payroll ?d ?t\n  when dept_size ?d ?n\n  when compute ?a ?t whole_divided_by ?n\n  then avg_salary ?d ?a\n',
     '@r_gap rule\n  when top_salary ?d ?m\n  when avg_salary ?d ?a\n  when compute ?g ?m minus ?a\n  then gap ?d ?g\n'].join('\n');
   const query = '@q query\n  where gap ?d ?g\n  select ?d ?g\n';
   const rows = Array.from({length: D}, (_, d) => ({d: `d${d}`, g: mx[d] - Math.trunc(sums[d] / n[d])}));

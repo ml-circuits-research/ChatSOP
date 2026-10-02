@@ -1,0 +1,11 @@
+{
+  "name": "ConceptNet 5.7 CC BY-SA edges (separate, ShareAlike)",
+  "description": "Separate ShareAlike layer, not loaded by any chat base memory and not imported by world-v1: class hierarchy (is_a), parts and typical places between the common-noun classes from the ConceptNet 5.7 edges whose own licence is CC BY-SA 4.0 (Wiktionary imports). ConceptNet 5 by Robyn Speer, Joshua Chin and Catherine Havasi; data from Wiktionary contributors. Licence CC BY-SA 4.0: attribution and ShareAlike pass to every adaptation; modified (relations mapped onto ChatSOP predicates, filtered). Whether it may enter a base memory is the owner question Q-DATA-8 (questions.md). Sources and licences in docs/specs/DS011-source-rights.md.",
+  "imports": [
+    "core-min",
+    "core-en",
+    "commonsense-v1"
+  ],
+  "chat": false,
+  "licence": "CC BY-SA 4.0"
+}

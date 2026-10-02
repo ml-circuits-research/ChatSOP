@@ -152,7 +152,7 @@ test('ingest API: the coding agent (stub) ingests and stores, report, procedure'
   fs.writeFileSync(good, `${VOCAB}@d1c1_f1 fact\n  holds works_in ann workshop\n  quote "Ann works in the Workshop."\n`);
   process.env.STUB_OMP_GOOD = good;
   t.after(() => { delete process.env.STUB_OMP_GOOD; });
-  const s = await productServer(t, {config: {omp: {bin: repoPath('tests/fixtures/omp/stub-omp.mjs')}}});
+  const s = await productServer(t, {config: {omp: {bin: repoPath('tests/fixtures/omp/stub-omp.mjs'), ingestAuthor: 'omp'}}});
   const created = await s.user('/v1/memories', 'POST', {name: 'tiny policies', id: 'tiny'});
   assert.equal(created.status, 201, JSON.stringify(created.body));
   const refused = await s.user('/v1/memories/tiny/ingest', 'POST', {documents: [{name: 'x.md', text: DOC, source: {rights: 'unverified'}}]});

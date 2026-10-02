@@ -715,7 +715,7 @@
   source "WordNet 3.0 part meronym"
 
 @csm_173 fact
-  holds part_of nail digit
+  holds part_of nail_05581693 digit
   source "WordNet 3.0 part meronym"
 
 @csm_174 fact
@@ -867,7 +867,7 @@
   source "WordNet 3.0 part meronym"
 
 @csm_211 fact
-  holds part_of structural_member structure_04341686
+  holds part_of structural_member structure
   source "WordNet 3.0 part meronym"
 
 @csm_212 fact

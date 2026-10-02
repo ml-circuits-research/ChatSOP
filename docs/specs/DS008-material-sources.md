@@ -1,6 +1,6 @@
 ---
 title: DS008-material-sources
-summary: Source material for base memories: rights per asset, supported formats, and ingestion through the coding agent with provenance.
+summary: Source material for base memories: rights per asset, supported formats, and ingestion by a model with provenance.
 ---
 
 ## Scope

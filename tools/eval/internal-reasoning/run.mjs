@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
  * eval-internal-reasoning-stepbystep-v1 (status/preregistrations/eval-internal-reasoning-stepbystep-v1.json): InternalReasoningStepByStep
- * against LocalLLMStepByStep method B (unchanged) and, when the z.ai quota allows, CodingAgent with zai/glm-5.3, on the rows of
+ * against LocalLLMStepByStep method B (unchanged) and the remote LLMDirect arm (a model behind the proxy), on the rows of
  * eval-stepbystep-protocol-v1 (tools/eval/stepbystep-protocol/run.mjs `protocolRows`: known forms, held-out forms, compositions, natural
  * questions) through the same harness (`runArm`, `prepare`, `rescore`). Arms:
  *   IR         InternalReasoningStepByStep, the planner decides each question (slot `reasoning`)
  *   IR-greedy  the same protocol, the askable question of lowest priority (ablation)
  *   B          LocalLLMStepByStep method B (slot `steps`)
- *   GLM        CodingAgent through omp with --glm-model (arm C of the harness)
+ *   GLM        LLMDirect circuit author on --glm-model, default openference/Qwen3.8 27b (arm C of the harness; the name GLM is kept for the record files)
  *   node tools/eval/internal-reasoning/run.mjs --arms IR,B --endpoint http://127.0.0.1:19621/v1 --out eval/reports/current/internal-reasoning/stage1 \
  *     [--pool measured|tuning] [--levels a,b,c,n] [--per 3] [--sample N --seed S] [--ids x,y] [--limit N]
  * One llama-server for both local arms (slots direct, steps, reasoning; tools/local-llm/serve.mjs).
@@ -71,7 +71,7 @@ export async function main(args = process.argv.slice(2)) {
     if (key && fs.existsSync(run) && JSON.parse(fs.readFileSync(run, 'utf8'))[key] !== identity[key] && !args.includes('--allow-changed')) throw new Error(`${arm}: the code changed since this run started; use a fresh --out`);
     if (!fs.existsSync(run)) fs.writeFileSync(run, JSON.stringify({...identity, arm}, null, 2) + '\n');
   }
-  const settings = {model: identity.model, endpoint, wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096)), subscriptionModel: opt(args, '--glm-model', 'zai/glm-5.3')};
+  const settings = {model: identity.model, endpoint, wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096)), subscriptionModel: opt(args, '--glm-model', 'openference/Qwen3.8 27b')};
   let world1 = null;
   const shared = () => {
     if (!world1) {

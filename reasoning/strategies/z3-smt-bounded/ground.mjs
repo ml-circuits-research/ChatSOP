@@ -18,7 +18,8 @@
  * instance); a value that Z3 computes outside the grounded domain simply becomes a new constant of the next stratum.
  */
 import {unify} from '../js-reference/join.mjs';
-import {groundArgs, termIn, compareValues, compute, argsKey, NotExpressibleError, ProgramError} from '../js-reference/values.mjs';
+import {groundArgs, termIn, compareValues, argsKey, NotExpressibleError, ProgramError} from '../js-reference/values.mjs';
+import {exactCompute as compute, realOf, smtReal} from '../solver-common/exact-rational.mjs';
 import {runZ3, valuesOf, intOf, smtInt, SolverStop} from './z3.mjs';
 
 /** min or max of constants as a chain of `let` bindings (linear size: a nested ite that repeats its operand would be exponential). */
@@ -162,6 +163,14 @@ export class Grounder {
     return [...r.results[1]].map(pair => intOf(pair[1]));
   }
 
+  /** Terms of the Real sort (decimals): the exact rational Z3 answers, rendered as a decimal number. */
+  evalReals(terms) {
+    if (!terms.length) return [];
+    const r = runZ3(`(assert true)\n(check-sat)\n(get-value (${terms.join(" ")}))\n`, {timeoutMs: this.timeoutMs});
+    if (r.interrupted) throw new SolverStop('wall');
+    return [...r.results[1]].map(pair => realOf(pair[1]).toNumber());
+  }
+
   aggregate(agg) {
     if (!this.free) this.stage();
     const rows = new Map();
@@ -182,16 +191,24 @@ export class Grounder {
     const pending = [];
     for (const {gv, rows: members} of groups.values()) {
       const values = agg.field ? members.map(r => r[agg.field]) : [];
-      const nums = values.filter(Number.isSafeInteger);
+      const nums = values.filter(Number.isFinite);
+      const real = nums.some(x => !Number.isInteger(x));
       if (agg.fn !== 'count' && nums.length !== values.length) this.notes.add('aggregate_non_integer_ignored');
       if (agg.fn !== 'count' && !nums.length) continue;
       if (!['count', 'sum', 'min', 'max'].includes(agg.fn)) throw new NotExpressibleError(['collect'], 'collect aggregates are not lowered');
+      // decimals use the Real sort (exact rationals); whole numbers stay in Int
+      const lit = real ? smtReal : smtInt;
       const term = agg.fn === 'count' ? `(+ ${members.map(() => '1').join(' ')})`
-        : agg.fn === 'sum' ? `(+ 0 ${nums.map(smtInt).join(' ')})`
-          : extremum(agg.fn, nums.map(smtInt));
-      pending.push({gv, term});
+        : agg.fn === 'sum' ? `(+ ${real ? '0.0' : '0'} ${nums.map(lit).join(' ')})`
+          : extremum(agg.fn, nums.map(lit));
+      pending.push({gv, term, real: real && agg.fn !== 'count'});
     }
-    const sums = this.evalTerms(pending.map(p => p.term));
+    const sums = pending.map(() => null);
+    for (const kind of [false, true]) {
+      const idx = pending.map((p, i) => i).filter(i => pending[i].real === kind);
+      const got = kind ? this.evalReals(idx.map(i => pending[i].term)) : this.evalTerms(idx.map(i => pending[i].term));
+      idx.forEach((i, j) => { sums[i] = got[j]; });
+    }
     pending.forEach((p, i) => {
       const env = {...Object.fromEntries(agg.group.map((v, j) => [v, p.gv[j]])), [agg.out]: sums[i]};
       const args = groundArgs(agg.yields.args, env);

@@ -77,7 +77,7 @@ async function memoriesView(){
  show(h('h2',{},'Base memories'),...list.map(m=>h('section',{class:'card'},
   h('h3',{},link(m.name,{memory:m.id,view:'memory'}),' ',h('code',{},m.id),m.seed?pill('seed: config/knowledge/'+m.id):null),
   h('p',{class:'muted'},m.description||''),
-  h('p',{},'Layers: ',...m.layers.map(l=>pill(l)),' · ',fmt(m.circuits),' circuits · ',fmt(m.facts),' facts stored',m.ingestions.length?' · '+m.ingestions.length+' ingestion(s)':''),
+  h('p',{},'Layers: ',...m.layers.map(l=>pill(l)),' · ',h('span',{title:'SOP wires by type: '+Object.entries(m.wires_by_type||{}).map(([t,n])=>fmt(n)+' '+t).join(', ')},fmt(m.knowledge_files??m.circuits),' knowledge files · ',fmt(m.sop_wires??0),' SOP wires'),' · ',h('span',{class:'ev',title:'index for fast lookup'},fmt(m.facts),' facts in the store'),m.ingestions.length?' · '+m.ingestions.length+' ingestion(s)':''),
   provenanceTable(m.provenance))));
 }
 function provenanceTable(rows){

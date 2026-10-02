@@ -588,7 +588,6 @@
 
 @fp_askable_ask_unused_name rule
   when fp_open_slot unused_name ?n
-  when fp_assembly_failed
   when fp_budget_left
   then fp_askable ask_unused_name ?n
 

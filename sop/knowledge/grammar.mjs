@@ -8,11 +8,13 @@
  * and `sop/parser.mjs`; the words both surfaces share are imported from there, never respelled.
  */
 import {NUMERIC_FIELDS, NUMERIC_FEATURE, NUMERIC_ARG_TYPE} from './numeric-action.mjs';
-import {COMPARATOR_WORDS, ARITHMETIC_WORDS, ORDER_WORDS, ROLE_NAMES, COPULA_READINGS, LINK_WORDS, QUERY_MODES as MODEL_QUERY_MODES, REASONING_QUERY_MODES} from '../enums.mjs';
+import {COMPARATOR_WORDS, ARITHMETIC_WORDS, COMPUTE_WORDS, INTEGER_COMPUTE_WORDS, ORDER_WORDS, ROLE_NAMES, COPULA_READINGS, LINK_WORDS, QUERY_MODES as MODEL_QUERY_MODES, REASONING_QUERY_MODES} from '../enums.mjs';
 
 /** Words of the condition leaves; the model language and the knowledge language share these tables (sop/enums.mjs). */
 export const COMPARATORS = Object.keys(COMPARATOR_WORDS);
 export const ARITHMETIC = Object.keys(ARITHMETIC_WORDS);
+export const COMPUTE = [...COMPUTE_WORDS];
+export const INTEGER_COMPUTE = [...INTEGER_COMPUTE_WORDS];
 export {ORDER_WORDS, ROLE_NAMES, COPULA_READINGS};
 /** Every query mode of the knowledge grammar: the five of the model language and the five reasoning modes of DS004. */
 export const QUERY_MODES = [...MODEL_QUERY_MODES, ...REASONING_QUERY_MODES];
@@ -25,13 +27,17 @@ export const LANGUAGE_CODE = /^[a-z]{2,3}$/;
 export const ROOT_CLASS = 'entity';
 export const CLASS_KIND = 'class';
 export const RESERVED_PREFIX = 'x_';
-export const FEATURES = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'every_grouped', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'constraint', 'optimize', 'plan', 'blocked_info', 'method', 'htn_choice', 'on_failure', 'norms_hard', 'norms_soft', 'temporal_norms', 'procedures', 'procedure_render', 'amendment', 'check_plan', 'abduce', 'abduce_waive', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars', 'binding_advisory', 'norm_conflict', 'conform_asof', 'conform_deviation', 'code_sandbox', NUMERIC_FEATURE];
+export const FEATURES = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'every_grouped', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'constraint', 'optimize', 'plan', 'blocked_info', 'method', 'htn_choice', 'on_failure', 'norms_hard', 'norms_soft', 'temporal_norms', 'procedures', 'procedure_render', 'amendment', 'check_plan', 'abduce', 'abduce_waive', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars', 'binding_advisory', 'norm_conflict', 'conform_asof', 'conform_deviation', 'code_sandbox', 'exact_arithmetic', 'compute_in_recursion', NUMERIC_FEATURE];
 export const STEP_BLOCKS = ['choose', 'any_order', 'if', 'until'];
 export const LINK_KEYWORDS = [...LINK_WORDS];
 export const HOST_WRITTEN = ['approval', 'approved_by', 'approved_at'];
 export const BUDGET_KEYS = ['maxNodes', 'maxDepth', 'maxHypotheses', 'maxCandidates', 'maxPlans', 'maxRounds', 'maxFacts', 'maxJoins', 'maxAssignments', 'maxFanout', 'timeoutMs'];
 export const TEST_KINDS = ['example', 'property', 'generated', 'sealed'];
 export const CODE_LANGUAGES = ['javascript'];
+/** Parts of a `reply` (DS023 "Conversation layer"), in the order they are joined: a prefix (a user instruction), the opening, the body, an aside (a drive), a follow-up question, the closing and a suffix; and `line`, a sentence of the answer renderer (sop/answer-text.mjs). */
+export const REPLY_PARTS = ['prefix', 'opening', 'body', 'aside', 'follow_up', 'closing', 'suffix', 'line'];
+/** A `{{slot}}` placeholder of a reply text. */
+export const REPLY_SLOT = /\{\{([a-z][a-z0-9_]*)\}\}/g;
 export const CODE_PRODUCERS = ['renderer', 'llm-agent', 'user', 'dream'];
 export const ARG_TYPES = ['entity', 'integer', 'text', 'time', 'value', NUMERIC_ARG_TYPE];
 const APPROVALS = ['proposed', 'approved', 'contested', 'rejected', 'superseded', 'retired'];
@@ -79,6 +85,11 @@ export const GRAMMAR = {
     status: 'new', side: 'knowledge',
     doc: 'A pattern that must never hold in a state; each match derives violation ID WITNESS (arity 2), never an explosion.',
     fields: {never: req(many('cond')), witness: req(one('vars')), message: one('text'), severity: one('enum', {values: ['error', 'warning']}), source: one('text'), ...GOV}
+  },
+  reply: {
+    status: 'new (conversation layer)', side: 'knowledge',
+    doc: 'One phrasing of the assistant for a situation of a turn (DS023 "Conversation layer"): the situation symbol it serves, the part of the reply (prefix, opening, body, aside, follow_up, closing, suffix, or a line of the answer renderer), the language and the text with {{slot}} placeholders the renderer fills from the result packet. Several reply wires of one situation are variants. Data for the renderer, never evidence: the reasoning engines ignore it; the conversation layer reads it as facts reply_for, reply_part and reply_language.',
+    fields: {situation: req(one('sym')), part: one('enum', {values: REPLY_PARTS}), language: one('langcode'), text: req(one('replytext')), source: one('text')}
   },
   aggregate: {
     status: 'new', side: 'knowledge',

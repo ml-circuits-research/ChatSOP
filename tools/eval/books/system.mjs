@@ -12,11 +12,10 @@ import {ChatData} from '../../../lib/chat-data/index.mjs';
 import {BaseMemories, BASE_NAME} from '../../../lib/chat-data/memories.mjs';
 import {Sessions} from '../../../lib/chat-data/sessions.mjs';
 import {TheoryCache} from '../../../reasoning/slice/index.mjs';
-import {createQueryParser, queryParserSettings} from '../../../server/query-parser.mjs';
+import {createQueryParser, queryParserSettings, remoteDirectEntry} from '../../../server/query-parser.mjs';
 import {DEFAULT_LOCAL} from '../../../lib/formalize/strategies.mjs';
 import fs from 'node:fs';
 import {localServer, localChat} from '../../../lib/local-llm/index.mjs';
-import {ompSettings, createOmpModels} from '../../../lib/omp/index.mjs';
 
 export const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 export const MODEL_GGUF = path.join(os.homedir(), 'models/local-judge/Qwen3-4B-Instruct-2507-Q4_K_M.gguf');
@@ -37,13 +36,13 @@ export async function openChatTurn({base = null, endpoint = null, wallMs = 300_0
   const store = new SessionStore({repo: sessions.repository(id), lexicon, config: {...config, policy: {...(config.policy ?? {}), reinforce: false}}, root: path.join(sessions.dir(id), 'agent'),
     circuitRules: () => theories.get([...sessions.baseCircuits(id), ...sessions.circuits(id)]).chatRules()});
   const local = {...LOCAL, ...(endpoint ? {endpoint} : {})};
-  const coding = strategy === 'CodingAgent';
   const settings = queryParserSettings({queryParser: {...(config.queryParser ?? {}), strategy, local, cacheEntries: 0, timeoutSeconds: wallMs / 1000,
-    ...(model ? {models: [model], backend: {...(config.queryParser?.backend ?? {}), model}} : {})}});
-  const omp = coding ? ompSettings(config) : null;
-  const parser = createQueryParser({settings, ...(coding ? {ompConfig: omp, ompModels: createOmpModels(omp)} : {})});
-  const server = coding ? null : localServer(local);
-  if (!coding && !endpoint && await server.healthy()) throw new Error(`port ${local.port} already answers (another llama-server); use --endpoint to reuse it deliberately`);
+    ...(model ? {models: [model]} : {})}});
+  const parser = createQueryParser({settings});
+  // LLMDirect calls the chain of queryParser.models through the proxy and needs no local llama-server.
+  const remote = settings.strategy === 'LLMDirect' && Boolean(remoteDirectEntry(settings));
+  const server = remote ? null : localServer(local);
+  if (!remote && !endpoint && await server.healthy()) throw new Error(`port ${local.port} already answers (another llama-server); use --endpoint to reuse it deliberately`);
   let n = 0;
   return {
     baseId, sessionId: id, lexicon, local, server, memoryDigest: lexicon.circuitsSha256 ?? null,
@@ -56,16 +55,20 @@ export async function openChatTurn({base = null, endpoint = null, wallMs = 300_0
         parse = done.parse; return done.sop;
       }};
       const started = Date.now();
+      // Problems are independent: a session definition one problem adds to the session layer is removed after it (no carry-over).
+      const circuitsDir = path.join(sessions.dir(id), 'circuits');
+      const before = new Set(fs.existsSync(circuitsDir) ? fs.readdirSync(circuitsDir) : []);
       try {
         const res = await entry.agent.turn(message, {formalizer});
         return {ok: true, ms: Date.now() - started, sop: res.sop, executionSop: res.executionSop, text: res.text, packet: res.packet, trace: res.trace, parse,
           userStatements: res.userStatements, unclear: res.unclear, steps};
       } catch (e) {
-        return {ok: false, ms: Date.now() - started, error: {code: e.code ?? e.name, message: String(e.message).slice(0, 400)}, parse: e.parse ?? parse, sop: e.modelSop ?? null};
+        return {ok: false, ms: Date.now() - started, error: {code: e.code ?? e.name, message: String(e.message).slice(0, 400), ...(e.attempt ? {problems: e.attempt.problems} : {})}, parse: e.parse ?? parse, sop: e.modelSop ?? e.attempt?.sop ?? null};
       } finally {
         // Each problem is its own conversation: release its repository session (a clone of the base memory is large) and its state.
         store.agents.delete(entry.key);
         try { store.repo.discard(entry.agent.session); } catch { /* already gone */ }
+        if (fs.existsSync(circuitsDir)) for (const f of fs.readdirSync(circuitsDir)) if (!before.has(f)) fs.rmSync(path.join(circuitsDir, f), {recursive: true, force: true});
       }
     },
     /** The baseline: the same model answers directly (short working, then a final line), on the direct slot of the same server. */

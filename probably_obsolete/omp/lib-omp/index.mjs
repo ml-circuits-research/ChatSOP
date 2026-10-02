@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {OmpModels} from './models.mjs';
 import {ensureAgentDir, PROXY_PROVIDER} from './agent-dir.mjs';
-import {providerSettings} from '../llm-providers.mjs';
+import {providerSettings} from '../../../lib/llm-providers.mjs';
 
 export {OmpModels, costClassOf} from './models.mjs';
 export {runOmp, ompArguments, readSessionUsage, ompEnvironment} from './run.mjs';

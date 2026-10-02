@@ -13,6 +13,7 @@
 import {atomKey, variable} from '../../lib/types.mjs';
 import {conditionAtoms} from '../../lib/conditions.mjs';
 import {stable, digest} from '../../lib/util.mjs';
+import {sampleAnswers} from '../sample.mjs';
 import {intersect, contains, formatTime} from '../../lib/time.mjs';
 import {ask} from '../strategies/js-reference/index.mjs';
 import {quantifiedStatus, numericValue} from '../strategies/js-reference/forms.mjs';
@@ -339,8 +340,10 @@ export function evaluate(q, facts, {rules = [], complete = true, limits = {}} = 
     const prior = unique.get(key);
     if (!prior || prior.conflicted && !conflicted) unique.set(key, {binding, valid: r.valid, evidence: r.evidence, conflicted});
   }
+  // `order random` (reasoning/sample.mjs): the same answer set in a seeded random order, then the limit.
+  const sampled = q.sample ? sampleAnswers([...unique.values()], {limit: q.limit, seed: q.sample.seed}) : null;
   const all = [...unique.values()], truncated = all.length > q.limit;
-  const answers = all.slice(0, q.limit);
+  const answers = sampled ? sampled.items : all.slice(0, q.limit);
   const ids = answers.flatMap(a => a.evidence);
   if (comparedAway) ids.push(...acc.filteredEvidence, ...opposing.flatMap(r => r.evidence));
   else ids.push(...opposing.flatMap(r => r.evidence));
@@ -350,7 +353,7 @@ export function evaluate(q, facts, {rules = [], complete = true, limits = {}} = 
     steps: usedFacts.map(f => ({atom: f.atom, valid: f.valid, ...(f.kind === 'derived' ? {rule: f.rule, from: f.from} : {source: f.source ?? f.kind})}))} : undefined;
   const count = q.mode === 'count' ? new Set(rows.map(r => stable(q.select.length ? Object.fromEntries(q.select.map(k => [k, r.binding[k]])) : r.binding))).size : undefined;
   return {status, kind: q.mode, query: q, conflictedAnswers: answers.filter(r => r.conflicted).map(({conflicted, evidence, ...r}) => r), answers: answers.map(({conflicted, evidence, ...r}) => r),
-    ...(explanation ? {explanation} : {}), count, proof: usedFacts, depth, complete: complete && !truncated, truncated,
+    ...(explanation ? {explanation} : {}), ...(sampled ? {sample: sampled.sample} : {}), count, proof: usedFacts, depth, complete: complete && !truncated, truncated,
     assurance: 'Derivation from admitted facts; support is not a calibrated probability of truth.', diagnostics: {rounds: acc.rounds, derived: acc.derived}};
 }
 

@@ -40,8 +40,8 @@ t('aggregates have set semantics over ALL variables of the over group', () => {
 
 t('compute: division truncates toward zero and a zero divisor drops the instance (the comparison is false)', () => {
   const k = '@f1 fact\n  holds num a -7\n@f2 fact\n  holds num b 7\n@f3 fact\n  holds num c 0\n'
-    + '@r rule\n  when num ?x ?v\n  when compute ?h ?v divided_by 2\n  then half ?x ?h\n'
-    + '@z rule\n  when num ?x ?v\n  when compute ?h 10 divided_by ?v\n  then tenth ?x ?h\n';
+    + '@r rule\n  when num ?x ?v\n  when compute ?h ?v whole_divided_by 2\n  then half ?x ?h\n'
+    + '@z rule\n  when num ?x ?v\n  when compute ?h 10 whole_divided_by ?v\n  then tenth ?x ?h\n';
   assert.deepEqual(rowsOf(run(k, '@q query\n  where half ?x ?h\n  select ?x ?h\n')), ['{"x":"a","h":-3}', '{"x":"b","h":3}', '{"x":"c","h":0}']);
   assert.deepEqual(rowsOf(run(k, '@q query\n  where tenth ?x ?h\n  select ?x ?h\n')), ['{"x":"a","h":-1}', '{"x":"b","h":1}']);
 });

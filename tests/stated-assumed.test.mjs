@@ -11,7 +11,8 @@ import {Runtime} from '../sop/runtime.mjs';
 import {Lexicon} from '../sop/lexicon.mjs';
 import {GRAMMAR} from '../sop/knowledge/grammar.mjs';
 import {validateProgram} from '../sop/knowledge/index.mjs';
-import {UNCLEAR_KINDS, unclearReply} from '../sop/unclear.mjs';
+import {UNCLEAR_KINDS} from '../sop/unclear.mjs';
+import {assertReply} from './helpers.mjs';
 import {context, lex, schema} from './helpers.mjs';
 
 const NOW = Date.parse('2026-09-26T12:00:00Z');
@@ -24,8 +25,8 @@ const question = '@q query\n' + match('"Maria"', '"Alpha Lab"');
 const compile = (source, options = {}) => compileDeclarative(source, {lexicon: lex, schema, now: NOW, ...options});
 const runtime = (policy = {}, c = null) => new Runtime({lexicon: lex, schema, now: NOW, policy, ...(c ? {repo: c.repo, session: c.session} : {})});
 
-test('model types: stated/assumed/unclear/query/constraint/unparsed/pragmatic only', () => {
-  assert.deepEqual([...MODEL_TYPES], ['stated', 'assumed', 'unclear', 'query', 'constraint', 'unparsed', 'pragmatic']);
+test('model types: stated/assumed/unclear/query/constraint/unparsed/pragmatic/instruction only', () => {
+  assert.deepEqual([...MODEL_TYPES], ['stated', 'assumed', 'unclear', 'query', 'constraint', 'unparsed', 'pragmatic', 'instruction']);
   for (const source of ['@x jsEval\n  expr 1 + 2', '@x value\n  data 1 + 2', '@x clarify\n  text "Which?"', '@x fact\n  holds works_at maria lab_alpha\n  valid timeless'])
     assert.throws(() => compile(source), /belongs to symbolic execution/, source);
   // Queries state conditions as string match blocks, never atoms.
@@ -250,12 +251,12 @@ test('unclear: the kinds a context-free model can recognise, replies from one ta
   for (const kind of ['gibberish', 'no_request']) {
     const out = await runtime().run(`@u unclear\n  kind ${kind}`, {origin: 'model'});
     assert.equal(out.result.packet.status, 'unclear');
-    assert.equal(out.result.text, UNCLEAR_KINDS[kind].en);
+    await assertReply(out.result.text, kind);
     assert.equal(out.executionSop, '');
   }
-  assert.equal(unclearReply('gibberish'), UNCLEAR_KINDS.gibberish.en);
+  assert.ok(UNCLEAR_KINDS.gibberish);
   // The reply is English whatever language was selected: another language is the translation at the output edge.
-  assert.equal((await runtime().run('@u unclear\n  kind gibberish', {origin: 'model', language: 'ro', languageSource: 'request'})).result.text, UNCLEAR_KINDS.gibberish.en);
+  assert.equal((await runtime().run('@u unclear\n  kind gibberish', {origin: 'model', language: 'ro', languageSource: 'request'})).result.text, (await runtime().run('@u unclear\n  kind gibberish', {origin: 'model'})).result.text);
   assert.equal((await runtime().run('@u unclear\n  kind gibberish', {origin: 'model', language: 'ro', languageSource: 'request'})).result.language, 'en');
   assert.equal((await runtime().run('@u unclear\n  kind gibberish\n  language en', {origin: 'model'})).result.language, 'en');
   assert.throws(() => parse('@u unclear\n  kind gibberish\n  language ro'), /unclear language must be one of en/);

@@ -296,3 +296,209 @@ test('rolling windows, queue starts and value are rebuilt from the logs after a 
     } finally { await b.close(); }
   } finally { rmSync(dataDir, { recursive: true, force: true }); }
 });
+
+// ---- fallback to a second upstream ----
+async function setupFallback({ primary, fallbackStub = (req, res, b) => json(res, 200, { model: JSON.parse(b).model, usage: { prompt_tokens: 3, completion_tokens: 2, cost: 0.0001 } }), plan = null, limits = { maxConcurrent: 2, maxPerSecond: 50 }, maxWaitMs = 500, retry = { max: 1, baseMs: 10, maxWaitMs: 2000, max5xx: 1 } } = {}) {
+  const seenFb = [];
+  const mk = (stub, seen) => http.createServer(async (req, res) => {
+    const b = await body(req);
+    if (req.url === '/v1/models') return json(res, 200, MODELS);
+    seen?.push({ url: req.url, auth: req.headers.authorization, body: b });
+    stub(req, res, b);
+  });
+  const a = mk(primary), f = mk(fallbackStub, seenFb);
+  const [pa, pf] = [await listen(a), await listen(f)];
+  const dataDir = mkdtempSync(join(tmpdir(), 'llmapi-fb-'));
+  const config = {
+    defaultUpstream: 'main',
+    upstreams: {
+      main: { plan, baseUrl: `http://127.0.0.1:${pa}`, keyVar: 'MAIN_KEY', limits, retry, formats: { openai: '/v1/chat/completions', anthropic: '/v1/messages' } },
+      alt: { baseUrl: `http://127.0.0.1:${pf}`, keyVar: 'ALT_KEY', limits: { maxConcurrent: 2 }, retry: { max: 0, baseMs: 10, maxWaitMs: 100 }, formats: { openai: '/v1/chat/completions' } },
+    },
+    fallback: { upstream: 'alt', models: { m1: 'alt-model' }, maxWaitMs },
+  };
+  const p = createProxy({ config, env: { MAIN_KEY: KEY, ALT_KEY: 'alt-key-987654' }, dataDir });
+  const port = await listen(p.server);
+  const base = `http://127.0.0.1:${port}`;
+  const close = async () => { for (const s of [p.server, a, f]) { s.close(); s.closeAllConnections?.(); } rmSync(dataDir, { recursive: true, force: true }); };
+  return { base, seenFb, dataDir, close, p };
+}
+const recsOf = (dir) => logText(dir).trim().split('\n').map((l) => JSON.parse(l));
+
+test('fallback: 5xx after retries goes to the fallback upstream, marked in header, log and stats', async () => {
+  let n = 0;
+  const t = await setupFallback({ primary: (req, res) => { n++; json(res, 503, { error: 'down' }); } });
+  try {
+    const r = await post(t.base);
+    assert.equal(r.status, 200);
+    assert.equal(r.headers.get('x-llmapiprovider-fallback'), 'alt/alt-model');
+    assert.equal(r.headers.get('x-llmapiprovider-fallback-reason'), '5xx');
+    assert.equal((await r.json()).model, 'alt-model');
+    assert.equal(n, 2, 'one try plus max5xx=1 retry');
+    assert.equal(t.seenFb[0].auth, 'Bearer alt-key-987654');
+    const recs = recsOf(t.dataDir);
+    assert.deepEqual(recs.map((x) => [x.upstream, x.status]), [['main', 503], ['main', 503], ['alt', 200]]);
+    assert.equal(recs[1].fallback_to, 'alt/alt-model');
+    assert.equal(recs[2].fallback_from, 'main'); assert.equal(recs[2].fallback_model, 'm1'); assert.equal(recs[2].fallback_kind, '5xx');
+    assert.equal(recs[2].usd, 0.0001);
+    const s = await (await fetch(t.base + '/stats')).json();
+    assert.equal(s.fallback.total, 1); assert.deepEqual(s.fallback.by_kind, { '5xx': 1 });
+    assert.equal(s.windows.minute.fallbacks, 1);
+    assert.equal((await (await fetch(t.base + '/health')).json()).fallback.upstream, 'alt');
+  } finally { await t.close(); }
+});
+
+test('fallback: unreachable primary, and 429 with a retry-after beyond maxWaitMs, fall back at once', async () => {
+  const t = await setupFallback({ primary: (req, res) => json(res, 429, { error: 'quota' }, { 'retry-after': '3600' }) });
+  try {
+    const t0 = Date.now();
+    const r = await post(t.base);
+    assert.equal(r.status, 200); assert.equal(r.headers.get('x-llmapiprovider-fallback-reason'), '429');
+    assert.ok(Date.now() - t0 < 1500);
+    t.p.upstreams.main.baseUrl = 'http://127.0.0.1:1';
+    t.p.limiters.main.pausedUntil = 0;
+    const u = await post(t.base);
+    assert.equal(u.status, 200); assert.equal(u.headers.get('x-llmapiprovider-fallback-reason'), 'unreachable');
+  } finally { await t.close(); }
+});
+
+test('fallback: a plan-gate wait above maxWaitMs falls back before calling the primary', async () => {
+  const plan = { limits: [{ name: 'tiny', unit: 'calls', window: '1h', max: 1 }] };
+  let n = 0;
+  const t = await setupFallback({ plan, primary: (req, res) => { n++; json(res, 200, { usage: {} }); } });
+  try {
+    assert.equal((await post(t.base)).headers.get('x-llmapiprovider-fallback'), null);
+    const r = await post(t.base);
+    assert.equal(r.status, 200); assert.equal(r.headers.get('x-llmapiprovider-fallback-reason'), 'wait');
+    assert.equal(n, 1);
+    assert.ok(recsOf(t.dataDir)[1].fallback_reason.includes('tiny'));
+  } finally { await t.close(); }
+});
+
+test('fallback: opt-out header, unmapped models and the anthropic format stay on the primary', async () => {
+  const t = await setupFallback({ primary: (req, res) => json(res, 503, { error: 'down' }) });
+  try {
+    const opt = await fetch(t.base + '/v1/chat/completions', { method: 'POST', headers: { 'content-type': 'application/json', 'x-llmapiprovider-no-fallback': '1' }, body: JSON.stringify({ model: 'm1', messages: [] }) });
+    assert.equal(opt.status, 503); assert.equal(opt.headers.get('x-llmapiprovider-fallback'), null);
+    assert.equal((await post(t.base, 'other')).status, 503);
+    const an = await fetch(t.base + '/v1/messages', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ model: 'm1', messages: [] }) });
+    assert.equal(an.status, 503);
+    assert.equal(t.seenFb.length, 0);
+    assert.equal(recsOf(t.dataDir).filter((r) => r.fallback_from).length, 0);
+  } finally { await t.close(); }
+});
+
+test('fallback: a failing fallback upstream returns its own error, never loops', async () => {
+  const t = await setupFallback({ primary: (req, res) => json(res, 500, { error: 'a' }), fallbackStub: (req, res) => json(res, 502, { error: 'b' }) });
+  try {
+    const r = await post(t.base);
+    assert.equal(r.status, 502); assert.equal(r.headers.get('x-llmapiprovider-fallback'), 'alt/alt-model');
+    assert.equal(t.seenFb.length, 1);
+  } finally { await t.close(); }
+});
+
+async function tierSetup({ primary, secondary, localStart = null, audit = null }) {
+  const mk = async (fn) => { const s = http.createServer(async (req, res) => { const b = await body(req); if (req.url === '/v1/models') return json(res, 200, MODELS); fn(req, res, b); }); return { s, port: await listen(s) }; };
+  const a = await mk(primary), b = await mk(secondary);
+  const dataDir = mkdtempSync(join(tmpdir(), 'llmapi-'));
+  const upA = { baseUrl: `http://127.0.0.1:${a.port}`, keyVar: 'K', limits: { maxConcurrent: 2, maxPerSecond: 50 }, retry: { max: 0, max5xx: 0, baseMs: 10, maxWaitMs: 100 }, formats: { openai: '/v1/chat/completions' } };
+  const config = { defaultUpstream: 'a', modelsCacheSeconds: 600,
+    upstreams: { a: upA, b: { ...upA, baseUrl: `http://127.0.0.1:${b.port}` }, ...(localStart ? { loc: { ...upA, baseUrl: 'http://127.0.0.1:1', noKey: true, keyVar: undefined, start: localStart } } : {}) },
+    tiers: { tiny: localStart ? [{ upstream: 'loc', model: 'L' }, { upstream: 'b', model: 'B' }] : [{ upstream: 'b', model: 'B' }], small: [{ upstream: 'a', model: 'A' }, { upstream: 'b', model: 'B' }], good: [{ upstream: 'b', model: 'G' }] },
+    audit };
+  const p = createProxy({ config, env: { K: KEY }, dataDir, auditDir: join(dataDir, 'aud'), starterOptions: { gpuPids: () => [4242] } });
+  const port = await listen(p.server);
+  const close = () => { p.server.close(); a.s.close(); b.s.close(); p.server.closeAllConnections?.(); a.s.closeAllConnections?.(); b.s.closeAllConnections?.(); rmSync(dataDir, { recursive: true, force: true }); };
+  return { base: `http://127.0.0.1:${port}`, dataDir, close };
+}
+const ask = (base, model, h = {}) => fetch(base + '/v1/chat/completions', { method: 'POST', headers: { 'content-type': 'application/json', ...h }, body: JSON.stringify({ model, messages: [{ role: 'user', content: 'q' }] }) });
+const echoModel = (req, res, b) => json(res, 200, { choices: [{ message: { content: 'from ' + JSON.parse(b).model } }], usage: { prompt_tokens: 1, completion_tokens: 1 } });
+
+test('tiers: a tier resolves to its first upstream, falls back down its chain, unknown tier is an error', async () => {
+  const t = await tierSetup({ primary: (req, res) => json(res, 503, { error: 'down' }), secondary: echoModel });
+  try {
+    let r = await ask(t.base, 'small');
+    assert.equal(r.status, 200);
+    assert.equal((await r.json()).choices[0].message.content, 'from B');
+    assert.equal(r.headers.get('x-llmapiprovider-tier'), 'small');
+    assert.equal(r.headers.get('x-llmapiprovider-model'), 'b/B');
+    r = await ask(t.base, 'good');
+    assert.equal((await r.json()).choices[0].message.content, 'from G');
+    r = await ask(t.base, 'best');
+    assert.equal(r.status, 400);
+    assert.match((await r.json()).error.message, /tier "best" is not configured/);
+    const models = await (await fetch(t.base + '/v1/models')).json();
+    assert.ok(models.data.some((m) => m.id === 'small' && m.x_tier.serves === 'a/A'));
+    const recs = recsOf(t.dataDir);
+    assert.ok(recs.some((x) => x.tier === 'small' && x.upstream === 'b' && x.fallback_from === 'a'));
+    const st = await (await fetch(t.base + '/stats')).json();
+    assert.equal(st.last24h.by_tier.small.fallbacks, 1);
+  } finally { t.close(); }
+});
+
+test('tiers: a local upstream that may not start (GPU busy) falls back without calling it', async () => {
+  const t = await tierSetup({ primary: echoModel, secondary: echoModel, localStart: { bin: '/bin/true', gguf: '/etc/hostname', requireFreeGpu: true } });
+  try {
+    const r = await ask(t.base, 'tiny');
+    assert.equal(r.status, 200);
+    assert.equal((await r.json()).choices[0].message.content, 'from B');
+    assert.equal(r.headers.get('x-llmapiprovider-fallback-reason'), 'unavailable');
+    const st = await (await fetch(t.base + '/stats')).json();
+    assert.match(st.local.loc.last_refusal.reason, /GPU busy/);
+  } finally { t.close(); }
+});
+
+test('audit: request/response pairs of audited tiers are stored with purpose and run tags; others are not', async () => {
+  const t = await tierSetup({ primary: echoModel, secondary: echoModel, audit: { enabled: true, tiers: ['small'] } });
+  try {
+    await (await ask(t.base, 'small', { 'x-llmapiprovider-purpose': 'job:test', 'x-llmapiprovider-run': 'r1' })).json();
+    await (await ask(t.base, 'good')).json();
+    const files = readdirSync(join(t.dataDir, 'aud'));
+    assert.equal(files.length, 1);
+    const lines = readFileSync(join(t.dataDir, 'aud', files[0]), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+    assert.equal(lines.length, 1);
+    assert.equal(lines[0].purpose, 'job:test'); assert.equal(lines[0].run, 'r1'); assert.equal(lines[0].tier, 'small');
+    assert.equal(lines[0].request.messages[0].content, 'q'); assert.equal(lines[0].response, 'from A');
+    const st = await (await fetch(t.base + '/stats')).json();
+    assert.equal(st.audit.recorded, 1); assert.equal(st.last24h.by_purpose['job:test'].calls, 1);
+  } finally { t.close(); }
+});
+
+test('jobs: registered runs are refused at their budget and after finishing; untagged requests have a daily allowance; /stats per job', async () => {
+  const t = await setup({ stub: (req, res) => json(res, 200, { choices: [{ message: { content: 'ok' } }], usage: { prompt_tokens: 1, completion_tokens: 1, cost: 0.01 } }) });
+  t.p.guard.policy.untaggedDailyMax = 2;
+  const ask = (headers = {}) => fetch(t.base + '/v1/chat/completions', { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify({ model: 'm1', messages: [{ role: 'user', content: 'hi' }] }) });
+  const post = (path, b) => fetch(t.base + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) });
+  try {
+    assert.equal((await post('/jobs/register', { job: 'j1', run: 'r1', budget: { usd: 0.015 } })).status, 200);
+    assert.equal((await post('/jobs/register', { job: 'j1', run: 'r1', budget: { usd: 1 } })).status, 400, 'a run id is registered once');
+    assert.equal((await post('/jobs/register', { job: 'j1', run: 'r2' })).status, 400, 'a run needs a budget');
+    const tags = { 'x-llmapiprovider-purpose': 'job:j1', 'x-llmapiprovider-run': 'r1' };
+    assert.equal((await ask(tags)).status, 200);
+    assert.equal((await ask(tags)).status, 200);
+    const over = await ask(tags);
+    assert.equal(over.status, 402);
+    assert.equal((await over.json()).error.type, 'budget_exceeded');
+    // untagged: two pass, the third is refused; allowed purposes are not counted
+    assert.equal((await ask()).status, 200);
+    assert.equal((await ask({ 'x-llmapiprovider-purpose': 'something-else' })).status, 200);
+    const refused = await ask();
+    assert.equal(refused.status, 403);
+    assert.equal((await refused.json()).error.type, 'untagged_limit');
+    assert.equal((await ask({ 'x-llmapiprovider-purpose': 'chat' })).status, 200);
+    assert.equal((await post('/jobs/register', { job: 'j2', run: 'r3', budget: { calls: 10 } })).status, 200);
+    assert.equal((await post('/jobs/finish', { run: 'r3', status: 'finished' })).status, 200);
+    const late = await ask({ 'x-llmapiprovider-purpose': 'job:j2', 'x-llmapiprovider-run': 'r3' });
+    assert.equal(late.status, 403);
+    const st = await (await fetch(t.base + '/stats')).json();
+    assert.equal(st.jobs.by_job.j1.calls, 2);
+    assert.ok(Math.abs(st.jobs.by_job.j1.usd - 0.02) < 1e-9);
+    assert.equal(st.jobs.untagged.used, 2);
+    assert.equal(st.jobs.refused.budget_exceeded, 1);
+    assert.equal(st.jobs.runs.find((r) => r.run === 'r3').status, 'finished');
+    // a restart rebuilds the allowance from the log and keeps the registrations
+    const again = createProxy({ config: { defaultUpstream: 'stub', upstreams: { stub: { baseUrl: 'http://127.0.0.1:1', limits: {} } }, jobs: { untaggedDailyMax: 2 } }, env: {}, dataDir: t.dataDir });
+    assert.equal(again.guard.stats().untagged.used, 2);
+    assert.equal(again.guard.runs.get('r1').budget.usd, 0.015);
+  } finally { await t.close(); }
+});

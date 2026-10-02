@@ -20,6 +20,7 @@ import {isVarTerm} from '../js-reference/values.mjs';
 import {proofOf, explainOf} from '../js-reference/support.mjs';
 import {compileLeaves} from './compile.mjs';
 import {tbl, storedTbl, colsOf, width} from './schema.mjs';
+import {fromScaled} from '../solver-common/fixed-point.mjs';
 
 const MAX_ROWS = 2000;
 const key = (neg, p, args) => `${neg ? 'n' : 'p'}|${p}|${JSON.stringify(args)}`;
@@ -152,7 +153,7 @@ export class Prover {
         plan.push({idx, kind: 'absent', p: l.p, arity: l.args.length});
       }
     });
-    const vars = [...body.bind.keys()];
+    const vars = [...body.bind.keys()].filter(v => !v.startsWith('?fx')); // ?fx... are the helper variables of the fixed-point rewriting
     cols.push(...vars.map((v, i) => `${body.bind.get(v).expr} AS bv${i}`));
     return {cols, plan, vars};
   }
@@ -283,7 +284,7 @@ function usedOfIter(roots) {
 }
 
 /** Build the support fields of a single-instant answer: used, used_incomplete, and for `explain` the proof and the explanation. */
-export function supportOf({session, program, qp, kinds, outcome, facts, maxNodes, refFor}) {
+export function supportOf({session, program, qp, kinds, outcome, facts, maxNodes, refFor, fx = null}) {
   if (!outcome || !['supported', 'refuted', 'both'].includes(outcome.status)) return {fields: {used: []}};
   if (qp.forms && (qp.forms.rank || qp.forms.compares.length || qp.forms.filters.length)) return {fields: {used: [], used_incomplete: true}};
   const prover = new Prover({session, program, kinds, facts, maxNodes, refFor});
@@ -305,7 +306,7 @@ export function supportOf({session, program, qp, kinds, outcome, facts, maxNodes
       for (const alt of qp.alts) for (const l of alt.leaves) {
         if (l.kind !== 'atom' || l.args.some(isVarTerm)) continue;
         const neg = l.mode === 'pos';
-        const node = prover.tupleNode(neg, l.p, l.args);
+        const node = prover.tupleNode(neg, l.p, fx ? l.args.map(a => fromScaled(a, fx.scale)) : l.args);
         if (node) roots.push(node);
       }
       truncated = false;

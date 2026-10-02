@@ -118,6 +118,10 @@
   holds description adult_09605289 "a fully developed person from maturity onward"
   source "WordNet 3.0 synset 09605289-n gloss"
 
+@csd_adversary fact
+  holds description adversary "someone who offers opposition"
+  source "WordNet 3.0 synset 09773245-n gloss"
+
 @csd_advertiser fact
   holds description advertiser "someone whose business is advertising"
   source "WordNet 3.0 synset 09773962-n gloss"
@@ -755,8 +759,8 @@
   source "WordNet 3.0 synset 02824058-n gloss"
 
 @csd_believer fact
-  holds description believer "a supporter who accepts something as true"
-  source "WordNet 3.0 synset 09848489-n gloss"
+  holds description believer "a person who has religious faith"
+  source "WordNet 3.0 synset 09847727-n gloss"
 
 @csd_bellboy fact
   holds description bellboy "someone employed as an errand boy and luggage carrier around hotels"
@@ -967,11 +971,7 @@
   source "WordNet 3.0 synset 02872752-n gloss"
 
 @csd_booth fact
-  holds description booth "a table (in a restaurant or bar) surrounded by two high-backed benches"
-  source "WordNet 3.0 synset 02874214-n gloss"
-
-@csd_booth_02873839 fact
-  holds description booth_02873839 "small area set off by walls for special use"
+  holds description booth "small area set off by walls for special use"
   source "WordNet 3.0 synset 02873839-n gloss"
 
 @csd_boss fact
@@ -3538,10 +3538,6 @@
   holds description genitalia "external sex organ"
   source "WordNet 3.0 synset 05514081-n gloss"
 
-@csd_genius fact
-  holds description genius "someone who has exceptional intellectual ability and originality"
-  source "WordNet 3.0 synset 10126926-n gloss"
-
 @csd_geographic_point fact
   holds description geographic_point "a point on the surface of the Earth"
   source "WordNet 3.0 synset 08578706-n gloss"
@@ -3767,8 +3763,8 @@
   source "WordNet 3.0 synset 07697100-n gloss"
 
 @csd_hammer fact
-  holds description hammer "the part of a gunlock that strikes the percussion cap when the trigger is pulled"
-  source "WordNet 3.0 synset 03481824-n gloss"
+  holds description hammer "a hand tool with a heavy rigid head and a handle"
+  source "WordNet 3.0 synset 03481172-n gloss"
 
 @csd_hand fact
   holds description hand "the (prehensile) extremity of the superior limb"
@@ -4566,10 +4562,6 @@
   holds description loft "floor consisting of open space at the top of a house just below roof"
   source "WordNet 3.0 synset 03686130-n gloss"
 
-@csd_loft_03686470 fact
-  holds description loft_03686470 "floor consisting of a large unpartitioned space over a factory or warehouse or other commercial space"
-  source "WordNet 3.0 synset 03686470-n gloss"
-
 @csd_lookout fact
   holds description lookout "a person employed to keep watch for some anticipated event"
   source "WordNet 3.0 synset 10271216-n gloss"
@@ -4577,10 +4569,6 @@
 @csd_loom fact
   holds description loom "a textile machine for weaving yarn into a textile"
   source "WordNet 3.0 synset 03689157-n gloss"
-
-@csd_loudspeaker fact
-  holds description loudspeaker "electro-acoustic transducer that converts electrical signals into sounds loud enough to be heard at a distance"
-  source "WordNet 3.0 synset 03691459-n gloss"
 
 @csd_lounge fact
   holds description lounge "a room (as in a hotel or airport) with seating where people can wait"
@@ -5063,12 +5051,12 @@
   source "WordNet 3.0 synset 09492123-n gloss"
 
 @csd_nail fact
-  holds description nail "horny plate covering and protecting part of the dorsal surface of the digits"
-  source "WordNet 3.0 synset 05581693-n gloss"
-
-@csd_nail_03804744 fact
-  holds description nail_03804744 "a thin pointed piece of metal that is hammered into materials as a fastener"
+  holds description nail "a thin pointed piece of metal that is hammered into materials as a fastener"
   source "WordNet 3.0 synset 03804744-n gloss"
+
+@csd_nail_05581693 fact
+  holds description nail_05581693 "horny plate covering and protecting part of the dorsal surface of the digits"
+  source "WordNet 3.0 synset 05581693-n gloss"
 
 @csd_napkin fact
   holds description napkin "a small piece of table linen that is used to wipe the mouth and to cover the lap in order to protect clothing"
@@ -5234,10 +5222,6 @@
   holds description opening_09379111 "an open or empty space in or between things"
   source "WordNet 3.0 synset 09379111-n gloss"
 
-@csd_opposition fact
-  holds description opposition "a contestant that you are matched against"
-  source "WordNet 3.0 synset 10379620-n gloss"
-
 @csd_optical_disk fact
   holds description optical_disk "a disk coated with plastic that can store digital data as tiny pits etched in the surface"
   source "WordNet 3.0 synset 03851787-n gloss"
@@ -5297,6 +5281,10 @@
 @csd_pachyderm fact
   holds description pachyderm "any of various nonruminant hoofed mammals having very thick skin: elephant"
   source "WordNet 3.0 synset 02453108-n gloss"
+
+@csd_package fact
+  holds description package "a wrapped container"
+  source "WordNet 3.0 synset 03871083-n gloss"
 
 @csd_packer fact
   holds description packer "a workman employed to pack things into containers"
@@ -5877,6 +5865,10 @@
 @csd_primate fact
   holds description primate "any placental mammal of the order Primates"
   source "WordNet 3.0 synset 02469914-n gloss"
+
+@csd_print fact
+  holds description print "a picture or design printed from an engraving"
+  source "WordNet 3.0 synset 04003597-n gloss"
 
 @csd_prison fact
   holds description prison "a correctional institution where persons are confined while on trial or for punishment"
@@ -7215,14 +7207,22 @@
   source "WordNet 3.0 synset 04341414-n gloss"
 
 @csd_structure fact
-  holds description structure "a particular complex anatomical part of a living thing"
-  source "WordNet 3.0 synset 05225602-n gloss"
-
-@csd_structure_04341686 fact
-  holds description structure_04341686 "a thing constructed"
+  holds description structure "a thing constructed"
   source "WordNet 3.0 synset 04341686-n gloss"
+
+@csd_structure_05225602 fact
+  holds description structure_05225602 "a particular complex anatomical part of a living thing"
+  source "WordNet 3.0 synset 05225602-n gloss"
 
 @csd_study fact
   holds description study "a room used for reading and writing and studying"
   source "WordNet 3.0 synset 04345028-n gloss"
+
+@csd_stupid fact
+  holds description stupid "a person who is not very bright"
+  source "WordNet 3.0 synset 10667187-n gloss"
+
+@csd_submarine fact
+  holds description submarine "a submersible warship usually armed with torpedoes"
+  source "WordNet 3.0 synset 04347754-n gloss"
 

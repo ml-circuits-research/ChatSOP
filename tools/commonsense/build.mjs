@@ -57,7 +57,7 @@ for (const line of fs.readFileSync(path.join(WN, 'data.noun'), 'utf8').split('\n
   for (let i = 0; i < np; i++, k += 4) ptr.push({sym: t[k], off: t[k + 1], pos: t[k + 2]});
   // a proper noun (a capitalized lemma) or an instance (an @i pointer: "Paris" is an instance of city) is a name, never a common noun
   const proper = /[A-Z]/.test(raw[0]) || ptr.some(p => p.sym === '@i');
-  synsets.set(off, {off, lex, words, proper, hyper: ptr.filter(p => p.sym === '@' && p.pos === 'n').map(p => p.off), parts: ptr.filter(p => p.sym === '%p').map(p => p.off), substances: ptr.filter(p => p.sym === '%s').map(p => p.off), gloss: gloss.trim()});
+  synsets.set(off, {off, lex, words, proper, hyponyms: ptr.filter(p => p.sym === '~' && p.pos === 'n').length, hyper: ptr.filter(p => p.sym === '@' && p.pos === 'n').map(p => p.off), parts: ptr.filter(p => p.sym === '%p').map(p => p.off), substances: ptr.filter(p => p.sym === '%s').map(p => p.off), gloss: gloss.trim()});
 }
 const senses = new Map(); // lemma -> [offsets by frequency]
 for (const line of fs.readFileSync(path.join(WN, 'index.noun'), 'utf8').split('\n')) {
@@ -69,6 +69,14 @@ for (const line of fs.readFileSync(path.join(WN, 'index.noun'), 'utf8').split('\
 // irregular plurals (the WNdb archive has no noun.exc; the common irregular English plurals, authored)
 const plurals = new Map(Object.entries({man: 'men', woman: 'women', child: 'children', mouse: 'mice', goose: 'geese', foot: 'feet', tooth: 'teeth', person: 'people', ox: 'oxen', sheep: 'sheep', deer: 'deer', fish: 'fish', louse: 'lice', knife: 'knives', wife: 'wives', leaf: 'leaves', wolf: 'wolves', life: 'lives', calf: 'calves', half: 'halves', loaf: 'loaves', shelf: 'shelves', thief: 'thieves', potato: 'potatoes', tomato: 'tomatoes', hero: 'heroes', cactus: 'cacti', fungus: 'fungi', bus: 'buses'}));
 const plural = w => plurals.get(w.replace(/ /g, '_'))?.replace(/_/g, ' ') ?? (/(s|x|z|ch|sh)$/.test(w) ? w + 'es' : /[^aeiou]y$/.test(w) ? w.slice(0, -1) + 'ies' : w + 's');
+// the tagged frequency of each noun sense (index.sense: sense key, offset, sense number, tag count): WordNet orders the senses of a lemma
+// by it, so senses with the same count are in no meaningful order
+const tagCount = new Map(); // `${lemma}|${offset}` -> tag count
+for (const line of fs.readFileSync(path.join(WN, 'index.sense'), 'utf8').split('\n')) {
+  const [key, off, , count] = line.split(' ');
+  if (!key || !/%1:/.test(key)) continue;
+  tagCount.set(`${key.split('%')[0]}|${off}`, Number(count));
+}
 const firstSense = lemma => senses.get(lemma.replace(/ /g, '_'))?.[0] ?? null;
 
 // ---- names already taken in the layers below and above (core-min, core-en, world-v1) ------------------------------------------------
@@ -100,11 +108,14 @@ const COMMON_NOUN_NOTABILITY = 400;
 /** World descriptions (Wikidata, CC0) of the world-v1 entities: a reused world entity must share a content word with the WordNet sense. */
 const worldInfo = JSON.parse(fs.readFileSync(path.join(ROOT, 'datasets_sources/world-kb/entities.json'), 'utf8'));
 const contentWords = text => new Set(String(text).toLowerCase().split(/[^a-z]+/).filter(w => w.length > 3));
-function sameSense(hit, synset) {
-  const desc = worldInfo[hit.id]?.desc;
-  if (hit.core || !desc) return true;
+/** The content words a world description shares with a WordNet sense (its gloss and its hypernyms up to depth 3). */
+function sharedWords(hit, synset) {
   const mine = contentWords(synset.gloss + ' ' + [...ancestorDepth(synset.off)].filter(([, d]) => d <= 3).map(([w]) => w).join(' '));
-  return [...contentWords(desc)].some(w => mine.has(w) || mine.has(w.replace(/s$/, '')));
+  return [...contentWords(worldInfo[hit.id]?.desc ?? '')].filter(w => mine.has(w) || mine.has(w.replace(/s$/, ''))).length;
+}
+function sameSense(hit, synset) {
+  if (hit.core || !worldInfo[hit.id]?.desc) return true;
+  return sharedWords(hit, synset) > 0;
 }
 
 // ---- ConceptNet (CC BY 4.0 edges only) ----------------------------------------------------------------------------------------------
@@ -138,26 +149,45 @@ for (const line of fs.readFileSync(CN, 'utf8').split('\n')) {
 const anchorOf = new Map(); // offset -> core id
 for (const [lemma, n, id] of ANCHORS) { const off = senses.get(lemma)?.[n - 1]; if (off) anchorOf.set(off, id); }
 /**
- * The WordNet sense of a ConceptNet word: the sense (in frequency order) whose hypernym closure best contains the words ConceptNet
- * says the word is a kind of ("weasel" IsA "animal" picks the animal, not the first sense "a person regarded as treacherous"); the first
- * sense when ConceptNet says nothing.
+ * The WordNet sense of a ConceptNet word, decided in this order:
+ *   1. the memory already names the word as the same kind of concept (a world entity labelled with it, a class, element or occupation, with a
+ *      description): the sense that shares at least DESCRIPTION_MARGIN more words with that description than any other sense ("gold" is the chemical
+ *      element of world-v1, not the coins);
+ *   2. the sense (in frequency order) whose hypernym closure best contains the words ConceptNet says the word is a kind of ("weasel" IsA
+ *      "animal" picks the animal, not the first sense "a person regarded as treacherous");
+ *   3. the most frequent sense; among senses with the same non-zero tag count (WordNet's order between them means nothing), the one with
+ *      the most hyponyms, the more general concept ("hammer": the hand tool with seven kinds, not the part of a gunlock).
  */
 const ancestorDepth = off => { // word -> the smallest hypernym depth it appears at (0: the synset itself)
   const out = new Map(); const q = [[off, 0]];
   while (q.length) { const [o, d] = q.shift(); const s = synsets.get(o); if (!s) continue; for (const w of s.words) { const k = w.replace(/_/g, ' '); if (!out.has(k)) out.set(k, d); } if (d < 20) q.push(...s.hyper.map(h => [h, d + 1])); }
   return out;
 };
+/** Words of a world description a sense must share beyond any other sense to replace the most frequent sense. */
+const DESCRIPTION_MARGIN = 3;
 const senseCache = new Map();
 function senseOf(text) {
   if (senseCache.has(text)) return senseCache.get(text);
   const all = senses.get(text.replace(/ /g, '_')) ?? [];
   const hints = cnIsa.get(text);
-  let best = all[0] ?? null;
+  let best = all[0] ?? null, top = 0;
+  const named = (taken.get(text) ?? []).filter(h => h.label && !h.core && REUSE.has(h.kind) && worldInfo[h.id]?.desc);
+  if (named.length && all.length > 1) {
+    // the sense sharing the most words with the description replaces the most frequent one only by a clear margin (a description shares a
+    // word or two with several senses: the photographic and the television camera)
+    const sharedBy = off => Math.max(...named.map(h => sharedWords(h, synsets.get(off))));
+    const shared = all.map(off => ({off, n: sharedBy(off)})).sort((a, b) => b.n - a.n);
+    if (shared[0].n - shared[1].n >= DESCRIPTION_MARGIN && shared[0].n - sharedBy(all[0]) >= DESCRIPTION_MARGIN) { senseCache.set(text, shared[0].off); return shared[0].off; }
+  }
   if (hints && all.length > 1) {
     // a hint near the sense counts more than a far one (the flora sense of "plant" is an organism at depth 1, the stooge sense at depth 4)
-    let top = 0;
     // each hint weighs by how many ConceptNet edges state it ("hammer IsA tool" from several sources outweighs one "ear bone")
     for (const off of all) { const anc = ancestorDepth(off); let score = 0; for (const [h, n] of hints) if (anc.has(h) && anc.get(h) > 0) score += n / anc.get(h); if (score > top + 1e-9) { top = score; best = off; } }
+  }
+  if (!top && all.length > 1) {
+    const lemma = text.replace(/ /g, '_'), count = off => tagCount.get(`${lemma}|${off}`) ?? 0, most = count(all[0]);
+    const tied = most > 0 ? all.filter(off => count(off) === most) : [];
+    if (tied.length > 1) best = tied.reduce((a, b) => (synsets.get(b).hyponyms > synsets.get(a).hyponyms ? b : a));
   }
   senseCache.set(text, best);
   return best;
@@ -191,7 +221,10 @@ function symbolFor(off) {
   if (!/^[a-z]/.test(id) || takenIds.has(id) || id.startsWith('x_')) id = 'cs_' + id;
   let label = head;
   if (declared.has(id) && declared.get(id).off !== off) { id = id + '_' + off; label = `${head} (${s.gloss.split(/[;(]/)[0].trim().replace(/"/g, "'").slice(0, 60)})`; }
-  const aliases = [...new Set([plural(head), ...s.words.slice(1).map(w => w.replace(/_/g, ' '))].filter(a => a !== head && !taken.has(a)))];
+  // another lemma of the synset is an alias only where this synset is that lemma's own sense ("metal" names the metallic element,
+  // not the alloy whose synset also lists it; "machine" names the device, not the car): an alias never shares a word with a commoner sense
+  const ownLemma = w => senseOf(w.replace(/_/g, ' ')) === off;
+  const aliases = [...new Set([plural(head), ...s.words.slice(1).filter(ownLemma).map(w => w.replace(/_/g, ' '))].filter(a => a !== head && !taken.has(a)))];
   declared.set(id, {off, label, aliases: label === head ? aliases : [], namesake: hits.length > 0, gloss: s.gloss.split(';')[0].replace(/"/g, "'").trim()});
   idOf.set(off, id);
   return id;

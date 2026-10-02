@@ -1,5 +1,5 @@
 /**
- * Adapters for the BASELINE strategy `llm-agent` (reasoning/strategies/llm-agent/): an LLM run through omp that works through the problem.
+ * Adapters for the BASELINE strategy `llm-agent` (reasoning/strategies/llm-agent/): an LLM called through the local proxy that works through the problem.
  * Two variants, `llm-agent-sop` (the knowledge and query circuits as SOP text with the semantics attached) and `llm-agent-nl` (the
  * natural-language `source.md` of the case; cases without one are not expressible for it). Both are registered but run ONLY when
  * `SMOKE_LLM=1` is set, so the default smoke stays free and deterministic. The model is `LLM_AGENT_MODEL` (default: config/llm-agent.json).
@@ -20,13 +20,13 @@ export const sourceOf = dir => { const f = path.join(casesRoot, dir, 'source.md'
 
 const variant = presentation => ({
   id: 'llm-agent-' + presentation, status: 'available', raw: true, advisory: true, timeoutMs: 180000,
-  origin: 'reasoning/strategies/llm-agent/ (an LLM through omp; baseline, advisory answers)',
+  origin: 'reasoning/strategies/llm-agent/ (an LLM through the local proxy; baseline, advisory answers)',
   description: presentation === 'sop'
     ? 'Baseline: an LLM reads the knowledge and query circuits as SOP text with the language semantics and answers in the packet shape. Advisory, never ground truth. Runs only with SMOKE_LLM=1.'
     : 'Baseline: an LLM reads the natural-language source text of the case (source.md) and answers in the packet shape. Advisory, never ground truth. Runs only with SMOKE_LLM=1.',
   supports: new Set(llmAgent.features),
   async available() {
-    if (process.env.SMOKE_LLM !== '1') return {ok: false, reason: 'set SMOKE_LLM=1 to run the LLM baseline (it calls a model through omp)'};
+    if (process.env.SMOKE_LLM !== '1') return {ok: false, reason: 'set SMOKE_LLM=1 to run the LLM baseline (it calls a model through the local proxy)'};
     return llmAgent.available();
   },
   async run(c, ctx) {

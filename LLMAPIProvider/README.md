@@ -1,5 +1,8 @@
 # LLMAPIProvider
 
+**Self-contained component** (owner, 2026-10-02): this folder is reusable in any project. It uses Node built-ins only (Node >= 22) and imports nothing from outside the folder; ChatSOP talks to it only over HTTP. To reuse it, copy the folder, edit `config.json` (upstreams, tiers, `baseDir` for relative local-model paths) and put the keys in `~/.config/llmapiprovider/<upstream>.env`. Then `npm start` (or `node server.mjs`) and `npm test`.
+
+
 A small, self-contained local proxy in front of an LLM API provider. It forwards OpenAI-format and Anthropic-format calls (streaming included), holds the provider key so clients never see it, queues requests under configurable rate limits, retries 429 responses, and records every call so you can see what the provider really lets you do. First upstream: openference (`https://api.openference.com`). Node >= 22, built-ins only.
 
 ## Run
@@ -57,3 +60,51 @@ Add an entry under `upstreams` in `config.json` (base URL, env file and variable
 - Quota: a 5-hour window of about 400 plan requests; each call costs its model's `quota_multiplier` (`x-quota-cost`: `Qwen3.8 27b` 0.1, `GLM-5.3-Flash` 1), and about 4,000 requests per 5 hours. `maxPerHour: 800` spreads them over the window.
 - Credit-billed models (for example `DeepSeek-V4.1-Flash`) are not in the plan; they need a credit balance.
 - Calibration (36 book problems): `Qwen3.8 27b` 32/36 at ~38 generated tokens/s (p50 12.5 s per problem); `GLM-5.3-Flash` 32/36 at ~39 tokens/s (p50 7.9 s).
+
+## Other upstreams: OpenRouter and DeepSeek
+
+Each upstream is monitored separately; a client picks one with the path prefix `/u/<upstream>/` (no prefix = `openference`).
+
+- `openrouter`: pay-as-you-go credit, key in `~/.config/llmapiprovider/openrouter.env` (`OPENROUTER_API_KEY=`). The real cost of every call is OpenRouter's `usage.cost` (USD), stored as `usd` in the request log and summed as `cost_usd` in `/stats`. Example: `POST http://127.0.0.1:18080/u/openrouter/v1/chat/completions` with `model: "deepseek/deepseek-v4-flash"`.
+- `deepseek`: the official API, key in `~/.config/llmapiprovider/deepseek.env` (`DEEPSEEK_API_KEY=`); not configured yet.
+
+## Fallback
+
+`config.json` `fallback` (one entry or a list): `{from, upstream, models, maxWaitMs}`; `from` defaults to `defaultUpstream`, `models` maps a requested model to the fallback model (`"*"` for any). Today: `openference` `Qwen3.8 27b` falls back to `openrouter` `deepseek/deepseek-v4-flash` with `maxWaitMs` 120000.
+
+- The request goes to the fallback when the primary is unreachable or answers 5xx after `retry.max5xx` retries (openference: 2), answers 429 after `retry.max` retries or with a `retry-after` above `maxWaitMs`, or when the queue, the plan-limit gate or the 429 pause would make it wait more than `maxWaitMs` before it starts (checked before the call; jobs already queued are not simulated). The fallback upstream's own error is returned as is; there is no second fallback.
+- Every fallback is marked: the response carries `x-llmapiprovider-fallback: <upstream>/<model>` and `x-llmapiprovider-fallback-reason: unreachable|5xx|429|wait`; the request log has `fallback_from`, `fallback_model`, `fallback_kind`, `fallback_reason` on the fallback call and `fallback_to` on the last failed primary attempt; `/stats` `fallback` (total, hour, day, by kind, by route, last 10), `windows.*.fallbacks` and the dashboard show the count; `/health` lists the configured fallbacks.
+- Opt out per request with `x-llmapiprovider-no-fallback: 1`, for runs that must stay on one model (calibrations, A/B arms). The bulk reviewer (`lib/llm-review`) always opts out.
+- Only OpenAI-format requests fall back (the OpenRouter upstream has no Anthropic endpoint).
+
+## Bulk review with a cheap model
+
+`node tools/llm-review.mjs run --kind <kind> --input items.jsonl --out DIR` (`lib/llm-review/`, review kinds in `config/review/<kind>/`). Input tokens are cheap and output tokens dear, so one call reviews many items (a token budget per batch, shared source passages printed once) and the model writes only `{"id","problem","severity"}` lines for items with problems, then `{"done":true}`; a malformed answer is retried once. Confirmed problems (high at once, medium only when a second pass agrees) are repaired by the same model, checked by the SOP validator and reviewed again; only what stays unresolved goes to `escalations.jsonl` and a summary of at most 10 lines. Cost per stage comes from OpenRouter `usage.cost` and is cross-checked against this proxy's log (client name `llm-review-<id>`, purpose `review:<id>`).
+
+Calibration (2026-10-02, 30 items, 10 planted errors: wrong number, dropped condition, hedge turned certain, wrong relation): `deepseek/deepseek-v4-flash` with low reasoning found 10/10 with 0/20 false alarms; without reasoning 7/10 (1/20 false alarms); `deepseek/deepseek-v4.1-flash` without reasoning 9/10 (2/20). The kinds default to v4-flash with low reasoning, 20k-token batches and 32k output tokens (reasoning overflowed 8k tokens on an 18-item batch).
+
+## Tiers, local model and audit (owner, 2026-10-02)
+
+Clients and jobs name a **tier**, never a concrete model: `POST /v1/chat/completions` with `model: "tiny"|"small"|"medium"|"good"|"best"`. The chain of each tier is in `config.json` `tiers`; the first usable entry serves, the rest is its fallback (header `x-llmapiprovider-fallback`). The response carries `x-llmapiprovider-tier` and `x-llmapiprovider-model`; `/v1/models`, `/health` and `/stats` list the tiers, and `/stats` has `last24h.by_tier`, `by_purpose`, `by_upstream`.
+
+| Tier | Serves | Fallback |
+|---|---|---|
+| tiny | `local` Qwen3-4B (llama-server, port 19611) | openrouter deepseek-v4-flash |
+| small | openference Qwen3.8 27b | openrouter deepseek-v4-flash |
+| medium | openrouter deepseek/deepseek-v4-flash | none |
+| good | openrouter deepseek/deepseek-v4.1-flash | none |
+| best | not configured: a request is a 400 error naming the tier | none |
+
+- **Local upstream** (`upstreams.local.start`): Qwen3-4B is always on (owner, 2026-10-02): the proxy starts llama-server when it starts (`startAtBoot`), reuses a server already on port 19611 and restarts it on demand; a GPU reservation lock file blocks a start. Measured: ~75 tokens/s, ~0.22 s for a short answer. A start that fails falls back down the tier's chain (reason `unavailable`; `/stats` `local` shows the last refusal). Options `requireFreeGpu` and `idleStopMs` exist but are off.
+- **Tags:** send `x-llmapiprovider-purpose` (`chat`, `formalize`, `job:<name>`, `review:<run>`) and optionally `x-llmapiprovider-run`; they go into the request log, the stats and the audit store.
+- **Audit store** (`config.audit`): request/response pairs of the tiers `tiny`, `small`, `medium` are kept in `~/.local/share/llmapiprovider-audit/audit-<day>.jsonl` (200 MB per day, 14 days). A periodic review by the `medium` tier reads them during and after batch work; chat traffic is only logged for later audit.
+
+## Jobs: budgets and the purpose policy
+
+`jobs.mjs` (config `jobs`). Clients tag requests with `x-llmapiprovider-purpose` and, for a batch run, `x-llmapiprovider-run`; both are logged (`purpose`, `run`) and grouped in `/stats` `last24h.by_purpose`.
+
+- `POST /jobs/register {job, run, purpose?, budget: {usd?, credits?, calls?}}` registers a run (at least one budget; a run id once); `POST /jobs/finish {run, status}` closes it; `GET /jobs` (also `/stats` `jobs`) lists spend per job and per run, the untagged count and refusals. Registrations are an append-only log `<dataDir>/jobs/runs.jsonl` (kept `keepDays`).
+- A request of a registered run is refused once the run's spend reaches its budget: `402 {"error": {"type": "budget_exceeded"}}` (spend from the request log: provider-reported USD, plan credits of plan upstreams, successful calls), and after the run finished: `403 run_finished`.
+- `allowedPurposes` (exact names or `prefix*`; default `chat`, `formalize`, `answer-*`, `ingest`, `job:*`, `review:*`, `test:*`) pass. Any other request, without a purpose or with an unknown one, counts against `untaggedDailyMax` per local day (default 100) and is refused beyond it: `403 untagged_limit`. Admitted untagged requests are logged `untagged: true`, so the count survives a restart.
+- The job runner `LLMJobs/` registers every run and task; the proxy and the runner share only HTTP and these headers.
+

@@ -5,7 +5,6 @@ import os from 'node:os';
 import path from 'node:path';
 import {ask, capabilities, NotExpressibleError} from '../reasoning/strategies/llm-agent/index.mjs';
 import {parseAnswer} from '../reasoning/strategies/llm-agent/packet.mjs';
-import {parseEvents, isSubscription} from '../reasoning/strategies/llm-agent/runner.mjs';
 import {verifyUsed, keepClaims} from '../reasoning/strategies/llm-agent/verify.mjs';
 import {sopPrompt, nlPrompt} from '../reasoning/strategies/llm-agent/prompt.mjs';
 
@@ -13,7 +12,7 @@ const KN = '@parent predicate\n  args subject:entity object:entity\n@f1 fact\n  
 const Q = '@q query\n  where parent ?x bob\n  select ?x\n';
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'llm-agent-test-'));
 const fake = (text, extra = {}) => { const calls = []; const run = async a => { calls.push(a); return {ok: true, text, cost: 0.01, ms: 5, ...extra}; }; run.calls = calls; return run; };
-const opts = (run, over = {}) => ({run, cacheDir: tmp(), fallbackModels: [], model: 'xai-oauth/grok-test', presentation: 'sop', ...over});
+const opts = (run, over = {}) => ({run, cacheDir: tmp(), fallbackModels: [], model: 'qwen-test', presentation: 'sop', ...over});
 
 test('capabilities declare an advisory baseline: not exact, not bounded, not verified', () => {
   assert.equal(capabilities.exact, false);
@@ -51,7 +50,7 @@ test('ask: a well-formed answer becomes an advisory packet with route, cost and 
   assert.equal(p.advisory, true);
   assert.equal(p.verified, false);
   assert.equal(p.route.chosen, 'llm-agent');
-  assert.equal(p.route.backend, 'omp:xai-oauth/grok-test');
+  assert.equal(p.route.backend, 'completion:qwen-test');
   assert.equal(p.llm.cost, 0.01);
   assert.deepEqual(p.used, [{id: 'f1', version: 1}]);
 });
@@ -75,10 +74,10 @@ test('ask: a wall timeout is budget_exhausted reason wall; a provider failure is
 
 test('ask: the fallback model answers when the first one fails', async () => {
   const seen = [];
-  const run = async a => { seen.push(a.model); return a.model === 'xai-oauth/a' ? {ok: false, error: 'auth'} : {ok: true, text: '{"status":"unknown"}', cost: 0}; };
-  const p = await ask({theory: {knowledge: KN}, query: Q}, {}, opts(run, {model: 'xai-oauth/a', fallbackModels: ['zai/b'], reasoning: 'direct'}));
-  assert.deepEqual(seen, ['xai-oauth/a', 'zai/b']);
-  assert.equal(p.route.backend, 'omp:zai/b');
+  const run = async a => { seen.push(a.model); return a.model === 'qwen-a' ? {ok: false, error: 'auth'} : {ok: true, text: '{"status":"unknown"}', cost: 0}; };
+  const p = await ask({theory: {knowledge: KN}, query: Q}, {}, opts(run, {model: 'qwen-a', fallbackModels: ['qwen-b'], reasoning: 'direct'}));
+  assert.deepEqual(seen, ['qwen-a', 'qwen-b']);
+  assert.equal(p.route.backend, 'completion:qwen-b');
 });
 
 test('cache: the same (model, presentation, case) is answered from the cache at no cost', async () => {
@@ -90,21 +89,8 @@ test('cache: the same (model, presentation, case) is answered from the cache at 
   assert.equal(a.llm.cached, false);
   assert.equal(b.llm.cached, true);
   assert.equal(b.llm.cost, 0);
-  await ask({theory: {knowledge: KN}, query: Q}, {}, {...o, model: 'xai-oauth/other'});
+  await ask({theory: {knowledge: KN}, query: Q}, {}, {...o, model: 'qwen-other'});
   assert.equal(run.calls.length, 2, 'another model is another cache key');
-});
-
-test('paid models count toward the cap; at the cap the answer is budget_exhausted reason cost and no call is made', async () => {
-  const run = fake('{"status":"unknown"}', {cost: 3});
-  const o = opts(run, {model: 'deepseek/deepseek-chat', maxPaidUsd: 5, reasoning: 'direct'});
-  await ask({theory: {knowledge: KN}, query: Q + '# 1\n'}, {}, o);
-  await ask({theory: {knowledge: KN}, query: Q + '# 2\n'}, {}, o);
-  const p = await ask({theory: {knowledge: KN}, query: Q + '# 3\n'}, {}, o);
-  assert.equal(p.status, 'budget_exhausted');
-  assert.equal(p.reason, 'cost');
-  assert.equal(run.calls.length, 2);
-  assert.equal(isSubscription('xai-oauth/grok-4.20-0309-non-reasoning'), true);
-  assert.equal(isSubscription('deepseek/deepseek-chat'), false);
 });
 
 test('inputs: the nl presentation needs a source; an oversize prompt is not expressible', async () => {
@@ -124,13 +110,6 @@ test('prompts: sop carries the semantics and the circuits; the cot reply rule as
   assert.match(p, /ANSWER_JSON:/);
   assert.doesNotMatch(sopPrompt({knowledge: KN, query: Q, reasoning: 'direct'}), /ANSWER_JSON:/);
   assert.match(nlPrompt({source: 'Text.'}), /TEXT:\nText\./);
-});
-
-test('runner: usage and cost are read from the omp json events', () => {
-  const ev = [{type: 'session'}, {type: 'message_end', message: {role: 'user'}}, {type: 'message_end', message: {role: 'assistant', content: [{type: 'text', text: '{"a":1}'}], usage: {input: 10, output: 2, cost: {total: 0.5}}, stopReason: 'stop'}}].map(e => JSON.stringify(e)).join('\n');
-  const r = parseEvents(ev);
-  assert.equal(r.text, '{"a":1}');
-  assert.equal(r.usage.cost.total, 0.5);
 });
 
 test('verify: a used support that re-derives the answer in the oracle is verified per row; a wrong one is not', () => {

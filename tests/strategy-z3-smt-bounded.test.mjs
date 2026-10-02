@@ -45,7 +45,7 @@ t('negation as failure over a closed predicate is completion; an aggregate is ev
     + '@a aggregate\n  over salary ?p ?d ?s\n  group ?d\n  count ?p as ?n\n  yields n_of ?d ?n\n'
     + '@b aggregate\n  over salary ?p ?d ?s\n  group ?d\n  sum ?s as ?t\n  yields t_of ?d ?t\n'
     + '@c aggregate\n  over salary ?p ?d ?s\n  group ?d\n  max ?s as ?m\n  yields max_of ?d ?m\n'
-    + '@r rule\n  when n_of ?d ?n\n  when t_of ?d ?t\n  when compare ?n at_least 2\n  when compute ?avg ?t divided_by ?n\n  then avg_of ?d ?avg\n'
+    + '@r rule\n  when n_of ?d ?n\n  when t_of ?d ?t\n  when compare ?n at_least 2\n  when compute ?avg ?t whole_divided_by ?n\n  then avg_of ?d ?avg\n'
     + '@free rule\n  when salary ?p ?d ?s\n  when absent blocked ?p\n  then free ?p\n';
   assert.deepEqual(rowsOf(run(k, '@q query\n  where n_of ?d ?n\n  select ?d ?n\n')), ['{"d":"dev","n":2}', '{"d":"ops","n":1}']);
   assert.deepEqual(rowsOf(run(k, '@q query\n  where avg_of ?d ?v\n  select ?d ?v\n')), ['{"d":"dev","v":100}']);
@@ -55,8 +55,8 @@ t('negation as failure over a closed predicate is completion; an aggregate is ev
 
 t('compute: division truncates toward zero and a zero divisor drops the instance', () => {
   const k = '@f1 fact\n  holds num a -7\n@f2 fact\n  holds num b 7\n@f3 fact\n  holds num c 0\n'
-    + '@r rule\n  when num ?x ?v\n  when compute ?h ?v divided_by 2\n  then half ?x ?h\n'
-    + '@z rule\n  when num ?x ?v\n  when compute ?h 10 divided_by ?v\n  then tenth ?x ?h\n';
+    + '@r rule\n  when num ?x ?v\n  when compute ?h ?v whole_divided_by 2\n  then half ?x ?h\n'
+    + '@z rule\n  when num ?x ?v\n  when compute ?h 10 whole_divided_by ?v\n  then tenth ?x ?h\n';
   assert.deepEqual(rowsOf(run(k, '@q query\n  where half ?x ?h\n  select ?x ?h\n')), ['{"x":"a","h":-3}', '{"x":"b","h":3}', '{"x":"c","h":0}']);
   assert.deepEqual(rowsOf(run(k, '@q query\n  where tenth ?x ?h\n  select ?x ?h\n')), ['{"x":"a","h":-1}', '{"x":"b","h":1}']);
 });

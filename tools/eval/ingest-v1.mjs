@@ -3,10 +3,10 @@
  * Harness of experiment eval-ingest-v1 (status/preregistrations/eval-ingest-v1.json): questions over documents ingested into task-type
  * base memories, answered by three arms.
  *
- *   node tools/eval/ingest-v1.mjs pipeline --doc handbook|europa [--ids h01,h02] [--model zai/glm-5.3] [--base ID] [--tag T]
- *        the product path: a session cloned from the base memory, the CodingAgent strategy with ONE model (no fallback), the shared
+ *   node tools/eval/ingest-v1.mjs pipeline --doc handbook|europa [--ids h01,h02] [--model openference/Qwen3.8 27b] [--base ID] [--tag T]
+ *        the product path: a session cloned from the base memory, the LLMDirect strategy with ONE model (no fallback), the shared
  *        symbolic path, the rendered English answer
- *   node tools/eval/ingest-v1.mjs direct --doc ... --arm glm [--model zai/glm-5.3]      the model reads the whole document (omp, no tools)
+ *   node tools/eval/ingest-v1.mjs direct --doc ... --arm qwen27b|deepseek [--model M]       the model reads the whole document (one direct call through the proxy)
  *   node tools/eval/ingest-v1.mjs direct --doc ... --arm local --endpoint URL [--model NAME]   a local llama-server reads the document
  *   node tools/eval/ingest-v1.mjs score [--files a.jsonl,b.jsonl]                       correct / wrong / unknown per arm and document
  *
@@ -22,7 +22,7 @@ import {BaseMemories, BASE_NAME} from '../../lib/chat-data/memories.mjs';
 import {Sessions} from '../../lib/chat-data/sessions.mjs';
 import {TheoryCache} from '../../reasoning/slice/index.mjs';
 import {agentClient} from './query-forms-probe.mjs';
-import {runOmp} from '../../reasoning/strategies/llm-agent/runner.mjs';
+import {providerChat, parseEntry} from '../../lib/llm-providers.mjs';
 import {localChat} from '../../lib/local-llm/client.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -70,6 +70,8 @@ export async function askPipeline(s, question, {model}) {
   }
 }
 
+/** The default model since 2026-10-02 (commit 41e0db8): Qwen3.8 27b of the openference plan through the proxy LLMAPIProvider. */
+export const DEFAULT_MODEL = 'openference/Qwen3.8 27b';
 export const DIRECT_SYSTEM = 'You answer questions about one document. Use only the document. Reply with the answer in one short sentence. If the document does not contain the answer, reply exactly: The document does not say.';
 const directPrompt = (doc, q) => `<document>\n${doc}\n</document>\n\nQuestion: ${q}`;
 
@@ -93,12 +95,15 @@ export function scoreAnswer(question, record) {
   return 'wrong';
 }
 
+/** Hand corrections of the pattern scorer, `{<file>: {<id>: {score, why}}}` (eval/ingest-v1/manual-scores.json): every mismatch is read by hand. */
+const manualScores = () => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, 'eval/ingest-v1/manual-scores.json'), 'utf8')); } catch { return {}; } };
+
 async function main() {
   const command = args[0];
   fs.mkdirSync(OUT, {recursive: true});
   if (command === 'pipeline') {
     const doc = opt('--doc');
-    const model = opt('--model', 'zai/glm-5.3');
+    const model = opt('--model', DEFAULT_MODEL);
     const s = openSession({base: opt('--base', DOCS[doc].base), id: `eval-ingest-${doc}${opt('--tag') ? '-' + opt('--tag') : ''}`});
     const file = outFile('pipeline', doc);
     try {
@@ -112,15 +117,16 @@ async function main() {
     } finally { s.close(); }
   } else if (command === 'direct') {
     const doc = opt('--doc');
-    const arm = opt('--arm', 'glm');
+    const arm = opt('--arm', 'qwen27b');
     const text = fs.readFileSync(path.join(ROOT, DOCS[doc].file), 'utf8');
     const file = outFile(arm, doc);
     for (const q of questionsFor(doc)) {
       let r;
-      if (arm === 'glm') {
-        const model = opt('--model', 'zai/glm-5.3');
-        const out = await runOmp({model, system: DIRECT_SYSTEM, prompt: directPrompt(text, q.q), timeoutMs: 240_000});
-        r = {model, text: out.text ?? '', ...(out.ok ? {} : {error: out.error}), cost_usd: out.cost ?? 0, ms: out.ms};
+      if (arm !== 'local') {
+        const model = opt('--model', arm === 'deepseek' ? 'openrouter/deepseek/deepseek-v4-flash' : DEFAULT_MODEL);
+        const entry = parseEntry(model);
+        const out = await providerChat({system: DIRECT_SYSTEM, prompt: directPrompt(text, q.q), provider: entry.provider, model: entry.model, timeoutMs: 240_000});
+        r = {model, text: out.text ?? '', ...(out.ok ? {} : {error: out.reason}), ms: out.ms, usage: out.usage};
       } else {
         const out = await localChat({endpoint: opt('--endpoint'), model: opt('--model', 'local'), messages: [{role: 'system', content: DIRECT_SYSTEM}, {role: 'user', content: directPrompt(text, q.q)}], maxTokens: 200, timeoutMs: 300_000});
         r = {model: opt('--model', 'local'), text: out.text ?? '', ...(out.ok ? {} : {error: out.reason}), ms: out.ms, usage: out.usage};
@@ -139,7 +145,8 @@ async function main() {
       const last = new Map(rows.map(r => [r.id, r]));
       const t = {n: 0, correct: 0, wrong: 0, unknown: 0, median_ms: null};
       const ms = [];
-      for (const r of last.values()) { const s = r.manual ?? scoreAnswer(byId.get(r.id), r); t.n++; t[s]++; ms.push(r.ms ?? 0); }
+      const manual = manualScores()[path.basename(f, '.jsonl')] ?? {};
+      for (const r of last.values()) { const s = manual[r.id]?.score ?? scoreAnswer(byId.get(r.id), r); t.n++; t[s]++; ms.push(r.ms ?? 0); }
       ms.sort((a, b) => a - b);
       t.median_ms = ms.length ? ms[Math.floor(ms.length / 2)] : null;
       table[path.basename(f, '.jsonl')] = t;

@@ -3,10 +3,10 @@
  * The guide is a stable system prefix; vocabulary and the request are inline data.
  * Repairs retain this request's conversation, never another request's context.
  */
-import {parse} from '../../../sop/parser.mjs';
-import {parse as parseKnowledge} from '../../../sop/knowledge/lexical.mjs';
-import {splitCircuits} from '../session.mjs';
-import {runOmpRpc} from '../../omp/rpc.mjs';
+import {parse} from '../../sop/parser.mjs';
+import {parse as parseKnowledge} from '../../sop/knowledge/lexical.mjs';
+import {splitCircuits} from '../../lib/query-author/session.mjs';
+import {runOmpRpc} from './lib-omp/rpc.mjs';
 
 /** The RPC runner receives inline data and returns assistant text, not files.
  * Injection keeps subscription calls out of deterministic tests.

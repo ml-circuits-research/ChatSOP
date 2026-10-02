@@ -1,10 +1,10 @@
 /** Parse -> validate -> typed objects. Only these objects reach solvers. */
-import {one,many,parseAtom,scalar,words,unquote} from './parser.mjs';
+import {one,many,parseAtom,scalar,words,unquote,sampledOrder} from './parser.mjs';
 import {parseExpression,evaluateExpression} from './expression.mjs';
 import {atom,rule,variable,inferVariableTypes} from '../lib/types.mjs';
 import {interval,instant} from '../lib/time.mjs';
 import {assert} from '../lib/util.mjs';
-import {ENUMS} from './enums.mjs';
+import {ENUMS,ORDER_SAMPLING_MODES} from './enums.mjs';
 import {parseCondition,parseBooleanCondition,isWordForm,wordsToExpression} from './conditions.mjs';
 import {conditionAtoms,definitelyBound} from '../lib/conditions.mjs';
 export function resolveAtom(text,values={},schema=null,{ground=false,absence=false}={}){const a=parseAtom(text,{absence});a.a=a.a.map(v=>v&&typeof v==='object'&&v.ref?scalar('$'+v.ref,values):v);const result=atom(a,{ground,schema});return a.neg==='absent'?{...result,neg:'absent'}:result;}
@@ -17,7 +17,7 @@ export function lowerQuery(w,values={},schema=null,{now=Date.now(),related=null}
  const scope=w.fields.scope?[parseCondition(one(w,'scope'),leaf=>resolveAtom(leaf,values,schema,{absence:true}))]:undefined;
  const span=one(w,'span');if(span!==undefined)assert(variable(span),'span takes one ?variable');
  const measure=one(w,'measure');if(measure!==undefined){assert(ENUMS.query.measure.includes(measure),'Invalid time measure');assert(span!==undefined&&selected.length===1&&selected[0]===span,'measure needs the selected span variable');}
- const bound=definitelyBound(where);if(span)bound.add(span);if(w.fields.order){const [a,,b]=words(one(w,'order'));bound.add(a);bound.add(b);}assert(selected.every(v=>bound.has(v)),'Unbound selected variable: every alternative must bind selected variables');
+ const bound=definitelyBound(where);if(span)bound.add(span);if(w.fields.order&&!sampledOrder(w)){const [a,,b]=words(one(w,'order'));bound.add(a);bound.add(b);}assert(selected.every(v=>bound.has(v)),'Unbound selected variable: every alternative must bind selected variables');
  const absences=conditionAtoms([...where,...(scope??[])]).filter(a=>a.neg==='absent');
  for(const a of absences)assert(schema?.[a.p]?.closed===true,'absent_needs_closed: '+a.p+' is not declared closed true in the retained view');
  const closed=[...new Map(absences.map(a=>[a.p,{id:a.p,args:schema[a.p].valueTypes ?? schema[a.p].args}])).values()];
@@ -29,13 +29,16 @@ export function lowerQuery(w,values={},schema=null,{now=Date.now(),related=null}
  const compares=many(w,'compare').map(text=>parseCondition(text,line=>{const [left,op,right]=words(line);assert(bound.has(left)&&(!variable(right)||bound.has(right)),'Unbound compare variable');return {left,op,right:term(right)};}));
  const rank=w.fields.rank?(([direction,name,cut,n])=>{assert(bound.has(name),'Unbound rank variable');return {direction,variable:name,...(cut?{cut,n:Number(n)}:{})};})(words(one(w,'rank'))):undefined;
  const quantifier=w.fields.quantifier?(([word,count])=>({word,...(count?{count:Number(count)}:{})}))(words(one(w,'quantifier'))):undefined;
- const order=w.fields.order?(parts=>{assert(parts.length===6,'order needs the host leaves; a model order is compiled by the host (sop/declarative.mjs)');return {left:parts[0],relation:parts[1],right:parts[2],leaves:[Number(parts[4]),Number(parts[5])]};})(words(one(w,'order'))):undefined;
+ // `order random` (ORDER_SAMPLING): the answers in a seeded random order, cut by limit; the seed is the turn time.
+ const sample=sampledOrder(w)?{order:sampledOrder(w),seed:now}:undefined;
+ if(sample)assert(ORDER_SAMPLING_MODES.includes(kind),'order_random_mode: order random samples the answers of mode '+ORDER_SAMPLING_MODES.join('|')+', not mode '+kind);
+ const order=w.fields.order&&!sample?(parts=>{assert(parts.length===6,'order needs the host leaves; a model order is compiled by the host (sop/declarative.mjs)');return {left:parts[0],relation:parts[1],right:parts[2],leaves:[Number(parts[4]),Number(parts[5])]};})(words(one(w,'order'))):undefined;
  assert(!w.fields.fragment,'fragment_needs_context: a follow-up fragment is completed by the host from the conversation before execution');
  const limit=Number(one(w,'limit','100'));assert(Number.isSafeInteger(limit)&&limit>=1&&limit<=10000,'Invalid result limit');
  // A time question without at/during looks at the whole timeline rather than at the present instant.
- const time=w.fields.during?{during:interval(one(w,'during'))}:w.fields.at||(!span&&!w.fields.order)?{at:one(w,'at')?instant(scalar(one(w,'at'),values)):now}:{during:{from:-Infinity,until:Infinity}};
+ const time=w.fields.during?{during:interval(one(w,'during'))}:w.fields.at||(!span&&!order)?{at:one(w,'at')?instant(scalar(one(w,'at'),values)):now}:{during:{from:-Infinity,until:Infinity}};
  const asof=one(w,'asof')?instant(scalar(one(w,'asof'),values)):now;
- return {kind:'query',variableTypes:inferVariableTypes(conditionAtoms([...where,...(scope??[])]),schema,related),mode:kind,where,...(scope?{scope}:{}),...(closed.length?{closed}:{}),...(span?{span}:{}),...(measure?{measure}:{}),select:selected,filters,...(compares.length?{compares}:{}),...(rank?{rank}:{}),...(quantifier?{quantifier}:{}),...(order?{order}:{}),limit,...time,asof,...(measure==="duration"?{now}:{})};
+ return {kind:'query',variableTypes:inferVariableTypes(conditionAtoms([...where,...(scope??[])]),schema,related),mode:kind,where,...(scope?{scope}:{}),...(closed.length?{closed}:{}),...(span?{span}:{}),...(measure?{measure}:{}),select:selected,filters,...(compares.length?{compares}:{}),...(rank?{rank}:{}),...(quantifier?{quantifier}:{}),...(order?{order}:{}),...(sample?{sample}:{}),limit,...time,asof,...(measure==="duration"?{now}:{})};
 }
 function numericAST(n,vars,values,type){
  if(n.type==='ref')return numericAST({type:'literal',value:values[n.value]},vars,values,type);

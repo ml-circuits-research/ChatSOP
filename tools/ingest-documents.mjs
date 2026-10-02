@@ -4,14 +4,18 @@
  *
  *   node tools/ingest-documents.mjs create-memory --id ID --name NAME [--imports core-min,...] [--description TEXT]
  *   node tools/ingest-documents.mjs ingest --memory ID (--file PATH ... --rights cleared|permissive-attribution|owner-provided [--url U] [--licence L] [--title T]
- *                                          | --manifest FILE.json) [--model zai/glm-5.3] [--purpose TEXT] [--max-chunk-bytes N] [--thinking LEVEL] [--timeout-seconds S] [--user NAME]
- *   node tools/ingest-documents.mjs label-entities --memory ID (--file PATH --rights R | --manifest F)   entity wires for unlabelled symbols only
+ *                                          | --manifest FILE.json) [--model M] [--reasoning off|low|medium|xhigh] [--concurrency N]
+ *                                          [--purpose TEXT] [--max-chunk-bytes N] [--thinking LEVEL] [--timeout-seconds S] [--user NAME]
+ *   node tools/ingest-documents.mjs label-entities --memory ID (--file PATH --rights R | --manifest F) [--model M]
+ *                                          entity wires for unlabelled symbols only
  *   node tools/ingest-documents.mjs report --memory ID --ingestion ING
  *   node tools/ingest-documents.mjs list   --memory ID
  *
  * The manifest is `[{file, title?, source: {rights, url?, licence?, attribution?}}]`. `--chat-data DIR` (or CHATSOP_CHAT_DATA) selects the
- * chat data root. `ingest` runs the coding agent (omp) chunk by chunk and stores every validated chunk in the memory with its provenance
- * (no manual acceptance, owner 2026-10-02); `draft` is accepted as an older name of `ingest`.
+ * chat data root. `ingest` compiles the document chunk by chunk and stores every validated chunk in the memory with its provenance (no
+ * manual acceptance, owner 2026-10-02); `draft` is accepted as an older name of `ingest`. The author is direct (no omp, owner order 2026-10-02):
+ * one chat-completion conversation per chunk through the LLMAPIProvider proxy (`llmProviders.openference`; `--model` is a tier of
+ * the proxy, default `ingest.tier` of config/runtime.json, `small`; `--reasoning off` by default, 3 chunks at once).
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -19,7 +23,8 @@ import {fileURLToPath} from 'node:url';
 import {ChatData} from '../lib/chat-data/index.mjs';
 import {BaseMemories} from '../lib/chat-data/memories.mjs';
 import {Ingestions} from '../lib/ingest/index.mjs';
-import {ompSettings} from '../lib/omp/index.mjs';
+import {providerSettings} from '../lib/llm-providers.mjs';
+import {openaiChat} from '../lib/ingest/direct-author.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -51,17 +56,20 @@ async function main() {
   if (command === 'create-memory') {
     const imports = (opt('--imports', '') ?? '').split(',').filter(Boolean);
     console.log(JSON.stringify(memories.create({id: opt('--id'), name: opt('--name'), description: opt('--description', ''), imports}), null, 2));
-  } else if (command === 'ingest' || command === 'draft') {
-    const omp = ompSettings(config);
-    const record = await ingestions.draft(memory, {documents: documentsFromArgs(), model: opt('--model', config.queryParser?.models?.[0] ?? null), purpose: opt('--purpose', ''), user: opt('--user', process.env.CHATSOP_ACTOR ?? null),
-      maxChunkBytes: Number(opt('--max-chunk-bytes', 7000)), maxFixRounds: Number(opt('--max-fix-rounds', omp.maxFixRounds ?? 3)), bin: omp.bin, thinking: opt('--thinking', omp.thinking ?? null), timeoutMs: Number(opt('--timeout-seconds', 900)) * 1000,
-      onProgress: p => process.stderr.write(`[ingest] ${p.document} chunk ${p.chunk}/${p.of}\n`)});
-    console.log(JSON.stringify({id: record.id, status: record.status, totals: record.totals, report: path.join(ingestions.dir(memory, record.id), 'report.md')}, null, 2));
-  } else if (command === 'label-entities') {
-    const omp = ompSettings(config);
-    const record = await ingestions.labelEntities(memory, {documents: documentsFromArgs(), model: opt('--model', config.queryParser?.models?.[0] ?? null), user: opt('--user', process.env.CHATSOP_ACTOR ?? null),
-      bin: omp.bin, thinking: opt('--thinking', omp.thinking ?? null), timeoutMs: Number(opt('--timeout-seconds', 900)) * 1000, maxFixRounds: Number(opt('--max-fix-rounds', omp.maxFixRounds ?? 3))});
-    console.log(JSON.stringify({id: record.id, status: record.status, totals: record.totals, report: path.join(ingestions.dir(memory, record.id), 'report.md')}, null, 2));
+  } else if (command === 'ingest' || command === 'draft' || command === 'label-entities') {
+    const author = 'direct';
+    const provider = providerSettings(config).openference;
+    // The direct author names a tier of the proxy (`ingest.tier` of the configuration, default `small`), never a concrete model.
+    const settings = {author: 'direct', tier: 'small', reasoning: 'off', ...(config.ingest ?? {})};
+    const common = {documents: documentsFromArgs(), author, user: opt('--user', process.env.CHATSOP_ACTOR ?? null),
+      model: opt('--model', provider?.model ?? null),
+      maxFixRounds: Number(opt('--max-fix-rounds', 3)), thinking: opt('--thinking', null), timeoutMs: Number(opt('--timeout-seconds', 900)) * 1000,
+      reasoning: opt('--reasoning', settings.reasoning), ...(provider?.baseUrl ? {chat: openaiChat({endpoint: provider.baseUrl, apiKey: provider.apiKeyEnv ? process.env[provider.apiKeyEnv] : null})} : {})};
+    const record = command === 'label-entities' ? await ingestions.labelEntities(memory, common)
+      : await ingestions.draft(memory, {...common, purpose: opt('--purpose', ''), maxChunkBytes: Number(opt('--max-chunk-bytes', 7000)), ...(opt('--concurrency') || settings.concurrency ? {concurrency: Number(opt('--concurrency') ?? settings.concurrency)} : {}),
+        onProgress: p => process.stderr.write(`[ingest] ${new Date().toISOString()} ${p.document} chunk ${p.chunk}/${p.of}\n`)});
+    console.log(JSON.stringify({id: record.id, status: record.status, author: record.author, model: record.model, totals: record.totals,
+      chunks: record.chunks.map(c => ({key: c.key, status: c.status, rounds: c.rounds, seconds: Math.round((c.ms ?? 0) / 1000), wires: c.wires})), report: path.join(ingestions.dir(memory, record.id), 'report.md')}, null, 2));
   } else if (command === 'report') {
     process.stdout.write(fs.readFileSync(path.join(ingestions.dir(memory, opt('--ingestion')), 'report.md'), 'utf8'));
   } else if (command === 'list') {

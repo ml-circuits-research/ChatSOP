@@ -28,6 +28,8 @@ import {circuitFeatures, sensitivityFor} from './features.mjs';
 import {ENGINES, ORACLE, ORACLE_IDS, eligibility} from './engines.mjs';
 import {verifyAnswer} from '../strategies/js-reference/index.mjs';
 import {CEILINGS} from '../strategies/js-reference/budget.mjs';
+import {ORDER_SAMPLING, ORDER_SAMPLING_MODES} from '../../sop/enums.mjs';
+import {sampleAnswers} from '../sample.mjs';
 
 export {circuitFeatures};
 
@@ -95,14 +97,47 @@ const sampled = (seed, rate) => rate >= 1 || (rate > 0 && parseInt(digest(seed).
  * @param requested   'auto' (default) or an engine id (rule 8)
  * @param verify      'auto' (default: the policy above), 'always', 'never', or 'offline' (defer replay for the report pass)
  * @param verifyBudget independent trusted oracle-replay limits; never changes execution routing
+ * @param seed        the seed of `order random` (the turn time or an explicit seed); reported in the packet's `sample`
  */
-export function routedAsk({handle, query, queryWires = null, requested = 'auto', budget = {}, verifyBudget = {}, verify = 'auto', config = ROUTER_DEFAULTS}) {
-  const cfg = merge(ROUTER_DEFAULTS, config === ROUTER_DEFAULTS ? {} : config);
+export function routedAsk({query, queryWires = null, seed = Date.now(), ...rest}) {
   if (!queryWires) {
     const parsed = parse(query ?? '');
     if (parsed.errors.length) throw new ProgramError(parsed.errors[0].code, `query: ${parsed.errors[0].message} (line ${parsed.errors[0].line})`);
     queryWires = parsed.wires;
   }
+  // `order random` (DS004 "Sampling") is applied here, once, after whichever route answers: the engine computes the full answer set of
+  // the query without the option and without its limit, then the rows are shuffled with the request's seed and cut by the limit.
+  const sampling = readSampling(queryWires);
+  if (!sampling) return routeOnce({...rest, query, queryWires});
+  const packet = routeOnce({...rest, query: sampling.query(query ?? ''), queryWires: sampling.queryWires});
+  if (!Array.isArray(packet.rows)) return packet;
+  const drawn = sampleAnswers(packet.rows, {limit: sampling.limit, seed});
+  return {...packet, rows: drawn.items, sample: drawn.sample, ...(drawn.truncated || packet.truncated ? {truncated: true} : {})};
+}
+
+/**
+ * The `order random` line of a parsed query circuit: null without one; otherwise its limit and the query text and wires without the
+ * line and without the limit (the full answer set). More than one line, or a mode other than ORDER_SAMPLING_MODES, is a ProgramError.
+ */
+export function readSampling(queryWires) {
+  const query = queryWires.find(w => w.type === 'query');
+  const lines = query ? query.fields.filter(f => f.key === 'order' && ORDER_SAMPLING.includes(f.value.trim())) : [];
+  if (!lines.length) return null;
+  if (lines.length > 1) throw new ProgramError('order_random_repeated', 'a query takes at most one order random line', query.id);
+  const mode = query.fields.find(f => f.key === 'mode')?.value.trim() ?? 'select';
+  if (!ORDER_SAMPLING_MODES.includes(mode)) throw new ProgramError('order_random_mode', `order random samples the answers of mode ${ORDER_SAMPLING_MODES.join('|')}, not mode ${mode}`, query.id);
+  const limitField = query.fields.find(f => f.key === 'limit');
+  const dropped = new Set([lines[0], ...(limitField ? [limitField] : [])]);
+  const dropLines = new Set([...dropped].map(f => f.line));
+  return {
+    limit: limitField ? Number(limitField.value) : Infinity,
+    queryWires: queryWires.map(w => (w === query ? {...w, fields: w.fields.filter(f => !dropped.has(f))} : w)),
+    query: text => text.split('\n').filter((_, i) => !dropLines.has(i + 1)).join('\n'),
+  };
+}
+
+function routeOnce({handle, query, queryWires, requested = 'auto', budget = {}, verifyBudget = {}, verify = 'auto', config = ROUTER_DEFAULTS}) {
+  const cfg = merge(ROUTER_DEFAULTS, config === ROUTER_DEFAULTS ? {} : config);
   const problem = {handle, query, queryWires};
   const run = id => ENGINES[id].ask(problem, budget);
 
@@ -134,6 +169,10 @@ export function routedAsk({handle, query, queryWires = null, requested = 'auto',
   } catch (e) {
     if (!(e instanceof NotExpressibleError)) throw e;
     return oracleAnswer(run, {...route, chosen: ORACLE, rule: 'oracle', reason: `${decision.chosen} declared the circuit not expressible (${e.features.join(', ')}); the question named no engine, so the oracle answers`});
+  }
+  // a scaled decimal or a large sum can leave the 32-bit or 64-bit range of an integer engine: that is a limit of the engine, not an answer
+  if (packet.status === 'budget_exhausted' && packet.reason === 'numeric_range') {
+    return oracleAnswer(run, {...route, chosen: ORACLE, rule: 'oracle', reason: `${decision.chosen} left its integer range (numeric_range); the question named no engine, so the oracle answers`});
   }
   packet = {...packet, sensitivity: packet.sensitivity ?? sensitivityFor(features)};
   if (verify === 'offline') return deferVerification({...packet, route});

@@ -26,10 +26,6 @@
 # any associated documentation shall at all times remain with
 # Princeton University and LICENSEE agrees to preserve same.
 
-@csi_screw fact
-  holds is_a screw inclined_plane
-  source "WordNet 3.0 hypernym of the chosen sense"
-
 @csi_screwdriver fact
   holds is_a screwdriver cs_cocktail
   source "WordNet 3.0 hypernym of the chosen sense"
@@ -175,7 +171,7 @@
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_shelter fact
-  holds is_a shelter structure_04341686
+  holds is_a shelter structure
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_shelter_04191943 fact
@@ -255,7 +251,7 @@
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_shower_stall fact
-  holds is_a shower_stall booth_02873839
+  holds is_a shower_stall booth
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_showroom fact
@@ -559,7 +555,7 @@
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_spinal_column fact
-  holds is_a spinal_column structure
+  holds is_a spinal_column structure_05225602
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_spirit fact
@@ -639,7 +635,7 @@
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_stadium fact
-  holds is_a stadium structure_04341686
+  holds is_a stadium structure
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_stage fact
@@ -815,11 +811,11 @@
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_structure fact
-  holds is_a structure body_part
+  holds is_a structure artifact
   source "WordNet 3.0 hypernym of the chosen sense"
 
-@csi_structure_04341686 fact
-  holds is_a structure_04341686 artifact
+@csi_structure_05225602 fact
+  holds is_a structure_05225602 body_part
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_student fact
@@ -891,7 +887,7 @@
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_supporting_structure fact
-  holds is_a supporting_structure structure_04341686
+  holds is_a supporting_structure structure
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_surface fact
@@ -944,6 +940,14 @@
 
 @csi_swimming_pool_2 fact
   holds is_a swimming_pool pool_03982060
+  source "WordNet 3.0 hypernym of the chosen sense"
+
+@csi_swing fact
+  holds is_a swing mechanical_device
+  source "WordNet 3.0 hypernym of the chosen sense"
+
+@csi_swing_2 fact
+  holds is_a swing plaything
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_switch fact
@@ -1007,7 +1011,7 @@
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_tack fact
-  holds is_a tack nail_03804744
+  holds is_a tack nail
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_tail fact
@@ -1095,7 +1099,7 @@
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_telephone_booth fact
-  holds is_a telephone_booth booth_02873839
+  holds is_a telephone_booth booth
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_telephone_pole fact
@@ -1255,7 +1259,7 @@
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_toenail fact
-  holds is_a toenail nail
+  holds is_a toenail nail_05581693
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_toilet fact
@@ -1355,7 +1359,7 @@
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_tower fact
-  holds is_a tower structure_04341686
+  holds is_a tower structure
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_town fact
@@ -1443,7 +1447,7 @@
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_tube_05246511 fact
-  holds is_a tube_05246511 structure
+  holds is_a tube_05246511 structure_05225602
   source "WordNet 3.0 hypernym of the chosen sense"
 
 @csi_tuner fact

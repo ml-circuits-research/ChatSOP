@@ -1,0 +1,9 @@
+{
+  "name": "llmapiprovider",
+  "version": "0.1.0",
+  "description": "Local OpenAI/Anthropic-compatible LLM proxy: tiers with fallback chains, on-demand local llama-server, rate and plan limits, cost monitoring, audit store. Node built-ins only.",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=22" },
+  "scripts": { "start": "node server.mjs", "test": "node --test proxy.test.mjs" }
+}

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Report driver of the llm-agent baseline (advisory LLM through omp). Costs real model calls: it refuses to run unless SMOKE_LLM=1.
+ * Report driver of the llm-agent baseline (advisory LLM through the local proxy). Costs real model calls: it refuses to run unless SMOKE_LLM=1.
  *
- *   SMOKE_LLM=1 node eval/smoke-reasoning/bench/llm-agent-report.mjs --model xai-oauth/grok-4.20-0309-non-reasoning --presentation sop|nl|both [--case 07] [--subset nl] [--concurrency 4] [--refresh] [--verify]
+ *   SMOKE_LLM=1 node eval/smoke-reasoning/bench/llm-agent-report.mjs --model Qwen3.8 27b --presentation sop|nl|both [--case 07] [--subset nl] [--concurrency 4] [--refresh] [--verify]
  *   node eval/smoke-reasoning/bench/llm-agent-report.mjs --summary          (no model calls: rebuild eval/reports/current/llm-agent/summary.md from the per-run files)
  *
  * For each case it records the agreement with the oracle's expected answer in two ways: FULL (the harness `compare`, including wire ids such as
@@ -75,7 +75,7 @@ const slug = m => m.replace(/[^a-z0-9.]+/gi, '_');
 async function main() {
   if (flag('--summary')) return (await import('./llm-agent-summary.mjs')).writeSummary(outDir);
   if (process.env.SMOKE_LLM !== '1') { console.error('refusing to call a model: set SMOKE_LLM=1'); return 2; }
-  const model = opt('--model', 'xai-oauth/grok-4.20-0309-non-reasoning');
+  const model = opt('--model', 'Qwen3.8 27b');
   const pres = opt('--presentation', 'both') === 'both' ? ['sop', 'nl'] : [opt('--presentation')];
   const reasoning = opt('--reasoning', 'cot');
   const cases = loadCases(opt('--case')).filter(c => opt('--subset') !== 'nl' || sourceOf(c.dir));

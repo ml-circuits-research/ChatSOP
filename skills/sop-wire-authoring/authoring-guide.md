@@ -35,6 +35,7 @@ The loop is mandatory: (1) declare the vocabulary, (2) write the wires, (3) run 
 - `@id rule`: when*+ then* mode valid source + governance
 - `@id default`: when*+ then* except+ priority overrides+ source + governance
 - `@id integrity`: never*+ witness* message severity source + governance
+- `@id reply`: situation* part language text* source
 - `@id aggregate`: over*+ group count sum min max collect yields*
 - `@id constraint`: var+ require+ claim objective direction task select unit
 - `@id action`: params requires*+ adds+ removes+ cost source next+ guard+ + governance

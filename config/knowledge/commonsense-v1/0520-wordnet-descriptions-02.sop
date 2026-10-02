@@ -26,14 +26,6 @@
 # any associated documentation shall at all times remain with
 # Princeton University and LICENSEE agrees to preserve same.
 
-@csd_stupid fact
-  holds description stupid "a person who is not very bright"
-  source "WordNet 3.0 synset 10667187-n gloss"
-
-@csd_submarine fact
-  holds description submarine "a submersible warship usually armed with torpedoes"
-  source "WordNet 3.0 synset 04347754-n gloss"
-
 @csd_substance fact
   holds description substance "a particular kind or species of matter with uniform properties"
   source "WordNet 3.0 synset 00020090-n gloss"
@@ -125,6 +117,10 @@
 @csd_swimming_pool fact
   holds description swimming_pool "pool that provides a facility for swimming"
   source "WordNet 3.0 synset 04371225-n gloss"
+
+@csd_swing fact
+  holds description swing "mechanical device used as a plaything to support someone swinging back and forth"
+  source "WordNet 3.0 synset 04371774-n gloss"
 
 @csd_switch fact
   holds description switch "control consisting of a mechanical or electrical or electronic device for making or breaking or changing the connections in a circuit"

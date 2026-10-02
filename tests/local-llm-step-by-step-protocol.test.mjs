@@ -165,3 +165,45 @@ test('the paired bootstrap and the preregistered stop rules', () => {
   assert.equal(decide({point: 0, low: -0.1, high: 0.04}, 0, 0), 'futility');
   assert.equal(decide({point: 0.3, low: 0.1, high: 0.5}, 0, 0, {failedShare: 0.3}), 'broken');
 });
+
+test('problem mode: the values, the formulas and the options of a problem become session predicates, stated data, rules and queries', async () => {
+  const world = teamWorld();
+  try {
+    const message = 'Plan A costs 400 CU fixed plus 8 CU per unit; Plan B costs 150 CU fixed plus 20 CU per unit. For 30 units, which plan is cheaper?';
+    const {chat, asked} = scripted([
+      {when: /Which kind of answer/, say: kind('problem')},
+      {when: /What does it ask for\?/, say: '2'},
+      {when: /List every number the problem gives/, say: 'fixed_a = 400\nunit_a = 8\nfixed_b = 150\nunit_b = 20\nunits = 30\ninvented = 999'},
+      {when: /Write how each value the question asks for is computed/, say: 'total_a = fixed_a + unit_a * units\ntotal_b = fixed_b + unit_b * units'},
+      {when: /Which computed value belongs to which option/, say: 'Plan A = total_a\nPlan B = total_b'},
+      {when: /lowest or the highest/, say: '1'},
+    ]);
+    const r = await protocolQuery({message, lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'B'});
+    assert.equal(r.status, 'validated', JSON.stringify(r.validation?.problems));
+    assert.match(r.sop, /@fixed_a predicate\n {2}args object:value/);
+    assert.match(r.sop, /relation "unit_b"\n {2}role object 20/);
+    assert.doesNotMatch(r.sop, /999/, 'a number the message does not write is never stated');
+    assert.match(r.sop, /when compute \?t1 \?v_unit_a times \?v_units/);
+    assert.match(r.sop, /rank lowest \?v/);
+    assert.ok(asked.length <= MAX_QUESTIONS);
+    assert.equal(JSON.parse(r.report).problem.kind, 'choose');
+  } finally { world.dispose(); }
+});
+
+test('problem mode: a deduction from stated facts and rules is a yes/no query over session properties', async () => {
+  const world = teamWorld();
+  try {
+    const {chat} = scripted([
+      {when: /Which kind of answer/, say: kind('problem')},
+      {when: /What does it ask for\?/, say: '3'},
+      {when: /List the facts the problem states/, say: 'Zed | is_glorp\nMoon | not is_blue'},
+      {when: /List the general rules/, say: 'if is_glorp then is_blue'},
+      {when: /Write what the question asks/, say: 'Zed | is_blue'},
+    ]);
+    const r = await protocolQuery({message: 'Every glorp is blue. Zed is a glorp. The Moon is not blue. Is Zed blue?', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'B'});
+    assert.equal(r.status, 'validated', JSON.stringify(r.validation?.problems));
+    assert.match(r.sop, /@r1 rule\n {2}when is_glorp \?x\n {2}then is_blue \?x/);
+    assert.match(r.sop, /relation "is_blue"\n {2}role subject "Moon"\n {2}polarity negated/);
+    assert.match(r.sop, /@q query\n {2}where match\n {4}relation "is_blue"\n {4}role subject "Zed"/);
+  } finally { world.dispose(); }
+});

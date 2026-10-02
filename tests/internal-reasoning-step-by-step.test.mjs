@@ -6,7 +6,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createWorld} from '../tools/eval/symbolic-vs-llm/world.mjs';
 import {internalReasoningQuery, createReasoningOracle, internalReasoningPrefix, loadProtocol} from '../lib/formalize/internal-reasoning/index.mjs';
-import {PROTOCOL_PREFIX} from '../lib/query-author/step-by-step/questions.mjs';
 
 const protocol = loadProtocol();
 const KINDS = protocol.questions.get('ask_kind').choices.map(c => c.value);
@@ -43,9 +42,11 @@ const run = (world, message, rules, extra = {}) => {
   return internalReasoningQuery({message, lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createReasoningOracle({chat, protocol}), protocol, ...extra}).then(r => ({r, asked}));
 };
 
-test('the stable prefix is rendered from the protocol memory and equals the generic protocol prefix byte for byte', () => {
+test('the stable prefix is rendered from the protocol memory: the kinds and the first aspects, byte-identical for every request', () => {
   const prefix = internalReasoningPrefix(protocol);
-  assert.equal(prefix.firstTurn, PROTOCOL_PREFIX);
+  assert.equal(prefix.firstTurn, internalReasoningPrefix(loadProtocol()).firstTurn);
+  assert.ok(prefix.firstTurn.startsWith('Kinds of answer a request can want:\n1. ') && prefix.firstTurn.includes('\n\nParts a request can have:\n1. ') && prefix.firstTurn.endsWith("The user's request:\n<<<\n"));
+  assert.equal(prefix.firstTurn.split('\n').filter(l => /^\d+\. /.test(l)).length, KINDS.length + 8);
   assert.match(prefix.system, /^You help a symbolic reasoning system/);
   assert.doesNotMatch(prefix.firstTurn, /\d{4}-\d{2}-\d{2}T/, 'no clock or request data in the prefix');
 });

@@ -33,6 +33,39 @@
     "H5": "IR and IR-greedy have the same correct rate (the planner adds the no-plan check and the explanation, not accuracy) on these rows."
   },
   "non_claim": "Small dev samples; the numbers describe these forms with Qwen3-4B. The IR protocol's question texts and choices were taken from method B (same wording) so that the comparison isolates the control and the representation; B was tuned on the same tuning pool earlier.",
-  "deviations": [],
-  "results": null
+  "deviations": [
+    "B changed during the day (understanding-agent: 13 kinds, 8 aspects in the prefix, lettered acts question). IR's question texts were synced byte-identical with B's current prefix and questions during stage 0; B was run as it was in the checkout at stage 1 (digest in stage1/run-B.json).",
+    "Stage 0 had three rounds on fresh tuning rows (r1, r2, r3b); r3 attempt 1 was broken by a bug (the acts 'request' line leaked into pragmatic wires) and rerun.",
+    "After stage 1, two generic fixes found on stage-1 rows (an unused-name re-ask no longer requires the refused assembly; readable dates set the period without the model's date aspect) and one post-hoc rerun of IR and IR-greedy on the same 89 rows ('final'); the B records are those of stage 1. The final numbers are on rows seen before the fixes.",
+    "GLM arm skipped: z.ai 5-hour usage limit reached (429 until 22:12).",
+    "Trace judge: openference Qwen3.8 27b through LLMAPIProvider instead of z.ai GLM (z.ai limit; owner decision of 2026-10-02: Qwen3.8 27b is the default judge).",
+    "Books items not run: the books harness (tools/eval/books) runs LocalLLMStepByStep only."
+  ],
+  "results": {
+    "report": "eval/reports/current/internal-reasoning/summary.md",
+    "stage1": {
+      "IR": "41 correct / 26 wrong of 89",
+      "B": "45 / 25 of 89",
+      "IR_minus_B": "-4.5 pp [-9.0, -1.1]",
+      "questions": "-0.34 [-0.57, -0.11]",
+      "decision": "undecided"
+    },
+    "final_post_hoc": {
+      "IR": "43 / 23 of 89",
+      "IR_greedy": "43 / 21 of 89",
+      "B": "45 / 25 of 89",
+      "IR_minus_B": "-2.2 pp [-5.6, 0.0]",
+      "IR_minus_greedy": "0.0 pp",
+      "questions": "-0.19 [-0.40, 0.01]"
+    },
+    "engine_ms_per_decision": "14-38 (IR plan), 13-16 (greedy)",
+    "trace_quality": "IR 1.55 vs B 0.25 on 20 rows, +1.30 [1.0, 1.6]",
+    "hypotheses": {
+      "H1": "not established (undecided)",
+      "H2": "supported at stage 1",
+      "H3": "supported",
+      "H4": "supported (by construction)",
+      "H5": "supported"
+    }
+  }
 }
