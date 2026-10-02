@@ -43,7 +43,7 @@ Node.js >=22.13 with `.mjs` modules, explicit imports, `node:` built-ins, async/
 
 ## Which path runs which model (owner rule, 2026-10-02)
 
-Pick the execution path by the model's provider, without asking: **Anthropic models** (Haiku, Sonnet, Opus) run as Claude subagents; **every other provider** (OpenAI Codex such as gpt-6.1 and gpt-6-luna, z.ai GLM, xAI Grok, DeepSeek, OpenRouter) runs through `omp`; local GGUF models run on the local llama-server. Larger implementation tasks: omp with gpt-6.1. LLM batch work (circuit authoring for experiments, validations, bulk data or fact creation, judging): Haiku subagents while the Codex and Grok subscriptions are exhausted, z.ai GLM through omp as an alternative. The product's request parser uses its configured chain (`config/runtime.json` `queryParser.models`). Draw obvious consequences yourself; do not probe or ask about what follows from known facts.
+Pick the execution path by the model's provider, without asking: **Anthropic models** (Haiku, Sonnet, Opus) run as Claude subagents; **every other provider** (OpenAI Codex such as gpt-6.1 and gpt-6-luna, z.ai GLM, xAI Grok, DeepSeek, OpenRouter) runs through `omp`; local GGUF models run on the local llama-server. Implementation tasks: Claude subagents, Opus or Sonnet (owner, 2026-10-02). LLM batch work (circuit authoring for experiments, validations, bulk data or fact creation, judging): Haiku subagents while the Codex and Grok subscriptions are exhausted, z.ai GLM through omp as an alternative. The product's request parser uses its configured chain (`config/runtime.json` `queryParser.models`). Draw obvious consequences yourself; do not probe or ask about what follows from known facts.
 
 ## Key Paths
 
