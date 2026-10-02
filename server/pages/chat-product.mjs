@@ -7,8 +7,8 @@
  *   (name and strategy), Add knowledge (paste or upload a circuit; validation problems are shown, nothing is written on failure) and
  *   Start session; creating an empty memory is there too. Every signed-in user may use them (no admin role yet).
  * - Settings, *Formalization*: the formalization strategy of the session (session setting `formalizer`; strategies the server cannot run
- *   are disabled with the reason, from `GET /v1/status`) and the LLMDirect model (session setting `formalizer_model`: one model of the
- *   configured chain, from `GET /v1/status`, tried before the rest of the chain). *Server status*: strategies, base
+ *   are disabled with the reason, from `GET /v1/status`) and the first tier (session setting `formalizer_model`: the proxy tier of the
+ *   ladder the step-by-step questions start at, from `GET /v1/status`; the ladder continues upward from it). *Server status*: strategies, base
  *   memories with their warm state, and the reasoning engines (`GET /v1/status`). A message goes to `POST /v1/chat/completions`;
  *   attached files go to knowledge authoring (`POST /v1/author`).
  * - Authoring progress (`POST /v1/author` with `wait: false`, polled) and the authored circuits (validation, report, cost) are shown as a
@@ -20,7 +20,7 @@ export const sessionHeadHtml = `<header class="chat-head"><div class="info" id="
 
 const srow = (title, help, control) => `<div class="srow"><div class="what"><b>${title}</b><span>${help}</span></div><div class="ctl">${control}</div></div>`;
 export const settingsFormalizerModelHtml = [
-  srow('<label class="plain" for="formalizer-model">LLMDirect model</label>', 'Tried first, before the rest of the configured chain. The models are proxy tiers or provider models of LLMAPIProvider, called directly.', '<select id="formalizer-model"><option value="">no preference: the configured chain</option></select>'),
+  srow('<label class="plain" for="formalizer-model">First tier</label>', 'The proxy tier that answers the step-by-step questions first; a question goes up the ladder only when its answer cannot be read.', '<select id="formalizer-model"><option value="">no preference: the configured ladder</option></select>'),
   '<p id="formalizer-model-note" class="hint-note"></p>',
 ].join('');
 
@@ -53,7 +53,18 @@ export const productDialogsHtml = `
 <p class="msgline">Creates a new base memory: a fork of the session's base memory plus the knowledge files added in this session, validated again. The original base memory does not change. Recorded with provenance.</p>
 <div class="row"><label for="commit-name">Name</label><input type="text" id="commit-name" maxlength="120"><label for="commit-strategy">Strategy</label><select id="commit-strategy"></select></div>
 <div id="commit-msg" class="msgline" role="status"></div>
-<div class="actions"><button id="commit-cancel" type="button">Cancel</button><button id="commit-go" type="button" class="primary">Commit</button></div></dialog>`;
+<div class="actions"><button id="commit-cancel" type="button">Cancel</button><button id="commit-go" type="button" class="primary">Commit</button></div></dialog>
+<dialog id="fb-dialog" aria-labelledby="fb-title"><h2 id="fb-title">What was wrong with this answer?</h2>
+<fieldset><legend class="msgline">Choose one cause</legend>
+<label><input type="radio" name="fb-cause" value="not_understood"><span><b>Did not understand my request</b></span></label>
+<label><input type="radio" name="fb-cause" value="wrong_answer"><span><b>Wrong answer</b> <span class="muted">(the reasoning or the facts are wrong)</span></span></label>
+<label><input type="radio" name="fb-cause" value="missing_knowledge"><span><b>Missing knowledge</b> <span class="muted">(it should know this)</span></span></label>
+<label><input type="radio" name="fb-cause" value="unnecessary_question"><span><b>Unnecessary question or clarification</b> <span class="muted">(the request was clear)</span></span></label>
+<label><input type="radio" name="fb-cause" value="bad_wording"><span><b>Bad wording or tone</b> <span class="muted">(correct, but phrased badly)</span></span></label>
+</fieldset>
+<textarea id="fb-comment" maxlength="2000" placeholder="Comment (optional)" aria-label="Comment (optional)"></textarea>
+<div id="fb-msg" class="msgline bad" role="status"></div>
+<div class="actions"><button id="fb-cancel" type="button">Cancel</button><button id="fb-send" type="button" class="primary">Send</button></div></dialog>`;
 
 export const attachHtml = `<input type="file" id="attach-file" multiple hidden>`;
 export const chipsHtml = `<div id="chips" class="chips" aria-label="Attached files"></div>`;
@@ -243,15 +254,15 @@ $('commit-go').onclick=async()=>{
  box.className='msgline ok';box.textContent='Committed: new base memory "'+r.body.memory.name+'" ('+r.body.memory.strategy+', '+sizeText(r.body.memory)+').';await refreshSession();
 };
 
-// ---- the LLMDirect model: one model of the configured chain (GET /v1/status)
+// ---- the first tier of the step-by-step ladder (GET /v1/status)
 function renderModelOptions(){
  const select=$('formalizer-model'),st=PROD.status;if(!st)return;
- const direct=st.formalization.strategies.find(x=>x.id==='LLMDirect');const models=(direct&&direct.models)||[];
- const keep=select.value||(PROD.session&&PROD.session.settings&&(PROD.session.settings.formalizer_model||PROD.session.settings.omp_model))||'';select.textContent='';
- const def=document.createElement('option');def.value='';def.textContent='no preference: the configured chain'+(models.length?' ('+models.map(m=>m.id).join(' \u2192 ')+')':'');select.append(def);
- for(const m of models){const o=document.createElement('option');o.value=m.id;o.textContent=m.id+(m.available===false?' \u2014 '+(m.reason||'not reachable'):'');select.append(o);}
+ const steps=st.formalization.strategies.find(x=>x.available)||st.formalization.strategies[0];const tiers=(steps&&steps.ladder)||[];
+ const keep=select.value||(PROD.session&&PROD.session.settings&&PROD.session.settings.formalizer_model)||'';select.textContent='';
+ const def=document.createElement('option');def.value='';def.textContent='no preference: the configured ladder'+(tiers.length?' ('+tiers.join(' \u2192 ')+')':'');select.append(def);
+ for(const t of tiers){const o=document.createElement('option');o.value=t;o.textContent=t;select.append(o);}
  if([...select.options].some(o=>o.value===keep))select.value=keep;
- $('formalizer-model-note').textContent=direct&&!direct.available?'LLMDirect cannot run now: '+(direct.reason||'no model of the chain is reachable')+'.':'';
+ $('formalizer-model-note').textContent=steps&&!steps.available?'The formalizer cannot run now: '+(steps.reason||'the first tier is not reachable')+'.':'';
 }
 async function saveSetting(patch){
  if('formalizer_model' in patch)store.set('chatsop.formalizerModel',patch.formalizer_model);
@@ -339,6 +350,35 @@ async function productEarly(text){
  await runAuthoring(text,files);
  return true;
 }
+// ---- answer feedback (DS022 "Chat feedback"): thumbs up records at once; thumbs down asks for one cause and an optional comment ----
+// A function, not a constant: renderLog (earlier in the same script) calls feedbackBar before the constants below are initialised.
+function fbIcon(v){return ({up:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v11H4V10h3zm0 0l4-8a2.5 2.5 0 0 1 2.5 2.5V9h5.2a2 2 0 0 1 2 2.3l-1.3 8A2 2 0 0 1 17.4 21H7"/></svg>',down:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 14V3h3v11h-3zm0 0l-4 8a2.5 2.5 0 0 1-2.5-2.5V15H5.3a2 2 0 0 1-2-2.3l1.3-8A2 2 0 0 1 6.6 3H17"/></svg>'})[v];}
+function saveVote(item,vote){for(const id of conversations){const items=transcript(id);const hit=items.find(x=>x.trace&&x.trace.trace_id===item.trace.trace_id);if(hit){hit.feedback=vote;saveTranscript(id,items);return;}}}
+async function sendVote(item,payload){return jcall('POST','/v1/feedback',{session:item.trace.session.id,turn:item.trace.turn,...payload});}
+function feedbackBar(item,div){
+ const t=item.trace;if(item.role!=='assistant'||!t||!t.session||!t.turn)return;
+ const bar=el('div','fb');const note=el('span','fb-note');
+ const mk=(vote,label)=>{const b=el('button');b.type='button';b.innerHTML=fbIcon(vote);b.title=label;b.setAttribute('aria-label',label);b.setAttribute('aria-pressed',String(item.feedback===vote));b.dataset.vote=vote;return b;};
+ const up=mk('up','Good answer'),down=mk('down','Bad answer');
+ const mark=vote=>{item.feedback=vote;up.setAttribute('aria-pressed',String(vote==='up'));down.setAttribute('aria-pressed',String(vote==='down'));saveVote(item,vote);};
+ up.onclick=async()=>{const r=await sendVote(item,{vote:'up'});if(r.ok){mark('up');note.textContent='Thanks.';}else note.textContent='Not recorded: '+errText(r);};
+ down.onclick=()=>openFeedback(item,r=>{mark('down');note.textContent='Thanks, recorded.';});
+ bar.append(up,down,note);div.append(bar);
+}
+let fbPending=null;
+function openFeedback(item,done){
+ const d=$('fb-dialog');fbPending={item,done};$('fb-msg').textContent='';$('fb-comment').value='';
+ d.querySelectorAll('input[name=fb-cause]').forEach(x=>{x.checked=false;});d.showModal();
+}
+$('fb-cancel').onclick=()=>{fbPending=null;$('fb-dialog').close();};
+$('fb-send').onclick=async()=>{
+ if(!fbPending)return;const chosen=$('fb-dialog').querySelector('input[name=fb-cause]:checked');
+ if(!chosen){$('fb-msg').textContent='Choose one cause.';return;}
+ const comment=$('fb-comment').value.trim();
+ const r=await sendVote(fbPending.item,{vote:'down',cause:chosen.value,...(comment?{comment}:{})});
+ if(!r.ok){$('fb-msg').textContent='Not recorded: '+errText(r);return;}
+ const p=fbPending;fbPending=null;$('fb-dialog').close();p.done(r);
+};
 ensureSession().then(()=>loadStatus());
 initTabs();
 `;

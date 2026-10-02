@@ -3,9 +3,17 @@
 
 
 
+## Metacognition modes on the product path (2026-10-02, reasoning-modes-agent, review P-1 point 1)
+
+Delivered: `why_not` and `abduce` of a model query routed to the oracle, consistent abduction (`inconsistent`, `no_consistent_explanation`), `rules_used` in the explain packet with rendered rule lines, and the logic:91 refutation guard fix (`R-P1 refutation`). Observed: `node --test tests/reasoning-modes-product.test.mjs` (8 pass: logic:541 and logic:501 as SOP programs, why_not and explain through `Agent.turn`, abduce through the AuthorRuntime over a memory with hypotheses, logic:91 refuted), `tests/wire-help.test.mjs` with the new query-modes examples, the smoke reasoning suite (js-oracle 103 pass, 0 fail).
+
 ## Natural chat: conversation layer, self layer, near misses, behaviour layer (2026-10-02, conversation-agent)
 
 Delivered: the `reply` wire and the conversation layer `config/knowledge/conversation-v1` (all chat phrasing as data, chosen by the JS oracle with its derivation in the trace), `lib/near-miss.mjs`, the self layer `config/knowledge/assistant-v1` with generated memory statistics (world-v1 rebuilt), `order random` sampling, the step-by-step kinds `self` and `instruction`, natural phrasing through the proxy, the behaviour layer (instruction wire, standing instructions as user-origin wires, drives, time facts), the "knowledge files · SOP wires" wording. DS004, DS009, DS014, DS022, DS023, README, runtime, api, wiki, wire pages, architecture page.
+
+## Problem mode for the owner's problem books (2026-10-02, problem-agent, eval-books-problems-v1)
+
+Delivered: exact decimal arithmetic and `compute` inside recursion (DS004), problem mode of the circuit surface (DS014 "Problems that state their own data": problem vocabulary closed, turn-scoped, over conversation entities), problem questions of LocalLLMStepByStep (`lib/query-author/step-by-step/problem.mjs`, DS022 item 12), the problem-mode guide of LLMDirect, books harness arm `remote-direct`, `--concurrency`, per-problem isolation, `tests/problem-mode.test.mjs`. Loops of 10-14 fresh problems: batch 1 0/100 before; loop 4 steps (Qwen3-4B) 7/14 correct, LLMDirect (Qwen3.8 27b) 4/14. Report: `eval/reports/current/books-eval/problem-mode.md`.
 
 ## Common-sense layer commonsense-v1 (2026-10-02, commonsense-agent)
 

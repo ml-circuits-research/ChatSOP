@@ -3,13 +3,13 @@
  * Layout: a left sidebar with three vertical tabs (an icon rail or top bar below 760 px), each a `tabpanel` with arrow-key navigation:
  * *Chat* (session header with the base memory and "New session", the message list that keeps the newest message in view and shows a
  * "new messages" pill when the user has scrolled up, the attach button and a composer that grows to five lines, Enter sends, Shift+Enter
- * adds a line), *Settings* (cards: Formalization, with the strategy selector and the LLMDirect model; Server status) and *Base Memory* (table of base memories with View, Fork, Add knowledge and Start
+ * adds a line), *Settings* (cards: Formalization, with the strategy selector and the first tier of the ladder; Server status) and *Base Memory* (table of base memories with View, Fork, Add knowledge and Start
  * session). Markup is built here, the CSS is `chat/style.mjs`, the product layer (sessions, base memories, knowledge authoring) is
  * `chat-product.mjs`.
  *
- * The message goes to the server as typed, in any language: the request parser (the session's formalization strategy, LLMDirect by
- * default) writes the circuit, the runtime validates, links, retrieves, routes, verifies and renders it, and the answer comes back in
- * English with its trace. The trace panel follows the pipeline: formalization (strategy, model, repair rounds), vocabulary (schema
+ * The message goes to the server as typed, in any language: the request parser (the session's formalization strategy, step by step by
+ * default) assembles the circuit, the runtime validates, links, retrieves, routes, verifies and renders it, and the answer comes back in
+ * English with its trace. The trace panel follows the pipeline: formalization (strategy, tiers, questions), vocabulary (schema
  * neighbourhood, vocabulary dialog), session definitions and assumptions (labelled with their origin), linking, retrieval
  * (complete or not, bounds), route and verification, latency, then the circuits. Linked entities and relations open their cards in the
  * knowledge browser (`/review?session=…&entity=…`, server/pages/review.mjs). `parse_unavailable` (503) and `parse_failed` (422)
@@ -92,11 +92,14 @@ function traceView(c){
  const total=c.turn_ms??c.client_ms??c.formalization_ms;
  summary.textContent='how this answer was made · '+(c.strategy||p.strategy||'formalizer')+(p.model?' ('+p.model+')':'')+' · '+(c.status??'no status')+(typeof total==='number'?' · '+secs(total):'');
  details.append(summary);
- // 1. Formalization: the strategy and model that wrote the circuit, the repair rounds and the guards that sent it back.
+ // 1. Formalization: the strategy, the tiers that answered its questions, escalations and the guards that sent it back.
  const f=section(details,'1. Formalization (request parser)',true).list;
  field(f,'strategy',c.strategy||p.strategy);field(f,'model',p.model);
  if(p.tried&&p.tried.length)field(f,'models tried before',p.tried.map(t=>typeof t==='string'?t:t.model+': '+t.reason).join('; '));
- field(f,'rounds',p.rounds!=null?String(p.rounds):null);
+ if(p.strategy_note)field(f,'note',p.strategy_note);
+ if(p.ladder&&p.ladder.length)field(f,'tier ladder',p.ladder.join(' \u2192 '));
+ if(p.steps!=null)field(f,'questions',String(p.steps));
+ if(p.tiers&&p.tiers.escalated&&p.tiers.escalated.length)field(f,'escalated questions',p.tiers.escalated.map(e=>e.question+' ('+e.tier+')').join(', '));
  listField(f,'repair rounds',(p.repairs||[]).map(r=>'round '+r.round+': '+r.problems.join(', ')));
  field(f,'cache',p.cache);if(p.cost_usd)field(f,'cost',' $'+Number(p.cost_usd).toFixed(4)+' (nominal for subscriptions)');
  field(f,'time',secs(p.ms??c.formalization_ms));
@@ -170,6 +173,8 @@ function add(item){
  if(item.hint){const hint=document.createElement('div');hint.className='meta';hint.innerHTML=item.hint;div.append(hint);}
  if(item.trace)div.append(traceView(item.trace));
  if(item.time){const meta=document.createElement('div');meta.className='meta';meta.textContent=new Date(item.time).toLocaleTimeString();div.append(meta);}
+ // Thumbs up and down on an answered turn of a session (chat-product.mjs feedbackBar, POST /v1/feedback).
+ if(typeof feedbackBar==='function')feedbackBar(item,div);
  $('log').append(div);
  return div;
 }

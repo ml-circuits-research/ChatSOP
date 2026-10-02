@@ -6,7 +6,7 @@ These files describe working procedures, not automatically loaded executable plu
 
 ## Procedural skills (with `SKILL.md`)
 
-**coding-agent-query** — Turn one user request into SOP query wires (predicates by id from retrieved candidates, entity hints) for the session memory's vocabulary; the coding agent never answers and never adds a fact (`lib/query-author/`, `server/query-parser.mjs`, DS022).
+**coding-agent-query** (archived 2026-10-02) — the guide of the one-shot author LLMDirect, which wrote whole SOP query circuits; formalization is now step by step (DS022 "Formalization strategies"). Kept for history in `probably_obsolete/one-shot-formalization/skills/coding-agent-query/`.
 
 **compare-memory** — Compare memory strategies without changing the semantic task.
 

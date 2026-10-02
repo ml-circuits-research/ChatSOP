@@ -62,7 +62,7 @@ test('loading smalltalk-professional-v1 makes the formal register win; smalltalk
 
 test('every reply of the collections fills from the slots its situation gets', () => {
   const slots = {topics: 'cities and rivers', readings: '(1) a\n(2) b', mention: 'Socrate', candidate: 'Socrates', candidate_description: 'a philosopher', relations: '"born in"', aside_fact: 'Paris is in France.'};
-  for (const id of ids) for (const r of layerOf([id]).replies.values()) if (r.part !== 'line') assert.doesNotThrow(() => fill(r.text, slots, r.situation), `${r.id}`);
+  for (const c of Object.values(COLLECTIONS)) for (const r of layerOf([c.id]).replies.values()) if (r.id.startsWith(c.prefix + '_')) assert.doesNotThrow(() => fill(r.text, slots, r.situation), `${r.id}`);
 });
 
 test('the build is deterministic structure: items name only allowed slots, the diversity filter drops near duplicates', () => {

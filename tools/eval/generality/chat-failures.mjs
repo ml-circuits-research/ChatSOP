@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Replays the real chat failures of 2026-10-02 (product-agent, private server, CodingAgent zai/glm-5.3, world-v1) through the
- * product Agent turn (server/agent.mjs) with the configured query parser: one conversation per group, turns in order, so a
+ * product Agent turn (server/agent.mjs) with the configured query parser (step by step since 2026-10-02): one conversation per group, turns in order, so a
  * statement of an earlier turn is carried as turn-local evidence. Part of level c (free natural questions) of eval-generality-v1.
  *   node tools/eval/generality/chat-failures.mjs --out eval/reports/current/generality/chat-failures/<tag>.jsonl [--only g1,g3]
  */

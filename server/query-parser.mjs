@@ -1,59 +1,50 @@
 /**
- * The request parser of a chat turn (DS009 "Request parser", DS014 "The circuit author"): a model turns the user's message into the
- * model-surface SOP that the shared symbolic path (admission, KnowledgeLinker, slice retrieval, StrategyRouter, oracle verification,
+ * The request parser of a chat turn (DS009 "Request parser", DS014 "The circuit author"): the formalizer turns the user's message into
+ * the model-surface SOP that the shared symbolic path (admission, KnowledgeLinker, slice retrieval, StrategyRouter, oracle verification,
  * completeness guard, rendering) executes.
  *
- * Owner decision 2026-10-02: every formalization calls its model directly (a chat-completion request through the proxy LLMAPIProvider);
- * none runs through omp. The default strategy LLMDirect reads the message and the vocabulary of the session's memory (lib/query-author)
- * and writes circuits: a query, or a labelled `unclear` verdict. It never answers and never adds a fact. The validator's problems go
- * back to the model for at most `maxFixRounds` rounds. There is no other parser and no fallback parser: when no model of the chain can
- * run, the turn fails with the honest code `parse_unavailable` (503); a model that ran but delivered no valid circuit fails with
+ * Owner decision 2026-10-02: formalization is step by step. The default strategy LocalLLMStepByStep (or InternalReasoningStepByStep)
+ * asks short questions about the message and assembles the circuit itself; a model only answers the questions. The answering model is a
+ * ladder of proxy tiers (`queryParser.local.ladder`, product: tiny, then small, then good): each question goes to the smallest tier and
+ * escalates only when its answer cannot be read or the tier does not answer. The one-shot strategy LLMDirect is archived
+ * (probably_obsolete/one-shot-formalization/); a session or a caller that names it (or CodingAgent, LocalLLMDirect) gets the default
+ * step-by-step strategy and a `strategy_note` in the parse record. There is no other parser and no fallback parser: when the first
+ * tier cannot run, the turn fails with the honest code `parse_unavailable` (503); a run that ended without a valid circuit fails with
  * `parse_failed` (422). Both errors carry the `parse` record for the trace.
  *
- * `queryParser.models` is the model chain (`<provider>/<model>` entries of `llmProviders`, tried in order: openference Qwen3.8 27b, then
- * DeepSeek flash through OpenRouter); an unreachable provider is skipped with its reason, and a run that does not deliver (transport
- * failure, timeout) moves on to the next model. Whatever produced the circuit, the answer is executed and checked symbolically, and the
- * packet carries `parse: {parser: 'llm_direct', strategy, model, tried, rounds, cost_usd, ms, cache, ...}`. Identical requests are
- * cached per memory version, model and guide version. One formalization per turn (owner 2026-10-02: cheap and fast; no voting);
- * quality control is offline (the proxy's request log, reviewed in batch).
+ * The packet carries `parse: {parser, strategy, model, ladder, tiers?, steps, dialog, ms, cache, ...}`. Identical requests are cached per
+ * memory version, strategy and ladder. One formalization per turn (owner 2026-10-02: no voting); quality control is offline (the
+ * proxy's request log, reviewed in batch).
  */
 import {createHash} from 'node:crypto';
+import {reportFormalizationError} from '../lib/formalization-errors.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {authorExecution} from '../lib/query-author/execution-context.mjs';
-import {buildContext} from '../lib/query-author/context.mjs';
-import {checkStrategy, localStrategy, directStrategy, localReadiness, usesTier, LOCAL_STRATEGIES, DEFAULT_LOCAL, PARSER_NAMES} from '../lib/formalize/strategies.mjs';
+import {resolveStrategy, localStrategy, localReadiness, usesTier, ladderOf, DEFAULT_LOCAL, DEFAULT_STRATEGY, PARSER_NAMES} from '../lib/formalize/strategies.mjs';
 import {FORMALIZATION_STRATEGIES as FORMALIZATION_STRATEGY_LABELS} from './status.mjs';
-import {chainEntry, providerSettings, providerReadiness} from '../lib/llm-providers.mjs';
-import {authorQuery} from '../lib/query-author/index.mjs';
+import {providerSettings} from '../lib/llm-providers.mjs';
 
-/** The formalizer chain (owner 2026-10-02): the proxy tier `small` (openference Qwen3.8 27b; the proxy falls back to DeepSeek v4 flash).
- * Concrete `<provider>/<model>` entries may follow it in `queryParser.models`; config names tiers, not models. */
-export const DEFAULT_MODELS = Object.freeze(['small']);
 export const DEFAULT_QUERY_PARSER = Object.freeze({
-  strategy: 'LLMDirect', mode: 'id', candidates: 24, indexMax: 300, models: DEFAULT_MODELS, timeoutSeconds: 120, maxFixRounds: 2, maxConcurrent: 4, cacheEntries: 500,
-  local: DEFAULT_LOCAL,
+  strategy: DEFAULT_STRATEGY, timeoutSeconds: 120, maxConcurrent: 4, cacheEntries: 500, local: DEFAULT_LOCAL,
 });
 
 /**
- * The settings of the request parser: the defaults, `config.queryParser`, and the model chain resolved against `llmProviders`.
- * `strategy` names the formalization strategy (LLMDirect | LocalLLMStepByStep | InternalReasoningStepByStep; the earlier names
- * CodingAgent and LocalLLMDirect read as LLMDirect; environment CHATSOP_FORMALIZER overrides it); `local` configures the small model of
- * the two step-by-step strategies: the proxy tier `tiny` by default, or an explicit endpoint or GGUF (evaluation harnesses).
+ * The settings of the request parser: the defaults and `config.queryParser`. `strategy` names the formalization strategy
+ * (LocalLLMStepByStep | InternalReasoningStepByStep; an archived one-shot name reads as the default, with `strategyNote`; environment
+ * CHATSOP_FORMALIZER overrides it); `local` configures who answers the questions: the proxy tier ladder (`ladder`, default `[tier]`), or
+ * an explicit endpoint or GGUF (evaluation harnesses). `models` lists the tiers of the ladder (status pages).
  */
 export function queryParserSettings(config = {}, env = process.env) {
   const merged = {...DEFAULT_QUERY_PARSER, ...(config.queryParser ?? {})};
-  merged.strategy = checkStrategy(env.CHATSOP_FORMALIZER || merged.strategy);
+  const {strategy, note} = resolveStrategy(env.CHATSOP_FORMALIZER || merged.strategy);
+  merged.strategy = strategy;
+  if (note) merged.strategyNote = note;
   merged.local = {...DEFAULT_LOCAL, ...(config.queryParser?.local ?? {})};
   merged.providers = providerSettings(config);
-  const chain = Array.isArray(merged.models) && merged.models.length ? merged.models : DEFAULT_MODELS;
-  merged.entries = [...new Map(chain.map(m => chainEntry(m, {providers: merged.providers})).map(e => [e.id, e])).values()];
-  merged.models = merged.entries.map(e => e.id);
+  merged.models = usesTier(merged.local) ? ladderOf(merged.local).map(r => r.tier) : [merged.local.alias];
   return merged;
 }
-
-/** The first entry of the LLMDirect chain (evaluation tools that need the model id). */
-export const remoteDirectEntry = settings => settings.entries?.[0] ?? null;
 
 const normalize = text => String(text).normalize('NFKC').replace(/\s+/g, ' ').trim().toLowerCase();
 
@@ -65,74 +56,24 @@ class Lru {
 }
 
 /**
- * `chatData`: for the gap log; `fetchImpl`: the HTTP client of the model calls and the readiness probes; `backendFactory(entry)` builds
- * the completion backend of a chain entry (tests inject a stub); `probe(entry)` overrides the readiness probe (default: the provider's
- * endpoint answers; with an injected backend factory and no probe, every entry counts as reachable).
+ * `chatData`: for the gap log; `fetchImpl`: the HTTP client of the model calls and the readiness probes; `localFactory(name, local,
+ * options)` builds a step-by-step strategy (tests inject a stub).
  */
-export function createQueryParser({settings = queryParserSettings(), chatData = null, fetchImpl = undefined, backendFactory = null, probe = null, localFactory = localStrategy, now = Date.now} = {}) {
+export function createQueryParser({settings = queryParserSettings(), chatData = null, fetchImpl = undefined, localFactory = localStrategy, now = Date.now} = {}) {
   const cache = new Lru(settings.cacheEntries);
-  const defaultStrategy = settings.strategy ?? 'LLMDirect';
+  const defaultStrategy = settings.strategy ?? DEFAULT_STRATEGY;
   const locals = new Map();
-  // The proxy's default path (the openference provider entry): the step-by-step strategies ask their tier there.
+  // The proxy's default path (the openference provider entry): the step-by-step strategies ask their tiers there.
   const proxyEndpoint = () => settings.providers?.openference?.baseUrl ?? 'http://127.0.0.1:18080/v1';
   const localFor = name => {
     if (!locals.has(name)) locals.set(name, localFactory(name, settings.local, {timeoutMs: settings.timeoutSeconds * 1000, proxyEndpoint: proxyEndpoint(), ...(fetchImpl ? {fetchImpl} : {})}));
     return locals.get(name);
   };
-  const entryOf = id => settings.entries.find(e => e.id === id) ?? chainEntry(id, {providers: settings.providers});
-  const directs = new Map();
-  const directFor = id => {
-    if (!directs.has(id)) {
-      const entry = entryOf(id);
-      directs.set(id, backendFactory
-        ? {name: 'LLMDirect', entry, run: async args => ({...await authorQuery({...args, backend: backendFactory(entry)}), model: entry.id, provider: entry.provider})}
-        : directStrategy(entry, {timeoutMs: settings.timeoutSeconds * 1000, ...(fetchImpl ? {fetchImpl} : {})}));
-    }
-    return directs.get(id);
-  };
   let running = 0;
-  const stats = {requests: 0, cache_hits: 0, parsed: 0, failures: 0, model_switches: 0};
+  const stats = {requests: 0, cache_hits: 0, parsed: 0, failures: 0};
 
-  const readiness = new Map();
-  /** Whether a chain entry's endpoint answers (cached for 10 s, so a burst of turns probes once). */
-  async function entryReady(entry) {
-    if (probe) return probe(entry);
-    if (backendFactory) return {available: true};
-    const key = `${entry.endpoint}#${entry.tier ?? ''}`;
-    const hit = readiness.get(key);
-    // A reachable entry is trusted for 10 s; an unreachable one for 2 s, and it is probed twice (a restarting proxy is not a lost turn).
-    if (hit && now() - hit.at < (hit.state.available ? 10_000 : 2_000)) return hit.state;
-    const ask = () => providerReadiness(entry.endpoint, {...(fetchImpl ? {fetchImpl} : {}), tier: entry.tier ?? null});
-    let state = await ask();
-    if (!state.available && !fetchImpl) { await new Promise(r => setTimeout(r, 1000)); state = await ask(); }
-    readiness.set(key, {at: now(), state});
-    return state;
-  }
-
-  /** Which models of the chain can run now, and why not for the others. */
-  async function availability(preferredModel = null, strategy = defaultStrategy) {
-    if (LOCAL_STRATEGIES.includes(strategy)) return localFor(strategy).availability();
-    let chain = settings.models;
-    if (preferredModel) {
-      try { chain = [...new Set([entryOf(preferredModel).id, ...settings.models])]; }
-      catch { /* an unknown preferred model is ignored: the configured chain runs */ }
-    }
-    const usable = [], skipped = [];
-    for (const id of chain) {
-      const state = await entryReady(entryOf(id));
-      if (state.available) usable.push(id); else skipped.push({model: id, reason: state.reason ?? 'not reachable'});
-    }
-    if (!usable.length) return {available: false, reason: `no model of the formalizer chain is reachable: ${skipped.map(s => `${s.model} (${s.reason})`).join('; ')}`, models: [], skipped};
-    return {available: true, models: usable, skipped};
-  }
-
-  const authorOptions = ({message, lexicon, onProgress}) => ({message, lexicon, ...authorExecution.getStore(), maxFixRounds: settings.maxFixRounds, mode: settings.mode, k: settings.candidates, indexMax: settings.indexMax,
-    vocabularyDialog: settings.vocabularyDialog !== false, maxVocabularyBytes: settings.maxVocabularyBytes ?? 24_000, onProgress});
-
-  async function runModel({model, message, lexicon, onProgress, strategy = defaultStrategy}) {
-    if (LOCAL_STRATEGIES.includes(strategy)) return localFor(strategy).run(authorOptions({message, lexicon, onProgress}));
-    return directFor(model).run(authorOptions({message, lexicon, onProgress}));
-  }
+  /** Whether the strategy can run now (its first tier answers); `firstTier` is a session's preferred tier. */
+  const availability = (firstTier = null, strategy = defaultStrategy) => localFor(resolveStrategy(strategy, defaultStrategy).strategy).availability(firstTier);
 
   /** A gap of the memory (a clear question no predicate expresses): material for core-en growth through the approved authoring path. Gitignored (chat_data/). */
   function logGap(entry) {
@@ -141,76 +82,69 @@ export function createQueryParser({settings = queryParserSettings(), chatData = 
   }
 
   const fail = (code, status, message, parse) => Object.assign(new Error(message), {code, status, parse});
-  const recordOf = (r, extra = {}) => ({parser: PARSER_NAMES[r.strategy] ?? 'llm_direct', strategy: r.strategy ?? 'LLMDirect', ...(r.steps ? {steps: r.steps.length, dialog: r.steps.map(s => ({name: s.name, answer: s.answer}))} : {}), ...(typeof r.report === 'string' && r.report.startsWith('{') ? {report: r.report} : {}), model: r.model ?? null, backend: r.backend ?? 'completion', rounds: r.rounds ?? 0, cost_usd: r.usage?.cost_usd ?? r.cost_usd ?? 0, ms: r.ms ?? r.duration_ms ?? 0, cache: r.cache ?? 'miss',
-    ...(r.usage?.cache_read_tokens ? {cache_read_tokens: r.usage.cache_read_tokens} : {}), ...(r.runs?.some(x => x.served) ? {served: [...new Set(r.runs.map(x => x.served).filter(Boolean))]} : {}),
-    ...(r.unlinked?.length ? {unlinked: r.unlinked} : {}), ...(r.context_version ? {guide: r.context_version} : {}), ...(r.mode ? {mode: r.mode, retrieval: {predicates: r.retrieval?.predicates?.length ?? 0, entity_mentions: r.retrieval?.entities?.length ?? 0, neighbourhood: r.retrieval?.neighbourhood ?? null, bytes: r.retrieval?.bytes ?? 0, byte_budget: r.retrieval?.byte_budget ?? 0, truncated: r.retrieval?.truncated ?? false}} : {}), ...(r.vocabulary_dialog ? {vocabulary_dialog: r.vocabulary_dialog} : {}), ...(r.closest ? {closest: r.closest} : {}), ...(r.self_check ? {self_check: r.self_check} : {}), ...(r.repairs?.length ? {repairs: r.repairs} : {}), ...extra});
+  const recordOf = (r, extra = {}) => ({parser: PARSER_NAMES[r.strategy] ?? PARSER_NAMES[defaultStrategy], strategy: r.strategy ?? defaultStrategy,
+    ...(r.steps ? {steps: r.steps.length, dialog: r.steps.map(s => ({name: s.name, answer: s.answer, ...(s.tier ? {tier: s.tier} : {}), ...(s.escalated ? {escalated: true} : {})}))} : {}),
+    ...(typeof r.report === 'string' && r.report.startsWith('{') ? {report: r.report} : {}), model: r.model ?? null, ...(r.ladder ? {ladder: r.ladder} : {}), ...(r.tiers ? {tiers: r.tiers} : {}),
+    backend: r.backend ?? 'completion', cost_usd: r.usage?.cost_usd ?? r.cost_usd ?? 0, ms: r.ms ?? r.duration_ms ?? 0, cache: r.cache ?? 'miss',
+    ...(r.usage?.cache_read_tokens ? {cache_read_tokens: r.usage.cache_read_tokens} : {}),
+    ...(r.unlinked?.length ? {unlinked: r.unlinked} : {}), ...(r.mode ? {mode: r.mode, retrieval: {predicates: r.retrieval?.predicates?.length ?? 0, entity_mentions: r.retrieval?.entities?.length ?? 0, neighbourhood: r.retrieval?.neighbourhood ?? null}} : {}),
+    ...(r.closest ? {closest: r.closest} : {}), ...(r.repairs?.length ? {repairs: r.repairs} : {}), ...extra});
 
-  /** One formalization down the chain (the first model that delivers); `{result, tried}`, `result` null when none delivered. */
-  async function formalize({models, message, lexicon, onProgress, strategy}) {
-    const tried = [];
-    let last = null;
-    for (const model of models) {
-      const result = {...await runModel({model, message, lexicon, onProgress, strategy}), strategy};
-      last = result;
-      if (result.ok) return {result, tried};
-      tried.push({model, reason: result.reason ?? `invalid circuit: ${(result.validation?.problems ?? []).map(p => p.code).join(', ') || 'no output'}`, status: result.status});
-      // A model that ran but wrote an invalid circuit after every repair round is a final answer about this message; a run that delivered nothing moves on to the next model.
-      if (result.status !== 'failed') break;
-      stats.model_switches++;
-    }
-    return {result: null, last, tried};
-  }
+  // Every formalization of every caller (chat, evaluations, jobs) reports its failures to the formalization error inbox
+  // (AGENTS.md "Formalization improvement"): an invalid circuit, and an `unclear` other than a missing relation (a knowledge gap). Off
+  // under `node --test` unless settings.reportErrors is true; a wrong answer needs gold and is reported by the evaluations.
+  const reporting = settings.reportErrors ?? !process.env.NODE_TEST_CONTEXT;
+  const report = (row) => { if (reporting) try { reportFormalizationError(row); } catch { /* the inbox never breaks a turn */ } };
 
   /**
-   * Parses one message. Returns `{sop, parse}`; throws `parse_unavailable` (no model of the chain can run or all delivered nothing) or
-   * `parse_failed` (the models ran, no valid circuit came back), each with `error.parse`.
+   * Parses one message. Returns `{sop, parse}`; throws `parse_unavailable` (the first tier cannot run, or no tier answered) or
+   * `parse_failed` (the questions ran, no valid circuit came back), each with `error.parse`. `preferredModel` is a session's preferred
+   * first tier (session setting `formalizer_model`); `strategy` a session's strategy (an archived one-shot name runs the default, noted).
    */
-  async function parse({message, lexicon, memoryKey, onProgress, preferredModel = null, strategy = null}) {
+  async function parse({message, lexicon, memoryKey, onProgress, preferredModel = null, strategy = null, source = 'formalizer'}) {
     stats.requests++;
     const started = now();
-    strategy = checkStrategy(strategy ?? defaultStrategy);
-    const local = LOCAL_STRATEGIES.includes(strategy);
-    const free = await availability(local ? null : preferredModel, strategy);
-    if (!free.available) { stats.failures++; throw fail('parse_unavailable', 503, free.reason, {parser: PARSER_NAMES[strategy], strategy, model: null, ms: now() - started, failed: free.reason, tried: free.skipped}); }
-    const skipped = [...free.skipped];
+    const resolved = resolveStrategy(strategy ?? defaultStrategy, defaultStrategy);
+    strategy = resolved.strategy;
+    const noted = resolved.note ? {strategy_note: resolved.note} : {};
+    const parser = localFor(strategy);
+    const firstTier = preferredModel && usesTier(settings.local) ? preferredModel : null;
+    const free = await parser.availability(firstTier);
+    if (!free.available) { stats.failures++; throw fail('parse_unavailable', 503, free.reason, {parser: PARSER_NAMES[strategy], strategy, model: null, ms: now() - started, failed: free.reason, tried: free.skipped ?? [], ...noted}); }
     const store = authorExecution.getStore();
-    const key = createHash('sha256').update([memoryKey ?? '', store?.key ?? '', settings.runTag ?? '', buildContext({message, lexicon, mode: settings.mode, vocabulary: null}).version, String(settings.vocabularyDialog !== false), String(settings.maxVocabularyBytes ?? 24_000), String(store?.selfCheck ?? false), strategy,
-      local ? (localFor(strategy).tag ?? `${settings.local.tier ?? settings.local.alias}@${settings.local.endpoint ?? settings.local.gguf ?? ''}#${settings.local.method ?? 'A'}`) : free.models.join('|'), normalize(message)].join('\0')).digest('hex');
+    const key = createHash('sha256').update([memoryKey ?? '', store?.key ?? '', settings.runTag ?? '', String(store?.selfCheck ?? false), strategy,
+      parser.tag ?? `${settings.local.alias}@${settings.local.endpoint ?? settings.local.gguf ?? ''}#${settings.local.method ?? 'A'}`, firstTier ?? '', normalize(message)].join('\0')).digest('hex');
     const hit = cache.get(key);
-    if (hit && (!hit.fragment || hit.contextKey === store?.contextKey)) { stats.cache_hits++; stats.parsed++; return {sop: hit.sop, parse: recordOf({...hit.result, strategy, cache: 'hit', ms: now() - started, cost_usd: 0, usage: {cost_usd: 0}}, {tried: skipped.map(t => t.model)})}; }
-    if (running >= settings.maxConcurrent) { stats.failures++; throw fail('parse_unavailable', 503, 'the formalizer is busy', {parser: PARSER_NAMES[strategy], strategy, model: null, ms: now() - started, failed: 'the formalizer is busy', status: 'busy'}); }
+    if (hit && (!hit.fragment || hit.contextKey === store?.contextKey)) { stats.cache_hits++; stats.parsed++; return {sop: hit.sop, parse: recordOf({...hit.result, strategy, cache: 'hit', ms: now() - started, cost_usd: 0, usage: {cost_usd: 0}}, noted)}; }
+    if (running >= settings.maxConcurrent) { stats.failures++; throw fail('parse_unavailable', 503, 'the formalizer is busy', {parser: PARSER_NAMES[strategy], strategy, model: null, ms: now() - started, failed: 'the formalizer is busy', status: 'busy', ...noted}); }
     running++;
-    let outcome;
-    try { outcome = await formalize({models: local ? [null] : free.models, message, lexicon, onProgress, strategy}); }
+    let result;
+    try { result = {...await parser.run({message, lexicon, ...store, firstTier, onProgress}), strategy}; }
     finally { running--; }
-    const tried = [...skipped, ...outcome.tried];
-    const result = outcome.result;
-    if (result) {
+    if (result.ok) {
       cache.set(key, {sop: result.sop, result: {...result, usage: {cost_usd: 0}}, fragment: result.program?.wires.some(w => w.fields.fragment), contextKey: store?.contextKey});
       if (result.unclear === 'relation_not_in_memory') logGap({message, memory: memoryKey, closest: result.closest, model: result.model});
+      else if (result.unclear) report({source, kind: 'unclear', message, strategy, tier: result.model ?? null, circuit: result.sop, detail: result.unclear, ref: memoryKey ?? null});
       stats.parsed++;
-      return {sop: result.sop, parse: recordOf({...result, ms: now() - started}, {tried: tried.map(t => t.model), ...(tried.length ? {tried_reasons: tried.map(t => ({model: t.model, reason: t.reason}))} : {}), ...(result.unclear ? {unclear: result.unclear} : {})})};
+      return {sop: result.sop, parse: recordOf({...result, ms: now() - started}, {...noted, ...(result.unclear ? {unclear: result.unclear} : {})})};
     }
     stats.failures++;
-    const last = outcome.last;
-    const reason = last?.reason ?? `the formalizer's circuit was invalid: ${(last?.validation?.problems ?? []).map(p => p.code).join(', ') || 'no output'}`;
-    const record = recordOf({strategy, ...(last ?? {}), ms: now() - started}, {failed: reason, tried: tried.map(t => ({model: t.model, reason: t.reason}))});
-    if (last && last.status === 'failed') throw fail('parse_unavailable', 503, reason, record);
+    const reason = result.reason ?? `the formalizer's circuit was invalid: ${(result.validation?.problems ?? []).map(p => p.code).join(', ') || 'no output'}`;
+    const record = recordOf({...result, ms: now() - started}, {failed: reason, ...noted});
+    if (result.status === 'failed') throw fail('parse_unavailable', 503, reason, record);
+    report({source, kind: 'invalid', message, strategy, tier: result.model ?? null, circuit: result.sop ?? null, detail: (result.validation?.problems ?? []).slice(0, 12).map(p => p.code), ref: memoryKey ?? null});
     // The last invalid circuit and its problems stay on the error for the trace and the evaluations (never executed).
-    throw Object.assign(fail('parse_failed', 422, reason, record), {attempt: {sop: last?.sop ?? null, problems: (last?.validation?.problems ?? []).slice(0, 12)}});
+    throw Object.assign(fail('parse_failed', 422, reason, record), {attempt: {sop: result.sop ?? null, problems: (result.validation?.problems ?? []).slice(0, 12)}});
   }
 
   /**
-   * The formalization strategies of this parser with their availability (server/status.mjs). A local strategy is reported available
-   * when its model file and llama-server exist (or its external endpoint answers); its server starts on the first turn that uses it.
+   * The formalization strategies of this parser with their availability (server/status.mjs): on proxy tiers, available when the first
+   * tier of the ladder answers; with a managed model, when its model file and llama-server exist (or its external endpoint answers).
    */
   async function strategies() {
-    const direct = await availability(null, 'LLMDirect');
     const localState = await localReadiness(settings.local, fetchImpl, proxyEndpoint());
-    return FORMALIZATION_STRATEGY_LABELS.map(s => s.id === 'LLMDirect'
-      ? {...s, available: direct.available === true, ...(direct.reason ? {reason: direct.reason} : {}), backend: 'completion',
-        models: settings.entries.map(e => ({id: e.id, endpoint: e.endpoint, available: direct.models.includes(e.id), ...(direct.skipped.find(k => k.model === e.id) ? {reason: direct.skipped.find(k => k.model === e.id).reason} : {})}))}
-      : usesTier(settings.local) ? {...s, ...localState, backend: 'completion', model: settings.local.tier, endpoint: proxyEndpoint()}
+    return FORMALIZATION_STRATEGY_LABELS.map(s => usesTier(settings.local)
+      ? {...s, ...localState, backend: 'completion', model: settings.models[0], ladder: settings.models, endpoint: proxyEndpoint()}
       : {...s, ...localState, backend: 'llama-server', model: settings.local.alias, ...(settings.local.endpoint ? {endpoint: settings.local.endpoint} : {gguf: settings.local.gguf})});
   }
 

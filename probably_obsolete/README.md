@@ -40,3 +40,7 @@ As of 2026-09-28 everything still valid in this folder has a current specificati
 - `paused/` holds paused work (EmotionDetectionSystem, programming P0, unified-ft tooling); see its `README.md`.
 
 Both keep original repository-relative paths below their folder; the state before the move is commit `97188d6`.
+
+## One-shot circuit formalization (2026-10-02)
+
+`one-shot-formalization/` holds the one-shot strategy LLMDirect (the author loop, its prompt and guide, its backends, structured-output ablations, their tests and the one-shot calibration runner), archived when the owner made formalization step by step only; see its `README.md` for the reason, the last measured numbers and the path map.

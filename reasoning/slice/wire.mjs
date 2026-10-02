@@ -183,6 +183,9 @@ export function judgeWire({query, output, slice}) {
   const partial = {...output, complete: false, reason: 'partial_retrieval', retrieval_reasons: slice.complete ? ['inexact_view'] : slice.reasons};
   const withheld = {...partial, status: 'incomplete', ...(mode === 'count' ? {at_least: output.count ?? 0, bound: 'at_least'} : {}), ...(mode === 'count' ? {count: undefined} : {})};
   if (settled) return {accept: true, output, rule: 'complete_slice'};
+  // A closed predicate's negation is asked as `not` or `absent` (lib/query-author/runtime.mjs): `refuted` there is a proof of the atom
+  // itself, as monotone as any other evidence (R-P1); only an answer that may rest on the absence is withheld.
+  if (!sensitivity.monotone && output.status === 'refuted' && sensitivity.refutation_monotone) return {accept: true, output: slice.complete ? output : {...output, complete: false}, rule: 'R-P1 refutation'};
   if (!sensitivity.monotone) return {accept: false, output: withheld, rule: 'R-P2'};
   if (slice.complete) return {accept: true, output, rule: 'complete_inexact_view'};
   if (evidence && ['exists', 'explain'].includes(mode)) return {accept: true, output: {...output, complete: false}, rule: 'R-P1 monotone'};

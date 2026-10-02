@@ -2,13 +2,13 @@
 /**
  * Generality probe (experiment eval-generality-v1; AGENTS.md direction 7): level b held-out forms, level c compositions
  * and free natural questions on world-v1. Every arm goes through the symbolic-vs-llm harness `runArm` unchanged:
- *   C  LLMDirect circuit authoring on a model behind the proxy (default openference/Qwen3.8 27b, the product's formalizer), then admission,
- *      KnowledgeLinker resolution and the engine;
+ *   C  the step-by-step formalizer with its questions answered by the proxy tier --tier (default small; LLMDirect one-shot authoring
+ *      is archived since 2026-10-02), then admission, KnowledgeLinker resolution and the engine;
  *   R  zero-model replay of the reviewed model-surface circuit of the row (`reference`) through the same admission and
  *      execution: it separates "the language/engine cannot" from "the author did not";
  *   D  the same remote model answering from the evidence rendered as English (arm A of the benchmark plan);
- *   B  a local GGUF model on an existing llama-server endpoint writing free SOP (LocalLLMDirect), only with --endpoint.
- *   node tools/eval/generality/run.mjs --arms C,R --levels b,c,n [--per 5] [--only form] [--ids a,b] [--out dir]
+ *   B  the step-by-step formalizer on a local GGUF model on an existing llama-server endpoint (arm B-stepbystep), only with --endpoint.
+ *   node tools/eval/generality/run.mjs --arms C,R --levels b,c,n [--tier small] [--per 5] [--only form] [--ids a,b] [--out dir]
  * Dev data only: generated memories and the approved world-v1 base memory; no sealed suite is read.
  */
 import fs from 'node:fs';
@@ -79,7 +79,7 @@ export async function main(args = process.argv.slice(2)) {
   let rows = [...(levels.some(l => ['b', 'c'].includes(l)) ? generalityCases({per}).filter(r => levels.includes(r.level)) : []), ...(levels.includes('n') ? naturalRows() : [])];
   if (opt(args, '--only', null)) rows = rows.filter(r => r.form === opt(args, '--only'));
   if (ids) rows = rows.filter(r => ids.includes(r.id));
-  const settings = {model: opt(args, '--model', 'qwen3.8-27b'), endpoint: opt(args, '--endpoint', null), subscriptionModel: opt(args, '--subscription-model', 'openference/Qwen3.8 27b'),
+  const settings = {model: opt(args, '--model', 'qwen3.8-27b'), endpoint: opt(args, '--endpoint', null), subscriptionModel: opt(args, '--subscription-model', 'openference/Qwen3.8 27b'), tier: opt(args, '--tier', 'small'),
     wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096))};
   if (arms.includes('B') && !settings.endpoint) throw new Error('arm B needs --endpoint of an already running llama-server (one GPU worker)');
   if (/^openrouter\b/.test(settings.subscriptionModel) && !args.includes('--allow-paid')) throw new Error('openrouter is paid per token; pass --allow-paid for an explicitly authorized run');
@@ -120,9 +120,8 @@ export async function main(args = process.argv.slice(2)) {
         for (const arm of todo) {
           const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'generality-author-'));
           try {
-            const armSettings = arm === 'R' ? {...settings, authorBackend: {id: 'replay', kind: 'replay', model: 'reviewed-circuit',
-              async generate() { return {ok: true, sop: row.reference, usage: {}, duration_ms: 0}; }}} : settings;
-            const record = await runArm({row: {...row, family: row.form, expected: strip(row.expected)}, arm: arm === 'R' ? 'C' : arm, world, gold, slice, evidence,
+            const armSettings = arm === 'R' ? {...settings, replayCircuit: row.reference} : settings;
+            const record = await runArm({row: {...row, family: row.form, expected: strip(row.expected)}, arm: arm === 'R' ? 'C' : arm === 'B' ? 'B-stepbystep' : arm, world, gold, slice, evidence,
               knowledge: row.knowledge ?? '', query: query ?? '@q query\n  where unknown_relation ?x\n  select ?x\n', settings: armSettings, folder});
             const outcome = rescore(row, record);
             const full = {...record, arm, model: arm === 'R' ? 'reviewed-circuit' : record.model, level: row.level, form: row.form, question: row.question,

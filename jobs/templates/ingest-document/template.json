@@ -9,7 +9,8 @@
     "rights": {"type": "string", "enum": ["cleared", "permissive-attribution", "owner-provided"], "description": "the source rights of the attachments, as the user stated them (DS011); required: without it nothing is ingested"},
     "purpose": {"type": "string", "max": 500, "default": "", "description": "what the knowledge will be used for, in the user's words"},
     "source_url": {"type": "string", "max": 500, "required": false, "description": "where the document comes from, when the user gave it"},
-    "tier": {"type": "string", "enum": ["small", "medium", "good"], "default": "small", "description": "the model tier that writes the knowledge wires"}
+    "tier": {"type": "string", "enum": ["tiny", "small", "medium", "good"], "default": "small", "description": "the model tier that writes the knowledge wires"},
+    "max_chunk_bytes": {"type": "integer", "min": 1000, "max": 7000, "default": 7000, "description": "the largest chunk of a document compiled in one conversation"}
   },
   "budget": {"usd": 0.5, "credits": 60},
   "_note": "Wraps the product's direct ingestion (lib/ingest, Ingestions.draft): chunking along the document's structure, the sop-wire-authoring skill, the knowledge validator and the source checks in the repair loop, memory conflict checks, and storage with provenance. The adapter only routes its model calls through the endpoint's tier, tagged with the task's purpose and run id."

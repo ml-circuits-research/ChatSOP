@@ -1,3 +1,38 @@
+# Formalization is step by step only; one-shot LLMDirect archived (2026-10-02, owner decision)
+
+Owner: "apples with apples, not apples with magic". We must learn to ask the right questions efficiently, or small models will never manage; where small models cannot answer, fine-tuning may become an option later.
+
+- **Default.** The chat and API formalizer is `LocalLLMStepByStep` (method B; `config/runtime.json` `queryParser.strategy`). The questions are answered by the proxy tier ladder `queryParser.local.ladder`: `tiny`, then `small`, then `good` (with reasoning disabled). Each question goes to `tiny` and escalates to the next tier only when its answer cannot be read twice or the tier does not answer; the next question starts at `tiny` again (`createOracle` in `lib/query-author/step-by-step/index.mjs`, `ladderOf` in `lib/formalize/strategies.mjs`). Larger tiers answer the same questions and never write a circuit.
+- **Archived names.** A session or caller that names `LLMDirect`, `CodingAgent` or `LocalLLMDirect` runs the default step-by-step strategy; the parse record carries `strategy_note`. The session setting `formalizer_model` now names the tier the ladder starts at. Knowledge authoring (`POST /v1/author`) is unchanged and uses `ingest.tier` (`small`).
+- **Parse record.** `ladder`, `steps`, `dialog` (each answer with its `tier`, a superseded answer marked `escalated`), and `tiers: {answered, escalated}` when more than one tier answered. `GET /v1/status` lists the two step-by-step strategies with their `ladder`.
+- **Archive.** The one-shot author (context builder, validate-and-repair loop `authorQuery`, completion backend, constrained and structured decoders, the guide `skills/coding-agent-query/`, their tests) moved to `probably_obsolete/one-shot-formalization/`. Last measurements: commonsense 27/32 (one-shot); books 15/100 one-shot against 27/100 step by step on `tiny`.
+- **Docs.** AGENTS.md, DS000, DS002, DS003, DS006, DS009, DS012, DS014, DS022, DS023, README, `docs/runtime.html`, `docs/api.html`, `docs/wiki.html`, `docs/index.html`, the wire help pages and the regenerated architecture page describe the step-by-step formalizer and the tier ladder.
+
+# Capability battery: inventory, coverage matrix, L1/L2/L3 and the no-capability-loss gate (2026-10-02, capability-battery-agent)
+
+Owner request, the condition for approving Q-LANG-10: changing anything must never silently lose a capability.
+
+- **Inventory** (`tools/capabilities/inventory.mjs`, `eval/capabilities/capabilities.json`): 909 capabilities and 531 combination cells, derived from the grammar tables, `sop/enums.mjs`, the model-surface parser, the validators' problem codes and the strategy features. The combinations are pairs of construct families in one program (mode × aggregate, negation × time, default × default…) and local cells (negation × closedness, compute word × decimal, compute × recursion, link × certainty). New keywords appear on their own: the new `minimum_with`/`maximum_with` were picked up. `tests/capability-battery.test.mjs` fails when the committed inventory is stale.
+- **Coverage matrix** (`tools/capabilities/coverage.mjs`). Circuits are tagged by parsing them (`tools/capabilities/tags.mjs`, `checks.mjs`). Sources: the circuits the unit tests actually parse, captured through `lib/circuit-capture.mjs` when `CHATSOP_CIRCUIT_CAPTURE` is set (a no-op otherwise, hooked into both SOP parsers); the smoke cases; the wire-help examples; the formalization regression runs. Before the battery: 804 cells covered, 104 thin, 532 uncovered (of 1,440). After: 1,121 covered, 184 thin, 135 uncovered.
+- **L1** (`tools/capabilities/l1.mjs`, `eval/capabilities/l1-cases.json`): 1,235 validation cases. They are generated per wire type, keyword, enum value and condition word on both surfaces (skeleton, valid, repeated, missing, malformed), plus hand-written cases for 32 validator codes.
+- **L2** (`tools/capabilities/l2-generator.mjs`, `l2-run.mjs`): programs from three generators.
+  - A seeded all-pairs covering array over 9 construct factors.
+  - A core grid without host forms.
+  - A sweep of every compute word × integer/decimal × rule/recursion.
+
+  Every program runs on the js-reference oracle and on 8 engines. Three metamorphic relations are checked: an irrelevant predicate added, entities renamed, a rule split. The fast tier has about 290 programs (about 30 s, `npm test`); the full tier has 2,466 (about 3.5 min with 4 workers).
+- **L3** (`eval/capabilities/l3/catalog.jsonl`, `tools/capabilities/l3-run.mjs`): 90 invented messages, each needing one formalization capability, scored by answer. Tier tiny with LocalLLMStepByStep answered 27 of 90 correctly, and only 6 circuits used the intended construct. The 63 failures went to the formalization inbox, which feeds the improver's regression set.
+- **Ledger and gate** (`eval/capabilities/ledger.json`, `tools/capabilities/check.mjs`). The check fails when a capability is lost against the ledger, or when an engine gives a new answer that differs from the oracle. Lowering the ledger needs `--accept-loss "<reason>"`, which writes a journal entry. `npm run verify` runs the fast tier (job `capability-battery`).
+- **Bugs found and fixed:**
+  - `datalog-e10` crashed on a decimal constant ("Invalid constant"); it now refuses honestly.
+  - The oracle's `abduce` ignored the query's `at` instant and "explained" an observation that was false at that instant. `asp-clingo`/`z3-smt-bounded` (`solver-common/frontend.mjs`) did the same, and their `why_not` searched all facts. `abduce` and `why_not` now read the state at `at`; over `during`/`overlaps` they are `not_expressible` (DS006).
+  - `asp-clingo` `abduce`/`why_not` crashed on decimals (clingo syntax error); it now refuses them.
+  - The knowledge validator rejected `quantifier at_least N`, which the oracle reads (DS004).
+  - The model surface accepted any `constraint task`/`direction` value; it now checks them (`sop/parser.mjs`).
+  - `prolog-tabling` kills `swipl` with SIGKILL at its wall limit, and the battery's workers kill their process groups.
+- **Known divergence, recorded in the ledger:** on a claim refuted by an overriding default, `asp-clingo` `why_not` finds the non-monotone repair (add the exception). The oracle's documented definition reports only monotone additions and the blocker. This affects 8 programs.
+- **Q-LANG-10:** approved by the owner; implementation postponed while the focus is formalization (P-1).
+
 # Books reasoning cycle: compute words minimum_with/maximum_with, book gold fixes, triage by layer (2026-10-02, reasoning-cycle-agent)
 
 - **Language (wire-type proposal P-4, owner's standing authorization):** `compute ?out A minimum_with B` and `A maximum_with B`, the smaller or the larger of two numbers, exact on decimals. Implemented in the oracle, `z3-smt-bounded`, `prolog-tabling` and the fixed-point lowering of `sql-sqlite`, `datalog-souffle` and `asp-clingo`. Smoke case 94, DS004, DS006, `docs/wire_typs/rule.html`, the LLMDirect guide.
@@ -6,6 +41,78 @@
 - **Books harness:** with `--tier`, the direct baseline asks the same proxy tier as the steps arm. Calls are tagged (`--purpose`, run id) and sent without the tier's fallback. `--workers N` runs the steps arm in N independent chat systems.
 - **Ceiling arm and reusable circuits:** `run.mjs --arms ceiling` runs LLMDirect on a strong tier (`--author-tier`, default `good`, low reasoning effort), with async concurrency in one process. `gold-circuits.mjs` stores each circuit with its message, executed answer, verdict and provenance in `state/formalization-gold/books/<id>.json`, for the formalization improver's replay. `--replay` re-executes the stored circuits without a model call, and `--items-from` reuses the problems of an earlier run. The triage reports the ceiling's formalization and construct rows to the inbox.
 - **Proxy readiness:** the tier probe tries twice (`lib/llm-providers.mjs`), so a turn is no longer `parse_unavailable` because the caller's own event loop was busy. A chain entry may carry its own `headers`, `maxTokens`, `timeoutSeconds` and `extraBody`.
+
+# Metacognition on the product path: why_not and abduce routed to the oracle, consistent abduction, explain names its rules (2026-10-02, reasoning-modes-agent)
+
+The three implementation decisions of the wire-type review P-1 (`experiments/proposal/wire-type-proposals.md`), no language change; Q-LANG-10 (`candidate`, `mode effect`) stays pending.
+
+- **Routing.** A model `query` in mode `why_not` or `abduce` is no longer reported `not_computable` (`sop/declarative.mjs`, `PRODUCT_REASONING_MODES` in `sop/enums.mjs`): it runs through `askMemory` and the StrategyRouter's R1 to the js-reference oracle, like `explain`. `plan`, `conform` and `procedure` stay `not_computable` on the model surface. On the chat path an `abduce` drops the statement of the observation itself from the premises (`lib/query-author/runtime.mjs`): an observation is never its own explanation.
+- **Consistent abduction.** The oracle's `abduce` (`reasoning/strategies/js-reference/abduce.mjs`) rejects a candidate set whose closure holds an atom and its negation that the admitted facts alone do not hold; the set is reported under `inconsistent` with the literals it contradicts, and a search whose explaining sets are all inconsistent is `unknown`, reason `no_consistent_explanation`. The abduction slice now includes everything the hypotheses derive (`hypothesisReach`, `program.mjs`), so the facts a hypothesis could contradict are seen. `asp-clingo` and `z3-smt-bounded` filter their explanations with their own closure (`solver-common/frontend.mjs`); `prolog-tabling` does not yet (TODO). Reproduced as SOP programs: logic:541 ("forced entry" rejected against `not tool_marks`) and logic:501 ("whole grid failed" rejected against the lit neighbour lamp).
+- **Explain names its rules.** The chat packet of mode `explain` carries `rules_used` (`{id, kind, origin, conditions, exceptions?, conclusion}`), and the renderer (`sop/answer-text.mjs`) writes one line per rule from the new conversation-v1 replies `line_rule_used` / `line_default_used`. `why_not` and `abduce` answers are rendered from their packets by new replies (`line_why_not_*`, `line_abduce_*`, `line_list_or`, `line_proposition_holds`); no phrasing in code.
+- **logic:91 (side observation, a real bug).** A negated claim over a closed session predicate is asked as `any not … / absent … end`; the oracle marked the question non-monotone because of `absent`, so the knowledge-wire guard withheld even a `refuted` answer proved by the positive atom (`incomplete`, `partial_retrieval`). The oracle now reports `sensitivity.refutation_monotone`, and `judgeWire` accepts such a refutation (`R-P1 refutation`); a `supported` answer that may rest on the absence is still withheld.
+- Docs: DS004 (abduce), DS005 (guard), DS006 (R1 on the product path, `inconsistent`, `rules_used`, completeness), DS014, `docs/wire_typs/query-modes.html` (consistent-abduction and why_not examples, executed by `tests/wire-help.test.mjs`), `docs/wire_typs/hypothesis.html`. `docs/wire_types.html` is an index without mode availability and is unchanged. Tests: `tests/reasoning-modes-product.test.mjs`; `tests/knowledge-grammar.test.mjs` updated.
+
+# Knowledge mining from the owner's problem books; free common-sense sources; ShareAlike layer (2026-10-02, knowledge-mining-agent)
+
+Owner request: improve the default base memory automatically from the problem books (facts and general rules, never text).
+
+- **Pipeline** `tools/knowledge-mining/` (`mine.mjs` unattended orchestrator, `trial.mjs` worker, `checks.mjs`):
+  - The pipeline runs each problem through the product chat turn on a private fork of `world-v1`.
+  - For each wrong, unknown or invalid answer, the `small` tier proposes general SOP knowledge. The prompt holds the problem and the failure trace, never the gold answer. Proposals go through `lib/ingest/direct-author.mjs`, with the validator and checks for problem names and undeclared story entities in its repair loop.
+  - Deterministic checks then drop or escalate candidates: duplicate or contradiction against the memory; the book copy check (8-grams, distinctive 4-grams, as in `tools/datasets/no-copy.mjs`); merge of entities the memory already has.
+  - A bulk truth and generality review follows on tier `medium` (`lib/llm-review`, new kind `config/review/commonsense-wires/`).
+  - Admission rule: the rerun with the group is correct, a control rerun without it is not, and the fixed regression set `tools/knowledge-mining/regression-set.json` loses nothing. A confirmed loss withdraws the group.
+  - Every admitted wire carries its provenance (book, problem, proposing and reviewing tiers, date). All calls are tagged `x-llmapiprovider-purpose: job:knowledge-mining`.
+  - Tests: `tests/knowledge-mining.test.mjs`.
+- **Layer** `config/knowledge/commonsense-books-v1/` (seed, imports commonsense-v1), imported by `world-v1` through `tools/world-kb/load.mjs` (`--without-books-commonsense`). It is still empty: no group has met the admission rule.
+- **Runs** (`eval/reports/current/knowledge-mining/`):
+  - Stage 1: 24 problems, 2 correct; 22 failing problems mined.
+  - Stage 2: 100 problems, 12 correct; 87 failing problems mined.
+  - The miner found no missing general knowledge in 74 of 87 failures (stage 2) and 17 of 22 (stage 1). Those failures are formalization errors: invalid circuits, `mention_not_used`, `stated_value_not_in_message`, ambiguity and clarify.
+  - 9 groups were tried (2 + 7), for example water boils at 100 and melts or freezes at 0, density and floating, insect life stages and sampling bias.
+  - 0 groups fixed their problem. Fixed per 100 failing problems: 0 (stage 2: 0 of 87).
+  - Cost: 615 calls, 58.6 openference plan credits and 0.011 USD (review on the paid upstream).
+  - Escalations: 0.
+- **Free sources** (free-sources-agent):
+  - Licences verified and recorded in DS011: GenericsKB-Best (CC BY 4.0, Waterloo rows only), ATOMIC 2020 (CC BY 4.0), Ascent++ (CC BY 4.0), Quasimodo v1.2 (CC BY 2.0) and Wikidata units P2370/P2442 (CC0).
+  - Slice layers `config/knowledge/free-*-slice-v1/` (`"chat": false`), with generators in `tools/commonsense/free-sources/`.
+  - Measured on the 18 failing stage-1 problems against a control rerun: slices 0 correct, control 2 correct. No measurable use, so the slices stay disabled.
+- **ShareAlike layer** (owner decision of 2026-10-02, Q-DATA-8 answered and removed from questions.md):
+  - `config/knowledge/conceptnet-bysa-v1/` holds the CC BY-SA 4.0 edges of ConceptNet 5.7 (178 facts, mostly Wiktionary `is_a`).
+  - It is marked CC BY-SA 4.0, with an attribution `README.md`, and is a chat seed imported by `world-v1` (`--without-bysa` omits it). Raw data stays gitignored and is not redistributed.
+  - DS011 records the decision.
+- **Docs**: DS022 gains "Mining common sense from the problem books". `experiments/proposal/wire-type-proposals.md` gains P-3, deferred: the miner reported a methodological principle with no fitting wire type.
+
+# Small-talk collections and the base-memory composer (2026-10-02, smalltalk-agent)
+
+Owner: a professional, rich set of small-talk and conversational reply wires, built cheaply through LLMAPIProvider, kept as reusable collections; the admin page composes a base memory from prepared collections with checkboxes.
+
+- **Taxonomy** `tools/smalltalk/taxonomy.json`: 96 situations (greetings, farewells, thanks, apologies, how-are-you, weather, weekend, hobbies, sport, compliments, jokes and riddles, empathy per emotion with a crisis reply, self and introspection, opinion and advice framed honestly, off-topic, manipulation, paradoxes, impossible premises, clarification and repair, small talk back to help); 39 add variants to situations of conversation-v1, 57 are new, 41 of them on proposed pragmatic kinds (`proposed_kinds` in each `seed.json`). Structure only, inspired by the label sets of DailyDialog, EmpatheticDialogues, MultiWOZ, Wizard of Wikipedia and Cornell Movie-Dialogs (DS011 row; nothing downloaded, no text).
+- **Collections** (existing wire types only: `reply`, `rule`, `fact`, one `predicate`): `smalltalk-core-v1` (239 replies), `smalltalk-empathy-v1` (102), `smalltalk-self-v1` (112), `smalltalk-playful-v1` (121), `smalltalk-professional-v1` (264 formal variants that outrank their base situation through the rule `stf_r_formal`). Each imports conversation-v1 and loads alone or with the others; `node tools/smalltalk/build.mjs check` validates them alone and together.
+- **Generation** `jobs/smalltalk-replies` (LLM job runner; driver `tools/smalltalk/generate.mjs`): worker tier `tiny` (A/B against `small` on 20 situations: pass after review 16/20 vs 20/20), auditor `medium` on every item (only problems), decider `good`; the 7 items the decider escalated were regenerated on `small`; deterministic checks (slots, length, digits, URLs) drop bad variants; the builder filters near duplicates (word-set and bigram overlap, also against conversation-v1) and records distinct-1/distinct-2; 14 variants dropped by the controller (`jobs/smalltalk-replies/drop.json`).
+- **Composer** `lib/chat-data/composer.mjs`, `GET`/`POST /v1/memory-composer` (docs/api.html section 5), a "Base memory composer" card on `/admin`: build or refresh a base memory from chosen layers through the import path; seeds and memories with own circuits are protected (409); layers validated together; exclusive `group`.
+- **Reply memory**: `config/runtime.json` `conversation` (`conversation-default` = conversation-v1 + core, empathy, self, playful), composed at start when missing; its conversation layers are the reply layer (`server/http.mjs`); rebuilding it in the composer reloads the reply layer.
+- **Evaluation** `eval/smalltalk-v1/messages.jsonl` (40 fresh messages), `tools/eval/smalltalk/run.mjs`, judge job `jobs/smalltalk-judge` (blind, 1-5 rubric): mean 3.10 without the collections, 3.38 with them (paired bootstrap [0.03, 0.53]), 3.80 with the act given as a signal ([0.40, 1.01]). Proposal P-2 in `experiments/proposal/wire-type-proposals.md` (acts as memory data, register choice, user_name/time_of_day slots, priority ties).
+- **Docs and tests**: DS022 "Composing a base memory", DS011, docs/api.html, docs/architecture.html regenerated; `tests/memory-composer.test.mjs`, `tests/smalltalk-collections.test.mjs`.
+
+# Chat feedback: thumbs up and down on every answer, routed by cause (2026-10-02, chat-feedback-agent)
+
+Owner: record and analyse the requests whose answers the user does not like.
+
+- **Turn record**: every answered session turn gets a number; the answer carries `chatSop.turn` and `chatSop.trace_id`, and the assistant transcript entry keeps the message, strategy, model, authored and execution circuits, status, answer and trace id (`Sessions.nextTurn`/`turn`, `GET /v1/sessions/{id}/turns/{turn}`).
+- **API** (`server/feedback.mjs`): `POST /v1/feedback {session, turn, vote: up|down, cause?, comment?}` appends to `state/feedback/chat-feedback.jsonl` (append-only) and routes a down vote once per turn and cause: `not_understood` -> formalization inbox kind `wrong`, `unnecessary_question` -> kind `unclear`, `missing_knowledge` -> `query-gaps.jsonl` of the chat data root, `bad_wording` -> `state/feedback/reply-layer.jsonl`, `wrong_answer` -> `state/feedback/answer-wrong.jsonl`. `GET /v1/feedback` (administrator session) and `GET /v1/feedback/stats` (counts per vote and cause over the latest vote of each turn).
+- **UI**: thumbs up and down under each numbered answer of the chat page; thumbs down opens a one-cause dialog with an optional comment; the admin page lists recent feedback grouped by cause with links to the turns.
+- **Docs and tests**: docs/api.html section 10, DS009 API routes, DS022 "Chat feedback"; `tests/chat-feedback.test.mjs`.
+
+# Document ingestion by direct LLM calls instead of omp sessions (2026-10-02, ingest-direct-agent)
+
+Owner decision: a full omp coding-agent session per chunk is too slow (two ingestions took 26+ min and were stopped); ingestion calls the model directly.
+
+- **Direct author** `lib/ingest/direct-author.mjs` (`directAuthor`, the default of `Ingestions.draft`/`labelEntities`): one chat-completion conversation per chunk through LLMAPIProvider by tier name (`small` default; `config/runtime.json` `ingest`); system message = the omp task's fence + skill `sop-wire-authoring` (SKILL.md, authoring-guide.md); user message = chunk instructions + `input/<name>` files; answer = `knowledge.sop`/`queries.sop`/`report.md` in delimited blocks; validator + quote check, then repair rounds (max 3) as **patches** by wire id (`remove` block) instead of rewriting the files; answers capped at 5,000 tokens (one call must finish in 300 s) and **continued** when cut (`length`, or `interrupted`: openference answers that end early report `stop` without usage); up to two transport failures retried.
+- **Parallel chunks** (`concurrency`, default 3 for direct): chunks merged in document order; a predicate (same `args`) or entity an earlier chunk declared is kept once; a chunk valid alone but clashing after the merge continues its own conversation (`resume`).
+- **CLI** `tools/ingest-documents.mjs --model <tier> --reasoning off|low|medium|xhigh --concurrency N` (the omp author was later retired with omp itself); **LLMJobs** template `jobs/templates/ingest-document` gains `max_chunk_bytes` and tier `tiny`.
+- **Harness** `tools/eval/ingest-v1.mjs` scorer: an undecided packet (unknown, clarify, unclear) is `unknown` before the accept patterns ("does not decide" matched the accept pattern "not").
+- **Tests** `tests/ingest-direct-author.test.mjs` (fake completion client, no network). **Docs** DS022 step 3/4 and endpoint table, DS008, DS009, docs/runtime.html, docs/api.html.
 
 # Formalization without omp (2026-10-02, direct-formalizer-agent)
 

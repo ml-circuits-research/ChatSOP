@@ -108,3 +108,7 @@ Clients and jobs name a **tier**, never a concrete model: `POST /v1/chat/complet
 - `allowedPurposes` (exact names or `prefix*`; default `chat`, `formalize`, `answer-*`, `ingest`, `job:*`, `review:*`, `test:*`) pass. Any other request, without a purpose or with an unknown one, counts against `untaggedDailyMax` per local day (default 100) and is refused beyond it: `403 untagged_limit`. Admitted untagged requests are logged `untagged: true`, so the count survives a restart.
 - The job runner `LLMJobs/` registers every run and task; the proxy and the runner share only HTTP and these headers.
 
+
+## Interactive priority (owner, 2026-10-02)
+
+Requests whose purpose is in `config.interactive.purposes` (`chat`, `formalize`, `answer-*`) go to the front of each upstream queue (FIFO within a priority) and fall back down their tier chain when the expected wait exceeds `interactive.maxWaitMs` (15 s), so a person is never kept behind batch jobs on the 15 requests/minute openference plan. Batch purposes (`job:*`, `review:*`, `ingest`) keep the long wait.

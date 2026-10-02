@@ -36,7 +36,7 @@ export function storeRun(runDir, {dir = GOLD_DIR, now = () => new Date()} = {}) 
     if (old && old.correct && old.circuit !== circuit && !correct) { kept++; continue; }
     const rec = {id: r.id, book: r.book, message: r.question, gold: r.gold, gold_kind: r.gold_kind, circuit, author_tier: r.author_tier ?? null,
       status: r.system?.status ?? null, answer_text: r.text ?? null, answers: r.system?.answers ?? [], engine: r.system?.reasoning?.engine ?? null,
-      verdict: r.verdict, correct, provenance: {run: path.basename(runDir), strategy: r.replayed ? 'replay' : 'LLMDirect', author_tier: r.author_tier ?? null,
+      verdict: r.verdict, correct, provenance: {run: path.basename(runDir), strategy: r.replayed ? 'replay' : r.system?.understanding?.strategy ?? 'LocalLLMStepByStep', author_tier: r.author_tier ?? null,
         first_run: old && old.circuit === circuit ? old.provenance?.first_run ?? old.provenance?.run : path.basename(runDir), written_at: now().toISOString()}};
     fs.writeFileSync(f, JSON.stringify(rec, null, 1) + '\n');
     written++;

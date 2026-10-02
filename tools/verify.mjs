@@ -41,6 +41,8 @@ const jobs=[
  ['shards-demo',process.execPath,['examples/shards-demo.mjs']],
  ['shards-benchmark',process.execPath,['tools/bench-shards.mjs']],
  ['smoke-reasoning',process.execPath,['eval/smoke-reasoning/run.mjs']],
+ // the no-capability-loss gate (fast tier while the machine serves formalization; --tier full refreshes the ledger by hand): L1, every generated program on every engine against the oracle, the last L3 run (tools/capabilities/check.mjs)
+ ['capability-battery',process.execPath,['tools/capabilities/check.mjs','--tier','fast','--report']],
  ['solver-availability',process.execPath,['tools/check-solvers.mjs']],
  ['reasoning-matrix',process.execPath,['examples/reasoning-demo.mjs']],
  ['contracts',process.execPath,['tools/capabilities.mjs']],
@@ -63,7 +65,7 @@ if(group!=='all'&&!groups[group])throw Error('Unknown --group '+group);
 const selectedJobs=group==='all'?Object.values(groups).flat():groups[group],results=[],reportPath=report('verification'+(group==='all'?'':'-'+group)+'.json');
 for(const [name,command,args] of selectedJobs){
  console.log('START '+name);
- const start=performance.now(),run=spawnSync(command,args,{encoding:'utf8',timeout:name.endsWith('-dry-run')?15000:180000,maxBuffer:20*1024*1024});
+ const start=performance.now(),run=spawnSync(command,args,{encoding:'utf8',timeout:name.endsWith('-dry-run')?15000:name==='capability-battery'?900000:180000,maxBuffer:20*1024*1024});
  const log=(run.stdout??'')+(run.stderr??'');
  fs.writeFileSync(report(name+'.log'),log);
  const entry={name,status:run.status===0?'passed':'failed',exitCode:run.status,seconds:Number(((performance.now()-start)/1000).toFixed(3)),error:run.error?.message??null};

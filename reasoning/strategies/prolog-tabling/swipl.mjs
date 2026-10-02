@@ -43,7 +43,7 @@ export function runSwipl({text, goal, files = [], wallMs}) {
     fs.writeFileSync(file, text);
     const load = [...files, file].flatMap(f => ['-g', `consult('${f.replace(/'/g, "\\'")}')`]);
     const args = ['-q', '-f', 'none', ...load, '-g', goal, '-t', 'halt'];
-    const r = spawnSync(swiplCommand(), args, {encoding: 'utf8', timeout: wallMs, maxBuffer: 256 * 1024 * 1024, env: {...process.env, LANG: 'C.UTF-8'}});
+    const r = spawnSync(swiplCommand(), args, {encoding: 'utf8', timeout: wallMs, killSignal: 'SIGKILL', maxBuffer: 256 * 1024 * 1024, env: {...process.env, LANG: 'C.UTF-8'}});
     if (r.error?.code === 'ETIMEDOUT' || r.signal === 'SIGTERM') return {ok: false, timedOut: true, stderr: r.stderr ?? ''};
     if (r.error) return {ok: false, stderr: r.error.message};
     const line = (r.stdout ?? '').split('\n').filter(l => l.startsWith('{')).at(-1);

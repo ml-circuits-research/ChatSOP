@@ -104,7 +104,7 @@ export function createJobGuard({ config = {}, dataDir, records = () => [], costO
     if (purposeAllowed(purpose, policy.allowedPurposes)) return null;
     loadUntagged();
     if (untagged.used >= policy.untaggedDailyMax) {
-      return refuse(403, 'untagged_limit', `the daily allowance of ${policy.untaggedDailyMax} requests without an allowed x-llmapiprovider-purpose is used up${purpose ? ` (purpose "${purpose}" is not allowed)` : ''}; allowed: ${policy.allowedPurposes.join(', ')}. Batch work runs as a job: node tools/llm-jobs/run.mjs <job>`);
+      return refuse(403, 'untagged_limit', `the daily allowance of ${policy.untaggedDailyMax} requests without an allowed x-llmapiprovider-purpose is used up${purpose ? ` (purpose "${purpose}" is not allowed)` : ''}; allowed: ${policy.allowedPurposes.join(', ')}. Tag the call with an allowed x-llmapiprovider-purpose; batch work runs as a job: node LLMJobs/run.mjs <job-dir>`);
     }
     untagged.used += 1;
     return { untagged: true };
@@ -130,7 +130,16 @@ export function createJobGuard({ config = {}, dataDir, records = () => [], costO
     for (const reg of [...runs.values()].sort((a, b) => b.registered_at - a.registered_at).slice(0, 30)) {
       byRun.push({ run: reg.run, job: reg.job, status: reg.status, budget: reg.budget, spent: perRun[reg.run] ? { calls: perRun[reg.run].calls, usd: perRun[reg.run].usd, credits: perRun[reg.run].credits } : { calls: 0, usd: 0, credits: 0 }, registered_at: new Date(reg.registered_at).toISOString() });
     }
-    return { policy: { allowedPurposes: policy.allowedPurposes, untaggedDailyMax: policy.untaggedDailyMax }, untagged: { day: untagged.day, used: untagged.used, max: policy.untaggedDailyMax }, refused: { ...refused }, by_job: byJob, runs: byRun };
+    // Who sent untagged or refused requests today (client = x-client-name, else the user agent's first word).
+    const byClient = {};
+    for (const r of recs) {
+      if (localDay(r.t) !== untagged.day || (!r.untagged && !r.refused)) continue;
+      const e = (byClient[r.client || 'unknown'] ||= { untagged: 0, refused: 0, last_purpose: null, last_at: null });
+      if (r.untagged && r.attempt === 1 && !r.fallback_from) e.untagged += 1;
+      if (r.refused) e.refused += 1;
+      e.last_purpose = r.purpose ?? e.last_purpose; e.last_at = new Date(r.t).toISOString();
+    }
+    return { policy: { allowedPurposes: policy.allowedPurposes, untaggedDailyMax: policy.untaggedDailyMax }, untagged: { day: untagged.day, used: untagged.used, max: policy.untaggedDailyMax, by_client: byClient }, refused: { ...refused }, by_job: byJob, runs: byRun };
   }
 
   return { register, finish, admit, stats, spent, runs, policy };

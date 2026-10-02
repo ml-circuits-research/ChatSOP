@@ -13,7 +13,7 @@ This directory owns evaluation code, sealed suites and fresh reports for the sym
 - `leakage.mjs` — the mechanical guard: generators and tuning code never read the test files of `eval/suites/**`.
 - `reports/current/` — fresh observed results (regenerable, gitignored). `reports/history/` — archived results; historical numbers are never presented as new runs.
 
-The query author is measured by `tools/eval/query-forms` (dev set), `tools/eval/query-model-calibration` and `tools/eval/query-parsers.mjs`; wrong circuits are counted apart from honest unknowns (`tools/eval/severity`). The frozen small-model suites (`formalizer-v1`, `formalizer-ood-v1` and the dataset suites) are archived in `probably_obsolete/tinyLLMExperiments/eval/`.
+The step-by-step formalizer is measured by `tools/eval/query-forms` (dev set) and `tools/eval/query-parsers.mjs`, one tier at a time (`--tier tiny|small|medium|good`; the one-shot calibration runner is archived in `probably_obsolete/one-shot-formalization/tools/eval/query-model-calibration/`); wrong circuits are counted apart from honest unknowns (`tools/eval/severity`). The frozen small-model suites (`formalizer-v1`, `formalizer-ood-v1` and the dataset suites) are archived in `probably_obsolete/tinyLLMExperiments/eval/`.
 
 ## Rules
 

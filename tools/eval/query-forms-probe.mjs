@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * Probe for the query-form work (experiment eval-query-forms-v1): asks questions of the base memory world-v1 through the product
- * Agent, either with the formalizer LLMDirect (the chain `queryParser.models` of config/runtime.json, called directly through the proxy; `--model provider/model` picks one) or with a given SOP (`--sop file`).
- *   node tools/eval/query-forms-probe.mjs --q "How many countries border Germany?" [--sop file] [--base world-v1]
+ * Agent, either with the step-by-step formalizer (config/runtime.json queryParser; `--tier tiny|small|medium|good` answers its questions
+ * on one proxy tier, default the product ladder; LLMDirect is archived) or with a given SOP (`--sop file`).
+ *   node tools/eval/query-forms-probe.mjs --q "How many countries border Germany?" [--sop file] [--base world-v1] [--tier T]
  * Prints the SOP, the circuit status, the answer and the retrieval/linking summary. Sessions are private to user `qf-probe` and deleted.
  */
 import fs from 'node:fs';
@@ -13,7 +14,8 @@ import {ChatData} from '../../lib/chat-data/index.mjs';
 import {BaseMemories, BASE_NAME} from '../../lib/chat-data/memories.mjs';
 import {Sessions} from '../../lib/chat-data/sessions.mjs';
 import {TheoryCache} from '../../reasoning/slice/index.mjs';
-import {createQueryParser, queryParserSettings} from '../../server/query-parser.mjs';
+import {createQueryParser} from '../../server/query-parser.mjs';
+import {tierParserSettings} from './tier-parser.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const args = process.argv.slice(2);
@@ -31,10 +33,10 @@ export function openWorld({root = defaultRoot()} = {}) {
   return {config, sessions};
 }
 
-/** The circuit author of the probe: the coding agent over the vocabulary of the session's memory (no cache, so every call is a measurement). */
-export function agentClient({config, lexicon, model = opt('--model', null)}) {
-  const queryParser = createQueryParser({settings: queryParserSettings({...config, queryParser: {...(config.queryParser ?? {}), ...(model ? {models: [model]} : {}), cacheEntries: 0}})});
-  return {id: 'llm-direct', last: null, async formalize(text) { const r = await queryParser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); this.last = r.parse; return r.sop; }};
+/** The formalizer of the probe: the step-by-step questions over the session's memory (no cache, so every call is a measurement). */
+export function agentClient({config, lexicon, tier = opt('--tier', null)}) {
+  const queryParser = createQueryParser({settings: tierParserSettings(config, {tier, cacheEntries: 0})});
+  return {id: 'step-by-step', last: null, async formalize(text) { const r = await queryParser.parse({source: 'eval:query-forms', message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); this.last = r.parse; return r.sop; }};
 }
 
 export function openSession({base = 'world-v1', id = 'qf-probe'} = {}) {

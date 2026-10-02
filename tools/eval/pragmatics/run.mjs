@@ -5,19 +5,20 @@
  * negative when neither did; disputed kinds are left out of that message's numbers).
  *
  * Arms:
- *   stepbystep  LocalLLMStepByStep's first question (Q1 kind and message acts, then the emotion question) on a local llama-server
- *   coding      LLMDirect: the full circuit author on a model behind the proxy (the world-v1 vocabulary), the pragmatic wires of its query.sop
+ *   stepbystep  LocalLLMStepByStep's first question (Q1 kind and message acts, then the emotion question) on a local llama-server, or
+ *               with --tier on one proxy tier (records stepbystep-<tier>.jsonl): larger tiers answer the SAME questions (like with like)
  *   lexicon     the archived lexicon/regex EmotionDetectionSystem (probably_obsolete/paused/), reference only
+ * The one-shot arm `coding` (LLMDirect writing the whole circuit) was archived on 2026-10-02 (probably_obsolete/one-shot-formalization/);
+ * its earlier records (coding.jsonl) are still reported.
  *
  *   node tools/eval/pragmatics/run.mjs --arm stepbystep --endpoint http://127.0.0.1:19611/v1 --model qwen3-4b-instruct --limit 50
- *   node tools/eval/pragmatics/run.mjs --arm coding --model 'openference/Qwen3.8 27b' --limit 50 --concurrency 4
+ *   node tools/eval/pragmatics/run.mjs --arm stepbystep --tier small --limit 50 --concurrency 4
  *   node tools/eval/pragmatics/run.mjs --arm lexicon
  *   node tools/eval/pragmatics/run.mjs --report            (every arm's records → summary.json and summary.md)
  * Records: eval/reports/current/pragmatics/<arm>.jsonl (resumable). The first `--limit` messages are a fixed stratified order
  * (every message with a positive label interleaved with the neutral ones, seed-free: by id).
  */
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {PRAGMATIC_KINDS} from '../../../sop/enums.mjs';
@@ -45,29 +46,19 @@ async function stepByStepArm(rows, args) {
   const {createOracle} = await import('../../../lib/query-author/step-by-step/index.mjs');
   const {firstQuestion} = await import('../../../lib/query-author/step-by-step/protocol.mjs');
   const {localChat} = await import('../../../lib/local-llm/client.mjs');
-  const endpoint = opt(args, '--endpoint', 'http://127.0.0.1:19611/v1'), model = opt(args, '--model', 'qwen3-4b-instruct');
-  const chat = (messages, maxTokens) => localChat({endpoint, model, messages, maxTokens, extraBody: {chat_template_kwargs: {enable_thinking: false}}});
+  // --tier: the proxy LLMAPIProvider with a tier name as the model (with the product ladder's request settings for that tier); else a llama-server endpoint.
+  const tier = opt(args, '--tier', null);
+  const endpoint = tier ? 'http://127.0.0.1:18080/v1' : opt(args, '--endpoint', 'http://127.0.0.1:19611/v1'), model = tier ?? opt(args, '--model', 'qwen3-4b-instruct');
+  const {tierLadder} = await import('../tier-parser.mjs');
+  const rung = tier ? tierLadder(JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8')), tier)[0] : null;
+  const extraBody = {chat_template_kwargs: {enable_thinking: false}, ...(rung?.extraBody ?? {})};
+  const headers = tier ? {'x-llmapiprovider-purpose': 'job:pragmatics-eval'} : {};
+  const chat = (messages, maxTokens) => localChat({endpoint, model, messages, maxTokens, extraBody, headers});
   return async row => {
     const oracle = createOracle({chat});
     const started = Date.now();
     const first = await firstQuestion(oracle, row.message);
     return {kinds: first.pragmatic, form: first.form, questions: oracle.steps.length, ms: Date.now() - started, answers: oracle.steps.map(s => s.answer)};
-  };
-}
-
-async function codingArm(rows, args) {
-  const {authorQuery, completionBackend} = await import('../../../lib/query-author/index.mjs');
-  const {openSession} = await import('../query-forms-probe.mjs');
-  const session = openSession({base: 'world-v1', id: `pragmatics-${process.pid}`});
-  process.on('exit', () => session.close());
-  const {chainEntry} = await import('../../../lib/llm-providers.mjs');
-  const e = chainEntry(opt(args, '--model', 'openference/Qwen3.8 27b'));
-  return async row => {
-    const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'pragmatics-'));
-    try {
-      const r = await authorQuery({message: row.message, lexicon: session.lexicon, backend: completionBackend({endpoint: e.endpoint, model: e.model, headers: e.headers, extraBody: e.extraBody, timeoutMs: 180_000, cachePrompt: false}), folder, maxFixRounds: 2});
-      return {kinds: kindsOfSop(r.sop), status: r.status, ms: r.duration_ms, sop: r.sop, problems: (r.validation?.problems ?? []).map(p => p.code)};
-    } finally { fs.rmSync(folder, {recursive: true, force: true}); }
   };
 }
 
@@ -100,7 +91,8 @@ function report() {
   const rows = jl(SET), byId = new Map(rows.map(r => [r.id, r]));
   const summary = {};
   const lines = ['| arm | n | errors | core P | core R | all-kinds P | all-kinds R | p50 ms |', '|---|---|---|---|---|---|---|---|'];
-  for (const arm of ['stepbystep', 'coding', 'guide-haiku', 'lexicon']) {
+  const tiered = fs.existsSync(OUT) ? fs.readdirSync(OUT).filter(f => /^stepbystep-[\w-]+\.jsonl$/.test(f)).map(f => f.slice(0, -6)) : [];
+  for (const arm of ['stepbystep', ...tiered, 'coding', 'guide-haiku', 'lexicon']) {
     const records = jl(path.join(OUT, `${arm}.jsonl`));
     if (!records.length) continue;
     // Every arm is scored on the messages the smallest arm has, so the numbers compare like with like.
@@ -127,11 +119,11 @@ export async function main(args = process.argv.slice(2)) {
   fs.mkdirSync(OUT, {recursive: true});
   if (args.includes('--report')) return report();
   const arm = opt(args, '--arm', null);
-  const factory = {stepbystep: stepByStepArm, coding: codingArm, lexicon: lexiconArm}[arm];
-  if (!factory) throw new Error('--arm stepbystep|coding|lexicon');
+  const factory = {stepbystep: stepByStepArm, lexicon: lexiconArm}[arm];
+  if (!factory) throw new Error('--arm stepbystep|lexicon (the one-shot arm coding is archived)');
   const limit = Number(opt(args, '--limit', 300)), concurrency = Number(opt(args, '--concurrency', 1));
   const rows = ordered(jl(SET)).slice(0, limit);
-  const file = path.join(OUT, `${arm}.jsonl`);
+  const file = path.join(OUT, `${arm}${arm === 'stepbystep' && opt(args, '--tier', null) ? '-' + opt(args, '--tier', null) : ''}.jsonl`);
   const done = new Set(jl(file).map(r => r.id));
   const run = await factory(rows, args);
   const queue = rows.filter(r => !done.has(r.id));

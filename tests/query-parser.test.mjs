@@ -1,6 +1,7 @@
-// The request parser of a turn (server/query-parser.mjs, DS009 "Request parser"): LLMDirect calls a model of the chain directly (no omp); the
-// chain and its reachability, the honest failures (`parse_unavailable`, `parse_failed`, never a local fallback), the cache, and the chat/API
-// surface, against stub backends and a stub OpenAI-compatible endpoint. No test calls a model.
+// The request parser of a turn (server/query-parser.mjs, DS009 "Request parser"): the step-by-step formalizer (owner decision
+// 2026-10-02: no one-shot circuit authoring) asks its questions to the proxy tier ladder; the honest failures (`parse_unavailable`,
+// `parse_failed`, never a local fallback), the cache, archived strategy names, and the chat/API surface, against stub strategies and a
+// stub OpenAI-compatible proxy. No test calls a model.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -11,170 +12,146 @@ import {FAMILY, productServer, stubQueryParser} from './product-helpers.mjs';
 import {lex, tempDir, listen} from './helpers.mjs';
 
 const Q = (object = 'Lab Alpha', relation = 'works_at') => `@q query\n  where match\n    relation "${relation}"\n    role subject "Ana"\n    role object "${object}"\n    polarity affirmed\n  end\n`;
-const ABSTAIN = '@u unclear\n  kind gibberish\n';
-const stubBackend = (answers, calls = []) => ({id: 'stub', model: 'stub/model', generate: async ({history}) => { calls.push(history.length); const a = typeof answers === 'function' ? answers() : answers; return {ok: true, sop: a, usage: {turns: 1, cost_usd: 0.01}, duration_ms: 1}; }});
-const parserWith = (backend, extra = {}) => createQueryParser({settings: queryParserSettings({queryParser: {maxFixRounds: 1, models: ['openference/stub-model'], ...extra}}), backendFactory: () => backend});
 
-test('LLMDirect is the default; the record says who parsed, the model, the cost and the time; old strategy names are read as LLMDirect', async () => {
-  const settings = queryParserSettings();
-  assert.equal(settings.strategy, 'LLMDirect');
-  assert.deepEqual(settings.models, ['small'], 'the configuration names a proxy tier');
-  assert.equal(settings.entries[0].tier, 'small');
-  assert.equal(settings.entries[0].model, 'small');
-  assert.deepEqual(settings.entries[0].headers, {}, 'a tier keeps the proxy fallback');
-  const concrete = queryParserSettings({queryParser: {models: ['small', 'openrouter/deepseek/deepseek-v4-flash']}}).entries[1];
-  assert.equal(concrete.endpoint, 'http://127.0.0.1:18080/u/openrouter/v1');
-  assert.deepEqual(concrete.headers, {'x-llmapiprovider-no-fallback': '1'}, 'a concrete model switches the proxy fallback off');
-  assert.equal(queryParserSettings().local.tier, 'tiny', 'the step-by-step strategies ask the proxy tier tiny');
-  assert.equal(queryParserSettings({queryParser: {strategy: 'CodingAgent'}}).strategy, 'LLMDirect');
-  assert.equal(queryParserSettings({queryParser: {strategy: 'LocalLLMDirect'}}).strategy, 'LLMDirect');
-  assert.throws(() => queryParserSettings({queryParser: {strategy: 'Nope'}}), e => e.code === 'invalid_strategy');
-  const qp = parserWith(stubBackend(Q()));
-  const r = await qp.parse({message: 'Does Ana work at Lab Alpha?', lexicon: lex, memoryKey: 'm1'});
+/** A stub step-by-step strategy factory: `outcome(args, calls)` gives the run's result; availability from `available`. */
+function stubStrategies(outcome, {available = true, calls = []} = {}) {
+  const factory = (name, local) => ({name, settings: local, tag: `stub:${name}`, server: {stop: async () => {}},
+    availability: async firstTier => available ? {available: true, models: [firstTier ?? local.tier], skipped: []} : {available: false, reason: `the proxy tier ${firstTier ?? local.tier} is not available: the proxy is down`, models: [], skipped: [{model: local.tier, reason: 'the proxy is down'}]},
+    run: async args => { calls.push({name, message: args.message, firstTier: args.firstTier}); return {steps: [{name: 'kind', answer: '1', tier: 'tiny'}], model: args.firstTier ?? local.tier, ladder: [args.firstTier ?? local.tier], ...await outcome(args, calls)}; }});
+  return {factory, calls};
+}
+const parserWith = (outcome, extra = {}, options = {}) => {
+  const stub = stubStrategies(outcome, options);
+  return {calls: stub.calls, parser: createQueryParser({settings: queryParserSettings({queryParser: {...extra}}, {}), localFactory: stub.factory, ...(options.chatData ? {chatData: options.chatData} : {})})};
+};
+const validated = sop => async () => ({ok: true, status: 'validated', sop, program: {wires: []}, usage: {cost_usd: 0}});
+
+test('step by step is the default; the record says who parsed, the tier ladder, the questions and the time', async () => {
+  const settings = queryParserSettings({}, {});
+  assert.equal(settings.strategy, 'LocalLLMStepByStep');
+  assert.deepEqual(settings.models, ['tiny'], 'without a ladder the tier tiny answers alone');
+  assert.equal(settings.entries, undefined, 'no one-shot model chain');
+  const product = queryParserSettings(JSON.parse(fs.readFileSync(new URL('../config/runtime.json', import.meta.url), 'utf8')), {});
+  assert.equal(product.strategy, 'LocalLLMStepByStep');
+  assert.deepEqual(product.models, ['tiny', 'small', 'good'], 'the product ladder: tiny, then small, then good');
+  assert.equal(product.local.method, 'B');
+  assert.throws(() => queryParserSettings({queryParser: {strategy: 'Nope'}}, {}), e => e.code === 'invalid_strategy');
+  const {parser} = parserWith(validated(Q()));
+  const r = await parser.parse({message: 'Does Ana work at Lab Alpha?', lexicon: lex, memoryKey: 'm1'});
   assert.equal(r.sop, Q());
-  assert.equal(r.parse.parser, 'llm_direct');
-  assert.equal(r.parse.strategy, 'LLMDirect');
-  assert.equal(r.parse.model, 'openference/stub-model');
-  assert.equal(r.parse.rounds, 1);
-  assert.equal(r.parse.cost_usd, 0.01);
+  assert.equal(r.parse.parser, 'local_llm_step_by_step');
+  assert.equal(r.parse.strategy, 'LocalLLMStepByStep');
+  assert.equal(r.parse.model, 'tiny');
+  assert.deepEqual(r.parse.ladder, ['tiny']);
+  assert.equal(r.parse.steps, 1);
+  assert.deepEqual(r.parse.dialog, [{name: 'kind', answer: '1', tier: 'tiny'}]);
   assert.equal(r.parse.cache, 'miss');
-  assert.deepEqual(r.parse.tried, []);
 });
 
-test('the chain: an unreachable model is skipped with its reason, a run that delivers nothing moves to the next model', async () => {
-  const reachable = new Set(['b/two']);
-  const seen = [];
-  const factory = entry => ({id: 'stub', model: entry.model, generate: async () => { seen.push(entry.id); return entry.id === 'openference/b/two' ? {ok: true, sop: Q(), usage: {cost_usd: 0.02}, duration_ms: 1} : {ok: false, sop: '', usage: {}, duration_ms: 1, reason: 'timeout'}; }});
-  const probe = entry => (reachable.has(entry.model) ? {available: true} : {available: false, reason: 'not reachable'});
-  const chain = createQueryParser({settings: queryParserSettings({queryParser: {models: ['a/one', 'b/two', 'c/three'], maxFixRounds: 0}}), backendFactory: factory, probe});
-  const r = await chain.parse({message: 'Does Ana work at Lab Alpha?', lexicon: lex});
-  assert.deepEqual(seen, ['openference/b/two'], 'a/one and c/three are not reachable');
-  assert.equal(r.parse.model, 'openference/b/two');
-  assert.deepEqual(r.parse.tried, ['openference/a/one', 'openference/c/three']);
-  reachable.add('a/one');
-  seen.length = 0;
-  const second = await chain.parse({message: 'Is it so?', lexicon: lex});
-  assert.deepEqual(seen, ['openference/a/one', 'openference/b/two'], 'a/one fails to deliver, b/two answers');
-  assert.equal(second.parse.model, 'openference/b/two');
-  assert.equal(chain.stats().model_switches, 1);
-  // The session's preferred model is tried first.
-  reachable.add('c/three');
-  seen.length = 0;
-  const preferred = await chain.parse({message: 'Another one?', lexicon: lex, preferredModel: 'openference/c/three'});
-  assert.deepEqual(seen.slice(0, 1), ['openference/c/three']);
-  assert.equal(preferred.parse.model, 'openference/b/two');
+test('a session that asks for an archived one-shot strategy runs the default step by step, with a note; a preferred tier starts the ladder', async () => {
+  const {parser, calls} = parserWith(validated(Q()));
+  for (const name of ['LLMDirect', 'CodingAgent', 'LocalLLMDirect']) {
+    const r = await parser.parse({message: `Does Ana work at Lab Alpha (${name})?`, lexicon: lex, strategy: name});
+    assert.equal(r.parse.strategy, 'LocalLLMStepByStep');
+    assert.match(r.parse.strategy_note, new RegExp(`one-shot strategy ${name} is archived`));
+  }
+  const preferred = await parser.parse({message: 'Is it so?', lexicon: lex, preferredModel: 'small'});
+  assert.equal(calls.at(-1).firstTier, 'small');
+  assert.equal(preferred.parse.model, 'small');
 });
 
-test('readiness: the proxy upstream routes and the tiers are read from the proxy /health; a missing provider is a reason, not an exception', async () => {
-  const health = body => async url => ({ok: true, json: async () => body, _url: url});
-  const entry = model => queryParserSettings({queryParser: {models: [model]}}).entries[0];
-  const {providerReadiness} = await import('../lib/llm-providers.mjs');
-  const proxy = {ok: true, upstreams: {openrouter: {key_configured: true}, deepseek: {key_configured: false}}};
-  assert.equal((await providerReadiness(entry('openrouter/x').endpoint, {fetchImpl: health(proxy)})).available, true);
-  assert.match((await providerReadiness(entry('local/x').endpoint, {fetchImpl: health(proxy)})).reason, /no upstream local/);
-  assert.match((await providerReadiness(entry('small').endpoint, {tier: 'small', fetchImpl: health(proxy)})).reason, /does not serve model tiers yet/);
-  assert.equal((await providerReadiness(entry('small').endpoint, {tier: 'small', fetchImpl: health({...proxy, tiers: ['tiny', 'small']})})).available, true);
-  assert.equal((await providerReadiness(entry('small').endpoint, {tier: 'small', fetchImpl: health({...proxy, tiers: {small: {usable: false}}})})).available, false);
-});
-
-test('failures are honest: parse_unavailable when no model can run, parse_failed for an invalid circuit, never a local answer', async () => {
-  const none = createQueryParser({settings: queryParserSettings({queryParser: {models: ['openference/x']}}), backendFactory: () => stubBackend(Q()), probe: () => ({available: false, reason: 'the proxy is down'})});
-  await assert.rejects(none.parse({message: 'm', lexicon: lex}), error => error.code === 'parse_unavailable' && error.status === 503 && /no model of the formalizer chain is reachable.*the proxy is down/.test(error.message) && error.parse.parser === 'llm_direct');
-  const down = {id: 'x', generate: async () => ({ok: false, sop: '', usage: {}, duration_ms: 1, reason: 'the endpoint exceeded the 120 s limit'})};
-  await assert.rejects(parserWith(down).parse({message: 'm', lexicon: lex}), error => error.code === 'parse_unavailable' && /120 s/.test(error.message) && Boolean(error.parse.failed));
-  const invalid = parserWith(stubBackend('@q query\n  where bogus\n'));
-  await assert.rejects(invalid.parse({message: 'm', lexicon: lex}), error => error.code === 'parse_failed' && error.status === 422 && /invalid/.test(error.message) && error.parse.rounds === 2);
-  const gibberish = await parserWith(stubBackend(ABSTAIN)).parse({message: 'asdf', lexicon: lex});
+test('failures are honest: parse_unavailable when the first tier cannot run or no tier answers, parse_failed for an invalid circuit', async () => {
+  const none = parserWith(validated(Q()), {}, {available: false}).parser;
+  await assert.rejects(none.parse({message: 'm', lexicon: lex}), error => error.code === 'parse_unavailable' && error.status === 503 && /tier tiny is not available.*the proxy is down/.test(error.message) && error.parse.parser === 'local_llm_step_by_step');
+  const down = parserWith(async () => ({ok: false, status: 'failed', sop: '', reason: 'the local model could not be reached'})).parser;
+  await assert.rejects(down.parse({message: 'm', lexicon: lex}), error => error.code === 'parse_unavailable' && /could not be reached/.test(error.message) && Boolean(error.parse.failed));
+  const invalid = parserWith(async () => ({ok: false, status: 'invalid', sop: '@q query\n  where bogus\n', validation: {ok: false, problems: [{code: 'bad_where', message: 'x'}]}})).parser;
+  await assert.rejects(invalid.parse({message: 'm', lexicon: lex}), error => error.code === 'parse_failed' && error.status === 422 && /bad_where/.test(error.message) && error.attempt.sop.includes('bogus'));
+  const gibberish = await parserWith(validated('@u unclear\n  kind gibberish\n')).parser.parse({message: 'asdf', lexicon: lex});
   assert.match(gibberish.sop, /gibberish/, 'an honest unclear is the formalizer\'s answer, not a failure');
   let release;
   const gate = new Promise(r => { release = r; });
-  const slow = {id: 's', model: 's', generate: async () => { await gate; return {ok: true, sop: Q(), usage: {}, duration_ms: 1}; }};
-  const busy = parserWith(slow, {maxConcurrent: 1});
+  const busy = parserWith(async () => { await gate; return {ok: true, status: 'validated', sop: Q(), program: {wires: []}}; }, {maxConcurrent: 1}).parser;
   const first = busy.parse({message: 'one', lexicon: lex});
   await new Promise(r => setTimeout(r, 10));
   await assert.rejects(busy.parse({message: 'two', lexicon: lex}), error => error.code === 'parse_unavailable' && /busy/.test(error.message));
   release();
-  assert.equal((await first).parse.parser, 'llm_direct');
+  assert.equal((await first).parse.parser, 'local_llm_step_by_step');
 });
 
 test('identical requests are cached per memory version', async () => {
-  const calls = [];
-  const qp = parserWith(stubBackend(Q(), calls));
+  const {parser, calls} = parserWith(validated(Q()));
   const args = {message: '  Does   Ana like Bob? ', lexicon: lex, memoryKey: 'v1'};
-  const a = await qp.parse(args);
-  const b = await qp.parse({...args, message: 'does ana like bob?'});
+  const a = await parser.parse(args);
+  const b = await parser.parse({...args, message: 'does ana like bob?'});
   assert.equal(a.parse.cache, 'miss');
   assert.equal(b.parse.cache, 'hit');
   assert.equal(b.parse.cost_usd, 0);
   assert.equal(calls.length, 1);
-  await qp.parse({...args, memoryKey: 'v2'});
+  await parser.parse({...args, memoryKey: 'v2'});
   assert.equal(calls.length, 2, 'another memory version asks again');
-  assert.equal(qp.stats().cache_hits, 1);
+  assert.equal(parser.stats().cache_hits, 1);
 });
 
-/** A stub OpenAI-compatible endpoint (the proxy's place): `/health`, and `/v1/chat/completions` answering `reply`. */
-async function stubEndpoint(t, reply, calls = []) {
+/** A stub of the proxy LLMAPIProvider: `/health` lists the tiers, `/v1/chat/completions` answers `reply(body)`. */
+async function stubProxy(t, reply, calls = []) {
   const server = http.createServer((req, res) => {
     let body = '';
     req.on('data', c => { body += c; });
     req.on('end', () => {
-      if (req.url === '/health') { res.writeHead(200, {'content-type': 'application/json'}); return res.end('{"ok":true}'); }
-      calls.push({url: req.url, headers: req.headers, body: JSON.parse(body || '{}')});
+      if (req.url === '/health') { res.writeHead(200, {'content-type': 'application/json'}); return res.end(JSON.stringify({ok: true, tiers: ['tiny', 'small', 'good']})); }
+      const parsed = JSON.parse(body || '{}');
+      calls.push({url: req.url, headers: req.headers, body: parsed});
       res.writeHead(200, {'content-type': 'application/json'});
-      res.end(JSON.stringify({choices: [{message: {content: '```sop\n' + reply + '```'}}], usage: {prompt_tokens: 100, completion_tokens: 20, cost: 0.0001, prompt_tokens_details: {cached_tokens: 80}}}));
+      res.end(JSON.stringify({choices: [{message: {content: reply(parsed)}}], usage: {prompt_tokens: 100, completion_tokens: 2}}));
     });
   });
   const base = await listen(t, server);
   return {base: `${base}/v1`, calls};
 }
 
-test('chat: LLMDirect calls the chain model directly, the packet records it; session query takes a message; settings keep the model preference', async t => {
-  const endpoint = await stubEndpoint(t, Q('Dan', 'parent'));
-  const s = await productServer(t, {config: {llmProviders: {openference: {baseUrl: endpoint.base, model: 'stub-model'}}, queryParser: {models: ['openference/stub-model'], timeoutSeconds: 30}}, serverOptions: {queryParser: null}});
+test('chat: the step-by-step formalizer asks the proxy tiers, tagged; an unreadable answer of tiny escalates to small; the packet records it', async t => {
+  // tiny never answers in a readable form; small answers every question with "0" (nothing in the request matches).
+  const proxy = await stubProxy(t, body => body.model === 'tiny' ? 'Well, it depends on many things.' : '0');
+  const s = await productServer(t, {config: {llmProviders: {openference: {baseUrl: proxy.base, model: 'stub-model'}}, queryParser: {timeoutSeconds: 30, local: {tier: 'tiny', ladder: ['tiny', 'small'], method: 'B'}}}, serverOptions: {queryParser: null}});
   await s.admin('/v1/memories', 'POST', {name: 'Family', id: 'family', circuits: [{name: 'family', text: FAMILY}]});
   const id = (await s.user('/v1/sessions', 'POST', {base: 'family'})).body.id;
-  const chat = (extra = {}) => s.user('/v1/chat/completions', 'POST', {model: 'chatsop-local', session_id: id, messages: [{role: 'user', content: 'Does Ana like Alpha Lab?'}], ...extra});
+  const chat = (content = 'Does Ana like Alpha Lab?') => s.user('/v1/chat/completions', 'POST', {model: 'chatsop-local', session_id: id, messages: [{role: 'user', content}]});
   const first = await chat();
-  assert.equal(first.status, 200, JSON.stringify(first.body));
   const c = first.body.chatSop;
-  assert.equal(c.parse.parser, 'llm_direct');
-  assert.equal(c.parse.model, 'openference/stub-model');
-  assert.ok(c.parse.cost_usd > 0);
-  assert.ok(c.parse.cache_read_tokens >= 80, 'the prompt-cache hits of the provider are recorded');
-  assert.equal(endpoint.calls[0].headers['x-llmapiprovider-purpose'], 'formalize', 'every formalization call is tagged for the proxy log');
-  assert.match(c.model_sop, /Dan/, 'the circuit is the model\'s');
-  assert.equal(c.formalizer_model, 'formalizer:openference/stub-model');
-  const sent = endpoint.calls[0];
-  assert.equal(sent.body.model, 'stub-model');
-  assert.equal(sent.headers['x-llmapiprovider-no-fallback'], '1');
-  assert.equal(sent.body.messages[0].role, 'system', 'the stable guide is the first (cached) message');
-  assert.match(sent.body.messages[1].content, /Does Ana like Alpha Lab\?/);
-  assert.equal((await chat({parser: 'local'})).status, 400, 'the parser parameter is gone');
-  assert.equal((await chat({language: 'ro'})).status, 400, 'the language parameter is gone');
+  assert.ok(c.parse, JSON.stringify(first.body).slice(0, 400));
+  assert.equal(c.parse.parser, 'local_llm_step_by_step');
+  assert.deepEqual(c.parse.ladder, ['tiny', 'small']);
+  assert.ok(proxy.calls.length > 0 && proxy.calls.every(x => x.headers['x-llmapiprovider-purpose'] === 'formalize'), 'every formalization call is tagged for the proxy log');
+  assert.ok(proxy.calls.some(x => x.body.model === 'tiny') && proxy.calls.some(x => x.body.model === 'small'), 'the unreadable tiny answers escalated to small');
+  assert.ok(c.parse.tiers.escalated.length >= 1, JSON.stringify(c.parse.tiers));
+  assert.ok(c.parse.dialog.some(d => d.tier === 'small' && !d.escalated));
+  assert.equal(proxy.calls[0].body.messages[0].role, 'system', 'the stable protocol prefix is the first (cached) message');
   assert.equal((await s.user(`/v1/sessions/${id}/settings`, 'POST', {parser: 'local'})).status, 400);
-  const set = await s.user(`/v1/sessions/${id}/settings`, 'POST', {formalizer_model: 'openference/stub-model', formalizer: 'CodingAgent'});
+  const set = await s.user(`/v1/sessions/${id}/settings`, 'POST', {formalizer_model: 'small', formalizer: 'CodingAgent'});
   assert.equal(set.status, 200, JSON.stringify(set.body));
-  assert.equal(set.body.settings.formalizer, 'LLMDirect', 'an old strategy name is stored as the current one');
-  assert.equal(set.body.settings.formalizer_model, 'openference/stub-model');
-  const q = await s.user(`/v1/sessions/${id}/query`, 'POST', {message: 'Does Ana like Alpha Lab?'});
-  assert.equal(q.status, 200, JSON.stringify(q.body));
-  assert.equal(q.body.parse.parser, 'llm_direct');
-  assert.equal(q.body.parse.cache, 'hit', 'the same request on the same memory is served from the cache');
-  assert.match(q.body.model_sop, /Dan/);
-  assert.equal((await s.user(`/v1/sessions/${id}/query`, 'POST', {message: 'x', query: 'y'})).status, 400);
+  assert.equal(set.body.settings.formalizer, 'LLMDirect', 'an old strategy name is stored as the archived one-shot name');
+  const before = proxy.calls.length;
+  const second = await chat('Does Bob like Alpha Lab?');
+  assert.equal(second.body.chatSop.parse.strategy, 'LocalLLMStepByStep', 'the archived strategy runs the default step by step');
+  assert.match(second.body.chatSop.parse.strategy_note, /archived/);
+  assert.ok(proxy.calls.slice(before).every(x => x.body.model === 'small'), 'the session\'s first tier small starts the ladder');
+  const status = await s.user('/v1/status');
+  assert.deepEqual(status.body.formalization.strategies.map(x => x.id), ['LocalLLMStepByStep', 'InternalReasoningStepByStep']);
+  assert.deepEqual(status.body.formalization.strategies[0].ladder, ['tiny', 'small']);
   const models = await s.user('/v1/models');
   assert.equal(models.body.data[0].chatsop.formalizer.available, true);
-  assert.deepEqual(models.body.data[0].chatsop.formalizer.models, ['openference/stub-model'], 'the model chain is listed');
+  assert.deepEqual(models.body.data[0].chatsop.formalizer.models, ['tiny', 'small'], 'the tier ladder is listed');
 });
 
-test('chat: an unreachable formalizer chain is parse_unavailable (503) with the record, never a local answer', async t => {
-  const s = await productServer(t, {config: {llmProviders: {openference: {baseUrl: 'http://127.0.0.1:9/v1'}}, queryParser: {models: ['openference/stub-model']}}, serverOptions: {queryParser: null}});
+test('chat: an unreachable proxy is parse_unavailable (503) with the record, never a local answer', async t => {
+  const s = await productServer(t, {config: {llmProviders: {openference: {baseUrl: 'http://127.0.0.1:9/v1'}}}, serverOptions: {queryParser: null}});
   const id = (await s.user('/v1/sessions', 'POST', {base: 'default'})).body.id;
   const r = await s.user('/v1/chat/completions', 'POST', {model: 'chatsop-local', session_id: id, messages: [{role: 'user', content: 'Does Ana like Alpha Lab?'}]});
   assert.equal(r.status, 503, JSON.stringify(r.body));
   assert.equal(r.body.error.code, 'parse_unavailable');
   assert.equal(r.body.chatSop.status, 'parse_unavailable');
-  assert.match(r.body.chatSop.reason, /not reachable/);
+  assert.match(r.body.chatSop.reason, /not available/);
   assert.equal((await s.user('/readyz')).status, 503);
   const stub = await productServer(t, {serverOptions: {queryParser: stubQueryParser({available: false})}});
   const down = await stub.user('/v1/chat/completions', 'POST', {model: 'chatsop-local', messages: [{role: 'user', content: 'Does Ana like Alpha Lab?'}]});
@@ -183,9 +160,9 @@ test('chat: an unreachable formalizer chain is parse_unavailable (503) with the 
 
 test('a clear question no predicate expresses is an honest unclear and is logged as a gap of the memory', async t => {
   const root = tempDir(t, 'qp-gap-');
-  const qp = createQueryParser({settings: queryParserSettings({queryParser: {models: ['openference/stub-model']}}), chatData: {root}, backendFactory: () => stubBackend('@u unclear\n  kind relation_not_in_memory\n')});
-  const r = await qp.parse({message: 'Who employs Ana?', lexicon: lex, memoryKey: 'gap-1'});
-  assert.equal(r.parse.parser, 'llm_direct');
+  const {parser} = parserWith(async () => ({ok: true, status: 'validated', sop: '@u unclear\n  kind relation_not_in_memory\n', unclear: 'relation_not_in_memory', closest: [{id: 'works_at'}], program: {wires: []}}), {}, {chatData: {root}});
+  const r = await parser.parse({message: 'Who employs Ana?', lexicon: lex, memoryKey: 'gap-1'});
+  assert.equal(r.parse.parser, 'local_llm_step_by_step');
   assert.match(r.sop, /relation_not_in_memory/);
   const log = fs.readFileSync(path.join(root, 'query-gaps.jsonl'), 'utf8').trim().split('\n').map(l => JSON.parse(l));
   assert.equal(log.length, 1);

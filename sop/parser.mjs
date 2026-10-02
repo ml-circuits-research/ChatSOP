@@ -1,5 +1,6 @@
 /** SOP Lang: line-oriented, multiline typed wires. The grammar serves trusted circuits
  * and the model language; sop/declarative.mjs decides which wire types the model may author. */
+import {captureCircuit,captureEnabled} from '../lib/circuit-capture.mjs';
 import {outputRegistry,outputSpecs} from './outputs.mjs';
 import {assert,stable} from '../lib/util.mjs';
 import {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,COMPARATOR_WORDS,RANK_WORDS,RANK_CUTS,QUANTIFIER_WORDS,ORDER_WORDS,ORDER_SAMPLING,ORDER_SAMPLING_MODES,LINK_WORDS,MAX_LINKS,UNPARSED_HINTS,MAX_SPAN,PRAGMATIC_KINDS,PRAGMATIC_BASES,INSTRUCTION_ACTIONS,INSTRUCTION_KINDS,INSTRUCTION_TEXT_KINDS} from './enums.mjs';
@@ -78,6 +79,7 @@ export function emitTerm(x){if(x&&typeof x==='object'&&x.ref)return '$'+x.ref;if
 export const emitAtom=a=>(a.neg==='absent'?'absent ':a.neg?'not ':'')+a.p+' '+a.a.map(emitTerm).join(' ');
 export function scalar(text,values={}){if(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(text)){const n=text.slice(1);assert(Object.hasOwn(values,n),'Unresolved $'+n);return values[n];}return unquote(text);}
 export function parse(source,{maxWires=2048,maxBytes=1048576,allowTypes=null}={}){
+ if(captureEnabled)captureCircuit(source,'model');
  assert(typeof source==='string'&&Buffer.byteLength(source)<=maxBytes,'SOP source size limit');const lines=source.replace(/\r\n/g,'\n').split('\n'),wires=[];let current=null;
  for(let i=0;i<lines.length;i++){const line=lines[i];if(!line.trim()||line.trimStart().startsWith('#'))continue;
   if(/^@/.test(line)){const m=line.match(/^@([A-Za-z][A-Za-z0-9_]*)\s+([A-Za-z][A-Za-z0-9_]*)\s*$/);assert(m,`Line ${i+1}: expected @name type`);assert(!wires.some(w=>w.id===m[1]),'Duplicate wire @'+m[1]);assert(SPEC[m[2]]||(allowTypes??[]).includes(m[2]),'Unknown wire type '+m[2]);assert(!['constructor','prototype','__proto__'].includes(m[1]),'Reserved wire name');current={id:m[1],type:m[2],fields:{},line:i+1};wires.push(current);assert(wires.length<=maxWires,'Too many wires');continue;}
@@ -251,7 +253,7 @@ function validateShape(w){
  }
  if(w.type==='jsEval')parseExpression(one(w,'expr'));
  // A computation ("what is 19% of 2380?") selects its result and needs no claim; every other constraint states one.
- if(w.type==='constraint'){assert(w.fields.claim||w.fields.select,'@'+w.id+' needs claim (or select for a computation)');many(w,'require').forEach(parseBooleanCondition);if(w.fields.claim)parseBooleanCondition(one(w,'claim'));}
+ if(w.type==='constraint'){assert(w.fields.claim||w.fields.select,'@'+w.id+' needs claim (or select for a computation)');for(const key of ['task','direction'])if(w.fields[key])assert(ENUMS.constraint[key].includes(one(w,key)),'@'+w.id+' constraint '+key+' must be one of '+ENUMS.constraint[key].join(', '));many(w,'require').forEach(parseBooleanCondition);if(w.fields.claim)parseBooleanCondition(one(w,'claim'));}
  if(w.type==='value'){const a=parseExpression(one(w,'data'));assert(a.type!=='name','value needs a literal or expression');}
  if(w.type==='event')assert(ENUMS.event.action.includes(one(w,'action')),'Unknown event action');
  if(w.type==='resolve'){assert(ENUMS.resolve.kind.includes(one(w,'kind')),'resolve kind must be entity or predicate');assert(/^[a-z]{2,3}$/.test(one(w,'language')),'resolve needs an explicit language');assert(!w.fields.type||one(w,'kind')==='entity','resolve type is only for entities');for(const key of ['text','type','domain'])if(w.fields[key])assert(typeof unquote(one(w,key))==='string'&&unquote(one(w,key)).length>0,'resolve '+key+' must be nonempty text');}

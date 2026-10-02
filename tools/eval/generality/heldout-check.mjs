@@ -25,8 +25,10 @@ export const SIGNATURES = {
   'shared-by-both': /\bwhich\b[^?]*\bdo both\b|\bboth\b[^?]*\band\b[^?]*\bhave\?/i
 };
 const SOURCES = [
-  {kind: 'guide', glob: 'skills/coding-agent-query', ext: /\.md$/},
+  // The one-shot author guide (archived 2026-10-02) stays a development source: its forms were seen during development.
+  {kind: 'guide', glob: 'probably_obsolete/one-shot-formalization/skills/coding-agent-query', ext: /\.md$/},
   {kind: 'author-prompt', glob: 'lib/query-author', ext: /\.mjs$/},
+  {kind: 'author-prompt', glob: 'config/knowledge/formalizer-protocol-v1', ext: /\.sop$/},
   {kind: 'dev', glob: 'datasets_sources/query-forms', ext: /\.jsonl$/, depth: 1},
   {kind: 'dev', glob: 'eval/smoke-reasoning/bench/manifest.jsonl'},
   {kind: 'dev', glob: 'eval/reports/current/omp-tasks/t6-coverage/corrected-240.jsonl'},

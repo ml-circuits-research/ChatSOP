@@ -51,6 +51,7 @@
 
 @fp_askable_ask_names rule
   when fp_open_slot names none
+  when absent fp_open_slot own_data none
   when fp_budget_left
   then fp_askable ask_names none
 
@@ -62,6 +63,7 @@
 
 @fp_askable_ask_aspects rule
   when fp_open_slot aspects none
+  when absent fp_open_slot own_data none
   when absent fp_linking_open
   when fp_budget_left
   then fp_askable ask_aspects none

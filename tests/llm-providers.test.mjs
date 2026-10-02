@@ -1,11 +1,11 @@
-// Remote LLM providers (lib/llm-providers.mjs, owner decisions 2026-10-02): the proxy entries and tiers, LLMDirect through the proxy,
+// Remote LLM providers (lib/llm-providers.mjs, owner decisions 2026-10-02): the proxy entries and tiers, the step-by-step formalizer on a proxy tier,
 // the answer-language step and the books judge, all against stubs. No test calls a model.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {providerSettings, chainEntry, providerChat, providerReadiness} from '../lib/llm-providers.mjs';
-import {createQueryParser, queryParserSettings, remoteDirectEntry} from '../server/query-parser.mjs';
+import {createQueryParser, queryParserSettings} from '../server/query-parser.mjs';
 import {createAnswerFormulator} from '../server/answer-language.mjs';
 import {judgeBatches} from '../tools/eval/books/score.mjs';
 import {lex, tempDir} from './helpers.mjs';
@@ -38,22 +38,22 @@ test('providerChat answers plain text, strips thinking, and reports an unreachab
   assert.match(state.reason, /not reachable/);
 });
 
-test('LLMDirect calls the chain model through the proxy: the tier by default, concrete entries by provider; an unreachable proxy is parse_unavailable', async () => {
-  assert.equal(remoteDirectEntry(queryParserSettings()).id, 'small');
+test('provider entries name the proxy routes; the formalizer asks its tier through the proxy; an unreachable proxy is parse_unavailable', async () => {
   assert.equal(chainEntry('openrouter/deepseek/deepseek-v4-flash').endpoint, 'http://127.0.0.1:18080/u/openrouter/v1');
   assert.equal(chainEntry('llmapiprovider/Qwen3.8 27b').id, 'openference/Qwen3.8 27b', 'the old omp overlay prefix names the proxy');
   assert.equal(chainEntry('Qwen3.8 27b').id, 'openference/Qwen3.8 27b', 'a bare model id goes to the default provider');
   assert.throws(() => chainEntry({kind: 'omp', model: 'x'}), /not supported/);
   const calls = [];
-  const fetchImpl = async (url, init) => { calls.push({url, body: init?.body ? JSON.parse(init.body) : null}); return url.endsWith('/health') ? {ok: true, json: async () => ({ok: true, tiers: [{id: 'small', x_tier: {serves: 'openference/Qwen3.8 27b'}}]})} : reply('```sop\n' + Q + '```')(url, init); };
-  const qp = createQueryParser({settings: queryParserSettings({queryParser: {strategy: 'LocalLLMDirect', maxFixRounds: 0}}), fetchImpl});
-  const r = await qp.parse({message: 'Does Ana work at Lab Alpha?', lexicon: lex});
-  assert.equal(r.parse.strategy, 'LLMDirect');
+  const fetchImpl = async (url, init) => { calls.push({url, body: init?.body ? JSON.parse(init.body) : null}); return url.endsWith('/health') ? {ok: true, json: async () => ({ok: true, tiers: [{id: 'small', x_tier: {serves: 'openference/Qwen3.8 27b'}}]})} : reply('1')(url, init); };
+  const qp = createQueryParser({settings: queryParserSettings({queryParser: {strategy: 'LocalLLMDirect', local: {tier: 'small', method: 'B'}}}, {}), fetchImpl});
+  // The stub answers "1" to every question, so the run may stop on an unreadable answer: the record is the same either way.
+  const r = await qp.parse({message: 'Does Ana work at Lab Alpha?', lexicon: lex}).catch(error => error);
+  assert.equal(r.parse.strategy, 'LocalLLMStepByStep', 'the archived name runs the step-by-step default');
   assert.equal(r.parse.model, 'small');
   assert.equal(r.parse.backend, 'completion');
   const sent = calls.find(c => c.url.endsWith('/chat/completions'));
   assert.equal(sent.body.model, 'small', 'the tier name goes to the proxy');
-  const down = createQueryParser({settings: queryParserSettings({queryParser: {}}), fetchImpl: async () => { throw new Error('ECONNREFUSED'); }});
+  const down = createQueryParser({settings: queryParserSettings({queryParser: {}}, {}), fetchImpl: async () => { throw new Error('ECONNREFUSED'); }});
   await assert.rejects(down.parse({message: 'm', lexicon: lex}), e => e.code === 'parse_unavailable' && /not reachable/.test(e.message));
 });
 

@@ -19,7 +19,7 @@ import {loadFrames,normalizeProposition} from './frames.mjs';
 import {copulaForm} from './copula-linker.mjs';
 import {lowerQuantities} from './quantities.mjs';
 import {linksOf,roleReferences,LINK_WORDS,sampledOrder} from './parser.mjs';
-import {REASONING_QUERY_MODES} from './enums.mjs';
+import {REASONING_QUERY_MODES,PRODUCT_REASONING_MODES} from './enums.mjs';
 
 /**
  * The neural author describes problems; only this host compiler emits operations.
@@ -219,8 +219,9 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
  const plan=planLinks(work,{now});
  const workById=new Map(work.map(w=>[w.id,w]));
  // Problems the host understands but does not compute: advice questions (Q-LANG-6), arithmetic with division or decimals
- // (Q-LANG-7) and questions over a proposition used as an argument (`$s`).
- const notComputable=work.filter(w=>!held.has(w.id)&&((w.type==='query'&&(REASONING_QUERY_MODES.includes(one(w,'mode'))||expanded.eventQueries.has(w.id)||[...many(w,'where'),...many(w,'scope')].some(text=>{let advice=false;parseCondition(text,leaf=>{const p=parseMatch(leaf,'match',{partial:true});if(p.relation&&isAdvice(p.relation))advice=true;return leaf;});return advice;})))
+ // (Q-LANG-7), questions over a proposition used as an argument (`$s`) and the reasoning modes outside PRODUCT_REASONING_MODES
+ // (`why_not` and `abduce` are routed to the oracle, DS006 R1).
+ const notComputable=work.filter(w=>!held.has(w.id)&&((w.type==='query'&&((REASONING_QUERY_MODES.includes(one(w,'mode'))&&!PRODUCT_REASONING_MODES.includes(one(w,'mode')))||expanded.eventQueries.has(w.id)||[...many(w,'where'),...many(w,'scope')].some(text=>{let advice=false;parseCondition(text,leaf=>{const p=parseMatch(leaf,'match',{partial:true});if(p.relation&&isAdvice(p.relation))advice=true;return leaf;});return advice;})))
   ||(w.type==='constraint'&&[...many(w,'require'),...many(w,'claim'),...many(w,'objective')].some(text=>/\bdivided_by\b|(?:^|\s)-?\d+\.\d+(?:\s|$)/.test(unquoted(text))))))
   .map(w=>({declaration:w.id,type:w.type,reading:expanded.eventQueries.has(w.id)?readingWithReferences(authoredById.get(w.id),authoredById):canonical({wires:[authoredById.get(w.id)??w]}).trim().split('\n').map(line=>line.trim()).join('; ')}));
  const skipped=new Set([...notComputable.map(item=>item.declaration),...held]);

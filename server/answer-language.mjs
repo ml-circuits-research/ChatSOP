@@ -2,7 +2,7 @@
  * Answer formulation in the user's language (DS009 "Answer language"). The request parser reads any language and writes English
  * circuits; the runtime reasons in English and `sop/answer-text.mjs` renders the answer deterministically in English. This optional
  * final step phrases that answer in the language of the user's message with the default model through the proxy (the providers of
- * `answerLanguage.providers`, by default the proxy tier `small`, Qwen3.8 27b with the proxy's own fallback; never omp), strictly from the result: the English answer and a compact copy of the result
+ * `answerLanguage.providers`, by default the proxy tier `tiny` (the local Qwen3-4B, a short rewriting task) then `small`; never omp), strictly from the result: the English answer and a compact copy of the result
  * packet (status, answers, count, the facts used and their sources). The model adds no fact; every number and every source id of the
  * English answer must appear in its text, otherwise the English answer is returned. The English rendering is always kept in the trace.
  *
@@ -19,7 +19,7 @@
  */
 import {providerChat} from '../lib/llm-providers.mjs';
 
-export const DEFAULT_ANSWER_LANGUAGE = Object.freeze({mode: 'auto', natural: 'all', providers: ['small'], timeoutSeconds: 25});
+export const DEFAULT_ANSWER_LANGUAGE = Object.freeze({mode: 'auto', natural: 'all', providers: ['tiny', 'small'], timeoutSeconds: 25, maxTokens: 400});
 
 const ENGLISH = new Set(('a an the is are was were be been am do does did has have had who whom whose what which where when why how many much ' +
   'of in on at to from by with for about into over under than then and or not no yes my your his her its our their i you he she it we they ' +
@@ -48,7 +48,7 @@ const SYSTEM = `You phrase a verified answer for a user, in the language of the 
 Rules: use ONLY what the ENGLISH ANSWER and the RESULT say; add no fact, no explanation of your own, no opinion; never answer from your own knowledge; keep every number, date, proper name and source id exactly as written (you may use the usual form of a name in the user's language only when the English answer gives no other form of it); keep the meaning of yes, no, "I do not know" and of a clarification question; keep the sources line, translating only its words. Output only the answer text, nothing else.`;
 
 const NATURAL = `You are the voice of a symbolic question-answering assistant. Rewrite the DRAFT REPLY as a short, natural, friendly chat reply in the language of the user's message, the way a helpful person would say it.
-Rules: use ONLY what the DRAFT REPLY and the RESULT say; add no fact, no opinion and nothing from your own knowledge; keep every number, date, proper name and source id exactly as written; keep the meaning of yes, no, "I don't know" and of a suggestion, and keep every question the draft asks the user; you may turn lists into a sentence, drop labels such as "Answer:" and shorten the sources line to one short sentence. Keep it brief. Output only the reply text.`;
+Rules: use ONLY what the DRAFT REPLY and the RESULT say; add no fact, no opinion and nothing from your own knowledge; keep every number, date, proper name and source id exactly as written; keep the meaning of yes, no, "I don't know", of an apology and of a suggestion, and keep every question the draft asks the user; you may turn lists into a sentence, drop labels such as "Answer:" and shorten the sources line to one short sentence. Keep it brief. Output only the reply text.`;
 
 /** Proper-name-like words of an English draft (a capital letter inside a sentence): the natural phrasing must keep them. */
 export function keptNames(english) {
@@ -73,7 +73,7 @@ export function keptTokens(english) {
 
 export function createAnswerFormulator({settings, chat = providerChat}) {
   /** Returns `{applied, text?, model?, ms, reason?, tried}`; `applied: false` keeps the English answer (the draft). */
-  async function formulate({message, english, packet}) {
+  async function formulate({message, english: full, packet}) {
     const started = Date.now();
     const mode = settings.mode;
     const english_input = looksEnglish(message);
@@ -82,13 +82,19 @@ export function createAnswerFormulator({settings, chat = providerChat}) {
     const natural = english_input && mode === 'auto' && (settings.natural === 'all' || (settings.natural === 'conversation' && conversational));
     if (mode === 'off' || (mode === 'auto' && english_input && !natural)) return {...base, applied: false, ms: 0, reason: mode === 'off' ? 'off by configuration' : 'the message is English'};
     base.natural = natural;
+    // The user's instructed prefix and suffix (packet.reply.frame) are kept verbatim around the reworded reply.
+    const frame = packet.reply?.frame ?? {};
+    let english = String(full);
+    if (frame.prefix && english.startsWith(frame.prefix)) english = english.slice(frame.prefix.length).trimStart();
+    if (frame.suffix && english.endsWith(frame.suffix)) english = english.slice(0, -frame.suffix.length).trimEnd();
+    const framed = text => [frame.prefix && String(full).startsWith(frame.prefix) && !text.startsWith(frame.prefix) ? frame.prefix : null, text, frame.suffix && String(full).endsWith(frame.suffix) && !text.endsWith(frame.suffix) ? frame.suffix : null].filter(Boolean).join(' ');
     const system = natural ? NATURAL : SYSTEM;
     const prompt = natural
       ? `USER MESSAGE:\n${message}\n\nDRAFT REPLY:\n${english}\n\nRESULT:\n${JSON.stringify(compact(packet))}\n\nWrite the reply.`
       : `USER MESSAGE:\n${message}\n\nENGLISH ANSWER:\n${english}\n\nRESULT:\n${JSON.stringify(compact(packet))}\n\nWrite the answer in the language of the USER MESSAGE.`;
     // A natural phrasing may shorten the evidence lines; it must keep the answer: the numbers and names of the first line and every number
     // of the answer values. A translation keeps every number and source id of the English answer.
-    const first = String(english).split('\n')[0];
+    const first = english.split('\n')[0];
     const values = [...(packet.rows ?? []).flatMap(r => Object.values(r ?? {})), packet.count, packet.at_least].filter(v => typeof v === 'number').map(String);
     const kept = text => (natural ? [...new Set([...keptTokens(first), ...keptNames(first), ...values])] : keptTokens(english)).filter(t => !text.includes(t));
     const tried = [];
@@ -97,10 +103,10 @@ export function createAnswerFormulator({settings, chat = providerChat}) {
     for (const provider of settings.providers) {
       const left = settings.timeoutSeconds * 1000 - (Date.now() - started);
       if (left < 1000) { tried.push({model: provider, reason: 'no time left'}); break; }
-      const run = await chat({system, prompt, provider, config: settings.config ?? {}, timeoutMs: left, purpose: natural ? 'answer-natural-phrasing' : 'answer-language'});
+      const run = await chat({system, prompt, provider, config: settings.config ?? {}, timeoutMs: left, maxTokens: settings.maxTokens, purpose: natural ? 'answer-natural-phrasing' : 'answer-language'});
       const text = String(run.text ?? '').trim();
       const missing = run.ok && text ? kept(text) : [];
-      if (run.ok && text && !missing.length) return {...base, applied: true, text, model: run.model, ms: Date.now() - started, tried};
+      if (run.ok && text && !missing.length) return {...base, applied: true, text: framed(text), model: run.model, ms: Date.now() - started, tried};
       tried.push({model: run.model ?? provider, reason: !run.ok || !text ? run.reason ?? 'no text' : `dropped ${missing.slice(0, 5).join(', ')}`});
     }
     return {...base, applied: false, ms: Date.now() - started, reason: tried.length ? `${tried.at(-1).reason}; the English draft is shown` : 'no provider configured', tried};

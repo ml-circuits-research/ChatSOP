@@ -2,7 +2,7 @@
 /**
  * Small evaluation of the small-talk collections (owner request of 2026-10-02): the 40 fresh chat messages of
  * eval/smalltalk-v1/messages.jsonl go through the product chat turn (server/agent.mjs over the default base memory world-v1, request
- * parser LLMDirect on its configured chain), each formalized once; the reply is composed under three reply layers:
+ * parser: the step-by-step formalizer on its configured tier ladder, or one tier with --tier), each formalized once; the reply is composed under three reply layers:
  *
  *   A  conversation-v1 alone (the layer before the collections)
  *   B  conversation-v1 + the default collections (config conversation.layers): smalltalk-core, -empathy, -self, -playful
@@ -12,7 +12,7 @@
  * The replies are drafts of the conversation layer (the optional answer-formulation step of the HTTP server is not applied). The judge
  * is jobs/smalltalk-judge (auditor tier, blind: hashed ids, arms shuffled). Writes eval/reports/current/smalltalk/.
  *
- *   node tools/eval/smalltalk/run.mjs turns                 formalize and compose (calls the request parser's chain)
+ *   node tools/eval/smalltalk/run.mjs turns [--tier T]      formalize and compose (calls the request parser's tiers)
  *   node tools/eval/smalltalk/run.mjs judge-input           the blind judge input (state/llm-jobs/smalltalk-judge-input.jsonl)
  *   node tools/eval/smalltalk/run.mjs report --run DIR      scores per arm and category, paired bootstrap B-A and C-A
  */
@@ -25,7 +25,8 @@ import {ChatData} from '../../../lib/chat-data/index.mjs';
 import {BaseMemories, BASE_NAME} from '../../../lib/chat-data/memories.mjs';
 import {Sessions} from '../../../lib/chat-data/sessions.mjs';
 import {TheoryCache} from '../../../reasoning/slice/index.mjs';
-import {createQueryParser, queryParserSettings} from '../../../server/query-parser.mjs';
+import {createQueryParser} from '../../../server/query-parser.mjs';
+import {tierParserSettings} from '../tier-parser.mjs';
 import {seedCircuits} from '../../../lib/knowledge-seeds.mjs';
 import {setReplyLayer, indexLayer} from '../../../sop/replies.mjs';
 import {composeReply} from '../../../lib/conversation/index.mjs';
@@ -59,14 +60,16 @@ async function turns() {
   const lexicon = sessions.lexicon(id);
   const store = new SessionStore({repo: sessions.repository(id), lexicon, config: {...config, policy: {...(config.policy ?? {}), reinforce: false}}, root: path.join(sessions.dir(id), 'agent'),
     circuitRules: () => theories.get([...sessions.baseCircuits(id), ...sessions.circuits(id)]).chatRules()});
-  const parser = createQueryParser({settings: queryParserSettings({queryParser: {...config.queryParser, cacheEntries: 0}})});
+  const tierAt = args.indexOf('--tier');
+  const parser = createQueryParser({settings: tierParserSettings(config, {tier: tierAt >= 0 ? args[tierAt + 1] : null, cacheEntries: 0})});
   const layers = args.includes('--formalize-only') ? {} : Object.fromEntries(Object.entries(ARMS).map(([arm, ids]) => [arm, layerOf(ids)]));
   const topics = topicsOf(lexicon);
   fs.mkdirSync(OUT, {recursive: true});
   const rows = [];
   let n = 0;
-  // Formalizations are kept (eval/reports/current/smalltalk/formalized.jsonl): a rerun or another arm reuses them, no call repeated.
-  const cacheFile = path.join(OUT, 'formalized.jsonl');
+  // Formalizations are kept per strategy and tiers (eval/reports/current/smalltalk/formalized-<strategy>-<tiers>.jsonl; the older
+  // formalized.jsonl holds archived LLMDirect circuits): a rerun or another arm reuses them, no call repeated.
+  const cacheFile = path.join(OUT, `formalized-${parser.settings.strategy}-${parser.settings.models.join('+')}.jsonl`);
   const cached = new Map(fs.existsSync(cacheFile) ? readJsonl(cacheFile).map(r => [r.message, r]) : []);
   const only = args.includes('--formalize-only');
   try {
@@ -75,7 +78,7 @@ async function turns() {
       const sop = hit ? {text: hit.sop} : {}, parse = hit ? {...hit.parse} : {};
       if (only) {
         if (!hit) {
-          try { const done = await parser.parse({message: m.message, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); sop.text = done.sop; Object.assign(parse, done.parse ?? {}); }
+          try { const done = await parser.parse({source: 'eval:smalltalk', message: m.message, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); sop.text = done.sop; Object.assign(parse, done.parse ?? {}); }
           catch (e) { sop.text = null; parse.error = String(e.code ?? e.message).slice(0, 200); }
           fs.appendFileSync(cacheFile, JSON.stringify({message: m.message, sop: sop.text, parse: {model: parse.model ?? null, ms: parse.ms ?? null, rounds: parse.rounds ?? null, error: parse.error ?? null}}) + '\n');
           console.log(`${m.id} formalized ${parse.error ?? ''} ${String(sop.text ?? '').replace(/\n/g, ' ').slice(0, 120)}`);
@@ -87,7 +90,7 @@ async function turns() {
         const entry = store.get('smalltalk', `c${++n}`, BASE_NAME);
         const formalizer = {id: 'smalltalk-eval', formalize: async text => {
           if (sop.text === null) throw Object.assign(new Error(parse.error ?? 'no formalization'), {code: 'parse_failed'});
-          if (sop.text === undefined) { const done = await parser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); sop.text = done.sop; Object.assign(parse, done.parse ?? {}); }
+          if (sop.text === undefined) { const done = await parser.parse({source: 'eval:smalltalk', message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); sop.text = done.sop; Object.assign(parse, done.parse ?? {}); }
           return sop.text;
         }};
         const started = Date.now();
@@ -111,7 +114,7 @@ async function turns() {
       // Arm C: B with the message's label as a pragmatic signal (oracle signal), recomposed when B computed no answer.
       const b = rows.at(-1);
       let c = {...b, arm: 'C'};
-      if (b.ok && m.label && !b.computed) {
+      if (b.ok && m.label && !b.computed && !(b.signals ?? []).includes(m.label)) {
         const packet = {status: 'courtesy', pragmatic: [...(b.packet?.pragmatic ?? []).filter(s => s.kind !== m.label), {kind: m.label, score: 1}]};
         const composed = composeReply({packet, topics, seed: Number(m.id.slice(2)) * 7919, layer: layers.B});
         c = {...b, arm: 'C', text: composed.text, situations: Object.fromEntries(Object.entries(composed.reply).filter(([k, v]) => v?.situation && ['opening', 'body', 'aside', 'follow_up', 'closing'].includes(k)).map(([k, v]) => [k, v.situation])), oracle_signal: m.label};

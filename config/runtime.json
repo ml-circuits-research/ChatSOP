@@ -64,6 +64,7 @@
   },
   "answerLanguage": {
     "providers": [
+      "tiny",
       "small"
     ],
     "natural": "all"
@@ -102,17 +103,18 @@
     "concurrency": 3
   },
   "queryParser": {
-    "strategy": "LLMDirect",
-    "models": [
-      "small"
-    ],
+    "_note": "Owner decision 2026-10-02: formalization is step by step only (LLMDirect archived in probably_obsolete/one-shot-formalization/). Each question goes to the first tier of the ladder and escalates to the next only when its answer cannot be read or the tier does not answer.",
+    "strategy": "LocalLLMStepByStep",
     "timeoutSeconds": 120,
-    "maxFixRounds": 2,
-    "selfCheck": false,
     "maxConcurrent": 4,
     "cacheEntries": 500,
     "local": {
       "tier": "tiny",
+      "ladder": [
+        "tiny",
+        "small",
+        {"tier": "good", "extraBody": {"reasoning": {"enabled": false}}}
+      ],
       "maxTokens": 1500,
       "thinking": false,
       "method": "B"

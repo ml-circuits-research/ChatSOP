@@ -94,7 +94,7 @@ export async function runJob(job, {stage = null, resume = null, endpoint = job.c
     try {
       const r = await fetchImpl(`${String(proxy).replace(/\/+$/, '')}/jobs/register`, {method: 'POST', headers: {'content-type': 'application/json'},
         body: JSON.stringify({job: spec.name, run, purpose: jobPurpose, budget: spec.budget, spec_hash: job.hash}), signal: AbortSignal.timeout(5000)});
-      registration = r.ok ? 'registered' : `not registered (status ${r.status})`;
+      registration = r.ok ? 'registered' : resume && r.status === 400 ? 'registered (earlier)' : `not registered (status ${r.status})`;
     } catch (e) { registration = `not registered (${e.message})`; }
   }
   save({proxy_registration: registration});
@@ -369,6 +369,11 @@ export async function runJob(job, {stage = null, resume = null, endpoint = job.c
   for (const r of fin.accepted.values()) if (r.score?.label) scores[r.score.label] = (scores[r.score.label] ?? 0) + 1;
   const status = stopped ? 'stopped' : 'finished';
   const lt = ledger.total();
+  // Audit and decider counts from the run's files, so a resumed run reports what earlier processes did too.
+  const auditRows = readJsonl(file('audit.jsonl')), decisionRows = readJsonl(file('decisions.jsonl'));
+  counts.audit = {sampled: auditRows.length, flagged: decisionRows.filter(d => d.source === 'audit').length, failed: auditRows.filter(a => a.failed).length};
+  const act = a => decisionRows.filter(d => d.action === a).length;
+  counts.decider = {...counts.decider, dropped: act('drop'), dismissed: act('dismiss'), escalated: escalations.length};
   const summary = [
     `# ${spec.name} run ${run} (stage ${stages[last].name}): ${status}${stopped ? ` — ${stopped}` : ''}`,
     `items ${fin.accepted.size + fin.rejected.size}/${stages[last].target} settled: accepted ${fin.accepted.size}, rejected ${fin.rejected.size} (empty ${c.empty}, call failures ${c.call_failed}); repaired ${c.repaired}, next model ${c.next_model}`,
@@ -384,7 +389,7 @@ export async function runJob(job, {stage = null, resume = null, endpoint = job.c
   writeJsonAtomic(file('summary.md'), summary.join('\n') + '\n');
   save({status, stopped: stopped ?? null, finished_at: new Date().toISOString(), tiers_passed: levels ? passedAt : undefined, sink: sinkResult ?? undefined, counts: {...c, accepted: fin.accepted.size, rejected: fin.rejected.size, escalated: escalations.length}, decider: counts.decider, audit: counts.audit, scores});
   store.index({event: 'finished', job: spec.name, run, status, stopped: stopped ?? null, accepted: fin.accepted.size, rejected: fin.rejected.size, escalated: escalations.length, usd: Number(total.usd.toFixed(6)), credits: Number(total.credits.toFixed(3)), cache_hits: lt.cache_hits});
-  if (register && registration === 'registered') {
+  if (register && registration.startsWith('registered')) {
     try { await fetchImpl(`${String(proxy).replace(/\/+$/, '')}/jobs/finish`, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({run, status}), signal: AbortSignal.timeout(5000)}); } catch { /* the registration expires */ }
   }
   return {run, dir, status, stopped, summary: summary.join('\n'), counts: record.counts, cost, scores, tiers: levels ? {plan, passed: passedAt, perTier} : null, sink: sinkResult};

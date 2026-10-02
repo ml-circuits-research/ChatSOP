@@ -6,7 +6,7 @@ import {ingestFacts} from '../lib/chat-data/memories.mjs';
 import {Lexicon} from '../sop/lexicon.mjs';
 import {Theory, askMemory} from '../reasoning/slice/wire.mjs';
 import {AuthorRuntime} from '../lib/query-author/runtime.mjs';
-import {authorQuery, validateQuery} from '../lib/query-author/index.mjs';
+import {validateQuery} from '../lib/query-author/index.mjs';
 import {tempDir} from './helpers.mjs';
 
 function memory(t, knowledge) {
@@ -156,18 +156,3 @@ test('domain checks use vocabulary classes beyond a sparse position sample and r
   assert.ok(capped.condition_guard.probes <= 1);
 });
 
-test('author repair receives condition misuse with memory positions, without an execution preview', async t => {
-  const m = memory(t, KNOWLEDGE);
-  const bad = '@q query\n  where match\n    relation "assigned"\n    role subject "Lab"\n    role object "Ada"\n    polarity affirmed\n  end\n';
-  const good = bad.replace('role subject "Lab"', 'role subject "Ada"').replace('role object "Ada"', 'role object "Lab"');
-  const result = await authorQuery({...m, message: 'Is Ada assigned to Lab?', maxFixRounds: 1,
-    vocabularyDialog: false, backend: {id: 'saved-circuit-repair', kind: 'completion', generate: async ({history}) => {
-      if (!history.length) return {ok: true, sop: bad};
-      assert.ok(history.at(-1).problems.some(p => p.code === 'condition_misuse' && p.values.includes('ada')));
-      return {ok: true, sop: good};
-    }}, execute: async () => { throw new Error('repair must not execute an answer-shape preview'); }});
-  assert.equal(result.status, 'validated');
-  assert.equal(result.rounds, 2);
-  const packet = (await m.run(result.sop, 'Is Ada assigned to Lab?')).result.packet;
-  assert.equal(packet.status, 'supported');
-});

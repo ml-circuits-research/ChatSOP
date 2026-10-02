@@ -13,7 +13,7 @@ export async function run({params, attachments, target, endpoint, fetchImpl, log
   const memories = context.memories ?? new BaseMemories({chatData: new ChatData(chatDataSettings({}))});
   const documents = attachments.map(a => ({name: a.name, text: fs.readFileSync(a.path, 'utf8'), source: {rights: params.rights, ...(params.source_url ? {url: params.source_url} : {})}}));
   const chat = openaiChat({endpoint: `${String(endpoint).replace(/\/+$/, '')}/v1`, fetchImpl, purpose: null});
-  const record = await new Ingestions({memories}).draft(target.id, {documents, model: params.tier, purpose: params.purpose ?? '', user: 'llm-jobs', author: 'direct', chat,
+  const record = await new Ingestions({memories}).draft(target.id, {documents, model: params.tier, purpose: params.purpose ?? '', ...(params.max_chunk_bytes ? {maxChunkBytes: params.max_chunk_bytes} : {}), user: 'llm-jobs', author: 'direct', chat,
     onProgress: p => log(`ingest ${p.phase ?? ''} ${p.chunk ?? ''}`)});
   const t = record.totals ?? {};
   return {status: record.status === 'failed' ? 'failed' : 'finished', ingestion: record.id,

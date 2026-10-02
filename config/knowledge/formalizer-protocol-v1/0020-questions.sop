@@ -11,7 +11,7 @@
 @fp_pq3 fact
   holds fp_prefix_section 1 ask_kind 1
 @fp_pq4 fact
-  holds fp_prefix_section_end 1 13
+  holds fp_prefix_section_end 1 14
 @fp_pq5 fact
   holds fp_prefix_title 1 "Kinds of answer a request can want:"
 @fp_pq6 fact
@@ -289,9 +289,9 @@
 @fp_pq136 fact
   holds fp_choice_text ask_kind 12 "nothing is asked: the user states a fact (for example: Ana works at Acme.)"
 @fp_pq137 fact
-  holds fp_choice ask_kind 13 none
+  holds fp_choice ask_kind 14 none
 @fp_pq138 fact
-  holds fp_choice_text ask_kind 13 "nothing to look up: a greeting, thanks, or no request (for example: Hello! Thanks.)"
+  holds fp_choice_text ask_kind 14 "nothing to look up: a greeting, thanks, or no request (for example: Hello! Thanks.)"
 
 # --- ask_acts
 @fp_pq139 fact

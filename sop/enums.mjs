@@ -42,6 +42,13 @@ export const QUERY_MODES = Object.freeze(['select', 'exists', 'count', 'explain'
  * where DS014 says so.
  */
 export const REASONING_QUERY_MODES = Object.freeze(['why_not', 'plan', 'abduce', 'conform', 'procedure']);
+/**
+ * The reasoning modes a model `query` may ask on the product path (DS006 "Routing rules", R1): `why_not` (the missing base facts and the
+ * blockers of a claim) and `abduce` (the minimal consistent explanations over the memory's `hypothesis` wires) are answered by the
+ * js-reference oracle, like `explain`. The other reasoning modes need actions, procedures or traces the model does not write; a model
+ * query in one of them is reported `not_computable`.
+ */
+export const PRODUCT_REASONING_MODES = Object.freeze(['why_not', 'abduce']);
 /** Part of a time variable's interval that a question asks for: since when, until when, how long. */
 export const TIME_MEASURES = Object.freeze(['start', 'end', 'duration']);
 

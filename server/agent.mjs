@@ -93,11 +93,11 @@ export class Agent{
   */
  reply(output,{text='',now=Date.now()}={}){
   const packet=output.packet??{};
-  const computed=!['unclear','courtesy'].includes(packet.status);
+  const computed=!['unclear','courtesy','instruction'].includes(packet.status);
   const answerText=computed?output.text:null;
   // A clarification about a name the memory does not know (not an ambiguous one) is a turn without an answer too.
   const unknownNames=(packet.required??[]).filter(i=>i&&(i.kind===undefined||i.kind==='entity')&&i.status!=='ambiguous').map(i=>i.text??i.surface).filter(s=>typeof s==='string'&&s.trim());
-  const open=packet.status!=='courtesy'&&(packet.status!=='clarify'||unknownNames.length>0)&&!(computed&&answered(packet));
+  const open=!['courtesy','instruction'].includes(packet.status)&&(packet.status!=='clarify'||unknownNames.length>0)&&!(computed&&answered(packet));
   const started=performance.now();
   let near=null;
   if(open&&this.lexicon){

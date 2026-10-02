@@ -502,3 +502,14 @@ test('jobs: registered runs are refused at their budget and after finishing; unt
     assert.equal(again.guard.runs.get('r1').budget.usd, 0.015);
   } finally { await t.close(); }
 });
+
+test('limiter: interactive priority runs before queued batch jobs, FIFO within a priority', async () => {
+  const { Limiter } = await import('./limiter.mjs');
+  const l = new Limiter({ maxConcurrent: 1 });
+  const order = [];
+  let release;
+  const first = l.schedule(() => new Promise((r) => { release = r; }), null, 1);
+  const jobs = [['b1', 1], ['b2', 1], ['i1', 0], ['i2', 0]].map(([n, p]) => l.schedule(async () => { order.push(n); }, null, p));
+  await new Promise((r) => setTimeout(r, 10)); release(); await first; await Promise.all(jobs);
+  assert.deepEqual(order, ['i1', 'i2', 'b1', 'b2']);
+});

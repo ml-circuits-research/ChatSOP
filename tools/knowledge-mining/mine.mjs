@@ -7,15 +7,15 @@
  *   node tools/knowledge-mining/mine.mjs --n 20 [--seed km-1] [--workers 4] [--out DIR] [--resume DIR] [--ids a,b] [--no-admit]
  *
  * Stages (each writes its file in the run folder and is skipped when resumed):
- *   1. baseline   the product chat turn (tools/eval/books/system.mjs, LocalLLMDirect on the remote default model) over a fork of the
+ *   1. baseline   the product chat turn (tools/eval/books/system.mjs, the step-by-step questions on the proxy's `small` tier) over a fork of the
  *                 default base memory plus the current commonsense-books-v1 layer, on `n` unseen problems (tools/eval/books/sample.mjs;
  *                 they are marked seen); scored by tools/eval/books/score.mjs rules, an LLM judge for what a rule cannot decide.
- *   2. propose    for each problem answered wrong, unknown or with no valid circuit: the cheap default model (Qwen3.8 27b on openference,
- *                 the proxy falls back to DeepSeek) gets the problem and the failure trace and writes the GENERAL knowledge it needed as
+ *   2. propose    for each problem answered wrong, unknown or with no valid circuit: the proxy tier `small` (Qwen3.8 27b on openference,
+ *                 falling back to DeepSeek) gets the problem and the failure trace and writes the GENERAL knowledge it needed as
  *                 SOP wires (lib/ingest/direct-author.mjs: the knowledge validator and this tool's checks in its repair loop).
  *   3. check      deterministic: duplicates and contradictions against the memory, the problem's own names, copied book text;
  *                 an entity the memory already has is merged into it.
- *   4. review     bulk truth and generality review with DeepSeek flash through /u/openrouter (lib/llm-review, kind commonsense-wires):
+ *   4. review     bulk truth and generality review on the proxy tier `medium` (DeepSeek flash) (lib/llm-review, kind commonsense-wires):
  *                 confirmed problems are repaired once or the wire is dropped and escalated.
  *   5. admit      per problem: rerun with its candidate group; admitted only when the rerun is correct AND a control rerun without the
  *                 group is not (the fix is the knowledge, not chance); then the fixed regression set must not lose any answer (a loss
@@ -34,7 +34,6 @@ import {parse, wireText} from '../../sop/knowledge/index.mjs';
 import {validateCircuits} from '../../lib/chat-data/memories.mjs';
 import {seedLayers} from '../../lib/knowledge-seeds.mjs';
 import {directAuthor, openaiChat} from '../../lib/ingest/direct-author.mjs';
-import {providerChat} from '../../lib/llm-providers.mjs';
 import {loadKind, reviewLoop, chat as reviewChat} from '../../lib/llm-review/index.mjs';
 import {loadItems, loadSeen, markSeen, sampleItems} from '../eval/books/sample.mjs';
 import {responseOf, deterministic} from '../eval/books/score.mjs';
@@ -50,8 +49,11 @@ export const REGRESSION_FILE = path.join(ROOT, 'tools', 'knowledge-mining', 'reg
 const SEED_LAYERS = ['core-min', 'core-en', 'commonsense-v1', 'assistant-v1'];
 const PROXY_DATA = path.join(os.homedir(), '.local/share/llmapiprovider');
 const CLIENTS = {trial: 'knowledge-mining-trial', author: 'knowledge-mining-author', review: 'knowledge-mining-review', judge: 'knowledge-mining-judge'};
-const AUTHOR_MODEL = 'Qwen3.8 27b';
-const REVIEW_MODEL = 'deepseek/deepseek-v4-flash';
+/** Proxy tiers (AGENTS.md: jobs name a tier, never a model): `small` is Qwen3.8 27b on openference (fallback DeepSeek), `medium` DeepSeek flash. */
+const AUTHOR_MODEL = 'small';
+const REVIEW_MODEL = 'medium';
+const JUDGE_MODEL = 'small';
+const PROXY_V1 = 'http://127.0.0.1:18080/v1';
 const MAX_REGRESSION = 15;
 
 const args = process.argv.slice(2);
@@ -61,7 +63,8 @@ const readJsonl = f => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').split('\n'
 const writeJsonl = (f, rows) => fs.writeFileSync(f, rows.map(r => JSON.stringify(r)).join('\n') + (rows.length ? '\n' : ''));
 const stampNow = () => new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
 const log = m => console.error(`[mine ${new Date().toISOString().slice(11, 19)}] ${m}`);
-const tagged = client => (url, init = {}) => { const headers = new Headers(init.headers ?? {}); headers.set('x-client-name', client); return fetch(url, {...init, headers}); };
+const PURPOSE = 'job:knowledge-mining';
+const tagged = client => (url, init = {}) => { const headers = new Headers(init.headers ?? {}); headers.set('x-client-name', client); headers.set('x-llmapiprovider-purpose', PURPOSE); return fetch(url, {...init, headers}); };
 const short = s => createHash('sha256').update(s).digest('hex').slice(0, 6);
 
 /** A pool of `k` concurrent async tasks. */
@@ -115,6 +118,18 @@ async function runTrials({jobs, dir, workers}) {
   return results;
 }
 
+/** One judge call on the `small` tier: `{ok, text, reason?}`. */
+async function judgeChat(prompt) {
+  try {
+    const res = await tagged(CLIENTS.judge)(`${PROXY_V1}/chat/completions`, {method: 'POST', headers: {'content-type': 'application/json'}, signal: AbortSignal.timeout(300_000),
+      body: JSON.stringify({model: JUDGE_MODEL, temperature: 0, max_tokens: 300, chat_template_kwargs: {enable_thinking: false},
+        messages: [{role: 'system', content: 'You grade answers to school problems strictly against a reference answer.'}, {role: 'user', content: prompt}]})});
+    const body = await res.json().catch(() => null);
+    const text = body?.choices?.[0]?.message?.content ?? '';
+    return res.ok && text ? {ok: true, text} : {ok: false, text: '', reason: `status ${res.status}`};
+  } catch (e) { return {ok: false, text: '', reason: e.message}; }
+}
+
 /** Deterministic score, the LLM judge for the rest. `outcome`: correct | wrong | unknown | invalid | failed. */
 async function scoreRecord(rec, item) {
   const scoredRec = {...rec, arm: 'remote-direct', gold_kind: item.answer_kind, gold_value: item.answer_value};
@@ -123,7 +138,7 @@ async function scoreRecord(rec, item) {
   const rule = deterministic(scoredRec, resp);
   if (rule) return rule;
   const prompt = `Problem:\n${item.question}\n\nReference answer:\n${item.answer}\n\nSystem answer:\n${resp.text}\n\nDoes the system answer give the reference's final answer (every part the question asks for, same values)? Answer with one JSON object only: {"verdict":"correct"|"partial"|"wrong","reason":"<short>"}`;
-  const r = await providerChat({system: 'You grade answers to school problems strictly against a reference answer.', prompt, provider: 'openference', maxTokens: 300, fetchImpl: tagged(CLIENTS.judge)});
+  const r = await judgeChat(prompt);
   const m = r.ok ? r.text.match(/\{[\s\S]*\}/) : null;
   let verdict = null;
   try { verdict = m ? JSON.parse(m[0]) : null; } catch { verdict = null; }
@@ -131,7 +146,7 @@ async function scoreRecord(rec, item) {
   return {outcome: verdict.verdict === 'correct' ? 'correct' : 'wrong', by: 'judge', reason: `${verdict.verdict}: ${verdict.reason ?? ''}`.slice(0, 200)};
 }
 
-async function scoreAll(records, items) {
+export async function scoreAll(records, items) {
   return pool(records, 4, async rec => ({...rec, score: await scoreRecord(rec, items.get(rec.id))}));
 }
 
@@ -169,7 +184,9 @@ Hard rules:
    was simply wrong), write knowledge.sop with the single comment line "# none: <one-line reason>" and nothing else. That is a good answer.
 5. Ids of facts, rules, defaults and new entities start with kmb_. Write source "general knowledge" on every wire that takes a source
    (the runtime replaces it with provenance). Never quote the problem.
-6. At most 12 wires besides declarations. queries.sop: one test query per rule (may be empty).`;
+6. At most 12 wires besides declarations. queries.sop: one test query per rule (may be empty).
+7. Use only the existing wire types (fact, rule, default, entity, predicate, lexeme). If the knowledge cannot be written with them, write
+   none and say in report.md what wire type it would need (the owner decides new wire types; never invent one).`;
 
 /** The failure trace the miner sees: verdict, circuit, the runtime's problems and the answer text (no gold answer). */
 export function failureText(rec) {
@@ -212,7 +229,7 @@ async function propose({rec, item, dir, existing, labels, ids, names}) {
   };
   const result = await directAuthor({folder, instructions: MINER_INSTRUCTIONS, existing, maxFixRounds: 2, maxTokens: 6000, timeoutMs: 600_000, check,
     files: [{name: 'problem.txt', text: item.question + '\n'}, {name: 'failure.md', text: failureText(rec)}, {name: 'known-entities.txt', text: knownEntities(item.question, labels) + '\n'}],
-    chat: openaiChat({endpoint: 'http://127.0.0.1:18080/v1', fetchImpl: tagged(CLIENTS.author)}), model: AUTHOR_MODEL});
+    chat: openaiChat({endpoint: PROXY_V1, fetchImpl: tagged(CLIENTS.author), purpose: PURPOSE}), model: AUTHOR_MODEL});
   log(`propose ${item.id}: ${result.status}, ${result.rounds} rounds`);
   return {id: item.id, ok: result.ok, status: result.status, rounds: result.rounds, model: result.model, usage: result.usage, knowledge: result.circuits[0]?.text ?? '', report: result.report};
 }
@@ -328,7 +345,7 @@ export async function main() {
   }
   writeJsonl(path.join(dir, 'candidates.jsonl'), candidates);
 
-  // 4. review (truth and generality), DeepSeek flash through /u/openrouter
+  // 4. review (truth and generality), proxy tier medium (DeepSeek flash)
   const decls = new Map();
   for (const c of existing) for (const w of parse(c.text).wires) if (w.type === 'predicate') decls.set(w.id, wireText(w));
   const live = candidates.filter(c => c.decision === 'candidate');
@@ -342,7 +359,7 @@ export async function main() {
     const reviewItems = live.map(c => ({id: `${c.id}#${c.wire}`, material: '(no source passage: general knowledge)', work: c.text + (c.problem_numbers.length ? `\n# numbers shared with the problem: ${c.problem_numbers.join(', ')}` : ''),
       context_id: c.id, context: `PROBLEM (shows the gap; not a source):\n${items.get(c.id).question}\n\nPREDICATES USED:\n${declarationsFor(byProblem.get(c.id).map(x => parse(x.text).wires[0]), groupDecls)}`}));
     const kind = loadKind('commonsense-wires');
-    const call = ({system, user}) => reviewChat({baseUrl: 'http://127.0.0.1:18080/u/openrouter/v1', model: REVIEW_MODEL, system, user, clientName: CLIENTS.review, maxTokens: 8000, reasoning: 'off'});
+    const call = ({system, user}) => reviewChat({baseUrl: PROXY_V1, model: REVIEW_MODEL, system, user, clientName: CLIENTS.review, purpose: PURPOSE, fetchImpl: tagged(CLIENTS.review), maxTokens: 8000, reasoning: 'off'});
     const checkWire = (item, work) => {
       const [pid, wid] = item.id.split('#');
       const others = byProblem.get(pid).filter(c => c.wire !== wid).map(c => c.text);
@@ -377,7 +394,7 @@ export async function main() {
     const settled = settleGroup(pruneDeclarations(uniqueIds(wires, prefix)), existing);
     for (const d of settled.dropped) { const c = list.find(x => d.id.endsWith(x.wire.replace(/^kmb_/, '')) || x.wire === d.id); if (c) { c.decision = 'dropped_invalid'; c.reason = d.reason; } }
     if (!settled.wires.some(w => KNOWLEDGE_TYPES.includes(w.type))) continue;
-    const prov = provenance({book: item.book, problem: pid, model: AUTHOR_MODEL, reviewer: REVIEW_MODEL, date});
+    const prov = provenance({book: item.book, problem: pid, model: `proxy tier ${AUTHOR_MODEL} (Qwen3.8 27b, fallback DeepSeek flash)`, reviewer: `proxy tier ${REVIEW_MODEL} (DeepSeek flash)`, date});
     const text = `# ${pid}: mined general knowledge (${date})\n\n` + settled.wires.map(w => stamp(w, prov)).join('\n\n') + '\n';
     const file = path.join(groupsDir, `${pid.replace(/[^\w.-]/g, '_')}.sop`);
     fs.writeFileSync(file, text);
@@ -486,7 +503,7 @@ function report({run, baseline, failing, proposals, candidates, groups, admitted
     `- candidate wires by decision: ${JSON.stringify(decisions)}`,
     `- groups tried: ${groups.length}; admitted: ${thisRun.length} problems fixed by admitted knowledge = ${per100(thisRun.length)} per 100 failing problems (${baseline.length ? (100 * thisRun.length / baseline.length).toFixed(1) : '-'} per 100 problems)`,
     `- wires admitted: ${JSON.stringify(types)}`,
-    `- cost: ${usd.toFixed(4)} USD (proxy log, openrouter), ${credits.toFixed(1)} openference plan credits; by client: ${Object.entries(cost).map(([k, s]) => `${k} ${s.calls} calls, ${s.usd} USD, ${s.credits} credits`).join('; ') || 'none'}`,
+    `- cost: ${usd.toFixed(4)} USD (proxy log, paid upstream), ${credits.toFixed(1)} openference plan credits; by client: ${Object.entries(cost).map(([k, s]) => `${k} ${s.calls} calls, ${s.usd} USD, ${s.credits} credits`).join('; ') || 'none'}`,
     `- escalations: ${escalations.length} (escalations.jsonl)`, ''];
   if (escalations.length) {
     lines.push('## Escalations (at most 10 lines)', '');

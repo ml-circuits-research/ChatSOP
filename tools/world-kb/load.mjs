@@ -4,9 +4,9 @@
  * strategy, provenance). Administrator action: the approver is named by --approved-by (default worldkb-agent, recorded as the
  * loader, not as an independent review). The memory imports core-min (and core-en when --with-core-en is given and the seed exists, and
  * then also the common-sense layer commonsense-v1 unless --without-commonsense is given, with the layer mined from the problem books,
- * commonsense-books-v1, unless --without-books-commonsense is given: the chat's default base carries common sense, and the
+ * commonsense-books-v1, unless --without-books-commonsense is given, and the ShareAlike layer conceptnet-bysa-v1 (CC BY-SA 4.0) unless --without-bysa is given: the chat's default base carries common sense, and the
  * self layer assistant-v1 unless --without-assistant is given, with its generated memory statistics, tools/assistant/memory-statistics.mjs).
- *   node tools/world-kb/load.mjs [--id world-v1] [--strategy sqlite] [--exact] [--replace] [--root <chat data root>] [--with-core-en] [--without-commonsense] [--without-books-commonsense] [--without-assistant]
+ *   node tools/world-kb/load.mjs [--id world-v1] [--strategy sqlite] [--exact] [--replace] [--root <chat data root>] [--with-core-en] [--without-commonsense] [--without-books-commonsense] [--without-bysa] [--without-assistant]
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -33,6 +33,8 @@ if (args.includes('--with-core-en')) { if (!memories.list().some(m => m.id === '
 if (args.includes('--with-core-en') && !args.includes('--without-commonsense')) { if (!memories.list().some(m => m.id === 'commonsense-v1')) throw new Error('commonsense-v1 is not a seed memory yet'); imports.push('commonsense-v1'); }
 // The common sense mined from the owner's problem books (tools/knowledge-mining) sits over commonsense-v1.
 if (args.includes('--with-core-en') && !args.includes('--without-commonsense') && !args.includes('--without-books-commonsense') && memories.list().some(m => m.id === 'commonsense-books-v1')) imports.push('commonsense-books-v1');
+// The ShareAlike common-sense layer (ConceptNet CC BY-SA edges, owner decision of 2026-10-02): CC BY-SA 4.0 passes to world-v1.
+if (args.includes('--with-core-en') && !args.includes('--without-commonsense') && !args.includes('--without-bysa') && memories.list().some(m => m.id === 'conceptnet-bysa-v1')) imports.push('conceptnet-bysa-v1');
 // The self layer (assistant-v1): who the assistant is and what its memory holds; its statistics are generated after the load.
 if (args.includes('--with-core-en') && !args.includes('--without-assistant')) { if (!memories.list().some(m => m.id === 'assistant-v1')) throw new Error('assistant-v1 is not a seed memory yet'); imports.push('assistant-v1'); }
 const t0 = Date.now();

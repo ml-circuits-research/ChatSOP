@@ -13,13 +13,23 @@
  */
 import {runClingo, parseAtom, SolverStop} from './clingo.mjs';
 import {closureProgram, lowerBody, rel, enc} from './lower.mjs';
-import {atomText, isVarTerm} from '../js-reference/values.mjs';
+import {atomText, isVarTerm, NotExpressibleError} from '../js-reference/values.mjs';
+import {planFixedPoint} from '../solver-common/fixed-point.mjs';
+
+/**
+ * The closure of abduction and why_not is not run through the fixed-point rewriting of solver-common/fixed-point.mjs: a program with a
+ * decimal number or an exact compute word is refused honestly (capability battery 2026-10-02: clingo rejected the unscaled program).
+ */
+function refuseDecimals(program, facts, goalAlts, what) {
+  if (planFixedPoint({...program, facts}, goalAlts.map(alt => ({leaves: alt.leaves ?? alt})))) throw new NotExpressibleError(['exact_arithmetic'], `${what} over decimal numbers is not run by asp-clingo`);
+}
 
 const goalRules = goalAlts => goalAlts.map(alt => `goal :- ${lowerBody(alt.leaves ?? alt).join(', ') || '#true'}.`);
 
 const sortExplanations = xs => xs.sort((a, b) => a.cost - b.cost || a.atoms.length - b.atoms.length || (a.atoms.join() < b.atoms.join() ? -1 : 1));
 
 export function aspAbduce({program, facts, goalAlts, hypotheses, budget, limit = Infinity}) {
+  refuseDecimals(program, facts, goalAlts, 'abduce');
   const cands = hypotheses;
   if (cands.length > budget.limits.maxHypotheses) return {status: 'budget_exhausted', complete: false, reason: 'hypotheses', budget: {...budget.snapshot(false), exhausted: true, reason: 'hypotheses'}};
   const {lines, shown} = closureProgram(program, facts);
@@ -70,6 +80,7 @@ function candidateDomains(program, facts, goalAlts) {
 }
 
 export function aspWhyNot({program, facts, goalAlts, budget, limit = Infinity}) {
+  refuseDecimals(program, facts, goalAlts, 'why_not');
   const {lines, shown} = closureProgram(program, facts);
   const {abducible, constants, preds} = candidateDomains(program, facts, goalAlts);
   const negUsed = new Set();

@@ -51,7 +51,7 @@ test('the stable prefix is rendered from the protocol memory: the kinds and the 
   assert.doesNotMatch(prefix.firstTurn, /\d{4}-\d{2}-\d{2}T/, 'no clock or request data in the prefix');
 });
 
-test('a count over one statement: the planner asks the kind, the acts, the aspects and the statements; the memory places the name and the asked unknown', async () => {
+test('a count over one statement: the planner asks the kind, the acts, the own-data gate, the aspects and the statements; the memory places the name and the asked unknown', async () => {
   const world = teamWorld();
   try {
     const {r, asked} = await run(world, 'How many people are members of the Falcon team?', [
@@ -63,9 +63,9 @@ test('a count over one statement: the planner asks the kind, the acts, the aspec
     assert.ok(!asked.some(q => /what are A and B/.test(q)), 'no places question');
     assert.equal(r.confirmed, true);
     assert.ok(r.defaults.some(d => d.default === 'd_observed_place' && /place i1 object n\d+/.test(d.atom)), JSON.stringify(r.defaults));
-    assert.deepEqual(r.trace.filter(e => e.chosen).map(e => e.chosen.split(' ')[0]), ['ask_kind', 'ask_acts', 'ask_aspects', 'ask_statements', 'ask_places', 'assemble', 'ask_contrast']);
+    assert.deepEqual(r.trace.filter(e => e.chosen).map(e => e.chosen.split(' ')[0]), ['ask_kind', 'ask_acts', 'ask_own_data', 'ask_aspects', 'ask_statements', 'ask_places', 'assemble', 'ask_contrast']);
     assert.ok(r.trace.every(e => e.control === 'plan'));
-    assert.match(r.explanation, /Step 4: ask_statements q \(plan; plan ask_statements q → .*assemble none/);
+    assert.match(r.explanation, /Step 5: ask_statements q \(plan; plan ask_statements q → .*assemble none/);
     assert.match(r.explanation, /needed statements q ← rule need_statements/);
     const report = JSON.parse(r.report);
     assert.equal(report.questions, r.steps.length);

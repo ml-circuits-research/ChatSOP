@@ -45,10 +45,14 @@ export function createAuthoring({sessions, runtimes = null, chatData, settings =
 
   const publicPath = dir => path.relative(chatData.root, dir);
 
-  /** The chain model a knowledge authoring request uses: the request's, then the session's setting, then the first model of the chain. */
-  function chooseDirect(requested, session) {
+  /**
+   * The model a knowledge authoring request uses: the request's, then the configured authoring tier (`settings.model`, from
+   * `ingest.tier`), then the openference default. The session's `formalizer_model` names the first tier of the step-by-step questions
+   * (owner decision 2026-10-02) and does not choose the knowledge author.
+   */
+  function chooseDirect(requested) {
     const providers = formalizer?.providers ?? providerSettings();
-    const wanted = requested ?? session?.settings?.formalizer_model ?? formalizer?.models?.[0] ?? 'openference';
+    const wanted = requested ?? settings.model ?? 'openference';
     let entry;
     try { entry = chainEntry(wanted, {providers}); } catch (error) { throw bad(`Model ${JSON.stringify(wanted)} is not a model of a configured provider: ${error.message}`, 'unknown_model'); }
     return {model: entry.id, entry, cost_class: entry.provider === 'openference' ? 'subscription' : 'paid_api'};
@@ -62,7 +66,7 @@ export function createAuthoring({sessions, runtimes = null, chatData, settings =
   /** Runs one authoring request. Returns {request_id, promise}; the promise resolves to the result object. */
   async function start({session: sessionId = null, user, admin, files, instructions = '', model: requested = null}) {
     const info = sessionId ? sessions.visible(sessionId, {user, admin}) : null;
-    const chosen = chooseDirect(requested, info);
+    const chosen = chooseDirect(requested);
     if (running >= settings.maxConcurrent) throw bad('The authoring model is busy; try again shortly', 'author_busy', 429);
     const request = info ? sessions.requestFolder(sessionId) : (() => { const dir = chatData.tmpFolder('req'); return {id: path.basename(dir), dir}; })();
     const entry = {id: request.id, folder: request.dir, session: sessionId, status: {request_id: request.id, session: sessionId, status: 'running', phase: 'queued', round: 0, model: chosen.model, cost_class: chosen.cost_class, started_at: new Date().toISOString()}};

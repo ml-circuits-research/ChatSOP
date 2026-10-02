@@ -121,3 +121,11 @@ test('natural phrasing of an English reply: the draft is rewritten by the model,
   const off = createAnswerFormulator({settings: {mode: 'auto', natural: 'off', providers: ['stub'], timeoutSeconds: 5}, chat});
   assert.equal((await off.formulate({message: 'Who?', english: draft, packet: {}})).applied, false);
 });
+
+test('natural phrasing keeps the user\'s instructed prefix verbatim outside the reworded text', async () => {
+  let seen = null;
+  const f = createAnswerFormulator({settings: {mode: 'auto', natural: 'all', providers: ['stub'], timeoutSeconds: 5}, chat: async ({prompt}) => { seen = prompt; return {ok: true, text: 'Paris is the capital of France.', model: 'stub'}; }});
+  const r = await f.formulate({message: 'What is the capital of France?', english: "I'm here: The capital of France is Paris.", packet: {status: 'supported', reply: {frame: {prefix: "I'm here:"}}}});
+  assert.equal(r.text, "I'm here: Paris is the capital of France.");
+  assert.ok(!seen.includes("I'm here:"), 'the model never sees the instructed prefix');
+});

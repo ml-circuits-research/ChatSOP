@@ -14,7 +14,7 @@
  *   GET  /v1/sessions                       the caller's sessions (all of them for the signed-in browser session)
  *   GET  /v1/sessions/{id}                  the session, its circuits and provenance (?transcript=1 adds the turns)
  *   DELETE /v1/sessions/{id}
- *   POST /v1/sessions/{id}/settings         {formalizer_model?, formalizer?}: the chain model LLMDirect tries first; the formalization strategy
+ *   POST /v1/sessions/{id}/settings         {formalizer_model?, formalizer?}: the first tier of the step-by-step ladder; the formalization strategy
  *   POST /v1/sessions/{id}/commit           commit the accepted session circuits to a new fork: {name, strategy?, description?}
  *   GET  /v1/sessions/{id}/theory           the base circuits followed by the accepted session circuits
  *   POST /v1/sessions/{id}/query            {query}: run a query circuit over the session's memory: the oracle gets the slice the query needs (answer.retrieval)
@@ -192,7 +192,7 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
         const lexicon = rt.lexicon;
         let parseRecord = null;
         const formalizer = {id: 'query-parser', formalize: async text => {
-          const done = await parsing.queryParser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, preferredModel: rt.info?.settings?.formalizer_model ?? rt.info?.settings?.omp_model ?? null, ...strategyRequest(parsing.queryParser, rt.info?.settings?.formalizer)});
+          const done = await parsing.queryParser.parse({source: 'chat', message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, preferredModel: rt.info?.settings?.formalizer_model ?? rt.info?.settings?.omp_model ?? null, ...strategyRequest(parsing.queryParser, rt.info?.settings?.formalizer)});
           parseRecord = done.parse;
           return done.sop;
         }};

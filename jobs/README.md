@@ -4,6 +4,7 @@ LLM batch work of ChatSOP runs as job specs through the self-contained runner `L
 
 - `llmjobs.config.json`: endpoint (LLMAPIProvider), data dir `state/llm-jobs/` (gitignored), model roles and tiers, concrete fallback chains, task limits.
 - Jobs: one folder each (`job.json`, `prompt.md`, plugins). `node LLMJobs/run.mjs jobs/<job>`; `check` first, `--stage pilot` for the small stage.
+  - `formalization-improve`: the formalization improver's loop: the tier good proposes learned-layer wires for one failure cluster of the regression baseline; `checks.mjs` validates them, `sink.mjs` runs the tiny regression gate and admits only what fixes cases and loses none (docs/runtime.html "Improving the step-by-step formalization").
   - `books-direct-calibration`: the worker tier answers 20 book problems directly; `checks.mjs` scores against gold (never in the prompt).
 - `templates/`: what the planner of a task may choose (`node LLMJobs/run.mjs task --instructions ... --attach ... --target memory:<id>`): `ingest-document` (adapter over `lib/ingest`), `bulk-review` (adapter over `lib/llm-review`), `extract-table`, `label-entities`.
 - `plugins/`: `sop-check.mjs` (knowledge validator and quote check), `sop-sink.mjs` (store circuits in a base memory or a session).

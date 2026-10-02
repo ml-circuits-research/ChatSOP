@@ -56,8 +56,8 @@ export function diagramA() {
   // The author boundary and the frozen branch
   s.boundary(822, 10, 822, 400, null);
   s.zone(834, 10, 256, 392, 'B2 author boundary', 'z-model');
-  const ca = s.node('ca', 844, 40, 236, 'Formalizer (LLMDirect)', ['model chain queryParser.models', '(proxy tiers, shipped small);', 'or the tiny tier step by step', '~reads the message and the vocabulary'], 'n-model');
-  s.text(844, ca.b + 22, 'It writes circuits (a query or an unclear', 'blabel');
+  const ca = s.node('ca', 844, 40, 236, 'Formalizer (step by step)', ['short questions, tier ladder', 'tiny, then small, then good', '(escalated per question);', '~the system assembles the circuit'], 'n-model');
+  s.text(844, ca.b + 22, 'It yields circuits (a query or an unclear', 'blabel');
   s.text(844, ca.b + 36, 'verdict); it never answers and never', 'blabel');
   s.text(844, ca.b + 50, 'adds a fact. The validator admits them.', 'blabel');
   s.arrow([[N('qa').r, N('qa').cy], [834, N('qa').cy]]);
@@ -89,12 +89,12 @@ export function diagramB() {
       'server/http.mjs: bearer or session cookie, checkBody, one request per conversation (409 while busy)',
       'server/session-runtime.mjs opens the session: its repository (a clone of the base memory) and its lexicon'], 'n-srv'],
     ['3', 'Request parser (server/query-parser.mjs)', [
-      'readiness of the model chain queryParser.models (proxy tiers); cache keyed by memory version, model and message',
-      'no model can run: parse_unavailable (503); models ran, no valid circuit: parse_failed (422); no other parser'], 'n-srv'],
-    ['4', 'Query author (lib/query-author)', [
-      'context.mjs: the prompt is the message plus candidate predicates and entity hints of the memory',
-      'lib/formalize/strategies.mjs (LLMDirect, chat completion through the proxy) writes the circuit; loop.mjs validates it',
-      'and sends the validator output back for at most maxFixRounds rounds; an unclear verdict is a valid circuit'], 'n-model'],
+      'readiness of the first tier of queryParser.local.ladder; cache keyed by memory version, strategy, ladder and message',
+      'first tier cannot run: parse_unavailable (503); questions ran, no valid circuit: parse_failed (422); no other parser'], 'n-srv'],
+    ['4', 'Step-by-step formalizer (lib/query-author/step-by-step)', [
+      'retrieval.mjs and neighbourhood.mjs: candidate predicates, schema neighbourhood and entity hints of the memory',
+      'protocol.mjs asks short questions; createOracle sends each to the first tier and escalates only unreadable ones',
+      'the system assembles the circuit; validate.mjs admits it; an unclear verdict is a valid circuit'], 'n-model'],
     ['5', 'Agent.turn (server/agent.mjs): admission', [
       'validateVocabulary: model types only, unclear alone, stated values found in the message, spans verbatim',
       'then Runtime.run(sop, origin model) -> runDeclarative'], 'n-srv'],
@@ -121,7 +121,7 @@ export function diagramB() {
   for (let i = 0; i < geo.length - 1; i++) s.arrow([[X + 60, geo[i].b], [X + 60, geo[i + 1].y]]);
   const MX = 786, MW2 = 300;
   s.zone(MX - 12, geo[2].y - 4, MW2 + 24, geo[3].b - geo[2].y + 8, 'Formalizer (B2)', 'z-model');
-  s.node('ca', MX, geo[2].y + 26, MW2, 'LLMDirect or a tiny-tier model', ['sees the message and the vocabulary;', '~writes query.sop; no knowledge, no answer'], 'n-model');
+  s.node('ca', MX, geo[2].y + 26, MW2, 'Tier ladder: tiny, small, good', ['answers short questions only;', '~never writes SOP, knowledge or an answer'], 'n-model');
   s.arrow([[X + W, geo[3].cy], [MX - 12, geo[3].cy]], { start: true });
   s.node('mem', MX - 12, geo[5].y + 4, MW2 + 24, 'Per-session Lexicon', ['sop/lexicon.mjs, LexiconCache', '~compiled from circuits, cached by hash'], 'n-disk');
   s.arrow([[MX - 12, geo[5].y + 34], [X + W, geo[5].y + 34]]);

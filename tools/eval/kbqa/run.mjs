@@ -1,6 +1,6 @@
 /**
  * Runs the product chain on every question of a suite stage (tools/eval/kbqa.mjs `run`), in process:
- *   question -> formalizer LLMDirect (server/query-parser.mjs: the chain queryParser.models called directly through the proxy; the message and the memory vocabulary only) -> Agent
+ *   question -> step-by-step formalizer (server/query-parser.mjs: short questions to a proxy tier, the system assembles the circuit; the message and the memory vocabulary only) -> Agent
  *   (server/agent.mjs: admission, KnowledgeLinker over the lexicon of the session's base memory, StrategyRouter, oracle) -> packet.
  * Every question gets its own conversation (no carried context); the session is the clone of the stage's base memory, and reads do not
  * reinforce (policy.reinforce false), so the questions of a stage cannot influence each other. Nothing of the gold reaches the chain.
@@ -13,7 +13,8 @@ import {BASE_NAME} from '../../../lib/chat-data/memories.mjs';
 import {ROOT} from './benchmarks.mjs';
 import {readSuite} from './suites.mjs';
 import {openData, memoryId} from './memory.mjs';
-import {createQueryParser, queryParserSettings} from '../../../server/query-parser.mjs';
+import {createQueryParser} from '../../../server/query-parser.mjs';
+import {tierParserSettings} from '../tier-parser.mjs';
 
 export const reportDir = suite => path.join(ROOT, 'eval', 'reports', 'current', 'kbqa', suite);
 export const stageFile = (suite, stage, tag = '') => path.join(reportDir(suite), `stage-${stage}${tag}.jsonl`);
@@ -49,9 +50,9 @@ function conclude(packet) {
 
 /**
  * Measurement mode (eval-query-parsers-v1): a failed coding agent is an error of the record (`parser_failed`), never a substitute answer.
- * `model` runs one model of the subscription chain instead of the configured chain (a model comparison).
+ * `tier` answers the step-by-step questions on one proxy tier instead of the configured ladder (a tier comparison, like with like).
  */
-export async function runSuite(suite, {stage = '100', limit = null, only = null, force = false, tag = '', variant = '', model = null, log = console.error} = {}) {
+export async function runSuite(suite, {stage = '100', limit = null, only = null, force = false, tag = '', variant = '', tier = null, log = console.error} = {}) {
   const rows = readSuite(suite, stage).filter(r => !only || r.id === only || r.type === only).slice(0, limit ? Number(limit) : undefined);
   const {config, sessions} = openData();
   const base = memoryId(suite, stage, variant);
@@ -65,11 +66,11 @@ export async function runSuite(suite, {stage = '100', limit = null, only = null,
   fs.mkdirSync(path.dirname(out), {recursive: true});
   const done = new Set(!force && fs.existsSync(out) ? fs.readFileSync(out, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l).id) : []);
   if (force) fs.rmSync(out, {force: true});
-  const queryParser = createQueryParser({settings: queryParserSettings({...config, queryParser: {...(config.queryParser ?? {}), ...(model ? {models: [model]} : {}), cacheEntries: 0}})});
+  const queryParser = createQueryParser({settings: tierParserSettings(config, {tier, cacheEntries: 0})});
   const lexicon = sessions.lexicon(sid);
   const lm = {id: 'coding_agent', last: null, parse: null, async formalize(text) {
     lm.parse = null;
-    try { const r = await queryParser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); lm.parse = r.parse; lm.last = {route: 'coding_agent', ms: r.parse.ms}; return r.sop; }
+    try { const r = await queryParser.parse({source: 'eval:kbqa', message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); lm.parse = r.parse; lm.last = {route: 'coding_agent', ms: r.parse.ms}; return r.sop; }
     catch (error) { lm.parse = error.parse ?? null; throw Object.assign(error, {layer: 'parser_failed'}); }
   }};
   let n = 0;

@@ -240,5 +240,14 @@
     ],
     "untaggedDailyMax": 100,
     "keepDays": 7
+  },
+  "interactive": {
+    "_note": "owner 2026-10-02: a person waiting (chat turn, formalization, answer wording) goes first in every upstream queue and falls back down its tier chain after maxWaitMs instead of queueing behind batch jobs",
+    "purposes": [
+      "chat",
+      "formalize",
+      "answer-*"
+    ],
+    "maxWaitMs": 15000
   }
 }

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 /**
- * Evaluation of the formalizer as the circuit author (experiment eval-query-parsers-v1, DS007): lib/query-author with LLMDirect (direct model calls through
- * the proxy LLMAPIProvider; omp was retired from formalization on 2026-10-02) on the same questions over the
+ * Evaluation of the formalizer (experiment eval-query-parsers-v1, DS007): the step-by-step strategy (LocalLLMStepByStep or
+ * InternalReasoningStepByStep) with its questions answered by one proxy tier (`--tier`, like with like) or the product ladder (default);
+ * one-shot LLMDirect was archived on 2026-10-02 (probably_obsolete/one-shot-formalization/), on the same questions over the
  * same base memory, through the shared path (Agent turn: admission, linking, slice retrieval, StrategyRouter, oracle verification, completeness guard,
  * rendering). In process, no server, no port; a failed formalizer is an error of the record (`parser_failed`), never replaced by another answer.
  *
- *   node tools/eval/query-parsers.mjs run    --suite world30|forms [--model provider/model] [--strategy LLMDirect|LocalLLMStepByStep|InternalReasoningStepByStep] [--limit N] [--only q01,q02] [--concurrency 3] [--rows file] [--base world-v1] [--tag t] [--force]
+ *   node tools/eval/query-parsers.mjs run    --suite world30|forms [--tier tiny|small|medium|good] [--strategy LocalLLMStepByStep|InternalReasoningStepByStep] [--limit N] [--only q01,q02] [--concurrency 3] [--rows file] [--base world-v1] [--tag t] [--force]
  *   node tools/eval/query-parsers.mjs recall --rows file [--k 24]   # recall of the gold predicates (the ids of the row's kb_query) in the retrieved candidates, no model
  *   node tools/eval/query-parsers.mjs report [--suites world30,forms]
  *
@@ -13,14 +14,15 @@
  * language, but the gold of this suite was written for the English form); `forms` = a JSONL of {id, form, question, gold} (the dev set of
  * tools/eval/query-forms, --rows). Outcomes per question: `correct`, `wrong` (a definite answer that differs from the gold: the dangerous class),
  * `honest_unknown` (unknown, clarify, incomplete, unclear, not computable...: no answer given), `parser_failed`, `error`. Latency is the parser time
- * and the whole turn, cost the provider cost (usage.cost; the openference plan is a flat subscription). Outputs: eval/reports/current/query-parsers/<suite>-<model><tag>.jsonl, report.json, report.md. The sealed
- * suites of kbqa.mjs are run through `node tools/eval/kbqa.mjs run --suite ... [--model ...]`, once.
+ * and the whole turn, cost the provider cost (usage.cost; the openference plan is a flat subscription). Outputs: eval/reports/current/query-parsers/<suite>-<strategy>-<tier><tag>.jsonl, report.json, report.md. The sealed
+ * suites of kbqa.mjs are run through `node tools/eval/kbqa.mjs run --suite ... [--tier ...]`, once.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {BASE_NAME} from '../../lib/chat-data/memories.mjs';
-import {createQueryParser, queryParserSettings} from '../../server/query-parser.mjs';
+import {createQueryParser} from '../../server/query-parser.mjs';
+import {tierParserSettings} from './tier-parser.mjs';
 import {candidatePredicates, predicateRecall} from '../../lib/query-author/retrieval.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -48,7 +50,7 @@ export const outcomeOf = (pass, packet, error) => error ? ((error.code === 'pars
 
 async function run(args) {
   const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : d; };
-  const suite = opt('--suite', 'world30'), model = opt('--model', null), strategy = opt('--strategy', null), parser = (model ?? strategy ?? 'llm_direct').replace(/[^A-Za-z0-9._-]+/g, '_'), tag = opt('--tag', '') ? '-' + opt('--tag') : '';
+  const suite = opt('--suite', 'world30'), tier = opt('--tier', null), strategy = opt('--strategy', null), parser = [strategy ?? 'steps', tier ?? 'ladder'].join('-').replace(/[^A-Za-z0-9._-]+/g, '_'), tag = opt('--tag', '') ? '-' + opt('--tag') : '';
   const out = path.join(OUT, `${suite}-${parser}${tag}.jsonl`);
   fs.mkdirSync(OUT, {recursive: true});
   const done = new Set(!args.includes('--force') && fs.existsSync(out) ? fs.readFileSync(out, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l).id) : []);
@@ -65,14 +67,14 @@ async function run(args) {
   const base = opt('--base', 'world-v1');
   const session = openSession({base, id: `qp-${parser.toLowerCase().replace(/[^a-z0-9_-]+/g, '-')}-${Date.now().toString(36)}`});
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8'));
-  const settings = queryParserSettings({...config, queryParser: {...(config.queryParser ?? {}), ...(model ? {models: [model]} : {}), ...(strategy ? {strategy} : {}), cacheEntries: 0}});
+  const settings = tierParserSettings(config, {tier, strategy, cacheEntries: 0});
   const queryParser = createQueryParser({settings});
   const lexicon = session.sessions.lexicon(session.id);
   const asOne = async row => {
     const started = Date.now();
     let parse = null, result = null, error = null;
     const entry = session.store.get('qp', 'c-' + row.id, BASE_NAME);
-    const formalizer = {id: parser, formalize: async text => { const r = await queryParser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); parse = r.parse; return r.sop; }};
+    const formalizer = {id: parser, formalize: async text => { const r = await queryParser.parse({source: 'eval:query-parsers', message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); parse = r.parse; return r.sop; }};
     try { result = await entry.agent.turn(row.question, {formalizer}); } catch (e) { error = e; parse = parse ?? e.parse ?? null; }
     const packet = result?.packet ?? null;
     const pass = !error && (suite === 'world30' ? judgeWorld(row, packet, result.text ?? '', labels) : judgeGold(row.gold, packet));
@@ -153,5 +155,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (command === 'run') { await run(rest); process.exit(0); }
   else if (command === 'recall') { await recall(rest); process.exit(0); }
   else if (command === 'report') report(rest);
-  else { console.error('usage: node tools/eval/query-parsers.mjs run|report [--suite world30|forms] [--model provider/model]'); process.exit(2); }
+  else { console.error('usage: node tools/eval/query-parsers.mjs run|report [--suite world30|forms] [--tier T] [--strategy S]'); process.exit(2); }
 }

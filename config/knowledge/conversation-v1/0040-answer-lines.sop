@@ -277,3 +277,87 @@
   part line
   language en
   text "\"{{label}}\""
+
+@cv_line_proposition_holds reply
+  situation line_proposition_holds
+  part line
+  language en
+  text "\"{{relation}}\" holds"
+
+@cv_line_proposition_not_holds reply
+  situation line_proposition_not_holds
+  part line
+  language en
+  text "\"{{relation}}\" does not hold"
+
+@cv_line_rule_used reply
+  situation line_rule_used
+  part line
+  language en
+  text "Rule used, \"{{rule}}\": if {{conditions}}, then {{conclusion}}."
+
+@cv_line_default_used reply
+  situation line_default_used
+  part line
+  language en
+  text "Default used, \"{{rule}}\": if {{conditions}}, then {{conclusion}}, unless {{exceptions}}."
+
+@cv_line_list_or reply
+  situation line_list_or
+  part line
+  language en
+  text "{{first}} or {{last}}"
+
+@cv_line_why_not_holds reply
+  situation line_why_not_holds
+  part line
+  language en
+  text "It already follows from what is known, so nothing is missing."
+
+@cv_line_why_not_missing reply
+  situation line_why_not_missing
+  part line
+  language en
+  text "It would follow if {{facts}}."
+
+@cv_line_why_not_nothing reply
+  situation line_why_not_nothing
+  part line
+  language en
+  text "No set of missing facts over the known rules and names would make it follow."
+
+@cv_line_why_not_blocked reply
+  situation line_why_not_blocked
+  part line
+  language en
+  text "It is blocked because {{fact}}."
+
+@cv_line_abduce_explanation reply
+  situation line_abduce_explanation
+  part line
+  language en
+  text "A possible explanation: {{facts}}."
+
+@cv_line_abduce_already reply
+  situation line_abduce_already
+  part line
+  language en
+  text "It already follows from what is known without any of the candidate explanations."
+
+@cv_line_abduce_inconsistent reply
+  situation line_abduce_inconsistent
+  part line
+  language en
+  text "Rejected: {{facts}}, because it would contradict what is known ({{contradicts}})."
+
+@cv_line_abduce_none reply
+  situation line_abduce_none
+  part line
+  language en
+  text "None of the candidate explanations makes it follow."
+
+@cv_line_abduce_none_consistent reply
+  situation line_abduce_none_consistent
+  part line
+  language en
+  text "No candidate explanation fits: each one that would make it follow contradicts what is known."

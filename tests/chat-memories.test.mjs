@@ -110,7 +110,8 @@ test('memories API: list, create, import, fork, knowledge, writes open to any au
   const list = await s.user('/v1/memories');
   assert.equal(list.status, 200);
   const first = list.body.data.map(m => m.id);
-  assert.deepEqual(first.filter(id => !seedIds().includes(id)), ['default'], 'the default base memory and the seed vocabularies of config/knowledge exist at first');
+  // Besides the seeds: the default base memory and the composed reply memory of the conversation layer (config conversation.memory).
+  assert.deepEqual(first.filter(id => !seedIds().includes(id)).sort(), ['conversation-default', 'default'], 'the default base memory, the reply memory and the seed vocabularies of config/knowledge exist at first');
   assert.ok(seedIds().every(id => first.includes(id)));
   assert.deepEqual(list.body.data.find(m => m.id === 'default').imports.map(l => l.id), ['core-min'], 'the default base memory imports the shared core');
   assert.deepEqual(list.body.strategies.map(x => x.id), ['sqlite'], 'the product offers SQLite base memories only');
@@ -140,7 +141,7 @@ test('memories API: list, create, import, fork, knowledge, writes open to any au
   const imported = await s.admin('/v1/memories', 'POST', {name: 'Imported', circuits: [{name: 'f', text: FAMILY}]});
   assert.equal(imported.status, 201);
   assert.equal(imported.body.circuits, 1);
-  assert.equal((await s.user('/v1/memories')).body.data.length, 4 + seedIds().length, 'default, the seeds, family, its fork and the import');
+  assert.equal((await s.user('/v1/memories')).body.data.length, 5 + seedIds().length, 'default, the reply memory, the seeds, family, its fork and the import');
   assert.equal((await s.user('/v1/memories/missing')).status, 404);
   assert.equal((await s.admin('/v1/memories', 'POST', {name: 'x', surprise: 1})).status, 400);
   assert.equal((await s.admin('/v1/memories', 'POST', {name: 'x', strategy: 'nope'})).status, 400);

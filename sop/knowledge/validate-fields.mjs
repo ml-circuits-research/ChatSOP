@@ -20,6 +20,8 @@ export function checkValue(spec, f, wire, ctx) {
     case 'posint': if (!/^[1-9]\d*$/.test(v)) push('bad_value', f.key + ' must be a positive integer'); break;
     case 'text': if (!v) push('bad_value', f.key + ' needs text'); else if (v.startsWith('"')) { try { JSON.parse(v); } catch { push('bad_value', f.key + ' has a bad JSON string'); } } break;
     case 'enum': if (!spec.values.includes(v)) push('bad_enum', f.key + ' must be one of ' + spec.values.join('|') + ', got "' + v + '"'); break;
+    // `quantifier WORD`, and `at_least N` with a positive count (the oracle's form, sop/enums.mjs QUANTIFIER_WORDS; capability battery 2026-10-02)
+    case 'quantifier': if (!spec.values.includes(toks[0]) || (toks[0] === 'at_least' ? !(toks.length === 2 && /^[1-9]\d*$/.test(toks[1])) : toks.length !== 1)) push('bad_enum', f.key + ' must be one of ' + spec.values.join('|') + ' (at_least takes a positive count), got "' + v + '"'); break;
     case 'time': if (!(v === 'timeless' || (toks.length === 2 && toks.every(t => DATE.test(t))))) push('bad_time', 'valid must be "timeless" or "START END"'); break;
     case 'vars': if (!toks.length || !toks.every(t => VAR.test(t))) push('bad_vars', f.key + ' needs ?variables'); break;
     case 'ref': if (!REF.test(v)) push('bad_ref', f.key + ' needs $id or ~id'); else ctx.refs.push({id: v.slice(1), line: f.line, wire: wire.id, sigil: v[0]}); break;

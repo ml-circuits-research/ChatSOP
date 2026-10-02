@@ -17,6 +17,8 @@ import {ANSWER_FORMATS} from '../../lib/formalize/internal-reasoning/render.mjs'
 import {HANDLERS, AFTER} from '../../lib/formalize/internal-reasoning/handlers.mjs';
 import {ASSEMBLY_READS} from '../../lib/formalize/internal-reasoning/program.mjs';
 import {seedCircuits} from '../../lib/knowledge-seeds.mjs';
+import {protocolCircuits} from '../../lib/formalize/protocol-data.mjs';
+import {PROTOCOL_ID} from '../../lib/formalize/internal-reasoning/reasoner.mjs';
 
 const NUMBERED = new Set(['number', 'numbers']);
 
@@ -48,7 +50,8 @@ export function dryRun(protocol, kind, {control = 'plan', max = 40} = {}) {
 
 export function checkProtocol(protocol = loadProtocol()) {
   const problems = [];
-  const files = seedCircuits(protocol.id).map(c => ({name: c.file, text: c.text, role: 'knowledge'}));
+  // The protocol layer and the learned-rules layer are validated together (the learned layer uses the protocol's vocabulary).
+  const files = (protocol.circuits ?? (protocol.id === PROTOCOL_ID ? protocolCircuits() : seedCircuits(protocol.id))).map(c => ({name: c.name ?? c.file, text: c.text, role: 'knowledge'}));
   const validated = validateProgram(files, {});
   for (const p of validated.problems.filter(p => p.severity !== 'warning')) problems.push({code: 'validator', message: `${p.file}:${p.line} ${p.code} ${p.message}`});
   const rules = protocol.handle.wires.filter(w => ['rule', 'default', 'integrity'].includes(w.type));

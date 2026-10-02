@@ -97,7 +97,7 @@ function reportCeiling(runDir, rows, out, {report = reportFormalizationError} = 
     const r = recs.get(t.id);
     if (!r) continue;
     const kind = t.layer === 'construct' ? 'missing_construct' : ['unclear', 'clarify', 'courtesy'].includes(r.system?.status) ? 'unclear' : t.outcome === 'invalid' ? 'invalid' : 'wrong';
-    report({source: 'reasoning-cycle', kind, message: r.question, strategy: 'LLMDirect', tier: r.author_tier ?? 'good', circuit: r.circuit ?? r.system?.formalization?.sop ?? null, expected: r.gold,
+    report({source: 'reasoning-cycle', kind, message: r.question, strategy: r.system?.understanding?.strategy ?? 'LocalLLMStepByStep', tier: r.author_tier ?? 'good', circuit: r.circuit ?? r.system?.formalization?.sop ?? null, expected: r.gold,
       detail: `${t.sub}: ${t.reason}${t.fix ? ` Fix: ${t.fix}` : ''}`.slice(0, 1200), ref: {run: path.basename(runDir), id: r.id, book: r.book, arm: 'ceiling'}});
     done.add(t.id); n++;
   }

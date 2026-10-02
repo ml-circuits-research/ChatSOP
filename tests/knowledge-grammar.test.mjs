@@ -17,7 +17,7 @@ import * as smokeValidator from '../eval/smoke-reasoning/validator.mjs';
 import * as smokeGovernance from '../eval/smoke-reasoning/lib/governance.mjs';
 import * as smokeDesugar from '../eval/smoke-reasoning/lib/desugar.mjs';
 import {compileDeclarative} from '../sop/declarative.mjs';
-import {ENUMS, QUERY_MODES, REASONING_QUERY_MODES, ROLE_NAMES, LINK_WORDS, ORDER_WORDS, COMPARATOR_WORDS, ARITHMETIC_WORDS} from '../sop/enums.mjs';
+import {ENUMS, QUERY_MODES, REASONING_QUERY_MODES, PRODUCT_REASONING_MODES, ROLE_NAMES, LINK_WORDS, ORDER_WORDS, COMPARATOR_WORDS, ARITHMETIC_WORDS} from '../sop/enums.mjs';
 
 const {GRAMMAR, parse, validateProgram, selectInForce, supposedWireIds, contestedIds, desugar, desugarText, grammarCompact} = knowledge;
 const read = rel => fs.readFileSync(new URL('../' + rel, import.meta.url), 'utf8');
@@ -67,13 +67,16 @@ test('the model-origin compiler rejects every knowledge wire', () => {
   for (const [type, body] of Object.entries(wires)) assert.throws(() => compileDeclarative(`@x1 ${type}\n${body}\n`, {inputText: 'x'}), `${type} is not model-authorable`);
 });
 
-test('the reasoning modes are question forms; without a strategy the host answers not_computable', () => {
+test('the reasoning modes are question forms; why_not and abduce go to the oracle, the others are answered not_computable', () => {
   assert.deepEqual([...ENUMS.query.mode], [...QUERY_MODES, ...REASONING_QUERY_MODES]);
+  assert.deepEqual([...PRODUCT_REASONING_MODES], ['why_not', 'abduce']);
   for (const mode of REASONING_QUERY_MODES) {
     const source = `@q query\n  mode ${mode}\n  where match\n    relation "reset"\n    role subject "router"\n    polarity affirmed\n  end\n`;
     const plan = compileDeclarative(source, {inputText: 'How do I reset the router?'});
-    assert.deepEqual(plan.notComputable.map(n => n.declaration), ['q'], `${mode} is understood and reported, never answered as a select`);
-    assert.equal(plan.problemIds.length, 0, `${mode} schedules no engine`);
+    const routed = PRODUCT_REASONING_MODES.includes(mode);
+    // without a lexicon the relation does not link, so a routed mode stops at the link question; it is never reported not_computable
+    assert.deepEqual(plan.notComputable.map(n => n.declaration), routed ? [] : ['q'], `${mode} is ${routed ? 'routed to the oracle' : 'understood and reported'}, never answered as a select`);
+    if (!routed) assert.equal(plan.problemIds.length, 0, `${mode} schedules no engine`);
   }
   // the five older modes still compile to a problem
   const select = compileDeclarative('@q query\n  select ?x\n  where match\n    relation "work at"\n    role subject ?x\n    role object "Acme"\n    polarity affirmed\n  end\n', {inputText: 'Who works at Acme?'});

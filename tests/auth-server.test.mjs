@@ -165,7 +165,7 @@ test('home page reports sign-in state, password setup and formalizer readiness',
   const first = await (await page(fresh.base, '/')).text();
   assert.match(first, /No administrator password yet/);
   assert.match(first, /Administrator password: <span class="bad">not set/);
-  assert.match(first, /Formalizer \(LLMDirect\): <b class="bad">not available/);
+  assert.match(first, /Formalizer \(LocalLLMStepByStep\): <b class="bad">not available/);
   assert.match(first, /HTTP 503/);
   for (const link of ['href="/chat"', 'href="/experiments"', 'href="/admin"', 'href="/docs/"']) assert.ok(first.includes(link), link);
   

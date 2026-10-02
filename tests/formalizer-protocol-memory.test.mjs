@@ -25,7 +25,7 @@ test('the protocol memory passes its lint, and a dry run from every kind of answ
 
 test('a planted contradiction (a name in a number place) is a violation that enables the re-ask action, and the plan takes it first', () => {
   const facts = dryRunFacts('value');
-  for (const a of ['answered ask_acts none', 'answered ask_aspects none', 'answered ask_statements q', 'uses q i1', 'instance_of i1 st2', 'main_instance q i1', 'answered ask_places i1',
+  for (const a of ['answered ask_acts none', 'answered ask_own_data none', 'answered ask_aspects none', 'answered ask_statements q', 'uses q i1', 'instance_of i1 st2', 'main_instance q i1', 'answered ask_places i1',
     'place i1 subject unknown_x', 'place i1 object n2']) facts.add(...a.split(' '));
   const d = decide(protocol, facts);
   assert.deepEqual(d.violations, [['name_in_number_place', 'i1']]);

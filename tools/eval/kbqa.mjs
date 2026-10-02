@@ -2,13 +2,13 @@
 /**
  * The end-to-end knowledge-base question-answering evaluation (KBQA, experiment eval-kbqa-v1): public benchmark questions answered from
  * Wikidata facts through the product chain, in process (no server, no port):
- *   question -> coding agent (server/query-parser.mjs, lib/query-author) -> Agent (server/agent.mjs: admission, KnowledgeLinker sop/linking.mjs + sop/copula-linker.mjs,
+ *   question -> step-by-step formalizer (server/query-parser.mjs) -> Agent (server/agent.mjs: admission, KnowledgeLinker sop/linking.mjs + sop/copula-linker.mjs,
  *   the reasoning reference route over the base memory kbqa-<name>) -> answer -> compared with the gold.
  *
  *   node tools/eval/kbqa.mjs suites   [--suite mintaka|lcquad2|simplequestions|qald10|all] [--size 1000]   # sealed eval/suites/kbqa-<name>/test.jsonl
  *   node tools/eval/kbqa.mjs slice    --suite <name> [--stage 100|300|all]   # only fetches (and caches) the Wikidata slice
  *   node tools/eval/kbqa.mjs build    --suite <name> [--stage 100|300|all]   # Wikidata slice -> circuits + host lexicon -> base memory kbqa-<name>
- *   node tools/eval/kbqa.mjs run      --suite <name> [--stage 100|300|all] [--variant lex] [--model provider/model] [--tag m0] [--force]   # the chain on every question; per-question records (tag = a rerun on a newer component state)
+ *   node tools/eval/kbqa.mjs run      --suite <name> [--stage 100|300|all] [--variant lex] [--tier tiny|small|medium|good] [--tag m0] [--force]   # the chain on every question; per-question records (tag = a rerun on a newer component state)
  *   node tools/eval/kbqa.mjs report   [--suite <name>|all]                   # scores, attribution, summary.md
  *   node tools/eval/kbqa.mjs baseline --suite <name> --stage 100 [--model qwen27b|deepseek] [--shards 10] [--concurrency 3]  # task folders, direct proxy calls: an LLM answers from the same slice as text
  *   node tools/eval/kbqa.mjs baseline-score --suite <name> --stage 100 --model qwen27b   # scores the answers.jsonl of the shards
@@ -37,7 +37,7 @@ if (command === 'suites') {
   for (const name of suites) console.log(JSON.stringify(await buildMemory(name, {stage, variant: opt('--variant', '')}), null, 2));
 } else if (command === 'run') {
   const {runSuite} = await import('./kbqa/run.mjs');
-  for (const name of suites) console.log(JSON.stringify(await runSuite(name, {stage, limit: opt('--limit', null), only: opt('--only', null), variant: opt('--variant', ''), model: opt('--model', null), tag: (opt('--variant', '') ? '-' + opt('--variant', '') : '') + (opt('--parser', 'local') !== 'local' ? '-' + opt('--parser') : '') + (opt('--tag', '') ? '-' + opt('--tag', '') : ''), force: args.includes('--force')}), null, 2));
+  for (const name of suites) console.log(JSON.stringify(await runSuite(name, {stage, limit: opt('--limit', null), only: opt('--only', null), variant: opt('--variant', ''), tier: opt('--tier', null), tag: (opt('--variant', '') ? '-' + opt('--variant', '') : '') + (opt('--parser', 'local') !== 'local' ? '-' + opt('--parser') : '') + (opt('--tag', '') ? '-' + opt('--tag', '') : ''), force: args.includes('--force')}), null, 2));
 } else if (command === 'report') {
   const {writeReport} = await import('./kbqa/report.mjs');
   console.log(JSON.stringify(await writeReport({suites}), null, 2));

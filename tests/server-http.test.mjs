@@ -238,7 +238,7 @@ test('documentation site is served statically without authentication and cannot 
   assert.equal(home.status, 200);
   const homeText = await home.text();
   for (const link of ['href="/chat"', 'href="/experiments"', 'href="/admin"', 'href="/docs/"']) assert.ok(homeText.includes(link), link);
-  assert.match(homeText, /Formalizer \(LLMDirect\): <b class="ok">ready/, "the home page reports the formalizer");
+  assert.match(homeText, /Formalizer \(LocalLLMStepByStep\): <b class="ok">ready/, "the home page reports the formalizer");
   assert.match(homeText, /bearer tokens only/);
   assert.ok(!homeText.includes(f.endpoint), 'the mock endpoint is not disclosed to anonymous visitors');
   // Without a password store there is no browser login: /chat stays a 401 API answer.

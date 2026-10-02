@@ -4,6 +4,7 @@
  * and the condition leaves (`not`, `absent`, `compare`, `compute`, `order`, `start_of`, `end_of`). Structural problems are
  * collected, never thrown.
  */
+import {captureCircuit, captureEnabled} from '../../lib/circuit-capture.mjs';
 import {COMPARATORS, COMPUTE, ORDER_WORDS, ROLE_NAMES, LINK_KEYWORDS, MAX_ARITY, STEP_BLOCKS} from './grammar.mjs';
 
 export const ID = /^[A-Za-z][A-Za-z0-9_]*$/;
@@ -35,6 +36,7 @@ export function termError(t) {
 
 /** Parse the lines of a text into wires; structural problems are collected, not thrown. */
 export function parse(text) {
+  if (captureEnabled) captureCircuit(text, 'knowledge');
   const errors = [];
   const wires = [];
   const seen = new Set();

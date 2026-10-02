@@ -1,4 +1,4 @@
-// Per-upstream FIFO queue: max concurrency, max starts per second and per hour, and a pause for 429 backoff.
+// Per-upstream priority queue (FIFO within a priority): max concurrency, max starts per second and per hour, and a pause for 429 backoff.
 // Requests are never dropped: they wait.
 export class Limiter {
   constructor({ maxConcurrent = 4, maxPerSecond = null, maxPerMinute = null, maxPerHour = null } = {}) {
@@ -36,9 +36,13 @@ export class Limiter {
     return { wait, reason };
   }
 
-  schedule(fn, meta = null) {
+  // priority: lower runs first (0 = interactive, 1 = batch); FIFO within a priority.
+  schedule(fn, meta = null, priority = 1) {
     return new Promise((resolve, reject) => {
-      this.queue.push({ fn, resolve, reject, meta, queuedAt: Date.now() });
+      const job = { fn, resolve, reject, meta, priority, queuedAt: Date.now() };
+      let i = this.queue.length;
+      while (i > 0 && this.queue[i - 1].priority > priority) i -= 1;
+      this.queue.splice(i, 0, job);
       this.#pump();
     });
   }

@@ -163,7 +163,7 @@ export const GRAMMAR = {
       where: many('cond'), select: one('vars'), mode: one('enum', {values: QUERY_MODES}), scope: many('cond'), at: one('instant'), during: one('interval'), overlaps: one('interval'), asof: one('instant'),
       trace: one('ref'), via: many('viastep'),
       compare: many('compareline'), order: many('orderline'), rank: one('text'), filter: many('text'), measure: one('enum', {values: ['start', 'end', 'duration']}),
-      quantifier: one('enum', {values: ['all', 'none', 'not_all', 'most', 'half', 'at_least']}), except: many('text'), limit: one('posint'), policy: one('ref'),
+      quantifier: one('quantifier', {values: ['all', 'none', 'not_all', 'most', 'half', 'at_least']}), except: many('text'), limit: one('posint'), policy: one('ref'),
       ...NUMERIC_FIELDS.query,
       ...Object.fromEntries(LINK_KEYWORDS.map(k => [k, many('ref')]))
     }

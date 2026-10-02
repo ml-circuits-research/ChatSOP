@@ -3,9 +3,9 @@
  * Harness of experiment eval-ingest-v1 (status/preregistrations/eval-ingest-v1.json): questions over documents ingested into task-type
  * base memories, answered by three arms.
  *
- *   node tools/eval/ingest-v1.mjs pipeline --doc handbook|europa [--ids h01,h02] [--model openference/Qwen3.8 27b] [--base ID] [--tag T]
- *        the product path: a session cloned from the base memory, the LLMDirect strategy with ONE model (no fallback), the shared
- *        symbolic path, the rendered English answer
+ *   node tools/eval/ingest-v1.mjs pipeline --doc handbook|europa [--ids h01,h02] [--tier small] [--base ID] [--tag T]
+ *        the product path: a session cloned from the base memory, the step-by-step formalizer with its questions answered by ONE proxy
+ *        tier (default small; LLMDirect is archived), the shared symbolic path, the rendered English answer
  *   node tools/eval/ingest-v1.mjs direct --doc ... --arm qwen27b|deepseek [--model M]       the model reads the whole document (one direct call through the proxy)
  *   node tools/eval/ingest-v1.mjs direct --doc ... --arm local --endpoint URL [--model NAME]   a local llama-server reads the document
  *   node tools/eval/ingest-v1.mjs score [--files a.jsonl,b.jsonl]                       correct / wrong / unknown per arm and document
@@ -55,9 +55,9 @@ export function openSession({base, id, product = openProduct()}) {
 }
 
 /** One question through the product path in a fresh conversation; returns the record of the answer. */
-export async function askPipeline(s, question, {model}) {
+export async function askPipeline(s, question, {tier}) {
   const entry = s.store.get('eval-ingest', 'c' + Math.random().toString(36).slice(2), BASE_NAME);
-  const client = agentClient({config: s.config, lexicon: s.lexicon, model});
+  const client = agentClient({config: s.config, lexicon: s.lexicon, tier});
   const started = Date.now();
   try {
     const res = await entry.agent.turn(question, {formalizer: client});
@@ -88,6 +88,9 @@ export function scoreAnswer(question, record) {
   const unknownText = /does not say|doesn't say|not stated|not specified|unknown|no information|cannot (be )?(determine|answer)|could not|i don't know|not enough|no answer|clarif/.test(text);
   if (record.error || !text.trim()) return question.gold === 'not_stated' ? 'correct' : 'unknown';
   if (question.gold === 'not_stated') return question.accept.some(a => new RegExp(a, 'i').test(text)) || unknownText ? 'correct' : 'wrong';
+  // A packet that decides nothing (unknown, incomplete, a clarification) is unknown, before the accept patterns: "does not decide"
+  // would otherwise match an accept pattern such as "not" of a negative gold.
+  if (['unknown', 'incomplete', 'clarify', 'unclear', 'not_computable', 'unsupported'].includes(record.status)) return 'unknown';
   const hit = question.accept.some(a => new RegExp(a, 'i').test(text));
   const rejected = (question.reject ?? []).some(a => new RegExp(a, 'i').test(text));
   if (hit && !rejected) return 'correct';
@@ -103,12 +106,12 @@ async function main() {
   fs.mkdirSync(OUT, {recursive: true});
   if (command === 'pipeline') {
     const doc = opt('--doc');
-    const model = opt('--model', DEFAULT_MODEL);
+    const tier = opt('--tier', 'small'), model = `tier:${tier}`;
     const s = openSession({base: opt('--base', DOCS[doc].base), id: `eval-ingest-${doc}${opt('--tag') ? '-' + opt('--tag') : ''}`});
     const file = outFile('pipeline', doc);
     try {
       for (const q of questionsFor(doc)) {
-        const r = await askPipeline(s, q.q, {model});
+        const r = await askPipeline(s, q.q, {tier});
         const row = {id: q.id, q: q.q, arm: 'pipeline', model, ...r};
         row.score = scoreAnswer(q, row);
         append(file, row);

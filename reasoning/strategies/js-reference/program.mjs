@@ -261,6 +261,19 @@ export function compileProgram(wires, {origin = new Map()} = {}) {
 }
 
 /**
+ * The predicates an abduction must see besides its observation: those of the hypotheses' atoms and every predicate a rule or aggregate
+ * derives from them, so the slice holds the admitted facts a hypothesis could contradict (consistency, abduce.mjs).
+ */
+export function hypothesisReach(program) {
+  const reach = new Set(program.hypotheses.flatMap(h => h.atoms.map(a => a.p)));
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const e of program.edges) if (reach.has(e.from) && !reach.has(e.to)) { reach.add(e.to); grew = true; }
+  }
+  return [...reach];
+}
+
+/**
  * Restrict a program to the dependency slice of the seed predicates (wires outside it are `ignored`, as defined in 5.3).
  * Returns {program, ignored}.
  */

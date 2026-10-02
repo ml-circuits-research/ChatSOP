@@ -42,8 +42,8 @@ test('session: starting clones the base memory into its own folder', t => {
   assert.ok(fs.statSync(path.join(sessions.dir(s.id), 'repo/snapshots', snap)).nlink >= 2, 'the clone shares the immutable files');
   assert.throws(() => sessions.create({base: 'missing', user: 'alice'}), e => e.status === 404);
   assert.throws(() => sessions.create({base: base.id, user: 'alice', settings: {authoring: 'auto'}}), /Unknown session setting "authoring"/);
-  assert.equal(sessions.create({base: base.id, user: 'alice'}).settings.formalizer_model, null, 'the default model is the configured chain');
-  assert.throws(() => sessions.create({base: base.id, user: 'alice', settings: {formalizer_model: 'two\nlines'}}), /formalizer_model must be a model of the formalizer chain/);
+  assert.equal(sessions.create({base: base.id, user: 'alice'}).settings.formalizer_model, null, 'the default first tier is the first of the configured ladder');
+  assert.throws(() => sessions.create({base: base.id, user: 'alice', settings: {formalizer_model: 'two\nlines'}}), /formalizer_model must be a proxy tier/);
   assert.equal(sessions.create({base: base.id, user: 'alice', settings: {omp_model: 'small'}}).settings.formalizer_model, 'small', 'the old setting name is read as formalizer_model');
   assert.throws(() => sessions.create({base: base.id, user: 'alice', settings: {bogus: 1}}), /Unknown session setting/);
   assert.equal(memories.circuits(base.id).length, 1);

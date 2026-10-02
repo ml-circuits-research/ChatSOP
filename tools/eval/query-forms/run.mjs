@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * Runs the query-forms dev set (experiment eval-query-forms-v1) through the product chain and scores it against the oracle gold:
- *   question -> coding agent (message and memory vocabulary only) -> Agent (admission, KnowledgeLinker, circuit rules, reference route) over world-v1.
- *   node tools/eval/query-forms/run.mjs --dev dev.jsonl --out records.jsonl [--model provider/model] [--only form] [--limit N]
+ *   question -> step-by-step formalizer (questions on --tier, default the product ladder) -> Agent (admission, KnowledgeLinker, circuit rules, reference route) over world-v1.
+ *   node tools/eval/query-forms/run.mjs --dev dev.jsonl --out records.jsonl [--tier tiny|small|medium|good] [--only form] [--limit N]
  * Each record keeps the SOP, the packet status, the answer, the linked relations and the layer that failed. The summary (per form: correct,
  * wrong, unknown, clarification, incomplete; Wilson 95%) is printed and written next to the records as `<out>.summary.json`.
  * The slice budget is the dev one (QF_LIMITS, default maxLookups 300000 ... retrievalMs 60000). The private chat data root is
@@ -19,7 +19,7 @@ const rows = fs.readFileSync(opt('--dev'), 'utf8').split('\n').filter(Boolean).m
 process.env.QF_LIMITS ??= JSON.stringify({maxLookups: 300000, maxProbes: 600000, maxFacts: 60000, retrievalMs: 60000});
 const custom = opt('--formalizer') ? (await import(new URL(opt('--formalizer'), `file://${process.cwd()}/`))).default : null;
 const s = openSession({base: 'world-v1', id: 'qf-run'});
-const agent = agentClient({config: s.config, lexicon: s.lexicon, model: opt('--model', null)});
+const agent = agentClient({config: s.config, lexicon: s.lexicon, tier: opt('--tier', null)});
 
 const norm = v => (typeof v === 'number' ? v : /^-?\d+$/.test(String(v)) ? Number(v) : String(v).toLowerCase());
 function judge(gold, answer) {

@@ -22,7 +22,9 @@
  * Nothing here is a solver: a circuit that needs a feature the engine does not declare is `not_expressible`, never weakened.
  */
 import {parse, tokens, selectInForce, supposedWireIds, desugar, contestedIds} from '../../../sop/knowledge/index.mjs';
-import {compileProgram, sliceProgram, conditionAlts} from '../js-reference/program.mjs';
+import {compileProgram, sliceProgram, conditionAlts, hypothesisReach} from '../js-reference/program.mjs';
+import {contradictions} from '../js-reference/abduce.mjs';
+import {atomText} from '../js-reference/values.mjs';
 import {planQuery, evaluatePart, combineParts, READ_BUDGET} from '../js-reference/query.mjs';
 import {timeParts, viewAt} from '../js-reference/timeview.mjs';
 import {Evidence} from '../js-reference/evidence.mjs';
@@ -151,7 +153,7 @@ export function solveOnce(engine, handle, qWires, excluded, budgetArg) {
   const seeds = conditionAlts(q.wire.fields.filter(f => ['where', 'scope'].includes(f.key)), q.wire.id).flatMap(alt => alt.filter(l => l.kind === 'atom' || l.kind === 'timeof').map(l => l.p));
   const planPreds = planning ? program.actions.flatMap(a => [...a.requires, ...a.adds, ...a.removes].map(x => x.p)) : [];
   const normPreds = planning ? parseNorms(inForce, program).flatMap(n => n.predicates) : [];
-  const sliced = sliceProgram(program, [...seeds, ...planPreds, ...normPreds]);
+  const sliced = sliceProgram(program, [...seeds, ...planPreds, ...normPreds, ...(q.mode === 'abduce' && !planning ? hypothesisReach(program) : [])]);
   const sp = sliced.program;
   const bad = unsupportedLeaves(sp);
   if (bad.length) throw new NotExpressibleError(bad, `${id} does not lower: ${bad.join(', ')}`);
@@ -170,9 +172,13 @@ export function solveOnce(engine, handle, qWires, excluded, budgetArg) {
   const qp = planQuery(q.wire, program.closed, {mode: q.mode === 'why_not' || q.mode === 'abduce' ? 'select' : q.mode, select: q.select});
   qp.mode = q.mode === 'why_not' || q.mode === 'abduce' ? q.mode : qp.mode;
 
+  // why_not and abduce read ONE state, the one at the query's instant (as the oracle does; capability battery 2026-10-02: the time of the
+  // query was ignored and an observation false at that instant was explained); an interval has no single state and is refused.
+  if ((q.mode === 'abduce' || q.mode === 'why_not') && (q.during || q.overlaps)) throw new NotExpressibleError(['interval'], `${q.mode} asks about one state; ask with at, not during or overlaps`);
   if (q.mode === 'abduce') {
-    const out = engine.abduce({program: sp, facts: sp.facts, goalAlts: qp.alts, hypotheses: sp.hypotheses, budget, limit: q.limit});
-    return finish(baseInfo(id, {...out, budget: out.budget ?? budget.snapshot(false)}));
+    const state = {...sp, facts: viewAt(sp.facts, timeParts(sp.facts, q).instants[0])};
+    const out = engine.abduce({program: state, facts: state.facts, goalAlts: qp.alts, hypotheses: sp.hypotheses, budget, limit: q.limit});
+    return finish(baseInfo(id, {...consistentOnly(engine, state, out, budget, notes), budget: out.budget ?? budget.snapshot(false)}));
   }
   const {how, instants} = timeParts(sp.facts, q);
   const parts = [], closures = [];
@@ -192,11 +198,40 @@ export function solveOnce(engine, handle, qWires, excluded, budgetArg) {
   if (q.mode === 'why_not') {
     const ev = closures[0].ev;
     const claim = evaluatePart({...qp, mode: 'exists'}, ev, {ev, stored: new Map(), budget: READ_BUDGET, notes});
-    const out = engine.whyNot({program: sp, facts: sp.facts, goalAlts: qp.alts, budget, limit: q.limit});
+    const out = engine.whyNot({program: {...sp, facts: closures[0].view}, facts: closures[0].view, goalAlts: qp.alts, budget, limit: q.limit});
     if (out.status === 'budget_exhausted') return finish(baseInfo(id, out));
     return finish(baseInfo(id, {status: claim.status, complete: out.complete ?? true, missing: claim.rows.length ? [] : out.missing, blockers: out.blockers?.length ? out.blockers : blockersOf(sp, ev, qp, budget), budget: budget.snapshot(false)}));
   }
   return finish(relationalPacket({id, q, qp, parts, how, budget, notes, viewSize, ignored: []}));
+}
+
+/**
+ * Consistency of the engine's explanations (js-reference/abduce.mjs): an explanation whose closure, computed by the same engine, holds
+ * an atom and its negation that the admitted facts alone do not is moved to `inconsistent`. The engine returns the inclusion-minimal
+ * explaining sets, so the filter is exact for monotone programs; with negation as failure a consistent superset of an inconsistent
+ * minimal set is not searched (the oracle searches it).
+ */
+function consistentOnly(engine, sp, out, budget, notes) {
+  if (out.status !== 'hypotheses' || !out.explanations?.length) return out;
+  const byId = new Map(sp.hypotheses.map(h => [h.id, h]));
+  const close = ids => {
+    const extra = ids.flatMap(id => byId.get(id)?.atoms ?? []).map(a => ({neg: a.neg, p: a.p, args: a.args, claim: {id: 'hypothesis', version: 1}, status: 'supposed', speaker: null, valid: null}));
+    const c = engine.closure({program: sp, facts: [...sp.facts, ...extra], budget, notes});
+    return c.exhausted ? null : evidenceFromAtoms(c.atoms);
+  };
+  const baseEv = close([]);
+  if (!baseEv) return out;
+  const base = contradictions(baseEv);
+  const kept = [], inconsistent = [];
+  for (const e of out.explanations) {
+    const ev = close(e.hypotheses);
+    const fresh = ev ? [...contradictions(ev)].filter(([key]) => !base.has(key)).map(([, a]) => a) : [];
+    if (!fresh.length) kept.push(e);
+    else inconsistent.push({...e, contradicts: fresh.map(a => baseEv.get(true, a.p, a.args) ? atomText(true, a.p, a.args) : atomText(false, a.p, a.args))});
+  }
+  if (!inconsistent.length) return out;
+  if (!kept.length) return {...out, status: 'unknown', reason: 'no_consistent_explanation', hypotheses: [], explanations: [], inconsistent};
+  return {...out, hypotheses: kept.map(e => e.atoms), explanations: kept, inconsistent};
 }
 
 /**

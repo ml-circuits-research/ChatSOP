@@ -23,6 +23,7 @@ const live = await liveTiers(config.endpoint);
 const base = await loadJob(dir, {config, live});
 const overrides = {name: opt('name', `${jobName}-${tier}`), models: `tier:${tier}`};
 if (opt('n')) overrides.inputs = {...base.spec.inputs, select: {n: Number(opt('n')), seed: opt('seed', 'smalltalk-tier-comparison')}};
+if (opt('ids')) overrides.inputs = {...(overrides.inputs ?? base.spec.inputs), select: {ids: opt('ids').split(',')}};
 if (opt('input')) overrides.inputs = {...(overrides.inputs ?? base.spec.inputs), path: path.resolve(opt('input')), command: undefined};
 if (overrides.inputs?.command === undefined && overrides.inputs) delete overrides.inputs.command;
 const job = await loadJob(dir, {config, live, overrides, tiers: tierChains(config, live)});

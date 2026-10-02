@@ -178,7 +178,12 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
     const abort = ctx.abort || new AbortController();
     if (!ctx.abort) res.on('close', () => { if (!res.writableEnded) abort.abort(); });
     const fbk = fallbackFor(up, path, model, req, ctx);
-    const fbWait = (fbk && 'rest' in fbk ? fbk.maxWaitMs : fb?.maxWaitMs) ?? retry.maxWaitMs;
+    // Interactive purposes (config.interactive: chat, formalize, answer-*) go to the front of the queue and fall back after a
+    // short wait, so a person is not kept waiting behind batch jobs.
+    const inter = config.interactive || null;
+    const interactive = !!inter && (inter.purposes || []).some((p) => (p.endsWith('*') ? String(purpose || '').startsWith(p.slice(0, -1)) : purpose === p));
+    const priority = interactive ? 0 : 1;
+    const fbWait = (interactive && inter.maxWaitMs != null) ? inter.maxWaitMs : ((fbk && 'rest' in fbk ? fbk.maxWaitMs : fb?.maxWaitMs) ?? retry.maxWaitMs);
     const fallBack = (reason, kind) => forward(req, res, fbk.up, path, Buffer.from(JSON.stringify({ ...parsed, model: fbk.model })),
       { abort, fallback: { from: up.name, model: ctx.fallback?.model && ctx.tier ? ctx.fallback.model : model, reason, kind }, tier: ctx.tier, chain: fbk.rest });
     const extraHeaders = {
@@ -296,7 +301,7 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
         monitor.log(rec);
         if (auditing) { try { audit.record(rec, parsed, responseText(format, isSse, tail)); } catch { /* the audit never breaks a request */ } }
         return { done: true };
-      }, { cost });
+      }, { cost }, priority);
       if (outcome.fallback) return fallBack(outcome.fallback, outcome.kind);
       if (outcome.retry5xx) { n5xx += 1; await sleep(retry.baseMs * 2 ** (n5xx - 1)); continue; }
       if (!outcome.retry) return;
@@ -357,7 +362,12 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
       if (req.method === 'POST' && path.startsWith('/v1/')) {
         const tagOf = (h) => (req.headers[h] ? String(req.headers[h]).slice(0, 120) : null);
         const refusal = guard.admit({ purpose: tagOf('x-llmapiprovider-purpose'), run: tagOf('x-llmapiprovider-run') });
-        if (refusal?.error) return sendJson(res, refusal.status, { error: refusal.error });
+        if (refusal?.error) {
+          // Refusals are logged with the caller's identity, so a misbehaving script is found in the log and in /stats.
+          const client = (req.headers['x-client-name'] || (req.headers['user-agent'] || 'unknown').split(/[\s/]/)[0]).toString().slice(0, 40);
+          monitor.log({ id: randomUUID().slice(0, 8), upstream: 'proxy', client, endpoint: path, status: refusal.status, refused: refusal.error.type, purpose: tagOf('x-llmapiprovider-purpose'), run: tagOf('x-llmapiprovider-run'), error: refusal.error.message });
+          return sendJson(res, refusal.status, { error: refusal.error });
+        }
         if (refusal?.untagged) req.untaggedRequest = true; // logged as `untagged: true`, so the allowance survives a restart
         const raw = await readBody(req);
         let model = null;

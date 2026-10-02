@@ -17,10 +17,24 @@ async function render(){
  show('<div class="grid"><a class="tile" href="/chat"><b>Chat</b><span>Open the chat</span></a><a class="tile" href="/experiments"><b>Experiments</b><span>Tasks, notes and reports</span></a></div>'+
   '<section class="card"><h2>Status</h2><ul class="plain"><li>Formalizer ready: <b class="'+(s.ready?'ok':'bad')+'">'+(s.ready?'yes':'no')+'</b> <span class="muted">(chat answers return 503 parse_unavailable until omp can run a model of the chain; see the home page)</span></li>'+
   '</ul></section>'+
+  '<section class="card" id="feedback"><h2>Chat feedback</h2><p class="muted">loading…</p></section>'+
   '<section class="card"><h2>API tokens</h2><p class="muted">For curl, SDKs and scripts: send <code>Authorization: Bearer &lt;token&gt;</code>. A token is shown once.</p><p><input id="label" placeholder="label, e.g. laptop" maxlength="40"> <button class="primary" id="mint">Create token</button></p><div id="fresh"></div><ul class="plain">'+tokens+'</ul></section>');
  $('mint').onclick=mint;
  composer();
+ feedbackView();
  $('app').querySelectorAll('[data-revoke]').forEach(button=>{button.onclick=()=>revoke(button.dataset.revoke)});
+}
+// Chat feedback (DS022 "Chat feedback"): the recent votes of GET /v1/feedback grouped by cause, each linked to its recorded turn.
+const CAUSES={not_understood:'Did not understand the request',wrong_answer:'Wrong answer',missing_knowledge:'Missing knowledge',unnecessary_question:'Unnecessary question',bad_wording:'Bad wording or tone',up:'Thumbs up'};
+async function feedbackView(){
+ const r=await api('/v1/feedback?limit=300');const box=$('feedback');
+ if(r.status!==200){box.innerHTML='<h2>Chat feedback</h2><p class="muted">Not available: '+esc(r.body.error?.message??('HTTP '+r.status))+'</p>';return;}
+ const st=r.body.stats;const short=v=>esc(String(v??'').slice(0,160));
+ const counts='<p>'+st.votes.up+' up, '+st.votes.down+' down over '+st.turns+' turns (latest vote of each turn). '+Object.entries(st.causes).map(([c,n])=>esc(CAUSES[c])+': <b>'+n+'</b>').join(' · ')+'</p>';
+ const group=([cause,rows])=>rows.length?'<h3>'+esc(CAUSES[cause]??cause)+' <span class="muted">('+rows.length+')</span></h3><div style="overflow-x:auto"><table><thead><tr><th>When</th><th>Message</th><th>Answer</th><th>Comment</th><th>Turn</th></tr></thead><tbody>'+
+  rows.map(x=>'<tr><td>'+esc(String(x.t).slice(0,16).replace('T',' '))+'</td><td>'+short(x.record?.message)+'</td><td>'+short(x.record?.answer)+'</td><td>'+short(x.comment)+'</td><td><a href="/v1/sessions/'+encodeURIComponent(x.session)+'/turns/'+x.turn+'">'+esc(x.session)+' #'+x.turn+'</a></td></tr>').join('')+'</tbody></table></div>':'';
+ const body=Object.entries(r.body.groups).map(group).join('');
+ box.innerHTML='<h2>Chat feedback</h2>'+counts+(body||'<p class="muted">No votes yet.</p>');
 }
 // The base-memory composer (DS022 "Composing a base memory"): choose layers with checkboxes, build or refresh a memory through POST /v1/memory-composer.
 let layers=[],info={};

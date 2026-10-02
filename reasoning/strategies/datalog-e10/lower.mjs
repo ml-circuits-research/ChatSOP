@@ -4,7 +4,7 @@
  *   fact holds p a            FACT p a            fact holds not p a   FACT NOT p a   (relation `negative:p`, a separate relation)
  *   rule alternative          @rK rule  WHEN/AND atoms, NONE p ... (absent, stratified), TEST a op b (compare), THEN [NOT] p ...
  *   query alternatives        @q query  GIVES ?v ...  MATCH/AND ... with `OR MATCH ...` between the alternatives
- * E10 has no arithmetic terms and no aggregate: `compute` and `aggregate` are not lowered (`not_expressible`).
+ * E10 has no arithmetic terms, no decimal numbers and no aggregate: `compute` and `aggregate` are not lowered (`not_expressible`).
  * A symbol is written bare when E10 reads it back as the same string, otherwise quoted (the booleans `true`/`false` are quoted: E10
  * would read them as booleans); an integer is written bare.
  */
@@ -15,7 +15,8 @@ const BARE = /^[A-Za-z_][\w.:/-]*$/;
 
 export const termText = t => {
   if (isVarTerm(t)) return t.var;
-  if (typeof t === 'number') return String(t);
+  // E10 reads integers only: a decimal constant is refused honestly (capability battery, 2026-10-02: it crashed with "Invalid constant")
+  if (typeof t === 'number') { if (!Number.isInteger(t)) throw new NotExpressibleError(['exact_arithmetic'], 'E10 has no decimal numbers (' + t + ')'); return String(t); }
   return BARE.test(t) && t !== 'true' && t !== 'false' ? t : JSON.stringify(t);
 };
 

@@ -11,7 +11,7 @@
  * the administrator password; the chat API stays blocked until it is set.
  * `CHATSOP_API_KEY` keeps working as an environment-provided bearer token for
  * scripts and SDKs, and `CHATSOP_CONFIG` selects another runtime configuration.
- * The chat's circuit author is the formalizer LLMDirect: a model called directly through the local proxy; its chain is `queryParser.models` of the runtime
+ * The chat's formalizer is step by step: the system asks short questions to the proxy tier ladder `queryParser.local.ladder` of the runtime
  * configuration (DS009 "Request parser").
  */
 import os from 'node:os';
@@ -45,11 +45,11 @@ if (server.auth?.configured) {
 } else {
   console.log('  authentication: open the home URL in a browser and choose the administrator password');
 }
-console.log(`\nCircuit author: the formalizer LLMDirect, model chain ${(server.queryParser?.settings.models ?? []).join(' -> ') || '(none configured)'}; without a usable model the chat answers parse_unavailable (503). The home page shows the state.`);
+console.log(`\nFormalizer: ${server.queryParser?.settings.strategy ?? 'LocalLLMStepByStep'}, tier ladder ${(server.queryParser?.settings.models ?? []).join(' -> ') || '(none configured)'}; without its first tier the chat answers parse_unavailable (503). The home page shows the state.`);
 if (host !== '127.0.0.1' && host !== '::1' && host !== 'localhost') console.log('Remote binding: the documentation path is unauthenticated, so expose this only on a trusted network.');
 console.log('Stop with Ctrl+C.\n');
 
-// A managed local model server (queryParser.strategy LocalLLMDirect or LocalLLMStepByStep) is a child process: stop it on exit.
+// A managed local model server (queryParser.local with an endpoint or a GGUF) is a child process: stop it on exit.
 for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, async () => {
   await server.queryParser?.stop?.().catch(() => {});
   process.exit(0);

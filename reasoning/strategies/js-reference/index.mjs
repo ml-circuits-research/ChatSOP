@@ -22,7 +22,7 @@
 import {parse, tokens} from './wires.mjs';
 import {selectInForce, supposedWireIds} from './governance.mjs';
 import {desugar} from './desugar.mjs';
-import {compileProgram, sliceProgram, conditionAlts} from './program.mjs';
+import {compileProgram, sliceProgram, conditionAlts, hypothesisReach} from './program.mjs';
 import {saturate} from './engine.mjs';
 import {Budget, BudgetStop, CEILINGS} from './budget.mjs';
 import {planQuery, evaluatePart, combineParts, readBudget} from './query.mjs';
@@ -164,8 +164,12 @@ function sensitivityOf({program: sp}, qp) {
   const defaults = [...slice].filter(p => /^x_.+_blocked$/.test(p)).map(p => p.slice(2, -8));
   const absentInQuery = qp ? qp.alts.some(a => a.leaves.some(l => l.kind === 'atom' && l.mode === 'absent')) : false;
   // A ranking (superlative, ordinal) names the best of ALL the candidates: a fact missing from a partial slice can change the winner (R-P2).
-  const monotone = !strict.length && !absentInQuery && !(qp && (['count', 'every'].includes(qp.mode) || qp.forms?.rank));
-  return {monotone, over, defaults, aggregates: sp.aggregates.map(a => a.id)};
+  const closedWorldForm = Boolean(qp && (['count', 'every'].includes(qp.mode) || qp.forms?.rank));
+  const monotone = !strict.length && !absentInQuery && !closedWorldForm;
+  // With `absent` in the question as the only non-monotone part, a `refuted` answer rests on evidence of the opposite (the atom holds,
+  // derived without negation as failure), which more facts cannot remove (R-P1); a `supported` one may rest on the absence (R-P2).
+  const refutationMonotone = !strict.length && !closedWorldForm;
+  return {monotone, ...(absentInQuery ? {absent_in_query: true, refutation_monotone: refutationMonotone} : {}), over, defaults, aggregates: sp.aggregates.map(a => a.id)};
 }
 
 const baseInfo = (extra = {}) => ({strategy: 'js-reference', guarantee: 'exact', ...extra});
@@ -236,7 +240,7 @@ function solveOnce(handle, qWires, excluded, budgetArg, opts = {}) {
   const seeds = conditionAlts(q.wire.fields.filter(f => ['where', 'scope'].includes(f.key)), q.wire.id).flatMap(alt => alt.filter(l => l.kind === 'atom' || l.kind === 'timeof').map(l => l.p));
   const wantsPlan = q.mode === 'plan';
   const planPreds = wantsPlan ? program.actions.flatMap(a => [...a.requires, ...a.adds, ...a.removes].map(x => x.p)) : [];
-  const sliced = sliceProgram(program, [...seeds, ...planPreds]);
+  const sliced = sliceProgram(program, [...seeds, ...planPreds, ...(q.mode === 'abduce' ? hypothesisReach(program) : [])]);
   const started = performance.now();
   const notes = new Set();
 
@@ -249,7 +253,11 @@ function solveOnce(handle, qWires, excluded, budgetArg, opts = {}) {
   qp.mode = q.mode === 'why_not' || q.mode === 'abduce' ? q.mode : qp.mode;
 
   if (q.mode === 'abduce') {
-    const out = abduce({program: sliced.program, facts: sliced.program.facts, qp, budget, limit: q.limit});
+    // The observation is explained at the query's instant (`at`), over the facts valid then; an interval has no single state to explain
+    // (capability battery 2026-10-02: the time of the query was ignored and a claim false at that instant was "explained" by nothing).
+    if (q.during || q.overlaps) throw new NotExpressibleError(['interval'], 'abduce explains an observation at one instant; ask with at, not during or overlaps');
+    const facts = viewAt(sliced.program.facts, timeParts(sliced.program.facts, q).instants[0]);
+    const out = abduce({program: sliced.program, facts, qp, budget, limit: q.limit});
     return baseInfo({...out, budget: budget.snapshot(), ignored: sliced.ignored, notes: [], sensitivity: sensitivityOf(sliced, qp), timings: {ask: Math.round(performance.now() - started)}});
   }
 
@@ -279,6 +287,8 @@ function solveOnce(handle, qWires, excluded, budgetArg, opts = {}) {
     }
   });
 
+  // why_not reads the state of ONE instant (the first part); over an interval it would silently answer for its first instant only
+  if (q.mode === 'why_not' && (q.during || q.overlaps)) throw new NotExpressibleError(['interval'], 'why_not asks about one state; ask with at, not during or overlaps');
   if (q.mode === 'why_not') return whyNotPacket({q, qp, sliced, parts, exhausted, budget, notes, started});
   const packet = relationalPacket({q, qp, sliced, parts, how, exhausted, policy, budget, notes, viewSize});
   packet.timings = {ask: Math.round(performance.now() - started)};

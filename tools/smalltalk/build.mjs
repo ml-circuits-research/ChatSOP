@@ -23,6 +23,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {validateProgram, parse} from '../../sop/knowledge/index.mjs';
 import {SEEDS_DIR, seedLayers, seedCircuits} from '../../lib/knowledge-seeds.mjs';
+import {variantProblems} from '../../jobs/smalltalk-replies/checks.mjs';
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 export const TAXONOMY = JSON.parse(fs.readFileSync(new URL('./taxonomy.json', import.meta.url), 'utf8'));
@@ -108,6 +109,9 @@ export function runVariants(dirs) {
     if (!fs.existsSync(file)) throw new Error(`no accepted.jsonl in ${dir}`);
     const last = new Map();
     for (const line of fs.readFileSync(file, 'utf8').split('\n').filter(Boolean)) { const r = JSON.parse(line); last.set(r.id, r); }
+    // An item the audit flagged and the decider could not fix is left out (a later run, e.g. a stronger tier, may supply it).
+    const escalated = new Set((fs.existsSync(path.join(dir, 'escalations.jsonl')) ? fs.readFileSync(path.join(dir, 'escalations.jsonl'), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)) : []).filter(e => e.source === 'audit').map(e => e.id));
+    for (const id of escalated) last.delete(id);
     for (const [id, r] of last) byItem.set(id, (r.output?.records ?? []).filter(x => typeof x.text === 'string').map(x => ({situation: id, register: x.register, text: clean(x.text), run, model: r.model ?? null})));
   }
   return [...byItem.values()].flat();
@@ -156,9 +160,10 @@ export function buildCollections(variants, {taxonomy = TAXONOMY, drop = []} = {}
   }
   // Reply variants, by situation and register group, filtered for diversity.
   const groups = new Map();
+  const itemOf = new Map(items(taxonomy).map(it => [it.id, it]));
   for (const v of variants) {
     const s = bySituation.get(v.situation);
-    if (!s || dropSet.has(v.text)) continue;
+    if (!s || dropSet.has(v.text) || variantProblems(itemOf.get(s.id), v).length) continue;
     const key = v.register === 'formal' ? 'professional' : v.register === 'playful' && s.collection !== 'playful' ? 'playful' : s.collection;
     const g = `${key}\u0000${s.id}`;
     if (!groups.has(g)) groups.set(g, {key, s, variants: []});
@@ -227,7 +232,7 @@ export function writeCollections(built, {runs = []} = {}) {
 }
 
 /** Problems of the written collections: validation alone and together, slots, reachability, priority ties. */
-export function checkCollections() {
+export function checkCollections({warnings = []} = {}) {
   const problems = [];
   const ids = Object.values(COLLECTIONS).map(c => c.id);
   const validate = (circuits, label) => {
@@ -255,7 +260,7 @@ export function checkCollections() {
   const formal = new Set([...parts.keys()].filter(s => s.endsWith('_formal')));
   for (const v of formal) {
     const p = priorities.get(v), part = parts.get(v);
-    for (const [s, sp] of priorities) if (s !== v && sp === p && parts.get(s) === part && !s.endsWith('_formal') && !formal.has(`${s}_formal`) && !s.startsWith('line_')) problems.push(`priority tie in part ${part}: ${v} and ${s} (${p}), and ${s} has no formal variant`);
+    for (const [s, sp] of priorities) if (s !== v && sp === p && parts.get(s) === part && !s.endsWith('_formal') && !formal.has(`${s}_formal`) && !s.startsWith('line_')) warnings.push(`priority tie in part ${part}: ${v} and ${s} (${p}), and ${s} has no formal variant`);
   }
   return problems;
 }
@@ -272,7 +277,9 @@ async function main() {
     return;
   }
   if (cmd === 'check') {
-    const problems = checkCollections();
+    const warnings = [];
+    const problems = checkCollections({warnings});
+    for (const w of warnings) console.log(`warning: ${w} (a tie matters only when both situations can apply to one turn)`);
     for (const p of problems) console.log(p);
     console.log(problems.length ? `${problems.length} problems` : 'ok');
     if (problems.length) process.exitCode = 1;

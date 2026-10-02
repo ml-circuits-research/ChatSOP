@@ -1,6 +1,7 @@
 /**
- * The models of the calibration (experiment eval-query-model-calibration-v1). Every model gets the same prompt and the same
- * validate-and-repair loop from lib/query-author; only the backend differs.
+ * The models of the calibration (experiment eval-query-model-calibration-v1), still used by the symbolic-vs-llm harness (its local
+ * model list and llama-server settings). The calibration runner itself measured one-shot circuit authoring and was archived on
+ * 2026-10-02 with it (probably_obsolete/one-shot-formalization/tools/eval/query-model-calibration/).
  *   kind remote      a model behind the local proxy (`<provider>/<model>`, lib/llm-providers.mjs) through the completion backend
  *   kind local       a GGUF served by llama.cpp `llama-server` on a private port, used through the completion backend
  */

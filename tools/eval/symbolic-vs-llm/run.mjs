@@ -4,9 +4,8 @@ import path from 'node:path';
 import os from 'node:os';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {authorQuery, completionBackend} from '../../../lib/query-author/index.mjs';
+import {validateQuery, unclearKind} from '../../../lib/query-author/index.mjs';
 import {chainEntry} from '../../../lib/llm-providers.mjs';
-import {constrainedBackend} from '../../../lib/query-author/backends/constrained.mjs';
 import {splitCircuits} from '../../../lib/query-author/session.mjs';
 import {parse as parseRuntime} from '../../../sop/parser.mjs';
 import {parse as parseKnowledge} from '../../../sop/knowledge/lexical.mjs';
@@ -26,8 +25,21 @@ import {openSession, defaultRoot} from '../query-forms-probe.mjs';
 import {readExperiments} from '../../../lib/journal.mjs';
 import {localStrategy} from '../../../lib/formalize/strategies.mjs';
 const stepStrategies = new Map();
-/** The remote model of the arms C and D (no omp, owner order 2026-10-02): a completion backend on the chain entry `<provider>/<model>` through the proxy. */
-const remoteBackend = (settings, timeoutMs) => { const e = chainEntry(settings.subscriptionModel); return completionBackend({endpoint: e.endpoint, model: e.model, timeoutMs, maxTokens: settings.maxTokens, headers: e.headers, extraBody: e.extraBody, cachePrompt: false}); };
+import {tierLadder} from '../tier-parser.mjs';
+/**
+ * Owner decision 2026-10-02: formalization is step by step only; the one-shot author arms (B: a local model writes free SOP with repair
+ * rounds; B-grammar and B-structured: its constrained decoders; B-local: the same loop on the strategy slot) are archived in
+ * probably_obsolete/one-shot-formalization/. Arm C is the step-by-step strategy with its questions answered by the proxy tier
+ * `settings.tier` (default small; like with like with B-stepbystep on the small local model).
+ */
+export const ARCHIVED_ARMS = Object.freeze(['B', 'B-grammar', 'B-structured', 'B-local']);
+const RUNTIME = JSON.parse(fs.readFileSync(new URL('../../../config/runtime.json', import.meta.url), 'utf8'));
+/** A reviewed circuit replayed through the same validator as every formalizer (zero model calls): the author result shape. */
+export function replayAuthor(sop, message, world) {
+  const validation = validateQuery({sop, message, lexicon: world.lexicon, repo: world.repo ?? null, session: world.session ?? null});
+  return {ok: validation.ok, status: validation.ok ? 'validated' : 'invalid', sop, validation, unclear: validation.ok ? unclearKind(validation.program) : null,
+    usage: {input_tokens: 0, output_tokens: 0, cost_usd: 0}, runs: [{round: 0, ok: true, duration_ms: 0}], model: 'reviewed-circuit'};
+}
 
 export const VERSION = 'symbolic-vs-llm-m1-v1';
 const sha = value => createHash('sha256').update(value).digest('hex');
@@ -50,7 +62,7 @@ function sourceHashes() {
     for (const entry of fs.readdirSync(absolute).sort()) visit(path.join(relative, entry));
   };
   // Code and author guides only: never evaluation cases, sealed suites or session data.
-  for (const directory of ['lib', 'sop', 'memory', 'reasoning', 'skills/coding-agent-query', 'tools/eval/symbolic-vs-llm']) visit(directory);
+  for (const directory of ['lib', 'sop', 'memory', 'reasoning', 'config/knowledge/formalizer-protocol-v1', 'tools/eval/symbolic-vs-llm']) visit(directory);
   return hashes;
 }
 
@@ -114,47 +126,25 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
   let parseOk = null, responseEmpty = false, brokenModelOutput = false;
   const latency = {parse_ms: 0, retrieval_ms: 0, engine_ms: 0, verify_ms: 0, model_ms: 0};
   try {
-    if (arm === 'B-stepbystep' || arm === 'B-local') {
-      // The product's local strategies on their dedicated slots with the restored stable prefix: LocalLLMStepByStep (the strategy
-      // writes the circuit from the oracle's answers) or LocalLLMDirect (arm B's author loop, same guide and repair rounds).
+    if (ARCHIVED_ARMS.includes(arm)) throw new Error(`arm ${arm} (one-shot circuit authoring) is archived (owner decision 2026-10-02); use B-stepbystep or C`);
+    // settings.replayCircuit (or an `authorBackend` of kind replay): a reviewed circuit through the same validator, zero model calls.
+    const replay = arm !== 'C' ? null : settings.replayCircuit ?? (settings.authorBackend?.kind === 'replay' ? (await settings.authorBackend.generate({})).sop : null);
+    if (replay != null) author = replayAuthor(replay, row.question, world);
+    else if (arm === 'B-stepbystep' || arm === 'C') {
+      // The product's step-by-step strategies: the system asks short questions and writes the circuit from the answers. B-stepbystep on
+      // the local model (its dedicated slot with the restored stable prefix); C on the proxy tier settings.tier (default small).
       // settings.stepMethod: the question protocol of LocalLLMStepByStep (A, or B, C, D and ablations of eval-stepbystep-protocol-v1).
       // settings.strategy: InternalReasoningStepByStep runs on the same arm (its own slot), with settings.reasoningControl (plan | greedy).
-      const name = arm === 'B-local' ? 'LocalLLMDirect' : settings.strategy ?? 'LocalLLMStepByStep', method = settings.stepMethod ?? 'A', control = settings.reasoningControl ?? 'plan';
-      const key = `${name}@${settings.endpoint}#${method}#${control}`;
-      stepStrategies.set(key, stepStrategies.get(key) ?? localStrategy(name, {endpoint: settings.endpoint, alias: settings.model, maxTokens: settings.maxTokens, method, reasoningControl: control}, {timeoutMs: settings.wallMs}));
-      author = name === 'LocalLLMDirect'
-        ? await stepStrategies.get(key).run({message: row.question, lexicon: world.lexicon, maxFixRounds: 2})
-        : await stepStrategies.get(key).run({message: row.question, lexicon: world.lexicon, repo: world.repo, session: world.session, derived: new Set(world.theory.byHead?.keys?.() ?? [])});
+      const name = settings.strategy ?? 'LocalLLMStepByStep', method = settings.stepMethod ?? (arm === 'C' ? 'B' : 'A'), control = settings.reasoningControl ?? 'plan';
+      const tier = arm === 'C' ? settings.tier ?? 'small' : null;
+      const key = `${name}@${tier ? 'tier:' + tier : settings.endpoint}#${method}#${control}`;
+      const local = tier ? {tier, ladder: tierLadder(RUNTIME, tier), maxTokens: settings.maxTokens, method, reasoningControl: control, headers: {'x-llmapiprovider-purpose': 'job:symbolic-vs-llm'}}
+        : {endpoint: settings.endpoint, alias: settings.model, maxTokens: settings.maxTokens, method, reasoningControl: control};
+      stepStrategies.set(key, stepStrategies.get(key) ?? localStrategy(name, local, {timeoutMs: settings.wallMs}));
+      author = await stepStrategies.get(key).run({message: row.question, lexicon: world.lexicon, repo: world.repo, session: world.session, derived: new Set(world.theory?.byHead?.keys?.() ?? [])});
       latency.model_ms = author.steps ? author.steps.reduce((n, s) => n + s.ms, 0) : author.runs.reduce((n, r) => n + (r.duration_ms ?? 0), 0);
     }
-    if (['B', 'B-grammar', 'B-structured', 'C'].includes(arm)) {
-      const deadline = start + settings.wallMs;
-      let remaining = settings.maxTokens;
-      const makeBackend = arm === 'B' ? completionBackend : constrainedBackend;
-      const backend = arm !== 'C' ? makeBackend({endpoint: settings.endpoint, model: settings.model, timeoutMs: settings.wallMs, maxTokens: settings.maxTokens,
-        ...(arm !== 'B' ? {format: arm.slice(2), lexicon: world.lexicon} : {}),
-        extraBody: {chat_template_kwargs: {enable_thinking: false}}, fetchImpl: async (url, init) => {
-          if (Date.now() >= deadline || remaining <= 0) throw new Error('shared question budget exhausted');
-          const body = JSON.parse(init.body); body.max_tokens = remaining;
-          const response = await fetch(url, {...init, body: JSON.stringify(body), signal: AbortSignal.timeout(Math.max(1, deadline - Date.now()))});
-          const copy = await response.clone().json(); remaining -= copy.usage?.completion_tokens ?? 0; return response;
-        }}) : remoteBackend(settings, settings.wallMs);
-      const bounded = {...backend, async generate(args) {
-        if (Date.now() >= deadline || remaining <= 0) return {ok: false, reason: 'shared question budget exhausted', usage: {}, duration_ms: 0};
-        // settings.authorBackend: a zero-model replay of a reviewed circuit (generality probe) through the same admission and execution.
-        const response = await (arm === 'C' ? settings.authorBackend ?? remoteBackend(settings, Math.max(1, deadline - Date.now())) : backend).generate(args);
-        latency.model_ms += response.duration_ms ?? 0;
-        if (arm === 'C') {
-          const used = response.usage?.output_tokens ?? 0;
-          const exceeded = used > remaining;
-          remaining -= used;
-          if (exceeded) return {...response, ok: false, reason: 'subscription output exceeded shared question token budget'};
-        }
-        return response;
-      }};
-      author = await authorQuery({message: row.question, lexicon: world.lexicon, backend: bounded, folder, maxFixRounds: 2});
-    }
-    if (['B', 'B-grammar', 'B-structured', 'C', 'B-stepbystep', 'B-local'].includes(arm)) {
+    if (['C', 'B-stepbystep'].includes(arm)) {
       const deadline = start + settings.wallMs;
       latency.parse_ms = Date.now() - start; tokensIn = author.usage?.input_tokens ?? 0; tokensOut = author.usage?.output_tokens ?? 0; cost = author.usage?.cost_usd ?? 0;
       responseEmpty = author.runs?.at(-1)?.ok === true && !author.sop?.trim();
@@ -209,13 +199,12 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
   } catch (e) { error = e.message; }
   const verdict = score(row.expected, packet, {author, error});
   latency.wall_ms = Date.now() - start;
-  return {id: row.id, family: row.family, facts: row.facts, depth: row.depth, split: row.split, arm, model: ['C', 'D'].includes(arm) ? settings.subscriptionModel : settings.model,
+  return {id: row.id, family: row.family, facts: row.facts, depth: row.depth, split: row.split, arm, model: arm === 'C' ? (author?.model === 'reviewed-circuit' ? 'reviewed-circuit' : `tier:${settings.tier ?? 'small'}`) : arm === 'D' ? settings.subscriptionModel : settings.model,
     parse_ok: parseOk, response_empty: responseEmpty, broken_model_output: brokenModelOutput,
     outcome: verdict.outcome, reasons: verdict.why, memory_sha256: world.theory.digest, gold_answerable: !['unknown', 'incomplete'].includes(row.expected.status), verified, proof_available: Boolean(packet?.used?.length || packet?.proof),
     evidence_does_not_fit: evidence.evidence_does_not_fit, evidence_facts: evidence.facts, evidence_chars: evidence.original_chars,
     latency, tokens_in: tokensIn, tokens_out: tokensOut, cost_usd: arm === 'C' || arm === 'D' ? cost : 0,
     author: author && {status: author.status, reason: author.reason, rounds: author.rounds, sop: author.sop, context_version: author.context_version, retrieval: author.retrieval, usage: author.usage,
-      ...(['B-grammar', 'B-structured'].includes(arm) ? {decoder_output: author.report} : {}),
       ...(arm === 'B-stepbystep' ? {steps: author.steps, plan: author.report, confirmed: author.confirmed, retried: author.retried, problem: author.problem, method: author.method ?? 'A', contrast: author.contrast,
         ...(author.trace ? {trace: author.trace, explanation: author.explanation, defaults: author.defaults, avoided: author.avoided, engine_ms: author.engine_ms} : {})} : {}),
       problems: author.validation?.problems, parsed: Boolean(author.validation?.program)},
@@ -225,7 +214,7 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
 
 export async function main(args = process.argv.slice(2)) {
   if (args.includes('--help')) {
-    console.log('node tools/eval/symbolic-vs-llm/run.mjs --manifest eval/smoke-reasoning/bench/manifest.jsonl --arms A,B --model qwen3-4b-q4 --pilot 20 --out eval/reports/current/symbolic-vs-llm/pilot [--endpoint URL] [--stages 100,300,600]'); return;
+    console.log('node tools/eval/symbolic-vs-llm/run.mjs --manifest eval/smoke-reasoning/bench/manifest.jsonl --arms A,B-stepbystep[,C --tier small] --model qwen3-4b-q4 --pilot 20 --out eval/reports/current/symbolic-vs-llm/pilot [--endpoint URL] [--stages 100,300,600]'); return;
   }
   const manifestFile = path.resolve(opt(args, '--manifest', 'eval/smoke-reasoning/bench/manifest.jsonl'));
   const manifestText = fs.readFileSync(manifestFile, 'utf8');
@@ -236,14 +225,15 @@ export async function main(args = process.argv.slice(2)) {
     const preregistration = JSON.parse(fs.readFileSync(new URL('../../../status/preregistrations/eval-symbolic-vs-llm-v1.json', import.meta.url), 'utf8'));
     if (!preregistration.frozen) throw new Error('sealed execution requires a frozen preregistration');
   }
-  const arms = opt(args, '--arms', 'A,B').split(',');
-  if (arms.some(a => !['A', "A'", 'B', 'B-grammar', 'B-structured', 'B-stepbystep', 'B-local', 'C', 'D'].includes(a))) throw new Error('unknown arm');
-  if (rows.some(r => r.split !== 'dev') && arms.some(a => ['B-grammar', 'B-structured', 'B-stepbystep', 'B-local'].includes(a))) throw new Error('constrained authoring variants are dev-only; the frozen sealed protocol does not include these arms');
+  const arms = opt(args, '--arms', 'A,B-stepbystep').split(',');
+  if (arms.some(a => ARCHIVED_ARMS.includes(a))) throw new Error(`arms ${ARCHIVED_ARMS.join(', ')} (one-shot circuit authoring) are archived (owner decision 2026-10-02); use B-stepbystep or C --tier T`);
+  if (arms.some(a => !['A', "A'", 'B-stepbystep', 'C', 'D'].includes(a))) throw new Error('unknown arm');
+  if (rows.some(r => r.split !== 'dev') && arms.some(a => ['B-stepbystep', 'C'].includes(a))) throw new Error('the step-by-step authoring arms are dev-only until the sealed protocol is re-registered (its arms B and C were one-shot authoring, archived 2026-10-02)');
   const key = opt(args, '--model', 'qwen3-4b-q4');
-  const settings = {model: key, endpoint: opt(args, '--endpoint', null), subscriptionModel: opt(args, '--subscription-model', 'openference/Qwen3.8 27b'), wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096))};
+  const settings = {model: key, endpoint: opt(args, '--endpoint', null), subscriptionModel: opt(args, '--subscription-model', 'openference/Qwen3.8 27b'), tier: opt(args, '--tier', 'small'), wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096))};
   if (/^openrouter\b/.test(settings.subscriptionModel) && !args.includes('--allow-paid')) throw new Error('openrouter is paid per token; pass --allow-paid for an explicitly authorized run');
   const spec = MODELS[key];
-  const managed = !settings.endpoint && arms.some(a => ['A', "A'", 'B', 'B-grammar', 'B-structured', 'B-stepbystep', 'B-local'].includes(a));
+  const managed = !settings.endpoint && arms.some(a => ['A', "A'", 'B-stepbystep'].includes(a));
   if (managed && spec?.kind !== 'local') throw new Error('local model needs explicit existing GGUF specification');
   const alternate = path.resolve('models/qwen3-4b-instruct/gguf/q4_k_m.gguf');
   const gguf = managed ? fs.existsSync(spec.gguf) ? spec.gguf : key === 'qwen3-4b-q4' && fs.existsSync(alternate) ? alternate : spec.gguf : null;

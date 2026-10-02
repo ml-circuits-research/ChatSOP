@@ -1,8 +1,10 @@
 /**
  * The system under test of the books evaluation: the product chat turn (server/agent.mjs) over the default chat base memory, with the
- * request parser of the strategy LocalLLMStepByStep (method B) on a local Qwen3-4B-Instruct Q4_K_M llama-server (lib/local-llm: prompt
- * cache on, dedicated slots, stable prefixes prewarmed). One session, one fresh conversation entry per problem: the facts a problem
- * states are turn evidence of that entry only (caller-owned context), never written to the memory.
+ * request parser of the step-by-step strategy LocalLLMStepByStep (method B; or InternalReasoningStepByStep) whose questions go to one
+ * proxy tier (`tier`, like with like: every tier answers the same questions), to the product's tier ladder (`ladder: true`), or to a
+ * local Qwen3-4B-Instruct Q4_K_M llama-server (lib/local-llm: prompt cache on, dedicated slots, stable prefixes prewarmed). One-shot
+ * formalization (LLMDirect) was archived on 2026-10-02 (probably_obsolete/one-shot-formalization/). One session, one fresh conversation
+ * entry per problem: the facts a problem states are turn evidence of that entry only (caller-owned context), never written to the memory.
  */
 import os from 'node:os';
 import path from 'node:path';
@@ -12,7 +14,7 @@ import {ChatData} from '../../../lib/chat-data/index.mjs';
 import {BaseMemories, BASE_NAME} from '../../../lib/chat-data/memories.mjs';
 import {Sessions} from '../../../lib/chat-data/sessions.mjs';
 import {TheoryCache} from '../../../reasoning/slice/index.mjs';
-import {createQueryParser, queryParserSettings, remoteDirectEntry} from '../../../server/query-parser.mjs';
+import {createQueryParser, queryParserSettings} from '../../../server/query-parser.mjs';
 import {DEFAULT_LOCAL} from '../../../lib/formalize/strategies.mjs';
 import fs from 'node:fs';
 import {localServer, localChat} from '../../../lib/local-llm/index.mjs';
@@ -24,7 +26,7 @@ export const LOCAL = {...DEFAULT_LOCAL, gguf: MODEL_GGUF, alias: 'qwen3-4b-instr
 /** The default chat base memory (config chatData.defaultBase, world-v1 over core-en and commonsense-v1) in a private session; `endpoint` reuses a running llama-server. */
 // `sessionId` lets several turn systems run side by side (one session each); `parserOptions` adds query-parser settings (for example
 // `reportErrors: false` for a harness that reports by itself) and `headers` tag the proxy calls of a tier (purpose, no fallback).
-export async function openChatTurn({base = null, endpoint = null, wallMs = 300_000, strategy = 'LocalLLMStepByStep', model = null, tier = null, sessionId = null, parserOptions = {}, headers = null, replay = null} = {}) {
+export async function openChatTurn({base = null, endpoint = null, wallMs = 300_000, strategy = 'LocalLLMStepByStep', tier = null, ladder = false, sessionId = null, parserOptions = {}, headers = null, replay = null} = {}) {
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'runtime.json'), 'utf8'));
   const chatData = ChatData.open(config, {}, ROOT);
   const memories = new BaseMemories({chatData, memory: config.memory});
@@ -37,13 +39,15 @@ export async function openChatTurn({base = null, endpoint = null, wallMs = 300_0
   const lexicon = sessions.lexicon(id);
   const store = new SessionStore({repo: sessions.repository(id), lexicon, config: {...config, policy: {...(config.policy ?? {}), reinforce: false}}, root: path.join(sessions.dir(id), 'agent'),
     circuitRules: () => theories.get([...sessions.baseCircuits(id), ...sessions.circuits(id)]).chatRules()});
-  // `tier`: the step-by-step questions go to a proxy tier (`tiny`, `small`, ...) instead of a llama-server endpoint.
-  const local = tier ? {method: 'B', tier, maxTokens: LOCAL.maxTokens, thinking: false, ...(headers ? {headers} : {}), ...(replay ? {replay} : {})} : {...LOCAL, ...(endpoint ? {endpoint} : {})};
-  const settings = queryParserSettings({queryParser: {...(config.queryParser ?? {}), ...parserOptions, strategy, local, cacheEntries: 0, timeoutSeconds: wallMs / 1000,
-    ...(model ? {models: [model]} : {})}});
+  // `tier`: the step-by-step questions go to one proxy tier (`tiny`, `small`, `good`, ...) instead of a llama-server endpoint; `ladder`:
+  // to the product's configured ladder (queryParser.local.ladder), escalating per question.
+  const tiered = tier || ladder;
+  const local = tiered ? {method: 'B', tier: tier ?? config.queryParser?.local?.tier ?? 'tiny', ladder: ladder ? config.queryParser?.local?.ladder ?? null : tierRung(config, tier),
+    maxTokens: LOCAL.maxTokens, thinking: false, ...(headers ? {headers} : {}), ...(replay ? {replay} : {})} : {...LOCAL, ...(endpoint ? {endpoint} : {})};
+  const settings = queryParserSettings({queryParser: {...(config.queryParser ?? {}), ...parserOptions, strategy, local, cacheEntries: 0, timeoutSeconds: wallMs / 1000}});
   const parser = createQueryParser({settings});
-  // LLMDirect calls the chain of queryParser.models through the proxy and needs no local llama-server.
-  const remote = Boolean(tier) || (settings.strategy === 'LLMDirect' && Boolean(remoteDirectEntry(settings)));
+  // A proxy tier needs no local llama-server (LLMDirect was archived on 2026-10-02).
+  const remote = Boolean(tiered);
   const server = remote ? null : localServer(local);
   if (!remote && !endpoint && await server.healthy()) throw new Error(`port ${local.port} already answers (another llama-server); use --endpoint to reuse it deliberately`);
   let n = 0;
@@ -81,7 +85,7 @@ export async function openChatTurn({base = null, endpoint = null, wallMs = 300_0
     /** The baseline: the same model answers directly (short working, then a final line), on the direct slot of the same server. */
     async direct(message, {maxTokens = 1024} = {}) {
       // On a proxy tier the baseline asks the same tier (same model as the steps arm), tagged like the steps calls.
-      if (tier) return localChat({endpoint: PROXY_ENDPOINT, model: tier, maxTokens, timeoutMs: wallMs, headers: headers ?? {}, extraBody: {chat_template_kwargs: {enable_thinking: false}},
+      if (tiered) return localChat({endpoint: PROXY_ENDPOINT, model: local.tier, maxTokens, timeoutMs: wallMs, headers: headers ?? {}, extraBody: {chat_template_kwargs: {enable_thinking: false}},
         messages: [{role: 'system', content: DIRECT_SYSTEM}, {role: 'user', content: message}]});
       await server.ensure();
       const turn = await server.begin('direct');
@@ -93,6 +97,15 @@ export async function openChatTurn({base = null, endpoint = null, wallMs = 300_0
     },
     async close() { fs.rmSync(sessions.dir(id), {recursive: true, force: true}); await parser.stop(); await server?.stop(); },
   };
+}
+
+/**
+ * The single-rung ladder of one tier, with the request settings the product ladder gives that tier (for example reasoning off on
+ * `good`), so a tier answers exactly as it would inside the product ladder; null when the product ladder does not name it.
+ */
+export function tierRung(config, tier) {
+  const rung = (config.queryParser?.local?.ladder ?? []).find(r => (typeof r === 'string' ? r : r?.tier) === tier);
+  return rung && typeof rung === 'object' ? [rung] : null;
 }
 
 /** LLMAPIProvider (OpenAI-compatible); a tier name is the model. */

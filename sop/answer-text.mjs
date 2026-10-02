@@ -21,13 +21,20 @@ const CONNECTIVES = new Set(['of', 'the', 'and', 'de', 'la', 'von', 'van', 'in',
 const ident = value => typeof value === 'string' && /^[a-z][a-z0-9_]*$/.test(value);
 const capital = text => text.charAt(0).toUpperCase() + text.slice(1);
 
+/** The reasoning modes a model query may ask on the product path (DS006 R1), answered from their own packet fields. */
+const WORK_MODES = new Set(['why_not', 'abduce']);
+const workPacket = packet => WORK_MODES.has(packet?.query?.mode) && (Array.isArray(packet.missing) || Array.isArray(packet.explanations));
+/** An explanation (mode explain) of the chat path: the packet names the rules it used (`rules_used`), so the renderer covers it. */
+const explainPacket = packet => packet?.query?.mode === 'explain' && Array.isArray(packet.rules_used) && Array.isArray(packet.used);
+
 /** Whether `renderAnswer` covers this packet. */
 export function renderable(packet) {
   if (!packet || packet.status === 'clarify') return Boolean(packet?.text);
+  if (workPacket(packet)) return ['supported', 'refuted', 'both', 'unknown', 'hypotheses'].includes(packet.status);
   const knowledge = Array.isArray(packet.rows) || packet.count !== undefined || packet.at_least !== undefined || packet.bound === 'at_least' || Array.isArray(packet.used);
   return Boolean(COVERED.has(packet.status) && (knowledge || packet.query && Array.isArray(packet.answers))
     && !['every', 'explain', 'constraint'].includes(packet.kind)
-    && !['every', 'explain'].includes(packet.query?.mode)
+    && (packet.query?.mode !== 'every' && (packet.query?.mode !== 'explain' || explainPacket(packet)))
     && !packet.patterns && !packet.mappings && !packet.explanations && !packet.plan && !packet.candidates && !packet.whatif && packet.objective === undefined);
 }
 
@@ -94,6 +101,7 @@ function originKey(proof) {
 function factText(atom, label, lexicon) {
   const [subject, ...others] = atom.a;
   const predicate = lexicon?.predicates?.[atom.p];
+  if (!atom.a.length) return line(atom.neg ? 'proposition_not_holds' : 'proposition_holds', {relation: predicate?.labels?.en ?? atom.p.split('_').join(' ')});
   if (!others.length && !(predicate?.lexemes ?? []).some(l => l.language === 'en' && !l.converse && l.pos !== 'noun')) {
     const name = predicate?.labels?.en ?? atom.p.split('_').join(' ');
     return line(atom.neg ? 'relation_not_holds' : 'relation_holds', {relation: name, subject: label(subject)});
@@ -135,6 +143,49 @@ function justification(packet, shown, label, lexicon) {
   }
   if (roots.length > ROOTS) lines.push(line('more_facts', {count: roots.length - ROOTS}));
   return lines;
+}
+
+/** A ground or open atom written in the oracle's text form (`not p a "b" 3`): structure only, the SOP term syntax. */
+function textAtom(text) {
+  const tokens = String(text).match(/"(?:\\.|[^"\\])*"|\S+/g) ?? [];
+  const neg = tokens[0] === 'not';
+  const [p, ...terms] = neg ? tokens.slice(1) : tokens;
+  return {p, a: terms.map(t => t.startsWith('"') ? JSON.parse(t) : /^-?\d+(?:\.\d+)?$/.test(t) ? Number(t) : t), neg};
+}
+
+const orList = items => items.length < 2 ? items[0] ?? '' : line('list_or', {first: items.slice(0, -1).join(line('list_separator')), last: items.at(-1)});
+
+/** The rules an explanation used (`rules_used`, DS006 "Result packet"): one line each, with its conditions and its conclusion. */
+function rulesUsed(packet, label, lexicon) {
+  const part = c => c.atom ? factText(c.atom, label, lexicon) : c.text;
+  return (packet.rules_used ?? []).map(r => {
+    const slots = {rule: r.id, conditions: joinPremises((r.conditions ?? []).map(part).concat(r.conditions?.length ? [] : [line('derived_support')])), conclusion: factText(r.conclusion, label, lexicon)};
+    return r.exceptions?.length ? line('default_used', {...slots, exceptions: orList(r.exceptions.map(part))}) : line('rule_used', slots);
+  });
+}
+
+/**
+ * why_not and abduce (DS006 R1, the oracle's packet fields): why_not names the minimal sets of missing base facts that would make the claim
+ * follow and the facts that block it; abduce names the minimal consistent explanations and the candidates rejected because they contradict
+ * an admitted fact.
+ */
+function workAnswer(packet, label, lexicon) {
+  const facts = atoms => joinPremises(atoms.map(text => factText(textAtom(text), label, lexicon)));
+  const lines = [];
+  if (packet.query.mode === 'why_not') {
+    if (packet.status === 'supported' || packet.status === 'both') lines.push(line('why_not_holds'));
+    else if (packet.missing.length) for (const set of packet.missing.slice(0, ROOTS)) lines.push(line('why_not_missing', {facts: facts(set)}));
+    else lines.push(line('why_not_nothing'));
+    for (const b of (packet.blockers ?? []).slice(0, ROOTS)) lines.push(line('why_not_blocked', {fact: factText(textAtom(b.atom), label, lexicon)}));
+  } else {
+    const explanations = packet.explanations ?? [];
+    if (explanations.length === 1 && !explanations[0].atoms.length) lines.push(line('abduce_already'));
+    else if (explanations.length) for (const e of explanations.slice(0, ROOTS)) lines.push(line('abduce_explanation', {facts: facts(e.atoms)}));
+    else lines.push(line(packet.inconsistent?.length ? 'abduce_none_consistent' : 'abduce_none'));
+    for (const e of (packet.inconsistent ?? []).slice(0, ROOTS)) lines.push(line('abduce_inconsistent', {facts: facts(e.atoms), contradicts: joinList(e.contradicts.map(text => factText(textAtom(text), label, lexicon)))}));
+  }
+  if (packet.complete === false) lines.push(line('not_exhaustive'));
+  return lines.join('\n');
 }
 
 /** Remove a class that another listed class already implies (the answers "person" and "entity" give only "person"). */
@@ -244,6 +295,7 @@ function wireAnswer(packet, label, lexicon) {
   }
   if (supported || packet.status === 'refuted') {
     if (Array.isArray(packet.proof)) lines.push(...justification(packet, [], label, lexicon));
+    if (mode === 'explain') lines.push(...rulesUsed(packet, label, lexicon));
     lines.push(...wireSources(packet));
   }
   return lines.join('\n');
@@ -259,6 +311,7 @@ export function renderAnswer(packet, {lexicon = null} = {}) {
   if (!renderable(packet)) return null;
   if (packet.status === 'clarify') return packet.text;
   const label = labeller(packet, lexicon);
+  if (workPacket(packet)) return workAnswer(packet, label, lexicon);
   if (Array.isArray(packet.rows) || packet.count !== undefined || packet.at_least !== undefined || packet.bound === 'at_least' || (Array.isArray(packet.used) && !Array.isArray(packet.answers))) return wireAnswer(packet, label, lexicon);
   const lines = [];
   const incomplete = packet.complete === false;
@@ -287,6 +340,7 @@ export function renderAnswer(packet, {lexicon = null} = {}) {
     else if (packet.status === 'mixed_temporal') lines.push(line('mixed_temporal'));
     else lines.push(line('yes'));
     if (supported || packet.status === 'refuted') lines.push(...justification(packet, [], label, lexicon));
+    if ((supported || packet.status === 'refuted') && explainPacket(packet)) lines.push(...rulesUsed(packet, label, lexicon));
     if ((supported || packet.status === 'refuted') && packet.origins && Array.isArray(packet.used)) lines.push(...wireSources(packet));
     if (incomplete && packet.status !== 'incomplete' && packet.status !== 'unknown' && packet.status !== 'refuted' && !supported) lines.push(line('not_exhaustive'));
     return lines.join('\n');

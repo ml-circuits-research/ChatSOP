@@ -8,7 +8,6 @@ import {ChatData} from '../lib/chat-data/index.mjs';
 import {BaseMemories} from '../lib/chat-data/memories.mjs';
 import {Ingestions, chunkDocument, quoteProblems, memoryConflicts, withoutWires, normalizeText, checkDocuments} from '../lib/ingest/index.mjs';
 import {procedureLibrary, matchProcedures, procedureCircuit} from '../lib/query-author/procedures.mjs';
-import {buildContext} from '../lib/query-author/context.mjs';
 import {runtimeConfig} from './product-helpers.mjs';
 import {tempDir} from './helpers.mjs';
 
@@ -127,7 +126,7 @@ test('ingest: bad quotes are held back, validated chunks are stored with provena
   assert.equal(again.status, 'nothing_new');
 });
 
-test('procedure library: a stored procedure bundle is matched by its question form and offered to the query author', t => {
+test('procedure library: a stored procedure bundle is matched by its question form', t => {
   const bm = library(t);
   const memory = bm.create({name: 'hr'});
   bm.addKnowledge(memory.id, {circuits: [{name: 'vocab', text: VOCAB + '@d0_f1 fact\n  holds works_in bob office\n  source "test"\n'}], approvedBy: 'tester'});
@@ -138,10 +137,6 @@ test('procedure library: a stored procedure bundle is matched by its question fo
   assert.deepEqual(lib.procedures.map(p => [p.id, p.heads]), [['proc_remote', ['may_work_remotely']]]);
   assert.deepEqual(matchProcedures('May Bob work remotely from home?', lib).map(m => m.id), ['proc_remote']);
   assert.deepEqual(matchProcedures('How many people work in the office?', lib), []);
-  const context = buildContext({message: 'May Bob work remotely?', lexicon: bm.lexicon(memory.id), circuits});
-  assert.deepEqual(context.retrieval.procedures.map(p => p.id), ['proc_remote']);
-  assert.ok(context.retrieval.predicates.includes('may_work_remotely'));
-  assert.match(context.files.find(f => f.path === 'input/candidates.md').text, /## Procedures in memory[\s\S]*proc_remote/);
   assert.throws(() => procedureCircuit({id: 'Bad', description: 'x', definitions: DRAFTS.remote}), /lowercase/);
 });
 

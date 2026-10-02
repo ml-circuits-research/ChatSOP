@@ -11,11 +11,11 @@ test('status: strategies, base memories, engines and caches; listed in the capab
   const r = await s.user('/v1/status');
   assert.equal(r.status, 200, JSON.stringify(r.body));
   assert.equal(r.body.object, 'status');
-  assert.equal(r.body.formalization.default, 'LLMDirect');
-  assert.deepEqual(r.body.formalization.strategies.map(x => x.id), ['LLMDirect', 'LocalLLMStepByStep', 'InternalReasoningStepByStep']);
-  const coding = r.body.formalization.strategies[0];
-  assert.equal(coding.available, true);
-  assert.deepEqual(coding.models.map(m => m.id), ['stub/model']);
+  assert.equal(r.body.formalization.default, 'LocalLLMStepByStep');
+  assert.deepEqual(r.body.formalization.strategies.map(x => x.id), ['LocalLLMStepByStep', 'InternalReasoningStepByStep'], 'the one-shot LLMDirect is archived');
+  const steps = r.body.formalization.strategies[0];
+  assert.equal(steps.available, true);
+  assert.deepEqual(steps.models.map(m => m.id), ['stub/model']);
   assert.ok(r.body.formalization.strategies.slice(1).every(x => x.available === false && x.reason), 'a strategy the server does not run says why');
   assert.ok(r.body.memories.some(m => m.id === 'default'));
   assert.ok(r.body.reasoning.engines.some(e => e.id === 'js-reference' && e.available));
@@ -28,30 +28,31 @@ test('status: strategies, base memories, engines and caches; listed in the capab
 test('status: a session strategy the server cannot run is refused with parse_unavailable, never substituted', async t => {
   const s = await productServer(t);
   await s.admin('/v1/memories', 'POST', {name: 'Family', id: 'family', circuits: [{name: 'family', text: FAMILY}]});
-  const id = (await s.user('/v1/sessions', 'POST', {base: 'family', settings: {formalizer: 'LocalLLMStepByStep'}})).body.id;
+  const id = (await s.user('/v1/sessions', 'POST', {base: 'family', settings: {formalizer: 'InternalReasoningStepByStep'}})).body.id;
   const chat = () => s.user('/v1/chat/completions', 'POST', {model: 'chatsop-local', messages: [{role: 'user', content: 'Does Ana like Alpha Lab?'}], session_id: id});
   const refused = await chat();
   assert.equal(refused.status, 503);
   assert.equal(refused.body.error.code, 'parse_unavailable');
-  assert.match(refused.body.error.message, /LocalLLMStepByStep/);
+  assert.match(refused.body.error.message, /InternalReasoningStepByStep/);
   assert.equal((await s.user(`/v1/sessions/${id}/settings`, 'POST', {formalizer: 'Nope'})).status, 400);
   const set = await s.user(`/v1/sessions/${id}/settings`, 'POST', {formalizer: 'CodingAgent'});
-  assert.equal(set.body.settings.formalizer, 'LLMDirect', 'the retired name CodingAgent is stored as LLMDirect');
+  assert.equal(set.body.settings.formalizer, 'LLMDirect', 'the retired name CodingAgent is stored as the archived one-shot name');
   const ok = await chat();
-  assert.equal(ok.status, 200, JSON.stringify(ok.body));
+  assert.equal(ok.status, 200, 'an archived one-shot name runs the default step-by-step strategy: ' + JSON.stringify(ok.body));
   assert.equal(typeof ok.body.chatSop.turn_ms, 'number');
   assert.equal(ok.body.chatSop.session.formalizer, 'LLMDirect');
   assert.ok('verification' in ok.body.chatSop && 'session_circuits' in ok.body.chatSop && 'strategy' in ok.body.chatSop);
 });
 
 test('status: a request parser with several strategies receives the chosen one and reports its own list', async () => {
-  const multi = {strategies: async () => [{id: 'LLMDirect', available: true}, {id: 'LocalLLMStepByStep', available: true}]};
-  assert.deepEqual(strategyRequest(multi, 'LocalLLMStepByStep'), {strategy: 'LocalLLMStepByStep'});
-  assert.deepEqual(strategyRequest(multi, 'CodingAgent'), {strategy: 'LLMDirect'}, 'a retired name is read as LLMDirect');
-  assert.deepEqual((await formalizationStrategies(multi)).map(x => x.id), ['LLMDirect', 'LocalLLMStepByStep']);
+  const multi = {strategies: async () => [{id: 'LocalLLMStepByStep', available: true}, {id: 'InternalReasoningStepByStep', available: true}]};
+  assert.deepEqual(strategyRequest(multi, 'InternalReasoningStepByStep'), {strategy: 'InternalReasoningStepByStep'});
+  assert.deepEqual(strategyRequest(multi, 'CodingAgent'), {strategy: 'CodingAgent'}, 'the full parser resolves an archived name itself and notes it');
+  assert.deepEqual((await formalizationStrategies(multi)).map(x => x.id), ['LocalLLMStepByStep', 'InternalReasoningStepByStep']);
   assert.deepEqual(strategyRequest(stubQueryParser(), null), {});
-  assert.deepEqual(strategyRequest(stubQueryParser(), 'LLMDirect'), {});
-  assert.throws(() => strategyRequest(stubQueryParser(), 'LocalLLMStepByStep'), e => e.code === 'parse_unavailable' && e.status === 503);
+  assert.deepEqual(strategyRequest(stubQueryParser(), 'LLMDirect'), {}, 'an archived name runs the default');
+  assert.deepEqual(strategyRequest(stubQueryParser(), 'LocalLLMStepByStep'), {});
+  assert.throws(() => strategyRequest(stubQueryParser(), 'InternalReasoningStepByStep'), e => e.code === 'parse_unavailable' && e.status === 503);
 });
 
 test('chat page: the strategy selector, the status card and the pipeline trace; no stale controls', () => {

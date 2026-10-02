@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /**
  * eval-internal-reasoning-stepbystep-v1 (status/preregistrations/eval-internal-reasoning-stepbystep-v1.json): InternalReasoningStepByStep
- * against LocalLLMStepByStep method B (unchanged) and the remote LLMDirect arm (a model behind the proxy), on the rows of
+ * against LocalLLMStepByStep method B (unchanged) and the same method B with its questions answered by a larger proxy tier, on the rows of
  * eval-stepbystep-protocol-v1 (tools/eval/stepbystep-protocol/run.mjs `protocolRows`: known forms, held-out forms, compositions, natural
  * questions) through the same harness (`runArm`, `prepare`, `rescore`). Arms:
  *   IR         InternalReasoningStepByStep, the planner decides each question (slot `reasoning`)
  *   IR-greedy  the same protocol, the askable question of lowest priority (ablation)
  *   B          LocalLLMStepByStep method B (slot `steps`)
- *   GLM        LLMDirect circuit author on --glm-model, default openference/Qwen3.8 27b (arm C of the harness; the name GLM is kept for the record files)
+ *   GLM        LocalLLMStepByStep method B with its questions answered by the proxy tier --tier (default small; arm C of the harness; the
+ *              name GLM is kept for the record files, whose earlier rows were one-shot LLMDirect, archived on 2026-10-02)
  *   node tools/eval/internal-reasoning/run.mjs --arms IR,B --endpoint http://127.0.0.1:19621/v1 --out eval/reports/current/internal-reasoning/stage1 \
  *     [--pool measured|tuning] [--levels a,b,c,n] [--per 3] [--sample N --seed S] [--ids x,y] [--limit N]
  * One llama-server for both local arms (slots direct, steps, reasoning; tools/local-llm/serve.mjs).
@@ -30,7 +31,7 @@ export const ARMS = Object.freeze({
   IR: {arm: 'B-stepbystep', strategy: 'InternalReasoningStepByStep', reasoningControl: 'plan'},
   'IR-greedy': {arm: 'B-stepbystep', strategy: 'InternalReasoningStepByStep', reasoningControl: 'greedy'},
   B: {arm: 'B-stepbystep', strategy: 'LocalLLMStepByStep', stepMethod: 'B'},
-  GLM: {arm: 'C'},
+  GLM: {arm: 'C', strategy: 'LocalLLMStepByStep', stepMethod: 'B'},
 });
 
 /** Digest of the code an arm runs (a changed arm is a new run, never mixed into the same records). */
@@ -67,11 +68,11 @@ export async function main(args = process.argv.slice(2)) {
   const identity = {protocol: `${protocol.id}@${protocol.version}`, ir_sha: code.IR, b_sha: code.B, model: opt(args, '--model', 'qwen3-4b-instruct'), endpoint, levels, per, pool, rows: rows.length, started: new Date().toISOString()};
   for (const arm of arms) {
     const run = path.join(out, `run-${arm}.json`);
-    const key = arm.startsWith('IR') ? 'ir_sha' : arm === 'B' ? 'b_sha' : null;
+    const key = arm.startsWith('IR') ? 'ir_sha' : ['B', 'GLM'].includes(arm) ? 'b_sha' : null;
     if (key && fs.existsSync(run) && JSON.parse(fs.readFileSync(run, 'utf8'))[key] !== identity[key] && !args.includes('--allow-changed')) throw new Error(`${arm}: the code changed since this run started; use a fresh --out`);
     if (!fs.existsSync(run)) fs.writeFileSync(run, JSON.stringify({...identity, arm}, null, 2) + '\n');
   }
-  const settings = {model: identity.model, endpoint, wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096)), subscriptionModel: opt(args, '--glm-model', 'openference/Qwen3.8 27b')};
+  const settings = {model: identity.model, endpoint, wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096)), subscriptionModel: opt(args, '--glm-model', 'openference/Qwen3.8 27b'), tier: opt(args, '--tier', 'small')};
   let world1 = null;
   const shared = () => {
     if (!world1) {

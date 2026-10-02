@@ -1,18 +1,21 @@
 #!/usr/bin/env node
 /**
  * End-to-end evaluation on the owner's problem books (docs/runtime.html "Evaluating on the owner's problem books"):
- *   node tools/eval/books/run.mjs --n 100 [--seed s] [--books math,science,...] [--areas text,...] [--arms steps,direct[,remote-direct]]
- *     [--include-seen] [--ids a,b] [--resume dir] [--endpoint http://127.0.0.1:PORT/v1] [--tier tiny|small] [--concurrency N]
+ *   node tools/eval/books/run.mjs --n 100 [--seed s] [--books math,science,...] [--areas text,...] [--arms steps,direct[,remote-direct,ceiling]]
+ *     [--include-seen] [--ids a,b] [--resume dir] [--endpoint http://127.0.0.1:PORT/v1] [--tier tiny|small|medium|good] [--concurrency N]
  *     [--workers N] [--purpose job:books-eval] [--author-tier good]
  * --items-from <run dir> takes the problems of an earlier run; --replay (arm ceiling) executes the stored circuit of a problem
  * (tools/eval/books/gold-circuits.mjs) instead of asking the tier again.
- * Arm ceiling: LLMDirect on --author-tier (default good) in one process with --concurrency N: the reasoning layers with good circuits.
+ * Arm ceiling: the same step-by-step questions answered by --author-tier (default good), in one process with --concurrency N: the
+ * reasoning layers with the circuits a strong tier's answers assemble (owner 2026-10-02: like with like; LLMDirect is archived).
  * With --tier both local arms go through LLMAPIProvider: the step-by-step questions and the direct baseline call the same tier, tagged
  * with --purpose (default job:books-eval) and the run id, with the tier's fallback off (x-llmapiprovider-no-fallback), so both arms use
  * the same model; --workers N runs the steps arm in N independent chat systems (one session each).
- * Arms: steps = the product chat turn with LocalLLMStepByStep (method B) and Qwen3-4B-Instruct Q4_K_M, the problem text as the user
- * message, the chat default base memory; direct = the same model answering the problem directly (baseline); remote-direct = the same chat
- * turn with LLMDirect on the remote default model (queryParser.models: the openference Qwen3.8 27b through LLMAPIProvider; one completion plus validator repairs), only when asked. Items already run are not repeated unless --include-seen.
+ * Arms: steps = the product chat turn with LocalLLMStepByStep (method B) on --tier (or Qwen3-4B-Instruct Q4_K_M on a llama-server), the
+ * problem text as the user message, the chat default base memory; direct = the same model answering the problem directly (baseline);
+ * coding-agent = the steps arm with the questions answered by tier small; remote-direct = the steps arm on the product's tier ladder
+ * (queryParser.local.ladder, escalating per question); ceiling = the steps arm on --author-tier. The last three keep their record names
+ * (earlier runs used one-shot LLMDirect under them) and run only when asked. Items already run are not repeated unless --include-seen.
  * Writes eval/reports/current/books-eval/run-<timestamp>/records.jsonl, scores deterministically (tools/eval/books/score.mjs) and
  * prepares the judge batches; the report is tools/eval/books/report.mjs. One llama-server at a time; stops what it started.
  */
@@ -91,12 +94,13 @@ export async function main(args = process.argv.slice(2)) {
   console.error(`records: ${path.relative(ROOT, file)}\nnext: node tools/eval/books/score.mjs --run ${path.relative(ROOT, out)}`);
 }
 
-/** The arms that run the chat turn with a remote formalizer (no local model): the strategy and its default model. */
-// No omp (owner order 2026-10-02): both arms call the proxy directly (LLMDirect). 'coding-agent' keeps its record name and is pinned to the 27B;
-// 'remote-direct' uses the chain queryParser.models of the runtime configuration.
-// 'ceiling' (reasoning cycle, owner 2026-10-02): LLMDirect on a strong tier (--author-tier, default good) writes the circuit with the
-// validator's repair rounds; the engines and the memory then answer. It measures what the reasoning layers reach with a good formalization.
-export const REMOTE_ARMS = Object.freeze({'coding-agent': {strategy: 'LLMDirect', model: 'openference/Qwen3.8 27b'}, 'remote-direct': {strategy: 'LLMDirect', model: null}, ceiling: {strategy: 'LLMDirect', model: 'tier'}});
+/**
+ * The arms that run the chat turn with the step-by-step questions answered by a larger proxy tier (owner decision 2026-10-02: every tier
+ * answers the SAME questions; one-shot LLMDirect is archived in probably_obsolete/one-shot-formalization/). The record names are kept.
+ * 'coding-agent': tier small; 'remote-direct': the product's ladder (queryParser.local.ladder); 'ceiling' (reasoning cycle): --author-tier
+ * (default good), whose circuits measure what the reasoning layers reach with a strong formalization.
+ */
+export const REMOTE_ARMS = Object.freeze({'coding-agent': {tier: 'small'}, 'remote-direct': {ladder: true}, ceiling: {tier: 'author'}});
 
 /** The steps arm on a proxy tier in N independent chat systems (one private session each, so no turn sees another's session layer). */
 async function parallelSteps(sample, done, append, args, out, {tier, headers}) {
@@ -118,12 +122,11 @@ async function parallelSteps(sample, done, append, args, out, {tier, headers}) {
 
 /** A remote arm: the same chat turn with the arm's strategy; only when asked. */
 async function remoteArm(arm, sample, done, append, args, out) {
-  const {strategy, model: fixed} = REMOTE_ARMS[arm];
-  // A tier entry carries the run's tags and no fallback, so every circuit of the arm comes from the named tier.
-  const tier = opt(args, '--author-tier', 'good');
-  // The strong tiers are reasoning models behind OpenRouter: low reasoning effort and room for the reasoning before the circuit.
-  const model = fixed === 'tier' ? {provider: 'openference', model: tier, tier, maxTokens: 16000, timeoutSeconds: 300, extraBody: {reasoning: {effort: 'low'}}, headers: {'x-llmapiprovider-purpose': opt(args, '--purpose', 'job:books-eval'), 'x-llmapiprovider-run': path.basename(out), 'x-llmapiprovider-no-fallback': '1'}} : fixed;
-  const system = await openChatTurn({strategy, model});
+  const spec = REMOTE_ARMS[arm];
+  // The run's tags and no fallback, so every answer of the arm comes from the named tier (the ladder's own tiers for remote-direct).
+  const tier = spec.tier === 'author' ? opt(args, '--author-tier', 'good') : spec.tier ?? null;
+  const headers = {'x-llmapiprovider-purpose': opt(args, '--purpose', 'job:books-eval'), 'x-llmapiprovider-run': path.basename(out), 'x-llmapiprovider-no-fallback': '1'};
+  const system = await openChatTurn({tier, ladder: Boolean(spec.ladder), headers, sessionId: `books-eval-${process.pid}-${arm}`});
   // `--concurrency N` (default 2): remote turns wait on the provider, so a few run at once (the proxy enforces the plan's rate limits).
   const width = Math.max(1, Number(opt(args, '--concurrency', 2)));
   const queue = sample.filter(item => !done.has(`${arm}/${item.id}`));

@@ -82,7 +82,7 @@
     ],
     "instructions": "audit.md",
     "severity": "medium",
-    "budgetTokens": 6000
+    "budgetTokens": 3000
   },
   "escalation": {
     "nextModel": false

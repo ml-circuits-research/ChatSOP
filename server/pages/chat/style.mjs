@@ -118,6 +118,17 @@ dialog .row input[type=text],dialog .row select{flex:1 1 180px;min-width:0}
 dialog textarea{width:100%;min-height:128px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px}
 dialog .actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:16px}
 dialog dl{display:grid;grid-template-columns:max-content 1fr;gap:2px 16px;margin:8px 0;font-size:13px}dialog dt{color:var(--muted)}dialog dd{margin:0;overflow-wrap:anywhere}
+/* answer feedback: thumbs up and down under an answered turn, and the cause dialog */
+.fb{display:flex;gap:4px;align-items:center;margin-top:4px;white-space:normal}
+.fb button{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;padding:4px;border-radius:8px;background:transparent;border:1px solid transparent;color:var(--muted);cursor:pointer}
+.fb button:hover{border-color:var(--line);color:var(--text)}
+.fb button[aria-pressed=true]{border-color:var(--accent);color:var(--accent);background:var(--soft)}
+.fb svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fb .fb-note{font-size:12px;color:var(--muted)}
+#fb-dialog{width:min(480px,calc(100vw - 24px))}
+#fb-dialog fieldset label{display:flex;gap:8px;align-items:flex-start;margin:8px 0;font-size:14px;font-weight:400;color:var(--text)}
+#fb-dialog fieldset input{margin-top:3px;flex:none}
+#fb-dialog textarea{min-height:72px;font-family:inherit;font-size:14px}
 
 @media (max-width:760px){
  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
