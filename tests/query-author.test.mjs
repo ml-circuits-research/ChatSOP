@@ -88,7 +88,7 @@ test('the guide examples pass the validator (the authoring guide is executable)'
   args subject:entity location:entity
 `}]);
   for (const {session, sop} of examples) {
-    const r = validateQuery({sop, message: 'Does Maria work at Acme? Ana Cluj France 80', lexicon: session ? exampleLexicon : null});
+    const r = validateQuery({sop, message: 'Does Maria work at Acme? Ana Cluj France 80 Zork Lisbon', lexicon: session ? exampleLexicon : null});
     assert.deepEqual(r.problems, [], sop);
   }
 });
@@ -108,7 +108,9 @@ test('validator, id mode: only queries; predicate ids of the memory, declared ro
   const clash = validateQuery({sop: Q('works_at', 'ana', 'maria'), message: 'x', lexicon: lex, hints: new Set(['ana', 'maria'])});
   assert.equal(clash.problems[0].code, 'class_mismatch');
   const asserted = validateQuery({sop: '@s stated\n  relation "works_at"\n  role subject "Ana"\n  role object "Acme"\n  polarity affirmed\n  certainty asserted\n', message: 'Ana works at Acme', lexicon: lex});
-  assert.ok(asserted.problems.some(x => x.code === 'fact_not_allowed'));
+  assert.equal(asserted.ok, true, 'a statement of the message is turn-local evidence (stated, certainty asserted)');
+  const invented = validateQuery({sop: '@s stated\n  relation "works_at"\n  role subject "Ana"\n  role object "Acme"\n  polarity affirmed\n  certainty asserted\n', message: 'Bob works at Initech', lexicon: lex});
+  assert.equal(invented.problems[0].code, 'stated_value_not_in_message', 'a stated value must come from the message');
   const assumption = '@a assumed\n  relation "works_at"\n  role subject "Ana"\n  role object "Acme"\n  polarity affirmed\n  basis world\n';
   assert.equal(validateQuery({sop: assumption, message: 'x', lexicon: lex}).problems[0].code, 'no_query');
   assert.equal(validateQuery({sop: assumption + Q('works_at', 'Ana', 'Acme'), message: 'Does Ana work at Acme?', lexicon: lex}).ok, true);
@@ -245,13 +247,33 @@ test('omp backend rejects missing, truncated, or mixed prose output without salv
   const folder = tempDir(t, 'qa-omp-output-');
   // A stale file is never a fallback for a failed final answer.
   fs.writeFileSync(path.join(folder, 'query.sop'), GOOD);
-  for (const final_text of ['', `Here is the answer:\n${GOOD}`, `${GOOD}\nThis is true.`, `\`\`\`sop\n${GOOD}`, `\`\`\`sop\n${GOOD}\`\`\`\nExtra explanation`, '@q query\n  where match\n']) {
+  for (const final_text of ['', `Here is the answer:\n${GOOD}`, `${GOOD}\nThis is true.`, `\`\`\`sop\n${GOOD}`, `\`\`\`sop\n${GOOD}`, `Reading chosen: x\n\`\`\`sop\n${GOOD}\`\`\``]) {
     const backend = ompBackend({runner: async () => ({ok: true, final_text, usage: {}, duration_ms: 1})});
     const result = await backend.generate({context, folder});
     assert.equal(result.ok, false, JSON.stringify(final_text));
     assert.equal(result.sop, '');
     assert.match(result.reason, /circuit output rejected/);
   }
+  // A wholly circuit-shaped text with a syntax error (truncated block, unknown field) is not salvaged either: it goes whole
+  // to admission, which rejects it with a problem for a repair round.
+  for (const final_text of ['@q query\n  where match\n', '@q query\n  kind entity\n  where match\n    relation "works_at"\n  end\n']) {
+    const passed = await ompBackend({runner: async () => ({ok: true, final_text, usage: {}, duration_ms: 1})}).generate({context, folder});
+    assert.equal(passed.ok, true, final_text);
+    assert.equal(passed.sop, final_text.trim());
+    assert.equal(validateQuery({sop: passed.sop, message: 'Does Ana work at Lab Alpha?', lexicon: lex}).ok, false);
+  }
+  // The invited optional report may follow the circuit fence as its own md fence; a stray top-level end goes to repair.
+  const reported = await ompBackend({runner: async () => ({ok: true, final_text: `\`\`\`sop\n${GOOD}\`\`\`\n\n\`\`\`md\n# report.md\n- reading chosen\n\`\`\``, usage: {}, duration_ms: 1})}).generate({context, folder});
+  assert.equal(reported.ok, true, reported.reason);
+  assert.equal(reported.sop, GOOD.trim());
+  const remark = await ompBackend({runner: async () => ({ok: true, final_text: `\`\`\`sop\n${GOOD}\`\`\`\n\nReading chosen: the employer reading.`, usage: {}, duration_ms: 1})}).generate({context, folder});
+  assert.equal(remark.sop, GOOD.trim(), 'a short report after the complete fence is the invited report, not part of the circuit');
+  const stray = await ompBackend({runner: async () => ({ok: true, final_text: `${GOOD}end\n`, usage: {}, duration_ms: 1})}).generate({context, folder});
+  assert.equal(stray.ok, true, stray.reason);
+  assert.equal(validateQuery({sop: stray.sop, message: 'Does Ana work at Lab Alpha?', lexicon: lex}).ok, false);
+  // Session definitions are parsed with the knowledge grammar, not rejected as unknown model wires.
+  const defined = await ompBackend({runner: async () => ({ok: true, final_text: `@colleague predicate\n  args subject:entity object:entity\n${GOOD}`, usage: {}, duration_ms: 1})}).generate({context, folder});
+  assert.equal(defined.ok, true, defined.reason);
   const accepted = await ompBackend({runner: async () => ({ok: true, final_text: `\`\`\`sop\n${GOOD}\`\`\``, usage: {}, duration_ms: 1})}).generate({context, folder});
   assert.equal(validateQuery({sop: accepted.sop, message: 'Does Ana work at Lab Alpha?', lexicon: lex}).ok, true);
 });

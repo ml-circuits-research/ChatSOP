@@ -287,7 +287,7 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
   if(!linking.some(x=>x.wire===wire&&x.kind==='entity'&&x.surface===entry.surface&&x.symbol===entry.symbol))linking.push(entry);
  };
  // Entities the user introduced (owner decision 2026-10-01, DS014 "Conversation entities"): a name in a user statement that no label or id of the memory
- // carries (it matches nothing, or only an alias or a name part such as "Maria" or "Einstein") names a conversation entity `local_<name>`, never a memory
+ // carries (it matches nothing (2026-10-02), or only an alias or a name part such as "Maria" or "Einstein") names a conversation entity `local_<name>`, never a memory
  // namesake. The same name in a later question refers to it while the conversation carries a statement about it. A memory entity with that exact label wins.
  const foldKey=value=>String(value).normalize('NFD').replace(/\p{M}/gu,'').toLowerCase().replace(/\s+/g,' ').trim();
  const localSymbol=surface=>'local_'+foldKey(surface).replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
@@ -320,9 +320,9 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
    if(resolve){
     const symbol=localSymbol(original);
     // The memory's entities of that name regardless of the role's class: a label or id means the memory entity (an ill-typed role is asked about, as before);
-    // only an alias or name part makes the name a namesake. A name the memory does not know at all stays an entity question, unless the conversation introduced it.
+    // only an alias or name part makes the name a namesake. A proper name (capitalised) the memory does not know at all introduces a conversation entity in a user statement (a common noun stays a question); in a question it stays an entity question, unless the conversation introduced it.
     const named=any.found.length?any.found:lexicon.matching(term,{language:'auto',kind:'entity'}).found;
-    if(symbol!=='local_'&&!named.some(e=>labelled(e,original))&&(carriedLocals.has(symbol)||introduce&&named.length&&named.every(e=>lexicon.entities[e.id]?.notability!=null))){
+    if(symbol!=='local_'&&!named.some(e=>labelled(e,original))&&(carriedLocals.has(symbol)||introduce&&(!named.length?/^\p{Lu}/u.test(String(original).trim()):named.every(e=>lexicon.entities[e.id]?.notability!=null)))){
      if(!linking.some(x=>x.wire===wire&&x.kind==='entity'&&x.surface===original&&x.symbol===symbol))linking.push({wire,kind:'entity',surface:original,symbol,via:'conversation',match:'local',class:null,score:SCORES.lexicon,...(any.found.length?{shadowed:any.found.map(e=>e.id).slice(0,5)}:{})});
      a.a[i]=symbol;continue;
     }

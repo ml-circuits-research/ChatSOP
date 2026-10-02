@@ -23,6 +23,7 @@ import {ChatData} from '../lib/chat-data/index.mjs';
 import {Sessions} from '../lib/chat-data/sessions.mjs';
 import {SessionRuntimes} from './session-runtime.mjs';
 import {createAuthoring,AUTHORING_ENDPOINTS} from './authoring.mjs';
+import {createKnowledgeRouter,KNOWLEDGE_ENDPOINTS} from './review.mjs';
 import {ompSettings,createOmpModels} from '../lib/omp/index.mjs';
 import {createQueryParser,queryParserSettings} from './query-parser.mjs';
 import {serverStatus,strategyRequest} from './status.mjs';
@@ -149,7 +150,7 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
  // Answer formulation in the user's language (server/answer-language.mjs); a server with an injected request parser (tests) has none unless one is injected too.
  const answerFormulator=injectedFormulator!==undefined?injectedFormulator:injected?null:createAnswerFormulator({settings:answerLanguageSettings(config),ompConfig:omp,chatData});
  const capabilities=createCapabilities({queryParser});
- const api=createApiRouter({capabilities,json,extraEndpoints:[STATUS_ENDPOINT,...(chatData?[...PRODUCT_ENDPOINTS,...AUTHORING_ENDPOINTS]:[])]});
+ const api=createApiRouter({capabilities,json,extraEndpoints:[STATUS_ENDPOINT,...(chatData?[...PRODUCT_ENDPOINTS,...AUTHORING_ENDPOINTS,...KNOWLEDGE_ENDPOINTS]:[])]});
  const startedAt=Date.now();
  // The product layer (DS022): base memories, sessions, omp. Present when a chat data root is configured (startServer always does).
  const memories=chatData?new BaseMemories({chatData,memory:config.memory}):null;
@@ -158,6 +159,8 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
  const runtimes=chatData?new SessionRuntimes({sessions:sessionStore,memories,config:{...config,contextMaxBytes:Math.min(config.contextMaxBytes??maxContextBytes,maxContextBytes)},defaultBase}):null;
  const authoring=chatData?createAuthoring({sessions:sessionStore,runtimes,chatData,models:ompModels,settings:omp,readBody,json,maxBytes:limits.maxProductBytes??8_000_000}):null;
  const product=chatData?createProductRouter({memories,sessions:sessionStore,runtimes,readBody,json,limits,extra:authoring,parsing:{queryParser},defaultBase}):null;
+ // The knowledge browser (/review, GET /v1/knowledge/*): read only, over a base memory or a chat session (server/review.mjs).
+ const knowledge=chatData?createKnowledgeRouter({memories,sessions:sessionStore,json}):null;
  /** Whether the coding agent can run now, with the model chain; the chat answers 503 `parse_unavailable` when it cannot. */
  async function readiness(){
   const free=await queryParser.availability();
@@ -192,6 +195,7 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    const state=await readiness();
    return json(res,200,{object:'list',default:model,data:[{id:model,object:'model',created:0,owned_by:'chatsop',chatsop:{coding_agent:state.coding_agent,ready:state.ready}}]});
   }
+  if(knowledge&&(url==='/review'||url?.startsWith('/v1/knowledge/'))&&await knowledge.handle(req,res,url,Object.fromEntries(new URL(req.url,'http://localhost').searchParams),{admin:Boolean(sessionUser)||(!auth&&Boolean(legacy)),user}))return;
   if(product&&url?.startsWith('/v1/')&&await product.handle(req,res,url,{admin:Boolean(sessionUser)||(!auth&&Boolean(legacy)),user}))return;
   if(url?.startsWith('/v1/')&&await api.handle(req,res,url))return;
   if(['/v1/responses','/v1/embeddings'].includes(url)||url?.startsWith('/v1/tools'))return error(res,501,'not_implemented','This API surface is not implemented');
@@ -237,8 +241,10 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    // The circuit was written but not admitted or could not be executed: 422 with what the author wrote, so the chat can show it.
    if(e.modelSop!==undefined)return json(res,422,{error:{message:'The circuit was not admitted or could not be executed',type:'invalid_request_error',code:'model_output_rejected'},chatSop:{status:'rejected',parse:e.parse??parseRecord,rejection:String(e.message).slice(0,500),model_sop:e.modelSop,formalizer_model:e.formalization?.model??null,formalization_ms:e.formalization?.ms??null}});
    const status=e.status??(e.name==='TimeoutError'||e.message==='Request time limit reached'?504:400);error(res,status,(e.status&&e.code)||(status===413?'request_limit':status===504?'time_limit':status===400?'invalid_request':'internal_error'),status===400&&!e.status?'Invalid SOP or request; no detail exposed':status===504?'Request time limit reached':e.status?e.message:'Server request failed');}
- });server.auth=auth;server.capabilities=capabilities;server.sessions=sessionStore;server.memories=memories;server.authoring=authoring;server.ompModels=ompModels;server.ompSettings=omp;server.queryParser=queryParser;server.defaultBase=defaultBase;
+ });server.auth=auth;server.capabilities=capabilities;server.sessions=sessionStore;server.memories=memories;server.authoring=authoring;server.knowledge=knowledge;server.ompModels=ompModels;server.ompSettings=omp;server.queryParser=queryParser;server.defaultBase=defaultBase;
  server.on('close',()=>capabilities.close());
+ // A managed local model server (LocalLLMDirect, LocalLLMStepByStep) stops with the chat server.
+ server.on('close',()=>{queryParser.stop?.().catch(()=>{});});
  return server;
 }
 export async function startServer({configPath=path.join(root,'config/runtime.json'),host=process.env.CHATSOP_HOST??'0.0.0.0',port=Number(process.env.CHATSOP_PORT??9999)}={}){

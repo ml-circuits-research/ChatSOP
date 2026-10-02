@@ -16,22 +16,61 @@
       "results": {
         "model": "openai-codex/gpt-6-luna",
         "cohort": 76,
-        "before": {"correct": 62, "wrong": 0, "unknown": 14, "invalid": 0},
-        "after": {"correct": 76, "wrong": 0, "unknown": 0, "invalid": 0},
-        "vocabulary": {"n": 52, "before_correct": 42, "after_correct": 52},
-        "controls": {"n": 24, "before_correct": 20, "after_correct": 24},
+        "before": {
+          "correct": 62,
+          "wrong": 0,
+          "unknown": 14,
+          "invalid": 0
+        },
+        "after": {
+          "correct": 76,
+          "wrong": 0,
+          "unknown": 0,
+          "invalid": 0
+        },
+        "vocabulary": {
+          "n": 52,
+          "before_correct": 42,
+          "after_correct": 52
+        },
+        "controls": {
+          "n": 24,
+          "before_correct": 20,
+          "after_correct": 24
+        },
         "verified_correct": 76,
         "session_definition_rows": 0,
         "dialog_rows": 0,
         "accuracy_delta_pp": 18.42,
-        "accuracy_delta_ci95_pp": [10.53, 27.63],
+        "accuracy_delta_ci95_pp": [
+          10.53,
+          27.63
+        ],
         "wrong_delta_pp": 0,
-        "non_f6_vocabulary": {"n": 41, "before_correct": 41, "after_correct": 41},
-        "non_f6": {"n": 62, "before_correct": 61, "after_correct": 62, "accuracy_delta_pp": 1.61, "accuracy_delta_ci95_pp": [0, 4.84]},
-        "stop": {"stage": 76, "reason": "Requested minimal cohort complete; ceiling-limited non-F6 vocabulary does not justify a second run"}
+        "non_f6_vocabulary": {
+          "n": 41,
+          "before_correct": 41,
+          "after_correct": 41
+        },
+        "non_f6": {
+          "n": 62,
+          "before_correct": 61,
+          "after_correct": 62,
+          "accuracy_delta_pp": 1.61,
+          "accuracy_delta_ci95_pp": [
+            0,
+            4.84
+          ]
+        },
+        "stop": {
+          "stage": 76,
+          "reason": "Requested minimal cohort complete; ceiling-limited non-F6 vocabulary does not justify a second run"
+        }
       },
       "conclusions": "Wrong-rate gate met on this development cohort;76 independently verified correct. Thirteen of fourteen gains are F6 and confounded by T6's independent temporal fix. Non-F6 vocabulary remains41/41; no incremental vocabulary gain or natural-model dialog/definition efficacy demonstrated. Controlled actual SQLite parser smoke and56/56 behavioral tests prove the owned paths. No superiority or sealed-benchmark claim.",
-      "reports": ["eval/reports/current/omp-tasks/t9-vocab.md"]
+      "reports": [
+        "eval/reports/current/omp-tasks/t9-vocab.md"
+      ]
     },
     {
       "id": "query-author-session-v2-dev",
@@ -101,13 +140,73 @@
           "scope": "Exploratory F2-F9 dev only; two full subscription runs; no sealed inference",
           "model": "openai-codex/gpt-6-luna",
           "n": 240,
-          "baseline": {"correct": 82, "wrong": 8, "unknown": 97, "invalid_or_failed": 53},
-          "rerun1_original_inputs": {"correct": 190, "wrong": 7, "unknown": 42, "invalid": 0, "failed": 1, "gain_pp": 45, "paired_95_pp": [38.333333333333336, 51.25], "fit_correct": 180, "fit_n": 230, "capped_correct": 10, "capped_n": 10},
-          "rerun2_corrected_inputs": {"correct": 215, "wrong": 0, "unknown": 25, "invalid": 0, "failed": 0, "gain_pp": 55.41666666666667, "paired_95_pp": [49.166666666666664, 61.66666666666667], "fit_correct": 205, "fit_n": 230, "capped_correct": 10, "capped_n": 10},
-          "input_changes": {"same_construction_ids": 240, "changed_questions": 25, "changed_gold_queries": 30, "knowledge_metadata_files": 240, "semantic_expectations_unchanged": 240},
-          "wrong_ceiling": {"fraction": 0.055, "rerun1_overall": true, "rerun1_fit": true, "rerun2_overall": true, "rerun2_fit": true},
-          "noncorrect_attributed": {"baseline": 158, "rerun1": 50, "rerun2": 25},
-          "late_f6_runtime_replay": {"model_calls": 0, "n": 30, "before_correct": 6, "after_correct": 30, "supported": 17, "honestly_unknown": 13, "exact_complete_retrieval": true, "full_model_records_unchanged": true},
+          "baseline": {
+            "correct": 82,
+            "wrong": 8,
+            "unknown": 97,
+            "invalid_or_failed": 53
+          },
+          "rerun1_original_inputs": {
+            "correct": 190,
+            "wrong": 7,
+            "unknown": 42,
+            "invalid": 0,
+            "failed": 1,
+            "gain_pp": 45,
+            "paired_95_pp": [
+              38.333333333333336,
+              51.25
+            ],
+            "fit_correct": 180,
+            "fit_n": 230,
+            "capped_correct": 10,
+            "capped_n": 10
+          },
+          "rerun2_corrected_inputs": {
+            "correct": 215,
+            "wrong": 0,
+            "unknown": 25,
+            "invalid": 0,
+            "failed": 0,
+            "gain_pp": 55.41666666666667,
+            "paired_95_pp": [
+              49.166666666666664,
+              61.66666666666667
+            ],
+            "fit_correct": 205,
+            "fit_n": 230,
+            "capped_correct": 10,
+            "capped_n": 10
+          },
+          "input_changes": {
+            "same_construction_ids": 240,
+            "changed_questions": 25,
+            "changed_gold_queries": 30,
+            "knowledge_metadata_files": 240,
+            "semantic_expectations_unchanged": 240
+          },
+          "wrong_ceiling": {
+            "fraction": 0.055,
+            "rerun1_overall": true,
+            "rerun1_fit": true,
+            "rerun2_overall": true,
+            "rerun2_fit": true
+          },
+          "noncorrect_attributed": {
+            "baseline": 158,
+            "rerun1": 50,
+            "rerun2": 25
+          },
+          "late_f6_runtime_replay": {
+            "model_calls": 0,
+            "n": 30,
+            "before_correct": 6,
+            "after_correct": 30,
+            "supported": 17,
+            "honestly_unknown": 13,
+            "exact_complete_retrieval": true,
+            "full_model_records_unchanged": true
+          },
           "conclusions": "Original-input coverage gain is positive and both raw wrong-rate guards pass. Corrected-input rerun is identity-paired, not a pure same-input effect. F5 is30/30 correct in both runs. The late temporal parser fix is demonstrated separately by saved-circuit replay, not a third model run; final-source full model accuracy is not measured. Remaining C2 F3 failure is an author refusal. Hypotheses unchanged.",
           "report": "eval/reports/current/omp-tasks/t6-coverage.md"
         },
@@ -5724,6 +5823,24 @@
       "status": "running",
       "results": {},
       "note": "Harness: tools/eval/ingest-v1.mjs; ingestion: tools/ingest-documents.mjs"
+    },
+    {
+      "id": "eval-generality-v1",
+      "hypothesis": "The CodingAgent path answers held-out question forms (level b), compositions of known classes and free natural questions (level c), and stays honest (unknown rather than wrong) where it cannot.",
+      "preregistration": "status/preregistrations/eval-generality-v1.json",
+      "data_version": "tools/datasets/diversity/generality.mjs (10 held-out forms x5, 5 compositions x5); tools/eval/generality/natural-v1.jsonl; world-v1",
+      "status": "running",
+      "results": {},
+      "note": "Harness: tools/eval/generality/run.mjs (reuses symbolic-vs-llm runArm); held-out check: tools/eval/generality/heldout-check.mjs"
+    },
+    {
+      "id": "eval-commonsense-v1",
+      "hypothesis": "Importing the common-sense layer commonsense-v1 into the chat default base world-v1 lets the chat answer common-sense-dependent questions (classes, disjointness, typical relations, lifetimes, geography, units, family) without new wrong answers and without degrading the world-kb question set.",
+      "preregistration": "status/preregistrations/eval-commonsense-v1.json",
+      "data_version": "eval/commonsense/questions.jsonl (32); eval/world-kb/questions.json (30); config/knowledge/commonsense-v1 (build-stats datasets_sources/commonsense/build-stats.json)",
+      "status": "running",
+      "results": {},
+      "note": "Harness: tools/eval/query-parsers.mjs run --suite forms --rows eval/commonsense/questions.jsonl --model zai/glm-5.3; layer checks: tools/commonsense/check.mjs, tests/commonsense-layer.test.mjs"
     }
   ]
 }

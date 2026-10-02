@@ -768,8 +768,9 @@
 @r_sibling_shared_parent rule
   when parent_of ?p ?a
   when parent_of ?p ?b
+  when compare ?a not_equal ?b
   then sibling_of ?a ?b
-  source "authored"
+  source "authored; guard against the self-pair sibling_of ?a ?a added by commonsense-agent 2026-10-02"
 
 @r_sibling_sym rule
   when sibling_of ?a ?b

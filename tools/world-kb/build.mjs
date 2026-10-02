@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {RAW, qid} from './wdqs.mjs';
-import {MAPPING, DERIVED, CLASSES, CLASS_VOCAB, RANGE, CLASS_PRIORITY} from './mapping.mjs';
+import {MAPPING, DERIVED, CLASSES, CLASS_VOCAB, RANGE, CLASS_PRIORITY, kindFromRanges} from './mapping.mjs';
 import {loadSelection, referencedIds, SELECT} from './fetch.mjs';
 import {parse} from '../../sop/knowledge/index.mjs';
 
@@ -99,7 +99,7 @@ const order = (m, subject, value) => (m.flip ? [value, subject] : [subject, valu
 const inScope = (m, id) => m.scope.some(c => classOf.get(id)?.has(c));
 
 // property rows grouped by pid
-const rangeOf = new Map(); // symbol -> classes of the properties it is the value of
+const rangeOf = new Map(); // symbol -> Map(class of the properties it is the value of -> occurrences)
 const rowsByPid = new Map();
 for (const f of files('prop-P')) {
   const pid = f.match(/^prop-(P\d+)-/)[1];
@@ -116,9 +116,11 @@ for (const m of MAPPING) {
       const o = qid(r.v);
       if (!r.v.startsWith('http://www.wikidata.org/entity/Q')) continue;
       if (m.only && !m.only.includes(o)) continue;
+      // objectClass: the value must itself be a selected item of that class (no constituent-country duplicates of a state).
+      if (m.objectClass && !classOf.get(o)?.has(m.objectClass)) { stats.skipped_object_class = (stats.skipped_object_class ?? 0) + 1; continue; }
       if (!sym(o)) { stats.skipped_unlabelled++; continue; }
       add(m.pred, order(m, sym(id), sym(o)), source);
-      if (RANGE[m.pid]) (rangeOf.get(sym(o)) ?? rangeOf.set(sym(o), new Set()).get(sym(o))).add(RANGE[m.pid]);
+      if (RANGE[m.pid]) { const counts = rangeOf.get(sym(o)) ?? rangeOf.set(sym(o), new Map()).get(sym(o)); counts.set(RANGE[m.pid], (counts.get(RANGE[m.pid]) ?? 0) + 1); }
     } else if (m.kind === 'integer') {
       const n = Math.round(Number(r.v));
       if (!Number.isSafeInteger(n) || (m.pred === 'atomic_number' && (n < 1 || n > 118)) || (m.pred === 'population' && n < 0)) { stats.skipped_range++; continue; }
@@ -282,7 +284,7 @@ for (const s of [...usedSymbols].sort()) {
   if (!i?.en) continue;
   const desc = i.desc ? ` (${i.desc})` : ` (${id})`;
   const plain = s === slug(i.en) && !labelsTaken.has(i.en.toLowerCase());
-  const kind = occupationItems.has(s) ? 'occupation' : [...(classOf.get(id) ?? [])][0] ?? CLASS_PRIORITY.find(c => rangeOf.get(s)?.has(c));
+  const kind = occupationItems.has(s) ? 'occupation' : [...(classOf.get(id) ?? [])][0] ?? kindFromRanges(rangeOf.get(s));
   let w = `@${s} entity\n`;
   if (kind) w += `  kind ${kind}\n`;
   w += `  label en ${quote(plain ? i.en : `${i.en}${desc}`)}\n`;

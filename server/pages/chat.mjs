@@ -11,7 +11,8 @@
  * default) writes the circuit, the runtime validates, links, retrieves, routes, verifies and renders it, and the answer comes back in
  * English with its trace. The trace panel follows the pipeline: formalization (strategy, model, repair rounds), vocabulary (schema
  * neighbourhood, vocabulary dialog), session definitions and assumptions (Accept/Reject for a proposed definition), linking, retrieval
- * (complete or not, bounds), route and verification, latency, then the circuits. `parse_unavailable` (503) and `parse_failed` (422)
+ * (complete or not, bounds), route and verification, latency, then the circuits. Linked entities and relations open their cards in the
+ * knowledge browser (`/review?session=…&entity=…`, server/pages/review.mjs). `parse_unavailable` (503) and `parse_failed` (422)
  * are explained in plain words. The page uses the HttpOnly session cookie through same-origin
  * fetch; it never sees a credential. The server owns conversation context per `conversation_id`; the page keeps a local transcript copy
  * for display. SOP in the trace is rendered by server/pages/sop-code.mjs. All dynamic text is inserted with textContent. */
@@ -82,6 +83,10 @@ const secs=ms=>typeof ms==='number'?(ms/1000).toFixed(2)+' s':null;
 function section(parent,title,open){const d=document.createElement('details');d.className='tsec';if(open)d.open=true;const s=document.createElement('summary');s.textContent=title;const dl=document.createElement('dl');d.append(s,dl);parent.append(d);return {box:d,list:dl};}
 function listField(list,label,items){if(!items||!items.length)return;const dt=document.createElement('dt');dt.textContent=label;const dd=document.createElement('dd');const ul=document.createElement('ul');for(const t of items){const li=document.createElement('li');li.textContent=t;ul.append(li);}dd.append(ul);list.append(dt,dd);}
 const yes=v=>v===true?'yes':v===false?'no':v;
+// Names in the trace open their cards in the knowledge browser (/review, server/pages/review.mjs) over this chat's session or base memory.
+function browseHref(c,kind,id){const t=c.session?.id?'session='+encodeURIComponent(c.session.id):'memory='+encodeURIComponent(c.session?.base||'world-v1');return '/review?'+t+'&'+kind+'='+encodeURIComponent(id);}
+function browseLink(c,kind,id,text){const a=document.createElement('a');a.href=browseHref(c,kind,id);a.target='_blank';a.rel='noopener';a.textContent=text||id;a.title='open the '+kind+' card in the knowledge browser';return a;}
+function browseField(list,label,c,refs){refs=(refs||[]).filter(r=>r&&r.id);if(!refs.length)return;const dt=document.createElement('dt');dt.textContent=label;const dd=document.createElement('dd');refs.forEach((r,i)=>{if(i)dd.append(', ');dd.append(browseLink(c,r.kind,r.id));});list.append(dt,dd);}
 function draftActions(parent,draftId){
  if(!draftId)return;const row=el('div','actions');const msg=el('span','msgline');
  const act=async(kind)=>{if(typeof PROD==='undefined'||!PROD.session){msg.textContent='No session.';return;}const r=await jcall('POST','/v1/sessions/'+PROD.session.id+'/drafts/'+draftId+'/'+kind);msg.className='msgline '+(r.ok?'ok':'bad');msg.textContent=r.ok?(kind==='accept'?'Accepted into this session.':'Rejected.'):errText(r);if(r.ok){a.disabled=true;b.disabled=true;await refreshSession();}};
@@ -109,6 +114,7 @@ function traceView(c){
  if(p.retrieval||p.vocabulary_dialog){const v=section(details,'2. Vocabulary (schema neighbourhood and dialog)').list;const r=p.retrieval||{};
   field(v,'relations offered',r.predicates!=null?String(r.predicates):null);field(v,'entity mentions found',r.entity_mentions!=null?String(r.entity_mentions):null);
   if(r.neighbourhood&&r.neighbourhood.predicates)field(v,'schema neighbourhood',r.neighbourhood.predicates.length+' relation(s): '+r.neighbourhood.predicates.slice(0,12).map(x=>x.id).join(', ')+(r.neighbourhood.predicates.length>12?', …':''));
+  if(r.neighbourhood&&r.neighbourhood.predicates)browseField(v,'browse relations',c,r.neighbourhood.predicates.slice(0,12).map(x=>({kind:'predicate',id:x.id})));
   if(r.byte_budget)field(v,'vocabulary size',r.bytes+' of '+r.byte_budget+' bytes'+(r.truncated?' (truncated)':''));
   const d=p.vocabulary_dialog;if(d)field(v,'vocabulary dialog',d.rounds?d.rounds+' expansion(s) of at most '+d.max_rounds+': '+d.expansions.map(e=>e.trigger).join(', '):'not needed');}
  // 3. Session definitions and assumptions: labelled, never knowledge until accepted.
@@ -120,12 +126,12 @@ function traceView(c){
   field(s.list,'assumptions',(c.model_assumptions||[]).map(a=>a.statement+' ['+a.treatment+']').join(' '));
   if((c.model_assumptions||[]).length)field(s.list,'assumption policy',c.assumption_policy);}
  // 4. Linking: the strings of the circuit bound to the memory by the KnowledgeLinker.
- if((c.linking||[]).length){const l=section(details,'4. Linking (KnowledgeLinker)').list;listField(l,'bound',c.linking.map(linkingLine));}
+ if((c.linking||[]).length){const l=section(details,'4. Linking (KnowledgeLinker)').list;listField(l,'bound',c.linking.map(linkingLine));browseField(l,'in the knowledge browser',c,[...new Map(c.linking.filter(e=>e.symbol&&e.via!=='conversation'&&/^[A-Za-z0-9_]+$/.test(e.symbol)).map(e=>[e.symbol,{kind:e.kind==='predicate'||e.kind==='relation'?'predicate':'entity',id:e.symbol}])).values()]);}
  // 5. Retrieval: the slice of the memory and whether it is complete.
  const rt=c.retrieval;if(rt){const r=section(details,'5. Retrieval (memory slice)').list;
   field(r,'complete',rt.complete===true?'yes':rt.complete===false?'no: the answer is withheld or marked partial':null);field(r,'guard',rt.guard);
   field(r,'slice',(rt.facts??0)+' fact(s), '+(rt.rules??0)+' rule(s), '+(rt.probes??0)+' probe(s)'+(rt.class?', class '+rt.class:''));
-  if(rt.predicates)field(r,'relations',rt.predicates.join(', '));
+  if(rt.predicates)browseField(r,'relations',c,rt.predicates.map(x=>({kind:'predicate',id:String(x).replace(/\/\d+$/,'')})));
   if(rt.bound)field(r,'bounds',Object.entries(rt.bound).map(([k,v])=>k+' '+v).join(', '));
   if((rt.reasons||[]).length)field(r,'incomplete because',rt.reasons.map(x=>typeof x==='string'?x:JSON.stringify(x)).join('; '));}
  // 6. Route and verification: the StrategyRouter's engine and the oracle check.

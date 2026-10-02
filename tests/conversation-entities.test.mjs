@@ -77,10 +77,15 @@ test('a name the user introduces takes precedence over a memory namesake that on
   assert.doesNotMatch(JSON.stringify(answer.packet.proof), /mary_the_jewess/);
 });
 
-test('a name the memory does not know at all stays an entity question', async t => {
-  const [noted] = await conversation(t, [['Zorica works at Alpha Lab.', stated('Zorica', 'Alpha Lab')]]);
-  assert.equal(noted.packet.status, 'clarify');
-  assert.match(noted.text, /Which entity do you mean by "Zorica"/);
+test('a name the memory does not know at all is introduced by a statement; in a question alone it stays an entity question', async t => {
+  // 2026-10-02 (eval-generality-v1): "My friend Zork lives in Lisbon." then "Is Zork in Portugal?" must use the statement.
+  const [noted, answer] = await conversation(t, [['Zorica works at Alpha Lab.', stated('Zorica', 'Alpha Lab')], ['Where does Zorica work?', ask('Zorica')]]);
+  assert.notEqual(noted.packet.status, 'clarify');
+  assert.ok(noted.packet.linking.some(l => l.symbol === 'local_zorica' && l.via === 'conversation'));
+  assert.ok(answer.packet.answers.length > 0, JSON.stringify(answer.packet));
+  const [alone] = await conversation(t, [['Where does Zorica work?', ask('Zorica')]]);
+  assert.equal(alone.packet.status, 'clarify');
+  assert.match(alone.text, /Which entity do you mean by "Zorica"/);
 });
 
 test('without a statement about it, the same alias still reaches the memory entity', async t => {

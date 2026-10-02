@@ -62,7 +62,7 @@ What the user states ("Maria works at Acme") is turn-local evidence kept in the 
 
 ## Start the local HTTP server
 
-The server serves everything on one port: a **home page** (`/`), the **sign-in page** (`/login`), the **browser chat** (`/chat`), the **evaluation page** (`/eval`, guide at `/eval/guide`), the **experiments and project history** (`/experiments`), the **administrator page** (`/admin`) (these require the administrator session), the **documentation site** (`/docs/`, static, no authentication) and the **OpenAI-compatible chat API** (bearer token or the same session cookie).
+The server serves everything on one port: a **home page** (`/`), the **sign-in page** (`/login`), the **browser chat** (`/chat`), the **knowledge browser** (`/review`), the **evaluation page** (`/eval`, guide at `/eval/guide`), the **experiments and project history** (`/experiments`), the **administrator page** (`/admin`) (these require the administrator session), the **documentation site** (`/docs/`, static, no authentication) and the **OpenAI-compatible chat API** (bearer token or the same session cookie).
 
 ```sh
 npm start                 # 0.0.0.0:9999; prints the home URL first; extra flags go to the launcher (-- --port 3001)
@@ -79,6 +79,7 @@ CHATSOP_PORT=9998 CHATSOP_CHAT_DATA=/tmp/chatsop-data CHATSOP_CONFIG=config/my-r
 ```
 
 - **Chat** (`/chat`) keeps one session per conversation; a session is a fork of a base memory. The default base is the encyclopedic `world-v1` (`chatData.defaultBase`). If `world-v1` is not loaded, the minimal `default` (which imports `core-min`) is used instead. The *New session* dialog marks the default and can pick another base memory; `core-en`, `core-min` and `demo` are seed memories. Specialised tasks start from a memory created as *minimal* (imports `core-min`) or *empty*. The Create memory dialog offers "Built on: encyclopedic / minimal / empty". Each answer is plain English, with a trace panel ordered as the pipeline: formalization (strategy, model, models tried, repair rounds with their problem codes, cache, latency, cost), vocabulary (schema neighbourhood and vocabulary dialog), session definitions and assumptions (proposed definitions with Accept and Reject), linking, retrieval (complete or not, bounds), route and verification, and the circuits. The *Settings* tab chooses the formalization strategy (an unavailable strategy is shown disabled with its reason), the CodingAgent model, and shows a server status card from `GET /v1/status`; the *Base Memory* tab lists, views, forks and creates base memories.
+- **Knowledge** (`/review`) is a read-only browser of what a base memory or a chat session knows: the memories and their layers (`core-min`, `core-en`, `world-v1`, seed and ingestion layers, the session layer) with provenance; a risk view per layer that lists the items most likely to be wrong first, with flags (a lexeme form with no corpus or Wikidata evidence, a form two predicates claim, a converse frame, a rule, a flipped or merged Wikidata mapping, a predicate without a description) and the evidence next to them (mined corpus counts and example messages, Wikidata properties, dropped forms, the world-v1 mapping table); keyword search over entities, classes, predicates and their forms, rules and fact values; entity, predicate and rule cards that show effect rather than syntax (generated sentences and the atom they map to, facts in words with their layer and source, an example derivation of each rule) and a *Derive* button that asks the oracle what the rules add about an entity, with proofs. There is no accept or reject step: corrections go through tests and interactions. Entity and relation names in the chat trace open their cards. API: `GET /v1/knowledge/*` (docs/api.html section 9).
 - **Eval** (`/eval`) browses the regenerable observations under `eval/reports/current/`.
 - **Experiments** (`/experiments`) is the living project history: tasks and experiments (`status/tasks.json`, `status/experiments.json`, [DS007](docs/specsLoader.html?spec=DS007-experiment-preregistration.md)), append-only topic notes (`node tools/notes.mjs add`), reports, the journal timeline (`node tools/journal.mjs add`) and the open owner questions.
 - **Admin** (`/admin`) shows the server status and mints and revokes bearer tokens.
@@ -89,7 +90,7 @@ CHATSOP_PORT=9998 CHATSOP_CHAT_DATA=/tmp/chatsop-data CHATSOP_CONFIG=config/my-r
 | --- | --- | --- |
 | **CodingAgent** (default) | omp, one turn, no tools, thinking off, persistent RPC workers; the models of `queryParser.models` in `config/runtime.json` are tried in order (`zai/glm-5.3`, then `openai-codex/gpt-6-luna`) | default; per session, the Settings tab's model picker (`omp_model`, tried before the chain; `GET /v1/omp/models` lists the models with their cost class) |
 | **LocalLLMDirect** | a local GGUF (for example Qwen3.8-27B) served by llama-server through the shared local runtime `lib/local-llm/`, one step, prompt cache on | the Settings tab, or `POST /v1/sessions/{id}/settings {"formalizer": "LocalLLMDirect"}`; setup in [docs/runtime.html](docs/runtime.html#local-formalizer) |
-| **LocalLLMStepByStep** | the symbolic system asks a small local model short questions and assembles the circuit | in progress; [docs/runtime.html](docs/runtime.html#local-formalizer) |
+| **LocalLLMStepByStep** | the symbolic system asks a small local model short questions and assembles the circuit | local llama-server, `steps` slot; [docs/runtime.html](docs/runtime.html#local-formalizer) |
 
 `formalizer: null` uses the server default (CodingAgent). A turn whose strategy cannot run on this server is refused with 503 `parse_unavailable` naming the strategy (`GET /v1/status` lists each strategy with `available` and the reason); it is never silently replaced by another. Whatever strategy wrote the circuit, the same admission, linking, retrieval, routing, verification and rendering follow.
 
@@ -101,6 +102,19 @@ curl -H "Authorization: Bearer $CHATSOP_API_KEY" -H 'Content-Type: application/j
   http://127.0.0.1:9999/v1/chat/completions
 curl -H "Authorization: Bearer $CHATSOP_API_KEY" http://127.0.0.1:9999/v1/status
 ```
+
+## Base memories from documents (learning by ingestion)
+
+The system learns by adding knowledge to base memories, not by training models: documents, manuals and books become facts, relations, rules and procedures of a **task-type base memory** (one for HR policy questions, one for a science topic, ...), and chats are sessions made from that memory. The coding agent drafts the circuits chunk by chunk, the validator and a quote check (every quoted sentence must be in the document) run in its repair rounds, facts that duplicate or contradict the memory are held back, and nothing is stored until a user accepts the ingestion report.
+
+```sh
+node tools/ingest-documents.mjs create-memory --id hr-policies --name "HR policies" --imports core-min
+node tools/ingest-documents.mjs draft --memory hr-policies --file handbook.md --rights cleared   # prints the ingestion id and its report path
+node tools/ingest-documents.mjs report --memory hr-policies --ingestion ING                      # extracted, rejected, held back, uncertain
+node tools/ingest-documents.mjs accept --memory hr-policies --ingestion ING --by "$USER"         # stores the validated chunks with provenance
+```
+
+Over HTTP: `POST /v1/memories/{id}/ingest`, then `POST /v1/memories/{id}/ingestions/{ingestion}/accept`, then `POST /v1/sessions {"base": "hr-policies"}` (examples on the [API page](docs/api.html#ingest)). Ingesting the same document again adds nothing (chunks are identified by their SHA-256). Only documents whose rights are recorded as cleared, permissive-attribution or owner-provided are accepted (DS011). Rules that answer one question form can be stored as a **procedure** (`POST /v1/memories/{id}/procedures`); the query author is then offered the procedure whenever a message matches its description. Contract: DS022 "Ingesting documents into a base memory" and "Procedure library".
 
 ## Evaluation and knowledge
 

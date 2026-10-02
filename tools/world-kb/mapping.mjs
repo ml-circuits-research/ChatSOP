@@ -66,7 +66,7 @@ export const MAPPING = [
   row(['country'], 'P38', 'uses_currency', 'entity', SO, {aliases: {en: ['use', 'use as currency', 'have the currency']}}),
   row(['country'], 'P35', 'head_of_state_of', 'entity', SO, {flip: true, aliases: {en: ['be the head of state of']}, note: 'current holder, best rank; flipped'}),
   row(['country'], 'P6', 'head_of_government_of', 'entity', SO, {flip: true, aliases: {en: ['be the head of government of']}, note: 'current holder, best rank; flipped'}),
-  row(['country'], 'P47', 'borders', 'entity', SO, {aliases: {en: ['border', 'share a border with']}, note: 'shares a land border; Wikidata states both directions'}),
+  row(['country'], 'P47', 'borders', 'entity', SO, {objectClass: 'country', aliases: {en: ['border', 'share a border with']}, note: 'shares a land border, between selected countries only: a constituent country (Q35 Denmark next to Q756617 Kingdom of Denmark) would count one border twice; Wikidata states both directions'}),
   row(['country'], 'P463', 'member_of', 'entity', SO, {only: ORG_MEMBERSHIPS, aliases: {en: ['be a member of', 'belong to']}, note: 'membership in a curated list of international organizations'}),
   row(['country', 'city', 'language', 'currency'], 'P1082', 'population_of', 'integer', SY, {aliases: {en: ['be the population of']}, note: 'best-rank value; core-en orientation (entity, number)'}),
   row(['country'], 'P2046', 'area_of', 'integer', SY, {aliases: {en: ['be the area of']}, note: 'square kilometres, rounded (core-en: unit km2)'}),
@@ -138,8 +138,8 @@ export const CLASS_VOCAB = {
 /**
  * The class of the VALUES of an entity-valued property, for the items that are not themselves selected (a capital that is no
  * selected city, a birthplace, a doctoral place): they are typed with it, so the role classes of the predicates (core-en says
- * `capital_of` takes a city and a country) accept them. A selected item keeps its selection class; the first of CLASS_PRIORITY
- * wins when an item is the value of properties with different ranges.
+ * `capital_of` takes a city and a country) accept them. A selected item keeps its selection class; when an item is the value of properties with different ranges,
+ * the most frequent range wins (kindFromRanges) and CLASS_PRIORITY breaks ties.
  */
 export const RANGE = {
   P36: 'city', P30: 'continent', P37: 'language', P38: 'currency', P35: 'person', P6: 'person', P47: 'country', P463: 'organization',
@@ -147,3 +147,14 @@ export const RANGE = {
   P112: 'person', P749: 'organization', P50: 'person', P57: 'person', P170: 'person', P407: 'language', P364: 'language', P495: 'country', P61: 'person',
 };
 export const CLASS_PRIORITY = ['person', 'country', 'city', 'continent', 'language', 'currency', 'organization', 'place'];
+/**
+ * The class of an unselected item from the ranges of the properties it is the value of: the most frequent range wins and
+ * CLASS_PRIORITY only breaks ties. One "founded by" (P112, range person) must not make Denmark, the value of 32 country and
+ * place properties, a person.
+ */
+export function kindFromRanges(counts) {
+  const entries = [...(counts ?? new Map())].filter(([c]) => CLASS_PRIORITY.includes(c));
+  if (!entries.length) return undefined;
+  entries.sort(([a, x], [b, y]) => y - x || CLASS_PRIORITY.indexOf(a) - CLASS_PRIORITY.indexOf(b));
+  return entries[0][0];
+}

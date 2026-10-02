@@ -1,0 +1,23 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-commonsense-v1",
+  "name": "Common-sense layer commonsense-v1 under the chat's default base memory world-v1: with and without",
+  "registered_at": "2026-10-02T10:30:00Z",
+  "registered_by": "commonsense-agent (owner, 2026-10-02: 'trebuie să avem și cunoașterea de tip common sense în memoria de bază folosită de chat … memoria blank doar în teste … mai bine avem deja de la început common sense'; correction the same day: no manual approval of knowledge, problems are found and corrected by tests and interactions)",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
+  "kind": "evaluation-only, minimal (no training). Dev questions written for this check; no sealed suite is read.",
+  "question": "Does importing commonsense-v1 (WordNet class hierarchy, ConceptNet CC BY 4.0 typical relations, authored rules for classes, time, family, geography and units) into world-v1 let the chat answer common-sense-dependent questions it could not answer before, without new wrong answers and without degrading the world-kb question set?",
+  "data": {
+    "questions": "eval/commonsense/questions.jsonl: 32 questions in 8 forms (class membership, class disjointness, typical uses/places/parts/abilities, lifetimes, geography, units, family from stated facts), each with a gold decided by principle (the 'why' field) and checked against the world-v1 facts (birth and death years, located_in)",
+    "regression": "eval/world-kb/questions.json (30 questions, suite world30 of tools/eval/query-parsers.mjs)"
+  },
+  "arms": {
+    "without": "world-v1 as loaded before this work (imports core-min, core-en), product chat_data root",
+    "with": "world-v1 rebuilt with imports core-min, core-en, commonsense-v1 (same circuits, same facts), first in a private chat data root, then in the product root after validation"
+  },
+  "author": "CodingAgent zai/glm-5.3 through omp (product default, thinking off), tools/eval/query-parsers.mjs run --suite forms",
+  "outcomes": "correct (definite answer equal to the gold), wrong (definite answer different from the gold: the dangerous class), honest_unknown (no answer given), parser_failed, error; median turn latency",
+  "decision": "commonsense-v1 is imported by world-v1 when (1) the validator passes over core-min, core-en, commonsense-v1 and world-v1; (2) no integrity error of the layer fires on world-v1 facts in the sampled check beyond the ones listed as data errors; (3) the with arm has no more wrong answers than the without arm on both question sets; (4) no world30 question that is correct without is wrong or unknown with, unless the difference is the author's run-to-run variation (rerun of that question once in both arms).",
+  "stopping": "Single stage (32 + 30 questions). Stop early and fix before the full run if more than 20% of the first 10 questions of the with arm are parser_failed or error, or if loading world-v1 with the layer fails validation.",
+  "not_claimed": "No claim about question forms outside the 8 listed; the questions were written by the same agent that built the layer (a known bias: they test what the layer was built for)."
+}

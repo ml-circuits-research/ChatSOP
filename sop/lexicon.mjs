@@ -156,6 +156,9 @@ export class Lexicon {
     // A leading English article is not part of a name unless the memory's own label carries it ("the United Kingdom" for the label "United Kingdom"): tried only after the whole surface found nothing.
     const bare = result.found.length || kind !== 'entity' ? null : String(surface).replace(/^(?:the|an?)\s+(?=\S)/i, '');
     if (bare && bare !== surface) { const retry = this.matching(bare, {language, kind, type, domain}); if (retry.found.length) return {found: retry.found, match: retry.match === 'exact' ? 'article-stripped' : 'article-stripped, accent-folded'}; }
+    // An English possessive ending is not part of a name ("Napoleon's" for the label "Napoleon"), again only after the whole surface found nothing.
+    const owner = result.found.length || kind !== 'entity' ? null : String(surface).replace(/(?:['’]s|s['’])$/i, m => m.length === 2 && /s/i.test(m[0]) ? m[0] : '');
+    if (owner && owner !== surface && owner.trim()) { const retry = this.matching(owner, {language, kind, type, domain}); if (retry.found.length) return {found: retry.found, match: retry.match === 'exact' ? 'possessive-stripped' : 'possessive-stripped, ' + retry.match}; }
     return result;
   }
 

@@ -1,0 +1,33 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-generality-v1",
+  "name": "Generality beyond known forms: held-out forms (level b), compositions and free natural questions (level c)",
+  "registered_at": "2026-10-02T10:40:00Z",
+  "registered_by": "generality-agent (owner, 2026-10-02: 'testează și fă validare că nu avem doar aceeași formă, alte cuvinte … scopul meu e să avem un sistem cât mai general posibil'; also: can the system combine known problem classes?)",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
+  "kind": "evaluation-only, minimal (no training). Dev data only: generated memories and the approved world-v1 base memory; no sealed suite is read.",
+  "question": "Does the CodingAgent path (circuit authoring, admission, KnowledgeLinker, engine) answer question forms it was never shown, compositions of known classes and free natural questions, and does it stay honest (unknown rather than wrong) where it cannot?",
+  "levels": {
+    "a": "known forms with new words: numbers from earlier runs only (T12 gpt-6-luna 19/0/1 of 20, glm-check zai/glm-5.3 tune 9/0/0/1 of 10, T8 Qwen3.8-27B B 88/10/19/3 of 120); not rerun here",
+    "b": "10 held-out forms x 5 instances (which-has-no, same-value, before-event, group-threshold, fewest-hops, anyone-both, counterfactual-closure, between-range, count-difference, shared-by-both); generator tools/datasets/diversity/generality.mjs; absence of each form's phrasing from the author guide and prompt, every dev set, examples and tests is checked by tools/eval/generality/heldout-check.mjs",
+    "c": "5 compositions x 5 instances (count+reachability, superlative+window, absence+rules, count+conditions, multihop+temporal) and about 20 free natural questions on world-v1 written by a Claude Haiku subagent told only 'ask varied factual and reasoning questions a curious user might ask about countries, cities, people, works'"
+  },
+  "gold": "Generated rows: answer computed by construction in JavaScript and checked against the reference oracle on the memory plus a reviewed gold circuit (gold definitions are never shown to the author or arm D). Natural rows: a reviewed gold circuit executed on world-v1, or 'unavailable' when world-v1 lacks the data; then the only correct output is an honest non-answer (unknown, unclear, clarify, relation not in memory).",
+  "arms": {
+    "C": "CodingAgent, zai/glm-5.3 through omp (product default, thinking off), authorQuery maxFixRounds 2, the symbolic-vs-llm harness runArm unchanged",
+    "R": "zero-model replay of the reviewed model-surface circuit through the same admission and execution: separates a missing language form or engine defect from an author error",
+    "D": "zai/glm-5.3 answering from the evidence rendered as English (arm A of the benchmark plan with the same model)",
+    "B": "Qwen3.8-27B local free SOP (LocalLLMDirect) on the same rows, only after the GPU is released by steps-agent; one llama-server"
+  },
+  "metrics": "Per level and arm: correct / wrong / unknown / invalid+failed; failure attribution by hand from the records: language form missing, author error, vocabulary/linking, engine, generator/gold.",
+  "hypotheses": {
+    "H1": "Arm C on level b: correct rate is reported, and the wrong rate is at most 10% (failures are honest unknown or invalid, not confident wrong).",
+    "H2": "Arm C on level c compositions: correct within 15 pp of level b.",
+    "H3": "Natural questions: every 'unavailable' row is answered honestly by arm C; arm D answers some of them from its own knowledge (reported, scored wrong for the evidence task)."
+  },
+  "stopping_rules": "One run per arm per row. Small first: if the first 10 rows of an arm are more than 50% failed or invalid for transport or a harness defect, stop, fix and restart small, recording the stop. A generic defect found (language, validator, guide, engine) is fixed by principle with a test, and only the affected rows are rerun and reported separately from the first run.",
+  "deviations": [
+    "Before any model call, arm R (zero-model replay) on 2 instances per form found three generic defects: (1) a yes/no question without select whose comparison fails was unknown instead of refuted (reasoning/bridge/reason.mjs, reasoning/strategies/js-reference/query.mjs); (2) an aggregate session definition was not admitted (lib/query-author/session.mjs, validate.mjs); (3) a name used only in an if-linked supposition was reported as mention_not_used (lib/query-author/validate.mjs). They were fixed before arm C ran; the author guide was not changed, so the level-b forms remain unseen by the author. Pre-fix replay: eval/reports/current/generality/replay-prefix/."
+  ],
+  "non_claim": "Small samples (5 per form, about 20 natural questions): the numbers describe these forms and questions, not generality in general."
+}

@@ -63,7 +63,7 @@ async function run(args) {
   if (suite === 'world30') process.env.QF_CHAT_ROOT ??= path.join(ROOT, 'chat_data');
   const {openSession} = await import('./query-forms-probe.mjs');
   const base = opt('--base', 'world-v1');
-  const session = openSession({base, id: `qp-${parser}-${Date.now().toString(36)}`});
+  const session = openSession({base, id: `qp-${parser.toLowerCase().replace(/[^a-z0-9_-]+/g, '-')}-${Date.now().toString(36)}`});
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8'));
   const settings = queryParserSettings({queryParser: {...(config.queryParser ?? {}), ...(model ? {models: [model], backend: {...(config.queryParser?.backend ?? {}), model}} : {}), cacheEntries: 0}});
   const omp = ompSettings(config);

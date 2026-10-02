@@ -18,6 +18,8 @@
 <tr><td class="ep">GET, POST /v1/memories, GET, DELETE /v1/memories/{id}, POST /v1/memories/{id}/fork, POST /v1/memories/{id}/knowledge</td><td>Base memories: list, create or import, view, delete, fork, add validated knowledge with provenance (any authenticated user may write; section 5)</td><td>chat data root, memory strategies DS016 to DS021, knowledge validator</td></tr>
 <tr><td class="ep">POST /v1/sessions, GET /v1/sessions, GET, DELETE /v1/sessions/{id}, POST .../settings, .../drafts, .../drafts/{d}/accept, .../drafts/{d}/reject, .../commit, .../theory, .../query</td><td>Sessions on a cloned base memory: settings (<code>omp_model</code>, <code>formalizer</code>), draft circuits, acceptance, commit to a fork, the theory and a query over it (sections 6 and 8)</td><td>chat data root, exact oracle, StrategyRouter</td></tr>
 <tr><td class="ep">GET /v1/omp/models, POST /v1/author, GET /v1/sessions/{id}/requests/{request}</td><td>The models omp can use with their cost class, the authoring path that turns attached files and instructions into proposed circuits, the status of a request (section 7)</td><td>omp coding agent, skill sop-wire-authoring</td></tr>
+<tr><td class="ep">POST /v1/memories/{id}/ingest, GET /v1/memories/{id}/ingestions, GET /v1/memories/{id}/ingestions/{ingestion}, POST .../accept, POST .../reject, POST /v1/memories/{id}/procedures</td><td>Document ingestion into a task-type base memory (rights check, chunking, drafting by the coding agent, quote and conflict checks, a report, explicit acceptance with provenance) and the procedure library (section 7)</td><td>lib/ingest, omp coding agent, knowledge validator, lib/query-author/procedures.mjs</td></tr>
+<tr><td class="ep">GET /review, GET /v1/knowledge/memories, GET /v1/knowledge/memories/{id}, GET /v1/knowledge/memories/{id}/items, GET /v1/knowledge/search, GET /v1/knowledge/entities/{id}, GET /v1/knowledge/predicates/{id}, GET /v1/knowledge/rules/{id}, GET /v1/knowledge/derive</td><td>The knowledge browser, read only: base memories and their layers with provenance and flags, risk-sorted items with evidence and example sentences, keyword search, entity, predicate and rule cards, and what the oracle derives about an entity, over a base memory (<code>memory=</code>) or a chat session (<code>session=</code>) (section 9)</td><td>lib/review, server/review.mjs, memory strategy, exact oracle</td></tr>
 <tr><td class="ep">GET /v1/capabilities</td><td>The endpoint list, the limits and the availability of the coding agent</td><td>server</td></tr>
 <tr><td class="ep">GET /v1/cache/stats, POST /v1/cache/clear</td><td>Cache statistics (any authenticated user); empty the caches</td><td>server</td></tr>
 </tbody></table></div></section>
@@ -62,7 +64,7 @@ curl -s -X POST http://127.0.0.1:9999/v1/cache/clear -H &quot;Authorization: Bea
    {&quot;id&quot;: &quot;CodingAgent&quot;, &quot;label&quot;: &quot;…&quot;, &quot;available&quot;: true, &quot;backend&quot;: &quot;omp&quot;,
     &quot;models&quot;: [{&quot;id&quot;: &quot;zai/glm-5.3&quot;, &quot;available&quot;: true}, {&quot;id&quot;: &quot;openai-codex/gpt-6-luna&quot;, &quot;available&quot;: true}]},
    {&quot;id&quot;: &quot;LocalLLMDirect&quot;, &quot;label&quot;: &quot;…&quot;, &quot;available&quot;: false, &quot;reason&quot;: &quot;…&quot;, &quot;backend&quot;: &quot;llama-server&quot;},
-   {&quot;id&quot;: &quot;LocalLLMStepByStep&quot;, &quot;label&quot;: &quot;…&quot;, &quot;available&quot;: false, &quot;reason&quot;: &quot;in progress; not registered in this server&quot;, &quot;backend&quot;: &quot;llama-server&quot;}
+   {&quot;id&quot;: &quot;LocalLLMStepByStep&quot;, &quot;label&quot;: &quot;…&quot;, &quot;available&quot;: true, &quot;running&quot;: false, &quot;backend&quot;: &quot;llama-server&quot;, &quot;model&quot;: &quot;qwen3.8-27b&quot;}
   ]
  },
  &quot;memories&quot;: [{&quot;id&quot;: &quot;world-v1&quot;, &quot;name&quot;: &quot;…&quot;, &quot;strategy&quot;: &quot;sqlite&quot;, &quot;facts&quot;: 357000, &quot;circuits&quot;: 247, &quot;warm&quot;: {&quot;ms&quot;: 12000, &quot;facts&quot;: 357000, &quot;layers&quot;: 221}}],
@@ -448,6 +450,29 @@ curl -s -X POST http://127.0.0.1:9999/v1/cache/clear -H &quot;Authorization: Bea
   }
  }
 }</code></pre>
+
+<h3 id="ingest">Ingest documents into a base memory</h3>
+<p>Documents, books and other material become knowledge of a <em>task-type base memory</em> (DS022 "Ingesting documents into a base memory"). Every document states its rights (<code>cleared</code>, <code>permissive-attribution</code> or <code>owner-provided</code>, DS011); anything else is refused with 400 <code>rights_required</code> before a model runs. The document is cut into chunks along its headings; the coding agent compiles one chunk at a time over the memory's vocabulary and the chunks before it; the validator and the quote check (every <code>quote</code> must be words of the passage) run in the repair rounds; a fact that duplicates or contradicts the memory is held back. The answer is a <strong>proposed</strong> ingestion with a report: nothing is stored yet. <code>wait: false</code> answers 202 with the status URL. A chunk already accepted earlier (same SHA-256) is skipped, so ingesting the same document again adds nothing.</p>
+<pre class="api-example product-example" data-endpoint="POST /v1/memories/family-copy/ingest" data-request="{&quot;documents&quot;: [{&quot;name&quot;: &quot;family-register.md&quot;, &quot;text&quot;: &quot;# Family register\n\nAnn is the parent of Bob. Bob is the parent of Cy.\n&quot;, &quot;source&quot;: {&quot;rights&quot;: &quot;owner-provided&quot;}}], &quot;purpose&quot;: &quot;family questions&quot;}" data-as="user" data-status="200" data-response-keys="object,id,status,chunks,totals,report"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories/family-copy/ingest -H &quot;Authorization: Bearer $TOKEN&quot; -H &#x27;content-type: application/json&#x27; -d &#x27;{&quot;documents&quot;: [{&quot;name&quot;: &quot;family-register.md&quot;, &quot;text&quot;: &quot;# Family register\n\nAnn is the parent of Bob. Bob is the parent of Cy.\n&quot;, &quot;source&quot;: {&quot;rights&quot;: &quot;owner-provided&quot;}}], &quot;purpose&quot;: &quot;family questions&quot;}&#x27;</code></pre>
+<p>Abridged response (HTTP 200):</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;memory.ingestion&quot;,
+ &quot;id&quot;: &quot;ing-mur0b2k1-4c1a9e&quot;,
+ &quot;memory&quot;: {&quot;id&quot;: &quot;family-copy&quot;, &quot;name&quot;: &quot;Family (copy)&quot;},
+ &quot;status&quot;: &quot;proposed&quot;,
+ &quot;documents&quot;: [{&quot;name&quot;: &quot;family-register.md&quot;, &quot;title&quot;: &quot;Family register&quot;, &quot;sha256&quot;: &quot;…&quot;, &quot;source&quot;: {&quot;rights&quot;: &quot;owner-provided&quot;}}],
+ &quot;chunks&quot;: [{&quot;key&quot;: &quot;family-register-md-01&quot;, &quot;status&quot;: &quot;validated&quot;, &quot;start_line&quot;: 1, &quot;end_line&quot;: 3, &quot;wires&quot;: {&quot;predicate&quot;: 1, &quot;rule&quot;: 1}, &quot;rejected&quot;: [], &quot;conflicts&quot;: [{&quot;code&quot;: &quot;duplicate_of_memory&quot;, &quot;wire&quot;: &quot;f_bc&quot;, &quot;…&quot;: &quot;…&quot;}], &quot;uncertain&quot;: []}],
+ &quot;totals&quot;: {&quot;chunks&quot;: 1, &quot;validated&quot;: 1, &quot;rejected_quotes&quot;: 0, &quot;conflicts&quot;: 1, &quot;cost_usd&quot;: 0.0025},
+ &quot;report&quot;: &quot;# Ingestion ing-mur0b2k1-4c1a9e into Family (copy) (family-copy) …&quot;
+}</code></pre>
+<p><code>GET /v1/memories/&lt;id&gt;/ingestions</code> lists the ingestions of a memory and <code>GET /v1/memories/&lt;id&gt;/ingestions/&lt;ingestion&gt;</code> returns one with its report. Accepting is the explicit act that stores the validated chunks through the knowledge validator, with the provenance of each (document, SHA-256, URL, licence, rights, section, lines, chunk SHA-256) and the acting user; <code>only</code> accepts some chunk keys; <code>POST .../reject</code> closes it without storing anything.</p>
+<pre class="api-example product-example" data-endpoint="POST /v1/memories/family-copy/ingestions/{ingestion}/accept" data-request="{&quot;reason&quot;: &quot;reviewed the report&quot;}" data-as="user" data-status="200" data-response-keys="object,ingestion,outcome,memory"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories/family-copy/ingestions/&lt;ingestion-id&gt;/accept -H &quot;Authorization: Bearer $TOKEN&quot; -H &#x27;content-type: application/json&#x27; -d &#x27;{&quot;reason&quot;:&quot;reviewed the report&quot;}&#x27;</code></pre>
+<p>Then start sessions on the memory as on any base memory (<code>POST /v1/sessions {&quot;base&quot;: &quot;family&quot;}</code>). From the command line: <code>node tools/ingest-documents.mjs draft --memory ID --file book.md --rights cleared</code>, then <code>accept</code>.</p>
+
+<h3 id="procedures">Procedure library</h3>
+<p>A procedure is a bundle of definitions (predicates, rules, defaults) with a description of the question form it answers, stored in a base memory like any knowledge (DS022 "Procedure library"). When a message matches a description, the query author is offered the procedure's head predicate and its rules, and queries it instead of re-deriving the rule. A typical source is a session definition the coding agent wrote for one question.</p>
+<pre class="api-example product-example" data-endpoint="POST /v1/memories/family-copy/procedures" data-request="{&quot;id&quot;: &quot;proc_grandparent&quot;, &quot;description&quot;: &quot;Answers: who is a grandparent of a person?&quot;, &quot;definitions&quot;: &quot;@grandparent_of predicate\n  args subject:entity object:entity\n  label en \&quot;grandparent of\&quot;\n\n@r_grandparent_of rule\n  when all\n    parent ?x ?y\n    parent ?y ?z\n  end\n  then grandparent_of ?x ?z\n&quot;}" data-as="user" data-status="200" data-response-keys="object,procedure,memory,added"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories/family-copy/procedures -H &quot;Authorization: Bearer $TOKEN&quot; -H &#x27;content-type: application/json&#x27; -d @procedure.json</code></pre>
+<p>The answer names the stored circuit (<code>added</code>) and the memory's new counters; the circuit is <code>procedure-proc_grandparent</code> with a <code>@proc_grandparent procedure</code> wire whose <code>members</code> are the definitions.</p>
 </section>
 
 
@@ -676,5 +701,48 @@ curl -s -X POST http://127.0.0.1:9999/v1/cache/clear -H &quot;Authorization: Bea
  ]
 }</code></pre>
 
+</section>
+
+<section id="knowledge"><h2>9. Knowledge browser (read only)</h2>
+<p>The page <a href="/review">/review</a> (signed in; menu <em>Knowledge</em>) and the API below show what a base memory or a chat session knows, layer by layer: the import layers (<code>core-min</code>, <code>core-en</code>, <code>commonsense-v1</code>, …), the memory's own circuits, one layer per document ingestion and, for a session, the session layer. Every route is <code>GET</code> and writes nothing; another method answers 405. There is no accept or reject endpoint: flags mark likely problems (a form with no corpus or Wikidata evidence, a form two predicates claim, a converse frame, a rule, a flipped or merged Wikidata mapping, a predicate without a description) and corrections go through tests and interactions. A target is named with <code>memory=&lt;id&gt;</code> or <code>session=&lt;id&gt;</code> (a session must be visible to the caller); an unknown memory answers 404 <code>unknown_memory</code>, a bad parameter 400 <code>invalid_parameter</code>.</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Route</th><th scope="col">Answer</th></tr></thead><tbody>
+<tr><td class="ep">GET /v1/knowledge/memories</td><td>every base memory: layers, provenance summary (kind, approver, source, counts, dates), circuits, facts, ingestions</td></tr>
+<tr><td class="ep">GET /v1/knowledge/memories/{id}</td><td>layers with files, wires, entities, facts and flag statistics; provenance; ingestions; the world-v1 mapping table (Wikidata property, predicate, kind, flip, scope, facts built) when a layer is the Wikidata build</td></tr>
+<tr><td class="ep">GET /v1/knowledge/memories/{id}/items?layer=&amp;type=&amp;flag=&amp;group=&amp;q=&amp;offset=&amp;limit=</td><td>the items of a layer, most risk first, with flags, evidence (mined corpus counts and example messages, Wikidata properties, dropped forms, mapping rows) and examples: generated sentences and the atom they map to, sample facts in words, a derivation of each rule over stored facts</td></tr>
+<tr><td class="ep">GET /v1/knowledge/search?memory=|session=&amp;q=&amp;kind=&amp;offset=&amp;limit=</td><td>keyword search: every word must match, the last also as a prefix; groups <code>entities</code>, <code>classes</code>, <code>predicates</code> (labels, aliases, lexeme forms, descriptions), <code>rules</code>, <code>facts</code> (text values), ranked; <code>kind</code> pages one group</td></tr>
+<tr><td class="ep">GET /v1/knowledge/entities/{id}</td><td>label, aliases, classes closed over <code>is_a</code>, description, the stored facts in both directions grouped by predicate with source and layer, the rules that can derive more</td></tr>
+<tr><td class="ep">GET /v1/knowledge/predicates/{id}</td><td>roles, description, closedness, the lexemes with their forms and evidence, generated sentences, fact counts per layer, example facts, the rules that conclude or use it, the mapping rows</td></tr>
+<tr><td class="ep">GET /v1/knowledge/rules/{id}</td><td>the SOP, a deterministic English reading and an example derivation over stored facts (or over placeholder names, labelled hypothetical)</td></tr>
+<tr><td class="ep">GET /v1/knowledge/derive?entity=&amp;predicate=</td><td>what the oracle derives about an entity through the rules (bounded queries), each derived fact with its proof tree and the layer of every premise</td></tr>
+</tbody></table></div>
+<h3>Search</h3>
+<pre class="api-example product-example" data-endpoint="GET /v1/knowledge/search?memory=family&amp;q=parent" data-request="" data-as="user" data-status="200" data-response-keys="object,q,target,total,groups"><code>curl -s 'http://127.0.0.1:9999/v1/knowledge/search?memory=family&amp;q=parent' -b cookies.txt</code></pre>
+<p>Abridged response:</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;knowledge.search&quot;,
+ &quot;q&quot;: &quot;parent&quot;,
+ &quot;target&quot;: {&quot;kind&quot;: &quot;memory&quot;, &quot;id&quot;: &quot;family&quot;},
+ &quot;total&quot;: 1,
+ &quot;groups&quot;: {
+  &quot;predicates&quot;: {&quot;total&quot;: 1, &quot;offset&quot;: 0, &quot;items&quot;: [{&quot;id&quot;: &quot;parent&quot;, &quot;label&quot;: &quot;parent&quot;, &quot;matched&quot;: &quot;parent&quot;, &quot;score&quot;: 100, &quot;facts&quot;: 1}]},
+  &quot;entities&quot;: {&quot;total&quot;: 0, &quot;offset&quot;: 0, &quot;items&quot;: []},
+  &quot;...&quot;: &quot;...&quot;
+ }
+}</code></pre>
+<h3>A predicate card</h3>
+<pre class="api-example product-example" data-endpoint="GET /v1/knowledge/predicates/parent?memory=family" data-request="" data-as="user" data-status="200" data-response-keys="object,id,roles,lexemes,sentences,examples,used_by,concluded_by"><code>curl -s 'http://127.0.0.1:9999/v1/knowledge/predicates/parent?memory=family' -b cookies.txt</code></pre>
+<p>Abridged response: the example facts are read through the memory strategy and rendered in words through the predicate's first English lexeme (here the predicate has none, so the atom is shown as <code>parent(ann, bob)</code>).</p>
+<pre class="api-response"><code>{
+ &quot;object&quot;: &quot;knowledge.predicate&quot;,
+ &quot;id&quot;: &quot;parent&quot;,
+ &quot;roles&quot;: [{&quot;name&quot;: &quot;subject&quot;, &quot;type&quot;: &quot;entity&quot;}, {&quot;name&quot;: &quot;object&quot;, &quot;type&quot;: &quot;entity&quot;}],
+ &quot;layer&quot;: &quot;family&quot;,
+ &quot;lexemes&quot;: [],
+ &quot;sentences&quot;: [],
+ &quot;examples&quot;: [{&quot;atom&quot;: &quot;parent ann bob&quot;, &quot;sentence&quot;: &quot;parent(ann, bob)&quot;, &quot;source&quot;: &quot;family register&quot;, &quot;layer&quot;: &quot;family&quot;}],
+ &quot;concluded_by&quot;: [],
+ &quot;used_by&quot;: [],
+ &quot;...&quot;: &quot;...&quot;
+}</code></pre>
 </section>
 </article></main></body></html>

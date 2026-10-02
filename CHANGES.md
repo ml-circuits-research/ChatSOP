@@ -1,3 +1,21 @@
+# Knowledge browser /review (2026-10-02, review-page-agent)
+
+Owner requests of 2026-10-02: "Where can I review world-v1 and core-en, the drafts I haven't approved?" and "search by keywords and see what the current memory knows". Owner correction the same day: no accept/reject workflow; /review is a read-only browser, problems are corrected systematically through tests and interactions.
+
+- **Library** `lib/review/`: `target.mjs` (a base memory or a chat session as ordered layers: imports, own circuits, one layer per document ingestion, the session layer; per-layer summaries parsed once per fingerprint), `items.mjs` (risk-sorted items with flags: form with no corpus or Wikidata evidence, shared form, converse frame, rule, flipped or merged world-v1 mapping, predicate without description or English form, ...), `evidence.mjs` (core-en mined counts and example messages, dropped forms with cross-review verdicts, Wikidata property labels, the world-v1 mapping table), `examples.mjs` (generated sentences and the atom they map to, facts in words, rule derivations over stored facts), `index.mjs` (search, entity/predicate/rule cards, derive through `askMemory` with proofs).
+- **Server** `server/review.mjs`, page `server/pages/review.mjs`: `GET /review` and `GET /v1/knowledge/{memories,memories/{id},memories/{id}/items,search,entities/{id},predicates/{id},rules/{id},derive}`; read only (405 for other methods), signed in; menu entry *Knowledge*; chat trace links linked entities and relations to their cards.
+- **Docs** README, docs/runtime.html (section "The knowledge browser"), docs/api.html (section 9 with executed examples), DS009, DS022 "Knowledge browser", matrix. **Tests** `tests/knowledge-browser.test.mjs`.
+
+# LocalLLMStepByStep, the optimised local runtime and the end of T8 (2026-10-02, steps-agent)
+
+Owner decisions of 2026-10-02: a small local model is used as an oracle that answers short questions while the symbolic system writes the circuit (LocalLLMStepByStep); the local path is optimised to the maximum and only the optimised variant is measured.
+
+- **Local runtime** `lib/local-llm/`: one managed llama-server per GGUF shared by both local strategies, dedicated slots per role, flash attention, full offload, `--cache-reuse`, slot files of the exact stable prompt prefix restored before every request and verified with the server's `cache_n` (hybrid models such as Qwen3.8 and Nemotron-H need an in-process checkpoint and are re-evaluated at start). `tools/local-llm/serve.mjs` keeps a model loaded.
+- **LocalLLMStepByStep** `lib/query-author/step-by-step/`: kind, names, statements of the schema neighbourhood, places, truth/absence, period, puzzle lines, reachability (system-written recursive definition), unused names, paraphrase confirmation with one redo; robust answer readers; same validator. DS022 "LocalLLMStepByStep".
+- **Named strategies** `lib/formalize/strategies.mjs`, `server/query-parser.mjs`: `CodingAgent | LocalLLMDirect | LocalLLMStepByStep` per session or by `queryParser.strategy` / `CHATSOP_FORMALIZER`; `queryParser.local` in `config/runtime.json`; the local server stops with the chat server. docs/runtime.html "Running a local formalizer".
+- **Measurement** (40 dev rows, F2-F9): Qwen3.8-27B 36 correct / 2 wrong / 0 invalid at p50 2.2 s (LocalLLMDirect on the same optimised runtime: 36/2 at 6.1 s; T8 free SOP 30/1 at 6.7 s); Qwen3-4B 27 / 3 at 0.34 s (free SOP 0 correct, 36 invalid); Nemotron 26 / 2; Qwen3-1.7B 4 / 4. Reports `eval/reports/current/omp-tasks/t10-stepbystep.md` and `t8-big-local.md` (ablation stopped early; Nemotron 51 tok/s, free SOP 9/40).
+- **Tests**: `tests/local-llm-runtime.test.mjs`, `tests/local-llm-step-by-step.test.mjs`, `tests/formalization-strategies.test.mjs`.
+
 # Chat, server status and documentation brought up to date (2026-10-02, product-agent)
 
 Owner request: "Update the chat and the server so I have the documentation, functionality and mode of operation up to date." No training, no port 9999, no commit.

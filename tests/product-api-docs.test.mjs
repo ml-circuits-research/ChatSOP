@@ -24,10 +24,11 @@ test('the product examples of docs/api.html match the live handlers', async t =>
     const route = unescape(rawRoute);
     documented.add(method + ' ' + route.replace(/\/(family|family-copy|demo-session)(?=\/|$)/g, '/{id}'));
     const body = ['GET', 'DELETE'].includes(method) ? undefined : JSON.parse(unescape(encoded));
-    const res = await (who === 'admin' ? s.admin : s.user)(route.replace('{draft}', ctx.draft).replace('{request}', ctx.request), method, body && Object.keys(body).length ? body : method === 'POST' ? {} : undefined);
+    const res = await (who === 'admin' ? s.admin : s.user)(route.replace('{draft}', ctx.draft).replace('{request}', ctx.request).replace('{ingestion}', ctx.ingestion), method, body && Object.keys(body).length ? body : method === 'POST' ? {} : undefined);
     assert.equal(res.status, Number(status), `${method} ${route}: ${res.text.slice(0, 300)}`);
     for (const key of keys.split(',')) assert.ok(key in res.body, `${method} ${route}: documented response key ${key}`);
     if (route === '/v1/author') Object.assign(ctx, {draft: res.body.draft.id, request: res.body.request_id});
+    if (/\/ingest$/.test(route)) ctx.ingestion = res.body.id;
   }
   for (const wanted of ['GET /v1/memories', 'POST /v1/memories', 'GET /v1/memories/{id}', 'POST /v1/memories/{id}/fork', 'POST /v1/memories/{id}/knowledge', 'POST /v1/sessions', 'GET /v1/sessions/{id}',
     'POST /v1/sessions/{id}/settings', 'GET /v1/sessions/{id}/theory', 'POST /v1/sessions/{id}/query', 'POST /v1/sessions/{id}/commit', 'GET /v1/omp/models',

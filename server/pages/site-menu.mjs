@@ -16,6 +16,7 @@ import fs from 'node:fs';
 export const SITE_MENU = Object.freeze([
   {key: 'home', label: 'Home', href: '/'},
   {key: 'chat', label: 'Chat', href: '/chat'},
+  {key: 'review', label: 'Knowledge', href: '/review'},
   {key: 'experiments', label: 'Experiments', items: [
     {key: 'experiments-index', label: 'Index: tasks & experiments', href: '/experiments'},
     {key: 'experiments-topics', label: 'Topics', href: '/experiments/topics'},

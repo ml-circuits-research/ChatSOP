@@ -48,3 +48,9 @@ if (server.auth?.configured) {
 console.log(`\nCircuit author: the omp coding agent, model chain ${(server.queryParser?.settings.models ?? []).join(' -> ') || '(none configured)'}; without a usable model the chat answers parse_unavailable (503). The home page shows the state.`);
 if (host !== '127.0.0.1' && host !== '::1' && host !== 'localhost') console.log('Remote binding: the documentation path is unauthenticated, so expose this only on a trusted network.');
 console.log('Stop with Ctrl+C.\n');
+
+// A managed local model server (queryParser.strategy LocalLLMDirect or LocalLLMStepByStep) is a child process: stop it on exit.
+for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, async () => {
+  await server.queryParser?.stop?.().catch(() => {});
+  process.exit(0);
+});

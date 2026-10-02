@@ -42,6 +42,8 @@ export function naturalRows(file = NATURAL_FILE) {
  */
 export function rescore(row, record) {
   const packet = record.packet;
+  // A compound natural question with an answerable part is judged by hand from the rendered answer (gold_note).
+  if (row.expected.manual) return ['invalid', 'failed'].includes(record.outcome) ? record.outcome : 'manual';
   if (row.expected.unavailable) {
     if (record.outcome === 'invalid' || record.outcome === 'failed') return record.outcome;
     const status = packet?.status, unclear = record.author?.status === 'validated' && /unclear/.test(record.author?.sop ?? '') && !/@\w+ query/.test(record.author?.sop ?? '');
@@ -56,7 +58,7 @@ export function rescore(row, record) {
 
 function goldOf(row, world) {
   if (row.base_memory === 'world-v1') {
-    if (row.expected.unavailable) {
+    if (row.expected.unavailable || row.expected.manual) {
       const packet = row.evidence_query ? execute(world, row.evidence_query) : {status: 'unknown', complete: true};
       return {gold: packet, query: row.evidence_query ?? null};
     }
@@ -100,7 +102,7 @@ export async function main(args = process.argv.slice(2)) {
       } else world = createWorld(row.knowledge);
       try {
         const {gold, query} = goldOf(row, world);
-        if (!row.expected.unavailable) {
+        if (!row.expected.unavailable && !row.expected.manual) {
           const check = score(strip(row.expected), row.expected.conditional ? {...gold, conditional: row.expected.conditional} : gold).outcome;
           if (check !== 'correct' && !(row.expected.status === 'refuted' && gold.status === 'unknown')) throw new Error(`${row.id}: gold circuit disagrees with the constructed answer (${gold.status})`);
         }

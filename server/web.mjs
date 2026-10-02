@@ -23,7 +23,7 @@ import {createProjectRouter, gates as computeGates, dataPipeline} from './projec
 import {readExperiments} from '../lib/journal.mjs';
 
 /** Pages that a browser should reach through the login page when signed out. */
-export const PROTECTED_PAGES = new Set(['/chat', '/experiments', '/admin']);
+export const PROTECTED_PAGES = new Set(['/chat', '/review', '/experiments', '/admin']);
 /** True for a signed-in browser page: the fixed pages and every `/experiments/…` page except its API. */
 export const isProtectedPage = pathname => PROTECTED_PAGES.has(pathname) || (pathname.startsWith(BASE + '/') && !pathname.startsWith(BASE + '/api/'));
 

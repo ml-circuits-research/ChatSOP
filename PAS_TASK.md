@@ -2,6 +2,17 @@
 
 
 
+## Knowledge browser /review (2026-10-02, review-page-agent)
+
+Delivered: a read-only knowledge browser over base memories and chat sessions (`lib/review/`, `server/review.mjs`, `server/pages/review.mjs`, `GET /v1/knowledge/*`), linked from the shared menu and from the chat trace. No accept/reject state (owner correction of 2026-10-02).
+Observed on a private server (port 9437, the real `chat_data`, headless Chromium screenshots): core-en risk view 899 items, 672 flagged (form_no_evidence 331, review_dropped 232, shared_form 108 told apart by restrict or weight, converse_frame 68, rules 92); world-v1 own layer 42 flagged items (13 lexeme forms without evidence, 11 flipped and 5 merged mapping rows), mapping table of 49 rows; search "einstein" 19 ms; Albert Einstein's card 35 stored facts in 13 predicate groups (123 ms warm); derive on Heidelberg returns derived facts such as `is_a heidelberg place` with proof trees whose premises come from world-v1 and core-en.
+
+## LocalLLMStepByStep and the optimised local runtime; T8 completed (2026-10-02, steps-agent)
+
+- Shared local runtime `lib/local-llm/`, LocalLLMStepByStep `lib/query-author/step-by-step/`, strategy registry `lib/formalize/strategies.mjs`, query-parser strategies, `tools/local-llm/serve.mjs`, benchmark arms `B-stepbystep` and `B-local`.
+- Commands run: `node tools/local-llm/serve.mjs --gguf <model> --port <p> --alias <a> --slots direct,steps --ctx-per-slot 16384`; `node tools/eval/symbolic-vs-llm/run.mjs --manifest eval/reports/current/symbolic-vs-llm/t7-data/manifest.jsonl --arms B-stepbystep --model <alias> --endpoint http://127.0.0.1:<p>/v1 --pilot 5 --out eval/reports/current/symbolic-vs-llm/t10-steps-<model>-final[2]` for Qwen3.8-27B, Qwen3-4B Q4, Qwen3-1.7B Q8 and Nemotron; `--arms B-local` for Qwen3.8-27B; T8: `eval/reports/current/symbolic-vs-llm/t8-config/study-run.mjs` (Qwen3-4B, 12 rows) and `run.mjs --arms B --model nemotron --pilot 5`.
+- Results: Qwen3.8-27B 36/2/2/0 (correct/wrong/unknown/invalid) p50 2218 ms, Qwen3-4B 27/3/10/0 p50 338 ms, Nemotron 26/2/6/6, Qwen3-1.7B 4/4/7/25; reports `eval/reports/current/omp-tasks/t10-stepbystep.md`, `eval/reports/current/omp-tasks/t8-big-local.md`.
+
 ## Chat, server status and documentation up to date (2026-10-02, product-agent)
 
 Delivered: `GET /v1/status` (`server/status.mjs`), session setting `formalizer` with no substitution, the pipeline trace panel and the Settings Formalization and Server status cards (`server/pages/chat.mjs`, `chat-product.mjs`), repair-round codes in the parse record, 180 s turn limit, docs (README, index, runtime, api, wiki, DS000/DS002/DS009/DS022, architecture) and the removal of small-model training rules into `probably_obsolete/`. Tests: `tests/server-status.test.mjs`.

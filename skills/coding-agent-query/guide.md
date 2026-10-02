@@ -266,13 +266,29 @@ Read the full vocabulary when candidates do not explain the requested relation. 
 
 Temporal questions use `at "DATE"` for one instant, `during "START to END"` for throughout the full end-exclusive interval, and `overlaps "START to END"` for any instant of the interval. Write the dates rather than the words "throughout" or "at any point" inside the date string. Never use `at` for a whole interval.
 
+## Statements of the user
+
+A message that states something ("My friend Zork lives in Lisbon.") is written as `stated` wires with `certainty asserted`, one finite clause per wire, every value copied from the message (an unknown name stays as written). They are turn-local evidence: a later question of the same conversation can use them; nothing is stored in the memory.
+```
+@s stated
+  certainty asserted
+  relation "lives_in"
+  role subject "Zork"
+  role location "Lisbon"
+  polarity affirmed
+```
+
+## Class of the answer, and messages in any language
+
+When the question names the class of its answer ("which countries ...", "which cities ..."), restrict the answer with an `is_a` match of that class, unless the relation's declared argument class already guarantees it; a relation's values may include items of other classes. The message may be in any language: entity strings are names as written, never question or function words ("Care", "Unde", "Cine", "Qui", "Wer").
+
 ## unclear (alone in the file)
 
 ```
 @u unclear
   kind relation_not_in_memory
 ```
-`kind` is `gibberish`, `no_request` (no question and nothing to ask: a statement, "ok", "write a poem"), `ambiguous` with 2 to 4 `reading "..."` lines, or `relation_not_in_memory` (the question is clear, but no predicate of the memory expresses it).
+`kind` is `gibberish`, `no_request` (nothing to state or ask: "ok", "write a poem"; a statement is written as `stated` wires, below), `ambiguous` with 2 to 4 `reading "..."` lines, or `relation_not_in_memory` (the question is clear, but no predicate of the memory expresses it).
 
 ## Session definitions and assumptions (only when needed)
 

@@ -112,11 +112,15 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
   let parseOk = null, responseEmpty = false, brokenModelOutput = false;
   const latency = {parse_ms: 0, retrieval_ms: 0, engine_ms: 0, verify_ms: 0, model_ms: 0};
   try {
-    if (arm === 'B-stepbystep') {
-      // LocalLLMStepByStep through the product runtime: dedicated slot, restored stable prefix, the strategy writes the circuit itself.
-      stepStrategies.set(settings.endpoint, stepStrategies.get(settings.endpoint) ?? localStrategy('LocalLLMStepByStep', {endpoint: settings.endpoint, alias: settings.model}, {timeoutMs: settings.wallMs}));
-      author = await stepStrategies.get(settings.endpoint).run({message: row.question, lexicon: world.lexicon, repo: world.repo, session: world.session, derived: new Set(world.theory.byHead?.keys?.() ?? [])});
-      latency.model_ms = author.steps.reduce((n, s) => n + s.ms, 0);
+    if (arm === 'B-stepbystep' || arm === 'B-local') {
+      // The product's local strategies on their dedicated slots with the restored stable prefix: LocalLLMStepByStep (the strategy
+      // writes the circuit from the oracle's answers) or LocalLLMDirect (arm B's author loop, same guide and repair rounds).
+      const name = arm === 'B-local' ? 'LocalLLMDirect' : 'LocalLLMStepByStep', key = `${name}@${settings.endpoint}`;
+      stepStrategies.set(key, stepStrategies.get(key) ?? localStrategy(name, {endpoint: settings.endpoint, alias: settings.model, maxTokens: settings.maxTokens}, {timeoutMs: settings.wallMs}));
+      author = name === 'LocalLLMDirect'
+        ? await stepStrategies.get(key).run({message: row.question, lexicon: world.lexicon, maxFixRounds: 2})
+        : await stepStrategies.get(key).run({message: row.question, lexicon: world.lexicon, repo: world.repo, session: world.session, derived: new Set(world.theory.byHead?.keys?.() ?? [])});
+      latency.model_ms = author.steps ? author.steps.reduce((n, s) => n + s.ms, 0) : author.runs.reduce((n, r) => n + (r.duration_ms ?? 0), 0);
     }
     if (['B', 'B-grammar', 'B-structured', 'C'].includes(arm)) {
       const deadline = start + settings.wallMs;
@@ -145,7 +149,7 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
       }};
       author = await authorQuery({message: row.question, lexicon: world.lexicon, backend: bounded, folder, maxFixRounds: 2});
     }
-    if (['B', 'B-grammar', 'B-structured', 'C', 'B-stepbystep'].includes(arm)) {
+    if (['B', 'B-grammar', 'B-structured', 'C', 'B-stepbystep', 'B-local'].includes(arm)) {
       const deadline = start + settings.wallMs;
       latency.parse_ms = Date.now() - start; tokensIn = author.usage?.input_tokens ?? 0; tokensOut = author.usage?.output_tokens ?? 0; cost = author.usage?.cost_usd ?? 0;
       responseEmpty = author.runs?.at(-1)?.ok === true && !author.sop?.trim();
@@ -227,13 +231,13 @@ export async function main(args = process.argv.slice(2)) {
     if (!preregistration.frozen) throw new Error('sealed execution requires a frozen preregistration');
   }
   const arms = opt(args, '--arms', 'A,B').split(',');
-  if (arms.some(a => !['A', "A'", 'B', 'B-grammar', 'B-structured', 'B-stepbystep', 'C', 'D'].includes(a))) throw new Error('unknown arm');
-  if (rows.some(r => r.split !== 'dev') && arms.some(a => ['B-grammar', 'B-structured', 'B-stepbystep'].includes(a))) throw new Error('constrained authoring variants are dev-only; the frozen sealed protocol does not include these arms');
+  if (arms.some(a => !['A', "A'", 'B', 'B-grammar', 'B-structured', 'B-stepbystep', 'B-local', 'C', 'D'].includes(a))) throw new Error('unknown arm');
+  if (rows.some(r => r.split !== 'dev') && arms.some(a => ['B-grammar', 'B-structured', 'B-stepbystep', 'B-local'].includes(a))) throw new Error('constrained authoring variants are dev-only; the frozen sealed protocol does not include these arms');
   const key = opt(args, '--model', 'qwen3-4b-q4');
   const settings = {model: key, endpoint: opt(args, '--endpoint', null), subscriptionModel: opt(args, '--subscription-model', 'openai-codex/gpt-6-luna'), wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096))};
   if (!/^(openai-codex|xai-oauth|zai|zai-coding-plan)\//.test(settings.subscriptionModel)) throw new Error('subscription models first; paid execution requires an explicitly authorized separate run');
   const spec = MODELS[key];
-  const managed = !settings.endpoint && arms.some(a => ['A', "A'", 'B', 'B-grammar', 'B-structured', 'B-stepbystep'].includes(a));
+  const managed = !settings.endpoint && arms.some(a => ['A', "A'", 'B', 'B-grammar', 'B-structured', 'B-stepbystep', 'B-local'].includes(a));
   if (managed && spec?.kind !== 'local') throw new Error('local model needs explicit existing GGUF specification');
   const alternate = path.resolve('models/qwen3-4b-instruct/gguf/q4_k_m.gguf');
   const gguf = managed ? fs.existsSync(spec.gguf) ? spec.gguf : key === 'qwen3-4b-q4' && fs.existsSync(alternate) ? alternate : spec.gguf : null;

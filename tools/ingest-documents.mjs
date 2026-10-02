@@ -4,7 +4,7 @@
  *
  *   node tools/ingest-documents.mjs create-memory --id ID --name NAME [--imports core-min,...] [--description TEXT]
  *   node tools/ingest-documents.mjs draft  --memory ID (--file PATH ... --rights cleared|permissive-attribution|owner-provided [--url U] [--licence L] [--title T]
- *                                          | --manifest FILE.json) [--model zai/glm-5.3] [--purpose TEXT] [--max-chunk-bytes N] [--user NAME]
+ *                                          | --manifest FILE.json) [--model zai/glm-5.3] [--purpose TEXT] [--max-chunk-bytes N] [--thinking LEVEL] [--timeout-seconds S] [--user NAME]
  *   node tools/ingest-documents.mjs accept --memory ID --ingestion ING --by USER [--reason TEXT] [--only key,key]
  *   node tools/ingest-documents.mjs reject --memory ID --ingestion ING --by USER [--reason TEXT]
  *   node tools/ingest-documents.mjs report --memory ID --ingestion ING
@@ -54,7 +54,7 @@ async function main() {
   } else if (command === 'draft') {
     const omp = ompSettings(config);
     const record = await ingestions.draft(memory, {documents: documentsFromArgs(), model: opt('--model', config.queryParser?.models?.[0] ?? null), purpose: opt('--purpose', ''), user: opt('--user', process.env.CHATSOP_ACTOR ?? null),
-      maxChunkBytes: Number(opt('--max-chunk-bytes', 7000)), maxFixRounds: Number(opt('--max-fix-rounds', omp.maxFixRounds ?? 3)), bin: omp.bin, thinking: omp.thinking ?? null,
+      maxChunkBytes: Number(opt('--max-chunk-bytes', 7000)), maxFixRounds: Number(opt('--max-fix-rounds', omp.maxFixRounds ?? 3)), bin: omp.bin, thinking: opt('--thinking', omp.thinking ?? null), timeoutMs: Number(opt('--timeout-seconds', 900)) * 1000,
       onProgress: p => process.stderr.write(`[ingest] ${p.document} chunk ${p.chunk}/${p.of}\n`)});
     console.log(JSON.stringify({id: record.id, status: record.status, totals: record.totals, report: path.join(ingestions.dir(memory, record.id), 'report.md')}, null, 2));
   } else if (command === 'accept') {

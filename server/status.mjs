@@ -31,7 +31,7 @@ export async function formalizationStrategies(queryParser, ompModels = null) {
   const free = queryParser ? await queryParser.availability() : {available: false, reason: 'no request parser'};
   const listing = own === 'CodingAgent' && ompModels ? await ompModels.list().catch(() => null) : null;
   return FORMALIZATION_STRATEGIES.map(s => {
-    if (s.id !== own) return {...s, available: false, reason: s.id === 'LocalLLMStepByStep' ? 'in progress; not registered in this server' : 'not configured in this server', backend: s.id === 'CodingAgent' ? 'omp' : 'llama-server'};
+    if (s.id !== own) return {...s, available: false, reason: 'not configured in this server', backend: s.id === 'CodingAgent' ? 'omp' : 'llama-server'};
     const models = (queryParser.settings.models ?? []).map(id => {
       if (!listing) return {id};
       const ok = listing.available && listing.models.some(m => m.id === id);
