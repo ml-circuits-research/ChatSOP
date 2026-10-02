@@ -808,3 +808,9 @@ Benchmark staged stop: {"family":"f9","stage":100,"stop":true,"reason":"broken",
 - Ran query-author tests: 70/70. Final focused conversation/query-author/slice command: 120/120. Final `npm test`: 1273 tests, 1271 pass, one stale architecture-citation failure, one skip, zero cancellations. Sole failure is `tests/architecture-page.test.mjs`; regenerating `docs/architecture.html` is forbidden by T11 ownership. No tests deleted or weakened.
 - Ran `node tools/check-spec-refs.mjs`: 23 specifications, 5468 files, zero violations. Ran `node eval/smoke-reasoning/run.mjs`: exit 0, 145 cases and 60 invalid fixtures, zero validation problems/warnings; js-oracle 100 expressible cases pass, zero fail.
 - Report: `eval/reports/current/omp-tasks/t11-guards.md`; replay driver and both failure-stage/final snapshots retained for reproducibility. No model calls, installations, training, sealed access or port 9999.
+
+## Generic question protocol for LocalLLMStepByStep (2026-10-02, protocol-agent)
+
+- Delivered methods B, C, D (and ablations B-cue, B-yesno) of the adopted plan; B is the default step-by-step protocol. Stage 1 (89 dev rows: known forms 24, held-out forms 30, compositions 15, natural 20) decisive for every new method; final B: 73 correct / 3 wrong / 10 unknown / 3 invalid-failed vs A 23 / 24 / 20 / 22 (B−A +56.2 pp [44.9, 67.4]); Qwen3.8-27B reference with B 79 / 0 / 10 / 0.
+- Deviations: level b is not held out for this protocol (tuned on other instances of the same forms); three held-out phrasings were in the prompt examples until the held-out check caught them, final runs repeated with the clean prompt; the natural-level fixes were motivated by stage-1 natural failures (tuned on fresh natural questions).
+- Checks: `npm test` 1322 tests, 1321 pass, 0 fail, 1 skip; `node tools/check-spec-refs.mjs` 0 violations; held-out check clean; `docs/architecture.html` regenerated. Report `eval/reports/current/omp-tasks/stepbystep-protocol.md`.

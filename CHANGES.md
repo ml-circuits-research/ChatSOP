@@ -1,3 +1,11 @@
+# Generic question protocol for LocalLLMStepByStep (2026-10-02, protocol-agent, eval-stepbystep-protocol-v1)
+
+Owner: keep step-by-step and bring Qwen3-4B to high correctness through a comprehensive, generic question protocol.
+
+- **Protocol** `lib/query-author/step-by-step/{protocol,questions,cues,clauses,circuit,definitions}.mjs` (DS022 "LocalLLMStepByStep"): 13 answer kinds and 8 aspects in the cached prefix; aspects from a regex cue table with the two-signal rule; typed places with observed role fit and class fit, pre-filled when one reading exists; connected statements; limits, options, exclusions, two-sided comparisons, groups and quantifiers, suppositions, second questions, chains, per-group counts and differences, fewest links written by the system; validator-driven re-asks; forced-contrast confirmation; no invalid circuit (honest `unclear`, rejected circuit kept in `fallback`). Method A unchanged.
+- **Selection** `queryParser.local.method` (`A`, `B` default, `C`, `D`, `B-cue`, `B-yesno`); the parse cache keys on it.
+- **Result** (89 dev rows, Qwen3-4B Q4): A 23 correct / 24 wrong, B 73 / 3; Qwen3.8-27B with B 79 / 0. Report `eval/reports/current/omp-tasks/stepbystep-protocol.md`; harness `tools/eval/stepbystep-protocol/`; tests `tests/local-llm-step-by-step-protocol.test.mjs`.
+
 # Generality beyond known forms (2026-10-02, generality-agent, eval-generality-v1)
 
 Owner: "test and validate that we don't have only same form, different words". Held-out forms, compositions and free natural questions; generic defects fixed with tests.

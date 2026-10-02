@@ -5861,6 +5861,22 @@
       "status": "running",
       "results": {},
       "note": "Harness: tools/eval/query-parsers.mjs run --suite forms --rows eval/commonsense/questions.jsonl --model zai/glm-5.3; layer checks: tools/commonsense/check.mjs, tests/commonsense-layer.test.mjs"
+    },
+    {
+      "id": "eval-stepbystep-protocol-v1",
+      "hypothesis": "A generic numbered-choice protocol (13 kinds, aspects with regex cues, slot questions, clause roles, forced-contrast confirmation) raises the correct rate of Qwen3-4B as a LocalLLMStepByStep oracle over the current protocol without adding wrong answers.",
+      "preregistration": "status/preregistrations/eval-stepbystep-protocol-v1.json",
+      "data_version": "eval/smoke-reasoning/bench/manifest.jsonl F2-F9 (seed 20261002, T10 rows excluded); tools/datasets/diversity/generality.mjs levels b/c instances 1-3; tools/eval/generality/natural-v1.jsonl",
+      "status": "done",
+      "results": {
+        "A": "23/24/20/22 of 89",
+        "B_final": "73/3/10/3 of 89",
+        "B_minus_A": "+56.2 pp [44.9, 67.4]",
+        "stage1": "B +44.9, C +42.7, D +42.7, B-cue +42.7, B-yesno +41.6 pp; all decisive",
+        "qwen27b_B": "79/0/10/0 of 89"
+      },
+      "conclusions": "Method B adopted as the default protocol; level b is not held out for this protocol (tuned on other instances of the same forms); see deviations.",
+      "note": "Harness: tools/eval/stepbystep-protocol/{run,summarize}.mjs; report eval/reports/current/omp-tasks/stepbystep-protocol.md"
     }
   ]
 }

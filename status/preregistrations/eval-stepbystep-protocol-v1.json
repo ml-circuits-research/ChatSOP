@@ -35,6 +35,19 @@
     "H2": "The gain comes mostly from levels b and c (forms A cannot express: limits, two-sided comparisons, suppositions, definitions).",
     "H3": "Questions per message stay at most 14 and the p50 latency below 1.5 s with Qwen3-4B on the optimised runtime."
   },
-  "deviations": [],
-  "non_claim": "Small dev samples; the numbers describe these forms with Qwen3-4B, not generality in general. Level b/c forms were not shown to the CodingAgent guide; the step-by-step protocol is generic by construction but was designed knowing the inventory of constructs, which includes those forms."
+  "deviations": [
+    "Stage 1 was decisive for every new method (B, C, D, B-cue, B-yesno vs A); stages 2 and 3 were not run. B was adopted (most correct, fewest wrong).",
+    "After stage 1, class fit, the 'where' place rule, the unknown-name guard and the no-invalid-circuit fallback were added because the stage-1 natural rows were mostly invalid circuits; they were tuned on 24 fresh natural questions (Haiku subagent) and all 89 measured rows were rerun with B (final-B). The final natural numbers are on rows seen before the change.",
+    "Level b is not held out for this protocol: it was tuned on instances 11-15 of the same forms. Stage 1 and the first final runs also had three level-b phrasings as kind examples in the prompt (before-event, group-threshold, count-difference); found by tools/eval/generality/heldout-check.mjs, replaced by known-form phrasings, and final B (Qwen3-4B) and the Qwen3.8-27B reference were rerun with the clean prompt.",
+    "world-v1 was rebuilt by commonsense-agent during the day; natural rows of A (stage 1) and of final B may have used different builds."
+  ],
+  "non_claim": "Small dev samples; the numbers describe these forms with Qwen3-4B, not generality in general. Level b/c forms were not shown to the CodingAgent guide; the step-by-step protocol is generic by construction but was designed knowing the inventory of constructs, which includes those forms.",
+  "results": {
+    "report": "eval/reports/current/omp-tasks/stepbystep-protocol.md",
+    "A": "23 correct / 24 wrong / 20 unknown / 22 invalid+failed of 89",
+    "B_final": "73 / 3 / 10 / 3 of 89",
+    "B_minus_A_pooled": "+56.2 pp [44.9, 67.4]",
+    "qwen27b_B_reference": "79 / 0 / 10 / 0 of 89",
+    "decision": "decisive at stage 1; B default"
+  }
 }
