@@ -1,3 +1,14 @@
+# Generality beyond known forms (2026-10-02, generality-agent, eval-generality-v1)
+
+Owner: "test and validate that we don't have only same form, different words". Held-out forms, compositions and free natural questions; generic defects fixed with tests.
+
+- **Engine.** A yes/no question without `select` whose known values all fail its comparison is `refuted` (reference and bridge), as `reasoning/bridge/external.mjs` already lowers it.
+- **Author surface.** Session `aggregate` definitions are admitted (`lib/query-author/session.mjs`, `validate.mjs`, DS014, skill, guide example). A session predicate defined only over closed predicates is inferred complete (`closeDerived`, greatest fixpoint). User statements are `stated` wires (turn-local evidence), not `unclear no_request`; a name used in an `if`-linked supposition counts as used; a wh-question answered by a yes/no circuit is `answer_not_selected`.
+- **omp backend.** Session definitions parsed with the knowledge grammar; circuit-shaped syntax errors go whole to admission (repair round); the invited report after one complete sop fence is accepted; rejections quote the output ends. Prose is still rejected, nothing salvaged.
+- **KnowledgeLinker and hints.** An English possessive is stripped before entity lookup ("Napoleon's"); a proper name a user statement introduces becomes a conversation entity even when the memory does not know it (DS014); a sentence-initial capitalised word is not a strong name ("Care este ...").
+- **world-kb mapping** (applies at the next world-v1 build): `borders` objects restricted to selected countries; an unselected item's class is its most frequent property range.
+- **Tools.** `tools/datasets/diversity/generality.mjs` (10 held-out forms, 5 compositions, gold by construction, reviewed model-surface circuits), `tools/eval/generality/{run,heldout-check,summarize,chat-failures}.mjs`, `natural-v1.jsonl`; harness hook `settings.authorBackend` (zero-model replay). Tests: `tests/generality.test.mjs`, updated `query-author`, `conversation-entities`.
+
 # Knowledge browser /review (2026-10-02, review-page-agent)
 
 Owner requests of 2026-10-02: "Where can I review world-v1 and core-en, the drafts I haven't approved?" and "search by keywords and see what the current memory knows". Owner correction the same day: no accept/reject workflow; /review is a read-only browser, problems are corrected systematically through tests and interactions.

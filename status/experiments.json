@@ -5829,9 +5829,29 @@
       "hypothesis": "The CodingAgent path answers held-out question forms (level b), compositions of known classes and free natural questions (level c), and stays honest (unknown rather than wrong) where it cannot.",
       "preregistration": "status/preregistrations/eval-generality-v1.json",
       "data_version": "tools/datasets/diversity/generality.mjs (10 held-out forms x5, 5 compositions x5); tools/eval/generality/natural-v1.jsonl; world-v1",
-      "status": "running",
-      "results": {},
-      "note": "Harness: tools/eval/generality/run.mjs (reuses symbolic-vs-llm runArm); held-out check: tools/eval/generality/heldout-check.mjs"
+      "status": "done",
+      "results": {
+        "held_out_b": {
+          "glm_run1": "23/0/4/23",
+          "glm_best": "38/1/5/6",
+          "qwen27b": "35/0/8/7",
+          "replay": "50/0/0/0",
+          "glm_reads_evidence": "49/0/0/1"
+        },
+        "compositions_c": {
+          "glm_run1": "7/0/0/18",
+          "glm_best": "24/0/0/1",
+          "qwen27b": "24/1/0/0",
+          "replay": "25/0/0/0",
+          "glm_reads_evidence": "25/0/0/0"
+        },
+        "natural_c_product_turn": "14/2/2/2 hand-judged",
+        "real_chat_failures": "4 of 5 right or honest",
+        "counts": "correct/wrong/unknown/invalid+failed",
+        "records": "eval/reports/current/generality/"
+      },
+      "note": "Harness: tools/eval/generality/run.mjs (reuses symbolic-vs-llm runArm); held-out check: tools/eval/generality/heldout-check.mjs",
+      "conclusions": "Not limited to same-form variants: 7 of 10 held-out forms and all 5 compositions solved after generic fixes, 1 wrong per level per model; open class: arithmetic over aggregated results. Every form expressible (replay 75/75). On small memories GLM reading the evidence is as accurate; the symbolic advantage here is honesty and verifiability. run6 void (z.ai 5-hour limit)."
     },
     {
       "id": "eval-commonsense-v1",

@@ -1,0 +1,40 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-stepbystep-protocol-v1",
+  "name": "A generic question protocol for LocalLLMStepByStep with Qwen3-4B: aspect-first and clause-first questioning against the current protocol",
+  "registered_at": "2026-10-02T10:45:00Z",
+  "registered_by": "protocol-agent (owner, 2026-10-02: keep LocalLLMStepByStep; bring Qwen3-4B up to high correctness through a comprehensive generic question protocol; plan adopted in the journal event 'Step-by-step question protocol plan adopted')",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
+  "kind": "evaluation-only, minimal (no training). Dev data only; no sealed suite is read.",
+  "question": "Does a generic numbered-choice protocol (13 answer kinds, an aspects checklist verified by regex cues, slot questions for limits, options, two-sided comparisons, exclusions, groups and definitions, clause decomposition with clause roles, and a forced-contrast confirmation) raise the correct rate of Qwen3-4B Q4 as a LocalLLMStepByStep oracle over the current protocol without adding wrong answers?",
+  "model": "Qwen3-4B-Instruct-2507 Q4_K_M (~/models/local-judge/Qwen3-4B-Instruct-2507-Q4_K_M.gguf), one llama-server started by tools/local-llm/serve.mjs (optimised runtime: dedicated steps slot, prompt cache, prewarmed stable prefix), thinking off, greedy. Reference only: Qwen3.8-27B Q4 with the final method on the same rows, one pass.",
+  "methods": {
+    "A": "the current protocol (T10, lib/query-author/step-by-step/index.mjs, unchanged)",
+    "B": "aspect-first: 13 kinds, Q2 aspects checklist verified by the cue table (two-signal rule), slot handlers, validator-driven re-asks, forced-contrast confirmation; the message is one unit",
+    "C": "clause-first: 13 kinds, deterministic sentence and clause decomposition with a clause-role question per extra clause, aspects from the cue table only, slot handlers, re-asks, forced-contrast confirmation",
+    "D": "B + C",
+    "B-cue": "B without the Q2 checklist (aspects from cues only); run only if D clearly beats A",
+    "B-yesno": "B with the old yes/no confirmation instead of the forced contrast; run only if D clearly beats A"
+  },
+  "rows": {
+    "a": "known forms F2-F9 of eval/smoke-reasoning/bench/manifest.jsonl (dev), stageRows per family with seed 20261002, the 40 rows of the T10 measurement excluded",
+    "b": "the 10 held-out forms of tools/datasets/diversity/generality.mjs, instances 1..N",
+    "c": "the 5 compositions of the same generator, instances 1..N",
+    "n": "the 20 natural questions tools/eval/generality/natural-v1.jsonl (all in every stage)",
+    "tuning": "protocol bugs are fixed only on a fresh random development pool disjoint from the measured rows: level a rows from stageRows seed 777 outside the 10-per-family measured set, level b/c instances 11..15; never on measured rows"
+  },
+  "stages": "stage 1: 3 rows per form (a: 24, b: 30, c: 15, n: 20 = 89 rows) for A, B, C, D; stage 2: 5 per form only for arms still undecided; stage 3: 10 per form only when the paired bootstrap still straddles 0.",
+  "metrics": "Per level and method: correct / wrong / unknown / invalid+failed (scoring of the symbolic-vs-llm harness and the generality rescore, natural rows judged as in eval-generality-v1), questions per message, p50/p95 wall latency of the formalization, slot attribution of the first diverging step for every non-correct row. Paired bootstrap (10,000 resamples over rows, seed 1) of the correct-rate difference D-A pooled over the levels and per level.",
+  "stopping_rules": {
+    "decisive": "lower bound of the 95% interval of D-A > 0, point estimate >= 10 pp, and wrong(D) <= wrong(A) + 1 row: stop and adopt D",
+    "futility": "upper bound of the 95% interval < 5 pp: stop, keep A",
+    "broken": "more than 20% of a method's stage-1 rows failed (unreadable answers, transport): stop that method, fix on the tuning pool, restart small and record the stop"
+  },
+  "hypotheses": {
+    "H1": "D is correct on at least 10 pp more rows than A pooled over levels a, b, c and natural, with no more wrong rows (+1 tolerated).",
+    "H2": "The gain comes mostly from levels b and c (forms A cannot express: limits, two-sided comparisons, suppositions, definitions).",
+    "H3": "Questions per message stay at most 14 and the p50 latency below 1.5 s with Qwen3-4B on the optimised runtime."
+  },
+  "deviations": [],
+  "non_claim": "Small dev samples; the numbers describe these forms with Qwen3-4B, not generality in general. Level b/c forms were not shown to the CodingAgent guide; the step-by-step protocol is generic by construction but was designed knowing the inventory of constructs, which includes those forms."
+}

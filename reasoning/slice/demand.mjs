@@ -184,20 +184,30 @@ export class Demand {
     const instances = new Map();
     for (let j = 0; j < this.atoms.length; j++) {
       const call = this.atoms[j];
+      // Positions besides the key that the caller fixes with a written constant are seeded too ("is Newton older than Einstein": both
+      // persons), in an instance of their own, so a self-join (born_on ?a ?x, born_on ?b ?y) keys both atoms instead of scanning one; callers
+      // that leave such a position open use another instance, whose domains stay complete for them.
+      // Only when the key itself is a constant: a call keyed by a bound variable keeps its single key, so a written hub constant next to it
+      // ("inside ?x europe") never becomes the retrieval key of the rule body.
+      const constantKey = call.key !== null && call.terms[call.key].cls === undefined;
+      const fixed = constantKey ? call.terms.map((t, i) => (i !== call.key && t.cls === undefined ? i : -1)).filter(i => i >= 0) : [];
       for (const rule of this.heads.get(slot(call.p, call.n)) ?? []) {
-        const id = `rule:${rule.id}@${call.key ?? 'scan'}`;
+        const usable = fixed.filter(i => rule.then.a[i] !== undefined && variable(rule.then.a[i]));
+        const id = `rule:${rule.id}@${call.key ?? 'scan'}${usable.length ? '+' + usable.join('+') : ''}`;
         let owner = instances.get(id);
         if (!owner) {
           owner = {id, atoms: this.register(id, rule.if, 'rule'), head: this.headOf(id, rule.then)};
           instances.set(id, owner);
           this.owners.push(owner);
-          this.order(owner, owner.head.terms.map((_, i) => i === call.key));
+          this.order(owner, owner.head.terms.map((_, i) => i === call.key || usable.includes(i)));
         }
         for (let k = 0; k < call.n; k++) {
           const c = call.terms[k], h = owner.head.terms[k];
           if (k === call.key && h.cls) {
             if (c.cls) this.connect(c.cls, h.cls);
             else this.add(h.cls, c.value, 'seed');
+          } else if (usable.includes(k) && h.cls) {
+            this.add(h.cls, c.value, 'seed');
           } else if (c.cls) {
             if (h.cls) this.connect(h.cls, c.cls);
             else this.add(c.cls, h.value, 'seed');

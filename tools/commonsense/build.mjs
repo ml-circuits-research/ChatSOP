@@ -130,7 +130,7 @@ for (const line of fs.readFileSync(CN, 'utf8').split('\n')) {
   if (OFFENSIVE.test(a.text) || OFFENSIVE.test(b.text)) continue;
   // WordNet's own IsA edges list every sense of a word, so they cannot choose one
   if (rel === '/r/IsA' && m.dataset.startsWith('/d/wordnet')) continue;
-  if (rel === '/r/IsA') { (cnIsa.get(a.text) ?? cnIsa.set(a.text, new Set()).get(a.text)).add(b.text); continue; }
+  if (rel === '/r/IsA') { const m2 = cnIsa.get(a.text) ?? cnIsa.set(a.text, new Map()).get(a.text); m2.set(b.text, (m2.get(b.text) ?? 0) + 1); continue; }
   edges.push({rel: rel.slice(3), a: a.text, b: b.text, bpos: b.pos, weight: m.weight, surface: m.surfaceText ?? null});
 }
 
@@ -156,7 +156,8 @@ function senseOf(text) {
   if (hints && all.length > 1) {
     // a hint near the sense counts more than a far one (the flora sense of "plant" is an organism at depth 1, the stooge sense at depth 4)
     let top = 0;
-    for (const off of all) { const anc = ancestorDepth(off); let score = 0; for (const h of hints) if (anc.has(h) && anc.get(h) > 0) score += 1 / anc.get(h); if (score > top + 1e-9) { top = score; best = off; } }
+    // each hint weighs by how many ConceptNet edges state it ("hammer IsA tool" from several sources outweighs one "ear bone")
+    for (const off of all) { const anc = ancestorDepth(off); let score = 0; for (const [h, n] of hints) if (anc.has(h) && anc.get(h) > 0) score += n / anc.get(h); if (score > top + 1e-9) { top = score; best = off; } }
   }
   senseCache.set(text, best);
   return best;
@@ -165,7 +166,7 @@ const nounOk = text => { const off = senseOf(text); return off && LEXFILES.has(s
 const subjectCount = new Map();
 const isaWords = cnIsa.size;
 for (const e of edges) if (nounOk(e.a)) subjectCount.set(e.a, (subjectCount.get(e.a) ?? 0) + 1);
-const attested = new Set([...edges.flatMap(e => [e.a, e.b]), ...cnIsa.keys(), ...[...cnIsa.values()].flatMap(v => [...v])]);
+const attested = new Set([...edges.flatMap(e => [e.a, e.b]), ...cnIsa.keys(), ...[...cnIsa.values()].flatMap(v => [...v.keys()])]);
 const idOf = new Map(); // offset -> symbol
 const declared = new Map(); // symbol -> {off, label, aliases}
 const skipped = {collision: [], namesakes: [], top: 0};
@@ -199,21 +200,25 @@ const nouns = [...subjectCount.entries()].sort((x, y) => y[1] - x[1] || (x[0] < 
 const chosen = new Set();
 for (const t of nouns) { const id = symbolFor(senseOf(t)); if (id) chosen.add(senseOf(t)); }
 
-// ---- the hierarchy: each chosen noun is_a its nearest hypernym that is an anchor or a ConceptNet-attested concrete noun ---------------
-const isA = new Map(); // child symbol -> parent symbol
+// ---- the hierarchy: each chosen noun is_a, along each of its direct hypernyms (WordNet has multiple inheritance: an edible fruit is both
+// produce and a fruit), the nearest hypernym that is an anchor or a ConceptNet-attested concrete noun ------------------------------------
+const isA = new Map(); // child symbol -> Set of parent symbols
 const classOff = off => anchorOf.has(off) || (!synsets.get(off).proper && attested.has(synsets.get(off).words[0].replace(/_/g, ' ')) && LEXFILES.has(synsets.get(off).lex) && !TOPS.has(synsets.get(off).words[0]));
 const queue = [...chosen];
 for (let i = 0; i < queue.length; i++) {
   const off = queue[i];
   const child = symbolFor(off);
   if (!child || anchorOf.has(off) || isA.has(child)) continue;
-  let cur = synsets.get(off).hyper[0], depth = 0;
-  while (cur && depth < 12 && !classOff(cur)) { cur = synsets.get(cur).hyper[0]; depth++; }
-  if (!cur) continue;
-  const parent = symbolFor(cur);
-  if (!parent || parent === child) continue;
-  isA.set(child, parent);
-  if (!chosen.has(cur)) { chosen.add(cur); queue.push(cur); }
+  isA.set(child, new Set());
+  for (const first of synsets.get(off).hyper) {
+    let cur = first, depth = 0;
+    while (cur && depth < 12 && !classOff(cur)) { cur = synsets.get(cur).hyper[0]; depth++; }
+    if (!cur) continue;
+    const parent = symbolFor(cur);
+    if (!parent || parent === child) continue;
+    isA.get(child).add(parent);
+    if (!chosen.has(cur)) { chosen.add(cur); queue.push(cur); }
+  }
 }
 // the anchors themselves hang under core classes already (core-en 0001-classes); world-v1 classes too
 
@@ -266,7 +271,7 @@ const entityWires = [...declared.entries()].filter(([, d]) => chosen.has(d.off))
   [`@${id} entity`, '  kind class', `  label en ${JSON.stringify(d.label)}`, ...d.aliases.map(a => `  alias en ${JSON.stringify(a)}`), `  notability ${COMMON_NOUN_NOTABILITY}`, `  source "WordNet 3.0 synset ${d.off}-n"`, ''].join('\n'));
 const descWires = [...declared.entries()].filter(([, d]) => chosen.has(d.off) && d.gloss).sort().map(([id, d]) =>
   [`@csd_${id} fact`, `  holds description ${id} ${JSON.stringify(d.gloss)}`, `  source "WordNet 3.0 synset ${d.off}-n gloss"`, ''].join('\n'));
-const isaWires = [...isA.entries()].sort().map(([c, p]) => [`@csi_${c} fact`, `  holds is_a ${c} ${p}`, '  source "WordNet 3.0 hypernym (first sense)"', ''].join('\n'));
+const isaWires = [...isA.entries()].sort().flatMap(([c, ps]) => [...ps].sort().map((p, i) => [`@csi_${c}${i ? '_' + (i + 1) : ''} fact`, `  holds is_a ${c} ${p}`, '  source "WordNet 3.0 hypernym of the chosen sense"', ''].join('\n')));
 const merWires = [...partOf.map(([a, b, s]) => ['part_of', a, b, s]), ...madeOf.map(([a, b, s]) => ['made_of_material', a, b, s])].sort().map(([p, a, b, s], i) => [`@csm_${i + 1} fact`, `  holds ${p} ${a} ${b}`, `  source "${s}"`, ''].join('\n'));
 const cnWires = cnFacts.sort((x, y) => (x.pred + x.subj + x.obj < y.pred + y.subj + y.obj ? -1 : 1)).map((f, i) => [`@csc_${i + 1} fact`, `  holds ${f.pred} ${f.subj} ${f.obj}`, `  source "ConceptNet 5.7 /r/${f.rel} /c/en/${f.a.replace(/ /g, '_')} /c/en/${f.b.replace(/ /g, '_')} weight ${f.weight} (CC BY 4.0)"`, ''].join('\n'));
 emit('0500-wordnet-classes', 'common-noun classes from WordNet', wnNotice, entityWires);

@@ -26,6 +26,86 @@
 # any associated documentation shall at all times remain with
 # Princeton University and LICENSEE agrees to preserve same.
 
+@csd_stupid fact
+  holds description stupid "a person who is not very bright"
+  source "WordNet 3.0 synset 10667187-n gloss"
+
+@csd_submarine fact
+  holds description submarine "a submersible warship usually armed with torpedoes"
+  source "WordNet 3.0 synset 04347754-n gloss"
+
+@csd_substance fact
+  holds description substance "a particular kind or species of matter with uniform properties"
+  source "WordNet 3.0 synset 00020090-n gloss"
+
+@csd_substance_00019613 fact
+  holds description substance_00019613 "the real physical matter of which a person or thing consists"
+  source "WordNet 3.0 synset 00019613-n gloss"
+
+@csd_subway_station fact
+  holds description subway_station "a terminal where subways load and unload passengers"
+  source "WordNet 3.0 synset 04349077-n gloss"
+
+@csd_subway_token fact
+  holds description subway_token "a token that is used to pay for entry to the subway system"
+  source "WordNet 3.0 synset 04349189-n gloss"
+
+@csd_succulent fact
+  holds description succulent "a plant adapted to arid conditions and characterized by fleshy water-storing tissues that act as water reservoirs"
+  source "WordNet 3.0 synset 13084184-n gloss"
+
+@csd_suit fact
+  holds description suit "a set of garments (usually including a jacket and trousers or skirt) for outerwear all of the same fabric and color"
+  source "WordNet 3.0 synset 04350905-n gloss"
+
+@csd_suite fact
+  holds description suite "apartment consisting of a series of connected rooms used as a living unit (as in a hotel)"
+  source "WordNet 3.0 synset 04351550-n gloss"
+
+@csd_suitor fact
+  holds description suitor "a man who courts a woman"
+  source "WordNet 3.0 synset 10674130-n gloss"
+
+@csd_sunglasses fact
+  holds description sunglasses "spectacles that are darkened or polarized to protect the eyes from the glare of the sun"
+  source "WordNet 3.0 synset 04356056-n gloss"
+
+@csd_sunscreen fact
+  holds description sunscreen "a cream spread on the skin"
+  source "WordNet 3.0 synset 04357314-n gloss"
+
+@csd_supermarket fact
+  holds description supermarket "a large self-service grocery store selling groceries and dairy products and household goods"
+  source "WordNet 3.0 synset 04358707-n gloss"
+
+@csd_supplier fact
+  holds description supplier "someone whose business is to supply a particular service or commodity"
+  source "WordNet 3.0 synset 10677271-n gloss"
+
+@csd_support fact
+  holds description support "any device that bears the weight of another thing"
+  source "WordNet 3.0 synset 04359589-n gloss"
+
+@csd_supporting_structure fact
+  holds description supporting_structure "a structure that serves to support something"
+  source "WordNet 3.0 synset 04361095-n gloss"
+
+@csd_surface fact
+  holds description surface "the outer boundary of an artifact or a material layer constituting or resembling such a boundary"
+  source "WordNet 3.0 synset 04362025-n gloss"
+
+@csd_surface_08660339 fact
+  holds description surface_08660339 "the extended two-dimensional outer boundary of a three-dimensional object"
+  source "WordNet 3.0 synset 08660339-n gloss"
+
+@csd_surgical_knife fact
+  holds description surgical_knife "a very sharp knife used in surgery"
+  source "WordNet 3.0 synset 04364827-n gloss"
+
+@csd_suspension fact
+  holds description suspension "a mixture in which fine particles are suspended in a fluid where they are supported by buoyancy"
+  source "WordNet 3.0 synset 14591091-n gloss"
+
 @csd_swab fact
   holds description swab "cleaning implement consisting of absorbent material fastened to a handle"
   source "WordNet 3.0 synset 04367480-n gloss"
@@ -610,6 +690,10 @@
   holds description vase "an open jar of glass or porcelain used as an ornament or to hold flowers"
   source "WordNet 3.0 synset 04522168-n gloss"
 
+@csd_vasoconstrictor fact
+  holds description vasoconstrictor "any agent that causes a narrowing of an opening of a blood vessel: cold or stress or nicotine or epinephrine or norepinephrine or angiotensin or vasopressin or certain drugs"
+  source "WordNet 3.0 synset 04522421-n gloss"
+
 @csd_vault fact
   holds description vault "a burial chamber (usually underground)"
   source "WordNet 3.0 synset 04523690-n gloss"
@@ -770,6 +854,10 @@
   holds description water "binary compound that occurs at room temperature as a clear colorless odorless tasteless liquid"
   source "WordNet 3.0 synset 14845743-n gloss"
 
+@csd_water_07935504 fact
+  holds description water_07935504 "a liquid necessary for the life of most animals and plants"
+  source "WordNet 3.0 synset 07935504-n gloss"
+
 @csd_water_hazard fact
   holds description water_hazard "hazard provided by ponds of water that the golfer must avoid"
   source "WordNet 3.0 synset 04559994-n gloss"
@@ -793,6 +881,10 @@
 @csd_weapon fact
   holds description weapon "any instrument or instrumentality used in fighting or hunting"
   source "WordNet 3.0 synset 04565375-n gloss"
+
+@csd_weapon_of_mass_destruction fact
+  holds description weapon_of_mass_destruction "a weapon that kills or injures civilian as well as military personnel (nuclear and chemical and biological weapons)"
+  source "WordNet 3.0 synset 04565963-n gloss"
 
 @csd_weasel fact
   holds description weasel "small carnivorous mammal with short legs and elongated body and neck"

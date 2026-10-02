@@ -819,6 +819,15 @@
   notability 400
   source "WordNet 3.0 synset 09821831-n"
 
+@attire entity
+  kind class
+  label en "attire"
+  alias en "attires"
+  alias en "garb"
+  alias en "dress"
+  notability 400
+  source "WordNet 3.0 synset 02756098-n"
+
 @audio_system entity
   kind class
   label en "audio system"
@@ -2973,6 +2982,13 @@
   notability 400
   source "WordNet 3.0 synset 14806838-n"
 
+@chemical_weapon entity
+  kind class
+  label en "chemical weapon"
+  alias en "chemical weapons"
+  notability 400
+  source "WordNet 3.0 synset 03013162-n"
+
 @chemoreceptor entity
   kind class
   label en "chemoreceptor"
@@ -3031,7 +3047,14 @@
   kind class
   label en "chicken"
   alias en "chickens"
-  alias en "gallus gallus"
+  alias en "poulet"
+  alias en "volaille"
+  notability 400
+  source "WordNet 3.0 synset 07644967-n"
+
+@chicken_01791625 entity
+  kind class
+  label en "chicken (a domestic fowl bred for flesh or eggs)"
   notability 400
   source "WordNet 3.0 synset 01791625-n"
 
@@ -3164,6 +3187,12 @@
   alias en "dress circle"
   notability 400
   source "WordNet 3.0 synset 03033019-n"
+
+@circle_03032811 entity
+  kind class
+  label en "circle (any circular or rotating mechanism)"
+  notability 400
+  source "WordNet 3.0 synset 03032811-n"
 
 @circulatory_system entity
   kind class
@@ -3944,9 +3973,8 @@
   kind class
   label en "crab"
   alias en "crabs"
-  alias en "crabmeat"
   notability 400
-  source "WordNet 3.0 synset 07787715-n"
+  source "WordNet 3.0 synset 01976957-n"
 
 @crack entity
   kind class
@@ -4195,6 +4223,12 @@
   kind class
   label en "conductor"
   alias en "conductors"
+  notability 400
+  source "WordNet 3.0 synset 14821043-n"
+
+@cs_conductor_03088707 entity
+  kind class
+  label en "conductor (a device designed to transmit electricity, heat, etc.)"
   notability 400
   source "WordNet 3.0 synset 03088707-n"
 
@@ -4476,6 +4510,13 @@
   notability 400
   source "WordNet 3.0 synset 03880531-n"
 
+@cs_parasite entity
+  kind class
+  label en "parasite"
+  alias en "parasites"
+  notability 400
+  source "WordNet 3.0 synset 01384687-n"
+
 @cs_principal entity
   kind class
   label en "principal"
@@ -4590,6 +4631,17 @@
   alias en "skyscrapers"
   notability 400
   source "WordNet 3.0 synset 04233124-n"
+
+@cs_speaker entity
+  kind class
+  label en "speaker"
+  alias en "speakers"
+  alias en "talker"
+  alias en "utterer"
+  alias en "verbalizer"
+  alias en "verbaliser"
+  notability 400
+  source "WordNet 3.0 synset 10630188-n"
 
 @cs_spy entity
   kind class
@@ -5147,6 +5199,13 @@
   notability 400
   source "WordNet 3.0 synset 03206602-n"
 
+@disguise entity
+  kind class
+  label en "disguise"
+  alias en "disguises"
+  notability 400
+  source "WordNet 3.0 synset 03206718-n"
+
 @dish entity
   kind class
   label en "dish"
@@ -5260,6 +5319,14 @@
   alias en "dolly"
   notability 400
   source "WordNet 3.0 synset 03219135-n"
+
+@domestic_animal entity
+  kind class
+  label en "domestic animal"
+  alias en "domestic animals"
+  alias en "domesticated animal"
+  notability 400
+  source "WordNet 3.0 synset 01317541-n"
 
 @domestic_fowl entity
   kind class
@@ -7393,6 +7460,14 @@
   notability 400
   source "WordNet 3.0 synset 03491178-n"
 
+@hardware entity
+  kind class
+  label en "hardware"
+  alias en "hardwares"
+  alias en "computer hardware"
+  notability 400
+  source "WordNet 3.0 synset 03493333-n"
+
 @harmonica entity
   kind class
   label en "harmonica"
@@ -7586,6 +7661,14 @@
   alias en "hills"
   notability 400
   source "WordNet 3.0 synset 09303008-n"
+
+@hockey_player entity
+  kind class
+  label en "hockey player"
+  alias en "hockey players"
+  alias en "ice-hockey player"
+  notability 400
+  source "WordNet 3.0 synset 10179291-n"
 
 @hockey_stick entity
   kind class
@@ -7807,6 +7890,13 @@
   alias en "flesh"
   notability 400
   source "WordNet 3.0 synset 05217168-n"
+
+@hydrocarbon entity
+  kind class
+  label en "hydrocarbon"
+  alias en "hydrocarbons"
+  notability 400
+  source "WordNet 3.0 synset 14911057-n"
 
 @hydrogen_atom entity
   kind class
@@ -8734,6 +8824,12 @@
   label en "liquid"
   alias en "liquids"
   notability 400
+  source "WordNet 3.0 synset 14940100-n"
+
+@liquid_14940386 entity
+  kind class
+  label en "liquid (a substance that is liquid at room temperature and pressure)"
+  notability 400
   source "WordNet 3.0 synset 14940386-n"
 
 @liquid_nitrogen entity
@@ -9461,6 +9557,13 @@
   notability 400
   source "WordNet 3.0 synset 13077295-n"
 
+@military_vehicle entity
+  kind class
+  label en "military vehicle"
+  alias en "military vehicles"
+  notability 400
+  source "WordNet 3.0 synset 03764276-n"
+
 @mine entity
   kind class
   label en "mine"
@@ -9789,6 +9892,13 @@
   notability 400
   source "WordNet 3.0 synset 07819480-n"
 
+@mythical_being entity
+  kind class
+  label en "mythical being"
+  alias en "mythical beings"
+  notability 400
+  source "WordNet 3.0 synset 09484664-n"
+
 @mythical_monster entity
   kind class
   label en "mythical monster"
@@ -10015,6 +10125,13 @@
   notability 400
   source "WordNet 3.0 synset 13136556-n"
 
+@nutrient entity
+  kind class
+  label en "nutrient"
+  alias en "nutrients"
+  notability 400
+  source "WordNet 3.0 synset 00021734-n"
+
 @nylon entity
   kind class
   label en "nylon"
@@ -10238,6 +10355,13 @@
   label en "owner (a person who owns something)"
   notability 400
   source "WordNet 3.0 synset 10389398-n"
+
+@pachyderm entity
+  kind class
+  label en "pachyderm"
+  alias en "pachyderms"
+  notability 400
+  source "WordNet 3.0 synset 02453108-n"
 
 @packer entity
   kind class
@@ -11830,6 +11954,13 @@
   notability 400
   source "WordNet 3.0 synset 04063373-n"
 
+@recording entity
+  kind class
+  label en "recording"
+  alias en "recordings"
+  notability 400
+  source "WordNet 3.0 synset 04063868-n"
+
 @redstem_storksbill entity
   kind class
   label en "redstem storksbill"
@@ -12469,6 +12600,12 @@
   notability 400
   source "WordNet 3.0 synset 09424270-n"
 
+@satellite_04137444 entity
+  kind class
+  label en "satellite (man-made equipment that orbits around the earth or the moon)"
+  notability 400
+  source "WordNet 3.0 synset 04137444-n"
+
 @sauce entity
   kind class
   label en "sauce"
@@ -12838,13 +12975,6 @@
   alias en "shelves"
   notability 400
   source "WordNet 3.0 synset 04190052-n"
-
-@shellfish entity
-  kind class
-  label en "shellfish"
-  alias en "shellfishes"
-  notability 400
-  source "WordNet 3.0 synset 07783210-n"
 
 @shelter entity
   kind class
@@ -13731,6 +13861,13 @@
   notability 400
   source "WordNet 3.0 synset 10648696-n"
 
+@starches entity
+  kind class
+  label en "starches"
+  alias en "starcheses"
+  notability 400
+  source "WordNet 3.0 synset 07566863-n"
+
 @starfish entity
   kind class
   label en "starfish"
@@ -13969,7 +14106,12 @@
   kind class
   label en "strip"
   alias en "strips"
-  alias en "slip"
+  notability 400
+  source "WordNet 3.0 synset 04339638-n"
+
+@strip_04339291 entity
+  kind class
+  label en "strip (artifact consisting of a narrow flat piece of material)"
   notability 400
   source "WordNet 3.0 synset 04339291-n"
 
@@ -14010,162 +14152,4 @@
   alias en "studies"
   notability 400
   source "WordNet 3.0 synset 04345028-n"
-
-@stupid entity
-  kind class
-  label en "stupid"
-  alias en "stupids"
-  alias en "stupid person"
-  alias en "stupe"
-  alias en "dullard"
-  alias en "dolt"
-  alias en "pudding head"
-  alias en "pudden-head"
-  alias en "poor fish"
-  alias en "pillock"
-  notability 400
-  source "WordNet 3.0 synset 10667187-n"
-
-@submarine entity
-  kind class
-  label en "submarine"
-  alias en "submarines"
-  alias en "pigboat"
-  alias en "sub"
-  alias en "u-boat"
-  notability 400
-  source "WordNet 3.0 synset 04347754-n"
-
-@substance entity
-  kind class
-  label en "substance"
-  alias en "substances"
-  notability 400
-  source "WordNet 3.0 synset 00020090-n"
-
-@substance_00019613 entity
-  kind class
-  label en "substance (the real physical matter of which a person or thing consists)"
-  notability 400
-  source "WordNet 3.0 synset 00019613-n"
-
-@subway_station entity
-  kind class
-  label en "subway station"
-  alias en "subway stations"
-  notability 400
-  source "WordNet 3.0 synset 04349077-n"
-
-@subway_token entity
-  kind class
-  label en "subway token"
-  alias en "subway tokens"
-  notability 400
-  source "WordNet 3.0 synset 04349189-n"
-
-@succulent entity
-  kind class
-  label en "succulent"
-  alias en "succulents"
-  notability 400
-  source "WordNet 3.0 synset 13084184-n"
-
-@suit entity
-  kind class
-  label en "suit"
-  alias en "suits"
-  alias en "suit of clothes"
-  notability 400
-  source "WordNet 3.0 synset 04350905-n"
-
-@suite entity
-  kind class
-  label en "suite"
-  alias en "suites"
-  alias en "rooms"
-  notability 400
-  source "WordNet 3.0 synset 04351550-n"
-
-@suitor entity
-  kind class
-  label en "suitor"
-  alias en "suitors"
-  alias en "suer"
-  alias en "wooer"
-  notability 400
-  source "WordNet 3.0 synset 10674130-n"
-
-@sunglasses entity
-  kind class
-  label en "sunglasses"
-  alias en "sunglasseses"
-  alias en "dark glasses"
-  alias en "shades"
-  notability 400
-  source "WordNet 3.0 synset 04356056-n"
-
-@sunscreen entity
-  kind class
-  label en "sunscreen"
-  alias en "sunscreens"
-  alias en "sunblock"
-  alias en "sun blocker"
-  notability 400
-  source "WordNet 3.0 synset 04357314-n"
-
-@supermarket entity
-  kind class
-  label en "supermarket"
-  alias en "supermarkets"
-  notability 400
-  source "WordNet 3.0 synset 04358707-n"
-
-@supplier entity
-  kind class
-  label en "supplier"
-  alias en "suppliers"
-  alias en "provider"
-  notability 400
-  source "WordNet 3.0 synset 10677271-n"
-
-@support entity
-  kind class
-  label en "support"
-  alias en "supports"
-  notability 400
-  source "WordNet 3.0 synset 04359589-n"
-
-@supporting_structure entity
-  kind class
-  label en "supporting structure"
-  alias en "supporting structures"
-  notability 400
-  source "WordNet 3.0 synset 04361095-n"
-
-@surface entity
-  kind class
-  label en "surface"
-  alias en "surfaces"
-  notability 400
-  source "WordNet 3.0 synset 04362025-n"
-
-@surface_08660339 entity
-  kind class
-  label en "surface (the extended two-dimensional outer boundary of a three-dimen)"
-  notability 400
-  source "WordNet 3.0 synset 08660339-n"
-
-@surgical_knife entity
-  kind class
-  label en "surgical knife"
-  alias en "surgical knifes"
-  notability 400
-  source "WordNet 3.0 synset 04364827-n"
-
-@suspension entity
-  kind class
-  label en "suspension"
-  alias en "suspensions"
-  notability 400
-  source "WordNet 3.0 synset 14591091-n"
 

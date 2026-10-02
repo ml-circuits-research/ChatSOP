@@ -26,6 +26,164 @@
 # any associated documentation shall at all times remain with
 # Princeton University and LICENSEE agrees to preserve same.
 
+@stupid entity
+  kind class
+  label en "stupid"
+  alias en "stupids"
+  alias en "stupid person"
+  alias en "stupe"
+  alias en "dullard"
+  alias en "dolt"
+  alias en "pudding head"
+  alias en "pudden-head"
+  alias en "poor fish"
+  alias en "pillock"
+  notability 400
+  source "WordNet 3.0 synset 10667187-n"
+
+@submarine entity
+  kind class
+  label en "submarine"
+  alias en "submarines"
+  alias en "pigboat"
+  alias en "sub"
+  alias en "u-boat"
+  notability 400
+  source "WordNet 3.0 synset 04347754-n"
+
+@substance entity
+  kind class
+  label en "substance"
+  alias en "substances"
+  notability 400
+  source "WordNet 3.0 synset 00020090-n"
+
+@substance_00019613 entity
+  kind class
+  label en "substance (the real physical matter of which a person or thing consists)"
+  notability 400
+  source "WordNet 3.0 synset 00019613-n"
+
+@subway_station entity
+  kind class
+  label en "subway station"
+  alias en "subway stations"
+  notability 400
+  source "WordNet 3.0 synset 04349077-n"
+
+@subway_token entity
+  kind class
+  label en "subway token"
+  alias en "subway tokens"
+  notability 400
+  source "WordNet 3.0 synset 04349189-n"
+
+@succulent entity
+  kind class
+  label en "succulent"
+  alias en "succulents"
+  notability 400
+  source "WordNet 3.0 synset 13084184-n"
+
+@suit entity
+  kind class
+  label en "suit"
+  alias en "suits"
+  alias en "suit of clothes"
+  notability 400
+  source "WordNet 3.0 synset 04350905-n"
+
+@suite entity
+  kind class
+  label en "suite"
+  alias en "suites"
+  alias en "rooms"
+  notability 400
+  source "WordNet 3.0 synset 04351550-n"
+
+@suitor entity
+  kind class
+  label en "suitor"
+  alias en "suitors"
+  alias en "suer"
+  alias en "wooer"
+  notability 400
+  source "WordNet 3.0 synset 10674130-n"
+
+@sunglasses entity
+  kind class
+  label en "sunglasses"
+  alias en "sunglasseses"
+  alias en "dark glasses"
+  alias en "shades"
+  notability 400
+  source "WordNet 3.0 synset 04356056-n"
+
+@sunscreen entity
+  kind class
+  label en "sunscreen"
+  alias en "sunscreens"
+  alias en "sunblock"
+  alias en "sun blocker"
+  notability 400
+  source "WordNet 3.0 synset 04357314-n"
+
+@supermarket entity
+  kind class
+  label en "supermarket"
+  alias en "supermarkets"
+  notability 400
+  source "WordNet 3.0 synset 04358707-n"
+
+@supplier entity
+  kind class
+  label en "supplier"
+  alias en "suppliers"
+  alias en "provider"
+  notability 400
+  source "WordNet 3.0 synset 10677271-n"
+
+@support entity
+  kind class
+  label en "support"
+  alias en "supports"
+  notability 400
+  source "WordNet 3.0 synset 04359589-n"
+
+@supporting_structure entity
+  kind class
+  label en "supporting structure"
+  alias en "supporting structures"
+  notability 400
+  source "WordNet 3.0 synset 04361095-n"
+
+@surface entity
+  kind class
+  label en "surface"
+  alias en "surfaces"
+  notability 400
+  source "WordNet 3.0 synset 04362025-n"
+
+@surface_08660339 entity
+  kind class
+  label en "surface (the extended two-dimensional outer boundary of a three-dimen)"
+  notability 400
+  source "WordNet 3.0 synset 08660339-n"
+
+@surgical_knife entity
+  kind class
+  label en "surgical knife"
+  alias en "surgical knifes"
+  notability 400
+  source "WordNet 3.0 synset 04364827-n"
+
+@suspension entity
+  kind class
+  label en "suspension"
+  alias en "suspensions"
+  notability 400
+  source "WordNet 3.0 synset 14591091-n"
+
 @swab entity
   kind class
   label en "swab"
@@ -1154,6 +1312,15 @@
   notability 400
   source "WordNet 3.0 synset 04522168-n"
 
+@vasoconstrictor entity
+  kind class
+  label en "vasoconstrictor"
+  alias en "vasoconstrictors"
+  alias en "vasoconstrictive"
+  alias en "pressor"
+  notability 400
+  source "WordNet 3.0 synset 04522421-n"
+
 @vault entity
   kind class
   label en "vault"
@@ -1468,6 +1635,12 @@
   notability 400
   source "WordNet 3.0 synset 14845743-n"
 
+@water_07935504 entity
+  kind class
+  label en "water (a liquid necessary for the life of most animals and plants)"
+  notability 400
+  source "WordNet 3.0 synset 07935504-n"
+
 @water_hazard entity
   kind class
   label en "water hazard"
@@ -1513,6 +1686,15 @@
   alias en "weapon system"
   notability 400
   source "WordNet 3.0 synset 04565375-n"
+
+@weapon_of_mass_destruction entity
+  kind class
+  label en "weapon of mass destruction"
+  alias en "weapon of mass destructions"
+  alias en "wmd"
+  alias en "w.m.d."
+  notability 400
+  source "WordNet 3.0 synset 04565963-n"
 
 @weasel entity
   kind class

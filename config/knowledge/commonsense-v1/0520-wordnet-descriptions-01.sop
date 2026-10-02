@@ -418,6 +418,10 @@
   holds description attendant "someone who waits on or tends to or attends to the needs of another"
   source "WordNet 3.0 synset 09821831-n gloss"
 
+@csd_attire fact
+  holds description attire "clothing of a distinctive style or for a particular occasion"
+  source "WordNet 3.0 synset 02756098-n gloss"
+
 @csd_audio_system fact
   holds description audio_system "a system of electronic equipment for recording or reproducing sound"
   source "WordNet 3.0 synset 02757462-n gloss"
@@ -1522,6 +1526,10 @@
   holds description chemical "material produced by or used in a reaction involving changes in atoms or molecules"
   source "WordNet 3.0 synset 14806838-n gloss"
 
+@csd_chemical_weapon fact
+  holds description chemical_weapon "chemical substances that can be delivered using munitions and dispersal devices to cause death or severe harm to people and animals and plants"
+  source "WordNet 3.0 synset 03013162-n gloss"
+
 @csd_chemoreceptor fact
   holds description chemoreceptor "a sensory receptor that responds to chemical stimuli"
   source "WordNet 3.0 synset 05300231-n gloss"
@@ -1551,7 +1559,11 @@
   source "WordNet 3.0 synset 03015254-n gloss"
 
 @csd_chicken fact
-  holds description chicken "a domestic fowl bred for flesh or eggs"
+  holds description chicken "the flesh of a chicken used for food"
+  source "WordNet 3.0 synset 07644967-n gloss"
+
+@csd_chicken_01791625 fact
+  holds description chicken_01791625 "a domestic fowl bred for flesh or eggs"
   source "WordNet 3.0 synset 01791625-n gloss"
 
 @csd_child fact
@@ -1613,6 +1625,10 @@
 @csd_circle fact
   holds description circle "a curved section or tier of seats in a hall or theater or opera house"
   source "WordNet 3.0 synset 03033019-n gloss"
+
+@csd_circle_03032811 fact
+  holds description circle_03032811 "any circular or rotating mechanism"
+  source "WordNet 3.0 synset 03032811-n gloss"
 
 @csd_circulatory_system fact
   holds description circulatory_system "the organs and tissues involved in circulating blood and lymph through the body"
@@ -2023,8 +2039,8 @@
   source "WordNet 3.0 synset 02403454-n gloss"
 
 @csd_crab fact
-  holds description crab "the edible flesh of any of various crabs"
-  source "WordNet 3.0 synset 07787715-n gloss"
+  holds description crab "decapod having eyes on short stalks and a broad flattened carapace with a small abdomen folded under the thorax and pincers"
+  source "WordNet 3.0 synset 01976957-n gloss"
 
 @csd_crack fact
   holds description crack "a purified and potent form of cocaine that is smoked rather than snorted"
@@ -2147,7 +2163,11 @@
   source "WordNet 3.0 synset 03082979-n gloss"
 
 @csd_cs_conductor fact
-  holds description cs_conductor "a device designed to transmit electricity, heat, etc."
+  holds description cs_conductor "a substance that readily conducts e.g. electricity and heat"
+  source "WordNet 3.0 synset 14821043-n gloss"
+
+@csd_cs_conductor_03088707 fact
+  holds description cs_conductor_03088707 "a device designed to transmit electricity, heat, etc."
   source "WordNet 3.0 synset 03088707-n gloss"
 
 @csd_cs_conifer fact
@@ -2298,6 +2318,10 @@
   holds description cs_pan "cooking utensil consisting of a wide metal vessel"
   source "WordNet 3.0 synset 03880531-n gloss"
 
+@csd_cs_parasite fact
+  holds description cs_parasite "an animal or plant that lives in or on a host (another animal or plant)"
+  source "WordNet 3.0 synset 01384687-n gloss"
+
 @csd_cs_principal fact
   holds description cs_principal "(criminal law) any person involved in a criminal offense, regardless of whether the person profits from such involvement"
   source "WordNet 3.0 synset 10474950-n gloss"
@@ -2361,6 +2385,10 @@
 @csd_cs_skyscraper fact
   holds description cs_skyscraper "a very tall building with many stories"
   source "WordNet 3.0 synset 04233124-n gloss"
+
+@csd_cs_speaker fact
+  holds description cs_speaker "someone who expresses in language"
+  source "WordNet 3.0 synset 10630188-n gloss"
 
 @csd_cs_spy fact
   holds description cs_spy "a secret watcher"
@@ -2638,6 +2666,10 @@
   holds description discus "a disk used in throwing competitions"
   source "WordNet 3.0 synset 03206602-n gloss"
 
+@csd_disguise fact
+  holds description disguise "any attire that modifies the appearance in order to conceal the wearer's identity"
+  source "WordNet 3.0 synset 03206718-n gloss"
+
 @csd_dish fact
   holds description dish "a piece of dishware normally used as a container for holding or serving food"
   source "WordNet 3.0 synset 03206908-n gloss"
@@ -2693,6 +2725,10 @@
 @csd_doll fact
   holds description doll "a small replica of a person"
   source "WordNet 3.0 synset 03219135-n gloss"
+
+@csd_domestic_animal fact
+  holds description domestic_animal "any of various animals that have been tamed and made fit for a human environment"
+  source "WordNet 3.0 synset 01317541-n gloss"
 
 @csd_domestic_fowl fact
   holds description domestic_fowl "a domesticated gallinaceous bird thought to be descended from the red jungle fowl"
@@ -3774,6 +3810,10 @@
   holds description hanging "decoration that is hung (as a tapestry) on a wall or over a window"
   source "WordNet 3.0 synset 03491178-n gloss"
 
+@csd_hardware fact
+  holds description hardware "(computer science) the mechanical, magnetic, electronic, and electrical components making up a computer system"
+  source "WordNet 3.0 synset 03493333-n gloss"
+
 @csd_harmonica fact
   holds description harmonica "a small rectangular free-reed instrument having a row of free reeds set back in air holes and played by blowing into the desired hole"
   source "WordNet 3.0 synset 03494278-n gloss"
@@ -3869,6 +3909,10 @@
 @csd_hill fact
   holds description hill "a local and well-defined elevation of the land"
   source "WordNet 3.0 synset 09303008-n gloss"
+
+@csd_hockey_player fact
+  holds description hockey_player "an athlete who plays hockey"
+  source "WordNet 3.0 synset 10179291-n gloss"
 
 @csd_hockey_stick fact
   holds description hockey_stick "sports implement consisting of a stick used by hockey players to move the puck"
@@ -3981,6 +4025,10 @@
 @csd_human_body fact
   holds description human_body "alternative names for the body of a human being"
   source "WordNet 3.0 synset 05217168-n gloss"
+
+@csd_hydrocarbon fact
+  holds description hydrocarbon "an organic compound containing only carbon and hydrogen"
+  source "WordNet 3.0 synset 14911057-n gloss"
 
 @csd_hydrogen_atom fact
   holds description hydrogen_atom "an atom of hydrogen"
@@ -4463,7 +4511,11 @@
   source "WordNet 3.0 synset 03676483-n gloss"
 
 @csd_liquid fact
-  holds description liquid "a substance that is liquid at room temperature and pressure"
+  holds description liquid "fluid matter having no fixed shape but a fixed volume"
+  source "WordNet 3.0 synset 14940100-n gloss"
+
+@csd_liquid_14940386 fact
+  holds description liquid_14940386 "a substance that is liquid at room temperature and pressure"
   source "WordNet 3.0 synset 14940386-n gloss"
 
 @csd_liquid_nitrogen fact
@@ -4830,6 +4882,10 @@
   holds description mildew "a fungus that produces a superficial (usually white) growth on organic matter"
   source "WordNet 3.0 synset 13077295-n gloss"
 
+@csd_military_vehicle fact
+  holds description military_vehicle "vehicle used by the armed forces"
+  source "WordNet 3.0 synset 03764276-n gloss"
+
 @csd_mine fact
   holds description mine "excavation in the earth from which ores and minerals are extracted"
   source "WordNet 3.0 synset 03768346-n gloss"
@@ -4998,6 +5054,10 @@
   holds description mustard "pungent powder or paste prepared from ground mustard seeds"
   source "WordNet 3.0 synset 07819480-n gloss"
 
+@csd_mythical_being fact
+  holds description mythical_being "an imaginary being of myth or fable"
+  source "WordNet 3.0 synset 09484664-n gloss"
+
 @csd_mythical_monster fact
   holds description mythical_monster "a monster renowned in folklore and myth"
   source "WordNet 3.0 synset 09492123-n gloss"
@@ -5114,6 +5174,10 @@
   holds description nut "usually large hard-shelled seed"
   source "WordNet 3.0 synset 13136556-n gloss"
 
+@csd_nutrient fact
+  holds description nutrient "any substance (such as a chemical element or inorganic compound) that can be taken in by a green plant and used in organic synthesis"
+  source "WordNet 3.0 synset 00021734-n gloss"
+
 @csd_nylon fact
   holds description nylon "a synthetic fabric"
   source "WordNet 3.0 synset 03836906-n gloss"
@@ -5229,6 +5293,10 @@
 @csd_owner_10389398 fact
   holds description owner_10389398 "a person who owns something"
   source "WordNet 3.0 synset 10389398-n gloss"
+
+@csd_pachyderm fact
+  holds description pachyderm "any of various nonruminant hoofed mammals having very thick skin: elephant"
+  source "WordNet 3.0 synset 02453108-n gloss"
 
 @csd_packer fact
   holds description packer "a workman employed to pack things into containers"
@@ -6022,6 +6090,10 @@
   holds description recorder "equipment for making records"
   source "WordNet 3.0 synset 04063373-n gloss"
 
+@csd_recording fact
+  holds description recording "a storage device on which information (sounds or images) have been recorded"
+  source "WordNet 3.0 synset 04063868-n gloss"
+
 @csd_redstem_storksbill fact
   holds description redstem_storksbill "European weed naturalized in southwestern United States and Mexico having reddish decumbent stems with small fernlike leaves and small deep reddish-lavender flowers followed by slender fruits that stick straight up"
   source "WordNet 3.0 synset 12688903-n gloss"
@@ -6342,6 +6414,10 @@
   holds description satellite "any celestial body orbiting around a planet or star"
   source "WordNet 3.0 synset 09424270-n gloss"
 
+@csd_satellite_04137444 fact
+  holds description satellite_04137444 "man-made equipment that orbits around the earth or the moon"
+  source "WordNet 3.0 synset 04137444-n gloss"
+
 @csd_sauce fact
   holds description sauce "flavorful relish or dressing or topping served as an accompaniment to food"
   source "WordNet 3.0 synset 07829412-n gloss"
@@ -6533,10 +6609,6 @@
 @csd_shelf fact
   holds description shelf "a support that consists of a horizontal surface for holding objects"
   source "WordNet 3.0 synset 04190052-n gloss"
-
-@csd_shellfish fact
-  holds description shellfish "meat of edible aquatic invertebrate with a shell (especially a mollusk or crustacean)"
-  source "WordNet 3.0 synset 07783210-n gloss"
 
 @csd_shelter fact
   holds description shelter "a structure that provides privacy and protection from danger"
@@ -6998,6 +7070,10 @@
   holds description star_10648696 "an actor who plays a principal role"
   source "WordNet 3.0 synset 10648696-n gloss"
 
+@csd_starches fact
+  holds description starches "foodstuff rich in natural starch (especially potatoes, rice, bread)"
+  source "WordNet 3.0 synset 07566863-n gloss"
+
 @csd_starfish fact
   holds description starfish "echinoderms characterized by five arms extending from a central disk"
   source "WordNet 3.0 synset 02317335-n gloss"
@@ -7123,7 +7199,11 @@
   source "WordNet 3.0 synset 04338517-n gloss"
 
 @csd_strip fact
-  holds description strip "artifact consisting of a narrow flat piece of material"
+  holds description strip "thin piece of wood or metal"
+  source "WordNet 3.0 synset 04339638-n gloss"
+
+@csd_strip_04339291 fact
+  holds description strip_04339291 "artifact consisting of a narrow flat piece of material"
   source "WordNet 3.0 synset 04339291-n gloss"
 
 @csd_strip_mall fact
@@ -7145,84 +7225,4 @@
 @csd_study fact
   holds description study "a room used for reading and writing and studying"
   source "WordNet 3.0 synset 04345028-n gloss"
-
-@csd_stupid fact
-  holds description stupid "a person who is not very bright"
-  source "WordNet 3.0 synset 10667187-n gloss"
-
-@csd_submarine fact
-  holds description submarine "a submersible warship usually armed with torpedoes"
-  source "WordNet 3.0 synset 04347754-n gloss"
-
-@csd_substance fact
-  holds description substance "a particular kind or species of matter with uniform properties"
-  source "WordNet 3.0 synset 00020090-n gloss"
-
-@csd_substance_00019613 fact
-  holds description substance_00019613 "the real physical matter of which a person or thing consists"
-  source "WordNet 3.0 synset 00019613-n gloss"
-
-@csd_subway_station fact
-  holds description subway_station "a terminal where subways load and unload passengers"
-  source "WordNet 3.0 synset 04349077-n gloss"
-
-@csd_subway_token fact
-  holds description subway_token "a token that is used to pay for entry to the subway system"
-  source "WordNet 3.0 synset 04349189-n gloss"
-
-@csd_succulent fact
-  holds description succulent "a plant adapted to arid conditions and characterized by fleshy water-storing tissues that act as water reservoirs"
-  source "WordNet 3.0 synset 13084184-n gloss"
-
-@csd_suit fact
-  holds description suit "a set of garments (usually including a jacket and trousers or skirt) for outerwear all of the same fabric and color"
-  source "WordNet 3.0 synset 04350905-n gloss"
-
-@csd_suite fact
-  holds description suite "apartment consisting of a series of connected rooms used as a living unit (as in a hotel)"
-  source "WordNet 3.0 synset 04351550-n gloss"
-
-@csd_suitor fact
-  holds description suitor "a man who courts a woman"
-  source "WordNet 3.0 synset 10674130-n gloss"
-
-@csd_sunglasses fact
-  holds description sunglasses "spectacles that are darkened or polarized to protect the eyes from the glare of the sun"
-  source "WordNet 3.0 synset 04356056-n gloss"
-
-@csd_sunscreen fact
-  holds description sunscreen "a cream spread on the skin"
-  source "WordNet 3.0 synset 04357314-n gloss"
-
-@csd_supermarket fact
-  holds description supermarket "a large self-service grocery store selling groceries and dairy products and household goods"
-  source "WordNet 3.0 synset 04358707-n gloss"
-
-@csd_supplier fact
-  holds description supplier "someone whose business is to supply a particular service or commodity"
-  source "WordNet 3.0 synset 10677271-n gloss"
-
-@csd_support fact
-  holds description support "any device that bears the weight of another thing"
-  source "WordNet 3.0 synset 04359589-n gloss"
-
-@csd_supporting_structure fact
-  holds description supporting_structure "a structure that serves to support something"
-  source "WordNet 3.0 synset 04361095-n gloss"
-
-@csd_surface fact
-  holds description surface "the outer boundary of an artifact or a material layer constituting or resembling such a boundary"
-  source "WordNet 3.0 synset 04362025-n gloss"
-
-@csd_surface_08660339 fact
-  holds description surface_08660339 "the extended two-dimensional outer boundary of a three-dimensional object"
-  source "WordNet 3.0 synset 08660339-n gloss"
-
-@csd_surgical_knife fact
-  holds description surgical_knife "a very sharp knife used in surgery"
-  source "WordNet 3.0 synset 04364827-n gloss"
-
-@csd_suspension fact
-  holds description suspension "a mixture in which fine particles are suspended in a fluid where they are supported by buoyancy"
-  source "WordNet 3.0 synset 14591091-n gloss"
 

@@ -2,6 +2,11 @@
 
 
 
+## Generality beyond known forms (2026-10-02, generality-agent, eval-generality-v1)
+
+Delivered: level b (10 held-out forms x5, phrasings absent from guide, prompt, dev sets, examples and tests), level c (5 compositions x5, 20 Haiku-written natural questions, the 5 real chat failures), arms CodingAgent zai/glm-5.3, Qwen3.8-27B free SOP, zero-model replay, GLM reading evidence; eight generic defect fixes (engine yes/no refutation, aggregate definitions, closure inference, supposition mentions, wh-answer guard, omp output handling, statements and conversation entities, possessives and sentence-initial names) and two world-kb mapping fixes (rebuild pending).
+Observed (correct/wrong/unknown/invalid+failed): held-out forms GLM run1 23/0/4/23, best after fixes 38/1/5/6, Qwen3.8-27B 35/0/8/7, replay 50/0/0/0, GLM reading evidence 49/0/0/1; compositions GLM run1 7/0/0/18, best 24/0/0/1, Qwen 24/1/0/0, GLM reading 25/0/0/0; natural questions through the product turn 14/2/2/2 (hand-judged). Open: arithmetic over aggregated results (count difference, fewest hops, grouped threshold); a turn that exhausts the node heap; core-en has no residence-implies-location rule. Records: `eval/reports/current/generality/`.
+
 ## Knowledge browser /review (2026-10-02, review-page-agent)
 
 Delivered: a read-only knowledge browser over base memories and chat sessions (`lib/review/`, `server/review.mjs`, `server/pages/review.mjs`, `GET /v1/knowledge/*`), linked from the shared menu and from the chat trace. No accept/reject state (owner correction of 2026-10-02).
