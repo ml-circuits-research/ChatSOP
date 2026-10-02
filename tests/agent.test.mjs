@@ -48,7 +48,7 @@ test('the model sees only the message; the host exposes a separate execution cir
 });
 
 test('model-authored operations and documentary provenance never run', async t => {
-  const declarativeOnly = /Model output must be declarative: stated, assumed, unclear, query, constraint or unparsed/;
+  const declarativeOnly = /Model output must be declarative: stated, assumed, unclear, query, constraint, unparsed or pragmatic/;
   const forbidden = [
     ['@p fact\n  holds works_at maria lab_alpha\n  valid timeless', declarativeOnly],
     [worksAsk('Maria') + '@s remember\n  input $q', declarativeOnly],

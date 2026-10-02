@@ -14,34 +14,15 @@ const ranked = `@q query\n  select ?person\n  rank highest ?years\n${options}${m
 const check = (sop, message, mentions = null, extra = {}) => validateQuery({sop, message, mentions, lexicon: lex, ...extra});
 const codes = result => result.problems.map(problem => problem.code);
 
-// No general language parser: these guards only cover explicit English quantifier and comparison cues.
-test('dropped most and numeric lower bound are errors, while their explicit forms pass', () => {
+// No hardcoded understanding (AGENTS.md): the validator checks the circuit against the SOP language and the memory, never against
+// the phrasing of the message. Quantifiers, options and comparisons are the formalizer's understanding; their explicit forms admit.
+test('the validator does not read the phrasing: quantifier, option and comparison forms are the formalizer\'s understanding', () => {
   const base = `@q query\n  mode every\n${match('works_at', '?person', '"Alpha Lab"')}  scope match\n    relation "age"\n    role subject ?person\n    role object ?years\n    polarity affirmed\n  end\n`;
-  const most = 'Do most employees at Alpha Lab have an age?';
-  assert.ok(codes(check(base, most)).includes('quantifier_not_used'));
-  assert.equal(check(base.replace('  mode every\n', '  mode every\n  quantifier most\n'), most).ok, true);
-  const bound = 'Do at least 3 employees at Alpha Lab have an age?';
-  assert.ok(codes(check(base, bound)).includes('quantifier_not_used'));
-  assert.equal(check(base.replace('  mode every\n', '  mode every\n  quantifier at_least 3\n'), bound).ok, true);
-  assert.equal(check(`@q query\n  select ?person\n  compare ?years at_least 3\n${match('age', '?person', '?years')}`, 'Which employees are at least 3 years old?').ok, true, 'an attribute threshold is not forced into a quantifier');
-  assert.equal(check(age, 'Who is the most popular person?').ok, true, 'a superlative adjective is not a set quantifier');
-});
-
-test('comparative choice needs ranked and restricted candidates; compare any and where any both admit', () => {
-  const message = 'Which is older, Ana or Bogdan?';
-  assert.ok(codes(check(age, message, people)).includes('comparison_options_not_used'));
-  const unrestrictedRank = age.replace('  select ?person\n', '  select ?person\n  rank highest ?years\n');
-  assert.ok(codes(check(unrestrictedRank, message, people)).includes('comparison_options_not_used'));
-  assert.equal(check(ranked, message, people).ok, true);
-  const equivalent = `@q query\n  select ?years\n  rank highest ?years\n  where any\n    match\n      relation "age"\n      role subject "Ana"\n      role object ?years\n      polarity affirmed\n    end\n    match\n      relation "age"\n      role subject "Bogdan"\n      role object ?years\n      polarity affirmed\n    end\n  end\n`;
-  assert.equal(check(equivalent, message, people).ok, true);
-});
-
-test('explicit two-value comparison is not replaced by two unrelated matches', () => {
-  const message = 'Is Ana older than Bogdan?';
-  const base = `@q query\n  where all\n    match\n      relation "age"\n      role subject "Ana"\n      role object ?a\n      polarity affirmed\n    end\n    match\n      relation "age"\n      role subject "Bogdan"\n      role object ?b\n      polarity affirmed\n    end\n  end\n`;
-  assert.ok(codes(check(base, message, people)).includes('comparison_not_used'));
-  assert.equal(check(base.replace('  where all\n', '  compare ?a above ?b\n  where all\n'), message, people).ok, true);
+  assert.equal(check(base, 'Do most employees at Alpha Lab have an age?').ok, true, 'no word list decides that "most" was dropped');
+  assert.equal(check(base.replace('  mode every\n', '  mode every\n  quantifier most\n'), 'Do most employees at Alpha Lab have an age?').ok, true);
+  assert.equal(check(base.replace('  mode every\n', '  mode every\n  quantifier at_least 3\n'), 'Do at least 3 employees at Alpha Lab have an age?').ok, true);
+  assert.equal(check(ranked, 'Which is older, Ana or Bogdan?', people).ok, true);
+  assert.equal(check(`@q query\n  select ?person\n  compare ?years at_least 3\n${match('age', '?person', '?years')}`, 'Which employees are at least 3 years old?').ok, true);
 });
 
 test('a name repeated only in an unused assumed proposition does not cover the question', () => {

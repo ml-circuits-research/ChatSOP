@@ -18,7 +18,7 @@ export const SPEC={
  assumed:{one:['relation','polarity','basis'],many:['role','valid',...LINK_WORDS],required:['relation','role','polarity']},
  unclear:{one:['kind','language'],many:['reading'],required:['kind']},
  unparsed:{one:['span','near','hint'],required:['span']},
- pragmatic:{one:['kind','score','span','near','source','basis'],required:['kind','score','source','basis']},
+ pragmatic:{one:['kind','score','span','near','source','basis'],required:['kind','basis']},
  rule:{one:['then','valid','mode','source'],many:['when'],required:['then','when']},
  query:{one:['mode','select','scope','measure','span','at','during','overlaps','asof','limit','rank','quantifier','order','fragment'],many:['where','filter','compare','except',...LINK_WORDS],required:['where']},
  constraint:{one:['claim','task','unit','objective','direction','select'],many:['var','require'],required:[]},
@@ -192,8 +192,8 @@ function validateShape(w){
  if(w.type==='pragmatic'){
   assert(PRAGMATIC_KINDS.includes(one(w,'kind')),'@'+w.id+' pragmatic kind must be one of '+PRAGMATIC_KINDS.join(', '));
   assert(PRAGMATIC_BASES.includes(one(w,'basis')),'@'+w.id+' pragmatic basis must be one of '+PRAGMATIC_BASES.join(', '));
-  assert(/^(0(\.\d{1,3})?|1(\.0{1,3})?)$/.test(one(w,'score')),'pragmatic_score_form: @'+w.id+' score takes a decimal from 0 to 1 with at most three digits');
-  assert(/^[a-z][a-z0-9_]*$/.test(one(w,'source')),'@'+w.id+' pragmatic source takes one strategy id (lowercase letters, digits, underscore)');
+  if(w.fields.score)assert(/^(0(\.\d{1,3})?|1(\.0{1,3})?)$/.test(one(w,'score')),'pragmatic_score_form: @'+w.id+' score takes a decimal from 0 to 1 with at most three digits');
+  if(w.fields.source)assert(/^[a-z][a-z0-9_]*$/.test(one(w,'source')),'@'+w.id+' pragmatic source takes one strategy id (lowercase letters, digits, underscore)');
   if(w.fields.span){const span=one(w,'span'),v=/^"/.test(span)?parseTerm(span):null;assert(typeof v==='string'&&v.trim()&&v.length<=MAX_SPAN,'pragmatic_span_form: @'+w.id+' span takes one nonempty JSON-quoted verbatim part of the message (at most '+MAX_SPAN+' characters)');}
   if(w.fields.near)linkTarget(one(w,'near'),'@'+w.id+' near');
  }

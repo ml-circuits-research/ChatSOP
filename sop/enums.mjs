@@ -104,10 +104,10 @@ export const MAX_SPAN = 200;
 export const LINK_STATUSES = Object.freeze(['applied', 'not_checked']);
 
 /**
- * `pragmatic` (DS023, owner decision of 2026-10-01): an advisory signal about the pragmatic or emotional role of a
- * message or of a span of it, emitted by the host's EmotionDetectionSystem, never by the model. The closed kinds and
- * the closed bases (how the signal was found) are listed here; a signal is the system's subjective perception, never a
- * fact about the world.
+ * `pragmatic` (DS023, owner decisions of 2026-10-01 and 2026-10-02): what a message does besides stating or asking (courtesy,
+ * emotion, tone), written by the formalizer in the same understanding step as the query (basis `llm`). The closed kinds and the
+ * closed bases (how the signal was found) are listed here; a signal is the system's subjective perception, never a fact about
+ * the world: it shapes the reply (a courtesy reply, the tone of an answer) and never becomes evidence.
  */
 export const PRAGMATIC_KINDS = Object.freeze(['greeting', 'closing', 'thanks', 'apology', 'politeness', 'urgency', 'frustration', 'anger', 'confusion', 'curiosity', 'joy', 'sadness', 'fear', 'disappointment', 'hedge', 'emphasis', 'profanity', 'offensive', 'irony_possible', 'confirmation_request', 'topic_shift', 'unclassified']);
 export const PRAGMATIC_BASES = Object.freeze(['lexicon', 'pattern', 'classifier', 'llm']);

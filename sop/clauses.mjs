@@ -98,6 +98,12 @@ export function checkModelLinks(program) {
       }
       continue;
     }
+    if (w.type === 'pragmatic') {
+      // An advisory signal may name the wire its span belongs to; it is never a link target or an argument.
+      const target = nearOf(w);
+      if (target !== null) assert(target !== w.id && byId.has(target) && byId.get(target).type !== 'pragmatic', 'pragmatic_near_unknown: @' + w.id + ' near $' + target + ' must name another, non-pragmatic wire of this output');
+      continue;
+    }
     for (const {keyword, target} of linksOf(w)) {
       assert(target !== w.id, 'link_self_reference: @' + w.id + ' ' + keyword + ' $' + target + ' names its own wire');
       const t = byId.get(target);

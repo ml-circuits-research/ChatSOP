@@ -820,3 +820,7 @@ Benchmark staged stop: {"family":"f9","stage":100,"stop":true,"reason":"broken",
 - Delivered: the symbolic EmotionDetectionSystem back in the product as DS023, integrated before the formalization strategy in `Agent.turn`: courtesy-only and reaction-only messages are answered at once in English or Romanian with no model call; mixed messages are stripped of edge courtesy for the author and answered with a courtesy phrase and tone; `unclear no_request` is a natural invitation; the signals are in the packet and in the chat trace (section 2b).
 - Tests: `tests/emotion-detection.test.mjs` (21 tests: the restored component tests and the chat-turn cases "hello", "thanks!", "hi, who is Ada Lovelace?"-style greeting plus question, frustration plus question, a Romanian greeting, a pure "I'm confused", urgency, `no_request`, the off switch).
 - Not done: calibration on real messages, other languages than English and Romanian, a per-session chat setting for the component (config and turn option only), evidence that the tone improves answers.
+
+## Books evaluation harness (2026-10-02, books-eval-agent)
+
+Delivered: extraction of 7000 problems from 7 books (0 validation problems, 30/30 hand-checked), runner/scorer/report under `tools/eval/books/`, first batch of 100 (steps 0/100, direct 69/100), failure classes and improvement backlog in `eval/reports/current/books-eval/run-2026-10-02T12-00-11/summary.md`. Next batches: `node tools/eval/books/run.mjs --n 100`.

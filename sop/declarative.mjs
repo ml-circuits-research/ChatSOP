@@ -9,6 +9,7 @@ import {propositionOf,linkProposition,propositionValidity,propositionKey,conditi
 import {normalizeTime,isTimeRange,linkQuestion,matchedForm} from './linking.mjs';
 import {SCORES,chooseEntity,mode as scoredLinker} from './knowledge-linker.mjs';
 import {unclearReply} from './unclear.mjs';
+import {pragmaticOf,courtesyReply} from './pragmatic-text.mjs';
 import {checkModelLinks,pairPlaceholders,planLinks,expandReferences,readingWithReferences,nearOf} from './clauses.mjs';
 import {repairSpan,spanQuestion} from './repair.mjs';
 import {englishDictionary} from './dictionary.mjs';
@@ -21,7 +22,7 @@ import {REASONING_QUERY_MODES} from './enums.mjs';
  * The neural author describes problems; only this host compiler emits operations.
  * The model language (DS014) has exactly these authored wire types.
  */
-export const MODEL_TYPES=Object.freeze(new Set(['stated','assumed','unclear','query','constraint','unparsed']));
+export const MODEL_TYPES=Object.freeze(new Set(['stated','assumed','unclear','query','constraint','unparsed','pragmatic']));
 const listTypes=types=>{const t=[...types];return t.slice(0,-1).join(', ')+' or '+t.at(-1);};
 const node=(id,type,fields)=>({id,type,fields,line:0});
 const projectionNames=w=>w.type==='query'?words(one(w,'select','')):many(w,'var').map(line=>words(line)[0]);
@@ -60,7 +61,8 @@ export function checkModelWire(w){
 }
 export function checkModelProgram(program){
  for(const w of program.wires)checkModelWire(w);
- if(program.wires.some(w=>w.type==='unclear'))assert(program.wires.length===1,'unclear_not_alone: unclear must be the only wire of the model output');
+ // `unclear` stands alone; only the advisory `pragmatic` wires of the same message may accompany it ("Hello!" is a greeting and no request).
+ if(program.wires.some(w=>w.type==='unclear'))assert(program.wires.filter(w=>w.type!=='pragmatic').length===1,'unclear_not_alone: unclear must be the only wire of the model output besides pragmatic wires');
  // Links, `$id` role references and unparsed spans are checked across wires (DS014 "Clauses and links").
  checkModelLinks(program);
  return program;
@@ -116,7 +118,26 @@ const USER_SURFACES=new Set(['the user','user']);
 const toggleNegation=text=>text.startsWith('not ')?text.slice(4):'not '+text;
 const REFERENCE_VALUE=value=>value&&typeof value==='object'&&value.ref;
 
-export function compileDeclarative(source,{language='en',inputText='',context={},lexicon=null,schema=null,maxWires=2048,modelAssumptions='report',maxModelAssumptions=8,now=Date.now(),dictionary,frames}={}){
+/**
+ * Splits the advisory `pragmatic` wires (DS023) from the rest of the authored program: they are reported in the packet and shape the
+ * reply, and are never linked, executed or used as evidence. A program of pragmatic wires only is a message without a request.
+ */
+export function compileDeclarative(source,options={}){
+ const parsed=checkModelProgram(parse(source,{maxWires:options.maxWires??2048}));
+ const signals=parsed.wires.filter(w=>w.type==='pragmatic');
+ if(!signals.length)return compileAuthored(source,options);
+ const pragmatic=signals.map(pragmaticOf),pragmaticSop=canonical({wires:signals});
+ const rest=parsed.wires.filter(w=>w.type!=='pragmatic');
+ if(!rest.length){
+  const language=/^[a-z]{2,3}$/.test(options.language??'en')&&options.language!=='auto'?options.language:'en';
+  return {courtesy:true,pragmatic,pragmaticSop,problemIds:[],renderIds:[],statements:[],assumptions:[],links:new Map(),evidenceIds:[],suppositionIds:[],assumptionFactIds:[],modelAssumptions:options.modelAssumptions??'report',language,inputText:options.inputText??'',
+   clauseLinks:[],translations:[],repairs:[],unresolvedSpans:[],held:new Set(),reportOnly:new Set(),authoredSop:pragmaticSop,executionSop:''};
+ }
+ // Near references of the pragmatic wires name wires of the rest; the rest is compiled without them.
+ return {...compileAuthored(canonical({wires:rest}),options),pragmatic,pragmaticSop};
+}
+
+function compileAuthored(source,{language='en',inputText='',context={},lexicon=null,schema=null,maxWires=2048,modelAssumptions='report',maxModelAssumptions=8,now=Date.now(),dictionary,frames}={}){
  // The bilingual and synonym dictionary (DS014 "Content words"); null disables it (the strict evaluation link).
  const dict=dictionary===undefined?englishDictionary():dictionary;
  // Host frame normalization (DS014 "Host frame normalization"): runs before the dictionary tiers when a relation does not link directly. Off with the strict link (dictionary null) or `frames:false`.
@@ -487,6 +508,22 @@ export async function runDeclarative(source,{runtime,language='en',languageSourc
  context.statements??=[];
  const policy=runtime.policy;
  const plan=compileDeclarative(source,{language,inputText,context,lexicon:runtime.lexicon,schema:runtime.schema,maxWires:policy.maxWires,modelAssumptions:policy.modelAssumptions??'report',maxModelAssumptions:policy.maxModelAssumptions??8,now:runtime.now,...(policy.dictionary===false?{dictionary:null}:{})});
+ // "Thanks!" written as `unclear no_request` plus its pragmatic wire is a courtesy message too.
+ const out=plan.courtesy||(plan.unclear?.kind==='no_request'&&plan.pragmatic?.length)?courtesyResult(plan,context):await runPlan(plan,{runtime,language,languageSource,inputText,context});
+ // The pragmatic wires of the message travel with whatever the turn produced (DS023): the reply's tone is rendered from them.
+ if(plan.pragmatic?.length&&out.result?.packet&&!out.result.packet.pragmatic)out.result.packet.pragmatic=plan.pragmatic;
+ if(plan.pragmaticSop)out.pragmaticSop=plan.pragmaticSop;
+ return out;
+}
+
+/** A message of courtesy or emotion only: a deterministic reply rendered from its pragmatic wires, no computation, no memory change. */
+function courtesyResult(plan,context){
+ const packet={kind:'courtesy',status:'courtesy',complete:true,language:'en',pragmatic:plan.pragmatic,user_statements:[],model_assumptions:[],assumption_policy:plan.modelAssumptions};
+ return {values:{},result:{kind:'cnl',language:'en',text:courtesyReply(plan.pragmatic),packet},trace:plan.pragmatic.map(p=>({wire:p.id,type:'pragmatic',epoch:0,status:'pragmatic'})),epochs:0,wireCount:0,outputs:{},blocked:{},generated:[],authoredSop:plan.authoredSop,executionSop:'',contextStatements:context.statements??[],problemResults:[]};
+}
+
+async function runPlan(plan,{runtime,language,languageSource,inputText,context}){
+ const policy=runtime.policy;
  if(plan.unclear)return unclearResult(plan,context);
  // An elliptical follow-up without a previous question in the conversation: ask what it is about (Q-LANG-4).
  if(plan.fragment){

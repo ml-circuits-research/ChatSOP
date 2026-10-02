@@ -64,7 +64,7 @@ const parsers = {
       const meta = b.body.find(p => p.style === 'ProblemMeta')?.text ?? '', ans = b.body.find(p => p.style === 'Answer');
       const question = b.body.filter(p => p.style === 'Box' || /^Question\./.test(p.text)).map(p => p.text);
       if (!ans || !question.length) continue;
-      const m = b.head.text.match(/^Problem (\d+)\.\s*(.*)$/), mm = meta.match(/Domain:\s*(.*?)\s*•\s*Grade\s*(\d)/);
+      const m = b.head.text.match(/^Problem (\d+)\.\s*(.*)$/), mm = meta.match(/Domains?:\s*(.*?)\s*•\s*Grade\s*(\d)/);
       out.push({number: m[1], chapter: b.ctx.h1, section: b.ctx.h2, area: mm?.[1] ?? b.ctx.h2, grade: mm ? Number(mm[2]) : null, tags: [m[2]],
         question: question.map(t => stripLead(t, /^(Problem world|Case data|Question)\.\s*/)).join('\n'), answer: stripLead(ans.text, /^Answer\.?\s*/),
         solution: b.body.filter(p => p.style === 'SolutionStep').map(p => p.text).join('\n')});

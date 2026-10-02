@@ -6,12 +6,14 @@
     "unclear",
     "query",
     "constraint",
-    "unparsed"
+    "unparsed",
+    "pragmatic"
   ],
   "unclearKinds": [
     "gibberish",
     "no_request",
-    "ambiguous"
+    "ambiguous",
+    "relation_not_in_memory"
   ],
   "roleNames": [
     "subject",
@@ -301,7 +303,7 @@
       "declaration": false,
       "authoredByModel": true,
       "effects": "no-world-write",
-      "note": "Model language: the only wire of an output that is unintelligible (gibberish), has neither a statement nor a question (no_request), or shows an ambiguity the model does not resolve (ambiguous, with 2 to 4 reading lines paraphrasing the candidate readings); the host renders a fixed reply per kind and lists the readings as a clarification (DS014)."
+      "note": "Model language: the only wire of an output (besides pragmatic wires) that is unintelligible (gibberish), has neither a statement nor a question (no_request), or shows an ambiguity the model does not resolve (ambiguous, with 2 to 4 reading lines paraphrasing the candidate readings); the host renders a fixed reply per kind and lists the readings as a clarification (DS014)."
     },
     "unparsed": {
       "one": [
@@ -329,14 +331,13 @@
       ],
       "required": [
         "kind",
-        "score",
-        "source",
         "basis"
       ],
       "role": "operation",
       "declaration": false,
-      "authoredByModel": false,
-      "effects": "no-world-write"
+      "authoredByModel": true,
+      "effects": "no-world-write",
+      "note": "Model language: what the message does besides asking or stating (a greeting, thanks, an apology, a closing, a polite word, an emotion), written by the formalizer in the same understanding step with basis llm and an optional verbatim span; alone for a message of courtesy or emotion only. Advisory: the host renders the courtesy reply and the tone of the answer from it; never evidence, never stored (DS023)."
     },
     "rule": {
       "one": [

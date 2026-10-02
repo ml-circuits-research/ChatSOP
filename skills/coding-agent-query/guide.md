@@ -282,13 +282,40 @@ A message that states something ("My friend Zork lives in Lisbon.") is written a
 
 When the question names the class of its answer ("which countries ...", "which cities ..."), restrict the answer with an `is_a` match of that class, unless the relation's declared argument class already guarantees it; a relation's values may include items of other classes. The message may be in any language: entity strings are names as written, never question or function words ("Care", "Unde", "Cine", "Qui", "Wer").
 
-## unclear (alone in the file)
+## unclear (alone in the file, besides pragmatic wires)
 
 ```
 @u unclear
   kind relation_not_in_memory
 ```
 `kind` is `gibberish`, `no_request` (nothing to state or ask: "ok", "write a poem"; a statement is written as `stated` wires, below), `ambiguous` with 2 to 4 `reading "..."` lines, or `relation_not_in_memory` (the question is clear, but no predicate of the memory expresses it).
+
+## Courtesy and emotion: pragmatic wires
+
+Read the whole message, including what it does besides asking or stating. For each greeting, thanks, apology, closing, polite word or emotion the message shows, write one `pragmatic` wire next to the query or statements, with `basis llm` and, when the message has the words, a `span` copied verbatim from it. A message that is only courtesy or emotion ("Hello!", "Thanks a lot!", "I am lost...") gets its pragmatic wires and nothing else: no query and no `unclear`. The wires never change the question; they set the tone of the reply.
+```
+@p1 pragmatic
+  kind greeting
+  span "Hi"
+  basis llm
+
+@q query
+  select ?x
+  where match
+    relation "member_of"
+    role subject ?x
+    role object "falcon"
+    polarity affirmed
+  end
+
+@p2 pragmatic
+  kind frustration
+  span "I already asked this twice"
+  basis llm
+```
+The kinds (write only these, and only when the message shows them):
+
+{{PRAGMATIC_KINDS}}
 
 ## Session definitions and assumptions (only when needed)
 

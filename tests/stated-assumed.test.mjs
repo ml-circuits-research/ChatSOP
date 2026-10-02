@@ -24,8 +24,8 @@ const question = '@q query\n' + match('"Maria"', '"Alpha Lab"');
 const compile = (source, options = {}) => compileDeclarative(source, {lexicon: lex, schema, now: NOW, ...options});
 const runtime = (policy = {}, c = null) => new Runtime({lexicon: lex, schema, now: NOW, policy, ...(c ? {repo: c.repo, session: c.session} : {})});
 
-test('model types: stated/assumed/unclear/query/constraint/unparsed only', () => {
-  assert.deepEqual([...MODEL_TYPES], ['stated', 'assumed', 'unclear', 'query', 'constraint', 'unparsed']);
+test('model types: stated/assumed/unclear/query/constraint/unparsed/pragmatic only', () => {
+  assert.deepEqual([...MODEL_TYPES], ['stated', 'assumed', 'unclear', 'query', 'constraint', 'unparsed', 'pragmatic']);
   for (const source of ['@x jsEval\n  expr 1 + 2', '@x value\n  data 1 + 2', '@x clarify\n  text "Which?"', '@x fact\n  holds works_at maria lab_alpha\n  valid timeless'])
     assert.throws(() => compile(source), /belongs to symbolic execution/, source);
   // Queries state conditions as string match blocks, never atoms.
