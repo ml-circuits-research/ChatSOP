@@ -77,7 +77,13 @@ export function report(records, {pilot = false, provenance = {}} = {}) {
   const cells = Object.fromEntries(Object.entries(groups).map(([key, rows]) => [key, summarize(rows)]));
   const comparisons = Object.fromEntries([...new Set(records.map(r => r.family))].map(f => {
     const rows = records.filter(r => r.family === f);
-    return [f, {fits: paired(rows), does_not_fit: paired(rows, 'B', 'A', 'does_not_fit'), B_minus_C: paired(rows, 'B', 'C', 'all'), B_minus_A_cot: paired(rows, 'B', "A'"), D_minus_A: paired(rows, 'D', 'A')}];
+    const variants = {};
+    for (const arm of ['B-grammar', 'B-structured']) if (rows.some(r => r.arm === arm)) {
+      variants[`${arm}_minus_A`] = paired(rows, arm, 'A');
+      variants[`${arm}_minus_B`] = paired(rows, arm, 'B');
+      variants[`${arm}_capped_minus_A`] = paired(rows, arm, 'A', 'does_not_fit');
+    }
+    return [f, {fits: paired(rows), does_not_fit: paired(rows, 'B', 'A', 'does_not_fit'), B_minus_C: paired(rows, 'B', 'C', 'all'), B_minus_A_cot: paired(rows, 'B', "A'"), D_minus_A: paired(rows, 'D', 'A'), ...variants}];
   }));
   const lines = [`# Symbolic versus LLM ${pilot ? 'dev pilot (sanity only; not a benchmark result)' : 'evaluation'}`, '', 'Capped English evidence is a separate B-versus-text condition, never a same-evidence reasoning win. B/C share symbolic memory and remain paired regardless of the English cap.', '', '| Family / arm / evidence | Correct / n | Verified correct / n | Wrong / n | Unknown / n | Invalid or failed / n | p50 / p95 wall ms | Cost USD / 100 |', '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |'];
   for (const [key, cell] of Object.entries(cells).filter(([key]) => !key.includes('/size-') && !key.includes('/depth-'))) {

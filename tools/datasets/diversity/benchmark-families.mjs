@@ -2,7 +2,8 @@ import {GIVEN_NAMES} from './names.mjs';
 
 // Construction gold is computed here, without asking an engine to invent the expected answer.
 // The oracle separately checks these expectations before a case can be persisted.
-const predicate = (id, types, closed = false) => `@${id} predicate\n  args ${types.map((t, i) => `${['subject', 'object', 'topic'][i]}:${t}`).join(' ')}\n${closed ? '  closed true\n' : ''}`;
+const predicate = (id, types, closed = false, {roles = ['subject', 'object', 'topic'], label = id.replaceAll('_', ' '), description = ''} = {}) =>
+  `@${id} predicate\n  args ${types.map((t, i) => `${roles[i]}:${t}`).join(' ')}\n  label en ${JSON.stringify(label)}\n  description ${JSON.stringify(description || `${label}: ${roles.slice(0, types.length).join(', ')}.${closed ? ' The retained list is exhaustive.' : ' The list is not declared exhaustive.'}`)}\n${closed ? '  closed true\n' : ''}`;
 const fact = (id, atom, extra = '') => `@f${id} fact\n  holds ${atom}\n${extra}`;
 const query = lines => `@q query\n${lines.map(s => `  ${s}`).join('\n')}\n`;
 const names = (split, n) => {
@@ -31,7 +32,10 @@ export function benchmarkCase(family, index, {split = 'dev', scale = 1000} = {})
       const variant = index % 6, n = 18 + shift * 2;
       const company = `firm_${a}`;
       const rows = Array.from({length: n}, (_, j) => ({person: names(split, index * 100 + j + 500), amount: 50 + ((j % 11) * 17 + index * 7) % 110}));
-      const parts = [predicate('assigned_to', ['entity', 'entity'], true), predicate('compensation', ['entity', 'integer'], true)];
+      const parts = [
+        predicate('assigned_to', ['entity', 'entity'], true, {description: 'A person (subject) is assigned to a firm or project (object). Every assignment is listed.'}),
+        predicate('compensation', ['entity', 'integer'], true, {description: 'Compensation paid to a person (subject), with a numerical amount (object). Every person compensation is listed.'})
+      ];
       let seq = 0;
       for (const r of rows) { parts.push(fact(++seq, `assigned_to ${r.person} ${company}`)); parts.push(fact(++seq, `assigned_to ${r.person} project_${r.person}`)); parts.push(fact(++seq, `compensation ${r.person} ${r.amount}`)); }
       if (variant === 0) return assemble(family, 'count-distinct', `How many distinct people are assigned to ${company}?`, parts.join(''), query(['mode count', `where assigned_to ?p ${company}`, 'select ?p']), expected('Distinct count with duplicate assignments', ['facts', 'count'], {status: 'supported', count: n}), seq);
@@ -42,26 +46,27 @@ export function benchmarkCase(family, index, {split = 'dev', scale = 1000} = {})
       }
       if (variant === 5) {
         const department = `department_${a}`, other = `department_${b}`;
-        parts.push(predicate('department_pay', ['entity', 'entity', 'integer'], true), predicate('department_total', ['entity', 'integer']));
+        parts.push(predicate('department_pay', ['entity', 'entity', 'integer'], true, {label: 'person department pay', description: 'Pay of a person (subject) in a department (object) with numerical amount (topic). All department pay entries are listed.'}),
+          predicate('department_total', ['entity', 'integer'], false, {label: 'total pay by department', description: 'Total pay (object) grouped by department (subject), summed across department_pay entries; not grouped by firm.'}));
         rows.forEach((r, j) => parts.push(fact(++seq, `department_pay ${r.person} ${j % 2 ? other : department} ${r.amount}`)));
         parts.push('@by_department aggregate\n  over department_pay ?person ?dept ?amount\n  group ?dept\n  sum ?amount as ?total\n  yields department_total ?dept ?total\n');
         const total = rows.reduce((sum, r, j) => sum + (j % 2 ? 0 : r.amount), 0);
-        return assemble(family, 'grouped-sum', `What is the total pay of ${department} at ${company}, not ${other}?`, parts.join(''), query([`where department_total ${department} ?total`, 'select ?total']), expected('Group-by sum selects the requested department', ['facts', 'aggregate'], {status: 'supported', rows: [{total}]}), seq);
+        return assemble(family, 'grouped-sum', `What is the total pay recorded for ${department}, not ${other}?`, parts.join(''), query([`where department_total ${department} ?total`, 'select ?total']), expected('Group-by sum selects the requested department', ['facts', 'aggregate'], {status: 'supported', rows: [{total}]}), seq);
       }
       const kind = ['', 'sum', 'max', 'count'][variant], target = `result_${kind}_${a}`;
-      parts.push(predicate(target, ['entity', 'integer']));
-      parts.push(`@aggregation aggregate\n  over compensation ?p ?v\n  ${kind} ${kind === 'count' ? '?p' : '?v'} as ?total\n  yields ${target} ${company} ?total\n`);
+      parts.push(predicate(target, ['entity', 'integer'], false, {label: `${kind} of compensation`, description: `The ${kind} of compensation (object) of people assigned to a firm (subject); aggregated across the firm's employees.`}));
+      parts.push(`@aggregation aggregate\n  over assigned_to ?p ${company}\n  over compensation ?p ?v\n  ${kind} ${kind === 'count' ? '?p' : '?v'} as ?total\n  yields ${target} ${company} ?total\n`);
       const value = variant === 1 ? rows.reduce((s, r) => s + r.amount, 0) : variant === 2 ? Math.max(...rows.map(r => r.amount)) : n;
-      return assemble(family, kind, `What is the ${kind} of compensation for the employees of ${company}?`, parts.join(''), query([`where ${target} ${company} ?total`, 'select ?total']), expected('Real aggregate over numerical facts', ['facts', 'aggregate'], {status: 'supported', rows: [{total: value}]}), seq);
+      return assemble(family, kind, kind === 'count' ? `How many distinct employees of ${company} receive compensation?` : `What is the ${kind} of compensation for the employees of ${company}?`, parts.join(''), query([`where ${target} ${company} ?total`, 'select ?total']), expected('Real aggregate over numerical facts', ['facts', 'aggregate'], {status: 'supported', rows: [{total: value}]}), seq);
     }
     case 'f3': {
       if (index % 4 === 3) {
-        const knowledge = predicate('cleared', ['entity']) + fact(1, `cleared ${a}`) + fact(2, `cleared ${b}`);
+        const knowledge = predicate('cleared', ['entity'], false, {description: 'A person (subject) is known cleared; the register is partial and absence does not establish that a person is not cleared.'}) + fact(1, `cleared ${a}`) + fact(2, `cleared ${b}`);
         const question = split === 'dev' ? `How many people are known to be cleared in the partial list containing ${a} and ${b}? Give a lower bound, not an exact total.` : `What minimum number of certified persons is evidenced by the unfinished register listing ${a} alongside ${b}? Do not assume a final tally.`;
         return assemble(family, 'open-count-lower-bound', question, knowledge, query(['mode count', 'where cleared ?p', 'select ?p']), expected('Open predicate gives only an at-least count', ['facts', 'count'], {status: 'supported', count: 2, bound: 'at_least'}), 2);
       }
       const closed = index % 2 === 0, seen = index % 4 === 0;
-      const knowledge = predicate('cleared', ['entity'], closed) + (seen ? fact(1, `cleared ${a}`) : fact(1, `cleared ${b}`));
+      const knowledge = predicate('cleared', ['entity'], closed, {description: closed ? 'A person (subject) belongs to the complete clearance register. The retained list is exhaustive: absence means not listed, not an explicit negative claim.' : 'A person (subject) is known cleared on a partial list. Lack of an entry cannot establish absence.'}) + (seen ? fact(1, `cleared ${a}`) : fact(1, `cleared ${b}`));
       const status = closed ? seen ? 'refuted' : 'supported' : seen ? 'supported' : 'unknown';
       const question = split === 'dev' ? (closed ? `Is ${a} absent from the complete list of cleared people?` : `Is ${a} on the partial list of cleared people?`) : (closed ? `Has ${a} been left off the exhaustive clearance roster?` : `Does the unfinished clearance register establish that ${a} has passed clearance?`);
       return assemble(family, closed ? 'closed-absence' : 'open-positive', question, knowledge, query([`where ${closed ? 'absent ' : ''}cleared ${a}`]), expected('Closed-world absence is not an open-world negative', ['facts', closed ? 'closed_world' : 'open_world', ...(closed ? ['naf'] : [])], {status}), 1);
@@ -73,9 +78,14 @@ export function benchmarkCase(family, index, {split = 'dev', scale = 1000} = {})
       for (let j = 0; j < length * 3; j++) links.push([`distraction_${b}_${j}`, `distraction_${b}_${j + 1}`]);
       const blocked = index % 3 === 0;
       if (cut) links.push([nodes[Math.floor(length / 2) - 1], `detour_${c}_0`], [`detour_${c}_0`, nodes[Math.floor(length / 2) + 1]]);
-      const k = predicate('link', ['entity', 'entity']) + predicate('blocked', ['entity'], true) + predicate('reached', ['entity']) + links.map(([x, y], j) => fact(j + 1, `link ${x} ${y}`)).join('') + (cut && blocked ? fact(links.length + 1, `blocked detour_${c}_0`) : '') + `@base rule\n  when link ${start} ?y\n  when absent blocked ?y\n  then reached ?y\n@step rule\n  when reached ?x\n  when link ?x ?y\n  when absent blocked ?y\n  then reached ?y\n`;
+      const k = predicate('link', ['entity', 'entity'], false, {description: 'A directed link from one station (subject) to the next station (object); the link list is not declared exhaustive.'}) +
+        predicate('blocked', ['entity'], true, {description: 'Station (subject) is blocked; the retained list of blocked stations is exhaustive.'}) +
+        predicate('reached', ['entity', 'entity'], false, {description: 'Destination station (object) is reachable from starting station (subject) by directed links without entering a blocked station; the relation is derived, and missing paths are not closed-world negatives.'}) +
+        links.map(([x, y], j) => fact(j + 1, `link ${x} ${y}`)).join('') +
+        (cut && blocked ? fact(links.length + 1, `blocked detour_${c}_0`) : '') +
+        '@base rule\n  when link ?origin ?next\n  when absent blocked ?origin\n  when absent blocked ?next\n  then reached ?origin ?next\n@step rule\n  when reached ?origin ?via\n  when link ?via ?next\n  when absent blocked ?next\n  then reached ?origin ?next\n';
       const reachable = !cut || !blocked;
-      return assemble(family, cut ? blocked ? 'blocked-detour' : 'open-detour' : 'intact', `Can one reach ${target} from ${start} without entering a blocked station?`, k, query([`where reached ${target}`]), expected('Transitive reachability with a cut, blocked detour, and 3N distractors', ['facts', 'rules', 'recursion', 'naf', 'closed_world'], {status: reachable ? 'supported' : 'unknown'}), links.length + Number(cut && blocked), length);
+      return assemble(family, cut ? blocked ? 'blocked-detour' : 'open-detour' : 'intact', `Can one reach ${target} from ${start} without entering a blocked station?`, k, query([`where reached ${start} ${target}`]), expected('Transitive reachability with a cut, blocked detour, and 3N distractors', ['facts', 'rules', 'recursion', 'naf', 'closed_world'], {status: reachable ? 'supported' : 'unknown'}), links.length + Number(cut && blocked), length);
     }
     case 'f5': {
       // Two independent arithmetic requirements identify one assignment, or prove inconsistency.
@@ -89,7 +99,13 @@ export function benchmarkCase(family, index, {split = 'dev', scale = 1000} = {})
     case 'f6': {
       const start = '2026-03-01', end = '2026-06-01', variant = index % 6;
       const gap = variant === 0 || variant === 3, expires = variant === 1;
-      const k = predicate('certified', ['entity']) + predicate('on_shift', ['entity']) + predicate('may_work', ['entity']) + fact(1, `certified ${a}`, `  valid 2026-01-01 ${expires ? '2026-05-15' : '2026-12-31'}\n`) + fact(2, `on_shift ${a}`, '  valid 2026-02-01 2026-04-01\n') + fact(3, `on_shift ${a}`, `  valid ${gap ? '2026-04-02' : '2026-04-01'} 2026-07-01\n`) + `@derived rule\n  when certified ?x\n  when on_shift ?x\n  then may_work ?x\n`;
+      const k = predicate('certified', ['entity'], false, {description: 'A person (subject) holds a time-bounded certification.'}) +
+        predicate('on_shift', ['entity'], false, {description: 'A person (subject) is on shift during the validity interval of the fact.'}) +
+        predicate('may_work', ['entity'], false, {label: 'permission to work', description: 'A person (subject) may work only at times when both certified and on shift; this permission is derived from the overlap of their validity intervals.'}) +
+        fact(1, `certified ${a}`, `  valid 2026-01-01 ${expires ? '2026-05-15' : '2026-12-31'}\n`) +
+        fact(2, `on_shift ${a}`, '  valid 2026-02-01 2026-04-01\n') +
+        fact(3, `on_shift ${a}`, `  valid ${gap ? '2026-04-02' : '2026-04-01'} 2026-07-01\n`) +
+        '@derived rule\n  when certified ?x\n  when on_shift ?x\n  then may_work ?x\n';
       const point = variant === 3 || variant === 5, overlap = variant === 4;
       const date = variant === 3 ? '2026-04-01' : '2026-06-01';
       const temporal = point ? `at ${date}` : overlap ? 'overlaps 2026-04-01 2026-05-01' : `during ${start} ${end}`;
@@ -97,8 +113,12 @@ export function benchmarkCase(family, index, {split = 'dev', scale = 1000} = {})
       return assemble(family, point ? 'point-boundary' : overlap ? 'interval-overlap' : gap ? 'gap' : expires ? 'expiry' : 'continuous', question, k, query([`where may_work ${a}`, temporal]), expected('Derived intervals: point, overlap and throughout respect gaps and exclusive ends', ['facts', 'rules', 'temporal', 'interval', 'snapshot_derived', ...(!point && !overlap ? ['throughout'] : [])], {status: point ? gap ? 'unknown' : 'supported' : overlap ? 'supported' : gap || expires ? 'unknown' : 'supported'}), 3);
     }
     case 'f7': {
-      const depth = 1 + shift, exception = index % 2 === 1, parts = [predicate('seed', ['entity']), predicate('eligible', ['entity']), predicate('exception', ['entity'])];
-      for (let j = 1; j <= depth; j++) parts.push(predicate(`stage_${j}`, ['entity']));
+      const depth = 1 + shift, exception = index % 2 === 1, parts = [
+        predicate('seed', ['entity'], false, {description: 'Starting premise (subject) for the chain of rule deductions.'}),
+        predicate('eligible', ['entity'], false, {description: 'Person (subject) is eligible under an ordinary default after the last stage; a stronger exception default instead supports explicitly not eligible.'}),
+        predicate('exception', ['entity'], false, {description: 'Person (subject) has an exception that activates the higher-priority negative eligibility default.'})
+      ];
+      for (let j = 1; j <= depth; j++) parts.push(predicate(`stage_${j}`, ['entity'], false, {description: `Person (subject) reaches deduction stage ${j} through ${j} rule applications from the seed.`}));
       parts.push(fact(1, `seed ${a}`));
       for (let j = 1; j <= depth; j++) parts.push(`@r_${j} rule\n  when ${j === 1 ? 'seed' : `stage_${j - 1}`} ?x\n  then stage_${j} ?x\n`);
       if (exception) parts.push(fact(2, `exception ${a}`));
@@ -111,18 +131,22 @@ export function benchmarkCase(family, index, {split = 'dev', scale = 1000} = {})
       const conflict = index % 2 === 0;
       if (conflict) {
         const unrelated = Array.from({length: scale - 2}, (_, j) => fact(j + 3, `approved other_${split}_${index}_${j}`)).join('');
-        return assemble(family, 'both', `Among ${scale} claims, is ${a} approved, disproved, or both?`, predicate('approved', ['entity']) + fact(1, `approved ${a}`) + fact(2, `not approved ${a}`) + unrelated, query([`where approved ${a}`]), expected('Both positive and negative evidence survive amid unrelated claims', ['facts', 'classical_negation'], {status: 'both'}), scale);
+        return assemble(family, 'both', `Among ${scale} claims, is ${a} approved, disproved, or both?`, predicate('approved', ['entity'], false, {description: 'Person (subject) has an approval claim; explicit not approved is a distinct contrary claim, and both claims may coexist.'}) + fact(1, `approved ${a}`) + fact(2, `not approved ${a}`) + unrelated, query([`where approved ${a}`]), expected('Both positive and negative evidence survive amid unrelated claims', ['facts', 'classical_negation'], {status: 'both'}), scale);
       }
       const unrelated = Array.from({length: scale - 2}, (_, j) => fact(j + 3, `booking other_${split}_${index}_${j} slot_${j} occupant_${j}`)).join('');
-      const k = predicate('booking', ['entity', 'entity', 'entity']) + predicate('violation', ['entity', 'entity']) + fact(1, `booking ${a} ${b} ${c}`) + fact(2, `booking ${a} ${b} ${a}`) + unrelated + `@unique_booking integrity\n  never all\n    booking ?r ?s ?p\n    booking ?r ?s ?other\n    compare ?p not_equal ?other\n  end\n  witness ?r\n  message "Two occupants of one room and slot"\n  severity error\n`;
-      return assemble(family, 'integrity', `Among ${scale} bookings, does room ${a} have an integrity violation?`, k, query([`where violation ?c ${a}`, 'select ?c']), expected('Integrity violation is reported as data amid distinct bookings', ['facts', 'integrity', 'compare_in_rules'], {status: 'supported', rows: [{c: 'unique_booking'}]}), scale);
+      const k = predicate('booking', ['entity', 'entity', 'entity'], false, {description: 'A booking has a room (subject), slot (object), and occupant (topic); two different occupants in one room and slot violate unique_booking.'}) +
+        predicate('violation', ['entity', 'entity'], false, {label: 'integrity violation', description: 'An integrity violation identifies the violated constraint (subject) and its witness room (object); an integrity rule produces this relation, not an assertion about the room.'}) +
+        fact(1, `booking ${a} ${b} ${c}`) + fact(2, `booking ${a} ${b} ${a}`) + unrelated +
+        '@unique_booking integrity\n  never all\n    booking ?r ?s ?p\n    booking ?r ?s ?other\n    compare ?p not_equal ?other\n  end\n  witness ?r\n  message "Two occupants of one room and slot"\n  severity error\n';
+      const question = split === 'dev' ? `Among ${scale} bookings, which integrity constraint is violated for room ${a}?` : `Within ${scale} reservations, what consistency condition is broken at ${a}?`;
+      return assemble(family, 'integrity', question, k, query([`where violation ?c ${a}`, 'select ?c']), expected('Integrity violation is reported as data amid distinct bookings', ['facts', 'integrity', 'compare_in_rules'], {status: 'supported', rows: [{c: 'unique_booking'}]}), scale);
     }
     case 'f9': {
       if (![1000, 10000, 100000, 1000000].includes(scale)) throw new Error(`Unsupported scale ${scale}; use 1e3, 1e4, 1e5, or 1e6`);
       const n = scale, compact = n > 1000;
       const relation = compact ? 'l' : 'linked';
       const entity = (which, j) => compact ? `${which}${index}_${j}` : `${which === 'd' ? a : b}_${j}`;
-      const k = predicate(relation, ['entity', 'entity'], true) + Array.from({length: n}, (_, j) => fact(j + 1, `${relation} ${entity('d', j)} ${entity('h', j)}`)).join('');
+      const k = predicate(relation, ['entity', 'entity'], true, {label: 'directed link', description: 'A directed link has a source node (subject) and destination node (object); the retained link list is exhaustive, allowing absence claims for a specified source and destination.'}) + Array.from({length: n}, (_, j) => fact(j + 1, `${relation} ${entity('d', j)} ${entity('h', j)}`)).join('');
       const j = index % n, variant = index % 3;
       if (variant === 1) {
         const question = split === 'dev' ? `Among ${n} links including ${entity('d', j)} linked to ${entity('h', j)}, how many distinct source nodes occur?` : `In the dataset of ${n} recorded edges, one example goes from ${entity('d', j)} to ${entity('h', j)}. What is the number of distinct originating vertices?`;

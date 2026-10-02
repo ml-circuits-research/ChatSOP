@@ -5,6 +5,7 @@ import os from 'node:os';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {authorQuery, completionBackend, ompBackend} from '../../../lib/query-author/index.mjs';
+import {constrainedBackend} from '../../../lib/query-author/backends/constrained.mjs';
 import {splitCircuits} from '../../../lib/query-author/session.mjs';
 import {parse as parseRuntime} from '../../../sop/parser.mjs';
 import {parse as parseKnowledge} from '../../../sop/knowledge/lexical.mjs';
@@ -109,10 +110,12 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
   let parseOk = null, responseEmpty = false, brokenModelOutput = false;
   const latency = {parse_ms: 0, retrieval_ms: 0, engine_ms: 0, verify_ms: 0, model_ms: 0};
   try {
-    if (['B', 'C'].includes(arm)) {
+    if (['B', 'B-grammar', 'B-structured', 'C'].includes(arm)) {
       const deadline = start + settings.wallMs;
       let remaining = settings.maxTokens;
-      const backend = arm === 'B' ? completionBackend({endpoint: settings.endpoint, model: settings.model, timeoutMs: settings.wallMs, maxTokens: settings.maxTokens,
+      const makeBackend = arm === 'B' ? completionBackend : constrainedBackend;
+      const backend = arm !== 'C' ? makeBackend({endpoint: settings.endpoint, model: settings.model, timeoutMs: settings.wallMs, maxTokens: settings.maxTokens,
+        ...(arm !== 'B' ? {format: arm.slice(2), lexicon: world.lexicon} : {}),
         extraBody: {chat_template_kwargs: {enable_thinking: false}}, fetchImpl: async (url, init) => {
           if (Date.now() >= deadline || remaining <= 0) throw new Error('shared question budget exhausted');
           const body = JSON.parse(init.body); body.max_tokens = remaining;
@@ -191,6 +194,7 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
     evidence_does_not_fit: evidence.evidence_does_not_fit, evidence_facts: evidence.facts, evidence_chars: evidence.original_chars,
     latency, tokens_in: tokensIn, tokens_out: tokensOut, cost_usd: arm === 'C' || arm === 'D' ? cost : 0,
     author: author && {status: author.status, reason: author.reason, rounds: author.rounds, sop: author.sop, context_version: author.context_version, retrieval: author.retrieval, usage: author.usage,
+      ...(['B-grammar', 'B-structured'].includes(arm) ? {decoder_output: author.report} : {}),
       problems: author.validation?.problems, parsed: Boolean(author.validation?.program)},
     packet, rendered, oracle_equivalent: oracleEquivalent, error,
     failure_layer: failureLayer({arm, parseOk, outcome: verdict.outcome, author, linking, packet, oracleEquivalent, rendered, error})};
@@ -210,12 +214,13 @@ export async function main(args = process.argv.slice(2)) {
     if (!preregistration.frozen) throw new Error('sealed execution requires a frozen preregistration');
   }
   const arms = opt(args, '--arms', 'A,B').split(',');
-  if (arms.some(a => !['A', "A'", 'B', 'C', 'D'].includes(a))) throw new Error('unknown arm');
+  if (arms.some(a => !['A', "A'", 'B', 'B-grammar', 'B-structured', 'C', 'D'].includes(a))) throw new Error('unknown arm');
+  if (rows.some(r => r.split !== 'dev') && arms.some(a => ['B-grammar', 'B-structured'].includes(a))) throw new Error('constrained authoring variants are dev-only; the frozen sealed protocol does not include these arms');
   const key = opt(args, '--model', 'qwen3-4b-q4');
   const settings = {model: key, endpoint: opt(args, '--endpoint', null), subscriptionModel: opt(args, '--subscription-model', 'openai-codex/gpt-6-luna'), wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096))};
   if (!/^(openai-codex|xai-oauth|zai|zai-coding-plan)\//.test(settings.subscriptionModel)) throw new Error('subscription models first; paid execution requires an explicitly authorized separate run');
   const spec = MODELS[key];
-  const managed = !settings.endpoint && arms.some(a => ['A', "A'", 'B'].includes(a));
+  const managed = !settings.endpoint && arms.some(a => ['A', "A'", 'B', 'B-grammar', 'B-structured'].includes(a));
   if (managed && spec?.kind !== 'local') throw new Error('local model needs explicit existing GGUF specification');
   const alternate = path.resolve('models/qwen3-4b-instruct/gguf/q4_k_m.gguf');
   const gguf = managed ? fs.existsSync(spec.gguf) ? spec.gguf : key === 'qwen3-4b-q4' && fs.existsSync(alternate) ? alternate : spec.gguf : null;

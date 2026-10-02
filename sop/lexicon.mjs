@@ -14,7 +14,7 @@ import {normalize, fold, tokens, phraseKey} from './text-keys.mjs';
 export {normalize};
 
 /** Version of the compiled format: part of every cache key and of the serialized form. */
-export const LEXICON_FORMAT = 5;
+export const LEXICON_FORMAT = 6;
 
 const spans = (s, a) => { const out = []; let at = s.indexOf(a); while (at >= 0) { const end = at + a.length, left = at === 0 || !/[\p{L}\p{N}_]/u.test(s[at - 1]), right = end === s.length || !/[\p{L}\p{N}_]/u.test(s[end]); if (left && right) out.push([at, end]); at = s.indexOf(a, at + 1); } return out; };
 const field = (w, key) => w.fields.find(f => f.key === key)?.value.trim();
@@ -70,6 +70,7 @@ export class Lexicon {
     this.predicates[w.id] = {
       id: w.id, kind: 'predicate', labels, aliases, domain: field(w, 'domain') ?? null, version: this.version, provenance: this.provenance,
       args: types, arity: types.length, namedRoles: Boolean(roleLines.length || named), roles: roles.map(r => ({name: r.name, type: r.type})),
+      closed: field(w, 'closed') === 'true',
       description: unquote(field(w, 'description') ?? '') ?? '', readings: fieldsOf(w, 'reading'), describeRank: field(w, 'describe_rank') ? Number(field(w, 'describe_rank')) : null,
       lexemes: [], valueTypes: types.map(t => (ARG_TYPES.includes(t) ? t : 'entity')),
     };

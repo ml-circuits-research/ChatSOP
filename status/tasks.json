@@ -8,6 +8,20 @@
   },
   "tasks": [
     {
+      "id": "t6-arm-c-coverage",
+      "kind": "task",
+      "title": "T6 subscription-author coverage: attribution and generic repairs",
+      "status": "done",
+      "started_at": "2026-10-02T02:42:25.763Z",
+      "summary": "All baseline failures attributed; both permitted subscription cohorts completed with wrong-rate gates met. Generic coverage and temporal parser repairs are executable; final required npm suite, spec references and reasoning smoke pass.",
+      "topics": ["evaluation", "model-language"],
+      "experiments": ["eval-symbolic-vs-llm-v1"],
+      "owner": "Attribute every non-correct T5 C row, fix generic causes including F5 constraints, and pair at most two 240-dev-row gpt-6-luna reruns with T5. Preserve the 5.5% wrong-rate ceiling, append deviations without changing hypotheses, and report executable verification. No sealed access, training, installations, paid fallback or port 9999.",
+      "agents": "omp-t6-coverage: independently gold-replayed and attributed every158/50/25 noncorrect baseline/C1/C2 record. Exact-input C1:190/240 correct,7 wrong; corrected-input C2:215/240 correct,0 wrong. Both overall/evidence-fit wrong rates below5.5%; F5 is30/30 in both. Reconstruction retains every semantic expectation, changing25 questions,30 gold queries and240 knowledge metadata files. Late quoted-range parser repair separately replays unchanged saved F6 circuits6 to30/30 correct with zero model calls; raw C2 remains215/240. Final npm:1237 tests,1236 pass,0 fail,0 cancelled,1 skip; unchanged site-links test passes in118.00s. Spec references:23 specs,5441 files,zero violations. Reasoning smoke:145 cases,752 declared-strategy passes; targeted retrieval5/5, whole-memory diagnostic4/5, unsafe controls0/5. Browser-observed public wire help and task surfaces. Deviations appended; hypotheses unchanged.",
+      "follow_ups": [],
+      "links": ["eval/reports/current/omp-tasks/t6-coverage.md", "status/preregistrations/eval-symbolic-vs-llm-v1.json"]
+    },
+    {
       "id": "query-author-session-v2",
       "kind": "task",
       "title": "Query author phase 2: session circuits, self-check and shared execution",

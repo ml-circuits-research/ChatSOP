@@ -69,6 +69,11 @@ test('the guide examples pass the validator (the authoring guide is executable)'
   args subject:entity
 @on_leave predicate
   args subject:entity
+@edge predicate
+  args subject:entity object:entity
+@unavailable predicate
+  args subject:entity
+  closed true
 `}]);
   for (const {session, sop} of examples) {
     const r = validateQuery({sop, message: 'Does Maria work at Acme? Ana Cluj France 80', lexicon: session ? exampleLexicon : null});

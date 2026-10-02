@@ -6,6 +6,8 @@ import {benchmarkCase, BENCHMARK_FAMILIES} from '../tools/datasets/diversity/ben
 import {worldMultihop} from '../tools/datasets/diversity/benchmark-world.mjs';
 import {checkLocal, scaleConfigs} from '../tools/datasets/diversity/build-benchmark.mjs';
 import {overlapOf} from '../tools/datasets/audit/content-word-overlap.mjs';
+import {validateQuery} from '../lib/query-author/validate.mjs';
+import {createWorld, linkCircuit, execute} from '../tools/eval/symbolic-vs-llm/world.mjs';
 
 const checked = (family, index) => checkLocal(benchmarkCase(family, index));
 const worldAvailable = [process.env.QF_CHAT_ROOT, 'datasets_sources/query-forms/chat_data2', 'datasets_sources/query-forms/chat_data', 'chat_data'].filter(Boolean).some(root => existsSync(path.join(root, 'base_memories/world-v1/circuits')));
@@ -19,13 +21,58 @@ test('closed-world absence differs from missing open-world evidence', () => {
   const bound = checked('f3', 3);
   assert.equal(bound.expected.bound, 'at_least');
   assert.equal(bound.expected.count, 2);
-  assert.deepEqual(bound.expected.warnings, ['count_needs_closed']);
+});
+test('closed absence proves missing membership without inventing an explicit negative', () => {
+  const absent = benchmarkCase('f3', 2), present = benchmarkCase('f3', 0), open = benchmarkCase('f3', 1);
+  const source = c => c.query.match(/where (?:absent )?cleared ([^\s]+)/)[1];
+  const authored = (c, polarity) => `@q query\n  where match\n    relation "cleared"\n    role subject "${source(c)}"\n    polarity ${polarity}\n  end\n`;
+  for (const [c, polarity, expected] of [[absent, 'absent', 'supported'], [absent, 'negated', 'unknown'], [present, 'absent', 'refuted'], [open, 'affirmed', 'unknown']]) {
+    const world = createWorld(c.knowledge);
+    try {
+      const sop = authored(c, polarity);
+      assert.equal(validateQuery({sop, message: c.question, lexicon: world.lexicon}).ok, true);
+      const linked = linkCircuit(sop, c.question, world.lexicon);
+      assert.ok(linked.query, JSON.stringify(linked.plan.issues));
+      assert.equal(execute(world, linked.query).status, expected);
+    } finally { world.dispose(); }
+  }
+  const world = createWorld(open.knowledge);
+  try {
+    const attempt = validateQuery({sop: authored(open, 'absent'), message: open.question, lexicon: world.lexicon});
+    assert.equal(attempt.ok, false);
+    assert.ok(attempt.problems.some(p => p.code === 'absence_needs_closed'));
+  } finally { world.dispose(); }
+  const unsafe = '@q query\n  select ?who\n  where match\n    relation "cleared"\n    role subject ?who\n    polarity absent\n  end\n';
+  const safe = '@q query\n  select ?who\n  where all\n    match\n      relation "cleared"\n      role subject ?who\n      polarity affirmed\n    end\n    match\n      relation "cleared"\n      role subject ?who\n      polarity absent\n    end\n  end\n';
+  const closedWorld = createWorld(absent.knowledge);
+  try {
+    const attempt = validateQuery({sop: unsafe, message: absent.question, lexicon: closedWorld.lexicon});
+    assert.equal(attempt.ok, false);
+    assert.ok(attempt.problems.some(p => p.code === 'unsafe_absence_variable'));
+    assert.ok(attempt.problems.some(p => p.code === 'unbound_query_variable'));
+    assert.equal(validateQuery({sop: safe, message: absent.question, lexicon: closedWorld.lexicon}).ok, true);
+  } finally { closedWorld.dispose(); }
+  const proposition = `@a assumed\n  relation "cleared"\n  role subject "${source(absent)}"\n  polarity absent\n  basis world\n` + authored(absent, 'affirmed');
+  const closedAgain = createWorld(absent.knowledge);
+  try {
+    assert.equal(validateQuery({sop: proposition, message: absent.question, lexicon: closedAgain.lexicon}).ok, false,
+      'absence is a query condition, never an authored assertion or assumption');
+  } finally { closedAgain.dispose(); }
 });
 test('constraint construction catches impossible assignment and temporal missing day', () => {
   assert.equal(checked('f5', 4).expected.status, 'inconsistent');
   assert.equal(checked('f5', 0).expected.status, 'possible');
   assert.equal(checked('f6', 0).expected.status, 'unknown');
   assert.equal(checked('f6', 2).expected.status, 'supported');
+});
+test('reachability keeps the named starting station when a different source cannot reach the same target', () => {
+  const c = benchmarkCase('f4', 1);
+  const [, start, destination] = c.query.match(/where reached (\S+) (\S+)/);
+  const otherSource = c.knowledge.match(/holds link (distraction_\S+?) \S+/)[1];
+  assert.notEqual(otherSource, start);
+  const fromOther = {...c, query: c.query.replace(`reached ${start} ${destination}`, `reached ${otherSource} ${destination}`),
+    expected: {...c.expected, status: 'unknown'}};
+  checkLocal(fromOther);
 });
 test('numeric rank preserves every tied maximum, not just the first row', () => {
   const rank = checked('f2', 4);
@@ -65,9 +112,10 @@ test('author vocabulary includes named unobserved entities without leaking answe
   const rank = benchmarkCase('f2', 4);
   assert.match(rank.knowledge, /@firm_[^\n]+ entity/);
   for (const answer of rank.expected.rows) assert.ok(!rank.knowledge.includes(`@${answer.p} entity`));
-  const cut = benchmarkCase('f4', 0);
-  const target = cut.query.match(/where reached ([^\s]+)/)[1];
-  assert.ok(cut.knowledge.includes(`@${target} entity`));
+  const pathCase = benchmarkCase('f4', 0);
+  const [, source, target] = pathCase.query.match(/where reached ([^\s]+) ([^\s]+)/);
+  assert.ok(pathCase.knowledge.includes(`@${source} entity`));
+  assert.ok(pathCase.knowledge.includes(`@${target} entity`));
 });
 test('F1 source consists of actual world-v1 joins at depths 2–4', {skip: !worldAvailable}, async () => {
   const dev = await worldMultihop({split: 'dev'}), preview = await worldMultihop({split: 'preview'});

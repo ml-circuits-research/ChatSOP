@@ -52,8 +52,12 @@ export function admissibleAssumptions(facts, assumptions = []) {
 
 /** The lowered facts and rules, shared by every part of one question. */
 export class Program {
-  constructor(facts, rules) {
+  constructor(facts, rules, closed = []) {
     this.lowering = new Lowering();
+    this.closedWires = closed.map(({id, args}) => ({id: this.lowering.predicate(id), type: 'predicate', line: 0, fields: [
+      {key: 'args', value: args.map((type, i) => `${['subject', 'object', 'topic', 'recipient'][i]}:${type}`).join(' '), line: 0, block: []},
+      {key: 'closed', value: 'true', line: 0, block: []}
+    ]}));
     this.rules = rules;
     this.ruleById = new Map(rules.map(r => [r.id, r]));
     let prefix = 'zf';
@@ -126,7 +130,7 @@ const limitsOf = limits => Object.fromEntries(['maxRounds', 'maxFacts', 'maxJoin
 /** Ask the oracle one question at one instant. Returns {packet, part} (part: the raw outcome, with `reread`). */
 function askAt(prog, t, {where, scope = [], forms, mode = 'select'}, limits) {
   const rulesAt = prog.ruleWires.filter((w, i) => contains(prog.rules[i].valid ?? WHOLE, t));
-  const handle = {kind: 'js-reference-handle', knowledge: '', wires: [...prog.factWires, ...rulesAt]};
+  const handle = {kind: 'js-reference-handle', knowledge: '', wires: [...prog.closedWires, ...prog.factWires, ...rulesAt]};
   const q = queryWire(prog.lowering, {where, scope, at: t, mode});
   const packet = ask({handle, queryWires: [q], forms, detail: true, conditional: false}, limitsOf(limits));
   return {packet, part: packet.detail?.parts?.[0] ?? null};
@@ -308,7 +312,7 @@ function evaluateEvery(prog, q, instants, limits, complete, acc) {
  * derived facts of an earlier closure (they are read as facts, and their own `from` links stay in the proof).
  */
 export function evaluate(q, facts, {rules = [], complete = true, limits = {}} = {}) {
-  const prog = facts instanceof Program ? facts : new Program(facts, rules);
+  const prog = facts instanceof Program ? facts : new Program(facts, rules, q.closed);
   const acc = newAcc();
   const span = q.at !== undefined ? null : q.during ?? WHOLE;
   const planned = span ? prog.instants(span, [...q.where, ...(q.scope ?? [])]) : {instants: [q.at], truncated: false};

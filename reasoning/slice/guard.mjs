@@ -16,8 +16,9 @@
  *         `closed` is a lower bound (`bound: at_least`) and a universal question over such a domain that finds no counterexample is
  *         `unknown` (`reason: open_domain`). With the default, `"view"`, the complete retained view is the world of the question.
  *
- * The typed runtime has classical negation only (no negation as failure, no defaults), so its completeness-sensitive answers are the ones
- * listed above; the default conclusions and `absent` of the knowledge wires are judged by the oracle's `sensitivity` (`wire.mjs`).
+ * Typed queries can now carry query-only closed-predicate absence. A successful
+ * absence claim is nonmonotone and needs a settled exact slice like a count.
+ * Defaults and knowledge-wire absence remain judged by the oracle's `sensitivity` (`wire.mjs`).
  */
 
 const PARTIAL = 'partial_retrieval';
@@ -39,10 +40,13 @@ export function sensitivityOf(query) {
   const mode = modeOf(query);
   const quantifier = query?.quantifier?.word ?? 'all';
   const ranked = Boolean(query?.rank);
+  const atoms = atomsOf([...(query?.where ?? []), ...(query?.scope ?? [])]);
+  const absent = atoms.some(a => a.neg === 'absent');
   return {
     mode,
-    monotone: !['count', 'every'].includes(mode) && !ranked,
-    over: [...new Set(atomsOf([...(query?.where ?? []), ...(query?.scope ?? [])]).map(a => a.p))],
+    monotone: !['count', 'every'].includes(mode) && !ranked && !absent,
+    absent,
+    over: [...new Set(atoms.map(a => a.p))],
     quantifier,
     ranked,
   };
@@ -62,9 +66,13 @@ function declared(query, output, closed) {
 }
 
 /** The answer given when a slice cannot be completed and the answer would be wrong or unproven if given as it is. A withheld answer proves nothing, so it carries no proof (nothing is reinforced on its account). */
-function withheld(query, output, slice) {
+function withheld(query, output, slice, sensitivity) {
   const mode = modeOf(query);
   const base = {reason: PARTIAL, complete: false, retrieval_reasons: slice.complete ? ['inexact_view'] : slice.reasons};
+  if (sensitivity.absent) {
+    const {count, at_least, bound, ...rest} = output;
+    return {...rest, ...base, status: 'incomplete', answers: [], proof: []};
+  }
   if (mode === 'count') {
     const {count, ...rest} = output;
     return {...rest, ...base, status: 'incomplete', answers: [], proof: [], at_least: count ?? 0, bound: 'at_least'};
@@ -87,10 +95,10 @@ export function judge({query, output, slice, closedWorld = 'view', closed = null
   if (settled) {
     return {accept: true, output: closedWorld === 'declared' ? declared(query, output, closed) : output, rule: 'complete_slice'};
   }
-  const fallback = withheld(query, output, slice);
+  const fallback = withheld(query, output, slice, sensitivity);
   const {mode, quantifier} = sensitivity;
   const decidedEvery = mode === 'every' && evidence && MONOTONE_EVERY[quantifier] === output.status;
-  const closedWorldAnswer = mode === 'count' || (mode === 'every' && !decidedEvery) || sensitivity.ranked;
+  const closedWorldAnswer = mode === 'count' || (mode === 'every' && !decidedEvery) || sensitivity.ranked || sensitivity.absent;
   if (closedWorldAnswer) return {accept: false, output: fallback, rule: 'R-P2'};
   if (slice.complete) return {accept: true, output, rule: 'complete_inexact_view'};
   if (unguarded) return {accept: true, output: {...output, complete: false}, rule: 'not_a_closed_world_answer'};

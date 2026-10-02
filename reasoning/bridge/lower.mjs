@@ -54,7 +54,7 @@ export class Lowering {
     return SYMBOL.test(t) ? t : JSON.stringify(t);
   }
 
-  atom(a) { return [a.neg ? 'not' : null, this.predicate(a.p), ...a.a.map(t => this.term(t))].filter(x => x !== null).join(' '); }
+  atom(a) { return [a.neg === 'absent' ? 'absent' : a.neg ? 'not' : null, this.predicate(a.p), ...a.a.map(t => this.term(t))].filter(x => x !== null).join(' '); }
 
   /** Map a binding of the lowered program back to the runtime's variable spelling. */
   binding(env) { return Object.fromEntries(Object.entries(env).map(([k, v]) => [this.unvariable(k), v])); }

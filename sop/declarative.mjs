@@ -374,7 +374,23 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
   const fields=Object.fromEntries(Object.entries(w.fields).filter(([key])=>!LINK_WORDS.includes(key)).map(([key,values])=>[key,[...values]]));
   if(w.type==='query'){
    const spans=new Set(),spanLeaf=new Map();let leafIndex=0,failed=false;
-   const leaf=text=>{const index=leafIndex++;const l=link(parseMatch(text,'@'+w.id+' match'),{exact:false,fresh},w.id);if(!l)failed=true;if(l?.span){spans.add(l.span);spanLeaf.set(l.span,index);}if(l?.alternatives)return {kind:'any',children:l.alternatives.map(a=>parseAtom(normalizeAtom(a.atomText,{wire:w.id})))};return parseAtom(l?normalizeAtom(l.atomText,{wire:w.id}):'unlinked x');};
+   const leaf=text=>{
+    const index=leafIndex++, proposition=parseMatch(text,'@'+w.id+' match');
+    const l=link(proposition,{exact:false,fresh},w.id);
+    if(!l)failed=true;
+    if(l?.span){spans.add(l.span);spanLeaf.set(l.span,index);}
+    const linked=atomText=>{
+     const a=parseAtom(normalizeAtom(atomText,{wire:w.id}));
+     if(l && proposition.polarity==='absent'){
+      assert(schema?.[a.p]?.closed===true||lexicon?.predicates?.[a.p]?.closed===true,
+       'absent_needs_closed: @'+w.id+' cannot use absence of '+a.p+' without a predicate declared closed true in reviewed memory or this turn');
+      a.neg='absent';
+     }
+     return a;
+    };
+    if(l?.alternatives)return {kind:'any',children:l.alternatives.map(a=>linked(a.atomText))};
+    return linked(l?.atomText??'unlinked x');
+   };
    fields.where=many(w,'where').map(text=>emitCondition(parseCondition(text,leaf),emitAtom));
    if(w.fields.scope)fields.scope=[emitCondition(parseCondition(one(w,'scope'),leaf),emitAtom)];
    if(!failed)linkedQueries.add(w.id);

@@ -95,6 +95,16 @@ test('host identity lookup asks about homonyms but missing evidence remains unkn
  assert.equal(alias.result.packet.status,'unknown');
  assert.equal(alias.result.packet.query.where[0].a[1],'acme');
 });
+test('a closed match absence is decided by exact runtime evidence, not by explicit negation', async () => {
+ const closed = new Lexicon('@cleared predicate\n  args subject:entity\n  label en "cleared"\n  closed true\n@dana entity\n  kind entity\n  label en "Dana"');
+ const query = '@q query\n  where match\n    relation "cleared"\n    role subject "Dana"\n    polarity absent\n  end';
+ const engine = new Runtime({lexicon: closed, schema: closed.predicates});
+ assert.equal((await engine.run(query, {origin: 'model'})).result.packet.status, 'supported');
+ const asserted = '@s stated\n  relation "cleared"\n  role subject "Dana"\n  polarity affirmed\n  certainty asserted\n';
+ assert.equal((await engine.run(asserted + query, {origin: 'model'})).result.packet.status, 'refuted');
+ const open = new Lexicon('@cleared predicate\n  args subject:entity\n  label en "cleared"\n@dana entity\n  kind entity\n  label en "Dana"');
+ await assert.rejects(() => new Runtime({lexicon: open, schema: open.predicates}).run(query, {origin: 'model'}), /absent_needs_closed/);
+});
 
 test('model origin rejects operation, sourced fact and clarification authoring',async()=>{
  const sources=[

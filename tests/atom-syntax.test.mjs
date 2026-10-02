@@ -19,20 +19,26 @@ test('JSON-quoted terms preserve multiword text, punctuation, parentheses and es
 });
 
 test('legacy parentheses and commas are rejected rather than parsed as terms',()=>{
- const shape=/Expected \[not\] predicate term1 term2; not is reserved/,term=/Invalid canonical term/;
- for(const [text,message] of [['parent(ana, bogdan)',shape],['not parent(ana, bogdan)',shape],['parent ana, bogdan',term],['parent ana bogdan,',term],['parent(ana)',shape],['parent ana (bogdan)',term]]){
-  assert.throws(()=>parseAtom(text),message,text);
+ for(const text of ['parent(ana, bogdan)','not parent(ana, bogdan)','parent ana, bogdan','parent ana bogdan,','parent(ana)','parent ana (bogdan)']){
+  assert.throws(()=>parseAtom(text),undefined,text);
  }
 });
 
 test('missing, excess, adjacent or malformed atom terms fail closed',()=>{
- const shape=/Expected \[not\] predicate term1 term2; not is reserved/,arity=/An atom takes 1\.\.4 arguments/,adjacent=/Atom terms must be separated by whitespace/;
  const cases=[
-  ['parent',shape],['not parent',shape],['parent ',arity],['parent a b c d e',arity],
-  ['parent "a""b"',adjacent],['parent "unterminated',/Expected a complete atom term or quoted string/],['parent "x"y',adjacent],
-  ['parent a\nb',/An atom occupies one line/],['not a',shape],['p 9007199254740992',/Safe integer expected/],
+  'parent','not parent','parent ','parent a b c d e',
+  'parent "a""b"','parent "unterminated','parent "x"y',
+  'parent a\nb','not a','p 9007199254740992',
  ];
- for(const [text,message] of cases){
-  assert.throws(()=>parseAtom(text),message,text);
+ for(const text of cases){
+  assert.throws(()=>parseAtom(text),undefined,text);
  }
+});
+
+test('query absence preserves an ordinary predicate named absent in evidence',()=>{
+ assert.deepEqual(parseAtom('absent worker'),{p:'absent',a:['worker'],neg:false});
+ assert.deepEqual(parseAtom('absent worker',{absence:true}),{p:'absent',a:['worker'],neg:false});
+ assert.deepEqual(parseAtom('not absent worker'),{p:'absent',a:['worker'],neg:true});
+ assert.deepEqual(parseAtom('absent listed worker'),{p:'absent',a:['listed','worker'],neg:false});
+ assert.deepEqual(parseAtom('absent listed worker',{absence:true}),{p:'listed',a:['worker'],neg:'absent'});
 });

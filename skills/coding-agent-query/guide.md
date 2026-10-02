@@ -15,8 +15,19 @@ A wire is `@id type` followed by keyword lines (two spaces of indent), one keywo
 
 * `relation "id"`: first choose an existing predicate id from `input/candidates.md` / `input/vocabulary.md` (for example "works_at", "capital_of", "writes"). A new session predicate id is permitted only with a grounded definition over existing predicates, as shown below; never substitute a made-up id for a missing definition.
 * `role NAME VALUE`: NAME is one of `subject object recipient location source destination instrument time topic`, and only a role the predicate declares. A value is a quoted string (a proper name exactly as written in the request, or a listed entity id; another content word of the request, lower case, singular), an integer or a `?variable`.
-* `polarity affirmed` always; `negated` only for an explicit "not"/"no" in the question.
+* `polarity affirmed` for a positive relation. `negated` asks for an explicit negative fact, never for a missing positive fact. In a query only, `absent` asks whether the positive relation is absent from a declared complete relation/list. Preserve that distinction even when English says "not": an explicit denial is `negated`; "missing from this complete list" is `absent`. An absence query requires the existing predicate's `[closed]` declaration; an open relation is refused, not interpreted as negative evidence. Never invent closedness.
 * The same `?variable` in two blocks is a join. Keywords are English, always.
+
+Closed-list absence (not an explicit denial):
+```
+@q query
+  where match
+    relation "listed"
+    role subject "Ada"
+    polarity absent
+  end
+```
+Use the existing predicate for the list. `stated` and `assumed` never accept `polarity absent`.
 
 ## Question forms (preserve the user's form and all restrictions)
 
@@ -41,7 +52,7 @@ Who/what/which/where: select the variable of the asked role ("Where does Ana liv
     polarity affirmed
   end
 ```
-Count matching people, objects or events: `mode count`. A quantity is different: when the question asks for the value of a numeric attribute (a length, duration, amount or age), match that attribute and `select` its value. Do not count the rows of a numeric measure to answer how many units it has.
+Count matching people, objects or events: when an existing derived predicate already exposes the requested count, query it and `select` its numeric result; otherwise use `mode count` over the distinct asked role. A quantity is different: when the question asks for the value of a numeric attribute (a length, duration, amount or age), match that attribute and `select` its value. Do not count the rows of a numeric measure to answer how many units it has.
 ```
 @q query
   mode count
@@ -230,13 +241,30 @@ Chaining: a block may use `$q` (the answers of an earlier query that selects exa
   end
 ```
 
-Numeric problem over numbers of the message:
+Numeric problem over numbers of the message: one `constraint` for the WHOLE assignment problem. A name assigned to a variable ("Let x be Ana's assignment") labels that variable; preserve the stated variable name `?x`, not a separate participant query. Declare every variable with its stated integer domain. Each `require` is a simultaneous condition; do not solve conditions in separate wires, invent narrower domains, compute a witness yourself, or combine equations algebraically. `claim` is optional and is not a replacement for all the requirements. Select the requested assignment variables.
 ```
 @c constraint
-  var ?x int 4 7
-  claim ?x equal 8
+  var ?x int 0 6
+  var ?y int 0 6
+  require ?x plus ?y equal 5
+  require 2 times ?x plus ?y equal 7
+  require ?x below ?y
   task possible
+  select ?x ?y
 ```
+Arithmetic is written in words (`plus`, `minus`, `times`); comparisons are `equal`, `not_equal`, `above`, `below`, `at_least`, `at_most`. No parentheses, operator symbols, `and` inside expressions, or repeated `claim`. Repeat `require` for a conjunction; alternatives use `require any` with one condition per line and `end`. Never return an assignment or answer.
+
+## Derived vocabulary and evidence questions
+
+Read the full vocabulary when candidates do not explain the requested relation. A memory predicate can be derived by a rule, recursive closure, default, aggregate or integrity check; it is usable even with no directly stored facts. Follow its description and argument meanings, not the grammatical position of a name in the question.
+
+* Reachability: query an existing reachability predicate only when its documented arguments preserve both the requested source and destination and its definition has the requested path restrictions. Never add an undeclared role to a unary predicate or drop the named source. If only a direct-link predicate exists, define a binary recursive session relation over it; do not replace transitive closure with a fixed number of hops.
+* Aggregate: select the numeric result of the corresponding existing sum/total/count/max predicate whenever its declared semantics preserve the question's restrictions. This takes precedence over the ordinary "how many" count form. `mode count` counts distinct selected bindings; it does not sum amounts or retrieve a materialized aggregate count. A group-by total binds the group and selects its result, not the per-person input. Mentioned contextual restrictions still have to be preserved; an irrelevant alternative name can restrict the group with `except ?group "Other group"`, but must not add a negated unrelated fact. Do not invent a role to encode a restriction the predicate lacks.
+* Defaults and exceptions: query the existing conclusion directly. Its reviewed rule/default already applies the prerequisites, exception and priority. Do not additionally require explicitly negated evidence for an absent exception.
+* Contradictory evidence: ask the proposition once; the reasoner reports `both` if it has positive and negative support. Do not change this into a conjunction of positive and negative queries or choose one side.
+* Integrity: query the existing violation predicate using its declared witness and constraint-id roles. Do not swap these roles or invent a value such as "integrity"; select the variable identifying the reported violation when the request asks which violation is present.
+
+Temporal questions use `at "DATE"` for one instant, `during "START to END"` for throughout the full end-exclusive interval, and `overlaps "START to END"` for any instant of the interval. Write the dates rather than the words "throughout" or "at any point" inside the date string. Never use `at` for a whole interval.
 
 ## unclear (alone in the file)
 
@@ -265,6 +293,32 @@ Prefer an existing predicate and its declared roles. When no predicate expresses
     polarity affirmed
   end
 ```
+For "Can one get from A to B without entering an unavailable place?", an existing direct-edge predicate does not mean transitive reachability. If no reviewed binary path predicate already expresses it, the following form defines it over existing `edge` and `unavailable` vocabulary. Use the actual existing ids and roles. A default excludes destinations with evidence of unavailability; recursive rules compose the safe steps without inventing observed edges.
+```sop
+@permitted_step predicate
+  args subject:entity object:entity
+@permitted_step_default default
+  when edge ?from ?to
+  then permitted_step ?from ?to
+  except unavailable ?to
+@path predicate
+  args subject:entity object:entity
+@path_direct rule
+  when permitted_step ?from ?to
+  then path ?from ?to
+@path_recursive rule
+  when path ?from ?via
+  when permitted_step ?via ?to
+  then path ?from ?to
+@q query
+  where match
+    relation "path"
+    role subject "A"
+    role object "B"
+    polarity affirmed
+  end
+```
+
 
 When the wording explicitly says "usually" and gives an exception, a `default` uses existing predicates for its body, head and exception (these illustrative ids must be present in the memory before writing this circuit):
 ```sop

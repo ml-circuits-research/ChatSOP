@@ -33,11 +33,8 @@ test('comparative choice needs ranked and restricted candidates; compare any and
   const unrestrictedRank = age.replace('  select ?person\n', '  select ?person\n  rank highest ?years\n');
   assert.ok(codes(check(unrestrictedRank, message, people)).includes('comparison_options_not_used'));
   assert.equal(check(ranked, message, people).ok, true);
-  const whereAny = `@q query\n  select ?person\n  rank highest ?years\n  where all\n    any\n      match\n        relation "age"\n        role subject "Ana"\n        role object ?years\n        polarity affirmed\n      end\n      match\n        relation "age"\n        role subject "Bogdan"\n        role object ?years\n        polarity affirmed\n      end\n    end\n  end\n`;
-  // The equivalent option restriction can also be a top-level where any with shared variables.
   const equivalent = `@q query\n  select ?years\n  rank highest ?years\n  where any\n    match\n      relation "age"\n      role subject "Ana"\n      role object ?years\n      polarity affirmed\n    end\n    match\n      relation "age"\n      role subject "Bogdan"\n      role object ?years\n      polarity affirmed\n    end\n  end\n`;
   assert.equal(check(equivalent, message, people).ok, true);
-  assert.equal(check(whereAny, message, people).ok, true, 'nested where any is an equivalent restriction on the named options');
 });
 
 test('explicit two-value comparison is not replaced by two unrelated matches', () => {
@@ -53,4 +50,32 @@ test('a name repeated only in an unused assumed proposition does not cover the q
   const result = check(assumption + query, 'How old are Ana and Bogdan?', people);
   assert.deepEqual(codes(result), ['mention_not_used']);
   assert.equal(check(query.replace('"Ana"', '"Bogdan"'), 'How old is Bogdan?', [people[1]]).ok, true);
+});
+
+test('explicit named numeric unknowns cover mentions only when one problem constrains both', () => {
+  const message = "Let x be Ana's assignment and y be Bogdan's assignment. Both are integers from 0 to 4 inclusive. Is there an assignment where x plus y equals 5, twice x plus y equals 6, and x is less than y? Give x and y if possible.";
+  const mentions = [
+    {surface: "Ana's", candidates: ['ana'], strong: true},
+    {surface: "Bogdan's", candidates: ['bogdan'], strong: true}
+  ];
+  const complete = '@c constraint\n  var ?x int 0 4\n  var ?y int 0 4\n  require ?x plus ?y equal 5\n  require 2 times ?x plus ?y equal 6\n  require ?x below ?y\n  task possible\n  select ?x ?y\n';
+  assert.equal(check(complete, message, mentions).ok, true);
+  const dropped = complete.replace('  require ?x plus ?y equal 5\n  require 2 times ?x plus ?y equal 6\n  require ?x below ?y\n', '  claim ?x equal 1\n');
+  assert.deepEqual(codes(check(dropped, message, mentions)), ['mention_not_used'], 'a declared but unconstrained y does not use Bogdan');
+  const split = '@left constraint\n  var ?x int 0 4\n  claim ?x equal 1\n  task possible\n@right constraint\n  var ?y int 0 4\n  claim ?y equal 2\n  task possible\n';
+  assert.deepEqual(codes(check(split, message, mentions)), ['constraint_split'], 'independent problems do not express one conjunctive assignment');
+  const repeated = '@left constraint\n  var ?x int 0 4\n  var ?y int 0 4\n  claim ?x plus ?y equal 5\n  task possible\n@right constraint\n  var ?x int 0 4\n  var ?y int 0 4\n  claim 2 times ?x plus ?y equal 6\n  task possible\n';
+  assert.deepEqual(codes(check(repeated, message, mentions)), ['constraint_split'], 'repeating both variables does not join two independently solved claims');
+  assert.deepEqual(codes(check(complete.replace('  require ?x below ?y\n', ''), message, [{surface: 'Unmentioned', candidates: ['unmentioned'], strong: true}])), ['mention_not_used'], 'names with no explicit numeric binding still require a query value');
+});
+
+test('query variables selected, compared or excluded must be bound in every where alternative', () => {
+  const base = '@q query\n  where match\n    relation "age"\n    role subject ?person\n    role object ?years\n    polarity affirmed\n  end\n';
+  assert.deepEqual(codes(check(base.replace('  where', '  select ?missing\n  where'), 'What age?')), ['unbound_query_variable']);
+  assert.deepEqual(codes(check(base.replace('  where', '  compare ?years above ?missing\n  where'), 'Is the age above a second age?')), ['unbound_query_variable']);
+  assert.deepEqual(codes(check(base.replace('  where', '  except ?missing "Ana"\n  where'), 'Who besides Ana?')), ['unbound_query_variable']);
+  assert.equal(check(base.replace('  where', '  select ?years\n  compare ?years above 1\n  where'), 'What age above one?').ok, true);
+  const alternative = '@q query\n  select ?years\n  where any\n    match\n      relation "age"\n      role subject "Ana"\n      role object ?years\n      polarity affirmed\n    end\n    match\n      relation "age"\n      role subject "Bogdan"\n      role object ?other\n      polarity affirmed\n    end\n  end\n';
+  assert.deepEqual(codes(check(alternative, 'How old are Ana and Bogdan?')), ['unbound_query_variable']);
+  assert.equal(check(alternative.replace('?other', '?years'), 'How old are Ana and Bogdan?').ok, true);
 });

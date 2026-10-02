@@ -56,9 +56,9 @@ const specOf=(type)=>SPEC[type];
 export function words(s){return s.match(/"(?:\\.|[^"\\])*"|\S+/g)??[];}
 export function unquote(s){return s?.startsWith('"')?JSON.parse(s):s;}
 export function parseTerm(s){if(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(s))return {ref:s.slice(1)};if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(s))return s;if(s.startsWith('"')){const v=JSON.parse(s);assert(typeof v==='string','String term required');return v;}if(/^-?\d+$/.test(s)){const n=Number(s);assert(Number.isSafeInteger(n),'Safe integer expected');return n;}assert(/^[a-z][a-z0-9_:-]*$/.test(s),'Invalid canonical term '+s);return s;}
-export function parseAtom(text){
+export function parseAtom(text,{absence=false}={}){
  assert(typeof text==='string'&&!/[\r\n]/.test(text),'An atom occupies one line');
- const head=text.match(/^(not[ \t]+)?([a-z][a-z0-9_]*)[ \t]+/);
+ const head=text.match(absence?/^(not[ \t]+|absent[ \t]+(?=[a-z][a-z0-9_]*[ \t]+\S))?([a-z][a-z0-9_]*)[ \t]+/:/^(not[ \t]+)?([a-z][a-z0-9_]*)[ \t]+/);
  assert(head&&head[2]!=='not','Expected [not] predicate term1 term2; not is reserved');
  const token=/"(?:\\.|[^"\\\r\n])*"|[^\s"]+/y,a=[];
  let cursor=head[0].length;
@@ -71,10 +71,10 @@ export function parseAtom(text){
   while(cursor<text.length&&/[ \t]/.test(text[cursor]))cursor++;
  }
  assert(a.length>=1,'An atom takes 1..4 arguments');
- return {p:head[2],a,neg:!!head[1]};
+ return {p:head[2],a,neg:head[1]?.trim()==='absent'?'absent':!!head[1]};
 }
 export function emitTerm(x){if(x&&typeof x==='object'&&x.ref)return '$'+x.ref;if(typeof x==='number')return String(x);if(/^\?[A-Za-z][A-Za-z0-9_]*$/.test(x))return x;return /^[a-z][a-z0-9_:-]*$/.test(x)?x:JSON.stringify(x);}
-export const emitAtom=a=>(a.neg?'not ':'')+a.p+' '+a.a.map(emitTerm).join(' ');
+export const emitAtom=a=>(a.neg==='absent'?'absent ':a.neg?'not ':'')+a.p+' '+a.a.map(emitTerm).join(' ');
 export function scalar(text,values={}){if(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(text)){const n=text.slice(1);assert(Object.hasOwn(values,n),'Unresolved $'+n);return values[n];}return unquote(text);}
 export function parse(source,{maxWires=2048,maxBytes=1048576,allowTypes=null}={}){
  assert(typeof source==='string'&&Buffer.byteLength(source)<=maxBytes,'SOP source size limit');const lines=source.replace(/\r\n/g,'\n').split('\n'),wires=[];let current=null;
@@ -112,12 +112,12 @@ const SYMBOL=/^[a-z][a-z0-9_]*$/;
  * polarity and optional quoted validity. `pairs` is [[keyword, value], …].
  * With `variables` (query `match` blocks) a value may also be a ?variable.
  */
-export function parseProposition(pairs,{where='proposition',variables=false,validity=true,partial=false,references=true,placeholders=true}={}){
+export function parseProposition(pairs,{where='proposition',variables=false,validity=true,partial=false,references=true,placeholders=true,absence=false}={}){
  const text=(key,value)=>{assert(/^"/.test(value??''),where+' '+key+' takes one JSON-quoted string');const v=parseTerm(value);assert(typeof v==='string'&&v.trim(),where+' '+key+' needs a nonempty quoted string');return v;};
  const out={relation:undefined,roles:[],polarity:undefined,valid:{}},names=new Set();
  for(const [key,value] of pairs){
   if(key==='relation'){assert(out.relation===undefined,'Duplicate relation');out.relation=text('relation',value);continue;}
-  if(key==='polarity'){assert(out.polarity===undefined,'Duplicate polarity');assert(POLARITIES.includes(value),where+' polarity must be affirmed or negated');out.polarity=value;continue;}
+  if(key==='polarity'){assert(out.polarity===undefined,'Duplicate polarity');assert(POLARITIES.includes(value)||(absence&&value==='absent'),where+' polarity must be affirmed or negated'+(absence?' or absent':''));out.polarity=value;continue;}
   if(key==='role'){
    const parts=words(value);assert(parts.length===2,where+' role takes exactly NAME VALUE');
    const [name,token]=parts;assert(ROLE_NAMES.includes(name),'role_unknown: '+where+' role '+name+' is not one of '+ROLE_NAMES.join(', '));
@@ -152,7 +152,7 @@ export function parseMatch(text,where='match',{partial=false}={}){
  const lines=text.split('\n').map(line=>line.trim()).filter(line=>line&&!line.startsWith('#'));
  assert(lines[0]==='match','Expected a match block');
  const pairs=lines.slice(1).map(line=>{const m=line.match(/^(\S+)(?:\s+(.*))?$/);return [m[1],m[2]??''];});
- return {kind:'match',...parseProposition(pairs,{where,variables:true,validity:false,partial})};
+ return {kind:'match',...parseProposition(pairs,{where,variables:true,validity:false,partial,absence:true})};
 }
 /** Wire fields of a stated/assumed wire as proposition pairs, in written order per keyword. */
 export const propositionPairs=w=>[...MATCH_KEYWORDS,'valid'].flatMap(key=>many(w,key).map(value=>[key,value]));
@@ -218,7 +218,7 @@ function validateShape(w){
  if(w.type==='query'){
   const partial=w.fields.fragment!==undefined;
   if(partial)assert(ENUMS.query.fragment.includes(one(w,'fragment')),'@'+w.id+' fragment must be one of '+ENUMS.query.fragment.join(', '));
-  const leaf=leaf=>isMatch(leaf)?parseMatch(leaf,'@'+w.id+' match',{partial}):parseAtom(leaf);
+  const leaf=leaf=>isMatch(leaf)?parseMatch(leaf,'@'+w.id+' match',{partial}):parseAtom(leaf,{absence:true});
   many(w,'where').forEach(s=>parseCondition(s,leaf));if(w.fields.scope)parseCondition(one(w,'scope'),leaf);
   many(w,'filter').forEach(parseBooleanCondition);assert(['at','during','overlaps'].filter(k=>w.fields[k]).length<2,'Use at OR during OR overlaps');
   const mode=one(w,'mode');if(mode!==undefined)assert(ENUMS.query.mode.includes(mode),'@'+w.id+' query mode must be one of '+ENUMS.query.mode.join(', '));

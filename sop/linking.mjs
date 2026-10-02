@@ -61,18 +61,24 @@ const RELATIVE = {today: 0, yesterday: -1, tomorrow: 1};
 const utc = (y, m = 1, d = 1) => Date.UTC(y, m - 1, d);
 /**
  * Normalize a temporal expression to a period {from, until} (until exclusive),
- * relative to the host clock `now`. Accepted: ISO dates and UTC timestamps,
+ * relative to the runtime clock `now`. Accepted: ISO dates and UTC timestamps,
  * `YYYY`, `YYYY-MM`, a month name or abbreviation with a year, a day,
  * month and year ("3 March 2025", "March 3, 2025", "the 3rd of March 2025",
- * "03.03.2025"), a range "A – B", `now`,
- * today/yesterday/tomorrow and last/this/next year, with an optional leading in/on/at/during/since.
- * Anything else returns null and the host asks.
+ * "03.03.2025"), ranges "A – B" or "A to B" (a trailing year may be shared), `now`,
+ * today/yesterday/tomorrow and last/this/next year, with an optional leading in/on/at/during/since/from/throughout.
+ * Anything else returns null and the runtime asks.
  */
 export function normalizeTime(text, now = Date.now()) {
-  let t = fold(text).replace(/^(?:in|on|at|during|since)\s+/, '').replace(/^the\s+/, '').trim();
-  // A range "A – B" (en dash, or a spaced hyphen) is the period from the start of A to the start of B.
-  const range = t.match(/^(.+?)\s+[–—-]\s+(.+)$/) ?? t.match(/^(.+?)[–—](.+)$/);
-  if (range) { const a = normalizeTime(range[1], now), b = normalizeTime(range[2], now); return a && b && a.from < b.from ? {from: a.from, until: b.from} : null; }
+  let t = fold(text).replace(/^(?:in|on|at|during|since|from|throughout)\s+/, '').replace(/^the\s+/, '').trim();
+  // Ranges end at the start of B, never at the end of B's day or month.
+  const range = t.match(/^(.+?)\s+(?:to|[–—-])\s+(.+)$/) ?? t.match(/^(.+?)[–—](.+)$/);
+  if (range) {
+    const year = range[2].match(/(?:^|[\s,])(\d{4})$/)?.[1];
+    const bare = range[1].match(/^(?:\d{1,2}(?:st|nd|rd|th)?\s+(?:of\s+)?)?([a-z]+)\.?(?:\s+\d{1,2}(?:st|nd|rd|th)?)?$/);
+    const first = year && bare && MONTHS[bare[1]] ? `${range[1]} ${year}` : range[1];
+    const a = normalizeTime(first, now), b = normalizeTime(range[2], now);
+    return a && b && a.from < b.from ? {from: a.from, until: b.from} : null;
+  }
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(t.toUpperCase())) { const at = Date.parse(t.toUpperCase()); return Number.isFinite(at) ? {from: at, until: at + 1} : null; }
   let m;
   if ((m = t.match(/^(\d{4})-(\d{2})-(\d{2})$/))) { const from = utc(+m[1], +m[2], +m[3]); return new Date(from).getUTCDate() === +m[3] ? {from, until: from + DAY} : null; }

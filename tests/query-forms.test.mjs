@@ -281,6 +281,19 @@ test('host time normalizer reads day-month-year phrasings and ranges as written 
   for (const text of ['31 February 2025', '3 martie 2025', '2021 – 2019', 'sometime in spring']) assert.equal(normalizeTime(text, NOW), null, text);
 });
 
+test('quoted to-ranges preserve a shared year and exclusive end, rejecting invalid bounds', async () => {
+  const {normalizeTime} = await import('../sop/linking.mjs');
+  for (const [text, from, until] of [
+    ['2026-03-01 to 2026-06-01', '2026-03-01', '2026-06-01'],
+    ['April 1 to May 1, 2025', '2025-04-01', '2025-05-01'],
+    ['1 April to 1 May 2025', '2025-04-01', '2025-05-01'],
+    ['Feb 29 to March 1, 2024', '2024-02-29', '2024-03-01'],
+    ['from 2026-03-01 to 2026-06-01', '2026-03-01', '2026-06-01'],
+  ]) assert.deepEqual(normalizeTime(text, NOW), {from: Date.parse(from), until: Date.parse(until)}, text);
+  for (const text of ['May 1 to April 1, 2025', 'April 1 to April 1, 2025', 'February 30 to March 1, 2024'])
+    assert.equal(normalizeTime(text, NOW), null, text);
+});
+
 test('a quoted except literal is resolved by the host like a role value', () => {
   const source = query('  select ?e', employees(), '  except ?e "Bob"');
   const plan = compileDeclarative(source, {lexicon, schema: lexicon.predicates, now: NOW});

@@ -442,6 +442,18 @@ test('guard: a withheld count keeps its lower bound and loses its count', () => 
   assert.equal('count' in v.output, false);
   assert.deepEqual(v.output.proof, [], 'a withheld answer proves nothing, so nothing is reinforced on its account');
 });
+test('guard: absence cannot support a definite answer or even a count lower bound on an unsettled slice', () => {
+  const where = [{p: 'member', a: ['missing', 'club'], neg: 'absent'}];
+  const existence = judge({query: q('exists', {where}), output: {status: 'supported', complete: true, proof: [{id: 'absence'}]}, slice: slice()});
+  assert.equal(existence.accept, false);
+  assert.equal(existence.output.status, 'incomplete');
+  assert.deepEqual(existence.output.proof, []);
+  const count = judge({query: q('count', {where}), output: {status: 'supported', count: 3, complete: true}, slice: slice({complete: true, settled: false, exact: false})});
+  assert.equal(count.accept, false);
+  assert.equal(count.output.status, 'incomplete');
+  assert.equal(count.output.count, undefined);
+  assert.equal(count.output.at_least, undefined, 'future positive evidence may shrink an absence count');
+});
 
 test('guard: a settled slice accepts everything as the reasoner answered it', () => {
   const output = {status: 'supported', count: 3, complete: true};

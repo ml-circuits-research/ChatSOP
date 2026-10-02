@@ -7,17 +7,20 @@ import {assert} from '../lib/util.mjs';
 import {ENUMS} from './enums.mjs';
 import {parseCondition,parseBooleanCondition,isWordForm,wordsToExpression} from './conditions.mjs';
 import {conditionAtoms,definitelyBound} from '../lib/conditions.mjs';
-export function resolveAtom(text,values={},schema=null,{ground=false}={}){const a=parseAtom(text);a.a=a.a.map(v=>v&&typeof v==='object'&&v.ref?scalar('$'+v.ref,values):v);return atom(a,{ground,schema});}
+export function resolveAtom(text,values={},schema=null,{ground=false,absence=false}={}){const a=parseAtom(text,{absence});a.a=a.a.map(v=>v&&typeof v==='object'&&v.ref?scalar('$'+v.ref,values):v);const result=atom(a,{ground,schema});return a.neg==='absent'?{...result,neg:'absent'}:result;}
 export function lowerFact(w,values={},schema=null){return {kind:'fact',atom:resolveAtom(one(w,'holds'),values,schema,{ground:true}),valid:interval(one(w,'valid')),source:unquote(one(w,'source','user')),quote:unquote(one(w,'quote','')),retention:one(w,'retention','normal')};}
 export function lowerRule(w,values={},schema=null){const r=rule({id:w.id,if:many(w,'when').map(x=>resolveAtom(x,values,schema)),then:resolveAtom(one(w,'then'),values,schema)},schema);return {...r,kind:'rule',mode:one(w,'mode','logical'),source:unquote(one(w,'source','approved-library')),valid:interval(one(w,'valid','timeless'))};}
 export function lowerQuery(w,values={},schema=null,{now=Date.now(),related=null}={}){
- const where=many(w,'where').map(s=>parseCondition(s,leaf=>resolveAtom(leaf,values,schema)));const selected=words(one(w,'select',''));assert(selected.every(variable),'select contains only ?variables');
+ const where=many(w,'where').map(s=>parseCondition(s,leaf=>resolveAtom(leaf,values,schema,{absence:true})));const selected=words(one(w,'select',''));assert(selected.every(variable),'select contains only ?variables');
  const kind=one(w,'mode',selected.length?'select':'exists');assert(ENUMS.query.mode.includes(kind),'Invalid query mode');if(kind==='select')assert(selected.length>0,'select mode needs variables');
  // `scope` (mode every) is checked for each binding of the `where` restriction; `span` names the validity interval.
- const scope=w.fields.scope?[parseCondition(one(w,'scope'),leaf=>resolveAtom(leaf,values,schema))]:undefined;
+ const scope=w.fields.scope?[parseCondition(one(w,'scope'),leaf=>resolveAtom(leaf,values,schema,{absence:true}))]:undefined;
  const span=one(w,'span');if(span!==undefined)assert(variable(span),'span takes one ?variable');
  const measure=one(w,'measure');if(measure!==undefined){assert(ENUMS.query.measure.includes(measure),'Invalid time measure');assert(span!==undefined&&selected.length===1&&selected[0]===span,'measure needs the selected span variable');}
  const bound=definitelyBound(where);if(span)bound.add(span);if(w.fields.order){const [a,,b]=words(one(w,'order'));bound.add(a);bound.add(b);}assert(selected.every(v=>bound.has(v)),'Unbound selected variable: every alternative must bind selected variables');
+ const absences=conditionAtoms([...where,...(scope??[])]).filter(a=>a.neg==='absent');
+ for(const a of absences)assert(schema?.[a.p]?.closed===true,'absent_needs_closed: '+a.p+' is not declared closed true in the retained view');
+ const closed=[...new Map(absences.map(a=>[a.p,{id:a.p,args:schema[a.p].valueTypes ?? schema[a.p].args}])).values()];
  const filters=many(w,'filter').map(parseBooleanCondition);const varsIn=n=>{if(!n||typeof n!=='object')return [];return [...(n.type==='var'?[n.value]:[]),...Object.values(n).flatMap(v=>Array.isArray(v)?v.flatMap(varsIn):varsIn(v))];};for(const f of filters)assert(varsIn(f).every(v=>bound.has(v)),'Unbound filter variable');
  // Words-only fields (DS014): `except ?x "v"` is the filter ?x != "v"; `compare`, `rank`, `quantifier` and
  // `order` are evaluated by the reasoner with numeric coercion (a value it cannot read as a number is not computable).
@@ -32,7 +35,7 @@ export function lowerQuery(w,values={},schema=null,{now=Date.now(),related=null}
  // A time question without at/during looks at the whole timeline rather than at the present instant.
  const time=w.fields.during?{during:interval(one(w,'during'))}:w.fields.at||(!span&&!w.fields.order)?{at:one(w,'at')?instant(scalar(one(w,'at'),values)):now}:{during:{from:-Infinity,until:Infinity}};
  const asof=one(w,'asof')?instant(scalar(one(w,'asof'),values)):now;
- return {kind:'query',variableTypes:inferVariableTypes(conditionAtoms([...where,...(scope??[])]),schema,related),mode:kind,where,...(scope?{scope}:{}),...(span?{span}:{}),...(measure?{measure}:{}),select:selected,filters,...(compares.length?{compares}:{}),...(rank?{rank}:{}),...(quantifier?{quantifier}:{}),...(order?{order}:{}),limit,...time,asof,...(measure==="duration"?{now}:{})};
+ return {kind:'query',variableTypes:inferVariableTypes(conditionAtoms([...where,...(scope??[])]),schema,related),mode:kind,where,...(scope?{scope}:{}),...(closed.length?{closed}:{}),...(span?{span}:{}),...(measure?{measure}:{}),select:selected,filters,...(compares.length?{compares}:{}),...(rank?{rank}:{}),...(quantifier?{quantifier}:{}),...(order?{order}:{}),limit,...time,asof,...(measure==="duration"?{now}:{})};
 }
 function numericAST(n,vars,values,type){
  if(n.type==='ref')return numericAST({type:'literal',value:values[n.value]},vars,values,type);
