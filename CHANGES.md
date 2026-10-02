@@ -1,3 +1,13 @@
+# Default model: openference Qwen3.8 27b through the local proxy (2026-10-02, default-model-agent)
+
+Owner: "Use the subscription with the 27B model wherever possible; let it be the default."
+
+- **Provider entry** `llmProviders.openference` (`config/runtime.json`, `lib/llm-providers.mjs`): the proxy `LLMAPIProvider/` at `http://127.0.0.1:18080/v1`, `Qwen3.8 27b`; `providerChat`, `providerReadiness`. A proxy that is down is reported with the reason, never replaced silently.
+- **CodingAgent stays omp** (agentic, repair turns): its chain is now `llmapiprovider/Qwen3.8 27b`, `zai/glm-5.3`, `openai-codex/gpt-6-luna`. omp reads providers only from its agent dir's `models.yml` (the `--config` overlay carries settings only), so `lib/omp/agent-dir.mjs` builds an overlay agent dir (`~/.cache/chatsop/omp-agent`; credentials symlinked, `models.yml` plus the provider) selected by `PI_CODING_AGENT_DIR` when `omp.proxyProvider` is set; the global omp files are untouched. The parse record gains `tried_reasons`.
+- **LocalLLMDirect** gets a remote endpoint (`queryParser.direct.source` remote|local|auto, shipped remote; `remoteDirectStrategy`); LocalLLMStepByStep is unchanged (local).
+- **Answer formulation** tries the proxy model first (`answerLanguage.provider`), then the omp chain. **Eval tools**: the books judge `tools/eval/books/score.mjs --judge` (blind batches, `judgeBatches`), the pragmatics coding arm and the books coding arm default to the proxy model; ingestion drafting takes `queryParser.models[0]` and so the same model by configuration.
+- Test: `tests/llm-providers.test.mjs`.
+
 # One understanding step: courtesy and emotion in the formalizer, no hardcoded understanding (2026-10-02, understanding-agent)
 
 Owner: "hai să nu mai hardcodăm, de câte ori trebuie să-ți spun?" (AGENTS.md "No hardcoded understanding").

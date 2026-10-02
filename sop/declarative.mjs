@@ -345,6 +345,8 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
     const named=any.found.length?any.found:lexicon.matching(term,{language:'auto',kind:'entity'}).found;
     if(symbol!=='local_'&&!named.some(e=>labelled(e,original))&&(carriedLocals.has(symbol)||introduce&&(!named.length?/^\p{Lu}/u.test(String(original).trim()):named.every(e=>lexicon.entities[e.id]?.notability!=null)))){
      if(!linking.some(x=>x.wire===wire&&x.kind==='entity'&&x.surface===original&&x.symbol===symbol))linking.push({wire,kind:'entity',surface:original,symbol,via:'conversation',match:'local',class:null,score:SCORES.lexicon,...(any.found.length?{shadowed:any.found.map(e=>e.id).slice(0,5)}:{})});
+     // A name introduced by a statement of this turn is the same conversation entity in this turn's questions and rules.
+     if(introduce)carriedLocals.add(symbol);
      a.a[i]=symbol;continue;
     }
    }
@@ -382,7 +384,9 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
  // `unless $s` scopes the negation of the clause: the supposition lowered for that query is the negated atom.
  const fact=(w,source)=>{const l=links.get(w.id),atomText=plan.negated.has(w.id)?toggleNegation(l.atomText):l.atomText;return node(w.id,'fact',{holds:[normalizeAtom(atomText,{wire:w.id,introduce:w.type==='stated'})],valid:[l.validity.text],source:[source]});};
  const linkedQueries=new Set();
- for(const w of work){
+ // Statements first, so a name a statement introduces is known to every question of the turn, whatever the wire order.
+ const statementFirst=[...work.filter(w=>w.type==='stated'||w.type==='assumed'),...work.filter(w=>w.type!=='stated'&&w.type!=='assumed')];
+ for(const w of statementFirst){
   if(skipped.has(w.id))continue;
   if(w.type==='stated'||w.type==='assumed'){
    if(reportOnly.has(w.id))continue;

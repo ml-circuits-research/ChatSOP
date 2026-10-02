@@ -156,7 +156,7 @@ export function createQueryParser({settings = queryParserSettings(), ompConfig =
         cache.set(key, {sop: result.sop, result: {...result, usage: {cost_usd: 0}}, fragment: result.program?.wires.some(w => w.fields.fragment), contextKey: authorExecution.getStore()?.contextKey});
         if (result.unclear === 'relation_not_in_memory') logGap({message, memory: memoryKey, closest: result.closest, model: result.model});
         stats.coding_agent++;
-        return {sop: result.sop, parse: recordOf({...result, ms: now() - started}, {tried: tried.map(t => t.model), ...(result.unclear ? {unclear: result.unclear} : {})})};
+        return {sop: result.sop, parse: recordOf({...result, ms: now() - started}, {tried: tried.map(t => t.model), ...(tried.length ? {tried_reasons: tried.map(t => ({model: t.model, reason: t.reason}))} : {}), ...(result.unclear ? {unclear: result.unclear} : {})})};
       }
       tried.push({model, reason: result.reason ?? `invalid circuit: ${(result.validation?.problems ?? []).map(p => p.code).join(', ') || 'no output'}`, status: result.status});
       // A model that ran but wrote an invalid circuit after every repair round is a final answer about this message; a run that delivered nothing moves on to the next model.
