@@ -162,7 +162,7 @@ test('omp settings: the binary can be overridden by the environment', () => {
   assert.equal(ompSettings({omp: {maxFixRounds: 1}}, {}).maxFixRounds, 1);
 });
 
-test('API: GET /v1/omp/models is open to any authenticated user and cached; POST /v1/author makes a draft of the session', async t => {
+test('API: GET /v1/omp/models is open to any authenticated user and cached; POST /v1/author adds the validated circuits to the session', async t => {
   const {calls} = withStub(t, 'good', {STUB_OMP_GOOD: goodFile(t)});
   const s = await productServer(t, {config: {omp: {bin: STUB}}});
   await s.admin('/v1/memories', 'POST', {name: 'Empty', id: 'empty'});
@@ -183,15 +183,10 @@ test('API: GET /v1/omp/models is open to any authenticated user and cached; POST
   assert.equal(done.body.status, 'validated');
   assert.equal(done.body.cost_class, 'paid_api');
   assert.equal(done.body.usage.cost_usd, 0.0025);
-  assert.equal(done.body.draft.state, 'draft');
+  assert.match(done.body.added.file, /authored-r-/);
   assert.match(done.body.folder, new RegExp(`^sessions/${sid}/requests/r-`));
   assert.ok(fs.existsSync(path.join(s.chatData.root, done.body.folder, 'TASK.md')));
-  const drafts = await s.user(`/v1/sessions/${sid}/drafts`);
-  assert.equal(drafts.body.data.length, 1);
-  assert.doesNotMatch((await s.user(`/v1/sessions/${sid}/theory`)).body.theory, /@r_grand/, 'a draft is not in the theory');
-  const accepted = await s.user(`/v1/sessions/${sid}/drafts/${done.body.draft.id}/accept`, 'POST');
-  assert.equal(accepted.status, 200);
-  assert.match((await s.user(`/v1/sessions/${sid}/theory`)).body.theory, /@r_grand/);
+  assert.match((await s.user(`/v1/sessions/${sid}/theory`)).body.theory, /@r_grand/, 'validated circuits join the session at once');
   const status = await s.user(`/v1/sessions/${sid}/requests/${done.body.request_id}`);
   assert.equal(status.body.status, 'validated');
   assert.equal((await s.user(`/v1/sessions/${sid}/requests/r-none`)).status, 404);
@@ -211,10 +206,10 @@ test('API: wait false answers 202 and the status route follows the request; a re
     await new Promise(r => setTimeout(r, 50));
   }
   assert.equal(status.status, 'validated');
-  assert.equal(status.result.draft.state, 'draft');
+  assert.ok(status.result.added?.file);
   const loose = await s.user('/v1/author', 'POST', {instructions: 'Compile.'});
   assert.equal(loose.status, 200);
-  assert.equal(loose.body.draft, null);
+  assert.equal(loose.body.added, null);
   assert.match(loose.body.folder, /^tmp\//);
 });
 

@@ -3,16 +3,15 @@
  * Ingest documents into a base memory from the command line (DS022 "Ingesting documents into a base memory"; library lib/ingest/).
  *
  *   node tools/ingest-documents.mjs create-memory --id ID --name NAME [--imports core-min,...] [--description TEXT]
- *   node tools/ingest-documents.mjs draft  --memory ID (--file PATH ... --rights cleared|permissive-attribution|owner-provided [--url U] [--licence L] [--title T]
+ *   node tools/ingest-documents.mjs ingest --memory ID (--file PATH ... --rights cleared|permissive-attribution|owner-provided [--url U] [--licence L] [--title T]
  *                                          | --manifest FILE.json) [--model zai/glm-5.3] [--purpose TEXT] [--max-chunk-bytes N] [--thinking LEVEL] [--timeout-seconds S] [--user NAME]
  *   node tools/ingest-documents.mjs label-entities --memory ID (--file PATH --rights R | --manifest F)   entity wires for unlabelled symbols only
- *   node tools/ingest-documents.mjs accept --memory ID --ingestion ING --by USER [--reason TEXT] [--only key,key]
- *   node tools/ingest-documents.mjs reject --memory ID --ingestion ING --by USER [--reason TEXT]
  *   node tools/ingest-documents.mjs report --memory ID --ingestion ING
  *   node tools/ingest-documents.mjs list   --memory ID
  *
  * The manifest is `[{file, title?, source: {rights, url?, licence?, attribution?}}]`. `--chat-data DIR` (or CHATSOP_CHAT_DATA) selects the
- * chat data root. Drafting runs the coding agent (omp) and stores nothing; `accept` is the explicit act that adds the circuits to the memory.
+ * chat data root. `ingest` runs the coding agent (omp) chunk by chunk and stores every validated chunk in the memory with its provenance
+ * (no manual acceptance, owner 2026-10-02); `draft` is accepted as an older name of `ingest`.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -52,7 +51,7 @@ async function main() {
   if (command === 'create-memory') {
     const imports = (opt('--imports', '') ?? '').split(',').filter(Boolean);
     console.log(JSON.stringify(memories.create({id: opt('--id'), name: opt('--name'), description: opt('--description', ''), imports}), null, 2));
-  } else if (command === 'draft') {
+  } else if (command === 'ingest' || command === 'draft') {
     const omp = ompSettings(config);
     const record = await ingestions.draft(memory, {documents: documentsFromArgs(), model: opt('--model', config.queryParser?.models?.[0] ?? null), purpose: opt('--purpose', ''), user: opt('--user', process.env.CHATSOP_ACTOR ?? null),
       maxChunkBytes: Number(opt('--max-chunk-bytes', 7000)), maxFixRounds: Number(opt('--max-fix-rounds', omp.maxFixRounds ?? 3)), bin: omp.bin, thinking: opt('--thinking', omp.thinking ?? null), timeoutMs: Number(opt('--timeout-seconds', 900)) * 1000,
@@ -63,18 +62,12 @@ async function main() {
     const record = await ingestions.labelEntities(memory, {documents: documentsFromArgs(), model: opt('--model', config.queryParser?.models?.[0] ?? null), user: opt('--user', process.env.CHATSOP_ACTOR ?? null),
       bin: omp.bin, thinking: opt('--thinking', omp.thinking ?? null), timeoutMs: Number(opt('--timeout-seconds', 900)) * 1000, maxFixRounds: Number(opt('--max-fix-rounds', omp.maxFixRounds ?? 3))});
     console.log(JSON.stringify({id: record.id, status: record.status, totals: record.totals, report: path.join(ingestions.dir(memory, record.id), 'report.md')}, null, 2));
-  } else if (command === 'accept') {
-    const only = opt('--only') ? opt('--only').split(',') : null;
-    const {outcome, memory: manifest} = ingestions.accept(memory, opt('--ingestion'), {approvedBy: opt('--by'), reason: opt('--reason', 'document ingestion'), only});
-    console.log(JSON.stringify({outcome, memory: {id: manifest.id, circuits: manifest.circuits, facts: manifest.facts}}, null, 2));
-  } else if (command === 'reject') {
-    console.log(JSON.stringify(ingestions.reject(memory, opt('--ingestion'), {user: opt('--by'), reason: opt('--reason', '')}).status));
   } else if (command === 'report') {
     process.stdout.write(fs.readFileSync(path.join(ingestions.dir(memory, opt('--ingestion')), 'report.md'), 'utf8'));
   } else if (command === 'list') {
     console.log(JSON.stringify(ingestions.list(memory), null, 2));
   } else {
-    console.error('usage: node tools/ingest-documents.mjs create-memory|draft|accept|reject|report|list ... (see the header of this file)');
+    console.error('usage: node tools/ingest-documents.mjs create-memory|ingest|label-entities|report|list ... (see the header of this file)');
     process.exit(2);
   }
 }

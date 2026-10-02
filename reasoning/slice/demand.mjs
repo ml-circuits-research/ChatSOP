@@ -150,9 +150,12 @@ export class Demand {
   }
 
   /** Orders one conjunction by sideways information passing; records on each atom the positions that are bound when it is reached. */
-  order(owner, seeded) {
+  order(owner, seeded, later = []) {
     const bound = new Set();
     if (owner.head) owner.head.terms.forEach((t, k) => { if (t.cls && seeded[k]) bound.add(t.cls); });
+    // seeded constants beyond the key join only after the first atom, which therefore carries the key: they key a later atom (the second
+    // person of a self-join) but never become the first retrieval key (a hub such as "france" in located_in ?y france)
+    const deferred = owner.head ? owner.head.terms.filter((t, k) => t.cls && later[k]).map(t => t.cls) : [];
     const todo = owner.atoms.slice();
     owner.sequence = [];
     while (todo.length) {
@@ -172,6 +175,7 @@ export class Demand {
       atom.key = atom.bound.find(i => atom.terms[i].cls !== undefined) ?? atom.bound[0] ?? null;
       for (const t of atom.terms) if (t.cls) bound.add(t.cls);
       owner.sequence.push(atom);
+      for (const cls of deferred.splice(0)) bound.add(cls);
     }
   }
 
@@ -199,7 +203,7 @@ export class Demand {
           owner = {id, atoms: this.register(id, rule.if, 'rule'), head: this.headOf(id, rule.then)};
           instances.set(id, owner);
           this.owners.push(owner);
-          this.order(owner, owner.head.terms.map((_, i) => i === call.key || usable.includes(i)));
+          this.order(owner, owner.head.terms.map((_, i) => i === call.key), owner.head.terms.map((_, i) => usable.includes(i)));
         }
         for (let k = 0; k < call.n; k++) {
           const c = call.terms[k], h = owner.head.terms[k];

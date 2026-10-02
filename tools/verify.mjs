@@ -20,7 +20,7 @@ process.chdir(root);
 const reportDir='eval/reports/current';
 fs.mkdirSync(reportDir,{recursive:true});
 const group=process.argv.includes('--group')?process.argv[process.argv.indexOf('--group')+1]:'all';
-const sources=['package.json','lib','sop','memory','reasoning','server','eval','tests','tools','config','skills/material-to-sop','examples'];
+const sources=['package.json','lib','sop','memory','reasoning','server','eval','tests','tools','config','examples'];
 function fingerprints(location){
  const stat=fs.statSync(location);
  if(stat.isFile())return [[location,crypto.createHash('sha256').update(fs.readFileSync(location)).digest('hex')]];

@@ -1,4 +1,4 @@
-// Sessions (DS022): the library (clone of a base memory, drafts, accept, reject, commit), the /v1/sessions API and the chat running
+// Sessions (DS022): the library (clone of a base memory, session circuits added after validation, commit), the /v1/sessions API and the chat running
 // in a session with its own repository.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -35,7 +35,7 @@ test('session: starting clones the base memory into its own folder', t => {
   assert.match(s.id, /^s-/);
   assert.equal(s.base.id, 'family');
   assert.equal(s.base.strategy, 'sqlite');
-  for (const sub of ['repo', 'circuits', 'drafts', 'requests', 'base_circuits', 'agent']) assert.ok(fs.statSync(path.join(sessions.dir(s.id), sub)).isDirectory(), sub);
+  for (const sub of ['repo', 'circuits', 'requests', 'base_circuits', 'agent']) assert.ok(fs.statSync(path.join(sessions.dir(s.id), sub)).isDirectory(), sub);
   assert.equal(sessions.baseCircuits(s.id).length, 1);
   assert.deepEqual(factsOf(sessions, s.id), ['ann>bob', 'bob>cy', 'cy>di']);
   const snap = fs.readdirSync(path.join(sessions.dir(s.id), 'repo/snapshots'))[0];
@@ -58,37 +58,23 @@ test('session: a session is visible to its owner and to an administrator only', 
   assert.equal(sessions.list({user: 'alice'}).length, 1);
 });
 
-test('session: drafts are not knowledge until accepted; accepting adds to the session layer only, base unchanged', t => {
+test('session: a validated circuit joins the session layer at once (no manual acceptance); the base memory is unchanged', t => {
   const {sessions, memories, base} = library(t);
   const s = sessions.create({base: base.id, user: 'alice'});
-  const draft = sessions.addDraft(s.id, {name: 'extra', text: EXTRA, request: 'r-1', model: 'stub/model'});
-  assert.equal(draft.state, 'draft');
-  assert.equal(draft.status, 'proposed', 'authored wires are held as proposed');
-  assert.equal(draft.validation.ok, true);
-  assert.deepEqual(factsOf(sessions, s.id), ['ann>bob', 'bob>cy', 'cy>di'], 'a draft is not in the memory');
-  assert.doesNotMatch(sessions.theory(s.id), /di eve/);
-  const accepted = sessions.acceptDraft(s.id, draft.id, {approvedBy: 'alice'});
-  assert.equal(accepted.draft.state, 'accepted');
-  assert.equal(accepted.draft.status, 'accepted');
-  assert.equal(accepted.record.approved_by, 'alice');
-  assert.equal(accepted.record.ingest.facts_ingested, 1);
+  const added = sessions.addCircuit(s.id, {name: 'extra', text: EXTRA, request: 'r-1', model: 'stub/model'});
+  assert.equal(added.record.kind, 'add');
+  assert.equal(added.record.origin, 'coding_agent');
+  assert.equal(added.record.ingest.facts_ingested, 1);
   assert.deepEqual(factsOf(sessions, s.id), ['ann>bob', 'bob>cy', 'cy>di', 'di>eve']);
   assert.match(sessions.theory(s.id), /di eve/);
   assert.deepEqual(memories.facts('family').parent.map(r => r.args.join('>')).sort(), ['ann>bob', 'bob>cy', 'cy>di'], 'the base memory did not change');
-  assert.throws(() => sessions.acceptDraft(s.id, draft.id, {approvedBy: 'alice'}), e => e.code === 'draft_closed');
-  const second = sessions.addDraft(s.id, {name: 'second', text: '@f10 fact\n  holds parent eve fay\n  source "chat"\n'});
-  assert.equal(sessions.rejectDraft(s.id, second.id).state, 'rejected');
-  assert.throws(() => sessions.acceptDraft(s.id, second.id, {approvedBy: 'alice'}), e => e.code === 'draft_closed');
   assert.equal(sessions.provenance(s.id).length, 1);
 });
 
-test('session: an invalid draft stays a draft and cannot be accepted', t => {
+test('session: a circuit that does not validate is refused and nothing is stored', t => {
   const {sessions, base} = library(t);
   const s = sessions.create({base: base.id, user: 'alice'});
-  const bad = sessions.addDraft(s.id, {name: 'bad', text: '@r rule\n  when parent ?x ?y\n'});
-  assert.equal(bad.validation.ok, false);
-  assert.throws(() => sessions.acceptDraft(s.id, bad.id, {approvedBy: 'alice'}), e => e.code === 'validation_failed');
-  assert.equal(sessions.draft(s.id, bad.id).state, 'draft');
+  assert.throws(() => sessions.addCircuit(s.id, {name: 'bad', text: '@r rule\n  when parent ?x ?y\n'}), e => e.code === 'validation_failed');
   assert.equal(sessions.circuits(s.id).length, 0);
 });
 
@@ -96,7 +82,7 @@ test('session: commit makes a new base memory (a fork plus the session circuits)
   const {sessions, memories, base} = library(t);
   const s = sessions.create({base: base.id, user: 'alice'});
   assert.throws(() => sessions.commit(s.id, {name: 'x', approvedBy: 'admin'}), e => e.code === 'nothing_to_commit');
-  sessions.acceptDraft(s.id, sessions.addDraft(s.id, {name: 'extra', text: EXTRA}).id, {approvedBy: 'alice'});
+  sessions.addCircuit(s.id, {name: 'extra', text: EXTRA, by: 'alice'});
   assert.throws(() => sessions.commit(s.id, {name: 'x'}), e => e.code === 'approval_required');
   const committed = sessions.commit(s.id, {name: 'Family plus Eve', approvedBy: 'owner', newId: 'family-eve'});
   assert.equal(committed.memory.id, 'family-eve');
@@ -123,7 +109,7 @@ test('session: the transcript is kept and an abandoned session is removed by the
   assert.ok(fs.existsSync(path.join(chatData.baseMemoriesDir, 'family')), 'the base memory stays');
 });
 
-test('sessions API: create on a base memory, drafts, accept, theory, query, commit, delete', async t => {
+test('sessions API: create on a base memory, session circuits, theory, query, commit, delete', async t => {
   const s = await productServer(t);
   await s.admin('/v1/memories', 'POST', {name: 'Family', id: 'family', strategy: 'sqlite', circuits: [{name: 'family', text: FAMILY}]});
   const unnamed = (await s.user('/v1/sessions', 'POST', {})).body;
@@ -145,15 +131,11 @@ test('sessions API: create on a base memory, drafts, accept, theory, query, comm
   const query = await s.user(`/v1/sessions/${id}/query`, 'POST', {query: FAMILY_QUERY});
   assert.equal(query.status, 200);
   assert.equal(query.body.answer.status, 'supported');
-  // A draft written by the authoring path (here: directly by the library) is accepted by the user and then used by the query.
+  // A circuit written by the authoring path (here: directly by the library) joins the session layer once it validates and is used by the query.
   const sessionsLib = s.server.sessions ?? null;
   assert.ok(sessionsLib, 'the server exposes its session store for the authoring path');
-  const draft = sessionsLib.addDraft(id, {name: 'eve', text: EXTRA});
-  assert.equal((await s.user(`/v1/sessions/${id}/drafts`)).body.data.length, 1);
-  const accepted = await s.user(`/v1/sessions/${id}/drafts/${draft.id}/accept`, 'POST');
-  assert.equal(accepted.status, 200);
-  assert.equal(accepted.body.draft.state, 'accepted');
-  assert.equal((await s.user(`/v1/sessions/${id}/drafts/${draft.id}/accept`, 'POST')).status, 409);
+  sessionsLib.addCircuit(id, {name: 'eve', text: EXTRA});
+  assert.equal((await s.user(`/v1/sessions/${id}/drafts`)).status, 404, 'there is no drafts endpoint');
   const grown = await s.user(`/v1/sessions/${id}/query`, 'POST', {query: '@q query\n  where parent di ?who\n  select ?who\n'});
   assert.deepEqual(grown.body.answer.rows?.map?.(r => r.who) ?? grown.body.answer.result?.rows?.map(r => r.who), ['eve']);
   const commit = await s.user(`/v1/sessions/${id}/commit`, 'POST', {name: 'Family plus Eve', id: 'family-eve'});

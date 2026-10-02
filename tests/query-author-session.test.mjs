@@ -76,36 +76,32 @@ test('chat reads accepted aggregates and complete counts through the shared theo
   assert.equal(count.packet.count, 2);
 });
 
-test('a fresh closed predicate answers negation without leaking to subsequent turns', async t => {
+test('a closed predicate defined by the coding agent answers negation and stays in its own session', async t => {
   const f = fixture(t);
   const query = '@q query\n' + match('listed', '"Ada"').replace('affirmed', 'negated');
   const closed = await turn(f.agent, '@listed predicate\n  args subject:entity\n  closed true\n' + query, 'Is Ada not listed?');
   assert.equal(closed.packet.status, 'supported');
   assert.ok(closed.packet.origins.some(x => x.id === 'listed' && x.kind === 'definition'));
   assert.match(closed.text, /definition by coding agent/);
-  assert.equal(f.sessions.circuits('turn').length, 0);
-  const open = await turn(f.agent, '@listed predicate\n  args subject:entity\n' + query, 'Is Ada not listed?');
-  assert.equal(open.packet.status, 'unknown');
+  assert.equal(f.sessions.circuits('turn').length, 1, 'the definition joins the session layer');
+  const fresh = fixture(t);
+  const open = await turn(fresh.agent, '@listed predicate\n  args subject:entity\n' + query, 'Is Ada not listed?');
+  assert.equal(open.packet.status, 'unknown', 'another session does not see it: an open predicate does not answer negation');
 });
 
-test('coding-agent definitions are turn-local proposed drafts until explicit acceptance', async t => {
+test('coding-agent definitions join the session layer once they validate (no manual acceptance)', async t => {
   const f = fixture(t);
   const definitions = '@available predicate\n  args subject:entity\n@availability rule\n  when eligible ?x\n  then available ?x\n';
   const r = await turn(f.agent, definitions + QUERY.replace('eligible', 'available'), 'Who is available?');
   assert.deepEqual(r.packet.answers.map(x => x.binding['?person']), ['ada']);
   assert.ok(r.packet.origins.some(x => x.id === 'availability' && x.origin === 'coding_agent' && x.kind === 'definition'));
   assert.match(r.text, /definition by coding agent/);
-  assert.equal(f.sessions.circuits('turn').length, 0);
-  assert.equal(f.memories.circuits('work').length, 1);
-  const draft = f.sessions.draft('turn', r.packet.session_circuits.draft_id);
-  assert.equal(draft.status, 'proposed');
-  const before = await turn(f.agent, QUERY.replace('eligible', 'available'));
-  assert.equal(before.packet.status, 'clarify');
-  f.sessions.acceptDraft('turn', draft.id, {approvedBy: 'test'});
+  assert.equal(r.packet.session_circuits.status, 'added');
+  assert.equal(f.sessions.circuits('turn').length, 1, 'the definition is in the session layer');
+  assert.equal(f.memories.circuits('work').length, 1, 'the base memory did not change');
   f.agent.lexicon = f.sessions.lexicon('turn');
   const after = await turn(f.agent, QUERY.replace('eligible', 'available'));
   assert.deepEqual(after.packet.answers.map(x => x.binding['?person']), ['ada']);
-  assert.equal(f.memories.circuits('work').length, 1);
 });
 
 test('undeclared body predicates and memory declaration replacements are rejected', t => {
@@ -129,13 +125,13 @@ test('turn-local positional atoms cannot evade declared arity checks inside grou
   assert.equal(validateQuery({sop: badHead, message: 'Who is eligible?', lexicon: f.agent.lexicon, circuits}).problems[0].code, 'arity_mismatch');
 });
 
-test('a turn-local default keeps its exception and coding-agent origin', async t => {
+test('a coding-agent default keeps its exception and origin', async t => {
   const f = fixture(t);
   const definitions = '@admitted predicate\n  args subject:entity\n@normally_admitted default\n  when employee ?x\n  then admitted ?x\n  except away ?x\n';
   const r = await turn(f.agent, definitions + QUERY.replace('eligible', 'admitted'), 'Who is admitted?');
   assert.deepEqual(r.packet.answers.map(x => x.binding['?person']), ['ada']);
   assert.ok(r.packet.origins.some(x => x.id === 'normally_admitted' && x.origin === 'coding_agent'));
-  assert.equal(f.sessions.circuits('turn').length, 0);
+  assert.equal(f.sessions.circuits('turn').length, 1);
 });
 
 test('a contrary coding-agent assumption is defeated by memory in its branch', async t => {

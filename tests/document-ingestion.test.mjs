@@ -92,29 +92,28 @@ test('ingest: quotes must be words of the passage; conflicts with memory are fou
   assert.throws(() => checkDocuments([{name: 'a.md', text: 'x', source: {rights: 'unverified'}}]), /rights/);
 });
 
-test('ingest: draft holds back bad quotes, accept stores with provenance, re-ingestion adds nothing', async t => {
+test('ingest: bad quotes are held back, validated chunks are stored with provenance at once, re-ingestion adds nothing', async t => {
   const bm = library(t);
   const memory = bm.create({name: 'policies', imports: []});
   const ingestions = new Ingestions({memories: bm});
   const calls = [];
   const draft = await ingestions.draft(memory.id, {documents: [{name: 'tiny.md', text: DOC, source: {rights: 'cleared', url: 'https://example.org/tiny'}}], maxChunkBytes: 120, author: fakeAuthor(calls)});
-  assert.equal(draft.status, 'proposed');
+  assert.equal(draft.status, 'stored');
   assert.equal(calls.length, 3);
   assert.deepEqual(calls[2], {stage: 'entities', symbols: ['ann', 'workshop']}, 'the entity stage labels the symbols the stored facts use (not those of the rejected fact)');
   const labels = draft.chunks.find(c => c.key.endsWith('-entities'));
-  assert.equal(labels.status, 'validated');
+  assert.equal(labels.status, 'stored');
   assert.deepEqual(labels.wires, {entity: 2}, 'only entity wires are kept');
   assert.deepEqual(calls[0].extra, ['quote_not_in_source'], 'the quote check runs inside the author loop');
   assert.equal(calls[1].existing, calls[0].existing + 1, 'a later chunk sees the circuit drafted before it');
   const staff = draft.chunks.find(c => c.path.at(-1) === 'Tiny Handbook');
-  assert.equal(staff.status, 'validated');
+  assert.equal(staff.status, 'stored');
   assert.deepEqual(staff.rejected.map(r => r.wire), ['d1c1_f2'], 'a paraphrased quote is rejected, not stored');
-  assert.equal(bm.manifest(memory.id).circuits, 0, 'nothing is stored before acceptance');
   assert.match(fs.readFileSync(path.join(ingestions.dir(memory.id, draft.id), 'report.md'), 'utf8'), /rejected @d1c1_f2/);
 
-  const accepted = ingestions.accept(memory.id, draft.id, {approvedBy: 'tester'});
-  const stored = accepted.outcome.filter(o => o.status === 'accepted');
-  assert.equal(stored.length, 3);
+  const stored = draft.stored.outcome.filter(o => o.status === 'stored');
+  assert.equal(stored.length, 3, 'no manual acceptance: validated chunks are stored at the end of the ingestion');
+  assert.equal(bm.manifest(memory.id).circuits, 3);
   assert.equal(bm.lexicon(memory.id).entities.ann.labels.en, 'Ann', 'questions can now link "Ann"');
   const provenance = bm.provenance(memory.id).filter(r => r.source?.kind === 'document');
   assert.equal(provenance[0].source.document, 'tiny.md');
@@ -123,10 +122,9 @@ test('ingest: draft holds back bad quotes, accept stores with provenance, re-ing
 
   const again = await ingestions.draft(memory.id, {documents: [{name: 'tiny.md', text: DOC, source: {rights: 'cleared'}}], maxChunkBytes: 120, author: fakeAuthor([])});
   const skipped = again.chunks.filter(c => c.status === 'already_ingested').length;
-  assert.equal(skipped, 2, 'accepted chunks are skipped on re-ingestion');
+  assert.equal(skipped, 2, 'stored chunks are skipped on re-ingestion');
   assert.ok(!again.chunks.some(c => c.key.endsWith('-entities')), 'no symbol is left without a label');
   assert.equal(again.status, 'nothing_new');
-  assert.throws(() => ingestions.accept(memory.id, draft.id, {approvedBy: 'tester'}), /not proposed/);
 });
 
 test('procedure library: a stored procedure bundle is matched by its question form and offered to the query author', t => {
@@ -147,7 +145,7 @@ test('procedure library: a stored procedure bundle is matched by its question fo
   assert.throws(() => procedureCircuit({id: 'Bad', description: 'x', definitions: DRAFTS.remote}), /lowercase/);
 });
 
-test('ingest API: draft with the coding agent (stub), report, accept, procedure', async t => {
+test('ingest API: the coding agent (stub) ingests and stores, report, procedure', async t => {
   const {productServer} = await import('./product-helpers.mjs');
   const {repoPath} = await import('./helpers.mjs');
   const good = path.join(tempDir(t, 'ing-good-'), 'knowledge.sop');
@@ -162,14 +160,12 @@ test('ingest API: draft with the coding agent (stub), report, accept, procedure'
   assert.equal(refused.body.error.code, 'rights_required');
   const drafted = await s.user('/v1/memories/tiny/ingest', 'POST', {documents: [{name: 'tiny.md', text: DOC.split('## 2.')[0], source: {rights: 'cleared'}}]});
   assert.equal(drafted.status, 200, JSON.stringify(drafted.body));
-  assert.equal(drafted.body.status, 'proposed');
-  assert.match(drafted.body.report, /Nothing is stored yet/);
+  assert.equal(drafted.body.status, 'stored');
+  assert.match(drafted.body.report, /## Stored/);
   const listed = await s.user('/v1/memories/tiny/ingestions');
   assert.equal(listed.body.data[0].id, drafted.body.id);
-  const accepted = await s.user(`/v1/memories/tiny/ingestions/${drafted.body.id}/accept`, 'POST', {});
-  assert.equal(accepted.status, 200, JSON.stringify(accepted.body));
-  assert.equal(accepted.body.outcome[0].status, 'accepted');
-  assert.equal(accepted.body.memory.circuits, 1);
+  assert.equal(drafted.body.stored.outcome[0].status, 'stored');
+  assert.equal((await s.user(`/v1/memories/tiny/ingestions/${drafted.body.id}/accept`, 'POST', {})).status, 404, 'there is no acceptance endpoint');
   const proc = await s.user('/v1/memories/tiny/procedures', 'POST', {id: 'proc_remote', description: 'Answers: may <person> work remotely?', definitions: DRAFTS.remote});
   assert.equal(proc.status, 200, JSON.stringify(proc.body));
   assert.equal(proc.body.memory.circuits, 2);

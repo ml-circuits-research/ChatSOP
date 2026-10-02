@@ -22,7 +22,6 @@ These files describe working procedures, not automatically loaded executable plu
 
 **manage-shards** — Maintain local generations, retention, copy-on-write snapshots, migration and safe garbage collection.
 
-**material-to-sop** — Prepare source material, inspect quoted claims, design a question curriculum, diagnose observed failures, and gate candidate SOP rules through scoped probes and authorized review.
 
 **mine-patterns** — Generate and validate candidate patterns from traces.
 

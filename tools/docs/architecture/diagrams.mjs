@@ -207,12 +207,12 @@ export function diagramE() {
   s.arrow([[312, f.cy], [330, f.cy], [330, o.cy], [352, o.cy]]);
   const v = s.node('v', 340, 236, 330, '5  Validate and repair (server)', ['sop/knowledge validate with the session theory;', 'on problems the same omp session continues', 'with the validator output, up to maxFixRounds (3)'], 'n-srv');
   s.arrow([[505, o.b + 0], [505, v.y]]);
-  const d = s.node('d', 700, 236, 390, '6  Draft (proposed)', ['sessions/<id>/drafts/<draft>.json: text, validation,', 'model, cost; nothing is knowledge yet; the page shows', 'it and the validator output'], 'n-srv');
+  const d = s.node('d', 700, 236, 390, '6  Session layer (no manual step)', ['Sessions.addCircuit: validated with the base and', 'session circuits, copied to circuits/, facts ingested,', 'provenance kind add; invalid: refused, nothing stored'], 'n-srv');
   s.arrow([[670, v.cy], [700, v.cy]]);
-  const g = s.node('g', 700, d.b + 24, 390, '7  The user decides', ['POST .../drafts/{draft}/accept  or  .../reject', 'accept: circuit copied to circuits/ (session layer only),', 'SessionRuntimes.refresh -> new lexicon and repository view'], 'n-gate');
+  const g = s.node('g', 700, d.b + 24, 390, '7  Next request sees it', ['SessionRuntimes.open notices the changed session', 'circuits and refreshes the lexicon and repository view;', 'errors are corrected through tests and interactions'], 'n-srv');
   s.arrow([[895, d.b], [895, g.y]]);
   const c = s.node('c', 700, g.b + 24, 390, '8  Commit (separate, explicit)', ['POST .../commit: a new fork of the base memory,', 'validated again, provenance kind commit; the base the', 'session started from does not change'], 'n-gate');
   s.arrow([[895, g.b], [895, c.y]]);
-  s.node('k', 340, 400, 330, 'Alternative: prepare a base memory', ['POST /v1/memories/{id}/knowledge: circuits must', 'pass sop/knowledge; recorded with the acting user', '~skills/material-to-sop: drafts stay unapproved'], 'n-srv');
+  s.node('k', 340, 400, 330, 'Alternative: prepare a base memory', ['POST /v1/memories/{id}/knowledge: circuits must', 'pass sop/knowledge; recorded with the acting user', '~document ingestion: lib/ingest (stored after checks)'], 'n-srv');
   return s;
 }

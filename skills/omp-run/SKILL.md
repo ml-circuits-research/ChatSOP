@@ -5,7 +5,7 @@ description: Run the omp coding agent non-interactively on a temporary folder (f
 
 # Running omp on a temporary folder
 
-omp is a coding-agent CLI (`omp`, models from DeepSeek, z.ai, xAI, OpenAI Codex and others). ChatSOP uses it as the **coding agent** of the authoring path ([DS022](../../docs/specs/DS022-sessions-and-base-memories.md)): the user's messages (through `lib/query-author`) and attached instruction or source files go to omp, which writes SOP circuits with the skill [`sop-wire-authoring`](../sop-wire-authoring/SKILL.md). The code is `lib/omp/`; this file is the procedure for an agent or an operator who runs omp by hand with the same safeguards. The output of a run is unapproved proposals: nothing becomes knowledge until the circuits pass the validator and a person accepts them (AGENTS.md directions 4 and 5).
+omp is a coding-agent CLI (`omp`, models from DeepSeek, z.ai, xAI, OpenAI Codex and others). ChatSOP uses it as the **coding agent** of the authoring path ([DS022](../../docs/specs/DS022-sessions-and-base-memories.md)): the user's messages (through `lib/query-author`) and attached instruction or source files go to omp, which writes SOP circuits with the skill [`sop-wire-authoring`](../sop-wire-authoring/SKILL.md). The code is `lib/omp/`; this file is the procedure for an agent or an operator who runs omp by hand with the same safeguards. Nothing becomes knowledge until the circuits pass the validator; valid circuits are stored at once and there is no manual accept or reject (AGENTS.md directions 4, 5 and 8).
 
 ## Which models
 
@@ -45,7 +45,7 @@ The JSON event stream goes to `omp-output-*.jsonl`. Each assistant message in th
 1. Write the folder (`TASK.md`, `skill/`, `input/`).
 2. Run omp. The agent cannot run the validator, so **the runtime runs it**: `validateCircuits` over `knowledge.sop` together with the circuits already in the theory (the code of `node eval/smoke-reasoning/validator.mjs --authoring`), and the same for `queries.sop` as a query circuit.
 3. On problems, continue the same omp session (`-c`) with the validator's output as the message; at most `omp.maxFixRounds` (default 3) rounds.
-4. Return the circuits, the validation, the cost and the time. With a session the circuits become a **draft**; the user accepts or rejects it. Acceptance validates again and moves the circuit into the session layer; committing the session to a fork of a base memory is a separate administrator action.
+4. Return the circuits, the validation, the cost and the time. With a session each valid circuit is validated with the base and session circuits and stored in the session layer at once; an invalid circuit is refused and nothing is stored. Committing the session to a fork of a base memory is a separate administrator action.
 
 ## When it goes wrong
 

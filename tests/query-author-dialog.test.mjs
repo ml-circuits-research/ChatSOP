@@ -41,7 +41,7 @@ function fixture(t, backend, extra = '') {
   return {agent, parser, sessions, memories};
 }
 
-test('a vocabulary refusal becomes a validated turn rule, labelled answer and unaccepted draft', async t => {
+test('a vocabulary refusal becomes a validated session rule and a labelled answer', async t => {
   const f = fixture(t, sequence([UNCLEAR, DEFINITION]));
   let parse;
   const r = await f.agent.turn('Can Ada reach Bea?', {formalizer: {id: 'test', formalize: async message => {
@@ -54,11 +54,12 @@ test('a vocabulary refusal becomes a validated turn rule, labelled answer and un
   assert.equal(parse.vocabulary_dialog.rounds, 1);
   assert.equal(parse.retrieval.neighbourhood.hops, 2);
   assert.ok(parse.retrieval.neighbourhood.predicates.some(p => p.id === 'edge' && p.examples.length));
-  assert.equal(f.sessions.draft('turn', r.packet.session_circuits.draft_id).status, 'proposed');
-  assert.equal(f.sessions.circuits('turn').length, 0);
-  assert.equal(f.memories.circuits('roads').length, 1);
+  assert.equal(r.packet.session_circuits.status, 'added');
+  assert.equal(f.sessions.circuits('turn').length, 1, 'the definition joins the session layer (no manual acceptance)');
+  assert.equal(f.memories.circuits('roads').length, 1, 'the base memory did not change');
+  f.agent.lexicon = f.sessions.lexicon('turn');
   const later = await f.agent.turn('Can Ada reach Bea?', {formalizer: {id: 'test', formalize: async () => match('path', '"Ada"', '"Bea"')}});
-  assert.equal(later.packet.status, 'clarify');
+  assert.equal(later.packet.status, 'supported', 'a later turn of the same session uses the definition');
 });
 
 test('unknown predicates enter the dialog but cannot override accepted memory', async () => {

@@ -41,8 +41,10 @@ export class Agent{
    this.context=preview.context;
    if(preview.program.definitionSop){
     const folder=this.repo?.root?path.dirname(this.repo.root):null;
-    const draft=folder&&fs.existsSync(path.join(folder,'session.json'))?new Sessions({chatData:{sessionsDir:path.dirname(folder)}}).addDraft(path.basename(folder),{name:'coding-agent-definition',text:preview.program.definitionSop,model:formalizer.id,extra:{origin:'coding_agent'}}):null;
-    if(result.result?.packet)result.result.packet.session_circuits={origin:'coding_agent',scope:'turn',status:'proposed',text:preview.program.definitionSop,...(draft?{draft_id:draft.id}:{})};
+    // A definition the coding agent wrote joins the session layer once it validates (no manual acceptance, owner 2026-10-02).
+    let added=null,problems=null;
+    if(folder&&fs.existsSync(path.join(folder,'session.json'))){try{added=new Sessions({chatData:{sessionsDir:path.dirname(folder)}}).addCircuit(path.basename(folder),{name:'coding-agent-definition',text:preview.program.definitionSop,model:formalizer.id,origin:'coding_agent'});}catch(error){problems=(error.problems??[{code:error.code,message:error.message}]).slice(0,10);}}
+    if(result.result?.packet)result.result.packet.session_circuits={origin:'coding_agent',scope:added?'session':'turn',status:added?'added':problems?'not_added':'turn_only',text:preview.program.definitionSop,...(added?{file:added.file}:{}),...(problems?{problems}:{})};
    }
   }catch(error){throw Object.assign(error,{modelSop:sop,formalization});}
   let output=result.result;

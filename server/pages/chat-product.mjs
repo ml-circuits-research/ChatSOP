@@ -1,7 +1,7 @@
 /** The product layer of the chat page (DS022, DS009 "The chat page"): sessions, base memories and the coding agent.
  *
- * - The *session header* of the Chat tab shows the session of the current conversation (its base memory, strategy, circuits and drafts)
- *   with *New session* (opens the start dialog where the base memory is chosen from `GET /v1/memories`), *Drafts* and *Commit*. Every
+ * - The *session header* of the Chat tab shows the session of the current conversation (its base memory, strategy and circuits)
+ *   with *New session* (opens the start dialog where the base memory is chosen from `GET /v1/memories`) and *Commit*. Every
  *   conversation is bound to a server session (`POST /v1/sessions`); the chat request carries `session_id`.
  * - The *Base Memory* tab lists the memories (name, strategy, size, created, parent) with View (manifest, counts, sample wires), Fork
  *   (name and strategy), Add knowledge (paste or upload a circuit; validation problems are shown, nothing is written on failure) and
@@ -11,12 +11,12 @@
  *   first, with the cost class, filterable; the chosen model is tried before the configured chain). *Server status*: strategies, base
  *   memories with their warm state, and the reasoning engines (`GET /v1/status`). A message goes to `POST /v1/chat/completions`;
  *   attached files go to knowledge authoring (`POST /v1/author`).
- * - Authoring progress (`POST /v1/author` with `wait: false`, polled) and the draft circuits (validation, report, cost) are shown as a
- *   card in the conversation with Accept and Reject. Nothing is knowledge until the user accepts a draft.
+ * - Authoring progress (`POST /v1/author` with `wait: false`, polled) and the authored circuits (validation, report, cost) are shown as a
+ *   card in the conversation; validated circuits join the session layer at once (no manual acceptance, owner 2026-10-02).
  * All dynamic text is inserted with textContent; the page never builds markup from server data.
  */
 
-export const sessionHeadHtml = `<header class="chat-head"><div class="info" id="session-info" aria-label="Session and base memory">Loading the session…</div><div class="btns"><label for="conversation" class="muted" style="margin:0;font-weight:400;font-size:13px">Chat</label><select id="conversation" title="Earlier conversations in this browser"></select><button id="new" type="button" aria-label="New conversation (new session)" title="Start a new conversation on a base memory of your choice">New session</button><button id="drafts-open" type="button" title="Circuits the coding agent proposed, waiting for you to accept or reject them">Drafts</button><button id="commit-open" type="button" title="Commit the circuits accepted in this session to a new base memory">Commit…</button><button id="clear" type="button" title="Clears only this browser's copy of the transcript; the server keeps the conversation context">Clear view</button></div></header>`;
+export const sessionHeadHtml = `<header class="chat-head"><div class="info" id="session-info" aria-label="Session and base memory">Loading the session…</div><div class="btns"><label for="conversation" class="muted" style="margin:0;font-weight:400;font-size:13px">Chat</label><select id="conversation" title="Earlier conversations in this browser"></select><button id="new" type="button" aria-label="New conversation (new session)" title="Start a new conversation on a base memory of your choice">New session</button><button id="commit-open" type="button" title="Commit the circuits accepted in this session to a new base memory">Commit…</button><button id="clear" type="button" title="Clears only this browser's copy of the transcript; the server keeps the conversation context">Clear view</button></div></header>`;
 
 const srow = (title, help, control) => `<div class="srow"><div class="what"><b>${title}</b><span>${help}</span></div><div class="ctl">${control}</div></div>`;
 export const settingsCodingAgentHtml = [
@@ -49,9 +49,8 @@ export const productDialogsHtml = `
 <dialog id="new-dialog" aria-labelledby="new-title"><h2 id="new-title">Create a base memory</h2>
 <div class="row"><label for="new-name">Name</label><input type="text" id="new-name" maxlength="120"></div><div class="row"><label for="new-kind">Built on</label><select id="new-kind"><option value="encyclopedic">encyclopedic: a fork of world-v1 (common sense and basic knowledge)</option><option value="minimal" selected>minimal: the core vocabulary (core-min)</option><option value="empty">empty: nothing, for a specialised task</option></select></div><div class="row"><label for="new-strategy">Strategy</label><select id="new-strategy"></select></div>
 <div id="new-msg" class="msgline" role="status"></div><div class="actions"><button id="new-cancel" type="button">Close</button><button id="new-go" type="button" class="primary">Create</button></div></dialog>
-<dialog id="drafts-dialog" aria-labelledby="drafts-title"><h2 id="drafts-title">Draft circuits</h2><div id="drafts-list"></div><div id="drafts-msg" class="msgline" role="status"></div><div class="actions"><button id="drafts-close" type="button">Close</button></div></dialog>
 <dialog id="commit-dialog" aria-labelledby="commit-title"><h2 id="commit-title">Commit the session to a base memory</h2>
-<p class="msgline">Creates a new base memory: a fork of the session's base memory plus the circuits you accepted in this session, validated again. The original base memory does not change. Recorded with provenance.</p>
+<p class="msgline">Creates a new base memory: a fork of the session's base memory plus the circuits added in this session, validated again. The original base memory does not change. Recorded with provenance.</p>
 <div class="row"><label for="commit-name">Name</label><input type="text" id="commit-name" maxlength="120"><label for="commit-strategy">Strategy</label><select id="commit-strategy"></select></div>
 <div id="commit-msg" class="msgline" role="status"></div>
 <div class="actions"><button id="commit-cancel" type="button">Cancel</button><button id="commit-go" type="button" class="primary">Commit</button></div></dialog>`;
@@ -69,7 +68,7 @@ async function jcall(method,path,body){
 }
 const errText=r=>r.error?r.error.message+(r.error.problems?' ('+r.error.problems.length+' problem'+(r.error.problems.length===1?'':'s')+')':''):'HTTP '+r.status;
 function problemList(problems){const ul=el('ul','problems');for(const p of problems||[]){ul.append(el('li','',(p.file?p.file+(p.line?':'+p.line:'')+' ':'')+p.code+(p.wire?' (@'+p.wire+')':'')+': '+p.message));}return ul;}
-// Every signed-in user may fork, extend and commit base memories and accept drafts (owner decision 2026-10-01: no admin role yet), so no control is gated.
+// Every signed-in user may fork, extend and commit base memories (owner decision 2026-10-01: no admin role yet), so no control is gated.
 const sessionMap=()=>store.get('chatsop.sessionOf',{});
 const boundSession=()=>sessionMap()[current]||null;
 function bindSession(id){const m=sessionMap();m[current]=id;store.set('chatsop.sessionOf',m);}
@@ -79,16 +78,14 @@ function renderSessionBar(){
  if(!s){info.textContent='No session yet.';return;}
  info.append(el('b','',s.name||s.id),document.createTextNode(' \u00b7 base memory '),el('b','',s.base.name));
  info.append(el('span','pill accent',s.base.strategy));
- const accepted=(s.circuits||[]).length,drafts=(s.drafts||[]).filter(d=>d.state==='draft').length;
+ const accepted=(s.circuits||[]).length;
  info.append(el('span','pill',accepted+' session circuit'+(accepted===1?'':'s')));
- if(drafts)info.append(el('span','pill warn',drafts+' draft'+(drafts===1?'':'s')));
  if((s.committed_to||[]).length)info.append(el('span','pill ok','committed'));
  info.title='session '+s.id;
  info.append(el('span','pill',strategyName()));
  if($('formalizer'))$('formalizer').value=(s.settings&&s.settings.formalizer)||'';
  const model=(s.settings&&s.settings.omp_model)||'';if([...$('omp-model').options].some(o=>o.value===model))$('omp-model').value=model;
  $('commit-open').disabled=!accepted;
- $('drafts-open').textContent=drafts?'Drafts ('+drafts+')':'Drafts';
  if($('mem-rows')&&!$('panel-memory').hidden)renderMemoryRows();
 }
 async function refreshSession(){
@@ -215,30 +212,17 @@ $('new-go').onclick=async()=>{
  setMsg('new-msg','Created "'+r.body.name+'".','ok');$('new-name').value='';renderMemories();
 };
 
-// ---- drafts
-async function renderDrafts(){
- const list=$('drafts-list');list.textContent='';$('drafts-msg').textContent='';if(!PROD.session)return;
- const r=await jcall('GET','/v1/sessions/'+PROD.session.id+'/drafts');if(!r.ok){list.append(el('p','msgline bad',errText(r)));return;}
- const open=r.body.data.filter(d=>d.state==='draft');
- if(!open.length){list.append(el('p','msgline','No draft is waiting. Circuits the coding agent proposes appear here and in the conversation.'));return;}
- for(const d of open)list.append(draftCard(d,()=>renderDrafts()));
+// ---- authored circuits
+function circuitCard(res){
+ const card=el('fieldset');card.append(el('legend','',(res.model?res.model:'coding agent')));
+ const ok=Boolean(res.added);card.append(el('span','pill '+(ok?'ok':'warn'),ok?'added to this session':'not added'));
+ if(res.not_added)card.append(problemList(res.not_added));
+ else if(res.validation&&!res.validation.ok)card.append(problemList(res.validation.problems));
+ for(const c of res.circuits||[])card.append(el('pre','',c.text));
+ if(res.queries){const q=el('details');q.append(el('summary','','test queries'),el('pre','',res.queries));card.append(q);}
+ if(res.report){const q=el('details');q.append(el('summary','','agent report'),el('pre','',res.report));card.append(q);}
+ return card;
 }
-function draftCard(d,after){
- const card=el('fieldset');card.append(el('legend','',d.name+(d.model?' · '+d.model:'')));
- const badge=el('span','pill '+(d.validation&&d.validation.ok?'ok':'warn'),d.validation&&d.validation.ok?'valid':'not valid');card.append(badge);
- if(d.validation&&!d.validation.ok)card.append(problemList(d.validation.problems));
- if(d.validation&&d.validation.warnings&&d.validation.warnings.length){const w=el('details');w.append(el('summary','','warnings ('+d.validation.warnings.length+')'),problemList(d.validation.warnings));card.append(w);}
- card.append(el('pre','',d.text));
- if(d.queries){const q=el('details');q.append(el('summary','','test queries'),el('pre','',d.queries));card.append(q);}
- if(d.report){const q=el('details');q.append(el('summary','','agent report'),el('pre','',d.report));card.append(q);}
- const actions=el('div','actions');const msg=el('div','msgline');
- const accept=el('button','primary','Accept into this session');accept.type='button';accept.disabled=!(d.validation&&d.validation.ok);
- accept.onclick=async()=>{const r=await jcall('POST','/v1/sessions/'+PROD.session.id+'/drafts/'+d.id+'/accept');if(!r.ok){msg.className='msgline bad';msg.textContent='Not accepted: '+errText(r);return;}msg.className='msgline ok';msg.textContent='Accepted: '+r.body.record.ingest.facts_ingested+' fact(s) in the session memory; the circuit is in the session theory.';await refreshSession();accept.disabled=true;reject.disabled=true;if(after)after();};
- const reject=el('button','','Reject');reject.type='button';
- reject.onclick=async()=>{const r=await jcall('POST','/v1/sessions/'+PROD.session.id+'/drafts/'+d.id+'/reject');if(!r.ok){msg.className='msgline bad';msg.textContent=errText(r);return;}msg.className='msgline';msg.textContent='Rejected.';await refreshSession();accept.disabled=true;reject.disabled=true;if(after)after();};
- actions.append(accept,reject);card.append(actions,msg);return card;
-}
-$('drafts-open').onclick=async()=>{await renderDrafts();$('drafts-dialog').showModal();};$('drafts-close').onclick=()=>$('drafts-dialog').close();
 
 // ---- commit to a fork
 $('commit-open').onclick=()=>{if(!PROD.session||$('commit-open').disabled)return;fillStrategies($('commit-strategy'),PROD.session.base.strategy);$('commit-name').value='';$('commit-msg').textContent='';$('commit-dialog').showModal();};
@@ -347,11 +331,11 @@ async function runAuthoring(text,files){
 function renderAuthoringResult(block,res){
  const status=block.querySelector('.status');
  status.textContent=({validated:'Validated',invalid:'Written but not valid after the repair rounds',failed:'The agent failed'}[res.status]||res.status)+' · '+res.rounds+' round'+(res.rounds===1?'':'s')+' · '+(res.duration_ms/1000).toFixed(1)+' s · '+res.usage.turns+' turns · cost '+res.usage.cost_usd.toFixed(4)+' USD ('+res.cost_class+(res.cost_class==='subscription'?', nominal list price':'')+')'+(res.reason?' · '+res.reason:'');
- if(res.draft){block.append(draftCard(res.draft,()=>{}));}
- else if(res.status!=='validated')block.append(el('p','note','No circuit was produced.'));
- block.append(el('p','note','Drafts are not knowledge. Accepting one adds it to this session only; committing the session to a base memory is a separate step.'));
+ if((res.circuits||[]).length)block.append(circuitCard(res));
+ else block.append(el('p','note','No circuit was produced.'));
+ block.append(el('p','note','Validated circuits join this session only; committing the session to a base memory is a separate step.'));
 }
-/** Attached files go to knowledge authoring (the coding agent writes draft circuits); a message without files is a chat turn. */
+/** Attached files go to knowledge authoring (the coding agent writes circuits for this session); a message without files is a chat turn. */
 async function productEarly(text){
  if(!PROD.session||!PROD.files.length)return false;
  const files=PROD.files.splice(0);renderChips();

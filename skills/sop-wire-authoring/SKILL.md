@@ -87,4 +87,4 @@ The script validates both files, compares the wires on meaning (ids, `source`, `
 
 ## Records
 
-Log the job with `node tools/journal.mjs add --area data --state started|done|blocked …` (actor from `CHATSOP_ACTOR`), and record the results, the disagreements of the differential check and the sentences left out as a topic note (`node tools/notes.mjs add --topic … --kind result …`). The output is unapproved proposals: ingestion into memory needs the independent runtime approval of `skills/material-to-sop/SKILL.md`, and no skill grants it.
+Log the job with `node tools/journal.mjs add --area data --state started|done|blocked …` (actor from `CHATSOP_ACTOR`), and record the results, the disagreements of the differential check and the sentences left out as a topic note (`node tools/notes.mjs add --topic … --kind result …`). The output goes through the knowledge validator and the automated checks of document ingestion (DS008, DS022); there is no manual approval step.

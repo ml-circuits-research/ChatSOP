@@ -10,12 +10,9 @@
  *
  *   POST /v1/sessions                       start a session on a base memory: {base, name?, settings?}
  *   GET  /v1/sessions                       the caller's sessions (all of them for the signed-in browser session)
- *   GET  /v1/sessions/{id}                  the session, its circuits, drafts and provenance (?transcript=1 adds the turns)
+ *   GET  /v1/sessions/{id}                  the session, its circuits and provenance (?transcript=1 adds the turns)
  *   DELETE /v1/sessions/{id}
  *   POST /v1/sessions/{id}/settings         {omp_model?, formalizer?}: the model CodingAgent tries first; the formalization strategy
- *   GET  /v1/sessions/{id}/drafts           the draft circuits with their text and validation
- *   POST /v1/sessions/{id}/drafts/{d}/accept   the user accepts a draft into the session layer
- *   POST /v1/sessions/{id}/drafts/{d}/reject
  *   POST /v1/sessions/{id}/commit           commit the accepted session circuits to a new fork: {name, strategy?, description?}
  *   GET  /v1/sessions/{id}/theory           the base circuits followed by the accepted session circuits
  *   POST /v1/sessions/{id}/query            {query}: run a query circuit over the session's memory: the oracle gets the slice the query needs (answer.retrieval)
@@ -47,9 +44,6 @@ export const PRODUCT_ENDPOINTS = Object.freeze([
   {method: 'GET', path: '/v1/sessions', capability: 'sessions.list'},
   {method: 'GET', path: '/v1/sessions/{id}', capability: 'sessions.get'},
   {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['omp_model', 'formalizer']},
-  {method: 'GET', path: '/v1/sessions/{id}/drafts', capability: 'sessions.drafts'},
-  {method: 'POST', path: '/v1/sessions/{id}/drafts/{draft}/accept', capability: 'sessions.accept', body: []},
-  {method: 'POST', path: '/v1/sessions/{id}/drafts/{draft}/reject', capability: 'sessions.reject', body: []},
   {method: 'POST', path: '/v1/sessions/{id}/commit', capability: 'sessions.commit', body: ['name', 'strategy', 'description', 'id']},
   {method: 'GET', path: '/v1/sessions/{id}/theory', capability: 'sessions.theory'},
   {method: 'POST', path: '/v1/sessions/{id}/query', capability: 'sessions.query', body: ['query', 'message', 'reasoning', 'verify']},
@@ -73,8 +67,6 @@ const ROUTES = [
   ['GET', new RegExp(`^/v1/sessions/${ID}$`), 'sessionsGet'],
   ['DELETE', new RegExp(`^/v1/sessions/${ID}$`), 'sessionsDelete'],
   ['POST', new RegExp(`^/v1/sessions/${ID}/settings$`), 'sessionsSettings'],
-  ['GET', new RegExp(`^/v1/sessions/${ID}/drafts$`), 'sessionsDrafts'],
-  ['POST', new RegExp(`^/v1/sessions/${ID}/drafts/${ID}/(accept|reject)$`), 'sessionsDraftAction'],
   ['POST', new RegExp(`^/v1/sessions/${ID}/commit$`), 'sessionsCommit'],
   ['GET', new RegExp(`^/v1/sessions/${ID}/theory$`), 'sessionsTheory'],
   ['POST', new RegExp(`^/v1/sessions/${ID}/query$`), 'sessionsQuery'],
@@ -156,19 +148,6 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
       sessions.visible(match[1], {user, admin});
       const body = onlyKeys(await readBody(req, maxBytes), ['omp_model', 'formalizer']);
       json(res, 200, {object: 'session', ...sessions.describe(sessions.updateSettings(match[1], body).id)});
-    },
-    sessionsDrafts({res, match, user, admin}) {
-      sessions.visible(match[1], {user, admin});
-      json(res, 200, {object: 'list', data: sessions.drafts(match[1])});
-    },
-    async sessionsDraftAction({req, res, match, user, admin}) {
-      sessions.visible(match[1], {user, admin});
-      req.resume();
-      const [, id, draft, action] = match;
-      if (action === 'reject') return json(res, 200, {object: 'session.draft', draft: sessions.rejectDraft(id, draft)});
-      const accepted = sessions.acceptDraft(id, draft, {approvedBy: user});
-      runtimes?.refresh(id);
-      json(res, 200, {object: 'session.draft', ...accepted});
     },
     async sessionsCommit({req, res, match, approvedBy, user, admin}) {
       sessions.visible(match[1], {user, admin});

@@ -283,3 +283,119 @@
   when typically_has ?c ?v
   then typically_has ?x ?v
   source "authored (commonsense-v1, classes; commonsense-agent): what a kind typically does, is, has or where it is found is inherited by its subclasses and members unless something says otherwise"
+
+@cs_cl_f_dj2_person_organization fact
+  holds disjoint_with person organization
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a person and a organization; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_person_city fact
+  holds disjoint_with person city
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a person and a city; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_person_country fact
+  holds disjoint_with person country
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a person and a country; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_person_continent fact
+  holds disjoint_with person continent
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a person and a continent; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_person_region fact
+  holds disjoint_with person region
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a person and a region; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_person_building fact
+  holds disjoint_with person building
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a person and a building; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_person_company fact
+  holds disjoint_with person company
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a person and a company; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_person_university fact
+  holds disjoint_with person university
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a person and a university; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_person_creative_work fact
+  holds disjoint_with person creative_work
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a person and a creative work; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_person_film fact
+  holds disjoint_with person film
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a person and a film; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_person_literary_work fact
+  holds disjoint_with person literary_work
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a person and a literary work; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_person_painting fact
+  holds disjoint_with person painting
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a person and a painting; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_person_artifact fact
+  holds disjoint_with person artifact
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a person and a artifact; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_organization_city fact
+  holds disjoint_with organization city
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a organization and a city; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_organization_country fact
+  holds disjoint_with organization country
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a organization and a country; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_organization_continent fact
+  holds disjoint_with organization continent
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a organization and a continent; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_organization_creative_work fact
+  holds disjoint_with organization creative_work
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a organization and a creative work; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_place_creative_work fact
+  holds disjoint_with place creative_work
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a place and a creative work; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_place_film fact
+  holds disjoint_with place film
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a place and a film; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_place_literary_work fact
+  holds disjoint_with place literary_work
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a place and a literary work; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_place_painting fact
+  holds disjoint_with place painting
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a place and a painting; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_city_film fact
+  holds disjoint_with city film
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a city and a film; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_city_literary_work fact
+  holds disjoint_with city literary_work
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a city and a literary work; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_city_company fact
+  holds disjoint_with city company
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a city and a company; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_country_company fact
+  holds disjoint_with country company
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a country and a company; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_country_film fact
+  holds disjoint_with country film
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a country and a film; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_country_literary_work fact
+  holds disjoint_with country literary_work
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a country and a literary work; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_country_language fact
+  holds disjoint_with country language
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a country and a language; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"
+
+@cs_cl_f_dj2_city_language fact
+  holds disjoint_with city language
+  source "authored (commonsense-v1, classes; commonsense-agent): nothing is both a city and a language; stated for the subclasses directly because a subclass rule over is_a makes the closure explode"

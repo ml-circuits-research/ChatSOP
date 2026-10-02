@@ -10,7 +10,7 @@
  * The message goes to the server as typed, in any language: the request parser (the session's formalization strategy, CodingAgent by
  * default) writes the circuit, the runtime validates, links, retrieves, routes, verifies and renders it, and the answer comes back in
  * English with its trace. The trace panel follows the pipeline: formalization (strategy, model, repair rounds), vocabulary (schema
- * neighbourhood, vocabulary dialog), session definitions and assumptions (Accept/Reject for a proposed definition), linking, retrieval
+ * neighbourhood, vocabulary dialog), session definitions and assumptions (labelled with their origin), linking, retrieval
  * (complete or not, bounds), route and verification, latency, then the circuits. Linked entities and relations open their cards in the
  * knowledge browser (`/review?session=…&entity=…`, server/pages/review.mjs). `parse_unavailable` (503) and `parse_failed` (422)
  * are explained in plain words. The page uses the HttpOnly session cookie through same-origin
@@ -87,13 +87,6 @@ const yes=v=>v===true?'yes':v===false?'no':v;
 function browseHref(c,kind,id){const t=c.session?.id?'session='+encodeURIComponent(c.session.id):'memory='+encodeURIComponent(c.session?.base||'world-v1');return '/review?'+t+'&'+kind+'='+encodeURIComponent(id);}
 function browseLink(c,kind,id,text){const a=document.createElement('a');a.href=browseHref(c,kind,id);a.target='_blank';a.rel='noopener';a.textContent=text||id;a.title='open the '+kind+' card in the knowledge browser';return a;}
 function browseField(list,label,c,refs){refs=(refs||[]).filter(r=>r&&r.id);if(!refs.length)return;const dt=document.createElement('dt');dt.textContent=label;const dd=document.createElement('dd');refs.forEach((r,i)=>{if(i)dd.append(', ');dd.append(browseLink(c,r.kind,r.id));});list.append(dt,dd);}
-function draftActions(parent,draftId){
- if(!draftId)return;const row=el('div','actions');const msg=el('span','msgline');
- const act=async(kind)=>{if(typeof PROD==='undefined'||!PROD.session){msg.textContent='No session.';return;}const r=await jcall('POST','/v1/sessions/'+PROD.session.id+'/drafts/'+draftId+'/'+kind);msg.className='msgline '+(r.ok?'ok':'bad');msg.textContent=r.ok?(kind==='accept'?'Accepted into this session.':'Rejected.'):errText(r);if(r.ok){a.disabled=true;b.disabled=true;await refreshSession();}};
- const a=el('button','primary','Accept definition');a.type='button';a.onclick=()=>act('accept');
- const b=el('button','','Reject');b.type='button';b.onclick=()=>act('reject');
- row.append(a,b,msg);parent.append(row);
-}
 function traceView(c){
  const p=c.parse||{};const details=document.createElement('details');details.className='trace';const summary=document.createElement('summary');
  const total=c.turn_ms??c.client_ms??c.formalization_ms;
@@ -117,10 +110,10 @@ function traceView(c){
   if(r.neighbourhood&&r.neighbourhood.predicates)browseField(v,'browse relations',c,r.neighbourhood.predicates.slice(0,12).map(x=>({kind:'predicate',id:x.id})));
   if(r.byte_budget)field(v,'vocabulary size',r.bytes+' of '+r.byte_budget+' bytes'+(r.truncated?' (truncated)':''));
   const d=p.vocabulary_dialog;if(d)field(v,'vocabulary dialog',d.rounds?d.rounds+' expansion(s) of at most '+d.max_rounds+': '+d.expansions.map(e=>e.trigger).join(', '):'not needed');}
- // 3. Session definitions and assumptions: labelled, never knowledge until accepted.
+ // 3. Session definitions and assumptions: labelled with their origin (no manual acceptance).
  const sc=c.session_circuits;
- if(sc||(c.model_assumptions||[]).length||(c.user_statements||[]).length||(c.carried_statements||[]).length){const s=section(details,'3. Session definitions and assumptions',Boolean(sc&&sc.draft_id));
-  if(sc){field(s.list,'definition',sc.status+' by the '+(sc.origin==='coding_agent'?'request parser':sc.origin)+' for this turn; it is a draft until you accept it');sopBlock(s.box,'proposed definition',sc.text);draftActions(s.box,sc.draft_id);}
+ if(sc||(c.model_assumptions||[]).length||(c.user_statements||[]).length||(c.carried_statements||[]).length){const s=section(details,'3. Session definitions and assumptions',Boolean(sc));
+  if(sc){field(s.list,'definition','defined by the '+(sc.origin==='coding_agent'?'coding agent':sc.origin)+'; '+({added:'added to this session',not_added:'not added: it does not validate with the memory',turn_only:'used for this turn'}[sc.status]||sc.status));sopBlock(s.box,'definition',sc.text);}
   field(s.list,'your statements',(c.user_statements||[]).map(x=>x.statement).join(' '));
   if((c.carried_statements||[]).length)field(s.list,'earlier statements',c.carried_statements.map(x=>x.atom).join('; '));
   field(s.list,'assumptions',(c.model_assumptions||[]).map(a=>a.statement+' ['+a.treatment+']').join(' '));

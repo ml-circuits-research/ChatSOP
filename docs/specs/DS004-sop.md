@@ -92,7 +92,7 @@ A `fact` wire declares `source user` when it records a quoted user assertion, an
 
 The host selects the user identity and write permissions, reviews executable definitions, and admits factual sources through `publishKnowledge`/ingestion. A document quotation and source hash are required when the ingestion contract calls for them. A generated SOP circuit cannot authorize its own publication or alter the library of approved rules, procedures, policies, and ontology definitions. The stable machine-readable capability catalog belongs at `sop/contracts/`; the retained requirements under `probably_obsolete/legacy/requirements/` are supporting evidence, not an alternate runtime parser.
 
-The `skills/material-to-sop/` workflow accepts UTF-8 TXT or Markdown sources no larger than 2 MB into a private hashed workspace. Its `prepare`, `review`, `curriculum`, `diagnose`, `candidate`, `probe`, `decide`, `freeze`, and `publish` commands separate quoted unapproved fact drafts from approved source claims and scoped rule candidates. Only a host-approved HARD candidate with executed positive, negative and boundary probes, matching decision and freeze hashes, and explicit authorization for a new empty base can be published; DEFAULT and PLAUSIBLE remain non-executable proposals. Probe results establish runtime behavior, not document truth, reviewer identity or permission. Retraction prevents future reuse without erasing earlier published history.
+Source material enters base memories through document ingestion (DS008, DS022).
 
 ## Knowledge wires
 

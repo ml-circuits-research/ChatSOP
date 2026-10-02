@@ -67,11 +67,10 @@ for (const strategy of STRATEGIES) {
     memories.addKnowledge('p', {circuits: [{name: 'later', text: fact('f8', 'zed', 'yan')}], approvedBy: 'admin'});
     assert.equal(parents(memories, child.id).includes('zed>yan'), false, 'the child did not change');
 
-    // a session clone: accepted circuits and facts written in the session never reach the base memory
+    // a session clone: session circuits and facts written in the session never reach the base memory
     const s = sessions.create({base: 'p', user: 'alice'});
     const baseBefore = snapshotOf(path.join(memories.dir('p'), 'repo'));
-    const draft = sessions.addDraft(s.id, {name: 'extra', text: fact('f7', 'sam', 'tom')});
-    sessions.acceptDraft(s.id, draft.id, {approvedBy: 'alice'});
+    sessions.addCircuit(s.id, {name: 'extra', text: fact('f7', 'sam', 'tom'), by: 'alice'});
     assert.ok(sessionParents(sessions, s.id).includes('sam>tom'));
     assert.equal(parents(memories, 'p').includes('sam>tom'), false, 'the base memory did not change');
     assert.deepEqual(snapshotOf(path.join(memories.dir('p'), 'repo')), baseBefore, 'the base repository files are byte-identical');

@@ -5,7 +5,7 @@
 The chat pipeline (details and one worked example in [docs/runtime.html](docs/runtime.html#pipeline)):
 
 1. **Request parser** (`server/query-parser.mjs`, `lib/query-author`): the session's formalization strategy turns the message into circuits. **CodingAgent** (the default) runs omp with the model chain `queryParser.models` of `config/runtime.json` (`zai/glm-5.3`, then `openai-codex/gpt-6-luna`), one turn, no tools, thinking off, on persistent RPC workers. **LocalLLMDirect** asks a local GGUF model served by llama-server (shared runtime `lib/local-llm/`) to write the circuit in one step. **LocalLLMStepByStep**, in which the symbolic system asks a small local model short questions and assembles the circuit itself, is in progress. The author receives the message and the **schema neighbourhood** of the session's memory (relations around the named entities, with their roles and examples); it writes only queries, constraints, `unclear`/`unparsed` markers, labelled session definitions and `assumed` lines. It never answers and never states a fact.
-2. **Admission and repair**: the validator (`lib/query-author/validate.mjs`, `admit.mjs`, `condition-use.mjs`) checks the circuit against the memory's declarations and sends problems (for example `condition_misuse`, `time_not_a_point`, `time_range_needs_quantifier`, `unknown_predicate`) back for bounded repair rounds; a missing term opens a bounded **vocabulary dialog** (at most two expansions). Session definitions come back as drafts that the user accepts or rejects.
+2. **Admission and repair**: the validator (`lib/query-author/validate.mjs`, `admit.mjs`, `condition-use.mjs`) checks the circuit against the memory's declarations and sends problems (for example `condition_misuse`, `time_not_a_point`, `time_range_needs_quantifier`, `unknown_predicate`) back for bounded repair rounds; a missing term opens a bounded **vocabulary dialog** (at most two expansions). Session definitions that pass the validator join the session layer at once; there is no manual accept or reject.
 3. **KnowledgeLinker**: relation phrases and entity names are linked to the base memory.
 4. **Slice retrieval with the completeness guard** (`reasoning/slice/`): only the facts the question can use are fetched; an answer that needs a complete slice is never given from a partial one.
 5. **StrategyRouter** (`reasoning/router/`): the `js-reference` oracle or an engine (`sql-sqlite`, `datalog-souffle`, `asp-clingo`) answers; a routed answer is verified against the oracle (`route.verification`); a requested backend is never substituted.
@@ -94,7 +94,7 @@ CHATSOP_PORT=9998 CHATSOP_CHAT_DATA=/tmp/chatsop-data CHATSOP_CONFIG=config/my-r
 
 `formalizer: null` uses the server default (CodingAgent). A turn whose strategy cannot run on this server is refused with 503 `parse_unavailable` naming the strategy (`GET /v1/status` lists each strategy with `available` and the reason); it is never silently replaced by another. Whatever strategy wrote the circuit, the same admission, linking, retrieval, routing, verification and rendering follow.
 
-The product API (chat completions, status, memories, sessions and their settings, drafts, `POST /v1/author`, `GET /v1/omp/models`, capabilities, cache) is documented in [docs/api.html](docs/api.html).
+The product API (chat completions, status, memories, sessions and their settings, `POST /v1/author`, `GET /v1/omp/models`, capabilities, cache) is documented in [docs/api.html](docs/api.html).
 
 ```sh
 curl -H "Authorization: Bearer $CHATSOP_API_KEY" -H 'Content-Type: application/json' \
@@ -105,22 +105,21 @@ curl -H "Authorization: Bearer $CHATSOP_API_KEY" http://127.0.0.1:9999/v1/status
 
 ## Base memories from documents (learning by ingestion)
 
-The system learns by adding knowledge to base memories, not by training models: documents, manuals and books become facts, relations, rules and procedures of a **task-type base memory** (one for HR policy questions, one for a science topic, ...), and chats are sessions made from that memory. The coding agent drafts the circuits chunk by chunk, the validator and a quote check (every quoted sentence must be in the document) run in its repair rounds, facts that duplicate or contradict the memory are held back, and nothing is stored until a user accepts the ingestion report.
+The system learns by adding knowledge to base memories, not by training models: documents, manuals and books become facts, relations, rules and procedures of a **task-type base memory** (one for HR policy questions, one for a science topic, ...), and chats are sessions made from that memory. The coding agent writes the circuits chunk by chunk, the validator and a quote check (every quoted sentence must be in the document) run in its repair rounds, facts that duplicate or contradict the memory are held back, and every validated chunk is stored in the base memory at once with its provenance.
 
 ```sh
 node tools/ingest-documents.mjs create-memory --id hr-policies --name "HR policies" --imports core-min
-node tools/ingest-documents.mjs draft --memory hr-policies --file handbook.md --rights cleared   # prints the ingestion id and its report path
+node tools/ingest-documents.mjs ingest --memory hr-policies --file handbook.md --rights cleared  # stores the validated chunks; prints the ingestion id and its report path
 node tools/ingest-documents.mjs report --memory hr-policies --ingestion ING                      # extracted, rejected, held back, uncertain
-node tools/ingest-documents.mjs accept --memory hr-policies --ingestion ING --by "$USER"         # stores the validated chunks with provenance
 ```
 
-Over HTTP: `POST /v1/memories/{id}/ingest`, then `POST /v1/memories/{id}/ingestions/{ingestion}/accept`, then `POST /v1/sessions {"base": "hr-policies"}` (examples on the [API page](docs/api.html#ingest)). Ingesting the same document again adds nothing (chunks are identified by their SHA-256). Only documents whose rights are recorded as cleared, permissive-attribution or owner-provided are accepted (DS011). Rules that answer one question form can be stored as a **procedure** (`POST /v1/memories/{id}/procedures`); the query author is then offered the procedure whenever a message matches its description. Contract: DS022 "Ingesting documents into a base memory" and "Procedure library".
+Over HTTP: `POST /v1/memories/{id}/ingest`, which stores the validated chunks, then `POST /v1/sessions {"base": "hr-policies"}` (examples on the [API page](docs/api.html#ingest)). Ingesting the same document again adds nothing (chunks are identified by their SHA-256). Only documents whose rights are recorded as cleared, permissive-attribution or owner-provided are accepted (DS011). Rules that answer one question form can be stored as a **procedure** (`POST /v1/memories/{id}/procedures`); the query author is then offered the procedure whenever a message matches its description. Contract: DS022 "Ingesting documents into a base memory" and "Procedure library".
 
 ## Evaluation and knowledge
 
 The yardsticks kept in the product are the KBQA harness (`tools/eval/kbqa`, sealed suites `eval/suites/kbqa-*`), the linking suite (`eval/suites/linking-v1`), the query-forms dev set and calibration (`tools/eval/query-forms`, `tools/eval/query-model-calibration`), the smoke reasoning suite (`node eval/smoke-reasoning/run.mjs`) and the StrategyRouter reports; the next procedure is the symbolic-versus-LLM benchmark in `experiments/proposal/symbolic-vs-llm-benchmark.md`. The sealed-suite guard is `eval/leakage.mjs`.
 
-The source-to-knowledge workflow is described by `skills/material-to-sop/SKILL.md`: it prepares UTF-8 TXT/MD material in a private workspace, checks quoted SOP drafts and runs isolated candidate-rule probes; it does not review source truth or authorize publication by itself. There is no model training in this project.
+Documents become knowledge of a base memory through document ingestion (DS008, DS022 "Ingesting documents into a base memory"): `node tools/ingest-documents.mjs ingest` or `POST /v1/memories/{id}/ingest`.
 
 Current progress and blockers are in [TODO.md](TODO.md); the dated project journal is `status/journal.jsonl` and the topic notes are `status/notes/`, both shown under `/experiments`.
 

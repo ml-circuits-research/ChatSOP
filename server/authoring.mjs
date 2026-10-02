@@ -7,17 +7,15 @@
  *   POST /v1/memories/{id}/ingest                {documents: [{name, text, title?, source: {rights, url?, licence?}}], model?, purpose?, wait?}
  *   GET  /v1/memories/{id}/ingestions            the ingestions of a base memory
  *   GET  /v1/memories/{id}/ingestions/{ing}      one ingestion: chunks, extracted, rejected, held back, uncertain, and the report
- *   POST /v1/memories/{id}/ingestions/{ing}/accept  {only?, reason?}: the explicit act that stores the validated chunks
- *   POST /v1/memories/{id}/ingestions/{ing}/reject  {reason?}
  *   POST /v1/memories/{id}/procedures            {id, description, definitions}: a procedure bundle for the procedure library
  *
  * A request creates `chat_data/sessions/<id>/requests/<request>/` (or a folder under `chat_data/tmp/` without a session), runs omp
- * there (lib/omp), validates the circuits, repairs them for a bounded number of rounds and, with a session, stores the circuits as
- * a DRAFT of that session. `wait: false` answers 202 at once; the page then polls the status route. Nothing is knowledge until the
- * user accepts the draft (POST /v1/sessions/{id}/drafts/{draft}/accept).
+ * there (lib/omp), validates the circuits, repairs them for a bounded number of rounds and, with a session, adds the validated
+ * circuits to that session's layer (no manual acceptance, owner 2026-10-02). `wait: false` answers 202 at once; the page then polls
+ * the status route.
  *
  * Document ingestion (DS022 "Ingesting documents into a base memory", lib/ingest/) runs the same coding agent chunk by chunk over a base
- * memory; its result is a proposed ingestion that a user accepts or rejects. A procedure (DS022 "Procedure library") is knowledge like any
+ * memory and stores every validated chunk with its provenance (no acceptance step). A procedure (DS022 "Procedure library") is knowledge like any
  * other: validated with the memory's layers and recorded with provenance.
  */
 import fs from 'node:fs';
@@ -37,8 +35,6 @@ export const AUTHORING_ENDPOINTS = Object.freeze([
   {method: 'POST', path: '/v1/memories/{id}/ingest', capability: 'memories.ingest', body: ['documents', 'model', 'purpose', 'wait']},
   {method: 'GET', path: '/v1/memories/{id}/ingestions', capability: 'memories.ingestions'},
   {method: 'GET', path: '/v1/memories/{id}/ingestions/{ingestion}', capability: 'memories.ingestion'},
-  {method: 'POST', path: '/v1/memories/{id}/ingestions/{ingestion}/accept', capability: 'memories.ingestion.accept', body: ['only', 'reason']},
-  {method: 'POST', path: '/v1/memories/{id}/ingestions/{ingestion}/reject', capability: 'memories.ingestion.reject', body: ['reason']},
   {method: 'POST', path: '/v1/memories/{id}/procedures', capability: 'memories.procedures', body: ['id', 'description', 'definitions', 'reason']},
 ]);
 
@@ -78,16 +74,15 @@ export function createAuthoring({sessions, runtimes = null, chatData, models, se
       try {
         const result = await authorCircuits({folder: request.dir, files, instructions, model: chosen.model, existing, maxFixRounds: settings.maxFixRounds, timeoutMs: settings.timeoutSeconds * 1000,
           bin: settings.bin, thinking: settings.thinking, runner, onProgress: p => setStatus(entry, {phase: p.phase, round: p.round})});
-        let draft = null;
-        if (sessionId && result.circuits.length) {
-          const circuit = result.circuits[0];
-          draft = sessions.addDraft(sessionId, {name: `authored-${request.id}`, text: circuit.text, request: request.id, model: chosen.model, validation: result.validation,
-            extra: {queries: result.queries, report: result.report, source_instructions: instructions.slice(0, 500), cost_usd: result.usage.cost_usd}});
+        let added = null, notAdded = null;
+        if (sessionId && result.ok && result.circuits.length) {
+          try { added = sessions.addCircuit(sessionId, {name: `authored-${request.id}`, text: result.circuits[0].text, request: request.id, model: chosen.model, origin: 'authoring'}); }
+          catch (error) { notAdded = (error.problems ?? [{code: error.code, message: error.message}]).slice(0, 20); }
         }
-        if (sessionId) sessions.appendTranscript(sessionId, {role: 'authoring', request: request.id, status: result.status, draft: draft?.id ?? null, model: chosen.model, cost_usd: result.usage.cost_usd});
+        if (sessionId) sessions.appendTranscript(sessionId, {role: 'authoring', request: request.id, status: result.status, added: added?.file ?? null, model: chosen.model, cost_usd: result.usage.cost_usd});
         const out = {object: 'author.result', request_id: request.id, session: sessionId, status: result.status, ok: result.ok, rounds: result.rounds, model: chosen.model, cost_class: chosen.cost_class,
-          draft, circuits: result.circuits, queries: result.queries, report: result.report, validation: result.validation, usage: result.usage, duration_ms: result.duration_ms, runs: result.runs,
-          folder: publicPath(request.dir), ...(result.reason ? {reason: result.reason} : {}), note: 'The circuits are drafts: nothing is knowledge until the user accepts the draft.'};
+          added: added ? {file: added.file} : null, ...(notAdded ? {not_added: notAdded} : {}), circuits: result.circuits, queries: result.queries, report: result.report, validation: result.validation, usage: result.usage, duration_ms: result.duration_ms, runs: result.runs,
+          folder: publicPath(request.dir), ...(result.reason ? {reason: result.reason} : {})};
         setStatus(entry, {status: result.status, phase: 'done', result: out});
         return out;
       } catch (error) {
@@ -133,16 +128,6 @@ export function createAuthoring({sessions, runtimes = null, chatData, models, se
       const record = ingestions.get(match[1], match[2]);
       json(res, 200, {object: 'memory.ingestion', ...record, report: fs.readFileSync(path.join(ingestions.dir(match[1], match[2]), 'report.md'), 'utf8')});
     },
-    async ingestionAccept({req, res, match, approvedBy}) {
-      const body = await readBody(req, maxBytes);
-      if (body.only !== undefined && !(Array.isArray(body.only) && body.only.every(k => typeof k === 'string'))) throw bad('only must be a list of chunk keys', 'invalid_parameter');
-      const {outcome, memory} = ingestions.accept(match[1], match[2], {approvedBy, reason: typeof body.reason === 'string' ? body.reason : 'document ingestion', only: body.only ?? null});
-      json(res, 200, {object: 'memory.ingestion.accepted', ingestion: match[2], outcome, memory});
-    },
-    async ingestionReject({req, res, match, user}) {
-      const body = await readBody(req, maxBytes);
-      json(res, 200, {object: 'memory.ingestion', ...ingestions.reject(match[1], match[2], {user, reason: typeof body.reason === 'string' ? body.reason : ''})});
-    },
     async procedures({req, res, match, approvedBy}) {
       const body = await readBody(req, maxBytes);
       const extra = Object.keys(body).filter(k => !['id', 'description', 'definitions', 'reason'].includes(k));
@@ -185,8 +170,6 @@ export function createAuthoring({sessions, runtimes = null, chatData, models, se
       ['POST', new RegExp(`^/v1/memories/${ID}/ingest$`), 'ingest'],
       ['GET', new RegExp(`^/v1/memories/${ID}/ingestions$`), 'ingestionList'],
       ['GET', new RegExp(`^/v1/memories/${ID}/ingestions/${ID}$`), 'ingestionGet'],
-      ['POST', new RegExp(`^/v1/memories/${ID}/ingestions/${ID}/accept$`), 'ingestionAccept'],
-      ['POST', new RegExp(`^/v1/memories/${ID}/ingestions/${ID}/reject$`), 'ingestionReject'],
       ['POST', new RegExp(`^/v1/memories/${ID}/procedures$`), 'procedures'],
     ] : []),
   ];

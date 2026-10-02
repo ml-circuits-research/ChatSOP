@@ -7,7 +7,7 @@
 .ep{font-family:ui-monospace,Menlo,monospace;font-weight:600}
 </style></head><body>
 <div data-include="partials/header.html"></div><main class="page"><article class="page__panel"><p class="breadcrumb"><a href="index.html">Overview</a> / API</p><h1>API</h1>
-<p>The server exposes an OpenAI-compatible chat endpoint and the endpoints around it (base memories, sessions, drafts, the coding agent) under <code>/v1</code>. Normative contracts: <a href="specsLoader.html?spec=DS009-local-server.md">DS009</a> for the server and <a href="specsLoader.html?spec=DS022-sessions-and-base-memories.md">DS022</a> for sessions and base memories. The commands below use <code>$TOKEN</code>, a bearer token minted on <a href="/admin">/admin</a> or the <code>CHATSOP_API_KEY</code> value, and the default address <code>http://127.0.0.1:9999</code>. The JSON examples marked as product examples are executed against the live handlers by <code>tests/product-api-docs.test.mjs</code>. The capability endpoints of the frozen small-model branch (<code>/v1/symbolic/*</code>, <code>/v1/understand</code>, <code>/v1/language/proofread</code>, <code>/v1/text-to-clean-english</code>, <code>/v1/emotion/detect</code>, <code>/v1/server/models</code>, <code>/v1/route</code>, <code>/v1/sessions/{id}/scope-answer</code>, <code>/v1/models/{id}/start</code>) are removed.</p>
+<p>The server exposes an OpenAI-compatible chat endpoint and the endpoints around it (base memories, sessions, the coding agent) under <code>/v1</code>. Normative contracts: <a href="specsLoader.html?spec=DS009-local-server.md">DS009</a> for the server and <a href="specsLoader.html?spec=DS022-sessions-and-base-memories.md">DS022</a> for sessions and base memories. The commands below use <code>$TOKEN</code>, a bearer token minted on <a href="/admin">/admin</a> or the <code>CHATSOP_API_KEY</code> value, and the default address <code>http://127.0.0.1:9999</code>. The JSON examples marked as product examples are executed against the live handlers by <code>tests/product-api-docs.test.mjs</code>. The capability endpoints of the frozen small-model branch (<code>/v1/symbolic/*</code>, <code>/v1/understand</code>, <code>/v1/language/proofread</code>, <code>/v1/text-to-clean-english</code>, <code>/v1/emotion/detect</code>, <code>/v1/server/models</code>, <code>/v1/route</code>, <code>/v1/sessions/{id}/scope-answer</code>, <code>/v1/models/{id}/start</code>) are removed.</p>
 
 <section id="endpoints"><h2>1. Endpoints</h2>
 <div class="table-wrap"><table><thead><tr><th scope="col">Endpoint</th><th scope="col">Capability</th><th scope="col">Component</th></tr></thead><tbody>
@@ -16,9 +16,9 @@
 <tr><td class="ep">GET /v1/models</td><td>The facade model and the availability of the coding agent</td><td>server, omp</td></tr>
 <tr><td class="ep">GET /healthz, GET /readyz</td><td>Liveness (no authentication); readiness and the availability of the coding agent</td><td>server</td></tr>
 <tr><td class="ep">GET, POST /v1/memories, GET, DELETE /v1/memories/{id}, POST /v1/memories/{id}/fork, POST /v1/memories/{id}/knowledge</td><td>Base memories: list, create or import, view, delete, fork, add validated knowledge with provenance (any authenticated user may write; section 5)</td><td>chat data root, memory strategies DS016 to DS021, knowledge validator</td></tr>
-<tr><td class="ep">POST /v1/sessions, GET /v1/sessions, GET, DELETE /v1/sessions/{id}, POST .../settings, .../drafts, .../drafts/{d}/accept, .../drafts/{d}/reject, .../commit, .../theory, .../query</td><td>Sessions on a cloned base memory: settings (<code>omp_model</code>, <code>formalizer</code>), draft circuits, acceptance, commit to a fork, the theory and a query over it (sections 6 and 8)</td><td>chat data root, exact oracle, StrategyRouter</td></tr>
+<tr><td class="ep">POST /v1/sessions, GET /v1/sessions, GET, DELETE /v1/sessions/{id}, POST .../settings, .../commit, .../theory, .../query</td><td>Sessions on a cloned base memory: settings (<code>omp_model</code>, <code>formalizer</code>), draft circuits, acceptance, commit to a fork, the theory and a query over it (sections 6 and 8)</td><td>chat data root, exact oracle, StrategyRouter</td></tr>
 <tr><td class="ep">GET /v1/omp/models, POST /v1/author, GET /v1/sessions/{id}/requests/{request}</td><td>The models omp can use with their cost class, the authoring path that turns attached files and instructions into proposed circuits, the status of a request (section 7)</td><td>omp coding agent, skill sop-wire-authoring</td></tr>
-<tr><td class="ep">POST /v1/memories/{id}/ingest, GET /v1/memories/{id}/ingestions, GET /v1/memories/{id}/ingestions/{ingestion}, POST .../accept, POST .../reject, POST /v1/memories/{id}/procedures</td><td>Document ingestion into a task-type base memory (rights check, chunking, drafting by the coding agent, quote and conflict checks, a report, explicit acceptance with provenance) and the procedure library (section 7)</td><td>lib/ingest, omp coding agent, knowledge validator, lib/query-author/procedures.mjs</td></tr>
+<tr><td class="ep">POST /v1/memories/{id}/ingest, GET /v1/memories/{id}/ingestions, GET /v1/memories/{id}/ingestions/{ingestion}, POST /v1/memories/{id}/procedures</td><td>Document ingestion into a task-type base memory (rights check, chunking, drafting by the coding agent, quote and conflict checks, a report, storing with provenance) and the procedure library (section 7)</td><td>lib/ingest, omp coding agent, knowledge validator, lib/query-author/procedures.mjs</td></tr>
 <tr><td class="ep">GET /review, GET /v1/knowledge/memories, GET /v1/knowledge/memories/{id}, GET /v1/knowledge/memories/{id}/items, GET /v1/knowledge/search, GET /v1/knowledge/entities/{id}, GET /v1/knowledge/predicates/{id}, GET /v1/knowledge/rules/{id}, GET /v1/knowledge/derive</td><td>The knowledge browser, read only: base memories and their layers with provenance and flags, risk-sorted items with evidence and example sentences, keyword search, entity, predicate and rule cards, and what the oracle derives about an entity, over a base memory (<code>memory=</code>) or a chat session (<code>session=</code>) (section 9)</td><td>lib/review, server/review.mjs, memory strategy, exact oracle</td></tr>
 <tr><td class="ep">GET /v1/capabilities</td><td>The endpoint list, the limits and the availability of the coding agent</td><td>server</td></tr>
 <tr><td class="ep">GET /v1/cache/stats, POST /v1/cache/clear</td><td>Cache statistics (any authenticated user); empty the caches</td><td>server</td></tr>
@@ -260,7 +260,7 @@ curl -s -X POST http://127.0.0.1:9999/v1/cache/clear -H &quot;Authorization: Bea
 </section>
 
 <section id="authoring"><h2>7. The coding agent: models and authoring</h2>
-<p>Attached instruction or source files go to a coding agent (omp, with the skill <code>sop-wire-authoring</code>) that writes SOP circuits in a temporary folder. The circuits come back as <b>proposed drafts</b>; nothing is knowledge until the user accepts a draft. Setting <code>omp.enabled</code>, <code>omp.bin</code>, <code>omp.timeoutSeconds</code>, <code>omp.maxFixRounds</code> and the others are in <code>config/runtime.json</code> (<a href="specsLoader.html?spec=DS022-sessions-and-base-memories.md">DS022</a>, skill <code>omp-run</code>).</p>
+<p>Attached instruction or source files go to a coding agent (omp, with the skill <code>sop-wire-authoring</code>) that writes SOP circuits in a temporary folder. With a session, the circuits that pass the knowledge validator join that session's layer at once; there is no manual acceptance (owner, 2026-10-02): errors are corrected through tests and interactions. Setting <code>omp.enabled</code>, <code>omp.bin</code>, <code>omp.timeoutSeconds</code>, <code>omp.maxFixRounds</code> and the others are in <code>config/runtime.json</code> (<a href="specsLoader.html?spec=DS022-sessions-and-base-memories.md">DS022</a>, skill <code>omp-run</code>).</p>
 <h3>GET /v1/omp/models</h3>
 <p>The models omp can use, each with a cost class: <code>subscription</code> (no per-token cost to the owner), <code>paid_api</code> or <code>unknown</code>. The list is cached; <code>?refresh=1</code> reads it again. An absent omp answers <code>available: false</code> with the reason.</p>
 <pre class="api-example product-example" data-endpoint="GET /v1/omp/models" data-request="{}" data-as="user" data-status="200" data-response-keys="object,available,omp_version,default_model,models,providers,fetched_at,cached"><code>curl -s -X GET http://127.0.0.1:9999/v1/omp/models -b cookies.txt</code></pre>
@@ -315,7 +315,7 @@ curl -s -X POST http://127.0.0.1:9999/v1/cache/clear -H &quot;Authorization: Bea
  &quot;cached&quot;: false
 }</code></pre>
 <h3>POST /v1/author</h3>
-<p><code>files</code> are UTF-8 text files (at most 10, 2 MB each); <code>session</code> makes the circuits a draft of that session (without it only the circuits are returned and the temporary folder is under <code>chat_data/tmp/</code>); <code>wait: false</code> answers 202 at once and <code>GET /v1/sessions/&lt;id&gt;/requests/&lt;request&gt;</code> reports the progress and the result. The folder holds <code>TASK.md</code>, the skill, the input and omp's output; the validator checks the circuits and sends the validator's output back to omp for at most <code>omp.maxFixRounds</code> rounds. Errors: 503 <code>omp_unavailable</code>, 429 <code>omp_busy</code>, 400 <code>unknown_model</code>.</p>
+<p><code>files</code> are UTF-8 text files (at most 10, 2 MB each); <code>session</code> adds the validated circuits to that session's layer (without it only the circuits are returned and the temporary folder is under <code>chat_data/tmp/</code>); <code>wait: false</code> answers 202 at once and <code>GET /v1/sessions/&lt;id&gt;/requests/&lt;request&gt;</code> reports the progress and the result. The folder holds <code>TASK.md</code>, the skill, the input and omp's output; the validator checks the circuits and sends the validator's output back to omp for at most <code>omp.maxFixRounds</code> rounds. Errors: 503 <code>omp_unavailable</code>, 429 <code>omp_busy</code>, 400 <code>unknown_model</code>.</p>
 <pre class="api-example product-example" data-endpoint="POST /v1/author" data-request="{&quot;session&quot;:&quot;demo-session&quot;,&quot;instructions&quot;:&quot;Compile the register.&quot;,&quot;files&quot;:[{&quot;name&quot;:&quot;register.txt&quot;,&quot;text&quot;:&quot;Ann is the parent of Bob. Bob is the parent of Cy. A grandparent is a parent of a parent.&quot;}],&quot;model&quot;:&quot;deepseek/deepseek-flash&quot;}" data-as="user" data-status="200" data-response-keys="object,request_id,session,status,ok,rounds,model,cost_class"><code>curl -s -X POST http://127.0.0.1:9999/v1/author -H &quot;Authorization: Bearer $TOKEN&quot; -H &quot;Content-Type: application/json&quot; -d '{&quot;session&quot;:&quot;demo-session&quot;,&quot;instructions&quot;:&quot;Compile the register.&quot;,&quot;files&quot;:[{&quot;name&quot;:&quot;register.txt&quot;,&quot;text&quot;:&quot;Ann is the parent of Bob. Bob is the parent of Cy. A grandparent is a parent of a parent.&quot;}],&quot;model&quot;:&quot;deepseek/deepseek-flash&quot;}'</code></pre>
 <p>Abridged response (HTTP 200):</p>
 <pre class="api-response"><code>{
@@ -327,25 +327,7 @@ curl -s -X POST http://127.0.0.1:9999/v1/cache/clear -H &quot;Authorization: Bea
  &quot;rounds&quot;: 1,
  &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
  &quot;cost_class&quot;: &quot;paid_api&quot;,
- &quot;draft&quot;: {
-  &quot;id&quot;: &quot;d-mupm5ljk-18eca1&quot;,
-  &quot;name&quot;: &quot;authored-r-mupm5li1-c33fe0&quot;,
-  &quot;text&quot;: &quot;@grandparent predicate\n  args subject:entity object:entity\n\n@f_bc fact\n  holds parent b...&quot;,
-  &quot;state&quot;: &quot;draft&quot;,
-  &quot;status&quot;: &quot;proposed&quot;,
-  &quot;created_at&quot;: &quot;2026-10-01T14:12:27.344Z&quot;,
-  &quot;request&quot;: &quot;r-mupm5li1-c33fe0&quot;,
-  &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
-  &quot;validation&quot;: {
-   &quot;ok&quot;: true,
-   &quot;problems&quot;: [],
-   &quot;warnings&quot;: []
-  },
-  &quot;queries&quot;: &quot;@q query\n  where parent ?x bob\n  select ?x\n&quot;,
-  &quot;report&quot;: &quot;Stub report: nothing was left out.\n&quot;,
-  &quot;source_instructions&quot;: &quot;Compile the register.&quot;,
-  &quot;cost_usd&quot;: 0.0025
- },
+ &quot;added&quot;: {&quot;file&quot;: &quot;0001-authored-r-mupm5li1-c33fe0.sop&quot;},
  &quot;validation&quot;: {
   &quot;ok&quot;: true,
   &quot;problems&quot;: [],
@@ -359,8 +341,7 @@ curl -s -X POST http://127.0.0.1:9999/v1/cache/clear -H &quot;Authorization: Bea
   &quot;cost_usd&quot;: 0.0025
  },
  &quot;duration_ms&quot;: 55,
- &quot;folder&quot;: &quot;sessions/demo-session/requests/r-mupm5li1-c33fe0&quot;,
- &quot;note&quot;: &quot;The circuits are drafts: nothing is knowledge until the user accepts the draft.&quot;
+ &quot;folder&quot;: &quot;sessions/demo-session/requests/r-mupm5li1-c33fe0&quot;
 }</code></pre>
 <h3>Status of a request</h3>
 <pre class="api-example product-example" data-endpoint="GET /v1/sessions/demo-session/requests/{request}" data-request="{}" data-as="user" data-status="200" data-response-keys="object,request_id,session,status,phase,round,model,cost_class"><code>curl -s -X GET http://127.0.0.1:9999/v1/sessions/demo-session/requests/&lt;request-id&gt; -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
@@ -375,99 +356,22 @@ curl -s -X POST http://127.0.0.1:9999/v1/cache/clear -H &quot;Authorization: Bea
  &quot;cost_class&quot;: &quot;paid_api&quot;,
  &quot;started_at&quot;: &quot;2026-10-01T14:12:27.289Z&quot;
 }</code></pre>
-<h3>Drafts and acceptance</h3>
-<pre class="api-example product-example" data-endpoint="GET /v1/sessions/demo-session/drafts" data-request="{}" data-as="user" data-status="200" data-response-keys="object,data"><code>curl -s -X GET http://127.0.0.1:9999/v1/sessions/demo-session/drafts -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
-<p>Abridged response (HTTP 200):</p>
-<pre class="api-response"><code>{
- &quot;object&quot;: &quot;list&quot;,
- &quot;data&quot;: [
-  {
-   &quot;id&quot;: &quot;d-mupm5ljk-18eca1&quot;,
-   &quot;name&quot;: &quot;authored-r-mupm5li1-c33fe0&quot;,
-   &quot;text&quot;: &quot;@grandparent predicate\n  args subject:entity object:entity\n\n@f_bc fact\n  holds parent b...&quot;,
-   &quot;state&quot;: &quot;draft&quot;,
-   &quot;status&quot;: &quot;proposed&quot;,
-   &quot;created_at&quot;: &quot;2026-10-01T14:12:27.344Z&quot;,
-   &quot;request&quot;: &quot;r-mupm5li1-c33fe0&quot;,
-   &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
-   &quot;validation&quot;: {
-    &quot;ok&quot;: true,
-    &quot;problems&quot;: [
-     &quot;...&quot;
-    ],
-    &quot;warnings&quot;: [
-     &quot;...&quot;
-    ]
-   },
-   &quot;queries&quot;: &quot;@q query\n  where parent ?x bob\n  select ?x\n&quot;,
-   &quot;report&quot;: &quot;Stub report: nothing was left out.\n&quot;,
-   &quot;source_instructions&quot;: &quot;Compile the register.&quot;,
-   &quot;cost_usd&quot;: 0.0025
-  }
- ]
-}</code></pre>
-<p>Accepting validates the draft again together with the base and session circuits, stores it as the next session circuit and ingests its facts into the session repository only. <code>POST .../drafts/&lt;draft&gt;/reject</code> discards it.</p>
-<pre class="api-example product-example" data-endpoint="POST /v1/sessions/demo-session/drafts/{draft}/accept" data-request="{}" data-as="user" data-status="200" data-response-keys="object,draft,record,warnings"><code>curl -s -X POST http://127.0.0.1:9999/v1/sessions/demo-session/drafts/&lt;draft-id&gt;/accept -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
-<p>Abridged response (HTTP 200):</p>
-<pre class="api-response"><code>{
- &quot;object&quot;: &quot;session.draft&quot;,
- &quot;draft&quot;: {
-  &quot;id&quot;: &quot;d-mupm5ljk-18eca1&quot;,
-  &quot;name&quot;: &quot;authored-r-mupm5li1-c33fe0&quot;,
-  &quot;text&quot;: &quot;@grandparent predicate\n  args subject:entity object:entity\n\n@f_bc fact\n  holds parent b...&quot;,
-  &quot;state&quot;: &quot;accepted&quot;,
-  &quot;status&quot;: &quot;accepted&quot;,
-  &quot;created_at&quot;: &quot;2026-10-01T14:12:27.344Z&quot;,
-  &quot;request&quot;: &quot;r-mupm5li1-c33fe0&quot;,
-  &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
-  &quot;validation&quot;: {
-   &quot;ok&quot;: true,
-   &quot;problems&quot;: [],
-   &quot;warnings&quot;: []
-  },
-  &quot;queries&quot;: &quot;@q query\n  where parent ?x bob\n  select ?x\n&quot;,
-  &quot;report&quot;: &quot;Stub report: nothing was left out.\n&quot;,
-  &quot;source_instructions&quot;: &quot;Compile the register.&quot;,
-  &quot;cost_usd&quot;: 0.0025,
-  &quot;closed_at&quot;: &quot;2026-10-01T14:12:27.353Z&quot;,
-  &quot;circuit&quot;: &quot;0001-authored-r-mupm5li1-c33fe0.sop&quot;
- },
- &quot;record&quot;: {
-  &quot;kind&quot;: &quot;accept&quot;,
-  &quot;seq&quot;: 1,
-  &quot;file&quot;: &quot;0001-authored-r-mupm5li1-c33fe0.sop&quot;,
-  &quot;draft&quot;: &quot;d-mupm5ljk-18eca1&quot;,
-  &quot;sha256&quot;: &quot;80b36325c189a8f52a002ec05a430f0d6c11f71ed7864fa47ff36b84dd0ddf95&quot;,
-  &quot;approved_by&quot;: &quot;admin&quot;,
-  &quot;approved_at&quot;: &quot;2026-10-01T14:12:27.353Z&quot;,
-  &quot;request&quot;: &quot;r-mupm5li1-c33fe0&quot;,
-  &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
-  &quot;ingest&quot;: {
-   &quot;facts_in_circuit&quot;: 1,
-   &quot;facts_ingested&quot;: 1,
-   &quot;facts_defaulted_valid&quot;: 1,
-   &quot;facts_skipped&quot;: []
-  }
- }
-}</code></pre>
-
 <h3 id="ingest">Ingest documents into a base memory</h3>
-<p>Documents, books and other material become knowledge of a <em>task-type base memory</em> (DS022 "Ingesting documents into a base memory"). Every document states its rights (<code>cleared</code>, <code>permissive-attribution</code> or <code>owner-provided</code>, DS011); anything else is refused with 400 <code>rights_required</code> before a model runs. The document is cut into chunks along its headings; the coding agent compiles one chunk at a time over the memory's vocabulary and the chunks before it; the validator and the quote check (every <code>quote</code> must be words of the passage) run in the repair rounds; a fact that duplicates or contradicts the memory is held back. The answer is a <strong>proposed</strong> ingestion with a report: nothing is stored yet. <code>wait: false</code> answers 202 with the status URL. A chunk already accepted earlier (same SHA-256) is skipped, so ingesting the same document again adds nothing.</p>
+<p>Documents, books and other material become knowledge of a <em>task-type base memory</em> (DS022 "Ingesting documents into a base memory"). Every document states its rights (<code>cleared</code>, <code>permissive-attribution</code> or <code>owner-provided</code>, DS011); anything else is refused with 400 <code>rights_required</code> before a model runs. The document is cut into chunks along its headings; the coding agent compiles one chunk at a time over the memory's vocabulary and the chunks before it; the validator and the quote check (every <code>quote</code> must be words of the passage) run in the repair rounds; a fact that duplicates or contradicts the memory is held back. Every validated chunk is stored at once with its provenance (no acceptance step); the answer is the ingestion with its report. <code>wait: false</code> answers 202 with the status URL. A chunk stored earlier (same SHA-256) is skipped, so ingesting the same document again adds nothing.</p>
 <pre class="api-example product-example" data-endpoint="POST /v1/memories/family-copy/ingest" data-request="{&quot;documents&quot;: [{&quot;name&quot;: &quot;family-register.md&quot;, &quot;text&quot;: &quot;# Family register\n\nAnn is the parent of Bob. Bob is the parent of Cy.\n&quot;, &quot;source&quot;: {&quot;rights&quot;: &quot;owner-provided&quot;}}], &quot;purpose&quot;: &quot;family questions&quot;}" data-as="user" data-status="200" data-response-keys="object,id,status,chunks,totals,report"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories/family-copy/ingest -H &quot;Authorization: Bearer $TOKEN&quot; -H &#x27;content-type: application/json&#x27; -d &#x27;{&quot;documents&quot;: [{&quot;name&quot;: &quot;family-register.md&quot;, &quot;text&quot;: &quot;# Family register\n\nAnn is the parent of Bob. Bob is the parent of Cy.\n&quot;, &quot;source&quot;: {&quot;rights&quot;: &quot;owner-provided&quot;}}], &quot;purpose&quot;: &quot;family questions&quot;}&#x27;</code></pre>
 <p>Abridged response (HTTP 200):</p>
 <pre class="api-response"><code>{
  &quot;object&quot;: &quot;memory.ingestion&quot;,
  &quot;id&quot;: &quot;ing-mur0b2k1-4c1a9e&quot;,
  &quot;memory&quot;: {&quot;id&quot;: &quot;family-copy&quot;, &quot;name&quot;: &quot;Family (copy)&quot;},
- &quot;status&quot;: &quot;proposed&quot;,
+ &quot;status&quot;: &quot;stored&quot;,
  &quot;documents&quot;: [{&quot;name&quot;: &quot;family-register.md&quot;, &quot;title&quot;: &quot;Family register&quot;, &quot;sha256&quot;: &quot;…&quot;, &quot;source&quot;: {&quot;rights&quot;: &quot;owner-provided&quot;}}],
- &quot;chunks&quot;: [{&quot;key&quot;: &quot;family-register-md-01&quot;, &quot;status&quot;: &quot;validated&quot;, &quot;start_line&quot;: 1, &quot;end_line&quot;: 3, &quot;wires&quot;: {&quot;predicate&quot;: 1, &quot;rule&quot;: 1}, &quot;rejected&quot;: [], &quot;conflicts&quot;: [{&quot;code&quot;: &quot;duplicate_of_memory&quot;, &quot;wire&quot;: &quot;f_bc&quot;, &quot;…&quot;: &quot;…&quot;}], &quot;uncertain&quot;: []}],
+ &quot;chunks&quot;: [{&quot;key&quot;: &quot;family-register-md-01&quot;, &quot;status&quot;: &quot;stored&quot;, &quot;start_line&quot;: 1, &quot;end_line&quot;: 3, &quot;wires&quot;: {&quot;predicate&quot;: 1, &quot;rule&quot;: 1}, &quot;rejected&quot;: [], &quot;conflicts&quot;: [{&quot;code&quot;: &quot;duplicate_of_memory&quot;, &quot;wire&quot;: &quot;f_bc&quot;, &quot;…&quot;: &quot;…&quot;}], &quot;uncertain&quot;: []}],
  &quot;totals&quot;: {&quot;chunks&quot;: 1, &quot;validated&quot;: 1, &quot;rejected_quotes&quot;: 0, &quot;conflicts&quot;: 1, &quot;cost_usd&quot;: 0.0025},
  &quot;report&quot;: &quot;# Ingestion ing-mur0b2k1-4c1a9e into Family (copy) (family-copy) …&quot;
 }</code></pre>
-<p><code>GET /v1/memories/&lt;id&gt;/ingestions</code> lists the ingestions of a memory and <code>GET /v1/memories/&lt;id&gt;/ingestions/&lt;ingestion&gt;</code> returns one with its report. Accepting is the explicit act that stores the validated chunks through the knowledge validator, with the provenance of each (document, SHA-256, URL, licence, rights, section, lines, chunk SHA-256) and the acting user; <code>only</code> accepts some chunk keys; <code>POST .../reject</code> closes it without storing anything.</p>
-<pre class="api-example product-example" data-endpoint="POST /v1/memories/family-copy/ingestions/{ingestion}/accept" data-request="{&quot;reason&quot;: &quot;reviewed the report&quot;}" data-as="user" data-status="200" data-response-keys="object,ingestion,outcome,memory"><code>curl -s -X POST http://127.0.0.1:9999/v1/memories/family-copy/ingestions/&lt;ingestion-id&gt;/accept -H &quot;Authorization: Bearer $TOKEN&quot; -H &#x27;content-type: application/json&#x27; -d &#x27;{&quot;reason&quot;:&quot;reviewed the report&quot;}&#x27;</code></pre>
-<p>Then start sessions on the memory as on any base memory (<code>POST /v1/sessions {&quot;base&quot;: &quot;family&quot;}</code>). From the command line: <code>node tools/ingest-documents.mjs draft --memory ID --file book.md --rights cleared</code>, then <code>accept</code>.</p>
+<p>Every validated chunk is stored in the memory at the end of the ingestion, with its provenance (document, location, quote); there is no acceptance step. <code>GET /v1/memories/&lt;id&gt;/ingestions</code> lists the ingestions of a memory and <code>GET /v1/memories/&lt;id&gt;/ingestions/&lt;ingestion&gt;</code> returns one with its report.</p>
+<p>Then start sessions on the memory as on any base memory (<code>POST /v1/sessions {&quot;base&quot;: &quot;family&quot;}</code>). From the command line: <code>node tools/ingest-documents.mjs ingest --memory ID --file book.md --rights cleared</code>, then <code>accept</code>.</p>
 
 <h3 id="procedures">Procedure library</h3>
 <p>A procedure is a bundle of definitions (predicates, rules, defaults) with a description of the question form it answers, stored in a base memory like any knowledge (DS022 "Procedure library"). When a message matches a description, the query author is offered the procedure's head predicate and its rules, and queries it instead of re-deriving the rule. A typical source is a session definition the coding agent wrote for one question.</p>
@@ -480,7 +384,7 @@ curl -s -X POST http://127.0.0.1:9999/v1/cache/clear -H &quot;Authorization: Bea
 <h3>Circuits for a message</h3>
 <p>A message becomes a query through <code>lib/query-author</code>: the coding agent writes the query circuit from the memory\'s vocabulary (<a href="specsLoader.html?spec=DS022-sessions-and-base-memories.md">DS022</a>). <code>POST /v1/sessions/{id}/query</code> takes either <code>query</code> (a query circuit, run as written) or <code>message</code> (a request in any language; the answer carries <code>parse</code>, <code>model_sop</code> and <code>circuit</code>). Whoever wrote the query, it is linked, retrieved over a slice, routed, verified and rendered by the same symbolic path. The answer packet and <code>chatSop</code> carry <code>parse: {model, backend, rounds, cost_usd, ms, cache, ...}</code>; with no available model the answer is <code>parse_unavailable</code>. A clear question that no predicate of the memory expresses is answered <code>unclear</code> (<code>relation_not_in_memory</code>), never with an invented relation.</p>
 <h3>The theory and a query over it</h3>
-<p>The theory is the base circuits followed by the circuits accepted in the session; a query circuit runs over it with the exact oracle.</p>
+<p>The theory is the base circuits followed by the session circuits; a query circuit runs over it with the exact oracle.</p>
 <pre class="api-example product-example" data-endpoint="GET /v1/sessions/demo-session/theory" data-request="{}" data-as="user" data-status="200" data-response-keys="object,theory,base,session_circuits"><code>curl -s -X GET http://127.0.0.1:9999/v1/sessions/demo-session/theory -H &quot;Authorization: Bearer $TOKEN&quot;</code></pre>
 <p>Abridged response (HTTP 200):</p>
 <pre class="api-response"><code>{
@@ -581,7 +485,7 @@ curl -s -X POST http://127.0.0.1:9999/v1/cache/clear -H &quot;Authorization: Bea
 }</code></pre>
 <p>Optional body parameters: <code>reasoning</code> (<code>auto</code>, the default, or one strategy id: <code>reference</code>, <code>sql-sqlite</code>, <code>datalog-souffle</code>, <code>asp-clingo</code>, <code>datalog-e10</code>, <code>prolog-tabling</code>) and <code>verify</code> (<code>auto</code>, <code>always</code>, <code>never</code>). With <code>auto</code> the StrategyRouter (<a href="specsLoader.html?spec=DS006-reasoning.md">DS006</a> "Routing rules") chooses the engine from the features of the circuit and the size of the retrieved slice; the answer carries <code>route</code> with <code>requested</code>, <code>chosen</code>, <code>rule</code> (<code>small</code>, <code>scale</code>, <code>proof_or_mode_of_work</code>, <code>caller_budget</code>, <code>oracle</code>, <code>discrepancy</code>), <code>reason</code>, <code>features</code>, <code>alternatives</code> and <code>verification</code> (a routed answer is re-checked by the oracle; on a disagreement the oracle's answer is returned with <code>outcome: discrepancy</code>). A named strategy runs exactly that engine and never another: an engine that is not installed or cannot express the circuit answers <code>status: unsupported</code> with the engine in <code>route.backend</code> and <code>route.fallback: null</code>.</p>
 <h3>Commit to a fork</h3>
-<p>Creates a new base memory: a fork of the session's base memory plus the circuits accepted in the session, validated again, with provenance. The original base memory does not change. Asserted statements are turn-local evidence and are not committed.</p>
+<p>Creates a new base memory: a fork of the session's base memory plus the session circuits, validated again, with provenance. The original base memory does not change. Asserted statements are turn-local evidence and are not committed.</p>
 <pre class="api-example product-example" data-endpoint="POST /v1/sessions/demo-session/commit" data-request="{&quot;name&quot;:&quot;Family plus register&quot;,&quot;id&quot;:&quot;family-register&quot;}" data-as="user" data-status="201" data-response-keys="object,memory,added,fork_method"><code>curl -s -X POST http://127.0.0.1:9999/v1/sessions/demo-session/commit -b cookies.txt -H &quot;Content-Type: application/json&quot; -d '{&quot;name&quot;:&quot;Family plus register&quot;,&quot;id&quot;:&quot;family-register&quot;}'</code></pre>
 <p>Abridged response (HTTP 201):</p>
 <pre class="api-response"><code>{
@@ -665,32 +569,6 @@ curl -s -X POST http://127.0.0.1:9999/v1/cache/clear -H &quot;Authorization: Bea
  },
  &quot;circuits&quot;: [
   &quot;0001-authored-r-mupm5li1-c33fe0.sop&quot;
- ],
- &quot;drafts&quot;: [
-  {
-   &quot;id&quot;: &quot;d-mupm5ljk-18eca1&quot;,
-   &quot;name&quot;: &quot;authored-r-mupm5li1-c33fe0&quot;,
-   &quot;state&quot;: &quot;accepted&quot;,
-   &quot;status&quot;: &quot;accepted&quot;,
-   &quot;created_at&quot;: &quot;2026-10-01T14:12:27.344Z&quot;,
-   &quot;request&quot;: &quot;r-mupm5li1-c33fe0&quot;,
-   &quot;model&quot;: &quot;deepseek/deepseek-flash&quot;,
-   &quot;validation&quot;: {
-    &quot;ok&quot;: true,
-    &quot;problems&quot;: [
-     &quot;...&quot;
-    ],
-    &quot;warnings&quot;: [
-     &quot;...&quot;
-    ]
-   },
-   &quot;queries&quot;: &quot;@q query\n  where parent ?x bob\n  select ?x\n&quot;,
-   &quot;report&quot;: &quot;Stub report: nothing was left out.\n&quot;,
-   &quot;source_instructions&quot;: &quot;Compile the register.&quot;,
-   &quot;cost_usd&quot;: 0.0025,
-   &quot;closed_at&quot;: &quot;2026-10-01T14:12:27.353Z&quot;,
-   &quot;circuit&quot;: &quot;0001-authored-r-mupm5li1-c33fe0.sop&quot;
-  }
  ],
  &quot;committed_to&quot;: [
   {
