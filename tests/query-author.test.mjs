@@ -188,29 +188,39 @@ test('loop: invalid after the last round, a failing backend, an honest gap with 
   assert.ok(r.closest.length > 0 && r.closest[0].roles.length > 0, 'phase 2 turns the gap into a definition attempt from the closest predicates');
 });
 
-test('omp backend: a stub omp writes query.sop in the fenced folder; a repair round continues the session', async t => {
+test('omp backend: a rejected predicate is repaired in the same tool-free conversation', async t => {
   const folder = tempDir(t, 'qa-omp-');
   const log = path.join(tempDir(t, 'qa-log-'), 'calls.jsonl');
   withEnv(t, {STUB_OMP_MODE: 'good', STUB_OMP_LOG: log, STUB_OMP_QUERY: Q('levitate above', 'Ana', 'Bob'), STUB_OMP_QUERY_FIX: GOOD});
   const r = await authorQuery({message: 'Does Ana work at Lab Alpha?', lexicon: lex, folder, backend: ompBackend({bin: STUB, model: 'stub/model', timeoutMs: 30_000}), maxFixRounds: 2});
   assert.equal(r.status, 'validated', JSON.stringify(r.validation?.problems));
+  assert.equal(r.sop, GOOD.trim());
   assert.equal(r.rounds, 2);
+  assert.equal(r.usage.turns, 2);
   assert.ok(r.usage.cost_usd > 0);
-  const calls = fs.readFileSync(log, 'utf8').trim().split('\n').map(l => JSON.parse(l));
-  assert.equal(calls.length, 2);
-  assert.ok(!calls[0].args.includes('-c') && calls[1].args.includes('-c'));
-  assert.deepEqual(calls[0].args.slice(calls[0].args.indexOf('--tools'), calls[0].args.indexOf('--tools') + 2), ['--tools', 'read,write,edit']);
-  assert.ok(!calls[0].args.includes('@input/vocabulary.md'), 'the full list is a file, not attached');
-  assert.ok(calls[0].args.includes('@input/candidates.md'));
-  for (const f of ['message.txt', 'vocabulary.md', 'candidates.md', 'entities.md']) assert.ok(fs.existsSync(path.join(folder, 'input', f)), f);
-  assert.ok(!calls[0].env_keys.some(k => ['CHATSOP_API_KEY', 'RECALL_LLM_KEY', 'CHATSOP_ADMIN_PASSWORD'].includes(k)));
   withEnv(t, {STUB_OMP_MODE: 'none'});
   const silent = await authorQuery({message: 'x', lexicon: lex, folder: tempDir(t, 'qa-omp-'), backend: ompBackend({bin: STUB, timeoutMs: 30_000})});
   assert.equal(silent.status, 'failed');
-  assert.match(silent.reason, /no query\.sop/);
+  assert.match(silent.reason, /no circuit/);
   const missing = await authorQuery({message: 'x', lexicon: lex, folder: tempDir(t, 'qa-omp-'), backend: ompBackend({bin: '/nonexistent/omp'})});
   assert.equal(missing.status, 'failed');
   assert.match(missing.reason, /could not be started/);
+});
+
+test('omp backend rejects missing, truncated, or mixed prose output without salvaging a circuit', async t => {
+  const context = buildContext({message: 'Does Ana work at Lab Alpha?', lexicon: lex});
+  const folder = tempDir(t, 'qa-omp-output-');
+  // A stale file is never a fallback for a failed final answer.
+  fs.writeFileSync(path.join(folder, 'query.sop'), GOOD);
+  for (const final_text of ['', `Here is the answer:\n${GOOD}`, `${GOOD}\nThis is true.`, `\`\`\`sop\n${GOOD}`, `\`\`\`sop\n${GOOD}\`\`\`\nExtra explanation`, '@q query\n  where match\n']) {
+    const backend = ompBackend({runner: async () => ({ok: true, final_text, usage: {}, duration_ms: 1})});
+    const result = await backend.generate({context, folder});
+    assert.equal(result.ok, false, JSON.stringify(final_text));
+    assert.equal(result.sop, '');
+    assert.match(result.reason, /circuit output rejected/);
+  }
+  const accepted = await ompBackend({runner: async () => ({ok: true, final_text: `\`\`\`sop\n${GOOD}\`\`\``, usage: {}, duration_ms: 1})}).generate({context, folder});
+  assert.equal(validateQuery({sop: accepted.sop, message: 'Does Ana work at Lab Alpha?', lexicon: lex}).ok, true);
 });
 
 test('backendFrom: kinds and errors', () => {

@@ -11,6 +11,7 @@
 // Every call is appended to STUB_OMP_LOG as one JSON line {args, env_keys, cwd}; a session file with usage and cost is written.
 import fs from 'node:fs';
 import path from 'node:path';
+import readline from 'node:readline';
 
 const args = process.argv.slice(2);
 const value = name => { const i = args.indexOf(name); return i === -1 ? null : args[i + 1]; };
@@ -21,20 +22,53 @@ if (args[0] === 'models') {
   console.log(JSON.stringify({models: [entry('deepseek', 'deepseek-flash', 0.3, 1.2), entry('xai-oauth', 'grok-4.20-0309-non-reasoning', 1.25, 2.5), entry('zai', 'glm-5', 0.5, 2), entry('openrouter', 'vendor/some-model', 1, 2), entry('mystery', 'x', 0, 0)]}));
   process.exit(0);
 }
+if (value('--mode') === 'rpc') {
+  const mode = process.env.STUB_OMP_MODE ?? 'good';
+  const sessions = new Map();
+  let current = null;
+  let next = 0;
+  const send = frame => process.stdout.write(JSON.stringify(frame) + '\n');
+  send({type: 'ready', protocolVersion: 1});
+  for await (const line of readline.createInterface({input: process.stdin})) {
+    let cmd;
+    try { cmd = JSON.parse(line); } catch { continue; }
+    const respond = (success, data, error) => send({type: 'response', id: cmd.id, command: cmd.type, success, ...(error ? {error} : {data})});
+    if (cmd.type === 'new_session') {
+      current = `stub-rpc-session-${++next}`;
+      sessions.set(current, 0);
+      respond(true, {cancelled: false});
+    } else if (cmd.type === 'switch_session') {
+      if (!sessions.has(cmd.sessionPath)) respond(false, null, 'unknown session');
+      else { current = cmd.sessionPath; respond(true, {}); }
+    } else if (cmd.type === 'get_state') {
+      respond(true, {sessionFile: current, messageCount: sessions.get(current), queuedMessageCount: 0,
+        isStreaming: false, dumpTools: [], systemPrompt: [value('--system-prompt')]});
+    } else if (cmd.type === 'prompt') {
+      respond(true, {});
+      if (mode === 'fail') process.exit(3);
+      if (mode === 'slow') continue;
+      const turn = (sessions.get(current) ?? 0) + 1;
+      sessions.set(current, turn);
+      const text = mode === 'none' ? '' : turn > 1 && process.env.STUB_OMP_QUERY_FIX ? process.env.STUB_OMP_QUERY_FIX : process.env.STUB_OMP_QUERY ?? '';
+      setImmediate(() => {
+        send({type: 'message_end', message: {role: 'assistant', content: [{type: 'text', text}],
+          usage: {input: 1000, output: 200, cacheRead: 50, cost: {total: 0.0025}}}});
+        send({type: 'agent_end'});
+      });
+    } else respond(false, null, 'unsupported command');
+  }
+  process.exit(0);
+}
+
 const folder = value('--cwd') ?? process.cwd();
 if (process.env.STUB_OMP_DELAY_MS) await new Promise(resolve => setTimeout(resolve, Number(process.env.STUB_OMP_DELAY_MS)));
 const mode = process.env.STUB_OMP_MODE ?? 'good';
 const continued = args.includes('-c');
 const BROKEN = '@r1 rule\n  when parent ?x ?y\n';
-// A query-author task (input/message.txt, lib/query-author): query.sop comes from STUB_OMP_QUERY (the text), or from STUB_OMP_QUERY_FIX on a continued call.
-const isQueryTask = fs.existsSync(path.join(folder, 'input', 'message.txt'));
 if (mode === 'fail') { console.error('stub failure'); process.exit(3); }
 if (mode === 'slow') await new Promise(resolve => setTimeout(resolve, 60_000));
 const good = process.env.STUB_OMP_GOOD ? fs.readFileSync(process.env.STUB_OMP_GOOD, 'utf8') : '@f1 fact\n  holds parent ann bob\n  source "stub"\n';
-if (isQueryTask) {
-  const text = continued && process.env.STUB_OMP_QUERY_FIX ? process.env.STUB_OMP_QUERY_FIX : process.env.STUB_OMP_QUERY;
-  if (mode !== 'none' && text) fs.writeFileSync(path.join(folder, 'query.sop'), text);
-} else if (mode === 'good' || (mode === 'fix' && continued)) {
+if (mode === 'good' || (mode === 'fix' && continued)) {
   fs.writeFileSync(path.join(folder, 'knowledge.sop'), good);
   fs.writeFileSync(path.join(folder, 'queries.sop'), '@q query\n  where parent ?x bob\n  select ?x\n');
   fs.writeFileSync(path.join(folder, 'report.md'), 'Stub report: nothing was left out.\n');

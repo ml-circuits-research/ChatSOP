@@ -30,6 +30,9 @@ import {fileURLToPath} from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const START_PAGES = ['/', '/chat', '/experiments', '/experiments/topics', '/experiments/reports', '/experiments/timeline', '/experiments/questions', '/admin', '/docs/', '/docs/wire_types.html', '/docs/specsLoader.html?spec=matrix.md'];
 const SKIP = new Set(['/logout', '/login']);
+// The report browser serves regenerable evaluation data (eval/reports/**), thousands of files: links into it are checked, but its pages
+// are not crawled further (only the index /experiments/reports itself is followed), so the crawl covers the site, not the data.
+const isReportData = url => url.pathname === '/experiments/report' || (url.pathname === '/experiments/reports' && url.search !== '') || url.pathname.startsWith('/experiments/reports/');
 const ATTR = /\s(?:href|src)\s*=\s*("([^"]*)"|'([^']*)')/gi;
 
 const decodeEntities = s => s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
@@ -103,7 +106,7 @@ export async function checkSite({base, cookie = '', start = START_PAGES, contrac
       const id = decodeURIComponent(url.hash.slice(1));
       if (!anchorsOf(result.text).has(id)) broken.push({from, href, problem: `missing anchor #${id}`});
     }
-    if (follow && (/html/.test(result.type) || url.pathname.endsWith('.md'))) enqueue(url.href, from);
+    if (follow && !isReportData(url) && (/html/.test(result.type) || url.pathname.endsWith('.md'))) enqueue(url.href, from);
   };
 
   for (const route of start) enqueue(new URL(route, base).href, '(start)');

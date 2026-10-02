@@ -66,7 +66,8 @@
   "queryParser": {
     "backend": {
       "kind": "omp",
-      "model": "openai-codex/gpt-6-luna"
+      "model": "openai-codex/gpt-6-luna",
+      "thinking": "off"
     },
     "models": [
       "openai-codex/gpt-6-luna"
