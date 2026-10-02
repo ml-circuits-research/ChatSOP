@@ -76,7 +76,7 @@ export class SliceRetrieval {
     this.schema = schema;
     this.rulesComplete = rulesComplete;
     this.strategy = strategy;
-    this.demand = new Demand({conjunctions, rules});
+    this.demand = new Demand({conjunctions, rules, estimate: source?.estimate ? pattern => source.estimate(pattern) : null});
     this.class = retrievalClass(rules);
     const defaults = this.class === 'recursive' ? RECURSIVE_DEFAULTS : SLICE_DEFAULTS;
     this.max = {facts: limits.maxFacts ?? defaults.maxFacts, probes: limits.maxProbes ?? defaults.maxProbes, lookups: limits.maxLookups ?? defaults.maxLookups, ms: limits.retrievalMs ?? defaults.retrievalMs};

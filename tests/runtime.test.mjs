@@ -99,6 +99,25 @@ test('assumption facts support a query only through assume and cannot be remembe
   assert.equal(Object.keys(c.session.live.claims).length, 0);
 }));
 
+test('planning retrieves future-state requirements and their rule dependencies without writing', () => withContext({bootstrap: false, memory: {engine: 'sqlite'}}, async c => {
+  const setup = '@position fact\n  holds located_in robot a\n  valid timeless\n@road_ab fact\n  holds connected a b\n  valid timeless\n@road_bc fact\n  holds connected b c\n  valid timeless\n@stored remember\n  input $position $road_ab $road_bc';
+  await c.run(setup, {schema: null});
+  const revision = c.session.revision;
+  const plan = '@can_travel rule\n  when located_in ?r ?from\n  when connected ?from ?to\n  then can_travel ?r ?from ?to\n@move action\n  params ?r ?from ?to\n  requires located_in ?r ?from\n  requires can_travel ?r ?from ?to\n  removes located_in ?r ?from\n  adds located_in ?r ?to\n@destination goal\n  where located_in robot c\n@result plan\n  goal $destination\n  actions ~move\n  data ~can_travel';
+  const run = options => c.run(plan, {schema: null, policy: {retrievalStrategy: 'sqlite', ...options}});
+  const found = (await run()).result;
+  assert.equal(found.status, 'plan_found');
+  assert.equal(found.complete, true);
+  assert.equal(found.plan.cost, 2);
+  assert.equal(c.session.revision, revision);
+
+  const bounded = (await run({maxFacts: 1})).result;
+  assert.equal(bounded.status, 'budget_exhausted');
+  assert.equal(bounded.reason, 'partial_retrieval');
+  assert.equal(bounded.complete, false);
+  assert.equal(c.session.revision, revision);
+}));
+
 test('entity resolve creates a typed consumable temporary symbol for local query', async () => {
   const source = '@company resolve\n  text "Alpha Lab"\n  language en\n  kind entity\n  type organization\n@f fact\n  holds works_at maria lab_alpha\n  valid timeless\n@q query\n  where works_at maria $company\n@r reason\n  query $q\n  data $f';
   const result = await new Runtime({schema, lexicon: lex}).run(source);

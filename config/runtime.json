@@ -73,6 +73,7 @@
     ],
     "timeoutSeconds": 120,
     "maxFixRounds": 2,
+    "selfCheck": false,
     "maxConcurrent": 4,
     "cacheEntries": 500,
     "keepFolders": false

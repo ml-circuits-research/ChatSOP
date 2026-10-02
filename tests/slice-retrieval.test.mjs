@@ -575,3 +575,76 @@ test('wire path: retrieval writes nothing', () => {
     assert.equal(w.session.revision, revision);
   } finally { w.dispose(); }
 });
+
+test('converse recursive demands retain forward keys instead of scanning unrelated members of the same hub', () => {
+  const w = world(
+    pred('kind', 'entity entity') + pred('inside', 'entity entity') + pred('contains', 'entity entity') +
+    wr('transitive', 'inside ?x ?z', 'inside ?x ?y', 'inside ?y ?z') +
+    wr('converse', 'inside ?x ?y', 'contains ?y ?x') +
+    wr('inverse', 'contains ?y ?x', 'inside ?x ?y') +
+    wf('kind', 'a', 'country') + wf('contains', 'b', 'a') + wf('inside', 'b', 'europe') +
+    Array.from({length: 1000}, (_, i) => wf('inside', 'd' + i, 'europe')).join(''));
+  try {
+    const answer = w.ask('@q query\n  select ?x\n  where all\n    kind ?x country\n    inside ?x europe\n  end\n');
+    assert.equal(answer.status, 'supported');
+    assert.deepEqual(rowsOf(answer), ['a']);
+    assert.equal(answer.retrieval.complete, true);
+    assert.ok(answer.retrieval.facts < 10, `unrelated hub members entered the slice: ${answer.retrieval.facts}`);
+    const bounded = w.ask('@q query\n  mode count\n  where all\n    kind ?x country\n    inside ?x europe\n  end\n', {maxFacts: 2});
+    assert.equal(bounded.status, 'incomplete');
+    assert.equal(bounded.count, undefined);
+  } finally { w.dispose(); }
+});
+
+test('new recursive input domains revisit facts that were already admitted for a different demand', () => {
+  const source = new ArraySource([
+    typed('seed', 's', 'a'), typed('edge', 'ab', 'a', 'b'), typed('edge', 'bc', 'b', 'c')
+  ]);
+  const retrieval = new SliceRetrieval({
+    source, localFacts: [typed('edge', 'bc', 'b', 'c')],
+    conjunctions: [[atom('seed', '?start'), atom('reach', '?start', '?end')]],
+    rules: [
+      {id: 'base', if: [atom('edge', '?x', '?y')], then: atom('reach', '?x', '?y')},
+      {id: 'step', if: [atom('edge', '?x', '?y'), atom('reach', '?y', '?z')], then: atom('reach', '?x', '?z')}
+    ]
+  });
+  retrieval.expand();
+  while (retrieval.widen());
+  assert.equal(retrieval.complete(), true);
+  assert.deepEqual([...retrieval.facts.keys()].sort(), ['ab', 'bc', 's']);
+  assert.ok(source.calls.some(p => p.p === 'edge' && p.a[0] === 'c'), 'the cached b→c row must propagate the next recursive input');
+});
+
+test('SQLite selectivity keeps a scoped ranking complete within a budget smaller than the global type relation', () => {
+  const w = world(
+    pred('kind', 'entity entity') + pred('inside', 'entity entity') + pred('population', 'entity integer') +
+    wf('kind', 'paris', 'city') + wf('kind', 'lyon', 'city') +
+    wf('inside', 'paris', 'france') + wf('inside', 'lyon', 'france') +
+    wf('population', 'paris', 200) + wf('population', 'lyon', 100) +
+    Array.from({length: 600}, (_, i) => wf('kind', 'other' + i, 'city')).join(''));
+  try {
+    const query = '@q query\n  select ?x\n  where all\n    kind ?x city\n    inside ?x france\n    population ?x ?n\n  end\n  rank highest ?n\n';
+    const answer = w.ask(query, {maxFacts: 20});
+    assert.equal(answer.status, 'supported');
+    assert.deepEqual(rowsOf(answer), ['paris']);
+    assert.equal(answer.retrieval.complete, true);
+    assert.equal(answer.retrieval.facts, 6);
+    const cut = w.ask(query, {maxFacts: 4});
+    assert.equal(cut.status, 'incomplete');
+    assert.equal(cut.retrieval.complete, false);
+  } finally { w.dispose(); }
+});
+
+test('SQLite cardinalities do not interrupt a bound multi-hop prefix with a global class lookup', () => {
+  const w = world(
+    pred('born', 'entity entity') + pred('inside', 'entity entity') + pred('kind', 'entity entity') +
+    wf('born', 'person', 'town') + wf('inside', 'town', 'nation') + wf('kind', 'nation', 'country') +
+    Array.from({length: 600}, (_, i) => wf('kind', 'other' + i, 'country')).join(''));
+  try {
+    const answer = w.ask('@q query\n  select ?x\n  where all\n    born person ?p\n    inside ?p ?x\n    kind ?x country\n  end\n', {maxFacts: 20});
+    assert.equal(answer.status, 'supported');
+    assert.deepEqual(rowsOf(answer), ['nation']);
+    assert.equal(answer.retrieval.complete, true);
+    assert.equal(answer.retrieval.facts, 3);
+  } finally { w.dispose(); }
+});

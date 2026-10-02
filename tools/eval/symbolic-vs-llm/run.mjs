@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {authorQuery, completionBackend, ompBackend} from '../../../lib/query-author/index.mjs';
+import {splitCircuits} from '../../../lib/query-author/session.mjs';
+import {parse as parseRuntime} from '../../../sop/parser.mjs';
+import {parse as parseKnowledge} from '../../../sop/knowledge/lexical.mjs';
 import {runCompletion} from '../../../reasoning/strategies/llm-agent/completion.mjs';
 import {runOmp} from '../../../reasoning/strategies/llm-agent/runner.mjs';
 import {nlPrompt, SYSTEM_PROMPT, ANSWER_MARKER, PROMPT_VERSION} from '../../../reasoning/strategies/llm-agent/prompt.mjs';
@@ -20,7 +24,7 @@ import {MODELS} from '../query-model-calibration/models.mjs';
 import {openSession, defaultRoot} from '../query-forms-probe.mjs';
 import {readExperiments} from '../../../lib/journal.mjs';
 
-export const VERSION = 'symbolic-vs-llm-m0-v1';
+export const VERSION = 'symbolic-vs-llm-m1-v1';
 const sha = value => createHash('sha256').update(value).digest('hex');
 const hashFile = async file => {
   const hash = createHash('sha256');
@@ -28,6 +32,22 @@ const hashFile = async file => {
   return hash.digest('hex');
 };
 const opt = (args, name, fallback) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
+
+function sourceHashes() {
+  const root = fileURLToPath(new URL('../../../', import.meta.url));
+  const hashes = {};
+  const visit = relative => {
+    const absolute = path.join(root, relative);
+    if (fs.statSync(absolute).isFile()) {
+      if (/\.(mjs|md|json)$/.test(relative)) hashes[relative] = sha(fs.readFileSync(absolute));
+      return;
+    }
+    for (const entry of fs.readdirSync(absolute).sort()) visit(path.join(relative, entry));
+  };
+  // Code and author guides only: never evaluation cases, sealed suites or session data.
+  for (const directory of ['lib', 'sop', 'memory', 'reasoning', 'skills/coding-agent-query', 'tools/eval/symbolic-vs-llm']) visit(directory);
+  return hashes;
+}
 
 export function alignProjection(packet, authoredQuery, goldQuery) {
   const columns = q => /^\s*select\s+([^\n]+)/m.exec(q)?.[1]?.match(/\?[a-z][a-z0-9_]*/g)?.map(v => v.slice(1)) ?? [];
@@ -72,11 +92,21 @@ export function evidenceFor(slice, question, {maxChars = 90000, sampleFacts = 45
 }
 
 
+// Broken-arm admission is syntax/non-delivery, not a semantic validator refusal or engine failure.
+function unparsableCircuit(sop) {
+  try {
+    const split = splitCircuits(sop);
+    parseRuntime(split.model);
+    return parseKnowledge(split.definitions).errors.length > 0;
+  } catch { return true; }
+}
+
 /** One arm, same question, shared wall/output-token ceiling, no circuit or answer in the author prompt. */
 export async function runArm({row, arm, world, gold, slice, evidence, knowledge, query, settings, folder}) {
   const start = Date.now();
   let author = null, packet = null, linking = null, error = null, oracleEquivalent = null, verified = false, rendered;
   let tokensIn = 0, tokensOut = 0, cost = 0;
+  let parseOk = null, responseEmpty = false, brokenModelOutput = false;
   const latency = {parse_ms: 0, retrieval_ms: 0, engine_ms: 0, verify_ms: 0, model_ms: 0};
   try {
     if (['B', 'C'].includes(arm)) {
@@ -103,6 +133,8 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
       }};
       author = await authorQuery({message: row.question, lexicon: world.lexicon, backend: bounded, folder, maxFixRounds: 2});
       latency.parse_ms = Date.now() - start; tokensIn = author.usage?.input_tokens ?? 0; tokensOut = author.usage?.output_tokens ?? 0; cost = author.usage?.cost_usd ?? 0;
+      responseEmpty = author.runs?.at(-1)?.ok === true && !author.sop?.trim();
+      brokenModelOutput = responseEmpty || (author.status === 'invalid' && unparsableCircuit(author.sop));
       if (author.status === 'validated' && !author.unclear) {
         const linkStart = Date.now(); linking = linkCircuit(author.sop, row.question, world.lexicon, author.validation?.program);
         latency.linking_ms = Date.now() - linkStart;
@@ -141,6 +173,9 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
       if (!reply.ok || tokensOut > settings.maxTokens) error = tokensOut > settings.maxTokens ? 'subscription output exceeded shared question token budget' : reply.error ?? 'completion failed';
       else {
         const parsed = parseAnswer(reply.text, reasoning === 'cot' ? ANSWER_MARKER : null); packet = parsed.packet;
+        parseOk = parsed.ok;
+        responseEmpty = !reply.text?.trim();
+        brokenModelOutput = responseEmpty || parseOk === false;
         const verifyStart = Date.now();
         // Verification uses the exact gold circuit and cited support; never sends either to the model.
         verified = verifyUsed({knowledge: slice.wires.map(wireText).join('\n\n'), query}, packet).verified === true; latency.verify_ms = Date.now() - verifyStart;
@@ -151,12 +186,14 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
   const verdict = score(row.expected, packet, {author, error});
   latency.wall_ms = Date.now() - start;
   return {id: row.id, family: row.family, facts: row.facts, depth: row.depth, split: row.split, arm, model: ['C', 'D'].includes(arm) ? settings.subscriptionModel : settings.model,
+    parse_ok: parseOk, response_empty: responseEmpty, broken_model_output: brokenModelOutput,
     outcome: verdict.outcome, reasons: verdict.why, memory_sha256: world.theory.digest, gold_answerable: !['unknown', 'incomplete'].includes(row.expected.status), verified, proof_available: Boolean(packet?.used?.length || packet?.proof),
     evidence_does_not_fit: evidence.evidence_does_not_fit, evidence_facts: evidence.facts, evidence_chars: evidence.original_chars,
     latency, tokens_in: tokensIn, tokens_out: tokensOut, cost_usd: arm === 'C' || arm === 'D' ? cost : 0,
-    author: author && {status: author.status, reason: author.reason, rounds: author.rounds, sop: author.sop, context_version: author.context_version, retrieval: author.retrieval, usage: author.usage},
+    author: author && {status: author.status, reason: author.reason, rounds: author.rounds, sop: author.sop, context_version: author.context_version, retrieval: author.retrieval, usage: author.usage,
+      problems: author.validation?.problems, parsed: Boolean(author.validation?.program)},
     packet, rendered, oracle_equivalent: oracleEquivalent, error,
-    failure_layer: failureLayer({outcome: verdict.outcome, author, linking, packet, oracleEquivalent, rendered, error})};
+    failure_layer: failureLayer({arm, parseOk, outcome: verdict.outcome, author, linking, packet, oracleEquivalent, rendered, error})};
 }
 
 export async function main(args = process.argv.slice(2)) {
@@ -186,6 +223,8 @@ export async function main(args = process.argv.slice(2)) {
   const out = path.resolve(opt(args, '--out', 'eval/reports/current/symbolic-vs-llm/pilot'));
   fs.mkdirSync(out, {recursive: true});
   const config = {version: VERSION, harness_sha256: sha(fs.readFileSync(new URL(import.meta.url), 'utf8')), world_sha256: sha(fs.readFileSync(new URL('./world.mjs', import.meta.url), 'utf8')), runtime: {node: process.version, arch: process.arch, platform: process.platform}, model_manifest: modelManifest, manifest_sha256: sha(manifestText), settings: {...settings, retrieval_limits: LIMITS, endpoint: settings.endpoint ?? 'managed-private-llama-server', subscription_token_budget: 'post-response usage admission; omp CLI has no provider token-cap flag'}, arms, pilot, prompt_version: PROMPT_VERSION, prompt_sha256: sha(nlPrompt({source: '', reasoning: 'direct'}) + runArm.toString()), renderer_sha256: sha(fs.readFileSync(new URL('../../../reasoning/slice/render-english.mjs', import.meta.url), 'utf8')), stages: pilot ? [pilot] : opt(args, '--stages', '100,300,600').split(',').map(Number)};
+  config.runtime_sources = sourceHashes();
+  config.runtime_source_sha256 = sha(JSON.stringify(config.runtime_sources));
   const configFile = path.join(out, 'run.json');
   if (fs.existsSync(configFile) && JSON.stringify(JSON.parse(fs.readFileSync(configFile, 'utf8'))) !== JSON.stringify(config)) throw new Error('run identity changed; use a fresh output directory');
   fs.writeFileSync(configFile, JSON.stringify(config, null, 2) + '\n');
@@ -208,6 +247,7 @@ export async function main(args = process.argv.slice(2)) {
         const candidates = rows.filter(r => r.family === family);
         if (candidates.length < stage) throw new Error(`${family} has ${candidates.length} instances, fewer than requested stage ${stage}`);
         for (const row of stageRows(candidates, stage)) {
+          if (activeArms.every(arm => done.has(`${row.id}/${arm}`))) continue;
           const dir = path.resolve(path.dirname(manifestFile), row.case_dir); const knowledge = fs.readFileSync(path.join(dir, 'knowledge.sop'), 'utf8'); const query = fs.readFileSync(path.join(dir, 'query.sop'), 'utf8');
           row.expected = JSON.parse(fs.readFileSync(path.join(dir, 'expected.json'), 'utf8'));
           let world;
@@ -230,22 +270,24 @@ export async function main(args = process.argv.slice(2)) {
             const evidence = evidenceFor(slice, row.question);
             for (const arm of activeArms) {
               if (done.has(`${row.id}/${arm}`)) continue;
-              const folder = path.join(out, 'folders', `${row.id}-${arm}`);
-              const record = await runArm({row, arm, world, gold, slice, evidence, knowledge, query, settings, folder});
-              records.push(record); done.add(`${row.id}/${arm}`); fs.appendFileSync(recordFile, JSON.stringify(record) + '\n');
-              fs.rmSync(folder, {recursive: true, force: true});
-              console.error(`${row.id} ${arm} ${record.outcome} ${record.latency.wall_ms}ms`);
+              const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'symbolic-bench-author-'));
+              try {
+                const record = await runArm({row, arm, world, gold, slice, evidence, knowledge, query, settings, folder});
+                records.push(record); done.add(`${row.id}/${arm}`); fs.appendFileSync(recordFile, JSON.stringify(record) + '\n');
+                console.error(`${row.id} ${arm} ${record.outcome} ${record.latency.wall_ms}ms`);
+              } finally { fs.rmSync(folder, {recursive: true, force: true}); }
             }
           } finally { if (world !== sharedWorld) world.dispose(); }
         }
         const current = records.filter(r => r.family === family);
         const decision = stopDecision(current, stage);
         fs.appendFileSync(path.join(out, 'stages.jsonl'), JSON.stringify({family, stage, pilot: Boolean(pilot), ...decision}) + '\n');
-        if (!pilot && decision.stop) {
+        if (decision.stop) {
           const {execFileSync} = await import('node:child_process');
           const detail = JSON.stringify({family, stage, ...decision});
-          execFileSync(process.execPath, ['tools/journal.mjs', 'add', '--area', 'eval', '--state', 'progress', '--title', 'Benchmark staged stop', '--detail', detail], {env: {...process.env, CHATSOP_ACTOR: 'omp-t3-bench'}});
-          execFileSync(process.execPath, ['tools/notes.mjs', 'add', '--topic', 'evaluation', '--kind', 'result', '--title', 'Benchmark staged stop', '--body', detail], {env: {...process.env, CHATSOP_ACTOR: 'omp-t3-bench'}});
+          const env = {...process.env, CHATSOP_ACTOR: process.env.CHATSOP_ACTOR ?? 'omp-t5-pilot'};
+          execFileSync(process.execPath, ['tools/journal.mjs', 'add', '--area', 'eval', '--state', 'progress', '--title', 'Benchmark staged stop', '--detail', detail], {env});
+          execFileSync(process.execPath, ['tools/notes.mjs', 'add', '--topic', 'evaluation', '--kind', 'result', '--title', 'Benchmark staged stop', '--body', detail], {env});
           const registryFile = new URL('../../../status/experiments.json', import.meta.url);
           const registry = readExperiments({file: registryFile});
           const experiment = registry.experiments.find(e => e.id === 'eval-symbolic-vs-llm-v1');

@@ -19,7 +19,7 @@ let s, theory, session;
 const ask = (query, limits = LIMITS) => askMemory({theory, repo: s.sessions.repository(s.id), session, query, limits, budget: {timeoutMs: 120000}});
 test.before(() => {
   if (skip) return;
-  s = openSession({base: 'world-v1', id: 'qf-world-test'});
+  s = openSession({base: 'world-v1', id: 'qf-world-test-' + process.pid});
   session = s.store.get('qf', 'w', 'main').agent.session;
   theory = s.theories.get([...s.sessions.baseCircuits(s.id), ...s.sessions.circuits(s.id)]);
 });

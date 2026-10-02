@@ -4,13 +4,13 @@ import {queryFor,asFact,flat} from '../reasoning/common.mjs';
 import {parse,canonical,one,many,words,unquote,parseAtom,dependencies,validateGraph,replaceReferences,scalar} from './parser.mjs';
 import {lowerFact,lowerRule,lowerQuery,lowerConstraint} from './lower.mjs';
 import {evaluateExpression,parseExpression} from './expression.mjs';
-import {linkKnowledge} from '../reasoning/linker.mjs';
+import {linkKnowledge,planGoals} from '../reasoning/linker.mjs';
 import {answerOverSlice} from '../reasoning/slice/index.mjs';
 import {StrategyRegistry} from '../memory/strategies.mjs';
 import {outputSpecs,outputRegistry,selectOutput} from './outputs.mjs';
 import {cnl} from './cnl.mjs';
 import {instant} from '../lib/time.mjs';
-import {assert,digest} from '../lib/util.mjs';
+import {assert,digest,variable} from '../lib/util.mjs';
 import {parseCondition} from './conditions.mjs';
 import {conditionAtoms} from '../lib/conditions.mjs';
 import {runDeclarative} from './declarative.mjs';
@@ -164,17 +164,23 @@ export class Runtime{
        if(request.observation&&!request.query){assert(request.observation.kind==='fact','Observation must be fact');request.query=queryFor([request.observation.atom],{at:this.now,asof:this.now});}
        const limits={...this.policy};if(w.fields.policy){const constraint=get('policy');assert(constraint.kind==='policy','Expected policy');for(const [k,v]of Object.entries(constraint.limits))limits[k]=Math.min(limits[k]??v,v);}
        if(['abduce','diagnose'].includes(w.type))assert(request.query,'Abduction requires query or observation');
-       let retrievalQuery=request.query;
+       let retrievalQuery=request.query,planningRules;
        if(w.type==='plan'){
         assert(request.goal?.kind==='goal','Plan needs goal');
         const actions=flat(request.actions).length?flat(request.actions):items.filter(x=>x.kind==='action');
-        retrievalQuery=queryFor([...request.goal.where,...actions.flatMap(x=>x.requires)],{at:this.now,asof:this.now});
+        const seeds=planningDemands([...request.goal.where,...actions.flatMap(x=>x.requires)]);
+        const initial=queryFor(seeds,{at:this.now,asof:this.now});
+        planningRules=[...this.rules(initial),...items.filter(x=>x.kind==='rule')];
+        const closure=planGoals(initial,planningRules,limits);
+        retrievalQuery=queryFor(planningDemands([...request.goal.where,...actions.flatMap(x=>x.requires),...closure.rules.flatMap(rule=>rule.if)]),{at:this.now,asof:this.now});
        }
        if(this.repo&&this.session&&retrievalQuery&&!request.memory){
         const facts=items.filter(x=>x.kind==='fact').map((f,i)=>({...f,id:'local_'+w.id+'_'+i,kind:'observed',knownAt:this.now,evidence:{local:true,metadataVerified:true}}));
-        request.memory=linkKnowledge({repo:this.repo,session:this.session,query:retrievalQuery,rules:[...this.rules(retrievalQuery),...items.filter(x=>x.kind==='rule')],schema:this.schema,localFacts:facts,strategy:this.policy.retrievalStrategy,registry:this.strategies,limits});
+        request.memory=linkKnowledge({repo:this.repo,session:this.session,query:retrievalQuery,rules:planningRules??[...this.rules(retrievalQuery),...items.filter(x=>x.kind==='rule')],schema:this.schema,localFacts:facts,strategy:this.policy.retrievalStrategy,registry:this.strategies,limits});
        }
        output=this.reasoningStrategies.run(chooseReasoning(w),{...request,mode:w.type,...(w.fields.mode?{operationMode:one(w,'mode')}:{}),limits});
+       if(w.type==='plan'&&output.status==='no_plan'&&(request.memory?.complete===false||request.memory?.slice?.settled===false))
+        output={...output,status:'budget_exhausted',reason:'partial_retrieval',complete:false};
        const specs=outputSpecs(w),collect=OPERATION_RESULTS[w.type];
        if(collect){const collection=collect(output)??[];output.outputProjection??={};for(const spec of specs){if(spec.mode==='status')continue;
         output.outputProjection[spec.variable]=!output.complete?{status:'incomplete'}:spec.mode==='many'||spec.mode==='rows'?{status:'bound',value:collection}:spec.mode==='one'?(collection.length===1?{status:'bound',value:collection[0]}:{status:collection.length?'ambiguous':'no_answer',candidates:collection.length}):{status:'unsupported_projection'};
@@ -212,4 +218,11 @@ function renameLogicOutputs(text,ports,names){
  let out='',quoted=false,escape=false;
  for(let i=0;i<text.length;i++){const c=text[i];if(quoted){out+=c;if(!escape&&c==='"')quoted=false;if(!escape&&c==='\\')escape=true;else escape=false;continue;}if(c==='"'){quoted=true;out+=c;continue;}
  if(c==='?'){const m=text.slice(i+1).match(/^[A-Za-z][A-Za-z0-9_]*/);if(m){out+='?'+(ports.includes(m[0])?names[m[0]]:m[0]);i+=m[0].length;continue;}}out+=c;}return out;
+}
+// A planning state changes after each action. Each seed must be independently
+// retrievable, including rule bodies: joining these atoms against the initial
+// snapshot would discard facts needed only at a later step.
+function planningDemands(atoms){
+ let next=0;
+ return atoms.map(atom=>({...atom,a:atom.a.map(term=>variable(term)?'?planDemand'+next++:term)}));
 }

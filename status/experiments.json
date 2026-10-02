@@ -15,38 +15,348 @@
       "approval": "User-requested TASK T1 explicitly authorizes before/after dev measurement with gpt-6-luna; no training or sealed evaluation.",
       "results": {
         "model": "openai-codex/gpt-6-luna",
-        "before": {"correct": 44, "wrong": 0, "unknown": 0},
-        "after": {"correct": 41, "wrong": 1, "unknown": 2},
+        "before": {
+          "correct": 44,
+          "wrong": 0,
+          "unknown": 0
+        },
+        "after": {
+          "correct": 41,
+          "wrong": 1,
+          "unknown": 2
+        },
         "correct_delta_pp": -6.82,
-        "correct_delta_ci95": [-13.64, 0],
+        "correct_delta_ci95": [
+          -13.64,
+          0
+        ],
         "wrong_delta_pp": 2.27,
-        "wrong_delta_ci95": [0, 6.82],
+        "wrong_delta_ci95": [
+          0,
+          6.82
+        ],
         "bootstrap": "paired, stratified by form; 10000 draws, seed 20261001"
       },
       "conclusions": "Target not met. Guarded pre-self-check baseline was already perfect, so wrong-rate reduction is impossible on this cohort; stop for futility. This is not a causal self-check estimate. Final quantity-versus-count guide clarification was not model-measured.",
       "deviations": [
-        {"id": "dev-only-cohort", "what": "All 44 available dev-part2 rows rather than a 100-row first stage.", "why": "T1 requests the existing unsealed dev diagnostic.", "effect": "No sealed or wider-form claim."}
+        {
+          "id": "dev-only-cohort",
+          "what": "All 44 available dev-part2 rows rather than a 100-row first stage.",
+          "why": "T1 requests the existing unsealed dev diagnostic.",
+          "effect": "No sealed or wider-form claim."
+        }
       ],
-      "reports": ["eval/reports/current/omp-tasks/t1-author.md", "eval/reports/current/omp-tasks/t1-paired.json"]
+      "reports": [
+        "eval/reports/current/omp-tasks/t1-author.md",
+        "eval/reports/current/omp-tasks/t1-paired.json"
+      ]
     },
     {
       "id": "eval-symbolic-vs-llm-v1",
       "name": "Symbolic versus small LLM reasoning",
       "category": "preregistered",
-      "owner": "omp-t3-bench",
+      "owner": "omp-t5-pilot",
       "registered_at": "2026-10-01",
       "hypothesis": "H1: B exceeds A by at least 10pp on F2–F4, F7 depth>=3 and F9; H2: B wrong<=A wrong+2pp; H3: Qwen3-4B B within10pp of C on F1/F10; H4: A degrades with size/depth while B stays flat.",
       "preregistration": "status/preregistrations/eval-symbolic-vs-llm-v1.json",
-      "data_version": "symbolic-vs-llm-v1 M0 development; sealed generation deferred to M1",
-      "status": "proposed",
-      "phase": "planned",
-      "done": "Preregistration is DRAFT, not frozen. Dev-only sanity pilot is separately identified; no sealed result.",
-      "results": {},
-      "conclusions": "No benchmark conclusion before preregistration freeze and sealed staged measurement.",
+      "data_version": "symbolic-vs-llm-v1 dev manifest 61fa8c96b30998306da676aa8c9782363b96d3a0b237c9fc015f15273dcf2ec9; no T5 sealed generation or inspection",
+      "status": "preregistered",
+      "phase": "dev-pilot",
+      "done": "Prospective protocol frozen for Qwen3-4B Q4/gpt-6-luna, with pinned code/prompts/generators and explicit subscription admission contract. Gold preflight40/40; local five-row-per-family preflight80 model records; stage100 A/B and30 C dev pilot executing. No sealed result.",
+      "results": {
+        "t5_gold_preflight": {
+          "pass": 40,
+          "n": 40,
+          "f1": {
+            "id": "f1-dev-019",
+            "skip": true,
+            "timeout_ms": 30000,
+            "elapsed_ms": 30214
+          }
+        },
+        "t5_local_preflight": {
+          "A": {
+            "n": 40,
+            "correct": 20,
+            "wrong": 13,
+            "unknown": 5,
+            "failed": 2
+          },
+          "B": {
+            "n": 40,
+            "correct": 0,
+            "wrong": 1,
+            "unknown": 3,
+            "invalid": 36
+          }
+        },
+        "stage_stops": [
+          {
+            "family": "f2",
+            "stage": 100,
+            "stop": true,
+            "reason": "broken",
+            "dropped_arms": [
+              "B"
+            ],
+            "broken_counts": {
+              "A": {
+                "empty_or_unparsable": 4,
+                "denominator": 100
+              },
+              "B": {
+                "empty_or_unparsable": 69,
+                "denominator": 100
+              }
+            },
+            "comparison": {
+              "mean": -0.11,
+              "lo": -0.19,
+              "hi": -0.03,
+              "n": 100,
+              "arm": "B",
+              "reference": "A",
+              "condition": "fits",
+              "wrong_delta": -0.51,
+              "practical_margin": false
+            },
+            "report": "eval/reports/current/symbolic-vs-llm/t5-pilot-ab"
+          },
+          {
+            "family": "f3",
+            "stage": 100,
+            "stop": true,
+            "reason": "broken",
+            "dropped_arms": [
+              "B"
+            ],
+            "broken_counts": {
+              "A": {
+                "empty_or_unparsable": 2,
+                "denominator": 100
+              },
+              "B": {
+                "empty_or_unparsable": 95,
+                "denominator": 100
+              }
+            },
+            "comparison": {
+              "mean": -0.6799999999999999,
+              "lo": -0.77,
+              "hi": -0.59,
+              "n": 100,
+              "arm": "B",
+              "reference": "A",
+              "condition": "fits",
+              "wrong_delta": -0.03,
+              "practical_margin": false
+            },
+            "report": "eval/reports/current/symbolic-vs-llm/t5-pilot-ab"
+          },
+          {
+            "family": "f4",
+            "stage": 100,
+            "stop": true,
+            "reason": "broken",
+            "dropped_arms": [
+              "B"
+            ],
+            "broken_counts": {
+              "A": {
+                "empty_or_unparsable": 1,
+                "denominator": 100
+              },
+              "B": {
+                "empty_or_unparsable": 98,
+                "denominator": 100
+              }
+            },
+            "comparison": {
+              "mean": -0.8,
+              "lo": -0.88,
+              "hi": -0.72,
+              "n": 100,
+              "arm": "B",
+              "reference": "A",
+              "condition": "fits",
+              "wrong_delta": -0.19,
+              "practical_margin": false
+            },
+            "report": "eval/reports/current/symbolic-vs-llm/t5-pilot-ab"
+          },
+          {
+            "family": "f5",
+            "stage": 100,
+            "stop": true,
+            "reason": "broken",
+            "dropped_arms": [
+              "B"
+            ],
+            "broken_counts": {
+              "A": {
+                "empty_or_unparsable": 0,
+                "denominator": 100
+              },
+              "B": {
+                "empty_or_unparsable": 99,
+                "denominator": 100
+              }
+            },
+            "comparison": {
+              "mean": 0,
+              "lo": 0,
+              "hi": 0,
+              "n": 100,
+              "arm": "B",
+              "reference": "A",
+              "condition": "fits",
+              "wrong_delta": -0.95,
+              "practical_margin": false
+            },
+            "report": "eval/reports/current/symbolic-vs-llm/t5-pilot-ab"
+          },
+          {
+            "family": "f6",
+            "stage": 100,
+            "stop": true,
+            "reason": "broken",
+            "dropped_arms": [
+              "B"
+            ],
+            "broken_counts": {
+              "A": {
+                "empty_or_unparsable": 0,
+                "denominator": 100
+              },
+              "B": {
+                "empty_or_unparsable": 49,
+                "denominator": 100
+              }
+            },
+            "comparison": {
+              "mean": -0.6,
+              "lo": -0.7,
+              "hi": -0.5,
+              "n": 100,
+              "arm": "B",
+              "reference": "A",
+              "condition": "fits",
+              "wrong_delta": -0.4,
+              "practical_margin": false
+            },
+            "report": "eval/reports/current/symbolic-vs-llm/t5-pilot-ab"
+          },
+          {
+            "family": "f7",
+            "stage": 100,
+            "stop": true,
+            "reason": "broken",
+            "dropped_arms": [
+              "B"
+            ],
+            "broken_counts": {
+              "A": {
+                "empty_or_unparsable": 0,
+                "denominator": 100
+              },
+              "B": {
+                "empty_or_unparsable": 93,
+                "denominator": 100
+              }
+            },
+            "comparison": {
+              "mean": -0.67,
+              "lo": -0.76,
+              "hi": -0.58,
+              "n": 100,
+              "arm": "B",
+              "reference": "A",
+              "condition": "fits",
+              "wrong_delta": -0.33,
+              "practical_margin": false
+            },
+            "report": "eval/reports/current/symbolic-vs-llm/t5-pilot-ab"
+          },
+          {
+            "family": "f8",
+            "stage": 100,
+            "stop": true,
+            "reason": "broken",
+            "dropped_arms": [
+              "B"
+            ],
+            "broken_counts": {
+              "A": {
+                "empty_or_unparsable": 0,
+                "denominator": 100
+              },
+              "B": {
+                "empty_or_unparsable": 97,
+                "denominator": 100
+              }
+            },
+            "comparison": {
+              "mean": -0.5,
+              "lo": -0.6,
+              "hi": -0.4,
+              "n": 100,
+              "arm": "B",
+              "reference": "A",
+              "condition": "fits",
+              "wrong_delta": 0,
+              "practical_margin": false
+            },
+            "report": "eval/reports/current/symbolic-vs-llm/t5-pilot-ab"
+          },
+          {
+            "family": "f9",
+            "stage": 100,
+            "stop": true,
+            "reason": "broken",
+            "dropped_arms": [
+              "B"
+            ],
+            "broken_counts": {
+              "A": {
+                "empty_or_unparsable": 16,
+                "denominator": 100
+              },
+              "B": {
+                "empty_or_unparsable": 99,
+                "denominator": 100
+              }
+            },
+            "comparison": {
+              "mean": -0.4925373134328358,
+              "lo": -0.6119402985074627,
+              "hi": -0.373134328358209,
+              "n": 67,
+              "arm": "B",
+              "reference": "A",
+              "condition": "fits",
+              "wrong_delta": 0,
+              "practical_margin": false
+            },
+            "report": "eval/reports/current/symbolic-vs-llm/t5-pilot-ab"
+          }
+        ]
+      },
+      "conclusions": "Five-row dev preflight exposes frequent small-model authoring syntax/semantic failures, not a symbolic-engine superiority result. Final dev stages are diagnostic; no sealed or generalization claim.",
       "deviations": [
-        {"id": "registry-planned-status", "at": "2026-10-01", "what": "Planned study uses status proposed and phase planned.", "why": "DS007 and the registry validator admit proposed, not planned.", "effect": "No change to measurement or authorization."}
+        {
+          "id": "registry-planned-status",
+          "at": "2026-10-01",
+          "what": "Planned study uses status proposed and phase planned.",
+          "why": "DS007 and the registry validator admit proposed, not planned.",
+          "effect": "No change to measurement or authorization."
+        }
       ],
-      "reports": ["eval/reports/current/omp-tasks/t3-bench.md", "eval/reports/current/symbolic-vs-llm/pilot/summary.md"]
+      "reports": [
+        "eval/reports/current/omp-tasks/t3-bench.md",
+        "eval/reports/current/symbolic-vs-llm/pilot/summary.md",
+        "eval/reports/current/symbolic-vs-llm/t5-gold-preflight/report.json",
+        "eval/reports/current/symbolic-vs-llm/t5-preflight-ab/summary.md"
+      ]
     },
     {
       "id": "formalizer-size-v1",

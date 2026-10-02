@@ -71,6 +71,12 @@ export class SQLiteBank {
   p.a.forEach((v,i)=>{if(variable(v)){if(vars.has(v))parts.push('v'+i+'=v'+vars.get(v));else vars.set(v,i);}else{parts.push('v'+i+'=?');args.push(stable(v));}});
   return {where:parts.join(' AND '),args};
  }
+ /** Indexed tuple cardinality for retrieval ordering only; never a completeness or temporal answer. */
+ estimate(pattern){
+  const f=this._filter(pattern),sql='SELECT count(*) n FROM atoms WHERE '+f.where;
+  let stmt=this._statements.get(sql);if(!stmt){stmt=this.db.prepare(sql);if(this._statements.size>=256)this._statements.clear();this._statements.set(sql,stmt);}
+  return stmt.get(...f.args).n;
+ }
  recall(pattern,options={}){
   const {maxProbes,limit}=checkBudget(options),f=this._filter(pattern),now=options.now??Date.now(),blocked=options.blocked??new Set();
   if(!maxProbes||!limit)return {rows:[],probes:0,complete:false};

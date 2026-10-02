@@ -32,8 +32,9 @@ export function summarize(rows) {
 
 export function paired(rows, arm = 'B', reference = 'A', condition = 'fits') {
   const filtered = rows.filter(r => condition === 'all' || (r.evidence_does_not_fit ? 'does_not_fit' : 'fits') === condition);
-  const a = new Map(filtered.filter(r => r.arm === arm).map(r => [r.id, r]));
-  const b = new Map(filtered.filter(r => r.arm === reference).map(r => [r.id, r]));
+  const key = r => JSON.stringify([r.family ?? null, r.id]);
+  const a = new Map(filtered.filter(r => r.arm === arm).map(r => [key(r), r]));
+  const b = new Map(filtered.filter(r => r.arm === reference).map(r => [key(r), r]));
   const ids = [...a.keys()].filter(id => b.has(id)).sort();
   if (!ids.length) return null;
   const ci = pairedBootstrap(ids.map(id => +(a.get(id).outcome === 'correct')), ids.map(id => +(b.get(id).outcome === 'correct')), {iterations: 10000, seed: 20261001});
@@ -42,13 +43,23 @@ export function paired(rows, arm = 'B', reference = 'A', condition = 'fits') {
   return {...ci, arm, reference, condition, wrong_delta: wrongA - wrongB, practical_margin: ci.lo > 0 && ci.mean >= .1 && wrongA <= wrongB + .02};
 }
 
+/** The preregistered broken-arm check is model output quality, not downstream engine failure. */
 export function stopDecision(rows, stage) {
   const arms = [...new Set(rows.map(r => r.arm))];
-  const broken = stage >= 100 ? arms.filter(arm => {
+  const brokenCounts = {};
+  if (stage >= 100) for (const arm of arms) {
     const first = rows.filter(r => r.arm === arm).slice(0, 100);
-    return first.length === 100 && first.filter(r => ['failed', 'invalid'].includes(r.outcome)).length > 20;
-  }) : [];
-  if (broken.length) return {stop: true, reason: 'broken', dropped_arms: broken, comparison: paired(rows)};
+    if (first.length !== 100) continue;
+    const emptyOrUnparsable = first.filter(r => r.broken_model_output === true ||
+      (r.broken_model_output !== false && (r.response_empty === true || r.parse_ok === false ||
+        (['A', "A'", 'D'].includes(arm) && r.packet?.reason === 'malformed_output') ||
+        ['parse_failed', 'parser_failed'].includes(r.author?.status) ||
+        (r.author?.status === 'invalid' && r.author.parsed === false &&
+          (r.author.problems ?? r.author.validation?.problems)?.some(p => ['invalid_wire', 'missing_output'].includes(p.code)))))).length;
+    brokenCounts[arm] = {empty_or_unparsable: emptyOrUnparsable, denominator: 100};
+  }
+  const broken = arms.filter(arm => brokenCounts[arm]?.empty_or_unparsable > 20);
+  if (broken.length) return {stop: true, reason: 'broken', dropped_arms: broken, broken_counts: brokenCounts, comparison: paired(rows)};
   const comparison = paired(rows);
   if (stage >= 100 && comparison?.lo > .1) return {stop: true, reason: 'decisive', comparison};
   if (stage >= 100 && comparison?.hi < 0) return {stop: true, reason: 'futility', comparison};
@@ -68,11 +79,11 @@ export function report(records, {pilot = false, provenance = {}} = {}) {
     const rows = records.filter(r => r.family === f);
     return [f, {fits: paired(rows), does_not_fit: paired(rows, 'B', 'A', 'does_not_fit'), B_minus_C: paired(rows, 'B', 'C', 'all'), B_minus_A_cot: paired(rows, 'B', "A'"), D_minus_A: paired(rows, 'D', 'A')}];
   }));
-  const lines = [`# Symbolic versus LLM ${pilot ? 'dev pilot (sanity only; not a benchmark result)' : 'evaluation'}`, '', 'Capped English evidence is a separate B-versus-text condition, never a same-evidence reasoning win. B/C share symbolic memory and remain paired regardless of the English cap.', '', '| Family / arm / evidence | Correct / n | Wrong / n | Unknown / n | Invalid or failed / n | p50 / p95 wall ms |', '| --- | ---: | ---: | ---: | ---: | ---: |'];
+  const lines = [`# Symbolic versus LLM ${pilot ? 'dev pilot (sanity only; not a benchmark result)' : 'evaluation'}`, '', 'Capped English evidence is a separate B-versus-text condition, never a same-evidence reasoning win. B/C share symbolic memory and remain paired regardless of the English cap.', '', '| Family / arm / evidence | Correct / n | Verified correct / n | Wrong / n | Unknown / n | Invalid or failed / n | p50 / p95 wall ms | Cost USD / 100 |', '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |'];
   for (const [key, cell] of Object.entries(cells).filter(([key]) => !key.includes('/size-') && !key.includes('/depth-'))) {
-    lines.push(`| ${key} | ${cell.counts.correct}/${cell.n} | ${cell.counts.wrong}/${cell.n} | ${cell.counts.unknown}/${cell.n} | ${cell.counts.invalid + cell.counts.failed}/${cell.n} | ${cell.latency_ms.wall_ms.p50} / ${cell.latency_ms.wall_ms.p95} |`);
+    lines.push(`| ${key} | ${cell.counts.correct}/${cell.n} | ${cell.verified_correct.numerator}/${cell.n} | ${cell.counts.wrong}/${cell.n} | ${cell.counts.unknown}/${cell.n} | ${cell.counts.invalid + cell.counts.failed}/${cell.n} | ${cell.latency_ms.wall_ms.p50} / ${cell.latency_ms.wall_ms.p95} | ${cell.cost_per_100?.toFixed(4) ?? '—'} |`);
   }
-  lines.push('', 'Paired bootstrap: 10,000 resamples, seed 20261001; listed arm-minus-reference differences. Wilson intervals, costs, token rates, size/depth cells, routes and failure layers are in summary.json.', '', '```json', JSON.stringify(comparisons, null, 2), '```', '');
+  lines.push('', 'Paired bootstrap: 10,000 resamples, seed 20261001; listed arm-minus-reference differences. Wilson intervals, token rates, size/depth cells, routes and failure layers are in summary.json.', '', '```json', JSON.stringify(comparisons, null, 2), '```', '');
   return {summary: {format: 'chatsop-symbolic-vs-llm-report-v1', pilot, provenance, cells, comparisons}, markdown: lines.join('\n')};
 }
 

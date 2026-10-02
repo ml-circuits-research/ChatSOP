@@ -48,7 +48,7 @@ export function planGoals(query,rules,{maxGoals=256,maxRules=1024}={}) {
  */
 export function linkKnowledge({repo=null,session=null,query,rules=[],schema=null,localFacts=[],
   strategy='hybrid',registry=new StrategyRegistry(),limits={}}) {
-  limits={maxGoals:256,maxRules:1024,maxProbes:50000,maxShards:256,maxFacts:10000,...limits};
+  limits={maxGoals:256,maxRules:1024,maxShards:256,...limits};
   const plan=planGoals(query,rules,limits),local=[];
   for(const f of localFacts){let valid=f.valid;if(query.at!==undefined&&!contains(valid,query.at))continue;if(query.during){valid=intersect(valid,query.during);if(!valid)continue;}local.push({...f,valid});}
   const all=[...query.where,...(query.scope??[])];

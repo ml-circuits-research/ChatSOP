@@ -6,6 +6,7 @@
  * `exact` says whether the answer comes from an exact view (R-P3): an associative strategy returns candidates, and a candidate list
  * never closes a predicate, so a slice that rests on one is never complete.
  */
+import {flattenLayers} from '../../memory/temporal.mjs';
 const EXACT_COVERAGE = new Set(['retained-exact-records', 'visible-exact-snapshot', 'partial-exact-snapshot']);
 
 export const isExactCoverage = coverage => EXACT_COVERAGE.has(coverage);
@@ -13,8 +14,23 @@ export const isExactCoverage = coverage => EXACT_COVERAGE.has(coverage);
 export class RepositorySource {
   constructor({repo, session, registry, strategy, query, limits = {}}) {
     Object.assign(this, {repo, session, registry, strategy, query, limits});
+    this.estimates = new Map();
   }
 
+  /** Base tuple counts break ties between equally bound query atoms. Counts affect order only, never guards or answers. */
+  estimate(pattern) {
+    const key = JSON.stringify(pattern);
+    if (this.estimates.has(key)) return this.estimates.get(key);
+    const layers = flattenLayers(this.repo.visible(this.session).map(x => x.layer), pattern);
+    let count = 0;
+    for (const layer of layers) for (const bank of layer.banks ?? [layer.pinned, layer.normal]) {
+      if (!bank || !Object.hasOwn(bank.domains, pattern.p + '/' + pattern.a.length)) continue;
+      if (bank.config.engine !== 'sqlite' || typeof bank.estimate !== 'function') return Infinity;
+      count += bank.estimate(pattern);
+    }
+    this.estimates.set(key, count);
+    return count;
+  }
   lookup(pattern, {cap, probes}) {
     const r = this.registry.retrieve(this.strategy, {
       repo: this.repo, session: this.session, pattern, query: this.query,

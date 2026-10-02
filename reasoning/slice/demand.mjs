@@ -8,8 +8,8 @@
  *
  *   - each conjunction is ordered greedily by sideways information passing: the atom with the most positions that are already bound (a
  *     constant, a variable of an earlier atom, a head variable seeded by the caller) comes first;
- *   - the head variables of a rule are seeded only at the positions that EVERY call site of its predicate binds (a greatest fixpoint, so a
- *     recursive rule is seeded by the constants of the question and by the variables its own body binds);
+ *   - each reachable rule is specialized by its caller's lookup position, with directed input and output domains, so converse and
+ *     recursive calls preserve their retrieval direction instead of requiring every call site to bind the same head position;
  *   - a call atom with at least one bound position is KEYED: the facts that can match it are found by looking up the values of the
  *     variable (or the constant) at one bound position; a call atom with no bound position is SCANNED: its predicate is looked up without
  *     a key, and the constants of what it returns key the atoms joined with it.
@@ -20,8 +20,8 @@
  * order: a bound position takes values that an earlier, fully requested atom (or the caller, or a constant) already contributed, so the
  * domain of its class contains every value of every solution.
  *
- * The domain is deliberately liberal (variable classes of a rule head and of its call sites are merged, every position of a matching
- * fact contributes); a larger domain only costs more lookups, it never loses a solution. The plan is the strict part.
+ * Domains deliberately overapproximate joins: projected premise values flow to rule outputs without evaluating a rule. They never merge
+ * recursive input and output positions. Indexed cached rows are revisited when new input keys arrive, until the domain fixpoint.
  *
  * The module is pure (no memory access); `retrieval.mjs` runs the lookups.
  */
@@ -29,6 +29,8 @@ import {variable} from '../../lib/types.mjs';
 import {stable} from '../../lib/util.mjs';
 
 const MAX_ALTERNATIVES = 32;
+// Stored counts omit derived fanout. Preserve the written order unless the base estimate offers a substantial advantage.
+const DERIVED_ESTIMATE_MARGIN = 8;
 
 /** The conjunctions of a question's conditions: `any` groups are alternatives. Null when there are too many (the caller falls back). */
 export function alternatives(conditions, cap = MAX_ALTERNATIVES) {
@@ -97,22 +99,35 @@ export class Demand {
    * @param conjunctions  arrays of the question's atoms, one array per alternative
    * @param rules         typed rules ({id, if: [atom], then: atom}) of the closure
    */
-  constructor({conjunctions, rules = []}) {
-    this.parent = new Map();
+  constructor({conjunctions, rules = [], estimate = null}) {
     this.dom = new Map();
+    this.edges = new Map();
+    this.facts = new Map();
+    this.readers = new Map();
+    this.pending = [];
     this.atoms = [];
     this.owners = [];
-    conjunctions.forEach((atoms, j) => this.owners.push({id: 'query' + j, atoms: this.register('query' + j, atoms, 'query')}));
     this.heads = new Map();
     for (const r of rules) {
-      const owner = {id: 'rule:' + r.id, atoms: this.register('rule:' + r.id, r.if, 'rule'), head: this.headOf('rule:' + r.id, r.then)};
-      this.owners.push(owner);
-      const key = slot(owner.head.p, owner.head.n);
+      const key = slot(r.then.p, r.then.a.length);
       if (!this.heads.has(key)) this.heads.set(key, []);
-      this.heads.get(key).push(owner);
+      this.heads.get(key).push(r);
     }
-    this.align();
+    conjunctions.forEach((atoms, j) => {
+      const owner = {id: 'query' + j, atoms: this.register('query' + j, atoms, 'query')};
+      for (const call of owner.atoms) call.estimate = estimate && call.terms.some(t => t.cls === undefined)
+        ? estimate({p: call.p, a: call.terms.map(t => t.cls ? t.name : t.value), neg: call.neg}) : Infinity;
+      this.owners.push(owner);
+      this.order(owner, []);
+    });
     this.plan();
+    for (const call of this.atoms) {
+      const cls = call.key === null ? null : call.terms[call.key].cls;
+      if (!cls) continue;
+      if (!this.readers.has(cls)) this.readers.set(cls, []);
+      this.readers.get(cls).push(call);
+      for (const key of this.dom.get(cls)?.keys() ?? []) this.pending.push({call, key});
+    }
   }
 
   term(owner, t) { return variable(t) ? {cls: owner + '|' + t, name: t} : {value: t}; }
@@ -127,37 +142,11 @@ export class Demand {
 
   headOf(owner, atom) { return {owner, p: atom.p, n: atom.a.length, terms: atom.a.map(t => this.term(owner, t))}; }
 
-  find(x) {
-    if (!this.parent.has(x)) this.parent.set(x, x);
-    let root = x;
-    while (this.parent.get(root) !== root) root = this.parent.get(root);
-    for (let at = x; at !== root;) { const next = this.parent.get(at); this.parent.set(at, root); at = next; }
-    return root;
-  }
-
-  union(a, b) {
-    const ra = this.find(a), rb = this.find(b);
-    if (ra === rb) return;
-    this.parent.set(rb, ra);
-    const moved = this.dom.get(rb);
-    if (!moved) return;
-    this.dom.delete(rb);
-    if (!this.dom.has(ra)) this.dom.set(ra, new Map());
-    for (const [key, entry] of moved) if (!this.dom.get(ra).has(key)) this.dom.get(ra).set(key, entry);
-  }
-
-  /** Merges, position by position, the variable classes of every rule head with those of the call atoms of the same predicate. */
-  align() {
-    for (const call of this.atoms) {
-      for (const head of this.heads.get(slot(call.p, call.n)) ?? []) {
-        for (let k = 0; k < call.n; k++) {
-          const c = call.terms[k], h = head.head.terms[k];
-          if (c.cls && h.cls) this.union(c.cls, h.cls);
-          else if (c.cls) this.add(c.cls, h.value, 'seed');
-          else if (h.cls) this.add(h.cls, c.value, 'seed');
-        }
-      }
-    }
+  /** Input domains flow into rule instances; outputs flow back, never merging recursive input and output positions. */
+  connect(from, to) {
+    if (!this.edges.has(from)) this.edges.set(from, new Set());
+    this.edges.get(from).add(to);
+    for (const [key, entry] of this.dom.get(from) ?? []) this.add(to, entry.value, 'seed', key);
   }
 
   /** Orders one conjunction by sideways information passing; records on each atom the positions that are bound when it is reached. */
@@ -168,8 +157,15 @@ export class Demand {
     owner.sequence = [];
     while (todo.length) {
       const score = a => a.terms.filter(t => t.cls === undefined || bound.has(t.cls)).length;
+      const joined = a => a.terms.filter(t => t.cls !== undefined && bound.has(t.cls)).length;
       let best = 0;
-      todo.forEach((a, i) => { if (score(a) > score(todo[best])) best = i; });
+      todo.forEach((a, i) => {
+        const previous = todo[best];
+        const margin = this.heads.has(slot(a.p, a.n)) || this.heads.has(slot(previous.p, previous.n)) ? DERIVED_ESTIMATE_MARGIN : 1;
+        if (score(a) > score(previous) || (score(a) === score(previous) && (
+          joined(a) > joined(previous) || (joined(a) === joined(previous) &&
+          Math.max(1, a.estimate ?? Infinity) * margin < Math.max(1, previous.estimate ?? Infinity))))) best = i;
+      });
       const [atom] = todo.splice(best, 1);
       atom.bound = atom.terms.map((t, i) => (t.cls === undefined || bound.has(t.cls) ? i : -1)).filter(i => i >= 0);
       // key by a bound variable (its values come from an earlier, fully requested atom) before a written constant (possibly a hub)
@@ -180,72 +176,94 @@ export class Demand {
   }
 
   /**
-   * The static plan: which head positions are seeded. A position is seeded when EVERY call site of the predicate binds it. Positions are
-   * tried one at a time, on top of those already accepted (an accepted position changes the order of the bodies, so a position is accepted
-   * only if the order it produces binds it at every call site), and a last pass drops any position the final order no longer supports.
+   * Specialize each reachable rule by the single position actually used for retrieval. Converse and mutually recursive rules can
+   * therefore pass a key through an entire dependency cycle without requiring unrelated call sites to bind the same position.
+   * Each rule has at most arity + 1 instances (one per key position and one scan).
    */
   plan() {
-    const seeded = new Map([...this.heads.keys()].map(k => [k, Array(Number(k.split('/')[1])).fill(false)]));
-    const reorder = () => { for (const owner of this.owners) this.order(owner, owner.head ? seeded.get(slot(owner.head.p, owner.head.n)) : []); };
-    const supported = (key, k) => { const sites = this.atoms.filter(a => slot(a.p, a.n) === key); return sites.length > 0 && sites.every(a => a.bound.includes(k)); };
-    for (let round = 0; round < 16; round++) {
-      let changed = false;
-      for (const [key, vector] of seeded) {
-        for (let k = 0; k < vector.length; k++) {
-          if (vector[k]) continue;
-          vector[k] = true;
-          reorder();
-          if (supported(key, k)) changed = true; else { vector[k] = false; reorder(); }
+    const instances = new Map();
+    for (let j = 0; j < this.atoms.length; j++) {
+      const call = this.atoms[j];
+      for (const rule of this.heads.get(slot(call.p, call.n)) ?? []) {
+        const id = `rule:${rule.id}@${call.key ?? 'scan'}`;
+        let owner = instances.get(id);
+        if (!owner) {
+          owner = {id, atoms: this.register(id, rule.if, 'rule'), head: this.headOf(id, rule.then)};
+          instances.set(id, owner);
+          this.owners.push(owner);
+          this.order(owner, owner.head.terms.map((_, i) => i === call.key));
+        }
+        for (let k = 0; k < call.n; k++) {
+          const c = call.terms[k], h = owner.head.terms[k];
+          if (k === call.key && h.cls) {
+            if (c.cls) this.connect(c.cls, h.cls);
+            else this.add(h.cls, c.value, 'seed');
+          } else if (c.cls) {
+            if (h.cls) this.connect(h.cls, c.cls);
+            else this.add(c.cls, h.value, 'seed');
+          }
         }
       }
-      reorder();
-      for (const [key, vector] of seeded) for (let k = 0; k < vector.length; k++) if (vector[k] && !supported(key, k)) { vector[k] = false; changed = true; reorder(); }
-      if (!changed) break;
-    }
-    reorder();
-    this.shareKeys();
-  }
-
-  /**
-   * An atom bound at a variable and at a constant is keyed by the variable, unless another atom already has to look the same constant up:
-   * then the shared lookup serves both and the per-value lookups are saved (the scope of a universal question repeats its restriction).
-   */
-  shareKeys() {
-    const mustLookUp = new Set();
-    for (const a of this.atoms) if (a.key !== null && a.terms[a.key].cls === undefined) mustLookUp.add(`${slot(a.p, a.n)}#${a.key}=${stable(a.terms[a.key].value)}`);
-    for (const a of this.atoms) {
-      if (a.key === null || a.terms[a.key].cls === undefined) continue;
-      const shared = a.bound.find(i => a.terms[i].cls === undefined && mustLookUp.has(`${slot(a.p, a.n)}#${i}=${stable(a.terms[i].value)}`));
-      if (shared !== undefined) a.key = shared;
     }
   }
 
-  /** Records that class `cls` can take `value`, contributed by `from`. */
+  /** Adds a domain value and propagates it along input/output edges. */
   add(cls, value, from, key = stable(value)) {
-    const root = this.find(cls);
-    if (!this.dom.has(root)) this.dom.set(root, new Map());
-    const map = this.dom.get(root);
-    if (!map.has(key)) map.set(key, {value});
-    return map.size;
-  }
-
-  /** A retrieved fact enlarges the domains of the classes of every call atom it matches. */
-  feed(fact) {
-    const a = fact.atom;
-    for (const call of this.atoms) {
-      if (call.p !== a.p || call.n !== a.a.length) continue;
-      if (call.terms.some((t, i) => t.cls === undefined && stable(t.value) !== stable(a.a[i]))) continue;
-      call.terms.forEach((t, i) => { if (t.cls !== undefined) this.add(t.cls, a.a[i], 'fact'); });
+    const queue = [cls];
+    for (let i = 0; i < queue.length; i++) {
+      const current = queue[i];
+      if (!this.dom.has(current)) this.dom.set(current, new Map());
+      const map = this.dom.get(current);
+      if (map.has(key)) continue;
+      map.set(key, {value});
+      for (const call of this.readers.get(current) ?? []) this.pending.push({call, key});
+      for (const next of this.edges.get(current) ?? []) queue.push(next);
     }
+    return this.dom.get(cls).size;
   }
 
-  /** The keyed lookups owed now: the constant (or the domain values) at the key position of every keyed call atom. */
+  /** Facts contribute only to calls whose input domain reaches them; a reverse call cannot flood a forward call's input. */
+  feed(fact) {
+    const a = fact.atom, key = slot(a.p, a.a.length), id = stable(a);
+    if (!this.facts.has(key)) this.facts.set(key, {seen: new Set(), positions: a.a.map(() => new Map())});
+    const facts = this.facts.get(key);
+    if (facts.seen.has(id)) return;
+    facts.seen.add(id);
+    a.a.forEach((v, i) => {
+      const key = stable(v), index = facts.positions[i];
+      if (!index.has(key)) index.set(key, []);
+      index.get(key).push(a);
+    });
+    for (const call of this.atoms) if (call.p === a.p && call.n === a.a.length) this.feedCall(call, a);
+  }
+
+  feedCall(call, a) {
+    if (call.terms.some((t, i) => t.cls === undefined && stable(t.value) !== stable(a.a[i]))) return;
+    if (call.key !== null) {
+      const t = call.terms[call.key];
+      if (t.cls && !this.dom.get(t.cls)?.has(stable(a.a[call.key]))) return;
+    }
+    call.terms.forEach((t, i) => { if (t.cls !== undefined) this.add(t.cls, a.a[i], 'fact'); });
+  }
+
+  /** Revisit only the indexed rows reached by newly arrived input keys, including rows admitted before a recursive call reached them. */
+  settle() {
+    for (let i = 0; i < this.pending.length; i++) {
+      const {call, key} = this.pending[i];
+      const rows = this.facts.get(slot(call.p, call.n))?.positions[call.key].get(key) ?? [];
+      for (const a of rows) this.feedCall(call, a);
+    }
+    this.pending.length = 0;
+  }
+
+  /** The keyed lookups owed now. */
   obligations() {
+    this.settle();
     const out = new Map();
     for (const call of this.atoms) {
       if (call.key === null) continue;
       const t = call.terms[call.key];
-      const values = t.cls === undefined ? [t.value] : [...(this.dom.get(this.find(t.cls))?.values() ?? [])].map(e => e.value);
+      const values = t.cls === undefined ? [t.value] : [...(this.dom.get(t.cls)?.values() ?? [])].map(e => e.value);
       for (const value of values) {
         const key = `${slot(call.p, call.n)}#${call.key}=${stable(value)}`;
         if (!out.has(key)) out.set(key, {key, p: call.p, n: call.n, i: call.key, value});

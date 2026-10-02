@@ -11,6 +11,7 @@ test('benchmark scoring preserves conflict, unknown gold and complete lower boun
   assert.equal(score({status: 'both'}, {status: 'supported'}).outcome, 'wrong');
   assert.equal(score({status: 'unknown'}, {status: 'unknown'}).outcome, 'correct');
   assert.equal(score({status: 'supported', count: 4}, {status: 'budget_exhausted', complete: false, count: 3}).outcome, 'unknown');
+  assert.equal(score({status: 'supported', count: 4}, {status: 'supported', count: 4, complete: false}).outcome, 'unknown');
   assert.equal(score({status: 'supported', count: 4, bound: 'at_least'}, {status: 'supported', count: 4}).outcome, 'wrong');
   assert.equal(score({status: 'supported', rows: [{a: 'alice', b: 'club'}]}, {status: 'supported', rows: [{a: 'club', b: 'alice'}]}).outcome, 'wrong');
 });
@@ -37,9 +38,67 @@ test('paired stopping excludes capped evidence and drops an arm only after first
   assert.equal(paired(rows).lo, 1);
   assert.equal(stopDecision(rows, 100).reason, 'decisive');
   assert.equal(paired(rows.map(r => ({...r, evidence_does_not_fit: true}))), null);
-  const broken = rows.map(r => ({...r, outcome: r.arm === 'B' && +r.id < 21 ? 'invalid' : r.outcome}));
+  const broken = rows.map(r => ({...r, outcome: r.arm === 'B' && +r.id < 21 ? 'invalid' : r.outcome, broken_model_output: r.arm === 'B' && +r.id < 21}));
   assert.deepEqual(stopDecision(broken, 100).dropped_arms, ['B']);
   assert.equal(stopDecision(broken.slice(0, 40), 20).stop, false);
+});
+
+test('first-100 broken-arm check counts empty and unparsable model output, not validator or engine failures', () => {
+  const rows = Array.from({length: 100}, (_, i) => ({id: String(i), arm: 'B',
+    outcome: i < 50 ? 'failed' : 'invalid', packet: {status: 'error', reason: 'engine_failure'},
+    author: {status: 'invalid', parsed: true, validation: {problems: [{code: 'quantifier_not_used'}]}}}));
+  assert.equal(stopDecision(rows, 100).reason, null);
+  const boundary = rows.map((r, i) => ({...r, broken_model_output: i < 20}));
+  assert.equal(stopDecision(boundary, 100).reason, null);
+  const broken = boundary.map((r, i) => i === 20 ? {...r, broken_model_output: true, parse_ok: false} : r);
+  assert.deepEqual(stopDecision(broken, 100).dropped_arms, ['B']);
+  assert.deepEqual(stopDecision(broken, 100).broken_counts.B, {empty_or_unparsable: 21, denominator: 100});
+  assert.equal(stopDecision([...rows.slice(0, 100), {id: '100', arm: 'B', response_empty: true}], 100).reason, null);
+  assert.equal(stopDecision(rows.map((r, i) => i < 21 ? {...r, author: {status: 'invalid', parsed: false, validation: {problems: [{code: 'invalid_wire'}]}}} : r), 100).reason, 'broken');
+});
+
+test('direct answers attribute reasoning, parser and transport errors without blaming an engine', () => {
+  const expected = {status: 'supported'};
+  const wrong = {status: 'refuted'};
+  assert.equal(score(expected, wrong).outcome, 'wrong');
+  assert.equal(failureLayer({arm: 'A', outcome: 'wrong', packet: wrong, rendered: JSON.stringify(wrong)}), 'reasoning');
+  const malformed = {status: 'error', reason: 'malformed_output'};
+  assert.equal(score(expected, malformed).outcome, 'failed');
+  assert.equal(failureLayer({arm: 'A', outcome: 'failed', packet: malformed, parseOk: false}), 'rendering');
+  assert.equal(failureLayer({arm: 'A', outcome: 'failed', error: 'completion timed out'}), 'transport');
+  assert.equal(failureLayer({arm: 'B', outcome: 'wrong', author: {status: 'validated'}, packet: wrong}), 'engine');
+});
+
+test('an unsafe authored projection is not an engine failure', () => {
+  const world = createWorld(knowledge);
+  try {
+    const sop = '@q query\n  mode count\n  select ?person\n  where match\n    relation "member"\n    role subject "Alice"\n    role object "Club"\n    polarity affirmed\n  end\n';
+    let error = null;
+    try {
+      const linked = linkCircuit(sop, 'Count memberships of Alice at Club.', world.lexicon);
+      execute(world, linked.query);
+    }
+    catch (failure) { error = failure.message; }
+    assert.equal(failureLayer({arm: 'C', outcome: 'failed', author: {status: 'validated'}, error, packet: null}), 'authoring');
+  } finally { world.dispose(); }
+});
+
+test('paired comparisons match within families, and proof and cost rates keep their denominators', () => {
+  const rows = [
+    {family: 'F1', id: 'shared', arm: 'A', outcome: 'wrong', cost_usd: 0, verified: false},
+    {family: 'F1', id: 'shared', arm: 'B', outcome: 'correct', verified: true, proof_available: true, cost_usd: 0.03},
+    {family: 'F2', id: 'shared', arm: 'A', outcome: 'correct', cost_usd: 0, verified: false},
+    {family: 'F2', id: 'shared', arm: 'B', outcome: 'failed', verified: false, proof_available: true, cost_usd: 0.01}
+  ];
+  assert.equal(paired(rows).n, 2);
+  assert.equal(paired(rows).mean, 0);
+  const b = summarize(rows.filter(r => r.arm === 'B'));
+  assert.deepEqual([b.proof_validity.numerator, b.proof_validity.denominator], [1, 2]);
+  assert.deepEqual([b.verified_correct.numerator, b.verified_correct.denominator], [1, 2]);
+  assert.equal(b.cost_per_100, 2);
+  assert.match(report(rows, {pilot: true}).markdown, /\| Cost USD \/ 100 \|/);
+  assert.match(report(rows, {pilot: true}).markdown, /\| Verified correct \/ n \|/);
+  assert.match(report(rows, {pilot: true}).markdown, /\| F1\/B\/fits \|[^\n]*\| 3\.0000 \|/);
 });
 
 test('real compiler, SQLite slice and oracle preserve exact gold evidence membership', () => {
