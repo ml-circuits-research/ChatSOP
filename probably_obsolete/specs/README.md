@@ -25,3 +25,7 @@ The older archive index for the `.docx` originals and the former `docs/legacy/` 
 ## Frozen and paused specifications (2026-10-01)
 
 Specifications of the frozen small-model branch are in `../tinyLLMExperiments/specs/` (training, data and evaluation, query curriculum, independent corpus, research and grounded corpora, corpus audit tool, capability APIs; ids as before the 2026-10-01 renumbering), and the paused EmotionDetectionSystem spec is `../paused/specs/DS029-emotion-detection.md`. See `../tinyLLMExperiments/README.md` and `../paused/README.md`.
+
+## Small-model training text removed on 2026-10-02
+
+On the owner's request of 2026-10-02 the sections and sentences of the live specifications (DS007, DS011, DS012) and skills that only served model training were moved to `../tinyLLMExperiments/specs/removed-sections-2026-10-02.md`, each entry with the file and section it came from; `docs/specs/aliases.json` (`sections_removed_2026_10_02`) lists them. The specification ids did not change. No model is trained in this project.

@@ -6,9 +6,11 @@
  * - The *Base Memory* tab lists the memories (name, strategy, size, created, parent) with View (manifest, counts, sample wires), Fork
  *   (name and strategy), Add knowledge (paste or upload a circuit; validation problems are shown, nothing is written on failure) and
  *   Start session; creating an empty memory is there too. Every signed-in user may use them (no admin role yet).
- * - Settings, *Coding agent*: the omp model picker (`GET /v1/omp/models`, subscription models first, with the cost class, filterable); the
- *   chosen model is tried first, before the configured subscription chain. A message is always written into circuits by the coding agent
- *   (`POST /v1/chat/completions`); attached files go to knowledge authoring (`POST /v1/author`).
+ * - Settings, *Formalization*: the formalization strategy of the session (session setting `formalizer`; strategies the server cannot run
+ *   are disabled with the reason, from `GET /v1/status`) and the CodingAgent model picker (`GET /v1/omp/models`, subscription models
+ *   first, with the cost class, filterable; the chosen model is tried before the configured chain). *Server status*: strategies, base
+ *   memories with their warm state, and the reasoning engines (`GET /v1/status`). A message goes to `POST /v1/chat/completions`;
+ *   attached files go to knowledge authoring (`POST /v1/author`).
  * - Authoring progress (`POST /v1/author` with `wait: false`, polled) and the draft circuits (validation, report, cost) are shown as a
  *   card in the conversation with Accept and Reject. Nothing is knowledge until the user accepts a draft.
  * All dynamic text is inserted with textContent; the page never builds markup from server data.
@@ -18,12 +20,12 @@ export const sessionHeadHtml = `<header class="chat-head"><div class="info" id="
 
 const srow = (title, help, control) => `<div class="srow"><div class="what"><b>${title}</b><span>${help}</span></div><div class="ctl">${control}</div></div>`;
 export const settingsCodingAgentHtml = [
-  srow('<label class="plain" for="omp-model">Coding agent model</label>', 'Models omp can use. Subscription models cost nothing per token; paid models show their price per million tokens.', '<input type="search" id="omp-filter" placeholder="Filter models" aria-label="Filter models"><select id="omp-model"><option value="">omp default</option></select><button id="omp-refresh" type="button" title="Read the model list from omp again">Refresh</button>'),
+  srow('<label class="plain" for="omp-model">CodingAgent model</label>', 'Tried first, before the configured chain. Models omp can use; subscription models cost nothing per token, paid models show their price per million tokens.', '<input type="search" id="omp-filter" placeholder="Filter models" aria-label="Filter models"><select id="omp-model"><option value="">no preference: the configured chain</option></select><button id="omp-refresh" type="button" title="Read the model list from omp again">Refresh</button>'),
   '<p id="omp-note" class="hint-note"></p>',
 ].join('');
 
-export const memoryTabHtml = `<h2>Base Memory</h2><p class="lead">A session works on its own copy of a base memory. What a chat adds stays in the session until you commit it into a new base memory.</p>
-<div class="mem-top"><button id="mem-new" type="button" title="Create an empty base memory">Create empty memory…</button><button id="mem-refresh" type="button">Reload</button><span class="spacer"></span><span id="mem-count" class="state"></span></div>
+export const memoryTabHtml = `<h2>Base Memory</h2><p class="lead">Every session is a fork of a base memory. The default is the encyclopedic world-v1, which gives a session common sense and basic knowledge; minimal or empty memories serve specialised tasks. What a chat adds stays in the session until you commit it into a new base memory.</p>
+<div class="mem-top"><button id="mem-new" type="button" title="Create a base memory: encyclopedic, minimal or empty">Create memory…</button><button id="mem-refresh" type="button">Reload</button><span class="spacer"></span><span id="mem-count" class="state"></span></div>
 <div id="mem-msg" class="msgline" role="status"></div>
 <table class="mem" aria-label="Base memories"><thead><tr><th>Name</th><th>Strategy</th><th>Size</th><th>Created</th><th>Parent</th><th>Actions</th></tr></thead><tbody id="mem-rows"><tr><td colspan="6">Loading…</td></tr></tbody></table>`;
 
@@ -44,8 +46,8 @@ export const productDialogsHtml = `
 <textarea id="know-text" placeholder="Knowledge wires, for example:&#10;@parent predicate&#10;  args subject:entity object:entity&#10;@f1 fact&#10;  holds parent ann bob&#10;  source &quot;demo&quot;" aria-label="Circuit text"></textarea>
 <div class="row"><label for="know-reason">Reason</label><input type="text" id="know-reason" maxlength="200" placeholder="why it is added"></div>
 <div id="know-msg" class="msgline" role="status"></div><div class="actions"><button id="know-cancel" type="button">Close</button><button id="know-go" type="button" class="primary">Validate and add</button></div></dialog>
-<dialog id="new-dialog" aria-labelledby="new-title"><h2 id="new-title">Create an empty memory</h2>
-<div class="row"><label for="new-name">Name</label><input type="text" id="new-name" maxlength="120"></div><div class="row"><label for="new-strategy">Strategy</label><select id="new-strategy"></select></div>
+<dialog id="new-dialog" aria-labelledby="new-title"><h2 id="new-title">Create a base memory</h2>
+<div class="row"><label for="new-name">Name</label><input type="text" id="new-name" maxlength="120"></div><div class="row"><label for="new-kind">Built on</label><select id="new-kind"><option value="encyclopedic">encyclopedic: a fork of world-v1 (common sense and basic knowledge)</option><option value="minimal" selected>minimal: the core vocabulary (core-min)</option><option value="empty">empty: nothing, for a specialised task</option></select></div><div class="row"><label for="new-strategy">Strategy</label><select id="new-strategy"></select></div>
 <div id="new-msg" class="msgline" role="status"></div><div class="actions"><button id="new-cancel" type="button">Close</button><button id="new-go" type="button" class="primary">Create</button></div></dialog>
 <dialog id="drafts-dialog" aria-labelledby="drafts-title"><h2 id="drafts-title">Draft circuits</h2><div id="drafts-list"></div><div id="drafts-msg" class="msgline" role="status"></div><div class="actions"><button id="drafts-close" type="button">Close</button></div></dialog>
 <dialog id="commit-dialog" aria-labelledby="commit-title"><h2 id="commit-title">Commit the session to a base memory</h2>
@@ -74,7 +76,7 @@ function bindSession(id){const m=sessionMap();m[current]=id;store.set('chatsop.s
 function sessionBody(){return PROD.session?{session_id:PROD.session.id}:{};}
 function renderSessionBar(){
  const info=$('session-info');info.textContent='';const s=PROD.session;
- if(!s){info.textContent='No session yet.';$('strategy-info').textContent='no session';return;}
+ if(!s){info.textContent='No session yet.';return;}
  info.append(el('b','',s.name||s.id),document.createTextNode(' \u00b7 base memory '),el('b','',s.base.name));
  info.append(el('span','pill accent',s.base.strategy));
  const accepted=(s.circuits||[]).length,drafts=(s.drafts||[]).filter(d=>d.state==='draft').length;
@@ -82,7 +84,8 @@ function renderSessionBar(){
  if(drafts)info.append(el('span','pill warn',drafts+' draft'+(drafts===1?'':'s')));
  if((s.committed_to||[]).length)info.append(el('span','pill ok','committed'));
  info.title='session '+s.id;
- $('strategy-info').textContent=s.base.strategy+' (base memory '+s.base.name+')';
+ info.append(el('span','pill',strategyName()));
+ if($('formalizer'))$('formalizer').value=(s.settings&&s.settings.formalizer)||'';
  const model=(s.settings&&s.settings.omp_model)||'';if([...$('omp-model').options].some(o=>o.value===model))$('omp-model').value=model;
  $('commit-open').disabled=!accepted;
  $('drafts-open').textContent=drafts?'Drafts ('+drafts+')':'Drafts';
@@ -93,22 +96,23 @@ async function refreshSession(){
  if(r.ok)PROD.session=r.body;renderSessionBar();
 }
 async function startSession(baseId,name){
- const r=await jcall('POST','/v1/sessions',{base:baseId,...(name?{name}:{}),settings:{omp_model:store.get('chatsop.ompModel',null)}});
+ const r=await jcall('POST','/v1/sessions',{...(baseId?{base:baseId}:{}),...(name?{name}:{}),settings:{omp_model:store.get('chatsop.ompModel',null),formalizer:store.get('chatsop.formalizer',null)}});
  if(!r.ok)return r;
- PROD.session=r.body;bindSession(r.body.id);store.set('chatsop.lastBase',baseId);renderSessionBar();return r;
+ PROD.session=r.body;bindSession(r.body.id);if(baseId)store.set('chatsop.lastBase',baseId);renderSessionBar();return r;
 }
 async function ensureSession(){
  const id=boundSession();
  if(id){const r=await jcall('GET','/v1/sessions/'+id);if(r.ok){PROD.session=r.body;renderSessionBar();return PROD.session;}}
  PROD.session=null;renderSessionBar();
- let r=await startSession(store.get('chatsop.lastBase','default'));
- if(!r.ok)r=await startSession('default');
+ // Without a remembered choice the server forks its default base memory (the encyclopedic world-v1 when loaded).
+ let r=await startSession(store.get('chatsop.lastBase',null));
+ if(!r.ok)r=await startSession(null);
  if(!r.ok)$('session-info').textContent='No session: '+errText(r);
  return PROD.session;
 }
-async function loadMemories(){const r=await jcall('GET','/v1/memories');if(r.ok){PROD.memories=r.body.data;PROD.strategies=r.body.strategies;}return r;}
+async function loadMemories(){const r=await jcall('GET','/v1/memories');if(r.ok){PROD.memories=r.body.data;PROD.strategies=r.body.strategies;PROD.defaultBase=r.body.default_base;}return r;}
 function fillStrategies(select,selected){select.textContent='';for(const s of PROD.strategies){const o=document.createElement('option');o.value=s.id;o.textContent=s.id;o.title=s.note;select.append(o);}if(selected)select.value=selected;}
-const memLabel=m=>m.name+' · '+m.strategy+' · '+m.circuits+' circuit'+(m.circuits===1?'':'s');
+const memLabel=m=>m.name+(m.id===PROD.defaultBase?' (default)':'')+' · '+m.facts+' fact'+(m.facts===1?'':'s')+' · '+m.circuits+' circuit'+(m.circuits===1?'':'s');
 
 // ---- new session dialog
 function showStartDetail(){
@@ -118,7 +122,7 @@ function showStartDetail(){
 async function openStart(baseId){
  await loadMemories();const select=$('start-base');select.textContent='';
  for(const m of PROD.memories){const o=document.createElement('option');o.value=m.id;o.textContent=memLabel(m);select.append(o);}
- select.value=baseId||store.get('chatsop.lastBase','default');if(!select.value&&PROD.memories.length)select.selectedIndex=0;
+ select.value=baseId||store.get('chatsop.lastBase',null)||PROD.defaultBase||'';if(!select.value&&PROD.memories.length)select.selectedIndex=0;
  $('start-error').hidden=true;$('start-name').value='';showStartDetail();$('start-dialog').showModal();
 }
 $('start-base').onchange=showStartDetail;
@@ -146,7 +150,7 @@ function renderMemoryRows(){
  for(const m of PROD.memories){
   const tr=document.createElement('tr');if(PROD.session&&PROD.session.base.id===m.id)tr.className='current';
   const cell=(l,text,cls)=>{const td=el('td',cls||'',text);td.dataset.l=l;tr.append(td);return td;};
-  cell('Name',m.name,'name').title=m.description||m.id;
+  cell('Name',m.name+(m.id===PROD.defaultBase?' (default)':''),'name').title=m.description||m.id;
   cell('Strategy',m.strategy);
   cell('Size',m.circuits+' circuit'+(m.circuits===1?'':'s')+' \u00b7 '+m.facts+' fact'+(m.facts===1?'':'s'));
   cell('Created',day(m.created_at));
@@ -206,7 +210,7 @@ $('know-go').onclick=async()=>{
 $('mem-new').onclick=()=>{fillStrategies($('new-strategy'));$('new-name').value='';setMsg('new-msg','');$('new-dialog').showModal();};
 $('new-go').onclick=async()=>{
  const name=$('new-name').value.trim();if(!name){setMsg('new-msg','Name the memory first.','bad');return;}
- const r=await jcall('POST','/v1/memories',{name,strategy:$('new-strategy').value});
+ const r=await jcall('POST','/v1/memories',{name,strategy:$('new-strategy').value,kind:$('new-kind').value});
  if(!r.ok){setMsg('new-msg',errText(r),'bad');return;}
  setMsg('new-msg','Created "'+r.body.name+'".','ok');$('new-name').value='';renderMemories();
 };
@@ -253,7 +257,7 @@ const OMP_GROUPS=[['subscription','Subscription (no per-token cost)'],['paid_api
 function renderOmpOptions(){
  const select=$('omp-model'),r=PROD.omp;if(!r)return;
  const keep=select.value||(PROD.session&&PROD.session.settings&&PROD.session.settings.omp_model)||'';const q=$('omp-filter').value.trim().toLowerCase();select.textContent='';
- const def=document.createElement('option');def.value='';def.textContent='omp default'+(r.default_model?' ('+r.default_model+')':'');select.append(def);
+ const def=document.createElement('option');def.value='';def.textContent='no preference: the configured chain'+(PROD.status&&PROD.status.formalization.strategies[0].models?' ('+PROD.status.formalization.strategies[0].models.map(m=>m.id).join(' \u2192 ')+')':'');select.append(def);
  for(const [cls,label] of OMP_GROUPS){
   const ms=r.models.filter(m=>m.cost_class===cls&&(m.id===keep||(q?m.id.toLowerCase().includes(q):!(m.provider==='openrouter'&&cls==='paid_api'&&r.models.length>60&&!/latest$/.test(m.id)))));
   if(!ms.length)continue;const g=document.createElement('optgroup');g.label=label;
@@ -272,9 +276,31 @@ async function loadOmpModels(refresh){
 }
 async function saveSetting(patch){
  if('omp_model' in patch)store.set('chatsop.ompModel',patch.omp_model);
+ if('formalizer' in patch)store.set('chatsop.formalizer',patch.formalizer);
  if(!PROD.session)return;const r=await jcall('POST','/v1/sessions/'+PROD.session.id+'/settings',patch);if(r.ok){PROD.session=r.body;renderSessionBar();}
 }
 $('omp-model').onchange=e=>saveSetting({omp_model:e.target.value||null});
+$('formalizer').onchange=e=>saveSetting({formalizer:e.target.value||null});
+
+// ---- server status (GET /v1/status): formalization strategies, base memories, engines
+PROD.status=null;
+function strategyName(){const s=PROD.session&&PROD.session.settings&&PROD.session.settings.formalizer;return s||(PROD.status?PROD.status.formalization.default:'the request parser');}
+function renderStrategies(){
+ const select=$('formalizer'),st=PROD.status;if(!st)return;const keep=(PROD.session&&PROD.session.settings&&PROD.session.settings.formalizer)||'';select.textContent='';
+ const def=document.createElement('option');def.value='';def.textContent='server default ('+st.formalization.default+')';select.append(def);
+ for(const s of st.formalization.strategies){const o=document.createElement('option');o.value=s.id;o.textContent=s.id+(s.available?'':' — '+(s.reason||'not available'));o.disabled=!s.available&&s.id!==keep;select.append(o);}
+ select.value=keep;
+}
+function renderStatus(){
+ const box=$('status-box'),st=PROD.status;box.textContent='';if(!st)return;
+ $('status-when').textContent=(st.ready?'ready':'not ready')+' · up '+Math.round(st.uptime_s/60)+' min · read '+new Date().toLocaleTimeString();
+ const table=(head,rows)=>{const t=el('table','mem');const h=document.createElement('tr');for(const x of head)h.append(el('th','',x));const th=document.createElement('thead');th.append(h);const tb=document.createElement('tbody');for(const r of rows){const tr=document.createElement('tr');r.forEach((x,i)=>{const td=el('td','',x);td.dataset.l=head[i];tr.append(td);});tb.append(tr);}t.append(th,tb);return t;};
+ box.append(el('h4','','Formalization strategies'),table(['Strategy','State','Backend','Models'],st.formalization.strategies.map(s=>[s.id+(s.id===st.formalization.default?' (default)':''),s.available?'available':(s.reason||'not available'),s.backend||'',(s.models||[]).map(m=>m.id+(m.available===false?' (unavailable)':'')).join(' → ')+(s.endpoint?' '+s.endpoint:'')])));
+ box.append(el('h4','','Base memories'),table(['Memory','Facts','Warm'],st.memories.map(m=>[m.name+' ('+m.id+')',String(m.facts??''),m.warm?(m.warm.skipped?'skipped: '+m.warm.skipped:'warm, '+(m.warm.ms/1000).toFixed(1)+' s, '+m.warm.layers+' layers'):'loads on first use'])));
+ box.append(el('h4','','Reasoning engines'),el('p','msgline',st.reasoning.router+'; oracle '+st.reasoning.oracle+'; '+st.reasoning.engines.map(e=>e.id+(e.available?'':' (not installed)')).join(', ')));
+}
+async function loadStatus(){const r=await jcall('GET','/v1/status');if(!r.ok){$('status-when').textContent='The status could not be read: '+errText(r);return;}PROD.status=r.body;renderStrategies();renderStatus();renderSessionBar();renderOmpOptions();}
+$('status-refresh').onclick=()=>loadStatus();
 $('omp-filter').oninput=()=>renderOmpOptions();
 $('omp-refresh').onclick=()=>loadOmpModels(true);
 
@@ -336,6 +362,6 @@ async function productEarly(text){
  await runAuthoring(text,files);
  return true;
 }
-ensureSession().then(()=>loadOmpModels(false));
+ensureSession().then(()=>Promise.all([loadOmpModels(false),loadStatus()]));
 initTabs();
 `;

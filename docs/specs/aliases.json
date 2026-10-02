@@ -377,5 +377,29 @@
         "file": "DS022-sessions-and-base-memories.md"
       }
     }
+  },
+  "sections_removed_2026_10_02": {
+    "description": "Owner request of 2026-10-02 to remove the small-model training rules: sections and sentences that only served model training were moved out of live specifications into the archive file below; the specification ids and files did not change. No model is trained in this project.",
+    "archive": "probably_obsolete/tinyLLMExperiments/specs/removed-sections-2026-10-02.md",
+    "from": {
+      "DS007": [
+        "Pre-run record: the formalizer-change hypothesis row, the checkpoint budget and the single-GPU-worker rule",
+        "Promotion gates to freeze, not observations (replaced by \"Reporting a result\")",
+        "Planned study arms: Romanian-anchor ablations, quantization invariance, shared versus role-specific models, the qualified-small-model baseline and teacher cost, checkpoint selection",
+        "Observed rights boundary: the training-approval sentence"
+      ],
+      "DS011": [
+        "LLM-authored text (D2)",
+        "New cases",
+        "Other LLM-authored project text",
+        "Owner chat messages",
+        "Jargon term sources for translate-jargon-v1",
+        "Model weights table and the LanguageTool note (replaced by a short Model weights paragraph)",
+        "the training-approval consequence and rule 4"
+      ],
+      "DS012": [
+        "\"or a training script\" in the sealed-tests obligation"
+      ]
+    }
   }
 }

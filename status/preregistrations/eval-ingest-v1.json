@@ -1,0 +1,31 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-ingest-v1",
+  "name": "Learning by ingestion: documents into task-type base memories (E-ingest) and a procedure library reused by the query author (E-procedures)",
+  "registered_at": "2026-10-02T09:55:00Z",
+  "registered_by": "ingestion-agent (owner request of 2026-10-02: add documents, books etc. to base memories and make sessions from them; procedures written by a coding agent become reusable)",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
+  "kind": "evaluation-only, minimal (no training). Models: z.ai GLM (zai/glm-5.3) through omp for drafting and as the CodingAgent query author and as a direct reader; a local GGUF (Qwen3-4B or Qwen3.8-27B) through llama-server only when the GPU is free.",
+  "frozen_before_results": "Written after the ingestion code (lib/ingest/) and the two documents existed and before any ingestion draft, any model answer or any acceptance. Questions and gold (eval/ingest-v1/questions.json) were written from the document text only, before any output.",
+  "documents": {
+    "handbook": "synthetic staff handbook of a fictional company (rules, exceptions, tenure bands, schedules, a 10-person roster), project-authored, rights cleared (DS011)",
+    "europa": "NASA Science 'Europa: Facts' (US Government work, public domain, rights cleared, DS011), navigation and image captions removed"
+  },
+  "procedure": {
+    "ingest": "Each document is ingested by the product path (tools/ingest-documents.mjs draft: chunking, the coding agent zai/glm-5.3, validator + quote check repair loop, memory-conflict check) into its own experimental base memory (exp-ingest-handbook, exp-ingest-europa, importing core-min). Acceptance is done by the experiment (approved_by eval-ingest-v1), recorded as such; no human review.",
+    "arms": {
+      "pipeline": "the question as a chat turn in a session cloned from the base memory, CodingAgent strategy with zai/glm-5.3 only (no fallback model), the shared symbolic path, the rendered English answer",
+      "glm_reads_document": "zai/glm-5.3 through omp, the whole document plus the question, asked to answer briefly or say the document does not say",
+      "local_reads_document": "a local GGUF through llama-server with the same prompt, only if the GPU is free (otherwise not run, reported as such)"
+    },
+    "scoring": "correct / wrong / unknown per question against the hand gold (accept patterns), mismatches checked by hand; ingestion precision on a random sample of 30 stored facts and 10 rules per document checked by hand against the source sentence (faithful, unfaithful, unsupported)."
+  },
+  "hypotheses": {
+    "H1": "The ingestion path produces a validated base memory from each document without manual editing; extracted fact precision on the hand sample is at least 90%.",
+    "H2": "The pipeline's wrong rate is at most the wrong rate of GLM reading the document (the pipeline turns gaps into unknown rather than wrong); its correct rate is reported, not thresholded (minimal experiment).",
+    "H3": "E-procedures: on new instances of 2-3 question forms, the query author with a matching stored procedure (a procedure bundle with a description of the form, offered by the retrieval) answers at least as many correctly as without it and with a lower median latency."
+  },
+  "stopping_rules": "One run per arm per question (no reruns except a transport failure, recorded). If the pipeline is broken on the first 5 questions of a document (more than half parse_failed or errors), stop, fix and restart small, recording the stop. E-procedures: 2-3 forms x 3 new instances per arm; stop when the direction is clear.",
+  "non_claim": "Two short documents and 36 questions: the numbers describe these documents, not ingestion in general. The handbook is synthetic. No claim about held-out forms beyond these questions.",
+  "deviations": []
+}

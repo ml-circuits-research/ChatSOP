@@ -328,7 +328,8 @@ export function evaluate(q, facts, {rules = [], complete = true, limits = {}} = 
   if (q.span) for (const row of rows) row.binding = {...row.binding, [q.span]: spanValue(row.valid, q)};
   if (!rows.length && acc.notComputable) return notComputable(q, 'value_not_numeric');
   // A yes/no question whose known values all fail a numeric comparison is answered no ("Is the Dacia over 5000?" with a price of 4000).
-  const comparedAway = !rows.length && acc.filtered > 0 && acc.compared && !acc.notComputable && q.mode === 'exists';
+  // A query without select is a yes/no question too (as reasoning/bridge/external.mjs lowers it).
+  const comparedAway = !rows.length && acc.filtered > 0 && acc.compared && !acc.notComputable && (q.mode === 'exists' || (q.mode === 'select' && !q.select?.length));
   const overlap = rows.some(m => opposing.some(o => intersect(m.valid, o.valid)));
   const status = rows.length ? (opposing.length ? (overlap ? 'both' : 'mixed_temporal') : 'supported') : opposing.length || comparedAway ? 'refuted' : 'unknown';
   const unique = new Map();

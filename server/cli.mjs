@@ -8,7 +8,7 @@ try{
   node server/cli.mjs checkpoint-base [--base demo]
   node server/cli.mjs gc [--apply]                     # dry-run unless --apply
   node server/cli.mjs migrate|close-session [--base demo --user alice --session s1]
-  node server/cli.mjs decay --steps 1 [--base demo --user alice --session s1]\n  node server/cli.mjs validate --file program.sop\n  node server/cli.mjs lexicon --text "Maria lucreaza la Alfa"\n  node server/cli.mjs compile-smt --file examples/constraint.sop\n  node server/cli.mjs compile-prolog --file examples/local.sop\n\nInput paths resolve from the current directory first, then from the project root.\ninit loads reviewed fictional fixtures; no model download is implicit. chat starts the SymbolicLM service of config/formalizers.json.`);process.exit(0);}
+  node server/cli.mjs decay --steps 1 [--base demo --user alice --session s1]\n  node server/cli.mjs validate --file program.sop\n  node server/cli.mjs lexicon --text "Maria lucreaza la Alfa"\n  node server/cli.mjs compile-smt --file examples/constraint.sop\n  node server/cli.mjs compile-prolog --file examples/local.sop\n\nInput paths resolve from the current directory first, then from the project root.\ninit loads reviewed fictional fixtures; no model download is implicit. chat runs the product chain: the request parser of config/runtime.json writes the circuit, the runtime answers in English.`);process.exit(0);}
  const lex=(args.ontology?Lexicon.load(input(args.ontology)):demoLexicon());
  if(cmd==='validate'){const p=parse(fs.readFileSync(input(args.file),'utf8'));validateGraph(p);console.log(canonical(p));process.exit(0);}
  if(cmd==='lexicon'){console.log(JSON.stringify(lex.candidates(args.text??'',{language:args.language??'auto'}),null,2));process.exit(0);}

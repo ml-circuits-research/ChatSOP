@@ -126,7 +126,10 @@ test('session: the transcript is kept and an abandoned session is removed by the
 test('sessions API: create on a base memory, drafts, accept, theory, query, commit, delete', async t => {
   const s = await productServer(t);
   await s.admin('/v1/memories', 'POST', {name: 'Family', id: 'family', strategy: 'sqlite', circuits: [{name: 'family', text: FAMILY}]});
-  assert.equal((await s.user('/v1/sessions', 'POST', {})).status, 400);
+  const unnamed = (await s.user('/v1/sessions', 'POST', {})).body;
+  assert.equal(unnamed.base.id, 'default', 'without base a session forks the default base memory');
+  assert.equal((await s.user(`/v1/sessions/${unnamed.id}`, 'DELETE')).status, 200);
+  assert.equal((await s.user('/v1/sessions', 'POST', {base: 7})).status, 400);
   assert.equal((await s.user('/v1/sessions', 'POST', {base: 'nope'})).status, 404);
   const created = await s.user('/v1/sessions', 'POST', {base: 'family', name: 'Test chat', settings: {omp_model: 'zai/glm-5'}});
   assert.equal(created.status, 201);

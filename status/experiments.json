@@ -5715,6 +5715,15 @@
         "report": "eval/reports/current/query-parsers/report.md"
       },
       "note": "Harness: node tools/eval/query-parsers.mjs run|report; kbqa via node tools/eval/kbqa.mjs run --parser."
+    },
+    {
+      "id": "eval-ingest-v1",
+      "hypothesis": "Documents ingested by the coding agent into task-type base memories answer reasoning questions through the pipeline with fewer wrong answers than an LLM reading the document; stored procedures are reused by the query author.",
+      "preregistration": "status/preregistrations/eval-ingest-v1.json",
+      "data_version": "eval/ingest-v1/questions.json (36); datasets_sources/ingest-v1 (handbook sha256 6928f734, europa sha256 d408551f)",
+      "status": "running",
+      "results": {},
+      "note": "Harness: tools/eval/ingest-v1.mjs; ingestion: tools/ingest-documents.mjs"
     }
   ]
 }

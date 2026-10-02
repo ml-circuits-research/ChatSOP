@@ -1,6 +1,23 @@
 # Session delivery — consolidation, real foundation and research corpora
 
 
+
+## Chat, server status and documentation up to date (2026-10-02, product-agent)
+
+Delivered: `GET /v1/status` (`server/status.mjs`), session setting `formalizer` with no substitution, the pipeline trace panel and the Settings Formalization and Server status cards (`server/pages/chat.mjs`, `chat-product.mjs`), repair-round codes in the parse record, 180 s turn limit, docs (README, index, runtime, api, wiki, DS000/DS002/DS009/DS022, architecture) and the removal of small-model training rules into `probably_obsolete/`. Tests: `tests/server-status.test.mjs`.
+Observed on a private server (port 19377, copy of `chat_data/base_memories`, CodingAgent `zai/glm-5.3`, world-v1, one session), HTTP chat as the page sends it:
+- "Who is Ada Lovelace?": supported, "English mathematician (1815–1852)", 11.3 s (first turn).
+- "Is Paris located in Europe?": Yes, Paris → France → Europe with Wikidata sources, 6.7 s.
+- "How many countries share a border with Germany?": "At least 11" (open predicate), 6.8 s; the 11 include the namesakes Kingdom of Denmark and Kingdom of the Netherlands next to Denmark and Netherlands.
+- "Which is the most populous country in Europe?": unclear `relation_not_in_memory` after two vocabulary-dialog expansions, 14.2 s.
+- "In which country was the mother of Napoleon born?": unclear ambiguous (one reading is spurious), 3 repair rounds (`mention_not_used`, `condition_misuse`), 26.2 s.
+- "Care este capitala Franței?": clarify "Which entity do you mean by \"Care\"?" (Romanian "which" taken as an entity), 33.1 s; at the old 30 s limit it was a 504.
+- "Who is the favourite painter of Albert Einstein?": unclear ambiguous, 6.9 s.
+- "My friend Zork lives in Lisbon." then "Is Zork in Portugal?": the statement became `unclear no_request` (4.0 s), so the follow-up asked "Which entity do you mean by \"Zork\"?" (3.7 s).
+- "Who wrote Hamlet?": William Shakespeare, 5.2 s.
+- After the owner's two changes (same private setup): a session without `base` forked world-v1; "Unde s-a născut Ada Lovelace?" answered in Romanian from world-v1 (Londra, Regatul Unit, Europa with the Wikidata ids; phrasing 2 s by zai/glm-5.3; 15.0 s in all); "Care este capitala Franței?" gave the clarification in Romanian (39.8 s); "Who wrote Hamlet?" stayed English with no extra call (3.7 s).
+- Headless Chromium on `/chat`: the page renders, the trace sections 1 to 7 fill from a real answer, the Settings status card lists the strategies, memories (world-v1 warm 12.4 s, 221 layers) and engines; no script errors.
+
 ## Freeze of the tiny-model branch (2026-10-01, docs-agent, owner decision)
 
 Delivered: the owner froze the other research branch and set one goal: beat small LLMs at reasoning through symbolic processing, and help small LLMs reason symbolically. Moved to `probably_obsolete/tinyLLMExperiments/<original path>` (paused work to `probably_obsolete/paused/`): Stanza and the Python UD worker, SymbolicLM and the UD-to-SOP rules, LanguagesUtil, textToCleanEnglish, TranslatorService and the translator LLM, LanguageProofingLLM, SymbolicProofingLLM, FormalizerLLM, the GGUF model roles, training (`training/`, `config/train-*.json`, the training skills), the datasets `bad_english`, `symbolic_english`, `neuro_english` and `natural`, the corpus audit and the `/audit` page, their sealed suites, the EmotionDetectionSystem (paused) and programming P0 (paused). The product is now: the user message (any language) goes to the omp coding agent through `lib/query-author` (a model from the configured subscription chain, default `openai-codex/gpt-6-luna`), which writes only circuits; the validator repairs in bounded rounds; the KnowledgeLinker links entity strings; the StrategyRouter chooses the reasoning strategy or the oracle; `sop/answer-text.mjs` renders the English answer. There is no SymbolicLM fallback: no available model gives `parse_unavailable`. Kept: the SOP language, parser, validator, runtime, memory engines, reasoning strategies, the base memories (core-min, core-en, world-v1, demo), the KBQA harness and sealed suites, the linking suite, the query-forms calibration, `eval/smoke-reasoning`, `eval/leakage.mjs`, the owner pages. The specifications were renumbered gap-free DS000 to DS022; the API reduced to the product list in `docs/api.html`; AGENTS.md, README.md, TODO.md, the wiki, the runtime and API pages and the skills catalog were rewritten for this direction. Next validation procedure: `experiments/proposal/symbolic-vs-llm-benchmark.md` (to be built). Observed: `node --test tests/wire-help.test.mjs` passes; `node tools/check-spec-refs.mjs` and `node --test tests/site-links.test.mjs` are reported in the journal event of this task.

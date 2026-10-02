@@ -19,7 +19,7 @@ export function homePage({signedIn, configured, passwordStore = true, ready, cod
   const body = `<main class="wrap"><h1>ChatSOP server</h1>
 <section class="card" aria-label="Status"><ul class="plain">${account}${password}${model}</ul></section>
 <div class="grid">
-${tile('/chat', 'Chat', 'Ask questions; every answer shows the circuit, the execution circuit, the route and the status.')}
+${tile('/chat', 'Chat', 'Ask questions; every answer shows how it was made: formalization, linking, retrieval, route, verification and latency. Settings shows the server status.')}
 ${tile('/experiments', 'Experiments', 'Project history: every task and experiment, topic notes, reports, the live journal and gates, open questions.')}
 ${tile('/admin', 'Admin', 'Server status, API tokens for scripts and SDKs.')}
 ${tile('/docs/', 'Documentation', 'Runtime, wiki and the design specifications.')}

@@ -56,7 +56,7 @@ export function diagramA() {
   // The author boundary and the frozen branch
   s.boundary(822, 10, 822, 400, null);
   s.zone(834, 10, 256, 392, 'B2 author boundary', 'z-model');
-  const ca = s.node('ca', 844, 40, 236, 'omp coding agent', ['model chain queryParser.models,', 'default openai-codex/gpt-6-luna;', 'or a chat-completion endpoint', '~reads the message and the vocabulary'], 'n-model');
+  const ca = s.node('ca', 844, 40, 236, 'omp coding agent', ['model chain queryParser.models,', 'zai/glm-5.3, then gpt-6-luna;', 'or a local llama-server', '~reads the message and the vocabulary'], 'n-model');
   s.text(844, ca.b + 22, 'It writes circuits (a query or an unclear', 'blabel');
   s.text(844, ca.b + 36, 'verdict); it never answers and never', 'blabel');
   s.text(844, ca.b + 50, 'adds a fact. The validator admits them.', 'blabel');
@@ -121,7 +121,7 @@ export function diagramB() {
   for (let i = 0; i < geo.length - 1; i++) s.arrow([[X + 60, geo[i].b], [X + 60, geo[i + 1].y]]);
   const MX = 786, MW2 = 300;
   s.zone(MX - 12, geo[2].y - 4, MW2 + 24, geo[3].b - geo[2].y + 8, 'Coding agent (B2)', 'z-model');
-  s.node('ca', MX, geo[2].y + 26, MW2, 'omp, subscription model chain', ['sees the message and the vocabulary;', '~writes query.sop; no knowledge, no answer'], 'n-model');
+  s.node('ca', MX, geo[2].y + 26, MW2, 'CodingAgent or a local model', ['sees the message and the vocabulary;', '~writes query.sop; no knowledge, no answer'], 'n-model');
   s.arrow([[X + W, geo[3].cy], [MX - 12, geo[3].cy]], { start: true });
   s.node('mem', MX - 12, geo[5].y + 4, MW2 + 24, 'Per-session Lexicon', ['sop/lexicon.mjs, LexiconCache', '~compiled from circuits, cached by hash'], 'n-disk');
   s.arrow([[MX - 12, geo[5].y + 34], [X + W, geo[5].y + 34]]);

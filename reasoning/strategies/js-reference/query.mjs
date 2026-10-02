@@ -140,7 +140,8 @@ export function evaluateCandidates(qp, candidates, {refuted, refutationRoots}) {
   const {rows, matches, state} = collectRows(qp, candidates);
   const list = [...rows.values()].sort((a, b) => (rowKey(a.row) < rowKey(b.row) ? -1 : 1));
   if (!list.length && state.notComputable) return {status: 'not_computable', reason: 'value_not_numeric', rows: [], roots: [], supportIncomplete: false, matches, state};
-  const comparedAway = !list.length && state.filtered > 0 && state.compared && !state.notComputable && mode === 'exists';
+  // A query without select is a yes/no question too (as reasoning/bridge/external.mjs lowers it).
+  const comparedAway = !list.length && state.filtered > 0 && state.compared && !state.notComputable && (mode === 'exists' || (mode === 'select' && !qp.select?.length));
   const isRefuted = comparedAway || (!list.length && refuted());
   if (mode === 'count') {
     const exact = qp.domainClosed;

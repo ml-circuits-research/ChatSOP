@@ -146,4 +146,9 @@ dialog dl{display:grid;grid-template-columns:max-content 1fr;gap:2px 16px;margin
  dialog{padding:16px}
  .composer-hint{display:none}
 }
+/* trace sections (pipeline order) and the server status card */
+.trace .tsec{margin:4px 0 4px 10px}
+.trace .tsec>summary{font-weight:600;cursor:pointer}
+.trace .tsec .actions{display:flex;gap:8px;align-items:center;margin:6px 0}
+#status-box h4{margin:14px 0 6px;font-size:14px}
 `;

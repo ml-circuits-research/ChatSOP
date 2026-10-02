@@ -12,7 +12,7 @@
  *   GET  /v1/sessions                       the caller's sessions (all of them for the signed-in browser session)
  *   GET  /v1/sessions/{id}                  the session, its circuits, drafts and provenance (?transcript=1 adds the turns)
  *   DELETE /v1/sessions/{id}
- *   POST /v1/sessions/{id}/settings         {omp_model?}: the model the coding agent tries first
+ *   POST /v1/sessions/{id}/settings         {omp_model?, formalizer?}: the model CodingAgent tries first; the formalization strategy
  *   GET  /v1/sessions/{id}/drafts           the draft circuits with their text and validation
  *   POST /v1/sessions/{id}/drafts/{d}/accept   the user accepts a draft into the session layer
  *   POST /v1/sessions/{id}/drafts/{d}/reject
@@ -26,7 +26,11 @@
  * answers 4xx with the standard `{error: {message, type, code}}`; a circuit that fails the knowledge validator answers 422 with
  * `problems` and `warnings` and writes nothing.
  */
-import {STRATEGIES} from '../lib/chat-data/memories.mjs';
+import {STRATEGIES, ENCYCLOPEDIC_BASE} from '../lib/chat-data/memories.mjs';
+
+/** The kinds of a new base memory: built on the encyclopedic default, on the minimal core, or on nothing. */
+export const MEMORY_KINDS = Object.freeze(['encyclopedic', 'minimal', 'empty']);
+import {strategyRequest} from './status.mjs';
 import {CORE_SEED} from '../lib/knowledge-seeds.mjs';
 import {askMemory, TheoryCache} from '../reasoning/slice/index.mjs';
 
@@ -35,14 +39,14 @@ const bad = (message, code = 'invalid_request', status = 400) => Object.assign(n
 /** Listed by GET /v1/capabilities next to the capability endpoints; the routes themselves are matched in this file. */
 export const PRODUCT_ENDPOINTS = Object.freeze([
   {method: 'GET', path: '/v1/memories', capability: 'memories.list'},
-  {method: 'POST', path: '/v1/memories', capability: 'memories.create', body: ['name', 'strategy', 'description', 'circuits', 'reason', 'source', 'id', 'imports']},
+  {method: 'POST', path: '/v1/memories', capability: 'memories.create', body: ['name', 'strategy', 'description', 'circuits', 'reason', 'source', 'id', 'imports', 'kind']},
   {method: 'GET', path: '/v1/memories/{id}', capability: 'memories.get'},
   {method: 'POST', path: '/v1/memories/{id}/fork', capability: 'memories.fork', body: ['name', 'strategy', 'description', 'id']},
   {method: 'POST', path: '/v1/memories/{id}/knowledge', capability: 'memories.knowledge', body: ['circuits', 'reason', 'source']},
   {method: 'POST', path: '/v1/sessions', capability: 'sessions.create', body: ['base', 'name', 'settings']},
   {method: 'GET', path: '/v1/sessions', capability: 'sessions.list'},
   {method: 'GET', path: '/v1/sessions/{id}', capability: 'sessions.get'},
-  {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['omp_model']},
+  {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['omp_model', 'formalizer']},
   {method: 'GET', path: '/v1/sessions/{id}/drafts', capability: 'sessions.drafts'},
   {method: 'POST', path: '/v1/sessions/{id}/drafts/{draft}/accept', capability: 'sessions.accept', body: []},
   {method: 'POST', path: '/v1/sessions/{id}/drafts/{draft}/reject', capability: 'sessions.reject', body: []},
@@ -89,17 +93,26 @@ const onlyKeys = (body, allowed) => {
   return body;
 };
 
-export function createProductRouter({memories, sessions, runtimes, readBody, json, limits = {}, extra = {}, parsing = null}) {
+export function createProductRouter({memories, sessions, runtimes, readBody, json, limits = {}, extra = {}, parsing = null, defaultBase = runtimes?.defaultBase ?? 'default'}) {
   const maxBytes = limits.maxProductBytes ?? 8_000_000;
   const theories = new TheoryCache();
 
   const actions = {
-    memoriesList: ({res}) => json(res, 200, {object: 'list', data: memories.list(), strategies: memoryStrategies()}),
+    memoriesList: ({res}) => json(res, 200, {object: 'list', data: memories.list(), strategies: memoryStrategies(), default_base: defaultBase, kinds: MEMORY_KINDS}),
     async memoriesCreate({req, res, approvedBy}) {
-      const body = onlyKeys(await readBody(req, maxBytes), ['name', 'strategy', 'description', 'circuits', 'reason', 'source', 'id', 'imports']);
+      const body = onlyKeys(await readBody(req, maxBytes), ['name', 'strategy', 'description', 'circuits', 'reason', 'source', 'id', 'imports', 'kind']);
       const {name, strategy, description, circuits, reason, source, id} = body;
-      // A memory without a vocabulary cannot link a word: it imports the shared core unless the caller says otherwise (`imports: []`).
-      const imports = body.imports ?? [CORE_SEED];
+      // Three kinds (DS022 "Base memories"): `encyclopedic` (a copy-on-write fork of the encyclopedic default, the knowledge of world-v1),
+      // `minimal` (imports core-min, the default kind) and `empty` (no imports). `imports` names the layers explicitly instead.
+      if (body.kind !== undefined && !MEMORY_KINDS.includes(body.kind)) throw bad(`kind must be one of ${MEMORY_KINDS.join(', ')}`, 'invalid_parameter');
+      if (body.kind !== undefined && body.imports !== undefined) throw bad('Give either kind or imports, not both', 'invalid_parameter');
+      if (body.kind === 'encyclopedic') {
+        if (defaultBase !== ENCYCLOPEDIC_BASE) throw bad(`The encyclopedic base memory ${ENCYCLOPEDIC_BASE} is not loaded on this server`, 'not_available', 409);
+        const forked = memories.fork(ENCYCLOPEDIC_BASE, {name, strategy, description, newId: id});
+        const added = circuits?.length ? memories.addKnowledge(forked.memory.id, {circuits, approvedBy, reason: reason ?? 'import', source: source ?? null}) : null;
+        return json(res, 201, {object: 'memory', ...memories.describe(forked.memory.id), kind: 'encyclopedic', ...(added ? {added: added.added} : {})});
+      }
+      const imports = body.kind === 'empty' ? [] : body.imports ?? [CORE_SEED];
       if (!Array.isArray(imports) || imports.some(x => typeof x !== 'string')) throw bad('imports must be an array of base memory ids', 'invalid_imports');
       const created = circuits?.length
         ? memories.importMemory({name, strategy, description, circuits, imports, approvedBy, reason, source, id})
@@ -122,8 +135,9 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
 
     async sessionsCreate({req, res, user, admin}) {
       const body = onlyKeys(await readBody(req, maxBytes), ['base', 'name', 'settings', 'id']);
-      if (typeof body.base !== 'string') throw bad('Provide base: the id of a base memory (GET /v1/memories)', 'invalid_parameter');
-      const info = sessions.create({base: body.base, user, name: body.name, settings: body.settings, id: body.id});
+      // A session is a fork of a base memory; without `base` it forks the default (the encyclopedic world-v1 when loaded).
+      if (body.base !== undefined && typeof body.base !== 'string') throw bad('base must be the id of a base memory (GET /v1/memories)', 'invalid_parameter');
+      const info = sessions.create({base: body.base ?? defaultBase, user, name: body.name, settings: body.settings, id: body.id});
       json(res, 201, {object: 'session', ...sessions.describe(info.id), admin});
     },
     sessionsList: ({res, user, admin}) => json(res, 200, {object: 'list', data: sessions.list({user, admin})}),
@@ -140,7 +154,7 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
     },
     async sessionsSettings({req, res, match, user, admin}) {
       sessions.visible(match[1], {user, admin});
-      const body = onlyKeys(await readBody(req, maxBytes), ['omp_model']);
+      const body = onlyKeys(await readBody(req, maxBytes), ['omp_model', 'formalizer']);
       json(res, 200, {object: 'session', ...sessions.describe(sessions.updateSettings(match[1], body).id)});
     },
     sessionsDrafts({res, match, user, admin}) {
@@ -178,7 +192,7 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
         const lexicon = rt.lexicon;
         let parseRecord = null;
         const formalizer = {id: 'query-parser', formalize: async text => {
-          const done = await parsing.queryParser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, preferredModel: rt.info?.settings?.omp_model ?? null});
+          const done = await parsing.queryParser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, preferredModel: rt.info?.settings?.omp_model ?? null, ...strategyRequest(parsing.queryParser, rt.info?.settings?.formalizer)});
           parseRecord = done.parse;
           return done.sop;
         }};

@@ -4,16 +4,28 @@
  *   GET  /v1/omp/models                          the models omp can use with their cost class (cached; ?refresh=1 re-reads)
  *   POST /v1/author                              {session?, files?: [{name, text}], instructions?, model?, wait?}
  *   GET  /v1/sessions/{id}/requests/{request}    the status, and when finished the result, of an authoring request
+ *   POST /v1/memories/{id}/ingest                {documents: [{name, text, title?, source: {rights, url?, licence?}}], model?, purpose?, wait?}
+ *   GET  /v1/memories/{id}/ingestions            the ingestions of a base memory
+ *   GET  /v1/memories/{id}/ingestions/{ing}      one ingestion: chunks, extracted, rejected, held back, uncertain, and the report
+ *   POST /v1/memories/{id}/ingestions/{ing}/accept  {only?, reason?}: the explicit act that stores the validated chunks
+ *   POST /v1/memories/{id}/ingestions/{ing}/reject  {reason?}
+ *   POST /v1/memories/{id}/procedures            {id, description, definitions}: a procedure bundle for the procedure library
  *
  * A request creates `chat_data/sessions/<id>/requests/<request>/` (or a folder under `chat_data/tmp/` without a session), runs omp
  * there (lib/omp), validates the circuits, repairs them for a bounded number of rounds and, with a session, stores the circuits as
  * a DRAFT of that session. `wait: false` answers 202 at once; the page then polls the status route. Nothing is knowledge until the
  * user accepts the draft (POST /v1/sessions/{id}/drafts/{draft}/accept).
+ *
+ * Document ingestion (DS022 "Ingesting documents into a base memory", lib/ingest/) runs the same coding agent chunk by chunk over a base
+ * memory; its result is a proposed ingestion that a user accepts or rejects. A procedure (DS022 "Procedure library") is knowledge like any
+ * other: validated with the memory's layers and recorded with provenance.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import {authorCircuits} from '../lib/omp/author.mjs';
 import {runOmp} from '../lib/omp/run.mjs';
+import {Ingestions, checkDocuments} from '../lib/ingest/index.mjs';
+import {procedureCircuit} from '../lib/query-author/procedures.mjs';
 
 const bad = (message, code = 'invalid_request', status = 400) => Object.assign(new Error(message), {status, code});
 const ID = '([a-z0-9][a-z0-9_-]{0,63})';
@@ -22,6 +34,12 @@ export const AUTHORING_ENDPOINTS = Object.freeze([
   {method: 'GET', path: '/v1/omp/models', capability: 'omp.models'},
   {method: 'POST', path: '/v1/author', capability: 'omp.author', body: ['session', 'files', 'instructions', 'model', 'wait']},
   {method: 'GET', path: '/v1/sessions/{id}/requests/{request}', capability: 'omp.request'},
+  {method: 'POST', path: '/v1/memories/{id}/ingest', capability: 'memories.ingest', body: ['documents', 'model', 'purpose', 'wait']},
+  {method: 'GET', path: '/v1/memories/{id}/ingestions', capability: 'memories.ingestions'},
+  {method: 'GET', path: '/v1/memories/{id}/ingestions/{ingestion}', capability: 'memories.ingestion'},
+  {method: 'POST', path: '/v1/memories/{id}/ingestions/{ingestion}/accept', capability: 'memories.ingestion.accept', body: ['only', 'reason']},
+  {method: 'POST', path: '/v1/memories/{id}/ingestions/{ingestion}/reject', capability: 'memories.ingestion.reject', body: ['reason']},
+  {method: 'POST', path: '/v1/memories/{id}/procedures', capability: 'memories.procedures', body: ['id', 'description', 'definitions', 'reason']},
 ]);
 
 export function createAuthoring({sessions, runtimes = null, chatData, models, settings, readBody, json, maxBytes = 8_000_000, runner = runOmp}) {
@@ -81,7 +99,59 @@ export function createAuthoring({sessions, runtimes = null, chatData, models, se
     return {request_id: request.id, promise};
   }
 
+  const memories = sessions?.memories ?? null;
+  const ingestions = memories ? new Ingestions({memories}) : null;
+  const ingesting = new Set();
+
   const actions = {
+    async ingest({req, res, match, user}) {
+      const body = await readBody(req, maxBytes);
+      const extra = Object.keys(body).filter(k => !['documents', 'model', 'purpose', 'wait'].includes(k));
+      if (extra.length) throw bad(`Unsupported parameter ${JSON.stringify(extra[0])}; accepted: documents, model, purpose, wait`, 'unsupported_parameter');
+      memories.manifest(match[1]);
+      checkDocuments(body.documents);
+      const chosen = await chooseModel(body.model ?? null, null);
+      if (running >= settings.maxConcurrent) throw bad('The coding agent is busy; try again shortly', 'omp_busy', 429);
+      if (ingesting.has(match[1])) throw bad('An ingestion into this memory is already running', 'ingest_busy', 429);
+      ingesting.add(match[1]);
+      running++;
+      const promise = ingestions.draft(match[1], {documents: body.documents, model: chosen.model, purpose: typeof body.purpose === 'string' ? body.purpose.slice(0, 500) : '', user,
+        maxFixRounds: settings.maxFixRounds, timeoutMs: settings.timeoutSeconds * 1000, bin: settings.bin, thinking: settings.thinking, runner})
+        .finally(() => { running--; ingesting.delete(match[1]); });
+      promise.catch(() => {});
+      if (body.wait === false) {
+        // The record exists as soon as drafting starts; answer with the list entry that appeared.
+        await new Promise(r => setTimeout(r, 50));
+        const latest = ingestions.list(match[1]).at(-1);
+        return json(res, 202, {object: 'memory.ingestion', memory: match[1], ingestion: latest?.id ?? null, status: 'drafting', status_url: latest ? `/v1/memories/${match[1]}/ingestions/${latest.id}` : null});
+      }
+      const record = await promise;
+      json(res, 200, {object: 'memory.ingestion', ...record, report: fs.readFileSync(path.join(ingestions.dir(match[1], record.id), 'report.md'), 'utf8')});
+    },
+    ingestionList({res, match}) { json(res, 200, {object: 'list', data: ingestions.list(match[1])}); },
+    ingestionGet({res, match}) {
+      const record = ingestions.get(match[1], match[2]);
+      json(res, 200, {object: 'memory.ingestion', ...record, report: fs.readFileSync(path.join(ingestions.dir(match[1], match[2]), 'report.md'), 'utf8')});
+    },
+    async ingestionAccept({req, res, match, approvedBy}) {
+      const body = await readBody(req, maxBytes);
+      if (body.only !== undefined && !(Array.isArray(body.only) && body.only.every(k => typeof k === 'string'))) throw bad('only must be a list of chunk keys', 'invalid_parameter');
+      const {outcome, memory} = ingestions.accept(match[1], match[2], {approvedBy, reason: typeof body.reason === 'string' ? body.reason : 'document ingestion', only: body.only ?? null});
+      json(res, 200, {object: 'memory.ingestion.accepted', ingestion: match[2], outcome, memory});
+    },
+    async ingestionReject({req, res, match, user}) {
+      const body = await readBody(req, maxBytes);
+      json(res, 200, {object: 'memory.ingestion', ...ingestions.reject(match[1], match[2], {user, reason: typeof body.reason === 'string' ? body.reason : ''})});
+    },
+    async procedures({req, res, match, approvedBy}) {
+      const body = await readBody(req, maxBytes);
+      const extra = Object.keys(body).filter(k => !['id', 'description', 'definitions', 'reason'].includes(k));
+      if (extra.length) throw bad(`Unsupported parameter ${JSON.stringify(extra[0])}; accepted: id, description, definitions, reason`, 'unsupported_parameter');
+      if (typeof body.definitions !== 'string') throw bad('definitions must be SOP text (predicate, rule, default wires)', 'invalid_parameter');
+      const text = procedureCircuit({id: body.id, description: body.description, definitions: body.definitions});
+      const added = memories.addKnowledge(match[1], {circuits: [{name: `procedure-${body.id}`, text}], approvedBy, reason: body.reason ?? 'procedure library', source: {kind: 'procedure', id: body.id, description: body.description}});
+      json(res, 200, {object: 'memory.procedure', procedure: body.id, ...added});
+    },
     async ompModels({req, res}) {
       const refresh = new URL(req.url, 'http://localhost').searchParams.get('refresh');
       json(res, 200, {object: 'omp.models', ...(await models.list({force: Boolean(refresh)}))});
@@ -111,6 +181,14 @@ export function createAuthoring({sessions, runtimes = null, chatData, models, se
     ['GET', /^\/v1\/omp\/models$/, 'ompModels'],
     ['POST', /^\/v1\/author$/, 'author'],
     ['GET', new RegExp(`^/v1/sessions/${ID}/requests/${ID}$`), 'requestStatus'],
+    ...(ingestions ? [
+      ['POST', new RegExp(`^/v1/memories/${ID}/ingest$`), 'ingest'],
+      ['GET', new RegExp(`^/v1/memories/${ID}/ingestions$`), 'ingestionList'],
+      ['GET', new RegExp(`^/v1/memories/${ID}/ingestions/${ID}$`), 'ingestionGet'],
+      ['POST', new RegExp(`^/v1/memories/${ID}/ingestions/${ID}/accept$`), 'ingestionAccept'],
+      ['POST', new RegExp(`^/v1/memories/${ID}/ingestions/${ID}/reject$`), 'ingestionReject'],
+      ['POST', new RegExp(`^/v1/memories/${ID}/procedures$`), 'procedures'],
+    ] : []),
   ];
-  return {actions, routes, start, jobs, running: () => running};
+  return {actions, routes, start, jobs, ingestions, running: () => running};
 }

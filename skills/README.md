@@ -1,6 +1,6 @@
 # Coding-agent skills
 
-These files describe working procedures, not automatically loaded executable plugins. Read `AGENTS.md` and then the relevant skill. Training is not planned (the tiny-model branch is frozen) and no skill grants it; any run needs the owner's explicit approval. Open owner decisions go to the root `questions.md`. The project directory remains the workspace; source and code approvals are separate decisions.
+These files describe working procedures, not automatically loaded executable plugins. Read `AGENTS.md` and then the relevant skill. No model is trained in this project, and no skill trains one. Open owner decisions go to the root `questions.md`. The project directory remains the workspace; source and code approvals are separate decisions.
 
 **Project journal.** Every skill that starts, finishes or blocks a meaningful task, or records an owner decision, logs it with `node tools/journal.mjs add --area … --title … --detail …` into the append-only `status/journal.jsonl`; experiment records go to `status/experiments.json`. Meaningful analyses, suggestions, results and decisions are also appended as topic notes with `node tools/notes.mjs add --topic … --kind … --title … --body …` (append-only; corrections use `--supersedes`). The owner follows all of it on the server's `/experiments` pages. The evaluate-agent skill states this explicitly.
 

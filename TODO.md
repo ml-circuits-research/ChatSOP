@@ -34,6 +34,9 @@ Direction: [AGENTS.md](AGENTS.md). Delivered work with observed evidence: [PAS_T
 
 - [ ] **T11 repository-green gate.** Arity/role and bounded indexed condition-use guards delivered; exact three saved F2 circuits abstain, legitimate negatives retained. Final 636-row replay has zero correct losses; primary B/C wrong→unknown 9, wrong→invalid 1, temporal current-pipeline unknown→correct 5/unknown→wrong 8. Query-author 70/70 and focused conversation/query-author/slice 120/120 pass; specs and reasoning smoke pass. Final npm 1271/1273 pass, one stale architecture-citation failure, one skip, zero cancellations. Regeneration of `docs/architecture.html` is outside permitted ownership; do not weaken tests. Report: `eval/reports/current/omp-tasks/t11-guards.md`.
 
+- [ ] **Chat findings of 2026-10-02 (product-agent, private-port check).** (a) A statement such as "My friend Zork lives in Lisbon." is formalized as `unclear no_request`, so a follow-up cannot use it: CodingAgent must write `stated` wires for assertions. (b) A Romanian question kept the function word "Care" as an entity string (repair round `mention_not_used` pushed it there). (c) Counting over world-v1 includes namesake states (Kingdom of Denmark next to Denmark). (d) "most populous" has no population relation in world-v1.
+- [ ] **LocalLLMDirect and LocalLLMStepByStep in the chat**: register them through `queryParser.strategies()` and `parse({strategy})` (hook in `server/status.mjs`); the Settings selector and `/v1/status` show them as soon as they report `available`.
+
 ## 3. Blocked
 
 - [ ] **External generator qualification.** No external generator endpoint or credentials are available; nothing was invented.

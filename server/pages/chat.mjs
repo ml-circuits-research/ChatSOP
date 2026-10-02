@@ -3,13 +3,16 @@
  * Layout: a left sidebar with three vertical tabs (an icon rail or top bar below 760 px), each a `tabpanel` with arrow-key navigation:
  * *Chat* (session header with the base memory and "New session", the message list that keeps the newest message in view and shows a
  * "new messages" pill when the user has scrolled up, the attach button and a composer that grows to five lines, Enter sends, Shift+Enter
- * adds a line), *Settings* (card: Coding agent) and *Base Memory* (table of base memories with View, Fork, Add knowledge and Start
+ * adds a line), *Settings* (cards: Formalization, with the strategy selector and the CodingAgent model; Server status) and *Base Memory* (table of base memories with View, Fork, Add knowledge and Start
  * session). Markup is built here, the CSS is `chat/style.mjs`, the product layer (sessions, base memories, the coding agent) is
  * `chat-product.mjs`.
  *
- * The message goes to the server as typed, in any language: the coding agent (omp) writes the circuit, the runtime answers it and the
- * answer comes back in English with its trace (circuit, route, retrieval, linking, provenance). When no model of the subscription chain
- * can run the server answers 503 `parse_unavailable` and the page says so. The page uses the HttpOnly session cookie through same-origin
+ * The message goes to the server as typed, in any language: the request parser (the session's formalization strategy, CodingAgent by
+ * default) writes the circuit, the runtime validates, links, retrieves, routes, verifies and renders it, and the answer comes back in
+ * English with its trace. The trace panel follows the pipeline: formalization (strategy, model, repair rounds), vocabulary (schema
+ * neighbourhood, vocabulary dialog), session definitions and assumptions (Accept/Reject for a proposed definition), linking, retrieval
+ * (complete or not, bounds), route and verification, latency, then the circuits. `parse_unavailable` (503) and `parse_failed` (422)
+ * are explained in plain words. The page uses the HttpOnly session cookie through same-origin
  * fetch; it never sees a credential. The server owns conversation context per `conversation_id`; the page keeps a local transcript copy
  * for display. SOP in the trace is rendered by server/pages/sop-code.mjs. All dynamic text is inserted with textContent. */
 import {escapeHtml, layout} from './layout.mjs';
@@ -73,31 +76,76 @@ function linkingLine(e){
  return '\u201c'+e.surface+'\u201d \u2192 '+e.symbol+' ('+e.kind+(e.class?' of '+e.class:'')+'; '+how+(e.match&&e.match!=='exact'?'; '+e.match:'')+')'+(e.score!=null?'; score '+e.score+(e.decided_by?' by '+e.decided_by:''):'')+((e.scored_alternatives||[]).length?'; alternatives: '+e.scored_alternatives.map(a=>a.id+' ('+a.score+')').join(', '):(e.alternatives||[]).length?'; alternatives: '+e.alternatives.join(', '):'');
 }
 
+// The trace of one answer, in the order of the pipeline: formalization, vocabulary, session definitions and assumptions, linking,
+// retrieval, route and verification, latency, then the circuits and the raw provenance.
+const secs=ms=>typeof ms==='number'?(ms/1000).toFixed(2)+' s':null;
+function section(parent,title,open){const d=document.createElement('details');d.className='tsec';if(open)d.open=true;const s=document.createElement('summary');s.textContent=title;const dl=document.createElement('dl');d.append(s,dl);parent.append(d);return {box:d,list:dl};}
+function listField(list,label,items){if(!items||!items.length)return;const dt=document.createElement('dt');dt.textContent=label;const dd=document.createElement('dd');const ul=document.createElement('ul');for(const t of items){const li=document.createElement('li');li.textContent=t;ul.append(li);}dd.append(ul);list.append(dt,dd);}
+const yes=v=>v===true?'yes':v===false?'no':v;
+function draftActions(parent,draftId){
+ if(!draftId)return;const row=el('div','actions');const msg=el('span','msgline');
+ const act=async(kind)=>{if(typeof PROD==='undefined'||!PROD.session){msg.textContent='No session.';return;}const r=await jcall('POST','/v1/sessions/'+PROD.session.id+'/drafts/'+draftId+'/'+kind);msg.className='msgline '+(r.ok?'ok':'bad');msg.textContent=r.ok?(kind==='accept'?'Accepted into this session.':'Rejected.'):errText(r);if(r.ok){a.disabled=true;b.disabled=true;await refreshSession();}};
+ const a=el('button','primary','Accept definition');a.type='button';a.onclick=()=>act('accept');
+ const b=el('button','','Reject');b.type='button';b.onclick=()=>act('reject');
+ row.append(a,b,msg);parent.append(row);
+}
 function traceView(c){
- const details=document.createElement('details');const summary=document.createElement('summary');
- const timing=typeof c.formalization_ms==='number'?' \u00b7 '+(c.formalization_ms/1000).toFixed(2)+' s':'';
- summary.textContent='trace: '+(c.parse?c.parse.parser:'circuit')+' \u00b7 '+(c.status??'no status')+(c.backend!==undefined?' \u00b7 backend '+(c.backend??'n/a'):'')+' \u00b7 author '+(c.formalizer_model??'?')+timing;
+ const p=c.parse||{};const details=document.createElement('details');details.className='trace';const summary=document.createElement('summary');
+ const total=c.turn_ms??c.client_ms??c.formalization_ms;
+ summary.textContent='how this answer was made · '+(c.strategy||p.strategy||'formalizer')+(p.model?' ('+p.model+')':'')+' · '+(c.status??'no status')+(typeof total==='number'?' · '+secs(total):'');
  details.append(summary);
- const list=document.createElement('dl');
- field(list,'status',c.status);if(c.rejection)field(list,'rejected because',c.rejection);field(list,'backend',c.backend);field(list,'fallback',c.fallback===null?'none':c.fallback);field(list,'completeness',c.completeness);
- if(c.parse)field(list,'circuit author',c.parse.parser+(c.parse.model?' ('+c.parse.model+')':'')+' \u00b7 '+(c.parse.rounds||0)+' round(s) \u00b7 '+Math.round(c.parse.ms||0)+' ms \u00b7 $'+Number(c.parse.cost_usd||0).toFixed(4)+(c.parse.cache==='hit'?' \u00b7 cache hit':''));
- if(c.parse&&c.parse.tried&&c.parse.tried.length)field(list,'models tried',c.parse.tried.map(t=>typeof t==='string'?t:t.model+': '+t.reason).join('; '));
- if(typeof c.formalization_ms==='number')field(list,'latency (circuit)',Math.round(c.formalization_ms)+' ms');
- if(c.unclear)field(list,'unclear',c.unclear);
- if(c.understood_as)field(list,'understood as',c.understood_as);
- if((c.linking||[]).length){const dt=document.createElement('dt');dt.textContent='linked to the base memory';const dd=document.createElement('dd');const ul=document.createElement('ul');for(const e of c.linking){const li=document.createElement('li');li.textContent=linkingLine(e);ul.append(li);}dd.append(ul);list.append(dt,dd);}
- field(list,'user statements',(c.user_statements??[]).length?c.user_statements.map(s=>s.statement).join(' '):'none');
- if((c.carried_statements??[]).length)field(list,'earlier statements',c.carried_statements.map(s=>s.atom).join('; '));
- field(list,'assumptions',(c.model_assumptions??[]).length?c.model_assumptions.map(a=>a.statement+' ['+a.treatment+']').join(' '):'none');
- if(c.assumption_policy)field(list,'assumption policy',c.assumption_policy);
- field(list,'reinforcement',c.reinforcement??'none');
- if(c.required)field(list,'needs clarification',c.required);
- details.append(list);
- sopBlock(details,'circuit (written by the coding agent)',c.model_sop);
+ // 1. Formalization: the strategy and model that wrote the circuit, the repair rounds and the guards that sent it back.
+ const f=section(details,'1. Formalization (request parser)',true).list;
+ field(f,'strategy',c.strategy||p.strategy);field(f,'model',p.model);
+ if(p.tried&&p.tried.length)field(f,'models tried before',p.tried.map(t=>typeof t==='string'?t:t.model+': '+t.reason).join('; '));
+ field(f,'rounds',p.rounds!=null?String(p.rounds):null);
+ listField(f,'repair rounds',(p.repairs||[]).map(r=>'round '+r.round+': '+r.problems.join(', ')));
+ field(f,'cache',p.cache);if(p.cost_usd)field(f,'cost',' $'+Number(p.cost_usd).toFixed(4)+' (nominal for subscriptions)');
+ field(f,'time',secs(p.ms??c.formalization_ms));
+ if(p.failed)field(f,'failed',p.failed);if(c.rejection)field(f,'rejected because',c.rejection);
+ field(f,'unclear',c.unclear||p.unclear);field(f,'understood as',c.understood_as);
+ if(p.closest&&p.closest.length)field(f,'closest relations',p.closest.map(x=>x.id).join(', '));
+ // 2. Vocabulary: the schema neighbourhood offered to the author and the bounded vocabulary dialog.
+ if(p.retrieval||p.vocabulary_dialog){const v=section(details,'2. Vocabulary (schema neighbourhood and dialog)').list;const r=p.retrieval||{};
+  field(v,'relations offered',r.predicates!=null?String(r.predicates):null);field(v,'entity mentions found',r.entity_mentions!=null?String(r.entity_mentions):null);
+  if(r.neighbourhood&&r.neighbourhood.predicates)field(v,'schema neighbourhood',r.neighbourhood.predicates.length+' relation(s): '+r.neighbourhood.predicates.slice(0,12).map(x=>x.id).join(', ')+(r.neighbourhood.predicates.length>12?', …':''));
+  if(r.byte_budget)field(v,'vocabulary size',r.bytes+' of '+r.byte_budget+' bytes'+(r.truncated?' (truncated)':''));
+  const d=p.vocabulary_dialog;if(d)field(v,'vocabulary dialog',d.rounds?d.rounds+' expansion(s) of at most '+d.max_rounds+': '+d.expansions.map(e=>e.trigger).join(', '):'not needed');}
+ // 3. Session definitions and assumptions: labelled, never knowledge until accepted.
+ const sc=c.session_circuits;
+ if(sc||(c.model_assumptions||[]).length||(c.user_statements||[]).length||(c.carried_statements||[]).length){const s=section(details,'3. Session definitions and assumptions',Boolean(sc&&sc.draft_id));
+  if(sc){field(s.list,'definition',sc.status+' by the '+(sc.origin==='coding_agent'?'request parser':sc.origin)+' for this turn; it is a draft until you accept it');sopBlock(s.box,'proposed definition',sc.text);draftActions(s.box,sc.draft_id);}
+  field(s.list,'your statements',(c.user_statements||[]).map(x=>x.statement).join(' '));
+  if((c.carried_statements||[]).length)field(s.list,'earlier statements',c.carried_statements.map(x=>x.atom).join('; '));
+  field(s.list,'assumptions',(c.model_assumptions||[]).map(a=>a.statement+' ['+a.treatment+']').join(' '));
+  if((c.model_assumptions||[]).length)field(s.list,'assumption policy',c.assumption_policy);}
+ // 4. Linking: the strings of the circuit bound to the memory by the KnowledgeLinker.
+ if((c.linking||[]).length){const l=section(details,'4. Linking (KnowledgeLinker)').list;listField(l,'bound',c.linking.map(linkingLine));}
+ // 5. Retrieval: the slice of the memory and whether it is complete.
+ const rt=c.retrieval;if(rt){const r=section(details,'5. Retrieval (memory slice)').list;
+  field(r,'complete',rt.complete===true?'yes':rt.complete===false?'no: the answer is withheld or marked partial':null);field(r,'guard',rt.guard);
+  field(r,'slice',(rt.facts??0)+' fact(s), '+(rt.rules??0)+' rule(s), '+(rt.probes??0)+' probe(s)'+(rt.class?', class '+rt.class:''));
+  if(rt.predicates)field(r,'relations',rt.predicates.join(', '));
+  if(rt.bound)field(r,'bounds',Object.entries(rt.bound).map(([k,v])=>k+' '+v).join(', '));
+  if((rt.reasons||[]).length)field(r,'incomplete because',rt.reasons.map(x=>typeof x==='string'?x:JSON.stringify(x)).join('; '));}
+ // 6. Route and verification: the StrategyRouter's engine and the oracle check.
+ const ro=c.route;if(ro||c.backend){const r=section(details,'6. Route and verification (StrategyRouter)').list;
+  if(ro){field(r,'engine',ro.chosen+(ro.requested&&ro.requested!=='auto'?' (requested '+ro.requested+')':''));field(r,'rule',ro.rule);field(r,'why',ro.reason);}
+  field(r,'fallback',c.fallback===null?'none':c.fallback);
+  const v=c.verification;field(r,'oracle verification',v?(v.checked?(v.outcome||'checked'):'not checked'+(v.policy?' ('+v.policy+')':''))+(v.reason?': '+v.reason:''):ro&&/^js-/.test(ro.chosen||'')?'the oracle answered itself':'none');
+  field(r,'completeness',c.completeness);if(c.reinforcement)field(r,'reinforcement',c.reinforcement);if(c.required)field(r,'needs clarification',c.required);}
+ // 7. Answer formulation: the deterministic English answer, and its phrasing in the message's language when that step ran.
+ const al=c.answer_language;if(al){const a=section(details,'7. Answer formulation').list;
+  field(a,'language step',al.applied?'phrased in the language of your message by '+al.model+' from the result only':'not applied: '+(al.reason||'off'));
+  field(a,'mode',al.mode);if((al.tried||[]).length)field(a,'models refused',al.tried.map(t=>t.model+': '+t.reason).join('; '));field(a,'time',secs(al.ms));
+  if(al.applied&&c.english_text)field(a,'English answer (deterministic)',c.english_text);}
+ // 8. Latency.
+ const t=section(details,'8. Latency').list;field(t,'formalization',secs(c.formalization_ms));field(t,'answer formulation',al&&al.ms?secs(al.ms):null);field(t,'whole turn on the server',secs(c.turn_ms));field(t,'round trip in the browser',secs(c.client_ms));
+ // Circuits and raw data.
+ sopBlock(details,'circuit written by the request parser',c.model_sop);
  sopBlock(details,'execution circuit (generated by the runtime)',c.circuit);
- if(c.provenance&&c.provenance.length)block(details,'provenance',c.provenance);
- if(c.route)block(details,'route (StrategyRouter)',c.route);
- if(c.retrieval)block(details,'retrieval',c.retrieval);
+ if(c.provenance&&c.provenance.length)block(details,'provenance (facts used)',c.provenance);
+ if(ro)block(details,'route (raw)',ro);
  sopBlock(details,'pending clarification SOP',c.pendingSop);
  return details;
 }
@@ -136,8 +184,8 @@ function remember(item){const items=transcript(current);items.push(item);saveTra
 function explain(status,body){
  const message=body&&body.error&&body.error.message;
  if(status===401||status===403)return {text:'You are not signed in (or the session expired).',hint:'<a href="/login?next=%2Fchat">Sign in again</a>'};
- if(status===503)return {text:'The coding agent could not write a circuit, so no answer was produced'+(message?': '+message:'.'),hint:'No model of the subscription chain could run. The <a href="/">home page</a> shows the state of the coding agent (omp) and its model chain; pick another model under <b>Settings</b>.',trace:body&&body.chatSop};
- if(status===422)return {text:(body&&body.error&&body.error.code==='parse_failed')?'The coding agent ran but wrote no valid circuit for this message, so no answer was produced.':'The circuit was not admitted or could not be executed, so no answer was produced.',hint:'The trace shows what the coding agent wrote and why it was refused. Rephrase the message or try another model.',trace:body&&body.chatSop};
+ if(status===503)return {text:'No circuit could be written (parse_unavailable), so no answer was produced'+(message?': '+message:'.'),hint:'The chosen formalization strategy or every model of its chain is unavailable. <b>Settings</b> shows the server status; choose another strategy or model there.',trace:body&&body.chatSop};
+ if(status===422)return {text:(body&&body.error&&body.error.code==='parse_failed')?'The request parser ran but wrote no valid circuit for this message (parse_failed), so no answer was produced.':'The circuit was not admitted or could not be executed, so no answer was produced.',hint:'The trace shows what was written, the repair rounds and why it was refused. Rephrase the message or try another strategy or model.',trace:body&&body.chatSop};
  if(status===409)return {text:'This conversation is still answering the previous message. Wait for it, or start a new conversation.'};
  if(status===429)return {text:'The server is busy (too many simultaneous requests). Try again in a moment.'};
  if(status===504)return {text:'The answer took too long and was stopped.',hint:'If the message asked to store something, check the result before sending it again.'};
@@ -150,12 +198,14 @@ async function proceedSend(text,ctx){
  input.value='';fit();scrollBottom(true);
  const conversation=current;
  const user=ctx&&ctx.user?ctx.user:{id:uid(),role:'user',text,time:Date.now()};if(!(ctx&&ctx.user))remember(user);if(!(ctx&&ctx.userDiv))add(user);
- stage('The coding agent is writing the circuit\u2026');
+ stage('Formalizing with '+(typeof strategyName==='function'?strategyName():'the request parser')+'\u2026');
+ const t0=performance.now();
  const waiting=document.createElement('div');waiting.className='msg assistant muted';waiting.textContent='thinking\u2026';$('log').append(waiting);autoScroll();
  let status=0,body=null;
  try{const response=await fetch('/v1/chat/completions',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,messages:[{role:'user',content:text}],conversation_id:conversation,...(typeof sessionBody==='function'?sessionBody():{})})});status=response.status;body=await response.json().catch(()=>null);}
  catch{status=0;}
  waiting.remove();
+ const clientMs=Math.round(performance.now()-t0);if(body&&body.chatSop)body.chatSop.client_ms=clientMs;
  const item=status===200&&body&&body.choices?{role:'assistant',text:body.choices[0].message.content,trace:body.chatSop,time:Date.now()}:{role:'assistant error',...explain(status,body),time:Date.now()};
  if(conversation===current){remember(item);add(item);}else{const items=transcript(conversation);items.push(item);saveTranscript(conversation,items);}
  setBusy(false);autoScroll();
@@ -182,10 +232,9 @@ renderSelect();renderLog();
 const row = (title, help, control, cls = '') => `<div class="srow${cls ? ' ' + cls : ''}"><div class="what"><b>${title}</b><span>${help}</span></div><div class="ctl">${control}</div></div>`;
 
 export function chatPage({model, ready, codingAgent = null}) {
-  const banner = ready ? '' : `<p class="notice bad">The coding agent (omp) cannot run${codingAgent?.reason ? ': ' + escapeHtml(codingAgent.reason) : ''}, so chat answers fail with "parse_unavailable" until a model of the subscription chain is available. See the <a href="/">home page</a> for details.</p>`;
+  const banner = ready ? '' : `<p class="notice bad">The default formalization strategy cannot run${codingAgent?.reason ? ': ' + escapeHtml(codingAgent.reason) : ''}, so chat answers fail with "parse_unavailable" until it can. Settings shows the server status.</p>`;
   const tab = (id, label, selected) => `<button id="tab-${id}" class="tab" role="tab" type="button" aria-selected="${selected}" aria-controls="panel-${id}" tabindex="${selected ? 0 : -1}">${ICONS[id]}<span>${label}</span></button>`;
-  const advanced = row('Reasoning strategy', 'The strategy of the base memory the session works on. The StrategyRouter chooses the reasoning route for each question; a per-message strategy is not offered.', '<span id="strategy-info" class="state">no session</span>')
-    + row('Subscription chain', 'The models the coding agent tries in order (server setting <code>queryParser.models</code>; the model chosen above is tried first).', `<span class="state">${escapeHtml((codingAgent?.models ?? []).join(' \u2192 ') || 'none configured')}</span>`);
+  const strategyRow = row('<label class="plain" for="formalizer">Formalization strategy</label>', 'Who turns your message into a circuit. Strategies this server cannot run are shown disabled with the reason; a chosen strategy is never replaced by another one.', '<select id="formalizer"><option value="">server default</option></select>');
 
   const body = `<main class="app" data-ready="${ready ? 'yes' : 'no'}">
 ${banner}
@@ -193,16 +242,15 @@ ${banner}
 <section id="panel-chat" class="panel" role="tabpanel" aria-labelledby="tab-chat">
 ${sessionHeadHtml}
 <div class="log-wrap"><div id="log" aria-live="polite"></div><button id="scroll-hint" class="pill-btn" type="button" hidden>↓ new messages</button></div>
-<div class="composer-wrap">${chipsHtml}<div id="busy" class="busy" role="status" aria-live="polite" hidden><span class="spin" aria-hidden="true"></span><span id="busy-text">Working\u2026</span></div><div id="composer" class="composer"><button id="attach" class="icon-btn" type="button" title="Attach UTF-8 text files (txt, md, sop, csv, json): they go to the coding agent, which writes SOP circuits from them" aria-label="Attach files"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.5l-8.5 8.5a5.5 5.5 0 0 1-8-8L13 4.5a3.7 3.7 0 0 1 5.3 5.3l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l8-8"/></svg></button>${attachHtml}<textarea id="input" rows="1" placeholder="Type a message" aria-label="Message"></textarea><button id="send" class="icon-btn primary" type="button" title="Send (Enter)" aria-label="Send">${SEND_ICON}</button></div><p class="composer-hint">Enter sends, Shift+Enter adds a new line. Attaching a file is the only thing that starts the coding agent by itself.</p></div>
+<div class="composer-wrap">${chipsHtml}<div id="busy" class="busy" role="status" aria-live="polite" hidden><span class="spin" aria-hidden="true"></span><span id="busy-text">Working\u2026</span></div><div id="composer" class="composer"><button id="attach" class="icon-btn" type="button" title="Attach UTF-8 text files (txt, md, sop, csv, json): they go to the coding agent, which writes SOP circuits from them" aria-label="Attach files"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.5l-8.5 8.5a5.5 5.5 0 0 1-8-8L13 4.5a3.7 3.7 0 0 1 5.3 5.3l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l8-8"/></svg></button>${attachHtml}<textarea id="input" rows="1" placeholder="Type a message" aria-label="Message"></textarea><button id="send" class="icon-btn primary" type="button" title="Send (Enter)" aria-label="Send">${SEND_ICON}</button></div><p class="composer-hint">Enter sends, Shift+Enter adds a new line. Attached files go to the coding agent, which drafts knowledge circuits for you to accept.</p></div>
 </section>
 <section id="panel-settings" class="panel scroll-panel" role="tabpanel" aria-labelledby="tab-settings" hidden><div class="inner">
 <h2>Settings</h2><p class="lead">Choices are remembered in this browser.</p>
-<section class="card set"><h3>Coding agent</h3><p class="help">The coding agent (omp) turns every message into a circuit and writes draft circuits from attached files. It never answers and never adds a fact.</p>
+<section class="card set"><h3>Formalization</h3><p class="help">The request parser writes a circuit from your message; the symbolic runtime validates it, links it to the base memory, retrieves a slice, routes it to an engine, verifies it with the oracle and renders the answer. The parser never answers and never adds a fact.</p>
+${strategyRow}
 ${settingsCodingAgentHtml}
 </section>
-<section class="card set"><h3>Advanced</h3><p class="help">Reasoning and the model chain.</p>
-${advanced}
-</section>
+<section class="card set"><h3>Server status</h3><p class="help">What this server can run now (<code>GET /v1/status</code>).</p><div class="srow"><div class="what"><b>Status</b><span id="status-when">not read yet</span></div><div class="ctl"><button id="status-refresh" type="button">Refresh</button></div></div><div id="status-box"></div></section>
 </div></section>
 <section id="panel-memory" class="panel scroll-panel" role="tabpanel" aria-labelledby="tab-memory" hidden><div class="inner">
 ${memoryTabHtml}

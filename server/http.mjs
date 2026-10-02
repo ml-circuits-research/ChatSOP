@@ -25,6 +25,11 @@ import {SessionRuntimes} from './session-runtime.mjs';
 import {createAuthoring,AUTHORING_ENDPOINTS} from './authoring.mjs';
 import {ompSettings,createOmpModels} from '../lib/omp/index.mjs';
 import {createQueryParser,queryParserSettings} from './query-parser.mjs';
+import {serverStatus,strategyRequest} from './status.mjs';
+import {createAnswerFormulator,answerLanguageSettings,looksEnglish} from './answer-language.mjs';
+
+/** `GET /v1/status` (server/status.mjs): the formalization strategies, base memories, engines and caches of this server. */
+export const STATUS_ENDPOINT=Object.freeze({method:'GET',path:'/v1/status',capability:'status'});
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const json=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data));};
@@ -121,7 +126,7 @@ async function adminRoutes(req,res,url,auth,readiness){
  return error(res,404,'not_found','Endpoint not found');
 }
 
-function trace(result,formalizer,system,parse=null){const packet=result.packet??{};return {mode:'formalize',parse:parse??packet.parse??null,latency_ms:result.formalization?.ms??null,formalizer_label:formalizer.label??null,formalization_ms:result.formalization?.ms??null,circuit:result.executionSop,model_sop:result.sop,provenance:packet.proof??[],backend:packet.route?.backend??packet.backend??null,fallback:packet.route?.fallback??packet.fallback??null,completeness:packet.complete??packet.completeness??null,retrieval:packet.retrieval??null,route:packet.route??null,reasoning_strategy:packet.reasoningStrategy??null,cnl:result.cnl,status:packet.status??null,pendingSop:packet.pendingSop??null,required:packet.required??null,reinforcement:packet.reinforcement??null,user_statements:result.userStatements??[],carried_statements:result.carriedStatements??[],model_assumptions:result.modelAssumptions??[],assumption_policy:result.assumptionPolicy??null,assumption_branch:result.assumptionBranch??null,unclear:result.unclear??null,understood_as:packet.understood_as??null,linking:packet.linking??[],system_circuit:system?.source??null,system_receipt:system?.receipt??null,formalizer_model:result.formalization?.model??formalizer.id??formalizer.model};}
+function trace(result,formalizer,system,parse=null){const packet=result.packet??{};const p=parse??packet.parse??null;return {mode:'formalize',parse:p,english_text:result.englishText??null,answer_language:result.answerLanguage??null,strategy:p?.strategy??null,session_circuits:packet.session_circuits??null,verification:packet.route?.verification??null,latency_ms:result.formalization?.ms??null,formalizer_label:formalizer.label??null,formalization_ms:result.formalization?.ms??null,circuit:result.executionSop,model_sop:result.sop,provenance:packet.proof??[],backend:packet.route?.backend??packet.backend??null,fallback:packet.route?.fallback??packet.fallback??null,completeness:packet.complete??packet.completeness??null,retrieval:packet.retrieval??null,route:packet.route??null,reasoning_strategy:packet.reasoningStrategy??null,cnl:result.cnl,status:packet.status??null,pendingSop:packet.pendingSop??null,required:packet.required??null,reinforcement:packet.reinforcement??null,user_statements:result.userStatements??[],carried_statements:result.carriedStatements??[],model_assumptions:result.modelAssumptions??[],assumption_policy:result.assumptionPolicy??null,assumption_branch:result.assumptionBranch??null,unclear:result.unclear??null,understood_as:packet.understood_as??null,linking:packet.linking??[],system_circuit:system?.source??null,system_receipt:system?.receipt??null,formalizer_model:result.formalization?.model??formalizer.id??formalizer.model};}
 function completion(result,model,formalizer,system,parse=null){const id='chatcmpl-'+randomUUID(),created=Math.floor(Date.now()/1000);return {id,object:'chat.completion',created,model,choices:[{index:0,message:{role:'assistant',content:result.text},finish_reason:'stop'}],usage:null,chatSop:trace(result,formalizer,system,parse)};}
 function sse(res,data){res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache, no-transform','Connection':'keep-alive'});const base={id:data.id,created:data.created,model:data.model,object:'chat.completion.chunk'};res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:data.choices[0].message.content},finish_reason:null}],chatSop:data.chatSop})+'\n\n');res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}]})+'\n\n');res.end('data: [DONE]\n\n');}
 /**
@@ -129,11 +134,11 @@ function sse(res,data){res.writeHead(200,{'Content-Type':'text/event-stream; cha
  * single-repository mode: one repository and one lexicon, conversations kept by `SessionStore`; embedders and the tests that do not exercise the
  * product layer use it. The request parser (server/query-parser.mjs, the coding agent) is created from `config.queryParser` unless `queryParser` is injected (tests).
  */
-export function createServer({config,repo,lexicon,authTokens,auth=null,base='demo',limits={},sessionRoot,chatData=null,queryParser:injected=null}={}){
+export function createServer({config,repo,lexicon,authTokens,auth=null,base='demo',limits={},sessionRoot,chatData=null,queryParser:injected=null,answerFormulator:injectedFormulator}={}){
  if(!config||!repo||!lexicon)throw Error('Server requires config, repository and lexicon');
  const model=config.model??'chatsop-local';
  const users=auth?null:credentials(authTokens??(process.env.CHATSOP_API_KEY?{local:process.env.CHATSOP_API_KEY}:{}));
- const maxRequestBytes=positive(limits.maxRequestBytes??65536,'maxRequestBytes'),maxContextBytes=positive(limits.maxContextBytes??4800,'maxContextBytes'),maxConcurrent=positive(limits.maxConcurrent??4,'maxConcurrent'),timeoutMs=positive(limits.timeoutMs??30000,'timeoutMs');
+ const maxRequestBytes=positive(limits.maxRequestBytes??65536,'maxRequestBytes'),maxContextBytes=positive(limits.maxContextBytes??4800,'maxContextBytes'),maxConcurrent=positive(limits.maxConcurrent??4,'maxConcurrent'),timeoutMs=positive(limits.timeoutMs??180000,'timeoutMs');  // 3 min: a turn may run repair rounds and the vocabulary dialog over a model chain (queryParser.timeoutSeconds per model)
  const sessions=new SessionStore({repo,lexicon,config:{...config,contextMaxBytes:Math.min(config.contextMaxBytes??maxContextBytes,maxContextBytes)},root:sessionRoot??path.join(repo.root,'http-conversations')});
  const pages=createSignedInRoutes();
  let active=0;const busy=new Set();
@@ -141,15 +146,18 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
  // The coding agent (omp) and its subscription chain: the one circuit author of the product (DS009 "Request parser").
  const omp=ompSettings(config),ompModels=createOmpModels(omp);
  const queryParser=injected??createQueryParser({settings:queryParserSettings(config),ompConfig:omp,ompModels,chatData});
+ // Answer formulation in the user's language (server/answer-language.mjs); a server with an injected request parser (tests) has none unless one is injected too.
+ const answerFormulator=injectedFormulator!==undefined?injectedFormulator:injected?null:createAnswerFormulator({settings:answerLanguageSettings(config),ompConfig:omp,chatData});
  const capabilities=createCapabilities({queryParser});
- const api=createApiRouter({capabilities,json,extraEndpoints:chatData?[...PRODUCT_ENDPOINTS,...AUTHORING_ENDPOINTS]:[]});
+ const api=createApiRouter({capabilities,json,extraEndpoints:[STATUS_ENDPOINT,...(chatData?[...PRODUCT_ENDPOINTS,...AUTHORING_ENDPOINTS]:[])]});
+ const startedAt=Date.now();
  // The product layer (DS022): base memories, sessions, omp. Present when a chat data root is configured (startServer always does).
  const memories=chatData?new BaseMemories({chatData,memory:config.memory}):null;
- if(memories)ensureDefaultBase(memories,config);
+ const defaultBase=memories?ensureDefaultBase(memories,config):null;
  const sessionStore=chatData?new Sessions({chatData,memories,memory:config.memory}):null;
- const runtimes=chatData?new SessionRuntimes({sessions:sessionStore,memories,config:{...config,contextMaxBytes:Math.min(config.contextMaxBytes??maxContextBytes,maxContextBytes)},defaultBase:config.chatData?.defaultBase??'default'}):null;
+ const runtimes=chatData?new SessionRuntimes({sessions:sessionStore,memories,config:{...config,contextMaxBytes:Math.min(config.contextMaxBytes??maxContextBytes,maxContextBytes)},defaultBase}):null;
  const authoring=chatData?createAuthoring({sessions:sessionStore,runtimes,chatData,models:ompModels,settings:omp,readBody,json,maxBytes:limits.maxProductBytes??8_000_000}):null;
- const product=chatData?createProductRouter({memories,sessions:sessionStore,runtimes,readBody,json,limits,extra:authoring,parsing:{queryParser}}):null;
+ const product=chatData?createProductRouter({memories,sessions:sessionStore,runtimes,readBody,json,limits,extra:authoring,parsing:{queryParser},defaultBase}):null;
  /** Whether the coding agent can run now, with the model chain; the chat answers 503 `parse_unavailable` when it cannot. */
  async function readiness(){
   const free=await queryParser.availability();
@@ -178,6 +186,7 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
   if(req.method==='GET'&&REPO_MARKDOWN.test(url??''))return serveRepoMarkdown(res,url);
   try{const parsed=new URL(req.url,'http://localhost');if(await pages.handle(req,res,url,Object.fromEntries(parsed.searchParams),(status,body)=>json(res,status,body),{signedIn:Boolean(sessionUser)}))return;}catch(e){if(res.destroyed)return;return error(res,e.status??400,e.code??'invalid_request',e.message);}
   if(url==='/chat'&&req.method==='GET'){const state=await readiness();return sendHtml(res,200,chatPage({model,ready:state.ready,codingAgent:state.coding_agent}));}
+  if(url==='/v1/status'&&req.method==='GET')return json(res,200,await serverStatus({queryParser,ompModels,memories,warm:server.warm??null,startedAt,defaultBase}));
   if(url==='/readyz'&&req.method==='GET'){const state=await readiness();return json(res,state.ready?200:503,state);}
   if(url==='/v1/models'&&req.method==='GET'){
    const state=await readiness();
@@ -204,28 +213,31 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    key=rt?'session\0'+sessionId:user+'\0'+conversation;if(busy.has(key))return error(res,409,'conversation_busy','Conversation has an active request');
    const entry=rt?rt.entry(user):sessions.get(user,conversation,base);let system=null;
    busy.add(key);active++;
+   const turnStarted=performance.now();
    const work=(async()=>{
     if(body.chatSop){const source=checkedTrusted(body.chatSop.trustedSop),stored=await new Runtime({repo:rt?rt.repo:repo,session:entry.agent.session,schema:(rt?.lexicon??lexicon).predicates,lexicon:rt?.lexicon??lexicon,policy:{...config.policy,allowRules:false,allowPin:false}}).run(source);system={source,receipt:stored.result};}
     // The circuit author: the coding agent reads the message and the vocabulary of the session's memory and writes the circuit (server/query-parser.mjs).
     const author={id:'coding-agent',label:'coding agent (omp)',formalize:async message=>{
-     const lex=rt?.lexicon??lexicon,done=await queryParser.parse({message,lexicon:lex,memoryKey:lex.circuitsSha256??null,preferredModel:rt?.info?.settings?.omp_model??null});
+     const lex=rt?.lexicon??lexicon,done=await queryParser.parse({message,lexicon:lex,memoryKey:lex.circuitsSha256??null,preferredModel:rt?.info?.settings?.omp_model??null,messageLanguage:looksEnglish(message)?'en':'other',...strategyRequest(queryParser,rt?.info?.settings?.formalizer??null)});
      parseRecord=done.parse;author.id='coding-agent:'+(done.parse.model??'omp');
      return done.sop;}};
     const result=await entry.agent.turn(text,{formalizer:author}).catch(e=>{e.parse=e.parse??parseRecord;throw e;});
     if(parseRecord&&result.packet)result.packet.parse=parseRecord;
+    // The deterministic English answer stays in the trace; a faithful phrasing in the message's language replaces the shown text.
+    if(answerFormulator){const phrased=await answerFormulator.formulate({message:text,english:result.text,packet:result.packet??{}});result.answerLanguage={...phrased,text:undefined};if(phrased.applied)result.text=phrased.text;}
     if(rt){rt.save(entry,user);sessionStore.appendTranscript(sessionId,{role:'user',text});sessionStore.appendTranscript(sessionId,{role:'assistant',text:result.text,status:result.packet?.status??null});}else sessions.save(entry,user,conversation,base);
     return {result,author,system,rt,sessionId};
    })();work.finally(()=>{active--;busy.delete(key);}).catch(()=>{});
    const done=await Promise.race([work,new Promise((_,reject)=>{const timer=setTimeout(()=>{const e=new Error('Request time limit reached');e.status=504;reject(e);},timeoutMs);timer.unref();work.finally(()=>clearTimeout(timer)).catch(()=>{});})]);
-   if(res.destroyed)return;const data=completion(done.result,body.model,{id:done.author.id,label:done.author.label},done.system,parseRecord);if(done.rt)data.chatSop.session={id:done.sessionId,base:done.rt.info.base};if(body.stream)sse(res,data);else json(res,200,data);
+   if(res.destroyed)return;const data=completion(done.result,body.model,{id:done.author.id,label:done.author.label},done.system,parseRecord);data.chatSop.turn_ms=Math.round(performance.now()-turnStarted);if(done.rt)data.chatSop.session={id:done.sessionId,base:done.rt.info.base,formalizer:done.rt.info.settings?.formalizer??null};if(body.stream)sse(res,data);else json(res,200,data);
   }catch(e){if(res.destroyed)return;
    // No model of the subscription chain could run (503), or the models ran and no valid circuit came back (422): the parse record says which models were tried and why they failed.
-   if(e.code==='parse_unavailable')return json(res,503,{error:{message:'The coding agent cannot produce a circuit: '+e.message,type:'invalid_request_error',code:'parse_unavailable'},chatSop:{status:'parse_unavailable',parse:e.parse??parseRecord,reason:String(e.message).slice(0,500)}});
-   if(e.code==='parse_failed')return json(res,422,{error:{message:'The coding agent wrote no valid circuit: '+e.message,type:'invalid_request_error',code:'parse_failed'},chatSop:{status:'rejected',parse:e.parse??parseRecord,rejection:String(e.message).slice(0,500)}});
+   if(e.code==='parse_unavailable')return json(res,503,{error:{message:'The request parser cannot produce a circuit: '+e.message,type:'invalid_request_error',code:'parse_unavailable'},chatSop:{status:'parse_unavailable',parse:e.parse??parseRecord,reason:String(e.message).slice(0,500)}});
+   if(e.code==='parse_failed')return json(res,422,{error:{message:'The request parser wrote no valid circuit: '+e.message,type:'invalid_request_error',code:'parse_failed'},chatSop:{status:'rejected',parse:e.parse??parseRecord,rejection:String(e.message).slice(0,500)}});
    // The circuit was written but not admitted or could not be executed: 422 with what the author wrote, so the chat can show it.
    if(e.modelSop!==undefined)return json(res,422,{error:{message:'The circuit was not admitted or could not be executed',type:'invalid_request_error',code:'model_output_rejected'},chatSop:{status:'rejected',parse:e.parse??parseRecord,rejection:String(e.message).slice(0,500),model_sop:e.modelSop,formalizer_model:e.formalization?.model??null,formalization_ms:e.formalization?.ms??null}});
    const status=e.status??(e.name==='TimeoutError'||e.message==='Request time limit reached'?504:400);error(res,status,(e.status&&e.code)||(status===413?'request_limit':status===504?'time_limit':status===400?'invalid_request':'internal_error'),status===400&&!e.status?'Invalid SOP or request; no detail exposed':status===504?'Request time limit reached':e.status?e.message:'Server request failed');}
- });server.auth=auth;server.capabilities=capabilities;server.sessions=sessionStore;server.memories=memories;server.authoring=authoring;server.ompModels=ompModels;server.ompSettings=omp;server.queryParser=queryParser;
+ });server.auth=auth;server.capabilities=capabilities;server.sessions=sessionStore;server.memories=memories;server.authoring=authoring;server.ompModels=ompModels;server.ompSettings=omp;server.queryParser=queryParser;server.defaultBase=defaultBase;
  server.on('close',()=>capabilities.close());
  return server;
 }
@@ -243,7 +255,7 @@ export async function startServer({configPath=path.join(root,'config/runtime.jso
  server.on('close',stopCleanup);
  await new Promise((resolve,reject)=>server.once('error',reject).listen(port,host,resolve));
  // Warmup (DS009 "Warm memories"): the base memories named by `server.warmMemories` are decoded in the background; the server is usable at once. CHATSOP_WARMUP=0 or `server.warmup: false` turns it off.
- if(config.server?.warmup!==false&&process.env.CHATSOP_WARMUP!=='0')setImmediate(()=>{(async()=>server.ompModels?.list?.())().catch(()=>{});try{const ids=config.server?.warmMemories??['default','world-v1'];if(server.memories&&ids.length)for(const r of warmMemories({memories:server.memories,ids}))console.log('warmup: base memory '+r.id+(r.skipped?' skipped ('+r.skipped+')':' warm in '+r.ms+' ms ('+r.facts+' facts, '+r.layers+' layers)'));}catch(e){console.error('warmup of base memories failed: '+e.message);}});
+ if(config.server?.warmup!==false&&process.env.CHATSOP_WARMUP!=='0')setImmediate(()=>{(async()=>server.ompModels?.list?.())().catch(()=>{});try{const ids=[...new Set([server.defaultBase,...(config.server?.warmMemories??['world-v1'])].filter(Boolean))];if(server.memories&&ids.length)server.warm=[];for(const r of warmMemories({memories:server.memories,ids})){server.warm.push(r);console.log('warmup: base memory '+r.id+(r.skipped?' skipped ('+r.skipped+')':' warm in '+r.ms+' ms ('+r.facts+' facts, '+r.layers+' layers)'));}}catch(e){console.error('warmup of base memories failed: '+e.message);}});
  return server;
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){startServer({configPath:process.env.CHATSOP_CONFIG??path.join(root,'config/runtime.json')}).then(server=>console.log('ChatSOP listening on '+JSON.stringify(server.address())+'\n  home (sign in, chat, admin): http://127.0.0.1:'+server.address().port+'/\n  documentation: http://127.0.0.1:'+server.address().port+'/docs/')).catch(e=>{console.error(e.message);console.error('\nHint: `npm start` generates a token, serves the documentation and prints the access URLs.');process.exitCode=1;});}

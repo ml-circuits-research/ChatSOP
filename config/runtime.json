@@ -50,6 +50,7 @@
   },
   "chatData": {
     "root": "chat_data",
+    "defaultBase": "world-v1",
     "tmpTtlHours": 24,
     "sessionTtlDays": 14,
     "cleanupIntervalMinutes": 60
@@ -83,7 +84,6 @@
   "server": {
     "warmup": true,
     "warmMemories": [
-      "default",
       "world-v1"
     ]
   }
