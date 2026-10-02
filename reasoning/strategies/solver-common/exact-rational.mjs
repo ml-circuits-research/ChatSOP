@@ -90,6 +90,8 @@ export function exactCompute(word, a, b) {
       r = new Q(word === 'rounded_to' ? q.round() : word === 'rounded_up_to' ? q.ceil() : q.floor()).mul(y);
       break;
     }
+    case 'minimum_with': r = x.cmp(y) <= 0 ? x : y; break;
+    case 'maximum_with': r = x.cmp(y) >= 0 ? x : y; break;
     default: return undefined;
   }
   return safe(r)?.toNumber();

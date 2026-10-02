@@ -15,6 +15,7 @@
  *   whole_divided_by, modulo              on the integer values (a non-integer operand makes the body false, as in the oracle)
  *   power                                 a constant exponent 0..MAX_POWER, unrolled into exact multiplications
  *   rounded_to, rounded_up_to, rounded_down_to   integer floor/ceiling/half-away-from-zero over multiples of B (B above 0)
+ *   minimum_with, maximum_with            two alternatives of the body: a compare of the scaled values, then the kept one
  *
  * Everything is expressed with the four integer words the engines already lower (plus, minus, times, whole_divided_by) and comparisons, so
  * no engine learns a new operation. A scale above MAX_SCALE, an operation without an exact scaled form (a power with a variable exponent,
@@ -138,6 +139,7 @@ export function planFixedPoint(program, extraAlts = []) {
           case 'power': s = a * constPower(l.right); break;
           case 'divided_by': if (isVarTerm(l.right)) { s = a + DIVISION_HEADROOM; flag = true; } else s = a + divisorPlaces(l.right); break;
           case 'rounded_to': case 'rounded_up_to': case 'rounded_down_to': s = b; break;
+          case 'minimum_with': case 'maximum_with': s = Math.max(a, b); break;
           default: throw refuse(`compute ${l.word} has no fixed-point form`);
         }
         env.set(l.out, s);
@@ -275,6 +277,12 @@ class Rewriter {
           else if (k === 1) m.emit('plus', a, 0, out);
           else { let acc = a; for (let i = 2; i <= k; i++) acc = m.fxTimes(acc, a, i === k ? out : null); }
         })];
+      }
+      // the smaller (larger) value: two alternatives of the body, one per side of the comparison
+      case 'minimum_with': case 'maximum_with': {
+        const min = l.word === 'minimum_with';
+        return [one(m => { m.cmp(min ? 'at_most' : 'at_least', a, b); m.emit('plus', a, 0, out); }),
+          one(m => { m.cmp(min ? 'above' : 'below', a, b); m.emit('plus', b, 0, out); })];
       }
       case 'rounded_down_to': case 'rounded_up_to': return [one(m => {
         m.cmp('above', b, 0);

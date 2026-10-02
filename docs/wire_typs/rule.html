@@ -82,7 +82,27 @@
   when compute ?n ?q rounded_up_to 1
   then interest ?p ?i ?n</code></pre><pre data-sop="knowledge-query" data-status="supported" data-rows="i=293.33,n=4"><code>@q query
   where interest kara ?i ?n
-  select ?i ?n</code></pre><h3>Invalid: a head variable the body does not bind</h3><pre data-sop="knowledge-invalid" data-error="unsafe_head"><code>@parent predicate
+  select ?i ?n</code></pre><h3>The smaller or the larger of two values</h3><p>Three stages in series pass 170, 140 and 100 units an hour: the line passes the smallest, chained with <code>minimum_with</code>. The spare capacity of stage c over stage b cannot be negative: <code>maximum_with 0</code> is a floor at zero.</p><pre data-sop="knowledge"><code>@capacity predicate
+  args subject:entity object:value
+@line predicate
+  args subject:entity object:value topic:value
+@f1 fact
+  holds capacity a 170
+@f2 fact
+  holds capacity b 140
+@f3 fact
+  holds capacity c 100
+@line_rule rule
+  when capacity a ?a
+  when capacity b ?b
+  when capacity c ?c
+  when compute ?m ?a minimum_with ?b
+  when compute ?t ?m minimum_with ?c
+  when compute ?g ?c minus ?b
+  when compute ?s ?g maximum_with 0
+  then line c ?t ?s</code></pre><pre data-sop="knowledge-query" data-status="supported" data-rows="s=0,t=100"><code>@q query
+  where line c ?t ?s
+  select ?t ?s</code></pre><h3>Invalid: a head variable the body does not bind</h3><pre data-sop="knowledge-invalid" data-error="unsafe_head"><code>@parent predicate
   args subject:entity object:entity
 @grandparent predicate
   args subject:entity object:entity

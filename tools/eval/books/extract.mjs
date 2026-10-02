@@ -137,12 +137,18 @@ const NUM = /(?<![\w.])-?\d+(?:[.,]\d+)?(?:\/\d+)?%?/g;
 const toNumber = s => { const t = s.replace(/,(?=\d{3}\b)/g, '').replace(',', '.'); if (t.includes('/')) { const [a, b] = t.split('/'); return Number(a) / Number(b); } return Number(t.replace('%', '')); };
 export const numbersOf = text => [...String(text).matchAll(NUM)].map(m => toNumber(m[0])).filter(Number.isFinite);
 
-/** The answer kind and a normalised value: yes_no | number | list | entity | text. */
-export function classifyAnswer(answer) {
-  const a = oneLine(answer), first = a.split(/[.;:!?]/)[0].toLowerCase();
+/**
+ * The answer kind and a normalised value: yes_no | number | list | entity | text. A yes/no answer that also gives numbers the question
+ * does not contain ("Yes, overlap 28 years.") keeps those numbers in `numbers`: the score requires them next to the polarity. The bare
+ * words "Da"/"Nu" of a translated book that kept its source language are yes/no.
+ */
+export function classifyAnswer(answer, question = '') {
+  const a = oneLine(answer).replace(/^(da|nu)\b(?=[.!]?\s*$)/i, w => (/^da$/i.test(w) ? 'Yes' : 'No')), first = a.split(/[.;:!?]/)[0].toLowerCase();
   const nums = numbersOf(a), words = a.replace(/[^\p{L}\s]/gu, ' ').split(/\s+/).filter(Boolean);
-  if (/^(yes|no)\b/i.test(a) && words.length <= 25) return {kind: 'yes_no', value: /^yes/i.test(a)};
-  if (/^(true|false)\b/i.test(a) && words.length <= 25) return {kind: 'yes_no', value: /^true/i.test(a)};
+  const asked = new Set(numbersOf(question));
+  const extra = () => { const n = [...new Set(nums.filter(x => !asked.has(x)))]; return n.length ? {numbers: n} : {}; };
+  if (/^(yes|no)\b/i.test(a) && words.length <= 25) return {kind: 'yes_no', value: /^yes/i.test(a), ...extra()};
+  if (/^(true|false)\b/i.test(a) && words.length <= 25) return {kind: 'yes_no', value: /^true/i.test(a), ...extra()};
   if (/^(not enough|insufficient|cannot be determined|it cannot be|unknown|the data do not|the text is silent)/i.test(first)) return {kind: 'unknown', value: null};
   if (nums.length === 1 && words.length <= 6) return {kind: 'number', value: nums[0], unit: words.join(' ') || null};
   if (nums.length > 1 && words.length <= 14) return {kind: 'list', value: nums};
@@ -157,9 +163,9 @@ export function extractAll({dir = path.join(ROOT, 'datasets_sources/books')} = {
   for (const [key, book] of Object.entries(BOOKS)) {
     const rows = parsers[key](docxParagraphs(path.join(dir, book.file)));
     for (const r of rows) {
-      const answer = clean(r.answer), cls = classifyAnswer(answer);
+      const answer = clean(r.answer), cls = classifyAnswer(answer, clean(r.question));
       items.push({id: `${slug(key)}:${r.number}`, book: key, book_title: book.title, chapter: r.chapter, section: r.section, area: r.area, grade: r.grade, tags: r.tags, number: r.number,
-        question: clean(r.question), answer, answer_value: cls.value, answer_kind: cls.kind, ...(cls.unit ? {answer_unit: cls.unit} : {}), solution: clean(r.solution)});
+        question: clean(r.question), answer, answer_value: cls.value, answer_kind: cls.kind, ...(cls.unit ? {answer_unit: cls.unit} : {}), ...(cls.numbers ? {answer_numbers: cls.numbers} : {}), solution: clean(r.solution)});
     }
     stats[key] = rows.length;
   }

@@ -115,7 +115,8 @@ const multiple = (a, b, round) => { if (b <= 0) return undefined; const q = clea
  * Arithmetic of `compute` (DS004 "Exact arithmetic"): integers and decimals; results are exact for integers and rounded to
  * DECIMAL_DIGITS significant digits for decimals. `divided_by` is exact (7 divided_by 2 is 3.5); `whole_divided_by` truncates toward
  * zero and `modulo` is its remainder (integers only); `power` takes an integer exponent 0..64; `rounded_to`, `rounded_up_to` and
- * `rounded_down_to` round A to the nearest (half away from zero), next or previous multiple of a positive B. Returns undefined for a zero
+ * `rounded_down_to` round A to the nearest (half away from zero), next or previous multiple of a positive B; `minimum_with` and
+ * `maximum_with` give the smaller or the larger of A and B (a bottleneck, a critical path join, a floor at zero). Returns undefined for a zero
  * divisor, a non-number, an unsafe integer or an exponent out of range.
  */
 export function compute(word, a, b) {
@@ -133,6 +134,8 @@ export function compute(word, a, b) {
     case 'rounded_to': return multiple(a, b, q => Math.sign(q) * Math.round(Math.abs(q)));
     case 'rounded_up_to': return multiple(a, b, Math.ceil);
     case 'rounded_down_to': return multiple(a, b, Math.floor);
+    case 'minimum_with': return clean(Math.min(a, b));
+    case 'maximum_with': return clean(Math.max(a, b));
     default: return undefined;
   }
   if (ints && Number.isInteger(r) && !Number.isSafeInteger(r)) return undefined;

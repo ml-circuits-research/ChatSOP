@@ -60,7 +60,7 @@ export const ARITHMETIC_WORDS = Object.freeze({plus: '+', minus: '-', times: '*'
  * from 0 to 64), `rounded_to`, `rounded_up_to` and `rounded_down_to` (A to the nearest, next or previous multiple of B: `rounded_to 0.01`
  * gives cents, `rounded_up_to 1` the whole number of batches). Numbers are integers or decimals.
  */
-export const COMPUTE_WORDS = Object.freeze([...Object.keys(ARITHMETIC_WORDS), 'whole_divided_by', 'modulo', 'power', 'rounded_to', 'rounded_up_to', 'rounded_down_to']);
+export const COMPUTE_WORDS = Object.freeze([...Object.keys(ARITHMETIC_WORDS), 'whole_divided_by', 'modulo', 'power', 'rounded_to', 'rounded_up_to', 'rounded_down_to', 'minimum_with', 'maximum_with']);
 /** The compute words whose results the integer-only engines reproduce (truncating whole division); every other word, and any decimal operand, needs `exact_arithmetic`. */
 export const INTEGER_COMPUTE_WORDS = Object.freeze(['plus', 'minus', 'times', 'whole_divided_by']);
 export const RANK_WORDS = Object.freeze(['highest', 'lowest']);

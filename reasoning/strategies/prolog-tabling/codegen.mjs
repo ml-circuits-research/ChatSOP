@@ -36,7 +36,7 @@ export const listText = xs => '[' + xs.join(',') + ']';
 const argsText = args => listText(args.map(termText));
 const varName = v => 'V_' + v.slice(1);
 
-const ARITH = Object.fromEntries(['plus', 'minus', 'times', 'divided_by', 'whole_divided_by', 'modulo', 'power', 'rounded_to', 'rounded_up_to', 'rounded_down_to'].map(w => [w, w]));
+const ARITH = Object.fromEntries(['plus', 'minus', 'times', 'divided_by', 'whole_divided_by', 'modulo', 'power', 'rounded_to', 'rounded_up_to', 'rounded_down_to', 'minimum_with', 'maximum_with'].map(w => [w, w]));
 
 /** Registry of the relations of a program: arity, stratum and which polarities are DERIVED (have a rule or aggregate head). */
 export function registry(program, extraAtoms = []) {

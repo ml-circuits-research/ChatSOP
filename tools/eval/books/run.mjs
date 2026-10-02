@@ -2,7 +2,14 @@
 /**
  * End-to-end evaluation on the owner's problem books (docs/runtime.html "Evaluating on the owner's problem books"):
  *   node tools/eval/books/run.mjs --n 100 [--seed s] [--books math,science,...] [--areas text,...] [--arms steps,direct[,remote-direct]]
- *     [--include-seen] [--ids a,b] [--resume dir] [--endpoint http://127.0.0.1:PORT/v1] [--concurrency N]
+ *     [--include-seen] [--ids a,b] [--resume dir] [--endpoint http://127.0.0.1:PORT/v1] [--tier tiny|small] [--concurrency N]
+ *     [--workers N] [--purpose job:books-eval] [--author-tier good]
+ * --items-from <run dir> takes the problems of an earlier run; --replay (arm ceiling) executes the stored circuit of a problem
+ * (tools/eval/books/gold-circuits.mjs) instead of asking the tier again.
+ * Arm ceiling: LLMDirect on --author-tier (default good) in one process with --concurrency N: the reasoning layers with good circuits.
+ * With --tier both local arms go through LLMAPIProvider: the step-by-step questions and the direct baseline call the same tier, tagged
+ * with --purpose (default job:books-eval) and the run id, with the tier's fallback off (x-llmapiprovider-no-fallback), so both arms use
+ * the same model; --workers N runs the steps arm in N independent chat systems (one session each).
  * Arms: steps = the product chat turn with LocalLLMStepByStep (method B) and Qwen3-4B-Instruct Q4_K_M, the problem text as the user
  * message, the chat default base memory; direct = the same model answering the problem directly (baseline); remote-direct = the same chat
  * turn with LLMDirect on the remote default model (queryParser.models: the openference Qwen3.8 27b through LLMAPIProvider; one completion plus validator repairs), only when asked. Items already run are not repeated unless --include-seen.
@@ -16,6 +23,7 @@ import {loadItems, loadSeen, markSeen, sampleItems} from './sample.mjs';
 import {openChatTurn, ROOT, MODEL_GGUF} from './system.mjs';
 import {attribution, finalLine} from './attribution.mjs';
 import {GPU_LOCKS} from '../../../lib/local-llm/index.mjs';
+import {readGold} from './gold-circuits.mjs';
 
 const opt = (args, name, fallback) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
 const list = v => (v ? v.split(',').map(s => s.trim()).filter(Boolean) : null);
@@ -27,13 +35,19 @@ export async function main(args = process.argv.slice(2)) {
   if (unknown.length) throw new Error(`arms: steps, direct, ${Object.keys(REMOTE_ARMS).join(', ')} (got ${unknown})`);
   const endpoint = opt(args, '--endpoint', null);
   for (const lock of GPU_LOCKS) if (fs.existsSync(path.join(ROOT, lock))) throw new Error(`the GPU is reserved (${lock}); nothing started`);
-  if (!endpoint && arms.some(a => !REMOTE_ARMS[a]) && !fs.existsSync(MODEL_GGUF)) throw new Error(`missing model ${MODEL_GGUF}`);
+  if (!endpoint && !opt(args, '--tier', null) && arms.some(a => !REMOTE_ARMS[a]) && !fs.existsSync(MODEL_GGUF)) throw new Error(`missing model ${MODEL_GGUF}`);
   const resume = opt(args, '--resume', null);
   const out = path.resolve(ROOT, resume ?? `eval/reports/current/books-eval/run-${stamp()}`);
   fs.mkdirSync(out, {recursive: true});
   const itemsFile = path.join(out, 'items.json');
   let sample;
   if (resume && fs.existsSync(itemsFile)) sample = JSON.parse(fs.readFileSync(itemsFile, 'utf8'));
+  // --items-from <run dir>: the same problems as an earlier run (with the current golds), e.g. to replay its circuits after a fix.
+  else if (opt(args, '--items-from', null)) {
+    const ids = new Set(JSON.parse(fs.readFileSync(path.resolve(ROOT, opt(args, '--items-from', null), 'items.json'), 'utf8')).map(i => i.id));
+    sample = loadItems(ROOT).filter(i => ids.has(i.id));
+    fs.writeFileSync(itemsFile, JSON.stringify(sample, null, 1));
+  }
   else {
     const all = loadItems(ROOT);
     sample = sampleItems(all, {n, seed, books: list(opt(args, '--books', null)), areas: list(opt(args, '--areas', null)), ids: list(opt(args, '--ids', null)), seen: loadSeen(ROOT), includeSeen: args.includes('--include-seen')});
@@ -50,11 +64,14 @@ export async function main(args = process.argv.slice(2)) {
   try {
     for (const arm of arms) {
       if (REMOTE_ARMS[arm]) { await remoteArm(arm, sample, done, append, args, out); continue; }
-      system ??= await openChatTurn({endpoint});
+      const tier = opt(args, '--tier', null);
+      const headers = tier ? {'x-llmapiprovider-purpose': opt(args, '--purpose', 'job:books-eval'), 'x-llmapiprovider-run': path.basename(out), 'x-llmapiprovider-no-fallback': '1'} : null;
+      system ??= await openChatTurn({endpoint, tier, headers});
+      if (arm === 'steps' && tier && Number(opt(args, '--workers', 1)) > 1) { await parallelSteps(sample, done, append, args, out, {tier, headers}); continue; }
       let k = 0;
       for (const item of sample) {
         if (done.has(`${arm}/${item.id}`)) continue;
-        const base = {run: path.basename(out), arm, id: item.id, book: item.book, area: item.area, grade: item.grade, question: item.question, gold: item.answer, gold_kind: item.answer_kind, gold_value: item.answer_value};
+        const base = {run: path.basename(out), arm, id: item.id, book: item.book, area: item.area, grade: item.grade, question: item.question, gold: item.answer, gold_kind: item.answer_kind, gold_value: item.answer_value, ...(item.answer_numbers ? {gold_numbers: item.answer_numbers} : {})};
         if (arm === 'steps') {
           const r = await system.ask(item.question);
           append({...base, ms: r.ms, ok: r.ok, text: r.text ?? null, error: r.error ?? null, system: attribution(r)});
@@ -67,9 +84,9 @@ export async function main(args = process.argv.slice(2)) {
       }
     }
   } finally { await system?.close(); }
-  fs.writeFileSync(path.join(out, 'run.json'), JSON.stringify({run: path.basename(out), started, finished: new Date().toISOString(), n: sample.length, seed, arms, model: path.basename(MODEL_GGUF), method: 'B',
+  fs.writeFileSync(path.join(out, 'run.json'), JSON.stringify({run: path.basename(out), started, finished: new Date().toISOString(), n: sample.length, seed, arms, model: opt(args, '--tier', null) ? `tier:${opt(args, '--tier', null)}` : path.basename(MODEL_GGUF), method: 'B',
     base_memory: system?.baseId ?? null, memory_circuits_sha256: system?.memoryDigest ?? null, filters: {books: opt(args, '--books', null), areas: opt(args, '--areas', null)}}, null, 1));
-  if (!args.includes('--include-seen') && !resume) markSeen(ROOT, sample.map(i => i.id), path.basename(out));
+  if (!args.includes('--include-seen') && !resume && !opt(args, '--items-from', null)) markSeen(ROOT, sample.map(i => i.id), path.basename(out));
   void localArms;
   console.error(`records: ${path.relative(ROOT, file)}\nnext: node tools/eval/books/score.mjs --run ${path.relative(ROOT, out)}`);
 }
@@ -77,11 +94,35 @@ export async function main(args = process.argv.slice(2)) {
 /** The arms that run the chat turn with a remote formalizer (no local model): the strategy and its default model. */
 // No omp (owner order 2026-10-02): both arms call the proxy directly (LLMDirect). 'coding-agent' keeps its record name and is pinned to the 27B;
 // 'remote-direct' uses the chain queryParser.models of the runtime configuration.
-export const REMOTE_ARMS = Object.freeze({'coding-agent': {strategy: 'LLMDirect', model: 'openference/Qwen3.8 27b'}, 'remote-direct': {strategy: 'LLMDirect', model: null}});
+// 'ceiling' (reasoning cycle, owner 2026-10-02): LLMDirect on a strong tier (--author-tier, default good) writes the circuit with the
+// validator's repair rounds; the engines and the memory then answer. It measures what the reasoning layers reach with a good formalization.
+export const REMOTE_ARMS = Object.freeze({'coding-agent': {strategy: 'LLMDirect', model: 'openference/Qwen3.8 27b'}, 'remote-direct': {strategy: 'LLMDirect', model: null}, ceiling: {strategy: 'LLMDirect', model: 'tier'}});
+
+/** The steps arm on a proxy tier in N independent chat systems (one private session each, so no turn sees another's session layer). */
+async function parallelSteps(sample, done, append, args, out, {tier, headers}) {
+  const width = Math.max(1, Number(opt(args, '--workers', 1)));
+  const queue = sample.filter(item => !done.has(`steps/${item.id}`));
+  let k = 0;
+  const worker = async w => {
+    const system = await openChatTurn({tier, headers, sessionId: `books-eval-${process.pid}-w${w}`});
+    try {
+      for (let item = queue.shift(); item; item = queue.shift()) {
+        const r = await system.ask(item.question);
+        append({run: path.basename(out), arm: 'steps', id: item.id, book: item.book, area: item.area, grade: item.grade, question: item.question, gold: item.answer, gold_kind: item.answer_kind, gold_value: item.answer_value, ...(item.answer_numbers ? {gold_numbers: item.answer_numbers} : {}), ms: r.ms, ok: r.ok, text: r.text ?? null, error: r.error ?? null, system: attribution(r)});
+        console.error(`[${++k}/${sample.length}] steps ${item.id} ${r.ok ? r.packet?.status : 'ERR ' + r.error?.code} ${r.ms} ms`);
+      }
+    } finally { await system.close(); }
+  };
+  await Promise.all(Array.from({length: width}, (_, w) => worker(w)));
+}
 
 /** A remote arm: the same chat turn with the arm's strategy; only when asked. */
 async function remoteArm(arm, sample, done, append, args, out) {
-  const {strategy, model} = REMOTE_ARMS[arm];
+  const {strategy, model: fixed} = REMOTE_ARMS[arm];
+  // A tier entry carries the run's tags and no fallback, so every circuit of the arm comes from the named tier.
+  const tier = opt(args, '--author-tier', 'good');
+  // The strong tiers are reasoning models behind OpenRouter: low reasoning effort and room for the reasoning before the circuit.
+  const model = fixed === 'tier' ? {provider: 'openference', model: tier, tier, maxTokens: 16000, timeoutSeconds: 300, extraBody: {reasoning: {effort: 'low'}}, headers: {'x-llmapiprovider-purpose': opt(args, '--purpose', 'job:books-eval'), 'x-llmapiprovider-run': path.basename(out), 'x-llmapiprovider-no-fallback': '1'}} : fixed;
   const system = await openChatTurn({strategy, model});
   // `--concurrency N` (default 2): remote turns wait on the provider, so a few run at once (the proxy enforces the plan's rate limits).
   const width = Math.max(1, Number(opt(args, '--concurrency', 2)));
@@ -89,9 +130,13 @@ async function remoteArm(arm, sample, done, append, args, out) {
   let k = 0;
   const worker = async () => {
     for (let item = queue.shift(); item; item = queue.shift()) {
-      const r = await system.ask(item.question);
-      append({run: path.basename(out), arm, id: item.id, book: item.book, area: item.area, grade: item.grade, question: item.question, gold: item.answer, gold_kind: item.answer_kind, gold_value: item.answer_value, ms: r.ms, ok: r.ok, text: r.text ?? null, error: r.error ?? null, system: attribution(r)});
-      console.error(`[${++k}/${sample.length}] ${arm} ${item.id} ${r.ok ? r.packet?.status : 'ERR ' + r.error?.code} ${r.ms} ms`);
+      // --replay: a problem with a stored circuit of the same tier (state/formalization-gold/books) is executed again without a model call.
+      const stored = arm === 'ceiling' && args.includes('--replay') ? readGold(item.id) : null;
+      const replay = stored && stored.author_tier === tier && stored.circuit ? stored.circuit : null;
+      const r = await system.ask(item.question, {sop: replay});
+      append({run: path.basename(out), arm, id: item.id, book: item.book, area: item.area, grade: item.grade, question: item.question, gold: item.answer, gold_kind: item.answer_kind, gold_value: item.answer_value, ...(item.answer_numbers ? {gold_numbers: item.answer_numbers} : {}), ms: r.ms, ok: r.ok, text: r.text ?? null, error: r.error ?? null,
+        ...(arm === 'ceiling' ? {author_tier: tier, circuit: r.authored ?? null, replayed: Boolean(replay)} : {}), system: attribution(r)});
+      console.error(`[${++k}/${sample.length}] ${arm} ${item.id}${replay ? ' (replay)' : ''} ${r.ok ? r.packet?.status : 'ERR ' + r.error?.code} ${r.ms} ms`);
     }
   };
   try { await Promise.all(Array.from({length: width}, worker)); } finally { await system.close(); }

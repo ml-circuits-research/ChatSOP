@@ -58,7 +58,8 @@ rt_order(same_time, A, B) :- ordinal(A, X), ordinal(B, Y), X =:= Y.
 
 % compute (DS004 "Exact arithmetic"): integers and exact rationals (decimals are read as rationals, 0.1 is 1r10), never floats. Division is
 % rdiv, so 1 divided_by 3 is the rational 1r3 and 0.1 plus 0.2 is exactly 3r10. whole_divided_by and modulo take integers (truncating
-% division, the remainder has the sign of the dividend); power takes an integer exponent 0..64; rounded_to is half away from zero.
+% division, the remainder has the sign of the dividend); power takes an integer exponent 0..64; rounded_to is half away from zero;
+% minimum_with and maximum_with give the smaller or the larger value.
 % A zero divisor, a non-number, an unsafe magnitude or an exponent out of range makes the body false and is noted.
 rt_compute(W, A, B, R) :-
     (   rational(A), rational(B), rt_arith(W, A, B, R0), rt_safe(R0)
@@ -75,6 +76,8 @@ rt_arith(power, A, B, R) :- integer(B), B >= 0, B =< 64, R is A ^ B.
 rt_arith(rounded_to, A, B, R) :- B > 0, R is round(A rdiv B) * B.
 rt_arith(rounded_up_to, A, B, R) :- B > 0, R is ceiling(A rdiv B) * B.
 rt_arith(rounded_down_to, A, B, R) :- B > 0, R is floor(A rdiv B) * B.
+rt_arith(minimum_with, A, B, R) :- R is min(A, B).
+rt_arith(maximum_with, A, B, R) :- R is max(A, B).
 rt_safe(R) :- rational(R), R =< 9007199254740991, R >= -9007199254740991.
 safe_int(R) :- integer(R), R =< 9007199254740991, R >= -9007199254740991.
 
