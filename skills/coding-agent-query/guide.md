@@ -334,6 +334,25 @@ These examples are **schema examples**, not facts about Ana, A, Acme, or any oth
   end
 ```
 
+When a count, sum, minimum or maximum per group is needed and no memory predicate holds it, declare a session `aggregate` over existing predicates (`over` one existing atom per line, `group` the grouping variables, exactly one of `count ?x`, `sum ?v`, `min ?v`, `max ?v` followed by `as ?result`, and `yields` the declared predicate over the group variables and the result). Arithmetic over its results uses a `rule` with `when compute ?d ?a minus ?b`. Recursion through arithmetic is not allowed.
+```sop
+@salary_total predicate
+  args subject:entity object:integer
+@salary_total_by_department aggregate
+  over salary_in ?person ?department ?amount
+  group ?department
+  sum ?amount as ?total
+  yields salary_total ?department ?total
+@q query
+  select ?total
+  where match
+    relation "salary_total"
+    role subject "Research"
+    role object ?total
+    polarity affirmed
+  end
+```
+
 **F3 — completeness/absence.** Only if the memory certifies `rostered(subject:entity,object:entity)` exhaustive for the relevant people and employer can a definition derived solely from that complete roster be marked closed; without that guarantee, omit `closed true` and do not ask `polarity absent`. An explicit negative roster fact instead uses `polarity negated`.
 ```sop
 @rostered_worker predicate

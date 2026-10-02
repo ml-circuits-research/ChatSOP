@@ -50,7 +50,7 @@ const int = (value, fallback, max) => {
   return n;
 };
 
-export function createKnowledgeRouter({memories, sessions = null, json, browser = new KnowledgeBrowser({memories, sessions})}) {
+export function createKnowledgeRouter({memories = null, sessions = null, json, browser = memories ? new KnowledgeBrowser({memories, sessions}) : null}) {
   const target = (query, who) => browser.target({memory: query.memory || null, session: query.session || null}, who);
   const actions = {
     memories: () => ({object: 'list', data: browser.listMemories()}),
@@ -87,6 +87,7 @@ export function createKnowledgeRouter({memories, sessions = null, json, browser 
       if (!match) continue;
       if (req.method !== 'GET') { json(res, 405, {error: {message: 'The knowledge browser is read only: use GET', type: 'invalid_request_error', code: 'method_not_allowed'}}); return true; }
       try {
+        if (!browser) throw bad('This server has no chat data root: there are no base memories to browse', 'not_available', 501);
         json(res, 200, actions[action]({match, query, who: {user, admin}}));
       } catch (e) {
         if (!res.destroyed) json(res, e.status ?? 400, {error: {message: e.message, type: 'invalid_request_error', code: e.code ?? 'invalid_request'}});

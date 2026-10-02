@@ -159,8 +159,8 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
  const runtimes=chatData?new SessionRuntimes({sessions:sessionStore,memories,config:{...config,contextMaxBytes:Math.min(config.contextMaxBytes??maxContextBytes,maxContextBytes)},defaultBase}):null;
  const authoring=chatData?createAuthoring({sessions:sessionStore,runtimes,chatData,models:ompModels,settings:omp,readBody,json,maxBytes:limits.maxProductBytes??8_000_000}):null;
  const product=chatData?createProductRouter({memories,sessions:sessionStore,runtimes,readBody,json,limits,extra:authoring,parsing:{queryParser},defaultBase}):null;
- // The knowledge browser (/review, GET /v1/knowledge/*): read only, over a base memory or a chat session (server/review.mjs).
- const knowledge=chatData?createKnowledgeRouter({memories,sessions:sessionStore,json}):null;
+ // The knowledge browser (/review, GET /v1/knowledge/*): read only, over a base memory or a chat session (server/review.mjs); without a chat data root the API answers 501.
+ const knowledge=createKnowledgeRouter({memories,sessions:sessionStore,json});
  /** Whether the coding agent can run now, with the model chain; the chat answers 503 `parse_unavailable` when it cannot. */
  async function readiness(){
   const free=await queryParser.availability();
@@ -195,7 +195,7 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
    const state=await readiness();
    return json(res,200,{object:'list',default:model,data:[{id:model,object:'model',created:0,owned_by:'chatsop',chatsop:{coding_agent:state.coding_agent,ready:state.ready}}]});
   }
-  if(knowledge&&(url==='/review'||url?.startsWith('/v1/knowledge/'))&&await knowledge.handle(req,res,url,Object.fromEntries(new URL(req.url,'http://localhost').searchParams),{admin:Boolean(sessionUser)||(!auth&&Boolean(legacy)),user}))return;
+  if((url==='/review'||url?.startsWith('/v1/knowledge/'))&&await knowledge.handle(req,res,url,Object.fromEntries(new URL(req.url,'http://localhost').searchParams),{admin:Boolean(sessionUser)||(!auth&&Boolean(legacy)),user}))return;
   if(product&&url?.startsWith('/v1/')&&await product.handle(req,res,url,{admin:Boolean(sessionUser)||(!auth&&Boolean(legacy)),user}))return;
   if(url?.startsWith('/v1/')&&await api.handle(req,res,url))return;
   if(['/v1/responses','/v1/embeddings'].includes(url)||url?.startsWith('/v1/tools'))return error(res,501,'not_implemented','This API surface is not implemented');

@@ -56,6 +56,12 @@ const DRAFTS = {
 };
 
 const fakeAuthor = calls => async ({folder, files, existing, check}) => {
+  const symbols = files.find(f => f.name === 'symbols.txt');
+  if (symbols) {
+    calls.push({stage: 'entities', symbols: symbols.text.trim().split('\n')});
+    const knowledge = symbols.text.trim().split('\n').map(s => `@${s} entity\n  label en "${s[0].toUpperCase() + s.slice(1)}"\n`).join('\n') + '\n@stray_f1 fact\n  holds works_in ann office\n';
+    return {ok: true, status: 'validated', rounds: 1, circuits: [{name: 'knowledge.sop', text: knowledge}], queries: '', report: '', validation: {ok: true, problems: [], warnings: []}, usage: {cost_usd: 0}, duration_ms: 5, extra: check(knowledge)};
+  }
   const passage = files[0].text;
   const knowledge = /Remote work/.test(passage) ? DRAFTS.remote : DRAFTS.staff;
   calls.push({passage: files[0].name, existing: existing.length, extra: check ? check(knowledge).map(p => p.code) : []});
@@ -93,7 +99,11 @@ test('ingest: draft holds back bad quotes, accept stores with provenance, re-ing
   const calls = [];
   const draft = await ingestions.draft(memory.id, {documents: [{name: 'tiny.md', text: DOC, source: {rights: 'cleared', url: 'https://example.org/tiny'}}], maxChunkBytes: 120, author: fakeAuthor(calls)});
   assert.equal(draft.status, 'proposed');
-  assert.equal(calls.length, 2);
+  assert.equal(calls.length, 3);
+  assert.deepEqual(calls[2], {stage: 'entities', symbols: ['ann', 'workshop']}, 'the entity stage labels the symbols the stored facts use (not those of the rejected fact)');
+  const labels = draft.chunks.find(c => c.key.endsWith('-entities'));
+  assert.equal(labels.status, 'validated');
+  assert.deepEqual(labels.wires, {entity: 2}, 'only entity wires are kept');
   assert.deepEqual(calls[0].extra, ['quote_not_in_source'], 'the quote check runs inside the author loop');
   assert.equal(calls[1].existing, calls[0].existing + 1, 'a later chunk sees the circuit drafted before it');
   const staff = draft.chunks.find(c => c.path.at(-1) === 'Tiny Handbook');
@@ -104,7 +114,8 @@ test('ingest: draft holds back bad quotes, accept stores with provenance, re-ing
 
   const accepted = ingestions.accept(memory.id, draft.id, {approvedBy: 'tester'});
   const stored = accepted.outcome.filter(o => o.status === 'accepted');
-  assert.equal(stored.length, 2);
+  assert.equal(stored.length, 3);
+  assert.equal(bm.lexicon(memory.id).entities.ann.labels.en, 'Ann', 'questions can now link "Ann"');
   const provenance = bm.provenance(memory.id).filter(r => r.source?.kind === 'document');
   assert.equal(provenance[0].source.document, 'tiny.md');
   assert.match(provenance[0].source.chunk_sha256, /^[0-9a-f]{64}$/);
@@ -112,7 +123,9 @@ test('ingest: draft holds back bad quotes, accept stores with provenance, re-ing
 
   const again = await ingestions.draft(memory.id, {documents: [{name: 'tiny.md', text: DOC, source: {rights: 'cleared'}}], maxChunkBytes: 120, author: fakeAuthor([])});
   const skipped = again.chunks.filter(c => c.status === 'already_ingested').length;
-  assert.equal(skipped, stored.length, 'accepted chunks are skipped on re-ingestion');
+  assert.equal(skipped, 2, 'accepted chunks are skipped on re-ingestion');
+  assert.ok(!again.chunks.some(c => c.key.endsWith('-entities')), 'no symbol is left without a label');
+  assert.equal(again.status, 'nothing_new');
   assert.throws(() => ingestions.accept(memory.id, draft.id, {approvedBy: 'tester'}), /not proposed/);
 });
 

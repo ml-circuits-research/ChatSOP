@@ -86,9 +86,11 @@ test('the guide examples pass the validator (the authoring guide is executable)'
   args subject:entity location:entity
 @located_in predicate
   args subject:entity location:entity
+@salary_in predicate
+  args subject:entity object:entity topic:integer
 `}]);
   for (const {session, sop} of examples) {
-    const r = validateQuery({sop, message: 'Does Maria work at Acme? Ana Cluj France 80 Zork Lisbon', lexicon: session ? exampleLexicon : null});
+    const r = validateQuery({sop, message: 'Does Maria work at Acme? Ana Cluj France 80 Zork Lisbon Research', lexicon: session ? exampleLexicon : null});
     assert.deepEqual(r.problems, [], sop);
   }
 });

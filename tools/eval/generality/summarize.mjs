@@ -20,6 +20,8 @@ export function layerOf(r) {
   if (r.arm === 'D') return r.outcome === 'failed' ? 'transport/output format' : 'reasoning (direct answer)';
   if (r.outcome === 'invalid') return 'author (circuit rejected after repairs)';
   if (/relation_not_in_memory|unclear/.test(r.packet?.status ?? '') || r.packet?.status === 'unclear') return 'author or vocabulary (declined)';
+  if (r.packet?.reason === 'unsupported_circuit_composition') return 'author (several queries, not one composed answer)';
+  if (r.packet?.status === 'not_computable') return 'author (ill-typed comparison)';
   if (r.packet?.status === 'clarify') return 'linking (clarification)';
   return 'author (circuit differs from the question)';
 }
@@ -27,8 +29,9 @@ export function layerOf(r) {
 export function summarize(records, judgments = {}) {
   const levelOf = r => r.level === 'n' ? 'c-natural' : r.level === 'c' ? 'c-compositions' : 'b-held-out';
   const table = {};
-  for (const r of records) {
+  for (let r of records) {
     const j = judgments[`${r.id}/${r.arm}`];
+    if (r.arm === 'D' && r.expected?.conditional && r.packet?.status && r.packet.status === r.expected.status) r = {...r, outcome: 'correct'};
     const outcome = j?.outcome ?? r.outcome;
     const key = `${levelOf(r)} | ${r.arm}`;
     const cell = table[key] ??= {correct: 0, wrong: 0, unknown: 0, 'invalid+failed': 0, manual_pending: 0, layers: {}};

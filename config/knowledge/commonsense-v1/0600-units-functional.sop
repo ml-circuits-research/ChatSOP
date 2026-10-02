@@ -259,7 +259,7 @@
 
 @cs_f_base_mile fact
   holds base_amount mile 1609344000
-  source "authored (commonsense-v1, units): 1 mile = 1609.344 kilometres (rounded to nearest micrometre)"
+  source "authored (commonsense-v1, units): 1 mile = 1609.344 metres (rounded to nearest micrometre)"
 
 # Duration (base: millisecond)
 @cs_f_base_millisecond fact

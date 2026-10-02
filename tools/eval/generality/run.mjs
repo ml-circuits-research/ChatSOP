@@ -50,6 +50,8 @@ export function rescore(row, record) {
     if (!packet || HONEST.has(status) || unclear || packet.complete === false) return 'correct';
     return 'wrong';
   }
+  // A direct answer (arm D) has no assumption ids to report; its verdict under the supposition is compared by status.
+  if (row.expected.conditional && record.arm === 'D' && packet) return score(strip({...row.expected, conditional: undefined}), {...packet, conditional: undefined}, {}).outcome;
   if (!row.expected.conditional || !packet?.conditional?.length || record.outcome === 'invalid' || record.outcome === 'failed') return record.outcome;
   const ids = Array.isArray(packet.conditional) ? packet.conditional : [packet.conditional];
   const normalized = {...packet, conditional: ids.length === row.expected.conditional.length ? row.expected.conditional : ids};

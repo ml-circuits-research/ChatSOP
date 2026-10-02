@@ -190,6 +190,7 @@
   when parent_of ?pb ?b
   when sibling_of ?pa ?pb
   when compare ?pa not_equal ?pb
+  when compare ?a not_equal ?b
   then cousin_of ?a ?b
   source "authored (commonsense-v1, family, reviewed by commonsense-agent): children of two siblings are first cousins"
 

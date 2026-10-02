@@ -69,8 +69,8 @@ test('the docs header and the server layout render the same menu from one source
     assert.match(header, /action="\/logout"/);
   }
   const labels = entries(docs).map(([, text]) => text);
-  assert.deepEqual(labels, ['Home', 'Chat', 'Experiments', 'Index: tasks &amp; experiments', 'Topics', 'Reports', 'Timeline &amp; live status', 'Open questions', 'Admin', 'Docs', 'Overview', 'Runtime', 'Architecture', 'Input language', 'API', 'Wiki', 'Specifications', 'Wire help', 'How circuits are written', 'Question types']);
-  assert.equal(SITE_MENU.length, 5);
+  assert.deepEqual(labels, ['Home', 'Chat', 'Knowledge', 'Experiments', 'Index: tasks &amp; experiments', 'Topics', 'Reports', 'Timeline &amp; live status', 'Open questions', 'Admin', 'Docs', 'Overview', 'Runtime', 'Architecture', 'Input language', 'API', 'Wiki', 'Specifications', 'Wire help', 'How circuits are written', 'Question types']);
+  assert.equal(SITE_MENU.length, 6);
   assert.match(renderSiteHeader({account: 'signin', next: '/chat'}), /\/login\?next=%2Fchat/);
   const asset = await call('/assets/sop-code.mjs');
   assert.equal(asset.status, 200, 'the docs SOP highlighter is public');

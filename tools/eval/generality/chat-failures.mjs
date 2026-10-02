@@ -28,7 +28,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   fs.mkdirSync(path.dirname(out), {recursive: true});
   const s = openSession({base: 'world-v1', id: `generality-chat-${process.pid}`});
   try {
-    for (const group of GROUPS.filter(g => !only || only.some(o => g.id.startsWith(o)))) {
+    // --natural: the free natural questions (tools/eval/generality/natural-v1.jsonl), one conversation each, through the product turn.
+    const groups = args.includes('--natural')
+      ? fs.readFileSync(new URL('./natural-v1.jsonl', import.meta.url), 'utf8').split('\n').filter(Boolean).map(JSON.parse).map(r => ({id: r.id, turns: [r.question], gold: r.expected.gold_note}))
+      : GROUPS;
+    for (const group of groups.filter(g => !only || only.some(o => g.id.startsWith(o)))) {
       const entry = s.store.get('qf', group.id + '-' + Date.now().toString(36), BASE_NAME);
       for (const [i, turn] of group.turns.entries()) {
         const formalizer = agentClient({config: s.config, lexicon: s.lexicon});

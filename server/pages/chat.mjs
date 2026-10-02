@@ -131,7 +131,7 @@ function traceView(c){
  const rt=c.retrieval;if(rt){const r=section(details,'5. Retrieval (memory slice)').list;
   field(r,'complete',rt.complete===true?'yes':rt.complete===false?'no: the answer is withheld or marked partial':null);field(r,'guard',rt.guard);
   field(r,'slice',(rt.facts??0)+' fact(s), '+(rt.rules??0)+' rule(s), '+(rt.probes??0)+' probe(s)'+(rt.class?', class '+rt.class:''));
-  if(rt.predicates)browseField(r,'relations',c,rt.predicates.map(x=>({kind:'predicate',id:String(x).replace(/\/\d+$/,'')})));
+  if(rt.predicates)browseField(r,'relations',c,rt.predicates.map(x=>({kind:'predicate',id:String(x).split('/')[0]})));
   if(rt.bound)field(r,'bounds',Object.entries(rt.bound).map(([k,v])=>k+' '+v).join(', '));
   if((rt.reasons||[]).length)field(r,'incomplete because',rt.reasons.map(x=>typeof x==='string'?x:JSON.stringify(x)).join('; '));}
  // 6. Route and verification: the StrategyRouter's engine and the oracle check.
