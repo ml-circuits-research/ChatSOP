@@ -73,7 +73,7 @@ export function createQueryParser({settings = queryParserSettings(), ompConfig =
   async function runModel({model, message, lexicon, onProgress}) {
     const folder = settings.backend.kind !== 'omp' ? null : chatData ? chatData.tmpFolder('qp') : fs.mkdtempSync(path.join(os.tmpdir(), 'chatsop-qp-'));
     try {
-      return await authorQuery({message, lexicon, ...authorExecution.getStore(), backend: backendFor(model), folder, maxFixRounds: settings.maxFixRounds, mode: settings.mode, k: settings.candidates, indexMax: settings.indexMax, onProgress});
+      return await authorQuery({message, lexicon, ...authorExecution.getStore(), backend: backendFor(model), folder, maxFixRounds: settings.maxFixRounds, mode: settings.mode, k: settings.candidates, indexMax: settings.indexMax, vocabularyDialog: settings.vocabularyDialog !== false, maxVocabularyBytes: settings.maxVocabularyBytes ?? 24_000, onProgress});
     } finally { if (folder && !settings.keepFolders) { try { fs.rmSync(folder, {recursive: true, force: true}); } catch { /* the cleanup policy removes it */ } } }
   }
 
@@ -85,7 +85,7 @@ export function createQueryParser({settings = queryParserSettings(), ompConfig =
 
   const fail = (code, status, message, parse) => Object.assign(new Error(message), {code, status, parse});
   const recordOf = (r, extra = {}) => ({parser: 'coding_agent', model: r.model ?? null, backend: r.backend ?? settings.backend.kind, rounds: r.rounds ?? 0, cost_usd: r.usage?.cost_usd ?? r.cost_usd ?? 0, ms: r.ms ?? r.duration_ms ?? 0, cache: r.cache ?? 'miss',
-    ...(r.unlinked?.length ? {unlinked: r.unlinked} : {}), ...(r.context_version ? {guide: r.context_version} : {}), ...(r.mode ? {mode: r.mode, retrieval: {predicates: r.retrieval?.predicates?.length ?? 0, entity_mentions: r.retrieval?.entities?.length ?? 0}} : {}), ...(r.closest ? {closest: r.closest} : {}), ...(r.self_check ? {self_check: r.self_check} : {}), ...extra});
+    ...(r.unlinked?.length ? {unlinked: r.unlinked} : {}), ...(r.context_version ? {guide: r.context_version} : {}), ...(r.mode ? {mode: r.mode, retrieval: {predicates: r.retrieval?.predicates?.length ?? 0, entity_mentions: r.retrieval?.entities?.length ?? 0, neighbourhood: r.retrieval?.neighbourhood ?? null, bytes: r.retrieval?.bytes ?? 0, byte_budget: r.retrieval?.byte_budget ?? 0, truncated: r.retrieval?.truncated ?? false}} : {}), ...(r.vocabulary_dialog ? {vocabulary_dialog: r.vocabulary_dialog} : {}), ...(r.closest ? {closest: r.closest} : {}), ...(r.self_check ? {self_check: r.self_check} : {}), ...extra});
 
   /**
    * Parses one message. Returns `{sop, parse}`; throws `parse_unavailable` (no model of the chain can run or all delivered nothing) or
@@ -100,7 +100,7 @@ export function createQueryParser({settings = queryParserSettings(), ompConfig =
     let last = null;
     // A model the session prefers is first in the chain when omp can use it (availability puts it there), then the configured models.
     for (const model of free.models) {
-      const key = createHash('sha256').update([memoryKey ?? '', authorExecution.getStore()?.key ?? '', settings.runTag ?? '', buildContext({message, lexicon, mode: settings.mode, vocabulary: null}).version, String(authorExecution.getStore()?.selfCheck ?? false), settings.backend.kind, model ?? '', settings.backend.endpoint ?? '', normalize(message)].join('\0')).digest('hex');
+      const key = createHash('sha256').update([memoryKey ?? '', authorExecution.getStore()?.key ?? '', settings.runTag ?? '', buildContext({message, lexicon, mode: settings.mode, vocabulary: null}).version, String(settings.vocabularyDialog !== false), String(settings.maxVocabularyBytes ?? 24_000), String(authorExecution.getStore()?.selfCheck ?? false), settings.backend.kind, model ?? '', settings.backend.endpoint ?? '', normalize(message)].join('\0')).digest('hex');
       const hit = cache.get(key);
       if (hit && (!hit.fragment || hit.contextKey === authorExecution.getStore()?.contextKey)) { stats.cache_hits++; stats.coding_agent++; return {sop: hit.sop, parse: recordOf({...hit.result, cache: 'hit', ms: now() - started, cost_usd: 0, usage: {cost_usd: 0}}, {tried: tried.map(t => t.model)})}; }
       if (running >= settings.maxConcurrent) { stats.failures++; throw fail('parse_unavailable', 503, 'the coding agent is busy', {parser: 'coding_agent', model, ms: now() - started, failed: 'the coding agent is busy', status: 'busy'}); }

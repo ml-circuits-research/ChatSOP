@@ -26,7 +26,9 @@ Direction: [AGENTS.md](AGENTS.md). Delivered work with observed evidence: [PAS_T
 
 - [ ] **T5 dev pilot.** Running five-row F2–F9 transport checks, Qwen3-4B Q4 A/B stage100 and gpt-6-luna C stratified30; finalize prospective sealed protocol after recorded deviations. F1 skipped after one actual world-v1 preflight returned no packet within 30 seconds. No sealed sets are generated or inspected. Evidence: `eval/reports/current/symbolic-vs-llm/t5-gold-preflight/report.json`.
 
-- [ ] **T8 larger local authors.** Running exact T7 matched240 development rows on installed Qwen3.8-27B Q4 and Nemotron-3-Nano-Omni Q8; architecture availability, author/direct arms, controlled format/restriction/steps, thinking20 and DGX versus subscription timing are recorded incrementally in `eval/reports/current/omp-tasks/t8-big-local.md`. No sealed access, installation or training.
+- [ ] **T8 larger local authors.** Owner-directed cache-on resume preserves48 completed cold Qwen records and20 Luna timings: Qwen27B nested15/family (120) across4arms; Qwen27B/Qwen4B ablations nested5/family (40 each); Nemotron architecture/speed plus5/family A/structured. Thinking20, cached/evaluated prompt tokens, TTFT and timing/projections are recorded incrementally in `eval/reports/current/omp-tasks/t8-big-local.md`. No sealed access, installation or training.
+
+- [ ] **T9 bounded vocabulary dialog.** Implementing entity-first schema neighbourhoods, budgeted examples and at most two symbolic expansion rounds; one minimal subscription cohort uses T6 vocabulary rows plus three controls per available family. Temporal parser already fixed by T6; confirm its existing regression only. Report: `eval/reports/current/omp-tasks/t9-vocab.md`.
 
 ## 3. Blocked
 

@@ -276,13 +276,18 @@ Temporal questions use `at "DATE"` for one instant, `during "START to END"` for 
 
 ## Session definitions and assumptions (only when needed)
 
-Prefer an existing predicate and its declared roles. When no predicate expresses the request but it has one clear definition using existing predicates, declare a **session** predicate (including its `args` role types) and a safe rule or default; the query can then use that new id. In the following example, `works_at` exists with roles `subject:person object:organization`; "Who works with Ana?" can define coworkers by sharing an employer:
+Prefer an existing predicate and its declared roles. When no predicate expresses the request but it has one clear definition using existing predicates, declare a **session** predicate (including its `args` role types) and a safe rule or default; the query can then use that new id.
+
+These examples are **schema examples**, not facts about Ana, A, Acme, or any other named entity. Each base predicate mentioned below must actually exist with the indicated roles in the current memory; substitute the real ids, never invent a base relation or evidence. A supplied example fact shows the role order and argument classes only. If the memory already defines the requested relation, query it instead of redeclaring it. Draft session definitions stay turn-local, require the existing admission/review path, and are identified as definitions in the answer; they do not grant permission to add observed facts, entities, or closedness. A labelled assumption is conditional, not a shortcut to make an unknown answer true.
+
+**F1 — multi-hop KBQA, new relation via shared intermediary.** Suppose `works_at(subject:entity,object:entity)` exists. The `coworker` example below joins two workers at the same employer, excluding the person themself; `subject` is the named person, `object` the selected colleague. Only use this meaning of "works with" when the request establishes that interpretation; if it might mean working on a common project, ask which meaning.
 ```sop
 @coworker predicate
   args subject:entity object:entity
 @coworker_at_work rule
   when works_at ?a ?organization
   when works_at ?b ?organization
+  when compare ?a not_equal ?b
   then coworker ?a ?b
 @q query
   select ?colleague
@@ -293,6 +298,44 @@ Prefer an existing predicate and its declared roles. When no predicate expresses
     polarity affirmed
   end
 ```
+
+**F2 — counts/aggregates.** Suppose `works_at(subject:entity,object:entity)` and `is_certified(subject:entity)` exist, but "certified worker at this employer" has no existing predicate. Define the conjunction, then count distinct workers; do not count rows of an existing numeric aggregate or silently drop the employer restriction.
+```sop
+@certified_worker predicate
+  args subject:entity object:entity
+@certified_worker_rule rule
+  when works_at ?person ?employer
+  when is_certified ?person
+  then certified_worker ?person ?employer
+@q query
+  mode count
+  select ?person
+  where match
+    relation "certified_worker"
+    role subject ?person
+    role object "Acme"
+    polarity affirmed
+  end
+```
+
+**F3 — completeness/absence.** Only if the memory certifies `rostered(subject:entity,object:entity)` exhaustive for the relevant people and employer can a definition derived solely from that complete roster be marked closed; without that guarantee, omit `closed true` and do not ask `polarity absent`. An explicit negative roster fact instead uses `polarity negated`.
+```sop
+@rostered_worker predicate
+  args subject:entity object:entity
+  closed true
+@rostered_worker_rule rule
+  when rostered ?person ?employer
+  then rostered_worker ?person ?employer
+@q query
+  where match
+    relation "rostered_worker"
+    role subject "Ana"
+    role object "Acme"
+    polarity absent
+  end
+```
+
+**F4 — reachability/closure.** The worked `permitted_step` and `path` definition below is recursive, preserves the source and destination, and excludes destinations backed by `unavailable` evidence. A fixed two-edge query is not equivalent to reachability.
 For "Can one get from A to B without entering an unavailable place?", an existing direct-edge predicate does not mean transitive reachability. If no reviewed binary path predicate already expresses it, the following form defines it over existing `edge` and `unavailable` vocabulary. Use the actual existing ids and roles. A default excludes destinations with evidence of unavailability; recursive rules compose the safe steps without inventing observed edges.
 ```sop
 @permitted_step predicate
@@ -319,7 +362,44 @@ For "Can one get from A to B without entering an unavailable place?", an existin
   end
 ```
 
+**F5 — numeric constraint satisfaction.** A missing *relational* term may be mapped from real predicates only when the request genuinely asks about that mapping: here `works_at(subject:entity,object:entity)` and `certified_for(subject:entity,object:entity)` license "eligible worker for a shift at Acme". A numeric assignment puzzle still needs one `constraint` with every `require` and stated domain; this rule cannot create a schedule, a numeric bound, or a constraint fact.
+```sop
+@eligible_shift_worker predicate
+  args subject:entity object:entity
+@eligible_shift_worker_rule rule
+  when works_at ?person "Acme"
+  when certified_for ?person ?shift
+  then eligible_shift_worker ?person ?shift
+@q query
+  select ?worker
+  where match
+    relation "eligible_shift_worker"
+    role subject ?worker
+    role object "Morning shift"
+    polarity affirmed
+  end
+```
 
+**F6 — temporal intervals.** With actual `works_at(subject:entity,object:entity)` and `is_certified(subject:entity)` predicates, the same derived conjunction can be asked *throughout* an end-exclusive interval via `during`. Temporal support comes from the dated memory evidence; the rule cannot manufacture a validity span or bridge a gap.
+```sop
+@certified_employee predicate
+  args subject:entity object:entity
+@certified_employee_rule rule
+  when works_at ?person ?employer
+  when is_certified ?person
+  then certified_employee ?person ?employer
+@q query
+  where match
+    relation "certified_employee"
+    role subject "Ana"
+    role object "Acme"
+    polarity affirmed
+  end
+  during "2026-03-01 to 2026-06-01"
+```
+
+
+**F7 — defaults and exceptions.** The next worked `typically_certified` example applies only when the request explicitly supplies that default meaning and `works_at`, `is_certified`, and `on_leave` exist. An existing reviewed default/conclusion wins; do not add a redundant or conflicting one.
 When the wording explicitly says "usually" and gives an exception, a `default` uses existing predicates for its body, head and exception (these illustrative ids must be present in the memory before writing this circuit):
 ```sop
 @typically_certified default
@@ -330,6 +410,57 @@ When the wording explicitly says "usually" and gives an exception, a `default` u
   where match
     relation "is_certified"
     role subject "Ana"
+    polarity affirmed
+  end
+```
+
+**F8 — contradictory evidence.** When `permit(subject:entity)` has *both* affirmative and explicitly negative evidence, a requested "disputed permit" can be grounded in both supports. `when not permit` requires an explicit negative fact, not absence from an open list. If the memory already has a reviewed integrity/violation predicate, use it and its documented constraint-id/witness roles instead.
+```sop
+@disputed_permit predicate
+  args subject:entity
+@disputed_permit_rule rule
+  when permit ?person
+  when not permit ?person
+  then disputed_permit ?person
+@q query
+  where match
+    relation "disputed_permit"
+    role subject "Ana"
+    polarity affirmed
+  end
+```
+
+**F9 — large memories.** A request for *exactly two edges* (not arbitrary reachability) can use the same local `edge(subject:entity,object:entity)` rule regardless of memory size; this is not a license to enumerate the graph in the prompt. The system's bounded retrieval still decides whether its evidence is complete.
+```sop
+@two_edge_route predicate
+  args subject:entity object:entity
+@two_edge_route_rule rule
+  when edge ?from ?via
+  when edge ?via ?to
+  then two_edge_route ?from ?to
+@q query
+  where match
+    relation "two_edge_route"
+    role subject "A"
+    role object "B"
+    polarity affirmed
+  end
+```
+
+**F10 — natural-language KBQA.** When `lives_in(subject:entity,location:entity)` links a resident to a city and `located_in(subject:entity,location:entity)` links that city to a region, a missing "resident of region" relation has a unique two-hop definition if the request uses that meaning. Example city names or facts in the neighbourhood do not authorize asserting that any particular person lives there.
+```sop
+@resident_of_region predicate
+  args subject:entity object:entity
+@resident_of_region_rule rule
+  when lives_in ?person ?city
+  when located_in ?city ?region
+  then resident_of_region ?person ?region
+@q query
+  select ?person
+  where match
+    relation "resident_of_region"
+    role subject ?person
+    role object "Region A"
     polarity affirmed
   end
 ```

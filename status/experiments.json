@@ -3,6 +3,21 @@
   "note": "Registry of preregistered experiments (docs/specs/DS007-experiment-preregistration.md). Each entry: id, hypothesis, preregistration (link to the frozen DS007 record), data_version, status (proposed|preregistered|approved|running|done|abandoned), results, conclusions. Running and done entries exist only for runs the owner explicitly approved.",
   "experiments": [
     {
+      "id": "eval-vocabulary-dialog-v1",
+      "name": "T9 bounded schema vocabulary: minimal paired dev diagnostic",
+      "category": "preregistered",
+      "owner": "omp-t9-vocab",
+      "registered_at": "2026-10-02",
+      "hypothesis": "Bounded schema examples and symbolic expansion preserve correct answers and do not increase dangerous wrong answers by more than two percentage points on the original vocabulary-attributed rows.",
+      "preregistration": "status/preregistrations/eval-symbolic-vs-llm-v1.json",
+      "data_version": "52 T6 vocabulary IDs plus three non-vocabulary controls per available F2-F9 family, latest corrected-240 inputs and raw rerun2 comparator",
+      "status": "running",
+      "approval": "Owner-requested TASK T9 authorizes one minimal subscription-only dev cohort; second only if inconclusive; no sealed access or training.",
+      "results": {},
+      "conclusions": "56/56 integration tests and an actual SQLite parser dialog smoke pass. One preselected76-row subscription Luna cohort launched with source/config hashes, nested8-row preflight and wrong-rate stopping guard; final paired outcomes pending. Temporal repair is an independent confound.",
+      "reports": ["eval/reports/current/omp-tasks/t9-vocab.md"]
+    },
+    {
       "id": "query-author-session-v2-dev",
       "name": "Query author session circuits and shape-only self-check: dev diagnostic",
       "category": "reference-baseline",
