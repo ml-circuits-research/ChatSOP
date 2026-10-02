@@ -3,6 +3,8 @@
  * Scoring of a books-eval run (tools/eval/books/run.mjs): deterministic first, an LLM judge for the rest.
  *   node tools/eval/books/score.mjs --run <dir>          writes scored.jsonl and judge-input-K.json (blind batches) for the answers a rule cannot decide
  *   node tools/eval/books/score.mjs --run <dir> --merge   adds judge-output-K.json ({j, verdict: correct|partial|wrong|unanswered, reason}) and finalises scored.jsonl
+ *   node tools/eval/books/score.mjs --run <dir> --judge   scores, then judges the batches itself with the remote default model (llmProviders.openference,
+ *       Qwen3.8 27b through the local proxy), writes judge-output-K.json and merges; --judge-model <name>, --judge-provider <name>, --per-call <n> (default 10)
  * Outcomes: correct | wrong | unknown (honest: the system declined, or said the data are insufficient) | invalid (no valid circuit)
  * | failed (infrastructure). `partial` judge verdicts count as wrong in the strict accuracy and are reported separately.
  * Deterministic rules: yes/no polarity, numbers with a 0.5 % tolerance (all gold numbers must occur), normalised entity strings.
@@ -11,6 +13,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {numbersOf} from './extract.mjs';
+import {providerChat} from '../../../lib/llm-providers.mjs';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const opt = (args, name, fallback) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
@@ -109,8 +112,36 @@ export function mergeJudgments(dir) {
   return {merged, pending: scored.filter(r => r.verdict.outcome === 'pending').length};
 }
 
+const JUDGE_SYSTEM = `You are a strict, blind grader. For each item you get a problem, the gold answer and a candidate answer. Decide whether the candidate gives the same final answer as the gold answer (same number within rounding, same yes/no, same entity); an explanation is not required. Verdicts: "correct" (same final answer), "partial" (right idea, a wrong or missing part of the final answer), "wrong", "unanswered" (the candidate declines or gives no answer). Reply with ONLY a JSON array [{"j": "<item id>", "verdict": "<verdict>", "reason": "<one short sentence>"}] with one entry per item.`;
+
+/**
+ * Judges the batches of a scored run with a remote chat model (default: the openference proxy's Qwen3.8 27b), `perCall` items per request
+ * (15 requests/minute are respected by the proxy's queue). Writes judge-output-K.json per batch; an item without a parsable verdict stays pending.
+ */
+export async function judgeBatches(dir, {provider = 'openference', model = null, perCall = 10, chat = providerChat, config = {}} = {}) {
+  const inputs = fs.readdirSync(dir).filter(f => /^judge-input-\d+\.json$/.test(f)).sort();
+  let calls = 0, judged = 0, failed = 0;
+  for (const f of inputs) {
+    const items = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')), out = [];
+    for (let i = 0; i < items.length; i += perCall) {
+      const part = items.slice(i, i + perCall);
+      const run = await chat({system: JUDGE_SYSTEM, prompt: JSON.stringify(part), provider, model, config}); calls++;
+      let verdicts = [];
+      try { verdicts = JSON.parse(run.text.slice(run.text.indexOf('['), run.text.lastIndexOf(']') + 1)); } catch { /* stays pending */ }
+      if (!run.ok || !Array.isArray(verdicts)) { failed += part.length; continue; }
+      for (const v of verdicts) if (part.some(p => p.j === v.j) && ['correct', 'partial', 'wrong', 'unanswered'].includes(v.verdict)) { out.push({j: v.j, verdict: v.verdict, reason: String(v.reason ?? '').slice(0, 300), judge_model: run.model}); judged++; }
+    }
+    fs.writeFileSync(path.join(dir, f.replace('input', 'output')), JSON.stringify(out, null, 1));
+  }
+  return {calls, judged, failed};
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2), dir = path.resolve(ROOT, opt(args, '--run', ''));
   if (args.includes('--merge')) console.log(JSON.stringify(mergeJudgments(dir)));
-  else { const r = scoreRun(dir); console.log(`${r.scored.length} records scored by rule or queued: ${r.pending} for the judge in ${r.batches} batch(es) (judge-input-K.json)`); }
+  else if (args.includes('--judge')) {
+    const r = scoreRun(dir);
+    const j = await judgeBatches(dir, {provider: opt(args, '--judge-provider', 'openference'), model: opt(args, '--judge-model', null), perCall: Number(opt(args, '--per-call', 10))});
+    console.log(JSON.stringify({scored: r.scored.length, queued: r.pending, ...j, ...mergeJudgments(dir)}));
+  } else { const r = scoreRun(dir); console.log(`${r.scored.length} records scored by rule or queued: ${r.pending} for the judge in ${r.batches} batch(es) (judge-input-K.json)`); }
 }

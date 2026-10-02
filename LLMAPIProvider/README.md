@@ -36,6 +36,24 @@ Per upstream (`config.json` `limits`): `maxConcurrent`, `maxPerSecond`, `maxPerH
 node LLMAPIProvider/probe.mjs --yes --model GLM-5.2 --rates 0.5,1,2,3,5 --step-seconds 20
 ```
 
+## Plan limits and value
+
+Each upstream can declare `plan: {priceUsdPerMonth, limits: [{name, unit, window, max, mode?, anchor?, provider?}]}`. `unit` is `calls` (every upstream attempt, 429s included), `credits` (sum of the model's quota cost per successful call: `x-quota-cost`, else `quota_multiplier` with the context surcharge) or `tokens` (input plus output). `window` is `60s`, `5h`, `7d`, ... (`ms|s|m|h|d|w`), rolling by default; `mode: "fixed"` with an ISO `anchor` uses calendar-like blocks. `provider` names the response headers that carry the provider's own count (`remainingHeader`, `costHeader`, `resetHeader` as epoch seconds).
+
+- `/stats` `plan.<upstream>`: per limit used, max, remaining, percent, `warn` at 80%, `exceeded`, time to the next relief (the oldest counted call leaving the window, or the provider's reset when it sends one), the provider's remaining next to ours and an agreement check since the provider's last reset (`provider_used` vs `our_used`; a persistent `diff` means the provider counts differently from us). The dashboard shows the same with bars and highlights limits at 80% or more.
+- The queue pauses (never drops) a call that would exceed a declared limit, using the model's estimated credit cost plus the cost of calls in flight; the reason is `upstreams.<name>.gateReason`. `limits.maxPerMinute` and `maxPerHour` stay as plain queue limits.
+- `/stats` `value.<upstream>` (and the dashboard): tokens (fresh input, cached, output) of plan-billed successful calls per day, week and month, what they would have cost at the openference list prices and at each price in the top-level `compare` table (`inputUsdPerM`, `outputUsdPerM`, `cachedInputUsdPerM`), against the prorated subscription price, a projection of the observed span (at least one day, at most 30) to 30 days, and a one-line `verdict` against the cheapest alternative. Alternatives assume equal quality; credit-billed models are excluded.
+- `compare` DeepSeek prices come from DeepSeek's public pricing page (read 2026-10-02): `deepseek-flash` (V4.1-Flash) input cache miss 0.30 USD per M at peak and 0.15 off-peak, cache hit 0.006 / 0.003, output 1.20 / 0.60. Peak is 01:00-04:00 and 06:00-10:00 UTC on weekdays. Re-check them before deciding; prices change.
+- Restarts: the request logs (31 days kept) are reloaded, so the rolling windows, the queue's recent start times and the value tables are rebuilt on start.
+
 ## Add a provider
 
 Add an entry under `upstreams` in `config.json` (base URL, env file and variable names, formats, limits, retry). No code changes.
+
+## openference plan (observed 2026-10-02)
+
+- Calls need `Authorization: Bearer <key>`; the model list is public.
+- Rate limit: 15 requests per minute (`x-ratelimit-*`).
+- Quota: a 5-hour window of about 400 plan requests; each call costs its model's `quota_multiplier` (`x-quota-cost`: `Qwen3.8 27b` 0.1, `GLM-5.3-Flash` 1), and about 4,000 requests per 5 hours. `maxPerHour: 800` spreads them over the window.
+- Credit-billed models (for example `DeepSeek-V4.1-Flash`) are not in the plan; they need a credit balance.
+- Calibration (36 book problems): `Qwen3.8 27b` 32/36 at ~38 generated tokens/s (p50 12.5 s per problem); `GLM-5.3-Flash` 32/36 at ~39 tokens/s (p50 7.9 s).

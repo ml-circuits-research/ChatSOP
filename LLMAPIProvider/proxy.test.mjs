@@ -14,7 +14,7 @@ function listen(server) {
 }
 const body = (req) => new Promise((res) => { const c = []; req.on('data', (d) => c.push(d)); req.on('end', () => res(Buffer.concat(c).toString())); });
 
-async function setup({ stub, limits = { maxConcurrent: 2, maxPerSecond: 50 }, token = null } = {}) {
+async function setup({ stub, limits = { maxConcurrent: 2, maxPerSecond: 50 }, token = null, plan = null, compare = undefined, dataDir: reuseDir = null, up: reuseUp = null } = {}) {
   const seen = [];
   const up = http.createServer(async (req, res) => {
     const b = await body(req);
@@ -23,12 +23,12 @@ async function setup({ stub, limits = { maxConcurrent: 2, maxPerSecond: 50 }, to
     stub(req, res, b, seen);
   });
   const uport = await listen(up);
-  const dataDir = mkdtempSync(join(tmpdir(), 'llmapi-'));
-  const config = { defaultUpstream: 'stub', modelsCacheSeconds: 600, upstreams: { stub: { baseUrl: `http://127.0.0.1:${uport}`, keyVar: 'STUB_KEY', limits, retry: { max: 3, baseMs: 20, maxWaitMs: 2000 }, formats: { openai: '/v1/chat/completions', anthropic: '/v1/messages' } } } };
+  const dataDir = reuseDir || mkdtempSync(join(tmpdir(), 'llmapi-'));
+  const config = { defaultUpstream: 'stub', modelsCacheSeconds: 600, compare, upstreams: { stub: { plan, baseUrl: `http://127.0.0.1:${uport}`, keyVar: 'STUB_KEY', limits, retry: { max: 3, baseMs: 20, maxWaitMs: 2000 }, formats: { openai: '/v1/chat/completions', anthropic: '/v1/messages' } } } };
   const p = createProxy({ config, env: { STUB_KEY: KEY }, dataDir, proxyToken: token });
   const port = await listen(p.server);
   const base = `http://127.0.0.1:${port}`;
-  const close = async () => { p.server.close(); up.close(); up.closeAllConnections?.(); p.server.closeAllConnections?.(); rmSync(dataDir, { recursive: true, force: true }); };
+  const close = async () => { p.server.close(); up.close(); up.closeAllConnections?.(); p.server.closeAllConnections?.(); if (!reuseDir) rmSync(dataDir, { recursive: true, force: true }); };
   return { base, seen, dataDir, close, p };
 }
 const logText = (dir) => readdirSync(dir).map((f) => readFileSync(join(dir, f), 'utf8')).join('');
@@ -209,4 +209,90 @@ test('limiter enforces max starts per minute by waiting, never dropping', async 
   let third = false; l.schedule(() => { third = true; });
   await new Promise((r) => setTimeout(r, 30));
   assert.equal(third, false); assert.equal(l.depth, 1);
+});
+
+const post = (base, model = 'm1', extra = {}) => fetch(base + '/v1/chat/completions', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ model, messages: [], ...extra }) });
+const okStub = (usage = { prompt_tokens: 1000, completion_tokens: 500, prompt_tokens_details: { cached_tokens: 200 } }) => {
+  let rem = 100;
+  return (req, res) => { rem -= 2; json(res, 200, { usage }, { 'x-quota-remaining': String(rem), 'x-quota-cost': '2' }); };
+};
+
+test('plan limits: calls, credits and tokens in rolling windows, provider quota next to ours, 80% warning', async () => {
+  const plan = { priceUsdPerMonth: 15, limits: [
+    { name: 'per_minute', unit: 'calls', window: '60s', max: 15 },
+    { name: 'per_5h', unit: 'credits', window: '5h', max: 5, provider: { remainingHeader: 'x-quota-remaining', costHeader: 'x-quota-cost' } },
+    { name: 'per_week', unit: 'tokens', window: '7d', max: 100000 },
+  ] };
+  const t = await setup({ plan, stub: okStub() });
+  try {
+    await post(t.base); await post(t.base);
+    const s = await (await fetch(t.base + '/stats')).json();
+    const [m, c, w] = s.plan.stub.limits;
+    assert.equal(s.plan.stub.price_usd_per_month, 15);
+    assert.equal(m.used, 2); assert.equal(m.remaining, 13);
+    assert.equal(c.used, 4); assert.equal(c.remaining, 1); assert.equal(c.warn, true); assert.equal(c.exceeded, false);
+    assert.equal(w.used, 3000); assert.equal(w.warn, false);
+    assert.ok(c.next_relief_ms > 4 * 3600_000);
+    assert.equal(c.provider.remaining, 96);
+    assert.equal(c.provider.agreement.provider_used, 4); assert.equal(c.provider.agreement.our_used, 4); assert.equal(c.provider.agreement.diff, 0);
+    assert.equal(s.plan.stub.warnings.length, 1);
+    assert.ok(s.plan.stub.warnings[0].startsWith('per_5h'));
+  } finally { await t.close(); }
+});
+
+test('queue pauses before exceeding a credits limit and never drops', async () => {
+  const plan = { priceUsdPerMonth: 15, limits: [{ name: 'tiny', unit: 'credits', window: '400ms', max: 4 }] };
+  const starts = [];
+  const t = await setup({ plan, limits: { maxConcurrent: 1, maxPerSecond: 100 }, stub: (req, res) => { starts.push(Date.now()); json(res, 200, { usage: {} }, { 'x-quota-cost': '2' }); } });
+  try {
+    await fetch(t.base + '/v1/models'); // warm the model list (m1 costs 2)
+    const t0 = Date.now();
+    const rs = await Promise.all([post(t.base), post(t.base), post(t.base)]);
+    assert.deepEqual(rs.map((r) => r.status), [200, 200, 200]);
+    assert.ok(starts[2] - starts[0] >= 380, 'third call waits for the window: ' + (starts[2] - starts[0]));
+    assert.ok(starts[1] - starts[0] < 300);
+    assert.ok(Date.now() - t0 < 5000);
+  } finally { await t.close(); }
+});
+
+test('value comparison against DeepSeek and list prices, with a verdict', async () => {
+  const compare = { cheap: { inputUsdPerM: 1, outputUsdPerM: 2, cachedInputUsdPerM: 0.1 }, _note: 'ignored' };
+  const plan = { priceUsdPerMonth: 15, limits: [] };
+  const t = await setup({ plan, compare, stub: okStub() });
+  try {
+    await fetch(t.base + '/v1/models');
+    await post(t.base); await post(t.base);
+    const v = (await (await fetch(t.base + '/stats')).json()).value.stub;
+    // per call: 800 fresh + 200 cached input, 500 output
+    assert.equal(v.periods.day.tokens.in, 1600); assert.equal(v.periods.day.tokens.cached, 400); assert.equal(v.periods.day.tokens.out, 1000);
+    assert.ok(Math.abs(v.periods.day.compare_usd.cheap - (1600 * 1 + 400 * 0.1 + 1000 * 2) / 1e6) < 1e-9);
+    assert.ok(Math.abs(v.periods.day.openference_list_usd - (1600 * 1e-6 + 400 * 1e-7 + 1000 * 2e-6)) < 1e-9);
+    assert.ok(Math.abs(v.periods.month.subscription_prorated_usd - 15) < 1e-9);
+    assert.ok(Math.abs(v.periods.day.subscription_prorated_usd - 0.5) < 1e-9);
+    assert.equal(v.projection.span_days, 1);
+    assert.ok(v.verdict.includes('subscription costs') && v.verdict.includes('more'));
+    // a heavy month flips the verdict
+    const heavy = { priceUsdPerMonth: 0.0001, limits: [] };
+    t.p.upstreams.stub.plan = heavy;
+    const v2 = (await (await fetch(t.base + '/stats')).json()).value.stub;
+    assert.ok(v2.verdict.includes('subscription saves'));
+  } finally { await t.close(); }
+});
+
+test('rolling windows, queue starts and value are rebuilt from the logs after a restart', async () => {
+  const dataDir = mkdtempSync(join(tmpdir(), 'llmapi-restart-'));
+  const plan = { priceUsdPerMonth: 15, limits: [{ name: 'per_5h', unit: 'credits', window: '5h', max: 100 }] };
+  try {
+    const a = await setup({ plan, dataDir, stub: okStub() });
+    await fetch(a.base + '/v1/models');
+    await post(a.base); await post(a.base);
+    await a.close();
+    const b = await setup({ plan, dataDir, stub: okStub() });
+    try {
+      const s = await (await fetch(b.base + '/stats')).json();
+      assert.equal(s.plan.stub.limits[0].used, 4);
+      assert.equal(s.value.stub.periods.day.tokens.calls, 2);
+      assert.equal(b.p.limiters.stub.starts.length, 2);
+    } finally { await b.close(); }
+  } finally { rmSync(dataDir, { recursive: true, force: true }); }
 });

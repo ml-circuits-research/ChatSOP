@@ -11,6 +11,9 @@ export class Limiter {
     this.starts = [];
     this.pausedUntil = 0;
     this.timer = null;
+    this.gate = null; // (job, activeMetas) => {wait, reason}: plan-limit check before a job starts
+    this.gateReason = null;
+    this.activeMeta = new Set();
   }
 
   get depth() { return this.queue.length; }
@@ -20,9 +23,12 @@ export class Limiter {
     this.#arm(ms);
   }
 
-  schedule(fn) {
+  // Seeds the start times (for example from the logs after a restart) so the rate limits survive restarts.
+  seed(times) { this.starts = [...this.starts, ...times].sort((a, b) => a - b); }
+
+  schedule(fn, meta = null) {
     return new Promise((resolve, reject) => {
-      this.queue.push({ fn, resolve, reject, queuedAt: Date.now() });
+      this.queue.push({ fn, resolve, reject, meta, queuedAt: Date.now() });
       this.#pump();
     });
   }
@@ -33,7 +39,7 @@ export class Limiter {
     this.timer.unref?.();
   }
 
-  #wait() {
+  #wait(job) {
     const now = Date.now();
     this.starts = this.starts.filter((t) => now - t < 3600_000);
     let wait = Math.max(0, this.pausedUntil - now);
@@ -48,19 +54,26 @@ export class Limiter {
     if (this.maxPerHour && this.starts.length >= this.maxPerHour) {
       wait = Math.max(wait, 3600_000 - (now - this.starts[this.starts.length - this.maxPerHour]));
     }
+    this.gateReason = null;
+    if (this.gate) {
+      const g = this.gate(job, [...this.activeMeta]);
+      if (g.wait > wait) { wait = g.wait; this.gateReason = g.reason; }
+    }
     return wait;
   }
 
   #pump() {
     while (this.queue.length && this.active < this.maxConcurrent) {
-      const wait = this.#wait();
+      const wait = this.#wait(this.queue[0]);
       if (wait > 0) { this.#arm(wait); return; }
       const job = this.queue.shift();
       this.active += 1;
+      this.activeMeta.add(job.meta);
       this.starts.push(Date.now());
       const queueWaitMs = Date.now() - job.queuedAt;
       Promise.resolve().then(() => job.fn({ queueWaitMs })).then(job.resolve, job.reject).finally(() => {
         this.active -= 1;
+        this.activeMeta.delete(job.meta);
         this.#pump();
       });
     }

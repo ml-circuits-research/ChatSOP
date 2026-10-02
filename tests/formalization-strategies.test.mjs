@@ -17,11 +17,11 @@ function stubLocal() {
 }
 
 test('formalization strategies are named and selectable in config and by the environment; an unknown one is refused', () => {
-  assert.deepEqual(FORMALIZATION_STRATEGIES, ['CodingAgent', 'LocalLLMDirect', 'LocalLLMStepByStep']);
+  assert.deepEqual(FORMALIZATION_STRATEGIES, ['CodingAgent', 'LocalLLMDirect', 'LocalLLMStepByStep', 'InternalReasoningStepByStep']);
   assert.equal(queryParserSettings({}).strategy, 'CodingAgent');
   assert.equal(queryParserSettings({queryParser: {strategy: 'LocalLLMDirect'}}, {}).strategy, 'LocalLLMDirect');
   assert.equal(queryParserSettings({}, {CHATSOP_FORMALIZER: 'LocalLLMStepByStep'}).strategy, 'LocalLLMStepByStep');
-  assert.equal(queryParserSettings({queryParser: {local: {alias: 'small'}}}, {}).local.slots.join(','), 'direct,steps');
+  assert.equal(queryParserSettings({queryParser: {local: {alias: 'small'}}}, {}).local.slots.join(','), 'direct,steps,reasoning');
   assert.throws(() => checkStrategy('Guess'), e => e.code === 'invalid_strategy');
 });
 
@@ -45,7 +45,7 @@ test('the strategies listing reports a local endpoint that does not answer as un
   const parser = createQueryParser({settings: queryParserSettings({queryParser: {local: {endpoint: 'http://127.0.0.1:9/v1'}}}, {}),
     fetchImpl: async () => { throw new Error('connection refused'); }});
   const listed = await parser.strategies();
-  assert.deepEqual(listed.map(s => s.id), ['CodingAgent', 'LocalLLMDirect', 'LocalLLMStepByStep']);
+  assert.deepEqual(listed.map(s => s.id), ['CodingAgent', 'LocalLLMDirect', 'LocalLLMStepByStep', 'InternalReasoningStepByStep']);
   const local = listed.find(s => s.id === 'LocalLLMStepByStep');
   assert.equal(local.available, false);
   assert.match(local.reason, /does not answer/);

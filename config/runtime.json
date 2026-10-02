@@ -62,10 +62,28 @@
     "maxFixRounds": 3,
     "maxConcurrent": 2,
     "modelsCacheSeconds": 600,
-    "defaultModel": null
+    "defaultModel": null,
+    "proxyProvider": "openference"
+  },
+  "answerLanguage": {
+    "provider": "openference"
+  },
+  "llmProviders": {
+    "openference": {
+      "baseUrl": "http://127.0.0.1:18080/v1",
+      "model": "Qwen3.8 27b",
+      "requestsPerMinute": 15,
+      "timeoutSeconds": 120,
+      "maxTokens": 4000,
+      "thinking": false
+    }
   },
   "queryParser": {
     "strategy": "CodingAgent",
+    "direct": {
+      "source": "remote",
+      "provider": "openference"
+    },
     "local": {
       "gguf": "~/models/qwen3.8-27b/Qwen3.8-27B-UD-Q4_K_M.gguf",
       "alias": "qwen3.8-27b",
@@ -79,10 +97,11 @@
     },
     "backend": {
       "kind": "omp",
-      "model": "zai/glm-5.3",
+      "model": "llmapiprovider/Qwen3.8 27b",
       "thinking": "off"
     },
     "models": [
+      "llmapiprovider/Qwen3.8 27b",
       "zai/glm-5.3",
       "openai-codex/gpt-6-luna"
     ],

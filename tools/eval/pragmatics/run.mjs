@@ -10,7 +10,7 @@
  *   lexicon     the archived lexicon/regex EmotionDetectionSystem (probably_obsolete/paused/), reference only
  *
  *   node tools/eval/pragmatics/run.mjs --arm stepbystep --endpoint http://127.0.0.1:19611/v1 --model qwen3-4b-instruct --limit 50
- *   node tools/eval/pragmatics/run.mjs --arm coding --omp-model zai/glm-5.3 --limit 50 --concurrency 4
+ *   node tools/eval/pragmatics/run.mjs --arm coding --omp-model 'llmapiprovider/Qwen3.8 27b' --limit 50 --concurrency 4
  *   node tools/eval/pragmatics/run.mjs --arm lexicon
  *   node tools/eval/pragmatics/run.mjs --report            (every arm's records → summary.json and summary.md)
  * Records: eval/reports/current/pragmatics/<arm>.jsonl (resumable). The first `--limit` messages are a fixed stratified order
@@ -60,7 +60,8 @@ async function codingArm(rows, args) {
   const {openSession} = await import('../query-forms-probe.mjs');
   const session = openSession({base: 'world-v1', id: `pragmatics-${process.pid}`});
   process.on('exit', () => session.close());
-  const model = opt(args, '--omp-model', 'zai/glm-5.3');
+  (await import('../../../lib/omp/index.mjs')).ompSettings();   // registers the llmapiprovider overlay for omp
+  const model = opt(args, '--omp-model', 'llmapiprovider/Qwen3.8 27b');
   return async row => {
     const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'pragmatics-'));
     try {
@@ -99,7 +100,7 @@ function report() {
   const rows = jl(SET), byId = new Map(rows.map(r => [r.id, r]));
   const summary = {};
   const lines = ['| arm | n | errors | core P | core R | all-kinds P | all-kinds R | p50 ms |', '|---|---|---|---|---|---|---|---|'];
-  for (const arm of ['stepbystep', 'coding', 'lexicon']) {
+  for (const arm of ['stepbystep', 'coding', 'guide-haiku', 'lexicon']) {
     const records = jl(path.join(OUT, `${arm}.jsonl`));
     if (!records.length) continue;
     // Every arm is scored on the messages the smallest arm has, so the numbers compare like with like.

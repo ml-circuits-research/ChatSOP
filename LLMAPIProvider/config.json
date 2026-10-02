@@ -12,9 +12,66 @@
       "keyVar": "OPENFERENCE_API_KEY",
       "baseUrlVar": "OPENFERENCE_BASE_URL",
       "modelsPath": "/v1/models",
-      "formats": { "openai": "/v1/chat/completions", "anthropic": "/v1/messages" },
-      "limits": { "maxConcurrent": 4, "maxPerSecond": 5, "maxPerMinute": 15, "maxPerHour": null },
-      "retry": { "max": 4, "baseMs": 1000, "maxWaitMs": 60000 }
+      "formats": {
+        "openai": "/v1/chat/completions",
+        "anthropic": "/v1/messages"
+      },
+      "limits": {
+        "maxConcurrent": 4,
+        "maxPerSecond": 5,
+        "maxPerMinute": 15,
+        "maxPerHour": 800
+      },
+      "retry": {
+        "max": 4,
+        "baseMs": 1000,
+        "maxWaitMs": 60000
+      },
+      "plan": {
+        "priceUsdPerMonth": 15,
+        "note": "owner, 2026-10-02: 15/rpm; 400 requests every 5 hours; 7,500 requests per week (subscription 15 USD). A 'request' is a credit unit: each call costs its model's quota_multiplier (x-quota-cost), e.g. Qwen3.8 27b 0.1, GLM-5.3-Flash 1. maxPerMinute 15 and maxPerHour 800 stay as queue limits.",
+        "limits": [
+          {
+            "name": "per_minute",
+            "unit": "calls",
+            "window": "60s",
+            "max": 15,
+            "provider": {
+              "remainingHeader": "x-ratelimit-remaining",
+              "resetHeader": "x-ratelimit-reset"
+            }
+          },
+          {
+            "name": "per_5h",
+            "unit": "credits",
+            "window": "5h",
+            "max": 400,
+            "provider": {
+              "remainingHeader": "x-quota-remaining",
+              "costHeader": "x-quota-cost"
+            }
+          },
+          {
+            "name": "per_week",
+            "unit": "credits",
+            "window": "7d",
+            "max": 7500
+          }
+        ]
+      }
+    }
+  },
+  "compare": {
+    "_note": "USD per 1M tokens. DeepSeek official prices from https://api-docs.deepseek.com/quick_start/pricing (read 2026-10-02): deepseek-flash (DeepSeek-V4.1-Flash) cache hit 0.006/0.003, cache miss 0.30/0.15, output 1.20/0.60 at peak/off-peak (off-peak is half; peak 01:00-04:00 and 06:00-10:00 UTC on weekdays). Re-check before deciding.",
+    "deepseek-official-peak": {
+      "inputUsdPerM": 0.3,
+      "outputUsdPerM": 1.2,
+      "cachedInputUsdPerM": 0.006
+    },
+    "deepseek-official-offpeak": {
+      "inputUsdPerM": 0.15,
+      "outputUsdPerM": 0.6,
+      "cachedInputUsdPerM": 0.003
     }
   }
 }

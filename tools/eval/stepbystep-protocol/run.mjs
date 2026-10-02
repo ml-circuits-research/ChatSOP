@@ -62,7 +62,7 @@ export function protocolRows({levels = ['a', 'b', 'c', 'n'], per = 3, pool = 'me
     ...(levels.includes('n') && pool === 'tuning' && fs.existsSync(NATURAL_TUNING) ? naturalRows(NATURAL_TUNING).map(r => ({...r, expected: {manual: true}})) : [])];
 }
 
-function prepare(row, shared) {
+export function prepare(row, shared) {
   if (row.level === 'a') {
     const dir = path.resolve(path.dirname(MANIFEST), row.case_dir);
     const knowledge = fs.readFileSync(path.join(dir, 'knowledge.sop'), 'utf8'), query = fs.readFileSync(path.join(dir, 'query.sop'), 'utf8');

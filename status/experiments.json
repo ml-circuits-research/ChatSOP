@@ -5877,6 +5877,24 @@
       },
       "conclusions": "Method B adopted as the default protocol; level b is not held out for this protocol (tuned on other instances of the same forms); see deviations.",
       "note": "Harness: tools/eval/stepbystep-protocol/{run,summarize}.mjs; report eval/reports/current/omp-tasks/stepbystep-protocol.md"
+    },
+    {
+      "id": "eval-pragmatics-v1",
+      "hypothesis": "The formalization strategies can understand courtesy and emotion in the same step as the request (pragmatic wires) well enough to replace the lexicon/regex EmotionDetectionSystem pre-step.",
+      "preregistration": "none: a small staged engineering check on the owner's instruction (see deviation)",
+      "data_version": "eval/pragmatics-v1/messages.jsonl (the 300 messages of emotion-detection-v1 with the Grok and GLM labels; both-judge positives, neither-judge negatives, disputed left out)",
+      "status": "done",
+      "results": {
+        "stepbystep_qwen3_4b_heldout250": "core-14 micro P 45.2% R 82.5% (first 50 used to word the questions)",
+        "stepbystep_qwen3_4b_all300": "core P 48.0% R 83.1%; all kinds P 48.0% R 55.9%; p50 0.49 s for the acts questions",
+        "guide_haiku_proxy_first50": "core P 100% R 100%; all kinds P 93.1% R 100% (guide section followed by Claude Haiku; zai/glm-5.3 quota exhausted, the full CodingAgent arm is still to run)",
+        "lexicon_reference_all300": "core P 93.9% R 86.6% (optimistic: written and corrected on these messages)",
+        "stepbystep_protocol_sample": "method B, Qwen3-4B, 24 known-form rows 21/24 correct before and after (1 wrong after, 0 before), 10 natural rows 7/10 after, 6/10 before; questions 7.3 vs 5.6"
+      },
+      "conclusions": "Pragmatic understanding moved into the formalizers and the lexicon pre-step archived (owner rule, no hardcoded understanding). The LLM-guided arm matches the labels; Qwen3-4B over-reports feelings and needs better acts questions. The step-by-step protocol without its regex cue table kept its correct rate on the sample.",
+      "deviation": "No preregistration file: a small staged engineering check run on the owner's instruction (first 50, then the rest as held out). Stopping: the 50-message stage was used for wording; the 250 held out were run once.",
+      "note": "Runner tools/eval/pragmatics/run.mjs; spec DS023 'Evaluation'; records eval/reports/current/pragmatics/ and eval/reports/current/understanding/stepbystep-B/",
+      "category": "reference-baseline"
     }
   ]
 }

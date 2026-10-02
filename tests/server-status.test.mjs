@@ -12,7 +12,7 @@ test('status: strategies, base memories, engines and caches; listed in the capab
   assert.equal(r.status, 200, JSON.stringify(r.body));
   assert.equal(r.body.object, 'status');
   assert.equal(r.body.formalization.default, 'CodingAgent');
-  assert.deepEqual(r.body.formalization.strategies.map(x => x.id), ['CodingAgent', 'LocalLLMDirect', 'LocalLLMStepByStep']);
+  assert.deepEqual(r.body.formalization.strategies.map(x => x.id), ['CodingAgent', 'LocalLLMDirect', 'LocalLLMStepByStep', 'InternalReasoningStepByStep']);
   const coding = r.body.formalization.strategies[0];
   assert.equal(coding.available, true);
   assert.deepEqual(coding.models.map(m => m.id), ['stub/model']);

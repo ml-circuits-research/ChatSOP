@@ -2,7 +2,7 @@
 import { appendFileSync, mkdirSync, readdirSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-const KEEP_DAYS = 7;
+const KEEP_DAYS = 31; // the value comparison needs a month; plan limits need up to a week
 const MAX_RECORDS = 200_000;
 
 export const RATE_HEADER = /ratelimit|rate-limit|retry-after|quota|remaining|reset|limit|x-request-id|cf-ray|usage/i;
@@ -107,7 +107,7 @@ export class Monitor {
       credit_cost_usd: sum(a.filter((r) => credit.has(r.model)), (r) => priceOf(modelOf(r), r)),
       plan_requests: sum(a, (r) => planRequests(modelOf(r), r)),
     });
-    const windows = { minute: summarize(within(60_000)), hour: summarize(within(3600_000)), day: summarize(within(86400_000)), week: summarize(recs) };
+    const windows = { minute: summarize(within(60_000)), hour: summarize(within(3600_000)), day: summarize(within(86400_000)), week: summarize(within(7 * 86400_000)), month: summarize(within(30 * 86400_000)) };
 
     const names = [...new Set(recs.map((r) => r.model).filter(Boolean))];
     const by_model = {};

@@ -252,7 +252,7 @@
       "DS020": "DS020-hybrid-memory.md",
       "DS021": "DS021-memory-retention-and-generations.md",
       "DS022": "DS022-sessions-and-base-memories.md",
-      "DS023": "DS023-emotion-detection.md"
+      "DS023": "DS023-courtesy-and-emotion.md"
     }
   },
   "renumbered_2026_10_01": {
@@ -369,8 +369,8 @@
       },
       "DS029": {
         "to": "DS023",
-        "file": "DS023-emotion-detection.md",
-        "note": "The symbolic EmotionDetectionSystem was restored to the product on 2026-10-02; DS029 was its former id."
+        "file": "DS023-courtesy-and-emotion.md",
+        "note": "The symbolic EmotionDetectionSystem was restored to the product on 2026-10-02; DS029 was its former id. Later on 2026-10-02 the lexicon pre-step was archived again (owner rule: no hardcoded understanding) and the file DS023-emotion-detection.md became DS023-courtesy-and-emotion.md: courtesy and emotion are pragmatic wires written by the formalizer."
       },
       "DS030": {
         "archived": "probably_obsolete/tinyLLMExperiments/specs/DS030-capability-apis.md"

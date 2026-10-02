@@ -116,8 +116,10 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
       // The product's local strategies on their dedicated slots with the restored stable prefix: LocalLLMStepByStep (the strategy
       // writes the circuit from the oracle's answers) or LocalLLMDirect (arm B's author loop, same guide and repair rounds).
       // settings.stepMethod: the question protocol of LocalLLMStepByStep (A, or B, C, D and ablations of eval-stepbystep-protocol-v1).
-      const name = arm === 'B-local' ? 'LocalLLMDirect' : 'LocalLLMStepByStep', method = settings.stepMethod ?? 'A', key = `${name}@${settings.endpoint}#${method}`;
-      stepStrategies.set(key, stepStrategies.get(key) ?? localStrategy(name, {endpoint: settings.endpoint, alias: settings.model, maxTokens: settings.maxTokens, method}, {timeoutMs: settings.wallMs}));
+      // settings.strategy: InternalReasoningStepByStep runs on the same arm (its own slot), with settings.reasoningControl (plan | greedy).
+      const name = arm === 'B-local' ? 'LocalLLMDirect' : settings.strategy ?? 'LocalLLMStepByStep', method = settings.stepMethod ?? 'A', control = settings.reasoningControl ?? 'plan';
+      const key = `${name}@${settings.endpoint}#${method}#${control}`;
+      stepStrategies.set(key, stepStrategies.get(key) ?? localStrategy(name, {endpoint: settings.endpoint, alias: settings.model, maxTokens: settings.maxTokens, method, reasoningControl: control}, {timeoutMs: settings.wallMs}));
       author = name === 'LocalLLMDirect'
         ? await stepStrategies.get(key).run({message: row.question, lexicon: world.lexicon, maxFixRounds: 2})
         : await stepStrategies.get(key).run({message: row.question, lexicon: world.lexicon, repo: world.repo, session: world.session, derived: new Set(world.theory.byHead?.keys?.() ?? [])});
@@ -212,7 +214,8 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
     latency, tokens_in: tokensIn, tokens_out: tokensOut, cost_usd: arm === 'C' || arm === 'D' ? cost : 0,
     author: author && {status: author.status, reason: author.reason, rounds: author.rounds, sop: author.sop, context_version: author.context_version, retrieval: author.retrieval, usage: author.usage,
       ...(['B-grammar', 'B-structured'].includes(arm) ? {decoder_output: author.report} : {}),
-      ...(arm === 'B-stepbystep' ? {steps: author.steps, plan: author.report, confirmed: author.confirmed, retried: author.retried, problem: author.problem, method: author.method ?? 'A', contrast: author.contrast} : {}),
+      ...(arm === 'B-stepbystep' ? {steps: author.steps, plan: author.report, confirmed: author.confirmed, retried: author.retried, problem: author.problem, method: author.method ?? 'A', contrast: author.contrast,
+        ...(author.trace ? {trace: author.trace, explanation: author.explanation, defaults: author.defaults, avoided: author.avoided, engine_ms: author.engine_ms} : {})} : {}),
       problems: author.validation?.problems, parsed: Boolean(author.validation?.program)},
     packet, rendered, oracle_equivalent: oracleEquivalent, error,
     failure_layer: failureLayer({arm, parseOk, outcome: verdict.outcome, author, linking, packet, oracleEquivalent, rendered, error})};

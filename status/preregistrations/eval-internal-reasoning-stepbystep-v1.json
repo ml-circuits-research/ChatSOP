@@ -1,0 +1,38 @@
+{
+  "format": "chatsop-preregistration-v1",
+  "id": "eval-internal-reasoning-stepbystep-v1",
+  "name": "InternalReasoningStepByStep: the questioning protocol as wires of a base memory, the next question planned by the JS oracle, against LocalLLMStepByStep method B on Qwen3-4B",
+  "registered_at": "2026-10-02T13:05:00Z",
+  "registered_by": "ir-agent (owner, 2026-10-02: a separate strategy InternalReasoningStepByStep, protocol questions as wires in a base memory, reasoning engines drive the questioning; plan adopted in the journal event 'InternalReasoningStepByStep plan adopted'; experiments/proposal/internal-reasoning-step-by-step.md)",
+  "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
+  "kind": "evaluation-only, minimal (no training). Dev data only; no sealed suite is read.",
+  "question": "When the question protocol is data (config/knowledge/formalizer-protocol-v1: questions as action wires, slots as facts, defaults, integrity, the goal formalized) and the JS oracle plans each next question, does Qwen3-4B formalize the protocol rows at least as correctly as with LocalLLMStepByStep method B, with no more questions, and is the record of why each question was asked better?",
+  "model": "Qwen3-4B-Instruct-2507 Q4_K_M (~/models/local-judge/Qwen3-4B-Instruct-2507-Q4_K_M.gguf), one llama-server started by tools/local-llm/serve.mjs with the slots direct, steps and reasoning (optimised runtime: one slot per strategy, prompt cache, prewarmed stable prefix per strategy), thinking off, greedy.",
+  "arms": {
+    "IR": "InternalReasoningStepByStep with the planner (mode plan to the goal formalized; maxDepth 12, maxNodes 400, timeoutMs 150; greedy choice when the plan budget is exhausted)",
+    "IR-greedy": "the same protocol, the askable question of lowest priority (ablation; run only on the stage-1 rows when the IR arm is not broken)",
+    "B": "LocalLLMStepByStep method B as it is in the checkout at run time (unchanged by this experiment; its code digest is recorded in run-B.json)",
+    "GLM": "CodingAgent through omp with zai/glm-5.3 (arm C of the symbolic-vs-llm harness), only if the z.ai quota is available; otherwise skipped and recorded as a deviation"
+  },
+  "rows": {
+    "measured": "the 89 rows of eval-stepbystep-protocol-v1 (tools/eval/stepbystep-protocol/run.mjs protocolRows, pool measured, per 3): a 24 known forms, b 30 held-out forms, c 15 compositions, n 20 natural questions",
+    "tuning": "stage 0 only: the disjoint tuning pool of the same harness (level a seed 777 outside the measured set, level b/c instances 11..12, the fresh natural tuning questions), 2 rows per form; generic fixes only (protocol data, structural code), never phrase-specific"
+  },
+  "stages": "stage 0: tuning pool, 2 rows per form, IR only, fix and rerun (at most two rounds; small random samples). stage 1: the 89 measured rows, IR and B paired (B run on the same server, its own slot), then IR-greedy; the books items only after stage 1 and only if tools/eval/books/ exists.",
+  "metrics": "Per level and arm: correct / wrong / unknown / invalid+failed (harness scoring and the generality rescore; natural rows with manual gold judged by hand by the agent from the rendered answer), questions per message (mean / max), questions avoided by the protocol's defaults and single options (IR), formalization p50 / p95, engine ms per decision (IR), first divergence slot of every non-correct row. Paired bootstrap (10,000 resamples, seed 1) of the correct-rate difference IR - B pooled and per level, and of the question-count difference. Trace explanation quality: 20 traces per arm (stratified over levels, same rows for both arms) judged blind by z.ai GLM through omp on a 3-point rubric (0: does not say why the questions were asked; 1: names what was asked and answered but not why; 2: says why each question was asked and how its answer was used).",
+  "stopping_rules": {
+    "broken": "more than 20% of IR's first 30 stage-1 rows failed (unreadable answers, transport, no circuit): stop, fix on the tuning pool, restart small, record the stop",
+    "decision": "after stage 1 (all 89 rows): superior if the 95% interval of IR - B is above 0 and wrong(IR) <= wrong(B) + 1; non-inferior if the lower bound is above -5 pp and wrong(IR) <= wrong(B) + 1; inferior if the upper bound is below -5 pp; otherwise undecided. No further stage: the measured set is fixed.",
+    "futility_of_ablation": "IR-greedy is not run when IR is inferior (the planner question would be moot)"
+  },
+  "hypotheses": {
+    "H1": "IR is non-inferior to B in correct rate (margin 5 pp) with no more wrong rows (+1 tolerated).",
+    "H2": "IR asks no more questions per message than B (defaults and single options avoid questions).",
+    "H3": "The engine needs less than 50 ms per decision on the protocol memory (in-process JS oracle).",
+    "H4": "IR's trace explanation scores higher than B's step record on the 3-point rubric.",
+    "H5": "IR and IR-greedy have the same correct rate (the planner adds the no-plan check and the explanation, not accuracy) on these rows."
+  },
+  "non_claim": "Small dev samples; the numbers describe these forms with Qwen3-4B. The IR protocol's question texts and choices were taken from method B (same wording) so that the comparison isolates the control and the representation; B was tuned on the same tuning pool earlier.",
+  "deviations": [],
+  "results": null
+}

@@ -28,7 +28,8 @@ function scripted(rules) {
 }
 const lineOf = (question, words) => question.split('\n').find(l => /^\d+\./.test(l) && l.includes(words))?.match(/^(\d+)\./)?.[1];
 
-const act = name => String(KINDS.length + MESSAGE_ACTS.findIndex(a => a[0] === name) + 1);
+/** The lettered yes/no lines of the acts question, `yes` for the named acts. */
+const acts = (...names) => [...MESSAGE_ACTS, ['request']].map(([a], i) => `${'ABCDEFGH'[i]}: ${names.includes(a) ? 'yes' : 'no'}`).join('\n');
 
 test('no hardcoded understanding: the protocol has no cue table, and its choice lists cover the closed pragmatic kinds', async () => {
   const fs = await import('node:fs');
@@ -38,13 +39,13 @@ test('no hardcoded understanding: the protocol has no cue table, and its choice 
   for (const [kind] of [...MESSAGE_ACTS.filter(a => !['emotion', 'plain'].includes(a[0])), ...EMOTIONS]) assert.ok(PRAGMATIC_KINDS.includes(kind), kind);
 });
 
-test('a greeting alone is one question and a pragmatic wire, with no query', async () => {
+test('a greeting alone is two short questions and a pragmatic wire, with no query', async () => {
   const world = teamWorld();
   try {
-    const {chat, asked} = scripted([{when: /Which kind of answer/, say: `${kind('none')}, ${act('greeting')}`}]);
+    const {chat, asked} = scripted([{when: /Which kind of answer/, say: kind('none')}, {when: /do the words of this message contain it/, say: acts('greeting')}]);
     const r = await protocolQuery({message: 'Hello!', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'B'});
     assert.equal(r.status, 'validated', JSON.stringify(r.validation?.problems));
-    assert.equal(asked.length, 1);
+    assert.equal(asked.length, 2);
     assert.equal(r.sop, '@p1 pragmatic\n  kind greeting\n  source local_llm_step_by_step\n  basis llm\n');
   } finally { world.dispose(); }
 });
@@ -53,8 +54,9 @@ test('courtesy and an emotion next to a question become pragmatic wires next to 
   const world = teamWorld();
   try {
     const {chat} = scripted([
-      {when: /Which kind of answer/, say: `${kind('count')}, ${act('thanks')}, ${act('emotion')}`},
-      {when: /Which feeling does the message show/, say: q => lineOf(q, 'frustration')},
+      {when: /Which kind of answer/, say: kind('count')},
+      {when: /do the words of this message contain it/, say: acts('thanks', 'emotion', 'request')},
+      {when: /Which feeling do its words show/, say: q => lineOf(q, 'frustration')},
       {when: /Which statements does/, say: q => lineOf(q, 'member of the team')},
       {when: /Which of these says what the request asks/, say: '3'},
     ]);
@@ -70,7 +72,7 @@ test('the methods have byte-identical cached prefixes and the strategy registry 
   assert.deepEqual(STEP_BY_STEP_METHODS, ['A', ...Object.keys(METHODS)]);
   assert.equal(stepPrefix('A'), FIRST_TURN_PREFIX);
   for (const m of Object.keys(METHODS)) assert.equal(stepPrefix(m), PROTOCOL_PREFIX);
-  assert.ok(PROTOCOL_PREFIX.startsWith('Kinds of answer') && PROTOCOL_PREFIX.includes('What a message can also do') && PROTOCOL_PREFIX.includes('Parts a request can have') && PROTOCOL_PREFIX.endsWith('<<<\n'));
+  assert.ok(PROTOCOL_PREFIX.startsWith('Kinds of answer') && PROTOCOL_PREFIX.includes('Parts a request can have') && PROTOCOL_PREFIX.endsWith('<<<\n'));
   assert.doesNotMatch(PROTOCOL_PREFIX, /\d{4}-\d{2}-\d{2}T/, 'no clock or request data in the prefix');
 });
 

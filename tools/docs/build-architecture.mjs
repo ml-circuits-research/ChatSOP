@@ -106,7 +106,7 @@ export function buildArchitecture() {
   claim(has('lib/chat-data/memories.mjs', /STRATEGIES = Object\.freeze\(\['sqlite'\]\)/), 'product strategies are sqlite only');
   claim(has('reasoning/registry.mjs', /EXTERNAL_STRATEGIES=\{'prolog-tabling':'prolog','z3-smt-bounded':'z3'\}/), 'external strategies');
   claim(has('reasoning/registry.mjs', /ROUTE_IDS=\['reference','js-reference','js-oracle'\]/), 'route ids');
-  claim(has('sop/declarative.mjs', /MODEL_TYPES=Object\.freeze\(new Set\(\['stated','assumed','unclear','query','constraint','unparsed'\]\)\)/), 'model types');
+  claim(has('sop/declarative.mjs', /MODEL_TYPES=Object\.freeze\(new Set\(\['stated','assumed','unclear','query','constraint','unparsed','pragmatic'\]\)\)/), 'model types');
   claim(has('config/runtime.json', /"engine": "sqlite"/), 'runtime engine sqlite');
   claim(has('config/runtime.json', /"mode": "none"/), 'retention none');
   claim(has('config/runtime.json', /"queryParser"/) && has('config/runtime.json', /openai-codex\/gpt-6-luna/), 'queryParser chain default');
@@ -142,11 +142,12 @@ export function buildArchitecture() {
       ['Tests', Ps(['tests/server-http.test.mjs', 'tests/auth-server.test.mjs', 'tests/site-links.test.mjs', 'tests/product-api-docs.test.mjs', 'tests/capability-matrix.test.mjs'])],
       ['Specifications', 'DS009, DS022'],
     ]),
-    card('EmotionDetectionSystem (pragmatic signals and courtesy)', 'The symbolic component that reads the raw message before the request parser: a lexicon and patterns, English and Romanian, no model. A message that is only courtesy or only a reaction is answered at once with a deterministic template in its own language; otherwise edge courtesy is stripped for the author and the advisory signals (never facts) give the answer a courtesy phrase and tone. An author verdict of no_request becomes a natural invitation.', [
-      ['Modules', Ps(['lib/emotion-detection/index.mjs', 'lib/emotion-detection/turn.mjs', 'lib/emotion-detection/lexicon.mjs', 'lib/emotion-detection/strategies/symbolic.mjs', 'lib/emotion-detection/advice.mjs', 'lib/emotion-detection/sop.mjs'])],
-      ['Entry points', `${code('Agent.turn')} calls ${code('detect')} first (${E('server/agent.mjs', /const detected=/)}); the pure rules are ${code('interpret')} (${E('lib/emotion-detection/turn.mjs', /export function interpret/)}), ${code('standaloneReply')} and ${code('tone')}.`],
-      ['Configuration', `${P('config/emotion-detection.json')} (${code('enabled')}, ${code('minScore')}, ${code('kindPolicy')}); the turn option ${code('emotion: false')}.`],
-      ['Tests', Ps(['tests/emotion-detection.test.mjs'])],
+    card('Courtesy and emotion (pragmatic wires)', 'Part of the one understanding step: the formalizer (CodingAgent, LocalLLMDirect through the author guide, LocalLLMStepByStep through its acts question) writes what the message does besides asking or stating as advisory pragmatic wires (basis llm, a verbatim span when it has one). The compiler keeps them out of linking and execution: a message of pragmatic wires only gets a deterministic courtesy reply rendered from the kinds, with no computation; otherwise they set the tone of the answer. No word list or pattern reads the message.', [
+      ['Modules', Ps(['sop/pragmatic-text.mjs', 'sop/declarative.mjs', 'lib/query-author/step-by-step/questions.mjs', 'server/agent.mjs'])],
+      ['Entry points', `${code('compileDeclarative')} splits the wires (${E('sop/declarative.mjs', /const signals=parsed\.wires\.filter/)}); ${code('courtesyResult')} renders the reply (${E('sop/declarative.mjs', /function courtesyResult/)}); ${code('Agent.turn')} applies ${code('toneAnswer')} (${E('server/agent.mjs', /const toned=signals\.length/)}); the step-by-step questions are ${code('firstQuestion')} (${E('lib/query-author/step-by-step/protocol.mjs', /export async function firstQuestion/)}).`],
+      ['Configuration', `The closed kinds ${code('PRAGMATIC_KINDS')} (${P('sop/enums.mjs')}) and their descriptions ${code('PRAGMATIC_DESCRIPTIONS')}, rendered into the author guide.`],
+      ['Tests', Ps(['tests/pragmatic-turn.test.mjs', 'tests/local-llm-step-by-step-protocol.test.mjs', 'tests/wire-help.test.mjs'])],
+      ['Evaluation', P('tools/eval/pragmatics/run.mjs')],
       ['Specifications', 'DS023'],
     ]),
     card('Request parser', 'Turns the message of a chat turn into a circuit with the session\'s formalization strategy: CodingAgent (omp, the model chain tried in order; the default), LocalLLMDirect (a local GGUF behind a managed llama-server) or LocalLLMStepByStep (in progress). It caches identical requests per memory version and fails honestly: a strategy is never replaced by another and there is no fallback parser.', [

@@ -15,8 +15,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {runOmpRpc} from '../lib/omp/rpc.mjs';
+import {providerChat} from '../lib/llm-providers.mjs';
 
-export const DEFAULT_ANSWER_LANGUAGE = Object.freeze({mode: 'auto', models: null, timeoutSeconds: 40, thinking: 'off'});
+export const DEFAULT_ANSWER_LANGUAGE = Object.freeze({mode: 'auto', models: null, timeoutSeconds: 40, thinking: 'off', provider: 'openference'});
 
 const ENGLISH = new Set(('a an the is are was were be been am do does did has have had who whom whose what which where when why how many much ' +
   'of in on at to from by with for about into over under than then and or not no yes my your his her its our their i you he she it we they ' +
@@ -37,7 +38,7 @@ export function answerLanguageSettings(config = {}) {
   const merged = {...DEFAULT_ANSWER_LANGUAGE, ...(config.answerLanguage ?? {})};
   const chain = Array.isArray(merged.models) && merged.models.length ? merged.models
     : config.queryParser?.models?.length ? config.queryParser.models : [config.queryParser?.backend?.model].filter(Boolean);
-  return {...merged, models: [...new Set(chain)]};
+  return {...merged, models: [...new Set(chain)], config};
 }
 
 const SYSTEM = `You phrase a verified answer for a user, in the language of the user's message.
@@ -54,7 +55,7 @@ export function keptTokens(english) {
   return [...new Set(String(english).match(/\b(?:Q\d+|P\d+|\d+(?:[.,]\d+)?)\b/g) ?? [])];
 }
 
-export function createAnswerFormulator({settings, ompConfig = {}, chatData = null, runner = runOmpRpc}) {
+export function createAnswerFormulator({settings, ompConfig = {}, chatData = null, runner = runOmpRpc, chat = providerChat}) {
   /** Returns `{applied, text?, model?, ms, reason?, tried}`; `applied: false` keeps the English answer. */
   async function formulate({message, english, packet}) {
     const started = Date.now();
@@ -62,9 +63,17 @@ export function createAnswerFormulator({settings, ompConfig = {}, chatData = nul
     const english_input = looksEnglish(message);
     const base = {mode, message_language: english_input ? 'en' : 'other'};
     if (mode === 'off' || (mode === 'auto' && english_input)) return {...base, applied: false, ms: 0, reason: mode === 'off' ? 'off by configuration' : 'the message is English'};
-    if (ompConfig.enabled === false) return {...base, applied: false, ms: 0, reason: 'omp is disabled'};
     const prompt = `USER MESSAGE:\n${message}\n\nENGLISH ANSWER:\n${english}\n\nRESULT:\n${JSON.stringify(compact(packet))}\n\nWrite the answer in the language of the USER MESSAGE.`;
     const tried = [];
+    // The default model of the user-language step is the remote direct call (llmProviders, the openference proxy); the omp chain is the fallback.
+    if (settings.provider) {
+      const run = await chat({system: SYSTEM, prompt, provider: settings.provider, config: settings.config ?? {}, timeoutMs: settings.timeoutSeconds * 1000});
+      const text = String(run.text ?? '').trim();
+      const missing = run.ok && text ? keptTokens(english).filter(t => !text.includes(t)) : [];
+      if (run.ok && text && !missing.length) return {...base, applied: true, text, model: run.model, ms: Date.now() - started, tried};
+      tried.push({model: run.model ?? settings.provider, reason: !run.ok || !text ? run.reason ?? 'no text' : `dropped ${missing.slice(0, 5).join(', ')}`});
+    }
+    if (ompConfig.enabled === false) return {...base, applied: false, ms: Date.now() - started, reason: tried.length ? `${tried.at(-1).reason}; omp is disabled` : 'omp is disabled', tried};
     for (const model of settings.models) {
       const folder = chatData ? chatData.tmpFolder('al') : fs.mkdtempSync(path.join(os.tmpdir(), 'chatsop-al-'));
       try {

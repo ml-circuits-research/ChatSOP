@@ -1,7 +1,7 @@
 /**
  * The server status (DS009 "Server status"): what this server can run now, read by `GET /v1/status` and the chat page's Settings tab.
  *
- *   - formalization: the formalization strategies (CodingAgent, LocalLLMDirect, LocalLLMStepByStep), each with whether it can run and
+ *   - formalization: the formalization strategies (CodingAgent, LocalLLMDirect, LocalLLMStepByStep, InternalReasoningStepByStep), each with whether it can run and
  *     why not, and for CodingAgent the model chain with the availability of every model in omp;
  *   - memories: the base memories with their size and whether the start-up warming decoded them (`server.warmMemories`);
  *   - reasoning: the StrategyRouter's engines and whether each one is installed (probed once per process, read only);
@@ -19,6 +19,7 @@ export const FORMALIZATION_STRATEGIES = Object.freeze([
   {id: 'CodingAgent', label: 'CodingAgent (omp coding agent writes the circuit)'},
   {id: 'LocalLLMDirect', label: 'LocalLLMDirect (a local model writes the circuit in one step)'},
   {id: 'LocalLLMStepByStep', label: 'LocalLLMStepByStep (the symbolic system asks a small local model step by step)'},
+  {id: 'InternalReasoningStepByStep', label: 'InternalReasoningStepByStep (the questioning protocol is a base memory; reasoning plans each question)'},
 ]);
 
 /** The strategy the request parser runs when no strategy is asked for. */

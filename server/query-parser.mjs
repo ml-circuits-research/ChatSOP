@@ -20,8 +20,9 @@ import path from 'node:path';
 import {authorQuery, backendFrom} from '../lib/query-author/index.mjs';
 import {authorExecution} from '../lib/query-author/execution-context.mjs';
 import {buildContext} from '../lib/query-author/context.mjs';
-import {checkStrategy, localStrategy, localReadiness, LOCAL_STRATEGIES, DEFAULT_LOCAL, PARSER_NAMES} from '../lib/formalize/strategies.mjs';
+import {checkStrategy, localStrategy, remoteDirectStrategy, localReadiness, LOCAL_STRATEGIES, DEFAULT_LOCAL, PARSER_NAMES} from '../lib/formalize/strategies.mjs';
 import {FORMALIZATION_STRATEGIES as FORMALIZATION_STRATEGY_LABELS} from './status.mjs';
+import {chainEntry, providerSettings, providerReadiness} from '../lib/llm-providers.mjs';
 
 export const DEFAULT_QUERY_PARSER = Object.freeze({
   strategy: 'CodingAgent', mode: 'id', candidates: 24, indexMax: 300, backend: {kind: 'omp', model: 'openai-codex/gpt-6-luna'}, models: [], timeoutSeconds: 120, maxFixRounds: 2, maxConcurrent: 4, cacheEntries: 500, keepFolders: false,
@@ -38,9 +39,19 @@ export function queryParserSettings(config = {}, env = process.env) {
   merged.strategy = checkStrategy(env.CHATSOP_FORMALIZER || merged.strategy);
   merged.local = {...DEFAULT_LOCAL, ...(config.queryParser?.local ?? {})};
   merged.backend = {...DEFAULT_QUERY_PARSER.backend, ...(config.queryParser?.backend ?? {})};
+  merged.providers = providerSettings(config);
   const chain = Array.isArray(merged.models) && merged.models.length ? merged.models : [merged.backend.model].filter(Boolean);
   merged.models = [...new Set(chain)];
   return merged;
+}
+
+/** The chain entry of the remote LocalLLMDirect, or null when it runs on the local model. */
+export function remoteDirectEntry(settings) {
+  const direct = settings.direct ?? {};
+  const source = direct.source ?? 'auto';
+  const hasLocal = Boolean(settings.local?.endpoint || settings.local?.gguf);
+  if (source === 'local' || (source === 'auto' && hasLocal)) return null;
+  return chainEntry({kind: 'completion', provider: direct.provider ?? 'openference', ...(direct.model ? {model: direct.model} : {})}, {providers: settings.providers});
 }
 
 const normalize = text => String(text).normalize('NFKC').replace(/\s+/g, ' ').trim().toLowerCase();
@@ -62,8 +73,11 @@ export function createQueryParser({settings = queryParserSettings(), ompConfig =
   // (started on first use, prewarmed, one dedicated slot each); CodingAgent runs the omp (or completion) backend chain below.
   const defaultStrategy = settings.strategy ?? 'CodingAgent';
   const locals = new Map();
+  // LocalLLMDirect runs on a remote model (llmProviders, default the openference proxy) when `queryParser.direct.source` is 'remote', or 'auto' (the
+  // default) with no local model configured; 'local' keeps the managed GGUF. LocalLLMStepByStep always uses the local model.
+  const directEntry = remoteDirectEntry(settings);
   const localFor = name => {
-    if (!locals.has(name)) locals.set(name, localFactory(name, settings.local, {timeoutMs: settings.timeoutSeconds * 1000, ...(fetchImpl ? {fetchImpl} : {})}));
+    if (!locals.has(name)) locals.set(name, name === 'LocalLLMDirect' && directEntry ? remoteDirectStrategy(directEntry, {timeoutMs: settings.timeoutSeconds * 1000, ...(fetchImpl ? {fetchImpl} : {})}) : localFactory(name, settings.local, {timeoutMs: settings.timeoutSeconds * 1000, ...(fetchImpl ? {fetchImpl} : {})}));
     return locals.get(name);
   };
   let running = 0;
@@ -72,6 +86,15 @@ export function createQueryParser({settings = queryParserSettings(), ompConfig =
   const backendFor = model => (backendFactory ?? (s => backendFrom(s, {
     timeoutMs: settings.timeoutSeconds * 1000, ...(s.kind === 'omp' ? {bin: ompConfig.bin ?? 'omp', thinking: ompConfig.thinking ?? null, ...(runner ? {runner} : {})} : {...(fetchImpl ? {fetchImpl} : {})}),
   })))({...settings.backend, ...(model ? {model} : {})});
+  const readiness = new Map();
+  /** Whether a provider endpoint answers (cached for 10 s, so a burst of turns probes once). */
+  async function endpointReady(endpoint) {
+    const hit = readiness.get(endpoint);
+    if (hit && now() - hit.at < 10_000) return hit.state;
+    const state = await providerReadiness(endpoint, {...(fetchImpl ? {fetchImpl} : {})});
+    readiness.set(endpoint, {at: now(), state});
+    return state;
+  }
 
   /** Which models of the chain can run now, and why not for the others. */
   async function availability(preferredModel = null, strategy = defaultStrategy) {
@@ -121,7 +144,7 @@ export function createQueryParser({settings = queryParserSettings(), ompConfig =
     let last = null;
     // A model the session prefers is first in the chain when omp can use it (availability puts it there), then the configured models.
     for (const model of free.models) {
-      const key = createHash('sha256').update([memoryKey ?? '', authorExecution.getStore()?.key ?? '', settings.runTag ?? '', buildContext({message, lexicon, mode: settings.mode, vocabulary: null}).version, String(settings.vocabularyDialog !== false), String(settings.maxVocabularyBytes ?? 24_000), String(authorExecution.getStore()?.selfCheck ?? false), settings.backend.kind, strategy, local ? `${settings.local.alias}@${settings.local.endpoint ?? settings.local.gguf}#${settings.local.method ?? 'A'}` : '', model ?? '', settings.backend.endpoint ?? '', normalize(message)].join('\0')).digest('hex');
+      const key = createHash('sha256').update([memoryKey ?? '', authorExecution.getStore()?.key ?? '', settings.runTag ?? '', buildContext({message, lexicon, mode: settings.mode, vocabulary: null}).version, String(settings.vocabularyDialog !== false), String(settings.maxVocabularyBytes ?? 24_000), String(authorExecution.getStore()?.selfCheck ?? false), settings.backend.kind, strategy, local ? (localFor(strategy).tag ?? `${settings.local.alias}@${settings.local.endpoint ?? settings.local.gguf}#${settings.local.method ?? 'A'}`) : '', model ?? '', settings.backend.endpoint ?? '', normalize(message)].join('\0')).digest('hex');
       const hit = cache.get(key);
       if (hit && (!hit.fragment || hit.contextKey === authorExecution.getStore()?.contextKey)) { stats.cache_hits++; stats.coding_agent++; return {sop: hit.sop, parse: recordOf({...hit.result, strategy, cache: 'hit', ms: now() - started, cost_usd: 0, usage: {cost_usd: 0}}, {tried: tried.map(t => t.model)})}; }
       if (running >= settings.maxConcurrent) { stats.failures++; throw fail('parse_unavailable', 503, 'the coding agent is busy', {parser: 'coding_agent', model, ms: now() - started, failed: 'the coding agent is busy', status: 'busy'}); }
@@ -154,8 +177,10 @@ export function createQueryParser({settings = queryParserSettings(), ompConfig =
   async function strategies() {
     const coding = await availability(null, 'CodingAgent');
     const localState = await localReadiness(settings.local, fetchImpl);
+    const direct = directEntry ? {...(await endpointReady(directEntry.endpoint)), backend: 'completion', model: directEntry.id, endpoint: directEntry.endpoint} : null;
     return FORMALIZATION_STRATEGY_LABELS.map(s => s.id === 'CodingAgent'
       ? {...s, available: coding.available === true, ...(coding.reason ? {reason: coding.reason} : {}), backend: settings.backend.kind, models: settings.models.map(id => ({id}))}
+      : s.id === 'LocalLLMDirect' && direct ? {...s, ...direct}
       : {...s, ...localState, backend: 'llama-server', model: settings.local.alias, ...(settings.local.endpoint ? {endpoint: settings.local.endpoint} : {gguf: settings.local.gguf})});
   }
 

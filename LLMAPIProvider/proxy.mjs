@@ -5,6 +5,8 @@ import { Limiter } from './limiter.mjs';
 import { Monitor, pickRateHeaders, redact, RATE_HEADER } from './monitor.mjs';
 import { DASHBOARD_HTML } from './dashboard.mjs';
 import { resolveUpstream } from './settings.mjs';
+import { planReport, valueReport, limitWait } from './plan.mjs';
+import { planRequests } from './monitor.mjs';
 
 const FORWARD_REQ = ['content-type', 'accept', 'anthropic-version', 'anthropic-beta'];
 const MAX_BODY = 512 * 1024 * 1024;
@@ -38,6 +40,16 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
   const secrets = [...Object.values(upstreams).map((u) => u.key), proxyToken].filter(Boolean);
   const monitor = new Monitor({ dataDir, secrets });
   const modelCache = {}; // upstream -> {at, list, byId}
+  const allModels = () => Object.assign({}, ...Object.values(modelCache).map((c) => c.byId));
+
+  // Rebuild what the queue needs from the logs (the monitor has already reloaded the records) and gate on plan limits.
+  const since = Date.now() - 3600_000;
+  for (const [name, up] of Object.entries(upstreams)) {
+    limiters[name].seed(monitor.records.filter((r) => r.upstream === name && r.t > since).map((r) => r.t));
+    if (up.plan?.limits?.length) {
+      limiters[name].gate = (job, active) => limitWait({ upstream: name, limits: up.plan.limits, records: monitor.records, models: allModels(), now: Date.now(), job: job?.meta, active });
+    }
+  }
 
   async function getModels(up) {
     const c = modelCache[up.name];
@@ -54,8 +66,6 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
       throw e;
     }
   }
-  const allModels = () => Object.assign({}, ...Object.values(modelCache).map((c) => c.byId));
-
   function pickUpstream(url) {
     const m = /^\/u\/([^/]+)(\/.*)$/.exec(url.pathname);
     if (m && upstreams[m[1]]) return { up: upstreams[m[1]], path: m[2] };
@@ -100,6 +110,8 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
     res.on('close', () => { if (!res.writableEnded) abort.abort(); });
 
     for (let attempt = 1; ; attempt++) {
+      const mEntry = allModels()[model];
+      const cost = monitor.creditModels().has(model) ? 0 : mEntry ? planRequests(mEntry, { status: 200, in_tokens: est || 0, format }) : 1;
       const outcome = await limiter.schedule(async ({ queueWaitMs }) => {
         const t0 = Date.now();
         const rec = { id: randomUUID().slice(0, 8), upstream: up.name, client, endpoint: path, format, model, stream, attempt, queue_wait_ms: queueWaitMs, req_bytes: body.length, est_in_tokens: est };
@@ -172,7 +184,7 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
         if (r.status >= 400 && /billed from your credit balance|credit balance/i.test(errText)) rec.credit_billed = true;
         monitor.log(rec);
         return { done: true };
-      });
+      }, { cost });
       if (!outcome.retry) return;
     }
   }
@@ -189,9 +201,17 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
         return res.end(DASHBOARD_HTML);
       }
       if (req.method === 'GET' && url.pathname === '/stats') {
-        const info = Object.fromEntries(Object.entries(limiters).map(([n, l]) => [n, { depth: l.depth, active: l.active, pausedUntil: l.pausedUntil, limits: { maxConcurrent: l.maxConcurrent, maxPerSecond: l.maxPerSecond, maxPerMinute: l.maxPerMinute, maxPerHour: l.maxPerHour } }]));
+        const info = Object.fromEntries(Object.entries(limiters).map(([n, l]) => [n, { depth: l.depth, active: l.active, pausedUntil: l.pausedUntil, gateReason: l.gateReason, limits: { maxConcurrent: l.maxConcurrent, maxPerSecond: l.maxPerSecond, maxPerMinute: l.maxPerMinute, maxPerHour: l.maxPerHour } }]));
         for (const u of Object.values(upstreams)) await getModels(u).catch(() => {});
-        return sendJson(res, 200, monitor.stats(info, allModels()));
+        const models = allModels(), now = Date.now();
+        const st = monitor.stats(info, models);
+        st.plan = {}; st.value = {};
+        for (const u of Object.values(upstreams)) {
+          if (!u.plan?.limits) continue;
+          st.plan[u.name] = planReport({ upstream: u.name, plan: u.plan, records: monitor.records, models, now });
+          st.value[u.name] = valueReport({ upstream: u.name, plan: u.plan, compare: config.compare, records: monitor.records, models, creditModels: monitor.creditModels(), now });
+        }
+        return sendJson(res, 200, st);
       }
       const { up, path } = pickUpstream(url);
       if (req.method === 'GET' && path === '/v1/models') {

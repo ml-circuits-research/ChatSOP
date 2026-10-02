@@ -5,7 +5,7 @@
  *     [--include-seen] [--ids a,b] [--resume dir] [--endpoint http://127.0.0.1:PORT/v1]
  * Arms: steps = the product chat turn with LocalLLMStepByStep (method B) and Qwen3-4B-Instruct Q4_K_M, the problem text as the user
  * message, the chat default base memory; direct = the same model answering the problem directly (baseline); coding-agent = the same chat
- * turn with the CodingAgent strategy (omp, zai/glm-5.3), only when asked. Items already run are not repeated unless --include-seen.
+ * turn with the CodingAgent strategy (omp, llmapiprovider/Qwen3.8 27b), only when asked. Items already run are not repeated unless --include-seen.
  * Writes eval/reports/current/books-eval/run-<timestamp>/records.jsonl, scores deterministically (tools/eval/books/score.mjs) and
  * prepares the judge batches; the report is tools/eval/books/report.mjs. One llama-server at a time; stops what it started.
  */
@@ -77,7 +77,7 @@ export async function main(args = process.argv.slice(2)) {
 /** The coding-agent arm: the same chat turn with the CodingAgent strategy (omp chain of config/runtime.json); only when asked. */
 async function codingAgentArm(sample, done, append, args) {
   const {openChatTurn: open} = await import('./system.mjs');
-  const system = await open({strategy: 'CodingAgent', model: opt(args, '--coding-model', 'zai/glm-5.3')});
+  const system = await open({strategy: 'CodingAgent', model: opt(args, '--coding-model', 'llmapiprovider/Qwen3.8 27b')});
   try {
     for (const item of sample) {
       if (done.has(`coding-agent/${item.id}`)) continue;

@@ -10,10 +10,12 @@ h1{font-size:20px}h2{font-size:15px;margin:22px 0 6px}
 table{border-collapse:collapse;width:100%;overflow-x:auto;display:block}
 th,td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right;white-space:nowrap}
 th:first-child,td:first-child{text-align:left}th{color:var(--mut);font-weight:600}
-.bad{color:var(--bad)}.mut{color:var(--mut)}svg{width:100%;height:80px}
+.bad{color:var(--bad)}.warn{color:#b7791f;font-weight:600}.bar{display:inline-block;width:80px;height:8px;background:var(--line);border-radius:4px;vertical-align:middle;margin-right:6px}.bar i{display:block;height:8px;border-radius:4px;background:var(--acc)}.bar i.w{background:#d69e2e}.bar i.x{background:var(--bad)}.mut{color:var(--mut)}svg{width:100%;height:80px}
 code{background:var(--line);padding:0 4px;border-radius:3px}
 </style></head><body>
 <h1>LLM API Provider monitor</h1><div id="meta" class="mut">loading…</div>
+<h2>Plan limits</h2><div id="plan"></div>
+<h2>Value: subscription or pay-per-token</h2><div id="val"></div>
 <h2>Upstreams</h2><div id="up"></div>
 <h2>Windows</h2><div id="win"></div>
 <h2>Calls per minute, last hour</h2><svg id="chart" viewBox="0 0 600 80" preserveAspectRatio="none"></svg>
@@ -37,6 +39,9 @@ async function tick(){
  const v=s.calls_per_minute_last_hour,mx=Math.max(1,...v);
  $('chart').innerHTML=v.map((n,i)=>'<rect x="'+(i*10+1)+'" y="'+(80-n/mx*76)+'" width="8" height="'+(n/mx*76)+'" fill="var(--acc)"><title>'+n+' calls</title></rect>').join('');
  $('mod').innerHTML=table(['model','billing','quota cost','mult','calls/min','calls/h','calls/day','errors','429','in tok','out tok','cached','cost USD','plan req','p50 ms','p95 ms','ttft p50'],Object.entries(s.by_model).map(([m,x])=>[esc(m),x.billing==='credit'?'<span class="bad">credit (not in plan)</span>':'plan',esc((x.quota_cost_seen||[]).join(', ')||'–'),x.quota_multiplier??'–',x.calls_minute,x.calls_hour,x.calls_day,f(x.errors),f(x.r429),f(x.in_tokens),f(x.out_tokens),f(x.cached_tokens),f(x.cost_usd,4),f(x.plan_requests),f(x.latency_ms.p50),f(x.latency_ms.p95),f(x.ttft_ms.p50)]));
+ const dur=ms=>ms==null?'–':ms<90e3?f(ms/1000)+' s':ms<5400e3?f(ms/60e3,1)+' min':ms<172800e3?f(ms/3600e3,1)+' h':f(ms/86400e3,1)+' d';
+ $('plan').innerHTML=Object.entries(s.plan||{}).map(([n,p])=>'<p><b>'+esc(n)+'</b> · subscription '+f(p.price_usd_per_month,2)+' USD/month'+(p.warnings.length?' · <span class="warn">warning: '+esc(p.warnings.join('; '))+'</span>':'')+'</p>'+table(['limit','unit','window','used','max','left','','next relief','provider says left','diff (provider - ours)','provider vs ours since reset'],p.limits.map(l=>{const c=l.exceeded?'x':l.warn?'w':'';const pv=l.provider;return [esc(l.name),l.unit,esc(l.window)+(l.mode==='fixed'?' fixed':''),f(l.used,2),f(l.max),f(l.remaining,2),'<span class="bar"><i class="'+c+'" style="width:'+Math.min(100,l.pct*100)+'%"></i></span><span class="'+(c?'warn':'')+'">'+f(l.pct*100,0)+'%</span>',dur(l.next_relief_ms),pv?f(pv.remaining,2)+' <span class="mut">('+pv.age_s+' s ago)</span>':'–',pv?f(pv.diff_remaining,2):'–',pv&&pv.agreement?'provider '+f(pv.agreement.provider_used,2)+' / ours '+f(pv.agreement.our_used,2)+' (diff '+f(pv.agreement.diff,2)+')':'–']}))).join('')||'<span class="mut">no plan limits configured</span>';
+ $('val').innerHTML=Object.entries(s.value||{}).filter(([,v])=>v).map(([n,v])=>{const keys=Object.keys(v.periods.day.saving_vs_usd);return '<p><b>'+esc(n)+'</b>: '+esc(v.verdict)+'</p>'+table(['period','calls','in tok','cached tok','out tok','subscription (prorated) USD'].concat(keys.map(k=>esc(k)+' USD')),Object.entries(v.periods).map(([p,x])=>[p,f(x.tokens.calls),f(x.tokens.in),f(x.tokens.cached),f(x.tokens.out),f(x.subscription_prorated_usd,2)].concat(keys.map(k=>{const a=x.saving_vs_usd[k]+x.subscription_prorated_usd;return f(a,2)}))))+'<p class="mut">projection over the last '+v.projection.span_days+' days scaled to 30 days: '+esc(Object.entries(v.projection.monthly_usd).map(([k,a])=>k+' '+f(a,2)).join(', '))+' USD against '+f(v.subscription_usd_per_month,2)+' USD</p>'}).join('')||'<span class="mut">no plan price configured</span>';
  const l=s.inferred_limits;
  $('lim').innerHTML='<p class="mut">'+esc(l.note)+'</p>'+table(['429 count','min calls prev s','min prev min','min prev h','max ok calls/s','max ok calls/min'],[[l.r429_count,l.min_calls_prev_second??'–',l.min_calls_prev_minute??'–',l.min_calls_prev_hour??'–',l.max_success_calls_per_second,l.max_success_calls_per_minute]]);
  const qt=s.quota;

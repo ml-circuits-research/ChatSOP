@@ -126,7 +126,7 @@ Observed (real SymbolicLM, LanguageProofingLLM and SymbolicProofingLLM on CPU, p
 
 ## EmotionDetectionSystem and the pragmatic wire (2026-10-01, emotion-agent)
 
-Delivered: the separate switchable component `lib/emotion-detection/` with symbolic (on), neural (off) and LLM-slot (off) strategies; the advisory `pragmatic` wire with its help page, tests and archived `docs/specs/DS023-emotion-detection.md`; classification of the spans SymbolicLM does not represent; integration in the SymbolicLM service, the agent (courtesy short-circuit, wires appended to the circuit) and the chat (setting, "I understood" panel); 300-message evaluation labelled by Grok and GLM with 60 labels read (`eval/reports/current/emotion-detection/summary.md`); experiment `emotion-detection-v1`. No training. Not done: calibration on real user messages, a neural classifier for Romanian after LanguageProofingLLM, any end-to-end test that the signals improve answers.
+Delivered: the separate switchable component `lib/emotion-detection/` with symbolic (on), neural (off) and LLM-slot (off) strategies; the advisory `pragmatic` wire with its help page, tests and archived spec (now `docs/specs/DS023-courtesy-and-emotion.md`); classification of the spans SymbolicLM does not represent; integration in the SymbolicLM service, the agent (courtesy short-circuit, wires appended to the circuit) and the chat (setting, "I understood" panel); 300-message evaluation labelled by Grok and GLM with 60 labels read (`eval/reports/current/emotion-detection/summary.md`); experiment `emotion-detection-v1`. No training. Not done: calibration on real user messages, a neural classifier for Romanian after LanguageProofingLLM, any end-to-end test that the signals improve answers.
 
 ## Chat: what SymbolicLM understood (2026-10-01, chat-cnl-agent)
 
@@ -824,3 +824,9 @@ Benchmark staged stop: {"family":"f9","stage":100,"stop":true,"reason":"broken",
 ## Books evaluation harness (2026-10-02, books-eval-agent)
 
 Delivered: extraction of 7000 problems from 7 books (0 validation problems, 30/30 hand-checked), runner/scorer/report under `tools/eval/books/`, first batch of 100 (steps 0/100, direct 69/100), failure classes and improvement backlog in `eval/reports/current/books-eval/run-2026-10-02T12-00-11/summary.md`. Next batches: `node tools/eval/books/run.mjs --n 100`.
+
+## One understanding step: courtesy and emotion in the formalizer (2026-10-02, understanding-agent)
+
+- Delivered: `pragmatic` wires written by every formalizer (CodingAgent/LocalLLMDirect guide section, LocalLLMStepByStep acts and emotion questions), compiled out of execution, courtesy reply and tone rendered from the packet; the lexicon EmotionDetectionSystem pre-step archived; the step-by-step regex cue table, connective splitter, methods C and B-cue, `cueKinds` and the validator's phrase checks removed in favour of model questions and memory data. Audit of hardcoded understanding in the topic note "Audit: hardcoded understanding in the product code".
+- Measured: eval-pragmatics-v1 (300 labelled messages): Qwen3-4B 45.2% precision / 82.5% recall held out; guide + Haiku 100/100 on 50; lexicon reference 93.9/86.6. Step-by-step sample (34 rows): known forms 21/24 before and after, natural 7/10 vs 6/10.
+- Not done: the zai/glm-5.3 CodingAgent arm (5-hour quota exhausted; `node tools/eval/pragmatics/run.mjs --arm coding --limit 50`); remaining hardcoded items listed in the audit (`looksEnglish`, `constraintNameBindings`, `ADVICE_MODALS`); the protocol stored as base-memory wires (DS022 "Next step").
