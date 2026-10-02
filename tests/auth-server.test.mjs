@@ -165,7 +165,7 @@ test('home page reports sign-in state, password setup and formalizer readiness',
   const first = await (await page(fresh.base, '/')).text();
   assert.match(first, /No administrator password yet/);
   assert.match(first, /Administrator password: <span class="bad">not set/);
-  assert.match(first, /Coding agent \(omp\): <b class="bad">not available/);
+  assert.match(first, /Formalizer \(LLMDirect\): <b class="bad">not available/);
   assert.match(first, /HTTP 503/);
   for (const link of ['href="/chat"', 'href="/experiments"', 'href="/admin"', 'href="/docs/"']) assert.ok(first.includes(link), link);
   
@@ -175,7 +175,7 @@ test('home page reports sign-in state, password setup and formalizer readiness',
   assert.match(signedOut, /Administrator password: <span class="ok">set/);
   const signedIn = await (await page(base, '/', {cookie: session})).text();
   assert.match(signedIn, /Signed in/);
-  assert.match(signedIn, /parse_unavailable/, 'the signed-in home page says what happens without a coding agent');
+  assert.match(signedIn, /parse_unavailable/, 'the signed-in home page says what happens without a formalizer');
   assert.match(signedIn, /action="\/logout"/);
 });
 

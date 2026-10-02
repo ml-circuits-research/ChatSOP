@@ -60,18 +60,33 @@ async function turns() {
   const store = new SessionStore({repo: sessions.repository(id), lexicon, config: {...config, policy: {...(config.policy ?? {}), reinforce: false}}, root: path.join(sessions.dir(id), 'agent'),
     circuitRules: () => theories.get([...sessions.baseCircuits(id), ...sessions.circuits(id)]).chatRules()});
   const parser = createQueryParser({settings: queryParserSettings({queryParser: {...config.queryParser, cacheEntries: 0}})});
-  const layers = Object.fromEntries(Object.entries(ARMS).map(([arm, ids]) => [arm, layerOf(ids)]));
+  const layers = args.includes('--formalize-only') ? {} : Object.fromEntries(Object.entries(ARMS).map(([arm, ids]) => [arm, layerOf(ids)]));
   const topics = topicsOf(lexicon);
   fs.mkdirSync(OUT, {recursive: true});
   const rows = [];
   let n = 0;
+  // Formalizations are kept (eval/reports/current/smalltalk/formalized.jsonl): a rerun or another arm reuses them, no call repeated.
+  const cacheFile = path.join(OUT, 'formalized.jsonl');
+  const cached = new Map(fs.existsSync(cacheFile) ? readJsonl(cacheFile).map(r => [r.message, r]) : []);
+  const only = args.includes('--formalize-only');
   try {
     for (const m of messages) {
-      const sop = {}, parse = {};
+      const hit = cached.get(m.message);
+      const sop = hit ? {text: hit.sop} : {}, parse = hit ? {...hit.parse} : {};
+      if (only) {
+        if (!hit) {
+          try { const done = await parser.parse({message: m.message, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); sop.text = done.sop; Object.assign(parse, done.parse ?? {}); }
+          catch (e) { sop.text = null; parse.error = String(e.code ?? e.message).slice(0, 200); }
+          fs.appendFileSync(cacheFile, JSON.stringify({message: m.message, sop: sop.text, parse: {model: parse.model ?? null, ms: parse.ms ?? null, rounds: parse.rounds ?? null, error: parse.error ?? null}}) + '\n');
+          console.log(`${m.id} formalized ${parse.error ?? ''} ${String(sop.text ?? '').replace(/\n/g, ' ').slice(0, 120)}`);
+        }
+        continue;
+      }
       for (const arm of ['A', 'B']) {
         setReplyLayer(layers[arm].circuits, `arm ${arm}`);
         const entry = store.get('smalltalk', `c${++n}`, BASE_NAME);
         const formalizer = {id: 'smalltalk-eval', formalize: async text => {
+          if (sop.text === null) throw Object.assign(new Error(parse.error ?? 'no formalization'), {code: 'parse_failed'});
           if (sop.text === undefined) { const done = await parser.parse({message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); sop.text = done.sop; Object.assign(parse, done.parse ?? {}); }
           return sop.text;
         }};
@@ -108,6 +123,7 @@ async function turns() {
     fs.rmSync(sessions.dir(id), {recursive: true, force: true});
     await parser.stop?.();
   }
+  if (only) return;
   fs.writeFileSync(path.join(OUT, 'turns.jsonl'), rows.map(r => JSON.stringify({...r, packet: undefined})).join('\n') + '\n');
   console.log(`wrote ${path.relative(ROOT, path.join(OUT, 'turns.jsonl'))} (${rows.length} rows)`);
 }

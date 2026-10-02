@@ -108,7 +108,7 @@ test('step-by-step problem lines: numbers the message writes, formulas with func
   assert.deepEqual(values, [{name: 'loan', value: 4000}, {name: 'rate', value: 11, percent: true}, {name: 'months', value: 8}]);
   const formulas = readFormulas('interest = round(loan * rate * months / 12, 0.01)\naffordable = interest <= 300', values.map(v => v.name));
   assert.deepEqual(formulas.map(f => f.name), ['interest', 'affordable']);
-  assert.equal(formulas[1].check.word, 'at_most');
+  assert.equal(formulas[1].check.conditions[0].word, 'at_most');
   const sop = arithmeticCircuit({values, formulas, lexicon: {predicates: {}}});
   assert.match(sop, /relation "rate_percent"\n {2}role object 11/);
   assert.match(sop, /when compute \?f \?p divided_by 100\n {2}then rate \?f/);
