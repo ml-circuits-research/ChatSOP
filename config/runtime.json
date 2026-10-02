@@ -74,7 +74,8 @@
       "slots": ["direct", "steps"],
       "ctxPerSlot": 16384,
       "maxTokens": 1500,
-      "thinking": false
+      "thinking": false,
+      "method": "B"
     },
     "backend": {
       "kind": "omp",

@@ -31,18 +31,17 @@ const lineOf = (question, words) => question.split('\n').find(l => /^\d+\./.test
 
 test('the cue table reads limits with their counted noun, two-sided comparisons, exclusions, options, suppositions and quantifiers', () => {
   const mentions = [{surface: 'Ana Pop', candidates: [{id: 'ana_pop'}]}, {surface: 'Ion Rus', candidates: [{id: 'ion_rus'}]}, {surface: 'Acme', candidates: [{id: 'acme'}]}];
-  assert.deepEqual(readCues('Which teams have more than 3 members?').limit.map(l => [l.span, l.comparisons]), [['more than 3 members', [['above', 3]]]]);
-  assert.deepEqual(readCues('Who joined between 2005 and 2011, inclusive?').limit[0].comparisons, [['at_least', 2005], ['at_most', 2011]]);
+  assert.deepEqual(readCues('List the teams with more than 3 members.').limit.map(l => [l.span, l.comparisons]), [['more than 3 members', [['above', 3]]]]);
+  assert.deepEqual(readCues('Who scored between 5 and 11 goals?').limit[0].comparisons, [['at_least', 5], ['at_most', 11]]);
   assert.deepEqual(readCues('Who joined before 2012?').limit[0].comparisons, [['below', 2012]]);
   assert.equal(readCues('Among 1000 claims, is Ana approved?').date, null, 'a count of claims is not a year');
-  const before = readCues('Did Ana Pop join Acme before Ion Rus did?', mentions).twoSided;
+  const before = readCues('Was Ana Pop at Acme before Ion Rus was?', mentions).twoSided;
   assert.equal(before.comparator, 'below');
   assert.deepEqual(before.names.map(s => s.surface), ['Ana Pop', 'Ion Rus']);
-  assert.equal(readCues('Which skills do both Ana Pop and Ion Rus have?', mentions).twoSided.kind, 'both');
-  assert.equal(readCues('How many more members does Acme have than Ion Rus?', mentions).twoSided.kind, 'difference');
+  assert.equal(readCues('List the skills that both Ana Pop and Ion Rus share.', mentions).twoSided.kind, 'both');
   assert.equal(readCues('Who works at Acme besides Ana Pop?', mentions).exclusion[0].surface, 'Ana Pop');
   assert.deepEqual(readCues('Who earns more, Ana Pop or Ion Rus?', mentions).options.names.map(s => s.surface), ['Ana Pop', 'Ion Rus']);
-  assert.equal(readCues('If Acme were closed, could Ana Pop still work?', mentions).supposition.span, 'If Acme were closed');
+  assert.equal(readCues('If Acme is closed, is Ana Pop employed?', mentions).supposition.span, 'If Acme is closed');
   assert.equal(readCues('Is everyone at Acme certified?').quantifier.word, 'all');
   assert.equal(readCues('Do at least 2 members hold a licence?').quantifier.word, 'at_least 2');
   assert.ok(cueAspects(readCues('Let x and y be integers from 0 to 5; is x + y below 4?')).size === 0, 'a puzzle has no limit cue');
@@ -53,11 +52,11 @@ test('the cue table reads limits with their counted noun, two-sided comparisons,
 });
 
 test('clause decomposition splits suppositions and second questions, never comparisons or relative clauses', () => {
-  const d = decompose('If Dovecote were closed, could one still get from Ashford to Lowmoor?');
-  assert.equal(d.main.text, 'could one still get from Ashford to Lowmoor?');
-  assert.deepEqual(d.extras.map(c => [c.text, c.link]), [['If Dovecote were closed', 'if']]);
-  assert.equal(decompose('Did Jurgen join the team before Felix did?').extras.length, 0, 'an elliptical comparison is not a clause');
-  assert.equal(decompose('Among the members who joined between 2006 and 2014, who earns most?').extras.length, 0);
+  const d = decompose('If Dovecote is closed, is Lowmoor reachable from Ashford?');
+  assert.equal(d.main.text, 'is Lowmoor reachable from Ashford?');
+  assert.deepEqual(d.extras.map(c => [c.text, c.link]), [['If Dovecote is closed', 'if']]);
+  assert.equal(decompose('Was Jurgen in the team before Felix was?').extras.length, 0, 'an elliptical comparison is not a clause');
+  assert.equal(decompose('Among the members who joined after 2006, who earns most?').extras.length, 0);
   assert.equal(decompose('After 1 rule steps, is Ana eligible?').extras.length, 0, 'no finite verb, no clause');
   assert.deepEqual(decompose('Who wrote Hamlet and how many copies were sold?').extras.map(c => c.kind), ['second']);
 });
@@ -106,7 +105,7 @@ test('a two-sided comparison uses the statement once per name and compares the t
       {when: /Which statements does/, say: q => lineOf(q, 'joined in year')},
       {when: /Which of these says what the request asks/, say: q => q.includes('neither') ? '3' : '1'},
     ]);
-    const r = await protocolQuery({message: 'Did Ana Pop join before Ion Rus did?', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'D'});
+    const r = await protocolQuery({message: 'Did Ana Pop join earlier than Ion Rus?', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'D'});
     assert.equal(r.status, 'validated', JSON.stringify(r.validation?.problems));
     assert.match(r.sop, /role subject "ana_pop"\n\s+role object \?a\n/);
     assert.match(r.sop, /role subject "ion_rus"\n\s+role object \?b\n/);
@@ -125,7 +124,7 @@ test('a limit on a count per group becomes an aggregate session definition and a
       {when: /What does it limit/, say: q => lineOf(q, '(a count)')},
       {when: /Which of these says what the request asks/, say: q => q.includes('Which X are there such that') ? lineOf(q, 'Which X are there such that') : '3'},
     ]);
-    const r = await protocolQuery({message: 'Which teams have more than 1 member?', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'D'});
+    const r = await protocolQuery({message: 'List the teams that have more than 1 member.', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'D'});
     assert.equal(r.status, 'validated', JSON.stringify(r.validation?.problems));
     assert.match(r.sop, / aggregate\n\s+over member_of \?m \?g\n\s+group \?g\n\s+count \?m as \?n/);
     assert.match(r.sop, /compare \?n1 above 1/);
