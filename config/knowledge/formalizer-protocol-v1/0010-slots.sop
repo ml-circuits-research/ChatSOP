@@ -1,0 +1,950 @@
+# formalizer-protocol-v1: the slots of a formalization (DS022 "InternalReasoningStepByStep").
+# A slot is needed (by the kind of answer, the aspects and the statements chosen so far), settled (by an answer, a default or an
+# observation) or open. The goal `formalized` holds when the kind is known, nothing needed is open, no integrity constraint of
+# 0050-integrity.sop is violated, the circuit was assembled and the reading confirmed. The symbol `none` is the argument of the
+# global slots; `q` is the main query, `c1`, `c2` the copied clauses.
+
+@main_query_q fact
+  holds main_query q
+
+# --------------------------------------------------------------------------------------------- generic slot logic
+@settled_by_answer rule
+  when answered ?q ?a
+  when establishes ?q ?s
+  then settled ?s ?a
+
+@open_slot_rule rule
+  when needed ?s ?a
+  when absent settled ?s ?a
+  then open_slot ?s ?a
+
+@any_open_rule rule
+  when open_slot ?s ?a
+  then any_open
+
+@any_violation_rule rule
+  when violation ?v ?w
+  then any_violation
+
+@circuit_complete_rule rule
+  when settled kind none
+  when absent any_open
+  when absent any_violation
+  then circuit_complete
+
+@formalized_rule rule
+  when circuit_complete
+  when assembled
+  when confirmed
+  then formalized
+
+@prelude_open_rule rule
+  when open_slot ?s ?a
+  when prelude_slot ?s
+  then prelude_open
+
+# --------------------------------------------------------------------------------------------- the kind of answer
+@need_kind rule
+  when start
+  then needed kind none
+
+@kind_settled rule
+  when kind ?k
+  then settled kind none
+
+@route_by_statements rule
+  when candidate_statement ?s
+  then route_possible
+
+@route_by_numbers rule
+  when number ?n
+  then route_possible
+
+@has_candidates_rule rule
+  when candidate_statement ?s
+  then has_candidates
+
+@base_kind_main rule
+  when kind ?k
+  then base_kind q ?k
+
+@query_kind_as_answered rule
+  when base_kind ?qq ?k
+  when absent kind_changed ?qq
+  then query_kind ?qq ?k
+
+@query_kind_changed rule
+  when kind_changed ?qq
+  then query_kind ?qq yesno
+
+@statement_built_as_yesno rule
+  when kind statement
+  then kind_changed q
+
+@reach_built_as_yesno rule
+  when kind reach
+  when reach_impossible
+  then kind_changed q
+
+@switched_built_as_yesno rule
+  when switched_yesno ?qq
+  then kind_changed ?qq
+
+@relational_rule rule
+  when query_kind q ?k
+  when relational_kind ?k
+  then relational
+
+@need_acts rule
+  when kind ?k
+  when absent nothing_kind ?k
+  then needed acts none
+
+@only_kind_is_act rule
+  when kind ?k
+  when only_kind_act ?k ?a
+  then act ?a
+
+@need_emotion rule
+  when act emotion
+  then needed emotion none
+
+@emotion_settled rule
+  when emotion ?e
+  then settled emotion none
+
+# --------------------------------------------------------------------------------------------- names
+@some_mention_rule rule
+  when mention ?m
+  then some_mention
+
+@need_names rule
+  when query_kind q ?k
+  when aspect_kind ?k
+  when absent some_mention
+  then needed names none
+
+@need_link rule
+  when query_kind q ?k
+  when aspect_kind ?k
+  when mention ?m
+  when absent single_candidate ?m
+  then needed link ?m
+
+@linking_open_link rule
+  when open_slot link ?m
+  then linking_open
+
+@linking_open_names rule
+  when open_slot names none
+  then linking_open
+
+@link_settled rule
+  when linked ?m ?n
+  then settled link ?m
+
+@name_in_request_rule rule
+  when linked ?m ?n
+  then name_in_request ?n
+
+@one_name_rule rule
+  when name_in_request ?a
+  then one_name
+
+@two_names_rule rule
+  when name_in_request ?a
+  when name_in_request ?b
+  when compare ?a not_equal ?b
+  then two_names
+
+@three_names_rule rule
+  when name_in_request ?a
+  when name_in_request ?b
+  when name_in_request ?c
+  when compare ?a not_equal ?b
+  when compare ?a not_equal ?c
+  when compare ?b not_equal ?c
+  then three_names
+
+@exactly_two_names_rule rule
+  when two_names
+  when absent three_names
+  then exactly_two_names
+
+@place_name_main rule
+  when main_query ?qq
+  when name_in_request ?n
+  when absent reserved ?n
+  then place_name ?qq ?n
+
+@place_name_clause rule
+  when clause_name ?c ?n
+  then place_name ?c ?n
+
+@has_place_name_rule rule
+  when place_name ?qq ?n
+  then has_place_name ?qq
+
+@two_place_names_rule rule
+  when place_name ?qq ?a
+  when place_name ?qq ?b
+  when compare ?a not_equal ?b
+  then two_place_names ?qq
+
+# --------------------------------------------------------------------------------------------- aspects and their details
+@need_aspects rule
+  when query_kind q ?k
+  when aspect_kind ?k
+  then needed aspects none
+
+@aspect_possible_always rule
+  when aspect_always ?a
+  then aspect_possible ?a
+
+@aspect_possible_limit rule
+  when number ?n
+  then aspect_possible limit
+
+@aspect_possible_options rule
+  when two_names
+  then aspect_possible options
+
+@aspect_possible_two_sided rule
+  when two_names
+  then aspect_possible two_sided
+
+@aspect_possible_fewest rule
+  when two_names
+  then aspect_possible fewest
+
+@aspect_possible_exclusion rule
+  when one_name
+  then aspect_possible exclusion
+
+@aspect_possible_chain rule
+  when one_name
+  then aspect_possible chain
+
+@has_aspect_rule rule
+  when ticked ?a
+  when aspect_possible ?a
+  then has_aspect ?a
+
+@need_option_names rule
+  when has_aspect options
+  then needed option_names none
+
+@option_names_settled rule
+  when option_name ?n
+  then settled option_names none
+
+@reserved_option rule
+  when option_name ?n
+  then reserved ?n
+
+@need_excluded_names rule
+  when has_aspect exclusion
+  then needed excluded_names none
+
+@excluded_names_settled rule
+  when excluded_name ?n
+  then settled excluded_names none
+
+@reserved_excluded rule
+  when excluded_name ?n
+  then reserved ?n
+
+@need_limit_kind rule
+  when has_aspect limit
+  when limit_candidate ?n
+  then needed limit_kind ?n
+
+@limit_kind_settled rule
+  when limit_kind ?n ?c
+  then settled limit_kind ?n
+
+@need_supposition rule
+  when has_aspect supposition
+  then needed supposition none
+
+@supposition_settled rule
+  when clause_role ?c supposition
+  then settled supposition none
+
+@need_second rule
+  when has_aspect second
+  then needed second none
+
+@second_settled rule
+  when clause_role ?c second
+  then settled second none
+
+@need_clause_link rule
+  when clause_role ?c supposition
+  then needed clause_link ?c
+
+@clause_link_settled rule
+  when clause_link ?c ?k
+  then settled clause_link ?c
+
+# --------------------------------------------------------------------------------------------- clauses
+@statement_clause_rule rule
+  when clause_role ?c supposition
+  then statement_clause ?c
+
+@statement_clause_is_yesno rule
+  when statement_clause ?c
+  then base_kind ?c yesno
+
+@clause_kind_query_rule rule
+  when clause_role ?c second
+  then clause_kind_query ?c
+
+@need_clause_statement rule
+  when statement_clause ?c
+  then needed clause_statement ?c
+
+@clause_uses rule
+  when clause_pick ?c ?s
+  when clause_instance ?c ?i
+  then uses ?c ?i
+
+@clause_instance_of rule
+  when clause_pick ?c ?s
+  when clause_instance ?c ?i
+  then instance_of ?i ?s
+
+@clause_statement_settled rule
+  when clause_pick ?c ?s
+  then settled clause_statement ?c
+
+@clause_has_own_rule rule
+  when clause_own_name ?c ?n
+  then clause_has_own ?c
+
+@clause_name_own rule
+  when clause_own_name ?c ?n
+  when name_in_request ?n
+  then clause_name ?c ?n
+
+@clause_named_rule rule
+  when clause_name ?c ?n
+  then clause_named ?c
+
+@need_clause_name_statement rule
+  when statement_clause ?c
+  when clause_pick ?c ?s
+  when absent clause_named ?c
+  then needed clause_name ?c
+
+@need_clause_name_question rule
+  when clause_kind_query ?c
+  when base_kind ?c ?k
+  when absent clause_named ?c
+  then needed clause_name ?c
+
+@clause_name_settled rule
+  when clause_named ?c
+  then settled clause_name ?c
+
+@need_clause_kind rule
+  when clause_kind_query ?c
+  then needed clause_kind ?c
+
+@clause_kind_settled rule
+  when base_kind ?c ?k
+  when clause_kind_query ?c
+  then settled clause_kind ?c
+
+# --------------------------------------------------------------------------------------------- the statements of a query
+@fewest_route_aspect rule
+  when main_query ?qq
+  when has_aspect fewest
+  when query_kind ?qq ?k
+  when fewest_kind ?k
+  then fewest_route ?qq
+
+@fewest_route_definition rule
+  when definition ?qq fewest
+  then fewest_route ?qq
+
+@need_statements rule
+  when query_kind ?qq ?k
+  when relational_kind ?k
+  when absent statement_clause ?qq
+  when absent fewest_route ?qq
+  then needed statements ?qq
+
+@statements_settled_by_use rule
+  when uses ?qq ?i
+  then settled statements ?qq
+
+@statements_settled_none rule
+  when statements_none ?qq
+  then settled statements ?qq
+
+@has_instances_rule rule
+  when uses ?qq ?i
+  then has_instances ?qq
+
+@need_statement_check rule
+  when statements_none ?qq
+  when main_query ?qq
+  when single_hit ?s
+  when budget_ample
+  then needed statement_check ?qq
+
+@need_definition rule
+  when statements_none ?qq
+  when main_query ?qq
+  when has_candidates
+  when absent has_instances ?qq
+  when absent kind statement
+  when budget_ample
+  then needed definition ?qq
+
+@definition_settled rule
+  when definition ?qq ?d
+  then settled definition ?qq
+
+@need_restatement_chain rule
+  when definition ?qq chain
+  when absent has_instances ?qq
+  then needed restatement ?qq
+
+@need_restatement_count rule
+  when definition ?qq group_count
+  when absent has_instances ?qq
+  then needed restatement ?qq
+
+@restatement_settled rule
+  when has_instances ?qq
+  when definition ?qq ?d
+  then settled restatement ?qq
+
+@instance_pair_rule rule
+  when uses ?qq ?a
+  when uses ?qq ?b
+  when compare ?a not_equal ?b
+  then instance_pair ?qq
+
+@instance_triple_rule rule
+  when uses ?qq ?a
+  when uses ?qq ?b
+  when uses ?qq ?c
+  when compare ?a not_equal ?b
+  when compare ?a not_equal ?c
+  when compare ?b not_equal ?c
+  then instance_triple ?qq
+
+# --------------------------------------------------------------------------------------------- the places of the statements
+@offer_member rule
+  when query_kind ?qq every
+  then offered ?qq unknown_m
+
+@offer_asked rule
+  when query_kind ?qq ?k
+  when asking_kind ?k
+  then offered ?qq unknown_x
+
+@offer_value_rank rule
+  when query_kind ?qq ?k
+  when rank_kind ?k
+  then offered ?qq unknown_v
+
+@offer_value_two_sided rule
+  when main_query ?qq
+  when has_aspect two_sided
+  then offered ?qq unknown_v
+
+@offer_limited rule
+  when main_query ?qq
+  when has_aspect limit
+  then offered ?qq unknown_w
+
+@offer_other rule
+  when instance_pair ?qq
+  then offered ?qq unknown_p
+
+@offer_second_other rule
+  when instance_triple ?qq
+  then offered ?qq unknown_q
+
+@placed_rule rule
+  when place ?i ?r ?v
+  then placed ?i ?r
+
+@open_role_rule rule
+  when uses ?qq ?i
+  when instance_of ?i ?s
+  when statement_role ?s ?r ?t
+  when absent placed ?i ?r
+  then open_role ?i ?r
+
+@need_places rule
+  when open_role ?i ?r
+  then needed places ?i
+
+@places_pending_rule rule
+  when uses ?qq ?i
+  when open_role ?i ?r
+  then places_pending ?qq
+
+@places_done_rule rule
+  when has_instances ?qq
+  when absent places_pending ?qq
+  then places_done ?qq
+
+@waits_rule rule
+  when instance_after ?i ?j
+  when open_role ?j ?r
+  then waits ?i
+
+@observed_twice_rule rule
+  when observed_place ?n ?s ?a
+  when observed_place ?n ?s ?b
+  when compare ?a not_equal ?b
+  then observed_twice ?n ?s
+
+@claim_rule rule
+  when uses ?qq ?i
+  when instance_of ?i ?s
+  when place_name ?qq ?n
+  when observed_place ?n ?s ?r
+  when absent observed_twice ?n ?s
+  then claim ?i ?r ?n
+
+@contested_rule rule
+  when claim ?i ?r ?a
+  when claim ?i ?r ?b
+  when compare ?a not_equal ?b
+  then contested ?i ?r
+
+@more_names_than_one_place rule
+  when statement_arity ?s 1
+  when two_names
+  then more_names_than_roles ?s
+
+@more_names_than_two_places rule
+  when statement_arity ?s 2
+  when three_names
+  then more_names_than_roles ?s
+
+@crowded_yesno_rule rule
+  when uses ?qq ?i
+  when query_kind ?qq yesno
+  when instance_of ?i ?s
+  when more_names_than_roles ?s
+  then crowded_yesno ?i
+
+@asked_placed_x rule
+  when uses ?qq ?i
+  when place ?i ?r unknown_x
+  then asked_placed ?qq
+
+@asked_placed_m rule
+  when uses ?qq ?i
+  when place ?i ?r unknown_m
+  then asked_placed ?qq
+
+@v_placed_rule rule
+  when uses ?qq ?i
+  when place ?i ?r unknown_v
+  then v_placed ?qq
+
+@unknown_place_rule rule
+  when uses ?qq ?i
+  when place ?i ?r ?u
+  when unknown ?u
+  then unknown_place ?qq
+
+@named_instance_rule rule
+  when place ?i ?r ?n
+  when name ?n
+  then named_instance ?i
+
+@number_instance_rule rule
+  when uses ?qq ?i
+  when instance_of ?i ?s
+  when statement_role ?s ?r number
+  then number_instance ?qq ?i
+
+@v_fixable_rule rule
+  when number_instance ?qq ?i
+  when absent reasked ?i
+  then v_fixable ?qq
+
+@chainable_rule rule
+  when uses ?qq ?i
+  when instance_of ?i ?s
+  when statement_shape ?s binary_entity
+  when place ?i ?a ?n
+  when name ?n
+  when place ?i ?b ?u
+  when unknown ?u
+  then chainable ?qq ?i
+
+@scope_split_rule rule
+  when uses ?qq ?a
+  when named_instance ?a
+  when uses ?qq ?b
+  when absent named_instance ?b
+  then scope_split ?qq
+
+# --------------------------------------------------------------------------------------------- the two-sided comparison
+@need_sided rule
+  when main_query ?qq
+  when has_aspect two_sided
+  when two_place_names ?qq
+  when has_instances ?qq
+  then needed sided ?qq
+
+@sided_settled rule
+  when sided ?qq ?k
+  then settled sided ?qq
+
+@need_sided_role rule
+  when sided_pending ?qq
+  then needed sided_role ?qq
+
+@sided_role_settled rule
+  when sided_role ?qq ?r
+  then settled sided_role ?qq
+
+# --------------------------------------------------------------------------------------------- after the places
+@need_yes_no_switch rule
+  when query_kind ?qq ?k
+  when asking_kind ?k
+  when places_done ?qq
+  when absent unknown_place ?qq
+  then needed yes_no_switch ?qq
+
+@need_rank_value rule
+  when query_kind ?qq ?k
+  when rank_kind ?k
+  when places_done ?qq
+  when absent v_placed ?qq
+  when absent v_fixable ?qq
+  then needed rank_value ?qq
+
+@rank_value_settled_by_instance rule
+  when rank_instance ?qq ?i
+  then settled rank_value ?qq
+
+@rank_value_settled_dropped rule
+  when rank_dropped ?qq
+  then settled rank_value ?qq
+
+@need_connect rule
+  when disconnected ?qq
+  when places_done ?qq
+  then needed connect ?qq
+
+@connect_settled rule
+  when connected ?qq
+  then settled connect ?qq
+
+@yes_like_truth rule
+  when query_kind ?qq ?k
+  when yes_like_kind ?k
+  when places_done ?qq
+  then needed truth ?qq
+
+@truth_settled rule
+  when polarity ?qq ?p
+  then settled truth ?qq
+
+@doubt_by_negation rule
+  when query_kind ?qq ?k
+  when has_aspect negation
+  then truth_doubtful ?qq
+
+@doubt_by_closed_statement rule
+  when uses ?qq ?i
+  when instance_of ?i ?s
+  when closed_statement ?s
+  when absent instance_pair ?qq
+  when absent statement_clause ?qq
+  then truth_doubtful ?qq
+
+@need_negated rule
+  when query_kind ?qq ?k
+  when asking_kind ?k
+  when has_aspect negation
+  when instance_pair ?qq
+  when places_done ?qq
+  then needed negated ?qq
+
+@need_negated_statement rule
+  when main_query ?qq
+  when query_kind ?qq ?k
+  when counting_kind ?k
+  when has_aspect negation
+  when has_instances ?qq
+  when absent instance_pair ?qq
+  when places_done ?qq
+  when budget_ample
+  then needed negated_statement ?qq
+
+@need_chain_aspect rule
+  when chainable ?qq ?i
+  when query_kind ?qq ?k
+  when counting_kind ?k
+  when has_aspect chain
+  when places_done ?qq
+  then needed chain ?qq
+
+@need_chain_definition rule
+  when chainable ?qq ?i
+  when definition ?qq chain
+  when places_done ?qq
+  then needed chain ?qq
+
+@need_scope rule
+  when query_kind ?qq every
+  when places_done ?qq
+  when instance_pair ?qq
+  when absent scope_split ?qq
+  then needed scope ?qq
+
+@scope_settled rule
+  when uses ?qq ?i
+  when scope_instance ?i
+  then settled scope ?qq
+
+@need_quantifier rule
+  when query_kind ?qq every
+  when places_done ?qq
+  then needed quantifier ?qq
+
+@quantifier_settled rule
+  when quantifier ?qq ?x
+  then settled quantifier ?qq
+
+@quantifier_at_least_rule rule
+  when quantifier ?qq at_least
+  then quantifier_at_least ?qq
+
+@need_limit_target rule
+  when limit_kind ?n ?c
+  when places_done q
+  when absent quantifier_at_least q
+  then needed limit_target ?n
+
+@limit_target_settled rule
+  when limit_target ?n ?t
+  then settled limit_target ?n
+
+@limit_open_rule rule
+  when open_slot limit_target ?n
+  then limit_open
+
+@need_options_target rule
+  when main_query ?qq
+  when has_aspect options
+  when places_done ?qq
+  when option_name ?n
+  then needed options_target ?qq
+
+@options_target_settled rule
+  when options_target ?qq ?u
+  then settled options_target ?qq
+
+@need_exclusion_target rule
+  when excluded_name ?n
+  when places_done q
+  then needed exclusion_target ?n
+
+@exclusion_target_settled rule
+  when exclusion_target ?n ?u
+  then settled exclusion_target ?n
+
+# --------------------------------------------------------------------------------------------- time
+@need_measure rule
+  when query_kind ?qq when
+  when places_done ?qq
+  then needed measure ?qq
+
+@measure_settled rule
+  when measure ?qq ?m
+  then settled measure ?qq
+
+@date_many_rule rule
+  when date_count ?k
+  when compare ?k at_least 2
+  then date_many
+
+@date_one_rule rule
+  when date_count 1
+  then date_one
+
+@need_period rule
+  when main_query ?qq
+  when has_aspect date
+  when date_many
+  when places_done ?qq
+  then needed period ?qq
+
+@period_settled rule
+  when period ?qq ?p
+  then settled period ?qq
+
+@need_dates rule
+  when main_query ?qq
+  when has_aspect date
+  when year_only
+  when places_done ?qq
+  then needed dates ?qq
+
+# --------------------------------------------------------------------------------------------- chains of links (reach) and the fewest links
+@binary_candidate_rule rule
+  when candidate_statement ?s
+  when statement_shape ?s binary_entity
+  then binary_candidate ?s
+
+@unary_candidate_rule rule
+  when candidate_statement ?s
+  when statement_shape ?s unary_entity
+  then unary_candidate ?s
+
+@numeric_candidate_rule rule
+  when candidate_statement ?s
+  when statement_shape ?s entity_number
+  then numeric_candidate ?s
+
+@derived_binary_candidate_rule rule
+  when binary_candidate ?s
+  when derived_statement ?s
+  then derived_binary_candidate ?s
+
+@binary_any_rule rule
+  when binary_candidate ?s
+  then binary_any
+
+@nonderived_binary_any_rule rule
+  when binary_candidate ?s
+  when absent derived_statement ?s
+  then nonderived_binary_any
+
+@unary_any_rule rule
+  when unary_candidate ?s
+  then unary_any
+
+@reach_impossible_no_link rule
+  when kind reach
+  when absent binary_any
+  then reach_impossible
+
+@reach_impossible_few_names rule
+  when kind reach
+  when answered ask_aspects none
+  when absent two_place_names q
+  then reach_impossible
+
+@reach_impossible_no_step rule
+  when kind reach
+  when answered ask_reach_relation q
+  when absent has_reach_relation
+  when absent nonderived_binary_any
+  then reach_impossible
+
+@has_reach_relation_rule rule
+  when reach_relation q ?s
+  then has_reach_relation
+
+@need_reach_relation rule
+  when query_kind q reach
+  when derived_binary_candidate ?s
+  then needed reach_relation q
+
+@reach_relation_settled rule
+  when reach_relation q ?s
+  then settled reach_relation q
+
+@need_reach_step rule
+  when query_kind q reach
+  when absent has_reach_relation
+  when nonderived_binary_any
+  then needed reach_step q
+
+@reach_step_settled rule
+  when reach_step q ?s
+  then settled reach_step q
+
+@need_reach_avoid rule
+  when query_kind q reach
+  when absent has_reach_relation
+  when unary_any
+  then needed reach_avoid q
+
+@reach_avoid_settled rule
+  when reach_avoid q ?s
+  then settled reach_avoid q
+
+@need_ends_reach rule
+  when query_kind q reach
+  then needed ends q
+
+@need_ends_fewest rule
+  when fewest_route q
+  then needed ends q
+
+@ends_settled rule
+  when reach_goal q ?n
+  then settled ends q
+
+@need_fewest_step rule
+  when fewest_route q
+  then needed fewest_step q
+
+@fewest_step_settled rule
+  when fewest_step q ?s
+  then settled fewest_step q
+
+# --------------------------------------------------------------------------------------------- the numeric puzzle
+@need_puzzle_unknowns rule
+  when kind puzzle
+  then needed puzzle_unknowns none
+
+@need_puzzle_conditions rule
+  when kind puzzle
+  then needed puzzle_conditions none
+
+@need_puzzle_aim rule
+  when kind puzzle
+  then needed puzzle_aim none
+
+@puzzle_aim_settled rule
+  when puzzle_goal ?g
+  then settled puzzle_aim none
+
+@need_puzzle_objective_min rule
+  when puzzle_goal min
+  then needed puzzle_objective none
+
+@need_puzzle_objective_max rule
+  when puzzle_goal max
+  then needed puzzle_objective none
+
+@need_puzzle_claim rule
+  when puzzle_goal prove
+  then needed puzzle_claim none
+
+# --------------------------------------------------------------------------------------------- the validator and the confirmation
+@need_unused_name rule
+  when validator_problem mention_not_used ?n
+  when repairs_left
+  then needed unused_name ?n
+
+@unused_name_settled rule
+  when unused_statement ?n ?i
+  then settled unused_name ?n
+
+@contrast_wanted_rule rule
+  when contrast_available
+  when budget_ample
+  then contrast_wanted
+
+@confirmed_by_contrast rule
+  when answered ask_contrast none
+  then confirmed

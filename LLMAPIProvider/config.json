@@ -1,0 +1,20 @@
+{
+  "port": 18080,
+  "host": "127.0.0.1",
+  "defaultUpstream": "openference",
+  "dataDir": "~/.local/share/llmapiprovider",
+  "injectStreamUsage": true,
+  "modelsCacheSeconds": 600,
+  "upstreams": {
+    "openference": {
+      "baseUrl": "https://api.openference.com",
+      "envFile": "~/.config/llmapiprovider/openference.env",
+      "keyVar": "OPENFERENCE_API_KEY",
+      "baseUrlVar": "OPENFERENCE_BASE_URL",
+      "modelsPath": "/v1/models",
+      "formats": { "openai": "/v1/chat/completions", "anthropic": "/v1/messages" },
+      "limits": { "maxConcurrent": 4, "maxPerSecond": 5, "maxPerMinute": 15, "maxPerHour": null },
+      "retry": { "max": 4, "baseMs": 1000, "maxWaitMs": 60000 }
+    }
+  }
+}

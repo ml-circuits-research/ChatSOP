@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createWorld} from '../tools/eval/symbolic-vs-llm/world.mjs';
 import {stepByStepQuery, createOracle} from '../lib/query-author/step-by-step/index.mjs';
-import {readChoice, readChoices, readLetters, readExpression, readComparison, readUnknowns, readDates, cueKinds} from '../lib/query-author/step-by-step/answers.mjs';
+import {readChoice, readChoices, readLetters, readExpression, readComparison, readUnknowns, readDates} from '../lib/query-author/step-by-step/answers.mjs';
 import {FORMS} from '../lib/query-author/step-by-step/prompts.mjs';
 
 const kind = name => String(FORMS.findIndex(f => f[0] === name) + 1);
@@ -37,9 +37,6 @@ test('answer readers take numbers, lettered places, dates and arithmetic, and re
   assert.deepEqual(readUnknowns('x: 0 to 10\ny from 1 to 4'), [{name: 'x', min: 0, max: 10}, {name: 'y', min: 1, max: 4}]);
   assert.deepEqual(readDates('overlapping April 1 to May 1, 2026'), ['2026-04-01', '2026-05-01']);
   assert.deepEqual(readDates('2026-02-30'), [], 'an impossible date is not a date');
-  assert.deepEqual(cueKinds('How many people work here?'), ['count', 'value']);
-  assert.ok(cueKinds('Is Ana a doctor?').includes('yesno'));
-  assert.equal(cueKinds('Tell me about Ana.'), null);
 });
 
 test('a count is assembled by the system from a kind choice, a statement number and the places of the statement', async () => {

@@ -1,0 +1,662 @@
+# formalizer-protocol-v1: the questions as actions (DS022 "InternalReasoningStepByStep"). A question may be asked when its `askable`
+# rule holds; asking it adds `answered QUESTION ARGUMENT`, which settles the slot the question establishes (0010-slots.sop). The cost is
+# the number of model calls; `assemble` is the system's own step (cost 0). Re-asks cost 2 and are enabled only by a violation of
+# 0050-integrity.sop or by a validator problem. The planner of every decision looks for the cheapest sequence of actions that reaches
+# the goal `formalized`; its first action is the next question.
+
+@askable_ask_kind rule
+  when open_slot kind none
+  when route_possible
+  when budget_left
+  then askable ask_kind none
+
+@ask_kind action
+  params ?a
+  requires askable ask_kind ?a
+  adds answered ask_kind ?a
+  cost 1
+
+@askable_ask_acts rule
+  when open_slot acts none
+  when budget_left
+  then askable ask_acts none
+
+@ask_acts action
+  params ?a
+  requires askable ask_acts ?a
+  adds answered ask_acts ?a
+  cost 1
+
+@askable_ask_emotion rule
+  when open_slot emotion none
+  when budget_left
+  then askable ask_emotion none
+
+@ask_emotion action
+  params ?a
+  requires askable ask_emotion ?a
+  adds answered ask_emotion ?a
+  cost 1
+
+@askable_ask_entity rule
+  when open_slot link ?m
+  when budget_left
+  then askable ask_entity ?m
+
+@ask_entity action
+  params ?a
+  requires askable ask_entity ?a
+  adds answered ask_entity ?a
+  cost 1
+
+@askable_ask_names rule
+  when open_slot names none
+  when budget_left
+  then askable ask_names none
+
+@ask_names action
+  params ?a
+  requires askable ask_names ?a
+  adds answered ask_names ?a
+  cost 1
+
+@askable_ask_aspects rule
+  when open_slot aspects none
+  when absent linking_open
+  when budget_left
+  then askable ask_aspects none
+
+@ask_aspects action
+  params ?a
+  requires askable ask_aspects ?a
+  adds answered ask_aspects ?a
+  cost 1
+
+@askable_ask_option_names rule
+  when open_slot option_names none
+  when settled aspects none
+  when budget_left
+  then askable ask_option_names none
+
+@ask_option_names action
+  params ?a
+  requires askable ask_option_names ?a
+  adds answered ask_option_names ?a
+  cost 1
+
+@askable_ask_excluded_names rule
+  when open_slot excluded_names none
+  when absent open_slot option_names none
+  when budget_left
+  then askable ask_excluded_names none
+
+@ask_excluded_names action
+  params ?a
+  requires askable ask_excluded_names ?a
+  adds answered ask_excluded_names ?a
+  cost 1
+
+@askable_ask_limit_kind rule
+  when open_slot limit_kind ?n
+  when settled aspects none
+  when budget_left
+  then askable ask_limit_kind ?n
+
+@ask_limit_kind action
+  params ?a
+  requires askable ask_limit_kind ?a
+  adds answered ask_limit_kind ?a
+  cost 1
+
+@askable_ask_supposition_part rule
+  when open_slot supposition none
+  when settled aspects none
+  when budget_left
+  then askable ask_supposition_part none
+
+@ask_supposition_part action
+  params ?a
+  requires askable ask_supposition_part ?a
+  adds answered ask_supposition_part ?a
+  cost 1
+
+@askable_ask_second_part rule
+  when open_slot second none
+  when settled aspects none
+  when budget_left
+  then askable ask_second_part none
+
+@ask_second_part action
+  params ?a
+  requires askable ask_second_part ?a
+  adds answered ask_second_part ?a
+  cost 1
+
+@askable_ask_supposition_link rule
+  when open_slot clause_link ?c
+  when budget_left
+  then askable ask_supposition_link ?c
+
+@ask_supposition_link action
+  params ?a
+  requires askable ask_supposition_link ?a
+  adds answered ask_supposition_link ?a
+  cost 1
+
+@askable_ask_statements rule
+  when open_slot statements ?qq
+  when absent prelude_open
+  when absent open_slot clause_kind ?qq
+  when absent open_slot clause_name ?qq
+  when budget_left
+  then askable ask_statements ?qq
+
+@ask_statements action
+  params ?a
+  requires askable ask_statements ?a
+  adds answered ask_statements ?a
+  cost 1
+
+@askable_ask_statement_check rule
+  when open_slot statement_check ?qq
+  when budget_ample
+  then askable ask_statement_check ?qq
+
+@ask_statement_check action
+  params ?a
+  requires askable ask_statement_check ?a
+  adds answered ask_statement_check ?a
+  cost 1
+
+@askable_ask_definition rule
+  when open_slot definition ?qq
+  when absent open_slot statement_check ?qq
+  when budget_ample
+  then askable ask_definition ?qq
+
+@ask_definition action
+  params ?a
+  requires askable ask_definition ?a
+  adds answered ask_definition ?a
+  cost 1
+
+@askable_ask_restatement rule
+  when open_slot restatement ?qq
+  when budget_left
+  then askable ask_restatement ?qq
+
+@ask_restatement action
+  params ?a
+  requires askable ask_restatement ?a
+  adds answered ask_restatement ?a
+  cost 1
+
+@askable_ask_two_sided rule
+  when open_slot sided ?qq
+  when budget_left
+  then askable ask_two_sided ?qq
+
+@ask_two_sided action
+  params ?a
+  requires askable ask_two_sided ?a
+  adds answered ask_two_sided ?a
+  cost 1
+
+@askable_ask_sided_role rule
+  when open_slot sided_role ?qq
+  when budget_left
+  then askable ask_sided_role ?qq
+
+@ask_sided_role action
+  params ?a
+  requires askable ask_sided_role ?a
+  adds answered ask_sided_role ?a
+  cost 1
+
+@askable_ask_places rule
+  when open_slot places ?i
+  when uses ?qq ?i
+  when absent open_slot sided ?qq
+  when absent open_slot sided_role ?qq
+  when absent waits ?i
+  when absent prelude_open
+  when budget_left
+  then askable ask_places ?i
+
+@ask_places action
+  params ?a
+  requires askable ask_places ?a
+  adds answered ask_places ?a
+  cost 1
+
+@askable_ask_yes_no_switch rule
+  when open_slot yes_no_switch ?qq
+  when absent any_violation
+  when budget_left
+  then askable ask_yes_no_switch ?qq
+
+@ask_yes_no_switch action
+  params ?a
+  requires askable ask_yes_no_switch ?a
+  adds answered ask_yes_no_switch ?a
+  cost 1
+
+@askable_ask_rank_value rule
+  when open_slot rank_value ?qq
+  when budget_left
+  then askable ask_rank_value ?qq
+
+@ask_rank_value action
+  params ?a
+  requires askable ask_rank_value ?a
+  adds answered ask_rank_value ?a
+  cost 1
+
+@askable_ask_connect rule
+  when open_slot connect ?qq
+  when budget_left
+  then askable ask_connect ?qq
+
+@ask_connect action
+  params ?a
+  requires askable ask_connect ?a
+  adds answered ask_connect ?a
+  cost 1
+
+@askable_ask_truth rule
+  when open_slot truth ?qq
+  when absent statement_clause ?qq
+  when absent open_slot connect ?qq
+  when budget_left
+  then askable ask_truth ?qq
+
+@ask_truth action
+  params ?a
+  requires askable ask_truth ?a
+  adds answered ask_truth ?a
+  cost 1
+
+@askable_ask_clause_truth rule
+  when open_slot truth ?c
+  when statement_clause ?c
+  when budget_left
+  then askable ask_clause_truth ?c
+
+@ask_clause_truth action
+  params ?a
+  requires askable ask_clause_truth ?a
+  adds answered ask_clause_truth ?a
+  cost 1
+
+@askable_ask_negated rule
+  when open_slot negated ?qq
+  when budget_left
+  then askable ask_negated ?qq
+
+@ask_negated action
+  params ?a
+  requires askable ask_negated ?a
+  adds answered ask_negated ?a
+  cost 1
+
+@askable_ask_negated_statement rule
+  when open_slot negated_statement ?qq
+  when budget_ample
+  then askable ask_negated_statement ?qq
+
+@ask_negated_statement action
+  params ?a
+  requires askable ask_negated_statement ?a
+  adds answered ask_negated_statement ?a
+  cost 1
+
+@askable_ask_chain rule
+  when open_slot chain ?qq
+  when budget_left
+  then askable ask_chain ?qq
+
+@ask_chain action
+  params ?a
+  requires askable ask_chain ?a
+  adds answered ask_chain ?a
+  cost 1
+
+@askable_ask_scope rule
+  when open_slot scope ?qq
+  when budget_left
+  then askable ask_scope ?qq
+
+@ask_scope action
+  params ?a
+  requires askable ask_scope ?a
+  adds answered ask_scope ?a
+  cost 1
+
+@askable_ask_quantifier rule
+  when open_slot quantifier ?qq
+  when absent open_slot scope ?qq
+  when budget_left
+  then askable ask_quantifier ?qq
+
+@ask_quantifier action
+  params ?a
+  requires askable ask_quantifier ?a
+  adds answered ask_quantifier ?a
+  cost 1
+
+@askable_ask_limit_target rule
+  when open_slot limit_target ?n
+  when absent open_slot negated_statement q
+  when absent open_slot chain q
+  when budget_left
+  then askable ask_limit_target ?n
+
+@ask_limit_target action
+  params ?a
+  requires askable ask_limit_target ?a
+  adds answered ask_limit_target ?a
+  cost 1
+
+@askable_ask_options_target rule
+  when open_slot options_target ?qq
+  when absent limit_open
+  when budget_left
+  then askable ask_options_target ?qq
+
+@ask_options_target action
+  params ?a
+  requires askable ask_options_target ?a
+  adds answered ask_options_target ?a
+  cost 1
+
+@askable_ask_exclusion_target rule
+  when open_slot exclusion_target ?n
+  when absent limit_open
+  when budget_left
+  then askable ask_exclusion_target ?n
+
+@ask_exclusion_target action
+  params ?a
+  requires askable ask_exclusion_target ?a
+  adds answered ask_exclusion_target ?a
+  cost 1
+
+@askable_ask_measure rule
+  when open_slot measure ?qq
+  when budget_left
+  then askable ask_measure ?qq
+
+@ask_measure action
+  params ?a
+  requires askable ask_measure ?a
+  adds answered ask_measure ?a
+  cost 1
+
+@askable_ask_period rule
+  when open_slot period ?qq
+  when budget_left
+  then askable ask_period ?qq
+
+@ask_period action
+  params ?a
+  requires askable ask_period ?a
+  adds answered ask_period ?a
+  cost 1
+
+@askable_ask_dates rule
+  when open_slot dates ?qq
+  when budget_left
+  then askable ask_dates ?qq
+
+@ask_dates action
+  params ?a
+  requires askable ask_dates ?a
+  adds answered ask_dates ?a
+  cost 1
+
+@askable_ask_reach_relation rule
+  when open_slot reach_relation ?qq
+  when absent prelude_open
+  when budget_left
+  then askable ask_reach_relation ?qq
+
+@ask_reach_relation action
+  params ?a
+  requires askable ask_reach_relation ?a
+  adds answered ask_reach_relation ?a
+  cost 1
+
+@askable_ask_reach_step rule
+  when open_slot reach_step ?qq
+  when absent open_slot reach_relation ?qq
+  when absent prelude_open
+  when budget_left
+  then askable ask_reach_step ?qq
+
+@ask_reach_step action
+  params ?a
+  requires askable ask_reach_step ?a
+  adds answered ask_reach_step ?a
+  cost 1
+
+@askable_ask_reach_avoid rule
+  when open_slot reach_avoid ?qq
+  when absent open_slot reach_relation ?qq
+  when absent prelude_open
+  when budget_left
+  then askable ask_reach_avoid ?qq
+
+@ask_reach_avoid action
+  params ?a
+  requires askable ask_reach_avoid ?a
+  adds answered ask_reach_avoid ?a
+  cost 1
+
+@askable_ask_ends rule
+  when open_slot ends ?qq
+  when absent open_slot reach_relation ?qq
+  when absent open_slot reach_step ?qq
+  when absent open_slot reach_avoid ?qq
+  when absent open_slot fewest_step ?qq
+  when absent prelude_open
+  when budget_left
+  then askable ask_ends ?qq
+
+@ask_ends action
+  params ?a
+  requires askable ask_ends ?a
+  adds answered ask_ends ?a
+  cost 1
+
+@askable_ask_fewest_step rule
+  when open_slot fewest_step ?qq
+  when absent prelude_open
+  when budget_left
+  then askable ask_fewest_step ?qq
+
+@ask_fewest_step action
+  params ?a
+  requires askable ask_fewest_step ?a
+  adds answered ask_fewest_step ?a
+  cost 1
+
+@askable_ask_puzzle_unknowns rule
+  when open_slot puzzle_unknowns none
+  when budget_left
+  then askable ask_puzzle_unknowns none
+
+@ask_puzzle_unknowns action
+  params ?a
+  requires askable ask_puzzle_unknowns ?a
+  adds answered ask_puzzle_unknowns ?a
+  cost 1
+
+@askable_ask_puzzle_conditions rule
+  when open_slot puzzle_conditions none
+  when settled puzzle_unknowns none
+  when budget_left
+  then askable ask_puzzle_conditions none
+
+@ask_puzzle_conditions action
+  params ?a
+  requires askable ask_puzzle_conditions ?a
+  adds answered ask_puzzle_conditions ?a
+  cost 1
+
+@askable_ask_puzzle_aim rule
+  when open_slot puzzle_aim none
+  when settled puzzle_conditions none
+  when budget_left
+  then askable ask_puzzle_aim none
+
+@ask_puzzle_aim action
+  params ?a
+  requires askable ask_puzzle_aim ?a
+  adds answered ask_puzzle_aim ?a
+  cost 1
+
+@askable_ask_puzzle_objective rule
+  when open_slot puzzle_objective none
+  when budget_left
+  then askable ask_puzzle_objective none
+
+@ask_puzzle_objective action
+  params ?a
+  requires askable ask_puzzle_objective ?a
+  adds answered ask_puzzle_objective ?a
+  cost 1
+
+@askable_ask_puzzle_claim rule
+  when open_slot puzzle_claim none
+  when budget_left
+  then askable ask_puzzle_claim none
+
+@ask_puzzle_claim action
+  params ?a
+  requires askable ask_puzzle_claim ?a
+  adds answered ask_puzzle_claim ?a
+  cost 1
+
+@askable_ask_clause_statement rule
+  when open_slot clause_statement ?c
+  when absent prelude_open
+  when absent open_slot statements q
+  when budget_left
+  then askable ask_clause_statement ?c
+
+@ask_clause_statement action
+  params ?a
+  requires askable ask_clause_statement ?a
+  adds answered ask_clause_statement ?a
+  cost 1
+
+@askable_ask_clause_name rule
+  when open_slot clause_name ?c
+  when budget_left
+  then askable ask_clause_name ?c
+
+@ask_clause_name action
+  params ?a
+  requires askable ask_clause_name ?a
+  adds answered ask_clause_name ?a
+  cost 1
+
+@askable_ask_clause_kind rule
+  when open_slot clause_kind ?c
+  when absent prelude_open
+  when absent open_slot statements q
+  when budget_left
+  then askable ask_clause_kind ?c
+
+@ask_clause_kind action
+  params ?a
+  requires askable ask_clause_kind ?a
+  adds answered ask_clause_kind ?a
+  cost 1
+
+@askable_ask_unused_name rule
+  when open_slot unused_name ?n
+  when assembly_failed
+  when budget_left
+  then askable ask_unused_name ?n
+
+@ask_unused_name action
+  params ?a
+  requires askable ask_unused_name ?a
+  adds answered ask_unused_name ?a
+  cost 2
+
+@askable_ask_contrast rule
+  when assembled
+  when contrast_wanted
+  when absent answered ask_contrast none
+  then askable ask_contrast none
+
+@ask_contrast action
+  params ?a
+  requires askable ask_contrast ?a
+  adds answered ask_contrast ?a
+  cost 1
+
+@askable_assemble rule
+  when circuit_complete
+  when absent assembled
+  when absent assembly_failed
+  then askable assemble none
+
+@assemble action
+  params ?a
+  requires askable assemble ?a
+  adds answered assemble ?a
+  cost 0
+
+@askable_ask_places_again_asked_not_placed rule
+  when violation asked_not_placed ?qq
+  when main_instance ?qq ?i
+  when absent reasked ?i
+  when budget_left
+  then askable ask_places_again ?i
+
+@askable_ask_places_again_name_in_number_place rule
+  when violation name_in_number_place ?i
+  when absent reasked ?i
+  when budget_left
+  then askable ask_places_again ?i
+
+@askable_ask_places_again_number_in_name_place rule
+  when violation number_in_name_place ?i
+  when absent reasked ?i
+  when budget_left
+  then askable ask_places_again ?i
+
+@askable_ask_places_again_value_in_name_place rule
+  when violation value_in_name_place ?i
+  when absent reasked ?i
+  when budget_left
+  then askable ask_places_again ?i
+
+@askable_ask_places_again_v_not_placed rule
+  when violation v_not_placed ?qq
+  when number_instance ?qq ?i
+  when absent reasked ?i
+  when budget_left
+  then askable ask_places_again ?i
+
+@askable_ask_places_again_validator rule
+  when repair_target ?qq ?i
+  when assembly_failed
+  when repairs_left
+  when absent reasked ?i
+  when budget_left
+  then askable ask_places_again ?i
+
+@ask_places_again action
+  params ?a
+  requires askable ask_places_again ?a
+  adds answered ask_places_again ?a
+  adds reasked ?a
+  cost 2
+
+# The goal of every decision.
+@formalized_goal goal
+  where formalized

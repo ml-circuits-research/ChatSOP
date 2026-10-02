@@ -1,0 +1,101 @@
+# formalizer-protocol-v1: early exits (DS022 "InternalReasoningStepByStep"). A default settles a slot without a question when the
+# observations of the request leave one reading; its exceptions name what makes the reading doubtful, and then the question is asked.
+# Every default that fires is reported in the trace as a question avoided.
+
+# A mention with exactly one candidate in the memory means that candidate.
+@d_single_candidate default
+  when mention_candidate ?m ?n
+  when single_candidate ?m
+  then linked ?m ?n
+
+# Exactly two names and a choice between named things: the two names are the options.
+@d_two_options default
+  when has_aspect options
+  when exactly_two_names
+  when name_in_request ?n
+  then option_name ?n
+
+# A name the memory records in exactly one place of a used statement goes into that place (unless two names claim it, or a yes/no
+# question has more names than the statement has places).
+@d_observed_place default
+  when claim ?i ?r ?n
+  then place ?i ?r ?n
+  except contested ?i ?r
+  except crowded_yesno ?i
+
+# A yes/no or why question about one statement with one place and one name: the name is in that place.
+@d_single_name_yesno default
+  when uses ?qq ?i
+  when query_kind ?qq ?k
+  when yes_like_kind ?k
+  when instance_of ?i ?s
+  when statement_arity ?s 1
+  when statement_role ?s ?r ?t
+  when place_name ?qq ?n
+  then place ?i ?r ?n
+  except instance_pair ?qq
+  except two_place_names ?qq
+  except misfit ?n ?s ?r
+
+# A question that asks for something, one statement with one place and no name: the place is the asked unknown.
+@d_asked_single default
+  when uses ?qq ?i
+  when query_kind ?qq ?k
+  when asking_kind ?k
+  when instance_of ?i ?s
+  when statement_arity ?s 1
+  when statement_role ?s ?r ?t
+  then place ?i ?r unknown_x
+  except instance_pair ?qq
+  except has_place_name ?qq
+
+@d_member_single default
+  when uses ?qq ?i
+  when query_kind ?qq every
+  when instance_of ?i ?s
+  when statement_arity ?s 1
+  when statement_role ?s ?r ?t
+  then place ?i ?r unknown_m
+  except instance_pair ?qq
+  except has_place_name ?qq
+
+# Without a negation in the request and without a complete statement, a yes/no question asks whether it is true.
+@d_affirmed default
+  when query_kind ?qq ?k
+  when yes_like_kind ?k
+  when places_done ?qq
+  then polarity ?qq affirmed
+  except truth_doubtful ?qq
+
+# A clause whose content words name exactly one statement says that statement.
+@d_clause_single_hit default
+  when statement_clause ?c
+  when clause_single_hit ?c ?s
+  then clause_pick ?c ?s
+
+# A clause without a name of its own is about the one name of the request.
+@d_clause_single_name default
+  when statement_clause ?c
+  when name_in_request ?n
+  then clause_name ?c ?n
+  except two_names
+  except clause_has_own ?c
+
+@d_question_clause_single_name default
+  when clause_kind_query ?c
+  when name_in_request ?n
+  then clause_name ?c ?n
+  except two_names
+  except clause_has_own ?c
+
+# The words of the supposition name exactly one statement of one thing: the chain avoids the things of which it holds.
+@d_avoid_hint default
+  when query_kind q reach
+  when avoid_hint ?c ?s
+  then reach_avoid q ?s
+
+# Without a forced contrast to ask (no alternative reading, or no budget left), the assembled reading stands.
+@d_confirmed default
+  when assembled
+  then confirmed
+  except contrast_wanted

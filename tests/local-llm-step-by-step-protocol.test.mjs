@@ -3,9 +3,8 @@ import assert from 'node:assert/strict';
 import {createWorld} from '../tools/eval/symbolic-vs-llm/world.mjs';
 import {createOracle} from '../lib/query-author/step-by-step/index.mjs';
 import {protocolQuery, METHODS, MAX_QUESTIONS, PROTOCOL_PREFIX} from '../lib/query-author/step-by-step/protocol.mjs';
-import {readCues, cueAspects, cueKinds13, answerNoun, superlative} from '../lib/query-author/step-by-step/cues.mjs';
-import {decompose} from '../lib/query-author/step-by-step/clauses.mjs';
-import {KINDS} from '../lib/query-author/step-by-step/questions.mjs';
+import {KINDS, MESSAGE_ACTS, EMOTIONS, PRAGMATIC_DESCRIPTIONS} from '../lib/query-author/step-by-step/questions.mjs';
+import {PRAGMATIC_KINDS} from '../sop/enums.mjs';
 import {STEP_BY_STEP_METHODS, stepPrefix} from '../lib/formalize/strategies.mjs';
 import {FIRST_TURN_PREFIX} from '../lib/query-author/step-by-step/prompts.mjs';
 import {pairedBootstrap, decide} from '../tools/eval/stepbystep-protocol/summarize.mjs';
@@ -29,43 +28,49 @@ function scripted(rules) {
 }
 const lineOf = (question, words) => question.split('\n').find(l => /^\d+\./.test(l) && l.includes(words))?.match(/^(\d+)\./)?.[1];
 
-test('the cue table reads limits with their counted noun, two-sided comparisons, exclusions, options, suppositions and quantifiers', () => {
-  const mentions = [{surface: 'Ana Pop', candidates: [{id: 'ana_pop'}]}, {surface: 'Ion Rus', candidates: [{id: 'ion_rus'}]}, {surface: 'Acme', candidates: [{id: 'acme'}]}];
-  assert.deepEqual(readCues('List the teams with more than 3 members.').limit.map(l => [l.span, l.comparisons]), [['more than 3 members', [['above', 3]]]]);
-  assert.deepEqual(readCues('Who scored between 5 and 11 goals?').limit[0].comparisons, [['at_least', 5], ['at_most', 11]]);
-  assert.deepEqual(readCues('Who joined before 2012?').limit[0].comparisons, [['below', 2012]]);
-  assert.equal(readCues('Among 1000 claims, is Ana approved?').date, null, 'a count of claims is not a year');
-  const before = readCues('Was Ana Pop at Acme before Ion Rus was?', mentions).twoSided;
-  assert.equal(before.comparator, 'below');
-  assert.deepEqual(before.names.map(s => s.surface), ['Ana Pop', 'Ion Rus']);
-  assert.equal(readCues('List the skills that both Ana Pop and Ion Rus share.', mentions).twoSided.kind, 'both');
-  assert.equal(readCues('Who works at Acme besides Ana Pop?', mentions).exclusion[0].surface, 'Ana Pop');
-  assert.deepEqual(readCues('Who earns more, Ana Pop or Ion Rus?', mentions).options.names.map(s => s.surface), ['Ana Pop', 'Ion Rus']);
-  assert.equal(readCues('If Acme is closed, is Ana Pop employed?', mentions).supposition.span, 'If Acme is closed');
-  assert.equal(readCues('Is everyone at Acme certified?').quantifier.word, 'all');
-  assert.equal(readCues('Do at least 2 members hold a licence?').quantifier.word, 'at_least 2');
-  assert.ok(cueAspects(readCues('Let x and y be integers from 0 to 5; is x + y below 4?')).size === 0, 'a puzzle has no limit cue');
-  assert.equal(answerNoun('In which country was Ana born?'), 'country');
-  assert.equal(superlative('Which people receive the highest compensation?'), 'highest');
-  assert.equal(superlative('How many people live here?'), null);
-  assert.deepEqual(cueKinds13('After 9 rule steps, is Ana eligible?').slice(0, 1), ['yesno'], 'a leading phrase does not decide the kind');
+const act = name => String(KINDS.length + MESSAGE_ACTS.findIndex(a => a[0] === name) + 1);
+
+test('no hardcoded understanding: the protocol has no cue table, and its choice lists cover the closed pragmatic kinds', async () => {
+  const fs = await import('node:fs');
+  const dir = new URL('../lib/query-author/step-by-step/', import.meta.url);
+  assert.ok(!fs.existsSync(new URL('cues.mjs', dir)) && !fs.existsSync(new URL('clauses.mjs', dir)), 'the regex cue table and the connective splitter are gone');
+  assert.deepEqual(Object.keys(PRAGMATIC_DESCRIPTIONS).sort(), [...PRAGMATIC_KINDS].sort());
+  for (const [kind] of [...MESSAGE_ACTS.filter(a => !['emotion', 'plain'].includes(a[0])), ...EMOTIONS]) assert.ok(PRAGMATIC_KINDS.includes(kind), kind);
 });
 
-test('clause decomposition splits suppositions and second questions, never comparisons or relative clauses', () => {
-  const d = decompose('If Dovecote is closed, is Lowmoor reachable from Ashford?');
-  assert.equal(d.main.text, 'is Lowmoor reachable from Ashford?');
-  assert.deepEqual(d.extras.map(c => [c.text, c.link]), [['If Dovecote is closed', 'if']]);
-  assert.equal(decompose('Was Jurgen in the team before Felix was?').extras.length, 0, 'an elliptical comparison is not a clause');
-  assert.equal(decompose('Among the members who joined after 2006, who earns most?').extras.length, 0);
-  assert.equal(decompose('After 1 rule steps, is Ana eligible?').extras.length, 0, 'no finite verb, no clause');
-  assert.deepEqual(decompose('Who wrote Hamlet and how many copies were sold?').extras.map(c => c.kind), ['second']);
+test('a greeting alone is one question and a pragmatic wire, with no query', async () => {
+  const world = teamWorld();
+  try {
+    const {chat, asked} = scripted([{when: /Which kind of answer/, say: `${kind('none')}, ${act('greeting')}`}]);
+    const r = await protocolQuery({message: 'Hello!', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'B'});
+    assert.equal(r.status, 'validated', JSON.stringify(r.validation?.problems));
+    assert.equal(asked.length, 1);
+    assert.equal(r.sop, '@p1 pragmatic\n  kind greeting\n  source local_llm_step_by_step\n  basis llm\n');
+  } finally { world.dispose(); }
+});
+
+test('courtesy and an emotion next to a question become pragmatic wires next to the query', async () => {
+  const world = teamWorld();
+  try {
+    const {chat} = scripted([
+      {when: /Which kind of answer/, say: `${kind('count')}, ${act('thanks')}, ${act('emotion')}`},
+      {when: /Which feeling does the message show/, say: q => lineOf(q, 'frustration')},
+      {when: /Which statements does/, say: q => lineOf(q, 'member of the team')},
+      {when: /Which of these says what the request asks/, say: '3'},
+    ]);
+    const r = await protocolQuery({message: 'Again: how many people are members of the Falcon team? Thanks.', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'B'});
+    assert.equal(r.status, 'validated', JSON.stringify(r.validation?.problems));
+    assert.match(r.sop, /mode count/);
+    assert.match(r.sop, /@p1 pragmatic\n  kind thanks\n/);
+    assert.match(r.sop, /@p2 pragmatic\n  kind frustration\n/);
+  } finally { world.dispose(); }
 });
 
 test('the methods have byte-identical cached prefixes and the strategy registry lists them', () => {
   assert.deepEqual(STEP_BY_STEP_METHODS, ['A', ...Object.keys(METHODS)]);
   assert.equal(stepPrefix('A'), FIRST_TURN_PREFIX);
   for (const m of Object.keys(METHODS)) assert.equal(stepPrefix(m), PROTOCOL_PREFIX);
-  assert.ok(PROTOCOL_PREFIX.startsWith('Kinds of answer') && PROTOCOL_PREFIX.includes('Parts a request can have') && PROTOCOL_PREFIX.endsWith('<<<\n'));
+  assert.ok(PROTOCOL_PREFIX.startsWith('Kinds of answer') && PROTOCOL_PREFIX.includes('What a message can also do') && PROTOCOL_PREFIX.includes('Parts a request can have') && PROTOCOL_PREFIX.endsWith('<<<\n'));
   assert.doesNotMatch(PROTOCOL_PREFIX, /\d{4}-\d{2}-\d{2}T/, 'no clock or request data in the prefix');
 });
 
@@ -102,6 +107,7 @@ test('a two-sided comparison uses the statement once per name and compares the t
     const {chat} = scripted([
       {when: /Which kind of answer/, say: kind('yesno')},
       {when: /Which parts from the list/, say: '6'},
+      {when: /How are they compared/, say: q => lineOf(q, 'smaller, earlier')},
       {when: /Which statements does/, say: q => lineOf(q, 'joined in year')},
       {when: /Which of these says what the request asks/, say: q => q.includes('neither') ? '3' : '1'},
     ]);
@@ -119,6 +125,7 @@ test('a limit on a count per group becomes an aggregate session definition and a
     const {chat} = scripted([
       {when: /Which kind of answer/, say: kind('list')},
       {when: /Which parts from the list/, say: '1'},
+      {when: /Which limit does the request set with the number 1/, say: q => lineOf(q, 'more than 1')},
       {when: /Which statements does/, say: q => lineOf(q, 'member of the team')},
       {when: /what are A and B|which is [AB] in the request/, say: q => /what are A and B/.test(q) ? `A: ${lineOf(q, 'anything')}\nB: ${lineOf(q, 'asks for')}` : lineOf(q, 'asks for')},
       {when: /What does it limit/, say: q => lineOf(q, '(a count)')},

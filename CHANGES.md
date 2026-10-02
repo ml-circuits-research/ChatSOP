@@ -262,3 +262,11 @@ Owner: "do we still write SOP directly from the message? ... wasn't that removed
 
 - **New** `tools/eval/books/` (`docx.mjs`, `extract.mjs`, `validate.mjs`, `sample.mjs`, `system.mjs`, `run.mjs`, `score.mjs`, `report.mjs`, `attribution.mjs`, `probe.mjs`): deterministic DOCX extraction of 7000 problems (verbatim check, 370 verbatim repeats marked), stratified sampler with a seen-list, runner for the arms steps (product chat turn, LocalLLMStepByStep B, Qwen3-4B) and direct (+ optional coding-agent), rule scoring plus blind judge batches, per-run report and cumulative index. Documented in docs/runtime.html "Evaluating on the owner's problem books". The books and all derived text stay gitignored.
 - **Batch 1** (100 items): steps 0/100 (84 honest unknown, 7 invalid, 9 failed), direct 69/100. Finding: the chat turn passes no repo/session to the question protocol (TypeError in 8% of turns); no SOP path from stated data to arithmetic/comparison answers. No product change made.
+
+# LLMAPIProvider: monitoring and rate-controlling LLM API proxy (2026-10-02, llmapi-agent)
+
+Owner: a small reusable proxy in front of the openference API that monitors consumption and limits ("whether it cheats us").
+
+- **New top-level folder** `LLMAPIProvider/` (`server.mjs`, `proxy.mjs`, `limiter.mjs`, `monitor.mjs`, `dashboard.mjs`, `settings.mjs`, `probe.mjs`, `config.json`, `README.md`): OpenAI (`/v1/chat/completions`) and Anthropic (`/v1/messages`) passthrough with SSE streaming, cached `/v1/models`, `/health`, `/stats` and a dashboard at `/`, on 127.0.0.1:18080. Key only from `~/.config/llmapiprovider/openference.env` or the environment; request log in `~/.local/share/llmapiprovider/`; both gitignored.
+- **Rate control** per upstream (concurrency, per second, per hour, FIFO queue, 429 retry with `retry-after`); `probe.mjs` measures the real limits on request only.
+- **Tests** `LLMAPIProvider/proxy.test.mjs` (local stub upstream), run by `tests/llmapi-provider.test.mjs` and `npm run test:llmapi`.

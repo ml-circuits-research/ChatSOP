@@ -1,0 +1,76 @@
+# formalizer-protocol-v1: consistency of the established slots (DS022 "InternalReasoningStepByStep"). A violation blocks the goal and
+# enables the re-ask action of 0030-actions.sop (cost 2) once per instance; a violation that cannot be repaired leaves no plan, and
+# the strategy then answers honestly that it could not formalize the request.
+
+# A question that asks for something has unknowns in its places but none of them is the asked one.
+@asked_not_placed integrity
+  never all
+    query_kind ?qq ?k
+    asking_kind ?k
+    places_done ?qq
+    unknown_place ?qq
+    absent asked_placed ?qq
+    main_instance ?qq ?i
+    absent reasked ?i
+  end
+  witness ?qq
+  message "no place of the chosen statements holds the thing asked for"
+
+# A name in a place that holds a number.
+@name_in_number_place integrity
+  never all
+    place ?i ?r ?n
+    name ?n
+    instance_of ?i ?s
+    statement_role ?s ?r number
+    absent reasked ?i
+  end
+  witness ?i
+  message "a name fills a place that holds a number"
+
+# A number in a place that holds a name.
+@number_in_name_place integrity
+  never all
+    place ?i ?r ?n
+    number ?n
+    instance_of ?i ?s
+    statement_role ?s ?r entity
+    absent reasked ?i
+  end
+  witness ?i
+  message "a number fills a place that holds a name"
+
+# The compared value V in a place that holds a name.
+@value_in_name_place integrity
+  never all
+    place ?i ?r unknown_v
+    instance_of ?i ?s
+    statement_role ?s ?r entity
+    absent reasked ?i
+  end
+  witness ?i
+  message "the compared value fills a place that holds a name"
+
+# A superlative whose statements hold no compared value while a statement with a number place may still be asked again.
+@v_not_placed integrity
+  never all
+    query_kind ?qq ?k
+    rank_kind ?k
+    places_done ?qq
+    absent v_placed ?qq
+    v_fixable ?qq
+  end
+  witness ?qq
+  message "no place holds the value to compare"
+
+# The model said that no statement fits and nothing can be worked out: the knowledge has no statement for the request.
+@no_statement integrity
+  never all
+    statements_none ?qq
+    main_query ?qq
+    settled definition ?qq
+    absent has_instances ?qq
+    absent fewest_route ?qq
+  end
+  witness ?qq
+  message "no statement of the knowledge fits the request"
