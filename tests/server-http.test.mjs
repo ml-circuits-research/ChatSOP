@@ -184,7 +184,7 @@ test('fail closed, bearer security, request limits, unsupported surfaces and mod
   const response = await readyz(offlineUrl);
   assert.equal(response.status, 503);
   assert.equal((await response.json()).model_available, false);
-  const down = await fetch(offlineUrl + '/v1/chat/completions', {method: 'POST', headers: {Authorization: 'Bearer ' + tokens.alice, 'Content-Type': 'application/json'}, body: JSON.stringify({model: 'chatsop-local', messages: [{role: 'user', content: 'hi'}]})});
+  const down = await fetch(offlineUrl + '/v1/chat/completions', {method: 'POST', headers: {Authorization: 'Bearer ' + tokens.alice, 'Content-Type': 'application/json'}, body: JSON.stringify({model: 'chatsop-local', messages: [{role: 'user', content: 'Does Ana like Alpha Lab?'}]})});
   assert.equal(down.status, 503);
   assert.equal((await down.json()).error.code, 'parse_unavailable');
 });
@@ -268,6 +268,6 @@ test('documentation site is served statically without authentication and cannot 
   assert.equal(await rawPath('/docs/..%2fAGENTS.md'), 400);
   assert.equal(await rawPath('/docs/%00.txt'), 400);
   // The chat API still requires its bearer token.
-  const chat = await f.request('POST', '/v1/chat/completions', {model: 'chatsop-local', messages: [{role: 'user', content: 'hi'}]}, null);
+  const chat = await f.request('POST', '/v1/chat/completions', {model: 'chatsop-local', messages: [{role: 'user', content: 'Does Ana like Alpha Lab?'}]}, null);
   assert.equal(chat.status, 401);
 });

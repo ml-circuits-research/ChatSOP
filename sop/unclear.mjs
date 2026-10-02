@@ -13,7 +13,7 @@ export const UNCLEAR_KINDS = Object.freeze({
     en: 'I did not understand the message. Could you rephrase?',
   },
   no_request: {
-    en: 'I did not find a statement or a question in the message. What would you like to know?',
+    en: 'What would you like to know?',
   },
   ambiguous: {
     en: 'Your message can be read in more than one way. Which do you mean?',

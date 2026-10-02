@@ -104,7 +104,7 @@ export const MAX_SPAN = 200;
 export const LINK_STATUSES = Object.freeze(['applied', 'not_checked']);
 
 /**
- * `pragmatic` (DSx029, owner decision of 2026-10-01): an advisory signal about the pragmatic or emotional role of a
+ * `pragmatic` (DS023, owner decision of 2026-10-01): an advisory signal about the pragmatic or emotional role of a
  * message or of a span of it, emitted by the host's EmotionDetectionSystem, never by the model. The closed kinds and
  * the closed bases (how the signal was found) are listed here; a signal is the system's subjective perception, never a
  * fact about the world.

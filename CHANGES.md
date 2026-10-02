@@ -1,3 +1,11 @@
+# Greetings, courtesy and emotional state restored to the chat turn (2026-10-02, courtesy-agent)
+
+Owner: "The circuits designed for the emotional state and greetings seem lost: 'hello' now gives `@u unclear kind no_request`." The pause of the EmotionDetectionSystem covered its symbolic part by mistake; it is not a small-model component.
+
+- **Restored** `lib/emotion-detection/` (symbolic strategy, lexicon, advice, sop, courtesy), `config/emotion-detection.json`, `tools/emotion-detection/`, `tests/emotion-detection.test.mjs` and the specification as DS023 (renumbered; `docs/specs/aliases.json`, matrix). Neural and LLM strategies stay archived. The Romanian lexicon entries stay: the detector reads the raw message in any language.
+- **Chat turn** (`server/agent.mjs`, `lib/emotion-detection/turn.mjs`): courtesy-only and reaction-only messages get a deterministic reply in their own language and no coding-agent call; edge courtesy is stripped for the author of a mixed message (content never); the answer gets a courtesy phrase and tone (apology on frustration, clarification on confusion, first line on urgency); `unclear no_request` becomes "What would you like to know?" in the user's language. Signals are in `packet.pragmatic` and `pragmatic_use`, never facts. Lexicon: "the third time I ask" (and Romanian) is frustration.
+- **Surfaces** chat trace section 2b, API packet fields (also `POST /v1/sessions/{id}/query` with `message`), README, runtime.html, api.html, wiki, DS002, DS023, architecture page.
+
 # Generic question protocol for LocalLLMStepByStep (2026-10-02, protocol-agent, eval-stepbystep-protocol-v1)
 
 Owner: keep step-by-step and bring Qwen3-4B to high correctness through a comprehensive, generic question protocol.

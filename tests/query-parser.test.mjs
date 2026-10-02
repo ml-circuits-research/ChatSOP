@@ -135,7 +135,7 @@ test('chat: a coding agent that is not installed is parse_unavailable (503) with
   assert.match(r.body.chatSop.reason, /not available/);
   assert.equal((await s.user('/readyz')).status, 503);
   const stub = await productServer(t, {serverOptions: {queryParser: stubQueryParser({available: false})}});
-  const down = await stub.user('/v1/chat/completions', 'POST', {model: 'chatsop-local', messages: [{role: 'user', content: 'hi'}]});
+  const down = await stub.user('/v1/chat/completions', 'POST', {model: 'chatsop-local', messages: [{role: 'user', content: 'Does Ana like Alpha Lab?'}]});
   assert.equal(down.status, 503);
 });
 

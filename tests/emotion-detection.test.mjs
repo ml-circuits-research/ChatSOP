@@ -1,8 +1,7 @@
-// EmotionDetectionSystem (DS029): the component, the symbolic strategy, the pragmatic wire, the reasoner advice and
-// the agent's courtesy short-circuit. The strategies other than the symbolic one were removed; the generic costly-strategy budget is tested with a fake.
+// EmotionDetectionSystem (DS023): the component, the symbolic strategy, the pragmatic wire, the reasoner advice and
+// the chat turn's courtesy short-circuit and tone. The strategies other than the symbolic one were removed; the generic costly-strategy budget is tested with a fake.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import http from 'node:http';
 import {createEmotionDetectionSystem, createDefaultEmotionDetectionSystem, createSymbolicStrategy, classifyLeftovers, adviceFor, signalsToSop, loadConfig} from '../lib/emotion-detection/index.mjs';
 import {courtesyReply} from '../lib/emotion-detection/courtesy.mjs';
 import {parse, validateGraph} from '../sop/parser.mjs';
@@ -133,46 +132,100 @@ test('the default configuration: enabled, symbolic is the only strategy', () => 
   assert.deepEqual(createDefaultEmotionDetectionSystem(config).strategyIds(), ['symbolic']);
 });
 
-test('courtesy replies are deterministic host text in English', () => {
-  assert.equal(courtesyReply([{kind: 'thanks'}]), "You're welcome.");
-  assert.match(courtesyReply([{kind: 'greeting'}, {kind: 'thanks'}]), /^You're welcome\. Hello!/);
+test('courtesy replies are deterministic host text in English and Romanian', () => {
+  assert.equal(courtesyReply([{kind: 'thanks', score: 0.9}]), "You're welcome.");
+  assert.match(courtesyReply([{kind: 'greeting', score: 0.9}, {kind: 'thanks', score: 0.9}]), /^You're welcome\. Hello!/);
+  assert.equal(courtesyReply([{kind: 'thanks', score: 0.9}], 'ro'), 'Cu plăcere.');
 });
 
-/** An agent whose formalizer returns a fixed SOP and reports the given pragmatic signals after formalizing. */
-async function agentWithFormalizer(t, sop, signals) {
+const ASK = '@q query\n  where match\n    relation "work at"\n    role subject "Ana"\n    role object "Alpha Lab"\n    polarity affirmed\n  end';
+/** An agent over a fresh repository whose formalizer returns a fixed SOP and records every message it receives. */
+async function agentWith(t, sop) {
   const c = context({});
   t.after(c.dispose);
+  const seen = [];
   const agent = new Agent({repo: c.repo, session: c.session, lexicon: lex, config: {}});
-  return {agent, formalizer: {id: 'fake', promptProfile: 'bare', pragmatic: () => ({signals}), formalize: async () => sop}};
+  return {agent, seen, formalizer: {id: 'fake', formalize: async message => { seen.push(message); return sop; }}};
 }
 
-test('the agent answers a content-free courtesy message without computation and keeps the pragmatic circuit', async t => {
-  const {signals} = await system().detect('Thanks a lot!');
-  const {agent, formalizer} = await agentWithFormalizer(t, '@u unclear\n  kind no_request', signals);
-  const result = await agent.turn('Thanks a lot!', {language: 'en', rewrite: false, formalizer});
-  assert.equal(result.packet.status, 'courtesy');
-  assert.equal(result.text, "You're welcome.");
-  assert.match(result.executionSop, /@p1 pragmatic\n {2}kind thanks/);
-  assert.deepEqual(result.trace, []);
-  assert.equal(result.pragmatic.advice.courtesyOnly, true);
+test('chat turn: "hello" and "thanks!" are answered at once, with no formalizer call and no wire shown', async t => {
+  const {agent, seen, formalizer} = await agentWith(t, '@u unclear\n  kind no_request');
+  const hello = await agent.turn('hello', {formalizer});
+  assert.equal(hello.text, 'Hello! What would you like to know?');
+  assert.equal(hello.packet.status, 'courtesy');
+  assert.equal(hello.packet.localized, true);
+  assert.deepEqual(hello.trace, []);
+  assert.match(hello.executionSop, /@p1 pragmatic\n {2}kind greeting/);
+  assert.equal((await agent.turn('thanks!', {formalizer})).text, "You're welcome.");
+  assert.equal(seen.length, 0);
 });
 
-test('the agent answers a question after a greeting normally and appends the pragmatic wires to the circuit', async t => {
-  const sop = '@q query\n  where match\n    relation "work at"\n    role subject "Ana"\n    role object "Alpha Lab"\n    polarity affirmed\n  end';
-  const {signals} = await system().detect('Hi! Does Ana work at Alpha Lab?');
-  const {agent, formalizer} = await agentWithFormalizer(t, sop, signals);
-  const result = await agent.turn('Hi! Does Ana work at Alpha Lab?', {language: 'en', rewrite: false, formalizer});
+test('chat turn: a Romanian greeting is answered in Romanian', async t => {
+  const {agent, seen, formalizer} = await agentWith(t, ASK);
+  const reply = await agent.turn('bună ziua', {formalizer});
+  assert.equal(reply.text, 'Bună! Cu ce te pot ajuta?');
+  assert.equal(reply.packet.language, 'ro');
+  assert.equal(reply.pragmatic.language, 'ro');
+  assert.equal(seen.length, 0);
+});
+
+test('chat turn: a pure "I\'m confused" gets a clarifying reply without a formalizer call', async t => {
+  const {agent, seen, formalizer} = await agentWith(t, ASK);
+  const reply = await agent.turn("I'm confused", {formalizer});
+  assert.match(reply.text, /^Sorry for the confusion\./);
+  assert.equal(reply.packet.reply_kind, 'reaction');
+  assert.ok(reply.packet.pragmatic.some(s => s.kind === 'confusion'));
+  assert.equal(seen.length, 0);
+});
+
+test('chat turn: a greeting before a question is recorded and stripped for the formalizer, and the answer opens with a courtesy phrase', async t => {
+  const {agent, seen, formalizer} = await agentWith(t, ASK);
+  const result = await agent.turn('Hi, does Ana work at Alpha Lab?', {formalizer});
+  assert.deepEqual(seen, ['does Ana work at Alpha Lab?']);
+  assert.match(result.text, /^Hello! /);
   assert.notEqual(result.packet.status, 'courtesy');
-  assert.match(result.executionSop, /@solve|solve/);
+  assert.equal(result.packet.pragmatic[0].kind, 'greeting');
+  assert.deepEqual(result.packet.pragmatic_use.applied, ['courtesy:greeting']);
+  assert.equal(result.packet.pragmatic_use.message_for_formalizer, 'does Ana work at Alpha Lab?');
   assert.match(result.executionSop, /@p1 pragmatic/);
   assert.equal(result.pragmatic.advice.courtesyOnly, false);
 });
 
-test('without signals the agent turn is unchanged (no pragmatic field)', async t => {
-  const sop = '@q query\n  where match\n    relation "work at"\n    role subject "Ana"\n    role object "Alpha Lab"\n    polarity affirmed\n  end';
-  const c = context({});
-  t.after(c.dispose);
-  const agent = new Agent({repo: c.repo, session: c.session, lexicon: lex, config: {}});
-  const result = await agent.turn('Does Ana work at Alpha Lab?', {language: 'en', rewrite: false, formalizer: {id: 'fake', promptProfile: 'bare', formalize: async () => sop}});
-  assert.equal(result.pragmatic, undefined);
+test('chat turn: frustration and a question is answered, with a brief apology; the message is not stripped', async t => {
+  const {agent, seen, formalizer} = await agentWith(t, ASK);
+  const message = 'this is the third time I ask, does Ana work at Alpha Lab??';
+  const result = await agent.turn(message, {formalizer});
+  assert.deepEqual(seen, [message]);
+  assert.match(result.text, /^Sorry for the trouble\. /);
+  assert.ok(result.packet.pragmatic.some(s => s.kind === 'frustration'));
+  assert.equal(result.pragmatic.advice.recheckInterpretation, true);
+});
+
+test('chat turn: urgency shortens the answer to its first line; pragmatic signals never become facts', async t => {
+  const {agent, formalizer} = await agentWith(t, ASK);
+  const result = await agent.turn('Does Ana work at Alpha Lab? asap', {formalizer});
+  assert.ok(!result.text.includes('\n'));
+  assert.deepEqual(result.userStatements, []);
+  assert.deepEqual(result.pragmatic.advice.strategyHint, 'fast');
+});
+
+test('chat turn: `unclear no_request` from the formalizer is a natural reply, never the raw verdict', async t => {
+  const {agent, formalizer} = await agentWith(t, '@u unclear\n  kind no_request');
+  const result = await agent.turn('ok then', {formalizer});
+  assert.equal(result.text, 'What would you like to know?');
+  assert.equal(result.unclear, 'no_request');
+  assert.equal(result.packet.localized, true);
+  assert.ok(!/@u|unclear/.test(result.text));
+  const ro = await agent.turn('bine atunci', {formalizer});
+  assert.equal(ro.text, 'Ce ai vrea să afli?', 'a Romanian message gets the invitation in Romanian');
+});
+
+test('chat turn: without signals the turn is unchanged (no pragmatic field), and emotion: false turns the component off', async t => {
+  const {agent, seen, formalizer} = await agentWith(t, ASK);
+  const plain = await agent.turn('Does Ana work at Alpha Lab?', {formalizer});
+  assert.equal(plain.pragmatic, undefined);
+  assert.equal(plain.packet.pragmatic, undefined);
+  const off = await agent.turn('hello', {formalizer, emotion: false});
+  assert.equal(seen.at(-1), 'hello');
+  assert.equal(off.packet.pragmatic, undefined);
 });

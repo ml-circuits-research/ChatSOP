@@ -1,5 +1,5 @@
 {
-  "description": "Specification renumberings. `ids` maps every former DS id of the renumbering of 2026-09-28 to the spec it became, the spec it was merged into, or its archive location; `renumbered_2026_10_01` maps the ids of the numbering before 2026-10-01 to the live DS000-DS022 or to the archive. Old ids remain valid only in frozen files (probably_obsolete/**, the project journal status/journal.jsonl, the append-only topic notes status/notes/*.jsonl and historical reports eval/reports/history/**), which keep the numbering of their date; tools/check-spec-refs.mjs enforces this.",
+  "description": "Specification renumberings. `ids` maps every former DS id of the renumbering of 2026-09-28 to the spec it became, the spec it was merged into, or its archive location; `renumbered_2026_10_01` maps the ids of the numbering before 2026-10-01 to the live DS000-DS023 or to the archive. Old ids remain valid only in frozen files (probably_obsolete/**, the project journal status/journal.jsonl, the append-only topic notes status/notes/*.jsonl and historical reports eval/reports/history/**), which keep the numbering of their date; tools/check-spec-refs.mjs enforces this.",
   "date": "2026-10-01",
   "ids": {
     "DS000": {
@@ -251,11 +251,12 @@
       "DS019": "DS019-exact-reference-memory.md",
       "DS020": "DS020-hybrid-memory.md",
       "DS021": "DS021-memory-retention-and-generations.md",
-      "DS022": "DS022-sessions-and-base-memories.md"
+      "DS022": "DS022-sessions-and-base-memories.md",
+      "DS023": "DS023-emotion-detection.md"
     }
   },
   "renumbered_2026_10_01": {
-    "description": "Renumbering of 2026-10-01: the live specifications are DS000 to DS022 without gaps. Each id of the numbering before that date maps to its new live id and file (`to`, `file`) or to its archive path (`archived`). References in frozen files (the journal, topic notes, history reports, probably_obsolete/**) keep the numbering of their date and are never rewritten.",
+    "description": "Renumbering of 2026-10-01: the live specifications are DS000 to DS023 without gaps. Each id of the numbering before that date maps to its new live id and file (`to`, `file`) or to its archive path (`archived`). References in frozen files (the journal, topic notes, history reports, probably_obsolete/**) keep the numbering of their date and are never rewritten.",
     "ids": {
       "DS000": {
         "to": "DS000",
@@ -367,7 +368,9 @@
         "file": "DS021-memory-retention-and-generations.md"
       },
       "DS029": {
-        "archived": "probably_obsolete/paused/specs/DS029-emotion-detection.md"
+        "to": "DS023",
+        "file": "DS023-emotion-detection.md",
+        "note": "The symbolic EmotionDetectionSystem was restored to the product on 2026-10-02; DS029 was its former id."
       },
       "DS030": {
         "archived": "probably_obsolete/tinyLLMExperiments/specs/DS030-capability-apis.md"

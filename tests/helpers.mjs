@@ -282,6 +282,6 @@ export async function adminServer(t, {apiKey = null, password = null} = {}) {
     if (response.status !== 200) throw Error(`first-run password rejected: ${response.status} ${response.text}`);
     session = cookieOf(response);
   }
-  const chat = (credentials = {}) => call('/v1/chat/completions', {method: 'POST', ...credentials, body: {model: 'chatsop-local', messages: [{role: 'user', content: 'hi'}]}});
+  const chat = (credentials = {}) => call('/v1/chat/completions', {method: 'POST', ...credentials, body: {model: 'chatsop-local', messages: [{role: 'user', content: 'Does Ana like Alpha Lab?'}]}});
   return {base, call, chat, auth, root, ledger, session};
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Builds the 300-message evaluation set of the EmotionDetectionSystem (DS029, experiment emotion-detection-v1):
+/** Builds the 300-message evaluation set of the EmotionDetectionSystem (DS023, experiment emotion-detection-v1):
  * 119 messages sampled with a fixed seed from the project datasets (bad_english, neuro_english, symbolic_english,
  * new_cases) plus the 181 handwritten ones. Output: eval/reports/current/emotion-detection/eval-set.jsonl.
  *   node tools/emotion-detection/build-eval-set.mjs

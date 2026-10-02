@@ -110,6 +110,10 @@ function traceView(c){
   if(r.neighbourhood&&r.neighbourhood.predicates)browseField(v,'browse relations',c,r.neighbourhood.predicates.slice(0,12).map(x=>({kind:'predicate',id:x.id})));
   if(r.byte_budget)field(v,'vocabulary size',r.bytes+' of '+r.byte_budget+' bytes'+(r.truncated?' (truncated)':''));
   const d=p.vocabulary_dialog;if(d)field(v,'vocabulary dialog',d.rounds?d.rounds+' expansion(s) of at most '+d.max_rounds+': '+d.expansions.map(e=>e.trigger).join(', '):'not needed');}
+ // 2b. Pragmatic signals of the EmotionDetectionSystem (DS023): advisory, never facts.
+ if((c.pragmatic||[]).length){const g=section(details,'2b. Pragmatic signals (EmotionDetectionSystem)',true).list;
+  listField(g,'signals',c.pragmatic.map(x=>x.kind+' · score '+x.score+(x.span?' · "'+x.span+'"':'')+' · '+x.source+'/'+x.basis+(x.experimental?' · experimental, not used':'')));
+  const u=c.pragmatic_use;if(u){field(g,'language',u.language);field(g,'tone applied',(u.applied||[]).join(', ')||'none');field(g,'sent to the formalizer',u.message_for_formalizer);}}
  // 3. Session definitions and assumptions: labelled with their origin (no manual acceptance).
  const sc=c.session_circuits;
  if(sc||(c.model_assumptions||[]).length||(c.user_statements||[]).length||(c.carried_statements||[]).length){const s=section(details,'3. Session definitions and assumptions',Boolean(sc));

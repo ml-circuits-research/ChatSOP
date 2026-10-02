@@ -162,8 +162,8 @@ test('unclear is the only wire; the reply is English', async t => {
   assert.equal(english.unclear, 'gibberish');
   assert.equal(english.cnl, 'I did not understand the message. Could you rephrase?');
   assert.equal(english.executionSop, '');
-  const none = await agent.turn('Thanks!', turn);
-  assert.equal(none.englishText, 'I did not find a statement or a question in the message. What would you like to know?');
+  const none = await agent.turn('ok then', turn);
+  assert.equal(none.englishText, 'What would you like to know?');
   assert.equal(none.answerLanguage, 'en');
   await assert.rejects(() => agent.turn('asdf', turn), /unclear_not_alone/);
   assert.equal(m.requests.length, 3);
