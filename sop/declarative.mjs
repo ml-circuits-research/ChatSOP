@@ -6,7 +6,7 @@ import {formatTime} from '../lib/time.mjs';
 import {assert,stable} from '../lib/util.mjs';
 import {cnl} from './cnl.mjs';
 import {propositionOf,linkProposition,propositionValidity,propositionKey,conditionalStatement,reportProposition,propositionBody,LINK_PHRASES} from './propositions.mjs';
-import {normalizeTime,linkQuestion,matchedForm} from './linking.mjs';
+import {normalizeTime,isTimeRange,linkQuestion,matchedForm} from './linking.mjs';
 import {SCORES,chooseEntity,mode as scoredLinker} from './knowledge-linker.mjs';
 import {unclearReply} from './unclear.mjs';
 import {checkModelLinks,pairPlaceholders,planLinks,expandReferences,readingWithReferences,nearOf} from './clauses.mjs';
@@ -250,6 +250,8 @@ export function compileDeclarative(source,{language='en',inputText='',context={}
  const temporal=(w,key)=>{
   const text=unquote(one(w,key)),period=normalizeTime(text,now);
   if(!period){issues.push({kind:'time',status:'unknown',text});return null;}
+  // at/asof name one point: an explicit range ("A to B", "A – B") is reported, never silently reduced to its start.
+  if((key==='at'||key==='asof')&&isTimeRange(text)){issues.push({kind:'time',status:'not_a_point',text});return null;}
   return key==='during'||key==='overlaps'?formatTime(period.from)+' '+formatTime(period.until):formatTime(period.from);
  };
  const used=new Set(authored.wires.map(w=>w.id));

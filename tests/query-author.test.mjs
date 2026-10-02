@@ -7,6 +7,7 @@ import path from 'node:path';
 import {authorQuery, buildContext, candidatePredicates, completionBackend, entityHints, extractSop, guideTexts, ompBackend, predicateRecall, renderCandidates, renderVocabulary, unclearKind, validateQuery, backendFrom, stem} from '../lib/query-author/index.mjs';
 import {lex, repoPath, tempDir} from './helpers.mjs';
 import {Lexicon} from '../sop/lexicon.mjs';
+import {admitModel} from '../lib/query-author/admit.mjs';
 
 const STUB = repoPath('tests/fixtures/omp/stub-omp.mjs');
 const Q = (relation, subject, object) => `@q query\n  where match\n    relation "${relation}"\n    role subject "${subject}"\n    role object "${object}"\n    polarity affirmed\n  end\n`;
@@ -121,6 +122,22 @@ test('validator, id mode: only queries; predicate ids of the memory, declared ro
   assert.equal(unclearKind(unclear.program), 'no_request');
 });
 
+test('declared roles are checked through grouped matches at direct chat admission', () => {
+  const invalid = '@q query\n  mode every\n  where match\n    relation "works_at"\n    role subject ?person\n    polarity affirmed\n  end\n  scope any\n    match\n      relation "works_at"\n      role subject ?person\n      role location "Cluj"\n      polarity affirmed\n    end\n  end\n';
+  assert.throws(() => admitModel(invalid, 'Does everyone work in Cluj?', lex), /undeclared_role: works_at has no role location/);
+  assert.deepEqual(validateQuery({sop: invalid, message: 'Does everyone work in Cluj?', lexicon: lex}).problems.map(p => p.code), ['undeclared_role']);
+  const assumption = '@a assumed\n  relation "works_at"\n  role subject "Ana"\n  role location "Cluj"\n  polarity affirmed\n';
+  assert.throws(() => admitModel(assumption, 'Ana in Cluj', lex), /undeclared_role: works_at has no role location/);
+  assert.equal(admitModel('@s stated\n  relation "works_at"\n  role subject "Ana"\n  role object "Lab Alpha"\n  role time "2025"\n  polarity affirmed\n  certainty supposed\n', 'Ana worked at Lab Alpha in 2025', lex).wires.length, 1);
+  const partial = '@q query\n  select ?person\n  where match\n    relation "works_at"\n    role subject ?person\n    polarity affirmed\n  end\n';
+  assert.equal(validateQuery({sop: partial, message: 'Who works?', lexicon: lex}).ok, true, 'an omitted named role is an existential variable, not an arity error');
+  assert.equal(admitModel(partial, 'Who works?', lex).wires.length, 1);
+  const time = '@q query\n  select ?t\n  where match\n    relation "works_at"\n    role subject "Ana"\n    role time ?t\n    polarity affirmed\n  end\n';
+  assert.equal(validateQuery({sop: time, message: 'When did Ana work?', lexicon: lex}).ok, true, 'time can be runtime span metadata');
+  const fragment = '@q query\n  fragment follow_up\n  where match\n    role object "Lab Alpha"\n  end\n';
+  assert.equal(validateQuery({sop: fragment, message: 'And Lab Alpha?', lexicon: lex}).ok, true, 'partial follow-up needs no relation');
+});
+
 test('validator: a name of the request that the query leaves out is a problem (it would widen the question)', () => {
   const mentions = [{surface: 'Ana', candidates: ['ana'], strong: true}, {surface: 'Lab Alpha', candidates: ['lab_alpha'], strong: true}, {surface: 'old', candidates: ['old'], strong: false}];
   const full = validateQuery({sop: GOOD, message: 'x', lexicon: lex, mentions});
@@ -137,9 +154,25 @@ test('validator, phrase mode (a measured arm): a phrase outside the vocabulary i
   const ok = validateQuery({sop: Q('work at', 'Ana', 'Lab Alpha'), message: 'x', lexicon: lex, mode: 'phrase'});
   assert.equal(ok.ok, true);
   assert.deepEqual(ok.advice, []);
+  const mismatch = Q('work at', 'Ana', 'Lab Alpha').replace('role object', 'role location');
+  assert.deepEqual(validateQuery({sop: mismatch, message: 'x', lexicon: lex, mode: 'phrase'}).problems.map(p => p.code), ['undeclared_role']);
+  assert.throws(() => admitModel(mismatch, 'x', lex), /undeclared_role:/);
   const unknown = validateQuery({sop: Q('levitate above', 'Ana', 'Bob'), message: 'x', lexicon: lex, mode: 'phrase'});
   assert.equal(unknown.ok, true);
   assert.ok(unknown.advice.some(a => a.code === 'relation_not_in_vocabulary'));
+});
+
+test('an authored undeclared role receives repair feedback before admission', async () => {
+  const requested = [];
+  const answers = [Q('works_at', 'ana', 'lab_alpha').replace('role object', 'role location'), GOOD];
+  const result = await authorQuery({message: 'Does Ana work at Lab Alpha?', lexicon: lex, maxFixRounds: 1,
+    backend: {id: 'stub', kind: 'completion', async generate(request) {
+      requested.push(request);
+      return {ok: true, sop: answers[requested.length - 1], usage: {}};
+    }}});
+  assert.equal(result.status, 'validated');
+  assert.equal(result.rounds, 2);
+  assert.equal(requested[1].history.at(-1).problems[0].code, 'undeclared_role');
 });
 
 test('completion backend: extracts the wires of a reply, a repair round carries the validator output and the nearest predicates', async () => {
@@ -227,4 +260,22 @@ test('backendFrom: kinds and errors', () => {
   assert.equal(backendFrom({kind: 'omp', model: 'a/b'}).id, 'omp');
   assert.equal(backendFrom({kind: 'completion', endpoint: 'http://x/v1', model: 'm'}).id, 'completion');
   assert.throws(() => backendFrom({kind: 'telepathy'}), /unknown query author backend/);
+});
+
+test('at and asof take one point in time: a range is a repairable error, never silently its start (f6-dev-031)', () => {
+  const lexicon = new Lexicon('@may_work predicate\n  args subject:entity\n  label en "may work"\n@dorin entity\n  kind entity\n  label en "Dorin"');
+  const ranged = '@q query\n  where match\n    relation "may work"\n    role subject "Dorin"\n    polarity affirmed\n  end\n  at "2026-03-01 to 2026-06-01"\n';
+  const r = validateQuery({sop: ranged, message: 'May Dorin work throughout 2026-03-01 to 2026-06-01?', lexicon});
+  assert.ok(r.problems.some(p => p.code === 'time_not_a_point'), JSON.stringify(r.problems));
+  const point = ranged.replace('at "2026-03-01 to 2026-06-01"', 'at "2026-03-01"');
+  assert.ok(!validateQuery({sop: point, message: 'May Dorin work on 2026-03-01?', lexicon}).problems.some(p => p.code === 'time_not_a_point'));
+  const during = ranged.replace('at "2026-03-01 to 2026-06-01"', 'during "2026-03-01 to 2026-06-01"');
+  assert.ok(!validateQuery({sop: during, message: 'May Dorin work throughout 2026-03-01 to 2026-06-01?', lexicon}).problems.some(p => p.code === 'time_not_a_point'));
+});
+
+test('a range as a role time value must say throughout (during) or within (overlaps) (f6-dev-086)', () => {
+  const lexicon = new Lexicon('@may_work predicate\n  args subject:entity\n  label en "may work"\n@corina entity\n  kind entity\n  label en "Corina"');
+  const sop = '@q query\n  where match\n    relation "may work"\n    role subject "Corina"\n    role time "2026-03-01 to 2026-06-01"\n    polarity affirmed\n  end\n';
+  const r = validateQuery({sop, message: 'May Corina work throughout 2026-03-01 to 2026-06-01?', lexicon});
+  assert.ok(r.problems.some(p => p.code === 'time_range_needs_quantifier'), JSON.stringify(r.problems));
 });

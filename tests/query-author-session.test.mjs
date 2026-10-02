@@ -6,6 +6,7 @@ import {Sessions} from '../lib/chat-data/sessions.mjs';
 import {SessionRuntimes} from '../server/session-runtime.mjs';
 import {Theory, askMemory} from '../reasoning/slice/index.mjs';
 import {authorQuery, validateQuery} from '../lib/query-author/index.mjs';
+import {admitCircuits} from '../lib/query-author/session.mjs';
 import {AuthorRuntime} from '../lib/query-author/runtime.mjs';
 import {tempDir} from './helpers.mjs';
 
@@ -113,6 +114,19 @@ test('undeclared body predicates and memory declaration replacements are rejecte
   const validate = sop => validateQuery({sop, message: 'Who is eligible?', lexicon: f.agent.lexicon, circuits});
   assert.ok(validate('@unknown rule\n  when fictional ?x\n  then eligible ?x\n' + QUERY).problems.some(x => x.code === 'unknown_predicate'));
   assert.ok(validate('@employee predicate\n  args subject:entity\n  closed false\n' + QUERY).problems.some(x => x.code === 'duplicate_id'));
+});
+
+test('turn-local positional atoms cannot evade declared arity checks inside groups or rule heads', t => {
+  const f = fixture(t);
+  const circuits = f.sessions.baseCircuits('turn');
+  const definition = '@department_pay predicate\n  args subject:entity object:entity topic:integer\n@mistaken rule\n  when all\n    department_pay department_vlad_dev_285 firm_vlad_dev_285\n  end\n  then eligible department_vlad_dev_285\n';
+  const text = definition + QUERY;
+  const result = validateQuery({sop: text, message: 'Who is eligible?', lexicon: f.agent.lexicon, circuits});
+  assert.equal(result.ok, false);
+  assert.equal(result.problems[0].code, 'arity_mismatch');
+  assert.throws(() => admitCircuits(text, 'Who is eligible?', f.agent.lexicon, {circuits}), /arity_mismatch: department_pay is declared with arity 3 but used with 2/);
+  const badHead = '@department_pay predicate\n  args subject:entity object:entity topic:integer\n@mistaken rule\n  when employee ?x\n  then department_pay ?x ada\n' + QUERY;
+  assert.equal(validateQuery({sop: badHead, message: 'Who is eligible?', lexicon: f.agent.lexicon, circuits}).problems[0].code, 'arity_mismatch');
 });
 
 test('a turn-local default keeps its exception and coding-agent origin', async t => {

@@ -78,7 +78,7 @@ test('persistent vocabulary refusal stops after two extra rounds and remains hon
   assert.equal(r.circuits.some(c => c.role === 'definition'), false);
 });
 
-test('sampled reversed arguments require a real empty result, never an automatic swap', async t => {
+test('confirmed position misuse triggers repair and cannot be overridden by an execution preview', async t => {
   const wrong = '@q query\n  select ?who\n  where match\n    relation "edge"\n    role subject ?who\n    role object "Ada"\n    polarity affirmed\n  end\n';
   const correct = '@q query\n  select ?who\n  where match\n    relation "edge"\n    role subject "Ada"\n    role object ?who\n    polarity affirmed\n  end\n';
   const f = fixture(t, sequence([wrong, correct]));
@@ -89,11 +89,10 @@ test('sampled reversed arguments require a real empty result, never an automatic
     return authored.sop;
   }}});
   assert.deepEqual(r.packet.answers.map(a => a.binding['?who']), ['bea']);
-  assert.equal(parse.vocabulary_dialog.expansions[0].trigger, 'plausible_swapped_order');
   const nonempty = await authorQuery({message: 'Who is connected to Ada?', lexicon, circuits, backend: sequence([wrong]), maxFixRounds: 0,
-    execute: async () => ({status: 'supported', complete: true, rows: [{who: 'someone_else'}]})});
-  assert.equal(nonempty.sop, wrong);
-  assert.equal(nonempty.vocabulary_dialog.rounds, 0);
+    vocabularyDialog: false, execute: async () => { throw new Error('misuse must be rejected before an execution preview'); }});
+  assert.equal(nonempty.ok, false);
+  assert.ok(nonempty.validation.problems.some(p => p.code === 'condition_misuse'));
 });
 
 test('a surface-name integer-role mismatch receives schema feedback before answer execution', async t => {
@@ -107,7 +106,6 @@ test('a surface-name integer-role mismatch receives schema feedback before answe
     return authored.sop;
   }}});
   assert.deepEqual(r.packet.answers.map(a => a.binding['?n']), [10]);
-  assert.equal(parse.vocabulary_dialog.expansions[0].trigger, 'type_mismatch');
   assert.equal(parse.vocabulary_dialog.rounds, 1);
 });
 

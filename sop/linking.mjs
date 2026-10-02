@@ -68,6 +68,12 @@ const utc = (y, m = 1, d = 1) => Date.UTC(y, m - 1, d);
  * today/yesterday/tomorrow and last/this/next year, with an optional leading in/on/at/during/since/from/throughout.
  * Anything else returns null and the runtime asks.
  */
+/** True when a temporal expression is an explicit range ("A to B", "A – B"), the form `at`/`asof` must not take. */
+export function isTimeRange(text) {
+  const t = fold(String(text)).replace(/^(?:in|on|at|during|since|from|throughout)\s+/, '').replace(/^the\s+/, '').trim();
+  return /^(.+?)\s+(?:to|[–—-])\s+(.+)$/.test(t) || /^(.+?)[–—](.+)$/.test(t);
+}
+
 export function normalizeTime(text, now = Date.now()) {
   let t = fold(text).replace(/^(?:in|on|at|during|since|from|throughout)\s+/, '').replace(/^the\s+/, '').trim();
   // Ranges end at the start of B, never at the end of B's day or month.

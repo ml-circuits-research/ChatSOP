@@ -24,6 +24,7 @@ import {alternatives, equalityDomains, bindDomains} from './demand.mjs';
 import {readForms} from '../strategies/js-reference/forms.mjs';
 import {answerOverSlice} from './answer.mjs';
 
+import {conditionMisuses} from './condition-misuse.mjs';
 /** The query modes answered from a slice: the others read the whole memory (or are `incomplete` when it does not fit). */
 export const SLICED_MODES = Object.freeze(['select', 'exists', 'count', 'explain', 'every']);
 
@@ -92,6 +93,7 @@ export class Theory {
 
   add(w) {
     this.byId.set(w.id, w);
+    this.revision = (this.revision ?? 0) + 1;
     switch (w.type) {
       case 'fact': {
         const holds = naturalAtom(value(w, 'holds'));
@@ -208,13 +210,24 @@ function timeWindow(w) {
  * @param query    the query circuit text (a `query` wire, optional `policy` and supposed `fact` wires)
  * @returns the oracle's packet with `retrieval` (R-P5): slice size, predicates, bounds, whether it is complete and why not
  */
-export function askMemory({theory, repo, session, query, registry = new StrategyRegistry(), strategy = 'hybrid', limits = {}, budget = {}, reasoning = 'auto', verify = 'auto', verifyBudget = {}}) {
+export function askMemory({theory, repo, session, query, lexicon = null, registry = new StrategyRegistry(), strategy = 'hybrid', limits = {}, budget = {}, reasoning = 'auto', verify = 'auto', verifyBudget = {}}) {
   const {wires: qWires, errors} = parse(query);
   if (errors.length) throw new ProgramError(errors[0].code, `query: ${errors[0].message} (line ${errors[0].line})`);
   const qw = qWires.find(w => w.type === 'query');
   const mode = qw ? (value(qw, 'mode') ?? 'select') : 'select';
   const sliced = Boolean(qw) && SLICED_MODES.includes(mode);
   const lim = {maxShards: 256, maxGoals: 256, maxRules: 1024, ...limits};
+  const window = timeWindow(qw ?? {fields: []});
+  const conditionAtoms = qw ? qw.fields.filter(f => ['where', 'scope'].includes(f.key))
+    .flatMap(f => leaves(parseCondition(f, []))).filter(l => l.kind === 'atom').map(l => ({...typedAtom(l), absent: l.neg === 'absent'})) : [];
+  const domainSource = new RepositorySource({repo, session, registry, strategy, query: {asof: window.asof}, limits: lim});
+  const guard = conditionMisuses({theory, atoms: conditionAtoms, source: domainSource, localWires: qWires, lexicon,
+    maxLookups: Math.min(128, lim.maxLookups ?? 128), maxProbes: Math.min(2048, lim.maxProbes ?? 2048)});
+  const malformed = guard.problems.find(p => p.reason === 'arity_mismatch');
+  if (malformed) throw new ProgramError('arity_mismatch', malformed.condition, qw.id);
+  if (guard.problems.length) return {status: 'unknown', complete: !guard.problems.some(p => p.reason === 'domain_check_incomplete'), reason: 'condition_misuse', misuses: guard.problems,
+    rows: [], used: [], notes: [], strategy: null, guarantee: 'exact', condition_guard: guard.diagnostics,
+    route: {requested: reasoning, chosen: null, reason: 'condition_misuse', fallback: null}};
 
   let conjunctions, closure;
   if (sliced) {
@@ -228,7 +241,7 @@ export function askMemory({theory, repo, session, query, registry = new Strategy
     closure = {recs: theory.recs, predicates: new Set(theory.predicates.keys()), complete: true};
   }
 
-  const source = new RepositorySource({repo, session, registry, strategy, query: timeWindow(qw ?? {fields: []}), limits: lim});
+  const source = new RepositorySource({repo, session, registry, strategy, query: window, limits: lim});
   const retrieval = new SliceRetrieval({source, conjunctions, rules: closure.recs.map(r => theory.asRule(r)), rulesComplete: closure.complete, limits: lim, strategy});
   retrieval.expand();
   const describe = {query: {mode}, strategy, goals: [], steps: []};
@@ -250,7 +263,7 @@ export function askMemory({theory, repo, session, query, registry = new Strategy
   });
 
   const answer = answerOverSlice({memory: first, query: {mode}, solve, decide: judgeWire});
-  return answer;
+  return {...answer, condition_guard: guard.diagnostics};
 }
 
 /** The defaults named by `overrides` are in the closure already; nothing else rides along. Kept as a hook for governance wires. */

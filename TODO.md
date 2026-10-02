@@ -32,6 +32,8 @@ Direction: [AGENTS.md](AGENTS.md). Delivered work with observed evidence: [PAS_T
 
 - [ ] **T12 repository-green gate.** Tool-free inline circuit authoring and isolated persistent omp RPC delivered; product thinking `off`. Ten-row thinking comparison selects off; final twenty corrected dev rows19 correct/0 wrong/1 unknown against both recorded Luna comparators18/0/2. Required npm1257/1260 pass,one unowned stale architecture-citation failure,one existing120s site-links cancellation,one skip; no owned failures. Specs and reasoning smoke pass. Architecture/site-links repairs are outside ownership; no green claim. Report: `eval/reports/current/omp-tasks/t12-omp-fast.md`.
 
+- [ ] **T11 repository-green gate.** Arity/role and bounded indexed condition-use guards delivered; exact three saved F2 circuits abstain, legitimate negatives retained. Final 636-row replay has zero correct losses; primary B/C wrong→unknown 9, wrong→invalid 1, temporal current-pipeline unknown→correct 5/unknown→wrong 8. Query-author 70/70 and focused conversation/query-author/slice 120/120 pass; specs and reasoning smoke pass. Final npm 1271/1273 pass, one stale architecture-citation failure, one skip, zero cancellations. Regeneration of `docs/architecture.html` is outside permitted ownership; do not weaken tests. Report: `eval/reports/current/omp-tasks/t11-guards.md`.
+
 ## 3. Blocked
 
 - [ ] **External generator qualification.** No external generator endpoint or credentials are available; nothing was invented.

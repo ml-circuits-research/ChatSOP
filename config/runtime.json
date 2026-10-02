@@ -66,10 +66,11 @@
   "queryParser": {
     "backend": {
       "kind": "omp",
-      "model": "openai-codex/gpt-6-luna",
+      "model": "zai/glm-5.3",
       "thinking": "off"
     },
     "models": [
+      "zai/glm-5.3",
       "openai-codex/gpt-6-luna"
     ],
     "timeoutSeconds": 120,

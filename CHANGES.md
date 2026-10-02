@@ -191,3 +191,10 @@ Owner: "do we still write SOP directly from the message? ... wasn't that removed
 - New `lib/query-author/structured/{surface,intercept,ablation}.mjs` compares closed JSON and canonical minimal SOP with the same admitted semantic choices, closed versus free predicate/entity/form strings, and constrained form/predicate/argument steps. Existing compiler, validator, scoring and product decoder defaults are unchanged; refused circuits remain refused.
 - Native SOP is preserved in repair history despite internal JSON conversion. Per-step telemetry retains completed and failed calls, actual tokens, prompt/generation timings and two-step numeric/unclear branches. Original wall/output ceilings remain shared within each experimental request.
 - Native grammar/compiler checks and two new safety regressions pass. A real-memory repair smoke validates two rounds and excludes Ana from Acme's answer, returning only Ion. Regenerable model observations, owner-directed cache-on/reduced sampling and full verification evidence are recorded incrementally in `eval/reports/current/omp-tasks/t8-big-local.md`; no sealed or superiority claim.
+
+# T11 condition-use guards (2026-10-02, omp-t11-guards)
+
+- Query admission rejects positional arity mismatches and undeclared named roles; omitted declared query roles remain existential variables. Exact-id propositions require declared roles.
+- Bounded indexed argument-position checks return `unknown` / `condition_misuse` with condition, position and observed values instead of a confident closed-world negative. Provided memory context enables author repair independently of answer-shape self-check; phrase queries reuse the compiler's binding semantics.
+- Declared classes, numeric domains, derived relations, admitted local evidence, open membership and legitimate closed absence retain their existing semantics. Typing retrieval performs no knowledge write or proof-use promotion. DS006/DS022 specify the boundary and budgets.
+- Saved replay and acceptance evidence: `eval/reports/current/omp-tasks/t11-guards.md`. Repository green remains blocked by out-of-area generated architecture citations.
