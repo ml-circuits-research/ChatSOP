@@ -1,5 +1,5 @@
 /**
- * Scoring phase of the PSM/LFM zero-shot probe (./probe.mjs). Deterministic: the PSM extraction against the registry, the question
+ * Scoring phase of the PSM/LFM roles (written for the zero-shot probe, archived on 2026-10-03 in probably_obsolete/eval-cleanup-2026-10-03/; used by ./ab.mjs). Deterministic: the PSM extraction against the registry, the question
  * units and the worked solution; the LFM's FOL through the converters (lib/formalize/fol, lib/formalize/structure) and the engines,
  * against the book answer (lib/formalize/equivalence.mjs). Eval code reading the gold; never product code.
  */

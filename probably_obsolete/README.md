@@ -58,3 +58,7 @@ Both keep original repository-relative paths below their folder; the state befor
 | `tinyagent-migration/tools/local-llm/serve.mjs` | Started one managed llama-server and kept it running for the chat server or an evaluation | `node TinyAgent/bin/tinyagent.mjs models start <provider>` |
 | `tinyagent-migration/tests/local-llm-runtime.test.mjs` | The tests of `lib/local-llm` | TinyAgent's own tests (`TinyAgent/test/`) |
 | `tinyagent-migration/tools/eval/query-model-calibration/` | `servers.mjs` (one private GPU llama-server of an evaluation) and `models.mjs` (its GGUF list), last used by the symbolic-vs-llm harness | the harnesses name a TinyAgent tier (`--local-tier`, default `micro`) |
+
+## Evaluation clean-up (2026-10-03)
+
+`eval-cleanup-2026-10-03/` holds the harness files the inventory of tests and evaluations (`docs/tests-inventory.html`, recommendations R3 to R5) found tied to archived components, at their original paths: the SymbolicLM-era severity graders (`tools/eval/severity/sop-compare.mjs`, `analysis-map.mjs`, `simplify.mjs`, with `program-shape.mjs` and the rewrite judge prompt `judge-prompt.mjs`), the linker differential over SymbolicLM rows (`tools/linking/differential.mjs`) and the zero-shot structure probe (`tools/eval/structure-formalizer/probe.mjs`, superseded by `ab.mjs`). DS012 keeps the severity scale, the mechanical checks and the metrics. The duplicate query-forms runner `tools/eval/query-forms/run.mjs` (R2) was deleted; `tools/eval/query-parsers.mjs --suite forms` runs the same rows.

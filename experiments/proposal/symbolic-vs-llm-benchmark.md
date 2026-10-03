@@ -45,7 +45,7 @@ Each generated family writes `cases/<family>/<instance>/{knowledge.sop, query.so
 - Latency p50/p95 split into parse, retrieval, engine and verify; cost per 100 questions (omp usage events; local = 0 plus tokens/s).
 - Scaling curves: accuracy vs facts (10^2..10^6) and vs depth (1..10) per arm.
 - **Practical margin:** B beats A when the paired-bootstrap 95% lower bound of (B − A) accuracy is > 0, the point estimate is ≥ 10 pp, and B's wrong rate ≤ A's wrong rate + 2 pp.
-- Failure attribution (extend `layerOf` of `tools/eval/query-forms/run.mjs`): `authoring` (invalid, unclear, or a circuit whose execution differs from the gold circuit on the same slice), `linking` (`unknown_predicate`, `entity_id_not_listed`, candidate recall miss), `retrieval` (`partial_retrieval`, budget), `engine` (`budget_exhausted`, `discrepancy`), `rendering`. Gold-circuit equivalence is decided by executing both on the oracle over the gold slice.
+- Failure attribution (`failureLayer` of `tools/eval/symbolic-vs-llm/score.mjs`): `authoring` (invalid, unclear, or a circuit whose execution differs from the gold circuit on the same slice), `linking` (`unknown_predicate`, `entity_id_not_listed`, candidate recall miss), `retrieval` (`partial_retrieval`, budget), `engine` (`budget_exhausted`, `discrepancy`), `rendering`. Gold-circuit equivalence is decided by executing both on the oracle over the gold slice.
 
 ## 4. Protocol
 

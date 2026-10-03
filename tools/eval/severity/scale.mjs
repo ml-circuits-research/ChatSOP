@@ -1,7 +1,7 @@
 /**
  * Graded severity scale (DS012 "Graded severity (S0-S4, NONE)", owner direction 2026-10-01): the shades of grey between
- * pass and fail for a rewrite (input text -> output text) and for an interpretation (message -> SymbolicLM analysis/SOP
- * against gold). Pure data and small helpers; the graders live in this folder, the tools in tools/eval/severity-*.mjs.
+ * pass and fail for a rewrite (input text -> output text) and for an answer or rendering against a packet or a gold. Pure data and
+ * small helpers; the mechanical grader and the metrics live in this folder (the SymbolicLM-era graders were archived on 2026-10-03).
  */
 export const SEVERITIES = Object.freeze(['S0', 'S1', 'S2', 'S3', 'S4', 'NONE']);
 export const SCALE = Object.freeze({

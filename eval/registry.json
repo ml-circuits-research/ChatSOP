@@ -1348,39 +1348,6 @@
    "status": "active"
   },
   {
-   "id": "eval-structure-probe",
-   "title": "Zero-shot probe of the structure and FOL roles",
-   "kind": "live-eval",
-   "measures": "The first zero-shot probe of the structure and FOL roles on 30 book problems (fetch, score, speed).",
-   "components": [
-    "routed-paths"
-   ],
-   "paths": [
-    "tools/eval/structure-formalizer/probe.mjs"
-   ],
-   "modelCalls": {
-    "level": "local",
-    "typical": "two calls per problem",
-    "cost": "local, free"
-   },
-   "dataSource": [
-    "book problems (local only)"
-   ],
-   "command": "node tools/eval/structure-formalizer/probe.mjs fetch --run <id> --n 30; probe.mjs score --run <id>",
-   "runsIn": [
-    "manual"
-   ],
-   "runtime": "estimate: 15 min",
-   "latest": {
-    "result": "psm-lfm-zero-shot-v1 done (GLiNER2.5/T5 backends, since deleted); conclusion overturned by psm-lfm-ab-v1",
-    "date": "2026-10-03",
-    "path": "status/experiments.json (psm-lfm-zero-shot-v1); state/structure-formalizer/probe-1/"
-   },
-   "status": "superseded",
-   "supersededBy": "eval-structure-ab",
-   "notes": "Written for the GLiNER2.5 and T5 backends, which were deleted; ab.mjs reuses its scorer (score.mjs) and covers the same roles on any tier."
-  },
-  {
    "id": "eval-formalization-regression",
    "title": "Formalization regression set (live runner, gate, improver wake-up)",
    "kind": "live-eval",
@@ -1768,7 +1735,7 @@
     "path": "eval/reports/current/pragmatics/summary.md"
    },
    "status": "active",
-   "notes": "Its `lexicon` arm imports the archived EmotionDetectionSystem (probably_obsolete/paused/); the acts are now memory data, measured again by eval-smalltalk."
+   "notes": "The lexicon arm (the archived EmotionDetectionSystem) was dropped on 2026-10-03 (R6); its earlier records are still reported. The acts are now memory data, measured again by eval-smalltalk."
   },
   {
    "id": "eval-analysis",
@@ -1934,36 +1901,6 @@
    "notes": "Building the suite (`build`) reads frozen datasets of the small-model branch through tools/linking/rows.mjs; the sealed suite itself is kept as is."
   },
   {
-   "id": "eval-linking-differential",
-   "title": "Linker differential over symbolic_english dev rows",
-   "kind": "data-audit",
-   "measures": "Records the observable result of every symbolic_english dev row's SymbolicLM program against its verification world and reports regressions after a linker change.",
-   "components": [
-    "linker"
-   ],
-   "paths": [
-    "tools/linking/differential.mjs"
-   ],
-   "modelCalls": {
-    "level": "none"
-   },
-   "dataSource": [
-    "generated"
-   ],
-   "command": "node tools/linking/differential.mjs record; node tools/linking/differential.mjs compare",
-   "runsIn": [
-    "manual"
-   ],
-   "runtime": "minutes",
-   "latest": {
-    "result": "788 rows, 0 regressions, 132 improvements (linker M3)",
-    "date": "2026-10-01",
-    "path": "eval/reports/current/linking/differential-after.json"
-   },
-   "status": "obsolete",
-   "notes": "Its rows are SymbolicLM programs of the frozen small-model branch, read from probably_obsolete/tinyLLMExperiments/; the current formalizer never produces them. Kept because it still runs; candidate for the archive."
-  },
-  {
    "id": "eval-query-parsers",
    "title": "Formalizer on the world-kb and forms question sets (eval-query-parsers-v1)",
    "kind": "live-eval",
@@ -2031,37 +1968,6 @@
    },
    "status": "active",
    "notes": "query-forms-probe.mjs also provides openSession and agentClient to the commonsense, generality, protocol and ingest harnesses. Experiment eval-query-forms-v1 still lists the dev set as pending."
-  },
-  {
-   "id": "eval-query-forms-run",
-   "title": "Query-forms dev-set runner",
-   "kind": "live-eval",
-   "measures": "Runs the query-forms dev set through the chain and scores it per form against the oracle gold.",
-   "components": [
-    "formalizer"
-   ],
-   "paths": [
-    "tools/eval/query-forms/run.mjs"
-   ],
-   "modelCalls": {
-    "level": "local+cloud",
-    "typical": "about 6 step questions per row",
-    "cost": "tiny free"
-   },
-   "dataSource": [
-    "generated"
-   ],
-   "command": "node tools/eval/query-forms/run.mjs --dev dev.jsonl --out records.jsonl [--tier tiny]",
-   "runsIn": [
-    "manual"
-   ],
-   "runtime": "estimate: 10-30 min",
-   "latest": {
-    "result": "no recorded run"
-   },
-   "status": "duplicate",
-   "duplicateOf": "eval-query-parsers",
-   "notes": "tools/eval/query-parsers.mjs --suite forms --rows runs the same rows through the same path with outcome classes and cost."
   },
   {
    "id": "eval-world-kb-chat",
@@ -2463,7 +2369,7 @@
    "id": "audit-severity",
    "title": "Graded severity (S0-S4, NONE) graders",
    "kind": "data-audit",
-   "measures": "The severity scale, mechanical checks, metrics, SOP comparison and fallback simplifications used to grade an answer or a rendering against a packet or a gold (DS012).",
+   "measures": "The severity scale, the mechanical checks and the metrics used to grade an answer or a rendering against a packet or a gold (DS012 \"Graded severity\").",
    "components": [
     "eval-tooling"
    ],
@@ -2487,7 +2393,7 @@
     "path": "eval/reports/current/severity/summary.md"
    },
    "status": "active",
-   "notes": "No current harness calls it. DS012 keeps scale.mjs, mechanical.mjs and metrics.mjs for judging formulated answers; sop-compare.mjs, analysis-map.mjs and simplify.mjs graded SymbolicLM interpretations and rewrites of the frozen branch."
+   "notes": "No current harness calls it. DS012 keeps scale.mjs, mechanical.mjs (with text-features.mjs) and metrics.mjs for judging formulated answers; the SymbolicLM-era graders (sop-compare.mjs, analysis-map.mjs, simplify.mjs, with program-shape.mjs and the rewrite judge prompt judge-prompt.mjs) were archived on 2026-10-03 (R3)."
   },
   {
    "id": "eval-knowledge-mining",
@@ -2768,6 +2674,54 @@
    "to": "probably_obsolete/omp/fixtures/stub-rpc.mjs",
    "date": "2026-10-03",
    "why": "stub of omp RPC mode, used only by the archived probably_obsolete/omp/omp-rpc.test.mjs"
+  },
+  {
+   "path": "tools/eval/severity/sop-compare.mjs",
+   "to": "probably_obsolete/eval-cleanup-2026-10-03/tools/eval/severity/sop-compare.mjs",
+   "date": "2026-10-03",
+   "why": "R3: graded SymbolicLM interpretations (SOP comparison) of the frozen small-model branch"
+  },
+  {
+   "path": "tools/eval/severity/analysis-map.mjs",
+   "to": "probably_obsolete/eval-cleanup-2026-10-03/tools/eval/severity/analysis-map.mjs",
+   "date": "2026-10-03",
+   "why": "R3: mapped SymbolicLM analysis comparisons to severities (frozen branch)"
+  },
+  {
+   "path": "tools/eval/severity/simplify.mjs",
+   "to": "probably_obsolete/eval-cleanup-2026-10-03/tools/eval/severity/simplify.mjs",
+   "date": "2026-10-03",
+   "why": "R3: fallback simplifications of SymbolicLM rewrites (frozen branch)"
+  },
+  {
+   "path": "tools/eval/severity/program-shape.mjs",
+   "to": "probably_obsolete/eval-cleanup-2026-10-03/tools/eval/severity/program-shape.mjs",
+   "date": "2026-10-03",
+   "why": "R3: used only by sop-compare.mjs"
+  },
+  {
+   "path": "tools/eval/severity/judge-prompt.mjs",
+   "to": "probably_obsolete/eval-cleanup-2026-10-03/tools/eval/severity/judge-prompt.mjs",
+   "date": "2026-10-03",
+   "why": "R3: the LLM judge prompt for message rewrites of the SymbolicLM era; imported by nothing"
+  },
+  {
+   "path": "tools/linking/differential.mjs",
+   "to": "probably_obsolete/eval-cleanup-2026-10-03/tools/linking/differential.mjs",
+   "date": "2026-10-03",
+   "why": "R4: its rows are SymbolicLM programs of the frozen branch read from probably_obsolete/; linker changes are measured on the current regressions"
+  },
+  {
+   "path": "tools/eval/structure-formalizer/probe.mjs",
+   "to": "probably_obsolete/eval-cleanup-2026-10-03/tools/eval/structure-formalizer/probe.mjs",
+   "date": "2026-10-03",
+   "why": "R5: the zero-shot structure probe (GLiNER2.5/T5 backends, deleted), superseded by ab.mjs"
+  },
+  {
+   "path": "tools/eval/query-forms/run.mjs",
+   "to": "deleted (git history)",
+   "date": "2026-10-03",
+   "why": "R2: duplicate of tools/eval/query-parsers.mjs --suite forms (same rows, same path, with outcome classes and cost)"
   }
  ],
  "recommendations": [
@@ -2781,31 +2735,31 @@
    "id": "R2",
    "title": "Drop the query-forms runner",
    "detail": "tools/eval/query-forms/run.mjs duplicates tools/eval/query-parsers.mjs --suite forms; keep gold.mjs, overlap.mjs and the probe.",
-   "decision": "decided: archive run.mjs at the next query-forms run"
+   "decision": "done 2026-10-03: run.mjs deleted (git history); DS012 cites failureLayer and wilson of tools/eval/symbolic-vs-llm/score.mjs instead"
   },
   {
    "id": "R3",
    "title": "Archive the SymbolicLM-era parts of the severity graders",
    "detail": "sop-compare.mjs, analysis-map.mjs and simplify.mjs grade the frozen branch's interpretations; DS012 keeps scale, mechanical checks and metrics.",
-   "decision": "decided: archive with a DS012 wording check at the next severity use"
+   "decision": "done 2026-10-03: the three graders, program-shape.mjs and judge-prompt.mjs archived in probably_obsolete/eval-cleanup-2026-10-03/; DS012 cites only scale, mechanical and metrics"
   },
   {
    "id": "R4",
    "title": "Archive the linker differential and freeze the linking suite build",
    "detail": "tools/linking/differential.mjs and the `build` of the linking suite read SymbolicLM rows from probably_obsolete/; the sealed suite stays and `run` keeps working.",
-   "decision": "decided: archive differential.mjs after the next linker change is measured on the current regression instead"
+   "decision": "done 2026-10-03: differential.mjs archived in probably_obsolete/eval-cleanup-2026-10-03/; the linking suite build stays as it is"
   },
   {
    "id": "R5",
    "title": "Archive the zero-shot structure probe",
    "detail": "tools/eval/structure-formalizer/probe.mjs is superseded by ab.mjs (same roles, any tier).",
-   "decision": "decided: archive at the next structure-formalizer change"
+   "decision": "done 2026-10-03: probe.mjs archived in probably_obsolete/eval-cleanup-2026-10-03/"
   },
   {
    "id": "R6",
    "title": "Drop the pragmatics lexicon arm",
    "detail": "the `lexicon` arm of tools/eval/pragmatics/run.mjs imports the archived EmotionDetectionSystem; its records stay readable.",
-   "decision": "decided: remove the arm when the harness is next touched"
+   "decision": "done 2026-10-03: the arm removed; its records stay readable in --report"
   },
   {
    "id": "R7",

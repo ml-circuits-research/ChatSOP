@@ -1,11 +1,8 @@
-// Graded severity (DS012 "Graded severity (S0-S4, NONE)"): scale helpers, mechanical layer, analysis mapping, SOP comparer, simplifications and metrics.
+// Graded severity (DS012 "Graded severity (S0-S4, NONE)"): scale helpers, mechanical layer and metrics (the SymbolicLM-era analysis mapping, SOP comparer and simplifications were archived on 2026-10-03, probably_obsolete/eval-cleanup-2026-10-03/).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SEVERITIES, worst, rank, isGoodEnough} from '../tools/eval/severity/scale.mjs';
 import {mechanicalSeverity} from '../tools/eval/severity/mechanical.mjs';
-import {severityFromComparison} from '../tools/eval/severity/analysis-map.mjs';
-import {sopSeverity} from '../tools/eval/severity/sop-compare.mjs';
-import {stripLeadIns, stripTag, splitCoordinated, simplifications} from '../tools/eval/severity/simplify.mjs';
 import {wilson, summaryMetrics, confusion, distributionStats} from '../tools/eval/severity/metrics.mjs';
 
 test('scale order and helpers', () => {
@@ -32,38 +29,6 @@ test('mechanical layer: certain S4 flags and exact matches', () => {
   // a harmless rewrite is not decided as S4
   assert.equal(mechanicalSeverity('i woder if Priya works at Vertex Analytics .', 'I wonder if Priya works at Vertex Analytics.').decided, false);
   assert.equal(mechanicalSeverity('Verify the claim that Radu teaches chemistry.', 'Check whether Radu teaches chemistry.').decided, false);
-});
-
-test('analysis mapping: equivalent is S0, catastrophic checks decide S4, the rest stays in the residue', () => {
-  assert.equal(severityFromComparison({verdict: 'equivalent', reasons: [], failedChecks: []}).severity, 'S0');
-  const swap = severityFromComparison({verdict: 'different', failedChecks: ['roles'], reasons: ['roles: subject and object swapped for [manage: ana]']});
-  assert.equal(swap.severity, 'S4'); assert.ok(swap.decided);
-  const q = severityFromComparison({verdict: 'different', failedChecks: ['question'], reasons: ['question: a is wh who, b is yes/no']});
-  assert.equal(q.decided, false);
-  assert.equal(severityFromComparison({verdict: 'uncertain', reasons: ['tense_modality'], failedChecks: []}).decided, false);
-  const lost = severityFromComparison({verdict: 'different', failedChecks: ['names'], reasons: ['names: only in a [cluj], only in b []']});
-  assert.equal(lost.decided, false);
-});
-
-const wire = (id, kind, rel, roles, extra = '') => `@${id} ${kind}\n  relation "${rel}"\n${roles.map(([n, v]) => `  role ${n} "${v}"`).join('\n')}\n  polarity ${extra || 'affirmed'}\n  certainty asserted\n`;
-test('SOP comparer: role order and passive voice are not differences; catastrophes are S4', () => {
-  const gold = wire('s1', 'stated', 'rent', [['subject', 'Ana'], ['object', 'the van']]);
-  assert.equal(sopSeverity(wire('s1', 'stated', 'rent', [['object', 'the van'], ['subject', 'Ana']]), gold, {message: 'Ana rents the van.'}).severity, 'S0');
-  assert.equal(sopSeverity(wire('s1', 'stated', 'be rented by', [['subject', 'the van'], ['object', 'Ana']]), gold, {message: 'Ana rents the van.'}).severity, 'S0');
-  assert.equal(sopSeverity(wire('s1', 'stated', 'rent', [['subject', 'the van'], ['object', 'Ana']]), gold, {message: 'Ana rents the van.'}).severity, 'S4');
-  assert.equal(sopSeverity(wire('s1', 'stated', 'rent', [['subject', 'Ana'], ['object', 'the van']], 'negated'), gold, {message: 'Ana rents the van.'}).severity, 'S4');
-  assert.equal(sopSeverity(wire('s1', 'stated', 'rent', [['subject', 'Dan'], ['object', 'the van']]), gold, {message: 'Ana rents the van.'}).severity, 'S4');
-  assert.equal(sopSeverity(wire('s1', 'stated', 'rent', [['subject', 'Ana'], ['object', 'the red van']]), gold, {message: 'Ana rents the red van.'}).severity, 'S2');
-  assert.equal(sopSeverity('', gold, {message: 'Ana rents the van.'}).severity, 'NONE');
-  assert.equal(sopSeverity('@u unclear\n  kind no_request\n', gold, {message: 'Ana rents the van.'}).severity, 'NONE');
-});
-
-test('simplifications drop lead-ins and tags and split coordinated questions', () => {
-  assert.equal(stripLeadIns('Honestly, who owns the van?'), 'Who owns the van?');
-  assert.equal(stripTag('Ana lives in Iasi, right?'), 'Ana lives in Iasi?');
-  assert.equal(splitCoordinated('Does Ana teach maths and does she visit Cluj?'), 'Does Ana teach maths? Does she visit Cluj?');
-  assert.equal(splitCoordinated('Ana and Dan live in Cluj.'), null);
-  assert.ok(simplifications('Honestly, who owns the van?', ['Honestly, who owns the van?']).some(c => c.text === 'Who owns the van?'));
 });
 
 test('metrics: Wilson, S4 recall and false-S4 rate, distribution shares', () => {
