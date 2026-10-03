@@ -105,17 +105,18 @@ curl -H "Authorization: Bearer $CHATSOP_API_KEY" http://127.0.0.1:9999/v1/status
 
 ## Models: TinyAgent
 
-Every model call of ChatSOP goes through **TinyAgent** (`TinyAgent/`, manual [TinyAgent/README.md](TinyAgent/README.md)): one server per machine (`node TinyAgent/bin/tinyagent.mjs serve`, OpenAI/Anthropic-compatible on `http://127.0.0.1:18080`) that routes requests by **tier**, applies rate, plan and budget limits, caches responses, keeps the audit store, starts and stops the local model servers, and runs batch jobs, tasks and skills. No other component calls a model API: code uses the library (`tinyAgent({purpose})` of `lib/tinyagent.mjs`), command lines and agents use the CLI; a client starts the server when none runs.
+Every model call of ChatSOP goes through **TinyAgent** (`TinyAgent/`, manual [TinyAgent/README.md](TinyAgent/README.md)): one server per machine (`node TinyAgent/bin/tinyagent.mjs serve`, OpenAI/Anthropic-compatible on `http://127.0.0.1:18080`) that routes requests by **tier**, applies rate, plan and budget limits, caches responses, keeps the audit store, starts and stops the local model servers, and runs batch jobs, tasks and TaskLambdas, each call in an audited folder (`~/.tinyagent/calls`). No other component calls a model API: code uses the library (`tinyAgent({purpose})` of `lib/tinyagent.mjs`), command lines and agents use the CLI; a client starts the server when none runs.
 
 ```sh
 node TinyAgent/bin/tinyagent.mjs serve                     # the server (first start writes ~/.tinyagent/)
 node TinyAgent/bin/tinyagent.mjs chat --tier tiny "Say hello"
 node TinyAgent/bin/tinyagent.mjs job jobs/books-direct-calibration --stage pilot
-node TinyAgent/bin/tinyagent.mjs skills                    # built-in skills, ChatSOP's SkillPlugins, job folders, task templates
+node TinyAgent/bin/tinyagent.mjs lambdas --server         # built-in TaskLambdas, ChatSOP's project TaskLambdas, job folders, task templates
+node TinyAgent/bin/tinyagent.mjs calls list                # the latest TaskLambdaCalls: every call an audited folder (input, output, effects, model calls)
 node TinyAgent/bin/tinyagent.mjs stats                     # use, costs, plan windows, fallbacks, cache
 ```
 
-Clients name a tier, never a model: `nano`, `micro` and `tiny` are local models, `small`, `medium` and `good` are cloud models with fallbacks, and `best` is served by `tiny` until a stronger model is configured; with no provider key only the local tiers serve. Every request carries a purpose (`chat`, `formalize`, `answer-*`, `ingest`, `job:<name>`, `review:<run>`, `skill:<name>`, `test:<name>`), which also sets its priority class: a person waiting is served first, background work runs only on spare capacity. The user's keys, request log, cache, audit store and runs live in `~/.tinyagent/` (outside the repository); ChatSOP's configuration layer is `config/tinyagent.json` (tiers, the job runner, SkillPlugins in `jobs/skills/`), its role prompts are in `config/prompts/`, and the runs of its jobs are written to `state/llm-jobs/`.
+Clients name a tier, never a model: `nano`, `micro` and `tiny` are local models, `small`, `medium` and `good` are cloud models with fallbacks, and `best` is served by `tiny` until a stronger model is configured; with no provider key only the local tiers serve. Every request carries a purpose (`chat`, `formalize`, `answer-*`, `ingest`, `job:<name>`, `review:<run>`, `lambda:<name>`, `test:<name>`), which also sets its priority class: a person waiting is served first, background work runs only on spare capacity. The user's keys, request log, cache, audit store and runs live in `~/.tinyagent/` (outside the repository); ChatSOP's configuration layer is `config/tinyagent.json` (tiers, the job runner, project TaskLambdas in `jobs/skills/`), its role prompts are in `config/prompts/`, and the runs of its jobs are written to `state/llm-jobs/`.
 
 ## Base memories from documents (learning by ingestion)
 

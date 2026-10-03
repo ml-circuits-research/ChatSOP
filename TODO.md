@@ -39,12 +39,12 @@ Measure: book problems solved end to end (`datasets_sources/books/eval/`, 100 ra
 
 - [ ] **Symbolic planner for agentic work (later; owner 2026-10-03):** test the planning engines (HTN/STRIPS, Golog) on a small PDDL-style benchmark (e.g. blocksworld) against small LLMs, then decide whether planning and tool use become a ChatSOPAdapter mode.
 
-- [x] **TinyAgent as a small coding-style agent with a visible plan cache** (owner, 2026-10-03; after TinyAgent phase 1 is usable). Intended use: fast, for clear, simple, repetitive tasks and given SkillPlugins.
+- [x] **TinyAgent as a small coding-style agent with a visible plan cache** (owner, 2026-10-03; after TinyAgent phase 1 is usable). Intended use: fast, for clear, simple, repetitive tasks and given TaskLambdas (renamed the same day: plans and project modules are TaskLambdas, see "TaskLambda rename" below).
   *Done 2026-10-03:* `tinyagent run` and `tinyagent plans` (`TinyAgent/lib/agent/`, manual: "The agent" in `TinyAgent/README.md`; tests `TinyAgent/test/agent.test.mjs`; task set `TinyAgent/bench/agent-tasks.mjs`; CHANGES.md). Deviations: the tools add `move` (renaming needs it); the planner may ask once for skill bodies and file heads; plans are refused when they write a value of the request into their code. Open: re-plans are still frequent on new tasks (3 of 8 right at the first plan); free shell behind an allow-list not done.
   - Skills: `tinyagent run "<instructions>" [--workdir DIR]` (default the current folder) reads `.agents/skills/*/SKILL.md` (the standard Agent Skills format, also the project `skills/`); the planner sees names and descriptions, loads a body only when it chooses the skill.
   - Minimal tools, confined to the work folder: read, list, search, write, `ask(tier, prompt)`, run a script a skill declares; free shell later, behind an allow-list.
-  - The plan is code: the planner tier writes an .mjs plan against `tools.*` and the skills; it runs in the SkillPlugin sandbox; on failure the error goes back to the planner, at most 2–3 rounds; `--dry-run` shows the plan; every run keeps plan, calls and errors in its run folder.
-  - Plan cache: a plan that ran and was verified is reused, not re-planned, for the same task (exact key, then the planner is offered the cached plans by name and description and may reuse one with new parameters); a verified plan becomes a reusable SkillPlugin.
+  - The plan is code: the planner tier writes an .mjs plan against `tools.*` and the skills; it runs in the sandbox of model-written TaskLambdas; on failure the error goes back to the planner, at most 2–3 rounds; `--dry-run` shows the plan; every run keeps plan, calls and errors in its run folder.
+  - Plan cache: a plan that ran and was verified is reused, not re-planned, for the same task (exact key, then the planner is offered the cached plans by name and description and may reuse one with new parameters); a verified plan becomes a project TaskLambda (`tinyagent lambdas promote`).
   - Fast match before planning: a BM25 index over the cached plans (task text, PLAN.md description, parameter names) gives the top candidates in milliseconds; a cheap tier (`tiny`) only decides whether the new request is the same task with other parameters and extracts their values against the plan’s declared parameter schema (types checked); a match runs the cached plan directly, with no new code; no match, or values that fail the schema, goes to the planner. Each plan declares its parameters; the decision and the matched plan are written to the run folder.
   - The cache is visible and editable: a plain folder (`--plans DIR`, default under the work folder or the TinyAgent home, printed by every run), one directory per plan with `plan.mjs`, a short `PLAN.md` (task, parameters, skills used, status draft/verified, runs), and `runs.jsonl`; `tinyagent plans list|show|verify|rm`; a plan edited by a person or a coding agent changes hash and is re-verified before reuse.
   - A small task set with known results measures it.
@@ -57,7 +57,29 @@ Phase 1 merged the earlier proxy and job runner into `TinyAgent/` (one server pe
 - [x] **Compatibility layer deleted** (2026-10-03): the shim folders of the earlier proxy and job runner and its runner configuration are archived in `probably_obsolete/tinyagent-migration/`; the old header names, the old key folder, the old runner file and `compat.oldHeaders` are gone (`TinyAgent/lib/legacy.mjs` keeps only the TaskLambda names).
 - [x] **Port 18080 runs `tinyagent serve`** (2026-10-03, after the in-flight check): the old keys, request logs, run registrations, cache and audit store were copied into `~/.tinyagent/` and verified (a second dry run copies nothing; the old folders are untouched).
 - [x] **The phase-2 allow-list is empty:** `tests/tinyagent/no-direct-model-calls.test.mjs` holds for every file outside the history paths.
-- [ ] **Formalization regression as SkillPlugins in background priority:** the offline and live formalization regressions (`tools/eval/formalization-regression/`) and the improver's wake check as SkillPlugins in `jobs/skills/`, run with priority `background` so they use only spare plan capacity and never delay a chat turn.
+- [ ] **Formalization regression as project TaskLambdas in background priority:** the offline and live formalization regressions (`tools/eval/formalization-regression/`) and the improver's wake check as project TaskLambdas in `jobs/skills/`, run with priority `background` so they use only spare plan capacity and never delay a chat turn.
+
+## TaskLambda rename (owner, 2026-10-03)
+
+The project modules TinyAgent serves are TaskLambdas (content-hashed, typed params, a required effects declaration) and every call of one
+is a TaskLambdaCall folder (manual: "TaskLambdas and TaskLambdaCalls" in `TinyAgent/README.md`).
+
+- [x] **TinyAgent core** (2026-10-03): `TinyAgent/lib/lambda/` (registry, effects, call folders), the server's operations as calls (a job
+  run has one child call per item, `run-lambdas` one per step, `write-lambda` one per program), the agent's run as a call of `agent` with
+  each TaskLambda execution a child call, the plan cache as the TaskLambda cache (`.tinyagent/lambdas`, old `.tinyagent/plans` migrated
+  in place), pure reuse, `tinyagent lambdas|call|calls`, `GET /v1/calls`; tests `TinyAgent/test/calls.test.mjs`; the old names read
+  through `TinyAgent/lib/legacy.mjs`. Decision: the job runner's run folders and the task folders are wrapped by their calls (linked from
+  call.json), not moved.
+- [ ] **Files of other agents, after they commit** (each then leaves the `PENDING` list of `tests/tinyagent/no-direct-model-calls.test.mjs`
+  and of `TinyAgent/test/calls.test.mjs`): `jobs/skills/chatsop.mjs` and `jobs/skills/regression.mjs` (declare `effects`; `inputs` ->
+  `params`, `ctx.inputs` -> `ctx.params`, export `lambdas`; comments), `tools/eval/formalization-regression/{argument,grow,record,offline}.mjs`
+  (comments), `tests/formalization-regression-plugins.test.mjs` (`loadLambdas`, `validateParams`, title), `TinyAgent/test/client-ops.test.mjs`
+  (comment), `config/tinyagent.json` (section `skills` -> `lambdas`, `plugins` -> `project`, `lambda:*` in `policy.allowedPurposes`),
+  `docs/runtime.html` (two mentions), `eval/registry.json` (texts of the regression entries) and `docs/tests-inventory.html` (regenerate).
+- [ ] **Rename the folder `jobs/skills/` to `jobs/lambdas/`** (Agent Skills are a different concept), with `config/tinyagent.json`.
+- [ ] **Drop the old names** once every running TinyAgent server has been restarted on this code and no caller uses them: the TaskLambda section of
+  `TinyAgent/lib/legacy.mjs`, `TinyAgent/lib/skills.mjs`, `ta.skill`/`ta.skills`, `/v1/skills`, the commands `skills`, `skill`,
+  `run-skills`, `plans`, the purpose prefix `skill:`, the worker's handling of `opDir` and of the kinds `skill`/`skills`.
 
 ## Tests and evaluations inventory (2026-10-03)
 

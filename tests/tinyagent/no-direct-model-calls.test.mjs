@@ -46,3 +46,22 @@ test('the names of the replaced components appear only in history', () => {
   }
   assert.deepEqual(bad, [], `rename to TinyAgent (tinyagent):\n${bad.join('\n')}`);
 });
+
+// The owner's rename of 2026-10-03: the project modules TinyAgent serves are TaskLambdas (TinyAgent/README.md "TaskLambdas and
+// TaskLambdaCalls"); the earlier name appears only in history. PENDING holds files of agents that were still running when the rename
+// landed (TODO.md "TaskLambda rename"); this list only shrinks.
+const OLD_LAMBDA_NAME = new RegExp(['skill', 'plugin'].join('[\\s_-]*'), 'i');
+const PENDING = new Set([
+  'TinyAgent/test/client-ops.test.mjs', 'jobs/skills/chatsop.mjs', 'jobs/skills/regression.mjs', 'tests/formalization-regression-plugins.test.mjs',
+  'tools/eval/formalization-regression/argument.mjs', 'tools/eval/formalization-regression/grow.mjs', 'tools/eval/formalization-regression/record.mjs',
+  'tools/eval/formalization-regression/offline.mjs', 'config/tinyagent.json', 'docs/runtime.html', 'eval/registry.json', 'docs/tests-inventory.html',
+]);
+
+test('the earlier name of a TaskLambda appears only in history', () => {
+  const bad = [];
+  for (const f of files) {
+    if (HISTORY.some(r => r.test(f)) || PENDING.has(f) || !text(f) || !fs.statSync(path.join(ROOT, f)).isFile()) continue;
+    if (OLD_LAMBDA_NAME.test(fs.readFileSync(path.join(ROOT, f), 'utf8'))) bad.push(f);
+  }
+  assert.deepEqual(bad, [], `rename to TaskLambda:\n${bad.join('\n')}`);
+});
