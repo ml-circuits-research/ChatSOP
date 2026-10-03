@@ -3,7 +3,7 @@
  * Harness of experiment eval-ingest-v1 (status/preregistrations/eval-ingest-v1.json): questions over documents ingested into task-type
  * base memories, answered by three arms.
  *
- *   node tools/eval/ingest-v1.mjs pipeline --doc handbook|europa [--ids h01,h02] [--tier small] [--base ID] [--tag T] [--cache record|off] [--ladder]
+ *   node tools/eval/ingest-v1.mjs pipeline --doc handbook|europa [--ids h01,h02] [--tier small] [--base ID] [--tag T] [--ladder]
  *        the product path: a session cloned from the base memory, the step-by-step formalizer with its questions answered by ONE
  *        TinyAgent tier (default small; LLMDirect is archived), the shared symbolic path, the rendered English answer
  *   node tools/eval/ingest-v1.mjs direct --doc ... --arm qwen27b|deepseek [--model M]       the model reads the whole document (one direct call through TinyAgent)
@@ -57,9 +57,7 @@ export function openSession({base, id, product = openProduct()}) {
 /** One question through the product path in a fresh conversation; returns the record of the answer. */
 export async function askPipeline(s, question, {tier}) {
   const entry = s.store.get('eval-ingest', 'c' + Math.random().toString(36).slice(2), BASE_NAME);
-  // --cache record|off: bypass (and with record, refresh) the proxy's response cache, e.g. after cut answers were cached.
-  const mode = opt('--cache');
-  const client = agentClient({config: s.config, lexicon: s.lexicon, tier, ...(mode ? {headers: {'x-tinyagent-cache': mode, 'x-llmapiprovider-cache': mode}} : {})});
+  const client = agentClient({config: s.config, lexicon: s.lexicon, tier});
   const started = Date.now();
   try {
     const res = await entry.agent.turn(question, {formalizer: client});
