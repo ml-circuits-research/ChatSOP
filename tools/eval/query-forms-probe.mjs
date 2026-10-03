@@ -34,8 +34,8 @@ export function openWorld({root = defaultRoot()} = {}) {
 }
 
 /** The formalizer of the probe: the step-by-step questions over the session's memory (no cache, so every call is a measurement). */
-export function agentClient({config, lexicon, tier = opt('--tier', null)}) {
-  const queryParser = createQueryParser({settings: tierParserSettings(config, {tier, cacheEntries: 0})});
+export function agentClient({config, lexicon, tier = opt('--tier', null), headers = null}) {
+  const queryParser = createQueryParser({settings: tierParserSettings(config, {tier, cacheEntries: 0, ...(headers ? {headers} : {})})});
   return {id: 'step-by-step', last: null, async formalize(text) { const r = await queryParser.parse({source: 'eval:query-forms', message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); this.last = r.parse; return r.sop; }};
 }
 
