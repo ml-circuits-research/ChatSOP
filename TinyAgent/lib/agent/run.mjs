@@ -257,7 +257,7 @@ export async function runAgent({ request, workdir = process.cwd(), plansDir = nu
     fs.writeFileSync(path.join(runDir, `plan-${round}.mjs`), code + '\n');
     const m = await extractMeta(code, S);
     if (m.error) { retry({ stage: 'load', code: 'plan_invalid', message: m.error }, `The plan cannot be used: ${m.error}\nWrite the whole corrected plan in one js code block.`); continue; }
-    const hard = hardcodedValues(code, request, m.meta.example);
+    const hard = hardcodedValues(code, request, m.meta.example, { allowed: [...skills.values()].flatMap((sk) => [sk.name, ...sk.scripts, ...sk.scripts.map((x) => x.replace(/^scripts\//, ''))]) });
     if (hard.length) {
       retry({ stage: 'load', code: 'hardcoded_value', message: `values of this request are written in the code: ${hard.map((h) => JSON.stringify(h)).join(', ')}` },
         `The plan writes values of this request into its code: ${hard.map((h) => JSON.stringify(h)).join(', ')}. It must work for other values too: make each one a parameter in meta.params (its value in meta.example) and read it from params. Write the whole corrected plan in one js code block.`);

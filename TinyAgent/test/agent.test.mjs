@@ -377,6 +377,7 @@ export default async function run(tools, params) { const e = 'file'; const n = '
   assert.deepEqual(codeLiterals(code), ['file', 'notes', '.txt']);
   assert.deepEqual(hardcodedValues(code, 'Add the prefix 2026- to every .txt file in the notes folder', { folder: 'notes' }), ['notes', '.txt']);
   assert.deepEqual(hardcodedValues(code, 'Count the files of a folder', { folder: 'notes' }), []);
+  assert.deepEqual(hardcodedValues(`export default async function run(tools) { return tools.runSkillScript('text-stats', 'scripts/stats.mjs', []); }`, 'Use the text-stats skill on a.txt', {}, { allowed: ['text-stats', 'scripts/stats.mjs'] }), [], 'a skill named in the request is a tool, not a value');
   const dir = csvFolder();
   const hard = SUM_PLAN.replace('rows[0].indexOf(params.column);\n  if', "rows[0].indexOf('amount');\n  if");
   const seen = [];

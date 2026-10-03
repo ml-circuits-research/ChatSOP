@@ -93,15 +93,17 @@ export function codeLiterals(code) {
  * Values of THIS request written into the plan's code, so the plan would not work with other values. A string literal of the code
  * (outside meta) is flagged when it occurs in the request as a whole (not inside a longer word) and either holds a character other than
  * letters (".txt", "2026-", "old_", "sales.csv") or equals one of the example values. A plain word of the request in the code ("file",
- * "total") is common vocabulary, not flagged unless it is a parameter's value.
+ * "total") is common vocabulary, not flagged unless it is a parameter's value. `allowed`: names that are tools, not values (the skills
+ * and their declared scripts: "Use the text-stats skill" names a tool).
  */
-export function hardcodedValues(code, request, example = {}) {
+export function hardcodedValues(code, request, example = {}, { allowed = [] } = {}) {
   const r = String(request ?? '');
+  const tools = new Set(allowed);
   const values = new Set(Object.values(example ?? {}).flat().filter((v) => typeof v === 'string').map((v) => v.trim()));
   const hits = new Set();
   for (const lit of codeLiterals(code)) {
     const s = lit.trim();
-    if (s.length < 2 || !/[\p{L}\p{N}]/u.test(s) || s.length > 200) continue;
+    if (s.length < 2 || !/[\p{L}\p{N}]/u.test(s) || s.length > 200 || tools.has(s)) continue;
     if (/^\p{L}+$/u.test(s) && !values.has(s)) continue;
     const re = new RegExp(`(^|[^\\p{L}\\p{N}])${s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=$|[^\\p{L}\\p{N}])`, 'u');
     if (re.test(r)) hits.add(s);

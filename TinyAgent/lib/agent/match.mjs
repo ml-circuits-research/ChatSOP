@@ -79,7 +79,7 @@ export async function matchPlan({ request, plans, ask, promptFile, k = 3, minSco
   const system = fs.readFileSync(promptFile, 'utf8');
   const user = `SAVED PLANS:\n${shown.map(describe).join('\n\n')}\n\nNEW REQUEST:\n${request}`;
   const r = await ask([{ role: 'system', content: system }, { role: 'user', content: user }]);
-  const matchCall = { ok: r.ok, ms: r.ms ?? null, tier: r.tier ?? null, served: r.served ?? null, credits: r.credits ?? null, cached: r.cached ?? false, reason: r.ok ? null : r.reason };
+  const matchCall = { ok: r.ok, ms: r.ms ?? null, tier: r.tier ?? null, served: r.served ?? null, credits: r.credits ?? null, usage: r.usage ?? null, cached: r.cached ?? false, reason: r.ok ? null : r.reason };
   if (!r.ok) return { ...base, matchCall, decision: 'plan', reason: `the match tier failed: ${r.reason}` };
   const j = jsonOf(r.text);
   const answer = { raw: String(r.text).slice(0, 1500), json: j };

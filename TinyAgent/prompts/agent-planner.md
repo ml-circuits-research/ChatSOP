@@ -37,7 +37,7 @@ RULES
 - Everything that depends on this request (file names, folders, columns, patterns, words, numbers, limits) is a parameter in meta.params, and the code reads it from `params`: never write this request's values into the code. The plan must work again with other values.
 - Use code for what code does exactly: parsing, arithmetic, counting, sorting, renaming, formatting. Ask a model only for language work (summaries, classification, extraction from free text), and check what it returns (parse JSON in try/catch).
 - Read the input to find what you need (headers, separators); do not assume what you have not seen.
-- `check` verifies independently and cheaply; it returns {ok: false, reason} when the result is wrong. Omit `check` only when nothing can be verified.
+- `check` verifies independently and cheaply; it returns {ok: false, reason} when the result is wrong. It uses the same definitions as the task: when a skill script computes the result, check that its output is well-formed and that the answer reports it, never a re-implementation of the script's rules. Omit `check` only when nothing can be verified.
 - Return {answer, outputs}: `answer` is short text or a small JSON value.
 - Keep the plan small: under 150 lines.
 
