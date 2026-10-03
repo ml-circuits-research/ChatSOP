@@ -118,8 +118,8 @@ export const GRAMMAR = {
   },
   procedure: {
     status: 'new (round 2)', side: 'knowledge',
-    doc: 'A named bundle of wires (a mode of work): members, scope, description. It has no approval of its own; the members carry approval.',
-    fields: {members: req(many('reflist')), description: one('text'), scope: one('text'), source: one('text')}
+    doc: 'A named bundle of wires (a mode of work, or an analysis procedure applied to a document layer): members, scope, description, and report lines (proposal P-8): atom patterns whose rows are what the procedure reports (an analysis procedure without report lines reports the violations of its integrity members). It has no approval of its own; the members carry approval.',
+    fields: {members: req(many('reflist')), description: one('text'), scope: one('text'), source: one('text'), report: many('atom')}
   },
   amendment: {
     status: 'new (round 2)', side: 'knowledge',

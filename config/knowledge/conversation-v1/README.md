@@ -18,6 +18,7 @@ not imported by the knowledge memories, and every wire id and predicate starts w
 | `0030-replies.sop` | the chat replies (courtesy, unclear messages, near-miss suggestions, openings, closings), several variants per situation |
 | `0040-answer-lines.sop`, `0050-host-lines.sop`, `0060-link-questions.sop` | `part line`: the sentences of the answer renderer, the host notices and the KnowledgeLinker questions |
 | `0070-behaviour.sop` | the behaviour layer: instruction outcomes, drives (`cv_drive`, `cv_drive_cooldown`, occasions), reaction kinds, greeting-again rules and their replies |
+| `0080-analysis-lines.sop` | the sentences of the analysis report (`lib/analysis/report.mjs`, DS022 "Analysis procedures"): header, counts, findings (`line_finding`, or `line_finding_<rule>` when a rule has its own), evidence quotes, measures (`line_report_<predicate>`, else `line_report_row`), the engine-gap notice |
 | `0090-personal.sop` | personalisation and register: the parts of the day, the register rule (`cv_register` from a `formal` or `playful` instruction), the user-name and time-of-day situations, their tie-breaks (`cv_situation_outranks`) and replies |
 
 ## The reply wire

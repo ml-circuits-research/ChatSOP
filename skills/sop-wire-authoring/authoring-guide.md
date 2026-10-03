@@ -41,7 +41,7 @@ The loop is mandatory: (1) declare the vocabulary, (2) write the wires, (3) run 
 - `@id action`: params requires*+ adds+ removes+ cost source next+ guard+ + governance
 - `@id method`: achieves* when+ step*+ prefer+ on_failure triggered_by binding cost source + governance
 - `@id norm`: forbid oblige permit when+ within before after always sometime at_most_once standing severity cost priority overrides+ binding message source + governance
-- `@id procedure`: members*+ description scope source
+- `@id procedure`: members*+ description scope source report+
 - `@id amendment`: of* proposed_by* members+ removes+ reason approval evaluated
 - `@id argument`: for against claim* source cost_delta
 - `@id trace`: step*+

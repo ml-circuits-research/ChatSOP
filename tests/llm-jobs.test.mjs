@@ -25,8 +25,8 @@ test('ChatSOP job library: the config names tiers only, every job and prompt tem
     assert.equal(job.spec.name, name);
   }
   const templates = loadTemplates(config.templatesDir);
-  assert.deepEqual(Object.keys(templates).sort(), ['bulk-review', 'extract-table', 'ingest-document', 'label-entities']);
-  const samples = {'extract-table': {columns: ['product', 'price']}, 'label-entities': {labels: ['person', 'date']}, 'ingest-document': {rights: 'cleared'}, 'bulk-review': {review_kind: 'knowledge-wires'}};
+  assert.deepEqual(Object.keys(templates).sort(), ['analyze-document', 'bulk-review', 'extract-table', 'ingest-document', 'label-entities']);
+  const samples = {'analyze-document': {rights: 'owner-provided'}, 'extract-table': {columns: ['product', 'price']}, 'label-entities': {labels: ['person', 'date']}, 'ingest-document': {rights: 'cleared'}, 'bulk-review': {review_kind: 'knowledge-wires'}};
   for (const t of Object.values(templates)) {
     const v = validatePlan({template: t.name, params: samples[t.name]}, {templates, target: t.targets[0], limits: config.limits, tiers: Object.keys(tierChains(config))});
     assert.ok(v.ok, `${t.name}: ${v.problems.join('; ')}`);

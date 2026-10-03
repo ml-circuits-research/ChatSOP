@@ -28,6 +28,7 @@ import {SessionRuntimes} from './session-runtime.mjs';
 import {createAuthoring,AUTHORING_ENDPOINTS} from './authoring.mjs';
 import {createKnowledgeRouter,KNOWLEDGE_ENDPOINTS} from './review.mjs';
 import {createFeedback,FEEDBACK_ENDPOINTS} from './feedback.mjs';
+import {createAnalysisRoutes,ANALYSIS_ENDPOINTS} from './analysis.mjs';
 import {createQueryParser,queryParserSettings} from './query-parser.mjs';
 import {serverStatus,strategyRequest} from './status.mjs';
 import {createAnswerFormulator,answerLanguageSettings,looksEnglish} from './answer-language.mjs';
@@ -158,7 +159,7 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
  // session setting adapter_mode or the request's `adapter: {mode, options}`.
  const adapter=injectedAdapter??createChatSOPAdapter({config});
  const capabilities=createCapabilities({queryParser});
- const api=createApiRouter({capabilities,json,extraEndpoints:[STATUS_ENDPOINT,...(chatData?[...PRODUCT_ENDPOINTS,...AUTHORING_ENDPOINTS,...KNOWLEDGE_ENDPOINTS,...FEEDBACK_ENDPOINTS]:[])]});
+ const api=createApiRouter({capabilities,json,extraEndpoints:[STATUS_ENDPOINT,...(chatData?[...PRODUCT_ENDPOINTS,...AUTHORING_ENDPOINTS,...KNOWLEDGE_ENDPOINTS,...FEEDBACK_ENDPOINTS,...ANALYSIS_ENDPOINTS]:[])]});
  const startedAt=Date.now();
  // The product layer (DS022): base memories, sessions, knowledge authoring. Present when a chat data root is configured (startServer always does).
  const memories=chatData?new BaseMemories({chatData,memory:config.memory}):null;
@@ -175,7 +176,9 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
  const authoring=chatData?createAuthoring({sessions:sessionStore,runtimes,chatData,formalizer:queryParser.settings??null,settings:{model:config.ingest?.tier??'small'},chat:authorChat,readBody,json,maxBytes:limits.maxProductBytes??8_000_000}):null;
  // Chat feedback (server/feedback.mjs, DS022 "Chat feedback"): votes on answered turns, routed by cause. `feedback.dir`/`feedback.inbox` move the files (tests).
  const feedback=chatData?createFeedback({sessions:sessionStore,readBody,json,gapsFile:path.join(chatData.root,'query-gaps.jsonl'),...feedbackOptions}):null;
- const product=chatData?createProductRouter({memories,sessions:sessionStore,runtimes,readBody,json,limits,extra:{actions:{...authoring.actions,...feedback.actions},routes:[...authoring.routes,...feedback.routes]},parsing:{queryParser},defaultBase,composer:{replyMemory:()=>replyMemory,onComposed:m=>m.id===replyMemory?loadReplyLayer(m.id):null}}):null;
+ // Analysis procedures over a session or a base memory (server/analysis.mjs, DS022 "Analysis procedures"): read only, no model.
+ const analysis=chatData?createAnalysisRoutes({memories,sessions:sessionStore,readBody,json,maxBytes:limits.maxProductBytes??8_000_000}):null;
+ const product=chatData?createProductRouter({memories,sessions:sessionStore,runtimes,readBody,json,limits,extra:{actions:{...authoring.actions,...feedback.actions,...analysis.actions},routes:[...authoring.routes,...feedback.routes,...analysis.routes]},parsing:{queryParser},defaultBase,composer:{replyMemory:()=>replyMemory,onComposed:m=>m.id===replyMemory?loadReplyLayer(m.id):null}}):null;
  // The knowledge browser (/review, GET /v1/knowledge/*): read only, over a base memory or a chat session (server/review.mjs); without a chat data root the API answers 501.
  const knowledge=createKnowledgeRouter({memories,sessions:sessionStore,json});
  /** Whether the coding agent can run now, with the model chain; the chat answers 503 `parse_unavailable` when it cannot. */

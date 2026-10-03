@@ -226,9 +226,9 @@
   "link×certainty"
  ],
  "counts": {
-  "capabilities": 980,
+  "capabilities": 981,
   "combinations": 556,
-  "knowledge": 661,
+  "knowledge": 662,
   "model": 270
  },
  "capabilities": [
@@ -2803,7 +2803,7 @@
    "layers": [
     "L1"
    ],
-   "doc": "A named bundle of wires (a mode of work): members, scope, description. It has no approval of its own; the members carry approval."
+   "doc": "A named bundle of wires (a mode of work, or an analysis procedure applied to a document layer): members, scope, description, and report lines (proposal P-8): atom patterns whose rows are what the procedure reports (an analysis procedure without report lines reports the violations of its integrity members). It has no approval of its own; the members carry approval."
   },
   {
    "id": "k.field.procedure.members",
@@ -2848,6 +2848,17 @@
    "card": "one",
    "required": false,
    "valueKind": "text"
+  },
+  {
+   "id": "k.field.procedure.report",
+   "surface": "knowledge",
+   "kind": "field",
+   "layers": [
+    "L1"
+   ],
+   "card": "many",
+   "required": false,
+   "valueKind": "atom"
   },
   {
    "id": "k.wire.amendment",

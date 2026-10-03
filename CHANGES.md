@@ -1,3 +1,26 @@
+# Analysis procedures: rules in memory that check a document (2026-10-03, owner request)
+
+Analysis procedures are rules kept in a base memory. The reasoners apply them to the wires a document left in a session or a base memory: contradictions, statements that cannot be right, KPIs and indicators, and quality rubrics. Every finding carries the procedure, the rule that fired, the oracle proof and the document's own words (document, location, exact quote), with a severity. No model is called by an analysis. The contract is DS022 "Analysis procedures", and the guide is `docs/analysis.html`.
+
+- **Representation.** An analysis procedure is a `procedure` wire tagged `analysis` in its `scope`. Its findings are the violations of its `integrity` members, and its measures are the rows of its `report` lines (KPIs, scores). Parameters are member facts `analysis_parameter NAME VALUE`, overridden by name at run time. A procedure is exactly its members, and a member that cannot fire is reported as `member_dependency_missing`. Domain procedures are data, with no code.
+- **Language (P-8).** One new field: `report ATOM` (repeatable) on `procedure`. Grammar, DS004, the authoring guide, `docs/wire_typs/procedure.html` (with an executed example), the capability inventory (`k.field.procedure.report`) and its L1 sample are updated. The fast battery shows 0 losses.
+- **Library.** The seed memory `config/knowledge/analysis-core-v1/` holds the document view predicates, a document-analysis vocabulary (dates are YYYYMMDD integers, as in ingestion v2) and six procedures:
+  - contradictions: an atom asserted and denied, two values of a key, disjoint classes;
+  - numeric consistency: totals and parts, complete breakdowns, shares, share against amounts, units, stated limits, plausible ranges;
+  - temporal consistency: an end before its start, a stated order against the dates, ages;
+  - claims without support;
+  - KPIs: shares, growth, averages, ratios defined as data;
+  - a weighted quality rubric.
+- **Analyzer** (`lib/analysis/`). `analyzeSession(source, procedures, options)` and `listProcedures(source)`. The document view (`asserted_atom`, `denied_atom`, `keyed_value`) comes from the oracle's closure of the document layer. Queries go through the StrategyRouter; an explicit engine runs exactly, and its gaps are reported, never substituted. The oracle explains every row. Report lines are reply wires of conversation-v1 (`0080-analysis-lines.sop`: `line_finding`, `line_finding_<rule>`, `line_finding_evidence`, `line_report_<predicate>`, ...).
+- **Entry points.**
+  - The ChatSOPAdapter mode `analysis`, through `registerMode`.
+  - The template `analyze-document` of the job runner: ingestion v2, then the analysis, then the report.
+  - `POST /v1/sessions/{id}/analyze`, `POST /v1/memories/{id}/analyze` and `GET .../analysis-procedures` (`server/analysis.mjs`).
+- **Test set** `eval/analysis-v1/`: eight documents we wrote ourselves, with 27 planted issues and 23 KPI values; `tools/eval/analysis/run.mjs`.
+  - (a) Hand-written SOP: 27/27 found, 0 spurious, 23/23 KPIs, 8/8 rubric scores, 169/169 quotes verified. `prolog-tabling` agrees with the oracle.
+  - (b) End to end, stopped after 4 of 8 documents: 2/15 found, 4 spurious, 41/41 quotes verified. Ingestion v2 is the bottleneck. It wrote document-specific predicates instead of the library vocabulary, distributed statements about a whole to its parts, and wrote negations as separate predicates. The details are in `eval/analysis-v1/README.md`.
+- **Tests.** `tests/analysis.test.mjs` has 18 tests: every procedure kind, parameters, domain procedures, sources, routes, the adapter mode, the template, and level (a). `npm test` passes with 0 failures, the offline regression is 104/360 with 0 lost, and the shard check passes.
+
 # Small talk in the chat: message acts as reply-memory data, register, personal slots, tie-breaks (P-2, 2026-10-03, owner request)
 
 Owner: greetings, small talk and simple questions must work well in the chat. Proposal P-2 of `experiments/proposal/wire-type-proposals.md`, decided and implemented; no new wire type.

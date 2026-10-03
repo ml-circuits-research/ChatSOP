@@ -6160,6 +6160,31 @@
     "tools/eval/structure-formalizer/ab.mjs",
     "tools/eval/structure-formalizer/compare.mjs"
    ]
+  },
+  {
+   "id": "analysis-procedures-v1",
+   "name": "Analysis procedures (analysis-core-v1) over a document layer: planted issues and KPIs of eight own documents, hand-written SOP (a) and end to end through ingestion v2 (b)",
+   "category": "data-study",
+   "owner": "analysis-procedures-agent",
+   "registered_at": "2026-10-03",
+   "hypothesis": "(a) The starter procedures find every planted issue with no spurious finding and compute every KPI over a faithful document layer; (b) end to end, recall is bounded by the formalization of the document by ingestion v2.",
+   "preregistration": "none: owner-requested measurement; ground truth written with the documents (eval/analysis-v1/truth.json); staged small first (2 documents, then 2 more), stop when the end-to-end bottleneck is clear",
+   "data_version": "eval/analysis-v1 (8 documents, 27 planted issues, 23 KPI values), 2026-10-03",
+   "status": "done",
+   "models": [
+    "none for (a)",
+    "(b) ingestion v2: structure tier small, FOL and merge tier medium with reasoning"
+   ],
+   "results": {
+    "level_a": "27/27 planted issues found, 0 spurious (precision 1, recall 1); 23/23 KPIs; 8/8 rubric scores; 169/169 quotes at their lines; prolog-tabling equal to the oracle",
+    "level_b": "stage 1, 4 of 8 documents: 2/15 found (strict), 4 spurious, precision 0.33, recall 0.13 [0, 0.29]; 41/41 quotes; 14 calls (6 small, 8 medium), 6.6 credits"
+   },
+   "conclusions": "The procedures are correct on what they are given; end to end the document's formalization is the bottleneck (document-specific unit-named predicates, no key declarations, whole-to-parts distribution, negations as separate predicates). Stopped after stage 1: the answer was clear, and the job runner moved to TinyAgent mid-run.",
+   "links": [
+    "eval/analysis-v1/README.md",
+    "docs/analysis.html",
+    "tools/eval/analysis/run.mjs"
+   ]
   }
  ]
 }

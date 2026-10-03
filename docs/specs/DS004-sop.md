@@ -146,7 +146,7 @@ Some names exist on both surfaces with different fields (`fact`, `rule`, `predic
 - `@id action`: params requires*+ adds+ removes+ cost source next+ guard+ + governance
 - `@id method`: achieves* when+ step*+ prefer+ on_failure triggered_by binding cost source + governance
 - `@id norm`: forbid oblige permit when+ within before after always sometime at_most_once standing severity cost priority overrides+ binding message source + governance
-- `@id procedure`: members*+ description scope source
+- `@id procedure`: members*+ description scope source report+
 - `@id amendment`: of* proposed_by* members+ removes+ reason approval evaluated
 - `@id argument`: for against claim* source cost_delta
 - `@id trace`: step*+
@@ -511,7 +511,7 @@ A `norm` has exactly one of `forbid PATTERN`, `oblige PATTERN`, `permit PATTERN`
 
 ### Procedures, arguments, amendments and traces
 
-A `procedure` is a named bundle: `members $id $id ...`, `description`, `scope`, `source`. It has no approval and no version of its own: its members carry both, so the procedure is in force exactly when its members are, and "which version of the reset procedure applied on that date" is answered from the members' history. An `argument` has exactly one of `for $id` and `against $id`, a `claim`, a `source` and an optional `cost_delta`; it is evidence for a negotiation, never evidence of a fact. An `amendment` (`of`, `proposed_by user|agent`, `members` and `removes`, `reason`, `approval proposed|approved|rejected`, `evaluated`) is a proposed change whose members are new wires with `approval proposed`, usually superseding a version (`amendment_member_not_proposed`); it is **composed by the runtime from the user's words** and the circuit author never emits it. A `trace` is a performed sequence of ground steps, `step ~action term...`, each optionally ending `at DATE`; it is the input of `mode conform`.
+A `procedure` is a named bundle: `members $id $id ...`, `description`, `scope`, `source`, and `report` lines (repeatable atom patterns over declared predicates, no `not`: the rows the procedure reports; added 2026-10-03, proposal P-8). It has no approval and no version of its own: its members carry both, so the procedure is in force exactly when its members are, and "which version of the reset procedure applied on that date" is answered from the members' history. A procedure whose `scope` carries the tag `analysis` is an **analysis procedure**, applied by the analyzer to the document layer of a session or a base memory: its findings are the violations of its `integrity` members, its measures the rows of its `report` lines ([DS022](specsLoader.html?spec=DS022-sessions-and-base-memories.md) "Analysis procedures"). An `argument` has exactly one of `for $id` and `against $id`, a `claim`, a `source` and an optional `cost_delta`; it is evidence for a negotiation, never evidence of a fact. An `amendment` (`of`, `proposed_by user|agent`, `members` and `removes`, `reason`, `approval proposed|approved|rejected`, `evaluated`) is a proposed change whose members are new wires with `approval proposed`, usually superseding a version (`amendment_member_not_proposed`); it is **composed by the runtime from the user's words** and the circuit author never emits it. A `trace` is a performed sequence of ground steps, `step ~action term...`, each optionally ending `at DATE`; it is the input of `mode conform`.
 
 ### Governance
 
