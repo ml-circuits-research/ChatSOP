@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Replay of recorded InternalReasoningStepByStep answers (DS022 "InternalReasoningStepByStep"): every IR record of an evaluation run
- * (records-IR*.jsonl of tools/eval/internal-reasoning/run.mjs) is formalized again with the current protocol memory and code, the model
+ * (records-IR*.jsonl of tools/eval/formalization/internal-reasoning/run.mjs) is formalized again with the current protocol memory and code, the model
  * replaced by the recorded answers in their order. A row whose circuit changes is reported with the first question that differs, so a
  * change of the protocol (a new question, a new default) can be checked without a model call. With --debug the last decision's open
  * slots, askable questions and violations are printed.
@@ -10,7 +10,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {protocolRows, prepare} from '../eval/stepbystep-protocol/run.mjs';
+import {protocolRows, prepare} from '../eval/formalization/stepbystep-protocol/run.mjs';
 import {openSession} from '../eval/query-forms-probe.mjs';
 import {internalReasoningQuery, createReasoningOracle, loadProtocol} from '../../lib/formalize/internal-reasoning/index.mjs';
 

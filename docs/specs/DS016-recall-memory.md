@@ -30,9 +30,9 @@ The `associate` wire's associative mode builds a transient RecallMemory over exp
 
 | Capability | Status | Evidence |
 | --- | --- | --- |
-| Multi-view write, consensus recall, receipt filter, budgets | Implemented | `memory/weaver.mjs`; `tests/memory-engines.test.mjs` (typed completion, negation, repeated variables, four arguments, budget truncation, snapshot/fork, blocked and expired tuples) |
-| Cooling sweeps, pressure maintenance, receipt pruning | Implemented | `tests/forgetting.test.mjs`; `tests/repository.test.mjs` ("receipt checks are distinct from associative score", "pinned bank survives decay") |
-| Use inside generations, promotion, routing | Implemented | `tests/shards.test.mjs` (occupancy trigger uses the most occupied view, no splicing of tuples across shards) |
+| Multi-view write, consensus recall, receipt filter, budgets | Implemented | `memory/weaver.mjs`; `tests/memory/memory-engines.test.mjs` (typed completion, negation, repeated variables, four arguments, budget truncation, snapshot/fork, blocked and expired tuples) |
+| Cooling sweeps, pressure maintenance, receipt pruning | Implemented | `tests/memory/forgetting.test.mjs`; `tests/memory/repository.test.mjs` ("receipt checks are distinct from associative score", "pinned bank survives decay") |
+| Use inside generations, promotion, routing | Implemented | `tests/memory/shards.test.mjs` (occupancy trigger uses the most occupied view, no splicing of tuples across shards) |
 | Bank comparison with the other engines | Observed | [DS010](specsLoader.html?spec=DS010-engine-and-solver-comparison.md): 48/48 exact result sets at 64 and 256 atoms with 40,960 bank bytes at `power: 12`, rerun on 2026-09-28 |
 | Learned view portfolio, cue indexing, pattern discovery from traces | Not implemented | Research items below |
 

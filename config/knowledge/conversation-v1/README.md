@@ -33,7 +33,7 @@ not imported by the knowledge memories, and every wire id and predicate starts w
 
 Several wires with the same `situation` and `part` are variants (one is picked at random each turn). A new situation needs a rule
 deriving `cv_applies <situation>` (or a `cv_courtesy_situation`, `cv_opening_situation`, `cv_closing_situation` fact) and a
-`cv_situation_priority <situation> N` fact; `tests/conversation-layer.test.mjs` checks that every reachable situation has a reply and
+`cv_situation_priority <situation> N` fact; `tests/conversation/conversation-layer.test.mjs` checks that every reachable situation has a reply and
 a priority. Slots a reply may use: `answer`, `mention`, `candidate`, `candidate_description`, `relations`, `topics`, `readings`,
 `aside_fact`, `instruction`, `instructions`, `user_name`, `time_of_day` (and the slots of each `line_*` situation, see
 `sop/answer-text.mjs`). A reply that names a slot the turn cannot fill is not applicable (`cv_r_unfillable` over `cv_reply_slot` and

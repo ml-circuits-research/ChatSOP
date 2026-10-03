@@ -24,7 +24,7 @@ The user message (any language) goes whole to the request parser, which asks the
 - `status/` holds the append-only project journal `status/journal.jsonl`, the topic notes and the preregistered experiment registry `status/experiments.json`, written through `tools/journal.mjs`, `tools/notes.mjs` and `lib/journal.mjs` ([DS007](specsLoader.html?spec=DS007-experiment-preregistration.md)); the journal is a record of work, not product documentation.
 - `tools/` owns conversion, validation, review and dataset tooling; `eval/` the evaluation code, sealed suites and reports; `experiments/` research proposals; `skills/` the task procedures.
 
-**Dependency rules (checked by `tests/architecture-page.test.mjs`).** The product modules (`lib/`, `sop/`, `memory/`, `reasoning/`, `server/`) form an acyclic import graph at module level; `sop/` and `reasoning/` use each other's modules but no module cycle exists. A product module never imports `eval/` or `tools/` statically. Code that the evaluation and the product share, such as the id-free wire keys of `sop/wire-items.mjs`, lives with the language modules.
+**Dependency rules (checked by `tests/docs/architecture-page.test.mjs`).** The product modules (`lib/`, `sop/`, `memory/`, `reasoning/`, `server/`) form an acyclic import graph at module level; `sop/` and `reasoning/` use each other's modules but no module cycle exists. A product module never imports `eval/` or `tools/` statically. Code that the evaluation and the product share, such as the id-free wire keys of `sop/wire-items.mjs`, lives with the language modules.
 
 ### Data and model isolation
 

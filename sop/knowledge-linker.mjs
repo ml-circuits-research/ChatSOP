@@ -30,7 +30,7 @@ export const SCORES = Object.freeze({
   missingRole: -2,       // a declared role a query leaves open
 });
 /**
- * Evaluation hook: the linker stages can be switched off to reproduce earlier linkers in the linking suite (`tools/eval/linking-suite.mjs
+ * Evaluation hook: the linker stages can be switched off to reproduce earlier linkers in the linking suite (`tools/eval/linking/suite.mjs
  * --linker exact|scored|scored-no-head`). The product always runs with everything on.
  */
 export const mode = {scored: true, headVerb: true};

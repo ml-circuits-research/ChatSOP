@@ -13,7 +13,7 @@ Promote only verified observed facts used in a proof. Copy the original claim me
 
 Run migration explicitly and preserve banks without pretending to reverse their hashes. Use archive mode for conservative migration. Explain that the next bounded maintenance may intentionally evict excess generations. Back up a real repository before administrative migration.
 
-Run `node --test tests/shards.test.mjs`, `node examples/shards-demo.mjs`, `node tools/bench-shards.mjs` and then `node tools/verify.mjs`. Test both `bounded` and `archive`, as well as corruption rejection, stale sessions, frozen forks, time filters and an actual SOP proof crossing generations.
+Run `node --test tests/memory/shards.test.mjs`, `node examples/shards-demo.mjs`, `node tools/bench-shards.mjs` and then `node tools/verify.mjs`. Test both `bounded` and `archive`, as well as corruption rejection, stale sessions, frozen forks, time filters and an actual SOP proof crossing generations.
 
 GC is dry-run by default at the CLI. Use `--apply` only for the authorized repository. Closing a session discards its uncommitted manifest. Do not close sessions belonging to someone else merely to satisfy a disk budget.
 

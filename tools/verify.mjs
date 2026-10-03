@@ -30,7 +30,8 @@ function fingerprints(location){
  });
 }
 const sourceFingerprint=digest(sources.flatMap(fingerprints));
-const testFiles=fs.readdirSync('tests').filter(name=>name.endsWith('.test.mjs')).sort().map(name=>'tests/'+name);
+// every test file of tests/ and its component subfolders (tests/<component>/*.test.mjs; fixtures hold no test files)
+const testFiles=fs.globSync('tests/**/*.test.mjs').sort();
 const jobs=[
  ['node-tests',process.execPath,['--test',...testFiles]],
  ['demo',process.execPath,['examples/demo.mjs']],

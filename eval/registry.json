@@ -1,5 +1,5 @@
 {
- "note": "The registry of every test group, evaluation, harness and evaluation data folder of ChatSOP (owner request 2026-10-03). Maintained by hand; validated and rendered by `node tools/inventory/tests-and-evals.mjs` (writes docs/tests-inventory.html); `tests/tests-inventory.test.mjs` fails when a test file, a tools/eval or tools/capabilities file, an eval/ data folder, a verify job or a package script is not mapped here, or when an entry names a missing path. A latest result is copied from the named report with its date; an entry without one says `no recorded run`. Test-group runtimes and results come from `node tools/inventory/tests-and-evals.mjs measure`.",
+ "note": "The registry of every test group, evaluation, harness and evaluation data folder of ChatSOP (owner request 2026-10-03). Maintained by hand; validated and rendered by `node tools/inventory/tests-and-evals.mjs` (writes docs/tests-inventory.html); `tests/project/tests-inventory.test.mjs` fails when a test file, a tools/eval or tools/capabilities file, an eval/ data folder, a verify job or a package script is not mapped here, or when an entry names a missing path. A latest result is copied from the named report with its date; an entry without one says `no recorded run`. Test-group runtimes and results come from `node tools/inventory/tests-and-evals.mjs measure`.",
  "updated": "2026-10-03",
  "vocabulary": {
   "kinds": {
@@ -86,13 +86,13 @@
     "sop-language"
    ],
    "paths": [
-    "tests/atom-syntax.test.mjs",
-    "tests/parser.test.mjs",
-    "tests/expression.test.mjs",
-    "tests/boolean-groups.test.mjs",
-    "tests/constraints.test.mjs",
-    "tests/frames.test.mjs",
-    "tests/temporal.test.mjs"
+    "tests/sop/atom-syntax.test.mjs",
+    "tests/sop/parser.test.mjs",
+    "tests/sop/expression.test.mjs",
+    "tests/sop/boolean-groups.test.mjs",
+    "tests/sop/constraints.test.mjs",
+    "tests/sop/frames.test.mjs",
+    "tests/sop/temporal.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -100,7 +100,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/atom-syntax.test.mjs tests/parser.test.mjs tests/expression.test.mjs tests/boolean-groups.test.mjs tests/constraints.test.mjs tests/frames.test.mjs tests/temporal.test.mjs",
+   "command": "node --test tests/sop/atom-syntax.test.mjs tests/sop/parser.test.mjs tests/sop/expression.test.mjs tests/sop/boolean-groups.test.mjs tests/sop/constraints.test.mjs tests/sop/frames.test.mjs tests/sop/temporal.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -122,20 +122,20 @@
     "sop-language"
    ],
    "paths": [
-    "tests/runtime.test.mjs",
-    "tests/declarative-runtime.test.mjs",
-    "tests/outputs.test.mjs",
-    "tests/assumption-facts.test.mjs",
-    "tests/stated-assumed.test.mjs",
-    "tests/model-language-words.test.mjs",
-    "tests/query-forms.test.mjs",
-    "tests/clause-links.test.mjs",
-    "tests/query-candidates.test.mjs",
-    "tests/query-order-random.test.mjs",
-    "tests/lexicon.test.mjs",
-    "tests/english-only-core.test.mjs",
-    "tests/near-miss.test.mjs",
-    "tests/answer-text.test.mjs"
+    "tests/sop/runtime.test.mjs",
+    "tests/sop/declarative-runtime.test.mjs",
+    "tests/sop/outputs.test.mjs",
+    "tests/sop/assumption-facts.test.mjs",
+    "tests/sop/stated-assumed.test.mjs",
+    "tests/sop/model-language-words.test.mjs",
+    "tests/sop/query-forms.test.mjs",
+    "tests/sop/clause-links.test.mjs",
+    "tests/sop/query-candidates.test.mjs",
+    "tests/sop/query-order-random.test.mjs",
+    "tests/sop/lexicon.test.mjs",
+    "tests/sop/english-only-core.test.mjs",
+    "tests/sop/near-miss.test.mjs",
+    "tests/sop/answer-text.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -143,7 +143,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/runtime.test.mjs tests/declarative-runtime.test.mjs tests/outputs.test.mjs tests/assumption-facts.test.mjs tests/stated-assumed.test.mjs tests/model-language-words.test.mjs tests/query-forms.test.mjs tests/clause-links.test.mjs tests/query-candidates.test.mjs tests/query-order-random.test.mjs tests/lexicon.test.mjs tests/english-only-core.test.mjs tests/near-miss.test.mjs tests/answer-text.test.mjs",
+   "command": "node --test tests/sop/runtime.test.mjs tests/sop/declarative-runtime.test.mjs tests/sop/outputs.test.mjs tests/sop/assumption-facts.test.mjs tests/sop/stated-assumed.test.mjs tests/sop/model-language-words.test.mjs tests/sop/query-forms.test.mjs tests/sop/clause-links.test.mjs tests/sop/query-candidates.test.mjs tests/sop/query-order-random.test.mjs tests/sop/lexicon.test.mjs tests/sop/english-only-core.test.mjs tests/sop/near-miss.test.mjs tests/sop/answer-text.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -166,8 +166,8 @@
     "memory"
    ],
    "paths": [
-    "tests/knowledge-grammar.test.mjs",
-    "tests/commonsense-layer.test.mjs"
+    "tests/sop/knowledge-grammar.test.mjs",
+    "tests/sop/commonsense-layer.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -175,7 +175,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/knowledge-grammar.test.mjs tests/commonsense-layer.test.mjs",
+   "command": "node --test tests/sop/knowledge-grammar.test.mjs tests/sop/commonsense-layer.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -198,16 +198,16 @@
     "reasoning"
    ],
    "paths": [
-    "tests/js-oracle.test.mjs",
-    "tests/reasoning-bridge.test.mjs",
-    "tests/assumptions.test.mjs",
-    "tests/prolog.test.mjs",
-    "tests/reasoning-external.test.mjs",
-    "tests/reasoning-v3.test.mjs",
-    "tests/routing-policy.test.mjs",
-    "tests/reasoning-modes-product.test.mjs",
-    "tests/exact-decimals-engines.test.mjs",
-    "tests/skill-systems.test.mjs"
+    "tests/reasoning/js-oracle.test.mjs",
+    "tests/reasoning/reasoning-bridge.test.mjs",
+    "tests/reasoning/assumptions.test.mjs",
+    "tests/reasoning/prolog.test.mjs",
+    "tests/reasoning/reasoning-external.test.mjs",
+    "tests/reasoning/reasoning-v3.test.mjs",
+    "tests/reasoning/routing-policy.test.mjs",
+    "tests/reasoning/reasoning-modes-product.test.mjs",
+    "tests/reasoning/exact-decimals-engines.test.mjs",
+    "tests/reasoning/skill-systems.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -215,7 +215,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/js-oracle.test.mjs tests/reasoning-bridge.test.mjs tests/assumptions.test.mjs tests/prolog.test.mjs tests/reasoning-external.test.mjs tests/reasoning-v3.test.mjs tests/routing-policy.test.mjs tests/reasoning-modes-product.test.mjs tests/exact-decimals-engines.test.mjs tests/skill-systems.test.mjs",
+   "command": "node --test tests/reasoning/js-oracle.test.mjs tests/reasoning/reasoning-bridge.test.mjs tests/reasoning/assumptions.test.mjs tests/reasoning/prolog.test.mjs tests/reasoning/reasoning-external.test.mjs tests/reasoning/reasoning-v3.test.mjs tests/reasoning/routing-policy.test.mjs tests/reasoning/reasoning-modes-product.test.mjs tests/reasoning/exact-decimals-engines.test.mjs tests/reasoning/skill-systems.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -238,27 +238,27 @@
     "reasoning"
    ],
    "paths": [
-    "tests/strategy-asp-clingo.test.mjs",
-    "tests/strategy-closure-template.test.mjs",
-    "tests/strategy-conform.test.mjs",
-    "tests/strategy-datalog-common.test.mjs",
-    "tests/strategy-datalog-differential.test.mjs",
-    "tests/strategy-datalog-e10.test.mjs",
-    "tests/strategy-datalog-soplab.test.mjs",
-    "tests/strategy-datalog-souffle.test.mjs",
-    "tests/strategy-dreaming-session.test.mjs",
-    "tests/strategy-golog-swi.test.mjs",
-    "tests/strategy-htn-strips-planner.test.mjs",
-    "tests/strategy-prolog-tabling.test.mjs",
-    "tests/strategy-solvers-differential.test.mjs",
-    "tests/strategy-sql-sqlite.test.mjs",
-    "tests/strategy-vrc-compressed-planning.test.mjs",
-    "tests/strategy-worlds-sopr.test.mjs",
-    "tests/strategy-z3-smt-bounded.test.mjs",
-    "tests/z3-ast.test.mjs",
-    "tests/solver-qualification.test.mjs",
-    "tests/golog-scenarios.mjs",
-    "tests/helpers-vrc-pl.mjs",
+    "tests/engines/strategy-asp-clingo.test.mjs",
+    "tests/engines/strategy-closure-template.test.mjs",
+    "tests/engines/strategy-conform.test.mjs",
+    "tests/engines/strategy-datalog-common.test.mjs",
+    "tests/engines/strategy-datalog-differential.test.mjs",
+    "tests/engines/strategy-datalog-e10.test.mjs",
+    "tests/engines/strategy-datalog-soplab.test.mjs",
+    "tests/engines/strategy-datalog-souffle.test.mjs",
+    "tests/engines/strategy-dreaming-session.test.mjs",
+    "tests/engines/strategy-golog-swi.test.mjs",
+    "tests/engines/strategy-htn-strips-planner.test.mjs",
+    "tests/engines/strategy-prolog-tabling.test.mjs",
+    "tests/engines/strategy-solvers-differential.test.mjs",
+    "tests/engines/strategy-sql-sqlite.test.mjs",
+    "tests/engines/strategy-vrc-compressed-planning.test.mjs",
+    "tests/engines/strategy-worlds-sopr.test.mjs",
+    "tests/engines/strategy-z3-smt-bounded.test.mjs",
+    "tests/engines/z3-ast.test.mjs",
+    "tests/engines/solver-qualification.test.mjs",
+    "tests/engines/golog-scenarios.mjs",
+    "tests/engines/helpers-vrc-pl.mjs",
     "eval/reference-engines/"
    ],
    "modelCalls": {
@@ -268,7 +268,7 @@
     "self-written",
     "generated"
    ],
-   "command": "node --test tests/strategy-*.test.mjs tests/z3-ast.test.mjs tests/solver-qualification.test.mjs",
+   "command": "node --test tests/engines/*.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -291,9 +291,9 @@
     "reasoning"
    ],
    "paths": [
-    "tests/strategy-router.test.mjs",
-    "tests/router-timing.test.mjs",
-    "tests/capability-matrix.test.mjs"
+    "tests/reasoning/strategy-router.test.mjs",
+    "tests/reasoning/router-timing.test.mjs",
+    "tests/reasoning/capability-matrix.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -302,7 +302,7 @@
     "self-written",
     "generated"
    ],
-   "command": "node --test tests/strategy-router.test.mjs tests/router-timing.test.mjs tests/capability-matrix.test.mjs",
+   "command": "node --test tests/reasoning/strategy-router.test.mjs tests/reasoning/router-timing.test.mjs tests/reasoning/capability-matrix.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -325,8 +325,8 @@
     "tinyagent"
    ],
    "paths": [
-    "tests/strategy-llm-agent.test.mjs",
-    "tests/strategy-bench-evidence.test.mjs"
+    "tests/reasoning/strategy-llm-agent.test.mjs",
+    "tests/reasoning/strategy-bench-evidence.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -334,7 +334,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/strategy-llm-agent.test.mjs tests/strategy-bench-evidence.test.mjs",
+   "command": "node --test tests/reasoning/strategy-llm-agent.test.mjs tests/reasoning/strategy-bench-evidence.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -387,15 +387,15 @@
     "memory"
    ],
    "paths": [
-    "tests/memory-engines.test.mjs",
-    "tests/repository.test.mjs",
-    "tests/shards.test.mjs",
-    "tests/forgetting.test.mjs",
-    "tests/linker.test.mjs",
-    "tests/slice-retrieval.test.mjs",
-    "tests/query-forms-scale.test.mjs",
-    "tests/query-forms-world.test.mjs",
-    "tests/cache-lru.test.mjs"
+    "tests/memory/memory-engines.test.mjs",
+    "tests/memory/repository.test.mjs",
+    "tests/memory/shards.test.mjs",
+    "tests/memory/forgetting.test.mjs",
+    "tests/memory/linker.test.mjs",
+    "tests/memory/slice-retrieval.test.mjs",
+    "tests/memory/query-forms-scale.test.mjs",
+    "tests/memory/query-forms-world.test.mjs",
+    "tests/memory/cache-lru.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -404,7 +404,7 @@
     "self-written",
     "generated"
    ],
-   "command": "node --test tests/memory-engines.test.mjs tests/repository.test.mjs tests/shards.test.mjs tests/forgetting.test.mjs tests/linker.test.mjs tests/slice-retrieval.test.mjs tests/query-forms-scale.test.mjs tests/query-forms-world.test.mjs tests/cache-lru.test.mjs",
+   "command": "node --test tests/memory/memory-engines.test.mjs tests/memory/repository.test.mjs tests/memory/shards.test.mjs tests/memory/forgetting.test.mjs tests/memory/linker.test.mjs tests/memory/slice-retrieval.test.mjs tests/memory/query-forms-scale.test.mjs tests/memory/query-forms-world.test.mjs tests/memory/cache-lru.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -428,12 +428,12 @@
     "server-ui"
    ],
    "paths": [
-    "tests/chat-data.test.mjs",
-    "tests/chat-memories.test.mjs",
-    "tests/chat-sessions.test.mjs",
-    "tests/memory-composer.test.mjs",
-    "tests/memory-isolation.test.mjs",
-    "tests/warm-memories.test.mjs"
+    "tests/memory/chat-data.test.mjs",
+    "tests/memory/chat-memories.test.mjs",
+    "tests/memory/chat-sessions.test.mjs",
+    "tests/memory/memory-composer.test.mjs",
+    "tests/memory/memory-isolation.test.mjs",
+    "tests/memory/warm-memories.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -441,7 +441,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/chat-data.test.mjs tests/chat-memories.test.mjs tests/chat-sessions.test.mjs tests/memory-composer.test.mjs tests/memory-isolation.test.mjs tests/warm-memories.test.mjs",
+   "command": "node --test tests/memory/chat-data.test.mjs tests/memory/chat-memories.test.mjs tests/memory/chat-sessions.test.mjs tests/memory/memory-composer.test.mjs tests/memory/memory-isolation.test.mjs tests/memory/warm-memories.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -463,11 +463,11 @@
     "linker"
    ],
    "paths": [
-    "tests/knowledge-linker-copula.test.mjs",
-    "tests/knowledge-linker-scoring.test.mjs",
-    "tests/linking-r2.test.mjs",
-    "tests/linking-report.test.mjs",
-    "tests/commonsense-linking-fixes.test.mjs"
+    "tests/linker/knowledge-linker-copula.test.mjs",
+    "tests/linker/knowledge-linker-scoring.test.mjs",
+    "tests/linker/linking-r2.test.mjs",
+    "tests/linker/linking-report.test.mjs",
+    "tests/linker/commonsense-linking-fixes.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -475,7 +475,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/knowledge-linker-copula.test.mjs tests/knowledge-linker-scoring.test.mjs tests/linking-r2.test.mjs tests/linking-report.test.mjs tests/commonsense-linking-fixes.test.mjs",
+   "command": "node --test tests/linker/knowledge-linker-copula.test.mjs tests/linker/knowledge-linker-scoring.test.mjs tests/linker/linking-r2.test.mjs tests/linker/linking-report.test.mjs tests/linker/commonsense-linking-fixes.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -497,15 +497,15 @@
     "formalizer"
    ],
    "paths": [
-    "tests/local-llm-step-by-step.test.mjs",
-    "tests/local-llm-step-by-step-protocol.test.mjs",
-    "tests/internal-reasoning-step-by-step.test.mjs",
-    "tests/formalization-protocol-data.test.mjs",
-    "tests/formalizer-protocol-memory.test.mjs",
-    "tests/formalization-strategies.test.mjs",
-    "tests/query-parser.test.mjs",
-    "tests/problem-mode.test.mjs",
-    "tests/formalize-registry.test.mjs",
+    "tests/formalizer/local-llm-step-by-step.test.mjs",
+    "tests/formalizer/local-llm-step-by-step-protocol.test.mjs",
+    "tests/formalizer/internal-reasoning-step-by-step.test.mjs",
+    "tests/formalizer/formalization-protocol-data.test.mjs",
+    "tests/formalizer/formalizer-protocol-memory.test.mjs",
+    "tests/formalizer/formalization-strategies.test.mjs",
+    "tests/formalizer/query-parser.test.mjs",
+    "tests/formalizer/problem-mode.test.mjs",
+    "tests/formalizer/formalize-registry.test.mjs",
     "tools/formalizer-protocol/check.mjs"
    ],
    "modelCalls": {
@@ -514,7 +514,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/local-llm-step-by-step.test.mjs tests/local-llm-step-by-step-protocol.test.mjs tests/internal-reasoning-step-by-step.test.mjs tests/formalization-protocol-data.test.mjs tests/formalizer-protocol-memory.test.mjs tests/formalization-strategies.test.mjs tests/query-parser.test.mjs tests/problem-mode.test.mjs tests/formalize-registry.test.mjs",
+   "command": "node --test tests/formalizer/local-llm-step-by-step.test.mjs tests/formalizer/local-llm-step-by-step-protocol.test.mjs tests/formalizer/internal-reasoning-step-by-step.test.mjs tests/formalizer/formalization-protocol-data.test.mjs tests/formalizer/formalizer-protocol-memory.test.mjs tests/formalizer/formalization-strategies.test.mjs tests/formalizer/query-parser.test.mjs tests/formalizer/problem-mode.test.mjs tests/formalizer/formalize-registry.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -536,12 +536,12 @@
     "formalizer"
    ],
    "paths": [
-    "tests/query-author.test.mjs",
-    "tests/query-author-condition-misuse.test.mjs",
-    "tests/query-author-coverage.test.mjs",
-    "tests/query-author-neighbourhood.test.mjs",
-    "tests/query-author-rendering.test.mjs",
-    "tests/query-author-session.test.mjs",
+    "tests/formalizer/query-author.test.mjs",
+    "tests/formalizer/query-author-condition-misuse.test.mjs",
+    "tests/formalizer/query-author-coverage.test.mjs",
+    "tests/formalizer/query-author-neighbourhood.test.mjs",
+    "tests/formalizer/query-author-rendering.test.mjs",
+    "tests/formalizer/query-author-session.test.mjs",
     "tests/fixtures/condition-misuse/"
    ],
    "modelCalls": {
@@ -551,7 +551,7 @@
     "self-written",
     "generated"
    ],
-   "command": "node --test tests/query-author*.test.mjs",
+   "command": "node --test tests/formalizer/query-author*.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -607,12 +607,12 @@
     "routed-paths"
    ],
    "paths": [
-    "tests/expression-program.test.mjs",
-    "tests/js-route.test.mjs",
-    "tests/engine-code.test.mjs",
-    "tests/fol-v3.test.mjs",
-    "tests/structure-formalizer.test.mjs",
-    "tests/structure-formalizer-compare.test.mjs"
+    "tests/routed/expression-program.test.mjs",
+    "tests/routed/js-route.test.mjs",
+    "tests/routed/engine-code.test.mjs",
+    "tests/routed/fol-v3.test.mjs",
+    "tests/routed/structure-formalizer.test.mjs",
+    "tests/routed/structure-formalizer-compare.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -620,7 +620,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/expression-program.test.mjs tests/js-route.test.mjs tests/engine-code.test.mjs tests/fol-v3.test.mjs tests/structure-formalizer.test.mjs tests/structure-formalizer-compare.test.mjs",
+   "command": "node --test tests/routed/expression-program.test.mjs tests/routed/js-route.test.mjs tests/routed/engine-code.test.mjs tests/routed/fol-v3.test.mjs tests/routed/structure-formalizer.test.mjs tests/routed/structure-formalizer-compare.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -642,8 +642,8 @@
     "adapter"
    ],
    "paths": [
-    "tests/adapter.test.mjs",
-    "tests/answer-equivalence.test.mjs"
+    "tests/adapter/adapter.test.mjs",
+    "tests/adapter/answer-equivalence.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -651,7 +651,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/adapter.test.mjs tests/answer-equivalence.test.mjs",
+   "command": "node --test tests/adapter/adapter.test.mjs tests/adapter/answer-equivalence.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -673,12 +673,12 @@
     "conversation"
    ],
    "paths": [
-    "tests/agent.test.mjs",
-    "tests/conversation-layer.test.mjs",
-    "tests/behaviour-layer.test.mjs",
-    "tests/pragmatic-turn.test.mjs",
-    "tests/conversation-entities.test.mjs",
-    "tests/smalltalk-collections.test.mjs"
+    "tests/conversation/agent.test.mjs",
+    "tests/conversation/conversation-layer.test.mjs",
+    "tests/conversation/behaviour-layer.test.mjs",
+    "tests/conversation/pragmatic-turn.test.mjs",
+    "tests/conversation/conversation-entities.test.mjs",
+    "tests/conversation/smalltalk-collections.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -686,7 +686,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/agent.test.mjs tests/conversation-layer.test.mjs tests/behaviour-layer.test.mjs tests/pragmatic-turn.test.mjs tests/conversation-entities.test.mjs tests/smalltalk-collections.test.mjs",
+   "command": "node --test tests/conversation/agent.test.mjs tests/conversation/conversation-layer.test.mjs tests/conversation/behaviour-layer.test.mjs tests/conversation/pragmatic-turn.test.mjs tests/conversation/conversation-entities.test.mjs tests/conversation/smalltalk-collections.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -708,12 +708,12 @@
     "ingestion"
    ],
    "paths": [
-    "tests/ingest.test.mjs",
-    "tests/ingest-direct-author.test.mjs",
-    "tests/document-ingestion.test.mjs",
+    "tests/ingestion/ingest.test.mjs",
+    "tests/ingestion/ingest-direct-author.test.mjs",
+    "tests/ingestion/document-ingestion.test.mjs",
     "tests/ingest-v2.test.mjs",
-    "tests/authoring-circuits.test.mjs",
-    "tests/knowledge-mining.test.mjs"
+    "tests/ingestion/authoring-circuits.test.mjs",
+    "tests/ingestion/knowledge-mining.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -721,7 +721,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/ingest.test.mjs tests/ingest-direct-author.test.mjs tests/document-ingestion.test.mjs tests/ingest-v2.test.mjs tests/authoring-circuits.test.mjs tests/knowledge-mining.test.mjs",
+   "command": "node --test tests/ingestion/ingest.test.mjs tests/ingestion/ingest-direct-author.test.mjs tests/ingestion/document-ingestion.test.mjs tests/ingest-v2.test.mjs tests/ingestion/authoring-circuits.test.mjs tests/ingestion/knowledge-mining.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -744,7 +744,7 @@
     "analysis"
    ],
    "paths": [
-    "tests/analysis.test.mjs"
+    "tests/analysis/analysis.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -752,7 +752,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/analysis.test.mjs",
+   "command": "node --test tests/analysis/analysis.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -774,11 +774,11 @@
     "tinyagent"
    ],
    "paths": [
-    "tests/tinyagent-project.test.mjs",
-    "tests/llm-jobs.test.mjs",
-    "tests/llm-providers.test.mjs",
-    "tests/llm-review.test.mjs",
-    "tests/no-direct-model-calls.test.mjs"
+    "tests/tinyagent/tinyagent-project.test.mjs",
+    "tests/tinyagent/llm-jobs.test.mjs",
+    "tests/tinyagent/llm-providers.test.mjs",
+    "tests/tinyagent/llm-review.test.mjs",
+    "tests/tinyagent/no-direct-model-calls.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -786,7 +786,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/tinyagent-project.test.mjs tests/llm-jobs.test.mjs tests/llm-providers.test.mjs tests/llm-review.test.mjs tests/no-direct-model-calls.test.mjs",
+   "command": "node --test tests/tinyagent/tinyagent-project.test.mjs tests/tinyagent/llm-jobs.test.mjs tests/tinyagent/llm-providers.test.mjs tests/tinyagent/llm-review.test.mjs tests/tinyagent/no-direct-model-calls.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -808,7 +808,7 @@
     "tinyagent"
    ],
    "paths": [
-    "tests/tinyagent.test.mjs",
+    "tests/tinyagent/tinyagent.test.mjs",
     "TinyAgent/test/jobs-runner.test.mjs",
     "TinyAgent/test/jobs-task.test.mjs",
     "TinyAgent/test/priority.test.mjs",
@@ -834,13 +834,45 @@
     "verify"
    ],
    "status": "active",
-   "notes": "tests/tinyagent.test.mjs runs this folder inside npm test.",
+   "notes": "tests/tinyagent/tinyagent.test.mjs runs this folder inside npm test.",
    "runtime": "8.5 s for 1 file (measured, one group at a time)",
    "latest": {
     "result": "54 tests: 54 pass",
     "date": "2026-10-03",
     "path": "eval/reports/current/inventory/test-groups.json"
    }
+  },
+  {
+   "id": "bench-tinyagent-agent",
+   "title": "TinyAgent run: task set with known results (plan cache)",
+   "kind": "benchmark",
+   "measures": "tinyagent run (the agent with the plan cache) on 12 tasks with known results in one fresh folder and one cache: four task families, a parameter variant of each, a paraphrased variant and three near misses that must not reuse a cached plan; correctness, plan reuse, model calls, credits and time per task.",
+   "components": [
+    "tinyagent"
+   ],
+   "paths": [
+    "TinyAgent/bench/agent-tasks.mjs"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "planner good (3-4 calls for a new plan), match tiny (one call for a cache hit)",
+    "cost": "0.75-3 plan credits per new plan, 0 per cache hit"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node TinyAgent/bench/agent-tasks.mjs [--out DIR] [--only id,id]",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "measured: cache hit 1.7-8 s, new plan 8-80 s per task",
+   "latest": {
+    "result": "12 of 12 correct; 4 of 5 variants reused the right plan, 0 of 3 near misses reused",
+    "date": "2026-10-03",
+    "path": "TinyAgent/README.md (Measured)"
+   },
+   "status": "active",
+   "notes": "Part of TinyAgent (its own folder); registered here so the inventory covers it (owner request 2026-10-03)."
   },
   {
    "id": "tests-server",
@@ -851,14 +883,14 @@
     "server-ui"
    ],
    "paths": [
-    "tests/server-http.test.mjs",
-    "tests/server-status.test.mjs",
-    "tests/auth-server.test.mjs",
-    "tests/chat-feedback.test.mjs",
-    "tests/knowledge-browser.test.mjs",
-    "tests/eval-project-server.test.mjs",
-    "tests/experiments-pages.test.mjs",
-    "tests/sop-code-syntax.test.mjs"
+    "tests/server/server-http.test.mjs",
+    "tests/server/server-status.test.mjs",
+    "tests/server/auth-server.test.mjs",
+    "tests/server/chat-feedback.test.mjs",
+    "tests/server/knowledge-browser.test.mjs",
+    "tests/server/eval-project-server.test.mjs",
+    "tests/server/experiments-pages.test.mjs",
+    "tests/server/sop-code-syntax.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -866,7 +898,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/server-http.test.mjs tests/server-status.test.mjs tests/auth-server.test.mjs tests/chat-feedback.test.mjs tests/knowledge-browser.test.mjs tests/eval-project-server.test.mjs tests/experiments-pages.test.mjs tests/sop-code-syntax.test.mjs",
+   "command": "node --test tests/server/server-http.test.mjs tests/server/server-status.test.mjs tests/server/auth-server.test.mjs tests/server/chat-feedback.test.mjs tests/server/knowledge-browser.test.mjs tests/server/eval-project-server.test.mjs tests/server/experiments-pages.test.mjs tests/server/sop-code-syntax.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -888,12 +920,12 @@
     "docs-specs"
    ],
    "paths": [
-    "tests/wire-help.test.mjs",
-    "tests/knowledge-docs.test.mjs",
-    "tests/check-spec-refs.test.mjs",
-    "tests/site-links.test.mjs",
-    "tests/architecture-page.test.mjs",
-    "tests/product-api-docs.test.mjs",
+    "tests/docs/wire-help.test.mjs",
+    "tests/docs/knowledge-docs.test.mjs",
+    "tests/docs/check-spec-refs.test.mjs",
+    "tests/docs/site-links.test.mjs",
+    "tests/docs/architecture-page.test.mjs",
+    "tests/docs/product-api-docs.test.mjs",
     "tests/fixtures/omp/doc-authored.sop"
    ],
    "modelCalls": {
@@ -902,7 +934,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/wire-help.test.mjs tests/knowledge-docs.test.mjs tests/check-spec-refs.test.mjs tests/site-links.test.mjs tests/architecture-page.test.mjs tests/product-api-docs.test.mjs",
+   "command": "node --test tests/docs/wire-help.test.mjs tests/docs/knowledge-docs.test.mjs tests/docs/check-spec-refs.test.mjs tests/docs/site-links.test.mjs tests/docs/architecture-page.test.mjs tests/docs/product-api-docs.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -924,12 +956,12 @@
     "project"
    ],
    "paths": [
-    "tests/journal.test.mjs",
-    "tests/notes.test.mjs",
-    "tests/file-size-limit.test.mjs",
-    "tests/jsonl-shards.test.mjs",
-    "tests/leakage.test.mjs",
-    "tests/content-word-overlap.test.mjs"
+    "tests/project/journal.test.mjs",
+    "tests/project/notes.test.mjs",
+    "tests/project/file-size-limit.test.mjs",
+    "tests/project/jsonl-shards.test.mjs",
+    "tests/project/leakage.test.mjs",
+    "tests/project/content-word-overlap.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -937,7 +969,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/journal.test.mjs tests/notes.test.mjs tests/file-size-limit.test.mjs tests/jsonl-shards.test.mjs tests/leakage.test.mjs tests/content-word-overlap.test.mjs",
+   "command": "node --test tests/project/journal.test.mjs tests/project/notes.test.mjs tests/project/file-size-limit.test.mjs tests/project/jsonl-shards.test.mjs tests/project/leakage.test.mjs tests/project/content-word-overlap.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -959,12 +991,12 @@
     "eval-tooling"
    ],
    "paths": [
-    "tests/symbolic-vs-llm-harness.test.mjs",
-    "tests/benchmark-generators.test.mjs",
-    "tests/diversity-generator.test.mjs",
-    "tests/generality.test.mjs",
-    "tests/severity.test.mjs",
-    "tests/books-reasoning-cycle.test.mjs"
+    "tests/eval-tooling/symbolic-vs-llm-harness.test.mjs",
+    "tests/eval-tooling/benchmark-generators.test.mjs",
+    "tests/eval-tooling/diversity-generator.test.mjs",
+    "tests/eval-tooling/generality.test.mjs",
+    "tests/eval-tooling/severity.test.mjs",
+    "tests/eval-tooling/books-reasoning-cycle.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -973,7 +1005,7 @@
     "self-written",
     "generated"
    ],
-   "command": "node --test tests/symbolic-vs-llm-harness.test.mjs tests/benchmark-generators.test.mjs tests/diversity-generator.test.mjs tests/generality.test.mjs tests/severity.test.mjs tests/books-reasoning-cycle.test.mjs",
+   "command": "node --test tests/eval-tooling/symbolic-vs-llm-harness.test.mjs tests/eval-tooling/benchmark-generators.test.mjs tests/eval-tooling/diversity-generator.test.mjs tests/eval-tooling/generality.test.mjs tests/eval-tooling/severity.test.mjs tests/eval-tooling/books-reasoning-cycle.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -1020,7 +1052,7 @@
    ],
    "runtime": "about 70-130 s for the whole suite (npm test, files in parallel; 2026-10-03)",
    "latest": {
-    "result": "1710 tests: 1706 pass, 1 skipped, 3 not ok, none from this inventory: tests/commonsense-layer.test.mjs timed out at 120 s and the 50 ms decision-time test of formalizer-protocol-memory failed while other agents loaded the machine; no-direct-model-calls flags tools/eval/formalization-regression/argument.mjs (regression SkillPlugin work in progress)",
+    "result": "1710 tests: 1706 pass, 1 skipped, 3 not ok, none from this inventory: tests/sop/commonsense-layer.test.mjs timed out at 120 s and the 50 ms decision-time test of formalizer-protocol-memory failed while other agents loaded the machine; no-direct-model-calls flags tools/eval/formalization-regression/argument.mjs (regression SkillPlugin work in progress)",
     "date": "2026-10-03",
     "path": "eval/reports/current/inventory/npm-test.log"
    },
@@ -1036,7 +1068,7 @@
     "eval-tooling"
    ],
    "paths": [
-    "tests/tests-inventory.test.mjs",
+    "tests/project/tests-inventory.test.mjs",
     "tools/inventory/tests-and-evals.mjs",
     "eval/registry.json",
     "eval/README.md",
@@ -1186,7 +1218,7 @@
     "routed-paths"
    ],
    "paths": [
-    "tools/eval/adapter/run.mjs"
+    "tools/eval/routed/adapter/run.mjs"
    ],
    "modelCalls": {
     "level": "local",
@@ -1196,7 +1228,7 @@
    "dataSource": [
     "book problems (local only)"
    ],
-   "command": "node tools/eval/adapter/run.mjs --run <name> --ids-from js-fresh-50 --mode routed|direct-verified|all-paths [--cache strict]",
+   "command": "node tools/eval/routed/adapter/run.mjs --run <name> --ids-from js-fresh-50 --mode routed|direct-verified|all-paths [--cache strict]",
    "runsIn": [
     "manual"
    ],
@@ -1224,7 +1256,7 @@
     "routed-paths"
    ],
    "paths": [
-    "tools/eval/engine-code/run.mjs"
+    "tools/eval/routed/engine-code/run.mjs"
    ],
    "modelCalls": {
     "level": "local",
@@ -1234,7 +1266,7 @@
    "dataSource": [
     "book problems (local only)"
    ],
-   "command": "node tools/eval/engine-code/run.mjs --run engine-fresh-50 --from js-fresh-50 [--tier tiny]",
+   "command": "node tools/eval/routed/engine-code/run.mjs --run engine-fresh-50 --from js-fresh-50 [--tier tiny]",
    "runsIn": [
     "manual"
    ],
@@ -1609,7 +1641,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node tools/eval/query-parsers.mjs run --suite forms --rows eval/commonsense/questions.jsonl --tier tiny; QF_CHAT_ROOT=<root> node tools/commonsense/gold-check.mjs --arm with",
+   "command": "node tools/eval/formalization/query-parsers.mjs run --suite forms --rows eval/commonsense/questions.jsonl --tier tiny; QF_CHAT_ROOT=<root> node tools/commonsense/gold-check.mjs --arm with",
    "runsIn": [
     "manual"
    ],
@@ -1669,7 +1701,7 @@
     "conversation"
    ],
    "paths": [
-    "tools/eval/smalltalk/run.mjs",
+    "tools/eval/conversation/smalltalk/run.mjs",
     "eval/smalltalk-v1/",
     "jobs/smalltalk-judge/",
     "jobs/smalltalk-replies/",
@@ -1683,7 +1715,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node tools/eval/smalltalk/run.mjs turns; node tools/eval/smalltalk/run.mjs judge-input; node TinyAgent/bin/tinyagent.mjs job jobs/smalltalk-judge; node tools/eval/smalltalk/run.mjs report --run DIR",
+   "command": "node tools/eval/conversation/smalltalk/run.mjs turns; node tools/eval/conversation/smalltalk/run.mjs judge-input; node TinyAgent/bin/tinyagent.mjs job jobs/smalltalk-judge; node tools/eval/conversation/smalltalk/run.mjs report --run DIR",
    "runsIn": [
     "manual"
    ],
@@ -1713,7 +1745,7 @@
     "formalizer"
    ],
    "paths": [
-    "tools/eval/pragmatics/run.mjs",
+    "tools/eval/conversation/pragmatics/run.mjs",
     "eval/pragmatics-v1/"
    ],
    "modelCalls": {
@@ -1724,7 +1756,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node tools/eval/pragmatics/run.mjs --arm stepbystep --limit 50; node tools/eval/pragmatics/run.mjs --report",
+   "command": "node tools/eval/conversation/pragmatics/run.mjs --arm stepbystep --limit 50; node tools/eval/conversation/pragmatics/run.mjs --report",
    "runsIn": [
     "manual"
    ],
@@ -1824,7 +1856,7 @@
     "memory"
    ],
    "paths": [
-    "tools/eval/kbqa.mjs",
+    "tools/eval/kbqa/cli.mjs",
     "tools/eval/kbqa/",
     "eval/suites/kbqa-mintaka/",
     "eval/suites/kbqa-lcquad2/",
@@ -1840,7 +1872,7 @@
     "KBQA",
     "sealed suite"
    ],
-   "command": "node tools/eval/kbqa.mjs run --suite simplequestions --stage 100 [--tier tiny]; node tools/eval/kbqa.mjs report",
+   "command": "node tools/eval/kbqa/cli.mjs run --suite simplequestions --stage 100 [--tier tiny]; node tools/eval/kbqa/cli.mjs report",
    "runsIn": [
     "manual"
    ],
@@ -1869,8 +1901,8 @@
     "linker"
    ],
    "paths": [
-    "tools/eval/linking-suite.mjs",
-    "tools/eval/linking-split.mjs",
+    "tools/eval/linking/suite.mjs",
+    "tools/eval/linking/split.mjs",
     "eval/suites/linking-v1/",
     "tools/linking/acceptance-chat.mjs",
     "tools/linking/judge/",
@@ -1887,7 +1919,7 @@
     "sealed suite",
     "generated"
    ],
-   "command": "node tools/eval/linking-suite.mjs run --linker scored --stage all",
+   "command": "node tools/eval/linking/suite.mjs run --linker scored --stage all",
    "runsIn": [
     "manual"
    ],
@@ -1910,7 +1942,7 @@
     "linker"
    ],
    "paths": [
-    "tools/eval/query-parsers.mjs",
+    "tools/eval/formalization/query-parsers.mjs",
     "eval/world-kb/questions.json"
    ],
    "modelCalls": {
@@ -1922,7 +1954,7 @@
     "self-written",
     "generated"
    ],
-   "command": "node tools/eval/query-parsers.mjs run --suite world30 [--tier tiny]; node tools/eval/query-parsers.mjs report",
+   "command": "node tools/eval/formalization/query-parsers.mjs run --suite world30 [--tier tiny]; node tools/eval/formalization/query-parsers.mjs report",
    "runsIn": [
     "manual"
    ],
@@ -1945,8 +1977,8 @@
     "memory"
    ],
    "paths": [
-    "tools/eval/query-forms/gold.mjs",
-    "tools/eval/query-forms/overlap.mjs",
+    "tools/eval/formalization/query-forms/gold.mjs",
+    "tools/eval/formalization/query-forms/overlap.mjs",
     "tools/eval/query-forms-probe.mjs"
    ],
    "modelCalls": {
@@ -1958,7 +1990,7 @@
     "generated",
     "sealed suite"
    ],
-   "command": "node tools/eval/query-forms/gold.mjs --in rows.jsonl --out dev.jsonl; node tools/eval/query-forms/overlap.mjs --dev dev.jsonl; node tools/eval/query-forms-probe.mjs --q \"...\"",
+   "command": "node tools/eval/formalization/query-forms/gold.mjs --in rows.jsonl --out dev.jsonl; node tools/eval/formalization/query-forms/overlap.mjs --dev dev.jsonl; node tools/eval/query-forms-probe.mjs --q \"...\"",
    "runsIn": [
     "manual"
    ],
@@ -1980,6 +2012,8 @@
     "memory"
    ],
    "paths": [
+    "tools/eval/chat/world-kb-chat.mjs",
+    "tools/eval/chat/world-kb-report.mjs",
     "eval/world-kb/"
    ],
    "modelCalls": {
@@ -1990,7 +2024,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node eval/world-kb/chat.mjs --chat-data <root>; node eval/world-kb/report.mjs",
+   "command": "node tools/eval/chat/world-kb-chat.mjs --chat-data <root>; node tools/eval/chat/world-kb-report.mjs",
    "runsIn": [
     "manual"
    ],
@@ -2012,7 +2046,7 @@
     "reasoning"
    ],
    "paths": [
-    "tools/eval/generality/"
+    "tools/eval/formalization/generality/"
    ],
    "modelCalls": {
     "level": "local+cloud",
@@ -2023,7 +2057,7 @@
     "generated",
     "self-written"
    ],
-   "command": "node tools/eval/generality/run.mjs --arms C,R --levels b,c,n [--tier small]; node tools/eval/generality/summarize.mjs --runs ...",
+   "command": "node tools/eval/formalization/generality/run.mjs --arms C,R --levels b,c,n [--tier small]; node tools/eval/formalization/generality/summarize.mjs --runs ...",
    "runsIn": [
     "manual"
    ],
@@ -2045,7 +2079,7 @@
     "formalizer"
    ],
    "paths": [
-    "tools/eval/stepbystep-protocol/"
+    "tools/eval/formalization/stepbystep-protocol/"
    ],
    "modelCalls": {
     "level": "local",
@@ -2056,7 +2090,7 @@
     "generated",
     "self-written"
    ],
-   "command": "node tools/eval/stepbystep-protocol/run.mjs --methods A,B --levels a,b,c,n --per 3; node tools/eval/stepbystep-protocol/summarize.mjs --runs stage1",
+   "command": "node tools/eval/formalization/stepbystep-protocol/run.mjs --methods A,B --levels a,b,c,n --per 3; node tools/eval/formalization/stepbystep-protocol/summarize.mjs --runs stage1",
    "runsIn": [
     "manual"
    ],
@@ -2078,7 +2112,7 @@
     "formalizer"
    ],
    "paths": [
-    "tools/eval/internal-reasoning/",
+    "tools/eval/formalization/internal-reasoning/",
     "tools/formalizer-protocol/replay.mjs"
    ],
    "modelCalls": {
@@ -2090,7 +2124,7 @@
     "generated",
     "self-written"
    ],
-   "command": "node tools/eval/internal-reasoning/run.mjs --arms IR,B --out DIR; node tools/eval/internal-reasoning/summarize.mjs --runs stage1",
+   "command": "node tools/eval/formalization/internal-reasoning/run.mjs --arms IR,B --out DIR; node tools/eval/formalization/internal-reasoning/summarize.mjs --runs stage1",
    "runsIn": [
     "manual"
    ],
@@ -2145,8 +2179,8 @@
     "reasoning"
    ],
    "paths": [
-    "tools/eval/router-smoke.mjs",
-    "tools/eval/router-timing.mjs"
+    "tools/eval/engines/router-smoke.mjs",
+    "tools/eval/engines/router-timing.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -2155,7 +2189,7 @@
     "self-written",
     "generated"
    ],
-   "command": "node tools/eval/router-smoke.mjs; node tools/eval/router-timing.mjs --quick",
+   "command": "node tools/eval/engines/router-smoke.mjs; node tools/eval/engines/router-timing.mjs --quick",
    "runsIn": [
     "manual"
    ],
@@ -2176,9 +2210,9 @@
     "reasoning"
    ],
    "paths": [
-    "tools/eval/sql-sqlite-bench.mjs",
-    "tools/eval/sql-sqlite-cases.mjs",
-    "tools/eval/sql-sqlite-fuzz.mjs"
+    "tools/eval/engines/sql-sqlite-bench.mjs",
+    "tools/eval/engines/sql-sqlite-cases.mjs",
+    "tools/eval/engines/sql-sqlite-fuzz.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -2186,7 +2220,7 @@
    "dataSource": [
     "generated"
    ],
-   "command": "node tools/eval/sql-sqlite-bench.mjs; node tools/eval/sql-sqlite-cases.mjs --check; node tools/eval/sql-sqlite-fuzz.mjs --seeds 0-499",
+   "command": "node tools/eval/engines/sql-sqlite-bench.mjs; node tools/eval/engines/sql-sqlite-cases.mjs --check; node tools/eval/engines/sql-sqlite-fuzz.mjs --seeds 0-499",
    "runsIn": [
     "manual"
    ],
@@ -2197,7 +2231,7 @@
     "path": "eval/reports/current/sql-sqlite/bench.json"
    },
    "status": "active",
-   "notes": "tests/strategy-sql-sqlite.test.mjs imports the fuzz and the case generator."
+   "notes": "tests/engines/strategy-sql-sqlite.test.mjs imports the fuzz and the case generator."
   },
   {
    "id": "bench-exact-decimals",
@@ -2208,7 +2242,7 @@
     "reasoning"
    ],
    "paths": [
-    "tools/eval/exact-decimals-bench.mjs"
+    "tools/eval/engines/exact-decimals-bench.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -2216,7 +2250,7 @@
    "dataSource": [
     "generated"
    ],
-   "command": "node tools/eval/exact-decimals-bench.mjs --sizes 1000,10000,100000",
+   "command": "node tools/eval/engines/exact-decimals-bench.mjs --sizes 1000,10000,100000",
    "runsIn": [
     "manual"
    ],
@@ -2237,7 +2271,7 @@
     "memory"
    ],
    "paths": [
-    "tools/eval/slice-timing.mjs"
+    "tools/eval/engines/slice-timing.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -2245,7 +2279,7 @@
    "dataSource": [
     "generated"
    ],
-   "command": "node tools/eval/slice-timing.mjs --facts 10000,100000",
+   "command": "node tools/eval/engines/slice-timing.mjs --facts 10000,100000",
    "runsIn": [
     "manual"
    ],
@@ -2309,7 +2343,7 @@
     "conversation"
    ],
    "paths": [
-    "tools/eval/e2e-chat.mjs"
+    "tools/eval/chat/e2e-chat.mjs"
    ],
    "modelCalls": {
     "level": "local+cloud",
@@ -2319,7 +2353,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node tools/eval/e2e-chat.mjs --base http://127.0.0.1:<private port> --in eval/reports/current/e2e-chat/turns.jsonl --out FILE.jsonl",
+   "command": "node tools/eval/chat/e2e-chat.mjs --base http://127.0.0.1:<private port> --in eval/reports/current/e2e-chat/turns.jsonl --out FILE.jsonl",
    "runsIn": [
     "manual"
    ],
@@ -2374,7 +2408,7 @@
     "eval-tooling"
    ],
    "paths": [
-    "tools/eval/severity/"
+    "tools/eval/lib/severity/"
    ],
    "modelCalls": {
     "level": "none"
@@ -2382,7 +2416,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "library only (imported by tests/severity.test.mjs)",
+   "command": "library only (imported by tests/eval-tooling/severity.test.mjs)",
    "runsIn": [
     "manual"
    ],
@@ -2436,8 +2470,8 @@
     "eval-tooling"
    ],
    "paths": [
-    "tools/eval/tier-parser.mjs",
-    "tools/eval/direct-files.mjs"
+    "tools/eval/lib/tier-parser.mjs",
+    "tools/eval/lib/direct-files.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -2476,7 +2510,7 @@
     "generated",
     "sealed suite"
    ],
-   "command": "node tools/datasets/no-copy.mjs --files a.jsonl --name X; node --test tests/leakage.test.mjs",
+   "command": "node tools/datasets/no-copy.mjs --files a.jsonl --name X; node --test tests/project/leakage.test.mjs",
    "runsIn": [
     "npm test",
     "manual"
@@ -2676,31 +2710,31 @@
    "why": "stub of omp RPC mode, used only by the archived probably_obsolete/omp/omp-rpc.test.mjs"
   },
   {
-   "path": "tools/eval/severity/sop-compare.mjs",
+   "path": "tools/eval/lib/severity/sop-compare.mjs",
    "to": "probably_obsolete/eval-cleanup-2026-10-03/tools/eval/severity/sop-compare.mjs",
    "date": "2026-10-03",
    "why": "R3: graded SymbolicLM interpretations (SOP comparison) of the frozen small-model branch"
   },
   {
-   "path": "tools/eval/severity/analysis-map.mjs",
+   "path": "tools/eval/lib/severity/analysis-map.mjs",
    "to": "probably_obsolete/eval-cleanup-2026-10-03/tools/eval/severity/analysis-map.mjs",
    "date": "2026-10-03",
    "why": "R3: mapped SymbolicLM analysis comparisons to severities (frozen branch)"
   },
   {
-   "path": "tools/eval/severity/simplify.mjs",
+   "path": "tools/eval/lib/severity/simplify.mjs",
    "to": "probably_obsolete/eval-cleanup-2026-10-03/tools/eval/severity/simplify.mjs",
    "date": "2026-10-03",
    "why": "R3: fallback simplifications of SymbolicLM rewrites (frozen branch)"
   },
   {
-   "path": "tools/eval/severity/program-shape.mjs",
+   "path": "tools/eval/lib/severity/program-shape.mjs",
    "to": "probably_obsolete/eval-cleanup-2026-10-03/tools/eval/severity/program-shape.mjs",
    "date": "2026-10-03",
    "why": "R3: used only by sop-compare.mjs"
   },
   {
-   "path": "tools/eval/severity/judge-prompt.mjs",
+   "path": "tools/eval/lib/severity/judge-prompt.mjs",
    "to": "probably_obsolete/eval-cleanup-2026-10-03/tools/eval/severity/judge-prompt.mjs",
    "date": "2026-10-03",
    "why": "R3: the LLM judge prompt for message rewrites of the SymbolicLM era; imported by nothing"
@@ -2718,10 +2752,10 @@
    "why": "R5: the zero-shot structure probe (GLiNER2.5/T5 backends, deleted), superseded by ab.mjs"
   },
   {
-   "path": "tools/eval/query-forms/run.mjs",
+   "path": "tools/eval/formalization/query-forms/run.mjs",
    "to": "deleted (git history)",
    "date": "2026-10-03",
-   "why": "R2: duplicate of tools/eval/query-parsers.mjs --suite forms (same rows, same path, with outcome classes and cost)"
+   "why": "R2: duplicate of tools/eval/formalization/query-parsers.mjs --suite forms (same rows, same path, with outcome classes and cost)"
   }
  ],
  "recommendations": [
@@ -2734,7 +2768,7 @@
   {
    "id": "R2",
    "title": "Drop the query-forms runner",
-   "detail": "tools/eval/query-forms/run.mjs duplicates tools/eval/query-parsers.mjs --suite forms; keep gold.mjs, overlap.mjs and the probe.",
+   "detail": "tools/eval/formalization/query-forms/run.mjs duplicates tools/eval/formalization/query-parsers.mjs --suite forms; keep gold.mjs, overlap.mjs and the probe.",
    "decision": "done 2026-10-03: run.mjs deleted (git history); DS012 cites failureLayer and wilson of tools/eval/symbolic-vs-llm/score.mjs instead"
   },
   {
@@ -2758,7 +2792,7 @@
   {
    "id": "R6",
    "title": "Drop the pragmatics lexicon arm",
-   "detail": "the `lexicon` arm of tools/eval/pragmatics/run.mjs imports the archived EmotionDetectionSystem; its records stay readable.",
+   "detail": "the `lexicon` arm of tools/eval/conversation/pragmatics/run.mjs imports the archived EmotionDetectionSystem; its records stay readable.",
    "decision": "done 2026-10-03: the arm removed; its records stay readable in --report"
   },
   {

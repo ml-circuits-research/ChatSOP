@@ -5,7 +5,7 @@
  *
  * `available()` is probed once per process and only reads (a version call); nothing is installed. Qualification is the shadow gate
  * of DS006 (`eval/smoke-reasoning/run.mjs`, zero disagreements with the oracle on the cases the strategy declares it expresses,
- * observed 2026-10-02: sql-sqlite 81, datalog-souffle 68, asp-clingo 96 cases, all pass); `tests/strategy-router.test.mjs` repeats
+ * observed 2026-10-02: sql-sqlite 81, datalog-souffle 68, asp-clingo 96 cases, all pass); `tests/reasoning/strategy-router.test.mjs` repeats
  * that gate on the cases of the router's classes.
  */
 import {DatabaseSync} from 'node:sqlite';

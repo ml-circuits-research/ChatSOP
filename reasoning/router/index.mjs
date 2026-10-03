@@ -34,7 +34,7 @@ import {sampleAnswers} from '../sample.mjs';
 export {circuitFeatures};
 
 /**
- * Defaults, from the measured table `eval/reports/current/router/timing.json` (tools/eval/router-timing.mjs, DS010): the oracle is
+ * Defaults, from the measured table `eval/reports/current/router/timing.json` (tools/eval/engines/router-timing.mjs, DS010): the oracle is
  * faster or equal below these sizes and exhausts its budget above them (recursion: a transitive closure grows quadratically).
  */
 export const ROUTER_DEFAULTS = Object.freeze({

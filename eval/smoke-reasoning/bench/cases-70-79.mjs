@@ -90,7 +90,7 @@ The rule \`hit\` joins \`a\`, \`b\` and \`c\` in the worst written order (the 40
 
 **Expected answer:** o0, o10, o20, o30 (n0 is in \`c\`; its \`a\` row points at m0; \`b\` links m0 to o0, o10, o20 and o30).
 
-**Needs:** rules, conjunction. The smoke adapter returns the answer of the deployed plan; the unit test \`tests/strategy-dreaming-session.test.mjs\` reports the probes and the wall clock with and without it.
+**Needs:** rules, conjunction. The smoke adapter returns the answer of the deployed plan; the unit test \`tests/engines/strategy-dreaming-session.test.mjs\` reports the probes and the wall clock with and without it.
 `
   });
   const v2 = '@new_r_hit_v2 rule\n  when a ?x ?y\n  when b ?y ?z\n  when c ?x\n  when d ?z\n  then hit ?x ?z\n  version 2\n  supersedes $r_hit\n  approval approved\n  approved_by "owner"\n  approved_at 2026-06-01\n';

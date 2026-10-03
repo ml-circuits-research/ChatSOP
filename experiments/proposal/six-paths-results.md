@@ -70,7 +70,7 @@ At least one path correct: 56/100 (batch1), 57/99 (batch2). Verified on `tiny`: 
 
 ## 6. Symbolic answer equivalence (`lib/formalize/equivalence.mjs`)
 
-A catalog of small checks, each returning `equivalent`, `different` or `unknown`, tried in order; the deciding check is recorded. Tested in `tests/answer-equivalence.test.mjs`.
+A catalog of small checks, each returning `equivalent`, `different` or `unknown`, tried in order; the deciding check is recorded. Tested in `tests/adapter/answer-equivalence.test.mjs`.
 
 | check | decides |
 |---|---|

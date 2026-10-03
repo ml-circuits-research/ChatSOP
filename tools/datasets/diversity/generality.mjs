@@ -1,7 +1,7 @@
 /**
  * Generality probe (experiment eval-generality-v1, AGENTS.md direction 7 levels b and c).
  * Level b: question forms held out from every development set, the author guide, examples and tests
- * (checked by tools/eval/generality/heldout-check.mjs). Level c: compositions of two or three known classes.
+ * (checked by tools/eval/formalization/generality/heldout-check.mjs). Level c: compositions of two or three known classes.
  * Every case is a small generated memory with its gold answer computed here by construction (plain JavaScript),
  * then checked against the reference oracle and the product path on the memory plus a reviewed gold circuit.
  * Gold definitions (`gold_defs`) are never part of the memory the author or arm A sees.

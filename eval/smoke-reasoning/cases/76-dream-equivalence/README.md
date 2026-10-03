@@ -6,4 +6,4 @@ The rule `hit` joins `a`, `b` and `c` in the worst written order (the 40-row rel
 
 **Expected answer:** o0, o10, o20, o30 (n0 is in `c`; its `a` row points at m0; `b` links m0 to o0, o10, o20 and o30).
 
-**Needs:** rules, conjunction. The smoke adapter returns the answer of the deployed plan; the unit test `tests/strategy-dreaming-session.test.mjs` reports the probes and the wall clock with and without it.
+**Needs:** rules, conjunction. The smoke adapter returns the answer of the deployed plan; the unit test `tests/engines/strategy-dreaming-session.test.mjs` reports the probes and the wall clock with and without it.

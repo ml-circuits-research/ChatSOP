@@ -23,7 +23,7 @@ import {openSession, defaultRoot} from '../query-forms-probe.mjs';
 import {readExperiments} from '../../../lib/journal.mjs';
 import {localStrategy} from '../../../lib/formalize/strategies.mjs';
 const stepStrategies = new Map();
-import {tierLadder} from '../tier-parser.mjs';
+import {tierLadder} from '../lib/tier-parser.mjs';
 /**
  * Owner decision 2026-10-02: formalization is step by step only; the one-shot author arms (B: a local model writes free SOP with repair
  * rounds; B-grammar and B-structured: its constrained decoders; B-local: the same loop on the strategy slot) are archived in

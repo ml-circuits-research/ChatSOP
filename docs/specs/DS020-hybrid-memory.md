@@ -35,8 +35,8 @@ Formalizing every experience immediately into SOP and keeping only the result is
 
 | Capability | Status | Evidence |
 | --- | --- | --- |
-| Exact-only answers with separate hints; hint bank selection | Implemented | `tests/reasoning-v3.test.mjs` ("hybrid memory is independent from reasoning strategy"); `tests/memory-engines.test.mjs` (legacy hint-bank names); lifecycle runs of [DS010](specsLoader.html?spec=DS010-engine-and-solver-comparison.md) |
-| `hybrid` and `auto` policies across generations | Implemented | `tests/shards.test.mjs`; `tests/linker.test.mjs` |
+| Exact-only answers with separate hints; hint bank selection | Implemented | `tests/reasoning/reasoning-v3.test.mjs` ("hybrid memory is independent from reasoning strategy"); `tests/memory/memory-engines.test.mjs` (legacy hint-bank names); lifecycle runs of [DS010](specsLoader.html?spec=DS010-engine-and-solver-comparison.md) |
+| `hybrid` and `auto` policies across generations | Implemented | `tests/memory/shards.test.mjs`; `tests/memory/linker.test.mjs` |
 | Hint benefit | Not shown | [DS010](specsLoader.html?spec=DS010-engine-and-solver-comparison.md): all 384 hint candidates per run matched exact rows and changed no top answer (rerun 2026-09-28), a negative result on a small corpus |
 | Trace store, pattern mining inside memory | Not implemented | Experiments below |
 

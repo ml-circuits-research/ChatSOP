@@ -26,7 +26,7 @@ There are 27 planted findings and 23 KPI values in total. The rubric score of ea
 
 ## Levels and how to run them
 
-- **(a) The procedures in isolation:** `node tools/eval/analysis/run.mjs`. This runs the hand-written SOP over analysis-core-v1. A finding matches a planted issue by `{rule, witness}`. The same check is the last test of `tests/analysis.test.mjs`. The procedures were written together with this set, so level (a) checks coverage and correctness. It does not show that the procedures generalise to new documents.
+- **(a) The procedures in isolation:** `node tools/eval/analysis/run.mjs`. This runs the hand-written SOP over analysis-core-v1. A finding matches a planted issue by `{rule, witness}`. The same check is the last test of `tests/analysis/analysis.test.mjs`. The procedures were written together with this set, so level (a) checks coverage and correctness. It does not show that the procedures generalise to new documents.
 - **(b) End to end:** run the LLMJobs template `analyze-document` once per document. Each run ingests the document with ingestion v2 into a new session on analysis-core-v1, then analyses it. Then run `node tools/eval/analysis/run.mjs --mode analyses --dir <dir with <doc>/analysis.json>`. The ingested symbols are the ingestion's own, so a finding matches a planted issue by its rule (strict) or by its procedure (family), and by the document lines of its evidence. KPIs are not scored at this level.
 
 Reports are written to `eval/reports/current/analysis/<mode>.json`, which is regenerable and gitignored.

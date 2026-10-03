@@ -6,4 +6,4 @@ Four coordinate pairs (1,1), (2,2), (3,3), (4,4) are turned by the four dihedral
 
 **Expected answer:** plan_found, four steps. Three steps give at most 96 (32 each, `a3` is always enabled), so four is the shortest; the host replays the plan in the original laws.
 
-**Needs:** plan, numeric_action, zero_arity. The oracle cannot express it; the shadow check lowers the instance to ground STRIPS (see `tests/strategy-vrc-compressed-planning.test.mjs`).
+**Needs:** plan, numeric_action, zero_arity. The oracle cannot express it; the shadow check lowers the instance to ground STRIPS (see `tests/engines/strategy-vrc-compressed-planning.test.mjs`).

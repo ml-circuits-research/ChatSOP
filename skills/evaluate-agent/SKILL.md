@@ -11,7 +11,7 @@ Read `eval/README.md`, [DS012](../../docs/specs/DS012-evaluation-metrics.md) (on
 
 - **Input:** the user's message and the memory vocabulary only. The evaluator sends the coding agent nothing else: no answers, gold, sealed tests, other sessions or clock.
 - **Eligible output:** `query`, `constraint`, `unclear`, `unparsed` and `assumed` session definitions; never an answer or a fact. The validator (`lib/query-author/validate.mjs`) admits the rest.
-- **Suites:** the query-forms dev set (`tools/eval/query-forms`) and the sealed KBQA suites (`eval/suites/kbqa-*`), each scored once per selected tier (`--tier tiny|small|medium|good`; the tier answers the same step-by-step questions). The one-shot calibration of candidate models is archived (`probably_obsolete/one-shot-formalization/tools/eval/query-model-calibration/`).
+- **Suites:** the query-forms dev set (`tools/eval/formalization/query-forms`) and the sealed KBQA suites (`eval/suites/kbqa-*`), each scored once per selected tier (`--tier tiny|small|medium|good`; the tier answers the same step-by-step questions). The one-shot calibration of candidate models is archived (`probably_obsolete/one-shot-formalization/tools/eval/query-model-calibration/`).
 - **What to measure:** valid circuits; correct execution against the oracle on the gold slice; **wrong** (a definite answer different from the gold) versus honest unknown (`unclear`, `parse_unavailable`, `unknown`); failure attribution by layer (authoring, linking, retrieval, engine, rendering); latency and cost per question.
 
 ## 2. The complete ChatSOP system (track `system`)

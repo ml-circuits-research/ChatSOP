@@ -42,7 +42,7 @@ Applies to: any tool that imports or converts source text, `datasets/knowledge/s
 
 ## KBQA benchmarks (2026-10-01)
 
-The questions and gold answers of the four KBQA benchmarks are public evaluation material, used only by the sealed suites `eval/suites/kbqa-<name>/test.jsonl` (`tools/eval/kbqa.mjs`, experiment eval-kbqa-v1). The raw sources stay in the local source cache `datasets_sources/kbqa/` (gitignored); the sealed suites hold the sampled questions with their attribution (`license` and `source` on every row, `citation` in `meta.json`). The knowledge slices are Wikidata statements (CC0), fetched from query.wikidata.org with a descriptive User-Agent and a polite request gap, and live in the gitignored cache and a private chat data root.
+The questions and gold answers of the four KBQA benchmarks are public evaluation material, used only by the sealed suites `eval/suites/kbqa-<name>/test.jsonl` (`tools/eval/kbqa/cli.mjs`, experiment eval-kbqa-v1). The raw sources stay in the local source cache `datasets_sources/kbqa/` (gitignored); the sealed suites hold the sampled questions with their attribution (`license` and `source` on every row, `citation` in `meta.json`). The knowledge slices are Wikidata statements (CC0), fetched from query.wikidata.org with a descriptive User-Agent and a polite request gap, and live in the gitignored cache and a private chat data root.
 
 | Asset | Version / source | Evidence inspected | Status | Consequences in this repository |
 | --- | --- | --- | --- | --- |

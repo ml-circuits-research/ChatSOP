@@ -3,7 +3,7 @@
  *
  * soplab's own `abduct()` (vendored, search/abduction.mjs) is a best-first search that RETURNS THE FIRST, cheapest explanation and stops: with
  * two equally cheap explanations (rain or sprinkler) it reports one of them. That is a finding of the smoke case `14a`, kept as a test
- * (tests/strategy-datalog-soplab.test.mjs). The proposal's `mode abduce` asks for ALL inclusion-minimal explanations, so the strategy
+ * (tests/engines/strategy-datalog-soplab.test.mjs). The proposal's `mode abduce` asks for ALL inclusion-minimal explanations, so the strategy
  * enumerates them itself: subsets of the hypothesis wires by increasing size, a superset of an explanation already found is skipped, and
  * a subset holds when the query's `where` part is derivable from the facts plus the subset's atoms (closure by soplab, answer read by the oracle's reader).
  * More hypotheses than `maxHypotheses` is `budget_exhausted` (reason `hypotheses`), never a silently shortened search.

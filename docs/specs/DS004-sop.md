@@ -163,7 +163,7 @@ Some names exist on both surfaces with different fields (`fact`, `rule`, `predic
 
 (`rank highest|lowest ?v` may end with `position N` or `top N`: the N-th best distinct value, or the N best; a ranking is valid only over a complete view of the facts, DS006 "Completeness under partial retrieval".)
 
-The same table with the status and the purpose of each wire is printed by `node eval/smoke-reasoning/validator.mjs --grammar`; `--grammar-compact` prints the lines above, and `tests/knowledge-grammar.test.mjs` fails when the block above differs from the generated one. `pack` is host plumbing and is never written by an author or by the model. The limits `maxWires` and the like belong to the author surface: a retrieved slice reaches an engine as a structured object, not as text.
+The same table with the status and the purpose of each wire is printed by `node eval/smoke-reasoning/validator.mjs --grammar`; `--grammar-compact` prints the lines above, and `tests/sop/knowledge-grammar.test.mjs` fails when the block above differs from the generated one. `pack` is host plumbing and is never written by an author or by the model. The limits `maxWires` and the like belong to the author surface: a retrieved slice reaches an engine as a structured object, not as text.
 
 | Wire | Written by | Purpose | Help page |
 | --- | --- | --- | --- |
@@ -562,7 +562,7 @@ A `policy` is host-set: the budget keys (`maxNodes maxDepth maxHypotheses maxCan
 - `test`: `of` (the task symbol), `call` and `expect` (JavaScript expressions, each a JSON-quoted string; `expect` is evaluated in a clean context apart from the program), optional `kind example|property|generated|sealed`, `timeout` (milliseconds) and `source`. Results are compared structurally. A test of `kind sealed` belongs to `eval/suites/**` only: the validator reports `sealed_test_in_knowledge` for it in every other file (`validateProgram(files, {allowSealed: true})` is the evaluation harness's switch), and `eval/leakage.mjs` (`auditSealedTests`) fails when a sealed test, or a read of a suite folder, appears in the host loop, the sandbox or any knowledge file.
 - `code`: `of`, `language` (`javascript`), `entry` (a JavaScript identifier), `body` (the whole program as one JSON string; the validator checks that it defines the entry, `code_entry_not_defined`), optional `produced_by renderer|llm-agent|user|dream` and the governance fields, which the host writes when the owner accepts a verified program into a library. A program is opaque to every engine; its only consumer is `code-sandbox`.
 
-A `verified` answer means that the program passed the given tests (`guarantee bounded`, never `exact`). Examples that the sandbox runs live on the help pages `docs/wire_typs/test.html` and `code.html` (`data-run="sandbox"`, executed by `tests/wire-help.test.mjs`).
+A `verified` answer means that the program passed the given tests (`guarantee bounded`, never `exact`). Examples that the sandbox runs live on the help pages `docs/wire_typs/test.html` and `code.html` (`data-run="sandbox"`, executed by `tests/docs/wire-help.test.mjs`).
 
 ### Modes of work
 

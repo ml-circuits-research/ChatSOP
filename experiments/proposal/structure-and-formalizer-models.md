@@ -91,7 +91,7 @@ A managed upstream of the model gateway, without Python (owner, 2026-10-03: ever
 
 ### Deterministic translation
 
-New modules `lib/formalize/fol/` and `lib/formalize/structure/`, with tests in `tests/structure-formalizer.test.mjs`. They reuse `registry.mjs`, `expression-program.mjs` (analysis and lowering), `dual-check.mjs` (perturbation), `equivalence.mjs` (scoring) and the engines.
+New modules `lib/formalize/fol/` and `lib/formalize/structure/`, with tests in `tests/routed/structure-formalizer.test.mjs`. They reuse `registry.mjs`, `expression-program.mjs` (analysis and lowering), `dual-check.mjs` (perturbation), `equivalence.mjs` (scoring) and the engines.
 
 - **`fol/parse.mjs`:**
   - reads the LFM's FOL, including glued keywords (`NOTPenguin`, `FORALLxFORALLy`) and the Unicode connectives;
@@ -190,7 +190,7 @@ LFM verdict: the model writes well-formed FOL, and our converter turns 79% of th
 
 ### Converter check
 
-The converters were tested on invented FOL in the agreed form (`tests/structure-formalizer.test.mjs`, 6 tests). All of the following executed correctly on the engines:
+The converters were tested on invented FOL in the agreed form (`tests/routed/structure-formalizer.test.mjs`, 6 tests). All of the following executed correctly on the engines:
 - yes/no, which, a negated-existential constraint, the `Before`/`After` order, transitivity;
 - a value program (24 muffins, 5 unsold, 3 dollars → 57);
 - the same circuit on perturbed numbers;
@@ -755,7 +755,7 @@ Executing model-written programs was refused by the session's permission system 
 
 ## 12. ChatSOPAdapter: one backend for the chat and the evaluations (owner decision, 2026-10-03)
 
-**What was built.** `lib/adapter` (`createChatSOPAdapter().answer({message, mode})`): the chat turn (`server/http.mjs`), the session query route, the books harness (`tools/eval/books/system.mjs`, `--mode`), the structure/formalizer harnesses (`ab.mjs`, `js-route.mjs`, `score.mjs`, `engines.mjs`, `chat.mjs`) and the engineCode harness now call the adapter's paths, executor and tier client instead of their own glue. Modes: `stepwise` (the default), `routed`, `direct-verified`; more register with `registerMode` (the evaluation mode `all-paths` of `tools/eval/adapter/run.mjs` is one). Every answer carries the mode, the answering path, a verification status with the agreeing paths, circuits, proofs, timings and tiers; the chat states the status through conversation-v1 reply wires (`0080-verification.sop`).
+**What was built.** `lib/adapter` (`createChatSOPAdapter().answer({message, mode})`): the chat turn (`server/http.mjs`), the session query route, the books harness (`tools/eval/books/system.mjs`, `--mode`), the structure/formalizer harnesses (`ab.mjs`, `js-route.mjs`, `score.mjs`, `engines.mjs`, `chat.mjs`) and the engineCode harness now call the adapter's paths, executor and tier client instead of their own glue. Modes: `stepwise` (the default), `routed`, `direct-verified`; more register with `registerMode` (the evaluation mode `all-paths` of `tools/eval/routed/adapter/run.mjs` is one). Every answer carries the mode, the answering path, a verification status with the agreeing paths, circuits, proofs, timings and tiers; the chat states the status through conversation-v1 reply wires (`0080-verification.sop`).
 
 **Reproduction (fresh 50, MoE `tiny`, asked parts: correct / partial / wrong / no answer / gold defect).**
 

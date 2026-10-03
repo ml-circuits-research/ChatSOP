@@ -248,7 +248,7 @@ Argument and metacognition questions ("which option strengthens the argument", "
   end
 ```
 
-The answer: the baseline is `unknown` (Sam's conclusion is not forced) and `r_converse` `establishes` it: Sam is right only with the converse of the card's rule, which the card does not state (logic book item 171; executed by `tests/query-candidates.test.mjs`).
+The answer: the baseline is `unknown` (Sam's conclusion is not forced) and `r_converse` `establishes` it: Sam is right only with the converse of the card's rule, which the card does not state (logic book item 171; executed by `tests/sop/query-candidates.test.mjs`).
 
 ## The jsEval route (owner decision 2026-10-03, proposal P-6)
 
@@ -433,7 +433,7 @@ The **KnowledgeLinker** (name pending the owner's confirmation; `sop/linking.mjs
 | "Where is Paris?", "Is Paris in France?" | `be in`, `be located in`, or `be` with `role location` | `location`; the object role is renamed to the predicate's second role | the memory's location predicate |
 | "Ana is not a doctor." | any of the above with `polarity negated` | as above | the same atom, negated |
 
-Every linked copula is reported in the packet as `copula_readings` (wire, relation, the readings tried with the predicates each found, the reading taken, the alternatives), so the reading is inspectable. A definite noun phrase ("the doctor"), an unknown class noun or no declared reading never produce "unknown relation be": an unknown noun is an entity question ("Which entity do you mean by "flibber"?"); a definite phrase or a missing reading lists the declared readings ("Do you mean: Ana is a kind of "the doctor" or …?"); a memory without a describing predicate asks "Do you mean what Ana does, or who Ana is related to?"; a memory without a location predicate says so. Tests: `tests/knowledge-linker-copula.test.mjs` (a hand-made knowledge base, author-shaped programs through the Runtime and the js-reference oracle).
+Every linked copula is reported in the packet as `copula_readings` (wire, relation, the readings tried with the predicates each found, the reading taken, the alternatives), so the reading is inspectable. A definite noun phrase ("the doctor"), an unknown class noun or no declared reading never produce "unknown relation be": an unknown noun is an entity question ("Which entity do you mean by "flibber"?"); a definite phrase or a missing reading lists the declared readings ("Do you mean: Ana is a kind of "the doctor" or …?"); a memory without a describing predicate asks "Do you mean what Ana does, or who Ana is related to?"; a memory without a location predicate says so. Tests: `tests/linker/knowledge-linker-copula.test.mjs` (a hand-made knowledge base, author-shaped programs through the Runtime and the js-reference oracle).
 
 
 ### KnowledgeLinker: scoring and ambiguity

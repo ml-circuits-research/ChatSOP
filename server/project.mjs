@@ -59,7 +59,7 @@ function trainingRule(root) {
 /** Gates in order. `open` is a computed observation; training needs the owner's explicit approval per run and no gate supplies it. */
 export function gates(root = projectRoot, {pipeline = dataPipeline(root), experiments = []} = {}) {
   const rule = trainingRule(root);
-  const guards = ['eval/leakage.mjs', 'tests/query-author.test.mjs', 'tests/strategy-router.test.mjs'].map(file => ({file, exists: fs.existsSync(path.join(root, file))}));
+  const guards = ['eval/leakage.mjs', 'tests/formalizer/query-author.test.mjs', 'tests/reasoning/strategy-router.test.mjs'].map(file => ({file, exists: fs.existsSync(path.join(root, file))}));
   const prereg = experiments.filter(entry => ['preregistered', 'approved', 'running', 'done'].includes(entry.status));
   const benchmarkPlan = 'experiments/proposal/symbolic-vs-llm-benchmark.md';
   const smoke = readJson(path.join(root, 'eval/reports/current/chat-smoke/summary.json'));

@@ -1,5 +1,5 @@
 /**
- * Builds the sealed KBQA suites eval/suites/kbqa-<name>/test.jsonl (tools/eval/kbqa.mjs `suites`): the stratified sample of a
+ * Builds the sealed KBQA suites eval/suites/kbqa-<name>/test.jsonl (tools/eval/kbqa/cli.mjs `suites`): the stratified sample of a
  * benchmark, with the gold answers taken from the source (Mintaka, QALD-10) or obtained by running the benchmark's gold SPARQL on the
  * current Wikidata (LC-QuAD 2.0 and SimpleQuestions-Wikidata carry no answers). A row whose gold query returns nothing on today's
  * Wikidata is dropped (counted in the suite's meta file): it cannot be answered from any Wikidata slice.

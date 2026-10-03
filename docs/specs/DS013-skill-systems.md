@@ -5,7 +5,7 @@ summary: Evidence-gated failure classification, inert scoped micro-theory propos
 
 # Skill systems
 
-These three importable JavaScript components are diagnostic and review-side tools. They use the existing SOP parser and are exercised against actual `Runtime.run` and `ReasoningRegistry` calls by `node --test tests/skill-systems.test.mjs`. No training, fine-tuning, optimizer or neural inference occurs. None is connected to automatic publication, the production runtime library or the trusted `remember` write path. Supplied review and authorization metadata are claims of the caller until the host independently verifies them.
+These three importable JavaScript components are diagnostic and review-side tools. They use the existing SOP parser and are exercised against actual `Runtime.run` and `ReasoningRegistry` calls by `node --test tests/reasoning/skill-systems.test.mjs`. No training, fine-tuning, optimizer or neural inference occurs. None is connected to automatic publication, the production runtime library or the trusted `remember` write path. Supplied review and authorization metadata are claims of the caller until the host independently verifies them.
 
 ## Failure classifier
 
@@ -36,7 +36,7 @@ Version states are **candidate**, **accepted**, **rejected** and **retracted**. 
 ### Executable check
 
 ```sh
-node --test tests/skill-systems.test.mjs
+node --test tests/reasoning/skill-systems.test.mjs
 ```
 
 The scoped test runs actual SOP queries and a deliberately faulty strategy to discriminate all five diagnostic categories, checks that insufficient evidence is refused, verifies the retained exception and its validation obligation, and exercises duplicate detection, changed-version history, unauthorized promotion refusal, missing-exception-validation refusal, authorized acceptance, snapshot reload and evidence-triggered rollback. The tests do not claim a human review occurred or that their example source statements are real-world truths.

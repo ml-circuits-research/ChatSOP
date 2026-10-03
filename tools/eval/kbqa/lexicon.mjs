@@ -12,7 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {CACHE} from './benchmarks.mjs';
-import {runDirect} from '../direct-files.mjs';
+import {runDirect} from '../lib/direct-files.mjs';
 
 const FILE = path.join(CACHE, 'lexicon', 'forms.json');
 const WORK = path.join(CACHE, '..', 'kbqa-lexicon');

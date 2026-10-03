@@ -5,7 +5,7 @@
  * What it is: the core circuits are lowered to sop-r text (`lower.mjs`); one engine holds the base and its saturation; a what-if
  * is a world forked from it (cost proportional to the number of relations), the first query after a change saturates only the
  * forward cone of the changed relations, pure additions on monotone paths continue incrementally, and sibling worlds saturate their
- * common parent once. Entry gate (proposal 7): sop-r's 1,200-answer incremental test, ported (`tests/strategy-worlds-sopr.test.mjs`),
+ * common parent once. Entry gate (proposal 7): sop-r's 1,200-answer incremental test, ported (`tests/engines/strategy-worlds-sopr.test.mjs`),
  * plus a non-monotone case (an addition that flips a negation-as-failure conclusion).
  *
  * Interface: prepare(theory, {lift}) -> handle; ask({theory | handle, query}) where the FACT wires of the query circuit are the

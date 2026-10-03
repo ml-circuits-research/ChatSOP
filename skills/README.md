@@ -37,7 +37,7 @@ These files describe working procedures, not automatically loaded executable plu
 
 ## Code-only skill systems (no `SKILL.md`)
 
-These folders hold executable modules specified by [DS013](../docs/specsLoader.html?spec=DS013-skill-systems.md) and exercised by `tests/skill-systems.test.mjs`.
+These folders hold executable modules specified by [DS013](../docs/specsLoader.html?spec=DS013-skill-systems.md) and exercised by `tests/reasoning/skill-systems.test.mjs`.
 
 **failure-classifier** — `classify.mjs`: classifies observed failures.
 

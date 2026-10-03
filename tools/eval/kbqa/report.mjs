@@ -1,5 +1,5 @@
 /**
- * Scoring, failure attribution and the summary of the KBQA evaluation (tools/eval/kbqa.mjs `report`).
+ * Scoring, failure attribution and the summary of the KBQA evaluation (tools/eval/kbqa/cli.mjs `report`).
  *
  * Outcome of one question (against the gold of the sealed suite, read only here):
  *   correct   the chain answered and the answer equals the gold (entity sets equal; SimpleQuestions: every answered item is a gold value,

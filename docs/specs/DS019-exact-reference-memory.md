@@ -21,8 +21,8 @@ With `memory.exact: true` a temporal layer or shard also stores `exactAtoms`, a 
 
 | Capability | Status | Evidence |
 | --- | --- | --- |
-| Scan completion, negation, repeated variables, budgets, snapshot, fork | Implemented | `tests/memory-engines.test.mjs` (engine tests for `scan`) |
-| `exact` strategy across generations and after migration | Implemented | `tests/shards.test.mjs` ("exact and hybrid retrieve across all retained generations", "exact coverage survives migration from exact legacy layers"); `tests/linker.test.mjs` |
+| Scan completion, negation, repeated variables, budgets, snapshot, fork | Implemented | `tests/memory/memory-engines.test.mjs` (engine tests for `scan`) |
+| `exact` strategy across generations and after migration | Implemented | `tests/memory/shards.test.mjs` ("exact and hybrid retrieve across all retained generations", "exact coverage survives migration from exact legacy layers"); `tests/memory/linker.test.mjs` |
 | Bank comparison | Observed | [DS010](specsLoader.html?spec=DS010-engine-and-solver-comparison.md): 48/48 exact sets; 10,305 and 41,560 serialized bytes at 64 and 256 atoms (rerun 2026-09-28) |
 
 ### Contracts

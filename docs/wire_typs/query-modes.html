@@ -226,7 +226,7 @@ SUPPOSE tess: Truck(market)
     relation "f_rained"
     role subject "market"
     polarity affirmed
-  end</code></pre><p>Answer: the claim does not follow (status <code>refuted</code> without the options, a closed predicate); <code>opt_sam</code> <code>establishes</code> it, <code>opt_tess</code> has <code>no_effect</code>: "Without any of the options, what is known says it is false. With the rule "opt_sam" (if … wet …, then … rained …), it would follow." These circuits, and the other forms of the table, are executed through a chat turn by <code>tests/fol-v3.test.mjs</code>.</p><h3>Invalid: candidates on a plain question</h3><pre data-sop="knowledge-invalid" data-error="candidate_needs_mode" data-role="query"><code>@s1 fact
+  end</code></pre><p>Answer: the claim does not follow (status <code>refuted</code> without the options, a closed predicate); <code>opt_sam</code> <code>establishes</code> it, <code>opt_tess</code> has <code>no_effect</code>: "Without any of the options, what is known says it is false. With the rule "opt_sam" (if … wet …, then … rained …), it would follow." These circuits, and the other forms of the table, are executed through a chat turn by <code>tests/routed/fol-v3.test.mjs</code>.</p><h3>Invalid: candidates on a plain question</h3><pre data-sop="knowledge-invalid" data-error="candidate_needs_mode" data-role="query"><code>@s1 fact
   holds injured tweety
   status supposed
 

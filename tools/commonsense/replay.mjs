@@ -2,7 +2,7 @@
 /**
  * Regression check of experiment eval-commonsense-v1 without an author: replays the circuits a recorded run of the coding agent wrote for
  * the world-kb questions (eval/reports/current/query-parsers/world30-<run>.jsonl, field model_sop) through the product Agent turn on a base
- * memory, and judges each answer as tools/eval/query-parsers.mjs does (judgeWorld). Run once per chat data root (with and without
+ * memory, and judges each answer as tools/eval/formalization/query-parsers.mjs does (judgeWorld). Run once per chat data root (with and without
  * commonsense-v1) and compare: the same circuit must give the same verdict, so any difference is the layer's doing.
  *   QF_CHAT_ROOT=<root> node tools/commonsense/replay.mjs --run <world30 jsonl> [--base world-v1] [--out file.json]
  */
@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {openSession} from '../eval/query-forms-probe.mjs';
-import {judgeWorld} from '../eval/query-parsers.mjs';
+import {judgeWorld} from '../eval/formalization/query-parsers.mjs';
 import {BASE_NAME} from '../../lib/chat-data/memories.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');

@@ -95,7 +95,7 @@ export async function buildBenchmark({count = 100, split = 'dev', out = 'eval/sm
         if (family === 'f1') {
           // Gold construction is a join of *source world circuits*, not the oracle's answer.
           // Re-check both the portable proof subset and the ENTIRE base world through the
-          // same full-world oracle path as tools/eval/query-forms/gold.mjs.
+          // same full-world oracle path as tools/eval/formalization/query-forms/gold.mjs.
           checkLocal(c);
           const packet = askMemory({theory, repo, session: agentSession, query: c.query, reasoning: 'auto', verify: 'auto', limits: {maxLookups: 2000000, maxProbes: 5000000, maxFacts: 400000, maxGoals: 200000, retrievalMs: 120000}, budget: {timeoutMs: 120000}});
           checkCase(c, packet);

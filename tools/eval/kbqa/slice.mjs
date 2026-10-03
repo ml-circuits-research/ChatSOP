@@ -1,5 +1,5 @@
 /**
- * The Wikidata knowledge slice of a KBQA suite stage (tools/eval/kbqa.mjs `build`). For the questions of the stage:
+ * The Wikidata knowledge slice of a KBQA suite stage (tools/eval/kbqa/cli.mjs `build`). For the questions of the stage:
  *   E  the question entities (benchmark annotation: Mintaka questionEntity, the wd: items of the gold SPARQL, the SimpleQuestions subject),
  *   A  the gold answer entities (at most 20 per question),
  *   P  the properties of the gold SPARQL (none for Mintaka, which ships no query) plus P31.

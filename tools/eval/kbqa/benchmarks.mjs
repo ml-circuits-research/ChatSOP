@@ -1,5 +1,5 @@
 /**
- * KBQA benchmarks (tools/eval/kbqa.mjs): loaders for the cached public sources under datasets_sources/kbqa/<name>/ (gitignored),
+ * KBQA benchmarks (tools/eval/kbqa/cli.mjs): loaders for the cached public sources under datasets_sources/kbqa/<name>/ (gitignored),
  * the question-type classifier and the seeded stratified sample written to the sealed suite eval/suites/kbqa-<name>/test.jsonl.
  *
  * Every row: {id, benchmark, source_id, question, type, native_type, entities: [Qid], properties: [Pid], sparql|null,

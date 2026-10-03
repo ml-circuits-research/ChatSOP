@@ -66,7 +66,7 @@ The server serves everything on one port: a **home page** (`/`), the **sign-in p
 
 ```sh
 npm start                 # 0.0.0.0:9999; prints the home URL first; extra flags go to the launcher (-- --port 3001)
-npm test                  # node --test over tests/*.test.mjs
+npm test                  # node --test over tests/**/*.test.mjs (test files grouped by component)
 npm run verify            # tests, smoke reasoning, spec references, shard check, site links
 ```
 
@@ -131,7 +131,7 @@ Over HTTP: `POST /v1/memories/{id}/ingest`, which stores the validated chunks, t
 
 ## Evaluation and knowledge
 
-The yardsticks kept in the product are the KBQA harness (`tools/eval/kbqa`, sealed suites `eval/suites/kbqa-*`), the linking suite (`eval/suites/linking-v1`), the query-forms dev set (`tools/eval/query-forms`; evaluation tools name the tier that answers the step-by-step questions with `--tier tiny|small|medium|good`; the one-shot model calibration is archived in `probably_obsolete/one-shot-formalization/tools/eval/query-model-calibration/`), the smoke reasoning suite (`node eval/smoke-reasoning/run.mjs`) and the StrategyRouter reports; the next procedure is the symbolic-versus-LLM benchmark in `experiments/proposal/symbolic-vs-llm-benchmark.md`. The sealed-suite guard is `eval/leakage.mjs`.
+The yardsticks kept in the product are the KBQA harness (`tools/eval/kbqa`, sealed suites `eval/suites/kbqa-*`), the linking suite (`eval/suites/linking-v1`), the query-forms dev set (`tools/eval/formalization/query-forms`; evaluation tools name the tier that answers the step-by-step questions with `--tier tiny|small|medium|good`; the one-shot model calibration is archived in `probably_obsolete/one-shot-formalization/tools/eval/query-model-calibration/`), the smoke reasoning suite (`node eval/smoke-reasoning/run.mjs`) and the StrategyRouter reports; the next procedure is the symbolic-versus-LLM benchmark in `experiments/proposal/symbolic-vs-llm-benchmark.md`. The sealed-suite guard is `eval/leakage.mjs`.
 
 Documents become knowledge of a base memory through document ingestion (DS008, DS022 "Ingesting documents into a base memory"): `node tools/ingest-documents.mjs ingest` or `POST /v1/memories/{id}/ingest`.
 

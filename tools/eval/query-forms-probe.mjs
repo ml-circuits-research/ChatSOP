@@ -15,7 +15,7 @@ import {BaseMemories, BASE_NAME} from '../../lib/chat-data/memories.mjs';
 import {Sessions} from '../../lib/chat-data/sessions.mjs';
 import {TheoryCache} from '../../reasoning/slice/index.mjs';
 import {createQueryParser} from '../../server/query-parser.mjs';
-import {tierParserSettings} from './tier-parser.mjs';
+import {tierParserSettings} from './lib/tier-parser.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const args = process.argv.slice(2);

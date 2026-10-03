@@ -1,5 +1,5 @@
 /**
- * Runs the product chain on every question of a suite stage (tools/eval/kbqa.mjs `run`), in process:
+ * Runs the product chain on every question of a suite stage (tools/eval/kbqa/cli.mjs `run`), in process:
  *   question -> step-by-step formalizer (server/query-parser.mjs: short questions to a TinyAgent tier, the system assembles the circuit; the message and the memory vocabulary only) -> Agent
  *   (server/agent.mjs: admission, KnowledgeLinker over the lexicon of the session's base memory, StrategyRouter, oracle) -> packet.
  * Every question gets its own conversation (no carried context); the session is the clone of the stage's base memory, and reads do not
@@ -14,7 +14,7 @@ import {ROOT} from './benchmarks.mjs';
 import {readSuite} from './suites.mjs';
 import {openData, memoryId} from './memory.mjs';
 import {createQueryParser} from '../../../server/query-parser.mjs';
-import {tierParserSettings} from '../tier-parser.mjs';
+import {tierParserSettings} from '../lib/tier-parser.mjs';
 
 export const reportDir = suite => path.join(ROOT, 'eval', 'reports', 'current', 'kbqa', suite);
 export const stageFile = (suite, stage, tag = '') => path.join(reportDir(suite), `stage-${stage}${tag}.jsonl`);

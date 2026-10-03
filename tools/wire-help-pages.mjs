@@ -1,5 +1,5 @@
 /** Extraction helpers for the wire help pages under `docs/wire_typs/`, shared by
- * `tests/wire-help.test.mjs` (which executes the examples) and the vocabulary
+ * `tests/docs/wire-help.test.mjs` (which executes the examples) and the vocabulary
  * check `tools/datasets/audit/vocabulary.mjs` (which cross-checks the tables
  * against the contract). Pure text processing: nothing here parses or runs SOP.
  *

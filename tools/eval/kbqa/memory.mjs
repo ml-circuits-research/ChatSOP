@@ -1,5 +1,5 @@
 /**
- * The KBQA base memories (tools/eval/kbqa.mjs `build`): the Wikidata slice of a suite stage (slice.mjs) is turned mechanically into
+ * The KBQA base memories (tools/eval/kbqa/cli.mjs `build`): the Wikidata slice of a suite stage (slice.mjs) is turned mechanically into
  * knowledge circuits and loaded through the product library (lib/chat-data/memories.mjs: validation, SQLite facts, provenance) into the
  * base memory `kbqa-<suite>-<stage>` of the private chat data root datasets_sources/kbqa/chat_data (gitignored; never the product's
  * chat_data). The memory imports `core-min` like every memory.

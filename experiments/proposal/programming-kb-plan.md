@@ -171,7 +171,7 @@ The evidence that this pays is real but domain-specific, so it is measured here 
 
 ### 4.1 The two new wire types
 
-Both are **host or turn wires, never knowledge approved from a source and never on the model surface** (the same ruling as `jsEval`, proposal 4.6; AGENTS.md direction 5). Both need a parser rule, validator rules, a help page under `docs/wire_typs/` and an entry in `docs/wire_types.html` with executed examples (`tests/wire-help.test.mjs`).
+Both are **host or turn wires, never knowledge approved from a source and never on the model surface** (the same ruling as `jsEval`, proposal 4.6; AGENTS.md direction 5). Both need a parser rule, validator rules, a help page under `docs/wire_typs/` and an entry in `docs/wire_types.html` with executed examples (`tests/docs/wire-help.test.mjs`).
 
 ```
 @t1 test
