@@ -1,0 +1,10 @@
+{
+  "name": "small-model-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local JSON service for the small non-chat models: structure extraction (GLiNER2.5, ONNX) and NL-to-FOL (T5, ONNX). Self-contained; LLMAPIProvider forwards to it.",
+  "engines": {"node": ">=22"},
+  "scripts": {"start": "node server.mjs", "test": "node --test test/*.test.mjs"},
+  "dependencies": {}
+}

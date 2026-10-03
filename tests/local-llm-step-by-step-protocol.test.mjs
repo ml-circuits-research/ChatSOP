@@ -210,3 +210,22 @@ test('problem mode: a deduction from stated facts and rules is a yes/no query ov
     assert.match(r.sop, /@q query\n {2}where match\n {4}relation "is_blue_follows"\n {4}role subject "Zed"/);
   } finally { world.dispose(); }
 });
+
+test('problem mode with the expression path: a numeric problem is one program over v1..vn, lowered and validated; no problem questions', async () => {
+  const world = createWorld('@unit_cost predicate\n  args subject:entity object:integer\n  label en "costs"\n');
+  try {
+    const asked = [];
+    const chat = async messages => {
+      const q = messages.at(-1).content;
+      asked.push(q);
+      const say = /Which kind of answer/.test(q) ? kind('problem') : /For each line, do the words/.test(q) ? 'A: no\nB: no\nC: no\nD: no\nE: no\nF: no\nG: yes'
+        : /Write the computation of what the question asks/.test(q) ? 'answer = v1 * v2\nunused: ' : '0';
+      return {ok: true, text: say, ms: 1, usage: {input_tokens: 1, output_tokens: 1}};
+    };
+    const r = await protocolQuery({message: 'Pens cost 1.5 each. Mara buys 12 pens. What does she pay?', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'B', expression: {chat}});
+    assert.equal(r.status, 'validated', JSON.stringify(r.validation?.problems));
+    assert.match(r.sop, /compute \?t\d+ \?\w+ times \?\w+/);
+    assert.equal(JSON.parse(r.report).problem.kind, 'expression');
+    assert.ok(!asked.some(q => /List every number the problem gives/.test(q)), 'no value question');
+  } finally { world.dispose(); }
+});

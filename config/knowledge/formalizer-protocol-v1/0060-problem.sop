@@ -43,6 +43,10 @@
   args subject:entity object:entity topic:text
   closed true
   description "for a problem of this kind (subject) the problem question (object) adds this sentence (topic) at its {{kind_note}} place"
+@fp_problem_needs predicate
+  args subject:entity
+  closed true
+  description "problem mode is offered only when this structural precondition (subject: stated_data, a number or a statement before the question) holds"
 @fp_hint predicate
   args subject:entity object:text
   closed true
@@ -87,6 +91,8 @@
   holds fp_own_data_kind statement
 @fp_pp17 fact
   holds fp_problem_fallback_kind value
+@fp_pp18n fact
+  holds fp_problem_needs stated_data
 
 # --- the problem kind in the first question (choice 13; `none` stays last as 14 in 0020-questions.sop)
 @fp_pp18 fact

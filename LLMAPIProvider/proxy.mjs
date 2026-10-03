@@ -311,7 +311,9 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
         if (r.status >= 400 && /billed from your credit balance|credit balance/i.test(errText)) rec.credit_billed = true;
         monitor.log(rec);
         if (auditing) { try { audit.record(rec, parsed, responseText(format, isSse, tail)); } catch { /* the audit never breaks a request */ } }
-        if (ctx.cacheKey && !isSse && r.status === 200 && !rec.error) { try { cache.put(ctx.cacheKey, { body: tail, content_type: ctype || 'application/json', served: `${up.name}/${model}`, tier: ctx.tier ?? null }); } catch { /* the cache never breaks a request */ } }
+        // A cut or empty answer is never cached (finish_reason length / max_tokens, or no content): a retry with a larger budget must reach the model.
+        const complete = (() => { try { const j = JSON.parse(tail); const fr = j.choices?.[0]?.finish_reason ?? j.stop_reason; const text = format === 'anthropic' ? (j.content || []).map((c) => c.text || '').join('') : (j.choices?.[0]?.message?.content ?? ''); return fr !== 'length' && fr !== 'max_tokens' && String(text).trim() !== ''; } catch { return false; } })();
+        if (ctx.cacheKey && !isSse && r.status === 200 && !rec.error && complete) { try { cache.put(ctx.cacheKey, { body: tail, content_type: ctype || 'application/json', served: `${up.name}/${model}`, tier: ctx.tier ?? null }); } catch { /* the cache never breaks a request */ } }
         return { done: true };
       }, { cost }, priority);
       if (outcome.fallback) return fallBack(outcome.fallback, outcome.kind);

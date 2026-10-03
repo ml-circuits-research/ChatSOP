@@ -1,0 +1,38 @@
+{"a":"44.1%","b":"0.441","same":true}
+{"a":"Yes, 28","b":"yes","same":true}
+{"a":"Mara, Ana","b":"Ana and Mara","same":true}
+{"a":"Plan B","b":"B","same":true}
+{"a":"Option A","b":"option a","same":true}
+{"a":"window 2","b":"Window 2","same":true}
+{"a":"150 minutes","b":"2.5 hours","same":true}
+{"a":"08:40","b":"8:40 am","same":true}
+{"a":"none of them","b":"no option","same":true}
+{"a":"neither","b":"none of the two","same":true}
+{"a":"the north route","b":"North","same":true}
+{"a":"No","b":"false","same":true}
+{"a":"12 boxes","b":"12","same":true}
+{"a":"the second one","b":"the 2nd","same":true}
+{"a":"Tom, then Ana, then Ben","b":"Tom, Ana, Ben","same":true}
+{"a":"Plan B","b":"Plan A","same":false}
+{"a":"none of them","b":"C","same":false}
+{"a":"the table","b":"the headline","same":false}
+{"a":"Yes","b":"No","same":false}
+{"a":"yes","b":"28","same":false}
+{"a":"Mara, Ana","b":"Mara","same":false}
+{"a":"Tom, then Ana, then Ben","b":"Ben, then Ana, then Tom","same":false}
+{"a":"12","b":"13","same":false}
+{"a":"44.1%","b":"0.45","same":false}
+{"a":"window 2","b":"window 3","same":false}
+{"a":"Friday","b":"neither","same":false}
+{"a":"the east gate","b":"the west gate","same":false}
+{"a":"150 minutes","b":"2 hours","same":false}
+{"a":"B is active","b":"B is inactive","same":false}
+{"a":"X causes Y","b":"not established","same":false}
+{"a":"the headline","b":"the title","same":true}
+{"a":"the east gate","b":"the eastern exit","same":true}
+{"a":"not established","b":"cannot be concluded","same":true}
+{"a":"the median","b":"the middle value","same":true}
+{"a":"the median","b":"the mean","same":false}
+{"a":"the north route","b":"the south route","same":false}
+{"a":"isolated suspicious point","b":"gradual drift","same":false}
+{"a":"the habit","b":"the rule","same":false}

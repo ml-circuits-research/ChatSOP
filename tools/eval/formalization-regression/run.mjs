@@ -118,7 +118,7 @@ export function compareRuns(run, base) {
   return {fixed, lost, compared: run.filter(r => before.has(r.id)).length};
 }
 
-export async function runRegression({tier = 'tiny', strategy = 'LocalLLMStepByStep', ids = null, cluster = null, n = null, concurrency = 4, workers = 1, shard = null, replay = 'fill', thinking = false, minTokens = null, bookIds = null, ladder = null, score = true, runId = null, against = null, learned = null,
+export async function runRegression({tier = 'tiny', strategy = 'LocalLLMStepByStep', ids = null, cluster = null, n = null, concurrency = 4, workers = 1, shard = null, replay = 'fill', thinking = false, minTokens = null, bookIds = null, ladder = null, expression = false, score = true, runId = null, against = null, learned = null,
   useJudge = true, purpose = 'job:formalization-improve', log = m => console.error(m)} = {}) {
   const items = loadItems(), annotations = loadAnnotations();
   // `bookIds`: book problems outside the regression set (an evaluation sample), as cases built on the fly.
@@ -148,7 +148,7 @@ export async function runRegression({tier = 'tiny', strategy = 'LocalLLMStepBySt
     // The chat turn is CPU-bound JavaScript: parallel turns need processes, not promises. Each worker is a child process.
     const children = Array.from({length: Math.min(workers, queue.length)}, (_, k) => new Promise(resolve => {
       const child = spawn(process.execPath, [`--max-old-space-size=${Math.max(8000, Number(process.env.FR_WORKER_HEAP ?? 12000))}`, fileURLToPath(import.meta.url), '--run-id', id, '--shard', `${k}/${Math.min(workers, queue.length)}`,
-        '--tier', tier, '--strategy', strategy, '--purpose', purpose, '--replay', replay ?? 'off', '--concurrency', String(concurrency), ...(ladder ? ['--ladder'] : []), ...(thinking ? ['--thinking'] : []), ...(minTokens ? ['--min-tokens', String(minTokens)] : []), ...(bookIds ? ['--book-ids', bookIdsFile()] : ['--ids', resolved.map(c => c.id).join(',')]), ...(learned ? ['--learned', learned] : []), '--no-score'], {cwd: ROOT, stdio: ['ignore', 'ignore', 'pipe']});
+        '--tier', tier, '--strategy', strategy, '--purpose', purpose, '--replay', replay ?? 'off', '--concurrency', String(concurrency), ...(ladder ? ['--ladder'] : []), ...(expression ? ['--expression'] : []), ...(thinking ? ['--thinking'] : []), ...(minTokens ? ['--min-tokens', String(minTokens)] : []), ...(bookIds ? ['--book-ids', bookIdsFile()] : ['--ids', resolved.map(c => c.id).join(',')]), ...(learned ? ['--learned', learned] : []), '--no-score'], {cwd: ROOT, stdio: ['ignore', 'ignore', 'pipe']});
       child.stderr.on('data', d => { for (const line of String(d).split('\n')) if (/^\[\d+\/\d+\]/.test(line)) log(`w${k} ${line}`); });
       child.on('exit', code => resolve(code));
     }));
@@ -161,7 +161,7 @@ export async function runRegression({tier = 'tiny', strategy = 'LocalLLMStepBySt
   const started = Date.now();
   let k = done.size;
   const worker = async w => {
-    const system = await openChatTurn({tier, strategy, sessionId: `formalization-regression-${process.pid}-${w}`, parserOptions: {reportErrors: false}, headers, ...(replay ? {replay: {mode: replay, dir: REPLAY_DIR}} : {}), ladder: Boolean(ladder), localExtra: {...(thinking ? {thinking: true} : {}), ...(minTokens ? {minTokens} : {})}});
+    const system = await openChatTurn({tier, strategy, sessionId: `formalization-regression-${process.pid}-${w}`, parserOptions: {reportErrors: false}, headers, ...(replay ? {replay: {mode: replay, dir: REPLAY_DIR}} : {}), ladder: Boolean(ladder), localExtra: {...(thinking ? {thinking: true} : {}), ...(minTokens ? {minTokens} : {}), ...(expression ? {expression: true} : {})}});
     try {
       for (let c = queue.shift(); c; c = queue.shift()) {
         let r = await system.ask(c.message);
@@ -208,7 +208,7 @@ export async function runRegression({tier = 'tiny', strategy = 'LocalLLMStepBySt
   const store = replay ? replayStore(REPLAY_DIR) : null;
   const misses = results.filter(r => /replay_miss/.test(r.error?.message ?? '')).map(r => r.id);
   if (store?.missed.length) fs.writeFileSync(path.join(dir, 'replay-missed.json'), JSON.stringify(store.missed, null, 1));
-  const scoreJson = {run: id, tier, strategy, ...(ladder ? {ladder} : {}), problem_protocol: process.env.CHATSOP_PROBLEM_PROTOCOL ?? 'data', ...(thinking || minTokens ? {thinking, min_tokens: minTokens} : {}), learned: learned ?? null, cases: results.length, ...counts, clusters,
+  const scoreJson = {run: id, tier, strategy, ...(ladder ? {ladder} : {}), problem_protocol: process.env.CHATSOP_PROBLEM_PROTOCOL ?? 'data', ...(expression ? {expression: true} : {}), ...(thinking || minTokens ? {thinking, min_tokens: minTokens} : {}), learned: learned ?? null, cases: results.length, ...counts, clusters,
     replay: replay ? {mode: replay, hits: store.hits, misses: store.misses, recorded: store.recorded, cases_missing: misses.length} : null,
     model_calls: {formalizer: replay === 'replay' ? 0 : store ? store.misses : null, judge: judged.calls}, judge: judged, against: against ?? null, ...(comparison ? {fixed: comparison.fixed, lost: comparison.lost} : {}),
     minutes: Math.round((Date.now() - started) / 600) / 100, finished: new Date().toISOString()};
@@ -226,7 +226,7 @@ export async function runRegression({tier = 'tiny', strategy = 'LocalLLMStepBySt
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   const out = await runRegression({tier: opt(args, '--tier', 'tiny'), strategy: opt(args, '--strategy', 'LocalLLMStepByStep'), ids: list(opt(args, '--ids', null)), cluster: opt(args, '--cluster', null),
-    n: opt(args, '--n', null) ? Number(opt(args, '--n', null)) : null, concurrency: Number(opt(args, '--concurrency', 4)), workers: Number(opt(args, '--workers', 1)), thinking: args.includes('--thinking'), bookIds: opt(args, '--book-ids', null) ? fs.readFileSync(opt(args, '--book-ids'), 'utf8').split(/[\s,]+/).filter(Boolean) : null, ladder: args.includes('--ladder') ? ['product'] : null, minTokens: opt(args, '--min-tokens', null) ? Number(opt(args, '--min-tokens', null)) : null, replay: opt(args, '--replay', 'fill') === 'off' ? null : opt(args, '--replay', 'fill'), runId: opt(args, '--run-id', null), against: opt(args, '--against', null),
+    n: opt(args, '--n', null) ? Number(opt(args, '--n', null)) : null, concurrency: Number(opt(args, '--concurrency', 4)), workers: Number(opt(args, '--workers', 1)), thinking: args.includes('--thinking'), expression: args.includes('--expression'), bookIds: opt(args, '--book-ids', null) ? fs.readFileSync(opt(args, '--book-ids'), 'utf8').split(/[\s,]+/).filter(Boolean) : null, ladder: args.includes('--ladder') ? ['product'] : null, minTokens: opt(args, '--min-tokens', null) ? Number(opt(args, '--min-tokens', null)) : null, replay: opt(args, '--replay', 'fill') === 'off' ? null : opt(args, '--replay', 'fill'), runId: opt(args, '--run-id', null), against: opt(args, '--against', null),
     shard: opt(args, '--shard', null) ? {k: Number(opt(args, '--shard').split('/')[0]), of: Number(opt(args, '--shard').split('/')[1])} : null, score: !args.includes('--no-score'),
     learned: opt(args, '--learned', null), useJudge: !args.includes('--no-judge'), purpose: opt(args, '--purpose', 'job:formalization-improve')});
   if (!out.cases) { console.log(JSON.stringify(out)); process.exit(0); }

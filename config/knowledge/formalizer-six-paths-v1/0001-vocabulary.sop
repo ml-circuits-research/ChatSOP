@@ -1,0 +1,25 @@
+# formalizer-six-paths-v1: the questions of the six formalization paths (A method, B compute, C equations, D backward, E controlled
+# English, F analogy) of the six-paths experiment. A research layer read only by tools/eval/six-paths; never a chat base memory.
+# Each question has a text with {{placeholders}} (filled by the harness from the problem, its registry of numbers and earlier answers)
+# and a format reminder used for the one re-ask of an unreadable answer. The readers of the answers are structural code
+# (tools/eval/six-paths/readers.mjs): indices, closed menus, `name = expression` lines and the fixed sentence patterns of path E.
+
+@fp_sp_text predicate
+  args subject:entity object:text
+  closed true
+  description "the text of the six-paths question (subject); {{placeholders}} are filled by the harness"
+
+@fp_sp_again predicate
+  args subject:entity object:text
+  closed true
+  description "the format reminder (object) added when the answer to the question (subject) could not be read; asked once"
+
+@fp_sp_system predicate
+  args subject:entity object:text
+  closed true
+  description "the system message (object) of a path (subject)"
+
+@fp_sp_combine predicate
+  args subject:entity object:text
+  closed true
+  description "a combination (subject) of the closed menu of path D, with its menu text (object), in menu order; the code builds its expression"

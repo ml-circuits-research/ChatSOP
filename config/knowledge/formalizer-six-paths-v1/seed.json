@@ -1,0 +1,6 @@
+{
+  "name": "Six formalization paths (research)",
+  "description": "The question trees of the six-paths experiment (experiments/proposal/six-paths-results.md): the text of every question and its format reminder, as fp_sp_ facts. Read only by tools/eval/six-paths (an offline evaluation harness); never a chat base memory. Imports core-min.",
+  "imports": ["core-min"],
+  "chat": false
+}

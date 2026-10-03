@@ -531,3 +531,14 @@ test('cache: use stores and serves without a model call, strict refuses a miss, 
     assert.equal(st.cache.hits, 1); assert.equal(st.cache.refused, 2);
   } finally { t.close(); }
 });
+
+test('cache: a cut (finish_reason length) or empty answer is not stored', async () => {
+  let calls = 0;
+  const cut = (req, res, b) => { calls += 1; json(res, 200, { choices: [{ message: { content: '' }, finish_reason: 'length' }], usage: { prompt_tokens: 1, completion_tokens: 1 } }); };
+  const t = await tierSetup({ primary: cut, secondary: echoModel });
+  try {
+    const ask3 = () => fetch(t.base + '/v1/chat/completions', { method: 'POST', headers: { 'content-type': 'application/json', 'x-llmapiprovider-cache': 'use', 'x-llmapiprovider-purpose': 'test:cache' }, body: JSON.stringify({ model: 'small', messages: [{ role: 'user', content: 'cut' }] }) });
+    await (await ask3()).json(); await (await ask3()).json();
+    assert.equal(calls, 2);
+  } finally { t.close(); }
+});

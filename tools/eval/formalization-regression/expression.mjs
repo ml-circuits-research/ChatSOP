@@ -12,6 +12,7 @@
  *   node tools/eval/formalization-regression/expression.mjs nway --plan b2 ...     (tiny+F1, tree, medium)
  *   node tools/eval/formalization-regression/expression.mjs obligations --ids FILE --run-id ID   (variant C)
  *   node tools/eval/formalization-regression/expression.mjs verify --ids FILE --run-id ID        (cross-family verifier; cost from the proxy log)
+ *   node tools/eval/formalization-regression/expression.mjs verify-tiny --ids FILE --run-id ID --tree TREE_RUN [--reference RUN]   (the tiny-only decision)
  *   node tools/eval/formalization-regression/expression.mjs replay [--tier tiny] [--json]   (dual and N-way recordings, no model)
  *
  * `run` asks the tier the one closed question (proxy purpose `formalize`, the proxy's response cache on by default, and the
@@ -30,11 +31,11 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {ROOT, loadItems} from './cases.mjs';
-import {expressionFormalize, registryOf, readProgram} from '../../../lib/formalize/expression-program.mjs';
+import {expressionFormalize, registryOf, readProgram, PROMPT_VERSION} from '../../../lib/formalize/expression-program.mjs';
 import {crossCheck, executeQueries, selectByAgreement} from '../../../lib/formalize/dual-check.mjs';
 import {exemplarOf, retrieve, EXEMPLAR_INDEX} from '../../../lib/formalize/exemplars.mjs';
 import {goalsQuestion, readGoals, obligationsOf, packetFields} from '../../../lib/formalize/obligations.mjs';
-import {verifyCrossFamily} from '../../../lib/formalize/verifier.mjs';
+import {verifyCrossFamily, verifyTinyPaths} from '../../../lib/formalize/verifier.mjs';
 import {signatureOf, coverage} from '../../datasets/three-datasets/forms.mjs';
 import {replayChat, modelIdentity} from '../../../lib/formalize/replay-cache.mjs';
 import {FORMALIZE_HEADERS} from '../../../lib/formalize/strategies.mjs';
@@ -264,7 +265,7 @@ export async function replayObligations(rec, {item}) {
  * numbers and perturbations plus obligations, the failing candidate re-asked on its next tier (tiny → small, medium → good).
  * `chats`: {tiny, small, medium, good} chat clients; `fixed` (replay): the exemplars recorded.
  */
-export async function runVerify(item, {chats, exemplars = null, third = null}) {
+export async function runVerify(item, {chats, exemplars = null, third = null, tieModel = null, methodTier = null}) {
   const w = await executor();
   const gold = goldOf(item), registry = registryOf(item.question), execute = (sop, numbers = []) => w.execute(sop, item.question, numbers);
   const t0 = Date.now();
@@ -272,23 +273,91 @@ export async function runVerify(item, {chats, exemplars = null, third = null}) {
   const goals = gr.ok ? readGoals(gr.text) : null;
   const ex = exemplars ?? retrieve(loadExemplarIndexSafe(), registry, {k: 2, exclude: sectionExclude(item)});
   const prog = (tier, exs, maxTokens = 700) => hint => expressionFormalize({message: item.question, chat: chats[tier], lexicon: w.lexicon, registry, exemplars: exs, hint, maxTokens});
-  const v = await verifyCrossFamily({registry, execute, goals, seed: item.id, third, candidates: [
+  if (methodTier && !third) { const {methodTreeCandidate} = await import('../method-library/candidate.mjs'); try { const m = await methodTreeCandidate(item, {tier: methodTier}); third = m?.sop ? m : null; } catch { third = null; } }
+  const tieBreaker = tieModel ? {name: 'third', family: tieModel.family, run: prog('third', [], 8000)} : null;
+  const v = await verifyCrossFamily({registry, execute, goals, seed: item.id, third, tieBreaker, candidates: [
     {name: 'tiny-f1', family: 'qwen', run: prog('tiny', ex), next: {name: 'small-f1', run: prog('small', ex)}},
     {name: 'medium', family: 'deepseek', run: prog('medium', [], 8000), next: {name: 'good', run: prog('good', [], 8000)}}]});
   const row = {id: item.id, book: item.book, stratum: item.tags?.[0], gold, status: v.status, stage: v.stage, parts: v.parts, agreed: v.agreed, answers: v.answers,
     outcome: v.status === 'verified' ? (gold ? score(gold, v.answers) : null) : 'unresolved', formalized: v.formalized, open: v.open, reasked: v.reasked,
     candidates: Object.fromEntries(Object.entries(v.candidates).map(([n, c]) => [n, {...c, outcome: gold && c.answers ? score(gold, c.answers) : 'unanswered'}])),
+    ...(v.tie ? {tie: {...v.tie, outcome: gold && v.tie.answers ? score(gold, v.tie.answers) : 'unanswered'}} : {}),
     ...(v.with_third ? {with_third: {...v.with_third, outcome: v.with_third.status === 'verified' ? (gold ? score(gold, v.with_third.answer) : null) : 'unresolved', third_outcome: gold ? score(gold, v.with_third.answers ?? []) : null}} : {}),
     packet: {formalized: v.formalized, unresolved_obligations: v.open, verification: v.status}, seconds: Math.round((Date.now() - t0) / 100) / 10};
   return {row, record: {id: item.id, kind: 'verify', goals_answer: gr.ok ? gr.text : null, exemplars: ex, expect: {status: v.status, answers: v.answers, open: v.open}}};
 }
 const loadExemplarIndexSafe = () => { try { return JSON.parse('[' + fs.readFileSync(EXEMPLAR_INDEX, 'utf8').trim().split('\n').join(',') + ']'); } catch { return []; } };
 
+/**
+ * The tiny-only verifier on one problem (owner, 2026-10-03): the parts list, the expression program with F1 and the question tree's
+ * circuit, both from tiny; the program re-asked to tiny on a failed obligation; the method tree filled by tiny as the third path, asked
+ * only when the first two do not verify. `chat` is the tiny client; `third` (replay) the recorded third circuit.
+ */
+export async function runTinyVerify(item, {chat, tree = null, exemplars = null, third = undefined, methodTree = true}) {
+  const w = await executor();
+  const gold = goldOf(item), registry = registryOf(item.question), execute = (sop, numbers = []) => w.execute(sop, item.question, numbers);
+  const t0 = Date.now();
+  const gr = await chat([{role: 'system', content: 'Reply with the lines only.'}, {role: 'user', content: goalsQuestion(item.question)}], 200);
+  const goals = gr.ok ? readGoals(gr.text) : null;
+  const ex = exemplars ?? retrieve(loadExemplarIndexSafe(), registry, {k: 2, exclude: sectionExclude(item)});
+  let thirdCircuit = null, thirdAsked = false;
+  const thirdPath = async () => {
+    thirdAsked = true;
+    if (third !== undefined) return (thirdCircuit = third);
+    if (!methodTree) return null;
+    const {methodTreeCandidate} = await import('../method-library/candidate.mjs');
+    try { const m = await methodTreeCandidate(item, {tier: 'tiny', run: 'tiny-method-tree'}); thirdCircuit = m?.sop ? {name: m.name, sop: m.sop} : null; } catch { thirdCircuit = null; }
+    return thirdCircuit;
+  };
+  const v = await verifyTinyPaths({registry, execute, goals, seed: item.id, tree: tree?.sop ? {sop: tree.sop} : null, third: thirdPath,
+    program: {run: hint => expressionFormalize({message: item.question, chat, lexicon: w.lexicon, registry, exemplars: ex, hint})}});
+  const row = {id: item.id, book: item.book, stratum: item.tags?.[0], gold, status: v.status, stage: v.stage, parts: v.parts, agreed: v.agreed, answers: v.answers, reasked: v.reasked,
+    outcome: v.status === 'verified' ? (gold ? score(gold, v.answers) : null) : 'unresolved', formalized: v.formalized, open: v.open, third: v.third ?? null,
+    candidates: Object.fromEntries(Object.entries(v.candidates).map(([n, c]) => [n, {...c, outcome: gold && c.answers ? score(gold, c.answers) : 'unanswered'}])),
+    packet: {formalized: v.formalized, unresolved_obligations: v.open, verification: v.status}, seconds: Math.round((Date.now() - t0) / 100) / 10};
+  return {row, record: {id: item.id, kind: 'verify-tiny', goals_answer: gr.ok ? gr.text : null, exemplars: ex, tree_sop: tree?.sop ?? null, third: thirdAsked ? thirdCircuit : undefined,
+    expect: {status: v.status, answers: v.answers, open: v.open}}};
+}
+
+/** Replays a tiny-only recording with no model: tiny's answers by question hash, the tree and third circuits as recorded. */
+export async function replayTinyVerify(rec, {item}) {
+  const missing = [];
+  const chat = async messages => { const q = String(messages.at(-1).content), a = rec.answers[sha(q)]; if (a === undefined) { missing.push(q.slice(-80)); return {ok: false, reason: 'replay_miss'}; } return a === null ? {ok: false} : {ok: true, text: a, replayed: true}; };
+  const {row} = await runTinyVerify(item, {chat, tree: rec.tree_sop ? {sop: rec.tree_sop} : null, exemplars: rec.exemplars ?? [], third: rec.third ?? null, methodTree: false});
+  if (missing.length) return {id: rec.id, ok: false, first: {step: 'expr_program', kind: 'protocol', why: `a question with no recorded answer: ${missing[0]}`}};
+  const e = rec.expect, ok = row.status === e.status && JSON.stringify(row.answers) === JSON.stringify(e.answers) && JSON.stringify(row.open) === JSON.stringify(e.open);
+  return {id: rec.id, ok, ...(ok ? {} : {first: {step: 'verification', kind: 'verification', why: `${row.status} ${JSON.stringify(row.answers)} [${row.open}] vs recorded ${e.status} ${JSON.stringify(e.answers)} [${e.open}]`}})};
+}
+
+/** The tiny-only numbers, with the cross-family run on the same problems as the evaluation reference (where tiny is right). */
+export function summarizeTiny(rows, {reference = null} = {}) {
+  const n = rows.length, c = f => rows.filter(f).length, ver = rows.filter(r => r.status === 'verified');
+  const near = (h, g) => typeof h === 'number' && Math.abs(h - g) <= Math.max(1e-9, 0.005 * Math.abs(g));
+  const consistent = r => r.gold?.kind === 'yes_no' ? r.answers.includes(r.gold.value) : r.answers.length && r.answers.every(a => typeof a === 'boolean' || r.gold.values.some(g => near(a, g) || r.gold.percent && near(a * 100, g)));
+  const out = {n, verified: pct(ver.length, n), precision: pct(c(r => r.outcome === 'correct'), ver.length), wrong: c(r => r.status === 'verified' && r.outcome !== 'correct'),
+    wrong_consistent_with_gold: c(r => r.status === 'verified' && r.outcome !== 'correct' && consistent(r)), unresolved: c(r => r.status === 'unresolved'),
+    by_stage: rows.reduce((m, r) => (r.status === 'verified' && (m[r.stage] = (m[r.stage] ?? 0) + 1), m), {}),
+    third_asked: c(r => r.third), third_circuit: c(r => r.third?.has_circuit), verified_by_third: c(r => r.stage === 'third'), correct_by_third: c(r => r.stage === 'third' && r.outcome === 'correct'),
+    reasked: c(r => r.reasked), recovered_by_reask: c(r => r.stage === 'reask' && r.outcome === 'correct'),
+    single_correct: {program: c(r => r.candidates.program?.outcome === 'correct'), tree: c(r => r.candidates.tree?.outcome === 'correct')},
+    no_numbers_out_of_scope: c(r => r.open.includes('numbers')),
+    unresolved_open: rows.filter(r => r.status === 'unresolved').reduce((m, r) => { const k = r.open.find(x => !x.startsWith('explain:'))?.split(':')[0] ?? (r.agreed ? 'none' : 'disagree'); m[k] = (m[k] ?? 0) + 1; return m; }, {}),
+    by_book: rows.reduce((m, r) => { m[r.book] ??= {n: 0, verified: 0, correct: 0, wrong: 0}; m[r.book].n++; if (r.status === 'verified') { m[r.book].verified++; m[r.book][r.outcome === 'correct' ? 'correct' : 'wrong']++; } return m; }, {}),
+    seconds_per_problem: Math.round(10 * rows.reduce((p, r) => p + r.seconds, 0) / n) / 10};
+  if (reference) {
+    const both = rows.filter(r => reference.has(r.id)), ref = r => reference.get(r.id);
+    out.reference_cross_family = {problems: both.length, cross_verified: both.filter(r => ref(r).status === 'verified').length, cross_correct: both.filter(r => ref(r).outcome === 'correct').length,
+      tiny_verified: both.filter(r => r.status === 'verified').length, tiny_correct: both.filter(r => r.outcome === 'correct').length,
+      tiny_verified_where_medium_right: both.filter(r => r.status === 'verified' && ref(r).candidates?.medium?.outcome === 'correct').length};
+  }
+  return out;
+}
+
 /** Replays a verifier recording with no model: every tier's answers by question hash; the verdict, answers and open obligations compared. */
 export async function replayVerify(rec, {item}) {
   const missing = [];
   const chatOf = tier => async messages => { const q = String(messages.at(-1).content), a = rec.answers[`${tier}:${sha(q)}`]; if (a === undefined) { missing.push(`${tier}: ${q.slice(-80)}`); return {ok: false, reason: 'replay_miss'}; } return a === null ? {ok: false, reason: 'recorded failure'} : {ok: true, text: a, replayed: true}; };
-  const {row} = await runVerify(item, {chats: Object.fromEntries(['tiny', 'small', 'medium', 'good'].map(t => [t, chatOf(t)])), exemplars: rec.exemplars ?? []});
+  const {row} = await runVerify(item, {chats: Object.fromEntries(['tiny', 'small', 'medium', 'good', 'third'].map(t => [t, chatOf(t)])), exemplars: rec.exemplars ?? [], tieModel: rec.tie_family ? {family: rec.tie_family} : null});
   if (missing.length) return {id: rec.id, ok: false, first: {step: 'expr_program', kind: 'protocol', why: `a question with no recorded answer: ${missing[0]}`}};
   const e = rec.expect, ok = row.status === e.status && JSON.stringify(row.answers) === JSON.stringify(e.answers) && JSON.stringify(row.open) === JSON.stringify(e.open);
   return {id: rec.id, ok, ...(ok ? {} : {first: {step: 'verification', kind: 'verification', why: `${row.status} ${JSON.stringify(row.answers)} [${row.open}] vs recorded ${e.status} ${JSON.stringify(e.answers)} [${e.open}]`}})};
@@ -305,17 +374,20 @@ export function summarizeVerify(rows, {usd = null, credits = null} = {}) {
     parts_source: rows.reduce((m, r) => (m[r.parts] = (m[r.parts] ?? 0) + 1, m), {}),
     single_correct: {tiny_f1: single('tiny-f1'), medium: single('medium')}, either_first_correct: c(r => ['tiny-f1', 'medium', 'small-f1', 'good'].some(k => r.candidates[k]?.outcome === 'correct')),
     unresolved_open: rows.filter(r => r.status === 'unresolved').reduce((m, r) => { const k = r.open.find(x => !x.startsWith('explain:'))?.split(':')[0] ?? (r.agreed ? 'none' : 'disagree'); m[k] = (m[k] ?? 0) + 1; return m; }, {}),
-    by_book: rows.reduce((m, r) => { m[r.book] ??= {n: 0, verified: 0, correct: 0}; m[r.book].n++; if (r.status === 'verified') m[r.book].verified++; if (r.outcome === 'correct') m[r.book].correct++; return m; }, {}),
+    by_book: rows.reduce((m, r) => { m[r.book] ??= {n: 0, verified: 0, correct: 0, wrong: 0}; m[r.book].n++; if (r.status === 'verified') m[r.book].verified++; if (r.outcome === 'correct') m[r.book].correct++; if (r.status === 'verified' && r.outcome !== 'correct') m[r.book].wrong++; return m; }, {}),
+    third_family_calls: c(r => r.tie), verified_by_tiebreak: c(r => r.stage === 'tiebreak'), correct_by_tiebreak: c(r => r.stage === 'tiebreak' && r.outcome === 'correct'),
+    no_numbers_out_of_scope: c(r => r.open.includes('numbers')),
+    ...(rows.some(r => r.with_third) ? {method_tree: (() => { const v3 = rows.filter(r => r.with_third?.status === 'verified'); return {with_circuit: c(r => r.with_third), verified: v3.length, added: v3.filter(r => r.status !== 'verified').length, added_correct: v3.filter(r => r.status !== 'verified' && r.with_third.outcome === 'correct').length, precision: pct(v3.filter(r => (r.status === 'verified' ? r.outcome : r.with_third.outcome) === 'correct').length, v3.length)}; })()} : {}),
     seconds_per_problem: Math.round(10 * rows.reduce((p, r) => p + r.seconds, 0) / n) / 10,
     ...(usd !== null ? {usd_total: Math.round(usd * 10000) / 10000, usd_per_verified_correct: correctV ? Math.round(usd / correctV * 10000) / 10000 : null, plan_credits: credits, plan_credits_per_verified_correct: correctV ? Math.round(credits / correctV * 1000) / 1000 : null} : {})};
 }
 
-/** USD (OpenRouter) and plan credits (openference, 0.1 per call) of a run's proxy calls, from the proxy's request log by run tag. */
+/** USD (OpenRouter) and plan credits (openference: the logged credit cost of each call) of a run's proxy calls, from the proxy's request log by run tag. */
 export function runCost(run, dir = path.join(os.homedir(), '.local/share/llmapiprovider')) {
   let usd = 0, credits = 0;
   for (const f of fs.existsSync(dir) ? fs.readdirSync(dir).filter(n => /^requests-.*\.jsonl$/.test(n)) : []) for (const l of fs.readFileSync(path.join(dir, f), 'utf8').split('\n')) {
     if (!l.includes(run)) continue;
-    try { const r = JSON.parse(l); if (r.run !== run || r.upstream === 'cache') continue; usd += r.usd ?? 0; if (r.upstream === 'openference' && r.status === 200) credits += 0.1; } catch { /* torn line */ }
+    try { const r = JSON.parse(l); if (r.run !== run || r.upstream === 'cache') continue; usd += r.usd ?? 0; if (r.upstream === 'openference' && r.status === 200) credits += r.credit_cost ?? r.quota_cost ?? 0.1; } catch { /* torn line */ }
   }
   return {usd, credits: Math.round(credits * 10) / 10};
 }
@@ -373,11 +445,11 @@ export function buildIndex(runs, items = loadItems()) {
 }
 
 /** One problem through both paths: the per-step record of the expression path, the cross-check and the strict scores. */
-export async function runCase(item, {chat, tree = null, tier = 'tiny'}) {
+export async function runCase(item, {chat, tree = null, tier = 'tiny', f1 = true}) {
   const w = await executor();
   const gold = goldOf(item);
   const execute = (sop, numbers = []) => w.execute(sop, item.question, numbers);
-  const expr = await expressionFormalize({message: item.question, chat, lexicon: w.lexicon, exemplarExclude: sectionExclude(item)});
+  const expr = await expressionFormalize({message: item.question, chat, lexicon: w.lexicon, ...(f1 ? {exemplarExclude: sectionExclude(item)} : {exemplars: []})});
   const exprRun = expr.status === 'ok' ? await executeQueries(expr.lowered.sop, execute) : [];
   const exprValues = exprRun.map(q => q.values[0] ?? null);
   const treeSop = tree?.sop ?? null;
@@ -502,7 +574,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const rows = [], recs = [];
     for (const id of ids) {
       const item = items.get(id); if (!item) continue;
-      const r = await runCase(item, {chat, tree: treeOf(treeRun, id), tier});
+      const r = await runCase(item, {chat, tree: treeOf(treeRun, id), tier, f1: !args.includes('--no-f1')});
       const {record, ...row} = r; rows.push(row); recs.push(record);
       console.error(`${id}: expr ${row.expression.status}/${row.expression.outcome} tree ${row.tree.outcome} → ${row.verdict}`);
       // The expression path's own failures go to the inbox (the tree's are reported by its runner): refused programs and wrong values.
@@ -512,7 +584,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
     fs.writeFileSync(path.join(dir, 'results.jsonl'), rows.map(r => JSON.stringify(r)).join('\n') + '\n');
     fs.mkdirSync(RECORDINGS, {recursive: true});
-    fs.appendFileSync(path.join(RECORDINGS, `${tier}.jsonl`), recs.map(r => JSON.stringify({...r, run: runId})).join('\n') + '\n');
+    fs.appendFileSync(path.join(RECORDINGS, `${tier}.jsonl`), recs.map(r => JSON.stringify({...r, prompt_version: PROMPT_VERSION, run: runId})).join('\n') + '\n');
     const s = summarize(rows);
     fs.writeFileSync(path.join(dir, 'summary.md'), [`# Dual formalization ${runId}`, '', `- tier ${tier}, tree run ${treeRun ?? 'none'}, ${s.n} problems (${s.scored} scorable)`,
       `- expression path correct ${s.expression_correct}; tree correct ${s.tree_correct}; either ${s.either_correct}`,
@@ -537,7 +609,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
     fs.writeFileSync(path.join(dir, 'results.jsonl'), rows.map(r => JSON.stringify(r)).join('\n') + '\n');
     fs.mkdirSync(RECORDINGS, {recursive: true});
-    fs.appendFileSync(path.join(RECORDINGS, 'obligations.jsonl'), recs.map(r => JSON.stringify({...r, run: runId})).join('\n') + '\n');
+    fs.appendFileSync(path.join(RECORDINGS, 'obligations.jsonl'), recs.map(r => JSON.stringify({...r, prompt_version: PROMPT_VERSION, run: runId})).join('\n') + '\n');
     const s = summarizeObligations(rows);
     fs.writeFileSync(path.join(dir, 'summary.json'), JSON.stringify(s, null, 1) + '\n');
     console.log(JSON.stringify(s));
@@ -546,6 +618,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const runId = opt('--run-id', `verify-${Date.now()}`), items = loadItems();
     const ids = fs.readFileSync(opt('--ids'), 'utf8').split(/\s+/).filter(Boolean);
     const dir = path.join(STATE, runId); fs.mkdirSync(dir, {recursive: true});
+    // Evaluation reference only (owner, 2026-10-03: the decision is tiny-only, see `verify-tiny`): two tiers of different families
+    // formalize the same problem so the evaluation can see where tiny is right. --method-tier T adds the method tree as a structural
+    // voter (counted only when both agree with it). Concrete models are never named; only tiers.
+    const tieModel = null, methodTier = opt('--method-tier');
     const chats = Object.fromEntries(['tiny', 'small', 'medium', 'good'].map(t => [t, tierChat(t, opt('--replay', 'fill'), {run: runId})]));
     // Rows and recordings are written as they come, and a run folder resumes (problems already in it are not run again).
     const rowsFile = path.join(dir, 'results.jsonl'), recFile = path.join(RECORDINGS, 'verify.jsonl');
@@ -556,15 +632,41 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     for (const id of ids) {
       const item = items.get(id); if (!item || done.has(id)) continue;
       for (const k of Object.keys(answers)) delete answers[k];
-      const {row, record} = await runVerify(item, {chats: recording});
+      const {row, record} = await runVerify(item, {chats: recording, tieModel, methodTier});
       rows.push(row);
       fs.appendFileSync(rowsFile, JSON.stringify(row) + '\n');
-      fs.appendFileSync(recFile, JSON.stringify({...record, answers: {...answers}, run: runId}) + '\n');
+      fs.appendFileSync(recFile, JSON.stringify({...record, answers: {...answers}, ...(tieModel ? {tie_family: tieModel.family} : {}), prompt_version: PROMPT_VERSION, run: runId}) + '\n');
       if (row.outcome === 'wrong') reportFormalizationError({source: 'dual-formalization', kind: 'wrong', message: item.question, strategy: 'CrossFamilyVerifier', tier: 'tiny+medium', expected: item.answer, detail: ['verified_wrong', ...row.open], ref: {book: item.book, id: item.id, run: runId}});
       console.error(`${id}: ${row.status}/${row.outcome} stage ${row.stage} parts ${row.parts} ${Object.entries(row.candidates).map(([n, c]) => `${n}=${c.outcome}`).join(' ')}`);
     }
     const cost = runCost(runId);
     const s = summarizeVerify(rows, cost);
+    fs.writeFileSync(path.join(dir, 'summary.json'), JSON.stringify(s, null, 1) + '\n');
+    console.log(JSON.stringify(s));
+    world?.dispose();
+  } else if (cmd === 'verify-tiny') {
+    // The decision rule of the product: tiny-only (owner, 2026-10-03). --tree RUN: the tiny question tree's run on the same problems;
+    // --reference RUN: a cross-family run on the same problems, shown only as the evaluation reference.
+    const runId = opt('--run-id', `verify-tiny-${Date.now()}`), items = loadItems(), treeRun = opt('--tree');
+    const ids = fs.readFileSync(opt('--ids'), 'utf8').split(/\s+/).filter(Boolean);
+    const dir = path.join(STATE, runId); fs.mkdirSync(dir, {recursive: true});
+    const rowsFile = path.join(dir, 'results.jsonl'), recFile = path.join(RECORDINGS, 'verify-tiny.jsonl');
+    const rows = readJsonl(rowsFile), done = new Set(rows.map(r => r.id));
+    fs.mkdirSync(RECORDINGS, {recursive: true});
+    const live = tierChat('tiny', opt('--replay', 'fill'), {run: runId}), answers = {};
+    const chat = async (m, k) => { const r = await live(m, k); answers[sha(String(m.at(-1).content))] = r.ok ? r.text : null; return r; };
+    for (const id of ids) {
+      const item = items.get(id); if (!item || done.has(id)) continue;
+      for (const k of Object.keys(answers)) delete answers[k];
+      const {row, record} = await runTinyVerify(item, {chat, tree: treeOf(treeRun, id)});
+      rows.push(row);
+      fs.appendFileSync(rowsFile, JSON.stringify(row) + '\n');
+      fs.appendFileSync(recFile, JSON.stringify({...record, answers: {...answers}, prompt_version: PROMPT_VERSION, run: runId}) + '\n');
+      if (row.outcome === 'wrong') reportFormalizationError({source: 'dual-formalization', kind: 'wrong', message: item.question, strategy: 'TinyVerifier', tier: 'tiny', expected: item.answer, detail: ['verified_wrong', row.stage, ...row.open], ref: {book: item.book, id: item.id, run: runId}});
+      console.error(`${id}: ${row.status}/${row.outcome} stage ${row.stage} program=${row.candidates.program.outcome} tree=${row.candidates.tree.outcome}${row.third ? ` third=${row.third.agrees_with.join('+') || 'none'}` : ''}`);
+    }
+    const reference = opt('--reference') ? new Map(readJsonl(path.join(STATE, opt('--reference'), 'results.jsonl')).map(r => [r.id, r])) : null;
+    const s = summarizeTiny(rows, {reference});
     fs.writeFileSync(path.join(dir, 'summary.json'), JSON.stringify(s, null, 1) + '\n');
     console.log(JSON.stringify(s));
     world?.dispose();
@@ -620,21 +722,25 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
     fs.writeFileSync(path.join(dir, 'results.jsonl'), rows.map(r => JSON.stringify(r)).join('\n') + '\n');
     fs.mkdirSync(RECORDINGS, {recursive: true});
-    fs.appendFileSync(path.join(RECORDINGS, 'nway.jsonl'), recs.map(r => JSON.stringify({...r, run: runId})).join('\n') + '\n');
+    fs.appendFileSync(path.join(RECORDINGS, 'nway.jsonl'), recs.map(r => JSON.stringify({...r, prompt_version: PROMPT_VERSION, run: runId})).join('\n') + '\n');
     const s = summarizeNway(rows, {chats, index: cmd === 'f1' ? index : null});
     fs.writeFileSync(path.join(dir, 'summary.json'), JSON.stringify(s, null, 1) + '\n');
     console.log(JSON.stringify(s));
     world?.dispose();
   } else if (cmd === 'replay') {
     const tier = opt('--tier', 'tiny'), items = loadItems();
-    const recs = new Map(readJsonl(path.join(RECORDINGS, `${tier}.jsonl`)).map(r => [r.id, r]));
+    // Recordings of an older question text are stale: counted, never failed (re-record them with the run that made them).
+    const current = file => readJsonl(path.join(RECORDINGS, file)).filter(r => (r.prompt_version ?? 1) === PROMPT_VERSION);
+    const stale = ['tiny.jsonl', 'nway.jsonl', 'obligations.jsonl', 'verify.jsonl'].reduce((n, f) => n + new Set(readJsonl(path.join(RECORDINGS, f)).filter(r => (r.prompt_version ?? 1) !== PROMPT_VERSION).map(r => r.id)).size, 0);
+    const recs = new Map(current(`${tier}.jsonl`).map(r => [r.id, r]));
     const out = [];
     for (const rec of recs.values()) { const item = items.get(rec.id); if (item) out.push(await replayRecording(rec, {message: item.question})); }
-    for (const rec of new Map(readJsonl(path.join(RECORDINGS, 'verify.jsonl')).map(r => [r.id, r])).values()) { const item = items.get(rec.id); if (item) out.push({...await replayVerify(rec, {item}), id: `verify:${rec.id}`}); }
-    for (const rec of new Map(readJsonl(path.join(RECORDINGS, 'obligations.jsonl')).map(r => [r.id, r])).values()) { const item = items.get(rec.id); if (item) out.push({...await replayObligations(rec, {item}), id: `obligations:${rec.id}`}); }
-    for (const rec of new Map(readJsonl(path.join(RECORDINGS, 'nway.jsonl')).map(r => [r.id, r])).values()) { const item = items.get(rec.id); if (item) out.push({...await replayNway(rec, {item}), id: `nway:${rec.id}`}); }
+    for (const rec of new Map(current('verify-tiny.jsonl').map(r => [r.id, r])).values()) { const item = items.get(rec.id); if (item) out.push({...await replayTinyVerify(rec, {item}), id: `verify-tiny:${rec.id}`}); }
+    for (const rec of new Map(current('verify.jsonl').map(r => [r.id, r])).values()) { const item = items.get(rec.id); if (item) out.push({...await replayVerify(rec, {item}), id: `verify:${rec.id}`}); }
+    for (const rec of new Map(current('obligations.jsonl').map(r => [r.id, r])).values()) { const item = items.get(rec.id); if (item) out.push({...await replayObligations(rec, {item}), id: `obligations:${rec.id}`}); }
+    for (const rec of new Map(current('nway.jsonl').map(r => [r.id, r])).values()) { const item = items.get(rec.id); if (item) out.push({...await replayNway(rec, {item}), id: `nway:${rec.id}`}); }
     const firsts = {}; for (const r of out) if (r.first) firsts[`${r.first.kind}@${r.first.step}`] = (firsts[`${r.first.kind}@${r.first.step}`] ?? 0) + 1;
-    console.log(JSON.stringify({cases: out.length, ok: out.filter(r => r.ok).length, first_divergence: firsts}));
+    console.log(JSON.stringify({cases: out.length, ok: out.filter(r => r.ok).length, stale, first_divergence: firsts}));
     if (!args.includes('--json')) for (const r of out.filter(x => !x.ok).slice(0, 5)) console.log(`${r.id}: ${r.first.kind}@${r.first.step}: ${r.first.why}`);
     world?.dispose();
     process.exit(out.every(r => r.ok) ? 0 : 1);

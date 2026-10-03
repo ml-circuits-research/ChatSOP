@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {readProgram, analyseProgram, lowerProgram, evaluateProgram, expressionFormalize, registryOf, normalizeRegistry} from '../lib/formalize/expression-program.mjs';
+import {readProgram, analyseProgram, lowerProgram, evaluateProgram, expressionFormalize, registryOf, normalizeRegistry, PROMPT_VERSION} from '../lib/formalize/expression-program.mjs';
 import {crossCheck, perturbations, perturbCircuit, answersAgree, splitCircuit} from '../lib/formalize/dual-check.mjs';
 import {readFormulas, arithmeticCircuit} from '../lib/query-author/step-by-step/problem.mjs';
 import {executor, replayRecording, score, RECORDINGS} from '../tools/eval/formalization-regression/expression.mjs';
@@ -163,7 +163,7 @@ test('offline replay: a recording replays with no model, and a changed answer na
 test('recorded book cases replay offline (fast tier; local recordings only)', {skip: !fs.existsSync(`${RECORDINGS}/tiny.jsonl`)}, async () => {
   const {loadItems} = await import('../tools/eval/formalization-regression/cases.mjs');
   const items = loadItems();
-  const recs = [...new Map(fs.readFileSync(`${RECORDINGS}/tiny.jsonl`, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).map(r => [r.id, r])).values()].slice(0, 20);
+  const recs = [...new Map(fs.readFileSync(`${RECORDINGS}/tiny.jsonl`, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).filter(r => (r.prompt_version ?? 1) === PROMPT_VERSION).map(r => [r.id, r])).values()].slice(0, 20);
   for (const rec of recs) {
     if (!items.get(rec.id)) continue;
     const r = await replayRecording(rec, {message: items.get(rec.id).question});
@@ -264,4 +264,48 @@ test('cross-family verifier: agreement plus obligations verifies; an unmet oblig
   assert.equal(confirmedParts(two, [2, 1]).source, 'list');
   assert.equal(confirmedParts(two, [1, 1], [35]).source, 'programs');
   assert.equal(confirmedParts(two, [1, 3]).source, 'unconfirmed');
+});
+
+test('tiny-only verification: two tiny formalizations agree; the failing part is re-asked to tiny; a third tiny path counts only with one of them', async () => {
+  const {verifyTinyPaths, confirmedParts} = await import('../lib/formalize/verifier.mjs');
+  const {readGoals} = await import('../lib/formalize/obligations.mjs');
+  const w = await executor();
+  const execute = (sop, numbers) => w.execute(sop, CRATES, numbers);
+  const prog = (...texts) => { let i = 0; return {run: async hint => expressionFormalize({message: CRATES, chat: async () => ({ok: true, text: texts[Math.min(i++, texts.length - 1)]}), exemplars: [], hint})}; };
+  const right = 'crates = Math.ceil(v2 / v1)\nanswer = crates * v3', wrong = 'answer = v2 / v1 * v3', negative = 'answer = 0 - Math.ceil(v2 / v1) * v3';
+  const good = {sop: tree('ceil(needed / per_crate) * price')}, bad = {sop: tree('needed / per_crate * price')};
+  const goals = readGoals('g1: cost of the crates | number | positive');
+  const v = await verifyTinyPaths({program: prog(right), tree: good, goals, registry: crates, execute, seed: 't'});
+  assert.equal(v.status, 'verified');
+  assert.deepEqual(v.answers, [35]);
+  // A sign obligation fails; the re-ask goes to the same tiny path and then agrees with the tree.
+  const re = await verifyTinyPaths({program: prog(negative, right), tree: good, goals, registry: crates, execute, seed: 't'});
+  assert.equal(re.stage, 'reask');
+  assert.equal(re.status, 'verified');
+  // Disagreement: the third path decides only by agreeing with one of the two.
+  let asked = 0;
+  const third = async () => { asked++; return {name: 'method', sop: tree('ceil(needed / per_crate) * price')}; };
+  const t = await verifyTinyPaths({program: prog(right), tree: bad, third, goals, registry: crates, execute, seed: 't'});
+  assert.equal(t.stage, 'third');
+  assert.deepEqual(t.third.agrees_with, ['program']);
+  assert.deepEqual(t.answers, [35]);
+  const none = await verifyTinyPaths({program: prog(wrong), tree: {sop: tree('price * 5')}, third: async () => null, goals, registry: crates, execute, seed: 't'});
+  assert.equal(none.status, 'unresolved');
+  assert.equal(asked, 1);
+  // Part kinds: two programs answering a number overrule a list that says yes or no.
+  const parts = confirmedParts(readGoals('g1: the cost | yes or no | any'), [1, 1], [35], [[35], [35]]);
+  assert.equal(parts.goals[0].kind, 'number');
+});
+
+test('the cross-family reference: a structural voter counts only when both candidates agree with it', async () => {
+  const {verifyCrossFamily} = await import('../lib/formalize/verifier.mjs');
+  const w = await executor();
+  const execute = (sop, numbers) => w.execute(sop, CRATES, numbers);
+  const prog = text => async hint => expressionFormalize({message: CRATES, chat: async () => ({ok: true, text}), exemplars: [], hint});
+  const right = 'crates = Math.ceil(v2 / v1)\nanswer = crates * v3', wrong = 'answer = v2 / v1 * v3';
+  const cands = [{name: 'a', run: prog(right), next: null}, {name: 'b', run: prog(wrong), next: null}];
+  const one = await verifyCrossFamily({registry: crates, execute, goals: null, seed: 't', third: {name: 'tree', sop: tree('ceil(needed / per_crate) * price')}, candidates: cands});
+  assert.equal(one.status, 'unresolved');
+  assert.equal(one.with_third.agrees_with_both, false);
+  assert.equal(one.with_third.status, 'unresolved');
 });

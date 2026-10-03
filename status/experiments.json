@@ -6042,6 +6042,39 @@
     "tools/eval/method-library/run.mjs",
     "config/knowledge/formalizer-methods-v1"
    ]
+  },
+  {
+   "id": "dual-formalization-v1",
+   "name": "Dual formalization: expression path, N-way agreement, obligations, cross-family verifier",
+   "category": "reference-baseline",
+   "owner": "dual-formalization-agent",
+   "registered_at": "2026-10-02",
+   "hypothesis": "Independent formalizations of a numeric problem that agree on the problem numbers and on perturbed numbers are right with high precision; a cross-family verifier (tiny+F1 Qwen and medium DeepSeek) reaches precision >= 95% at useful coverage.",
+   "preregistration": "none: coordinator-requested development diagnostics on unsealed book problems, staged small first; gates from experiments/proposal/formalization-research-directions.md",
+   "data_version": "datasets_sources/books/eval/items.jsonl (local, DS011); samples in state/dual-formalization/ids-*.txt; strict gold scoring (every gold number among the asked values)",
+   "status": "done",
+   "models": [
+    "tiny (local Qwen3-4B)",
+    "small (Qwen3.8 27b)",
+    "medium (deepseek-v4-flash)",
+    "good (deepseek-v4.1-flash)"
+   ],
+   "results": {
+    "dual_99": "expression 54/99, tree 57/99, agree 36/99 with 35 correct (97%), disagreement flagged 30/31 wrong tree answers",
+    "nway_b_60": "selected 33/60, precision 70%, no gain over best single (0.00 [-0.10, 0.10]); gates not met",
+    "f1_60": "tiny 26 -> 32/60, paired gain +0.10 [0.03, 0.18], 0 lost; adopted with strict same-section leave-one-out",
+    "obligations_c_100": "wrong 10/100, abstention precision 92%, clarification recovers 3/37 (8%)",
+    "nway_b2_60": "tiny+F1, tree, medium: selected 31/60, precision 82%; medium+tiny-F1 agreement 24/24 correct",
+    "verifier_100": "verified 42/100, precision 40/42 (95%), wrong 2, re-ask to next tier recovers 7/32 (22%); USD 1.08 total, 0.027 USD and 0.06 plan credits per verified correct answer",
+    "verifier_with_method_tree_100": "verified 50/100, precision 46/50 (92%): the third candidate adds 8 verified, 6 correct"
+   },
+   "conclusions": "Agreement across model families is the precise signal (95% at 42% coverage on 100 fresh problems across all books). A third structurally different candidate (method tree, good) raises coverage but drops precision below 95% when one agreeing pair suffices. Parts obligations need two signals; re-asking on the next tier recovers more than the same tier (22% vs 8%) but stays below the 40% gate.",
+   "reports": [
+    "state/dual-formalization/verify-100/summary.json",
+    "state/dual-formalization/verify3-100/summary.json",
+    "state/dual-formalization/obl-100/summary.json",
+    "state/dual-formalization/nway-b2-merged/summary.json"
+   ]
   }
  ]
 }

@@ -113,10 +113,10 @@
         "openai": "/v1/chat/completions"
       },
       "limits": {
-        "maxConcurrent": 4,
-        "maxPerSecond": 20,
-        "maxPerMinute": 600,
-        "maxPerHour": 20000
+        "maxConcurrent": 32,
+        "maxPerSecond": 200,
+        "maxPerMinute": 6000,
+        "maxPerHour": 200000
       },
       "retry": {
         "max": 0,
@@ -134,9 +134,9 @@
           "-fa",
           "on",
           "--parallel",
-          "4",
+          "32",
           "-c",
-          "32768",
+          "131072",
           "--jinja",
           "--no-webui",
           "--cache-reuse",
@@ -151,7 +151,7 @@
         "idleStopMs": 0,
         "startAtBoot": true
       },
-      "_note": "local Qwen3-4B, always on (owner 2026-10-02: enough memory, fast enough): started when the proxy starts and restarted on demand; GPU reservation lock files still block a start. Route /u/local/... or tier tiny."
+      "_note": "local Qwen3-4B, always on (owner 2026-10-02: enough memory, fast enough): started when the proxy starts and restarted on demand; GPU reservation lock files still block a start. Route /u/local/... or tier tiny. Owner 2026-10-03: throughput over latency: 32 parallel slots (measured ~24 short requests/s aggregate vs ~13 at 4 slots)."
     }
   },
   "fallback": {
@@ -183,7 +183,7 @@
     }
   },
   "tiers": {
-    "_note": "owner 2026-10-02: clients and jobs name a tier, never a concrete model. A tier is a chain of {upstream, model}; the first usable entry serves, the rest is its fallback. best is unconfigured (pro models via OpenRouter later): a request for it is an error.",
+    "_note": "owner 2026-10-02: clients and jobs name a tier, never a concrete model. A tier is a chain of {upstream, model}; the first usable entry serves, the rest is its fallback. best is unconfigured (pro models via OpenRouter later): a request for it is an error. equivalence (owner 2026-10-03): a very small, fast model that only decides whether two short answers are equivalent (A implies B and B implies A); today the local Qwen3-4B, no fallback; used only after deterministic normalization fails.",
     "maxWaitMs": 120000,
     "tiny": [
       {
@@ -215,6 +215,12 @@
       {
         "upstream": "openrouter",
         "model": "deepseek/deepseek-v4.1-flash"
+      }
+    ],
+    "equivalence": [
+      {
+        "upstream": "local",
+        "model": "Qwen3-4B"
       }
     ]
   },

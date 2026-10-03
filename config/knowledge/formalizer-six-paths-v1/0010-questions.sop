@@ -1,0 +1,193 @@
+# formalizer-six-paths-v1: the questions of the six paths (texts and format reminders). Authored by the six-paths agent, 2026-10-03.
+
+@fp_spq1 fact
+  holds fp_sp_system all "You answer short questions about a word problem so that a symbolic system can compute its answer. Answer exactly in the format asked. Never solve the problem, never compute a result, never explain."
+
+@fp_spq2 fact
+  holds fp_sp_text A_parts "Problem:\n{{problem}}\n\nList each separate thing the question asks for, in the order asked, one per line, as `g1: <a few words>`. Most questions ask for one thing; list at most three."
+
+@fp_spq3 fact
+  holds fp_sp_again A_parts "Write one line per asked thing, `g1: <a few words>`, and nothing else."
+
+@fp_spq4 fact
+  holds fp_sp_text A_goal "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nAsked: {{part}}\n\nWhat kind of answer is that? Choose one:\n{{menu}}\n\nReply with the number of the choice only."
+
+@fp_spq5 fact
+  holds fp_sp_again A_goal "Reply with one number from the list and nothing else."
+
+@fp_spq6 fact
+  holds fp_sp_text A_method "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nTo find: {{part}}\n\nWhich method finds it? The methods (name: when to use it; formula):\n{{menu}}\n\nReply with the name of the method only."
+
+@fp_spq7 fact
+  holds fp_sp_again A_method "Reply with one method name from the list and nothing else."
+
+@fp_spq8 fact
+  holds fp_sp_text A_slots "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nTo find: {{part}}\nMethod: {{method}}: {{method_text}}{{formula}}\n\nFill each input of the method, one line each, `name: value`:\n{{slots}}\n\nA value is a number of the problem (v1, v2, ...) without a sign, {{earlier}}or the word sub when that input is not given in the problem and must itself be computed first. A list input takes several values separated by commas. Do not compute anything."
+
+@fp_spq9 fact
+  holds fp_sp_again A_slots "Write one line per input, `name: value`, where a value is vK, sub, or a choice from the list given for that input."
+
+@fp_spq10 fact
+  holds fp_sp_text A_logic "Problem:\n{{problem}}\n\nTo find: {{part}}\nMethod: {{method}}: {{method_text}}\n\nWrite the facts, rules and the question in this notation, one per line:\nfact: <relation> \"<Name>\"            (or fact: <relation> \"<Name>\" \"<Other>\", or fact: not <relation> \"<Name>\")\nrule: if <relation> ?x and <relation2> ?x then <relation3> ?x      (an exception: add  unless <relation4> ?x  before then)\nquestion: <relation> \"<Name>\"        (yes/no)   or   question: <relation> ?x   (who, how many)\nA relation is one lowercase word or words joined by _ and is spelled the same everywhere. Write only what the problem states."
+
+@fp_spq11 fact
+  holds fp_sp_again A_logic "Use only lines that start with fact:, rule: or question:, in the notation shown."
+
+@fp_spq12 fact
+  holds fp_sp_text B_parts_line "The question asks for these values, in this order: {{parts}}. Name the lines that compute them answer1, answer2, ... in that order."
+
+@fp_spq13 fact
+  holds fp_sp_text C_unknowns "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nFirst, what are the unknowns? List every unknown quantity: the asked one and any quantity in between that the problem needs. One per line, `name: what it is`, with short lowercase_names. When an unknown counts whole things (containers, trips, people), end its line with `| whole up` if a part must be rounded up to a whole one, or `| whole down` if only complete ones count. Do not give values."
+
+@fp_spq14 fact
+  holds fp_sp_again C_unknowns "Write one line per unknown, `name: what it is`, with a lowercase_name (add `| whole up` or `| whole down` for a count of whole things), and nothing else."
+
+@fp_spq15 fact
+  holds fp_sp_text C_data "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nUnknowns:\n{{unknowns}}\n\nNext, the data. For each number of the problem write what it is, one line each, `vK: <what it is>`, or `vK: not needed`."
+
+@fp_spq16 fact
+  holds fp_sp_again C_data "Write one line per number, `vK: <what it is>` or `vK: not needed`."
+
+@fp_spq17 fact
+  holds fp_sp_text C_conditions "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nUnknowns:\n{{unknowns}}\n\nData:\n{{data}}\n\nNow the conditions. Write every relation the problem states or implies between the data and the unknowns as an equation or an inequality, one per line, for example `total = v1 * v2 + extra` or `cost <= v3`. Use only v1..vn, the unknown names, numbers, + - * / ( ), and exactly one of = < <= > >= per line. Every unknown must appear in some condition. Do not solve them."
+
+@fp_spq18 fact
+  holds fp_sp_again C_conditions "Write one condition per line, like `name = v1 * v2` or `name <= v3`, using only vK, the unknown names, numbers, + - * / ( ) and one of = < <= > >=."
+
+@fp_spq19 fact
+  holds fp_sp_text C_select "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nUnknowns:\n{{unknowns}}\n\nConditions:\n{{conditions}}\n\nFinally, what does the question ask for? One line per asked thing, in one of these forms:\nvalue <name>        the value of an unknown\nlargest <name>      the largest whole-number value an unknown can take under the conditions\nsmallest <name>     the smallest whole-number value an unknown can take under the conditions\ncheck <condition>   yes or no: whether a relation holds, written like a condition above\npossible            yes or no: whether all the conditions can hold together"
+
+@fp_spq20 fact
+  holds fp_sp_again C_select "Write one line per asked thing: `value <name>`, `largest <name>`, `smallest <name>`, `check <condition>` or `possible`."
+
+@fp_spq21 fact
+  holds fp_sp_text C_fix "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nUnknowns:\n{{unknowns}}\n\nConditions:\n{{conditions}}\n\nThese conditions give {{outcome}}, so a condition is missing, extra or wrong. Write the full corrected list of conditions, one per line, in the same form."
+
+@fp_spq22 fact
+  holds fp_sp_again C_fix "Write one condition per line, like `name = v1 * v2`."
+
+@fp_spq23 fact
+  holds fp_sp_text D_goal "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nWork backwards from the goal. What must be found? The goal is exactly what the question asks for (never a number the problem already gives). One line per asked thing, `goal: <name>: <what it is> | <number or yes/no>`, with a short lowercase_name."
+
+@fp_spq24 fact
+  holds fp_sp_again D_goal "Write one line per asked thing: `goal: <name>: <what it is> | number` or `| yes/no`."
+
+@fp_spq25 fact
+  holds fp_sp_text D_combine "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nPlan so far:\n{{plan}}\n\nHow is {{node}} ({{what}}) obtained? Choose the one combination that gives it:\n{{menu}}\n\nReply with the number of the choice only."
+
+@fp_spq26 fact
+  holds fp_sp_again D_combine "Reply with one number from the list and nothing else."
+
+@fp_spq27 fact
+  holds fp_sp_text D_inputs "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nPlan so far:\n{{plan}}\n\n{{node}} ({{what}}) is: {{combination}}. What are its inputs? Reply in this form:\n{{shape}}\nAn input is a number of the problem (v1, v2, ...), a quantity already in the plan (its name), or a new quantity that must itself be found, written <name> (<what it is>)."
+
+@fp_spq28 fact
+  holds fp_sp_again D_inputs "Reply in exactly the form shown, with vK, a plan name, or a new name (what it is)."
+
+@fp_spq29 fact
+  holds fp_sp_text E_sentence "Problem:\n{{problem}}\n\nQuantities and names written so far:\n{{known}}\n\nRewrite ONLY this sentence of the problem in controlled English:\n\"{{sentence}}\"\n\nUse only these sentence patterns, one per line; reuse the exact quantity names written so far. A quantity name is a few lowercase words after \"the\". Write each number exactly as the problem writes it. If the sentence states nothing to compute with, reply: none.\n\nFacts:\nThe <quantity> is <number>.\nThe <quantity> is <number> percent.\nThe <quantity> is the <q1> plus the <q2>.        (also: minus, times, divided by)\nThe <quantity> is the difference of the <q1> and the <q2>.\nThe <quantity> is the sum of the <q1>, the <q2> and the <q3>.\nThe <quantity> is the product of the <q1>, the <q2> and the <q3>.\nThe <quantity> is the <q1> percent of the <q2>.\nThe <quantity> is <a>/<b> of the <q1>.\nThe <quantity> is the <q1> increased by the <q2> percent.        (also: decreased by)\nThe <quantity> is the <q1> rounded up.        (also: rounded down, rounded)\nThe <quantity> is the smaller of the <q1> and the <q2>.        (also: larger)\nThe <quantity> is the average of the <q1>, the <q2> and the <q3>.\nThe <quantity> is the remainder of the <q1> divided by the <q2>.\nAnywhere a sentence says \"the <q1>\", it may instead give a number.\nStatements without numbers:\n<Name> is <property>.        <Name> is not <property>.        The <thing> is <property>.\n<Name> <relation> <Name2>.\nEvery <property> is <property2>.        Every <property> is not <property2>.\nIf something is <property> and <property2> then it is <property3>.\nQuestions:\nWhat is the <quantity>?\nIs the <q1> at most the <q2>?        (also: at least, less than, more than, equal to)\nIs <Name> <property>?        Is the <thing> <property>?        Is it true that <Name> <relation> <Name2>?"
+
+@fp_spq30 fact
+  holds fp_sp_again E_sentence "Use only the patterns, one sentence per line, or reply none"
+
+@fp_spq31 fact
+  holds fp_sp_text E_question "Problem:\n{{problem}}\n\nQuantities and names written so far:\n{{known}}\n\nNow write what the problem asks, as question sentences of these patterns only (one line per asked thing), using the quantity names written so far; add a fact sentence first if the asked quantity still needs one.\n\nFacts:\nThe <quantity> is <number>.\nThe <quantity> is <number> percent.\nThe <quantity> is the <q1> plus the <q2>.        (also: minus, times, divided by)\nThe <quantity> is the difference of the <q1> and the <q2>.\nThe <quantity> is the sum of the <q1>, the <q2> and the <q3>.\nThe <quantity> is the product of the <q1>, the <q2> and the <q3>.\nThe <quantity> is the <q1> percent of the <q2>.\nThe <quantity> is <a>/<b> of the <q1>.\nThe <quantity> is the <q1> increased by the <q2> percent.        (also: decreased by)\nThe <quantity> is the <q1> rounded up.        (also: rounded down, rounded)\nThe <quantity> is the smaller of the <q1> and the <q2>.        (also: larger)\nThe <quantity> is the average of the <q1>, the <q2> and the <q3>.\nThe <quantity> is the remainder of the <q1> divided by the <q2>.\nAnywhere a sentence says \"the <q1>\", it may instead give a number.\nStatements without numbers:\n<Name> is <property>.        <Name> is not <property>.        The <thing> is <property>.\n<Name> <relation> <Name2>.\nEvery <property> is <property2>.        Every <property> is not <property2>.\nIf something is <property> and <property2> then it is <property3>.\nQuestions:\nWhat is the <quantity>?\nIs the <q1> at most the <q2>?        (also: at least, less than, more than, equal to)\nIs <Name> <property>?        Is the <thing> <property>?        Is it true that <Name> <relation> <Name2>?"
+
+@fp_spq32 fact
+  holds fp_sp_again E_question "Use only the patterns, one sentence per line"
+
+@fp_spq33 fact
+  holds fp_sp_text Z_answer "Problem:\n{{problem}}\n\nSolve the problem. Think briefly if you need to, then end with one last line in exactly this form:\nFINAL ANSWER: <the answer only: a number (with its unit if it has one), yes or no, a name or a choice, or a short list separated by commas; if several things are asked, the answers in the order asked, separated by semicolons>"
+
+@fp_spq34 fact
+  holds fp_sp_again Z_answer "End with one line: FINAL ANSWER: <the answer only>"
+
+@fp_spq35 fact
+  holds fp_sp_text EQ_a "Answer A: {{a}}\nAnswer B: {{b}}\n\nDo A and B state the same result? Different wording, units, rounding or the form of a number (44.1% and 0.441) still count as the same result; a different value, choice or order does not. Reply with one word: same or different."
+
+@fp_spq36 fact
+  holds fp_sp_text EQ_b "Two short answers to the same question:\nA: {{a}}\nB: {{b}}\nIf A is true, must B be true, and if B is true, must A be true? Reply with one word: same (both directions hold) or different."
+
+@fp_spq37 fact
+  holds fp_sp_text F_choose "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nHere are verified computations of OTHER problems (their inputs xK, then their lines):\n{{exemplars}}\n\nWhich computation has the same steps as what this problem asks (with this problem's numbers in place of its inputs)? Reply with its number, or 0 if none has the same steps."
+
+@fp_spq38 fact
+  holds fp_sp_again F_choose "Reply with one number: a computation of the list, or 0."
+
+@fp_spq39 fact
+  holds fp_sp_text F_map "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nThe computation:\n{{program}}\nIts inputs:\n{{inputs}}\n\nFor each input of the computation, which number of this problem plays the same role? One line each, `x1 = vK`, or `x1 = none` when this problem has no such number."
+
+@fp_spq40 fact
+  holds fp_sp_again F_map "Write one line per input, `xK = vK` or `xK = none`."
+
+@fp_spq41 fact
+  holds fp_sp_text F_extra "Problem:\n{{problem}}\n\nNumbers of the problem (vK = the number as written [the words around it]):\n{{numbers}}\n\nWith this problem's numbers the computation is:\n{{program}}\n\nDoes it compute exactly what the question asks, using every number that the answer needs? Reply yes, or no."
+
+@fp_spq42 fact
+  holds fp_sp_again F_extra "Reply yes or no."
+
+@fp_spq43 fact
+  holds fp_sp_combine sum "add them all"
+
+@fp_spq44 fact
+  holds fp_sp_combine difference "first minus second"
+
+@fp_spq45 fact
+  holds fp_sp_combine product "multiply them all"
+
+@fp_spq46 fact
+  holds fp_sp_combine quotient "first divided by second"
+
+@fp_spq47 fact
+  holds fp_sp_combine ceil_quotient "first divided by second, rounded up to a whole number"
+
+@fp_spq48 fact
+  holds fp_sp_combine floor_quotient "first divided by second, rounded down to a whole number"
+
+@fp_spq49 fact
+  holds fp_sp_combine remainder "the remainder of first divided by second"
+
+@fp_spq50 fact
+  holds fp_sp_combine percent_of "first percent of second"
+
+@fp_spq51 fact
+  holds fp_sp_combine increase_percent "first increased by second percent"
+
+@fp_spq52 fact
+  holds fp_sp_combine decrease_percent "first decreased by second percent"
+
+@fp_spq53 fact
+  holds fp_sp_combine min "the smallest of them"
+
+@fp_spq54 fact
+  holds fp_sp_combine max "the largest of them"
+
+@fp_spq55 fact
+  holds fp_sp_combine mean "the average of them"
+
+@fp_spq56 fact
+  holds fp_sp_combine round "first rounded to a whole number"
+
+@fp_spq57 fact
+  holds fp_sp_combine copy "just the first input itself"
+
+@fp_spq58 fact
+  holds fp_sp_combine at_most "yes or no: first is at most second"
+
+@fp_spq59 fact
+  holds fp_sp_combine at_least "yes or no: first is at least second"
+
+@fp_spq60 fact
+  holds fp_sp_combine below "yes or no: first is less than second"
+
+@fp_spq61 fact
+  holds fp_sp_combine above "yes or no: first is more than second"
+
+@fp_spq62 fact
+  holds fp_sp_combine equal "yes or no: first equals second"
+
+@fp_spq63 fact
+  holds fp_sp_combine all "yes or no: all the inputs are yes"
+
+@fp_spq64 fact
+  holds fp_sp_combine any "yes or no: at least one input is yes"
