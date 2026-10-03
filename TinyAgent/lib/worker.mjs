@@ -20,14 +20,9 @@ import {isPure, requireEffect} from './lambda/effects.mjs';
 import {callSettings} from './lambda/index.mjs';
 import {loadJob, runJob, RunStore, publishSummary, liveTiers, runTask, modelName} from './jobs/index.mjs';
 import {HOME} from './settings.mjs';
-import {lambdaPurpose} from './legacy.mjs';
 
-// `opDir` and the kinds `skill`/`skills` are the workerData of a server started before the TaskLambda rename (its main thread is in
-// memory while this module is read fresh): such an operation runs as before, without a call folder.
-const {args, tags, config, port} = workerData;
-const kind = {skill: 'lambda', skills: 'lambdas'}[workerData.kind] ?? workerData.kind;
+const {args, tags, config, port, kind} = workerData;
 const callDir = workerData.callDir ?? null;
-const opDir = callDir ?? workerData.opDir ?? null;
 export const INPROC_URL = 'http://tinyagent.local';
 const fetchImpl = portFetch(port);
 const log = line => parentPort.postMessage({type: 'log', line: String(line).slice(0, 2000)});
@@ -107,7 +102,7 @@ function contextFor(lambdas, lambda, params, attachments, call, dir) {
   const effects = lambda.effects;
   const jobsAllowed = what => requireEffect(effects, 'runs-jobs', what);
   return {
-    ta: recordingClient(ta.with({purpose: lambdaPurpose(lambda.name, config)}), call, effects), params, inputs: params, attachments, dir, self: call,
+    ta: recordingClient(ta.with({purpose: `lambda:${lambda.name}`}), call, effects), params, attachments, dir, self: call,
     // The server writes every posted line into the operation's log.txt; a nested call keeps its own lines too.
     log: line => { log(line); if (call && call !== self) call.log(line); },
     config, runner: rc, home: HOME,
@@ -133,7 +128,7 @@ async function runLambda(lambdas, name, given, attachments, call, dir) {
     if (found) { log(`TaskLambda ${name}: the recorded output of call ${found.id} (pure; same hash, params and inputs)`); return {...(found.output.result ?? {}), reused_from: found.id}; }
   }
   log(`TaskLambda ${name} (${lambda.source})`);
-  const r = await lambda.run(contextFor(lambdas, lambda, v.params, attachments, call, dir ?? call?.dir ?? opDir));
+  const r = await lambda.run(contextFor(lambdas, lambda, v.params, attachments, call, dir ?? call?.dir ?? callDir));
   return r && typeof r === 'object' ? {status: r.status ?? 'finished', ...r} : {status: 'finished', summary: String(r ?? '')};
 }
 
@@ -159,8 +154,8 @@ async function plan(lambdas, request, attachments, planTa) {
     const r = await planTa.json({tier, messages, maxTokens: 4000, temperature: 0, retryCut: true});
     if (!r.ok && !r.text) return {ok: false, problems: [`planner call failed: ${r.reason}`]};
     problems = [];
-    // A step is {lambda, params} ({skill, inputs} is the form of planners written before the rename).
-    const steps = Array.isArray(r.json?.steps) ? r.json.steps.map(s => ({lambda: s?.lambda ?? s?.skill, params: s?.params ?? s?.inputs ?? {}})) : null;
+    // A step is {lambda, params}.
+    const steps = Array.isArray(r.json?.steps) ? r.json.steps.map(s => ({lambda: s?.lambda, params: s?.params ?? {}})) : null;
     if (!steps) problems.push('no "steps" list');
     else {
       if (steps.length > maxSteps) problems.push(`at most ${maxSteps} steps`);
@@ -181,7 +176,7 @@ async function main() {
   if (kind === 'lambdas') {
     const {lambdas, problems, warnings} = await loadLambdas(config);
     const list = [...lambdas.values()].map(lambdaView);
-    return {status: 'finished', lambdas: list, skills: list.map(l => ({...l, inputs: l.params})), problems, warnings};
+    return {status: 'finished', lambdas: list, problems, warnings};
   }
   if (kind === 'job') {
     if (self) {
@@ -203,26 +198,19 @@ async function main() {
   for (const p of problems) log(`TaskLambda problem: ${p}`);
   // (warnings, such as a project module without an effects declaration, are shown by the TaskLambda list: GET /v1/lambdas)
   const attachments = attachmentsOf(args.attachments);
-  if (kind === 'lambda') return runLambda(lambdas, args.name, args.params ?? args.inputs ?? {}, attachments, self, opDir);
+  if (kind === 'lambda') return runLambda(lambdas, args.name, args.params ?? {}, attachments, self, callDir);
   if (kind === 'run') {
     // A planned run spends from one registered budget (config.run.budget): the server refuses its calls beyond it.
     self?.update({lambda: {name: 'run-lambdas', hash: null, origin: 'built-in', effects: ['model-calls', 'runs-jobs', 'writes-external']}});
     try { await ta.registerRun({job: 'run', run: tags.run, purpose: tags.purpose, budget: config.run?.budget ?? {usd: 0.5}}); } catch (e) { log(`budget not registered: ${e.message}`); }
     const p = await plan(lambdas, args.request, attachments, recordingClient(ta.with({purpose: 'run:planner'}), self, null));
-    if (opDir) fs.writeFileSync(path.join(opDir, 'plan.json'), JSON.stringify(p, null, 1) + '\n');
+    if (callDir) fs.writeFileSync(path.join(callDir, 'plan.json'), JSON.stringify(p, null, 1) + '\n');
     if (!p.ok) return {status: 'plan_refused', summary: `plan refused: ${p.problems.slice(0, 5).join('; ')}`, plan: p};
     if (args.planOnly || !p.steps.length) return {status: p.steps.length ? 'planned' : 'no_plan', summary: p.steps.length ? p.steps.map(s => `${s.lambda} ${JSON.stringify(s.params ?? {})}`).join('\n') : `no TaskLambda fits: ${p.reason}`, plan: p};
     const results = [];
-    for (const [i, s] of p.steps.entries()) {
-      let r;
-      if (self) r = await invokeChild(lambdas, self, s.lambda, s.params ?? {}, attachments);
-      else {
-        // A server without call folders: a step folder in the operation folder, as before the rename.
-        const dir = path.join(opDir, `step-${i + 1}-${s.lambda}`);
-        fs.mkdirSync(dir, {recursive: true});
-        r = await runLambda(lambdas, s.lambda, s.params ?? {}, attachments, null, dir);
-      }
-      results.push({lambda: s.lambda, skill: s.lambda, params: s.params ?? {}, ...r});
+    for (const s of p.steps) {
+      const r = await invokeChild(lambdas, self, s.lambda, s.params ?? {}, attachments);
+      results.push({lambda: s.lambda, params: s.params ?? {}, ...r});
       if (!['finished', 'ok'].includes(r.status)) break;
     }
     try { await ta.finishRun({run: tags.run, status: 'finished'}); } catch { /* the registration expires */ }

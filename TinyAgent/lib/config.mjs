@@ -40,11 +40,10 @@ export function absolutize(layer, dir) {
     for (const k of START_LISTS) if (Array.isArray(s[k])) s[k] = s[k].map(abs);
   }
   if (isObj(c.runner)) for (const k of ['dataDir', 'templatesDir']) if (typeof c.runner[k] === 'string') c.runner[k] = abs(c.runner[k]);
-  // TaskLambda sources (and their old key `skills`, lib/legacy.mjs) and the calls folder.
-  for (const [sec, list] of [['lambdas', 'project'], ['skills', 'plugins']]) {
-    if (!isObj(c[sec])) continue;
-    if (Array.isArray(c[sec][list])) c[sec][list] = c[sec][list].map(abs);
-    if (isObj(c[sec].jobs)) c[sec].jobs = Object.fromEntries(Object.entries(c[sec].jobs).map(([k, v]) => [k, typeof v === 'string' ? abs(v) : isObj(v) ? { ...v, dir: abs(v.dir) } : v]));
+  // TaskLambda sources and the calls folder.
+  if (isObj(c.lambdas)) {
+    if (Array.isArray(c.lambdas.project)) c.lambdas.project = c.lambdas.project.map(abs);
+    if (isObj(c.lambdas.jobs)) c.lambdas.jobs = Object.fromEntries(Object.entries(c.lambdas.jobs).map(([k, v]) => [k, typeof v === 'string' ? abs(v) : isObj(v) ? { ...v, dir: abs(v.dir) } : v]));
   }
   if (isObj(c.calls) && typeof c.calls.dir === 'string') c.calls.dir = abs(c.calls.dir);
   return c;

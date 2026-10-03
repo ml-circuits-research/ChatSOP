@@ -155,8 +155,7 @@ const tagged = ta.with({purpose: 'review:x', run: 'r1', priority: 'background'})
 
 Options common to `chat`, `json` and the roles: `purpose`, `run`, `cache`, `priority`, `noFallback`, `timeoutMs`, `retries` (transient
 failures), `headers`. A purpose is required: `chat`, `formalize`, `answer-*`, `ingest`, `job:<name>`, `review:<run>`, `lambda:<name>`,
-`run:<id>`, `test:<name>` pass the default policy. (`ta.skill`, `ta.skills` and the purpose `skill:<name>` are the names of before the
-TaskLambda rename, kept until no caller needs them: `lib/legacy.mjs`.)
+`run:<id>`, `test:<name>` pass the default policy.
 
 ## Jobs
 
@@ -235,8 +234,7 @@ sha256}]`), `readAttachment(name)`, `dir` (the call folder, for outputs), `self`
 `runs-jobs`), `config`, `runner`. A module may also export `lambdas: [...]`. Sources, in this order (a later one cannot replace a name):
 built-in, `lambdas.project` (files or folders), one per job folder of `lambdas.jobs` (`{name: dir}`, param `stage`), one per task
 template (its parameters plus `target`). Every operation runs in a worker thread of the server: modules are loaded fresh for each
-operation, a crash does not stop the server, and every model call goes back to the server's core over a message port. (The keys
-`skills.plugins` and `skills.jobs`, the export `skills` and the field `inputs` are read as the old names until no caller needs them.)
+operation, a crash does not stop the server, and every model call goes back to the server's core over a message port.
 
 **A TaskLambdaCall** is one invocation, with its own folder. Calls accumulate: together the folders are an auditable cache of past
 activity, visible and editable by people and coding agents. The calls root is `<TinyAgent home>/calls` (`calls.dir`, `--calls DIR`);
@@ -414,9 +412,7 @@ tinyagent probe --yes --model <id> [--upstream p] [--rates 0.5,1,2]   # measure 
 
 (`tinyagent` is `node TinyAgent/bin/tinyagent.mjs`.) Common options: `--config` (project layer), `--url`, `--purpose`. Agents and
 external tools use the CLI or the HTTP API; the CLI prints short summaries and leaves the rest in the call folder. `run`, `lambdas` and
-`calls` read and write local folders only (`run` reaches models through the server). Old names, kept until no caller needs them
-(`lib/legacy.mjs`): `plans` and `--plans` (`lambdas`, `--lambdas`), `skills` (`lambdas --server`), `skill <name> --inputs` (`call <name>
---params`), `run-skills` (`run-lambdas`).
+`calls` read and write local folders only (`run` reaches models through the server).
 
 ## HTTP API
 
@@ -433,7 +429,7 @@ external tools use the CLI or the HTTP API; the CLI prints short summaries and l
 | `GET /v1/ops`; `GET /v1/ops/<id>?wait=<s>&since=<n>` | operations; a long poll returns at the next log line or the end |
 | `GET /v1/calls?lambda=&status=&date=&since=&parent=&root=&text=&top=1&limit=`; `GET /v1/calls/<id>`, `/v1/calls/<id>/tree` | the call folders: search, one call, its tree |
 
-`GET /v1/skills` and `POST /v1/skills/<name>` `{inputs}` are the old names of the TaskLambda endpoints. Request headers:
+Request headers:
 `x-tinyagent-purpose`, `x-tinyagent-run`, `x-tinyagent-cache`, `x-tinyagent-priority`, `x-tinyagent-no-fallback`, `x-client-name`.
 Response headers: `x-tinyagent-tier`, `-model`, `-fallback`, `-fallback-reason`, `-cache`, `-cache-key`. A token (`TINYAGENT_TOKEN`, or in
 a key file) makes every request but `/health` need `Authorization: Bearer <token>`; the server listens on 127.0.0.1 by default.
@@ -447,5 +443,4 @@ a key file) makes every request but `/health` need `Authorization: Bearer <token
 `registry.mjs`, `effects.mjs`, `calls.mjs` the call folders, `import.mjs` the earlier run folders as calls), `lib/sandbox.mjs`, `lib/agent/` (the agent of `run`: `run.mjs`,
 `lambda-cache.mjs`, `lambda-code.mjs`, `match.mjs`, `bm25.mjs`, `workspace.mjs`, `agent-skills.mjs`), `lib/dashboard.mjs`, `lib/probe.mjs`,
 `lib/jobs/` (the job runner), `lambdas/` (built-in TaskLambdas), `prompts/` (the runner's and the planners' own
-prompts), `config.default.json`, `test/`, `bench/` (task sets with known results). `lib/legacy.mjs` holds the names of before the TaskLambda rename
-(`lib/skills.mjs` is its old module path), deleted when no caller needs them.
+prompts), `config.default.json`, `test/`, `bench/` (task sets with known results).

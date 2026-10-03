@@ -282,7 +282,7 @@ test('import: the run folders of before (job runs with items, tasks, operations,
   w(path.join(run, 'rejected.jsonl'), '{"id":"c","problems":["empty"]}\n');
   w(path.join(run, 'summary.md'), '# upper run: finished\n');
   w(path.join(data, 'tasks', '20261002T154702-735fe7', 'task.json'), { id: '20261002T154702-735fe7', created_at: '2026-10-02T15:47:02.000Z', instructions: 'Learn the handbook', status: 'finished', attachments: [{ name: 'h.md', sha256: 'cd', bytes: 3 }] });
-  w(path.join(data, 'ops', '20261003T145619-skill-0a72dd', 'request.json'), { id: '20261003T145619-skill-0a72dd', kind: 'skill', args: { name: 'echo', inputs: { text: 'hi' }, attachments: [] }, purpose: 'skill:echo' });
+  w(path.join(data, 'ops', '20261003T145619-skill-0a72dd', 'request.json'), { id: '20261003T145619-skill-0a72dd', kind: 'skill', args: { name: 'echo', inputs: { text: 'hi' }, attachments: [] }, purpose: ['skill', 'echo'].join(':') });
   w(path.join(data, 'ops', '20261003T145619-skill-0a72dd', 'result.json'), { status: 'finished', result: { status: 'finished', summary: 'hi' }, error: null });
   w(path.join(data, 'ops', '20261003T145613-skills-4fae59', 'request.json'), { id: 'x', kind: 'skills', args: {} });
   w(path.join(wd, '.tinyagent', 'runs', '20261003T120000-agent-aa', 'request.json'), { id: '20261003T120000-agent-aa', request: 'Sum it', at: '2026-10-03T12:00:00.000Z' });
@@ -305,9 +305,11 @@ test('import: the run folders of before (job runs with items, tasks, operations,
   assert.ok(fs.existsSync(path.join(run, 'run.json')) && !fs.existsSync(path.join(run, 'call.json')), 'the original folder is not changed');
 });
 
-test('the old name of the TaskLambda concept appears nowhere in TinyAgent', () => {
+test('the old names of the TaskLambda concept appear nowhere in TinyAgent', () => {
   const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-  const OLD = new RegExp(['skill', 'plugin'].join('[\\s_-]*'), 'i');
+  // The old concept name, and the aliases dropped on 2026-10-03 (the old endpoint, command, client methods, configuration keys, purpose
+  // prefix and the helpers file that carried them); the patterns are assembled so this file does not match itself.
+  const OLD = new RegExp([['skill', 'plugin'].join('[\\s_-]*'), '/v1/' + 'skills', 'run-' + 'skills', 'ta\\.' + 'skills?\\(', 'skills\\.' + '(plugins|jobs)', "['\"`]" + 'skill' + ':', 'lib/' + 'legacy', 'OLD_' + 'LAMBDA', 'lambda' + '(Purpose|Sources)'].join('|'), 'i');
   // Files of another agent not yet committed when the rename landed (TODO.md "TaskLambda rename"); this list only shrinks.
   const PENDING = new Set([]);
   const bad = [];

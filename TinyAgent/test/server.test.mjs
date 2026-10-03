@@ -150,10 +150,9 @@ test('TaskLambdas: built-ins, project ones and a job folder, each call a call fo
     const found = await t.ta.calls({ lambda: 'double' });
     assert.deepEqual(found.data.map((c) => c.id).sort(), [d1.id, d2.id, d3.id].sort());
     assert.equal((await t.ta.callInfo(d2.id)).output.reused_from, d1.id);
-    // The names of before the rename still work: /v1/skills and {inputs}.
-    const old = await t.ta.skill('echo', { text: 'old' });
-    assert.equal(old.result.summary, 'answer to old');
-    assert.ok((await t.ta.skills()).skills.some((s) => s.name === 'echo' && s.inputs.text));
+    // The endpoint of before the rename is gone.
+    assert.equal((await fetch(`${t.url}/v1/${'skills'}`)).status, 404);
+    assert.ok((await t.ta.lambdas()).lambdas.some((s) => s.name === 'echo' && s.params.text));
   } finally { await t.close(); }
 });
 

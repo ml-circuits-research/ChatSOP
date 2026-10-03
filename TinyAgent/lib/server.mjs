@@ -23,7 +23,6 @@ import { resolveProxyToken, expandHome } from './settings.mjs';
 import { loadLayers, ensureUserHome } from './config.mjs';
 import { callStoreOf } from './lambda/index.mjs';
 import { callStatus } from './lambda/calls.mjs';
-import { lambdaPurpose, OLD_LAMBDA_ENDPOINTS } from './legacy.mjs';
 
 const WORKER = new URL('./worker.mjs', import.meta.url);
 const OP_ID = /^[A-Za-z0-9][\w.:-]{0,79}$/;
@@ -46,7 +45,7 @@ export function createOps({ config, inproc, urlOf = () => null, calls = null }) 
     const id = call?.id ?? `lambdas-${process.pid}-${++listings}`;
     const dir = call?.dir ?? null;
     const run = tags.run ?? (kind === 'run' ? id : null);
-    const purpose = kind === 'run' ? `run:${id}`.slice(0, 120) : tags.purpose ?? lambdaPurpose(args.name ?? kind, config);
+    const purpose = kind === 'run' ? `run:${id}`.slice(0, 120) : tags.purpose ?? `lambda:${args.name ?? kind}`;
     call?.update({ purpose, run });
     const op = { id, kind, status: 'running', started_at: new Date().toISOString(), finished_at: null, purpose, run, dir, call: call?.id ?? null, args: summarize(args), log: [], result: null, error: null, waiters: new Set() };
     ops.set(id, op);
@@ -114,10 +113,8 @@ export async function createTinyServer({ config, env = process.env, coreOptions 
       const op = ops.start(kind, args, tags);
       return sendJson(res, 202, { id: op.id, kind, status: op.status, dir: op.dir, call: op.call });
     };
-    if (req.method === 'GET' && (p === '/v1/lambdas' || p === OLD_LAMBDA_ENDPOINTS.list)) { const r = await ops.once('lambdas', {}); return sendJson(res, r.status === 'finished' ? 200 : 500, r.result ?? { error: { type: 'lambdas_unavailable', message: r.error } }); }
-    for (const prefix of ['/v1/lambdas/', OLD_LAMBDA_ENDPOINTS.call]) {
-      if (req.method === 'POST' && p.startsWith(prefix)) return startOp('lambda', (b) => ({ name: decodeURIComponent(p.slice(prefix.length)), params: b.params ?? b.inputs ?? {}, attachments: attachmentsOf(b.attachments) }));
-    }
+    if (req.method === 'GET' && p === '/v1/lambdas') { const r = await ops.once('lambdas', {}); return sendJson(res, r.status === 'finished' ? 200 : 500, r.result ?? { error: { type: 'lambdas_unavailable', message: r.error } }); }
+    if (req.method === 'POST' && p.startsWith('/v1/lambdas/')) return startOp('lambda', (b) => ({ name: decodeURIComponent(p.slice('/v1/lambdas/'.length)), params: b.params ?? {}, attachments: attachmentsOf(b.attachments) }));
     if (req.method === 'GET' && p === '/v1/calls') {
       const q = Object.fromEntries(['lambda', 'status', 'date', 'since', 'parent', 'root', 'text'].map((k) => [k, url.searchParams.get(k)]));
       return sendJson(res, 200, { root: ops.store.root, data: ops.store.search({ ...q, topLevel: url.searchParams.get('top') === '1', limit: Math.min(Number(url.searchParams.get('limit')) || 50, 1000) }) });

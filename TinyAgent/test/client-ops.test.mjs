@@ -12,7 +12,7 @@ function fakeServer() {
     const u = new URL(url), method = (init.method ?? 'GET').toUpperCase();
     seen.push(`${method} ${u.pathname}`);
     if (method === 'GET' && u.pathname === '/jobs') return json({ runs: [{ run: 'r1', job: 'x', status: 'running', budget: { credits: 10 }, spent: { calls: 3, usd: 0, credits: 0.3 } }], by_job: {} });
-    if (method === 'POST' && u.pathname === '/v1/skills/demo') return json({ id: 'op-1', status: 'running' }, 202);
+    if (method === 'POST' && u.pathname === '/v1/lambdas/demo') return json({ id: 'op-1', status: 'running' }, 202);
     if (method === 'GET' && u.pathname === '/v1/ops/op-1') return json({ id: 'op-1', status: 'finished', result: { status: 'finished', summary: 'done' }, log: [] });
     return json({ error: { type: 'not_found', message: u.pathname } }, 404);
   };
@@ -27,13 +27,13 @@ test('jobs() lists the registered runs with their spend', async () => {
   assert.deepEqual(seen, ['GET /jobs']);
 });
 
-test('a skill started with wait: false returns its operation without waiting; the default waits for the result', async () => {
+test('a TaskLambda call started with wait: false returns its operation without waiting; the default waits for the result', async () => {
   const { fetchImpl, seen } = fakeServer();
   const ta = createTinyAgent({ purpose: 'test:client', fetchImpl, url: 'http://127.0.0.1:1' });
-  const op = await ta.skill('demo', { a: 1 }, { wait: false });
+  const op = await ta.call('demo', { a: 1 }, { wait: false });
   assert.deepEqual([op.id, op.status], ['op-1', 'running']);
-  assert.deepEqual(seen, ['POST /v1/skills/demo']);
-  const done = await ta.skill('demo', { a: 1 });
+  assert.deepEqual(seen, ['POST /v1/lambdas/demo']);
+  const done = await ta.call('demo', { a: 1 });
   assert.equal(done.status, 'finished');
   assert.ok(seen.includes('GET /v1/ops/op-1'));
 });

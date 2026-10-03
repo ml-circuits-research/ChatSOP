@@ -353,7 +353,6 @@
       "job:*",
       "review:*",
       "lambda:*",
-      "skill:*",
       "run:*",
       "test:*"
     ],
@@ -392,7 +391,7 @@
     }
   },
   "lambdas": {
-    "_note": "TaskLambdas besides the built-in ones (TinyAgent/lambdas/): project modules (files or folders of .mjs modules exporting {name, description, params, effects, run}) and job folders served as TaskLambdas ({name: dir}). The old key `skills` (plugins, jobs) is still read.",
+    "_note": "TaskLambdas besides the built-in ones (TinyAgent/lambdas/): project modules (files or folders of .mjs modules exporting {name, description, params, effects, run}) and job folders served as TaskLambdas ({name: dir}).",
     "project": [],
     "jobs": {}
   },

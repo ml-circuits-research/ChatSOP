@@ -14,7 +14,6 @@ import { openSync, closeSync, mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_URL, tinyHome } from './settings.mjs';
-import { OLD_LAMBDA_ENDPOINTS } from './legacy.mjs';
 import { httpFetch } from './http-fetch.mjs';
 
 const BIN = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'bin', 'tinyagent.mjs');
@@ -255,9 +254,6 @@ export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = n
     task: (t, o = {}) => startOp('/v1/tasks', { instructions: t.instructions ?? '', attachments: absAll(t.attachments ?? t.attach), target: t.target ?? { kind: 'none' }, template: t.template ?? null, params: t.params ?? null }, o),
     /** One TaskLambdaCall: a TaskLambda of the server with its params; `attach` lists files given to it; `wait: false` returns the operation at once. */
     call: (name, params = {}, o = {}) => startOp(`/v1/lambdas/${encodeURIComponent(name)}`, { params, attachments: absAll(o.attach) }, o),
-    // The names of before the TaskLambda rename (lib/legacy.mjs): a server started before it serves only /v1/skills.
-    skills: () => getJson(OLD_LAMBDA_ENDPOINTS.list),
-    skill: (name, inputs = {}, o = {}) => startOp(`${OLD_LAMBDA_ENDPOINTS.call}${encodeURIComponent(name)}`, { inputs, attachments: absAll(o.attach) }, o),
     /** Plan the request on the planner tier (good), then execute the plan deterministically; `planOnly` stops after the plan. */
     run: (requestText, o = {}) => startOp('/v1/run', { request: requestText, attachments: absAll(o.attach), planOnly: !!o.planOnly }, o),
     op: (id) => getJson(`/v1/ops/${encodeURIComponent(id)}`),

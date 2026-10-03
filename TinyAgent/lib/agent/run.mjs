@@ -40,10 +40,10 @@ export const AGENT_DEFAULTS = Object.freeze({
   planner: { maxTokens: 8000 },
 });
 
-/** The agent settings: AGENT_DEFAULTS under the configuration's `agent` section (`plansDir` is the old name of `lambdasDir`). */
+/** The agent settings: AGENT_DEFAULTS under the configuration's `agent` section. */
 export function agentSettings(config = {}) {
   const a = config.agent ?? {};
-  return { ...AGENT_DEFAULTS, ...a, lambdasDir: a.lambdasDir ?? a.plansDir ?? null, match: { ...AGENT_DEFAULTS.match, ...(a.match ?? {}) }, planner: { ...AGENT_DEFAULTS.planner, ...(a.planner ?? {}) },
+  return { ...AGENT_DEFAULTS, ...a, lambdasDir: a.lambdasDir ?? null, match: { ...AGENT_DEFAULTS.match, ...(a.match ?? {}) }, planner: { ...AGENT_DEFAULTS.planner, ...(a.planner ?? {}) },
     plannerTier: a.plannerTier ?? config.runner?.roles?.planner ?? 'good', askTiers: a.askTiers ?? config.sandbox?.tiers ?? ['nano', 'micro', 'tiny', 'small', 'medium'] };
 }
 
@@ -207,13 +207,13 @@ const recording = (ta, call, role, stats) => ({ ...ta, chat: async (o) => { cons
  * are replaced by the run's), `config` (the merged configuration), `planOnly` (show the TaskLambda, run nothing), `useCache` (false: skip
  * the match and do not reuse), `log`. Returns the result record (also the call's output.json).
  */
-export async function runAgent({ request, workdir = process.cwd(), lambdasDir = null, plansDir = null, calls = null, callsDir = null, parent = null, ta, config = {}, planOnly = false, useCache = true, log = () => {}, caller = null }) {
+export async function runAgent({ request, workdir = process.cwd(), lambdasDir = null, calls = null, callsDir = null, parent = null, ta, config = {}, planOnly = false, useCache = true, log = () => {}, caller = null }) {
   if (typeof request !== 'string' || !request.trim()) throw new Error('a request is required');
   const S = agentSettings(config);
   const t0 = Date.now();
   const workspace = createWorkspace(path.resolve(workdir));
   const store = calls ?? callStoreOf(config, callsDir);
-  const cache = new LambdaCache(lambdasDirOf(workspace.root, S, lambdasDir ?? plansDir)).ensure();
+  const cache = new LambdaCache(lambdasDirOf(workspace.root, S, lambdasDir)).ensure();
   const top = parent ? parent.child({ lambda: AGENT_LAMBDA, params: { request, planOnly, useCache }, workdir: workspace.root, caller: caller ?? 'agent' })
     : store.start({ lambda: AGENT_LAMBDA, params: { request, planOnly, useCache }, workdir: workspace.root, caller: caller ?? 'agent' });
   const id = top.id;
@@ -392,8 +392,7 @@ export default {
  * in the call (`ctx.self`: inputs, effects, tools.jsonl).
  */
 export async function runPromotedLambda({ code, effects, ctx }) {
-  const all = ctx.params ?? ctx.inputs;
-  const { workdir, ...params } = all;
+  const { workdir, ...params } = ctx.params;
   const S = agentSettings(ctx.config ?? {});
   const workspace = createWorkspace(path.resolve(workdir));
   const { skills } = discoverSkills(skillRoots(workspace.root, S.skillDirs));

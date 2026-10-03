@@ -17,7 +17,6 @@ import { createHash } from 'node:crypto';
 import { HOME } from '../settings.mjs';
 import { loadTemplates } from '../jobs/planner.mjs';
 import { effectsProblems, EFFECT_KINDS, REFUSED_EFFECTS } from './effects.mjs';
-import { lambdaSources } from '../legacy.mjs';
 
 const TYPES = {
   string: (v) => typeof v === 'string', integer: Number.isInteger, number: (v) => typeof v === 'number' && Number.isFinite(v), boolean: (v) => typeof v === 'boolean',
@@ -28,7 +27,7 @@ const hash16 = (...parts) => { const h = createHash('sha256'); for (const p of p
 /** The effects a project module without a declaration is loaded with during the migration (everything but the refused kinds). */
 export const UNDECLARED_EFFECTS = Object.freeze(EFFECT_KINDS.filter((k) => !REFUSED_EFFECTS.includes(k)));
 
-/** Validates parameters against a schema: {ok, params (defaults applied), problems}. (`inputs` is the same object, for older callers.) */
+/** Validates parameters against a schema: {ok, params (defaults applied), problems}. */
 export function validateParams(schema = {}, given = {}) {
   const problems = [], params = {};
   const g = given && typeof given === 'object' ? given : {};
@@ -47,7 +46,7 @@ export function validateParams(schema = {}, given = {}) {
     if (d.max != null && size > d.max) { problems.push(`params.${k}: at most ${d.max}`); continue; }
     params[k] = v;
   }
-  return { ok: !problems.length, params, inputs: params, problems };
+  return { ok: !problems.length, params, problems };
 }
 
 const modulesOf = (p) => {
@@ -78,7 +77,7 @@ function checkLambda(s, { origin, source, text }) {
     const p = effectsProblems(effects);
     if (p.length) throw new Error(`${source}: TaskLambda ${s.name}: ${p.join('; ')}`);
   }
-  return { name: s.name, description: s.description.trim(), params: s.params ?? s.inputs ?? {}, effects, effectsDeclared: s.effects !== undefined, origin, source,
+  return { name: s.name, description: s.description.trim(), params: s.params ?? {}, effects, effectsDeclared: s.effects !== undefined, origin, source,
     hash: hash16(text, s.name), run: s.run, check: typeof s.check === 'function' ? s.check : null, attachments: s.attachments ?? 'optional', warnings };
 }
 
@@ -89,15 +88,13 @@ function checkLambda(s, { origin, source, text }) {
 export async function loadLambdas(config) {
   const lambdas = new Map(), problems = [], warnings = [];
   const add = (s) => { warnings.push(...(s.warnings ?? [])); if (lambdas.has(s.name)) problems.push(`TaskLambda ${s.name} of ${s.source} is already defined by ${lambdas.get(s.name).source}`); else lambdas.set(s.name, s); };
-  const src = lambdaSources(config);
-  warnings.push(...src.problems);
+  const src = { project: config.lambdas?.project ?? [], jobs: config.lambdas?.jobs ?? {} };
   const sources = [...modulesOf(join(HOME, 'lambdas')).map((f) => ['built-in', f]), ...src.project.flatMap((p) => modulesOf(resolve(p)).map((f) => ['project', f]))];
   for (const [origin, file] of sources) {
     try {
       const m = await freshImport(file);
       const text = readFileSync(file, 'utf8');
-      // `skills` is the export name of modules written before the rename (lib/legacy.mjs).
-      const list = Array.isArray(m.lambdas) ? m.lambdas : Array.isArray(m.skills) ? m.skills : [];
+      const list = Array.isArray(m.lambdas) ? m.lambdas : [];
       for (const s of [m.default, ...list].filter(Boolean)) add(checkLambda(s, { origin, source: `${origin}:${file}`, text }));
     } catch (e) { problems.push(`${file}: ${e.message}`); }
   }
