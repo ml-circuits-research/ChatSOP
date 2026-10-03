@@ -8,11 +8,18 @@ import {ChatData} from '../../lib/chat-data/index.mjs';
 import {BaseMemories, STRATEGIES, DEFAULT_STRATEGY, cloneRepository, ensureDefaultBase} from '../../lib/chat-data/memories.mjs';
 import {Sessions} from '../../lib/chat-data/sessions.mjs';
 import {FAMILY, runtimeConfig} from '../product-helpers.mjs';
-import {tempDir} from '../helpers.mjs';
+import {SEED_INPUTS, cachedDir, tempDir} from '../helpers.mjs';
+import {ensureSeedMemories} from '../../lib/knowledge-seeds.mjs';
 
 const memory = runtimeConfig().memory;
-const open = t => {
-  const chatData = ChatData.open({chatData: {root: tempDir(t, 'iso-') + '/cd'}}, {});
+// `seeded`: the root starts with the seed memories ensureDefaultBase would build (same strategy), copied from a fixture built once per
+// content of what shapes them (tests/helpers.mjs cachedDir), so the test does not pay most of a minute for them on every run.
+const SEED_STRATEGY = STRATEGIES.includes(memory.engine) ? memory.engine : DEFAULT_STRATEGY;
+const seeded = () => cachedDir('isolation-seeds', SEED_INPUTS, dir => ensureSeedMemories(new BaseMemories({chatData: ChatData.open({chatData: {root: dir + '/cd'}}, {}), memory}), {strategy: SEED_STRATEGY}), SEED_STRATEGY);
+const open = (t, {seeds = false} = {}) => {
+  const root = tempDir(t, 'iso-') + '/cd';
+  if (seeds) fs.cpSync(seeded() + '/cd', root, {recursive: true});
+  const chatData = ChatData.open({chatData: {root}}, {});
   const memories = new BaseMemories({chatData, memory});
   return {chatData, memories, sessions: new Sessions({chatData, memories, memory})};
 };
@@ -36,7 +43,7 @@ test('the default strategy is sqlite', t => {
 });
 
 test('the default base memory is sqlite; a filled one is kept', t => {
-  const {memories} = open(t);
+  const {memories} = open(t, {seeds: true});
   memories.create({id: 'default', name: 'Default (empty)'});
   assert.equal(ensureDefaultBase(memories, {memory}), 'default');
   assert.equal(memories.manifest('default').strategy, 'sqlite');

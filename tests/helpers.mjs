@@ -18,6 +18,38 @@ import {jsonlExists, shardPaths} from '../lib/jsonl-shards.mjs';
 export const repoUrl = (relative = '') => new URL(`../${relative}`, import.meta.url);
 export const repoPath = (relative = '') => fileURLToPath(repoUrl(relative));
 
+/** A short digest of project files and directories (by relative path) and an extra text: the key of a cached test fixture. */
+export function inputsHash(inputs, extra = '') {
+  const hash = createHash('sha256');
+  const walk = rel => {
+    const abs = repoPath(rel);
+    const stat = fs.statSync(abs, {throwIfNoEntry: false});
+    if (!stat) return;
+    if (stat.isDirectory()) { for (const name of fs.readdirSync(abs).sort()) walk(path.join(rel, name)); return; }
+    hash.update(rel + '\0'); hash.update(fs.readFileSync(abs));
+  };
+  for (const rel of inputs) walk(rel);
+  hash.update('\0' + extra);
+  return hash.digest('hex').slice(0, 16);
+}
+
+/**
+ * A directory built once per content of its inputs and cached under the system temp directory (`chatsop-<name>-<hash>`): the
+ * expensive setup of a test (seed memories, a base memory) is paid when the code or data that shape it change, not on every run.
+ * `build(dir)` fills a fresh directory; the caller copies the result into its own temporary root before changing anything.
+ * SEED_INPUTS: what shapes the seed memories of a chat data root (the seeds, the runtime configuration, the memory and chat-data code).
+ */
+export const SEED_INPUTS = Object.freeze(['config/knowledge', 'config/runtime.json', 'memory', 'lib/chat-data', 'lib/knowledge-seeds.mjs', 'sop']);
+export function cachedDir(name, inputs, build, extra = '') {
+  const final = path.join(os.tmpdir(), `chatsop-${name}-${inputsHash(inputs, extra)}`);
+  if (!fs.existsSync(final)) {
+    const building = fs.mkdtempSync(final + '-building-');
+    try { build(building); } catch (e) { fs.rmSync(building, {recursive: true, force: true}); throw e; }
+    try { fs.renameSync(building, final); } catch { fs.rmSync(building, {recursive: true, force: true}); } // another process built it first
+  }
+  return final;
+}
+
 export const lex = demoLexicon();
 export const schema = lex.predicates;
 export const fixture = fs.readFileSync(new URL('./fixtures/bootstrap.sop', import.meta.url), 'utf8');

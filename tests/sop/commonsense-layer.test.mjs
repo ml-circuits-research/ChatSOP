@@ -15,6 +15,7 @@ import {BaseMemories} from '../../lib/chat-data/memories.mjs';
 import {Sessions} from '../../lib/chat-data/sessions.mjs';
 import {TheoryCache, askMemory} from '../../reasoning/slice/index.mjs';
 import {SessionStore} from '../../server/session-store.mjs';
+import {cachedDir} from '../helpers.mjs';
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 
@@ -75,14 +76,25 @@ ${[['born_on cst_napoleon 1769'], ['died_on cst_napoleon 1821'], ['born_on cst_e
   ['located_in cst_lyon cst_france'], ['located_in cst_france cst_europe'], ['is_a cst_europe continent'], ['is_a cst_france country']].map(([h], i) => `@cst_f${i} fact\n  holds ${h}\n  source "test"\n`).join('\n')}`;
 
 let tmp, sessions, theory, repo, session;
-test.before(() => {
-  tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'commonsense-'));
-  const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8'));
-  config.chatData = {...config.chatData, root: tmp};
+// The base memory of the test (the three seeds it imports and cs-test with FACTS, SQLite) takes over a minute to build; it is built
+// once per content of the seeds, the runtime configuration and the memory code (tests/helpers.mjs cachedDir) and copied per run.
+const INPUTS = ['config/knowledge/core-min', 'config/knowledge/core-en', 'config/knowledge/commonsense-v1', 'config/runtime.json', 'memory', 'lib/chat-data', 'lib/knowledge-seeds.mjs', 'sop'];
+const runtime = () => JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8'));
+const openRoot = root => {
+  const config = runtime();
+  config.chatData = {...config.chatData, root};
   const chatData = ChatData.open(config, {}, ROOT);
-  const memories = new BaseMemories({chatData, memory: config.memory});
-  ensureSeedMemories(memories, {strategy: 'sqlite'});
-  memories.importMemory({id: 'cs-test', name: 'cs-test', strategy: 'sqlite', imports: ['core-min', 'core-en', 'commonsense-v1'], circuits: [{name: 'facts', text: FACTS}], approvedBy: 'test', reason: 'test'});
+  return {config, chatData, memories: new BaseMemories({chatData, memory: config.memory})};
+};
+test.before(() => {
+  const template = cachedDir('commonsense-layer', INPUTS, dir => {
+    const {memories} = openRoot(dir);
+    ensureSeedMemories(memories, {strategy: 'sqlite', ids: ['core-min', 'core-en', 'commonsense-v1']});
+    memories.importMemory({id: 'cs-test', name: 'cs-test', strategy: 'sqlite', imports: ['core-min', 'core-en', 'commonsense-v1'], circuits: [{name: 'facts', text: FACTS}], approvedBy: 'test', reason: 'test'});
+  }, FACTS);
+  tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'commonsense-'));
+  fs.cpSync(template, tmp, {recursive: true});
+  const {config, chatData, memories} = openRoot(tmp);
   sessions = new Sessions({chatData, memories, memory: config.memory});
   sessions.create({base: 'cs-test', user: 'test', id: 'cs-test-session', name: 'test'});
   repo = sessions.repository('cs-test-session');

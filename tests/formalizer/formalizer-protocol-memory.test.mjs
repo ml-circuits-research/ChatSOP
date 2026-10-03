@@ -66,8 +66,16 @@ test('a decision of the controller (closure and plan over the protocol memory) t
   const facts = dryRunFacts('list');
   for (const a of ['answered ask_acts none', 'answered ask_aspects none']) facts.add(...a.split(' '));
   decide(protocol, facts); // warm-up
-  const times = [];
-  for (let k = 0; k < 9; k++) { const t = performance.now(); decide(protocol, facts); times.push(performance.now() - t); }
-  times.sort((a, b) => a - b);
-  assert.ok(times[4] < 50, `median ${times[4].toFixed(1)} ms per decision`);
+  // The bound is on the CPU time of this process (process.cpuUsage), not on wall time: under a loaded machine (npm test runs the files
+  // in parallel) wall time includes waiting for a core, while a slower decision still costs more CPU time and fails the bound.
+  const cpu = [], wall = [];
+  for (let k = 0; k < 9; k++) {
+    const c = process.cpuUsage(), t = performance.now();
+    decide(protocol, facts);
+    wall.push(performance.now() - t);
+    const d = process.cpuUsage(c);
+    cpu.push((d.user + d.system) / 1000);
+  }
+  const median = xs => [...xs].sort((a, b) => a - b)[4];
+  assert.ok(median(cpu) < 50, `median ${median(cpu).toFixed(1)} ms CPU per decision (wall ${median(wall).toFixed(1)} ms)`);
 });

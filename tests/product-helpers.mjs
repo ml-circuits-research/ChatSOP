@@ -2,47 +2,29 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {createHash} from 'node:crypto';
 import {Repository} from '../memory/repository.mjs';
 import {createServer} from '../server/http.mjs';
 import {Auth} from '../server/auth.mjs';
 import {ChatData} from '../lib/chat-data/index.mjs';
 import {BaseMemories, ensureDefaultBase} from '../lib/chat-data/memories.mjs';
 import {ensureReplyMemory} from '../lib/chat-data/composer.mjs';
-import {cookieOf, httpClient, lex, listen, repoPath, tempDir, stubQueryParser} from './helpers.mjs';
+import {SEED_INPUTS, cachedDir, cookieOf, httpClient, lex, listen, repoPath, tempDir, stubQueryParser} from './helpers.mjs';
 
 export const runtimeConfig = () => JSON.parse(fs.readFileSync(repoPath('config/runtime.json'), 'utf8'));
 
 // Building the seed memories of a fresh chat data root takes about a minute (commonsense-v1, the conversation collections), and
 // every product test used to pay it. The built root is cached once per content of what shapes it (the seeds, the runtime
 // configuration and the memory and chat-data code) under the system temp directory and copied into each test's root.
-const TEMPLATE_INPUTS = ['config/knowledge', 'config/runtime.json', 'memory', 'lib/chat-data', 'lib/knowledge-seeds.mjs', 'sop'];
-function inputsHash() {
-  const hash = createHash('sha256');
-  const walk = rel => {
-    const abs = repoPath(rel);
-    const stat = fs.statSync(abs, {throwIfNoEntry: false});
-    if (!stat) return;
-    if (stat.isDirectory()) { for (const name of fs.readdirSync(abs).sort()) walk(path.join(rel, name)); return; }
-    hash.update(rel + '\0'); hash.update(fs.readFileSync(abs));
-  };
-  for (const rel of TEMPLATE_INPUTS) walk(rel);
-  return hash.digest('hex').slice(0, 16);
-}
 let templateDir = null;
 export function seededChatDataTemplate() {
   if (templateDir) return templateDir;
-  const final = path.join(os.tmpdir(), `chatsop-seed-template-${inputsHash()}`);
-  if (!fs.existsSync(final)) {
-    const building = fs.mkdtempSync(final + '-building-');
+  return (templateDir = cachedDir('seed-template', SEED_INPUTS, building => {
     const runtime = runtimeConfig();
     const chatData = ChatData.open({chatData: {root: path.join(building, 'chat_data')}}, {});
     const memories = new BaseMemories({chatData, memory: runtime.memory});
     ensureDefaultBase(memories, {memory: runtime.memory});
     ensureReplyMemory(memories, runtime);
-    try { fs.renameSync(building, final); } catch { fs.rmSync(building, {recursive: true, force: true}); } // another file built it first
-  }
-  return (templateDir = final);
+  }));
 }
 export const PASSWORD = 'product-test-password';
 export const FAMILY = fs.readFileSync(repoPath('eval/smoke-reasoning/cases/03-rules-chaining/knowledge.sop'), 'utf8');
