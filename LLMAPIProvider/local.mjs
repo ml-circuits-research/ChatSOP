@@ -35,25 +35,36 @@ export function createLocalStarter(up, { spawn = spawnDefault, fetchImpl = fetch
       const pids = gpuPids();
       if (pids && pids.length) return refuse(`GPU busy (compute pids ${pids.join(',')})`);
     }
-    const gguf = abs(s.gguf), bin = abs(s.bin);
-    if (!existsSync(gguf)) return refuse(`missing model ${gguf}`);
-    if (!existsSync(bin)) return refuse(`missing llama-server ${bin}`);
+    // Two kinds of local server: a llama-server over a GGUF (`bin`, `gguf`), or a Node script (`script`, e.g. the small-model
+    // service of the structure and formalizer tiers) run with this Node binary and `--port`.
+    let cmd, argv;
+    if (s.script) {
+      const script = abs(s.script);
+      if (!existsSync(script)) return refuse(`missing script ${script}`);
+      for (const f of s.requires || []) if (!existsSync(abs(f))) return refuse(`missing ${abs(f)}`);
+      cmd = process.execPath; argv = [script, '--port', String(port), ...(s.args || [])];
+    } else {
+      const gguf = abs(s.gguf), bin = abs(s.bin);
+      if (!existsSync(gguf)) return refuse(`missing model ${gguf}`);
+      if (!existsSync(bin)) return refuse(`missing llama-server ${bin}`);
+      cmd = bin; argv = ['-m', gguf, '--host', '127.0.0.1', '--port', String(port), '-a', s.alias || up.name, ...(s.args || [])];
+    }
     const logFile = abs(s.logFile || `~/.local/share/llmapiprovider/${up.name}.log`);
     mkdirSync(dirname(logFile), { recursive: true });
     const fd = openSync(logFile, 'a');
-    const c = spawn(bin, ['-m', gguf, '--host', '127.0.0.1', '--port', String(port), '-a', s.alias || up.name, ...(s.args || [])], { stdio: ['ignore', fd, fd] });
+    const c = spawn(cmd, argv, { stdio: ['ignore', fd, fd] });
     closeSync(fd);
     let exited = false;
     c.on('exit', () => { exited = true; if (child === c) child = null; });
     child = c;
     const deadline = now() + (s.startTimeoutMs ?? 120000);
     while (now() < deadline) {
-      if (exited) return refuse(`llama-server exited during start; see ${logFile}`);
+      if (exited) return refuse(`local server exited during start; see ${logFile}`);
       if (await healthy()) { lastRefusal = null; return true; }
       await new Promise((r) => setTimeout(r, 500));
     }
     stop();
-    return refuse('llama-server did not become healthy in time');
+    return refuse('local server did not become healthy in time');
   }
 
   function stop() { if (child && child.exitCode === null) child.kill('SIGTERM'); child = null; }

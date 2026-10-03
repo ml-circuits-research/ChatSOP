@@ -542,3 +542,109 @@ test('cache: a cut (finish_reason length) or empty answer is not stored', async 
     assert.equal(calls, 2);
   } finally { t.close(); }
 });
+
+// The structure and formalizer tiers (owner 2026-10-03): JSON endpoints of a local Node service started from a script; tests use a
+// fake service script, never the real models.
+test('json tiers: structure and formalizer start a script upstream, forward, cache a JSON answer, refuse a chat path', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'llmapi-sm-'));
+  const script = join(dir, 'fake.mjs');
+  const { writeFileSync } = await import('node:fs');
+  writeFileSync(script, `import http from 'node:http';
+const port = Number(process.argv[process.argv.indexOf('--port') + 1]);
+let calls = 0;
+http.createServer(async (req, res) => {
+  const c = []; for await (const x of req) c.push(x);
+  const send = (o) => { res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify(o)); };
+  if (req.url === '/health') return send({ ok: true });
+  if (req.url === '/v1/models') return send({ object: 'list', data: [] });
+  calls += 1;
+  const b = JSON.parse(Buffer.concat(c).toString());
+  if (req.url === '/v1/structure') return send({ object: 'structure', model: b.model, entities: { quantity: [{ text: '12' }] }, calls });
+  if (req.url === '/v1/fol') return send({ object: 'fol', model: b.model, results: b.inputs.map((input) => ({ input, candidates: ['Cat(tom)'] })), calls });
+}).listen(port, '127.0.0.1');
+`);
+  const free = await new Promise((r) => { const s = http.createServer(); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => r(p)); }); });
+  const dataDir = mkdtempSync(join(tmpdir(), 'llmapi-'));
+  const config = { defaultUpstream: 'sm', modelsCacheSeconds: 600,
+    upstreams: { sm: { baseUrl: `http://127.0.0.1:${free}`, noKey: true, limits: { maxConcurrent: 2, maxPerSecond: 50 }, retry: { max: 0, max5xx: 0, baseMs: 10, maxWaitMs: 100 }, formats: { structure: '/v1/structure', fol: '/v1/fol' },
+      start: { script, requireFreeGpu: false, identity: [script], startTimeoutMs: 10000, logFile: join(dir, 'sm.log') } } },
+    tiers: { structure: [{ upstream: 'sm', model: 'psm' }], formalizer: [{ upstream: 'sm', model: 'lfm' }] }, cache: { defaultMode: 'use' } };
+  const p = createProxy({ config, env: {}, dataDir, cacheDir: dataDir + '-cache' });
+  const port = await listen(p.server);
+  const post = (path, b) => fetch(`http://127.0.0.1:${port}${path}`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-llmapiprovider-purpose': 'test:json-tiers' }, body: JSON.stringify(b) });
+  try {
+    let r = await post('/v1/structure', { model: 'structure', text: 'Ana has 12 apples.', entities: ['quantity'] });
+    assert.equal(r.status, 200);
+    assert.equal(r.headers.get('x-llmapiprovider-tier'), 'structure');
+    assert.equal(r.headers.get('x-llmapiprovider-model'), 'sm/psm');
+    let j = await r.json();
+    assert.equal(j.model, 'psm'); assert.equal(j.entities.quantity[0].text, '12'); assert.equal(j.calls, 1);
+    r = await post('/v1/structure', { model: 'structure', text: 'Ana has 12 apples.', entities: ['quantity'] });
+    assert.equal(r.headers.get('x-llmapiprovider-cache'), 'hit');
+    assert.equal((await r.json()).calls, 1);
+    r = await post('/v1/fol', { model: 'formalizer', inputs: ['Tom is a cat.'] });
+    j = await r.json();
+    assert.equal(j.model, 'lfm'); assert.equal(j.results[0].candidates[0], 'Cat(tom)');
+    r = await post('/v1/chat/completions', { model: 'structure', messages: [{ role: 'user', content: 'q' }] });
+    assert.equal(r.status, 400); assert.match((await r.json()).error.message, /no endpoint \/v1\/chat\/completions/);
+    const recs = recsOf(dataDir);
+    assert.ok(recs.some((x) => x.tier === 'structure' && x.endpoint === '/v1/structure' && x.status === 200 && x.purpose === 'test:json-tiers'));
+    assert.ok(recs.some((x) => x.upstream === 'cache' && x.endpoint === '/v1/structure'));
+  } finally {
+    p.server.close(); p.server.closeAllConnections?.();
+    p.starters.sm.stop();
+    rmSync(dataDir, { recursive: true, force: true }); rmSync(dataDir + '-cache', { recursive: true, force: true }); rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// Prompted JSON tiers (owner 2026-10-03): a tier entry with `prompt` serves /v1/structure and /v1/fol with a chat upstream and a
+// template file; the reply is validated, an invalid one re-asked once, and the answer has the same contract as the dedicated models.
+test('prompted tiers: structure and fol through a chat upstream, validation and one re-ask, alias tiers, cache', async () => {
+  const { writeFileSync, mkdirSync } = await import('node:fs');
+  const dir = mkdtempSync(join(tmpdir(), 'llmapi-pr-'));
+  mkdirSync(join(dir, 'prompts'));
+  writeFileSync(join(dir, 'prompts', 'psm.md'), '<<<options>>>\n{"maxTokens": 500}\n<<<user>>>\nLabels:\n{{labels}}\nText: {{text}}\n<<<again>>>\nFix: {{problems}}\n');
+  writeFileSync(join(dir, 'prompts', 'fol.md'), '<<<user>>>\n{{inventory}}\n{{sentences}}\n<<<again>>>\nFix: {{problems}}\n');
+  let calls = 0;
+  const chat = (req, res, b) => {
+    calls += 1;
+    const m = JSON.parse(b).messages;
+    const last = m[m.length - 1].content;
+    let content;
+    if (last.startsWith('Fix:')) content = '{"spans": [{"label": "quantity", "text": "12 apples"}, {"label": "goal", "text": "How many"}]}';
+    else if (last.includes('Labels:')) content = 'sure: {"spans": [{"label": "quantity", "text": "twelve apples"}, {"label": "person", "text": "Ana"}]}';
+    else content = '{"fol": [{"s": 1, "fol": ["Has(ana, 12)"]}, {"s": 2, "fol": ["? Has(ana, 12)"]}]}';
+    json(res, 200, { choices: [{ message: { content }, finish_reason: 'stop' }], usage: { prompt_tokens: 5, completion_tokens: 5 } });
+  };
+  const s = http.createServer(async (req, res) => { const b = await body(req); if (req.url === '/v1/models') return json(res, 200, MODELS); chat(req, res, b); });
+  const port0 = await listen(s);
+  const dataDir = mkdtempSync(join(tmpdir(), 'llmapi-'));
+  const config = { defaultUpstream: 'c', modelsCacheSeconds: 600, promptsDir: join(dir, 'prompts'), cache: { defaultMode: 'use' },
+    upstreams: { c: { baseUrl: `http://127.0.0.1:${port0}`, noKey: true, limits: { maxConcurrent: 2, maxPerSecond: 50 }, retry: { max: 0, max5xx: 0, baseMs: 10, maxWaitMs: 100 }, formats: { openai: '/v1/chat/completions' } } },
+    tiers: { structure: 'structure-chat', 'structure-chat': [{ upstream: 'c', model: 'Q', prompt: 'psm' }], formalizer: [{ upstream: 'c', model: 'Q', prompt: 'fol' }] } };
+  const p = createProxy({ config, env: {}, dataDir, cacheDir: dataDir + '-cache' });
+  const port = await listen(p.server);
+  const post = (path, b) => fetch(`http://127.0.0.1:${port}${path}`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-llmapiprovider-purpose': 'test:prompted' }, body: JSON.stringify(b) });
+  try {
+    const text = 'Ana has 12 apples. How many apples does Ana have?';
+    let r = await post('/v1/structure', { model: 'structure', text, entities: { quantity: 'a number', goal: 'what is asked' } });
+    assert.equal(r.status, 200);
+    assert.equal(r.headers.get('x-llmapiprovider-model'), 'c/Q+psm');
+    let j = await r.json();
+    assert.deepEqual(j.entities.quantity[0], { text: '12 apples', start: 8, end: 17, confidence: null });
+    assert.equal(j.entities.goal[0].text, 'How many');
+    assert.equal(j.reasks, 1); assert.equal(calls, 2);
+    r = await post('/v1/structure', { model: 'structure', text, entities: { quantity: 'a number', goal: 'what is asked' } });
+    assert.equal(r.headers.get('x-llmapiprovider-cache'), 'hit'); assert.equal(calls, 2);
+    r = await post('/v1/fol', { model: 'formalizer', inputs: ['Ana has 12 apples.', 'Does Ana have 12 apples?'], context: { inventory: 'things: ana' } });
+    j = await r.json();
+    assert.deepEqual(j.results.map((x) => x.candidates), [['Has(ana, 12)'], ['? Has(ana, 12)']]);
+    r = await post('/v1/fol', { model: 'formalizer', inputs: [] });
+    assert.equal(r.status, 400);
+    const recs = recsOf(dataDir);
+    assert.ok(recs.some((x) => x.tier === 'structure' && x.endpoint === '/v1/chat/completions' && x.purpose === 'test:prompted'));
+  } finally {
+    p.server.close(); s.close(); p.server.closeAllConnections?.(); s.closeAllConnections?.();
+    rmSync(dataDir, { recursive: true, force: true }); rmSync(dataDir + '-cache', { recursive: true, force: true }); rmSync(dir, { recursive: true, force: true });
+  }
+});

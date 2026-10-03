@@ -42,3 +42,51 @@ B) Doar `if $r` pe reguli de sesiune, plus rutarea și reparația de mai sus, f�
 C) Tipuri noi de fire `claim` / `supports` / `undermines` / `assumes` (graful argumentului ca date). Nu le recomand: modelul ar eticheta singur suportul, iar motorul doar ar citi etichetele.
 **Recomandare:** A. Acoperă toate întrebările metacognitive din listă cu un singur câmp și un singur mod nou al firului `query`, fiecare verificabil de oracol. „Ce reguli ale mele sunt în conflict” rămâne, deocamdată, statusul `both` cu `used` pe fiecare polaritate; un mod `conflicts` îl propun separat doar dacă apare în date.
 **Răspuns:* pare 9k, cum evitam regresii in notoarele de reasoning, avem acopeeire buna de teste?*
+
+## Q-TRAIN-1: confirmi rulările exacte de fine-tuning pentru PSM și LFM?
+
+**Context:** Ai aprobat în principiu („facem fine tuning la modelele alea două mici, dacă e cazul”). Sonda zero-shot pe 30 de probleme din cărți arată că e cazul la ambele (`experiments/proposal/structure-and-formalizer-models.md` §4):
+- **PSM** (GLiNER2.5 base, 194M, pe CPU prin proxy, tier `structure`):
+  - găsește scopul întrebării la 7 din 30 de probleme;
+  - acoperă 62% din numere, cu precizie de 95%.
+- **LFM** (T5-base NL→FOL, 223M, tier `formalizer`):
+  - scrie FOL corect sintactic (99%), iar convertorul nostru îl duce în SOP-IR la 79% din propoziții;
+  - transformă doar 4 din 32 de întrebări în interogări;
+  - lipește numerele în numele predicatelor (`Sells24Muffins`);
+  - răspunde corect la 1 din 30, și acela un „nu” prin lume închisă.
+
+Convertoarele deterministe (FOL → SOP-IR → SOP, PSM → inventar) merg pe forma convenită: testele execută da/nu, „care”, constrângeri, ordine în timp, valori cu perturbare.
+
+**Rulările propuse** (detalii și reguli de oprire în `status/preregistrations/train-psm-lfm-v1.json`):
+- **D1, date de la profesori, fără antrenare.**
+  - `small` și `medium` formalizează independent ~2.750 de probleme nevăzute, din afara secțiunilor de test.
+  - Păstrez doar perechile al căror circuit dă răspunsul cărții și trece verificarea pe numere perturbate, cu ambii profesori de acord.
+  - Întâi un pilot de 50 de probleme. Buget LLMJobs: 9.000 de apeluri, 5 USD.
+  - Poarta: cel puțin 600 de probleme verificate (estimez ~1.100), altfel nu antrenez.
+- **T-PSM-1.** Fine-tune complet GLiNER2.5 base pe documentele PSM verificate: lr 1e-5 / 5e-5, batch 8, ≤10 epoci, oprire timpurie pe F1 de dev. Dacă GLiNER2.5 nu se poate antrena cu cod deschis, folosesc GLiNER2 base (208M).
+- **T-LFM-1.** Fine-tune complet, continuând din fvossel/t5-base-nl-to-fol, pe ~7.500 de perechi propoziție + inventar PSM → FOL cu extensia `Value`/`Ask`/comparații/`Before`: lr 3e-4, batch 16, ≤10 epoci, oprire timpurie pe execuția corectă pe dev.
+- **GPU:** sub 2 ore în total, pe GB10.
+- **Python:** antrenarea cere Python cu PyTorch CUDA. Propun imaginea Podman CUDA din ramura înghețată, folosită doar pentru antrenare; servirea rămâne Node, ONNX pe CPU.
+- **E1, evaluarea:**
+  - pe secțiunile de carte ținute deoparte (20% din secțiuni, ~690 de itemi);
+  - în etape 50/100/rest, cu bootstrap pereche față de formalizatorul actual și calea de expresii pe `tiny`.
+
+**Date și licențe:**
+- Datele de antrenare și checkpoint-urile rămân locale și nu se publică: drepturile cărților nu sunt clarificate (DS011).
+- Datele de antrenare ale fvossel sunt necomerciale.
+
+**Rezultate A/B (2026-10-03, după răspunsul tău; `experiments/proposal/structure-and-formalizer-models.md` §8):** aceleași 30 de probleme, aceleași convertoare, scor după răspunsul cărții, fără perturbare.
+- **`tiny` cu prompt de rol, ca PSM:** găsește scopul la 23/30 (GLiNER: 7/30), cu aceeași precizie la cantități.
+- **`tiny` ca LFM:** scrie interogări la 21/30 și dă 6 răspunsuri corecte (5 reale), 2 greșite.
+- **T5-base, T5-3B și Llama-1B NL→FOL:** cel mult 1 corect, și acela un „nu” prin lume închisă.
+- **Inventarul dat de PSM** nu ajută LFM-ul `tiny`.
+- **Concluzie:** nimic nu justifică antrenarea GLiNER/T5. Lipsurile rămase ale lui `tiny` sunt de limbaj: constrângeri „găsește x astfel încât…” și comparații infixe, care se rezolvă în convertor, nu prin antrenare.
+
+**Opțiuni:**
+- A) Aprobi D1, T-PSM-1, T-LFM-1 și E1 exact cum sunt scrise. Antrenarea pornește doar dacă D1 trece poarta de 600, și o notez în jurnal înainte de primul pas.
+- B) Aprobi doar D1 acum; antrenarea o hotărăști după ce vezi randamentul datelor.
+- C) Fără fine-tune: rămân modelele zero-shot ca experiment, iar formalizarea rămâne pe calea actuală.
+
+**Recomandare:** A. Poarta de date face din B un pas automat, iar costul total e mic (sub 5 USD, sub 2 ore de GPU). Pentru antrenare nu aplic recomandarea dacă lași răspunsul gol: aștept un „da” explicit.
+
+**Răspuns:** (owner în chat, 2026-10-03) „ok, pune ca posibilitate antrenarea, dar să testăm cu tiny decorat sau cu alte modele de bază întâi, să vedem ce obținem pe acest pattern”. Deci: amânat; NU e aprobare de antrenare. Întâi A/B cu tiny decorat (prompturi de rol PSM/LFM) și modele de bază gata antrenate; întrebarea rămâne deschisă până la rezultatele lor.

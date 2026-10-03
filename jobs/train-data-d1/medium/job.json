@@ -1,0 +1,25 @@
+{
+  "name": "train-data-d1",
+  "description": "D1 of status/preregistrations/train-psm-lfm-v1.json (teacher: tier medium): the teacher writes, for one book problem, the PSM structure (verbatim labelled spans, relations) and the per-sentence FOL with the agreed extension (Value, Ask, comparisons, Before/After, ? queries). checks.mjs accepts only replies our deterministic converters compile; execution against the book answer and the two-teacher perturbation agreement run afterwards (tools/eval/structure-formalizer/d1.mjs). Training data stays local (DS011).",
+  "kind": "formalize-psm-fol",
+  "prompt": "../prompt.md",
+  "inputs": {
+    "module": "../inputs.mjs",
+    "idField": "id",
+    "promptFields": ["sentences"]
+  },
+  "packing": {"itemsPerCall": 1},
+  "models": "tier:medium",
+  "fallbackOnFailure": false,
+  "output": {"format": "text"},
+  "checks": "../checks.mjs",
+  "repairRounds": 1,
+  "concurrency": 6,
+  "budget": {"usd": 4, "calls": 6000},
+  "stages": [
+    {"name": "pilot", "items": 50, "stop": {"maxEmptyRate": 0.2, "minItems": 20}},
+    {"name": "all", "items": null, "stop": {"maxEmptyRate": 0.2}}
+  ],
+  "decider": null,
+  "escalation": {"nextModel": false}
+}

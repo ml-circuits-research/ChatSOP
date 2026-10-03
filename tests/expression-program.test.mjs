@@ -141,12 +141,15 @@ test('cross-check: two formalizations agree on the numbers and on perturbed numb
   const agree = await crossCheck({expr, treeSop: tree('ceil(needed / per_crate) * price'), execute, registry: expr.registry, seed: 't'});
   assert.equal(agree.verdict, 'agree', JSON.stringify(agree));
   assert.ok(agree.lowering.ok);
-  assert.ok(agree.perturbed.length === 3 && agree.perturbed.every(p => p.agree));
+  assert.equal(agree.perturbed.length, 0, 'perturbation is off by default (owner decision 2026-10-03)');
   const off = await crossCheck({expr, treeSop: tree('needed / per_crate * price'), execute, registry: expr.registry, seed: 't'});
   assert.equal(off.verdict, 'disagree');
   assert.ok(off.divergent.expression.some(x => /^crates=5$/.test(x)), JSON.stringify(off.divergent));
-  // A tree that happens to give 35 on these numbers but not as a function of them is caught by the perturbation.
-  const lucky = await crossCheck({expr, treeSop: tree('price * 5'), execute, registry: expr.registry, seed: 't'});
+  // A tree that happens to give 35 on these numbers agrees on the original numbers; the optional perturbation (k > 0) tells it apart.
+  assert.equal((await crossCheck({expr, treeSop: tree('price * 5'), execute, registry: expr.registry, seed: 't'})).verdict, 'agree');
+  const perturbed = await crossCheck({expr, treeSop: tree('ceil(needed / per_crate) * price'), execute, registry: expr.registry, seed: 't', k: 3});
+  assert.ok(perturbed.verdict === 'agree' && perturbed.perturbed.length === 3 && perturbed.perturbed.every(p => p.agree));
+  const lucky = await crossCheck({expr, treeSop: tree('price * 5'), execute, registry: expr.registry, seed: 't', k: 3});
   assert.equal(lucky.verdict, 'disagree');
   assert.equal((await crossCheck({expr, treeSop: null, execute, registry: expr.registry})).verdict, 'single');
   assert.equal(answersAgree([35], [{values: [35]}]), true);
@@ -193,6 +196,11 @@ test('N-way selection: the largest agreeing cluster wins; a tie cascades; no maj
   const none = await selectByAgreement([await expr('a', right), await expr('b', wrong)], {registry: crates, execute, seed: 'n', cascade: async () => null});
   assert.equal(none.status, 'unresolved');
   assert.deepEqual(none.answers, []);
+  // Without perturbation a yes/no answer needs three agreeing formalizations (owner decision 2026-10-03), a value two.
+  const yes2 = await selectByAgreement([await expr('a', 'answer = v2 > v1\nunused: v3'), await expr('b', 'answer = v3 < v2\nunused: v1')], {registry: crates, execute});
+  assert.equal(yes2.status, 'unresolved');
+  const yes3 = await selectByAgreement([await expr('a', 'answer = v2 > v1\nunused: v3'), await expr('b', 'answer = v3 < v2\nunused: v1'), await expr('c', 'answer = v1 < v2\nunused: v3')], {registry: crates, execute});
+  assert.equal(yes3.status, 'selected'); assert.deepEqual(yes3.answers, [true]);
 });
 
 test('exemplars: retrieval by registry shape, nearest first, leave-one-out by the caller', async () => {

@@ -5,5 +5,5 @@
   "type": "module",
   "private": true,
   "engines": { "node": ">=22" },
-  "scripts": { "start": "node server.mjs", "test": "node --test proxy.test.mjs" }
+  "scripts": { "start": "node server.mjs", "test": "node --test proxy.test.mjs local-services/small-models/server.test.mjs" }
 }

@@ -121,6 +121,11 @@
       "id": "commonsense-knowledge",
       "title": "Common sense in the base memories",
       "scope": "The common-sense layer commonsense-v1 imported by the chat default base world-v1: WordNet classes, ConceptNet CC BY 4.0 typical relations, rules for classes, time, family, geography, units; its sources, checks and measured effect (eval-commonsense-v1)."
+    },
+    {
+      "id": "structure-formalizer-models",
+      "title": "Structure model and formalizer model (PSM, LFM)",
+      "scope": "The 2026-10-03 architecture: tiny at the edges, a small structure-extraction model (PSM, GLiNER2.5) and a small NL-to-FOL model (LFM, T5), deterministic PSM/FOL to SOP-IR to SOP converters, their serving in LLMAPIProvider, probes and fine-tuning."
     }
   ]
 }

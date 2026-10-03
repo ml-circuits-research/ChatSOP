@@ -6075,6 +6075,60 @@
     "state/dual-formalization/obl-100/summary.json",
     "state/dual-formalization/nway-b2-merged/summary.json"
    ]
+  },
+  {
+   "id": "psm-lfm-zero-shot-v1",
+   "name": "Zero-shot probe of the PSM (GLiNER2.5 base) and the LFM (T5-base NL-to-FOL) on 30 book problems",
+   "category": "reference-baseline",
+   "owner": "psm-lfm-agent",
+   "registered_at": "2026-10-03",
+   "hypothesis": "The two small models zero-shot extract the structure (quantities, goal) and write FOL that our deterministic converters turn into executable SOP.",
+   "preregistration": "none: coordinator-requested zero-shot probe (30 items, one schema variant); decides whether fine-tuning is needed",
+   "data_version": "datasets_sources/books/eval/items.jsonl (local, DS011), seed psm-lfm-1, 30 scorable unseen items stratified by book, marked seen",
+   "status": "done",
+   "models": [
+    "structure (GLiNER2.5 base ONNX, CPU)",
+    "formalizer (fvossel/t5-base-nl-to-fol ONNX, CPU)"
+   ],
+   "results": {
+    "psm": "quantity recall 86/139 (62%), numbers used by the solution 64/94 (68%), quantity precision 84/88 (95%), goal recall 7/30 (23%), goal precision 9/13; goal-description variant: goal recall 5/30 (stopped)",
+    "lfm_text": "205 units: parse 99%, convert to SOP-IR 79%, question units as queries 4/32; 3/30 compiled, 1 correct (closed-world no), 1 wrong; numbers: 40/139 as terms, 50 glued into predicate names, 49 absent",
+    "lfm_sketch": "0/25 compiled",
+    "speed": "CPU 4 threads/model: GLiNER median 0.35 s per problem, T5 ~87 tokens/s (3.0 s per problem)"
+   },
+   "conclusions": "Fine-tuning is needed for both models; the converters work on the agreed FOL form (tests). Plan and run-level approval request: experiments/proposal/structure-and-formalizer-models.md §6, status/preregistrations/train-psm-lfm-v1.json, questions.md Q-TRAIN-1.",
+   "links": [
+    "experiments/proposal/structure-and-formalizer-models.md",
+    "state/structure-formalizer/probe-1/summary.md"
+   ]
+  },
+  {
+   "id": "psm-lfm-ab-v1",
+   "name": "A/B of PSM and LFM backends (GLiNER, role-prompted tiny; T5-base, T5-3B, Llama-1B NL2FOL, role-prompted tiny) on 30 book problems",
+   "category": "reference-baseline",
+   "owner": "psm-lfm-agent",
+   "registered_at": "2026-10-03",
+   "hypothesis": "Before any training (owner), a role-prompted tiny or an off-the-shelf NL-to-FOL model can play the PSM and LFM roles at least as well as GLiNER and T5.",
+   "preregistration": "none: owner-requested A/B on the probe-1 items; scored by the book answer on the problem own numbers (no perturbation, owner decision 2026-10-03)",
+   "data_version": "datasets_sources/books/eval/items.jsonl (local), the 30 ids of state/structure-formalizer/probe-1",
+   "status": "done",
+   "models": [
+    "structure-gliner",
+    "structure-tiny (Qwen3-4B + prompts/psm-v1.md)",
+    "formalizer-t5",
+    "formalizer-t5-3b",
+    "formalizer-tiny (Qwen3-4B + prompts/fol-v1.md)",
+    "formalizer-llama-fol"
+   ],
+   "results": {
+    "psm": "goal found tiny 23/30 vs GLiNER 7/30; quantity recall 82/139 vs 86/139; precision 83/86 vs 84/88; 12.1 vs 0.4 s/problem",
+    "lfm": "correct tiny 6/30 (5 real, 2 wrong, queries 21/30, 2.9 s); GLiNER inventory + tiny 6 (1 wrong); tiny + tiny 3 (1 wrong); T5-base 1 (3 cand.) / 1 (greedy); T5-3B 1; Llama-1B 0; every T5 correct is a closed-world no"
+   },
+   "conclusions": "Role-prompted tiny beats every off-the-shelf small model in both roles; training of GLiNER/T5 not indicated; next: constraint-search construct and infix comparisons in the language/converters. Q-TRAIN-1 open.",
+   "links": [
+    "experiments/proposal/structure-and-formalizer-models.md",
+    "state/structure-formalizer/ab-1/summary.md"
+   ]
   }
  ]
 }

@@ -1,0 +1,26 @@
+{
+  "_note": "Local JSON service of LLMAPIProvider for the small non-chat models (owner decision 2026-10-03: PSM and LFM). The proxy starts it (upstream smallmodels, startAtBoot) and serves it as the tiers structure and formalizer; nobody starts it by hand. CPU only (onnxruntime-node has no CUDA provider on linux-arm64); threads caps the intra-op threads of each model (inter-op 1) so the machine stays usable. Model paths are relative to this folder.",
+  "host": "127.0.0.1",
+  "port": 19612,
+  "threads": 4,
+  "structure": {
+    "id": "gliner2.5-base-v1",
+    "dir": "../../../models/gliner2.5-base-v1-onnx",
+    "graphs": {
+      "model": "onnx/model.onnx",
+      "heads": "onnx/heads.onnx",
+      "records": "onnx/records.onnx"
+    },
+    "threshold": 0.5,
+    "maxWords": 1024
+  },
+  "formalizer": {
+    "id": "t5-base-nl-to-fol",
+    "dir": "../../../models/t5-base-nl-to-fol-onnx",
+    "prefix": "translate English natural language statements into first-order logic (FOL): ",
+    "maxNewTokens": 200,
+    "maxCandidates": 8,
+    "maxInputs": 64
+  },
+  "extraFormalizers": []
+}

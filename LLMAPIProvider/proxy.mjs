@@ -13,6 +13,7 @@ import { createCache, localIdentity, CACHE_MODES } from './cache.mjs';
 import { expandHome } from './settings.mjs';
 import { isAbsolute } from 'node:path';
 import { createJobGuard } from './jobs.mjs';
+import { loadTemplate, serveprompted } from './prompted.mjs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -56,8 +57,10 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
   // What serves a target: a tier's first chain entry (and a local GGUF's size and mtime); an upstream and the requested model.
   const identityOf = (upstreamName, model) => {
     const u = config.upstreams[upstreamName];
-    const gguf = u?.start?.gguf ? (() => { const e = expandHome(u.start.gguf); return isAbsolute(e) ? e : join(baseDir, e); })() : null;
-    return `${upstreamName}/${model}${gguf ? '@' + localIdentity(gguf) : ''}`;
+    const file = (p) => { const e = expandHome(p); return isAbsolute(e) ? e : join(baseDir, e); };
+    // A local GGUF, or the weight files a script upstream names in start.identity (the small-model service's ONNX graphs).
+    const files = [u?.start?.gguf, ...(u?.start?.identity || [])].filter(Boolean).map(file);
+    return `${upstreamName}/${model}${files.length ? '@' + files.map(localIdentity).join(',') : ''}`;
   };
   const secrets = [...Object.values(upstreams).map((u) => u.key), proxyToken].filter(Boolean);
   const monitor = new Monitor({ dataDir, secrets });
@@ -163,7 +166,8 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
   function tierList() {
     return [...new Set([...TIER_NAMES, ...Object.keys(tierDefs)])].map((id) => {
       const t = resolveTier(id);
-      return { id, object: 'model', x_tier: t.error ? { error: t.error } : { serves: `${t.first.upstream}/${t.first.model}`, fallback: t.rest.map((e) => `${e.upstream}/${e.model}`) } };
+      const name = (e) => `${e.upstream}/${e.model}${e.prompt ? `+${e.prompt}` : ''}`;
+      return { id, object: 'model', x_tier: t.error ? { error: t.error } : { serves: name(t.first), fallback: t.rest.map(name) } };
     });
   }
 
@@ -312,7 +316,9 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
         monitor.log(rec);
         if (auditing) { try { audit.record(rec, parsed, responseText(format, isSse, tail)); } catch { /* the audit never breaks a request */ } }
         // A cut or empty answer is never cached (finish_reason length / max_tokens, or no content): a retry with a larger budget must reach the model.
-        const complete = (() => { try { const j = JSON.parse(tail); const fr = j.choices?.[0]?.finish_reason ?? j.stop_reason; const text = format === 'anthropic' ? (j.content || []).map((c) => c.text || '').join('') : (j.choices?.[0]?.message?.content ?? ''); return fr !== 'length' && fr !== 'max_tokens' && String(text).trim() !== ''; } catch { return false; } })();
+        // A JSON endpoint that is not a chat format (the structure and formalizer tiers) is complete when it is JSON without an error.
+        const chatPath = Object.entries(up.formats || { openai: '/v1/chat/completions' }).some(([k, v]) => (k === 'openai' || k === 'anthropic') && v === path);
+        const complete = !chatPath ? (() => { try { const j = JSON.parse(tail); return j && typeof j === 'object' && !j.error; } catch { return false; } })() : (() => { try { const j = JSON.parse(tail); const fr = j.choices?.[0]?.finish_reason ?? j.stop_reason; const text = format === 'anthropic' ? (j.content || []).map((c) => c.text || '').join('') : (j.choices?.[0]?.message?.content ?? ''); return fr !== 'length' && fr !== 'max_tokens' && String(text).trim() !== ''; } catch { return false; } })();
         if (ctx.cacheKey && !isSse && r.status === 200 && !rec.error && complete) { try { cache.put(ctx.cacheKey, { body: tail, content_type: ctype || 'application/json', served: `${up.name}/${model}`, tier: ctx.tier ?? null }); } catch { /* the cache never breaks a request */ } }
         return { done: true };
       }, { cost }, priority);
@@ -321,6 +327,28 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
       if (!outcome.retry) return;
       n429 += 1;
     }
+  }
+
+  // Prompted JSON tiers (prompted.mjs): a tier entry with `prompt` serves /v1/structure or /v1/fol with a chat upstream and a template
+  // from promptsDir; every chat call goes through forward() (queued, logged, tagged with the tier), the JSON answer is cached as usual.
+  const promptsDir = resolve(HERE, config.promptsDir || 'prompts');
+  async function servePromptedTier(req, res, { tier, entry, up, path, body, cacheKey }) {
+    if (!body || (path === '/v1/structure' && (typeof body.text !== 'string' || !body.text.trim())) || (path === '/v1/fol' && (!Array.isArray(body.inputs) || !body.inputs.length || !body.inputs.every((x) => typeof x === 'string'))))
+      return sendJson(res, 400, { error: { type: 'invalid_request', message: path === '/v1/fol' ? 'inputs must be a non-empty list of sentences' : 'text must be a non-empty string' } });
+    let template;
+    try { template = loadTemplate(promptsDir, entry.prompt); } catch (e) { return sendJson(res, 500, { error: { type: 'tier_unavailable', message: e.message } }); }
+    const chat = async (messages, { temperature, maxTokens }) => {
+      const cap = { status: 0, chunks: [], headersSent: false, writableEnded: false, on() {}, writeHead(st) { this.status = st; this.headersSent = true; }, write(c) { this.chunks.push(Buffer.from(c)); }, end(c) { if (c) this.chunks.push(Buffer.from(c)); this.writableEnded = true; } };
+      const b = Buffer.from(JSON.stringify({ model: entry.model, messages, temperature, max_tokens: maxTokens, ...(entry.extraBody || {}) }));
+      await forward(req, cap, up, '/v1/chat/completions', b, { tier, chain: [], abort: new AbortController() });
+      const raw = Buffer.concat(cap.chunks).toString('utf8');
+      try { const j = JSON.parse(raw); if (cap.status !== 200) return { ok: false, status: cap.status, error: j.error?.message || raw.slice(0, 200) }; return { ok: true, text: j.choices?.[0]?.message?.content ?? '' }; }
+      catch { return { ok: false, status: cap.status || 502, error: raw.slice(0, 200) }; }
+    };
+    const r = await serveprompted({ path, body, entry, template, chat });
+    const served = `${up.name}/${entry.model}+${entry.prompt}`;
+    if (r.status === 200 && cacheKey) { try { cache.put(cacheKey, { body: JSON.stringify(r.body), content_type: 'application/json', served, tier }); } catch { /* the cache never breaks a request */ } }
+    return sendJson(res, r.status, r.body, { 'x-llmapiprovider-tier': tier, 'x-llmapiprovider-model': served });
   }
 
   async function handle(req, res) {
@@ -393,7 +421,9 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
         if (CACHE_MODES.includes(cacheMode) && parsedBody && !parsedBody.stream) {
           const tierTarget = up.name === config.defaultUpstream && !url.pathname.startsWith('/u/') && isTier(model) ? resolveTier(model) : null;
           const target = tierTarget && !tierTarget.error ? `tier:${model}` : up.name;
-          const identity = tierTarget && !tierTarget.error ? identityOf(tierTarget.first.upstream, tierTarget.first.model) : identityOf(up.name, model);
+          let identity = tierTarget && !tierTarget.error ? identityOf(tierTarget.first.upstream, tierTarget.first.model) : identityOf(up.name, model);
+          // A prompted entry's template is part of what serves the request: an edited template is a new key.
+          if (tierTarget?.first?.prompt) { try { identity += `#${tierTarget.first.prompt}@${loadTemplate(promptsDir, tierTarget.first.prompt).hash}`; } catch { /* reported when served */ } }
           cacheKey = cache.key({ path, target, identity, body: parsedBody });
           if (cacheMode !== 'record') {
             const hit = cache.get(cacheKey);
@@ -412,6 +442,7 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
           const t = resolveTier(model);
           if (t.error) return sendJson(res, 400, { error: { type: 'tier_unavailable', message: t.error } });
           const tup = upstreams[t.first.upstream];
+          if (t.first.prompt && path !== '/v1/chat/completions') return await servePromptedTier(req, res, { tier: model, entry: t.first, up: tup, path, body: parsedBody, cacheKey });
           if (!Object.values(tup.formats || { openai: '/v1/chat/completions' }).includes(path)) return sendJson(res, 400, { error: { type: 'tier_unavailable', message: `tier "${model}" serves ${t.first.upstream}, which has no endpoint ${path}` } });
           if (!modelCache[tup.name] && !tup.start) getModels(tup).catch(() => {});
           const body = Buffer.from(JSON.stringify({ ...JSON.parse(raw.toString('utf8')), model: t.first.model }));
@@ -431,5 +462,5 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
   for (const [name, st] of Object.entries(starters)) if (config.upstreams[name].start.startAtBoot) st.ensure().catch(() => {});
   const server = http.createServer(handle);
   server.requestTimeout = 0; server.headersTimeout = 30_000; server.keepAliveTimeout = 5_000;
-  return { server, monitor, limiters, upstreams, guard };
+  return { server, monitor, limiters, upstreams, guard, starters };
 }
