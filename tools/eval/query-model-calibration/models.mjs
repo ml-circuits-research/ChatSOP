@@ -16,10 +16,7 @@ const noThink = {chat_template_kwargs: {enable_thinking: false}};
 
 export const MODELS = {
   qwen27b: {kind: 'remote', model: 'openference/Qwen3.8 27b', cost_class: 'subscription', note: 'openference plan through the local proxy, one message per round'},
-  'qwen3-4b-q4': {kind: 'local', gguf: path.join(HOME, 'models/local-judge/Qwen3-4B-Instruct-2507-Q4_K_M.gguf'), name: 'Qwen3-4B-Instruct-2507 Q4_K_M', port: 19511, ctx: 32768, params_b: 4},
-  'qwen3-4b-q8': {kind: 'local', gguf: path.join(HOME, 'models/local-judge/Qwen3-4B-Instruct-2507-Q8_0.gguf'), name: 'Qwen3-4B-Instruct-2507 Q8_0', port: 19512, ctx: 32768, params_b: 4},
-  'qwen3-1.7b-q8': {kind: 'local', gguf: path.join(ROOT, 'models/proofing/gguf/qwen3-1.7b-q8_0.gguf'), name: 'Qwen3-1.7B Q8_0', port: 19513, ctx: 32768, params_b: 1.7, extraBody: noThink},
-  nemotron: {kind: 'local', gguf: path.join(HOME, 'models/NVIDIA-Nemotron-3-Nano-Omni/nemotron-3-nano-omni-ga_v1.0-Q8_0.gguf'), name: 'Nemotron-3-Nano-Omni Q8_0', port: 19514, ctx: 32768, params_b: 30, extraBody: noThink},
+  'qwen3-4b-q4': {kind: 'local', gguf: path.join(ROOT, 'models/qwen3-4b-instruct/gguf/q4_k_m.gguf'), name: 'Qwen3-4B-Instruct-2507 Q4_K_M', port: 19511, ctx: 32768, params_b: 4},
   deepseek: {kind: 'remote', model: 'openrouter/deepseek/deepseek-v4-flash', cost_class: 'paid_api', note: 'larger paid reference through the proxy (OpenRouter)'},
 };
 

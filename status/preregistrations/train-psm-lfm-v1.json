@@ -5,9 +5,9 @@
   "registered_at": "2026-10-03T07:30:00Z",
   "registered_by": "psm-lfm-agent (draft; frozen when the owner confirms Q-TRAIN-1 in questions.md)",
   "spec": "docs/specs/DS007-experiment-preregistration.md#registered-experiments",
-  "owner_request": "Owner decision 2026-10-03: new formalization architecture (tiny at the edges; PSM extracts structure; LFM writes FOL; deterministic translation to SOP). Owner sentence: \"facem fine tuning la modelele alea două mici, dacă e cazul\" (fine-tune the two small models, if needed). Run-level confirmation asked in questions.md Q-TRAIN-1.",
-  "status": "deferred: training NOT approved (owner, Q-TRAIN-1, 2026-10-03: test decorated tiny and off-the-shelf base models first); D1 stopped after its pilot",
-  "frozen_before_results": "Written after the zero-shot probe (state/structure-formalizer/probe-1, experiments/proposal/structure-and-formalizer-models.md §4) and before any teacher data generation, any optimizer step and any prediction of a fine-tuned checkpoint.",
+  "owner_request": "Owner decision 2026-10-03: new formalization architecture (tiny at the edges; PSM extracts structure; LFM writes FOL; deterministic translation to SOP). Owner sentence: \"facem fine tuning la modelele alea dou\u0103 mici, dac\u0103 e cazul\" (fine-tune the two small models, if needed). Run-level confirmation asked in questions.md Q-TRAIN-1.",
+  "status": "withdrawn",
+  "frozen_before_results": "Written after the zero-shot probe (state/structure-formalizer/probe-1, experiments/proposal/structure-and-formalizer-models.md \u00a74) and before any teacher data generation, any optimizer step and any prediction of a fine-tuned checkpoint.",
   "question": "Do the two fine-tuned small models (PSM + LFM) with the deterministic FOL/PSM-to-SOP converters formalize held-out book problems better than the current pipeline (correct up, wrong not up)?",
   "needed": "yes, from the zero-shot probe on 30 problems: PSM goal recall 7/30, quantity recall 86/139; LFM question units as queries 4/32, numbers glued into predicate names 50/139, 1/30 correct (closed-world no).",
   "hypotheses": [
@@ -17,7 +17,7 @@
   "data": {
     "pool": "datasets_sources/books/eval/items.jsonl scorable (tools/eval/structure-formalizer/gold.mjs), never seen (seen.jsonl), local only (DS011)",
     "test": "20% of the sections of each book by sha256(seed train-psm-lfm-v1/section), frozen before D1; never in training; ~690 items",
-    "generation": "D1: teachers small (Qwen3.8 27b) and medium (deepseek-v4-flash) each write PSM spans+relations and per-sentence FOL in the agreed target (structure-and-formalizer-models.md §5); one repair round each; pilot 50 problems, at most 2 prompt-fix rounds, then the pool (~2,750)",
+    "generation": "D1: teachers small (Qwen3.8 27b) and medium (deepseek-v4-flash) each write PSM spans+relations and per-sentence FOL in the agreed target (structure-and-formalizer-models.md \u00a75); one repair round each; pilot 50 problems, at most 2 prompt-fix rounds, then the pool (~2,750)",
     "keep": "verbatim spans; FOL compiles with no rejected unit bearing a number or the question; executes to the book answer (lib/formalize/equivalence.mjs); the executed circuit gives the book answer on the problem own numbers and passes the static data-dependency check (no perturbation, deviation 2026-10-03); PSM goal and quantity spans of both teachers overlap; every number of the verified program inside a quantity span",
     "sizes": "go gate >= 600 verified problems (expected ~1,100 => ~7,500 LFM sentence pairs, ~1,100 PSM documents); no section above 10%",
     "budget": "LLMJobs: calls 9000, usd 5; small ~275 plan credits"
@@ -44,6 +44,10 @@
     {
       "at": "2026-10-03T08:25:00Z",
       "what": "Perturbation check dropped from scoring and acceptance (owner decision): invented variants can be invalid problems and the check caught only a handful of lucky circuits. Replacement: (1) a pipeline is right when its executed SOP gives the book answer on the problem own numbers; (2) a static check refuses a circuit whose answer does not depend on the problem numbers through its dataflow (lib/formalize/fol/to-sop.mjs, as lib/formalize/expression-program.mjs already did for copies and constants); (3) verification without gold: two formalizations agree on the original numbers, three for yes/no answers (lib/formalize/dual-check.mjs, perturbation optional, off by default). The D1 keep rule and E1 are amended accordingly."
+    },
+    {
+      "date": "2026-10-03",
+      "note": "Withdrawn by the owner: 'nu facem fine tuning la ele, ai demonstrat c\u0103 nu are sens'. The A/B showed role-prompted tiny (now the Qwen3.6-35B-A3B MoE) beating GLiNER2.5 and T5 NL->FOL zero-shot; no training run was started."
     }
   ]
 }

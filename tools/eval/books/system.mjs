@@ -20,7 +20,7 @@ import fs from 'node:fs';
 import {localServer, localChat} from '../../../lib/local-llm/index.mjs';
 
 export const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
-export const MODEL_GGUF = path.join(os.homedir(), 'models/local-judge/Qwen3-4B-Instruct-2507-Q4_K_M.gguf');
+export const MODEL_GGUF = path.join(path.dirname(new URL(import.meta.url).pathname), '../../../models/qwen3-4b-instruct/gguf/q4_k_m.gguf');
 export const LOCAL = {...DEFAULT_LOCAL, gguf: MODEL_GGUF, alias: 'qwen3-4b-instruct', port: 19611, slots: ['direct', 'steps'], ctxPerSlot: 16384, maxTokens: 1500, thinking: false, method: 'B'};
 
 /** The default chat base memory (config chatData.defaultBase, world-v1 over core-en and commonsense-v1) in a private session; `endpoint` reuses a running llama-server. */
