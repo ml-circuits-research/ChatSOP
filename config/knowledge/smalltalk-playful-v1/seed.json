@@ -49,36 +49,32 @@
       "playful": 118,
       "warm": 3
     },
-    "rules": 0,
-    "data_facts": 8,
+    "rules": 2,
+    "data_facts": 110,
     "mean_distinct_1": 0.74,
     "mean_distinct_2": 0.923,
     "near_duplicates_dropped": 1
   },
-  "proposed_kinds": [
+  "acts": [
     {
       "kind": "ask_joke",
-      "situation": "playful_joke",
-      "part": "body",
-      "describe": "The user asks for a joke. Tell one short, clean, inoffensive joke (wordplay, science, animals, everyday life; no jokes about groups of people, religion, politics, disasters or violence). One joke per variant; each variant a different joke and a different kind of joke."
+      "group": "play",
+      "situation": "playful_joke"
     },
     {
       "kind": "ask_riddle",
-      "situation": "playful_riddle",
-      "part": "body",
-      "describe": "The user asks for a riddle. Give one short classic-style riddle with its answer in the same reply, written as: the riddle, then a space, then (Answer: ...). Each variant a different riddle with a correct, unambiguous answer."
+      "group": "play",
+      "situation": "playful_riddle"
     },
     {
       "kind": "laughter",
-      "situation": "playful_laughter",
-      "part": "body",
-      "describe": "The user only laughs (haha, lol, :D). Respond lightly and briefly; offer another joke, a riddle, or a question."
+      "group": "play",
+      "situation": "playful_laughter"
     },
     {
       "kind": "banter",
-      "situation": "playful_banter",
-      "part": "body",
-      "describe": "The user teases you playfully (you're just a robot, bet you can't beat me at chess, are you smarter than me). Answer with light, good-natured humour that stays honest about what you are; lead back to a question."
+      "group": "play",
+      "situation": "playful_banter"
     }
   ]
 }

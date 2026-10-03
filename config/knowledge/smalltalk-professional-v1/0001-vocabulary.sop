@@ -4,4 +4,4 @@
 @st_formal_variant predicate
   args subject:entity object:entity
   closed true
-  description "the situation (object) is the formal-register variant of the situation (subject); it applies whenever the subject applies and outranks it by one"
+  description "the situation (object) is the formal-register variant of the situation (subject); while the register is formal it applies whenever the subject applies and outranks it by one"

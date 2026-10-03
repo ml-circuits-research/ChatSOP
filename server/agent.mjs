@@ -4,7 +4,7 @@ import {AuthorRuntime, memoryCircuits} from '../lib/query-author/runtime.mjs';
 import {authorExecution} from '../lib/query-author/execution-context.mjs';
 import {Sessions} from '../lib/chat-data/sessions.mjs';
 import {composeReply, answered, layerInfo} from '../lib/conversation/index.mjs';
-import {behaviourOf, applyInstructions, overlayOf, timeFacts, recordReactions} from '../lib/conversation/behaviour.mjs';
+import {behaviourOf, applyInstructions, overlayOf, timeFacts, recordReactions, personalFacts} from '../lib/conversation/behaviour.mjs';
 import {entityRelations} from '../lib/near-miss.mjs';
 import {factSentence} from '../sop/answer-text.mjs';
 import {nearMiss} from '../lib/near-miss.mjs';
@@ -116,7 +116,9 @@ export class Agent{
   const instructed=packet.instruction_outcome??applyInstructions(state,[],clock);
   delete packet.instruction_outcome;
   const aside=computed&&answered(packet)?this.asideFact(packet,now):null;
-  const composed=composeReply({packet,answerText,near,topics:topicsOf(this.lexicon),aside,seed:now,facts:[...instructed.facts,...timeFacts(state,info,clock),...facts],slots:{...instructed.slots,...slots},overlay:overlayOf(state)});
+  // The user's name (kept from an act that sets a slot) and the time of day: facts and slots when known, nothing otherwise (P-2.3).
+  const personal=personalFacts(state,packet.pragmatic??[],info,clock);
+  const composed=composeReply({packet,answerText,near,topics:topicsOf(this.lexicon),aside,seed:now,facts:[...instructed.facts,...timeFacts(state,info,clock),...personal.facts,...facts],slots:{...instructed.slots,...personal.slots,...slots},overlay:overlayOf(state)});
   recordReactions(state,composed.reply,info,clock);
   packet.reply=composed.reply;
   packet.behaviour={turn:clock.turn,instructions:state.instructions.map(i=>({id:i.id,kind:i.kind,text:i.text??null,since_turn:i.set.turn})),...(instructed.changes.length?{changes:instructed.changes}:{})};

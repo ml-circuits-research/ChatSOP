@@ -1,7 +1,8 @@
 // The small-talk collections (config/knowledge/smalltalk-*-v1, tools/smalltalk/build.mjs; DS022 "Composing a base memory"): each
 // loads alone (it imports conversation-v1) or with the others, passes the knowledge validator, uses only the slots its situations get,
 // and the JS oracle chooses its replies by the layer's own data: new situations by pragmatic kind and priority, the variants that name
-// the memory's topics, the formal register of smalltalk-professional-v1 outranking its base, and the answer still first.
+// the memory's topics, the formal and playful registers (only while the conversation's register is theirs), data tie-breaks, and the
+// answer still first.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -50,14 +51,26 @@ test('the oracle picks the collections\' situations by the layer\'s data: kinds,
   assert.equal(chooseReplies(turnFacts({status: 'unclear', unclear_kind: 'relation_not_in_memory'}, {}), {layer, seed: 1}).body.situation, 'relation_missing');
 });
 
-test('loading smalltalk-professional-v1 makes the formal register win; smalltalk-playful-v1 adds variants to the same situations', () => {
-  const pro = layerOf([...DEFAULT.filter(id => id !== 'smalltalk-playful-v1'), 'smalltalk-professional-v1']);
-  const greet = chooseReplies(courtesy('greeting'), {layer: pro, seed: 1});
-  assert.equal(greet.body.situation, 'courtesy_greeting_formal');
-  assert.ok(greet.body.why.some(l => l.includes('stf_r_formal')), 'the derivation names the register rule');
-  assert.equal(chooseReplies(courtesy('grief'), {layer: pro, seed: 1}).body.situation, 'empathy_grief_formal');
+test('the register is per conversation: the formal and playful variants win only while the user\'s register instruction is active', () => {
+  const all = layerOf([...DEFAULT, 'smalltalk-professional-v1']);
+  assert.equal(chooseReplies(courtesy('greeting'), {layer: all, seed: 1}).body.situation, 'courtesy_greeting', 'no register: the base situation');
+  const formal = chooseReplies([...courtesy('greeting'), 'cv_instruction_active formal'], {layer: all, seed: 1});
+  assert.equal(formal.body.situation, 'courtesy_greeting_formal');
+  assert.ok(formal.body.why.some(l => l.includes('stf_r_formal')) && formal.body.why.some(l => l.includes('cv_r_register')), 'the derivation names the register rules');
+  assert.equal(chooseReplies([...courtesy('grief'), 'cv_instruction_active formal'], {layer: all, seed: 1}).body.situation, 'empathy_grief_formal');
+  assert.equal(chooseReplies([...courtesy('greeting'), 'cv_instruction_active playful'], {layer: all, seed: 1}).body.situation, 'courtesy_greeting_playful');
   const plain = layerOf(['smalltalk-core-v1']), playful = layerOf(['smalltalk-core-v1', 'smalltalk-playful-v1']);
-  assert.ok(playful.bySituation.get('courtesy_greeting').length > plain.bySituation.get('courtesy_greeting').length);
+  assert.equal(playful.bySituation.get('courtesy_greeting').length, plain.bySituation.get('courtesy_greeting').length, 'playful variants are their own situation');
+  assert.ok(playful.bySituation.get('courtesy_greeting_playful').length > 0);
+});
+
+test('ties between situations of one priority are broken by data (cv_situation_outranks), never by the order of the replies', () => {
+  const layer = layerOf(DEFAULT);
+  // ask_joke and out_of_scope_task both select a body at priority 78; the taxonomy's tie_rank puts the joke first.
+  const joke = chooseReplies(courtesy('out_of_scope_task', 'ask_joke'), {layer, seed: 1});
+  assert.equal(joke.body.situation, 'playful_joke');
+  assert.equal(joke.body.tie, undefined, 'no tie left open');
+  for (const seed of [1, 2, 3]) assert.equal(chooseReplies(courtesy('ask_joke', 'out_of_scope_task'), {layer, seed}).body.situation, 'playful_joke');
 });
 
 test('every reply of the collections fills from the slots its situation gets', () => {

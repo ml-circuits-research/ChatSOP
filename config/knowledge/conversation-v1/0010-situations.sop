@@ -131,10 +131,17 @@
   when absent cv_style_detailed
   then cv_style short
 
-# --- the candidates
+# --- the candidates: a reply of an applicable situation, in the turn's language, whose slots the turn can fill (P-2.3: a reply that
+# names the user's name or the time of day is left out when the turn does not know them, instead of failing the turn)
+@cv_r_unfillable rule
+  when cv_reply_slot ?r ?x
+  when absent cv_turn_slot ?x
+  then cv_reply_unfillable ?r
+
 @cv_r_applicable rule
   when cv_reply_for ?r ?s
   when cv_applies ?s
   when cv_reply_language ?r ?l
   when cv_turn_language ?l
+  when absent cv_reply_unfillable ?r
   then cv_applicable_reply ?r

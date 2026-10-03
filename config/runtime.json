@@ -60,7 +60,7 @@
     "_note": "The chat's reply memory (DS022 \"Composing a base memory\", DS023 \"Conversation layer\"): composed from these layers when it is missing; rebuild it with other layers on /admin (base-memory composer).",
     "memory": "conversation-default",
     "name": "Conversation (default set)",
-    "layers": ["conversation-v1", "smalltalk-core-v1", "smalltalk-empathy-v1", "smalltalk-self-v1", "smalltalk-playful-v1"]
+    "layers": ["conversation-v1", "smalltalk-core-v1", "smalltalk-empathy-v1", "smalltalk-self-v1", "smalltalk-playful-v1", "smalltalk-professional-v1"]
   },
   "answerLanguage": {
     "providers": [

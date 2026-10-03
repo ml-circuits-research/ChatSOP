@@ -20,6 +20,7 @@
 import {parse as parseKnowledge, validateWires, GRAMMAR, leaves, tokens, DECIMAL, VAR} from '../../sop/knowledge/index.mjs';
 import {parse as parseModel, SPEC, words, isMatch, parseMatch} from '../../sop/parser.mjs';
 import {parseCondition as parseModelCondition} from '../../sop/conditions.mjs';
+import {enumValues} from './checks.mjs';
 import {ENUMS, LINK_WORDS, LINK_KEYWORDS} from '../../sop/enums.mjs';
 import {MODEL_TYPES} from '../../sop/declarative.mjs';
 import {circuitFeatures} from '../../reasoning/router/features.mjs';
@@ -161,7 +162,7 @@ export function modelTags(text) {
     tags.add('m.wire.' + w.type);
     for (const [key, values] of Object.entries(w.fields)) {
       tags.add(`m.field.${w.type}.${key}`);
-      const allowed = ENUMS[w.type]?.[key];
+      const allowed = enumValues(w.type, key);
       for (const v of values) {
         const head = words(v)[0];
         if (allowed?.includes(v.trim())) tags.add(`m.enum.${w.type}.${key}.${v.trim()}`);

@@ -104,3 +104,77 @@
   args none
   closed true
   description "the message is courtesy or emotion only: nothing to look up"
+
+# --- message acts (P-2.1, 2026-10-03): what a message does besides asking or stating, declared as data. The formalizer may write a
+# `pragmatic` wire only with a kind declared here (or in another layer of the reply memory); the step-by-step protocol asks the groups
+# in a first, coarse question and the acts of each group the message shows in a second, fine one (sop/message-acts.mjs).
+@cv_act_group predicate
+  args subject:entity object:text
+  closed true
+  description "a group of message acts (subject), asked as this line (object) of the coarse question; groups are asked in file order"
+@cv_act predicate
+  args subject:entity object:entity
+  closed true
+  description "the message act (subject) belongs to the group (object); an act of a group without a line is valid but not asked"
+@cv_act_description predicate
+  args subject:entity object:text
+  closed true
+  description "what the message act (subject) means, as one line (object) of the fine question"
+@cv_act_example predicate
+  args subject:entity object:text
+  closed true
+  description "a short example message (object) that shows the act (subject); shown after its line"
+@cv_act_standalone predicate
+  args subject:entity
+  closed true
+  description "the act (subject) can be the whole request (how are you, tell me a joke): when the kind of answer asks for a lookup, the protocol asks whether the message also asks about the world"
+@cv_act_span predicate
+  args subject:entity object:text
+  closed true
+  description "for the act (subject) the protocol copies this part of the message (object) verbatim, as the span of the pragmatic wire"
+@cv_act_sets_slot predicate
+  args subject:entity object:entity
+  closed true
+  description "the span of the act (subject) fills this conversation slot (object) from this turn on (user_name)"
+
+# --- personalisation, register and ties (P-2.2 to P-2.4, 2026-10-03)
+@cv_turn_slot predicate
+  args subject:entity
+  closed true
+  description "the turn can fill this slot (subject): a reply that names another slot is not applicable"
+@cv_reply_slot predicate
+  args subject:entity object:entity
+  closed true
+  description "the reply wire (subject) names the slot (object) in its text; read from the reply wires"
+@cv_reply_unfillable predicate
+  args subject:entity
+  closed true
+  description "the reply wire (subject) names a slot the turn cannot fill"
+@cv_turn_user_name predicate
+  args none
+  closed true
+  description "the user told their name in this conversation (slot user_name)"
+@cv_turn_time_of_day predicate
+  args subject:entity
+  closed true
+  description "the part of the day (subject: morning, afternoon, evening, night) by the clock of the turn (slot time_of_day)"
+@cv_day_part_starts predicate
+  args subject:entity object:integer
+  closed true
+  description "the part of the day (subject) starts at this hour (object) of the turn's clock and lasts until the next part starts"
+@cv_greeting_day_part predicate
+  args subject:entity
+  closed true
+  description "a greeting may name this part of the day (subject): good morning, good afternoon, good evening"
+@cv_register_kind predicate
+  args subject:entity
+  closed true
+  description "an instruction of this kind (subject) chooses the register of the replies (formal, playful)"
+@cv_register predicate
+  args subject:entity
+  closed true
+  description "the replies of this conversation are in this register (subject); the register collections' variants test it"
+@cv_situation_outranks predicate
+  args subject:entity object:entity
+  closed true
+  description "when the situations (subject) and (object) apply to the same part with the same priority, the subject is used"

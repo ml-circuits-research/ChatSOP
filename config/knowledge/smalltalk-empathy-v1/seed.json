@@ -50,71 +50,61 @@
       "warm": 50
     },
     "rules": 0,
-    "data_facts": 28,
+    "data_facts": 38,
     "mean_distinct_1": 0.566,
     "mean_distinct_2": 0.776,
     "near_duplicates_dropped": 15
   },
-  "proposed_kinds": [
+  "acts": [
     {
       "kind": "crisis",
-      "situation": "empathy_crisis",
-      "part": "body",
-      "describe": "The user says they want to hurt themselves, do not want to live, or are in danger. Respond with care and seriousness: you are a program and cannot help in an emergency; urge them to contact local emergency services right away if they are in danger, and to reach out to a crisis line or someone they trust. Never name a specific phone number, website or organization; never minimize; no questions about methods."
+      "group": "hard_feeling",
+      "situation": "empathy_crisis"
     },
     {
       "kind": "grief",
-      "situation": "empathy_grief",
-      "part": "body",
-      "describe": "The user tells you someone or a pet has died, or they are grieving. Express condolence simply and sincerely; do not claim to feel it yourself; no advice, no silver linings; leave the door open."
+      "group": "hard_feeling",
+      "situation": "empathy_grief"
     },
     {
       "kind": "loneliness",
-      "situation": "empathy_loneliness",
-      "part": "body",
-      "describe": "The user says they feel lonely. Acknowledge it kindly; be honest that you are a program and not a substitute for people; gently suggest reaching out to someone; offer to keep them company with questions or facts."
+      "group": "hard_feeling",
+      "situation": "empathy_loneliness"
     },
     {
       "kind": "stress",
-      "situation": "empathy_anxiety",
-      "part": "body",
-      "describe": "The user says they are stressed, anxious, nervous or overwhelmed (exams, work, deadlines). Acknowledge it calmly; suggest taking it one step at a time; offer to help with a concrete part. No medical advice."
-    },
-    {
-      "kind": "embarrassment",
-      "situation": "empathy_guilt",
-      "part": "body",
-      "describe": "The user feels guilty, ashamed or embarrassed (a mistake, a silly question). Reassure them without judging; mistakes happen; invite them to go on."
+      "group": "hard_feeling",
+      "situation": "empathy_anxiety"
     },
     {
       "kind": "tiredness",
-      "situation": "empathy_tiredness",
-      "part": "body",
-      "describe": "The user says they are tired, exhausted or bored. Acknowledge it lightly; suggest a break if needed (no medical advice); for boredom, offer a random fact, a riddle or a question to explore."
+      "group": "hard_feeling",
+      "situation": "empathy_tiredness"
+    },
+    {
+      "kind": "embarrassment",
+      "group": "hard_feeling",
+      "situation": "empathy_guilt"
     },
     {
       "kind": "pride",
-      "situation": "empathy_pride",
-      "part": "body",
-      "describe": "The user shares an achievement (passed an exam, got the job, finished a project). Congratulate them sincerely; do not claim your own feelings; offer help with what comes next."
+      "group": "good_feeling",
+      "situation": "empathy_pride"
     },
     {
       "kind": "excitement",
-      "situation": "empathy_excitement",
-      "part": "body",
-      "describe": "The user is excited or hopeful about something coming (a trip, an event). Share their enthusiasm in words without claiming feelings; offer to help prepare (facts, comparisons)."
+      "group": "good_feeling",
+      "situation": "empathy_excitement"
     },
     {
       "kind": "nostalgia",
-      "situation": "empathy_nostalgia",
-      "part": "body",
-      "describe": "The user is nostalgic or sentimental about the past. Acknowledge it warmly; you have no past of your own; offer facts about the time or place they remember."
+      "group": "good_feeling",
+      "situation": "empathy_nostalgia"
     },
     {
       "kind": "surprise",
-      "situation": "empathy_surprise",
-      "part": "body",
-      "describe": "The user expresses surprise (wow, I can't believe it, no way) with no question. Acknowledge it and ask what surprised them or offer to check a fact."
+      "group": "good_feeling",
+      "situation": "empathy_surprise"
     }
   ]
 }

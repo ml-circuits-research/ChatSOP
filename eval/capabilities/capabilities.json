@@ -226,10 +226,10 @@
   "link×certainty"
  ],
  "counts": {
-  "capabilities": 975,
+  "capabilities": 980,
   "combinations": 556,
   "knowledge": 661,
-  "model": 265
+  "model": 270
  },
  "capabilities": [
   {
@@ -7889,7 +7889,7 @@
    ]
   },
   {
-   "id": "m.enum.pragmatic.kind.urgency",
+   "id": "m.enum.pragmatic.kind.introduction",
    "surface": "model",
    "kind": "enum",
    "layers": [
@@ -7925,16 +7925,7 @@
    ]
   },
   {
-   "id": "m.enum.pragmatic.kind.curiosity",
-   "surface": "model",
-   "kind": "enum",
-   "layers": [
-    "L1",
-    "L3"
-   ]
-  },
-  {
-   "id": "m.enum.pragmatic.kind.joy",
+   "id": "m.enum.pragmatic.kind.urgency",
    "surface": "model",
    "kind": "enum",
    "layers": [
@@ -7970,7 +7961,7 @@
    ]
   },
   {
-   "id": "m.enum.pragmatic.kind.hedge",
+   "id": "m.enum.pragmatic.kind.joy",
    "surface": "model",
    "kind": "enum",
    "layers": [
@@ -7979,16 +7970,7 @@
    ]
   },
   {
-   "id": "m.enum.pragmatic.kind.emphasis",
-   "surface": "model",
-   "kind": "enum",
-   "layers": [
-    "L1",
-    "L3"
-   ]
-  },
-  {
-   "id": "m.enum.pragmatic.kind.profanity",
+   "id": "m.enum.pragmatic.kind.curiosity",
    "surface": "model",
    "kind": "enum",
    "layers": [
@@ -7998,6 +7980,15 @@
   },
   {
    "id": "m.enum.pragmatic.kind.offensive",
+   "surface": "model",
+   "kind": "enum",
+   "layers": [
+    "L1",
+    "L3"
+   ]
+  },
+  {
+   "id": "m.enum.pragmatic.kind.profanity",
    "surface": "model",
    "kind": "enum",
    "layers": [
@@ -8025,6 +8016,24 @@
   },
   {
    "id": "m.enum.pragmatic.kind.topic_shift",
+   "surface": "model",
+   "kind": "enum",
+   "layers": [
+    "L1",
+    "L3"
+   ]
+  },
+  {
+   "id": "m.enum.pragmatic.kind.hedge",
+   "surface": "model",
+   "kind": "enum",
+   "layers": [
+    "L1",
+    "L3"
+   ]
+  },
+  {
+   "id": "m.enum.pragmatic.kind.emphasis",
    "surface": "model",
    "kind": "enum",
    "layers": [
@@ -8210,6 +8219,24 @@
   },
   {
    "id": "m.enum.instruction.kind.detailed",
+   "surface": "model",
+   "kind": "enum",
+   "layers": [
+    "L1",
+    "L3"
+   ]
+  },
+  {
+   "id": "m.enum.instruction.kind.formal",
+   "surface": "model",
+   "kind": "enum",
+   "layers": [
+    "L1",
+    "L3"
+   ]
+  },
+  {
+   "id": "m.enum.instruction.kind.playful",
    "surface": "model",
    "kind": "enum",
    "layers": [
@@ -8891,6 +8918,22 @@
   },
   {
    "id": "m.check.order_random_mode",
+   "surface": "model",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "m.check.pragmatic_kind_form",
+   "surface": "model",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "m.check.pragmatic_kind_unknown",
    "surface": "model",
    "kind": "check",
    "layers": [

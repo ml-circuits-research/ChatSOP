@@ -139,22 +139,28 @@ export const MAX_SPAN = 200;
 export const LINK_STATUSES = Object.freeze(['applied', 'not_checked']);
 
 /**
- * `pragmatic` (DS023, owner decisions of 2026-10-01 and 2026-10-02): what a message does besides stating or asking (courtesy,
- * emotion, tone), written by the formalizer in the same understanding step as the query (basis `llm`). The closed kinds and the
- * closed bases (how the signal was found) are listed here; a signal is the system's subjective perception, never a fact about
- * the world: it shapes the reply (a courtesy reply, the tone of an answer) and never becomes evidence.
+ * `pragmatic` (DS023, owner decisions of 2026-10-01 to 2026-10-03): what a message does besides stating or asking (courtesy, emotion,
+ * small talk, a request to the assistant itself), written by the formalizer in the same understanding step as the query (basis `llm`).
+ * The kinds are memory data since 2026-10-03 (P-2.1): the message acts the reply memory declares (`cv_act`, sop/message-acts.mjs),
+ * checked by the parser against the reply memory in use; a kind here is only a lowercase symbol. The bases (how the signal was found)
+ * stay closed. A signal is the system's subjective perception, never a fact about the world: it shapes the reply and never becomes
+ * evidence.
  */
-export const PRAGMATIC_KINDS = Object.freeze(['greeting', 'closing', 'thanks', 'apology', 'politeness', 'urgency', 'frustration', 'anger', 'confusion', 'curiosity', 'joy', 'sadness', 'fear', 'disappointment', 'hedge', 'emphasis', 'profanity', 'offensive', 'irony_possible', 'confirmation_request', 'topic_shift', 'unclassified']);
+export const PRAGMATIC_KIND_FORM = /^[a-z][a-z0-9_]*$/;
 export const PRAGMATIC_BASES = Object.freeze(['lexicon', 'pattern', 'classifier', 'llm']);
 
 /**
  * `instruction` (behaviour layer, owner decision of 2026-10-02): what the user asks about how the assistant should answer from now on,
  * written by the formalizer. `do set` adds an instruction, `do cancel` withdraws the active one of its kind (or all, without a kind),
  * `do list` asks for the active instructions. The kinds: `prefix` and `suffix` (start or end every answer with the verbatim `text`),
- * `short` and `detailed` (the answer style). An instruction is never a fact: it becomes behaviour data of the conversation (DS023).
+ * `short` and `detailed` (the answer style), `formal` and `playful` (the register of the replies, P-2.2, 2026-10-03). An instruction is
+ * never a fact: it becomes behaviour data of the conversation (DS023).
  */
 export const INSTRUCTION_ACTIONS = Object.freeze(['set', 'cancel', 'list']);
-export const INSTRUCTION_KINDS = Object.freeze(['prefix', 'suffix', 'short', 'detailed']);
+export const INSTRUCTION_KINDS = Object.freeze(['prefix', 'suffix', 'short', 'detailed', 'formal', 'playful']);
+/** Instruction kinds that set the answer style (`cv_style`) and the register of the replies (`cv_instruction_active`, `cv_register`). */
+export const INSTRUCTION_STYLE_KINDS = Object.freeze(['short', 'detailed']);
+export const INSTRUCTION_REGISTER_KINDS = Object.freeze(['formal', 'playful']);
 /** Instruction kinds that carry the verbatim `text` they add to every answer. */
 export const INSTRUCTION_TEXT_KINDS = Object.freeze(['prefix', 'suffix']);
 
@@ -168,7 +174,7 @@ export const ENUMS = Object.freeze({
   assumed: {polarity: [...POLARITIES], basis: [...BASES]},
   unclear: {kind: Object.keys(UNCLEAR_KINDS), language: [...REPLY_LANGUAGES], readingKinds: [...READING_KINDS]},
   unparsed: {hint: [...UNPARSED_HINTS]},
-  pragmatic: {kind: [...PRAGMATIC_KINDS], basis: [...PRAGMATIC_BASES]},
+  pragmatic: {basis: [...PRAGMATIC_BASES]},
   instruction: {do: [...INSTRUCTION_ACTIONS], kind: [...INSTRUCTION_KINDS]},
 });
 

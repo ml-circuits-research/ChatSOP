@@ -25,6 +25,7 @@ import {replayStore, modelIdentity} from '../../../lib/formalize/replay-cache.mj
 /** The record/replay cache of the regression (answers derived from the books: gitignored, DS011). */
 export const REPLAY_DIR = process.env.FR_REPLAY_DIR ? path.resolve(process.env.FR_REPLAY_DIR) : path.join(ROOT, 'datasets_sources/formalization-regression/replay');
 import {openChatTurn} from '../books/system.mjs';
+import {useConfiguredReplyLayer} from '../../../lib/conversation/index.mjs';
 import {attribution} from '../books/attribution.mjs';
 import {responseOf, deterministic, JUDGE_SYSTEM} from '../books/score.mjs';
 import {providerChat} from '../../../lib/llm-providers.mjs';
@@ -158,6 +159,8 @@ export async function runRegression({tier = 'tiny', strategy = 'LocalLLMStepBySt
     queue.length = 0;
   }
   const headers = {'x-llmapiprovider-purpose': purpose, 'x-llmapiprovider-run': id, 'x-llmapiprovider-no-fallback': '1'};
+  // The chat's reply memory (config conversation.layers), as the server has it: its message acts are what the formalizer may name.
+  await useConfiguredReplyLayer(JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8')));
   const started = Date.now();
   let k = done.size;
   const worker = async w => {

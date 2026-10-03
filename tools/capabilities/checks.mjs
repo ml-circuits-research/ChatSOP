@@ -9,6 +9,14 @@ import {parse as parseModel, validateGraph} from '../../sop/parser.mjs';
 import {checkModelProgram, MODEL_TYPES} from '../../sop/declarative.mjs';
 import {splitCircuits, SESSION_TYPES} from '../../lib/query-author/session.mjs';
 import {parse as parseKnowledge} from '../../sop/knowledge/lexical.mjs';
+import {ENUMS} from '../../sop/enums.mjs';
+import {messageActs} from '../../sop/message-acts.mjs';
+
+/**
+ * The closed values of a model field: sop/enums.mjs ENUMS, and for `pragmatic kind` the message acts the reply memory in use declares
+ * (memory data since P-2.1, 2026-10-03; without chat data the shipped conversation-v1).
+ */
+export const enumValues = (type, field) => (type === 'pragmatic' && field === 'kind' ? messageActs().kinds : ENUMS[type]?.[field]);
 
 /** The admission code of a model-surface error message (`compare_form: @q ...` -> compare_form), or `admission` without one. */
 export const modelCode = message => /^([a-z]+(?:_[a-z]+)+):/.exec(String(message))?.[1] ?? 'admission';

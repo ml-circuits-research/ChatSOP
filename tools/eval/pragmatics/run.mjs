@@ -21,7 +21,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {PRAGMATIC_KINDS} from '../../../sop/enums.mjs';
+import {messageActs} from '../../../sop/message-acts.mjs';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const SET = path.join(ROOT, 'eval/pragmatics-v1/messages.jsonl');
@@ -30,7 +30,8 @@ const opt = (args, name, fallback) => { const i = args.indexOf(name); return i >
 const jl = file => fs.existsSync(file) ? fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)) : [];
 /** The kinds the step-by-step first question can name (its message acts and emotions); the comparable core of every arm. */
 export const CORE = Object.freeze(['greeting', 'thanks', 'apology', 'closing', 'politeness', 'frustration', 'confusion', 'urgency', 'anger', 'disappointment', 'joy', 'sadness', 'fear', 'curiosity']);
-export const ALL = Object.freeze(PRAGMATIC_KINDS.filter(k => k !== 'unclassified'));
+// The message acts of conversation-v1 (memory data since P-2.1, 2026-10-03): the kinds the labels of this set use.
+export const ALL = Object.freeze(messageActs().kinds.filter(k => k !== 'unclassified'));
 
 /** Messages in a fixed order: labelled and neutral messages alternate, so any prefix has both. */
 export function ordered(rows) {

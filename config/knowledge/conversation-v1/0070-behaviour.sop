@@ -19,7 +19,7 @@
 @cv_turn_instruction_set predicate
   args subject:entity
   closed true
-  description "the message set an instruction of this kind (prefix, suffix, short, detailed)"
+  description "the message set an instruction of this kind (prefix, suffix, short, detailed, formal, playful)"
 @cv_turn_instruction_cancelled predicate
   args subject:entity
   closed true

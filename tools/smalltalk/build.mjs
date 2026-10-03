@@ -11,12 +11,19 @@
  *                                                                 writes config/knowledge/smalltalk-<name>-v1/ from the runs' accepted
  *                                                                 records (a later run's item replaces an earlier one); --drop names a
  *                                                                 JSON list of variant texts to leave out (escalation decisions)
+ *   node tools/smalltalk/build.mjs acts                           writes only the message acts of the collections (0005-acts.sop) and
+ *                                                                 their manifests' `acts` (P-2.1); no run is needed
  *   node tools/smalltalk/build.mjs check                          validates every collection alone and all together, checks slots,
  *                                                                 reachability and priority ties; exit 1 on a problem
  *
- * Registers: neutral and warm variants go to the situation's own collection; playful ones to smalltalk-playful-v1 (more variants of
- * the same situation); formal ones to smalltalk-professional-v1 as a variant situation `<situation>_formal` one priority above the
- * base, derived by that collection's rule, so loading it makes the formal register win.
+ * Registers (P-2.2, 2026-10-03): neutral and warm variants go to the situation's own collection; playful ones of a playful situation
+ * stay there; playful ones of another situation go to smalltalk-playful-v1 as a variant situation `<situation>_playful`, and formal
+ * ones to smalltalk-professional-v1 as `<situation>_formal`, one priority above the base, derived by that collection's rule only while
+ * the conversation's register is playful or formal (`cv_register`, from the user's instruction or a deployment rule).
+ * Message acts (P-2.1): the taxonomy's `acts` are written as facts (cv_act, cv_act_description, cv_act_example, cv_act_standalone) into
+ * the collection whose situation the act triggers. Ties (P-2.4): two act-triggered situations of one part with the same priority get a
+ * `cv_situation_outranks` fact (taxonomy `tie_rank`, else taxonomy order); a register variant that ties with another situation is
+ * outranked by it.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -121,16 +128,32 @@ const clean = t => String(t).replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
 /** The existing replies of conversation-v1, by situation (the reference for near duplicates) and its situation priorities. */
 export function conversationLayer() {
   const text = seedCircuits(CONVERSATION).map(c => c.text).join('\n');
-  const replies = new Map(), priorities = new Map();
+  const replies = new Map(), priorities = new Map(), parts = new Map();
   for (const w of parse(text).wires) {
     if (w.type !== 'reply') continue;
     const f = k => w.fields.find(x => x.key === k)?.value.trim();
     const s = f('situation');
+    parts.set(s, f('part') ?? 'body');
     if (!replies.has(s)) replies.set(s, []);
     replies.get(s).push(JSON.parse(f('text')));
   }
   for (const m of text.matchAll(/holds cv_situation_priority (\w+) (-?\d+)/g)) priorities.set(m[1], Number(m[2]));
-  return {replies, priorities};
+  return {replies, priorities, parts, signalled: signalledSituations(text)};
+}
+
+/**
+ * The situations of a layer text that a message act selects: named by a cv_courtesy_situation, cv_opening_situation or
+ * cv_closing_situation fact, or concluded by a rule that tests cv_turn_signal. Two of them can apply to one turn, so a tie between them
+ * must be ordered (P-2.4). In text order.
+ */
+export function signalledSituations(text) {
+  const out = [];
+  const add = s => { if (!out.includes(s)) out.push(s); };
+  for (const m of text.matchAll(/holds cv_(?:courtesy|opening|closing)_situation \w+ (\w+)|@\S+ rule\n((?:  .*\n)+)/g)) {
+    if (m[1]) add(m[1]);
+    else if (/when cv_turn_signal /.test(m[2])) for (const t of m[2].matchAll(/then cv_applies (\w+)/g)) add(t[1]);
+  }
+  return out;
 }
 
 const q = s => JSON.stringify(s);
@@ -165,14 +188,16 @@ export function buildCollections(variants, {taxonomy = TAXONOMY, drop = []} = {}
     const s = bySituation.get(v.situation);
     if (!s || dropSet.has(v.text) || variantProblems(itemOf.get(s.id), v).length) continue;
     const key = v.register === 'formal' ? 'professional' : v.register === 'playful' && s.collection !== 'playful' ? 'playful' : s.collection;
+    // A register variant of another collection's situation is its own situation (`<situation>_formal`, `<situation>_playful`).
     const g = `${key}\u0000${s.id}`;
     if (!groups.has(g)) groups.set(g, {key, s, variants: []});
     groups.get(g).variants.push(v);
   }
-  const formalVariants = [];
+  const registerVariants = [];
+  const variantOf = (key, s) => (key === 'professional' ? `${s.id}_formal` : key === 'playful' && s.collection !== 'playful' ? `${s.id}_playful` : null);
   for (const {key, s, variants: vs} of [...groups.values()].sort((a, b) => a.s.id.localeCompare(b.s.id) || a.key.localeCompare(b.key))) {
     const c = out[key], pre = COLLECTIONS[key].prefix;
-    const situation = key === 'professional' ? `${s.id}_formal` : s.id;
+    const situation = variantOf(key, s) ?? s.id;
     const cap = (s.n ?? 3) * (key === s.collection ? s.registers.filter(r => r === 'n' || r === 'w' || (s.collection === 'playful' && r === 'p')).length : 1);
     const registers = [...new Set(vs.map(v => v.register))];
     // Interleave registers so the cap keeps a balance between them.
@@ -188,17 +213,68 @@ export function buildCollections(variants, {taxonomy = TAXONOMY, drop = []} = {}
     c.counts.replies += kept.length;
     if (kept.length) c.counts.situations.add(situation);
     c.diversity.push({situation, candidates: vs.length, kept: kept.length, near_duplicates_dropped: dropped.length, distinct_1: round(distinct(kept, 1)), distinct_2: round(distinct(kept, 2))});
-    if (key === 'professional' && kept.length) formalVariants.push({base: s.id, variant: situation, priority: priorityOf(s) + 1, part: s.part});
+    if (situation !== s.id && kept.length) registerVariants.push({key, base: s.id, variant: situation, priority: priorityOf(s) + 1, part: s.part});
   }
-  // The professional collection: the variant table, the rule and the priorities.
-  const pro = out.professional;
-  pro.vocabulary = `@st_formal_variant predicate\n  args subject:entity object:entity\n  closed true\n  description "the situation (object) is the formal-register variant of the situation (subject); it applies whenever the subject applies and outranks it by one"\n`;
-  pro.rules.push(`# The formal register: whenever a situation applies, its formal variant applies too, one priority higher, so it wins its part.\n@stf_r_formal rule\n  when cv_applies ?s\n  when st_formal_variant ?s ?v\n  then cv_applies ?v\n`);
-  for (const f of formalVariants) {
-    pro.data.push(fact(`stf_v_${f.base}`, `st_formal_variant ${f.base} ${f.variant}`));
-    pro.data.push(fact(`stf_p_${f.base}`, `cv_situation_priority ${f.variant} ${f.priority}`));
+  // The register collections: the variant table, the rule (only while the conversation's register is theirs) and the priorities.
+  for (const [key, register, predicate] of [['professional', 'formal', 'st_formal_variant'], ['playful', 'playful', 'st_playful_variant']]) {
+    const c = out[key], pre = COLLECTIONS[key].prefix;
+    c.vocabulary = `@${predicate} predicate\n  args subject:entity object:entity\n  closed true\n  description "the situation (object) is the ${register}-register variant of the situation (subject); while the register is ${register} it applies whenever the subject applies and outranks it by one"\n`;
+    c.rules.push(`# The ${register} register: while the conversation's register is ${register}, whenever a situation applies its ${register} variant applies too, one priority higher, so it wins its part.\n@${pre}_r_${register} rule\n  when cv_register ${register}\n  when cv_applies ?s\n  when ${predicate} ?s ?v\n  then cv_applies ?v\n`);
+    c.rules.push(`# Two variants tie as their bases do: the variant of the base that outranks the other outranks it too.\n@${pre}_r_${register}_ties rule\n  when ${predicate} ?a ?v\n  when ${predicate} ?b ?w\n  when cv_situation_outranks ?a ?b\n  then cv_situation_outranks ?v ?w\n`);
+    for (const f of registerVariants.filter(x => x.key === key)) {
+      c.data.push(fact(`${pre}_v_${f.base}`, `${predicate} ${f.base} ${f.variant}`));
+      c.data.push(fact(`${pre}_p_${f.base}`, `cv_situation_priority ${f.variant} ${f.priority}`));
+    }
+  }
+  // Ties (P-2.4): act-triggered situations of one part with one priority are ordered by data; a register variant that ties with
+  // another situation of its part is outranked by it (the other's base priority is the higher one).
+  const priorities = new Map([...conv.priorities, ...taxonomy.situations.filter(s => s.priority !== undefined).map(s => [s.id, s.priority])]);
+  const parts = new Map([...conv.parts, ...taxonomy.situations.map(s => [s.id, s.part])]);
+  // Contenders: the act-selected situations of conversation-v1 (ranked first, in its order) and of the taxonomy (tie_rank, else order).
+  const triggered = [...conv.signalled.map((id, i) => ({id, part: conv.parts.get(id), priority: conv.priorities.get(id), rank: i, collection: null})),
+    ...taxonomy.situations.filter(s => ['courtesy', 'opening', 'closing', 'topics_of'].includes(s.trigger.type)).map((s, i) => ({id: s.id, part: s.part, priority: priorityOf(s), rank: s.tie_rank ?? 100 + i, collection: s.collection}))];
+  for (const a of triggered) for (const b of triggered) {
+    if (a === b || a.part !== b.part || a.priority !== b.priority || a.rank >= b.rank) continue;
+    // A pair of conversation-v1's own situations is ordered by conversation-v1's data; any other pair by the collection of either.
+    const owner = a.collection ?? b.collection;
+    if (owner) out[owner].data.push(fact(`${COLLECTIONS[owner].prefix}_o_${a.id}__${b.id}`, `cv_situation_outranks ${a.id} ${b.id}`));
+  }
+  for (const v of registerVariants) for (const [x, p] of priorities) {
+    if (p !== v.priority || parts.get(x) !== v.part || x === v.variant) continue;
+    out[v.key].data.push(fact(`${COLLECTIONS[v.key].prefix}_o_${x}__${v.variant}`, `cv_situation_outranks ${x} ${v.variant}`));
   }
   return out;
+}
+
+/** The message acts of the taxonomy as facts, per collection key (the collection whose situation the act triggers). */
+export function actsByCollection(taxonomy = TAXONOMY) {
+  const out = Object.fromEntries(Object.keys(COLLECTIONS).map(k => [k, []]));
+  for (const a of taxonomy.acts ?? []) {
+    const s = taxonomy.situations.find(x => x.trigger.kind === a.kind && x.trigger.proposed) ?? taxonomy.situations.find(x => x.trigger.kind === a.kind);
+    if (!s) throw new Error(`the act ${a.kind} triggers no situation of the taxonomy`);
+    const pre = COLLECTIONS[s.collection].prefix;
+    const lines = [fact(`${pre}_a_${a.kind}`, `cv_act ${a.kind} ${a.group}`), fact(`${pre}_a_${a.kind}_d`, `cv_act_description ${a.kind} ${q(a.describe)}`),
+      ...(a.examples ?? []).map((e, i) => fact(`${pre}_a_${a.kind}_e${i + 1}`, `cv_act_example ${a.kind} ${q(e)}`)),
+      ...(a.standalone ? [fact(`${pre}_a_${a.kind}_s`, `cv_act_standalone ${a.kind}`)] : [])];
+    out[s.collection].push({kind: a.kind, group: a.group, situation: s.id, text: lines.join('')});
+  }
+  return out;
+}
+
+/** Writes the collections' 0005-acts.sop and the manifests' `acts` (the declared kinds). */
+export function writeActs(taxonomy = TAXONOMY) {
+  const byCollection = actsByCollection(taxonomy);
+  for (const [key, acts] of Object.entries(byCollection)) {
+    const info = COLLECTIONS[key], dir = path.join(SEEDS_DIR, info.id);
+    const file = path.join(dir, '0005-acts.sop');
+    if (!acts.length) { fs.rmSync(file, {force: true}); continue; }
+    fs.writeFileSync(file, `# ${info.id}: the message acts this collection answers (P-2.1; declared as data, read by the formalizer and the validator: sop/message-acts.mjs).\n# Generated by tools/smalltalk/build.mjs from tools/smalltalk/taxonomy.json (acts); do not edit by hand.\n\n` + acts.map(a => a.text).join('\n'));
+    const manifestFile = path.join(dir, 'seed.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
+    delete manifest.proposed_kinds;
+    manifest.acts = acts.map(a => ({kind: a.kind, group: a.group, situation: a.situation}));
+    fs.writeFileSync(manifestFile, JSON.stringify(manifest, null, 2) + '\n');
+  }
 }
 const round = x => Math.round(x * 1000) / 1000;
 
@@ -214,7 +290,6 @@ export function writeCollections(built, {runs = []} = {}) {
     if (c.vocabulary) fs.writeFileSync(path.join(dir, '0001-vocabulary.sop'), head + c.vocabulary);
     if (c.data.length || c.rules.length) fs.writeFileSync(path.join(dir, '0010-situations.sop'), head + [...c.rules, ...c.data].join('\n'));
     fs.writeFileSync(path.join(dir, '0020-replies.sop'), head + c.replies.join('\n'));
-    const proposed = TAXONOMY.situations.filter(s => s.collection === key && s.trigger.proposed).map(s => ({kind: s.trigger.kind, situation: s.id, part: s.part, describe: s.describe}));
     const d1 = c.diversity.filter(x => x.kept > 1);
     const manifest = {
       name: info.name, description: info.description, imports: [CONVERSATION], role: 'conversation', ...(key === 'professional' ? {group: 'register'} : {}),
@@ -223,16 +298,16 @@ export function writeCollections(built, {runs = []} = {}) {
       counts: {situations: c.counts.situations.size, replies: c.counts.replies, by_register: c.counts.registers, rules: c.rules.length, data_facts: c.data.length,
         mean_distinct_1: round(d1.reduce((a, x) => a + x.distinct_1, 0) / (d1.length || 1)), mean_distinct_2: round(d1.reduce((a, x) => a + x.distinct_2, 0) / (d1.length || 1)),
         near_duplicates_dropped: c.diversity.reduce((a, x) => a + x.near_duplicates_dropped, 0)},
-      ...(proposed.length ? {proposed_kinds: proposed} : {}),
     };
     fs.writeFileSync(path.join(dir, 'seed.json'), JSON.stringify(manifest, null, 2) + '\n');
     manifests[info.id] = {...manifest, diversity: c.diversity};
   }
+  writeActs();
   return manifests;
 }
 
 /** Problems of the written collections: validation alone and together, slots, reachability, priority ties. */
-export function checkCollections({warnings = []} = {}) {
+export function checkCollections() {
   const problems = [];
   const ids = Object.values(COLLECTIONS).map(c => c.id);
   const validate = (circuits, label) => {
@@ -252,16 +327,24 @@ export function checkCollections({warnings = []} = {}) {
     parts.set(s, part);
     if (part === 'line') continue;
     if (!priorities.has(s)) problems.push(`${w.id}: situation ${s} has no priority`);
-    const base = s.replace(/_formal$/, '');
+    const base = s.replace(/_(?:formal|playful)$/, '');
     const allowed = slotsOf.get(base);
     if (allowed) for (const m of JSON.parse(f('text')).matchAll(/\{\{([a-z_]+)\}\}/g)) if (!allowed.includes(m[1])) problems.push(`${w.id}: slot ${m[1]} is not filled for ${s}`);
   }
-  // A formal variant must not tie with a base situation of the same part that has no formal variant.
-  const formal = new Set([...parts.keys()].filter(s => s.endsWith('_formal')));
-  for (const v of formal) {
-    const p = priorities.get(v), part = parts.get(v);
-    for (const [s, sp] of priorities) if (s !== v && sp === p && parts.get(s) === part && !s.endsWith('_formal') && !formal.has(`${s}_formal`) && !s.startsWith('line_')) warnings.push(`priority tie in part ${part}: ${v} and ${s} (${p}), and ${s} has no formal variant`);
+  // Ties (P-2.4): two situations of one part with one priority that can apply to the same turn (both triggered by message acts, or a
+  // register variant and another situation) must be ordered by a cv_situation_outranks fact; otherwise the choice would be arbitrary.
+  const outranks = new Set([...text.matchAll(/holds cv_situation_outranks (\w+) (\w+)/g)].map(m => `${m[1]} ${m[2]}`));
+  const triggered = new Set(signalledSituations(text));
+  const variants = new Set([...text.matchAll(/holds st_(?:formal|playful)_variant \w+ (\w+)/g)].map(m => m[1]));
+  const base = new Map([...text.matchAll(/holds st_(?:formal|playful)_variant (\w+) (\w+)/g)].map(m => [m[2], m[1]]));
+  const ordered = (a, b) => outranks.has(`${a} ${b}`) || outranks.has(`${b} ${a}`) || (base.has(a) && base.has(b) && (outranks.has(`${base.get(a)} ${base.get(b)}`) || outranks.has(`${base.get(b)} ${base.get(a)}`)));
+  const contenders = [...priorities.keys()].filter(x => triggered.has(x) || variants.has(x));
+  for (const a of contenders) for (const b of contenders) {
+    if (a >= b || priorities.get(a) !== priorities.get(b) || parts.get(a) !== parts.get(b) || ordered(a, b)) continue;
+    if (variants.has(a) && variants.has(b) && base.get(a) === base.get(b)) continue;
+    if (variants.has(a) !== variants.has(b) || (triggered.has(a) && triggered.has(b))) problems.push(`unordered priority tie in part ${parts.get(a)}: ${a} and ${b} (${priorities.get(a)}); add cv_situation_outranks`);
   }
+  for (const v of variants) for (const [x, p] of priorities) if (x !== v && !variants.has(x) && p === priorities.get(v) && parts.get(x) === parts.get(v) && !ordered(x, v)) problems.push(`unordered priority tie in part ${parts.get(v)}: ${v} and ${x} (${p}); add cv_situation_outranks`);
   return problems;
 }
 
@@ -276,16 +359,15 @@ async function main() {
     for (const [id, m] of Object.entries(manifests)) console.log(JSON.stringify({id, ...m.counts}));
     return;
   }
+  if (cmd === 'acts') { writeActs(); console.log('wrote the message acts of the collections'); return; }
   if (cmd === 'check') {
-    const warnings = [];
-    const problems = checkCollections({warnings});
-    for (const w of warnings) console.log(`warning: ${w} (a tie matters only when both situations can apply to one turn)`);
+    const problems = checkCollections();
     for (const p of problems) console.log(p);
     console.log(problems.length ? `${problems.length} problems` : 'ok');
     if (problems.length) process.exitCode = 1;
     return;
   }
-  console.error('usage: node tools/smalltalk/build.mjs items | write --runs DIR[,DIR] [--drop FILE] | check');
+  console.error('usage: node tools/smalltalk/build.mjs items | write --runs DIR[,DIR] [--drop FILE] | acts | check');
   process.exitCode = 2;
 }
 

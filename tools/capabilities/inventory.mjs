@@ -24,6 +24,7 @@ import {GRAMMAR, FEATURES, STEP_BLOCKS} from '../../sop/knowledge/grammar.mjs';
 import {SPEC} from '../../sop/parser.mjs';
 import {MODEL_TYPES} from '../../sop/declarative.mjs';
 import {EXPRESSION_FUNCTIONS, EXPRESSION_MATH, EXPRESSION_STRING_METHODS, EXPRESSION_ARRAY_METHODS} from '../../sop/expression.mjs';
+import {enumValues} from './checks.mjs';
 import {ENUMS, COMPARATOR_WORDS, ARITHMETIC_WORDS, COMPUTE_WORDS, ORDER_WORDS, QUANTIFIER_WORDS, RANK_WORDS, RANK_CUTS, ORDER_SAMPLING, LINK_WORDS, ROLE_NAMES, POLARITIES, CERTAINTIES, QUERY_MODES as MODEL_QUERY_MODES, REASONING_QUERY_MODES} from '../../sop/enums.mjs';
 
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url));
@@ -144,7 +145,7 @@ export function buildInventory() {
     add('m.wire.' + type, 'model', 'wire', ['L1', 'L3']);
     for (const field of [...(s.one ?? []), ...(s.many ?? [])]) {
       add(`m.field.${type}.${field}`, 'model', 'field', l3Field(type, field), {card: (s.one ?? []).includes(field) ? 'one' : 'many', required: (s.required ?? []).includes(field)});
-      for (const v of ENUMS[type]?.[field] ?? []) add(`m.enum.${type}.${field}.${v}`, 'model', 'enum', l3Field(type, field));
+      for (const v of enumValues(type, field) ?? []) add(`m.enum.${type}.${field}.${v}`, 'model', 'enum', l3Field(type, field));
     }
   }
   for (const t of SESSION_TYPES) add('m.session.' + t, 'model', 'session', ['L1', 'L3']);

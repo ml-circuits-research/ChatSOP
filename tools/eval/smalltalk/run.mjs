@@ -12,8 +12,9 @@
  * The replies are drafts of the conversation layer (the optional answer-formulation step of the HTTP server is not applied). The judge
  * is jobs/smalltalk-judge (auditor tier, blind: hashed ids, arms shuffled). Writes eval/reports/current/smalltalk/.
  *
- *   node tools/eval/smalltalk/run.mjs turns [--tier T]      formalize and compose (calls the request parser's tiers)
- *   node tools/eval/smalltalk/run.mjs judge-input           the blind judge input (state/llm-jobs/smalltalk-judge-input.jsonl)
+ *   node tools/eval/smalltalk/run.mjs turns [--tier T] [--arms B,A]   formalize (under the first arm's layer) and compose
+ *   node tools/eval/smalltalk/run.mjs judge-input [--before FILE]   the blind judge input (state/llm-jobs/smalltalk-judge-input.jsonl);
+ *                                                           --before adds the B rows of an earlier turns.jsonl as the arm `before`
  *   node tools/eval/smalltalk/run.mjs report --run DIR      scores per arm and category, paired bootstrap B-A and C-A
  */
 import fs from 'node:fs';
@@ -85,7 +86,9 @@ async function turns() {
         }
         continue;
       }
-      for (const arm of ['A', 'B']) {
+      // The formalization runs under the first arm's layer, whose message acts the formalizer may name: the default reply memory (B)
+      // first, so the formalizer sees the collections' acts (P-2.1); `--arms B` skips the conversation-v1-only arm.
+      for (const arm of (opt('arms') ?? 'B,A').split(',')) {
         setReplyLayer(layers[arm].circuits, `arm ${arm}`);
         const entry = store.get('smalltalk', `c${++n}`, BASE_NAME);
         const formalizer = {id: 'smalltalk-eval', formalize: async text => {
@@ -112,7 +115,7 @@ async function turns() {
         console.log(`${m.id} ${arm} ${row.status} ${JSON.stringify(row.situations ?? {})} ${String(row.text).replace(/\n/g, ' | ').slice(0, 140)}`);
       }
       // Arm C: B with the message's label as a pragmatic signal (oracle signal), recomposed when B computed no answer.
-      const b = rows.at(-1);
+      const b = rows.findLast(r => r.id === m.id && r.arm === 'B');
       let c = {...b, arm: 'C'};
       if (b.ok && m.label && !b.computed && !(b.signals ?? []).includes(m.label)) {
         const packet = {status: 'courtesy', pragmatic: [...(b.packet?.pragmatic ?? []).filter(s => s.kind !== m.label), {kind: m.label, score: 1}]};
@@ -134,13 +137,16 @@ async function turns() {
 const blindId = (m, arm) => createHash('sha256').update(`smalltalk-judge\u0000${m}\u0000${arm}`).digest('hex').slice(0, 10);
 
 function judgeInput() {
-  const rows = readJsonl(path.join(OUT, 'turns.jsonl'));
+  // `--before FILE`: the B rows of an earlier turns.jsonl (another version of the system) join as the arm `before`, judged blind with
+  // the current rows, so the report pairs before and after on the same rubric.
+  const before = opt('before') ? readJsonl(path.resolve(opt('before'))).filter(r => r.arm === 'B').map(r => ({...r, arm: 'before'})) : [];
+  const rows = [...readJsonl(path.join(OUT, 'turns.jsonl')), ...before];
   const items = rows.map(r => ({id: blindId(r.id, r.arm), message: r.message, reply: r.text}));
   items.sort((a, b) => a.id.localeCompare(b.id));
   // Identical replies of two arms are judged once (same text, same message): the judge sees each distinct pair once.
   const seen = new Map(), unique = [];
   for (const it of items) { const k = `${it.message}\u0000${it.reply}`; if (!seen.has(k)) { seen.set(k, it.id); unique.push(it); } }
-  const key = rows.map(r => ({id: r.id, arm: r.arm, judged_as: seen.get(`${r.message}\u0000${r.text}`)}));
+  const key = rows.map(r => ({id: r.id, arm: r.arm, category: r.category, judged_as: seen.get(`${r.message}\u0000${r.text}`)}));
   const dir = path.join(ROOT, 'state/llm-jobs');
   fs.mkdirSync(dir, {recursive: true});
   fs.writeFileSync(path.join(dir, 'smalltalk-judge-input.jsonl'), unique.map(i => JSON.stringify(i)).join('\n') + '\n');
@@ -174,24 +180,26 @@ function report() {
   const scored = key.map(k => {
     const s = scores.get(k.judged_as);
     const total = s ? mean(DIMS.map(d => Number(s[d]))) : null;
-    return {...k, category: byKey.get(`${k.id}:${k.arm}`).category, total, ...(s ? Object.fromEntries(DIMS.map(d => [d, Number(s[d])])) : {}), note: s?.note ?? null};
+    return {...k, category: k.category ?? byKey.get(`${k.id}:${k.arm}`).category, total, ...(s ? Object.fromEntries(DIMS.map(d => [d, Number(s[d])])) : {}), note: s?.note ?? null};
   });
-  const arms = ['A', 'B', 'C'];
+  const arms = ['before', 'A', 'B', 'C'].filter(a => key.some(k => k.arm === a));
+  const base = arms.includes('before') ? 'before' : 'A';
   const lines = ['# Small-talk collections: evaluation (eval/smalltalk-v1, 40 messages)', '',
-    `Judge run: ${run}. Scores 1-5 (auditor tier, blind). A = conversation-v1 alone; B = with the default collections; C = B with the message label as an oracle pragmatic signal.`, '',
+    `Judge run: ${run}. Scores 1-5 (auditor tier, blind). before = B of an earlier system version (judge-input --before); A = conversation-v1 alone; B = with the default collections; C = B with the message label as an oracle pragmatic signal.`, '',
     '| Arm | n judged | relevance | tone | naturalness | honesty | brevity | mean |', '|---|---|---|---|---|---|---|---|'];
   for (const a of arms) {
     const xs = scored.filter(r => r.arm === a && r.total != null);
     lines.push(`| ${a} | ${xs.length} | ${DIMS.map(d => mean(xs.map(r => r[d])).toFixed(2)).join(' | ')} | ${mean(xs.map(r => r.total)).toFixed(2)} |`);
   }
   lines.push('');
-  for (const b of ['B', 'C']) {
-    const pairs = [...new Set(scored.map(r => r.id))].map(id => [scored.find(r => r.id === id && r.arm === 'A')?.total, scored.find(r => r.id === id && r.arm === b)?.total]).filter(([x, y]) => x != null && y != null);
+  for (const b of arms.filter(a => a !== base)) {
+    const pairs = [...new Set(scored.map(r => r.id))].map(id => [scored.find(r => r.id === id && r.arm === base)?.total, scored.find(r => r.id === id && r.arm === b)?.total]).filter(([x, y]) => x != null && y != null);
+    if (!pairs.length) continue;
     const diffs = pairs.map(([x, y]) => y - x);
     const [lo, hi] = bootstrap(diffs);
-    lines.push(`${b} - A: mean difference ${mean(diffs).toFixed(2)} over ${diffs.length} paired messages, 95% paired bootstrap [${lo.toFixed(2)}, ${hi.toFixed(2)}]; ${diffs.filter(d => d > 0).length} better, ${diffs.filter(d => d < 0).length} worse, ${diffs.filter(d => d === 0).length} equal.`);
+    lines.push(`${b} - ${base}: mean difference ${mean(diffs).toFixed(2)} over ${diffs.length} paired messages, 95% paired bootstrap [${lo.toFixed(2)}, ${hi.toFixed(2)}]; ${diffs.filter(d => d > 0).length} better, ${diffs.filter(d => d < 0).length} worse, ${diffs.filter(d => d === 0).length} equal.`);
   }
-  lines.push('', '| Category | A | B | C |', '|---|---|---|---|');
+  lines.push('', `| Category | ${arms.join(' | ')} |`, `|---|${arms.map(() => '---').join('|')}|`);
   for (const c of [...new Set(scored.map(r => r.category))]) lines.push(`| ${c} | ${arms.map(a => mean(scored.filter(r => r.category === c && r.arm === a && r.total != null).map(r => r.total)).toFixed(2)).join(' | ')} |`);
   const text = lines.join('\n') + '\n';
   fs.writeFileSync(path.join(OUT, 'report.md'), text);

@@ -20,7 +20,7 @@ import {GRAMMAR, GOV} from '../../sop/knowledge/grammar.mjs';
 import {SPEC} from '../../sop/parser.mjs';
 import {MODEL_TYPES} from '../../sop/declarative.mjs';
 import {ENUMS, COMPUTE_WORDS, COMPARATOR_WORDS, ORDER_WORDS} from '../../sop/enums.mjs';
-import {validateKnowledge, validateModel} from './checks.mjs';
+import {validateKnowledge, validateModel, enumValues} from './checks.mjs';
 import {runExpression, EXPRESSION_FUNCTIONS, EXPRESSION_MATH, EXPRESSION_STRING_METHODS, EXPRESSION_ARRAY_METHODS} from '../../sop/expression.mjs';
 import {readWires, admitJsProgram} from '../../lib/formalize/js-program.mjs';
 import {registryOf} from '../../lib/formalize/expression-program.mjs';
@@ -147,6 +147,7 @@ const PATCH = {
   'method.prefer': {set: [['step', 'choose\n    ~act ?x\n    ~act2 ?x\n  end'], ['prefer', '~act over ~act2']], remove: ['step']},
   'method.on_failure': {set: [['on_failure', 'abort']]},
   'method.triggered_by': {set: [['triggered_by', 'p ?x']]},
+  'procedure.report': {set: [['report', 'q ?x']]},
   'norm.oblige': {set: [['oblige', '~act ?x'], ['when', 'p ?x']], remove: ['forbid']},
   'norm.permit': {set: [['permit', '~act ?x'], ['overrides', '$n_other']], remove: ['forbid']},
   'norm.when': {set: [['when', 'p ?x']]},
@@ -396,7 +397,7 @@ export function modelCases() {
     for (const field of [...(s.one ?? []), ...(s.many ?? [])]) {
       const cap = `m.field.${type}.${field}`, key = `${type}.${field}`;
       let patch = Object.hasOwn(MODEL_PATCH, key) ? MODEL_PATCH[key] : undefined;
-      if (patch === undefined) { const inSk = sk.find(([k]) => k === field); if (inSk) patch = {set: [inSk]}; else if (ENUMS[type]?.[field]) patch = {set: [[field, ENUMS[type][field][0]]]}; }
+      if (patch === undefined) { const inSk = sk.find(([k]) => k === field); if (inSk) patch = {set: [inSk]}; else if (enumValues(type, field)) patch = {set: [[field, enumValues(type, field)[0]]]}; }
       if (!patch) { missing.push(cap); continue; }
       const fields = apply(sk, patch);
       cases.push({id: `m:${key}:${patch.expect ? 'refused' : 'valid'}`, capability: cap, expect: patch.expect ?? 'valid', text: modelText(type, fields, patch)});
@@ -404,8 +405,8 @@ export function modelCases() {
       const value = patch.set.find(([k]) => k === field)?.[1];
       if ((s.one ?? []).includes(field) && value !== undefined) cases.push({id: `m:${key}:repeated`, capability: cap, expect: 'Duplicate', text: modelText(type, [...fields, [field, value]], patch)});
       if ((s.required ?? []).includes(field)) cases.push({id: `m:${key}:missing`, capability: cap, expect: 'needs', text: modelText(type, sk.filter(([k]) => k !== field))});
-      if (ENUMS[type]?.[field] && MODEL_BAD[field]) cases.push({id: `m:${key}:bad_value`, capability: cap, expect: 'must be', text: modelText(type, fields.map(([k, v]) => (k === field ? [k, MODEL_BAD[field]] : [k, v])), patch)});
-      for (const v of ENUMS[type]?.[field] ?? []) {
+      if (enumValues(type, field) && MODEL_BAD[field]) cases.push({id: `m:${key}:bad_value`, capability: cap, expect: 'must be', text: modelText(type, fields.map(([k, v]) => (k === field ? [k, MODEL_BAD[field]] : [k, v])), patch)});
+      for (const v of enumValues(type, field) ?? []) {
         const ek = `${type}.${field}.${v}`;
         const ep = MODEL_ENUM_PATCH[ek] ?? {...patch, set: [...patch.set.filter(([k]) => k !== field), [field, v]]};
         cases.push({id: `m:${ek}:valid`, capability: 'm.enum.' + ek, expect: 'valid', text: modelText(type, apply(sk, ep), ep)});

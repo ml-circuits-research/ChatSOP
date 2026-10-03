@@ -84,3 +84,33 @@
 
 @ste_k_empathy_surprise fact
   holds cv_courtesy_situation surprise empathy_surprise
+
+@ste_o_empathy_loneliness__empathy_anxiety fact
+  holds cv_situation_outranks empathy_loneliness empathy_anxiety
+
+@ste_o_empathy_loneliness__empathy_fear fact
+  holds cv_situation_outranks empathy_loneliness empathy_fear
+
+@ste_o_empathy_anxiety__empathy_fear fact
+  holds cv_situation_outranks empathy_anxiety empathy_fear
+
+@ste_o_empathy_anger__empathy_disappointment fact
+  holds cv_situation_outranks empathy_anger empathy_disappointment
+
+@ste_o_empathy_tiredness__empathy_pride fact
+  holds cv_situation_outranks empathy_tiredness empathy_pride
+
+@ste_o_empathy_tiredness__empathy_excitement fact
+  holds cv_situation_outranks empathy_tiredness empathy_excitement
+
+@ste_o_empathy_pride__empathy_excitement fact
+  holds cv_situation_outranks empathy_pride empathy_excitement
+
+@ste_o_empathy_nostalgia__empathy_surprise fact
+  holds cv_situation_outranks empathy_nostalgia empathy_surprise
+
+@ste_o_empathy_nostalgia__adversarial_manipulation fact
+  holds cv_situation_outranks empathy_nostalgia adversarial_manipulation
+
+@ste_o_empathy_surprise__adversarial_manipulation fact
+  holds cv_situation_outranks empathy_surprise adversarial_manipulation

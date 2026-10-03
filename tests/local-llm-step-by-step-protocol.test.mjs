@@ -2,13 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createWorld} from '../tools/eval/symbolic-vs-llm/world.mjs';
 import {createOracle} from '../lib/query-author/step-by-step/index.mjs';
-import {protocolQuery, METHODS, MAX_QUESTIONS, PROTOCOL_PREFIX} from '../lib/query-author/step-by-step/protocol.mjs';
-import {KINDS, MESSAGE_ACTS, EMOTIONS, PRAGMATIC_DESCRIPTIONS} from '../lib/query-author/step-by-step/questions.mjs';
-import {PRAGMATIC_KINDS} from '../sop/enums.mjs';
+import {protocolQuery, METHODS, MAX_QUESTIONS, PROTOCOL_PREFIX, actQuestions} from '../lib/query-author/step-by-step/protocol.mjs';
+import * as questions from '../lib/query-author/step-by-step/questions.mjs';
+import {messageActs} from '../sop/message-acts.mjs';
+import {setReplyLayer, shippedCircuits} from '../sop/replies.mjs';
+import {seedCircuits} from '../lib/knowledge-seeds.mjs';
+import {parse as parseModel} from '../sop/parser.mjs';
 import {STEP_BY_STEP_METHODS, stepPrefix} from '../lib/formalize/strategies.mjs';
 import {FIRST_TURN_PREFIX} from '../lib/query-author/step-by-step/prompts.mjs';
 import {pairedBootstrap, decide} from '../tools/eval/stepbystep-protocol/summarize.mjs';
 
+const {KINDS} = questions;
 const kind = name => String(KINDS.findIndex(f => f[0] === name) + 1);
 const entity = (id, label = id.replaceAll('_', ' ')) => `@${id} entity\n  kind entity\n  label en "${label}"\n  alias en "${id}"\n`;
 const pred = (id, args, label, description, closed = false) => `@${id} predicate\n  args ${args}\n  label en "${label}"\n  description "${description}"\n${closed ? '  closed true\n' : ''}`;
@@ -28,24 +32,44 @@ function scripted(rules) {
 }
 const lineOf = (question, words) => question.split('\n').find(l => /^\d+\./.test(l) && l.includes(words))?.match(/^(\d+)\./)?.[1];
 
-/** The lettered yes/no lines of the acts question, `yes` for the named acts. */
-const acts = (...names) => [...MESSAGE_ACTS, ['request']].map(([a], i) => `${'ABCDEFGH'[i]}: ${names.includes(a) ? 'yes' : 'no'}`).join('\n');
+/** The lettered yes/no lines of the coarse acts question (one per group of the reply memory, then the request line), `yes` for the named groups. */
+const acts = (...names) => [...actQuestions().groups.map(g => g.id), 'request'].map((g, i) => `${actQuestions().letters[i]}: ${names.includes(g) ? 'yes' : 'no'}`).join('\n');
+/** The fine question's line number of the act with this description fragment. */
+const act = words => q => lineOf(q, words);
+/** The configured reply memory (conversation-v1 and the small-talk collections) for one test. */
+const withCollections = async fn => {
+  const ids = JSON.parse((await import('node:fs')).readFileSync(new URL('../config/runtime.json', import.meta.url), 'utf8')).conversation.layers;
+  setReplyLayer(ids.flatMap(id => seedCircuits(id).map(c => ({name: `${id}:${c.file}`, text: c.text}))), 'test collections');
+  try { return await fn(); } finally { setReplyLayer(shippedCircuits(), 'shipped'); }
+};
 
-test('no hardcoded understanding: the protocol has no cue table, and its choice lists cover the closed pragmatic kinds', async () => {
+test('no hardcoded understanding: no cue table, no act list in code; the acts and their groups are reply-memory data', async () => {
   const fs = await import('node:fs');
   const dir = new URL('../lib/query-author/step-by-step/', import.meta.url);
   assert.ok(!fs.existsSync(new URL('cues.mjs', dir)) && !fs.existsSync(new URL('clauses.mjs', dir)), 'the regex cue table and the connective splitter are gone');
-  assert.deepEqual(Object.keys(PRAGMATIC_DESCRIPTIONS).sort(), [...PRAGMATIC_KINDS].sort());
-  for (const [kind] of [...MESSAGE_ACTS.filter(a => !['emotion', 'plain'].includes(a[0])), ...EMOTIONS]) assert.ok(PRAGMATIC_KINDS.includes(kind), kind);
+  for (const name of ['MESSAGE_ACTS', 'EMOTIONS', 'PRAGMATIC_DESCRIPTIONS']) assert.equal(questions[name], undefined, `${name} is data now`);
+  const {groups, acts: declared} = messageActs();
+  assert.ok(groups.length >= 5 && declared.has('greeting') && declared.has('sadness'));
+  for (const a of declared.values()) assert.ok(a.description && a.group, a.kind);
+  const coarse = actQuestions().coarse('Hello!');
+  for (const g of groups) assert.ok(coarse.includes(g.line), g.id);
+  assert.throws(() => parseModel('@p1 pragmatic\n  kind no_such_act\n  basis llm\n'), /pragmatic_kind_unknown/);
+  await withCollections(async () => {
+    assert.ok(messageActs().acts.has('how_are_you') && messageActs().acts.has('ask_joke') && messageActs().acts.has('crisis'));
+    assert.ok(messageActs().groups.every(g => g.acts.length <= 12), 'no fine menu is longer than 12 lines');
+    parseModel('@p1 pragmatic\n  kind how_are_you\n  basis llm\n');
+  });
+  assert.throws(() => parseModel('@p1 pragmatic\n  kind how_are_you\n  basis llm\n'), /pragmatic_kind_unknown/, 'conversation-v1 alone does not declare the collections\' acts');
 });
 
-test('a greeting alone is two short questions and a pragmatic wire, with no query', async () => {
+test('a greeting alone is three short questions (kind, coarse acts, fine acts) and a pragmatic wire, with no query', async () => {
   const world = teamWorld();
   try {
-    const {chat, asked} = scripted([{when: /Which kind of answer/, say: kind('none')}, {when: /do the words of this message contain it/, say: acts('greeting')}]);
+    const {chat, asked} = scripted([{when: /Which kind of answer/, say: kind('none')}, {when: /do the words of this message contain it/, say: acts('courtesy')},
+      {when: /Which of these exactly/, say: act('a greeting')}]);
     const r = await protocolQuery({message: 'Hello!', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'B'});
     assert.equal(r.status, 'validated', JSON.stringify(r.validation?.problems));
-    assert.equal(asked.length, 2);
+    assert.equal(asked.length, 3, 'the kind, the coarse acts question and the courtesy group');
     assert.equal(r.sop, '@p1 pragmatic\n  kind greeting\n  source local_llm_step_by_step\n  basis llm\n');
   } finally { world.dispose(); }
 });
@@ -55,8 +79,9 @@ test('courtesy and an emotion next to a question become pragmatic wires next to 
   try {
     const {chat} = scripted([
       {when: /Which kind of answer/, say: kind('count')},
-      {when: /do the words of this message contain it/, say: acts('thanks', 'emotion', 'request')},
-      {when: /Which feeling do its words show/, say: q => lineOf(q, 'frustration')},
+      {when: /do the words of this message contain it/, say: acts('courtesy', 'upset', 'request')},
+      {when: /Which of these exactly/, say: q => lineOf(q, 'thanks') ?? lineOf(q, 'frustration')},
+      {when: /Besides/, say: '1'},
       {when: /Which statements does/, say: q => lineOf(q, 'member of the team')},
       {when: /Which of these says what the request asks/, say: '3'},
     ]);
@@ -65,6 +90,39 @@ test('courtesy and an emotion next to a question become pragmatic wires next to 
     assert.match(r.sop, /mode count/);
     assert.match(r.sop, /@p1 pragmatic\n  kind thanks\n/);
     assert.match(r.sop, /@p2 pragmatic\n  kind frustration\n/);
+  } finally { world.dispose(); }
+});
+
+test('acts of the reply memory: how are you, a joke request and the user\'s name reach their pragmatic wires (coarse, then fine)', async () => {
+  const world = teamWorld();
+  try {
+    await withCollections(async () => {
+      // "Hello, how are you?": nothing to look up and a question, but an act that is the whole request: no second kind question.
+      let {chat, asked} = scripted([{when: /Which kind of answer/, say: kind('none')}, {when: /do the words of this message contain it/, say: acts('courtesy', 'request')},
+        {when: /Which of these exactly/, say: q => [lineOf(q, 'a greeting'), lineOf(q, 'asks how the assistant is')].join(', ')}]);
+      let r = await protocolQuery({message: 'Hello, how are you?', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'B'});
+      assert.equal(r.status, 'validated', JSON.stringify(r.validation?.problems));
+      assert.equal(r.sop, '@p1 pragmatic\n  kind greeting\n  source local_llm_step_by_step\n  basis llm\n@p2 pragmatic\n  kind how_are_you\n  source local_llm_step_by_step\n  basis llm\n');
+      assert.ok(!asked.some(x => /seems to ask for something/.test(x)), 'no kind_again');
+      // "Tell me a joke" read as a lookup kind: the act can be the whole request, the besides question says no.
+      ({chat, asked} = scripted([{when: /Which kind of answer/, say: kind('list')}, {when: /do the words of this message contain it/, say: acts('play', 'request')},
+        {when: /Which of these exactly/, say: act('a request for a joke')}, {when: /Besides/, say: '2'}]));
+      r = await protocolQuery({message: 'Tell me a joke', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'B'});
+      assert.equal(r.sop, '@p1 pragmatic\n  kind ask_joke\n  source local_llm_step_by_step\n  basis llm\n');
+      // A question about the assistant the self layer does not answer: even after a "yes" to the besides question, 0 in the self
+      // question leaves it to the act's reply.
+      ({chat, asked} = scripted([{when: /Which kind of answer/, say: kind('self')}, {when: /do the words of this message contain it/, say: acts('about_assistant', 'request')},
+        {when: /Which of these exactly/, say: act('has feelings')}, {when: /Besides/, say: '1'}, {when: /What does it want\?/, say: '0'}]));
+      r = await protocolQuery({message: 'Do you ever feel anything?', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'B'});
+      assert.equal(r.sop, '@p1 pragmatic\n  kind ask_feelings\n  source local_llm_step_by_step\n  basis llm\n');
+      assert.ok(asked.some(x => /\n0\. none of these: something else about the assistant/.test(x)));
+      // The user's name: the act copies it verbatim as the wire's span.
+      ({chat} = scripted([{when: /Which kind of answer/, say: kind('statement')}, {when: /do the words of this message contain it/, say: acts('courtesy')},
+        {when: /Which of these exactly/, say: q => [lineOf(q, 'a greeting'), lineOf(q, 'tells their own name')].join(',')}, {when: /Besides/, say: '2'}, {when: /^Copy the name/, say: 'Ioana'}]));
+      r = await protocolQuery({message: 'Hi, I am Ioana.', lexicon: world.lexicon, repo: world.repo, session: world.session, oracle: createOracle({chat}), method: 'B'});
+      assert.equal(r.status, 'validated', JSON.stringify(r.validation?.problems));
+      assert.match(r.sop, /kind introduction\n  span "Ioana"\n/);
+    });
   } finally { world.dispose(); }
 });
 

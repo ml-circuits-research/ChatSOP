@@ -3,9 +3,10 @@
 import {captureCircuit,captureEnabled} from '../lib/circuit-capture.mjs';
 import {outputRegistry,outputSpecs} from './outputs.mjs';
 import {assert,stable} from '../lib/util.mjs';
-import {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,COMPARATOR_WORDS,RANK_WORDS,RANK_CUTS,QUANTIFIER_WORDS,ORDER_WORDS,ORDER_SAMPLING,ORDER_SAMPLING_MODES,LINK_WORDS,MAX_LINKS,UNPARSED_HINTS,MAX_SPAN,PRAGMATIC_KINDS,PRAGMATIC_BASES,INSTRUCTION_ACTIONS,INSTRUCTION_KINDS,INSTRUCTION_TEXT_KINDS} from './enums.mjs';
+import {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,COMPARATOR_WORDS,RANK_WORDS,RANK_CUTS,QUANTIFIER_WORDS,ORDER_WORDS,ORDER_SAMPLING,ORDER_SAMPLING_MODES,LINK_WORDS,MAX_LINKS,UNPARSED_HINTS,MAX_SPAN,PRAGMATIC_KIND_FORM,PRAGMATIC_BASES,INSTRUCTION_ACTIONS,INSTRUCTION_KINDS,INSTRUCTION_TEXT_KINDS} from './enums.mjs';
 export {ENUMS,POLARITIES,CERTAINTIES,BASES,ROLE_NAMES,VALIDITY_FORMS,OUTPUT_MODES,QUERY_MODES,TIME_MEASURES,COMPARATOR_WORDS,ARITHMETIC_WORDS,RANK_WORDS,RANK_CUTS,QUANTIFIER_WORDS,ORDER_WORDS,FRAGMENT_KINDS,LINK_KEYWORDS,LINK_WORDS,LINK_TYPES,MAX_LINKS,LINK_STATUSES,UNPARSED_HINTS,GENERIC_HINTS,MAX_SPAN} from './enums.mjs';
 import {parseExpression,expressionRefs,evaluateExpression} from './expression.mjs';
+import {messageActs} from './message-acts.mjs';
 import {conditionField,parseCondition,parseBooleanCondition,formatCondition,BLOCK_OPENERS,BLOCK_CLOSER} from './conditions.mjs';
 export {GROUP_OPENERS,MATCH_OPENER,BLOCK_OPENERS,BLOCK_CLOSER,SYNTAX_WORDS,CONDITION_FIELDS} from './conditions.mjs';
 /** The atom negation prefix (`[not ]predicate term…`) and the keyword lines of a query `match` block (DS014). */
@@ -200,7 +201,10 @@ function validateShape(w){
   if(w.fields.hint)assert(UNPARSED_HINTS.includes(one(w,'hint')),'@'+w.id+' unparsed hint must be one of '+UNPARSED_HINTS.join(', '));
  }
  if(w.type==='pragmatic'){
-  assert(PRAGMATIC_KINDS.includes(one(w,'kind')),'@'+w.id+' pragmatic kind must be one of '+PRAGMATIC_KINDS.join(', '));
+  // The kinds are memory data (P-2.1, 2026-10-03): a message act the reply memory in use declares (cv_act, sop/message-acts.mjs).
+  const kind=one(w,'kind');
+  assert(PRAGMATIC_KIND_FORM.test(kind),'pragmatic_kind_form: @'+w.id+' pragmatic kind must be one lowercase symbol (a message act of the reply memory)');
+  assert(messageActs().acts.has(kind),'pragmatic_kind_unknown: @'+w.id+' pragmatic kind must be a message act the reply memory declares (cv_act): '+messageActs().kinds.join(', '));
   assert(PRAGMATIC_BASES.includes(one(w,'basis')),'@'+w.id+' pragmatic basis must be one of '+PRAGMATIC_BASES.join(', '));
   if(w.fields.score)assert(/^(0(\.\d{1,3})?|1(\.0{1,3})?)$/.test(one(w,'score')),'pragmatic_score_form: @'+w.id+' score takes a decimal from 0 to 1 with at most three digits');
   if(w.fields.source)assert(/^[a-z][a-z0-9_]*$/.test(one(w,'source')),'@'+w.id+' pragmatic source takes one strategy id (lowercase letters, digits, underscore)');

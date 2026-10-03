@@ -8,7 +8,8 @@ import {SessionStore} from '../server/session-store.mjs';
 import {parse} from '../sop/parser.mjs';
 import {compileDeclarative} from '../sop/declarative.mjs';
 import {admitModel} from '../lib/query-author/admit.mjs';
-import {emptyBehaviour, applyInstructions, overlayOf, timeFacts} from '../lib/conversation/behaviour.mjs';
+import {emptyBehaviour, applyInstructions, overlayOf, timeFacts, personalFacts} from '../lib/conversation/behaviour.mjs';
+import {composeReply, layerInfo} from '../lib/conversation/index.mjs';
 import {createWorld} from '../tools/eval/symbolic-vs-llm/world.mjs';
 import {createOracle} from '../lib/query-author/step-by-step/index.mjs';
 import {protocolQuery} from '../lib/query-author/step-by-step/protocol.mjs';
@@ -153,4 +154,35 @@ test('step-by-step kind `instruction`: one numbered question, the words copied f
     const list = await run('What are my instructions?', {aspect: 'list'});
     assert.match(list.sop, /do list/);
   } finally { world.dispose(); }
+});
+
+test('the register is a conversation instruction: formal and playful exclude each other and add no style rule (P-2.2)', async t => {
+  const {say, agent} = chat(t);
+  const formal = await say('From now on please answer formally', instruction('set', 'formal'));
+  assert.equal(formal.packet.reply.body.situation, 'instruction_set');
+  assert.deepEqual(agent.context.behaviour.instructions.map(i => i.kind), ['formal']);
+  assert.equal(overlayOf(agent.context.behaviour), '', 'the layer derives cv_register from cv_instruction_active; no style rule');
+  await say('Be playful from now on', instruction('set', 'playful'));
+  assert.deepEqual(agent.context.behaviour.instructions.map(i => i.kind), ['playful'], 'playful withdrew formal');
+});
+
+test('the user\'s name and the time of day fill their slots when known; a reply that needs an unknown slot is left out, never a failure (P-2.3)', async t => {
+  const {say, agent} = chat(t);
+  const intro = await say("Hi, I'm Ioana", '@p1 pragmatic\n  kind greeting\n  basis llm\n@p2 pragmatic\n  kind introduction\n  span "Ioana"\n  basis llm\n');
+  assert.equal(intro.packet.reply.body.situation, 'courtesy_introduction_named');
+  assert.match(intro.text, /Ioana/);
+  assert.equal(agent.context.behaviour.slots.user_name, 'Ioana');
+  const later = await say('Hello again', '@p1 pragmatic\n  kind greeting\n  basis llm\n', {after: 2 * 3600_000});
+  assert.equal(later.packet.reply.body.situation, 'courtesy_greeting_named');
+  assert.match(later.text, /Ioana/);
+  // Without a name: the named situation does not apply, and a named variant with a missing slot is not applicable.
+  const state = emptyBehaviour();
+  const info = layerInfo();
+  const morning = personalFacts(state, [], info, {at: new Date(2026, 9, 3, 9, 30).getTime()});
+  assert.deepEqual(morning, {facts: ['cv_turn_time_of_day morning'], slots: {time_of_day: 'morning'}});
+  assert.deepEqual(personalFacts(state, [], info, {at: new Date(2026, 9, 3, 23, 30).getTime()}).facts, ['cv_turn_time_of_day night']);
+  const noName = composeReply({packet: {status: 'courtesy', pragmatic: [{kind: 'introduction', score: 1}]}, seed: 1, facts: ['cv_turn_number 2']});
+  assert.equal(noName.reply.body.situation, 'courtesy_introduction', 'the named replies need user_name: left out, the unnamed one is used');
+  const forced = composeReply({packet: {status: 'courtesy', pragmatic: [{kind: 'greeting', score: 1}]}, seed: 1, facts: ['cv_turn_user_name', 'cv_turn_number 2']});
+  assert.notEqual(forced.reply.body.situation, 'courtesy_greeting_named', 'a fact without its slot never fails the turn');
 });

@@ -49,8 +49,8 @@
     "by_register": {
       "formal": 264
     },
-    "rules": 1,
-    "data_facts": 182,
+    "rules": 2,
+    "data_facts": 315,
     "mean_distinct_1": 0.688,
     "mean_distinct_2": 0.875,
     "near_duplicates_dropped": 29

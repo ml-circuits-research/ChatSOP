@@ -50,89 +50,66 @@
       "warm": 117
     },
     "rules": 0,
-    "data_facts": 32,
+    "data_facts": 56,
     "mean_distinct_1": 0.579,
     "mean_distinct_2": 0.784,
     "near_duplicates_dropped": 46
   },
-  "proposed_kinds": [
+  "acts": [
     {
       "kind": "how_are_you",
-      "situation": "smalltalk_how_are_you",
-      "part": "body",
-      "describe": "The user asks how you are (how are you, how's it going, how is your day). Answer honestly that as a program you have no moods or days but are ready to help; thank them for asking; turn to how you can help."
-    },
-    {
-      "kind": "how_are_you",
-      "situation": "open_how_are_you",
-      "part": "opening",
-      "describe": "The opening of an answer to a message that also asks how you are. One short honest clause (ready to help, thanks for asking); the answer follows."
-    },
-    {
-      "kind": "small_talk_weather",
-      "situation": "smalltalk_weather",
-      "part": "body",
-      "describe": "The user chats about the weather (nice day, it's raining, so cold today) or asks you about it. You cannot see or look up the weather; say so lightly, and offer what you can do instead."
-    },
-    {
-      "kind": "small_talk_plans",
-      "situation": "smalltalk_weekend",
-      "part": "body",
-      "describe": "The user chats about their weekend, holidays or plans, or asks about yours. You have no weekend or plans; respond with friendly interest in theirs without inventing details, and offer help (for example with facts for their plans)."
-    },
-    {
-      "kind": "small_talk_hobbies",
-      "situation": "smalltalk_hobbies",
-      "part": "body",
-      "describe": "The user talks about hobbies or asks about yours. You have no hobbies; show interest in theirs and offer to answer questions about the subject from your memory."
-    },
-    {
-      "kind": "small_talk_sport",
-      "situation": "smalltalk_sport",
-      "part": "body",
-      "describe": "The user chats about sport or a game, or asks whether you follow a team. You have no favourite team and cannot see current results; say so lightly and offer what your memory may hold (facts about teams, players, rules)."
-    },
-    {
-      "kind": "small_talk",
-      "situation": "smalltalk_chitchat",
-      "part": "body",
-      "describe": "General chit-chat with no question (just saying something about their day, a random remark). Respond briefly and kindly without inventing facts, then lead back to how you can help."
-    },
-    {
-      "kind": "compliment",
-      "situation": "smalltalk_compliment",
-      "part": "body",
-      "describe": "The user compliments you (you're smart, great answer, I like you). Thank them modestly, without claiming feelings; offer more help."
-    },
-    {
-      "kind": "acknowledgement",
-      "situation": "smalltalk_acknowledgement",
-      "part": "body",
-      "describe": "The user only acknowledges (ok, got it, I see, cool, alright). Reply very briefly and leave the door open for another question."
+      "group": "courtesy",
+      "situation": "smalltalk_how_are_you"
     },
     {
       "kind": "presence_check",
-      "situation": "smalltalk_presence_check",
-      "part": "body",
-      "describe": "The user checks whether you are there or working (are you there?, hello?, test). Confirm briefly that you are here and ready."
+      "group": "courtesy",
+      "situation": "smalltalk_presence_check"
+    },
+    {
+      "kind": "compliment",
+      "group": "courtesy",
+      "situation": "smalltalk_compliment"
+    },
+    {
+      "kind": "acknowledgement",
+      "group": "courtesy",
+      "situation": "smalltalk_acknowledgement"
+    },
+    {
+      "kind": "small_talk_weather",
+      "group": "small_talk",
+      "situation": "smalltalk_weather"
+    },
+    {
+      "kind": "small_talk_plans",
+      "group": "small_talk",
+      "situation": "smalltalk_weekend"
+    },
+    {
+      "kind": "small_talk_hobbies",
+      "group": "small_talk",
+      "situation": "smalltalk_hobbies"
+    },
+    {
+      "kind": "small_talk_sport",
+      "group": "small_talk",
+      "situation": "smalltalk_sport"
+    },
+    {
+      "kind": "small_talk",
+      "group": "small_talk",
+      "situation": "smalltalk_chitchat"
     },
     {
       "kind": "correction",
-      "situation": "repair_user_correction",
-      "part": "body",
-      "describe": "The user says your last answer was wrong or not what they meant, without restating the question. Thank them, admit the answer may be wrong or the memory incomplete, and ask what they meant or which part is wrong."
-    },
-    {
-      "kind": "correction",
-      "situation": "open_user_correction",
-      "part": "opening",
-      "describe": "The opening of an answer to a message that corrects your earlier reading of the question. A short acknowledgement that you are trying again with the correction; the new answer follows."
+      "group": "conversation",
+      "situation": "repair_user_correction"
     },
     {
       "kind": "repeat_request",
-      "situation": "repair_repeat_request",
-      "part": "body",
-      "describe": "The user asks you to repeat or say that again, without a new question. You cannot quote your earlier reply here; point them to it just above and offer to explain a part differently."
+      "group": "conversation",
+      "situation": "repair_repeat_request"
     }
   ]
 }

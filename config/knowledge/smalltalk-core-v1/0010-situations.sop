@@ -96,3 +96,75 @@
 
 @stc_k_open_curiosity fact
   holds cv_opening_situation curiosity open_curiosity
+
+@stc_o_courtesy_introduction__courtesy_confirmation fact
+  holds cv_situation_outranks courtesy_introduction courtesy_confirmation
+
+@stc_o_courtesy_introduction_named__smalltalk_presence_check fact
+  holds cv_situation_outranks courtesy_introduction_named smalltalk_presence_check
+
+@stc_o_courtesy_introduction_named__repair_repeat_request fact
+  holds cv_situation_outranks courtesy_introduction_named repair_repeat_request
+
+@stc_o_courtesy_greeting_named__courtesy_confirmation fact
+  holds cv_situation_outranks courtesy_greeting_named courtesy_confirmation
+
+@stc_o_smalltalk_how_are_you__smalltalk_compliment fact
+  holds cv_situation_outranks smalltalk_how_are_you smalltalk_compliment
+
+@stc_o_smalltalk_weather__smalltalk_weekend fact
+  holds cv_situation_outranks smalltalk_weather smalltalk_weekend
+
+@stc_o_smalltalk_weather__smalltalk_hobbies fact
+  holds cv_situation_outranks smalltalk_weather smalltalk_hobbies
+
+@stc_o_smalltalk_weather__smalltalk_sport fact
+  holds cv_situation_outranks smalltalk_weather smalltalk_sport
+
+@stc_o_smalltalk_weekend__smalltalk_hobbies fact
+  holds cv_situation_outranks smalltalk_weekend smalltalk_hobbies
+
+@stc_o_smalltalk_weekend__smalltalk_sport fact
+  holds cv_situation_outranks smalltalk_weekend smalltalk_sport
+
+@stc_o_smalltalk_hobbies__smalltalk_sport fact
+  holds cv_situation_outranks smalltalk_hobbies smalltalk_sport
+
+@stc_o_smalltalk_chitchat__playful_banter fact
+  holds cv_situation_outranks smalltalk_chitchat playful_banter
+
+@stc_o_smalltalk_presence_check__repair_repeat_request fact
+  holds cv_situation_outranks smalltalk_presence_check repair_repeat_request
+
+@stc_o_repair_user_correction__self_identity fact
+  holds cv_situation_outranks repair_user_correction self_identity
+
+@stc_o_repair_user_correction__self_abilities fact
+  holds cv_situation_outranks repair_user_correction self_abilities
+
+@stc_o_repair_user_correction__self_knowledge fact
+  holds cv_situation_outranks repair_user_correction self_knowledge
+
+@stc_o_repair_user_correction__self_feelings fact
+  holds cv_situation_outranks repair_user_correction self_feelings
+
+@stc_o_repair_user_correction__self_human fact
+  holds cv_situation_outranks repair_user_correction self_human
+
+@stc_o_repair_user_correction__self_memory fact
+  holds cv_situation_outranks repair_user_correction self_memory
+
+@stc_o_repair_user_correction__self_internet fact
+  holds cv_situation_outranks repair_user_correction self_internet
+
+@stc_o_repair_user_correction__self_creator fact
+  holds cv_situation_outranks repair_user_correction self_creator
+
+@stc_o_repair_user_correction__adversarial_paradox fact
+  holds cv_situation_outranks repair_user_correction adversarial_paradox
+
+@stc_o_repair_user_correction__adversarial_false_premise fact
+  holds cv_situation_outranks repair_user_correction adversarial_false_premise
+
+@stc_o_courtesy_confirmation__courtesy_offensive fact
+  holds cv_situation_outranks courtesy_confirmation courtesy_offensive
