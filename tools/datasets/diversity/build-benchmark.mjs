@@ -83,7 +83,7 @@ export async function buildBenchmark({count = 100, split = 'dev', out = 'eval/sm
   let session;
   try {
     if (families.includes('f1')) {
-      const {openSession} = await import('../../eval/query-forms-probe.mjs');
+      const {openSession} = await import('../../eval/lib/session.mjs');
       session = openSession({base: 'world-v1', id: `benchmark-dev-${process.pid}`});
     }
     const theory = session?.theories.get([...session.sessions.baseCircuits(session.id), ...session.sessions.circuits(session.id)]);

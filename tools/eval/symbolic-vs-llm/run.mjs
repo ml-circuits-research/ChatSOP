@@ -19,7 +19,7 @@ import {wireText} from '../../../sop/knowledge/index.mjs';
 import {LIMITS, createWorld, execute, linkCircuit, withDefinitions, goldSlice, oracleOverSlice} from './world.mjs';
 import {score, equivalent, failureLayer} from './score.mjs';
 import {writeReport, stopDecision} from './report.mjs';
-import {openSession, defaultRoot} from '../query-forms-probe.mjs';
+import {openSession, defaultRoot} from '../lib/session.mjs';
 import {readExperiments} from '../../../lib/journal.mjs';
 import {localStrategy} from '../../../lib/formalize/strategies.mjs';
 const stepStrategies = new Map();

@@ -1,5 +1,6 @@
 /**
- * Runs the product chain on every question of a suite stage (tools/eval/kbqa/cli.mjs `run`), in process:
+ * Runs the product chain on every question of a suite stage (tools/eval/kbqa/cli.mjs `run`), in process, through the chat turn of
+ * ChatSOPAdapter (tools/eval/lib/chat-turn.mjs, the same glue as the chat):
  *   question -> step-by-step formalizer (server/query-parser.mjs: short questions to a TinyAgent tier, the system assembles the circuit; the message and the memory vocabulary only) -> Agent
  *   (server/agent.mjs: admission, KnowledgeLinker over the lexicon of the session's base memory, StrategyRouter, oracle) -> packet.
  * Every question gets its own conversation (no carried context); the session is the clone of the stage's base memory, and reads do not
@@ -13,8 +14,7 @@ import {BASE_NAME} from '../../../lib/chat-data/memories.mjs';
 import {ROOT} from './benchmarks.mjs';
 import {readSuite} from './suites.mjs';
 import {openData, memoryId} from './memory.mjs';
-import {createQueryParser} from '../../../server/query-parser.mjs';
-import {tierParserSettings} from '../lib/tier-parser.mjs';
+import {harnessChat, parserFailed} from '../lib/chat-turn.mjs';
 
 export const reportDir = suite => path.join(ROOT, 'eval', 'reports', 'current', 'kbqa', suite);
 export const stageFile = (suite, stage, tag = '') => path.join(reportDir(suite), `stage-${stage}${tag}.jsonl`);
@@ -66,32 +66,34 @@ export async function runSuite(suite, {stage = '100', limit = null, only = null,
   fs.mkdirSync(path.dirname(out), {recursive: true});
   const done = new Set(!force && fs.existsSync(out) ? fs.readFileSync(out, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l).id) : []);
   if (force) fs.rmSync(out, {force: true});
-  const queryParser = createQueryParser({settings: tierParserSettings(config, {tier, cacheEntries: 0})});
+  const chat = harnessChat({config, tier, source: 'eval:kbqa'});
   const lexicon = sessions.lexicon(sid);
-  const lm = {id: 'coding_agent', last: null, parse: null, async formalize(text) {
-    lm.parse = null;
-    try { const r = await queryParser.parse({source: 'eval:kbqa', message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); lm.parse = r.parse; lm.last = {route: 'coding_agent', ms: r.parse.ms}; return r.sop; }
-    catch (error) { lm.parse = error.parse ?? null; throw Object.assign(error, {layer: 'parser_failed'}); }
-  }};
   let n = 0;
-  for (const row of rows) {
-    if (done.has(row.id)) continue;
-    const t0 = performance.now();
-    const rec = {id: row.id, type: row.type, question: row.question, stage};
-    lm.last = null;
-    try {
-      const entry = store.get('kbqa', `c${rows.indexOf(row)}`, BASE_NAME);
-      const res = await Promise.race([
-        entry.agent.turn(row.question, {formalizer: lm}),
-        new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error('turn time limit'), {layer: 'timeout'})), TIMEOUT_MS + 30000)),
-      ]);
-      Object.assign(rec, {sop: res.sop, exec_sop: res.executionSop?.slice(0, 4000), text: res.text, ...conclude(res.packet), formalization_ms: res.formalization?.ms, lm: lm.last, parse: lm.parse});
-    } catch (error) {
-      Object.assign(rec, {error: String(error.message).slice(0, 400), error_layer: error.layer ?? (error.modelSop !== undefined ? 'sop_admission' : 'chain'), sop: error.modelSop ?? null, lm: lm.last, parse: lm.parse});
+  try {
+    for (const row of rows) {
+      if (done.has(row.id)) continue;
+      const t0 = performance.now();
+      const rec = {id: row.id, type: row.type, question: row.question, stage};
+      let parse = null;
+      try {
+        const entry = store.get('kbqa', `c${rows.indexOf(row)}`, BASE_NAME);
+        const turned = await Promise.race([
+          chat.turn(entry, row.question, {lexicon}),
+          new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error('turn time limit'), {layer: 'timeout'})), TIMEOUT_MS + 30000)),
+        ]);
+        const res = turned.result;
+        parse = turned.parse;
+        Object.assign(rec, {sop: res.sop, exec_sop: res.executionSop?.slice(0, 4000), text: res.text, ...conclude(res.packet), formalization_ms: res.formalization?.ms, lm: parse ? {route: 'coding_agent', ms: parse.ms} : null, parse});
+      } catch (error) {
+        parse = error.parse ?? null;
+        // A request parser that wrote no circuit is the record's `parser_failed`, never a substitute answer.
+        const layer = error.layer ?? (parserFailed(error) ? 'parser_failed' : error.modelSop !== undefined ? 'sop_admission' : 'chain');
+        Object.assign(rec, {error: String(error.message).slice(0, 400), error_layer: layer, sop: error.modelSop ?? null, lm: parse ? {route: 'coding_agent', ms: parse.ms} : null, parse});
+      }
+      rec.ms = Math.round(performance.now() - t0);
+      fs.appendFileSync(out, JSON.stringify(rec) + '\n');
+      if (++n % 10 === 0) log(`[kbqa ${suite}/${stage}] ${n + done.size}/${rows.length}`);
     }
-    rec.ms = Math.round(performance.now() - t0);
-    fs.appendFileSync(out, JSON.stringify(rec) + '\n');
-    if (++n % 10 === 0) log(`[kbqa ${suite}/${stage}] ${n + done.size}/${rows.length}`);
-  }
+  } finally { await chat.close(); }
   return {suite, stage, questions: rows.length, ran: n, resumed: done.size, file: path.relative(ROOT, out)};
 }

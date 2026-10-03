@@ -22,7 +22,7 @@ import {score} from '../../symbolic-vs-llm/score.mjs';
 import {verifyAnswer} from '../../../../reasoning/strategies/js-reference/index.mjs';
 import {parse} from '../../../../sop/knowledge/lexical.mjs';
 import {renderEnglish} from '../../../../reasoning/slice/render-english.mjs';
-import {openSession} from '../../query-forms-probe.mjs';
+import {openSession} from '../../lib/session.mjs';
 
 const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 export const NATURAL_FILE = path.join(ROOT, 'tools/eval/formalization/generality/natural-v1.jsonl');

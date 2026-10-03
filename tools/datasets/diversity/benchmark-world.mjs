@@ -14,7 +14,7 @@ function readRelation(files, root, id) {
 /** The world facts are an on-disk approved base memory, not an invented F1 surrogate. */
 export async function worldMultihop({split = 'dev'} = {}) {
   if (!['dev', 'preview'].includes(split)) throw new Error('World generator cannot read sealed data');
-  const {defaultRoot} = await import('../../eval/query-forms-probe.mjs');
+  const {defaultRoot} = await import('../../eval/lib/session.mjs');
   const root = circuits(defaultRoot());
   if (!fs.existsSync(root)) throw new Error(`world-v1 prerequisite missing: ${root}`);
   const worldFacts = JSON.parse(fs.readFileSync(path.join(path.dirname(root), 'manifest.json'), 'utf8')).facts;

@@ -3,8 +3,9 @@
  * Evaluation of the formalizer (experiment eval-query-parsers-v1, DS007): the step-by-step strategy (LocalLLMStepByStep or
  * InternalReasoningStepByStep) with its questions answered by one TinyAgent tier (`--tier`, like with like) or the product ladder (default);
  * one-shot LLMDirect was archived on 2026-10-02 (probably_obsolete/one-shot-formalization/), on the same questions over the
- * same base memory, through the shared path (Agent turn: admission, linking, slice retrieval, StrategyRouter, oracle verification, completeness guard,
- * rendering). In process, no server, no port; a failed formalizer is an error of the record (`parser_failed`), never replaced by another answer.
+ * same base memory, through the chat turn of ChatSOPAdapter (tools/eval/lib/chat-turn.mjs, the same glue as the chat: Agent turn with admission,
+ * linking, slice retrieval, StrategyRouter, oracle verification, completeness guard, rendering). In process, no server, no port; a failed
+ * formalizer is an error of the record (`parser_failed`), never replaced by another answer.
  *
  *   node tools/eval/formalization/query-parsers.mjs run    --suite world30|forms [--tier tiny|small|medium|good] [--strategy LocalLLMStepByStep|InternalReasoningStepByStep] [--limit N] [--only q01,q02] [--concurrency 3] [--rows file] [--base world-v1] [--tag t] [--force]
  *   node tools/eval/formalization/query-parsers.mjs recall --rows file [--k 24]   # recall of the gold predicates (the ids of the row's kb_query) in the retrieved candidates, no model
@@ -21,8 +22,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {BASE_NAME} from '../../../lib/chat-data/memories.mjs';
-import {createQueryParser} from '../../../server/query-parser.mjs';
-import {tierParserSettings} from '../lib/tier-parser.mjs';
+import {harnessChat} from '../lib/chat-turn.mjs';
 import {candidatePredicates, predicateRecall} from '../../../lib/query-author/retrieval.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -63,19 +63,17 @@ async function run(args) {
   const labels = fs.existsSync(path.join(ROOT, 'datasets_sources/world-kb/entities.json')) ? JSON.parse(fs.readFileSync(path.join(ROOT, 'datasets_sources/world-kb/entities.json'), 'utf8')) : {};
   // world30 runs on the product's chat data; the forms suite on the private root of the query-forms work (world-v1 with the measure lexemes of rules v2.9), unless QF_CHAT_ROOT says otherwise.
   if (suite === 'world30') process.env.QF_CHAT_ROOT ??= path.join(ROOT, 'chat_data');
-  const {openSession} = await import('../query-forms-probe.mjs');
+  const {openSession} = await import('../lib/session.mjs');
   const base = opt('--base', 'world-v1');
   const session = openSession({base, id: `qp-${parser.toLowerCase().replace(/[^a-z0-9_-]+/g, '-')}-${Date.now().toString(36)}`});
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8'));
-  const settings = tierParserSettings(config, {tier, strategy, cacheEntries: 0});
-  const queryParser = createQueryParser({settings});
+  const chat = harnessChat({config, tier, strategy, source: 'eval:query-parsers'});
   const lexicon = session.sessions.lexicon(session.id);
   const asOne = async row => {
     const started = Date.now();
     let parse = null, result = null, error = null;
     const entry = session.store.get('qp', 'c-' + row.id, BASE_NAME);
-    const formalizer = {id: parser, formalize: async text => { const r = await queryParser.parse({source: 'eval:query-parsers', message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); parse = r.parse; return r.sop; }};
-    try { result = await entry.agent.turn(row.question, {formalizer}); } catch (e) { error = e; parse = parse ?? e.parse ?? null; }
+    try { const turned = await chat.turn(entry, row.question, {lexicon}); result = turned.result; parse = turned.parse; } catch (e) { error = e; parse = e.parse ?? null; }
     const packet = result?.packet ?? null;
     const pass = !error && (suite === 'world30' ? judgeWorld(row, packet, result.text ?? '', labels) : judgeGold(row.gold, packet));
     return {id: row.id, form: row.form ?? row.kind ?? null, question: row.question, parser, outcome: outcomeOf(pass, packet, error), status: packet?.status ?? null, text: (result?.text ?? '').slice(0, 300),
@@ -92,6 +90,7 @@ async function run(args) {
   });
   await Promise.all(workers);
   session.close();
+  await chat.close();
   console.log(JSON.stringify({suite, parser, written: rows.length, file: path.relative(ROOT, out)}));
 }
 
@@ -112,7 +111,7 @@ async function recall(args) {
   const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : d; };
   const rows = fs.readFileSync(opt('--rows'), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).filter(r => r.kb_query);
   process.env.QF_CHAT_ROOT ??= path.join(ROOT, 'chat_data');
-  const {openSession} = await import('../query-forms-probe.mjs');
+  const {openSession} = await import('../lib/session.mjs');
   const session = openSession({base: opt('--base', 'world-v1'), id: `qp-recall-${Date.now().toString(36)}`});
   const lexicon = session.sessions.lexicon(session.id);
   const k = Number(opt('--k', 24));

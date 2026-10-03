@@ -23,7 +23,7 @@ import {createWorld, execute, goldSlice} from '../../symbolic-vs-llm/world.mjs';
 import {score} from '../../symbolic-vs-llm/score.mjs';
 import {naturalRows, rescore} from '../generality/run.mjs';
 import {verifyAnswer} from '../../../../reasoning/strategies/js-reference/index.mjs';
-import {openSession} from '../../query-forms-probe.mjs';
+import {openSession} from '../../lib/session.mjs';
 import {parse} from '../../../../sop/knowledge/lexical.mjs';
 import {STEP_BY_STEP_METHODS} from '../../../../lib/formalize/strategies.mjs';
 import {DEFAULT_LOCAL_TIER} from '../../symbolic-vs-llm/run.mjs';

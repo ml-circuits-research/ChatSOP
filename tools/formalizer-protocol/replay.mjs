@@ -11,7 +11,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {protocolRows, prepare} from '../eval/formalization/stepbystep-protocol/run.mjs';
-import {openSession} from '../eval/query-forms-probe.mjs';
+import {openSession} from '../eval/lib/session.mjs';
 import {internalReasoningQuery, createReasoningOracle, loadProtocol} from '../../lib/formalize/internal-reasoning/index.mjs';
 
 const opt = (args, name, fallback) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };

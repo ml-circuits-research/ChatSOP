@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * Small evaluation of the small-talk collections (owner request of 2026-10-02): the 40 fresh chat messages of
- * eval/smalltalk-v1/messages.jsonl go through the product chat turn (server/agent.mjs over the default base memory world-v1, request
- * parser: the step-by-step formalizer on its configured tier ladder, or one tier with --tier), each formalized once; the reply is composed under three reply layers:
+ * eval/smalltalk-v1/messages.jsonl go through the chat turn of ChatSOPAdapter (tools/eval/lib/chat-turn.mjs, the same glue as the chat;
+ * server/agent.mjs over the default base memory world-v1, request parser: the step-by-step formalizer on its configured tier ladder, or
+ * one tier with --tier), each formalized once (the cached circuit is the turn's circuit author); the reply is composed under three reply layers:
  *
  *   A  conversation-v1 alone (the layer before the collections)
  *   B  conversation-v1 + the default collections (config conversation.layers): smalltalk-core, -empathy, -self, -playful
@@ -26,8 +27,7 @@ import {ChatData} from '../../../../lib/chat-data/index.mjs';
 import {BaseMemories, BASE_NAME} from '../../../../lib/chat-data/memories.mjs';
 import {Sessions} from '../../../../lib/chat-data/sessions.mjs';
 import {TheoryCache} from '../../../../reasoning/slice/index.mjs';
-import {createQueryParser} from '../../../../server/query-parser.mjs';
-import {tierParserSettings} from '../../lib/tier-parser.mjs';
+import {harnessChat} from '../../lib/chat-turn.mjs';
 import {seedCircuits} from '../../../../lib/knowledge-seeds.mjs';
 import {setReplyLayer, indexLayer} from '../../../../sop/replies.mjs';
 import {composeReply} from '../../../../lib/conversation/index.mjs';
@@ -57,7 +57,8 @@ async function turns() {
     circuitRules: () => theories.get([...sessions.baseCircuits(id), ...sessions.circuits(id)]).chatRules()});
   const tierAt = args.indexOf('--tier');
   // Every formalization call through TinyAgent is tagged with this evaluation's purpose (the parser would tag it `formalize`).
-  const parser = createQueryParser({settings: tierParserSettings(config, {tier: tierAt >= 0 ? args[tierAt + 1] : null, tags: {purpose: PURPOSE}, cacheEntries: 0})});
+  const chat = harnessChat({config, tier: tierAt >= 0 ? args[tierAt + 1] : null, tags: {purpose: PURPOSE}, source: 'eval:smalltalk'});
+  const parser = chat.queryParser;
   const layers = args.includes('--formalize-only') ? {} : Object.fromEntries(Object.entries(ARMS).map(([arm, ids]) => [arm, layerOf(ids)]));
   const topics = topicsOf(lexicon);
   fs.mkdirSync(OUT, {recursive: true});
@@ -94,7 +95,7 @@ async function turns() {
         const started = Date.now();
         let row;
         try {
-          const res = await entry.agent.turn(m.message, {formalizer});
+          const {result: res} = await chat.turn(entry, m.message, {lexicon, author: formalizer});
           row = {id: m.id, arm, category: m.category, label: m.label, message: m.message, ok: true, text: res.text, status: res.packet?.status ?? null,
             situations: Object.fromEntries(['opening', 'body', 'aside', 'follow_up', 'closing'].map(p => [p, res.packet?.reply?.[p]?.situation ?? null]).filter(([, v]) => v)),
             signals: (res.packet?.pragmatic ?? []).map(s => s.kind), computed: !['unclear', 'courtesy'].includes(res.packet?.status), packet: res.packet, ms: Date.now() - started};
@@ -122,7 +123,7 @@ async function turns() {
     }
   } finally {
     fs.rmSync(sessions.dir(id), {recursive: true, force: true});
-    await parser.stop?.();
+    await chat.close();
   }
   if (only) return;
   fs.writeFileSync(path.join(OUT, 'turns.jsonl'), rows.map(r => JSON.stringify({...r, packet: undefined})).join('\n') + '\n');

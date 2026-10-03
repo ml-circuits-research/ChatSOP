@@ -7,7 +7,7 @@
  *   node tools/eval/formalization/query-forms/gold.mjs --in rows.jsonl --out dev.jsonl [--rejected rejected.jsonl]
  */
 import fs from 'node:fs';
-import {openSession} from '../../query-forms-probe.mjs';
+import {openSession} from '../../lib/session.mjs';
 import {askMemory} from '../../../../reasoning/slice/index.mjs';
 
 const args = process.argv.slice(2);

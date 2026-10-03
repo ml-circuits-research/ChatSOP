@@ -30,10 +30,10 @@ import {createKnowledgeRouter,KNOWLEDGE_ENDPOINTS} from './review.mjs';
 import {createFeedback,FEEDBACK_ENDPOINTS} from './feedback.mjs';
 import {createAnalysisRoutes,ANALYSIS_ENDPOINTS} from './analysis.mjs';
 import {createQueryParser,queryParserSettings} from './query-parser.mjs';
-import {serverStatus,strategyRequest} from './status.mjs';
-import {createAnswerFormulator,answerLanguageSettings,looksEnglish} from './answer-language.mjs';
-import {createChatSOPAdapter,parserFormalizer,checkAdapterOptions} from '../lib/adapter/index.mjs';
-import {adapterReply} from '../lib/adapter/reply.mjs';
+import {serverStatus} from './status.mjs';
+import {createAnswerFormulator,answerLanguageSettings} from './answer-language.mjs';
+import {createChatSOPAdapter,checkAdapterOptions} from '../lib/adapter/index.mjs';
+import {chatTurn} from '../lib/adapter/chat-turn.mjs';
 
 /** `GET /v1/status` (server/status.mjs): the formalization strategies, base memories, engines and caches of this server. */
 export const STATUS_ENDPOINT=Object.freeze({method:'GET',path:'/v1/status',capability:'status'});
@@ -245,16 +245,10 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
     // conversation layer with the verification status.
     const lex=rt?.lexicon??lexicon,choice=checkAdapterOptions(body.adapter),{mode:asked,...options}=choice;
     const mode=asked??rt?.info?.settings?.adapter_mode??adapter.settings.mode;
-    const author=parserFormalizer(queryParser,{lexicon:lex,source:'chat',preferredModel:rt?.info?.settings?.formalizer_model??rt?.info?.settings?.omp_model??null,request:{messageLanguage:looksEnglish(text)?'en':'other',...strategyRequest(queryParser,rt?.info?.settings?.formalizer??null)}});
-    const answered=await adapter.answer({message:text,mode,options,stepwise:{agent:entry.agent,formalizer:author},lexicon:lex}).catch(e=>{e.parse=e.parse??author.parse;parseRecord=e.parse;throw e;});
-    parseRecord=author.parse;
-    if(answered.mode!=='stepwise'){author.id='adapter:'+answered.mode;author.label='ChatSOPAdapter '+answered.mode;}
-    const {packet:_runtimePacket,turn:_turn,...summary}=answered;
-    let result;
-    if(answered.mode==='stepwise'){result=answered.turn;if(result.packet)result.packet.adapter=summary;}
-    else{const out=adapterReply(entry.agent,answered,{text});const circuits=answered.circuits.map(c=>c.sop).join('\n\n');entry.agent.last=out;entry.agent.recent.push({user:text.slice(0,400),response:out.text.slice(0,500)});entry.agent.recent=entry.agent.recent.slice(-3);
-     result={sop:circuits,executionSop:circuits,cnl:out.text,text:out.text,englishText:out.text,packet:out.packet,trace:[],userStatements:[],carriedStatements:[],modelAssumptions:[],answerLanguage:'en',formalization:{model:'adapter:'+answered.mode,ms:answered.timings.total}};}
-    if(parseRecord&&result.packet)result.packet.parse=parseRecord;
+    // The turn itself (circuit author, adapter, result assembly) is lib/adapter/chat-turn.mjs, shared with every evaluation harness.
+    const turned=await chatTurn({adapter,agent:entry.agent,queryParser,lexicon:lex,message:text,mode,options,source:'chat',preferredModel:rt?.info?.settings?.formalizer_model??rt?.info?.settings?.omp_model??null,strategy:rt?.info?.settings?.formalizer??null}).catch(e=>{parseRecord=e.parse??null;throw e;});
+    parseRecord=turned.parse;
+    const {result,author,answered}=turned;
     // The deterministic English answer stays in the trace; a faithful phrasing in the message's language replaces the shown text.
     if(answerFormulator&&!result.packet?.localized){const phrased=await answerFormulator.formulate({message:text,english:result.text,packet:result.packet??{}});result.answerLanguage={...phrased,text:undefined};if(phrased.applied)result.text=phrased.text;}
     // The turn record (DS022 "Chat feedback"): the assistant entry of the session transcript carries the turn number, the trace id and what

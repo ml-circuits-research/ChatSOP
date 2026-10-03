@@ -20,7 +20,7 @@ import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {protocolRows, prepare} from '../stepbystep-protocol/run.mjs';
 import {runArm, DEFAULT_LOCAL_TIER} from '../../symbolic-vs-llm/run.mjs';
-import {openSession} from '../../query-forms-probe.mjs';
+import {openSession} from '../../lib/session.mjs';
 import {rescore} from '../generality/run.mjs';
 import {loadProtocol} from '../../../../lib/formalize/internal-reasoning/reasoner.mjs';
 

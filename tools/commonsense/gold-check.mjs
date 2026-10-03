@@ -8,7 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {openSession} from '../eval/query-forms-probe.mjs';
+import {openSession} from '../eval/lib/session.mjs';
 import {askMemory} from '../../reasoning/slice/index.mjs';
 import {GOLD_CIRCUITS} from '../../eval/commonsense/gold-circuits.mjs';
 

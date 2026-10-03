@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {openSession, defaultRoot} from '../../tools/eval/query-forms-probe.mjs';
+import {openSession, defaultRoot} from '../../tools/eval/lib/session.mjs';
 import {askMemory} from '../../reasoning/slice/index.mjs';
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
