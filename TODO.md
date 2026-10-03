@@ -69,7 +69,7 @@ is a TaskLambdaCall folder (manual: "TaskLambdas and TaskLambdaCalls" in `TinyAg
   each TaskLambda execution a child call, the plan cache as the TaskLambda cache (`.tinyagent/lambdas`, old `.tinyagent/plans` migrated
   in place), pure reuse, `tinyagent lambdas|call|calls`, `GET /v1/calls`; tests `TinyAgent/test/calls.test.mjs`; the old names read
   through `TinyAgent/lib/legacy.mjs`. Decision: the job runner's run folders and the task folders are wrapped by their calls (linked from
-  call.json), not moved.
+  call.json), not moved; the folders written before were wrapped with `tinyagent calls import` (51 of `state/llm-jobs/`, 554 item calls).
 - [ ] **Files of other agents, after they commit** (each then leaves the `PENDING` list of `tests/tinyagent/no-direct-model-calls.test.mjs`
   and of `TinyAgent/test/calls.test.mjs`): `jobs/skills/chatsop.mjs` and `jobs/skills/regression.mjs` (declare `effects`; `inputs` ->
   `params`, `ctx.inputs` -> `ctx.params`, export `lambdas`; comments), `tools/eval/formalization-regression/{argument,grow,record,offline}.mjs`

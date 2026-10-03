@@ -90,9 +90,10 @@ export class CallHandle {
   child(o) { return this.store.start({ ...o, parent: this }); }
 
   /** Ends the call: output.json, summary.json, call.json (status, ms, inputs), the index, and the reuse pointer of a pure call. */
-  finish({ status = 'ok', result = null, error = null, reused_from = null, reuseKey = null } = {}) {
+  finish({ status = 'ok', result = null, error = null, reused_from = null, reuseKey = null, at: when = null } = {}) {
     this.record = readJson(this.file('call.json')) ?? this.record;
-    const at = new Date().toISOString();
+    // `at`: the end time of a call wrapped after the fact (an imported run folder); otherwise now.
+    const at = when && !Number.isNaN(Date.parse(when)) ? new Date(when).toISOString() : new Date().toISOString();
     const ms = Date.parse(at) - Date.parse(this.record.started_at);
     let text = JSON.stringify(result ?? null);
     const out = { id: this.id, status, result: result ?? null, error: error ? clip(error, 4000) : null, ...(reused_from ? { reused_from } : {}), finished_at: at };

@@ -12,7 +12,8 @@
  *                                                                --server lists the server's TaskLambdas (built-in, project, jobs, templates)
  *   tinyagent call <name> [--params '{json}'] [--attach file]... [--detach]   one TaskLambdaCall in the server
  *   tinyagent calls [list] [--lambda n] [--status s] [--date YYYY-MM-DD] [--since d] [--parent id] [--top] [--limit n]
- *                 | show <id> | tree <id> | search <text> [filters] | prune [--days N] [--yes]   [--calls DIR] [--json]
+ *                 | show <id> | tree <id> | search <text> [filters] | prune [--days N] [--yes]
+ *                 | import [--runs DIR] [--workdir DIR]... [--yes]   [--calls DIR] [--json]
  *                                                                the call folders (no server needed)
  *   tinyagent run-lambdas "<request>" [--attach file]... [--plan-only]   plan server TaskLambdas as steps on the planner tier, then run them
  *   tinyagent job <dir> [--stage s] [--resume run-id] [--refresh] [--no-register] [--publish dir]
@@ -42,7 +43,7 @@ const out = (o) => console.log(typeof o === 'string' ? o : JSON.stringify(o, nul
 const layers = () => loadLayers({ project: opt('config') });
 const client = (purpose = opt('purpose', 'lambda:cli')) => createTinyAgent({ url: opt('url'), purpose, autostart: process.env.TINYAGENT_AUTOSTART !== '0', config: layers().project });
 const logLine = (l) => process.stderr.write(`${l}\n`);
-const finishOp = (op) => { out(op.result?.summary ?? op.error ?? op.status); if (op.status !== 'finished') process.exitCode = 3; };
+const finishOp = (op) => { if (op.dir) logLine(`call: ${op.dir}`); out(op.result?.summary ?? op.error ?? op.status); if (op.status !== 'finished') process.exitCode = 3; };
 
 async function main() {
   switch (cmd) {
@@ -67,7 +68,7 @@ async function main() {
       let op;
       try { op = await ta.call(rest[0], params, o); }
       catch (e) { if (e.status !== 404) throw e; op = await ta.skill(rest[0], params, o); } // a server started before the rename
-      if (op.dir) logLine(`call: ${op.dir}`);
+      if (flag('detach') && op.dir) logLine(`call: ${op.dir}`);
       return flag('detach') ? out({ id: op.id, status: op.status ?? 'started', call: op.dir ?? null, follow: `tinyagent ops ${op.id}` }) : finishOp(op);
     }
     case 'job': {
@@ -209,7 +210,14 @@ async function callsCommand() {
     const r = store.prune({ days, dryRun: !flag('yes') });
     return out(`${flag('yes') ? 'pruned' : 'would prune (--yes to apply)'}: ${r.calls} call(s), ${r.files} file(s), ${r.bytes} bytes, days ${r.days.join(', ') || 'none'} (kept: call.json, output.json, summary.json; older than ${days} days)`);
   }
-  throw new Error(`unknown calls command ${sub} (list, show, tree, search, prune)`);
+  if (sub === 'import') {
+    // The run folders of before TaskLambdaCalls (job runs, task folders, server operations; agent runs of --workdir) wrapped as calls.
+    const { importRunFolders } = await import('../lib/lambda/index.mjs');
+    const dataDir = path.resolve(opt('runs') ?? config.runner?.dataDir ?? path.join(process.env.HOME ?? '.', '.tinyagent', 'runs'));
+    const r = importRunFolders(store, { dataDir, workdirs: opts('workdir').map((d) => path.resolve(d)), dryRun: !flag('yes') });
+    return out(`${flag('yes') ? 'wrapped' : 'would wrap (--yes to apply)'}: ${r.calls} folder(s) of ${dataDir}${opts('workdir').length ? ` and ${opts('workdir').length} work folder(s)` : ''} as calls (${r.items} item calls), ${r.skipped} already wrapped`);
+  }
+  throw new Error(`unknown calls command ${sub} (list, show, tree, search, prune, import)`);
 }
 
 /** Commands that read the run folders of the job runner (no model call). */

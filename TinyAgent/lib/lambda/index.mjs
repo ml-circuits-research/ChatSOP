@@ -6,6 +6,7 @@ import { CallStore, CALL_DEFAULTS } from './calls.mjs';
 export { CallStore, CallHandle, CALL_DEFAULTS, KEEP_ON_PRUNE, callStatus, modelRow, summarize, sha256, canonical, fileHash } from './calls.mjs';
 export { EFFECT_KINDS, REFUSED_EFFECTS, effectsProblems, isPure, allows, requireEffect, EffectRefused, effectsUsedBy, inferredEffects } from './effects.mjs';
 export { loadLambdas, validateParams, catalogOf, lambdaView, dirHash, freshImport, UNDECLARED_EFFECTS } from './registry.mjs';
+export { importRunFolders } from './import.mjs';
 
 /** The calls settings: CALL_DEFAULTS under the configuration's `calls` section (`dir` null means `<TinyAgent home>/calls`). */
 export function callSettings(config = {}, env = process.env) {

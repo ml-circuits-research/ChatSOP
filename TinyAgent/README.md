@@ -282,6 +282,10 @@ audited. A result larger than `calls.maxResultBytes` goes to `result.json` and i
 summary.json; `calls tree <id>` the call tree; `calls prune [--days N] --yes` keeps call.json, output.json and summary.json (the effect
 and model summaries) of calls older than N days (`calls.keepArtifactsDays`, default 30) and removes the rest (logs, line files, code,
 outputs); a call still running is left alone. The server answers the same over HTTP (`GET /v1/calls`, `/v1/calls/<id>`, `/v1/calls/<id>/tree`).
+`tinyagent calls import [--runs DIR] [--workdir DIR]... --yes` wraps the folders written before calls existed (job runs with one child
+call per item, task folders, server operations of `runs/ops/`, agent runs of `<workdir>/.tinyagent/runs/`) as calls that keep the
+original time and say `migrated_from`; the folders themselves are not changed, and `imported.jsonl` in the calls root makes a second
+import add only new ones.
 
 **`run-lambdas`** (`tinyagent run-lambdas "<request>"`, `ta.run`, `POST /v1/run`; the agent of `tinyagent run` is described below): the
 planner role (tier `good`) sees the catalog of TaskLambdas (names, descriptions, params, effects; never code) and answers `{"steps":
@@ -397,7 +401,7 @@ tinyagent run "<instructions>" [--workdir DIR] [--lambdas DIR] [--calls DIR] [--
 tinyagent lambdas [list] [--server] | show <id> | verify <id> | rm <id> | promote <id> --name <name> [--to DIR] [--yes]   [--workdir DIR] [--lambdas DIR]
 tinyagent call <name> [--params '{json}'] [--attach file]... [--detach]   # one TaskLambdaCall; --detach prints the operation id at once
 tinyagent calls [list] [--lambda n] [--status s] [--date d] [--since d] [--parent id] [--top] [--limit n] | show <id> | tree <id>
-                | search <text> | prune [--days N] [--yes]   [--calls DIR] [--json]
+                | search <text> | prune [--days N] [--yes] | import [--runs DIR] [--workdir DIR]... [--yes]   [--calls DIR] [--json]
 tinyagent run-lambdas "<request>" [--attach file]... [--plan-only]
 tinyagent job <dir> [--stage s] [--resume run-id] [--refresh] [--no-register] [--publish dir]
 tinyagent check <dir> | list [job] | show <job> <run-id> | prune
@@ -439,7 +443,7 @@ a key file) makes every request but `/health` need `Authorization: Bearer <token
 `lib/server.mjs` (the server and its operations), `lib/client.mjs` (the library), `lib/worker.mjs` (an operation), `lib/inproc.mjs`
 (in-process and port transports), `lib/config.mjs` (layers, home), `lib/settings.mjs` (keys), `lib/limiter.mjs`, `lib/plan.mjs`,
 `lib/monitor.mjs`, `lib/cache.mjs`, `lib/audit.mjs`, `lib/guard.mjs`, `lib/local.mjs`, `lib/prompted.mjs`, `lib/lambda/` (TaskLambdas:
-`registry.mjs`, `effects.mjs`, `calls.mjs` the call folders), `lib/sandbox.mjs`, `lib/agent/` (the agent of `run`: `run.mjs`,
+`registry.mjs`, `effects.mjs`, `calls.mjs` the call folders, `import.mjs` the earlier run folders as calls), `lib/sandbox.mjs`, `lib/agent/` (the agent of `run`: `run.mjs`,
 `lambda-cache.mjs`, `lambda-code.mjs`, `match.mjs`, `bm25.mjs`, `workspace.mjs`, `agent-skills.mjs`), `lib/dashboard.mjs`, `lib/probe.mjs`,
 `lib/jobs/` (the job runner), `lambdas/` (built-in TaskLambdas), `prompts/` (the runner's and the planners' own
 prompts), `config.default.json`, `test/`, `bench/` (task sets with known results). `lib/legacy.mjs` holds the names of before the TaskLambda rename

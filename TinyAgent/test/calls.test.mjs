@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { CallStore, effectsProblems, effectsUsedBy, inferredEffects, callStoreOf } from '../lib/lambda/index.mjs';
+import { CallStore, effectsProblems, effectsUsedBy, inferredEffects, callStoreOf, importRunFolders } from '../lib/lambda/index.mjs';
 import { runAgent, LambdaCache, executeLambda, createWorkspace, agentSettings, lambdaHash } from '../lib/agent/index.mjs';
 
 const tmp = (name = 'ta-calls-') => fs.mkdtempSync(path.join(os.tmpdir(), name));
@@ -271,6 +271,38 @@ test('migration: an old plan folder becomes the TaskLambda cache; effects are in
   assert.match(e.md, /## Last calls\n- earlier/);
   assert.deepEqual(cache.calls('count-lines-abc123'), [{ run: 'x' }]);
   for (const f of ['plan.mjs', 'PLAN.md', 'runs.jsonl']) assert.equal(fs.existsSync(path.join(e.dir, f)), false, f);
+});
+
+test('import: the run folders of before (job runs with items, tasks, operations, agent runs) are wrapped as calls, once', () => {
+  const data = tmp('ta-runs-'), wd = tmp('ta-work-');
+  const w = (p, v) => { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, typeof v === 'string' ? v : JSON.stringify(v)); };
+  const run = path.join(data, 'upper', '20261002T143343-3fb879');
+  w(path.join(run, 'run.json'), { job: 'upper', run_id: '20261002T143343-3fb879', spec_hash: 'ab'.repeat(32), stage: 'all', status: 'finished', started_at: '2026-10-02T14:33:43.000Z', finished_at: '2026-10-02T14:35:00.000Z', counts: { accepted: 2 } });
+  w(path.join(run, 'accepted.jsonl'), '{"id":"a","output":"A","at":"2026-10-02T14:34:00.000Z"}\n{"id":"b","output":"B"}\n');
+  w(path.join(run, 'rejected.jsonl'), '{"id":"c","problems":["empty"]}\n');
+  w(path.join(run, 'summary.md'), '# upper run: finished\n');
+  w(path.join(data, 'tasks', '20261002T154702-735fe7', 'task.json'), { id: '20261002T154702-735fe7', created_at: '2026-10-02T15:47:02.000Z', instructions: 'Learn the handbook', status: 'finished', attachments: [{ name: 'h.md', sha256: 'cd', bytes: 3 }] });
+  w(path.join(data, 'ops', '20261003T145619-skill-0a72dd', 'request.json'), { id: '20261003T145619-skill-0a72dd', kind: 'skill', args: { name: 'echo', inputs: { text: 'hi' }, attachments: [] }, purpose: 'skill:echo' });
+  w(path.join(data, 'ops', '20261003T145619-skill-0a72dd', 'result.json'), { status: 'finished', result: { status: 'finished', summary: 'hi' }, error: null });
+  w(path.join(data, 'ops', '20261003T145613-skills-4fae59', 'request.json'), { id: 'x', kind: 'skills', args: {} });
+  w(path.join(wd, '.tinyagent', 'runs', '20261003T120000-agent-aa', 'request.json'), { id: '20261003T120000-agent-aa', request: 'Sum it', at: '2026-10-03T12:00:00.000Z' });
+  w(path.join(wd, '.tinyagent', 'runs', '20261003T120000-agent-aa', 'result.json'), { status: 'finished', answer: '5', ms: 1500 });
+  const store = new CallStore(tmp()).ensure();
+  const dry = importRunFolders(store, { dataDir: data, workdirs: [wd], dryRun: true });
+  assert.deepEqual([dry.calls, store.days()], [4, []], 'a dry run writes nothing');
+  const r = importRunFolders(store, { dataDir: data, workdirs: [wd] });
+  assert.deepEqual([r.calls, r.items, r.skipped], [4, 3, 0]);
+  const job = store.search({ lambda: 'job' })[0];
+  assert.equal(job.started_at, '2026-10-02T14:33:43.000Z', 'the call keeps the time of the run');
+  const jc = store.show(job.id);
+  assert.deepEqual([jc.call.migrated_from, jc.call.job_run.run, jc.output.status, jc.call.ms], [run, '20261002T143343-3fb879', 'ok', 77000]);
+  assert.deepEqual(store.tree(job.id).children.map((c) => [c.lambda, c.status]).sort(), [['upper.item', 'failed'], ['upper.item', 'ok'], ['upper.item', 'ok']]);
+  assert.equal(store.search({ lambda: 'task' })[0].status, 'ok');
+  const op = store.show(store.search({ lambda: 'echo' })[0].id);
+  assert.deepEqual([op.call.params, op.output.result.summary], [{ text: 'hi' }, 'hi']);
+  assert.equal(store.search({ lambda: 'agent' })[0].ms, 1500);
+  assert.equal(importRunFolders(store, { dataDir: data, workdirs: [wd] }).skipped, 4, 'a second import adds nothing');
+  assert.ok(fs.existsSync(path.join(run, 'run.json')) && !fs.existsSync(path.join(run, 'call.json')), 'the original folder is not changed');
 });
 
 test('the old name of the TaskLambda concept appears nowhere in TinyAgent', () => {
