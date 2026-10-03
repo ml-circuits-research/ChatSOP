@@ -1,7 +1,7 @@
 // Analysis procedures (DS022 "Analysis procedures"): the starter library analysis-core-v1, the analyzer lib/analysis (document view,
 // procedures as members, the StrategyRouter and the oracle's proofs), the report from the conversation layer, every procedure kind on
 // small documents, parameters, domain procedures as data, the sources (circuits, a base memory, a session), the HTTP routes, the
-// ChatSOPAdapter mode, the LLMJobs template and the test set eval/analysis-v1 at level (a). No test calls a model.
+// ChatSOPAdapter mode, the task template and the test set eval/analysis-v1 at level (a). No test calls a model.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -265,7 +265,7 @@ test('the analysis mode of ChatSOPAdapter (when lib/adapter is present)', async 
   await assert.rejects(adapter.answer({message: 'x', mode: 'analysis', options: {}}), e => e.code === 'invalid_parameter');
 });
 
-test('the LLMJobs template analyze-document: declared parameters, targets, and an adapter that loads', async () => {
+test('the task template analyze-document: declared parameters, targets, and an adapter that loads', async () => {
   const tpl = JSON.parse(fs.readFileSync(repoPath('jobs/templates/analyze-document/template.json'), 'utf8'));
   assert.equal(tpl.kind, 'adapter');
   assert.deepEqual(tpl.targets, ['memory', 'session', 'none']);

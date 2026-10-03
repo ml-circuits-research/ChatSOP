@@ -14,7 +14,7 @@ import { openSync, closeSync, mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_URL, tinyHome } from './settings.mjs';
-import { withOldHeaders, headerOf, OLD_ENV, OLD_LAMBDA_ENDPOINTS } from './legacy.mjs';
+import { OLD_LAMBDA_ENDPOINTS } from './legacy.mjs';
 import { httpFetch } from './http-fetch.mjs';
 
 const BIN = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'bin', 'tinyagent.mjs');
@@ -55,7 +55,7 @@ export class TinyAgentUnavailable extends Error {
  */
 export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = null, client = null, cache = null, priority = null, token = null, autostart = null, config = null, env = process.env } = {}) {
   if (!purpose || typeof purpose !== 'string') throw new TypeError('createTinyAgent: a purpose tag is required (for example "job:<name>", "chat", "test:<name>")');
-  const base = String(url ?? env.TINYAGENT_URL ?? env[OLD_ENV.url] ?? DEFAULT_URL).replace(/\/v1\/?$/, '').replace(/\/+$/, '');
+  const base = String(url ?? env.TINYAGENT_URL ?? DEFAULT_URL).replace(/\/v1\/?$/, '').replace(/\/+$/, '');
   // Under node --test a client without an injected transport or an explicit server never reaches the machine's real server: a test
   // must not call a model (tests inject a fake transport or point `url` at a stub).
   const isolated = !fetchImpl && !url && env.NODE_TEST_CONTEXT && !env.TINYAGENT_URL;
@@ -82,7 +82,7 @@ export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = n
     if (p) { if (!PRIORITIES.includes(p)) throw new TypeError(`priority must be one of ${PRIORITIES.join(', ')}`); h[H.priority] = p; }
     if (o.client ?? client) h[H.client] = String(o.client ?? client).slice(0, 40);
     if (auth) h.authorization = `Bearer ${auth}`;
-    return withOldHeaders({ ...h, ...(o.headers ?? {}) });
+    return { ...h, ...(o.headers ?? {}) };
   };
 
   async function startServer() {
@@ -163,7 +163,7 @@ export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = n
       let j = null;
       try { j = JSON.parse(raw); } catch { /* reported below */ }
       const h = res.headers ?? new Headers();
-      const g = (k) => headerOf(h, `x-tinyagent-${k}`);
+      const g = (k) => h.get(`x-tinyagent-${k}`);
       const meta = { status: res.status, tier: g('tier'), served: g('model'), fallback: g('fallback'), fallbackReason: g('fallback-reason'), cached: g('cache') === 'hit', credits: num(h, 'x-quota-cost'), cacheKey: g('cache-key') };
       if (!res.ok || !j) {
         last = { ok: false, ...meta, text: '', body: j, error: j?.error ?? null, reason: `status ${res.status}: ${j?.error?.type ? `${j.error.type}: ${j.error.message ?? ''}` : raw.slice(0, 200)}`, ms: Date.now() - t0 };
@@ -198,7 +198,7 @@ export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = n
       let j = null;
       try { j = JSON.parse(text); } catch { /* below */ }
       if (!res.ok || !j || j.error) return { ok: false, status: res.status, reason: `${res.status} ${j?.error?.message ?? text.slice(0, 200)}`, ms: Date.now() - t0 };
-      return { ok: true, status: res.status, body: j, ms: Date.now() - t0, cached: headerOf(res.headers ?? new Headers(), 'x-tinyagent-cache') === 'hit', served: headerOf(res.headers ?? new Headers(), 'x-tinyagent-model') };
+      return { ok: true, status: res.status, body: j, ms: Date.now() - t0, cached: res.headers?.get?.('x-tinyagent-cache') === 'hit', served: res.headers?.get?.('x-tinyagent-model') ?? null };
     } catch (e) { return { ok: false, status: 0, reason: String(e?.message ?? e), ms: Date.now() - t0 }; }
   }
 

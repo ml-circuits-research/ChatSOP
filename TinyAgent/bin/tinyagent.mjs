@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * TinyAgent command line. Every command except `serve`, `run`, `lambdas`, `calls`, `migrate-home` and `probe` is a client of the server
+ * TinyAgent command line. Every command except `serve`, `run`, `lambdas`, `calls` and `probe` is a client of the server
  * on the default port (http://127.0.0.1:18080, TINYAGENT_URL); when no server answers, the first client starts one in the background
  * (detached) and uses it.
  *
@@ -20,7 +20,6 @@
  *   tinyagent task --instructions "..." [--attach file]... [--target memory:<id>|session:<id>|none] [--template name --params '{json}']
  *   tinyagent chat [--tier small] [--system "..."] "<prompt>"
  *   tinyagent stats [--json] | health | models [start|stop <name>] | ops [id]
- *   tinyagent migrate-home [--yes]                               copy the data of the earlier proxy into ~/.tinyagent (verified)
  *   tinyagent probe --yes --model <id> [...]                     measure a provider's real rate limits (spends quota)
  * Common: --config <file> (project layer), --url <server>, --purpose <tag> (default lambda:cli).
  * Old names (lib/legacy.mjs, until no caller needs them): plans = lambdas, --plans = --lambdas, skills = lambdas --server,
@@ -104,7 +103,6 @@ async function main() {
     }
     case 'ops': return out(rest[0] ? await client().op(rest[0]) : await client().ops());
     case 'check': case 'list': case 'show': case 'prune': return localJobCommand();
-    case 'migrate-home': { const { migrateHome } = await import('../lib/migrate.mjs'); return out(await migrateHome({ apply: flag('yes'), log: logLine })); }
     case 'probe': { process.argv.splice(2, 1); await import('../lib/probe.mjs'); return; }
     default:
       console.error(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').filter((l) => l.startsWith(' *')).map((l) => l.slice(3)).join('\n'));

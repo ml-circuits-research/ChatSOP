@@ -7,7 +7,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {sha256, writeJsonAtomic} from './util.mjs';
-import {withOldHeaders, headerOf} from '../legacy.mjs';
 
 /** Content-addressed response cache: `<dir>/<k0k1>/<key>.json`, written once, never overwritten. */
 export class ResponseCache {
@@ -81,7 +80,7 @@ export function makeCaller({proxy, job, run, cache = null, ledger = new Ledger()
   const common = {'content-type': 'application/json', 'x-client-name': `job-${job}`.slice(0, 40), 'x-tinyagent-purpose': purpose ?? `job:${job}`, 'x-tinyagent-run': run, ...(priority ? {'x-tinyagent-priority': priority} : {})};
   return async function call({entry, messages, role = 'work'}) {
     // A concrete chain is walked here, so the proxy must not substitute; a proxy tier walks its own chain unless the job forbids it.
-    const headers = withOldHeaders(entry.viaProxyTier && proxyFallback ? common : {...common, 'x-tinyagent-no-fallback': '1'});
+    const headers = entry.viaProxyTier && proxyFallback ? common : {...common, 'x-tinyagent-no-fallback': '1'};
     const body = requestBody(entry, messages);
     const key = ResponseCache.key({upstream: entry.upstream ?? 'tier', body});
     if (cache && !refresh) {
@@ -106,7 +105,7 @@ export function makeCaller({proxy, job, run, cache = null, ledger = new Ledger()
       const choice = j?.choices?.[0];
       if (!res.ok || !choice) { lastErr = `status ${res.status}: ${text.slice(0, 200)}`; break; }
       const credits = Number(res.headers.get('x-quota-cost'));
-      const served = headerOf(res.headers, 'x-tinyagent-model') ?? headerOf(res.headers, 'x-tinyagent-fallback') ?? null;
+      const served = res.headers.get('x-tinyagent-model') ?? res.headers.get('x-tinyagent-fallback') ?? null;
       const r = {ok: true, cached: false, key, served, text: String(choice.message?.content ?? ''), finish: choice.finish_reason ?? null, ms: Date.now() - t0,
         usage: {in: j.usage?.prompt_tokens ?? 0, out: j.usage?.completion_tokens ?? 0, reasoning: j.usage?.completion_tokens_details?.reasoning_tokens ?? 0},
         usd: j.usage?.cost ?? null, credits: Number.isFinite(credits) && res.headers.get('x-quota-cost') != null ? credits : null};

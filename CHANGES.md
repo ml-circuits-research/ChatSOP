@@ -1,3 +1,11 @@
+# TinyAgent phase 2: the old proxy retired, port 18080 runs TinyAgent (2026-10-03)
+
+- **Port 18080** now runs `node TinyAgent/bin/tinyagent.mjs serve` (switched after checking that no work was in flight). The keys, request logs, run registrations, response cache and audit store of the earlier proxy were copied into `~/.tinyagent/` and verified; the old folders are untouched.
+- **Ingestion v2** (client, roles, harness) and the `ingest-document` and `analyze-document` adapters call models through TinyAgent (the task's client); no model call outside TinyAgent is left, and `tests/tinyagent/no-direct-model-calls.test.mjs` has no allow-list any more.
+- **Compatibility layer removed:** the shim folders of the earlier proxy and job runner and its runner configuration are archived in `probably_obsolete/tinyagent-migration/`; the old header names, the old key folder, the old runner file, `compat.oldHeaders` and `migrate-home` are gone.
+- **Cut answers never cached or replayed:** an answer is stored only when complete (no cut finish reason, text beyond a thinking block, output-token usage), and a stored entry is re-checked on every read. The random `budget_exhausted` at 8 tokens came from the OpenRouter DeepSeek fallback, which reasons by default; a tier entry's `extraBody` now fills the request fields the caller did not set (reasoning off on those entries) and `minTokens` raises a small budget. The step-by-step questions treat any cut reply as a budget failure.
+- **Cache and priority per call:** `ta.chat({cache})`, `createTinyAgent({cache})` (use, strict, record, off; an unknown mode throws), the strategy tags and the ingestion client accept a cache mode; ChatSOPAdapter passes `priority` to its clients.
+
 # TinyAgent run: a small coding-style agent with a visible plan cache (2026-10-03, owner request)
 
 `tinyagent run "<instructions>" [--workdir DIR]` is now an agent for clear, simple, repetitive tasks in a work folder (the earlier server-side step planner is `tinyagent run-skills`, `ta.run`, `POST /v1/run`, unchanged). Manual: "The agent" in `TinyAgent/README.md`.

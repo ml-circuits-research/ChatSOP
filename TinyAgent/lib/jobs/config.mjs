@@ -2,8 +2,8 @@
  * The job runner's configuration. Inside the server it is the `runner` section of the TinyAgent configuration (lib/worker.mjs
  * runnerConfig). Outside it (`loadConfig`, for programs that run a job in their own process and send its model calls to the server), it
  * comes from an explicit runner file (`file`, a JSON object with the fields below), else from the `runner` section of the TinyAgent
- * configuration layers found from the job folder (config.mjs loadLayers), else from the runner file of earlier versions (legacy.mjs,
- * phase 1 of the migration only). Relative paths resolve against the file's folder.
+ * configuration layers found from the job folder (config.mjs loadLayers), else from built-in defaults. Relative paths resolve against
+ * the file's folder.
  *
  *   endpoint   the TinyAgent server (default http://127.0.0.1:18080); `/v1/...` and `/u/<provider>/v1/...`
  *   dataDir    where runs, the cache, the index and tier stats live (default: `state/` inside the job folder)
@@ -16,19 +16,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {DEFAULT_ENDPOINT} from './util.mjs';
-import {OLD_RUNNER_CONFIG} from '../legacy.mjs';
 import {loadLayers} from '../config.mjs';
 
 export const DEFAULT_ROLES = Object.freeze({planner: 'good', decider: 'good', auditor: 'medium', worker: 'small', 'worker-short': 'tiny'});
-
-/** The runner file of earlier versions nearest to `startDir` (phase 1 of the migration), or null. */
-export function findConfig(startDir) {
-  for (let d = path.resolve(startDir); ; d = path.dirname(d)) {
-    const f = path.join(d, OLD_RUNNER_CONFIG);
-    if (fs.existsSync(f)) return f;
-    if (path.dirname(d) === d) return null;
-  }
-}
 
 /** `{file, endpoint, dataDir, roles, fallback, limits, tasks, templatesDir}`; `jobDir` locates the configuration and the default data dir. */
 export function loadConfig({file = null, jobDir = process.cwd(), env = process.env} = {}) {
@@ -36,7 +26,6 @@ export function loadConfig({file = null, jobDir = process.cwd(), env = process.e
   if (!f) {
     const layers = loadLayers({from: jobDir, env, user: false});
     if (layers.project && layers.config.runner) { c = {...layers.config.runner, endpoint: env.TINYAGENT_URL || `http://${layers.config.server?.host ?? '127.0.0.1'}:${layers.config.server?.port ?? 18080}`}; base = path.dirname(layers.project); f = layers.project; }
-    else f = findConfig(jobDir);
   }
   if (!c) c = f && fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : {};
   base ??= f ? path.dirname(path.resolve(f)) : path.resolve(jobDir);

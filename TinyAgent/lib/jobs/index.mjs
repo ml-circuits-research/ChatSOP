@@ -7,7 +7,7 @@ export {runJob, packCalls, finalRecords} from './runner.mjs';
 export {RunStore, publishSummary} from './store.mjs';
 export {makeCaller, callChain, ResponseCache, Ledger, RefusedError, requestBody, modelName} from './client.mjs';
 export {splitReply, builtinCheck, checkItem, jsonLines} from './outputs.mjs';
-export {loadConfig, findConfig, liveTiers, tierChains} from './config.mjs';
+export {loadConfig, liveTiers, tierChains} from './config.mjs';
 export {auditSample, decide, packBatches, parseFindings} from './review.mjs';
 export {chooseStart, aggregate, readTierStats, recordTierStats} from './tiers.mjs';
 export {HOME, PROMPTS_DIR} from './util.mjs';

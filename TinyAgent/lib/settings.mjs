@@ -1,11 +1,9 @@
-// Secrets and paths. A key is read only from an env file in the user's home or from the environment, never from a configuration
-// file. Env files are looked up by name in the key folders (~/.tinyagent/keys, then the key folder of earlier versions as a
-// migration fallback, legacy.mjs); a value found in an earlier folder wins, and the process environment wins over every file.
+// Secrets and paths. A key is read only from an env file in the user's home (~/.tinyagent/keys/<provider>.env) or from the
+// environment, never from a configuration file; the process environment wins over the file.
 import { readFileSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { OLD_KEYS_DIR, OLD_ENV } from './legacy.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 /** The TinyAgent folder (built-in defaults, prompts, built-in TaskLambdas). */
@@ -13,7 +11,7 @@ export const HOME = resolve(HERE, '..');
 export const DEFAULT_URL = 'http://127.0.0.1:18080';
 /** The user's TinyAgent home: configuration, keys, data, cache, audit, logs, runs and models (TINYAGENT_HOME overrides). */
 export const tinyHome = (env = process.env) => resolve(expandHome(env.TINYAGENT_HOME || '~/.tinyagent'));
-export const secretDirs = (env = process.env) => [join(tinyHome(env), 'keys'), expandHome(OLD_KEYS_DIR)];
+export const secretDirs = (env = process.env) => [join(tinyHome(env), 'keys')];
 
 export function expandHome(p) {
   return typeof p === 'string' && p.startsWith('~') ? join(homedir(), p.slice(1)) : p;
@@ -53,7 +51,7 @@ export function resolveUpstream(name, up, env = process.env, dirs = secretDirs(e
 }
 
 export function resolveProxyToken(config, env = process.env) {
-  if (env.TINYAGENT_TOKEN || env[OLD_ENV.token]) return env.TINYAGENT_TOKEN || env[OLD_ENV.token];
+  if (env.TINYAGENT_TOKEN) return env.TINYAGENT_TOKEN;
   for (const up of Object.values(config.providers ?? config.upstreams ?? {})) {
     const v = envValues(up?.envFile);
     if (v.TINYAGENT_TOKEN) return v.TINYAGENT_TOKEN;

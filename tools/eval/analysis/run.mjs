@@ -5,7 +5,7 @@
  *
  *   --mode sop        (a) the hand-written SOP of each document (eval/analysis-v1/sop/<doc>.sop, plus <doc>.request.sop when present)
  *                     over analysis-core-v1: the procedures in isolation. Findings match the truth by {rule, witness}.
- *   --mode analyses   (b) end to end: the analysis packets written by the LLMJobs template analyze-document (ingestion v2, then the
+ *   --mode analyses   (b) end to end: the analysis packets written by the task template analyze-document (ingestion v2, then the
  *                     analysis) for each document, found as <dir>/<doc>/analysis.json (--dir). The ingested symbols are the
  *                     ingestion's own, so a finding matches a planted issue by its rule (strict) or its procedure (family) and by the
  *                     document lines of its evidence (the planted issue's lines).

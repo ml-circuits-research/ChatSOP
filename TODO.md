@@ -53,10 +53,10 @@ Measure: book problems solved end to end (`datasets_sources/books/eval/`, 100 ra
 
 Phase 1 merged the earlier proxy and job runner into `TinyAgent/` (one server per machine; library and CLI as its clients). Phase 2 finishes the migration:
 
-- [ ] **Files of the ingestion-v2 agent**, after it commits: `lib/ingest/v2/**`, `jobs/templates/ingest-document/**`, `tools/eval/ingest-v2.mjs`, `tests/ingest-v2.test.mjs`, `config/ingest/**`: model calls through `lib/tinyagent.mjs` with a purpose, the old header names and prompt paths replaced; likewise every other path still in the `PHASE2` list of `tests/tinyagent/no-direct-model-calls.test.mjs`.
-- [ ] **Delete the compatibility layer:** the two shim folders of the earlier proxy and job runner, the earlier runner configuration in `jobs/` (all three named in that `PHASE2` list) and `TinyAgent/lib/legacy.mjs`; remove `compat.oldHeaders` from `config/tinyagent.json`.
-- [ ] **Switch port 18080** from the old proxy process to `node TinyAgent/bin/tinyagent.mjs serve`, after `node TinyAgent/bin/tinyagent.mjs migrate-home --yes` has copied the old keys, request log, cache and audit store into `~/.tinyagent/`.
-- [ ] **Empty the `PHASE2` list** of `tests/tinyagent/no-direct-model-calls.test.mjs`; the test then holds for every file outside the history paths.
+- [x] **Files of the ingestion-v2 agent** (2026-10-03): ingestion v2 (client, roles, harness), the ingest-document and analyze-document adapters and `docs/analysis.html` go through TinyAgent (the task's client `ta`, `config/prompts/`).
+- [x] **Compatibility layer deleted** (2026-10-03): the shim folders of the earlier proxy and job runner and its runner configuration are archived in `probably_obsolete/tinyagent-migration/`; the old header names, the old key folder, the old runner file and `compat.oldHeaders` are gone (`TinyAgent/lib/legacy.mjs` keeps only the TaskLambda names).
+- [x] **Port 18080 runs `tinyagent serve`** (2026-10-03, after the in-flight check): the old keys, request logs, run registrations, cache and audit store were copied into `~/.tinyagent/` and verified (a second dry run copies nothing; the old folders are untouched).
+- [x] **The phase-2 allow-list is empty:** `tests/tinyagent/no-direct-model-calls.test.mjs` holds for every file outside the history paths.
 - [ ] **Formalization regression as SkillPlugins in background priority:** the offline and live formalization regressions (`tools/eval/formalization-regression/`) and the improver's wake check as SkillPlugins in `jobs/skills/`, run with priority `background` so they use only spare plan capacity and never delay a chat turn.
 
 ## Tests and evaluations inventory (2026-10-03)

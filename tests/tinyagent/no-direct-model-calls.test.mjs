@@ -13,16 +13,7 @@ const files = execFileSync('git', ['ls-files', '-co', '--exclude-standard'], {cw
 
 // History and the archive keep their words.
 const HISTORY = [/^probably_obsolete\//, /^status\//, /^CHANGES\.md$/, /^PAS_TASK\.md$/, /^eval\/reports\/history\//, /^experiments\/(?!proposal\/)/];
-// Phase 2 of the migration (TODO.md "TinyAgent phase 2"): files of agents that were still running when TinyAgent landed, and the
-// temporary compatibility layer. This list only shrinks; it is empty when phase 2 is done.
-const PHASE2 = [
-  /^TinyAgent\/lib\/legacy\.mjs$/,
-  /^LLMAPIProvider\//, /^LLMJobs\//, /^jobs\/llmjobs\.config\.json$/,
-  /^lib\/ingest\/v2\//, /^lib\/formalize\/fol\//, /^lib\/analysis\//, /^config\/knowledge\/analysis-core-v1\//, /^sop\/message-acts\.mjs$/, /^lib\/query-author\/step-by-step\//,
-  /^jobs\/templates\/ingest-document\//, /^jobs\/templates\/analyze-document\//, /^tools\/eval\/ingest-v2\.mjs$/, /^tools\/eval\/analysis\//, /^tools\/eval\/structure-formalizer\/fol-prompt\.mjs$/,
-  /^tests\/routed\/fol-v3\.test\.mjs$/, /^tests\/ingest-v2\.test\.mjs$/, /^tests\/analysis\/analysis\.test\.mjs$/, /^server\/analysis\.mjs$/, /^eval\/analysis-v1\//, /^docs\/analysis\.html$/,
-];
-const skip = f => HISTORY.some(r => r.test(f)) || PHASE2.some(r => r.test(f)) || f === 'tests/tinyagent/no-direct-model-calls.test.mjs';
+const skip = f => HISTORY.some(r => r.test(f)) || f === 'tests/tinyagent/no-direct-model-calls.test.mjs';
 // The project's one access point to TinyAgent documents the server's address.
 const ACCESS = new Set(['lib/tinyagent.mjs']);
 const text = f => /\.(mjs|js|cjs|json|jsonl|md|html|sh|txt|sop|yml|yaml|css)$|^[^.]+$/.test(f);

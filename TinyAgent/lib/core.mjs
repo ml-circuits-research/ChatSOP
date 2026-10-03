@@ -17,7 +17,6 @@ import { expandHome } from './settings.mjs';
 import { isAbsolute } from 'node:path';
 import { createJobGuard } from './guard.mjs';
 import { httpFetch } from './http-fetch.mjs';
-import { acceptOldHeaders, withOldHeaders } from './legacy.mjs';
 import { loadTemplate, serveprompted } from './prompted.mjs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -415,8 +414,6 @@ export function createCore({ config, configDir = HERE, env = process.env, dataDi
   }
 
   async function handle(req, res) {
-    acceptOldHeaders(req.headers);
-    if (config.compat?.oldHeaders) { const wh = res.writeHead.bind(res); res.writeHead = (st, h = {}) => wh(st, withOldHeaders(h)); }
     const url = new URL(req.url, 'http://x');
     try {
       if (req.method === 'GET' && url.pathname === '/health') {

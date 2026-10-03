@@ -93,17 +93,6 @@ test('library: chat and json by tier, tags, cache hit, cut marked and re-asked, 
   } finally { await t.close(); }
 });
 
-test('old header names are accepted on input', async () => {
-  const t = await setup();
-  try {
-    const r = await fetch(`${t.url}/v1/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ['x-llm' + 'apiprovider-purpose']: 'test:old' }, body: JSON.stringify({ model: 'tiny', messages: [{ role: 'user', content: 'old' }] }) });
-    assert.equal(r.status, 200);
-    assert.equal(r.headers.get('x-tinyagent-tier'), 'tiny');
-    const st = await t.ta.stats();
-    assert.ok(st.last24h.by_purpose['test:old']);
-  } finally { await t.close(); }
-});
-
 test('TaskLambdas: built-ins, project ones and a job folder, each call a call folder; a job run has one child call per item', async () => {
   const t = await setup();
   try {

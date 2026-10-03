@@ -20,10 +20,8 @@ import {RunStore} from './store.mjs';
 import {makeCaller, ResponseCache, Ledger} from './client.mjs';
 import {tierChains, liveTiers} from './config.mjs';
 import {newRunId, sha256, writeJsonAtomic} from './util.mjs';
-import {withOldHeaders} from '../legacy.mjs';
 import {createTinyAgent} from '../client.mjs';
 
-const OLD_PURPOSE = Object.keys(withOldHeaders({'x-tinyagent-purpose': ''}))[1];
 
 const safeName = n => String(n).replace(/[^A-Za-z0-9._-]+/g, '_').replace(/^\.+/, '').slice(0, 80) || 'attachment';
 
@@ -31,9 +29,9 @@ const safeName = n => String(n).replace(/[^A-Za-z0-9._-]+/g, '_').replace(/^\.+/
 export function taggedFetch(fetchImpl, {purpose, run}) {
   return (url, init = {}) => {
     const headers = new Headers(init.headers ?? {});
-    if (!headers.has('x-tinyagent-purpose') && !headers.has(OLD_PURPOSE)) headers.set('x-tinyagent-purpose', purpose);
+    if (!headers.has('x-tinyagent-purpose')) headers.set('x-tinyagent-purpose', purpose);
     headers.set('x-tinyagent-run', run);
-    return fetchImpl(url, {...init, headers: withOldHeaders(Object.fromEntries(headers))});
+    return fetchImpl(url, {...init, headers: Object.fromEntries(headers)});
   };
 }
 

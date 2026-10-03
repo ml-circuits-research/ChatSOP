@@ -2,10 +2,6 @@
   "_note": "ChatSOP's TinyAgent layer (over TinyAgent/config.default.json and ~/.tinyagent/config.json). Owner rules: clients name a tier, never a model; every model call of the project goes through the TinyAgent server (node TinyAgent/bin/tinyagent.mjs serve, port 18080). Keys: ~/.tinyagent/keys/<provider>.env. Paths are relative to the repository root (baseDir).",
   "baseDir": "..",
   "promptsDir": "config/prompts",
-  "compat": {
-    "oldHeaders": true,
-    "_note": "phase 1: responses also carry the old header names for callers not yet migrated (TinyAgent/lib/legacy.mjs); removed in phase 2"
-  },
   "providers": {
     "local": {
       "_note": "tiny (owner decision 2026-10-03, MoE A/B of experiments/proposal/structure-and-formalizer-models.md section 9): Qwen3.6-35B-A3B UD-Q4_K_M (MoE, about 3B active), always on: started with the TinyAgent server (startAtBoot) and restarted on demand; GPU reservation lock files block a start. 8 slots of 16k tokens, as the server ran before TinyAgent (measured: about 66 tokens/s for one request, 118 tokens/s aggregate at 4 busy slots, 22.8 GB GPU memory; with 8 busy slots each request drops below 20 tokens/s).",

@@ -58,6 +58,9 @@ Both keep original repository-relative paths below their folder; the state befor
 | `tinyagent-migration/tools/local-llm/serve.mjs` | Started one managed llama-server and kept it running for the chat server or an evaluation | `node TinyAgent/bin/tinyagent.mjs models start <provider>` |
 | `tinyagent-migration/tests/local-llm-runtime.test.mjs` | The tests of `lib/local-llm` | TinyAgent's own tests (`TinyAgent/test/`) |
 | `tinyagent-migration/tools/eval/query-model-calibration/` | `servers.mjs` (one private GPU llama-server of an evaluation) and `models.mjs` (its GGUF list), last used by the symbolic-vs-llm harness | the harnesses name a TinyAgent tier (`--local-tier`, default `micro`) |
+| `tinyagent-migration/LLMAPIProvider/` | The earlier local proxy (its README, its last configuration with tiers and upstreams, and the phase-1 shims `server.mjs` and `prompted.mjs` that ran the TinyAgent core under the old paths); retired when port 18080 switched to `tinyagent serve` | `TinyAgent/` (server, library, CLI), `config/tinyagent.json`, `config/prompts/` |
+| `tinyagent-migration/LLMJobs/` | The earlier job runner's README, example configuration and phase-1 shims (`run.mjs`, `lib/`) | `TinyAgent/lib/jobs/`, `tinyagent job | task | check | list | show | prune` |
+| `tinyagent-migration/llmjobs.config.json` | ChatSOP's configuration of the earlier job runner (endpoint, roles, concrete fallback chains, task limits) | the `runner` section of `config/tinyagent.json` |
 
 ## Evaluation clean-up (2026-10-03)
 

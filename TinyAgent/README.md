@@ -46,7 +46,7 @@ Configuration layers, each over the previous one: the built-in defaults (`TinyAg
 then a project layer (`--config <file>`, `TINYAGENT_CONFIG`, or the nearest `config/tinyagent.json` or `tinyagent.config.json` above the
 working folder). Objects merge key by key, arrays and tier chains are replaced, `null` removes a key. Relative paths resolve against the
 folder of the layer that names them (its `baseDir` when set). Keys never go in a configuration file. A key is looked up in
-`~/.tinyagent/keys/`, then in the key folder of earlier versions (a migration fallback); the process environment wins over files.
+`~/.tinyagent/keys/`; the process environment wins over files.
 Keys are never printed or logged; an error that quotes one is redacted.
 
 ## Providers and tiers
@@ -404,7 +404,6 @@ tinyagent check <dir> | list [job] | show <job> <run-id> | prune
 tinyagent task --instructions "..." [--attach file]... [--target memory:<id>|session:<id>|none] [--template name --params '{json}']
 tinyagent chat [--tier small] [--system "..."] "<prompt>"
 tinyagent stats [--json] | health | models [start|stop <provider>] | ops [id]
-tinyagent migrate-home [--yes]            # copy the data of the earlier proxy into ~/.tinyagent (verified, old folders untouched)
 tinyagent probe --yes --model <id> [--upstream p] [--rates 0.5,1,2]   # measure a provider's real limits (spends quota)
 ```
 
@@ -442,7 +441,6 @@ a key file) makes every request but `/health` need `Authorization: Bearer <token
 `lib/monitor.mjs`, `lib/cache.mjs`, `lib/audit.mjs`, `lib/guard.mjs`, `lib/local.mjs`, `lib/prompted.mjs`, `lib/lambda/` (TaskLambdas:
 `registry.mjs`, `effects.mjs`, `calls.mjs` the call folders), `lib/sandbox.mjs`, `lib/agent/` (the agent of `run`: `run.mjs`,
 `lambda-cache.mjs`, `lambda-code.mjs`, `match.mjs`, `bm25.mjs`, `workspace.mjs`, `agent-skills.mjs`), `lib/dashboard.mjs`, `lib/probe.mjs`,
-`lib/migrate.mjs`, `lib/jobs/` (the job runner), `lambdas/` (built-in TaskLambdas), `prompts/` (the runner's and the planners' own
-prompts), `config.default.json`, `test/`, `bench/` (task sets with known results). `lib/legacy.mjs` holds the names of the earlier proxy
-accepted during a migration (old request headers, old key folder) and the names of before the TaskLambda rename (`lib/skills.mjs` is its
-old module path); both are deleted when no caller needs them.
+`lib/jobs/` (the job runner), `lambdas/` (built-in TaskLambdas), `prompts/` (the runner's and the planners' own
+prompts), `config.default.json`, `test/`, `bench/` (task sets with known results). `lib/legacy.mjs` holds the names of before the TaskLambda rename
+(`lib/skills.mjs` is its old module path), deleted when no caller needs them.
