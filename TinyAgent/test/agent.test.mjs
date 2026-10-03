@@ -8,7 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {
   buildIndex, terms, parseFrontmatter, createWorkspace, discoverSkills, skillRoots, runSkillScript, coerceToSchema, matchPlan,
-  runAgent, PlanCache, planHash, planScript, executePlan, agentSettings, promotedPluginSource, extractMeta,
+  runAgent, PlanCache, planHash, planScript, executePlan, agentSettings, promotedPluginSource, extractMeta, hardcodedValues, codeLiterals,
 } from '../lib/agent/index.mjs';
 
 const tmp = (name = 'ta-agent-') => fs.mkdtempSync(path.join(os.tmpdir(), name));
@@ -366,4 +366,40 @@ test('promotion: a verified plan becomes a SkillPlugin that runs it with the too
   assert.equal(planHash(plan.code), plan.hash);
   cache.remove(r.plan);
   assert.deepEqual(cache.ids(), []);
+});
+
+test('values of the request written into the code are found (outside meta, comments and regular expressions) and sent back to the planner', async () => {
+  const code = `export const meta = {name: 'x', task: 'Add a prefix to files.', params: {folder: {type: 'string', description: 'f'}}, example: {folder: 'notes'}};
+// the 'notes' folder
+const words = (t) => t.match(/[a-z']+/g);
+export default async function run(tools, params) { const e = 'file'; const n = 'notes'; const x = 4 / 2;
+  return (await tools.list(params.folder)).filter((f) => f.type === e && f.path.endsWith('.txt')).length + \`\${params.folder}\`; }`;
+  assert.deepEqual(codeLiterals(code), ['file', 'notes', '.txt']);
+  assert.deepEqual(hardcodedValues(code, 'Add the prefix 2026- to every .txt file in the notes folder', { folder: 'notes' }), ['notes', '.txt']);
+  assert.deepEqual(hardcodedValues(code, 'Count the files of a folder', { folder: 'notes' }), []);
+  const dir = csvFolder();
+  const hard = SUM_PLAN.replace('rows[0].indexOf(params.column);\n  if', "rows[0].indexOf('amount');\n  if");
+  const seen = [];
+  const ta = fakeTa((o) => { seen.push(o.messages.at(-1).content); return block(seen.length === 1 ? hard : SUM_PLAN); });
+  const r = await runAgent({ request: 'Sum the amount column of sales.csv', workdir: dir, ta, config: CONFIG });
+  assert.equal(r.rounds, 2);
+  assert.match(seen[1], /writes values of this request into its code: "amount"/);
+  assert.match(seen[0], /FILES NAMED IN THE REQUEST:\nFILE sales\.csv \(first lines\):\nid,amount,qty/);
+});
+
+test('a plan that uses a skill it did not load gets the skill instructions and is written again, without spending a round', async () => {
+  const dir = csvFolder();
+  fs.mkdirSync(path.join(dir, '.agents', 'skills', 'csv-tools', 'scripts'), { recursive: true });
+  fs.writeFileSync(path.join(dir, '.agents', 'skills', 'csv-tools', 'SKILL.md'), '---\nname: csv-tools\ndescription: Totals of CSV columns.\n---\nBODY: run scripts/total.mjs <file> <column>\n');
+  fs.writeFileSync(path.join(dir, '.agents', 'skills', 'csv-tools', 'scripts', 'total.mjs'), "import fs from 'node:fs'; const [f, c] = process.argv.slice(2); const rows = fs.readFileSync(f, 'utf8').trim().split('\\n').map((l) => l.split(',')); const i = rows[0].indexOf(c); console.log(rows.slice(1).reduce((s, r) => s + Number(r[i]), 0));");
+  const plan = SUM_PLAN.replace("skills: [],", "skills: ['csv-tools'],").replace(/export default async function run[\s\S]*?\n}\n/, "export default async function run(tools, params) {\n  const r = await tools.runSkillScript('csv-tools', 'scripts/total.mjs', [params.file, params.column]);\n  return {answer: r.stdout.trim(), outputs: []};\n}\n");
+  const seen = [];
+  const ta = fakeTa((o) => { seen.push(o.messages.at(-1).content); return block(plan); });
+  const r = await runAgent({ request: 'Sum the amount column of sales.csv', workdir: dir, ta, config: CONFIG });
+  assert.equal(r.status, 'finished', JSON.stringify(r.summary));
+  assert.equal(r.answer, '50');
+  assert.equal(r.rounds, 1);
+  assert.equal(seen.length, 2);
+  assert.match(seen[1], /uses csv-tools without its instructions/);
+  assert.match(seen[1], /BODY: run scripts\/total\.mjs/);
 });

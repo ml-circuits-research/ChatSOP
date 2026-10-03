@@ -50,3 +50,61 @@ export function metaProblems(meta, validate) {
   if (meta.skills !== undefined && (!Array.isArray(meta.skills) || meta.skills.some((s) => typeof s !== 'string'))) p.push('meta.skills: a list of skill names');
   return p;
 }
+
+/** The string literals of a code text (quotes and backticks without ${...}), with the spans of the `export const meta = {...}` block left out. */
+export function codeLiterals(code) {
+  const src = String(code ?? '');
+  const out = [];
+  let i = 0, metaEnd = -1;
+  const metaAt = src.search(/export\s+const\s+meta\s*=\s*\{/);
+  if (metaAt >= 0) {
+    let depth = 0, j = src.indexOf('{', metaAt), q = null;
+    for (; j < src.length; j++) {
+      const c = src[j];
+      if (q) { if (c === '\\') j++; else if (c === q) q = null; continue; }
+      if (c === '"' || c === "'" || c === '`') q = c;
+      else if (c === '{') depth++;
+      else if (c === '}' && --depth === 0) break;
+    }
+    metaEnd = j;
+  }
+  while (i < src.length) {
+    const c = src[i];
+    if (c === '/' && src[i + 1] === '/') { i = src.indexOf('\n', i); if (i < 0) break; continue; }
+    if (c === '/' && src[i + 1] === '*') { i = src.indexOf('*/', i + 2); if (i < 0) break; i += 2; continue; }
+    // A regular expression literal (a / where an expression starts) is skipped whole: its quotes are not strings.
+    if (c === '/' && /[(,=:[!&|?{};+\-*%<>~^]$|^$/.test(src.slice(0, i).trimEnd().slice(-1))) {
+      let j = i + 1, cls = false;
+      for (; j < src.length && src[j] !== '\n'; j++) { if (src[j] === '\\') { j++; continue; } if (src[j] === '[') cls = true; else if (src[j] === ']') cls = false; else if (src[j] === '/' && !cls) break; }
+      i = j + 1; continue;
+    }
+    if (c === '"' || c === "'" || c === '`') {
+      let j = i + 1, s = '';
+      for (; j < src.length && src[j] !== c; j++) { if (src[j] === '\\') { s += src[j + 1] ?? ''; j++; } else s += src[j]; }
+      if (!(metaAt >= 0 && i > metaAt && i < metaEnd) && !(c === '`' && s.includes('${'))) out.push(s);
+      i = j + 1; continue;
+    }
+    i++;
+  }
+  return out;
+}
+
+/**
+ * Values of THIS request written into the plan's code, so the plan would not work with other values. A string literal of the code
+ * (outside meta) is flagged when it occurs in the request as a whole (not inside a longer word) and either holds a character other than
+ * letters (".txt", "2026-", "old_", "sales.csv") or equals one of the example values. A plain word of the request in the code ("file",
+ * "total") is common vocabulary, not flagged unless it is a parameter's value.
+ */
+export function hardcodedValues(code, request, example = {}) {
+  const r = String(request ?? '');
+  const values = new Set(Object.values(example ?? {}).flat().filter((v) => typeof v === 'string').map((v) => v.trim()));
+  const hits = new Set();
+  for (const lit of codeLiterals(code)) {
+    const s = lit.trim();
+    if (s.length < 2 || !/[\p{L}\p{N}]/u.test(s) || s.length > 200) continue;
+    if (/^\p{L}+$/u.test(s) && !values.has(s)) continue;
+    const re = new RegExp(`(^|[^\\p{L}\\p{N}])${s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=$|[^\\p{L}\\p{N}])`, 'u');
+    if (re.test(r)) hits.add(s);
+  }
+  return [...hits];
+}

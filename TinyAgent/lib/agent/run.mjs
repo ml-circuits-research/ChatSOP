@@ -19,7 +19,7 @@ import { validateInputs } from '../skills.mjs';
 import { jsonOf } from '../client.mjs';
 import { createWorkspace } from './workspace.mjs';
 import { discoverSkills, skillRoots, skillCatalog, skillBody, runSkillScript } from './agent-skills.mjs';
-import { codeBlockOf, planScript, metaProblems, planHash } from './plan-code.mjs';
+import { codeBlockOf, planScript, metaProblems, planHash, hardcodedValues } from './plan-code.mjs';
 import { PlanCache } from './plan-cache.mjs';
 import { matchPlan } from './match.mjs';
 
@@ -199,40 +199,70 @@ export async function runAgent({ request, workdir = process.cwd(), plansDir = nu
     decision.fallback = { plan: plan.id, error: r.error ?? null };
   }
 
-  // 2. The planner.
-  const listing = workspace.list('.', { recursive: true }).slice(0, 80).map((e) => `${e.path}${e.type === 'dir' ? '/' : e.type === 'file' ? ` (${e.bytes} bytes)` : ' (link)'}`).join('\n') || '(empty)';
+  // 2. The planner. Its first message holds the request, the folder's first entries and the first lines of the files the request names.
+  const entries = workspace.list('.', { recursive: true });
+  const listing = entries.slice(0, 80).map((e) => `${e.path}${e.type === 'dir' ? '/' : e.type === 'file' ? ` (${e.bytes} bytes)` : ' (link)'}`).join('\n') || '(empty)';
+  const shown = new Set();
+  const head = (f) => { shown.add(f); try { return `FILE ${f} (first lines):\n${workspace.read(f).split('\n').slice(0, 20).join('\n').slice(0, 2500)}`; } catch (e) { return `FILE ${f}: ${e.message}`; } };
+  const named = entries.filter((e) => e.type === 'file' && namedIn(request, e.path)).slice(0, 3).map((e) => head(e.path));
   const system = fs.readFileSync(path.join(PROMPTS, 'agent-planner.md'), 'utf8').replace('{{tiers}}', S.askTiers.join(', ')).replace('{{maxAsks}}', String(S.maxAsks)).replace('{{skills}}', skillCatalog(skills) || '(none)');
-  const messages = [{ role: 'system', content: system }, { role: 'user', content: `REQUEST:\n${request}\n\nWORK FOLDER (first entries):\n${listing}` }];
-  if (decision.fallback) messages[1].content += `\n\nNOTE: a saved plan (${decision.fallback.plan}) was tried for this request and failed: ${decision.fallback.error?.message ?? 'its check did not pass'}. Write a new plan.`;
+  let first = `REQUEST:\n${request}\n\nWORK FOLDER (first entries):\n${listing}`;
+  if (named.length) first += `\n\nFILES NAMED IN THE REQUEST:\n${named.join('\n\n')}`;
+  if (decision.fallback) first += `\n\nNOTE: a saved plan (${decision.fallback.plan}) was tried for this request and failed: ${decision.fallback.error?.message ?? 'its check did not pass'}. Write a new plan.`;
+  const messages = [{ role: 'system', content: system }, { role: 'user', content: first }];
   const plannerTa = agentTa.with ? agentTa.with({ purpose: `${purpose}:planner`.slice(0, 120), run: id }) : agentTa;
+  const loaded = new Set();
+  const loadSkill = (n) => { loaded.add(n); const sk = skills.get(n); return sk ? `SKILL ${n} (folder ${path.relative(workspace.root, sk.dir) || sk.dir}; scripts: ${sk.scripts.join(', ') || 'none'}):\n${skillBody(sk)}` : `SKILL ${n}: no such skill`; };
+  const ask = async (round) => {
+    const reply = await plannerTa.chat({ tier: S.plannerTier, messages, maxTokens: S.planner.maxTokens, temperature: 0, retryCut: true });
+    stats.add('planner', reply);
+    if (!reply.ok) err({ stage: 'planner', round, message: reply.reason });
+    return reply;
+  };
+  const context = (parts, reply, why) => {
+    fs.appendFileSync(path.join(runDir, 'context.txt'), parts.join('\n\n') + '\n');
+    messages.push({ role: 'assistant', content: reply.text }, { role: 'user', content: `${parts.join('\n\n')}\n\n${why}` });
+  };
   let contextGiven = false, last = null, lastCode = null;
   for (let round = 1; round <= S.maxRounds; round++) {
-    let reply = await plannerTa.chat({ tier: S.plannerTier, messages, maxTokens: S.planner.maxTokens, temperature: 0, retryCut: true });
-    stats.add('planner', reply);
-    if (!reply.ok) { err({ stage: 'planner', round, message: reply.reason }); return finish({ status: 'failed', how: 'plan', rounds: round, decision, summary: `the planner (${S.plannerTier}) failed: ${reply.reason}` }); }
+    let reply = await ask(round);
+    if (!reply.ok) return finish({ status: 'failed', how: 'plan', rounds: round, decision, summary: `the planner (${S.plannerTier}) failed: ${reply.reason}` });
     let code = codeBlockOf(reply.text);
-    if (!code && !contextGiven) {
-      const want = jsonOf(reply.text);
+    // Context the planner asks for (once), and the instructions of a skill its plan uses but it has not loaded (progressive disclosure:
+    // the body is loaded when the skill is chosen). Neither counts as a round.
+    for (let extra = 0; extra < 2; extra++) {
+      let parts = [], why = '';
+      const want = !code && !contextGiven ? jsonOf(reply.text) : null;
       if (want && (Array.isArray(want.load_skills) || Array.isArray(want.peek))) {
         contextGiven = true;
-        const parts = [];
-        for (const n of (want.load_skills ?? []).slice(0, 5)) { const sk = skills.get(n); parts.push(sk ? `SKILL ${n} (folder ${path.relative(workspace.root, sk.dir) || sk.dir}; scripts: ${sk.scripts.join(', ') || 'none'}):\n${skillBody(sk)}` : `SKILL ${n}: no such skill`); }
-        for (const f of (want.peek ?? []).slice(0, 5)) { try { parts.push(`FILE ${f} (first lines):\n${workspace.read(f).split('\n').slice(0, 20).join('\n').slice(0, 2500)}`); } catch (e) { parts.push(`FILE ${f}: ${e.message}`); } }
-        fs.appendFileSync(path.join(runDir, 'context.txt'), parts.join('\n\n') + '\n');
+        parts = [...(want.load_skills ?? []).slice(0, 5).map(loadSkill), ...(want.peek ?? []).slice(0, 5).map(head)];
+        why = 'Now write the plan, in one js code block.';
         log(`planner asked for context: skills ${JSON.stringify(want.load_skills ?? [])}, files ${JSON.stringify(want.peek ?? [])}`);
-        messages.push({ role: 'assistant', content: reply.text }, { role: 'user', content: `${parts.join('\n\n')}\n\nNow write the plan, in one js code block.` });
-        reply = await plannerTa.chat({ tier: S.plannerTier, messages, maxTokens: S.planner.maxTokens, temperature: 0, retryCut: true });
-        stats.add('planner', reply);
-        if (!reply.ok) { err({ stage: 'planner', round, message: reply.reason }); return finish({ status: 'failed', how: 'plan', rounds: round, decision, summary: `the planner (${S.plannerTier}) failed: ${reply.reason}` }); }
-        code = codeBlockOf(reply.text);
-      }
+      } else if (code) {
+        const used = skillsUsedBy(code).filter((n) => skills.has(n) && !loaded.has(n));
+        if (!used.length) break;
+        parts = used.map(loadSkill);
+        why = `Your plan uses ${used.join(', ')} without its instructions; here they are. Write the whole plan again, following them, in one js code block.`;
+        log(`plan uses skill(s) not loaded: ${used.join(', ')}; their instructions are given`);
+      } else break;
+      context(parts, reply, why);
+      reply = await ask(round);
+      if (!reply.ok) return finish({ status: 'failed', how: 'plan', rounds: round, decision, summary: `the planner (${S.plannerTier}) failed: ${reply.reason}` });
+      code = codeBlockOf(reply.text);
     }
     messages.push({ role: 'assistant', content: reply.text });
-    if (!code) { last = { stage: 'planner', code: 'no_code', message: 'the reply holds no js code block' }; err({ round, ...last }); messages.push({ role: 'user', content: 'Your reply holds no plan. Write the whole plan in one ```js code block.' }); continue; }
+    const retry = (error, text) => { last = error; err({ round, ...error }); log(`plan ${round} refused: ${error.stage}: ${error.message}`); messages.push({ role: 'user', content: text }); };
+    if (!code) { retry({ stage: 'planner', code: 'no_code', message: 'the reply holds no js code block' }, 'Your reply holds no plan. Write the whole plan in one ```js code block.'); continue; }
     lastCode = code;
     fs.writeFileSync(path.join(runDir, `plan-${round}.mjs`), code + '\n');
     const m = await extractMeta(code, S);
-    if (m.error) { last = { stage: 'load', code: 'plan_invalid', message: m.error }; err({ round, ...last }); messages.push({ role: 'user', content: `The plan cannot be used: ${m.error}\nWrite the whole corrected plan in one js code block.` }); continue; }
+    if (m.error) { retry({ stage: 'load', code: 'plan_invalid', message: m.error }, `The plan cannot be used: ${m.error}\nWrite the whole corrected plan in one js code block.`); continue; }
+    const hard = hardcodedValues(code, request, m.meta.example);
+    if (hard.length) {
+      retry({ stage: 'load', code: 'hardcoded_value', message: `values of this request are written in the code: ${hard.map((h) => JSON.stringify(h)).join(', ')}` },
+        `The plan writes values of this request into its code: ${hard.map((h) => JSON.stringify(h)).join(', ')}. It must work for other values too: make each one a parameter in meta.params (its value in meta.example) and read it from params. Write the whole corrected plan in one js code block.`);
+      continue;
+    }
     const params = validateInputs(m.meta.params, m.meta.example ?? {}).inputs;
     if (planOnly) return finish({ status: 'planned', how: 'plan', rounds: round, params, meta: m.meta, code, decision, summary: `plan ${m.meta.name} (${runDir}/plan-${round}.mjs) with ${JSON.stringify(params)}` });
     log(`plan ${round}: ${m.meta.name} ${JSON.stringify(params)}`);
@@ -244,13 +274,19 @@ export async function runAgent({ request, workdir = process.cwd(), plansDir = nu
       log(`stored ${verified ? 'verified' : 'draft'} plan ${planId}`);
       return finish({ status: 'finished', how: 'plan', rounds: round, plan: planId, planStatus: verified ? 'verified' : 'draft', params, answer: answerOf(r.result), result: r.result, check: r.check ?? null, decision, summary: answerOf(r.result) });
     }
-    last = r.error;
-    err({ round, plan: `plan-${round}.mjs`, ...r.error });
-    log(`plan ${round} failed: ${r.error.stage}: ${r.error.message}`);
-    messages.push({ role: 'user', content: `The plan failed (${r.error.stage}, ${r.error.code}): ${r.error.message}\n\nLast tool calls:\n${callsDigest(r.calls) || '(none)'}\n\nWrite the whole corrected plan in one js code block.` });
+    // The error, the last tool calls and the first lines of the files the plan read (not shown before) go back to the planner.
+    const read = [...new Set(r.calls.filter((c) => c.op === 'read' && c.ok).map((c) => c.args[0]))].filter((f) => !shown.has(f)).slice(0, 2);
+    retry({ plan: `plan-${round}.mjs`, ...r.error },
+      `The plan failed (${r.error.stage}, ${r.error.code}): ${r.error.message}\n\nLast tool calls:\n${callsDigest(r.calls) || '(none)'}${read.length ? `\n\n${read.map(head).join('\n\n')}` : ''}\n\nWrite the whole corrected plan in one js code block.`);
   }
   return finish({ status: 'failed', how: 'plan', rounds: S.maxRounds, decision, lastCode: lastCode ? path.join(runDir, 'plan-*.mjs') : null, summary: `no plan succeeded in ${S.maxRounds} rounds; last error: ${last?.stage}: ${last?.message}` });
 }
+
+/** A path the request names (as a whole, not inside a longer name). */
+const namedIn = (request, p) => new RegExp(`(^|[\\s"'\`(])${p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=$|[\\s"'\`),;:!?]|\\.(\\s|$))`).test(request);
+/** The skills a plan's code uses: names in meta.skills and the first argument of runSkillScript calls. */
+const skillsUsedBy = (code) => [...new Set([...String(code).matchAll(/runSkillScript\(\s*['"]([a-z0-9][a-z0-9-]*)['"]/g)].map((m) => m[1]).concat(
+  [...(/skills\s*:\s*\[([^\]]*)\]/.exec(String(code))?.[1] ?? '').matchAll(/['"]([a-z0-9][a-z0-9-]*)['"]/g)].map((m) => m[1])))];
 
 /** The code of a SkillPlugin promoted from a verified plan (written by `tinyagent plans promote`). */
 export function promotedPluginSource({ name, plan, meta, toDir }) {
