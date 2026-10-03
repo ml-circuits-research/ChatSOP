@@ -26,7 +26,7 @@ export const LOCAL = {...DEFAULT_LOCAL, gguf: MODEL_GGUF, alias: 'qwen3-4b-instr
 /** The default chat base memory (config chatData.defaultBase, world-v1 over core-en and commonsense-v1) in a private session; `endpoint` reuses a running llama-server. */
 // `sessionId` lets several turn systems run side by side (one session each); `parserOptions` adds query-parser settings (for example
 // `reportErrors: false` for a harness that reports by itself) and `headers` tag the proxy calls of a tier (purpose, no fallback).
-export async function openChatTurn({base = null, endpoint = null, wallMs = 300_000, strategy = 'LocalLLMStepByStep', tier = null, ladder = false, sessionId = null, parserOptions = {}, headers = null, replay = null} = {}) {
+export async function openChatTurn({base = null, endpoint = null, wallMs = 300_000, strategy = 'LocalLLMStepByStep', tier = null, ladder = false, sessionId = null, parserOptions = {}, headers = null, replay = null, localExtra = {}} = {}) {
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'runtime.json'), 'utf8'));
   const chatData = ChatData.open(config, {}, ROOT);
   const memories = new BaseMemories({chatData, memory: config.memory});
@@ -43,7 +43,7 @@ export async function openChatTurn({base = null, endpoint = null, wallMs = 300_0
   // to the product's configured ladder (queryParser.local.ladder), escalating per question.
   const tiered = tier || ladder;
   const local = tiered ? {method: 'B', tier: tier ?? config.queryParser?.local?.tier ?? 'tiny', ladder: ladder ? config.queryParser?.local?.ladder ?? null : tierRung(config, tier),
-    maxTokens: LOCAL.maxTokens, thinking: false, ...(headers ? {headers} : {}), ...(replay ? {replay} : {})} : {...LOCAL, ...(endpoint ? {endpoint} : {})};
+    maxTokens: LOCAL.maxTokens, thinking: false, ...(headers ? {headers} : {}), ...(replay ? {replay} : {}), ...localExtra} : {...LOCAL, ...(endpoint ? {endpoint} : {})};
   const settings = queryParserSettings({queryParser: {...(config.queryParser ?? {}), ...parserOptions, strategy, local, cacheEntries: 0, timeoutSeconds: wallMs / 1000}});
   const parser = createQueryParser({settings});
   // A proxy tier needs no local llama-server (LLMDirect was archived on 2026-10-02).

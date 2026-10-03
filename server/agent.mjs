@@ -47,7 +47,7 @@ export class Agent{
   const addressee=this.config?.assistant&&this.lexicon?.entities?.[this.config.assistant]?this.config.assistant:null;
   const sop=await authorExecution.run({execute,circuits,addressee,repo:this.repo,session:this.session,key:digest([circuits.map(c=>c.text),this.context.statements,this.context.user]),contextKey:digest(this.context.lastQuery??''),selfCheck:this.config?.queryParser?.selfCheck!==false},()=>formalizer.formalize(text));
   const formalization={model:formalizer.id??null,ms:Math.round(performance.now()-started)};
-  let result;
+  let result,turnOnly=new Set();
   try{
    if(preview?.sop!==sop)await execute(sop);
    result=preview.result;
@@ -60,6 +60,7 @@ export class Agent{
     // turn-scoped: it would collide with the next problem's vocabulary in the session layer.
     const declared=new Set([...preview.program.definitionSop.matchAll(/^@([A-Za-z][A-Za-z0-9_]*)\s+predicate\s*$/gm)].map(m=>m[1]));
     const problem=(preview.program.wires??[]).some(w=>w?.type==='stated'&&declared.has(String(w.fields?.relation?.[0]??'').replace(/^"|"$/g,'')));
+    if(problem)turnOnly=declared;
     if(!problem&&folder&&fs.existsSync(path.join(folder,'session.json'))){try{added=new Sessions({chatData:{sessionsDir:path.dirname(folder)}}).addCircuit(path.basename(folder),{name:'coding-agent-definition',text:preview.program.definitionSop,model:formalizer.id,origin:'coding_agent'});}catch(error){problems=(error.problems??[{code:error.code,message:error.message}]).slice(0,10);}}
     if(result.result?.packet)result.result.packet.session_circuits={origin:'coding_agent',scope:added?'session':'turn',status:added?'added':problems?'not_added':'turn_only',...(problem?{reason:'problem_vocabulary'}:{}),text:preview.program.definitionSop,...(added?{file:added.file}:{}),...(problems?{problems}:{})};
    }
@@ -72,7 +73,9 @@ export class Agent{
   // applicable replies, and the opening, body and closing of the highest priority are filled from the packet. No phrasing in code.
   const signals=(output.packet?.pragmatic??[]).filter(s=>s.score>=0.5);
   output=this.reply(output,{text,now});
-  this.context={...this.context,statements:result.contextStatements??this.context.statements};
+  // A statement over a problem's turn-scoped vocabulary expires with the turn: carried on, it would name a predicate the next turn's
+  // schema does not have ("Unknown predicate distance_km", live check 2026-10-02).
+  this.context={...this.context,statements:(result.contextStatements??this.context.statements).filter(s=>!turnOnly.has(s.atom?.p))};
   this.last=output;this.recent.push({user:text.slice(0,400),response:output.text.slice(0,500)});this.recent=this.recent.slice(-3);
   const packet=output.packet??{};
   const branches=(result.problemResults??[]).flatMap(p=>p.branch?[p.branch]:[]);

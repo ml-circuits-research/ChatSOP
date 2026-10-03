@@ -1,0 +1,78 @@
+# The primitive interpreters (tools/eval/method-library/primitives.mjs is the code half).
+
+# --- primitive calculate
+@fpp_calculate_1 fact
+  holds fp_primitive calculate
+
+@fpp_calculate_2 fact
+  holds fp_primitive_text calculate "evaluates a method formula over numbers and yes/no values (arithmetic, comparison, conditional, whole and remainder division, min/max)"
+
+@fpp_calculate_3 fact
+  holds fp_primitive_construct calculate "session rules with compute and compare lines (stated values, one rule per formula; js-reference)"
+
+
+# --- primitive rank
+@fpp_rank_1 fact
+  holds fp_primitive rank
+
+@fpp_rank_2 fact
+  holds fp_primitive_text rank "chooses the best of named options by a number given for each, optionally only among feasible ones"
+
+@fpp_rank_3 fact
+  holds fp_primitive_construct rank "stated options and scores, a feasibility rule, a query with rank lowest|highest"
+
+
+# --- primitive deduce
+@fpp_deduce_1 fact
+  holds fp_primitive deduce
+
+@fpp_deduce_2 fact
+  holds fp_primitive_text deduce "derives from stated facts, if-then rules and default rules (unless): whether an atom is forced, true/false/undetermined, who satisfies it, how many"
+
+@fpp_deduce_3 fact
+  holds fp_primitive_construct deduce "session predicates (closed world of the problem), stated facts, rules with not/absent, a follows rule or a select/count query"
+
+
+# --- primitive constraints
+@fpp_constraints_1 fact
+  holds fp_primitive constraints
+
+@fpp_constraints_2 fact
+  holds fp_primitive_text constraints "finds integer values satisfying conditions (orders, positions, matchings, integer puzzles, integer optimum); reports a unique solution, several (undetermined) or none (contradiction)"
+
+@fpp_constraints_3 fact
+  holds fp_primitive_construct constraints "a constraint wire (var, require in words, task possible|optimize, select), solved by the runtime"
+
+
+# --- primitive schedule
+@fpp_schedule_1 fact
+  holds fp_primitive schedule
+
+@fpp_schedule_2 fact
+  holds fp_primitive_text schedule "earliest finish of tasks with durations and precedence (unlimited parallel work)"
+
+@fpp_schedule_3 fact
+  holds fp_primitive_construct schedule "compute rules with maximum_with over the precedence order"
+
+
+# --- primitive abduce
+@fpp_abduce_1 fact
+  holds fp_primitive abduce
+
+@fpp_abduce_2 fact
+  holds fp_primitive_text abduce "among hypotheses, rules out those an observation contradicts and ranks the rest by the observations that support them"
+
+@fpp_abduce_3 fact
+  holds fp_primitive_construct abduce "stated supports/contradicts, a closed-world rule, an aggregate count, a rank query"
+
+
+# --- primitive justify
+@fpp_justify_1 fact
+  holds fp_primitive justify
+
+@fpp_justify_2 fact
+  holds fp_primitive_text justify "renders the derivation of another node (its method, inputs and result) as the answer to a why-question"
+
+@fpp_justify_3 fact
+  holds fp_primitive_construct justify "the reason packet of the executed nodes"
+

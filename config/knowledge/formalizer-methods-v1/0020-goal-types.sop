@@ -1,0 +1,197 @@
+# Goal types, classified by the formal operation they ask for.
+
+# --- goal type find_value
+@fpg_find_value_1 fact
+  holds fp_gtype find_value
+
+@fpg_find_value_2 fact
+  holds fp_gtype_text find_value "a number computed from the given numbers"
+
+@fpg_find_value_3 fact
+  holds fp_gtype_answer find_value number
+
+@fpg_find_value_4 fact
+  holds fp_gtype_operation find_value "equations / arithmetic"
+
+
+# --- goal type check_condition
+@fpg_check_condition_1 fact
+  holds fp_gtype check_condition
+
+@fpg_check_condition_2 fact
+  holds fp_gtype_text check_condition "whether a given or computed quantity meets a stated condition or limit"
+
+@fpg_check_condition_3 fact
+  holds fp_gtype_answer check_condition yesno
+
+@fpg_check_condition_4 fact
+  holds fp_gtype_operation check_condition "comparison"
+
+
+# --- goal type choose_option
+@fpg_choose_option_1 fact
+  holds fp_gtype choose_option
+
+@fpg_choose_option_2 fact
+  holds fp_gtype_text choose_option "which named option is best by a quantity computed for each, possibly only among options meeting conditions"
+
+@fpg_choose_option_3 fact
+  holds fp_gtype_answer choose_option entity
+
+@fpg_choose_option_4 fact
+  holds fp_gtype_operation choose_option "optimization over named options"
+
+
+# --- goal type is_forced
+@fpg_is_forced_1 fact
+  holds fp_gtype is_forced
+
+@fpg_is_forced_2 fact
+  holds fp_gtype_text is_forced "whether a statement follows from the stated facts and rules (yes only when it is forced)"
+
+@fpg_is_forced_3 fact
+  holds fp_gtype_answer is_forced yesno
+
+@fpg_is_forced_4 fact
+  holds fp_gtype_operation is_forced "logic (entailment)"
+
+
+# --- goal type is_true
+@fpg_is_true_1 fact
+  holds fp_gtype is_true
+
+@fpg_is_true_2 fact
+  holds fp_gtype_text is_true "whether a statement is true, false, or not decided by the stated facts and rules"
+
+@fpg_is_true_3 fact
+  holds fp_gtype_answer is_true yesno or undetermined
+
+@fpg_is_true_4 fact
+  holds fp_gtype_operation is_true "logic (open world)"
+
+
+# --- goal type find_who
+@fpg_find_who_1 fact
+  holds fp_gtype find_who
+
+@fpg_find_who_2 fact
+  holds fp_gtype_text find_who "which things satisfy a property given or derived from stated facts and rules"
+
+@fpg_find_who_3 fact
+  holds fp_gtype_answer find_who entity or set
+
+@fpg_find_who_4 fact
+  holds fp_gtype_operation find_who "logic (query)"
+
+
+# --- goal type count_things
+@fpg_count_things_1 fact
+  holds fp_gtype count_things
+
+@fpg_count_things_2 fact
+  holds fp_gtype_text count_things "how many things satisfy a given or derived property"
+
+@fpg_count_things_3 fact
+  holds fp_gtype_answer count_things number
+
+@fpg_count_things_4 fact
+  holds fp_gtype_operation count_things "logic and aggregation"
+
+
+# --- goal type find_order
+@fpg_find_order_1 fact
+  holds fp_gtype find_order
+
+@fpg_find_order_2 fact
+  holds fp_gtype_text find_order "the order or the positions of things from relative clues"
+
+@fpg_find_order_3 fact
+  holds fp_gtype_answer find_order order
+
+@fpg_find_order_4 fact
+  holds fp_gtype_operation find_order "constraint satisfaction (ordering)"
+
+
+# --- goal type find_assignment
+@fpg_find_assignment_1 fact
+  holds fp_gtype find_assignment
+
+@fpg_find_assignment_2 fact
+  holds fp_gtype_text find_assignment "which thing has which value, from clues"
+
+@fpg_find_assignment_3 fact
+  holds fp_gtype_answer find_assignment assignment
+
+@fpg_find_assignment_4 fact
+  holds fp_gtype_operation find_assignment "constraint satisfaction (matching)"
+
+
+# --- goal type exists_assignment
+@fpg_exists_assignment_1 fact
+  holds fp_gtype exists_assignment
+
+@fpg_exists_assignment_2 fact
+  holds fp_gtype_text exists_assignment "whether integer values satisfying all stated conditions exist"
+
+@fpg_exists_assignment_3 fact
+  holds fp_gtype_answer exists_assignment yesno
+
+@fpg_exists_assignment_4 fact
+  holds fp_gtype_operation exists_assignment "satisfiability"
+
+
+# --- goal type optimize_integer
+@fpg_optimize_integer_1 fact
+  holds fp_gtype optimize_integer
+
+@fpg_optimize_integer_2 fact
+  holds fp_gtype_text optimize_integer "the best integer values under conditions"
+
+@fpg_optimize_integer_3 fact
+  holds fp_gtype_answer optimize_integer number or assignment
+
+@fpg_optimize_integer_4 fact
+  holds fp_gtype_operation optimize_integer "integer optimization"
+
+
+# --- goal type earliest_finish
+@fpg_earliest_finish_1 fact
+  holds fp_gtype earliest_finish
+
+@fpg_earliest_finish_2 fact
+  holds fp_gtype_text earliest_finish "the earliest completion time of tasks that wait for each other"
+
+@fpg_earliest_finish_3 fact
+  holds fp_gtype_answer earliest_finish number
+
+@fpg_earliest_finish_4 fact
+  holds fp_gtype_operation earliest_finish "scheduling"
+
+
+# --- goal type best_explanation
+@fpg_best_explanation_1 fact
+  holds fp_gtype best_explanation
+
+@fpg_best_explanation_2 fact
+  holds fp_gtype_text best_explanation "which hypothesis best explains the observations"
+
+@fpg_best_explanation_3 fact
+  holds fp_gtype_answer best_explanation entity
+
+@fpg_best_explanation_4 fact
+  holds fp_gtype_operation best_explanation "abduction"
+
+
+# --- goal type explain_answer
+@fpg_explain_answer_1 fact
+  holds fp_gtype explain_answer
+
+@fpg_explain_answer_2 fact
+  holds fp_gtype_text explain_answer "why an answer holds: the derivation of another goal"
+
+@fpg_explain_answer_3 fact
+  holds fp_gtype_answer explain_answer text
+
+@fpg_explain_answer_4 fact
+  holds fp_gtype_operation explain_answer "justification"
+

@@ -1,0 +1,12 @@
+{
+  "id": "eval-semantic-decomposition-v1",
+  "design": "experiments/proposal/semantic-decomposition-protocol.md section 5",
+  "hypothesis": "Stage A of the semantic decomposition (registry by index, goals with a closed kind, a type per goal, slot questions; chain, check, batch, choose, breakeven) formalizes numeric book problems better than the classic value and formula questions, on tiny and on good answering the same questions.",
+  "arms": {"A": "decomposition on tiny (LocalLLMStepByStep B, product ladder tiny -> small -> good per question)", "G": "decomposition on good only (question-quality ceiling)", "C": "classic problem questions on tiny (CHATSOP_PROBLEM_PROTOCOL=classic, control)"},
+  "sample": "stage 1: 10 fresh problems per book with at least two numbers in the question, books commonsense, decompose, adult, world, math (50); never a regression case or a seen item (tools/eval/formalization-regression/sample-stage.mjs, seed sd-stage1). Deviation from the design: stratified by book instead of by type, because the type strata need a labelling pass; the decomposition's own type choice is reported per problem.",
+  "metrics": "correct / wrong / unknown / invalid / failed per arm and book; paired difference A - C with a paired bootstrap interval (10000 resamples); questions per problem; escalations; types chosen.",
+  "stopping": "stage 1 only, then fix generically; stage 2 (25 per stratum) once, if stage 1 is undecided. Stop when the paired interval of A - C excludes 0 in either direction, or when more than 20% of A's turns fail (infrastructure).",
+  "gate": "a change enters the product only with zero losses on the regression set (tools/eval/formalization-regression/gate.mjs, offline floor).",
+  "registered": "2026-10-02",
+  "owner": "formalization-improver"
+}

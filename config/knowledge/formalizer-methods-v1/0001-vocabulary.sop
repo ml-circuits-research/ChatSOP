@@ -1,0 +1,133 @@
+# formalizer-methods-v1: the method library of the formalization-machine experiment (owner's "Analysis 3",
+# experiments/proposal/formalization-machine-phase1.md). A research layer: goal types, METHODs (match / requires / decompose / solver)
+# and primitive interpreters as fp_ facts; read only by tools/eval/method-library (offline harness), never by a chat base memory.
+# A method is HTN-style: it achieves a goal type, requires slots (fp_method_slot), decomposes a slot into a sub-goal of a type
+# (fp_method_decompose), and is solved by one primitive whose interpreter writes an SOP circuit (fp_method_solver, fp_primitive_construct).
+# The model never writes a formula: a calculate method carries its formula as data (fp_method_formula).
+
+@fp_primitive predicate
+  args subject:entity
+  closed true
+  description "a primitive interpreter (subject) of the formalization machine"
+
+@fp_primitive_text predicate
+  args subject:entity object:text
+  closed true
+  description "what the primitive computes"
+
+@fp_primitive_construct predicate
+  args subject:entity object:text
+  closed true
+  description "the SOP construct and engine the primitive writes and runs"
+
+@fp_gtype predicate
+  args subject:entity
+  closed true
+  description "a goal type (classified by the formal operation it asks for, not by domain)"
+
+@fp_gtype_text predicate
+  args subject:entity object:text
+  closed true
+  description "the shape of a goal of this type"
+
+@fp_gtype_answer predicate
+  args subject:entity object:text
+  closed true
+  description "the kind of answer a goal of this type has"
+
+@fp_gtype_operation predicate
+  args subject:entity object:text
+  closed true
+  description "the formal operation of the goal type"
+
+@fp_method predicate
+  args subject:entity
+  closed true
+  description "a decomposition METHOD of the library"
+
+@fp_method_achieves predicate
+  args subject:entity object:entity
+  closed true
+  description "the method (subject) achieves goals of this type (object)"
+
+@fp_method_solver predicate
+  args subject:entity object:entity
+  closed true
+  description "the primitive that executes the method"
+
+@fp_method_text predicate
+  args subject:entity object:text
+  closed true
+  description "when the method applies (its match condition, for the frame-filler)"
+
+@fp_method_seq predicate
+  args subject:entity object:integer
+  closed true
+  description "the order in which the method entered the library"
+
+@fp_method_added predicate
+  args subject:entity object:entity
+  closed true
+  description "the stage that added the method (seed, dev1, dev2, dev3)"
+
+@fp_method_slot predicate
+  args subject:entity object:entity topic:entity
+  closed true
+  description "the method (subject) requires the slot (object) of this kind (topic)"
+
+@fp_slot_text predicate
+  args subject:entity object:entity topic:text
+  closed true
+  description "what the slot (object) of the method (subject) holds"
+
+@fp_slot_many predicate
+  args subject:entity object:entity
+  closed true
+  description "the slot takes a list"
+
+@fp_slot_optional predicate
+  args subject:entity object:entity
+  closed true
+  description "the slot may stay empty"
+
+@fp_slot_choice predicate
+  args subject:entity object:entity topic:entity value:text
+  closed true
+  description "a menu slot (object) of the method (subject) admits the value (topic) with this operator (value)"
+
+@fp_method_decompose predicate
+  args subject:entity object:entity topic:entity
+  closed true
+  description "the slot (object) of the method (subject) is normally the output of a sub-goal of the type (topic)"
+
+@fp_method_formula predicate
+  args subject:entity object:text
+  closed true
+  description "the formula of a calculate method over its slot names"
+
+@fp_method_clue predicate
+  args subject:entity object:entity topic:text
+  closed true
+  description "a clue kind (object) of a constraints method (subject) and its requirement template over ?A ?B ?C K N (topic)"
+
+@fp_method_fixed predicate
+  args subject:entity object:entity topic:entity
+  closed true
+  description "a frame field (object) the method fixes to a value (topic)"
+
+@fp_goal_has_type predicate
+  args subject:entity object:entity
+  closed true
+  description "a goal of a problem state (subject) has the goal type (object)"
+
+@fp_method_applicable predicate
+  args subject:entity object:entity
+  closed true
+  description "the method (subject) may decompose the goal (object)"
+
+# The planner's applicability rule (the natural home of METHODs in InternalReasoningStepByStep: a goal of a type admits every method that
+# achieves the type; the machine applies the first whose slots can be filled).
+@fp_ml_applicable rule
+  when fp_goal_has_type ?g ?t
+  when fp_method_achieves ?m ?t
+  then fp_method_applicable ?m ?g

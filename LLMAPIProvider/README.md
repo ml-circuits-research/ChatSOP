@@ -112,3 +112,7 @@ Clients and jobs name a **tier**, never a concrete model: `POST /v1/chat/complet
 ## Interactive priority (owner, 2026-10-02)
 
 Requests whose purpose is in `config.interactive.purposes` (`chat`, `formalize`, `answer-*`) go to the front of each upstream queue (FIFO within a priority) and fall back down their tier chain when the expected wait exceeds `interactive.maxWaitMs` (15 s), so a person is never kept behind batch jobs on the 15 requests/minute openference plan. Batch purposes (`job:*`, `review:*`, `ingest`) keep the long wait.
+
+## Response cache (owner, 2026-10-02)
+
+Responses are cached by default (`config.cache.defaultMode: "use"`): the same request gets the same answer, without a model call or cost. The key is the whole request body (messages, model or tier, sampling settings; `stream` excluded) plus the target and the identity of the model behind it (a tier's first chain entry; a local GGUF's size and mtime), so a changed prompt, setting or model is simply a new key and nothing is invalidated by hand. Header `x-llmapiprovider-cache`: `off` (bypass), `use`, `strict` (a miss is refused with 409 `cache_miss` and no model is called: regressions that must not call models), `record` (call and refresh). Only complete non-streamed 200 answers of the tier's first model are stored (a fallback answer is not). Entries: `~/.local/share/llmapiprovider-cache/`; counts in `/stats` `cache`; a hit is logged with `upstream: "cache"` and response header `x-llmapiprovider-cache: hit`.

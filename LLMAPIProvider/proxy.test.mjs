@@ -25,10 +25,10 @@ async function setup({ stub, limits = { maxConcurrent: 2, maxPerSecond: 50 }, to
   const uport = await listen(up);
   const dataDir = reuseDir || mkdtempSync(join(tmpdir(), 'llmapi-'));
   const config = { defaultUpstream: 'stub', modelsCacheSeconds: 600, compare, upstreams: { stub: { plan, baseUrl: `http://127.0.0.1:${uport}`, keyVar: 'STUB_KEY', limits, retry: { max: 3, baseMs: 20, maxWaitMs: 2000 }, formats: { openai: '/v1/chat/completions', anthropic: '/v1/messages' } } } };
-  const p = createProxy({ config, env: { STUB_KEY: KEY }, dataDir, proxyToken: token });
+  const p = createProxy({ config, env: { STUB_KEY: KEY }, dataDir, proxyToken: token, cacheDir: dataDir + '-cache' });
   const port = await listen(p.server);
   const base = `http://127.0.0.1:${port}`;
-  const close = async () => { p.server.close(); up.close(); up.closeAllConnections?.(); p.server.closeAllConnections?.(); if (!reuseDir) rmSync(dataDir, { recursive: true, force: true }); };
+  const close = async () => { p.server.close(); up.close(); up.closeAllConnections?.(); p.server.closeAllConnections?.(); if (!reuseDir) { rmSync(dataDir, { recursive: true, force: true }); rmSync(dataDir + '-cache', { recursive: true, force: true }); } };
   return { base, seen, dataDir, close, p };
 }
 const logText = (dir) => readdirSync(dir).map((f) => readFileSync(join(dir, f), 'utf8')).join('');
@@ -406,9 +406,9 @@ async function tierSetup({ primary, secondary, localStart = null, audit = null }
     upstreams: { a: upA, b: { ...upA, baseUrl: `http://127.0.0.1:${b.port}` }, ...(localStart ? { loc: { ...upA, baseUrl: 'http://127.0.0.1:1', noKey: true, keyVar: undefined, start: localStart } } : {}) },
     tiers: { tiny: localStart ? [{ upstream: 'loc', model: 'L' }, { upstream: 'b', model: 'B' }] : [{ upstream: 'b', model: 'B' }], small: [{ upstream: 'a', model: 'A' }, { upstream: 'b', model: 'B' }], good: [{ upstream: 'b', model: 'G' }] },
     audit };
-  const p = createProxy({ config, env: { K: KEY }, dataDir, auditDir: join(dataDir, 'aud'), starterOptions: { gpuPids: () => [4242] } });
+  const p = createProxy({ config, env: { K: KEY }, dataDir, auditDir: join(dataDir, 'aud'), cacheDir: dataDir + '-cache', starterOptions: { gpuPids: () => [4242] } });
   const port = await listen(p.server);
-  const close = () => { p.server.close(); a.s.close(); b.s.close(); p.server.closeAllConnections?.(); a.s.closeAllConnections?.(); b.s.closeAllConnections?.(); rmSync(dataDir, { recursive: true, force: true }); };
+  const close = () => { p.server.close(); a.s.close(); b.s.close(); p.server.closeAllConnections?.(); a.s.closeAllConnections?.(); b.s.closeAllConnections?.(); rmSync(dataDir, { recursive: true, force: true }); rmSync(dataDir + '-cache', { recursive: true, force: true }); };
   return { base: `http://127.0.0.1:${port}`, dataDir, close };
 }
 const ask = (base, model, h = {}) => fetch(base + '/v1/chat/completions', { method: 'POST', headers: { 'content-type': 'application/json', ...h }, body: JSON.stringify({ model, messages: [{ role: 'user', content: 'q' }] }) });
@@ -512,4 +512,22 @@ test('limiter: interactive priority runs before queued batch jobs, FIFO within a
   const jobs = [['b1', 1], ['b2', 1], ['i1', 0], ['i2', 0]].map(([n, p]) => l.schedule(async () => { order.push(n); }, null, p));
   await new Promise((r) => setTimeout(r, 10)); release(); await first; await Promise.all(jobs);
   assert.deepEqual(order, ['i1', 'i2', 'b1', 'b2']);
+});
+
+test('cache: use stores and serves without a model call, strict refuses a miss, a changed prompt misses, record refreshes', async () => {
+  let calls = 0;
+  const t = await tierSetup({ primary: (req, res, b) => { calls += 1; echoModel(req, res, b); }, secondary: echoModel });
+  try {
+    const ask2 = (content, mode, model = 'small') => fetch(t.base + '/v1/chat/completions', { method: 'POST', headers: { 'content-type': 'application/json', 'x-llmapiprovider-cache': mode, 'x-llmapiprovider-purpose': 'test:cache' }, body: JSON.stringify({ model, messages: [{ role: 'user', content }], temperature: 0 }) });
+    let r = await ask2('q1', 'strict');
+    assert.equal(r.status, 409); assert.equal((await r.json()).error.type, 'cache_miss'); assert.equal(calls, 0);
+    r = await ask2('q1', 'use'); assert.equal(r.status, 200); await r.json(); assert.equal(calls, 1);
+    r = await ask2('q1', 'strict'); assert.equal(r.status, 200); assert.equal(r.headers.get('x-llmapiprovider-cache'), 'hit');
+    assert.equal((await r.json()).choices[0].message.content, 'from A'); assert.equal(calls, 1);
+    r = await ask2('q1 changed', 'strict'); assert.equal(r.status, 409);
+    r = await ask2('q1', 'record'); await r.json(); assert.equal(calls, 2);
+    r = await ask2('q1', 'use', 'good'); await r.json(); // another tier is another key
+    const st = await (await fetch(t.base + '/stats')).json();
+    assert.equal(st.cache.hits, 1); assert.equal(st.cache.refused, 2);
+  } finally { t.close(); }
 });

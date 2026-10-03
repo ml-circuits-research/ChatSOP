@@ -13,6 +13,8 @@ import {demoLexicon} from '../lib/knowledge-seeds.mjs';
 import {validateQuery} from '../lib/query-author/validate.mjs';
 import {createWorld} from '../tools/eval/symbolic-vs-llm/world.mjs';
 
+// These tests cover the classic value and formula questions (compute and choose go to the decomposition by default).
+process.env.CHATSOP_PROBLEM_PROTOCOL = 'classic';
 const lexicon = demoLexicon();
 
 /** A scripted step-by-step oracle: answers by question name; records the names asked. */

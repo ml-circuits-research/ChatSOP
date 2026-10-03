@@ -41,6 +41,8 @@ const jobs=[
  ['shards-demo',process.execPath,['examples/shards-demo.mjs']],
  ['shards-benchmark',process.execPath,['tools/bench-shards.mjs']],
  ['smoke-reasoning',process.execPath,['eval/smoke-reasoning/run.mjs']],
+ // the offline per-step formalization regression (no model): every recorded case replayed through the current protocol and code; no case of the floor may be lost (tools/eval/formalization-regression/offline.mjs; skipped without the local recordings)
+ ['formalization-offline',process.execPath,['tools/eval/formalization-regression/offline.mjs','check']],
  // the no-capability-loss gate (fast tier while the machine serves formalization; --tier full refreshes the ledger by hand): L1, every generated program on every engine against the oracle, the last L3 run (tools/capabilities/check.mjs)
  ['capability-battery',process.execPath,['tools/capabilities/check.mjs','--tier','fast','--report']],
  ['solver-availability',process.execPath,['tools/check-solvers.mjs']],

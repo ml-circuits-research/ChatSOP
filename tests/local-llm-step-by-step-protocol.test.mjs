@@ -204,6 +204,9 @@ test('problem mode: a deduction from stated facts and rules is a yes/no query ov
     assert.equal(r.status, 'validated', JSON.stringify(r.validation?.problems));
     assert.match(r.sop, /@r1 rule\n {2}when is_glorp \?x\n {2}then is_blue \?x/);
     assert.match(r.sop, /relation "is_blue"\n {2}role subject "Moon"\n {2}polarity negated/);
-    assert.match(r.sop, /@q query\n {2}where match\n {4}relation "is_blue"\n {4}role subject "Zed"/);
+    // A problem is its own closed world: the answer predicate follows from the presence or the absence of is_blue Zed.
+    assert.match(r.sop, /@rq rule\n {2}when is_blue "Zed"\n {2}then is_blue_follows "Zed"/);
+    assert.match(r.sop, /@rqn rule\n {2}when absent is_blue "Zed"\n {2}then not is_blue_follows "Zed"/);
+    assert.match(r.sop, /@q query\n {2}where match\n {4}relation "is_blue_follows"\n {4}role subject "Zed"/);
   } finally { world.dispose(); }
 });

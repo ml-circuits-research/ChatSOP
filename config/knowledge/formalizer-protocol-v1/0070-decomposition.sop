@@ -1,0 +1,218 @@
+# formalizer-protocol-v1: semantic decomposition of numeric problems, stage A (experiments/proposal/semantic-decomposition-protocol.md).
+# Read by lib/query-author/step-by-step/decompose.mjs through problem mode: the registry of numbers (extracted by the system, labelled by
+# index), the goals with a closed kind, the type per goal from a menu filtered by the goal's kind, and the type's slot questions. The
+# questions are follow-ups of ask_problem (InternalReasoningStepByStep plans ask_problem as one action). Problem kinds routed here:
+# fp_decompose_kind. Every text is data; the readers are structural code named by fp_answer_format.
+
+@fp_decompose_kind predicate
+  args subject:entity
+  closed true
+  description "a problem of this kind (subject: compute, choose) is modelled by the semantic decomposition instead of the value and formula questions"
+@fp_registry_window predicate
+  args subject:entity object:integer
+  closed true
+  description "the registry shows this many words (object) of context on each side of a number (subject: words)"
+@fp_ptype predicate
+  args subject:entity
+  closed true
+  description "a problem type of the inventory (stage A: chain, check, batch, choose, breakeven)"
+@fp_ptype_kind predicate
+  args subject:entity object:entity
+  closed true
+  description "the problem type (subject) may answer a goal of this kind (object: number, yesno, which)"
+
+# Routing: no problem kind is routed here by default until the decomposition passes the regression gate with zero losses
+# (eval-semantic-decomposition-v1 stage 1 hit two failure thresholds, 2026-10-02); CHATSOP_PROBLEM_PROTOCOL=decompose routes compute
+# and choose here for the evaluation. Admitting it is the facts `fp_decompose_kind compute` and `fp_decompose_kind choose`.
+@fp_dc3 fact
+  holds fp_registry_window words 10
+
+# --- N0 registry
+@fp_dc10 fact
+  holds fp_question_text dc_registry "These are the numbers of the problem, each with the words around it:\n{{registry}}\nFor each number write one line `vK: what it is | of which thing` (like `v3: minutes per block | packing line`). Write `vK: irrelevant` for a number the answer does not need."
+@fp_dc11 fact
+  holds fp_follow_up dc_registry ask_problem
+@fp_dc12 fact
+  holds fp_answer_format dc_registry labels
+@fp_dc13 fact
+  holds fp_problem_tokens dc_registry 500
+@fp_dc14 fact
+  holds fp_problem_again dc_registry "One line per number, like `v1: price of one ticket | Plan A`."
+
+# --- N1 goals
+@fp_dc20 fact
+  holds fp_question_text dc_goals "The numbers are:\n{{numbers}}\nWhat does the question ask for? Write one line per asked item, as `gK: what is asked | kind`, with the kind's number:\n{{choices}}"
+@fp_dc21 fact
+  holds fp_follow_up dc_goals ask_problem
+@fp_dc22 fact
+  holds fp_answer_format dc_goals goals
+@fp_dc23 fact
+  holds fp_problem_tokens dc_goals 160
+@fp_dc24 fact
+  holds fp_problem_again dc_goals "One line per asked item, like `g1: total cost | 1`."
+@fp_dc25 fact
+  holds fp_choice dc_goals 1 number
+@fp_dc26 fact
+  holds fp_choice_text dc_goals 1 "a number"
+@fp_dc27 fact
+  holds fp_choice dc_goals 2 yesno
+@fp_dc28 fact
+  holds fp_choice_text dc_goals 2 "yes or no"
+@fp_dc29 fact
+  holds fp_choice dc_goals 3 which
+@fp_dc30 fact
+  holds fp_choice_text dc_goals 3 "which named thing (option, plan, person)"
+@fp_dc31 fact
+  holds fp_choice dc_goals 4 other
+@fp_dc32 fact
+  holds fp_choice_text dc_goals 4 "something else (an order, a list, an explanation)"
+
+@fp_dc35 fact
+  holds fp_question_text dc_things "Which named things (options, plans, routes, people) does the problem compare? Copy each name exactly as the problem writes it, one per line, or reply none."
+@fp_dc36 fact
+  holds fp_follow_up dc_things ask_problem
+@fp_dc37 fact
+  holds fp_answer_format dc_things things
+@fp_dc38 fact
+  holds fp_problem_tokens dc_things 120
+@fp_dc39 fact
+  holds fp_problem_again dc_things "One name per line, copied from the problem, or none."
+
+# --- N2 type per goal (the menu is filtered by the goal's kind)
+@fp_dc40 fact
+  holds fp_question_text dc_type "For {{goal}}: which shape does the answer have?\n{{menu}}\nReply with the number only."
+@fp_dc41 fact
+  holds fp_follow_up dc_type ask_problem
+@fp_dc42 fact
+  holds fp_answer_format dc_type number
+@fp_dc43 fact
+  holds fp_problem_tokens dc_type 8
+@fp_dc44 fact
+  holds fp_problem_again dc_type "Reply with one number from the list."
+@fp_dc45 fact
+  holds fp_choice dc_type 1 chain
+@fp_dc46 fact
+  holds fp_choice_text dc_type 1 "a number computed from the given numbers, perhaps through intermediate values"
+@fp_dc47 fact
+  holds fp_choice dc_type 2 batch
+@fp_dc48 fact
+  holds fp_choice_text dc_type 2 "how many whole units (batches, trips, boxes) are needed for an amount"
+@fp_dc49 fact
+  holds fp_choice dc_type 3 breakeven
+@fp_dc50 fact
+  holds fp_choice_text dc_type 3 "the amount at which two costs (each a fixed part plus a part per unit) are equal"
+@fp_dc51 fact
+  holds fp_choice dc_type 4 check
+@fp_dc52 fact
+  holds fp_choice_text dc_type 4 "whether a value (given or computed) meets a limit"
+@fp_dc53 fact
+  holds fp_choice dc_type 5 choose
+@fp_dc54 fact
+  holds fp_choice_text dc_type 5 "which named thing is best by a number computed for each"
+@fp_dc60 fact
+  holds fp_ptype_kind chain number
+@fp_dc61 fact
+  holds fp_ptype_kind batch number
+@fp_dc62 fact
+  holds fp_ptype_kind breakeven number
+@fp_dc63 fact
+  holds fp_ptype_kind check yesno
+@fp_dc64 fact
+  holds fp_ptype_kind choose which
+
+# --- N3 slot questions per type
+@fp_dc70 fact
+  holds fp_question_text dc_chain "The numbers are:\n{{numbers}}\nWrite how {{goal}} is computed, as lines `name = formula` over v1, v2, ... and the names of earlier lines, with + - * / ^ and parentheses, // (whole division), % (remainder), round(x, 0.01), ceil(x), floor(x), max(a, b), min(a, b); a percentage vK is the number as written (divide by 100). The last line is `g{{k}} = ...`. Do not compute the result."
+@fp_dc71 fact
+  holds fp_follow_up dc_chain ask_problem
+@fp_dc72 fact
+  holds fp_answer_format dc_chain formula_lines
+@fp_dc73 fact
+  holds fp_problem_tokens dc_chain 300
+@fp_dc74 fact
+  holds fp_problem_again dc_chain "Lines like `d1 = v1 * v2` and a last line `g1 = d1 + v3`, using only v1, v2, ... and earlier names."
+
+@fp_dc80 fact
+  holds fp_question_text dc_check "The numbers are:\n{{numbers}}\nWrite the yes/no check of {{goal}}: first a line `name = formula` for each value it needs (over v1, v2, ... and earlier names), then `g{{k}} = <left> <= <right>` with one of <= < >= > == != (join two checks with and). Do not compute the result."
+@fp_dc81 fact
+  holds fp_follow_up dc_check ask_problem
+@fp_dc82 fact
+  holds fp_answer_format dc_check formula_lines
+@fp_dc83 fact
+  holds fp_problem_tokens dc_check 300
+@fp_dc84 fact
+  holds fp_problem_again dc_check "Lines like `d1 = v1 * v2` and a last line `g1 = d1 <= v3`, using only v1, v2, ... and earlier names."
+
+@fp_dc90 fact
+  holds fp_question_text dc_batch "The numbers are:\n{{numbers}}\nFor {{goal}}: which number is the amount to handle and which is the capacity of one unit (batch, trip, box)? Reply `amount = vA, capacity = vB`, and add `parallel = vC` when several units run at the same time."
+@fp_dc91 fact
+  holds fp_follow_up dc_batch ask_problem
+@fp_dc92 fact
+  holds fp_answer_format dc_batch pairs
+@fp_dc93 fact
+  holds fp_problem_tokens dc_batch 60
+@fp_dc94 fact
+  holds fp_problem_again dc_batch "Reply like `amount = v1, capacity = v2`."
+
+@fp_dc100 fact
+  holds fp_question_text dc_breakeven "The numbers are:\n{{numbers}}\nFor {{goal}}: write the fixed cost and the cost per unit of the first option, then of the second, as `fixed1 = vA, per1 = vB, fixed2 = vC, per2 = vD`."
+@fp_dc101 fact
+  holds fp_follow_up dc_breakeven ask_problem
+@fp_dc102 fact
+  holds fp_answer_format dc_breakeven pairs
+@fp_dc103 fact
+  holds fp_problem_tokens dc_breakeven 60
+@fp_dc104 fact
+  holds fp_problem_again dc_breakeven "Reply like `fixed1 = v1, per1 = v2, fixed2 = v3, per2 = v4`."
+
+@fp_dc110 fact
+  holds fp_question_text dc_choose_formula "The things compared are: {{things}}.\nThe numbers are:\n{{numbers}}\nWrite the number each thing is judged by as one formula over role names you choose, the same for every thing (like `score = setup + ceil(work / rate) * cycle`). Do not use v1, v2 here."
+@fp_dc111 fact
+  holds fp_follow_up dc_choose_formula ask_problem
+@fp_dc112 fact
+  holds fp_answer_format dc_choose_formula score
+@fp_dc113 fact
+  holds fp_problem_tokens dc_choose_formula 120
+@fp_dc114 fact
+  holds fp_problem_again dc_choose_formula "One line like `score = price * count + fee`."
+
+@fp_dc120 fact
+  holds fp_question_text dc_choose_table "For each thing, which number fills each role of `{{formula}}`? One line per thing, like `{{example}}`."
+@fp_dc121 fact
+  holds fp_follow_up dc_choose_table ask_problem
+@fp_dc122 fact
+  holds fp_answer_format dc_choose_table table
+@fp_dc123 fact
+  holds fp_problem_tokens dc_choose_table 200
+@fp_dc124 fact
+  holds fp_problem_again dc_choose_table "One line per thing, each role given as vK."
+
+@fp_dc130 fact
+  holds fp_question_text dc_choose_direction "Is the best thing the one with the lowest or the highest value of that formula?\n{{choices}}\nReply with the number only."
+@fp_dc131 fact
+  holds fp_follow_up dc_choose_direction ask_problem
+@fp_dc132 fact
+  holds fp_answer_format dc_choose_direction number
+@fp_dc133 fact
+  holds fp_problem_tokens dc_choose_direction 8
+@fp_dc134 fact
+  holds fp_problem_again dc_choose_direction "Reply with 1 or 2."
+@fp_dc135 fact
+  holds fp_choice dc_choose_direction 1 lowest
+@fp_dc136 fact
+  holds fp_choice_text dc_choose_direction 1 "lowest"
+@fp_dc137 fact
+  holds fp_choice dc_choose_direction 2 highest
+@fp_dc138 fact
+  holds fp_choice_text dc_choose_direction 2 "highest"
+
+@fp_dc140 fact
+  holds fp_question_text dc_choose_limit "Must a thing meet a limit to be allowed (a deadline, a budget, a minimum)? Write each limit as one line over the role names {{roles}} and v1, v2, ..., like `cost <= v7`, or reply none."
+@fp_dc141 fact
+  holds fp_follow_up dc_choose_limit ask_problem
+@fp_dc142 fact
+  holds fp_answer_format dc_choose_limit limits
+@fp_dc143 fact
+  holds fp_problem_tokens dc_choose_limit 120
+@fp_dc144 fact
+  holds fp_problem_again dc_choose_limit "Lines like `time <= v6`, or none."

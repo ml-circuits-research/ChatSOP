@@ -52,6 +52,37 @@ function needsOf(row) {
 }
 
 export const loadCases = (file = CASES) => readJsonl(file);
+
+/**
+ * The chat slice (coordinator, 2026-10-02): plain questions, small talk and the capability catalog guard the product while problems
+ * improve. These files are project-authored and in git; a case references its file and row id. gold_kind `conversational`: the
+ * formalization must not turn a greeting or a remark into a lookup (any answered or courtesy status is correct; unclear, unknown or
+ * a clarification is not).
+ */
+export const CHAT_SOURCES = Object.freeze([
+  {source: 'commonsense', file: 'eval/commonsense/questions.jsonl', message: r => r.question, gold: r => r.gold === true ? 'Yes' : r.gold === false ? 'No' : String(r.gold), gold_kind: r => typeof r.gold === 'boolean' ? 'yes_no' : 'text', gold_value: r => r.gold},
+  {source: 'smalltalk', file: 'eval/smalltalk-v1/messages.jsonl', message: r => r.message, gold: r => r.label ?? 'none', gold_kind: () => 'conversational', gold_value: r => r.label ?? null},
+  {source: 'capabilities', file: 'eval/capabilities/l3/catalog.jsonl', message: r => r.message, gold: r => r.gold, gold_kind: r => r.gold_kind ?? 'text', gold_value: r => r.gold_value ?? null},
+]);
+const chatRows = new Map();
+const chatRow = (src, id) => {
+  if (!chatRows.has(src.file)) chatRows.set(src.file, new Map(readJsonl(path.join(ROOT, src.file)).map(r => [r.id, r])));
+  return chatRows.get(src.file).get(id) ?? null;
+};
+
+/** Adds the chat slice's rows as cases (once each); returns the ids added. */
+export function mergeChat(cases) {
+  const have = new Set(cases.map(c => c.id)), added = [];
+  for (const src of CHAT_SOURCES) for (const r of readJsonl(path.join(ROOT, src.file))) {
+    const id = `${src.source}/${r.id}`;
+    // An inbox case with the same message is the same case: the chat row (with its gold) is the one that runs.
+    for (const c of cases) if (c.id !== id && !c.slice && c.message_sha === messageHash(src.message(r)) && !c.duplicate_of) Object.assign(c, {runnable: false, duplicate_of: id, reason: 'the same message as a chat-slice case with gold'});
+    if (have.has(id) || sealedRef(src.file)) continue;
+    cases.push({id, source: src.source, provenance: {file: src.file, row_id: r.id}, message_sha: messageHash(src.message(r)), gold_kind: src.gold_kind(r), runnable: true, slice: 'chat', observations: []});
+    added.push(id);
+  }
+  return added;
+}
 export const loadItems = () => new Map(readJsonl(ITEMS).map(i => [i.id, i]));
 export const loadAnnotations = () => new Map(readJsonl(ANNOTATIONS).map(a => [a.id, a]));
 
@@ -89,6 +120,12 @@ export function mergeInbox({cases = loadCases(), inbox = readJsonl(INBOX), items
 /** The text and gold of a case at run time (never stored in git). Returns null when its source text is not available locally. */
 export function resolveCase(c, {items = loadItems(), inbox = null, annotations = loadAnnotations()} = {}) {
   let message = null, gold = null, gold_kind = c.gold_kind, gold_value = null;
+  const chat = CHAT_SOURCES.find(src => src.source === c.source && c.provenance?.file === src.file);
+  if (chat) {
+    const r = chatRow(chat, c.provenance.row_id);
+    if (!r) return null;
+    return {...c, message: chat.message(r), gold: chat.gold(r), gold_kind: chat.gold_kind(r), gold_value: chat.gold_value(r), annotation: annotations.get(c.id) ?? null};
+  }
   if (c.source === 'books') {
     const item = items.get(c.provenance.problem_id);
     if (!item) return null;

@@ -6004,6 +6004,44 @@
    "conclusions": "The engine now computes problems the formalizer models (26 of 27 correct answers rest on session rules over stated data); the gap to the bare model is formalization quality (4B modelling errors) and qualitative reasoning without circuit-surface constructs.",
    "data_version": "datasets_sources/books/eval/items.jsonl, loops of 10-14 fresh items (seeds pm-loop-1..4), batch of 100 (seed books-batch-2)",
    "note": "report eval/reports/current/books-eval/problem-mode.md; owner problem-agent; 2026-10-02; a development loop, not a sealed test"
+  },
+  {
+   "id": "eval-semantic-decomposition-v1",
+   "hypothesis": "Stage A of the semantic decomposition formalizes numeric book problems better than the classic problem questions (tiny and good on the same questions).",
+   "preregistration": "status/preregistrations/eval-semantic-decomposition-v1.json",
+   "status": "running",
+   "results": {
+    "stage1": "50 fresh book problems (10 per book: commonsense, decompose, adult, world, math). Decomposition on tiny with the per-question ladder: 17 correct / 14 wrong / 19 unknown (sd1-A2, after fixing an empty type menu; sd1-A with the empty menu: 18). Classic questions on tiny (control): 12 / 12 / 26 (sd1-C). Decomposition on good: 15 / 10 / 22 / 2 invalid / 1 failed (sd1-G2; 21 with the empty menu, sd1-G). Paired A2 - C: +0.10, 95% CI -0.04..0.26 (fixed 10, lost 5); world 4 vs 0, adult 6 vs 4, other books equal or -1. Type agreement tiny vs good 13/25 (52%). Clarify + unclear on A2: 19/50 (38%).",
+    "stage": "stage 1 done; stage 2 not started",
+    "stage1_rescored": "After two code fixes found by the offline attribution (the admission check reduced to the wires a turn names lost the declarations those wires reference: false entity_kind_unknown, role_class_unknown, unknown_predicate; a predicate id starting with x_), the same recorded answers replayed with no model call: tree on tiny 19/50 (sd1-A3), classic on tiny 17/50 (sd1-C3), tree on good 19/50 (sd1-G3). Paired tree - classic on tiny +0.04, 95% CI -0.10..0.18 (fixed 7, lost 5); tree tiny - tree good 0.00."
+   },
+   "conclusions": "Stage A does not beat the classic questions once the validator false failures are fixed (17 -> 19 of 50, CI -0.10..0.18), and good on the same tree is no better than tiny: the questions and the assembly limit. Two failure thresholds of formalization-research-directions.md were hit on the first scoring (type agreement 52%, clarify+unclear 38%). Not admitted; superseded by the node-by-node filling of the method library (coordinator 2026-10-03).",
+   "data_version": "datasets_sources/books/eval/items.jsonl; stage 1 ids state/formalization-regression/stage1-ids.txt (seed sd-stage1)",
+   "note": "owner formalization-improver; 2026-10-02"
+  },
+  {
+   "id": "eval-formalization-machine-v1",
+   "hypothesis": "H1 (owner's Analysis 3): <= 30 goal types, <= 50 METHODs and <= 10 primitive interpreters cover most book problems by composition; the model only chooses methods and fills frames.",
+   "preregistration": "status/preregistrations/eval-formalization-machine-v1.json",
+   "status": "running",
+   "results": {
+    "library": "40 methods (30 seed + 10 adopted: dev1 3, dev2 6, dev3 1), 17 goal types, 7 primitives; growth 0.10, 0.10, 0.016 new methods per dev problem",
+    "dev_final": "153: SOLVED 101 (66.0%), WRONG 25, partial 18, missing concept 6, missing method 3",
+    "held_out": "147 (sections never seen, no worked solution): SOLVED 83 (56.5%, Wilson 48.4..64.2), WRONG 24 (16.3%), partial 26, missing concept 8, missing method 5, contradictory 1; MISSING_METHOD 12.5% of failures; precision of fully executed formalizations 83/115",
+    "held_out_with_solution": "SOLVED 79 (53.7%); paired vs held -2.7 points (-10.9..+5.4); 36 problems flip between the runs",
+    "curve": "seed 30 methods cover 87/153 dev; all 40 cover 101; last ten methods add 9.2%; median method use 6",
+    "audit": "held SOLVED with frames carrying facts/rules/tables: 18 faithful, 17 background, 9 answer_encoded, 6 unreadable of 50 (one noisy pass); strict SOLVED 74/147",
+    "cost": "about 5.2 USD (good frame-filler, medium judge and audit)",
+    "held_out_rescored": "clock times rendered (held-r, cache replay): SOLVED 84 (57.1%), WRONG 23 (15.6%)",
+    "phase2_stage1": "30 held-out, tiny vs good: SOLVED good 18, tiny whole tree 4, tiny on good skeleton 6; method set equal 5/18 (Jaccard 0.39); skeleton nodes reproduced 35/128; stage 2 not run (decisive)"
+   },
+   "conclusions": "Inconclusive: not invalidated (SOLVED > 35%, growth declines, MISSING_METHOD 12.5% of failures), not supported (SOLVED 56.5% < 60%, WRONG 16.3% > 10%, last-ten gain 9.2% > 5%). Limits: wrong frame filling (deduce, constraints, abduce frames), missing concepts more than missing methods, reasoning inside abduction tables and constraint encodings. Phase 2 (tiny as filler) designed, not run. Phase 2 stage 1: tiny cannot fill the frames (4 and 6 vs 18 SOLVED of 30); the library needs a per-node question protocol for a 4B. Method tree exposed as an N-way candidate (tools/eval/method-library/candidate.mjs).",
+   "data_version": "datasets_sources/books/eval/items.jsonl; split state/method-library/split.json (hash 62e14278ac360fbd)",
+   "links": [
+    "experiments/proposal/formalization-machine-phase1.md",
+    "tools/eval/method-library/run.mjs",
+    "config/knowledge/formalizer-methods-v1"
+   ]
   }
  ]
 }

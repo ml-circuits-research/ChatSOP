@@ -114,3 +114,17 @@ test('step-by-step problem lines: numbers the message writes, formulas with func
   assert.match(sop, /when compute \?f \?p divided_by 100\n {2}then rate \?f/);
   assert.match(sop, /then not affordable 1/);
 });
+
+test('a problem\'s statements expire with its turn: the next turn of the same conversation does not meet its turn-scoped vocabulary', async t => {
+  const c = context({bootstrap: false});
+  t.after(c.dispose);
+  const agent = new Agent({repo: c.repo, session: c.session, lexicon, config: {}});
+  const problem = `@distance_km predicate\n  args object:value\n@double_km predicate\n  args object:value\n` + stated('s1', 'distance_km', [['object', 12]])
+    + `@r rule\n  when distance_km ?d\n  when compute ?t ?d times 2\n  then double_km ?t\n@q query\n  select ?x\n  where match\n    relation "double_km"\n    role object ?x\n    polarity affirmed\n  end\n`;
+  const first = await agent.turn('A trip is 12 km. How far there and back?', {language: 'en', formalizer: {formalize: async () => problem}});
+  assert.deepEqual(first.packet.answers.map(a => a.binding['?x']), [24]);
+  assert.ok(!agent.context.statements.some(s => s.atom?.p === 'distance_km'), 'no problem statement is carried on');
+  const plain = `@q query\n  select ?x\n  where match\n    relation "works_at"\n    role subject ?x\n    role object "acme"\n    polarity affirmed\n  end\n`;
+  const second = await agent.turn('Who works at Acme?', {language: 'en', formalizer: {formalize: async () => plain}});
+  assert.ok(second.packet, 'the next turn runs');
+});

@@ -9,6 +9,9 @@ import { planReport, valueReport, limitWait } from './plan.mjs';
 import { planRequests } from './monitor.mjs';
 import { createLocalStarter } from './local.mjs';
 import { createAudit, responseText } from './audit.mjs';
+import { createCache, localIdentity, CACHE_MODES } from './cache.mjs';
+import { expandHome } from './settings.mjs';
+import { isAbsolute } from 'node:path';
 import { createJobGuard } from './jobs.mjs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,7 +41,7 @@ function mergeUsage(acc, u) {
   return r;
 }
 
-export function createProxy({ config, env = process.env, dataDir, proxyToken = null, fetchImpl = fetch, auditDir = null, starterOptions = {} }) {
+export function createProxy({ config, env = process.env, dataDir, proxyToken = null, fetchImpl = fetch, auditDir = null, cacheDir = null, starterOptions = {} }) {
   const upstreams = {};
   const limiters = {};
   const starters = {}; // upstreams started on demand (local llama-server)
@@ -48,6 +51,14 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
     if (up.start) starters[name] = createLocalStarter(upstreams[name], { fetchImpl, baseDir: resolve(HERE, config.baseDir || '.'), ...starterOptions });
   }
   const audit = createAudit(config.audit, { dir: auditDir || join(dataDir, '..', 'llmapiprovider-audit') });
+  const cache = createCache({ dir: cacheDir || join(dataDir, '..', 'llmapiprovider-cache') });
+  const baseDir = resolve(HERE, config.baseDir || '.');
+  // What serves a target: a tier's first chain entry (and a local GGUF's size and mtime); an upstream and the requested model.
+  const identityOf = (upstreamName, model) => {
+    const u = config.upstreams[upstreamName];
+    const gguf = u?.start?.gguf ? (() => { const e = expandHome(u.start.gguf); return isAbsolute(e) ? e : join(baseDir, e); })() : null;
+    return `${upstreamName}/${model}${gguf ? '@' + localIdentity(gguf) : ''}`;
+  };
   const secrets = [...Object.values(upstreams).map((u) => u.key), proxyToken].filter(Boolean);
   const monitor = new Monitor({ dataDir, secrets });
   const modelCache = {}; // upstream -> {at, list, byId}
@@ -300,6 +311,7 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
         if (r.status >= 400 && /billed from your credit balance|credit balance/i.test(errText)) rec.credit_billed = true;
         monitor.log(rec);
         if (auditing) { try { audit.record(rec, parsed, responseText(format, isSse, tail)); } catch { /* the audit never breaks a request */ } }
+        if (ctx.cacheKey && !isSse && r.status === 200 && !rec.error) { try { cache.put(ctx.cacheKey, { body: tail, content_type: ctype || 'application/json', served: `${up.name}/${model}`, tier: ctx.tier ?? null }); } catch { /* the cache never breaks a request */ } }
         return { done: true };
       }, { cost }, priority);
       if (outcome.fallback) return fallBack(outcome.fallback, outcome.kind);
@@ -336,6 +348,7 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
         st.last24h = { by_tier: group('tier'), by_purpose: group('purpose'), by_upstream: group('upstream') };
         st.tiers = tierList();
         st.audit = audit ? audit.stats() : null;
+        st.cache = cache.stats();
         st.local = Object.fromEntries(Object.entries(starters).map(([n, s]) => [n, s.status()]));
         st.jobs = guard.stats();
         return sendJson(res, 200, st);
@@ -370,8 +383,29 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
         }
         if (refusal?.untagged) req.untaggedRequest = true; // logged as `untagged: true`, so the allowance survives a restart
         const raw = await readBody(req);
-        let model = null;
-        try { model = JSON.parse(raw.toString('utf8')).model; } catch { /* not JSON */ }
+        let model = null, parsedBody = null;
+        try { parsedBody = JSON.parse(raw.toString('utf8')); model = parsedBody.model; } catch { /* not JSON */ }
+        // Default mode from config.cache.defaultMode (owner, 2026-10-02: `use`, the chat too); a request opts out with `off`.
+        const cacheMode = String(req.headers['x-llmapiprovider-cache'] || config.cache?.defaultMode || '').toLowerCase();
+        let cacheKey = null;
+        if (CACHE_MODES.includes(cacheMode) && parsedBody && !parsedBody.stream) {
+          const tierTarget = up.name === config.defaultUpstream && !url.pathname.startsWith('/u/') && isTier(model) ? resolveTier(model) : null;
+          const target = tierTarget && !tierTarget.error ? `tier:${model}` : up.name;
+          const identity = tierTarget && !tierTarget.error ? identityOf(tierTarget.first.upstream, tierTarget.first.model) : identityOf(up.name, model);
+          cacheKey = cache.key({ path, target, identity, body: parsedBody });
+          if (cacheMode !== 'record') {
+            const hit = cache.get(cacheKey);
+            if (hit) {
+              monitor.log({ id: randomUUID().slice(0, 8), upstream: 'cache', client: String(req.headers['x-client-name'] || 'unknown').slice(0, 40), endpoint: path, model, status: 200, cache: 'hit', served: hit.served, purpose: tagOf('x-llmapiprovider-purpose'), run: tagOf('x-llmapiprovider-run'), usd: 0 });
+              res.writeHead(200, { 'content-type': hit.content_type, 'cache-control': 'no-store', 'x-llmapiprovider-cache': 'hit', 'x-llmapiprovider-cache-key': cacheKey, ...(hit.served ? { 'x-llmapiprovider-model': hit.served } : {}) });
+              return res.end(hit.body);
+            }
+            if (cacheMode === 'strict') {
+              cache.refused();
+              return sendJson(res, 409, { error: { type: 'cache_miss', message: 'strict cache: no stored answer for this request; no model was called', key: cacheKey } }, { 'x-llmapiprovider-cache': 'miss', 'x-llmapiprovider-cache-key': cacheKey });
+            }
+          }
+        }
         if (up.name === config.defaultUpstream && !url.pathname.startsWith('/u/') && isTier(model)) {
           const t = resolveTier(model);
           if (t.error) return sendJson(res, 400, { error: { type: 'tier_unavailable', message: t.error } });
@@ -379,10 +413,10 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
           if (!Object.values(tup.formats || { openai: '/v1/chat/completions' }).includes(path)) return sendJson(res, 400, { error: { type: 'tier_unavailable', message: `tier "${model}" serves ${t.first.upstream}, which has no endpoint ${path}` } });
           if (!modelCache[tup.name] && !tup.start) getModels(tup).catch(() => {});
           const body = Buffer.from(JSON.stringify({ ...JSON.parse(raw.toString('utf8')), model: t.first.model }));
-          return await forward(req, res, tup, path, body, { tier: model, chain: t.rest });
+          return await forward(req, res, tup, path, body, { tier: model, chain: t.rest, cacheKey });
         }
         if (!modelCache[up.name] && !up.start) getModels(up).catch(() => {}); // warm pricing for stats
-        return await forward(req, res, up, path, raw);
+        return await forward(req, res, up, path, raw, { cacheKey });
       }
       return sendJson(res, 404, { error: { type: 'not_found', message: `${req.method} ${url.pathname}` } });
     } catch (e) {

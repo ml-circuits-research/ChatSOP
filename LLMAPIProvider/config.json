@@ -174,6 +174,12 @@
       "inputUsdPerM": 0.15,
       "outputUsdPerM": 0.6,
       "cachedInputUsdPerM": 0.003
+    },
+    "openrouter-deepseek-v4-flash": {
+      "inputUsdPerM": 0.028,
+      "outputUsdPerM": 0.056,
+      "cachedInputUsdPerM": 0.028,
+      "_note": "OpenRouter list price read 2026-10-02 (tier medium)"
     }
   },
   "tiers": {
@@ -249,5 +255,9 @@
       "answer-*"
     ],
     "maxWaitMs": 15000
+  },
+  "cache": {
+    "_note": "owner 2026-10-02: responses are cached by default (the same request gets the same answer; the reasoner reacts to context changes, the formalization need not vary). Key = the whole request body + target tier/upstream + model identity (local GGUF size and mtime). Header x-llmapiprovider-cache: off | use | strict (a miss is refused, for regressions) | record. Only complete non-streamed 200 answers from the tier's first model are stored. Dir ~/.local/share/llmapiprovider-cache/.",
+    "defaultMode": "use"
   }
 }

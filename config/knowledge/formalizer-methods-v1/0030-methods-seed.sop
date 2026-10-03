@@ -1,0 +1,1421 @@
+# The seed methods (stage seed, written before any development problem was read; generic schemas of the semantic-decomposition
+# inventory and of schema theory: combine, change, compare, vary, group).
+
+# --- add_up
+@fpm_add_up_1 fact
+  holds fp_method add_up
+
+@fpm_add_up_2 fact
+  holds fp_method_achieves add_up find_value
+
+@fpm_add_up_3 fact
+  holds fp_method_solver add_up calculate
+
+@fpm_add_up_4 fact
+  holds fp_method_text add_up "a total is the sum of parts (combine)"
+
+@fpm_add_up_5 fact
+  holds fp_method_seq add_up 1
+
+@fpm_add_up_6 fact
+  holds fp_method_added add_up seed
+
+@fpm_add_up_7 fact
+  holds fp_method_slot add_up parts numbers
+
+@fpm_add_up_8 fact
+  holds fp_slot_text add_up parts "the quantities that add up"
+
+@fpm_add_up_9 fact
+  holds fp_slot_many add_up parts
+
+@fpm_add_up_10 fact
+  holds fp_method_formula add_up "sum(parts)"
+
+
+# --- difference
+@fpm_difference_1 fact
+  holds fp_method difference
+
+@fpm_difference_2 fact
+  holds fp_method_achieves difference find_value
+
+@fpm_difference_3 fact
+  holds fp_method_solver difference calculate
+
+@fpm_difference_4 fact
+  holds fp_method_text difference "how much more, less, left or changed: a minus b (compare, change)"
+
+@fpm_difference_5 fact
+  holds fp_method_seq difference 2
+
+@fpm_difference_6 fact
+  holds fp_method_added difference seed
+
+@fpm_difference_7 fact
+  holds fp_method_slot difference a number
+
+@fpm_difference_8 fact
+  holds fp_slot_text difference a "the larger or starting quantity"
+
+@fpm_difference_9 fact
+  holds fp_method_slot difference b number
+
+@fpm_difference_10 fact
+  holds fp_slot_text difference b "the quantity taken away or compared"
+
+@fpm_difference_11 fact
+  holds fp_method_formula difference "a - b"
+
+
+# --- multiply
+@fpm_multiply_1 fact
+  holds fp_method multiply
+
+@fpm_multiply_2 fact
+  holds fp_method_achieves multiply find_value
+
+@fpm_multiply_3 fact
+  holds fp_method_solver multiply calculate
+
+@fpm_multiply_4 fact
+  holds fp_method_text multiply "a product: rate times amount, price times count, repeated equal groups"
+
+@fpm_multiply_5 fact
+  holds fp_method_seq multiply 3
+
+@fpm_multiply_6 fact
+  holds fp_method_added multiply seed
+
+@fpm_multiply_7 fact
+  holds fp_method_slot multiply factors numbers
+
+@fpm_multiply_8 fact
+  holds fp_slot_text multiply factors "the factors"
+
+@fpm_multiply_9 fact
+  holds fp_slot_many multiply factors
+
+@fpm_multiply_10 fact
+  holds fp_method_formula multiply "prod(factors)"
+
+
+# --- divide
+@fpm_divide_1 fact
+  holds fp_method divide
+
+@fpm_divide_2 fact
+  holds fp_method_achieves divide find_value
+
+@fpm_divide_3 fact
+  holds fp_method_solver divide calculate
+
+@fpm_divide_4 fact
+  holds fp_method_text divide "a quotient: a rate, a share, a per-unit value (exact division)"
+
+@fpm_divide_5 fact
+  holds fp_method_seq divide 4
+
+@fpm_divide_6 fact
+  holds fp_method_added divide seed
+
+@fpm_divide_7 fact
+  holds fp_method_slot divide a number
+
+@fpm_divide_8 fact
+  holds fp_slot_text divide a "the dividend"
+
+@fpm_divide_9 fact
+  holds fp_method_slot divide b number
+
+@fpm_divide_10 fact
+  holds fp_slot_text divide b "the divisor"
+
+@fpm_divide_11 fact
+  holds fp_method_formula divide "a / b"
+
+
+# --- units_needed
+@fpm_units_needed_1 fact
+  holds fp_method units_needed
+
+@fpm_units_needed_2 fact
+  holds fp_method_achieves units_needed find_value
+
+@fpm_units_needed_3 fact
+  holds fp_method_solver units_needed calculate
+
+@fpm_units_needed_4 fact
+  holds fp_method_text units_needed "how many whole units (batches, trips, boxes, blocks) are needed to cover an amount: rounded up"
+
+@fpm_units_needed_5 fact
+  holds fp_method_seq units_needed 5
+
+@fpm_units_needed_6 fact
+  holds fp_method_added units_needed seed
+
+@fpm_units_needed_7 fact
+  holds fp_method_slot units_needed amount number
+
+@fpm_units_needed_8 fact
+  holds fp_slot_text units_needed amount "the amount to cover"
+
+@fpm_units_needed_9 fact
+  holds fp_method_slot units_needed capacity number
+
+@fpm_units_needed_10 fact
+  holds fp_slot_text units_needed capacity "what one unit covers"
+
+@fpm_units_needed_11 fact
+  holds fp_method_formula units_needed "ceil(amount / capacity)"
+
+
+# --- whole_groups
+@fpm_whole_groups_1 fact
+  holds fp_method whole_groups
+
+@fpm_whole_groups_2 fact
+  holds fp_method_achieves whole_groups find_value
+
+@fpm_whole_groups_3 fact
+  holds fp_method_solver whole_groups calculate
+
+@fpm_whole_groups_4 fact
+  holds fp_method_text whole_groups "how many complete groups fit in an amount: rounded down"
+
+@fpm_whole_groups_5 fact
+  holds fp_method_seq whole_groups 6
+
+@fpm_whole_groups_6 fact
+  holds fp_method_added whole_groups seed
+
+@fpm_whole_groups_7 fact
+  holds fp_method_slot whole_groups amount number
+
+@fpm_whole_groups_8 fact
+  holds fp_slot_text whole_groups amount "the amount"
+
+@fpm_whole_groups_9 fact
+  holds fp_method_slot whole_groups size number
+
+@fpm_whole_groups_10 fact
+  holds fp_slot_text whole_groups size "the size of one group"
+
+@fpm_whole_groups_11 fact
+  holds fp_method_formula whole_groups "floor(amount / size)"
+
+
+# --- remainder
+@fpm_remainder_1 fact
+  holds fp_method remainder
+
+@fpm_remainder_2 fact
+  holds fp_method_achieves remainder find_value
+
+@fpm_remainder_3 fact
+  holds fp_method_solver remainder calculate
+
+@fpm_remainder_4 fact
+  holds fp_method_text remainder "what is left over after forming complete groups"
+
+@fpm_remainder_5 fact
+  holds fp_method_seq remainder 7
+
+@fpm_remainder_6 fact
+  holds fp_method_added remainder seed
+
+@fpm_remainder_7 fact
+  holds fp_method_slot remainder amount number
+
+@fpm_remainder_8 fact
+  holds fp_slot_text remainder amount "the amount"
+
+@fpm_remainder_9 fact
+  holds fp_method_slot remainder size number
+
+@fpm_remainder_10 fact
+  holds fp_slot_text remainder size "the size of one group"
+
+@fpm_remainder_11 fact
+  holds fp_method_formula remainder "amount % size"
+
+
+# --- percent_of
+@fpm_percent_of_1 fact
+  holds fp_method percent_of
+
+@fpm_percent_of_2 fact
+  holds fp_method_achieves percent_of find_value
+
+@fpm_percent_of_3 fact
+  holds fp_method_solver percent_of calculate
+
+@fpm_percent_of_4 fact
+  holds fp_method_text percent_of "a percentage of a base (a percentage number of the problem already means its fraction)"
+
+@fpm_percent_of_5 fact
+  holds fp_method_seq percent_of 8
+
+@fpm_percent_of_6 fact
+  holds fp_method_added percent_of seed
+
+@fpm_percent_of_7 fact
+  holds fp_method_slot percent_of base number
+
+@fpm_percent_of_8 fact
+  holds fp_slot_text percent_of base "the base quantity"
+
+@fpm_percent_of_9 fact
+  holds fp_method_slot percent_of rate number
+
+@fpm_percent_of_10 fact
+  holds fp_slot_text percent_of rate "the percentage"
+
+@fpm_percent_of_11 fact
+  holds fp_method_formula percent_of "base * rate"
+
+
+# --- percent_change
+@fpm_percent_change_1 fact
+  holds fp_method percent_change
+
+@fpm_percent_change_2 fact
+  holds fp_method_achieves percent_change find_value
+
+@fpm_percent_change_3 fact
+  holds fp_method_solver percent_change calculate
+
+@fpm_percent_change_4 fact
+  holds fp_method_text percent_change "a base after an increase or a decrease by a percentage"
+
+@fpm_percent_change_5 fact
+  holds fp_method_seq percent_change 9
+
+@fpm_percent_change_6 fact
+  holds fp_method_added percent_change seed
+
+@fpm_percent_change_7 fact
+  holds fp_method_slot percent_change base number
+
+@fpm_percent_change_8 fact
+  holds fp_slot_text percent_change base "the base quantity"
+
+@fpm_percent_change_9 fact
+  holds fp_method_slot percent_change rate number
+
+@fpm_percent_change_10 fact
+  holds fp_slot_text percent_change rate "the percentage"
+
+@fpm_percent_change_11 fact
+  holds fp_method_slot percent_change change menu
+
+@fpm_percent_change_12 fact
+  holds fp_slot_text percent_change change "increase or decrease"
+
+@fpm_percent_change_13 fact
+  holds fp_slot_choice percent_change change increase "+"
+
+@fpm_percent_change_14 fact
+  holds fp_slot_choice percent_change change decrease "-"
+
+@fpm_percent_change_15 fact
+  holds fp_method_formula percent_change "base * (1 change rate)"
+
+
+# --- average
+@fpm_average_1 fact
+  holds fp_method average
+
+@fpm_average_2 fact
+  holds fp_method_achieves average find_value
+
+@fpm_average_3 fact
+  holds fp_method_solver average calculate
+
+@fpm_average_4 fact
+  holds fp_method_text average "the mean of several quantities"
+
+@fpm_average_5 fact
+  holds fp_method_seq average 10
+
+@fpm_average_6 fact
+  holds fp_method_added average seed
+
+@fpm_average_7 fact
+  holds fp_method_slot average values numbers
+
+@fpm_average_8 fact
+  holds fp_slot_text average values "the quantities"
+
+@fpm_average_9 fact
+  holds fp_slot_many average values
+
+@fpm_average_10 fact
+  holds fp_method_formula average "mean(values)"
+
+
+# --- linear_cost
+@fpm_linear_cost_1 fact
+  holds fp_method linear_cost
+
+@fpm_linear_cost_2 fact
+  holds fp_method_achieves linear_cost find_value
+
+@fpm_linear_cost_3 fact
+  holds fp_method_solver linear_cost calculate
+
+@fpm_linear_cost_4 fact
+  holds fp_method_text linear_cost "a fixed part plus a per-unit part times a quantity (cost, time, distance)"
+
+@fpm_linear_cost_5 fact
+  holds fp_method_seq linear_cost 11
+
+@fpm_linear_cost_6 fact
+  holds fp_method_added linear_cost seed
+
+@fpm_linear_cost_7 fact
+  holds fp_method_slot linear_cost fixed number
+
+@fpm_linear_cost_8 fact
+  holds fp_slot_text linear_cost fixed "the fixed part (setup, fee)"
+
+@fpm_linear_cost_9 fact
+  holds fp_method_slot linear_cost per_unit number
+
+@fpm_linear_cost_10 fact
+  holds fp_slot_text linear_cost per_unit "the part per unit"
+
+@fpm_linear_cost_11 fact
+  holds fp_method_slot linear_cost quantity number
+
+@fpm_linear_cost_12 fact
+  holds fp_slot_text linear_cost quantity "the number of units"
+
+@fpm_linear_cost_13 fact
+  holds fp_method_decompose linear_cost quantity find_value
+
+@fpm_linear_cost_14 fact
+  holds fp_method_formula linear_cost "fixed + per_unit * quantity"
+
+
+# --- extreme
+@fpm_extreme_1 fact
+  holds fp_method extreme
+
+@fpm_extreme_2 fact
+  holds fp_method_achieves extreme find_value
+
+@fpm_extreme_3 fact
+  holds fp_method_solver extreme calculate
+
+@fpm_extreme_4 fact
+  holds fp_method_text extreme "the largest or the smallest of several quantities"
+
+@fpm_extreme_5 fact
+  holds fp_method_seq extreme 12
+
+@fpm_extreme_6 fact
+  holds fp_method_added extreme seed
+
+@fpm_extreme_7 fact
+  holds fp_method_slot extreme values numbers
+
+@fpm_extreme_8 fact
+  holds fp_slot_text extreme values "the quantities"
+
+@fpm_extreme_9 fact
+  holds fp_slot_many extreme values
+
+@fpm_extreme_10 fact
+  holds fp_method_slot extreme which menu
+
+@fpm_extreme_11 fact
+  holds fp_slot_text extreme which "max or min"
+
+@fpm_extreme_12 fact
+  holds fp_slot_choice extreme which largest "max"
+
+@fpm_extreme_13 fact
+  holds fp_slot_choice extreme which smallest "min"
+
+@fpm_extreme_14 fact
+  holds fp_method_formula extreme "which(values)"
+
+
+# --- breakeven_point
+@fpm_breakeven_point_1 fact
+  holds fp_method breakeven_point
+
+@fpm_breakeven_point_2 fact
+  holds fp_method_achieves breakeven_point find_value
+
+@fpm_breakeven_point_3 fact
+  holds fp_method_solver breakeven_point calculate
+
+@fpm_breakeven_point_4 fact
+  holds fp_method_text breakeven_point "the quantity at which two options with a fixed part and a per-unit part cost the same"
+
+@fpm_breakeven_point_5 fact
+  holds fp_method_seq breakeven_point 13
+
+@fpm_breakeven_point_6 fact
+  holds fp_method_added breakeven_point seed
+
+@fpm_breakeven_point_7 fact
+  holds fp_method_slot breakeven_point fixed1 number
+
+@fpm_breakeven_point_8 fact
+  holds fp_slot_text breakeven_point fixed1 "fixed part of option 1"
+
+@fpm_breakeven_point_9 fact
+  holds fp_method_slot breakeven_point rate1 number
+
+@fpm_breakeven_point_10 fact
+  holds fp_slot_text breakeven_point rate1 "per-unit part of option 1"
+
+@fpm_breakeven_point_11 fact
+  holds fp_method_slot breakeven_point fixed2 number
+
+@fpm_breakeven_point_12 fact
+  holds fp_slot_text breakeven_point fixed2 "fixed part of option 2"
+
+@fpm_breakeven_point_13 fact
+  holds fp_method_slot breakeven_point rate2 number
+
+@fpm_breakeven_point_14 fact
+  holds fp_slot_text breakeven_point rate2 "per-unit part of option 2"
+
+@fpm_breakeven_point_15 fact
+  holds fp_method_formula breakeven_point "(fixed2 - fixed1) / (rate1 - rate2)"
+
+
+# --- sequence_term
+@fpm_sequence_term_1 fact
+  holds fp_method sequence_term
+
+@fpm_sequence_term_2 fact
+  holds fp_method_achieves sequence_term find_value
+
+@fpm_sequence_term_3 fact
+  holds fp_method_solver sequence_term calculate
+
+@fpm_sequence_term_4 fact
+  holds fp_method_text sequence_term "the value at a position of a sequence that changes by the same step each time"
+
+@fpm_sequence_term_5 fact
+  holds fp_method_seq sequence_term 14
+
+@fpm_sequence_term_6 fact
+  holds fp_method_added sequence_term seed
+
+@fpm_sequence_term_7 fact
+  holds fp_method_slot sequence_term start number
+
+@fpm_sequence_term_8 fact
+  holds fp_slot_text sequence_term start "the first value"
+
+@fpm_sequence_term_9 fact
+  holds fp_method_slot sequence_term step number
+
+@fpm_sequence_term_10 fact
+  holds fp_slot_text sequence_term step "the change per position"
+
+@fpm_sequence_term_11 fact
+  holds fp_method_slot sequence_term position number
+
+@fpm_sequence_term_12 fact
+  holds fp_slot_text sequence_term position "the position asked (the first is 1)"
+
+@fpm_sequence_term_13 fact
+  holds fp_method_formula sequence_term "start + (position - 1) * step"
+
+
+# --- compare_values
+@fpm_compare_values_1 fact
+  holds fp_method compare_values
+
+@fpm_compare_values_2 fact
+  holds fp_method_achieves compare_values check_condition
+
+@fpm_compare_values_3 fact
+  holds fp_method_solver compare_values calculate
+
+@fpm_compare_values_4 fact
+  holds fp_method_text compare_values "whether a value meets a limit or relation"
+
+@fpm_compare_values_5 fact
+  holds fp_method_seq compare_values 15
+
+@fpm_compare_values_6 fact
+  holds fp_method_added compare_values seed
+
+@fpm_compare_values_7 fact
+  holds fp_method_slot compare_values left number
+
+@fpm_compare_values_8 fact
+  holds fp_slot_text compare_values left "the value tested"
+
+@fpm_compare_values_9 fact
+  holds fp_method_decompose compare_values left find_value
+
+@fpm_compare_values_10 fact
+  holds fp_method_slot compare_values cmp menu
+
+@fpm_compare_values_11 fact
+  holds fp_slot_text compare_values cmp "the relation"
+
+@fpm_compare_values_12 fact
+  holds fp_slot_choice compare_values cmp at_most "<="
+
+@fpm_compare_values_13 fact
+  holds fp_slot_choice compare_values cmp below "<"
+
+@fpm_compare_values_14 fact
+  holds fp_slot_choice compare_values cmp at_least ">="
+
+@fpm_compare_values_15 fact
+  holds fp_slot_choice compare_values cmp above ">"
+
+@fpm_compare_values_16 fact
+  holds fp_slot_choice compare_values cmp equal "=="
+
+@fpm_compare_values_17 fact
+  holds fp_slot_choice compare_values cmp not_equal "!="
+
+@fpm_compare_values_18 fact
+  holds fp_method_slot compare_values right number
+
+@fpm_compare_values_19 fact
+  holds fp_slot_text compare_values right "the limit or the other value"
+
+@fpm_compare_values_20 fact
+  holds fp_method_formula compare_values "left cmp right"
+
+
+# --- all_conditions
+@fpm_all_conditions_1 fact
+  holds fp_method all_conditions
+
+@fpm_all_conditions_2 fact
+  holds fp_method_achieves all_conditions check_condition
+
+@fpm_all_conditions_3 fact
+  holds fp_method_solver all_conditions calculate
+
+@fpm_all_conditions_4 fact
+  holds fp_method_text all_conditions "whether several yes/no conditions all hold"
+
+@fpm_all_conditions_5 fact
+  holds fp_method_seq all_conditions 16
+
+@fpm_all_conditions_6 fact
+  holds fp_method_added all_conditions seed
+
+@fpm_all_conditions_7 fact
+  holds fp_method_slot all_conditions conditions yesnos
+
+@fpm_all_conditions_8 fact
+  holds fp_slot_text all_conditions conditions "the yes/no sub-goals"
+
+@fpm_all_conditions_9 fact
+  holds fp_slot_many all_conditions conditions
+
+@fpm_all_conditions_10 fact
+  holds fp_method_decompose all_conditions conditions check_condition
+
+@fpm_all_conditions_11 fact
+  holds fp_method_formula all_conditions "all(conditions)"
+
+
+# --- any_condition
+@fpm_any_condition_1 fact
+  holds fp_method any_condition
+
+@fpm_any_condition_2 fact
+  holds fp_method_achieves any_condition check_condition
+
+@fpm_any_condition_3 fact
+  holds fp_method_solver any_condition calculate
+
+@fpm_any_condition_4 fact
+  holds fp_method_text any_condition "whether at least one of several yes/no conditions holds"
+
+@fpm_any_condition_5 fact
+  holds fp_method_seq any_condition 17
+
+@fpm_any_condition_6 fact
+  holds fp_method_added any_condition seed
+
+@fpm_any_condition_7 fact
+  holds fp_method_slot any_condition conditions yesnos
+
+@fpm_any_condition_8 fact
+  holds fp_slot_text any_condition conditions "the yes/no sub-goals"
+
+@fpm_any_condition_9 fact
+  holds fp_slot_many any_condition conditions
+
+@fpm_any_condition_10 fact
+  holds fp_method_decompose any_condition conditions check_condition
+
+@fpm_any_condition_11 fact
+  holds fp_method_formula any_condition "any(conditions)"
+
+
+# --- conditional_value
+@fpm_conditional_value_1 fact
+  holds fp_method conditional_value
+
+@fpm_conditional_value_2 fact
+  holds fp_method_achieves conditional_value find_value
+
+@fpm_conditional_value_3 fact
+  holds fp_method_solver conditional_value calculate
+
+@fpm_conditional_value_4 fact
+  holds fp_method_text conditional_value "one value when a condition holds, another otherwise (a rule with a threshold, a tier)"
+
+@fpm_conditional_value_5 fact
+  holds fp_method_seq conditional_value 18
+
+@fpm_conditional_value_6 fact
+  holds fp_method_added conditional_value seed
+
+@fpm_conditional_value_7 fact
+  holds fp_method_slot conditional_value condition yesno
+
+@fpm_conditional_value_8 fact
+  holds fp_slot_text conditional_value condition "the yes/no sub-goal"
+
+@fpm_conditional_value_9 fact
+  holds fp_method_decompose conditional_value condition check_condition
+
+@fpm_conditional_value_10 fact
+  holds fp_method_slot conditional_value if_yes number
+
+@fpm_conditional_value_11 fact
+  holds fp_slot_text conditional_value if_yes "the value when it holds"
+
+@fpm_conditional_value_12 fact
+  holds fp_method_slot conditional_value if_no number
+
+@fpm_conditional_value_13 fact
+  holds fp_slot_text conditional_value if_no "the value otherwise"
+
+@fpm_conditional_value_14 fact
+  holds fp_method_formula conditional_value "condition ? if_yes : if_no"
+
+
+# --- choose_best_option
+@fpm_choose_best_option_1 fact
+  holds fp_method choose_best_option
+
+@fpm_choose_best_option_2 fact
+  holds fp_method_achieves choose_best_option choose_option
+
+@fpm_choose_best_option_3 fact
+  holds fp_method_solver choose_best_option rank
+
+@fpm_choose_best_option_4 fact
+  holds fp_method_text choose_best_option "the named option with the lowest or highest score, among the feasible ones"
+
+@fpm_choose_best_option_5 fact
+  holds fp_method_seq choose_best_option 19
+
+@fpm_choose_best_option_6 fact
+  holds fp_method_added choose_best_option seed
+
+@fpm_choose_best_option_7 fact
+  holds fp_method_slot choose_best_option options things
+
+@fpm_choose_best_option_8 fact
+  holds fp_slot_text choose_best_option options "the option names as written"
+
+@fpm_choose_best_option_9 fact
+  holds fp_slot_many choose_best_option options
+
+@fpm_choose_best_option_10 fact
+  holds fp_method_slot choose_best_option score numbers
+
+@fpm_choose_best_option_11 fact
+  holds fp_slot_text choose_best_option score "one number per option, in the same order"
+
+@fpm_choose_best_option_12 fact
+  holds fp_slot_many choose_best_option score
+
+@fpm_choose_best_option_13 fact
+  holds fp_method_decompose choose_best_option score find_value
+
+@fpm_choose_best_option_14 fact
+  holds fp_method_slot choose_best_option feasible yesnos
+
+@fpm_choose_best_option_15 fact
+  holds fp_slot_text choose_best_option feasible "one yes/no per option, in the same order"
+
+@fpm_choose_best_option_16 fact
+  holds fp_slot_many choose_best_option feasible
+
+@fpm_choose_best_option_17 fact
+  holds fp_slot_optional choose_best_option feasible
+
+@fpm_choose_best_option_18 fact
+  holds fp_method_decompose choose_best_option feasible check_condition
+
+@fpm_choose_best_option_19 fact
+  holds fp_method_slot choose_best_option direction menu
+
+@fpm_choose_best_option_20 fact
+  holds fp_slot_text choose_best_option direction "which end is best"
+
+@fpm_choose_best_option_21 fact
+  holds fp_slot_choice choose_best_option direction lowest "lowest"
+
+@fpm_choose_best_option_22 fact
+  holds fp_slot_choice choose_best_option direction highest "highest"
+
+
+# --- derive_forced
+@fpm_derive_forced_1 fact
+  holds fp_method derive_forced
+
+@fpm_derive_forced_2 fact
+  holds fp_method_achieves derive_forced is_forced
+
+@fpm_derive_forced_3 fact
+  holds fp_method_solver derive_forced deduce
+
+@fpm_derive_forced_4 fact
+  holds fp_method_text derive_forced "does the statement follow from what is stated (closed world: not derived means not forced)"
+
+@fpm_derive_forced_5 fact
+  holds fp_method_seq derive_forced 20
+
+@fpm_derive_forced_6 fact
+  holds fp_method_added derive_forced seed
+
+@fpm_derive_forced_7 fact
+  holds fp_method_slot derive_forced facts atoms
+
+@fpm_derive_forced_8 fact
+  holds fp_slot_text derive_forced facts "the stated facts as atoms"
+
+@fpm_derive_forced_9 fact
+  holds fp_slot_many derive_forced facts
+
+@fpm_derive_forced_10 fact
+  holds fp_method_slot derive_forced rules rules
+
+@fpm_derive_forced_11 fact
+  holds fp_slot_text derive_forced rules "the stated if-then rules (and defaults with unless)"
+
+@fpm_derive_forced_12 fact
+  holds fp_slot_many derive_forced rules
+
+@fpm_derive_forced_13 fact
+  holds fp_method_slot derive_forced question question
+
+@fpm_derive_forced_14 fact
+  holds fp_slot_text derive_forced question "the ground atom asked"
+
+@fpm_derive_forced_15 fact
+  holds fp_method_slot derive_forced fact_from table
+
+@fpm_derive_forced_16 fact
+  holds fp_slot_text derive_forced fact_from "facts that are yes/no results of other nodes: [{\"node\": \"nK\", \"atom\": \"...\"}]"
+
+@fpm_derive_forced_17 fact
+  holds fp_slot_many derive_forced fact_from
+
+@fpm_derive_forced_18 fact
+  holds fp_slot_optional derive_forced fact_from
+
+@fpm_derive_forced_19 fact
+  holds fp_method_fixed derive_forced ask forced
+
+
+# --- derive_truth
+@fpm_derive_truth_1 fact
+  holds fp_method derive_truth
+
+@fpm_derive_truth_2 fact
+  holds fp_method_achieves derive_truth is_true
+
+@fpm_derive_truth_3 fact
+  holds fp_method_solver derive_truth deduce
+
+@fpm_derive_truth_4 fact
+  holds fp_method_text derive_truth "is the statement true, false (its negation is derived) or undetermined"
+
+@fpm_derive_truth_5 fact
+  holds fp_method_seq derive_truth 21
+
+@fpm_derive_truth_6 fact
+  holds fp_method_added derive_truth seed
+
+@fpm_derive_truth_7 fact
+  holds fp_method_slot derive_truth facts atoms
+
+@fpm_derive_truth_8 fact
+  holds fp_slot_text derive_truth facts "the stated facts, with not for stated negatives"
+
+@fpm_derive_truth_9 fact
+  holds fp_slot_many derive_truth facts
+
+@fpm_derive_truth_10 fact
+  holds fp_method_slot derive_truth rules rules
+
+@fpm_derive_truth_11 fact
+  holds fp_slot_text derive_truth rules "the stated rules"
+
+@fpm_derive_truth_12 fact
+  holds fp_slot_many derive_truth rules
+
+@fpm_derive_truth_13 fact
+  holds fp_method_slot derive_truth question question
+
+@fpm_derive_truth_14 fact
+  holds fp_slot_text derive_truth question "the ground atom asked"
+
+@fpm_derive_truth_15 fact
+  holds fp_method_slot derive_truth fact_from table
+
+@fpm_derive_truth_16 fact
+  holds fp_slot_text derive_truth fact_from "facts from yes/no nodes"
+
+@fpm_derive_truth_17 fact
+  holds fp_slot_many derive_truth fact_from
+
+@fpm_derive_truth_18 fact
+  holds fp_slot_optional derive_truth fact_from
+
+@fpm_derive_truth_19 fact
+  holds fp_method_fixed derive_truth ask truth
+
+
+# --- derive_who
+@fpm_derive_who_1 fact
+  holds fp_method derive_who
+
+@fpm_derive_who_2 fact
+  holds fp_method_achieves derive_who find_who
+
+@fpm_derive_who_3 fact
+  holds fp_method_solver derive_who deduce
+
+@fpm_derive_who_4 fact
+  holds fp_method_text derive_who "which things satisfy the asked atom"
+
+@fpm_derive_who_5 fact
+  holds fp_method_seq derive_who 22
+
+@fpm_derive_who_6 fact
+  holds fp_method_added derive_who seed
+
+@fpm_derive_who_7 fact
+  holds fp_method_slot derive_who facts atoms
+
+@fpm_derive_who_8 fact
+  holds fp_slot_text derive_who facts "the stated facts"
+
+@fpm_derive_who_9 fact
+  holds fp_slot_many derive_who facts
+
+@fpm_derive_who_10 fact
+  holds fp_method_slot derive_who rules rules
+
+@fpm_derive_who_11 fact
+  holds fp_slot_text derive_who rules "the stated rules"
+
+@fpm_derive_who_12 fact
+  holds fp_slot_many derive_who rules
+
+@fpm_derive_who_13 fact
+  holds fp_method_slot derive_who question question
+
+@fpm_derive_who_14 fact
+  holds fp_slot_text derive_who question "an atom with one ?variable"
+
+@fpm_derive_who_15 fact
+  holds fp_method_slot derive_who fact_from table
+
+@fpm_derive_who_16 fact
+  holds fp_slot_text derive_who fact_from "facts from yes/no nodes"
+
+@fpm_derive_who_17 fact
+  holds fp_slot_many derive_who fact_from
+
+@fpm_derive_who_18 fact
+  holds fp_slot_optional derive_who fact_from
+
+@fpm_derive_who_19 fact
+  holds fp_method_fixed derive_who ask who
+
+
+# --- derive_count
+@fpm_derive_count_1 fact
+  holds fp_method derive_count
+
+@fpm_derive_count_2 fact
+  holds fp_method_achieves derive_count count_things
+
+@fpm_derive_count_3 fact
+  holds fp_method_solver derive_count deduce
+
+@fpm_derive_count_4 fact
+  holds fp_method_text derive_count "how many things satisfy the asked atom"
+
+@fpm_derive_count_5 fact
+  holds fp_method_seq derive_count 23
+
+@fpm_derive_count_6 fact
+  holds fp_method_added derive_count seed
+
+@fpm_derive_count_7 fact
+  holds fp_method_slot derive_count facts atoms
+
+@fpm_derive_count_8 fact
+  holds fp_slot_text derive_count facts "the stated facts"
+
+@fpm_derive_count_9 fact
+  holds fp_slot_many derive_count facts
+
+@fpm_derive_count_10 fact
+  holds fp_method_slot derive_count rules rules
+
+@fpm_derive_count_11 fact
+  holds fp_slot_text derive_count rules "the stated rules"
+
+@fpm_derive_count_12 fact
+  holds fp_slot_many derive_count rules
+
+@fpm_derive_count_13 fact
+  holds fp_method_slot derive_count question question
+
+@fpm_derive_count_14 fact
+  holds fp_slot_text derive_count question "an atom with one ?variable"
+
+@fpm_derive_count_15 fact
+  holds fp_method_fixed derive_count ask count
+
+
+# --- order_by_clues
+@fpm_order_by_clues_1 fact
+  holds fp_method order_by_clues
+
+@fpm_order_by_clues_2 fact
+  holds fp_method_achieves order_by_clues find_order
+
+@fpm_order_by_clues_3 fact
+  holds fp_method_solver order_by_clues constraints
+
+@fpm_order_by_clues_4 fact
+  holds fp_method_text order_by_clues "positions 1..N of distinct things from relative clues (a line, a ranking, a sequence of days)"
+
+@fpm_order_by_clues_5 fact
+  holds fp_method_seq order_by_clues 24
+
+@fpm_order_by_clues_6 fact
+  holds fp_method_added order_by_clues seed
+
+@fpm_order_by_clues_7 fact
+  holds fp_method_slot order_by_clues things things
+
+@fpm_order_by_clues_8 fact
+  holds fp_slot_text order_by_clues things "the things ordered, as written"
+
+@fpm_order_by_clues_9 fact
+  holds fp_slot_many order_by_clues things
+
+@fpm_order_by_clues_10 fact
+  holds fp_method_slot order_by_clues clues clues
+
+@fpm_order_by_clues_11 fact
+  holds fp_slot_text order_by_clues clues "one {\"kind\", \"a\", \"b\", \"k\"} per clue"
+
+@fpm_order_by_clues_12 fact
+  holds fp_slot_many order_by_clues clues
+
+@fpm_order_by_clues_13 fact
+  holds fp_method_slot order_by_clues size number
+
+@fpm_order_by_clues_14 fact
+  holds fp_slot_text order_by_clues size "the number of positions when it differs from the number of things"
+
+@fpm_order_by_clues_15 fact
+  holds fp_slot_optional order_by_clues size
+
+@fpm_order_by_clues_16 fact
+  holds fp_method_slot order_by_clues ask_thing thing
+
+@fpm_order_by_clues_17 fact
+  holds fp_slot_text order_by_clues ask_thing "when only the position of one thing is asked"
+
+@fpm_order_by_clues_18 fact
+  holds fp_slot_optional order_by_clues ask_thing
+
+@fpm_order_by_clues_19 fact
+  holds fp_method_slot order_by_clues ask_value number
+
+@fpm_order_by_clues_20 fact
+  holds fp_slot_text order_by_clues ask_value "when only the thing at one position is asked"
+
+@fpm_order_by_clues_21 fact
+  holds fp_slot_optional order_by_clues ask_value
+
+@fpm_order_by_clues_22 fact
+  holds fp_method_clue order_by_clues before "?A below ?B"
+
+@fpm_order_by_clues_23 fact
+  holds fp_method_clue order_by_clues after "?A above ?B"
+
+@fpm_order_by_clues_24 fact
+  holds fp_method_clue order_by_clues immediately_before "?B equal ?A plus 1"
+
+@fpm_order_by_clues_25 fact
+  holds fp_method_clue order_by_clues adjacent "?A equal ?B plus 1 | ?B equal ?A plus 1"
+
+@fpm_order_by_clues_26 fact
+  holds fp_method_clue order_by_clues not_adjacent "?A not_equal ?B plus 1 & ?B not_equal ?A plus 1"
+
+@fpm_order_by_clues_27 fact
+  holds fp_method_clue order_by_clues at_position "?A equal K"
+
+@fpm_order_by_clues_28 fact
+  holds fp_method_clue order_by_clues not_at_position "?A not_equal K"
+
+@fpm_order_by_clues_29 fact
+  holds fp_method_clue order_by_clues first "?A equal 1"
+
+@fpm_order_by_clues_30 fact
+  holds fp_method_clue order_by_clues last "?A equal N"
+
+
+# --- match_by_clues
+@fpm_match_by_clues_1 fact
+  holds fp_method match_by_clues
+
+@fpm_match_by_clues_2 fact
+  holds fp_method_achieves match_by_clues find_assignment
+
+@fpm_match_by_clues_3 fact
+  holds fp_method_solver match_by_clues constraints
+
+@fpm_match_by_clues_4 fact
+  holds fp_method_text match_by_clues "each thing gets a different value from a list, from clues (who has which)"
+
+@fpm_match_by_clues_5 fact
+  holds fp_method_seq match_by_clues 25
+
+@fpm_match_by_clues_6 fact
+  holds fp_method_added match_by_clues seed
+
+@fpm_match_by_clues_7 fact
+  holds fp_method_slot match_by_clues things things
+
+@fpm_match_by_clues_8 fact
+  holds fp_slot_text match_by_clues things "the things"
+
+@fpm_match_by_clues_9 fact
+  holds fp_slot_many match_by_clues things
+
+@fpm_match_by_clues_10 fact
+  holds fp_method_slot match_by_clues values things
+
+@fpm_match_by_clues_11 fact
+  holds fp_slot_text match_by_clues values "the values to match, as written"
+
+@fpm_match_by_clues_12 fact
+  holds fp_slot_many match_by_clues values
+
+@fpm_match_by_clues_13 fact
+  holds fp_method_slot match_by_clues clues clues
+
+@fpm_match_by_clues_14 fact
+  holds fp_slot_text match_by_clues clues "one {\"kind\", \"a\", \"b\", \"k\"} per clue; k is a value name"
+
+@fpm_match_by_clues_15 fact
+  holds fp_slot_many match_by_clues clues
+
+@fpm_match_by_clues_16 fact
+  holds fp_method_slot match_by_clues ask_thing thing
+
+@fpm_match_by_clues_17 fact
+  holds fp_slot_text match_by_clues ask_thing "when only one thing is asked"
+
+@fpm_match_by_clues_18 fact
+  holds fp_slot_optional match_by_clues ask_thing
+
+@fpm_match_by_clues_19 fact
+  holds fp_method_slot match_by_clues ask_value thing
+
+@fpm_match_by_clues_20 fact
+  holds fp_slot_text match_by_clues ask_value "when only the owner of one value is asked"
+
+@fpm_match_by_clues_21 fact
+  holds fp_slot_optional match_by_clues ask_value
+
+@fpm_match_by_clues_22 fact
+  holds fp_method_clue match_by_clues is "?A equal K"
+
+@fpm_match_by_clues_23 fact
+  holds fp_method_clue match_by_clues is_not "?A not_equal K"
+
+@fpm_match_by_clues_24 fact
+  holds fp_method_clue match_by_clues same "?A equal ?B"
+
+@fpm_match_by_clues_25 fact
+  holds fp_method_clue match_by_clues different "?A not_equal ?B"
+
+@fpm_match_by_clues_26 fact
+  holds fp_method_fixed match_by_clues distinct yes
+
+
+# --- integer_solutions
+@fpm_integer_solutions_1 fact
+  holds fp_method integer_solutions
+
+@fpm_integer_solutions_2 fact
+  holds fp_method_achieves integer_solutions exists_assignment
+
+@fpm_integer_solutions_3 fact
+  holds fp_method_achieves integer_solutions find_value
+
+@fpm_integer_solutions_4 fact
+  holds fp_method_solver integer_solutions constraints
+
+@fpm_integer_solutions_5 fact
+  holds fp_method_text integer_solutions "integer unknowns with ranges and conditions in words (above, below, at_least, at_most, equal, not_equal; plus, minus, times): do values exist, which are they"
+
+@fpm_integer_solutions_6 fact
+  holds fp_method_seq integer_solutions 26
+
+@fpm_integer_solutions_7 fact
+  holds fp_method_added integer_solutions seed
+
+@fpm_integer_solutions_8 fact
+  holds fp_method_slot integer_solutions variables variables
+
+@fpm_integer_solutions_9 fact
+  holds fp_slot_text integer_solutions variables "[{\"name\": \"x\", \"min\": .., \"max\": ..}] (bounds are references or consts)"
+
+@fpm_integer_solutions_10 fact
+  holds fp_slot_many integer_solutions variables
+
+@fpm_integer_solutions_11 fact
+  holds fp_method_slot integer_solutions all_different things
+
+@fpm_integer_solutions_12 fact
+  holds fp_slot_text integer_solutions all_different "variables that must differ"
+
+@fpm_integer_solutions_13 fact
+  holds fp_slot_many integer_solutions all_different
+
+@fpm_integer_solutions_14 fact
+  holds fp_slot_optional integer_solutions all_different
+
+@fpm_integer_solutions_15 fact
+  holds fp_method_slot integer_solutions conditions conditions
+
+@fpm_integer_solutions_16 fact
+  holds fp_slot_text integer_solutions conditions "lines like \"?x plus ?y equal 12\" or {\"any\": [..]}"
+
+@fpm_integer_solutions_17 fact
+  holds fp_slot_many integer_solutions conditions
+
+@fpm_integer_solutions_18 fact
+  holds fp_method_slot integer_solutions select things
+
+@fpm_integer_solutions_19 fact
+  holds fp_slot_text integer_solutions select "the variables asked"
+
+@fpm_integer_solutions_20 fact
+  holds fp_slot_many integer_solutions select
+
+@fpm_integer_solutions_21 fact
+  holds fp_slot_optional integer_solutions select
+
+@fpm_integer_solutions_22 fact
+  holds fp_method_fixed integer_solutions task possible
+
+
+# --- integer_optimum
+@fpm_integer_optimum_1 fact
+  holds fp_method integer_optimum
+
+@fpm_integer_optimum_2 fact
+  holds fp_method_achieves integer_optimum optimize_integer
+
+@fpm_integer_optimum_3 fact
+  holds fp_method_solver integer_optimum constraints
+
+@fpm_integer_optimum_4 fact
+  holds fp_method_text integer_optimum "the best integer values: maximise or minimise a linear objective under conditions"
+
+@fpm_integer_optimum_5 fact
+  holds fp_method_seq integer_optimum 27
+
+@fpm_integer_optimum_6 fact
+  holds fp_method_added integer_optimum seed
+
+@fpm_integer_optimum_7 fact
+  holds fp_method_slot integer_optimum variables variables
+
+@fpm_integer_optimum_8 fact
+  holds fp_slot_text integer_optimum variables "the integer unknowns with ranges"
+
+@fpm_integer_optimum_9 fact
+  holds fp_slot_many integer_optimum variables
+
+@fpm_integer_optimum_10 fact
+  holds fp_method_slot integer_optimum conditions conditions
+
+@fpm_integer_optimum_11 fact
+  holds fp_slot_text integer_optimum conditions "the conditions in words"
+
+@fpm_integer_optimum_12 fact
+  holds fp_slot_many integer_optimum conditions
+
+@fpm_integer_optimum_13 fact
+  holds fp_method_slot integer_optimum objective text
+
+@fpm_integer_optimum_14 fact
+  holds fp_slot_text integer_optimum objective "a linear expression in words like \"3 times ?a plus 2 times ?b\""
+
+@fpm_integer_optimum_15 fact
+  holds fp_method_slot integer_optimum direction menu
+
+@fpm_integer_optimum_16 fact
+  holds fp_slot_text integer_optimum direction "max or min"
+
+@fpm_integer_optimum_17 fact
+  holds fp_slot_choice integer_optimum direction max "max"
+
+@fpm_integer_optimum_18 fact
+  holds fp_slot_choice integer_optimum direction min "min"
+
+@fpm_integer_optimum_19 fact
+  holds fp_method_slot integer_optimum select things
+
+@fpm_integer_optimum_20 fact
+  holds fp_slot_text integer_optimum select "the variables asked"
+
+@fpm_integer_optimum_21 fact
+  holds fp_slot_many integer_optimum select
+
+@fpm_integer_optimum_22 fact
+  holds fp_slot_optional integer_optimum select
+
+@fpm_integer_optimum_23 fact
+  holds fp_method_fixed integer_optimum task optimize
+
+
+# --- earliest_completion
+@fpm_earliest_completion_1 fact
+  holds fp_method earliest_completion
+
+@fpm_earliest_completion_2 fact
+  holds fp_method_achieves earliest_completion earliest_finish
+
+@fpm_earliest_completion_3 fact
+  holds fp_method_solver earliest_completion schedule
+
+@fpm_earliest_completion_4 fact
+  holds fp_method_text earliest_completion "tasks with durations; a task starts when the tasks it waits for are done; unlimited parallel work"
+
+@fpm_earliest_completion_5 fact
+  holds fp_method_seq earliest_completion 28
+
+@fpm_earliest_completion_6 fact
+  holds fp_method_added earliest_completion seed
+
+@fpm_earliest_completion_7 fact
+  holds fp_method_slot earliest_completion tasks tasks
+
+@fpm_earliest_completion_8 fact
+  holds fp_slot_text earliest_completion tasks "[{\"name\": .., \"duration\": vK|nK}]"
+
+@fpm_earliest_completion_9 fact
+  holds fp_slot_many earliest_completion tasks
+
+@fpm_earliest_completion_10 fact
+  holds fp_method_slot earliest_completion after pairs
+
+@fpm_earliest_completion_11 fact
+  holds fp_slot_text earliest_completion after "[[\"later task\", \"earlier task\"], ...]"
+
+@fpm_earliest_completion_12 fact
+  holds fp_slot_many earliest_completion after
+
+@fpm_earliest_completion_13 fact
+  holds fp_method_slot earliest_completion setup number
+
+@fpm_earliest_completion_14 fact
+  holds fp_slot_text earliest_completion setup "a one-time start offset"
+
+@fpm_earliest_completion_15 fact
+  holds fp_slot_optional earliest_completion setup
+
+
+# --- best_supported_hypothesis
+@fpm_best_supported_hypothesis_1 fact
+  holds fp_method best_supported_hypothesis
+
+@fpm_best_supported_hypothesis_2 fact
+  holds fp_method_achieves best_supported_hypothesis best_explanation
+
+@fpm_best_supported_hypothesis_3 fact
+  holds fp_method_solver best_supported_hypothesis abduce
+
+@fpm_best_supported_hypothesis_4 fact
+  holds fp_method_text best_supported_hypothesis "hypotheses ruled out by contradicting observations; the rest ranked by supporting observations"
+
+@fpm_best_supported_hypothesis_5 fact
+  holds fp_method_seq best_supported_hypothesis 29
+
+@fpm_best_supported_hypothesis_6 fact
+  holds fp_method_added best_supported_hypothesis seed
+
+@fpm_best_supported_hypothesis_7 fact
+  holds fp_method_slot best_supported_hypothesis hypotheses things
+
+@fpm_best_supported_hypothesis_8 fact
+  holds fp_slot_text best_supported_hypothesis hypotheses "the candidate explanations"
+
+@fpm_best_supported_hypothesis_9 fact
+  holds fp_slot_many best_supported_hypothesis hypotheses
+
+@fpm_best_supported_hypothesis_10 fact
+  holds fp_method_slot best_supported_hypothesis table table
+
+@fpm_best_supported_hypothesis_11 fact
+  holds fp_slot_text best_supported_hypothesis table "[{\"observation\": .., \"hypothesis\": .., \"effect\": \"supports\"|\"contradicts\"}]"
+
+@fpm_best_supported_hypothesis_12 fact
+  holds fp_slot_many best_supported_hypothesis table
+
+
+# --- justify_answer
+@fpm_justify_answer_1 fact
+  holds fp_method justify_answer
+
+@fpm_justify_answer_2 fact
+  holds fp_method_achieves justify_answer explain_answer
+
+@fpm_justify_answer_3 fact
+  holds fp_method_solver justify_answer justify
+
+@fpm_justify_answer_4 fact
+  holds fp_method_text justify_answer "the why of another goal: the derivation of its node"
+
+@fpm_justify_answer_5 fact
+  holds fp_method_seq justify_answer 30
+
+@fpm_justify_answer_6 fact
+  holds fp_method_added justify_answer seed
+
+@fpm_justify_answer_7 fact
+  holds fp_method_slot justify_answer node node
+
+@fpm_justify_answer_8 fact
+  holds fp_slot_text justify_answer node "the node whose derivation answers the why"
+

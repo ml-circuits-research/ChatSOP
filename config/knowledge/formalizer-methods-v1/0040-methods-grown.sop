@@ -1,0 +1,471 @@
+# Methods and goal types added while growing the library on the development set, in order (fp_method_seq), with the stage
+# that added them (fp_method_added). Each was proposed by the frame-filler from a dev problem and its worked solution, then reviewed:
+# generalized (no domain words), merged with duplicates, kept only when reusable.
+
+# ===== stage dev1: methods adopted after review (generalized, duplicates merged)
+
+# --- goal type find_test
+@fpg_find_test_1 fact
+  holds fp_gtype find_test
+
+@fpg_find_test_2 fact
+  holds fp_gtype_text find_test "which observation or test separates competing hypotheses"
+
+@fpg_find_test_3 fact
+  holds fp_gtype_answer find_test entity or set
+
+@fpg_find_test_4 fact
+  holds fp_gtype_operation find_test "abduction (discriminating observation)"
+
+
+# --- goal type count_arrangements
+@fpg_count_arrangements_1 fact
+  holds fp_gtype count_arrangements
+
+@fpg_count_arrangements_2 fact
+  holds fp_gtype_text count_arrangements "how many arrangements, combinations or integer solutions satisfy the conditions"
+
+@fpg_count_arrangements_3 fact
+  holds fp_gtype_answer count_arrangements number
+
+@fpg_count_arrangements_4 fact
+  holds fp_gtype_operation count_arrangements "counting (combinatorics)"
+
+
+# --- goal type describe_decomposition
+@fpg_describe_decomposition_1 fact
+  holds fp_gtype describe_decomposition
+
+@fpg_describe_decomposition_2 fact
+  holds fp_gtype_text describe_decomposition "which sub-problems a problem splits into and how they are joined"
+
+@fpg_describe_decomposition_3 fact
+  holds fp_gtype_answer describe_decomposition text
+
+@fpg_describe_decomposition_4 fact
+  holds fp_gtype_operation describe_decomposition "meta (structure of the decomposition)"
+
+
+# --- discriminating_observation
+@fpm_discriminating_observation_1 fact
+  holds fp_method discriminating_observation
+
+@fpm_discriminating_observation_2 fact
+  holds fp_method_achieves discriminating_observation find_test
+
+@fpm_discriminating_observation_3 fact
+  holds fp_method_solver discriminating_observation abduce
+
+@fpm_discriminating_observation_4 fact
+  holds fp_method_text discriminating_observation "an observation or test whose predicted outcome supports one hypothesis and contradicts another"
+
+@fpm_discriminating_observation_5 fact
+  holds fp_method_seq discriminating_observation 31
+
+@fpm_discriminating_observation_6 fact
+  holds fp_method_added discriminating_observation dev1
+
+@fpm_discriminating_observation_7 fact
+  holds fp_method_slot discriminating_observation hypotheses things
+
+@fpm_discriminating_observation_8 fact
+  holds fp_slot_text discriminating_observation hypotheses "the competing hypotheses"
+
+@fpm_discriminating_observation_9 fact
+  holds fp_slot_many discriminating_observation hypotheses
+
+@fpm_discriminating_observation_10 fact
+  holds fp_method_slot discriminating_observation table table
+
+@fpm_discriminating_observation_11 fact
+  holds fp_slot_text discriminating_observation table "[{\"observation\": .., \"hypothesis\": .., \"effect\": \"supports\"|\"contradicts\"}]: what each hypothesis predicts for each possible observation"
+
+@fpm_discriminating_observation_12 fact
+  holds fp_slot_many discriminating_observation table
+
+@fpm_discriminating_observation_13 fact
+  holds fp_method_fixed discriminating_observation ask discriminate
+
+
+# --- count_integer_solutions
+@fpm_count_integer_solutions_1 fact
+  holds fp_method count_integer_solutions
+
+@fpm_count_integer_solutions_2 fact
+  holds fp_method_achieves count_integer_solutions count_arrangements
+
+@fpm_count_integer_solutions_3 fact
+  holds fp_method_solver count_integer_solutions constraints
+
+@fpm_count_integer_solutions_4 fact
+  holds fp_method_text count_integer_solutions "how many assignments of integer unknowns (with ranges) satisfy the conditions"
+
+@fpm_count_integer_solutions_5 fact
+  holds fp_method_seq count_integer_solutions 32
+
+@fpm_count_integer_solutions_6 fact
+  holds fp_method_added count_integer_solutions dev1
+
+@fpm_count_integer_solutions_7 fact
+  holds fp_method_slot count_integer_solutions variables variables
+
+@fpm_count_integer_solutions_8 fact
+  holds fp_slot_text count_integer_solutions variables "the integer unknowns with ranges"
+
+@fpm_count_integer_solutions_9 fact
+  holds fp_slot_many count_integer_solutions variables
+
+@fpm_count_integer_solutions_10 fact
+  holds fp_method_slot count_integer_solutions all_different things
+
+@fpm_count_integer_solutions_11 fact
+  holds fp_slot_text count_integer_solutions all_different "variables that must differ"
+
+@fpm_count_integer_solutions_12 fact
+  holds fp_slot_many count_integer_solutions all_different
+
+@fpm_count_integer_solutions_13 fact
+  holds fp_slot_optional count_integer_solutions all_different
+
+@fpm_count_integer_solutions_14 fact
+  holds fp_method_slot count_integer_solutions conditions conditions
+
+@fpm_count_integer_solutions_15 fact
+  holds fp_slot_text count_integer_solutions conditions "the conditions in words"
+
+@fpm_count_integer_solutions_16 fact
+  holds fp_slot_many count_integer_solutions conditions
+
+@fpm_count_integer_solutions_17 fact
+  holds fp_method_fixed count_integer_solutions ask count
+
+
+# --- decomposition_structure
+@fpm_decomposition_structure_1 fact
+  holds fp_method decomposition_structure
+
+@fpm_decomposition_structure_2 fact
+  holds fp_method_achieves decomposition_structure describe_decomposition
+
+@fpm_decomposition_structure_3 fact
+  holds fp_method_solver decomposition_structure justify
+
+@fpm_decomposition_structure_4 fact
+  holds fp_method_text decomposition_structure "the decomposition of another goal's node: its independent sub-problems and the steps that join them"
+
+@fpm_decomposition_structure_5 fact
+  holds fp_method_seq decomposition_structure 33
+
+@fpm_decomposition_structure_6 fact
+  holds fp_method_added decomposition_structure dev1
+
+@fpm_decomposition_structure_7 fact
+  holds fp_method_slot decomposition_structure node node
+
+@fpm_decomposition_structure_8 fact
+  holds fp_slot_text decomposition_structure node "the node that answers the main goal"
+
+@fpm_decomposition_structure_9 fact
+  holds fp_method_fixed decomposition_structure mode structure
+
+
+# dev1 review: a proposed integer_assignment duplicated integer_solutions; merged by letting integer_solutions also achieve find_assignment.
+@fpm_dev1_merge_1 fact
+  holds fp_method_achieves integer_solutions find_assignment
+
+# ===== stage dev2: methods adopted after review (generalized, duplicates merged)
+
+# --- sequence_values
+@fpm_sequence_values_1 fact
+  holds fp_method sequence_values
+
+@fpm_sequence_values_2 fact
+  holds fp_method_achieves sequence_values find_value
+
+@fpm_sequence_values_3 fact
+  holds fp_method_solver sequence_values calculate
+
+@fpm_sequence_values_4 fact
+  holds fp_method_text sequence_values "the successive values of a quantity that changes by the same step each interval: the list after interval 1, 2, ..., count"
+
+@fpm_sequence_values_5 fact
+  holds fp_method_seq sequence_values 34
+
+@fpm_sequence_values_6 fact
+  holds fp_method_added sequence_values dev2
+
+@fpm_sequence_values_7 fact
+  holds fp_method_slot sequence_values start number
+
+@fpm_sequence_values_8 fact
+  holds fp_slot_text sequence_values start "the value before the first interval"
+
+@fpm_sequence_values_9 fact
+  holds fp_method_slot sequence_values step number
+
+@fpm_sequence_values_10 fact
+  holds fp_slot_text sequence_values step "the change per interval (negative for a decrease)"
+
+@fpm_sequence_values_11 fact
+  holds fp_method_slot sequence_values count number
+
+@fpm_sequence_values_12 fact
+  holds fp_slot_text sequence_values count "how many intervals are tracked"
+
+@fpm_sequence_values_13 fact
+  holds fp_method_formula sequence_values "start + position * step"
+
+@fpm_sequence_values_14 fact
+  holds fp_method_fixed sequence_values series count
+
+
+# --- necessary_premise
+@fpm_necessary_premise_1 fact
+  holds fp_method necessary_premise
+
+@fpm_necessary_premise_2 fact
+  holds fp_method_achieves necessary_premise check_condition
+
+@fpm_necessary_premise_3 fact
+  holds fp_method_solver necessary_premise calculate
+
+@fpm_necessary_premise_4 fact
+  holds fp_method_text necessary_premise "whether a premise is needed: the conclusion is forced with it and not forced without it"
+
+@fpm_necessary_premise_5 fact
+  holds fp_method_seq necessary_premise 35
+
+@fpm_necessary_premise_6 fact
+  holds fp_method_added necessary_premise dev2
+
+@fpm_necessary_premise_7 fact
+  holds fp_method_slot necessary_premise with_premise yesno
+
+@fpm_necessary_premise_8 fact
+  holds fp_slot_text necessary_premise with_premise "forced with every premise"
+
+@fpm_necessary_premise_9 fact
+  holds fp_method_decompose necessary_premise with_premise is_forced
+
+@fpm_necessary_premise_10 fact
+  holds fp_method_slot necessary_premise without_premise yesno
+
+@fpm_necessary_premise_11 fact
+  holds fp_slot_text necessary_premise without_premise "forced without that premise"
+
+@fpm_necessary_premise_12 fact
+  holds fp_method_decompose necessary_premise without_premise is_forced
+
+@fpm_necessary_premise_13 fact
+  holds fp_method_formula necessary_premise "with_premise && !without_premise"
+
+
+# --- negation
+@fpm_negation_1 fact
+  holds fp_method negation
+
+@fpm_negation_2 fact
+  holds fp_method_achieves negation check_condition
+
+@fpm_negation_3 fact
+  holds fp_method_solver negation calculate
+
+@fpm_negation_4 fact
+  holds fp_method_text negation "the opposite of a yes/no value (not)"
+
+@fpm_negation_5 fact
+  holds fp_method_seq negation 36
+
+@fpm_negation_6 fact
+  holds fp_method_added negation dev2
+
+@fpm_negation_7 fact
+  holds fp_method_slot negation a yesno
+
+@fpm_negation_8 fact
+  holds fp_slot_text negation a "the yes/no value"
+
+@fpm_negation_9 fact
+  holds fp_method_decompose negation a check_condition
+
+@fpm_negation_10 fact
+  holds fp_method_formula negation "!a"
+
+
+# --- same_truth
+@fpm_same_truth_1 fact
+  holds fp_method same_truth
+
+@fpm_same_truth_2 fact
+  holds fp_method_achieves same_truth check_condition
+
+@fpm_same_truth_3 fact
+  holds fp_method_solver same_truth calculate
+
+@fpm_same_truth_4 fact
+  holds fp_method_text same_truth "whether two yes/no values are equal (its negation is exclusive or)"
+
+@fpm_same_truth_5 fact
+  holds fp_method_seq same_truth 37
+
+@fpm_same_truth_6 fact
+  holds fp_method_added same_truth dev2
+
+@fpm_same_truth_7 fact
+  holds fp_method_slot same_truth a yesno
+
+@fpm_same_truth_8 fact
+  holds fp_slot_text same_truth a "the first yes/no value"
+
+@fpm_same_truth_9 fact
+  holds fp_method_slot same_truth b yesno
+
+@fpm_same_truth_10 fact
+  holds fp_slot_text same_truth b "the second yes/no value"
+
+@fpm_same_truth_11 fact
+  holds fp_method_formula same_truth "(a && b) || (!a && !b)"
+
+
+# --- conditional_truth
+@fpm_conditional_truth_1 fact
+  holds fp_method conditional_truth
+
+@fpm_conditional_truth_2 fact
+  holds fp_method_achieves conditional_truth check_condition
+
+@fpm_conditional_truth_3 fact
+  holds fp_method_solver conditional_truth calculate
+
+@fpm_conditional_truth_4 fact
+  holds fp_method_text conditional_truth "one yes/no value when a condition holds, another otherwise"
+
+@fpm_conditional_truth_5 fact
+  holds fp_method_seq conditional_truth 38
+
+@fpm_conditional_truth_6 fact
+  holds fp_method_added conditional_truth dev2
+
+@fpm_conditional_truth_7 fact
+  holds fp_method_slot conditional_truth condition yesno
+
+@fpm_conditional_truth_8 fact
+  holds fp_slot_text conditional_truth condition "the condition"
+
+@fpm_conditional_truth_9 fact
+  holds fp_method_slot conditional_truth if_yes yesno
+
+@fpm_conditional_truth_10 fact
+  holds fp_slot_text conditional_truth if_yes "the value when it holds"
+
+@fpm_conditional_truth_11 fact
+  holds fp_method_slot conditional_truth if_no yesno
+
+@fpm_conditional_truth_12 fact
+  holds fp_slot_text conditional_truth if_no "the value otherwise"
+
+@fpm_conditional_truth_13 fact
+  holds fp_method_formula conditional_truth "(condition && if_yes) || (!condition && if_no)"
+
+
+# --- clock_after
+@fpm_clock_after_1 fact
+  holds fp_method clock_after
+
+@fpm_clock_after_2 fact
+  holds fp_method_achieves clock_after find_value
+
+@fpm_clock_after_3 fact
+  holds fp_method_solver clock_after calculate
+
+@fpm_clock_after_4 fact
+  holds fp_method_text clock_after "the time of day after a duration, as minutes since midnight (wraps past midnight)"
+
+@fpm_clock_after_5 fact
+  holds fp_method_seq clock_after 39
+
+@fpm_clock_after_6 fact
+  holds fp_method_added clock_after dev2
+
+@fpm_clock_after_7 fact
+  holds fp_method_slot clock_after start_hour number
+
+@fpm_clock_after_8 fact
+  holds fp_slot_text clock_after start_hour "the hour of the start (24-hour clock)"
+
+@fpm_clock_after_9 fact
+  holds fp_method_slot clock_after start_minute number
+
+@fpm_clock_after_10 fact
+  holds fp_slot_text clock_after start_minute "the minute of the start"
+
+@fpm_clock_after_11 fact
+  holds fp_method_slot clock_after duration_minutes number
+
+@fpm_clock_after_12 fact
+  holds fp_slot_text clock_after duration_minutes "the elapsed time in minutes"
+
+@fpm_clock_after_13 fact
+  holds fp_method_decompose clock_after duration_minutes find_value
+
+@fpm_clock_after_14 fact
+  holds fp_method_formula clock_after "(start_hour * 60 + start_minute + duration_minutes) % 1440"
+
+
+# dev2 review: a proposed optimize_assignment duplicated integer_optimum; merged by letting integer_optimum also achieve find_assignment.
+@fpm_dev2_merge_1 fact
+  holds fp_method_achieves integer_optimum find_assignment
+
+# ===== stage dev3: methods adopted after review (generalized, duplicates merged)
+
+# --- grid_distance
+@fpm_grid_distance_1 fact
+  holds fp_method grid_distance
+
+@fpm_grid_distance_2 fact
+  holds fp_method_achieves grid_distance find_value
+
+@fpm_grid_distance_3 fact
+  holds fp_method_solver grid_distance calculate
+
+@fpm_grid_distance_4 fact
+  holds fp_method_text grid_distance "the distance along grid lines (taxicab) of a displacement: absolute horizontal change plus absolute vertical change"
+
+@fpm_grid_distance_5 fact
+  holds fp_method_seq grid_distance 40
+
+@fpm_grid_distance_6 fact
+  holds fp_method_added grid_distance dev3
+
+@fpm_grid_distance_7 fact
+  holds fp_method_slot grid_distance dx number
+
+@fpm_grid_distance_8 fact
+  holds fp_slot_text grid_distance dx "the horizontal change"
+
+@fpm_grid_distance_9 fact
+  holds fp_method_decompose grid_distance dx find_value
+
+@fpm_grid_distance_10 fact
+  holds fp_method_slot grid_distance dy number
+
+@fpm_grid_distance_11 fact
+  holds fp_slot_text grid_distance dy "the vertical change"
+
+@fpm_grid_distance_12 fact
+  holds fp_method_decompose grid_distance dy find_value
+
+@fpm_grid_distance_13 fact
+  holds fp_method_formula grid_distance "abs(dx) + abs(dy)"
+
+
+# dev3 review: a proposed choose_by_explanation duplicated best_supported_hypothesis; merged by letting it also achieve choose_option.
+@fpm_dev3_merge_1 fact
+  holds fp_method_achieves best_supported_hypothesis choose_option
+
+# ===== frozen after dev3 (2026-10-03): the held-out measurement uses this library unchanged.
+
+# After the freeze (2026-10-03, coordinator): a rendering annotation only, not a frame field (renderLibrary leaves `unit` out, so the
+# filler's prompt is unchanged): the result of clock_after is shown as a clock time.
+@fpm_render_1 fact
+  holds fp_method_fixed clock_after unit minutes_of_day

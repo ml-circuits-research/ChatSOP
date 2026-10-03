@@ -1,0 +1,8 @@
+{
+  "name": "Formalization machine method library (research)",
+  "description": "Goal types, decomposition METHODs and primitive interpreters of the formalization-machine experiment (experiments/proposal/formalization-machine-phase1.md) as fp_ facts. Read only by tools/eval/method-library; never a chat base memory. Imports core-min.",
+  "imports": [
+    "core-min"
+  ],
+  "chat": false
+}
