@@ -94,7 +94,7 @@
     }
   },
   "tiers": {
-    "_note": "owner 2026-10-02: clients and jobs name a tier, never a concrete model. A tier is a chain of {upstream, model}; the first usable entry serves, the rest is its fallback. best is unconfigured (pro models via OpenRouter later): a request for it is an error. equivalence (owner 2026-10-03): a very small, fast model that only decides whether two short answers are equivalent (A implies B and B implies A); today the local Qwen3-4B, no fallback; used only after deterministic normalization fails. structure and formalizer (owner 2026-10-03): the PSM (GLiNER2.5 base, POST /v1/structure) and the LFM (T5-base NL-to-FOL, POST /v1/fol) on the local small-model service; JSON endpoints, not chat; no fallback. Owner 2026-10-03: the backends of structure and formalizer are swappable: structure and formalizer name one of the variant tiers below; a variant with `prompt` is a chat model with a role prompt (prompts/<name>.md, TinyAgent/lib/prompted.mjs) under the same JSON contract: structure-gliner (GLiNER2.5), structure-tiny (Qwen3-4B + psm-v1), formalizer-t5 (T5-base), formalizer-t5-3b (T5-3B), formalizer-tiny (Qwen3-4B + fol-v1), formalizer-llama-fol (Llama-3.2-1B NL2FOL + fol-plain-v1). MoE A/B (owner 2026-10-03): tiny-moe-qwen (Qwen3.6-35B-A3B) with structure-moe-qwen and formalizer-moe-qwen under the same role prompts; an on-demand local upstream (exclusiveGroup ondemand), no fallback; kept pending the owner's decision on the A/B (Nemotron and the small thinking models lost and were removed). Control (owner 2026-10-03): structure-good and formalizer-good, the good tier's model (deepseek-v4.1-flash, cloud) under the same role prompts with reasoning (effort medium, 32k budget), to separate a weak model from a limit of the method or the converters. Owner decision 2026-10-03 (MoE A/B, section 9 of experiments/proposal/structure-and-formalizer-models.md): tiny is Qwen3.6-35B-A3B on the always-on upstream local (fallback medium's deepseek-v4-flash); supertiny is the former tiny Qwen3-4B on the on-demand upstream localsuper (fallback tiny, then medium's model); equivalence names supertiny; structure-tiny and formalizer-tiny (and thus structure and formalizer) run on the MoE, structure-supertiny and formalizer-supertiny keep the 4B variants; the *-moe-qwen names are aliases of the tiny variants. FOL repair (owner 2026-10-03): the prompted formalizer tiers use fol-v2 (the constructs the converter of lib/formalize/fol now reads: disjunctive and IFF conclusions, universal conditions, value rules, comparisons as conditions, unknowns with Integer/Maximize/Minimize, pow); fol-v1 stays for replaying earlier runs. Owner 2026-10-03: use the openference plan more: medium = openference DeepSeek-V4-Flash-0731 (plan, 0.75 credit/call), OpenRouter as fallback. openference DeepSeek-V4.1-Flash and Kimi K2.6 are billed from a credit balance, not the plan; good stays on OpenRouter deepseek-v4.1-flash. Owner 2026-10-03: openference everywhere, OpenRouter only as fallback: good = openference GLM-5.3 (plan, 2 credits/call), fallback OpenRouter deepseek-v4.1-flash. Metacognition (owner 2026-10-03): formalizer names formalizer-tiny-v3, the tiny model under fol-v3 (fol-v2 plus options as SUPPOSE, ASSUME, and the questions Effect, Explain, Missing, Why, Change, Assumed that the converter lowers to candidate wires and mode effect/abduce/why_not/explain); formalizer-tiny keeps fol-v2 for replays. A/B in wire-type-proposals.md P-1. Owner 2026-10-03 (TinyAgent): nano = local Qwen3-0.6B; micro = the former supertiny Qwen3-4B (supertiny stays an alias during the migration); best is served by tiny until a pro model is configured. Owner 2026-10-03 (fol-v3 agent's finding): GLM-5.3 ignored max_tokens and reasoned for up to 20 minutes per call; owner decision 2026-10-03 evening: good = openference DeepSeek-V4-Flash-0731 (plan, 0.75 credit/call), fallback OpenRouter deepseek-v4.1-flash; structure-good and formalizer-good follow. The good entries keep a duration cap (timeoutMs 290000): a runaway call is cut, reported as upstream_timeout, never cached, and falls back down the chain.",
+    "_note": "owner 2026-10-02: clients and jobs name a tier, never a concrete model. A tier is a chain of {upstream, model}; the first usable entry serves, the rest is its fallback. best is unconfigured (pro models via OpenRouter later): a request for it is an error. equivalence (owner 2026-10-03): a very small, fast model that only decides whether two short answers are equivalent (A implies B and B implies A); today the local Qwen3-4B, no fallback; used only after deterministic normalization fails. structure and formalizer (owner 2026-10-03): the PSM (GLiNER2.5 base, POST /v1/structure) and the LFM (T5-base NL-to-FOL, POST /v1/fol) on the local small-model service; JSON endpoints, not chat; no fallback. Owner 2026-10-03: the backends of structure and formalizer are swappable: structure and formalizer name one of the variant tiers below; a variant with `prompt` is a chat model with a role prompt (prompts/<name>.md, TinyAgent/lib/prompted.mjs) under the same JSON contract: structure-gliner (GLiNER2.5), structure-tiny (Qwen3-4B + psm-v1), formalizer-t5 (T5-base), formalizer-t5-3b (T5-3B), formalizer-tiny (Qwen3-4B + fol-v1), formalizer-llama-fol (Llama-3.2-1B NL2FOL + fol-plain-v1). MoE A/B (owner 2026-10-03): tiny-moe-qwen (Qwen3.6-35B-A3B) with structure-moe-qwen and formalizer-moe-qwen under the same role prompts; an on-demand local upstream (exclusiveGroup ondemand), no fallback; kept pending the owner's decision on the A/B (Nemotron and the small thinking models lost and were removed). Control (owner 2026-10-03): structure-good and formalizer-good, the good tier's model (deepseek-v4.1-flash, cloud) under the same role prompts with reasoning (effort medium, 32k budget), to separate a weak model from a limit of the method or the converters. Owner decision 2026-10-03 (MoE A/B, section 9 of experiments/proposal/structure-and-formalizer-models.md): tiny is Qwen3.6-35B-A3B on the always-on upstream local (fallback medium's deepseek-v4-flash); supertiny is the former tiny Qwen3-4B on the on-demand upstream localsuper (fallback tiny, then medium's model); equivalence names supertiny; structure-tiny and formalizer-tiny (and thus structure and formalizer) run on the MoE, structure-supertiny and formalizer-supertiny keep the 4B variants; the *-moe-qwen names are aliases of the tiny variants. FOL repair (owner 2026-10-03): the prompted formalizer tiers use fol-v2 (the constructs the converter of lib/formalize/fol now reads: disjunctive and IFF conclusions, universal conditions, value rules, comparisons as conditions, unknowns with Integer/Maximize/Minimize, pow); fol-v1 stays for replaying earlier runs. Owner 2026-10-03: use the openference plan more: medium = openference DeepSeek-V4-Flash-0731 (plan, 0.75 credit/call), OpenRouter as fallback. openference DeepSeek-V4.1-Flash and Kimi K2.6 are billed from a credit balance, not the plan; good stays on OpenRouter deepseek-v4.1-flash. Owner 2026-10-03: openference everywhere, OpenRouter only as fallback: good = openference GLM-5.3 (plan, 2 credits/call), fallback OpenRouter deepseek-v4.1-flash. Metacognition (owner 2026-10-03): formalizer names formalizer-tiny-v3, the tiny model under fol-v3 (fol-v2 plus options as SUPPOSE, ASSUME, and the questions Effect, Explain, Missing, Why, Change, Assumed that the converter lowers to candidate wires and mode effect/abduce/why_not/explain); formalizer-tiny keeps fol-v2 for replays. A/B in wire-type-proposals.md P-1. Owner 2026-10-03 (TinyAgent): nano = local Qwen3-0.6B; micro = the former supertiny Qwen3-4B (supertiny stays an alias during the migration); best is served by tiny until a pro model is configured. Owner 2026-10-03 (fol-v3 agent's finding): GLM-5.3 ignored max_tokens and reasoned for up to 20 minutes per call; owner decision 2026-10-03 evening: good = openference DeepSeek-V4-Flash-0731 (plan, 0.75 credit/call), fallback OpenRouter deepseek-v4.1-flash; structure-good and formalizer-good follow. The good entries keep a duration cap (timeoutMs 290000): a runaway call is cut, reported as upstream_timeout, never cached, and falls back down the chain. Fix 2026-10-03 (phase 2): the OpenRouter DeepSeek entries reason by default and spent a short question's budget (max_tokens 8) thinking, so the fallbacks of tiny, small, medium and good answered cut and empty (budget_exhausted at 8 tokens); a chain entry's extraBody now fills the request fields the caller did not set, and these entries carry reasoning off (a caller that asks for reasoning still gets it).",
     "nano": [
       {
         "upstream": "localnano",
@@ -116,7 +116,12 @@
       },
       {
         "upstream": "openrouter",
-        "model": "deepseek/deepseek-v4-flash"
+        "model": "deepseek/deepseek-v4-flash",
+        "extraBody": {
+          "reasoning": {
+            "enabled": false
+          }
+        }
       }
     ],
     "supertiny": "micro",
@@ -131,7 +136,12 @@
       },
       {
         "upstream": "openrouter",
-        "model": "deepseek/deepseek-v4-flash"
+        "model": "deepseek/deepseek-v4-flash",
+        "extraBody": {
+          "reasoning": {
+            "enabled": false
+          }
+        }
       }
     ],
     "small": [
@@ -145,7 +155,12 @@
       },
       {
         "upstream": "openrouter",
-        "model": "deepseek/deepseek-v4-flash"
+        "model": "deepseek/deepseek-v4-flash",
+        "extraBody": {
+          "reasoning": {
+            "enabled": false
+          }
+        }
       }
     ],
     "medium": [
@@ -155,7 +170,12 @@
       },
       {
         "upstream": "openrouter",
-        "model": "deepseek/deepseek-v4-flash"
+        "model": "deepseek/deepseek-v4-flash",
+        "extraBody": {
+          "reasoning": {
+            "enabled": false
+          }
+        }
       }
     ],
     "good": [
@@ -166,7 +186,12 @@
       },
       {
         "upstream": "openrouter",
-        "model": "deepseek/deepseek-v4.1-flash"
+        "model": "deepseek/deepseek-v4.1-flash",
+        "extraBody": {
+          "reasoning": {
+            "enabled": false
+          }
+        }
       }
     ],
     "equivalence": "micro",
@@ -378,9 +403,9 @@
       "keepDays": 7
     }
   },
-  "skills": {
-    "_note": "ChatSOP's SkillPlugins (jobs/skills/) and its job folders as skills; the task templates of jobs/templates/ are skills too.",
-    "plugins": [
+  "lambdas": {
+    "_note": "ChatSOP's TaskLambdas (jobs/skills/: chatsop.mjs formalize, chat-batch; regression.mjs regression-record, regression-reference, regression-grow, regression-argument, the offline formalization regression of 2026-10-03, cloud tiers at background priority) and its job folders as skills; the task templates of jobs/templates/ are skills too.",
+    "project": [
       "jobs/skills"
     ],
     "jobs": {

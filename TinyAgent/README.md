@@ -54,8 +54,11 @@ endpoints), `limits` (`maxConcurrent`, `maxPerSecond`, `maxPerMinute`, `maxPerHo
 `maxWaitMs`), an optional `plan` (subscription windows, below), an optional `timeoutMs` (duration cap of one call) and, for a local
 model, `start`. Adding a provider is a configuration change only.
 
-Clients name a **tier**, never a model. A tier is a chain of `{upstream, model, prompt?, timeoutMs?, maxTokens?, extraBody?}` or the
-name of another tier (an alias); the first entry whose provider has a key (or needs none) serves, the rest is its fallback.
+Clients name a **tier**, never a model. A tier is a chain of `{upstream, model, prompt?, timeoutMs?, maxTokens?, minTokens?, extraBody?}`
+or the name of another tier (an alias); the first entry whose provider has a key (or needs none) serves, the rest is its fallback. An
+entry's `extraBody` fills the request fields the caller did not set (the model's own switches: a reasoning model that falls back for a
+non-reasoning one gets `reasoning: {enabled: false}`, so a short question's budget is not spent thinking), and `minTokens` raises a
+smaller `max_tokens`.
 
 | Tier | Built-in default |
 |---|---|
@@ -112,7 +115,10 @@ idle, and refuses a start while a GPU lock exists (the request falls back down i
   (a miss is refused with 409 `cache_miss` and no model is called: regressions), `record` (always call and refresh), `off`. The key is
   the whole request body (stream fields excluded) plus the target and the identity of the model behind it (a local GGUF's size and
   mtime; a role prompt's hash), so a changed prompt, setting or model is a new key. Only complete non-streamed 200 answers of the tier's
-  first model are stored: a cut answer (`finish_reason` length) or an empty one never is.
+  first model are stored (`answerComplete` of `lib/cache.mjs`): never a cut answer (`finish_reason` length or `max_tokens`), an empty or
+  thinking-only one, or one without output-token usage (an answer that ended early upstream); an entry stored under older rules is
+  re-checked on every read and never replayed when it fails. The mode is set per client (`createTinyAgent({cache: 'off'})`) or per call
+  (`ta.chat({..., cache: 'record'})`); an unknown mode throws.
 - **Audit** (`audit`): request/response pairs of the configured tiers and providers, one JSONL file per day, bounded, kept 14 days.
 - **Purposes and budgets** (`policy`): every request carries a purpose (`x-tinyagent-purpose`, required by the library); purposes outside
   `allowedPurposes` share a small daily allowance (`untaggedDailyMax`) and are refused beyond it (403 `untagged_limit`). A run registered

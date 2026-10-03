@@ -4,5 +4,6 @@ import '../../TinyAgent/test/proxy.test.mjs';
 import '../../TinyAgent/test/server.test.mjs';
 import '../../TinyAgent/test/sandbox.test.mjs';
 import '../../TinyAgent/test/priority.test.mjs';
+import '../../TinyAgent/test/cache-cut.test.mjs';
 import '../../TinyAgent/test/jobs-runner.test.mjs';
 import '../../TinyAgent/test/jobs-task.test.mjs';

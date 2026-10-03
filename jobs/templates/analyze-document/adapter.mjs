@@ -19,7 +19,7 @@ import {ensureAnalysisMemory, ANALYSIS_LIBRARY} from '../../../lib/analysis/memo
 
 const slug = name => String(name).toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'document';
 
-export async function run({params, attachments, target, taskDir, endpoint, fetchImpl, log = () => {}, context = {}}) {
+export async function run({params, attachments, target, taskDir, ta, log = () => {}, context = {}}) {
   const [{ingestV2}, {tierChat}] = await Promise.all([import('../../../lib/ingest/v2/index.mjs'), import('../../../lib/ingest/v2/client.mjs')]);
   const dir = taskDir ?? fs.mkdtempSync('analyze-document-');
   const chatData = context.chatData ?? new ChatData(chatDataSettings({}));
@@ -35,7 +35,7 @@ export async function run({params, attachments, target, taskDir, endpoint, fetch
   const documents = attachments.map(a => ({name: a.name, text: fs.readFileSync(a.path, 'utf8'), source: {rights: params.rights}}));
   const record = await ingestV2({documents, target: goal, memories, sessions: goal.kind === 'session' ? sessions : null, dir: path.join(dir, 'ingest-v2'), purpose: params.purpose ?? '', user: 'llm-jobs',
     tiers: {structure: params.tier ?? 'small', fol: params.fol_tier ?? 'medium', repair: params.fol_tier ?? 'medium', merge: params.merge_tier ?? 'medium'},
-    maxChunkBytes: params.max_chunk_bytes ?? 3000, chat: tierChat({endpoint, fetchImpl, purpose: null}), onProgress: p => log(`ingest-v2 ${p.phase} ${p.document ?? ''}`)});
+    maxChunkBytes: params.max_chunk_bytes ?? 3000, chat: tierChat({ta}), onProgress: p => log(`ingest-v2 ${p.phase} ${p.document ?? ''}`)});
   const source = goal.kind === 'session' ? {sessions, id: goal.id} : {memories, id: goal.id};
   const lines = [`# analyze-document into ${goal.kind}:${goal.id}: ingestion ${record.status}`];
   const results = [];

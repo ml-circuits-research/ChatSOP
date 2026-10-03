@@ -68,6 +68,9 @@ export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = n
   const auth = token ?? env.TINYAGENT_TOKEN ?? null;
   let starting = null;
 
+  // A cache mode is checked when the client is made and when a call names one: a wrong mode is a programming error, thrown at once.
+  const checkCache = (c) => { if (c != null && !CACHE_MODES.includes(c)) throw new TypeError(`cache mode must be one of ${CACHE_MODES.join(', ')}`); };
+  checkCache(cache);
   const tags = (o = {}) => {
     const h = { 'content-type': 'application/json', [H.purpose]: o.purpose ?? purpose };
     const r = o.run === undefined ? run : o.run;
@@ -101,6 +104,11 @@ export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = n
     const init = () => ({ method, headers: { ...tags(tagsOf), ...headers }, body: body === undefined ? undefined : typeof body === 'string' ? body : JSON.stringify(body), signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(timeoutMs)]) : AbortSignal.timeout(timeoutMs) });
     try { return await transport(`${base}${path}`, init()); }
     catch (e) {
+      // A kept-alive socket the server closed while it was idle fails at once with a reset: the request never reached the server, so
+      // it is sent again once on a fresh socket (before 2026-10-03 such a call failed as "unavailable" when autostart was off).
+      if (/ECONNRESET|EPIPE|socket hang up/i.test(`${e?.cause?.code ?? ''} ${e?.cause?.message ?? ''} ${e?.message ?? ''}`) && e?.name !== 'TimeoutError' && e?.name !== 'AbortError') {
+        try { await sleep(100); return await transport(`${base}${path}`, init()); } catch (again) { e = again; }
+      }
       const refused = /ECONNREFUSED|fetch failed|ECONNRESET|socket/i.test(`${e?.cause?.code ?? ''} ${e?.message ?? ''}`) && e?.name !== 'TimeoutError' && e?.name !== 'AbortError';
       if (!refused) throw e;
       if (!auto) throw new TinyAgentUnavailable(base, e?.cause?.code ?? e.message);
@@ -121,6 +129,7 @@ export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = n
    * cached, credits, usd, ms, body, reason}; never throws on a model failure.
    */
   async function chat(o = {}) {
+    checkCache(o.cache);
     const messages = o.messages ?? [...(o.system ? [{ role: 'system', content: o.system }] : []), { role: 'user', content: String(o.prompt ?? '') }];
     const model = o.tier ?? o.model;
     if (!model) throw new TypeError('chat: a tier (or upstream + model) is required');
@@ -232,6 +241,8 @@ export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = n
     model: (name, action) => postJson(`/v1/local/${encodeURIComponent(name)}/${action}`, {}),
     registerRun: (b) => postJson('/jobs/register', b),
     finishRun: (b) => postJson('/jobs/finish', b),
+    /** Registered runs with their budgets and spend ({runs: [{run, job, status, budget, spent: {calls, usd, credits}}], by_job}). */
+    jobs: () => getJson('/jobs'),
     /** The server's TaskLambdas: {lambdas: [{name, description, params, effects, origin, source, hash}], problems}. */
     lambdas: () => getJson('/v1/lambdas'),
     /** The call folders of the server's calls root: search ({lambda, status, date, since, parent, root, text, top, limit}), one call, its tree. */

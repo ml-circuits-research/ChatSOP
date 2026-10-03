@@ -1,6 +1,6 @@
 /**
  * Adapter of the bulk-review template: wraps lib/llm-review (review -> second opinion -> repair -> validator -> re-review) with the
- * endpoint's auditor tier; escalations.jsonl lands in the task folder.
+ * auditor tier, through the task's TinyAgent client; escalations.jsonl lands in the task folder.
  */
 import fs from 'node:fs';
 import path from 'node:path';

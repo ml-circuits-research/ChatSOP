@@ -2,8 +2,8 @@
  * Adapter of the ingest-document template: wraps the product's document ingestion without rewriting it.
  *   v1  lib/ingest Ingestions.draft (one authoring conversation per chunk; base memory only)
  *   v2  lib/ingest/v2 ingestV2 (structure pass, canonical vocabulary, FOL per sentence, converter, checks; base memory or session)
- * The models are the template's tier names on the endpoint (LLMAPIProvider tiers); every call carries the task's purpose and run id
- * through the tagged fetch the runner passes. v2 writes its run files (summary.md, escalations.jsonl, ingestion.json, ...) into
+ * The models are the template's TinyAgent tier names; every call goes through the task's TinyAgent client `ta` (tagged with the task's
+ * purpose and run id, so the task's budget applies). v2 writes its run files (summary.md, escalations.jsonl, ingestion.json, ...) into
  * `<taskDir>/ingest-v2/`.
  */
 import fs from 'node:fs';
@@ -15,7 +15,7 @@ import {ChatData, chatDataSettings} from '../../../lib/chat-data/index.mjs';
 import {BaseMemories} from '../../../lib/chat-data/memories.mjs';
 import {Sessions} from '../../../lib/chat-data/sessions.mjs';
 
-export async function run({params, attachments, target, taskDir, endpoint, fetchImpl, log = () => {}, context = {}}) {
+export async function run({params, attachments, target, taskDir, ta, log = () => {}, context = {}}) {
   const version = params.version ?? 'v1';
   if (!['memory', 'session'].includes(target?.kind) || !target.id) throw new Error('ingest-document writes into a base memory or a session: give a memory or session target');
   if (target.kind === 'session' && version !== 'v2') throw new Error('ingest-document v1 writes only into a base memory; use version v2 for a session');
@@ -27,11 +27,11 @@ export async function run({params, attachments, target, taskDir, endpoint, fetch
     const dir = path.join(taskDir ?? fs.mkdtempSync('ingest-v2-'), 'ingest-v2');
     const record = await ingestV2({documents, target, memories, sessions, dir, purpose: params.purpose ?? '', user: 'llm-jobs',
       tiers: {structure: params.tier ?? 'small', fol: params.fol_tier ?? 'medium', repair: params.fol_tier ?? 'medium', merge: params.merge_tier ?? 'medium'},
-      maxChunkBytes: params.max_chunk_bytes ?? 3000, chat: tierChat({endpoint, fetchImpl, purpose: null}), onProgress: p => log(`ingest-v2 ${p.phase} ${p.document ?? ''}`)});
+      maxChunkBytes: params.max_chunk_bytes ?? 3000, chat: tierChat({ta}), onProgress: p => log(`ingest-v2 ${p.phase} ${p.document ?? ''}`)});
     return {status: record.status === 'failed' ? 'failed' : 'finished', version, dir: path.relative(taskDir ?? '.', dir), usage: record.usage, summary: record.summary};
   }
   if (target.kind !== 'memory') throw new Error('ingest-document v1 writes into a base memory');
-  const chat = openaiChat({endpoint: `${String(endpoint).replace(/\/+$/, '')}/v1`, fetchImpl, purpose: null});
+  const chat = openaiChat({ta});
   const record = await new Ingestions({memories}).draft(target.id, {documents, model: params.tier, purpose: params.purpose ?? '', maxChunkBytes: params.max_chunk_bytes ?? 7000, user: 'llm-jobs', author: 'direct', chat,
     onProgress: p => log(`ingest ${p.phase ?? ''} ${p.chunk ?? ''}`)});
   const t = record.totals ?? {};

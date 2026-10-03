@@ -261,7 +261,8 @@
       },
       {
         "upstream": "openrouter",
-        "model": "deepseek/deepseek-v4-flash"
+        "model": "deepseek/deepseek-v4-flash",
+        "extraBody": {"reasoning": {"enabled": false}}
       }
     ],
     "small": [
@@ -275,7 +276,8 @@
       },
       {
         "upstream": "openrouter",
-        "model": "deepseek/deepseek-v4-flash"
+        "model": "deepseek/deepseek-v4-flash",
+        "extraBody": {"reasoning": {"enabled": false}}
       },
       {
         "upstream": "local",
@@ -289,7 +291,8 @@
       },
       {
         "upstream": "openrouter",
-        "model": "deepseek/deepseek-v4-flash"
+        "model": "deepseek/deepseek-v4-flash",
+        "extraBody": {"reasoning": {"enabled": false}}
       },
       {
         "upstream": "local",
@@ -304,7 +307,8 @@
       },
       {
         "upstream": "openrouter",
-        "model": "deepseek/deepseek-v4.1-flash"
+        "model": "deepseek/deepseek-v4.1-flash",
+        "extraBody": {"reasoning": {"enabled": false}}
       },
       {
         "upstream": "local",
