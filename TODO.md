@@ -8,6 +8,8 @@ Direction: [AGENTS.md](AGENTS.md). Delivered work with observed evidence: [PAS_T
 
 ## 0. Focus now (owner, 2026-10-02): solve the problems of the owner's books
 
+The ordered work packages with reasons, paths and acceptance criteria for the next agents are in `experiments/proposal/roadmap-2026-10-03.md` (WP1–WP11).
+
 Measure: book problems solved end to end (`datasets_sources/books/eval/`, 100 random at a time), correct vs wrong vs honest unknown.
 
 **Operating loop (owner, 2026-10-02):** alternate two improvement cycles on the books. (1) Formalization: the improver fixes the formalization errors of the inbox (protocol and learned rules in base memory, tier `tiny`). (2) Reasoning: on a fresh sample, the failures that are no longer formalization go to their layer: missing knowledge (base-memory facts and rules, knowledge mining), reasoning bugs (engines, oracle), missing constructs (proposals under the wire-type procedure). New knowledge and constructs put pressure back on formalization, which starts the next formalization cycle. The reasoning cycle is measured with good circuits (tier `good` writes and checks the circuit of each problem, cached), so its failures are reasoning, knowledge, construct or scoring and not formalization; the end-to-end number with the `tiny` formalizer is taken only at the end of a full cycle. Heavy runs are serialized: one process loading world-v1 per agent, the formalization improver first. Every failure is classified by layer before work starts, every cycle is measured on a fresh 100-problem sample against the bare `tiny` model, and the capability ledger forbids losses.
