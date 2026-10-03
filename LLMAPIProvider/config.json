@@ -113,10 +113,10 @@
         "openai": "/v1/chat/completions"
       },
       "limits": {
-        "maxConcurrent": 32,
-        "maxPerSecond": 200,
-        "maxPerMinute": 6000,
-        "maxPerHour": 200000
+        "maxConcurrent": 4,
+        "maxPerSecond": 50,
+        "maxPerMinute": 3000,
+        "maxPerHour": 100000
       },
       "retry": {
         "max": 0,
@@ -126,32 +126,30 @@
       },
       "start": {
         "bin": "~/llama-cpp-venv/llama.cpp/build/bin/llama-server",
-        "gguf": "models/qwen3-4b-instruct/gguf/q4_k_m.gguf",
-        "alias": "Qwen3-4B",
+        "gguf": "models/qwen3.6-35b-a3b/gguf/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf",
+        "alias": "Qwen3.6-35B-A3B",
         "args": [
           "-ngl",
           "99",
           "-fa",
           "on",
           "--parallel",
-          "32",
+          "4",
           "-c",
-          "131072",
+          "65536",
           "--jinja",
-          "--no-webui",
-          "--cache-reuse",
-          "256"
+          "--no-webui"
         ],
         "requireFreeGpu": false,
         "locks": [
           "models/.training.lock",
           "models/.parse-gpu.lock"
         ],
-        "startTimeoutMs": 120000,
+        "startTimeoutMs": 300000,
         "idleStopMs": 0,
         "startAtBoot": true
       },
-      "_note": "local Qwen3-4B, always on (owner 2026-10-02: enough memory, fast enough): started when the proxy starts and restarted on demand; GPU reservation lock files still block a start. Route /u/local/... or tier tiny. Owner 2026-10-03: throughput over latency: 32 parallel slots (measured ~24 short requests/s aggregate vs ~13 at 4 slots)."
+      "_note": "tiny (owner decision 2026-10-03, MoE A/B of experiments/proposal/structure-and-formalizer-models.md section 9): Qwen3.6-35B-A3B UD-Q4_K_M (MoE, ~3B active), always on: started with the proxy (startAtBoot) and restarted on demand; GPU reservation lock files still block a start. 4 slots of 16k tokens (measured: ~66 tok/s for one request, 118 tok/s aggregate at 4 slots, 22.8 GB GPU memory; 8 slots drop below 20 tok/s per request). Route /u/local/... or tier tiny."
     },
     "smallmodels": {
       "baseUrl": "http://127.0.0.1:19612",
@@ -192,6 +190,54 @@
         "startAtBoot": true
       },
       "_note": "owner 2026-10-03: the small non-chat models of the formalization architecture, a managed local service like the llama-server of tiny: started with the proxy (startAtBoot) and restarted on demand; clients see only the tiers structure and formalizer. local-services/small-models/ (onnxruntime-node, CPU only: no CUDA provider on linux-arm64; 4 intra-op threads per model): GLiNER2.5 base (PSM, POST /v1/structure) and T5-base NL-to-FOL (LFM, POST /v1/fol). JSON endpoints, not chat."
+    },
+    "localsuper": {
+      "baseUrl": "http://127.0.0.1:19613",
+      "noKey": true,
+      "modelsPath": "/v1/models",
+      "formats": {
+        "openai": "/v1/chat/completions"
+      },
+      "limits": {
+        "maxConcurrent": 32,
+        "maxPerSecond": 200,
+        "maxPerMinute": 6000,
+        "maxPerHour": 200000
+      },
+      "retry": {
+        "max": 0,
+        "max5xx": 0,
+        "baseMs": 500,
+        "maxWaitMs": 5000
+      },
+      "start": {
+        "bin": "~/llama-cpp-venv/llama.cpp/build/bin/llama-server",
+        "gguf": "models/qwen3-4b-instruct/gguf/q4_k_m.gguf",
+        "alias": "Qwen3-4B",
+        "args": [
+          "-ngl",
+          "99",
+          "-fa",
+          "on",
+          "--parallel",
+          "32",
+          "-c",
+          "131072",
+          "--jinja",
+          "--no-webui",
+          "--cache-reuse",
+          "256"
+        ],
+        "requireFreeGpu": false,
+        "locks": [
+          "models/.training.lock",
+          "models/.parse-gpu.lock"
+        ],
+        "startTimeoutMs": 120000,
+        "idleStopMs": 900000,
+        "startAtBoot": false
+      },
+      "_note": "supertiny (owner decision 2026-10-03): the former tiny, Qwen3-4B-Instruct-2507 Q4_K_M, for very simple high-volume tasks (equivalence, short yes/no, small talk); started on demand at its first request and stopped after 15 idle minutes; 32 parallel slots (~3.6 short requests/s aggregate). Route /u/localsuper/... or tier supertiny."
     }
   },
   "fallback": {
@@ -223,12 +269,26 @@
     }
   },
   "tiers": {
-    "_note": "owner 2026-10-02: clients and jobs name a tier, never a concrete model. A tier is a chain of {upstream, model}; the first usable entry serves, the rest is its fallback. best is unconfigured (pro models via OpenRouter later): a request for it is an error. equivalence (owner 2026-10-03): a very small, fast model that only decides whether two short answers are equivalent (A implies B and B implies A); today the local Qwen3-4B, no fallback; used only after deterministic normalization fails. structure and formalizer (owner 2026-10-03): the PSM (GLiNER2.5 base, POST /v1/structure) and the LFM (T5-base NL-to-FOL, POST /v1/fol) on the local small-model service; JSON endpoints, not chat; no fallback. Owner 2026-10-03: the backends of structure and formalizer are swappable: structure and formalizer name one of the variant tiers below; a variant with `prompt` is a chat model with a role prompt (prompts/<name>.md, LLMAPIProvider/prompted.mjs) under the same JSON contract: structure-gliner (GLiNER2.5), structure-tiny (Qwen3-4B + psm-v1), formalizer-t5 (T5-base), formalizer-t5-3b (T5-3B), formalizer-tiny (Qwen3-4B + fol-v1), formalizer-llama-fol (Llama-3.2-1B NL2FOL + fol-plain-v1).",
+    "_note": "owner 2026-10-02: clients and jobs name a tier, never a concrete model. A tier is a chain of {upstream, model}; the first usable entry serves, the rest is its fallback. best is unconfigured (pro models via OpenRouter later): a request for it is an error. equivalence (owner 2026-10-03): a very small, fast model that only decides whether two short answers are equivalent (A implies B and B implies A); today the local Qwen3-4B, no fallback; used only after deterministic normalization fails. structure and formalizer (owner 2026-10-03): the PSM (GLiNER2.5 base, POST /v1/structure) and the LFM (T5-base NL-to-FOL, POST /v1/fol) on the local small-model service; JSON endpoints, not chat; no fallback. Owner 2026-10-03: the backends of structure and formalizer are swappable: structure and formalizer name one of the variant tiers below; a variant with `prompt` is a chat model with a role prompt (prompts/<name>.md, LLMAPIProvider/prompted.mjs) under the same JSON contract: structure-gliner (GLiNER2.5), structure-tiny (Qwen3-4B + psm-v1), formalizer-t5 (T5-base), formalizer-t5-3b (T5-3B), formalizer-tiny (Qwen3-4B + fol-v1), formalizer-llama-fol (Llama-3.2-1B NL2FOL + fol-plain-v1). MoE A/B (owner 2026-10-03): tiny-moe-qwen (Qwen3.6-35B-A3B) with structure-moe-qwen and formalizer-moe-qwen under the same role prompts; an on-demand local upstream (exclusiveGroup ondemand), no fallback; kept pending the owner's decision on the A/B (Nemotron and the small thinking models lost and were removed). Control (owner 2026-10-03): structure-good and formalizer-good, the good tier's model (deepseek-v4.1-flash, cloud) under the same role prompts with reasoning (effort medium, 32k budget), to separate a weak model from a limit of the method or the converters. Owner decision 2026-10-03 (MoE A/B, section 9 of experiments/proposal/structure-and-formalizer-models.md): tiny is Qwen3.6-35B-A3B on the always-on upstream local (fallback medium's deepseek-v4-flash); supertiny is the former tiny Qwen3-4B on the on-demand upstream localsuper (fallback tiny, then medium's model); equivalence names supertiny; structure-tiny and formalizer-tiny (and thus structure and formalizer) run on the MoE, structure-supertiny and formalizer-supertiny keep the 4B variants; the *-moe-qwen names are aliases of the tiny variants.",
     "maxWaitMs": 120000,
     "tiny": [
       {
         "upstream": "local",
+        "model": "Qwen3.6-35B-A3B"
+      },
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4-flash"
+      }
+    ],
+    "supertiny": [
+      {
+        "upstream": "localsuper",
         "model": "Qwen3-4B"
+      },
+      {
+        "upstream": "local",
+        "model": "Qwen3.6-35B-A3B"
       },
       {
         "upstream": "openrouter",
@@ -257,12 +317,7 @@
         "model": "deepseek/deepseek-v4.1-flash"
       }
     ],
-    "equivalence": [
-      {
-        "upstream": "local",
-        "model": "Qwen3-4B"
-      }
-    ],
+    "equivalence": "supertiny",
     "structure": "structure-tiny",
     "formalizer": "formalizer-tiny",
     "structure-gliner": [
@@ -280,7 +335,7 @@
     "structure-tiny": [
       {
         "upstream": "local",
-        "model": "Qwen3-4B",
+        "model": "Qwen3.6-35B-A3B",
         "prompt": "psm-v1",
         "extraBody": {
           "chat_template_kwargs": {
@@ -292,6 +347,61 @@
     "formalizer-tiny": [
       {
         "upstream": "local",
+        "model": "Qwen3.6-35B-A3B",
+        "prompt": "fol-v1",
+        "extraBody": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      }
+    ],
+    "tiny-moe-qwen": "tiny",
+    "structure-moe-qwen": "structure-tiny",
+    "formalizer-moe-qwen": "formalizer-tiny",
+    "structure-good": [
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "prompt": "psm-v1",
+        "maxTokens": 32000,
+        "maxTokensCap": 32000,
+        "extraBody": {
+          "reasoning": {
+            "effort": "medium"
+          }
+        }
+      }
+    ],
+    "formalizer-good": [
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "prompt": "fol-v1",
+        "maxTokens": 32000,
+        "maxTokensCap": 32000,
+        "extraBody": {
+          "reasoning": {
+            "effort": "medium"
+          }
+        }
+      }
+    ],
+    "structure-supertiny": [
+      {
+        "upstream": "localsuper",
+        "model": "Qwen3-4B",
+        "prompt": "psm-v1",
+        "extraBody": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      }
+    ],
+    "formalizer-supertiny": [
+      {
+        "upstream": "localsuper",
         "model": "Qwen3-4B",
         "prompt": "fol-v1",
         "extraBody": {

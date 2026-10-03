@@ -89,7 +89,7 @@
     },
     "local": {
       "baseUrl": "http://127.0.0.1:18080/u/local/v1",
-      "model": "Qwen3-4B",
+      "model": "Qwen3.6-35B-A3B",
       "timeoutSeconds": 120,
       "maxTokens": 1500,
       "thinking": false,

@@ -2,7 +2,7 @@
  * Answer formulation in the user's language (DS009 "Answer language"). The request parser reads any language and writes English
  * circuits; the runtime reasons in English and `sop/answer-text.mjs` renders the answer deterministically in English. This optional
  * final step phrases that answer in the language of the user's message with the default model through the proxy (the providers of
- * `answerLanguage.providers`, by default the proxy tier `tiny` (the local Qwen3-4B, a short rewriting task) then `small`; never omp), strictly from the result: the English answer and a compact copy of the result
+ * `answerLanguage.providers`, by default the proxy tier `tiny` (the local Qwen3.6-35B-A3B, a short rewriting task) then `small`; never omp), strictly from the result: the English answer and a compact copy of the result
  * packet (status, answers, count, the facts used and their sources). The model adds no fact; every number and every source id of the
  * English answer must appear in its text, otherwise the English answer is returned. The English rendering is always kept in the trace.
  *

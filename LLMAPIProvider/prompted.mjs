@@ -123,7 +123,22 @@ export const firstLine = (reply) => String(reply ?? '').replace(/<think>[\s\S]*?
 export async function serveprompted({ path, body, entry, template, chat }) {
   const t0 = Date.now();
   const opt = template.options || {};
-  const call = async (messages, temperature) => chat(messages, { temperature, maxTokens: entry.maxTokens ?? opt.maxTokens ?? 2000 });
+  // A reply cut by its token budget (finish_reason "length", e.g. a thinking model) is never used silently: it is asked again with
+  // four times the budget, up to entry.maxTokensCap (default 32000); a reply still cut is used as is and counted in usage.cut.
+  const usage = { calls: 0, output_tokens: 0, reasoning_tokens: 0, reasoning_chars: 0, content_chars: 0, budget_retries: 0, cut: 0 };
+  const call = async (messages, temperature) => {
+    let maxTokens = entry.maxTokens ?? opt.maxTokens ?? 2000, r;
+    for (;;) {
+      r = await chat(messages, { temperature, maxTokens });
+      if (r.ok) {
+        usage.calls++; usage.output_tokens += r.usage?.output_tokens ?? 0; usage.reasoning_tokens += r.usage?.reasoning_tokens ?? 0; usage.reasoning_chars += r.usage?.reasoning_chars ?? 0; usage.content_chars += r.usage?.content_chars ?? 0;
+      }
+      if (!r.ok || r.finish !== 'length') return r;
+      const cap = entry.maxTokensCap ?? 32000;
+      if (maxTokens >= cap) { usage.cut++; return r; }
+      maxTokens = Math.min(cap, maxTokens * 4); usage.budget_retries++;
+    }
+  };
   const ask = async (vars, validate, temperature = opt.temperature ?? 0) => {
     const messages = [...(template.system ? [{ role: 'system', content: fill(template.system, vars) }] : []), { role: 'user', content: fill(template.user, vars) }];
     let r = await call(messages, temperature);
@@ -139,7 +154,7 @@ export async function serveprompted({ path, body, entry, template, chat }) {
   if (path === '/v1/structure') {
     const a = await ask(structureVars(body), (text) => validateStructure(text, body));
     if (a.error) return { status: a.error.status || 502, body: { error: { type: 'backend_error', message: a.error.error || 'chat model failed' } } };
-    return { status: 200, body: { object: 'structure', model: `${entry.model}+${template.name}`, entities: a.v.entities, relations: a.v.relations, structures: {}, dropped: a.v.dropped, unresolved: a.v.problems.length, reasks: a.rounds, ms: Date.now() - t0 } };
+    return { status: 200, body: { object: 'structure', model: `${entry.model}+${template.name}`, entities: a.v.entities, relations: a.v.relations, structures: {}, dropped: a.v.dropped, unresolved: a.v.problems.length, reasks: a.rounds, usage, ms: Date.now() - t0 } };
   }
   if (path === '/v1/fol') {
     const n = Math.max(1, Math.min(body.candidates ?? 1, 8));
@@ -161,7 +176,7 @@ export async function serveprompted({ path, body, entry, template, chat }) {
       dropped += a.v.dropped; unresolved += a.v.problems.length; reasks += a.rounds;
       a.v.perInput.forEach((lines, i) => { const c = lines.join('\n'); if (c && !results[i].candidates.includes(c)) results[i].candidates.push(c); });
     }
-    return { status: 200, body: { object: 'fol', model: `${entry.model}+${template.name}`, results, dropped, unresolved, reasks, ms: Date.now() - t0 } };
+    return { status: 200, body: { object: 'fol', model: `${entry.model}+${template.name}`, results, dropped, unresolved, reasks, usage, ms: Date.now() - t0 } };
   }
   return { status: 400, body: { error: { type: 'invalid_request', message: `a prompted tier serves /v1/structure or /v1/fol, not ${path}` } } };
 }

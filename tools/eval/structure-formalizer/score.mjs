@@ -85,14 +85,19 @@ export async function lfmArm(units, results, {registry, names, gold, item, run})
   let verdict = 'no_answer';
   if (got.length) {
     // An existence question (∃x φ) answers yes/no by whether a thing exists, and which by the things.
-    const sys = got[0].kind === 'which' && gold.kind === 'yes_no' ? got[0].value.length > 0 : got[0].value;
+    // A question that asks several values is answered by several queries: a numeric gold is compared with all answered numbers
+    // (unordered; a yes/no check written next to them is not an asked value); otherwise the first answered query decides.
+    const nums = got.flatMap(a => [].concat(a.value)).filter(v => typeof v === 'number');
+    const sys = gold.kind === 'number' && nums.length > 1 ? nums : gold.kind === 'number' && nums.length === 1 ? nums[0]
+      : got[0].kind === 'which' && gold.kind === 'yes_no' ? got[0].value.length > 0 : got[0].value;
     const g = gold.kind === 'yes_no' ? gold.values[0] : gold.kind === 'number' ? gold.values.join(', ') : gold.values.join(', ');
     const d = await decide(Array.isArray(sys) ? sys.join(', ') : sys, g, {problem: item.question, ordered: false});
     verdict = d.verdict === 'equivalent' ? 'correct' : 'wrong';
   }
   return {units: unitStats, queriesInIr: ir.queries.length, facts: ir.facts.length, rules: ir.rules.length, values: ir.values.length, queries: ir.queries.length,
     rejected: [...ir.rejected, ...rejected].length, link: {linked: link.linked.length, unlinked: link.unlinked.length},
-    circuits: circuits.length, executed: answers.filter(a => a.status !== 'error').length, answered: got.length, answers, verdict};
+    circuits: circuits.length, executed: answers.filter(a => a.status !== 'error').length, answered: got.length, answers, verdict,
+    sop: circuits.map(c => c.sop), reasons: [...ir.rejected, ...rejected].map(x => x.why ?? String(x))};
 }
 
 export async function scorePhase({OUT, ROOT}) {

@@ -6129,6 +6129,37 @@
     "experiments/proposal/structure-and-formalizer-models.md",
     "state/structure-formalizer/ab-1/summary.md"
    ]
+  },
+  {
+   "id": "moe-thinking-ab-v1",
+   "name": "Larger local MoE (Qwen3.6-35B-A3B, Nemotron-3-Nano 30B-A3B), small thinking models (Qwen3-4B-Thinking-2507, Qwen3-1.7B) and the cloud good tier vs tiny in the structure and logic roles and on path B",
+   "category": "reference-baseline",
+   "owner": "moe-ab-agent",
+   "registered_at": "2026-10-03",
+   "hypothesis": "A larger fast local MoE beats tiny by at least +5 correct of 30 on the logic role or on path B at >= 20 tok/s (owner bar).",
+   "preregistration": "none: owner-requested A/B on the probe-1 items, the bar and the stopping set by the owner (thinking 4B stopped, 1.7B capped at 5 problems); scored by the book answer on the problem's own numbers",
+   "data_version": "datasets_sources/books/eval/items.jsonl (local), the 30 ids of state/structure-formalizer/probe-1",
+   "status": "done",
+   "models": [
+    "tiny (Qwen3-4B-Instruct-2507)",
+    "Qwen3.6-35B-A3B UD-Q4_K_M",
+    "Nemotron-3-Nano-Omni Q8_0",
+    "Qwen3-4B-Thinking-2507 Q4_K_M (stopped)",
+    "Qwen3-1.7B Q8_0 thinking (5 problems)",
+    "good (deepseek-v4.1-flash, reasoning medium)"
+   ],
+   "results": {
+    "logic": "correct/wrong: tiny 6/2, Qwen3.6 MoE 6/8, Nemotron 4/7, good 8/8, 1.7B-thinking 0/1 (5 problems), 4B-thinking no valid row (every call > 300 s)",
+    "path_b": "correct/wrong: tiny 5/13, Qwen3.6 MoE 9/7 (paired 4:0, p~0.06), Nemotron 7/13, good 16/8",
+    "structure": "goal found: tiny 23/30, Qwen3.6 MoE 28/30, good 27/30, Nemotron 18/30; quantity recall 82, 121, 120, 63 of 139",
+    "speed": "generation tok/s: tiny ~76, Qwen3.6 MoE ~66, Nemotron ~57, 4B-thinking ~74 (6.5-15k thinking tokens per call), 1.7B-thinking ~115 (47-56 s per problem)"
+   },
+   "conclusions": "Owner bar not met (best +4 on path B); tiny not switched. The Qwen3.6 MoE reaches the cloud model on the structure role; the cloud control is no better than tiny on the logic role, so the logic role is limited by the method and the converters (non-Horn FOL, constraint search, rule-derived quantities, FORALLx,y parsing). Thinking models are too slow for the role pattern.",
+   "links": [
+    "experiments/proposal/structure-and-formalizer-models.md",
+    "tools/eval/structure-formalizer/ab.mjs",
+    "tools/eval/structure-formalizer/compare.mjs"
+   ]
   }
  ]
 }

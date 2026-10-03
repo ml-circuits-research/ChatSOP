@@ -1,6 +1,6 @@
 # Structure model and formalizer model (PSM, LFM): facts, setup, zero-shot probe, fine-tune plan
 
-Status (2026-10-03): models set up and probed; training deferred and NOT approved (Q-TRAIN-1); D1 teacher data stopped after its pilot; the perturbation check dropped (§8). §6 is kept as the plan should training be reconsidered. The A/B of §8 shows the role-prompted `tiny` ahead of every off-the-shelf small model. Probe numbers come from `state/structure-formalizer/` (regenerable, gitignored). The book text stays local (`datasets_sources/`, DS011); no problem text is quoted here.
+Status (2026-10-03): models set up and probed; training deferred and NOT approved (Q-TRAIN-1); D1 teacher data stopped after its pilot; the perturbation check dropped (§8). §6 is kept as the plan should training be reconsidered. The A/B of §8 shows the role-prompted `tiny` ahead of every off-the-shelf small model; §9: no local MoE or small thinking model clears the owner's +5 bar (Qwen3.6-35B-A3B +4 on path B, much better structure), and the cloud control shows the logic role is limited by the method and converters. Probe numbers come from `state/structure-formalizer/` (regenerable, gitignored). The book text stays local (`datasets_sources/`, DS011); no problem text is quoted here.
 
 ## 1. The architecture (owner decision 2026-10-03)
 
@@ -406,3 +406,162 @@ Setup:
 Both are language and converter changes, not training.
 
 **Training:** nothing in this A/B beats the role-prompted `tiny`, so fine-tuning GLiNER or T5 is not indicated by these numbers. Q-TRAIN-1 stays open for the owner.
+
+## 9. Larger local MoE, small thinking models and a cloud control (owner, 2026-10-03)
+
+**Question (owner).** Does a larger but still fast local MoE beat the 4B `tiny` on the role pattern of §8? The owner set the bar: at least **+5 correct of 30** on the logic role or on the compute path B, at **≥ 20 tokens/s**. Later additions: two small models with thinking (size × thinking), and the `good` tier as a control that separates "the model is too weak" from "the method or the converters are the limit".
+
+### Setup
+
+- **Problems and scoring:** the same 30 problems of probe-1 and the same converters as §8. A pipeline is right when its executed SOP gives the book answer on the problem's own numbers; the static data-dependency check stays on.
+- **Harness:** `node tools/eval/structure-formalizer/ab.mjs fetch|score --run moe-ab --purpose job:moe-ab`.
+  - Response cache on. The `tiny` rows of §8 are replayed from the cache.
+  - The compute path B is a new arm, `expr:<tier>`: the closed question of `lib/formalize/expression-program.mjs`, prompt variant a, no exemplars (the same question for every model), static analysis, lowering to SOP, execution by the engines.
+  - New options: `--concurrency`, `--parallel-arms` and `--limit`.
+- **Serving.** Every candidate is a managed upstream of LLMAPIProvider, with tiers `tiny-<x>`, `structure-<x>` and `formalizer-<x>` under the same role prompts (`psm-v1`, `fol-v1`).
+  - The local candidates run as llama-server on the GPU, started on demand and stopped after idle time.
+  - New `start.exclusiveGroup` (`ondemand`): only one extra server runs next to the always-on `tiny`. Starting one stops the others and waits for their exit, escalating to SIGKILL after 30 s.
+  - A proxy shutdown now stops the on-demand servers it started. Before this, a restart left them orphaned and holding GPU memory.
+- **Budgets.** A prompted reply cut by its token budget is asked again with four times the budget, up to 32k tokens. The prompted answer reports its `usage`.
+- **Scoring fix (applies to every arm).** A question that asks several values is answered by several queries. A numeric gold is now compared with all the answered numbers, unordered; a yes/no check written next to them is not counted as an asked value. Before, only the first query was compared.
+  - Effect on the logic role: `tiny` unchanged (6 correct / 2 wrong), `good` 6 → 8.
+  - Path B applies the same rule.
+- **Candidates and sources** (licences and sha256 in `dependencies.md`):
+  - **Qwen3.6-35B-A3B:** the newest Qwen of the 30B-A3B class on Hugging Face on 2026-10-03. It was released 2026-04-15; Qwen3.8 has only a dense 27B, a 125B-A6B Flash-Next and a 2.4T model. Served as unsloth UD-Q4_K_M.
+  - **Nemotron-3-Nano-Omni 30B-A3B:** Q8_0, already on disk.
+  - **Qwen3-4B-Thinking-2507:** Q4_K_M.
+  - **Qwen3-1.7B, thinking mode:** Q8_0.
+  - **`good`:** deepseek-v4.1-flash on OpenRouter, reasoning effort medium, 32k budget.
+  - The thinking models use their recommended thinking sampling (temperature 0.6, top_p 0.95, top_k 20), because greedy decoding makes them repeat. Everything else runs greedy.
+
+### Results
+
+Generation speed is measured on a short single request. Seconds are the median per problem, uncached.
+
+| model | logic: correct (real*) / wrong | path B: correct / wrong | structure: goal found | structure: quantity recall / precision | thinking tokens per call (structure / logic / B) | s/problem (structure / logic / B) | generation tok/s |
+|---|---|---|---|---|---|---|---|
+| `tiny` Qwen3-4B-Instruct (§8) | 6 (5) / 2 | 5 / 13 | 23/30 | 82/139 / 83/86 | 0 | 12.1 / 2.9 / 1.2 | ~76 |
+| Qwen3-1.7B thinking, **5 problems, stopped: too slow** | 0 / 1 | 0 / 3 | 1/5 | 6/15 / 6/6 | ~3.3k / ~4.0k / 0 | 47 / 56 / 1.1 | ~115 |
+| Qwen3-4B-Thinking-2507, **stopped by the owner** | no valid row** | no valid row** | 3/4 | 12/15 / 12/12 | ~6.6k / – / – | 101–300 / >300 / >300 | ~74 |
+| Nemotron-3-Nano-Omni 30B-A3B | 4 (3) / 7 | 7 / 13 | 18/30 | 63/139 / 53/56 | 0 | 24.0 / 6.3 / 1.7 | ~57 |
+| **Qwen3.6-35B-A3B** | 6 (4) / 8 | **9 / 7** | **28/30** | **121/139 / 110/111** | 0 | 11.1 / 5.6 / 2.3 | ~66 |
+| control `good` (deepseek-v4.1-flash, reasoning) | 8 (7) / 8 | 16 / 8 | 27/30 | 120/139 / 102/102 | ~3.5k / ~3.3k / ~1.5k | 10.8 / 10.0 / 4.9 | cloud |
+
+\* As in §8, a "real" answer excludes the closed-world "no" that an empty `∃x` query gives to a yes/no gold.
+
+\*\* Every logic and B call of the 4B thinking model ran past the client's 300 s limit (Node's fetch header timeout). Its structure calls needed 6.5k–15k thinking tokens: 101–130 s alone, about 200–300 s under the A/B load.
+
+**Paired comparison with `tiny`, Qwen3.6-35B-A3B:**
+
+| role | both correct | only `tiny` | only the MoE | sign test |
+|---|---|---|---|---|
+| path B | 5 | 0 | 4 | one-sided p ≈ 0.06 |
+| logic | 4 | 2 | 2 | |
+
+### Throughput and memory of Qwen3.6-35B-A3B
+
+Measured with llama-server alone on a fol-v1-sized prompt (about 900 prompt tokens, 300 generated, no prompt reuse), one client per slot. Each slot gets 16k tokens of context. The largest local request of 2026-10-02/03 was 8,192 tokens (p99 5,051, p50 1,355).
+
+| slots | context | GPU memory | requests/s | generated tok/s (all slots) | tok/s per request | p50 s/request |
+|---|---|---|---|---|---|---|
+| 2 | 32k | 22.0 GB | 0.29 | 88 | 44 | 6.8 |
+| 4 | 64k | 22.8 GB | 0.39 | 118 | 29 | 10.2 |
+| 8 | 128k | 24.3 GB | 0.48 | 144 | 18 | 16.7 |
+
+**What is resident next to it:**
+- `tiny` Qwen3-4B with 32 slots and 131k context: 21.3 GB;
+- the small-model service on the CPU: about 15.7 GB RSS;
+- 119 GB of unified memory in all, 71 GB available with `tiny` and the service running.
+
+Both the MoE and `tiny` fit together.
+
+On the same benchmark, `tiny` at 32 slots serves 3.6 requests/s.
+
+**Proposed slot count, if the MoE is adopted:** 4 slots. At 8 slots each request falls below the 20 tok/s floor.
+
+### Verdict
+
+**The owner's bar is not met.**
+- Qwen3.6-35B-A3B gains **+4** on path B (9 vs 5; sign test p ≈ 0.06) and **0** on the logic role (6 vs 6).
+- Nemotron gains +2 on B and loses on logic.
+- The thinking models are far too slow for the role pattern and were stopped (owner): about 200–300 s per problem for the 4B, 47–56 s for the 1.7B. The 1.7B also solved nothing in its 5 problems.
+- By the owner's bar alone, `tiny` would not be switched; see the adoption below.
+
+**What the MoE does better, for the owner's decision:**
+- **Structure role:** at the level of the cloud `good`. Goal found 28/30 against 23/30. It covers 121/139 of the problems' numbers against 82/139, with 99% precision.
+- **Path B:** fewer wrong answers (7 against 13).
+- **Logic role:** worse precision, 8 wrong against 2. A wrong circuit counts worse than an honest unknown.
+
+**Cost:**
+- one more resident model of 22–23 GB;
+- about 10× fewer requests per second than `tiny` at full width;
+- similar single-request latency (66 against 76 tok/s generation).
+
+A cheaper option, if the owner wants the structure gain alone: point the alias `structure` at `structure-moe-qwen` and keep `tiny` as it is. The GGUF of Qwen3.6-35B-A3B is kept (adopted, see below). The thinking GGUFs are deleted. Nemotron lost; it was already on disk outside the repository before this test and was not deleted.
+
+### Adoption (coordinator decision, 2026-10-03)
+
+The coordinator adopted Qwen3.6-35B-A3B as `tiny` under the owner's standing rule: switch to a better model even with small margins. The trade-off on the logic role stays: equal correct answers but more wrong circuits (8 against 2).
+
+| tier | model | serving | GPU memory | fallback |
+|---|---|---|---|---|
+| `tiny` | Qwen3.6-35B-A3B | always on, 4 slots | 22.8 GB | `medium`'s model |
+| `supertiny` | Qwen3-4B | on demand, 32 slots, stops after 15 idle minutes | 21.3 GB while running | `tiny`, then `medium`'s model |
+
+- `equivalence` names `supertiny`.
+- `structure` and `formalizer` run on the MoE.
+
+**Verified:**
+- `tiny`, `supertiny` and `equivalence` were served by the right models.
+- With both servers resident: 44 GB of GPU memory, 56 GB of RAM available.
+- Offline regression replay: unchanged by the switch, since it calls no model.
+- Live CLI chat, 3 messages: 2 answered correctly, 1 clarification question.
+
+### Control: the cloud model on the same method
+
+`good` writes far more of the method's language:
+- 26/30 problems with a query, 20 compiled;
+- 159/205 sentences converted, against 114 for `tiny`.
+
+Yet it gets **only 8 correct, with 8 wrong**, on the logic role, in the same range as `tiny`'s 6. On path B it gets 16 against 5.
+
+**The bottleneck of the logic role is therefore the method and the converters, not the model.** The dominant failure reasons for `good`:
+
+1. **Full FOL beyond Horn**, which the FOL extension refuses:
+   - disjunctive conclusions (a rule whose conclusion is a choice among several alternatives);
+   - existentials in conclusions;
+   - universals inside conditions (a thing qualifies when it has every required property);
+   - `IFF` definitions.
+2. **Constraint search with a free unknown** (find the number in a range that meets a divisibility and a capacity condition). It is written as ground facts about `x` and refused as "a statement about every thing without a condition". The constraint construct of §8 is still open.
+3. **Quantities derived by rules:** a rule of the form `Value(a, x) AND Value(b, y) IMPLIES Value(c, add(x, y))` leaves "the quantity c is used but never given a Value".
+4. **A parser gap:** multi-variable quantifiers `FORALLx,y` (6 sentences; a generic parser fix).
+5. **Wrong answers** come mostly from list questions: the model queries steps or intermediate values beside the asked ones (science:544, 647, 656, 805).
+
+For `tiny` the reasons were different: prose inside formulas (parse errors) and `Value` misuse. A stronger model removes those and runs into the converter's limits.
+
+**Path B is model-limited:** `good` 16/30, the MoE 9, `tiny` 5. Six problems have no numbers, so path B does not apply to them.
+
+### Files
+
+All files are local and regenerable; the book text stays in `state/`.
+
+- `state/structure-formalizer/moe-ab/{raw,results}.jsonl` and `summary.md`.
+- One JSONL per model with every output, near misses included: `state/moe-ab/moe-ab/<model>.jsonl`.
+  - raw structure JSON;
+  - FOL per sentence;
+  - the B program;
+  - the SOP circuits;
+  - the converter's reasons;
+  - the executed answers;
+  - the book answer;
+  - timings and token usage;
+  - partial credit.
+- The side-by-side partial-credit table: `compare.md` and `compare.jsonl`, with these measures:
+  - solution numbers found;
+  - goal;
+  - query;
+  - sentences converted;
+  - compiled;
+  - executed;
+  - relative error of the closest numeric answer.
+- Regenerate them with `node tools/eval/structure-formalizer/compare.mjs --run moe-ab`.

@@ -7,7 +7,7 @@ import { DASHBOARD_HTML } from './dashboard.mjs';
 import { resolveUpstream } from './settings.mjs';
 import { planReport, valueReport, limitWait } from './plan.mjs';
 import { planRequests } from './monitor.mjs';
-import { createLocalStarter } from './local.mjs';
+import { createLocalStarter, stopPeers } from './local.mjs';
 import { createAudit, responseText } from './audit.mjs';
 import { createCache, localIdentity, CACHE_MODES } from './cache.mjs';
 import { expandHome } from './settings.mjs';
@@ -49,7 +49,7 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
   for (const [name, up] of Object.entries(config.upstreams)) {
     upstreams[name] = resolveUpstream(name, up, env);
     limiters[name] = new Limiter(up.limits);
-    if (up.start) starters[name] = createLocalStarter(upstreams[name], { fetchImpl, baseDir: resolve(HERE, config.baseDir || '.'), ...starterOptions });
+    if (up.start) starters[name] = createLocalStarter(upstreams[name], { fetchImpl, baseDir: resolve(HERE, config.baseDir || '.'), beforeStart: () => stopPeers(name, starters, config.upstreams), ...starterOptions });
   }
   const audit = createAudit(config.audit, { dir: auditDir || join(dataDir, '..', 'llmapiprovider-audit') });
   const cache = createCache({ dir: cacheDir || join(dataDir, '..', 'llmapiprovider-cache') });
@@ -342,7 +342,13 @@ export function createProxy({ config, env = process.env, dataDir, proxyToken = n
       const b = Buffer.from(JSON.stringify({ model: entry.model, messages, temperature, max_tokens: maxTokens, ...(entry.extraBody || {}) }));
       await forward(req, cap, up, '/v1/chat/completions', b, { tier, chain: [], abort: new AbortController() });
       const raw = Buffer.concat(cap.chunks).toString('utf8');
-      try { const j = JSON.parse(raw); if (cap.status !== 200) return { ok: false, status: cap.status, error: j.error?.message || raw.slice(0, 200) }; return { ok: true, text: j.choices?.[0]?.message?.content ?? '' }; }
+      try {
+        const j = JSON.parse(raw);
+        if (cap.status !== 200) return { ok: false, status: cap.status, error: j.error?.message || raw.slice(0, 200) };
+        const u = j.usage || {}, m = j.choices?.[0]?.message || {};
+        return { ok: true, text: m.content ?? '', finish: j.choices?.[0]?.finish_reason ?? null,
+          usage: { output_tokens: u.completion_tokens ?? 0, reasoning_tokens: u.completion_tokens_details?.reasoning_tokens ?? null, reasoning_chars: (m.reasoning_content || '').length, content_chars: String(m.content ?? '').length } };
+      }
       catch { return { ok: false, status: cap.status || 502, error: raw.slice(0, 200) }; }
     };
     const r = await serveprompted({ path, body, entry, template, chat });

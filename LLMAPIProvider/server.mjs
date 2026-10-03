@@ -10,10 +10,13 @@ const port = Number(opt('--port') || process.env.LLMAPIPROVIDER_PORT || config.p
 const host = config.host || '127.0.0.1';
 const dataDir = expandHome(process.env.LLMAPIPROVIDER_DATA || config.dataDir);
 const proxyToken = resolveProxyToken(config);
-const { server, upstreams } = createProxy({ config, dataDir, proxyToken });
+const { server, upstreams, starters } = createProxy({ config, dataDir, proxyToken });
 
 server.listen(port, host, () => {
   const keys = Object.values(upstreams).map((u) => `${u.name}: ${u.noKey ? 'no key needed' + (u.start ? ', started on demand' : '') : 'key ' + (u.key ? 'configured' : 'MISSING')}`).join(', ');
   console.log(`LLMAPIProvider listening on http://${host}:${port} (${keys}; client token ${proxyToken ? 'required' : 'not required'}; data ${dataDir})`);
 });
-for (const s of ['SIGINT', 'SIGTERM']) process.on(s, () => server.close(() => process.exit(0)));
+// On shutdown the on-demand local servers this proxy started are stopped too (an orphan would hold GPU memory and never idle-stop);
+// always-on servers (startAtBoot) stay and are reused by the next start.
+const onDemand = () => Object.entries(starters).filter(([n]) => !config.upstreams[n].start?.startAtBoot).map(([, st]) => st.stop());
+for (const s of ['SIGINT', 'SIGTERM']) process.on(s, async () => { await Promise.all(onDemand()); server.close(() => process.exit(0)); });

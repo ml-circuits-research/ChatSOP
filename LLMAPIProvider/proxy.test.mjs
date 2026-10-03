@@ -648,3 +648,44 @@ test('prompted tiers: structure and fol through a chat upstream, validation and 
     rmSync(dataDir, { recursive: true, force: true }); rmSync(dataDir + '-cache', { recursive: true, force: true }); rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('local: servers of one exclusive group never run together (starting one stops and awaits the other)', async () => {
+  const { EventEmitter } = await import('node:events');
+  const { createLocalStarter, stopPeers } = await import('./local.mjs');
+  const up = new Set(), events = [];
+  const spawn = (cmd, argv) => {
+    const port = argv[argv.indexOf('--port') + 1], c = new EventEmitter();
+    c.exitCode = null; c.pid = Number(port);
+    c.kill = () => setTimeout(() => { up.delete(port); c.exitCode = 0; events.push(`exit ${port}`); c.emit('exit', 0); }, 20);
+    up.add(port); events.push(`spawn ${port}`);
+    return c;
+  };
+  const fetchImpl = async (url) => ({ ok: up.has(new URL(url).port) });
+  const logDir = mkdtempSync(join(tmpdir(), 'llmapi-excl-'));
+  const st = (n) => ({ bin: '/bin/true', gguf: '/etc/hostname', requireFreeGpu: false, exclusiveGroup: 'moe', logFile: join(logDir, `${n}.log`) });
+  const cfg = { a: { start: st('a') }, b: { start: st('b') } };
+  const starters = {};
+  for (const [n, port] of [['a', 1901], ['b', 1902]]) starters[n] = createLocalStarter({ name: n, baseUrl: `http://127.0.0.1:${port}`, start: cfg[n].start }, { spawn, fetchImpl, gpuPids: () => [], beforeStart: () => stopPeers(n, starters, cfg) });
+  assert.equal(await starters.a.ensure(), true);
+  assert.equal(await starters.b.ensure(), true);
+  assert.deepEqual(events, ['spawn 1901', 'exit 1901', 'spawn 1902']);
+  assert.equal(starters.a.status().managed, false);
+  assert.equal(starters.b.status().managed, true);
+  await starters.b.stop();
+  rmSync(logDir, { recursive: true, force: true });
+});
+
+test('prompted tiers: a reply cut by its budget is asked again with four times the budget, and usage is reported', async () => {
+  const { serveprompted, parseTemplate } = await import('./prompted.mjs');
+  const template = { ...parseTemplate('<<<options>>>\n{"mode": "problem", "maxTokens": 100}\n<<<user>>>\n{{text}} {{labels}} {{relations}}\n'), name: 't' };
+  const budgets = [];
+  const chat = async (messages, { maxTokens }) => {
+    budgets.push(maxTokens);
+    return maxTokens < 1600 ? { ok: true, text: '', finish: 'length', usage: { output_tokens: maxTokens, reasoning_chars: 10 } }
+      : { ok: true, text: '{"spans": [{"label": "quantity", "text": "3 cats"}]}', finish: 'stop', usage: { output_tokens: 50, reasoning_chars: 5 } };
+  };
+  const r = await serveprompted({ path: '/v1/structure', body: { text: 'Tom has 3 cats.', entities: ['quantity'] }, entry: { maxTokensCap: 2000 }, template, chat });
+  assert.deepEqual(budgets, [100, 400, 1600]);
+  assert.equal(r.body.entities.quantity[0].text, '3 cats');
+  assert.deepEqual(r.body.usage, { calls: 3, output_tokens: 550, reasoning_tokens: 0, reasoning_chars: 25, content_chars: 0, budget_retries: 2, cut: 0 });
+});

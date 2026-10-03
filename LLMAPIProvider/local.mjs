@@ -2,6 +2,8 @@
 // The server starts only when the GPU is free: no reservation lock file and no compute process of another program on the GPU.
 // A start that is not allowed or fails returns false; the request then fails as unreachable and falls back down its chain.
 // An idle server is stopped after start.idleStopMs so the GPU is free for other work.
+// Servers of one `start.exclusiveGroup` (e.g. the larger on-demand MoE models next to the always-on tiny) never run together: starting
+// one first stops the others of its group that this proxy manages and waits for them to exit (stopPeers), so GPU memory is released.
 import { spawn as spawnDefault, execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, openSync, closeSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
@@ -18,7 +20,7 @@ export function gpuComputePids() {
 }
 
 // Relative paths in `start` (gguf, bin, locks, logFile) resolve against baseDir: config.baseDir, itself relative to this folder.
-export function createLocalStarter(up, { spawn = spawnDefault, fetchImpl = fetch, gpuPids = gpuComputePids, now = Date.now, baseDir = HERE } = {}) {
+export function createLocalStarter(up, { spawn = spawnDefault, fetchImpl = fetch, gpuPids = gpuComputePids, now = Date.now, baseDir = HERE, beforeStart = null } = {}) {
   const abs = (p) => { const e = expandHome(p); return isAbsolute(e) ? e : join(baseDir, e); };
   const s = up.start;
   const port = Number(new URL(up.baseUrl).port);
@@ -37,6 +39,7 @@ export function createLocalStarter(up, { spawn = spawnDefault, fetchImpl = fetch
     }
     // Two kinds of local server: a llama-server over a GGUF (`bin`, `gguf`), or a Node script (`script`, e.g. the small-model
     // service of the structure and formalizer tiers) run with this Node binary and `--port`.
+    if (beforeStart) await beforeStart();
     let cmd, argv;
     if (s.script) {
       const script = abs(s.script);
@@ -67,7 +70,19 @@ export function createLocalStarter(up, { spawn = spawnDefault, fetchImpl = fetch
     return refuse('local server did not become healthy in time');
   }
 
-  function stop() { if (child && child.exitCode === null) child.kill('SIGTERM'); child = null; }
+  // Stops the managed server: SIGTERM, then SIGKILL when it has not exited after stopWaitMs (default 30 s; a llama-server busy with a
+  // long generation may ignore SIGTERM); the promise resolves when it has exited.
+  function stop() {
+    const c = child;
+    child = null;
+    if (!c || c.exitCode !== null) return Promise.resolve();
+    const exited = new Promise((r) => {
+      c.once('exit', r);
+      setTimeout(() => { if (c.exitCode === null) { c.kill('SIGKILL'); setTimeout(r, 5000).unref?.(); } }, s.stopWaitMs ?? 30000).unref?.();
+    });
+    c.kill('SIGTERM');
+    return exited;
+  }
 
   function armIdleStop() {
     if (!s.idleStopMs || timer) return;
@@ -90,4 +105,11 @@ export function createLocalStarter(up, { spawn = spawnDefault, fetchImpl = fetch
     stop,
     status: () => ({ managed: !!child, pid: child?.pid ?? null, last_refusal: lastRefusal }),
   };
+}
+
+/** Stops the managed servers of `name`'s exclusive group other than `name` (config: upstreams.<n>.start.exclusiveGroup). */
+export async function stopPeers(name, starters, upstreamsConfig) {
+  const group = upstreamsConfig[name]?.start?.exclusiveGroup;
+  if (!group) return;
+  await Promise.all(Object.entries(starters).filter(([n]) => n !== name && upstreamsConfig[n]?.start?.exclusiveGroup === group).map(([, st]) => st.stop()));
 }
