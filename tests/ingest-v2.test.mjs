@@ -10,7 +10,7 @@ import {Sessions} from '../lib/chat-data/sessions.mjs';
 import {chunkUnits} from '../lib/ingest/v2/units.mjs';
 import {dateValue, dateEval, dateCompute} from '../lib/ingest/v2/dates.mjs';
 import {collect, conflictCases, canonical, lookups, sharedPredicates} from '../lib/ingest/v2/vocabulary.mjs';
-import {convertDocument, renderWires} from '../lib/ingest/v2/to-knowledge.mjs';
+import {convertDocument, renderWires, groupStatements} from '../lib/ingest/v2/to-knowledge.mjs';
 import {checkStructure, checkAlign} from '../lib/ingest/v2/roles.mjs';
 import {ingestV2} from '../lib/ingest/v2/index.mjs';
 import {quoteProblems} from '../lib/ingest/checks.mjs';
@@ -187,4 +187,15 @@ test('converter: a shared relation is declared as its vocabulary declares it; on
   assert.match(r.vocabulary, /@amount predicate\n  args subject:entity object:value\n  key 1\n  closed true/);
   assert.match(r.vocabulary, /@age_of predicate\n  args subject:entity object:integer\n  label en "age of"\n  description "X is Y years old \(from Doc\)"\n  key 1/);
   assert.equal(validateCircuits([{name: 'x.sop', text: r.vocabulary + [...r.passages.values()].join('')}], []).ok, true);
+});
+
+test('group statements: only table rows make a group; prose relations do not', () => {
+  const vocab = {entities: [], predicates: [], dates: {}};
+  const units = [
+    unit('c1_s1', 'row a', ['WorksIn(ann, red)'], {table: true}), unit('c1_s2', 'row b', ['WorksIn(bob, red)'], {table: true}),
+    unit('c1_s3', 'Red staff get 5.', ['Rate(red, 5)']),
+    unit('c1_s4', 'Io and Ganymede are less dense than Europa.', ['LessDense(io, europa)', 'LessDense(ganymede, europa)', 'Diameter(europa, 3100)']),
+  ];
+  const found = groupStatements(convertDocument({units, look: lookups(vocab), prefix: 'dt', title: 'Doc'}));
+  assert.deepEqual(found.map(f => f.unit), ['c1_s3']);
 });
