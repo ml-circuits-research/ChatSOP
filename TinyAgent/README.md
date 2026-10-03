@@ -14,7 +14,8 @@ in as SkillPlugins, job folders and task templates named by the project's config
 ```
 node TinyAgent/bin/tinyagent.mjs serve                 # the server, http://127.0.0.1:18080 (first start writes ~/.tinyagent/)
 node TinyAgent/bin/tinyagent.mjs chat --tier tiny "Say hello"
-node TinyAgent/bin/tinyagent.mjs run "Extract the prices of the attached file" --attach prices.txt
+node TinyAgent/bin/tinyagent.mjs run "Sum the amount column of sales.csv"   # the agent, in the current folder (plans in ./.tinyagent/plans)
+node TinyAgent/bin/tinyagent.mjs plans list            # the plan cache of the current folder
 node TinyAgent/bin/tinyagent.mjs models                # local model servers
 node TinyAgent/bin/tinyagent.mjs stats
 node --test TinyAgent/test/*.test.mjs                  # stub providers, no network, no model
@@ -134,7 +135,9 @@ await ta.role('structure').structure({text, entities, relations});            //
 await ta.runJob('jobs/my-job', {stage: 'pilot', priority: 'background'});     // waits for the operation; {wait: false} returns its id
 await ta.task({instructions, attachments: ['a.txt'], target: {kind: 'none'}});
 await ta.skill('extract-table', {columns: ['price']}, {attach: ['a.txt']});
-await ta.run('Count the words of the attached file', {attach: ['a.txt'], planOnly: false});
+await ta.run('Count the words of the attached file', {attach: ['a.txt'], planOnly: false});   // server skills as steps (CLI run-skills)
+// the agent of `tinyagent run` runs in the caller's process: import {runAgent} from './TinyAgent/lib/agent/index.mjs';
+// await runAgent({request: 'Sum the amount column of sales.csv', workdir: '.', ta, config});   // below, "The agent"
 await ta.skills(); await ta.stats(); await ta.models(); await ta.tiers(); await ta.health();
 const tagged = ta.with({purpose: 'review:x', run: 'r1', priority: 'background'});
 ```
@@ -203,7 +206,7 @@ Sources, in this order (a later one cannot replace a name): built-in skills (`Ti
 of the server: modules are loaded fresh for each operation, a crash does not stop the server, and every model call goes back to the
 server's core over a message port. Operations are listed by `GET /v1/ops`; their folders stay under `runs/ops/`.
 
-**`run`** (`tinyagent run "<request>"`, `ta.run`): the planner role (tier `good`) sees the skill catalog (names, descriptions, inputs;
+**`run-skills`** (`tinyagent run-skills "<request>"`, `ta.run`, `POST /v1/run`; the agent of `tinyagent run` is described below): the planner role (tier `good`) sees the skill catalog (names, descriptions, inputs;
 never code) and answers `{"steps": [{"skill", "inputs"}], "reason"}`; the plan is validated deterministically (known skills, inputs in
 their schemas, at most `run.maxSteps` steps; one repair round) and executed step by step, deterministically. A run registers one budget
 (`run.budget`) for all its calls. `--plan-only` stops after the plan.
@@ -217,11 +220,88 @@ empty environment; inside it a fresh V8 context with only the ECMAScript built-i
 `eval` and `Function` disabled); only strings and numbers cross the boundary (JSON text parsed inside the context), so no host object is
 reachable. A program that fails is shown its error once and rewritten. `test/sandbox.test.mjs` holds the escape attempts that must fail.
 
+## The agent: `tinyagent run`
+
+A small coding-style agent for clear, simple, repetitive tasks in a work folder (`--workdir`, default the current folder). It writes
+its plans as code, keeps the plans that worked in a visible cache, and reuses them for the same task with other parameters without
+planning again. It runs in the caller's process (the CLI, or `runAgent` of `lib/agent/index.mjs`); its model calls go through the server
+under the purpose `run:<run-id>` and one registered budget (`agent.budget`, else `run.budget`).
+
+**Skills.** Agent Skills in the standard format: `<workdir>/.agents/skills/<name>/SKILL.md` (YAML frontmatter `name`, `description`;
+the body is the instructions; files beside it), then the skill roots of `agent.skillDirs` (for example a project's `skills/`; the first
+source wins a name). The planner sees names and descriptions only; a body is loaded when the planner asks for it (`load_skills`) or
+when its plan uses the skill (progressive disclosure). A skill declares its scripts in the frontmatter (`scripts: [scripts/a.mjs]`) or,
+without that key, as the files of its `scripts/` folder; `.mjs`/`.js`/`.cjs` run with this Node, `.py` with python3, `.sh` with
+`/bin/sh`. A script is the skill author's code: trusted like an installed tool, not sandboxed.
+
+**Tools**, the only way a plan touches anything, all confined to the work folder: `tools.read(path)`, `tools.list(dir, {recursive})`,
+`tools.search(text, {dir, ignoreCase, maxResults})` (literal text), `tools.write(path, text)`, `tools.move(from, to)` (never overwrites),
+`tools.ask(tier, prompt, {system, maxTokens})` (tiers of `agent.askTiers`, at most `agent.maxAsks` per run),
+`tools.runSkillScript(skill, script, args)` (a declared script only; argv strings, no shell, the work folder as cwd, PATH/LANG/HOME
+only, a timeout and an output cap), `tools.log(message)`. Refused: a path outside the folder (`..`, an absolute path elsewhere, a NUL
+byte), a path whose existing part leaves the folder through a symbolic link, writing through a link (O_NOFOLLOW), and writing into
+`.tinyagent/`, `.agents/` or `.git/`. Reads, writes, lists and searches are size-bounded. There is no free shell. (`move` is beyond the
+first list of tools: renaming by a pattern needs it.)
+
+**The plan is code**, a module a person can read and edit:
+
+```js
+export const meta = {name: 'sum-csv-column', task: 'Sum a numeric column of a CSV file.',
+  params: {file: {type: 'string', description: 'the CSV file'}, column: {type: 'string', description: 'the column header'}},
+  example: {file: 'sales.csv', column: 'amount'}, skills: []};
+export default async function run(tools, params) { /* ... */ return {answer: '59.75', outputs: []}; }
+export async function check(tools, params, result) { /* verify another way */ return {ok: true, reason: '...'}; }
+```
+
+The planner tier (`agent.plannerTier`, else `runner.roles.planner`: `good`) writes it (`prompts/agent-planner.md`), seeing the request,
+the folder's first entries, the first lines of the files the request names and the skill catalog; it may ask once for skill bodies and
+file heads. The plan runs in the sandbox of generated plugins (`lib/sandbox.mjs` `runPlan`: a worker with heap, stack and time limits,
+a fresh V8 context with the ECMAScript built-ins only); the tools are served by the host over the message channel, only strings and
+numbers cross it. Before it runs, a plan is refused when its `meta` is not a typed parameter schema with example values that fit it, or
+when its code writes a value of the request (a string literal such as `".txt"` or `"2026-"` that occurs in the request; plain words,
+skill names and their scripts excepted): such a plan would not work with other values. A failure (a refused plan, an exception with its
+`plan.js` line, a failed check) goes back to the planner with the last tool calls and the first lines of the files the plan read, at
+most `agent.maxRounds` (3) rounds. `--plan-only` (`--dry-run`) shows the plan, or the cached plan and its values, and runs nothing.
+
+**Run folder** `<workdir>/.tinyagent/runs/<run-id>/` (`agent.runsDir`): `request.json`, `decision.json` (the match), `context.txt`,
+`plan-<round>.mjs` (or `plan-cached.mjs`), `calls.jsonl` (every tool call: arguments, outcome, ms), `errors.jsonl`, `result.json` (status,
+answer, how, rounds, model calls and credits per role: planner, match, ask). Every run prints the plan folder and its run folder.
+
+**Plan cache**, a plain folder: `--plans DIR`, else `agent.plansDir`, else `<workdir>/.tinyagent/plans` (decided: plans name paths of
+their work folder, so they live beside it, where a person or a coding agent sees and edits them; a shared folder such as
+`~/.tinyagent/plans` is one setting away). One directory per plan: `plan.mjs`, `PLAN.md` (frontmatter `id`, `status`, `verified_hash`,
+`runs`; sections Description, Parameters, Skills, First request, Check, Last runs) and `runs.jsonl`; `index.json` is a derived cache of
+the plans' `meta`. A plan that ran and passed its own check is stored `verified` and reused; one without a check is stored `draft` until
+`tinyagent plans verify <id>`. A plan whose `plan.mjs` changed since it was verified (its hash differs from `verified_hash`) is `edited`:
+when it next matches, it runs with its check, becomes `verified` again if the check passes, and is otherwise not reused (the planner
+writes a new plan; a folder edited by hand is never overwritten). Editing the Description of PLAN.md improves matching.
+`tinyagent plans list | show <id> | verify <id> | rm <id> | promote <id> --name <skill> [--to DIR]`; `promote` writes a SkillPlugin
+module (default `<workdir>/.tinyagent/skill-plugins/<name>.mjs`) whose inputs are the plan's parameters plus `workdir`; add its folder to
+`skills.plugins` to serve it.
+
+**Fast match before planning.** A BM25 index (`lib/agent/bm25.mjs`, no dependency) over the verified and edited plans (task, PLAN.md
+description, parameter names, first request) gives the top `agent.match.k` candidates in about a millisecond. The same request as a
+plan's first request reuses it at once. Otherwise the match tier (`agent.matchTier`, `tiny`, thinking off; `prompts/agent-match.md`)
+decides only whether the request is the same task as a candidate with other parameter values, and extracts the values; they are
+coerced to their declared types, validated against the schema and, with `agent.match.grounded`, each string or number must occur in the
+request (defaults excepted). A match that holds runs the cached plan directly (with its check, `agent.checkOnReuse`), with no planner
+call and no new code; anything else, or a cached plan that fails, goes to the planner. `decision.json` records the candidates and their
+scores, the BM25 time, the match call and the reason.
+
+**Measured** once (`node TinyAgent/bench/agent-tasks.mjs`: 12 tasks with known results in one fresh folder and one cache: four
+families, a parameter variant of each, a paraphrased variant and three near misses; planner `good`, match `tiny`; 2026-10-03, the
+journal has the details): 12 of 12 correct; of 8 newly planned tasks 3 were right at the first plan and 5 after one or two re-plans
+(two of those were a skill name wrongly taken for a hard-coded value, fixed since); 4 of 5 variants reused with the right plan and
+values (the fifth after that fix), 0 of 3 near misses reused; a cache hit cost one local `tiny` call and 0 credits and took 1.7 to 8 s
+(median 3.7 s with an idle model), a new plan 3 to 4 model calls, 0.75 to 3 plan credits and 8 to 80 s.
+
 ## Command line
 
 ```
 tinyagent serve [--port N] [--host H] [--config file]
-tinyagent run "<request>" [--attach file]... [--plan-only]
+tinyagent run "<instructions>" [--workdir DIR] [--plans DIR] [--plan-only|--dry-run] [--no-cache] [--json]
+tinyagent plans list | show <id> | verify <id> | rm <id> | promote <id> --name <skill> [--to DIR] [--yes]   [--workdir DIR] [--plans DIR]
+tinyagent run-skills "<request>" [--attach file]... [--plan-only]
 tinyagent skills | skill <name> [--inputs '{json}'] [--attach file]...
 tinyagent job <dir> [--stage s] [--resume run-id] [--refresh] [--no-register] [--publish dir]
 tinyagent check <dir> | list [job] | show <job> <run-id> | prune
@@ -260,6 +340,6 @@ Request headers: `x-tinyagent-purpose`, `x-tinyagent-run`, `x-tinyagent-cache`, 
 `lib/server.mjs` (the server and its operations), `lib/client.mjs` (the library), `lib/worker.mjs` (an operation), `lib/inproc.mjs`
 (in-process and port transports), `lib/config.mjs` (layers, home), `lib/settings.mjs` (keys), `lib/limiter.mjs`, `lib/plan.mjs`,
 `lib/monitor.mjs`, `lib/cache.mjs`, `lib/audit.mjs`, `lib/guard.mjs`, `lib/local.mjs`, `lib/prompted.mjs`, `lib/skills.mjs`,
-`lib/sandbox.mjs`, `lib/dashboard.mjs`, `lib/probe.mjs`, `lib/migrate.mjs`, `lib/jobs/` (the job runner), `skills/` (built-in skills),
-`prompts/` (the runner's and the planner's own prompts), `config.default.json`, `test/`. `lib/legacy.mjs` holds the names of the
+`lib/sandbox.mjs`, `lib/agent/` (the agent of `run`), `lib/dashboard.mjs`, `lib/probe.mjs`, `lib/migrate.mjs`, `lib/jobs/` (the job runner), `skills/` (built-in skills),
+`prompts/` (the runner's and the planners' own prompts), `config.default.json`, `test/`, `bench/` (task sets with known results). `lib/legacy.mjs` holds the names of the
 earlier proxy accepted during a migration (old request headers, old key folder) and is deleted when no caller needs them.
