@@ -398,6 +398,23 @@
     },
     "maxSteps": 5
   },
+  "agent": {
+    "_note": "tinyagent run (lib/agent/): plans and runs under <workdir>/.tinyagent/ unless plansDir/runsDir are set (relative to the work folder, or absolute); skillDirs: skill roots besides <workdir>/.agents/skills; plannerTier null means runner.roles.planner; askTiers null means sandbox.tiers; the match tier decides reuse (thinking off).",
+    "plansDir": null,
+    "runsDir": null,
+    "skillDirs": [],
+    "plannerTier": null,
+    "matchTier": "tiny",
+    "askTiers": null,
+    "maxRounds": 3,
+    "maxAsks": 30,
+    "maxToolCalls": 2000,
+    "timeMs": 120000,
+    "checkOnReuse": true,
+    "budget": null,
+    "match": {"k": 3, "minScore": 0, "grounded": true, "maxTokens": 400, "extraBody": {"chat_template_kwargs": {"enable_thinking": false}}},
+    "planner": {"maxTokens": 8000}
+  },
   "sandbox": {
     "timeMs": 120000,
     "heapMb": 128,

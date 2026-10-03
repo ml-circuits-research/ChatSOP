@@ -4,8 +4,11 @@
  * (http://127.0.0.1:18080, TINYAGENT_URL); when no server answers, the first client starts one in the background (detached) and uses it.
  *
  *   tinyagent serve [--port N] [--host H] [--config file]       the server (one per machine)
- *   tinyagent run "<request>" [--attach file]... [--plan-only]   plan on the planner tier, then execute the plan
- *   tinyagent skills | skill <name> [--inputs '{json}'] [--attach file]...
+ *   tinyagent run "<instructions>" [--workdir DIR] [--plans DIR] [--plan-only|--dry-run] [--no-cache] [--json]
+ *                                                                the agent: reuse a cached plan or write one (plan as code), run it
+ *   tinyagent plans list|show <id>|verify <id>|rm <id>|promote <id> --name <skill> [--to DIR]   [--workdir DIR] [--plans DIR]
+ *   tinyagent run-skills "<request>" [--attach file]... [--plan-only]   plan server skills as steps on the planner tier, then run them
+ *   tinyagent skills | skill <name> [--inputs '{json}'] [--attach file]... [--detach]
  *   tinyagent job <dir> [--stage s] [--resume run-id] [--refresh] [--no-register] [--publish dir]
  *   tinyagent check <dir> | list [job] | show <job> <run-id> | prune
  *   tinyagent task --instructions "..." [--attach file]... [--target memory:<id>|session:<id>|none] [--template name --params '{json}']
@@ -21,7 +24,7 @@ import { createTinyAgent } from '../lib/client.mjs';
 import { loadLayers } from '../lib/config.mjs';
 
 const args = process.argv.slice(2);
-const FLAGS = new Set(['--refresh', '--no-register', '--json', '--plan-only', '--yes']);
+const FLAGS = new Set(['--refresh', '--no-register', '--json', '--plan-only', '--dry-run', '--no-cache', '--yes', '--detach']);
 const opt = (n, d = null) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : d; };
 const opts = (n) => args.flatMap((a, i) => (a === `--${n}` ? [args[i + 1]] : []));
 const flag = (n) => args.includes(`--${n}`);
@@ -42,9 +45,15 @@ async function main() {
       if (s?.already) process.exit(0);
       return;
     }
-    case 'run': return finishOp(await client().run(rest.join(' '), { attach: opts('attach'), planOnly: flag('plan-only'), onLog: logLine }));
+    case 'run': return agentRun();
+    case 'plans': return plansCommand();
+    case 'run-skills': return finishOp(await client().run(rest.join(' '), { attach: opts('attach'), planOnly: flag('plan-only'), onLog: logLine }));
     case 'skills': { const r = await client().skills(); for (const s of r.skills) out(`${s.name.padEnd(22)} ${s.description.slice(0, 110)}`); for (const p of r.problems ?? []) logLine(`problem: ${p}`); return; }
-    case 'skill': return finishOp(await client().skill(rest[0], opt('inputs') ? JSON.parse(opt('inputs')) : {}, { attach: opts('attach'), onLog: logLine }));
+    case 'skill': {
+      // --detach: start the operation and print its id at once (the background form); `tinyagent ops <id>` follows it.
+      const op = await client().skill(rest[0], opt('inputs') ? JSON.parse(opt('inputs')) : {}, { attach: opts('attach'), onLog: logLine, ...(flag('detach') ? { wait: false } : {}) });
+      return flag('detach') ? out({ id: op.id, status: op.status ?? 'started', follow: `tinyagent ops ${op.id}` }) : finishOp(op);
+    }
     case 'job': {
       const op = await client().runJob(rest[0], { stage: opt('stage'), resume: opt('resume'), refresh: flag('refresh'), register: !flag('no-register'), publish: opt('publish'), onLog: logLine });
       if (op.result?.published) logLine(`published: ${op.result.published}`);
@@ -84,6 +93,62 @@ async function main() {
       console.error(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').filter((l) => l.startsWith(' *')).map((l) => l.slice(3)).join('\n'));
       process.exit(2);
   }
+}
+
+/** `tinyagent run`: the agent in this process (tools confined to the work folder), its model calls through the server. */
+async function agentRun() {
+  const { runAgent } = await import('../lib/agent/index.mjs');
+  const { config } = layers();
+  const r = await runAgent({ request: rest.join(' '), workdir: path.resolve(opt('workdir', '.')), plansDir: opt('plans') ? path.resolve(opt('plans')) : null, ta: client('run:cli'), config,
+    planOnly: flag('plan-only') || flag('dry-run'), useCache: !flag('no-cache'), log: logLine });
+  if (flag('json')) return out(r);
+  logLine(`plans: ${r.plans}`);
+  logLine(`run: ${r.runDir} (${r.status}, ${r.how ?? '-'}${r.plan ? ` ${r.plan}` : ''}, ${r.rounds ?? 0} planner round(s), ${r.stats.calls} model call(s), ${r.stats.credits} credits, ${r.ms} ms)`);
+  if (r.code) out(r.code);
+  out(r.summary ?? r.status);
+  if (!['finished', 'planned'].includes(r.status)) process.exitCode = 3;
+}
+
+/** `tinyagent plans`: the plan cache of a work folder (a plain folder; no model call). */
+async function plansCommand() {
+  const { PlanCache, agentSettings, plansDirOf, extractMeta, promotedPluginSource } = await import('../lib/agent/index.mjs');
+  const { config } = layers();
+  const S = agentSettings(config);
+  const workdir = path.resolve(opt('workdir', '.'));
+  const cache = new PlanCache(plansDirOf(workdir, S, opt('plans') ? path.resolve(opt('plans')) : null));
+  const [sub, id] = rest;
+  logLine(`plans: ${cache.dir}`);
+  if (!sub || sub === 'list') {
+    const plans = await cache.load({ extractMeta: (code) => extractMeta(code, S) });
+    if (flag('json')) return out(plans.map(({ code, md, ...p }) => p));
+    for (const p of plans) out(`${p.id.padEnd(40)} ${p.status.padEnd(9)} runs ${String(p.front.runs ?? 0).padStart(3)}  ${p.metaError ? `[${p.metaError.slice(0, 60)}] ` : ''}${(p.meta?.task ?? '').slice(0, 90)}`);
+    if (!plans.length) out('(no plans)');
+    return;
+  }
+  if (!id) throw new Error(`tinyagent plans ${sub} <id>`);
+  if (sub === 'show') { const p = cache.read(id); out(`${p.dir}  (status ${p.status}, hash ${p.hash})\n`); out(p.md); out('--- plan.mjs ---'); out(p.code); return; }
+  if (sub === 'verify') {
+    const m = await extractMeta(cache.read(id).code, S);
+    if (m.error) throw new Error(`the plan cannot be verified: ${m.error}`);
+    const p = cache.verify(id);
+    return out(`${id}: verified (hash ${p.hash})`);
+  }
+  if (sub === 'rm') { cache.remove(id); return out(`${id}: removed`); }
+  if (sub === 'promote') {
+    const name = opt('name');
+    if (!name || !/^[a-z0-9][a-z0-9_.-]{0,63}$/.test(name)) throw new Error('--name <skill-name> (lowercase letters, digits, . _ -)');
+    const p = cache.read(id);
+    if (p.status !== 'verified') throw new Error(`${id} is ${p.status}; only a verified plan is promoted (tinyagent plans verify ${id})`);
+    const m = await extractMeta(p.code, S);
+    if (m.error) throw new Error(m.error);
+    const toDir = path.resolve(opt('to', path.join(workdir, '.tinyagent', 'skill-plugins')));
+    fs.mkdirSync(toDir, { recursive: true });
+    const file = path.join(toDir, `${name}.mjs`);
+    if (fs.existsSync(file) && !flag('yes')) throw new Error(`${file} exists (--yes replaces it)`);
+    fs.writeFileSync(file, promotedPluginSource({ name, plan: p, meta: m.meta, toDir }));
+    return out(`${file}: SkillPlugin ${name} (add ${toDir} to skills.plugins of a configuration layer to serve it)`);
+  }
+  throw new Error(`unknown plans command ${sub} (list, show, verify, rm, promote)`);
 }
 
 /** Commands that read the run folders of the job runner (no model call). */

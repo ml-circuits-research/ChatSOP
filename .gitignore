@@ -24,3 +24,5 @@ eval/smoke-reasoning/bench/cases/
 .env
 .env.*
 TinyAgent/data/
+# tinyagent run: run folders of a work folder (plans in .tinyagent/plans stay visible and may be committed)
+.tinyagent/runs/
