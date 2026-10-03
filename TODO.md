@@ -73,9 +73,9 @@ is a TaskLambdaCall folder (manual: "TaskLambdas and TaskLambdaCalls" in `TinyAg
 - [ ] **Files of other agents, after they commit** (each then leaves the `PENDING` list of `tests/tinyagent/no-direct-model-calls.test.mjs`
   and of `TinyAgent/test/calls.test.mjs`): `jobs/skills/chatsop.mjs` and `jobs/skills/regression.mjs` (declare `effects`; `inputs` ->
   `params`, `ctx.inputs` -> `ctx.params`, export `lambdas`; comments), `tools/eval/formalization-regression/{argument,grow,record,offline}.mjs`
-  (comments), `tests/formalization-regression-plugins.test.mjs` (`loadLambdas`, `validateParams`, title), `TinyAgent/test/client-ops.test.mjs`
-  (comment), `config/tinyagent.json` (section `skills` -> `lambdas`, `plugins` -> `project`, `lambda:*` in `policy.allowedPurposes`),
-  `docs/runtime.html` (two mentions), `eval/registry.json` (texts of the regression entries) and `docs/tests-inventory.html` (regenerate).
+  (comments), `TinyAgent/test/client-ops.test.mjs` (comment), `docs/runtime.html` (two mentions), `eval/registry.json` (texts of the
+  regression entries) and `docs/tests-inventory.html` (regenerate). Done: `config/tinyagent.json` (`lambdas.project`, `lambda:*`
+  allowed) and `tests/formalization-regression-plugins.test.mjs`.
 - [ ] **Rename the folder `jobs/skills/` to `jobs/lambdas/`** (Agent Skills are a different concept), with `config/tinyagent.json`.
 - [ ] **Drop the old names** once every running TinyAgent server has been restarted on this code and no caller uses them: the TaskLambda section of
   `TinyAgent/lib/legacy.mjs`, `TinyAgent/lib/skills.mjs`, `ta.skill`/`ta.skills`, `/v1/skills`, the commands `skills`, `skill`,
