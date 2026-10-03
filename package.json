@@ -15,6 +15,7 @@
     "memory": "node examples/memory-demo.mjs",
     "bench:memory": "node tools/bench-memory.mjs",
     "demo:reasoning": "node examples/reasoning-demo.mjs",
-    "test:llmapi": "node --test LLMAPIProvider/proxy.test.mjs"
+    "test:tinyagent": "node --test TinyAgent/test/*.test.mjs",
+    "tinyagent": "node TinyAgent/bin/tinyagent.mjs"
   }
 }

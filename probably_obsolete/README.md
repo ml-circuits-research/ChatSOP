@@ -48,3 +48,9 @@ Both keep original repository-relative paths below their folder; the state befor
 ## Formalization experiments (2026-10-03)
 
 `formalization-experiments-2026-10/` holds the research harnesses of 2026-10-02/03, archived when the owner decided to rebuild the formalization infrastructure (structure model, logic formalizer model, deterministic converters to SOP). They are the six-paths harness and its layer, the method library and its node-by-node runs, the stage-A semantic decomposition, and the dual-formalization tooling with its cross-family and tiny-only verifiers. Their tests moved with them. See its `README.md` for what each part was, its final numbers, what stayed in the product and why, and the path map. The state before the move is commit `c3da94f`.
+
+## TinyAgent migration (2026-10-03)
+
+| Archived item | What it was | Current place |
+|---|---|---|
+| `llmapiprovider/local-services/small-models/` | The earlier proxy's local service for GLiNER2.5 and T5 NL-to-FOL (tiers `structure-gliner`, `formalizer-t5`); the models lost the A/B of 2026-10-03 and were deleted | the prompted roles of TinyAgent (`structure`, `formalizer` tiers, `config/prompts/`) |
