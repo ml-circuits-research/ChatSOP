@@ -8,7 +8,7 @@ import {Auth} from '../server/auth.mjs';
 import {ChatData} from '../lib/chat-data/index.mjs';
 import {BaseMemories, ensureDefaultBase} from '../lib/chat-data/memories.mjs';
 import {ensureReplyMemory} from '../lib/chat-data/composer.mjs';
-import {SEED_INPUTS, cachedDir, cookieOf, httpClient, lex, listen, repoPath, tempDir, stubQueryParser} from './helpers.mjs';
+import {SEED_INPUTS, cachedDir, seedMemoriesRoot, cookieOf, httpClient, lex, listen, repoPath, tempDir, stubQueryParser} from './helpers.mjs';
 
 export const runtimeConfig = () => JSON.parse(fs.readFileSync(repoPath('config/runtime.json'), 'utf8'));
 
@@ -20,6 +20,8 @@ export function seededChatDataTemplate() {
   if (templateDir) return templateDir;
   return (templateDir = cachedDir('seed-template', SEED_INPUTS, building => {
     const runtime = runtimeConfig();
+    // the shared seed memories first (tests/helpers.mjs seedMemoriesRoot), then the default base and the reply memory over them
+    fs.cpSync(path.join(seedMemoriesRoot(), 'chat_data'), path.join(building, 'chat_data'), {recursive: true});
     const chatData = ChatData.open({chatData: {root: path.join(building, 'chat_data')}}, {});
     const memories = new BaseMemories({chatData, memory: runtime.memory});
     ensureDefaultBase(memories, {memory: runtime.memory});

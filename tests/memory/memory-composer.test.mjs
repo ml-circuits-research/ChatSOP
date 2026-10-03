@@ -6,19 +6,18 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {ChatData} from '../../lib/chat-data/index.mjs';
-import {BaseMemories} from '../../lib/chat-data/memories.mjs';
+import {BaseMemories, DEFAULT_STRATEGY} from '../../lib/chat-data/memories.mjs';
 import {ensureSeedMemories} from '../../lib/knowledge-seeds.mjs';
 import {composableLayers, compose, conversationCircuits, ensureReplyMemory, isConversationLayer} from '../../lib/chat-data/composer.mjs';
 import {replyLayer, setReplyLayer, shippedCircuits} from '../../sop/replies.mjs';
 import {productServer} from '../product-helpers.mjs';
-import {SEED_INPUTS, cachedDir, tempDir} from '../helpers.mjs';
+import {seedMemoriesRoot, tempDir} from '../helpers.mjs';
 
-// The seed memories take most of a minute to build: they are built once per content of what shapes them (tests/helpers.mjs cachedDir)
-// and copied into each test's own chat data root.
-const seeded = () => cachedDir('composer-seeds', SEED_INPUTS, dir => ensureSeedMemories(new BaseMemories({chatData: ChatData.open({chatData: {root: path.join(dir, 'chat_data')}}, {})})));
+// The seed memories take most of a minute to build: they are built once per content of what shapes them and shared by the tests
+// (tests/helpers.mjs seedMemoriesRoot, the default strategy), then copied into each test's own chat data root.
 function memoriesIn(t) {
   const root = path.join(tempDir(t, 'chatsop-composer-'), 'chat_data');
-  fs.cpSync(path.join(seeded(), 'chat_data'), root, {recursive: true});
+  fs.cpSync(path.join(seedMemoriesRoot({strategy: DEFAULT_STRATEGY}), 'chat_data'), root, {recursive: true});
   const chatData = ChatData.open({chatData: {root}}, {});
   const memories = new BaseMemories({chatData});
   assert.equal(ensureSeedMemories(memories).length, 0, 'the copied root holds every seed');

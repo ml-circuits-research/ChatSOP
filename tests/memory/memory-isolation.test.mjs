@@ -8,17 +8,15 @@ import {ChatData} from '../../lib/chat-data/index.mjs';
 import {BaseMemories, STRATEGIES, DEFAULT_STRATEGY, cloneRepository, ensureDefaultBase} from '../../lib/chat-data/memories.mjs';
 import {Sessions} from '../../lib/chat-data/sessions.mjs';
 import {FAMILY, runtimeConfig} from '../product-helpers.mjs';
-import {SEED_INPUTS, cachedDir, tempDir} from '../helpers.mjs';
-import {ensureSeedMemories} from '../../lib/knowledge-seeds.mjs';
+import {seedMemoriesRoot, tempDir} from '../helpers.mjs';
 
 const memory = runtimeConfig().memory;
-// `seeded`: the root starts with the seed memories ensureDefaultBase would build (same strategy), copied from a fixture built once per
-// content of what shapes them (tests/helpers.mjs cachedDir), so the test does not pay most of a minute for them on every run.
+// `seeds`: the root starts with the seed memories ensureDefaultBase would build (same strategy), copied from the shared fixture built
+// once per content of what shapes them (tests/helpers.mjs seedMemoriesRoot), so the test does not pay most of a minute for them.
 const SEED_STRATEGY = STRATEGIES.includes(memory.engine) ? memory.engine : DEFAULT_STRATEGY;
-const seeded = () => cachedDir('isolation-seeds', SEED_INPUTS, dir => ensureSeedMemories(new BaseMemories({chatData: ChatData.open({chatData: {root: dir + '/cd'}}, {}), memory}), {strategy: SEED_STRATEGY}), SEED_STRATEGY);
 const open = (t, {seeds = false} = {}) => {
   const root = tempDir(t, 'iso-') + '/cd';
-  if (seeds) fs.cpSync(seeded() + '/cd', root, {recursive: true});
+  if (seeds) fs.cpSync(path.join(seedMemoriesRoot({strategy: SEED_STRATEGY}), 'chat_data'), root, {recursive: true});
   const chatData = ChatData.open({chatData: {root}}, {});
   const memories = new BaseMemories({chatData, memory});
   return {chatData, memories, sessions: new Sessions({chatData, memories, memory})};

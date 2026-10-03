@@ -1,6 +1,8 @@
 // Shared test fixtures. Every bundled resource is resolved relative to this
 // module, never relative to the working directory.
-import {demoLexicon} from '../lib/knowledge-seeds.mjs';
+import {demoLexicon, ensureSeedMemories} from '../lib/knowledge-seeds.mjs';
+import {ChatData} from '../lib/chat-data/index.mjs';
+import {BaseMemories} from '../lib/chat-data/memories.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -42,12 +44,38 @@ export function inputsHash(inputs, extra = '') {
 export const SEED_INPUTS = Object.freeze(['config/knowledge', 'config/runtime.json', 'memory', 'lib/chat-data', 'lib/knowledge-seeds.mjs', 'sop']);
 export function cachedDir(name, inputs, build, extra = '') {
   const final = path.join(os.tmpdir(), `chatsop-${name}-${inputsHash(inputs, extra)}`);
-  if (!fs.existsSync(final)) {
-    const building = fs.mkdtempSync(final + '-building-');
-    try { build(building); } catch (e) { fs.rmSync(building, {recursive: true, force: true}); throw e; }
-    try { fs.renameSync(building, final); } catch { fs.rmSync(building, {recursive: true, force: true}); } // another process built it first
+  // Test files run in parallel processes: the first one builds under a lock directory, the others wait for its result instead of
+  // building the same fixture at the same time (a lock older than ten minutes is taken over).
+  const lock = final + '.lock';
+  const nap = ms => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+  while (!fs.existsSync(final)) {
+    try { fs.mkdirSync(lock); } catch (e) {
+      if (e.code !== 'EEXIST') throw e;
+      const age = Date.now() - (fs.statSync(lock, {throwIfNoEntry: false})?.mtimeMs ?? Date.now());
+      if (age > 600_000) fs.rmSync(lock, {recursive: true, force: true}); else nap(250);
+      continue;
+    }
+    try {
+      if (fs.existsSync(final)) break;
+      const building = fs.mkdtempSync(final + '-building-');
+      try { build(building); } catch (e) { fs.rmSync(building, {recursive: true, force: true}); throw e; }
+      fs.renameSync(building, final);
+    } finally { fs.rmSync(lock, {recursive: true, force: true}); }
   }
   return final;
+}
+
+/**
+ * A chat data root (`<dir>/chat_data`) holding every seed memory, built with `strategy` (the runtime's memory engine by default):
+ * built once per content of SEED_INPUTS and shared by the tests that need the seeds (copy it before changing anything).
+ */
+export function seedMemoriesRoot({strategy = null} = {}) {
+  const runtime = JSON.parse(fs.readFileSync(repoPath('config/runtime.json'), 'utf8'));
+  const chosen = strategy ?? runtime.memory?.engine ?? 'sqlite';
+  return cachedDir('seed-memories', SEED_INPUTS, dir => {
+    const chatData = ChatData.open({chatData: {root: path.join(dir, 'chat_data')}}, {});
+    ensureSeedMemories(new BaseMemories({chatData, memory: runtime.memory}), {strategy: chosen});
+  }, chosen);
 }
 
 export const lex = demoLexicon();
