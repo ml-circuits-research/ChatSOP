@@ -98,7 +98,7 @@ export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = n
 
   /** A raw request to the server (path relative to the server root); retries once after starting the server when autostart is on. */
   async function request(path, { method = 'POST', body = undefined, headers = {}, timeoutMs = 600_000, signal = undefined, tagsOf = {} } = {}) {
-    const init = () => ({ method, headers: { ...tags(tagsOf), ...headers }, body: body === undefined ? undefined : typeof body === 'string' ? body : JSON.stringify(body), signal: signal ?? AbortSignal.timeout(timeoutMs) });
+    const init = () => ({ method, headers: { ...tags(tagsOf), ...headers }, body: body === undefined ? undefined : typeof body === 'string' ? body : JSON.stringify(body), signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(timeoutMs)]) : AbortSignal.timeout(timeoutMs) });
     try { return await transport(`${base}${path}`, init()); }
     catch (e) {
       const refused = /ECONNREFUSED|fetch failed|ECONNRESET|socket/i.test(`${e?.cause?.code ?? ''} ${e?.message ?? ''}`) && e?.name !== 'TimeoutError' && e?.name !== 'AbortError';

@@ -4,10 +4,10 @@
  * base memories, answered by three arms.
  *
  *   node tools/eval/ingest-v1.mjs pipeline --doc handbook|europa [--ids h01,h02] [--tier small] [--base ID] [--tag T]
- *        the product path: a session cloned from the base memory, the step-by-step formalizer with its questions answered by ONE proxy
- *        tier (default small; LLMDirect is archived), the shared symbolic path, the rendered English answer
- *   node tools/eval/ingest-v1.mjs direct --doc ... --arm qwen27b|deepseek [--model M]       the model reads the whole document (one direct call through the proxy)
- *   node tools/eval/ingest-v1.mjs direct --doc ... --arm local --endpoint URL [--model NAME]   a local llama-server reads the document
+ *        the product path: a session cloned from the base memory, the step-by-step formalizer with its questions answered by ONE
+ *        TinyAgent tier (default small; LLMDirect is archived), the shared symbolic path, the rendered English answer
+ *   node tools/eval/ingest-v1.mjs direct --doc ... --arm qwen27b|deepseek [--model M]       the model reads the whole document (one direct call through TinyAgent)
+ *   node tools/eval/ingest-v1.mjs direct --doc ... --arm local [--tier micro]               a local model (a TinyAgent tier, default micro) reads the document
  *   node tools/eval/ingest-v1.mjs score [--files a.jsonl,b.jsonl]                       correct / wrong / unknown per arm and document
  *
  * Answers go to eval/reports/current/ingest-v1/<arm>-<doc>[-tag].jsonl (one line per question). The questions and the gold are
@@ -23,7 +23,7 @@ import {Sessions} from '../../lib/chat-data/sessions.mjs';
 import {TheoryCache} from '../../reasoning/slice/index.mjs';
 import {agentClient} from './query-forms-probe.mjs';
 import {providerChat, parseEntry} from '../../lib/llm-providers.mjs';
-import {localChat} from '../../lib/local-llm/client.mjs';
+import {tinyAgent} from '../../lib/tinyagent.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 export const OUT = path.join(ROOT, 'eval/reports/current/ingest-v1');
@@ -70,7 +70,7 @@ export async function askPipeline(s, question, {tier}) {
   }
 }
 
-/** The default model since 2026-10-02 (commit 41e0db8): Qwen3.8 27b of the openference plan through the proxy LLMAPIProvider. */
+/** The default model since 2026-10-02 (commit 41e0db8): Qwen3.8 27b of the openference plan through TinyAgent. */
 export const DEFAULT_MODEL = 'openference/Qwen3.8 27b';
 export const DIRECT_SYSTEM = 'You answer questions about one document. Use only the document. Reply with the answer in one short sentence. If the document does not contain the answer, reply exactly: The document does not say.';
 const directPrompt = (doc, q) => `<document>\n${doc}\n</document>\n\nQuestion: ${q}`;
@@ -128,11 +128,15 @@ async function main() {
       if (arm !== 'local') {
         const model = opt('--model', arm === 'deepseek' ? 'openrouter/deepseek/deepseek-v4-flash' : DEFAULT_MODEL);
         const entry = parseEntry(model);
-        const out = await providerChat({system: DIRECT_SYSTEM, prompt: directPrompt(text, q.q), provider: entry.provider, model: entry.model, timeoutMs: 240_000});
+        const out = await providerChat({system: DIRECT_SYSTEM, prompt: directPrompt(text, q.q), ...(entry.tier ? {provider: entry.tier} : {provider: entry.provider, model: entry.model}), timeoutMs: 240_000, purpose: 'job:eval-ingest-v1'});
         r = {model, text: out.text ?? '', ...(out.ok ? {} : {error: out.reason}), ms: out.ms, usage: out.usage};
       } else {
-        const out = await localChat({endpoint: opt('--endpoint'), model: opt('--model', 'local'), messages: [{role: 'system', content: DIRECT_SYSTEM}, {role: 'user', content: directPrompt(text, q.q)}], maxTokens: 200, timeoutMs: 300_000});
-        r = {model: opt('--model', 'local'), text: out.text ?? '', ...(out.ok ? {} : {error: out.reason}), ms: out.ms, usage: out.usage};
+        // A local model is a TinyAgent tier (TinyAgent starts and stops the local model servers).
+        if (args.includes('--endpoint')) throw new Error('--endpoint is gone: a local model is a TinyAgent tier (--tier, default micro)');
+        const tier = opt('--tier', 'micro');
+        const out = await tinyAgent({purpose: 'job:eval-ingest-v1'}).chat({tier, messages: [{role: 'system', content: DIRECT_SYSTEM}, {role: 'user', content: directPrompt(text, q.q)}],
+          maxTokens: 200, temperature: 0, stream: false, extraBody: {cache_prompt: true, timings_per_token: false}, timeoutMs: 300_000});
+        r = {model: `tier:${tier}`, text: out.text ?? '', ...(out.ok ? {} : {error: out.reason}), ms: out.ms, usage: out.ok ? {input_tokens: out.usage.in, output_tokens: out.usage.out, reasoning_tokens: out.usage.reasoning} : undefined};
       }
       const row = {id: q.id, q: q.q, arm, ...r};
       row.score = scoreAnswer(q, row);

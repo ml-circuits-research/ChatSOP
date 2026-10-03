@@ -8,9 +8,9 @@
  *   n  the natural questions tools/eval/generality/natural-v1.jsonl (world-v1)
  * The tuning pool (--pool tuning) is disjoint from every measured row: level a from stageRows seed 777 outside the 10-per-family
  * measured set, level b/c instances 11..10+per; natural rows are never in the tuning pool.
- *   node tools/eval/stepbystep-protocol/run.mjs --methods A,D --levels a,b,c,n --per 3 --endpoint http://127.0.0.1:19611/v1 \
- *     --model qwen3-4b --out eval/reports/current/stepbystep-protocol/stage1 [--pool measured|tuning] [--ids x,y]
- * One method per process is recommended (each method has its own cached prefix on the steps slot).
+ *   node tools/eval/stepbystep-protocol/run.mjs --methods A,D --levels a,b,c,n --per 3 [--local-tier micro] \
+ *     --out eval/reports/current/stepbystep-protocol/stage1 [--pool measured|tuning] [--ids x,y]
+ * The questions go to the TinyAgent tier --local-tier (default micro, the local Qwen3-4B-Instruct that TinyAgent starts on demand).
  */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -26,6 +26,7 @@ import {verifyAnswer} from '../../../reasoning/strategies/js-reference/index.mjs
 import {openSession} from '../query-forms-probe.mjs';
 import {parse} from '../../../sop/knowledge/lexical.mjs';
 import {STEP_BY_STEP_METHODS} from '../../../lib/formalize/strategies.mjs';
+import {DEFAULT_LOCAL_TIER} from '../symbolic-vs-llm/run.mjs';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const MANIFEST = path.join(ROOT, 'eval/smoke-reasoning/bench/manifest.jsonl');
@@ -90,8 +91,8 @@ export function prepare(row, shared) {
 export async function main(args = process.argv.slice(2)) {
   const methods = opt(args, '--methods', 'A').split(',');
   for (const m of methods) if (!STEP_BY_STEP_METHODS.includes(m)) throw new Error(`methods: ${STEP_BY_STEP_METHODS.join(', ')}`);
-  const endpoint = opt(args, '--endpoint', null);
-  if (!endpoint) throw new Error('--endpoint of an already running llama-server (one GPU worker; tools/local-llm/serve.mjs)');
+  for (const gone of ['--endpoint', '--model']) if (args.includes(gone)) throw new Error(`${gone} is gone: every model call goes through TinyAgent; name the tier with --local-tier (default ${DEFAULT_LOCAL_TIER})`);
+  const localTier = opt(args, '--local-tier', DEFAULT_LOCAL_TIER);
   const levels = opt(args, '--levels', 'a,b,c,n').split(','), per = Number(opt(args, '--per', 3)), pool = opt(args, '--pool', 'measured');
   let rows = protocolRows({levels, per, pool});
   const ids = opt(args, '--ids', null)?.split(',');
@@ -102,12 +103,12 @@ export async function main(args = process.argv.slice(2)) {
   fs.mkdirSync(out, {recursive: true});
   const file = path.join(out, 'records.jsonl');
   const done = new Set(fs.existsSync(file) ? fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map(l => { const r = JSON.parse(l); return `${r.id}/${r.method}`; }) : []);
-  const settings = {model: opt(args, '--model', 'qwen3-4b'), endpoint, wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096))};
+  const settings = {model: `tier:${localTier}`, localTier, purpose: 'job:stepbystep-protocol', wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096))};
   // Provenance: the protocol code digest per method run (a changed protocol is a new run, never mixed into the same records).
   const dir = path.join(ROOT, 'lib/query-author/step-by-step');
   const code = createHash('sha256');
   for (const f of fs.readdirSync(dir).sort()) code.update(f).update(fs.readFileSync(path.join(dir, f)));
-  const identity = {protocol_sha256: code.digest('hex'), model: settings.model, endpoint, levels, per, pool, rows: rows.length, started: new Date().toISOString()};
+  const identity = {protocol_sha256: code.digest('hex'), model: settings.model, local_tier: localTier, levels, per, pool, rows: rows.length, started: new Date().toISOString()};
   for (const method of methods) {
     const file = path.join(out, `run-${method}.json`);
     if (fs.existsSync(file) && JSON.parse(fs.readFileSync(file, 'utf8')).protocol_sha256 !== identity.protocol_sha256 && !args.includes('--allow-changed')) throw new Error(`${method}: the protocol code changed since this run started; use a fresh --out`);

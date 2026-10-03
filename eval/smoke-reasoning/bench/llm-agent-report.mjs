@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Report driver of the llm-agent baseline (advisory LLM through the local proxy). Costs real model calls: it refuses to run unless SMOKE_LLM=1.
+ * Report driver of the llm-agent baseline (advisory LLM through TinyAgent). Costs real model calls: it refuses to run unless SMOKE_LLM=1.
  *
  *   SMOKE_LLM=1 node eval/smoke-reasoning/bench/llm-agent-report.mjs --model Qwen3.8 27b --presentation sop|nl|both [--case 07] [--subset nl] [--concurrency 4] [--refresh] [--verify]
  *   node eval/smoke-reasoning/bench/llm-agent-report.mjs --summary          (no model calls: rebuild eval/reports/current/llm-agent/summary.md from the per-run files)

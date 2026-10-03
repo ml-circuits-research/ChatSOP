@@ -283,7 +283,7 @@
     ]
   },
   "fallback": {
-    "_note": "owner 2026-10-02: when openference is unavailable (unreachable or 5xx after retry.max5xx retries, 429 after retry.max retries or with retry-after above maxWaitMs, or a queue/plan-gate wait above maxWaitMs) a request for a mapped model goes to this upstream and model. Response header x-tinyagent-fallback; opt out per request with x-llmapiprovider-no-fallback: 1.",
+    "_note": "owner 2026-10-02: when openference is unavailable (unreachable or 5xx after retry.max5xx retries, 429 after retry.max retries or with retry-after above maxWaitMs, or a queue/plan-gate wait above maxWaitMs) a request for a mapped model goes to this upstream and model. Response header x-tinyagent-fallback; opt out per request with x-tinyagent-no-fallback: 1.",
     "from": "openference",
     "upstream": "openrouter",
     "models": {

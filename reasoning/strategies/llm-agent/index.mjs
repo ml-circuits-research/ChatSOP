@@ -1,6 +1,6 @@
 /**
- * llm-agent: an advisory BASELINE strategy that asks a model through the OpenAI-compatible completion endpoint of the local proxy
- * (default: `Qwen3.8 27b` of the openference plan; no omp, owner order 2026-10-02) to reason about a problem. It is not an engine. Its answers are ADVISORY: the smoke harness
+ * llm-agent: an advisory BASELINE strategy that asks a model through TinyAgent (lib/tinyagent.mjs; default: `Qwen3.8 27b` of the
+ * openference plan; no omp, owner order 2026-10-02) to reason about a problem. It is not an engine. Its answers are ADVISORY: the smoke harness
  * compares them with the oracle, but they are never ground truth, are never promoted to evidence and never feed the knowledge.
  *
  *   input         `{theory: {knowledge}, query, source?}`; presentation `sop` gives the knowledge slice and the query circuit as SOP text with the
@@ -9,8 +9,10 @@
  *   honesty       `exact: false`, `bounded: false`, `verified: false`; a wall timeout is `budget_exhausted` reason `wall`;
  *   presentation `code`: the input is one programming instruction `{task: {id, entry, instruction, examples}, repair?}` and the model writes `task.sop` and `candidate.sop` in two fenced blocks (code.mjs); the packet is `{status: 'proposed', files}` and nothing is verified here;
  *   verify mode   `options.verify` replays the claimed `used` support in the js-oracle (verify.mjs) and reports `verified` per row;
- *   model, cost   chosen by config (config/llm-agent.json) or options; the completion cost is zero (the plan is a subscription) with token usage
- *                 reported. Cache keys isolate the endpoint and completion settings. The omp runner is archived in probably_obsolete/omp/.
+ *   model, cost   chosen by config (config/llm-agent.json) or options: `model` is a TinyAgent tier (`small`, ...), `<provider>/<model>`, or a
+ *                 model of the openference plan; `upstream` names the provider explicitly. A model is asked with the fallback off (no
+ *                 silent substitution). The completion cost is zero (the plan is a subscription) with token usage reported. Cache keys
+ *                 isolate the target and completion settings. The omp runner is archived in probably_obsolete/omp/.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -22,6 +24,7 @@ import {parseAnswer} from './packet.mjs';
 import {runCompletion} from './completion.mjs';
 import {cacheKey, readCache, writeCache} from './cache.mjs';
 import {verifyUsed} from './verify.mjs';
+import {parseEntry} from '../../../lib/llm-providers.mjs';
 import {codePrompt, parseCodeAnswer, CODE_SYSTEM_PROMPT} from './code.mjs';
 
 export {NotExpressibleError, ProgramError};
@@ -31,7 +34,7 @@ const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.
 export function loadConfig() {
   let c = {};
   try { c = JSON.parse(fs.readFileSync(path.join(repo, 'config/llm-agent.json'), 'utf8')); } catch { /* defaults below */ }
-  const cfg = {model: 'Qwen3.8 27b', fallbackModels: [], backend: 'completion', endpoint: 'http://127.0.0.1:18080/v1', apiKey: null, maxTokens: 1024, presentation: 'sop', verify: false, timeoutMs: 180000, maxChars: 90000, cacheDir: 'state/llm-agent/cache', ...c};
+  const cfg = {model: 'Qwen3.8 27b', upstream: null, fallbackModels: [], backend: 'completion', maxTokens: 1024, presentation: 'sop', verify: false, timeoutMs: 180000, maxChars: 90000, cacheDir: 'state/llm-agent/cache', ...c};
   if (process.env.CHATSOP_LLM_AGENT_MODEL) cfg.model = process.env.CHATSOP_LLM_AGENT_MODEL;
   if (process.env.CHATSOP_LLM_AGENT_PRESENTATION) cfg.presentation = process.env.CHATSOP_LLM_AGENT_PRESENTATION;
   cfg.cacheDir = path.resolve(repo, cfg.cacheDir);
@@ -56,17 +59,24 @@ export const capabilities = {
   presentations: ['sop', 'nl', 'code']
 };
 
+/** The TinyAgent target of a model name: `{model}` for a tier, `{upstream, model}` for a concrete model of a provider. */
+export function targetOf(model, upstream = null) {
+  if (upstream) return {upstream, model};
+  const e = parseEntry(model);
+  return e.tier ? {model: e.tier} : {upstream: e.provider, model: e.model ?? model};
+}
+
 export async function available() {
   const cfg = loadConfig();
   if (cfg.backend !== 'completion') return {ok: false, reason: `unknown llm-agent backend ${cfg.backend}`};
-  return cfg.endpoint ? {ok: true, endpoint: cfg.endpoint, model: cfg.model} : {ok: false, reason: 'completion endpoint is not configured'};
+  return cfg.model ? {ok: true, model: cfg.model, target: targetOf(cfg.model, cfg.upstream)} : {ok: false, reason: 'no llm-agent model is configured'};
 }
 
 const result = (packet, extra) => ({...packet, advisory: true, route: {requested: extra.requested ?? null, chosen: 'llm-agent', reason: extra.requested ? 'explicit request' : 'direct call to the strategy', fallback: null, backend: extra.backend}, llm: extra.llm});
 
 /**
  * Answer a problem. `options`: `model`, `presentation` ('sop' | 'nl' | 'code'), `reasoning` ('cot' or 'direct'), `verify`, `cacheDir`, `refresh`, `timeoutMs`,
- * `backend` ('completion', the only one), `endpoint`, `apiKey`, `maxTokens`, `signal`, `fallbackModels`, `run` (test hook replacing selected runner).
+ * `backend` ('completion', the only one), `upstream`, `maxTokens`, `signal`, `fallbackModels`, `run` (test hook replacing selected runner).
  * Throws NotExpressibleError when the input is larger than `limits.max_chars` or the `nl` presentation has no source text.
  */
 export async function ask(problem, budgetArg = {}, options = {}) {
@@ -92,11 +102,12 @@ export async function ask(problem, budgetArg = {}, options = {}) {
   const models = [cfg.model, ...(cfg.fallbackModels ?? [])];
   let last = null, totalCost = 0;
   for (const model of models) {
-    const key = cacheKey({model, presentation: presentation + '+' + reasoning, prompt, version: PROMPT_VERSION, settings: JSON.stringify({backend: cfg.backend, endpoint: cfg.endpoint, apiKey: cfg.apiKey, maxTokens: cfg.maxTokens, temperature: 0, enable_thinking: false, system: presentation === 'code' ? CODE_SYSTEM_PROMPT : SYSTEM_PROMPT})});
+    const target = targetOf(model, cfg.upstream);
+    const key = cacheKey({model, presentation: presentation + '+' + reasoning, prompt, version: PROMPT_VERSION, settings: JSON.stringify({backend: cfg.backend, target: `tinyagent:${target.upstream ?? 'tier'}/${target.model}`, maxTokens: cfg.maxTokens, temperature: 0, enable_thinking: false, system: presentation === 'code' ? CODE_SYSTEM_PROMPT : SYSTEM_PROMPT})});
     let entry = cfg.refresh ? null : readCache(cfg.cacheDir, key);
     const cached = Boolean(entry);
     if (!entry) {
-      const r = await run({model, prompt, system: presentation === 'code' ? CODE_SYSTEM_PROMPT : SYSTEM_PROMPT, timeoutMs, endpoint: cfg.endpoint, apiKey: cfg.apiKey, maxTokens: cfg.maxTokens, signal: cfg.signal});
+      const r = await run({...target, prompt, system: presentation === 'code' ? CODE_SYSTEM_PROMPT : SYSTEM_PROMPT, timeoutMs, maxTokens: cfg.maxTokens, signal: cfg.signal, fetchImpl: cfg.fetchImpl ?? null});
       totalCost += r.cost ?? 0;
       if (r.timedOut) return result({status: 'budget_exhausted', reason: 'wall', complete: false, notes: [`no answer within ${timeoutMs} ms`]}, {requested: problem.requested, backend: backendName(model), llm: {model, presentation, cost: totalCost, paid: false, cached: false, ms: r.ms ?? Date.now() - t0, usage: r.usage}});
       if (!r.ok) { last = {model, error: r.error, ms: r.ms, usage: r.usage}; continue; }

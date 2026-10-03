@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Evaluation of the formalizer (experiment eval-query-parsers-v1, DS007): the step-by-step strategy (LocalLLMStepByStep or
- * InternalReasoningStepByStep) with its questions answered by one proxy tier (`--tier`, like with like) or the product ladder (default);
+ * InternalReasoningStepByStep) with its questions answered by one TinyAgent tier (`--tier`, like with like) or the product ladder (default);
  * one-shot LLMDirect was archived on 2026-10-02 (probably_obsolete/one-shot-formalization/), on the same questions over the
  * same base memory, through the shared path (Agent turn: admission, linking, slice retrieval, StrategyRouter, oracle verification, completeness guard,
  * rendering). In process, no server, no port; a failed formalizer is an error of the record (`parser_failed`), never replaced by another answer.

@@ -2,7 +2,7 @@
 /**
  * Acceptance check of the per-session lexicon (linking proposal M0): real questions through the HTTP chat of a PRIVATE server
  * (loopback, a port of its own, never 9999, its own API key) against a named base memory, one session per question. The server,
- * the step-by-step formalizer (its questions to the proxy tier ladder), the KnowledgeLinker, the memory slice and the engine are the product's own; nothing is stubbed.
+ * the step-by-step formalizer (its questions to the TinyAgent tier ladder), the KnowledgeLinker, the memory slice and the engine are the product's own; nothing is stubbed.
  *
  *   node tools/linking/acceptance-chat.mjs [--base world-v1] [--port 19131] [--chat-data ROOT] [--out DIR] [--questions FILE]
  *

@@ -6,7 +6,7 @@
  *   node tools/eval/formalization-regression/wake.mjs --mark                          record that an improvement run consumed the inbox
  * Due when at least `threshold` new cases (after deduplication against eval/formalization-regression/cases.jsonl) arrived. Trigger:
  *   node tools/eval/formalization-regression/wake.mjs --exit-due && node tools/eval/formalization-regression/build.mjs \
- *     && node LLMJobs/run.mjs jobs/formalization-improve && node tools/eval/formalization-regression/wake.mjs --mark
+ *     && node TinyAgent/bin/tinyagent.mjs job jobs/formalization-improve && node tools/eval/formalization-regression/wake.mjs --mark
  * (after a books or commonsense evaluation has scored and reported its failures, or periodically).
  */
 import fs from 'node:fs';

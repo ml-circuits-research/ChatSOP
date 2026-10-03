@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
- * Runs jobs/smalltalk-replies (or jobs/smalltalk-judge) through the LLM job runner (LLMJobs/lib) with a fixed worker tier, so tiers
- * can be compared on the same items. Runs write only to state/llm-jobs/<name>/<run-id>/ (gitignored); calls are tagged
- * `x-llmapiprovider-purpose: job:<name>`.
+ * Runs jobs/smalltalk-replies (or jobs/smalltalk-judge) through TinyAgent's job runner (TinyAgent/lib/jobs, in this process, with the
+ * job's spec overridden: a fixed worker tier, a selection) so tiers can be compared on the same items. Runs write only to
+ * state/llm-jobs/<name>/<run-id>/ (gitignored); the model calls go to the TinyAgent server, tagged with the purpose job:<name>.
  *
  *   node tools/smalltalk/generate.mjs --tier tiny|small [--n 20 --seed S] [--name smalltalk-replies-tiny] [--stage pilot]
  *   node tools/smalltalk/generate.mjs --job smalltalk-judge --tier medium --input FILE.jsonl [--name ...]
  */
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {loadConfig, liveTiers, tierChains, loadJob, runJob, RunStore} from '../../LLMJobs/lib/index.mjs';
+import {loadConfig, liveTiers, tierChains, loadJob, runJob, RunStore} from '../../TinyAgent/lib/jobs/index.mjs';
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 const args = process.argv.slice(2);

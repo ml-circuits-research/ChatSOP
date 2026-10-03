@@ -2,8 +2,8 @@
 /**
  * L3 of the capability battery: formalization, message -> circuit -> answer. Every case of eval/capabilities/l3/catalog.jsonl (messages
  * written for the battery, never book or sealed text) is one product chat turn, exactly as the formalization regression runner
- * (tools/eval/formalization-regression/run.mjs) runs it: `openChatTurn` of tools/eval/books/system.mjs on a proxy tier (default `tiny`,
- * without the proxy's fallback), the chat default base memory, one conversation per case. It is scored by the books evaluation's
+ * (tools/eval/formalization-regression/run.mjs) runs it: `openChatTurn` of tools/eval/books/system.mjs on a TinyAgent tier (default `tiny`,
+ * without the tier's fallback), the chat default base memory, one conversation per case. It is scored by the books evaluation's
  * deterministic rules (no judge: what the rules cannot decide is `unknown`), and the circuit is tagged by tools/capabilities/tags.mjs
  * so the result says whether the formalization actually USED the capability the case lists.
  *
@@ -60,8 +60,8 @@ export function usedCapabilities(c, sop) {
 }
 
 async function runCases(cases, {tier, strategy, runId, out, log}) {
-  const headers = {'x-llmapiprovider-purpose': 'job:capability-battery', 'x-llmapiprovider-run': runId, 'x-llmapiprovider-no-fallback': '1'};
-  const system = await openChatTurn({tier, strategy, sessionId: `capability-l3-${process.pid}`, parserOptions: {reportErrors: false}, headers});
+  const tags = {purpose: 'job:capability-battery', run: runId, noFallback: true};
+  const system = await openChatTurn({tier, strategy, sessionId: `capability-l3-${process.pid}`, parserOptions: {reportErrors: false}, tags});
   try {
     for (const c of cases) {
       let r = await system.ask(c.message);

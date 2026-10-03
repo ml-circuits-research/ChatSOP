@@ -2,31 +2,31 @@
 /**
  * End-to-end evaluation on the owner's problem books (docs/runtime.html "Evaluating on the owner's problem books"):
  *   node tools/eval/books/run.mjs --n 100 [--seed s] [--books math,science,...] [--areas text,...] [--arms steps,direct[,remote-direct,ceiling]]
- *     [--include-seen] [--ids a,b] [--resume dir] [--endpoint http://127.0.0.1:PORT/v1] [--tier tiny|small|medium|good] [--concurrency N]
+ *     [--include-seen] [--ids a,b] [--resume dir] [--tier micro|tiny|small|medium|good] [--concurrency N]
  *     [--workers N] [--purpose job:books-eval] [--author-tier good] [--mode stepwise|routed|direct-verified]
  * --mode: the ChatSOPAdapter mode of the steps arm (lib/adapter; default stepwise, the chat default).
  * --items-from <run dir> takes the problems of an earlier run; --replay (arm ceiling) executes the stored circuit of a problem
  * (tools/eval/books/gold-circuits.mjs) instead of asking the tier again.
  * Arm ceiling: the same step-by-step questions answered by --author-tier (default good), in one process with --concurrency N: the
  * reasoning layers with the circuits a strong tier's answers assemble (owner 2026-10-02: like with like; LLMDirect is archived).
- * With --tier both local arms go through LLMAPIProvider: the step-by-step questions and the direct baseline call the same tier, tagged
- * with --purpose (default job:books-eval) and the run id, with the tier's fallback off (x-llmapiprovider-no-fallback), so both arms use
- * the same model; --workers N runs the steps arm in N independent chat systems (one session each).
- * Arms: steps = the product chat turn with LocalLLMStepByStep (method B) on --tier (or Qwen3-4B-Instruct Q4_K_M on a llama-server), the
+ * Every model call goes through TinyAgent (lib/tinyagent.mjs): the step-by-step questions and the direct baseline call the same tier
+ * (--tier, default micro: the local Qwen3-4B-Instruct that TinyAgent starts on demand and guards with its GPU locks), tagged with
+ * --purpose (default job:books-eval) and the run id, with the tier's fallback off, so both arms use the same model; --workers N runs the
+ * steps arm in N independent chat systems (one session each).
+ * Arms: steps = the product chat turn with LocalLLMStepByStep (method B) on --tier, the
  * problem text as the user message, the chat default base memory; direct = the same model answering the problem directly (baseline);
  * coding-agent = the steps arm with the questions answered by tier small; remote-direct = the steps arm on the product's tier ladder
  * (queryParser.local.ladder, escalating per question); ceiling = the steps arm on --author-tier. The last three keep their record names
  * (earlier runs used one-shot LLMDirect under them) and run only when asked. Items already run are not repeated unless --include-seen.
  * Writes eval/reports/current/books-eval/run-<timestamp>/records.jsonl, scores deterministically (tools/eval/books/score.mjs) and
- * prepares the judge batches; the report is tools/eval/books/report.mjs. One llama-server at a time; stops what it started.
+ * prepares the judge batches; the report is tools/eval/books/report.mjs.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {loadItems, loadSeen, markSeen, sampleItems} from './sample.mjs';
-import {openChatTurn, ROOT, MODEL_GGUF} from './system.mjs';
+import {openChatTurn, ROOT, DEFAULT_TIER} from './system.mjs';
 import {attribution, finalLine} from './attribution.mjs';
-import {GPU_LOCKS} from '../../../lib/local-llm/index.mjs';
 import {readGold} from './gold-circuits.mjs';
 
 const opt = (args, name, fallback) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
@@ -37,9 +37,7 @@ export async function main(args = process.argv.slice(2)) {
   const n = Number(opt(args, '--n', 100)), seed = opt(args, '--seed', 'books-1'), arms = list(opt(args, '--arms', 'steps,direct'));
   const unknown = arms.filter(a => !['steps', 'direct', ...Object.keys(REMOTE_ARMS)].includes(a));
   if (unknown.length) throw new Error(`arms: steps, direct, ${Object.keys(REMOTE_ARMS).join(', ')} (got ${unknown})`);
-  const endpoint = opt(args, '--endpoint', null);
-  for (const lock of GPU_LOCKS) if (fs.existsSync(path.join(ROOT, lock))) throw new Error(`the GPU is reserved (${lock}); nothing started`);
-  if (!endpoint && !opt(args, '--tier', null) && arms.some(a => !REMOTE_ARMS[a]) && !fs.existsSync(MODEL_GGUF)) throw new Error(`missing model ${MODEL_GGUF}`);
+  if (args.includes('--endpoint')) throw new Error('--endpoint is gone: every model call goes through TinyAgent; name a tier with --tier (default micro)');
   const resume = opt(args, '--resume', null);
   const out = path.resolve(ROOT, resume ?? `eval/reports/current/books-eval/run-${stamp()}`);
   fs.mkdirSync(out, {recursive: true});
@@ -68,10 +66,10 @@ export async function main(args = process.argv.slice(2)) {
   try {
     for (const arm of arms) {
       if (REMOTE_ARMS[arm]) { await remoteArm(arm, sample, done, append, args, out); continue; }
-      const tier = opt(args, '--tier', null);
-      const headers = tier ? {'x-llmapiprovider-purpose': opt(args, '--purpose', 'job:books-eval'), 'x-llmapiprovider-run': path.basename(out), 'x-llmapiprovider-no-fallback': '1'} : null;
-      system ??= await openChatTurn({endpoint, tier, headers, mode: opt(args, '--mode', 'stepwise')});
-      if (arm === 'steps' && tier && Number(opt(args, '--workers', 1)) > 1) { await parallelSteps(sample, done, append, args, out, {tier, headers}); continue; }
+      const tier = opt(args, '--tier', DEFAULT_TIER);
+      const tags = runTags(args, out);
+      system ??= await openChatTurn({tier, tags, mode: opt(args, '--mode', 'stepwise')});
+      if (arm === 'steps' && Number(opt(args, '--workers', 1)) > 1) { await parallelSteps(sample, done, append, args, out, {tier, tags}); continue; }
       let k = 0;
       for (const item of sample) {
         if (done.has(`${arm}/${item.id}`)) continue;
@@ -88,7 +86,7 @@ export async function main(args = process.argv.slice(2)) {
       }
     }
   } finally { await system?.close(); }
-  fs.writeFileSync(path.join(out, 'run.json'), JSON.stringify({run: path.basename(out), started, finished: new Date().toISOString(), n: sample.length, seed, arms, model: opt(args, '--tier', null) ? `tier:${opt(args, '--tier', null)}` : path.basename(MODEL_GGUF), method: 'B',
+  fs.writeFileSync(path.join(out, 'run.json'), JSON.stringify({run: path.basename(out), started, finished: new Date().toISOString(), n: sample.length, seed, arms, model: `tier:${opt(args, '--tier', DEFAULT_TIER)}`, method: 'B',
     base_memory: system?.baseId ?? null, memory_circuits_sha256: system?.memoryDigest ?? null, filters: {books: opt(args, '--books', null), areas: opt(args, '--areas', null)}}, null, 1));
   if (!args.includes('--include-seen') && !resume && !opt(args, '--items-from', null)) markSeen(ROOT, sample.map(i => i.id), path.basename(out));
   void localArms;
@@ -96,20 +94,23 @@ export async function main(args = process.argv.slice(2)) {
 }
 
 /**
- * The arms that run the chat turn with the step-by-step questions answered by a larger proxy tier (owner decision 2026-10-02: every tier
+ * The arms that run the chat turn with the step-by-step questions answered by a larger TinyAgent tier (owner decision 2026-10-02: every tier
  * answers the SAME questions; one-shot LLMDirect is archived in probably_obsolete/one-shot-formalization/). The record names are kept.
  * 'coding-agent': tier small; 'remote-direct': the product's ladder (queryParser.local.ladder); 'ceiling' (reasoning cycle): --author-tier
  * (default good), whose circuits measure what the reasoning layers reach with a strong formalization.
  */
 export const REMOTE_ARMS = Object.freeze({'coding-agent': {tier: 'small'}, 'remote-direct': {ladder: true}, ceiling: {tier: 'author'}});
 
-/** The steps arm on a proxy tier in N independent chat systems (one private session each, so no turn sees another's session layer). */
-async function parallelSteps(sample, done, append, args, out, {tier, headers}) {
+/** The TinyAgent tags of a run: --purpose (default job:books-eval), the run id, and no fallback (every answer from the named tier). */
+const runTags = (args, out) => ({purpose: opt(args, '--purpose', 'job:books-eval'), run: path.basename(out), noFallback: true});
+
+/** The steps arm on a TinyAgent tier in N independent chat systems (one private session each, so no turn sees another's session layer). */
+async function parallelSteps(sample, done, append, args, out, {tier, tags}) {
   const width = Math.max(1, Number(opt(args, '--workers', 1)));
   const queue = sample.filter(item => !done.has(`steps/${item.id}`));
   let k = 0;
   const worker = async w => {
-    const system = await openChatTurn({tier, headers, sessionId: `books-eval-${process.pid}-w${w}`, mode: opt(args, '--mode', 'stepwise')});
+    const system = await openChatTurn({tier, tags, sessionId: `books-eval-${process.pid}-w${w}`, mode: opt(args, '--mode', 'stepwise')});
     try {
       for (let item = queue.shift(); item; item = queue.shift()) {
         const r = await system.ask(item.question);
@@ -126,9 +127,8 @@ async function remoteArm(arm, sample, done, append, args, out) {
   const spec = REMOTE_ARMS[arm];
   // The run's tags and no fallback, so every answer of the arm comes from the named tier (the ladder's own tiers for remote-direct).
   const tier = spec.tier === 'author' ? opt(args, '--author-tier', 'good') : spec.tier ?? null;
-  const headers = {'x-llmapiprovider-purpose': opt(args, '--purpose', 'job:books-eval'), 'x-llmapiprovider-run': path.basename(out), 'x-llmapiprovider-no-fallback': '1'};
-  const system = await openChatTurn({tier, ladder: Boolean(spec.ladder), headers, sessionId: `books-eval-${process.pid}-${arm}`});
-  // `--concurrency N` (default 2): remote turns wait on the provider, so a few run at once (the proxy enforces the plan's rate limits).
+  const system = await openChatTurn({tier, ladder: Boolean(spec.ladder), tags: runTags(args, out), sessionId: `books-eval-${process.pid}-${arm}`});
+  // `--concurrency N` (default 2): remote turns wait on the provider, so a few run at once (TinyAgent enforces the plan's rate limits).
   const width = Math.max(1, Number(opt(args, '--concurrency', 2)));
   const queue = sample.filter(item => !done.has(`${arm}/${item.id}`));
   let k = 0;

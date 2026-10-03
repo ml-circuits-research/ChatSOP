@@ -4,15 +4,15 @@
  *   node tools/eval/formalization-regression/run.mjs [--tier tiny] [--strategy LocalLLMStepByStep] [--ids a,b] [--cluster c] [--n N]
  *     [--workers 4] [--run-id ID] [--against RUN_ID] [--learned DIR] [--no-judge] [--purpose job:formalization-improve]
  * Every case is the product chat turn (tools/eval/books/system.mjs, the chat default base memory) with the problem text as the user
- * message, formalized on the proxy tier (default `tiny`, the local Qwen3-4B, without the proxy's fallback so the tier is what is
- * measured) and executed. Scoring is the books evaluation's deterministic rules; what only a judge can decide goes to the proxy tier
+ * message, formalized on a TinyAgent tier (default `tiny`, without the tier's fallback so the tier is what is measured) and executed.
+ * Scoring is the books evaluation's deterministic rules; what only a judge can decide goes to the TinyAgent tier
  * `small` in packed calls, cached by (case, gold, answer) in state/formalization-regression/judge-cache.jsonl so a rerun with the
  * same answer costs nothing. `--learned DIR` runs with a candidate learned-rules layer instead of config/knowledge/formalizer-learned-v1.
  * The chat turn is CPU-bound JavaScript, so `--workers N` (default 4) runs N child processes (`--shard k/N`), one turn at a time each
  * (FR_WORKER_HEAP sets their heap in MB, default 12000); the parent merges their results and scores. A run folder resumes: cases
  * already in it are not run again.
  * Writes state/formalization-regression/<run-id>/{results.jsonl, score.json, summary.md}; `--against` adds fixed and lost cases.
- * Calls carry `x-llmapiprovider-purpose` (default `job:formalization-improve`).
+ * Calls go through TinyAgent tagged with `--purpose` (default `job:formalization-improve`) and the run id.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -80,7 +80,7 @@ function scoreOf(c, res) {
 export const JUDGE_TIER = 'small';
 const judgeKey = (c, response) => createHash('sha256').update(`${modelIdentity(JUDGE_TIER)}\0${JUDGE_SYSTEM}\0${c.id}\0${c.gold}\0${response}`).digest('hex').slice(0, 24);
 
-/** Judges the undecided results (cached), `perCall` items per request on the proxy tier `tier`. */
+/** Judges the undecided results (cached), `perCall` items per request on the TinyAgent tier `tier`. */
 export async function judge(pending, {tier = JUDGE_TIER, perCall = 8, purpose, cacheFile = path.join(STATE, 'judge-cache.jsonl')} = {}) {
   const cache = new Map(readJsonl(cacheFile).map(r => [r.key, r]));
   const todo = pending.filter(p => !cache.has(judgeKey(p.c, p.response)));
@@ -158,17 +158,17 @@ export async function runRegression({tier = 'tiny', strategy = 'LocalLLMStepBySt
     for (const r of shardFiles().flatMap(f => readJsonl(f))) done.set(r.id, r);
     queue.length = 0;
   }
-  const headers = {'x-llmapiprovider-purpose': purpose, 'x-llmapiprovider-run': id, 'x-llmapiprovider-no-fallback': '1'};
+  const tags = {purpose, run: id, noFallback: true};
   // The chat's reply memory (config conversation.layers), as the server has it: its message acts are what the formalizer may name.
   await useConfiguredReplyLayer(JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8')));
   const started = Date.now();
   let k = done.size;
   const worker = async w => {
-    const system = await openChatTurn({tier, strategy, sessionId: `formalization-regression-${process.pid}-${w}`, parserOptions: {reportErrors: false}, headers, ...(replay ? {replay: {mode: replay, dir: REPLAY_DIR}} : {}), ladder: Boolean(ladder), localExtra: {...(thinking ? {thinking: true} : {}), ...(minTokens ? {minTokens} : {}), ...(expression ? {expression: true} : {})}});
+    const system = await openChatTurn({tier, strategy, sessionId: `formalization-regression-${process.pid}-${w}`, parserOptions: {reportErrors: false}, tags, ...(replay ? {replay: {mode: replay, dir: REPLAY_DIR}} : {}), ladder: Boolean(ladder), localExtra: {...(thinking ? {thinking: true} : {}), ...(minTokens ? {minTokens} : {}), ...(expression ? {expression: true} : {})}});
     try {
       for (let c = queue.shift(); c; c = queue.shift()) {
         let r = await system.ask(c.message);
-        // A busy proxy can miss its 2 s readiness probe: the turn is tried again (twice at most) before it counts as infrastructure.
+        // A busy TinyAgent server can miss its 2 s readiness probe: the turn is tried again (twice at most) before it counts as infrastructure.
         for (let retry = 0; retry < 2 && replay !== 'replay' && !r.ok && r.error?.code === 'parse_unavailable'; retry++) {
           await new Promise(resolve => setTimeout(resolve, 5000));
           r = await system.ask(c.message);

@@ -19,8 +19,6 @@ import {wireText} from '../../../sop/knowledge/index.mjs';
 import {LIMITS, createWorld, execute, linkCircuit, withDefinitions, goldSlice, oracleOverSlice} from './world.mjs';
 import {score, equivalent, failureLayer} from './score.mjs';
 import {writeReport, stopDecision} from './report.mjs';
-import {startServer} from '../query-model-calibration/servers.mjs';
-import {MODELS} from '../query-model-calibration/models.mjs';
 import {openSession, defaultRoot} from '../query-forms-probe.mjs';
 import {readExperiments} from '../../../lib/journal.mjs';
 import {localStrategy} from '../../../lib/formalize/strategies.mjs';
@@ -29,9 +27,12 @@ import {tierLadder} from '../tier-parser.mjs';
 /**
  * Owner decision 2026-10-02: formalization is step by step only; the one-shot author arms (B: a local model writes free SOP with repair
  * rounds; B-grammar and B-structured: its constrained decoders; B-local: the same loop on the strategy slot) are archived in
- * probably_obsolete/one-shot-formalization/. Arm C is the step-by-step strategy with its questions answered by the proxy tier
- * `settings.tier` (default small; like with like with B-stepbystep on the small local model).
+ * probably_obsolete/one-shot-formalization/. Arm C is the step-by-step strategy with its questions answered by the TinyAgent tier
+ * `settings.tier` (default small; like with like with B-stepbystep on the small local model). The local arms (A, A', B-stepbystep)
+ * ask the TinyAgent tier `settings.localTier` (default micro, the local Qwen3-4B-Instruct that TinyAgent starts on demand); every model
+ * call goes through TinyAgent (lib/tinyagent.mjs).
  */
+export const DEFAULT_LOCAL_TIER = 'micro';
 export const ARCHIVED_ARMS = Object.freeze(['B', 'B-grammar', 'B-structured', 'B-local']);
 const RUNTIME = JSON.parse(fs.readFileSync(new URL('../../../config/runtime.json', import.meta.url), 'utf8'));
 /** A reviewed circuit replayed through the same validator as every formalizer (zero model calls): the author result shape. */
@@ -43,11 +44,6 @@ export function replayAuthor(sop, message, world) {
 
 export const VERSION = 'symbolic-vs-llm-m1-v1';
 const sha = value => createHash('sha256').update(value).digest('hex');
-const hashFile = async file => {
-  const hash = createHash('sha256');
-  for await (const chunk of fs.createReadStream(file)) hash.update(chunk);
-  return hash.digest('hex');
-};
 const opt = (args, name, fallback) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
 
 function sourceHashes() {
@@ -132,14 +128,13 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
     if (replay != null) author = replayAuthor(replay, row.question, world);
     else if (arm === 'B-stepbystep' || arm === 'C') {
       // The product's step-by-step strategies: the system asks short questions and writes the circuit from the answers. B-stepbystep on
-      // the local model (its dedicated slot with the restored stable prefix); C on the proxy tier settings.tier (default small).
+      // the local tier settings.localTier (default micro); C on the TinyAgent tier settings.tier (default small).
       // settings.stepMethod: the question protocol of LocalLLMStepByStep (A, or B, C, D and ablations of eval-stepbystep-protocol-v1).
       // settings.strategy: InternalReasoningStepByStep runs on the same arm (its own slot), with settings.reasoningControl (plan | greedy).
       const name = settings.strategy ?? 'LocalLLMStepByStep', method = settings.stepMethod ?? (arm === 'C' ? 'B' : 'A'), control = settings.reasoningControl ?? 'plan';
-      const tier = arm === 'C' ? settings.tier ?? 'small' : null;
-      const key = `${name}@${tier ? 'tier:' + tier : settings.endpoint}#${method}#${control}`;
-      const local = tier ? {tier, ladder: tierLadder(RUNTIME, tier), maxTokens: settings.maxTokens, method, reasoningControl: control, headers: {'x-llmapiprovider-purpose': 'job:symbolic-vs-llm'}}
-        : {endpoint: settings.endpoint, alias: settings.model, maxTokens: settings.maxTokens, method, reasoningControl: control};
+      const tier = arm === 'C' ? settings.tier ?? 'small' : settings.localTier ?? DEFAULT_LOCAL_TIER;
+      const key = `${name}@tier:${tier}#${method}#${control}`;
+      const local = {tier, ladder: arm === 'C' ? tierLadder(RUNTIME, tier) : null, maxTokens: settings.maxTokens, method, reasoningControl: control, tags: {purpose: settings.purpose ?? 'job:symbolic-vs-llm'}};
       stepStrategies.set(key, stepStrategies.get(key) ?? localStrategy(name, local, {timeoutMs: settings.wallMs}));
       author = await stepStrategies.get(key).run({message: row.question, lexicon: world.lexicon, repo: world.repo, session: world.session, derived: new Set(world.theory?.byHead?.keys?.() ?? [])});
       latency.model_ms = author.steps ? author.steps.reduce((n, s) => n + s.ms, 0) : author.runs.reduce((n, r) => n + (r.duration_ms ?? 0), 0);
@@ -181,8 +176,9 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
       const projection = /^\s*select\s+([^\n]+)/m.exec(query)?.[1]?.match(/\?[a-z][a-z0-9_]*/g)?.map(v => v.slice(1)) ?? [];
       const schema = projection.length ? `\nFor an answer table, name its columns ${projection.join(', ')}. These are output column names, not facts.\n` : '';
       const prompt = nlPrompt({source: `${evidence.source}\n\nQuestion: ${row.question}${schema}\nInclude a used list of evidence identifiers that suffice for your answer, for example \"used\":[{\"id\":\"f1\",\"version\":1}]. Refer only to identifiers printed in the evidence.`, reasoning});
-      const reply = arm === 'D' ? await (({endpoint, model}) => runCompletion({endpoint, model, prompt, system: SYSTEM_PROMPT, timeoutMs: settings.wallMs, maxTokens: settings.maxTokens}))(chainEntry(settings.subscriptionModel))
-        : await runCompletion({endpoint: settings.endpoint, model: settings.model, prompt, system: SYSTEM_PROMPT, timeoutMs: settings.wallMs, maxTokens: settings.maxTokens});
+      // D: the subscription model (a tier, or a concrete model of a provider); A and A': the local tier. Both through TinyAgent.
+      const target = arm === 'D' ? (({upstream, model}) => ({upstream, model}))(chainEntry(settings.subscriptionModel)) : {model: settings.localTier ?? DEFAULT_LOCAL_TIER};
+      const reply = await runCompletion({...target, prompt, system: SYSTEM_PROMPT, timeoutMs: settings.wallMs, maxTokens: settings.maxTokens, purpose: settings.purpose ?? 'job:symbolic-vs-llm'});
       latency.model_ms = reply.ms; tokensIn = reply.usage?.prompt_tokens ?? reply.usage?.input ?? 0; tokensOut = reply.usage?.completion_tokens ?? reply.usage?.output ?? 0; cost = arm === 'D' ? reply.cost ?? 0 : 0;
       if (!reply.ok || tokensOut > settings.maxTokens) error = tokensOut > settings.maxTokens ? 'subscription output exceeded shared question token budget' : reply.error ?? 'completion failed';
       else {
@@ -199,7 +195,7 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
   } catch (e) { error = e.message; }
   const verdict = score(row.expected, packet, {author, error});
   latency.wall_ms = Date.now() - start;
-  return {id: row.id, family: row.family, facts: row.facts, depth: row.depth, split: row.split, arm, model: arm === 'C' ? (author?.model === 'reviewed-circuit' ? 'reviewed-circuit' : `tier:${settings.tier ?? 'small'}`) : arm === 'D' ? settings.subscriptionModel : settings.model,
+  return {id: row.id, family: row.family, facts: row.facts, depth: row.depth, split: row.split, arm, model: arm === 'C' ? (author?.model === 'reviewed-circuit' ? 'reviewed-circuit' : `tier:${settings.tier ?? 'small'}`) : arm === 'D' ? settings.subscriptionModel : settings.model ?? `tier:${settings.localTier ?? DEFAULT_LOCAL_TIER}`,
     parse_ok: parseOk, response_empty: responseEmpty, broken_model_output: brokenModelOutput,
     outcome: verdict.outcome, reasons: verdict.why, memory_sha256: world.theory.digest, gold_answerable: !['unknown', 'incomplete'].includes(row.expected.status), verified, proof_available: Boolean(packet?.used?.length || packet?.proof),
     evidence_does_not_fit: evidence.evidence_does_not_fit, evidence_facts: evidence.facts, evidence_chars: evidence.original_chars,
@@ -214,7 +210,7 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
 
 export async function main(args = process.argv.slice(2)) {
   if (args.includes('--help')) {
-    console.log('node tools/eval/symbolic-vs-llm/run.mjs --manifest eval/smoke-reasoning/bench/manifest.jsonl --arms A,B-stepbystep[,C --tier small] --model qwen3-4b-q4 --pilot 20 --out eval/reports/current/symbolic-vs-llm/pilot [--endpoint URL] [--stages 100,300,600]'); return;
+    console.log('node tools/eval/symbolic-vs-llm/run.mjs --manifest eval/smoke-reasoning/bench/manifest.jsonl --arms A,B-stepbystep[,C --tier small] [--local-tier micro] --pilot 20 --out eval/reports/current/symbolic-vs-llm/pilot [--stages 100,300,600]'); return;
   }
   const manifestFile = path.resolve(opt(args, '--manifest', 'eval/smoke-reasoning/bench/manifest.jsonl'));
   const manifestText = fs.readFileSync(manifestFile, 'utf8');
@@ -229,18 +225,15 @@ export async function main(args = process.argv.slice(2)) {
   if (arms.some(a => ARCHIVED_ARMS.includes(a))) throw new Error(`arms ${ARCHIVED_ARMS.join(', ')} (one-shot circuit authoring) are archived (owner decision 2026-10-02); use B-stepbystep or C --tier T`);
   if (arms.some(a => !['A', "A'", 'B-stepbystep', 'C', 'D'].includes(a))) throw new Error('unknown arm');
   if (rows.some(r => r.split !== 'dev') && arms.some(a => ['B-stepbystep', 'C'].includes(a))) throw new Error('the step-by-step authoring arms are dev-only until the sealed protocol is re-registered (its arms B and C were one-shot authoring, archived 2026-10-02)');
-  const key = opt(args, '--model', 'qwen3-4b-q4');
-  const settings = {model: key, endpoint: opt(args, '--endpoint', null), subscriptionModel: opt(args, '--subscription-model', 'openference/Qwen3.8 27b'), tier: opt(args, '--tier', 'small'), wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096))};
+  for (const gone of ['--endpoint', '--port', '--model']) if (args.includes(gone)) throw new Error(`${gone} is gone: every model call goes through TinyAgent; name the local tier with --local-tier (default ${DEFAULT_LOCAL_TIER})`);
+  const localTier = opt(args, '--local-tier', DEFAULT_LOCAL_TIER);
+  const settings = {model: `tier:${localTier}`, localTier, subscriptionModel: opt(args, '--subscription-model', 'openference/Qwen3.8 27b'), tier: opt(args, '--tier', 'small'), wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096))};
   if (/^openrouter\b/.test(settings.subscriptionModel) && !args.includes('--allow-paid')) throw new Error('openrouter is paid per token; pass --allow-paid for an explicitly authorized run');
-  const spec = MODELS[key];
-  const managed = !settings.endpoint && arms.some(a => ['A', "A'", 'B-stepbystep'].includes(a));
-  if (managed && spec?.kind !== 'local') throw new Error('local model needs explicit existing GGUF specification');
-  const alternate = path.resolve('models/qwen3-4b-instruct/gguf/q4_k_m.gguf');
-  const gguf = managed ? fs.existsSync(spec.gguf) ? spec.gguf : key === 'qwen3-4b-q4' && fs.existsSync(alternate) ? alternate : spec.gguf : null;
-  const modelManifest = gguf ? {file: gguf, sha256: await hashFile(gguf), source: 'managed-local-gguf', identity_verified: true} : {source: 'external-endpoint-or-subscription', identity_verified: false};
+  // TinyAgent serves the tiers and reports the model that answered; the harness does not hash a model file.
+  const modelManifest = {source: 'tinyagent-tier', local_tier: localTier, identity_verified: false};
   const out = path.resolve(opt(args, '--out', 'eval/reports/current/symbolic-vs-llm/pilot'));
   fs.mkdirSync(out, {recursive: true});
-  const config = {version: VERSION, harness_sha256: sha(fs.readFileSync(new URL(import.meta.url), 'utf8')), world_sha256: sha(fs.readFileSync(new URL('./world.mjs', import.meta.url), 'utf8')), runtime: {node: process.version, arch: process.arch, platform: process.platform}, model_manifest: modelManifest, manifest_sha256: sha(manifestText), settings: {...settings, retrieval_limits: LIMITS, endpoint: settings.endpoint ?? 'managed-private-llama-server', subscription_token_budget: 'post-response usage admission of the remote model'}, arms, pilot, prompt_version: PROMPT_VERSION, prompt_sha256: sha(nlPrompt({source: '', reasoning: 'direct'}) + runArm.toString()), renderer_sha256: sha(fs.readFileSync(new URL('../../../reasoning/slice/render-english.mjs', import.meta.url), 'utf8')), stages: pilot ? [pilot] : opt(args, '--stages', '100,300,600').split(',').map(Number)};
+  const config = {version: VERSION, harness_sha256: sha(fs.readFileSync(new URL(import.meta.url), 'utf8')), world_sha256: sha(fs.readFileSync(new URL('./world.mjs', import.meta.url), 'utf8')), runtime: {node: process.version, arch: process.arch, platform: process.platform}, model_manifest: modelManifest, manifest_sha256: sha(manifestText), settings: {...settings, retrieval_limits: LIMITS, subscription_token_budget: 'post-response usage admission of the remote model'}, arms, pilot, prompt_version: PROMPT_VERSION, prompt_sha256: sha(nlPrompt({source: '', reasoning: 'direct'}) + runArm.toString()), renderer_sha256: sha(fs.readFileSync(new URL('../../../reasoning/slice/render-english.mjs', import.meta.url), 'utf8')), stages: pilot ? [pilot] : opt(args, '--stages', '100,300,600').split(',').map(Number)};
   config.runtime_sources = sourceHashes();
   config.runtime_source_sha256 = sha(JSON.stringify(config.runtime_sources));
   const configFile = path.join(out, 'run.json');
@@ -249,14 +242,6 @@ export async function main(args = process.argv.slice(2)) {
   const recordFile = path.join(out, 'records.jsonl');
   const records = fs.existsSync(recordFile) ? fs.readFileSync(recordFile, 'utf8').split('\n').filter(Boolean).map(JSON.parse) : [];
   const done = new Set(records.map(r => `${r.id}/${r.arm}`));
-  let server = null;
-  const logFile = path.join(out, 'llama-server.log');
-  if (managed) {
-    server = await startServer({gguf, port: Number(opt(args, '--port', 19531)), ctx: spec.ctx, ngl: 99, logFile, alias: key}); settings.endpoint = server.endpoint;
-  }
-  const stop = async () => { if (server) { await server.stop(); server = null; fs.rmSync(logFile, {force: true}); } };
-  const onSignal = async () => { await stop(); process.exitCode = 1; };
-  process.on('SIGINT', onSignal); process.on('SIGTERM', onSignal);
   let sharedWorld = null;
   try {
     for (const family of [...new Set(rows.map(r => r.family))].sort()) {
@@ -321,6 +306,6 @@ export async function main(args = process.argv.slice(2)) {
       }
     }
     return writeReport(out, {pilot: Boolean(pilot), provenance: config});
-  } finally { sharedWorld?.dispose(); await stop(); process.off('SIGINT', onSignal); process.off('SIGTERM', onSignal); }
+  } finally { sharedWorld?.dispose(); }
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) console.log(JSON.stringify(await main()));

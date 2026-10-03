@@ -1,10 +1,11 @@
 /**
  * The system under test of the books evaluation: the product chat turn (server/agent.mjs) over the default chat base memory, with the
  * request parser of the step-by-step strategy LocalLLMStepByStep (method B; or InternalReasoningStepByStep) whose questions go to one
- * proxy tier (`tier`, like with like: every tier answers the same questions), to the product's tier ladder (`ladder: true`), or to a
- * local Qwen3-4B-Instruct Q4_K_M llama-server (lib/local-llm: prompt cache on, dedicated slots, stable prefixes prewarmed). One-shot
- * formalization (LLMDirect) was archived on 2026-10-02 (probably_obsolete/one-shot-formalization/). One session, one fresh conversation
- * entry per problem: the facts a problem states are turn evidence of that entry only (caller-owned context), never written to the memory.
+ * TinyAgent tier (`tier`, like with like: every tier answers the same questions; default `micro`, the local Qwen3-4B-Instruct that
+ * TinyAgent starts on demand) or to the product's tier ladder (`ladder: true`). Every model call goes through TinyAgent
+ * (lib/tinyagent.mjs), which manages the local model servers and their GPU locks. One-shot formalization (LLMDirect) was archived on
+ * 2026-10-02 (probably_obsolete/one-shot-formalization/). One session, one fresh conversation entry per problem: the facts a problem
+ * states are turn evidence of that entry only (caller-owned context), never written to the memory.
  */
 import os from 'node:os';
 import path from 'node:path';
@@ -18,16 +19,18 @@ import {createQueryParser, queryParserSettings} from '../../../server/query-pars
 import {DEFAULT_LOCAL} from '../../../lib/formalize/strategies.mjs';
 import {createChatSOPAdapter, parserFormalizer} from '../../../lib/adapter/index.mjs';
 import fs from 'node:fs';
-import {localServer, localChat} from '../../../lib/local-llm/index.mjs';
+import {tinyAgent} from '../../../lib/tinyagent.mjs';
 
 export const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
-export const MODEL_GGUF = path.join(path.dirname(new URL(import.meta.url).pathname), '../../../models/qwen3-4b-instruct/gguf/q4_k_m.gguf');
-export const LOCAL = {...DEFAULT_LOCAL, gguf: MODEL_GGUF, alias: 'qwen3-4b-instruct', port: 19611, slots: ['direct', 'steps'], ctxPerSlot: 16384, maxTokens: 1500, thinking: false, method: 'B'};
+/** The tier of a run that names none: the local Qwen3-4B-Instruct (TinyAgent tier `micro`), the model of the earlier llama-server runs. */
+export const DEFAULT_TIER = 'micro';
+export const LOCAL = {...DEFAULT_LOCAL, tier: DEFAULT_TIER, maxTokens: 1500, thinking: false, method: 'B'};
 
-/** The default chat base memory (config chatData.defaultBase, world-v1 over core-en and commonsense-v1) in a private session; `endpoint` reuses a running llama-server. */
+/** The default chat base memory (config chatData.defaultBase, world-v1 over core-en and commonsense-v1) in a private session. */
 // `sessionId` lets several turn systems run side by side (one session each); `parserOptions` adds query-parser settings (for example
-// `reportErrors: false` for a harness that reports by itself) and `headers` tag the proxy calls of a tier (purpose, no fallback).
-export async function openChatTurn({base = null, endpoint = null, wallMs = 300_000, strategy = 'LocalLLMStepByStep', tier = null, ladder = false, sessionId = null, parserOptions = {}, headers = null, replay = null, localExtra = {}, mode = 'stepwise'} = {}) {
+// `reportErrors: false` for a harness that reports by itself) and `tags` ({purpose, run, noFallback}) tag the TinyAgent calls of the
+// steps and the direct baseline (a run's budget; noFallback keeps every answer on the named tier's first model).
+export async function openChatTurn({base = null, wallMs = 300_000, strategy = 'LocalLLMStepByStep', tier = null, ladder = false, sessionId = null, parserOptions = {}, tags = null, replay = null, localExtra = {}, mode = 'stepwise'} = {}) {
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'runtime.json'), 'utf8'));
   const chatData = ChatData.open(config, {}, ROOT);
   const memories = new BaseMemories({chatData, memory: config.memory});
@@ -40,22 +43,20 @@ export async function openChatTurn({base = null, endpoint = null, wallMs = 300_0
   const lexicon = sessions.lexicon(id);
   const store = new SessionStore({repo: sessions.repository(id), lexicon, config: {...config, policy: {...(config.policy ?? {}), reinforce: false}}, root: path.join(sessions.dir(id), 'agent'),
     circuitRules: () => theories.get([...sessions.baseCircuits(id), ...sessions.circuits(id)]).chatRules()});
-  // `tier`: the step-by-step questions go to one proxy tier (`tiny`, `small`, `good`, ...) instead of a llama-server endpoint; `ladder`:
+  // `tier`: the step-by-step questions go to one TinyAgent tier (`micro`, `tiny`, `small`, `good`, ...; default DEFAULT_TIER); `ladder`:
   // to the product's configured ladder (queryParser.local.ladder), escalating per question.
-  const tiered = tier || ladder;
-  const local = tiered ? {method: 'B', tier: tier ?? config.queryParser?.local?.tier ?? 'tiny', ladder: ladder ? config.queryParser?.local?.ladder ?? null : tierRung(config, tier),
-    maxTokens: LOCAL.maxTokens, thinking: false, ...(headers ? {headers} : {}), ...(replay ? {replay} : {}), ...localExtra} : {...LOCAL, ...(endpoint ? {endpoint} : {})};
+  const stepTier = ladder ? tier ?? config.queryParser?.local?.tier ?? 'tiny' : tier ?? DEFAULT_TIER;
+  const local = {method: 'B', tier: stepTier, ladder: ladder ? config.queryParser?.local?.ladder ?? null : tierRung(config, stepTier),
+    maxTokens: LOCAL.maxTokens, thinking: false, ...(tags ? {tags} : {}), ...(replay ? {replay} : {}), ...localExtra};
   const settings = queryParserSettings({queryParser: {...(config.queryParser ?? {}), ...parserOptions, strategy, local, cacheEntries: 0, timeoutSeconds: wallMs / 1000}});
   const parser = createQueryParser({settings});
   // ChatSOPAdapter (lib/adapter): the same backend as the chat; `mode` stepwise unless a harness asks for routed or direct-verified.
   const adapter = createChatSOPAdapter({config});
-  // A proxy tier needs no local llama-server (LLMDirect was archived on 2026-10-02).
-  const remote = Boolean(tiered);
-  const server = remote ? null : localServer(local);
-  if (!remote && !endpoint && await server.healthy()) throw new Error(`port ${local.port} already answers (another llama-server); use --endpoint to reuse it deliberately`);
+  // The direct baseline asks the same tier through TinyAgent, tagged like the steps calls.
+  const ta = tinyAgent({purpose: tags?.purpose ?? 'job:books-eval', run: tags?.run ?? null});
   let n = 0;
   return {
-    baseId, sessionId: id, lexicon, local, server, memoryDigest: lexicon.circuitsSha256 ?? null,
+    baseId, sessionId: id, lexicon, local, memoryDigest: lexicon.circuitsSha256 ?? null,
     /**
      * One chat turn: the problem is the user message. Never throws: `error` carries code and message of a failed turn. `sop` replays a
      * stored circuit instead of formalizing (no model call); `authored` is the circuit the formalizer returned, as it returned it.
@@ -93,20 +94,19 @@ export async function openChatTurn({base = null, endpoint = null, wallMs = 300_0
         if (fs.existsSync(circuitsDir)) for (const f of fs.readdirSync(circuitsDir)) if (!before.has(f)) fs.rmSync(path.join(circuitsDir, f), {recursive: true, force: true});
       }
     },
-    /** The baseline: the same model answers directly (short working, then a final line), on the direct slot of the same server. */
+    /** The baseline: the same tier answers directly (short working, then a final line). Never throws: {ok, text, ms, finish, usage} or {ok: false, reason}. */
     async direct(message, {maxTokens = 1024} = {}) {
-      // On a proxy tier the baseline asks the same tier (same model as the steps arm), tagged like the steps calls.
-      if (tiered) return localChat({endpoint: PROXY_ENDPOINT, model: local.tier, maxTokens, timeoutMs: wallMs, headers: headers ?? {}, extraBody: {chat_template_kwargs: {enable_thinking: false}},
+      // The request body of the earlier local client (prompt cache on, greedy, not streamed), so TinyAgent's cache replays its answers.
+      const r = await ta.chat({tier: local.tier, maxTokens, temperature: 0, stream: false, timeoutMs: wallMs, noFallback: Boolean(tags?.noFallback),
+        extraBody: {cache_prompt: true, timings_per_token: false, chat_template_kwargs: {enable_thinking: false}},
         messages: [{role: 'system', content: DIRECT_SYSTEM}, {role: 'user', content: message}]});
-      await server.ensure();
-      const turn = await server.begin('direct');
-      try {
-        return await localChat({endpoint: server.endpoint, model: local.alias, slot: turn.slot, maxTokens, timeoutMs: wallMs,
-          extraBody: {chat_template_kwargs: {enable_thinking: false}},
-          messages: [{role: 'system', content: DIRECT_SYSTEM}, {role: 'user', content: message}]});
-      } finally { turn.release(); }
+      const usage = {input_tokens: r.usage?.in ?? 0, output_tokens: r.usage?.out ?? 0, reasoning_tokens: r.usage?.reasoning ?? 0, cache_read_tokens: r.usage?.cached ?? 0};
+      if (!r.ok) return {ok: false, text: '', ms: r.ms, reason: `the model answered ${r.reason}`};
+      // A reply cut by the token limit before any answer is a budget failure, never an empty answer to read (owner, 2026-10-02).
+      if (r.finish === 'length' && !r.text) return {ok: false, text: '', ms: r.ms, finish: r.finish, reason: `budget_exhausted: the reply reached max_tokens ${maxTokens} before an answer`, usage};
+      return {ok: true, text: r.text, ms: r.ms, finish: r.finish, usage, served: r.served ?? null, cached: r.cached};
     },
-    async close() { fs.rmSync(sessions.dir(id), {recursive: true, force: true}); adapter.dispose(); await parser.stop(); await server?.stop(); },
+    async close() { fs.rmSync(sessions.dir(id), {recursive: true, force: true}); adapter.dispose(); await parser.stop(); },
   };
 }
 
@@ -119,6 +119,4 @@ export function tierRung(config, tier) {
   return rung && typeof rung === 'object' ? [rung] : null;
 }
 
-/** LLMAPIProvider (OpenAI-compatible); a tier name is the model. */
-export const PROXY_ENDPOINT = 'http://127.0.0.1:18080/v1';
 export const DIRECT_SYSTEM = 'You solve reasoning problems. Use only the facts and rules given in the problem. Work briefly step by step, then finish with one line that starts with "Final answer:" and states the answer concisely (numbers with units, a name, yes or no, or "not enough information" when the data do not decide).';

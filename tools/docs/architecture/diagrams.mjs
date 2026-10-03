@@ -3,7 +3,7 @@ import { Svg } from './svg.mjs';
 /* ---------------------------------------------------------------- (a) components and trust boundaries */
 export function diagramA() {
   const s = new Svg('dg-a', 1100, 'Components and trust boundaries of the running product',
-    'Callers on the left cross the authentication boundary B1 into the server process; the server hands the message to the formalizer model across the author boundary B2, reaches every model only through the proxy LLMAPIProvider (B3, no tools, no shell) and solver binaries only on explicit request (B5); stored knowledge changes only through explicit writers (B4).');
+    'Callers on the left cross the authentication boundary B1 into the server process; the server hands the message to the formalizer model across the author boundary B2, reaches every model only through the TinyAgent server (B3, no tools, no shell) and solver binaries only on explicit request (B5); stored knowledge changes only through explicit writers (B4).');
   // Callers
   s.zone(10, 10, 224, 414, 'Callers', 'z-out');
   let y = 40;
@@ -63,8 +63,8 @@ export function diagramA() {
   s.arrow([[N('qa').r, N('qa').cy], [834, N('qa').cy]]);
   s.node('frozen', 844, ca.b + 76, 236, 'Frozen branch', ['probably_obsolete/tinyLLMExperiments:', 'SymbolicLM, Stanza, proofing and', 'formalizer models; not in the product'], 'n-out');
   // Fence + solvers
-  s.zone(834, 414, 256, 186, 'B3 proxy and B5 solvers', 'z-fence');
-  const om = s.node('omp', 844, 444, 236, 'Proxy LLMAPIProvider (B3)', ['127.0.0.1:18080/v1; tiers tiny,', 'small, medium, good; no tools,', '~no shell; the answer is text'], 'n-fence');
+  s.zone(834, 414, 256, 186, 'B3 TinyAgent and B5 solvers', 'z-fence');
+  const om = s.node('omp', 844, 444, 236, 'TinyAgent server (B3)', ['lib/tinyagent.mjs; tiers tiny,', 'small, medium, good; no tools,', '~no shell; the answer is text'], 'n-fence');
   s.node('sol', 844, om.b + 10, 236, 'Solver binaries (B5)', ['swipl, z3: only when a wire names', 'the backend; never a fallback'], 'n-fence');
   s.arrow([[N('auth').r, N('auth').cy], [834, N('auth').cy]]);
   s.arrow([[N('rs').r, N('rs').cy + 20], [530, N('rs').cy + 20], [530, 660], [814, 660], [814, N('sol').cy], [834, N('sol').cy]], { dashed: true });
@@ -196,14 +196,14 @@ export function diagramD() {
 /* ---------------------------------------------------------------- (e) authoring */
 export function diagramE() {
   const s = new Svg('dg-e', 1100, 'The authoring path: from an attachment to a session circuit',
-    'A user act sends files or a request to the direct author, a chain model called through the proxy without tools; the server validates and repairs the circuits and, with a session, stores the valid ones in the session layer at once. A commit to a fork of the base memory is a separate explicit act.');
+    'A user act sends files or a request to the direct author, a chain model called through the TinyAgent server without tools; the server validates and repairs the circuits and, with a session, stores the valid ones in the session layer at once. A commit to a fork of the base memory is a separate explicit act.');
   const t = s.node('t', 12, 20, 300, '1  A user act', ['attach files and instructions, or', 'call POST /v1/author; nothing is', 'authored without this explicit call'], 'n-out');
   const a = s.node('a', 12, t.b + 22, 300, '2  POST /v1/author', ['server/authoring.mjs; session or temp folder;', 'wait false answers 202, then poll the request', '~answer 429 author_busy at the concurrency limit'], 'n-srv');
   s.arrow([[162, t.b], [162, a.y]]);
   const f = s.node('f', 12, a.b + 22, 300, '3  Request folder', ['sessions/<id>/requests/<req>/: input/', '(files, vocabulary), skill/ (sop-wire-', 'authoring), TASK.md (fence, outputs)'], 'n-srv');
   s.arrow([[162, a.b], [162, f.y]]);
-  s.zone(340, 20, 330, 190, 'B3 proxy', 'z-fence');
-  const o = s.node('o', 352, 50, 306, '4  directAuthor (direct-author.mjs)', ['one chat-completion conversation via the', 'proxy; no tools, no shell, no files; no', 'credentials in the prompt; timeout per call', '~answers knowledge.sop, queries.sop, report.md'], 'n-fence');
+  s.zone(340, 20, 330, 190, 'B3 TinyAgent', 'z-fence');
+  const o = s.node('o', 352, 50, 306, '4  directAuthor (direct-author.mjs)', ['one chat-completion conversation via', 'TinyAgent; no tools, no shell, no files;', 'no credentials in the prompt; call timeout', '~answers knowledge.sop, queries.sop, report.md'], 'n-fence');
   s.arrow([[312, f.cy], [330, f.cy], [330, o.cy], [352, o.cy]]);
   const v = s.node('v', 340, 236, 330, '5  Validate and repair (server)', ['sop/knowledge validate with the session theory;', 'on problems the same conversation continues', 'with the validator output as patches, up to 3 rounds'], 'n-srv');
   s.arrow([[505, o.b + 0], [505, v.y]]);

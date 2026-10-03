@@ -8,7 +8,7 @@
  *
  * fetch: the run's raw.jsonl must hold the structure role's rows (`psm:structure-tiny`, fetched by ./ab.mjs on the run's ids.json).
  * Each problem is routed by lib/formalize/structure/route.mjs; for every routed problem and tier it asks the jsEval route
- * (lib/formalize/js-program.mjs, role prompt LLMAPIProvider/prompts/js-v1.md) and path B (lib/formalize/expression-program.mjs, the
+ * (lib/formalize/js-program.mjs, role prompt config/prompts/js-v1.md) and path B (lib/formalize/expression-program.mjs, the
  * question of ./ab.mjs's `expr` arm) and appends rows `js:<tier>` and `expr:<tier>`.
  * score: the lowered circuits run on the engines (./engines.mjs), the others on the oracle (the trusted runtime's jsEval); every
  * answer is scored by the old scorer (lib/formalize/equivalence.mjs, a numeric gold against all answered numbers) and by the

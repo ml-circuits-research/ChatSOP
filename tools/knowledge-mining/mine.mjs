@@ -7,25 +7,27 @@
  *   node tools/knowledge-mining/mine.mjs --n 20 [--seed km-1] [--workers 4] [--out DIR] [--resume DIR] [--ids a,b] [--no-admit]
  *
  * Stages (each writes its file in the run folder and is skipped when resumed):
- *   1. baseline   the product chat turn (tools/eval/books/system.mjs, the step-by-step questions on the proxy's `small` tier) over a fork of the
+ *   1. baseline   the product chat turn (tools/eval/books/system.mjs, the step-by-step questions on the TinyAgent tier `small`) over a fork of the
  *                 default base memory plus the current commonsense-books-v1 layer, on `n` unseen problems (tools/eval/books/sample.mjs;
  *                 they are marked seen); scored by tools/eval/books/score.mjs rules, an LLM judge for what a rule cannot decide.
- *   2. propose    for each problem answered wrong, unknown or with no valid circuit: the proxy tier `small` (Qwen3.8 27b on openference,
+ *   2. propose    for each problem answered wrong, unknown or with no valid circuit: the TinyAgent tier `small` (Qwen3.8 27b on openference,
  *                 falling back to DeepSeek) gets the problem and the failure trace and writes the GENERAL knowledge it needed as
  *                 SOP wires (lib/ingest/direct-author.mjs: the knowledge validator and this tool's checks in its repair loop).
  *   3. check      deterministic: duplicates and contradictions against the memory, the problem's own names, copied book text;
  *                 an entity the memory already has is merged into it.
- *   4. review     bulk truth and generality review on the proxy tier `medium` (DeepSeek flash) (lib/llm-review, kind commonsense-wires):
+ *   4. review     bulk truth and generality review on the TinyAgent tier `medium` (DeepSeek flash) (lib/llm-review, kind commonsense-wires):
  *                 confirmed problems are repaired once or the wire is dropped and escalated.
  *   5. admit      per problem: rerun with its candidate group; admitted only when the rerun is correct AND a control rerun without the
  *                 group is not (the fix is the knowledge, not chance); then the fixed regression set must not lose any answer (a loss
  *                 confirmed by a control rerun removes the group that causes it). Admitted wires are appended to
  *                 config/knowledge/commonsense-books-v1/ with provenance (book, problem, model, reviewer, date) on every wire.
  * Outputs: eval/reports/current/knowledge-mining/run-<stamp>/ (baseline.jsonl, proposals/, candidates.jsonl, review/, trials.jsonl,
- * admitted.jsonl, escalations.jsonl, summary.md with at most 10 escalation lines, run.json with the cost read from the proxy log).
+ * admitted.jsonl, escalations.jsonl, summary.md with at most 10 escalation lines, run.json with the cost from TinyAgent's statistics).
+ * Every model call goes through TinyAgent (lib/tinyagent.mjs), tagged job:knowledge-mining and the run id of its stage
+ * (`<run>.trial`, `<run>.author`, `<run>.review`, `<run>.judge`; registered with the TinyAgent server, so its statistics give the cost
+ * of each stage since the run started).
  */
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -35,6 +37,7 @@ import {validateCircuits} from '../../lib/chat-data/memories.mjs';
 import {seedLayers} from '../../lib/knowledge-seeds.mjs';
 import {directAuthor, openaiChat} from '../../lib/ingest/direct-author.mjs';
 import {loadKind, reviewLoop, chat as reviewChat} from '../../lib/llm-review/index.mjs';
+import {tinyAgent} from '../../lib/tinyagent.mjs';
 import {loadItems, loadSeen, markSeen, sampleItems} from '../eval/books/sample.mjs';
 import {responseOf, deterministic} from '../eval/books/score.mjs';
 import {numbersOf} from '../eval/books/extract.mjs';
@@ -47,13 +50,11 @@ export const LAYER_DIR = path.join(ROOT, 'config', 'knowledge', LAYER_ID);
 export const LAYER_FILE = path.join(LAYER_DIR, '0100-mined.sop');
 export const REGRESSION_FILE = path.join(ROOT, 'tools', 'knowledge-mining', 'regression-set.json');
 const SEED_LAYERS = ['core-min', 'core-en', 'commonsense-v1', 'assistant-v1'];
-const PROXY_DATA = path.join(os.homedir(), '.local/share/llmapiprovider');
 const CLIENTS = {trial: 'knowledge-mining-trial', author: 'knowledge-mining-author', review: 'knowledge-mining-review', judge: 'knowledge-mining-judge'};
-/** Proxy tiers (AGENTS.md: jobs name a tier, never a model): `small` is Qwen3.8 27b on openference (fallback DeepSeek), `medium` DeepSeek flash. */
+/** TinyAgent tiers (AGENTS.md: jobs name a tier, never a model): `small` is Qwen3.8 27b on openference (fallback DeepSeek), `medium` DeepSeek flash. */
 const AUTHOR_MODEL = 'small';
 const REVIEW_MODEL = 'medium';
 const JUDGE_MODEL = 'small';
-const PROXY_V1 = 'http://127.0.0.1:18080/v1';
 const MAX_REGRESSION = 15;
 
 const args = process.argv.slice(2);
@@ -64,7 +65,10 @@ const writeJsonl = (f, rows) => fs.writeFileSync(f, rows.map(r => JSON.stringify
 const stampNow = () => new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
 const log = m => console.error(`[mine ${new Date().toISOString().slice(11, 19)}] ${m}`);
 const PURPOSE = 'job:knowledge-mining';
-const tagged = client => (url, init = {}) => { const headers = new Headers(init.headers ?? {}); headers.set('x-client-name', client); headers.set('x-llmapiprovider-purpose', PURPOSE); return fetch(url, {...init, headers}); };
+// The run id of this mining run (set by main); every stage's calls carry `<run>.<stage>` as their TinyAgent run tag.
+let RUN = null;
+const stageRun = stage => (RUN ? `${RUN}.${stage}` : null);
+const agentOf = stage => tinyAgent({purpose: PURPOSE, run: stageRun(stage), client: CLIENTS[stage]});
 const short = s => createHash('sha256').update(s).digest('hex').slice(0, 6);
 
 /** A pool of `k` concurrent async tasks. */
@@ -105,7 +109,7 @@ async function runTrials({jobs, dir, workers}) {
     if (ids.length) {
       const logFile = fs.openSync(path.join(dir, 'trials', `${job.tag}.log`), 'a');
       const code = await new Promise(resolve => {
-        const child = spawn(process.execPath, ['--max-old-space-size=12288', path.join(ROOT, 'tools/knowledge-mining/trial.mjs'), '--ids', ids.join(','), '--out', out, '--tag', job.tag,
+        const child = spawn(process.execPath, ['--max-old-space-size=12288', path.join(ROOT, 'tools/knowledge-mining/trial.mjs'), '--ids', ids.join(','), '--out', out, '--tag', job.tag, ...(stageRun('trial') ? ['--run', stageRun('trial')] : []),
           ...(job.layer.length ? ['--layer', job.layer.join(',')] : [])], {stdio: ['ignore', logFile, logFile], cwd: ROOT});
         child.on('exit', resolve);
       });
@@ -120,14 +124,9 @@ async function runTrials({jobs, dir, workers}) {
 
 /** One judge call on the `small` tier: `{ok, text, reason?}`. */
 async function judgeChat(prompt) {
-  try {
-    const res = await tagged(CLIENTS.judge)(`${PROXY_V1}/chat/completions`, {method: 'POST', headers: {'content-type': 'application/json'}, signal: AbortSignal.timeout(300_000),
-      body: JSON.stringify({model: JUDGE_MODEL, temperature: 0, max_tokens: 300, chat_template_kwargs: {enable_thinking: false},
-        messages: [{role: 'system', content: 'You grade answers to school problems strictly against a reference answer.'}, {role: 'user', content: prompt}]})});
-    const body = await res.json().catch(() => null);
-    const text = body?.choices?.[0]?.message?.content ?? '';
-    return res.ok && text ? {ok: true, text} : {ok: false, text: '', reason: `status ${res.status}`};
-  } catch (e) { return {ok: false, text: '', reason: e.message}; }
+  const r = await agentOf('judge').chat({tier: JUDGE_MODEL, temperature: 0, maxTokens: 300, extraBody: {chat_template_kwargs: {enable_thinking: false}}, timeoutMs: 300_000,
+    messages: [{role: 'system', content: 'You grade answers to school problems strictly against a reference answer.'}, {role: 'user', content: prompt}]});
+  return r.ok && r.raw ? {ok: true, text: r.raw} : {ok: false, text: '', reason: r.ok ? 'empty reply' : r.reason};
 }
 
 /** Deterministic score, the LLM judge for the rest. `outcome`: correct | wrong | unknown | invalid | failed. */
@@ -229,7 +228,7 @@ async function propose({rec, item, dir, existing, labels, ids, names}) {
   };
   const result = await directAuthor({folder, instructions: MINER_INSTRUCTIONS, existing, maxFixRounds: 2, maxTokens: 6000, timeoutMs: 600_000, check,
     files: [{name: 'problem.txt', text: item.question + '\n'}, {name: 'failure.md', text: failureText(rec)}, {name: 'known-entities.txt', text: knownEntities(item.question, labels) + '\n'}],
-    chat: openaiChat({endpoint: PROXY_V1, fetchImpl: tagged(CLIENTS.author), purpose: PURPOSE}), model: AUTHOR_MODEL});
+    chat: openaiChat({purpose: PURPOSE, run: stageRun('author')}), model: AUTHOR_MODEL});
   log(`propose ${item.id}: ${result.status}, ${result.rounds} rounds`);
   return {id: item.id, ok: result.ok, status: result.status, rounds: result.rounds, model: result.model, usage: result.usage, knowledge: result.circuits[0]?.text ?? '', report: result.report};
 }
@@ -270,6 +269,8 @@ export async function main() {
   const runFile = path.join(dir, 'run.json');
   const run = fs.existsSync(runFile) ? JSON.parse(fs.readFileSync(runFile, 'utf8')) : {run: path.basename(dir), started: new Date().toISOString(), started_ms: t0, n: Number(opt('n', 20)), seed: opt('seed', 'km-1'), workers};
   fs.writeFileSync(runFile, JSON.stringify(run, null, 1));
+  RUN = run.run;
+  await registerStages(run.run);
   const all = loadItems(ROOT);
   const items = new Map(all.map(i => [i.id, i]));
   const escalations = [];
@@ -345,7 +346,7 @@ export async function main() {
   }
   writeJsonl(path.join(dir, 'candidates.jsonl'), candidates);
 
-  // 4. review (truth and generality), proxy tier medium (DeepSeek flash)
+  // 4. review (truth and generality), TinyAgent tier medium (DeepSeek flash)
   const decls = new Map();
   for (const c of existing) for (const w of parse(c.text).wires) if (w.type === 'predicate') decls.set(w.id, wireText(w));
   const live = candidates.filter(c => c.decision === 'candidate');
@@ -359,7 +360,8 @@ export async function main() {
     const reviewItems = live.map(c => ({id: `${c.id}#${c.wire}`, material: '(no source passage: general knowledge)', work: c.text + (c.problem_numbers.length ? `\n# numbers shared with the problem: ${c.problem_numbers.join(', ')}` : ''),
       context_id: c.id, context: `PROBLEM (shows the gap; not a source):\n${items.get(c.id).question}\n\nPREDICATES USED:\n${declarationsFor(byProblem.get(c.id).map(x => parse(x.text).wires[0]), groupDecls)}`}));
     const kind = loadKind('commonsense-wires');
-    const call = ({system, user}) => reviewChat({baseUrl: PROXY_V1, model: REVIEW_MODEL, system, user, clientName: CLIENTS.review, purpose: PURPOSE, fetchImpl: tagged(CLIENTS.review), maxTokens: 8000, reasoning: 'off'});
+    // The tier's own fallback stays on, as in the earlier runs of this tool.
+    const call = ({system, user}) => reviewChat({tier: REVIEW_MODEL, system, user, clientName: CLIENTS.review, purpose: PURPOSE, ta: agentOf('review'), maxTokens: 8000, reasoning: 'off', noFallback: false});
     const checkWire = (item, work) => {
       const [pid, wid] = item.id.split('#');
       const others = byProblem.get(pid).filter(c => c.wire !== wid).map(c => c.text);
@@ -394,7 +396,7 @@ export async function main() {
     const settled = settleGroup(pruneDeclarations(uniqueIds(wires, prefix)), existing);
     for (const d of settled.dropped) { const c = list.find(x => d.id.endsWith(x.wire.replace(/^kmb_/, '')) || x.wire === d.id); if (c) { c.decision = 'dropped_invalid'; c.reason = d.reason; } }
     if (!settled.wires.some(w => KNOWLEDGE_TYPES.includes(w.type))) continue;
-    const prov = provenance({book: item.book, problem: pid, model: `proxy tier ${AUTHOR_MODEL} (Qwen3.8 27b, fallback DeepSeek flash)`, reviewer: `proxy tier ${REVIEW_MODEL} (DeepSeek flash)`, date});
+    const prov = provenance({book: item.book, problem: pid, model: `TinyAgent tier ${AUTHOR_MODEL} (Qwen3.8 27b, fallback DeepSeek flash)`, reviewer: `TinyAgent tier ${REVIEW_MODEL} (DeepSeek flash)`, date});
     const text = `# ${pid}: mined general knowledge (${date})\n\n` + settled.wires.map(w => stamp(w, prov)).join('\n\n') + '\n';
     const file = path.join(groupsDir, `${pid.replace(/[^\w.-]/g, '_')}.sop`);
     fs.writeFileSync(file, text);
@@ -465,28 +467,35 @@ export async function main() {
 
   // 7. report
   writeJsonl(path.join(dir, 'escalations.jsonl'), escalations);
-  const cost = proxyCosts(run.started_ms);
+  const cost = await runCosts(run.run);
   const summary = report({run, baseline, failing, proposals, candidates, groups, admitted, escalations, cost});
   fs.writeFileSync(path.join(dir, 'summary.md'), summary);
   fs.writeFileSync(runFile, JSON.stringify({...run, finished: new Date().toISOString(), cost}, null, 1));
   console.log(summary);
 }
 
-/** USD and openference plan credits of this tool's calls, read from the proxy's request log (client names of this tool). */
-export function proxyCosts(since, dataDir = PROXY_DATA) {
-  const out = {};
-  if (!fs.existsSync(dataDir)) return out;
-  for (const f of fs.readdirSync(dataDir).filter(n => /^requests-\d{4}-\d{2}-\d{2}\.jsonl$/.test(n))) {
-    for (const line of fs.readFileSync(path.join(dataDir, f), 'utf8').split('\n')) {
-      if (!line.includes('knowledge-mining')) continue;
-      let r; try { r = JSON.parse(line); } catch { continue; }
-      if (!Object.values(CLIENTS).includes(r.client) || r.t < since) continue;
-      const s = (out[r.client] ??= {calls: 0, usd: 0, credits: 0, in_tokens: 0, out_tokens: 0, by_model: {}});
-      s.calls++; s.usd += r.usd ?? 0; s.credits += r.credit_cost ?? r.quota_cost ?? 0; s.in_tokens += r.in_tokens ?? 0; s.out_tokens += r.out_tokens ?? 0;
-      s.by_model[r.model] = (s.by_model[r.model] ?? 0) + 1;
-    }
+/**
+ * Registers the stage runs of a mining run with the TinyAgent server (`<run>.trial`, `.author`, `.review`, `.judge`), so its statistics
+ * count each stage's calls since the run started. A resumed run is already registered (the error is ignored); the runs are left
+ * running, so a resume can tag them again. The budget is a guard only.
+ */
+export async function registerStages(run, {fetchImpl = null} = {}) {
+  const ta = tinyAgent({purpose: PURPOSE, fetchImpl});
+  for (const stage of Object.keys(CLIENTS)) {
+    try { await ta.registerRun({job: 'knowledge-mining', run: `${run}.${stage}`, purpose: PURPOSE, budget: {calls: 100000}}); } catch { /* already registered, or no server yet */ }
   }
-  for (const s of Object.values(out)) { s.usd = Math.round(s.usd * 1e4) / 1e4; s.credits = Math.round(s.credits * 100) / 100; }
+}
+
+/** USD and openference plan credits of this run's calls per stage client, from TinyAgent's statistics (`jobs.runs`, registered runs). */
+export async function runCosts(run, {fetchImpl = null} = {}) {
+  const out = {};
+  let stats = null;
+  try { stats = await tinyAgent({purpose: PURPOSE, fetchImpl}).stats(); } catch { return out; }
+  for (const r of stats?.jobs?.runs ?? []) {
+    const stage = String(r.run).startsWith(`${run}.`) ? r.run.slice(run.length + 1) : null;
+    if (!stage || !CLIENTS[stage]) continue;
+    out[CLIENTS[stage]] = {calls: r.spent?.calls ?? 0, usd: Math.round((r.spent?.usd ?? 0) * 1e4) / 1e4, credits: Math.round((r.spent?.credits ?? 0) * 100) / 100};
+  }
   return out;
 }
 
@@ -503,7 +512,7 @@ function report({run, baseline, failing, proposals, candidates, groups, admitted
     `- candidate wires by decision: ${JSON.stringify(decisions)}`,
     `- groups tried: ${groups.length}; admitted: ${thisRun.length} problems fixed by admitted knowledge = ${per100(thisRun.length)} per 100 failing problems (${baseline.length ? (100 * thisRun.length / baseline.length).toFixed(1) : '-'} per 100 problems)`,
     `- wires admitted: ${JSON.stringify(types)}`,
-    `- cost: ${usd.toFixed(4)} USD (proxy log, paid upstream), ${credits.toFixed(1)} openference plan credits; by client: ${Object.entries(cost).map(([k, s]) => `${k} ${s.calls} calls, ${s.usd} USD, ${s.credits} credits`).join('; ') || 'none'}`,
+    `- cost: ${usd.toFixed(4)} USD (TinyAgent statistics, paid upstream), ${credits.toFixed(1)} openference plan credits; by client: ${Object.entries(cost).map(([k, s]) => `${k} ${s.calls} calls, ${s.usd} USD, ${s.credits} credits`).join('; ') || 'none'}`,
     `- escalations: ${escalations.length} (escalations.jsonl)`, ''];
   if (escalations.length) {
     lines.push('## Escalations (at most 10 lines)', '');

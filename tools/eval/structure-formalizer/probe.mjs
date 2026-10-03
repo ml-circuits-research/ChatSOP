@@ -6,13 +6,13 @@
  *
  *   node tools/eval/structure-formalizer/probe.mjs fetch --run <id> [--n 30] [--seed psm-lfm-1] [--candidates 3] [--schema file]
  *        [--ids-from <run>]
- *        samples n scorable book items stratified by book (never a seen item; marks them seen), calls both tiers through the proxy
+ *        samples n scorable book items stratified by book (never a seen item; marks them seen), calls both tiers through TinyAgent
  *        (purpose job:psm-lfm-probe, cached), writes state/structure-formalizer/<run>/raw.jsonl
  *   node tools/eval/structure-formalizer/probe.mjs score --run <id>
  *        converts deterministically (PSM JSON → SOP-IR, FOL → SOP-IR → SOP Lang), executes on the engines, scores against the book
  *        answers, writes results.jsonl and summary.md
  *   node tools/eval/structure-formalizer/probe.mjs speed --run <id>
- *        times both models directly on the small-model service (CPU), uncached
+ *        times both roles through TinyAgent on the first 10 problems, uncached (cache mode record)
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -57,16 +57,16 @@ async function fetchPhase() {
 
 async function speedPhase() {
   const raw = readJsonl(path.join(OUT, 'raw.jsonl'));
-  const base = 'http://127.0.0.1:19612';
-  const post = async (p, b) => { const t0 = Date.now(); const r = await fetch(base + p, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(b)}); const j = await r.json(); return {ms: Date.now() - t0, j}; };
+  // The roles through TinyAgent with the cache bypassed (record), so each call is timed on the model.
+  const timed = {...opts, cache: 'record'};
   const schema = loadSchema();
   const psm = [], lfm = [];
   let tokens = 0, lfmMs = 0;
   for (const r of raw.slice(0, 10)) {
     const item = r.units.map(u => u.text).join(' ');
-    psm.push((await post('/v1/structure', schemaRequest(schema, item))).ms);
-    const f = await post('/v1/fol', {inputs: r.units.map(u => u.text), candidates: 1});
-    lfm.push(f.ms); lfmMs += f.ms; tokens += f.j.results.reduce((s, x) => s + x.tokens, 0);
+    psm.push((await extractStructure(schemaRequest(schema, item), timed)).ms);
+    const f = await formalizeFol({inputs: r.units.map(u => u.text), candidates: 1}, timed);
+    lfm.push(f.ms); lfmMs += f.ms; tokens += f.ok ? f.body.results.reduce((s, x) => s + (x.tokens ?? 0), 0) : 0;
   }
   const med = a => [...a].sort((x, y) => x - y)[Math.floor(a.length / 2)];
   const out = {psm_ms_median: med(psm), lfm_ms_per_problem_median: med(lfm), lfm_tokens_per_s: Math.round(tokens / (lfmMs / 1000)), problems: psm.length};

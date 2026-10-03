@@ -1,6 +1,6 @@
 /**
  * Direct replacement of the earlier fenced file-agent runs (owner order 2026-10-02: no omp on any path). A task folder holds TASK.md and
- * input files; the model gets them in one message through the proxy (`lib/llm-providers.mjs`), and the JSON lines or text of its reply
+ * input files; the model gets them in one message through TinyAgent (`lib/llm-providers.mjs`), and the JSON lines or text of its reply
  * are written to the output file of the folder, so the callers keep reading the same files. Never throws for a model failure.
  *   const r = await runDirect({folder, model: 'openference/Qwen3.8 27b', files: ['TASK.md', 'input/facts.txt'], output: 'answers.jsonl', prompt: '...'});
  *   -> {ok, reason?, usage, duration_ms, model}
@@ -27,7 +27,7 @@ export async function runDirect({folder, model = DEFAULT_MODEL, files = [], prom
   const started = Date.now();
   const entry = parseEntry(model);
   const parts = files.map(f => `=== ${f} ===\n${fs.readFileSync(path.join(folder, f), 'utf8')}`);
-  const r = await providerChat({prompt: `${prompt}\n\nReply with the content of ${output} only (no explanation, no code fence).\n\n${parts.join('\n\n')}`, provider: entry.provider, model: entry.model, config, timeoutMs, maxTokens});
+  const r = await providerChat({prompt: `${prompt}\n\nReply with the content of ${output} only (no explanation, no code fence).\n\n${parts.join('\n\n')}`, ...(entry.tier ? {provider: entry.tier} : {provider: entry.provider, model: entry.model}), config, timeoutMs, maxTokens, purpose: 'job:direct-files'});
   const duration_ms = Date.now() - started;
   if (!r.ok) return {ok: false, reason: r.reason, usage: r.usage ?? null, duration_ms, model: r.model};
   const content = outputLines(r.text, {jsonl});

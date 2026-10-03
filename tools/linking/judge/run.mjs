@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Judge runs of the linking suite parts 2 and 3 (linking proposal 6.1). Every run is a task folder
- * (TASK.md, input/, output/) sent as one direct model call through the proxy (no omp); the output is validated here and kept only when it is complete.
+ * (TASK.md, input/, output/) sent as one direct model call through TinyAgent (no omp); the output is validated here and kept only when it is complete.
  *
  *   node tools/linking/judge/run.mjs author  --seeds FILE [--model openference/Qwen3.8 27b] [--batch 30] [--part 2]
  *       an authoring judge writes one natural question per seed (part 2), or ambiguous/clear questions for part 3 (--part 3)
@@ -75,11 +75,11 @@ function validate(kind, result, indices) {
   return null;
 }
 
-/** One direct call through the proxy (no omp): TASK.md and the input files in one message; the JSON array of the reply becomes output/result.json. Returns 0 on success. */
+/** One direct call through TinyAgent (no omp; `model` a tier, `<provider>/<model>` or an openference model): TASK.md and the input files in one message; the JSON array of the reply becomes output/result.json. Returns 0 on success. */
 async function askModel(folder, model, maxSeconds = 1500) {
   const entry = parseEntry(model);
   const parts = ['TASK.md', ...fs.readdirSync(path.join(folder, 'input')).map(f => `input/${f}`)].map(f => `=== ${f} ===\n${fs.readFileSync(path.join(folder, f), 'utf8')}`);
-  const r = await providerChat({prompt: `Follow TASK.md. Reply with the content of output/result.json only (a JSON array, no explanation).\n\n${parts.join('\n\n')}`, provider: entry.provider, model: entry.model, timeoutMs: maxSeconds * 1000, maxTokens: 16000});
+  const r = await providerChat({prompt: `Follow TASK.md. Reply with the content of output/result.json only (a JSON array, no explanation).\n\n${parts.join('\n\n')}`, ...(entry.tier ? {provider: entry.tier} : {provider: entry.provider, model: entry.model}), timeoutMs: maxSeconds * 1000, maxTokens: 16000, purpose: 'job:linking-judge'});
   if (!r.ok) return -1;
   const text = r.text.replace(/^```[a-z]*\n?/im, '').replace(/```\s*$/m, '').trim();
   fs.writeFileSync(path.join(folder, 'output', 'result.json'), text.slice(Math.max(0, text.indexOf('[')), text.lastIndexOf(']') + 1));

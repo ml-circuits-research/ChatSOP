@@ -5,7 +5,7 @@
  *   (every final scoring appends the run's formalization failures to state/formalization-errors/inbox.jsonl once, unless --no-inbox)
  *   node tools/eval/books/score.mjs --run <dir> --merge   adds judge-output-K.json ({j, verdict: correct|partial|wrong|unanswered, reason}) and finalises scored.jsonl
  *   node tools/eval/books/score.mjs --run <dir> --judge   scores, then judges the batches itself with the remote default model (llmProviders.openference,
- *       Qwen3.8 27b through the local proxy), writes judge-output-K.json and merges; --judge-model <name>, --judge-provider <name>, --per-call <n> (default 10)
+ *       Qwen3.8 27b through TinyAgent), writes judge-output-K.json and merges; --judge-model <name>, --judge-provider <name>, --per-call <n> (default 10)
  * Outcomes: correct | wrong | unknown (honest: the system declined, or said the data are insufficient) | invalid (no valid circuit)
  * | failed (infrastructure). `partial` judge verdicts count as wrong in the strict accuracy and are reported separately.
  * Deterministic rules: yes/no polarity, numbers with a 0.5 % tolerance (all gold numbers must occur), normalised entity strings.
@@ -151,8 +151,8 @@ export function reportFailures(dir, {report = reportFormalizationError} = {}) {
 export const JUDGE_SYSTEM = `You are a strict, blind grader. For each item you get a problem, the gold answer and a candidate answer. Decide whether the candidate gives the same final answer as the gold answer (same number within rounding, same yes/no, same entity); an explanation is not required. Verdicts: "correct" (same final answer), "partial" (right idea, a wrong or missing part of the final answer), "wrong", "unanswered" (the candidate declines or gives no answer). Reply with ONLY a JSON array [{"j": "<item id>", "verdict": "<verdict>", "reason": "<one short sentence>"}] with one entry per item.`;
 
 /**
- * Judges the batches of a scored run with a remote chat model (default: the openference proxy's Qwen3.8 27b), `perCall` items per request
- * (15 requests/minute are respected by the proxy's queue). Writes judge-output-K.json per batch; an item without a parsable verdict stays pending.
+ * Judges the batches of a scored run with a remote chat model (default: openference Qwen3.8 27b through TinyAgent), `perCall` items per request
+ * (TinyAgent's queue keeps the provider's 15 requests/minute). Writes judge-output-K.json per batch; an item without a parsable verdict stays pending.
  */
 export async function judgeBatches(dir, {provider = 'openference', model = null, perCall = 10, chat = providerChat, config = {}} = {}) {
   const inputs = fs.readdirSync(dir).filter(f => /^judge-input-\d+\.json$/.test(f)).sort();

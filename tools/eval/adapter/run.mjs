@@ -8,11 +8,11 @@
  *     [--tier tiny] [--structure structure-tiny] [--formalizer formalizer-tiny] [--second jsEval,engineCode] [--langs js,smt]
  *     [--no-early-stop] [--no-fallback-fol] [--cache use|strict] [--concurrency 4] [--limit N] [--score-only]
  *
- * --ids-from: a run folder of state/structure-formalizer whose ids.json lists the problems. Tiers name proxy tiers; the structure and
- * formalizer roles default to their explicit variants (structure-tiny, formalizer-tiny), whose earlier answers the proxy cache holds.
+ * --ids-from: a run folder of state/structure-formalizer whose ids.json lists the problems. Tiers name TinyAgent tiers; the structure and
+ * formalizer roles default to their explicit variants (structure-tiny, formalizer-tiny), whose earlier answers the TinyAgent cache holds.
  * `all-paths` (registered here, an evaluation mode): the structure route, then on a compute problem B, jsEval and engineCode in all
  * --langs, and FOL on every problem, with no early stop: the per-path numbers of the 2026-10-03 harnesses through the adapter.
- * `--cache strict` refuses any call the proxy cache cannot answer (no model is called). Writes state/adapter-eval/<run>/{rows.jsonl,
+ * `--cache strict` refuses any call the TinyAgent cache cannot answer (no model is called). Writes state/adapter-eval/<run>/{rows.jsonl,
  * summary.md}; rows are resumable (one per problem).
  */
 import fs from 'node:fs';
@@ -106,7 +106,7 @@ function scorePhase(items, ids) {
     scored.push({id: r.id, route: r.route?.route ?? null, path: r.path, status: r.verification?.status, paths: r.verification?.paths ?? [], per, chosen, cached: Object.values(r.paths ?? {}).every(p => p.cached !== false)});
   }
   const S = scored.filter(s => !s.unscorable);
-  L.push(`Scorable: ${S.length}; errors: ${scored.filter(s => s.error).length}; every path served from the proxy cache: ${S.filter(s => s.cached).length}/${S.length}.`,
+  L.push(`Scorable: ${S.length}; errors: ${scored.filter(s => s.error).length}; every path served from the TinyAgent cache: ${S.filter(s => s.cached).length}/${S.length}.`,
     `Route: compute ${S.filter(s => s.route === 'js').length}, FOL ${S.filter(s => s.route === 'fol').length}. Paths whose tier did not answer (unavailable; with --cache strict: not in the cache): ${rows.flatMap(r => Object.values(r.paths ?? {})).filter(p => p.status === 'unavailable').length}.`, '');
   L.push('## Per path (where it ran)', '', '| path | ran | asked parts |', '|---|---|---|');
   const names = [...new Set(S.flatMap(s => Object.keys(s.per)))];

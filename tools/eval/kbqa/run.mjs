@@ -1,6 +1,6 @@
 /**
  * Runs the product chain on every question of a suite stage (tools/eval/kbqa.mjs `run`), in process:
- *   question -> step-by-step formalizer (server/query-parser.mjs: short questions to a proxy tier, the system assembles the circuit; the message and the memory vocabulary only) -> Agent
+ *   question -> step-by-step formalizer (server/query-parser.mjs: short questions to a TinyAgent tier, the system assembles the circuit; the message and the memory vocabulary only) -> Agent
  *   (server/agent.mjs: admission, KnowledgeLinker over the lexicon of the session's base memory, StrategyRouter, oracle) -> packet.
  * Every question gets its own conversation (no carried context); the session is the clone of the stage's base memory, and reads do not
  * reinforce (policy.reinforce false), so the questions of a stage cannot influence each other. Nothing of the gold reaches the chain.
@@ -50,7 +50,7 @@ function conclude(packet) {
 
 /**
  * Measurement mode (eval-query-parsers-v1): a failed coding agent is an error of the record (`parser_failed`), never a substitute answer.
- * `tier` answers the step-by-step questions on one proxy tier instead of the configured ladder (a tier comparison, like with like).
+ * `tier` answers the step-by-step questions on one TinyAgent tier instead of the configured ladder (a tier comparison, like with like).
  */
 export async function runSuite(suite, {stage = '100', limit = null, only = null, force = false, tag = '', variant = '', tier = null, log = console.error} = {}) {
   const rows = readSuite(suite, stage).filter(r => !only || r.id === only || r.type === only).slice(0, limit ? Number(limit) : undefined);

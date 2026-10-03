@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 /**
  * eval-internal-reasoning-stepbystep-v1 (status/preregistrations/eval-internal-reasoning-stepbystep-v1.json): InternalReasoningStepByStep
- * against LocalLLMStepByStep method B (unchanged) and the same method B with its questions answered by a larger proxy tier, on the rows of
+ * against LocalLLMStepByStep method B (unchanged) and the same method B with its questions answered by a larger TinyAgent tier, on the rows of
  * eval-stepbystep-protocol-v1 (tools/eval/stepbystep-protocol/run.mjs `protocolRows`: known forms, held-out forms, compositions, natural
  * questions) through the same harness (`runArm`, `prepare`, `rescore`). Arms:
  *   IR         InternalReasoningStepByStep, the planner decides each question (slot `reasoning`)
  *   IR-greedy  the same protocol, the askable question of lowest priority (ablation)
  *   B          LocalLLMStepByStep method B (slot `steps`)
- *   GLM        LocalLLMStepByStep method B with its questions answered by the proxy tier --tier (default small; arm C of the harness; the
+ *   GLM        LocalLLMStepByStep method B with its questions answered by the TinyAgent tier --tier (default small; arm C of the harness; the
  *              name GLM is kept for the record files, whose earlier rows were one-shot LLMDirect, archived on 2026-10-02)
- *   node tools/eval/internal-reasoning/run.mjs --arms IR,B --endpoint http://127.0.0.1:19621/v1 --out eval/reports/current/internal-reasoning/stage1 \
+ *   node tools/eval/internal-reasoning/run.mjs --arms IR,B [--local-tier micro] --out eval/reports/current/internal-reasoning/stage1 \
  *     [--pool measured|tuning] [--levels a,b,c,n] [--per 3] [--sample N --seed S] [--ids x,y] [--limit N]
- * One llama-server for both local arms (slots direct, steps, reasoning; tools/local-llm/serve.mjs).
+ * The local arms ask the TinyAgent tier --local-tier (default micro, the local Qwen3-4B-Instruct that TinyAgent starts on demand).
  */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -19,7 +19,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {protocolRows, prepare} from '../stepbystep-protocol/run.mjs';
-import {runArm} from '../symbolic-vs-llm/run.mjs';
+import {runArm, DEFAULT_LOCAL_TIER} from '../symbolic-vs-llm/run.mjs';
 import {openSession} from '../query-forms-probe.mjs';
 import {rescore} from '../generality/run.mjs';
 import {loadProtocol} from '../../../lib/formalize/internal-reasoning/reasoner.mjs';
@@ -48,8 +48,8 @@ function digest(dirs) {
 export async function main(args = process.argv.slice(2)) {
   const arms = opt(args, '--arms', 'IR,B').split(',');
   for (const a of arms) if (!ARMS[a]) throw new Error(`arms: ${Object.keys(ARMS).join(', ')}`);
-  const endpoint = opt(args, '--endpoint', null);
-  if (arms.some(a => a !== 'GLM') && !endpoint) throw new Error('--endpoint of an already running llama-server with the slots direct,steps,reasoning (tools/local-llm/serve.mjs)');
+  for (const gone of ['--endpoint', '--model']) if (args.includes(gone)) throw new Error(`${gone} is gone: every model call goes through TinyAgent; name the tier with --local-tier (default ${DEFAULT_LOCAL_TIER})`);
+  const localTier = opt(args, '--local-tier', DEFAULT_LOCAL_TIER);
   const levels = opt(args, '--levels', 'a,b,c,n').split(','), per = Number(opt(args, '--per', 3)), pool = opt(args, '--pool', 'measured');
   let rows = protocolRows({levels, per, pool});
   const ids = opt(args, '--ids', null)?.split(',');
@@ -60,19 +60,19 @@ export async function main(args = process.argv.slice(2)) {
   if (limit) rows = rows.slice(0, limit);
   const out = path.resolve(opt(args, '--out', path.join(ROOT, 'eval/reports/current/internal-reasoning/run')));
   fs.mkdirSync(out, {recursive: true});
-  // One records file per arm: the local arms may run as parallel processes on their own slots of the same llama-server.
+  // One records file per arm: the local arms may run as parallel processes on the same TinyAgent tier.
   const fileOf = arm => path.join(out, `records-${arm}.jsonl`);
   const done = new Set(arms.flatMap(arm => fs.existsSync(fileOf(arm)) ? fs.readFileSync(fileOf(arm), 'utf8').split('\n').filter(Boolean).map(l => { const r = JSON.parse(l); return `${r.id}/${r.method}`; }) : []));
   const protocol = loadProtocol();
   const code = {IR: digest(['lib/formalize/internal-reasoning', 'config/knowledge/formalizer-protocol-v1']), B: digest(['lib/query-author/step-by-step'])};
-  const identity = {protocol: `${protocol.id}@${protocol.version}`, ir_sha: code.IR, b_sha: code.B, model: opt(args, '--model', 'qwen3-4b-instruct'), endpoint, levels, per, pool, rows: rows.length, started: new Date().toISOString()};
+  const identity = {protocol: `${protocol.id}@${protocol.version}`, ir_sha: code.IR, b_sha: code.B, model: `tier:${localTier}`, local_tier: localTier, levels, per, pool, rows: rows.length, started: new Date().toISOString()};
   for (const arm of arms) {
     const run = path.join(out, `run-${arm}.json`);
     const key = arm.startsWith('IR') ? 'ir_sha' : ['B', 'GLM'].includes(arm) ? 'b_sha' : null;
     if (key && fs.existsSync(run) && JSON.parse(fs.readFileSync(run, 'utf8'))[key] !== identity[key] && !args.includes('--allow-changed')) throw new Error(`${arm}: the code changed since this run started; use a fresh --out`);
     if (!fs.existsSync(run)) fs.writeFileSync(run, JSON.stringify({...identity, arm}, null, 2) + '\n');
   }
-  const settings = {model: identity.model, endpoint, wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096)), subscriptionModel: opt(args, '--glm-model', 'openference/Qwen3.8 27b'), tier: opt(args, '--tier', 'small')};
+  const settings = {model: identity.model, localTier, purpose: 'job:internal-reasoning-eval', wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096)), subscriptionModel: opt(args, '--glm-model', 'openference/Qwen3.8 27b'), tier: opt(args, '--tier', 'small')};
   let world1 = null;
   const shared = () => {
     if (!world1) {

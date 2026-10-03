@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * A/B of the PSM and LFM backends on the same book problems (owner, 2026-10-03: before any training, test `tiny` with role prompts and
- * off-the-shelf NL-to-FOL models). Every arm calls a tier of LLMAPIProvider with the same endpoint contract; the converters and the
+ * off-the-shelf NL-to-FOL models). Every arm calls a TinyAgent tier with the same role contract; the converters and the
  * scoring are those of the zero-shot probe (./score.mjs). Offline evaluation harness; book text stays local.
  *
  *   node tools/eval/structure-formalizer/ab.mjs fetch --run ab-1 --ids-from probe-1 [--arms a,b,...]
@@ -23,7 +23,7 @@
  *                           top_k 20); a reply cut by its budget is asked again with four times the budget, up to 32000 tokens
  * `--limit N` takes the first N problems only. `--concurrency N` keeps N problems of an arm in flight, `--parallel-arms` runs the arms side by side (seconds per problem are then
  * measured under that load and the rows carry `load`).
- * Calls are tagged job:psm-lfm-ab (or `--purpose job:<name>`) and cached by the proxy except where `--fresh` is given (then timed
+ * Calls are tagged job:psm-lfm-ab (or `--purpose job:<name>`) and cached by TinyAgent except where `--fresh` is given (then timed
  * uncached: cache record). The model A/B of 2026-10-03 (MoE vs tiny) uses `--run moe-ab --purpose job:moe-ab`.
  */
 import fs from 'node:fs';
@@ -47,7 +47,8 @@ const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return 
 const readJsonl = f => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').split('\n').filter(Boolean).map(JSON.parse) : []);
 const run = arg('run', 'ab-1');
 const OUT = path.join(ROOT, 'state/structure-formalizer', run);
-const DEFAULT_ARMS = ['psm:structure-gliner', 'psm:structure-tiny', 'lfm:formalizer-t5:3', 'lfm:formalizer-t5-3b:3', 'lfm:formalizer-tiny', 'lfm:formalizer-llama-fol', 'combo:structure-tiny+formalizer-tiny', 'combo:structure-gliner+formalizer-tiny'];
+// The roles TinyAgent serves (the GLiNER and T5 arms lost the A/B of 2026-10-03 and their tiers are archived; earlier raw rows keep them).
+const DEFAULT_ARMS = ['psm:structure-tiny', 'lfm:formalizer-tiny', 'combo:structure-tiny+formalizer-tiny'];
 
 async function fetchPhase() {
   // `--limit N`: only the first N problems (a staged or capped run of a slow candidate).

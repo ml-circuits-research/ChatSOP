@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 /**
  * One trial worker of the knowledge-mining pipeline (tools/knowledge-mining/mine.mjs): runs book problems through the product chat turn
- * (tools/eval/books/system.mjs, the step-by-step strategy with its questions answered by the proxy tier --tier, default `small`; the
+ * (tools/eval/books/system.mjs, the step-by-step strategy with its questions answered by the TinyAgent tier --tier, default `small`; the
  * one-shot LLMDirect of earlier runs is archived) over a private fork of the chat's default base
  * memory with extra knowledge circuits added, and appends one record per problem.
  *
- *   node tools/knowledge-mining/trial.mjs --ids a,b --out records.jsonl --tag baseline [--layer f1.sop,f2.sop] [--base world-v1] [--tier small]
+ *   node tools/knowledge-mining/trial.mjs --ids a,b --out records.jsonl --tag baseline [--layer f1.sop,f2.sop] [--base world-v1] [--tier small] [--run <run>.trial]
  *
  * The fork (`tmp-mining-<pid>`) is a hard-link clone of the base; the layer files are validated and added with `addKnowledge` (the same
- * validator as every base-memory addition); the fork is deleted at the end, also on failure. Every proxy call of this process carries
- * `x-client-name: knowledge-mining-trial` and `x-llmapiprovider-purpose: job:knowledge-mining`, so its cost is read from the proxy log.
+ * validator as every base-memory addition); the fork is deleted at the end, also on failure. Every model call of this process goes
+ * through TinyAgent tagged with the purpose job:knowledge-mining and the run `--run` (the mining run's trial stage), so its cost is in
+ * TinyAgent's statistics.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,24 +24,11 @@ import {loadItems} from '../eval/books/sample.mjs';
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 export const TRIAL_CLIENT = 'knowledge-mining-trial';
 export const PURPOSE = 'job:knowledge-mining';
-const PROXY = /^https?:\/\/(127\.0\.0\.1|localhost):18080\//;
-
-/** Tags every request to the local proxy with this tool's client name (cost attribution in the proxy log). */
-export function tagProxyCalls(client = TRIAL_CLIENT) {
-  const original = globalThis.fetch;
-  globalThis.fetch = (url, init = {}) => {
-    if (!PROXY.test(String(url))) return original(url, init);
-    const headers = new Headers(init.headers ?? {});
-    headers.set('x-client-name', client);
-    headers.set('x-llmapiprovider-purpose', PURPOSE);
-    return original(url, {...init, headers});
-  };
-}
 
 /** The circuits of the layer files, as base-memory additions: [{name, text}]. */
 export const layerCircuits = files => files.filter(Boolean).map(f => ({name: path.basename(f, '.sop'), text: fs.readFileSync(f, 'utf8')}));
 
-export async function runTrial({ids, out, tag, layer = [], base = 'world-v1', tier = 'small'}) {
+export async function runTrial({ids, out, tag, layer = [], base = 'world-v1', tier = 'small', run = null}) {
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'runtime.json'), 'utf8'));
   const memories = new BaseMemories({chatData: ChatData.open(config, {}, ROOT), memory: config.memory});
   const items = new Map(loadItems(ROOT).map(i => [i.id, i]));
@@ -51,7 +39,7 @@ export async function runTrial({ids, out, tag, layer = [], base = 'world-v1', ti
   try {
     const circuits = layerCircuits(layer);
     if (circuits.length) memories.addKnowledge(forkId, {circuits, approvedBy: 'knowledge-mining', reason: `trial ${tag}`});
-    system = await openChatTurn({base: forkId, tier});
+    system = await openChatTurn({base: forkId, tier, tags: {purpose: PURPOSE, run}});
     for (const id of ids) {
       const item = items.get(id);
       if (!item) throw new Error(`unknown problem id ${id}`);
@@ -71,6 +59,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   const opt = (n, d = null) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : d; };
   const list = v => (v ? v.split(',').map(s => s.trim()).filter(Boolean) : []);
-  tagProxyCalls();
-  await runTrial({ids: list(opt('ids')), out: path.resolve(opt('out')), tag: opt('tag', 'trial'), layer: list(opt('layer')), base: opt('base', 'world-v1'), tier: opt('tier', 'small')});
+  await runTrial({ids: list(opt('ids')), out: path.resolve(opt('out')), tag: opt('tag', 'trial'), layer: list(opt('layer')), base: opt('base', 'world-v1'), tier: opt('tier', 'small'), run: opt('run')});
 }

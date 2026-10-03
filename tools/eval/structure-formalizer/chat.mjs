@@ -1,5 +1,5 @@
 /**
- * The chat client of a proxy tier for the closed-question paths of the structure/formalizer evaluations: ChatSOPAdapter's own client
+ * The chat client of a TinyAgent tier for the closed-question paths of the structure/formalizer evaluations: ChatSOPAdapter's own client
  * (lib/adapter/clients.mjs), so the evaluations call the tiers exactly as the chat does (greedy, no thinking, tagged, counting cache
  * hits; no fallback for an evaluation). Evaluation harness only.
  */

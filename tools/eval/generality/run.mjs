@@ -2,13 +2,13 @@
 /**
  * Generality probe (experiment eval-generality-v1; AGENTS.md direction 7): level b held-out forms, level c compositions
  * and free natural questions on world-v1. Every arm goes through the symbolic-vs-llm harness `runArm` unchanged:
- *   C  the step-by-step formalizer with its questions answered by the proxy tier --tier (default small; LLMDirect one-shot authoring
+ *   C  the step-by-step formalizer with its questions answered by the TinyAgent tier --tier (default small; LLMDirect one-shot authoring
  *      is archived since 2026-10-02), then admission, KnowledgeLinker resolution and the engine;
  *   R  zero-model replay of the reviewed model-surface circuit of the row (`reference`) through the same admission and
  *      execution: it separates "the language/engine cannot" from "the author did not";
  *   D  the same remote model answering from the evidence rendered as English (arm A of the benchmark plan);
- *   B  the step-by-step formalizer on a local GGUF model on an existing llama-server endpoint (arm B-stepbystep), only with --endpoint.
- *   node tools/eval/generality/run.mjs --arms C,R --levels b,c,n [--tier small] [--per 5] [--only form] [--ids a,b] [--out dir]
+ *   B  the step-by-step formalizer on the local TinyAgent tier --local-tier (default micro; arm B-stepbystep).
+ *   node tools/eval/generality/run.mjs --arms C,R --levels b,c,n [--tier small] [--local-tier micro] [--per 5] [--only form] [--ids a,b] [--out dir]
  * Dev data only: generated memories and the approved world-v1 base memory; no sealed suite is read.
  */
 import fs from 'node:fs';
@@ -16,7 +16,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {generalityCases} from '../../datasets/diversity/generality.mjs';
-import {runArm, evidenceFor} from '../symbolic-vs-llm/run.mjs';
+import {runArm, evidenceFor, DEFAULT_LOCAL_TIER} from '../symbolic-vs-llm/run.mjs';
 import {createWorld, execute, goldSlice} from '../symbolic-vs-llm/world.mjs';
 import {score} from '../symbolic-vs-llm/score.mjs';
 import {verifyAnswer} from '../../../reasoning/strategies/js-reference/index.mjs';
@@ -79,9 +79,10 @@ export async function main(args = process.argv.slice(2)) {
   let rows = [...(levels.some(l => ['b', 'c'].includes(l)) ? generalityCases({per}).filter(r => levels.includes(r.level)) : []), ...(levels.includes('n') ? naturalRows() : [])];
   if (opt(args, '--only', null)) rows = rows.filter(r => r.form === opt(args, '--only'));
   if (ids) rows = rows.filter(r => ids.includes(r.id));
-  const settings = {model: opt(args, '--model', 'qwen3.8-27b'), endpoint: opt(args, '--endpoint', null), subscriptionModel: opt(args, '--subscription-model', 'openference/Qwen3.8 27b'), tier: opt(args, '--tier', 'small'),
+  for (const gone of ['--endpoint', '--model']) if (args.includes(gone)) throw new Error(`${gone} is gone: every model call goes through TinyAgent; name the local tier with --local-tier (default ${DEFAULT_LOCAL_TIER})`);
+  const localTier = opt(args, '--local-tier', DEFAULT_LOCAL_TIER);
+  const settings = {model: `tier:${localTier}`, localTier, purpose: 'job:generality-eval', subscriptionModel: opt(args, '--subscription-model', 'openference/Qwen3.8 27b'), tier: opt(args, '--tier', 'small'),
     wallMs: Number(opt(args, '--wall-ms', 180000)), maxTokens: Number(opt(args, '--max-tokens', 4096))};
-  if (arms.includes('B') && !settings.endpoint) throw new Error('arm B needs --endpoint of an already running llama-server (one GPU worker)');
   if (/^openrouter\b/.test(settings.subscriptionModel) && !args.includes('--allow-paid')) throw new Error('openrouter is paid per token; pass --allow-paid for an explicitly authorized run');
   const out = path.resolve(opt(args, '--out', path.join(ROOT, 'eval/reports/current/generality/records')));
   fs.mkdirSync(out, {recursive: true});

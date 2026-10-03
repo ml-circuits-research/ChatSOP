@@ -1,6 +1,6 @@
 /**
  * The authored property lexicon of the KBQA memories (tag `lex`): the authoring path of the product (DS022: a coding agent writes lexemes
- * for a vocabulary) applied to Wikidata properties. For every property of a slice an LLM (`Qwen3.8 27b` through the local proxy, called directly)
+ * for a vocabulary) applied to Wikidata properties. For every property of a slice an LLM (`Qwen3.8 27b` through TinyAgent, called directly)
  * proposes the English relation phrases in the model-language convention of SymbolicLM (the lemma with its particles: "direct", "be born in",
  * "be directed by", "be the director of") for the two orientations of the property's predicates:
  *   direct    the subject is the item that carries the statement ("Titanic was directed by X"): "be directed by", "have director";

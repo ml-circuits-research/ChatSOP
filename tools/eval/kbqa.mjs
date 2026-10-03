@@ -10,7 +10,7 @@
  *   node tools/eval/kbqa.mjs build    --suite <name> [--stage 100|300|all]   # Wikidata slice -> circuits + host lexicon -> base memory kbqa-<name>
  *   node tools/eval/kbqa.mjs run      --suite <name> [--stage 100|300|all] [--variant lex] [--tier tiny|small|medium|good] [--tag m0] [--force]   # the chain on every question; per-question records (tag = a rerun on a newer component state)
  *   node tools/eval/kbqa.mjs report   [--suite <name>|all]                   # scores, attribution, summary.md
- *   node tools/eval/kbqa.mjs baseline --suite <name> --stage 100 [--model qwen27b|deepseek] [--shards 10] [--concurrency 3]  # task folders, direct proxy calls: an LLM answers from the same slice as text
+ *   node tools/eval/kbqa.mjs baseline --suite <name> --stage 100 [--model qwen27b|deepseek] [--shards 10] [--concurrency 3]  # task folders, direct TinyAgent calls: an LLM answers from the same slice as text
  *   node tools/eval/kbqa.mjs baseline-score --suite <name> --stage 100 --model qwen27b   # scores the answers.jsonl of the shards
  *
  * Outputs: eval/reports/current/kbqa/<name>/stage-<n>.jsonl (one record per question), eval/reports/current/kbqa/summary.{md,json}.

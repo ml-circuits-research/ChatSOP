@@ -1,9 +1,9 @@
 /**
- * The llm-agent baselines of the KBQA evaluation (tools/eval/kbqa.mjs `baseline`): an LLM (by default `Qwen3.8 27b` through the local proxy; `--model provider/model` picks another) reads the
+ * The llm-agent baselines of the KBQA evaluation (tools/eval/kbqa.mjs `baseline`): an LLM (by default `Qwen3.8 27b` through TinyAgent; `--model provider/model` picks another) reads the
  * same Wikidata knowledge as text and answers the same questions. Per shard of questions one fenced folder under
  * datasets_sources/kbqa-baseline/<suite>-<stage>-<model>-<shard>/ (gitignored): TASK.md (the fence and the answer format), input/facts.txt
  * (per question the statements of the slice about the question entities, the gold answer entities' neighbourhood being part of the same
- * slice the chain gets; labels and ids), and the model's reply is written to answers.jsonl (a direct call through the proxy, tools/eval/direct-files.mjs; no omp).
+ * slice the chain gets; labels and ids), and the model's reply is written to answers.jsonl (a direct call through TinyAgent, tools/eval/direct-files.mjs; no omp).
  *   {"id": "...", "kind": "entities"|"boolean"|"number"|"text"|"unknown", "answers": [...]}   entity answers are Wikidata ids.
  * The agent must answer from the listed facts only; "unknown" is the honest answer when they do not decide the question.
  */

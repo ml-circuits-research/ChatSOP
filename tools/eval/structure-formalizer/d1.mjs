@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * D1 of train-psm-lfm-v1: teacher data for the PSM and the LFM (status/preregistrations/train-psm-lfm-v1.json). One process:
- *   1. the LLMJobs job train-data-d1 runs with teacher `small` and then with teacher `medium` (jobs/train-data-d1/{small,medium};
- *      calls tagged job:train-data-d1, budgets registered with the proxy; the format checks of jobs/train-data-d1/checks.mjs);
+ *   1. the TinyAgent job train-data-d1 runs with teacher `small` and then with teacher `medium` (jobs/train-data-d1/{small,medium};
+ *      calls tagged job:train-data-d1, budgets registered with the TinyAgent server; the format checks of jobs/train-data-d1/checks.mjs);
  *   2. deterministic verification of every problem both teachers answered in the right format:
  *      gold      each teacher's circuits execute (product engines) to the book answer
  *      agree     the two teachers' answers are the same on the problem's own numbers (no perturbation: owner decision 2026-10-03;
@@ -19,7 +19,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {loadJob, runJob, RunStore, loadConfig, liveTiers} from '../../../LLMJobs/lib/index.mjs';
+// The job runs in this process; its model calls go to the TinyAgent server named by the `runner` section of config/tinyagent.json.
+import {loadJob, runJob, RunStore, loadConfig, liveTiers} from '../../../TinyAgent/lib/jobs/index.mjs';
 import {parseFol} from '../../../lib/formalize/fol/parse.mjs';
 import {folToIr} from '../../../lib/formalize/fol/to-ir.mjs';
 import {compileIr, slug} from '../../../lib/formalize/fol/to-sop.mjs';

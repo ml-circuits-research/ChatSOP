@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * A/B of formalizer role prompts (fol-v2 vs fol-v3, 2026-10-03) on book problems, before any proxy tier names the new prompt: the
- * prompted backend of the proxy (`prompted.mjs` `serveprompted`, LLMAPIProvider/ or TinyAgent/lib/: the same template, validation, re-ask and merge as
- * a prompted tier) runs in this process over a chat tier of the proxy (tiny: the model of formalizer-tiny; good: the model of
+ * A/B of formalizer role prompts (fol-v2 vs fol-v3, 2026-10-03) on book problems, before any TinyAgent tier names the new prompt: the
+ * prompted backend of TinyAgent (TinyAgent/lib/prompted.mjs `serveprompted`: the same template, validation, re-ask and merge as a
+ * prompted tier) runs in this process over a TinyAgent chat tier (tiny: the model of formalizer-tiny; good: the model of
  * formalizer-good), so the only difference between two arms is the prompt. Scoring is `ab.mjs score` (the converters, the engines,
  * the asked-parts scorer). Offline evaluation harness; book text stays local (datasets_sources/, state/).
  *
@@ -18,24 +18,23 @@
  * `sample` draws n fresh scorable problems of the logic book's argument and critical-thinking sections (ARGUMENT_SECTIONS: the
  * argument forms of chapter 2, induction, analogy, cause, fallacies, biases and the combined chapter; abduction has no scorable gold),
  * stratified by chapter, never a seen item, never one of the strict held-out split; marks them seen and writes <run>/ids.json.
- * Arms: `lfmp:<chatTier>:<prompt>` (the prompted formalizer), `psm:structure-gliner` (the names for linking constants, local).
+ * Arms: `lfmp:<chatTier>:<prompt>` (the prompted formalizer), `psm:<structure tier>` (the names for linking constants).
  */
 import fs from 'node:fs';
-import http from 'node:http';
 import path from 'node:path';
-import {fileURLToPath, pathToFileURL} from 'node:url';
+import {fileURLToPath} from 'node:url';
 import {loadItems, loadSeen, sampleItems, markSeen} from '../books/sample.mjs';
 import {heldoutUnits, unitOf} from './heldout.mjs';
 import {goldOf} from './gold.mjs';
 import {sentencesOf} from '../../../lib/formalize/fol/input.mjs';
 import {extractStructure} from '../../../lib/formalize/small-models.mjs';
 import {loadSchema, schemaRequest} from '../../../lib/formalize/structure/schema.mjs';
+import {tinyAgent} from '../../../lib/tinyagent.mjs';
+import {loadTemplate, serveprompted} from '../../../TinyAgent/lib/prompted.mjs';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
-// The proxy's prompted backend and its role prompts, wherever the proxy lives (LLMAPIProvider, or TinyAgent after its move).
-const firstExisting = (...files) => files.map(f => path.join(ROOT, f)).find(f => fs.existsSync(f)) ?? null;
-const {loadTemplate, serveprompted} = await import(pathToFileURL(firstExisting('TinyAgent/lib/prompted.mjs', 'LLMAPIProvider/prompted.mjs')).href);
-const promptsDir = name => path.dirname(firstExisting(`TinyAgent/prompts/${name}.md`, `LLMAPIProvider/prompts/${name}.md`) ?? `LLMAPIProvider/prompts/${name}.md`);
+// The role prompts of ChatSOP's prompted tiers (config/tinyagent.json promptsDir).
+const promptsDir = () => path.join(ROOT, 'config/prompts');
 const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i > 0 ? process.argv[i + 1] : d; };
 const readJsonl = f => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').split('\n').filter(Boolean).map(JSON.parse) : []);
 const run = arg('run');
@@ -45,35 +44,18 @@ const OUT = path.join(ROOT, 'state/structure-formalizer', run ?? '');
 export const ARGUMENT_SECTIONS = Object.freeze(['2.6', '2.7', '2.8', '2.9', '2.10', '3.', '4.', '5.', '8.', '9.', '10.']);
 const isArgument = item => item.book === 'logic' && ARGUMENT_SECTIONS.some(s => (s.endsWith('.') ? item.section.startsWith(s) : item.section.split(/\s+/)[0] === s));
 
-/** The chat function of `serveprompted` over a chat tier of the proxy: greedy as the template says, no thinking locally, no fallback. */
+/** The chat function of `serveprompted` over a TinyAgent chat tier: greedy as the template says, no thinking locally, no fallback. */
 export function promptedChat(tier, {purpose, run: runId, timeoutMs = 1_800_000}) {
-  const PROXY = (process.env.LLMAPIPROVIDER_URL ?? 'http://127.0.0.1:18080/v1').replace(/\/+$/, '');
-  const local = ['tiny', 'supertiny'].includes(tier);
-  // node:http, not fetch: a thinking model answers after more than fetch's fixed 300 s header timeout.
-  const post = body => new Promise((resolve, reject) => {
-    const u = new URL(`${PROXY}/chat/completions`), data = JSON.stringify(body);
-    const req = http.request({hostname: u.hostname, port: u.port, path: u.pathname, method: 'POST', timeout: timeoutMs,
-      headers: {'content-type': 'application/json', 'content-length': Buffer.byteLength(data), 'x-llmapiprovider-purpose': purpose, 'x-llmapiprovider-run': runId, 'x-llmapiprovider-no-fallback': '1'}}, res => {
-      const chunks = [];
-      res.on('data', c => chunks.push(c));
-      res.on('end', () => resolve({status: res.statusCode, hit: res.headers['x-llmapiprovider-cache'] === 'hit', text: Buffer.concat(chunks).toString('utf8')}));
-    });
-    req.on('timeout', () => req.destroy(new Error('timeout')));
-    req.on('error', reject);
-    req.end(data);
-  });
+  const local = ['nano', 'micro', 'supertiny', 'tiny'].includes(tier);
+  // TinyAgent's library talks node:http, so a thinking model that answers after more than 300 s is not cut by a header timeout.
+  const ta = tinyAgent({purpose, run: runId});
   const chat = async (messages, {temperature, maxTokens}) => {
-    try {
-      const r = await post({model: tier, messages, temperature, max_tokens: maxTokens, stream: false, ...(local ? {chat_template_kwargs: {enable_thinking: false}} : {})});
-      chat.calls++;
-      if (r.hit) chat.hits++;
-      let body = null;
-      try { body = JSON.parse(r.text); } catch { /* reported below */ }
-      if (r.status !== 200 || !body) return {ok: false, status: r.status, error: JSON.stringify(body?.error ?? r.text.slice(0, 200)).slice(0, 200)};
-      const m = body.choices?.[0]?.message ?? {}, u = body.usage ?? {};
-      return {ok: true, text: String(m.content ?? ''), finish: body.choices?.[0]?.finish_reason ?? null,
-        usage: {output_tokens: u.completion_tokens ?? 0, reasoning_tokens: u.completion_tokens_details?.reasoning_tokens ?? null, reasoning_chars: (m.reasoning_content ?? '').length, content_chars: String(m.content ?? '').length}};
-    } catch (error) { return {ok: false, status: 502, error: String(error.message ?? error)}; }
+    const r = await ta.chat({tier, messages, temperature, maxTokens, stream: false, noFallback: true, timeoutMs, ...(local ? {extraBody: {chat_template_kwargs: {enable_thinking: false}}} : {})});
+    chat.calls++;
+    if (r.cached) chat.hits++;
+    if (!r.ok) return {ok: false, status: r.status || 502, error: String(r.error ? JSON.stringify(r.error) : r.reason ?? '').slice(0, 200)};
+    const m = r.body?.choices?.[0]?.message ?? {};
+    return {ok: true, text: r.raw, finish: r.finish, usage: {output_tokens: r.usage.out, reasoning_tokens: r.body?.usage?.completion_tokens_details?.reasoning_tokens ?? null, reasoning_chars: (m.reasoning_content ?? '').length, content_chars: r.raw.length}};
   };
   chat.calls = 0; chat.hits = 0;
   return chat;
@@ -120,7 +102,7 @@ async function fetchPhase() {
         row = {psm: r.ok ? r.body : {error: r.reason}, ms: r.ms, cached: r.cached};
       } else {
         const chat = promptedChat(tier, opts), t0 = Date.now();
-        // A cloud thinking model (good: GLM-5.3) spends ~7k reasoning tokens on a short problem and can run away to any cap; the proxy ends a call after about 300 s: 12k,
+        // A cloud thinking model (good: GLM-5.3) spends ~7k reasoning tokens on a short problem and can run away to any cap; TinyAgent ends a call after about 300 s: 12k,
         // and a reply cut there is used as it is (counted in usage.cut), never asked again with a larger budget.
         const entry = {model: tier, ...(tier === 'tiny' ? {maxTokensCap: 32000} : {maxTokens: 12000, maxTokensCap: 12000})};
         const r = await serveprompted({path: '/v1/fol', body: {inputs: units.map(u => u.text), candidates: 1}, entry, template, chat});

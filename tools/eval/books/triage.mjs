@@ -4,7 +4,7 @@
  *   node tools/eval/books/triage.mjs --run <books run dir> [--arm steps] [--judge] [--out <dir>]
  * Every failed row of the arm gets one layer: formalization | knowledge | engine | construct | gold | infrastructure.
  * Deterministic rules decide what the record shows by itself (a turn error, a refused circuit, a question asked back, a circuit without
- * the problem's own data, a gold answer in another language); the rest is judged by the LLMJobs job `jobs/books-triage` (tier good),
+ * the problem's own data, a gold answer in another language); the rest is judged by the TinyAgent job `jobs/books-triage` (tier good),
  * which sees the problem, the gold, the circuit and the answer. Writes `<out>/triage.jsonl`, `<out>/summary.md` (default
  * eval/reports/current/books-triage/<date>-<run>/). Formalization rows are already in the inbox (score.mjs reportFailures); this tool
  * reports none and changes nothing.
@@ -72,7 +72,7 @@ function summarise(out, run, t, judgeRun) {
     const k = `${l}: ${r.sub ?? '?'}`; sub[k] = (sub[k] ?? 0) + 1;
     (book[r.book] ??= {})[l] = ((book[r.book] ??= {})[l] ?? 0) + 1;
   }
-  const lines = [`# Triage of ${run} (arm steps)`, '', `${t.total} problems, ${t.correct} correct, ${t.rows.length} failed. Rule-decided ${t.rows.filter(r => r.by === 'rule').length}, judged ${t.rows.filter(r => r.by === 'judge').length}${judgeRun ? ` (LLMJobs books-triage ${judgeRun})` : ''}.`, '',
+  const lines = [`# Triage of ${run} (arm steps)`, '', `${t.total} problems, ${t.correct} correct, ${t.rows.length} failed. Rule-decided ${t.rows.filter(r => r.by === 'rule').length}, judged ${t.rows.filter(r => r.by === 'judge').length}${judgeRun ? ` (TinyAgent job books-triage ${judgeRun})` : ''}.`, '',
     '| layer | rows |', '|---|---|', ...LAYERS.concat('undecided').filter(l => by[l]).map(l => `| ${l} | ${by[l]} |`), '',
     '| book | ' + LAYERS.join(' | ') + ' |', '|---|' + LAYERS.map(() => '---|').join(''),
     ...Object.entries(book).sort().map(([b, c]) => `| ${b} | ${LAYERS.map(l => c[l] ?? 0).join(' | ')} |`), '',
@@ -106,7 +106,9 @@ function reportCeiling(runDir, rows, out, {report = reportFormalizationError} = 
 }
 
 async function judge(out) {
-  const {loadJob, runJob, RunStore, loadConfig, liveTiers} = await import('../../../LLMJobs/lib/index.mjs');
+  // The job runs in this process (its command input reads BOOKS_TRIAGE_DIR of this environment); its model calls go to the TinyAgent
+  // server named by the `runner` section of config/tinyagent.json.
+  const {loadJob, runJob, RunStore, loadConfig, liveTiers} = await import('../../../TinyAgent/lib/jobs/index.mjs');
   const jobDir = path.join(ROOT, 'jobs/books-triage');
   process.env.BOOKS_TRIAGE_DIR = out;
   const config = loadConfig({jobDir});

@@ -43,12 +43,6 @@ const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json')
 const layerOf = ids => indexLayer(ids.flatMap(id => seedCircuits(id).map(c => ({name: `${id}:${c.file}`, text: c.text}))), ids.join('+'));
 export const ARMS = {A: ['conversation-v1'], B: config.conversation.layers};
 
-// Every formalization call through the proxy is tagged with this evaluation's purpose (the parser tags it `formalize`).
-const realFetch = globalThis.fetch;
-globalThis.fetch = (url, init = {}) => {
-  if (String(url).includes('127.0.0.1:18080') && init.headers && !Array.isArray(init.headers)) init = {...init, headers: {...init.headers, 'x-llmapiprovider-purpose': PURPOSE}};
-  return realFetch(url, init);
-};
 
 async function turns() {
   const messages = readJsonl(path.join(ROOT, 'eval/smalltalk-v1/messages.jsonl'));
@@ -62,7 +56,8 @@ async function turns() {
   const store = new SessionStore({repo: sessions.repository(id), lexicon, config: {...config, policy: {...(config.policy ?? {}), reinforce: false}}, root: path.join(sessions.dir(id), 'agent'),
     circuitRules: () => theories.get([...sessions.baseCircuits(id), ...sessions.circuits(id)]).chatRules()});
   const tierAt = args.indexOf('--tier');
-  const parser = createQueryParser({settings: tierParserSettings(config, {tier: tierAt >= 0 ? args[tierAt + 1] : null, cacheEntries: 0})});
+  // Every formalization call through TinyAgent is tagged with this evaluation's purpose (the parser would tag it `formalize`).
+  const parser = createQueryParser({settings: tierParserSettings(config, {tier: tierAt >= 0 ? args[tierAt + 1] : null, tags: {purpose: PURPOSE}, cacheEntries: 0})});
   const layers = args.includes('--formalize-only') ? {} : Object.fromEntries(Object.entries(ARMS).map(([arm, ids]) => [arm, layerOf(ids)]));
   const topics = topicsOf(lexicon);
   fs.mkdirSync(OUT, {recursive: true});

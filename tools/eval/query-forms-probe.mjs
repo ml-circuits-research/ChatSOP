@@ -2,7 +2,7 @@
 /**
  * Probe for the query-form work (experiment eval-query-forms-v1): asks questions of the base memory world-v1 through the product
  * Agent, either with the step-by-step formalizer (config/runtime.json queryParser; `--tier tiny|small|medium|good` answers its questions
- * on one proxy tier, default the product ladder; LLMDirect is archived) or with a given SOP (`--sop file`).
+ * on one TinyAgent tier, default the product ladder; LLMDirect is archived) or with a given SOP (`--sop file`).
  *   node tools/eval/query-forms-probe.mjs --q "How many countries border Germany?" [--sop file] [--base world-v1] [--tier T]
  * Prints the SOP, the circuit status, the answer and the retrieval/linking summary. Sessions are private to user `qf-probe` and deleted.
  */

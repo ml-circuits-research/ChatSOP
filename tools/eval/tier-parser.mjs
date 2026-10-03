@@ -1,6 +1,6 @@
 /**
  * The request-parser settings of an evaluation tool (owner decision 2026-10-02): formalization is step by step only, and a tool chooses
- * WHO answers the step-by-step questions with `--tier <tiny|small|medium|good>` (one proxy tier, like with like: every tier answers the
+ * WHO answers the step-by-step questions with `--tier <tiny|small|medium|good>` (one TinyAgent tier, like with like: every tier answers the
  * same questions) or `--ladder` (the product's ladder queryParser.local.ladder, escalating per question). Without either, the product's
  * configured ladder runs. One-shot LLMDirect is archived (probably_obsolete/one-shot-formalization/).
  *
@@ -22,11 +22,14 @@ export function tierOptions(args, {tier = null} = {}) {
   return {tier: i >= 0 ? args[i + 1] : ladder ? null : tier, ladder};
 }
 
-/** Query-parser settings with the questions on `tier` (single rung) or the product ladder; `extra` merges into queryParser. */
-export function tierParserSettings(config, {tier = null, ladder = false, headers = null, ...extra} = {}) {
+/**
+ * Query-parser settings with the questions on `tier` (single rung) or the product ladder; `tags` ({purpose, run, noFallback}) tag the
+ * TinyAgent calls of the questions; `extra` merges into queryParser.
+ */
+export function tierParserSettings(config, {tier = null, ladder = false, tags = null, ...extra} = {}) {
   const base = config.queryParser?.local ?? {};
   const local = tier && !ladder ? {...base, tier, ladder: tierLadder(config, tier)} : {...base};
-  if (headers) local.headers = headers;
+  if (tags) local.tags = tags;
   const set = Object.fromEntries(Object.entries(extra).filter(([, v]) => v !== undefined && v !== null));
   return queryParserSettings({...config, queryParser: {...(config.queryParser ?? {}), ...set, local}});
 }

@@ -5,13 +5,14 @@
  * negative when neither did; disputed kinds are left out of that message's numbers).
  *
  * Arms:
- *   stepbystep  LocalLLMStepByStep's first question (Q1 kind and message acts, then the emotion question) on a local llama-server, or
- *               with --tier on one proxy tier (records stepbystep-<tier>.jsonl): larger tiers answer the SAME questions (like with like)
+ *   stepbystep  LocalLLMStepByStep's first question (Q1 kind and message acts, then the emotion question) on the local TinyAgent tier
+ *               micro (records stepbystep.jsonl), or with --tier on another TinyAgent tier (records stepbystep-<tier>.jsonl): larger
+ *               tiers answer the SAME questions (like with like)
  *   lexicon     the archived lexicon/regex EmotionDetectionSystem (probably_obsolete/paused/), reference only
  * The one-shot arm `coding` (LLMDirect writing the whole circuit) was archived on 2026-10-02 (probably_obsolete/one-shot-formalization/);
  * its earlier records (coding.jsonl) are still reported.
  *
- *   node tools/eval/pragmatics/run.mjs --arm stepbystep --endpoint http://127.0.0.1:19611/v1 --model qwen3-4b-instruct --limit 50
+ *   node tools/eval/pragmatics/run.mjs --arm stepbystep --limit 50                    (tier micro, the local Qwen3-4B-Instruct)
  *   node tools/eval/pragmatics/run.mjs --arm stepbystep --tier small --limit 50 --concurrency 4
  *   node tools/eval/pragmatics/run.mjs --arm lexicon
  *   node tools/eval/pragmatics/run.mjs --report            (every arm's records → summary.json and summary.md)
@@ -46,15 +47,14 @@ export const kindsOfSop = sop => [...String(sop ?? '').matchAll(/^@\w+\s+pragmat
 async function stepByStepArm(rows, args) {
   const {createOracle} = await import('../../../lib/query-author/step-by-step/index.mjs');
   const {firstQuestion} = await import('../../../lib/query-author/step-by-step/protocol.mjs');
-  const {localChat} = await import('../../../lib/local-llm/client.mjs');
-  // --tier: the proxy LLMAPIProvider with a tier name as the model (with the product ladder's request settings for that tier); else a llama-server endpoint.
+  const {tierChat} = await import('../../../lib/formalize/strategies.mjs');
+  // --tier: a TinyAgent tier with the product ladder's request settings for that tier; without it the local tier micro (Qwen3-4B-Instruct).
+  if (args.includes('--endpoint') || args.includes('--model')) throw new Error('--endpoint and --model are gone: every model call goes through TinyAgent; name a tier with --tier (default micro)');
   const tier = opt(args, '--tier', null);
-  const endpoint = tier ? 'http://127.0.0.1:18080/v1' : opt(args, '--endpoint', 'http://127.0.0.1:19611/v1'), model = tier ?? opt(args, '--model', 'qwen3-4b-instruct');
   const {tierLadder} = await import('../tier-parser.mjs');
   const rung = tier ? tierLadder(JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8')), tier)[0] : null;
   const extraBody = {chat_template_kwargs: {enable_thinking: false}, ...(rung?.extraBody ?? {})};
-  const headers = tier ? {'x-llmapiprovider-purpose': 'job:pragmatics-eval'} : {};
-  const chat = (messages, maxTokens) => localChat({endpoint, model, messages, maxTokens, extraBody, headers});
+  const chat = tierChat({tier: tier ?? 'micro', extraBody, timeoutMs: 120_000, purpose: 'job:pragmatics-eval'});
   return async row => {
     const oracle = createOracle({chat});
     const started = Date.now();

@@ -54,3 +54,7 @@ Both keep original repository-relative paths below their folder; the state befor
 | Archived item | What it was | Current place |
 |---|---|---|
 | `llmapiprovider/local-services/small-models/` | The earlier proxy's local service for GLiNER2.5 and T5 NL-to-FOL (tiers `structure-gliner`, `formalizer-t5`); the models lost the A/B of 2026-10-03 and were deleted | the prompted roles of TinyAgent (`structure`, `formalizer` tiers, `config/prompts/`) |
+| `tinyagent-migration/lib/local-llm/` | The managed llama-server registry of the step-by-step strategies (dedicated slots, prewarmed prefixes, GPU locks) and its chat client `localChat` | TinyAgent's local model providers (`TinyAgent/README.md` "Local models"; tiers `micro`, `tiny` in `config/tinyagent.json`), reached through `lib/tinyagent.mjs` |
+| `tinyagent-migration/tools/local-llm/serve.mjs` | Started one managed llama-server and kept it running for the chat server or an evaluation | `node TinyAgent/bin/tinyagent.mjs models start <provider>` |
+| `tinyagent-migration/tests/local-llm-runtime.test.mjs` | The tests of `lib/local-llm` | TinyAgent's own tests (`TinyAgent/test/`) |
+| `tinyagent-migration/tools/eval/query-model-calibration/` | `servers.mjs` (one private GPU llama-server of an evaluation) and `models.mjs` (its GGUF list), last used by the symbolic-vs-llm harness | the harnesses name a TinyAgent tier (`--local-tier`, default `micro`) |

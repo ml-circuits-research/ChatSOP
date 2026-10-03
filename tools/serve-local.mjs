@@ -11,7 +11,7 @@
  * the administrator password; the chat API stays blocked until it is set.
  * `CHATSOP_API_KEY` keeps working as an environment-provided bearer token for
  * scripts and SDKs, and `CHATSOP_CONFIG` selects another runtime configuration.
- * The chat's formalizer is step by step: the system asks short questions to the proxy tier ladder `queryParser.local.ladder` of the runtime
+ * The chat's formalizer is step by step: the system asks short questions to the TinyAgent tier ladder `queryParser.local.ladder` of the runtime
  * configuration (DS009 "Request parser").
  */
 import os from 'node:os';
