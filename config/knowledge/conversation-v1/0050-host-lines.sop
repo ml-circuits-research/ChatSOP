@@ -186,6 +186,12 @@
   language en
   text "Only under the model's assumptions: {{text}}"
 
+@cv_line_model_assumption reply
+  situation line_model_assumption
+  part line
+  language en
+  text "{{statement}}"
+
 @cv_line_condition reply
   situation line_condition
   part line

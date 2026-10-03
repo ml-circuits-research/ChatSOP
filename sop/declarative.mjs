@@ -572,7 +572,7 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
 
 // Host phrases of the answer, English only: the output edge translates the final answer (lib/translator-service/answer.mjs, DS014 "English-only core").
 // The host's sentences are `line` replies of the conversation layer (sop/replies.mjs, DS023 "Conversation layer"); the output edge phrases them in the user's language.
-const TEXT={context:n=>line('noted_statements',{count:n}),get conditionalOnly(){return line('conditional_only');},understood:reading=>line('understood',{reading}),branch:text=>line('assumption_branch',{text}),condition:statement=>line('condition',{statement}),notChecked:(link,target)=>line('not_checked',{link,target})};
+const TEXT={context:n=>line('noted_statements',{count:n}),get conditionalOnly(){return line('conditional_only');},understood:reading=>line('understood',{reading}),branch:text=>line('assumption_branch',{text}),modelAssumption:statement=>line('model_assumption',{statement}),condition:statement=>line('condition',{statement}),notChecked:(link,target)=>line('not_checked',{link,target})};
 
 /** The seed of the reply variant: the turn's clock when the plan has one (a fixed clock gives a fixed variant). */
 const runtimeSeed=plan=>Number(plan.now??0)||0;
@@ -708,7 +708,8 @@ async function runPlan(plan,{runtime,language,languageSource,inputText,context})
   if(!missing.length){
    const count=admittedStatements.length;
    const packet={kind:'context',status:'context_updated',complete:true,count,...reports};
-   const text=[m.context(count),...(plan.statements.some(conditionalStatement)?[m.conditionalOnly]:[])].join('\n');
+   // The model's assumptions of a turn without a question are listed ("What did you assume?", fol-v3 Assumed); they stay reported, never facts.
+   const text=[m.context(count),...(plan.statements.some(conditionalStatement)?[m.conditionalOnly]:[]),...modelAssumptions.filter(a=>a.statement).map(a=>m.modelAssumption(a.statement))].join('\n');
    result.result={kind:'cnl',language:plan.language,packet,text};
   }
  }else if(rendered.length===plan.renderIds.length){

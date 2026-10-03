@@ -6185,6 +6185,24 @@
     "docs/analysis.html",
     "tools/eval/analysis/run.mjs"
    ]
+  },
+  {
+   "id": "fol-v3-ab",
+   "name": "fol-v3 vs fol-v2 role prompt of the FOL formalizer: argument questions and introspection (candidates, effect, abduce, why_not)",
+   "category": "formalization",
+   "owner": "fol-v3-agent",
+   "registered_at": "2026-10-03",
+   "hypothesis": "fol-v3 answers more argument and critical-thinking questions correctly than fol-v2 on tiny, without a regression on the earlier 30 and fresh 50 book problems.",
+   "preregistration": "none: owner-requested measurement with its decision rule (switch the formalizer tier only if not worse on the 30+50 and better on the argument sample); development on 20 seen argument items and 8 unscorable abduction items, the 30-item sample drawn once afterwards and never used to tune the prompt",
+   "data_version": "datasets_sources/books/eval/items.jsonl (local), sample state/structure-formalizer/fol-v3-arg-30/ids.json; 30 = ids of fol-v2-30, 50 = fol-fresh-50",
+   "status": "done",
+   "results": "argument 30 (tiny): fol-v2 2 correct/1 wrong, fol-v3 6/4 (correct +4 [1,8], wrong +3 [-1,7]); 30: 9/5 vs 9/3; fresh 50: 9/8 vs 8/5. good ceiling (GLM-5.3) stopped: runaway generation to 32768 tokens.",
+   "conclusions": "fol-v3 makes the argument forms answerable on tiny and does not regress the 30+50; its remaining wrong answers are formalization errors of the model (a correlation written as a rule, 'can X?' asked as derivability). The formalizer tier names formalizer-tiny-v3.",
+   "links": [
+    "experiments/proposal/wire-type-proposals.md",
+    "tools/eval/structure-formalizer/fol-prompt.mjs",
+    "LLMAPIProvider/prompts/fol-v3.md"
+   ]
   }
  ]
 }
