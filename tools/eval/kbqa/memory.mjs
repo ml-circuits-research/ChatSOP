@@ -27,7 +27,8 @@ import {CACHE, ROOT} from './benchmarks.mjs';
 import {readSuite} from './suites.mjs';
 import {fetchSlice} from './slice.mjs';
 
-export const CHAT_ROOT = path.join(CACHE, 'chat_data');
+// KBQA_CHAT_ROOT: another private chat data root (a fresh one, e.g. to rerun a stage on the current seeds without touching the cached root).
+export const CHAT_ROOT = process.env.KBQA_CHAT_ROOT ? path.resolve(process.env.KBQA_CHAT_ROOT) : path.join(CACHE, 'chat_data');
 export const memoryId = (suite, stage, variant = '') => `kbqa-${suite}-${stage}${variant ? `-${variant}` : ''}`;
 export const sliceFile = (suite, stage) => path.join(CACHE, 'slices', `${suite}-${stage}.json`);
 const MAX_WIRES = 1800;

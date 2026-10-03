@@ -2,7 +2,8 @@
  * The 30-question chat check of the base memory world-v1 (eval/world-kb/questions.json), through the HTTP chat of a PRIVATE server:
  * this script starts `server/http.mjs` on a private loopback port (never 9999) with its own API key, opens one session on the base
  * memory per question (POST /v1/sessions, then POST /v1/chat/completions with that session_id) and stops the server afterwards.
- * the coding agent (omp), the KnowledgeLinker, the memory slice and the engine are the product's own; nothing is stubbed or cached.
+ * the step-by-step formalizer, the KnowledgeLinker, the memory slice and the engine are the product's own; nothing is stubbed. A question
+ * in Romanian is sent as it is (the chat API has no `language` parameter since the English-only core; the formalizer reads any language).
  *   node tools/eval/chat/world-kb-chat.mjs [--port 19099] [--only q01,q02] [--base world-v1] [--chat-data <root>] [--out <dir>]
  * Writes eval/reports/current/world-kb/chat-results.json (every answer with the formalization, the circuit and the packet status).
  * The chat data root defaults to the product root (chat_data/), where world-v1 is loaded by tools/world-kb/load.mjs.
@@ -52,7 +53,7 @@ for (const q of questions) {
   const sid = session.json?.id ?? session.json?.session?.id;
   const t0 = Date.now();
   let res;
-  try { res = await call('POST', '/v1/chat/completions', {model: 'chatsop-local', session_id: sid, messages: [{role: 'user', content: q.q}], ...(q.lang === 'ro' ? {language: 'ro'} : {})}); }
+  try { res = await call('POST', '/v1/chat/completions', {model: 'chatsop-local', session_id: sid, messages: [{role: 'user', content: q.q}]}); }
   catch (error) { res = {status: 0, json: null, text: String(error)}; }
   const ms = Date.now() - t0;
   const c = res.json?.chatSop ?? {};

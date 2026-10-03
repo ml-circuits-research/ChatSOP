@@ -569,7 +569,7 @@
    "id": "tests-formalization-regression",
    "title": "Offline formalization regression: fixture tier and set helpers",
    "kind": "offline-regression",
-   "measures": "The record/replay regression on an invented fixture (every step checked, the first diverging step named), the regression SkillPlugins (recording, references, growth, the balanced argument set with fake transports) and the regression-set helpers (deduplicated cases, sealed provenance refused, clustering, run comparison, proposal checks).",
+   "measures": "The record/replay regression on an invented fixture (every step checked, the first diverging step named), the regression TaskLambdas (recording, references, growth, the balanced argument set with fake transports) and the regression-set helpers (deduplicated cases, sealed provenance refused, clustering, run comparison, proposal checks).",
    "components": [
     "formalizer"
    ],
@@ -893,7 +893,9 @@
    ],
    "runtime": "estimate: 1-3 min",
    "latest": {
-    "result": "no recorded run"
+    "result": "44 requests on tiny (local Qwen3.6-35B-A3B), cache off, none failed: p50 121 / 916 / 252 / 709 ms at 1 / 2 / 4 / 8 concurrent (2-16 requests per level, noisy); interactive p50 216 ms idle and 200 ms under 6 background requests (the short background requests did not saturate the 4 slots)",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/tinyagent-load/2026-10-03/summary.json"
    },
    "status": "active",
    "notes": "Closes the R8 gap \"TinyAgent latency under load\". Numbers depend on what else uses the local model at the time; the summary records the run id and time."
@@ -1076,7 +1078,7 @@
    ],
    "runtime": "about 70-130 s for the whole suite (npm test, files in parallel; 2026-10-03)",
    "latest": {
-    "result": "1710 tests: 1706 pass, 1 skipped, 3 not ok, none from this inventory: tests/sop/commonsense-layer.test.mjs timed out at 120 s and the 50 ms decision-time test of formalizer-protocol-memory failed while other agents loaded the machine; no-direct-model-calls flags tools/eval/formalization-regression/argument.mjs (regression SkillPlugin work in progress)",
+    "result": "1710 tests: 1706 pass, 1 skipped, 3 not ok, none from this inventory: tests/sop/commonsense-layer.test.mjs timed out at 120 s and the 50 ms decision-time test of formalizer-protocol-memory failed while other agents loaded the machine; no-direct-model-calls flagged tools/eval/formalization-regression/argument.mjs (since fixed)",
     "date": "2026-10-03",
     "path": "eval/reports/current/inventory/npm-test.log"
    },
@@ -1510,7 +1512,7 @@
     "book problems (local only)",
     "recorded answers (local)"
    ],
-   "command": "node tools/eval/formalization-regression/argument.mjs record|replay (through the SkillPlugin regression-argument)",
+   "command": "node tools/eval/formalization-regression/argument.mjs record|replay (through the TaskLambda regression-argument)",
    "runsIn": [
     "manual"
    ],
@@ -1519,7 +1521,7 @@
     "result": "no recorded run"
    },
    "status": "active",
-   "notes": "Work in progress of the regression SkillPlugins (jobs/skills/), registered as scanned on 2026-10-03."
+   "notes": "The regression TaskLambdas (jobs/lambdas/regression.mjs) record it once and replay it offline."
   },
   {
    "id": "capability-battery",
@@ -1902,19 +1904,24 @@
    ],
    "runtime": "estimate: 30-90 min per stage of 100-300",
    "latest": {
-    "result": "chain (SymbolicLM era, before the step-by-step formalizer): SimpleQuestions 68/300 with the authored lexicon (15 wrong), Mintaka 1/300, LC-QuAD 2 0/100, QALD-10 0-1/100; LLM reading the slice: SimpleQuestions 79-95/100",
-    "date": "2026-10-01",
-    "path": "eval/reports/current/kbqa/summary.md"
+    "result": "R7 rerun through ChatSOPAdapter, step-by-step formalizer on tier tiny, first 30 questions of SimpleQuestions stage 100 (stage memory rebuilt on the current seeds in a fresh root, KBQA_CHAT_ROOT): 12 correct, 4 wrong, 14 unknown (40.0%, Wilson 95% 24.6-57.7%); the 2026-10-01 SymbolicLM-era m0 run had 2 correct, 1 wrong on the same 30. Stopped there (one small stage, AGENTS.md early stopping).",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/kbqa/simplequestions/stage-100-r7-adapter.jsonl"
    },
    "headline": {
     "id": "kbqa",
-    "label": "KBQA, SimpleQuestions stage 300 (authored lexicon)",
-    "value": "68 of 300 correct, 15 wrong (stale: before the step-by-step formalizer)",
-    "date": "2026-10-01",
-    "source": "eval/reports/current/kbqa/summary.md"
+    "label": "KBQA, SimpleQuestions stage 100, first 30 (tiny, through the adapter)",
+    "value": "12 of 30 correct, 4 wrong (40.0%, 95% 24.6-57.7%)",
+    "date": "2026-10-03",
+    "source": "eval/reports/current/kbqa/simplequestions/stage-100-r7-adapter.jsonl"
    },
    "status": "active",
-   "notes": "Every recorded KBQA run predates the step-by-step formalizer; a small rerun is needed before the number can be compared."
+   "notes": "Every recorded KBQA run predates the step-by-step formalizer; a small rerun is needed before the number can be compared.",
+   "previous": {
+    "result": "chain (SymbolicLM era, before the step-by-step formalizer): SimpleQuestions 68/300 with the authored lexicon (15 wrong), Mintaka 1/300, LC-QuAD 2 0/100, QALD-10 0-1/100; LLM reading the slice: SimpleQuestions 79-95/100",
+    "date": "2026-10-01",
+    "path": "eval/reports/current/kbqa/summary.md"
+   }
   },
   {
    "id": "eval-linking",
@@ -1984,12 +1991,17 @@
    ],
    "runtime": "estimate: 5-20 min",
    "latest": {
+    "result": "R7 rerun world30 through ChatSOPAdapter in process, step-by-step formalizer on tier tiny: 23 correct, 0 wrong, 6 honest unknown, 1 error (incompatible types in the circuit) of 30; median parse 11.2 s, p90 22.1 s. Same 30 questions as the HTTP world-kb check (which asks the six Romanian ones in Romanian).",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/query-parsers/world30-steps-tiny-r7-adapter.jsonl"
+   },
+   "status": "active",
+   "notes": "Also the runner of eval-commonsense (--rows eval/commonsense/questions.jsonl).",
+   "previous": {
     "result": "recorded rows predate the step-by-step formalizer (coding agent forms 31/40, 0 wrong); no step-by-step run recorded in the report",
     "date": "2026-10-02",
     "path": "eval/reports/current/query-parsers/report.md"
-   },
-   "status": "active",
-   "notes": "Also the runner of eval-commonsense (--rows eval/commonsense/questions.jsonl)."
+   }
   },
   {
    "id": "eval-query-forms",
@@ -2054,11 +2066,16 @@
    ],
    "runtime": "about 2-10 min",
    "latest": {
+    "result": "R7 rerun on tier tiny through the HTTP chat of a private server (ChatSOPAdapter, answer formulation on tiny): 20 of 30 pass (17 of the 24 English and non-Romanian, 3 of the 6 Romanian asked in Romanian; the harness no longer sends the removed language parameter). Failures: Romanian inflected names (3 clarify), one 422 (a circuit with incompatible types), budget stops and unknowns.",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/world-kb/r7-2026-10-03/chat-results.json (+ r7-2026-10-03-ro/)"
+   },
+   "status": "active",
+   "previous": {
     "result": "20 correct / 0 wrong / 10 honest unknown of 30 (formalizer of that time: the coding agent)",
     "date": "2026-10-01",
     "path": "eval/reports/current/world-kb/summary.md"
-   },
-   "status": "active"
+   }
   },
   {
    "id": "eval-generality",
@@ -2383,11 +2400,16 @@
    ],
    "runtime": "minutes",
    "latest": {
+    "result": "R7 rerun of the first 24 turns on tier tiny (private server, the user messages as sent by a user now): 11 answered (two partly: extra place levels), 4 honest unknown or clarify where right (gibberish, unknown relations, an incomplete count), 9 not answered although answerable (two budget stops on Who is Ada Lovelace, Romanian inflected name, typo questions, the turn-local statement about Alice), 0 definite wrong answers; read by hand.",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/e2e-chat/r7-2026-10-03/turns.jsonl"
+   },
+   "status": "active",
+   "previous": {
     "result": "the recorded check is of the SymbolicLM-era chat (2026-10-01)",
     "date": "2026-10-01",
     "path": "eval/reports/current/e2e-chat/summary.md"
-   },
-   "status": "active"
+   }
   },
   {
    "id": "audit-llm-review",
@@ -2789,7 +2811,7 @@
    "id": "R1",
    "title": "Move the remaining harnesses onto ChatSOPAdapter",
    "detail": "kbqa/run.mjs, smalltalk/run.mjs, query-parsers.mjs, generality/chat-failures.mjs and the symbolic-vs-llm runArm build their own Agent turn and request parser; AGENTS.md asks every evaluation to answer through lib/adapter (books/system.mjs already does).",
-   "decision": "decided: do it per harness when it is next run; no owner question (the system's behaviour does not change)"
+   "decision": "done 2026-10-03: lib/adapter/chat-turn.mjs is the chat turn of the HTTP chat and of tools/eval/lib/chat-turn.mjs (harnessChat); kbqa, query-parsers, smalltalk, generality chat-failures, the commonsense replay, the query-forms probe and the symbolic-vs-llm arms C and B-stepbystep answer through it (tools/eval/ingest-v1.mjs follows when it moves)"
   },
   {
    "id": "R2",
@@ -2825,13 +2847,13 @@
    "id": "R7",
    "title": "Refresh stale headline numbers before quoting them",
    "detail": "KBQA, the world-kb chat check, query-parsers and e2e-chat were last run before the step-by-step formalizer (2026-10-01/02); one small staged rerun each (100 rows or fewer) through the adapter.",
-   "decision": "decided: tracked in TODO.md"
+   "decision": "done 2026-10-03: KBQA (30 of SimpleQuestions stage 100), world-kb chat (30, HTTP), query-parsers (world30, in process) and e2e-chat (24 turns) rerun once on tier tiny through the adapter; the results with dates are in the entries"
   },
   {
    "id": "R8",
    "title": "Close the evaluation gaps",
    "detail": "no direct test of the formalization error inbox (lib/formalization-errors.mjs); no evaluation of the optional final-answer formulation (DS012 graded severity); no evaluation of the behaviour layer and of TinyAgent latency under load; ingestion v2 measured only at stage 1.",
-   "decision": "decided: tracked in TODO.md"
+   "decision": "partly done 2026-10-03: tests/formalizer/formalization-errors.test.mjs (the inbox) and tools/eval/tinyagent/load.mjs (TinyAgent latency under load, entry bench-tinyagent-load); still open: the final-answer formulation evaluation, the behaviour layer evaluation, ingestion v2 beyond stage 1"
   }
  ]
 }

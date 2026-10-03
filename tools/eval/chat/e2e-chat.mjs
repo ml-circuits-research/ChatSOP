@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 /**
  * Replays the turns of an end-to-end chat check through a running private server (never port 9999 of the owner's server):
- * one `POST /v1/chat/completions` per turn with the text the original run sent (`sent`), sessions shared by the turns of one
- * conversation, and records the answer text, status, completeness, timing and the trace fields to a JSONL file.
+ * one `POST /v1/chat/completions` per turn with the user's message (`message`; `--sent yes` replays the text the 2026-10-01 run sent
+ * after its clean-English step, which the chat no longer has), sessions shared by the turns of one conversation, and records the
+ * answer text, status, completeness, timing and the trace fields to a JSONL file.
  *
- *   node tools/eval/chat/e2e-chat.mjs --base http://127.0.0.1:19778 --in eval/reports/current/e2e-chat/turns.jsonl --out FILE.jsonl [--password P] [--memory world-v1]
+ *   node tools/eval/chat/e2e-chat.mjs --base http://127.0.0.1:19778 --in eval/reports/current/e2e-chat/turns.jsonl --out FILE.jsonl [--password P] [--memory world-v1] [--sent yes]
  *
  * The server must be started on a private port with its own data root (CHATSOP_PORT, CHATSOP_CHAT_DATA, CHATSOP_CONFIG).
  */
@@ -39,7 +40,7 @@ for (const turn of turns) {
     session = id;
   }
   const started = Date.now();
-  const body = {model: 'chatsop-local', session_id: session, messages: [{role: 'user', content: turn.sent ?? turn.message}]};
+  const body = {model: 'chatsop-local', session_id: session, messages: [{role: 'user', content: args.sent === 'yes' ? turn.sent ?? turn.message : turn.message}]};
   let res;
   try { res = await call('/v1/chat/completions', {method: 'POST', body, timeoutMs: 45000}); } catch (error) { res = {status: 0, json: null, text: String(error.message)}; }
   const sop = res.json?.chatSop;
