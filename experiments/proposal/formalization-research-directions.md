@@ -1,5 +1,7 @@
 # Formalization research directions: critique of the owner's notes and ranked experiment variants
 
+**Archived 2026-10-03.** The code and data this document describes moved to `probably_obsolete/formalization-experiments-2026-10/` (its README gives the final numbers and the path map) when the owner decided to rebuild the formalization infrastructure. Paths below read as they did at the time.
+
 Status: design proposal (planning agent Fable, 2026-10-02 night), answering the owner's request to (1) analyse the two external notes in `owner-notes-2026-10-02-formalization.md` against what ChatSOP does, (2) propose ranked experiment variants for when the current approach (registry + typed tree + dual expressions, `semantic-decomposition-protocol.md`) fails or plateaus, (3) say when to declare it failed. No product code is changed by this document.
 
 ## 0. Where we stand (numbers read from the state folders, 2026-10-02)

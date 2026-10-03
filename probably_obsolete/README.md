@@ -44,3 +44,7 @@ Both keep original repository-relative paths below their folder; the state befor
 ## One-shot circuit formalization (2026-10-02)
 
 `one-shot-formalization/` holds the one-shot strategy LLMDirect (the author loop, its prompt and guide, its backends, structured-output ablations, their tests and the one-shot calibration runner), archived when the owner made formalization step by step only; see its `README.md` for the reason, the last measured numbers and the path map.
+
+## Formalization experiments (2026-10-03)
+
+`formalization-experiments-2026-10/` holds the research harnesses of 2026-10-02/03, archived when the owner decided to rebuild the formalization infrastructure (structure model, logic formalizer model, deterministic converters to SOP). They are the six-paths harness and its layer, the method library and its node-by-node runs, the stage-A semantic decomposition, and the dual-formalization tooling with its cross-family and tiny-only verifiers. Their tests moved with them. See its `README.md` for what each part was, its final numbers, what stayed in the product and why, and the path map. The state before the move is commit `c3da94f`.

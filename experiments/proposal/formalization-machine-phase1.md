@@ -1,5 +1,7 @@
 # Formalization machine, phase 1: does a small method library cover the book problems by composition?
 
+**Archived 2026-10-03.** The code and data this document describes moved to `probably_obsolete/formalization-experiments-2026-10/` (its README gives the final numbers and the path map) when the owner decided to rebuild the formalization infrastructure. Paths below read as they did at the time.
+
 Status: phase 1 run and measured (2026-10-02/03, implementation agent `formalization-machine`). Preregistration `status/preregistrations/eval-formalization-machine-v1.json` (criteria written before any model call; deviations recorded there). Owner's idea: "Analysis 3" in `experiments/proposal/owner-notes-2026-10-02-formalization.md`; the owner's research proposal `experiments/proposal/formalization-calculus.md` is answered in section 6. Phase 2 stage 1 was run on the coordinator's go (section 8). Nothing on the product path changed. Nothing here is committed.
 
 ## 1. Verdict

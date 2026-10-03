@@ -208,7 +208,7 @@ export async function runRegression({tier = 'tiny', strategy = 'LocalLLMStepBySt
   const store = replay ? replayStore(REPLAY_DIR) : null;
   const misses = results.filter(r => /replay_miss/.test(r.error?.message ?? '')).map(r => r.id);
   if (store?.missed.length) fs.writeFileSync(path.join(dir, 'replay-missed.json'), JSON.stringify(store.missed, null, 1));
-  const scoreJson = {run: id, tier, strategy, ...(ladder ? {ladder} : {}), problem_protocol: process.env.CHATSOP_PROBLEM_PROTOCOL ?? 'data', ...(expression ? {expression: true} : {}), ...(thinking || minTokens ? {thinking, min_tokens: minTokens} : {}), learned: learned ?? null, cases: results.length, ...counts, clusters,
+  const scoreJson = {run: id, tier, strategy, ...(ladder ? {ladder} : {}), ...(expression ? {expression: true} : {}), ...(thinking || minTokens ? {thinking, min_tokens: minTokens} : {}), learned: learned ?? null, cases: results.length, ...counts, clusters,
     replay: replay ? {mode: replay, hits: store.hits, misses: store.misses, recorded: store.recorded, cases_missing: misses.length} : null,
     model_calls: {formalizer: replay === 'replay' ? 0 : store ? store.misses : null, judge: judged.calls}, judge: judged, against: against ?? null, ...(comparison ? {fixed: comparison.fixed, lost: comparison.lost} : {}),
     minutes: Math.round((Date.now() - started) / 600) / 100, finished: new Date().toISOString()};

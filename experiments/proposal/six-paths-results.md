@@ -1,5 +1,7 @@
 # Six formalization paths: results (experiment stopped 2026-10-03)
 
+**Archived 2026-10-03.** The code and data this document describes moved to `probably_obsolete/formalization-experiments-2026-10/` (its README gives the final numbers and the path map) when the owner decided to rebuild the formalization infrastructure. Paths below read as they did at the time.
+
 Status: evaluation harness, never the product path. The owner stopped the experiment on 2026-10-03 after four sequential rounds; the code is kept because the next architecture reuses its compiler and verifier parts. Preregistration `status/preregistrations/eval-six-paths-v1.json` (with every deviation recorded); harness `tools/eval/six-paths/`; questions as data in the research layer `config/knowledge/formalizer-six-paths-v1` (`chat: false`); symbolic answer equivalence `lib/formalize/equivalence.mjs`. Judge: the book answers (`datasets_sources/books/eval/items.jsonl`, local; no book text is in this document or in git); no other model judges. Every number comes from the regenerable, gitignored `state/six-paths/` folders named with it.
 
 ## 1. Verdict in one paragraph

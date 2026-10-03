@@ -1,5 +1,7 @@
 # Semantic decomposition protocol: typed sub-goals over a numbered registry
 
+**Archived 2026-10-03.** The code and data this document describes moved to `probably_obsolete/formalization-experiments-2026-10/` (its README gives the final numbers and the path map) when the owner decided to rebuild the formalization infrastructure. Paths below read as they did at the time.
+
 Status: design proposal (planning agent Fable, 2026-10-02) for the owner's request of 2026-10-02: decompose problems semantically, not by sentence; find independent sub-problems, their types, type-specific questions, and connect the sub-results. To be implemented by an Opus agent as the next version of problem mode (`lib/query-author/step-by-step/problem.mjs`, `config/knowledge/formalizer-protocol-v1/0060-problem.sop`). No product code is changed by this document.
 
 Starting point (eval/reports/current/books-eval/problem-mode.md, state/formalization-regression/*/summary.md): the step-by-step system solves 27/100 book problems with the 4B (bare 4B: 69); `good` answering the same problem questions reaches 4/20, so the questions and the assembly, not the model, are the bottleneck. The recurring defect is free-form naming: `problem_values` and `problem_facts` let the model invent names (`A | is_between_11_and_15`, a rule over `A_min_greater_than_B_max`) that the assembly cannot connect; `formula_wrong` (23/122) and `deduce_unknown` (18/122) are the largest clusters, and `problem_unreadable` grows (56/190) when the questions are reworded.

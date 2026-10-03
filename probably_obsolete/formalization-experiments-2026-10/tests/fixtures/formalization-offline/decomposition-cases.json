@@ -1,0 +1,97 @@
+[
+ {
+  "id": "fixture/dc-check",
+  "message": "A team must enter 56 commitments. Each block holds 15 commitments and takes 5 minutes. Setup takes 9 minutes. 5 staff roles exist. Can the work finish within 11 minutes?",
+  "gold": "No",
+  "gold_kind": "yes_no",
+  "gold_value": false,
+  "steps": [
+   {
+    "name": "problem_kind",
+    "answer": "1"
+   },
+   {
+    "name": "dc_registry",
+    "answer": "v1: commitments | team\nv2: per block\nv3: minutes per block\nv4: setup minutes\nv5: irrelevant\nv6: limit minutes"
+   },
+   {
+    "name": "dc_goals",
+    "answer": "g1: can it finish in time | 2"
+   },
+   {
+    "name": "dc_check",
+    "answer": "d1 = v4 + ceil(v1 / v2) * v3\ng1 = d1 <= v6"
+   }
+  ]
+ },
+ {
+  "id": "fixture/dc-choose",
+  "message": "Option A costs 18 setup plus 2.15 per item; Option B costs 7 setup plus 1.93 per item. There are 31 items and the budget is 90. Which option is cheaper within budget?",
+  "gold": "Option B",
+  "gold_kind": "entity",
+  "gold_value": "Option B",
+  "steps": [
+   {
+    "name": "problem_kind",
+    "answer": "2"
+   },
+   {
+    "name": "dc_registry",
+    "answer": "v1: setup | Option A\nv2: per item | Option A\nv3: setup | Option B\nv4: per item | Option B\nv5: items\nv6: budget"
+   },
+   {
+    "name": "dc_goals",
+    "answer": "g1: cheaper option | 3"
+   },
+   {
+    "name": "dc_things",
+    "answer": "Option A\nOption B"
+   },
+   {
+    "name": "dc_choose_formula",
+    "answer": "cost = setup + per * items"
+   },
+   {
+    "name": "dc_choose_limit",
+    "answer": "cost <= v6"
+   },
+   {
+    "name": "dc_choose_table",
+    "answer": "Option A: setup = v1, per = v2, items = v5\nOption B: setup = v3, per = v4, items = v5"
+   },
+   {
+    "name": "dc_choose_direction",
+    "answer": "1"
+   }
+  ]
+ },
+ {
+  "id": "fixture/dc-batch",
+  "message": "Boxes hold 12 eggs. A farm collects 150 eggs. How many boxes are needed?",
+  "gold": "13",
+  "gold_kind": "number",
+  "gold_value": 13,
+  "steps": [
+   {
+    "name": "problem_kind",
+    "answer": "1"
+   },
+   {
+    "name": "dc_registry",
+    "answer": "v1: eggs per box\nv2: eggs collected"
+   },
+   {
+    "name": "dc_goals",
+    "answer": "g1: boxes needed | 1"
+   },
+   {
+    "name": "dc_type",
+    "answer": "2"
+   },
+   {
+    "name": "dc_batch",
+    "answer": "amount = v2, capacity = v1"
+   }
+  ]
+ }
+]

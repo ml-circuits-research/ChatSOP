@@ -1,3 +1,12 @@
+# Formalization experiments archived (2026-10-03, owner decision)
+
+The owner decided to rebuild the formalization infrastructure: `tiny` at the edges, a structure model (PSM), a logic formalizer model (LFM, NL→FOL), and deterministic converters to SOP-IR and SOP Lang. The research harnesses of 2026-10-02/03 moved to `probably_obsolete/formalization-experiments-2026-10/`. Its README gives each part's final numbers and the path map.
+
+- **Moved.** The six-paths harness (`tools/eval/six-paths/`) and its layer `formalizer-six-paths-v1`; the method library (`tools/eval/method-library/`, including the node-by-node and phase-2 runs) and its layer `formalizer-methods-v1`; the stage-A decomposition (`lib/query-author/step-by-step/decompose.mjs`, `formalizer-protocol-v1/0070-decomposition.sop`); the dual-formalization tool `tools/eval/formalization-regression/expression.mjs`; `lib/formalize/verifier.mjs` and `obligations.mjs`; and their tests.
+- **Behavior.** `problemCircuit` no longer has the decomposition branch or the `CHATSOP_PROBLEM_PROTOCOL` switch. The branch was never routed by default, so the default path is unchanged. The offline regression stays at 104 of 360, with 0 lost.
+- **Kept.** The step-by-step formalizer and its protocol layers; `registry.mjs`, `equivalence.mjs`, `dual-check.mjs`, `expression-program.mjs`, `replay-cache.mjs`; `exemplars.mjs`, because `expression-program.mjs` imports it; the offline regression and its runner; the capability battery. `tests/expression-program.test.mjs` keeps the tests of the kept modules, with an inline engine executor.
+- **Docs.** `docs/runtime.html`, DS022, TODO.md, AGENTS.md, the archive index and the four experiment documents carry short archived notes. The architecture page was regenerated.
+
 # Formalization is step by step only; one-shot LLMDirect archived (2026-10-02, owner decision)
 
 Owner: "apples with apples, not apples with magic". We must learn to ask the right questions efficiently, or small models will never manage; where small models cannot answer, fine-tuning may become an option later.
