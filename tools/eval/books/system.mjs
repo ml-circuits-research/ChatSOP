@@ -16,6 +16,7 @@ import {Sessions} from '../../../lib/chat-data/sessions.mjs';
 import {TheoryCache} from '../../../reasoning/slice/index.mjs';
 import {createQueryParser, queryParserSettings} from '../../../server/query-parser.mjs';
 import {DEFAULT_LOCAL} from '../../../lib/formalize/strategies.mjs';
+import {createChatSOPAdapter, parserFormalizer} from '../../../lib/adapter/index.mjs';
 import fs from 'node:fs';
 import {localServer, localChat} from '../../../lib/local-llm/index.mjs';
 
@@ -26,7 +27,7 @@ export const LOCAL = {...DEFAULT_LOCAL, gguf: MODEL_GGUF, alias: 'qwen3-4b-instr
 /** The default chat base memory (config chatData.defaultBase, world-v1 over core-en and commonsense-v1) in a private session; `endpoint` reuses a running llama-server. */
 // `sessionId` lets several turn systems run side by side (one session each); `parserOptions` adds query-parser settings (for example
 // `reportErrors: false` for a harness that reports by itself) and `headers` tag the proxy calls of a tier (purpose, no fallback).
-export async function openChatTurn({base = null, endpoint = null, wallMs = 300_000, strategy = 'LocalLLMStepByStep', tier = null, ladder = false, sessionId = null, parserOptions = {}, headers = null, replay = null, localExtra = {}} = {}) {
+export async function openChatTurn({base = null, endpoint = null, wallMs = 300_000, strategy = 'LocalLLMStepByStep', tier = null, ladder = false, sessionId = null, parserOptions = {}, headers = null, replay = null, localExtra = {}, mode = 'stepwise'} = {}) {
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'runtime.json'), 'utf8'));
   const chatData = ChatData.open(config, {}, ROOT);
   const memories = new BaseMemories({chatData, memory: config.memory});
@@ -46,6 +47,8 @@ export async function openChatTurn({base = null, endpoint = null, wallMs = 300_0
     maxTokens: LOCAL.maxTokens, thinking: false, ...(headers ? {headers} : {}), ...(replay ? {replay} : {}), ...localExtra} : {...LOCAL, ...(endpoint ? {endpoint} : {})};
   const settings = queryParserSettings({queryParser: {...(config.queryParser ?? {}), ...parserOptions, strategy, local, cacheEntries: 0, timeoutSeconds: wallMs / 1000}});
   const parser = createQueryParser({settings});
+  // ChatSOPAdapter (lib/adapter): the same backend as the chat; `mode` stepwise unless a harness asks for routed or direct-verified.
+  const adapter = createChatSOPAdapter({config});
   // A proxy tier needs no local llama-server (LLMDirect was archived on 2026-10-02).
   const remote = Boolean(tiered);
   const server = remote ? null : localServer(local);
@@ -60,17 +63,25 @@ export async function openChatTurn({base = null, endpoint = null, wallMs = 300_0
     async ask(message, {sop = null} = {}) {
       const entry = store.get('books', `c${++n}`, BASE_NAME);
       let parse = null, steps = null, authored = null;
+      // The circuit author of the chat (ChatSOPAdapter's parserFormalizer); `sop` replays a stored circuit without a model call.
+      const author = parserFormalizer(parser, {lexicon, source: 'eval:books', request: {strategy}});
       const formalizer = {id: 'books-eval', formalize: async text => {
         if (sop != null) { parse = {strategy: 'replay'}; authored = sop; return sop; }
-        const done = await parser.parse({source: 'eval:books', message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, strategy});
-        parse = done.parse; authored = done.sop; return done.sop;
+        authored = await author.formalize(text); parse = author.parse; return authored;
       }};
       const started = Date.now();
       // Problems are independent: a session definition one problem adds to the session layer is removed after it (no carry-over).
       const circuitsDir = path.join(sessions.dir(id), 'circuits');
       const before = new Set(fs.existsSync(circuitsDir) ? fs.readdirSync(circuitsDir) : []);
       try {
-        const res = await entry.agent.turn(message, {formalizer});
+        // The turn through ChatSOPAdapter (lib/adapter), the chat's own backend: `mode` stepwise is the chat turn above; routed and
+        // direct-verified answer the problem as the chat does in those modes.
+        const answered = await adapter.answer({message, mode, stepwise: {agent: entry.agent, formalizer}, lexicon});
+        if (answered.mode !== 'stepwise') {
+          const {packet, turn, ...summary} = answered;
+          return {ok: true, ms: Date.now() - started, sop: answered.circuits.map(c => c.sop).join('\n\n') || null, authored: null, executionSop: null, text: answered.answer.text, packet: {...(packet ?? {}), adapter: summary}, trace: [], parse: null, userStatements: [], unclear: null, steps, adapter: summary};
+        }
+        const res = answered.turn;
         return {ok: true, ms: Date.now() - started, sop: res.sop, authored, executionSop: res.executionSop, text: res.text, packet: res.packet, trace: res.trace, parse,
           userStatements: res.userStatements, unclear: res.unclear, steps};
       } catch (e) {
@@ -95,7 +106,7 @@ export async function openChatTurn({base = null, endpoint = null, wallMs = 300_0
           messages: [{role: 'system', content: DIRECT_SYSTEM}, {role: 'user', content: message}]});
       } finally { turn.release(); }
     },
-    async close() { fs.rmSync(sessions.dir(id), {recursive: true, force: true}); await parser.stop(); await server?.stop(); },
+    async close() { fs.rmSync(sessions.dir(id), {recursive: true, force: true}); adapter.dispose(); await parser.stop(); await server?.stop(); },
   };
 }
 

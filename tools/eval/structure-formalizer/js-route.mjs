@@ -20,9 +20,8 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {loadItems} from '../books/sample.mjs';
 import {routeOf} from '../../../lib/formalize/structure/route.mjs';
-import {jsFormalize, runOracle} from '../../../lib/formalize/js-program.mjs';
-import {registryOf, expressionFormalize} from '../../../lib/formalize/expression-program.mjs';
-import {executeQueries} from '../../../lib/formalize/dual-check.mjs';
+import {registryOf} from '../../../lib/formalize/expression-program.mjs';
+import {pathB, pathJsEval, executeCircuit, executeJs} from '../../../lib/adapter/paths/compute.mjs';
 import {decide} from '../../../lib/formalize/equivalence.mjs';
 import {goldOf} from './gold.mjs';
 import {askedVerdict} from './asked.mjs';
@@ -59,13 +58,14 @@ async function fetchPhase() {
     const one = async ({id}) => {
       const item = items.get(id), chat = tierChat(tier, {...opts, thinking: mode ?? null}), t0 = Date.now();
       let row;
+      // Both arms through ChatSOPAdapter's compute paths (lib/adapter/paths/compute.mjs); the raw rows keep their earlier shape.
       if (kind === 'js') {
-        const r = await jsFormalize({message: item.question, chat});
-        row = {js: {status: r.status, attempts: r.attempts, wires: r.admitted?.wires?.map(w => ({id: w.id, expr: w.expr})) ?? null, answers: r.admitted?.answers ?? null, values: r.admitted?.values ?? null,
-          lowered: r.lowering?.lowered ?? false, why: r.lowering?.why ?? null, sop: r.lowering?.sop ?? null}};
+        const r = await pathJsEval({message: item.question, chat, executor: await engines()});
+        row = {js: {status: r.detail.status, attempts: r.detail.attempts, wires: r.detail.wires, answers: r.detail.answers, values: r.detail.values,
+          lowered: r.detail.lowered, why: r.detail.why, sop: r.detail.sop ?? null}};
       } else {
-        const e = await expressionFormalize({message: item.question, chat, exemplars: []});
-        row = {expr: {status: e.status, attempts: e.attempts.map(a => ({answer: a.answer, reason: a.reason, violations: a.violations})), sop: e.lowered?.sop ?? null, answers: e.analysis?.program?.answers ?? null}};
+        const b = await pathB({message: item.question, chat, executor: await engines(), exemplars: []});
+        row = {expr: {status: b.detail.status, attempts: b.detail.attempts, sop: b.detail.sop ?? null, answers: b.detail.program ?? null}};
       }
       fs.appendFileSync(file, JSON.stringify({arm, id, ...row, usage: chat.usage, ms: Date.now() - t0, cached: chat.calls > 0 && chat.hits === chat.calls}) + '\n');
       process.stdout.write('.');
@@ -75,16 +75,12 @@ async function fetchPhase() {
     console.log(` ${arm}`);
   };
   await Promise.all(arms.map(runArm));
+  (await engines()).dispose();
 }
 
-/** The answers of a lowered circuit on the engines: [{kind, value}] (one per answered query). */
+/** The answers of a lowered circuit on the engines: [{kind, value}] (one per answered query), by ChatSOPAdapter's executeCircuit. */
 async function engineAnswers(sop, registry) {
-  const w = await engines();
-  const qs = await executeQueries(sop, async text => {
-    const p = await w.run(text, registry.map(v => v.value));
-    return {status: p.status, values: (p.answers ?? []).map(a => Object.values(a.binding ?? a)[0]).filter(v => v !== undefined)};
-  });
-  return qs.map(q => ({kind: 'value', value: q.values.length ? q.values[0] : null, status: q.status}));
+  return (await executeCircuit(sop, registry, await engines())).answers;
 }
 
 /** Old scorer: a numeric gold against all answered numbers (unordered), otherwise the first answer. */
@@ -97,8 +93,6 @@ async function oldVerdict(answers, gold, item) {
   return d.verdict === 'equivalent' ? 'correct' : 'wrong';
 }
 
-const flatAnswers = answers => answers.flatMap(a => (Array.isArray(a.value) ? a.value.flat(Infinity).map(value => ({kind: 'value', value})) : [{kind: 'value', value: a.value}]));
-const same = (a, b) => (typeof a === 'number' && typeof b === 'number' ? Math.abs(a - b) <= 1e-6 * Math.max(1, Math.abs(a)) : a === b);
 
 async function scorePhase() {
   const items = new Map(loadItems(ROOT).map(i => [i.id, i]));
@@ -115,12 +109,8 @@ async function scorePhase() {
       const admitted = {wires: r.js.wires.map(w => ({...w})), answers: r.js.answers};
       const {parseExpression} = await import('../../../sop/expression.mjs');
       for (const w of admitted.wires) w.ast = parseExpression(w.expr);
-      const oracle = flatAnswers((await runOracle(admitted, registry)).answers);
-      if (r.js.lowered) {
-        answers = await engineAnswers(r.js.sop, registry);
-        executed = 'engines';
-        agree = answers.length === oracle.length && answers.every((a, k) => same(a.value, oracle[k].value));
-      } else { answers = oracle; executed = 'oracle'; }
+      const x = await executeJs(admitted, r.js.lowered ? {lowered: true, sop: r.js.sop} : null, registry, await engines());
+      ({answers, executed, agree} = x);
     } else if (r.expr?.status === 'ok' && r.expr.sop) { answers = await engineAnswers(r.expr.sop, registry); executed = 'engines'; }
     const verdict = await oldVerdict(answers, gold, item), asked = askedVerdict(item, gold, answers);
     rows.push({arm: r.arm, id: r.id, status: r.js?.status ?? r.expr?.status, executed, lowered: r.js ? r.js.lowered : null, why: r.js?.why ?? null, agree, answers: answers.map(a => a.value), verdict, asked: asked.verdict, ms: r.ms, cached: r.cached});

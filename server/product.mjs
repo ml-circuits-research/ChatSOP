@@ -14,7 +14,7 @@
  *   GET  /v1/sessions                       the caller's sessions (all of them for the signed-in browser session)
  *   GET  /v1/sessions/{id}                  the session, its circuits and provenance (?transcript=1 adds the turns)
  *   DELETE /v1/sessions/{id}
- *   POST /v1/sessions/{id}/settings         {formalizer_model?, formalizer?}: the first tier of the step-by-step ladder; the formalization strategy
+ *   POST /v1/sessions/{id}/settings         {formalizer_model?, formalizer?, adapter_mode?}: the first tier of the step-by-step ladder; the formalization strategy; the ChatSOPAdapter mode
  *   POST /v1/sessions/{id}/commit           commit the accepted session circuits to a new fork: {name, strategy?, description?}
  *   GET  /v1/sessions/{id}/theory           the base circuits followed by the accepted session circuits
  *   POST /v1/sessions/{id}/query            {query}: run a query circuit over the session's memory: the oracle gets the slice the query needs (answer.retrieval)
@@ -30,6 +30,7 @@ import {STRATEGIES, ENCYCLOPEDIC_BASE} from '../lib/chat-data/memories.mjs';
 /** The kinds of a new base memory: built on the encyclopedic default, on the minimal core, or on nothing. */
 export const MEMORY_KINDS = Object.freeze(['encyclopedic', 'minimal', 'empty']);
 import {strategyRequest} from './status.mjs';
+import {parserFormalizer} from '../lib/adapter/modes/stepwise.mjs';
 import {CORE_SEED} from '../lib/knowledge-seeds.mjs';
 import {askMemory, TheoryCache} from '../reasoning/slice/index.mjs';
 import {composableLayers, compose} from '../lib/chat-data/composer.mjs';
@@ -48,7 +49,7 @@ export const PRODUCT_ENDPOINTS = Object.freeze([
   {method: 'POST', path: '/v1/sessions', capability: 'sessions.create', body: ['base', 'name', 'settings']},
   {method: 'GET', path: '/v1/sessions', capability: 'sessions.list'},
   {method: 'GET', path: '/v1/sessions/{id}', capability: 'sessions.get'},
-  {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['formalizer_model', 'formalizer']},
+  {method: 'POST', path: '/v1/sessions/{id}/settings', capability: 'sessions.settings', body: ['formalizer_model', 'formalizer', 'adapter_mode']},
   {method: 'POST', path: '/v1/sessions/{id}/commit', capability: 'sessions.commit', body: ['name', 'strategy', 'description', 'id']},
   {method: 'GET', path: '/v1/sessions/{id}/theory', capability: 'sessions.theory'},
   {method: 'POST', path: '/v1/sessions/{id}/query', capability: 'sessions.query', body: ['query', 'message', 'reasoning', 'verify']},
@@ -167,7 +168,7 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
     },
     async sessionsSettings({req, res, match, user, admin}) {
       sessions.visible(match[1], {user, admin});
-      const body = onlyKeys(await readBody(req, maxBytes), ['formalizer_model', 'formalizer', 'omp_model']);
+      const body = onlyKeys(await readBody(req, maxBytes), ['formalizer_model', 'formalizer', 'omp_model', 'adapter_mode']);
       json(res, 200, {object: 'session', ...sessions.describe(sessions.updateSettings(match[1], body).id)});
     },
     async sessionsCommit({req, res, match, approvedBy, user, admin}) {
@@ -190,14 +191,11 @@ export function createProductRouter({memories, sessions, runtimes, readBody, jso
         if (!parsing?.queryParser || !runtimes) throw bad('Requests in natural language need the server with chat sessions', 'not_available', 501);
         const rt = runtimes.open(match[1], {user, admin});
         const lexicon = rt.lexicon;
-        let parseRecord = null;
-        const formalizer = {id: 'query-parser', formalize: async text => {
-          const done = await parsing.queryParser.parse({source: 'chat', message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null, preferredModel: rt.info?.settings?.formalizer_model ?? rt.info?.settings?.omp_model ?? null, ...strategyRequest(parsing.queryParser, rt.info?.settings?.formalizer)});
-          parseRecord = done.parse;
-          return done.sop;
-        }};
-        const turn = await rt.entry(user).agent.turn(body.message, {formalizer}).catch(e => { e.parse = e.parse ?? parseRecord; throw e; });
+        // The circuit author of the chat (ChatSOPAdapter's parserFormalizer, lib/adapter): the request parser with the session's settings.
+        const formalizer = parserFormalizer(parsing.queryParser, {lexicon, source: 'chat', preferredModel: rt.info?.settings?.formalizer_model ?? rt.info?.settings?.omp_model ?? null, request: strategyRequest(parsing.queryParser, rt.info?.settings?.formalizer)});
+        const turn = await rt.entry(user).agent.turn(body.message, {formalizer}).catch(e => { e.parse = e.parse ?? formalizer.parse; throw e; });
         rt.save(rt.entry(user), user);
+        const parseRecord = formalizer.parse;
         if (turn.packet) turn.packet.parse = parseRecord;
         return json(res, 200, {object: 'session.query', session: match[1], parse: parseRecord, model_sop: turn.sop, circuit: turn.executionSop, text: turn.text, answer: turn.packet});
       }

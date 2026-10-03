@@ -34,8 +34,8 @@ import {heldoutUnits, unitOf} from './heldout.mjs';
 import {extractStructure, formalizeFol} from '../../../lib/formalize/small-models.mjs';
 import {sentencesOf} from '../../../lib/formalize/fol/input.mjs';
 import {loadSchema, schemaRequest, inventoryText} from '../../../lib/formalize/structure/schema.mjs';
-import {registryOf, expressionFormalize} from '../../../lib/formalize/expression-program.mjs';
-import {executeQueries} from '../../../lib/formalize/dual-check.mjs';
+import {registryOf} from '../../../lib/formalize/expression-program.mjs';
+import {pathB, executeCircuit} from '../../../lib/adapter/paths/compute.mjs';
 import {decide} from '../../../lib/formalize/equivalence.mjs';
 import {psmScore, lfmArm} from './score.mjs';
 import {goldOf} from './gold.mjs';
@@ -79,10 +79,11 @@ async function fetchPhase() {
       let row;
       if (kind === 'psm') { const r = await psm(spec, item); row = {psm: r.ok ? r.body : {error: r.reason}, ms: r.ms, cached: r.cached}; }
       else if (kind === 'expr') {
+        // Path B through ChatSOPAdapter (lib/adapter/paths/compute.mjs): the same closed question, analysis, lowering and execution.
         const chat = tierChat(spec, {...opts, thinking: k ?? null}), t0 = Date.now();
-        const e = await expressionFormalize({message: item.question, chat, exemplars: []});
-        row = {expr: {status: e.status, attempts: e.attempts.map(a => ({answer: a.answer, reason: a.reason, violations: a.violations})), sop: e.lowered?.sop ?? null,
-          answers: e.analysis?.program?.answers ?? null}, usage: chat.usage, ms: Date.now() - t0, cached: chat.calls > 0 && chat.hits === chat.calls};
+        const b = await pathB({message: item.question, chat, executor: await engines(), exemplars: []});
+        row = {expr: {status: b.detail.status, attempts: b.detail.attempts, sop: b.detail.sop ?? null,
+          answers: b.detail.program ?? null}, usage: chat.usage, ms: Date.now() - t0, cached: chat.calls > 0 && chat.hits === chat.calls};
       } else {
         const [psmTier, lfmTier] = kind === 'combo' ? spec.split('+') : [null, spec];
         const p = psmTier ? await psm(psmTier, item) : null;
@@ -99,17 +100,14 @@ async function fetchPhase() {
   };
   if (parallelArms) await Promise.all(arms.map(runArm));
   else for (const arm of arms) await runArm(arm);
+  if (arms.some(a => a.startsWith('expr:'))) (await engines()).dispose();
 }
 
-/** Path B of one problem: the lowered circuit executed query by query, the asked values compared with the book answer. */
+/** Path B of one problem: the lowered circuit executed query by query (ChatSOPAdapter's executeCircuit), compared with the book answer. */
 async function exprArm(r, item, gold) {
   if (r.expr?.status !== 'ok' || !r.expr.sop) return {status: r.expr?.status ?? 'error', compiled: false, verdict: 'no_answer'};
-  const w = await engines(), registry = registryOf(item.question);
-  const execute = async sop => {
-    const p = await w.run(sop, registry.map(v => v.value));
-    return {status: p.status, values: (p.answers ?? []).map(a => Object.values(a.binding ?? a)[0]).filter(v => v !== undefined)};
-  };
-  const qs = await executeQueries(r.expr.sop, execute);
+  const x = await executeCircuit(r.expr.sop, registryOf(item.question), await engines());
+  const qs = x.queries;
   const got = qs.filter(q => q.values.length).map(q => q.values[0]);
   if (!got.length) return {status: 'ok', compiled: true, executed: qs.some(q => q.status !== 'error'), queries: qs, verdict: 'no_answer'};
   const g = gold.kind === 'yes_no' ? gold.values[0] : gold.values.join(', ');

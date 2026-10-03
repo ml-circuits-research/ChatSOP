@@ -5,10 +5,8 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import {parseFol} from '../../../lib/formalize/fol/parse.mjs';
-import {folToIr} from '../../../lib/formalize/fol/to-ir.mjs';
-import {compileIr, slug} from '../../../lib/formalize/fol/to-sop.mjs';
-import {structureToIr, linkConstants} from '../../../lib/formalize/structure/to-ir.mjs';
+import {structureToIr} from '../../../lib/formalize/structure/to-ir.mjs';
+import {compileFol, executeFol} from '../../../lib/adapter/paths/fol.mjs';
 import {registryOf} from '../../../lib/formalize/expression-program.mjs';
 import {decide} from '../../../lib/formalize/equivalence.mjs';
 import {loadItems} from '../books/sample.mjs';
@@ -41,51 +39,13 @@ export function psmScore(row, item) {
 }
 
 /**
- * One LFM arm: per unit the first candidate whose every line parses and converts (the validator filters the N candidates); when none
- * does, the candidate with the most converted lines gives those lines, and its failed lines are passed on as rejected units (their
- * predicates are then not trusted by the closed world: lib/formalize/fol/to-sop.mjs).
+ * One LFM arm through ChatSOPAdapter's FOL path (lib/adapter/paths/fol.mjs): the candidate choice per unit, the converters and the
+ * engines are the adapter's; this harness only scores the answers against the book answer.
  */
-export async function lfmArm(units, results, {registry, names, gold, item, run}) {
+export async function lfmArm(units, results, {registry, names, gold, item}) {
   if (!Array.isArray(results)) return {error: results?.error ?? 'no results'};
-  const chosen = [], failed = [], unitStats = [];
-  for (const [i, u] of units.entries()) {
-    const cands = results[i]?.candidates ?? [];
-    let pick = null, best = null, parsed = 0, converted = 0, why = null;
-    // A candidate is one formula (T5) or several lines (a prompted backend); a line starting with "? " is a query, otherwise a
-    // formula of a question sentence is its query when no line of the candidate marks one.
-    for (const c of cands) {
-      const lines = String(c).split('\n').map(x => x.trim()).filter(Boolean);
-      const marked = lines.some(l => l.startsWith('?'));
-      const ok = [], bad = [];
-      let parseError = null, convertError = null;
-      for (const l of lines) {
-        const q = l.startsWith('?'), text = l.replace(/^\?\s*/, '');
-        const p = parseFol(text);
-        if (!p.ok) { parseError ??= `parse: ${p.why}`; bad.push({unparsed: text, question: q || (!marked && u.question), source: text}); continue; }
-        const unit = {ast: p.ast, question: q || (!marked && u.question), source: text};
-        const one = folToIr([unit]);
-        if (one.rejected.length) { convertError ??= one.rejected[0].why; bad.push(unit); continue; }
-        ok.push(unit);
-      }
-      if (!parseError) parsed++;
-      if (!bad.length) { converted++; pick ??= ok; continue; }
-      why ??= parseError ?? convertError;
-      if (!best || ok.length > best.ok.length) best = {ok, bad};
-    }
-    unitStats.push({unit: u.text.slice(0, 120), question: u.question, candidates: cands.length, parsed, converted, why: pick ? null : why, chosen: (pick ?? best?.ok)?.map(x => `${x.question ? '? ' : ''}${x.source}`).join(' | ') || null});
-    if (pick) chosen.push(...pick);
-    else if (best) { chosen.push(...best.ok); failed.push(...best.bad); }
-  }
-  const ir = folToIr([...chosen, ...failed]);
-  const link = linkConstants(ir, names);
-  const {circuits, rejected} = compileIr(ir, {registry, names});
-  const w = await engines();
-  const answers = [];
-  for (const c of circuits) {
-    const p = await w.run(c.sop, c.literals);
-    const v = p.status === 'error' ? null : c.decode(p);
-    answers.push({kind: c.kind, status: p.status, value: v, error: p.error ?? null});
-  }
+  const {ir, link, circuits, rejected, unitStats} = compileFol(units, results, {registry, names});
+  const {answers} = await executeFol(circuits, await engines());
   const got = answers.filter(a => a.value !== null && a.value !== undefined);
   let verdict = 'no_answer', weak = false;
   if (got.length) {

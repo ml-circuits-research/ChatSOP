@@ -3,7 +3,8 @@
  * End-to-end evaluation on the owner's problem books (docs/runtime.html "Evaluating on the owner's problem books"):
  *   node tools/eval/books/run.mjs --n 100 [--seed s] [--books math,science,...] [--areas text,...] [--arms steps,direct[,remote-direct,ceiling]]
  *     [--include-seen] [--ids a,b] [--resume dir] [--endpoint http://127.0.0.1:PORT/v1] [--tier tiny|small|medium|good] [--concurrency N]
- *     [--workers N] [--purpose job:books-eval] [--author-tier good]
+ *     [--workers N] [--purpose job:books-eval] [--author-tier good] [--mode stepwise|routed|direct-verified]
+ * --mode: the ChatSOPAdapter mode of the steps arm (lib/adapter; default stepwise, the chat default).
  * --items-from <run dir> takes the problems of an earlier run; --replay (arm ceiling) executes the stored circuit of a problem
  * (tools/eval/books/gold-circuits.mjs) instead of asking the tier again.
  * Arm ceiling: the same step-by-step questions answered by --author-tier (default good), in one process with --concurrency N: the
@@ -69,7 +70,7 @@ export async function main(args = process.argv.slice(2)) {
       if (REMOTE_ARMS[arm]) { await remoteArm(arm, sample, done, append, args, out); continue; }
       const tier = opt(args, '--tier', null);
       const headers = tier ? {'x-llmapiprovider-purpose': opt(args, '--purpose', 'job:books-eval'), 'x-llmapiprovider-run': path.basename(out), 'x-llmapiprovider-no-fallback': '1'} : null;
-      system ??= await openChatTurn({endpoint, tier, headers});
+      system ??= await openChatTurn({endpoint, tier, headers, mode: opt(args, '--mode', 'stepwise')});
       if (arm === 'steps' && tier && Number(opt(args, '--workers', 1)) > 1) { await parallelSteps(sample, done, append, args, out, {tier, headers}); continue; }
       let k = 0;
       for (const item of sample) {
@@ -108,7 +109,7 @@ async function parallelSteps(sample, done, append, args, out, {tier, headers}) {
   const queue = sample.filter(item => !done.has(`steps/${item.id}`));
   let k = 0;
   const worker = async w => {
-    const system = await openChatTurn({tier, headers, sessionId: `books-eval-${process.pid}-w${w}`});
+    const system = await openChatTurn({tier, headers, sessionId: `books-eval-${process.pid}-w${w}`, mode: opt(args, '--mode', 'stepwise')});
     try {
       for (let item = queue.shift(); item; item = queue.shift()) {
         const r = await system.ask(item.question);

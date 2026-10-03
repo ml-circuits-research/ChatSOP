@@ -120,6 +120,13 @@
       "method": "B"
     }
   },
+  "adapter": {
+    "_note": "ChatSOPAdapter (lib/adapter, owner decision 2026-10-03): the one backend of the chat, the API and every evaluation. mode: stepwise (the step-by-step formalizer, queryParser), routed (structure -> compute path B with jsEval and engineCode as second formalizations, FOL v2 otherwise; two formalizations that agree verify the answer) or direct-verified (the direct tier answers, the routed formalizations try to verify it). A session (setting adapter_mode) or a request (adapter: {mode, options}) may choose another mode. Tiers are proxy tiers.",
+    "mode": "stepwise",
+    "tiers": {"structure": "structure", "formalizer": "formalizer", "compute": "tiny", "direct": "tiny"},
+    "routed": {"second": ["jsEval", "engineCode"], "engineCodeLanguages": ["js", "smt"], "fallbackToFol": true, "earlyStop": true},
+    "timeoutSeconds": 300
+  },
   "server": {
     "warmup": true,
     "warmMemories": [

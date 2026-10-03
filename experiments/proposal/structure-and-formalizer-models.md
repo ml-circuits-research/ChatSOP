@@ -752,3 +752,49 @@ All 84 lowered jsEval programs gave the oracle's answer on the engines. The 10 o
 ### Phase 2–3 (`codeEval`, `engineCode`): not run
 
 Executing model-written programs was refused by the session's permission system when it was wired into the runtime; see P-7 and `questions.md` Q-CODE-1. No code route was measured.
+
+## 12. ChatSOPAdapter: one backend for the chat and the evaluations (owner decision, 2026-10-03)
+
+**What was built.** `lib/adapter` (`createChatSOPAdapter().answer({message, mode})`): the chat turn (`server/http.mjs`), the session query route, the books harness (`tools/eval/books/system.mjs`, `--mode`), the structure/formalizer harnesses (`ab.mjs`, `js-route.mjs`, `score.mjs`, `engines.mjs`, `chat.mjs`) and the engineCode harness now call the adapter's paths, executor and tier client instead of their own glue. Modes: `stepwise` (the default), `routed`, `direct-verified`; more register with `registerMode` (the evaluation mode `all-paths` of `tools/eval/adapter/run.mjs` is one). Every answer carries the mode, the answering path, a verification status with the agreeing paths, circuits, proofs, timings and tiers; the chat states the status through conversation-v1 reply wires (`0080-verification.sop`).
+
+**Reproduction (fresh 50, MoE `tiny`, asked parts: correct / partial / wrong / no answer / gold defect).**
+
+| measure | harness (§10–11, P-7) | rescored through the adapter (stored outputs) | live through `adapter.answer`, cache only |
+|---|---|---|---|
+| path B (40 routed) | 30 / 1 / 2 / 5 / 2 | 30 / 1 / 2 / 5 / 2 | 30 / 1 / 1 / 6 / 2 |
+| jsEval (40 routed) | 23 / 0 / 2 / 13 / 2 | 23 / 0 / 2 / 13 / 2 | 22 / 0 / 2 / 14 / 2 |
+| engineCode verified (4 languages) | 18 (15 correct, 2 wrong) | 19 (15 correct, 3 wrong) | 18 (15 correct, 2 wrong) |
+| FOL v2 (50) | 12 / 1 / 3 / 31 / 3 | 12 / 1 / 3 / 31 / 3 | 12 / 1 / 4 / 30 / 3 |
+
+Every deviation has a named cause:
+- **Text agreement folds case.** The adapter compares text answers case-insensitively, so engineCode's JS "A" and Prolog's atom `a` agree on commonsense:5.4.2 (both wrong): one verified answer more.
+- **Two routes swapped.** The structure request of world:383 and world:806 was fetched twice; the harness used the first row, the proxy cache holds the later reply. The adapter routes world:383 to FOL (harness: compute) and world:806 to compute (harness: FOL).
+- **Calls the cache cannot replay.** commonsense:6.6.9's B and engineCode replies were first cut by their token budget, and a cut reply is never cached (by design), so a strict replay has no answer there; world:806's compute paths were never asked by the harness. Completed with local `tiny` calls: B 31 / 1 / 1 / 5 / 2.
+- **One FOL recording replaced.** The cache holds a later recording of decompose:4.8.3's formalizer request (another reply), which answers 6 against the gold 4: one wrong instead of no answer. Its entity names (the structure role's against GLiNER's) do not change the answer.
+
+**Routed mode** (shipped settings: B, then jsEval, then engineCode in JS and SMT-LIB until two agree; FOL v2 otherwise and as the fallback): 31 / 3 / 5 / 9 / 2 on the 50.
+
+| status | n | correct / partial / wrong / no answer / defect |
+|---|---|---|
+| verified | 27 | 25 / 1 / 1 / 0 / 0 |
+| unverified | 9 | 2 / 2 / 3 / 0 / 2 |
+| unresolved | 14 | 4 / 0 / 1 / 9 / 0 (9 without an answer) |
+
+**Direct-verified mode** (the direct `FINAL ANSWER` of `tiny`, then the routed formalizations with early stop):
+
+- **Direct answer alone:** 37 / 0 / 10 / 0 / 3.
+- **Verified:** 26 of 50, precision 25/26. The one wrong is adult:728, where the model and the SMT program both say 5 for a yes/no question: the errors are correlated.
+- **Contradicted:** 0.
+  - A first rule (contradicted when two symbolic paths agree on any other value) gave 3, and the model was right in all 3. In each, the equivalence catalog had returned `unknown`, not `different`: a list against one value, or 11:00 against 11.
+  - The rule now needs a decided `different`. It was changed after seeing these 50 problems, so for this rule they are development data.
+- **Unverified:** 24, of which 12 correct.
+- **Against routed (paired, correct):** both 29, only direct-verified 8, only routed 2. Direct-verified answers 37 correct and 10 wrong; routed answers 31 correct and 5 wrong.
+
+**Reading.**
+- **The verified answers are precise in both modes:** 25/26 for direct-verified and 25/27 for routed.
+- **Direct-verified answers more but is wrong twice as often.** Its unverified answers are right half the time (12/24); routed instead returns no answer for 9 problems.
+- **A verified-only policy would answer about half the problems** (26–27 of 50) with one or two errors.
+- **Gap in the equivalence catalog:** "11:00" against 11 is `unknown`, which cost one verification. Not changed here.
+- **Sample size:** one sample per arm, so differences of one or two problems are noise.
+
+**Files.** `state/adapter-eval/{repro-all-paths,repro-all-paths-strict,routed-fresh-50-tiny,direct-verified-fresh-50-tiny,direct-verified-fresh-50-tiny-r2}/` (rows, scored rows, summary; local), `state/structure-formalizer/adapter-rescore-fol-v2-fresh-50/`. Cost: local `tiny` only (≈ 70 new calls: direct answers, the engineCode JS+SMT question, two completed problems); no cloud call.

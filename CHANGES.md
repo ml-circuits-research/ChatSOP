@@ -1,3 +1,38 @@
+# ChatSOPAdapter: one backend for the chat and every evaluation (2026-10-03, owner decision)
+
+The chat, the API and the evaluation harnesses answer a message through one module, `lib/adapter` (`createChatSOPAdapter().answer({message, mode, options})`), so a result measured offline is the result the chat gives.
+
+- **Modes.**
+  - `stepwise` (default): the step-by-step formalizer and the session's chat turn.
+  - `routed`:
+    - the structure role and the deterministic route;
+    - a compute problem goes to path B, then jsEval, then engineCode in JS and SMT-LIB, stopping when two formalizations agree;
+    - every other problem goes to FOL v2;
+    - status `verified`, `unverified` or `unresolved`.
+  - `direct-verified`: the direct tier answers with a `FINAL ANSWER` (role prompt `LLMAPIProvider/prompts/direct-v1.md`), and the routed formalizations try to verify it through `lib/formalize/equivalence.mjs`. Status `verified`; `contradicted`, when two symbolic paths agree on a value the catalog decides is different, and that value is answered; or `unverified`.
+  - `registerMode` adds further modes.
+- **Configuration.** `config/runtime.json` `adapter` sets the mode, the tiers of the roles and the routed options. A session sets the mode with `adapter_mode` (setting, `POST /v1/sessions/{id}/settings`, chat Settings "Answer mode"), and a request with `adapter: {mode, options}` in `POST /v1/chat/completions`.
+- **Answer packet** (`chatSop.adapter`): mode, the answering path, the answer, the verification with the agreeing paths, the route, every path that ran, the circuits and proofs, timings and tiers. The reply states the status through new conversation-v1 reply wires (`0080-verification.sop`), with no phrasing in code. `Agent.reply` accepts extra turn facts and slots (a minimal hook).
+- **Migration.**
+  - `server/http.mjs` runs every chat turn through the adapter.
+  - `parserFormalizer` is the one circuit author of the chat, the session query route and the books harness.
+  - The structure/formalizer harnesses, the engineCode harness and the books harness (`--mode`) call the adapter's paths, executor and tier client; their CLIs are thin.
+  - `lib/prompt-template.mjs` reads role prompts without importing the proxy package.
+  - New CLI `tools/eval/adapter/run.mjs` (modes `routed`, `direct-verified` and the evaluation mode `all-paths`; `--cache strict` calls no model).
+- **Reproduction** (fresh 50, `tiny`, asked parts).
+  - **Rescoring the stored outputs through the adapter** gives the harness numbers exactly: path B 30 correct / 2 wrong, jsEval 23 / 2, FOL v2 12 / 3.
+  - **engineCode verified is 19 instead of 18** (15 correct either way). Text answers are compared case-insensitively, so a JS "A" and a Prolog atom `a` agree.
+  - **A live strict-cache replay** deviates on four named problems: a cut reply is never cached, two structure replies were re-recorded, and one FOL request was re-recorded. See `experiments/proposal/structure-and-formalizer-models.md` §12.
+- **Measured** (fresh 50, `tiny`).
+  - `routed`: 31 correct / 5 wrong; verified 27 at precision 25/27.
+  - `direct-verified`:
+    - the direct answer alone: 37 / 10;
+    - verified 26 at precision 25/26;
+    - contradicted 0;
+    - unverified 24, of which 12 correct;
+    - overall 37 correct / 10 wrong.
+- **Docs.** DS003, DS009, DS022, `docs/runtime.html` (section "ChatSOPAdapter"), `docs/api.html`, the regenerated architecture page. Tests: `tests/adapter.test.mjs` (each mode with fake tiers, the reply wires, a chat turn through the adapter).
+
 # Candidates of a query: `mode effect`, `abduce` over candidates, `if $r` on session rules (Q-LANG-10, 2026-10-03, owner decision)
 
 The owner approved Q-LANG-10 option A (proposal P-1 of `experiments/proposal/wire-type-proposals.md`) and asked for its implementation now, under the capability battery's no-loss rule. One field and one mode of `query`; no new wire type.

@@ -94,7 +94,8 @@ export class Agent{
   * answer (an open answer, an unknown name, a relation the memory lacks, no request) gets the near-miss candidates of its names
   * (lib/near-miss.mjs: fuzzy names of the memory and the relations around them) and the memory's topics as slots.
   */
- reply(output,{text='',now=Date.now()}={}){
+ reply(output,{text='',now=Date.now(),facts=[],slots={}}={}){
+  // `facts`/`slots`: further turn facts and slots of the caller (ChatSOPAdapter's verification status, lib/adapter/reply.mjs).
   const packet=output.packet??{};
   const computed=!['unclear','courtesy','instruction'].includes(packet.status);
   const answerText=computed?output.text:null;
@@ -115,7 +116,7 @@ export class Agent{
   const instructed=packet.instruction_outcome??applyInstructions(state,[],clock);
   delete packet.instruction_outcome;
   const aside=computed&&answered(packet)?this.asideFact(packet,now):null;
-  const composed=composeReply({packet,answerText,near,topics:topicsOf(this.lexicon),aside,seed:now,facts:[...instructed.facts,...timeFacts(state,info,clock)],slots:instructed.slots,overlay:overlayOf(state)});
+  const composed=composeReply({packet,answerText,near,topics:topicsOf(this.lexicon),aside,seed:now,facts:[...instructed.facts,...timeFacts(state,info,clock),...facts],slots:{...instructed.slots,...slots},overlay:overlayOf(state)});
   recordReactions(state,composed.reply,info,clock);
   packet.reply=composed.reply;
   packet.behaviour={turn:clock.turn,instructions:state.instructions.map(i=>({id:i.id,kind:i.kind,text:i.text??null,since_turn:i.set.turn})),...(instructed.changes.length?{changes:instructed.changes}:{})};

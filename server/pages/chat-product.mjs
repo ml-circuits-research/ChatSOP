@@ -22,6 +22,7 @@ const srow = (title, help, control) => `<div class="srow"><div class="what"><b>$
 export const settingsFormalizerModelHtml = [
   srow('<label class="plain" for="formalizer-model">First tier</label>', 'The proxy tier that answers the step-by-step questions first; a question goes up the ladder only when its answer cannot be read.', '<select id="formalizer-model"><option value="">no preference: the configured ladder</option></select>'),
   '<p id="formalizer-model-note" class="hint-note"></p>',
+  srow('<label class="plain" for="adapter-mode">Answer mode</label>', 'How ChatSOPAdapter answers: step by step (the formalizer\'s questions), routed (several formalizations; two that agree verify the answer), or direct-verified (the model answers, the formalizations try to verify it). Every answer says whether it was verified.', '<select id="adapter-mode"><option value="">server default</option><option value="stepwise">step by step</option><option value="routed">routed</option><option value="direct-verified">direct, verified</option></select>'),
 ].join('');
 
 export const memoryTabHtml = `<h2>Base Memory</h2><p class="lead">Every session is a fork of a base memory. The default is the encyclopedic world-v1, which gives a session common sense and basic knowledge; minimal or empty memories serve specialised tasks. What a chat adds stays in the session until you commit it into a new base memory.</p>
@@ -96,6 +97,7 @@ function renderSessionBar(){
  info.append(el('span','pill',strategyName()));
  if($('formalizer'))$('formalizer').value=(s.settings&&s.settings.formalizer)||'';
  const model=(s.settings&&(s.settings.formalizer_model||s.settings.omp_model))||'';if([...$('formalizer-model').options].some(o=>o.value===model))$('formalizer-model').value=model;
+ if($('adapter-mode'))$('adapter-mode').value=(s.settings&&s.settings.adapter_mode)||'';
  $('commit-open').disabled=!accepted;
  if($('mem-rows')&&!$('panel-memory').hidden)renderMemoryRows();
 }
@@ -104,7 +106,7 @@ async function refreshSession(){
  if(r.ok)PROD.session=r.body;renderSessionBar();
 }
 async function startSession(baseId,name){
- const r=await jcall('POST','/v1/sessions',{...(baseId?{base:baseId}:{}),...(name?{name}:{}),settings:{formalizer_model:store.get('chatsop.formalizerModel',null),formalizer:store.get('chatsop.formalizer',null)}});
+ const r=await jcall('POST','/v1/sessions',{...(baseId?{base:baseId}:{}),...(name?{name}:{}),settings:{formalizer_model:store.get('chatsop.formalizerModel',null),formalizer:store.get('chatsop.formalizer',null),adapter_mode:store.get('chatsop.adapterMode',null)}});
  if(!r.ok)return r;
  PROD.session=r.body;bindSession(r.body.id);if(baseId)store.set('chatsop.lastBase',baseId);renderSessionBar();return r;
 }
@@ -267,10 +269,12 @@ function renderModelOptions(){
 async function saveSetting(patch){
  if('formalizer_model' in patch)store.set('chatsop.formalizerModel',patch.formalizer_model);
  if('formalizer' in patch)store.set('chatsop.formalizer',patch.formalizer);
+ if('adapter_mode' in patch)store.set('chatsop.adapterMode',patch.adapter_mode);
  if(!PROD.session)return;const r=await jcall('POST','/v1/sessions/'+PROD.session.id+'/settings',patch);if(r.ok){PROD.session=r.body;renderSessionBar();}
 }
 $('formalizer-model').onchange=e=>saveSetting({formalizer_model:e.target.value||null});
 $('formalizer').onchange=e=>saveSetting({formalizer:e.target.value||null});
+if($('adapter-mode'))$('adapter-mode').onchange=e=>saveSetting({adapter_mode:e.target.value||null});
 
 // ---- server status (GET /v1/status): formalization strategies, base memories, engines
 PROD.status=null;
