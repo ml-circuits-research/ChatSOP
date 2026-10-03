@@ -37,7 +37,8 @@ const SPECIAL_MODES = ['plan', 'abduce'];
 
 const f1 = (w, k) => w.fields.find(f => f.key === k);
 const LINKS_OTHER_THAN_IF = ['because', 'so', 'unless', 'although', 'so_that', 'before', 'after', 'when', 'while'];
-const NOT_RUN_BY_AN_ENGINE = ['compare', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure', ...LINKS_OTHER_THAN_IF, 'limit', 'via', 'trace'];
+/** `candidate` (Q-LANG-10) asks for runs with wires that are not in force elsewhere: the oracle's alone. */
+const NOT_RUN_BY_AN_ENGINE = ['compare', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure', ...LINKS_OTHER_THAN_IF, 'limit', 'via', 'trace', 'candidate'];
 
 function readWires(text, what) {
   const {wires, errors} = parse(text ?? '');

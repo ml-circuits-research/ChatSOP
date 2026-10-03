@@ -13,9 +13,9 @@ import {planFixedPoint, maxScaled} from '../strategies/solver-common/fixed-point
 
 const f1 = (w, k) => w.fields.find(f => f.key === k);
 const TIME_WORDS = ['at', 'during', 'overlaps', 'asof'];
-/** Query modes of the relational readers; every other mode is a mode of work (plan, abduce, why_not, conform, procedure). */
+/** Query modes of the relational readers; every other mode is a mode of work (plan, abduce, why_not, conform, procedure, effect). */
 const READ_MODES = ['select', 'exists', 'count', 'every', 'explain'];
-const MODES_OF_WORK = ['plan', 'abduce', 'why_not', 'conform', 'procedure'];
+const MODES_OF_WORK = ['plan', 'abduce', 'why_not', 'conform', 'procedure', 'effect'];
 /** Value forms are evaluated by the oracle after an eligible engine computes the relational core; interval forms need the typed runtime. */
 const HOST_FORMS = ['compare', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure', 'limit'];
 
@@ -31,6 +31,8 @@ export function circuitFeatures(handle, queryWires) {
   if (queryWires.some(w => w.type === 'constraint')) { f.constraint = true; f.mode_of_work = true; }
   f.mode = query ? (f1(query, 'mode')?.value.trim() ?? 'select') : null;
   if (!query) return {...f, required: f.constraint ? ['constraint'] : []};
+  // candidates (Q-LANG-10): runs with wires that are not in force elsewhere, which only the oracle makes
+  f.candidate = query.fields.some(x => x.key === 'candidate');
   f.defaults = handle.wires.filter(w => w.type === 'default').length;
   f.integrity = handle.wires.filter(w => w.type === 'integrity').length;
   f.temporal = TIME_WORDS.some(k => f1(query, k)) || handle.wires.some(w => w.type === 'fact' && f1(w, 'valid') && f1(w, 'valid').value.trim() !== 'timeless');
@@ -94,6 +96,7 @@ function finish(f) {
   if (f.proof) r.add('used');
   if (f.constraint) r.add('constraint');
   if (MODES_OF_WORK.includes(f.mode)) r.add(f.mode);
+  if (f.candidate) r.add('candidate');
   return {...f, required: [...r]};
 }
 

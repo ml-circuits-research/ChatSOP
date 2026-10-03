@@ -16,9 +16,9 @@ import {readForms} from '../js-reference/forms.mjs';
 export {ProgramError, NotExpressibleError};
 
 export const READ_MODES = ['select', 'exists', 'count', 'explain', 'every'];
-const MODE_FEATURE = {why_not: 'why_not', plan: 'plan', abduce: 'abduce', conform: 'check_plan', procedure: 'procedure_render'};
+const MODE_FEATURE = {why_not: 'why_not', plan: 'plan', abduce: 'abduce', conform: 'check_plan', procedure: 'procedure_render', effect: 'effect'};
 const LINKS_OTHER_THAN_IF = ['because', 'so', 'unless', 'although', 'so_that', 'before', 'after', 'when', 'while'];
-const NOT_RUN = ['order', 'quantifier', 'measure', ...LINKS_OTHER_THAN_IF, 'via', 'trace'];
+const NOT_RUN = ['order', 'quantifier', 'measure', ...LINKS_OTHER_THAN_IF, 'via', 'trace', 'candidate'];
 
 export const f1 = (w, k) => w.fields.find(f => f.key === k);
 

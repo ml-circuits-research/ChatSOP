@@ -22,7 +22,7 @@ export const SPEC={
  pragmatic:{one:['kind','score','span','near','source','basis'],required:['kind','basis']},
  instruction:{one:['do','kind','text','span','source'],required:['do']},
  rule:{one:['then','valid','mode','source'],many:['when'],required:['then','when']},
- query:{one:['mode','select','scope','measure','span','at','during','overlaps','asof','limit','rank','quantifier','order','fragment'],many:['where','filter','compare','except',...LINK_WORDS],required:[]},
+ query:{one:['mode','select','scope','measure','span','at','during','overlaps','asof','limit','rank','quantifier','order','fragment'],many:['where','filter','compare','except','candidate',...LINK_WORDS],required:[]},
  constraint:{one:['claim','task','unit','objective','direction','select'],many:['var','require'],required:[]},
  event:{one:['action','target','effective','replacement','source'],required:['action','target']},
  pack:{many:['items'],required:['items']},

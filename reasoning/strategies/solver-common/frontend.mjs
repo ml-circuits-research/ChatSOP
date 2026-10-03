@@ -41,7 +41,8 @@ export {ProgramError, NotExpressibleError, prepare, Evidence};
 
 const f1 = (w, k) => w.fields.find(f => f.key === k);
 const LINKS_OTHER_THAN_IF = ['because', 'so', 'unless', 'although', 'so_that', 'before', 'after', 'when', 'while'];
-const NOT_RUN_BY_AN_ENGINE = ['compare', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure', ...LINKS_OTHER_THAN_IF, 'trace'];
+/** `candidate` (Q-LANG-10) asks for runs with wires that are not in force elsewhere: the oracle's alone. */
+const NOT_RUN_BY_AN_ENGINE = ['compare', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure', ...LINKS_OTHER_THAN_IF, 'trace', 'candidate'];
 export const MODES = ['select', 'exists', 'count', 'every', 'why_not', 'plan', 'abduce'];
 
 export function readWires(text, what) {

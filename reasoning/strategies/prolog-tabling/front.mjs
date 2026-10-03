@@ -38,10 +38,11 @@ export function readQuery(wire, excluded, {modes, id}) {
     ifs: wire.fields.filter(f => f.key === 'if').map(f => f.value.trim().slice(1)).filter(x => !excluded.has(x)),
     via: one('via'), trace: one('trace')
   };
-  const all = ['select', 'exists', 'count', 'explain', 'every', 'why_not', 'plan', 'abduce', 'conform', 'procedure'];
+  const all = ['select', 'exists', 'count', 'explain', 'every', 'why_not', 'plan', 'abduce', 'conform', 'procedure', 'effect'];
   if (!all.includes(q.mode)) throw new ProgramError('bad_enum', `mode must be one of ${all.join(', ')}`, wire.id);
   const other = [];
-  for (const k of ['compare', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure', ...LINKS_OTHER_THAN_IF]) if (f1(wire, k)) other.push(k);
+  // `candidate` (Q-LANG-10) runs wires that are not in force elsewhere: the oracle's alone
+  for (const k of ['compare', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure', 'candidate', ...LINKS_OTHER_THAN_IF]) if (f1(wire, k)) other.push(k);
   if (f1(wire, 'limit') && !['abduce', 'why_not'].includes(q.mode)) other.push('limit');
   if (other.length) throw new NotExpressibleError(['query_' + other[0]], `query field "${other[0]}" is linked by the host, not run by ${id}`);
   // the universal per group of the selected variables (feature every_grouped) is the oracle's; this strategy decides only the whole-domain universal

@@ -13,7 +13,7 @@
  * text of the circuits.
  */
 const rowKey = x => JSON.stringify(Object.entries(x).sort());
-const sig = r => JSON.stringify({status: r.status, rows: (r.rows ?? []).map(rowKey).sort(), count: r.count, plan: r.plan?.names, hypotheses: r.hypotheses?.map(h => [...h].sort()).sort()});
+const sig = r => JSON.stringify({status: r.status, rows: (r.rows ?? []).map(rowKey).sort(), count: r.count, plan: r.plan?.names, hypotheses: r.hypotheses?.map(h => [...h].sort()).sort(), effects: r.effects?.map(e => e.candidate + ':' + e.effect)});
 const rowKeys = r => new Set((r.rows ?? []).map(rowKey));
 
 /** `solve(excluded: Set<string>)` returns a packet; `ids` are the assumption ids in a stable order. */

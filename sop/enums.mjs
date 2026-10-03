@@ -35,20 +35,30 @@ export const OUTPUT_MODES = Object.freeze(['one', 'many', 'rows', 'count', 'stat
  */
 export const QUERY_MODES = Object.freeze(['select', 'exists', 'count', 'explain', 'every']);
 /**
- * The five reasoning modes of the knowledge language (DS004 "Query modes", DS006): `why_not` asks what would make a claim
+ * The six reasoning modes of the knowledge language (DS004 "Query modes", DS006): `why_not` asks what would make a claim
  * derivable, `plan` asks how a goal is reached, `abduce` asks for the minimal explanations of an observation, `conform`
  * asks whether a performed trace complies with the procedures and norms in force, `procedure` asks for the approved
- * procedure of a task. They are question forms, never operations; the model language lists them in `QUERY_MODES` only
- * where DS014 says so.
+ * procedure of a task, `effect` asks what each candidate (a supposed fact or a session rule named by `candidate`) does to a
+ * ground claim (Q-LANG-10, owner decision 2026-10-03). They are question forms, never operations; the model language lists
+ * them in `QUERY_MODES` only where DS014 says so.
  */
-export const REASONING_QUERY_MODES = Object.freeze(['why_not', 'plan', 'abduce', 'conform', 'procedure']);
+export const REASONING_QUERY_MODES = Object.freeze(['why_not', 'plan', 'abduce', 'conform', 'procedure', 'effect']);
 /**
  * The reasoning modes a model `query` may ask on the product path (DS006 "Routing rules", R1): `why_not` (the missing base facts and the
- * blockers of a claim) and `abduce` (the minimal consistent explanations over the memory's `hypothesis` wires) are answered by the
- * js-reference oracle, like `explain`. The other reasoning modes need actions, procedures or traces the model does not write; a model
- * query in one of them is reported `not_computable`.
+ * blockers of a claim), `abduce` (the minimal consistent explanations over the memory's `hypothesis` wires, or over the query's own
+ * `candidate` lines) and `effect` (the effect of each candidate on a ground claim) are answered by the js-reference oracle, like
+ * `explain`. The other reasoning modes need actions, procedures or traces the model does not write; a model query in one of them is
+ * reported `not_computable`.
  */
-export const PRODUCT_REASONING_MODES = Object.freeze(['why_not', 'abduce']);
+export const PRODUCT_REASONING_MODES = Object.freeze(['why_not', 'abduce', 'effect']);
+/**
+ * Candidates of a query (Q-LANG-10): `candidate $id` lines name wires of the same output that are not in force (a `stated` with
+ * `certainty supposed`, or a session `rule`/`default`); only `mode effect` and `mode abduce` take them, 1 to MAX_CANDIDATES per query.
+ * `EFFECT_CLASSES` are the classes of `mode effect`, one per candidate.
+ */
+export const CANDIDATE_MODES = Object.freeze(['effect', 'abduce']);
+export const MAX_CANDIDATES = 8;
+export const EFFECT_CLASSES = Object.freeze(['establishes', 'blocks', 'contradicts', 'no_effect', 'inconsistent']);
 /** Part of a time variable's interval that a question asks for: since when, until when, how long. */
 export const TIME_MEASURES = Object.freeze(['start', 'end', 'duration']);
 

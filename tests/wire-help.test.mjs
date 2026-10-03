@@ -27,10 +27,13 @@
 //                              knowledge circuits: validateProgram reports no error and exactly the
 //                              declared warnings.
 //   <pre data-sop="knowledge-query" [data-run="validate"] [data-status=".."] [data-rows="a=1,b=2;a=3,b=4"]
-//                              [data-count="N"] [data-conditional="id,id"]>
+//                              [data-count="N"] [data-conditional="id,id"] [data-effects="id:class,id:class"]
+//                              [data-explanations="id+id;id"] [data-necessary="id,id"]>
 //                              a query circuit (or a constraint) validated together with the preceding
 //                              knowledge example of the page and executed by the js-reference oracle,
-//                              which must give the declared status, rows, count and conditional list.
+//                              which must give the declared status, rows, count and conditional list,
+//                              the effect class of each candidate (mode effect) and the explaining sets
+//                              and necessary candidates (mode abduce over candidates, Q-LANG-10).
 //                              data-run="validate" marks a question the oracle declares not_expressible
 //                              (a mode of work): it is validated only, and the oracle must say so.
 //   <pre data-sop="knowledge-invalid" data-error="code" [data-role="query"]>
@@ -267,6 +270,9 @@ test('knowledge examples validate with sop/knowledge and execute on the js-refer
         if (attrs['data-rows'] !== undefined) assert.equal((got.rows ?? []).map(rowText).sort().join(';'), attrs['data-rows'], `${label} rows`);
         if (attrs['data-count'] !== undefined) assert.equal(String(got.count), attrs['data-count'], `${label} count`);
         if (attrs['data-conditional'] !== undefined) assert.equal((got.conditional ?? []).join(','), attrs['data-conditional'], `${label} conditional`);
+        if (attrs['data-effects'] !== undefined) assert.equal((got.effects ?? []).map(e => `${e.candidate}:${e.effect}`).join(','), attrs['data-effects'], `${label} effects`);
+        if (attrs['data-explanations'] !== undefined) assert.equal((got.explanations ?? []).map(e => e.hypotheses.join('+')).join(';'), attrs['data-explanations'], `${label} explanations`);
+        if (attrs['data-necessary'] !== undefined) assert.equal((got.necessary ?? []).join(','), attrs['data-necessary'], `${label} necessary`);
       } else {
         assert.ok(attrs['data-error'], `${label} declares data-error`);
         const r = validateProgram([{name: label, text: source, role: attrs['data-role'] ?? 'knowledge'}]);

@@ -5,7 +5,7 @@
  * ignored with a warning and `approval_incomplete` is left to ingestion.
  */
 import {GRAMMAR, STEP_BLOCKS, HOST_WRITTEN} from './grammar.mjs';
-import {ORDER_SAMPLING, ORDER_SAMPLING_MODES} from '../enums.mjs';
+import {ORDER_SAMPLING, ORDER_SAMPLING_MODES, CANDIDATE_MODES, MAX_CANDIDATES} from '../enums.mjs';
 import {VAR, tokens, atomFrom, varsOf, parse, leaves} from './lexical.mjs';
 import {checkValue} from './validate-fields.mjs';
 import {isNumericAction, checkNumericAction, stateVariables} from './numeric-action.mjs';
@@ -116,6 +116,17 @@ function typeChecks(w, problems, {authoring = false, allowSealed = false} = {}) 
     if (sampling.length && !ORDER_SAMPLING_MODES.includes(mode)) push('order_random_mode', 'order random samples the answers of mode ' + ORDER_SAMPLING_MODES.join('|') + ', not mode ' + mode);
     const select = f('select') ? tokens(f('select').value) : [];
     for (const s of select) if (!bound.has(s)) push('select_unbound', 'selected variable ' + s + ' does not occur in where');
+    // Candidates (Q-LANG-10): wires in force only in the runs of this query; their targets are checked across files (validateProgram).
+    const candidates = w.fields.filter(x => x.key === 'candidate').map(x => x.value.trim());
+    if (candidates.length && !CANDIDATE_MODES.includes(mode)) push('candidate_needs_mode', 'candidate lines belong to mode ' + CANDIDATE_MODES.join(' or ') + ', not mode ' + mode);
+    if (candidates.length > MAX_CANDIDATES) push('candidate_limit', candidates.length + ' candidates; at most ' + MAX_CANDIDATES + ' per query');
+    const supposed = new Set(w.fields.filter(x => x.key === 'if').map(x => x.value.trim()));
+    for (const c of candidates) if (supposed.has(c)) push('candidate_also_if', c + ' is both a candidate and supposed with if; a candidate is tried, a condition is assumed');
+    if (mode === 'effect') {
+      const groundClaim = !select.length && !f('scope') && w.conds?.some(c => c.key === 'where') && (w.conds ?? []).filter(c => c.key === 'where').every(c => leaves(c.tree).every(l => !(l.terms ?? []).some(t => VAR.test(t))));
+      if (!candidates.length) push('effect_needs_ground_claim', 'mode effect classifies candidates against a claim; name at least one with candidate $id');
+      if (!groundClaim) push('effect_needs_ground_claim', 'mode effect needs a ground claim: where without variables, no select');
+    }
   }
   const arityOf = () => (f('args') ? (f('args').value.trim() === 'none' ? 0 : tokens(f('args').value).length) : w.fields.filter(x => x.key === 'role').length);
   if (w.type === 'predicate' && !f('args') && !f('role')) push('missing_field', 'predicate needs args or role lines');
@@ -194,6 +205,14 @@ export function validateProgram(files, opts = {}) {
   // Cross-file references are resolved against all files.
   const known = new Set(allWires.map(w => w.id));
   for (let i = problems.length - 1; i >= 0; i--) if (problems[i].code === 'unknown_ref') { const m = /unknown wire (\S+)/.exec(problems[i].message); if (m && known.has(m[1])) problems.splice(i, 1); }
+  // A candidate names a supposed fact or a rule/default (Q-LANG-10); an unknown id is already unknown_ref.
+  const byWireId = new Map(allWires.map(w => [w.id, w]));
+  for (const q of allWires.filter(w => w.type === 'query')) for (const c of q.fields.filter(x => x.key === 'candidate')) {
+    const target = byWireId.get(c.value.trim().slice(1));
+    if (!target) continue;
+    const supposedFact = target.type === 'fact' && ['supposed', 'hedged'].includes(target.fields.find(x => x.key === 'status')?.value.trim());
+    if (!supposedFact && !['rule', 'default'].includes(target.type)) problems.push({code: 'candidate_target', file: q.file, line: c.line, message: 'candidate ' + c.value.trim() + ' names a ' + target.type + '; a candidate is a fact with status supposed or a rule or default', wire: q.id});
+  }
   const declared = new Map();
   for (const w of allWires) if (w.type === 'predicate') {
     const name = w.fields.find(f => f.key === 'predicate');

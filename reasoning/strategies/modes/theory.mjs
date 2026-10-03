@@ -9,7 +9,7 @@ import {selectInForce, supposedWireIds, contestedIds, GOVERNED} from '../../../s
 import {desugar} from '../js-reference/desugar.mjs';
 import {compileProgram} from '../js-reference/program.mjs';
 import {CEILINGS} from '../js-reference/budget.mjs';
-import {ProgramError} from '../js-reference/values.mjs';
+import {ProgramError, NotExpressibleError} from '../js-reference/values.mjs';
 import {parseNorm, parseMethod, overrideEdges, f1, fAll} from './model.mjs';
 
 const one = (w, k) => f1(w, k)?.value.trim() ?? null;
@@ -54,6 +54,8 @@ export function readPolicy(wires, queryWire) {
 /** Query fields the modes of work read. */
 export function readModeQuery(wire) {
   const v = k => one(wire, k);
+  // `candidate` (Q-LANG-10) runs wires that are not in force elsewhere: the oracle's alone, never a plan's hypothesis
+  if (fAll(wire, 'candidate').length) throw new NotExpressibleError(['candidate'], 'query field candidate is answered by the oracle (mode effect, abduce over candidates)');
   const toks = k => (v(k) ? tokens(v(k)) : null);
   return {
     mode: v('mode') ?? 'select', asof: v('asof'), trace: v('trace')?.replace(/^\$/, '') ?? null, via: toks('via'),

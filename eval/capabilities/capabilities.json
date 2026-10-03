@@ -16,7 +16,8 @@
    "k.enum.query.mode.explain",
    "k.enum.query.mode.every",
    "k.enum.query.mode.why_not",
-   "k.enum.query.mode.abduce"
+   "k.enum.query.mode.abduce",
+   "k.enum.query.mode.effect"
   ],
   "aggregate": [
    "k.field.aggregate.count",
@@ -223,10 +224,10 @@
   "link×certainty"
  ],
  "counts": {
-  "capabilities": 909,
-  "combinations": 531,
-  "knowledge": 652,
-  "model": 257
+  "capabilities": 926,
+  "combinations": 556,
+  "knowledge": 661,
+  "model": 265
  },
  "capabilities": [
   {
@@ -3612,7 +3613,7 @@
     "L1",
     "L2"
    ],
-   "doc": "The question. Modes select, exists, count, explain, every are existing; why_not, plan, abduce, conform and procedure are new; time is at (instant), during (throughout), overlaps (some instant), asof (known at)."
+   "doc": "The question. Modes select, exists, count, explain, every are existing; why_not, plan, abduce, conform and procedure are new; effect (Q-LANG-10) classifies each candidate against a ground claim; candidate names a supposed fact or a rule/default that is in force only in the runs of this query (modes effect and abduce); time is at (instant), during (throughout), overlaps (some instant), asof (known at)."
   },
   {
    "id": "k.field.query.where",
@@ -3733,6 +3734,15 @@
   },
   {
    "id": "k.enum.query.mode.procedure",
+   "surface": "knowledge",
+   "kind": "enum",
+   "layers": [
+    "L1",
+    "L2"
+   ]
+  },
+  {
+   "id": "k.enum.query.mode.effect",
    "surface": "knowledge",
    "kind": "enum",
    "layers": [
@@ -4010,6 +4020,18 @@
     "L2"
    ],
    "card": "one",
+   "required": false,
+   "valueKind": "ref"
+  },
+  {
+   "id": "k.field.query.candidate",
+   "surface": "knowledge",
+   "kind": "field",
+   "layers": [
+    "L1",
+    "L2"
+   ],
+   "card": "many",
    "required": false,
    "valueKind": "ref"
   },
@@ -5483,6 +5505,22 @@
    ]
   },
   {
+   "id": "k.feature.effect",
+   "surface": "knowledge",
+   "kind": "feature",
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "k.feature.candidate",
+   "surface": "knowledge",
+   "kind": "feature",
+   "layers": [
+    "L2"
+   ]
+  },
+  {
    "id": "k.feature.numeric_action",
    "surface": "knowledge",
    "kind": "feature",
@@ -5899,6 +5937,38 @@
    ]
   },
   {
+   "id": "k.check.candidate_also_if",
+   "surface": "knowledge",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "k.check.candidate_limit",
+   "surface": "knowledge",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "k.check.candidate_needs_mode",
+   "surface": "knowledge",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "k.check.candidate_target",
+   "surface": "knowledge",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
    "id": "k.check.choose_needs_alternatives",
    "surface": "knowledge",
    "kind": "check",
@@ -5972,6 +6042,14 @@
   },
   {
    "id": "k.check.duplicate_role",
+   "surface": "knowledge",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "k.check.effect_needs_ground_claim",
    "surface": "knowledge",
    "kind": "check",
    "layers": [
@@ -7138,6 +7216,15 @@
    ]
   },
   {
+   "id": "m.enum.query.mode.effect",
+   "surface": "model",
+   "kind": "enum",
+   "layers": [
+    "L1",
+    "L3"
+   ]
+  },
+  {
    "id": "m.field.query.select",
    "surface": "model",
    "kind": "field",
@@ -7350,6 +7437,17 @@
   },
   {
    "id": "m.field.query.except",
+   "surface": "model",
+   "kind": "field",
+   "layers": [
+    "L1",
+    "L3"
+   ],
+   "card": "many",
+   "required": false
+  },
+  {
+   "id": "m.field.query.candidate",
    "surface": "model",
    "kind": "field",
    "layers": [
@@ -8606,6 +8704,46 @@
    ]
   },
   {
+   "id": "m.check.candidate_also_if",
+   "surface": "model",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "m.check.candidate_limit",
+   "surface": "model",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "m.check.candidate_needs_mode",
+   "surface": "model",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "m.check.candidate_target",
+   "surface": "model",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "m.check.candidate_temporal_link",
+   "surface": "model",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
    "id": "m.check.compare_form",
    "surface": "model",
    "kind": "check",
@@ -8615,6 +8753,14 @@
   },
   {
    "id": "m.check.constraint_task_required",
+   "surface": "model",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "m.check.effect_needs_ground_claim",
    "surface": "model",
    "kind": "check",
    "layers": [
@@ -9429,6 +9575,81 @@
    ]
   },
   {
+   "id": "x.mode×aggregate.mode.effect.aggregate.count",
+   "scope": "program",
+   "families": [
+    "mode",
+    "aggregate"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.field.aggregate.count"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×aggregate.mode.effect.aggregate.sum",
+   "scope": "program",
+   "families": [
+    "mode",
+    "aggregate"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.field.aggregate.sum"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×aggregate.mode.effect.aggregate.min",
+   "scope": "program",
+   "families": [
+    "mode",
+    "aggregate"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.field.aggregate.min"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×aggregate.mode.effect.aggregate.max",
+   "scope": "program",
+   "families": [
+    "mode",
+    "aggregate"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.field.aggregate.max"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×aggregate.mode.effect.aggregate.collect",
+   "scope": "program",
+   "families": [
+    "mode",
+    "aggregate"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.field.aggregate.collect"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
    "id": "x.mode×negation.mode.select.leaf.not",
    "scope": "program",
    "families": [
@@ -9632,6 +9853,36 @@
    ],
    "tags": [
     "k.enum.query.mode.abduce",
+    "k.leaf.absent"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×negation.mode.effect.leaf.not",
+   "scope": "program",
+   "families": [
+    "mode",
+    "negation"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.leaf.not"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×negation.mode.effect.leaf.absent",
+   "scope": "program",
+   "families": [
+    "mode",
+    "negation"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
     "k.leaf.absent"
    ],
    "layers": [
@@ -10689,6 +10940,156 @@
    ]
   },
   {
+   "id": "x.mode×time.mode.effect.query.at",
+   "scope": "program",
+   "families": [
+    "mode",
+    "time"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.field.query.at"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×time.mode.effect.query.during",
+   "scope": "program",
+   "families": [
+    "mode",
+    "time"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.field.query.during"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×time.mode.effect.query.overlaps",
+   "scope": "program",
+   "families": [
+    "mode",
+    "time"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.field.query.overlaps"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×time.mode.effect.query.asof",
+   "scope": "program",
+   "families": [
+    "mode",
+    "time"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.field.query.asof"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×time.mode.effect.fact.valid",
+   "scope": "program",
+   "families": [
+    "mode",
+    "time"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.field.fact.valid"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×time.mode.effect.leaf.start_of",
+   "scope": "program",
+   "families": [
+    "mode",
+    "time"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.leaf.start_of"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×time.mode.effect.leaf.end_of",
+   "scope": "program",
+   "families": [
+    "mode",
+    "time"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.leaf.end_of"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×time.mode.effect.order.before",
+   "scope": "program",
+   "families": [
+    "mode",
+    "time"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.leaf.order.before"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×time.mode.effect.order.after",
+   "scope": "program",
+   "families": [
+    "mode",
+    "time"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.leaf.order.after"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×time.mode.effect.order.same_time",
+   "scope": "program",
+   "families": [
+    "mode",
+    "time"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.leaf.order.same_time"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
    "id": "x.mode×recursion.mode.select.feature.recursion",
    "scope": "program",
    "families": [
@@ -10787,6 +11188,21 @@
    ],
    "tags": [
     "k.enum.query.mode.abduce",
+    "k.feature.recursion"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×recursion.mode.effect.feature.recursion",
+   "scope": "program",
+   "families": [
+    "mode",
+    "recursion"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
     "k.feature.recursion"
    ],
    "layers": [
@@ -11102,6 +11518,51 @@
    ],
    "tags": [
     "k.enum.query.mode.abduce",
+    "k.field.default.overrides"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×default.mode.effect.default.except",
+   "scope": "program",
+   "families": [
+    "mode",
+    "default"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.field.default.except"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×default.mode.effect.default.priority",
+   "scope": "program",
+   "families": [
+    "mode",
+    "default"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.field.default.priority"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×default.mode.effect.default.overrides",
+   "scope": "program",
+   "families": [
+    "mode",
+    "default"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
     "k.field.default.overrides"
    ],
    "layers": [
@@ -11439,6 +11900,21 @@
    ]
   },
   {
+   "id": "x.mode×integrity.mode.effect.wire.integrity",
+   "scope": "program",
+   "families": [
+    "mode",
+    "integrity"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.wire.integrity"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
    "id": "x.mode×supposition.mode.select.query.if",
    "scope": "program",
    "families": [
@@ -11649,6 +12125,36 @@
    ]
   },
   {
+   "id": "x.mode×supposition.mode.effect.query.if",
+   "scope": "program",
+   "families": [
+    "mode",
+    "supposition"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.field.query.if"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×supposition.mode.effect.status.supposed",
+   "scope": "program",
+   "families": [
+    "mode",
+    "supposition"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
+    "k.enum.fact.status.supposed"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
    "id": "x.mode×decimal.mode.select.term.decimal",
    "scope": "program",
    "families": [
@@ -11747,6 +12253,21 @@
    ],
    "tags": [
     "k.enum.query.mode.abduce",
+    "k.term.decimal"
+   ],
+   "layers": [
+    "L2"
+   ]
+  },
+  {
+   "id": "x.mode×decimal.mode.effect.term.decimal",
+   "scope": "program",
+   "families": [
+    "mode",
+    "decimal"
+   ],
+   "tags": [
+    "k.enum.query.mode.effect",
     "k.term.decimal"
    ],
    "layers": [

@@ -19,7 +19,7 @@ import {loadFrames,normalizeProposition} from './frames.mjs';
 import {copulaForm} from './copula-linker.mjs';
 import {lowerQuantities} from './quantities.mjs';
 import {linksOf,roleReferences,LINK_WORDS,sampledOrder} from './parser.mjs';
-import {REASONING_QUERY_MODES,PRODUCT_REASONING_MODES} from './enums.mjs';
+import {REASONING_QUERY_MODES,PRODUCT_REASONING_MODES,CANDIDATE_MODES,MAX_CANDIDATES} from './enums.mjs';
 
 /**
  * The neural author describes problems; only this host compiler emits operations.
@@ -61,15 +61,47 @@ export function checkModelWire(w){
   if(w.fields.order&&!sampledOrder(w)){const [a,,b]=words(one(w,'order'));assert(times.size===2&&times.has(a)&&times.has(b),'order_needs_two_times: @'+w.id+' order compares the two time variables of its match blocks (role time ?t1, role time ?t2)');}
   else assert(times.size<=1,'time_variable_multiple: @'+w.id+' asks for more than one time; use one query per time, or order ?t1 before ?t2');
   if(w.fields.measure)assert(times.has(one(w,'select')),'measure_needs_time_variable: @'+w.id+' measure applies to the selected role time ?variable');
+  // Candidates (Q-LANG-10, DS014 "Candidates: effect and abduce"): `candidate $id` lines name wires of this output that are not in
+  // force; only mode effect and abduce take them, 1 to MAX_CANDIDATES; a wire is not both a candidate and an `if` condition; the
+  // temporal links do not combine with them; mode effect asks about one ground claim. The targets are checked across wires (checkCandidates).
+  const candidates=many(w,'candidate').map(v=>v.trim()),mode=one(w,'mode','select');
+  for(const c of candidates)assert(/^\$[A-Za-z][A-Za-z0-9_]*$/.test(c),'candidate_target: @'+w.id+' candidate takes exactly one $id naming a supposed stated wire or a session rule or default of this output');
+  if(candidates.length){
+   assert(CANDIDATE_MODES.includes(mode),'candidate_needs_mode: @'+w.id+' candidate lines belong to mode '+CANDIDATE_MODES.join(' or ')+', not mode '+mode);
+   assert(candidates.length<=MAX_CANDIDATES,'candidate_limit: @'+w.id+' names '+candidates.length+' candidates; at most '+MAX_CANDIDATES+' per query');
+   assert(new Set(candidates).size===candidates.length,'candidate_target: @'+w.id+' names the same candidate twice');
+   const conditions=new Set(many(w,'if').map(v=>v.trim())),both=candidates.find(c=>conditions.has(c));
+   assert(!both,'candidate_also_if: @'+w.id+' names '+both+' both as a candidate and with if; a candidate is tried, a condition is assumed');
+   const temporal=['before','after','when','while'].filter(k=>w.fields[k]);
+   assert(!temporal.length,'candidate_temporal_link: @'+w.id+' '+temporal[0]+' bounds the question by a clause; temporal links do not combine with candidates (use at or during)');
+  }
+  if(mode==='effect'){
+   const variables=[...many(w,'where')].some(text=>/\?[A-Za-z]/.test(unquoted(text)));
+   assert(candidates.length&&w.fields.where&&!w.fields.select&&!variables,'effect_needs_ground_claim: @'+w.id+' mode effect checks one claim without variables, selects nothing, and names at least one candidate $id');
+  }
  }
  if(w.type==='constraint')assert(w.fields.task,'constraint_task_required: @'+w.id+' must state task prove, possible or optimize');
 }
-export function checkModelProgram(program){
+/**
+ * The targets of `candidate` lines (Q-LANG-10): a `stated` wire with `certainty supposed`, or a session `rule` or `default` of the
+ * same output (`definitions`: id -> type of the session definitions; empty when the output has none).
+ */
+export function checkCandidates(program,{definitions=new Map()}={}){
+ const byId=new Map(program.wires.map(w=>[w.id,w]));
+ for(const w of program.wires.filter(x=>x.type==='query'))for(const c of many(w,'candidate')){
+  const id=c.trim().slice(1),t=byId.get(id),kind=definitions.get(id);
+  const ok=(t?.type==='stated'&&one(t,'certainty')==='supposed')||(!t&&['rule','default'].includes(kind));
+  assert(ok,'candidate_target: @'+w.id+' candidate $'+id+' '+(t?'names a '+(t.type==='stated'?'stated wire that is not certainty supposed':t.type):kind?'names a session '+kind:'names no wire of this output')+'; a candidate is a stated wire with certainty supposed or a session rule or default');
+ }
+ return program;
+}
+export function checkModelProgram(program,{definitions=new Map()}={}){
  for(const w of program.wires)checkModelWire(w);
  // `unclear` stands alone; only the advisory `pragmatic` wires of the same message may accompany it ("Hello!" is a greeting and no request).
  if(program.wires.some(w=>w.type==='unclear'))assert(program.wires.filter(w=>w.type!=='pragmatic'&&w.type!=='instruction').length===1,'unclear_not_alone: unclear must be the only wire of the model output besides pragmatic and instruction wires');
- // Links, `$id` role references and unparsed spans are checked across wires (DS014 "Clauses and links").
- checkModelLinks(program);
+ // Links, `$id` role references and unparsed spans are checked across wires (DS014 "Clauses and links"); `if` may name a session rule.
+ checkModelLinks(program,{definitions});
+ checkCandidates(program,{definitions});
  return program;
 }
 
@@ -128,7 +160,7 @@ const REFERENCE_VALUE=value=>value&&typeof value==='object'&&value.ref;
  * reply, and are never linked, executed or used as evidence. A program of pragmatic wires only is a message without a request.
  */
 export function compileDeclarative(source,options={}){
- const parsed=checkModelProgram(parse(source,{maxWires:options.maxWires??2048}));
+ const parsed=checkModelProgram(parse(source,{maxWires:options.maxWires??2048}),{definitions:options.definitions??new Map()});
  // The advisory wires of the reply: `pragmatic` (courtesy and emotion, DS023) and `instruction` (how to answer from now on, the behaviour layer).
  const advisory=w=>w.type==='pragmatic'||w.type==='instruction';
  const signals=parsed.wires.filter(advisory);
@@ -150,12 +182,12 @@ export function instructionOf(w){
  return {id:w.id,do:one(w,'do'),kind:w.fields.kind?one(w,'kind'):null,text,span,source:w.fields.source?one(w,'source'):null};
 }
 
-function compileAuthored(source,{language='en',inputText='',context={},lexicon=null,schema=null,maxWires=2048,modelAssumptions='report',maxModelAssumptions=8,now=Date.now(),dictionary,frames}={}){
+function compileAuthored(source,{language='en',inputText='',context={},lexicon=null,schema=null,maxWires=2048,modelAssumptions='report',maxModelAssumptions=8,now=Date.now(),dictionary,frames,definitions=new Map(),hypothetical=false}={}){
  // The bilingual and synonym dictionary (DS014 "Content words"); null disables it (the strict evaluation link).
  const dict=dictionary===undefined?englishDictionary():dictionary;
  // Host frame normalization (DS014 "Host frame normalization"): runs before the dictionary tiers when a relation does not link directly. Off with the strict link (dictionary null) or `frames:false`.
  const frameList=frames===false||dict===null?null:frames??loadFrames();
- let authored=checkModelProgram(parse(source,{maxWires}));
+ let authored=checkModelProgram(parse(source,{maxWires}),{definitions});
  // An elliptical follow-up is completed from the previous query of the conversation, or clarified (Q-LANG-4).
  const fragment=authored.wires.find(w=>w.type==='query'&&w.fields.fragment);
  if(fragment){
@@ -168,7 +200,7 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
     fragment:{id:fragment.id,values:given.flatMap(p=>p.roles.map(r=>r.value)).filter(v=>typeof v!=='string'||!v.startsWith('?')),relation:given.find(p=>p.relation!==undefined)?.relation??null}};
   }
   authored={wires:authored.wires.map(w=>w===fragment?completed:w)};
-  checkModelProgram(parse(canonical(authored),{maxWires}));
+  checkModelProgram(parse(canonical(authored),{maxWires}),{definitions});
  }
  const statementsIn=context.statements??[];
  assert(Array.isArray(statementsIn),'Context statements must be an array');
@@ -202,7 +234,7 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
  const fillPeriod=w=>{const f=periodFills.get(w.id);if(!f)return w;const drop=new RegExp('^\\s*role time \\'+f.variable+'\\s*$');const fields={...w.fields,where:many(w,'where').map(text=>String(text).split('\n').filter(line=>!drop.test(line)).join('\n'))};if(!w.fields.at&&!w.fields.during)fields.during=[JSON.stringify(f.text)];return {...w,fields};};
  let work=authored.wires.filter(w=>w.type!=='unparsed').map(fillWire).map(fillPeriod);
  // A wire that needs a held wire (its proposition as an argument, the answers of a held query, or a held condition) is held too.
- for(let changed=true;changed;){changed=false;for(const w of work){if(held.has(w.id))continue;const needs=[...roleReferences(w).map(r=>r.target),...(w.type==='query'?linksOf(w).filter(l=>l.keyword==='if'||l.keyword==='unless').map(l=>l.target):[])];if(needs.some(id=>held.has(id))){held.add(w.id);changed=true;}}}
+ for(let changed=true;changed;){changed=false;for(const w of work){if(held.has(w.id))continue;const needs=[...roleReferences(w).map(r=>r.target),...(w.type==='query'?[...linksOf(w).filter(l=>l.keyword==='if'||l.keyword==='unless').map(l=>l.target),...many(w,'candidate').map(v=>v.trim().slice(1))]:[])];if(needs.some(id=>held.has(id))){held.add(w.id);changed=true;}}}
  // 2. Wire references: `$q` becomes a join (query chaining, L3); a proposition argument `$s` has no engine.
  const expanded=expandReferences(work);work=expanded.wires;
  // Two constraint wires of one output that select the same variable name (two plans, each with its ?units) are independent problems:
@@ -218,10 +250,19 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
  // 3. Clause links (L4): conditions scope their query, timed temporal links bound the query period, the rest is reported.
  const plan=planLinks(work,{now});
  const workById=new Map(work.map(w=>[w.id,w]));
+ // Hypothetical runs (Q-LANG-10): a query's candidates and the session rules its `if` lines suppose are in force only in that query's
+ // runs (`hypothetical`: query id -> {candidates, rules}); a candidate statement applies to no other query. A runtime without such runs
+ // (`hypothetical: false`) reports these queries not_computable rather than answering without their candidates.
+ const hypotheticalRuns=new Map(),candidateStatements=new Set();
+ for(const w of work.filter(x=>x.type==='query')){
+  const candidates=many(w,'candidate').map(v=>v.trim().slice(1)),rules=linksOf(w).filter(l=>l.keyword==='if'&&!workById.has(l.target)&&['rule','default'].includes(definitions.get(l.target))).map(l=>l.target);
+  for(const c of candidates)if(workById.get(c)?.type==='stated')candidateStatements.add(c);
+  if(candidates.length||rules.length)hypotheticalRuns.set(w.id,{candidates,rules});
+ }
  // Problems the host understands but does not compute: advice questions (Q-LANG-6), arithmetic with division or decimals
  // (Q-LANG-7), questions over a proposition used as an argument (`$s`) and the reasoning modes outside PRODUCT_REASONING_MODES
  // (`why_not` and `abduce` are routed to the oracle, DS006 R1).
- const notComputable=work.filter(w=>!held.has(w.id)&&((w.type==='query'&&((REASONING_QUERY_MODES.includes(one(w,'mode'))&&!PRODUCT_REASONING_MODES.includes(one(w,'mode')))||expanded.eventQueries.has(w.id)||[...many(w,'where'),...many(w,'scope')].some(text=>{let advice=false;parseCondition(text,leaf=>{const p=parseMatch(leaf,'match',{partial:true});if(p.relation&&isAdvice(p.relation))advice=true;return leaf;});return advice;})))
+ const notComputable=work.filter(w=>!held.has(w.id)&&((w.type==='query'&&((REASONING_QUERY_MODES.includes(one(w,'mode'))&&!PRODUCT_REASONING_MODES.includes(one(w,'mode')))||(!hypothetical&&hypotheticalRuns.has(w.id))||expanded.eventQueries.has(w.id)||[...many(w,'where'),...many(w,'scope')].some(text=>{let advice=false;parseCondition(text,leaf=>{const p=parseMatch(leaf,'match',{partial:true});if(p.relation&&isAdvice(p.relation))advice=true;return leaf;});return advice;})))
   ||(w.type==='constraint'&&[...many(w,'require'),...many(w,'claim'),...many(w,'objective')].some(text=>/\bdivided_by\b|(?:^|\s)-?\d+\.\d+(?:\s|$)/.test(unquoted(text))))))
   .map(w=>({declaration:w.id,type:w.type,reading:expanded.eventQueries.has(w.id)?readingWithReferences(authoredById.get(w.id),authoredById):canonical({wires:[authoredById.get(w.id)??w]}).trim().split('\n').map(line=>line.trim()).join('; ')}));
  const skipped=new Set([...notComputable.map(item=>item.declaration),...held]);
@@ -300,7 +341,8 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
   return key==='during'||key==='overlaps'?formatTime(period.from)+' '+formatTime(period.until):formatTime(period.from);
  };
  const used=new Set(authored.wires.map(w=>w.id));
- const requestedRefs=new Set(work.filter(w=>w.type==='constraint'||w.type==='query').flatMap(w=>dependencies(w).values).filter(name=>!used.has(name)));
+ // A `$r` naming a session rule or default (`if`, `candidate`, Q-LANG-10) is not a projected value of a problem.
+ const requestedRefs=new Set(work.filter(w=>w.type==='constraint'||w.type==='query').flatMap(w=>dependencies(w).values).filter(name=>!used.has(name)&&!definitions.has(name)));
  const outputs=new Map(),providers=new Map();
  for(const w of work)if(w.type==='query'||w.type==='constraint')for(const v of projectionNames(w)){
   if(!providers.has(v.slice(1)))providers.set(v.slice(1),[]);
@@ -432,7 +474,7 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
    else if(w.type==='stated')normalizeAtom(l.atomText,{resolve:false,wire:w.id});
    continue;
   }
-  const fields=Object.fromEntries(Object.entries(w.fields).filter(([key])=>!LINK_WORDS.includes(key)).map(([key,values])=>[key,[...values]]));
+  const fields=Object.fromEntries(Object.entries(w.fields).filter(([key])=>!LINK_WORDS.includes(key)&&key!=='candidate').map(([key,values])=>[key,[...values]]));
   if(w.type==='query'){
    const spans=new Set(),spanLeaf=new Map();let leafIndex=0,failed=false;
    const leaf=text=>{
@@ -509,7 +551,7 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
  const collect=ids=>{if(!ids.length)return undefined;if(ids.length===1)return '$'+ids[0];const name=id();execution.push(node(name,'pack',{items:ids.map(n=>'$'+n)}));return '$'+name;};
  const evidenceRef=collect([...carriedIds,...evidenceIds]);
  // A supposition named by an `if`/`unless` link applies only to the queries that name it; the others apply to every query.
- const assumeFor=q=>suppositionIds.filter(s=>!plan.scoped.has(s)||(plan.conditions.get(q)??[]).includes(s));
+ const assumeFor=q=>suppositionIds.filter(s=>(!plan.scoped.has(s)&&!candidateStatements.has(s))||(plan.conditions.get(q)??[]).includes(s)||(hypotheticalRuns.get(q)?.candidates??[]).includes(s));
  const packs=new Map();const collectOnce=ids=>{const key=ids.join(' ');if(!packs.has(key))packs.set(key,collect(ids));return packs.get(key);};
  for(const w of work)if((w.type==='query'||w.type==='constraint')&&!skipped.has(w.id)){
   const solveId=id(),renderId=id(),fields={[w.type]:['$'+w.id]};
@@ -521,11 +563,11 @@ function compileAuthored(source,{language='en',inputText='',context={},lexicon=n
   // The branch is an additional hypothetical solve; the primary answer never uses model assumptions.
   let branchId=null;const branchIds=[...assumeIds,...assumptionFactIds];
   if(w.type==='query'&&branch&&assumptionFactIds.length){branchId=id();const b={query:['$'+w.id],assume:[collectOnce(branchIds)]};if(evidenceRef)b.data=[evidenceRef];execution.push(node(branchId,'solve',b));}
-  problemIds.push({declaration:w.id,type:w.type,solve:solveId,render:renderId,branch:branchId,assume:assumeIds,branchAssume:branchId?branchIds:[],reading:canonical({wires:[authoredById.get(w.id)??w]}).trim().split('\n').map(line=>line.trim()).join('; ')});renderIds.push(renderId);
+  problemIds.push({declaration:w.id,type:w.type,solve:solveId,render:renderId,branch:branchId,assume:assumeIds,...(hypotheticalRuns.has(w.id)?{candidates:hypotheticalRuns.get(w.id).candidates}:{}),branchAssume:branchId?branchIds:[],reading:canonical({wires:[authoredById.get(w.id)??w]}).trim().split('\n').map(line=>line.trim()).join('; ')});renderIds.push(renderId);
  }
  const program={wires:[...resolutions,...execution]};
  assert(program.wires.length<=maxWires,'Generated circuit exceeds wire budget');validateGraph(program);
- return {...empty,...report,authoredSop:canonical(authored),executionSop:program.wires.length?canonical(program):'',referencedOutputs:[...requestedRefs],projectedOutputs:[...outputs.keys()],carriedIds,problemIds,renderIds,statements,assumptions,links,evidenceIds,suppositionIds,assumptionFactIds};
+ return {...empty,...report,authoredSop:canonical(authored),executionSop:program.wires.length?canonical(program):'',referencedOutputs:[...requestedRefs],projectedOutputs:[...outputs.keys()],carriedIds,problemIds,renderIds,statements,assumptions,links,evidenceIds,suppositionIds,assumptionFactIds,hypotheticalRuns};
 }
 
 // Host phrases of the answer, English only: the output edge translates the final answer (lib/translator-service/answer.mjs, DS014 "English-only core").
@@ -561,7 +603,9 @@ function languageReports(plan){
 export async function runDeclarative(source,{runtime,language='en',languageSource='default',inputText='',context={}}){
  context.statements??=[];
  const policy=runtime.policy;
- const plan=compileDeclarative(source,{language,inputText,context,lexicon:runtime.lexicon,schema:runtime.schema,maxWires:policy.maxWires,modelAssumptions:policy.modelAssumptions??'report',maxModelAssumptions:policy.maxModelAssumptions??8,now:runtime.now,...(policy.dictionary===false?{dictionary:null}:{})});
+ const plan=compileDeclarative(source,{language,inputText,context,lexicon:runtime.lexicon,schema:runtime.schema,maxWires:policy.maxWires,modelAssumptions:policy.modelAssumptions??'report',maxModelAssumptions:policy.maxModelAssumptions??8,now:runtime.now,...(policy.dictionary===false?{dictionary:null}:{}),
+  // the session definitions of the output (an `if` or a `candidate` may name a session rule) and whether this runtime runs candidates (Q-LANG-10)
+  definitions:runtime.sessionDefinitions??new Map(),hypothetical:runtime.hypotheticalRuns===true});
  // "Thanks!" written as `unclear no_request` plus its pragmatic wire is a courtesy message too.
  // The instructions of the message change the caller-owned behaviour of the conversation (context.behaviour, DS023 "Behaviour layer").
  if(plan.instructions?.length){const state=behaviourOf(context);plan.instructionOutcome=applyInstructions(state,plan.instructions,{turn:state.turn+1,at:Number(runtime.now??Date.now())});plan.instructionOverlay=overlayOf(state);}
@@ -615,6 +659,8 @@ async function runPlan(plan,{runtime,language,languageSource,inputText,context})
  }
  assert(context.statements.length+plan.evidenceIds.length<=policy.maxFacts,'Conversation statement limit');
  // A turn of reported assumptions or turn-local suppositions only has nothing to execute.
+ // The hypothetical runs of each query (its candidates, the session rules its `if` supposes) reach the runtime's solve (Q-LANG-10).
+ if(plan.hypotheticalRuns?.size)runtime.hypothetical=plan.hypotheticalRuns;
  const result=plan.executionSop?await runtime.run(plan.executionSop,{origin:'generated'}):{values:Object.create(null),result:undefined,trace:[],epochs:0,wireCount:0,outputs:{},blocked:{},generated:[]};
  const m=TEXT;
  const carriedBefore=context.statements;
@@ -668,7 +714,7 @@ async function runPlan(plan,{runtime,language,languageSource,inputText,context})
  }else if(rendered.length===plan.renderIds.length){
   const decorate=(value,index)=>{
    const problem=plan.problemIds[index],lines=[value.text];
-   if(value.packet?.hypothetical)for(const s of userStatements)if(s.conditional&&s.in_circuit&&problem.assume.includes(s.id))lines.push(m.condition(s.statement));
+   if(value.packet?.hypothetical)for(const s of userStatements)if(s.conditional&&s.in_circuit&&problem.assume.includes(s.id)&&!(problem.candidates??[]).includes(s.id))lines.push(m.condition(s.statement));
    // Links of this question that no engine checks are reported with the answer (L4).
    for(const l of linksFor(plan,problem.declaration))if(l.status==='not_checked')lines.push(m.notChecked(LINK_PHRASES[l.keyword],l.target?propositionBody(l.target):'$'+l.to));
    for(const b of assumptionBranch)if(b.problem===problem.declaration&&b.text)lines.push(m.branch(b.text.split('\n').join(' | ')));

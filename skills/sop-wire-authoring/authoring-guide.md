@@ -49,7 +49,7 @@ The loop is mandatory: (1) declare the vocabulary, (2) write the wires, (3) run 
 - `@id hypothesis`: holds assume+ waive+ cost status source
 - `@id policy`: effort partial procedures+ scope+ objective binding
 - `@id stated`: relation* role+ polarity valid certainty speaker
-- `@id query`: where+ select mode scope+ at during overlaps asof trace via+ compare+ order+ rank filter+ measure quantifier except+ limit policy observe horizon
+- `@id query`: where+ select mode scope+ at during overlaps asof trace via+ compare+ order+ rank filter+ measure quantifier except+ limit policy candidate+ observe horizon
 - `@id test`: of* call* expect* kind timeout source
 - `@id code`: of* language* entry* body* produced_by + governance
 - `@id pack`: items*+

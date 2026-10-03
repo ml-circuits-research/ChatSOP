@@ -38,7 +38,7 @@ export class Agent{
   const execute=async source=>{
    const program=admitCircuits(source,text,this.lexicon,{circuits,policy:this.config?.policy});
    const context=structuredClone(this.context);
-   const result=await new AuthorRuntime({repo:this.repo,session:this.session,lexicon:program.lexicon,schema:program.lexicon?.predicates,now,policy:this.config?.policy,circuits,definitions:program.definitionSop}).run(program.modelSop,{origin:'model',inputText:text,language:'en',languageSource:'default',context});
+   const result=await new AuthorRuntime({repo:this.repo,session:this.session,lexicon:program.lexicon,schema:program.lexicon?.predicates,now,policy:this.config?.policy,circuits,definitions:[program.definitionSop,program.hypotheticalSop].filter(Boolean).join('\n')}).run(program.modelSop,{origin:'model',inputText:text,language:'en',languageSource:'default',context});
    preview={sop:source,result,context,program};
    return result.result?.packet??result.result;
   };

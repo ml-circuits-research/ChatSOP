@@ -10,6 +10,10 @@
  * alone does not hold contradicts what is admitted (it predicts `tool_marks` against the fact `not tool_marks`). Such a set is not an
  * explanation; it is reported under `inconsistent` with the literals it contradicts (only the minimal such sets are listed), and a
  * search whose explaining sets are all inconsistent is `unknown` with reason `no_consistent_explanation`.
+ *
+ * Over the query's own candidates (Q-LANG-10, `candidate $id` with mode abduce) the candidates are supposed facts and rules or defaults
+ * instead of `hypothesis` wires: `candidates` lists them ({id, kind, atoms, cost 1}) and `closeWith(ids)` returns the closure with exactly
+ * those candidates in force. The answer adds `necessary`: the candidates present in every explanation (what the argument assumes).
  */
 import {saturate} from './engine.mjs';
 import {evaluatePart, readBudget} from './query.mjs';
@@ -28,11 +32,11 @@ export function contradictions(ev) {
   return out;
 }
 
-export function abduce({program, facts, qp, budget, limit = Infinity}) {
-  const cands = program.hypotheses;
+export function abduce({program, facts, qp, budget, limit = Infinity, candidates = null, closeWith = null}) {
+  const cands = candidates ?? program.hypotheses;
   if (cands.length > budget.limits.maxHypotheses) return {status: 'budget_exhausted', complete: false, reason: 'hypotheses'};
   const ctx = (ev, notes) => ({ev, stored: new Map(), budget: readBudget(budget), notes});
-  const close = subset => {
+  const close = closeWith ? subset => closeWith(subset.map(i => cands[i].id)) : subset => {
     const extra = subset.flatMap(i => cands[i].atoms.map(a => ({neg: a.neg, p: a.p, args: a.args, claim: {id: cands[i].id, version: 1}, status: 'supposed', speaker: null, valid: null})));
     const closure = saturate(program, [...facts, ...extra], budget.child());
     if (closure.exhausted) throw new BudgetStop(closure.exhausted.key);
@@ -67,11 +71,14 @@ export function abduce({program, facts, qp, budget, limit = Infinity}) {
     throw e;
   }
   const describe = s => ({hypotheses: s.map(i => cands[i].id), atoms: s.flatMap(i => cands[i].atoms.map(a => atomText(a.neg, a.p, a.args))), cost: s.reduce((c, i) => c + cands[i].cost, 0)});
-  const order = (a, b) => a.cost - b.cost || a.atoms.length - b.atoms.length || (a.atoms.join() < b.atoms.join() ? -1 : 1);
+  const text = e => e.atoms.join() + '|' + e.hypotheses.join();
+  const order = (a, b) => a.cost - b.cost || a.atoms.length - b.atoms.length || a.hypotheses.length - b.hypotheses.length || (text(a) < text(b) ? -1 : text(a) > text(b) ? 1 : 0);
   const explanations = found.map(describe).sort(order);
   const rejected = inconsistent.map(x => ({...describe(x.subset), contradicts: x.contradicts})).sort(order);
   const reported = rejected.length ? {inconsistent: rejected} : {};
-  if (!explanations.length) return {status: 'unknown', complete: true, reason: rejected.length ? 'no_consistent_explanation' : 'no_explanation', hypotheses: [], explanations: [], ...reported};
+  // over candidates: the candidates every explanation needs (computed over all explanations, not only the shown ones)
+  const necessary = candidates ? {necessary: explanations.length ? explanations[0].hypotheses.filter(id => explanations.every(e => e.hypotheses.includes(id))) : []} : {};
+  if (!explanations.length) return {status: 'unknown', complete: true, reason: rejected.length ? 'no_consistent_explanation' : 'no_explanation', hypotheses: [], explanations: [], ...reported, ...necessary};
   const shown = explanations.slice(0, limit);
-  return {status: 'hypotheses', complete: shown.length === explanations.length, hypotheses: shown.map(e => e.atoms), explanations: shown, ...reported, ...(shown.length < explanations.length ? {truncated: true} : {})};
+  return {status: 'hypotheses', complete: shown.length === explanations.length, hypotheses: shown.map(e => e.atoms), explanations: shown, ...reported, ...necessary, ...(shown.length < explanations.length ? {truncated: true} : {})};
 }

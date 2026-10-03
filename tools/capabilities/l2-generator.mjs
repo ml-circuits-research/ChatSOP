@@ -264,6 +264,61 @@ export function splitRule(p) {
   return null;
 }
 
+// ------------------------------------------------------------------------------------------------ candidates (Q-LANG-10)
+
+const decls = (...ps) => ps.map(([p, closed]) => `@${p} predicate\n  args subject:entity\n${closed ? '  closed true\n' : ''}`).join('');
+const supposed = (id, atom) => `@${id} fact\n  holds ${atom}\n  status supposed\n`;
+const candidateQuery = (mode, claim, ids, extra = '') => `@q query\n  mode ${mode}\n  where ${claim}\n${ids.map(id => `  candidate $${id}\n`).join('')}${extra}`;
+/**
+ * Hand-built programs of `mode effect` and `mode abduce` over candidates (owner decision 2026-10-03): the logic-book items of proposal P-1
+ * (171 affirming the back, 91 a rule that does not apply, 541 the story that fits), every effect class, and the pairs with defaults,
+ * negation, absence over a closed predicate, recursion, a supposition and a query instant. Only the oracle runs them; every other engine
+ * must refuse (`candidate`, `effect`).
+ */
+export function candidatePrograms() {
+  const out = [];
+  const add = (name, mode, knowledge, query) => out.push({id: `q:${name}~` + createHash('sha1').update(knowledge + '\0' + query).digest('hex').slice(0, 8), row: {mode, candidates: true}, seed: 0, knowledge, query, target: null});
+  // logic:171: wet pavement; "it rained" follows only with the converse of the card's rule
+  const rain = decls(['rained'], ['wet']) + '@f1 fact\n  holds wet market\n@r_card rule\n  when rained ?m\n  then wet ?m\n@r_converse rule\n  when wet ?m\n  then rained ?m\n  approval proposed\n';
+  add('logic171-effect', 'effect', rain, candidateQuery('effect', 'rained market', ['r_converse']));
+  add('logic171-abduce', 'abduce', rain, candidateQuery('abduce', 'rained market', ['r_converse']));
+  // logic:91: darkness in the depot has no effect on Rule One
+  const shield = decls(['apprentice'], ['at_grinder'], ['dark'], ['wears_shield']) + '@f1 fact\n  holds apprentice sam\n@f2 fact\n  holds at_grinder sam\n@r_one rule\n  when apprentice ?x\n  when at_grinder ?x\n  then wears_shield ?x\n';
+  add('logic91-effect', 'effect', shield, supposed('s_dark', 'dark depot') + candidateQuery('effect', 'wears_shield sam', ['s_dark']));
+  // logic:541: open gate, closed padlock, no tool marks: only the key story fits
+  const gate = decls(['gate_open'], ['padlock_closed'], ['tool_marks'], ['forced_entry'], ['key_entry']) + '@f1 fact\n  holds padlock_closed yard\n@f2 fact\n  holds not tool_marks yard\n'
+    + '@r_forced_open rule\n  when forced_entry ?s\n  then gate_open ?s\n@r_forced_marks rule\n  when forced_entry ?s\n  then tool_marks ?s\n@r_key_open rule\n  when key_entry ?s\n  then gate_open ?s\n';
+  const stories = supposed('s_forced', 'forced_entry yard') + supposed('s_key', 'key_entry yard');
+  add('logic541-abduce', 'abduce', gate, stories + candidateQuery('abduce', 'gate_open yard', ['s_forced', 's_key']));
+  add('logic541-effect', 'effect', gate, stories + candidateQuery('effect', 'gate_open yard', ['s_forced', 's_key']));
+  // every class over a default: an exception blocks, a strict contrary rule contradicts, a fact against the facts is inconsistent
+  const bird = decls(['bird'], ['flies'], ['injured'], ['penguin']) + '@f1 fact\n  holds bird tweety\n@d_flies default\n  when bird ?x\n  then flies ?x\n  except injured ?x\n'
+    + '@r_penguin rule\n  when penguin ?x\n  then not flies ?x\n  approval proposed\n@r_never rule\n  when bird ?x\n  then not flies ?x\n  approval proposed\n';
+  add('default-classes', 'effect', bird, supposed('s_injured', 'injured tweety') + supposed('s_penguin', 'penguin tweety') + supposed('s_not_bird', 'not bird tweety')
+    + candidateQuery('effect', 'flies tweety', ['s_injured', 's_penguin', 'r_penguin', 'r_never', 's_not_bird']));
+  // a strict rule against a strict rule: the claim becomes both (contradicts)
+  add('strict-both', 'effect', decls(['bird'], ['flies']) + '@f1 fact\n  holds bird tweety\n@r_flies rule\n  when bird ?x\n  then flies ?x\n@r_never rule\n  when bird ?x\n  then not flies ?x\n  approval proposed\n',
+    candidateQuery('effect', 'flies tweety', ['r_never']));
+  // absence over a closed predicate: a candidate fact of the closed predicate blocks a conclusion that rests on its absence
+  const pass = decls(['student'], ['late', true], ['gets_pass']) + '@f1 fact\n  holds student ana\n@r_pass rule\n  when student ?x\n  when absent late ?x\n  then gets_pass ?x\n';
+  add('absent-blocks', 'effect', pass, supposed('s_late', 'late ana') + candidateQuery('effect', 'gets_pass ana', ['s_late']));
+  // recursion: a candidate edge establishes reachability
+  const reach = '@edge predicate\n  args subject:entity object:entity\n@reach predicate\n  args subject:entity object:entity\n@f1 fact\n  holds edge a b\n@f2 fact\n  holds edge c d\n'
+    + '@r_step rule\n  when edge ?x ?y\n  then reach ?x ?y\n@r_more rule\n  when edge ?x ?y\n  when reach ?y ?z\n  then reach ?x ?z\n';
+  add('recursion-establishes', 'effect', reach, supposed('s_bc', 'edge b c') + supposed('s_ca', 'edge c a') + candidateQuery('effect', 'reach a d', ['s_bc', 's_ca']));
+  add('recursion-abduce', 'abduce', reach, supposed('s_bc', 'edge b c') + supposed('s_db', 'edge d b') + candidateQuery('abduce', 'reach a d', ['s_bc', 's_db']));
+  // a supposition with `if` holds in every run; the candidate is tried on top of it
+  add('supposition-and-candidate', 'effect', shield.replace('@f2 fact\n  holds at_grinder sam\n', ''), supposed('s_grinder', 'at_grinder sam') + supposed('s_dark', 'dark depot')
+    + candidateQuery('effect', 'wears_shield sam', ['s_dark'], '  if $s_grinder\n'));
+  // a rule and a fact are needed together: both are necessary
+  add('rule-and-fact-necessary', 'abduce', decls(['wet'], ['rained'], ['cloudy']) + '@f1 fact\n  holds wet market\n@r_rain rule\n  when wet ?m\n  when cloudy ?m\n  then rained ?m\n  approval proposed\n',
+    supposed('s_cloudy', 'cloudy market') + candidateQuery('abduce', 'rained market', ['r_rain', 's_cloudy']));
+  // the query instant applies to every run: the candidate is a fact valid at that instant
+  add('at-instant', 'effect', decls(['open'], ['staffed'], ['served']) + '@f1 fact\n  holds open shop\n  valid 2020-01-01 2021-01-01\n@r_served rule\n  when open ?s\n  when staffed ?s\n  then served ?s\n',
+    '@s_staffed fact\n  holds staffed shop\n  status supposed\n' + candidateQuery('effect', 'served shop', ['s_staffed'], '  at 2020-06-01\n'));
+  return out;
+}
+
 /** The programs of a tier: `fast` one seed per grid row and one metamorphic variant of every third row; `full` three seeds and all variants. */
 export function battery(tier = 'fast') {
   const full = coveringArray(), core = coveringArray(20261003, CORE);
@@ -281,5 +336,7 @@ export function battery(tier = 'fast') {
       }
     }
   });
+  // candidates (Q-LANG-10): every program in every tier, with its irrelevant-facts variant
+  for (const p of candidatePrograms()) programs.push(p, {...addIrrelevant(p), of: p.id});
   return {programs, rows: rows.length, pairs};
 }

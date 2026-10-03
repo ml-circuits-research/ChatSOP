@@ -191,6 +191,8 @@ const PATCH = {
   'code.produced_by': {set: [['produced_by', 'user']]}
 };
 for (const link of ['because', 'so', 'if', 'unless', 'although', 'so_that', 'before', 'after', 'when', 'while']) PATCH['query.' + link] = {set: [[link, '$s1']], qctx: '@s1 fact\n  holds p c\n  status supposed\n'};
+// candidates (Q-LANG-10): a supposed fact the query tries (mode abduce or effect over a ground claim)
+PATCH['query.candidate'] = {set: [['mode', 'abduce'], ['where', 'q b'], ['candidate', '$s1']], remove: ['select', 'where'], qctx: '@s1 fact\n  holds p b\n  status supposed\n'};
 for (const k of Object.keys(GOV)) for (const t of ['default', 'integrity', 'action', 'method', 'norm', 'code']) PATCH[`${t}.${k}`] ??= PATCH[`rule.${k}`];
 /** Enum values that need more than the value itself (a query mode with its forms). */
 const ENUM_PATCH = {
@@ -199,6 +201,7 @@ const ENUM_PATCH = {
   'query.mode.exists': {set: [['mode', 'exists'], ['where', 'val a 3']], remove: ['select', 'where']},
   'query.mode.why_not': {set: [['mode', 'why_not'], ['where', 'q b']], remove: ['select', 'where']},
   'query.mode.abduce': {set: [['mode', 'abduce'], ['where', 'q b']], remove: ['select', 'where']},
+  'query.mode.effect': {set: [['mode', 'effect'], ['where', 'q b'], ['candidate', '$s1']], remove: ['select', 'where'], qctx: '@s1 fact\n  holds p b\n  status supposed\n'},
   'query.mode.plan': {set: [['mode', 'plan'], ['where', 'q a']], remove: ['select', 'where']},
   'query.mode.conform': {set: [['mode', 'conform'], ['trace', '$tr']], remove: ['select', 'where'], ctx: '@tr trace\n  step ~act a\n'},
   'query.mode.procedure': {set: [['mode', 'procedure'], ['where', 'q a']], remove: ['select', 'where']},
@@ -344,6 +347,7 @@ const MODEL_PATCH = {
   'query.filter': {set: [['filter', '?x == "Ann"']], expect: 'operator_not_words'},
   'query.compare': {set: [['where', MATCH_N], ['select', '?x ?n'], ['compare', '?n above 10']], remove: ['where', 'select']},
   'query.except': {set: [['except', '?x "Ann"']]},
+  'query.candidate': {set: [['mode', 'abduce'], ['where', 'match\n    relation "work at"\n    role subject "Ann"\n    polarity affirmed\n  end'], ['candidate', '$ctx_c']], remove: ['select', 'where'], ctx: 'candidate'},
   'constraint.claim': {set: [['claim', '?x equal 2'], ['task', 'prove']], remove: ['task']},
   'constraint.objective': {set: [['objective', '?x'], ['direction', 'max'], ['task', 'optimize']], remove: ['task']},
   'constraint.direction': {set: [['objective', '?x'], ['direction', 'max'], ['task', 'optimize']], remove: ['task']},
@@ -354,6 +358,7 @@ const MODEL_ENUM_PATCH = {
   'query.mode.every': MODEL_PATCH['query.scope'],
   'query.mode.explain': {set: [['mode', 'explain'], ['where', 'match\n    relation "work at"\n    role subject "Ann"\n    role object "Acme"\n    polarity affirmed\n  end']], remove: ['select', 'where']},
   'query.mode.exists': {set: [['mode', 'exists']]},
+  'query.mode.effect': {set: [['mode', 'effect'], ['where', 'match\n    relation "work at"\n    role subject "Ann"\n    polarity affirmed\n  end'], ['candidate', '$ctx_c']], remove: ['select', 'where'], ctx: 'candidate'},
   'query.measure.start': MODEL_PATCH['query.measure'], 'query.measure.end': {...MODEL_PATCH['query.measure'], set: [['where', MATCH_T], ['select', '?t'], ['measure', 'end']]},
   'query.measure.duration': {...MODEL_PATCH['query.measure'], set: [['where', MATCH_T], ['select', '?t'], ['measure', 'duration']]},
   'query.fragment.follow_up': MODEL_PATCH['query.fragment'],
@@ -369,7 +374,8 @@ const MODEL_ENUM_PATCH = {
 };
 const MODEL_CTX = {
   supposed: '\n@ctx_s stated\n  relation "rain"\n  role subject "Paris"\n  polarity affirmed\n  certainty supposed\n',
-  true: '\n@ctx_q query\n  where match\n    relation "live in"\n    role subject ?x\n    polarity affirmed\n  end\n  select ?x\n'
+  true: '\n@ctx_q query\n  where match\n    relation "live in"\n    role subject ?x\n    polarity affirmed\n  end\n  select ?x\n',
+  candidate: '\n@ctx_c stated\n  relation "hire"\n  role subject "Acme"\n  role object "Ann"\n  polarity affirmed\n  certainty supposed\n'
 };
 function modelText(type, fields, patch = {}) {
   const ctx = patch.ctx ? MODEL_CTX[patch.ctx] : '';

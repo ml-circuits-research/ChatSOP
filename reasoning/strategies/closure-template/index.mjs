@@ -55,7 +55,7 @@ function compile(handle, queryText) {
   const qWires = readWires(queryText, 'query');
   const query = qWires.find(w => w.type === 'query');
   if (!query) decline('no query wire', ['select']);
-  for (const k of ['at', 'during', 'overlaps', 'asof', 'if', 'scope', 'limit', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure', 'compare', 'via', 'trace']) if (f1(query, k)) decline(`query field ${k}`);
+  for (const k of ['at', 'during', 'overlaps', 'asof', 'if', 'scope', 'limit', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure', 'compare', 'via', 'trace', 'candidate']) if (f1(query, k)) decline(`query field ${k}`);
   const mode = f1(query, 'mode')?.value.trim() ?? 'select';
   if (!['select', 'exists', 'count'].includes(mode)) decline(`mode ${mode}`, [mode]);
   const inForce = selectInForce(handle.wires, {asof: null, include: []});

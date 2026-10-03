@@ -27,7 +27,7 @@ export const LANGUAGE_CODE = /^[a-z]{2,3}$/;
 export const ROOT_CLASS = 'entity';
 export const CLASS_KIND = 'class';
 export const RESERVED_PREFIX = 'x_';
-export const FEATURES = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'every_grouped', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'constraint', 'optimize', 'plan', 'blocked_info', 'method', 'htn_choice', 'on_failure', 'norms_hard', 'norms_soft', 'temporal_norms', 'procedures', 'procedure_render', 'amendment', 'check_plan', 'abduce', 'abduce_waive', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars', 'binding_advisory', 'norm_conflict', 'conform_asof', 'conform_deviation', 'code_sandbox', 'exact_arithmetic', 'compute_in_recursion', NUMERIC_FEATURE];
+export const FEATURES = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'every_grouped', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'constraint', 'optimize', 'plan', 'blocked_info', 'method', 'htn_choice', 'on_failure', 'norms_hard', 'norms_soft', 'temporal_norms', 'procedures', 'procedure_render', 'amendment', 'check_plan', 'abduce', 'abduce_waive', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars', 'binding_advisory', 'norm_conflict', 'conform_asof', 'conform_deviation', 'code_sandbox', 'exact_arithmetic', 'compute_in_recursion', 'effect', 'candidate', NUMERIC_FEATURE];
 export const STEP_BLOCKS = ['choose', 'any_order', 'if', 'until'];
 export const LINK_KEYWORDS = [...LINK_WORDS];
 export const HOST_WRITTEN = ['approval', 'approved_by', 'approved_at'];
@@ -158,12 +158,12 @@ export const GRAMMAR = {
   },
   query: {
     status: 'existing, extended', side: 'query',
-    doc: 'The question. Modes select, exists, count, explain, every are existing; why_not, plan, abduce, conform and procedure are new; time is at (instant), during (throughout), overlaps (some instant), asof (known at).',
+    doc: 'The question. Modes select, exists, count, explain, every are existing; why_not, plan, abduce, conform and procedure are new; effect (Q-LANG-10) classifies each candidate against a ground claim; candidate names a supposed fact or a rule/default that is in force only in the runs of this query (modes effect and abduce); time is at (instant), during (throughout), overlaps (some instant), asof (known at).',
     fields: {
       where: many('cond'), select: one('vars'), mode: one('enum', {values: QUERY_MODES}), scope: many('cond'), at: one('instant'), during: one('interval'), overlaps: one('interval'), asof: one('instant'),
       trace: one('ref'), via: many('viastep'),
       compare: many('compareline'), order: many('orderline'), rank: one('text'), filter: many('text'), measure: one('enum', {values: ['start', 'end', 'duration']}),
-      quantifier: one('quantifier', {values: ['all', 'none', 'not_all', 'most', 'half', 'at_least']}), except: many('text'), limit: one('posint'), policy: one('ref'),
+      quantifier: one('quantifier', {values: ['all', 'none', 'not_all', 'most', 'half', 'at_least']}), except: many('text'), limit: one('posint'), policy: one('ref'), candidate: many('ref'),
       ...NUMERIC_FIELDS.query,
       ...Object.fromEntries(LINK_KEYWORDS.map(k => [k, many('ref')]))
     }

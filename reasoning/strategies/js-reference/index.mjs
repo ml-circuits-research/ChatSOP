@@ -17,6 +17,9 @@
  * conditional_unknown), used (one sufficient support set, used_incomplete when it rests on negation as failure), proof,
  * explain, plan, hypotheses, missing and blockers, budget, retrieval, route, timings, ignored, notes, and `sensitivity` (the
  * predicates a partial retrieval must have complete for the answer to be valid, judged on the DESUGARED program).
+ * Candidates (Q-LANG-10): `candidate $id` names a supposed fact or a rule/default that is in force only in the runs of this query;
+ * `mode effect` checks a ground claim without candidates and then with each one and classifies it (`effects`), `mode abduce` with
+ * candidates returns the minimal consistent sets of candidates that make the claim derivable plus `necessary`.
  * Not implemented, declared `not_expressible`: modes of work (method, norms, procedures, amendment, conform).
  */
 import {parse, tokens} from './wires.mjs';
@@ -31,16 +34,16 @@ import {proofOf, usedOf, explainOf} from './support.mjs';
 import {parseConstraint, solveConstraint} from './constraint.mjs';
 import {readForms} from './forms.mjs';
 import {planSearch} from './plan.mjs';
-import {abduce} from './abduce.mjs';
+import {abduce, contradictions} from './abduce.mjs';
 import {whyNot} from './whynot.mjs';
 import {withConditional} from './conditional.mjs';
-import {ProgramError, NotExpressibleError} from './values.mjs';
-import {ORDER_SAMPLING, ORDER_SAMPLING_MODES} from '../../../sop/enums.mjs';
+import {ProgramError, NotExpressibleError, atomText, argsKey} from './values.mjs';
+import {ORDER_SAMPLING, ORDER_SAMPLING_MODES, CANDIDATE_MODES, MAX_CANDIDATES} from '../../../sop/enums.mjs';
 import {sampleAnswers} from '../../sample.mjs';
 
 export {ProgramError, NotExpressibleError};
 
-const SUPPORTED = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'every_grouped', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'constraint', 'optimize', 'plan', 'abduce', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars', 'exact_arithmetic', 'compute_in_recursion'];
+const SUPPORTED = ['facts', 'select', 'open_world', 'classical_negation', 'conflict', 'rules', 'recursion', 'conjunction', 'exists', 'every', 'every_grouped', 'count', 'explain', 'used', 'why_not', 'temporal', 'interval', 'throughout', 'snapshot_derived', 'whatif', 'epistemic_status', 'naf', 'closed_world', 'closed_derived', 'compare_in_rules', 'compute_in_rules', 'aggregate', 'default', 'overrides', 'strict_contrary', 'integrity', 'constraint', 'optimize', 'plan', 'abduce', 'zero_arity', 'budget', 'budget_probes', 'retrieval', 'versions', 'time_vars', 'exact_arithmetic', 'compute_in_recursion', 'effect', 'candidate'];
 const UNSUPPORTED = ['blocked_info', 'method', 'htn_choice', 'on_failure', 'norms_hard', 'norms_soft', 'temporal_norms', 'procedures', 'procedure_render', 'amendment', 'check_plan', 'abduce_waive'];
 
 export const capabilities = {
@@ -59,7 +62,7 @@ export const capabilities = {
 const f1 = (w, k) => w.fields.find(f => f.key === k);
 const ASSUMED = ['supposed', 'hedged', 'reported'];
 const LINKS_OTHER_THAN_IF = ['because', 'so', 'unless', 'although', 'so_that', 'before', 'after', 'when', 'while'];
-const MODES = ['select', 'exists', 'count', 'explain', 'every', 'why_not', 'plan', 'abduce', 'conform', 'procedure'];
+const MODES = ['select', 'exists', 'count', 'explain', 'every', 'why_not', 'plan', 'abduce', 'conform', 'procedure', 'effect'];
 
 // ---------------------------------------------------------------------------------------------------------- handle
 
@@ -101,10 +104,17 @@ function readQuery(wire, excluded) {
   const q = {
     wire, mode: one('mode') ?? 'select', select: tokens(one('select') ?? ''), at: one('at'), during: span('during'), overlaps: span('overlaps'),
     asof: one('asof'), policy: one('policy')?.replace(/^\$/, '') ?? null, limit: one('limit') ? Number(one('limit')) : Infinity,
-    ifs: wire.fields.filter(f => f.key === 'if').map(f => f.value.trim().slice(1)).filter(id => !excluded.has(id))
+    ifs: wire.fields.filter(f => f.key === 'if').map(f => f.value.trim().slice(1)).filter(id => !excluded.has(id)),
+    candidates: wire.fields.filter(f => f.key === 'candidate').map(f => f.value.trim().slice(1))
   };
   q.forms = ['compare', 'rank', 'filter', 'quantifier', 'except', 'limit'].some(k => f1(wire, k)) ? readForms(wire) : null;
   if (!MODES.includes(q.mode)) throw new ProgramError('bad_enum', `mode must be one of ${MODES.join(', ')}`, wire.id);
+  // Candidates (Q-LANG-10): the same checks as the validator, so a direct call never runs a weaker question.
+  if (q.candidates.length && !CANDIDATE_MODES.includes(q.mode)) throw new ProgramError('candidate_needs_mode', `candidate lines belong to mode ${CANDIDATE_MODES.join(' or ')}, not mode ${q.mode}`, wire.id);
+  if (q.candidates.length > MAX_CANDIDATES) throw new ProgramError('candidate_limit', `${q.candidates.length} candidates; at most ${MAX_CANDIDATES} per query`, wire.id);
+  if (q.mode === 'effect' && !q.candidates.length) throw new ProgramError('effect_needs_ground_claim', 'mode effect classifies candidates against a claim; name at least one with candidate $id', wire.id);
+  const alsoIf = q.candidates.find(c => wire.fields.some(f => f.key === 'if' && f.value.trim() === '$' + c));
+  if (alsoIf) throw new ProgramError('candidate_also_if', `${alsoIf} is both a candidate and supposed with if`, wire.id);
   const other = [];
   // compare, rank, filter, except, quantifier and limit are run by the oracle (forms.mjs); order, measure and the clause links are linked by the host
   // `order random` (DS004 "Sampling") is run here for a direct call (the StrategyRouter applies it itself after any route); a temporal order is the host's
@@ -144,17 +154,52 @@ function assumptionIdsOf(handle, qw) {
   for (const w of [...handle.wires, ...qw]) if (w.type === 'fact' && ASSUMED.includes(f1(w, 'status')?.value.trim())) ids.push(w.id);
   const q = qw.find(w => w.type === 'query');
   if (q) ids.push(...supposedWireIds([q], handle.wires));
-  return [...new Set(ids)];
+  // a candidate is not an assumption of the answer: it is tried in runs of its own (mode effect, abduce over candidates)
+  const candidates = new Set(q ? q.fields.filter(f => f.key === 'candidate').map(f => f.value.trim().slice(1)) : []);
+  return [...new Set(ids)].filter(id => !candidates.has(id));
 }
 
 // -------------------------------------------------------------------------------------------------------- one solve
 
-/** Compile the circuits in force (governance, supposed wires, sugar) for one set of excluded assumptions. */
-function buildProgram(handle, qWires, q, excluded) {
-  const supposed = supposedWireIds(q ? [{...q.wire, fields: q.wire.fields.filter(f => !(f.key === 'if' && excluded.has(f.value.trim().slice(1))))}] : [], handle.wires).filter(id => !excluded.has(id));
-  const inForce = selectInForce(handle.wires, {asof: q?.asof ?? null, include: supposed}).filter(w => !(w.type === 'fact' && excluded.has(w.id)));
-  const {wires, origin} = desugar([...inForce, ...qWires.filter(w => w.type === 'fact')]);
+/**
+ * Compile the circuits in force (governance, supposed wires, sugar) for one set of excluded assumptions. The query's candidates are
+ * in force only when `active` names them (a candidate rule is included like a supposed governed wire, whatever its approval).
+ */
+function buildProgram(handle, qWires, q, excluded, active = new Set()) {
+  const candidates = new Set(q?.candidates ?? []);
+  const off = id => candidates.has(id) && !active.has(id);
+  const supposed = [...supposedWireIds(q ? [{...q.wire, fields: q.wire.fields.filter(f => !(f.key === 'if' && excluded.has(f.value.trim().slice(1))))}] : [], handle.wires).filter(id => !excluded.has(id)), ...active];
+  const inForce = selectInForce(handle.wires, {asof: q?.asof ?? null, include: supposed}).filter(w => !(w.type === 'fact' && excluded.has(w.id)) && !off(w.id));
+  const {wires, origin} = desugar([...inForce, ...qWires.filter(w => w.type === 'fact' && !off(w.id))]);
   return compileProgram(wires, {origin});
+}
+
+/** The wire a candidate names: a fact with status supposed (query or knowledge circuit) or a rule/default of the knowledge. */
+function candidateWires(handle, qWires, q) {
+  const byId = new Map([...handle.wires, ...qWires].map(w => [w.id, w]));
+  return q.candidates.map(id => {
+    const w = byId.get(id);
+    const fact = w?.type === 'fact' && ['supposed', 'hedged'].includes(f1(w, 'status')?.value.trim());
+    if (!fact && !['rule', 'default'].includes(w?.type)) throw new ProgramError('candidate_target', `candidate $${id} names ${w ? 'a ' + w.type : 'no wire'}; a candidate is a fact with status supposed or a rule or default`, q.wire.id);
+    return {id, kind: fact ? 'fact' : 'rule', wire: w};
+  });
+}
+
+/** The predicates the candidates reach: their own (a fact's, a rule's head) and everything derived from them, in the program with all candidates. */
+function candidateReach(program, cands) {
+  const reach = new Set(cands.map(c => tokens(f1(c.wire, c.kind === 'fact' ? 'holds' : 'then').value).filter(t => t !== 'not')[0]));
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const e of program.edges) if (reach.has(e.from) && !reach.has(e.to)) { reach.add(e.to); grew = true; }
+  }
+  return [...reach];
+}
+
+/** The keys (`p|args`) of the atoms that hold with both polarities in any part of a detailed packet, with the literal each part holds. */
+function contradictionKeys(packet) {
+  const out = new Map();
+  for (const part of packet.detail?.parts ?? []) for (const [key, a] of contradictions(part.ev)) out.set(key, a);
+  return out;
 }
 
 function sensitivityOf({program: sp}, qp) {
@@ -227,6 +272,8 @@ function solveOnce(handle, qWires, excluded, budgetArg, opts = {}) {
   const queryWire = live.find(w => w.type === 'query');
   const constraintWire = live.find(w => w.type === 'constraint');
   const q = queryWire ? readQuery(queryWire, excluded) : null;
+  // one run of mode effect asks its claim as a yes/no question (`opts.mode`) with a set of candidates in force (`opts.active`)
+  if (q && opts.mode) q.mode = opts.mode;
   if (q && opts.forms) q.forms = opts.forms;
   if (q) q.seed = opts.seed;
   const policy = readPolicy(live, q);
@@ -235,12 +282,22 @@ function solveOnce(handle, qWires, excluded, budgetArg, opts = {}) {
   if (!q) throw new ProgramError('no_query', 'the query circuit holds neither a query nor a constraint');
   if (policy.procedures) throw new NotExpressibleError(['procedures'], 'policy procedures selects modes of work, which are not expressible');
 
-  const program = buildProgram(handle, live, q, excluded);
+  // Candidates (Q-LANG-10): the slice holds everything a candidate reaches, so a contradiction it would cause is seen.
+  if (q.candidates.length && opts.active === undefined) {
+    const cands = candidateWires(handle, live, q);
+    const full = buildProgram(handle, live, q, excluded, new Set(q.candidates));
+    for (const c of cands) if (c.kind === 'fact') c.atom = full.facts.find(f => f.id === c.id);
+    const seeds = candidateReach(full, cands);
+    if (q.mode === 'effect') return effectPacket({handle, live, q, excluded, budgetArg, opts, cands, seeds});
+    opts = {...opts, cands, candidateSeeds: seeds};
+  }
+  const program = buildProgram(handle, live, q, excluded, opts.active ?? new Set());
   if (program.unsupported.length && ['plan', 'why_not', 'abduce'].includes(q.mode)) throw new NotExpressibleError(program.unsupported);
   const seeds = conditionAlts(q.wire.fields.filter(f => ['where', 'scope'].includes(f.key)), q.wire.id).flatMap(alt => alt.filter(l => l.kind === 'atom' || l.kind === 'timeof').map(l => l.p));
   const wantsPlan = q.mode === 'plan';
   const planPreds = wantsPlan ? program.actions.flatMap(a => [...a.requires, ...a.adds, ...a.removes].map(x => x.p)) : [];
-  const sliced = sliceProgram(program, [...seeds, ...planPreds, ...(q.mode === 'abduce' ? hypothesisReach(program) : [])]);
+  const sliceSeeds = [...seeds, ...planPreds, ...(q.mode === 'abduce' ? hypothesisReach(program) : []), ...(opts.candidateSeeds ?? [])];
+  const sliced = sliceProgram(program, sliceSeeds);
   const started = performance.now();
   const notes = new Set();
 
@@ -256,8 +313,17 @@ function solveOnce(handle, qWires, excluded, budgetArg, opts = {}) {
     // The observation is explained at the query's instant (`at`), over the facts valid then; an interval has no single state to explain
     // (capability battery 2026-10-02: the time of the query was ignored and a claim false at that instant was "explained" by nothing).
     if (q.during || q.overlaps) throw new NotExpressibleError(['interval'], 'abduce explains an observation at one instant; ask with at, not during or overlaps');
-    const facts = viewAt(sliced.program.facts, timeParts(sliced.program.facts, q).instants[0]);
-    const out = abduce({program: sliced.program, facts, qp, budget, limit: q.limit});
+    const instant = timeParts(sliced.program.facts, q).instants[0];
+    const facts = viewAt(sliced.program.facts, instant);
+    // over the query's candidates: each subset is compiled with exactly those candidates in force (a rule is part of the program)
+    const closeWith = opts.cands ? ids => {
+      const sp = sliceProgram(buildProgram(handle, live, q, excluded, new Set(ids)), sliceSeeds).program;
+      const closure = saturate(sp, viewAt(sp.facts, instant), budget.child());
+      if (closure.exhausted) throw new BudgetStop(closure.exhausted.key);
+      return closure.ev;
+    } : null;
+    const candidates = opts.cands?.map(c => ({id: c.id, kind: c.kind, cost: 1, atoms: c.atom ? [c.atom] : []})) ?? null;
+    const out = abduce({program: sliced.program, facts, qp, budget, limit: q.limit, candidates, closeWith});
     return baseInfo({...out, budget: budget.snapshot(), ignored: sliced.ignored, notes: [], sensitivity: sensitivityOf(sliced, qp), timings: {ask: Math.round(performance.now() - started)}});
   }
 
@@ -293,6 +359,60 @@ function solveOnce(handle, qWires, excluded, budgetArg, opts = {}) {
   const packet = relationalPacket({q, qp, sliced, parts, how, exhausted, policy, budget, notes, viewSize});
   packet.timings = {ask: Math.round(performance.now() - started)};
   if (detail) packet.detail = detail;
+  return packet;
+}
+
+/**
+ * `mode effect` (Q-LANG-10): the ground claim is asked without candidates (the baseline) and then once with each candidate in force.
+ * Each candidate is classified:
+ *   inconsistent  a supposed fact whose contrary holds with it in force (the rule of suppositions), or a candidate that makes an atom other
+ *                 than the claim hold with both polarities where the baseline did not: it contradicts what is admitted and is not counted
+ *   establishes   the claim becomes supported (it was not)
+ *   contradicts   the claim becomes refuted or both (it was neither, or the other)
+ *   blocks        the claim the baseline decided becomes unknown (only through a default's exception, a strict contrary or absence)
+ *   no_effect     the status does not change
+ * The packet is the baseline's, with `effects`: one row {candidate, kind fact|rule, baseline, with, effect, used, contradicts?} each.
+ */
+function effectPacket({handle, live, q, excluded, budgetArg, opts, cands, seeds}) {
+  const where = q.wire.fields.filter(f => f.key === 'where');
+  const alts = where.length ? conditionAlts(where, q.wire.id) : [];
+  const claimAtoms = alts.flatMap(alt => alt.filter(l => l.kind === 'atom'));
+  const ground = l => !l.args.some(a => typeof a === 'object' && a !== null && 'var' in a);
+  if (!claimAtoms.length || q.select.length || f1(q.wire, 'scope') || !claimAtoms.every(ground)) throw new ProgramError('effect_needs_ground_claim', 'mode effect needs a ground claim: where without variables, no select', q.wire.id);
+  const claimKeys = new Set(claimAtoms.map(l => l.p + '|' + argsKey(l.args)));
+  const run = active => solveOnce(handle, live, excluded, budgetArg, {...opts, detail: true, active, mode: 'exists', candidateSeeds: seeds});
+  const strip = ({detail, ...packet}) => packet;
+  const base = run(new Set());
+  if (base.status === 'budget_exhausted') return {...strip(base), effects: []};
+  const baseKeys = contradictionKeys(base);
+  const baseEv = base.detail?.parts?.[0]?.ev;
+  const admittedSide = a => (baseEv?.get(true, a.p, a.args) ? atomText(true, a.p, a.args) : atomText(false, a.p, a.args));
+  const effects = [];
+  let incomplete = false, monotone = base.sensitivity?.monotone !== false;
+  for (const c of cands) {
+    const w = run(new Set([c.id]));
+    if (w.sensitivity?.monotone === false) monotone = false;
+    const row = {candidate: c.id, kind: c.kind, baseline: base.status, with: w.status};
+    if (w.status === 'budget_exhausted') { incomplete = true; effects.push({...row, effect: null, reason: w.reason}); continue; }
+    const contradicted = [];
+    // a supposed fact contradicted by what holds with it in force: defeated, as any supposition (DS004 "Assumptions and defeat")
+    if (c.atom && (w.detail?.parts ?? []).some(part => part.ev.get(!c.atom.neg, c.atom.p, c.atom.args))) contradicted.push(atomText(!c.atom.neg, c.atom.p, c.atom.args));
+    for (const [key, a] of contradictionKeys(w)) if (!baseKeys.has(key) && !claimKeys.has(key) && !(c.atom && key === c.atom.p + '|' + argsKey(c.atom.args))) contradicted.push(admittedSide(a));
+    const effect = contradicted.length ? 'inconsistent'
+      : w.status === base.status ? 'no_effect'
+        : w.status === 'supported' ? 'establishes'
+          : ['refuted', 'both'].includes(w.status) ? 'contradicts'
+            : 'blocks';
+    effects.push({...row, effect, used: w.used ?? [], ...(contradicted.length ? {contradicts: [...new Set(contradicted)]} : {})});
+  }
+  const packet = {...strip(base), effects};
+  // the classes compare answers: the comparison is monotone only when every run is (a partial retrieval cannot change a monotone run's
+  // positive answer, but any `unknown` it compares rests on what was retrieved; the guard judges the packet like the baseline's question)
+  if (packet.sensitivity) {
+    const {refutation_monotone: _, ...rest} = packet.sensitivity;
+    packet.sensitivity = {...rest, monotone};
+  }
+  if (incomplete) Object.assign(packet, {complete: false, reason: 'budget'});
   return packet;
 }
 

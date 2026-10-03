@@ -177,6 +177,9 @@ Every question word has one formalization; the author writes the question it rea
 | did we follow the procedure / is this compliant ("Was the reset compliant?") | `mode conform` over the task; the performed trace is supplied by the runtime | `compliant` or `non_compliant` with the violated norms and deviations |
 | what is the procedure for … ("What is the reset procedure?") | `mode procedure` over the task | the approved procedure as written, its version and the norms in force |
 | conditional: "if P, is Q?" | `stated certainty supposed` for P and `if $p` on the query (`unless $p` for "unless P") | the answer under P, for that question only |
+| what if a rule held ("would it follow if the rule also held the other way?") | the rule as a session `rule`, `if $r` on the query | the answer with that rule in force, for that question only (`conditional`) |
+| which option strengthens / weakens / does not affect the claim; would the converse prove it | each option a `stated certainty supposed` or a session `rule`, `mode effect` over the claim with `candidate $id` per option | the claim without the options plus, per option, `establishes`, `blocks`, `contradicts`, `no_effect` or `inconsistent` ("Candidates: effect and abduce") |
+| which story fits the signs; what does the argument assume | each story or premise a candidate, `mode abduce` with `candidate $id` lines | the minimal consistent sets of candidates that make the claim follow, and `necessary` (the candidates every set needs) |
 | a question about an earlier answer: "Who coaches X? And where does he work?" | two queries, the second with `role subject $q` | the join of both |
 | a question bounded by a clause: "was it paid before the audit on 12 May?" | the clause as a `stated` wire with its time, `before $s` on the query | the query period until that time |
 
@@ -199,8 +202,49 @@ packet: {status supported, rows [ann (conditional [s1]), bob], conditional [s1],
 text:   "Ann, if she works there, and Bob."
 ```
 
-The reasoning modes `why_not`, `plan`, `abduce`, `conform` and `procedure` are question forms, not an authority to choose a strategy. The author never writes `via`, `trace`, `policy`, `amendment` or governance fields. Only the optional `predicate`, `rule`, `default` and `aggregate` definition layer is admitted through the knowledge validator; the proposition compiler still rejects knowledge wires. A `negated` match remains an explicit-negative query, even for a closed predicate; only `absent` requests absence, and an incomplete view cannot prove it. Closedness supplied in this turn is labelled as a coding-agent definition and expires with the overlay. `why_not` and `abduce` are answered by the oracle (DS006 "Routing rules", R1; `abduce` over the memory's `hypothesis` wires, consistent with the admitted facts), like `explain`, whose answer names the rules it used. A question mode without an engine (`plan`, `conform`, `procedure` on the model surface) is `not_computable`, with its formalization shown, never silently answered as `select`.
+The reasoning modes `why_not`, `plan`, `abduce`, `conform`, `procedure` and `effect` are question forms, not an authority to choose a strategy. The author never writes `via`, `trace`, `policy`, `amendment` or governance fields. Only the optional `predicate`, `rule`, `default` and `aggregate` definition layer is admitted through the knowledge validator; the proposition compiler still rejects knowledge wires. A `negated` match remains an explicit-negative query, even for a closed predicate; only `absent` requests absence, and an incomplete view cannot prove it. Closedness supplied in this turn is labelled as a coding-agent definition and expires with the overlay. `why_not`, `abduce` and `effect` are answered by the oracle (DS006 "Routing rules", R1; `abduce` over the memory's `hypothesis` wires or over the question's own candidates, consistent with the admitted facts; `effect` over candidates, "Candidates: effect and abduce" below), like `explain`, whose answer names the rules it used. A question mode without an engine (`plan`, `conform`, `procedure` on the model surface) is `not_computable`, with its formalization shown, never silently answered as `select`.
 
+
+### Candidates: effect and abduce (Q-LANG-10, owner decision 2026-10-03)
+
+Argument and metacognition questions ("which option strengthens the argument", "what does the speaker assume", "which story fits the signs", "would the converse of the rule prove it", logic book items of proposal P-1) are asked over **candidates**. The formalizer writes each option as a `stated` wire with `certainty supposed` or as a session `rule`/`default`, and names them on the question with `candidate $id` (repeatable, 1 to 8). It never states what supports what: no `claim`, `supports`, `undermines` or `assumes` wire exists, because that would be answering and no engine could check it.
+
+- **`mode effect`** asks a ground claim (a `where` without variables, no `select`) without the candidates, then with each one, and the oracle classifies each candidate: `establishes`, `blocks`, `contradicts`, `no_effect` or `inconsistent` (DS004 "Query modes", DS006 `effects`).
+- **`mode abduce` with candidates** returns the minimal consistent sets of candidates that make the claim derivable and `necessary`, the candidates in every set. Without candidates `abduce` keeps its meaning over the memory's `hypothesis` wires.
+- **`if $r`** on a query may name a session rule or default of the same output: the rule is in force for that query only and the answer is `conditional` on it.
+- **Not in force elsewhere.** A candidate and a session rule named by `if` enter only the runs of their query. A candidate statement applies to no other query of the turn; a candidate or `if`-named session rule is never in the session theory and is never stored (the admission hands it to the runtime as an `approval proposed` wire; `session_circuits` lists only the other definitions). Every run is hypothetical; strict knowledge beats defaults; `closed`/`absent` are unchanged; `at`/`during`/`overlaps` apply to every run.
+- **Validator** (model surface, `sop/declarative.mjs`): `candidate_needs_mode` (only `mode effect` and `mode abduce` take candidates), `effect_needs_ground_claim`, `candidate_target` (the target is a `stated` wire with `certainty supposed` or a session `rule`/`default` of the same output, written as one `$id`, each named once), `candidate_also_if` (one wire is not both a candidate and an `if` condition), `candidate_limit` (at most 8), and `candidate_temporal_link` (the temporal links `before`, `after`, `when`, `while` do not combine with candidates). `if $r` naming a session rule is accepted only as `if` on a query (`link_target_type` otherwise).
+- **Execution.** The js-reference oracle runs candidates; every other engine answers `not_expressible`, and the StrategyRouter sends these questions to the oracle (DS006 R1). A runtime that cannot run candidates (the plain `Runtime`) reports such a question `not_computable` rather than answering it without its candidates; the chat's `AuthorRuntime` runs them.
+- **Answer.** Rendered from the packet by the conversation-v1 reply lines `line_effect_baseline_*`, `line_effect_<class>`, `line_effect_unfinished`, `line_candidate_rule` and `line_abduce_necessary` (no phrasing in code): "Without any of the options, it does not follow from what is known." / "With the rule "r_converse" (if …, then …), it would follow."
+- **Formalizer.** Not wired yet: the formalizer's role prompt needs an extension for argument questions (strengthen, weaken, assume, which story fits) before it writes these constructs (proposal P-1).
+
+```sop
+@rained predicate
+  args subject:entity
+@pavement_wet predicate
+  args subject:entity
+@r_card rule
+  when rained ?m
+  then pavement_wet ?m
+@r_converse rule
+  when pavement_wet ?m
+  then rained ?m
+@s1 stated
+  certainty asserted
+  relation "pavement_wet"
+  role subject "market"
+  polarity affirmed
+@q_sam query
+  mode effect
+  candidate $r_converse
+  where match
+    relation "rained"
+    role subject "market"
+    polarity affirmed
+  end
+```
+
+The answer: the baseline is `unknown` (Sam's conclusion is not forced) and `r_converse` `establishes` it: Sam is right only with the converse of the card's rule, which the card does not state (logic book item 171; executed by `tests/query-candidates.test.mjs`).
 
 ## Words, not operators (owner decisions Q-LANG-1 to Q-LANG-7)
 
@@ -426,6 +470,7 @@ A model-origin turn adds to the result packet:
 - `assumption_policy`: `report` or `branch`; `assumption_branch` under `branch`: `{problem, status, answers, hypothetical, defeatedAssumptions, route, text}` per query.
 - `origins`: used step ids labelled `memory`, `coding_agent` (`kind: definition|assumption`) or `conversation` (`kind: statement|assumption`).
 - `session_conflicts`: defeated assumption ids, original circuit id, origin, atom, `status: defeated` and `reason: memory_wins`.
+- `effects`, `necessary`, `candidates` (modes `effect` and `abduce` over candidates): the oracle's fields by the ids the model wrote, each candidate `described` (a statement's atom, or a rule's conditions and conclusion) for the renderer.
 - `session_circuits`: provisional definition text with `origin: coding_agent`, and `scope: turn`; no fact or assumption is persisted by the report itself (a valid definition is stored in the session layer by DS022).
 - `parse.self_check`: shape `{status, cardinality, circuit}`, `status: unchanged|revised|invalid|unavailable`, and `revised`; answer values are absent.
 - `clause_links`: one entry per link line: `from`, `keyword`, `type`, `to`, `status` (`applied` or `not_checked`), `effect` or `reason` ("Clauses and links"); statements carry their own `links` and a runtime sentence that names them.

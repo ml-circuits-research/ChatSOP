@@ -22,8 +22,8 @@ const ident = value => typeof value === 'string' && /^[a-z][a-z0-9_]*$/.test(val
 const capital = text => text.charAt(0).toUpperCase() + text.slice(1);
 
 /** The reasoning modes a model query may ask on the product path (DS006 R1), answered from their own packet fields. */
-const WORK_MODES = new Set(['why_not', 'abduce']);
-const workPacket = packet => WORK_MODES.has(packet?.query?.mode) && (Array.isArray(packet.missing) || Array.isArray(packet.explanations));
+const WORK_MODES = new Set(['why_not', 'abduce', 'effect']);
+const workPacket = packet => WORK_MODES.has(packet?.query?.mode) && (Array.isArray(packet.missing) || Array.isArray(packet.explanations) || Array.isArray(packet.effects));
 /** An explanation (mode explain) of the chat path: the packet names the rules it used (`rules_used`), so the renderer covers it. */
 const explainPacket = packet => packet?.query?.mode === 'explain' && Array.isArray(packet.rules_used) && Array.isArray(packet.used);
 
@@ -165,24 +165,50 @@ function rulesUsed(packet, label, lexicon) {
 }
 
 /**
- * why_not and abduce (DS006 R1, the oracle's packet fields): why_not names the minimal sets of missing base facts that would make the claim
- * follow and the facts that block it; abduce names the minimal consistent explanations and the candidates rejected because they contradict
- * an admitted fact.
+ * A candidate of mode effect or abduce (Q-LANG-10) as the packet describes it (`lib/query-author/runtime.mjs`): a supposed statement is its
+ * fact, a session rule is named with its conditions and conclusion.
+ */
+function candidateText(d, label, lexicon) {
+  if (d?.kind === 'fact' && d.atom) return factText(d.atom, label, lexicon);
+  const r = d?.rule;
+  if (!r) return d?.id ?? '';
+  const part = c => c.atom ? factText(c.atom, label, lexicon) : c.text;
+  return line('candidate_rule', {rule: r.id, conditions: joinPremises((r.conditions ?? []).map(part)), conclusion: factText(r.conclusion, label, lexicon)});
+}
+
+/**
+ * why_not, abduce and effect (DS006 R1, the oracle's packet fields): why_not names the minimal sets of missing base facts that would make the
+ * claim follow and the facts that block it; abduce names the minimal consistent explanations and the candidates rejected because they
+ * contradict an admitted fact (over the query's candidates also those every explanation needs); effect says what the claim is without the
+ * candidates and what each candidate does to it.
  */
 function workAnswer(packet, label, lexicon) {
   const facts = atoms => joinPremises(atoms.map(text => factText(textAtom(text), label, lexicon)));
   const lines = [];
-  if (packet.query.mode === 'why_not') {
+  const described = list => joinPremises(list.map(d => candidateText(d, label, lexicon)));
+  if (packet.query.mode === 'effect') {
+    lines.push(line('effect_baseline_' + (['supported', 'refuted', 'both'].includes(packet.status) ? packet.status : 'unknown')));
+    for (const e of packet.effects.slice(0, SHOWN)) {
+      const candidate = candidateText(e.described ?? {id: e.candidate}, label, lexicon);
+      if (!e.effect) lines.push(line('effect_unfinished', {candidate}));
+      else if (e.effect === 'inconsistent') lines.push(line('effect_inconsistent', {candidate, contradicts: joinList((e.contradicts ?? []).map(text => factText(textAtom(text), label, lexicon)))}));
+      else lines.push(line('effect_' + e.effect, {candidate}));
+    }
+  } else if (packet.query.mode === 'why_not') {
     if (packet.status === 'supported' || packet.status === 'both') lines.push(line('why_not_holds'));
     else if (packet.missing.length) for (const set of packet.missing.slice(0, ROOTS)) lines.push(line('why_not_missing', {facts: facts(set)}));
     else lines.push(line('why_not_nothing'));
     for (const b of (packet.blockers ?? []).slice(0, ROOTS)) lines.push(line('why_not_blocked', {fact: factText(textAtom(b.atom), label, lexicon)}));
   } else {
     const explanations = packet.explanations ?? [];
-    if (explanations.length === 1 && !explanations[0].atoms.length) lines.push(line('abduce_already'));
-    else if (explanations.length) for (const e of explanations.slice(0, ROOTS)) lines.push(line('abduce_explanation', {facts: facts(e.atoms)}));
+    // over the query's candidates an explanation is a set of candidates (statements or rules), described by the packet
+    const over = e => (e.candidates ? described(e.candidates) : facts(e.atoms));
+    if (explanations.length === 1 && !(explanations[0].candidates ?? explanations[0].atoms).length) lines.push(line('abduce_already'));
+    else if (explanations.length) for (const e of explanations.slice(0, ROOTS)) lines.push(line('abduce_explanation', {facts: over(e)}));
     else lines.push(line(packet.inconsistent?.length ? 'abduce_none_consistent' : 'abduce_none'));
-    for (const e of (packet.inconsistent ?? []).slice(0, ROOTS)) lines.push(line('abduce_inconsistent', {facts: facts(e.atoms), contradicts: joinList(e.contradicts.map(text => factText(textAtom(text), label, lexicon)))}));
+    for (const e of (packet.inconsistent ?? []).slice(0, ROOTS)) lines.push(line('abduce_inconsistent', {facts: over(e), contradicts: joinList(e.contradicts.map(text => factText(textAtom(text), label, lexicon)))}));
+    const necessary = (packet.necessary ?? []).map(id => (packet.candidates ?? []).find(d => d.id === id) ?? {id});
+    if (necessary.length && explanations.length && (explanations[0].candidates ?? explanations[0].atoms).length) lines.push(line('abduce_necessary', {candidates: described(necessary)}));
   }
   if (packet.complete === false) lines.push(line('not_exhaustive'));
   return lines.join('\n');

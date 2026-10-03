@@ -67,12 +67,14 @@ test('the model-origin compiler rejects every knowledge wire', () => {
   for (const [type, body] of Object.entries(wires)) assert.throws(() => compileDeclarative(`@x1 ${type}\n${body}\n`, {inputText: 'x'}), `${type} is not model-authorable`);
 });
 
-test('the reasoning modes are question forms; why_not and abduce go to the oracle, the others are answered not_computable', () => {
+test('the reasoning modes are question forms; why_not, abduce and effect go to the oracle, the others are answered not_computable', () => {
   assert.deepEqual([...ENUMS.query.mode], [...QUERY_MODES, ...REASONING_QUERY_MODES]);
-  assert.deepEqual([...PRODUCT_REASONING_MODES], ['why_not', 'abduce']);
+  assert.deepEqual([...PRODUCT_REASONING_MODES], ['why_not', 'abduce', 'effect']);
   for (const mode of REASONING_QUERY_MODES) {
-    const source = `@q query\n  mode ${mode}\n  where match\n    relation "reset"\n    role subject "router"\n    polarity affirmed\n  end\n`;
-    const plan = compileDeclarative(source, {inputText: 'How do I reset the router?'});
+    // mode effect checks its claim against candidates (Q-LANG-10): one supposed statement, on a runtime that runs candidates
+    const candidate = mode === 'effect' ? '@s1 stated\n  certainty supposed\n  relation "power off"\n  role subject "router"\n  polarity affirmed\n' : '';
+    const source = candidate + `@q query\n  mode ${mode}\n  where match\n    relation "reset"\n    role subject "router"\n    polarity affirmed\n  end\n` + (candidate ? '  candidate $s1\n' : '');
+    const plan = compileDeclarative(source, {inputText: 'How do I reset the router?', hypothetical: true});
     const routed = PRODUCT_REASONING_MODES.includes(mode);
     // without a lexicon the relation does not link, so a routed mode stops at the link question; it is never reported not_computable
     assert.deepEqual(plan.notComputable.map(n => n.declaration), routed ? [] : ['q'], `${mode} is ${routed ? 'routed to the oracle' : 'understood and reported'}, never answered as a select`);

@@ -7,6 +7,8 @@
 import {validateProgram, GRAMMAR} from '../../sop/knowledge/index.mjs';
 import {parse as parseModel, validateGraph} from '../../sop/parser.mjs';
 import {checkModelProgram, MODEL_TYPES} from '../../sop/declarative.mjs';
+import {splitCircuits, SESSION_TYPES} from '../../lib/query-author/session.mjs';
+import {parse as parseKnowledge} from '../../sop/knowledge/lexical.mjs';
 
 /** The admission code of a model-surface error message (`compare_form: @q ...` -> compare_form), or `admission` without one. */
 export const modelCode = message => /^([a-z]+(?:_[a-z]+)+):/.exec(String(message))?.[1] ?? 'admission';
@@ -17,11 +19,19 @@ export function validateKnowledge(files, opts = {}) {
   return {errors: problems.filter(p => p.severity !== 'warning').map(p => p.code), warnings: problems.filter(p => p.severity === 'warning').map(p => p.code)};
 }
 
-/** Model-surface circuit (what the formalizer writes): {ok, code, message}. */
+/**
+ * Model-surface circuit (what the formalizer writes): {ok, code, message}. Session definitions next to the model wires (`predicate`,
+ * `rule`, `default`, `aggregate`) are split off as the product's admission does (lib/query-author/session.mjs); a `candidate` or an `if`
+ * may name one of their rules (Q-LANG-10).
+ */
 export function validateModel(text) {
   try {
-    const program = parseModel(text);
-    checkModelProgram({wires: program.wires.filter(w => MODEL_TYPES.has(w.type))});
+    const hasDefinitions = [...String(text).matchAll(/^@\S+\s+(\S+)\s*$/gm)].some(m => SESSION_TYPES.has(m[1]));
+    const split = hasDefinitions ? splitCircuits(text) : null;
+    const definitions = split ? new Map(parseKnowledge(split.definitions).wires.map(w => [w.id, w.type])) : new Map();
+    const program = parseModel(split ? split.model : text);
+    checkModelProgram({wires: program.wires.filter(w => MODEL_TYPES.has(w.type))}, {definitions});
+    if (split) program.wires.push(...[...definitions.keys()].map(id => ({id, type: 'value', fields: {data: ['0']}, line: 0})));
     validateGraph(program);
     return {ok: true};
   } catch (e) {

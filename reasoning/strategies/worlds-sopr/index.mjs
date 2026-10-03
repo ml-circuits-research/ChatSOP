@@ -122,6 +122,7 @@ function planOf(handle, qWires) {
   const query = qWires.find(w => w.type === 'query');
   if (!query) decline(['select'], 'no query wire');
   for (const k of ['at', 'during', 'overlaps', 'asof', 'scope', 'limit', 'order', 'rank', 'filter', 'quantifier', 'except', 'measure', 'compare', 'via', 'trace', 'policy']) if (f1(query, k) && !(k === 'policy')) decline(['temporal'], `query field ${k}`);
+  if (f1(query, 'candidate')) decline(['candidate'], 'query field candidate: runs with wires not in force elsewhere are the oracle\'s');
   // `if $id` names supposed FACT wires of the query circuit, which are the additions of the world anyway; a governed wire is not lowered
   const factIds = new Set(qWires.filter(w => w.type === 'fact').map(w => w.id));
   for (const f of query.fields.filter(x => x.key === 'if')) if (!factIds.has(f.value.trim().slice(1))) decline(['versions'], `if ${f.value.trim()} names a wire that is not a supposed fact`);

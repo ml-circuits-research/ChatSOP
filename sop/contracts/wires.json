@@ -398,6 +398,7 @@
         "filter",
         "compare",
         "except",
+        "candidate",
         "because",
         "so",
         "if",
@@ -414,7 +415,7 @@
       "declaration": true,
       "authoredByModel": true,
       "effects": "no-world-write",
-      "note": "Model language: match blocks (quoted relation, closed roles, polarity) under where; a $q role value chains the answers of another query (a join); if/unless $s scopes a supposition to this query and a timed before/after/when/while $s bounds its period; mode select, exists, count, explain (why: the answer is a derivation) or every (a universal question: where is the restriction, scope what must hold); role time ?t asks for the validity interval (when), with measure start, end or duration (since when, until when, how long) and mode count for how many times. span is host plumbing (DS014). where is required unless every compare line compares two quoted quantities with units (\"1 hour\" above \"3000 seconds\"), which the runtime converts through the unit facts of the memory."
+      "note": "Model language: match blocks (quoted relation, closed roles, polarity) under where; a $q role value chains the answers of another query (a join); if/unless $s scopes a supposition to this query and a timed before/after/when/while $s bounds its period; mode select, exists, count, explain (why: the answer is a derivation) or every (a universal question: where is the restriction, scope what must hold); role time ?t asks for the validity interval (when), with measure start, end or duration (since when, until when, how long) and mode count for how many times. candidate $id (1 to 8, modes effect and abduce only, Q-LANG-10) names a supposed stated wire or a session rule/default of the same output that is in force only in this query's runs: mode effect classifies each candidate against a ground claim (establishes, blocks, contradicts, no_effect, inconsistent), mode abduce returns the minimal consistent sets of candidates and the necessary ones; if $r may also suppose a session rule. span is host plumbing (DS014). where is required unless every compare line compares two quoted quantities with units (\"1 hour\" above \"3000 seconds\"), which the runtime converts through the unit facts of the memory."
     },
     "constraint": {
       "one": [

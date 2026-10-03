@@ -41,6 +41,9 @@ export function normalize(packet, {mode, map = null} = {}) {
   // a blocker's `support` is one sufficient set and may differ between correct engines: the blocked atom and the reason are compared
   if (mode === 'why_not') return JSON.stringify({status: packet.status, missing: sets(packet.missing), blockers: sets((packet.blockers ?? []).map(b => [`${b.atom} ${b.why}`]))});
   if (mode === 'abduce') return JSON.stringify({status: packet.status, hypotheses: sets(packet.hypotheses)});
+  // candidates (Q-LANG-10): the effect class of each candidate, or the explaining sets of candidate ids and the necessary ones
+  if (mode === 'effect') return JSON.stringify({status: packet.status, effects: (packet.effects ?? []).map(e => `${e.candidate}:${e.effect}`).sort()});
+  if (mode === 'candidates') return JSON.stringify({status: packet.status, explanations: sets((packet.explanations ?? []).map(e => e.hypotheses)), necessary: [...(packet.necessary ?? [])].sort()});
   return JSON.stringify({status: packet.status, rows, count: packet.count ?? null, bound: packet.bound ?? null});
 }
 
@@ -53,7 +56,7 @@ export async function runPrograms(programs, {engines = ENGINES} = {}) {
   const baseAnswers = new Map();
   const results = [];
   for (const p of programs) {
-    const mode = p.row.mode;
+    const mode = p.row.candidates && p.row.mode === 'abduce' ? 'candidates' : p.row.mode;
     const problem = {theory: {knowledge: p.knowledge}, query: p.query};
     const res = {id: p.id, of: p.of ?? null, relation: p.relation ?? null, row: p.row, outcomes: {}, ms: {}};
     let expected;

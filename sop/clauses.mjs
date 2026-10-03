@@ -82,8 +82,10 @@ export function pairPlaceholders(program, {strict = true} = {}) {
  * link_reference_unknown, link_self_reference, link_target_type, link_condition_not_supposed, link_conflict,
  * link_cycle, reference_unknown, reference_self, reference_target_type, reference_query_not_single,
  * unparsed_near_unknown, unparsed_near_type, unparsed_duplicate, proposition_not_ground (an unpaired placeholder).
+ * `definitions` (id -> type of the output's session definitions): `if $r` on a query may name a session rule or default (Q-LANG-10),
+ * which is then in force only in that query's runs.
  */
-export function checkModelLinks(program) {
+export function checkModelLinks(program, {definitions = new Map()} = {}) {
   const byId = new Map(program.wires.map(w => [w.id, w]));
   const edges = new Map();
   const conditionKind = new Map();
@@ -107,6 +109,10 @@ export function checkModelLinks(program) {
     for (const {keyword, target} of linksOf(w)) {
       assert(target !== w.id, 'link_self_reference: @' + w.id + ' ' + keyword + ' $' + target + ' names its own wire');
       const t = byId.get(target);
+      if (!t && ['rule', 'default'].includes(definitions.get(target))) {
+        assert(w.type === 'query' && keyword === 'if', 'link_target_type: @' + w.id + ' ' + keyword + ' $' + target + ' names a session ' + definitions.get(target) + '; only `if` on a query may suppose a rule');
+        continue;
+      }
       assert(t, 'link_reference_unknown: @' + w.id + ' ' + keyword + ' $' + target + ' names no wire of this output');
       assert(PROPOSITION.has(t.type), 'link_target_type: @' + w.id + ' ' + keyword + ' $' + target + ' must name a stated or assumed wire (the clause), not a ' + t.type);
       if (LINK_KEYWORDS[keyword].target === 'supposed') assert(t.type === 'stated' && one(t, 'certainty') === 'supposed', 'link_condition_not_supposed: @' + w.id + ' ' + keyword + ' $' + target + ' names a clause that is not asserted to hold; write it as stated with certainty supposed');
