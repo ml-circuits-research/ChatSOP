@@ -98,7 +98,7 @@ export async function main(args = process.argv.slice(2)) {
         if (!shared) {
           const session = openSession({base: 'world-v1', id: `generality-${process.pid}`});
           const entry = session.store.get('qf', 'generality', 'main');
-          shared = {repo: session.sessions.repository(session.id), session: entry.agent.session, lexicon: session.lexicon,
+          shared = {chat: session, repo: session.store.repo, session: entry.agent.session, lexicon: session.lexicon,
             theory: session.theories.get([...session.sessions.baseCircuits(session.id), ...session.sessions.circuits(session.id)]), dispose: session.close};
         }
         world = shared;

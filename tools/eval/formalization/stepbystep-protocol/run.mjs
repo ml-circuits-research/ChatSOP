@@ -119,7 +119,7 @@ export async function main(args = process.argv.slice(2)) {
     if (!world1) {
       const session = openSession({base: 'world-v1', id: `stepbystep-${process.pid}`});
       const entry = session.store.get('qf', 'stepbystep', 'main');
-      world1 = {repo: session.sessions.repository(session.id), session: entry.agent.session, lexicon: session.lexicon,
+      world1 = {chat: session, repo: session.store.repo, session: entry.agent.session, lexicon: session.lexicon,
         theory: session.theories.get([...session.sessions.baseCircuits(session.id), ...session.sessions.circuits(session.id)]), dispose: session.close};
     }
     return world1;

@@ -14,32 +14,96 @@ import {nlPrompt, SYSTEM_PROMPT, ANSWER_MARKER, PROMPT_VERSION} from '../../../r
 import {parseAnswer} from '../../../reasoning/strategies/llm-agent/packet.mjs';
 import {verifyUsed} from '../../../reasoning/strategies/llm-agent/verify.mjs';
 import {renderEnglish} from '../../../reasoning/slice/render-english.mjs';
-import {cnl} from '../../../sop/cnl.mjs';
 import {wireText} from '../../../sop/knowledge/index.mjs';
 import {LIMITS, createWorld, execute, linkCircuit, withDefinitions, goldSlice, oracleOverSlice} from './world.mjs';
 import {score, equivalent, failureLayer} from './score.mjs';
 import {writeReport, stopDecision} from './report.mjs';
 import {openSession, defaultRoot} from '../lib/session.mjs';
 import {readExperiments} from '../../../lib/journal.mjs';
-import {localStrategy} from '../../../lib/formalize/strategies.mjs';
-const stepStrategies = new Map();
 import {tierLadder} from '../lib/tier-parser.mjs';
+import {createQueryParser, queryParserSettings} from '../../../server/query-parser.mjs';
+import {createChatSOPAdapter} from '../../../lib/adapter/index.mjs';
+import {chatTurn} from '../../../lib/adapter/chat-turn.mjs';
+import {BASE_NAME} from '../../../lib/chat-data/memories.mjs';
+import {SessionStore} from '../../../server/session-store.mjs';
 /**
+ * The symbolic-vs-LLM benchmark harness (experiments/proposal/symbolic-vs-llm-benchmark.md): every arm answers the same question of a
+ * generated world with oracle gold, under one wall and output-token ceiling.
+ *
+ *   A, A'          the local tier `settings.localTier` (default micro) answers from the gold slice rendered as English evidence
+ *                  (direct, or with reasoning before a marked answer); D: a subscription model the same way. Direct model answers,
+ *                  not chat turns; every call goes through TinyAgent (lib/tinyagent.mjs).
+ *   C, B-stepbystep  a chat turn through ChatSOPAdapter (lib/adapter/chat-turn.mjs, the glue server/http.mjs uses), mode stepwise, in
+ *                  a fresh conversation of the world's chat session (world.mjs `createWorld`, or the shared world-v1 session): the
+ *                  request parser (server/query-parser.mjs) asks the step-by-step questions (`settings.strategy`, default
+ *                  LocalLLMStepByStep, method `settings.stepMethod`, default B for C and A for B-stepbystep, `settings.reasoningControl`)
+ *                  on one tier (C: `settings.tier`, default small; B-stepbystep: `settings.localTier`), and the chat turn
+ *                  (server/agent.mjs) admits, links, routes, verifies and renders the answer. The scored packet and the rendered text
+ *                  are the chat turn's (AGENTS.md "ChatSOPAdapter": no evaluation keeps its own formalization and solving glue).
+ *                  `settings.replayCircuit` (or an `authorBackend` of kind replay) replaces the circuit author of arm C with a
+ *                  reviewed circuit, checked by the same validator, through the same chat turn (zero model calls).
+ *                  An additional offline check runs the oracle (js-reference) over the gold slice with the turn's circuit, linked
+ *                  by the product compiler (`verified`, `oracle_equivalent`, `offline_verification`); when it cannot be computed the
+ *                  record says why and `verified` is false. It never supplies the answer.
+ *
  * Owner decision 2026-10-02: formalization is step by step only; the one-shot author arms (B: a local model writes free SOP with repair
  * rounds; B-grammar and B-structured: its constrained decoders; B-local: the same loop on the strategy slot) are archived in
- * probably_obsolete/one-shot-formalization/. Arm C is the step-by-step strategy with its questions answered by the TinyAgent tier
- * `settings.tier` (default small; like with like with B-stepbystep on the small local model). The local arms (A, A', B-stepbystep)
- * ask the TinyAgent tier `settings.localTier` (default micro, the local Qwen3-4B-Instruct that TinyAgent starts on demand); every model
- * call goes through TinyAgent (lib/tinyagent.mjs).
+ * probably_obsolete/one-shot-formalization/.
  */
 export const DEFAULT_LOCAL_TIER = 'micro';
 export const ARCHIVED_ARMS = Object.freeze(['B', 'B-grammar', 'B-structured', 'B-local']);
+export const CHAT_ARMS = Object.freeze(['C', 'B-stepbystep']);
 const RUNTIME = JSON.parse(fs.readFileSync(new URL('../../../config/runtime.json', import.meta.url), 'utf8'));
 /** A reviewed circuit replayed through the same validator as every formalizer (zero model calls): the author result shape. */
 export function replayAuthor(sop, message, world) {
   const validation = validateQuery({sop, message, lexicon: world.lexicon, repo: world.repo ?? null, session: world.session ?? null});
   return {ok: validation.ok, status: validation.ok ? 'validated' : 'invalid', sop, validation, unclear: validation.ok ? unclearKind(validation.program) : null,
     usage: {input_tokens: 0, output_tokens: 0, cost_usd: 0}, runs: [{round: 0, ok: true, duration_ms: 0}], model: 'reviewed-circuit'};
+}
+
+/**
+ * The circuit author of a replayed reviewed circuit in a chat turn: the validator checks it like a formalizer's circuit, and an invalid
+ * one fails the turn as the request parser does (`parse_failed` with the attempt), never executed.
+ */
+export function replayFormalizer(sop, message, agent) {
+  return {id: 'reviewed-circuit', label: 'reviewed circuit (replay)', parse: null, formalize: async () => {
+    const replayed = replayAuthor(sop, message, {lexicon: agent.lexicon, repo: agent.repo, session: agent.session});
+    if (!replayed.ok) throw Object.assign(new Error(`the reviewed circuit is invalid: ${replayed.validation.problems.map(p => p.code).join(', ')}`), {code: 'parse_failed', status: 422, parse: null, attempt: {sop, problems: replayed.validation.problems.slice(0, 12)}});
+    return sop;
+  }};
+}
+
+/**
+ * The request-parser settings of a step-by-step arm: the chat's settings (config.queryParser) with the arm's strategy, question method,
+ * reasoning control and single tier (C: `settings.tier`, default small; B-stepbystep: `settings.localTier`), with the request settings
+ * the product ladder gives that tier, the calls tagged with the run's purpose, no parse cache and the shared wall budget as timeout.
+ */
+export function armParserSettings(arm, settings, config = RUNTIME) {
+  const tier = arm === 'C' ? settings.tier ?? 'small' : settings.localTier ?? DEFAULT_LOCAL_TIER;
+  const local = {...(config.queryParser?.local ?? {}), tier, ladder: tierLadder(config, tier), method: settings.stepMethod ?? (arm === 'C' ? 'B' : 'A'),
+    reasoningControl: settings.reasoningControl ?? 'plan', tags: {purpose: settings.purpose ?? 'job:symbolic-vs-llm'}, ...(Number.isFinite(settings.maxTokens) ? {maxTokens: settings.maxTokens} : {})};
+  return queryParserSettings({...config, queryParser: {...(config.queryParser ?? {}), strategy: settings.strategy ?? 'LocalLLMStepByStep', local, cacheEntries: 0,
+    ...(Number.isFinite(settings.wallMs) ? {timeoutSeconds: settings.wallMs / 1000} : {})}});
+}
+
+/**
+ * A fresh conversation of the world's chat session for one question of one arm: the session store of `world.chat` (createWorld, or
+ * the shared world-v1 session of main()), else a session store over `world.repo` like the chat's (reads never reinforce) under
+ * `root`. Closing it forgets the conversation, discards its repository session and removes the session definitions its turn added
+ * (the session's `circuits` folder), so no question influences another.
+ */
+function conversation(world, id, root) {
+  if (!world.chat?.store && !root) throw new Error('a step-by-step arm needs world.chat (a chat session) or a folder for its session store');
+  const store = world.chat?.store ?? new SessionStore({repo: world.repo, lexicon: world.lexicon, config: {...RUNTIME, policy: {...(RUNTIME.policy ?? {}), reinforce: false}},
+    root: path.join(root, 'agent'), circuitRules: () => world.theory.chatRules()});
+  const entry = store.get('benchmark', id, BASE_NAME);
+  const circuitsDir = path.join(path.dirname(store.repo.root), 'circuits');
+  const before = new Set(fs.existsSync(circuitsDir) ? fs.readdirSync(circuitsDir) : []);
+  return {entry, close() {
+    store.agents.delete(entry.key);
+    try { store.repo.discard(entry.agent.session); } catch { /* already discarded */ }
+    if (fs.existsSync(circuitsDir)) for (const f of fs.readdirSync(circuitsDir)) if (!before.has(f)) fs.rmSync(path.join(circuitsDir, f), {recursive: true, force: true});
+  }};
 }
 
 export const VERSION = 'symbolic-vs-llm-m1-v1';
@@ -58,7 +122,9 @@ function sourceHashes() {
     for (const entry of fs.readdirSync(absolute).sort()) visit(path.join(relative, entry));
   };
   // Code and author guides only: never evaluation cases, sealed suites or session data.
-  for (const directory of ['lib', 'sop', 'memory', 'reasoning', 'config/knowledge/formalizer-protocol-v1', 'tools/eval/symbolic-vs-llm']) visit(directory);
+  // The chat turn of the step-by-step arms: the request parser, the agent and its session store, and the shared harness glue.
+  for (const directory of ['lib', 'sop', 'memory', 'reasoning', 'config/knowledge/formalizer-protocol-v1', 'tools/eval/symbolic-vs-llm', 'tools/eval/lib',
+    'server/agent.mjs', 'server/query-parser.mjs', 'server/session-store.mjs', 'config/runtime.json']) visit(directory);
   return hashes;
 }
 
@@ -114,63 +180,105 @@ function unparsableCircuit(sop) {
   } catch { return true; }
 }
 
+/**
+ * A step-by-step arm (C, B-stepbystep): one chat turn through ChatSOPAdapter in a fresh conversation of the world's chat session (see
+ * the header). Returns the fields of the arm's record before scoring: `packet` the chat turn's result packet (with `adapter`, the
+ * answer packet of ChatSOPAdapter, and `parse`, the request parser's parse record), `rendered` the turn's text, `author` what the
+ * formalization produced, and the offline gold-slice check.
+ */
+async function chatArm({row, arm, world, gold, slice, query, settings, start, folder}) {
+  const replay = arm !== 'C' ? null : settings.replayCircuit ?? (settings.authorBackend?.kind === 'replay' ? (await settings.authorBackend.generate({})).sop : null);
+  const parserSettings = armParserSettings(arm, settings);
+  // `settings.localFactory` (tests): the step-by-step strategy factory of the request parser (server/query-parser.mjs).
+  const queryParser = createQueryParser({settings: parserSettings, ...(settings.localFactory ? {localFactory: settings.localFactory} : {})});
+  const adapter = createChatSOPAdapter({config: RUNTIME});
+  const talk = conversation(world, 'q' + sha(`${row.id}\0${arm}`).slice(0, 24), folder);
+  const agent = talk.entry.agent;
+  let turn = null, failure = null, validation = null;
+  const turnStart = Date.now();
+  try {
+    try {
+      turn = await chatTurn({adapter, agent, queryParser, lexicon: world.lexicon, message: row.question, mode: 'stepwise', source: 'eval:symbolic-vs-llm',
+        author: replay != null ? replayFormalizer(replay, row.question, agent) : null});
+    } catch (error) { failure = error; }
+    const authored = turn?.result?.sop ?? failure?.modelSop ?? failure?.attempt?.sop ?? null;
+    // The admission of the circuit by the same validator, for the record (`parsed`, problems) and the offline check's linking.
+    if (typeof authored === 'string' && authored.trim()) validation = validateQuery({sop: authored, message: row.question, lexicon: world.lexicon, repo: agent.repo, session: agent.session});
+  } finally { talk.close(); adapter.dispose(); await queryParser.stop(); }
+  const turnMs = Date.now() - turnStart;
+  const parse = turn?.parse ?? failure?.parse ?? null;
+  const result = turn?.result ?? null;
+  const sop = result?.sop ?? failure?.modelSop ?? failure?.attempt?.sop ?? null;
+  // The formalization's outcome: validated (a circuit reached the runtime), invalid (the validator refused the last circuit: parse_failed)
+  // or failed (no circuit: parse_unavailable, or the turn failed before a circuit was written).
+  let status = 'validated', reason = null, error = null, problems = null;
+  if (failure) {
+    if (failure.code === 'parse_failed') { status = 'invalid'; reason = failure.message; problems = failure.attempt?.problems ?? validation?.problems ?? null; }
+    else if (failure.code === 'parse_unavailable') { status = 'failed'; reason = failure.message; }
+    else if (failure.modelSop == null) { status = 'failed'; error = failure.message; }
+    else error = failure.message;
+  }
+  const chatPacket = result?.packet ?? null;
+  const unclear = status === 'validated' ? result?.unclear ?? parse?.unclear ?? null : null;
+  const responseEmpty = status === 'invalid' && !sop?.trim();
+  const fields = {packet: chatPacket, rendered: result?.text, error, parse, sop, status, reason, problems, unclear, validation, turnMs,
+    responseEmpty, brokenModelOutput: responseEmpty || (status === 'invalid' && unparsableCircuit(sop)), linking: null, oracleEquivalent: null, verified: false,
+    check: {policy: 'benchmark-offline-gold-slice', outcome: 'not_computable', reason: chatPacket ? 'the circuit was not admitted or asks for clarification' : 'the turn returned no packet', ms: 0}};
+  if (status !== 'validated' || !chatPacket) return fields;
+  if (settings.wallMs && Date.now() - start > settings.wallMs) fields.error = 'shared question wall budget exhausted';
+  // The offline check: the turn's circuit linked by the product compiler and run by the oracle over the gold slice. It verifies the
+  // chat's answer; it never replaces it.
+  const verifyStart = Date.now();
+  try {
+    if (!validation?.ok || unclear) throw new Error(validation?.ok ? `unclear: ${unclear}` : `not admitted: ${(validation?.problems ?? []).map(p => p.code).join(', ') || 'no circuit'}`);
+    const linking = fields.linking = linkCircuit(sop, row.question, world.lexicon, validation.program);
+    if (!linking.query) throw new Error(linking.issue?.status ?? linking.plan?.issues?.[0]?.status ?? 'unresolved_circuit');
+    const effectiveWorld = withDefinitions(world, validation.program, linking.context);
+    const effectiveSlice = effectiveWorld.definitionWires?.length ? {...slice, wires: [...slice.wires, ...effectiveWorld.definitionWires]} : slice;
+    const rawReplay = oracleOverSlice(effectiveSlice, linking.query);
+    fields.oracleEquivalent = equivalent(gold, alignProjection(rawReplay, linking.query, query));
+    // A question without `select` (yes/no) answers by its status; the oracle's witness rows of its inner variables are not an answer.
+    // The chat names the suppositions of a conditional answer itself (assume_0, ...): conditions compare by number, not by id.
+    let replayAnswer = /^\s*select\s/m.test(linking.query) ? rawReplay : (({rows: _rows, ...rest}) => rest)(rawReplay);
+    const ids = value => value == null ? null : [value].flat();
+    if (ids(replayAnswer.conditional)?.length && ids(replayAnswer.conditional).length === ids(chatPacket.conditional)?.length) replayAnswer = {...replayAnswer, conditional: chatPacket.conditional};
+    fields.verified = chatPacket.complete !== false && rawReplay.complete !== false && equivalent(chatPacket, replayAnswer);
+    fields.check = {policy: 'benchmark-offline-gold-slice', outcome: fields.verified ? 'agreed' : 'differs', reason: fields.verified ? null : 'the chat answer differs from the oracle over the gold slice', ms: 0};
+  } catch (e) {
+    fields.check = {policy: 'benchmark-offline-gold-slice', outcome: 'not_computable', reason: String(e.message).slice(0, 300), ms: 0};
+  }
+  fields.check.ms = Date.now() - verifyStart;
+  // Scoring compares answer columns by the gold query's names: an alpha-renamed projection keeps its values.
+  fields.packet = alignProjection(chatPacket, fields.linking?.query ?? sop, query);
+  return fields;
+}
+
 /** One arm, same question, shared wall/output-token ceiling, no circuit or answer in the author prompt. */
 export async function runArm({row, arm, world, gold, slice, evidence, knowledge, query, settings, folder}) {
   const start = Date.now();
-  let author = null, packet = null, linking = null, error = null, oracleEquivalent = null, verified = false, rendered;
+  let author = null, packet = null, linking = null, error = null, oracleEquivalent = null, verified = false, rendered, offline;
   let tokensIn = 0, tokensOut = 0, cost = 0;
   let parseOk = null, responseEmpty = false, brokenModelOutput = false;
   const latency = {parse_ms: 0, retrieval_ms: 0, engine_ms: 0, verify_ms: 0, model_ms: 0};
+  let authorRecord = null;
   try {
     if (ARCHIVED_ARMS.includes(arm)) throw new Error(`arm ${arm} (one-shot circuit authoring) is archived (owner decision 2026-10-02); use B-stepbystep or C`);
-    // settings.replayCircuit (or an `authorBackend` of kind replay): a reviewed circuit through the same validator, zero model calls.
-    const replay = arm !== 'C' ? null : settings.replayCircuit ?? (settings.authorBackend?.kind === 'replay' ? (await settings.authorBackend.generate({})).sop : null);
-    if (replay != null) author = replayAuthor(replay, row.question, world);
-    else if (arm === 'B-stepbystep' || arm === 'C') {
-      // The product's step-by-step strategies: the system asks short questions and writes the circuit from the answers. B-stepbystep on
-      // the local tier settings.localTier (default micro); C on the TinyAgent tier settings.tier (default small).
-      // settings.stepMethod: the question protocol of LocalLLMStepByStep (A, or B, C, D and ablations of eval-stepbystep-protocol-v1).
-      // settings.strategy: InternalReasoningStepByStep runs on the same arm (its own slot), with settings.reasoningControl (plan | greedy).
-      const name = settings.strategy ?? 'LocalLLMStepByStep', method = settings.stepMethod ?? (arm === 'C' ? 'B' : 'A'), control = settings.reasoningControl ?? 'plan';
-      const tier = arm === 'C' ? settings.tier ?? 'small' : settings.localTier ?? DEFAULT_LOCAL_TIER;
-      const key = `${name}@tier:${tier}#${method}#${control}`;
-      const local = {tier, ladder: arm === 'C' ? tierLadder(RUNTIME, tier) : null, maxTokens: settings.maxTokens, method, reasoningControl: control, tags: {purpose: settings.purpose ?? 'job:symbolic-vs-llm'}};
-      stepStrategies.set(key, stepStrategies.get(key) ?? localStrategy(name, local, {timeoutMs: settings.wallMs}));
-      author = await stepStrategies.get(key).run({message: row.question, lexicon: world.lexicon, repo: world.repo, session: world.session, derived: new Set(world.theory?.byHead?.keys?.() ?? [])});
-      latency.model_ms = author.steps ? author.steps.reduce((n, s) => n + s.ms, 0) : author.runs.reduce((n, r) => n + (r.duration_ms ?? 0), 0);
-    }
-    if (['C', 'B-stepbystep'].includes(arm)) {
-      const deadline = start + settings.wallMs;
-      latency.parse_ms = Date.now() - start; tokensIn = author.usage?.input_tokens ?? 0; tokensOut = author.usage?.output_tokens ?? 0; cost = author.usage?.cost_usd ?? 0;
-      responseEmpty = author.runs?.at(-1)?.ok === true && !author.sop?.trim();
-      brokenModelOutput = responseEmpty || (author.status === 'invalid' && unparsableCircuit(author.sop));
-      if (author.status === 'validated' && !author.unclear) {
-        const linkStart = Date.now(); linking = linkCircuit(author.sop, row.question, world.lexicon, author.validation?.program);
-        latency.linking_ms = Date.now() - linkStart;
-        if (!linking.query) packet = {status: 'clarify', complete: true, reason: linking.issue?.status ?? linking.plan?.issues?.[0]?.status ?? 'unresolved_circuit'};
-        else {
-          const effectiveWorld = withDefinitions(world, author.validation?.program, linking.context);
-          const metrics = {};
-          const remainingMs = deadline - Date.now();
-          if (remainingMs <= 0) throw new Error('shared question wall budget exhausted');
-          const execStart = Date.now(); packet = execute(effectiveWorld, linking.query, {metrics, budget: {timeoutMs: remainingMs}, limits: {...LIMITS, retrievalMs: Math.min(LIMITS.retrievalMs, remainingMs)}});
-          latency.retrieval_ms = Math.round(metrics.retrieval_ms ?? 0);
-          latency.engine_ms = Math.max(0, Date.now() - execStart - latency.retrieval_ms);
-          const verifyStart = Date.now();
-          const effectiveSlice = effectiveWorld.definitionWires?.length
-            ? {...slice, wires: [...slice.wires, ...effectiveWorld.definitionWires]}
-            : slice;
-          const rawReplay = oracleOverSlice(effectiveSlice, linking.query);
-          const replay = alignProjection(rawReplay, linking.query, query);
-          oracleEquivalent = equivalent(gold, replay);
-          verified = packet.complete !== false && rawReplay.complete !== false && equivalent(packet, rawReplay);
-          latency.verify_ms = Date.now() - verifyStart;
-          packet = alignProjection(packet, linking.query, query);
-          packet.route = {...packet.route, verification: {checked: verified, policy: 'benchmark-offline-gold-slice', outcome: verified ? 'agreed' : 'unverified', ms: latency.verify_ms}};
-          const renderPacket = packet.witness && !packet.answers ? {...packet, answers: [{binding: packet.witness}]} : packet;
-          rendered = cnl(renderPacket, 'en', {lexicon: effectiveWorld.lexicon}).text;
-        }
-      } else packet = {status: author.unclear ? 'unclear' : author.status, reason: author.reason, complete: true};
+    if (CHAT_ARMS.includes(arm)) {
+      const chat = await chatArm({row, arm, world, gold, slice, query, settings, start, folder});
+      ({packet, rendered, error, oracleEquivalent, verified, responseEmpty, brokenModelOutput} = chat);
+      // Linking failures are attributed when the chat itself asks for clarification of a name or relation it could not link.
+      linking = packet?.status === 'clarify' ? {issue: {status: packet.reason ?? 'clarify'}, plan: chat.linking?.plan ?? null} : null;
+      offline = chat.check;
+      const parse = chat.parse;
+      // The parse record carries no token counts (cost only); the step timings are not in it either.
+      Object.assign(latency, {parse_ms: parse?.ms ?? null, turn_ms: chat.turnMs, linking_ms: null, retrieval_ms: null, engine_ms: packet?.timings?.total ?? null, verify_ms: chat.check.ms, model_ms: null});
+      tokensIn = null; tokensOut = null; cost = parse?.cost_usd ?? 0;
+      author = {status: chat.status, reason: chat.reason, unclear: chat.unclear, sop: chat.sop, model: replayed(arm, settings) ? 'reviewed-circuit' : parse?.model ?? null,
+        validation: {problems: chat.problems ?? undefined, program: chat.validation?.program ?? null}, unlinked: parse?.unlinked ?? []};
+      authorRecord = {status: chat.status, reason: chat.reason, rounds: null, sop: chat.sop, context_version: null, retrieval: parse?.retrieval ?? null, usage: parse ? {cost_usd: parse.cost_usd ?? 0} : null,
+        model: author.model, strategy: parse?.strategy ?? null, unclear: chat.unclear,
+        ...(arm === 'B-stepbystep' ? {steps: parse?.dialog ?? null, plan: parse?.report ?? null, confirmed: null, retried: null, problem: null, method: armParserSettings(arm, settings).local.method, contrast: null} : {}),
+        problems: author.validation.problems, parsed: Boolean(chat.validation?.program)};
     } else {
       const reasoning = arm === "A'" ? 'cot' : 'direct';
       const projection = /^\s*select\s+([^\n]+)/m.exec(query)?.[1]?.match(/\?[a-z][a-z0-9_]*/g)?.map(v => v.slice(1)) ?? [];
@@ -200,13 +308,12 @@ export async function runArm({row, arm, world, gold, slice, evidence, knowledge,
     outcome: verdict.outcome, reasons: verdict.why, memory_sha256: world.theory.digest, gold_answerable: !['unknown', 'incomplete'].includes(row.expected.status), verified, proof_available: Boolean(packet?.used?.length || packet?.proof),
     evidence_does_not_fit: evidence.evidence_does_not_fit, evidence_facts: evidence.facts, evidence_chars: evidence.original_chars,
     latency, tokens_in: tokensIn, tokens_out: tokensOut, cost_usd: arm === 'C' || arm === 'D' ? cost : 0,
-    author: author && {status: author.status, reason: author.reason, rounds: author.rounds, sop: author.sop, context_version: author.context_version, retrieval: author.retrieval, usage: author.usage,
-      ...(arm === 'B-stepbystep' ? {steps: author.steps, plan: author.report, confirmed: author.confirmed, retried: author.retried, problem: author.problem, method: author.method ?? 'A', contrast: author.contrast,
-        ...(author.trace ? {trace: author.trace, explanation: author.explanation, defaults: author.defaults, avoided: author.avoided, engine_ms: author.engine_ms} : {})} : {}),
-      problems: author.validation?.problems, parsed: Boolean(author.validation?.program)},
-    packet, rendered, oracle_equivalent: oracleEquivalent, error,
+    author: authorRecord, packet, rendered, oracle_equivalent: oracleEquivalent, ...(offline ? {offline_verification: offline} : {}), error,
     failure_layer: failureLayer({arm, parseOk, outcome: verdict.outcome, author, linking, packet, oracleEquivalent, rendered, error})};
 }
+
+/** Whether arm `arm` replays a reviewed circuit (arm C with `settings.replayCircuit` or an `authorBackend` of kind replay). */
+const replayed = (arm, settings) => arm === 'C' && (settings.replayCircuit != null || settings.authorBackend?.kind === 'replay');
 
 export async function main(args = process.argv.slice(2)) {
   if (args.includes('--help')) {
@@ -233,7 +340,7 @@ export async function main(args = process.argv.slice(2)) {
   const modelManifest = {source: 'tinyagent-tier', local_tier: localTier, identity_verified: false};
   const out = path.resolve(opt(args, '--out', 'eval/reports/current/symbolic-vs-llm/pilot'));
   fs.mkdirSync(out, {recursive: true});
-  const config = {version: VERSION, harness_sha256: sha(fs.readFileSync(new URL(import.meta.url), 'utf8')), world_sha256: sha(fs.readFileSync(new URL('./world.mjs', import.meta.url), 'utf8')), runtime: {node: process.version, arch: process.arch, platform: process.platform}, model_manifest: modelManifest, manifest_sha256: sha(manifestText), settings: {...settings, retrieval_limits: LIMITS, subscription_token_budget: 'post-response usage admission of the remote model'}, arms, pilot, prompt_version: PROMPT_VERSION, prompt_sha256: sha(nlPrompt({source: '', reasoning: 'direct'}) + runArm.toString()), renderer_sha256: sha(fs.readFileSync(new URL('../../../reasoning/slice/render-english.mjs', import.meta.url), 'utf8')), stages: pilot ? [pilot] : opt(args, '--stages', '100,300,600').split(',').map(Number)};
+  const config = {version: VERSION, harness_sha256: sha(fs.readFileSync(new URL(import.meta.url), 'utf8')), world_sha256: sha(fs.readFileSync(new URL('./world.mjs', import.meta.url), 'utf8')), runtime: {node: process.version, arch: process.arch, platform: process.platform}, model_manifest: modelManifest, manifest_sha256: sha(manifestText), settings: {...settings, retrieval_limits: LIMITS, chat_arms: 'C and B-stepbystep answer through the chat turn (ChatSOPAdapter, mode stepwise) under the chat policy limits; retrieval_limits bound the gold and the offline check', subscription_token_budget: 'post-response usage admission of the remote model'}, arms, pilot, prompt_version: PROMPT_VERSION, prompt_sha256: sha(nlPrompt({source: '', reasoning: 'direct'}) + runArm.toString() + chatArm.toString()), renderer_sha256: sha(fs.readFileSync(new URL('../../../reasoning/slice/render-english.mjs', import.meta.url), 'utf8')), stages: pilot ? [pilot] : opt(args, '--stages', '100,300,600').split(',').map(Number)};
   config.runtime_sources = sourceHashes();
   config.runtime_source_sha256 = sha(JSON.stringify(config.runtime_sources));
   const configFile = path.join(out, 'run.json');
@@ -260,7 +367,7 @@ export async function main(args = process.argv.slice(2)) {
               const session = openSession({base: 'world-v1', id: `benchmark-${process.pid}-world`});
               try {
                 const entry = session.store.get('qf', 'bench', 'main');
-                sharedWorld = {repo: session.sessions.repository(session.id), session: entry.agent.session, lexicon: session.lexicon, theory: session.theories.get([...session.sessions.baseCircuits(session.id), ...session.sessions.circuits(session.id)]), dispose: session.close};
+                sharedWorld = {repo: session.store.repo, session: entry.agent.session, lexicon: session.lexicon, theory: session.theories.get([...session.sessions.baseCircuits(session.id), ...session.sessions.circuits(session.id)]), chat: session, dispose: session.close};
               } catch (error) { session.close(); throw error; }
             }
             world = sharedWorld;

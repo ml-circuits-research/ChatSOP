@@ -2,7 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {score, equivalent, failureLayer} from '../../tools/eval/symbolic-vs-llm/score.mjs';
 import {paired, stopDecision, summarize, report} from '../../tools/eval/symbolic-vs-llm/report.mjs';
-import {stageRows, evidenceFor, alignProjection} from '../../tools/eval/symbolic-vs-llm/run.mjs';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {stageRows, evidenceFor, alignProjection, runArm, armParserSettings} from '../../tools/eval/symbolic-vs-llm/run.mjs';
 import {createWorld, execute, goldSlice, oracleOverSlice, linkCircuit, withDefinitions} from '../../tools/eval/symbolic-vs-llm/world.mjs';
 
 const knowledge = '@member predicate\n  args subject:entity object:entity\n  closed true\n\n@alice entity\n  label en "Alice"\n\n@club entity\n  label en "Club"\n\n@f fact\n  holds member alice club\n';
@@ -179,4 +182,73 @@ test('H3 retains symbolic B/C pairs when only English evidence exceeds its cap',
   assert.equal(comparisons.fits, null);
   assert.equal(comparisons.B_minus_C.n, 1);
   assert.equal(comparisons.B_minus_C.mean, 1);
+});
+
+/** One arm of the harness on a tiny world: the gold, its slice and English evidence prepared as main() does. */
+async function armOnWorld(arm, settings, {question = 'Who is a member of Club?', query = '@q query\n  where member ?person club\n  select ?person\n'} = {}) {
+  const world = createWorld(knowledge), folder = fs.mkdtempSync(path.join(os.tmpdir(), 'symbolic-arm-test-'));
+  try {
+    const gold = execute(world, query), slice = goldSlice(world, query, gold);
+    const row = {id: 'r1', family: 'f1', facts: 1, depth: 1, split: 'dev', question, expected: {status: 'supported', rows: [{person: 'alice'}]}};
+    return await runArm({row, arm, world, gold, slice, evidence: evidenceFor(slice, question), knowledge, query, settings, folder});
+  } finally { world.dispose(); fs.rmSync(folder, {recursive: true, force: true}); }
+}
+const memberCircuit = '@q query\n  where match\n    relation "member"\n    role subject ?who\n    role object "Club"\n    polarity affirmed\n  end\n  select ?who\n';
+
+test('arm C answers through the chat turn (ChatSOPAdapter, mode stepwise) and is scored on the chat packet', async () => {
+  const record = await armOnWorld('C', {wallMs: 60000, maxTokens: 4096, replayCircuit: memberCircuit});
+  assert.equal(record.packet.adapter.object, 'chatsop.answer');
+  assert.equal(record.packet.adapter.mode, 'stepwise');
+  assert.equal(record.packet.adapter.circuits[0].sop, memberCircuit);
+  assert.match(record.rendered, /Alice/);
+  // The alpha-renamed projection (?who) is scored by the gold query's column names.
+  assert.deepEqual(record.packet.rows, [{person: 'alice'}]);
+  assert.equal(record.outcome, 'correct');
+  assert.equal(record.model, 'reviewed-circuit');
+  assert.equal(record.author.status, 'validated');
+  assert.equal(record.author.parsed, true);
+  assert.equal(record.verified, true);
+  assert.equal(record.oracle_equivalent, true);
+  assert.equal(record.offline_verification.outcome, 'agreed');
+  assert.equal(record.failure_layer, null);
+  assert.equal(record.tokens_out, null);
+  assert.deepEqual(JSON.parse(JSON.stringify(record)).packet.rows, record.packet.rows);
+});
+
+test('arm C: an invalid reviewed circuit is refused by the validator inside the chat turn, never executed', async () => {
+  const record = await armOnWorld('C', {wallMs: 60000, replayCircuit: memberCircuit.replace('"member"', '"owns"').replace('select ?who', 'select ?nobody')});
+  assert.equal(record.outcome, 'invalid');
+  assert.equal(record.author.status, 'invalid');
+  assert.ok(record.author.problems.length > 0);
+  assert.equal(record.packet, null);
+  assert.equal(record.verified, false);
+});
+
+test('arm B-stepbystep: the request parser of the chat gets the arm settings and its parse record fills the author record', async () => {
+  const seen = [];
+  const localFactory = (name, local, options) => {
+    seen.push({name, local, options});
+    return {name, tag: 'stub', availability: async () => ({available: true, models: [local.tier], skipped: []}),
+      async run({message, repo, session}) {
+        assert.equal(message, 'Who is a member of Club?');
+        assert.ok(repo && session, 'the strategy reads the chat session');
+        return {ok: true, status: 'validated', sop: memberCircuit, model: local.tier, usage: {cost_usd: 0},
+          steps: [{name: 'relation', answer: '1', tier: local.tier, ok: true, ms: 3}, {name: 'roles', answer: '2', tier: local.tier, ok: true, ms: 4}]};
+      }};
+  };
+  const settings = {wallMs: 60000, maxTokens: 4096, localTier: 'micro', localFactory};
+  const record = await armOnWorld('B-stepbystep', settings);
+  assert.deepEqual(seen.map(s => [s.name, s.local.tier, s.local.method, s.local.reasoningControl, s.local.tags.purpose, s.options.timeoutMs]),
+    [['LocalLLMStepByStep', 'micro', 'A', 'plan', 'job:symbolic-vs-llm', 60000]]);
+  assert.equal(armParserSettings('C', {}).local.tier, 'small');
+  assert.equal(armParserSettings('C', {}).local.method, 'B');
+  assert.equal(armParserSettings('C', {}).cacheEntries, 0);
+  assert.equal(record.packet.adapter.mode, 'stepwise');
+  assert.equal(record.packet.parse.strategy, 'LocalLLMStepByStep');
+  assert.equal(record.outcome, 'correct');
+  assert.equal(record.model, 'tier:micro');
+  assert.equal(record.author.steps.length, 2);
+  assert.equal(record.author.method, 'A');
+  assert.ok(Number.isFinite(record.latency.parse_ms) && Number.isFinite(record.latency.turn_ms));
+  assert.equal(record.verified, true);
 });

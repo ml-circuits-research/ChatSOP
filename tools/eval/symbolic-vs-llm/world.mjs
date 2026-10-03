@@ -1,10 +1,9 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {Repository} from '../../../memory/repository.mjs';
 import {StrategyRegistry} from '../../../memory/strategies.mjs';
-import {ingestFacts} from '../../../lib/chat-data/memories.mjs';
-import {Lexicon} from '../../../sop/lexicon.mjs';
+import {BASE_NAME} from '../../../lib/chat-data/memories.mjs';
+import {openWorld, openSession} from '../lib/session.mjs';
 import {compileDeclarative} from '../../../sop/declarative.mjs';
 import {parse as parseRuntime, canonical} from '../../../sop/parser.mjs';
 import {parse, parseCondition} from '../../../sop/knowledge/lexical.mjs';
@@ -29,15 +28,31 @@ const tree = node => {
   return node.kind === 'atom' ? {p: node.p, a: node.terms.map(termValue), neg: node.neg === 'not'} : null;
 };
 
+/** The base memory of a benchmark world in its private chat data root, and the time its facts became known. */
+export const WORLD_MEMORY = 'benchmark';
+const KNOWN_AT = new Date('2020-01-01T00:00:00Z');
+
+/**
+ * A benchmark world as the chat sees a memory: a private chat data root with a base memory `benchmark` holding the case knowledge
+ * (lib/chat-data/memories.mjs) and a chat session on it with its session store (tools/eval/lib/session.mjs, reads never reinforce), so
+ * the chat turns of the step-by-step arms (run.mjs) read the same circuits (rules, defaults, integrity constraints) and facts as the
+ * gold computation. `repo` is the session's repository with the bases `main` (the chat's) and `base` (a fork at the same head),
+ * `session` a reader session of `base` for the gold, `chat` the chat session (`store`, `sessions`, `id`, `config`), `theory` and
+ * `lexicon` those of the knowledge.
+ */
 export function createWorld(knowledge) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'symbolic-bench-'));
   try {
-    const repo = new Repository(root, {memory: {engine: 'sqlite'}});
-    repo.init('base');
-    const blocks = knowledge.split(/\n(?=@)/);
-    for (let i = 0; i < blocks.length; i += 1000) ingestFacts(repo, 'base', blocks.slice(i, i + 1000).join('\n'), {knownAt: Date.parse('2020-01-01')});
+    const {sessions} = openWorld({root});
+    sessions.memories.create({id: WORLD_MEMORY, name: 'symbolic-vs-llm benchmark world', now: KNOWN_AT});
+    sessions.memories.store(WORLD_MEMORY, {name: 'benchmark', text: knowledge}, {approvedBy: 'symbolic-vs-llm', reason: 'benchmark world', now: KNOWN_AT});
+    const chat = openSession({base: WORLD_MEMORY, id: 'benchmark', user: 'benchmark', root});
+    const repo = chat.store.repo;
+    // The world's own base name `base` (the contract of earlier callers: SessionStore.get(user, conversation, 'base')) is a fork of the
+    // session's base `main` at the same head: the same facts, no second ingestion.
+    repo.fork(BASE_NAME, 'base');
     return {repo, session: repo.session('base', 'benchmark', 'dev'), theory: new Theory([{name: 'benchmark', text: knowledge}]),
-      lexicon: Lexicon.fromCircuits([{name: 'benchmark', text: knowledge}]), dispose: () => fs.rmSync(root, {recursive: true, force: true})};
+      lexicon: chat.lexicon, chat, dispose: () => fs.rmSync(root, {recursive: true, force: true})};
   } catch (error) { fs.rmSync(root, {recursive: true, force: true}); throw error; }
 }
 
