@@ -805,7 +805,7 @@
    "id": "tinyagent-own-tests",
    "title": "TinyAgent's own tests",
    "kind": "unit",
-   "measures": "TinyAgent core, proxy, priorities, the agent of tinyagent run (plan cache, skills), jobs runner and tasks, the server and the sandbox of generated plugins, against a fake endpoint (no network, no model).",
+   "measures": "TinyAgent core, proxy, priorities, TaskLambdas and their call folders (effects, pure reuse, no replay of effectful calls, call tree, index and prune), the agent of tinyagent run (TaskLambda cache, skills), jobs runner and tasks, the server and the sandbox of model-written TaskLambdas, against a fake endpoint (no network, no model).",
    "components": [
     "tinyagent"
    ],
@@ -838,9 +838,9 @@
   },
   {
    "id": "bench-tinyagent-agent",
-   "title": "TinyAgent run: task set with known results (plan cache)",
+   "title": "TinyAgent run: task set with known results (TaskLambda cache)",
    "kind": "benchmark",
-   "measures": "tinyagent run (the agent with the plan cache) on 12 tasks with known results in one fresh folder and one cache: four task families, a parameter variant of each, a paraphrased variant and three near misses that must not reuse a cached plan; correctness, plan reuse, model calls, credits and time per task.",
+   "measures": "tinyagent run (the agent with the TaskLambda cache) on 12 tasks with known results in one fresh folder and one cache: four task families, a parameter variant of each, a paraphrased variant and three near misses that must not reuse a cached TaskLambda; correctness, reuse, model calls, credits and time per task; the call folders go to <out>/calls.",
    "components": [
     "tinyagent"
    ],
@@ -849,8 +849,8 @@
    ],
    "modelCalls": {
     "level": "local+cloud",
-    "typical": "planner good (3-4 calls for a new plan), match tiny (one call for a cache hit)",
-    "cost": "0.75-3 plan credits per new plan, 0 per cache hit"
+    "typical": "planner good (1-5 calls for a new TaskLambda), match tiny (one call for a cache hit)",
+    "cost": "0.75-3 plan credits per new TaskLambda, 0 per cache hit"
    },
    "dataSource": [
     "self-written"
@@ -859,9 +859,9 @@
    "runsIn": [
     "manual"
    ],
-   "runtime": "measured: cache hit 1.7-8 s, new plan 8-80 s per task",
+   "runtime": "measured: cache hit 1.5-2.4 s (median 2.0 s), new TaskLambda 8-80 s (median 17 s) per task",
    "latest": {
-    "result": "12 of 12 correct; 4 of 5 variants reused the right plan, 0 of 3 near misses reused",
+    "result": "after the TaskLambda rename: 11 of 12 correct; 4 of 5 variants called the right cached TaskLambda, 0 of 3 near misses reused; 12 plan credits (the failure, a one-digit request value hard-coded as text, is now refused; a targeted rerun of that family passed)",
     "date": "2026-10-03",
     "path": "TinyAgent/README.md (Measured)"
    },
