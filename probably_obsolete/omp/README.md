@@ -13,3 +13,6 @@ LLMAPIProvider (openference Qwen3.8 27b, then DeepSeek flash through OpenRouter)
 
 Measured reason: the omp CodingAgent took ~35 s per commonsense question (p95 142 s), 8 of 32 questions failed in transport (120 s
 timeouts, prose instead of a circuit, closed streams). Path citations inside these files read as they did before the move.
+
+The test stubs of the omp CLI, `tests/fixtures/omp/stub-omp.mjs` and `tests/fixtures/omp/stub-rpc.mjs`, moved to `fixtures/` here on 2026-10-03 (tests inventory): no product code reads `config.omp` any more, and the only remaining caller passed a dead `omp` configuration that was removed from `tests/document-ingestion.test.mjs`. The archived tests in this folder and in `probably_obsolete/tinyLLMExperiments/` still name the old path.
+

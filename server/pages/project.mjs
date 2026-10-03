@@ -110,7 +110,7 @@ function client() {
   function renderPipeline() {
     const rows = data.pipeline.map(entry => '<tr><td><code>' + esc(entry.corpus) + '</code></td><td class="num">' + (entry.splits.test ?? '—').toLocaleString() + '</td><td>' + (entry.test_file ? '<code>' + esc(entry.test_file) + '</code>' : '<span class="muted">no sealed test</span>') + '</td></tr>').join('');
     $('pipeline').innerHTML = '<div class="tablewrap"><table class="t"><thead><tr><th>suite</th><th class="num">sealed test rows</th><th>file</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
-      '<p class="meta">The sealed suites of the product under <code>eval/suites/</code>. The suites of the frozen small-model branch are in <code>probably_obsolete/tinyLLMExperiments/</code>.</p>';
+      '<p class="meta">The sealed suites of the product under <code>eval/suites/</code>. The suites of the frozen small-model branch are in <code>probably_obsolete/tinyLLMExperiments/</code>. Every test, evaluation and harness with its latest result: <a href="/docs/tests-inventory.html">the inventory of tests and evaluations</a>.</p>';
     $('vocab').textContent = '';
   }
 

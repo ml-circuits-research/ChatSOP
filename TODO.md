@@ -39,7 +39,8 @@ Measure: book problems solved end to end (`datasets_sources/books/eval/`, 100 ra
 
 - [ ] **Symbolic planner for agentic work (later; owner 2026-10-03):** test the planning engines (HTN/STRIPS, Golog) on a small PDDL-style benchmark (e.g. blocksworld) against small LLMs, then decide whether planning and tool use become a ChatSOPAdapter mode.
 
-- [ ] **TinyAgent as a small coding-style agent with a visible plan cache** (owner, 2026-10-03; after TinyAgent phase 1 is usable). Intended use: fast, for clear, simple, repetitive tasks and given SkillPlugins.
+- [x] **TinyAgent as a small coding-style agent with a visible plan cache** (owner, 2026-10-03; after TinyAgent phase 1 is usable). Intended use: fast, for clear, simple, repetitive tasks and given SkillPlugins.
+  *Done 2026-10-03:* `tinyagent run` and `tinyagent plans` (`TinyAgent/lib/agent/`, manual: "The agent" in `TinyAgent/README.md`; tests `TinyAgent/test/agent.test.mjs`; task set `TinyAgent/bench/agent-tasks.mjs`; CHANGES.md). Deviations: the tools add `move` (renaming needs it); the planner may ask once for skill bodies and file heads; plans are refused when they write a value of the request into their code. Open: re-plans are still frequent on new tasks (3 of 8 right at the first plan); free shell behind an allow-list not done.
   - Skills: `tinyagent run "<instructions>" [--workdir DIR]` (default the current folder) reads `.agents/skills/*/SKILL.md` (the standard Agent Skills format, also the project `skills/`); the planner sees names and descriptions, loads a body only when it chooses the skill.
   - Minimal tools, confined to the work folder: read, list, search, write, `ask(tier, prompt)`, run a script a skill declares; free shell later, behind an allow-list.
   - The plan is code: the planner tier writes an .mjs plan against `tools.*` and the skills; it runs in the SkillPlugin sandbox; on failure the error goes back to the planner, at most 2–3 rounds; `--dry-run` shows the plan; every run keeps plan, calls and errors in its run folder.
@@ -57,6 +58,15 @@ Phase 1 merged the earlier proxy and job runner into `TinyAgent/` (one server pe
 - [ ] **Switch port 18080** from the old proxy process to `node TinyAgent/bin/tinyagent.mjs serve`, after `node TinyAgent/bin/tinyagent.mjs migrate-home --yes` has copied the old keys, request log, cache and audit store into `~/.tinyagent/`.
 - [ ] **Empty the `PHASE2` list** of `tests/no-direct-model-calls.test.mjs`; the test then holds for every file outside the history paths.
 - [ ] **Formalization regression as SkillPlugins in background priority:** the offline and live formalization regressions (`tools/eval/formalization-regression/`) and the improver's wake check as SkillPlugins in `jobs/skills/`, run with priority `background` so they use only spare plan capacity and never delay a chat turn.
+
+## Tests and evaluations inventory (2026-10-03)
+
+The inventory is `docs/tests-inventory.html` (registry `eval/registry.json`; a new test, harness or eval data folder must be registered or `npm test` fails).
+
+- [ ] **Refresh the stale headline numbers** (recommendation R7): KBQA, the world-kb chat check, query-parsers and e2e-chat were last run before the step-by-step formalizer; one small staged rerun each through ChatSOPAdapter before any of them is quoted.
+- [ ] **Harnesses onto ChatSOPAdapter** (R1): `tools/eval/kbqa/run.mjs`, `tools/eval/smalltalk/run.mjs`, `tools/eval/query-parsers.mjs`, `tools/eval/generality/chat-failures.mjs` and the symbolic-vs-llm `runArm`, each when it is next run.
+- [ ] **Archive at the next touch** (R2-R6): `tools/eval/query-forms/run.mjs`, the SymbolicLM-era severity graders (`sop-compare`, `analysis-map`, `simplify`), `tools/linking/differential.mjs`, `tools/eval/structure-formalizer/probe.mjs`, the `lexicon` arm of the pragmatics harness.
+- [ ] **Gaps** (R8): a direct test of the formalization error inbox (`lib/formalization-errors.mjs`); an evaluation of the optional final-answer formulation (DS012 graded severity); an evaluation of the behaviour layer; TinyAgent latency under load; ingestion v2 beyond stage 1.
 
 ## 1. Backlog (owner, 2026-10-02, not urgent): proposal first in `questions.md`, then implementation
 

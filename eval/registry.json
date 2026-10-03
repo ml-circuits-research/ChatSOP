@@ -1,0 +1,2823 @@
+{
+ "note": "The registry of every test group, evaluation, harness and evaluation data folder of ChatSOP (owner request 2026-10-03). Maintained by hand; validated and rendered by `node tools/inventory/tests-and-evals.mjs` (writes docs/tests-inventory.html); `tests/tests-inventory.test.mjs` fails when a test file, a tools/eval or tools/capabilities file, an eval/ data folder, a verify job or a package script is not mapped here, or when an entry names a missing path. A latest result is copied from the named report with its date; an entry without one says `no recorded run`. Test-group runtimes and results come from `node tools/inventory/tests-and-evals.mjs measure`.",
+ "updated": "2026-10-03",
+ "vocabulary": {
+  "kinds": {
+   "unit": "unit test (stubs, no model, no network)",
+   "integration": "integration test or executable check (several components, a local server or native solvers, no model)",
+   "offline-regression": "offline regression: recorded model answers replayed (record/replay), no model call",
+   "capability-battery": "capability battery: SOP Lang executed by the engines against the oracle or a procedural gold",
+   "live-eval": "live evaluation with model calls through TinyAgent",
+   "benchmark": "benchmark: timings or arm comparisons at scale",
+   "data-audit": "data or repository audit (validators, rights, overlap, review of model output)",
+   "support": "shared helpers, fixtures and runners of other entries"
+  },
+  "components": {
+   "formalizer": "Formalizer, step by step (LocalLLMStepByStep, InternalReasoningStepByStep, protocol data, request parser, query author)",
+   "routed-paths": "Routed paths (structure route, path B, jsEval, FOL, engineCode)",
+   "adapter": "ChatSOPAdapter (modes, agreement, verification)",
+   "conversation": "Conversation, small talk and the chat turn (reply memory, behaviour layer, pragmatics)",
+   "linker": "KnowledgeLinker",
+   "reasoning": "Reasoning engines, oracle and StrategyRouter",
+   "memory": "Memory engines, base memories, sessions and slice retrieval",
+   "ingestion": "Ingestion of documents and knowledge authoring",
+   "analysis": "Analysis procedures",
+   "tinyagent": "TinyAgent (model gateway, jobs, skills, review)",
+   "server-ui": "Server and UI (HTTP API, pages, auth, feedback)",
+   "docs-specs": "Docs and specs (wire help, API examples, spec references, site links)",
+   "sop-language": "SOP Lang (parser, lowering, runtime semantics, knowledge grammar)",
+   "eval-tooling": "Evaluation tooling itself (scorers, generators, harness libraries)",
+   "project": "Project process and hygiene (journal, notes, shards, leakage, rights)"
+  },
+  "modelCalls": [
+   "none",
+   "local",
+   "cloud",
+   "local+cloud"
+  ],
+  "dataSources": [
+   "self-written",
+   "book problems (local only)",
+   "sealed suite",
+   "KBQA",
+   "generated",
+   "recorded answers (local)",
+   "external"
+  ],
+  "runsIn": [
+   "npm test",
+   "verify",
+   "manual"
+  ],
+  "status": [
+   "active",
+   "superseded",
+   "obsolete",
+   "duplicate"
+  ]
+ },
+ "localRoots": [
+  "datasets_sources/",
+  "state/",
+  "eval/reports/current/",
+  "chat_data/"
+ ],
+ "ignoredScripts": {
+  "start": "starts the server",
+  "tinyagent": "the TinyAgent CLI"
+ },
+ "headlineOrder": [
+  "books",
+  "routed-fresh-50",
+  "offline-floor",
+  "capability-battery",
+  "commonsense",
+  "smalltalk",
+  "analysis-v1",
+  "kbqa"
+ ],
+ "entries": [
+  {
+   "id": "tests-sop-syntax",
+   "title": "SOP Lang parser, lowering and expressions",
+   "kind": "unit",
+   "measures": "The structural grammar of SOP Lang parses, lowers and rejects as DS004 says (atoms, Boolean groups, constraints, frames, expressions, time values).",
+   "components": [
+    "sop-language"
+   ],
+   "paths": [
+    "tests/atom-syntax.test.mjs",
+    "tests/parser.test.mjs",
+    "tests/expression.test.mjs",
+    "tests/boolean-groups.test.mjs",
+    "tests/constraints.test.mjs",
+    "tests/frames.test.mjs",
+    "tests/temporal.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/atom-syntax.test.mjs tests/parser.test.mjs tests/expression.test.mjs tests/boolean-groups.test.mjs tests/constraints.test.mjs tests/frames.test.mjs tests/temporal.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "1 s for 7 files (measured, one group at a time)",
+   "latest": {
+    "result": "142 tests: 142 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-sop-semantics",
+   "title": "SOP Lang runtime semantics and the circuit surface",
+   "kind": "unit",
+   "measures": "Admission and runtime semantics of the circuit surface (DS014): stated/assumed/unclear wires, query forms and modes, candidates, clause links, outputs, lexicon, words-only constructs and the deterministic English rendering.",
+   "components": [
+    "sop-language"
+   ],
+   "paths": [
+    "tests/runtime.test.mjs",
+    "tests/declarative-runtime.test.mjs",
+    "tests/outputs.test.mjs",
+    "tests/assumption-facts.test.mjs",
+    "tests/stated-assumed.test.mjs",
+    "tests/model-language-words.test.mjs",
+    "tests/query-forms.test.mjs",
+    "tests/clause-links.test.mjs",
+    "tests/query-candidates.test.mjs",
+    "tests/query-order-random.test.mjs",
+    "tests/lexicon.test.mjs",
+    "tests/english-only-core.test.mjs",
+    "tests/near-miss.test.mjs",
+    "tests/answer-text.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/runtime.test.mjs tests/declarative-runtime.test.mjs tests/outputs.test.mjs tests/assumption-facts.test.mjs tests/stated-assumed.test.mjs tests/model-language-words.test.mjs tests/query-forms.test.mjs tests/clause-links.test.mjs tests/query-candidates.test.mjs tests/query-order-random.test.mjs tests/lexicon.test.mjs tests/english-only-core.test.mjs tests/near-miss.test.mjs tests/answer-text.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "1.6 s for 14 files (measured, one group at a time)",
+   "latest": {
+    "result": "174 tests: 174 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-knowledge-language",
+   "title": "Knowledge wires: grammar and the common-sense layer",
+   "kind": "unit",
+   "measures": "The single knowledge grammar (sop/knowledge) and its model boundary, and that the commonsense-v1 layer validates, carries provenance and answers through the product path.",
+   "components": [
+    "sop-language",
+    "memory"
+   ],
+   "paths": [
+    "tests/knowledge-grammar.test.mjs",
+    "tests/commonsense-layer.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/knowledge-grammar.test.mjs tests/commonsense-layer.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "87.6 s for 2 files (measured, one group at a time)",
+   "latest": {
+    "result": "15 tests: 15 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   },
+   "notes": "commonsense-layer loads world-v1 layers and takes about 90 s alone, close to the 120 s per-file timeout of npm test; it timed out once under machine load (2026-10-03)."
+  },
+  {
+   "id": "tests-oracle",
+   "title": "js-reference oracle, runtime bridge and reasoning modes",
+   "kind": "unit",
+   "measures": "The oracle's answers, proofs, abduction, why_not/explain modes, exact decimals on every engine, routing policy and the skill systems over the bridge.",
+   "components": [
+    "reasoning"
+   ],
+   "paths": [
+    "tests/js-oracle.test.mjs",
+    "tests/reasoning-bridge.test.mjs",
+    "tests/assumptions.test.mjs",
+    "tests/prolog.test.mjs",
+    "tests/reasoning-external.test.mjs",
+    "tests/reasoning-v3.test.mjs",
+    "tests/routing-policy.test.mjs",
+    "tests/reasoning-modes-product.test.mjs",
+    "tests/exact-decimals-engines.test.mjs",
+    "tests/skill-systems.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/js-oracle.test.mjs tests/reasoning-bridge.test.mjs tests/assumptions.test.mjs tests/prolog.test.mjs tests/reasoning-external.test.mjs tests/reasoning-v3.test.mjs tests/routing-policy.test.mjs tests/reasoning-modes-product.test.mjs tests/exact-decimals-engines.test.mjs tests/skill-systems.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "notes": "Tests that need a native solver (SWI-Prolog, Z3, clingo, Souffle) skip when it is not installed.",
+   "runtime": "16.2 s for 10 files (measured, one group at a time)",
+   "latest": {
+    "result": "192 tests: 192 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-engines",
+   "title": "Reasoning engines against the oracle",
+   "kind": "unit",
+   "measures": "Each reasoning strategy (SQLite, Datalog Souffle/e10/soplab, ASP clingo, Prolog tabling, Z3, worlds-sopr, VRC planning, HTN/STRIPS, Golog, closure template, dreaming session, conform) answers like the oracle or refuses honestly.",
+   "components": [
+    "reasoning"
+   ],
+   "paths": [
+    "tests/strategy-asp-clingo.test.mjs",
+    "tests/strategy-closure-template.test.mjs",
+    "tests/strategy-conform.test.mjs",
+    "tests/strategy-datalog-common.test.mjs",
+    "tests/strategy-datalog-differential.test.mjs",
+    "tests/strategy-datalog-e10.test.mjs",
+    "tests/strategy-datalog-soplab.test.mjs",
+    "tests/strategy-datalog-souffle.test.mjs",
+    "tests/strategy-dreaming-session.test.mjs",
+    "tests/strategy-golog-swi.test.mjs",
+    "tests/strategy-htn-strips-planner.test.mjs",
+    "tests/strategy-prolog-tabling.test.mjs",
+    "tests/strategy-solvers-differential.test.mjs",
+    "tests/strategy-sql-sqlite.test.mjs",
+    "tests/strategy-vrc-compressed-planning.test.mjs",
+    "tests/strategy-worlds-sopr.test.mjs",
+    "tests/strategy-z3-smt-bounded.test.mjs",
+    "tests/z3-ast.test.mjs",
+    "tests/solver-qualification.test.mjs",
+    "tests/golog-scenarios.mjs",
+    "tests/helpers-vrc-pl.mjs",
+    "eval/reference-engines/"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written",
+    "generated"
+   ],
+   "command": "node --test tests/strategy-*.test.mjs tests/z3-ast.test.mjs tests/solver-qualification.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "notes": "eval/reference-engines/ holds the vendored reference engine datalog-soplab used by the differential tests. Native-solver tests skip without the solver.",
+   "runtime": "39.5 s for 19 files (measured, one group at a time)",
+   "latest": {
+    "result": "364 tests: 364 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-router",
+   "title": "StrategyRouter rules, timing cells and the capability matrix",
+   "kind": "unit",
+   "measures": "One test per routing rule of DS006, the verification policy and the fallbacks of auto, the timing harness cells, and the backend-by-memory matrix summary.",
+   "components": [
+    "reasoning"
+   ],
+   "paths": [
+    "tests/strategy-router.test.mjs",
+    "tests/router-timing.test.mjs",
+    "tests/capability-matrix.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written",
+    "generated"
+   ],
+   "command": "node --test tests/strategy-router.test.mjs tests/router-timing.test.mjs tests/capability-matrix.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "3.1 s for 3 files (measured, one group at a time)",
+   "latest": {
+    "result": "23 tests: 23 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-llm-agent-baseline",
+   "title": "llm-agent reasoning baseline (stubs)",
+   "kind": "unit",
+   "measures": "The llm-agent strategy (a model answers from rendered evidence) builds its prompt and packet and is verified against the oracle, with stub completions.",
+   "components": [
+    "reasoning",
+    "tinyagent"
+   ],
+   "paths": [
+    "tests/strategy-llm-agent.test.mjs",
+    "tests/strategy-bench-evidence.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/strategy-llm-agent.test.mjs tests/strategy-bench-evidence.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "0.2 s for 2 files (measured, one group at a time)",
+   "latest": {
+    "result": "17 tests: 17 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-capability-battery",
+   "title": "Capability battery tooling",
+   "kind": "unit",
+   "measures": "The battery's inventory, L2 program generator and runner, tags and the ledger gate behave as specified (small samples, no model).",
+   "components": [
+    "reasoning",
+    "eval-tooling"
+   ],
+   "paths": [
+    "tests/capability-battery.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "generated"
+   ],
+   "command": "node --test tests/capability-battery.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "54.5 s for 1 file (measured, one group at a time)",
+   "latest": {
+    "result": "7 tests: 7 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-memory",
+   "title": "Memory engines, repository, shards and slice retrieval",
+   "kind": "unit",
+   "measures": "Every memory bank (scan, SQLite, Holo, hybrid, sharded), the repository, retention and forgetting, the goal-directed linker of declarations, the LRU cache, and slice retrieval with its completeness guard on small and large memories.",
+   "components": [
+    "memory"
+   ],
+   "paths": [
+    "tests/memory-engines.test.mjs",
+    "tests/repository.test.mjs",
+    "tests/shards.test.mjs",
+    "tests/forgetting.test.mjs",
+    "tests/linker.test.mjs",
+    "tests/slice-retrieval.test.mjs",
+    "tests/query-forms-scale.test.mjs",
+    "tests/query-forms-world.test.mjs",
+    "tests/cache-lru.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written",
+    "generated"
+   ],
+   "command": "node --test tests/memory-engines.test.mjs tests/repository.test.mjs tests/shards.test.mjs tests/forgetting.test.mjs tests/linker.test.mjs tests/slice-retrieval.test.mjs tests/query-forms-scale.test.mjs tests/query-forms-world.test.mjs tests/cache-lru.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "notes": "query-forms-world skips when the local world-v1 base memory is absent.",
+   "runtime": "29.1 s for 9 files (measured, one group at a time)",
+   "latest": {
+    "result": "203 tests: 202 pass, 1 skipped",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-base-memories",
+   "title": "Base memories, sessions and the composer (DS022)",
+   "kind": "integration",
+   "measures": "Base memories over every strategy, session clones and commits, fork isolation, the composer of layers and the warm-up at server start, through the library and the /v1 API.",
+   "components": [
+    "memory",
+    "server-ui"
+   ],
+   "paths": [
+    "tests/chat-data.test.mjs",
+    "tests/chat-memories.test.mjs",
+    "tests/chat-sessions.test.mjs",
+    "tests/memory-composer.test.mjs",
+    "tests/memory-isolation.test.mjs",
+    "tests/warm-memories.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/chat-data.test.mjs tests/chat-memories.test.mjs tests/chat-sessions.test.mjs tests/memory-composer.test.mjs tests/memory-isolation.test.mjs tests/warm-memories.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "68.5 s for 6 files (measured, one group at a time)",
+   "latest": {
+    "result": "30 tests: 30 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-knowledge-linker",
+   "title": "KnowledgeLinker: copula, scoring, linking report",
+   "kind": "unit",
+   "measures": "The KnowledgeLinker binds the strings of a circuit to memory symbols (copula readings, relation lexicon, scored joint linking, ambiguity as clarification, the linking report of the packet) and the generic fixes found on commonsense rows.",
+   "components": [
+    "linker"
+   ],
+   "paths": [
+    "tests/knowledge-linker-copula.test.mjs",
+    "tests/knowledge-linker-scoring.test.mjs",
+    "tests/linking-r2.test.mjs",
+    "tests/linking-report.test.mjs",
+    "tests/commonsense-linking-fixes.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/knowledge-linker-copula.test.mjs tests/knowledge-linker-scoring.test.mjs tests/linking-r2.test.mjs tests/linking-report.test.mjs tests/commonsense-linking-fixes.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "2.8 s for 5 files (measured, one group at a time)",
+   "latest": {
+    "result": "47 tests: 47 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-formalizer",
+   "title": "Step-by-step formalizer, protocol data and request parser",
+   "kind": "unit",
+   "measures": "LocalLLMStepByStep and InternalReasoningStepByStep with scripted answers: question order and readers from the protocol layer, assembly of problem circuits, the protocol lint, the strategies and the request parser's honest failures.",
+   "components": [
+    "formalizer"
+   ],
+   "paths": [
+    "tests/local-llm-step-by-step.test.mjs",
+    "tests/local-llm-step-by-step-protocol.test.mjs",
+    "tests/internal-reasoning-step-by-step.test.mjs",
+    "tests/formalization-protocol-data.test.mjs",
+    "tests/formalizer-protocol-memory.test.mjs",
+    "tests/formalization-strategies.test.mjs",
+    "tests/query-parser.test.mjs",
+    "tests/problem-mode.test.mjs",
+    "tests/formalize-registry.test.mjs",
+    "tools/formalizer-protocol/check.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/local-llm-step-by-step.test.mjs tests/local-llm-step-by-step-protocol.test.mjs tests/internal-reasoning-step-by-step.test.mjs tests/formalization-protocol-data.test.mjs tests/formalizer-protocol-memory.test.mjs tests/formalization-strategies.test.mjs tests/query-parser.test.mjs tests/problem-mode.test.mjs tests/formalize-registry.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "6.1 s for 9 files (measured, one group at a time)",
+   "latest": {
+    "result": "60 tests: 60 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-query-author",
+   "title": "Query author library: retrieval, vocabulary, validator",
+   "kind": "unit",
+   "measures": "The shared retrieval, schema neighbourhood, validator coverage, condition-misuse detection, rendering and session runtime that every step-by-step formalizer uses.",
+   "components": [
+    "formalizer"
+   ],
+   "paths": [
+    "tests/query-author.test.mjs",
+    "tests/query-author-condition-misuse.test.mjs",
+    "tests/query-author-coverage.test.mjs",
+    "tests/query-author-neighbourhood.test.mjs",
+    "tests/query-author-rendering.test.mjs",
+    "tests/query-author-session.test.mjs",
+    "tests/fixtures/condition-misuse/"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written",
+    "generated"
+   ],
+   "command": "node --test tests/query-author*.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "2.9 s for 6 files (measured, one group at a time)",
+   "latest": {
+    "result": "43 tests: 43 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-formalization-regression",
+   "title": "Offline formalization regression: fixture tier and set helpers",
+   "kind": "offline-regression",
+   "measures": "The record/replay regression on an invented fixture (every step checked, the first diverging step named), the regression SkillPlugins (recording, references, growth, the balanced argument set with fake transports) and the regression-set helpers (deduplicated cases, sealed provenance refused, clustering, run comparison, proposal checks).",
+   "components": [
+    "formalizer"
+   ],
+   "paths": [
+    "tests/formalization-offline.test.mjs",
+    "tests/formalization-regression.test.mjs",
+    "tests/formalization-regression-plugins.test.mjs",
+    "tests/fixtures/formalization-offline/"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/formalization-offline.test.mjs tests/formalization-regression.test.mjs tests/formalization-regression-plugins.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "notes": "The book-derived recordings run in verify through `formalization-offline` (entry eval-formalization-offline).",
+   "runtime": "3.4 s for 3 files (measured, one group at a time)",
+   "latest": {
+    "result": "15 tests: 15 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-routed-paths",
+   "title": "Routed paths: path B, jsEval, FOL, engineCode, structure",
+   "kind": "unit",
+   "measures": "Readers, static analysis and lowering of path B and jsEval, the FOL reader and converters (fol-v3), the structure route, the engineCode sandboxes against escapes and resource bombs, and the A/B comparison tooling.",
+   "components": [
+    "routed-paths"
+   ],
+   "paths": [
+    "tests/expression-program.test.mjs",
+    "tests/js-route.test.mjs",
+    "tests/engine-code.test.mjs",
+    "tests/fol-v3.test.mjs",
+    "tests/structure-formalizer.test.mjs",
+    "tests/structure-formalizer-compare.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/expression-program.test.mjs tests/js-route.test.mjs tests/engine-code.test.mjs tests/fol-v3.test.mjs tests/structure-formalizer.test.mjs tests/structure-formalizer-compare.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "3.9 s for 6 files (measured, one group at a time)",
+   "latest": {
+    "result": "43 tests: 43 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-adapter",
+   "title": "ChatSOPAdapter and symbolic answer equivalence",
+   "kind": "unit",
+   "measures": "The adapter's modes (stepwise, routed, direct-verified) with stub tiers, the answer packet and its verification labels, and the symbolic answer-equivalence catalogue that verifies a direct answer.",
+   "components": [
+    "adapter"
+   ],
+   "paths": [
+    "tests/adapter.test.mjs",
+    "tests/answer-equivalence.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/adapter.test.mjs tests/answer-equivalence.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "2.4 s for 2 files (measured, one group at a time)",
+   "latest": {
+    "result": "14 tests: 14 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-conversation",
+   "title": "Chat turn, conversation and behaviour layers, small talk",
+   "kind": "unit",
+   "measures": "The Agent turn with a scripted formalizer, reply wires chosen by the oracle, the self layer, behaviour (standing instructions, drives), courtesy and emotion as pragmatic wires, entities carried across turns and the small-talk collections.",
+   "components": [
+    "conversation"
+   ],
+   "paths": [
+    "tests/agent.test.mjs",
+    "tests/conversation-layer.test.mjs",
+    "tests/behaviour-layer.test.mjs",
+    "tests/pragmatic-turn.test.mjs",
+    "tests/conversation-entities.test.mjs",
+    "tests/smalltalk-collections.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/agent.test.mjs tests/conversation-layer.test.mjs tests/behaviour-layer.test.mjs tests/pragmatic-turn.test.mjs tests/conversation-entities.test.mjs tests/smalltalk-collections.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "2.3 s for 6 files (measured, one group at a time)",
+   "latest": {
+    "result": "50 tests: 50 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-ingestion",
+   "title": "Ingestion and knowledge authoring",
+   "kind": "unit",
+   "measures": "Document ingestion into base memories (direct author with a fake chat, the /v1 ingest API, rights refusal, procedures), ingestion v2 (units, dates, vocabulary, FOL to knowledge), the authoring endpoint and knowledge mining from book failures.",
+   "components": [
+    "ingestion"
+   ],
+   "paths": [
+    "tests/ingest.test.mjs",
+    "tests/ingest-direct-author.test.mjs",
+    "tests/document-ingestion.test.mjs",
+    "tests/ingest-v2.test.mjs",
+    "tests/authoring-circuits.test.mjs",
+    "tests/knowledge-mining.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/ingest.test.mjs tests/ingest-direct-author.test.mjs tests/document-ingestion.test.mjs tests/ingest-v2.test.mjs tests/authoring-circuits.test.mjs tests/knowledge-mining.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "notes": "tests/ingest-v2.test.mjs belongs to the ingestion-v2 work in progress (lib/ingest/v2), registered as it was when scanned.",
+   "runtime": "0.8 s for 6 files (measured, one group at a time)",
+   "latest": {
+    "result": "38 tests: 38 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-analysis",
+   "title": "Analysis procedures",
+   "kind": "integration",
+   "measures": "analysis-core-v1 over small documents: every procedure kind, parameters, findings with provenance, the report from the conversation layer and the API.",
+   "components": [
+    "analysis"
+   ],
+   "paths": [
+    "tests/analysis.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/analysis.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "2.6 s for 1 file (measured, one group at a time)",
+   "latest": {
+    "result": "18 tests: 18 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-tinyagent-project",
+   "title": "TinyAgent integration of the project",
+   "kind": "unit",
+   "measures": "The project layer of TinyAgent (tiers, skills, job folders), providers and the answer-language step, the job library and plugins, the bulk review loop, and the rule that no file outside TinyAgent calls a model endpoint.",
+   "components": [
+    "tinyagent"
+   ],
+   "paths": [
+    "tests/tinyagent-project.test.mjs",
+    "tests/llm-jobs.test.mjs",
+    "tests/llm-providers.test.mjs",
+    "tests/llm-review.test.mjs",
+    "tests/no-direct-model-calls.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/tinyagent-project.test.mjs tests/llm-jobs.test.mjs tests/llm-providers.test.mjs tests/llm-review.test.mjs tests/no-direct-model-calls.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "2.3 s for 5 files (measured, one group at a time)",
+   "latest": {
+    "result": "15 tests: 14 pass, 1 fail",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tinyagent-own-tests",
+   "title": "TinyAgent's own tests",
+   "kind": "unit",
+   "measures": "TinyAgent core, proxy, priorities, the agent of tinyagent run (plan cache, skills), jobs runner and tasks, the server and the sandbox of generated plugins, against a fake endpoint (no network, no model).",
+   "components": [
+    "tinyagent"
+   ],
+   "paths": [
+    "tests/tinyagent.test.mjs",
+    "TinyAgent/test/jobs-runner.test.mjs",
+    "TinyAgent/test/jobs-task.test.mjs",
+    "TinyAgent/test/priority.test.mjs",
+    "TinyAgent/test/proxy.test.mjs",
+    "TinyAgent/test/sandbox.test.mjs",
+    "TinyAgent/test/server.test.mjs",
+    "TinyAgent/test/agent.test.mjs",
+    "TinyAgent/test/client-ops.test.mjs",
+    "TinyAgent/test/fake-endpoint.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "npm run test:tinyagent",
+   "scripts": [
+    "test:tinyagent"
+   ],
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "notes": "tests/tinyagent.test.mjs runs this folder inside npm test.",
+   "runtime": "8.5 s for 1 file (measured, one group at a time)",
+   "latest": {
+    "result": "54 tests: 54 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-server",
+   "title": "Server, pages and HTTP API",
+   "kind": "integration",
+   "measures": "The HTTP API and pages against a live test server with stubs: status and trace, auth and login, chat feedback, the knowledge browser, the /experiments pages and the SOP highlighter.",
+   "components": [
+    "server-ui"
+   ],
+   "paths": [
+    "tests/server-http.test.mjs",
+    "tests/server-status.test.mjs",
+    "tests/auth-server.test.mjs",
+    "tests/chat-feedback.test.mjs",
+    "tests/knowledge-browser.test.mjs",
+    "tests/eval-project-server.test.mjs",
+    "tests/experiments-pages.test.mjs",
+    "tests/sop-code-syntax.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/server-http.test.mjs tests/server-status.test.mjs tests/auth-server.test.mjs tests/chat-feedback.test.mjs tests/knowledge-browser.test.mjs tests/eval-project-server.test.mjs tests/experiments-pages.test.mjs tests/sop-code-syntax.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "4.2 s for 8 files (measured, one group at a time)",
+   "latest": {
+    "result": "48 tests: 48 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-docs",
+   "title": "Documentation executed: wire help, API examples, specs, links",
+   "kind": "integration",
+   "measures": "The wire help pages and the knowledge examples of the documentation execute against the real parser and runtime, the API page's examples run against a test server, spec references resolve, the architecture page's citations hold and the served site has no broken link.",
+   "components": [
+    "docs-specs"
+   ],
+   "paths": [
+    "tests/wire-help.test.mjs",
+    "tests/knowledge-docs.test.mjs",
+    "tests/check-spec-refs.test.mjs",
+    "tests/site-links.test.mjs",
+    "tests/architecture-page.test.mjs",
+    "tests/product-api-docs.test.mjs",
+    "tests/fixtures/omp/doc-authored.sop"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/wire-help.test.mjs tests/knowledge-docs.test.mjs tests/check-spec-refs.test.mjs tests/site-links.test.mjs tests/architecture-page.test.mjs tests/product-api-docs.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "21.7 s for 6 files (measured, one group at a time)",
+   "latest": {
+    "result": "22 tests: 22 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-project-records",
+   "title": "Project records and repository hygiene",
+   "kind": "unit",
+   "measures": "The journal, topic notes and task records, sharded JSONL storage and the 50 MB file limit, the sealed-suite leakage guard and the content-word overlap audit.",
+   "components": [
+    "project"
+   ],
+   "paths": [
+    "tests/journal.test.mjs",
+    "tests/notes.test.mjs",
+    "tests/file-size-limit.test.mjs",
+    "tests/jsonl-shards.test.mjs",
+    "tests/leakage.test.mjs",
+    "tests/content-word-overlap.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node --test tests/journal.test.mjs tests/notes.test.mjs tests/file-size-limit.test.mjs tests/jsonl-shards.test.mjs tests/leakage.test.mjs tests/content-word-overlap.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "0.5 s for 6 files (measured, one group at a time)",
+   "latest": {
+    "result": "25 tests: 25 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "tests-eval-tooling",
+   "title": "Evaluation tooling: scorers, generators, harness libraries",
+   "kind": "unit",
+   "measures": "The symbolic-vs-LLM scorer and report, the benchmark and diversity generators, the generality probe's held-out check, the severity graders and the books reasoning-cycle tooling (extraction, scoring, triage rules, compute words).",
+   "components": [
+    "eval-tooling"
+   ],
+   "paths": [
+    "tests/symbolic-vs-llm-harness.test.mjs",
+    "tests/benchmark-generators.test.mjs",
+    "tests/diversity-generator.test.mjs",
+    "tests/generality.test.mjs",
+    "tests/severity.test.mjs",
+    "tests/books-reasoning-cycle.test.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written",
+    "generated"
+   ],
+   "command": "node --test tests/symbolic-vs-llm-harness.test.mjs tests/benchmark-generators.test.mjs tests/diversity-generator.test.mjs tests/generality.test.mjs tests/severity.test.mjs tests/books-reasoning-cycle.test.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "17.2 s for 6 files (measured, one group at a time)",
+   "latest": {
+    "result": "52 tests: 52 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "test-support",
+   "title": "Test runner, helpers and shared fixtures",
+   "kind": "support",
+   "measures": "Nothing by itself: the npm test runner and the helpers and fixtures the test groups share.",
+   "components": [
+    "project"
+   ],
+   "paths": [
+    "tests/helpers.mjs",
+    "tests/product-helpers.mjs",
+    "tests/fixtures/bootstrap.sop",
+    "tests/fixtures/reasoning-procedures.sop",
+    "package.json"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "npm test",
+   "scripts": [
+    "test"
+   ],
+   "verifyJobs": [
+    "node-tests"
+   ],
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "runtime": "about 70-130 s for the whole suite (npm test, files in parallel; 2026-10-03)",
+   "latest": {
+    "result": "1710 tests: 1706 pass, 1 skipped, 3 not ok, none from this inventory: tests/commonsense-layer.test.mjs timed out at 120 s and the 50 ms decision-time test of formalizer-protocol-memory failed while other agents loaded the machine; no-direct-model-calls flags tools/eval/formalization-regression/argument.mjs (regression SkillPlugin work in progress)",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/npm-test.log"
+   },
+   "status": "active"
+  },
+  {
+   "id": "tests-inventory",
+   "title": "This inventory: registry, generator, page and guard",
+   "kind": "data-audit",
+   "measures": "Every test file, harness file, eval/ data folder, verify job and package script is mapped to a registry entry; every entry's paths exist; the page is generated from the current registry.",
+   "components": [
+    "project",
+    "eval-tooling"
+   ],
+   "paths": [
+    "tests/tests-inventory.test.mjs",
+    "tools/inventory/tests-and-evals.mjs",
+    "eval/registry.json",
+    "eval/README.md",
+    "docs/tests-inventory.html"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node tools/inventory/tests-and-evals.mjs",
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "status": "active",
+   "runtime": "0.2 s for 1 file (measured, one group at a time)",
+   "latest": {
+    "result": "4 tests: 4 pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/test-groups.json"
+   }
+  },
+  {
+   "id": "external-unpacked-tests",
+   "title": "Tests of earlier external experiments (local cache)",
+   "kind": "unit",
+   "measures": "The original test suites of the unpacked soplab, sop_reasoner_e10 and vrc03 experiments, kept with their sources in the gitignored local cache.",
+   "components": [
+    "reasoning"
+   ],
+   "paths": [
+    "datasets_sources/experiments_unpacked/"
+   ],
+   "local": true,
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "external"
+   ],
+   "command": "not run by ChatSOP",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "not run",
+   "latest": {
+    "result": "no recorded run"
+   },
+   "status": "superseded",
+   "supersededBy": "tests-engines",
+   "notes": "The engines ChatSOP took from these experiments are vendored under reasoning/strategies/*/vendor and eval/reference-engines and tested there (strategy-datalog-e10, strategy-datalog-soplab, strategy-worlds-sopr, strategy-vrc-compressed-planning)."
+  },
+  {
+   "id": "eval-books",
+   "title": "Books end-to-end evaluation",
+   "kind": "live-eval",
+   "measures": "Fresh problems of the owner's books through the product chat turn (steps arm, adapter mode selectable) against the same model answering directly; correct / wrong / honest unknown / invalid, judged where rules cannot decide.",
+   "components": [
+    "formalizer",
+    "adapter",
+    "reasoning"
+   ],
+   "paths": [
+    "tools/eval/books/run.mjs",
+    "tools/eval/books/system.mjs",
+    "tools/eval/books/score.mjs",
+    "tools/eval/books/report.mjs",
+    "tools/eval/books/sample.mjs",
+    "tools/eval/books/extract.mjs",
+    "tools/eval/books/validate.mjs",
+    "tools/eval/books/docx.mjs",
+    "tools/eval/books/attribution.mjs",
+    "tools/eval/books/probe.mjs",
+    "tools/eval/books/gold-circuits.mjs",
+    "jobs/books-direct-calibration/"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "estimate: per 100 problems about 500-900 step questions on a local tier (micro/tiny) plus 100 direct answers, and about 10 packed judge calls on tier small",
+    "cost": "local tiers free; judge about 1 plan credit"
+   },
+   "dataSource": [
+    "book problems (local only)"
+   ],
+   "command": "node tools/eval/books/run.mjs --n 100 --arms steps,direct [--tier tiny] [--mode stepwise|routed|direct-verified]; then node tools/eval/books/score.mjs --run DIR --judge; node tools/eval/books/report.mjs --run DIR",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 1-2 h per 100 problems on a local tier",
+   "latest": {
+    "result": "batch 2 (100 problems): steps 27 correct / 28 wrong / 42 unknown / 3 invalid; the bare 4B model answering directly 69 / 27 / 4",
+    "date": "2026-10-02",
+    "path": "eval/reports/current/books-eval/problem-mode.md"
+   },
+   "headline": {
+    "id": "books",
+    "label": "Books: steps arm on 100 fresh problems",
+    "value": "27 correct, 28 wrong of 100 (direct 4B: 69 correct, 27 wrong)",
+    "date": "2026-10-02",
+    "source": "eval/reports/current/books-eval/problem-mode.md (experiment eval-books-problems-v1)"
+   },
+   "status": "active",
+   "notes": "The later book measures run through the adapter (eval-adapter) and the formalization regression (eval-formalization-regression)."
+  },
+  {
+   "id": "eval-books-triage",
+   "title": "Books failure triage by layer",
+   "kind": "live-eval",
+   "measures": "Assigns every failed row of a scored books run to one layer (formalization, knowledge, engine, construct, gold, infrastructure): rules first, the job jobs/books-triage (tier good) for the rest.",
+   "components": [
+    "eval-tooling",
+    "formalizer"
+   ],
+   "paths": [
+    "tools/eval/books/triage.mjs",
+    "jobs/books-triage/"
+   ],
+   "modelCalls": {
+    "level": "cloud",
+    "typical": "one judge call per failed row the rules cannot classify (tier good)",
+    "cost": "good tier per call"
+   },
+   "dataSource": [
+    "book problems (local only)"
+   ],
+   "command": "node tools/eval/books/triage.mjs --run <books run dir> [--judge]",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "minutes",
+   "latest": {
+    "result": "first triage of run-2026-10-02T15-13-00: 72 of 73 failures were formalization",
+    "date": "2026-10-02",
+    "path": "eval/reports/current/books-triage/2026-10-02-run-2026-10-02T15-13-00/summary.md"
+   },
+   "status": "active"
+  },
+  {
+   "id": "eval-adapter",
+   "title": "ChatSOPAdapter on book problems (routed, direct-verified, all-paths)",
+   "kind": "live-eval",
+   "measures": "The adapter's answers on a fixed set of 50 fresh book problems, scored by the asked-parts scorer, with each answer's path and verification label.",
+   "components": [
+    "adapter",
+    "routed-paths"
+   ],
+   "paths": [
+    "tools/eval/adapter/run.mjs"
+   ],
+   "modelCalls": {
+    "level": "local",
+    "typical": "per problem: one structure call, then path B, jsEval, engineCode (and FOL) on tier tiny; about 150-250 calls per 50 problems, most served from the TinyAgent cache on a rerun",
+    "cost": "local tier, free"
+   },
+   "dataSource": [
+    "book problems (local only)"
+   ],
+   "command": "node tools/eval/adapter/run.mjs --run <name> --ids-from js-fresh-50 --mode routed|direct-verified|all-paths [--cache strict]",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 10-30 min per 50 problems uncached; seconds with --cache strict",
+   "latest": {
+    "result": "routed, tier tiny: asked parts 31 correct / 3 partial / 5 wrong / 9 no answer / 2 gold defects; verified 27 (25 correct). direct-verified: 37 correct / 10 wrong, 26 verified with precision 25/26",
+    "date": "2026-10-03",
+    "path": "state/adapter-eval/routed-fresh-50-tiny/summary.md"
+   },
+   "headline": {
+    "id": "routed-fresh-50",
+    "label": "Adapter routed mode, 50 fresh book problems, tier tiny",
+    "value": "31 correct, 5 wrong of 50; 27 verified (25 correct)",
+    "date": "2026-10-03",
+    "source": "state/adapter-eval/routed-fresh-50-tiny/summary.md (local)"
+   },
+   "status": "active"
+  },
+  {
+   "id": "eval-engine-code",
+   "title": "engineCode: one model reply in several engine languages",
+   "kind": "live-eval",
+   "measures": "For each problem routed to computation, programs in JS, ASP, SMT-LIB and Prolog from one call, run in sandboxes; two different languages agreeing count as verified.",
+   "components": [
+    "routed-paths"
+   ],
+   "paths": [
+    "tools/eval/engine-code/run.mjs"
+   ],
+   "modelCalls": {
+    "level": "local",
+    "typical": "one call per routed problem (about 40 per run)",
+    "cost": "local tier, free"
+   },
+   "dataSource": [
+    "book problems (local only)"
+   ],
+   "command": "node tools/eval/engine-code/run.mjs --run engine-fresh-50 --from js-fresh-50 [--tier tiny]",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 10-20 min",
+   "latest": {
+    "result": "40 routed problems: JS 23 correct / 8 wrong; verified by two languages 19/40 (15 correct, 3 wrong)",
+    "date": "2026-10-03",
+    "path": "state/engine-code/engine-fresh-50/summary.md"
+   },
+   "status": "active",
+   "notes": "Now also measured through the adapter (eval-adapter, mode all-paths)."
+  },
+  {
+   "id": "eval-structure-ab",
+   "title": "Structure and FOL roles: A/B of tiers and models",
+   "kind": "live-eval",
+   "measures": "The structure role (problem spans and goal) and the logic role (FOL per sentence) on the same book problems for several tiers or models, converted deterministically to SOP and executed; per-model outputs kept for comparison.",
+   "components": [
+    "routed-paths"
+   ],
+   "paths": [
+    "tools/eval/structure-formalizer/ab.mjs",
+    "tools/eval/structure-formalizer/score.mjs",
+    "tools/eval/structure-formalizer/compare.mjs",
+    "tools/eval/structure-formalizer/chat.mjs",
+    "tools/eval/structure-formalizer/engines.mjs",
+    "tools/eval/structure-formalizer/gold.mjs",
+    "tools/eval/structure-formalizer/asked.mjs",
+    "tools/eval/structure-formalizer/heldout.mjs"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "per arm one structure call and one FOL call per sentence of each problem (30-50 problems)",
+    "cost": "local arms free; cloud arms (good, OpenRouter) a few USD per run"
+   },
+   "dataSource": [
+    "book problems (local only)"
+   ],
+   "command": "node tools/eval/structure-formalizer/ab.mjs fetch --run <run> --ids-from probe-1 --arms a,b; node tools/eval/structure-formalizer/ab.mjs score --run <run>",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 20-60 min per arm",
+   "latest": {
+    "result": "moe-thinking-ab-v1 (30 problems): path B correct/wrong tiny 5/13, Qwen3.6 MoE 9/7, good 16/8; logic role tiny 6/2, good 8/8; owner bar (+5) not met",
+    "date": "2026-10-03",
+    "path": "status/experiments.json (moe-thinking-ab-v1); state/moe-ab/"
+   },
+   "status": "active"
+  },
+  {
+   "id": "eval-fol-prompt",
+   "title": "FOL role prompts A/B (fol-v2 vs fol-v3)",
+   "kind": "live-eval",
+   "measures": "Two role prompts of the FOL formalizer on the same book problems through TinyAgent's prompted backend, paired by problem with a bootstrap interval.",
+   "components": [
+    "routed-paths"
+   ],
+   "paths": [
+    "tools/eval/structure-formalizer/fol-prompt.mjs"
+   ],
+   "modelCalls": {
+    "level": "local",
+    "typical": "one FOL call per sentence per arm, 30-50 problems",
+    "cost": "local tier, free"
+   },
+   "dataSource": [
+    "book problems (local only)"
+   ],
+   "command": "node tools/eval/structure-formalizer/fol-prompt.mjs fetch --run <run> --arms lfmp:tiny:fol-v2,lfmp:tiny:fol-v3; ab.mjs score; fol-prompt.mjs compare --run <run> --a <arm> --b <arm>",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 20-40 min",
+   "latest": {
+    "result": "argument sample 30 (tiny): fol-v2 2 correct / 1 wrong, fol-v3 6 / 4; earlier 30: 9/5 vs 9/3; fresh 50: 9/8 vs 8/5",
+    "date": "2026-10-03",
+    "path": "status/experiments.json (fol-v3-ab); state/structure-formalizer/fol-v3-arg-30-final/"
+   },
+   "status": "active"
+  },
+  {
+   "id": "eval-js-route",
+   "title": "jsEval route against path B and FOL",
+   "kind": "live-eval",
+   "measures": "The jsEval route (a bounded functional JS program from the model, admitted and lowered) against path B and FOL v2 on routed book problems, with both scorers.",
+   "components": [
+    "routed-paths"
+   ],
+   "paths": [
+    "tools/eval/structure-formalizer/js-route.mjs"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "two calls per routed problem and tier (jsEval and path B)",
+    "cost": "tiny free; good via OpenRouter cents per problem"
+   },
+   "dataSource": [
+    "book problems (local only)"
+   ],
+   "command": "node tools/eval/structure-formalizer/js-route.mjs fetch --run js-30 --tiers tiny,good:reason; js-route.mjs score --run js-30 --fol fol-v2-30",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 10-30 min",
+   "latest": {
+    "result": "routed fresh 50, asked parts: tiny jsEval 23 correct / 2 wrong, path B 30/2, FOL v2 12/2; good jsEval 26/3, B 32/5, FOL 21/5",
+    "date": "2026-10-03",
+    "path": "state/structure-formalizer/js-fresh-50/summary.md"
+   },
+   "status": "active"
+  },
+  {
+   "id": "eval-structure-probe",
+   "title": "Zero-shot probe of the structure and FOL roles",
+   "kind": "live-eval",
+   "measures": "The first zero-shot probe of the structure and FOL roles on 30 book problems (fetch, score, speed).",
+   "components": [
+    "routed-paths"
+   ],
+   "paths": [
+    "tools/eval/structure-formalizer/probe.mjs"
+   ],
+   "modelCalls": {
+    "level": "local",
+    "typical": "two calls per problem",
+    "cost": "local, free"
+   },
+   "dataSource": [
+    "book problems (local only)"
+   ],
+   "command": "node tools/eval/structure-formalizer/probe.mjs fetch --run <id> --n 30; probe.mjs score --run <id>",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 15 min",
+   "latest": {
+    "result": "psm-lfm-zero-shot-v1 done (GLiNER2.5/T5 backends, since deleted); conclusion overturned by psm-lfm-ab-v1",
+    "date": "2026-10-03",
+    "path": "status/experiments.json (psm-lfm-zero-shot-v1); state/structure-formalizer/probe-1/"
+   },
+   "status": "superseded",
+   "supersededBy": "eval-structure-ab",
+   "notes": "Written for the GLiNER2.5 and T5 backends, which were deleted; ab.mjs reuses its scorer (score.mjs) and covers the same roles on any tier."
+  },
+  {
+   "id": "eval-formalization-regression",
+   "title": "Formalization regression set (live runner, gate, improver wake-up)",
+   "kind": "live-eval",
+   "measures": "Every formalization error of the inbox as an accumulating case set, run on tier tiny through the chat turn; the gate admits a learned-rules change only if it fixes cases and loses none. grow.mjs adds fresh book problems to under-represented sections until the set saturates.",
+   "components": [
+    "formalizer"
+   ],
+   "paths": [
+    "tools/eval/formalization-regression/run.mjs",
+    "tools/eval/formalization-regression/build.mjs",
+    "tools/eval/formalization-regression/cases.mjs",
+    "tools/eval/formalization-regression/gate.mjs",
+    "tools/eval/formalization-regression/wake.mjs",
+    "tools/eval/formalization-regression/compare.mjs",
+    "tools/eval/formalization-regression/sample-stage.mjs",
+    "tools/eval/formalization-regression/grow.mjs",
+    "eval/formalization-regression/",
+    "jobs/formalization-improve/"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "about 6 step questions per case on tier tiny (replayed from the cache where recorded) plus packed judge calls on tier small, cached per (case, answer)",
+    "cost": "tiny free; judge a few plan credits per full run"
+   },
+   "dataSource": [
+    "book problems (local only)",
+    "self-written",
+    "recorded answers (local)"
+   ],
+   "command": "node tools/eval/formalization-regression/run.mjs [--tier tiny] [--workers 4] [--against RUN]",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "about 67 min for the 355-case set (p3, replay fill)",
+   "latest": {
+    "result": "p3 (355 cases, tiny): 134 correct / 94 wrong / 98 unknown / 2 invalid / 26 failed; commonsense and small-talk subset after the acts change (acts-after2, 72 cases): 55 correct",
+    "date": "2026-10-03",
+    "path": "state/formalization-regression/p3-2026-10-03/summary.md; state/formalization-regression/acts-after2-2026-10-03/summary.md"
+   },
+   "status": "active"
+  },
+  {
+   "id": "eval-formalization-offline",
+   "title": "Offline per-step formalization regression (record/replay)",
+   "kind": "offline-regression",
+   "measures": "Recorded tier answers replayed through the current protocol, readers, assembly, validator and execution with no model call; no case of the floor may be lost. record.mjs records the answers of tiny and the reference tiers (small, medium, good) to the same questions.",
+   "components": [
+    "formalizer"
+   ],
+   "paths": [
+    "tools/eval/formalization-regression/offline.mjs",
+    "tools/eval/formalization-regression/record.mjs"
+   ],
+   "modelCalls": {
+    "level": "none",
+    "typical": "check: none; recording (record.mjs) asks tiny and, at background priority, the reference tiers the step questions of each case",
+    "cost": "check free; recording budgeted per run in TinyAgent"
+   },
+   "dataSource": [
+    "recorded answers (local)",
+    "book problems (local only)"
+   ],
+   "command": "node tools/eval/formalization-regression/offline.mjs check",
+   "verifyJobs": [
+    "formalization-offline"
+   ],
+   "runsIn": [
+    "verify"
+   ],
+   "runtime": "minutes (skipped without the local recordings)",
+   "latest": {
+    "result": "floor 104 of 360 recorded cases correct; 0 lost at the last checks",
+    "date": "2026-10-03",
+    "path": "state/formalization-regression/offline-floor.json"
+   },
+   "headline": {
+    "id": "offline-floor",
+    "label": "Offline regression floor (record/replay, no model)",
+    "value": "104 of 360 recorded cases; 0 lost",
+    "date": "2026-10-03",
+    "source": "state/formalization-regression/offline-floor.json (local); journal 2026-10-03 TinyAgent phase 1"
+   },
+   "status": "active",
+   "notes": "Most recordings are Qwen3-4B answers; re-recording with the current tiny and openference references is planned (journal 2026-10-03 14:47)."
+  },
+  {
+   "id": "eval-argument-balanced",
+   "title": "Balanced Yes/No argument set on the FOL path",
+   "kind": "offline-regression",
+   "measures": "Argument problems of the logic book, half gold Yes and half gold No, answered through ChatSOPAdapter routed mode (FOL path on the formalizer tier) and by the direct answer of the same tier; recorded once, then replayed with no model.",
+   "components": [
+    "routed-paths",
+    "adapter"
+   ],
+   "paths": [
+    "tools/eval/formalization-regression/argument.mjs"
+   ],
+   "modelCalls": {
+    "level": "local",
+    "typical": "record: one structure call, the FOL calls and one direct answer per case on local tiers; replay: none",
+    "cost": "local tiers, free"
+   },
+   "dataSource": [
+    "book problems (local only)",
+    "recorded answers (local)"
+   ],
+   "command": "node tools/eval/formalization-regression/argument.mjs record|replay (through the SkillPlugin regression-argument)",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "replay seconds; record estimate 10-30 min",
+   "latest": {
+    "result": "no recorded run"
+   },
+   "status": "active",
+   "notes": "Work in progress of the regression SkillPlugins (jobs/skills/), registered as scanned on 2026-10-03."
+  },
+  {
+   "id": "capability-battery",
+   "title": "Capability battery: inventory, L1 validation, L2 engines vs oracle, ledger gate",
+   "kind": "capability-battery",
+   "measures": "Every capability of the grammar and validator (L1 cases, and the FOL converter family: fol-v3 line forms read and lowered with no model) and every generated program on every engine against the oracle with metamorphic relations (L2); a loss against the committed ledger fails the gate.",
+   "components": [
+    "reasoning",
+    "sop-language"
+   ],
+   "paths": [
+    "tools/capabilities/check.mjs",
+    "tools/capabilities/checks.mjs",
+    "tools/capabilities/coverage.mjs",
+    "tools/capabilities/inventory.mjs",
+    "tools/capabilities/l1.mjs",
+    "tools/capabilities/l2-generator.mjs",
+    "tools/capabilities/l2-run.mjs",
+    "tools/capabilities/tags.mjs",
+    "tools/capabilities/battery-circuits.mjs",
+    "tools/capabilities/l1-fol.mjs",
+    "eval/capabilities/capabilities.json",
+    "eval/capabilities/l1-cases.json",
+    "eval/capabilities/ledger.json",
+    "eval/capabilities/fol-cases.json"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "generated",
+    "self-written"
+   ],
+   "command": "node tools/capabilities/check.mjs --tier fast --report   (full: --tier full)",
+   "verifyJobs": [
+    "capability-battery"
+   ],
+   "runsIn": [
+    "verify"
+   ],
+   "runtime": "fast tier a few minutes; full tier up to 15 min",
+   "latest": {
+    "result": "fast: L1 1346/1346, L2 312 programs on 8 engines with 0 wrong, 0 losses; ledger (full, 2026-10-03 13:06): L1 1341/1341, L2 2492 programs, 1159 capabilities",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/capabilities/check-fast.json; eval/capabilities/ledger.json"
+   },
+   "headline": {
+    "id": "capability-battery",
+    "label": "Capability battery (no-loss gate)",
+    "value": "L1 1346/1346; L2 0 wrong, 0 losses; L3 27/90 on tiny",
+    "date": "2026-10-03",
+    "source": "eval/reports/current/capabilities/check-fast.json; eval/capabilities/ledger.json"
+   },
+   "status": "active"
+  },
+  {
+   "id": "capability-battery-l3",
+   "title": "Capability battery L3: formalization catalog on tier tiny",
+   "kind": "live-eval",
+   "measures": "Battery-written messages covering the L3 capabilities, each one chat turn on tier tiny, scored by rules and tagged by whether the circuit used the capability.",
+   "components": [
+    "formalizer"
+   ],
+   "paths": [
+    "tools/capabilities/l3-run.mjs",
+    "eval/capabilities/l3/"
+   ],
+   "modelCalls": {
+    "level": "local",
+    "typical": "about 6 step questions per case, 90 cases",
+    "cost": "local tier, free"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node tools/capabilities/l3-run.mjs [--tier tiny]",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 20-40 min",
+   "latest": {
+    "result": "27 of 90 correct (run l3-2026-10-02-full)",
+    "date": "2026-10-02",
+    "path": "eval/capabilities/l3/results.json"
+   },
+   "status": "active"
+  },
+  {
+   "id": "eval-smoke-reasoning",
+   "title": "Reasoning smoke suite (every engine on every case)",
+   "kind": "capability-battery",
+   "measures": "149 hand-written knowledge and query circuits run on every reasoning adapter against expected answers: pass, not expressible, or failure.",
+   "components": [
+    "reasoning",
+    "sop-language"
+   ],
+   "paths": [
+    "eval/smoke-reasoning/"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written",
+    "generated"
+   ],
+   "command": "node eval/smoke-reasoning/run.mjs",
+   "verifyJobs": [
+    "smoke-reasoning"
+   ],
+   "runsIn": [
+    "verify"
+   ],
+   "runtime": "about 1-3 min",
+   "latest": {
+    "result": "no failures on any adapter; pass counts js-oracle 104, asp-clingo 97, dreaming-session 93, prolog-tabling 86, sql-sqlite 82, z3 82 of 149 (the rest not expressible); llm-agent arms unavailable",
+    "date": "2026-10-02",
+    "path": "eval/reports/current/smoke-reasoning/report.json"
+   },
+   "status": "active",
+   "notes": "eval/smoke-reasoning/bench/ also holds the dev manifest of the symbolic-vs-LLM benchmark (bench-symbolic-vs-llm)."
+  },
+  {
+   "id": "eval-commonsense",
+   "title": "Common-sense questions (eval-commonsense-v1)",
+   "kind": "live-eval",
+   "measures": "32 common-sense questions through the chat turn with and without the commonsense-v1 layer, plus the knowledge-level check with reviewed gold circuits and the replay of recorded circuits.",
+   "components": [
+    "formalizer",
+    "memory",
+    "linker"
+   ],
+   "paths": [
+    "eval/commonsense/",
+    "tools/commonsense/replay.mjs",
+    "tools/commonsense/gold-check.mjs"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "about 6 step questions per question (32 questions); gold-check and replay call no model",
+    "cost": "tiny free; small 0.1 credit per call"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node tools/eval/query-parsers.mjs run --suite forms --rows eval/commonsense/questions.jsonl --tier tiny; QF_CHAT_ROOT=<root> node tools/commonsense/gold-check.mjs --arm with",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 10-20 min",
+   "latest": {
+    "result": "tier tiny through the regression runner: 20 of 32 correct (17 before the acts change); knowledge level with gold circuits 28/30 correct, 0 wrong (2026-10-02)",
+    "date": "2026-10-03",
+    "path": "state/formalization-regression/acts-after2-2026-10-03/summary.md; eval/reports/current/commonsense/gold-with.json"
+   },
+   "headline": {
+    "id": "commonsense",
+    "label": "Common-sense questions, tier tiny",
+    "value": "20 of 32 correct",
+    "date": "2026-10-03",
+    "source": "journal 2026-10-03 (small talk via reply-memory acts); state/formalization-regression/acts-after2-2026-10-03/summary.md (local)"
+   },
+   "status": "active"
+  },
+  {
+   "id": "audit-commonsense-layer",
+   "title": "Common-sense layer checks (validator, integrity against world facts)",
+   "kind": "data-audit",
+   "measures": "commonsense-v1 passes the knowledge validator over its import chain, and its integrity constraints are checked on sampled world-v1 witnesses.",
+   "components": [
+    "memory"
+   ],
+   "paths": [
+    "tools/commonsense/check.mjs",
+    "tools/commonsense/integrity.mjs",
+    "tools/commonsense/build.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "external",
+    "generated"
+   ],
+   "command": "node tools/commonsense/check.mjs --world; QF_CHAT_ROOT=<root> node tools/commonsense/integrity.mjs",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "minutes",
+   "latest": {
+    "result": "integrity sample: no error-severity violation, 2 warnings",
+    "date": "2026-10-02",
+    "path": "eval/reports/current/commonsense/integrity-world-v1.json"
+   },
+   "status": "active"
+  },
+  {
+   "id": "eval-smalltalk",
+   "title": "Small-talk replies (eval/smalltalk-v1)",
+   "kind": "live-eval",
+   "measures": "40 fresh chat messages through the chat turn under reply layers A/B/C, judged blind on relevance, tone, naturalness, honesty and brevity (1-5), paired bootstrap between arms.",
+   "components": [
+    "conversation"
+   ],
+   "paths": [
+    "tools/eval/smalltalk/run.mjs",
+    "eval/smalltalk-v1/",
+    "jobs/smalltalk-judge/",
+    "jobs/smalltalk-replies/",
+    "tools/smalltalk/"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "40 formalizations on the tier ladder plus a few packed judge calls on the auditor tier (medium)",
+    "cost": "under 1 USD per run"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node tools/eval/smalltalk/run.mjs turns; node tools/eval/smalltalk/run.mjs judge-input; node TinyAgent/bin/tinyagent.mjs job jobs/smalltalk-judge; node tools/eval/smalltalk/run.mjs report --run DIR",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 15-30 min",
+   "latest": {
+    "result": "arm B mean 4.21 of 5 (before 3.60); paired difference +0.61 [0.31, 0.93]",
+    "date": "2026-10-03",
+    "path": "eval/reports/history/smalltalk-acts-2026-10-03/report.md"
+   },
+   "headline": {
+    "id": "smalltalk",
+    "label": "Small talk, judged reply quality (1-5)",
+    "value": "4.21 (was 3.60)",
+    "date": "2026-10-03",
+    "source": "eval/reports/history/smalltalk-acts-2026-10-03/report.md"
+   },
+   "status": "active",
+   "notes": "tools/smalltalk/ builds the small-talk collections the evaluation measures."
+  },
+  {
+   "id": "eval-pragmatics",
+   "title": "Courtesy and emotion understanding (eval-pragmatics-v1)",
+   "kind": "live-eval",
+   "measures": "300 labelled messages: precision and recall of the message acts and emotions the step-by-step first question names, per tier.",
+   "components": [
+    "conversation",
+    "formalizer"
+   ],
+   "paths": [
+    "tools/eval/pragmatics/run.mjs",
+    "eval/pragmatics-v1/"
+   ],
+   "modelCalls": {
+    "level": "local",
+    "typical": "one or two questions per message, 50-300 messages",
+    "cost": "local tier, free"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node tools/eval/pragmatics/run.mjs --arm stepbystep --limit 50; node tools/eval/pragmatics/run.mjs --report",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 5-30 min",
+   "latest": {
+    "result": "stepbystep (micro, 300): core precision 48, recall 83.1",
+    "date": "2026-10-02",
+    "path": "eval/reports/current/pragmatics/summary.md"
+   },
+   "status": "active",
+   "notes": "Its `lexicon` arm imports the archived EmotionDetectionSystem (probably_obsolete/paused/); the acts are now memory data, measured again by eval-smalltalk."
+  },
+  {
+   "id": "eval-analysis",
+   "title": "Analysis procedures on eval/analysis-v1",
+   "kind": "live-eval",
+   "measures": "Planted issues and KPIs of eight own documents: (a) the hand-written SOP over analysis-core-v1 (no model), (b) end to end through ingestion v2 and analyze-document.",
+   "components": [
+    "analysis",
+    "ingestion"
+   ],
+   "paths": [
+    "tools/eval/analysis/run.mjs",
+    "eval/analysis-v1/"
+   ],
+   "modelCalls": {
+    "level": "cloud",
+    "typical": "mode sop none; mode analyses about 14 calls per 4 documents (small and medium)",
+    "cost": "about 6.6 plan credits for 4 documents"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node tools/eval/analysis/run.mjs --mode sop; node tools/eval/analysis/run.mjs --mode analyses --dir DIR",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "mode sop seconds; mode analyses 10-30 min",
+   "latest": {
+    "result": "(a) 27/27 planted issues, 0 spurious, 23/23 KPIs; (b) stage 1, 4 documents: 2/15 found, 4 spurious",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/analysis/sop.json; eval/reports/current/analysis/analyses.json"
+   },
+   "headline": {
+    "id": "analysis-v1",
+    "label": "Analysis procedures (8 documents, 27 planted issues)",
+    "value": "(a) 27/27 found, 0 spurious; (b) end to end 2/15",
+    "date": "2026-10-03",
+    "source": "eval/reports/current/analysis/ (experiment analysis-procedures-v1)"
+   },
+   "status": "active"
+  },
+  {
+   "id": "eval-ingest",
+   "title": "Questions over ingested documents (eval-ingest-v1, ingestion v2)",
+   "kind": "live-eval",
+   "measures": "Questions over two documents ingested into task-type base memories, answered through the product path, against a model reading the whole document.",
+   "components": [
+    "ingestion",
+    "formalizer"
+   ],
+   "paths": [
+    "tools/eval/ingest-v1.mjs",
+    "tools/eval/ingest-v2.mjs",
+    "eval/ingest-v1/"
+   ],
+   "modelCalls": {
+    "level": "cloud",
+    "typical": "ingestion: a few calls per chunk (small/medium); questions: about 6 step questions each (36 questions)",
+    "cost": "a few plan credits per document"
+   },
+   "dataSource": [
+    "self-written",
+    "external"
+   ],
+   "command": "node tools/eval/ingest-v2.mjs build --doc handbook; node tools/eval/ingest-v1.mjs pipeline --doc handbook --base ID --tag v2; node tools/eval/ingest-v1.mjs score",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 15-45 min per document",
+   "latest": {
+    "result": "pipeline over ingestion v2, handbook: 2 correct / 1 wrong / 15 unknown of 18 (2026-10-03); direct author 2026-10-02: handbook 4/1/13, europa 5/0/13; a model reading the document 15-18 of 18",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/ingest-v1/pipeline-handbook-v2.jsonl"
+   },
+   "status": "active",
+   "notes": "Experiment eval-ingest-v1 is marked abandoned; the harness is reused by the ingestion-v2 work in progress."
+  },
+  {
+   "id": "eval-kbqa",
+   "title": "KBQA over Wikidata slices (eval-kbqa-v1)",
+   "kind": "live-eval",
+   "measures": "Public benchmark questions (Mintaka, LC-QuAD 2, SimpleQuestions, QALD-10) answered from gold-guided Wikidata slices through the product chain, with failure attribution and LLM-reads-the-slice baselines.",
+   "components": [
+    "formalizer",
+    "linker",
+    "memory"
+   ],
+   "paths": [
+    "tools/eval/kbqa.mjs",
+    "tools/eval/kbqa/",
+    "eval/suites/kbqa-mintaka/",
+    "eval/suites/kbqa-lcquad2/",
+    "eval/suites/kbqa-simplequestions/",
+    "eval/suites/kbqa-qald10/"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "about 6 step questions per question; baselines one call per shard of questions",
+    "cost": "baselines a few plan credits per stage"
+   },
+   "dataSource": [
+    "KBQA",
+    "sealed suite"
+   ],
+   "command": "node tools/eval/kbqa.mjs run --suite simplequestions --stage 100 [--tier tiny]; node tools/eval/kbqa.mjs report",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 30-90 min per stage of 100-300",
+   "latest": {
+    "result": "chain (SymbolicLM era, before the step-by-step formalizer): SimpleQuestions 68/300 with the authored lexicon (15 wrong), Mintaka 1/300, LC-QuAD 2 0/100, QALD-10 0-1/100; LLM reading the slice: SimpleQuestions 79-95/100",
+    "date": "2026-10-01",
+    "path": "eval/reports/current/kbqa/summary.md"
+   },
+   "headline": {
+    "id": "kbqa",
+    "label": "KBQA, SimpleQuestions stage 300 (authored lexicon)",
+    "value": "68 of 300 correct, 15 wrong (stale: before the step-by-step formalizer)",
+    "date": "2026-10-01",
+    "source": "eval/reports/current/kbqa/summary.md"
+   },
+   "status": "active",
+   "notes": "Every recorded KBQA run predates the step-by-step formalizer; a small rerun is needed before the number can be compared."
+  },
+  {
+   "id": "eval-linking",
+   "title": "Linking suite and the KnowledgeLinker acceptance checks",
+   "kind": "live-eval",
+   "measures": "How the KnowledgeLinker binds the strings of recorded circuits to world-v1 symbols (sealed suite linking-v1: mechanical labels and judge consensus labels), plus the live acceptance chat on a private server.",
+   "components": [
+    "linker"
+   ],
+   "paths": [
+    "tools/eval/linking-suite.mjs",
+    "tools/eval/linking-split.mjs",
+    "eval/suites/linking-v1/",
+    "tools/linking/acceptance-chat.mjs",
+    "tools/linking/judge/",
+    "tools/linking/rows.mjs",
+    "tools/linking/mine-vocabulary.mjs",
+    "tools/linking/core-en/"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "suite run: none; judges: packed calls per batch of 25-30 questions; acceptance chat: the tier ladder per question",
+    "cost": "judging a few plan credits"
+   },
+   "dataSource": [
+    "sealed suite",
+    "generated"
+   ],
+   "command": "node tools/eval/linking-suite.mjs run --linker scored --stage all",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "suite run minutes",
+   "latest": {
+    "result": "eval-linking-v2 sealed test (246 rows): relation accuracy 39.8% [33.9, 46.1], wrong link 12.1%; acceptance chat 3/3 on world-v1",
+    "date": "2026-10-01",
+    "path": "status/experiments.json (eval-linking-v2); eval/reports/current/linking/open-test.json"
+   },
+   "status": "active",
+   "notes": "Building the suite (`build`) reads frozen datasets of the small-model branch through tools/linking/rows.mjs; the sealed suite itself is kept as is."
+  },
+  {
+   "id": "eval-linking-differential",
+   "title": "Linker differential over symbolic_english dev rows",
+   "kind": "data-audit",
+   "measures": "Records the observable result of every symbolic_english dev row's SymbolicLM program against its verification world and reports regressions after a linker change.",
+   "components": [
+    "linker"
+   ],
+   "paths": [
+    "tools/linking/differential.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "generated"
+   ],
+   "command": "node tools/linking/differential.mjs record; node tools/linking/differential.mjs compare",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "minutes",
+   "latest": {
+    "result": "788 rows, 0 regressions, 132 improvements (linker M3)",
+    "date": "2026-10-01",
+    "path": "eval/reports/current/linking/differential-after.json"
+   },
+   "status": "obsolete",
+   "notes": "Its rows are SymbolicLM programs of the frozen small-model branch, read from probably_obsolete/tinyLLMExperiments/; the current formalizer never produces them. Kept because it still runs; candidate for the archive."
+  },
+  {
+   "id": "eval-query-parsers",
+   "title": "Formalizer on the world-kb and forms question sets (eval-query-parsers-v1)",
+   "kind": "live-eval",
+   "measures": "The step-by-step formalizer, one tier at a time, on the 30 world-kb questions or a forms JSONL, through the shared Agent path; correct, wrong, honest unknown, parser failed, latency and cost.",
+   "components": [
+    "formalizer",
+    "linker"
+   ],
+   "paths": [
+    "tools/eval/query-parsers.mjs",
+    "eval/world-kb/questions.json"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "about 6 step questions per question (30-44 questions)",
+    "cost": "tiny free; small 0.1 credit per call"
+   },
+   "dataSource": [
+    "self-written",
+    "generated"
+   ],
+   "command": "node tools/eval/query-parsers.mjs run --suite world30 [--tier tiny]; node tools/eval/query-parsers.mjs report",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 5-20 min",
+   "latest": {
+    "result": "recorded rows predate the step-by-step formalizer (coding agent forms 31/40, 0 wrong); no step-by-step run recorded in the report",
+    "date": "2026-10-02",
+    "path": "eval/reports/current/query-parsers/report.md"
+   },
+   "status": "active",
+   "notes": "Also the runner of eval-commonsense (--rows eval/commonsense/questions.jsonl)."
+  },
+  {
+   "id": "eval-query-forms",
+   "title": "Query-forms dev set: oracle gold, overlap guard and probe",
+   "kind": "data-audit",
+   "measures": "Builds the query-forms dev set with oracle gold on world-v1 (two sources must agree), guards it against overlap with the sealed KBQA tests, and probes single questions through the Agent.",
+   "components": [
+    "formalizer",
+    "memory"
+   ],
+   "paths": [
+    "tools/eval/query-forms/gold.mjs",
+    "tools/eval/query-forms/overlap.mjs",
+    "tools/eval/query-forms-probe.mjs"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "gold and overlap none; the probe asks the tier ladder for one question",
+    "cost": "negligible"
+   },
+   "dataSource": [
+    "generated",
+    "sealed suite"
+   ],
+   "command": "node tools/eval/query-forms/gold.mjs --in rows.jsonl --out dev.jsonl; node tools/eval/query-forms/overlap.mjs --dev dev.jsonl; node tools/eval/query-forms-probe.mjs --q \"...\"",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "minutes",
+   "latest": {
+    "result": "no recorded run"
+   },
+   "status": "active",
+   "notes": "query-forms-probe.mjs also provides openSession and agentClient to the commonsense, generality, protocol and ingest harnesses. Experiment eval-query-forms-v1 still lists the dev set as pending."
+  },
+  {
+   "id": "eval-query-forms-run",
+   "title": "Query-forms dev-set runner",
+   "kind": "live-eval",
+   "measures": "Runs the query-forms dev set through the chain and scores it per form against the oracle gold.",
+   "components": [
+    "formalizer"
+   ],
+   "paths": [
+    "tools/eval/query-forms/run.mjs"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "about 6 step questions per row",
+    "cost": "tiny free"
+   },
+   "dataSource": [
+    "generated"
+   ],
+   "command": "node tools/eval/query-forms/run.mjs --dev dev.jsonl --out records.jsonl [--tier tiny]",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 10-30 min",
+   "latest": {
+    "result": "no recorded run"
+   },
+   "status": "duplicate",
+   "duplicateOf": "eval-query-parsers",
+   "notes": "tools/eval/query-parsers.mjs --suite forms --rows runs the same rows through the same path with outcome classes and cost."
+  },
+  {
+   "id": "eval-world-kb-chat",
+   "title": "world-v1 30-question chat check over HTTP",
+   "kind": "live-eval",
+   "measures": "30 questions (24 English, 6 Romanian) through the HTTP chat of a private server on world-v1, one session each.",
+   "components": [
+    "server-ui",
+    "linker",
+    "memory"
+   ],
+   "paths": [
+    "eval/world-kb/"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "the product tier ladder per question (30 questions)",
+    "cost": "small"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node eval/world-kb/chat.mjs --chat-data <root>; node eval/world-kb/report.mjs",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "about 2-10 min",
+   "latest": {
+    "result": "20 correct / 0 wrong / 10 honest unknown of 30 (formalizer of that time: the coding agent)",
+    "date": "2026-10-01",
+    "path": "eval/reports/current/world-kb/summary.md"
+   },
+   "status": "active"
+  },
+  {
+   "id": "eval-generality",
+   "title": "Generality probe: held-out forms, compositions, natural questions (eval-generality-v1)",
+   "kind": "live-eval",
+   "measures": "Level b held-out forms, level c compositions and natural questions on world-v1, with a zero-model replay of reviewed circuits separating language limits from author errors.",
+   "components": [
+    "formalizer",
+    "reasoning"
+   ],
+   "paths": [
+    "tools/eval/generality/"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "about 6 step questions per row, 50-95 rows per arm",
+    "cost": "small tier credits"
+   },
+   "dataSource": [
+    "generated",
+    "self-written"
+   ],
+   "command": "node tools/eval/generality/run.mjs --arms C,R --levels b,c,n [--tier small]; node tools/eval/generality/summarize.mjs --runs ...",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 30-60 min",
+   "latest": {
+    "result": "level b (50): C 38 correct / 1 wrong; level c (25): 24 / 0; replay 75/75 (arms of the one-shot era)",
+    "date": "2026-10-02",
+    "path": "eval/reports/current/generality/summary.md"
+   },
+   "status": "active",
+   "notes": "Experiment done; its held-out check (heldout-check.mjs) stays a guard of direction 7."
+  },
+  {
+   "id": "eval-stepbystep-protocol",
+   "title": "Step-by-step question protocols A/B (eval-stepbystep-protocol-v1)",
+   "kind": "live-eval",
+   "measures": "Question protocols of LocalLLMStepByStep on four levels (known forms, held-out forms, compositions, natural), paired bootstrap against protocol A.",
+   "components": [
+    "formalizer"
+   ],
+   "paths": [
+    "tools/eval/stepbystep-protocol/"
+   ],
+   "modelCalls": {
+    "level": "local",
+    "typical": "about 6 questions per row, 89 rows per method",
+    "cost": "local, free"
+   },
+   "dataSource": [
+    "generated",
+    "self-written"
+   ],
+   "command": "node tools/eval/stepbystep-protocol/run.mjs --methods A,B --levels a,b,c,n --per 3; node tools/eval/stepbystep-protocol/summarize.mjs --runs stage1",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 20-40 min",
+   "latest": {
+    "result": "method B 73 of 89 correct vs A 23; B - A +56.2 pp [44.9, 67.4]; B adopted",
+    "date": "2026-10-02",
+    "path": "eval/reports/current/stepbystep-protocol/final-B-summary.md"
+   },
+   "status": "active",
+   "notes": "Experiment done; tests import its summarize helpers."
+  },
+  {
+   "id": "eval-internal-reasoning",
+   "title": "InternalReasoningStepByStep vs method B (eval-internal-reasoning-stepbystep-v1)",
+   "kind": "live-eval",
+   "measures": "The planner-driven strategy against LocalLLMStepByStep method B on the protocol rows, plus blind judging of trace explanations and a no-model replay of recorded IR answers.",
+   "components": [
+    "formalizer"
+   ],
+   "paths": [
+    "tools/eval/internal-reasoning/",
+    "tools/formalizer-protocol/replay.mjs"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "about 6 questions per row (89 rows per arm); judge one call per record (tier small)",
+    "cost": "local free; judge about 1-3 plan credits"
+   },
+   "dataSource": [
+    "generated",
+    "self-written"
+   ],
+   "command": "node tools/eval/internal-reasoning/run.mjs --arms IR,B --out DIR; node tools/eval/internal-reasoning/summarize.mjs --runs stage1",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 30-60 min",
+   "latest": {
+    "result": "undecided by the preregistered non-inferiority rule; IR within 2 rows of B with fewer questions",
+    "date": "2026-10-02",
+    "path": "eval/reports/current/internal-reasoning/summary.md"
+   },
+   "status": "active"
+  },
+  {
+   "id": "bench-symbolic-vs-llm",
+   "title": "Symbolic vs small LLM benchmark (eval-symbolic-vs-llm-v1)",
+   "kind": "benchmark",
+   "measures": "Generated reasoning families with oracle gold: direct English-evidence answers (A, A') against step-by-step circuits on a named tier and subscription answers, paired by row.",
+   "components": [
+    "formalizer",
+    "reasoning"
+   ],
+   "paths": [
+    "tools/eval/symbolic-vs-llm/",
+    "tools/datasets/diversity/"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "per arm one call (A) or about 6 step questions (B-stepbystep) per row, 40-240 rows",
+    "cost": "local arms free; subscription arms plan credits"
+   },
+   "dataSource": [
+    "generated"
+   ],
+   "command": "node tools/datasets/diversity/build-benchmark.mjs; node tools/eval/symbolic-vs-llm/run.mjs ...; node tools/eval/symbolic-vs-llm/report.mjs",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 30-90 min per arm",
+   "latest": {
+    "result": "T10 (40 rows): Qwen3-4B B-stepbystep 27 correct / 3 wrong vs the same model answering from text 20 / 13; Qwen3.8-27B B-stepbystep 36 / 2",
+    "date": "2026-10-02",
+    "path": "eval/reports/current/symbolic-vs-llm/t10-comparison/table.md"
+   },
+   "status": "active",
+   "notes": "The validation procedure of AGENTS.md; no sealed stage has run (preregistered)."
+  },
+  {
+   "id": "bench-router",
+   "title": "StrategyRouter smoke arm and timing cells (router-v1)",
+   "kind": "benchmark",
+   "measures": "Every smoke case asked through the oracle and through the router with thresholds forced to zero (agreement), and wire-level timing cells per engine and size.",
+   "components": [
+    "reasoning"
+   ],
+   "paths": [
+    "tools/eval/router-smoke.mjs",
+    "tools/eval/router-timing.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written",
+    "generated"
+   ],
+   "command": "node tools/eval/router-smoke.mjs; node tools/eval/router-timing.mjs --quick",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "minutes (quick) to an hour (all sizes)",
+   "latest": {
+    "result": "smoke: 140 cases, 67 routed to an engine, 73 to the oracle, 140 agree, 0 disagree",
+    "date": "2026-10-01",
+    "path": "eval/reports/current/router/smoke.json"
+   },
+   "status": "active"
+  },
+  {
+   "id": "bench-sql-sqlite",
+   "title": "sql-sqlite speed, smoke cases and differential fuzz",
+   "kind": "benchmark",
+   "measures": "sql-sqlite against the oracle and datalog-e10 on the same generated circuits (speed), the generator of smoke cases 50-54 (--check), and a seeded differential fuzz against the oracle.",
+   "components": [
+    "reasoning"
+   ],
+   "paths": [
+    "tools/eval/sql-sqlite-bench.mjs",
+    "tools/eval/sql-sqlite-cases.mjs",
+    "tools/eval/sql-sqlite-fuzz.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "generated"
+   ],
+   "command": "node tools/eval/sql-sqlite-bench.mjs; node tools/eval/sql-sqlite-cases.mjs --check; node tools/eval/sql-sqlite-fuzz.mjs --seeds 0-499",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "minutes",
+   "latest": {
+    "result": "bench recorded (e.g. bulk join 3,000 rows: sql-sqlite 25 ms, datalog-e10 65 ms, oracle 254 ms)",
+    "date": "2026-10-01",
+    "path": "eval/reports/current/sql-sqlite/bench.json"
+   },
+   "status": "active",
+   "notes": "tests/strategy-sql-sqlite.test.mjs imports the fuzz and the case generator."
+  },
+  {
+   "id": "bench-exact-decimals",
+   "title": "Exact decimal arithmetic speed per engine",
+   "kind": "benchmark",
+   "measures": "Sums, counts, minima and maxima over N two-decimal prices per engine, each cell in its own process with a wall limit.",
+   "components": [
+    "reasoning"
+   ],
+   "paths": [
+    "tools/eval/exact-decimals-bench.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "generated"
+   ],
+   "command": "node tools/eval/exact-decimals-bench.mjs --sizes 1000,10000,100000",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "minutes",
+   "latest": {
+    "result": "timings recorded per engine and size",
+    "date": "2026-10-02",
+    "path": "eval/reports/current/exact-decimals/timing.json"
+   },
+   "status": "active"
+  },
+  {
+   "id": "bench-slice",
+   "title": "Slice-path timing on large synthetic memories",
+   "kind": "benchmark",
+   "measures": "Median wall time and slice bounds of fixed questions (lookup, joins, recursion, counts, scans) on SQLite memories of 10k-100k facts, reopened cold.",
+   "components": [
+    "memory"
+   ],
+   "paths": [
+    "tools/eval/slice-timing.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "generated"
+   ],
+   "command": "node tools/eval/slice-timing.mjs --facts 10000,100000",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "minutes",
+   "latest": {
+    "result": "timings recorded per size and question",
+    "date": "2026-10-01",
+    "path": "eval/reports/current/slice-path/timing.json"
+   },
+   "status": "active"
+  },
+  {
+   "id": "bench-memory",
+   "title": "Memory backend benchmarks and comparison matrices",
+   "kind": "benchmark",
+   "measures": "Memory banks on the same atoms and queries, HoloMemory kernel measurements, the seeded shard stress test, the engine-by-memory comparison and its summary matrix.",
+   "components": [
+    "memory",
+    "reasoning"
+   ],
+   "paths": [
+    "tools/bench-memory.mjs",
+    "tools/bench-holo-memory.mjs",
+    "tools/bench-shards.mjs",
+    "tools/compare-engines.mjs",
+    "tools/compare-reasoners.mjs",
+    "tools/capability-matrix.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "generated"
+   ],
+   "command": "npm run bench:memory; node tools/bench-shards.mjs",
+   "scripts": [
+    "bench:memory"
+   ],
+   "verifyJobs": [
+    "shards-benchmark"
+   ],
+   "runsIn": [
+    "verify",
+    "manual"
+   ],
+   "runtime": "seconds to minutes",
+   "latest": {
+    "result": "shards benchmark passes in verify (last full verify report)",
+    "date": "2026-10-01",
+    "path": "eval/reports/current/verification.json"
+   },
+   "status": "active"
+  },
+  {
+   "id": "eval-e2e-chat",
+   "title": "End-to-end chat replay through a private server",
+   "kind": "live-eval",
+   "measures": "Replays the turns of an earlier end-to-end chat check through a running private server and records answers, status, completeness, timing and trace.",
+   "components": [
+    "server-ui",
+    "conversation"
+   ],
+   "paths": [
+    "tools/eval/e2e-chat.mjs"
+   ],
+   "modelCalls": {
+    "level": "local+cloud",
+    "typical": "the product tier ladder per turn",
+    "cost": "small"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node tools/eval/e2e-chat.mjs --base http://127.0.0.1:<private port> --in eval/reports/current/e2e-chat/turns.jsonl --out FILE.jsonl",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "minutes",
+   "latest": {
+    "result": "the recorded check is of the SymbolicLM-era chat (2026-10-01)",
+    "date": "2026-10-01",
+    "path": "eval/reports/current/e2e-chat/summary.md"
+   },
+   "status": "active"
+  },
+  {
+   "id": "audit-llm-review",
+   "title": "Bulk review of model output (llm-review)",
+   "kind": "data-audit",
+   "measures": "A cheap model reviews many items per call (ingested knowledge wires, formalized circuits), repairs confirmed problems, re-reviews, and escalates only the rest.",
+   "components": [
+    "tinyagent",
+    "ingestion",
+    "formalizer"
+   ],
+   "paths": [
+    "tools/eval/review/collect.mjs",
+    "tools/llm-review.mjs"
+   ],
+   "modelCalls": {
+    "level": "cloud",
+    "typical": "one packed call per 20-50 items plus repairs (tier medium)",
+    "cost": "cents per 100 items"
+   },
+   "dataSource": [
+    "generated"
+   ],
+   "command": "node tools/eval/review/collect.mjs circuits --file a.jsonl > items.jsonl; node tools/llm-review.mjs run --kind query-circuits --input items.jsonl --out DIR",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "minutes",
+   "latest": {
+    "result": "review runs recorded under openference-qwen27b (query circuits, knowledge wires) and the calibration set",
+    "date": "2026-10-02",
+    "path": "eval/reports/current/llm-review/"
+   },
+   "status": "active"
+  },
+  {
+   "id": "audit-severity",
+   "title": "Graded severity (S0-S4, NONE) graders",
+   "kind": "data-audit",
+   "measures": "The severity scale, mechanical checks, metrics, SOP comparison and fallback simplifications used to grade an answer or a rendering against a packet or a gold (DS012).",
+   "components": [
+    "eval-tooling"
+   ],
+   "paths": [
+    "tools/eval/severity/"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "library only (imported by tests/severity.test.mjs)",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "not applicable",
+   "latest": {
+    "result": "eval-graded-severity-v1 (SymbolicLM era): S4 recall 96.8% with the cascade on 702 labelled items",
+    "date": "2026-10-01",
+    "path": "eval/reports/current/severity/summary.md"
+   },
+   "status": "active",
+   "notes": "No current harness calls it. DS012 keeps scale.mjs, mechanical.mjs and metrics.mjs for judging formulated answers; sop-compare.mjs, analysis-map.mjs and simplify.mjs graded SymbolicLM interpretations and rewrites of the frozen branch."
+  },
+  {
+   "id": "eval-knowledge-mining",
+   "title": "Knowledge mining from book failures",
+   "kind": "live-eval",
+   "measures": "Whether candidate general-knowledge circuits mined from failed book problems fix those problems when added to a fork of the chat's base memory.",
+   "components": [
+    "memory",
+    "ingestion"
+   ],
+   "paths": [
+    "tools/knowledge-mining/"
+   ],
+   "modelCalls": {
+    "level": "cloud",
+    "typical": "trial runs: about 6 step questions per problem on tier small; mining calls per failure",
+    "cost": "plan credits"
+   },
+   "dataSource": [
+    "book problems (local only)"
+   ],
+   "command": "node tools/knowledge-mining/mine.mjs ...; node tools/knowledge-mining/trial.mjs --ids a,b --out records.jsonl --tag baseline",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "estimate: 30-90 min",
+   "latest": {
+    "result": "24 + 100 book problems: missing knowledge in 13 of 87 and 5 of 22 failures; 9 candidate groups tried, 0 fixed their problem, 0 admissions",
+    "date": "2026-10-02",
+    "path": "eval/reports/current/knowledge-mining/run-100/"
+   },
+   "status": "active"
+  },
+  {
+   "id": "eval-shared-helpers",
+   "title": "Shared harness helpers (tier settings, direct task-folder calls)",
+   "kind": "support",
+   "measures": "Nothing by itself: the request-parser settings of a harness (--tier/--ladder) and the direct one-message model call over a task folder.",
+   "components": [
+    "eval-tooling"
+   ],
+   "paths": [
+    "tools/eval/tier-parser.mjs",
+    "tools/eval/direct-files.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "library only",
+   "runsIn": [
+    "manual"
+   ],
+   "runtime": "not applicable",
+   "latest": {
+    "result": "no recorded run"
+   },
+   "status": "active"
+  },
+  {
+   "id": "audit-data-rights",
+   "title": "Data rights, no-copy, leakage and overlap audits",
+   "kind": "data-audit",
+   "measures": "Source rights records, the no-copy proof against cached public sources, the sealed-suite leakage guard and the content-word overlap of tests with development data.",
+   "components": [
+    "project"
+   ],
+   "paths": [
+    "tools/datasets/no-copy.mjs",
+    "tools/datasets/rights.mjs",
+    "tools/datasets/audit/content-word-overlap.mjs",
+    "eval/leakage.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "generated",
+    "sealed suite"
+   ],
+   "command": "node tools/datasets/no-copy.mjs --files a.jsonl --name X; node --test tests/leakage.test.mjs",
+   "runsIn": [
+    "npm test",
+    "manual"
+   ],
+   "runtime": "seconds",
+   "latest": {
+    "result": "leakage and overlap guards pass in npm test",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/npm-test.log"
+   },
+   "status": "active"
+  },
+  {
+   "id": "verify-solvers",
+   "title": "Solver availability and qualification",
+   "kind": "integration",
+   "measures": "Which native solvers are installed and usable, and a bounded qualification of the explicit backends (prolog, z3, js).",
+   "components": [
+    "reasoning"
+   ],
+   "paths": [
+    "tools/check-solvers.mjs",
+    "tools/qualify-solvers.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node tools/check-solvers.mjs; node tools/qualify-solvers.mjs",
+   "verifyJobs": [
+    "solver-availability"
+   ],
+   "runsIn": [
+    "verify"
+   ],
+   "runtime": "seconds",
+   "latest": {
+    "result": "passes in the last full verify report",
+    "date": "2026-10-01",
+    "path": "eval/reports/current/verification.json"
+   },
+   "status": "active"
+  },
+  {
+   "id": "verify-contracts",
+   "title": "Capability contracts export",
+   "kind": "data-audit",
+   "measures": "The machine-readable capability contracts of the runtime and the generated wire contract files stay consistent.",
+   "components": [
+    "docs-specs",
+    "sop-language"
+   ],
+   "paths": [
+    "tools/capabilities.mjs",
+    "eval/contracts.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node tools/capabilities.mjs",
+   "verifyJobs": [
+    "contracts"
+   ],
+   "runsIn": [
+    "verify"
+   ],
+   "runtime": "seconds",
+   "latest": {
+    "result": "passes in the last full verify report",
+    "date": "2026-10-01",
+    "path": "eval/reports/current/verification.json"
+   },
+   "status": "active"
+  },
+  {
+   "id": "verify-repo-checks",
+   "title": "Spec references, file-size limit, site links",
+   "kind": "data-audit",
+   "measures": "Every DS reference resolves, no repository file exceeds 50 MB, and the served site has no broken link.",
+   "components": [
+    "docs-specs",
+    "project"
+   ],
+   "paths": [
+    "tools/check-spec-refs.mjs",
+    "tools/shard-large-files.mjs",
+    "tools/check-links.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "node tools/check-spec-refs.mjs; node tools/shard-large-files.mjs --check",
+   "verifyJobs": [
+    "spec-refs",
+    "file-size-limit"
+   ],
+   "runsIn": [
+    "npm test",
+    "verify"
+   ],
+   "runtime": "seconds",
+   "latest": {
+    "result": "spec refs and shard check pass",
+    "date": "2026-10-03",
+    "path": "eval/reports/current/inventory/npm-test.log"
+   },
+   "status": "active"
+  },
+  {
+   "id": "verify-demos",
+   "title": "Executable demos",
+   "kind": "integration",
+   "measures": "The demos of the runtime, declarative circuits, research examples, linker, forgetting, shards, memory and the reasoning matrix run to completion.",
+   "components": [
+    "sop-language",
+    "memory",
+    "reasoning"
+   ],
+   "paths": [
+    "examples/demo.mjs",
+    "examples/declarative-demo.mjs",
+    "examples/research/demo.mjs",
+    "examples/linker-demo.mjs",
+    "examples/forgetting-demo.mjs",
+    "examples/shards-demo.mjs",
+    "examples/reasoning-demo.mjs",
+    "examples/memory-demo.mjs"
+   ],
+   "modelCalls": {
+    "level": "none"
+   },
+   "dataSource": [
+    "self-written"
+   ],
+   "command": "npm run demo; npm run demo:reasoning; npm run memory; npm run shards",
+   "scripts": [
+    "demo",
+    "demo:reasoning",
+    "memory",
+    "shards",
+    "verify"
+   ],
+   "verifyJobs": [
+    "demo",
+    "declarative-demo",
+    "research-examples",
+    "linker-demo",
+    "forgetting-demo",
+    "shards-demo",
+    "reasoning-matrix",
+    "memory-demo"
+   ],
+   "runsIn": [
+    "verify"
+   ],
+   "runtime": "seconds each",
+   "latest": {
+    "result": "pass in the last full verify report",
+    "date": "2026-10-01",
+    "path": "eval/reports/current/verification.json"
+   },
+   "status": "active",
+   "notes": "npm run verify runs every verify job of the registry."
+  }
+ ],
+ "archived": [
+  {
+   "path": "tools/eval/structure-formalizer/d1.mjs",
+   "to": "probably_obsolete/formalization-experiments-2026-10/tools/eval/structure-formalizer/d1.mjs",
+   "date": "2026-10-03",
+   "why": "harness of D1 teacher data of train-psm-lfm-v1, stopped after the pilot and withdrawn by the owner (no fine-tuning)"
+  },
+  {
+   "path": "jobs/train-data-d1/",
+   "to": "probably_obsolete/formalization-experiments-2026-10/jobs/train-data-d1/",
+   "date": "2026-10-03",
+   "why": "the TinyAgent job of D1, used only by d1.mjs and never registered as a skill"
+  },
+  {
+   "path": "tests/fixtures/omp/stub-omp.mjs",
+   "to": "probably_obsolete/omp/fixtures/stub-omp.mjs",
+   "date": "2026-10-03",
+   "why": "stub of the omp CLI; no product code reads config.omp since the omp author was retired (2026-10-02)"
+  },
+  {
+   "path": "tests/fixtures/omp/stub-rpc.mjs",
+   "to": "probably_obsolete/omp/fixtures/stub-rpc.mjs",
+   "date": "2026-10-03",
+   "why": "stub of omp RPC mode, used only by the archived probably_obsolete/omp/omp-rpc.test.mjs"
+  }
+ ],
+ "recommendations": [
+  {
+   "id": "R1",
+   "title": "Move the remaining harnesses onto ChatSOPAdapter",
+   "detail": "kbqa/run.mjs, smalltalk/run.mjs, query-parsers.mjs, generality/chat-failures.mjs and the symbolic-vs-llm runArm build their own Agent turn and request parser; AGENTS.md asks every evaluation to answer through lib/adapter (books/system.mjs already does).",
+   "decision": "decided: do it per harness when it is next run; no owner question (the system's behaviour does not change)"
+  },
+  {
+   "id": "R2",
+   "title": "Drop the query-forms runner",
+   "detail": "tools/eval/query-forms/run.mjs duplicates tools/eval/query-parsers.mjs --suite forms; keep gold.mjs, overlap.mjs and the probe.",
+   "decision": "decided: archive run.mjs at the next query-forms run"
+  },
+  {
+   "id": "R3",
+   "title": "Archive the SymbolicLM-era parts of the severity graders",
+   "detail": "sop-compare.mjs, analysis-map.mjs and simplify.mjs grade the frozen branch's interpretations; DS012 keeps scale, mechanical checks and metrics.",
+   "decision": "decided: archive with a DS012 wording check at the next severity use"
+  },
+  {
+   "id": "R4",
+   "title": "Archive the linker differential and freeze the linking suite build",
+   "detail": "tools/linking/differential.mjs and the `build` of the linking suite read SymbolicLM rows from probably_obsolete/; the sealed suite stays and `run` keeps working.",
+   "decision": "decided: archive differential.mjs after the next linker change is measured on the current regression instead"
+  },
+  {
+   "id": "R5",
+   "title": "Archive the zero-shot structure probe",
+   "detail": "tools/eval/structure-formalizer/probe.mjs is superseded by ab.mjs (same roles, any tier).",
+   "decision": "decided: archive at the next structure-formalizer change"
+  },
+  {
+   "id": "R6",
+   "title": "Drop the pragmatics lexicon arm",
+   "detail": "the `lexicon` arm of tools/eval/pragmatics/run.mjs imports the archived EmotionDetectionSystem; its records stay readable.",
+   "decision": "decided: remove the arm when the harness is next touched"
+  },
+  {
+   "id": "R7",
+   "title": "Refresh stale headline numbers before quoting them",
+   "detail": "KBQA, the world-kb chat check, query-parsers and e2e-chat were last run before the step-by-step formalizer (2026-10-01/02); one small staged rerun each (100 rows or fewer) through the adapter.",
+   "decision": "decided: tracked in TODO.md"
+  },
+  {
+   "id": "R8",
+   "title": "Close the evaluation gaps",
+   "detail": "no direct test of the formalization error inbox (lib/formalization-errors.mjs); no evaluation of the optional final-answer formulation (DS012 graded severity); no evaluation of the behaviour layer and of TinyAgent latency under load; ingestion v2 measured only at stage 1.",
+   "decision": "decided: tracked in TODO.md"
+  }
+ ]
+}

@@ -140,3 +140,11 @@ The archived modules import their old siblings by relative path, so they do not 
 - `tools/eval/formalization-regression/expression.mjs`
 - `lib/formalize/verifier.mjs`, `lib/formalize/obligations.mjs`
 - `tests/six-paths.test.mjs`, `tests/method-library.test.mjs`, `tests/expression-dual-tooling.test.mjs`, `tests/formalization-offline-decomposition.test.mjs`, `tests/fixtures/formalization-offline/decomposition-cases.json`
+
+## D1 teacher data of train-psm-lfm-v1 (archived 2026-10-03 by the tests inventory)
+
+`tools/eval/structure-formalizer/d1.mjs` and the job `jobs/train-data-d1/` generated and verified teacher data (structure and FOL from tiers `small` and `medium`) for fine-tuning the structure and logic models. D1 was stopped after its pilot of 50 problems (7 kept, 18%) and the owner withdrew the fine-tuning on 2026-10-03 (Q-TRAIN-1 removed: role-prompted `tiny` beats the off-the-shelf models, so training them makes no sense). The pilot runs stay under `state/llm-jobs/train-data-d1/` and `state/structure-formalizer/d1/` (local). The strict held-out split it froze is still used by the A/B samplers through `tools/eval/structure-formalizer/heldout.mjs`, which stays in the product tree.
+
+- `tools/eval/structure-formalizer/d1.mjs`
+- `jobs/train-data-d1/` (`checks.mjs`, `inputs.mjs`, `prompt.md`, `small/job.json`, `medium/job.json`)
+

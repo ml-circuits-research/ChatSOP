@@ -140,14 +140,9 @@ test('procedure library: a stored procedure bundle is matched by its question fo
   assert.throws(() => procedureCircuit({id: 'Bad', description: 'x', definitions: DRAFTS.remote}), /lowercase/);
 });
 
-test('ingest API: the coding agent (stub) ingests and stores, report, procedure', async t => {
+test('ingest API: the direct author (stub chat) ingests and stores, report, procedure', async t => {
   const {productServer} = await import('./product-helpers.mjs');
-  const {repoPath} = await import('./helpers.mjs');
-  const good = path.join(tempDir(t, 'ing-good-'), 'knowledge.sop');
-  fs.writeFileSync(good, `${VOCAB}@d1c1_f1 fact\n  holds works_in ann workshop\n  quote "Ann works in the Workshop."\n`);
-  process.env.STUB_OMP_GOOD = good;
-  t.after(() => { delete process.env.STUB_OMP_GOOD; });
-  const s = await productServer(t, {config: {omp: {bin: repoPath('tests/fixtures/omp/stub-omp.mjs'), ingestAuthor: 'omp'}}});
+  const s = await productServer(t);
   const created = await s.user('/v1/memories', 'POST', {name: 'tiny policies', id: 'tiny'});
   assert.equal(created.status, 201, JSON.stringify(created.body));
   const refused = await s.user('/v1/memories/tiny/ingest', 'POST', {documents: [{name: 'x.md', text: DOC, source: {rights: 'unverified'}}]});
