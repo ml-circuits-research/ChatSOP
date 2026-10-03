@@ -21,6 +21,9 @@ import {SPEC} from '../../sop/parser.mjs';
 import {MODEL_TYPES} from '../../sop/declarative.mjs';
 import {ENUMS, COMPUTE_WORDS, COMPARATOR_WORDS, ORDER_WORDS} from '../../sop/enums.mjs';
 import {validateKnowledge, validateModel} from './checks.mjs';
+import {runExpression, EXPRESSION_FUNCTIONS, EXPRESSION_MATH, EXPRESSION_STRING_METHODS, EXPRESSION_ARRAY_METHODS} from '../../sop/expression.mjs';
+import {readWires, admitJsProgram} from '../../lib/formalize/js-program.mjs';
+import {registryOf} from '../../lib/formalize/expression-program.mjs';
 import {ROOT} from './inventory.mjs';
 
 export const EXTRA = path.join(ROOT, 'eval/capabilities/l1-cases.json');
@@ -412,6 +415,96 @@ export function modelCases() {
   return {cases, missing};
 }
 
+// ------------------------------------------------------------------------------------------------ expression language (jsEval)
+
+/**
+ * Per operation of sop/expression.mjs a valid sample (expression, value) and an invalid one (expression, error text). An operation of the
+ * exported tables without a sample is reported missing. `e.arrow` is the pure arrow function of the bounded operations (proposal P-6).
+ */
+const EXPRESSION_SAMPLES = {
+  'fn.String': [['String(12)', '12'], ['String([1])', 'Primitive conversion expected']],
+  'fn.Number': [['Number("2.5")', 2.5], ['Number({})', 'Primitive conversion expected']],
+  'fn.only': [['only([7])', 7], ['only([1, 2])', 'requires exactly one result']],
+  'fn.range': [['range(2, 5)', [2, 3, 4]], ['range(0.5)', 'takes integers']],
+  'fn.sum': [['sum([1, 2, 3.5])', 6.5], ['sum(["a"])', 'array of numbers']],
+  'fn.count': [['count(range(10), x => x % 4 == 0)', 3], ['count(3)', 'count(array)']],
+  'fn.min': [['min([4, 2, 9])', 2], ['min([])', 'empty array']],
+  'fn.max': [['max([4, 2, 9])', 9], ['max(1, 2)', 'takes one array']],
+  'math.abs': [['Math.abs(-3)', 3], ['Math.abs("x")', 'Math operation not allowed']],
+  'math.min': [['Math.min(4, 2)', 2], ['Math.min()', 'Math operation not allowed']],
+  'math.max': [['Math.max(4, 2)', 4], ['Math.max([1])', 'Math operation not allowed']],
+  'math.floor': [['Math.floor(2.7)', 2], ['Math.floor(true)', 'Math operation not allowed']],
+  'math.ceil': [['Math.ceil(2.1)', 3], ['Math.ceil()', 'Math operation not allowed']],
+  'math.round': [['Math.round(2.5)', 3], ['Math.round("2")', 'Math operation not allowed']],
+  'math.pow': [['Math.pow(2, 10)', 1024], ['Math.pow(10, 400)', 'Nonfinite result']],
+  'string.trim': [['" a ".trim()', 'a'], ['" a ".trim(1)', 'Method takes no arguments']],
+  'string.toLowerCase': [['"AB".toLowerCase()', 'ab'], ['(1).toLowerCase()', 'String method requires string']],
+  'string.toUpperCase': [['"ab".toUpperCase()', 'AB'], ['"ab".toUpperCase("x")', 'Method takes no arguments']],
+  'string.normalize': [['"é".normalize("NFC")', 'é'], ['"é".normalize("X")', 'Invalid normalization']],
+  'string.slice': [['"abcd".slice(1, 3)', 'bc'], ['"abcd".slice("1")', 'Integer indices expected']],
+  'string.substring': [['"abcd".substring(2)', 'cd'], ['"abcd".substring(0.5)', 'Integer indices expected']],
+  'string.includes': [['"abcd".includes("bc")', true], ['"abcd".includes(1)', 'One string expected']],
+  'string.startsWith': [['"abcd".startsWith("ab")', true], ['"abcd".startsWith()', 'One string expected']],
+  'string.endsWith': [['"abcd".endsWith("cd")', true], ['"abcd".endsWith(1)', 'One string expected']],
+  'string.replaceAll': [['"a-b-c".replaceAll("-", "+")', 'a+b+c'], ['"a".replaceAll("a")', 'Literal replacement only']],
+  'string.split': [['"a,b".split(",")', ['a', 'b']], ['"a,b".split()', 'Literal delimiter expected']],
+  'array.slice': [['[1, 2, 3].slice(1)', [2, 3]], ['[1, 2, 3].slice("1")', 'Integer indices expected']],
+  'array.join': [['[1, 2].join("-")', '1-2'], ['[[1]].join("-")', 'join requires primitive array']],
+  'array.map': [['[1, 2].map((x, i) => x * 10 + i)', [10, 21]], ['[1].map((a, b, c) => a)', 'passes at most 2 arguments']],
+  'array.filter': [['[1, 2, 3].filter(x => x > 1)', [2, 3]], ['[1].filter(1)', 'filter takes one function']],
+  'array.reduce': [['[1, 2, 3].reduce((a, x) => a + x, 0)', 6], ['[].reduce((a, x) => a + x)', 'needs an initial value']],
+  'array.sort': [['[3, 1, 2].sort((a, b) => a - b)', [1, 2, 3]], ['[3, 1].sort()', 'sort takes a comparator']],
+  'array.includes': [['[1, 2].includes(2)', true], ['[1].includes([1])', 'includes takes one number']],
+  arrow: [['[1, 2].map(x => x * x)', [1, 4]], ['(x => x)(1)', 'Unsupported call']],
+};
+
+export function expressionCases() {
+  const cases = [], missing = [];
+  const ops = [...EXPRESSION_FUNCTIONS.map(f => 'fn.' + f), ...EXPRESSION_MATH.map(f => 'math.' + f), ...EXPRESSION_STRING_METHODS.map(f => 'string.' + f), ...EXPRESSION_ARRAY_METHODS.map(f => 'array.' + f), 'arrow'];
+  for (const op of ops) {
+    const sample = EXPRESSION_SAMPLES[op];
+    if (!sample) { missing.push('e.' + op); continue; }
+    const [[good, value], [bad, error]] = sample;
+    cases.push({id: `e:${op}:valid`, capability: 'e.' + op, expect: 'valid', expr: good, value, text: `@w jsEval\n  expr ${good}\n`});
+    cases.push({id: `e:${op}:refused`, capability: 'e.' + op, expect: error, expr: bad, text: `@w jsEval\n  expr ${bad}\n`});
+  }
+  return {cases, missing};
+}
+
+// ------------------------------------------------------------------------------------------------ the jsEval route's admission
+
+const JS_MESSAGE = 'Pens cost 3 dollars and notebooks 5 dollars. Ann buys 4 pens and 2 notebooks. Who spends more, Ann or Ben with 30 dollars?';
+/** Per admission code of lib/formalize/js-program.mjs a program that must be refused with it, and a valid program. */
+const JS_ROUTE_SAMPLES = {
+  valid: '@ann jsEval\n  expr $v3 * $v1 + $v4 * $v2\n@answer jsEval\n  expr $ann > $v5 ? "Ann" : "Ben"',
+  js_no_wire: 'The answer is Ann.',
+  js_route_type: '@a value\n  data 3',
+  js_missing_expr: '@a jsEval',
+  js_extra_field: '@a jsEval\n  expr $v1\n  data 3',
+  js_redefines_registry: '@v1 jsEval\n  expr 4',
+  js_reserved_name: '@sum jsEval\n  expr $v1',
+  js_duplicate_name: '@a jsEval\n  expr $v1\n@a jsEval\n  expr $v2',
+  js_parse_error: '@a jsEval\n  expr [$v1].map(x => { return x })',
+  js_unknown_reference: '@a jsEval\n  expr $b + $v1\n@b jsEval\n  expr $v2',
+  js_unknown_registry_index: '@a jsEval\n  expr $v9',
+  js_variable: '@a jsEval\n  expr ?x + $v1',
+  js_text_not_in_message: '@a jsEval\n  expr $v1 > 2 ? "Carl" : "Ann"',
+  js_answer_not_from_data: '@answer jsEval\n  expr 22',
+  js_runtime_error: '@a jsEval\n  expr $v1 + process.env',
+  js_answer_shape: '@a jsEval\n  expr ({x: $v1})',
+};
+
+export function jsRouteCases() {
+  const cases = [], missing = [];
+  const codes = [...new Set([...fs.readFileSync(path.join(ROOT, 'lib/formalize/js-program.mjs'), 'utf8').matchAll(/\bbad\('(js_[a-z_]+)'/g)].map(m => m[1]).concat(['js_unknown_registry_index']))];
+  cases.push({id: 'j:wire.jsEval:valid', capability: 'j.wire.jsEval', expect: 'valid', jsRoute: JS_ROUTE_SAMPLES.valid, text: JS_ROUTE_SAMPLES.valid});
+  for (const code of codes) {
+    if (!JS_ROUTE_SAMPLES[code]) { missing.push('j.check.' + code); continue; }
+    cases.push({id: `j:check.${code}`, capability: 'j.check.' + code, expect: code, jsRoute: JS_ROUTE_SAMPLES[code], text: JS_ROUTE_SAMPLES[code]});
+  }
+  return {cases, missing};
+}
+
 /** Hand-written cases for validator rules and combinations (eval/capabilities/l1-cases.json). */
 export function extraCases() {
   if (!fs.existsSync(EXTRA)) return [];
@@ -420,6 +513,17 @@ export function extraCases() {
 
 /** Run one case: {pass, got}. A knowledge case passes when `valid` has no error, or when the expected code is reported. */
 export function runCase(c) {
+  if (c.expr !== undefined) {
+    let r;
+    try { r = {ok: true, value: runExpression(c.expr).value}; } catch (e) { r = {ok: false, message: e.message}; }
+    if (c.expect === 'valid') return {pass: r.ok && JSON.stringify(r.value) === JSON.stringify(c.value), got: r.ok ? JSON.stringify(r.value) : r.message};
+    return {pass: !r.ok && r.message.includes(c.expect), got: r.ok ? 'valid' : r.message};
+  }
+  if (c.jsRoute !== undefined) {
+    const a = admitJsProgram(readWires(c.jsRoute), registryOf(JS_MESSAGE), JS_MESSAGE);
+    const got = a.ok ? 'valid' : a.violations.map(v => v.code).join(',');
+    return {pass: c.expect === 'valid' ? a.ok : a.violations.some(v => v.code === c.expect), got};
+  }
   if (c.files) {
     const r = validateKnowledge(c.files);
     if (c.expect === 'valid') return {pass: r.errors.length === 0, got: r.errors.join(',') || 'valid'};
@@ -431,6 +535,6 @@ export function runCase(c) {
 }
 
 export function allCases() {
-  const k = knowledgeCases(), m = modelCases();
-  return {cases: [...k.cases, ...m.cases, ...extraCases()], missing: [...k.missing, ...m.missing]};
+  const k = knowledgeCases(), m = modelCases(), e = expressionCases(), j = jsRouteCases();
+  return {cases: [...k.cases, ...m.cases, ...e.cases, ...j.cases, ...extraCases()], missing: [...k.missing, ...m.missing, ...e.missing, ...j.missing]};
 }

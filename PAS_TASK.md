@@ -3,6 +3,10 @@
 
 
 
+## jsEval route of the formalizer (2026-10-03, jsEval-route-agent, proposal P-6)
+
+Delivered: bounded functional operations in `sop/expression.mjs` (`range`, `sum`, `count`, `min`/`max` over arrays, `map`, `filter`, `reduce`, `sort` with a comparator, `includes`; pure expression-body arrows only as their arguments, budget-charged), the deterministic route `lib/formalize/structure/route.mjs`, the route's admission and lowering `lib/formalize/js-program.mjs`, the role prompt `LLMAPIProvider/prompts/js-v1.md`, the harness `tools/eval/structure-formalizer/js-route.mjs` (and `chat.mjs` shared with `ab.mjs`), `docs/wire_typs/jsEval.html` with value-checked examples (`data-value`), DS004, DS014 "The jsEval route", capability inventory `e.*`/`j.*` with L1 cases. Observed: `tests/expression.test.mjs` and `tests/js-route.test.mjs` pass; `npm test` 1616 pass, 0 fail; capability check 0 losses; offline regression 104 of 360. Results: `experiments/proposal/structure-and-formalizer-models.md` §11. Not delivered: P-7 (`codeEval`/`engineCode`), stopped by the permission system; `questions.md` Q-CODE-1.
+
 ## Metacognition modes on the product path (2026-10-02, reasoning-modes-agent, review P-1 point 1)
 
 Delivered: `why_not` and `abduce` of a model query routed to the oracle, consistent abduction (`inconsistent`, `no_consistent_explanation`), `rules_used` in the explain packet with rendered rule lines, and the logic:91 refutation guard fix (`R-P1 refutation`). Observed: `node --test tests/reasoning-modes-product.test.mjs` (8 pass: logic:541 and logic:501 as SOP programs, why_not and explain through `Agent.turn`, abduce through the AuthorRuntime over a memory with hypotheses, logic:91 refuted), `tests/wire-help.test.mjs` with the new query-modes examples, the smoke reasoning suite (js-oracle 103 pass, 0 fail).

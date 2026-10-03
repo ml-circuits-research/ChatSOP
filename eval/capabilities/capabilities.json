@@ -5,6 +5,8 @@
   "sop/enums.mjs",
   "sop/parser.mjs",
   "sop/declarative.mjs",
+  "sop/expression.mjs (operation tables)",
+  "lib/formalize/js-program.mjs (jsEval route admission codes)",
   "sop/knowledge/*.mjs (problem codes)",
   "reasoning/router/features.mjs (features)"
  ],
@@ -224,7 +226,7 @@
   "link×certainty"
  ],
  "counts": {
-  "capabilities": 926,
+  "capabilities": 975,
   "combinations": 556,
   "knowledge": 661,
   "model": 265
@@ -9042,6 +9044,399 @@
   {
    "id": "m.check.unparsed_span_form",
    "surface": "model",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.fn.String",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.fn.Number",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.fn.only",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.fn.range",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.fn.sum",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.fn.count",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.fn.min",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.fn.max",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.math.abs",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.math.min",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.math.max",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.math.floor",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.math.ceil",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.math.round",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.math.pow",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.string.trim",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.string.toLowerCase",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.string.toUpperCase",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.string.normalize",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.string.slice",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.string.substring",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.string.includes",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.string.startsWith",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.string.endsWith",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.string.replaceAll",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.string.split",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.array.slice",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.array.join",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.array.map",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.array.filter",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.array.reduce",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.array.sort",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.array.includes",
+   "surface": "expression",
+   "kind": "method",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "e.arrow",
+   "surface": "expression",
+   "kind": "function",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.wire.jsEval",
+   "surface": "js-route",
+   "kind": "wire",
+   "layers": [
+    "L1",
+    "L3"
+   ]
+  },
+  {
+   "id": "j.check.js_answer_not_from_data",
+   "surface": "js-route",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.check.js_answer_shape",
+   "surface": "js-route",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.check.js_duplicate_name",
+   "surface": "js-route",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.check.js_extra_field",
+   "surface": "js-route",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.check.js_missing_expr",
+   "surface": "js-route",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.check.js_no_wire",
+   "surface": "js-route",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.check.js_parse_error",
+   "surface": "js-route",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.check.js_redefines_registry",
+   "surface": "js-route",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.check.js_reserved_name",
+   "surface": "js-route",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.check.js_route_type",
+   "surface": "js-route",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.check.js_runtime_error",
+   "surface": "js-route",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.check.js_text_not_in_message",
+   "surface": "js-route",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.check.js_variable",
+   "surface": "js-route",
+   "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "j.check.js_unknown_registry_index",
+   "surface": "js-route",
    "kind": "check",
    "layers": [
     "L1"

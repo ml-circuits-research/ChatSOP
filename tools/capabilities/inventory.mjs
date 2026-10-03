@@ -23,6 +23,7 @@ import {fileURLToPath} from 'node:url';
 import {GRAMMAR, FEATURES, STEP_BLOCKS} from '../../sop/knowledge/grammar.mjs';
 import {SPEC} from '../../sop/parser.mjs';
 import {MODEL_TYPES} from '../../sop/declarative.mjs';
+import {EXPRESSION_FUNCTIONS, EXPRESSION_MATH, EXPRESSION_STRING_METHODS, EXPRESSION_ARRAY_METHODS} from '../../sop/expression.mjs';
 import {ENUMS, COMPARATOR_WORDS, ARITHMETIC_WORDS, COMPUTE_WORDS, ORDER_WORDS, QUANTIFIER_WORDS, RANK_WORDS, RANK_CUTS, ORDER_SAMPLING, LINK_WORDS, ROLE_NAMES, POLARITIES, CERTAINTIES, QUERY_MODES as MODEL_QUERY_MODES, REASONING_QUERY_MODES} from '../../sop/enums.mjs';
 
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url));
@@ -158,6 +159,14 @@ export function buildInventory() {
   for (const w of [...Object.keys(COMPARATOR_WORDS), ...Object.keys(ARITHMETIC_WORDS)]) add('m.word.constraint.' + w, 'model', 'word', ['L1', 'L3']);
   add('m.role_variable.time', 'model', 'role', ['L1', 'L3']);
   for (const code of problemCodes(['sop/parser.mjs', 'sop/declarative.mjs'], /'([a-z]+(?:_[a-z]+)+): /g)) add('m.check.' + code, 'model', 'check', ['L1']);
+  // ---------------------------------------------------------------- expression language (jsEval) and the formalizer's jsEval route
+  for (const f of EXPRESSION_FUNCTIONS) add('e.fn.' + f, 'expression', 'function', ['L1']);
+  for (const f of EXPRESSION_MATH) add('e.math.' + f, 'expression', 'function', ['L1']);
+  for (const f of EXPRESSION_STRING_METHODS) add('e.string.' + f, 'expression', 'method', ['L1']);
+  for (const f of EXPRESSION_ARRAY_METHODS) add('e.array.' + f, 'expression', 'method', ['L1']);
+  add('e.arrow', 'expression', 'function', ['L1']);
+  add('j.wire.jsEval', 'js-route', 'wire', ['L1', 'L3']);
+  for (const code of problemCodes(['lib/formalize/js-program.mjs'], /\bbad\('(js_[a-z_]+)'/g).concat(['js_unknown_registry_index']).filter((c, i, a) => a.indexOf(c) === i)) add('j.check.' + code, 'js-route', 'check', ['L1']);
   // ---------------------------------------------------------------- combinations
   const fam = families();
   const combos = [];
@@ -175,7 +184,7 @@ export function buildInventory() {
   }
   return {
     generated_by: 'node tools/capabilities/inventory.mjs --write',
-    sources: ['sop/knowledge/grammar.mjs', 'sop/enums.mjs', 'sop/parser.mjs', 'sop/declarative.mjs', 'sop/knowledge/*.mjs (problem codes)', 'reasoning/router/features.mjs (features)'],
+    sources: ['sop/knowledge/grammar.mjs', 'sop/enums.mjs', 'sop/parser.mjs', 'sop/declarative.mjs', 'sop/expression.mjs (operation tables)', 'lib/formalize/js-program.mjs (jsEval route admission codes)', 'sop/knowledge/*.mjs (problem codes)', 'reasoning/router/features.mjs (features)'],
     families: fam, pairs: PAIRS, local: Object.keys(localCells()),
     counts: {capabilities: caps.length, combinations: combos.length, knowledge: caps.filter(c => c.surface === 'knowledge').length, model: caps.filter(c => c.surface === 'model').length},
     capabilities: caps, combinations: combos

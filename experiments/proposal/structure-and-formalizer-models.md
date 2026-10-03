@@ -687,3 +687,68 @@ In "correct (real)", "real" excludes a yes/no gold decided by an empty list. Und
 
 - Results of the stages: `state/structure-formalizer/{fol-repair-30,fol-fresh-50,fol-v2-30,fol-v2-fresh-50}/`. Each folder holds `raw.jsonl`, `results.jsonl` (both scorers per problem) and `summary.md`.
 - The fresh sample: `fol-fresh-50/ids.json`.
+
+## 11. The jsEval route (owner decision, 2026-10-03; proposal P-6)
+
+**Question (owner).** Let the formalizer write `jsEval` wires directly, only where it fits: a goal that asks for a value or a choice computed from given data, in a problem with registry quantities. Puzzles, deductions and rule questions stay on FOL.
+
+### What was built
+
+- **Routing** (`lib/formalize/structure/route.mjs`, deterministic): jsEval when the structure role (MoE `tiny` + `psm-v1`) marks a `goal` span inside a question unit and at least one registry number lies inside a `quantity` span; FOL otherwise. Labels, offsets and digits only.
+- **Language** (`sop/expression.mjs`, P-6): `range`, `sum`, `count`, `min`/`max` over arrays, `map`, `filter`, `reduce`, `sort` (comparator), `includes`, with pure expression-body arrows that exist only as their arguments; every arrow call and array step is charged to the operation budget.
+- **Authoring:** role prompt `LLMAPIProvider/prompts/js-v1.md` (loaded by the client, `lib/formalize/js-program.mjs`): `@name jsEval` wires over `$v1..$vn`, the last wire or `answer1..` the answers.
+- **Admission:** only `jsEval` wires, earlier references only (no cycle), text copied from the message, the static data-dependency check, evaluation within budgets; one more ask on a violation.
+- **Lowering:** fixed-shape arrays and records are unrolled into path B's arithmetic and lowered to `compute`/`compare` rules for every engine; the rest is run by the oracle (the trusted runtime's `jsEval`).
+- **Harness:** `node tools/eval/structure-formalizer/js-route.mjs fetch|score --run js-30|js-fresh-50 [--fol fol-v2-30|fol-v2-fresh-50]`; the structure rows were fetched by `ab.mjs fetch --arms psm:structure-tiny` on the run's `ids.json` (the 30 of probe-1, the 50 of `fol-fresh-50`). Path B (unchanged question, no exemplars) was asked on the same routed problems. FOL v2 verdicts are read from the scored `fol-v2-*` runs.
+- **Models:** MoE `tiny` (Qwen3.6-35B-A3B) and `good` = **DeepSeek-V4.1-flash on OpenRouter** with reasoning (every `good` row of this section and of the FOL v2 runs was served by it, per the proxy log; `good` has since become openference GLM-5.3).
+
+### Results
+
+Scorers: asked parts (`asked.mjs`: correct / partial / wrong / no answer / gold defect) and the old one (correct / wrong). Seconds: median per problem of the route call, uncached; the structure call is apart (MoE alone ~11 s, §9; 37 s under this run's load).
+
+**Routed share:** 40/50 fresh, 23/30 development (FOL keeps 10 and 7: no goal in a question unit 2 + 2, no registry quantity 8 + 5).
+
+**On the routed problems:**
+
+| set | model | arm | asked parts | old | lowered / oracle-only | s/problem |
+|---|---|---|---|---|---|---|
+| fresh 50 (40 routed) | `good` | jsEval route | 26 / 0 / 3 / 9 / 2 | 23 / 7 | 27 / 3 | 3.3 |
+| | | path B | **32** / 0 / 5 / 1 / 2 | 26 / 13 | all lowered | 5.0 |
+| | | FOL v2 | 21 / 0 / 5 / 12 / 2 | 17 / 9 | – | – |
+| | MoE `tiny` | jsEval route | 23 / 0 / **2** / 13 / 2 | 20 / 5 | 23 / 2 | 10.4 |
+| | | path B | **30** / 1 / **2** / 5 / 2 | 25 / 8 | all lowered | 12.6 |
+| | | FOL v2 | 12 / 0 / 2 / 24 / 2 | 11 / 3 | – | – |
+| 30 (23 routed) | `good` | jsEval route | 17 / 1 / 2 / 2 / 1 | 12 / 9 | 17 / 4 | 3.0 |
+| | | path B | **19** / 2 / 1 / 0 / 1 | 16 / 7 | all lowered | (cached; 4.9 in §9) |
+| | | FOL v2 | 16 / 1 / 1 / 4 / 1 | 14 / 5 | – | – |
+| | MoE `tiny` | jsEval route | 12 / 1 / 4 / 5 / 1 | 8 / 10 | 17 / 1 | 8.5 |
+| | | path B | **14** / 1 / 4 / 3 / 1 | 10 / 9 | all lowered | 8.8 |
+| | | FOL v2 | 8 / 3 / 2 / 9 / 1 | 8 / 5 | – | – |
+
+All 84 lowered jsEval programs gave the oracle's answer on the engines. The 10 oracle-only programs: a `range` over data (6), a choice between values of different shapes, a list answer of data-dependent length, `max` over a filtered list, one outside the arithmetic subset.
+
+**Paired, jsEval route against path B (asked-parts correct):** fresh 50: `tiny` both 21, only jsEval 2, only B 9; `good` both 24, only jsEval 2, only B 8. The 30: `tiny` 12 / 0 / 2, `good` 17 / 0 / 2.
+
+**Combined system (all problems; asked parts):**
+
+| set | model | jsEval routed + FOL v2 | path B routed + FOL v2 | FOL v2 alone |
+|---|---|---|---|---|
+| fresh 50 | `good` | 27 / 1 / 3 / 16 / 3 | **33** / 1 / 5 / 8 / 3 | 22 / 1 / 5 / 19 / 3 |
+| fresh 50 | MoE `tiny` | 23 / 1 / 3 / 20 / 3 | **30** / 2 / 3 / 12 / 3 | 12 / 1 / 3 / 31 / 3 |
+| 30 | `good` | 17 / 1 / 3 / 8 / 1 | **19** / 2 / 2 / 6 / 1 | 16 / 1 / 2 / 10 / 1 |
+| 30 | MoE `tiny` | 12 / 1 / 4 / 12 / 1 | **14** / 1 / 4 / 10 / 1 | 8 / 3 / 2 / 16 / 1 |
+
+### Reading
+
+- **The routing works and pays:** sending the routed problems to a compute path roughly doubles MoE `tiny`'s correct answers on the fresh 50 against FOL v2 alone (12 → 23 with jsEval, 30 with path B) without more wrong answers (3).
+- **Within the compute route, path B is better than jsEval** on every cell (paired 9:2 and 8:2 on the fresh 50). jsEval loses on refusals, not on wrong answers: after the second ask, 16 of its non-answers are prose written as an answer (`js_text_not_in_message`), 7 constant answers (`js_answer_not_from_data`), 8 cascades from an earlier refused wire, 5 record answers. Those are the admission doing its job: the model answered instead of computing. Path B's closed question with an `unused:` line leaves less room for that.
+- **jsEval is slightly more precise** for `tiny` on the fresh 50 (2 wrong of 25 answered against 2 of 33) and its programs are shorter for lists and choices; the new operations were used and lowered (counts with a test, sums over filtered lists, the cheaper of two records).
+- **Recommendation:** keep the route decision and make **path B the default compute path for routed problems**, with the jsEval route as a second, independent formalization of the same problem (its answers agree with the engines by construction, and agreement of two compute formalizations is a cheap verification). Not decided here; one sample per arm, differences of one or two problems are noise.
+
+### Checks
+
+- `npm test`, `node tools/capabilities/check.mjs` (0 losses; 83 new L1 cases for the `e.*` operations and `j.*` admission codes, ledger updated with the full tier), offline regression 104 of 360 (unchanged), `node tools/shard-large-files.mjs --check` ok, `node tools/check-spec-refs.mjs` 0 violations.
+
+### Phase 2–3 (`codeEval`, `engineCode`): not run
+
+Executing model-written programs was refused by the session's permission system when it was wired into the runtime; see P-7 and `questions.md` Q-CODE-1. No code route was measured.

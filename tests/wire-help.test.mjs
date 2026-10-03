@@ -11,6 +11,8 @@
 //                              under a trusted Runtime. A program of model
 //                              wire types only, without an atom-condition
 //                              query, also passes the model-origin compiler.
+//   data-value="wire=JSON"     (on a current example) the run gives that wire
+//                              exactly this value, e.g. data-value="answer=240".
 //   <pre data-sop="invalid" data-check="STAGE" data-error="TEXT">
 //                              every stage before STAGE succeeds and STAGE
 //                              fails with an error containing TEXT. STAGE is
@@ -202,6 +204,10 @@ test('valid help examples execute', async () => {
     if (example.kind !== 'current') continue;
     const result = await execute(example.source);
     assert.ok(!result.error, `${example.label} fails at ${result.stage}: ${result.error?.message}`);
+    if (example.value) {
+      const at = example.value.indexOf('=');
+      assert.deepEqual(result.values[example.value.slice(0, at)], JSON.parse(example.value.slice(at + 1)), `${example.label} gives ${example.value}`);
+    }
   }
 });
 

@@ -35,6 +35,7 @@ export function pageExamples(page) {
     check: attr(m[1], 'data-check'),
     error: attr(m[1], 'data-error') && decode(attr(m[1], 'data-error')),
     status: attr(m[1], 'data-status'),
+    value: attr(m[1], 'data-value') && decode(attr(m[1], 'data-value')),
     source: decode(m[2]),
     line: page.html.slice(0, m.index).split('\n').length,
   }));
