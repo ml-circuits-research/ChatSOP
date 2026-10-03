@@ -689,3 +689,18 @@ test('prompted tiers: a reply cut by its budget is asked again with four times t
   assert.equal(r.body.entities.quantity[0].text, '3 cats');
   assert.deepEqual(r.body.usage, { calls: 3, output_tokens: 550, reasoning_tokens: 0, reasoning_chars: 25, content_chars: 0, budget_retries: 2, cut: 0 });
 });
+
+test('prompted tiers: the re-ask keeps the better-formed reply and fills what it lacks from the other (an unreadable reply never wins)', async () => {
+  const { serveprompted, parseTemplate } = await import('./prompted.mjs');
+  const template = { ...parseTemplate('<<<options>>>\n{"mode": "problem"}\n<<<user>>>\n{{sentences}} {{inventory}}\n<<<again>>>\nFix: {{problems}}\n'), name: 'f' };
+  const body = { inputs: ['Ana has 12 apples.', 'Ben has 3.', 'How many in all?'] };
+  const serve = (replies) => { let k = 0; return serveprompted({ path: '/v1/fol', body, entry: {}, template, chat: async () => ({ ok: true, text: replies[k++], finish: 'stop' }) }); };
+  // The second reply is not JSON: the first, partly valid, is kept.
+  let r = await serve(['{"fol": [{"s": 1, "fol": ["Value(ana, 12)"]}, {"s": 2, "fol": ["Value(ben, 3"]}]}', 'I cannot do that.']);
+  assert.deepEqual(r.body.results.map((x) => x.candidates), [['Value(ana, 12)'], [], []]);
+  assert.equal(r.body.reasks, 1);
+  // Both readable: the one with fewer problems is the base, and a sentence it left empty is filled from the other.
+  r = await serve(['{"fol": [{"s": 1, "fol": ["Value(ana, 12)"]}, {"s": 2, "fol": ["Value(ben, 3)"]}]}', '{"fol": [{"s": 3, "fol": ["Value(all, add(ana, ben))", "? Ask(all)"]}]}']);
+  assert.deepEqual(r.body.results.map((x) => x.candidates), [['Value(ana, 12)'], ['Value(ben, 3)'], ['Value(all, add(ana, ben))\n? Ask(all)']]);
+  assert.equal(r.body.unresolved, 0);
+});

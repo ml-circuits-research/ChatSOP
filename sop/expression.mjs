@@ -42,7 +42,7 @@ export function expressionRefs(ast){const out=new Set();(function walk(n){if(!n|
 export function evaluateExpression(ast,{refs={},variables={},maxOps=10000,maxBytes=65536,maxItems=4096}={}){
  let ops=0;const bound=v=>{if(typeof v==='string')assert(Buffer.byteLength(v)<=maxBytes,'String output budget');if(Array.isArray(v))assert(v.length<=maxItems,'Array output budget');if(typeof v==='number')assert(Number.isFinite(v),'Nonfinite result');return v;};
  const own=(v,k)=>{assert(!bad.has(String(k)),'Forbidden property');if((typeof v==='string'||Array.isArray(v))&&k==='length')return v.length;assert(v!==null&&typeof v==='object'||typeof v==='string','Cannot index this value');assert(Object.hasOwn(Object(v),k),'Missing own property '+k);return bound(v[k]);};
- const math=new Set(['abs','min','max','floor','ceil','round']);
+ const math=new Set(['abs','min','max','floor','ceil','round','pow']);
  const methods=new Set(['trim','toLowerCase','toUpperCase','normalize','slice','substring','includes','startsWith','endsWith','replaceAll','split','join']);
  function call(n){const args=n.args.map(e);assert(args.length<=32,'Too many arguments');
   if(n.callee.type==='name'){if(n.callee.value==='only'){assert(args.length===1&&Array.isArray(args[0])&&args[0].length===1,'only() requires exactly one result; clarify missing or ambiguous data');return args[0][0];}assert(['String','Number'].includes(n.callee.value),'Only String/Number/only are callable');assert(args.length===1&&['number','boolean','string'].includes(typeof args[0]),'Primitive conversion expected');return bound(n.callee.value==='String'?String(args[0]):Number(args[0]));}

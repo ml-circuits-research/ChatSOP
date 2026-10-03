@@ -13,6 +13,7 @@ import {registryOf} from '../../../lib/formalize/expression-program.mjs';
 import {decide} from '../../../lib/formalize/equivalence.mjs';
 import {loadItems} from '../books/sample.mjs';
 import {goldOf} from './gold.mjs';
+import {askedVerdict} from './asked.mjs';
 import {engines} from './engines.mjs';
 
 const readJsonl = f => fs.readFileSync(f, 'utf8').split('\n').filter(Boolean).map(JSON.parse);
@@ -39,39 +40,43 @@ export function psmScore(row, item) {
   };
 }
 
-/** One LFM arm: per unit the first candidate that parses and converts (the validator filters the N candidates). */
+/**
+ * One LFM arm: per unit the first candidate whose every line parses and converts (the validator filters the N candidates); when none
+ * does, the candidate with the most converted lines gives those lines, and its failed lines are passed on as rejected units (their
+ * predicates are then not trusted by the closed world: lib/formalize/fol/to-sop.mjs).
+ */
 export async function lfmArm(units, results, {registry, names, gold, item, run}) {
   if (!Array.isArray(results)) return {error: results?.error ?? 'no results'};
-  const chosen = [], unitStats = [];
+  const chosen = [], failed = [], unitStats = [];
   for (const [i, u] of units.entries()) {
     const cands = results[i]?.candidates ?? [];
-    let pick = null, parsed = 0, converted = 0, why = null;
+    let pick = null, best = null, parsed = 0, converted = 0, why = null;
     // A candidate is one formula (T5) or several lines (a prompted backend); a line starting with "? " is a query, otherwise a
     // formula of a question sentence is its query when no line of the candidate marks one.
     for (const c of cands) {
       const lines = String(c).split('\n').map(x => x.trim()).filter(Boolean);
       const marked = lines.some(l => l.startsWith('?'));
-      const us = [];
-      let bad = null;
+      const ok = [], bad = [];
+      let parseError = null, convertError = null;
       for (const l of lines) {
         const q = l.startsWith('?'), text = l.replace(/^\?\s*/, '');
         const p = parseFol(text);
-        if (!p.ok) { bad = `parse: ${p.why}`; break; }
+        if (!p.ok) { parseError ??= `parse: ${p.why}`; bad.push({unparsed: text, question: q || (!marked && u.question), source: text}); continue; }
         const unit = {ast: p.ast, question: q || (!marked && u.question), source: text};
         const one = folToIr([unit]);
-        if (one.rejected.length) { bad = one.rejected[0].why; us.push(null); break; }
-        us.push(unit);
+        if (one.rejected.length) { convertError ??= one.rejected[0].why; bad.push(unit); continue; }
+        ok.push(unit);
       }
-      if (bad?.startsWith('parse')) { why ??= bad; continue; }
-      parsed++;
-      if (bad) { why ??= bad; continue; }
-      converted++;
-      pick ??= us;
+      if (!parseError) parsed++;
+      if (!bad.length) { converted++; pick ??= ok; continue; }
+      why ??= parseError ?? convertError;
+      if (!best || ok.length > best.ok.length) best = {ok, bad};
     }
-    unitStats.push({unit: u.text.slice(0, 120), question: u.question, candidates: cands.length, parsed, converted, why: pick ? null : why, chosen: pick?.map(x => `${x.question ? '? ' : ''}${x.source}`).join(' | ') ?? null});
+    unitStats.push({unit: u.text.slice(0, 120), question: u.question, candidates: cands.length, parsed, converted, why: pick ? null : why, chosen: (pick ?? best?.ok)?.map(x => `${x.question ? '? ' : ''}${x.source}`).join(' | ') || null});
     if (pick) chosen.push(...pick);
+    else if (best) { chosen.push(...best.ok); failed.push(...best.bad); }
   }
-  const ir = folToIr(chosen);
+  const ir = folToIr([...chosen, ...failed]);
   const link = linkConstants(ir, names);
   const {circuits, rejected} = compileIr(ir, {registry, names});
   const w = await engines();
@@ -82,7 +87,7 @@ export async function lfmArm(units, results, {registry, names, gold, item, run})
     answers.push({kind: c.kind, status: p.status, value: v, error: p.error ?? null});
   }
   const got = answers.filter(a => a.value !== null && a.value !== undefined);
-  let verdict = 'no_answer';
+  let verdict = 'no_answer', weak = false;
   if (got.length) {
     // An existence question (∃x φ) answers yes/no by whether a thing exists, and which by the things.
     // A question that asks several values is answered by several queries: a numeric gold is compared with all answered numbers
@@ -93,10 +98,14 @@ export async function lfmArm(units, results, {registry, names, gold, item, run})
     const g = gold.kind === 'yes_no' ? gold.values[0] : gold.kind === 'number' ? gold.values.join(', ') : gold.values.join(', ');
     const d = await decide(Array.isArray(sys) ? sys.join(', ') : sys, g, {problem: item.question, ordered: false});
     verdict = d.verdict === 'equivalent' ? 'correct' : 'wrong';
+    // A weak answer: a yes/no gold decided by an empty `which` list (the closed world's "nothing is"), not by a derivation.
+    weak = gold.kind === 'yes_no' && ['which', 'none'].includes(got[0].kind) && [].concat(got[0].value).length === 0;
   }
   return {units: unitStats, queriesInIr: ir.queries.length, facts: ir.facts.length, rules: ir.rules.length, values: ir.values.length, queries: ir.queries.length,
     rejected: [...ir.rejected, ...rejected].length, link: {linked: link.linked.length, unlinked: link.unlinked.length},
-    circuits: circuits.length, executed: answers.filter(a => a.status !== 'error').length, answered: got.length, answers, verdict,
+    circuits: circuits.length, executed: answers.filter(a => a.status !== 'error').length, answered: got.length, answers, verdict, weak,
+    // The asked-parts scorer (./asked.mjs), reported next to the old one.
+    asked: askedVerdict(item, gold, answers),
     sop: circuits.map(c => c.sop), reasons: [...ir.rejected, ...rejected].map(x => x.why ?? String(x))};
 }
 

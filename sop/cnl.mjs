@@ -20,7 +20,7 @@ export function cnl(packet,_language,{lexicon=null}={}){
  if(packet.status==='budget_exhausted'&&packet.reason)lines.push('REASON '+packet.reason);
  if(packet.kind==='count'&&packet.count!==undefined)lines.push(line('retrieved_count',{count:packet.count}));
  if(packet.at_least!==undefined)lines.push(line('retrieved_at_least',{count:packet.at_least}));
- if(packet.kind==='every'){lines.push(line('members_checked',{count:packet.members}));for(const b of (packet.counterexamples??[]).slice(0,5))lines.push('COUNTEREXAMPLE '+Object.entries(b).map(([k,v])=>k+' = '+JSON.stringify(v)).join('; '));if(packet.undecided?.length)lines.push('UNDECIDED '+packet.undecided.length);}
+ if(packet.kind==='every'){if(Number.isInteger(packet.members))lines.push(line('members_checked',{count:packet.members}));for(const b of (packet.counterexamples??[]).slice(0,5))lines.push('COUNTEREXAMPLE '+Object.entries(b).map(([k,v])=>k+' = '+JSON.stringify(v)).join('; '));if(packet.undecided?.length)lines.push('UNDECIDED '+packet.undecided.length);}
  if(packet.explanation)lines.push('EXPLANATION '+packet.explanation.kind.toUpperCase());
  for(const row of packet.answers??[]){if(packet.kind==='explain'&&!Object.keys(row.binding).length)continue;lines.push('ANSWER '+Object.entries(row.binding).map(([k,v])=>k+' = '+JSON.stringify(v)).join('; '));if(packet.query?.during&&row.valid)lines.push('VALID ['+formatTime(row.valid.from)+', '+formatTime(row.valid.until)+')');}
  for(const [name,item]of Object.entries(packet.outputProjection??{}))if(item.status==='bound')lines.push('VALUE '+name+' = '+JSON.stringify(item.value));

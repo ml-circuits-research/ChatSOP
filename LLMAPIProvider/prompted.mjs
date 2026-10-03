@@ -2,7 +2,9 @@
 // model (e.g. the local Qwen3-4B of `tiny`) and a prompt template from prompts/<name>.md, under the same endpoint contract as the
 // dedicated models (GLiNER, T5), so clients and converters do not change. The model's reply is validated deterministically
 // (structure only: JSON shape, labels, spans copied verbatim, sentence numbers, balanced parentheses); an invalid reply is re-asked once
-// with the problems named; what stays invalid after that is dropped and counted in `dropped`.
+// with the problems named; the better-formed of the two replies is kept (an unreadable reply never replaces a partly valid one) and
+// the valid parts of the other fill what it lacks (structure: spans and relations it does not have; fol: sentences it left empty);
+// what stays invalid after that is dropped and counted in `dropped`.
 //
 // Template file: sections `<<<options>>>` (JSON: {mode: "problem"|"per-input", output: "json"|"text", maxTokens, temperature}),
 // `<<<system>>>`, `<<<user>>>`, `<<<again>>>` with {{placeholders}}:
@@ -60,7 +62,7 @@ export function structureVars(body) {
 /** Validates a structure reply: {problems, entities, relations, dropped}. */
 export function validateStructure(reply, body) {
   const json = jsonOf(reply), problems = [];
-  if (!json || !Array.isArray(json.spans)) return { problems: ['the reply is not a JSON object with a "spans" list'], entities: {}, relations: [], dropped: 0 };
+  if (!json || !Array.isArray(json.spans)) return { problems: ['the reply is not a JSON object with a "spans" list'], entities: {}, relations: [], dropped: 0, unreadable: true };
   const labels = labelMap(body.entities), text = String(body.text), used = new Set();
   const entities = {}, located = [];
   let dropped = 0;
@@ -99,7 +101,7 @@ export function folVars(body, extra = {}) {
 export function validateFol(reply, body) {
   const json = jsonOf(reply), n = body.inputs.length, perInput = Array.from({ length: n }, () => []), problems = [];
   let dropped = 0;
-  if (!json || !Array.isArray(json.fol)) return { problems: ['the reply is not a JSON object with a "fol" list'], perInput, dropped: 0 };
+  if (!json || !Array.isArray(json.fol)) return { problems: ['the reply is not a JSON object with a "fol" list'], perInput, dropped: 0, unreadable: true };
   for (const e of json.fol) {
     if (!Number.isInteger(e?.s) || e.s < 1 || e.s > n) { problems.push(`an entry has no sentence number s between 1 and ${n}`); dropped++; continue; }
     for (const f of Array.isArray(e.fol) ? e.fol : []) {
@@ -111,6 +113,31 @@ export function validateFol(reply, body) {
   }
   if (body.inputs.some((s) => /\?\s*$/.test(s)) && !perInput.flat().some((l) => l.startsWith('?'))) problems.push('no query: the question must be written as a formula starting with "? "');
   return { problems, perInput, dropped };
+}
+
+/** The better-formed of two validated replies: a readable one before an unreadable one, then the one with fewer problems (ties: b). */
+export const better = (a, b) => (a.unreadable !== b.unreadable ? (a.unreadable ? b : a) : b.problems.length <= a.problems.length ? b : a);
+
+/** Two validated structure replies → the better one, plus the spans and relations only the other has. */
+export function mergeStructure(a, b) {
+  const base = better(a, b), other = base === a ? b : a;
+  if (other.unreadable) return base;
+  const entities = Object.fromEntries(Object.entries(base.entities).map(([k, v]) => [k, [...v]]));
+  const key = (label, s) => `${label}@${s.start}:${s.end}`;
+  const have = new Set(Object.entries(entities).flatMap(([label, spans]) => spans.map((s) => key(label, s))));
+  for (const [label, spans] of Object.entries(other.entities)) for (const sp of spans) if (!have.has(key(label, sp))) { (entities[label] ??= []).push(sp); have.add(key(label, sp)); }
+  const rk = (r) => `${r.type}|${r.head.start}|${r.tail.start}`, rel = new Set(base.relations.map(rk));
+  const relations = [...base.relations, ...other.relations.filter((r) => !rel.has(rk(r)))];
+  return { ...base, entities, relations };
+}
+
+/** Two validated fol replies → the better one, with each sentence it left empty filled from the other. */
+export function mergeFol(a, b, body) {
+  const base = better(a, b), other = base === a ? b : a;
+  if (other.unreadable) return base;
+  const perInput = base.perInput.map((lines, i) => (lines.length ? lines : [...other.perInput[i]]));
+  const problems = base.problems.filter((p) => !p.startsWith('no query') || !perInput.flat().some((l) => l.startsWith('?')));
+  return { ...base, perInput, problems, merged: perInput.some((l, i) => l.length && !base.perInput[i].length) };
 }
 
 /** A per-input text reply → its first non-empty line (the formula). */
@@ -139,7 +166,7 @@ export async function serveprompted({ path, body, entry, template, chat }) {
       maxTokens = Math.min(cap, maxTokens * 4); usage.budget_retries++;
     }
   };
-  const ask = async (vars, validate, temperature = opt.temperature ?? 0) => {
+  const ask = async (vars, validate, temperature = opt.temperature ?? 0, merge = better) => {
     const messages = [...(template.system ? [{ role: 'system', content: fill(template.system, vars) }] : []), { role: 'user', content: fill(template.user, vars) }];
     let r = await call(messages, temperature);
     if (!r.ok) return { error: r };
@@ -147,12 +174,12 @@ export async function serveprompted({ path, body, entry, template, chat }) {
     if (v.problems.length && template.again) {
       rounds = 1;
       const r2 = await call([...messages, { role: 'assistant', content: r.text }, { role: 'user', content: fill(template.again, { ...vars, problems: v.problems.slice(0, 8).map((p) => `- ${p}`).join('\n') }) }], temperature);
-      if (r2.ok) { const v2 = validate(r2.text); if (v2.problems.length <= v.problems.length) { v = v2; r = r2; } }
+      if (r2.ok) v = merge(v, validate(r2.text));
     }
     return { v, rounds };
   };
   if (path === '/v1/structure') {
-    const a = await ask(structureVars(body), (text) => validateStructure(text, body));
+    const a = await ask(structureVars(body), (text) => validateStructure(text, body), opt.temperature ?? 0, mergeStructure);
     if (a.error) return { status: a.error.status || 502, body: { error: { type: 'backend_error', message: a.error.error || 'chat model failed' } } };
     return { status: 200, body: { object: 'structure', model: `${entry.model}+${template.name}`, entities: a.v.entities, relations: a.v.relations, structures: {}, dropped: a.v.dropped, unresolved: a.v.problems.length, reasks: a.rounds, usage, ms: Date.now() - t0 } };
   }
@@ -171,7 +198,7 @@ export async function serveprompted({ path, body, entry, template, chat }) {
         }
         continue;
       }
-      const a = await ask(folVars(body), (text) => validateFol(text, body), temperature);
+      const a = await ask(folVars(body), (text) => validateFol(text, body), temperature, (x, y) => mergeFol(x, y, body));
       if (a.error) return { status: a.error.status || 502, body: { error: { type: 'backend_error', message: a.error.error || 'chat model failed' } } };
       dropped += a.v.dropped; unresolved += a.v.problems.length; reasks += a.rounds;
       a.v.perInput.forEach((lines, i) => { const c = lines.join('\n'); if (c && !results[i].candidates.includes(c)) results[i].candidates.push(c); });

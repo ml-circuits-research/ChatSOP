@@ -565,3 +565,125 @@ All files are local and regenerable; the book text stays in `state/`.
   - executed;
   - relative error of the closest numeric answer.
 - Regenerate them with `node tools/eval/structure-formalizer/compare.mjs --run moe-ab`.
+
+## 10. Repair of the FOL path (owner decision, 2026-10-03)
+
+**Why.** §9's control showed that the logic role was limited by the method and the converters, not by the model: `good` wrote the role's language well (26/30 queries) yet got 8 correct and 8 wrong. The owner decided to repair the FOL path generically and to measure on the same 30 problems and once on 50 fresh ones. A wrong circuit counts worse than an honest unknown.
+
+### First cause of every non-correct problem (before the repair, fol-v1 outputs of §9)
+
+| cause | `good` (22 non-correct) | MoE `tiny` (24 non-correct) |
+|---|---|---|
+| converter: non-Horn FOL, unknowns, value rules, `FORALLx,y`, prefix and infix syntax, n-ary `add`, rule-only constants | 7 | 4 |
+| prompt (fol-v1 offered no construct: unknowns, objectives, `pow`) | 4 | 2 |
+| model (wrong semantics, functions of things, prose in formulas) | 2 | 15 |
+| no SOP construct for the question (does A prove B, argument evaluation; P-1/P-5) | 4 | 1 |
+| gold or scorer (the gold list holds inputs or check values, a partial answer is scored wrong) | 5 | 2 |
+
+### What changed (no new wire type; `experiments/proposal/wire-type-proposals.md` P-5)
+
+- **Reader** (`lib/formalize/fol/parse.mjs`): several variables per quantifier (`FORALLx,y`, `FORALLx, FORALLy`, `Exists k`); prefix connectives `AND(…)`, `OR(…)`; infix comparisons (`=`, `!=`, `<=`, …) and arithmetic (`+ - * /`); quoted text; a quantifier followed by parentheses scopes over them only.
+- **Clausification** (`to-ir.mjs`):
+  - disjunctive conclusions → one rule per disjunct over the explicit negations of the others; their predicates are open;
+  - `IFF` and `XOR` conclusions;
+  - an existential conclusion under a universal keeps its part without the new thing;
+  - a comparison conclusion → its contrapositive;
+  - universals and negated compounds inside conditions → auxiliary predicates over the problem's own domain;
+  - `Value` concluded under conditions → value rules; `Value(q, x)` in a condition binds or tests;
+  - stated comparisons are conditions of the problem; `Integer`, `Maximize`, `Minimize`;
+  - universal questions; `¬∃` questions; `FORALLx (C(x) IMPLIES Ask(x))` asks for an unknown.
+- **Lowering** (`to-sop.mjs`):
+  - comparisons in rule conditions over the quantities, through the program's predicates;
+  - value rules as session rules, read by the expression program as external names;
+  - unknowns → one model `constraint` wire: integer variables, sound bounds by interval propagation, `mod` as a fresh multiple, linear words, `task possible|prove|optimize`; an unknown bounded only by inequalities must be declared `Integer`;
+  - universal questions → `mode every` with `quantifier all`;
+  - a constant that only a rule or the question names is introduced through the domain fact, so it can be linked.
+- **Soundness:**
+  - a closed-world "no" (a refutation without proof, an empty list) is withheld when the asked predicate is defined nowhere in the problem, or depends on an open predicate or on one that an unparsed or rejected statement mentions;
+  - an explicit negation (a refutation with a proof) is kept;
+  - a quantity with two different values, and two value rules that both apply, give no answer.
+- **Harness** (`tools/eval/structure-formalizer/score.mjs`): a sentence keeps its converted lines when one line fails; the failed lines are passed on as rejected units, so their predicates lose closed-world trust. `ab.mjs` gains `sample` (fresh problems outside the strict held-out split) and `score --into`. Weak answers (a yes/no gold decided by an empty list) are reported apart ("real").
+- **Expression program:** `Math.pow` (lowered to `power`) and external names (`analyseProgram`/`lowerProgram` option `external`); path B's question is unchanged.
+- **Proxy** (`LLMAPIProvider/prompted.mjs`): the re-ask keeps the better-formed reply (an unreadable reply never replaces a partly valid one) and fills the sentences it left empty from the other reply. The `structure` path does the same with its spans. Role prompt `fol-v2`: the constructs above, "query exactly what the question asks", same JSON format. The formalizer tiers name it in `config.json`.
+- **Renderer fix:** `sop/cnl.mjs` no longer fails a turn on a strict universal packet without a member count.
+
+### Results
+
+Three stages, the same scorers throughout:
+1. **before:** the converters of HEAD, fol-v1 outputs;
+2. **converter:** the repaired converters, the same fol-v1 outputs;
+3. **+ fol-v2:** the repaired converters and new outputs under `fol-v2` with the new re-ask, after the proxy restart.
+
+The MoE `tiny` row of stages 1–2 on the 30 is §9's `formalizer-moe-qwen` arm (the same model).
+
+**Scorers:**
+- **old:** the A/B scorer of §8–9 (a numeric gold is compared with all answered numbers).
+- **asked parts** (`tools/eval/structure-formalizer/asked.mjs`):
+  - gold numbers that are the problem's own numbers (inputs, restated check values) leave the gold list;
+  - clock and hours-minutes pairs are one value; a written fraction counts as its value;
+  - **correct** = every asked number answered (extra values allowed);
+  - **partial** = some asked numbers answered and nothing else;
+  - **wrong** = no asked number answered, an asked part answered with another number, or no number answered;
+  - **gold defect** = a gold value absent from its own answer text, a gold of two or more numbers that are all inputs, or a reviewed defect (local `datasets_sources/books/eval/gold-defects.jsonl`; one entry, math:23.3).
+
+In "correct (real)", "real" excludes a yes/no gold decided by an empty list. Under the asked-parts scorer, "before" also counts those weak answers as correct: 1 for `good` and 2 for `tiny` on the 30, 0 on the fresh 50.
+
+**Same 30 problems** (the development set):
+
+| model | stage | compiled | old: correct (real) / wrong | asked parts: correct / partial / wrong / defect |
+|---|---|---|---|---|
+| `good` | before | 20 | 8 (7) / 8 | 12 / 1 / 3 / 1 |
+| `good` | converter | 28 | 11 (11) / 7 | 15 / 1 / 1 / 1 |
+| `good` | + fol-v2 | 28 | **14 (14) / 6** | **16 / 1 / 2 / 1** |
+| MoE `tiny` | before | 14 | 6 (4) / 8 | 6 / 3 / 5 / 1 |
+| MoE `tiny` | converter | 19 | 8 (8) / 7 | 9 / 2 / 4 / 1 |
+| MoE `tiny` | + fol-v2 | 16 | **8 (8) / 5** | **8 / 3 / 2 / 1** |
+
+**50 fresh problems** (stratified by book, outside the strict held-out split, drawn once):
+
+| model | stage | compiled | old: correct / wrong | asked parts: correct / partial / wrong / defect |
+|---|---|---|---|---|
+| `good` | before | 32 | 16 / 13 | 21 / 0 / 6 / 3 |
+| `good` | converter | 39 | 19 / 11 | 23 / 1 / 4 / 3 |
+| `good` | + fol-v2 | 41 | 17 / 12 | 22 / 1 / 5 / 3 |
+| MoE `tiny` | before | 24 | 8 / 14 | 11 / 2 / 8 / 3 |
+| MoE `tiny` | converter | 31 | 10 / 10 | 13 / 2 / 5 / 3 |
+| MoE `tiny` | + fol-v2 | 25 | **11 / 5** | **12 / 1 / 3 / 3** |
+
+### Reading
+
+- **On fresh data the gain comes from the converter repair.** Under the asked-parts scorer:
+  - `good`: 21 → 23 correct, 6 → 4 wrong;
+  - MoE `tiny`: 11 → 13 correct, 8 → 5 wrong.
+- **fol-v2 mainly cuts `tiny`'s wrong answers.** On the fresh 50, MoE `tiny` falls from 10 to 5 wrong under the old scorer and from 5 to 3 under asked parts. Its correct answers stay about the same.
+- **For `good`, fol-v2 is level on the fresh 50** (22 against 23 correct). It gains on the 30, but the 30 were used for development. With one sample per arm, differences of one or two problems are noise; `good` reasons and is not deterministic.
+- **fol-v2 pushes the models toward constraint search.** Two converter limits this exposed were fixed during the stage:
+  - the products were written constant-first, which the portable profile refuses;
+  - decimals and divisions in constraints are now cleared exactly: cross-multiplied by a denominator of known sign and scaled to whole numbers.
+- **Further generic fixes found from the fol-v2 outputs:**
+  - only the rules a question rests on enter its circuit, so an unrelated non-stratifiable definition no longer breaks it;
+  - an unknown that is minimised and bounded only below gets a sound bound;
+  - each fact is stated once;
+  - ordered or computed variables get numeric types;
+  - an alias definition that loops back is dropped;
+  - an answer that rests on `absent` of an undefined or untrusted predicate is withheld, a "yes" too;
+  - a conjunction of `Ask`s is several questions;
+  - `? Maximize(…)` is read as the objective.
+- **Most remaining wrong answers are model formalizations.** Examples:
+  - a norm written as a rule that derives facts (world:232);
+  - the drip counted in the cost (adult:337);
+  - a check answered instead of the asked sums (adult:152).
+
+  Under the old scorer, gold lists that hold inputs and partial answers still count as wrong as well.
+
+### Checks
+
+- **`npm test`:** 1556 of 1557 pass (1 skipped), run after the last change. In an earlier run under the parallel load of the fetch and the battery, ten files timed out and one 50 ms timing test failed; rerun alone, all passed.
+- **`node tools/capabilities/check.mjs`:** 1235/1235 L1 cases and 286 L2 programs, 0 losses.
+- **Offline regression:** 104 of 360, unchanged.
+- **Cost:** the fol-v2 fetches cost 0.56 USD on OpenRouter (`good`); MoE `tiny` ran locally.
+
+### Files
+
+- Results of the stages: `state/structure-formalizer/{fol-repair-30,fol-fresh-50,fol-v2-30,fol-v2-fresh-50}/`. Each folder holds `raw.jsonl`, `results.jsonl` (both scorers per problem) and `summary.md`.
+- The fresh sample: `fol-fresh-50/ids.json`.

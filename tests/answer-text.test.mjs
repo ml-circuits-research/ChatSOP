@@ -51,3 +51,10 @@ test('cnl uses the natural answer for query results and keeps the generic lines 
   assert.equal(renderable({status: 'plan_found', plan: {}}), false);
   assert.match(cnl({status: 'entailed', kind: 'constraint', complete: true}).text, /holds in every model/);
 });
+
+test('cnl renders a universal (mode every) packet with or without the count of known members', () => {
+  // The strict universal of the engines reports no member count; the line about it is then left out instead of failing the turn.
+  const every = {status: 'refuted', kind: 'every', complete: true, counterexamples: [{'?m': 'b1'}], answers: [], query: {mode: 'every'}};
+  assert.match(cnl(every).text, /COUNTEREXAMPLE \?m = "b1"/);
+  assert.match(cnl({...every, members: 2}).text, /Known members checked: 2\./);
+});
