@@ -401,9 +401,9 @@
     }
   },
   "lambdas": {
-    "_note": "ChatSOP's TaskLambdas (jobs/skills/: chatsop.mjs formalize, chat-batch; regression.mjs regression-record, regression-reference, regression-grow, regression-argument, the offline formalization regression of 2026-10-03, cloud tiers at background priority) and its job folders as TaskLambdas; the task templates of jobs/templates/ are TaskLambdas too. Their model calls carry the purpose lambda:<name> (skill:<name> is the old prefix, allowed until no caller uses it).",
+    "_note": "ChatSOP's TaskLambdas (jobs/lambdas/: chatsop.mjs formalize, chat-batch; regression.mjs regression-record, regression-reference, regression-grow, regression-argument, the offline formalization regression of 2026-10-03, cloud tiers at background priority) and its job folders as TaskLambdas; the task templates of jobs/templates/ are TaskLambdas too. Their model calls carry the purpose lambda:<name> (skill:<name> is the old prefix, allowed until no caller uses it).",
     "project": [
-      "jobs/skills"
+      "jobs/lambdas"
     ],
     "jobs": {
       "smalltalk-replies": "jobs/smalltalk-replies",

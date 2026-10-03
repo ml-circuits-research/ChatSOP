@@ -13,6 +13,10 @@
  * Skeletons and samples are data of this file: the smallest valid circuit around a wire type, and a valid value per field kind or per
  * (type, field) where the value depends on its context. A field or enum value without a sample is reported (`missing`), never skipped
  * silently. Hand-written cases for validator rules (problem codes) live in eval/capabilities/l1-cases.json.
+ *
+ *   converter (fol-v3)  fixed FOL lines of invented problems read by the FOL reader, lowered by the converters and executed on the product
+ *               route, no model (./l1-fol.mjs, eval/capabilities/fol-cases.json): SUPPOSE, ASSUME, Effect, Explain, Missing, Why,
+ *               Change, Assumed and every effect class; a form without a case is reported missing.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,6 +27,7 @@ import {ENUMS, COMPUTE_WORDS, COMPARATOR_WORDS, ORDER_WORDS} from '../../sop/enu
 import {validateKnowledge, validateModel, enumValues} from './checks.mjs';
 import {runExpression, EXPRESSION_FUNCTIONS, EXPRESSION_MATH, EXPRESSION_STRING_METHODS, EXPRESSION_ARRAY_METHODS} from '../../sop/expression.mjs';
 import {readWires, admitJsProgram} from '../../lib/formalize/js-program.mjs';
+import {folCases} from './l1-fol.mjs';
 import {registryOf} from '../../lib/formalize/expression-program.mjs';
 import {ROOT} from './inventory.mjs';
 
@@ -514,6 +519,7 @@ export function extraCases() {
 
 /** Run one case: {pass, got}. A knowledge case passes when `valid` has no error, or when the expected code is reported. */
 export function runCase(c) {
+  if (c.fol !== undefined) return {pass: false, got: 'a converter case executes its circuits: run it with runFolCases (./l1-fol.mjs)'};
   if (c.expr !== undefined) {
     let r;
     try { r = {ok: true, value: runExpression(c.expr).value}; } catch (e) { r = {ok: false, message: e.message}; }
@@ -535,7 +541,8 @@ export function runCase(c) {
   return {pass: !r.ok && (r.code === c.expect || r.message.includes(c.expect)), got: r.ok ? 'valid' : r.message};
 }
 
+/** Every L1 case; the converter cases (`fol` set, ./l1-fol.mjs) execute and run asynchronously (`runFolCases`), the rest through `runCase`. */
 export function allCases() {
-  const k = knowledgeCases(), m = modelCases(), e = expressionCases(), j = jsRouteCases();
-  return {cases: [...k.cases, ...m.cases, ...e.cases, ...j.cases, ...extraCases()], missing: [...k.missing, ...m.missing, ...e.missing, ...j.missing]};
+  const k = knowledgeCases(), m = modelCases(), e = expressionCases(), j = jsRouteCases(), f = folCases();
+  return {cases: [...k.cases, ...m.cases, ...e.cases, ...j.cases, ...extraCases(), ...f.cases], missing: [...k.missing, ...m.missing, ...e.missing, ...j.missing, ...f.missing]};
 }

@@ -1,5 +1,5 @@
 // ChatSOP's TinyAgent layer: config/tinyagent.json merges over the built-in defaults, names tiers only, and registers the project's
-// TaskLambdas (the project modules of jobs/skills/, the job folders, the task templates) without a loading problem. No server, no model.
+// TaskLambdas (the project modules of jobs/lambdas/, the job folders, the task templates) without a loading problem. No server, no model.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {loadLayers} from '../../TinyAgent/lib/config.mjs';

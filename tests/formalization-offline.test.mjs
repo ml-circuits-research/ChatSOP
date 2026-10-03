@@ -46,3 +46,10 @@ test('the books recordings replay offline in seconds (fast tier; skipped without
   assert.ok(out.ms < 30_000, `took ${out.ms} ms`);
 });
 
+
+test('the balanced argument set replays offline with no model (skipped without the local transport recordings)', {skip: !(await import('../tools/eval/formalization-regression/argument.mjs')).argumentCases().length || !fs.existsSync((await import('../tools/eval/formalization-regression/argument.mjs')).transportFile('tiny'))}, async () => {
+  const {replayArgument} = await import('../tools/eval/formalization-regression/argument.mjs');
+  const out = await replayArgument({tier: 'tiny', write: false, log: () => {}});
+  assert.equal(out.transport.misses, 0, 'every exchange is in the recording');
+  assert.equal(out.gold.yes + out.gold.no, out.cases);
+});

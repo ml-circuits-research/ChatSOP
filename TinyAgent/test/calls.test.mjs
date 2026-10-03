@@ -309,7 +309,7 @@ test('the old name of the TaskLambda concept appears nowhere in TinyAgent', () =
   const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
   const OLD = new RegExp(['skill', 'plugin'].join('[\\s_-]*'), 'i');
   // Files of another agent not yet committed when the rename landed (TODO.md "TaskLambda rename"); this list only shrinks.
-  const PENDING = new Set(['test/client-ops.test.mjs']);
+  const PENDING = new Set([]);
   const bad = [];
   const walk = (d) => {
     for (const e of fs.readdirSync(d, { withFileTypes: true })) {

@@ -9,6 +9,8 @@
  *   model surface       sop/parser.mjs SPEC restricted to the formalizer's types (sop/declarative.mjs MODEL_TYPES), sop/enums.mjs ENUMS,
  *                       roles, polarities, link keywords, the words of compare/rank/quantifier/order/constraint lines, session definitions,
  *                       and the admission codes of sop/parser.mjs and sop/declarative.mjs
+ *   FOL converter       the fol-v3 line forms (SUPPOSE, ASSUME), the support questions of lib/formalize/fol/to-sop.mjs META_KINDS and
+ *                       the effect classes of sop/enums.mjs EFFECT_CLASSES (tools/capabilities/l1-fol.mjs)
  *   combinations        the pairs of capability families of `PAIRS` (program level: both tags in one program) and the LOCAL cells
  *                       the tagger reads from one construct (`LOCAL`), each expanded from the current enumerations
  *
@@ -25,6 +27,7 @@ import {SPEC} from '../../sop/parser.mjs';
 import {MODEL_TYPES} from '../../sop/declarative.mjs';
 import {EXPRESSION_FUNCTIONS, EXPRESSION_MATH, EXPRESSION_STRING_METHODS, EXPRESSION_ARRAY_METHODS} from '../../sop/expression.mjs';
 import {enumValues} from './checks.mjs';
+import {folCapabilities} from './l1-fol.mjs';
 import {ENUMS, COMPARATOR_WORDS, ARITHMETIC_WORDS, COMPUTE_WORDS, ORDER_WORDS, QUANTIFIER_WORDS, RANK_WORDS, RANK_CUTS, ORDER_SAMPLING, LINK_WORDS, ROLE_NAMES, POLARITIES, CERTAINTIES, QUERY_MODES as MODEL_QUERY_MODES, REASONING_QUERY_MODES} from '../../sop/enums.mjs';
 
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url));
@@ -168,6 +171,8 @@ export function buildInventory() {
   add('e.arrow', 'expression', 'function', ['L1']);
   add('j.wire.jsEval', 'js-route', 'wire', ['L1', 'L3']);
   for (const code of problemCodes(['lib/formalize/js-program.mjs'], /\bbad\('(js_[a-z_]+)'/g).concat(['js_unknown_registry_index']).filter((c, i, a) => a.indexOf(c) === i)) add('j.check.' + code, 'js-route', 'check', ['L1']);
+  // ---------------------------------------------------------------- the FOL path's converter (fol-v3 line forms, support questions, effect classes)
+  for (const id of folCapabilities()) add(id, 'fol', id.split('.')[1], ['L1']);
   // ---------------------------------------------------------------- combinations
   const fam = families();
   const combos = [];
@@ -185,7 +190,7 @@ export function buildInventory() {
   }
   return {
     generated_by: 'node tools/capabilities/inventory.mjs --write',
-    sources: ['sop/knowledge/grammar.mjs', 'sop/enums.mjs', 'sop/parser.mjs', 'sop/declarative.mjs', 'sop/expression.mjs (operation tables)', 'lib/formalize/js-program.mjs (jsEval route admission codes)', 'sop/knowledge/*.mjs (problem codes)', 'reasoning/router/features.mjs (features)'],
+    sources: ['sop/knowledge/grammar.mjs', 'sop/enums.mjs', 'sop/parser.mjs', 'sop/declarative.mjs', 'sop/expression.mjs (operation tables)', 'lib/formalize/js-program.mjs (jsEval route admission codes)', 'lib/formalize/fol/to-sop.mjs META_KINDS and sop/enums.mjs EFFECT_CLASSES (FOL converter)', 'sop/knowledge/*.mjs (problem codes)', 'reasoning/router/features.mjs (features)'],
     families: fam, pairs: PAIRS, local: Object.keys(localCells()),
     counts: {capabilities: caps.length, combinations: combos.length, knowledge: caps.filter(c => c.surface === 'knowledge').length, model: caps.filter(c => c.surface === 'model').length},
     capabilities: caps, combinations: combos

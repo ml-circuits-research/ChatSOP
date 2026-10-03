@@ -22,7 +22,8 @@ export const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 export const CASES = path.join(ROOT, 'eval/formalization-regression/cases.jsonl');
 export const ITEMS = path.join(ROOT, 'datasets_sources/books/eval/items.jsonl');
 export const ANNOTATIONS = path.join(ROOT, 'datasets_sources/formalization-regression/annotations.jsonl');
-export const STATE = path.join(ROOT, 'state/formalization-regression');
+// FR_STATE_DIR moves the run folders (tests use a temporary folder).
+export const STATE = process.env.FR_STATE_DIR ? path.resolve(process.env.FR_STATE_DIR) : path.join(ROOT, 'state/formalization-regression');
 
 const readJsonl = file => fs.existsSync(file) ? fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)) : [];
 const norm = s => String(s ?? '').normalize('NFKC').replace(/\s+/g, ' ').trim().toLowerCase();

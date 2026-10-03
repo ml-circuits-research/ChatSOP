@@ -7,6 +7,7 @@
   "sop/declarative.mjs",
   "sop/expression.mjs (operation tables)",
   "lib/formalize/js-program.mjs (jsEval route admission codes)",
+  "lib/formalize/fol/to-sop.mjs META_KINDS and sop/enums.mjs EFFECT_CLASSES (FOL converter)",
   "sop/knowledge/*.mjs (problem codes)",
   "reasoning/router/features.mjs (features)"
  ],
@@ -226,7 +227,7 @@
   "link×certainty"
  ],
  "counts": {
-  "capabilities": 981,
+  "capabilities": 994,
   "combinations": 556,
   "knowledge": 662,
   "model": 270
@@ -9492,6 +9493,110 @@
    "id": "j.check.js_unknown_registry_index",
    "surface": "js-route",
    "kind": "check",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "f.line.suppose",
+   "surface": "fol",
+   "kind": "line",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "f.line.assume",
+   "surface": "fol",
+   "kind": "line",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "f.question.effect",
+   "surface": "fol",
+   "kind": "question",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "f.question.explain",
+   "surface": "fol",
+   "kind": "question",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "f.question.missing",
+   "surface": "fol",
+   "kind": "question",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "f.question.why",
+   "surface": "fol",
+   "kind": "question",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "f.question.change",
+   "surface": "fol",
+   "kind": "question",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "f.question.assumed",
+   "surface": "fol",
+   "kind": "question",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "f.effect.establishes",
+   "surface": "fol",
+   "kind": "effect",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "f.effect.blocks",
+   "surface": "fol",
+   "kind": "effect",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "f.effect.contradicts",
+   "surface": "fol",
+   "kind": "effect",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "f.effect.no_effect",
+   "surface": "fol",
+   "kind": "effect",
+   "layers": [
+    "L1"
+   ]
+  },
+  {
+   "id": "f.effect.inconsistent",
+   "surface": "fol",
+   "kind": "effect",
    "layers": [
     "L1"
    ]

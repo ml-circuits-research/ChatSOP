@@ -51,11 +51,7 @@ test('the names of the replaced components appear only in history', () => {
 // TaskLambdaCalls"); the earlier name appears only in history. PENDING holds files of agents that were still running when the rename
 // landed (TODO.md "TaskLambda rename"); this list only shrinks.
 const OLD_LAMBDA_NAME = new RegExp(['skill', 'plugin'].join('[\\s_-]*'), 'i');
-const PENDING = new Set([
-  'TinyAgent/test/client-ops.test.mjs', 'jobs/skills/chatsop.mjs', 'jobs/skills/regression.mjs',
-  'tools/eval/formalization-regression/argument.mjs', 'tools/eval/formalization-regression/grow.mjs', 'tools/eval/formalization-regression/record.mjs',
-  'tools/eval/formalization-regression/offline.mjs', 'docs/runtime.html', 'eval/registry.json', 'docs/tests-inventory.html',
-]);
+const PENDING = new Set([]);
 
 test('the earlier name of a TaskLambda appears only in history', () => {
   const bad = [];

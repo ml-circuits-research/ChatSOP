@@ -82,7 +82,7 @@ export function createQueryParser({settings = queryParserSettings(), chatData = 
 
   const fail = (code, status, message, parse) => Object.assign(new Error(message), {code, status, parse});
   const recordOf = (r, extra = {}) => ({parser: PARSER_NAMES[r.strategy] ?? PARSER_NAMES[defaultStrategy], strategy: r.strategy ?? defaultStrategy,
-    ...(r.steps ? {steps: r.steps.length, dialog: r.steps.map(s => ({name: s.name, answer: s.answer, ...(s.qsha ? {qsha: s.qsha} : {}), ...(s.tier ? {tier: s.tier} : {}), ...(s.escalated ? {escalated: true} : {})}))} : {}),
+    ...(r.steps ? {steps: r.steps.length, dialog: r.steps.map(s => ({name: s.name, answer: s.answer, ...(s.qsha ? {qsha: s.qsha} : {}), ...(s.tier ? {tier: s.tier} : {}), ...(s.escalated ? {escalated: true} : {}), ...(s.ok === false ? {failed: true, ...(s.finish ? {finish: s.finish} : {}), ...(s.reason ? {reason: s.reason} : {})} : {})}))} : {}),
     ...(typeof r.report === 'string' && r.report.startsWith('{') ? {report: r.report} : {}), model: r.model ?? null, ...(r.ladder ? {ladder: r.ladder} : {}), ...(r.tiers ? {tiers: r.tiers} : {}),
     backend: r.backend ?? 'completion', cost_usd: r.usage?.cost_usd ?? r.cost_usd ?? 0, ms: r.ms ?? r.duration_ms ?? 0, cache: r.cache ?? 'miss',
     ...(r.usage?.cache_read_tokens ? {cache_read_tokens: r.usage.cache_read_tokens} : {}),

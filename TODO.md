@@ -57,7 +57,8 @@ Phase 1 merged the earlier proxy and job runner into `TinyAgent/` (one server pe
 - [x] **Compatibility layer deleted** (2026-10-03): the shim folders of the earlier proxy and job runner and its runner configuration are archived in `probably_obsolete/tinyagent-migration/`; the old header names, the old key folder, the old runner file and `compat.oldHeaders` are gone (`TinyAgent/lib/legacy.mjs` keeps only the TaskLambda names).
 - [x] **Port 18080 runs `tinyagent serve`** (2026-10-03, after the in-flight check): the old keys, request logs, run registrations, cache and audit store were copied into `~/.tinyagent/` and verified (a second dry run copies nothing; the old folders are untouched).
 - [x] **The phase-2 allow-list is empty:** `tests/tinyagent/no-direct-model-calls.test.mjs` holds for every file outside the history paths.
-- [ ] **Formalization regression as project TaskLambdas in background priority:** the offline and live formalization regressions (`tools/eval/formalization-regression/`) and the improver's wake check as project TaskLambdas in `jobs/skills/`, run with priority `background` so they use only spare plan capacity and never delay a chat turn.
+- [x] **Formalization regression as project TaskLambdas in background priority** (2026-10-03): `regression-record`, `regression-reference`, `regression-grow` and `regression-argument` (`jobs/lambdas/regression.mjs`; CHANGES.md "Offline formalization regression on today's tiny"); cloud tiers at `background`.
+- [ ] **The improver's wake check as a project TaskLambda** (`tools/eval/formalization-regression/wake.mjs`), at `background` priority.
 
 ## TaskLambda rename (owner, 2026-10-03)
 
@@ -70,13 +71,12 @@ is a TaskLambdaCall folder (manual: "TaskLambdas and TaskLambdaCalls" in `TinyAg
   in place), pure reuse, `tinyagent lambdas|call|calls`, `GET /v1/calls`; tests `TinyAgent/test/calls.test.mjs`; the old names read
   through `TinyAgent/lib/legacy.mjs`. Decision: the job runner's run folders and the task folders are wrapped by their calls (linked from
   call.json), not moved; the folders written before were wrapped with `tinyagent calls import` (51 of `state/llm-jobs/`, 554 item calls).
-- [ ] **Files of other agents, after they commit** (each then leaves the `PENDING` list of `tests/tinyagent/no-direct-model-calls.test.mjs`
-  and of `TinyAgent/test/calls.test.mjs`): `jobs/skills/chatsop.mjs` and `jobs/skills/regression.mjs` (declare `effects`; `inputs` ->
-  `params`, `ctx.inputs` -> `ctx.params`, export `lambdas`; comments), `tools/eval/formalization-regression/{argument,grow,record,offline}.mjs`
-  (comments), `TinyAgent/test/client-ops.test.mjs` (comment), `docs/runtime.html` (two mentions), `eval/registry.json` (texts of the
-  regression entries) and `docs/tests-inventory.html` (regenerate). Done: `config/tinyagent.json` (`lambdas.project`, `lambda:*`
-  allowed) and `tests/formalization-regression-plugins.test.mjs`.
-- [ ] **Rename the folder `jobs/skills/` to `jobs/lambdas/`** (Agent Skills are a different concept), with `config/tinyagent.json`.
+- [x] **Files of other agents** (2026-10-03, formalization-regression agent): `jobs/lambdas/chatsop.mjs` and `jobs/lambdas/regression.mjs`
+  declare `effects` (`model-calls`, `writes-external`), take `params` and export `lambdas`; the comments of
+  `tools/eval/formalization-regression/{argument,grow,record,offline}.mjs`, `TinyAgent/test/client-ops.test.mjs`, `docs/runtime.html`
+  and the regression entries of `eval/registry.json` say TaskLambda; `docs/tests-inventory.html` regenerated; both `PENDING` lists are empty.
+- [x] **The folder `jobs/skills/` is `jobs/lambdas/`** (2026-10-03), with `config/tinyagent.json` `lambdas.project` and every reference.
+  A running TinyAgent server keeps the configuration it started with: restart it to load `jobs/lambdas/`.
 - [ ] **Drop the old names** once every running TinyAgent server has been restarted on this code and no caller uses them: the TaskLambda section of
   `TinyAgent/lib/legacy.mjs`, `TinyAgent/lib/skills.mjs`, `ta.skill`/`ta.skills`, `/v1/skills`, the commands `skills`, `skill`,
   `run-skills`, `plans`, the purpose prefix `skill:`, the worker's handling of `opDir` and of the kinds `skill`/`skills`.

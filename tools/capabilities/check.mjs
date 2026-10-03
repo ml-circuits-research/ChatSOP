@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * The "no capability loss" gate of the capability battery (owner request 2026-10-02). It runs
- *   L1  every generated and hand-written validation case (tools/capabilities/l1.mjs),
+ *   L1  every generated and hand-written validation case (tools/capabilities/l1.mjs) and the converter cases of the FOL path
+ *       (tools/capabilities/l1-fol.mjs: fixed fol-v3 lines converted and executed on the product route, no model),
  *   L2  the generated programs of the tier on the oracle and on every engine (tools/capabilities/l2-run.mjs, in parallel workers),
  *   L3  nothing: it reads the last formalization run (eval/capabilities/l3/results.json, written by tools/capabilities/l3-run.mjs),
  * and compares the outcomes with the committed ledger eval/capabilities/ledger.json:
@@ -22,6 +23,7 @@ import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import os from 'node:os';
 import {allCases, runCase} from './l1.mjs';
+import {runFolCases} from './l1-fol.mjs';
 import {battery} from './l2-generator.mjs';
 import {ENGINES} from './l2-run.mjs';
 import {knowledgeTags} from './tags.mjs';
@@ -98,7 +100,8 @@ export function compare(current, ledger) {
 export function capabilityTable(current, {l1Cases, programs, l3Catalog = []}, inventory = loadInventory()) {
   const table = {};
   const cell = id => (table[id] ??= {l1: [0, 0], l2: {}, l3: [0, 0]});
-  for (const c of l1Cases) { const t = cell(c.capability); t.l1[1]++; if (current.l1[c.id]) t.l1[0]++; }
+  // a case counts for its capability and for the others it also exercises (`also`, the converter cases)
+  for (const c of l1Cases) for (const id of [c.capability, ...(c.also ?? [])]) { const t = cell(id); t.l1[1]++; if (current.l1[c.id]) t.l1[0]++; }
   for (const p of programs) {
     const res = current.l2[p.id];
     if (!res || res.oracle === 'error') continue;
@@ -125,7 +128,8 @@ export async function runCheck({tier = 'fast', workers} = {}) {
   const t0 = performance.now();
   const {cases, missing} = allCases();
   const l1 = {}, l1Got = {};
-  for (const c of cases) { const r = runCase(c); l1[c.id] = r.pass; if (!r.pass) l1Got[c.id] = String(r.got).slice(0, 300); }
+  const fol = await runFolCases(cases.filter(c => c.fol));
+  for (const c of cases) { const r = c.fol ? fol[c.id] : runCase(c); l1[c.id] = r.pass; if (!r.pass) l1Got[c.id] = String(r.got).slice(0, 300); }
   const t1 = performance.now();
   const results = await runL2(tier, workers);
   const l2 = {}, l2Detail = {};

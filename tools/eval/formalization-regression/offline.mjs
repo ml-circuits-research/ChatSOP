@@ -11,8 +11,11 @@
  * A failure names its first diverging step. With references (the same questions answered by `small`/`good`, recorded the same way),
  * the readings are compared by meaning (numbers as multisets, kinds by value) and a counterfactual swap (the reference's answers for the
  * first k steps) finds the step whose answer causes the failure; see `attribute`.
- *   node tools/eval/formalization-regression/offline.mjs import --run RUN [--tier tiny]   recordings from a regression run's dialogs
- *   node tools/eval/formalization-regression/offline.mjs run [--tier tiny] [--ids a,b] [--fast N] [--json]
+ *   node tools/eval/formalization-regression/offline.mjs import --run RUN [--tier tiny] [--model M]   recordings from a run's dialogs
+ *   node tools/eval/formalization-regression/offline.mjs run [--tier tiny] [--model M|legacy] [--ids a,b] [--fast N] [--json]
+ *   node tools/eval/formalization-regression/offline.mjs floor [--tier tiny] [--model M]   |   check   (the gate of npm run verify)
+ * Recordings are keyed by tier and model (`recordingSource`); the floor names the tier and model it was taken from, and `check`
+ * replays those. New recordings come from the TaskLambda `regression-record` (jobs/lambdas/regression.mjs).
  * Recordings and expectations derive from the books, so they live in the gitignored datasets_sources/formalization-regression/ (DS011).
  */
 import fs from 'node:fs';
@@ -31,26 +34,48 @@ import {responseOf, deterministic, JUDGE_SYSTEM} from '../books/score.mjs';
 import {modelIdentity} from '../../../lib/formalize/replay-cache.mjs';
 const JUDGE_TIER = 'small';
 
-export const RECORDINGS = path.join(ROOT, 'datasets_sources/formalization-regression/steps');
+// FR_RECORDINGS_DIR moves the recordings (tests use a temporary folder).
+export const RECORDINGS = process.env.FR_RECORDINGS_DIR ? path.resolve(process.env.FR_RECORDINGS_DIR) : path.join(ROOT, 'datasets_sources/formalization-regression/steps');
 const readJsonl = f => fs.existsSync(f) ? fs.readFileSync(f, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)) : [];
 const sha = t => createHash('sha256').update(String(t)).digest('hex').slice(0, 12);
 const PROBLEM = /^(?:problem_|dc_)/;
 
-/** Recordings of a tier: Map id → {id, tier, run, steps: [{name, qsha, answer}]} (the last import of an id wins). */
-export const loadRecordings = (tier = 'tiny') => new Map(readJsonl(path.join(RECORDINGS, `${tier}.jsonl`)).map(r => [r.id, r]));
+/**
+ * Recordings are keyed by tier AND model (2026-10-03): `steps/<tier>@<model slug>.jsonl` holds the answers the model that served the
+ * tier gave (row field `model`: the full identity, a local GGUF's size and mtime included), so a tier that changes its model gets a new
+ * file and the old answers stay replayable. `steps/<tier>.jsonl` (model `legacy`) holds the recordings made before this key: for
+ * `tiny` the Qwen3-4B (tiny until 2026-10-03), for `good` the runs of 2026-10-02 (steps/models.json names them).
+ */
+export const modelSlug = model => String(model ?? '').replace(/^tier:[^=]*=?/, '').replace(/#.*$/, '').toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/^-+|-+$/g, '') || 'unknown';
+export const recordingFile = (tier, model) => path.join(RECORDINGS, model === 'legacy' ? `${tier}.jsonl` : `${tier}@${modelSlug(model)}.jsonl`);
+/** The recordings a run of `tier` uses: `model` (a slug, an identity or `legacy`), else the current model's file, else the legacy file. */
+export function recordingSource(tier = 'tiny', model = null) {
+  if (model) return {tier, model: model === 'legacy' ? 'legacy' : modelSlug(model), file: recordingFile(tier, model)};
+  const current = modelSlug(modelIdentity(tier));
+  const file = recordingFile(tier, current);
+  return fs.existsSync(file) ? {tier, model: current, file} : {tier, model: 'legacy', file: recordingFile(tier, 'legacy')};
+}
+/** Recordings of a tier: Map id → {id, tier, model, run, steps: [{name, qsha, answer}], live} (the last row of an id wins). */
+export const loadRecordings = (tier = 'tiny', {model = null} = {}) => new Map(readJsonl(recordingSource(tier, model).file).map(r => [r.id, r]));
 
-/** Imports the problem-mode answers of a regression run's dialogs as recordings of `tier`. */
-export function importRun(run, tier = 'tiny') {
+/**
+ * Imports the problem-mode answers of a regression run's dialogs as recordings of `tier` served by `model` (default: the tier's current
+ * model identity). A turn that answered without entering problem mode is kept with no steps and its form (`live.form`), so the offline
+ * run reports it (`not_problem`) instead of dropping the case; a turn that failed before any question (infrastructure) is not recorded.
+ */
+export function importRun(run, tier = 'tiny', {model = null, legacy = false} = {}) {
   const rows = readJsonl(path.join(STATE, run, 'results.jsonl'));
+  const identity = model ?? modelIdentity(tier);
   const out = [];
   for (const r of rows) {
-    const steps = (r.dialog ?? []).filter(d => PROBLEM.test(d.name)).map(d => ({name: d.name, qsha: d.qsha ?? null, answer: d.answer}));
-    if (!steps.length) continue;
-    out.push({id: r.id, tier, run, steps, live: {outcome: r.outcome, cluster: r.cluster ?? null}});
+    const steps = (r.dialog ?? []).filter(d => PROBLEM.test(d.name)).map(d => ({name: d.name, qsha: d.qsha ?? null, answer: d.answer, ...(d.failed ? {failed: true, ...(d.finish ? {finish: d.finish} : {}), ...(d.reason ? {reason: d.reason} : {})} : {})}));
+    if (!steps.length && (legacy || !(r.dialog ?? []).length)) continue;
+    out.push({id: r.id, tier, ...(legacy ? {} : {model: identity}), run, steps, live: {outcome: r.outcome ?? null, cluster: r.cluster ?? null, form: r.report?.form ?? null}});
   }
   fs.mkdirSync(RECORDINGS, {recursive: true});
-  fs.appendFileSync(path.join(RECORDINGS, `${tier}.jsonl`), out.map(r => JSON.stringify(r)).join('\n') + (out.length ? '\n' : ''));
-  return out.length;
+  const file = recordingFile(tier, legacy ? 'legacy' : identity);
+  fs.appendFileSync(file, out.map(r => JSON.stringify(r)).join('\n') + (out.length ? '\n' : ''));
+  return {recorded: out.length, not_problem: out.filter(r => !r.steps.length).length, file};
 }
 
 /** A scripted oracle that answers each question by name from `steps` (in order per name) and records what happened at each step. */
@@ -66,10 +91,13 @@ function scriptedOracle(steps) {
   return {trace, queue, async read(name, text, reader, again) {
     const first = answer(name, text);
     const stale = first.qsha && first.qsha !== sha(text);
+    // The live call failed (no answer, or a reply cut before any answer): the live oracle threw, and the protocol went on without it.
+    if (first.failed) { trace.push({step: name, kind: 'reader', ok: false, stale, failed: true, why: `the model gave no answer${first.finish ? ` (finish ${first.finish})` : ''}`, answer: ''}); throw Object.assign(new Error(`no answer to ${name}`), {code: 'oracle_failed'}); }
     const r1 = reader(first.answer);
     trace.push({step: name, kind: 'reader', ok: r1 !== null, stale, reading: summary(r1), answer: first.answer.slice(0, 200)});
     if (r1 !== null) return r1;
     const second = answer(`${name}_again`, again);
+    if (second.failed) { trace.push({step: `${name}_again`, kind: 'reader', ok: false, failed: true, why: `the model gave no answer${second.finish ? ` (finish ${second.finish})` : ''}`, answer: ''}); throw Object.assign(new Error(`no answer to ${name}_again`), {code: 'oracle_failed'}); }
     const r2 = reader(second.answer);
     trace.push({step: `${name}_again`, kind: 'reader', ok: r2 !== null, reading: summary(r2), answer: second.answer.slice(0, 200)});
     if (r2 !== null) return r2;
@@ -113,6 +141,8 @@ export async function replayCase(c, steps, {data = protocolData()} = {}) {
   if (!problem) {
     const unread = trace.find(t => t.kind === 'reader' && !t.ok && /_again$/.test(t.step));
     if (unread) return fail(unread.step.replace(/_again$/, ''), 'reader', `the answer could not be read twice: ${JSON.stringify(unread.answer)}`);
+    const silent = trace.find(t => t.failed);
+    if (silent) return fail(silent.step.replace(/_again$/, ''), 'no_answer', silent.why);
     const kind = trace.find(t => t.step === 'problem_kind')?.reading;
     return fail('problem_kind', 'protocol', `early exit (kind ${kind ?? 'unread'}${error ? `; ${error.message}` : ''})`);
   }
@@ -141,14 +171,17 @@ export async function replayCase(c, steps, {data = protocolData()} = {}) {
 }
 
 /** Runs every recorded case of `tier` (or `ids`); `fast` keeps the first N. Returns {results, counts, ms}. */
-export async function runOffline({tier = 'tiny', ids = null, fast = null, refTiers = ['good', 'small']} = {}) {
+export async function runOffline({tier = 'tiny', model = null, ids = null, fast = null, refTiers = ['good', 'small'], refModels = {}} = {}) {
   const started = Date.now();
   const items = loadItems(), cases = new Map(loadCases().map(c => [c.id, c]));
-  let recs = [...loadRecordings(tier).values()].filter(r => !ids || ids.includes(r.id));
+  const source = recordingSource(tier, model);
+  let recs = [...loadRecordings(tier, {model}).values()].filter(r => !ids || ids.includes(r.id));
   if (fast) recs = recs.slice(0, fast);
   const data = protocolData(), results = [];
-  const refRecs = new Map(refTiers.map(t => [t, loadRecordings(t)]));
+  const refRecs = new Map(refTiers.map(t => [t, loadRecordings(t, {model: refModels[t] ?? null})]));
   for (const rec of recs) {
+    // The live turn answered without entering problem mode (its general protocol took the message): nothing to replay offline.
+    if (!rec.steps.length) { results.push({id: rec.id, outcome: 'not_problem', first: {step: 'kind', kind: 'form', why: `the live turn did not enter problem mode (form ${rec.live?.form ?? 'none'}, live ${rec.live?.outcome ?? 'unknown'})`}, trace: [], live: rec.live}); continue; }
     // A book problem outside the regression set (an evaluation sample) is resolved from the books directly.
     const known = cases.get(rec.id) ?? (rec.id.startsWith('books/') ? {id: rec.id, source: 'books', provenance: {problem_id: rec.id.slice(6)}} : null);
     const c = known ? resolveCase(known, {items}) : null;
@@ -156,7 +189,7 @@ export async function runOffline({tier = 'tiny', ids = null, fast = null, refTie
     const res = {...await replayCase(c, rec.steps, {data}), live: rec.live};
     if (res.outcome !== 'correct') {
       const refs = {};
-      for (const t of refTiers) { const r = refRecs.get(t)?.get(rec.id); if (r) refs[t] = await replayCase(c, r.steps, {data}); }
+      for (const t of refTiers) { const r = refRecs.get(t)?.get(rec.id); if (r?.steps?.length) refs[t] = await replayCase(c, r.steps, {data}); }
       if (Object.keys(refs).length) res.attribution = attribute(res, refs);
     }
     results.push(res);
@@ -167,7 +200,7 @@ export async function runOffline({tier = 'tiny', ids = null, fast = null, refTie
   for (const r of results) if (r.first) { const k = `${r.first.kind}@${r.first.step}`; firsts[k] = (firsts[k] ?? 0) + 1; }
   const causes = {};
   for (const r of results) if (r.attribution) { const k = `${r.attribution.cause}@${r.attribution.step}`; causes[k] = (causes[k] ?? 0) + 1; }
-  return {results, counts, firsts, causes, ms: Date.now() - started};
+  return {results, counts, firsts, causes, recordings: {tier, model: source.model, file: path.relative(ROOT, source.file)}, refs: Object.fromEntries(refTiers.map(t => [t, recordingSource(t, refModels[t] ?? null).model])), ms: Date.now() - started};
 }
 
 const numbersOf = reading => (Array.isArray(reading) ? reading : []).map(x => Number(String(x).split('=').pop())).filter(Number.isFinite).sort((a, b) => a - b);
@@ -221,42 +254,64 @@ export function explain(r) {
   return lines.join('\n');
 }
 
+export const FLOOR = path.join(STATE, 'offline-floor.json');
+/** The floor of the offline gate: {at, tier, model, cases, correct} (a floor written before model keys has no tier and model: tiny legacy). */
+export const loadFloor = (file = FLOOR) => {
+  if (!fs.existsSync(file)) return null;
+  const f = JSON.parse(fs.readFileSync(file, 'utf8'));
+  return {tier: 'tiny', model: 'legacy', ...f};
+};
+/** Writes the floor; a floor of another model is kept as offline-floor-<tier>@<model>.json (history). */
+export function writeFloor(out, {file = FLOOR} = {}) {
+  const old = loadFloor(file);
+  const {tier, model} = out.recordings;
+  if (old && (old.tier !== tier || old.model !== model)) fs.copyFileSync(file, path.join(path.dirname(file), `offline-floor-${old.tier}@${old.model}.json`));
+  const correct = out.results.filter(r => r.outcome === 'correct').map(r => r.id);
+  fs.mkdirSync(path.dirname(file), {recursive: true});
+  fs.writeFileSync(file, JSON.stringify({at: new Date().toISOString(), tier, model, cases: out.results.length, counts: out.counts, first_divergence: out.firsts, correct}, null, 1) + '\n');
+  return {tier, model, cases: out.results.length, correct: correct.length};
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [cmd, ...args] = process.argv.slice(2);
   const opt = (name, fallback = null) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
-  const FLOOR = path.join(STATE, 'offline-floor.json');
+  const floor = loadFloor();
+  // `check` replays the recordings the floor was taken from (its tier and model) unless --tier/--model name others.
+  const tier = opt('--tier', cmd === 'check' ? floor?.tier ?? 'tiny' : 'tiny');
+  const model = opt('--model', cmd === 'check' && !opt('--tier') ? floor?.model ?? null : null);
+  const refModels = Object.fromEntries((opt('--ref-models', '') ?? '').split(',').filter(Boolean).map(x => x.split('=')));
   if (cmd === 'judge') {
     // The only model calls of the offline tier: free-text golds the rules cannot decide are judged once per (case, gold, answer) by the
     // cached judge of the live runner; later offline runs read the cache.
     const {judge} = await import('./run.mjs');
-    const out = await runOffline({tier: opt('--tier', 'tiny')});
+    const out = await runOffline({tier, model, refTiers: []});
     const items = loadItems(), cases = new Map(loadCases().map(c => [c.id, c]));
-    const pending = out.results.filter(r => r.outcome === 'undecided').map(r => ({c: resolveCase(cases.get(r.id), {items}), response: r.response}));
-    const j = pending.length ? await judge(pending, {purpose: 'job:formalization-improve'}) : {calls: 0, cached: 0};
-    console.log(JSON.stringify({undecided: pending.length, ...j}));
+    const pending = out.results.filter(r => r.outcome === 'undecided').map(r => ({c: resolveCase(cases.get(r.id) ?? {id: r.id, source: 'books', provenance: {problem_id: r.id.slice(6)}}, {items}), response: r.response})).filter(p => p.c);
+    const j = pending.length ? await judge(pending, {purpose: opt('--purpose', 'job:formalization-improve')}) : {calls: 0, cached: 0};
+    console.log(JSON.stringify({recordings: out.recordings, undecided: pending.length, ...j}));
     world?.dispose();
   } else if (cmd === 'floor' || cmd === 'check') {
     // floor: the cases the offline tier answers correctly now; check: none of them may be lost (exit 1), new ones are reported.
-    const out = await runOffline({tier: opt('--tier', 'tiny')});
-    const correct = out.results.filter(r => r.outcome === 'correct').map(r => r.id);
-    if (cmd === 'floor') { fs.mkdirSync(STATE, {recursive: true}); fs.writeFileSync(FLOOR, JSON.stringify({at: new Date().toISOString(), correct}, null, 1) + '\n'); console.log(`floor: ${correct.length} of ${out.results.length} correct (${out.ms} ms)`); }
+    const out = await runOffline({tier, model, refTiers: []});
+    if (cmd === 'floor') { const f = writeFloor(out); console.log(`floor (${f.tier}@${f.model}): ${f.correct} of ${f.cases} correct (${out.ms} ms)`); }
     else {
-      const floor = fs.existsSync(FLOOR) ? JSON.parse(fs.readFileSync(FLOOR, 'utf8')).correct : [];
-      const lost = floor.filter(id => !correct.includes(id)), gained = correct.filter(id => !floor.includes(id));
-      console.log(JSON.stringify({cases: out.results.length, correct: correct.length, lost, gained: gained.length, first_divergence: out.firsts, ms: out.ms}));
+      const correct = out.results.filter(r => r.outcome === 'correct').map(r => r.id);
+      const kept = floor?.correct ?? [];
+      const lost = kept.filter(id => !correct.includes(id)), gained = correct.filter(id => !kept.includes(id));
+      console.log(JSON.stringify({recordings: out.recordings, cases: out.results.length, correct: correct.length, floor: kept.length, lost, gained: gained.length, first_divergence: out.firsts, ms: out.ms}));
       for (const id of lost) console.log(explain(out.results.find(r => r.id === id)));
       world?.dispose();
       process.exit(lost.length ? 1 : 0);
     }
     world?.dispose();
-  } else if (cmd === 'import') console.log(`${importRun(opt('--run'), opt('--tier', 'tiny'))} recordings imported`);
+  } else if (cmd === 'import') console.log(JSON.stringify(importRun(opt('--run'), tier, {model: opt('--model'), legacy: args.includes('--legacy')})));
   else if (cmd === 'run') {
-    const out = await runOffline({tier: opt('--tier', 'tiny'), ids: opt('--ids') ? opt('--ids').split(',') : null, fast: opt('--fast') ? Number(opt('--fast')) : null});
-    if (args.includes('--json')) console.log(JSON.stringify({counts: out.counts, firsts: out.firsts, ms: out.ms}));
+    const out = await runOffline({tier, model, refModels, ids: opt('--ids') ? opt('--ids').split(',') : null, fast: opt('--fast') ? Number(opt('--fast')) : null});
+    if (args.includes('--json')) console.log(JSON.stringify({recordings: out.recordings, refs: out.refs, counts: out.counts, firsts: out.firsts, causes: out.causes, ms: out.ms}));
     else {
       for (const r of out.results.filter(x => x.outcome !== 'correct').slice(0, Number(opt('--show', 3)))) console.log(explain(r) + '\n');
-      console.log(JSON.stringify({cases: out.results.length, counts: out.counts, first_divergence: out.firsts, attribution: out.causes, ms: out.ms}));
+      console.log(JSON.stringify({recordings: out.recordings, refs: out.refs, cases: out.results.length, counts: out.counts, first_divergence: out.firsts, attribution: out.causes, ms: out.ms}));
     }
     world?.dispose();
-  } else { console.error('usage: offline.mjs import --run RUN [--tier T] | run [--tier T] [--ids a,b] [--fast N] [--json] [--show N]'); process.exit(2); }
+  } else { console.error('usage: offline.mjs import --run RUN [--tier T] [--model M] [--legacy] | run [--tier T] [--model M|legacy] [--ref-models small=M,good=M] [--ids a,b] [--fast N] [--json] [--show N] | floor [--tier T] [--model M] | check | judge'); process.exit(2); }
 }

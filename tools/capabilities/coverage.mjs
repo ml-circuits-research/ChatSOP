@@ -106,9 +106,9 @@ export function regressionCircuits() {
   return out;
 }
 
-/** The tags of one collected circuit: the parse tags, plus the validator codes it triggers. */
+/** The tags of one collected circuit: the parse tags, the validator codes it triggers, and the tags its source names (`tags`: the FOL converter capabilities of a converter case). */
 export function tagsOf(item) {
-  const tags = new Set();
+  const tags = new Set(item.tags ?? []);
   const c = item.circuit;
   try { for (const t of circuitTags(c)) tags.add(t); } catch { /* an unreadable circuit covers what checkTags finds */ }
   for (const t of checkTags(c)) tags.add(t);

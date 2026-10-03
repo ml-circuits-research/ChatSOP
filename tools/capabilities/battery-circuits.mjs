@@ -1,14 +1,19 @@
 /**
  * The circuits of the capability battery itself, for the coverage report (`node tools/capabilities/coverage.mjs --battery`): the L1
- * cases (negative ones flagged), the L2 programs of the full tier and the circuits of the last L3 run.
+ * cases (negative ones flagged; a converter case gives its converted circuits), the L2 programs of the full tier and the circuits of the last L3 run.
  */
 import {allCases} from './l1.mjs';
+import {compileFolCase} from './l1-fol.mjs';
 import {battery} from './l2-generator.mjs';
 
 export async function batteryCircuits() {
   const out = [];
   for (const c of allCases().cases) {
     const negative = c.expect !== 'valid';
+    if (c.fol) { // a converter case: its converted circuits, tagged with the FOL capabilities it exercises
+      for (const [i, circuit] of compileFolCase(c).circuits.entries()) out.push({source: 'battery', ref: `l1/${c.id}#${i + 1}`, circuit: {text: circuit.sop}, tags: [c.capability, ...(c.also ?? [])]});
+      continue;
+    }
     if (c.files) {
       const knowledge = c.files.filter(f => f.role === 'knowledge').map(f => f.text).join('\n');
       const query = c.files.filter(f => f.role === 'query').map(f => f.text).join('\n');

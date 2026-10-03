@@ -149,6 +149,7 @@ await ta.run('Count the words of the attached file', {attach: ['a.txt'], planOnl
 await ta.call('extract-table', {columns: ['price']}, {wait: false});         // the background form: the operation at once ({id}); ta.op(id) follows it
 await ta.lambdas(); await ta.calls({lambda: 'extract-table', status: 'ok'}); await ta.callTree(id); await ta.callInfo(id);
 await ta.stats(); await ta.models(); await ta.tiers(); await ta.health();
+await ta.jobs();                                                // registered runs with budget and spend (calls, usd, credits)
 const tagged = ta.with({purpose: 'review:x', run: 'r1', priority: 'background'});
 ```
 

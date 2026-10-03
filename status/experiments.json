@@ -6203,6 +6203,24 @@
     "tools/eval/structure-formalizer/fol-prompt.mjs",
     "LLMAPIProvider/prompts/fol-v3.md"
    ]
+  },
+  {
+   "id": "formalization-regression-moe-floor",
+   "name": "Offline formalization regression re-recorded on the MoE tiny, references of the same questions (small, good), and a balanced Yes/No argument set on the FOL path",
+   "category": "data-study",
+   "owner": "formalization-regression-agent",
+   "registered_at": "2026-10-03",
+   "hypothesis": "The offline floor measured on the former tiny's (Qwen3-4B) answers understates today's tiny (Qwen3.6-35B-A3B MoE); larger tiers answering the same step-by-step questions locate the steps tiny loses.",
+   "preregistration": "none: owner-requested measurement, staged small-first (re-record the floor set, then a stratified 60 on small, then good only on what the attribution needed: 12 cases neither tiny nor small solves; stopped there because good solved none)",
+   "data_version": "eval/formalization-regression/cases.jsonl (549 cases, 480 recorded); datasets_sources/formalization-regression/steps/tiny@local-qwen3.6-35b-a3b.jsonl, small@openference-qwen3.8-27b.jsonl, good@openference-deepseek-v4-flash-0731.jsonl; argument transport datasets_sources/formalization-regression/argument/ (local)",
+   "status": "done",
+   "results": "offline floor 179/480 (MoE); 298 common cases: MoE 128 vs 4B 98 correct (paired +30, bootstrap 95% [11, 49]); small 60: tiny 24 vs small 17 on 59, tiny loses 3; good 12: 0 correct, references disagree at problem_facts 7 and problem_kind 3; balanced argument set (14 Yes, 14 No): FOL path 9/14 Yes, 7/14 No (balanced 0.571), routed 12/14, 2/14 (0.5), direct 14/14, 11/14 (0.893), constant No 0.5. Cost: small 56.8 credits, good 73.5 credits; tiny local.",
+   "conclusions": "The MoE recordings are the floor of the offline gate. small and good are not better references than tiny on these questions; the remaining failures are mostly past formalization (execution) or vague questions (problem_facts, problem_kind). On argument problems the FOL path is far below tiny's direct answer, and mode routed sends most of them to compute path B.",
+   "links": [
+    "CHANGES.md",
+    "jobs/lambdas/regression.mjs",
+    "tools/eval/formalization-regression/"
+   ]
   }
  ]
 }

@@ -2,7 +2,7 @@
 /**
  * Runs the formalization regression set (eval/formalization-regression/cases.jsonl) on the step-by-step formalizer and scores it:
  *   node tools/eval/formalization-regression/run.mjs [--tier tiny] [--strategy LocalLLMStepByStep] [--ids a,b] [--cluster c] [--n N]
- *     [--workers 4] [--run-id ID] [--against RUN_ID] [--learned DIR] [--no-judge] [--purpose job:formalization-improve]
+ *     [--workers 4] [--run-id ID] [--against RUN_ID] [--learned DIR] [--no-judge] [--purpose job:formalization-improve] [--priority background]
  * Every case is the product chat turn (tools/eval/books/system.mjs, the chat default base memory) with the problem text as the user
  * message, formalized on a TinyAgent tier (default `tiny`, without the tier's fallback so the tier is what is measured) and executed.
  * Scoring is the books evaluation's deterministic rules; what only a judge can decide goes to the TinyAgent tier
@@ -120,7 +120,7 @@ export function compareRuns(run, base) {
 }
 
 export async function runRegression({tier = 'tiny', strategy = 'LocalLLMStepByStep', ids = null, cluster = null, n = null, concurrency = 4, workers = 1, shard = null, replay = 'fill', thinking = false, minTokens = null, bookIds = null, ladder = null, expression = false, score = true, runId = null, against = null, learned = null,
-  useJudge = true, purpose = 'job:formalization-improve', log = m => console.error(m)} = {}) {
+  useJudge = true, purpose = 'job:formalization-improve', priority = null, log = m => console.error(m)} = {}) {
   const items = loadItems(), annotations = loadAnnotations();
   // `bookIds`: book problems outside the regression set (an evaluation sample), as cases built on the fly.
   let cases = bookIds ? bookIds.map(b => ({id: `books/${b}`, source: 'books', provenance: {problem_id: b}, runnable: true})) : loadCases().filter(c => c.runnable);
@@ -149,7 +149,7 @@ export async function runRegression({tier = 'tiny', strategy = 'LocalLLMStepBySt
     // The chat turn is CPU-bound JavaScript: parallel turns need processes, not promises. Each worker is a child process.
     const children = Array.from({length: Math.min(workers, queue.length)}, (_, k) => new Promise(resolve => {
       const child = spawn(process.execPath, [`--max-old-space-size=${Math.max(8000, Number(process.env.FR_WORKER_HEAP ?? 12000))}`, fileURLToPath(import.meta.url), '--run-id', id, '--shard', `${k}/${Math.min(workers, queue.length)}`,
-        '--tier', tier, '--strategy', strategy, '--purpose', purpose, '--replay', replay ?? 'off', '--concurrency', String(concurrency), ...(ladder ? ['--ladder'] : []), ...(expression ? ['--expression'] : []), ...(thinking ? ['--thinking'] : []), ...(minTokens ? ['--min-tokens', String(minTokens)] : []), ...(bookIds ? ['--book-ids', bookIdsFile()] : ['--ids', resolved.map(c => c.id).join(',')]), ...(learned ? ['--learned', learned] : []), '--no-score'], {cwd: ROOT, stdio: ['ignore', 'ignore', 'pipe']});
+        '--tier', tier, '--strategy', strategy, '--purpose', purpose, ...(priority ? ['--priority', priority] : []), '--replay', replay ?? 'off', '--concurrency', String(concurrency), ...(ladder ? ['--ladder'] : []), ...(expression ? ['--expression'] : []), ...(thinking ? ['--thinking'] : []), ...(minTokens ? ['--min-tokens', String(minTokens)] : []), ...(bookIds ? ['--book-ids', bookIdsFile()] : ['--ids', resolved.map(c => c.id).join(',')]), ...(learned ? ['--learned', learned] : []), '--no-score'], {cwd: ROOT, stdio: ['ignore', 'ignore', 'pipe']});
       child.stderr.on('data', d => { for (const line of String(d).split('\n')) if (/^\[\d+\/\d+\]/.test(line)) log(`w${k} ${line}`); });
       child.on('exit', code => resolve(code));
     }));
@@ -158,7 +158,7 @@ export async function runRegression({tier = 'tiny', strategy = 'LocalLLMStepBySt
     for (const r of shardFiles().flatMap(f => readJsonl(f))) done.set(r.id, r);
     queue.length = 0;
   }
-  const tags = {purpose, run: id, noFallback: true};
+  const tags = {purpose, run: id, noFallback: true, ...(priority ? {priority} : {})};
   // The chat's reply memory (config conversation.layers), as the server has it: its message acts are what the formalizer may name.
   await useConfiguredReplyLayer(JSON.parse(fs.readFileSync(path.join(ROOT, 'config/runtime.json'), 'utf8')));
   const started = Date.now();
@@ -231,7 +231,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const out = await runRegression({tier: opt(args, '--tier', 'tiny'), strategy: opt(args, '--strategy', 'LocalLLMStepByStep'), ids: list(opt(args, '--ids', null)), cluster: opt(args, '--cluster', null),
     n: opt(args, '--n', null) ? Number(opt(args, '--n', null)) : null, concurrency: Number(opt(args, '--concurrency', 4)), workers: Number(opt(args, '--workers', 1)), thinking: args.includes('--thinking'), expression: args.includes('--expression'), bookIds: opt(args, '--book-ids', null) ? fs.readFileSync(opt(args, '--book-ids'), 'utf8').split(/[\s,]+/).filter(Boolean) : null, ladder: args.includes('--ladder') ? ['product'] : null, minTokens: opt(args, '--min-tokens', null) ? Number(opt(args, '--min-tokens', null)) : null, replay: opt(args, '--replay', 'fill') === 'off' ? null : opt(args, '--replay', 'fill'), runId: opt(args, '--run-id', null), against: opt(args, '--against', null),
     shard: opt(args, '--shard', null) ? {k: Number(opt(args, '--shard').split('/')[0]), of: Number(opt(args, '--shard').split('/')[1])} : null, score: !args.includes('--no-score'),
-    learned: opt(args, '--learned', null), useJudge: !args.includes('--no-judge'), purpose: opt(args, '--purpose', 'job:formalization-improve')});
+    learned: opt(args, '--learned', null), useJudge: !args.includes('--no-judge'), purpose: opt(args, '--purpose', 'job:formalization-improve'), priority: opt(args, '--priority', null)});
   if (!out.cases) { console.log(JSON.stringify(out)); process.exit(0); }
   const {fixed, lost, ...rest} = out;
   console.log(JSON.stringify({...rest, ...(fixed ? {fixed: fixed.length, lost: lost.length, lost_ids: lost} : {})}));
