@@ -6189,7 +6189,7 @@
   {
    "id": "fol-v3-ab",
    "name": "fol-v3 vs fol-v2 role prompt of the FOL formalizer: argument questions and introspection (candidates, effect, abduce, why_not)",
-   "category": "formalization",
+   "category": "data-study",
    "owner": "fol-v3-agent",
    "registered_at": "2026-10-03",
    "hypothesis": "fol-v3 answers more argument and critical-thinking questions correctly than fol-v2 on tiny, without a regression on the earlier 30 and fresh 50 book problems.",
