@@ -6,11 +6,11 @@
  * formalizer-good), so the only difference between two arms is the prompt. Scoring is `ab.mjs score` (the converters, the engines,
  * the asked-parts scorer). Offline evaluation harness; book text stays local (datasets_sources/, state/).
  *
- *   node tools/eval/structure-formalizer/fol-prompt.mjs sample --run <run> --n 30 [--seed <seed>]
- *   node tools/eval/structure-formalizer/fol-prompt.mjs fetch --run <run> --arms lfmp:tiny:fol-v2,lfmp:tiny:fol-v3 [--ids-from <run>]
+ *   node tools/eval/routed/structure/fol-prompt.mjs sample --run <run> --n 30 [--seed <seed>]
+ *   node tools/eval/routed/structure/fol-prompt.mjs fetch --run <run> --arms lfmp:tiny:fol-v2,lfmp:tiny:fol-v3 [--ids-from <run>]
  *        [--limit N] [--concurrency N] [--purpose job:<name>]
- *   node tools/eval/structure-formalizer/ab.mjs score --run <run>
- *   node tools/eval/structure-formalizer/fol-prompt.mjs compare --run <scored run> --a <arm> --b <arm> [--exclude id,id]
+ *   node tools/eval/routed/structure/ab.mjs score --run <run>
+ *   node tools/eval/routed/structure/fol-prompt.mjs compare --run <scored run> --a <arm> --b <arm> [--exclude id,id]
  * `compare` pairs two arms problem by problem on the asked-parts verdicts (correct +1, wrong -1, anything else 0) and gives the
  * difference b - a of correct, wrong and that score with a paired bootstrap 95% interval (10000 resamples, seeded); `--exclude`
  * leaves out problems (reviewed gold defects), reported.
@@ -23,16 +23,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {loadItems, loadSeen, sampleItems, markSeen} from '../books/sample.mjs';
+import {loadItems, loadSeen, sampleItems, markSeen} from '../../books/sample.mjs';
 import {heldoutUnits, unitOf} from './heldout.mjs';
 import {goldOf} from './gold.mjs';
-import {sentencesOf} from '../../../lib/formalize/fol/input.mjs';
-import {extractStructure} from '../../../lib/formalize/small-models.mjs';
-import {loadSchema, schemaRequest} from '../../../lib/formalize/structure/schema.mjs';
-import {tinyAgent} from '../../../lib/tinyagent.mjs';
-import {loadTemplate, serveprompted} from '../../../TinyAgent/lib/prompted.mjs';
+import {sentencesOf} from '../../../../lib/formalize/fol/input.mjs';
+import {extractStructure} from '../../../../lib/formalize/small-models.mjs';
+import {loadSchema, schemaRequest} from '../../../../lib/formalize/structure/schema.mjs';
+import {tinyAgent} from '../../../../lib/tinyagent.mjs';
+import {loadTemplate, serveprompted} from '../../../../TinyAgent/lib/prompted.mjs';
 
-const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 // The role prompts of ChatSOP's prompted tiers (config/tinyagent.json promptsDir).
 const promptsDir = () => path.join(ROOT, 'config/prompts');
 const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i > 0 ? process.argv[i + 1] : d; };

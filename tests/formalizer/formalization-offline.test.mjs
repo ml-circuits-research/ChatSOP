@@ -1,12 +1,12 @@
-// The offline per-step formalization regression (tools/eval/formalization-regression/offline.mjs): recorded answers are replayed through
+// The offline per-step formalization regression (tools/eval/formalization/regression/offline.mjs): recorded answers are replayed through
 // the current protocol and code with no model; every step is checked and a failure names its first diverging step. The fixture is
 // invented text; the books' recordings (local, gitignored) run as a fast tier when present.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {replayCase, runOffline, explain, loadRecordings} from '../tools/eval/formalization-regression/offline.mjs';
+import {replayCase, runOffline, explain, loadRecordings} from '../../tools/eval/formalization/regression/offline.mjs';
 
-const cases = JSON.parse(fs.readFileSync(new URL('./fixtures/formalization-offline/cases.json', import.meta.url), 'utf8'));
+const cases = JSON.parse(fs.readFileSync(new URL('../fixtures/formalization-offline/cases.json', import.meta.url), 'utf8'));
 const byId = id => cases.find(c => c.id === id);
 
 test('replayed answers solve compute, choose and deduce problems with no model', async () => {
@@ -47,8 +47,8 @@ test('the books recordings replay offline in seconds (fast tier; skipped without
 });
 
 
-test('the balanced argument set replays offline with no model (skipped without the local transport recordings)', {skip: !(await import('../tools/eval/formalization-regression/argument.mjs')).argumentCases().length || !fs.existsSync((await import('../tools/eval/formalization-regression/argument.mjs')).transportFile('tiny'))}, async () => {
-  const {replayArgument} = await import('../tools/eval/formalization-regression/argument.mjs');
+test('the balanced argument set replays offline with no model (skipped without the local transport recordings)', {skip: !(await import('../../tools/eval/formalization/regression/argument.mjs')).argumentCases().length || !fs.existsSync((await import('../../tools/eval/formalization/regression/argument.mjs')).transportFile('tiny'))}, async () => {
+  const {replayArgument} = await import('../../tools/eval/formalization/regression/argument.mjs');
   const out = await replayArgument({tier: 'tiny', write: false, log: () => {}});
   assert.equal(out.transport.misses, 0, 'every exchange is in the recording');
   assert.equal(out.gold.yes + out.gold.no, out.cases);

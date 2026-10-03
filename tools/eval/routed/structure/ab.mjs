@@ -4,9 +4,9 @@
  * off-the-shelf NL-to-FOL models). Every arm calls a TinyAgent tier with the same role contract; the converters and the
  * scoring are those of the zero-shot probe (./score.mjs). Offline evaluation harness; book text stays local.
  *
- *   node tools/eval/structure-formalizer/ab.mjs fetch --run ab-1 --ids-from probe-1 [--arms a,b,...]
- *   node tools/eval/structure-formalizer/ab.mjs score --run ab-1 [--into <run>]
- *   node tools/eval/structure-formalizer/ab.mjs sample --run <run> --n 50 [--seed <seed>]
+ *   node tools/eval/routed/structure/ab.mjs fetch --run ab-1 --ids-from probe-1 [--arms a,b,...]
+ *   node tools/eval/routed/structure/ab.mjs score --run ab-1 [--into <run>]
+ *   node tools/eval/routed/structure/ab.mjs sample --run <run> --n 50 [--seed <seed>]
  * `sample` draws n fresh scorable book problems stratified by book (never a seen item, never one of the strict held-out split of
  * train-psm-lfm-v1), marks them seen and writes <run>/ids.json; `fetch` then reads the run's own ids.json when there is one.
  * `score --into <run>` scores the raw outputs of --run with the current converters into another run folder (the earlier results stay).
@@ -29,20 +29,20 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {loadItems, loadSeen, sampleItems, markSeen} from '../books/sample.mjs';
+import {loadItems, loadSeen, sampleItems, markSeen} from '../../books/sample.mjs';
 import {heldoutUnits, unitOf} from './heldout.mjs';
-import {extractStructure, formalizeFol} from '../../../lib/formalize/small-models.mjs';
-import {sentencesOf} from '../../../lib/formalize/fol/input.mjs';
-import {loadSchema, schemaRequest, inventoryText} from '../../../lib/formalize/structure/schema.mjs';
-import {registryOf} from '../../../lib/formalize/expression-program.mjs';
-import {pathB, executeCircuit} from '../../../lib/adapter/paths/compute.mjs';
-import {decide} from '../../../lib/formalize/equivalence.mjs';
+import {extractStructure, formalizeFol} from '../../../../lib/formalize/small-models.mjs';
+import {sentencesOf} from '../../../../lib/formalize/fol/input.mjs';
+import {loadSchema, schemaRequest, inventoryText} from '../../../../lib/formalize/structure/schema.mjs';
+import {registryOf} from '../../../../lib/formalize/expression-program.mjs';
+import {pathB, executeCircuit} from '../../../../lib/adapter/paths/compute.mjs';
+import {decide} from '../../../../lib/formalize/equivalence.mjs';
 import {psmScore, lfmArm} from './score.mjs';
 import {goldOf} from './gold.mjs';
 import {engines} from './engines.mjs';
 import {tierChat} from './chat.mjs';
 
-const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i > 0 ? process.argv[i + 1] : d; };
 const readJsonl = f => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').split('\n').filter(Boolean).map(JSON.parse) : []);
 const run = arg('run', 'ab-1');

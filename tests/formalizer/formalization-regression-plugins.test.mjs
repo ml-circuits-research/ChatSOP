@@ -1,5 +1,5 @@
 // The TaskLambdas of the offline formalization regression (jobs/lambdas/regression.mjs) and their libraries
-// (tools/eval/formalization-regression/{record,grow,argument}.mjs): recordings keyed by tier and model, a failed live call replayed as
+// (tools/eval/formalization/regression/{record,grow,argument}.mjs): recordings keyed by tier and model, a failed live call replayed as
 // a failure, the recording run with an injected regression runner and a fake TinyAgent client (budget and spend), the stratified
 // reference sample, the growth exclusions, the recording transport of the argument set and its Yes/No scoring. No model and no server:
 // every TinyAgent exchange is a fake transport or an injected client. Invented text only.
@@ -15,11 +15,11 @@ process.env.FR_STATE_DIR = path.join(tmp, 'state');
 process.env.FR_RECORDINGS_DIR = path.join(tmp, 'steps');
 test.after(() => fs.rmSync(tmp, {recursive: true, force: true}));
 
-const offline = await import('../tools/eval/formalization-regression/offline.mjs');
-const record = await import('../tools/eval/formalization-regression/record.mjs');
-const grow = await import('../tools/eval/formalization-regression/grow.mjs');
-const argument = await import('../tools/eval/formalization-regression/argument.mjs');
-const cases = JSON.parse(fs.readFileSync(new URL('./fixtures/formalization-offline/cases.json', import.meta.url), 'utf8'));
+const offline = await import('../../tools/eval/formalization/regression/offline.mjs');
+const record = await import('../../tools/eval/formalization/regression/record.mjs');
+const grow = await import('../../tools/eval/formalization/regression/grow.mjs');
+const argument = await import('../../tools/eval/formalization/regression/argument.mjs');
+const cases = JSON.parse(fs.readFileSync(new URL('../fixtures/formalization-offline/cases.json', import.meta.url), 'utf8'));
 const pens = cases.find(c => c.id === 'fixture/pens');
 
 /** A regression run's results as run.mjs writes them: one problem-mode dialog, one turn outside problem mode, one infrastructure failure. */
@@ -130,8 +130,8 @@ test('the argument score keeps Yes and No apart, with the constant majority answ
 });
 
 test('the TaskLambdas load with declared effects and checked params', async () => {
-  const {loadLambdas, validateParams} = await import('../TinyAgent/lib/lambda/registry.mjs');
-  const {lambdas, problems, warnings} = await loadLambdas({lambdas: {project: [fileURLToPath(new URL('../jobs/lambdas', import.meta.url))]}});
+  const {loadLambdas, validateParams} = await import('../../TinyAgent/lib/lambda/registry.mjs');
+  const {lambdas, problems, warnings} = await loadLambdas({lambdas: {project: [fileURLToPath(new URL('../../jobs/lambdas', import.meta.url))]}});
   assert.deepEqual(problems.filter(p => /regression/.test(p)), []);
   assert.deepEqual(warnings.filter(w => /regression/.test(w)), [], 'every regression TaskLambda declares its effects');
   for (const name of ['regression-record', 'regression-reference', 'regression-grow', 'regression-argument']) assert.ok(lambdas.has(name), name);

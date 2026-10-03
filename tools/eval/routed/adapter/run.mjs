@@ -2,7 +2,7 @@
 /**
  * Evaluation of ChatSOPAdapter on book problems (owner decision 2026-10-03: the chat and every evaluation answer through the same
  * adapter, lib/adapter). Thin CLI: the adapter answers, this file only loads the problems and scores against the book answers with
- * the asked-parts scorer (tools/eval/structure-formalizer/asked.mjs). Offline evaluation harness; book text stays local under state/.
+ * the asked-parts scorer (tools/eval/routed/structure/asked.mjs). Offline evaluation harness; book text stays local under state/.
  *
  *   node tools/eval/routed/adapter/run.mjs --run <name> --ids-from js-fresh-50 --mode routed|direct-verified|all-paths
  *     [--tier tiny] [--structure structure-tiny] [--formalizer formalizer-tiny] [--second jsEval,engineCode] [--langs js,smt]
@@ -19,8 +19,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {loadItems} from '../../books/sample.mjs';
-import {goldOf} from '../../structure-formalizer/gold.mjs';
-import {askedVerdict} from '../../structure-formalizer/asked.mjs';
+import {goldOf} from '../structure/gold.mjs';
+import {askedVerdict} from '../structure/asked.mjs';
 import {createChatSOPAdapter, registerMode, structureRoute, pathB, pathJsEval, pathEngineCode, pathFol, decideAgreement} from '../../../../lib/adapter/index.mjs';
 import {registryOf} from '../../../../lib/formalize/expression-program.mjs';
 import {yesNoOf, numberOf, timeOf} from '../../../../lib/formalize/equivalence.mjs';
@@ -96,7 +96,7 @@ const cell = vs => V.map(v => vs.filter(x => x === v).length).join(' / ');
 function scorePhase(items, ids) {
   const rows = readJsonl(path.join(OUT, 'rows.jsonl')).filter(r => ids.includes(r.id));
   const L = [`# ChatSOPAdapter: ${run} (mode ${mode}, tier ${tier}; ${rows.length} problems)`, '',
-    'Asked parts (tools/eval/structure-formalizer/asked.mjs): correct / partial / wrong / no answer / gold defect. Every answer comes from `lib/adapter` (`createChatSOPAdapter().answer`).', ''];
+    'Asked parts (tools/eval/routed/structure/asked.mjs): correct / partial / wrong / no answer / gold defect. Every answer comes from `lib/adapter` (`createChatSOPAdapter().answer`).', ''];
   const scored = [];
   for (const r of rows) {
     const item = items.get(r.id), gold = goldOf(item);

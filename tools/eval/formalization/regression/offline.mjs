@@ -11,9 +11,9 @@
  * A failure names its first diverging step. With references (the same questions answered by `small`/`good`, recorded the same way),
  * the readings are compared by meaning (numbers as multisets, kinds by value) and a counterfactual swap (the reference's answers for the
  * first k steps) finds the step whose answer causes the failure; see `attribute`.
- *   node tools/eval/formalization-regression/offline.mjs import --run RUN [--tier tiny] [--model M]   recordings from a run's dialogs
- *   node tools/eval/formalization-regression/offline.mjs run [--tier tiny] [--model M|legacy] [--ids a,b] [--fast N] [--json]
- *   node tools/eval/formalization-regression/offline.mjs floor [--tier tiny] [--model M]   |   check   (the gate of npm run verify)
+ *   node tools/eval/formalization/regression/offline.mjs import --run RUN [--tier tiny] [--model M]   recordings from a run's dialogs
+ *   node tools/eval/formalization/regression/offline.mjs run [--tier tiny] [--model M|legacy] [--ids a,b] [--fast N] [--json]
+ *   node tools/eval/formalization/regression/offline.mjs floor [--tier tiny] [--model M]   |   check   (the gate of npm run verify)
  * Recordings are keyed by tier and model (`recordingSource`); the floor names the tier and model it was taken from, and `check`
  * replays those. New recordings come from the TaskLambda `regression-record` (jobs/lambdas/regression.mjs).
  * Recordings and expectations derive from the books, so they live in the gitignored datasets_sources/formalization-regression/ (DS011).
@@ -24,14 +24,14 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {ROOT, STATE, loadCases, loadItems, resolveCase} from './cases.mjs';
-import {problemCircuit} from '../../../lib/query-author/step-by-step/problem.mjs';
-import {protocolData} from '../../../lib/formalize/protocol-data.mjs';
-import {validateQuery} from '../../../lib/query-author/validate.mjs';
-import {seedLexicon} from '../../../lib/knowledge-seeds.mjs';
-import {Repository} from '../../../memory/repository.mjs';
-import {Agent} from '../../../server/agent.mjs';
-import {responseOf, deterministic, JUDGE_SYSTEM} from '../books/score.mjs';
-import {modelIdentity} from '../../../lib/formalize/replay-cache.mjs';
+import {problemCircuit} from '../../../../lib/query-author/step-by-step/problem.mjs';
+import {protocolData} from '../../../../lib/formalize/protocol-data.mjs';
+import {validateQuery} from '../../../../lib/query-author/validate.mjs';
+import {seedLexicon} from '../../../../lib/knowledge-seeds.mjs';
+import {Repository} from '../../../../memory/repository.mjs';
+import {Agent} from '../../../../server/agent.mjs';
+import {responseOf, deterministic, JUDGE_SYSTEM} from '../../books/score.mjs';
+import {modelIdentity} from '../../../../lib/formalize/replay-cache.mjs';
 const JUDGE_TIER = 'small';
 
 // FR_RECORDINGS_DIR moves the recordings (tests use a temporary folder).

@@ -3,8 +3,8 @@
  * The jsEval route against path B and FOL v2 (owner decision 2026-10-03, proposal P-6). Offline evaluation harness; book text stays
  * local under state/.
  *
- *   node tools/eval/structure-formalizer/js-route.mjs fetch --run js-30 [--tiers tiny,good:reason] [--concurrency 4]
- *   node tools/eval/structure-formalizer/js-route.mjs score --run js-30 --fol fol-v2-30
+ *   node tools/eval/routed/structure/js-route.mjs fetch --run js-30 [--tiers tiny,good:reason] [--concurrency 4]
+ *   node tools/eval/routed/structure/js-route.mjs score --run js-30 --fol fol-v2-30
  *
  * fetch: the run's raw.jsonl must hold the structure role's rows (`psm:structure-tiny`, fetched by ./ab.mjs on the run's ids.json).
  * Each problem is routed by lib/formalize/structure/route.mjs; for every routed problem and tier it asks the jsEval route
@@ -18,17 +18,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {loadItems} from '../books/sample.mjs';
-import {routeOf} from '../../../lib/formalize/structure/route.mjs';
-import {registryOf} from '../../../lib/formalize/expression-program.mjs';
-import {pathB, pathJsEval, executeCircuit, executeJs} from '../../../lib/adapter/paths/compute.mjs';
-import {decide} from '../../../lib/formalize/equivalence.mjs';
+import {loadItems} from '../../books/sample.mjs';
+import {routeOf} from '../../../../lib/formalize/structure/route.mjs';
+import {registryOf} from '../../../../lib/formalize/expression-program.mjs';
+import {pathB, pathJsEval, executeCircuit, executeJs} from '../../../../lib/adapter/paths/compute.mjs';
+import {decide} from '../../../../lib/formalize/equivalence.mjs';
 import {goldOf} from './gold.mjs';
 import {askedVerdict} from './asked.mjs';
 import {engines} from './engines.mjs';
 import {tierChat} from './chat.mjs';
 
-const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i > 0 ? process.argv[i + 1] : d; };
 const readJsonl = f => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').split('\n').filter(Boolean).map(JSON.parse) : []);
 const run = arg('run', 'js-30');
@@ -107,7 +107,7 @@ async function scorePhase() {
     let answers = [], executed = null, agree = null;
     if (r.js?.status === 'ok') {
       const admitted = {wires: r.js.wires.map(w => ({...w})), answers: r.js.answers};
-      const {parseExpression} = await import('../../../sop/expression.mjs');
+      const {parseExpression} = await import('../../../../sop/expression.mjs');
       for (const w of admitted.wires) w.ast = parseExpression(w.expr);
       const x = await executeJs(admitted, r.js.lowered ? {lowered: true, sop: r.js.sop} : null, registry, await engines());
       ({answers, executed, agree} = x);

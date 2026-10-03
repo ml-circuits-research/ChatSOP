@@ -12,12 +12,12 @@
  *            datasets_sources/formalization-regression/argument/ (book text, DS011).
  *   replay   the same calls with a replay transport: no server, no model (a missing exchange is a `replay_miss`); the converters,
  *            the engines and the scoring run in this process.
- * Scoring: the formalized answer by the asked-parts scorer of the FOL evaluation (tools/eval/structure-formalizer/asked.mjs: the
+ * Scoring: the formalized answer by the asked-parts scorer of the FOL evaluation (tools/eval/routed/structure/asked.mjs: the
  * first yes/no answer decides; a `which` list answers by being non-empty); the direct answer by its final line's first yes/no word.
  * Yes and No are scored apart, against the constant majority answer and the direct answer, with the balanced accuracy (the mean of
  * the two recalls).
- *   node tools/eval/formalization-regression/argument.mjs record [--tier tiny] [--priority background]
- *   node tools/eval/formalization-regression/argument.mjs replay [--tier tiny]
+ *   node tools/eval/formalization/regression/argument.mjs record [--tier tiny] [--priority background]
+ *   node tools/eval/formalization/regression/argument.mjs replay [--tier tiny]
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -25,7 +25,7 @@ import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {ROOT, STATE, loadCases, loadItems} from './cases.mjs';
 import {modelSlug} from './offline.mjs';
-import {modelIdentity} from '../../../lib/formalize/replay-cache.mjs';
+import {modelIdentity} from '../../../../lib/formalize/replay-cache.mjs';
 
 export const ARGUMENT_DIR = path.join(ROOT, 'datasets_sources/formalization-regression/argument');
 const readJsonl = f => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)) : []);
@@ -73,9 +73,9 @@ export const directPolarity = text => { const m = String(text ?? '').match(/\b(y
 
 /** One case through the adapter (routed) and the direct path, over `transport`; returns the scored row. */
 async function answerCase({c, item, adapter, transport, tier, tags, executor}) {
-  const {pathDirect, tierChat, pathFol, folClient, structureClient, structureRoute} = await import('../../../lib/adapter/index.mjs');
-  const {askedVerdict} = await import('../structure-formalizer/asked.mjs');
-  const {goldOf} = await import('../structure-formalizer/gold.mjs');
+  const {pathDirect, tierChat, pathFol, folClient, structureClient, structureRoute} = await import('../../../../lib/adapter/index.mjs');
+  const {askedVerdict} = await import('../../routed/structure/asked.mjs');
+  const {goldOf} = await import('../../routed/structure/gold.mjs');
   const gold = goldOf(item);
   const row = {id: c.id, gold: gold?.values?.[0] ?? null};
   try {
@@ -119,8 +119,8 @@ export function scoreRows(rows) {
 
 /** Records (or replays) every argument case; writes state/formalization-regression/argument-<mode>-<tier>.json. */
 async function runArgument({mode, tier = 'tiny', priority = null, purpose = 'job:formalization-regression', ta = null, write = true, log = m => console.error(m)}) {
-  const {createChatSOPAdapter} = await import('../../../lib/adapter/index.mjs');
-  const {httpFetch} = await import('../../../TinyAgent/lib/http-fetch.mjs');
+  const {createChatSOPAdapter} = await import('../../../../lib/adapter/index.mjs');
+  const {httpFetch} = await import('../../../../TinyAgent/lib/http-fetch.mjs');
   const cases = argumentCases(), items = loadItems();
   if (!cases.length) return {cases: 0, summary: 'no argument case: run regression-grow with set argument-balanced first'};
   const file = transportFile(tier);
@@ -132,7 +132,7 @@ async function runArgument({mode, tier = 'tiny', priority = null, purpose = 'job
   // The adapter's calls carry this run's purpose (not the chat's interactive `formalize`), so they queue as batch work.
   const adapter = createChatSOPAdapter({config: {...config, adapter: {...(config.adapter ?? {}), purpose}}, settings: null, fetchImpl: transport});
   const rows = [];
-  const {scratchExecutor} = await import('../../../lib/adapter/index.mjs');
+  const {scratchExecutor} = await import('../../../../lib/adapter/index.mjs');
   const executor = await scratchExecutor();
   try {
     for (const [k, c] of cases.entries()) {
@@ -159,7 +159,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [cmd, ...args] = process.argv.slice(2);
   const opt = (name, fallback = null) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
   if (!['record', 'replay'].includes(cmd)) { console.error('usage: argument.mjs record|replay [--tier tiny] [--priority background]'); process.exit(2); }
-  const {tinyAgent} = await import('../../../lib/tinyagent.mjs');
+  const {tinyAgent} = await import('../../../../lib/tinyagent.mjs');
   const out = await runArgument({mode: cmd, tier: opt('--tier', 'tiny'), priority: opt('--priority'), ta: cmd === 'record' ? tinyAgent({purpose: 'job:formalization-regression'}) : null});
   console.log(out.summary);
 }

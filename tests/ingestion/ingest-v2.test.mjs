@@ -4,20 +4,20 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import {ChatData} from '../lib/chat-data/index.mjs';
-import {BaseMemories, validateCircuits} from '../lib/chat-data/memories.mjs';
-import {Sessions} from '../lib/chat-data/sessions.mjs';
-import {chunkUnits} from '../lib/ingest/v2/units.mjs';
-import {dateValue, dateEval, dateCompute} from '../lib/ingest/v2/dates.mjs';
-import {collect, conflictCases, canonical, lookups, sharedPredicates} from '../lib/ingest/v2/vocabulary.mjs';
-import {convertDocument, renderWires, groupStatements} from '../lib/ingest/v2/to-knowledge.mjs';
-import {checkStructure, checkAlign} from '../lib/ingest/v2/roles.mjs';
-import {ingestV2} from '../lib/ingest/v2/index.mjs';
-import {quoteProblems} from '../lib/ingest/checks.mjs';
-import {tempDir} from './helpers.mjs';
+import {ChatData} from '../../lib/chat-data/index.mjs';
+import {BaseMemories, validateCircuits} from '../../lib/chat-data/memories.mjs';
+import {Sessions} from '../../lib/chat-data/sessions.mjs';
+import {chunkUnits} from '../../lib/ingest/v2/units.mjs';
+import {dateValue, dateEval, dateCompute} from '../../lib/ingest/v2/dates.mjs';
+import {collect, conflictCases, canonical, lookups, sharedPredicates} from '../../lib/ingest/v2/vocabulary.mjs';
+import {convertDocument, renderWires, groupStatements} from '../../lib/ingest/v2/to-knowledge.mjs';
+import {checkStructure, checkAlign} from '../../lib/ingest/v2/roles.mjs';
+import {ingestV2} from '../../lib/ingest/v2/index.mjs';
+import {quoteProblems} from '../../lib/ingest/checks.mjs';
+import {tempDir} from '../helpers.mjs';
 
-const runtimeConfig = () => JSON.parse(fs.readFileSync(new URL('../config/runtime.json', import.meta.url), 'utf8'));
-const CORE = fs.readFileSync(new URL('../config/knowledge/core-min/0001-upper.sop', import.meta.url), 'utf8');
+const runtimeConfig = () => JSON.parse(fs.readFileSync(new URL('../../config/runtime.json', import.meta.url), 'utf8'));
+const CORE = fs.readFileSync(new URL('../../config/knowledge/core-min/0001-upper.sop', import.meta.url), 'utf8');
 
 test('units: sentences keep the document\'s own characters as quotes; a table row is one unit', () => {
   const units = chunkUnits({text: '## 2. Rules\n\n**Note**: Ann may rest. Bob may not.\n\n| Name | Team |\n|---|---|\n| Ann | Red |\n', start_line: 10, path: ['Rules']});

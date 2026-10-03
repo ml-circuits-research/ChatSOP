@@ -2,17 +2,17 @@
 /**
  * Wake-up of the formalization improver (AGENTS.md "Formalization improvement"): how many inbox rows and new regression cases arrived
  * since the last improvement run, and whether a run is due.
- *   node tools/eval/formalization-regression/wake.mjs [--threshold 10] [--exit-due]   report (with --exit-due: exit 0 when due, 1 when not)
- *   node tools/eval/formalization-regression/wake.mjs --mark                          record that an improvement run consumed the inbox
+ *   node tools/eval/formalization/regression/wake.mjs [--threshold 10] [--exit-due]   report (with --exit-due: exit 0 when due, 1 when not)
+ *   node tools/eval/formalization/regression/wake.mjs --mark                          record that an improvement run consumed the inbox
  * Due when at least `threshold` new cases (after deduplication against eval/formalization-regression/cases.jsonl) arrived. Trigger:
- *   node tools/eval/formalization-regression/wake.mjs --exit-due && node tools/eval/formalization-regression/build.mjs \
- *     && node TinyAgent/bin/tinyagent.mjs job jobs/formalization-improve && node tools/eval/formalization-regression/wake.mjs --mark
+ *   node tools/eval/formalization/regression/wake.mjs --exit-due && node tools/eval/formalization/regression/build.mjs \
+ *     && node TinyAgent/bin/tinyagent.mjs job jobs/formalization-improve && node tools/eval/formalization/regression/wake.mjs --mark
  * (after a books or commonsense evaluation has scored and reported its failures, or periodically).
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {INBOX} from '../../../lib/formalization-errors.mjs';
+import {INBOX} from '../../../../lib/formalization-errors.mjs';
 import {mergeInbox, STATE} from './cases.mjs';
 
 export const MARK = path.join(STATE, 'improver.json');

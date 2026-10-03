@@ -11,8 +11,8 @@
  * Each recording run registers its run id with TinyAgent (a budget of calls and plan credits), so the server refuses calls beyond it and
  * its `/jobs` spend (calls, USD, plan credits) is the cost reported. Cloud tiers run at `background` priority: TinyAgent serves them only
  * when nothing else waits and within 70% of each plan window.
- *   node tools/eval/formalization-regression/record.mjs record --tier tiny [--set recorded|cases] [--ids a,b] [--n N] [--run-id ID]
- *   node tools/eval/formalization-regression/record.mjs reference --tier small --n 60 [--seed s] [--from tiny@model] [--failing]
+ *   node tools/eval/formalization/regression/record.mjs record --tier tiny [--set recorded|cases] [--ids a,b] [--n N] [--run-id ID]
+ *   node tools/eval/formalization/regression/record.mjs reference --tier small --n 60 [--seed s] [--from tiny@model] [--failing]
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -20,7 +20,7 @@ import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {loadCases, loadItems, STATE} from './cases.mjs';
 import {importRun, loadRecordings, recordingSource, modelSlug, loadFloor} from './offline.mjs';
-import {modelIdentity} from '../../../lib/formalize/replay-cache.mjs';
+import {modelIdentity} from '../../../../lib/formalize/replay-cache.mjs';
 
 export const LOCAL_TIERS = Object.freeze(['nano', 'micro', 'supertiny', 'tiny']);
 export const REFERENCE_TIERS = Object.freeze(['small', 'medium', 'good']);
@@ -114,7 +114,7 @@ export async function referenceIds({tier, n = 60, seed = 'reference-v1', from = 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [cmd, ...args] = process.argv.slice(2);
   const opt = (name, fallback = null) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
-  const {tinyAgent} = await import('../../../lib/tinyagent.mjs');
+  const {tinyAgent} = await import('../../../../lib/tinyagent.mjs');
   const purpose = opt('--purpose', 'job:formalization-regression');
   const ta = tinyAgent({purpose});
   const tier = opt('--tier', cmd === 'reference' ? 'small' : 'tiny');

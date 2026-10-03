@@ -357,7 +357,7 @@
     "eval-tooling"
    ],
    "paths": [
-    "tests/capability-battery.test.mjs"
+    "tests/reasoning/capability-battery.test.mjs"
    ],
    "modelCalls": {
     "level": "none"
@@ -365,7 +365,7 @@
    "dataSource": [
     "generated"
    ],
-   "command": "node --test tests/capability-battery.test.mjs",
+   "command": "node --test tests/reasoning/capability-battery.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -574,9 +574,9 @@
     "formalizer"
    ],
    "paths": [
-    "tests/formalization-offline.test.mjs",
-    "tests/formalization-regression.test.mjs",
-    "tests/formalization-regression-plugins.test.mjs",
+    "tests/formalizer/formalization-offline.test.mjs",
+    "tests/formalizer/formalization-regression.test.mjs",
+    "tests/formalizer/formalization-regression-plugins.test.mjs",
     "tests/fixtures/formalization-offline/"
    ],
    "modelCalls": {
@@ -585,7 +585,7 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/formalization-offline.test.mjs tests/formalization-regression.test.mjs tests/formalization-regression-plugins.test.mjs",
+   "command": "node --test tests/formalizer/formalization-offline.test.mjs tests/formalizer/formalization-regression.test.mjs tests/formalizer/formalization-regression-plugins.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
@@ -713,7 +713,7 @@
     "tests/ingestion/ingest.test.mjs",
     "tests/ingestion/ingest-direct-author.test.mjs",
     "tests/ingestion/document-ingestion.test.mjs",
-    "tests/ingest-v2.test.mjs",
+    "tests/ingestion/ingest-v2.test.mjs",
     "tests/ingestion/authoring-circuits.test.mjs",
     "tests/ingestion/knowledge-mining.test.mjs"
    ],
@@ -723,13 +723,13 @@
    "dataSource": [
     "self-written"
    ],
-   "command": "node --test tests/ingestion/ingest.test.mjs tests/ingestion/ingest-direct-author.test.mjs tests/ingestion/document-ingestion.test.mjs tests/ingest-v2.test.mjs tests/ingestion/authoring-circuits.test.mjs tests/ingestion/knowledge-mining.test.mjs",
+   "command": "node --test tests/ingestion/ingest.test.mjs tests/ingestion/ingest-direct-author.test.mjs tests/ingestion/document-ingestion.test.mjs tests/ingestion/ingest-v2.test.mjs tests/ingestion/authoring-circuits.test.mjs tests/ingestion/knowledge-mining.test.mjs",
    "runsIn": [
     "npm test",
     "verify"
    ],
    "status": "active",
-   "notes": "tests/ingest-v2.test.mjs belongs to the ingestion-v2 work in progress (lib/ingest/v2), registered as it was when scanned.",
+   "notes": "tests/ingestion/ingest-v2.test.mjs belongs to the ingestion-v2 work in progress (lib/ingest/v2), registered as it was when scanned.",
    "runtime": "0.8 s for 6 files (measured, one group at a time)",
    "latest": {
     "result": "38 tests: 38 pass",
@@ -1078,7 +1078,7 @@
    ],
    "runtime": "about 70-130 s for the whole suite (npm test, files in parallel; 2026-10-03)",
    "latest": {
-    "result": "1710 tests: 1706 pass, 1 skipped, 3 not ok, none from this inventory: tests/sop/commonsense-layer.test.mjs timed out at 120 s and the 50 ms decision-time test of formalizer-protocol-memory failed while other agents loaded the machine; no-direct-model-calls flagged tools/eval/formalization-regression/argument.mjs (since fixed)",
+    "result": "1710 tests: 1706 pass, 1 skipped, 3 not ok, none from this inventory: tests/sop/commonsense-layer.test.mjs timed out at 120 s and the 50 ms decision-time test of formalizer-protocol-memory failed while other agents loaded the machine; no-direct-model-calls flagged tools/eval/formalization/regression/argument.mjs (since fixed)",
     "date": "2026-10-03",
     "path": "eval/reports/current/inventory/npm-test.log"
    },
@@ -1314,14 +1314,14 @@
     "routed-paths"
    ],
    "paths": [
-    "tools/eval/structure-formalizer/ab.mjs",
-    "tools/eval/structure-formalizer/score.mjs",
-    "tools/eval/structure-formalizer/compare.mjs",
-    "tools/eval/structure-formalizer/chat.mjs",
-    "tools/eval/structure-formalizer/engines.mjs",
-    "tools/eval/structure-formalizer/gold.mjs",
-    "tools/eval/structure-formalizer/asked.mjs",
-    "tools/eval/structure-formalizer/heldout.mjs"
+    "tools/eval/routed/structure/ab.mjs",
+    "tools/eval/routed/structure/score.mjs",
+    "tools/eval/routed/structure/compare.mjs",
+    "tools/eval/routed/structure/chat.mjs",
+    "tools/eval/routed/structure/engines.mjs",
+    "tools/eval/routed/structure/gold.mjs",
+    "tools/eval/routed/structure/asked.mjs",
+    "tools/eval/routed/structure/heldout.mjs"
    ],
    "modelCalls": {
     "level": "local+cloud",
@@ -1331,7 +1331,7 @@
    "dataSource": [
     "book problems (local only)"
    ],
-   "command": "node tools/eval/structure-formalizer/ab.mjs fetch --run <run> --ids-from probe-1 --arms a,b; node tools/eval/structure-formalizer/ab.mjs score --run <run>",
+   "command": "node tools/eval/routed/structure/ab.mjs fetch --run <run> --ids-from probe-1 --arms a,b; node tools/eval/routed/structure/ab.mjs score --run <run>",
    "runsIn": [
     "manual"
    ],
@@ -1352,7 +1352,7 @@
     "routed-paths"
    ],
    "paths": [
-    "tools/eval/structure-formalizer/fol-prompt.mjs"
+    "tools/eval/routed/structure/fol-prompt.mjs"
    ],
    "modelCalls": {
     "level": "local",
@@ -1362,7 +1362,7 @@
    "dataSource": [
     "book problems (local only)"
    ],
-   "command": "node tools/eval/structure-formalizer/fol-prompt.mjs fetch --run <run> --arms lfmp:tiny:fol-v2,lfmp:tiny:fol-v3; ab.mjs score; fol-prompt.mjs compare --run <run> --a <arm> --b <arm>",
+   "command": "node tools/eval/routed/structure/fol-prompt.mjs fetch --run <run> --arms lfmp:tiny:fol-v2,lfmp:tiny:fol-v3; ab.mjs score; fol-prompt.mjs compare --run <run> --a <arm> --b <arm>",
    "runsIn": [
     "manual"
    ],
@@ -1383,7 +1383,7 @@
     "routed-paths"
    ],
    "paths": [
-    "tools/eval/structure-formalizer/js-route.mjs"
+    "tools/eval/routed/structure/js-route.mjs"
    ],
    "modelCalls": {
     "level": "local+cloud",
@@ -1393,7 +1393,7 @@
    "dataSource": [
     "book problems (local only)"
    ],
-   "command": "node tools/eval/structure-formalizer/js-route.mjs fetch --run js-30 --tiers tiny,good:reason; js-route.mjs score --run js-30 --fol fol-v2-30",
+   "command": "node tools/eval/routed/structure/js-route.mjs fetch --run js-30 --tiers tiny,good:reason; js-route.mjs score --run js-30 --fol fol-v2-30",
    "runsIn": [
     "manual"
    ],
@@ -1414,14 +1414,14 @@
     "formalizer"
    ],
    "paths": [
-    "tools/eval/formalization-regression/run.mjs",
-    "tools/eval/formalization-regression/build.mjs",
-    "tools/eval/formalization-regression/cases.mjs",
-    "tools/eval/formalization-regression/gate.mjs",
-    "tools/eval/formalization-regression/wake.mjs",
-    "tools/eval/formalization-regression/compare.mjs",
-    "tools/eval/formalization-regression/sample-stage.mjs",
-    "tools/eval/formalization-regression/grow.mjs",
+    "tools/eval/formalization/regression/run.mjs",
+    "tools/eval/formalization/regression/build.mjs",
+    "tools/eval/formalization/regression/cases.mjs",
+    "tools/eval/formalization/regression/gate.mjs",
+    "tools/eval/formalization/regression/wake.mjs",
+    "tools/eval/formalization/regression/compare.mjs",
+    "tools/eval/formalization/regression/sample-stage.mjs",
+    "tools/eval/formalization/regression/grow.mjs",
     "eval/formalization-regression/",
     "jobs/formalization-improve/"
    ],
@@ -1435,7 +1435,7 @@
     "self-written",
     "recorded answers (local)"
    ],
-   "command": "node tools/eval/formalization-regression/run.mjs [--tier tiny] [--workers 4] [--against RUN]",
+   "command": "node tools/eval/formalization/regression/run.mjs [--tier tiny] [--workers 4] [--against RUN]",
    "runsIn": [
     "manual"
    ],
@@ -1456,8 +1456,8 @@
     "formalizer"
    ],
    "paths": [
-    "tools/eval/formalization-regression/offline.mjs",
-    "tools/eval/formalization-regression/record.mjs"
+    "tools/eval/formalization/regression/offline.mjs",
+    "tools/eval/formalization/regression/record.mjs"
    ],
    "modelCalls": {
     "level": "none",
@@ -1468,7 +1468,7 @@
     "recorded answers (local)",
     "book problems (local only)"
    ],
-   "command": "node tools/eval/formalization-regression/offline.mjs check",
+   "command": "node tools/eval/formalization/regression/offline.mjs check",
    "verifyJobs": [
     "formalization-offline"
    ],
@@ -1501,7 +1501,7 @@
     "adapter"
    ],
    "paths": [
-    "tools/eval/formalization-regression/argument.mjs"
+    "tools/eval/formalization/regression/argument.mjs"
    ],
    "modelCalls": {
     "level": "local",
@@ -1512,7 +1512,7 @@
     "book problems (local only)",
     "recorded answers (local)"
    ],
-   "command": "node tools/eval/formalization-regression/argument.mjs record|replay (through the TaskLambda regression-argument)",
+   "command": "node tools/eval/formalization/regression/argument.mjs record|replay (through the TaskLambda regression-argument)",
    "runsIn": [
     "manual"
    ],
@@ -1845,8 +1845,8 @@
     "formalizer"
    ],
    "paths": [
-    "tools/eval/ingest-v1.mjs",
-    "tools/eval/ingest-v2.mjs",
+    "tools/eval/ingestion/ingest-v1.mjs",
+    "tools/eval/ingestion/ingest-v2.mjs",
     "eval/ingest-v1/"
    ],
    "modelCalls": {
@@ -1858,7 +1858,7 @@
     "self-written",
     "external"
    ],
-   "command": "node tools/eval/ingest-v2.mjs build --doc handbook; node tools/eval/ingest-v1.mjs pipeline --doc handbook --base ID --tag v2; node tools/eval/ingest-v1.mjs score",
+   "command": "node tools/eval/ingestion/ingest-v2.mjs build --doc handbook; node tools/eval/ingestion/ingest-v1.mjs pipeline --doc handbook --base ID --tag v2; node tools/eval/ingestion/ingest-v1.mjs score",
    "runsIn": [
     "manual"
    ],
@@ -2015,7 +2015,7 @@
    "paths": [
     "tools/eval/formalization/query-forms/gold.mjs",
     "tools/eval/formalization/query-forms/overlap.mjs",
-    "tools/eval/query-forms-probe.mjs"
+    "tools/eval/formalization/query-forms/probe.mjs"
    ],
    "modelCalls": {
     "level": "local+cloud",
@@ -2026,7 +2026,7 @@
     "generated",
     "sealed suite"
    ],
-   "command": "node tools/eval/formalization/query-forms/gold.mjs --in rows.jsonl --out dev.jsonl; node tools/eval/formalization/query-forms/overlap.mjs --dev dev.jsonl; node tools/eval/query-forms-probe.mjs --q \"...\"",
+   "command": "node tools/eval/formalization/query-forms/gold.mjs --in rows.jsonl --out dev.jsonl; node tools/eval/formalization/query-forms/overlap.mjs --dev dev.jsonl; node tools/eval/formalization/query-forms/probe.mjs --q \"...\"",
    "runsIn": [
     "manual"
    ],
@@ -2035,7 +2035,7 @@
     "result": "no recorded run"
    },
    "status": "active",
-   "notes": "query-forms-probe.mjs also provides openSession and agentClient to the commonsense, generality, protocol and ingest harnesses. Experiment eval-query-forms-v1 still lists the dev set as pending."
+   "notes": "tools/eval/formalization/query-forms/probe.mjs is a command-line probe of the chat turn (the session helpers live in tools/eval/lib/session.mjs). Experiment eval-query-forms-v1 still lists the dev set as pending."
   },
   {
    "id": "eval-world-kb-chat",
@@ -2811,7 +2811,7 @@
    "id": "R1",
    "title": "Move the remaining harnesses onto ChatSOPAdapter",
    "detail": "kbqa/run.mjs, smalltalk/run.mjs, query-parsers.mjs, generality/chat-failures.mjs and the symbolic-vs-llm runArm build their own Agent turn and request parser; AGENTS.md asks every evaluation to answer through lib/adapter (books/system.mjs already does).",
-   "decision": "done 2026-10-03: lib/adapter/chat-turn.mjs is the chat turn of the HTTP chat and of tools/eval/lib/chat-turn.mjs (harnessChat); kbqa, query-parsers, smalltalk, generality chat-failures, the commonsense replay, the query-forms probe and the symbolic-vs-llm arms C and B-stepbystep answer through it (tools/eval/ingest-v1.mjs follows when it moves)"
+   "decision": "done 2026-10-03: lib/adapter/chat-turn.mjs is the chat turn of the HTTP chat and of tools/eval/lib/chat-turn.mjs (harnessChat); kbqa, query-parsers, smalltalk, generality chat-failures, the commonsense replay, the query-forms probe and the symbolic-vs-llm arms C and B-stepbystep answer through it (tools/eval/ingestion/ingest-v1.mjs follows)"
   },
   {
    "id": "R2",
@@ -2834,7 +2834,7 @@
   {
    "id": "R5",
    "title": "Archive the zero-shot structure probe",
-   "detail": "tools/eval/structure-formalizer/probe.mjs is superseded by ab.mjs (same roles, any tier).",
+   "detail": "tools/eval/routed/structure/probe.mjs is superseded by ab.mjs (same roles, any tier).",
    "decision": "done 2026-10-03: probe.mjs archived in probably_obsolete/eval-cleanup-2026-10-03/"
   },
   {

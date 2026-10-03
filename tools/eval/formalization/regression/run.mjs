@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Runs the formalization regression set (eval/formalization-regression/cases.jsonl) on the step-by-step formalizer and scores it:
- *   node tools/eval/formalization-regression/run.mjs [--tier tiny] [--strategy LocalLLMStepByStep] [--ids a,b] [--cluster c] [--n N]
+ *   node tools/eval/formalization/regression/run.mjs [--tier tiny] [--strategy LocalLLMStepByStep] [--ids a,b] [--cluster c] [--n N]
  *     [--workers 4] [--run-id ID] [--against RUN_ID] [--learned DIR] [--no-judge] [--purpose job:formalization-improve] [--priority background]
  * Every case is the product chat turn (tools/eval/books/system.mjs, the chat default base memory) with the problem text as the user
  * message, formalized on a TinyAgent tier (default `tiny`, without the tier's fallback so the tier is what is measured) and executed.
@@ -20,16 +20,16 @@ import {createHash} from 'node:crypto';
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {loadCases, loadItems, loadAnnotations, resolveCase, STATE, ROOT} from './cases.mjs';
-import {replayStore, modelIdentity} from '../../../lib/formalize/replay-cache.mjs';
+import {replayStore, modelIdentity} from '../../../../lib/formalize/replay-cache.mjs';
 
 /** The record/replay cache of the regression (answers derived from the books: gitignored, DS011). */
 export const REPLAY_DIR = process.env.FR_REPLAY_DIR ? path.resolve(process.env.FR_REPLAY_DIR) : path.join(ROOT, 'datasets_sources/formalization-regression/replay');
-import {openChatTurn} from '../books/system.mjs';
-import {useConfiguredReplyLayer} from '../../../lib/conversation/index.mjs';
-import {attribution} from '../books/attribution.mjs';
-import {responseOf, deterministic, JUDGE_SYSTEM} from '../books/score.mjs';
-import {providerChat} from '../../../lib/llm-providers.mjs';
-import {useLearnedLayer} from '../../../lib/formalize/protocol-data.mjs';
+import {openChatTurn} from '../../books/system.mjs';
+import {useConfiguredReplyLayer} from '../../../../lib/conversation/index.mjs';
+import {attribution} from '../../books/attribution.mjs';
+import {responseOf, deterministic, JUDGE_SYSTEM} from '../../books/score.mjs';
+import {providerChat} from '../../../../lib/llm-providers.mjs';
+import {useLearnedLayer} from '../../../../lib/formalize/protocol-data.mjs';
 
 const opt = (args, name, fallback) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
 const list = v => (v ? v.split(',').map(s => s.trim()).filter(Boolean) : null);

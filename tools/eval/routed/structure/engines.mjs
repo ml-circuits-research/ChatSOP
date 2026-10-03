@@ -3,7 +3,7 @@
  * harnesses of one process. `run(sop, literals)` → the result packet of one Agent turn whose formalizer returns the given circuit.
  * Evaluation harness only.
  */
-import {scratchExecutor} from '../../../lib/adapter/executor.mjs';
+import {scratchExecutor} from '../../../../lib/adapter/executor.mjs';
 
 let world = null;
 

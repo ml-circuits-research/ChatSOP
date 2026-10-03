@@ -2,7 +2,7 @@
 /**
  * L3 of the capability battery: formalization, message -> circuit -> answer. Every case of eval/capabilities/l3/catalog.jsonl (messages
  * written for the battery, never book or sealed text) is one product chat turn, exactly as the formalization regression runner
- * (tools/eval/formalization-regression/run.mjs) runs it: `openChatTurn` of tools/eval/books/system.mjs on a TinyAgent tier (default `tiny`,
+ * (tools/eval/formalization/regression/run.mjs) runs it: `openChatTurn` of tools/eval/books/system.mjs on a TinyAgent tier (default `tiny`,
  * without the tier's fallback), the chat default base memory, one conversation per case. It is scored by the books evaluation's
  * deterministic rules (no judge: what the rules cannot decide is `unknown`), and the circuit is tagged by tools/capabilities/tags.mjs
  * so the result says whether the formalization actually USED the capability the case lists.

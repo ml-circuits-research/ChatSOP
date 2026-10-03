@@ -3,7 +3,7 @@
  * rule. Pure functions; the regression gate runs in the sink (sink.mjs), after the checks.
  */
 import {checkProposal, stripFences} from './proposal.mjs';
-import {loadCases, loadItems, resolveCase} from '../../tools/eval/formalization-regression/cases.mjs';
+import {loadCases, loadItems, resolveCase} from '../../tools/eval/formalization/regression/cases.mjs';
 
 let messages = null;
 const caseMessages = () => (messages ??= (() => { const items = loadItems(); return loadCases().map(c => resolveCase(c, {items})?.message).filter(Boolean); })());

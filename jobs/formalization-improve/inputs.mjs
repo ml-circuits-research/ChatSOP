@@ -1,6 +1,6 @@
 /**
  * Inputs of jobs/formalization-improve: one item per failure cluster of the current regression baseline
- * (state/formalization-regression/current.json; clusters by tools/eval/formalization-regression/run.mjs clusterOf). An item shows the
+ * (state/formalization-regression/current.json; clusters by tools/eval/formalization/regression/run.mjs clusterOf). An item shows the
  * proposer up to `maxCases` failed cases of the cluster (the problem, the expected answer, the small model's answers in order, what the
  * circuit answered), the problem-mode protocol (config/knowledge/formalizer-protocol-v1/0060-problem.sop) and the learned layer.
  * `case_ids` (every failed case of the cluster) go to the regression gate, never to the prompt.
@@ -9,8 +9,8 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import {loadCases, loadItems, resolveCase} from '../../tools/eval/formalization-regression/cases.mjs';
-import {baselineResults, currentBaseline, LEARNED_DIR} from '../../tools/eval/formalization-regression/gate.mjs';
+import {loadCases, loadItems, resolveCase} from '../../tools/eval/formalization/regression/cases.mjs';
+import {baselineResults, currentBaseline, LEARNED_DIR} from '../../tools/eval/formalization/regression/gate.mjs';
 import {SEEDS_DIR} from '../../lib/knowledge-seeds.mjs';
 
 const WHAT = {
@@ -34,7 +34,7 @@ function renderCase(k, c, r) {
 
 export async function inputs({options = {}} = {}) {
   const baseline = currentBaseline();
-  if (!baseline) throw new Error('no regression baseline (tools/eval/formalization-regression/gate.mjs set-current RUN_ID)');
+  if (!baseline) throw new Error('no regression baseline (tools/eval/formalization/regression/gate.mjs set-current RUN_ID)');
   const results = [...baselineResults(baseline).values()];
   const byCluster = new Map();
   for (const r of results) if (r.cluster && !['infrastructure', ...(options.skip ?? [])].includes(r.cluster)) (byCluster.get(r.cluster) ?? byCluster.set(r.cluster, []).get(r.cluster)).push(r);

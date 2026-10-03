@@ -6,16 +6,16 @@
  * so near-copies of a held-out problem are held out too. Held-out items are never sampled for data generation or training; they are
  * the E1 test set. The frozen list lives with the book data (local, DS011): datasets_sources/books/eval/heldout-train-psm-lfm-v1.json.
  *
- *   node tools/eval/structure-formalizer/heldout.mjs freeze     writes the list once (refuses to overwrite)
- *   node tools/eval/structure-formalizer/heldout.mjs check      recomputes and compares (exit 1 on a mismatch)
+ *   node tools/eval/routed/structure/heldout.mjs freeze     writes the list once (refuses to overwrite)
+ *   node tools/eval/routed/structure/heldout.mjs check      recomputes and compares (exit 1 on a mismatch)
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {loadItems} from '../books/sample.mjs';
+import {loadItems} from '../../books/sample.mjs';
 
-const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 export const SEED = 'train-psm-lfm-v1';
 export const FRACTION = 0.2;
 export const HELDOUT_FILE = path.join(ROOT, 'datasets_sources/books/eval/heldout-train-psm-lfm-v1.json');
@@ -37,7 +37,7 @@ export function computeHeldout(items) {
 
 /** The frozen held-out units (throws when the list was never frozen). */
 export function heldoutUnits() {
-  if (!fs.existsSync(HELDOUT_FILE)) throw new Error(`no frozen held-out list: run node tools/eval/structure-formalizer/heldout.mjs freeze (${HELDOUT_FILE})`);
+  if (!fs.existsSync(HELDOUT_FILE)) throw new Error(`no frozen held-out list: run node tools/eval/routed/structure/heldout.mjs freeze (${HELDOUT_FILE})`);
   return new Set(JSON.parse(fs.readFileSync(HELDOUT_FILE, 'utf8')).units);
 }
 

@@ -2,7 +2,7 @@
 /**
  * Paired comparison of two runs on the same cases (eval-semantic-decomposition-v1): correct counts per run and per stratum (the book of
  * a book problem, the source of a chat case), the paired difference with a bootstrap interval (seeded, 10000 resamples), and the
- * cases fixed and lost.   node tools/eval/formalization-regression/compare.mjs RUN_A RUN_B [--seed s]
+ * cases fixed and lost.   node tools/eval/formalization/regression/compare.mjs RUN_A RUN_B [--seed s]
  */
 import fs from 'node:fs';
 import path from 'node:path';

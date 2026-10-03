@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Builds or extends the formalization regression set from the inbox (tools/eval/formalization-regression/cases.mjs):
- *   node tools/eval/formalization-regression/build.mjs [--dry-run]
+ * Builds or extends the formalization regression set from the inbox (tools/eval/formalization/regression/cases.mjs):
+ *   node tools/eval/formalization/regression/build.mjs [--dry-run]
  * Appends new cases and new observations to eval/formalization-regression/cases.jsonl; never removes a case.
  */
 import {mergeInbox, mergeChat, writeCases, CASES} from './cases.mjs';

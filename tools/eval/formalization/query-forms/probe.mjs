@@ -3,30 +3,17 @@
  * Probe for the query-form work (experiment eval-query-forms-v1): asks questions of the base memory world-v1 through the chat turn
  * (ChatSOPAdapter, tools/eval/lib/chat-turn.mjs), either with the step-by-step formalizer (config/runtime.json queryParser; `--tier tiny|small|medium|good` answers its questions
  * on one TinyAgent tier, default the product ladder; LLMDirect is archived) or with a given SOP (`--sop file`).
- *   node tools/eval/query-forms-probe.mjs --q "How many countries border Germany?" [--sop file] [--base world-v1] [--tier T]
+ *   node tools/eval/formalization/query-forms/probe.mjs --q "How many countries border Germany?" [--sop file] [--base world-v1] [--tier T]
  * Prints the SOP, the circuit status, the answer and the retrieval/linking summary. Sessions are private to user `qf-probe` and deleted.
  */
 import fs from 'node:fs';
 import {fileURLToPath} from 'node:url';
-import {BASE_NAME} from '../../lib/chat-data/memories.mjs';
-import {createQueryParser} from '../../server/query-parser.mjs';
-import {tierParserSettings} from './lib/tier-parser.mjs';
-import {openSession} from './lib/session.mjs';
-import {harnessChat} from './lib/chat-turn.mjs';
+import {BASE_NAME} from '../../../../lib/chat-data/memories.mjs';
+import {openSession} from '../../lib/session.mjs';
+import {harnessChat} from '../../lib/chat-turn.mjs';
 
-// The session helpers moved to tools/eval/lib/session.mjs (2026-10-03); re-exported for the callers not yet moved.
-export {defaultRoot, openWorld, openSession} from './lib/session.mjs';
 const args = process.argv.slice(2);
 const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : d; };
-
-/**
- * A bare circuit author over the request parser (no adapter, no chat turn): kept only for tools/eval/ingest-v1.mjs until it moves to
- * tools/eval/ingestion/ (TODO.md "Tests and evaluations"); harnesses answer through tools/eval/lib/chat-turn.mjs.
- */
-export function agentClient({config, lexicon, tier = opt('--tier', null), headers = null}) {
-  const queryParser = createQueryParser({settings: tierParserSettings(config, {tier, cacheEntries: 0, ...(headers ? {headers} : {})})});
-  return {id: 'step-by-step', last: null, async formalize(text) { const r = await queryParser.parse({source: 'eval:query-forms', message: text, lexicon, memoryKey: lexicon.circuitsSha256 ?? null}); this.last = r.parse; return r.sop; }};
-}
 
 if (process.argv[1] === fileURLToPath(import.meta.url) && opt('--batch', null)) {
   // --batch file: one question per line; prints one compact JSON line per question (status, answer values, linked relation, clarification)

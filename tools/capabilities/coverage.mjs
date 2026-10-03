@@ -5,10 +5,10 @@
  * never by grepping names.
  *
  * Sources:
- *   tests        the circuits the unit tests actually parse: `--capture` runs `node --test tests/*.test.mjs` with
+ *   tests        the circuits the unit tests actually parse: `--capture` runs every `tests/<component>/*.test.mjs` (`node --test`) with
  *                CHATSOP_CIRCUIT_CAPTURE (lib/circuit-capture.mjs) and keeps the capture; otherwise the last capture is read
  *   smoke        eval/smoke-reasoning/cases/<id>/{knowledge,query}.sop (executed on every engine) and invalid/*.sop (must be rejected)
- *   wire-help    the executable examples of docs/wire_typs/*.html (tests/wire-help.test.mjs)
+ *   wire-help    the executable examples of docs/wire_typs/*.html (tests/docs/wire-help.test.mjs)
  *   regression   the circuits of the formalization regression runs (state/formalization-regression/<run>/results.jsonl, local only)
  *   battery      the capability battery itself (L1 cases, L2 programs, L3 circuits), with `--battery`
  *
@@ -52,7 +52,7 @@ export function capturedCircuits(dir) {
       const text = r.text ?? texts.get(r.h);
       if (!text) continue;
       const file = r.file ?? 'unknown';
-      if (/tests\/capability-/.test(file)) continue; // the battery's own test is the `battery` source
+      if (/tests\/(?:[^/]+\/)?capability-/.test(file)) continue; // the battery's own test is the `battery` source
       if (r.surface === 'knowledge') {
         if (onlyQuerySide(text)) out.push({source: 'tests', ref: file, circuit: {knowledge: lastKnowledge, query: text}});
         else { lastKnowledge = text; out.push({source: 'tests', ref: file, circuit: {knowledge: text, query: ''}}); }
@@ -173,7 +173,9 @@ export function renderMarkdown(matrix, label) {
 
 export function runCapture(dir) {
   fs.rmSync(dir, {recursive: true, force: true});
-  const tests = fs.readdirSync(path.join(ROOT, 'tests')).filter(f => f.endsWith('.test.mjs')).map(f => 'tests/' + f);
+  // Every test file under tests/ (one folder per component), as `npm test` runs them.
+  const testFiles = d => fs.readdirSync(path.join(ROOT, d), {withFileTypes: true}).flatMap(e => (e.isDirectory() ? (e.name === 'fixtures' ? [] : testFiles(`${d}/${e.name}`)) : e.name.endsWith('.test.mjs') ? [`${d}/${e.name}`] : []));
+  const tests = testFiles('tests').sort();
   const r = spawnSync(process.execPath, ['--test', '--test-timeout=120000', ...tests], {cwd: ROOT, env: {...process.env, CHATSOP_CIRCUIT_CAPTURE: dir}, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024});
   return {status: r.status};
 }

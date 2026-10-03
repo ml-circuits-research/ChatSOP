@@ -5,7 +5,7 @@
  *
  *   regression-record     a tier answers the step-by-step questions of a case set through the CURRENT protocol and the product chat
  *                         turn (ChatSOPAdapter's stepwise path); the answers become recordings keyed by tier and model, which the
- *                         offline regression (tools/eval/formalization-regression/offline.mjs) replays with no model. A local tier runs
+ *                         offline regression (tools/eval/formalization/regression/offline.mjs) replays with no model. A local tier runs
  *                         at normal priority (TinyAgent shares its slots), a cloud tier at background priority.
  *   regression-reference  the SAME questions answered by larger tiers (small, medium, good) on a stratified sample, at background
  *                         priority (at most 70% of each plan window); then the offline attribution of the recorded tier's failures
@@ -25,7 +25,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const TIERS = ['nano', 'micro', 'tiny', 'small', 'medium', 'good'];
-const REGRESSION = '../../tools/eval/formalization-regression/';
+const REGRESSION = '../../tools/eval/formalization/regression/';
 const lib = name => import(`${REGRESSION}${name}.mjs`);
 const writeJson = (ctx, name, value) => fs.writeFileSync(path.join(ctx.dir, name), JSON.stringify(value, null, 1) + '\n');
 const histogram = rows => Object.fromEntries(Object.entries(rows.reduce((h, k) => ((h[k] = (h[k] ?? 0) + 1), h), {})).sort((a, b) => b[1] - a[1]));

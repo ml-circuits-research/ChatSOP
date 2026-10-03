@@ -9,16 +9,16 @@
  * The model of an arm is its tier without the role prefix (structure-X, formalizer-X, tiny-X → X; structure-tiny, formalizer-tiny,
  * tiny → tiny). Offline evaluation tooling; the files hold book text and stay local (state/ is gitignored, DS011).
  *
- *   node tools/eval/structure-formalizer/compare.mjs --run moe-ab [--out state/moe-ab/moe-ab]
+ *   node tools/eval/routed/structure/compare.mjs --run moe-ab [--out state/moe-ab/moe-ab]
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {loadItems} from '../books/sample.mjs';
+import {loadItems} from '../../books/sample.mjs';
 import {goldOf} from './gold.mjs';
 import {psmScore} from './score.mjs';
 
-const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i > 0 ? process.argv[i + 1] : d; };
 const readJsonl = f => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').split('\n').filter(Boolean).map(JSON.parse) : []);
 
@@ -121,7 +121,7 @@ const errMark = e => (e === null ? '' : `e${e < 0.01 ? '0' : e.toFixed(2)}`);
 
 function markdown(run, models, rows) {
   const L = [`# Side-by-side partial credit: ${run} (${rows.length} problems)`, '',
-    'Regenerate: `node tools/eval/structure-formalizer/compare.mjs --run ' + run + '`. Per model: N numbers of the solution found by the structure role, G goal found, Q question turned into a query, S sentences converted, L logic role (c compiled, x executed, C correct, W wrong), B path B (a accepted, x executed, C/W), e relative error of the closest numeric answer.', '',
+    'Regenerate: `node tools/eval/routed/structure/compare.mjs --run ' + run + '`. Per model: N numbers of the solution found by the structure role, G goal found, Q question turned into a query, S sentences converted, L logic role (c compiled, x executed, C correct, W wrong), B path B (a accepted, x executed, C/W), e relative error of the closest numeric answer.', '',
     '## Means per model', '', 'Means over the problems where the arm answered (n); the relative error is the median over the WRONG numeric answers of the closest answer to the closest gold number (how near the misses are; 0 means a wrong answer list that still contains a gold number).', '',
     '| model | n (structure / logic / B) | numbers found | goal | query | sentences converted | logic compiled | logic executed | logic correct / wrong | logic miss rel. err | B accepted | B correct / wrong | B miss rel. err |', '|---|---|---|---|---|---|---|---|---|---|---|---|---|'];
   const med = xs => { const v = xs.filter(x => x !== null).sort((a, b) => a - b); return v.length ? v[Math.floor(v.length / 2)] : null; };

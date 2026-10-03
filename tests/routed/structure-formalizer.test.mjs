@@ -13,9 +13,9 @@ import {structureToIr, linkConstants, questionRanges} from '../../lib/formalize/
 import {loadSchema, schemaRequest, sketchSentences} from '../../lib/formalize/structure/schema.mjs';
 import {registryOf} from '../../lib/formalize/expression-program.mjs';
 import {perturbations, perturbCircuit} from '../../lib/formalize/dual-check.mjs';
-import {engines} from '../../tools/eval/structure-formalizer/engines.mjs';
-import {askedVerdict} from '../../tools/eval/structure-formalizer/asked.mjs';
-import {goldOf} from '../../tools/eval/structure-formalizer/gold.mjs';
+import {engines} from '../../tools/eval/routed/structure/engines.mjs';
+import {askedVerdict} from '../../tools/eval/routed/structure/asked.mjs';
+import {goldOf} from '../../tools/eval/routed/structure/gold.mjs';
 import {extractStructure, formalizeFol} from '../../lib/formalize/small-models.mjs';
 
 const unit = (text, question = false) => { const p = parseFol(text); assert.ok(p.ok, `${text}: ${p.why}`); return {ast: p.ast, question, source: text}; };

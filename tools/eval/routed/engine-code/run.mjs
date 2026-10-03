@@ -18,9 +18,9 @@ import {routeOf} from '../../../../lib/formalize/structure/route.mjs';
 import {registryOf} from '../../../../lib/formalize/expression-program.mjs';
 import {pathEngineCode, runProgram} from '../../../../lib/adapter/paths/engine-code.mjs';
 import {valuesAgree} from '../../../../lib/adapter/agreement.mjs';
-import {goldOf} from '../../structure-formalizer/gold.mjs';
-import {askedVerdict} from '../../structure-formalizer/asked.mjs';
-import {tierChat} from '../../structure-formalizer/chat.mjs';
+import {goldOf} from '../structure/gold.mjs';
+import {askedVerdict} from '../structure/asked.mjs';
+import {tierChat} from '../structure/chat.mjs';
 
 const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i > 0 ? process.argv[i + 1] : d; };

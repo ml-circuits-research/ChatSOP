@@ -3,9 +3,9 @@
 // learned-layer proposal is checked before any regression run (allowed predicates, placeholders, no copied text, protocol lint).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mergeInbox, detailCodes, sealedRef, caseIdOf} from '../tools/eval/formalization-regression/cases.mjs';
-import {clusterOf, compareRuns} from '../tools/eval/formalization-regression/run.mjs';
-import {checkProposal} from '../jobs/formalization-improve/proposal.mjs';
+import {mergeInbox, detailCodes, sealedRef, caseIdOf} from '../../tools/eval/formalization/regression/cases.mjs';
+import {clusterOf, compareRuns} from '../../tools/eval/formalization/regression/run.mjs';
+import {checkProposal} from '../../jobs/formalization-improve/proposal.mjs';
 
 const row = (id, kind, extra = {}) => ({t: `2026-10-02T00:00:0${kind.length % 9}Z`, source: 'problem-agent', kind, message: `Problem ${id}: Ana has 3 apples.`, strategy: 'LocalLLMStepByStep', tier: 'tiny',
   expected: 'Three.', detail: 'wrong | supported | the judge said "3 is not 4"', ref: {run: 'r1', id, book: 'math', arm: 'steps'}, ...extra});

@@ -16,9 +16,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {INBOX} from '../../../lib/formalization-errors.mjs';
+import {INBOX} from '../../../../lib/formalization-errors.mjs';
 
-export const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+export const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 export const CASES = path.join(ROOT, 'eval/formalization-regression/cases.jsonl');
 export const ITEMS = path.join(ROOT, 'datasets_sources/books/eval/items.jsonl');
 export const ANNOTATIONS = path.join(ROOT, 'datasets_sources/formalization-regression/annotations.jsonl');

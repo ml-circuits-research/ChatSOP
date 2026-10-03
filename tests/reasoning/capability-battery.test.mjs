@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {buildInventory, OUT} from '../tools/capabilities/inventory.mjs';
-import {runCheck, compare, loadLedger} from '../tools/capabilities/check.mjs';
-import {ENGINES} from '../tools/capabilities/l2-run.mjs';
-import {coveringArray, compatible, FACTORS, program, renameEntities, splitRule, addIrrelevant} from '../tools/capabilities/l2-generator.mjs';
-import {circuitTags, modelTags} from '../tools/capabilities/tags.mjs';
-import {folCases, folCapabilities, runFolCases} from '../tools/capabilities/l1-fol.mjs';
+import {buildInventory, OUT} from '../../tools/capabilities/inventory.mjs';
+import {runCheck, compare, loadLedger} from '../../tools/capabilities/check.mjs';
+import {ENGINES} from '../../tools/capabilities/l2-run.mjs';
+import {coveringArray, compatible, FACTORS, program, renameEntities, splitRule, addIrrelevant} from '../../tools/capabilities/l2-generator.mjs';
+import {circuitTags, modelTags} from '../../tools/capabilities/tags.mjs';
+import {folCases, folCapabilities, runFolCases} from '../../tools/capabilities/l1-fol.mjs';
 
 // The capability battery (owner request 2026-10-02): changing anything must never silently lose a capability. The inventory is derived
 // from the grammar and the contracts; L1 validates every keyword (and runs the FOL converter's cases), L2 runs generated programs on every engine against the oracle, L3

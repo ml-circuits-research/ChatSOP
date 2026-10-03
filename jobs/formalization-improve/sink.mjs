@@ -1,12 +1,12 @@
 /**
- * Sink of jobs/formalization-improve: the regression gate (tools/eval/formalization-regression/gate.mjs) for every checked proposal, in
+ * Sink of jobs/formalization-improve: the regression gate (tools/eval/formalization/regression/gate.mjs) for every checked proposal, in
  * order, each on top of what was admitted before it. A proposal is admitted (appended to config/knowledge/formalizer-learned-v1 and
  * the baseline extended) only if it fixes cases of its cluster and loses none on tier tiny. What the gate refuses, and every
  * `ESCALATE:` reply, goes to the run's escalations.jsonl for the Claude-level improver; every verdict to gate.jsonl.
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import {gate} from '../../tools/eval/formalization-regression/gate.mjs';
+import {gate} from '../../tools/eval/formalization/regression/gate.mjs';
 
 const append = (file, row) => fs.appendFileSync(file, JSON.stringify(row) + '\n');
 

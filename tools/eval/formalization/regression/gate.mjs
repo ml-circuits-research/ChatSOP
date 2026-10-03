@@ -2,9 +2,9 @@
 /**
  * The regression gate of a learned-rules change (AGENTS.md "Formalization improvement"): a candidate change of the learned layer
  * (config/knowledge/formalizer-learned-v1) is admitted only if it fixes cases and loses none, measured on tier `tiny`.
- *   node tools/eval/formalization-regression/gate.mjs check --wires FILE --cases id,id [--tag T] [--admit] [--note "..."]
- *   node tools/eval/formalization-regression/gate.mjs set-current RUN_ID       a full run becomes the baseline
- *   node tools/eval/formalization-regression/gate.mjs show                     the current baseline (runs, counts)
+ *   node tools/eval/formalization/regression/gate.mjs check --wires FILE --cases id,id [--tag T] [--admit] [--note "..."]
+ *   node tools/eval/formalization/regression/gate.mjs set-current RUN_ID       a full run becomes the baseline
+ *   node tools/eval/formalization/regression/gate.mjs show                     the current baseline (runs, counts)
  * Stages (each a child process of run.mjs, so a large heap does not burden the caller):
  *   1. the target cases (the cluster's failures) with the candidate: no case fixed → rejected;
  *   2. every case the baseline answers correctly: a case lost there is a loss;
@@ -21,8 +21,8 @@ import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {STATE, ROOT} from './cases.mjs';
 import {clusterOf} from './run.mjs';
-import {LEARNED_LAYER} from '../../../lib/formalize/protocol-data.mjs';
-import {SEEDS_DIR} from '../../../lib/knowledge-seeds.mjs';
+import {LEARNED_LAYER} from '../../../../lib/formalize/protocol-data.mjs';
+import {SEEDS_DIR} from '../../../../lib/knowledge-seeds.mjs';
 
 export const CURRENT = path.join(STATE, 'current.json');
 export const LEARNED_DIR = path.join(SEEDS_DIR, LEARNED_LAYER);

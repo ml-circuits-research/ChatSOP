@@ -5,11 +5,11 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import {structureToIr} from '../../../lib/formalize/structure/to-ir.mjs';
-import {compileFol, executeFol} from '../../../lib/adapter/paths/fol.mjs';
-import {registryOf} from '../../../lib/formalize/expression-program.mjs';
-import {decide} from '../../../lib/formalize/equivalence.mjs';
-import {loadItems} from '../books/sample.mjs';
+import {structureToIr} from '../../../../lib/formalize/structure/to-ir.mjs';
+import {compileFol, executeFol} from '../../../../lib/adapter/paths/fol.mjs';
+import {registryOf} from '../../../../lib/formalize/expression-program.mjs';
+import {decide} from '../../../../lib/formalize/equivalence.mjs';
+import {loadItems} from '../../books/sample.mjs';
 import {goldOf} from './gold.mjs';
 import {askedVerdict} from './asked.mjs';
 import {engines} from './engines.mjs';

@@ -3,12 +3,12 @@
  * Harness of experiment eval-ingest-v1 (status/preregistrations/eval-ingest-v1.json): questions over documents ingested into task-type
  * base memories, answered by three arms.
  *
- *   node tools/eval/ingest-v1.mjs pipeline --doc handbook|europa [--ids h01,h02] [--tier small] [--base ID] [--tag T] [--ladder]
+ *   node tools/eval/ingestion/ingest-v1.mjs pipeline --doc handbook|europa [--ids h01,h02] [--tier small] [--base ID] [--tag T] [--ladder]
  *        the product path: a session cloned from the base memory, the step-by-step formalizer with its questions answered by ONE
  *        TinyAgent tier (default small; LLMDirect is archived), the shared symbolic path, the rendered English answer
- *   node tools/eval/ingest-v1.mjs direct --doc ... --arm qwen27b|deepseek [--model M]       the model reads the whole document (one direct call through TinyAgent)
- *   node tools/eval/ingest-v1.mjs direct --doc ... --arm local [--tier micro]               a local model (a TinyAgent tier, default micro) reads the document
- *   node tools/eval/ingest-v1.mjs score [--files a.jsonl,b.jsonl]                       correct / wrong / unknown per arm and document
+ *   node tools/eval/ingestion/ingest-v1.mjs direct --doc ... --arm qwen27b|deepseek [--model M]       the model reads the whole document (one direct call through TinyAgent)
+ *   node tools/eval/ingestion/ingest-v1.mjs direct --doc ... --arm local [--tier micro]               a local model (a TinyAgent tier, default micro) reads the document
+ *   node tools/eval/ingestion/ingest-v1.mjs score [--files a.jsonl,b.jsonl]                       correct / wrong / unknown per arm and document
  *
  * Answers go to eval/reports/current/ingest-v1/<arm>-<doc>[-tag].jsonl (one line per question). The questions and the gold are
  * eval/ingest-v1/questions.json; no model ever sees the gold.
@@ -16,16 +16,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {SessionStore} from '../../server/session-store.mjs';
-import {ChatData} from '../../lib/chat-data/index.mjs';
-import {BaseMemories, BASE_NAME} from '../../lib/chat-data/memories.mjs';
-import {Sessions} from '../../lib/chat-data/sessions.mjs';
-import {TheoryCache} from '../../reasoning/slice/index.mjs';
-import {agentClient} from './query-forms-probe.mjs';
-import {providerChat, parseEntry} from '../../lib/llm-providers.mjs';
-import {tinyAgent} from '../../lib/tinyagent.mjs';
+import {SessionStore} from '../../../server/session-store.mjs';
+import {ChatData} from '../../../lib/chat-data/index.mjs';
+import {BaseMemories, BASE_NAME} from '../../../lib/chat-data/memories.mjs';
+import {Sessions} from '../../../lib/chat-data/sessions.mjs';
+import {TheoryCache} from '../../../reasoning/slice/index.mjs';
+import {harnessChat} from '../lib/chat-turn.mjs';
+import {providerChat, parseEntry} from '../../../lib/llm-providers.mjs';
+import {tinyAgent} from '../../../lib/tinyagent.mjs';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 export const OUT = path.join(ROOT, 'eval/reports/current/ingest-v1');
 const args = process.argv.slice(2);
 const opt = (name, fallback = null) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
@@ -54,19 +54,19 @@ export function openSession({base, id, product = openProduct()}) {
   return {store, config, lexicon: sessions.lexicon(id), close: () => fs.rmSync(sessions.dir(id), {recursive: true, force: true})};
 }
 
-/** One question through the product path in a fresh conversation; returns the record of the answer. */
-export async function askPipeline(s, question, {tier}) {
+/** One question through the chat's own turn (ChatSOPAdapter, `chat` = harnessChat) in a fresh conversation; returns the record of the answer. */
+export async function askPipeline(s, question, {chat}) {
   const entry = s.store.get('eval-ingest', 'c' + Math.random().toString(36).slice(2), BASE_NAME);
-  const client = agentClient({config: s.config, lexicon: s.lexicon, tier});
   const started = Date.now();
+  const parseOf = parse => parse && {model: parse.model, rounds: parse.rounds, repairs: parse.repairs, ms: parse.ms, cost_usd: parse.cost_usd, procedures: parse.retrieval?.procedures ?? null};
   try {
-    const res = await entry.agent.turn(question, {formalizer: client});
+    const {result: res, parse} = await chat.turn(entry, question, {lexicon: s.lexicon});
     const p = res.packet ?? {};
     return {text: String(res.text ?? ''), status: p.status ?? null, kind: p.kind ?? null, count: p.count ?? null, answers: (p.answers ?? []).slice(0, 12).map(a => a.binding),
-      sop: res.sop ?? null, session_circuits: p.session_circuits?.text ?? null, parse: client.last && {model: client.last.model, rounds: client.last.rounds, repairs: client.last.repairs, ms: client.last.ms, cost_usd: client.last.cost_usd, procedures: client.last.retrieval?.procedures ?? null},
-      ms: Date.now() - started};
+      sop: res.sop ?? null, session_circuits: p.session_circuits?.text ?? null, parse: parseOf(parse), ms: Date.now() - started};
   } catch (error) {
-    return {text: '', error: String(error.message).slice(0, 400), code: error.code ?? null, parse: client.last && {model: client.last.model, rounds: client.last.rounds, repairs: client.last.repairs}, ms: Date.now() - started};
+    const parse = error.parse;
+    return {text: '', error: String(error.message).slice(0, 400), code: error.code ?? null, parse: parse && {model: parse.model, rounds: parse.rounds, repairs: parse.repairs}, ms: Date.now() - started};
   }
 }
 
@@ -110,15 +110,16 @@ async function main() {
     const tier = args.includes('--ladder') ? null : opt('--tier', 'small'), model = tier ? `tier:${tier}` : 'ladder';
     const s = openSession({base: opt('--base', DOCS[doc].base), id: `eval-ingest-${doc}${opt('--tag') ? '-' + opt('--tag') : ''}`});
     const file = outFile('pipeline', doc);
+    const chat = harnessChat({config: s.config, tier, source: 'eval:ingest-v1'});
     try {
       for (const q of questionsFor(doc)) {
-        const r = await askPipeline(s, q.q, {tier});
+        const r = await askPipeline(s, q.q, {chat});
         const row = {id: q.id, q: q.q, arm: 'pipeline', model, ...r};
         row.score = scoreAnswer(q, row);
         append(file, row);
         console.log(JSON.stringify({id: q.id, score: row.score, status: row.status, text: row.text.slice(0, 160), error: row.error, ms: row.ms}));
       }
-    } finally { s.close(); }
+    } finally { s.close(); await chat.close(); }
   } else if (command === 'direct') {
     const doc = opt('--doc');
     const arm = opt('--arm', 'qwen27b');
@@ -161,7 +162,7 @@ async function main() {
     }
     console.log(JSON.stringify(table, null, 2));
   } else {
-    console.error('usage: node tools/eval/ingest-v1.mjs pipeline|direct|score ... (see the header)');
+    console.error('usage: node tools/eval/ingestion/ingest-v1.mjs pipeline|direct|score ... (see the header)');
     process.exit(2);
   }
 }

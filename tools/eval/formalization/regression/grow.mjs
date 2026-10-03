@@ -14,13 +14,13 @@
  *                       gold Yes and half gold No; the No side is drawn first from the chapters of the Yes side, so a chapter does
  *                       not predict the answer; every gold is checked against the book's worked solution by a cheap tier (the model
  *                       reads the solution and states its conclusion; a disagreement leaves the problem out and is reported).
- * Never admitted: a sealed suite (cases.mjs `sealedRef`), a unit of the strict held-out split (tools/eval/structure-formalizer/
+ * Never admitted: a sealed suite (cases.mjs `sealedRef`), a unit of the strict held-out split (tools/eval/routed/structure/
  * heldout.mjs), a reviewed gold defect (datasets_sources/books/eval/gold-defects.jsonl), a problem the fol-v3 development used
  * (state/structure-formalizer/fol-v3*, and the problems named in wire-type proposal P-1), a problem already a case (by id or by
  * message hash), a duplicate item (`dup_of`). Sections growth also skips items seen by an evaluation (datasets_sources/books/eval/
  * seen.jsonl); every added problem is marked seen, so no later evaluation samples a regression case.
- *   node tools/eval/formalization-regression/grow.mjs sections [--min 2] [--max 80] [--seed grow-v1] [--dry-run]
- *   node tools/eval/formalization-regression/grow.mjs saturation --ids a,b [--rare 5]
+ *   node tools/eval/formalization/regression/grow.mjs sections [--min 2] [--max 80] [--seed grow-v1] [--dry-run]
+ *   node tools/eval/formalization/regression/grow.mjs saturation --ids a,b [--rare 5]
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -39,7 +39,7 @@ export const stratumOf = item => `${item.book}/${item.area ?? item.chapter ?? '-
 
 /** The problems no growth may add, with the reason of each family. */
 export async function exclusions({cases = loadCases()} = {}) {
-  const {heldoutUnits, unitOf} = await import('../structure-formalizer/heldout.mjs');
+  const {heldoutUnits, unitOf} = await import('../../routed/structure/heldout.mjs');
   let held = new Set();
   try { held = heldoutUnits(); } catch { /* no frozen split on this machine: nothing is held out */ }
   const dev = new Set();
@@ -146,7 +146,7 @@ async function solutionSays(ta, tier, item) {
  * admissible Yes problems), each gold checked against its worked solution on `checkTier`.
  */
 export async function growArgument({n = 40, seed = 'argument-v1', checkTier = 'small', dryRun = false, ta = null, log = () => {}} = {}) {
-  const {goldOf} = await import('../structure-formalizer/gold.mjs');
+  const {goldOf} = await import('../../routed/structure/gold.mjs');
   const items = [...loadItems().values()], cases = loadCases(), ex = await exclusions({cases});
   const refused = {};
   const pool = items.filter(i => i.book === 'logic' && goldOf(i)?.kind === 'yes_no').filter(i => { const why = refusal(i, ex, {seenToo: false}); if (why) refused[why] = (refused[why] ?? 0) + 1; return !why; });

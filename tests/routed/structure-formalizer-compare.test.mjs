@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {modelOf, relativeError, partialCredit} from '../../tools/eval/structure-formalizer/compare.mjs';
+import {modelOf, relativeError, partialCredit} from '../../tools/eval/routed/structure/compare.mjs';
 
 test('compare: the model of an arm is its tier without the role prefix', () => {
   assert.equal(modelOf('psm:structure-tiny'), 'tiny');

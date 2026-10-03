@@ -17,13 +17,13 @@
  */
 import fs from 'node:fs';
 import {fileURLToPath} from 'node:url';
-import {registryOf} from '../../../lib/formalize/expression-program.mjs';
+import {registryOf} from '../../../../lib/formalize/expression-program.mjs';
 
 /**
  * Gold defects found by reviewing a problem (local, gitignored: they name book problems): one JSON line {id, why} per problem whose
  * stored answer value is not what its question asks (as the six-paths scorer's reviewed defects).
  */
-export const REVIEWED_DEFECTS = fileURLToPath(new URL('../../../datasets_sources/books/eval/gold-defects.jsonl', import.meta.url));
+export const REVIEWED_DEFECTS = fileURLToPath(new URL('../../../../datasets_sources/books/eval/gold-defects.jsonl', import.meta.url));
 let reviewed = null;
 const reviewedDefects = () => (reviewed ??= new Map(fs.existsSync(REVIEWED_DEFECTS) ? fs.readFileSync(REVIEWED_DEFECTS, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).map(r => [r.id, r.why]) : []));
 
