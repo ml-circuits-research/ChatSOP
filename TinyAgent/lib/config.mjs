@@ -40,10 +40,13 @@ export function absolutize(layer, dir) {
     for (const k of START_LISTS) if (Array.isArray(s[k])) s[k] = s[k].map(abs);
   }
   if (isObj(c.runner)) for (const k of ['dataDir', 'templatesDir']) if (typeof c.runner[k] === 'string') c.runner[k] = abs(c.runner[k]);
-  if (isObj(c.skills)) {
-    if (Array.isArray(c.skills.plugins)) c.skills.plugins = c.skills.plugins.map(abs);
-    if (isObj(c.skills.jobs)) c.skills.jobs = Object.fromEntries(Object.entries(c.skills.jobs).map(([k, v]) => [k, typeof v === 'string' ? abs(v) : isObj(v) ? { ...v, dir: abs(v.dir) } : v]));
+  // TaskLambda sources (and their old key `skills`, lib/legacy.mjs) and the calls folder.
+  for (const [sec, list] of [['lambdas', 'project'], ['skills', 'plugins']]) {
+    if (!isObj(c[sec])) continue;
+    if (Array.isArray(c[sec][list])) c[sec][list] = c[sec][list].map(abs);
+    if (isObj(c[sec].jobs)) c[sec].jobs = Object.fromEntries(Object.entries(c[sec].jobs).map(([k, v]) => [k, typeof v === 'string' ? abs(v) : isObj(v) ? { ...v, dir: abs(v.dir) } : v]));
   }
+  if (isObj(c.calls) && typeof c.calls.dir === 'string') c.calls.dir = abs(c.calls.dir);
   return c;
 }
 
@@ -95,7 +98,7 @@ const KEY_FILES = {
 export function ensureUserHome(env = process.env) {
   const home = tinyHome(env);
   const written = [];
-  for (const d of ['', 'keys', 'data', 'cache', 'audit', 'logs', 'runs', 'models']) mkdirSync(join(home, d), { recursive: true });
+  for (const d of ['', 'keys', 'data', 'cache', 'audit', 'logs', 'runs', 'calls', 'models']) mkdirSync(join(home, d), { recursive: true });
   const cfg = join(home, 'config.json');
   if (!existsSync(cfg)) { writeFileSync(cfg, JSON.stringify(TEMPLATE, null, 2) + '\n'); written.push(cfg); }
   for (const [name, text] of Object.entries(KEY_FILES)) {

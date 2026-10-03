@@ -73,9 +73,10 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 /**
  * Returns `call({entry, messages, role})` -> `{ok, text, finish, usage, usd, credits, cached, ms, error}`. Transient failures (network,
- * 5xx, 429) are retried `retries` times; a proxy refusal throws RefusedError.
+ * 5xx, 429) are retried `retries` times; a proxy refusal throws RefusedError. `onResult(role, entry, result)` sees every result (the
+ * models.jsonl of the job's TaskLambdaCall).
  */
-export function makeCaller({proxy, job, run, cache = null, ledger = new Ledger(), fetchImpl = fetch, refresh = false, retries = 2, backoffMs = 2000, timeoutMs = 600_000, purpose = null, proxyFallback = true, priority = null}) {
+export function makeCaller({proxy, job, run, cache = null, ledger = new Ledger(), fetchImpl = fetch, refresh = false, retries = 2, backoffMs = 2000, timeoutMs = 600_000, purpose = null, proxyFallback = true, priority = null, onResult = null}) {
   const base = String(proxy).replace(/\/+$/, '');
   const common = {'content-type': 'application/json', 'x-client-name': `job-${job}`.slice(0, 40), 'x-tinyagent-purpose': purpose ?? `job:${job}`, 'x-tinyagent-run': run, ...(priority ? {'x-tinyagent-priority': priority} : {})};
   return async function call({entry, messages, role = 'work'}) {
@@ -85,7 +86,7 @@ export function makeCaller({proxy, job, run, cache = null, ledger = new Ledger()
     const key = ResponseCache.key({upstream: entry.upstream ?? 'tier', body});
     if (cache && !refresh) {
       const hit = cache.get(key);
-      if (hit?.response) { const r = {...hit.response, ok: true, cached: true, ms: 0, key}; ledger.add(role, entry, r); return r; }
+      if (hit?.response) { const r = {...hit.response, ok: true, cached: true, ms: 0, key}; ledger.add(role, entry, r); onResult?.(role, entry, r); return r; }
     }
     let lastErr = null;
     for (let attempt = 0; attempt <= retries; attempt++) {
@@ -110,12 +111,14 @@ export function makeCaller({proxy, job, run, cache = null, ledger = new Ledger()
         usage: {in: j.usage?.prompt_tokens ?? 0, out: j.usage?.completion_tokens ?? 0, reasoning: j.usage?.completion_tokens_details?.reasoning_tokens ?? 0},
         usd: j.usage?.cost ?? null, credits: Number.isFinite(credits) && res.headers.get('x-quota-cost') != null ? credits : null};
       ledger.add(role, entry, r);
+      onResult?.(role, entry, r);
       if (cache) cache.put(key, {upstream: entry.upstream, model: entry.model, prompt_hash: sha256(messages.filter(m => m.role === 'system')), input_hash: sha256(messages.filter(m => m.role !== 'system')),
         response: {text: r.text, finish: r.finish, usage: r.usage, usd: r.usd, credits: r.credits, served}});
       return r;
     }
     const r = {ok: false, failed: true, error: lastErr, text: '', cached: false};
     ledger.add(role, entry, r);
+    onResult?.(role, entry, r);
     return r;
   };
 }

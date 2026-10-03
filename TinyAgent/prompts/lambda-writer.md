@@ -1,4 +1,4 @@
-You write one small JavaScript SkillPlugin that does the task below by calling language models through an API. The program runs in a sandbox: plain ECMAScript only (no require, no import, no process, no fetch, no timers, no eval). Define exactly one function:
+You write one small JavaScript program (a TaskLambda written on the fly) that does the task below by calling language models through an API. The program runs in a sandbox: plain ECMAScript only (no require, no import, no process, no fetch, no timers, no eval). Define exactly one function:
 
 async function run(api, input) { ... return <a JSON value: the result> }
 

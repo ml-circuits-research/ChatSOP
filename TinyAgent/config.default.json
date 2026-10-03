@@ -348,6 +348,7 @@
       "ingest",
       "job:*",
       "review:*",
+      "lambda:*",
       "skill:*",
       "run:*",
       "test:*"
@@ -367,7 +368,7 @@
     "defaultMode": "use"
   },
   "runner": {
-    "_note": "The job runner (jobs, tasks, skills, run): run folders, the template library a task planner chooses from, roles (role -> tier), limits of planned tasks.",
+    "_note": "The job runner (jobs, tasks, run-lambdas): run folders, the template library a task planner chooses from, roles (role -> tier), limits of planned tasks.",
     "dataDir": "~/.tinyagent/runs",
     "templatesDir": null,
     "roles": {
@@ -386,9 +387,18 @@
       "keepDays": 7
     }
   },
-  "skills": {
-    "plugins": [],
+  "lambdas": {
+    "_note": "TaskLambdas besides the built-in ones (TinyAgent/lambdas/): project modules (files or folders of .mjs modules exporting {name, description, params, effects, run}) and job folders served as TaskLambdas ({name: dir}). The old key `skills` (plugins, jobs) is still read.",
+    "project": [],
     "jobs": {}
+  },
+  "calls": {
+    "_note": "TaskLambdaCalls: one folder per call under dir (null: <TinyAgent home>/calls), children nested; prune keeps call.json, output.json and summary.json after keepArtifactsDays; jobItems: one child call per item of a job run; a result larger than maxResultBytes goes to result.json and is never reused.",
+    "dir": null,
+    "keepArtifactsDays": 30,
+    "jobItems": true,
+    "maxResultBytes": 1000000,
+    "maxInputs": 2000
   },
   "run": {
     "budget": {
@@ -399,9 +409,8 @@
     "maxSteps": 5
   },
   "agent": {
-    "_note": "tinyagent run (lib/agent/): plans and runs under <workdir>/.tinyagent/ unless plansDir/runsDir are set (relative to the work folder, or absolute); skillDirs: skill roots besides <workdir>/.agents/skills; plannerTier null means runner.roles.planner; askTiers null means sandbox.tiers; the match tier decides reuse (thinking off).",
-    "plansDir": null,
-    "runsDir": null,
+    "_note": "tinyagent run (lib/agent/): its TaskLambda cache is <workdir>/.tinyagent/lambdas unless lambdasDir is set (relative to the work folder, or absolute); its calls go to the calls root (calls.dir); skillDirs: skill roots besides <workdir>/.agents/skills; plannerTier null means runner.roles.planner; askTiers null means sandbox.tiers; the match tier decides reuse (thinking off); reusePure: a pure TaskLambda with unchanged inputs returns its recorded output.",
+    "lambdasDir": null,
     "skillDirs": [],
     "plannerTier": null,
     "matchTier": "tiny",
@@ -411,6 +420,7 @@
     "maxToolCalls": 2000,
     "timeMs": 120000,
     "checkOnReuse": true,
+    "reusePure": true,
     "budget": null,
     "match": {"k": 3, "minScore": 0, "grounded": true, "maxTokens": 400, "extraBody": {"chat_template_kwargs": {"enable_thinking": false}}},
     "planner": {"maxTokens": 8000}

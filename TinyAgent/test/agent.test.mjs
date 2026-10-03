@@ -1,14 +1,14 @@
-// The agent of `tinyagent run`: BM25, frontmatter, path confinement, skill discovery and scripts, schema extraction, the plan cache
-// lifecycle (plan -> verified -> reuse; draft; edited -> re-verified), re-planning, plan-only, promotion, and adversarial plans against
-// the new tools. Model calls go to a fake client; no server, no network, no model.
+// The agent of `tinyagent run`: BM25, frontmatter, path confinement, skill discovery and scripts, schema extraction, the TaskLambda
+// cache lifecycle (written -> verified -> reused; draft; edited -> re-verified), re-planning, plan-only, promotion, and adversarial
+// TaskLambdas against the tools. Model calls go to a fake client; call folders go to a temporary folder; no server, no network, no model.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
-  buildIndex, terms, parseFrontmatter, createWorkspace, discoverSkills, skillRoots, runSkillScript, coerceToSchema, matchPlan,
-  runAgent, PlanCache, planHash, planScript, executePlan, agentSettings, promotedPluginSource, extractMeta, hardcodedValues, codeLiterals,
+  buildIndex, terms, parseFrontmatter, createWorkspace, discoverSkills, skillRoots, runSkillScript, coerceToSchema, matchLambda,
+  runAgent, LambdaCache, lambdaHash, moduleScript, executeLambda, agentSettings, promotedLambdaSource, extractMeta, hardcodedValues, codeLiterals,
 } from '../lib/agent/index.mjs';
 
 const tmp = (name = 'ta-agent-') => fs.mkdtempSync(path.join(os.tmpdir(), name));
@@ -25,14 +25,15 @@ function fakeTa(reply) {
   };
   return ta;
 }
-const CONFIG = { agent: { plannerTier: 'good', matchTier: 'tiny', askTiers: ['tiny', 'small'], timeMs: 20000 } };
+const CALLS = fs.mkdtempSync(path.join(os.tmpdir(), 'ta-calls-'));
+const CONFIG = { agent: { plannerTier: 'good', matchTier: 'tiny', askTiers: ['tiny', 'small'], timeMs: 20000 }, calls: { dir: CALLS } };
 const block = (code) => '```js\n' + code + '\n```';
 
 const SUM_PLAN = `export const meta = {
   name: 'sum-csv-column',
   task: 'Sum a numeric column of a CSV file.',
   params: {file: {type: 'string', description: 'the CSV file'}, column: {type: 'string', description: 'the header of the column to sum'}},
-  example: {file: 'sales.csv', column: 'amount'},
+  example: {file: 'sales.csv', column: 'amount'}, effects: ['pure'],
   skills: [],
 };
 const rowsOf = (text) => text.trim().split('\\n').map((l) => l.split(','));
@@ -159,7 +160,7 @@ test('schema extraction: values are coerced and validated; a refusal, a wrong id
   assert.deepEqual(coerceToSchema(schema, { n: '12', on: 'false', cols: 'a' }), { n: 12, on: false, cols: ['a'] });
   const plans = [{ id: 'sum-csv-column-abc123', status: 'verified', description: 'Sum a numeric column of a CSV file.', firstRequest: 'Sum the amount column of sales.csv',
     meta: { name: 'sum-csv-column', task: 'Sum a numeric column of a CSV file.', params: { file: { type: 'string', description: 'csv' }, column: { type: 'string', description: 'column' } }, example: { file: 'sales.csv', column: 'amount' } } }];
-  const run = (answer, request = 'Sum the qty column of march.csv') => matchPlan({ request, plans, promptFile: MATCH_PROMPT, ask: async () => ({ ok: true, text: JSON.stringify(answer), ms: 1 }) });
+  const run = (answer, request = 'Sum the qty column of march.csv') => matchLambda({ request, lambdas: plans, promptFile: MATCH_PROMPT, ask: async () => ({ ok: true, text: JSON.stringify(answer), ms: 1 }) });
   let d = await run({ plan: 'sum-csv-column-abc123', values: { file: 'march.csv', column: 'qty' }, reason: 'same' });
   assert.equal(d.decision, 'reuse');
   assert.deepEqual(d.values, { file: 'march.csv', column: 'qty' });
@@ -172,35 +173,36 @@ test('schema extraction: values are coerced and validated; a refusal, a wrong id
   d = await run({ plan: 'sum-csv-column-abc123', values: { file: 'march.csv' } });
   assert.match(d.reason, /column: required/);
   d = await run({ plan: 'sum-csv-column-abc123', values: { file: 'march.csv', column: 'qty', extra: 1 } });
-  assert.match(d.reason, /not an input/);
+  assert.match(d.reason, /not a parameter/);
   d = await run({ plan: 'sum-csv-column-abc123', values: { file: 'april.csv', column: 'qty' } });
   assert.match(d.reason, /not found in the request: file/);
-  d = await matchPlan({ request: 'Paint a fence green', plans, promptFile: MATCH_PROMPT, ask: async () => assert.fail('no candidate: no model call') });
+  d = await matchLambda({ request: 'Paint a fence green', lambdas: plans, promptFile: MATCH_PROMPT, ask: async () => assert.fail('no candidate: no model call') });
   assert.equal(d.decision, 'plan');
 });
 
-test('the cache lifecycle: plan -> verified -> reused for a parameter variant without the planner; a different task is planned', async () => {
+test('the cache lifecycle: written -> verified -> called again for a parameter variant without the planner; a different task is planned', async () => {
   const dir = csvFolder();
   let planner = 0, match = 0;
   const ta = fakeTa((o) => {
     if (o.tier === 'good') { planner += 1; return block(SUM_PLAN); }
     match += 1;
     const req = o.messages.at(-1).content.split('NEW REQUEST:\n')[1];
-    return /qty column of march/.test(req) ? JSON.stringify({ plan: o.messages.at(-1).content.match(/id: (\S+)/)[1], values: { file: 'march.csv', column: 'qty' }, reason: 'same task' }) : JSON.stringify({ plan: null, reason: 'different task' });
+    return /qty column of march/.test(req) ? JSON.stringify({ lambda: o.messages.at(-1).content.match(/id: (\S+)/)[1], values: { file: 'march.csv', column: 'qty' }, reason: 'same task' }) : JSON.stringify({ lambda: null, reason: 'different task' });
   });
   const logs = [];
   const r1 = await runAgent({ request: 'Sum the amount column of sales.csv', workdir: dir, ta, config: CONFIG, log: (l) => logs.push(l) });
   assert.equal(r1.status, 'finished', JSON.stringify(r1));
   assert.equal(r1.answer, '50');
   assert.equal(r1.how, 'plan');
-  assert.equal(r1.planStatus, 'verified');
-  assert.equal(r1.plans, path.join(fs.realpathSync(dir), '.tinyagent', 'plans'));
-  assert.ok(logs.some((l) => l.startsWith('plans: ')), 'every run prints the plan folder');
-  for (const f of ['request.json', 'decision.json', 'plan-1.mjs', 'calls.jsonl', 'result.json']) assert.ok(fs.existsSync(path.join(r1.runDir, f)), f);
-  const cache = new PlanCache(r1.plans);
-  const stored = cache.read(r1.plan);
+  assert.equal(r1.lambdaStatus, 'verified');
+  assert.equal(r1.lambdas, path.join(fs.realpathSync(dir), '.tinyagent', 'lambdas'));
+  assert.ok(logs.some((l) => l.startsWith('lambdas: ')) && logs.some((l) => l.startsWith('call: ')), 'every run prints the TaskLambda folder and its call folder');
+  for (const f of ['call.json', 'decision.json', 'lambda-1.mjs', 'models.jsonl', 'output.json', 'summary.json']) assert.ok(fs.existsSync(path.join(r1.callDir, f)), f);
+  assert.ok(r1.callDir.startsWith(CALLS), 'the call folder is in the calls root');
+  const cache = new LambdaCache(r1.lambdas);
+  const stored = cache.read(r1.lambda);
   assert.equal(stored.status, 'verified');
-  for (const f of ['plan.mjs', 'PLAN.md', 'runs.jsonl']) assert.ok(fs.existsSync(path.join(stored.dir, f)), f);
+  for (const f of ['lambda.mjs', 'LAMBDA.md', 'calls.jsonl']) assert.ok(fs.existsSync(path.join(stored.dir, f)), f);
   assert.match(stored.md, /## Parameters\n- `file` \(string\)/);
 
   const r2 = await runAgent({ request: 'Sum the qty column of march.csv', workdir: dir, ta, config: CONFIG });
@@ -209,11 +211,11 @@ test('the cache lifecycle: plan -> verified -> reused for a parameter variant wi
   assert.equal(r2.answer, '8');
   assert.equal(planner, 1, 'the variant ran the cached plan: no planner call');
   assert.equal(r2.stats.roles.planner, undefined);
-  assert.equal(JSON.parse(fs.readFileSync(path.join(r2.runDir, 'decision.json'), 'utf8')).decision, 'reuse');
-  assert.equal(cache.runs(r1.plan).length, 2);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(r2.callDir, 'decision.json'), 'utf8')).decision, 'reuse');
+  assert.equal(cache.calls(r1.lambda).length, 2);
 
   const r3 = await runAgent({ request: 'Sum the amount column of sales.csv', workdir: dir, ta, config: CONFIG });
-  assert.equal(r3.decision.how, 'exact', 'the same request reuses the plan without the match tier');
+  assert.equal(r3.decision.how, 'exact', 'the same request calls the TaskLambda without the match tier');
   assert.equal(match, 1);
 
   const r4 = await runAgent({ request: 'Count the lines of every csv file', workdir: dir, ta, config: CONFIG });
@@ -221,37 +223,37 @@ test('the cache lifecycle: plan -> verified -> reused for a parameter variant wi
   assert.equal(planner, 2);
 });
 
-test('a plan without a check is stored as draft and not reused until verified', async () => {
+test('a TaskLambda without a check is stored as draft and not reused until verified', async () => {
   const dir = csvFolder();
   const noCheck = SUM_PLAN.slice(0, SUM_PLAN.indexOf('export async function check'));
   let planner = 0;
-  const ta = fakeTa((o) => { if (o.tier === 'good') { planner += 1; return block(noCheck); } return JSON.stringify({ plan: o.messages.at(-1).content.match(/id: (\S+)/)[1], values: { file: 'march.csv', column: 'qty' } }); });
+  const ta = fakeTa((o) => { if (o.tier === 'good') { planner += 1; return block(noCheck); } return JSON.stringify({ lambda: o.messages.at(-1).content.match(/id: (\S+)/)[1], values: { file: 'march.csv', column: 'qty' } }); });
   const r1 = await runAgent({ request: 'Sum the amount column of sales.csv', workdir: dir, ta, config: CONFIG });
-  assert.equal(r1.planStatus, 'draft');
+  assert.equal(r1.lambdaStatus, 'draft');
   const r2 = await runAgent({ request: 'Sum the qty column of march.csv', workdir: dir, ta, config: CONFIG });
   assert.equal(r2.how, 'plan', 'a draft is never reused');
-  assert.equal(r2.decision.reason, 'the cache has no verified plan');
-  const cache = new PlanCache(r1.plans);
-  cache.verify(r1.plan);
+  assert.equal(r2.decision.reason, 'the cache has no verified TaskLambda');
+  const cache = new LambdaCache(r1.lambdas);
+  cache.verify(r1.lambda);
   const r3 = await runAgent({ request: 'Sum the qty column of march.csv', workdir: dir, ta, config: CONFIG });
   assert.equal(r3.how, 'reuse');
   assert.equal(r3.answer, '8');
 });
 
-test('a plan edited by hand changes its hash and is re-verified by its check before reuse; a failing edit is not reused', async () => {
+test('a TaskLambda edited by hand changes its hash and is re-verified by its check before reuse; a failing edit is not reused', async () => {
   const dir = csvFolder();
   let planner = 0;
-  const ta = fakeTa((o) => { if (o.tier === 'good') { planner += 1; return block(SUM_PLAN); } return JSON.stringify({ plan: o.messages.at(-1).content.match(/id: (\S+)/)[1], values: { file: 'march.csv', column: 'qty' } }); });
+  const ta = fakeTa((o) => { if (o.tier === 'good') { planner += 1; return block(SUM_PLAN); } return JSON.stringify({ lambda: o.messages.at(-1).content.match(/id: (\S+)/)[1], values: { file: 'march.csv', column: 'qty' } }); });
   const r1 = await runAgent({ request: 'Sum the amount column of sales.csv', workdir: dir, ta, config: CONFIG });
-  const cache = new PlanCache(r1.plans);
-  const file = path.join(cache.planDir(r1.plan), 'plan.mjs');
-  const before = cache.read(r1.plan).hash;
+  const cache = new LambdaCache(r1.lambdas);
+  const file = path.join(cache.lambdaDir(r1.lambda), 'lambda.mjs');
+  const before = cache.read(r1.lambda).hash;
   fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace("return {answer: String(", "tools.log('edited');\n  return {answer: String("));
-  assert.equal(cache.read(r1.plan).status, 'edited');
+  assert.equal(cache.read(r1.lambda).status, 'edited');
   const r2 = await runAgent({ request: 'Sum the qty column of march.csv', workdir: dir, ta, config: CONFIG });
   assert.equal(r2.how, 'reuse-reverified');
   assert.equal(r2.answer, '8');
-  const after = cache.read(r1.plan);
+  const after = cache.read(r1.lambda);
   assert.equal(after.status, 'verified');
   assert.notEqual(after.hash, before);
   assert.equal(after.front.verified_hash, after.hash);
@@ -260,13 +262,13 @@ test('a plan edited by hand changes its hash and is re-verified by its check bef
   const r3 = await runAgent({ request: 'Sum the qty column of march.csv', workdir: dir, ta, config: CONFIG });
   assert.equal(r3.how, 'plan');
   assert.equal(r3.status, 'finished');
-  assert.notEqual(r3.plan, r1.plan, 'a new plan never overwrites a plan edited by hand');
+  assert.notEqual(r3.lambda, r1.lambda, 'a new TaskLambda never overwrites one edited by hand');
   assert.equal(planner, 2);
-  assert.equal(r3.decision.fallback.plan, r1.plan);
-  assert.equal(cache.read(r1.plan).status, 'edited');
+  assert.equal(r3.decision.fallback.lambda, r1.lambda);
+  assert.equal(cache.read(r1.lambda).status, 'edited');
 });
 
-test('a failing plan goes back to the planner with its error, at most maxRounds rounds; plan-only runs nothing', async () => {
+test('a failing TaskLambda goes back to the planner with its error, at most maxRounds rounds; plan-only runs nothing', async () => {
   const dir = csvFolder();
   const broken = SUM_PLAN.replace("rows[0].indexOf(params.column);\n  if", "rows[0].indexOf(params.colum);\n  if");
   const seen = [];
@@ -274,10 +276,10 @@ test('a failing plan goes back to the planner with its error, at most maxRounds 
   const r = await runAgent({ request: 'Sum the amount column of sales.csv', workdir: dir, ta, config: CONFIG, useCache: false });
   assert.equal(r.status, 'finished');
   assert.equal(r.rounds, 2);
-  assert.match(seen[1], /The plan failed \(run, plugin_error\): no column amount \(at run \(plan\.js:12:/, 'the error names the line of plan.mjs');
+  assert.match(seen[1], /The TaskLambda failed \(run, sandbox_error\): no column amount \(at run \(lambda\.js:12:/, 'the error names the line of lambda.mjs');
   assert.match(seen[1], /read\("sales\.csv"\)/);
-  assert.equal(fs.readFileSync(path.join(r.runDir, 'errors.jsonl'), 'utf8').trim().split('\n').length, 1);
-  assert.ok(fs.existsSync(path.join(r.runDir, 'plan-2.mjs')));
+  assert.equal(fs.readFileSync(path.join(r.callDir, 'errors.jsonl'), 'utf8').trim().split('\n').length, 1);
+  assert.ok(fs.existsSync(path.join(r.callDir, 'lambda-2.mjs')));
 
   const always = fakeTa(() => block(broken));
   const f = await runAgent({ request: 'Sum the amount column of sales.csv', workdir: dir, ta: always, config: { agent: { ...CONFIG.agent, maxRounds: 3 } }, useCache: false });
@@ -287,7 +289,7 @@ test('a failing plan goes back to the planner with its error, at most maxRounds 
   const dry = await runAgent({ request: 'Sum the amount column of sales.csv', workdir: tmp(), ta: fakeTa(() => block(SUM_PLAN)), config: CONFIG, planOnly: true });
   assert.equal(dry.status, 'planned');
   assert.match(dry.code, /export default async function run/);
-  assert.deepEqual(new PlanCache(dry.plans).ids(), [], 'plan-only stores nothing');
+  assert.deepEqual(new LambdaCache(dry.lambdas).ids(), [], 'plan-only stores nothing');
 });
 
 test('the planner may ask once for skill bodies and file heads (progressive disclosure)', async () => {
@@ -306,16 +308,16 @@ test('the planner may ask once for skill bodies and file heads (progressive disc
   assert.match(context, /etc\/passwd: .*outside/);
 });
 
-test('adversarial plans: the tools refuse escapes, undeclared scripts, other tiers; no host object is reachable', async () => {
+test('adversarial TaskLambdas: the tools refuse escapes, undeclared scripts, other tiers; no host object is reachable', async () => {
   const dir = csvFolder(), outside = tmp('ta-outside-');
   fs.writeFileSync(path.join(outside, 'secret.txt'), 'secret');
   fs.symlinkSync(outside, path.join(dir, 'link'));
   const ws = createWorkspace(dir);
   const ta = fakeTa(() => 'model says hi');
   const S = agentSettings({ agent: { askTiers: ['tiny'], maxAsks: 2, timeMs: 5000 } });
-  const probe = (body) => `export const meta = {name: 'probe', task: 'An adversarial probe plan.', params: {}, example: {}};
+  const probe = (body) => `export const meta = {name: 'probe', task: 'An adversarial probe TaskLambda.', params: {}, example: {}, effects: ['writes-workdir', 'model-calls', 'runs-scripts']};
 export default async function run(tools, params) { ${body} }`;
-  const attempt = async (body) => (await executePlan({ code: probe(body), params: {}, workspace: ws, ta, settings: S }));
+  const attempt = async (body) => (await executeLambda({ code: probe(body), params: {}, effects: ['writes-workdir', 'model-calls', 'runs-scripts'], workspace: ws, ta, settings: S }));
   const refusals = {
     dotdot: `return await tools.read('../../etc/passwd');`,
     link: `return await tools.read('link/secret.txt');`,
@@ -341,35 +343,36 @@ export default async function run(tools, params) { ${body} }`;
   assert.match(asks.result.answer[2], /limit of 2 model calls/);
   const globals = await attempt(`return {answer: [typeof process, typeof require, typeof fetch, typeof setTimeout, typeof Buffer, Object.keys(tools).sort().join(',')].join(' ')};`);
   assert.equal(globals.result.answer, 'undefined undefined undefined undefined undefined ask,list,log,move,read,runSkillScript,search,write');
-  assert.equal(planScript(`import fs from 'node:fs';\nexport default async function run() {}`).error.includes('never imports'), true);
-  assert.equal(planScript(`const fs = require('fs');`).error.includes('require'), true);
-  const loop = await executePlan({ code: probe('for (;;) {}'), params: {}, workspace: ws, ta, settings: { ...S, timeMs: 1000 } });
-  assert.equal(loop.error.code, 'plugin_time_limit');
+  assert.equal(moduleScript(`import fs from 'node:fs';\nexport default async function run() {}`).error.includes('never imports'), true);
+  assert.equal(moduleScript(`const fs = require('fs');`).error.includes('require'), true);
+  const loop = await executeLambda({ code: probe('for (;;) {}'), params: {}, effects: ['pure'], workspace: ws, ta, settings: { ...S, timeMs: 1000 } });
+  assert.equal(loop.error.code, 'sandbox_time_limit');
 });
 
-test('promotion: a verified plan becomes a SkillPlugin that runs it with the tools confined to inputs.workdir', async () => {
+test('promotion: a verified cached TaskLambda becomes a project TaskLambda that runs it with the tools confined to params.workdir', async () => {
   const dir = csvFolder();
   const ta = fakeTa(() => block(SUM_PLAN));
   const r = await runAgent({ request: 'Sum the amount column of sales.csv', workdir: dir, ta, config: CONFIG });
-  const cache = new PlanCache(r.plans);
-  const plan = cache.read(r.plan);
-  const { meta } = await extractMeta(plan.code);
-  const toDir = tmp('ta-plugins-');
+  const cache = new LambdaCache(r.lambdas);
+  const entry = cache.read(r.lambda);
+  const { meta } = await extractMeta(entry.code);
+  const toDir = tmp('ta-project-lambdas-');
   const file = path.join(toDir, 'sum-column.mjs');
-  fs.writeFileSync(file, promotedPluginSource({ name: 'sum-column', plan, meta, toDir }));
-  const skill = (await import(file)).default;
-  assert.equal(skill.name, 'sum-column');
-  assert.deepEqual(Object.keys(skill.inputs), ['file', 'column', 'workdir']);
-  const out = await skill.run({ inputs: { file: 'march.csv', column: 'amount', workdir: dir }, ta, config: CONFIG, log: () => {} });
+  fs.writeFileSync(file, promotedLambdaSource({ name: 'sum-column', entry, meta, toDir }));
+  const lambda = (await import(file)).default;
+  assert.equal(lambda.name, 'sum-column');
+  assert.deepEqual(lambda.effects, ['pure']);
+  assert.deepEqual(Object.keys(lambda.params), ['file', 'column', 'workdir']);
+  const out = await lambda.run({ params: { file: 'march.csv', column: 'amount', workdir: dir }, ta, config: CONFIG, log: () => {} });
   assert.equal(out.status, 'finished');
   assert.equal(out.summary, '101');
-  assert.equal(planHash(plan.code), plan.hash);
-  cache.remove(r.plan);
+  assert.equal(lambdaHash(entry.code), entry.hash);
+  cache.remove(r.lambda);
   assert.deepEqual(cache.ids(), []);
 });
 
 test('values of the request written into the code are found (outside meta, comments and regular expressions) and sent back to the planner', async () => {
-  const code = `export const meta = {name: 'x', task: 'Add a prefix to files.', params: {folder: {type: 'string', description: 'f'}}, example: {folder: 'notes'}};
+  const code = `export const meta = {name: 'x', task: 'Add a prefix to files.', params: {folder: {type: 'string', description: 'f'}}, example: {folder: 'notes'}, effects: ['pure']};
 // the 'notes' folder
 const words = (t) => t.match(/[a-z']+/g);
 export default async function run(tools, params) { const e = 'file'; const n = 'notes'; const x = 4 / 2;
@@ -388,12 +391,12 @@ export default async function run(tools, params) { const e = 'file'; const n = '
   assert.match(seen[0], /FILES NAMED IN THE REQUEST:\nFILE sales\.csv \(first lines\):\nid,amount,qty/);
 });
 
-test('a plan that uses a skill it did not load gets the skill instructions and is written again, without spending a round', async () => {
+test('a TaskLambda that uses a skill it did not load gets the skill instructions and is written again, without spending a round', async () => {
   const dir = csvFolder();
   fs.mkdirSync(path.join(dir, '.agents', 'skills', 'csv-tools', 'scripts'), { recursive: true });
   fs.writeFileSync(path.join(dir, '.agents', 'skills', 'csv-tools', 'SKILL.md'), '---\nname: csv-tools\ndescription: Totals of CSV columns.\n---\nBODY: run scripts/total.mjs <file> <column>\n');
   fs.writeFileSync(path.join(dir, '.agents', 'skills', 'csv-tools', 'scripts', 'total.mjs'), "import fs from 'node:fs'; const [f, c] = process.argv.slice(2); const rows = fs.readFileSync(f, 'utf8').trim().split('\\n').map((l) => l.split(',')); const i = rows[0].indexOf(c); console.log(rows.slice(1).reduce((s, r) => s + Number(r[i]), 0));");
-  const plan = SUM_PLAN.replace("skills: [],", "skills: ['csv-tools'],").replace(/export default async function run[\s\S]*?\n}\n/, "export default async function run(tools, params) {\n  const r = await tools.runSkillScript('csv-tools', 'scripts/total.mjs', [params.file, params.column]);\n  return {answer: r.stdout.trim(), outputs: []};\n}\n");
+  const plan = SUM_PLAN.replace("skills: [],", "skills: ['csv-tools'],").replace("effects: ['pure']", "effects: ['runs-scripts']").replace(/export default async function run[\s\S]*?\n}\n/, "export default async function run(tools, params) {\n  const r = await tools.runSkillScript('csv-tools', 'scripts/total.mjs', [params.file, params.column]);\n  return {answer: r.stdout.trim(), outputs: []};\n}\n");
   const seen = [];
   const ta = fakeTa((o) => { seen.push(o.messages.at(-1).content); return block(plan); });
   const r = await runAgent({ request: 'Sum the amount column of sales.csv', workdir: dir, ta, config: CONFIG });

@@ -1,12 +1,12 @@
 // The TinyAgent library: a client of the TinyAgent server (`tinyagent serve`). Every model call of a program goes through it, by tier
 // name, tagged with a purpose (required) and optionally a run id. Outside the server it talks HTTP to the server's URL; inside the
-// server (skills, jobs, plugins) it is given the in-process or worker-port transport, so the same code runs in both places.
+// server (TaskLambdas, jobs, job plugins) it is given the in-process or worker-port transport, so the same code runs in both places.
 //
 //   const ta = createTinyAgent({purpose: 'job:my-batch'});
 //   const r = await ta.chat({tier: 'small', messages: [{role: 'user', content: 'Hello'}]});   // {ok, text, finish, cut, usage, served, ...}
 //   const j = await ta.json({tier: 'good', prompt: 'Return {"a": 1}'});                       // {..., json}
 //   await ta.role('structure').structure({text, entities});                                   // prompted JSON tiers
-//   await ta.runJob('jobs/my-job');  await ta.skill('extract-table', {columns: ['price']}, {attach: ['a.txt']});
+//   await ta.runJob('jobs/my-job');  await ta.call('extract-table', {columns: ['price']}, {attach: ['a.txt']});   // a TaskLambdaCall
 //   await ta.run('Extract the prices of the attached file', {attach: ['a.txt']});            // plan on tier good, then execute
 //   await ta.stats();  await ta.models();
 import { spawn } from 'node:child_process';
@@ -14,7 +14,7 @@ import { openSync, closeSync, mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_URL, tinyHome } from './settings.mjs';
-import { withOldHeaders, headerOf, OLD_ENV } from './legacy.mjs';
+import { withOldHeaders, headerOf, OLD_ENV, OLD_LAMBDA_ENDPOINTS } from './legacy.mjs';
 import { httpFetch } from './http-fetch.mjs';
 
 const BIN = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'bin', 'tinyagent.mjs');
@@ -47,8 +47,8 @@ export class TinyAgentUnavailable extends Error {
 
 /**
  * `url`: the server (default TINYAGENT_URL, else http://127.0.0.1:18080); `fetchImpl`: the transport (tests and the server's own
- * skills pass theirs); `purpose`: required tag of every call (`chat`, `formalize`, `answer-*`, `job:<name>`, `review:<run>`,
- * `skill:<name>`, `test:<name>`); `run`: a run id whose registered budget the server enforces; `client`: the name in the server's log;
+ * TaskLambdas pass theirs); `purpose`: required tag of every call (`chat`, `formalize`, `answer-*`, `job:<name>`, `review:<run>`,
+ * `lambda:<name>`, `run:<id>`, `test:<name>`); `run`: a run id whose registered budget the server enforces; `client`: the name in the server's log;
  * `cache`: the default cache mode (use | strict | record | off; the server's default otherwise); `priority`: interactive | normal |
  * background (background work runs only when nothing else waits and the plan keeps its headroom; held, never refused); `autostart`: start the server when it
  * is not running (on for a local URL with the default transport; off under node --test, with an injected transport, or TINYAGENT_AUTOSTART=0).
@@ -62,7 +62,7 @@ export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = n
   const transport = isolated ? async () => { throw Object.assign(new TypeError('fetch failed'), { cause: { code: 'ECONNREFUSED (a test without an injected TinyAgent transport)' } }); }
     : fetchImpl ?? httpFetch; // no fixed 300 s header timeout: a long model call ends only at its own timeout
   // Auto-start (owner, 2026-10-03): a client on this machine starts the server when none answers, unless it brought its own transport
-  // (tests, the server's own skills), runs under node --test, or TINYAGENT_AUTOSTART=0.
+  // (tests, the server's own TaskLambdas), runs under node --test, or TINYAGENT_AUTOSTART=0.
   const local = /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(base);
   const auto = autostart ?? (env.TINYAGENT_AUTOSTART === '1' || (env.TINYAGENT_AUTOSTART !== '0' && !fetchImpl && local && !env.NODE_TEST_CONTEXT));
   const auth = token ?? env.TINYAGENT_TOKEN ?? null;
@@ -201,7 +201,7 @@ export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = n
     chat: (o = {}) => chat({ ...o, tier: name }),
   });
 
-  /** Waits for an operation of the server (job, task, skill, run) and returns its record {id, kind, status, result, error, log}. */
+  /** Waits for an operation of the server (TaskLambda call, job, task, run) and returns its record {id, kind, status, result, error, log}. */
   async function waitOp(id, { pollSeconds = 20, onLog = null } = {}) {
     let seen = 0;
     for (;;) {
@@ -232,13 +232,21 @@ export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = n
     model: (name, action) => postJson(`/v1/local/${encodeURIComponent(name)}/${action}`, {}),
     registerRun: (b) => postJson('/jobs/register', b),
     finishRun: (b) => postJson('/jobs/finish', b),
-    skills: () => getJson('/v1/skills'),
+    /** The server's TaskLambdas: {lambdas: [{name, description, params, effects, origin, source, hash}], problems}. */
+    lambdas: () => getJson('/v1/lambdas'),
+    /** The call folders of the server's calls root: search ({lambda, status, date, since, parent, root, text, top, limit}), one call, its tree. */
+    calls: (q = {}) => getJson(`/v1/calls?${new URLSearchParams(Object.entries(q).filter(([, v]) => v != null && v !== false).map(([k, v]) => [k, v === true ? '1' : String(v)]))}`),
+    callInfo: (id) => getJson(`/v1/calls/${encodeURIComponent(id)}`),
+    callTree: (id) => getJson(`/v1/calls/${encodeURIComponent(id)}/tree`),
     /** Runs a job folder in the server: {dir} or a path; options stage, resume, refresh, register, publish, wait (false: the op only). */
     runJob: (job, o = {}) => startOp('/v1/jobs', { dir: resolve(typeof job === 'string' ? job : job.dir), stage: o.stage ?? null, resume: o.resume ?? null, refresh: !!o.refresh, register: o.register !== false, publish: o.publish ? resolve(o.publish) : null, priority: o.priority ?? null }, { ...o, priority: undefined }),
     /** A task: instructions + attachments, planned over the template library (or `template` + `params`). */
     task: (t, o = {}) => startOp('/v1/tasks', { instructions: t.instructions ?? '', attachments: absAll(t.attachments ?? t.attach), target: t.target ?? { kind: 'none' }, template: t.template ?? null, params: t.params ?? null }, o),
-    /** One skill with its inputs; `attach` lists files given to it. */
-    skill: (name, inputs = {}, o = {}) => startOp(`/v1/skills/${encodeURIComponent(name)}`, { inputs, attachments: absAll(o.attach) }, o),
+    /** One TaskLambdaCall: a TaskLambda of the server with its params; `attach` lists files given to it; `wait: false` returns the operation at once. */
+    call: (name, params = {}, o = {}) => startOp(`/v1/lambdas/${encodeURIComponent(name)}`, { params, attachments: absAll(o.attach) }, o),
+    // The names of before the TaskLambda rename (lib/legacy.mjs): a server started before it serves only /v1/skills.
+    skills: () => getJson(OLD_LAMBDA_ENDPOINTS.list),
+    skill: (name, inputs = {}, o = {}) => startOp(`${OLD_LAMBDA_ENDPOINTS.call}${encodeURIComponent(name)}`, { inputs, attachments: absAll(o.attach) }, o),
     /** Plan the request on the planner tier (good), then execute the plan deterministically; `planOnly` stops after the plan. */
     run: (requestText, o = {}) => startOp('/v1/run', { request: requestText, attachments: absAll(o.attach), planOnly: !!o.planOnly }, o),
     op: (id) => getJson(`/v1/ops/${encodeURIComponent(id)}`),

@@ -2,11 +2,11 @@
   "name": "tinyagent",
   "version": "0.1.0",
   "private": true,
-  "description": "One local server for all model work: tiers over providers and local models, limits, throttling, cache, audit, costs, budgets, jobs, skills, SkillPlugins and a sandbox for plugins written on the fly; a thin library and CLI as its clients. Node built-ins only.",
+  "description": "One local server for all model work: tiers over providers and local models, limits, throttling, cache, audit, costs, budgets, jobs, TaskLambdas with an audited folder per call, and a sandbox for model-written TaskLambdas; a thin library and CLI as its clients. Node built-ins only.",
   "type": "module",
   "engines": {"node": ">=22.13"},
   "bin": {"tinyagent": "./bin/tinyagent.mjs"},
-  "exports": {".": "./lib/client.mjs", "./server": "./lib/server.mjs", "./sandbox": "./lib/sandbox.mjs"},
+  "exports": {".": "./lib/client.mjs", "./server": "./lib/server.mjs", "./sandbox": "./lib/sandbox.mjs", "./lambda": "./lib/lambda/index.mjs"},
   "scripts": {"start": "node bin/tinyagent.mjs serve", "test": "node --test test/*.test.mjs"},
   "dependencies": {}
 }

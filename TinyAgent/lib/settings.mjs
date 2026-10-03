@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { OLD_KEYS_DIR, OLD_ENV } from './legacy.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-/** The TinyAgent folder (built-in defaults, prompts, skills). */
+/** The TinyAgent folder (built-in defaults, prompts, built-in TaskLambdas). */
 export const HOME = resolve(HERE, '..');
 export const DEFAULT_URL = 'http://127.0.0.1:18080';
 /** The user's TinyAgent home: configuration, keys, data, cache, audit, logs, runs and models (TINYAGENT_HOME overrides). */

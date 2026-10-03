@@ -46,11 +46,12 @@ async function registerRun(endpoint, fetchImpl, body) {
 
 /**
  * Runs a task. `attachments`: [{name, path} | {name, text}]; `target`: {kind: 'memory'|'session'|'none', id}; `template` + `params`
- * skip planning; `sinkContext` is handed to the sink plugin or adapter (for example the stores a ChatSOP sink writes into).
+ * skip planning; `sinkContext` is handed to the sink plugin or adapter (for example the stores a ChatSOP sink writes into); `hooks`: the
+ * TaskLambdaCall hooks of a prompt template's job run (lib/jobs/runner.mjs).
  * Returns `{task, dir, status, summary, plan, result}`.
  */
 export async function runTask({instructions = '', attachments = [], target = {kind: 'none'}, template = null, params = null, config, endpoint = config.endpoint,
-  fetchImpl = fetch, log = () => {}, sinkContext = {}, live = null, templatesDir = config.templatesDir} = {}) {
+  fetchImpl = fetch, log = () => {}, sinkContext = {}, live = null, templatesDir = config.templatesDir, hooks = null} = {}) {
   const tasksRoot = path.join(config.dataDir, 'tasks');
   fs.mkdirSync(tasksRoot, {recursive: true});
   const id = newRunId(`task:${instructions}`);
@@ -110,7 +111,7 @@ export async function runTask({instructions = '', attachments = [], target = {ki
   }
 
   const job = await loadJob(tpl.dir, {params: plan.params, config, live, overrides: {budget: plan.budget, kind: plan.taskKind, ...(plan.ladder ? {ladder: plan.ladder} : {})}});
-  const r = await runJob(job, {endpoint, fetchImpl, log, store: new RunStore({root: dir}), cacheDir: path.join(config.dataDir, 'cache'), tierStatsDir: config.dataDir,
+  const r = await runJob(job, {endpoint, fetchImpl, log, store: new RunStore({root: dir}), cacheDir: path.join(config.dataDir, 'cache'), tierStatsDir: config.dataDir, hooks,
     sinkContext: {...sinkContext, target}, inputContext: {attachments: files}});
   writeJsonAtomic(path.join(dir, 'result.json'), {run: r.run, run_dir: path.relative(dir, r.dir), status: r.status, counts: r.counts, sink: r.sink, cost: r.cost.total});
   return finish(r.status, [`# task ${id}: ${plan.template}`, ...r.summary.split('\n').slice(1)], {plan, result: {run: r.run, status: r.status, sink: r.sink}});

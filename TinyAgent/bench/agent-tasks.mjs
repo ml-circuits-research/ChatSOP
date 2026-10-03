@@ -1,12 +1,13 @@
 #!/usr/bin/env node
-// A small task set with known results for `tinyagent run` (the agent with the plan cache): four task families (CSV totals, renaming by
-// a pattern, extracting a table from text, a summary through a skill script), a parameter variant of each, a paraphrased variant, and
-// three near misses (a different task that shares most words with a cached one) that must NOT reuse a cached plan.
+// A small task set with known results for `tinyagent run` (the agent with the TaskLambda cache): four task families (CSV totals,
+// renaming by a pattern, extracting a table from text, a summary through a skill script), a parameter variant of each, a paraphrased
+// variant, and three near misses (a different task that shares most words with a cached one) that must NOT reuse a cached TaskLambda.
 //
 //   node TinyAgent/bench/agent-tasks.mjs [--out DIR] [--only id,id] [--config file]
 //
-// The tasks run in order in one fresh work folder with one plan cache, so later tasks see the plans of earlier ones. Model calls go to
-// the TinyAgent server (TINYAGENT_URL). Writes <out>/rows.jsonl and <out>/summary.json and prints the summary.
+// The tasks run in order in one fresh work folder with one TaskLambda cache, so later tasks see the TaskLambdas of earlier ones; the
+// call folders go to <out>/calls. Model calls go to the TinyAgent server (TINYAGENT_URL). Writes <out>/rows.jsonl and
+// <out>/summary.json and prints the summary.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -101,12 +102,12 @@ const rows = [];
 for (const t of TASKS.filter((x) => !only || only.has(x.id))) {
   const t0 = Date.now();
   let r;
-  try { r = await runAgent({ request: t.request, workdir: work, ta, config, log: () => {} }); } catch (e) { r = { status: 'crashed', summary: e.message, stats: { calls: 0, credits: 0, roles: {} } }; }
+  try { r = await runAgent({ request: t.request, workdir: work, callsDir: path.join(out, 'calls'), ta, config, log: () => {} }); } catch (e) { r = { status: 'crashed', summary: e.message, stats: { calls: 0, credits: 0, roles: {} } }; }
   const problem = r.status === 'finished' ? t.check(work, r) : `status ${r.status}: ${String(r.summary).slice(0, 200)}`;
-  const chosenFamily = r.how?.startsWith('reuse') ? rows.find((x) => x.plan === r.plan)?.family ?? null : null;
-  const row = { id: t.id, family: t.family, kind: t.kind, request: t.request, status: r.status, how: r.how ?? null, rounds: r.rounds ?? null, plan: r.plan ?? null, reusedFamily: chosenFamily,
+  const chosenFamily = r.how?.startsWith('reuse') ? rows.find((x) => x.lambda === r.lambda)?.family ?? null : null;
+  const row = { id: t.id, family: t.family, kind: t.kind, request: t.request, status: r.status, how: r.how ?? null, rounds: r.rounds ?? null, lambda: r.lambda ?? null, reused_from: r.reused_from ?? null, reusedFamily: chosenFamily,
     decision: r.decision?.decision ?? null, matchReason: r.decision?.reason ?? null, candidates: r.decision?.candidates ?? [], correct: !problem, problem, answer: String(r.answer ?? '').slice(0, 300),
-    ms: Date.now() - t0, calls: r.stats?.calls ?? 0, credits: r.stats?.credits ?? 0, roles: r.stats?.roles ?? {}, runDir: r.runDir ?? null };
+    ms: Date.now() - t0, calls: r.stats?.calls ?? 0, credits: r.stats?.credits ?? 0, roles: r.stats?.roles ?? {}, callDir: r.callDir ?? null };
   rows.push(row);
   fs.appendFileSync(path.join(out, 'rows.jsonl'), JSON.stringify(row) + '\n');
   console.log(`${row.correct ? 'ok  ' : 'FAIL'} ${t.id.padEnd(24)} ${String(row.how).padEnd(16)} rounds ${row.rounds ?? '-'} ${String(row.ms).padStart(6)} ms ${row.calls} calls ${row.credits} cr ${problem ? `: ${problem}` : ''}`);

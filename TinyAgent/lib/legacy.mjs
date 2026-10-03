@@ -1,7 +1,8 @@
 // TEMPORARY migration layer (2026-10-03; delete in phase 2 of the TinyAgent migration, see TODO.md): the proxy of earlier versions
 // used headers named `x-llmapiprovider-*`, data in ~/.local/share/llmapiprovider* and keys in ~/.config/llmapiprovider. Until every
 // caller is migrated and the server on the default port is TinyAgent, requests may carry the old header names (accepted on input), and
-// clients also send them (an older server understands only those). This file is the only place the old names appear.
+// clients also send them (an older server understands only those). This file is the only place the old names appear (with the
+// temporary names of the TaskLambda rename below).
 const OLD = 'x-llmapiprovider-', NEW = 'x-tinyagent-';
 
 /** Copies old-named request headers to their new names (node:http header object, lower case), when the new one is absent. */
@@ -26,3 +27,25 @@ export const OLD_DATA = Object.freeze({ data: '~/.local/share/llmapiprovider', c
 export const OLD_ENV = Object.freeze({ url: 'LLMAPIPROVIDER_URL', token: 'LLMAPIPROVIDER_TOKEN', data: 'LLMAPIPROVIDER_DATA' });
 /** The job runner's configuration file of earlier versions (read only when no TinyAgent configuration layer has a runner section). */
 export const OLD_RUNNER_CONFIG = 'llmjobs.config.json';
+
+// TEMPORARY names of the TaskLambda rename (owner, 2026-10-03; delete when no caller needs them, see TODO.md "TaskLambda rename"):
+// the configuration keys `skills.plugins` and `skills.jobs` (now `lambdas.project` and `lambdas.jobs`), the module export `skills` and
+// field `inputs` (now `lambdas` and `params`), the endpoints `/v1/skills[/<name>]` (now `/v1/lambdas`), the library methods
+// `skill`/`skills` (now `call`/`lambdas`), the commands `skills`, `skill`, `run-skills` and `plans` (now `lambdas --server`, `call`,
+// `run-lambdas`, `lambdas`) and the agent's `.tinyagent/plans` folder (migrated in place to `.tinyagent/lambdas`).
+export const OLD_LAMBDA_ENDPOINTS = Object.freeze({ list: '/v1/skills', call: '/v1/skills/' });
+
+/** The project TaskLambda modules and job folders of a configuration, with the old `skills` keys as a fallback. */
+export function lambdaSources(config = {}) {
+  const l = config.lambdas ?? {}, s = config.skills ?? {};
+  const problems = [];
+  if (s.plugins?.length && !l.project) problems.push('configuration: skills.plugins is the old name of lambdas.project');
+  if (s.jobs && Object.keys(s.jobs).length && !l.jobs) problems.push('configuration: skills.jobs is the old name of lambdas.jobs');
+  return { project: l.project ?? s.plugins ?? [], jobs: l.jobs ?? s.jobs ?? {}, problems };
+}
+
+/** The purpose of a TaskLambda's model calls: `lambda:<name>`, or `skill:<name>` while a configuration allows only the old prefix. */
+export function lambdaPurpose(name, config = {}) {
+  const allowed = config.policy?.allowedPurposes ?? [];
+  return `${allowed.includes('lambda:*') || !allowed.includes('skill:*') ? 'lambda' : 'skill'}:${name}`;
+}

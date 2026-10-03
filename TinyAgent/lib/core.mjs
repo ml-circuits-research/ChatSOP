@@ -12,7 +12,7 @@ import { planReport, valueReport, limitWait } from './plan.mjs';
 import { planRequests } from './monitor.mjs';
 import { createLocalStarter, stopPeers } from './local.mjs';
 import { createAudit, responseText } from './audit.mjs';
-import { createCache, localIdentity, CACHE_MODES } from './cache.mjs';
+import { createCache, localIdentity, CACHE_MODES, answerComplete } from './cache.mjs';
 import { expandHome } from './settings.mjs';
 import { isAbsolute } from 'node:path';
 import { createJobGuard } from './guard.mjs';
@@ -150,7 +150,7 @@ export function createCore({ config, configDir = HERE, env = process.env, dataDi
     if (ctx.tier) { // a tier request falls back down its own chain
       const next = ctx.chain?.[0];
       if (!next || noFallback(req)) return null;
-      return { up: upstreams[next.upstream], model: next.model, rest: ctx.chain.slice(1), maxWaitMs: config.tiers?.maxWaitMs, timeoutMs: next.timeoutMs ?? null };
+      return { up: upstreams[next.upstream], model: next.model, entry: next, rest: ctx.chain.slice(1), maxWaitMs: config.tiers?.maxWaitMs, timeoutMs: next.timeoutMs ?? null };
     }
     if (!fb?.upstream || ctx.fallback || !model) return null;
     if (up.name !== (fb.from || config.defaultUpstream)) return null;
@@ -162,6 +162,17 @@ export function createCore({ config, configDir = HERE, env = process.env, dataDi
     return { up: fup, model: target };
   }
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  /**
+   * The request body for one chain entry: the entry's `extraBody` fills fields the caller did not set (a model's own switches, e.g.
+   * reasoning off for a reasoning model that falls back for a non-reasoning one), and `minTokens` raises a smaller max_tokens, so a
+   * fallback model never spends a short question's budget thinking (the cut answers of 2026-10-03).
+   */
+  function entryBody(body, entry) {
+    if (!entry || !body || typeof body !== 'object') return body;
+    const out = { ...(entry.extraBody || {}), ...body };
+    if (entry.minTokens && out.max_tokens != null && out.max_tokens < entry.minTokens) out.max_tokens = entry.minTokens;
+    return out;
+  }
   const matches = (list, purpose) => (list || []).some((p) => (p.endsWith('*') ? String(purpose || '').startsWith(p.slice(0, -1)) : purpose === p));
   /** 0 interactive, 1 normal, 2 background: the header x-tinyagent-priority first, else the purpose lists of the configuration. */
   function priorityOf(req, purpose) {
@@ -238,7 +249,7 @@ export function createCore({ config, configDir = HERE, env = process.env, dataDi
     // A request duration cap (per tier entry `timeoutMs`, else per upstream `timeoutMs`): a model that ignores its token budget is cut
     // off, the cut is reported (504 upstream_timeout, never cached) and the request falls back down its chain when it has one.
     const timeoutMs = ctx.timeoutMs ?? up.timeoutMs ?? null;
-    const fallBack = (reason, kind) => forward(req, res, fbk.up, path, Buffer.from(JSON.stringify({ ...parsed, model: fbk.model })),
+    const fallBack = (reason, kind) => forward(req, res, fbk.up, path, Buffer.from(JSON.stringify(entryBody({ ...parsed, model: fbk.model }, fbk.entry))),
       { abort, fallback: { from: up.name, model: ctx.fallback?.model && ctx.tier ? ctx.fallback.model : model, reason, kind }, tier: ctx.tier, chain: fbk.rest, timeoutMs: fbk.timeoutMs ?? null });
     const extraHeaders = {
       ...(ctx.fallback ? { 'x-tinyagent-fallback': `${up.name}/${model}`, 'x-tinyagent-fallback-reason': ctx.fallback.kind } : {}),
@@ -319,7 +330,7 @@ export function createCore({ config, configDir = HERE, env = process.env, dataDi
           return { fallback: `status ${r.status} after ${n5xx} retries`, kind: '5xx' };
         }
 
-        const out = { 'content-type': ctype || 'application/json', 'cache-control': 'no-store', ...extraHeaders };
+        const out = { 'content-type': ctype || 'application/json', 'cache-control': 'no-store', ...extraHeaders, ...(ctx.cacheKey ? { 'x-tinyagent-cache-key': ctx.cacheKey } : {}) };
         for (const [k, v] of r.headers) if (RATE_HEADER.test(k)) out[k] = v;
         res.writeHead(r.status, out);
         let usage = null, bytes = 0, ttft = null, errText = '', buf = '', tail = '';
@@ -364,7 +375,7 @@ export function createCore({ config, configDir = HERE, env = process.env, dataDi
         // A cut or empty answer is never cached (finish_reason length / max_tokens, or no content): a retry with a larger budget must reach the model.
         // A JSON endpoint that is not a chat format (the structure and formalizer tiers) is complete when it is JSON without an error.
         const chatPath = Object.entries(up.formats || { openai: '/v1/chat/completions' }).some(([k, v]) => (k === 'openai' || k === 'anthropic') && v === path);
-        const complete = !chatPath ? (() => { try { const j = JSON.parse(tail); return j && typeof j === 'object' && !j.error; } catch { return false; } })() : (() => { try { const j = JSON.parse(tail); const fr = j.choices?.[0]?.finish_reason ?? j.stop_reason; const text = format === 'anthropic' ? (j.content || []).map((c) => c.text || '').join('') : (j.choices?.[0]?.message?.content ?? ''); return fr !== 'length' && fr !== 'max_tokens' && String(text).trim() !== ''; } catch { return false; } })();
+        const complete = answerComplete(tail, { chat: chatPath, format });
         if (ctx.cacheKey && !isSse && r.status === 200 && !rec.error && complete) { try { cache.put(ctx.cacheKey, { body: tail, content_type: ctype || 'application/json', served: `${up.name}/${model}`, tier: ctx.tier ?? null }); } catch { /* the cache never breaks a request */ } }
         return { done: true };
       }, { cost, background }, priority);
@@ -415,7 +426,7 @@ export function createCore({ config, configDir = HERE, env = process.env, dataDi
       if (req.method === 'GET' && url.pathname === '/v1/local') return sendJson(res, 200, await localStatus());
       const lm = /^\/v1\/local\/([^/]+)\/(start|stop)$/.exec(url.pathname);
       if (req.method === 'POST' && lm) { const r = await localAction(decodeURIComponent(lm[1]), lm[2]); return sendJson(res, r.error ? 404 : 200, r.error ? { error: { type: 'not_found', message: r.error } } : r); }
-      // The server's own endpoints (jobs, tasks, skills, run, operations): server.mjs.
+      // The server's own endpoints (TaskLambdas, jobs, tasks, run-lambdas, operations, calls): server.mjs.
       if (routes && (await routes(req, res, url, { sendJson, readJson: async (r) => { try { return JSON.parse((await readBody(r)).toString('utf8')); } catch { return null; } } })) !== false) return;
       if (req.method === 'GET' && url.pathname === '/') {
         res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
@@ -485,7 +496,8 @@ export function createCore({ config, configDir = HERE, env = process.env, dataDi
           if (tierTarget?.first?.prompt) { try { identity += `#${tierTarget.first.prompt}@${loadTemplate(promptsDir, tierTarget.first.prompt).hash}`; } catch { /* reported when served */ } }
           cacheKey = cache.key({ path, target, identity, body: parsedBody });
           if (cacheMode !== 'record') {
-            const hit = cache.get(cacheKey);
+            // An entry stored before the completeness rules of answerComplete (a cut or interrupted answer) is never replayed.
+            const hit = cache.get(cacheKey, { valid: (e) => answerComplete(e.body, { chat: path === '/v1/chat/completions' || path === '/v1/messages', format: path === '/v1/messages' ? 'anthropic' : 'openai' }) });
             if (hit) {
               monitor.log({ id: randomUUID().slice(0, 8), upstream: 'cache', client: String(req.headers['x-client-name'] || 'unknown').slice(0, 40), endpoint: path, model, status: 200, cache: 'hit', served: hit.served, purpose: tagOf('x-tinyagent-purpose'), run: tagOf('x-tinyagent-run'), usd: 0 });
               res.writeHead(200, { 'content-type': hit.content_type, 'cache-control': 'no-store', 'x-tinyagent-cache': 'hit', 'x-tinyagent-cache-key': cacheKey, ...(hit.served ? { 'x-tinyagent-model': hit.served } : {}) });
@@ -504,7 +516,7 @@ export function createCore({ config, configDir = HERE, env = process.env, dataDi
           if (t.first.prompt && path !== '/v1/chat/completions') return await servePromptedTier(req, res, { tier: model, entry: t.first, up: tup, path, body: parsedBody, cacheKey });
           if (!Object.values(tup.formats || { openai: '/v1/chat/completions' }).includes(path)) return sendJson(res, 400, { error: { type: 'tier_unavailable', message: `tier "${model}" serves ${t.first.upstream}, which has no endpoint ${path}` } });
           if (!modelCache[tup.name] && !tup.start) getModels(tup).catch(() => {});
-          const body = Buffer.from(JSON.stringify({ ...JSON.parse(raw.toString('utf8')), model: t.first.model }));
+          const body = Buffer.from(JSON.stringify(entryBody({ ...JSON.parse(raw.toString('utf8')), model: t.first.model }, t.first)));
           return await forward(req, res, tup, path, body, { tier: model, chain: t.rest, cacheKey, timeoutMs: t.first.timeoutMs ?? null });
         }
         if (!modelCache[up.name] && !up.start) getModels(up).catch(() => {}); // warm pricing for stats

@@ -1,8 +1,8 @@
-// The sandbox of generated SkillPlugins: the allow-listed API works; escape attempts, code generation, unknown operations, endless
+// The sandbox of model-written TaskLambdas (programs written on the fly): the allow-listed API works; escape attempts, code generation, unknown operations, endless
 // loops and memory bombs are refused or stopped.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runPlugin } from '../lib/sandbox.mjs';
+import { runProgram } from '../lib/sandbox.mjs';
 
 const api = (log = []) => ({
   chat: async (o) => { log.push(['chat', o]); return { ok: true, text: `echo ${o.prompt}` }; },
@@ -12,9 +12,9 @@ const api = (log = []) => ({
   log: async ({ message }) => { log.push(['log', message]); return true; },
 });
 
-test('a plugin uses the allow-listed API and returns JSON', async () => {
+test('a program uses the allow-listed API and returns JSON', async () => {
   const log = [];
-  const r = await runPlugin(`async function run(api, input) {
+  const r = await runProgram(`async function run(api, input) {
     const files = await api.listInputs();
     const text = await api.readInput(files[0].name);
     const a = await api.chat({tier: 'tiny', prompt: text + input.x});
@@ -40,7 +40,7 @@ test('escape attempts find no host object: constructors, process, require, impor
     errorCtor: `async function run(api) { try { await api.readInput('nope'); } catch (e) { return e.constructor.constructor('return process')(); } }`,
   };
   for (const [name, code] of Object.entries(probes)) {
-    const r = await runPlugin(code, null, api());
+    const r = await runProgram(code, null, api());
     if (name === 'globals') { assert.equal(r.ok, true, r.message); assert.equal(r.value, 'undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined'); continue; }
     if (name === 'thenHook') { assert.equal(r.ok, true, r.message); assert.ok(r.value === 'true' || r.value === 'none', `a leaked callback must be a context function: ${r.value}`); continue; }
     assert.equal(r.ok, false, `${name} must fail, got ${JSON.stringify(r.value)}`);
@@ -49,22 +49,22 @@ test('escape attempts find no host object: constructors, process, require, impor
 });
 
 test('unknown operations and forged replies are refused; refusals do not leak host errors', async () => {
-  const r = await runPlugin(`async function run(api) { try { await api.chat({tier: 'best'}); return 'no'; } catch (e) { return [e instanceof Error, e.constructor === Error, String(e.message)]; } }`, null, { chat: async () => { throw new Error('tier best is not allowed in the sandbox'); } });
+  const r = await runProgram(`async function run(api) { try { await api.chat({tier: 'best'}); return 'no'; } catch (e) { return [e instanceof Error, e.constructor === Error, String(e.message)]; } }`, null, { chat: async () => { throw new Error('tier best is not allowed in the sandbox'); } });
   assert.equal(r.ok, true, r.message);
   assert.deepEqual(r.value, [true, true, 'tier best is not allowed in the sandbox']);
 });
 
-test('time, memory and size limits stop a plugin', async () => {
-  let r = await runPlugin(`async function run() { for (;;) {} }`, null, api(), { timeMs: 1500 });
-  assert.equal(r.code, 'plugin_time_limit');
-  r = await runPlugin(`async function run() { for (;;) { await null; } }`, null, api(), { timeMs: 1500 });
-  assert.equal(r.code, 'plugin_time_limit');
-  r = await runPlugin(`async function run() { const a = []; for (;;) a.push(new Array(1e6).fill(1)); }`, null, api(), { timeMs: 20000, heapMb: 32 });
-  assert.ok(['plugin_memory_limit', 'plugin_crashed', 'plugin_error'].includes(r.code), r.code);
-  r = await runPlugin('x'.repeat(30000), null, api());
-  assert.equal(r.code, 'plugin_too_long');
-  r = await runPlugin(`async function run() { return 'x'.repeat(300000); }`, null, api());
-  assert.equal(r.code, 'plugin_result_limit');
-  r = await runPlugin(`function run( {`, null, api());
+test('time, memory and size limits stop a program', async () => {
+  let r = await runProgram(`async function run() { for (;;) {} }`, null, api(), { timeMs: 1500 });
+  assert.equal(r.code, 'sandbox_time_limit');
+  r = await runProgram(`async function run() { for (;;) { await null; } }`, null, api(), { timeMs: 1500 });
+  assert.equal(r.code, 'sandbox_time_limit');
+  r = await runProgram(`async function run() { const a = []; for (;;) a.push(new Array(1e6).fill(1)); }`, null, api(), { timeMs: 20000, heapMb: 32 });
+  assert.ok(['sandbox_memory_limit', 'sandbox_crashed', 'sandbox_error'].includes(r.code), r.code);
+  r = await runProgram('x'.repeat(30000), null, api());
+  assert.equal(r.code, 'sandbox_too_long');
+  r = await runProgram(`async function run() { return 'x'.repeat(300000); }`, null, api());
+  assert.equal(r.code, 'sandbox_result_limit');
+  r = await runProgram(`function run( {`, null, api());
   assert.equal(r.ok, false);
 });

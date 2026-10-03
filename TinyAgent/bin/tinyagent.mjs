@@ -1,14 +1,20 @@
 #!/usr/bin/env node
 /**
- * TinyAgent command line. Every command except `serve`, `migrate-home` and `probe` is a client of the server on the default port
- * (http://127.0.0.1:18080, TINYAGENT_URL); when no server answers, the first client starts one in the background (detached) and uses it.
+ * TinyAgent command line. Every command except `serve`, `run`, `lambdas`, `calls`, `migrate-home` and `probe` is a client of the server
+ * on the default port (http://127.0.0.1:18080, TINYAGENT_URL); when no server answers, the first client starts one in the background
+ * (detached) and uses it.
  *
  *   tinyagent serve [--port N] [--host H] [--config file]       the server (one per machine)
- *   tinyagent run "<instructions>" [--workdir DIR] [--plans DIR] [--plan-only|--dry-run] [--no-cache] [--json]
- *                                                                the agent: reuse a cached plan or write one (plan as code), run it
- *   tinyagent plans list|show <id>|verify <id>|rm <id>|promote <id> --name <skill> [--to DIR]   [--workdir DIR] [--plans DIR]
- *   tinyagent run-skills "<request>" [--attach file]... [--plan-only]   plan server skills as steps on the planner tier, then run them
- *   tinyagent skills | skill <name> [--inputs '{json}'] [--attach file]... [--detach]
+ *   tinyagent run "<instructions>" [--workdir DIR] [--lambdas DIR] [--calls DIR] [--plan-only|--dry-run] [--no-cache] [--json]
+ *                                                                the agent: call a cached TaskLambda or write one, run it
+ *   tinyagent lambdas [list] [--server] | show <id> | verify <id> | rm <id> | promote <id> --name <name> [--to DIR] [--yes]
+ *                                                                the agent's TaskLambda cache of a work folder [--workdir DIR] [--lambdas DIR];
+ *                                                                --server lists the server's TaskLambdas (built-in, project, jobs, templates)
+ *   tinyagent call <name> [--params '{json}'] [--attach file]... [--detach]   one TaskLambdaCall in the server
+ *   tinyagent calls [list] [--lambda n] [--status s] [--date YYYY-MM-DD] [--since d] [--parent id] [--top] [--limit n]
+ *                 | show <id> | tree <id> | search <text> [filters] | prune [--days N] [--yes]   [--calls DIR] [--json]
+ *                                                                the call folders (no server needed)
+ *   tinyagent run-lambdas "<request>" [--attach file]... [--plan-only]   plan server TaskLambdas as steps on the planner tier, then run them
  *   tinyagent job <dir> [--stage s] [--resume run-id] [--refresh] [--no-register] [--publish dir]
  *   tinyagent check <dir> | list [job] | show <job> <run-id> | prune
  *   tinyagent task --instructions "..." [--attach file]... [--target memory:<id>|session:<id>|none] [--template name --params '{json}']
@@ -16,7 +22,9 @@
  *   tinyagent stats [--json] | health | models [start|stop <name>] | ops [id]
  *   tinyagent migrate-home [--yes]                               copy the data of the earlier proxy into ~/.tinyagent (verified)
  *   tinyagent probe --yes --model <id> [...]                     measure a provider's real rate limits (spends quota)
- * Common: --config <file> (project layer), --url <server>, --purpose <tag> (default skill:cli).
+ * Common: --config <file> (project layer), --url <server>, --purpose <tag> (default lambda:cli).
+ * Old names (lib/legacy.mjs, until no caller needs them): plans = lambdas, --plans = --lambdas, skills = lambdas --server,
+ * skill <name> --inputs = call <name> --params, run-skills = run-lambdas.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -24,7 +32,7 @@ import { createTinyAgent } from '../lib/client.mjs';
 import { loadLayers } from '../lib/config.mjs';
 
 const args = process.argv.slice(2);
-const FLAGS = new Set(['--refresh', '--no-register', '--json', '--plan-only', '--dry-run', '--no-cache', '--yes', '--detach']);
+const FLAGS = new Set(['--refresh', '--no-register', '--json', '--plan-only', '--dry-run', '--no-cache', '--yes', '--detach', '--server', '--top']);
 const opt = (n, d = null) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : d; };
 const opts = (n) => args.flatMap((a, i) => (a === `--${n}` ? [args[i + 1]] : []));
 const flag = (n) => args.includes(`--${n}`);
@@ -33,7 +41,7 @@ const [cmd, ...rest] = positional;
 const out = (o) => console.log(typeof o === 'string' ? o : JSON.stringify(o, null, 1));
 
 const layers = () => loadLayers({ project: opt('config') });
-const client = (purpose = opt('purpose', 'skill:cli')) => createTinyAgent({ url: opt('url'), purpose, autostart: process.env.TINYAGENT_AUTOSTART !== '0', config: layers().project });
+const client = (purpose = opt('purpose', 'lambda:cli')) => createTinyAgent({ url: opt('url'), purpose, autostart: process.env.TINYAGENT_AUTOSTART !== '0', config: layers().project });
 const logLine = (l) => process.stderr.write(`${l}\n`);
 const finishOp = (op) => { out(op.result?.summary ?? op.error ?? op.status); if (op.status !== 'finished') process.exitCode = 3; };
 
@@ -46,13 +54,22 @@ async function main() {
       return;
     }
     case 'run': return agentRun();
-    case 'plans': return plansCommand();
-    case 'run-skills': return finishOp(await client().run(rest.join(' '), { attach: opts('attach'), planOnly: flag('plan-only'), onLog: logLine }));
-    case 'skills': { const r = await client().skills(); for (const s of r.skills) out(`${s.name.padEnd(22)} ${s.description.slice(0, 110)}`); for (const p of r.problems ?? []) logLine(`problem: ${p}`); return; }
-    case 'skill': {
-      // --detach: start the operation and print its id at once (the background form); `tinyagent ops <id>` follows it.
-      const op = await client().skill(rest[0], opt('inputs') ? JSON.parse(opt('inputs')) : {}, { attach: opts('attach'), onLog: logLine, ...(flag('detach') ? { wait: false } : {}) });
-      return flag('detach') ? out({ id: op.id, status: op.status ?? 'started', follow: `tinyagent ops ${op.id}` }) : finishOp(op);
+    case 'lambdas': case 'plans': return lambdasCommand();
+    case 'skills': return serverLambdas();
+    case 'calls': return callsCommand();
+    case 'run-lambdas': case 'run-skills': return finishOp(await client().run(rest.join(' '), { attach: opts('attach'), planOnly: flag('plan-only'), onLog: logLine }));
+    case 'call': case 'skill': {
+      // --detach: start the operation and print its id at once (the background form); `tinyagent ops <id>` follows it, and its call
+      // folder holds call.json, output.json, effects.jsonl, models.jsonl and log.txt.
+      const given = opt('params') ?? opt('inputs');
+      const ta = client();
+      const params = given ? JSON.parse(given) : {};
+      const o = { attach: opts('attach'), onLog: logLine, ...(flag('detach') ? { wait: false } : {}) };
+      let op;
+      try { op = await ta.call(rest[0], params, o); }
+      catch (e) { if (e.status !== 404) throw e; op = await ta.skill(rest[0], params, o); } // a server started before the rename
+      if (op.dir) logLine(`call: ${op.dir}`);
+      return flag('detach') ? out({ id: op.id, status: op.status ?? 'started', call: op.dir ?? null, follow: `tinyagent ops ${op.id}` }) : finishOp(op);
     }
     case 'job': {
       const op = await client().runJob(rest[0], { stage: opt('stage'), resume: opt('resume'), refresh: flag('refresh'), register: !flag('no-register'), publish: opt('publish'), onLog: logLine });
@@ -99,56 +116,102 @@ async function main() {
 async function agentRun() {
   const { runAgent } = await import('../lib/agent/index.mjs');
   const { config } = layers();
-  const r = await runAgent({ request: rest.join(' '), workdir: path.resolve(opt('workdir', '.')), plansDir: opt('plans') ? path.resolve(opt('plans')) : null, ta: client('run:cli'), config,
-    planOnly: flag('plan-only') || flag('dry-run'), useCache: !flag('no-cache'), log: logLine });
+  const dir = opt('lambdas') ?? opt('plans');
+  const r = await runAgent({ request: rest.join(' '), workdir: path.resolve(opt('workdir', '.')), lambdasDir: dir ? path.resolve(dir) : null, callsDir: opt('calls') ? path.resolve(opt('calls')) : null,
+    ta: client('run:cli'), config, planOnly: flag('plan-only') || flag('dry-run'), useCache: !flag('no-cache'), log: logLine, caller: 'cli' });
   if (flag('json')) return out(r);
-  logLine(`plans: ${r.plans}`);
-  logLine(`run: ${r.runDir} (${r.status}, ${r.how ?? '-'}${r.plan ? ` ${r.plan}` : ''}, ${r.rounds ?? 0} planner round(s), ${r.stats.calls} model call(s), ${r.stats.credits} credits, ${r.ms} ms)`);
+  logLine(`lambdas: ${r.lambdas}`);
+  logLine(`call: ${r.callDir} (${r.status}, ${r.how ?? '-'}${r.lambda ? ` ${r.lambda}` : ''}${r.reused_from ? ` reused ${r.reused_from}` : ''}, ${r.rounds ?? 0} planner round(s), ${r.stats.calls} model call(s), ${r.stats.credits} credits, ${r.ms} ms)`);
   if (r.code) out(r.code);
   out(r.summary ?? r.status);
   if (!['finished', 'planned'].includes(r.status)) process.exitCode = 3;
 }
 
-/** `tinyagent plans`: the plan cache of a work folder (a plain folder; no model call). */
-async function plansCommand() {
-  const { PlanCache, agentSettings, plansDirOf, extractMeta, promotedPluginSource } = await import('../lib/agent/index.mjs');
+/** `tinyagent lambdas --server` (and the old `skills`): the server's TaskLambdas. */
+async function serverLambdas() {
+  const ta = client();
+  let r;
+  try { r = await ta.lambdas(); } catch (e) { if (e.status !== 404) throw e; r = await ta.skills(); r.lambdas ??= r.skills; }
+  if (flag('json')) return out(r);
+  for (const s of r.lambdas) out(`${s.name.padEnd(22)} ${String(s.origin ?? '').padEnd(9)} ${JSON.stringify(s.effects ?? null).padEnd(30)} ${s.description.slice(0, 90)}`);
+  for (const p of r.problems ?? []) logLine(`problem: ${p}`);
+  for (const w of r.warnings ?? []) logLine(`warning: ${w}`);
+}
+
+/** `tinyagent lambdas`: the agent's TaskLambda cache of a work folder (a plain folder; no model call). */
+async function lambdasCommand() {
+  const [sub, id] = rest;
+  if ((!sub || sub === 'list') && flag('server')) return serverLambdas();
+  const { LambdaCache, agentSettings, lambdasDirOf, extractMeta, promotedLambdaSource } = await import('../lib/agent/index.mjs');
   const { config } = layers();
   const S = agentSettings(config);
   const workdir = path.resolve(opt('workdir', '.'));
-  const cache = new PlanCache(plansDirOf(workdir, S, opt('plans') ? path.resolve(opt('plans')) : null));
-  const [sub, id] = rest;
-  logLine(`plans: ${cache.dir}`);
+  const explicit = opt('lambdas') ?? opt('plans');
+  const cache = new LambdaCache(lambdasDirOf(workdir, S, explicit ? path.resolve(explicit) : null)).ensure();
+  logLine(`lambdas: ${cache.dir}`);
   if (!sub || sub === 'list') {
-    const plans = await cache.load({ extractMeta: (code) => extractMeta(code, S) });
-    if (flag('json')) return out(plans.map(({ code, md, ...p }) => p));
-    for (const p of plans) out(`${p.id.padEnd(40)} ${p.status.padEnd(9)} runs ${String(p.front.runs ?? 0).padStart(3)}  ${p.metaError ? `[${p.metaError.slice(0, 60)}] ` : ''}${(p.meta?.task ?? '').slice(0, 90)}`);
-    if (!plans.length) out('(no plans)');
+    const all = await cache.load({ extractMeta: (code) => extractMeta(code, S) });
+    if (flag('json')) return out(all.map(({ code, md, ...p }) => p));
+    for (const p of all) out(`${p.id.padEnd(40)} ${p.status.padEnd(9)} calls ${String(p.front.calls ?? 0).padStart(3)}  ${JSON.stringify(p.meta?.effects ?? null).padEnd(18)} ${p.metaError ? `[${p.metaError.slice(0, 60)}] ` : ''}${(p.meta?.task ?? '').slice(0, 80)}`);
+    if (!all.length) out('(no TaskLambdas)');
     return;
   }
-  if (!id) throw new Error(`tinyagent plans ${sub} <id>`);
-  if (sub === 'show') { const p = cache.read(id); out(`${p.dir}  (status ${p.status}, hash ${p.hash})\n`); out(p.md); out('--- plan.mjs ---'); out(p.code); return; }
+  if (!id) throw new Error(`tinyagent lambdas ${sub} <id>`);
+  if (sub === 'show') { const p = cache.read(id); out(`${p.dir}  (status ${p.status}, hash ${p.hash})\n`); out(p.md); out('--- lambda.mjs ---'); out(p.code); return; }
   if (sub === 'verify') {
     const m = await extractMeta(cache.read(id).code, S);
-    if (m.error) throw new Error(`the plan cannot be verified: ${m.error}`);
+    if (m.error) throw new Error(`the TaskLambda cannot be verified: ${m.error}`);
     const p = cache.verify(id);
     return out(`${id}: verified (hash ${p.hash})`);
   }
   if (sub === 'rm') { cache.remove(id); return out(`${id}: removed`); }
   if (sub === 'promote') {
     const name = opt('name');
-    if (!name || !/^[a-z0-9][a-z0-9_.-]{0,63}$/.test(name)) throw new Error('--name <skill-name> (lowercase letters, digits, . _ -)');
+    if (!name || !/^[a-z0-9][a-z0-9_.-]{0,63}$/.test(name)) throw new Error('--name <lambda-name> (lowercase letters, digits, . _ -)');
     const p = cache.read(id);
-    if (p.status !== 'verified') throw new Error(`${id} is ${p.status}; only a verified plan is promoted (tinyagent plans verify ${id})`);
+    if (p.status !== 'verified') throw new Error(`${id} is ${p.status}; only a verified TaskLambda is promoted (tinyagent lambdas verify ${id})`);
     const m = await extractMeta(p.code, S);
     if (m.error) throw new Error(m.error);
-    const toDir = path.resolve(opt('to', path.join(workdir, '.tinyagent', 'skill-plugins')));
+    const toDir = path.resolve(opt('to', path.join(workdir, '.tinyagent', 'project-lambdas')));
     fs.mkdirSync(toDir, { recursive: true });
     const file = path.join(toDir, `${name}.mjs`);
     if (fs.existsSync(file) && !flag('yes')) throw new Error(`${file} exists (--yes replaces it)`);
-    fs.writeFileSync(file, promotedPluginSource({ name, plan: p, meta: m.meta, toDir }));
-    return out(`${file}: SkillPlugin ${name} (add ${toDir} to skills.plugins of a configuration layer to serve it)`);
+    fs.writeFileSync(file, promotedLambdaSource({ name, entry: p, meta: m.meta, toDir }));
+    return out(`${file}: project TaskLambda ${name} (add ${toDir} to lambdas.project of a configuration layer to serve it)`);
   }
-  throw new Error(`unknown plans command ${sub} (list, show, verify, rm, promote)`);
+  throw new Error(`unknown lambdas command ${sub} (list, show, verify, rm, promote)`);
+}
+
+/** `tinyagent calls`: the TaskLambdaCall folders (a plain folder; no server, no model call). */
+async function callsCommand() {
+  const { callStoreOf, callSettings } = await import('../lib/lambda/index.mjs');
+  const { config } = layers();
+  const store = callStoreOf(config, opt('calls') ? path.resolve(opt('calls')) : null);
+  const [sub = 'list', arg] = rest;
+  logLine(`calls: ${store.root}`);
+  const filters = { lambda: opt('lambda'), status: opt('status'), date: opt('date'), since: opt('since'), parent: opt('parent'), root: opt('root'), topLevel: flag('top'), limit: Number(opt('limit', 50)) };
+  const line = (e) => `${e.id}  ${String(e.status).padEnd(8)} ${String(e.lambda).padEnd(28)} ${e.ms != null ? `${e.ms} ms` : ''}${e.reused_from ? ` reused ${e.reused_from}` : ''}${e.parent ? ` parent ${e.parent}` : ''}  ${String(e.params ?? '').slice(0, 80)}`;
+  if (sub === 'list' || sub === 'search') {
+    const hits = store.search({ ...filters, text: sub === 'search' ? arg ?? null : opt('text') });
+    if (flag('json')) return out(hits);
+    for (const e of hits) out(line(e));
+    if (!hits.length) out('(no calls)');
+    return;
+  }
+  if (sub === 'show') { const v = store.show(arg); if (!v) throw new Error(`no call ${arg}`); return out(flag('json') ? v : `${v.dir}\nfiles: ${v.files.join(', ')}\n${JSON.stringify({ call: v.call, output: v.output, summary: v.summary }, null, 1)}`); }
+  if (sub === 'tree') {
+    const t = store.tree(arg, { maxChildren: Number(opt('max', 50)) });
+    if (!t) throw new Error(`no call ${arg}`);
+    if (flag('json')) return out(t);
+    const walk = (n, pad) => { out(`${pad}${n.lambda} ${n.status}${n.ms != null ? ` ${n.ms} ms` : ''}${n.reused_from ? ` reused ${n.reused_from}` : ''}  ${n.id}  ${n.params.slice(0, 60)}`); for (const c of n.children) walk(c, `${pad}  `); if (n.more) out(`${pad}  … ${n.more} more`); };
+    return walk(t, '');
+  }
+  if (sub === 'prune') {
+    const days = Number(opt('days', callSettings(config).keepArtifactsDays));
+    const r = store.prune({ days, dryRun: !flag('yes') });
+    return out(`${flag('yes') ? 'pruned' : 'would prune (--yes to apply)'}: ${r.calls} call(s), ${r.files} file(s), ${r.bytes} bytes, days ${r.days.join(', ') || 'none'} (kept: call.json, output.json, summary.json; older than ${days} days)`);
+  }
+  throw new Error(`unknown calls command ${sub} (list, show, tree, search, prune)`);
 }
 
 /** Commands that read the run folders of the job runner (no model call). */

@@ -1,6 +1,6 @@
-// In-process transports: a fetch that calls the core's request handler without a socket (code running inside the server: skills,
+// In-process transports: a fetch that calls the core's request handler without a socket (code running inside the server: TaskLambdas,
 // jobs, plugins), and a fetch over a MessagePort (code running in a worker thread of the server). Both carry exactly the HTTP API of
-// `tinyagent serve`, so a skill sees the same tiers, cache, budgets and statistics as an outside client.
+// `tinyagent serve`, so a TaskLambda sees the same tiers, cache, budgets and statistics as an outside client.
 import { Readable } from 'node:stream';
 
 const headerObject = (h) => {

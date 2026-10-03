@@ -49,16 +49,20 @@ export function finalRecords(dir) {
 }
 
 const pct = (a, b) => (b ? Math.round((100 * a) / b) : 0);
+/** The roles of model calls made for one item (the others, decider and audit, serve the run). */
+const ITEM_ROLES = new Set(['work', 'repair', 'next_tier', 'next_model']);
 const short = (s, n = 160) => { const t = String(s ?? '').replace(/\s+/g, ' ').trim(); return t.length > n ? `${t.slice(0, n)}…` : t; };
 
 /**
  * Runs a loaded job (spec.loadJob). Options: `stage` (run through this stage only), `resume` (run id of an interrupted run),
  * `endpoint`, `fetchImpl`, `priority` (interactive | normal | background; default the spec's `priority`), `store` (default: the config's data dir), `refresh` (ignore the cache), `register` (register the run's budget
- * with the endpoint: POST /jobs/register), `log`, `backoffMs`, `purpose`, `sinkContext` (passed to the sink plugin, e.g. a target).
+ * with the endpoint: POST /jobs/register), `log`, `backoffMs`, `purpose`, `sinkContext` (passed to the sink plugin, e.g. a target),
+ * `hooks` (the TaskLambdaCall of the run: `item({id, ok, record, item, models, via})` when an item settles or a decider retry accepts it,
+ * with the model calls made for it; `model(role, entry, result)` for every model call that serves no single item: decider, audit).
  * Returns `{run, dir, status, summary, counts, cost, scores, tiers, sink}`.
  */
 export async function runJob(job, {stage = null, resume = null, endpoint = job.config?.endpoint, fetchImpl = fetch, store = new RunStore({root: job.config.dataDir}), refresh = false,
-  register = true, log = () => {}, backoffMs = 2000, purpose = null, runId = null, sinkContext = {}, inputContext = {}, cacheDir = null, tierStatsDir = null, priority = null} = {}) {
+  register = true, log = () => {}, backoffMs = 2000, purpose = null, runId = null, sinkContext = {}, inputContext = {}, cacheDir = null, tierStatsDir = null, priority = null, hooks = null} = {}) {
   const proxy = endpoint;
   const {spec, prompt, checks} = job;
   const params = job.params ?? null;
@@ -104,7 +108,20 @@ export async function runJob(job, {stage = null, resume = null, endpoint = job.c
   const cache = new ResponseCache(cacheDir ?? path.join(store.root, 'cache'));
   const call = makeCaller({proxy, job: spec.name, run, cache, ledger, fetchImpl, refresh, backoffMs, purpose: jobPurpose, proxyFallback: spec.fallbackOnFailure !== false,
     // `priority: "background"` (job spec or caller): the server runs the job's calls only in quiet periods, within the plan's headroom.
-    priority: priority ?? spec.priority ?? null});
+    priority: priority ?? spec.priority ?? null,
+    onResult: hooks?.model ? (role, entry, r) => { if (!ITEM_ROLES.has(role)) hooks.model(role, entry, r); } : null});
+  // The model calls made for each item (a packed call serves several: it is noted for each, with `shared`), for the item's call.
+  const itemModels = new Map();
+  const noteModels = (ids, ans, role) => {
+    if (!hooks?.item || !ans) return;
+    for (const id of ids) (itemModels.get(id) ?? itemModels.set(id, []).get(id)).push({role, entry: ans.entry ?? null, result: ans, shared: ids.length});
+  };
+  const itemDone = (it, ok, record, via = null) => {
+    if (!hooks?.item) return;
+    const models = itemModels.get(it.id) ?? [];
+    itemModels.delete(it.id);
+    try { hooks.item({id: it.id, ok, record, item: it, models, via, job: {name: spec.name, hash: job.hash}}); } catch (e) { log(`item call of ${it.id} not recorded: ${e.message}`); }
+  };
 
   const system = render(prompt.system, {params});
   const renderOne = it => render(prompt.item, {...it.prompt, id: it.id, params});
@@ -160,12 +177,16 @@ export async function runJob(job, {stage = null, resume = null, endpoint = job.c
       let score = null;
       if (typeof checks.score === 'function') { try { score = checks.score(it.data, res.out) ?? null; } catch (e) { score = {label: 'score_error', reason: e.message}; } }
       if (res.tier) passedAt[res.tier] = (passedAt[res.tier] ?? 0) + 1;
-      appendJsonl(file('accepted.jsonl'), {id: it.id, model: res.model, ...(res.tier ? {tier: res.tier, tiers_tried: res.tried} : {}), output: res.out, value: res.value ?? null, score, repair_rounds: res.rounds, cached: res.cached, at: new Date().toISOString()});
+      const row = {id: it.id, model: res.model, ...(res.tier ? {tier: res.tier, tiers_tried: res.tried} : {}), output: res.out, value: res.value ?? null, score, repair_rounds: res.rounds, cached: res.cached, at: new Date().toISOString()};
+      appendJsonl(file('accepted.jsonl'), row);
+      itemDone(it, true, row);
     } else {
       c.rejected += 1;
       if (res.empty) c.empty += 1;
       if (res.callFailed) c.call_failed += 1;
-      appendJsonl(file('rejected.jsonl'), {id: it.id, model: res.model, ...(res.tier ? {tiers_tried: res.tried} : {}), output: res.out ?? null, problems: res.problems, empty: !!res.empty, call_failed: !!res.callFailed, repair_rounds: res.rounds, at: new Date().toISOString()});
+      const row = {id: it.id, model: res.model, ...(res.tier ? {tiers_tried: res.tried} : {}), output: res.out ?? null, problems: res.problems, empty: !!res.empty, call_failed: !!res.callFailed, repair_rounds: res.rounds, at: new Date().toISOString()};
+      appendJsonl(file('rejected.jsonl'), row);
+      itemDone(it, false, row);
     }
     stopped ??= stopRule(st);
     writeCost();
@@ -180,6 +201,7 @@ export async function runJob(job, {stage = null, resume = null, endpoint = job.c
       const messages = [{role: 'system', content: system}, {role: 'user', content: userText([it])}, {role: 'assistant', content: outputText(out, output) || '(no output)'},
         {role: 'user', content: render(prompt.repair, {problems: verdict.problems.map(p => `- ${p}`).join('\n'), hint: [verdict.hint, extraHint].filter(Boolean).join('\n') || '-', params})}];
       const ans = await callChain(call, entryChain, messages, 'repair');
+      noteModels([it.id], ans, 'repair');
       if (!ans.ok) break;
       model = modelName(ans.entry);
       out = parseOut(it, splitReply(ans.text, [it.id], output)[it.id]);
@@ -191,6 +213,7 @@ export async function runJob(job, {stage = null, resume = null, endpoint = job.c
   /** One fresh single-item attempt plus repairs on a chain: `{verdict, out, model, rounds, ok}`. */
   const attempt = async (it, chain, role) => {
     const a = await callChain(call, chain, [{role: 'system', content: system}, {role: 'user', content: userText([it])}], role);
+    noteModels([it.id], a, role);
     if (!a.ok) return {verdict: {ok: false, empty: true, problems: [`call failed: ${short(a.error, 200)}`]}, out: null, model: null, rounds: 0, ms: 0};
     const o = parseOut(it, splitReply(a.text, [it.id], output)[it.id]);
     const r = await repairLoop(it, chain, o, verify(it, o), modelName(a.entry));
@@ -209,6 +232,7 @@ export async function runJob(job, {stage = null, resume = null, endpoint = job.c
     // `fallbackOnFailure: false` keeps a run on its first model (calibrations, A/B arms): a failed call is a failure, not a switch.
     let chain = levels ? levels[level].chain : spec.fallbackOnFailure === false ? spec.models.slice(0, 1) : spec.models;
     const ans = await callChain(call, chain, [{role: 'system', content: system}, {role: 'user', content: userText(list)}], 'work');
+    noteModels(list.map(i => i.id), ans, 'work');
     if (!ans.ok && !levels) {
       for (const it of list) settle(it, {ok: false, empty: true, callFailed: true, problems: [`call failed: ${short(ans.error, 300)}`], rounds: 0}, st);
       return;
@@ -299,7 +323,12 @@ export async function runJob(job, {stage = null, resume = null, endpoint = job.c
           appendJsonl(file('decisions.jsonl'), {id: cs.id, source: 'rejected', ...d});
           if (d.action === 'retry') {
             const r = await retryWithHint(byId.get(cs.id), cs.prev, cs.problems, d.hint);
-            if (r.verdict.ok) { counts.decider.retry_ok += 1; c.accepted += 1; c.rejected -= 1; appendJsonl(file('accepted.jsonl'), {id: cs.id, model: r.model, output: r.out, value: r.verdict.value ?? null, score: typeof checks.score === 'function' ? checks.score(byId.get(cs.id).data, r.out) : null, decider: 'retry', at: new Date().toISOString()}); }
+            if (r.verdict.ok) {
+              counts.decider.retry_ok += 1; c.accepted += 1; c.rejected -= 1;
+              const row = {id: cs.id, model: r.model, output: r.out, value: r.verdict.value ?? null, score: typeof checks.score === 'function' ? checks.score(byId.get(cs.id).data, r.out) : null, decider: 'retry', at: new Date().toISOString()};
+              appendJsonl(file('accepted.jsonl'), row);
+              itemDone(byId.get(cs.id), true, row, 'decider');
+            }
             else { counts.decider.retry_failed += 1; escalate({id: cs.id, source: 'rejected', reason: 'retry_failed', problem: short(r.verdict.problems.join(' | '), 300)}); }
           } else if (d.action === 'drop') counts.decider.dropped += 1;
           else { counts.decider.escalated += 1; escalate({id: cs.id, source: 'rejected', reason: d.reason || 'escalated by the decider', problem: short(cs.problems.join(' | '), 300)}); }
@@ -337,7 +366,12 @@ export async function runJob(job, {stage = null, resume = null, endpoint = job.c
           if (d.action === 'dismiss') counts.decider.dismissed += 1;
           else if (d.action === 'retry') {
             const r = await retryWithHint(byId.get(cs.id), cs.prev, cs.problems, d.hint);
-            if (r.verdict.ok) { counts.decider.retry_ok += 1; appendJsonl(file('accepted.jsonl'), {id: cs.id, model: r.model, output: r.out, value: r.verdict.value ?? null, score: typeof checks.score === 'function' ? checks.score(byId.get(cs.id).data, r.out) : null, decider: 'retry_after_audit', at: new Date().toISOString()}); }
+            if (r.verdict.ok) {
+              counts.decider.retry_ok += 1;
+              const row = {id: cs.id, model: r.model, output: r.out, value: r.verdict.value ?? null, score: typeof checks.score === 'function' ? checks.score(byId.get(cs.id).data, r.out) : null, decider: 'retry_after_audit', at: new Date().toISOString()};
+              appendJsonl(file('accepted.jsonl'), row);
+              itemDone(byId.get(cs.id), true, row, 'audit');
+            }
             else { counts.decider.retry_failed += 1; escalate({id: cs.id, source: 'audit', reason: 'retry_failed', problem: short(cs.problems.join(' | '), 300)}); }
           } else { counts.decider.escalated += 1; escalate({id: cs.id, source: 'audit', reason: d.reason || 'escalated by the decider', problem: short(cs.problems.join(' | '), 300)}); }
         }
