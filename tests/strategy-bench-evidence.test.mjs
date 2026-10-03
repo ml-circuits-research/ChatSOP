@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {createServer} from 'node:http';
 import {renderEnglish} from '../reasoning/slice/render-english.mjs';
 import {Theory} from '../reasoning/slice/wire.mjs';
 import {runCompletion} from '../reasoning/strategies/llm-agent/completion.mjs';
@@ -49,12 +48,6 @@ const knowledge = `@bird predicate
   message "bird injured"
 `;
 
-async function serve(handler) {
-  const server = createServer(handler);
-  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-  return {server, endpoint: `http://127.0.0.1:${server.address().port}`, close: () => new Promise(resolve => server.close(resolve))};
-}
-
 test('renderer preserves explicit negative evidence, defaults, precedence, closedness, intervals, aggregate and integrity', () => {
   const text = renderEnglish(knowledge);
   assert.match(text, /The list of bird is complete/);
@@ -81,51 +74,65 @@ test('renderer accepts gold slices and refuses semantically incomplete Theory or
   assert.throws(() => renderEnglish('@u predicate\n  strange true\n'), /Unsupported evidence field/);
 });
 
-test('completion cache does not reuse an answer across different token ceilings', async t => {
+/** A fake TinyAgent transport: `answer(url, init)` gives {status, text} (or waits for the abort); every request is recorded. */
+function fakeTinyAgent(answer) {
   const calls = [];
-  const service = await serve(async (req, res) => {
-    let input = '';
-    for await (const chunk of req) input += chunk;
-    calls.push({url: req.url, auth: req.headers.authorization, body: JSON.parse(input)});
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({choices: [{message: {content: '{"status":"unknown"}'}}], usage: {prompt_tokens: 17, completion_tokens: 5}}));
-  });
-  t.after(() => service.close());
+  const fetchImpl = async (url, init = {}) => {
+    calls.push({url, headers: init.headers ?? {}, body: init.body ? JSON.parse(init.body) : null});
+    const r = await answer(url, init);
+    return {ok: r.status >= 200 && r.status < 300, status: r.status, text: async () => r.text};
+  };
+  return {fetchImpl, calls};
+}
+// A request that never answers: it ends at the client's abort (a timer keeps the loop alive, as an open socket would).
+const never = init => new Promise((_, reject) => {
+  const alive = setTimeout(() => reject(new Error('the client never aborted')), 5000);
+  init.signal.addEventListener('abort', () => { clearTimeout(alive); reject(init.signal.reason); }, {once: true});
+});
+
+test('completion cache does not reuse an answer across different token ceilings', async t => {
+  const ta = fakeTinyAgent(() => ({status: 200, text: JSON.stringify({choices: [{message: {content: '{"status":"unknown"}'}}], usage: {prompt_tokens: 17, completion_tokens: 5}})}));
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'bench-completion-'));
   t.after(() => fs.rmSync(directory, {recursive: true, force: true}));
-  const opts = {backend: 'completion', endpoint: service.endpoint, apiKey: 'local-token', model: 'local-model', fallbackModels: [], maxTokens: 23, cacheDir: directory, reasoning: 'direct'};
+  const opts = {backend: 'completion', model: 'small', fallbackModels: [], maxTokens: 23, cacheDir: directory, reasoning: 'direct', fetchImpl: ta.fetchImpl};
   const problem = {theory: {knowledge: '@bird predicate\n  args subject:entity\n'}, query: '@q query\n  where bird ?x\n'};
   const first = await ask(problem, {}, opts);
   assert.equal(first.status, 'unknown');
+  assert.match(ta.calls[0].url, /\/v1\/chat\/completions$/);
+  assert.deepEqual([ta.calls[0].body.model, ta.calls[0].body.max_tokens], ['small', 23], 'the TinyAgent tier and the token ceiling');
+  assert.equal(ta.calls[0].headers['x-tinyagent-no-fallback'], '1', 'no silent substitution');
+  assert.equal(ta.calls[0].headers['x-tinyagent-purpose'], 'answer-llm-agent');
   const hit = await ask(problem, {}, opts);
   assert.equal(hit.llm.cached, true);
-  assert.equal(calls.length, 1);
+  assert.equal(ta.calls.length, 1);
   await ask(problem, {}, {...opts, maxTokens: 24});
-  assert.equal(calls.length, 2);
+  assert.equal(ta.calls.length, 2);
 });
 
 test('completion reports timeout, provider failure and malformed output without substituting omp', async t => {
-  const service = await serve((req, res) => {
-    if (req.url === '/slow/v1/chat/completions') return setTimeout(() => res.end('{}'), 100);
-    if (req.url === '/bad/v1/chat/completions') return res.end('not json');
-    if (req.url === '/empty/v1/chat/completions') return res.end('{"choices":[{"message":{"content":""}}]}');
-    res.writeHead(503); res.end('offline');
-  });
-  t.after(() => service.close());
-  const base = {model: 'local', prompt: 'hello', endpoint: service.endpoint};
-  const slow = await runCompletion({...base, endpoint: service.endpoint + '/slow', timeoutMs: 20});
+  const reply = {slow: null, bad: {status: 200, text: 'not json'}, empty: {status: 200, text: '{"choices":[{"message":{"content":""}}]}'}, down: {status: 503, text: 'offline'}};
+  let mode = 'down';
+  const ta = fakeTinyAgent((url, init) => reply[mode] ?? never(init));
+  const base = {model: 'local', prompt: 'hello', fetchImpl: ta.fetchImpl};
+  mode = 'slow';
+  const slow = await runCompletion({...base, timeoutMs: 20});
   assert.equal(slow.ok, false);
   assert.equal(slow.timedOut, true);
   assert.match(slow.error, /wall timeout/);
+  mode = 'down';
   const unavailable = await runCompletion(base);
   assert.match(unavailable.error, /HTTP 503/);
-  assert.match((await runCompletion({...base, endpoint: service.endpoint + '/bad'})).error, /malformed completion JSON/);
-  assert.match((await runCompletion({...base, endpoint: service.endpoint + '/empty'})).error, /missing assistant text/);
+  mode = 'bad';
+  assert.match((await runCompletion(base)).error, /malformed completion JSON/);
+  mode = 'empty';
+  assert.match((await runCompletion(base)).error, /missing assistant text/);
+  mode = 'down';
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'bench-failure-'));
   t.after(() => fs.rmSync(directory, {recursive: true, force: true}));
-  const failed = await ask({source: 'A.', query: ''}, {}, {backend: 'completion', endpoint: service.endpoint, model: 'local', cacheDir: directory, presentation: 'nl', reasoning: 'direct'});
+  const failed = await ask({source: 'A.', query: ''}, {}, {backend: 'completion', model: 'local', fallbackModels: [], cacheDir: directory, presentation: 'nl', reasoning: 'direct', fetchImpl: ta.fetchImpl});
   assert.equal(failed.reason, 'provider');
   assert.equal(failed.route.backend, 'completion:local');
+  assert.ok(ta.calls.every(c => c.headers['x-tinyagent-no-fallback'] === '1'), 'every call keeps one model');
 });
 
 test('constraint packets retain possible/impossible and counterexample evidence', () => {

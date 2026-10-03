@@ -20,6 +20,7 @@ chat_data/
 # Benchmark dev cases: regenerable with node tools/datasets/diversity/build-benchmark.mjs (deterministic seeds); only manifest.jsonl is tracked
 eval/smoke-reasoning/bench/cases/
 
-# LLMAPIProvider: secrets and request logs never enter the repo
-LLMAPIProvider/.env*
-LLMAPIProvider/data/
+# Model gateway (TinyAgent): keys, request logs, cache, audit store and runs live in ~/.tinyagent/, outside the repo; a key file never enters it
+.env
+.env.*
+TinyAgent/data/

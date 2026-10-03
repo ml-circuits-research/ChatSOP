@@ -1,5 +1,5 @@
 /**
- * LLMJobs checks of jobs/formalization-improve: the proposal check (proposal.mjs) with the regression case messages for the no-copy
+ * Job-runner checks of jobs/formalization-improve: the proposal check (proposal.mjs) with the regression case messages for the no-copy
  * rule. Pure functions; the regression gate runs in the sink (sink.mjs), after the checks.
  */
 import {checkProposal, stripFences} from './proposal.mjs';

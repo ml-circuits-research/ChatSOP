@@ -71,7 +71,6 @@
   },
   "llmProviders": {
     "openference": {
-      "baseUrl": "http://127.0.0.1:18080/v1",
       "model": "Qwen3.8 27b",
       "requestsPerMinute": 15,
       "timeoutSeconds": 120,
@@ -80,7 +79,6 @@
       "proxyFallback": false
     },
     "openrouter": {
-      "baseUrl": "http://127.0.0.1:18080/u/openrouter/v1",
       "model": "deepseek/deepseek-v4-flash",
       "timeoutSeconds": 120,
       "maxTokens": 4000,
@@ -88,7 +86,6 @@
       "proxyFallback": false
     },
     "local": {
-      "baseUrl": "http://127.0.0.1:18080/u/local/v1",
       "model": "Qwen3.6-35B-A3B",
       "timeoutSeconds": 120,
       "maxTokens": 1500,

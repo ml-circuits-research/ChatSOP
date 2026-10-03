@@ -62,21 +62,21 @@ Downloaded into the gitignored `models/`, each folder with a `PROVENANCE.json` (
 |---|---|
 | `models/gliner2.5-base-v1-onnx/` | export v5 @ b29dcb3c, 751 MB |
 | `models/t5-base-nl-to-fol/` | source safetensors @ a9f09f27, 852 MB |
-| `models/t5-base-nl-to-fol-onnx/` | the encoder and merged decoder, exported once with `optimum` in a temporary Python venv (deleted afterwards); script `LLMAPIProvider/local-services/small-models/convert/export-t5-onnx.sh`; max abs diff ≤ 7.3e-05 |
+| `models/t5-base-nl-to-fol-onnx/` | the encoder and merged decoder, exported once with `optimum` in a temporary Python venv (deleted afterwards); script `convert/export-t5-onnx.sh` of the small-models service (archived, see Serving); max abs diff ≤ 7.3e-05 |
 
 ### Serving
 
-A managed upstream of LLMAPIProvider, without Python (owner, 2026-10-03: everything that serves models lives in LLMAPIProvider).
+A managed upstream of the model gateway, without Python (owner, 2026-10-03: everything that serves models lives in the model gateway, today TinyAgent). The service and its tiers `structure-gliner`, `formalizer-t5` and `formalizer-t5-3b` were archived under `probably_obsolete/` on 2026-10-03, when TinyAgent became the model gateway; the prompted tiers below stay.
 
-- **Service:** `LLMAPIProvider/local-services/small-models/`, Node with transformers.js 4.3.0 and onnxruntime-node 1.30.0.
+- **Service:** the small-models service (`local-services/small-models/`, archived), Node with transformers.js 4.3.0 and onnxruntime-node 1.30.0.
   - GLiNER runs through the vendored MIT JS host.
   - Endpoints: `POST /v1/structure` and `POST /v1/fol`, JSON, documented in its README.
-- **Proxy integration:**
+- **Gateway integration:**
   - Upstream `smallmodels` is a script upstream.
-  - The proxy starts it with itself (`startAtBoot`) and restarts it on demand, as it does the llama-server of `tiny`. Verified: after the service was killed, the next request restarted it.
+  - The gateway starts it with itself (`startAtBoot`) and restarts it on demand, as it does the llama-server of `tiny`. Verified: after the service was killed, the next request restarted it.
   - Tiers `structure` and `formalizer`. Requests are forwarded, logged, tagged and cached; a JSON 200 without `error` is cached, and the weights' size and mtime enter the cache key.
-  - Proxy tests: a fake service script (`proxy.test.mjs`, "json tiers") and fake backends (`server.test.mjs`).
-  - The proxy was restarted once. It was not running when this work began; its last request was at 06:45Z.
+  - Gateway tests: a fake service script ("json tiers") and fake backends (`server.test.mjs`).
+  - The gateway was restarted once. It was not running when this work began; its last request was at 06:45Z.
 - **Hardware: CPU only.**
   - onnxruntime-node ships no CUDA provider for linux-arm64; `listSupportedBackends()` returns only `cpu`.
   - Threads are capped at 4 intra-op and 1 inter-op per model, with no spin-waiting.
@@ -233,7 +233,7 @@ A training example is the problem text with gold spans and relations, in the `gl
 - PSM goal recall 23% and quantity recall 62%;
 - LFM 4/32 questions as queries, numbers glued into names, 1/30 correct, for a weak reason.
 
-### D1. Data generation (teacher LLMs; an LLMJobs job; no training)
+### D1. Data generation (teacher LLMs; a TinyAgent job; no training)
 
 - **Pool:**
   - the scorable book items not seen before: 3,436 (math 860, commonsense 686, adult 579, world 547, science 351, logic 227, decompose 186);
@@ -260,7 +260,7 @@ A training example is the problem text with gold spans and relations, in the `gl
 - **Cost:**
   - about 2,750 `small` calls (about 275 plan credits, about 3 h at 15/min);
   - about 5,500 `medium` calls (about 14M tokens, under 2 USD on OpenRouter);
-  - registered with an LLMJobs budget: `calls` 9,000, `usd` 5.
+  - registered with a job budget: `calls` 9,000, `usd` 5.
 
 ### Training runs
 
@@ -355,12 +355,12 @@ The owner approved fine-tuning these two small models "if needed" in principle (
 Setup:
 - **Same 30 problems** as probe-1, same converters, scored against the book answer (no perturbation).
 - **Command:** `node tools/eval/structure-formalizer/ab.mjs fetch|score --run ab-1`.
-- **Backends are swappable proxy tiers:**
-  - `structure-gliner`, `structure-tiny` (Qwen3-4B with `LLMAPIProvider/prompts/psm-v1.md`);
+- **Backends are swappable gateway tiers:**
+  - `structure-gliner`, `structure-tiny` (Qwen3-4B with `config/prompts/psm-v1.md`);
   - `formalizer-t5`, `formalizer-t5-3b`;
   - `formalizer-tiny` (Qwen3-4B with `prompts/fol-v1.md`, the FOL extension, `? ` queries, a shared vocabulary);
   - `formalizer-llama-fol` (Llama-3.2-1B NL2FOL GGUF with `prompts/fol-plain-v1.md`).
-- **Prompted tiers** validate the reply and re-ask once, under the same JSON contract (`LLMAPIProvider/prompted.mjs`).
+- **Prompted tiers** validate the reply and re-ask once, under the same JSON contract (`TinyAgent/lib/prompted.mjs`).
 - **Timing:** median seconds per problem, uncached. GLiNER, T5 and T5-3B run on the CPU (4 threads); Qwen3-4B and Llama run on the GPU (llama-server).
 - **Not probed (no licence):** the nawax0x1 Qwen3.5-0.8B/2B NL-to-FOL models and teaislife/Qwen3-4B-nl2fol carry no licence and no documented prompt, so they were not downloaded.
 
@@ -418,10 +418,10 @@ Both are language and converter changes, not training.
   - Response cache on. The `tiny` rows of §8 are replayed from the cache.
   - The compute path B is a new arm, `expr:<tier>`: the closed question of `lib/formalize/expression-program.mjs`, prompt variant a, no exemplars (the same question for every model), static analysis, lowering to SOP, execution by the engines.
   - New options: `--concurrency`, `--parallel-arms` and `--limit`.
-- **Serving.** Every candidate is a managed upstream of LLMAPIProvider, with tiers `tiny-<x>`, `structure-<x>` and `formalizer-<x>` under the same role prompts (`psm-v1`, `fol-v1`).
+- **Serving.** Every candidate is a managed upstream of the model gateway, with tiers `tiny-<x>`, `structure-<x>` and `formalizer-<x>` under the same role prompts (`psm-v1`, `fol-v1`).
   - The local candidates run as llama-server on the GPU, started on demand and stopped after idle time.
   - New `start.exclusiveGroup` (`ondemand`): only one extra server runs next to the always-on `tiny`. Starting one stops the others and waits for their exit, escalating to SIGKILL after 30 s.
-  - A proxy shutdown now stops the on-demand servers it started. Before this, a restart left them orphaned and holding GPU memory.
+  - A gateway shutdown now stops the on-demand servers it started. Before this, a restart left them orphaned and holding GPU memory.
 - **Budgets.** A prompted reply cut by its token budget is asked again with four times the budget, up to 32k tokens. The prompted answer reports its `usage`.
 - **Scoring fix (applies to every arm).** A question that asks several values is answered by several queries. A numeric gold is now compared with all the answered numbers, unordered; a yes/no check written next to them is not counted as an asked value. Before, only the first query was compared.
   - Effect on the logic role: `tiny` unchanged (6 correct / 2 wrong), `good` 6 → 8.
@@ -604,7 +604,7 @@ All files are local and regenerable; the book text stays in `state/`.
   - a quantity with two different values, and two value rules that both apply, give no answer.
 - **Harness** (`tools/eval/structure-formalizer/score.mjs`): a sentence keeps its converted lines when one line fails; the failed lines are passed on as rejected units, so their predicates lose closed-world trust. `ab.mjs` gains `sample` (fresh problems outside the strict held-out split) and `score --into`. Weak answers (a yes/no gold decided by an empty list) are reported apart ("real").
 - **Expression program:** `Math.pow` (lowered to `power`) and external names (`analyseProgram`/`lowerProgram` option `external`); path B's question is unchanged.
-- **Proxy** (`LLMAPIProvider/prompted.mjs`): the re-ask keeps the better-formed reply (an unreadable reply never replaces a partly valid one) and fills the sentences it left empty from the other reply. The `structure` path does the same with its spans. Role prompt `fol-v2`: the constructs above, "query exactly what the question asks", same JSON format. The formalizer tiers name it in `config.json`.
+- **Gateway** (`TinyAgent/lib/prompted.mjs`): the re-ask keeps the better-formed reply (an unreadable reply never replaces a partly valid one) and fills the sentences it left empty from the other reply. The `structure` path does the same with its spans. Role prompt `fol-v2`: the constructs above, "query exactly what the question asks", same JSON format. The formalizer tiers name it in `config.json`.
 - **Renderer fix:** `sop/cnl.mjs` no longer fails a turn on a strict universal packet without a member count.
 
 ### Results
@@ -612,7 +612,7 @@ All files are local and regenerable; the book text stays in `state/`.
 Three stages, the same scorers throughout:
 1. **before:** the converters of HEAD, fol-v1 outputs;
 2. **converter:** the repaired converters, the same fol-v1 outputs;
-3. **+ fol-v2:** the repaired converters and new outputs under `fol-v2` with the new re-ask, after the proxy restart.
+3. **+ fol-v2:** the repaired converters and new outputs under `fol-v2` with the new re-ask, after the gateway restart.
 
 The MoE `tiny` row of stages 1–2 on the 30 is §9's `formalizer-moe-qwen` arm (the same model).
 
@@ -696,11 +696,11 @@ In "correct (real)", "real" excludes a yes/no gold decided by an empty list. Und
 
 - **Routing** (`lib/formalize/structure/route.mjs`, deterministic): jsEval when the structure role (MoE `tiny` + `psm-v1`) marks a `goal` span inside a question unit and at least one registry number lies inside a `quantity` span; FOL otherwise. Labels, offsets and digits only.
 - **Language** (`sop/expression.mjs`, P-6): `range`, `sum`, `count`, `min`/`max` over arrays, `map`, `filter`, `reduce`, `sort` (comparator), `includes`, with pure expression-body arrows that exist only as their arguments; every arrow call and array step is charged to the operation budget.
-- **Authoring:** role prompt `LLMAPIProvider/prompts/js-v1.md` (loaded by the client, `lib/formalize/js-program.mjs`): `@name jsEval` wires over `$v1..$vn`, the last wire or `answer1..` the answers.
+- **Authoring:** role prompt `config/prompts/js-v1.md` (loaded by the client, `lib/formalize/js-program.mjs`): `@name jsEval` wires over `$v1..$vn`, the last wire or `answer1..` the answers.
 - **Admission:** only `jsEval` wires, earlier references only (no cycle), text copied from the message, the static data-dependency check, evaluation within budgets; one more ask on a violation.
 - **Lowering:** fixed-shape arrays and records are unrolled into path B's arithmetic and lowered to `compute`/`compare` rules for every engine; the rest is run by the oracle (the trusted runtime's `jsEval`).
 - **Harness:** `node tools/eval/structure-formalizer/js-route.mjs fetch|score --run js-30|js-fresh-50 [--fol fol-v2-30|fol-v2-fresh-50]`; the structure rows were fetched by `ab.mjs fetch --arms psm:structure-tiny` on the run's `ids.json` (the 30 of probe-1, the 50 of `fol-fresh-50`). Path B (unchanged question, no exemplars) was asked on the same routed problems. FOL v2 verdicts are read from the scored `fol-v2-*` runs.
-- **Models:** MoE `tiny` (Qwen3.6-35B-A3B) and `good` = **DeepSeek-V4.1-flash on OpenRouter** with reasoning (every `good` row of this section and of the FOL v2 runs was served by it, per the proxy log; `good` has since become openference GLM-5.3).
+- **Models:** MoE `tiny` (Qwen3.6-35B-A3B) and `good` = **DeepSeek-V4.1-flash on OpenRouter** with reasoning (every `good` row of this section and of the FOL v2 runs was served by it, per the gateway's request log; `good` later became openference GLM-5.3 and, from the evening of 2026-10-03, openference DeepSeek-V4-Flash).
 
 ### Results
 
@@ -768,7 +768,7 @@ Executing model-written programs was refused by the session's permission system 
 
 Every deviation has a named cause:
 - **Text agreement folds case.** The adapter compares text answers case-insensitively, so engineCode's JS "A" and Prolog's atom `a` agree on commonsense:5.4.2 (both wrong): one verified answer more.
-- **Two routes swapped.** The structure request of world:383 and world:806 was fetched twice; the harness used the first row, the proxy cache holds the later reply. The adapter routes world:383 to FOL (harness: compute) and world:806 to compute (harness: FOL).
+- **Two routes swapped.** The structure request of world:383 and world:806 was fetched twice; the harness used the first row, the gateway's response cache holds the later reply. The adapter routes world:383 to FOL (harness: compute) and world:806 to compute (harness: FOL).
 - **Calls the cache cannot replay.** commonsense:6.6.9's B and engineCode replies were first cut by their token budget, and a cut reply is never cached (by design), so a strict replay has no answer there; world:806's compute paths were never asked by the harness. Completed with local `tiny` calls: B 31 / 1 / 1 / 5 / 2.
 - **One FOL recording replaced.** The cache holds a later recording of decompose:4.8.3's formalizer request (another reply), which answers 6 against the gold 4: one wrong instead of no answer. Its entity names (the structure role's against GLiNER's) do not change the answer.
 

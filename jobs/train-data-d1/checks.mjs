@@ -1,5 +1,5 @@
 /**
- * Checks of train-data-d1 (pure, synchronous; LLMJobs plugin). A teacher's reply passes when it is the JSON of prompt.md and our
+ * Checks of train-data-d1 (pure, synchronous; a TinyAgent job plugin). A teacher's reply passes when it is the JSON of prompt.md and our
  * deterministic converters accept it: every span verbatim with a known label, relations between span texts, every formula parsed
  * (lib/formalize/fol/parse.mjs) and converted to SOP-IR (lib/formalize/fol/to-ir.mjs) with no rejection, at least one query, and every
  * query compiled to a circuit (lib/formalize/fol/to-sop.mjs). The problems named in a repair are format problems only: the gold answer

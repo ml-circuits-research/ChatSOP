@@ -21,7 +21,7 @@ Each turn adds facts to a small per-turn theory: request kind and status from th
 
 ## 3. Decision and composition
 
-The JS oracle (in process, theory cached per memory version, turn facts added) derives the applicable actions; per slot the highest-priority action wins (ties: least recently used variant); the derivation is the explanation shown in the chat trace ("aside added: drive offer_fact active for 5 turns"). Code composes the reply from the chosen wires and the packet values; the optional answer-formulation step (default LLM via the proxy) phrases it naturally without adding facts.
+The JS oracle (in process, theory cached per memory version, turn facts added) derives the applicable actions; per slot the highest-priority action wins (ties: least recently used variant); the derivation is the explanation shown in the chat trace ("aside added: drive offer_fact active for 5 turns"). Code composes the reply from the chosen wires and the packet values; the optional answer-formulation step (default LLM via TinyAgent) phrases it naturally without adding facts.
 
 ## 4. Review and tests
 

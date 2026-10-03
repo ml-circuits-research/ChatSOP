@@ -14,8 +14,8 @@
  * The manifest is `[{file, title?, source: {rights, url?, licence?, attribution?}}]`. `--chat-data DIR` (or CHATSOP_CHAT_DATA) selects the
  * chat data root. `ingest` compiles the document chunk by chunk and stores every validated chunk in the memory with its provenance (no
  * manual acceptance, owner 2026-10-02); `draft` is accepted as an older name of `ingest`. The author is direct (no omp, owner order 2026-10-02):
- * one chat-completion conversation per chunk through the LLMAPIProvider proxy (`llmProviders.openference`; `--model` is a tier of
- * the proxy, default `ingest.tier` of config/runtime.json, `small`; `--reasoning off` by default, 3 chunks at once).
+ * one chat-completion conversation per chunk through TinyAgent (lib/tinyagent.mjs; `--model` is a TinyAgent tier,
+ * default `ingest.tier` of config/runtime.json, `small`; `--reasoning off` by default, 3 chunks at once).
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -59,12 +59,12 @@ async function main() {
   } else if (command === 'ingest' || command === 'draft' || command === 'label-entities') {
     const author = 'direct';
     const provider = providerSettings(config).openference;
-    // The direct author names a tier of the proxy (`ingest.tier` of the configuration, default `small`), never a concrete model.
+    // The direct author names a TinyAgent tier (`ingest.tier` of the configuration, default `small`), never a concrete model.
     const settings = {author: 'direct', tier: 'small', reasoning: 'off', ...(config.ingest ?? {})};
     const common = {documents: documentsFromArgs(), author, user: opt('--user', process.env.CHATSOP_ACTOR ?? null),
       model: opt('--model', provider?.model ?? null),
       maxFixRounds: Number(opt('--max-fix-rounds', 3)), thinking: opt('--thinking', null), timeoutMs: Number(opt('--timeout-seconds', 900)) * 1000,
-      reasoning: opt('--reasoning', settings.reasoning), ...(provider?.baseUrl ? {chat: openaiChat({endpoint: provider.baseUrl, apiKey: provider.apiKeyEnv ? process.env[provider.apiKeyEnv] : null})} : {})};
+      reasoning: opt('--reasoning', settings.reasoning), chat: openaiChat({purpose: 'ingest'})};
     const record = command === 'label-entities' ? await ingestions.labelEntities(memory, common)
       : await ingestions.draft(memory, {...common, purpose: opt('--purpose', ''), maxChunkBytes: Number(opt('--max-chunk-bytes', 7000)), ...(opt('--concurrency') || settings.concurrency ? {concurrency: Number(opt('--concurrency') ?? settings.concurrency)} : {}),
         onProgress: p => process.stderr.write(`[ingest] ${new Date().toISOString()} ${p.document} chunk ${p.chunk}/${p.of}\n`)});

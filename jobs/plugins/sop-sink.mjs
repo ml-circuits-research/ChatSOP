@@ -1,5 +1,5 @@
 /**
- * LLMJobs sink plugin of ChatSOP: stores the accepted SOP programs of a run into the task's target through the existing store path
+ * Job-runner sink plugin of ChatSOP (TinyAgent jobs): stores the accepted SOP programs of a run into the task's target through the existing store path
  * (no manual approval, owner 2026-10-02; the knowledge validator runs again there):
  *   target {kind: "memory", id}   BaseMemories.addKnowledge (all circuits at once; on a validation failure, one by one)
  *   target {kind: "session", id}  Sessions.addCircuit per accepted item (origin "llm_job")

@@ -14,13 +14,14 @@ const check = (item, work) => {
   } catch (e) { return {ok: false, problems: [e.message]}; }
 };
 
-export async function run({params, attachments, taskDir, endpoint, fetchImpl, config}) {
+export async function run({params, attachments, taskDir, config, ta}) {
   let items = attachments.flatMap(a => fs.readFileSync(a.path, 'utf8').split('\n').filter(l => l.trim()).map(l => JSON.parse(l)));
   if (params.limit) items = items.slice(0, params.limit);
   const kind = loadKind(params.review_kind);
   const tier = config.roles.auditor;
-  const call = ({system, user}) => chat({baseUrl: `${String(endpoint).replace(/\/+$/, '')}/v1`, model: tier, system, user, clientName: 'llm-jobs-bulk-review', maxTokens: kind.defaults?.maxTokens ?? 16000,
-    reasoning: kind.defaults?.reasoning ?? 'low', fetchImpl, noFallback: false});
+  // The task's TinyAgent client (tagged with the task's purpose and run, so its budget applies) carries every call.
+  const call = ({system, user}) => chat({tier, system, user, clientName: 'job-bulk-review', maxTokens: kind.defaults?.maxTokens ?? 16000,
+    reasoning: kind.defaults?.reasoning ?? 'low', ta, noFallback: false});
   const r = await reviewLoop({items, kind, call, check: kind.check?.validator === 'sop-knowledge' ? check : undefined, budgetTokens: kind.defaults?.budgetTokens ?? 20000, repair: params.repair !== false});
   fs.writeFileSync(path.join(taskDir, 'escalations.jsonl'), r.escalations.map(e => JSON.stringify(e)).join('\n') + (r.escalations.length ? '\n' : ''));
   fs.writeFileSync(path.join(taskDir, 'repaired.jsonl'), r.repaired.map(e => JSON.stringify(e)).join('\n') + (r.repaired.length ? '\n' : ''));

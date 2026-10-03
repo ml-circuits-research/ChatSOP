@@ -85,7 +85,7 @@ The questions and gold answers of the four KBQA benchmarks are public evaluation
 
 ## Model weights
 
-Third-party model weights keep their own terms; the repository's software licence does not cover them. A model the runtime calls (a chain model through the local proxy, or a local GGUF behind a llama-server of [DS022](specsLoader.html?spec=DS022-sessions-and-base-memories.md)) is used for inference only, lives outside git (the gitignored `models/`) and is never redistributed by this repository. No model is trained in this project. The rights records of the frozen branch (LLM-authored training messages, new cases, the owner chat messages, the jargon sources, the base weights of the formerly trained models and LanguageTool) are archived in `probably_obsolete/tinyLLMExperiments/specs/removed-sections-2026-10-02.md`.
+Third-party model weights keep their own terms; the repository's software licence does not cover them. A model the runtime calls (a chain model or a local GGUF, both served through TinyAgent; [DS022](specsLoader.html?spec=DS022-sessions-and-base-memories.md)) is used for inference only, lives outside git (the gitignored `models/`) and is never redistributed by this repository. No model is trained in this project. The rights records of the frozen branch (LLM-authored training messages, new cases, the owner chat messages, the jargon sources, the base weights of the formerly trained models and LanguageTool) are archived in `probably_obsolete/tinyLLMExperiments/specs/removed-sections-2026-10-02.md`.
 
 ## Rules enforced here
 

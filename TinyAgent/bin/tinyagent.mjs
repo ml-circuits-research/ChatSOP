@@ -65,6 +65,7 @@ async function main() {
       out(`tiers: ${s.tiers.map((t) => `${t.id}=${t.x_tier.serves ?? 'unavailable'}`).join(', ')}`);
       out(`last hour: ${s.windows.hour.calls} calls, ${s.windows.hour.cost_usd.toFixed(4)} USD, ${s.windows.hour.plan_requests.toFixed(2)} plan credits; cache ${s.cache.hits} hits`);
       for (const [n, p] of Object.entries(s.plan ?? {})) for (const l of p.limits) out(`${n} ${l.name}: ${l.used}/${l.max} ${l.unit}${l.warn ? ' (warn)' : ''}`);
+      for (const [n, u] of Object.entries(s.upstreams ?? {})) if (u.depth || u.active) out(`${n}: active ${u.active}, queued interactive ${u.queued?.interactive ?? 0}, normal ${u.queued?.normal ?? 0}, background ${u.queued?.background ?? 0}${u.held_reason ? ` (held: ${u.held_reason})` : ''}`);
       for (const [n, l] of Object.entries(s.local ?? {})) out(`local ${n}: ${l.managed ? `running pid ${l.pid}` : 'not managed'}${l.last_refusal ? ` (last refusal: ${l.last_refusal.reason})` : ''}`);
       return;
     }

@@ -32,8 +32,8 @@ export const DEFAULT_QUERY_PARSER = Object.freeze({
 /**
  * The settings of the request parser: the defaults and `config.queryParser`. `strategy` names the formalization strategy
  * (LocalLLMStepByStep | InternalReasoningStepByStep; an archived one-shot name reads as the default, with `strategyNote`; environment
- * CHATSOP_FORMALIZER overrides it); `local` configures who answers the questions: the proxy tier ladder (`ladder`, default `[tier]`), or
- * an explicit endpoint or GGUF (evaluation harnesses). `models` lists the tiers of the ladder (status pages).
+ * CHATSOP_FORMALIZER overrides it); `local` configures who answers the questions: the TinyAgent tier ladder (`ladder`, default
+ * `[tier]`). `models` lists the tiers of the ladder (status pages).
  */
 export function queryParserSettings(config = {}, env = process.env) {
   const merged = {...DEFAULT_QUERY_PARSER, ...(config.queryParser ?? {})};
@@ -42,7 +42,7 @@ export function queryParserSettings(config = {}, env = process.env) {
   if (note) merged.strategyNote = note;
   merged.local = {...DEFAULT_LOCAL, ...(config.queryParser?.local ?? {})};
   merged.providers = providerSettings(config);
-  merged.models = usesTier(merged.local) ? ladderOf(merged.local).map(r => r.tier) : [merged.local.alias];
+  merged.models = ladderOf(merged.local).map(r => r.tier);
   return merged;
 }
 
@@ -63,10 +63,9 @@ export function createQueryParser({settings = queryParserSettings(), chatData = 
   const cache = new Lru(settings.cacheEntries);
   const defaultStrategy = settings.strategy ?? DEFAULT_STRATEGY;
   const locals = new Map();
-  // The proxy's default path (the openference provider entry): the step-by-step strategies ask their tiers there.
-  const proxyEndpoint = () => settings.providers?.openference?.baseUrl ?? 'http://127.0.0.1:18080/v1';
+  // The step-by-step strategies ask their tiers through the TinyAgent server (lib/tinyagent.mjs); `fetchImpl` is its transport in tests.
   const localFor = name => {
-    if (!locals.has(name)) locals.set(name, localFactory(name, settings.local, {timeoutMs: settings.timeoutSeconds * 1000, proxyEndpoint: proxyEndpoint(), ...(fetchImpl ? {fetchImpl} : {})}));
+    if (!locals.has(name)) locals.set(name, localFactory(name, settings.local, {timeoutMs: settings.timeoutSeconds * 1000, ...(fetchImpl ? {fetchImpl} : {})}));
     return locals.get(name);
   };
   let running = 0;
@@ -138,17 +137,15 @@ export function createQueryParser({settings = queryParserSettings(), chatData = 
   }
 
   /**
-   * The formalization strategies of this parser with their availability (server/status.mjs): on proxy tiers, available when the first
-   * tier of the ladder answers; with a managed model, when its model file and llama-server exist (or its external endpoint answers).
+   * The formalization strategies of this parser with their availability (server/status.mjs): available when TinyAgent serves the
+   * first tier of the ladder.
    */
   async function strategies() {
-    const localState = await localReadiness(settings.local, fetchImpl, proxyEndpoint());
-    return FORMALIZATION_STRATEGY_LABELS.map(s => usesTier(settings.local)
-      ? {...s, ...localState, backend: 'completion', model: settings.models[0], ladder: settings.models, endpoint: proxyEndpoint()}
-      : {...s, ...localState, backend: 'llama-server', model: settings.local.alias, ...(settings.local.endpoint ? {endpoint: settings.local.endpoint} : {gguf: settings.local.gguf})});
+    const localState = await localReadiness(settings.local, fetchImpl);
+    return FORMALIZATION_STRATEGY_LABELS.map(s => ({...s, ...localState, backend: 'completion', model: settings.models[0], ladder: settings.models, endpoint: 'tinyagent'}));
   }
 
-  /** Stops the managed local model server this parser started (chat server shutdown). */
-  const stop = async () => { for (const l of locals.values()) await l.server.stop(); };
+  /** Nothing to stop: TinyAgent manages the model servers (kept for the chat server's shutdown sequence). */
+  const stop = async () => {};
   return {parse, availability, strategies, defaultStrategy, stop, stats: () => ({...stats, cache_size: cache.size, running}), settings, clearCache: () => cache.map.clear()};
 }

@@ -1,22 +1,21 @@
 // The request parser of a turn (server/query-parser.mjs, DS009 "Request parser"): the step-by-step formalizer (owner decision
-// 2026-10-02: no one-shot circuit authoring) asks its questions to the proxy tier ladder; the honest failures (`parse_unavailable`,
+// 2026-10-02: no one-shot circuit authoring) asks its questions to the TinyAgent tier ladder; the honest failures (`parse_unavailable`,
 // `parse_failed`, never a local fallback), the cache, archived strategy names, and the chat/API surface, against stub strategies and a
-// stub OpenAI-compatible proxy. No test calls a model.
+// fake TinyAgent transport. No test calls a model.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import http from 'node:http';
 import path from 'node:path';
 import {createQueryParser, queryParserSettings} from '../server/query-parser.mjs';
 import {FAMILY, productServer, stubQueryParser} from './product-helpers.mjs';
-import {lex, tempDir, listen} from './helpers.mjs';
+import {lex, tempDir} from './helpers.mjs';
 
 const Q = (object = 'Lab Alpha', relation = 'works_at') => `@q query\n  where match\n    relation "${relation}"\n    role subject "Ana"\n    role object "${object}"\n    polarity affirmed\n  end\n`;
 
 /** A stub step-by-step strategy factory: `outcome(args, calls)` gives the run's result; availability from `available`. */
 function stubStrategies(outcome, {available = true, calls = []} = {}) {
   const factory = (name, local) => ({name, settings: local, tag: `stub:${name}`, server: {stop: async () => {}},
-    availability: async firstTier => available ? {available: true, models: [firstTier ?? local.tier], skipped: []} : {available: false, reason: `the proxy tier ${firstTier ?? local.tier} is not available: the proxy is down`, models: [], skipped: [{model: local.tier, reason: 'the proxy is down'}]},
+    availability: async firstTier => available ? {available: true, models: [firstTier ?? local.tier], skipped: []} : {available: false, reason: `the TinyAgent tier ${firstTier ?? local.tier} is not available: the server is down`, models: [], skipped: [{model: local.tier, reason: 'the server is down'}]},
     run: async args => { calls.push({name, message: args.message, firstTier: args.firstTier}); return {steps: [{name: 'kind', answer: '1', tier: 'tiny'}], model: args.firstTier ?? local.tier, ladder: [args.firstTier ?? local.tier], ...await outcome(args, calls)}; }});
   return {factory, calls};
 }
@@ -62,7 +61,7 @@ test('a session that asks for an archived one-shot strategy runs the default ste
 
 test('failures are honest: parse_unavailable when the first tier cannot run or no tier answers, parse_failed for an invalid circuit', async () => {
   const none = parserWith(validated(Q()), {}, {available: false}).parser;
-  await assert.rejects(none.parse({message: 'm', lexicon: lex}), error => error.code === 'parse_unavailable' && error.status === 503 && /tier tiny is not available.*the proxy is down/.test(error.message) && error.parse.parser === 'local_llm_step_by_step');
+  await assert.rejects(none.parse({message: 'm', lexicon: lex}), error => error.code === 'parse_unavailable' && error.status === 503 && /tier tiny is not available.*the server is down/.test(error.message) && error.parse.parser === 'local_llm_step_by_step');
   const down = parserWith(async () => ({ok: false, status: 'failed', sop: '', reason: 'the local model could not be reached'})).parser;
   await assert.rejects(down.parse({message: 'm', lexicon: lex}), error => error.code === 'parse_unavailable' && /could not be reached/.test(error.message) && Boolean(error.parse.failed));
   const invalid = parserWith(async () => ({ok: false, status: 'invalid', sop: '@q query\n  where bogus\n', validation: {ok: false, problems: [{code: 'bad_where', message: 'x'}]}})).parser;
@@ -93,27 +92,24 @@ test('identical requests are cached per memory version', async () => {
   assert.equal(parser.stats().cache_hits, 1);
 });
 
-/** A stub of the proxy LLMAPIProvider: `/health` lists the tiers, `/v1/chat/completions` answers `reply(body)`. */
-async function stubProxy(t, reply, calls = []) {
-  const server = http.createServer((req, res) => {
-    let body = '';
-    req.on('data', c => { body += c; });
-    req.on('end', () => {
-      if (req.url === '/health') { res.writeHead(200, {'content-type': 'application/json'}); return res.end(JSON.stringify({ok: true, tiers: ['tiny', 'small', 'good']})); }
-      const parsed = JSON.parse(body || '{}');
-      calls.push({url: req.url, headers: req.headers, body: parsed});
-      res.writeHead(200, {'content-type': 'application/json'});
-      res.end(JSON.stringify({choices: [{message: {content: reply(parsed)}}], usage: {prompt_tokens: 100, completion_tokens: 2}}));
-    });
-  });
-  const base = await listen(t, server);
-  return {base: `${base}/v1`, calls};
+/** A fake TinyAgent transport: `/health` lists the tiers, `/v1/chat/completions` answers `reply(body)`; every chat request is recorded. */
+function fakeTinyAgent(reply, calls = []) {
+  const json = body => ({ok: true, status: 200, text: async () => JSON.stringify(body), json: async () => body});
+  const fetchImpl = async (url, init = {}) => {
+    if (String(url).endsWith('/health')) return json({ok: true, tiers: ['tiny', 'small', 'good']});
+    const body = JSON.parse(init.body || '{}');
+    calls.push({url, headers: init.headers ?? {}, body});
+    return json({choices: [{message: {content: reply(body)}, finish_reason: 'stop'}], usage: {prompt_tokens: 100, completion_tokens: 2}});
+  };
+  return {fetchImpl, calls};
 }
+/** The product server with the real request parser over `fetchImpl` (no answer-language step: the server has an injected parser). */
+const parserServer = (t, config, fetchImpl) => productServer(t, {config, serverOptions: {queryParser: createQueryParser({settings: queryParserSettings(config), fetchImpl})}});
 
-test('chat: the step-by-step formalizer asks the proxy tiers, tagged; an unreadable answer of tiny escalates to small; the packet records it', async t => {
+test('chat: the step-by-step formalizer asks the TinyAgent tiers, tagged; an unreadable answer of tiny escalates to small; the packet records it', async t => {
   // tiny never answers in a readable form; small answers every question with "0" (nothing in the request matches).
-  const proxy = await stubProxy(t, body => body.model === 'tiny' ? 'Well, it depends on many things.' : '0');
-  const s = await productServer(t, {config: {llmProviders: {openference: {baseUrl: proxy.base, model: 'stub-model'}}, queryParser: {timeoutSeconds: 30, local: {tier: 'tiny', ladder: ['tiny', 'small'], method: 'B'}}}, serverOptions: {queryParser: null}});
+  const ta = fakeTinyAgent(body => body.model === 'tiny' ? 'Well, it depends on many things.' : '0');
+  const s = await parserServer(t, {queryParser: {timeoutSeconds: 30, local: {tier: 'tiny', ladder: ['tiny', 'small'], method: 'B'}}}, ta.fetchImpl);
   await s.admin('/v1/memories', 'POST', {name: 'Family', id: 'family', circuits: [{name: 'family', text: FAMILY}]});
   const id = (await s.user('/v1/sessions', 'POST', {base: 'family'})).body.id;
   const chat = (content = 'Does Ana like Alpha Lab?') => s.user('/v1/chat/completions', 'POST', {model: 'chatsop-local', session_id: id, messages: [{role: 'user', content}]});
@@ -122,20 +118,20 @@ test('chat: the step-by-step formalizer asks the proxy tiers, tagged; an unreada
   assert.ok(c.parse, JSON.stringify(first.body).slice(0, 400));
   assert.equal(c.parse.parser, 'local_llm_step_by_step');
   assert.deepEqual(c.parse.ladder, ['tiny', 'small']);
-  assert.ok(proxy.calls.length > 0 && proxy.calls.every(x => x.headers['x-llmapiprovider-purpose'] === 'formalize'), 'every formalization call is tagged for the proxy log');
-  assert.ok(proxy.calls.some(x => x.body.model === 'tiny') && proxy.calls.some(x => x.body.model === 'small'), 'the unreadable tiny answers escalated to small');
+  assert.ok(ta.calls.length > 0 && ta.calls.every(x => x.headers['x-tinyagent-purpose'] === 'formalize' && x.url.endsWith('/v1/chat/completions')), 'every formalization call names a tier and is tagged for the TinyAgent log');
+  assert.ok(ta.calls.some(x => x.body.model === 'tiny') && ta.calls.some(x => x.body.model === 'small'), 'the unreadable tiny answers escalated to small');
   assert.ok(c.parse.tiers.escalated.length >= 1, JSON.stringify(c.parse.tiers));
   assert.ok(c.parse.dialog.some(d => d.tier === 'small' && !d.escalated));
-  assert.equal(proxy.calls[0].body.messages[0].role, 'system', 'the stable protocol prefix is the first (cached) message');
+  assert.equal(ta.calls[0].body.messages[0].role, 'system', 'the stable protocol prefix is the first (cached) message');
   assert.equal((await s.user(`/v1/sessions/${id}/settings`, 'POST', {parser: 'local'})).status, 400);
   const set = await s.user(`/v1/sessions/${id}/settings`, 'POST', {formalizer_model: 'small', formalizer: 'CodingAgent'});
   assert.equal(set.status, 200, JSON.stringify(set.body));
   assert.equal(set.body.settings.formalizer, 'LLMDirect', 'an old strategy name is stored as the archived one-shot name');
-  const before = proxy.calls.length;
+  const before = ta.calls.length;
   const second = await chat('Does Bob like Alpha Lab?');
   assert.equal(second.body.chatSop.parse.strategy, 'LocalLLMStepByStep', 'the archived strategy runs the default step by step');
   assert.match(second.body.chatSop.parse.strategy_note, /archived/);
-  assert.ok(proxy.calls.slice(before).every(x => x.body.model === 'small'), 'the session\'s first tier small starts the ladder');
+  assert.ok(ta.calls.slice(before).every(x => x.body.model === 'small'), 'the session\'s first tier small starts the ladder');
   const status = await s.user('/v1/status');
   assert.deepEqual(status.body.formalization.strategies.map(x => x.id), ['LocalLLMStepByStep', 'InternalReasoningStepByStep']);
   assert.deepEqual(status.body.formalization.strategies[0].ladder, ['tiny', 'small']);
@@ -144,14 +140,14 @@ test('chat: the step-by-step formalizer asks the proxy tiers, tagged; an unreada
   assert.deepEqual(models.body.data[0].chatsop.formalizer.models, ['tiny', 'small'], 'the tier ladder is listed');
 });
 
-test('chat: an unreachable proxy is parse_unavailable (503) with the record, never a local answer', async t => {
-  const s = await productServer(t, {config: {llmProviders: {openference: {baseUrl: 'http://127.0.0.1:9/v1'}}}, serverOptions: {queryParser: null}});
+test('chat: an unreachable TinyAgent server is parse_unavailable (503) with the record, never a local answer', async t => {
+  const s = await parserServer(t, {}, async () => { throw new Error('ECONNREFUSED'); });
   const id = (await s.user('/v1/sessions', 'POST', {base: 'default'})).body.id;
   const r = await s.user('/v1/chat/completions', 'POST', {model: 'chatsop-local', session_id: id, messages: [{role: 'user', content: 'Does Ana like Alpha Lab?'}]});
   assert.equal(r.status, 503, JSON.stringify(r.body));
   assert.equal(r.body.error.code, 'parse_unavailable');
   assert.equal(r.body.chatSop.status, 'parse_unavailable');
-  assert.match(r.body.chatSop.reason, /not available/);
+  assert.match(r.body.chatSop.reason, /not available.*TinyAgent server not reachable/);
   assert.equal((await s.user('/readyz')).status, 503);
   const stub = await productServer(t, {serverOptions: {queryParser: stubQueryParser({available: false})}});
   const down = await stub.user('/v1/chat/completions', 'POST', {model: 'chatsop-local', messages: [{role: 'user', content: 'Does Ana like Alpha Lab?'}]});

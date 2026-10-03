@@ -61,7 +61,7 @@ name of another tier (an alias); the first entry whose provider has a key (or ne
 | nano | local Qwen3-0.6B (Q8_0), on demand, idle stop 15 min, 32 slots |
 | micro (`supertiny` is an alias) | local Qwen3-4B-Instruct-2507, on demand, idle stop 15 min, 32 slots; then tiny |
 | tiny | local Qwen3.6-35B-A3B (MoE, about 3B active), always on, 8 slots; then openference, then OpenRouter |
-| small, medium, good | openference (Qwen3.8 27b; DeepSeek-V4-Flash; GLM-5.3), then OpenRouter, then the local tiny |
+| small, medium, good | openference (Qwen3.8 27b; DeepSeek-V4-Flash-0731; DeepSeek-V4-Flash-0731), then OpenRouter, then the local tiny |
 | best | the local tiny until a stronger model is configured |
 
 With no key configured only the local models serve, and tiny serves small, medium, good and best. A response names what served it

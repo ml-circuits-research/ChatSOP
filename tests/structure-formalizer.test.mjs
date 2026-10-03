@@ -1,7 +1,7 @@
 // The deterministic half of the PSM/LFM architecture (experiments/proposal/structure-and-formalizer-models.md): the FOL reader,
 // FOL → SOP-IR clausification with its rejections, SOP-IR → SOP Lang circuits executed on the product's engines (perturbation through
-// the registry included), the PSM extraction → inventory converter, and the client of the two JSON tiers (a fake fetch). The service
-// itself is tested in LLMAPIProvider/local-services/small-models/server.test.mjs.
+// the registry included), the PSM extraction → inventory converter, and the client of the two JSON tiers (a fake TinyAgent transport). The
+// prompted roles behind those tiers are TinyAgent's (TinyAgent/lib/prompted.mjs, tested with TinyAgent).
 // No model is called: FOL strings and PSM extractions here are invented.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -205,7 +205,7 @@ test('the client of the structure and formalizer tiers tags its calls and report
   const r = await formalizeFol({inputs: ['x']}, {purpose: 'test:fol', run: 'r1', fetchImpl});
   assert.equal(r.ok, true);
   assert.equal(seen[0].body.model, 'formalizer'); assert.match(seen[0].url, /\/v1\/fol$/);
-  assert.equal(seen[0].headers['x-llmapiprovider-purpose'], 'test:fol'); assert.equal(seen[0].headers['x-llmapiprovider-run'], 'r1');
+  assert.equal(seen[0].headers['x-tinyagent-purpose'], 'test:fol'); assert.equal(seen[0].headers['x-tinyagent-run'], 'r1');
   const e = await extractStructure({text: 'x', entities: ['quantity']}, {fetchImpl: async () => new Response('{"error":{"message":"down"}}', {status: 503})});
   assert.equal(e.ok, false); assert.match(e.reason, /503 down/);
 });

@@ -1,6 +1,6 @@
 /**
  * The authoring path over HTTP (DS022): `POST /v1/author`, plus the status of a request. No path runs omp (owner 2026-10-02): every
- * model is called directly through the proxy LLMAPIProvider.
+ * model is called directly through the TinyAgent server.
  *
  *   POST /v1/author                              {session?, files?: [{name, text}], instructions?, model?, wait?}
  *   GET  /v1/sessions/{id}/requests/{request}    the status, and when finished the result, of an authoring request
@@ -10,7 +10,7 @@
  *   POST /v1/memories/{id}/procedures            {id, description, definitions}: a procedure bundle for the procedure library
  *
  * A request creates `chat_data/sessions/<id>/requests/<request>/` (or a folder under `chat_data/tmp/` without a session), calls a model
- * of the formalizer chain directly (lib/ingest/direct-author.mjs: one chat-completion conversation through the proxy LLMAPIProvider; no
+ * of the formalizer chain directly (lib/ingest/direct-author.mjs: one chat-completion conversation through the TinyAgent server; no
  * omp, owner 2026-10-02), validates the circuits, repairs them for a bounded number of rounds and, with a session, adds the validated
  * circuits to that session's layer (no manual acceptance, owner 2026-10-02). `wait: false` answers 202 at once; the page then polls
  * the status route. The model is the request's `model`, else the session's `formalizer_model`, else the first model of the chain.
@@ -76,7 +76,7 @@ export function createAuthoring({sessions, runtimes = null, chatData, settings =
     const promise = (async () => {
       try {
         const result = await directAuthor({folder: request.dir, files, instructions, model: chosen.entry.model, existing, maxFixRounds: settings.maxFixRounds,
-          chat: chat ?? openaiChat({endpoint: chosen.entry.endpoint}), onProgress: p => setStatus(entry, {phase: p.phase, round: p.round})});
+          chat: chat ?? openaiChat({upstream: chosen.entry.upstream, purpose: 'ingest'}), onProgress: p => setStatus(entry, {phase: p.phase, round: p.round})});
         let added = null, notAdded = null;
         if (sessionId && result.ok && result.circuits.length) {
           try { added = sessions.addCircuit(sessionId, {name: `authored-${request.id}`, text: result.circuits[0].text, request: request.id, model: chosen.model, origin: 'authoring'}); }
@@ -107,7 +107,7 @@ export function createAuthoring({sessions, runtimes = null, chatData, settings =
       const extra = Object.keys(body).filter(k => !['documents', 'model', 'purpose', 'wait', 'author'].includes(k));
       if (extra.length) throw bad(`Unsupported parameter ${JSON.stringify(extra[0])}; accepted: documents, model, purpose, wait, author`, 'unsupported_parameter');
       const author = body.author ?? 'direct';
-      if (author !== 'direct') throw bad('author must be direct (chat completions through the LLMAPIProvider proxy); the omp author was retired', 'invalid_parameter');
+      if (author !== 'direct') throw bad('author must be direct (chat completions through the TinyAgent server); the omp author was retired', 'invalid_parameter');
       memories.manifest(match[1]);
       checkDocuments(body.documents);
       // The direct author (owner 2026-10-02) calls the proxy model chunk by chunk.

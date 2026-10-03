@@ -31,8 +31,8 @@ const WORKS_IN = `@works_in predicate
 const reply = (knowledge, queries = '', report = 'Nothing left out.') => `=== BEGIN knowledge.sop ===\n${knowledge}\n=== END knowledge.sop ===\n=== BEGIN queries.sop ===\n${queries}\n=== END queries.sop ===\n=== BEGIN report.md ===\n${report}\n=== END report.md ===\n`;
 
 /** A fake completion client: `answer(messages)` returns the reply text; every call is recorded. */
-const fakeChat = (answer, calls = []) => async ({messages, model, extraBody, headers}) => {
-  calls.push({messages: messages.map(m => ({...m})), model, extraBody, headers});
+const fakeChat = (answer, calls = []) => async ({messages, model, extraBody, tags}) => {
+  calls.push({messages: messages.map(m => ({...m})), model, extraBody, tags});
   await new Promise(r => setTimeout(r, 5));
   return {ok: true, text: answer(messages, calls.length), usage: {input_tokens: 100, output_tokens: 50}, finish_reason: 'stop', ms: 5};
 };
@@ -43,7 +43,7 @@ test('direct author: a repair patch replaces wires by id, appends new ones and r
   assert.equal(applyPatch(text, '', []), text);
 });
 
-test('direct author: parsing the reply blocks, the reasoning setting and the proxy model name', () => {
+test('direct author: parsing the reply blocks, the reasoning setting and the model name', () => {
   const files = parseFiles('<think>plan</think>\n' + reply('```sop\n@a fact\n  holds p x\n```', '', 'ok'));
   assert.equal(files['knowledge.sop'], '@a fact\n  holds p x\n', 'a code fence inside a block is not part of the file');
   assert.equal(files['queries.sop'], '');
@@ -52,8 +52,9 @@ test('direct author: parsing the reply blocks, the reasoning setting and the pro
   assert.deepEqual(reasoningBody('off'), {chat_template_kwargs: {enable_thinking: false}});
   assert.deepEqual(reasoningBody('low'), {reasoning_effort: 'low'});
   assert.throws(() => reasoningBody('huge'), /reasoning/);
-  assert.equal(directModel('llmapiprovider/Qwen3.8 27b'), 'Qwen3.8 27b');
-  assert.equal(directModel(null), 'small', 'the default is the proxy tier small');
+  assert.equal(directModel('openference/Qwen3.8 27b'), 'Qwen3.8 27b', 'a chain id of the default provider loses its prefix');
+  assert.equal(directModel('good'), 'good');
+  assert.equal(directModel(null), 'small', 'the default is the TinyAgent tier small');
 });
 
 test('direct author: the validator and the caller check run in repair rounds of the same conversation', async t => {
@@ -68,7 +69,7 @@ test('direct author: the validator and the caller check run in repair rounds of 
   assert.equal(result.rounds, 2);
   assert.equal(calls.length, 2);
   assert.deepEqual(calls[0].extraBody, {reasoning_effort: 'low'});
-  assert.equal(calls[0].headers['x-llmapiprovider-purpose'], 'job:ingest-document', 'the calls are tagged for the proxy');
+  assert.equal(calls[0].tags.purpose, 'job:ingest-document', 'the calls are tagged for the TinyAgent log');
   assert.match(calls[0].messages[0].content, /Skill file SKILL\.md/, 'the system message carries the authoring skill');
   assert.match(calls[0].messages[1].content, /input\/existing-vocabulary\.sop[\s\S]*@lives_in predicate/, 'the vocabulary of the memory is attached');
   assert.match(calls[0].messages[1].content, /input\/passage\.md[\s\S]*Ann works in the Workshop\./);
@@ -110,7 +111,7 @@ test('ingest with the direct author (default): chunks in parallel, merged in ord
   const labels = record.chunks.find(c => c.key.endsWith('-entities'));
   assert.equal(labels.status, 'stored');
   assert.equal(calls.length, 3, 'one call per chunk and one for the entity stage');
-  assert.ok(calls.every(c => c.model === 'small' && c.headers['x-llmapiprovider-run'] === record.id), 'a tier, never a concrete model; the run is the ingestion');
+  assert.ok(calls.every(c => c.model === 'small' && c.tags.run === record.id), 'a tier, never a concrete model; the run is the ingestion');
   assert.equal(bm.lexicon(memory.id).entities.bob.labels.en, 'Bob');
   assert.equal(bm.manifest(memory.id).circuits, 3);
   assert.match(fs.readFileSync(path.join(ingestions.dir(memory.id, record.id), 'report.md'), 'utf8'), /author direct, model small, reasoning off/);
@@ -139,26 +140,29 @@ test('ingest with the direct author: a clash between parallel chunks is repaired
   assert.equal(redeclaredPredicates(clash, [{name: 'a', text: WORKS_IN}]).length, 0, 'a different signature is not dropped silently');
 });
 
-test('direct author: the chat client (plain or streamed) collects text, finish reason and usage', async () => {
-  const sse = ['data: {"choices":[{"delta":{"content":"=== BEGIN "}}]}', 'data: {"choices":[{"delta":{"content":"knowledge.sop ==="},"finish_reason":"stop"}]}',
-    'data: {"choices":[],"usage":{"prompt_tokens":12,"completion_tokens":4}}', 'data: [DONE]', ''].join('\n\n');
-  let sent = null;
-  const fetchImpl = async (url, init) => { sent = {url, body: JSON.parse(init.body)}; return new Response(sse, {status: 200, headers: {'content-type': 'text/event-stream'}}); };
+test('direct author: the chat client asks a TinyAgent tier (not streamed), tagged, and collects text, finish reason and usage', async () => {
+  const sent = [];
+  const answering = (body, status = 200) => async (url, init) => { sent.push({url, headers: init.headers, body: JSON.parse(init.body)}); return new Response(body, {status}); };
   const {openaiChat} = await import('../lib/ingest/direct-author.mjs');
-  const out = await openaiChat({endpoint: 'http://127.0.0.1:1/v1', fetchImpl, stream: true})({messages: [{role: 'user', content: 'x'}], model: 'm', extraBody: {reasoning_effort: 'low'}});
-  assert.equal(sent.url, 'http://127.0.0.1:1/v1/chat/completions');
-  assert.equal(sent.body.stream, true);
-  assert.equal(sent.body.reasoning_effort, 'low');
-  assert.deepEqual([out.ok, out.text, out.finish_reason, out.usage.input_tokens, out.usage.output_tokens], [true, '=== BEGIN knowledge.sop ===', 'stop', 12, 4]);
-  const early = await openaiChat({fetchImpl: async () => new Response('data: {"choices":[{"delta":{"content":"=== BEGIN"}}]}\n\n', {status: 200}), stream: true})({messages: [], model: 'm'});
-  assert.equal(early.finish_reason, 'interrupted', 'a stream that ends without a finish reason ended early');
-  const plain = await openaiChat({fetchImpl: async () => new Response('{"choices":[{"message":{"content":"hi"},"finish_reason":"length"}],"usage":{"prompt_tokens":3,"completion_tokens":1}}', {status: 200})})({messages: [], model: 'm'});
-  assert.deepEqual([plain.ok, plain.text, plain.finish_reason, plain.usage.input_tokens], [true, 'hi', 'length', 3]);
-  const cut = await openaiChat({fetchImpl: async () => new Response('{"choices":[{"message":{"content":"1 2 3"},"finish_reason":"stop"}]}', {status: 200})})({messages: [], model: 'm'});
+  const plain = await openaiChat({fetchImpl: answering('{"choices":[{"message":{"content":"<think>p</think>hi"},"finish_reason":"length"}],"usage":{"prompt_tokens":3,"completion_tokens":1,"cost":0.002}}')})(
+    {messages: [{role: 'user', content: 'x'}], model: 'small', extraBody: {reasoning_effort: 'low'}, tags: {purpose: 'job:ingest-document', run: 'r1'}});
+  assert.equal(new URL(sent[0].url).pathname, '/v1/chat/completions');
+  assert.deepEqual([sent[0].body.model, sent[0].body.stream, sent[0].body.reasoning_effort, sent[0].body.max_tokens], ['small', false, 'low', 5000]);
+  assert.equal(sent[0].headers['x-tinyagent-purpose'], 'job:ingest-document');
+  assert.equal(sent[0].headers['x-tinyagent-run'], 'r1');
+  assert.deepEqual([plain.ok, plain.text, plain.finish_reason, plain.usage.input_tokens, plain.usage.output_tokens, plain.usage.cost_usd], [true, '<think>p</think>hi', 'length', 3, 1, 0.002], 'the raw text: parseFiles strips the thinking');
+  await openaiChat({upstream: 'openrouter', purpose: 'ingest', fetchImpl: answering('{"choices":[{"message":{"content":"ok"},"finish_reason":"stop"}],"usage":{"completion_tokens":1}}')})({messages: [], model: 'deepseek/deepseek-v4-flash'});
+  assert.equal(new URL(sent[1].url).pathname, '/u/openrouter/v1/chat/completions', 'a concrete model goes to its provider route');
+  assert.equal(sent[1].body.model, 'deepseek/deepseek-v4-flash');
+  assert.equal(sent[1].headers['x-tinyagent-purpose'], 'ingest');
+  const cut = await openaiChat({fetchImpl: answering('{"choices":[{"message":{"content":"1 2 3"},"finish_reason":"stop"}]}')})({messages: [], model: 'small'});
   assert.equal(cut.finish_reason, 'interrupted', 'a "stop" without usage ended early upstream');
-  const refused = await openaiChat({fetchImpl: async () => new Response('{"error":"busy"}', {status: 429})})({messages: [], model: 'm'});
+  const refused = await openaiChat({fetchImpl: answering('{"error":"busy"}', 429)})({messages: [], model: 'small'});
   assert.equal(refused.ok, false);
   assert.match(refused.reason, /429/);
+  const down = await openaiChat({fetchImpl: async () => { throw new Error('ECONNREFUSED'); }})({messages: [], model: 'small'});
+  assert.equal(down.ok, false);
+  assert.match(down.reason, /could not be reached/);
 });
 
 test('direct author: an answer cut mid-way keeps its complete wires and continues as a patch', async t => {

@@ -157,7 +157,7 @@ test('soundness: a "does not follow" is withheld when a statement it rests on wa
 
 test('fol-v3 keeps every rule of fol-v2 and adds the argument forms', () => {
   // The role prompts live with the proxy (LLMAPIProvider/prompts, or TinyAgent/prompts after its move).
-  const file = name => [`../TinyAgent/prompts/${name}.md`, `../LLMAPIProvider/prompts/${name}.md`].map(f => new URL(f, import.meta.url)).find(u => fs.existsSync(u));
+  const file = name => [`../TinyAgent/prompts/${name}.md`, `../config/prompts/${name}.md`].map(f => new URL(f, import.meta.url)).find(u => fs.existsSync(u));
   const read = name => parseTemplate(fs.readFileSync(file(name), 'utf8'));
   const v2 = read('fol-v2'), v3 = read('fol-v3');
   assert.deepEqual(v3.options, v2.options);

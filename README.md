@@ -4,13 +4,13 @@
 
 The chat pipeline (details and one worked example in [docs/runtime.html](docs/runtime.html#pipeline)):
 
-1. **Request parser** (`server/query-parser.mjs`, `lib/query-author`): the session's formalization strategy turns the message into circuits, step by step (owner decision 2026-10-02). **LocalLLMStepByStep** (the default) and **InternalReasoningStepByStep** ask short questions about the message and assemble the circuit themselves; the questions are answered through the local proxy `LLMAPIProvider` by the tier ladder `queryParser.local.ladder` of `config/runtime.json` (shipped `tiny`, then `small`, then `good`; a question escalates only when the answer of the tier below cannot be read or the tier does not answer). Larger tiers answer the same questions; no model writes a whole circuit (the one-shot LLMDirect is archived in `probably_obsolete/one-shot-formalization/`), and there is no omp on any path. The questions draw on the **schema neighbourhood** of the session's memory (relations around the named entities, with their roles and examples); the circuit holds only queries, constraints, `unclear`/`unparsed` markers, labelled session definitions and `assumed` lines. It never answers and never states a fact.
+1. **Request parser** (`server/query-parser.mjs`, `lib/query-author`): the session's formalization strategy turns the message into circuits, step by step (owner decision 2026-10-02). **LocalLLMStepByStep** (the default) and **InternalReasoningStepByStep** ask short questions about the message and assemble the circuit themselves; the questions are answered through TinyAgent (the project's one model gateway) by the tier ladder `queryParser.local.ladder` of `config/runtime.json` (shipped `tiny`, then `small`, then `good`; a question escalates only when the answer of the tier below cannot be read or the tier does not answer). Larger tiers answer the same questions; no model writes a whole circuit (the one-shot LLMDirect is archived in `probably_obsolete/one-shot-formalization/`), and there is no omp on any path. The questions draw on the **schema neighbourhood** of the session's memory (relations around the named entities, with their roles and examples); the circuit holds only queries, constraints, `unclear`/`unparsed` markers, labelled session definitions and `assumed` lines. It never answers and never states a fact.
 2. **Admission and repair**: the validator (`lib/query-author/validate.mjs`, `admit.mjs`, `condition-use.mjs`) checks the circuit against the memory's declarations and sends problems (for example `condition_misuse`, `time_not_a_point`, `time_range_needs_quantifier`, `unknown_predicate`) back for bounded repair rounds; a missing term opens a bounded **vocabulary dialog** (at most two expansions). Session definitions that pass the validator join the session layer at once; there is no manual accept or reject.
 3. **KnowledgeLinker**: relation phrases and entity names are linked to the base memory.
 4. **Slice retrieval with the completeness guard** (`reasoning/slice/`): only the facts the question can use are fetched; an answer that needs a complete slice is never given from a partial one.
 5. **StrategyRouter** (`reasoning/router/`): the `js-reference` oracle or an engine (`sql-sqlite`, `datalog-souffle`, `asp-clingo`) answers; a routed answer is verified against the oracle (`route.verification`); a requested backend is never substituted.
 6. **Rendering** (`sop/answer-text.mjs`): a deterministic English answer that names the origin of every step (memory, definition, assumption); it is always kept in the trace (`chatSop.english_text`).
-7. **Answer formulation** (`server/answer-language.mjs`): when the message does not look English (`answerLanguage.mode` `auto`; also `always` or `off`), a model of `answerLanguage.providers` (the proxy tier `small`, `Qwen3.8 27b` through the proxy) rephrases the English answer in the message's language, strictly from the English answer and a compact result packet. Every number and Wikidata id of the English answer must survive, otherwise the next model is tried, and then the English answer is returned. "Unde s-a născut Ada Lovelace?" is answered in Romanian from `world-v1`.
+7. **Answer formulation** (`server/answer-language.mjs`): when the message does not look English (`answerLanguage.mode` `auto`; also `always` or `off`), a model of `answerLanguage.providers` (the TinyAgent tier `small`, `Qwen3.8 27b`) rephrases the English answer in the message's language, strictly from the English answer and a compact result packet. Every number and Wikidata id of the English answer must survive, otherwise the next model is tried, and then the English answer is returned. "Unde s-a născut Ada Lovelace?" is answered in Romanian from `world-v1`.
 
 There is no fallback parser and no silent substitution of a strategy: when no model can run the answer is `parse_unavailable` (503); when the models ran and no valid circuit came back it is `parse_failed` (422). The validation procedure is the benchmark in `experiments/proposal/symbolic-vs-llm-benchmark.md`.
 
@@ -20,7 +20,7 @@ SOP (properly *SOP Lang*) comes from *Standard Operating Procedure*: the languag
 
 ## Prerequisites
 
-Use Node.js 22.13 or newer, including the built-in `node:sqlite` module. The symbolic CLI uses Node built-ins and the root `package.json` has no third-party npm dependencies. SWI-Prolog and Z3 are optional reasoning backends and are not needed for the reference route (the `js-reference` oracle in JavaScript). The local proxy `LLMAPIProvider/` (with its upstream keys) is needed only for the chat's formalization and the author API; neither is needed to run circuits; dependency records are in [dependencies.md](dependencies.md). Do not download a model or install an optional solver to run a symbolic example.
+Use Node.js 22.13 or newer, including the built-in `node:sqlite` module. The symbolic CLI uses Node built-ins and the root `package.json` has no third-party npm dependencies. SWI-Prolog and Z3 are optional reasoning backends and are not needed for the reference route (the `js-reference` oracle in JavaScript). TinyAgent (`TinyAgent/`, see below) with its provider keys is needed only for the chat's formalization, answer formulation and the author API; neither is needed to run circuits; dependency records are in [dependencies.md](dependencies.md). Do not download a model or install an optional solver to run a symbolic example.
 
 On the prepared ARM64 host, explicitly select the private native solvers:
 
@@ -90,7 +90,7 @@ CHATSOP_PORT=9998 CHATSOP_CHAT_DATA=/tmp/chatsop-data CHATSOP_CONFIG=config/my-r
 | --- | --- | --- |
 | **LLMDirect** (archived; `CodingAgent` and `LocalLLMDirect` likewise) | nothing: a session that names it runs the default step-by-step strategy, with `strategy_note` in the trace; the code is in `probably_obsolete/one-shot-formalization/` | — |
 | **InternalReasoningStepByStep** | the same short questions, but the questioning protocol is a base memory of wires and the JS oracle plans each next question | the Settings tab or `POST /v1/sessions/{id}/settings {"formalizer": "InternalReasoningStepByStep"}`; the tier ladder by default, [docs/runtime.html](docs/runtime.html#local-formalizer) |
-| **LocalLLMStepByStep** (default) | the symbolic system asks short questions and assembles the circuit | default; the tier ladder of the proxy (`tiny`, `small`, `good`; a session's `formalizer_model` names the tier it starts at); an explicit `queryParser.local.endpoint` or `gguf` selects a llama-server; [docs/runtime.html](docs/runtime.html#local-formalizer) |
+| **LocalLLMStepByStep** (default) | the symbolic system asks short questions and assembles the circuit | default; the TinyAgent tier ladder (`tiny`, `small`, `good`; a session's `formalizer_model` names the tier it starts at); the answering model is always a TinyAgent tier (a local GGUF is configured as a TinyAgent provider and tier); [docs/runtime.html](docs/runtime.html#local-formalizer) |
 
 `formalizer: null` uses the server default (LocalLLMStepByStep). A turn whose strategy cannot run on this server is refused with 503 `parse_unavailable` naming the strategy (`GET /v1/status` lists each strategy with `available` and the reason); it is never silently replaced by another. Whatever strategy wrote the circuit, the same admission, linking, retrieval, routing, verification and rendering follow.
 
@@ -102,6 +102,20 @@ curl -H "Authorization: Bearer $CHATSOP_API_KEY" -H 'Content-Type: application/j
   http://127.0.0.1:9999/v1/chat/completions
 curl -H "Authorization: Bearer $CHATSOP_API_KEY" http://127.0.0.1:9999/v1/status
 ```
+
+## Models: TinyAgent
+
+Every model call of ChatSOP goes through **TinyAgent** (`TinyAgent/`, manual [TinyAgent/README.md](TinyAgent/README.md)): one server per machine (`node TinyAgent/bin/tinyagent.mjs serve`, OpenAI/Anthropic-compatible on `http://127.0.0.1:18080`) that routes requests by **tier**, applies rate, plan and budget limits, caches responses, keeps the audit store, starts and stops the local model servers, and runs batch jobs, tasks and skills. No other component calls a model API: code uses the library (`tinyAgent({purpose})` of `lib/tinyagent.mjs`), command lines and agents use the CLI; a client starts the server when none runs.
+
+```sh
+node TinyAgent/bin/tinyagent.mjs serve                     # the server (first start writes ~/.tinyagent/)
+node TinyAgent/bin/tinyagent.mjs chat --tier tiny "Say hello"
+node TinyAgent/bin/tinyagent.mjs job jobs/books-direct-calibration --stage pilot
+node TinyAgent/bin/tinyagent.mjs skills                    # built-in skills, ChatSOP's SkillPlugins, job folders, task templates
+node TinyAgent/bin/tinyagent.mjs stats                     # use, costs, plan windows, fallbacks, cache
+```
+
+Clients name a tier, never a model: `nano`, `micro` and `tiny` are local models, `small`, `medium` and `good` are cloud models with fallbacks, and `best` is served by `tiny` until a stronger model is configured; with no provider key only the local tiers serve. Every request carries a purpose (`chat`, `formalize`, `answer-*`, `ingest`, `job:<name>`, `review:<run>`, `skill:<name>`, `test:<name>`), which also sets its priority class: a person waiting is served first, background work runs only on spare capacity. The user's keys, request log, cache, audit store and runs live in `~/.tinyagent/` (outside the repository); ChatSOP's configuration layer is `config/tinyagent.json` (tiers, the job runner, SkillPlugins in `jobs/skills/`), its role prompts are in `config/prompts/`, and the runs of its jobs are written to `state/llm-jobs/`.
 
 ## Base memories from documents (learning by ingestion)
 

@@ -56,7 +56,11 @@ export class TinyAgentUnavailable extends Error {
 export function createTinyAgent({ url = null, fetchImpl = null, purpose, run = null, client = null, cache = null, priority = null, token = null, autostart = null, config = null, env = process.env } = {}) {
   if (!purpose || typeof purpose !== 'string') throw new TypeError('createTinyAgent: a purpose tag is required (for example "job:<name>", "chat", "test:<name>")');
   const base = String(url ?? env.TINYAGENT_URL ?? env[OLD_ENV.url] ?? DEFAULT_URL).replace(/\/v1\/?$/, '').replace(/\/+$/, '');
-  const transport = fetchImpl ?? httpFetch; // no fixed 300 s header timeout: a long model call ends only at its own timeout
+  // Under node --test a client without an injected transport or an explicit server never reaches the machine's real server: a test
+  // must not call a model (tests inject a fake transport or point `url` at a stub).
+  const isolated = !fetchImpl && !url && env.NODE_TEST_CONTEXT && !env.TINYAGENT_URL;
+  const transport = isolated ? async () => { throw Object.assign(new TypeError('fetch failed'), { cause: { code: 'ECONNREFUSED (a test without an injected TinyAgent transport)' } }); }
+    : fetchImpl ?? httpFetch; // no fixed 300 s header timeout: a long model call ends only at its own timeout
   // Auto-start (owner, 2026-10-03): a client on this machine starts the server when none answers, unless it brought its own transport
   // (tests, the server's own skills), runs under node --test, or TINYAGENT_AUTOSTART=0.
   const local = /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(base);

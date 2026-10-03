@@ -27,8 +27,7 @@ test('formalization is step by step: the strategies are named and selectable; ar
   assert.match(resolveStrategy('CodingAgent').note, /archived/);
   assert.equal(resolveStrategy('InternalReasoningStepByStep').note, null);
   assert.equal(queryParserSettings({}, {CHATSOP_FORMALIZER: 'InternalReasoningStepByStep'}).strategy, 'InternalReasoningStepByStep');
-  assert.equal(queryParserSettings({queryParser: {local: {alias: 'small'}}}, {}).local.slots.join(','), 'steps,reasoning');
-  assert.equal(queryParserSettings({}, {}).local.tier, 'tiny', 'the step-by-step model is the proxy tier tiny');
+  assert.equal(queryParserSettings({}, {}).local.tier, 'tiny', 'the step-by-step model is the TinyAgent tier tiny');
   assert.deepEqual(queryParserSettings({queryParser: {local: {ladder: ['tiny', 'small', {tier: 'good', extraBody: {reasoning: {enabled: false}}}]}}}, {}).models, ['tiny', 'small', 'good']);
   assert.throws(() => checkStrategy('Guess'), e => e.code === 'invalid_strategy');
 });
@@ -44,7 +43,7 @@ test('the tier ladder: smallest first; a preferred first tier starts the ladder 
 
 test('a turn runs the strategy the session chose; an archived name runs the default with a note in the parse record', async () => {
   const {runs, factory} = stubLocal();
-  const parser = createQueryParser({settings: queryParserSettings({queryParser: {local: {alias: 'qwen-test', endpoint: 'http://127.0.0.1:9/v1'}}}, {}), localFactory: factory});
+  const parser = createQueryParser({settings: queryParserSettings({queryParser: {local: {alias: 'qwen-test'}}}, {}), localFactory: factory});
   const done = await parser.parse({message: 'Is Ana cleared?', lexicon, strategy: 'LocalLLMStepByStep'});
   assert.equal(done.parse.strategy, 'LocalLLMStepByStep');
   assert.equal(done.parse.parser, 'local_llm_step_by_step');
@@ -82,7 +81,7 @@ test('per-question escalation: an unreadable answer goes up the ladder with the 
   await assert.rejects(none.read('kind', 'Which?', readNumber, 'Reply with one number.'), e => e instanceof Unreadable);
 });
 
-test('the tier strategy sends each rung to its proxy tier and reports the tiers that answered', async () => {
+test('the tier strategy sends each rung to its TinyAgent tier and reports the tiers that answered', async () => {
   const {localStrategy, ladderUsage} = await import('../lib/formalize/strategies.mjs');
   const bodies = [];
   const fetchImpl = async (url, init) => {
@@ -93,7 +92,7 @@ test('the tier strategy sends each rung to its proxy tier and reports the tiers 
     const text = body.model === 'tiny' ? 'I am not sure' : '1';
     return {ok: true, text: async () => JSON.stringify({choices: [{message: {content: text}}], usage: {}})};
   };
-  const s = localStrategy('LocalLLMStepByStep', {tier: 'tiny', ladder: ['tiny', 'small'], method: 'B'}, {fetchImpl, proxyEndpoint: 'http://proxy.test/v1'});
+  const s = localStrategy('LocalLLMStepByStep', {tier: 'tiny', ladder: ['tiny', 'small'], method: 'B'}, {fetchImpl});
   assert.deepEqual(s.ladder, ['tiny', 'small']);
   assert.equal((await s.availability()).available, true);
   const r = await s.run({message: 'Is Ana cleared?', lexicon});
@@ -103,27 +102,34 @@ test('the tier strategy sends each rung to its proxy tier and reports the tiers 
   assert.deepEqual(ladderUsage([{tier: 'tiny', ok: true}, {tier: 'tiny', ok: true, escalated: true}, {tier: 'small', ok: true}]), {answered: {tiny: 1, small: 1}, escalated: [{question: undefined, tier: 'tiny'}]});
 });
 
-test('the strategies listing reports a local endpoint that does not answer as unavailable, without starting anything', async () => {
-  const parser = createQueryParser({settings: queryParserSettings({queryParser: {local: {endpoint: 'http://127.0.0.1:9/v1'}}}, {}),
-    fetchImpl: async () => { throw new Error('connection refused'); }});
+test('the strategies listing reports a TinyAgent server that does not answer, or an explicit endpoint, as unavailable, without starting anything', async () => {
+  const parser = createQueryParser({settings: queryParserSettings({queryParser: {}}, {}), fetchImpl: async () => { throw new Error('ECONNREFUSED'); }});
   const listed = await parser.strategies();
   assert.deepEqual(listed.map(s => s.id), ['LocalLLMStepByStep', 'InternalReasoningStepByStep']);
   const local = listed.find(s => s.id === 'LocalLLMStepByStep');
   assert.equal(local.available, false);
-  assert.match(local.reason, /does not answer/);
+  assert.match(local.reason, /TinyAgent server not reachable/);
+  let asked = false;
+  const endpoint = createQueryParser({settings: queryParserSettings({queryParser: {local: {endpoint: 'http://127.0.0.1:9/v1'}}}, {}), fetchImpl: async () => { asked = true; throw new Error('ECONNREFUSED'); }});
+  const refused = (await endpoint.strategies()).find(s => s.id === 'LocalLLMStepByStep');
+  assert.equal(refused.available, false);
+  assert.match(refused.reason, /must be a TinyAgent tier/);
+  assert.equal(asked, false, 'an explicit endpoint is refused without a request');
 });
 
-test('the step-by-step strategies ask the proxy tier tiny: no llama-server is managed, readiness comes from the proxy /health', async () => {
+test('the step-by-step strategies ask the TinyAgent tier tiny: no model server is managed, readiness comes from the TinyAgent /health', async () => {
   const {localStrategy, usesTier} = await import('../lib/formalize/strategies.mjs');
   assert.equal(usesTier({tier: 'tiny'}), true);
-  assert.equal(usesTier({tier: 'tiny', gguf: '/m.gguf'}), false, 'an explicit GGUF (evaluation harnesses) keeps the managed server');
+  assert.equal(usesTier({tier: 'tiny', gguf: '/m.gguf'}), false, 'an explicit GGUF is no TinyAgent tier');
+  assert.throws(() => localStrategy('LocalLLMStepByStep', {tier: 'tiny', gguf: '/m.gguf'}), e => e.code === 'invalid_strategy' && /TinyAgent provider/.test(e.message), 'a GGUF is configured as a TinyAgent provider, never started here');
+  assert.throws(() => localStrategy('LocalLLMStepByStep', {endpoint: 'http://127.0.0.1:9/v1'}), e => e.code === 'invalid_strategy');
   const seen = [];
   const health = tiers => async url => { seen.push(url); return {ok: true, json: async () => ({ok: true, tiers})}; };
-  let factoryCalled = false;
-  const tier = localStrategy('LocalLLMStepByStep', {}, {serverFactory: () => { factoryCalled = true; return {}; }, fetchImpl: health([{id: 'tiny', x_tier: {serves: 'local/Qwen3-4B'}}]), proxyEndpoint: 'http://proxy.test/v1'});
-  assert.equal(factoryCalled, false, 'no server is created');
+  const tier = localStrategy('LocalLLMStepByStep', {}, {fetchImpl: health([{id: 'tiny', x_tier: {serves: 'local/Qwen3.6-35B-A3B'}}])});
   assert.deepEqual(await tier.availability(), {available: true, models: ['tiny'], skipped: []});
-  assert.equal(seen[0], 'http://proxy.test/health');
-  const missing = localStrategy('InternalReasoningStepByStep', {}, {fetchImpl: health([]), proxyEndpoint: 'http://proxy.test/v1'});
+  assert.equal(new URL(seen[0]).pathname, '/health');
+  const missing = localStrategy('InternalReasoningStepByStep', {}, {fetchImpl: health([])});
   assert.match((await missing.availability()).reason, /tier tiny is not available/);
+  const failing = localStrategy('LocalLLMStepByStep', {}, {fetchImpl: health([{id: 'tiny', x_tier: {error: 'no provider of the chain has a key'}}])});
+  assert.match((await failing.availability()).reason, /no provider of the chain has a key/);
 });

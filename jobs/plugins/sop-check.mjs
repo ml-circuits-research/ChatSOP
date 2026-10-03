@@ -1,5 +1,5 @@
 /**
- * LLMJobs checks plugin of ChatSOP: the reply (format text) is a SOP program. It must pass the knowledge validator (authoring mode,
+ * Job-runner checks plugin of ChatSOP (TinyAgent jobs): the reply (format text) is a SOP program. It must pass the knowledge validator (authoring mode,
  * warnings ignored) and, when the item has a source `text` (a chunk of an attachment), every `quote` must be a contiguous passage
  * of it (lib/ingest/checks.mjs). Parameters: `params.sop_role` (default "knowledge").
  */

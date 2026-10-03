@@ -150,8 +150,8 @@ export function createServer({config,repo,lexicon,authTokens,auth=null,base='dem
  const pages=createSignedInRoutes();
  let active=0;const busy=new Set();
  const accepted=new Set([model]);
- // The request parser (DS009 "Request parser"): the step-by-step formalizer asks its questions to the proxy tier ladder through
- // LLMAPIProvider; no path runs omp and no model writes a whole circuit (owner 2026-10-02).
+ // The request parser (DS009 "Request parser"): the step-by-step formalizer asks its questions to the tier ladder through the
+ // TinyAgent server; no path runs omp and no model writes a whole circuit (owner 2026-10-02).
  const queryParser=injected??createQueryParser({settings:queryParserSettings(config),chatData});
  // Answer formulation in the user's language (server/answer-language.mjs); a server with an injected request parser (tests) has none unless one is injected too.
  const answerFormulator=injectedFormulator!==undefined?injectedFormulator:injected?null:createAnswerFormulator({settings:answerLanguageSettings(config)});

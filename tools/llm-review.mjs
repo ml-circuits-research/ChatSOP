@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Bulk review -> automatic repair -> check -> re-review with a cheap model through the local proxy (lib/llm-review).
+ * Bulk review -> automatic repair -> check -> re-review with a cheap model through the TinyAgent server (lib/llm-review).
  * Runs without an LLM controller; only unresolved items are escalated, as escalations.jsonl plus a summary of at most 10 lines.
  *
  *   node tools/llm-review.mjs run --kind knowledge-wires --input items.jsonl --out DIR
@@ -10,13 +10,13 @@
  *
  * Items (JSONL): {"id","material","work","context_id"?,"context"?,"meta"?: {"vocabulary"?: "<declarations the check needs>"}}.
  * Review kinds live in config/review/<kind>/ (kind.json, review.md, repair.md). Outputs in DIR: findings.jsonl, repaired.jsonl,
- * escalations.jsonl, summary.md, run.json (cost per stage, from the model's usage.cost and from the proxy log), all inside
+ * escalations.jsonl, summary.md, run.json (cost per stage, from the model's usage.cost and from TinyAgent's statistics), all inside
  * DIR/<run-id>/ so that no run overwrites another.
  */
 import {readFileSync, writeFileSync, mkdirSync} from 'node:fs';
-import {homedir} from 'node:os';
 import {join} from 'node:path';
-import {loadKind, reviewLoop, chat, proxyCost, score} from '../lib/llm-review/index.mjs';
+import {loadKind, reviewLoop, chat, score} from '../lib/llm-review/index.mjs';
+import {tinyAgent} from '../lib/tinyagent.mjs';
 import {validateProgram} from '../sop/knowledge/index.mjs';
 
 const args = process.argv.slice(2);
@@ -52,7 +52,7 @@ async function run() {
   const kind = loadKind(kindName);
   const d = kind.defaults ?? {};
   const model = opt('model', d.model ?? 'deepseek/deepseek-v4-flash');
-  const baseUrl = opt('base-url', d.baseUrl ?? 'http://127.0.0.1:18080/u/openrouter/v1');
+  const upstream = opt('provider', d.provider ?? 'openrouter');
   const reasoning = opt('reasoning', d.reasoning ?? 'off');
   const maxTokens = Number(opt('max-tokens', d.maxTokens ?? 8000));
   const budget = Number(opt('budget', d.budgetTokens ?? 80000));
@@ -63,21 +63,22 @@ async function run() {
   mkdirSync(out, {recursive: true});
   const t0 = Date.now();
   const log = m => console.error(`[${runId}] ${m}`);
-  const call = ({system, user}) => chat({baseUrl, model, system, user, clientName: runId, reasoning, maxTokens});
+  const call = ({system, user}) => chat({upstream, model, system, user, clientName: runId, reasoning, maxTokens});
   log(`${items.length} items, kind ${kindName}, model ${model}, reasoning ${reasoning}`);
   const r = await reviewLoop({items, kind, call, check: makeCheck(kind), budgetTokens: budget, repair: !flag('no-repair'), concurrency: Number(opt('concurrency', 4)), log});
   writeJsonl(join(out, 'findings.jsonl'), r.findings);
   writeJsonl(join(out, 'repaired.jsonl'), r.repaired);
   writeJsonl(join(out, 'escalations.jsonl'), r.escalations);
   const ledger = {stages: r.ledger.stages, total: r.ledger.total()};
-  const dataDir = process.env.LLMAPIPROVIDER_DATA || join(homedir(), '.local/share/llmapiprovider');
-  const proxy = proxyCost({dataDir, client: runId, since: t0 - 1000});
+  // TinyAgent's own count of this run's calls (its statistics by purpose), next to the ledger of the replies.
+  let proxy = null;
+  try { proxy = (await tinyAgent({purpose: `review:${runId}`}).stats()).last24h?.by_purpose?.[`review:${runId}`] ?? null; } catch { /* the server's statistics are optional here */ }
   const usd = ledger.total.usd;
   const run = {
-    run: runId, kind: kindName, model, base_url: baseUrl, reasoning, input, started: new Date(t0).toISOString(), ms: Date.now() - t0,
+    run: runId, kind: kindName, model, provider: upstream, reasoning, input, started: new Date(t0).toISOString(), ms: Date.now() - t0,
     items: r.items, flagged: r.flagged.length, confirmed: r.confirmed.length, dismissed_by_second_opinion: r.dismissed.length, noted_low: r.noted.length,
     repaired: r.repaired.length, escalated: r.escalations.length,
-    cost: {cheap_model_usd: +usd.toFixed(6), usd_per_100_items: r.items ? +(usd * 100 / r.items).toFixed(6) : null, proxy_log: proxy, ...ledger},
+    cost: {cheap_model_usd: +usd.toFixed(6), usd_per_100_items: r.items ? +(usd * 100 / r.items).toFixed(6) : null, tinyagent_stats: proxy, ...ledger},
     orchestrator: {escalated_items: r.escalations.length, note: 'only escalations.jsonl and summary.md are meant for an expensive orchestrator'},
     flagged_ids: r.flagged, confirmed_ids: r.confirmed, dismissed: r.dismissed, noted: r.noted,
   };
@@ -88,7 +89,7 @@ async function run() {
     `# LLM review ${runId} (${kindName}, ${model})`,
     `items ${r.items}; flagged ${r.flagged.length}; confirmed ${r.confirmed.length}; dismissed by second opinion ${r.dismissed.length}; low only ${r.noted.length}`,
     `repaired automatically ${r.repaired.length} (validator passed, re-review clean); escalated ${r.escalations.length}${r.escalations.length ? ' (' + Object.entries(reasons).map(([k, v]) => `${k} ${v}`).join(', ') + ')' : ''}`,
-    `cheap-model cost ${usd.toFixed(4)} USD (${ledger.total.calls} calls, ${ledger.total.in_tokens} in / ${ledger.total.out_tokens} out tokens); proxy log ${proxy.usd.toFixed(4)} USD over ${proxy.calls} calls`,
+    `cheap-model cost ${usd.toFixed(4)} USD (${ledger.total.calls} calls, ${ledger.total.in_tokens} in / ${ledger.total.out_tokens} out tokens); TinyAgent counted ${proxy ? `${proxy.usd.toFixed(4)} USD over ${proxy.calls} calls` : 'nothing (statistics unavailable)'}`,
     ...r.escalations.slice(0, 5).map(e => `- ${e.id}: ${e.reason}: ${(e.problem || e.detail || '').slice(0, 160)}`),
     r.escalations.length > 5 ? `- ... ${r.escalations.length - 5} more in escalations.jsonl` : null,
   ].filter(Boolean).slice(0, 10);

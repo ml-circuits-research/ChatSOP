@@ -1,0 +1,394 @@
+{
+  "_note": "ChatSOP's TinyAgent layer (over TinyAgent/config.default.json and ~/.tinyagent/config.json). Owner rules: clients name a tier, never a model; every model call of the project goes through the TinyAgent server (node TinyAgent/bin/tinyagent.mjs serve, port 18080). Keys: ~/.tinyagent/keys/<provider>.env. Paths are relative to the repository root (baseDir).",
+  "baseDir": "..",
+  "promptsDir": "config/prompts",
+  "compat": {
+    "oldHeaders": true,
+    "_note": "phase 1: responses also carry the old header names for callers not yet migrated (TinyAgent/lib/legacy.mjs); removed in phase 2"
+  },
+  "providers": {
+    "local": {
+      "_note": "tiny (owner decision 2026-10-03, MoE A/B of experiments/proposal/structure-and-formalizer-models.md section 9): Qwen3.6-35B-A3B UD-Q4_K_M (MoE, about 3B active), always on: started with the TinyAgent server (startAtBoot) and restarted on demand; GPU reservation lock files block a start. 8 slots of 16k tokens, as the server ran before TinyAgent (measured: about 66 tokens/s for one request, 118 tokens/s aggregate at 4 busy slots, 22.8 GB GPU memory; with 8 busy slots each request drops below 20 tokens/s).",
+      "start": {
+        "bin": "~/llama-cpp-venv/llama.cpp/build/bin/llama-server",
+        "gguf": "models/qwen3.6-35b-a3b/gguf/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf",
+        "alias": "Qwen3.6-35B-A3B",
+        "slots": 8,
+        "ctxPerSlot": 16384,
+        "args": [
+          "-ngl",
+          "99",
+          "-fa",
+          "on",
+          "--jinja",
+          "--no-webui"
+        ],
+        "locks": [
+          "models/.training.lock",
+          "models/.parse-gpu.lock"
+        ],
+        "requireFreeGpu": false,
+        "startTimeoutMs": 300000,
+        "idleStopMs": 0,
+        "startAtBoot": true
+      },
+      "limits": {
+        "maxConcurrent": 8
+      }
+    },
+    "localsuper": {
+      "_note": "micro (formerly supertiny, owner 2026-10-03): Qwen3-4B-Instruct-2507 Q4_K_M, on demand, stopped after 15 idle minutes, 32 slots.",
+      "start": {
+        "bin": "~/llama-cpp-venv/llama.cpp/build/bin/llama-server",
+        "gguf": "models/qwen3-4b-instruct/gguf/q4_k_m.gguf",
+        "alias": "Qwen3-4B",
+        "slots": 32,
+        "ctxPerSlot": 4096,
+        "args": [
+          "-ngl",
+          "99",
+          "-fa",
+          "on",
+          "--jinja",
+          "--no-webui",
+          "--cache-reuse",
+          "256"
+        ],
+        "locks": [
+          "models/.training.lock",
+          "models/.parse-gpu.lock"
+        ],
+        "requireFreeGpu": false,
+        "startTimeoutMs": 120000,
+        "idleStopMs": 900000,
+        "startAtBoot": false
+      }
+    },
+    "localnano": {
+      "_note": "nano (owner 2026-10-03): the official Qwen3-0.6B Q8_0 GGUF (Qwen/Qwen3-0.6B-GGUF), on demand, stopped after 15 idle minutes, 32 slots.",
+      "start": {
+        "bin": "~/llama-cpp-venv/llama.cpp/build/bin/llama-server",
+        "gguf": "models/qwen3-0.6b/gguf/Qwen3-0.6B-Q8_0.gguf",
+        "alias": "Qwen3-0.6B",
+        "slots": 32,
+        "ctxPerSlot": 4096,
+        "args": [
+          "-ngl",
+          "99",
+          "-fa",
+          "on",
+          "--jinja",
+          "--no-webui",
+          "--cache-reuse",
+          "256"
+        ],
+        "locks": [
+          "models/.training.lock",
+          "models/.parse-gpu.lock"
+        ],
+        "requireFreeGpu": false,
+        "startTimeoutMs": 120000,
+        "idleStopMs": 900000,
+        "startAtBoot": false
+      }
+    }
+  },
+  "tiers": {
+    "_note": "owner 2026-10-02: clients and jobs name a tier, never a concrete model. A tier is a chain of {upstream, model}; the first usable entry serves, the rest is its fallback. best is unconfigured (pro models via OpenRouter later): a request for it is an error. equivalence (owner 2026-10-03): a very small, fast model that only decides whether two short answers are equivalent (A implies B and B implies A); today the local Qwen3-4B, no fallback; used only after deterministic normalization fails. structure and formalizer (owner 2026-10-03): the PSM (GLiNER2.5 base, POST /v1/structure) and the LFM (T5-base NL-to-FOL, POST /v1/fol) on the local small-model service; JSON endpoints, not chat; no fallback. Owner 2026-10-03: the backends of structure and formalizer are swappable: structure and formalizer name one of the variant tiers below; a variant with `prompt` is a chat model with a role prompt (prompts/<name>.md, TinyAgent/lib/prompted.mjs) under the same JSON contract: structure-gliner (GLiNER2.5), structure-tiny (Qwen3-4B + psm-v1), formalizer-t5 (T5-base), formalizer-t5-3b (T5-3B), formalizer-tiny (Qwen3-4B + fol-v1), formalizer-llama-fol (Llama-3.2-1B NL2FOL + fol-plain-v1). MoE A/B (owner 2026-10-03): tiny-moe-qwen (Qwen3.6-35B-A3B) with structure-moe-qwen and formalizer-moe-qwen under the same role prompts; an on-demand local upstream (exclusiveGroup ondemand), no fallback; kept pending the owner's decision on the A/B (Nemotron and the small thinking models lost and were removed). Control (owner 2026-10-03): structure-good and formalizer-good, the good tier's model (deepseek-v4.1-flash, cloud) under the same role prompts with reasoning (effort medium, 32k budget), to separate a weak model from a limit of the method or the converters. Owner decision 2026-10-03 (MoE A/B, section 9 of experiments/proposal/structure-and-formalizer-models.md): tiny is Qwen3.6-35B-A3B on the always-on upstream local (fallback medium's deepseek-v4-flash); supertiny is the former tiny Qwen3-4B on the on-demand upstream localsuper (fallback tiny, then medium's model); equivalence names supertiny; structure-tiny and formalizer-tiny (and thus structure and formalizer) run on the MoE, structure-supertiny and formalizer-supertiny keep the 4B variants; the *-moe-qwen names are aliases of the tiny variants. FOL repair (owner 2026-10-03): the prompted formalizer tiers use fol-v2 (the constructs the converter of lib/formalize/fol now reads: disjunctive and IFF conclusions, universal conditions, value rules, comparisons as conditions, unknowns with Integer/Maximize/Minimize, pow); fol-v1 stays for replaying earlier runs. Owner 2026-10-03: use the openference plan more: medium = openference DeepSeek-V4-Flash-0731 (plan, 0.75 credit/call), OpenRouter as fallback. openference DeepSeek-V4.1-Flash and Kimi K2.6 are billed from a credit balance, not the plan; good stays on OpenRouter deepseek-v4.1-flash. Owner 2026-10-03: openference everywhere, OpenRouter only as fallback: good = openference GLM-5.3 (plan, 2 credits/call), fallback OpenRouter deepseek-v4.1-flash. Metacognition (owner 2026-10-03): formalizer names formalizer-tiny-v3, the tiny model under fol-v3 (fol-v2 plus options as SUPPOSE, ASSUME, and the questions Effect, Explain, Missing, Why, Change, Assumed that the converter lowers to candidate wires and mode effect/abduce/why_not/explain); formalizer-tiny keeps fol-v2 for replays. A/B in wire-type-proposals.md P-1. Owner 2026-10-03 (TinyAgent): nano = local Qwen3-0.6B; micro = the former supertiny Qwen3-4B (supertiny stays an alias during the migration); best is served by tiny until a pro model is configured. Owner 2026-10-03 (fol-v3 agent's finding): GLM-5.3 ignored max_tokens and reasoned for up to 20 minutes per call; owner decision 2026-10-03 evening: good = openference DeepSeek-V4-Flash-0731 (plan, 0.75 credit/call), fallback OpenRouter deepseek-v4.1-flash; structure-good and formalizer-good follow. The good entries keep a duration cap (timeoutMs 290000): a runaway call is cut, reported as upstream_timeout, never cached, and falls back down the chain.",
+    "nano": [
+      {
+        "upstream": "localnano",
+        "model": "Qwen3-0.6B"
+      }
+    ],
+    "micro": [
+      {
+        "upstream": "localsuper",
+        "model": "Qwen3-4B"
+      },
+      {
+        "upstream": "local",
+        "model": "Qwen3.6-35B-A3B"
+      },
+      {
+        "upstream": "openference",
+        "model": "DeepSeek-V4-Flash-0731"
+      },
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4-flash"
+      }
+    ],
+    "supertiny": "micro",
+    "tiny": [
+      {
+        "upstream": "local",
+        "model": "Qwen3.6-35B-A3B"
+      },
+      {
+        "upstream": "openference",
+        "model": "DeepSeek-V4-Flash-0731"
+      },
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4-flash"
+      }
+    ],
+    "small": [
+      {
+        "upstream": "openference",
+        "model": "Qwen3.8 27b"
+      },
+      {
+        "upstream": "openference",
+        "model": "DeepSeek-V4-Flash-0731"
+      },
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4-flash"
+      }
+    ],
+    "medium": [
+      {
+        "upstream": "openference",
+        "model": "DeepSeek-V4-Flash-0731"
+      },
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4-flash"
+      }
+    ],
+    "good": [
+      {
+        "upstream": "openference",
+        "model": "DeepSeek-V4-Flash-0731",
+        "timeoutMs": 290000
+      },
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4.1-flash"
+      }
+    ],
+    "equivalence": "micro",
+    "structure": "structure-tiny",
+    "formalizer": "formalizer-tiny-v3",
+    "structure-tiny": [
+      {
+        "upstream": "local",
+        "model": "Qwen3.6-35B-A3B",
+        "prompt": "psm-v1",
+        "extraBody": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      }
+    ],
+    "formalizer-tiny": [
+      {
+        "upstream": "local",
+        "model": "Qwen3.6-35B-A3B",
+        "prompt": "fol-v2",
+        "extraBody": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      }
+    ],
+    "formalizer-tiny-v3": [
+      {
+        "upstream": "local",
+        "model": "Qwen3.6-35B-A3B",
+        "prompt": "fol-v3",
+        "extraBody": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      }
+    ],
+    "tiny-moe-qwen": "tiny",
+    "structure-moe-qwen": "structure-tiny",
+    "formalizer-moe-qwen": "formalizer-tiny",
+    "structure-good": [
+      {
+        "upstream": "openference",
+        "model": "DeepSeek-V4-Flash-0731",
+        "prompt": "psm-v1",
+        "maxTokens": 32000,
+        "maxTokensCap": 32000,
+        "timeoutMs": 290000
+      },
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "prompt": "psm-v1",
+        "maxTokens": 32000,
+        "maxTokensCap": 32000,
+        "extraBody": {
+          "reasoning": {
+            "effort": "medium"
+          }
+        }
+      }
+    ],
+    "formalizer-good": [
+      {
+        "upstream": "openference",
+        "model": "DeepSeek-V4-Flash-0731",
+        "prompt": "fol-v2",
+        "maxTokens": 32000,
+        "maxTokensCap": 32000,
+        "timeoutMs": 290000
+      },
+      {
+        "upstream": "openrouter",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "prompt": "fol-v2",
+        "maxTokens": 32000,
+        "maxTokensCap": 32000,
+        "extraBody": {
+          "reasoning": {
+            "effort": "medium"
+          }
+        }
+      }
+    ],
+    "structure-supertiny": "structure-micro",
+    "formalizer-supertiny": "formalizer-micro",
+    "structure-micro": [
+      {
+        "upstream": "localsuper",
+        "model": "Qwen3-4B",
+        "prompt": "psm-v1",
+        "extraBody": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      }
+    ],
+    "formalizer-micro": [
+      {
+        "upstream": "localsuper",
+        "model": "Qwen3-4B",
+        "prompt": "fol-v2",
+        "extraBody": {
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          }
+        }
+      }
+    ]
+  },
+  "fallback": {
+    "_note": "owner 2026-10-02: when openference is unavailable (unreachable or 5xx after retry.max5xx retries, 429 after retry.max retries or with retry-after above maxWaitMs, or a queue/plan-gate wait above maxWaitMs) a request for a mapped model goes to this upstream and model. Response header x-tinyagent-fallback; opt out per request with x-llmapiprovider-no-fallback: 1.",
+    "from": "openference",
+    "upstream": "openrouter",
+    "models": {
+      "Qwen3.8 27b": "deepseek/deepseek-v4-flash"
+    },
+    "maxWaitMs": 120000
+  },
+  "compare": {
+    "_note": "USD per 1M tokens. DeepSeek official prices from https://api-docs.deepseek.com/quick_start/pricing (read 2026-10-02): deepseek-flash (DeepSeek-V4.1-Flash) cache hit 0.006/0.003, cache miss 0.30/0.15, output 1.20/0.60 at peak/off-peak (off-peak is half; peak 01:00-04:00 and 06:00-10:00 UTC on weekdays). Re-check before deciding.",
+    "deepseek-official-peak": {
+      "inputUsdPerM": 0.3,
+      "outputUsdPerM": 1.2,
+      "cachedInputUsdPerM": 0.006
+    },
+    "deepseek-official-offpeak": {
+      "inputUsdPerM": 0.15,
+      "outputUsdPerM": 0.6,
+      "cachedInputUsdPerM": 0.003
+    },
+    "openrouter-deepseek-v4-flash": {
+      "inputUsdPerM": 0.028,
+      "outputUsdPerM": 0.056,
+      "cachedInputUsdPerM": 0.028,
+      "_note": "OpenRouter list price read 2026-10-02 (tier medium)"
+    }
+  },
+  "policy": {
+    "_note": "owner 2026-10-02: LLM batch work runs as registered jobs (the TinyAgent job runner) with a budget per run; requests carry x-tinyagent-purpose. Allowed purposes pass; any other request (no purpose or an unknown one) counts against a small daily allowance and is refused beyond it (403 untagged_limit). A registered run is refused at its budget (402 budget_exceeded) and after it finished (403 run_finished).",
+    "allowedPurposes": [
+      "chat",
+      "formalize",
+      "answer-*",
+      "ingest",
+      "job:*",
+      "review:*",
+      "test:*",
+      "skill:*",
+      "run:*"
+    ],
+    "untaggedDailyMax": 100,
+    "keepDays": 7
+  },
+  "interactive": {
+    "_note": "owner 2026-10-02: a person waiting (chat turn, formalization, answer wording) goes first in every upstream queue and falls back down its tier chain after maxWaitMs instead of queueing behind batch jobs",
+    "purposes": [
+      "chat",
+      "formalize",
+      "answer-*"
+    ],
+    "maxWaitMs": 15000
+  },
+  "background": {
+    "_note": "owner 2026-10-03: background work (header x-tinyagent-priority: background, a job's \"priority\": \"background\", or a purpose listed here) runs only when nothing else waits and, on a plan provider, only while the plan keeps 30% of its rate and quota windows free for interactive and normal work; it is held, never refused.",
+    "share": 0.7,
+    "purposes": []
+  },
+  "cache": {
+    "defaultMode": "use",
+    "_note": "owner 2026-10-02: responses are cached by default (the same request gets the same answer; the reasoner reacts to context changes, the formalization need not vary). Key = the whole request body + target tier/upstream + model identity (local GGUF size and mtime). Header x-tinyagent-cache: off | use | strict (a miss is refused, for regressions) | record. Only complete non-streamed 200 answers from the tier's first model are stored. Dir ~/.tinyagent/cache/."
+  },
+  "audit": {
+    "enabled": true,
+    "tiers": [
+      "tiny",
+      "small",
+      "medium"
+    ],
+    "upstreams": [
+      "local"
+    ],
+    "maxBytesPerDay": 209715200,
+    "maxDays": 14,
+    "maxCharsPerField": 200000
+  },
+  "runner": {
+    "_note": "The job runner of ChatSOP: run folders under state/llm-jobs/ (gitignored); the task template library jobs/templates/; roles (owner 2026-10-02): planner and decider good, auditor medium, worker small, worker-short tiny.",
+    "dataDir": "state/llm-jobs",
+    "templatesDir": "jobs/templates",
+    "roles": {
+      "planner": "good",
+      "decider": "good",
+      "auditor": "medium",
+      "worker": "small",
+      "worker-short": "tiny"
+    },
+    "limits": {
+      "maxTaskUsd": 2,
+      "maxTaskCredits": 100,
+      "maxTaskCalls": 2000
+    },
+    "tasks": {
+      "keepDays": 7
+    }
+  },
+  "skills": {
+    "_note": "ChatSOP's SkillPlugins (jobs/skills/) and its job folders as skills; the task templates of jobs/templates/ are skills too.",
+    "plugins": [
+      "jobs/skills"
+    ],
+    "jobs": {
+      "smalltalk-replies": "jobs/smalltalk-replies",
+      "smalltalk-judge": "jobs/smalltalk-judge",
+      "books-triage": "jobs/books-triage",
+      "books-direct-calibration": "jobs/books-direct-calibration",
+      "formalization-improve": "jobs/formalization-improve"
+    }
+  }
+}
